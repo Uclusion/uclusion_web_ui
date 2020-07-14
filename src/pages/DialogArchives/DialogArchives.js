@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import Screen from '../../containers/Screen/Screen'
@@ -32,6 +32,7 @@ function DialogArchives(props) {
   const { location: { pathname } } = history;
   const { marketId } = decomposeMarketPath(pathname);
   const [assigneeFilter, setAssigneeFilter] = useState('');
+  const [filteredMarketId, setFilteredMarketId] = useState(undefined);
   const [marketsState] = useContext(MarketsContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -66,7 +67,15 @@ function DialogArchives(props) {
   function onFilterChange(event) {
     const { value } = event.target;
     setAssigneeFilter(value);
+    setFilteredMarketId(marketId);
   }
+
+  useEffect(() => {
+    if (filteredMarketId && filteredMarketId !== marketId) {
+      setFilteredMarketId(undefined);
+      setAssigneeFilter('');
+    }
+  }, [filteredMarketId, marketId]);
 
   if (!marketId) {
     return (

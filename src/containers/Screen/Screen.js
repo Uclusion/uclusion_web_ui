@@ -84,11 +84,16 @@ function Screen(props) {
   if (!_.isEmpty(messagesState)) {
     const { messages } = messagesState;
     let hasYellow = false;
+    const pageHash = {};
     if (!_.isEmpty(messages)) {
       messages.forEach((message) => {
         const { level } = message;
         if (level === 'RED') {
-          prePendWarning += '!';
+          const hash = `${message.marketId}_${message.investibleId}`;
+          if (!(hash in pageHash)) {
+            pageHash[hash] = message;
+            prePendWarning += '!';
+          }
         } else if (level === 'YELLOW') {
           hasYellow = true;
         }

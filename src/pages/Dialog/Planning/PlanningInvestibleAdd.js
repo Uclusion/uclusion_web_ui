@@ -42,7 +42,7 @@ function PlanningInvestibleAdd(props) {
     marketId, classes, onCancel, onSave, storedState, onSpinComplete, createdAt, storyMaxBudget, allowMultiVote
   } = props;
   const intl = useIntl();
-  const { description: storedDescription, name: storedName, assignments: storedAssignments,
+  const { description: storedDescription, name: storedName, assignments: storedAssignments, storedUrlAssignee,
     days_estimate: storedDaysEstimate } = storedState;
   const [draftState, setDraftState] = useState(storedState);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -50,11 +50,28 @@ function PlanningInvestibleAdd(props) {
   const [currentValues, setCurrentValues] = useState(emptyInvestible);
   const [description, setDescription] = useState(storedDescription);
   const [uploadedFiles, setUploadedFiles] = useState([]);
-  const [assignments, setAssignments] = useState(storedAssignments);
+  const history = useHistory();
+  function getUrlAssignee() {
+    const { location } = history;
+    const { hash } = location;
+    if (!_.isEmpty(hash)) {
+      const values = queryString.parse(hash);
+      const { assignee } = values;
+      return [assignee];
+    }
+    return undefined;
+  }
+  function choosePreviouslyAssigned() {
+    const urlAssignee = getUrlAssignee();
+    if (storedAssignments && (!urlAssignee || storedUrlAssignee === urlAssignee)) {
+      return storedAssignments;
+    }
+    return urlAssignee;
+  }
+  const [assignments, setAssignments] = useState(choosePreviouslyAssigned());
   const [validForm, setValidForm] = useState(false);
   const [daysEstimate, setDaysEstimate] = useState(storedDaysEstimate);
   const { name } = currentValues;
-  const history = useHistory();
   const [marketState] = useContext(MarketsContext);
   const [investibleState] = useContext(InvestiblesContext);
   const [presencesState] = useContext(MarketPresencesContext);
@@ -73,17 +90,6 @@ function PlanningInvestibleAdd(props) {
   const tourPreferences = userPreferences.tours || {};
   const { completedTours } = tourPreferences;
   const safeCompletedTours = _.isArray(completedTours)? completedTours : [];
-
-  function getUrlAssignee() {
-    const { location } = history;
-    const { hash } = location;
-    if (!_.isEmpty(hash)) {
-      const values = queryString.parse(hash);
-      const { assignee } = values;
-      return [assignee];
-    }
-    return undefined;
-  }
 
   useEffect(() => {
     // Long form to prevent flicker
@@ -131,7 +137,7 @@ function PlanningInvestibleAdd(props) {
 
   function onAssignmentsChange(newAssignments) {
     setAssignments(newAssignments);
-    handleDraftState({ ...draftState, assignments: newAssignments });
+    handleDraftState({ ...draftState, assignments: newAssignments, storedUrlAssignee: getUrlAssignee() });
   }
 
   function onEditorChange(description) {
@@ -236,7 +242,7 @@ function PlanningInvestibleAdd(props) {
           <AssignmentList
             marketId={marketId}
             onChange={onAssignmentsChange}
-            previouslyAssigned={storedAssignments || getUrlAssignee()}
+            previouslyAssigned={choosePreviouslyAssigned()}
           />
           <fieldset className={classes.fieldset}>
             <legend>optional</legend>

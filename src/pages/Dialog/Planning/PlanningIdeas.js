@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import { useHistory } from 'react-router'
 import { Link, Tooltip, Typography } from '@material-ui/core'
@@ -7,8 +7,10 @@ import { red, yellow } from '@material-ui/core/colors'
 import { FormattedDate, FormattedMessage, useIntl } from 'react-intl'
 import { formInvestibleLink, formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions'
 import clsx from 'clsx'
-import { checkInProgressWarning, checkReviewWarning } from './PlanningDialog'
+import { checkInProgressWarning, checkReviewWarning, checkVotingWarning } from './PlanningDialog'
 import { DaysEstimate } from '../../../components/AgilePlan'
+import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 
 const warningColor = red["400"];
 
@@ -50,6 +52,8 @@ function PlanningIdeas(props) {
   } = props;
   const intl = useIntl();
   const classes = usePlanningIdStyles();
+  const [marketPresencesState] = useContext(MarketPresencesContext);
+  const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const warnAccepted = checkInProgressWarning(investibles, comments, acceptedStageId, presenceId, marketId);
   return (
     <dl className={classes.stages}>
@@ -68,6 +72,7 @@ function PlanningIdeas(props) {
           marketId={marketId}
           presenceId={presenceId}
           activeMarket={activeMarket}
+          marketPresences={marketPresences}
         />
       </div>
       <div>
@@ -178,7 +183,9 @@ function Stage(props) {
     updatedText,
     warnAccepted,
     isReview,
+    isVoting,
     showCompletion,
+    marketPresences,
   } = props;
 
   const stageInvestibles = investibles.filter(investible => {
@@ -220,7 +227,8 @@ function Stage(props) {
                 marketId={marketId}
                 marketInfo={marketInfo}
                 updatedText={updatedText}
-                showWarning={isReview ? checkReviewWarning(investible, comments) : false}
+                showWarning={isReview ? checkReviewWarning(investible, comments) :
+                  isVoting ? checkVotingWarning(investible.id, marketPresences) : false}
                 showCompletion={showCompletion}
               />
             </li>
@@ -251,7 +259,7 @@ const useVotingStageClasses = makeStyles(
 );
 
 function VotingStage(props) {
-  const { className, marketId, presenceId, activeMarket, ...other } = props;
+  const { className, marketId, presenceId, activeMarket, marketPresences, ...other } = props;
 
   const classes = useVotingStageClasses();
   const intl = useIntl();
@@ -282,6 +290,8 @@ function VotingStage(props) {
           </React.Fragment>
       }
       marketId={marketId}
+      isVoting
+      marketPresences={marketPresences}
       updatedText={intl.formatMessage({
         id: "inDialogInvestiblesUpdatedAt"
       })}

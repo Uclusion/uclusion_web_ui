@@ -61,6 +61,7 @@ import {
   INVITE_REQ_WORKSPACE_FIRST_VIEW,
   INVITE_STORIES_WORKSPACE_FIRST_VIEW
 } from '../../../contexts/TourContext/tourContextHelper'
+import { getVoteTotalsForUser } from '../../../utils/userFunctions'
 
 const useStyles = makeStyles(
   () => ({
@@ -412,6 +413,19 @@ export function checkReviewWarning(investible, comments) {
       && commentType !== JUSTIFY_TYPE;
   });
   return !_.isEmpty(openComments);
+}
+
+export function checkVotingWarning(investibleId, marketPresences) {
+  let count = 0;
+  marketPresences.forEach(presence => {
+    const userInvestments = getVoteTotalsForUser(presence);
+    Object.keys(userInvestments).forEach((investible_id) => {
+      if (investible_id === investibleId) {
+        count++;
+      }
+    });
+  });
+  return count < 1;
 }
 
 function InvestiblesByPerson(props) {

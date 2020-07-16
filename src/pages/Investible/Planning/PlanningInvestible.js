@@ -623,7 +623,7 @@ function PlanningInvestible(props) {
           </Grid>
         </CardContent>
       </Card>
-      {isInVoting && activeMarket && (canVote ? (
+      {isInVoting && activeMarket && isAdmin && (canVote ? (
             <YourVoting
               investibleId={investibleId}
               marketPresences={marketPresences}

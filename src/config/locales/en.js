@@ -280,7 +280,7 @@ const messages = defineMessages({
   planningInvestibleFurtherWorkExplanation: 'Move to this stage when a handoff to another assignee is expected for this story',
   planningInvestibleVotingExplanation: 'Move to voting allows certainty and estimates to be re-collected',
   planningVotingStageLabel: 'Proposed',
-  planningVotingStageDescription: 'Multiple stories can be assigned to the same person in Proposed. Approvals collected while in Proposed will expire if the story is not started.',
+  planningVotingStageDescription: 'Multiple stories can be assigned to the same person in Proposed. Approvals collected while in Proposed will expire if the story is not started. Stories with zero approvals show red.',
   planningAcceptedStageLabel: 'In Progress',
   planningAcceptedStageDescription: 'Each person can have only one story In Progress per workspace. A story In Progress past its estimated completion date will show yellow until a progress report is entered.',
   planningBlockedStageLabel: 'Blocked',

@@ -9,14 +9,12 @@ function EditMarketButton(props) {
   const [operationRunning] = useContext(OperationInProgressContext);
   const {
     onClick,
-    marketId,
     labelId,
   } = props;
 
   return (
     <TooltipIconButton
       id="adminEdit"
-      marketId={marketId}
       onClick={onClick}
       disabled={operationRunning}
       key="exit"

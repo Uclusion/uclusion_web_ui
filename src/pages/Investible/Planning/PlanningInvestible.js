@@ -93,9 +93,12 @@ import { DaysEstimate } from '../../../components/AgilePlan'
 import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
 import AttachedFilesList from '../../../components/Files/AttachedFilesList'
-import { attachFilesToInvestible, deleteAttachedFilesFromInvestible } from '../../../api/investibles'
+import { attachFilesToInvestible, changeLabels, deleteAttachedFilesFromInvestible } from '../../../api/investibles'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import ShareStoryButton from './ShareStoryButton'
+import Chip from '@material-ui/core/Chip'
+import Autocomplete from '@material-ui/lab/Autocomplete'
+import TextField from '@material-ui/core/TextField'
 
 const useStyles = makeStyles(
   theme => ({
@@ -176,6 +179,16 @@ const useStyles = makeStyles(
     editRow: {
       height: '4rem'
     },
+    fullWidthCentered: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      display: "flex",
+      marginTop: '20px',
+      [theme.breakpoints.down("xs")]: {
+        maxWidth: '100%',
+        flexBasis: '100%'
+      }
+    },
     fullWidth: {
       [theme.breakpoints.down("xs")]: {
         maxWidth: '100%',
@@ -222,7 +235,7 @@ function PlanningInvestible(props) {
   const presencesFollowing = (marketPresences || []).filter((presence) => presence.following && !presence.market_banned) || [];
   const everyoneAssigned = !_.isEmpty(marketPresences) && assigned.length === presencesFollowing.length;
   const { investible } = marketInvestible;
-  const { description, name, locked_by: lockedBy, created_at: createdAt } = investible;
+  const { description, name, locked_by: lockedBy, created_at: createdAt, label_list: labelList } = investible;
   let lockedByName;
   if (lockedBy) {
     const lockedByPresence = marketPresences.find(
@@ -301,6 +314,7 @@ function PlanningInvestible(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [commentsState] = useContext(CommentsContext);
   const [changeStagesExpanded, setChangeStagesExpanded] = useState(false);
+  const [newLabel, setNewLabel] = useState(undefined);
   if (!investibleId) {
     // we have no usable data;
     return <></>;
@@ -334,10 +348,25 @@ function PlanningInvestible(props) {
     });
   }
 
-  function hasEnoughVotes (myInvested, myRequired) {
+  function hasEnoughVotes(myInvested, myRequired) {
     // if everyone is assigned, then we can't require any votes as nobody can vote
     const required = everyoneAssigned? 0 : myRequired !== undefined ? myRequired : 1;
     return _.size(myInvested) >= required;
+  }
+
+  function deleteLabel(aLabel) {
+    const newLabels = labelList.filter((label) => aLabel !== label);
+    const newLabelList = newLabels ? newLabels : [];
+    changeLabels(marketId, investibleId, newLabelList);
+  }
+
+  function labelInputOnChange(event, value) {
+    setNewLabel(value);
+  }
+
+  function addLabel() {
+    const formerLabels = labelList ? labelList : [];
+    changeLabels(marketId, investibleId, [...formerLabels, newLabel]);
   }
 
   function getSidebarActions() {
@@ -521,6 +550,10 @@ function PlanningInvestible(props) {
   function toggleAssign() {
     navigate(history, `${formInvestibleEditLink(marketId, investibleId)}#assign=true`);
   }
+  const defaultProps = {
+    options: ['The Shawshank Redemption', 'The Godfather'],
+    getOptionLabel: (option) => option,
+  };
   const subtype = isInVoting ? IN_VOTING :
     isInAccepted ? IN_PROGRESS :
       isInReview ? IN_REVIEW :
@@ -620,6 +653,32 @@ function PlanningInvestible(props) {
                 actions={getSidebarActions()}
               />
             </Grid>
+          </Grid>
+          <Grid item xs={9} className={classes.fullWidthCentered}>
+            {labelList && labelList.map((label) =>
+              <div key={label}><Chip label={label} onDelete={()=>deleteLabel(`${label}`)} color="primary" /></div>
+            )}
+            {!inArchives && isAdmin && (
+              <>
+                <div style={{ width: 200, marginTop: '-27px', paddingLeft: '50px' }}>
+                  <Autocomplete
+                    {...defaultProps}
+                    id="addLabel"
+                    freeSolo
+                    renderInput={(params) => <TextField {...params} label="Add label" margin="normal" />}
+                    onChange={labelInputOnChange}
+                  />
+                </div>
+                {newLabel && (
+                  <IconButton
+                    className={classes.noPad}
+                    onClick={addLabel}
+                  >
+                    <AddIcon htmlColor={ACTION_BUTTON_COLOR}/>
+                  </IconButton>
+                )}
+              </>
+            )}
           </Grid>
         </CardContent>
       </Card>

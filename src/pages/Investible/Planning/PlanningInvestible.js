@@ -83,7 +83,8 @@ import ProposedIdeas from '../../Dialog/Decision/ProposedIdeas'
 import {
   addInvestible,
   getMarketInvestibles,
-  getMarketLabels
+  getMarketLabels,
+  refreshInvestibles
 } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
@@ -317,7 +318,8 @@ function PlanningInvestible(props) {
     : isRequiresInput
     ? intl.formatMessage({ id: "requiresInputStageLabel" }) :
           intl.formatMessage({ id: "planningNotDoingStageLabel" });
-  const [investiblesState] = useContext(InvestiblesContext);
+  const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
+  const [, diffDispatch] = useContext(DiffContext);
   const labels = getMarketLabels(investiblesState, marketId);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [commentsState] = useContext(CommentsContext);
@@ -364,9 +366,15 @@ function PlanningInvestible(props) {
     return _.size(myInvested) >= required;
   }
 
+  function changeLabelsAndQuickAdd(marketId, investibleId, newLabels) {
+    changeLabels(marketId, investibleId, newLabels).then((fullInvestible) =>{
+      refreshInvestibles(investiblesDispatch, diffDispatch, [fullInvestible]);
+    });
+  }
+
   function deleteLabel(aLabel) {
     const newLabels = labelList.filter((label) => aLabel !== label) || [];
-    changeLabels(marketId, investibleId, newLabels);
+    changeLabelsAndQuickAdd(marketId, investibleId, newLabels);
   }
 
   function labelInputOnChange(event, value) {
@@ -379,7 +387,7 @@ function PlanningInvestible(props) {
 
   function addLabel() {
     const formerLabels = labelList ? labelList : [];
-    changeLabels(marketId, investibleId, [...formerLabels, newLabel]);
+    changeLabelsAndQuickAdd(marketId, investibleId, [...formerLabels, newLabel]);
     setNewLabel(undefined);
     setClearMeHack(clearMeHack+clearMeHack);
   }

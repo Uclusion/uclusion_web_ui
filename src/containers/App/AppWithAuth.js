@@ -25,6 +25,8 @@ import {
 } from '../../components/utils'
 import _ from 'lodash'
 import { decomposeMarketPath } from '../../utils/marketIdPathFunctions'
+import queryString from 'query-string'
+
 
 LogRocket.init(config.logRocketInstance)
 
@@ -58,7 +60,7 @@ function AppWithAuth(props) {
   const classes = useStyles();
   const history = useHistory();
   const { location } = history;
-  const { pathname, hash } = location;
+  const { pathname, hash, search } = location;
   const { marketId: marketToken, action } = decomposeMarketPath(pathname);
   // console.debug(location);
   const messages = {
@@ -134,7 +136,8 @@ function AppWithAuth(props) {
     }
     return message;
   };
-  const authState = (!_.isEmpty(hash) && (hash.toUpperCase() === '#SIGNUP'))||(action === 'invite')? 'signUp' : 'signIn';
+  const email = queryString.parse(search || '');
+  const authState = (!_.isEmpty(hash) && (hash.toUpperCase() === '#SIGNUP'))||(action === 'invite') || email.email ? 'signUp' : 'signIn';
   return (
     <div className={classes.root}>
       <IntlProvider locale={locale} key={locale} messages={messages}>

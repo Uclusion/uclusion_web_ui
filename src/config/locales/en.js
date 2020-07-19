@@ -133,6 +133,8 @@ const messages = defineMessages({
   selectDate: 'Click to select a date',
   advanced: 'Advanced',
   close: 'Close',
+  typeOrChoose: 'Type and hit enter or choose from dropdown',
+  addLabel: 'Add label',
 
   // Share story
   shareButtonExplanation: 'Share a read only link',

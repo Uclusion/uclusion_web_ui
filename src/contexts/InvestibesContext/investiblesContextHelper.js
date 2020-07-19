@@ -20,8 +20,17 @@ export function getMarketInvestibles(state, marketId) {
   });
 }
 
+export function getMarketLabels(state, marketId) {
+  const investibles = getMarketInvestibles(state, marketId);
+  let labels = [];
+  investibles.forEach((inv) => {
+    const { investible: { label_list: labelList } } = inv;
+    labels = _.union(labels, labelList);
+  });
+  return labels;
+}
+
 export function getInvestible(state, investibleId) {
-  // // console.debug(state);
   return state[investibleId];
 }
 

@@ -80,7 +80,11 @@ import SubSection from '../../../containers/SubSection/SubSection'
 import { EMPTY_SPIN_RESULT, SECTION_TYPE_SECONDARY } from '../../../constants/global'
 import CurrentVoting from '../../Dialog/Decision/CurrentVoting'
 import ProposedIdeas from '../../Dialog/Decision/ProposedIdeas'
-import { addInvestible, getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
+import {
+  addInvestible,
+  getMarketInvestibles,
+  getMarketLabels
+} from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
@@ -113,6 +117,9 @@ const useStyles = makeStyles(
       [theme.breakpoints.down("sm")]: {
         padding: "3px 21px 42px 21px"
       }
+    },
+    explain: {
+      fontSize: 12,
     },
     title: {
       fontSize: 32,
@@ -311,10 +318,13 @@ function PlanningInvestible(props) {
     ? intl.formatMessage({ id: "requiresInputStageLabel" }) :
           intl.formatMessage({ id: "planningNotDoingStageLabel" });
   const [investiblesState] = useContext(InvestiblesContext);
+  const labels = getMarketLabels(investiblesState, marketId);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [commentsState] = useContext(CommentsContext);
   const [changeStagesExpanded, setChangeStagesExpanded] = useState(false);
   const [newLabel, setNewLabel] = useState(undefined);
+  const [clearMeHack, setClearMeHack] = useState('a');
+  const [labelFocus, setLabelFocus] = useState(false);
   if (!investibleId) {
     // we have no usable data;
     return <></>;
@@ -355,18 +365,23 @@ function PlanningInvestible(props) {
   }
 
   function deleteLabel(aLabel) {
-    const newLabels = labelList.filter((label) => aLabel !== label);
-    const newLabelList = newLabels ? newLabels : [];
-    changeLabels(marketId, investibleId, newLabelList);
+    const newLabels = labelList.filter((label) => aLabel !== label) || [];
+    changeLabels(marketId, investibleId, newLabels);
   }
 
   function labelInputOnChange(event, value) {
     setNewLabel(value);
   }
 
+  function labelInputFocus() {
+    setLabelFocus(!labelFocus);
+  }
+
   function addLabel() {
     const formerLabels = labelList ? labelList : [];
     changeLabels(marketId, investibleId, [...formerLabels, newLabel]);
+    setNewLabel(undefined);
+    setClearMeHack(clearMeHack+clearMeHack);
   }
 
   function getSidebarActions() {
@@ -550,8 +565,9 @@ function PlanningInvestible(props) {
   function toggleAssign() {
     navigate(history, `${formInvestibleEditLink(marketId, investibleId)}#assign=true`);
   }
+  const availableLabels = _.difference(labels, labelList);
   const defaultProps = {
-    options: ['The Shawshank Redemption', 'The Godfather'],
+    options: availableLabels,
     getOptionLabel: (option) => option,
   };
   const subtype = isInVoting ? IN_VOTING :
@@ -656,19 +672,25 @@ function PlanningInvestible(props) {
           </Grid>
           <Grid item xs={9} className={classes.fullWidthCentered}>
             {labelList && labelList.map((label) =>
-              <div key={label}><Chip label={label} onDelete={()=>deleteLabel(`${label}`)} color="primary" /></div>
+              <div key={label} style={{ paddingRight: '10px'  }}>
+                <Chip label={label} onDelete={()=>deleteLabel(`${label}`)} color="primary" />
+              </div>
             )}
             {!inArchives && isAdmin && (
-              <>
-                <div style={{ width: 200, marginTop: '-27px', paddingLeft: '50px' }}>
-                  <Autocomplete
-                    {...defaultProps}
-                    id="addLabel"
-                    freeSolo
-                    renderInput={(params) => <TextField {...params} label="Add label" margin="normal" />}
-                    onChange={labelInputOnChange}
-                  />
-                </div>
+              <div style={{ display: 'flex', marginLeft: '30px', padding: '10px'  }}>
+                <Autocomplete
+                  {...defaultProps}
+                  id="addLabel"
+                  key={clearMeHack}
+                  freeSolo
+                  renderInput={(params) => <TextField {...params}
+                                                      label={intl.formatMessage({ id: 'addLabel' })}
+                                                      variant="outlined" />}
+                  style={{ width: 230 }}
+                  onFocus={labelInputFocus}
+                  onBlur={labelInputFocus}
+                  onChange={labelInputOnChange}
+                />
                 {newLabel && (
                   <IconButton
                     className={classes.noPad}
@@ -677,7 +699,14 @@ function PlanningInvestible(props) {
                     <AddIcon htmlColor={ACTION_BUTTON_COLOR}/>
                   </IconButton>
                 )}
-              </>
+                {!newLabel && labelFocus && (
+                  <div style={{ marginLeft: '10px', width: 90 }}>
+                    <Typography key="completeExplain" className={classes.explain}>
+                      {intl.formatMessage({ id: 'typeOrChoose' })}
+                    </Typography>
+                  </div>
+                )}
+              </div>
             )}
           </Grid>
         </CardContent>

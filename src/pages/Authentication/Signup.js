@@ -167,9 +167,14 @@ function reducer(state, action) {
 function Signup(props) {
   const classes = useStyles();
   const { authState, action, marketToken, onStateChange } = props;
+  const history = useHistory();
+  const { location } = history;
+  const { search } = location;
+  const values = queryString.parse(search || '');
+  const { signUpWith, email: qryEmail } = values || {};
   const empty = {
     name: '',
-    email: '',
+    email: qryEmail ? qryEmail : '',
     password: '',
     phone: '',
     repeat: '',
@@ -181,11 +186,6 @@ function Signup(props) {
   const [callActive, setCallActive] = useState(false);
   const [wasBlurred, setWasBlurred] = useState(false);
   const intl = useIntl();
-  const history = useHistory();
-  const { location } = history;
-  const { search } = location;
-  const values = queryString.parse(search || '');
-  const { signUpWith } = values || {};
   const [myLoading, setMyLoading] = useState(undefined);
   const [myMarket, setMyMarket] = useState(undefined);
   const SIGNUP_LOGO = 'Uclusion_Logo_White_Micro.png';

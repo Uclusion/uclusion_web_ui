@@ -11,6 +11,7 @@ import { checkInProgressWarning, checkReviewWarning, checkVotingWarning } from '
 import { DaysEstimate } from '../../../components/AgilePlan'
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
+import Chip from '@material-ui/core/Chip'
 
 const warningColor = red["400"];
 
@@ -343,6 +344,17 @@ const useBlockingStageStyles = makeStyles(theme => {
   };
 });
 
+const generalStageStyles = makeStyles(() => {
+  return {
+    chipClass: {
+      fontSize: 10,
+    },
+    chipsClass: {
+      display: "flex",
+    }
+  }
+});
+
 function BlockingStage(props) {
   const intl = useIntl();
   const classes = useBlockingStageStyles();
@@ -364,10 +376,11 @@ function BlockingStage(props) {
 function StageInvestible(props) {
   const { investible, marketId, marketInfo, updatedText, showWarning, showCompletion } = props;
   const { days_estimate: daysEstimate } = marketInfo;
-  const { id, name, created_at: createdAt } = investible;
+  const { id, name, created_at: createdAt, label_list: labelList } = investible;
   const history = useHistory();
   const to = formInvestibleLink(marketId, id);
   const safeChangeDate = Date.parse(marketInfo.last_stage_change_date);
+  const classes = generalStageStyles();
   return (
     <StageLink
       href={to}
@@ -384,6 +397,13 @@ function StageInvestible(props) {
       {showCompletion && daysEstimate && (
         <DaysEstimate readOnly value={daysEstimate} createdAt={createdAt} />
       )}
+      <div className={classes.chipsClass}>
+        {labelList && labelList.map((label) =>
+          <div key={label}>
+            <Chip label={label} className={classes.chipClass} color="primary" />
+          </div>
+        )}
+      </div>
     </StageLink>
   );
 }

@@ -20,7 +20,6 @@ import PhoneField, { phoneChecker } from '../../components/TextFields/PhoneField
 import { Helmet } from 'react-helmet'
 import { Auth } from 'aws-amplify'
 import { setRedirect } from '../../utils/redirectUtils'
-import Iframe from 'react-iframe'
 import { GithubLoginButton } from 'react-social-login-buttons'
 import { toastError } from '../../utils/userMessage'
 import queryString from 'query-string'

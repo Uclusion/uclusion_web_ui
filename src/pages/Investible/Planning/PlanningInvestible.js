@@ -596,7 +596,7 @@ function PlanningInvestible(props) {
       breadCrumbs={breadCrumbs}
       hidden={hidden}
     >
-      {activeMarket && isInVoting && isAssigned && enoughVotes && _.isEmpty(assignedInStage(investibles, userId, inAcceptedStage.id)) && (
+      {activeMarket && isInVoting && isAssigned && enoughVotes && _.size(invested) > 0 && _.isEmpty(assignedInStage(investibles, userId, inAcceptedStage.id)) && (
         <DismissableText textId='planningInvestibleEnoughVotesHelp' />
       )}
       {activeMarket && isInVoting && isAssigned && enoughVotes && !_.isEmpty(assignedInStage(investibles, userId, inAcceptedStage.id)) && (

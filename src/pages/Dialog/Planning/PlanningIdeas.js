@@ -74,6 +74,7 @@ function PlanningIdeas(props) {
           presenceId={presenceId}
           activeMarket={activeMarket}
           marketPresences={marketPresences}
+          comments={comments}
         />
       </div>
       <div>
@@ -229,7 +230,7 @@ function Stage(props) {
                 marketInfo={marketInfo}
                 updatedText={updatedText}
                 showWarning={isReview ? checkReviewWarning(investible, comments) :
-                  isVoting ? checkVotingWarning(investible.id, marketPresences) : false}
+                  isVoting ? checkReviewWarning(investible, comments) || checkVotingWarning(investible.id, marketPresences) : false}
                 showCompletion={showCompletion}
               />
             </li>
@@ -260,7 +261,7 @@ const useVotingStageClasses = makeStyles(
 );
 
 function VotingStage(props) {
-  const { className, marketId, presenceId, activeMarket, marketPresences, ...other } = props;
+  const { className, marketId, presenceId, activeMarket, comments, marketPresences, ...other } = props;
 
   const classes = useVotingStageClasses();
   const intl = useIntl();
@@ -291,6 +292,7 @@ function VotingStage(props) {
           </React.Fragment>
       }
       marketId={marketId}
+      comments={comments}
       isVoting
       marketPresences={marketPresences}
       updatedText={intl.formatMessage({

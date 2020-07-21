@@ -8,49 +8,39 @@
  We ALSO let you override the open etc, so you can play it when you
  need to from a link
  * */
-import React from 'react';
-import PropTypes from 'prop-types';
-import withAppConfigs from '../../utils/withAppConfigs';
-import ModalMovie from './ModalMovie';
-import { getUiPreference, setUiPreference } from '../../utils/userPreferencesFunctions';
-import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../utils';
-
+import React, { useContext } from 'react'
+import PropTypes from 'prop-types'
+import ModalMovie from './ModalMovie'
+import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../utils'
+import { getUiPreferences } from '../../contexts/AccountUserContext/accountUserContextHelper'
+import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
+import { updateUiPreferences } from '../../api/account'
+import { accountUserRefresh } from '../../contexts/AccountUserContext/accountUserContextReducer'
+import config from '../../config/config'
 
 function HelpMovie(props) {
-  // console.log('Rerendered help movie');
   const {
-    dispatch,
     name,
     open,
-    user,
-    appConfig,
     dontAutoOpen,
     onClose,
   } = props;
-
-  const helpMoviesSeen = 'helpMoviesSeen';
+  const [userState, userDispatch] = useContext(AccountUserContext);
+  const userPreferences = getUiPreferences(userState) || {};
+  const helpMoviesSeen = userPreferences.helpMoviesSeen || [];
 
   function getMovieUrl(name) {
-    const { helpMovies } = appConfig;
+    const { helpMovies } = config;
     return helpMovies[name];
-  }
-
-  function getMoviePrefs(user) {
-    return getUiPreference(user, helpMoviesSeen);
   }
 
   function getHasUserSeen() {
     // first check local storage. If it says they have seen, then don't play
     const moviesList = getUclusionLocalStorageItem(helpMoviesSeen) || {};
-    const seenMovie = moviesList[name];
-    if (seenMovie) {
+    if (moviesList[name]) {
       return true;
     }
-    if (user) {
-      const moviePrefs = getMoviePrefs(user);
-      return moviePrefs && moviePrefs[name];
-    }
-    return false;
+    return helpMoviesSeen && helpMoviesSeen.find((entry) => entry === name);
   }
 
   function getShouldBeOpen() {
@@ -65,14 +55,16 @@ function HelpMovie(props) {
   }
 
   function setNewUiPreferences() {
-    const moviePrefs = getUiPreference(user, helpMoviesSeen) || {};
-    moviePrefs[name] = true;
-    return setUiPreference(user, helpMoviesSeen, moviePrefs);
-  }
-
-  function updateUserPrefs() {
-    const newUser = setNewUiPreferences();
-  //  updateMyUiPrefereneces(newUser, dispatch);
+    const newSeen = [...helpMoviesSeen, name];
+    const newPreferences = {
+      ...userPreferences,
+      helpMoviesSeen: newSeen
+    };
+    updateUiPreferences(newPreferences)
+      .then((result) => {
+        const { user } = result;
+        userDispatch(accountUserRefresh(user));
+      });
   }
 
   function myOnClose() {
@@ -81,9 +73,7 @@ function HelpMovie(props) {
       const moviesList = getUclusionLocalStorageItem(helpMoviesSeen) || {};
       moviesList[name] = true;
       setUclusionLocalStorageItem(helpMoviesSeen, moviesList);
-      if (user) {
-        updateUserPrefs();
-      }
+      setNewUiPreferences();
     }
     if (onClose) {
       onClose();
@@ -104,22 +94,16 @@ function HelpMovie(props) {
 }
 
 HelpMovie.propTypes = {
-  dispatch: PropTypes.func.isRequired,
   name: PropTypes.string.isRequired,
-  // eslint-disable-next-line react/require-default-props
   open: PropTypes.bool,
-  // eslint-disable-next-line react/require-default-props
   dontAutoOpen: PropTypes.bool,
-  // eslint-disable-next-line react/forbid-prop-types
-  appConfig: PropTypes.object.isRequired,
-  // eslint-disable-next-line react/forbid-prop-types
-  user: PropTypes.object.isRequired,
   onClose: PropTypes.func,
 };
 
+HelpMovie.defaultProps = {
+  onClose: () => {},
+  dontAutoOpen: false,
+  open: false,
+};
 
-function mapDispatchToProps(dispatch) {
-  return { dispatch };
-}
-
-export default withAppConfigs(HelpMovie);
+export default HelpMovie;

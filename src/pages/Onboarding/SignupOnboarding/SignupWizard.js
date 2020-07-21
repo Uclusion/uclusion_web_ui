@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import OnboardingWizard from '../OnboardingWizard';
-import { useIntl } from 'react-intl';
-import WhatDoYouWantToDoStep from './WhatDoYouWantToDoStep';
-import StoryWorkspaceWizard from './Workspace/StoryWorkspace/StoryWorkspaceWizard';
-import RequirementsWorkspaceWizard from './Workspace/RequirementsWorkspace/RequirementsWorkspaceWizard';
-import DialogWizard from './Dialog/DialogWizard';
-import InitiativeWizard from './Initiative/InitiativeWizard';
+import React, { useEffect, useState } from 'react'
+import PropTypes from 'prop-types'
+import OnboardingWizard from '../OnboardingWizard'
+import { useIntl } from 'react-intl'
+import WhatDoYouWantToDoStep from './WhatDoYouWantToDoStep'
+import StoryWorkspaceWizard from './Workspace/StoryWorkspace/StoryWorkspaceWizard'
+import RequirementsWorkspaceWizard from './Workspace/RequirementsWorkspace/RequirementsWorkspaceWizard'
+import DialogWizard from './Dialog/DialogWizard'
+import InitiativeWizard from './Initiative/InitiativeWizard'
+import HelpMovie from '../../../components/ModalMovie/HelpMovie'
 
 function SignupWizard(props) {
 
@@ -43,13 +44,18 @@ function SignupWizard(props) {
       return <InitiativeWizard onStartOver={onStartOver} hidden={hidden}/>
     default:
       return (
-        <OnboardingWizard
-          hidden={hidden}
-          hideSteppers
-          onStartOver={onStartOver}
-          title={intl.formatMessage({ id: 'SignupWizardTitle'})}
-          stepPrototypes={stepPrototypes}
-        />
+        <>
+          {!hidden && (
+            <HelpMovie name="accountSignupHelp" />
+          )}
+          <OnboardingWizard
+            hidden={hidden}
+            hideSteppers
+            onStartOver={onStartOver}
+            title={intl.formatMessage({ id: 'SignupWizardTitle'})}
+            stepPrototypes={stepPrototypes}
+          />
+        </>
       );
   }
 }

@@ -53,102 +53,106 @@ function CreatingWorkspaceStep (props) {
       let inVotingStage;
       let myUserId;
       let createdMarketToken;
-      createPlanning(marketInfo)
-        .then((marketDetails) => {
-          const {
-            market,
-            presence,
-            stages,
-          } = marketDetails;
-          createdMarketId = market.id;
-          createdMarketToken = market.invite_capability;
-          setOperationStatus({ workspaceCreated: true, marketId: createdMarketId, marketToken: createdMarketToken });
-          myUserId = presence.id;
-          addMarketToStorage(marketsDispatch, diffDispatch, market);
-          pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, marketId: createdMarketId, stages });
-          addPresenceToMarket(presenceDispatch, createdMarketId, presence);
-          inVotingStage = stages.find((stage) => stage.allows_investment);
-          inProgressStage = stages.find((stage) => stage.singular_only);
-          // add the next story if you have it
-          const { nextStoryName, nextStoryDescription, nextStoryUploadedFiles, nextStorySkipped } = formData;
-          if (!_.isEmpty(nextStoryName) && !nextStorySkipped) {
-            const usedUploads = nextStoryUploadedFiles || [];
-            const processed = processTextAndFilesForSave(usedUploads, nextStoryDescription);
-            // add the story
+      async function doIt() {
+        await createPlanning(marketInfo)
+          .then((marketDetails) => {
+            const {
+              market,
+              presence,
+              stages,
+            } = marketDetails;
+            createdMarketId = market.id;
+            createdMarketToken = market.invite_capability;
+            setOperationStatus({ workspaceCreated: true, marketId: createdMarketId, marketToken: createdMarketToken });
+            myUserId = presence.id;
+            addMarketToStorage(marketsDispatch, diffDispatch, market);
+            pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, marketId: createdMarketId, stages });
+            addPresenceToMarket(presenceDispatch, createdMarketId, presence);
+            inVotingStage = stages.find((stage) => stage.allows_investment);
+            inProgressStage = stages.find((stage) => stage.singular_only);
+            // add the next story if you have it
+            const { nextStoryName, nextStoryDescription, nextStoryUploadedFiles, nextStorySkipped } = formData;
+            if (!_.isEmpty(nextStoryName) && !nextStorySkipped) {
+              const usedUploads = nextStoryUploadedFiles || [];
+              const processed = processTextAndFilesForSave(usedUploads, nextStoryDescription);
+              // add the story
+              const addInfo = {
+                marketId: createdMarketId,
+                name: nextStoryName,
+                description: processed.text,
+                uploadedFiles: processed.uploadedFiles,
+                assignments: [myUserId],
+              };
+              return addPlanningInvestible(addInfo);
+            }
+            return Promise.resolve(false);
+          })
+          .then((addedStory) => {
+            if (addedStory) {
+              addInvestible(investiblesDispatch, diffDispatch, addedStory);
+            }
+            const {
+              currentStoryUploadedFiles,
+              currentStoryName,
+              currentStoryDescription,
+              currentStoryEstimate,
+              currentStoryProgressSkipped,
+            } = formData;
+            const realUploadedFiles = currentStoryUploadedFiles || [];
+            const processed = processTextAndFilesForSave(realUploadedFiles, currentStoryDescription);
             const addInfo = {
               marketId: createdMarketId,
-              name: nextStoryName,
+              name: currentStoryName,
               description: processed.text,
               uploadedFiles: processed.uploadedFiles,
               assignments: [myUserId],
             };
-            return addPlanningInvestible(addInfo);
-          }
-          return Promise.resolve(false);
-        })
-        .then((addedStory) => {
-          if (addedStory) {
-            addInvestible(investiblesDispatch, diffDispatch, addedStory);
-          }
-          const {
-            currentStoryUploadedFiles,
-            currentStoryName,
-            currentStoryDescription,
-            currentStoryEstimate,
-            currentStoryProgressSkipped,
-          } = formData;
-          const realUploadedFiles = currentStoryUploadedFiles || [];
-          const processed = processTextAndFilesForSave(realUploadedFiles, currentStoryDescription);
-          const addInfo = {
-            marketId: createdMarketId,
-            name: currentStoryName,
-            description: processed.text,
-            uploadedFiles: processed.uploadedFiles,
-            assignments: [myUserId],
-          };
-          if (_.isNumber(currentStoryEstimate) && currentStoryEstimate > 0 && !currentStoryProgressSkipped) {
-            addInfo.daysEstimate = currentStoryEstimate;
-          }
-          return addPlanningInvestible(addInfo);
-        })
-        .then((investible) => {
-          investibleId = investible.investible.id;
-          const updateInfo = {
-            marketId: createdMarketId,
-            investibleId,
-            stageInfo: {
-              current_stage_id: inVotingStage.id,
-              stage_id: inProgressStage.id,
+            if (_.isNumber(currentStoryEstimate) && currentStoryEstimate > 0 && !currentStoryProgressSkipped) {
+              addInfo.daysEstimate = currentStoryEstimate;
             }
-          };
-          return stageChangeInvestible(updateInfo);
-        })
-        .then((investible) => {
-          addInvestible(investiblesDispatch, diffDispatch, investible);
-          const { currentStoryProgress, currentStoryProgressSkipped } = formData;
-          if (!_.isEmpty(currentStoryProgress) && !currentStoryProgressSkipped) {
-            return saveComment(createdMarketId, investibleId, undefined, currentStoryProgress, REPORT_TYPE, []);
-          } else {
-            return Promise.resolve(false);
-          }
-        })
-        .then((addedComment) => {
-          if (addedComment) {
-            addCommentToMarket(addedComment, commentsState, commentsDispatch, versionsDispatch);
-          }
-          if(isHome) {
-            onFinish(formData);
-            const link = formMarketManageLink(createdMarketId) + '#participation=true';
-            navigate(history, link);
-          } else {
-            onFinish(formData);
-            const marketLink = formMarketLink(createdMarketId);
-            navigate(history, `${marketLink}#onboarded=true`);
-          }
-        })
-        .catch(() => {
-          setOperationStatus({started: false, workspaceError: true});
-        });
+            return addPlanningInvestible(addInfo);
+          })
+          .then((investible) => {
+            investibleId = investible.investible.id;
+            const updateInfo = {
+              marketId: createdMarketId,
+              investibleId,
+              stageInfo: {
+                current_stage_id: inVotingStage.id,
+                stage_id: inProgressStage.id,
+              }
+            };
+            return stageChangeInvestible(updateInfo);
+          })
+          .then((investible) => {
+            addInvestible(investiblesDispatch, diffDispatch, investible);
+            const { currentStoryProgress, currentStoryProgressSkipped } = formData;
+            if (!_.isEmpty(currentStoryProgress) && !currentStoryProgressSkipped) {
+              return saveComment(createdMarketId, investibleId, undefined, currentStoryProgress, REPORT_TYPE, []);
+            } else {
+              return Promise.resolve(false);
+            }
+          })
+          .then((addedComment) => {
+            if (addedComment) {
+              addCommentToMarket(addedComment, commentsState, commentsDispatch, versionsDispatch);
+            }
+            if(isHome) {
+              onFinish(formData);
+              const link = formMarketManageLink(createdMarketId) + '#participation=true';
+              navigate(history, link);
+            } else {
+              onFinish(formData);
+              const marketLink = formMarketLink(createdMarketId);
+              navigate(history, `${marketLink}#onboarded=true`);
+            }
+          })
+          .catch(() => {
+            setOperationStatus({started: false, workspaceError: true});
+          });
+
+      }
+      doIt();
     }
   }, [active, commentsDispatch, commentsState, diffDispatch, onFinish,
     versionsDispatch, formData, investiblesDispatch, marketsDispatch, presenceDispatch, meetingName,

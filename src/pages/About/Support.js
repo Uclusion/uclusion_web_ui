@@ -89,15 +89,18 @@ function Support(props) {
 
   useEffect(() => {
     if (!externalId && !hidden) {
-      getSSOInfo().then((ssoInfo) => {
-        const { idToken, ssoClient } = ssoInfo;
-        return ssoClient.accountCognitoLogin(idToken).then((loginInfo) => {
-          const { user: myUser } = loginInfo;
-          const { external_id: myExternalId } = myUser;
-          setExternalId(myExternalId);
-          setUser(myUser);
-        });
-      }).catch((error) => toastErrorAndThrow(error, 'errorGetIdFailed'));
+      async function doIt () {
+        await getSSOInfo().then((ssoInfo) => {
+          const { idToken, ssoClient } = ssoInfo;
+          return ssoClient.accountCognitoLogin(idToken).then((loginInfo) => {
+            const { user: myUser } = loginInfo;
+            const { external_id: myExternalId } = myUser;
+            setExternalId(myExternalId);
+            setUser(myUser);
+          });
+        }).catch((error) => toastErrorAndThrow(error, 'errorGetIdFailed'));
+      }
+      doIt();
     }
   }, [externalId, hidden]);
   const breadCrumbs = makeBreadCrumbs(history, [], true);

@@ -47,7 +47,7 @@ function CreatingInitiativeStep (props) {
       text: tokensRemoved,
     } = processTextAndFilesForSave(realUploadedFiles, initiativeDescription);
     if (!started && !initiativeCreated && !initiativeError && active) {
-      setOperationStatus({started: true});
+      setOperationStatus({ started: true });
       const marketInfo = {
         name: 'NA',
         description: 'NA',
@@ -55,40 +55,46 @@ function CreatingInitiativeStep (props) {
       };
       let createdMarketId;
       let createdMarketToken;
-      createInitiative(marketInfo)
-        .then((result) => {
-          const {
-            market,
-            presence,
-            stages
-          } = result;
-          createdMarketId = market.id;
-          createdMarketToken = market.invite_capability;
-          const investibleInfo = {
-            marketId: createdMarketId,
-            uploadedFiles: filteredUploads,
-            description: tokensRemoved,
-            name: initiativeName,
-          };
-          addMarketToStorage(marketsDispatch, diffDispatch, market);
-          pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, marketId, stages });
-          addPresenceToMarket(presenceDispatch, marketId, presence);
-          return addDecisionInvestible(investibleInfo)
-            .then((investible) => {
-              const { investible: myInvestible } = investible;
-              const { id } = myInvestible;
-              addInvestible(investiblesDispatch, diffDispatch, investible);
-              setOperationStatus({ initiativeCreated: true, marketId: createdMarketId, investibleId: id,
-                marketToken: createdMarketToken });
-            });
-        }).then(() => {
-          if(isHome) {
-            onFinish({...formData, marketId: createdMarketId});
+
+      async function doIt () {
+        await createInitiative(marketInfo)
+          .then((result) => {
+            const {
+              market,
+              presence,
+              stages
+            } = result;
+            createdMarketId = market.id;
+            createdMarketToken = market.invite_capability;
+            const investibleInfo = {
+              marketId: createdMarketId,
+              uploadedFiles: filteredUploads,
+              description: tokensRemoved,
+              name: initiativeName,
+            };
+            addMarketToStorage(marketsDispatch, diffDispatch, market);
+            pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, marketId, stages });
+            addPresenceToMarket(presenceDispatch, marketId, presence);
+            return addDecisionInvestible(investibleInfo)
+              .then((investible) => {
+                const { investible: myInvestible } = investible;
+                const { id } = myInvestible;
+                addInvestible(investiblesDispatch, diffDispatch, investible);
+                setOperationStatus({
+                  initiativeCreated: true, marketId: createdMarketId, investibleId: id,
+                  marketToken: createdMarketToken
+                });
+              });
+          }).then(() => {
+          if (isHome) {
+            onFinish({ ...formData, marketId: createdMarketId });
           }
         })
-        .catch(() => {
-          setOperationStatus({ initiativeError: true, started: false});
-        });
+          .catch(() => {
+            setOperationStatus({ initiativeError: true, started: false });
+          });
+      }
+      doIt();
     }
   }, [diffDispatch, formData, active, investiblesDispatch, onFinish, marketsDispatch, operationStatus,
     setOperationStatus, presenceDispatch, isHome, history]);

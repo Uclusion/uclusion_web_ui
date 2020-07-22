@@ -84,18 +84,22 @@ function MarketInvite(props) {
       setMyLoading(marketToken);
       const values = queryString.parse(hash);
       const { is_obs: isObserver } = values;
-      getMarketFromInvite(marketToken, isObserver === 'true')
-        .then((result) => {
-          const { market } = result;
-          const { id, version} = market;
-          setMarketId(id);
-          addMarketToStorage(marketsDispatch, diffDispatch, market, false);
-          return pollForMarketLoad(id, version, versionsDispatch, history);
-        })
-        .catch((error) => {
-          console.error(error);
-          toastError('errorMarketFetchFailed');
-        });
+
+      async function doIt () {
+        await getMarketFromInvite(marketToken, isObserver === 'true')
+          .then((result) => {
+            const { market } = result;
+            const { id, version } = market;
+            setMarketId(id);
+            addMarketToStorage(marketsDispatch, diffDispatch, market, false);
+            return pollForMarketLoad(id, version, versionsDispatch, history);
+          })
+          .catch((error) => {
+            console.error(error);
+            toastError('errorMarketFetchFailed');
+          });
+      }
+      doIt();
     }
   }, [hidden, marketToken, history, hash, marketState, myLoading, diffDispatch, marketsDispatch, versionsDispatch, marketId]);
 

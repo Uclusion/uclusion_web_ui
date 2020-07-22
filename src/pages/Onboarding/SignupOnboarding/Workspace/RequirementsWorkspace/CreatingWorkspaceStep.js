@@ -44,7 +44,7 @@ function CreatingWorkspaceStep (props) {
       workspaceDescriptionUploadedFiles,
       } = formData;
     if (!started && !workspaceCreated && !workspaceError && active) {
-      setOperationStatus({started: true});
+      setOperationStatus({ started: true });
       const processed = processTextAndFilesForSave(workspaceDescriptionUploadedFiles, workspaceDescription);
       const marketInfo = {
         name: workspaceName,
@@ -54,43 +54,47 @@ function CreatingWorkspaceStep (props) {
       };
       let createdMarketId;
       let createdMarketToken;
-      createPlanning(marketInfo)
-        .then((marketDetails) => {
-          const {
-            market,
-            presence,
-            stages
-          } = marketDetails;
-          createdMarketId = market.id;
-          createdMarketToken = market.invite_capability;
-          setOperationStatus({ workspaceCreated: true, marketId: createdMarketId, marketToken: createdMarketToken });
-          addMarketToStorage(marketsDispatch, diffDispatch, market);
-          pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, marketId: createdMarketId, stages });
-          addPresenceToMarket(presenceDispatch, createdMarketId, presence);
-          const { todo, todoSkipped, todoUploadedFiles } = formData;
-          if (!_.isEmpty(todo) && !todoSkipped) {
-            const processed = processTextAndFilesForSave(todoUploadedFiles, todo);
-            return saveComment(createdMarketId, undefined, undefined, processed.text, TODO_TYPE, processed.uploadedFiles);
-          } else {
-            return Promise.resolve(false);
-          }
-        })
-        .then((addedComment) => {
-          if (addedComment) {
-            addCommentToMarket(addedComment, commentsState, commentsDispatch, versionsDispatch);
-          }
-        })
-        .then(() => {
-          //send them directly to the market invite if home
-          if(isHome) {
-            onFinish(formData);
-            const link = formMarketManageLink(createdMarketId) + '#participation=true';
-            navigate(history, link);
-          }
-        })
-        .catch(() => {
-          setOperationStatus({started: false, workspaceError: true});
-        });
+      async function doIt () {
+        await createPlanning(marketInfo)
+          .then((marketDetails) => {
+            const {
+              market,
+              presence,
+              stages
+            } = marketDetails;
+            createdMarketId = market.id;
+            createdMarketToken = market.invite_capability;
+            setOperationStatus({ workspaceCreated: true, marketId: createdMarketId, marketToken: createdMarketToken });
+            addMarketToStorage(marketsDispatch, diffDispatch, market);
+            pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, marketId: createdMarketId, stages });
+            addPresenceToMarket(presenceDispatch, createdMarketId, presence);
+            const { todo, todoSkipped, todoUploadedFiles } = formData;
+            if (!_.isEmpty(todo) && !todoSkipped) {
+              const processed = processTextAndFilesForSave(todoUploadedFiles, todo);
+              return saveComment(createdMarketId, undefined, undefined, processed.text, TODO_TYPE, processed.uploadedFiles);
+            } else {
+              return Promise.resolve(false);
+            }
+          })
+          .then((addedComment) => {
+            if (addedComment) {
+              addCommentToMarket(addedComment, commentsState, commentsDispatch, versionsDispatch);
+            }
+          })
+          .then(() => {
+            //send them directly to the market invite if home
+            if (isHome) {
+              onFinish(formData);
+              const link = formMarketManageLink(createdMarketId) + '#participation=true';
+              navigate(history, link);
+            }
+          })
+          .catch(() => {
+            setOperationStatus({ started: false, workspaceError: true });
+          });
+      }
+
+      doIt();
     }
   }, [active, commentsDispatch, commentsState, diffDispatch, onFinish, operationStatus, setOperationStatus,
     versionsDispatch, formData, marketsDispatch, presenceDispatch, isHome, history]);

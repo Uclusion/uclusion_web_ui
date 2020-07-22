@@ -1,23 +1,23 @@
-import React, { useContext, useEffect } from 'react'
-import PropTypes from 'prop-types'
-import { createDecision } from '../../../../api/markets'
-import { addMarketToStorage } from '../../../../contexts/MarketsContext/marketsContextHelper'
-import { processTextAndFilesForSave } from '../../../../api/files'
-import { addInvestibleToStage } from '../../../../api/investibles'
-import { DiffContext } from '../../../../contexts/DiffContext/DiffContext'
-import { InvestiblesContext } from '../../../../contexts/InvestibesContext/InvestiblesContext'
-import { MarketsContext } from '../../../../contexts/MarketsContext/MarketsContext'
-import { addInvestible } from '../../../../contexts/InvestibesContext/investiblesContextHelper'
-import { formMarketLink, navigate } from '../../../../utils/marketIdPathFunctions'
-import { useHistory } from 'react-router'
-import { addPresenceToMarket } from '../../../../contexts/MarketPresencesContext/marketPresencesHelper'
-import { MarketPresencesContext } from '../../../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { Button, CircularProgress, Typography } from '@material-ui/core'
-import { AllSequentialMap } from '../../../../utils/PromiseUtils'
-import { pushMessage } from '../../../../utils/MessageBusUtils'
-import { PUSH_STAGE_CHANNEL, VERSIONS_EVENT } from '../../../../contexts/VersionsContext/versionsContextHelper'
+import React, { useContext, useEffect } from 'react';
+import PropTypes from 'prop-types';
+import { createDecision } from '../../../../api/markets';
+import { addMarketToStorage } from '../../../../contexts/MarketsContext/marketsContextHelper';
+import { processTextAndFilesForSave } from '../../../../api/files';
+import { addInvestibleToStage } from '../../../../api/investibles';
+import { DiffContext } from '../../../../contexts/DiffContext/DiffContext';
+import { InvestiblesContext } from '../../../../contexts/InvestibesContext/InvestiblesContext';
+import { MarketsContext } from '../../../../contexts/MarketsContext/MarketsContext';
+import { addInvestible } from '../../../../contexts/InvestibesContext/investiblesContextHelper';
+import { formMarketLink, navigate } from '../../../../utils/marketIdPathFunctions';
+import { useHistory } from 'react-router';
+import { addPresenceToMarket } from '../../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { MarketPresencesContext } from '../../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { Button, CircularProgress, Typography } from '@material-ui/core';
+import { AllSequentialMap } from '../../../../utils/PromiseUtils';
+import { pushMessage } from '../../../../utils/MessageBusUtils';
+import { PUSH_STAGE_CHANNEL, VERSIONS_EVENT } from '../../../../contexts/VersionsContext/versionsContextHelper';
 
-function CreatingDialogStep(props) {
+function CreatingDialogStep (props) {
   const { formData, active, classes, operationStatus, setOperationStatus, isHome, onFinish } = props;
   const [, diffDispatch] = useContext(DiffContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
@@ -42,7 +42,7 @@ function CreatingDialogStep(props) {
     } = formData;
 
     if (!started && !dialogCreated && !dialogError && active) {
-      setOperationStatus({started: true});
+      setOperationStatus({ started: true });
       const marketInfo = {
         name: dialogName,
         description: dialogReason,
@@ -52,59 +52,63 @@ function CreatingDialogStep(props) {
       let createdMarketToken;
       let inVotingStage;
       let createdStage;
-      createDecision(marketInfo)
-        .then((marketDetails) => {
-          const {
-            market,
-            presence,
-            stages,
-          } = marketDetails;
-          createdMarketId = market.id;
-          createdMarketToken = market.invite_capability;
-          setOperationStatus({ dialogCreated: true, marketId: createdMarketId, marketToken: createdMarketToken });
-          addMarketToStorage(marketsDispatch, diffDispatch, market);
-          pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, marketId, stages });
-          addPresenceToMarket(presenceDispatch, marketId, presence);
-          createdStage = stages.find((stage) => !stage.allows_investment);
-          inVotingStage = stages.find((stage) => stage.allows_investment);
-          if (addOptionsSkipped) {
-            return Promise.resolve(true);
-          }
-          return AllSequentialMap(dialogOptions, (option) => {
+
+      async function doIt () {
+        await createDecision(marketInfo)
+          .then((marketDetails) => {
             const {
-              optionUploadedFiles,
-              optionName,
-              optionDescription
-            } = option;
-            const realUploadedFiles = optionUploadedFiles || [];
-            const processed = processTextAndFilesForSave(realUploadedFiles, optionDescription);
-            const addInfo = {
-              marketId: createdMarketId,
-              name: optionName,
-              description: processed.text,
-              uploadedFiles: processed.uploadedFiles,
-              stageInfo: {
-                current_stage_id: createdStage.id,
-                stage_id: inVotingStage.id,
-              },
-            };
-            return addInvestibleToStage(addInfo)
-              .then((investible) => {
-                addInvestible(investiblesDispatch, diffDispatch, investible);
-              });
+              market,
+              presence,
+              stages,
+            } = marketDetails;
+            createdMarketId = market.id;
+            createdMarketToken = market.invite_capability;
+            setOperationStatus({ dialogCreated: true, marketId: createdMarketId, marketToken: createdMarketToken });
+            addMarketToStorage(marketsDispatch, diffDispatch, market);
+            pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, marketId, stages });
+            addPresenceToMarket(presenceDispatch, marketId, presence);
+            createdStage = stages.find((stage) => !stage.allows_investment);
+            inVotingStage = stages.find((stage) => stage.allows_investment);
+            if (addOptionsSkipped) {
+              return Promise.resolve(true);
+            }
+            return AllSequentialMap(dialogOptions, (option) => {
+              const {
+                optionUploadedFiles,
+                optionName,
+                optionDescription
+              } = option;
+              const realUploadedFiles = optionUploadedFiles || [];
+              const processed = processTextAndFilesForSave(realUploadedFiles, optionDescription);
+              const addInfo = {
+                marketId: createdMarketId,
+                name: optionName,
+                description: processed.text,
+                uploadedFiles: processed.uploadedFiles,
+                stageInfo: {
+                  current_stage_id: createdStage.id,
+                  stage_id: inVotingStage.id,
+                },
+              };
+              return addInvestibleToStage(addInfo)
+                .then((investible) => {
+                  addInvestible(investiblesDispatch, diffDispatch, investible);
+                });
+            });
+          })
+          .then(() => {
+            if (isHome) {
+              onFinish({ ...formData, marketId: createdMarketId });
+            } else {
+              const marketLink = formMarketLink(createdMarketId);
+              navigate(history, `${marketLink}#onboarded=true`);
+            }
+          })
+          .catch(() => {
+            setOperationStatus({ dialogError: true });
           });
-        })
-        .then(() => {
-          if(isHome) {
-            onFinish({...formData, marketId: createdMarketId});
-          } else {
-            const marketLink = formMarketLink(createdMarketId);
-            navigate(history, `${marketLink}#onboarded=true`);
-          }
-        })
-        .catch(() => {
-          setOperationStatus({dialogError: true});
-        });
+      }
+      doIt();
     }
   }, [onFinish, active, diffDispatch, formData, operationStatus, setOperationStatus,
     investiblesDispatch, marketsDispatch, presenceDispatch, isHome, history]);
@@ -117,7 +121,7 @@ function CreatingDialogStep(props) {
     return (
       <div className={classes.retryContainer}>
         <Button className={classes.actionStartOver}
-          onClick={() => setOperationStatus({})}
+                onClick={() => setOperationStatus({})}
         >
           Retry Creating Dialog
         </Button>
@@ -127,12 +131,12 @@ function CreatingDialogStep(props) {
 
   return (
     <div>
-        <div className={classes.creatingContainer}>
-          <Typography variant="body1">
-            We're creating your Uclusion Dialog now, please wait a moment.
-          </Typography>
-          <CircularProgress className={classes.loadingColor} size={120} type="indeterminate"/>
-        </div>
+      <div className={classes.creatingContainer}>
+        <Typography variant="body1">
+          We're creating your Uclusion Dialog now, please wait a moment.
+        </Typography>
+        <CircularProgress className={classes.loadingColor} size={120} type="indeterminate"/>
+      </div>
     </div>
   );
 }

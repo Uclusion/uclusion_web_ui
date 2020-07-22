@@ -8177,9 +8177,10 @@ loglevel@^1.6.6:
   version "1.6.8"
   resolved "https://registry.yarnpkg.com/loglevel/-/loglevel-1.6.8.tgz#8a25fb75d092230ecd4457270d80b54e28011171"
 
-logrocket@^1.0.6:
-  version "1.0.7"
-  resolved "https://registry.yarnpkg.com/logrocket/-/logrocket-1.0.7.tgz#fe17dbdfc861481cd274fbda533d552de7800a3a"
+logrocket@^1.0.10:
+  version "1.0.10"
+  resolved "https://registry.yarnpkg.com/logrocket/-/logrocket-1.0.10.tgz#c808221b9b604f735671d6c682bd8ed30718548f"
+  integrity sha512-7xi/Yla2S2QSqj7wvALUWQXrqWNIOuDpRRVFVbXC16ZsM+h+RRSMSgRJ88+8rE2/eMHIHXte+ok+AbzjtLYqWA==
 
 lolex@^4.2.0:
   version "4.2.0"

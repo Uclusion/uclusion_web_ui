@@ -28,7 +28,7 @@
     "jwt-decode": "^2.2.0",
     "localforage": "^1.7.3",
     "lodash": "^4.17.15",
-    "logrocket": "^1.0.6",
+    "logrocket": "^1.0.10",
     "material-ui-popup-state": "^1.5.4",
     "moment": "^2.25.3",
     "prop-types": "^15.7.2",

@@ -7,7 +7,7 @@ import MoviePlayer from './MoviePlayer';
 function ModalMovie(props) {
   // console.log('Rerendered modal movie');
   const {
-    url, onClose, autoPlay, open,
+    url, onClose, autoPlay, open, poster
   } = props;
   const [amOpen, setAmOpen] = useState(false);
 
@@ -35,6 +35,7 @@ function ModalMovie(props) {
         <MoviePlayer
           autoPlay={autoPlay}
           url={url}
+          poster={poster}
           onFinish={myOnClose}
         />
         <IconButton
@@ -55,11 +56,16 @@ function ModalMovie(props) {
 
 ModalMovie.propTypes = {
   url: PropTypes.string.isRequired,
+  poster: PropTypes.string,
   // eslint-disable-next-line react/require-default-props
   onClose: PropTypes.func,
   autoPlay: PropTypes.bool.isRequired,
   open: PropTypes.bool.isRequired,
 };
+
+ModalMovie.defaultProps = {
+  poster: `${process.env.PUBLIC_URL}/images/video_poster.png`,
+}
 
 
 export default ModalMovie;

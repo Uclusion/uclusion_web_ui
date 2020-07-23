@@ -4,7 +4,7 @@ import '../../../node_modules/video-react/dist/video-react.css';
 import { Player } from 'video-react';
 
 function MoviePlayer(props) {
-  const { autoPlay, url, onFinish } = props;
+  const { autoPlay, url, onFinish, poster } = props;
 
   let player = null;
 
@@ -25,6 +25,7 @@ function MoviePlayer(props) {
   return (
     <Player
       src={url}
+      poster={poster}
       autoPlay={autoPlay}
       ref={setPlayerRef}
     />

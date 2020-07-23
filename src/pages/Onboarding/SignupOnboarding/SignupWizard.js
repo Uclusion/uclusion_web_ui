@@ -28,7 +28,7 @@ function SignupWizard(props) {
 
   const stepPrototypes = [
     {
-      label: 'SignupWizardTitle',
+      label: 'SignupWizardWelcome',
       content: <WhatDoYouWantToDoStep setWizardToShow={setWizardToShow}/>
     },
   ];
@@ -52,7 +52,7 @@ function SignupWizard(props) {
             hidden={hidden}
             hideSteppers
             onStartOver={onStartOver}
-            title={intl.formatMessage({ id: 'SignupWizardTitle'})}
+            title={intl.formatMessage({ id: 'SignupWizardWelcome'})}
             stepPrototypes={stepPrototypes}
           />
         </>

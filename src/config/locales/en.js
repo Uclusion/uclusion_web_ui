@@ -846,6 +846,7 @@ const messages = defineMessages({
 
   //SignupWizard
   SignupWizardTitle: 'What do you want to do?',
+  SignupWizardWelcome: 'Welcome to Uclusion!',
   SignupWizardQuestion: 'What do you want to do?',
   SignupWizardRequirementsWorkspace: 'Document project requirements or team topics',
   SignupWizardStoryWorkspace: 'Choose everyone\'s next story and track progress',

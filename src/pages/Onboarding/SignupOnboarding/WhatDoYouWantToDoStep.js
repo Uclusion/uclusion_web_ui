@@ -41,7 +41,7 @@ function WhatDoYouWantToDoStep(props) {
   return (
     <div>
       <Typography>
-        Uclusion is a powerful collaboration tool that can help with the following and more:
+        Uclusion is a powerful collaboration tool, create your first workspace to get started.
       </Typography>
         <ButtonGroup
           orientation="vertical"
@@ -49,27 +49,9 @@ function WhatDoYouWantToDoStep(props) {
         >
           <Button
           className={classes.buttonClass}
-            onClick={() => setWizardToShow('requirementsWorkspace')}
-          >
-            {intl.formatMessage({ id: 'SignupWizardRequirementsWorkspace'})}
-          </Button>
-          <Button
-          className={classes.buttonClass}
             onClick={() => setWizardToShow('storyWorkspace')}
           >
-            {intl.formatMessage({ id: 'SignupWizardStoryWorkspace'})}
-          </Button>
-          <Button
-          className={classes.buttonClass}
-            onClick={() => setWizardToShow('dialog')}
-          >
-            {intl.formatMessage({ id: 'SignupWizardDialog'})}
-          </Button>
-          <Button
-          className={classes.buttonClass}
-            onClick={() => setWizardToShow('initiative')}
-          >
-            {intl.formatMessage({ id: 'SignupWizardInitiative'})}
+            {intl.formatMessage({ id: 'SignupWizardFirstWorkspace'})}
           </Button>
         </ButtonGroup>
     </div>

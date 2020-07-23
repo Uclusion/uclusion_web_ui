@@ -849,6 +849,7 @@ const messages = defineMessages({
   SignupWizardQuestion: 'What do you want to do?',
   SignupWizardRequirementsWorkspace: 'Document project requirements or team topics',
   SignupWizardStoryWorkspace: 'Choose everyone\'s next story and track progress',
+  SignupWizardFirstWorkspace: 'Create your first Workspace',
   SignupWizardDialog: 'Collaborate on a decision',
   SignupWizardInitiative: 'Measure support for an idea',
 

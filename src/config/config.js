@@ -34,7 +34,7 @@ const config = {
   },
   logRocketInstance: process.env.REACT_APP_LOGROCKET_INSTANCE,
   helpMovies: {
-    accountSignupHelp: 'https://www.uclusion.com/videos/What_is_Uclusion.mp4',
+    accountSignupHelp: 'https://www.uclusion.com/videos/Onboarding.mp4',
   },
   termsOfUseLink: 'https://app.termly.io/document/terms-of-use-for-saas/02fc002b-2cab-4027-8c49-ed2589077551',
 };

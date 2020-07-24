@@ -37,6 +37,7 @@ const config = {
     accountSignupHelp: 'https://www.uclusion.com/videos/Onboarding.mp4',
   },
   termsOfUseLink: 'https://app.termly.io/document/terms-of-use-for-saas/02fc002b-2cab-4027-8c49-ed2589077551',
+  videoChannelLink: 'https://www.youtube.com/channel/UCe9KY_q5KKsgOYYGJJSo8lw',
 };
 
 export default config;

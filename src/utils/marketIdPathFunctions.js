@@ -144,6 +144,11 @@ export function urlHelperGetName(marketState, investibleState) {
   }
 }
 
+export function openInNewTab(url) {
+  var win = window.open(url, '_blank');
+  win.focus();
+}
+
 export function formCommentLink(marketId, investibleId, commentId){
   const commentPart = `#c${commentId}`;
   if (!_.isEmpty(investibleId)) {

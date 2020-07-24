@@ -424,7 +424,7 @@ const messages = defineMessages({
   message: 'Message',
   // Archives
   archivesTitle: 'Archive',
-  openDrawer: 'Open or close full sidebar menu',
+  helpVideos: 'Watch help videos in YouTube',
 
 
   // Decision Dialogs

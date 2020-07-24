@@ -33,12 +33,16 @@ import { extractUsersList } from '../../../utils/userFunctions'
 import SubSection from '../../../containers/SubSection/SubSection'
 import { SECTION_TYPE_SECONDARY } from '../../../constants/global'
 import ArchiveInvestbiles from '../../DialogArchives/ArchiveInvestibles'
+import Link from '@material-ui/core/Link'
+import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions'
+import { useHistory } from 'react-router'
 
 function InvestiblesByWorkspace(props) {
   const {
     workspaces
   } = props;
   const intl = useIntl();
+  const history = useHistory();
   const classes = useInvestiblesByPersonStyles();
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [investiblesState] = useContext(InvestiblesContext);
@@ -134,7 +138,11 @@ function InvestiblesByWorkspace(props) {
             <CardHeader
               className={classes.header}
               id={`m${market.id}`}
-              title={market.name}
+              title={<Link id={market.id} key={market.id} href={formMarketLink(market.id)}
+                           onClick={(e) => {
+                             e.preventDefault();
+                             navigate(history, formMarketLink(market.id));}
+                           }>{market.name}</Link>}
               titleTypographyProps={{ variant: "subtitle2" }}
             />
             <CardContent className={classes.content}>

@@ -597,7 +597,7 @@ const messages = defineMessages({
   signupNameLabel: 'Name',
   signupEmailLabel: 'Email',
   signupPasswordLabel: 'Password',
-  signupPhoneLabel: 'Phone Number',
+  signupPhoneLabel: 'Optional Phone Number',
   signupPasswordHelper: '6 Characters Minimum',
   signupPasswordRepeatLabel: 'Repeat Password',
   signupPasswordRepeatHelper: 'Must match Password',

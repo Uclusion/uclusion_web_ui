@@ -292,7 +292,7 @@ function Signup(props) {
 
   const { name, email, password, repeat, terms, phone } = userState;
 
-  if (authState !== 'signUp') {
+  if (authState !== 'signUp' || !_.isEmpty(signUpWith)) {
     return <></>;
   }
 
@@ -426,45 +426,51 @@ function Signup(props) {
             </span>
             }
           </div>
-          <GithubLoginButton
-            style={{
-              lineHeight: '46px',
-              display: 'inline-block',
-              width: '100%',
-              marginLeft: 'auto',
-              marginRight: 'auto',
-              fontSize: '1rem',
-              marginTop: '2rem',
-              paddingRight: '0px'
-            }}
-            align="center"
-            onClick={() => {
-              setRedirect(getRedirect());
-              Auth.federatedSignIn({provider: 'GithubLogin'});
-            }}>
+          {_.isEmpty(qryEmail) && (
+            <GithubLoginButton
+              style={{
+                lineHeight: '46px',
+                display: 'inline-block',
+                width: '100%',
+                marginLeft: 'auto',
+                marginRight: 'auto',
+                fontSize: '1rem',
+                marginTop: '2rem',
+                paddingRight: '0px'
+              }}
+              align="center"
+              onClick={() => {
+                setRedirect(getRedirect());
+                Auth.federatedSignIn({provider: 'GithubLogin'});
+              }}>
               <div className={classes.textWrapper}>
                 {intl.formatMessage({ id: 'signupGithubSignup' })}
               </div>
-          </GithubLoginButton>
-          <div className={classes.googleButton} onClick={() => {
-            // Must come back to this device so go ahead and set in local storage
-            setRedirect(getRedirect());
-            Auth.federatedSignIn({provider: 'Google'});
-          }}>
-            <img className={classes.googleImg} alt="Sign in with Google" src={`/images/btn_google_dark_normal_ios.svg`} />
-            <div className={classes.googleTextWrapper}>
-              <div className={classes.googleText}> {intl.formatMessage({ id: 'signupGoogleSignup' })}</div>
+            </GithubLoginButton>
+          )}
+          {_.isEmpty(qryEmail) && (
+            <div className={classes.googleButton} onClick={() => {
+              // Must come back to this device so go ahead and set in local storage
+              setRedirect(getRedirect());
+              Auth.federatedSignIn({provider: 'Google'});
+            }}>
+              <img className={classes.googleImg} alt="Sign in with Google" src={`/images/btn_google_dark_normal_ios.svg`} />
+              <div className={classes.googleTextWrapper}>
+                <div className={classes.googleText}> {intl.formatMessage({ id: 'signupGoogleSignup' })}</div>
+              </div>
             </div>
-          </div>
-          <div className={classes.spacerText}>
-            <span className={classes.hr}>
-              <hr className={classes.inlineHr} />
-            </span>
-            <span className={classes.orText}>or</span>
-            <span className={classes.hr}>
-              <hr className={classes.inlineHr}/>
-            </span>
-          </div>
+          )}
+          {_.isEmpty(qryEmail) && (
+            <div className={classes.spacerText}>
+              <span className={classes.hr}>
+                <hr className={classes.inlineHr} />
+              </span>
+              <span className={classes.orText}>or</span>
+              <span className={classes.hr}>
+                <hr className={classes.inlineHr}/>
+              </span>
+            </div>
+          )}
           <div className={classes.paperNoTop}>
             <form
               className={classes.form}

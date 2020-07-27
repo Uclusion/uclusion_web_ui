@@ -3,17 +3,23 @@ import PropTypes from 'prop-types'
 import { TextField, Typography } from '@material-ui/core'
 import { useIntl } from 'react-intl'
 import _ from 'lodash'
+import { urlHelperGetName } from '../../../../../utils/marketIdPathFunctions'
 import StepButtons from '../../../StepButtons'
 import QuillEditor from '../../../../../components/TextEditors/QuillEditor'
 import { updateValues } from '../../../onboardingReducer'
-import { urlHelperGetName } from '../../../../../utils/marketIdPathFunctions'
+import { DiffContext } from '../../../../../contexts/DiffContext/DiffContext'
+
 import { MarketsContext } from '../../../../../contexts/MarketsContext/MarketsContext'
 import { InvestiblesContext } from '../../../../../contexts/InvestibesContext/InvestiblesContext'
+import { MarketPresencesContext } from '../../../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { VersionsContext } from '../../../../../contexts/VersionsContext/VersionsContext';
+import { CommentsContext } from '../../../../../contexts/CommentsContext/CommentsContext';
+import { doCreateMarket } from './workspaceCreator';
 
 function NextStoryStep (props) {
-  const { updateFormData, formData, active, classes } = props;
+  const { updateFormData, formData, active, classes, setOperationStatus } = props;
   const intl = useIntl();
-  const [marketState] = useContext(MarketsContext);
+  const [marketState, marketsDispatch] = useContext(MarketsContext);
   const [investibleState] = useContext(InvestiblesContext);
   const {
     nextStoryName,
@@ -23,6 +29,12 @@ function NextStoryStep (props) {
   const [editorContents, setEditorContents] = useState(nextStoryDescription || '');
   const storyName = nextStoryName || '';
   const validForm = !_.isEmpty(nextStoryName) && !_.isEmpty(editorContents);
+
+  const [, diffDispatch] = useContext(DiffContext);
+  const [, investiblesDispatch] = useContext(InvestiblesContext);
+  const [, presenceDispatch] = useContext(MarketPresencesContext);
+  const [, versionsDispatch] = useContext(VersionsContext);
+  const [commentsState, commentsDispatch] = useContext(CommentsContext);
 
   function onNameChange (event) {
     const { value } = event.target;
@@ -46,18 +58,44 @@ function NextStoryStep (props) {
 
   }
 
-  function onStepChange(skip) {
-    updateFormData(updateValues({
-      nextStoryDescription: editorContents,
-      nextStorySkipped: false,
-    }));
+  function createMarket(formData) {
+    const dispatchers = {
+      diffDispatch,
+      investiblesDispatch,
+      marketsDispatch,
+      presenceDispatch,
+      versionsDispatch,
+      commentsDispatch,
+      commentsState,
+    };
+    doCreateMarket(dispatchers, formData, intl, setOperationStatus)
   }
 
+  function onPrevious() {
+    const newValues = {
+      nextStoryDescription: editorContents,
+      nextStorySkipped: false,
+    };
+    updateFormData(updateValues(newValues));
+  }
+
+  function onNext() {
+    const newValues = {
+      nextStoryDescription: editorContents,
+      nextStorySkipped: false,
+    };
+    updateFormData(updateValues(newValues));
+    createMarket({...formData, ...newValues});
+  }
+
+
   function onSkip() {
-    updateFormData(updateValues({
+    const newValues = {
       nextStoryDescription: editorContents,
       nextStorySkipped: true,
-    }));
+    };
+    updateFormData(updateValues(newValues));
+    createMarket({...formData, ...newValues});
   }
 
   return (
@@ -84,9 +122,9 @@ function NextStoryStep (props) {
         <div className={classes.borderBottom}></div>
       <StepButtons {...props} validForm={validForm}
         showSkip
-        onPrevious={onStepChange}
+        onPrevious={onPrevious}
         onSkip={onSkip}
-        onNext={onStepChange}/>
+        onNext={onNext}/>
     </div>
   );
 }

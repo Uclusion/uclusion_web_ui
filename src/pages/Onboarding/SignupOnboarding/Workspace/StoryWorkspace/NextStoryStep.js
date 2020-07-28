@@ -14,12 +14,17 @@ import { InvestiblesContext } from '../../../../../contexts/InvestibesContext/In
 import { MarketPresencesContext } from '../../../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { VersionsContext } from '../../../../../contexts/VersionsContext/VersionsContext';
 import { CommentsContext } from '../../../../../contexts/CommentsContext/CommentsContext';
-import { doCreateMarket } from './workspaceCreator';
+import { doCreateStoryWorkspace } from './workspaceCreator';
 
 function NextStoryStep (props) {
   const { updateFormData, formData, active, classes, setOperationStatus } = props;
   const intl = useIntl();
   const [marketState, marketsDispatch] = useContext(MarketsContext);
+  const [, diffDispatch] = useContext(DiffContext);
+  const [, investiblesDispatch] = useContext(InvestiblesContext);
+  const [, presenceDispatch] = useContext(MarketPresencesContext);
+  const [, versionsDispatch] = useContext(VersionsContext);
+  const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [investibleState] = useContext(InvestiblesContext);
   const {
     nextStoryName,
@@ -30,11 +35,6 @@ function NextStoryStep (props) {
   const storyName = nextStoryName || '';
   const validForm = !_.isEmpty(nextStoryName) && !_.isEmpty(editorContents);
 
-  const [, diffDispatch] = useContext(DiffContext);
-  const [, investiblesDispatch] = useContext(InvestiblesContext);
-  const [, presenceDispatch] = useContext(MarketPresencesContext);
-  const [, versionsDispatch] = useContext(VersionsContext);
-  const [commentsState, commentsDispatch] = useContext(CommentsContext);
 
   function onNameChange (event) {
     const { value } = event.target;
@@ -55,7 +55,6 @@ function NextStoryStep (props) {
     const oldUploadedFiles = nextStoryUploadedFiles || []
     const newUploadedFiles = _.uniqBy([...oldUploadedFiles, ...metadatas], 'path');
     updateFormData(updateValues({nextStoryUploadedFiles: newUploadedFiles}));
-
   }
 
   function createMarket(formData) {
@@ -68,7 +67,7 @@ function NextStoryStep (props) {
       commentsDispatch,
       commentsState,
     };
-    doCreateMarket(dispatchers, formData, intl, setOperationStatus)
+    doCreateStoryWorkspace(dispatchers, formData, updateFormData, intl, setOperationStatus)
   }
 
   function onPrevious() {

@@ -9,12 +9,22 @@ import { updateValues } from '../../../onboardingReducer'
 import { urlHelperGetName } from '../../../../../utils/marketIdPathFunctions'
 import { MarketsContext } from '../../../../../contexts/MarketsContext/MarketsContext'
 import { InvestiblesContext } from '../../../../../contexts/InvestibesContext/InvestiblesContext'
+import { DiffContext } from '../../../../../contexts/DiffContext/DiffContext';
+import { MarketPresencesContext } from '../../../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { VersionsContext } from '../../../../../contexts/VersionsContext/VersionsContext';
+import { CommentsContext } from '../../../../../contexts/CommentsContext/CommentsContext';
+import { doCreateRequirementsWorkspace } from './workspaceCreator';
 
 function TodoStep (props) {
-  const { updateFormData, formData, active, classes } = props;
+  const { updateFormData, formData, active, classes, setOperationStatus } = props;
   const intl = useIntl();
-  const [marketState] = useContext(MarketsContext);
+  const [marketState, marketsDispatch] = useContext(MarketsContext);
   const [investibleState] = useContext(InvestiblesContext);
+  const [, diffDispatch] = useContext(DiffContext);
+  const [, presenceDispatch] = useContext(MarketPresencesContext);
+  const [, versionsDispatch] = useContext(VersionsContext);
+  const [commentsState, commentsDispatch] = useContext(CommentsContext);
+
   const {
     todo,
     todoUploadedFiles,
@@ -39,18 +49,42 @@ function TodoStep (props) {
     }));
   }
 
-  function onStepChange() {
+  function createWorkspace(formData) {
+    const dispatchers = {
+      marketsDispatch,
+      diffDispatch,
+      presenceDispatch,
+      versionsDispatch,
+      commentsState,
+      commentsDispatch
+    };
+    doCreateRequirementsWorkspace(dispatchers, formData, updateFormData, setOperationStatus)
+  }
+
+
+  function onPrevious() {
     updateFormData(updateValues({
       todo: editorContents,
       todoSkipped: false,
     }));
   }
 
+  function onNext() {
+    const newValues = {
+      todo: editorContents,
+      todoSkipped: false,
+    };
+    updateFormData(updateValues(newValues));
+    createWorkspace({...formData, ...newValues});
+  }
+
   function onSkip() {
-    updateFormData(updateValues({
+    const newValues = {
       todo: editorContents,
       todoSkipped: true,
-    }));
+    };
+    updateFormData(updateValues(newValues));
+    createWorkspace({...formData, ...newValues});
   }
 
   return (
@@ -70,10 +104,10 @@ function TodoStep (props) {
       <div className={classes.borderBottom}></div>
       <StepButtons {...props}
                    validForm={validForm}
-                   onPrevious={onStepChange}
+                   onPrevious={onPrevious}
                    showSkip
                    onSkip={onSkip}
-                   onNext={onStepChange}/>
+                   onNext={onNext}/>
     </div>
   );
 }

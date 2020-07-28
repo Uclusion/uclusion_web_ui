@@ -11,8 +11,17 @@ import { addInvestible } from '../../../../../contexts/InvestibesContext/investi
 import { saveComment } from '../../../../../api/comments';
 import { REPORT_TYPE } from '../../../../../constants/comments';
 import { addCommentToMarket } from '../../../../../contexts/CommentsContext/commentsContextHelper';
+import { resetValues } from '../../../onboardingReducer';
 
-export function doCreateMarket(dispatchers, formData, intl, setOperationStatus) {
+/**
+ * Creates the story workspace from the formdata and does all the magic to make the
+ * wizard up date appropriately.
+ * @param dispatchers
+ * @param formData
+ * @param intl
+ * @param setOperationStatus
+ */
+export function doCreateStoryWorkspace(dispatchers, formData, updateFormData, intl, setOperationStatus) {
   const { meetingName } = formData;
   const {
     marketsDispatch,
@@ -117,6 +126,9 @@ export function doCreateMarket(dispatchers, formData, intl, setOperationStatus) 
       if (addedComment) {
         addCommentToMarket(addedComment, commentsState, commentsDispatch, versionsDispatch);
       }
+      updateFormData(resetValues()); //zero out form data since it's useless, and we want the state to be cleared
+    })
+    .then(() => {
       setOperationStatus({ workspaceCreated: true, marketId: createdMarketId, marketToken: createdMarketToken });
     })
     .catch(() => {

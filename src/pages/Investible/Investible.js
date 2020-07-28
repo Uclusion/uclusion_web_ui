@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { useHistory } from 'react-router'
 import _ from 'lodash'
@@ -26,7 +26,6 @@ import InitiativeInvestible from './Initiative/InitiativeInvestible'
 import { getMarketFromUrl } from '../../api/uclusionClient'
 import { pollForMarketLoad } from '../../api/versionedFetchUtils'
 import { toastError } from '../../utils/userMessage'
-import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
 
 const emptyInvestible = { investible: { name: '', description: '' } };
 const emptyMarket = { name: '' };
@@ -52,8 +51,6 @@ function Investible(props) {
   const investibleComments = comments.filter((comment) => comment.investible_id === investibleId);
   const commentsHash = createCommentsHash(investibleComments);
   const [investiblesState] = useContext(InvestiblesContext);
-  const [loadingMarketId, setLoadingMarketId] = useState(undefined);
-  const [, versionsDispatch] = useContext(VersionsContext);
   const isInitialization = investiblesState.initializing || marketsState.initializing || marketPresencesState.initializing || commentsState.initializing;
   const investibles = getMarketInvestibles(investiblesState, marketId);
   const inv = getInvestible(investiblesState, investibleId);
@@ -75,8 +72,7 @@ function Investible(props) {
 
   useEffect(() => {
     const noMarketLoad = _.isEmpty(realMarket) && _.isEmpty(marketPresences);
-    if (!isInitialization && noMarketLoad && !hidden && marketId && loadingMarketId !== marketId) {
-        setLoadingMarketId(marketId);
+    if (!isInitialization && noMarketLoad && !hidden && marketId) {
         // Login with market id to create guest capability if necessary
         getMarketFromUrl(marketId).then((loginData) =>{
           const { market } = loginData;
@@ -87,8 +83,7 @@ function Investible(props) {
           toastError('errorMarketFetchFailed');
         });
     }
-  }, [isInitialization, history, hidden, marketId, realMarket, marketPresences, loadingMarketId,
-    versionsDispatch]);
+  }, [isInitialization, hidden, marketId, realMarket, marketPresences]);
 
 
   function toggleEdit() {

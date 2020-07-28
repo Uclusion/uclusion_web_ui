@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types'
 //import { useIntl } from 'react-intl';
 import { Button, List, ListItem, ListItemSecondaryAction, ListItemText, Typography } from '@material-ui/core'
@@ -8,8 +8,18 @@ import DeleteIcon from '@material-ui/icons/Delete'
 import { updateValues } from '../../onboardingReducer'
 import TooltipIconButton from '../../../../components/Buttons/TooltipIconButton'
 import AddOptionWizard from './AddOption/AddOptionWizard'
+import { DiffContext } from '../../../../contexts/DiffContext/DiffContext';
+import { InvestiblesContext } from '../../../../contexts/InvestibesContext/InvestiblesContext';
+import { MarketsContext } from '../../../../contexts/MarketsContext/MarketsContext';
+import { MarketPresencesContext } from '../../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { createMyDialog } from './dialogCreator';
 
 function AddOptionsStep (props) {
+  const [, diffDispatch] = useContext(DiffContext);
+  const [, investiblesDispatch] = useContext(InvestiblesContext);
+  const [, marketsDispatch] = useContext(MarketsContext);
+  const [, presenceDispatch] = useContext(MarketPresencesContext);
+
 
   const {
     formData,
@@ -18,6 +28,7 @@ function AddOptionsStep (props) {
     setOverrideUIContent,
     classes,
     isHome,
+    setOperationStatus,
   } = props;
   //const intl = useIntl();
   const { addShowSubWizard } = formData;
@@ -74,12 +85,35 @@ function AddOptionsStep (props) {
     />);
   }
 
-  function onSkip(){
-    updateFormData((updateValues({ addOptionsSkipped: true})));
+  function createDialog(formData) {
+    const dispatchers = {
+      diffDispatch,
+      marketsDispatch,
+      investiblesDispatch,
+      presenceDispatch
+    };
+    createMyDialog(dispatchers, formData, updateFormData, setOperationStatus);
   }
 
-  function onStepChange() {
-    updateFormData((updateValues({ addOptionsSkipped: false})));
+
+  function onSkip(){
+    const newValues = {
+      addOptionsSkipped: true
+    };
+    updateFormData(updateValues(newValues));
+    createDialog({...formData, ...newValues});
+  }
+
+  function onPrevious() {
+    updateFormData(updateValues({ addOptionsSkipped: false}));
+  }
+
+  function onNext() {
+    const newValues = {
+      addOptionsSkipped: false,
+    };
+    updateFormData(newValues);
+    createDialog({...formData, ...newValues});
   }
 
   function currentOptions () {
@@ -118,8 +152,8 @@ function AddOptionsStep (props) {
       <StepButtons {...props}
                    validForm={validForm}
                    onSkip={onSkip}
-                   onNext={onStepChange}
-                   onPrevious={onStepChange}
+                   onNext={onNext}
+                   onPrevious={onPrevious}
                    showSkip={isHome}/>
     </div>
   );

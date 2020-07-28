@@ -118,8 +118,8 @@ function Dialog(props) {
           // Login with market id to create guest capability if necessary
           getMarketFromUrl(marketId).then((loginData) =>{
             const { market } = loginData;
-            const { id, version} = market;
-            return pollForMarketLoad(id, version, versionsDispatch);
+            const { id } = market;
+            return pollForMarketLoad(id);
           }).catch((error) => {
             console.error(error);
             toastError('errorMarketFetchFailed');

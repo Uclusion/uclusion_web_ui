@@ -1,106 +1,45 @@
 import React, { useContext, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import StepButtons from '../../StepButtons'
-import { createInitiative } from '../../../../api/markets'
-import { addMarketToStorage } from '../../../../contexts/MarketsContext/marketsContextHelper'
-import { processTextAndFilesForSave } from '../../../../api/files'
-import { addDecisionInvestible } from '../../../../api/investibles'
 import { DiffContext } from '../../../../contexts/DiffContext/DiffContext'
 import { InvestiblesContext } from '../../../../contexts/InvestibesContext/InvestiblesContext'
 import { MarketsContext } from '../../../../contexts/MarketsContext/MarketsContext'
-import { addInvestible } from '../../../../contexts/InvestibesContext/investiblesContextHelper'
 import { formInvestibleLink, navigate } from '../../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
-import { addPresenceToMarket } from '../../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { Button, CircularProgress, Typography } from '@material-ui/core'
 import InviteLinker from '../../../Dialog/InviteLinker'
 import { INITIATIVE_TYPE } from '../../../../constants/markets'
-import { pushMessage } from '../../../../utils/MessageBusUtils'
-import { PUSH_STAGE_CHANNEL, VERSIONS_EVENT } from '../../../../contexts/VersionsContext/versionsContextHelper'
+import { createMyInitiative } from './initiativeCreator';
 
 function CreatingInitiativeStep (props) {
-  const { formData, active, classes, operationStatus, setOperationStatus, onFinish, isHome } = props;
+  const { formData, updateFormData, active, classes, operationStatus, setOperationStatus, onFinish, isHome } = props;
   const [, diffDispatch] = useContext(DiffContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, marketsDispatch] = useContext(MarketsContext);
   const [, presenceDispatch] = useContext(MarketPresencesContext);
-
+  const { marketId, investibleId, initiativeCreated, initiativeError, marketToken } = operationStatus;
   const history = useHistory();
 
   useEffect(() => {
-    const {
-      initiativeCreated,
-      initiativeError,
-      started,
-    } = operationStatus;
-    const {
-      initiativeName,
-      initiativeDescription,
-      initiativeDescriptionUploadedFiles,
-      initiativeExpiration,
-      marketId,
-    } = formData;
-    const realUploadedFiles = initiativeDescriptionUploadedFiles || [];
-    const {
-      uploadedFiles: filteredUploads,
-      text: tokensRemoved,
-    } = processTextAndFilesForSave(realUploadedFiles, initiativeDescription);
-    if (!started && !initiativeCreated && !initiativeError && active) {
-      setOperationStatus({ started: true });
-      const marketInfo = {
-        name: 'NA',
-        description: 'NA',
-        expiration_minutes: initiativeExpiration,
-      };
-      let createdMarketId;
-      let createdMarketToken;
 
-      async function doIt () {
-        await createInitiative(marketInfo)
-          .then((result) => {
-            const {
-              market,
-              presence,
-              stages
-            } = result;
-            createdMarketId = market.id;
-            createdMarketToken = market.invite_capability;
-            const investibleInfo = {
-              marketId: createdMarketId,
-              uploadedFiles: filteredUploads,
-              description: tokensRemoved,
-              name: initiativeName,
-            };
-            addMarketToStorage(marketsDispatch, diffDispatch, market);
-            pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, marketId, stages });
-            addPresenceToMarket(presenceDispatch, marketId, presence);
-            return addDecisionInvestible(investibleInfo)
-              .then((investible) => {
-                const { investible: myInvestible } = investible;
-                const { id } = myInvestible;
-                addInvestible(investiblesDispatch, diffDispatch, investible);
-                setOperationStatus({
-                  initiativeCreated: true, marketId: createdMarketId, investibleId: id,
-                  marketToken: createdMarketToken
-                });
-              });
-          }).then(() => {
-          if (isHome) {
-            onFinish({ ...formData, marketId: createdMarketId });
-          }
-        })
-          .catch(() => {
-            setOperationStatus({ initiativeError: true, started: false });
-          });
-      }
-      doIt();
+    if (active && initiativeCreated && marketId && isHome) {
+      onFinish({ ...formData, marketId });
     }
-  }, [diffDispatch, formData, active, investiblesDispatch, onFinish, marketsDispatch, operationStatus,
-    setOperationStatus, presenceDispatch, isHome, history]);
 
-  const { marketId, investibleId, initiativeCreated, initiativeError, marketToken } = operationStatus;
+  }, [active, formData, initiativeCreated, onFinish, isHome, marketId]);
+
   const marketLink = formInvestibleLink(marketId, investibleId);
+
+  function retryInitiative() {
+    const dispatchers = {
+      diffDispatch,
+      investiblesDispatch,
+      marketsDispatch,
+      presenceDispatch
+    };
+    createMyInitiative(dispatchers, formData, updateFormData, setOperationStatus)
+  }
 
   if (!active) {
     return React.Fragment;
@@ -110,7 +49,10 @@ function CreatingInitiativeStep (props) {
     return (
       <div className={classes.retryContainer}>
         <Button className={classes.actionStartOver}
-                onClick={() => setOperationStatus({})}
+                onClick={() => {
+                  setOperationStatus({});
+                  retryInitiative();
+                }}
         >
           Retry Creating Initiative
         </Button>

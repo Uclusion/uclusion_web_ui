@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext } from 'react';
 import { useIntl } from 'react-intl'
 
 import { updateValues } from '../../onboardingReducer'
@@ -6,10 +6,19 @@ import { Typography } from '@material-ui/core'
 import StepButtons from '../../StepButtons'
 import ExpirationSelector from '../../../../components/Expiration/ExpirationSelector'
 import PropTypes from 'prop-types'
+import { DiffContext } from '../../../../contexts/DiffContext/DiffContext';
+import { InvestiblesContext } from '../../../../contexts/InvestibesContext/InvestiblesContext';
+import { MarketsContext } from '../../../../contexts/MarketsContext/MarketsContext';
+import { MarketPresencesContext } from '../../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { createMyInitiative } from './initiativeCreator';
 
 function InitiativeExpirationStep(props) {
-  const { updateFormData, formData, active, classes } = props;
+  const { updateFormData, formData, active, classes, setOperationStatus } = props;
   const intl = useIntl();
+  const [, diffDispatch] = useContext(DiffContext);
+  const [, investiblesDispatch] = useContext(InvestiblesContext);
+  const [, marketsDispatch] = useContext(MarketsContext);
+  const [, presenceDispatch] = useContext(MarketPresencesContext);
 
   const value = formData.initiativeExpiration || 1440;
 
@@ -25,10 +34,22 @@ function InitiativeExpirationStep(props) {
     }));
   }
 
+  function doCreateInitiative(formData){
+    const dispatchers = {
+      diffDispatch,
+      investiblesDispatch,
+      marketsDispatch,
+      presenceDispatch,
+    };
+    createMyInitiative(dispatchers, formData, updateFormData, setOperationStatus);
+  }
+
   function onNext() {
-    updateFormData(updateValues({
+    const newValues = {
       initiativeExpiration: value,
-    }));
+    }
+    updateFormData(updateValues(newValues));
+    doCreateInitiative({...formData, ...newValues});
   }
 
   return (

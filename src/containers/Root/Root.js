@@ -24,9 +24,9 @@ import ChangePassword from '../../pages/Authentication/ChangePassword'
 import ChangeNotificationPreferences from '../../pages/About/ChangeNotificationPreferences'
 import BillingHome from '../../pages/Payments/BillingHome'
 import { refreshNotifications, refreshVersions } from '../../contexts/VersionsContext/versionsContextHelper'
-import SignupWizard from '../../pages/Onboarding/SignupOnboarding/SignupWizard'
 import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
 import { isNewUser } from '../../contexts/AccountUserContext/accountUserContextHelper'
+import StoryWorkspaceWizard from '../../pages/Onboarding/SignupOnboarding/Workspace/StoryWorkspace/StoryWorkspaceWizard'
 
 const useStyles = makeStyles({
   body: {
@@ -195,7 +195,7 @@ function Root() {
       <div className={classes.body}>
         <div className={classes.root}>
           <div className={classes.content}>
-            <SignupWizard hidden={hideOnboarding()}/>
+            <StoryWorkspaceWizard hidden={hideOnboarding()} />
             <Home hidden={hideHome()}/>
             <Market hidden={hideMarket()}/>
             <Support hidden={hideSupport()}/>

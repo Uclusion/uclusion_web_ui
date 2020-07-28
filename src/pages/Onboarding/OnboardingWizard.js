@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useState } from 'react';
+import React, { useEffect, useReducer, useState } from 'react'
 import PropTypes from 'prop-types'
 import clsx from 'clsx'
 import { Card, Container, makeStyles, Typography } from '@material-ui/core'
@@ -7,7 +7,8 @@ import { useIntl } from 'react-intl'
 import { generateReducer, getStoredData, resetValues } from './onboardingReducer'
 import { Helmet } from 'react-helmet'
 import Header from '../../containers/Header'
-import _ from 'lodash';
+import _ from 'lodash'
+import HelpMovie from '../../components/ModalMovie/HelpMovie'
 
 export const wizardStyles = makeStyles(
   theme => {
@@ -414,6 +415,9 @@ function OnboardingWizard (props) {
       hidden={hidden}
       isOnboarding
     >
+      {!hidden && (
+        <HelpMovie name="accountSignupHelp" />
+      )}
       {getContent()}
     </Screen>
   );

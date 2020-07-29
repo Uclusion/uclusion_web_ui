@@ -73,7 +73,7 @@ import CardType, {
   STORY_TYPE
 } from '../../../components/CardType'
 import clsx from 'clsx'
-import { ACTIVE_STAGE, DECISION_TYPE } from '../../../constants/markets'
+import { DECISION_TYPE } from '../../../constants/markets'
 import DismissableText from '../../../components/Notifications/DismissableText'
 import PersonAddIcon from '@material-ui/icons/PersonAdd'
 import SubSection from '../../../containers/SubSection/SubSection'
@@ -229,8 +229,7 @@ function PlanningInvestible(props) {
     hidden
   } = props;
   const classes = useStyles();
-  const { name: marketName, id: marketId, market_stage: marketStage, votes_required: votesRequired } = market;
-  const activeMarket = marketStage === ACTIVE_STAGE;
+  const { name: marketName, id: marketId, votes_required: votesRequired } = market;
   const investmentReasonsRemoved = investibleComments.filter(
     comment => comment.comment_type !== JUSTIFY_TYPE
   );
@@ -393,36 +392,10 @@ function PlanningInvestible(props) {
   }
 
   function getSidebarActions() {
-    if (!activeMarket) {
+    if (inArchives) {
       return [];
     }
     const sidebarActions = [];
-    if (isInVoting || isInAccepted) {
-      if (!inlineMarketId && isAssigned) {
-        sidebarActions.push(
-          <ExpandableAction
-            id="newOption"
-            key="newOption"
-            label={intl.formatMessage({ id: 'inlineAddExplanation' })}
-            onClick={() => navigate(history, `${formMarketAddInvestibleLink(marketId)}#parentInvestibleId=${investibleId}`)}
-            icon={<AddIcon htmlColor={ACTION_BUTTON_COLOR}/>}
-            openLabel={intl.formatMessage({ id: 'inlineAddLabel' })}
-          />
-        );
-      }
-    }
-    if (inlineMarketId) {
-      sidebarActions.push(
-        <ExpandableAction
-          id="newOption"
-          key="newOption"
-          label={intl.formatMessage({ id: 'inlineAddExplanation' })}
-          onClick={() => navigate(history, formMarketAddInvestibleLink(inlineMarketId))}
-          icon={<AddIcon htmlColor={ACTION_BUTTON_COLOR}/>}
-          openLabel={intl.formatMessage({ id: 'inlineAddLabel' })}
-        />
-      );
-    }
     if (!isInNotDoing) {
       if (isAssigned) {
         sidebarActions.push(<ExpandableAction
@@ -596,16 +569,16 @@ function PlanningInvestible(props) {
       breadCrumbs={breadCrumbs}
       hidden={hidden}
     >
-      {activeMarket && isInVoting && isAssigned && enoughVotes && _.size(invested) > 0 && _.isEmpty(assignedInStage(investibles, userId, inAcceptedStage.id)) && (
+      {!inArchives && isInVoting && isAssigned && enoughVotes && _.size(invested) > 0 && _.isEmpty(assignedInStage(investibles, userId, inAcceptedStage.id)) && (
         <DismissableText textId='planningInvestibleEnoughVotesHelp' />
       )}
-      {activeMarket && isInVoting && isAssigned && enoughVotes && !_.isEmpty(assignedInStage(investibles, userId, inAcceptedStage.id)) && (
+      {!inArchives && isInVoting && isAssigned && enoughVotes && !_.isEmpty(assignedInStage(investibles, userId, inAcceptedStage.id)) && (
         <DismissableText textId='planningInvestibleAcceptedFullHelp' />
       )}
-      {activeMarket && isInAccepted && isAssigned && (
+      {!inArchives && isInAccepted && isAssigned && (
         <DismissableText textId='planningInvestibleAcceptedHelp' />
       )}
-      {!yourVote && activeMarket && canVote && (
+      {!yourVote && !inArchives && canVote && (
         <DismissableText textId='planningInvestibleVotingHelp' />
       )}
       <Card elevation={0}>
@@ -719,7 +692,7 @@ function PlanningInvestible(props) {
           </Grid>
         </CardContent>
       </Card>
-      {isInVoting && activeMarket && isAdmin && (canVote ? (
+      {isInVoting && !inArchives && isAdmin && (canVote ? (
             <YourVoting
               investibleId={investibleId}
               marketPresences={marketPresences}
@@ -741,10 +714,37 @@ function PlanningInvestible(props) {
         showExpiration={fullStage.has_expiration}
         expirationMinutes={market.investment_expiration * 1440}
       />
-      {/* unstyled from here on out because no FIGMA */}
       <Grid container spacing={2}>
-        {!_.isEmpty(underConsideration) && (
-          <Grid item xs={12} style={{ marginTop: '30px' }}>
+        <Grid item xs={12} style={{ marginTop: '30px' }}>
+          {!inArchives && (isInVoting || isInAccepted) && (!inlineMarketId && isAssigned) && (
+            <dl className={classes.root}>
+              <div className={clsx(classes.group, classes.assignments)}>
+                <ExpandableAction
+                  id="newOption"
+                  key="newOption"
+                  label={intl.formatMessage({ id: 'inlineAddExplanation' })}
+                  onClick={() => navigate(history, `${formMarketAddInvestibleLink(marketId)}#parentInvestibleId=${investibleId}`)}
+                  icon={<AddIcon htmlColor={ACTION_BUTTON_COLOR}/>}
+                  openLabel={intl.formatMessage({ id: 'inlineAddLabel' })}
+                />
+              </div>
+            </dl>
+          )}
+          {!inArchives && inlineMarketId && (
+            <dl className={classes.root}>
+              <div className={clsx(classes.group, classes.assignments)}>
+                <ExpandableAction
+                  id="newOption"
+                  key="newOption"
+                  label={intl.formatMessage({ id: 'inlineAddExplanation' })}
+                  onClick={() => navigate(history, formMarketAddInvestibleLink(inlineMarketId))}
+                  icon={<AddIcon htmlColor={ACTION_BUTTON_COLOR}/>}
+                  openLabel={intl.formatMessage({ id: 'inlineAddLabel' })}
+                />
+              </div>
+            </dl>
+          )}
+          {!_.isEmpty(underConsideration) && (
             <SubSection
               id="currentVoting"
               type={SECTION_TYPE_SECONDARY}
@@ -758,8 +758,8 @@ function PlanningInvestible(props) {
                 inArchives={inArchives}
               />
             </SubSection>
-          </Grid>
-        )}
+          )}
+        </Grid>
         {!_.isEmpty(proposed) && (
           <Grid item xs={12} style={{ marginTop: '56px' }}>
             <SubSection

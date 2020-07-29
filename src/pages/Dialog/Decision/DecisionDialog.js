@@ -391,19 +391,6 @@ function DecisionDialog(props) {
               )}
               <ParentSummary market={market} hidden={hidden}/>
             </dl>
-            {!inArchives && (
-              <dl className={metaClasses.root}>
-                <div className={clsx(metaClasses.group, metaClasses.assignments)}>
-                  <ExpandableAction
-                    id="proposeOption"
-                    onClick={() => navigate(history, formMarketAddInvestibleLink(marketId))}
-                    icon={<AddIcon htmlColor={ACTION_BUTTON_COLOR} />}
-                    label={intl.formatMessage({ id: addLabelExplanation })}
-                    openLabel={intl.formatMessage({ id: addLabel })}
-                  />
-                </div>
-              </dl>
-            )}
             <dl className={metaClasses.root}>
               <AttachedFilesList
                 key="files"
@@ -419,6 +406,19 @@ function DecisionDialog(props) {
       </Card>
       <Grid container spacing={2}>
         <Grid item xs={12}>
+          {!inArchives && (
+            <dl className={metaClasses.root}>
+              <div className={clsx(metaClasses.group, metaClasses.assignments)}>
+                <ExpandableAction
+                  id="proposeOption"
+                  onClick={() => navigate(history, formMarketAddInvestibleLink(marketId))}
+                  icon={<AddIcon htmlColor={ACTION_BUTTON_COLOR} />}
+                  label={intl.formatMessage({ id: addLabelExplanation })}
+                  openLabel={intl.formatMessage({ id: addLabel })}
+                />
+              </div>
+            </dl>
+          )}
           <SubSection
             id="currentVoting"
             type={SECTION_TYPE_SECONDARY}

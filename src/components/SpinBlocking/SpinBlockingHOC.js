@@ -81,7 +81,8 @@ export function withSpinLock(Component) {
       onSpinStart();
     }
 
-    function myOnClick() {
+    function myOnClick(event) {
+      event.preventDefault();
       myOnSpinStart();
       // the promise.resolve will nicely wrap non promises into a promise so we can use catch
       // to stop spinning on error

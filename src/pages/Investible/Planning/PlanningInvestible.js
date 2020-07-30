@@ -642,7 +642,7 @@ function PlanningInvestible(props) {
                 market={market}
                 marketInvestible={marketInvestible}
                 marketPresences={marketPresences}
-                isAdmin={isAdmin}
+                isAdmin={isAdmin && !inArchives}
                 toggleAssign={toggleAssign}
                 children={children || []}
                 stageActions={getStageActions()}

@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
+import _ from 'lodash';
 import { Link, List, ListItem, ListItemText, ListItemSecondaryAction, Paper } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 import { FormattedMessage, useIntl } from 'react-intl'
@@ -117,25 +118,34 @@ function AttachedFilesList(props) {
     })
   }
 
+  const hasFiles = !_.isEmpty(attachedFiles);
+
   return (
+    <LoadingOverlay
+      active={uploadInProgress}
+      spinner
+      className={classes.container}
+      text={intl.formatMessage({ id: 'uploadInProgress' })}
+    >
     <Paper className={classes.container} id="summary">
       <div className={classes.capitalize}>
         <FormattedMessage id="attachedFilesSection"/>
         <div
           className={clsx(metaClasses.group, metaClasses.assignments, metaClasses.linkContainer, metaClasses.scrollContainer)}>
-          <LoadingOverlay
-            active={uploadInProgress}
-            spinner
-            text={intl.formatMessage({ id: 'uploadInProgress' })}
-          >
-            <List className={classes.sidebarContent}>
+
+            {!hasFiles && (
               <FileUploader marketId={marketId} onUpload={onUpload} setUploadInProgress={setUploadInProgress}/>
+            )}
+            {hasFiles && (
+            <List className={classes.sidebarContent}>
+              <FileUploader key="uploader" marketId={marketId} onUpload={onUpload} setUploadInProgress={setUploadInProgress}/>
               {displayLinksList(attachedFiles)}
-            </List>
-          </LoadingOverlay>
+            </List>)}
+
         </div>
       </div>
     </Paper>
+    </LoadingOverlay>
   );
 }
 

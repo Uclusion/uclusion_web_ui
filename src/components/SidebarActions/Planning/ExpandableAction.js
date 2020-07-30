@@ -33,6 +33,7 @@ function ExpandableAction(props) {
     icon,
     id,
     label,
+    toolTip,
     openLabel,
     onClick,
   } = props;
@@ -45,7 +46,7 @@ function ExpandableAction(props) {
   }
 
   return (
-    <Tooltip title={label}>
+    <Tooltip title={toolTip || label}>
       <ListItem
         id={id}
         className={classes.menuItem}
@@ -72,6 +73,7 @@ ExpandableAction.propTypes = {
   label: PropTypes.string.isRequired,
   openLabel: PropTypes.string,
   onClick: PropTypes.func.isRequired,
+  toolTip: PropTypes.string,
 };
 
 export default ExpandableAction;

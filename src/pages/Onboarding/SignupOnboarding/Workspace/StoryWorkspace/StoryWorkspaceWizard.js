@@ -38,7 +38,7 @@ function StoryWorkspaceWizard(props) {
 
   return (
     <div>
-    {!hidden && (
+    {!hidden && !isHome && (
       <HelpMovie open name="accountSignupHelp" canClose={false}/>
     )}
     <OnboardingWizard

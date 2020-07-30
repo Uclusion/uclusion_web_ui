@@ -171,7 +171,7 @@ const useStyles = makeStyles(
     },
     borderLeft: {
       borderLeft: '1px solid #e0e0e0',
-      padding: '2rem 0 2rem 2rem',
+      padding: '0 0 0 2rem',
       marginBottom: '-42px',
       marginTop: '-42px',
       [theme.breakpoints.down("xs")]: {

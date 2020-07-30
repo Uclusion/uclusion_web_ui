@@ -152,13 +152,11 @@ function DialogManage (props) {
               label={intl.formatMessage({ id: 'initiativeAddress' })}
             />
             <CardContent className={classes.cardContent}>
-              {isAdmin && (
-                <ManageUsers
-                  market={renderableMarket}
-                  onAddNewUsers={onActionDone}
-                  onCancel={onActionDone}
-                />
-              )}
+              <ManageUsers
+                market={renderableMarket}
+                onAddNewUsers={onActionDone}
+                onCancel={onActionDone}
+              />
             </CardContent>
           </>
         )}

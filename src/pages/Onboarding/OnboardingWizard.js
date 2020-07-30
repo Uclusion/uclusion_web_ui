@@ -8,7 +8,6 @@ import { generateReducer, getStoredData, resetValues } from './onboardingReducer
 import { Helmet } from 'react-helmet'
 import Header from '../../containers/Header'
 import _ from 'lodash'
-import HelpMovie from '../../components/ModalMovie/HelpMovie'
 
 export const wizardStyles = makeStyles(
   theme => {

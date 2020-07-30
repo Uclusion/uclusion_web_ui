@@ -7,8 +7,7 @@ import NextStoryStep from './NextStoryStep'
 import CreatingWorkspaceStep from './CreatingWorkspaceStep'
 import OnboardingWizard from '../../../OnboardingWizard'
 import { useIntl } from 'react-intl'
-import HelpMovie from '../../../../../components/ModalMovie/HelpMovie';
-import Screen from '../../../../../containers/Screen/Screen';
+import HelpMovie from '../../../../../components/ModalMovie/HelpMovie'
 
 function StoryWorkspaceWizard(props) {
   const { hidden, onStartOver, isHome, onFinish } = props;

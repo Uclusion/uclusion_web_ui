@@ -415,9 +415,6 @@ function OnboardingWizard (props) {
       hidden={hidden}
       isOnboarding
     >
-      {!hidden && (
-        <HelpMovie name="accountSignupHelp" />
-      )}
       {getContent()}
     </Screen>
   );

@@ -7,6 +7,8 @@ import NextStoryStep from './NextStoryStep'
 import CreatingWorkspaceStep from './CreatingWorkspaceStep'
 import OnboardingWizard from '../../../OnboardingWizard'
 import { useIntl } from 'react-intl'
+import HelpMovie from '../../../../../components/ModalMovie/HelpMovie';
+import Screen from '../../../../../containers/Screen/Screen';
 
 function StoryWorkspaceWizard(props) {
   const { hidden, onStartOver, isHome, onFinish } = props;
@@ -36,6 +38,10 @@ function StoryWorkspaceWizard(props) {
   ];
 
   return (
+    <div>
+    {!hidden && (
+      <HelpMovie open name="accountSignupHelp" canClose={false}/>
+    )}
     <OnboardingWizard
       title={intl.formatMessage({ id: 'WorkspaceWizardTitle' })}
       isHome={isHome}
@@ -44,6 +50,7 @@ function StoryWorkspaceWizard(props) {
       onStartOver={onStartOver}
       stepPrototypes={stepPrototypes}
     />
+    </div>
   );
 }
 

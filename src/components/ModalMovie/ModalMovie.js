@@ -7,7 +7,7 @@ import MoviePlayer from './MoviePlayer';
 function ModalMovie(props) {
   // console.log('Rerendered modal movie');
   const {
-    url, onClose, autoPlay, open, poster
+    url, onClose, autoPlay, open, poster, canClose
   } = props;
   const [amOpen, setAmOpen] = useState(false);
 
@@ -38,6 +38,7 @@ function ModalMovie(props) {
           poster={poster}
           onFinish={myOnClose}
         />
+        {canClose &&(
         <IconButton
           style={{
             position: 'absolute',
@@ -49,6 +50,7 @@ function ModalMovie(props) {
         >
           <CloseIcon style={{ fontSize: 32, color: 'white' }} />
         </IconButton>
+        )}
       </div>
     </Modal>
   );
@@ -61,9 +63,11 @@ ModalMovie.propTypes = {
   onClose: PropTypes.func,
   autoPlay: PropTypes.bool.isRequired,
   open: PropTypes.bool.isRequired,
+  canClose: PropTypes.bool,
 };
 
 ModalMovie.defaultProps = {
+  canClose: true,
   poster: `${process.env.PUBLIC_URL}/images/video_poster.png`,
 }
 

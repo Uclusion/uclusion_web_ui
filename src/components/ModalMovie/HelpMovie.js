@@ -24,6 +24,7 @@ function HelpMovie(props) {
     open,
     dontAutoOpen,
     onClose,
+    canClose,
   } = props;
   const [userState, userDispatch] = useContext(AccountUserContext);
   const userPreferences = getUiPreferences(userState) || {};
@@ -88,6 +89,7 @@ function HelpMovie(props) {
       url={movieUrl}
       onClose={myOnClose}
       autoPlay
+      canClose={canClose}
       open={shouldBeOpen}
     />
   );
@@ -98,12 +100,14 @@ HelpMovie.propTypes = {
   open: PropTypes.bool,
   dontAutoOpen: PropTypes.bool,
   onClose: PropTypes.func,
+  canClose: PropTypes.bool,
 };
 
 HelpMovie.defaultProps = {
   onClose: () => {},
   dontAutoOpen: false,
   open: false,
+  canClose: true,
 };
 
 export default HelpMovie;

@@ -3,12 +3,35 @@ import PropTypes from 'prop-types';
 import { Modal, IconButton } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 import MoviePlayer from './MoviePlayer';
+import { makeStyles } from '@material-ui/styles';
+
+const useStyles = makeStyles(() => {
+  return {
+    movieModal: {
+      display: 'flex',
+      justifyContent: 'center',
+      flexDirection: 'column',
+      alignItems: 'center',
+    },
+    movieContainer: {
+      minHeight: '75vh',
+      minWidth: '75vw',
+      display: 'flex',
+      justifyContent: 'center',
+      flexDirection: 'column',
+      alignItems: 'center',
+      outline: '2',
+    }
+  };
+});
 
 function ModalMovie(props) {
   // console.log('Rerendered modal movie');
   const {
     url, onClose, autoPlay, open, poster, canClose
   } = props;
+
+  const classes = useStyles();
   const [amOpen, setAmOpen] = useState(false);
 
   function myOnClose() {
@@ -24,14 +47,9 @@ function ModalMovie(props) {
   return (
     <Modal
       open={amOpen}
-      style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: '10%',
-      }}
+      className={classes.movieContainer}
     >
-      <div style={{ width: '100%', position: 'relative', outline: 'none' }}>
+      <div className={classes.movieContainer}>
         <MoviePlayer
           autoPlay={autoPlay}
           url={url}
@@ -39,17 +57,17 @@ function ModalMovie(props) {
           onFinish={myOnClose}
         />
         {canClose &&(
-        <IconButton
-          style={{
-            position: 'absolute',
-            top: -40,
-            right: -40,
-          }}
-          aria-label="Close"
-          onClick={myOnClose}
-        >
-          <CloseIcon style={{ fontSize: 32, color: 'white' }} />
-        </IconButton>
+          <IconButton
+            style={{
+              position: 'absolute',
+              top: -40,
+              right: -40,
+            }}
+            aria-label="Close"
+            onClick={myOnClose}
+          >
+            <CloseIcon style={{ fontSize: 32, color: 'white' }} />
+          </IconButton>
         )}
       </div>
     </Modal>

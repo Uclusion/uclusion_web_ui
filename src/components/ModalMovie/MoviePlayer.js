@@ -1,33 +1,19 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import '../../../node_modules/video-react/dist/video-react.css';
-import { Player } from 'video-react';
+import ReactPlayer from 'react-player';
 
 function MoviePlayer(props) {
   const { autoPlay, url, onFinish, poster } = props;
 
-  let player = null;
-
-  function handlePlayerStateChange(state, prevState) {
-    const { ended } = state;
-    if (ended) {
-      onFinish();
-    }
-  }
-
-  function setPlayerRef(element) {
-    player = element;
-    if (player) {
-      player.subscribeToStateChange(handlePlayerStateChange);
-    }
-  }
-
   return (
-    <Player
-      src={url}
-      poster={poster}
-      autoPlay={autoPlay}
-      ref={setPlayerRef}
+    <ReactPlayer
+      url={url}
+      light={poster}
+      controls
+      playing={autoPlay}
+      width='100%'
+      height='100%'
+      onEnded={onFinish}
     />
   );
 }

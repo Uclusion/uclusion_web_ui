@@ -146,6 +146,20 @@ function InvestiblesByWorkspace(props) {
               titleTypographyProps={{ variant: "subtitle2" }}
             />
             <CardContent className={classes.content}>
+              {!_.isEmpty(requiresInputInvestibles) && (
+                <SubSection
+                  type={SECTION_TYPE_SECONDARY}
+                  title={intl.formatMessage({ id: 'requiresInputHeader' })}
+                >
+                  <ArchiveInvestbiles
+                    elevation={0}
+                    marketId={market.id}
+                    presenceMap={getPresenceMap(marketPresencesState, market.id)}
+                    investibles={requiresInputInvestibles}
+                  />
+                  <hr />
+                </SubSection>
+              )}
               {market.id &&
               acceptedStage &&
               inDialogStage &&
@@ -162,19 +176,6 @@ function InvestiblesByWorkspace(props) {
                   comments={comments}
                   presenceId={presence.id}
                 />
-              )}
-              {!_.isEmpty(requiresInputInvestibles) && (
-                <SubSection
-                  type={SECTION_TYPE_SECONDARY}
-                  title={intl.formatMessage({ id: 'requiresInputHeader' })}
-                >
-                  <ArchiveInvestbiles
-                    elevation={0}
-                    marketId={market.id}
-                    presenceMap={getPresenceMap(marketPresencesState, market.id)}
-                    investibles={requiresInputInvestibles}
-                  />
-                </SubSection>
               )}
             </CardContent>
           </Card>

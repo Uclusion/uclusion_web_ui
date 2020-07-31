@@ -246,6 +246,19 @@ function PlanningDialog(props) {
       {!isChannel && (
         <DismissableText textId='stageHelp' />
       )}
+      {!_.isEmpty(requiresInputInvestibles) && (
+        <SubSection
+          type={SECTION_TYPE_SECONDARY}
+          title={intl.formatMessage({ id: 'requiresInputHeader' })}
+        >
+          <ArchiveInvestbiles
+            elevation={0}
+            marketId={marketId}
+            presenceMap={presenceMap}
+            investibles={requiresInputInvestibles}
+          />
+        </SubSection>
+      )}
       {!isChannel && (
         <div id="swimLanes">
           <InvestiblesByPerson
@@ -261,19 +274,6 @@ function PlanningDialog(props) {
             activeMarket={activeMarket}
           />
         </div>
-      )}
-      {!_.isEmpty(requiresInputInvestibles) && (
-        <SubSection
-          type={SECTION_TYPE_SECONDARY}
-          title={intl.formatMessage({ id: 'requiresInputHeader' })}
-        >
-          <ArchiveInvestbiles
-            elevation={0}
-            marketId={marketId}
-            presenceMap={presenceMap}
-            investibles={requiresInputInvestibles}
-          />
-        </SubSection>
       )}
       {!_.isEmpty(furtherWorkInvestibles) && (
         <SubSection

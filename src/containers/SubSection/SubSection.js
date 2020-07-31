@@ -1,10 +1,8 @@
-import React from 'react';
-import {
-  AppBar, makeStyles, Toolbar, Typography,
-} from '@material-ui/core';
-import PropTypes from 'prop-types';
-import { SECTION_TYPE_PRIMARY, SECTION_TYPE_PRIMARY_WARNING } from '../../constants/global'
+import React from 'react'
+import { AppBar, makeStyles, Toolbar, Typography, } from '@material-ui/core'
+import PropTypes from 'prop-types'
 import { pink } from '@material-ui/core/colors'
+import { SECTION_TYPE_SECONDARY } from '../../constants/global'
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -28,16 +26,12 @@ const useStyles = makeStyles((theme) => {
       boxShadow: 'none',
       background: '#3F6B72',
       color: '#fff',
-      minHeight: 32,
-      borderRadius: '2px',
-      marginBottom: '6px',
-      marginTop: '16px'
     },
     grow: {
       flexGrow: 1,
     },
     headerTitle: {
-      fontSize: 18,
+      fontSize: 16,
       lineHeight: 1,
       cursor: 'default',
     },
@@ -56,6 +50,7 @@ function SubSection(props) {
     hidden,
     title,
     actionButton,
+    // eslint-disable-next-line no-unused-vars
     type,
     titleIcon,
     id,
@@ -67,15 +62,13 @@ function SubSection(props) {
     <React.Fragment>
       <AppBar
         id={id}
-        className={type === SECTION_TYPE_PRIMARY || type === SECTION_TYPE_PRIMARY_WARNING ? classes.primarySubHeader
-          : classes.secondarySubHeader}
+        className={classes.secondarySubHeader}
         position="static"
         hidden={hidden}
       >
-        <Toolbar>
+        <Toolbar variant="dense">
           {titleIcon}
-          <Typography className={type === SECTION_TYPE_PRIMARY ? classes.headerPrimaryTitle
-            : type === SECTION_TYPE_PRIMARY_WARNING ? classes.primarySubHeaderWarning : classes.headerTitle}>
+          <Typography className={classes.headerTitle}>
             {title}
           </Typography>
           <div className={classes.grow}/>
@@ -93,9 +86,7 @@ function SubSection(props) {
 SubSection.propTypes = {
   hidden: PropTypes.bool,
   title: PropTypes.string,
-  // eslint-disable-next-line react/forbid-prop-types
   children: PropTypes.any,
-  // eslint-disable-next-line react/forbid-prop-types
   actionButton: PropTypes.object,
   type: PropTypes.string,
   titleIcon: PropTypes.element,
@@ -106,7 +97,7 @@ SubSection.defaultProps = {
   title: '',
   hidden: false,
   children: undefined,
-  type: SECTION_TYPE_PRIMARY,
+  type: SECTION_TYPE_SECONDARY,
   titleIcon: undefined,
   id: undefined,
 };

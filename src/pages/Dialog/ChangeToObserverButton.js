@@ -31,9 +31,7 @@ function ChangeToObserverButton(props) {
   const lockedDialogClasses = useLockedDialogStyles();
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const presences = getMarketPresences(marketPresencesState, marketId) || [];
-  const presencesFollowing = presences.filter((presence) => presence.following && !presence.market_banned);
   const myPresence = presences.find((presence) => presence.current_user);
-  const isDeactivate = marketType === PLANNING_TYPE && presencesFollowing && presencesFollowing.length < 3;
   const autoFocusRef = React.useRef(null);
 
   const handleOpen = () => {
@@ -50,10 +48,6 @@ function ChangeToObserverButton(props) {
 
   function myOnClickChooseNotDeactivate() {
     return myOnClick(false);
-  }
-
-  function myOnClickPlanning() {
-    return myOnClick(isDeactivate);
   }
 
   function myOnClick(myIsDeactivate) {
@@ -136,19 +130,31 @@ function ChangeToObserverButton(props) {
         open={open}
         onClose={handleClose}
         icon={<ArchiveIcon htmlColor={ACTION_BUTTON_COLOR} />}
-        issueWarningId={isDeactivate ? 'deactivateWarning' : 'archiveWarning'}
+        issueWarningId="archiveWarning"
         /* slots */
         actions={
-          <SpinBlockingButton
-            className={clsx(lockedDialogClasses.action, lockedDialogClasses.actionEdit)}
-            disableFocusRipple
-            marketId={marketId}
-            onClick={myOnClickPlanning}
-            hasSpinChecker
-            onSpinStop={onClick}
-          >
-            <FormattedMessage id="issueProceed" />
-          </SpinBlockingButton>
+          <React.Fragment>
+            <SpinBlockingButton
+              className={clsx(lockedDialogClasses.action, lockedDialogClasses.actionEdit)}
+              disableFocusRipple
+              marketId={marketId}
+              onClick={myOnClickChooseNotDeactivate}
+              hasSpinChecker
+              onSpinStop={onClick}
+            >
+              <FormattedMessage id="noAndProceedDeactivate" />
+            </SpinBlockingButton>
+            <SpinBlockingButton
+              className={clsx(lockedDialogClasses.action, lockedDialogClasses.actionEdit)}
+              disableFocusRipple
+              marketId={marketId}
+              onClick={myOnClickChooseDeactivate}
+              hasSpinChecker
+              onSpinStop={onClick}
+            >
+              <FormattedMessage id="yesAndProceedDeactive" />
+            </SpinBlockingButton>
+          </React.Fragment>
         }
       />
     </div>

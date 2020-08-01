@@ -53,8 +53,9 @@ export const usePlanFormStyles = makeStyles(
     },
     nestedCard: {
       [theme.breakpoints.down('sm')]: {
-        paddingLeft: 0,
-        paddingRight: 0
+        paddingLeft: '10px',
+        paddingRight: '10px',
+        flexDirection: 'column'
       }
     },
     cardType: {
@@ -142,6 +143,9 @@ export const usePlanFormStyles = makeStyles(
     sharedForm: {
       width: '20%',
       marginRight: 10,
+      [theme.breakpoints.down('sm')]: {
+        width: 'auto'
+      }
     },
     sectionHeader: {
       fontWeight: 700,

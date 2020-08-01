@@ -14,7 +14,7 @@ const useStyles = makeStyles(
         marginTop: '3rem',
         display: 'flex',
         [theme.breakpoints.down("xs")]: {
-          width: '12rem',
+          width: '11rem',
         }
       },
       buttonClass: {

@@ -194,7 +194,31 @@ const useStyles = makeStyles(
       marginTop: '20px',
       [theme.breakpoints.down("xs")]: {
         maxWidth: '100%',
-        flexBasis: '100%'
+        flexBasis: '100%',
+        flexDirection: 'column'
+      }
+    },
+    autocompleteContainer: {
+      display: 'flex',
+      marginLeft: '30px',
+      padding: '10px',
+      [theme.breakpoints.down("xs")]: {
+        marginLeft: '0',
+        flexDirection: 'column'
+      }
+    },
+    labelChip: {
+      paddingRight: '10px',
+      [theme.breakpoints.down("xs")]: {
+        paddingRight: 0,
+        paddingBottom: '5px'
+      }
+    },
+    labelExplain: {
+      marginLeft: '10px',
+      width: 90,
+      [theme.breakpoints.down("xs")]: {
+        width: 'auto'
       }
     },
     fullWidth: {
@@ -653,12 +677,12 @@ function PlanningInvestible(props) {
           </Grid>
           <Grid item xs={9} className={classes.fullWidthCentered}>
             {labelList && labelList.map((label) =>
-              <div key={label} style={{ paddingRight: '10px'  }}>
+              <div key={label} className={classes.labelChip}>
                 <Chip label={label} onDelete={()=>deleteLabel(`${label}`)} color="primary" />
               </div>
             )}
             {!inArchives && isAdmin && (
-              <div style={{ display: 'flex', marginLeft: '30px', padding: '10px'  }}>
+              <div className={classes.autocompleteContainer}>
                 <Autocomplete
                   {...defaultProps}
                   id="addLabel"
@@ -681,7 +705,7 @@ function PlanningInvestible(props) {
                   </IconButton>
                 )}
                 {!newLabel && labelFocus && (
-                  <div style={{ marginLeft: '10px', width: 90 }}>
+                  <div className={classes.labelExplain} >
                     <Typography key="completeExplain" className={classes.explain}>
                       {intl.formatMessage({ id: 'typeOrChoose' })}
                     </Typography>

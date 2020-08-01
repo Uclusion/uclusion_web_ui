@@ -33,17 +33,14 @@ export function Collaborators(props) {
   const { marketPresences: unfilteredPresences, authorId, intl, authorDisplay, history, marketId } = props;
   const classes = useStyles();
   const marketPresences = unfilteredPresences.filter((presence) => (!presence.market_banned && !presence.market_guest));
+  const author = marketPresences.find((presence) => presence.id === authorId);
   const myPresence = marketPresences.find((presence) => presence.current_user);
-  marketPresences.sort(function(a, b) {
-    if (a.id === authorId) return -1;
-    return 0;
-  });
   return (
     <span className={classes.assignmentFlexRow}>
       <ul>
-        {authorDisplay && (
-          <Typography key={marketPresences[0].id} component="li">
-            {marketPresences[0].name}
+        {authorDisplay && author && (
+          <Typography key={author.id} component="li">
+            {author.name}
           </Typography>
         )}
         {!authorDisplay && marketPresences.map(presence => {

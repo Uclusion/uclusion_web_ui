@@ -353,7 +353,10 @@ export const useInvestiblesByPersonStyles = makeStyles(
       },
       expansionControl: {
         backgroundColor: '#ecf0f1',
-        width: '30%'
+        width: '30%',
+        [theme.breakpoints.down('sm')]: {
+          width: 'auto'
+        }
       },
       fontControl: {
         alignItems: "center",

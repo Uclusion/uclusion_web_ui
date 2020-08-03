@@ -4,7 +4,7 @@ import { useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
 import { useHistory } from 'react-router'
 import Header from '../../containers/Header'
-import { decomposeMarketPath, } from '../../utils/marketIdPathFunctions'
+import { decomposeMarketPath, formMarketLink, navigate, } from '../../utils/marketIdPathFunctions'
 import { getMarketFromInvite } from '../../api/uclusionClient'
 import { toastError } from '../../utils/userMessage'
 import queryString from 'query-string'
@@ -12,6 +12,8 @@ import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { CircularProgress, Grid } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import { pollForMarketLoad } from '../../api/versionedFetchUtils'
+import _ from 'lodash'
+import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -59,11 +61,11 @@ function MarketInvite(props) {
   const { hidden } = props;
   const intl = useIntl();
   const history = useHistory();
-  const [marketsDispatch] = useContext(MarketsContext);
+  const [marketsState, marketsDispatch] = useContext(MarketsContext);
   const classes = useStyles();
 
   useEffect(() => {
-    if (!hidden) {
+    if (!hidden && !marketsState.initializing) {
       const { location } = history;
       const { pathname, hash } = location;
       const { marketId: marketToken } = decomposeMarketPath(pathname);
@@ -73,6 +75,12 @@ function MarketInvite(props) {
         .then((result) => {
           const { market } = result;
           const { id } = market;
+          const loadedMarket = getMarket(marketsState, id);
+          if (!_.isEmpty(loadedMarket)) {
+            // Someone followed an invite link for a market they already had
+            navigate(history, formMarketLink(id));
+            return;
+          }
           return pollForMarketLoad(id, history);
         })
         .catch((error) => {
@@ -80,7 +88,7 @@ function MarketInvite(props) {
           toastError('errorMarketFetchFailed');
         });
     }
-  }, [hidden, history, marketsDispatch]);
+  }, [hidden, history, marketsDispatch, marketsState]);
 
   if (hidden) {
     return <React.Fragment/>

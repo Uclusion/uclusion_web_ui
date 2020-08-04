@@ -73,7 +73,7 @@ function InvestiblesByWorkspace(props) {
       }}>{itemName}</MenuItem>
     );
   }
-  const people = Object.entries(extractUsersList(marketPresencesState, undefined, workspaces));
+  const people = Object.entries(extractUsersList(marketPresencesState, undefined, workspaces, false));
   const sortedPeople = _.sortBy(people, [function(o) {
     const {
       current_user: currentUser

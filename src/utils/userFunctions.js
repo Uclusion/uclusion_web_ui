@@ -8,7 +8,7 @@ import { Auth } from 'aws-amplify'
 import { getMarketPresences } from '../contexts/MarketPresencesContext/marketPresencesHelper'
 import _ from 'lodash'
 
-export function extractUsersList (marketPresencesState, addToMarketId, workspaces) {
+export function extractUsersList (marketPresencesState, addToMarketId, workspaces, includeNotFollowing=true) {
   const addToMarketPresencesRaw = getMarketPresences(marketPresencesState, addToMarketId) || [];
   const addToMarketPresences = addToMarketPresencesRaw.filter((presence) => !presence.market_guest);
   const addToMarketPresencesHash = addToMarketPresences.reduce((acc, presence) => {
@@ -33,9 +33,10 @@ export function extractUsersList (marketPresencesState, addToMarketId, workspace
     if (included) {
       marketPresences.forEach((presence) => {
         const {
-          id: user_id, name, account_id, external_id, email, market_banned: banned, current_user
+          id: user_id, name, account_id, external_id, email, market_banned: banned, current_user, following
         } = presence;
-        if (!banned && !addToMarketPresencesHash[external_id] && !acc[user_id] && !macc[user_id]) {
+        if (!banned && !addToMarketPresencesHash[external_id] && !acc[user_id] && !macc[user_id]
+          && (includeNotFollowing || following)) {
           const emailSplit = email ? email.split('@') : ['', ''];
           addToMarketPresencesHash[external_id] = true;
           macc[user_id] = {

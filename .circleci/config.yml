@@ -48,7 +48,7 @@ jobs:
           command: |
             [ -d ~/.aws ] && echo "Found" || mkdir ~/.aws
             echo -e "[default]\naws_access_key_id=$aws_access_key_id\naws_secret_access_key=$aws_secret_access_key\n" > ~/.aws/credentials
-            apt-get update
+            sudo apt-get update
             sudo apt-get -y -qq install awscli
             cd ~/repo
             npm run-script deploy-${env_name}

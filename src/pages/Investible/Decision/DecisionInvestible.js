@@ -30,14 +30,18 @@ import MoveBackToPoolActionButton from './MoveBackToPoolActionButton'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
-import { addInvestible, getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
-import CardActions from '@material-ui/core/CardActions';
-import clsx from 'clsx';
-import AttachedFilesList from '../../../components/Files/AttachedFilesList';
-import { useMetaDataStyles } from '../Planning/PlanningInvestible';
-import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
-import { attachFilesToInvestible, deleteAttachedFilesFromInvestible } from '../../../api/investibles';
-import { EMPTY_SPIN_RESULT } from '../../../constants/global';
+import { addInvestible, getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
+import CardActions from '@material-ui/core/CardActions'
+import clsx from 'clsx'
+import AttachedFilesList from '../../../components/Files/AttachedFilesList'
+import { useMetaDataStyles } from '../Planning/PlanningInvestible'
+import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
+import { attachFilesToInvestible, deleteAttachedFilesFromInvestible } from '../../../api/investibles'
+import { EMPTY_SPIN_RESULT } from '../../../constants/global'
+import {
+  HIGHLIGHT_REMOVE,
+  HighlightedCommentContext
+} from '../../../contexts/HighlightingContexts/HighlightedCommentContext'
 
 const useStyles = makeStyles((theme) => ({
   mobileColumn: {
@@ -172,7 +176,7 @@ function DecisionInvestible(props) {
   const metaClasses = useMetaDataStyles();
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, diffDispatch] = useContext(DiffContext);
-
+  const [highlightedCommentState, highlightedCommentDispatch] = useContext(HighlightedCommentContext);
   const { name: marketName, id: marketId, market_stage: marketStage, allow_multi_vote: allowMultiVote,
   is_inline: isInline, parent_investible_id: parentInvestibleId, parent_market_id: parentMarketId } = market;
   let breadCrumbTemplates = [{ name: marketName, link: formMarketLink(marketId), id: 'marketCrumb'}];
@@ -267,6 +271,10 @@ function DecisionInvestible(props) {
   if (!investibleId) {
     // we have no usable data;
     return <></>;
+  }
+
+  if (investibleId in highlightedCommentState) {
+    highlightedCommentDispatch({ type: HIGHLIGHT_REMOVE, commentId: investibleId });
   }
 
   return (

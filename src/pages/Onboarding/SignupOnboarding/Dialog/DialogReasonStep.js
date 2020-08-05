@@ -59,6 +59,7 @@ function DialogReasonStep (props) {
       <div className={classes.borderBottom}></div>
       <StepButtons {...props}
                    validForm={validForm}
+                   showSkip={true}
                    onPrevious={onStepChange}
                    onNext={onStepChange}/>
     </div>

@@ -22,7 +22,7 @@ function CurrentStoryStep (props) {
   } = formData;
   const [editorContents, setEditorContents] = useState(currentStoryDescription);
   const storyName = currentStoryName || '';
-  const validForm = !_.isEmpty(currentStoryName) && !_.isEmpty(editorContents);
+  const validForm = !_.isEmpty(currentStoryName);
 
   function onNameChange (event) {
     const { value } = event.target;

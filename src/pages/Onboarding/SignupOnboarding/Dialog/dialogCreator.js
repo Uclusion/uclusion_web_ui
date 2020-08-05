@@ -1,13 +1,13 @@
-import { createDecision } from '../../../../api/markets';
-import { addMarketToStorage } from '../../../../contexts/MarketsContext/marketsContextHelper';
-import { pushMessage } from '../../../../utils/MessageBusUtils';
-import { PUSH_STAGE_CHANNEL, VERSIONS_EVENT } from '../../../../contexts/VersionsContext/versionsContextHelper';
-import { addPresenceToMarket } from '../../../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { AllSequentialMap } from '../../../../utils/PromiseUtils';
-import { processTextAndFilesForSave } from '../../../../api/files';
-import { addInvestibleToStage } from '../../../../api/investibles';
-import { addInvestible } from '../../../../contexts/InvestibesContext/investiblesContextHelper';
-import { resetValues } from '../../onboardingReducer';
+import { createDecision } from '../../../../api/markets'
+import { addMarketToStorage } from '../../../../contexts/MarketsContext/marketsContextHelper'
+import { pushMessage } from '../../../../utils/MessageBusUtils'
+import { PUSH_STAGE_CHANNEL, VERSIONS_EVENT } from '../../../../contexts/VersionsContext/versionsContextHelper'
+import { addPresenceToMarket } from '../../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { AllSequentialMap } from '../../../../utils/PromiseUtils'
+import { processTextAndFilesForSave } from '../../../../api/files'
+import { addInvestibleToStage } from '../../../../api/investibles'
+import { addInvestible } from '../../../../contexts/InvestibesContext/investiblesContextHelper'
+import { resetValues } from '../../onboardingReducer'
 
 export function createMyDialog (dispatchers, formData, updateFormData, setOperationStatus) {
   const {
@@ -24,9 +24,10 @@ export function createMyDialog (dispatchers, formData, updateFormData, setOperat
     addOptionsSkipped,
     marketId,
   } = formData;
+  const marketDescription = dialogReason === undefined ? ' ' : dialogReason;
   const marketInfo = {
     name: dialogName,
-    description: dialogReason,
+    description: marketDescription,
     expiration_minutes: dialogExpiration,
   };
   let createdMarketId;
@@ -58,10 +59,11 @@ export function createMyDialog (dispatchers, formData, updateFormData, setOperat
         } = option;
         const realUploadedFiles = optionUploadedFiles || [];
         const processed = processTextAndFilesForSave(realUploadedFiles, optionDescription);
+        const processedOptionDescription = processed.text ? processed.text : ' ';
         const addInfo = {
           marketId: createdMarketId,
           name: optionName,
-          description: processed.text,
+          description: processedOptionDescription,
           uploadedFiles: processed.uploadedFiles,
           stageInfo: {
             current_stage_id: createdStage.id,

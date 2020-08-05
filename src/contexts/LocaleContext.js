@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../components/utils';
+import React, { useEffect, useState } from 'react'
+import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../components/utils'
 
 const LocaleContext = React.createContext([{}, () => {}]);
 const LOCALE_CONTEXT_KEY = 'locale_context';
@@ -12,7 +12,7 @@ function LocaleProvider(props) {
 
   useEffect(() => {
     setUclusionLocalStorageItem(LOCALE_CONTEXT_KEY, state);
-  }, [state, defaultValue]);
+  }, [state]);
 
   return (
     <LocaleContext.Provider value={[state, setState]}>

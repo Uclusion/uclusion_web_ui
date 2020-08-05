@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useState } from 'react'
+import React, { useEffect, useReducer } from 'react'
 import reducer, {
   EMPTY_STATE,
   initializeVersionsAction,
@@ -14,26 +14,21 @@ function VersionsProvider(props) {
   // eslint-disable-next-line react/prop-types
   const { children } = props;
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
-  const [isInitialization, setIsInitialization] = useState(true);
 
   useEffect(() => {
-    if (isInitialization) {
-      // console.debug('Versions context listening');
-      beginListening(dispatch);
-      // load state from storage
-      const lfg = new LocalForageHelper(VERSIONS_CONTEXT_NAMESPACE);
-      lfg.getState()
-        .then((diskState) => {
-          // Note: My stored empty state has the version set to INITIALIZATION
-          // which lets the global version refresh know to turn on the global spin lock
-          const myDiskState = diskState || MY_STORED_EMPTY_STATE;
-          dispatch(initializeVersionsAction(myDiskState));
-          setIsInitialization(false);
-        });
-    }
-    return () => {
-    };
-  }, [isInitialization]);
+    // console.debug('Versions context listening');
+    beginListening(dispatch);
+    // load state from storage
+    const lfg = new LocalForageHelper(VERSIONS_CONTEXT_NAMESPACE);
+    lfg.getState()
+      .then((diskState) => {
+        // Note: My stored empty state has the version set to INITIALIZATION
+        // which lets the global version refresh know to turn on the global spin lock
+        const myDiskState = diskState || MY_STORED_EMPTY_STATE;
+        dispatch(initializeVersionsAction(myDiskState));
+      });
+    return () => {};
+  }, []);
 
   return (
     <VersionsContext.Provider value={[state, dispatch]}>

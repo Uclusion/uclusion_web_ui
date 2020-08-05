@@ -1,7 +1,7 @@
-import React, { useState, useReducer } from 'react';
-import reducer, { initializeState } from './marketStagesContextReducer';
-import LocalForageHelper from '../../utils/LocalForageHelper';
-import beginListening from './marketStagesContextMessages';
+import React, { useEffect, useReducer } from 'react'
+import reducer, { initializeState } from './marketStagesContextReducer'
+import LocalForageHelper from '../../utils/LocalForageHelper'
+import beginListening from './marketStagesContextMessages'
 
 const MARKET_STAGES_CONTEXT_NAMESPACE = 'market_stages';
 const EMPTY_STATE = { initializing: true };
@@ -10,8 +10,8 @@ const MarketStagesContext = React.createContext(EMPTY_STATE);
 
 function MarketStagesProvider (props) {
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
-  const [isInitialization, setIsInitialization] = useState(true);
-  if (isInitialization) {
+
+  useEffect(() => {
     // set the new state cache to something we control, so that our
     // provider descendants will pick up changes to it
     // load state from storage
@@ -23,8 +23,9 @@ function MarketStagesProvider (props) {
         }
       });
     beginListening(dispatch);
-    setIsInitialization(false);
-  }
+    return () => {};
+  }, []);
+
   return (
     <MarketStagesContext.Provider value={[state, dispatch]}>
       {props.children}

@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useState } from 'react'
+import React, { useEffect, useReducer } from 'react'
 import { useHistory } from 'react-router'
 import reducer, { initializeState, NOTIFICATIONS_CONTEXT_NAMESPACE, } from './notificationsContextReducer'
 
@@ -21,26 +21,26 @@ function NotificationsProvider(props) {
   // eslint-disable-next-line react/prop-types
   const { children } = props;
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
-  const [isInitialization, setIsInitialization] = useState(true);
   const history = useHistory();
 
   useEffect(() => {
-    if (isInitialization) {
-      const lfg = new LocalForageHelper(NOTIFICATIONS_CONTEXT_NAMESPACE);
-      lfg.getState()
-        .then((state) => {
-          if (state) {
-            const { messages } = state;
-            //We don't want to load up page or lastPage from disk
-            dispatch(initializeState({ messages }));
-          }
-        });
-      beginListening(dispatch, history);
-      setIsInitialization(false);
-    }
-    return () => {
-    };
-  }, [isInitialization, history]);
+    console.info('Beginning listening in notifications provider');
+    beginListening(dispatch, history);
+    return () => {};
+  }, [history]);
+
+  useEffect(() => {
+    const lfg = new LocalForageHelper(NOTIFICATIONS_CONTEXT_NAMESPACE);
+    lfg.getState()
+      .then((state) => {
+        if (state) {
+          const { messages } = state;
+          //We don't want to load up page or lastPage from disk
+          dispatch(initializeState({ messages }));
+        }
+      });
+    return () => {};
+  }, []);
 
   return (
     <NotificationsContext.Provider value={[state, dispatch]}>

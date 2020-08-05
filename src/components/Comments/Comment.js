@@ -17,7 +17,6 @@ import CommentEdit from './CommentEdit'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { getMarket, getMyUserForMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 import {
-  EXPANDED,
   HIGHLIGHT_REMOVE,
   HighlightedCommentContext
 } from '../../contexts/HighlightingContexts/HighlightedCommentContext'
@@ -28,6 +27,7 @@ import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { ACTIVE_STAGE } from '../../constants/markets'
 import { red } from '@material-ui/core/colors'
 import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
+import { EXPANDED_CONTROL, ExpandedCommentContext } from '../../contexts/CommentsContext/ExpandedCommentContext'
 
 const useCommentStyles = makeStyles(
   theme => {
@@ -178,9 +178,8 @@ function Comment(props) {
   const inArchives = !activeMarket || !myPresence.following;
   const replies = comments.filter(comment => comment.reply_id === id);
   const sortedReplies = _.sortBy(replies, "created_at");
-  const [highlightedCommentState, highlightedCommentDispatch] = useContext(
-    HighlightedCommentContext
-  );
+  const [highlightedCommentState, highlightedCommentDispatch] = useContext(HighlightedCommentContext);
+  const [expandedCommentState, expandedCommentDispatch] = useContext(ExpandedCommentContext);
   const [replyOpen, setReplyOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [operationRunning] = useContext(OperationInProgressContext);
@@ -238,18 +237,19 @@ function Comment(props) {
     return highLighted;
   }
   const highlightIds = getHilightedIds(replies);
-  const myHighlightedExpandedState = highlightedCommentState[id] || {};
-  const { level: myHighlightedLevel, repliesExpanded: myRepliesExpanded } = myHighlightedExpandedState;
+  const myHighlightedState = highlightedCommentState[id] || {};
+  const myExpandedState = expandedCommentState[id] || {};
+  const { level: myHighlightedLevel } = myHighlightedState;
+  const { expanded: myRepliesExpanded } = myExpandedState;
   const myRepliesExpandedCalc = myRepliesExpanded === undefined ? _.isEmpty(highlightIds) ? undefined : true : myRepliesExpanded;
   const repliesExpanded = myRepliesExpandedCalc === undefined ? !comment.resolved || comment.reply_id : myRepliesExpandedCalc;
 
   useEffect(() => {
     if (!_.isEmpty(highlightIds) && !myRepliesExpanded && commentType !== REPLY_TYPE) {
       // Open if need to highlight inside - user can close again
-      highlightedCommentDispatch({ type: EXPANDED, commentId: id, newRepliesExpanded: true });
+      expandedCommentDispatch({ type: EXPANDED_CONTROL, commentId: id, expanded: true });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, highlightedCommentState, myRepliesExpanded, replies, comments, highlightedCommentDispatch]);
+  }, [id, myRepliesExpanded, expandedCommentDispatch, highlightIds, commentType]);
 
   const displayUpdatedBy =
     updatedBy !== undefined && comment.updated_by !== comment.created_by;
@@ -359,7 +359,7 @@ function Comment(props) {
                 variant="contained"
                 onClick={() => {
                   const newRepliesExpanded = !repliesExpanded;
-                  highlightedCommentDispatch({ type: EXPANDED, commentId: id, newRepliesExpanded });
+                  expandedCommentDispatch({ type: EXPANDED_CONTROL, commentId: id, expanded: newRepliesExpanded });
                   if (!newRepliesExpanded && !_.isEmpty(highlightIds)) {
                     highlightIds.forEach((commentId) => highlightedCommentDispatch({ type: HIGHLIGHT_REMOVE, commentId }));
                   }

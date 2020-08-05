@@ -1,6 +1,6 @@
-import React, { useEffect, useReducer, useState } from 'react';
-import _ from 'lodash';
-import beginListening from './highligtedVotingContextMessages';
+import React, { useEffect, useReducer } from 'react'
+import _ from 'lodash'
+import beginListening from './highligtedVotingContextMessages'
 
 const HighlightedVotingContext = React.createContext({});
 const HIGHLIGHT_DELAY = 300000;
@@ -22,14 +22,9 @@ function HighlightedVotingProvider(props) {
     return { ...newState };
   }, {});
 
-  const [isInitialization, setIsInitialization] = useState(true);
-
   useEffect(() => {
-    if (isInitialization) {
-      beginListening(dispatch);
-      setIsInitialization(false);
-    }
-  }, [isInitialization]);
+    beginListening(dispatch);
+  }, []);
 
   return (
     <HighlightedVotingContext.Provider value={[state, dispatch]}>

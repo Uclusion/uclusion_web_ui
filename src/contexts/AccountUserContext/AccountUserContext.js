@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useState } from 'react'
+import React, { useEffect, useReducer } from 'react'
 import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../../components/utils'
 import { reducer, resetState } from './accountUserContextReducer'
 import { beginListening } from './accountUserContextMessages'
@@ -18,7 +18,11 @@ function AccountUserProvider (props) {
   const { children, authState } = props;
   const defaultValue = getUclusionLocalStorageItem(ACCOUNT_USER_CONTEXT_KEY) || EMPTY_STATE;
   const [state, dispatch] = useReducer(reducer, defaultValue);
-  const [isInitialization, setIsInitialization] = useState(true);
+
+  useEffect(() => {
+    beginListening(dispatch);
+    return () => {}
+  }, []);
 
   useEffect(() => {
     setUclusionLocalStorageItem(ACCOUNT_USER_CONTEXT_KEY, state);
@@ -26,13 +30,9 @@ function AccountUserProvider (props) {
     if (!_.isEmpty(state) && authState !== 'signedIn') {
       dispatch(resetState());
     }
-    if (isInitialization) {
-      beginListening(dispatch);
-      setIsInitialization(false);
-    }
     return () => {
     }
-  }, [state, isInitialization, dispatch, setIsInitialization, authState]);
+  }, [state, authState]);
 
   return (
     <AccountUserContext.Provider value={[state, dispatch]}>

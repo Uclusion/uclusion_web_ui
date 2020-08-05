@@ -1,11 +1,11 @@
-import React, { useEffect, useReducer, useState } from 'react';
-import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../../components/utils';
-import { reducer } from './accountContextReducer';
-import { beginListening } from './accountContextMessages';
-import { getAccount } from '../../api/sso';
-import { updateAccount, updateBilling, updateInvoices } from './accountContextHelper';
-import { getInvoices, getPaymentInfo } from '../../api/users';
-import _ from 'lodash';
+import React, { useEffect, useReducer } from 'react'
+import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../../components/utils'
+import { reducer } from './accountContextReducer'
+import { beginListening } from './accountContextMessages'
+import { getAccount } from '../../api/sso'
+import { updateAccount, updateBilling, updateInvoices } from './accountContextHelper'
+import { getInvoices, getPaymentInfo } from '../../api/users'
+import _ from 'lodash'
 
 const EMPTY_STATE = { account: {}, billingInfo: {}, initializing: true };
 const AccountContext = React.createContext(EMPTY_STATE);
@@ -21,31 +21,30 @@ function AccountProvider (props) {
   const { children } = props;
   const defaultValue = getUclusionLocalStorageItem(ACCOUNT_CONTEXT_KEY) || EMPTY_STATE;
   const [state, dispatch] = useReducer(reducer, defaultValue);
-  const [isInitialization, setIsInitialization] = useState(true);
 
   useEffect(() => {
     setUclusionLocalStorageItem(ACCOUNT_CONTEXT_KEY, state);
-    if (isInitialization) {
-      beginListening(dispatch);
-      getAccount()
-        .then((loginInfo) => {
-          const { account } = loginInfo
-          updateAccount(dispatch, account);
-          const { billing_customer_id: customerId } = account;
-          if (!_.isEmpty(customerId)) {
-            return getPaymentInfo()
-              .then((paymentInfo) => {
-                updateBilling(dispatch, paymentInfo);
-                return getInvoices();
-              })
-              .then((invoices) => {
-                updateInvoices(dispatch, invoices);
-              });
-          }
-        });
-      setIsInitialization(false);
-    }
-  }, [state, isInitialization, dispatch, setIsInitialization]);
+  }, [state]);
+
+  useEffect(() => {
+    beginListening(dispatch);
+    getAccount()
+      .then((loginInfo) => {
+        const { account } = loginInfo
+        updateAccount(dispatch, account);
+        const { billing_customer_id: customerId } = account;
+        if (!_.isEmpty(customerId)) {
+          return getPaymentInfo()
+            .then((paymentInfo) => {
+              updateBilling(dispatch, paymentInfo);
+              return getInvoices();
+            })
+            .then((invoices) => {
+              updateInvoices(dispatch, invoices);
+            });
+        }
+      });
+  }, []);
 
   return (
     <AccountContext.Provider value={[state, dispatch]}>

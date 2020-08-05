@@ -1,20 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { beginListening } from './operationInProgressMessages';
+import React, { useEffect, useState } from 'react'
+import { beginListening } from './operationInProgressMessages'
 
 const OperationInProgressContext = React.createContext(false);
 
 function OperationInProgressProvider (props) {
   const { children } = props;
   const [state, setState] = useState(false);
-  const [isInitialization, setIsInitialization] = useState(true);
 
   useEffect(() => {
-    if (isInitialization) {
-      beginListening(setState);
-      setIsInitialization(false);
-    }
+    beginListening(setState);
     return () => {};
-  }, [isInitialization]);
+  }, []);
 
   return (
     <OperationInProgressContext.Provider value={[state, setState]}>

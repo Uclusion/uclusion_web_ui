@@ -4,8 +4,8 @@
  Since we have our entire app wrapped by an amplify HOC, we're  guaranteed the identity
  exists before we get here. Therefore we can just fetch the current id token
  out of the current auth session.
- // Basic approach called from here, with some fixes to their code not handing logical states
- //right
+ Basic approach derived from here, with some fixes to their code not handing logical states
+ right https://stackoverflow.com/questions/53375350/how-handle-refresh-token-service-in-aws-amplify-js
 */
 import { Auth } from 'aws-amplify';
 

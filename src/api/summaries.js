@@ -1,12 +1,12 @@
 import uclusion from 'uclusion_sdk'
-import AmpifyIdentitySource from '../authorization/AmplifyIdentityTokenRefresher'
+import AmplifyIdentitySource from '../authorization/AmplifyIdentityTokenRefresher'
 import config from '../config'
 import _ from 'lodash'
 import { notifyNewApplicationVersion } from '../contexts/WebSocketContext'
 import { AllSequentialMap } from '../utils/PromiseUtils'
 
 function getSummaryInfo () {
-  return new AmpifyIdentitySource().getIdentity()
+  return new AmplifyIdentitySource().getIdentity()
     .then((idToken) => uclusion.constructSummariesClient(config.api_configuration)
       .then((summaryClient) => ({ summaryClient, idToken })))
 }

@@ -21,11 +21,14 @@ function HighlightedCommentProvider(props) {
         dispatch({ type: HIGHLIGHT_REMOVE, commentId });
       }, HIGHLIGHT_DELAY);
       const { repliesExpanded } = oldCommentState;
-      return { ...state, [commentId]: { level, repliesExpanded} };
+      return { ...state, [commentId]: { level, repliesExpanded } };
     }
     if (type === HIGHLIGHT_REMOVE) {
       const { repliesExpanded } = oldCommentState;
-      return { ...state, [commentId]: { repliesExpanded} };
+      if (repliesExpanded === undefined) {
+        return _.pickBy(state, (value, key) => key !== commentId);
+      }
+      return { ...state, [commentId]: { repliesExpanded } };
     }
     if (type === EXPANDED) {
       const { level: oldLevel } = oldCommentState;

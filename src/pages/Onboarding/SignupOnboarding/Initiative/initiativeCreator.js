@@ -1,12 +1,12 @@
-import { addMarketToStorage } from '../../../../contexts/MarketsContext/marketsContextHelper';
-import { pushMessage } from '../../../../utils/MessageBusUtils';
-import { PUSH_STAGE_CHANNEL, VERSIONS_EVENT } from '../../../../contexts/VersionsContext/versionsContextHelper';
-import { addPresenceToMarket } from '../../../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { addDecisionInvestible } from '../../../../api/investibles';
-import { addInvestible } from '../../../../contexts/InvestibesContext/investiblesContextHelper';
-import { resetValues } from '../../onboardingReducer';
-import { processTextAndFilesForSave } from '../../../../api/files';
-import { createInitiative } from '../../../../api/markets';
+import { addMarketToStorage } from '../../../../contexts/MarketsContext/marketsContextHelper'
+import { pushMessage } from '../../../../utils/MessageBusUtils'
+import { PUSH_STAGE_CHANNEL, VERSIONS_EVENT } from '../../../../contexts/VersionsContext/versionsContextHelper'
+import { addPresenceToMarket } from '../../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { addDecisionInvestible } from '../../../../api/investibles'
+import { addInvestible } from '../../../../contexts/InvestibesContext/investiblesContextHelper'
+import { resetValues } from '../../onboardingReducer'
+import { processTextAndFilesForSave } from '../../../../api/files'
+import { createInitiative } from '../../../../api/markets'
 
 export function createMyInitiative (dispatchers, formData, updateFormData, setOperationStatus) {
   let createdMarketId;
@@ -43,10 +43,11 @@ export function createMyInitiative (dispatchers, formData, updateFormData, setOp
       } = result;
       createdMarketId = market.id;
       createdMarketToken = market.invite_capability;
+      const investibleDescription = tokensRemoved ? tokensRemoved : ' ';
       const investibleInfo = {
         marketId: createdMarketId,
         uploadedFiles: filteredUploads,
-        description: tokensRemoved,
+        description: investibleDescription,
         name: initiativeName,
       };
       addMarketToStorage(marketsDispatch, diffDispatch, market);

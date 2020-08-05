@@ -49,8 +49,6 @@ function OptionDescriptionStep (props) {
     return React.Fragment;
   }
 
-  const validForm = !_.isEmpty(editorContents);
-
   return (
     <div>
       <Typography className={classes.introText} variant="body2">
@@ -67,7 +65,6 @@ function OptionDescriptionStep (props) {
       />
       <div className={classes.borderBottom}/>
       <StepButtons {...props}
-                   validForm={validForm}
                    onPrevious={onStepChange}
                    onNext={onStepChange}
                    onFinish={myOnFinish}

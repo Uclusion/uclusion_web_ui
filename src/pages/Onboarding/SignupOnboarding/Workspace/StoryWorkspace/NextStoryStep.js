@@ -11,10 +11,10 @@ import { DiffContext } from '../../../../../contexts/DiffContext/DiffContext'
 
 import { MarketsContext } from '../../../../../contexts/MarketsContext/MarketsContext'
 import { InvestiblesContext } from '../../../../../contexts/InvestibesContext/InvestiblesContext'
-import { MarketPresencesContext } from '../../../../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { VersionsContext } from '../../../../../contexts/VersionsContext/VersionsContext';
-import { CommentsContext } from '../../../../../contexts/CommentsContext/CommentsContext';
-import { doCreateStoryWorkspace } from './workspaceCreator';
+import { MarketPresencesContext } from '../../../../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { VersionsContext } from '../../../../../contexts/VersionsContext/VersionsContext'
+import { CommentsContext } from '../../../../../contexts/CommentsContext/CommentsContext'
+import { doCreateStoryWorkspace } from './workspaceCreator'
 
 function NextStoryStep (props) {
   const { updateFormData, formData, active, classes, setOperationStatus } = props;
@@ -33,7 +33,7 @@ function NextStoryStep (props) {
   } = formData;
   const [editorContents, setEditorContents] = useState(nextStoryDescription || '');
   const storyName = nextStoryName || '';
-  const validForm = !_.isEmpty(nextStoryName) && !_.isEmpty(editorContents);
+  const validForm = !_.isEmpty(nextStoryName);
 
 
   function onNameChange (event) {

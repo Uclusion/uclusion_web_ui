@@ -1,4 +1,4 @@
-import React, { useContext, useReducer, useState } from 'react'
+import React, { useContext, useEffect, useReducer } from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import { FormattedMessage, useIntl } from 'react-intl'
@@ -59,9 +59,8 @@ function MarketLinks (props) {
     const { marketId, marketToken, name, marketType, marketStage, isInline, createdAt } = action;
     return { ...state, [marketId]: { name, marketType, marketStage, isInline, createdAt, marketToken } };
   }, {});
-  const [initialized, setInitialized] = useState(false);
-  if (!initialized) {
-    setInitialized(true);
+  
+  useEffect(() => {
     links.forEach((marketId) => {
       const marketDetails = getMarket(marketState, marketId);
       if (marketDetails) {
@@ -79,7 +78,8 @@ function MarketLinks (props) {
         });
       }
     });
-  }
+    return () => {};
+  }, [links, marketState]);
 
   const metaClasses = useMetaDataStyles();
   function displayLinksList (linksList) {

@@ -69,10 +69,11 @@ export function doCreateStoryWorkspace(dispatchers, formData, updateFormData, in
         const usedUploads = nextStoryUploadedFiles || [];
         const processed = processTextAndFilesForSave(usedUploads, nextStoryDescription);
         // add the story
+        const processedStoryDescription = processed.text ? processed.text : ' ';
         const addInfo = {
           marketId: createdMarketId,
           name: nextStoryName,
-          description: processed.text,
+          description: processedStoryDescription,
           uploadedFiles: processed.uploadedFiles,
           assignments: [myUserId],
         };
@@ -93,10 +94,11 @@ export function doCreateStoryWorkspace(dispatchers, formData, updateFormData, in
       } = formData;
       const realUploadedFiles = currentStoryUploadedFiles || [];
       const processed = processTextAndFilesForSave(realUploadedFiles, currentStoryDescription);
+      const processedStoryDescription = processed.text ? processed.text : ' ';
       const addInfo = {
         marketId: createdMarketId,
         name: currentStoryName,
-        description: processed.text,
+        description: processedStoryDescription,
         uploadedFiles: processed.uploadedFiles,
         assignments: [myUserId],
       };

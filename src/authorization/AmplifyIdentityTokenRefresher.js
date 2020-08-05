@@ -14,13 +14,16 @@ class AmplifyIdentityTokenRefresher {
     return Auth.currentAuthenticatedUser().then((authedUser) => {
      // console.error(authedUser);
       if (!authedUser) {
+        console.erorr('No authenticated user, logging us out');
         return Auth.signOut() // kick us back to the login screen, we don't have a user
       }
       const session = authedUser.getSignInUserSession();
       const idToken = session ? session.getIdToken() : null;
       // we don't have a token or we're expired, time to refresh or log us out if we can't
       if (!idToken || idToken.getExpiration() * 1000 < Date.now()) {
+        console.warn('Amplify token expired, attempting to refresh');
         if (!session) {
+          console.error('No session I can to refresh, logging us out');
           return Auth.signOut(); // I don't have a session, so no refresh token to work with
         }
         const refreshToken = session.getRefreshToken();
@@ -28,6 +31,7 @@ class AmplifyIdentityTokenRefresher {
         return new Promise((resolve) => {
           authedUser.refreshSession(refreshToken, (err, session) => {
             if (err) {
+              console.error('Error refreshing the session, logging us out');
               resolve(Auth.signOut());
             }
             authedUser.setSignInUserSession(session);

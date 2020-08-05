@@ -25,6 +25,9 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import { useHistory } from 'react-router'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
+import { addMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
+import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
+import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 
 function DecisionInvestibleAdd(props) {
   const {
@@ -60,9 +63,12 @@ function DecisionInvestibleAdd(props) {
   const [validForm, setValidForm] = useState(false);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const { name } = currentValues;
-  const [marketPresencesState] = useContext(MarketPresencesContext);
-  const [marketState] = useContext(MarketsContext);
+  const [marketPresencesState, marketPresenceDispatch] = useContext(MarketPresencesContext);
+  const [marketState, marketDispatch] = useContext(MarketsContext);
+  const [, diffDispatch] = useContext(DiffContext);
   const [investibleState] = useContext(InvestiblesContext);
+  const fullParentInvestible = getInvestible(investibleState, parentInvestibleId);
+  const { investible: parentInvestible } = fullParentInvestible;
 
   useEffect(() => {
     // Long form to prevent flicker
@@ -123,48 +129,51 @@ function DecisionInvestibleAdd(props) {
       parent_market_id: marketId,
     };
     return createDecision(addDialogInfo).then((result) => {
-        const { market, stages } = result;
-        const allowsInvestment = stages.find((stage) => stage.allows_investment);
-        const notAllowsInvestment = stages.find((stage) => !stage.allows_investment);
-        const stageInfo = {
-          stage_id: allowsInvestment.id,
-          current_stage_id: notAllowsInvestment.id,
-        };
+      addMarket(result, marketDispatch, diffDispatch, marketPresenceDispatch);
+      const { market, stages, parent } = result;
+      // The parent investible market info was modified so quick add that change also
+      onSave({ 'investible': parentInvestible, 'market_infos': [parent] });
+      const allowsInvestment = stages.find((stage) => stage.allows_investment);
+      const notAllowsInvestment = stages.find((stage) => !stage.allows_investment);
+      const stageInfo = {
+        stage_id: allowsInvestment.id,
+        current_stage_id: notAllowsInvestment.id,
+      };
       const processedDescription = tokensRemoved ? tokensRemoved : ' ';
-        const addInfo = {
-          marketId: market.id,
-          uploadedFiles: filteredUploads,
-          description: processedDescription,
-          name,
-          stageInfo: stageInfo,
-        };
-        const marketPresences = getMarketPresences(marketPresencesState, marketId);
-        const others = marketPresences.filter((presence) => !presence.current_user)
-        if (others) {
-          const participants = others.map((presence) => {
-              return {
-                user_id: presence.id,
-                account_id: presence.account_id,
-                is_observer: !presence.following
-              };
-          });
-          return addParticipants(market.id, participants).then(() => addInvestibleToStage(addInfo));
-        }
-        return addInvestibleToStage(addInfo);
-      }).then((investible) => {
-        onSave(investible);
-        if (isAddAnother) {
-          const { market_infos } = investible;
-          return {
-            result: market_infos[0].market_id,
-            spinChecker: () => Promise.resolve(true),
-          };
-        }
-        const link = formInvestibleLink(marketId, parentInvestibleId);
+      const addInfo = {
+        marketId: market.id,
+        uploadedFiles: filteredUploads,
+        description: processedDescription,
+        name,
+        stageInfo: stageInfo,
+      };
+      const marketPresences = getMarketPresences(marketPresencesState, marketId);
+      const others = marketPresences.filter((presence) => !presence.current_user)
+      if (others) {
+        const participants = others.map((presence) => {
+            return {
+              user_id: presence.id,
+              account_id: presence.account_id,
+              is_observer: !presence.following
+            };
+        });
+        return addParticipants(market.id, participants).then(() => addInvestibleToStage(addInfo));
+      }
+      return addInvestibleToStage(addInfo);
+    }).then((investible) => {
+      onSave(investible);
+      if (isAddAnother) {
+        const { market_infos } = investible;
         return {
-          result: link,
+          result: market_infos[0].market_id,
           spinChecker: () => Promise.resolve(true),
         };
+      }
+      const link = formInvestibleLink(marketId, parentInvestibleId);
+      return {
+        result: link,
+        spinChecker: () => Promise.resolve(true),
+      };
     });
   }
 

@@ -1,4 +1,4 @@
-import { getMarketPresences } from '../MarketPresencesContext/marketPresencesHelper'
+import { addPresenceToMarket, getMarketPresences } from '../MarketPresencesContext/marketPresencesHelper'
 import LocalForageHelper from '../../utils/LocalForageHelper'
 import { MARKET_CONTEXT_NAMESPACE } from './MarketsContext'
 import { addContents } from '../DiffContext/diffContextReducer'
@@ -7,6 +7,7 @@ import { fixupItemForStorage } from '../ContextUtils'
 import { pushMessage } from '../../utils/MessageBusUtils'
 import { INDEX_MARKET_TYPE, INDEX_UPDATE, SEARCH_INDEX_CHANNEL } from '../SearchIndexContext/searchIndexContextMessages'
 import { ACTIVE_STAGE } from '../../constants/markets'
+import { PUSH_STAGE_CHANNEL, VERSIONS_EVENT } from '../VersionsContext/versionsContextHelper'
 
 export function getMarket(state, marketId) {
   const { marketDetails } = state;
@@ -57,6 +58,18 @@ export function getHiddenMarketDetailsForUser(state, marketPresenceState) {
     });
   }
   return [];
+}
+
+export function addMarket(result, marketDispatch, diffDispatch, presenceDispatch) {
+  const {
+    market,
+    presence,
+    stages
+  } = result;
+  const { id: marketId } = market;
+  addMarketToStorage(marketDispatch, diffDispatch, market);
+  pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, marketId, stages });
+  addPresenceToMarket(presenceDispatch, marketId, presence);
 }
 
 /**

@@ -13,14 +13,11 @@ import { makeBreadCrumbs, navigate } from '../../utils/marketIdPathFunctions'
 import { DiffContext } from '../../contexts/DiffContext/DiffContext'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
-import { addMarketToStorage } from '../../contexts/MarketsContext/marketsContextHelper'
-import { addPresenceToMarket } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { addMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 import { AccountContext } from '../../contexts/AccountContext/AccountContext'
 import { canCreate, getAccount } from '../../contexts/AccountContext/accountContextHelper'
 import config from '../../config'
 import { SUBSCRIPTION_STATUS_CANCELED } from '../../constants/billing'
-import { pushMessage } from '../../utils/MessageBusUtils'
-import { PUSH_STAGE_CHANNEL, VERSIONS_EVENT } from '../../contexts/VersionsContext/versionsContextHelper'
 
 function DialogAdd(props) {
   const { hidden } = props;
@@ -56,15 +53,7 @@ function DialogAdd(props) {
   }, [hidden, type]);
 
   function onSave(result){
-    const {
-      market,
-      presence,
-      stages
-    } = result;
-    const { id: marketId } = market;
-    addMarketToStorage(marketDispatch, diffDispatch, market);
-    pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, marketId, stages });
-    addPresenceToMarket(presenceDispatch, marketId, presence);
+    addMarket(result, marketDispatch, diffDispatch, presenceDispatch);
   }
 
   function onDone(link) {

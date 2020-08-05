@@ -185,7 +185,7 @@ class QuillEditor extends React.PureComponent {
         const el = this.editorBox.current.firstChild;
         el.setAttribute('data-placeholder', newPlaceHolder);
       }
-      if (!_.isEmpty(this.editorBox.current.children)) {
+      if (this.editorBox.current && !_.isEmpty(this.editorBox.current.children)) {
         this.editorBox.current.children[0].click();
       }
       this.editor.focus();

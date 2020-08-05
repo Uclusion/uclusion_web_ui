@@ -67,7 +67,7 @@ function DecisionInvestibleAdd(props) {
   const [marketState, marketDispatch] = useContext(MarketsContext);
   const [, diffDispatch] = useContext(DiffContext);
   const [investibleState] = useContext(InvestiblesContext);
-  const fullParentInvestible = getInvestible(investibleState, parentInvestibleId);
+  const fullParentInvestible = getInvestible(investibleState, parentInvestibleId) || {};
   const { investible: parentInvestible } = fullParentInvestible;
 
   useEffect(() => {

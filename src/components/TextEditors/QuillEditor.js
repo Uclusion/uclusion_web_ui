@@ -14,10 +14,9 @@ import QuillTableUI from 'quill-table-ui'
 import 'quill/dist/quill.snow.css'
 import 'quill-table-ui/dist/index.css'
 import './editorStyles.css'
-
+import _ from 'lodash'
 import { injectIntl } from 'react-intl'
 import { withTheme } from '@material-ui/core'
-import _ from 'lodash'
 
 // install our filtering paste module, and disable the uploader
 Quill.register('modules/clipboard', CustomQuillClipboard, true);
@@ -186,7 +185,9 @@ class QuillEditor extends React.PureComponent {
         const el = this.editorBox.current.firstChild;
         el.setAttribute('data-placeholder', newPlaceHolder);
       }
-      this.editorBox.current.children[0].click();
+      if (!_.isEmpty(this.editorBox.current.children)) {
+        this.editorBox.current.children[0].click();
+      }
       this.editor.focus();
     };
     setEditorClearFunc(editorClearFunc);

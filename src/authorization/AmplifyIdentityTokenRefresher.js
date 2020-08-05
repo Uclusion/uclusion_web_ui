@@ -14,7 +14,7 @@ class AmplifyIdentityTokenRefresher {
     return Auth.currentAuthenticatedUser().then((authedUser) => {
      // console.error(authedUser);
       if (!authedUser) {
-        console.erorr('No authenticated user, logging us out');
+        console.error('No authenticated user, logging us out');
         return Auth.signOut() // kick us back to the login screen, we don't have a user
       }
       const session = authedUser.getSignInUserSession();

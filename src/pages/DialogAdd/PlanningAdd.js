@@ -1,9 +1,9 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useState } from 'react'
 import PropTypes from 'prop-types'
 import localforage from 'localforage'
 import { createPlanning } from '../../api/markets'
 import { processTextAndFilesForSave } from '../../api/files'
-import { PLANNING_TYPE, STORIES_SUB_TYPE } from '../../constants/markets';
+import { PLANNING_TYPE, STORIES_SUB_TYPE } from '../../constants/markets'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { useHistory } from 'react-router'
 import queryString from 'query-string'
@@ -30,7 +30,6 @@ function PlanningAdd(props) {
   const emptyPlan = { name: storedName };
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [currentValues, setCurrentValues] = useState(emptyPlan);
-  const [validForm, setValidForm] = useState(false);
   const [description, setDescription] = useState(storedDescription);
   const [investmentExpiration, setInvestmentExpiration] = useState(
     storedExpiration || 14
@@ -40,17 +39,6 @@ function PlanningAdd(props) {
   const [votesRequired, setVotesRequired] = useState(storedVotesRequired || 0);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const { name } = currentValues;
-
-  useEffect(() => {
-    // Long form to prevent flicker
-    if (name && description && description.length > 0) {
-      if (!validForm) {
-        setValidForm(true);
-      }
-    } else if (validForm) {
-      setValidForm(false);
-    }
-  }, [name, description, validForm]);
 
   function handleCancel() {
     onSpinStop();
@@ -118,11 +106,12 @@ function PlanningAdd(props) {
       uploadedFiles: filteredUploads,
       text: tokensRemoved
     } = processTextAndFilesForSave(uploadedFiles, description);
+    const processedDescription = tokensRemoved ? tokensRemoved : ' ';
     const addInfo = {
       name,
       uploaded_files: filteredUploads,
       market_type: PLANNING_TYPE,
-      description: tokensRemoved,
+      description: processedDescription,
       market_sub_type: STORIES_SUB_TYPE,
     };
     if (investmentExpiration != null) {

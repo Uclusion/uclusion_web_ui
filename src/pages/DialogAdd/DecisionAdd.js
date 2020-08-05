@@ -54,14 +54,14 @@ function DecisionAdd(props) {
 
   useEffect(() => {
     // Long form to prevent flicker
-    if (name && expiration_minutes > 0 && description && description.length > 0) {
+    if (name && expiration_minutes > 0) {
       if (!validForm) {
         setValidForm(true);
       }
     } else if (validForm) {
       setValidForm(false);
     }
-  }, [name, description, expiration_minutes, validForm]);
+  }, [name, expiration_minutes, validForm]);
 
   function handleCancel() {
     onSpinStop();
@@ -102,11 +102,12 @@ function DecisionAdd(props) {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
     } = processTextAndFilesForSave(uploadedFiles, description);
+    const processedDescription = tokensRemoved ? tokensRemoved : ' ';
     const addInfo = {
       name,
       uploaded_files: filteredUploads,
       market_type: DECISION_TYPE,
-      description: tokensRemoved,
+      description: processedDescription,
       expiration_minutes,
       allow_multi_vote: multiVote,
     };

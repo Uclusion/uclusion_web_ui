@@ -332,9 +332,7 @@ export function Form(props) {
     if (
       name &&
       parseInt(investmentExpiration, 10) > 0 &&
-      parseInt(maxBudget, 10) > 0 &&
-      description &&
-      description.length > 0
+      parseInt(maxBudget, 10) > 0
     ) {
       if (!validForm) {
         setValidForm(true);
@@ -342,7 +340,7 @@ export function Form(props) {
     } else if (validForm) {
       setValidForm(false);
     }
-  }, [name, description, validForm, investmentExpiration, maxBudget]);
+  }, [name, validForm, investmentExpiration, maxBudget]);
 
   const isCreateForm = marketId === "";
   return (

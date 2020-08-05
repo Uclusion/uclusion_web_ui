@@ -93,7 +93,7 @@ function PlanningInvestibleAdd(props) {
 
   useEffect(() => {
     // Long form to prevent flicker
-    if (name && !_.isEmpty(description) && !_.isEmpty(assignments) && (isAssigned ||
+    if (name && !_.isEmpty(assignments) && (isAssigned ||
       (maxBudget > 0 && maxBudget <= storyMaxBudget))) {
       if (!validForm) {
         setValidForm(true);
@@ -101,7 +101,7 @@ function PlanningInvestibleAdd(props) {
     } else if (validForm) {
       setValidForm(false);
     }
-  }, [name, description, assignments, validForm, isAssigned, maxBudget, storyMaxBudget]);
+  }, [name, assignments, validForm, isAssigned, maxBudget, storyMaxBudget]);
 
   const itemKey = `add_investible_${marketId}`;
   function handleDraftState(newDraftState) {
@@ -182,10 +182,11 @@ function PlanningInvestibleAdd(props) {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
     } = processTextAndFilesForSave(uploadedFiles, description);
+    const processedDescription = tokensRemoved ? tokensRemoved : ' ';
     const addInfo = {
       marketId,
       uploadedFiles: filteredUploads,
-      description: tokensRemoved,
+      description: processedDescription,
       name,
       assignments,
     };

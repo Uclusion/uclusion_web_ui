@@ -66,14 +66,14 @@ function DecisionInvestibleAdd(props) {
 
   useEffect(() => {
     // Long form to prevent flicker
-    if (name && description && description.length > 0) {
+    if (name) {
       if (!validForm) {
         setValidForm(true);
       }
     } else if (validForm) {
       setValidForm(false);
     }
-  }, [name, description, validForm]);
+  }, [name, validForm]);
 
   const itemKey = `add_investible_${marketId}`;
   function handleDraftState(newDraftState) {
@@ -130,10 +130,11 @@ function DecisionInvestibleAdd(props) {
           stage_id: allowsInvestment.id,
           current_stage_id: notAllowsInvestment.id,
         };
+      const processedDescription = tokensRemoved ? tokensRemoved : ' ';
         const addInfo = {
           marketId: market.id,
           uploadedFiles: filteredUploads,
-          description: tokensRemoved,
+          description: processedDescription,
           name,
           stageInfo: stageInfo,
         };
@@ -182,10 +183,11 @@ function DecisionInvestibleAdd(props) {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
     } = processTextAndFilesForSave(uploadedFiles, description);
+    const processedDescription = tokensRemoved ? tokensRemoved : ' ';
     const addInfo = {
       marketId,
       uploadedFiles: filteredUploads,
-      description: tokensRemoved,
+      description: processedDescription,
       name,
       stageInfo: stageChangeInfo, // ignored by addDecisionInvestible
     };

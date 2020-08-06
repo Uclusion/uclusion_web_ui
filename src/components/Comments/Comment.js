@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { FormattedDate, FormattedMessage, FormattedRelativeTime, useIntl } from 'react-intl'
+import { FormattedDate, FormattedMessage, useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
 import { Box, Button, Card, CardActions, CardContent, Typography } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
@@ -7,7 +7,7 @@ import clsx from 'clsx'
 import _ from 'lodash'
 import ReadOnlyQuillEditor from '../TextEditors/ReadOnlyQuillEditor'
 import CommentAdd from './CommentAdd'
-import { REPLY_TYPE, REPORT_TYPE } from '../../constants/comments'
+import { JUSTIFY_TYPE, REPLY_TYPE, REPORT_TYPE } from '../../constants/comments'
 import { removeComment, reopenComment, resolveComment } from '../../api/comments'
 import SpinBlockingButton from '../SpinBlocking/SpinBlockingButton'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
@@ -28,6 +28,7 @@ import { ACTIVE_STAGE } from '../../constants/markets'
 import { red } from '@material-ui/core/colors'
 import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
 import { EXPANDED_CONTROL, ExpandedCommentContext } from '../../contexts/CommentsContext/ExpandedCommentContext'
+import UsefulRelativeTime from '../TextFields/UseRelativeTime'
 
 const useCommentStyles = makeStyles(
   theme => {
@@ -278,7 +279,7 @@ function Comment(props) {
                 updatedBy.name
               }`}
           </Typography>
-          {commentType === REPORT_TYPE && (
+          {commentType !== JUSTIFY_TYPE && commentType !== REPLY_TYPE && (
             <Typography className={classes.timeElapsed} variant="body2">
               <UsefulRelativeTime
                 value={Date.parse(comment.updated_at) - Date.now()}
@@ -695,29 +696,6 @@ function ThreadedReply(props) {
   const { comment, highLightId, enableEditing } = props;
   return <Reply key={`keyc${comment.id}`} id={`c${comment.id}`} className={props.className} comment={comment} elevation={0} highLightId={highLightId}
                 enableEditing={enableEditing} />;
-}
-
-/**
- * Convenience wrapper around FormattedRelativeTime that automatically
- * uses to biggest possible unit so that the value is >= 1
- */
-function UsefulRelativeTime(props) {
-  const { value: miliseconds, ...other } = props;
-  const seconds = Math.trunc(miliseconds / 1000);
-  const minutes = Math.trunc(seconds / 60);
-  const hours = Math.trunc(minutes / 60);
-  const days = Math.trunc(hours / 24);
-
-  if (minutes === 0) {
-    return <FormattedRelativeTime {...other} unit="second" value={seconds} style={window.outerWidth < 600 ? "short" : "long"}/>;
-  }
-  if (hours === 0) {
-    return <FormattedRelativeTime {...other} unit="minute" value={minutes} style={window.outerWidth < 600 ? "short" : "long"}/>;
-  }
-  if (days === 0) {
-    return <FormattedRelativeTime {...other} unit="hour" value={hours} style={window.outerWidth < 600 ? "short" : "long"}/>;
-  }
-  return <FormattedRelativeTime {...other} unit="day" value={days} style={window.outerWidth < 600 ? "short" : "long"}/>;
 }
 
 /**

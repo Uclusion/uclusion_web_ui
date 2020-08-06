@@ -135,6 +135,7 @@ const messages = defineMessages({
   close: 'Close',
   typeOrChoose: 'Type and hit enter or choose from dropdown',
   addLabel: 'Add label',
+  created: 'Created ',
 
   // Share story
   shareButtonExplanation: 'Share a read only link',

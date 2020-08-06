@@ -613,6 +613,7 @@ function PlanningInvestible(props) {
           })}`}
           type={STORY_TYPE}
           subtype={subtype}
+          createdAt={createdAt}
         />
         
         <CardContent className={classes.votingCardContent}>

@@ -1,7 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import clsx from 'clsx'
-import { FormattedMessage } from 'react-intl'
+import { FormattedMessage, useIntl } from 'react-intl'
 import { makeStyles } from '@material-ui/styles'
 import {
   ISSUE_TYPE,
@@ -33,16 +33,18 @@ import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
 import AssignmentIcon from '@material-ui/icons/Assignment'
 import HowToVoteIcon from '@material-ui/icons/HowToVote'
 import UpdateIcon from '@material-ui/icons/Update'
+import UsefulRelativeTime from './TextFields/UseRelativeTime'
+import { Grid, Typography } from '@material-ui/core'
 
-export { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE, DECISION_TYPE };
-export const VOTING_TYPE = "VOTING";
-export const STORY_TYPE = "STORY";
-export const AGILE_PLAN_TYPE = "AGILE_PLAN";
-export const IN_PROGRESS = "PROGRESS";
-export const IN_REVIEW = "REVIEW";
-export const IN_BLOCKED = "BLOCKED";
-export const NOT_DOING = "STOPPED";
-export const FURTHER_WORK = "FURTHER_WORK";
+export { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE, DECISION_TYPE }
+export const VOTING_TYPE = 'VOTING'
+export const STORY_TYPE = 'STORY'
+export const AGILE_PLAN_TYPE = 'AGILE_PLAN'
+export const IN_PROGRESS = 'PROGRESS'
+export const IN_REVIEW = 'REVIEW'
+export const IN_BLOCKED = 'BLOCKED'
+export const NOT_DOING = 'STOPPED'
+export const FURTHER_WORK = 'FURTHER_WORK'
 export const REQUIRES_INPUT = "REQUIRES_INPUT";
 export const IN_VERIFIED = "VERIFIED";
 export const OPTION = "OPTION";
@@ -54,18 +56,17 @@ function NoIcon() {
   return null;
 }
 
-const useCardTypeStyles = makeStyles(
-  {
+const useCardTypeStyles = makeStyles(theme => ({
     root: ({ type, resolved }) => {
       return {
         backgroundColor: {
-          [ISSUE_TYPE]: resolved ? "#BDC3C7" : "#E85757",
-          [QUESTION_TYPE]: resolved ? "#BDC3C7" : "#2F80ED",
-          [SUGGEST_CHANGE_TYPE]: resolved ? "#BDC3C7" : "#e6e969",
-          [TODO_TYPE]: resolved ? "#BDC3C7" : "#F29100",
-          [REPORT_TYPE]: "#73B76C",
-          [VOTING_TYPE]: "#9B51E0",
-          [JUSTIFY_TYPE]: "#9B51E0",
+          [ISSUE_TYPE]: resolved ? '#BDC3C7' : '#E85757',
+          [QUESTION_TYPE]: resolved ? '#BDC3C7' : '#2F80ED',
+          [SUGGEST_CHANGE_TYPE]: resolved ? '#BDC3C7' : '#e6e969',
+          [TODO_TYPE]: resolved ? '#BDC3C7' : '#F29100',
+          [REPORT_TYPE]: '#73B76C',
+          [VOTING_TYPE]: '#9B51E0',
+          [JUSTIFY_TYPE]: '#9B51E0',
           [STORY_TYPE]: "#506999",
           [GENERIC_STORY_TYPE]: "#506999",
           [DECISION_TYPE]: "#0B51E0",
@@ -95,10 +96,17 @@ const useCardTypeStyles = makeStyles(
       fontSize: 14,
       fontWeight: 500,
       lineHeight: 1,
-      textTransform: "capitalize"
+      textTransform: 'capitalize'
+    },
+    timeElapsed: {
+      [theme.breakpoints.down('sm')]: {
+        fontSize: '.7rem',
+        lineHeight: 1,
+        paddingLeft: '5px'
+      },
     }
-  },
-  { name: "CardType" }
+  }),
+  { name: 'CardType' }
 );
 
 const labelIntlIds = {
@@ -122,10 +130,11 @@ export default function CardType(props) {
     type,
     resolved,
     subtype,
-    label = <FormattedMessage id={labelIntlIds[type]} />
+    label = <FormattedMessage id={labelIntlIds[type]}/>,
+    createdAt
   } = props;
-  const classes = useCardTypeStyles({ type, resolved });
-
+  const classes = useCardTypeStyles({ type, resolved })
+  const intl = useIntl()
   const IconComponent = {
     [ISSUE_TYPE]: IssueIcon,
     [QUESTION_TYPE]: QuestionIcon,
@@ -156,10 +165,26 @@ export default function CardType(props) {
   }[subtype || type];
 
   return (
-    <div className={clsx(classes.root, className)}>
-      <IconComponent className={classes.icon} />
-      <span className={classes.label}>{label}</span>
-    </div>
+    <Grid container>
+      <Grid item xs={7}>
+        <div className={clsx(classes.root, className)}>
+          <IconComponent className={classes.icon}/>
+          <span className={classes.label}>{label}</span>
+        </div>
+      </Grid>
+      <Grid item xs={2}>
+        {createdAt && (
+          <Typography className={classes.timeElapsed} variant="body2">
+            {intl.formatMessage({ id: 'created' })}
+            <UsefulRelativeTime
+              value={Date.parse(createdAt) - Date.now()}
+            />
+          </Typography>
+        )}
+      </Grid>
+      <Grid item xs={3}>
+      </Grid>
+    </Grid>
   );
 }
 CardType.propTypes = {

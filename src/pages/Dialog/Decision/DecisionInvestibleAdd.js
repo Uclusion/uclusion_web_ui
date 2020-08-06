@@ -42,6 +42,7 @@ function DecisionInvestibleAdd(props) {
   } = props;
   const intl = useIntl();
   const history = useHistory();
+  const [operationRunning] = useContext(OperationInProgressContext);
   const { description: storedDescription, name: storedName } = storedState;
   const [draftState, setDraftState] = useState(storedState);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -264,6 +265,7 @@ function DecisionInvestibleAdd(props) {
       <CardActions className={classes.actions}>
         <Button
           onClick={handleCancel}
+          disabled={operationRunning}
           className={classes.actionSecondary}
           color="secondary"
           variant="contained"

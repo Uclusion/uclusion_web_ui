@@ -197,24 +197,26 @@ function DecisionInvestible(props) {
   const hasIssueOrMarketIssue = hasMarketIssue || hasIssue;
   const votingBlockedMessage = hasMarketIssue
     ? 'decisionInvestibleVotingBlockedMarket'
-    : 'decisionInvestibleVotingBlockedInvestible';
-  const { investible, market_infos: marketInfos } = fullInvestible;
-  const marketInfo = marketInfos.find((info) => info.market_id === marketId);
-  const allowDelete = marketPresences && marketPresences.length < 2;
-  const [marketStagesState] = useContext(MarketStagesContext);
-  const inProposedStage = getProposedOptionsStage(marketStagesState, marketId);
-  const inProposed = inProposedStage && marketInfo.stage === inProposedStage.id;
-  const activeMarket = marketStage === ACTIVE_STAGE;
+    : 'decisionInvestibleVotingBlockedInvestible'
+  const { investible, market_infos: marketInfos } = fullInvestible
+  const marketInfo = marketInfos.find((info) => info.market_id === marketId)
+  const allowDelete = marketPresences && marketPresences.length < 2
+  const [marketStagesState] = useContext(MarketStagesContext)
+  const inProposedStage = getProposedOptionsStage(marketStagesState, marketId)
+  const inProposed = inProposedStage && marketInfo.stage === inProposedStage.id
+  const activeMarket = marketStage === ACTIVE_STAGE
+  const yourPresence = marketPresences.find((presence) => presence.current_user)
+  const yourVote = yourPresence && yourPresence.investments.find((investment) => investment.investible_id === investibleId)
 
   const {
     description, name, created_by: createdBy, locked_by: lockedBy, attached_files: attachedFiles,
-  } = investible;
-  let lockedByName;
+  } = investible
+  let lockedByName
   if (lockedBy) {
-    const lockedByPresence = marketPresences.find((presence) => presence.id === lockedBy);
+    const lockedByPresence = marketPresences.find((presence) => presence.id === lockedBy)
     if (lockedByPresence) {
-      const { name } = lockedByPresence;
-      lockedByName = name;
+      const { name } = lockedByPresence
+      lockedByName = name
     }
   }
 
@@ -347,13 +349,26 @@ function DecisionInvestible(props) {
         </Typography>
       )}
       {!inProposed && !inArchives && !hasIssueOrMarketIssue && (
-        <YourVoting
-          investibleId={investibleId}
-          marketPresences={marketPresences}
-          comments={investmentReasons}
-          userId={userId}
-          market={market}
-        />
+        <>
+          <YourVoting
+            investibleId={investibleId}
+            marketPresences={marketPresences}
+            comments={investmentReasons}
+            userId={userId}
+            market={market}
+          />
+          {!yourVote && (
+            <>
+              <h2>{intl.formatMessage({ id: 'orStructuredComment' })}</h2>
+              <CommentAddBox
+                allowedTypes={allowedCommentTypes}
+                investible={investible}
+                marketId={marketId}
+                issueWarningId="issueWarningInvestible"
+              />
+            </>
+          )}
+        </>
       )}
       {!inProposed && (
         <>
@@ -369,7 +384,7 @@ function DecisionInvestible(props) {
       )}
       <Grid container spacing={2}>
         <Grid item xs={12} style={{ marginTop: '71px' }}>
-          {!inArchives && (
+          {!inArchives && yourVote && (
             <CommentAddBox
               allowedTypes={allowedCommentTypes}
               investible={investible}

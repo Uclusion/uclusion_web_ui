@@ -548,8 +548,8 @@ function PlanningInvestible(props) {
       return inlineInvestibles.reduce((acc, inv) => {
         const { market_infos: marketInfos } = inv;
         for (let x = 0; x < marketInfos.length; x += 1) {
-          if (marketInfos[x].stage === stage.id) {
-            return [...acc, inv];
+          if (marketInfos[x].stage === stage.id && !marketInfos[x].deleted) {
+            return [...acc, inv]
           }
         }
         return acc;

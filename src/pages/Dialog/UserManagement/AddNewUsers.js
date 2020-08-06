@@ -45,8 +45,9 @@ function AddNewUsers (props) {
   const [checked, setChecked] = useState(defaultChecked);
   const [searchValue, setSearchValue] = useState(undefined);
   const [filteredNames, setFilteredNames] = useState(undefined);
-  const participants = Object.keys(checked).map((key) => checked[key]);
-  const anySelected = participants.find((participant) => participant.isChecked);
+  const participants = Object.keys(checked).map((key) => checked[key])
+  const [emailsSent, setEmailsSent] = useState([])
+  const anySelected = participants.find((participant) => participant.isChecked)
 
   useEffect(() => {
     if (!searchValue) {
@@ -115,8 +116,13 @@ function AddNewUsers (props) {
   function addInvitees() {
     const participants = [];
     if (email1) {
-      const emails = email1.split(',');
-      emails.forEach((email) => participants.push({ email }));
+      const emails = email1.split(',')
+      const emailSentTemp = []
+      emails.forEach((email) => {
+        participants.push({ email })
+        emailSentTemp.push(email)
+      })
+      setEmailsSent(emailsSent.concat(emailSentTemp))
     }
     if (_.isEmpty(participants)) {
       return Promise.resolve(true);
@@ -225,6 +231,30 @@ function AddNewUsers (props) {
             marketToken={marketToken}
           />
         </ListItem>
+        {emailsSent.length > 0 && (
+          <>
+            <ListItem className={classes.listItem}>
+              <Typography className={clsx(classes.cardTitle, classes.noPadding)}>
+                {intl.formatMessage({ id: 'emailsSentLabel' })}
+              </Typography>
+            </ListItem>
+            <ListItem>
+              <List
+                dense
+                id="addressBook"
+              >
+                {emailsSent.map((entry) => {
+                  return (
+                    <ListItemText>
+                      {entry}
+                    </ListItemText>
+                  )
+                })
+                }
+              </List>
+            </ListItem>
+          </>
+        )}
         <form
           autoComplete="off"
         >

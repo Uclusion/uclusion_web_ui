@@ -673,6 +673,7 @@ const messages = defineMessages({
 
   // add participants
   addParticipantsNewPerson: 'Not on Uclusion? Send Invite',
+  emailsSentLabel: 'Sent emails to',
 
   // Spinning
   spinVersionCheckError: 'There was an error. Please retry your operation.',

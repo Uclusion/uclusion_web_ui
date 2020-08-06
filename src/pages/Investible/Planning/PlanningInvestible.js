@@ -718,14 +718,28 @@ function PlanningInvestible(props) {
         </CardContent>
       </Card>
       {isInVoting && !inArchives && isAdmin && (canVote ? (
-            <YourVoting
-              investibleId={investibleId}
-              marketPresences={marketPresences}
-              comments={investmentReasons}
-              userId={userId}
-              market={market}
-              showBudget
-            />
+        <>
+          <YourVoting
+            investibleId={investibleId}
+            marketPresences={marketPresences}
+            comments={investmentReasons}
+            userId={userId}
+            market={market}
+            showBudget
+          />
+          {!yourVote && (
+            <>
+              <h2>{intl.formatMessage({ id: 'orStructuredComment' })}</h2>
+              <CommentAddBox
+                allowedTypes={allowedCommentTypes}
+                investible={investible}
+                marketId={marketId}
+                issueWarningId="issueWarningPlanning"
+                todoWarningId={todoWarning}
+              />
+            </>
+          )}
+        </>
           ) : (
             <DismissableText textId="planningInvestibleCantVote" />
         ))}
@@ -800,7 +814,7 @@ function PlanningInvestible(props) {
           </Grid>
         )}
         <Grid item xs={12} style={{ marginTop: '71px' }}>
-          {!inArchives && (
+          {!inArchives && yourVote && (
             <CommentAddBox
               allowedTypes={allowedCommentTypes}
               investible={investible}

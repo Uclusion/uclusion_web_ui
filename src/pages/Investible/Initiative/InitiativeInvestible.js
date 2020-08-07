@@ -195,25 +195,27 @@ function InitiativeInvestible(props) {
     return !_.isEmpty(negInvestment);
   });
   const positiveVoters = marketPresences.filter((presence) => {
-    const { investments } = presence;
+    const { investments } = presence
     const negInvestment = (investments || []).find((investment) => {
-      const { quantity } = investment;
-      return quantity > 0;
-    });
-    return !_.isEmpty(negInvestment);
+      const { quantity } = investment
+      return quantity > 0
+    })
+    return !_.isEmpty(negInvestment)
   });
-  const metaClasses = useMetaDataStyles();
-  const tourName = isAdmin? ADMIN_INITIATIVE_FIRST_VIEW : INVITE_INITIATIVE_FIRST_VIEW
-  const tourSteps = isAdmin? adminInitiativeSteps(cognitoUser) : inviteInitiativeSteps(cognitoUser);
+  const metaClasses = useMetaDataStyles()
+  const tourName = isAdmin ? ADMIN_INITIATIVE_FIRST_VIEW : INVITE_INITIATIVE_FIRST_VIEW
+  const tourSteps = isAdmin ? adminInitiativeSteps(cognitoUser) : inviteInitiativeSteps(cognitoUser)
+  const yourPresence = marketPresences.find((presence) => presence.current_user)
+  const yourVote = yourPresence && yourPresence.investments.find((investment) => investment.investible_id === investibleId)
 
-  function onAttachFile(metadatas) {
+  function onAttachFile (metadatas) {
     return attachFilesToMarket(marketId, metadatas)
       .then((market) => {
-        addMarketToStorage(marketsDispatch, diffDispatch, market, false);
+        addMarketToStorage(marketsDispatch, diffDispatch, market, false)
       })
   }
 
-  function onDeleteFile(path) {
+  function onDeleteFile (path) {
     return deleteAttachedFilesFromMarket(marketId, [path])
       .then((market) => {
         addMarketToStorage(marketsDispatch, diffDispatch, market, false);
@@ -247,8 +249,8 @@ function InitiativeInvestible(props) {
         continuous
         hideBackButton
       />
-      {!isAdmin && activeMarket && (
-        <DismissableText textId='initiativeVotingHelp' />
+      {!isAdmin && !inArchives && (
+        <DismissableText textId='initiativeVotingHelp'/>
       )}
       <Card className={classes.root}
         id="initiativeMain"
@@ -337,36 +339,48 @@ function InitiativeInvestible(props) {
                   </div>
                 </>
               )}
-              <MarketLinks links={children || []} actions={activeMarket ? [<ExpandableAction
+              <MarketLinks links={children || []} actions={!inArchives ? [<ExpandableAction
                 id="link"
                 key="link"
-                icon={<InsertLinkIcon htmlColor={ACTION_BUTTON_COLOR} />}
+                icon={<InsertLinkIcon htmlColor={ACTION_BUTTON_COLOR}/>}
                 label={intl.formatMessage({ id: 'childPlanExplanation' })}
                 openLabel={intl.formatMessage({ id: 'initiativePlanningParent' })}
                 onClick={() => navigate(history, `/dialogAdd#type=${PLANNING_TYPE}&investibleId=${investibleId}&id=${marketId}`)}
-              />] : []} />
+              />] : []}/>
               <AttachedFilesList
                 key="files"
                 marketId={marketId}
                 isAdmin={isAdmin}
                 onDeleteClick={onDeleteFile}
                 attachedFiles={attachedFiles}
-                onUpload={onAttachFile} />
+                onUpload={onAttachFile}/>
             </dl>
           </Grid>
         </Grid>
       </Card>
-      {!isAdmin && activeMarket && (
-        <YourVoting
-          investibleId={investibleId}
-          marketPresences={marketPresences}
-          comments={investmentReasons}
-          userId={userId}
-          market={market}
-        />
+      {!isAdmin && !inArchives && (
+        <>
+          <YourVoting
+            investibleId={investibleId}
+            marketPresences={marketPresences}
+            comments={investmentReasons}
+            userId={userId}
+            market={market}
+          />
+          {!yourVote && (
+            <>
+              <h2>{intl.formatMessage({ id: 'orStructuredComment' })}</h2>
+              <CommentAddBox
+                allowedTypes={allowedCommentTypes}
+                investible={investible}
+                marketId={marketId}
+              />
+            </>
+          )}
+        </>
       )}
       <h2>
-        <FormattedMessage id="initiativeVotingFor" />
+        <FormattedMessage id="initiativeVotingFor"/>
       </h2>
       <Voting
         investibleId={investibleId}
@@ -383,7 +397,7 @@ function InitiativeInvestible(props) {
       />
       <Grid container spacing={2}>
         <Grid item xs={12} style={{ marginTop: '71px' }} id="commentAddArea">
-          {!inArchives && !isAdmin && (
+          {!inArchives && !isAdmin && yourVote && (
             <CommentAddBox
               allowedTypes={allowedCommentTypes}
               investible={investible}

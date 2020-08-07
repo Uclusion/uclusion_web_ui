@@ -26,7 +26,7 @@ function App (props) {
       LogRocket.identify(loginInfo.userId, loginInfo)
     }
 
-    if (authState === 'signedIn') {
+    if (authState === 'signedIn' && !('userId' in userAttributes)) {
       console.info('Authenticating in App')
       Auth.currentAuthenticatedUser()
         .then((user) => {
@@ -40,7 +40,7 @@ function App (props) {
         })
     }
     return () => {}
-  }, [authState]);
+  }, [authState, userAttributes]);
 
   const { userId, email } = userAttributes;
   const hasAccount = !_.isEmpty(userId);

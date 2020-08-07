@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
-import { Modal, IconButton } from '@material-ui/core';
-import CloseIcon from '@material-ui/icons/Close';
-import MoviePlayer from './MoviePlayer';
-import { makeStyles } from '@material-ui/styles';
+import React, { useEffect, useState } from 'react'
+import PropTypes from 'prop-types'
+import { IconButton, Modal } from '@material-ui/core'
+import CloseIcon from '@material-ui/icons/Close'
+import MoviePlayer from './MoviePlayer'
+import { makeStyles } from '@material-ui/styles'
 
 const useStyles = makeStyles(() => {
   return {
@@ -47,7 +47,7 @@ function ModalMovie(props) {
   return (
     <Modal
       open={amOpen}
-      className={classes.movieContainer}
+      className={classes.movieModal}
     >
       <div className={classes.movieContainer}>
         <MoviePlayer
@@ -59,14 +59,12 @@ function ModalMovie(props) {
         {canClose &&(
           <IconButton
             style={{
-              position: 'absolute',
-              top: -40,
-              right: -40,
+              paddingTop: '25px'
             }}
             aria-label="Close"
             onClick={myOnClose}
           >
-            <CloseIcon style={{ fontSize: 32, color: 'white' }} />
+            <CloseIcon style={{ fontSize: 32, color: 'black' }}/>
           </IconButton>
         )}
       </div>

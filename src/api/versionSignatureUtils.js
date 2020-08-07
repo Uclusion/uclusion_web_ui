@@ -81,20 +81,20 @@ export function signatureMatcher (fetched, signatures) {
     const objectPresent = matchingSignature || signatures.find((signature) => signatureMatches(signature,
       object, false));
     if (matchingSignature) {
-      matched.push(object);
-      matchedSignatures.push(matchingSignature);
+      matched.push(object)
+      matchedSignatures.push(matchingSignature)
     } else if (!objectPresent) {
       // Since there is no hard delete all objects in the store and not in the signatures are an automatic match
       // otherwise quick added objects would be potentially removed
-      matched.push(object);
+      matched.push(object)
     }
   }
-  const unmatchedSignatures = _.difference(signatures, matchedSignatures);
-  const allMatched = _.isEmpty(unmatchedSignatures);
-  //if (!allMatched) {
-    //console.warn(`Unmatched signatures ${JSON.stringify(unmatchedSignatures)}`);
- // }
-  return { matched, unmatchedSignatures, allMatched };
+  const unmatchedSignatures = _.difference(signatures, matchedSignatures)
+  const allMatched = _.isEmpty(unmatchedSignatures)
+  if (!allMatched) {
+    console.warn(`Unmatched signatures ${JSON.stringify(unmatchedSignatures)}`)
+  }
+  return { matched, unmatchedSignatures, allMatched }
 }
 
 

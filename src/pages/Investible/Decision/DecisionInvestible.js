@@ -384,7 +384,7 @@ function DecisionInvestible(props) {
       )}
       <Grid container spacing={2}>
         <Grid item xs={12} style={{ marginTop: '71px' }}>
-          {!inArchives && yourVote && (
+          {!inArchives && (inProposed || yourVote) && (
             <CommentAddBox
               allowedTypes={allowedCommentTypes}
               investible={investible}

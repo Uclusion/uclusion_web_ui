@@ -39,7 +39,7 @@ function StoryWorkspaceWizard(props) {
   return (
     <div>
     {!hidden && !isHome && (
-      <HelpMovie name="accountSignupHelp" canClose={false}/>
+      <HelpMovie name="accountSignupHelp"/>
     )}
     <OnboardingWizard
       title={intl.formatMessage({ id: 'WorkspaceWizardTitle' })}

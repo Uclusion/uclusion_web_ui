@@ -12,6 +12,11 @@ class AmplifyIdentityTokenRefresher {
   getIdentity() {
     return Auth.currentSession().then((sessionData) => {
       const { idToken } = sessionData;
+      const expired = idToken.getExpiration() <= (Date.now() / 1000);
+      if (expired) {
+        console.error("Id token is expired, and didn't auto refresh. Signing us out");
+        return Auth.signOut();
+      }
       const { jwtToken } = idToken;
       return jwtToken;
     });

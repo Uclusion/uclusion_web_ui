@@ -36,48 +36,48 @@ const useStyles = makeStyles(theme => ({
 }));
 
 function VerifyEmail (props) {
-  const LOGIN = '/';
-  const ALTERNATE_SIDEBAR_LOGO = 'Uclusion_Logo_White_Micro.png';
-  const intl = useIntl();
-  const classes = useStyles();
-  const params = new URL(document.location).searchParams;
-  const [verificationState, setVerificationState] = useState(undefined);
-  const code = params.get('code');
-  const { authState } = props;
+  const LOGIN = '/'
+  const ALTERNATE_SIDEBAR_LOGO = 'Uclusion_Logo_White_Micro.png'
+  const intl = useIntl()
+  const classes = useStyles()
+  const params = new URL(document.location).searchParams
+  const [verificationState, setVerificationState] = useState(undefined)
+  const code = params.get('code')
+
+  useEffect(() => {
+    // we unconditionally sign out in case they are signed in to the user in another tab.
+    // if it fails, we weren't logged in.
+    Auth.currentAuthenticatedUser().then(() => setVerificationState('MUST_LOGOUT'))
+      .catch(() => setVerificationState('READY_TO_PROCESS'))
+    return () => {}
+  }, [])
 
   useEffect(() => {
     function beginRedirecting (result) {
-      console.log('Beginning redirect');
-      const { redirect } = result;
+      console.log('Beginning redirect')
+      const { redirect } = result
       if (!_.isEmpty(redirect)) {
-        console.log(`Setting redirect to ${redirect}`);
-        setRedirect(redirect);
+        console.log(`Setting redirect to ${redirect}`)
+        setRedirect(redirect)
       }
-      console.log('redirecting to LOGIN');
+      console.log('redirecting to LOGIN')
       window.location.pathname = LOGIN;
-    }
-
-    if (!verificationState) {
-      // we unconditionally sign out in case they are signed in to the user in another tab.
-      // if it fails, we weren't logged in.
-      Auth.currentAuthenticatedUser().then(() => setVerificationState('MUST_LOGOUT'))
-        .catch(() => setVerificationState('READY_TO_PROCESS'))
     }
 
     if (code && verificationState === 'READY_TO_PROCESS') {
       setVerificationState('PROCESSING');
       verifyEmail(code)
         .then(result => {
-          setVerificationState('VERIFIED');
-          return beginRedirecting(result);
+          setVerificationState('VERIFIED')
+          return beginRedirecting(result)
         })
         .catch((error) => {
-          console.error(error);
-          setVerificationState('ERROR');
-          sendIntlMessageBase(intl, ERROR, 'errorVerifyFailed');
+          console.error(error)
+          setVerificationState('ERROR')
+          sendIntlMessageBase(intl, ERROR, 'errorVerifyFailed')
         });
     }
-  }, [code, verificationState, intl, authState]);
+  }, [code, verificationState, intl]);
 
   if (!verificationState || verificationState === 'MUST_LOGOUT') {
     return (

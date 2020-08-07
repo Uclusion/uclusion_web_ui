@@ -4,7 +4,6 @@
 import { toast } from 'react-toastify'
 import { intl } from '../components/ContextHacks/IntlGlobalProvider'
 import { setOperationInProgress } from '../components/ContextHacks/OperationInProgressGlobalProvider'
-import { Auth } from 'aws-amplify'
 
 export const INFO = 'info';
 export const WARN = 'warn';
@@ -19,9 +18,7 @@ export const SUCCESS = 'success';
  * @param ii18nMessageValues any key/values the message requires
  */
 export function sendIntlMessage(level, i18nMessageId, ii18nMessageValues) {
-  Auth.currentAuthenticatedUser()
-    .then(() => sendIntlMessageBase(intl, level, i18nMessageId, ii18nMessageValues))
-    //.catch(() => // console.debug('Suppressed toast after user logged out'));
+  sendIntlMessageBase(intl, level, i18nMessageId, ii18nMessageValues)
 }
 
 export function sendIntlMessageBase(intl, level, i18nMessageId, ii18nMessageValues) {

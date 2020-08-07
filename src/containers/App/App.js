@@ -20,29 +20,27 @@ function App (props) {
   const { authState } = props;
   const configs = { ...config };
   const [userAttributes, setUserAttributes] = useState({});
-  const [calledAuthenticate, setCalledAuthenticate] = useState(false);
   useEffect(() => {
     function completeLogin (loginInfo) {
-      setUserAttributes(loginInfo);
-      LogRocket.identify(loginInfo.userId, loginInfo);
+      setUserAttributes(loginInfo)
+      LogRocket.identify(loginInfo.userId, loginInfo)
     }
 
-    if (authState === 'signedIn' && !calledAuthenticate) {
-      setCalledAuthenticate(true);
+    if (authState === 'signedIn') {
+      console.info('Authenticating in App')
       Auth.currentAuthenticatedUser()
         .then((user) => {
-          const { attributes } = user;
-          const userId = attributes['custom:user_id'];
+          const { attributes } = user
+          const userId = attributes['custom:user_id']
           const loginInfo = {
             ...attributes,
             userId,
-          };
-          completeLogin(loginInfo);
-        });
+          }
+          completeLogin(loginInfo)
+        })
     }
-    return () => {
-    };
-  }, [authState, calledAuthenticate]);
+    return () => {}
+  }, [authState]);
 
   const { userId, email } = userAttributes;
   const hasAccount = !_.isEmpty(userId);

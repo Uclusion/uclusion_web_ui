@@ -44,7 +44,7 @@ export function notifyNewApplicationVersion(currentVersion, cacheClearVersion) {
         .catch((error) => {
           console.error(error);
           toastError('errorSignOutFailed');
-        })
+        });
     };
     sendInfoPersistent({ id: 'noticeVersionForceLogout' }, {}, reloader);
   } else if (currentVersion !== version && !currentVersion.includes('fake')) {

@@ -39,12 +39,12 @@ export function notifyNewApplicationVersion(currentVersion, cacheClearVersion) {
   if (cacheClearVersion && (!Number.isInteger(loginVersion) || loginVersion < cacheClearVersion)) {
     console.log(`Sign out with cache clear version ${cacheClearVersion} and login version ${loginVersion}`);
     const reloader = () => {
-      onSignOut(false).then(() => setLoginPersistentItem(LAST_LOGIN_APP_VERSION, cacheClearVersion))
-        .then(() => window.location.reload(true))
+      setLoginPersistentItem(LAST_LOGIN_APP_VERSION, cacheClearVersion)
+      onSignOut(false).then(() => window.location.reload(true))
         .catch((error) => {
-          console.error(error);
-          toastError('errorSignOutFailed');
-        });
+          console.error(error)
+          toastError('errorSignOutFailed')
+        })
     }
     sendInfoPersistent({ id: 'noticeVersionForceLogout' }, {}, reloader);
   } else if (currentVersion !== version && !currentVersion.includes('fake')) {

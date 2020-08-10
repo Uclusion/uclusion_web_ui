@@ -2,7 +2,7 @@ import React, { useContext, useEffect } from 'react'
 import { Helmet } from 'react-helmet'
 import { useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
-import { useHistory } from 'react-router'
+import { useHistory, useLocation } from 'react-router'
 import Header from '../../containers/Header'
 import { decomposeMarketPath, formMarketLink, navigate, } from '../../utils/marketIdPathFunctions'
 import { getMarketFromInvite } from '../../api/uclusionClient'
@@ -61,12 +61,13 @@ function MarketInvite(props) {
   const { hidden } = props;
   const intl = useIntl();
   const history = useHistory();
+  const location = useLocation();
   const [marketsState, marketsDispatch] = useContext(MarketsContext);
   const classes = useStyles();
 
   useEffect(() => {
     if (!hidden && !marketsState.initializing) {
-      const { location } = history;
+
       const { pathname, hash } = location;
       const { marketId: marketToken } = decomposeMarketPath(pathname);
       const values = queryString.parse(hash);
@@ -88,7 +89,7 @@ function MarketInvite(props) {
           toastError('errorMarketFetchFailed');
         });
     }
-  }, [hidden, history, marketsDispatch, marketsState]);
+  }, [hidden, history, location, marketsDispatch, marketsState]);
 
   if (hidden) {
     return <React.Fragment/>

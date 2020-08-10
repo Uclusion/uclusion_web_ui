@@ -5,15 +5,15 @@ import { createPlanning } from '../../api/markets'
 import { processTextAndFilesForSave } from '../../api/files'
 import { PLANNING_TYPE, STORIES_SUB_TYPE } from '../../constants/markets'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
-import { useHistory } from 'react-router'
+import {  useLocation } from 'react-router'
 import queryString from 'query-string'
 import { Form } from '../../components/AgilePlan'
 import { formMarketLink, formMarketManageLink } from '../../utils/marketIdPathFunctions'
 import DismissableText from '../../components/Notifications/DismissableText'
 
 function PlanningAdd(props) {
-  const history = useHistory();
-  const { location } = history;
+
+  const location = useLocation();
   const { hash } = location;
   const values = queryString.parse(hash);
   const { investibleId: parentInvestibleId, id: parentMarketId } = values;

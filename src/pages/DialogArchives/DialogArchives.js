@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import Screen from '../../containers/Screen/Screen'
-import { useHistory } from 'react-router'
+import { useHistory, useLocation } from 'react-router';
 import {
   decomposeMarketPath,
   formMarketLink,
@@ -29,7 +29,8 @@ function DialogArchives(props) {
 
   const intl = useIntl();
   const history = useHistory();
-  const { location: { pathname } } = history;
+  const location = useLocation();
+  const { pathname } = location;
   const { marketId } = decomposeMarketPath(pathname);
   const [assigneeFilter, setAssigneeFilter] = useState('');
   const [filteredMarketId, setFilteredMarketId] = useState(undefined);

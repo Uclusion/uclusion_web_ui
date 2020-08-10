@@ -11,7 +11,7 @@ import { formInvestibleLink, formMarketLink, urlHelperGetName } from '../../../u
 import AssignmentList from './AssignmentList'
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
-import { useHistory } from 'react-router'
+import { useLocation } from 'react-router';
 import queryString from 'query-string'
 import CardType, { STORY_TYPE } from '../../../components/CardType'
 import { DaysEstimate } from '../../../components/AgilePlan'
@@ -50,9 +50,8 @@ function PlanningInvestibleAdd(props) {
   const [currentValues, setCurrentValues] = useState(emptyInvestible);
   const [description, setDescription] = useState(storedDescription);
   const [uploadedFiles, setUploadedFiles] = useState([]);
-  const history = useHistory();
+  const location = useLocation();
   function getUrlAssignee() {
-    const { location } = history;
     const { hash } = location;
     if (!_.isEmpty(hash)) {
       const values = queryString.parse(hash);

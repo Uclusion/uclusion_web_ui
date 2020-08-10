@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import _ from 'lodash'
-import { useHistory } from 'react-router'
+import { useHistory, useLocation } from 'react-router';
 import PropTypes from 'prop-types'
 import { withStyles } from '@material-ui/core/styles'
 import { useIntl } from 'react-intl'
@@ -64,7 +64,7 @@ function Dialog(props) {
   const [addInvestibleMode, setAddInvestibleMode] = useState(false);
   const history = useHistory();
   const intl = useIntl();
-  const { location } = history;
+  const location = useLocation();
   const { pathname, hash } = location;
   const { marketId } = decomposeMarketPath(pathname);
   const [marketsState] = useContext(MarketsContext);
@@ -106,7 +106,7 @@ function Dialog(props) {
     function getInitiativeInvestible(baseInvestible) {
       const {
         investibleId: onInvestibleId,
-      } = decomposeMarketPath(history.location.pathname);
+      } = decomposeMarketPath(location.pathname);
       if (onInvestibleId) {
         return;
       }
@@ -131,7 +131,7 @@ function Dialog(props) {
 
     return () => {
     };
-  }, [hidden, marketType, investibles, marketId, history, marketStages, marketPresences, isInline,
+  }, [hidden, marketType, investibles, marketId, history, location, marketStages, marketPresences, isInline,
     activeMarket, parentMarketId, parentInvestibleId]);
 
   if (loading) {

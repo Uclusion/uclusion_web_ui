@@ -10,7 +10,7 @@ import {
   formMarketLink,
   navigate
 } from '../../utils/marketIdPathFunctions'
-import { useHistory } from 'react-router'
+import { useHistory, useLocation } from 'react-router'
 import EditMarketButton from '../Dialog/EditMarketButton'
 import ChangeToObserverButton from '../Dialog/ChangeToObserverButton'
 import ChangeToParticipantButton from '../Dialog/ChangeToParticipantButton'
@@ -30,7 +30,7 @@ const useStyles = makeStyles(() => {
 
 function DialogActions(props) {
   const history = useHistory();
-  const { location } = history;
+  const location = useLocation();
   const { pathname } = location;
   const { action } = decomposeMarketPath(pathname);
   const {

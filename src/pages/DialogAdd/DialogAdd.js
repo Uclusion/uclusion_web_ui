@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { useHistory } from 'react-router'
+import { useHistory, useLocation } from 'react-router';
 import PropTypes from 'prop-types'
 import { useIntl } from 'react-intl'
 import localforage from 'localforage'
@@ -22,7 +22,7 @@ import { SUBSCRIPTION_STATUS_CANCELED } from '../../constants/billing'
 function DialogAdd(props) {
   const { hidden } = props;
   const history = useHistory();
-  const { location } = history;
+  const location = useLocation();
   const { hash } = location;
   const values = queryString.parse(hash);
   const { type } = values;

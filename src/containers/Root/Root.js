@@ -2,7 +2,7 @@ import React, { useContext, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { makeStyles } from '@material-ui/core/styles'
 import { CssBaseline } from '@material-ui/core'
-import { useHistory } from 'react-router'
+import { useHistory, useLocation } from 'react-router'
 import Market from '../../pages/Dialog/Dialog'
 import Support from '../../pages/About/Support'
 import PageNotFound from '../../pages/PageNotFound/PageNotFound'
@@ -52,8 +52,8 @@ const useStyles = makeStyles({
 
 function Root() {
   const history = useHistory();
+  const location = useLocation();
   const classes = useStyles();
-  const { location } = history;
   const { pathname } = location;
   const { marketId, investibleId, action } = decomposeMarketPath(pathname);
   const [, setOperationsLocked] = useContext(OperationInProgressContext);

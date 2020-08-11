@@ -1,7 +1,7 @@
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import { SOCKET_OPEN_EVENT, VERSIONS_HUB_CHANNEL } from '../../contexts/WebSocketContext';
 import { pushMessage } from '../../utils/MessageBusUtils';
-import AmplifyIdentityTokenRefresher from '../../authorization/AmplifyIdentityTokenRefresher';
+import { getAccountSSOClient } from '../../api/uclusionClient';
 
 /**
  * Class which fires and manages a websocket connection to the server.
@@ -36,8 +36,9 @@ class WebSocketRunner {
   }
 
   subscribe() {
-    return new AmplifyIdentityTokenRefresher().getIdentity().then((identity) => {
-      const action = { action: 'subscribe', identity };
+    return getAccountSSOClient().then((ssoInfo) => {
+      const { accountToken } = ssoInfo;
+      const action = { action: 'subscribe', identity: accountToken };
       if (this.socket.readyState === WebSocket.OPEN) {
         const actionString = JSON.stringify(action);
         this.socket.send(actionString);

@@ -1,21 +1,24 @@
 import uclusion from 'uclusion_sdk'
-import AmplifyIdentitySource from '../authorization/AmplifyIdentityTokenRefresher'
 import config from '../config'
 import _ from 'lodash'
 import { notifyNewApplicationVersion } from '../contexts/WebSocketContext'
 import { AllSequentialMap } from '../utils/PromiseUtils'
+import { getAccountSSOClient } from './uclusionClient';
 
 function getSummaryInfo () {
-  return new AmplifyIdentitySource().getIdentity()
-    .then((idToken) => uclusion.constructSummariesClient(config.api_configuration)
-      .then((summaryClient) => ({ summaryClient, idToken })))
+  return getAccountSSOClient()
+    .then((ssoInfo) => {
+      const { accountToken } = ssoInfo;
+      return uclusion.constructSummariesClient(config.api_configuration)
+        .then((summaryClient) => ({ summaryClient, accountToken }))
+    })
 }
 
 export function getChangedIds(currentVersion) {
   return getSummaryInfo()
     .then((summaryInfo) => {
-      const { summaryClient, idToken } = summaryInfo
-      return summaryClient.idList(idToken, currentVersion)
+      const { summaryClient, accountToken } = summaryInfo
+      return summaryClient.idList(accountToken, currentVersion)
     })
 }
 
@@ -25,11 +28,11 @@ export function getVersions(idList) {
   const chunks = _.chunk(idList, MAX_MAREKTS_TO_FETCH_FROM_BACKEND)
   return getSummaryInfo()
     .then((summaryInfo) => {
-      const { summaryClient, idToken } = summaryInfo
+      const { summaryClient, accountToken } = summaryInfo
       return AllSequentialMap(chunks, (idList) => {
         //console.error("signleChunk");
         //console.error(idList);
-        return summaryClient.versions(idToken, idList);
+        return summaryClient.versions(accountToken, idList);
         //console.error(chunkversions);
         //return chunkversions;
       })
@@ -46,8 +49,8 @@ export function getVersions(idList) {
 export function getNotifications () {
   return getSummaryInfo()
     .then((summaryInfo) => {
-      const { summaryClient, idToken } = summaryInfo
-      return summaryClient.notifications(idToken)
+      const { summaryClient, accountToken } = summaryInfo
+      return summaryClient.notifications(accountToken)
         .then((notifications) => {
           // TODO we have app verion here, which is odd, but we'll move it later
           // For now notify here, and just pass it all along unmodified

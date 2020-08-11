@@ -1,5 +1,5 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react'
-import { useHistory } from 'react-router'
+import { useHistory, useLocation } from 'react-router'
 import { decomposeMarketPath } from '../utils/marketIdPathFunctions'
 import { pushMessage } from '../utils/MessageBusUtils'
 import { HIGHLIGHTED_COMMENT_CHANNEL } from './HighlightingContexts/highligtedCommentContextMessages'
@@ -11,7 +11,7 @@ const ScrollContext = React.createContext({});
 function ScrollProvider(props) {
   const { children } = props;
   const history = useHistory();
-  const { location } = history;
+  const location = useLocation();
   const { pathname, hash } = location;
   const [hashFragment, setHashFragment] = useState(undefined);
   const [processedPath, setProcessedPath] = useState(undefined);

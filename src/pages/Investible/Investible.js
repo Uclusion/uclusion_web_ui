@@ -1,6 +1,6 @@
 import React, { useContext, useEffect } from 'react'
 import PropTypes from 'prop-types'
-import { useHistory } from 'react-router'
+import { useHistory, useLocation } from 'react-router'
 import _ from 'lodash'
 import Screen from '../../containers/Screen/Screen'
 import {
@@ -37,7 +37,7 @@ function createCommentsHash(commentsArray) {
 function Investible(props) {
   const { hidden } = props;
   const history = useHistory();
-  const { location } = history;
+  const location = useLocation();
   const { pathname } = location;
   const { marketId, investibleId } = decomposeMarketPath(pathname);
   const [marketPresencesState] = useContext(MarketPresencesContext);

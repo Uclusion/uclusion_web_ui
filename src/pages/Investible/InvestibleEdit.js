@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { FormattedMessage, useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
-import { useHistory } from 'react-router'
+import { useHistory, useLocation } from 'react-router'
 import localforage from 'localforage'
 import { lockInvestibleForEdit, realeaseInvestibleEditLock, } from '../../api/investibles'
 import {
@@ -34,7 +34,7 @@ function InvestibleEdit (props) {
   const { hidden } = props;
   const intl = useIntl();
   const history = useHistory();
-  const { location } = history;
+  const location = useLocation();
   const { pathname, hash } = location;
   const values = queryString.parse(hash || '') || {};
   const { assign } = values;

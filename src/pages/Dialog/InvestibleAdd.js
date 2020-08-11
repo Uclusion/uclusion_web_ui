@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { useHistory } from 'react-router'
+import { useHistory, useLocation } from 'react-router'
 import PropTypes from 'prop-types'
 import { useIntl } from 'react-intl'
 import localforage from 'localforage'
@@ -23,7 +23,7 @@ function InvestibleAdd(props) {
   const { hidden } = props;
   const intl = useIntl();
   const history = useHistory();
-  const { location } = history;
+  const location = useLocation();
   const { pathname, hash } = location;
   const values = queryString.parse(hash || '') || {};
   const { parentInvestibleId } = values;

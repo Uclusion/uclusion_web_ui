@@ -10,7 +10,7 @@ import { processTextAndFilesForSave } from '../../api/files'
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton'
 import { DECISION_TYPE, PLANNING_TYPE } from '../../constants/markets'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
-import { useHistory } from 'react-router'
+import { useLocation } from 'react-router'
 import queryString from 'query-string'
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
@@ -25,8 +25,7 @@ import { InvestiblesContext } from '../../contexts/InvestibesContext/Investibles
 
 function DecisionAdd(props) {
   const intl = useIntl();
-  const history = useHistory();
-  const { location } = history;
+  const location = useLocation();
   const { hash } = location;
   const values = queryString.parse(hash);
   const { investibleId: parentInvestibleId, id: parentMarketId } = values;

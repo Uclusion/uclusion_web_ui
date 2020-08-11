@@ -41,6 +41,19 @@ export const getMarketFromUrl = (marketId) => {
   });
 };
 
+export const getAccountSSOClient = () => {
+  const ssoClient = client.constructSSOClient(config.api_configuration);
+  return ssoClient.then((sso) => {
+    const identitySource = new AmplifyIdentityTokenRefresher();
+    const tokenManager = new TokenFetcher(identitySource, sso, TOKEN_TYPE_ACCOUNT, 'home_account');
+    return tokenManager.getToken()
+      .then((accountToken) => {
+        const ssoInfo = { ssoClient: sso, accountToken };
+        return ssoInfo;
+      });
+  });
+};
+
 export const getAccountClient = () => {
   const ssoClient = client.constructSSOClient(config.api_configuration);
   return ssoClient.then((sso) => {

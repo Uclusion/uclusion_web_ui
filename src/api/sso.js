@@ -2,6 +2,7 @@ import uclusion from 'uclusion_sdk'
 import AmpifyIdentitySource from '../authorization/AmplifyIdentityTokenRefresher'
 import config from '../config'
 import { toastErrorAndThrow } from '../utils/userMessage'
+import { getAccountSSOClient } from './uclusionClient';
 
 export function getSSOInfo() {
   return new AmpifyIdentitySource().getIdentity()
@@ -10,10 +11,10 @@ export function getSSOInfo() {
 }
 
 export function getMessages() {
-  return getSSOInfo()
+  return getAccountSSOClient()
     .then((ssoInfo) => {
-      const { ssoClient, idToken } = ssoInfo;
-      return ssoClient.getMessages(idToken)
+      const { ssoClient, accountToken } = ssoInfo;
+      return ssoClient.getMessages(accountToken)
         .then((messages) => {
           return messages;
         });
@@ -23,17 +24,13 @@ export function getMessages() {
  */
 export function getHomeAccountUser () {
   // Note, because it's at the SSO level, we don't use the uclusionClientWrappers
-  return getSSOInfo().then((ssoInfo) => {
-    const { idToken, ssoClient } = ssoInfo;
-    return ssoClient.accountCognitoLogin(idToken)
-      .then((loginInfo) => {
-        const { user } = loginInfo;
-        return user;
-      })
-      .catch((error) => {
-        toastErrorAndThrow(error, 'errorHomeUserFetchFailed');
-      })
-  });
+  return getAccount().then((loginInfo) => {
+    const { user } = loginInfo;
+    return user;
+  })
+    .catch((error) => {
+      toastErrorAndThrow(error, 'errorHomeUserFetchFailed');
+    });
 }
 
 export const getAccount = () => {

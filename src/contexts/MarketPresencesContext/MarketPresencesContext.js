@@ -17,6 +17,8 @@ function MarketPresencesProvider(props) {
       .then((diskState) => {
         if (diskState) {
           dispatch(initializeState(diskState));
+        } else {
+          dispatch(initializeState({}));
         }
       });
     beginListening(dispatch);

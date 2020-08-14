@@ -168,7 +168,10 @@ function doRemoveMarketsPresence(state, action) {
 function computeNewState(state, action) {
   switch (action.type) {
     case INITIALIZE_STATE:
-      return action.newState;
+      if (state.initializing) {
+        return action.newState;
+      }
+      return state;
     case ADD_MARKET_PRESENCE:
       return doAddMarketPresence(state, action);
     case ADD_MARKET_PRESENCES:

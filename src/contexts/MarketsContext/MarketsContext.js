@@ -33,6 +33,10 @@ function MarketsProvider(props) {
           const indexMessage = { event: INDEX_UPDATE, itemType: INDEX_MARKET_TYPE, items: marketDetails};
           pushMessage(SEARCH_INDEX_CHANNEL, indexMessage);
           dispatch(initializeState(diskState));
+        } else {
+          dispatch(initializeState({
+            marketDetails: [],
+          }));
         }
       });
     return () => {};

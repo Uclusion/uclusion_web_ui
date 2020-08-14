@@ -185,27 +185,30 @@ function Signup(props) {
   const [callActive, setCallActive] = useState(false);
   const [wasBlurred, setWasBlurred] = useState(false);
   const intl = useIntl();
-  const [myLoading, setMyLoading] = useState(undefined);
   const [myMarket, setMyMarket] = useState(undefined);
   const SIGNUP_LOGO = 'Uclusion_Logo_White_Micro.png';
-  const LOGO_COLOR = '#3F6B72'
+  const LOGO_COLOR = '#3F6B72';
+
   useEffect(() => {
-    if (signUpWith === 'google') {
-      Auth.federatedSignIn({provider: 'Google'});
-    } else if (signUpWith === 'github') {
-      Auth.federatedSignIn({provider: 'GithubLogin'});
-    } else if (action === 'invite' && marketToken && myLoading !== marketToken) {
-      setMyLoading(marketToken);
+    if (action === 'invite' && marketToken) {
       console.info('Loading info');
       getMarketInfoForToken(marketToken)
         .then((market) => {
           setMyMarket(market);
         }).catch((error) => {
-          console.error(error);
-          toastError('errorMarketFetchFailed');
-        });
+        console.error(error);
+        toastError('errorMarketFetchFailed');
+      });
     }
-  }, [marketToken, action, myLoading, signUpWith]);
+  }, [marketToken, action]);
+
+  useEffect(() => {
+    if (signUpWith === 'google') {
+      Auth.federatedSignIn({provider: 'Google'});
+    } else if (signUpWith === 'github') {
+      Auth.federatedSignIn({provider: 'GithubLogin'});
+    }
+  }, [signUpWith]);
 
   function onPasswordBlurred() {
     setWasBlurred(true);

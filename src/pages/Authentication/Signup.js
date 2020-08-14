@@ -196,9 +196,9 @@ function Signup(props) {
         .then((market) => {
           setMyMarket(market);
         }).catch((error) => {
-        console.error(error);
-        toastError('errorMarketFetchFailed');
-      });
+          console.error(error);
+          toastError('errorMarketFetchFailed');
+        });
     }
   }, [marketToken, action]);
 

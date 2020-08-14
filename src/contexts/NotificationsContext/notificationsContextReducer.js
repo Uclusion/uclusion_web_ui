@@ -306,7 +306,10 @@ function computeNewState (state, action) {
     case PAGE_CHANGED:
       return processPageChange(state, action);
     case INITIALIZE_STATE:
-      return action.newState;
+      if (state.initializing) {
+        return action.newState;
+      }
+      return state;
     default:
       return state;
   }

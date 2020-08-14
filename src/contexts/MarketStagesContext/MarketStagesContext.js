@@ -20,6 +20,8 @@ function MarketStagesProvider (props) {
       .then((state) => {
         if (state) {
           dispatch(initializeState(state));
+        } else {
+          dispatch(initializeState({}));
         }
       });
     beginListening(dispatch);

@@ -96,7 +96,10 @@ function computeNewState(state, action) {
     case UPDATE_FROM_VERSIONS:
       return doOverwriteMarketComments(state, action);
     case INITIALIZE_STATE:
-      return action.newState;
+      if (state.initializing) {
+        return action.newState;
+      }
+      return state;
     default:
       return state;
   }

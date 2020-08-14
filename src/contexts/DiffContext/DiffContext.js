@@ -21,6 +21,8 @@ function DiffProvider(props) {
         // console.debug(state);
         if (state) {
           dispatch(initializeState(state));
+        }else {
+          dispatch(initializeState({}));
         }
       });
     return () => {};

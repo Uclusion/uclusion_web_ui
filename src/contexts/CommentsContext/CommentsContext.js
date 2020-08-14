@@ -32,6 +32,8 @@ function CommentsProvider(props) {
           const indexMessage = {event: INDEX_UPDATE, itemType: INDEX_COMMENT_TYPE, items: indexItems};
           pushMessage(SEARCH_INDEX_CHANNEL, indexMessage);
           dispatch(initializeState(state));
+        } else {
+          dispatch(initializeState({}));
         }
       });
     beginListening(dispatch);

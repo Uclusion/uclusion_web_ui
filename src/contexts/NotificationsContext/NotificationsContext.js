@@ -37,6 +37,11 @@ function NotificationsProvider(props) {
           const { messages } = state;
           //We don't want to load up page or lastPage from disk
           dispatch(initializeState({ messages }));
+        } else {
+          dispatch(initializeState({
+            page: undefined,
+            messages: [],
+          }));
         }
       });
     return () => {};

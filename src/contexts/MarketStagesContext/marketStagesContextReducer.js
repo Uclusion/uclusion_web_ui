@@ -53,7 +53,10 @@ function removeMarketStages(state, action) {
 function computeNewState(state, action) {
   switch (action.type) {
     case INITIALIZE_STATE:
-      return action.newState;
+      if (state.initializing) {
+        return action.newState;
+      }
+      return state;
     case UPDATE_MARKET_STAGES:
       return doUpdateMarketStages(state, action);
     case REMOVE_MARKET_STAGES:

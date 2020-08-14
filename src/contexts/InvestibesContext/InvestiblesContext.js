@@ -34,6 +34,8 @@ function InvestiblesProvider(props) {
           const indexMessage = {event: INDEX_UPDATE, itemType: INDEX_INVESTIBLE_TYPE, items: indexItems};
           pushMessage(SEARCH_INDEX_CHANNEL, indexMessage);
           dispatch(initializeState(state));
+        } else {
+          dispatch(initializeState({}));
         }
       });
     return () => {};

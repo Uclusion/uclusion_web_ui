@@ -2,7 +2,7 @@
  A simple component that only renders root if the home account user has been loaded in the contexts
  */
 
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext';
 import { getAccount } from '../../api/sso';
 import { userIsLoaded } from '../../contexts/AccountUserContext/accountUserContextHelper';

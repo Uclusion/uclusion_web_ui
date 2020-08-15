@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { useIntl } from 'react-intl'
 import { ERROR, sendIntlMessageBase } from '../../utils/userMessage'
@@ -32,18 +32,16 @@ function NoAccount(props) {
   const { email, authState } = props;
   const intl = useIntl();
   const classes = useStyles();
-  const [calledSignOut, setCalledSignout] = useState(false);
 
   useEffect(() => {
-    if (authState === 'signedIn' && !calledSignOut) {
+    if (authState === 'signedIn') {
       console.info('Signing out with no account');
-      setCalledSignout(true);
       Auth.signOut().catch((error) => {
         console.error(error);
         sendIntlMessageBase(intl, ERROR, 'errorVerifyFailed');
       });
     }
-  }, [authState, calledSignOut, intl]);
+  }, [authState, intl]);
 
   function onResend() {
     return resendVerification(email);

@@ -14,6 +14,7 @@ import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 import { ACTIVE_STAGE } from '../../constants/markets'
 import { makeStyles } from '@material-ui/styles'
+import _ from 'lodash'
 
 const useStyles = makeStyles((theme) => ({
   inactiveMarket: {
@@ -35,23 +36,19 @@ function ParentSummary(props) {
   } = market;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [marketState] = useContext(MarketsContext);
-  const [parentLoaded, setParentLoaded] = useState(false);
   const [parentMarket, setParentMarket] = useState(undefined);
   const [investiblesState] = useContext(InvestiblesContext);
 
   useEffect(() => {
     if (parentMarketId) {
-      if (!parentLoaded && !hidden) {
-        setParentLoaded(true);
+      if (_.isEmpty(parentMarket) && !hidden) {
         const marketDetails = getMarket(marketState, parentMarketId);
         if (marketDetails) {
           setParentMarket(marketDetails);
         }
-      } else if (hidden) {
-        setParentLoaded(false);
       }
     }
-  }, [parentMarketId, hidden, parentLoaded, marketState])
+  }, [parentMarketId, hidden, marketState, parentMarket])
 
   function displayParentLink(parentMarketId, parentInvestibleId) {
     const { name: parentMarketName, market_stage: parentMarketStage } = parentMarket;

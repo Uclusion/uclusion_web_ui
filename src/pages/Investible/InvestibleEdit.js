@@ -29,6 +29,7 @@ import clsx from 'clsx'
 import { LockedDialog, useLockedDialogStyles } from '../Dialog/DialogEdit'
 import queryString from 'query-string'
 import { EMPTY_SPIN_RESULT } from '../../constants/global'
+import _ from 'lodash'
 
 function InvestibleEdit (props) {
   const { hidden } = props;
@@ -52,10 +53,8 @@ function InvestibleEdit (props) {
   const isAdmin = myPresence && myPresence.is_admin;
   const { investible: myInvestible } = fullInvestible;
   const { name, locked_by: lockedBy } = myInvestible;
-  const [lockedInvestibleId, setLockedInvestibleId] = useState(undefined);
   const [idLoaded, setIdLoaded] = useState(undefined);
   const [storedState, setStoredState] = useState(undefined);
-  const [lockedInvestibleIdMarketId, setLockedInvestibleIdMarketId] = useState(undefined);
   const emptyMarket = { name: '' };
   const market = getMarket(marketsState, marketId) || emptyMarket;
   const isDecision = market && market.market_type === DECISION_TYPE;
@@ -63,13 +62,11 @@ function InvestibleEdit (props) {
   const isInitiative = market && market.market_type === INITIATIVE_TYPE;
   const [lockFailed, setLockFailed] = useState(false);
   const loading = idLoaded !== investibleId || !market || !inv || !userId;
-  const someoneElseEditing = lockedBy && (lockedBy !== userId);
+  const someoneElseEditing = !_.isEmpty(lockedBy) && (lockedBy !== userId);
   const [operationRunning] = useContext(OperationInProgressContext);
 
   function onLock (result) {
     if (result) {
-      setLockedInvestibleId(investibleId);
-      setLockedInvestibleIdMarketId(marketId);
       setLockFailed(false);
       onSave({ investible: result } , true);
     } else {
@@ -79,13 +76,6 @@ function InvestibleEdit (props) {
 
   useEffect(() => {
     if (!hidden) {
-      if (!isAssign && investibleId !== lockedInvestibleId && !loading && !someoneElseEditing && !lockFailed) {
-        // Immediately set locked investible id to avoid multiple calls
-        setLockedInvestibleId(investibleId);
-        setLockedInvestibleIdMarketId(marketId);
-        lockInvestibleForEdit(marketId, investibleId)
-          .catch(() => setLockFailed(true));
-      }
       localforage.getItem(investibleId).then((stateFromDisk) => {
         setStoredState(stateFromDisk || {});
         setIdLoaded(investibleId);
@@ -94,27 +84,31 @@ function InvestibleEdit (props) {
     if (hidden && idLoaded) {
       setIdLoaded(undefined);
     }
-    if (hidden && !lockedBy && lockedInvestibleId) {
-      setLockedInvestibleId(undefined);
-    }
     return () => {
       if (hidden) {
         setLockFailed(false);
       }
     };
-  }, [hidden, lockedInvestibleId, investibleId, marketId, lockedInvestibleIdMarketId, isAssign,
-    lockedBy, someoneElseEditing, loading, lockFailed, idLoaded
-  ]);
+  }, [hidden, investibleId, idLoaded]);
+
+  useEffect(() => {
+    if (!hidden) {
+      if (!isAssign && !loading && !someoneElseEditing && !lockFailed) {
+        lockInvestibleForEdit(marketId, investibleId)
+          .catch(() => setLockFailed(true));
+      }
+    }
+    return () => {};
+  }, [hidden, investibleId, marketId, isAssign, someoneElseEditing, loading, lockFailed]);
 
   function onCancel() {
-    if (!lockedInvestibleId || lockedInvestibleId !== investibleId) {
+    if (_.isEmpty(lockedBy) || (lockedBy !== userId)) {
       navigate(history, formInvestibleLink(marketId, investibleId));
     } else {
-      const originalLockedId = lockedInvestibleId;
-      return localforage.removeItem(originalLockedId)
+      return localforage.removeItem(investibleId)
         .then(() => {
-          if (!lockFailed && lockedInvestibleId) {
-            return realeaseInvestibleEditLock(lockedInvestibleIdMarketId, lockedInvestibleId);
+          if (!lockFailed) {
+            return realeaseInvestibleEditLock(marketId, investibleId);
           }
           return true;
         })
@@ -131,7 +125,6 @@ function InvestibleEdit (props) {
           refreshInvestibles(investiblesDispatch, diffDispatch, [newInv]);
           return EMPTY_SPIN_RESULT;
         })
-        .catch(() => setLockedInvestibleId(originalLockedId))
         .finally(() => navigate(history, formInvestibleLink(marketId, investibleId)));
     }
   }
@@ -140,7 +133,7 @@ function InvestibleEdit (props) {
     // the edit ony contains the investible data and assignments, not the full market infos
     if (result) {
       const { fullInvestible} = result;
-      localforage.removeItem(lockedInvestibleId)
+      localforage.removeItem(investibleId)
         .then(() => {
           refreshInvestibles(investiblesDispatch, diffDispatch, [fullInvestible]);
         });

@@ -19,12 +19,10 @@ function AccountPoller (props) {
   const [userState, userDispatch] = useContext(AccountUserContext);
   const [, accountDispatch] = useContext(AccountContext);
   const userLoaded = userIsLoaded(userState);
-  const [pollRunning, setPollRunning] = useState(false);
   const intl = useIntl();
 
   useEffect(() => {
-    if (!userLoaded && !pollRunning) {
-      setPollRunning(true);
+    if (!userLoaded) {
       const maxRetries = 40;
       let currentRetries = 0;
       const poller = () => {
@@ -45,7 +43,7 @@ function AccountPoller (props) {
       };
       poller(); //TODO, make a version of startTimerChain that supports an error message and catches
     }
-  }, [accountDispatch, userDispatch, setPollRunning, pollRunning, userLoaded]);
+  }, [accountDispatch, userDispatch, userLoaded]);
 
   if (userIsLoaded) {
     return <React.Fragment>{children}</React.Fragment>;

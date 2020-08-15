@@ -102,22 +102,14 @@ function DialogEdit(props) {
   const editVerbiage = intl.formatMessage({ id: 'edit' });
   const [idLoaded, setIdLoaded] = useState(undefined);
   const [storedState, setStoredState] = useState(undefined);
-  const [lockedMarketId, setLockedMarketId] = useState(undefined);
   const userId = getMyUserForMarket(marketsState, marketId) || {};
-  const locked = renderableMarket && renderableMarket.locked_by;
   const loading = !userId || !marketType || idLoaded !== marketId;
   const [lockFailed, setLockFailed] = useState(false);
-  const someoneElseEditing = lockedBy && (lockedBy !== userId);
+  const someoneElseEditing = !_.isEmpty(lockedBy) && (lockedBy !== userId);
   const [operationRunning] = useContext(OperationInProgressContext);
+
   useEffect(() => {
     if (!hidden) {
-      if (marketId !== lockedMarketId && marketType === PLANNING_TYPE
-        && !loading && !someoneElseEditing && !lockFailed) {
-        // Immediately set to avoid multiple calls
-        setLockedMarketId(marketId);
-        lockPlanningMarketForEdit(marketId)
-          .catch(() => setLockedMarketId(undefined));
-      }
       localforage.getItem(marketId).then((stateFromDisk) => {
         setStoredState(stateFromDisk || {});
         setIdLoaded(marketId);
@@ -126,22 +118,25 @@ function DialogEdit(props) {
     if (hidden && idLoaded) {
       setIdLoaded(undefined);
     }
-    if (hidden && !locked && lockedMarketId) {
-      setLockedMarketId(undefined);
-    }
     return () => {
       if (hidden) {
         setLockFailed(false);
       }
     };
-  }, [hidden, marketId, lockedMarketId, marketType, locked, loading, idLoaded,
-    lockFailed, someoneElseEditing]);
+  }, [hidden, marketId, idLoaded]);
+  
+  useEffect(() => {
+    if (!hidden) {
+      if (marketType === PLANNING_TYPE && !loading && !someoneElseEditing && !lockFailed) {
+        lockPlanningMarketForEdit(marketId);
+      }
+    }
+    return () => {};
+  }, [hidden, marketType, loading, lockFailed, someoneElseEditing, marketId]);
 
   function onCancel() {
     if (marketType === PLANNING_TYPE) {
-      setLockedMarketId(undefined);
-      unlockPlanningMarketForEdit(marketId)
-        .catch(() => setLockedMarketId(marketId))
+      unlockPlanningMarketForEdit(marketId);
     }
     localforage.removeItem(marketId)
       .finally(() => navigate(history, formMarketLink(marketId)));
@@ -181,7 +176,6 @@ function DialogEdit(props) {
   }
   function onLock(result) {
     if (result) {
-      setLockedMarketId(marketId);
       updateMarketInStorage(result);
     }
     setLockFailed(!result);

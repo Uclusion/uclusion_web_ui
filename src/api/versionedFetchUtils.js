@@ -11,7 +11,6 @@ import {
   PUSH_MARKETS_CHANNEL,
   PUSH_PRESENCE_CHANNEL,
   PUSH_STAGE_CHANNEL,
-  refreshVersions,
   REMOVED_MARKETS_CHANNEL,
   VERSIONS_EVENT
 } from '../contexts/VersionsContext/versionsContextHelper'

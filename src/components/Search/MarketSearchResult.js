@@ -21,7 +21,7 @@ function getCardType (marketType) {
 }
 
 function MarketSearchResult (props) {
-  const { marketId } = props;
+  const { marketId, classes } = props;
   const [marketsState] = useContext(MarketsContext);
   const market = getMarket(marketsState, marketId);
   const {
@@ -33,10 +33,12 @@ function MarketSearchResult (props) {
   return (
     <Link
       href={linkTarget}
+      className={classes.link}
     >
       <CardType
         label={name}
         type={getCardType(type)}
+        fullWidth
       />
     </Link>
   );

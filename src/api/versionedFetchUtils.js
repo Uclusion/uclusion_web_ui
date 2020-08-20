@@ -44,42 +44,46 @@ export class MatchError extends Error {
 
 let globalFetchPromiseChain = Promise.resolve(true);
 
+export function executeRefreshTimerChain(refreshAll, resolve, reject) {
+  const execFunction = () => {
+    const disk = new LocalForageHelper(VERSIONS_CONTEXT_NAMESPACE);
+    let currentHeldVersion;
+    return disk.getState()
+      .then((state) => {
+        const {
+          existingMarkets,
+          globalVersion,
+        } = state || {};
+        // if we're refreshing all we're going back to initialization state
+        currentHeldVersion = refreshAll? 'INITIALIZATION' : globalVersion;
+        return doVersionRefresh(currentHeldVersion, existingMarkets);
+      }).then((globalVersion) => {
+        if (globalVersion !== currentHeldVersion) {
+          // console.log('Got new version');
+          pushMessage(VERSIONS_HUB_CHANNEL, { event: GLOBAL_VERSION_UPDATE, globalVersion });
+        }
+        resolve(true);
+        return Promise.resolve(true);
+      }).catch((error) => {
+        console.error(error.message);
+        // we'll log match problems, but raise the rest
+        if (error instanceof MatchError) {
+          return false;
+        } else {
+          reject(error);
+        }
+      });
+  };
+  startTimerChain(6000, MAX_RETRIES, execFunction);
+}
+
 /**
  * Starts off a global refresh timer.
  * @returns {Promise<unknown>}
  */
 function startGlobalRefreshTimerChain(refreshAll) {
   return new Promise((resolve, reject) => {
-    const execFunction = () => {
-      const disk = new LocalForageHelper(VERSIONS_CONTEXT_NAMESPACE);
-      let currentHeldVersion;
-      return disk.getState()
-        .then((state) => {
-          const {
-            existingMarkets,
-            globalVersion,
-          } = state || {};
-          // if we're refreshing all we're going back to initialization state
-          currentHeldVersion = refreshAll? 'INITIALIZATION' : globalVersion;
-          return doVersionRefresh(currentHeldVersion, existingMarkets);
-        }).then((globalVersion) => {
-          if (globalVersion !== currentHeldVersion) {
-            // console.log('Got new version');
-            pushMessage(VERSIONS_HUB_CHANNEL, { event: GLOBAL_VERSION_UPDATE, globalVersion });
-          }
-          resolve(true);
-          return Promise.resolve(true);
-        }).catch((error) => {
-          console.error(error.message);
-          // we'll log match problems, but raise the rest
-          if (error instanceof MatchError) {
-            return false;
-          } else {
-            reject(error);
-          }
-        });
-    };
-    startTimerChain(6000, MAX_RETRIES, execFunction);
+    executeRefreshTimerChain(refreshAll, resolve, reject);
   });
 }
 
@@ -114,7 +118,6 @@ export function refreshGlobalVersion (refreshCalled) {
  * add a listener to all places a market can show up, then kick off global version to make sure it gets filled
  * @param id
  * @param history
- * @returns {Promise<*>}
  */
 export function pollForMarketLoad(id, history) {
   function redirectToMarket() {
@@ -154,7 +157,7 @@ export function pollForMarketLoad(id, history) {
       }
     });
   }
-  return refreshVersions();
+  return executeRefreshTimerChain(false, () => {}, () => {});
 }
 
 /**

@@ -57,9 +57,9 @@ export function getMarketInfo(investible, marketId) {
   return investible.market_infos.find((info) => info.market_id === marketId);
 }
 
-export function onSignOut(doReload=true) {
+export function onSignOut() {
   // See https://aws-amplify.github.io/docs/js/authentication
-  return clearUclusionLocalStorage(doReload)
+  return clearUclusionLocalStorage(false)
     .then(() => new TokenStorageManager().clearTokenStorage())
     .then(() => Auth.signOut());
 }

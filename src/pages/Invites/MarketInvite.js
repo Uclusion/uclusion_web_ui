@@ -14,6 +14,8 @@ import { makeStyles } from '@material-ui/styles'
 import { pollForMarketLoad } from '../../api/versionedFetchUtils'
 import _ from 'lodash'
 import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
+import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
+import { userIsLoaded } from '../../contexts/AccountUserContext/accountUserContextHelper'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -63,11 +65,12 @@ function MarketInvite(props) {
   const history = useHistory();
   const location = useLocation();
   const [marketsState, marketsDispatch] = useContext(MarketsContext);
+  const [userState] = useContext(AccountUserContext);
+  const hasUser = userIsLoaded(userState);
   const classes = useStyles();
 
   useEffect(() => {
-    if (!hidden && !marketsState.initializing) {
-
+    if (!hidden && !marketsState.initializing && hasUser) {
       const { pathname, hash } = location;
       const { marketId: marketToken } = decomposeMarketPath(pathname);
       const values = queryString.parse(hash);
@@ -89,7 +92,7 @@ function MarketInvite(props) {
           toastError('errorMarketFetchFailed');
         });
     }
-  }, [hidden, history, location, marketsDispatch, marketsState]);
+  }, [hasUser, hidden, history, location, marketsDispatch, marketsState]);
 
   if (hidden) {
     return <React.Fragment/>

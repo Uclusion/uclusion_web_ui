@@ -113,48 +113,52 @@ export function refreshGlobalVersion (refreshCalled) {
     });
 }
 
+export function createMarketListeners(id, history) {
+  function redirectToMarket() {
+    console.log(`Redirecting us to market ${id}`);
+    navigate(history, formMarketLink(id));
+  }
+  registerListener(VERSIONS_HUB_CHANNEL, 'inviteListenerNewMarket', (data) => {
+    const { payload: { event, marketId: messageMarketId } } = data;
+    switch (event) {
+      case  NEW_MARKET:
+        if (messageMarketId === id) {
+          removeListener(VERSIONS_HUB_CHANNEL, 'inviteListenerNewMarket');
+          if (history) {
+            redirectToMarket();
+          }
+        }
+        break;
+      default:
+      //console.debug(`Ignoring event`);
+    }
+  });
+  registerListener(PUSH_MARKETS_CHANNEL, 'marketPushInvite', (data) => {
+    const { payload: { event, marketDetails } } = data;
+    switch (event) {
+      case VERSIONS_EVENT:
+        // console.debug(`Markets context responding to updated market event ${event}`);
+        if (marketDetails.id === id) {
+          removeListener(PUSH_MARKETS_CHANNEL, 'marketPushInvite');
+          if (history) {
+            redirectToMarket();
+          }
+        }
+        break;
+      default:
+      // console.debug(`Ignoring identity event ${event}`);
+    }
+  });
+}
+
 /**
  * add a listener to all places a market can show up, then kick off global version to make sure it gets filled
  * @param id
  * @param history
  */
 export function pollForMarketLoad(id, history) {
-  function redirectToMarket() {
-    console.log(`Redirecting us to market ${id}`);
-    navigate(history, formMarketLink(id));
-  }
   if (history) {
-    registerListener(VERSIONS_HUB_CHANNEL, 'inviteListenerNewMarket', (data) => {
-      const { payload: { event, marketId: messageMarketId } } = data;
-      switch (event) {
-        case  NEW_MARKET:
-          if (messageMarketId === id) {
-            removeListener(VERSIONS_HUB_CHANNEL, 'inviteListenerNewMarket');
-            if (history) {
-              redirectToMarket();
-            }
-          }
-          break;
-        default:
-        //console.debug(`Ignoring event`);
-      }
-    });
-    registerListener(PUSH_MARKETS_CHANNEL, 'marketPushInvite', (data) => {
-      const { payload: { event, marketDetails } } = data;
-      switch (event) {
-        case VERSIONS_EVENT:
-          // console.debug(`Markets context responding to updated market event ${event}`);
-          if (marketDetails.id === id) {
-            removeListener(PUSH_MARKETS_CHANNEL, 'marketPushInvite');
-            if (history) {
-              redirectToMarket();
-            }
-          }
-          break;
-        default:
-        // console.debug(`Ignoring identity event ${event}`);
-      }
-    });
+    createMarketListeners(id, history);
   }
   return executeRefreshTimerChain(false, () => {}, () => {});
 }

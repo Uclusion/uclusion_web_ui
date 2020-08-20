@@ -11,7 +11,7 @@ import queryString from 'query-string'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { CircularProgress, Grid } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
-import { pollForMarketLoad } from '../../api/versionedFetchUtils'
+import { createMarketListeners, pollForMarketLoad } from '../../api/versionedFetchUtils'
 import _ from 'lodash'
 import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
@@ -79,13 +79,14 @@ function MarketInvite(props) {
         .then((result) => {
           const { market } = result;
           const { id } = market;
+          createMarketListeners(id, history);
           const loadedMarket = getMarket(marketsState, id);
           if (!_.isEmpty(loadedMarket)) {
             // Someone followed an invite link for a market they already had
             navigate(history, formMarketLink(id));
             return;
           }
-          return pollForMarketLoad(id, history);
+          return pollForMarketLoad(id);
         })
         .catch((error) => {
           console.error(error);

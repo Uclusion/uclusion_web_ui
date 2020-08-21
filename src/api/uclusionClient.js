@@ -63,3 +63,12 @@ export const getAccountClient = () => {
       .then(() => client.constructClient({ ...config.api_configuration, tokenManager }));
   });
 };
+
+export const getTokenFetcher = (tokenType) => {
+  const ssoClient = client.constructSSOClient(config.api_configuration);
+  return ssoClient.then((sso) => {
+    const identitySource = new AmplifyIdentityTokenRefresher();
+    const fetcher = new TokenFetcher(identitySource, sso, tokenType);
+    return fetcher;
+  });
+}

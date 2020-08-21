@@ -8,6 +8,7 @@ import TokenStorageManager, {
   TOKEN_TYPE_MARKET,
   TOKEN_TYPE_MARKET_INVITE
 } from './TokenStorageManager'
+import { AllSequentialMap } from '../utils/PromiseUtils';
 
 class TokenFetcher {
 
@@ -34,6 +35,18 @@ class TokenFetcher {
         //console.log(`refreshing token for ${this.tokenType} id ${this.itemId}`);
         return this.getRefreshedToken(this.itemId);
       });
+  }
+
+  /**
+   * Refreshes all tokens of the given type that expire within windowHours
+   * @param windowHours the number of hours a token must still be valid for otherwise we'll refresh it
+   */
+  refreshExpiringTokens(windowHours){
+    return this.tokenStorageManager.getExpiringTokens(this.tokenType, windowHours)
+    .then((expiring) => {
+      //console.error(expiring);
+      return AllSequentialMap(expiring, (itemId) => this.getRefreshedToken(itemId));
+    });
   }
 
   getRefreshedToken (itemId) {

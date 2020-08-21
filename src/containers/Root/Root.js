@@ -27,6 +27,7 @@ import { refreshNotifications, refreshVersions } from '../../contexts/VersionsCo
 import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
 import { isNewUser } from '../../contexts/AccountUserContext/accountUserContextHelper'
 import StoryWorkspaceWizard from '../../pages/Onboarding/SignupOnboarding/Workspace/StoryWorkspace/StoryWorkspaceWizard'
+import { registerMarketTokenListeners } from '../../authorization/tokenUtils';
 
 const useStyles = makeStyles({
   body: {
@@ -186,6 +187,7 @@ function Root() {
         pegView(isEntry);
       });
     //  window.onanimationiteration = console.debug;
+      registerMarketTokenListeners();
     }
   },  [history, setOnline, setOperationsLocked, location]);
 

@@ -1,7 +1,8 @@
-import LocalForageHelper from '../utils/LocalForageHelper'
-import _ from 'lodash'
-import { getTokenSecondsRemaining } from './tokenUtils'
-import localforage from 'localforage'
+import LocalForageHelper from '../utils/LocalForageHelper';
+import _ from 'lodash';
+import { getTokenSecondsRemaining } from './tokenUtils';
+import localforage from 'localforage';
+import { AllSequentialMap } from '../utils/PromiseUtils';
 
 const TOKEN_STORAGE_KEYSPACE = 'TOKEN_STORAGE_MANAGER';
 export const TOKEN_TYPE_MARKET = 'MARKET';
@@ -10,15 +11,20 @@ export const TOKEN_TYPE_MARKET_INVITE = 'MARKET_INVITE';
 
 class TokenStorageManager {
 
-  getKeyNamespace(tokenType, tokenId) {
-    return `${tokenType}_${tokenId}`
+  getKeyNamespace (tokenType, tokenId) {
+    return `${tokenType}_${tokenId}`;
+  }
+
+  getItemIdFromKey (key) {
+    const underscore = key.indexOf('_');
+    return key.substring(underscore + 1);
   }
 
   /**
    * Clears the entirety of token storage
    */
   clearTokenStorage () {
-    return localforage.createInstance({ storeName: TOKEN_STORAGE_KEYSPACE}).clear();
+    return localforage.createInstance({ storeName: TOKEN_STORAGE_KEYSPACE }).clear();
   }
 
   /**
@@ -31,7 +37,7 @@ class TokenStorageManager {
     return new LocalForageHelper(this.getKeyNamespace(tokenType, itemId), TOKEN_STORAGE_KEYSPACE)
       .getState()
       .catch((error) => {
-        console.error("Got error getting token");
+        console.error('Got error getting token');
         console.error(error);
       });
   }
@@ -52,7 +58,6 @@ class TokenStorageManager {
         return null;
       });
   }
-
 
   /**
    * Stores a token into the token storage, unless a token for that
@@ -78,6 +83,36 @@ class TokenStorageManager {
     }
     const secondsRemaining = getTokenSecondsRemaining(tokenString);
     return secondsRemaining >= 60;
+  }
+
+  /**
+   * Refreshes all tokens of the given type that
+   * are expiring within the given window seconds
+   * @param tokenType ACCOUNT or MARKET
+   * @param windowHours number of hours that all tokens that expire within that many hours will be refreshed
+   */
+  getExpiringTokens (tokenType, windowHours) {
+    const windowSeconds = windowHours * 3600;
+    const store = localforage.createInstance({ storeName: TOKEN_STORAGE_KEYSPACE });
+    return store.keys()
+      .then((keys) => {
+        const typeKeys = keys.filter((key) => key.startsWith(tokenType));
+        return AllSequentialMap(typeKeys, (key) => {
+          return store.getItem(key)
+            .then((token) => {
+              return { key, token };
+            });
+        }).then((tokens) => {
+          const expiring = tokens.filter((tokenData) => {
+            const expirySeconds = getTokenSecondsRemaining(tokenData.token);
+            //console.error(`WindowSeconds ${windowSeconds} ExpirySeconds ${expirySeconds}`);
+            const expired = expirySeconds < windowSeconds;
+            //console.error(`Token expired: ${expired}`);
+            return expired;
+          });
+          return expiring.map((tokenData) => this.getItemIdFromKey(tokenData.key));
+        });
+      });
   }
 }
 

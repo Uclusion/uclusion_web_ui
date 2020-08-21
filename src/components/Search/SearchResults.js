@@ -16,6 +16,12 @@ const useStyles = makeStyles((theme) => {
   return {
     popper: {
       zIndex: 1500,
+      maxHeight: '80%',
+      overflow: 'auto',
+      marginTop: '1rem'
+    },
+    link: {
+      width: '100%'
     }
   };
 });
@@ -46,13 +52,13 @@ function SearchResults () {
   function getSearchResult (item) {
     const { id, type, marketId } = item;
     if (type === INDEX_COMMENT_TYPE) {
-      return (<CommentSearchResult marketId={marketId} commentId={id}/>);
+      return (<CommentSearchResult marketId={marketId} commentId={id} classes={classes}/>);
     }
     if (type === INDEX_INVESTIBLE_TYPE) {
-      return (<InvestibleSearchResult investibleId={id}/>);
+      return (<InvestibleSearchResult investibleId={id} classes={classes}/>);
     }
     if (type === INDEX_MARKET_TYPE) {
-      return (<MarketSearchResult marketId={id}/>);
+      return (<MarketSearchResult marketId={id} classes={classes}/>);
     }
   }
 

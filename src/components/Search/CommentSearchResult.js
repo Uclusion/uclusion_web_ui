@@ -20,6 +20,7 @@ import { getInvestible } from '../../contexts/InvestibesContext/investiblesConte
 import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 import CardType from '../CardType'
 
+
 function getIntlMessage (commentType) {
   switch (commentType) {
     case ISSUE_TYPE:
@@ -44,8 +45,8 @@ function CommentSearchResult (props) {
   const {
     marketId,
     commentId,
+    classes
   } = props;
-
   const intl = useIntl();
   const [commentsState] = useContext(CommentsContext);
   const [investibleState] = useContext(InvestiblesContext);
@@ -84,10 +85,11 @@ function CommentSearchResult (props) {
 
 
   return (
-    <Link href={linkTarget}>
+    <Link href={linkTarget} className={classes.link}>
       <CardType
         type={type}
         label={linkText}
+        fullWidth
       >
       </CardType>
     </Link>

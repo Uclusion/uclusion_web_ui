@@ -131,7 +131,8 @@ export default function CardType(props) {
     resolved,
     subtype,
     label = <FormattedMessage id={labelIntlIds[type]}/>,
-    createdAt
+    createdAt,
+    fullWidth = false
   } = props;
   const classes = useCardTypeStyles({ type, resolved })
   const intl = useIntl()
@@ -166,13 +167,13 @@ export default function CardType(props) {
 
   return (
     <Grid container>
-      <Grid item xs={7}>
+      <Grid item xs={fullWidth ? 12 : 7}>
         <div className={clsx(classes.root, className)}>
           <IconComponent className={classes.icon}/>
           <span className={classes.label}>{label}</span>
         </div>
       </Grid>
-      <Grid item xs={2}>
+      <Grid item xs={fullWidth ? 0 : 2}>
         {createdAt && (
           <Typography className={classes.timeElapsed} variant="body2">
             {intl.formatMessage({ id: 'created' })}
@@ -182,7 +183,7 @@ export default function CardType(props) {
           </Typography>
         )}
       </Grid>
-      <Grid item xs={3}>
+      <Grid item xs={fullWidth ? 3 : 0}>
       </Grid>
     </Grid>
   );

@@ -22,7 +22,7 @@ function getCardType(marketType) {
 }
 
 function InvestibleSearchResult (props) {
-  const { investibleId } = props;
+  const { investibleId, classes } = props;
   const [marketsState] = useContext(MarketsContext);
   const [investibleState] = useContext(InvestiblesContext);
   const inv = getInvestible(investibleState, investibleId);
@@ -37,10 +37,12 @@ function InvestibleSearchResult (props) {
   return (
     <Link
       href={linkTarget}
+      className={classes.link}
     >
       <CardType
         type={cardType}
         label={name}
+        fullWidth
       />
     </Link>
   );

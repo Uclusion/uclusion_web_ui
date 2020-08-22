@@ -491,6 +491,11 @@ const useReplyStyles = makeStyles(
         marginLeft: theme.spacing(3),
         padding: 0
       },
+      cardActionsYellow: {
+        marginLeft: theme.spacing(3),
+        boxShadow: "10px 5px 5px yellow",
+        padding: 0
+      },
       commenter: {
         color: "#7E7E7E",
         display: "inline-block",
@@ -592,7 +597,7 @@ function Reply(props) {
           />
         )}
       </CardContent>
-      <CardActions className={classes.cardActions}>
+      <CardActions className={highLightId.includes(comment.id) ? classes.cardActionsYellow : classes.cardActions}>
         <Typography className={classes.timePosted} variant="body2">
           <FormattedDate value={comment.created_at} />
         </Typography>
@@ -694,7 +699,7 @@ function ThreadedReplies(props) {
 
 function ThreadedReply(props) {
   const { comment, highLightId, enableEditing } = props;
-  return <Reply key={`keyc${comment.id}`} id={`c${comment.id}`} className={props.className} comment={comment} elevation={0} highLightId={highLightId}
+  return <Reply key={`c${comment.id}`} id={`c${comment.id}`} className={props.className} comment={comment} elevation={0} highLightId={highLightId}
                 enableEditing={enableEditing} />;
 }
 

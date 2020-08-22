@@ -61,7 +61,8 @@ export function onSignOut() {
   // See https://aws-amplify.github.io/docs/js/authentication
   return clearUclusionLocalStorage(false)
     .then(() => new TokenStorageManager().clearTokenStorage())
-    .then(() => Auth.signOut());
+    .then(() => Auth.signOut())
+    .then(() => window.location.reload(true));
 }
 
 export function getVoteTotalsForUser(presence) {

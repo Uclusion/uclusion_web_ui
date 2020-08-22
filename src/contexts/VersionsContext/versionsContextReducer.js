@@ -1,6 +1,6 @@
 import { refreshNotificationVersion, } from './versionsContextHelper'
 import LocalForageHelper from '../../utils/LocalForageHelper'
-
+import { Auth } from 'aws-amplify';
 export const VERSIONS_CONTEXT_NAMESPACE = 'versions_context';
 export const EMPTY_GLOBAL_VERSION = 'FAKE';
 export const EMPTY_STATE = {
@@ -150,11 +150,16 @@ function reducer(state, action) {
   }
   const { globalVersion } = newState;
   if (globalVersion && globalVersion !== 'FAKE' && globalVersion !== 'INITIALIZATION') {
-    // Do not store anything but a real global version to the disk
-    const lfh = new LocalForageHelper(VERSIONS_CONTEXT_NAMESPACE);
-    lfh.setState(newState);
+    // If logged in, do not store anything but a real global version to the disk,
+    Auth.currentAuthenticatedUser()
+      .then(() => {
+        const lfh = new LocalForageHelper(VERSIONS_CONTEXT_NAMESPACE);
+        return lfh.setState(newState);
+      })
+      // if you catch, we have no user, so just forget about it since we don't use the ram state for global versions checks
+      .catch(() => {}); // do nothing, we don't want to store
+    return newState;
   }
-  return newState;
 }
 
 export default reducer;

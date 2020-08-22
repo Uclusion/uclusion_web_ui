@@ -158,8 +158,8 @@ function reducer(state, action) {
       })
       // if you catch, we have no user, so just forget about it since we don't use the ram state for global versions checks
       .catch(() => {}); // do nothing, we don't want to store
-    return newState;
   }
+  return newState;
 }
 
 export default reducer;

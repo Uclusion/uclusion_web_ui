@@ -160,7 +160,8 @@ export function pollForMarketLoad(id, history) {
   if (history) {
     createMarketListeners(id, history);
   }
-  return executeRefreshTimerChain(false, () => {}, () => {});
+  // Update the current market, but with one thread.
+  return updateMarkets([id], [], 1);
 }
 
 /**
@@ -186,7 +187,7 @@ function updateAccountFromSignatures (accountId, maxConcurrencyCount = 1) {
  * @param maxConcurrentCount the maximum number of api calls to make at once
  * @returns {Promise<*>}
  */
-function updateMarketsFromSignatures (marketIds, existingMarkets, maxConcurrentCount) {
+export function updateMarkets (marketIds, existingMarkets, maxConcurrentCount) {
   return getVersions(marketIds)
     .then((marketSignatures) => {
       //console.error(marketSignatures);
@@ -242,10 +243,10 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets) {
       }
       // split the market stuff into foreground and background
       newGlobalVersion = global_version;
-     const marketPromises = updateMarketsFromSignatures(foregroundList, existingMarkets, MAX_CONCURRENT_API_CALLS)
+     const marketPromises = updateMarkets(foregroundList, existingMarkets, MAX_CONCURRENT_API_CALLS)
         .then(() => {
           pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION });
-          return updateMarketsFromSignatures(backgroundList, existingMarkets, MAX_CONCURRENT_ARCHIVE_API_CALLS)
+          return updateMarkets(backgroundList, existingMarkets, MAX_CONCURRENT_ARCHIVE_API_CALLS)
             .then(() => {
               return newGlobalVersion;
             });

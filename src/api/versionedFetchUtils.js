@@ -160,8 +160,25 @@ export function pollForMarketLoad(id, history) {
   if (history) {
     createMarketListeners(id, history);
   }
-  // Update the current market, but with one thread.
-  return updateMarkets([id], [], 1);
+  return new Promise((resolve, reject) => {
+    const execFunction = () => {
+      return getChangedIds(null)
+        .then((versions) => {
+          const { foreground: foregroundList, background: backgroundList } = versions;
+          if (_.includes(foregroundList, id) || _.includes(backgroundList, id)) {
+            // Update the current market, but with one thread.
+            console.info(`Poll for market updating market id ${id}`);
+            return updateMarkets([id], [], 1);
+          }
+          // The market invite hasn't had time to propagate so wait and try again in 2 seconds
+          return false;
+        }).catch((error) => {
+          console.error(error.message);
+          reject(error);
+        });
+    };
+    startTimerChain(2000, MAX_RETRIES, execFunction);
+  });
 }
 
 /**

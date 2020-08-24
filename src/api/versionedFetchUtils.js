@@ -168,7 +168,10 @@ export function pollForMarketLoad(id, history) {
           if (_.includes(foregroundList, id) || _.includes(backgroundList, id)) {
             // Update the current market, but with one thread.
             console.info(`Poll for market updating market id ${id}`);
-            return updateMarkets([id], [], 1);
+            return updateMarkets([id], [], 1).then(() => {
+              resolve(true);
+              return Promise.resolve(true);
+            });
           }
           // The market invite hasn't had time to propagate so wait and try again in 2 seconds
           return false;

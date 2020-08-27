@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useEffect } from 'react';
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import { useHistory } from 'react-router'
@@ -222,6 +222,13 @@ function DecisionInvestible(props) {
 
   const allowedCommentTypes = [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE];
 
+  useEffect(() => {
+    if (investibleId in highlightedCommentState) {
+      highlightedCommentDispatch({ type: HIGHLIGHT_REMOVE, commentId: investibleId });
+    }
+  }, [highlightedCommentDispatch, highlightedCommentState, investibleId]);
+
+
   function getActions() {
     return (
     <dl className={classes.upperRightCard}>
@@ -275,9 +282,6 @@ function DecisionInvestible(props) {
     return <></>;
   }
 
-  if (investibleId in highlightedCommentState) {
-    highlightedCommentDispatch({ type: HIGHLIGHT_REMOVE, commentId: investibleId });
-  }
 
   return (
     <Screen

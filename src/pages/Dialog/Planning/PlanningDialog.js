@@ -244,7 +244,8 @@ function PlanningDialog(props) {
         </div>
       </dl>
       {!isChannel && (
-        <DismissableText textId='stageHelp' />
+        <DismissableText textId='stageHelp' textId1='stageHelp1' textId2='stageHelp2' textId3='stageHelp3'
+                         textId4='stageHelp4'/>
       )}
       {!_.isEmpty(requiresInputInvestibles) && (
         <SubSection

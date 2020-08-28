@@ -316,6 +316,9 @@ function PlanningInvestible(props) {
   const allowedCommentTypes = [QUESTION_TYPE];
   if (isAssigned) {
     allowedCommentTypes.push(REPORT_TYPE);
+    if (isInReview) {
+      allowedCommentTypes.push(TODO_TYPE);
+    }
   }
   if (!isAssigned) {
     allowedCommentTypes.push(SUGGEST_CHANGE_TYPE);

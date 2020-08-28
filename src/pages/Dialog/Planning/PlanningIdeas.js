@@ -1,5 +1,6 @@
 import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
+import _ from 'lodash';
 import { useHistory } from 'react-router'
 import { Link, Tooltip, Typography } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
@@ -56,6 +57,12 @@ function PlanningIdeas(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const warnAccepted = checkInProgressWarning(investibles, comments, acceptedStageId, presenceId, marketId);
+  const acceptedFull = !_.isEmpty(investibles.filter(investible => {
+    const { market_infos: marketInfos } = investible;
+    const marketInfo = marketInfos.find(info => info.market_id === marketId);
+    return marketInfo !== undefined && marketInfo.stage === acceptedStageId;
+  }));
+  const acceptedStageLabel = acceptedFull? 'planningAcceptedStageFullLabel' : 'planningAcceptedStageLabel';
   return (
     <dl className={classes.stages}>
       <div>
@@ -82,7 +89,7 @@ function PlanningIdeas(props) {
           title={intl.formatMessage({ id: 'planningAcceptedStageDescription' })}
         >
           <dt className={classes.stageLabel}>
-            <FormattedMessage id="planningAcceptedStageLabel" />
+            <FormattedMessage id={acceptedStageLabel} />
           </dt>
         </Tooltip>
         <AcceptedStage
@@ -305,7 +312,6 @@ function VotingStage(props) {
 
 function AcceptedStage(props) {
   const intl = useIntl();
-
   return (
     <Stage
       fallbackWarning={<FormattedMessage id="planningNoneAcceptedWarning" />}

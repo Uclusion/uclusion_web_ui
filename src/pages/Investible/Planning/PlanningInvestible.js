@@ -490,6 +490,7 @@ function PlanningInvestible(props) {
           marketId={marketId}
           currentStageId={stage}
           isOpen={changeStagesExpanded}
+          full={!_.isEmpty(assignedInAcceptedStage)}
           disabled={!isAssigned || !_.isEmpty(blockingComments) || !_.isEmpty(assignedInAcceptedStage) || !enoughVotes}
         />
       </MenuItem>,
@@ -979,7 +980,7 @@ function MarketMetaData(props) {
     stageActions,
     expansionChanged,
     actions,
-    stage
+    stage,
   } = props;
   let stageLabel;
   switch (stage) {

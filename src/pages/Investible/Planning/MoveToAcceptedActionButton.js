@@ -6,7 +6,7 @@ import { getAcceptedStage, } from '../../../contexts/MarketStagesContext/marketS
 import StageChangeAction from '../../../components/SidebarActions/Planning/StageChangeAction'
 
 function MoveToAcceptedActionButton(props) {
-  const { marketId, disabled } = props;
+  const { marketId, disabled, full } = props;
   const [marketStagesState] = useContext(MarketStagesContext);
   const acceptedStage = getAcceptedStage(marketStagesState, marketId);
 
@@ -14,12 +14,13 @@ function MoveToAcceptedActionButton(props) {
     return React.Fragment;
   }
 
+  const translationId = full? 'planningInvestibleNextStageAcceptedFullLabel' : 'planningInvestibleNextStageAcceptedLabel';
   return (
     <StageChangeAction
       {...props}
       icon={<PlayForWorkIcon />}
       targetStageId={acceptedStage.id}
-      translationId="planningInvestibleNextStageAcceptedLabel"
+      translationId={translationId}
       explanationId="planningInvestibleAcceptedExplanation"
       disabled={disabled}
     />
@@ -29,6 +30,11 @@ function MoveToAcceptedActionButton(props) {
 MoveToAcceptedActionButton.propTypes = {
   marketId: PropTypes.string.isRequired,
   disabled: PropTypes.bool.isRequired,
+  full: PropTypes.bool,
 };
+
+MoveToAcceptedActionButton.defaultProps = {
+  full: false,
+}
 
 export default MoveToAcceptedActionButton;

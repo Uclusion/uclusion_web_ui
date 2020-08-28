@@ -102,13 +102,22 @@ function DismissableText(props) {
           </>
         )}
         {textId2 && (
-          <FormattedMessage id={textId2} />
+          <>
+            <br/>
+            <FormattedMessage id={textId2} />
+          </>
         )}
         {textId3 && (
-          <FormattedMessage id={textId3} />
+          <>
+            <br/>
+            <FormattedMessage id={textId3} />
+          </>
         )}
         {textId4 && (
-          <FormattedMessage id={textId4} />
+          <>
+            <br/>
+            <FormattedMessage id={textId4} />
+          </>
         )}
       </dl>
       <dl className={classes.rightMost}>

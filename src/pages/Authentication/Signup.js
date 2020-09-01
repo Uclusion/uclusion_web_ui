@@ -19,7 +19,7 @@ import SpinningButton from '../../components/SpinBlocking/SpinningButton'
 import PhoneField, { phoneChecker } from '../../components/TextFields/PhoneField'
 import { Helmet } from 'react-helmet'
 import { Auth } from 'aws-amplify'
-import { setRedirect } from '../../utils/redirectUtils'
+import { setRedirect, setUtm } from '../../utils/redirectUtils'
 import { GithubLoginButton } from 'react-social-login-buttons'
 import { toastError } from '../../utils/userMessage'
 import queryString from 'query-string'
@@ -170,7 +170,7 @@ function Signup(props) {
   const { location } = history;
   const { search } = location;
   const values = queryString.parse(search || '');
-  const { signUpWith, email: qryEmail } = values || {};
+  const { signUpWith, email: qryEmail, utm_campaign: utm } = values || {};
   const empty = {
     name: '',
     email: qryEmail ? qryEmail : '',
@@ -201,6 +201,12 @@ function Signup(props) {
         });
     }
   }, [marketToken, action]);
+
+  useEffect(() => {
+    if (utm) {
+      setUtm(utm);
+    }
+  }, [utm]);
 
   useEffect(() => {
     if (signUpWith === 'google') {

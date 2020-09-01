@@ -28,6 +28,9 @@ import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUse
 import { isNewUser } from '../../contexts/AccountUserContext/accountUserContextHelper'
 import StoryWorkspaceWizard from '../../pages/Onboarding/SignupOnboarding/Workspace/StoryWorkspace/StoryWorkspaceWizard'
 import { registerMarketTokenListeners } from '../../authorization/tokenUtils';
+import ECPInvite from '../../pages/Invites/ECPInvite'
+import queryString from 'query-string'
+import { getUtm } from '../../utils/redirectUtils'
 
 const useStyles = makeStyles({
   body: {
@@ -61,6 +64,7 @@ function Root() {
   const [, setOnline] = useContext(OnlineStateContext);
   const [userState] = useContext(AccountUserContext) || {};
   const myAction = isNewUser(userState) && action !== 'invite' && action !== 'dialog' ? 'onboarding' : action;
+  const utm = getUtm();
 
   if (myAction === 'onboarding' && myAction !== action) {
     navigate(history, '/onboarding');
@@ -71,7 +75,11 @@ function Root() {
   }
 
   function hideOnboarding() {
-    return myAction !== 'onboarding';
+    return myAction !== 'onboarding' || utm === 'team';
+  }
+
+  function hideECPOnboarding() {
+    return myAction !== 'onboarding' || utm !== 'team';
   }
 
   function hideSupport() {
@@ -138,7 +146,7 @@ function Root() {
     && hideDialogArchives() && hideArchvies() && hideInvestibleEdit() && hideInvestibleAdd()
     && hideAddMarket() && hideDialogEdit() && hideDialogManage() && hideMarketInvite()
     && hideSlackInvite() && hideChangePassword() && hideChangeNotification()
-    && hideBillingHome() && hideOnboarding());
+    && hideBillingHome() && hideOnboarding() && hideECPOnboarding());
 
   useEffect(() => {
     function pegView(isEntry) {
@@ -197,6 +205,7 @@ function Root() {
       <div className={classes.body}>
         <div className={classes.root}>
           <div className={classes.content}>
+            <ECPInvite hidden={hideECPOnboarding()} />
             <StoryWorkspaceWizard hidden={hideOnboarding()} />
             <Home hidden={hideHome()}/>
             <Market hidden={hideMarket()}/>

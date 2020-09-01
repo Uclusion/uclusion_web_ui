@@ -223,10 +223,12 @@ function DecisionInvestible(props) {
   const allowedCommentTypes = [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE];
 
   useEffect(() => {
-    if (investibleId in highlightedCommentState) {
-      highlightedCommentDispatch({ type: HIGHLIGHT_REMOVE, commentId: investibleId });
+    if (!hidden) {
+      if (investibleId in highlightedCommentState) {
+        highlightedCommentDispatch({ type: HIGHLIGHT_REMOVE, commentId: investibleId });
+      }
     }
-  }, [highlightedCommentDispatch, highlightedCommentState, investibleId]);
+  }, [hidden, highlightedCommentDispatch, highlightedCommentState, investibleId]);
 
 
   function getActions() {

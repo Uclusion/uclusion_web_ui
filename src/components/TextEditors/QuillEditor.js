@@ -100,7 +100,7 @@ class QuillEditor extends React.PureComponent {
         [{ color: [] }, { background: [] }],
         [{ align: [] }],
         [{ list: 'ordered' }, { list: 'bullet' }, { indent: '-1' }, { indent: '+1' }],
-        ['link', 'code-block', 'image'],
+        ['link', 'code-block', 'image', 'video'],
         ['table'],
         ['clean'],
       ],

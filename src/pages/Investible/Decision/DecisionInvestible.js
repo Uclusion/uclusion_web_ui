@@ -224,7 +224,7 @@ function DecisionInvestible(props) {
 
   useEffect(() => {
     if (!hidden) {
-      // Just go ahead and remove without checking or get infinite loop with re-render
+      // Just go ahead and remove because checking if there is dangerous
       highlightedCommentDispatch({ type: HIGHLIGHT_REMOVE, commentId: investibleId });
     }
   }, [hidden, highlightedCommentDispatch, investibleId]);

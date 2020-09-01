@@ -1,5 +1,6 @@
 import React, { useEffect, useReducer } from 'react'
 import beginListening from './highligtedCommentContextMessages'
+import _ from 'lodash'
 
 const HighlightedCommentContext = React.createContext({});
 const HIGHLIGHT_DELAY = 300000;
@@ -18,7 +19,8 @@ function HighlightedCommentProvider(props) {
       return { ...state, [commentId]: { level } };
     }
     if (type === HIGHLIGHT_REMOVE) {
-      return { ...state, [commentId]: { } };
+      const newState = _.pickBy(state, (value, key) => key !== commentId);
+      return { ...newState };
     }
     return {...state, ...newState};
   }, {});

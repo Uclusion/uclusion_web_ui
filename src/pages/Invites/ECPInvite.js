@@ -92,7 +92,7 @@ function ECPInvite(props) {
       const addInfo = {
         name: intl.formatMessage({ id: 'ecpWorkspace' }, { x: myName}),
         market_type: PLANNING_TYPE,
-        description: '<p>List gaps for adopting Uclusion here.</p><iframe allowfullscreen="true" class="ql-video" frameborder="0" src="https://www.youtube.com/embed/NHGM66oeIMU?showinfo=0"></iframe>',
+        description: '<p>Edit this description to list gaps for adopting Uclusion.</p><p><iframe allowfullscreen="true" class="ql-video" frameborder="0" src="https://www.youtube.com/embed/NHGM66oeIMU?showinfo=0"></iframe></p>',
       };
       return createPlanning(addInfo)
         .then((marketDetails) => {

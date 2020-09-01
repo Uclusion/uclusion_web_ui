@@ -56,11 +56,14 @@ export function addInvestible(dispatch, diffDispatch, inv) {
 
 export function refreshInvestibles(dispatch, diffDispatch, investibles, fromNetwork) {
   const fixed = investibles.map((item) => {
-    const { investible, market_infos } = item;
+    const { investible, market_infos, updated_by_you } = item;
     const fixedInvestible = fixupItemForStorage(investible);
-    return { investible: fixedInvestible, market_infos };
+    return { investible: fixedInvestible, market_infos, updated_by_you };
   });
-  const diffInvestibles = fixed.map((inv) => inv.investible);
+  const diffInvestibles = fixed.map((inv) => {
+    const { investible, updated_by_you } = inv;
+    return { ...investible, updated_by_you };
+  });
   pushMessage(SEARCH_INDEX_CHANNEL, { event: INDEX_UPDATE, itemType: INDEX_INVESTIBLE_TYPE, items: diffInvestibles});
   diffDispatch(addContents(diffInvestibles));
   const investibleHash = _.keyBy(fixed, (item) => item.investible.id);

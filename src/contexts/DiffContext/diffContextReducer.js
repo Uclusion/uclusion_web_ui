@@ -55,11 +55,12 @@ export function viewDiff(itemId) {
  */
 
 function getNotSeenContent(state, content) {
-  const { id, description, updated_by: updatedBy } = content;
+  const { id, description, updated_by: updatedBy, updated_by_you: updatedByYou } = content;
   const firstReceived = {
     id,
     lastSeenContent: description,
     updatedBy,
+    updatedByYou
   };
   const { initializing } = state;
   if (initializing) {

@@ -31,7 +31,7 @@ function DiffDisplay(props) {
   const classes = useStyles();
   const ref = useRef(null);
   const intl = useIntl();
-  const { id, showToggle } = props;
+  const { id, showToggle, displayClass } = props;
   const [diffState, diffDispatch] = useContext(DiffContext);
   const diff = getDiff(diffState, id);
 
@@ -55,9 +55,7 @@ function DiffDisplay(props) {
     <div>
       <div ref={ref} className={classes.diffContainer}/>
       <Button
-        variant="contained"
-        size="small"
-        color="primary"
+        className={displayClass}
         onClick={myOnHide}
       >
         {intl.formatMessage({ id: 'diffDisplayDismissLabel' })}

@@ -204,17 +204,15 @@ function Signup(props) {
 
   useEffect(() => {
     if (utm) {
+      // This might run more than once but that is okay and need to make sure it is set before Auth leaves the page
       setUtm(utm);
     }
-  }, [utm]);
-
-  useEffect(() => {
     if (signUpWith === 'google') {
       Auth.federatedSignIn({provider: 'Google'});
     } else if (signUpWith === 'github') {
       Auth.federatedSignIn({provider: 'GithubLogin'});
     }
-  }, [signUpWith]);
+  }, [utm, signUpWith]);
 
   function onPasswordBlurred() {
     setWasBlurred(true);

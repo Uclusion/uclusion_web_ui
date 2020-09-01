@@ -176,7 +176,7 @@ function DecisionInvestible(props) {
   const metaClasses = useMetaDataStyles();
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, diffDispatch] = useContext(DiffContext);
-  const [highlightedCommentState, highlightedCommentDispatch] = useContext(HighlightedCommentContext);
+  const [, highlightedCommentDispatch] = useContext(HighlightedCommentContext);
   const { name: marketName, id: marketId, market_stage: marketStage, allow_multi_vote: allowMultiVote,
   is_inline: isInline, parent_investible_id: parentInvestibleId, parent_market_id: parentMarketId } = market;
   let breadCrumbTemplates = [{ name: marketName, link: formMarketLink(marketId), id: 'marketCrumb'}];
@@ -224,11 +224,10 @@ function DecisionInvestible(props) {
 
   useEffect(() => {
     if (!hidden) {
-      if (investibleId in highlightedCommentState) {
-        highlightedCommentDispatch({ type: HIGHLIGHT_REMOVE, commentId: investibleId });
-      }
+      // Just go ahead and remove without checking or get infinite loop with re-render
+      highlightedCommentDispatch({ type: HIGHLIGHT_REMOVE, commentId: investibleId });
     }
-  }, [hidden, highlightedCommentDispatch, highlightedCommentState, investibleId]);
+  }, [hidden, highlightedCommentDispatch, investibleId]);
 
 
   function getActions() {

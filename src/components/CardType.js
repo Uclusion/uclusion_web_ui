@@ -173,7 +173,7 @@ export default function CardType(props) {
           <span className={classes.label}>{label}</span>
         </div>
       </Grid>
-      <Grid item xs={fullWidth ? 0 : 2}>
+      <Grid item xs={fullWidth ? false : 2}>
         {createdAt && (
           <Typography className={classes.timeElapsed} variant="body2">
             {intl.formatMessage({ id: 'created' })}
@@ -183,7 +183,7 @@ export default function CardType(props) {
           </Typography>
         )}
       </Grid>
-      <Grid item xs={fullWidth ? 3 : 0}>
+      <Grid item xs={fullWidth ? 3 : false}>
       </Grid>
     </Grid>
   );

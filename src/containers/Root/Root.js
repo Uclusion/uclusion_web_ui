@@ -29,7 +29,6 @@ import { isNewUser } from '../../contexts/AccountUserContext/accountUserContextH
 import StoryWorkspaceWizard from '../../pages/Onboarding/SignupOnboarding/Workspace/StoryWorkspace/StoryWorkspaceWizard'
 import { registerMarketTokenListeners } from '../../authorization/tokenUtils';
 import ECPInvite from '../../pages/Invites/ECPInvite'
-import queryString from 'query-string'
 import { getUtm } from '../../utils/redirectUtils'
 
 const useStyles = makeStyles({

@@ -9,10 +9,20 @@ import {
 import { moveInvestibleToCurrentVoting } from '../../../api/investibles'
 import SpinningTooltipIconButton from '../../../components/SpinBlocking/SpinningTooltipIconButton'
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
+import { makeStyles } from '@material-ui/styles'
+
+const style = makeStyles(() => {
+    return {
+      containerRed: {
+        boxShadow: "-5px -10px 5px red"
+      },
+    };
+  }
+);
 
 function MoveToCurrentVotingActionButton(props) {
   const { onClick, investibleId, marketId } = props;
-
+  const classes = style();
   const [marketStagesState] = useContext(MarketStagesContext);
   const inCurrentVotingStage = getInCurrentVotingStage(marketStagesState, marketId);
   const proposedStage = getProposedOptionsStage(marketStagesState, marketId);
@@ -31,12 +41,14 @@ function MoveToCurrentVotingActionButton(props) {
   }
 
   return (
-    <SpinningTooltipIconButton
-      marketId={marketId}
-      icon={<ArrowUpwardIcon htmlColor={ACTION_BUTTON_COLOR} />}
-      translationId="investibleAddToVotingExplanation"
-      onClick={moveToProposed}
-    />
+    <div className={classes.containerRed}>
+      <SpinningTooltipIconButton
+        marketId={marketId}
+        icon={<ArrowUpwardIcon htmlColor={ACTION_BUTTON_COLOR} />}
+        translationId="investibleAddToVotingExplanation"
+        onClick={moveToProposed}
+      />
+    </div>
   );
 }
 

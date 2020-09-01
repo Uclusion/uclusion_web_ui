@@ -238,7 +238,7 @@ const messages = defineMessages({
   // Address list
   addressAddCancelLabel: 'Close',
   addressAddClearLabel: 'Close',
-  addressAddSaveLabel: 'Add collaborators',
+  addressAddSaveLabel: 'Add Collaborators',
   inviteParticipantsLabel: 'Invite by email',
   addExistingCollaborator: 'Add',
 
@@ -270,7 +270,7 @@ const messages = defineMessages({
   investibleEditInvestibleFetchFailed: 'There was a problem loading your investible for edit. Please try again later',
   investibleAddToVotingLabel: 'Move to Options',
   investibleBackToOptionPoolLabel: 'Back to Proposed Options',
-  investibleAddToVotingExplanation: 'Once in voting you will still be able to remove this option',
+  investibleAddToVotingExplanation: 'Move to approvable option. Can be moved back proposed later.',
   investibleRemoveFromVotingExplanation: 'Remove current approval and move back to Proposed Option',
   investibleDeleteLabel: 'Permanently Delete',
   investibleDeleteExplanationLabel: 'Permanently remove this option from the dialog',
@@ -525,7 +525,7 @@ const messages = defineMessages({
   decisionInvestibleDiscussion: 'Discussion',
   decisionInvestibleVotingBlockedMarket: 'Voting suspended until the open issue on this dialog is resolved',
   decisionInvestibleVotingBlockedInvestible: 'Voting suspended until the open issue on this option is resolved',
-  decisionInvestibleProposedHelp: 'You can move this option to be approved by using the up arrow.',
+  decisionInvestibleProposedHelp: 'You can move this option to be approved by using the highlighted up arrow.',
 
   // InitiativeInvestible
   initiativeInvestibleVotingBlocked: 'Voting is blocked because there is an open issue',

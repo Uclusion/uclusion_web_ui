@@ -289,7 +289,7 @@ function AddNewUsers (props) {
                   onClick={handleCancel}
                   marketId={addToMarketId}
                 >
-                  Cancel
+                {intl.formatMessage({ id: "addressAddCancelLabel" })}
               </SpinBlockingButton>
               <SpinBlockingButton
                 id="save"
@@ -302,7 +302,7 @@ function AddNewUsers (props) {
                 hasSpinChecker
                 disabled={_.isEmpty(anySelected)&&_.isEmpty(email1)}
               >
-                Add Collaborators
+                {intl.formatMessage({ id: "addressAddSaveLabel" })}
               </SpinBlockingButton>
             </CardActions>
           </ListItem>

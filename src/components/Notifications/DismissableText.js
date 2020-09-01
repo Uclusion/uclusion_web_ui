@@ -56,7 +56,7 @@ const useStyles = makeStyles(theme => ({
 
 function DismissableText(props) {
   const {
-    textId,
+    textId, textId1, textId2, textId3, textId4
   } = props;
   const classes = useStyles();
   const [dismissState, dispatchDismissState] = useContext(DismissTextContext);
@@ -95,6 +95,30 @@ function DismissableText(props) {
       <dl className={classes.leftMost}>
         <LiveHelpTwoToneIcon color="inherit" fontSize="small" className={classes.help}/>
         <FormattedMessage id={textId} />
+        {textId1 && (
+          <>
+            <br/>
+            <FormattedMessage id={textId1} />
+          </>
+        )}
+        {textId2 && (
+          <>
+            <br/>
+            <FormattedMessage id={textId2} />
+          </>
+        )}
+        {textId3 && (
+          <>
+            <br/>
+            <FormattedMessage id={textId3} />
+          </>
+        )}
+        {textId4 && (
+          <>
+            <br/>
+            <FormattedMessage id={textId4} />
+          </>
+        )}
       </dl>
       <dl className={classes.rightMost}>
         <dd className={classes.dismissText}>

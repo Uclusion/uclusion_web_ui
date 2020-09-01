@@ -327,7 +327,11 @@ const messages = defineMessages({
   newOption: 'New Option',
   noVoters: 'None',
   storyHelp: 'Need something assigned and approved that takes a day or longer? Use the Create Story button.',
-  stageHelp: 'Hover over the name of a stage, like Ready to Start, in the swim lane to see more information about it.',
+  stageHelp: 'Hover over the name of a stage, like Ready to Start, in the swim lane to see more information about it. The flow is',
+  stageHelp1: 'Requirements in work space description',
+  stageHelp2: 'When you are ready to start on a requirement create a story in "Ready to Start"',
+  stageHelp3: 'When you start a story put it into "In Progress" (hopefully approved) - more than one story in progress would be ambiguous',
+  stageHelp4: 'When you think it is done put it "In Review"',
   reassignWarning: 'Re-assigning will remove all approval.',
   // Issues
   issueResolveLabel: 'Resolve',

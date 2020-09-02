@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import _ from 'lodash'
 import PropTypes from 'prop-types'
 import { Helmet } from 'react-helmet'
-import { CircularProgress, Container, Grid } from '@material-ui/core'
+import { Container } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import { useHistory } from 'react-router'
 import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
@@ -10,6 +10,7 @@ import Header from '../Header'
 import ActionBar from '../ActionBar'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 import { createTitle, makeBreadCrumbs } from '../../utils/marketIdPathFunctions'
+import LoadingDisplay from '../../components/LoadingDisplay';
 
 const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -41,19 +42,6 @@ const useStyles = makeStyles((theme) => ({
   elevated: {
     zIndex: 99,
   },
-  loadingDisplay: {
-    padding: '95px 20px 156px',
-    width: '100%'
-  },
-  loadingContainer: {
-    justifyContent: 'center',
-    display: 'flex',
-    overflow: 'hidden',
-    marginTop: 'calc(50vh - 60px)'
-  },
-  loadingColor: {
-    fill: '#3f6b72'
-  }
 }));
 
 //const isChrome = !!window.chrome && (!!window.chrome.webstore || !!window.chrome.runtime);
@@ -138,11 +126,7 @@ function Screen(props) {
           <Container className={myContainerClass}>{children}</Container>
         )}
         {reallyAmLoading && (
-          <Grid container>
-            <Grid item xs={12} className={classes.loadingContainer}>
-              <CircularProgress className={classes.loadingColor} size={120} type="indeterminate"/>
-            </Grid>
-          </Grid>
+         <LoadingDisplay />
         )}
       </div>
     </div>

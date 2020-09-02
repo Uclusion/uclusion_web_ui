@@ -822,6 +822,7 @@ const messages = defineMessages({
 
 
   // Onboarding
+  OnboardingCreatingCustomWorkspace: 'Please wait while we create a WorkSpace just for you',
   OnboardingWizardTitle: 'Welcome to Uclusion',
   OnboardingWizardSkipOnboarding: 'I\'ve used Uclusion before and want to go right to the app',
   OnboardingWizardStartOver: 'Start over',

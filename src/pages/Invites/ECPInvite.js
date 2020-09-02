@@ -7,7 +7,6 @@ import Header from '../../containers/Header'
 import { formMarketLink, navigate, } from '../../utils/marketIdPathFunctions'
 import { toastError } from '../../utils/userMessage'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
-import { CircularProgress, Grid } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import _ from 'lodash'
 import { addMarketToStorage } from '../../contexts/MarketsContext/marketsContextHelper'
@@ -26,6 +25,7 @@ import { addPresenceToMarket } from '../../contexts/MarketPresencesContext/marke
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { saveComment } from '../../api/comments'
 import { TODO_TYPE } from '../../constants/comments'
+import LoadingDisplay from '../../components/LoadingDisplay';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -54,19 +54,6 @@ const useStyles = makeStyles((theme) => ({
   elevated: {
     zIndex: 99,
   },
-  loadingDisplay: {
-    padding: '95px 20px 156px',
-    width: '100%'
-  },
-  loadingContainer: {
-    justifyContent: 'center',
-    display: 'flex',
-    overflow: 'hidden',
-    marginTop: 'calc(50vh - 60px)'
-  },
-  loadingColor: {
-    fill: '#3f6b72'
-  }
 }));
 
 function ECPInvite(props) {
@@ -202,11 +189,8 @@ function ECPInvite(props) {
       hideTools
     />
     <div className={classes.content}>
-      <Grid container>
-        <Grid item xs={12} className={classes.loadingContainer}>
-          <CircularProgress className={classes.loadingColor} size={120} type="indeterminate"/>
-        </Grid>
-      </Grid>
+      <div>LLL1</div>
+      <LoadingDisplay showMessage={true} messageId="OnboardingCreatingCustomWorkspace" />
     </div>
   </div>
   );

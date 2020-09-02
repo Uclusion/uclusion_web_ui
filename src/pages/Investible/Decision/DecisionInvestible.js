@@ -24,7 +24,7 @@ import { ACTIVE_STAGE } from '../../../constants/markets'
 import DeleteInvestibleActionButton from './DeleteInvestibleActionButton'
 import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff'
 import EditMarketButton from '../../Dialog/EditMarketButton'
-import CardType, { OPTION, VOTING_TYPE } from '../../../components/CardType'
+import CardType, { OPTION, PROPOSED, VOTING_TYPE } from '../../../components/CardType'
 import DismissableText from '../../../components/Notifications/DismissableText'
 import MoveBackToPoolActionButton from './MoveBackToPoolActionButton'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
@@ -207,7 +207,7 @@ function DecisionInvestible(props) {
   const activeMarket = marketStage === ACTIVE_STAGE
   const yourPresence = marketPresences.find((presence) => presence.current_user)
   const yourVote = yourPresence && yourPresence.investments.find((investment) => investment.investible_id === investibleId)
-
+  const cardDescription = inProposed ? "decisionProposedInvestibleDescription" : "decisionInvestibleDescription";
   const {
     description, name, created_by: createdBy, locked_by: lockedBy, attached_files: attachedFiles,
   } = investible
@@ -306,11 +306,9 @@ function DecisionInvestible(props) {
       >
         <CardType
           className={classes.cardType}
-          label={`${intl.formatMessage({
-            id: "decisionInvestibleDescription"
-          })}`}
+          label={`${intl.formatMessage({ id: cardDescription })}`}
           type={VOTING_TYPE}
-          subtype={OPTION}
+          subtype={inProposed ? PROPOSED : OPTION}
         />
         <Grid container className={classes.mobileColumn}>
           <Grid item md={9} xs={12}>

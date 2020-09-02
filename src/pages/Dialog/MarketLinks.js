@@ -97,7 +97,7 @@ function MarketLinks (props) {
       const {marketId, myPresence, baseLink, baseInviteLink, marketInfo} = info;
       return (
         <ul key={marketId}>
-            {marketInfo && myPresence && (
+            {marketInfo && (myPresence || marketInfo.marketStage !== ACTIVE_STAGE)  && (
               <Typography key={marketId} component="li">
                 <Link
                   href={baseLink}

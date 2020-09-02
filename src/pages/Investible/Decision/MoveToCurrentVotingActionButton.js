@@ -10,11 +10,20 @@ import { moveInvestibleToCurrentVoting } from '../../../api/investibles'
 import SpinningTooltipIconButton from '../../../components/SpinBlocking/SpinningTooltipIconButton'
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
 import { makeStyles } from '@material-ui/styles'
+import { ListItemText } from '@material-ui/core'
+import { useIntl } from 'react-intl'
 
 const style = makeStyles(() => {
     return {
       containerRed: {
-        boxShadow: "-5px -10px 5px red"
+        boxShadow: "10px 5px 5px red"
+      },
+      menuTitle: {
+        paddingLeft: 0,
+        paddingRight: 0,
+        marginRight: 0,
+        color: 'black',
+        fontWeight: 'bold',
       },
     };
   }
@@ -22,6 +31,7 @@ const style = makeStyles(() => {
 
 function MoveToCurrentVotingActionButton(props) {
   const { onClick, investibleId, marketId } = props;
+  const intl = useIntl();
   const classes = style();
   const [marketStagesState] = useContext(MarketStagesContext);
   const inCurrentVotingStage = getInCurrentVotingStage(marketStagesState, marketId);
@@ -47,7 +57,11 @@ function MoveToCurrentVotingActionButton(props) {
         icon={<ArrowUpwardIcon htmlColor={ACTION_BUTTON_COLOR} />}
         translationId="investibleAddToVotingExplanation"
         onClick={moveToProposed}
-      />
+      >
+        <ListItemText className={classes.menuTitle}>
+          {intl.formatMessage({ id: 'investibleAddToVotingLabel' })}
+        </ListItemText>
+      </SpinningTooltipIconButton>
     </div>
   );
 }

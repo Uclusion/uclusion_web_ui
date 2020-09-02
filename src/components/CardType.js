@@ -33,6 +33,7 @@ import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
 import AssignmentIcon from '@material-ui/icons/Assignment'
 import HowToVoteIcon from '@material-ui/icons/HowToVote'
 import UpdateIcon from '@material-ui/icons/Update'
+import RemoveFromQueueIcon from '@material-ui/icons/RemoveFromQueue';
 import UsefulRelativeTime from './TextFields/UseRelativeTime'
 import { Grid, Typography } from '@material-ui/core'
 
@@ -48,6 +49,7 @@ export const FURTHER_WORK = 'FURTHER_WORK'
 export const REQUIRES_INPUT = "REQUIRES_INPUT";
 export const IN_VERIFIED = "VERIFIED";
 export const OPTION = "OPTION";
+export const PROPOSED = "PROPOSED";
 export const IN_VOTING= "DELIBERATION";
 export const ASSIGN_TYPE = "ASSIGN";
 export const GENERIC_STORY_TYPE = "GENERIC_STORY"; /// used in search results only
@@ -154,6 +156,7 @@ export default function CardType(props) {
     [FURTHER_WORK]: WorkIcon,
     [REQUIRES_INPUT]: GavelIcon,
     [OPTION]: StarRateIcon,
+    [PROPOSED]: RemoveFromQueueIcon,
     [ASSIGN_TYPE]: PersonAddIcon,
     [DECISION_TYPE]: GavelIcon,
     certainty5: NoIcon,
@@ -201,7 +204,8 @@ CardType.propTypes = {
     REQUIRES_INPUT,
     NOT_DOING,
     ASSIGN_TYPE,
-    OPTION
+    OPTION,
+    PROPOSED
   ]),
   type: PropTypes.oneOf([
     "certainty5",

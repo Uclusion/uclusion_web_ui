@@ -16,8 +16,7 @@ import { makeStyles } from '@material-ui/styles'
 const style = makeStyles(() => {
     return {
       containerYellow: {
-        marginTop: "5px",
-        boxShadow: "-5px -10px 5px yellow"
+        boxShadow: "10px 5px 5px yellow"
       },
       containerNone: {}
     };

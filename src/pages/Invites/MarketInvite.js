@@ -9,13 +9,13 @@ import { getMarketFromInvite } from '../../api/uclusionClient'
 import { toastError } from '../../utils/userMessage'
 import queryString from 'query-string'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
-import { CircularProgress, Grid } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import { createMarketListeners, pollForMarketLoad } from '../../api/versionedFetchUtils'
 import _ from 'lodash'
 import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
 import { userIsLoaded } from '../../contexts/AccountUserContext/accountUserContextHelper'
+import LoadingDisplay from '../../components/LoadingDisplay';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -44,19 +44,6 @@ const useStyles = makeStyles((theme) => ({
   elevated: {
     zIndex: 99,
   },
-  loadingDisplay: {
-    padding: '95px 20px 156px',
-    width: '100%'
-  },
-  loadingContainer: {
-    justifyContent: 'center',
-    display: 'flex',
-    overflow: 'hidden',
-    marginTop: 'calc(50vh - 60px)'
-  },
-  loadingColor: {
-    fill: '#3f6b72'
-  }
 }));
 
 function MarketInvite(props) {
@@ -116,11 +103,7 @@ function MarketInvite(props) {
       hideTools
     />
     <div className={classes.content}>
-      <Grid container>
-        <Grid item xs={12} className={classes.loadingContainer}>
-          <CircularProgress className={classes.loadingColor} size={120} type="indeterminate"/>
-        </Grid>
-      </Grid>
+      <LoadingDisplay showMessage messageId="loadingMarket" />
     </div>
   </div>
   );

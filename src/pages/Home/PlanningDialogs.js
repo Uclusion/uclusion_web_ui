@@ -22,6 +22,8 @@ import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { getMarketInfo } from '../../utils/userFunctions'
 import { ACTIVE_STAGE } from '../../constants/markets'
 import InvestiblesByWorkspace from '../Dialog/Planning/InvestiblesByWorkspace'
+import Chip from '@material-ui/core/Chip'
+import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../constants/comments'
 
 const useStyles = makeStyles(() => ({
   paper: {
@@ -33,6 +35,12 @@ const useStyles = makeStyles(() => ({
   },
   green: {
     backgroundColor: '#3f6b72',
+  },
+  yellow: {
+    backgroundColor: 'yellow',
+  },
+  red: {
+    backgroundColor: 'red',
   },
   draft: {
     color: '#E85757',
@@ -178,20 +186,28 @@ function PlanningDialogs(props) {
     return mostRecentUpdate;
   }
 
+  function getCommentsCount(comments, commentTypes) {
+    return comments.filter((comment) => !comment.resolved && !comment.investible_id
+      && commentTypes.includes(comment.comment_type)).length;
+  }
+
   function getMarketItems() {
     const marketsWithUpdatedAt = markets.map((market) => {
       const { id: marketId, updated_at: updatedAt } = market;
       const comments = getMarketComments(commentsState, marketId) || [];
+      const redCount = getCommentsCount(comments, [ISSUE_TYPE]);
+      const yellowCount = getCommentsCount(comments, [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE]);
       const investibles = getMarketInvestibles(investibleState, marketId) || [];
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
       const marketUpdatedAt = getMarketUpdatedAt(updatedAt, marketPresences, investibles, comments, marketId);
-      return { ...market, marketUpdatedAt }
+      return { ...market, marketUpdatedAt, redCount, yellowCount }
     });
     const sortedMarkets = _.sortBy(marketsWithUpdatedAt, 'marketUpdatedAt').reverse();
     return sortedMarkets.map((market) => {
       const {
         id: marketId, name, market_type: marketType, market_stage: marketStage,
-        parent_market_id: parentMarketId, parent_investible_id: parentInvestibleId, marketUpdatedAt
+        parent_market_id: parentMarketId, parent_investible_id: parentInvestibleId, marketUpdatedAt, yellowCount,
+        redCount
       } = market;
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
       const isDraft = marketHasOnlyCurrentUser(marketPresencesState, marketId);
@@ -260,6 +276,19 @@ function PlanningDialogs(props) {
                 <Fragment>
                   <span className={classes.participantContainer}>
                     {!isDraft && getParticipantInfo(sortedPresences, marketId)}
+                    <div style={{paddingTop: "15px"}}>
+                      {yellowCount > 0 && (
+                        <Tooltip title={intl.formatMessage({ id: "yellowCount" })}>
+                          <Chip size="small" label={yellowCount} className={classes.yellow}/>
+                        </Tooltip>
+
+                      )}
+                      {redCount > 0 && (
+                        <Tooltip title={intl.formatMessage({ id: "redCount" })}>
+                          <Chip size="small" label={redCount} className={classes.red}/>
+                        </Tooltip>
+                      )}
+                    </div>
                     <CardActions style={{display: 'inline-block', flex: 5}}>
                       <DialogActions
                         marketStage={marketStage}

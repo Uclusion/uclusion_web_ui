@@ -22,10 +22,14 @@ import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { getMarketInfo } from '../../utils/userFunctions'
 import { ACTIVE_STAGE } from '../../constants/markets'
 import InvestiblesByWorkspace from '../Dialog/Planning/InvestiblesByWorkspace'
-import Chip from '@material-ui/core/Chip'
 import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../constants/comments'
+import EmojiObjectsIcon from '@material-ui/icons/EmojiObjects'
+import Badge from '@material-ui/core/Badge'
+import BlockIcon from '@material-ui/icons/Block'
+import HelpIcon from '@material-ui/icons/Help'
+import AssignmentIcon from '@material-ui/icons/Assignment'
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   paper: {
     textAlign: 'left',
     minHeight: '200px'
@@ -36,12 +40,6 @@ const useStyles = makeStyles(() => ({
   green: {
     backgroundColor: '#3f6b72',
   },
-  yellow: {
-    backgroundColor: 'yellow',
-  },
-  red: {
-    backgroundColor: 'red',
-  },
   draft: {
     color: '#E85757',
     backgroundColor: '#ffc4c4',
@@ -50,7 +48,8 @@ const useStyles = makeStyles(() => ({
     borderRadius: '32px',
     fontSize: '.825rem',
     lineHeight: 2,
-    marginTop: '12px'
+    marginTop: '12px',
+    marginRight: '90px'
   },
   cardContent: {
     display: 'flex',
@@ -76,12 +75,12 @@ const useStyles = makeStyles(() => ({
     height: '50px'
   },
   draftContainer: {
-    height: '50px'
+    height: '50px',
   },
   participantContainer: {
     height: '50px',
     display: 'flex',
-    width: '100%'
+    width: '100%',
   },
   participantText: {
     fontSize: '.7rem'
@@ -93,6 +92,16 @@ const useStyles = makeStyles(() => ({
     borderColor: '#ccc',
     borderStyle: 'solid',
     margin: '2rem 0'
+  },
+  workspaceCommentsIcons: {
+    display: 'flex',
+    flexDirection: 'column',
+    '& > *': {
+      marginBottom: theme.spacing(2),
+    },
+    '& .MuiBadge-root': {
+      marginRight: theme.spacing(2),
+    },
   },
   lessPadding: {
     '&.MuiGrid-item': {
@@ -186,28 +195,30 @@ function PlanningDialogs(props) {
     return mostRecentUpdate;
   }
 
-  function getCommentsCount(comments, commentTypes) {
-    return comments.filter((comment) => !comment.resolved && !comment.investible_id
-      && commentTypes.includes(comment.comment_type)).length;
+  function getCommentsCount(comments, commentType) {
+    return comments.filter((comment) => comment.comment_type === commentType).length;
   }
 
   function getMarketItems() {
     const marketsWithUpdatedAt = markets.map((market) => {
       const { id: marketId, updated_at: updatedAt } = market;
       const comments = getMarketComments(commentsState, marketId) || [];
-      const redCount = getCommentsCount(comments, [ISSUE_TYPE]);
-      const yellowCount = getCommentsCount(comments, [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE]);
+      const marketLevelUnresolved = comments.filter((comment) => !comment.resolved && !comment.investible_id);
+      const issueCount = getCommentsCount(marketLevelUnresolved, ISSUE_TYPE);
+      const questionCount = getCommentsCount(marketLevelUnresolved, QUESTION_TYPE);
+      const suggestCount = getCommentsCount(marketLevelUnresolved, SUGGEST_CHANGE_TYPE);
+      const todoCount = getCommentsCount(marketLevelUnresolved, TODO_TYPE);
       const investibles = getMarketInvestibles(investibleState, marketId) || [];
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
       const marketUpdatedAt = getMarketUpdatedAt(updatedAt, marketPresences, investibles, comments, marketId);
-      return { ...market, marketUpdatedAt, redCount, yellowCount }
+      return { ...market, marketUpdatedAt, questionCount, issueCount, suggestCount, todoCount }
     });
     const sortedMarkets = _.sortBy(marketsWithUpdatedAt, 'marketUpdatedAt').reverse();
     return sortedMarkets.map((market) => {
       const {
         id: marketId, name, market_type: marketType, market_stage: marketStage,
-        parent_market_id: parentMarketId, parent_investible_id: parentInvestibleId, marketUpdatedAt, yellowCount,
-        redCount
+        parent_market_id: parentMarketId, parent_investible_id: parentInvestibleId, marketUpdatedAt, questionCount,
+        issueCount, suggestCount, todoCount
       } = market;
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
       const isDraft = marketHasOnlyCurrentUser(marketPresencesState, marketId);
@@ -266,28 +277,48 @@ function PlanningDialogs(props) {
                 </Typography>
               </div>
               <div className={classes.bottomContainer}>
-                {isDraft && (
-                  <div className={classes.draftContainer}>
-                    <Typography className={classes.draft}>
-                      {intl.formatMessage({ id: 'draft' })}
-                    </Typography>
-                  </div>
-                )}
-                <Fragment>
                   <span className={classes.participantContainer}>
                     {!isDraft && getParticipantInfo(sortedPresences, marketId)}
-                    <div style={{paddingTop: "15px"}}>
-                      {yellowCount > 0 && (
-                        <Tooltip title={intl.formatMessage({ id: "yellowCount" })}>
-                          <Chip size="small" label={yellowCount} className={classes.yellow}/>
-                        </Tooltip>
-
-                      )}
-                      {redCount > 0 && (
-                        <Tooltip title={intl.formatMessage({ id: "redCount" })}>
-                          <Chip size="small" label={redCount} className={classes.red}/>
-                        </Tooltip>
-                      )}
+                    {isDraft && (
+                      <div className={classes.draftContainer}>
+                        <Typography className={classes.draft}>
+                          {intl.formatMessage({ id: 'draft' })}
+                        </Typography>
+                      </div>
+                    )}
+                    <div className={classes.workspaceCommentsIcons}>
+                      <div>
+                        {suggestCount > 0 && (
+                          <Tooltip title={intl.formatMessage({ id: "suggestCount" })}>
+                            <Badge badgeContent={suggestCount}>
+                              <EmojiObjectsIcon />
+                            </Badge>
+                          </Tooltip>
+                        )}
+                        {todoCount > 0 && (
+                          <Tooltip title={intl.formatMessage({ id: "todoCount" })}>
+                            <Badge badgeContent={todoCount}>
+                              <AssignmentIcon />
+                            </Badge>
+                          </Tooltip>
+                        )}
+                      </div>
+                      <div>
+                        {questionCount > 0 && (
+                          <Tooltip title={intl.formatMessage({ id: "questionCount" })}>
+                            <Badge badgeContent={questionCount}>
+                              <HelpIcon />
+                            </Badge>
+                          </Tooltip>
+                        )}
+                        {issueCount > 0 && (
+                          <Tooltip title={intl.formatMessage({ id: "issueCount" })}>
+                            <Badge badgeContent={issueCount}>
+                              <BlockIcon />
+                            </Badge>
+                          </Tooltip>
+                        )}
+                      </div>
                     </div>
                     <CardActions style={{display: 'inline-block', flex: 5}}>
                       <DialogActions
@@ -303,7 +334,6 @@ function PlanningDialogs(props) {
                       />
                     </CardActions>
                   </span>
-                </Fragment>
               </div>
             </CardContent>
           </RaisedCard>

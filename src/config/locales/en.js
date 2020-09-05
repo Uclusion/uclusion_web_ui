@@ -483,8 +483,10 @@ const messages = defineMessages({
   deactivateInlineQuestion: 'Changing stage will deactivate any dialogs associated with this story.',
   deactivateDialogQuestion: 'Do you want to deactivate and stop any further work?',
   yesAndProceed: 'Change stage and deactivate',
-  yellowCount: 'Number of open not blocking comments',
-  redCount: 'Number of open blocking comments',
+  suggestCount: 'Open suggestions',
+  todoCount: 'Open TODOs',
+  questionCount: 'Open questions',
+  issueCount: 'Open blocking issues',
 
   // Decision Dialog
   decisionDialogSummaryLabel: 'Background Information',

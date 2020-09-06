@@ -107,7 +107,19 @@ const useStyles = makeStyles((theme) => ({
     '&.MuiGrid-item': {
       padding: '10px'
     }
-  }
+  },
+  chipItemQuestion: {
+    color: '#2F80ED',
+  },
+  chipItemIssue: {
+    color: '#E85757',
+  },
+  chipItemSuggestion: {
+    color: '#e6e969',
+  },
+  chipItemTodo: {
+    color: '#F29100',
+  },
 }));
 
 function PlanningDialogs(props) {
@@ -291,14 +303,14 @@ function PlanningDialogs(props) {
                         {suggestCount > 0 && (
                           <Tooltip title={intl.formatMessage({ id: "suggestCount" })}>
                             <Badge badgeContent={suggestCount}>
-                              <EmojiObjectsIcon />
+                              <EmojiObjectsIcon className={classes.chipItemSuggestion} />
                             </Badge>
                           </Tooltip>
                         )}
                         {todoCount > 0 && (
                           <Tooltip title={intl.formatMessage({ id: "todoCount" })}>
                             <Badge badgeContent={todoCount}>
-                              <AssignmentIcon />
+                              <AssignmentIcon className={classes.chipItemTodo} />
                             </Badge>
                           </Tooltip>
                         )}
@@ -307,14 +319,14 @@ function PlanningDialogs(props) {
                         {questionCount > 0 && (
                           <Tooltip title={intl.formatMessage({ id: "questionCount" })}>
                             <Badge badgeContent={questionCount}>
-                              <HelpIcon />
+                              <HelpIcon className={classes.chipItemQuestion} />
                             </Badge>
                           </Tooltip>
                         )}
                         {issueCount > 0 && (
                           <Tooltip title={intl.formatMessage({ id: "issueCount" })}>
                             <Badge badgeContent={issueCount}>
-                              <BlockIcon />
+                              <BlockIcon className={classes.chipItemIssue} />
                             </Badge>
                           </Tooltip>
                         )}

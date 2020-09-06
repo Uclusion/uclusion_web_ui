@@ -84,7 +84,7 @@ function NextStoryStep (props) {
       nextStorySkipped: false,
     };
     updateFormData(updateValues(newValues));
-    createMarket({...formData, ...newValues});
+    return createMarket({...formData, ...newValues});
   }
 
 

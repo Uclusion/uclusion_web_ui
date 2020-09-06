@@ -49,7 +49,7 @@ function InitiativeExpirationStep(props) {
       initiativeExpiration: value,
     }
     updateFormData(updateValues(newValues));
-    doCreateInitiative({...formData, ...newValues});
+    return doCreateInitiative({...formData, ...newValues});
   }
 
   return (

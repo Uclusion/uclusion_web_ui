@@ -101,7 +101,7 @@ function AddOptionsStep (props) {
       addOptionsSkipped: true
     };
     updateFormData(updateValues(newValues));
-    createDialog({...formData, ...newValues});
+    return createDialog({...formData, ...newValues});
   }
 
   function onPrevious() {
@@ -113,7 +113,7 @@ function AddOptionsStep (props) {
       addOptionsSkipped: false,
     };
     updateFormData(newValues);
-    createDialog({...formData, ...newValues});
+    return createDialog({...formData, ...newValues});
   }
 
   function currentOptions () {

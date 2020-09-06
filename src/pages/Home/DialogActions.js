@@ -105,7 +105,7 @@ function DialogActions(props) {
       }
     }
     if (action === 'dialog' && ((marketType === PLANNING_TYPE) || !activeMarket)) {
-      actions.push(<ShareStoryButton/>)
+      actions.push(<ShareStoryButton key="share-story"/>)
     }
     return actions;
   }

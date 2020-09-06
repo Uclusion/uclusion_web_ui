@@ -33,14 +33,24 @@ function StepButtons (props) {
     previousStep();
   }
 
-  function myOnNext () {
-    onNext();
+  async function myOnNext () {
+    // if our next is a promise, we'll advance our state forward
+    // and make sure we return it's resolved value afterwards.
+    // it's a little odd we advance first, but it's safe if instantaneous
+    // and a promise would have advanced anyways
+    const nextReturn = onNext();
+    //advance the state
     nextStep();
+    const resolved = await Promise.resolve(nextReturn);
+    return resolved;
   }
 
-  function myOnSkip () {
-    onSkip();
+  async function myOnSkip () {
+    // same basic logic as onNext
+    const skipReturn  = onSkip();
     nextStep();
+    const resolved = await Promise.resolve(skipReturn);
+    return resolved;
   }
 
   function myOnStartOver() {

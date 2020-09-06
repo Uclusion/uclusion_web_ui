@@ -75,7 +75,7 @@ function TodoStep (props) {
       todoSkipped: false,
     };
     updateFormData(updateValues(newValues));
-    createWorkspace({...formData, ...newValues});
+    return createWorkspace({...formData, ...newValues});
   }
 
   function onSkip() {
@@ -84,7 +84,7 @@ function TodoStep (props) {
       todoSkipped: true,
     };
     updateFormData(updateValues(newValues));
-    createWorkspace({...formData, ...newValues});
+    return createWorkspace({...formData, ...newValues});
   }
 
   return (

@@ -51,10 +51,10 @@ import { CognitoUserContext } from '../../../contexts/CognitoUserContext/Congito
 import UclusionTour from '../../../components/Tours/UclusionTour'
 import { inviteStoriesWorkspaceSteps } from '../../../components/Tours/InviteTours/storyWorkspace'
 import { inviteRequirementsWorkspaceSteps } from '../../../components/Tours/InviteTours/requirementsWorkspace'
-import { wizardStyles } from '../../Onboarding/OnboardingWizard'
+import { wizardStyles } from '../../../components/AddNew/CreationWizard'
 import Header from '../../../containers/Header'
 import InviteLinker from '../InviteLinker'
-import StepButtons from '../../Onboarding/StepButtons'
+import StepButtons from '../../../components/AddNew/StepButtons'
 import queryString from 'query-string'
 import moment from 'moment'
 import {

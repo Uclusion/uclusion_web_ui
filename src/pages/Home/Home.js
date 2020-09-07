@@ -21,7 +21,7 @@ import { formMarketManageLink, navigate } from '../../utils/marketIdPathFunction
 import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions'
 import DismissableText from '../../components/Notifications/DismissableText'
 import { getAndClearRedirect, redirectToPath } from '../../utils/redirectUtils'
-import AddNewWizard from './Wizards/AddNewWizard'
+import AddNewWizard from '../../components/AddNew/AddNewWizard'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 
 const useStyles = makeStyles(() => ({
@@ -108,7 +108,7 @@ function Home(props) {
   function onWizardFinish (formData) {
     const { marketId } = formData;
     setWizardActive(false);
-    const link = formMarketManageLink(marketId) + '#participation=true';
+    const link = formMarketManageLink(marketId, true);
     navigate(history, link);
   }
 

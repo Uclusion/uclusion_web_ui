@@ -15,7 +15,6 @@ import { OperationInProgressContext } from '../../contexts/OperationInProgressCo
 import { OnlineStateContext } from '../../contexts/OnlineStateContext'
 import InvestibleEdit from '../../pages/Investible/InvestibleEdit'
 import InvestibleAdd from '../../pages/Dialog/InvestibleAdd'
-import DialogAdd from '../../pages/DialogAdd/DialogAdd'
 import DialogEdit from '../../pages/Dialog/DialogEdit'
 import DialogManage from '../../pages/Dialog/DialogManage'
 import MarketInvite from '../../pages/Invites/MarketInvite'
@@ -93,10 +92,6 @@ function Root() {
     return myAction !== 'notificationPreferences';
   }
 
-  function hideAddMarket() {
-    return myAction !== 'dialogAdd';
-  }
-
   function hideMarket() {
     return myAction !== 'dialog' || (!marketId) || (!!marketId && !!investibleId);
   }
@@ -143,7 +138,7 @@ function Root() {
 
   const hidePNF = !(hideMarket() && hideSupport() && hideHome() && hideInvestible()
     && hideDialogArchives() && hideArchvies() && hideInvestibleEdit() && hideInvestibleAdd()
-    && hideAddMarket() && hideDialogEdit() && hideDialogManage() && hideMarketInvite()
+    && hideDialogEdit() && hideDialogManage() && hideMarketInvite()
     && hideSlackInvite() && hideChangePassword() && hideChangeNotification()
     && hideBillingHome() && hideOnboarding() && hideECPOnboarding());
 
@@ -215,7 +210,6 @@ function Root() {
             <Archives hidden={hideArchvies()}/>
             <DialogArchives hidden={hideDialogArchives()}/>
             <InvestibleAdd hidden={hideInvestibleAdd()}/>
-            <DialogAdd hidden={hideAddMarket()}/>
             <DialogEdit hidden={hideDialogEdit()}/>
             <DialogManage hidden={hideDialogManage()}/>
             <MarketInvite hidden={hideMarketInvite()}/>

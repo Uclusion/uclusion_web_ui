@@ -65,7 +65,6 @@ const useStyles = makeStyles((theme) => ({
     borderBottom: '1px solid #f2f2f2',
     paddingTop: '1rem',
     paddingBottom: '2rem',
-    marginBottom: '1rem',
     flex: 2,
     cursor: 'pointer'
   },
@@ -96,6 +95,7 @@ const useStyles = makeStyles((theme) => ({
   workspaceCommentsIcons: {
     display: 'flex',
     flexDirection: 'column',
+    marginTop: '0.5rem',
     '& > *': {
       marginBottom: theme.spacing(2),
     },

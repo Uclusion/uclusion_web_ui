@@ -71,7 +71,6 @@ const useStyles = makeStyles((theme) => ({
   innerContainerMobile: {
     borderBottom: '1px solid #f2f2f2',
     paddingTop: '1rem',
-    paddingBottom: '1rem',
     flex: 2,
     cursor: 'pointer'
   },

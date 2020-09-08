@@ -68,6 +68,13 @@ const useStyles = makeStyles((theme) => ({
     flex: 2,
     cursor: 'pointer'
   },
+  innerContainerMobile: {
+    borderBottom: '1px solid #f2f2f2',
+    paddingTop: '1rem',
+    paddingBottom: '1rem',
+    flex: 2,
+    cursor: 'pointer'
+  },
   bottomContainer: {
     display: 'flex',
     flex: 1,
@@ -276,7 +283,7 @@ function PlanningDialogs(props) {
                 </Typography>
             </Link>
               }
-              <div className={classes.innerContainer}
+              <div className={window.outerWidth > 600 ? classes.innerContainer : classes.innerContainerMobile}
                 onClick={(event) => {
                 event.preventDefault();
                 navigate(history, formMarketLink(marketId));}

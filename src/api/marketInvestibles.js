@@ -45,6 +45,7 @@ export function updateInvestment(updateInfo) {
     newReasonText,
     reasonNeedsUpdate,
     maxBudget,
+    maxBudgetUnit
   } = updateInfo;
   let globalClient;
   return getMarketClient(marketId)
@@ -83,7 +84,7 @@ export function updateInvestment(updateInfo) {
       const { comment } = commentResult;
       const { id: commentId } = comment; // everything correctly updates comment id
       return globalClient.markets.updateInvestment(investibleId, newQuantity,
-        currentQuantity, commentId, maxBudget)
+        currentQuantity, commentId, maxBudget, maxBudgetUnit)
         .then((investmentResult) => {
           return {
             commentResult,

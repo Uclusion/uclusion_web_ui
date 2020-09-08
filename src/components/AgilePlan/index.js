@@ -331,8 +331,7 @@ export function Form(props) {
     // Long form to prevent flicker
     if (
       name &&
-      parseInt(investmentExpiration, 10) > 0 &&
-      parseInt(maxBudget, 10) > 0
+      parseInt(investmentExpiration, 10) > 0
     ) {
       if (!validForm) {
         setValidForm(true);
@@ -455,7 +454,6 @@ export function MaxBudget(props) {
         label={intl.formatMessage({
           id: "maxMaxBudgetInputLabel"
         })}
-        placeholder="14"
         {...other}
       />
       <Typography>

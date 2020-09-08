@@ -57,7 +57,7 @@ class QuillEditor extends React.PureComponent {
 
   constructor(props) {
     super(props);
-    this.state = { uploads: [], uploadInProgress: false, width: '' };
+    this.state = { uploads: [], uploadInProgress: false };
     this.editorBox = React.createRef();
     this.editorContainer = React.createRef();
   }
@@ -92,7 +92,6 @@ class QuillEditor extends React.PureComponent {
       setOperationInProgress,
       getUrlName
     } = this.props;
-    const { width } = this.state;
     const defaultModules = {
       toolbar: [
         [{ font: [] }],
@@ -148,7 +147,7 @@ class QuillEditor extends React.PureComponent {
       theme: 'snow',
       bounds: '#editorbox'
     }
-    if(width < 600){
+    if(window.outerWidth < 600){
       this.options.modules.toolbar = false
     }
     this.editor = new Quill(this.editorBox.current, this.options);
@@ -216,17 +215,11 @@ class QuillEditor extends React.PureComponent {
   componentDidMount() {
     const { defaultValue } = this.props;
     this.editorBox.current.innerHTML = defaultValue;
-    this.setState({width: window.outerWidth});
-    window.addEventListener('resize', this.resizeListener);
+
     this.createEditor();
 
   }
-  resizeListener = () => {
-    const { width } = this.state;
-    if(width !== window.outerWidth){
-      this.setState({width: window.outerWidth})
-    }
-  }
+
   setUploadInProgress(value) {
     this.setState({
       uploadInProgress: value,

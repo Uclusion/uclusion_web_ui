@@ -826,7 +826,7 @@ const messages = defineMessages({
   AddNewWizardWhatDoYouWantToDoStepLabel: 'What do you want Uclusion to help with?',
 
 
-  // Onboarding
+  // AddNew
   OnboardingCreatingCustomWorkspace: 'Please wait while we create a Workspace just for you',
   OnboardingWizardTitle: 'Welcome to Uclusion',
   OnboardingWizardSkipOnboarding: 'I\'ve used Uclusion before and want to go right to the app',

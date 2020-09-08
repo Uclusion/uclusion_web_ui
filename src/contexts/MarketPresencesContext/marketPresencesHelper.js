@@ -1,7 +1,18 @@
 import { addMarketPresence, patchInvestment } from './marketPresencesContextReducer'
+import _ from 'lodash'
 
 export function addPresenceToMarket(dispatch, marketId, presence) {
   dispatch(addMarketPresence(marketId, presence));
+}
+
+export function getMarketUnits(state, marketId) {
+  const { investments } = getMarketPresences(state, marketId);
+  let units = [];
+  (investments || []).forEach((investment) => {
+    const { max_budget_unit: unit } = investment;
+    units = _.union(units, unit);
+  });
+  return units;
 }
 
 export function getMarketPresences(state, marketId) {

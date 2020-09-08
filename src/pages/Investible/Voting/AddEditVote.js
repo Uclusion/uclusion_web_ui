@@ -27,7 +27,7 @@ import {
   removeComments
 } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { partialUpdateInvestment } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { getMarketUnits, partialUpdateInvestment } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import clsx from 'clsx'
 import { Dialog } from '../../../components/Dialogs'
 import WarningIcon from '@material-ui/icons/Warning'
@@ -36,15 +36,15 @@ import InfoText from '../../../components/Descriptions/InfoText'
 import { urlHelperGetName } from '../../../utils/marketIdPathFunctions'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
+import Autocomplete from '@material-ui/lab/Autocomplete'
 
 const useStyles = makeStyles(
   theme => {
     return {
-      certainty: {},
-      sideByside: {
-        alignItems: "flex-start",
-        display: "flex"
+      sideBySide: {
+        display: 'flex',
       },
+      certainty: {},
       certaintyGroup: {
         display: "flex",
         flexDirection: "row"
@@ -67,6 +67,10 @@ const useStyles = makeStyles(
       },
       maxBudget: {
         display: "block"
+      },
+      maxBudgetUnit: {
+        marginTop: "40px",
+        width: 230
       },
       actions: {
         display: "flex",
@@ -115,22 +119,29 @@ function AddEditVote(props) {
   const intl = useIntl();
   const classes = useStyles();
   const addMode = _.isEmpty(investment) || investment.deleted;
-  const { quantity, max_budget: initialMaxBudget } = investment;
-  const [validForm, setValidForm] = useState(false);
+  const { quantity, max_budget: initialMaxBudget, max_budget_unit: initialMaxBudgetUnit } = investment;
   const initialInvestment = !quantity ? 50 : Math.abs(quantity);
   const [newQuantity, setNewQuantity] = useState(initialInvestment);
   const [maxBudget, setMaxBudget] = useState(initialMaxBudget || '');
+  const [maxBudgetUnit, setMaxBudgetUnit] = useState(initialMaxBudgetUnit || '');
   const { body, id: reasonId } = reason;
   const [reasonText, setReasonText] = useState(body || '');
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
-  const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
+  const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [open, setOpen] = useState(false);
   const warnClearVotes = !allowMultiVote && hasVoted && _.isEmpty(investment);
   const defaultDefaultFunc = (newDefault) => {};
   const [editorDefaultFunc, setEditorDefaultFunc] = useState(() => defaultDefaultFunc);
   const [marketState] = useContext(MarketsContext);
   const [investibleState] = useContext(InvestiblesContext);
+  const myHelperText = storyMaxBudget ?
+    intl.formatMessage({ id: "maxBudgetInputHelperText" }, { x: storyMaxBudget + 1 }) : '';
+  const units = getMarketUnits(marketPresencesState, marketId);
+  const defaultProps = {
+    options: units,
+    getOptionLabel: (option) => option,
+  };
 
   function toggleOpen() {
     setOpen(!open);
@@ -148,20 +159,6 @@ function AddEditVote(props) {
     setReasonText(body || '');
     editorDefaultFunc(body);
   }, [investment, setNewQuantity, setMaxBudget, body, editorDefaultFunc]);
-
-  useEffect(() => {
-    // Long form to prevent flicker
-    if (
-      (showBudget && maxBudget > 0 && maxBudget <= storyMaxBudget) ||
-      !showBudget
-    ) {
-      if (!validForm) {
-        setValidForm(true);
-      }
-    } else if (validForm) {
-      setValidForm(false);
-    }
-  }, [showBudget, maxBudget, validForm, storyMaxBudget]);
 
   const saveEnabled =
     addMode ||
@@ -182,7 +179,8 @@ function AddEditVote(props) {
       newReasonText: reasonText,
       currentReasonId: reasonId,
       reasonNeedsUpdate,
-      maxBudget
+      maxBudget,
+      maxBudgetUnit
     };
     // console.debug(updateInfo);
     return updateInvestment(updateInfo).then(result => {
@@ -224,6 +222,11 @@ function AddEditVote(props) {
   function onBudgetChange(event) {
     const { value } = event.target;
     setMaxBudget(parseInt(value, 10));
+  }
+
+  function onUnitChange(event, value) {
+    console.debug(`Got here unit change with ${value}`);
+    setMaxBudgetUnit(value);
   }
 
   function onEditorChange(body) {
@@ -270,24 +273,32 @@ function AddEditVote(props) {
             </RadioGroup>
           </FormControl>
           {showBudget && (
-            <InfoText textId="agilePlanFormMaxMaxBudgetInputLabel">
-              <TextField
-                className={classes.maxBudget}
-                id="vote-max-budget"
-                label={intl.formatMessage({ id: "maxBudgetInputLabel" })}
-                type="number"
-                variant="filled"
-                onChange={onBudgetChange}
-                value={maxBudget}
-                error={maxBudget > storyMaxBudget}
-                helperText={intl.formatMessage(
-                  {
-                    id: "maxBudgetInputHelperText"
-                  },
-                  { x: storyMaxBudget + 1 }
-                )}
+            <div className={classes.sideBySide}>
+              <InfoText textId="agilePlanFormMaxMaxBudgetInputLabel">
+                <TextField
+                  className={classes.maxBudget}
+                  id="vote-max-budget"
+                  label={intl.formatMessage({ id: "maxBudgetInputLabel" })}
+                  type="number"
+                  variant="filled"
+                  onChange={onBudgetChange}
+                  value={maxBudget}
+                  error={storyMaxBudget > 0 && maxBudget > storyMaxBudget}
+                  helperText={myHelperText}
+                />
+              </InfoText>
+              <Autocomplete
+                {...defaultProps}
+                id="addBudgetUnit"
+                key="budgetUnit"
+                freeSolo
+                renderInput={(params) => <TextField {...params}
+                                                    label={intl.formatMessage({ id: 'addUnit' })}
+                                                    variant="outlined" />}
+                className={classes.maxBudgetUnit}
+                onChange={onUnitChange}
               />
-            </InfoText>
+            </div>
           )}
           <QuillEditor
             marketId={marketId}
@@ -318,7 +329,6 @@ function AddEditVote(props) {
               className={classes.primaryAction}
               marketId={marketId}
               onClick={mySave}
-              disabled={!validForm}
               onSpinStop={onSaveSpinStop}
               hasSpinChecker
             >
@@ -351,7 +361,6 @@ function AddEditVote(props) {
             onClick={mySave}
             hasSpinChecker
             onSpinStop={onSaveSpinStop}
-            disabled={!validForm}
           >
             <FormattedMessage id="issueProceed" />
           </SpinBlockingButton>

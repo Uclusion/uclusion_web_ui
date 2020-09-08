@@ -75,6 +75,7 @@ function PlanningDialogEdit(props) {
       days_estimate != null ? parseInt(days_estimate, 10) : null;
     const votesRequiredInt =
       votes_required != null ? parseInt(votes_required, 10) : null;
+    const maxBudget = max_budget ? parseInt(max_budget, 10) : 0;
     return lockPlanningMarketForEdit(id, true)
       .then(() =>
         updateMarket(
@@ -82,7 +83,7 @@ function PlanningDialogEdit(props) {
           name,
           tokensRemoved,
           filteredUploads,
-          parseInt(max_budget, 10),
+          maxBudget,
           parseInt(investment_expiration, 10),
           daysEstimateInt,
           votesRequiredInt

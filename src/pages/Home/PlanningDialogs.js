@@ -32,7 +32,7 @@ import AssignmentIcon from '@material-ui/icons/Assignment'
 const useStyles = makeStyles((theme) => ({
   paper: {
     textAlign: 'left',
-    minHeight: '200px'
+    minHeight: '250px'
   },
   textData: {
     fontSize: 12,
@@ -65,14 +65,18 @@ const useStyles = makeStyles((theme) => ({
     borderBottom: '1px solid #f2f2f2',
     paddingTop: '1rem',
     paddingBottom: '2rem',
-    marginBottom: '1rem',
+    flex: 2,
+    cursor: 'pointer'
+  },
+  innerContainerMobile: {
+    borderBottom: '1px solid #f2f2f2',
+    paddingTop: '1rem',
     flex: 2,
     cursor: 'pointer'
   },
   bottomContainer: {
     display: 'flex',
     flex: 1,
-    height: '50px'
   },
   draftContainer: {
     height: '50px',
@@ -96,6 +100,7 @@ const useStyles = makeStyles((theme) => ({
   workspaceCommentsIcons: {
     display: 'flex',
     flexDirection: 'column',
+    marginTop: '0.5rem',
     '& > *': {
       marginBottom: theme.spacing(2),
     },
@@ -276,7 +281,7 @@ function PlanningDialogs(props) {
                 </Typography>
             </Link>
               }
-              <div className={classes.innerContainer}
+              <div className={window.outerWidth > 600 ? classes.innerContainer : classes.innerContainerMobile}
                 onClick={(event) => {
                 event.preventDefault();
                 navigate(history, formMarketLink(marketId));}

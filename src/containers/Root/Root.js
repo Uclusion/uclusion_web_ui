@@ -26,7 +26,6 @@ import BillingHome from '../../pages/Payments/BillingHome'
 import { refreshNotifications, refreshVersions } from '../../contexts/VersionsContext/versionsContextHelper'
 import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
 import { isNewUser } from '../../contexts/AccountUserContext/accountUserContextHelper'
-import StoryWorkspaceWizard from '../../components/AddNew/Workspace/StoryWorkspace/StoryWorkspaceWizard'
 import { registerMarketTokenListeners } from '../../authorization/tokenUtils';
 import ECPInvite from '../../pages/Invites/ECPInvite'
 import { getUtm } from '../../utils/redirectUtils'
@@ -74,11 +73,7 @@ function Root() {
   }
 
   function hideOnboarding() {
-    return myAction !== 'onboarding' || utm === 'team';
-  }
-
-  function hideECPOnboarding() {
-    return myAction !== 'onboarding' || utm !== 'team';
+    return myAction !== 'onboarding';
   }
 
   function hideSupport() {
@@ -145,7 +140,7 @@ function Root() {
     && hideDialogArchives() && hideArchvies() && hideInvestibleEdit() && hideInvestibleAdd()
     && hideAddMarket() && hideDialogEdit() && hideDialogManage() && hideMarketInvite()
     && hideSlackInvite() && hideChangePassword() && hideChangeNotification()
-    && hideBillingHome() && hideOnboarding() && hideECPOnboarding());
+    && hideBillingHome() && hideOnboarding());
 
   useEffect(() => {
     function pegView(isEntry) {
@@ -204,8 +199,7 @@ function Root() {
       <div className={classes.body}>
         <div className={classes.root}>
           <div className={classes.content}>
-            <ECPInvite hidden={hideECPOnboarding()} />
-            <StoryWorkspaceWizard hidden={hideOnboarding()} />
+            <ECPInvite hidden={hideOnboarding()} utm={utm} />
             <Home hidden={hideHome()}/>
             <Market hidden={hideMarket()}/>
             <Support hidden={hideSupport()}/>

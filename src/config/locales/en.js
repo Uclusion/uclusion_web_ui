@@ -135,6 +135,7 @@ const messages = defineMessages({
   close: 'Close',
   typeOrChoose: 'Type and hit enter or choose from dropdown',
   addLabel: 'Add label',
+  addUnit: 'Add unit',
   created: 'Created ',
 
   // Share story
@@ -192,7 +193,7 @@ const messages = defineMessages({
   agilePlanFormDaysEstimateLabel: 'Days estimate',
   agilePlanFormDaysEstimatePlaceholder: 'Very rough number of days to complete',
   agilePlanFormInvestmentExpirationLabel: 'approval expiration (in days)',
-  agilePlanFormMaxMaxBudgetInputLabel: 'An estimate for this story using whatever system your team employs.',
+  agilePlanFormMaxMaxBudgetInputLabel: 'A number budget for this story in the chosen unit - hours, days, points, dollars.',
   agilePlanFormSaveLabel: 'Save & Post',
 
   // Market Nav
@@ -220,6 +221,7 @@ const messages = defineMessages({
   certainty25: 'Somewhat Uncertain',
   certainty5: 'Uncertain',
   maxBudgetValue: '{name}: {x}',
+  maxBudgetValueWithUnits: '{name}: {x} {y}',
   certaintyQuestion: 'Rate Your Certainty',
   reasonQuestion: 'Why did you approve for this option?',
   saveVote: 'Approve',
@@ -230,7 +232,7 @@ const messages = defineMessages({
   cancelVote: 'Cancel',
   removeVote: 'Remove approval',
   removeReject: 'Remove rejection',
-  maxBudgetInputLabel: 'estimate',
+  maxBudgetInputLabel: 'budget',
   maxBudgetInputHelperText: 'must be less than {x}',
   draft: 'Draft',
   inactive: 'Inactive',
@@ -501,6 +503,7 @@ const messages = defineMessages({
   decisionDialogExtendDaysLabel: 'Number of days to extend deadline?',
   decisionDialogNoInvestiblesWarning: 'No votable options',
   childDialogExplanation: 'Use if you need collaborators that are not in this workspace.',
+  childDialogPlanningExplanation: 'Reach a decision with collaborators in this workspace.',
   childPlanExplanation: 'Click to create and link in a child workspace relevant to this initiative.',
   decisionAddHelp: 'A Dialog gives you a timed box way to decide with others between options that you control.',
   backToOptionPoolWarning: 'Moving this option back to Proposed Options deletes all approval.',

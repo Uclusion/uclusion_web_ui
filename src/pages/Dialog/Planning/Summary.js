@@ -291,7 +291,7 @@ function Summary(props) {
             key="link"
             icon={<InsertLinkIcon htmlColor={ACTION_BUTTON_COLOR} />}
             openLabel={intl.formatMessage({ id: "planningInvestibleDecision" })}
-            label={intl.formatMessage({ id: "childDialogExplanation" })}
+            label={intl.formatMessage({ id: "childDialogPlanningExplanation" })}
             onClick={() =>
               navigate(history, `/dialogAdd#type=${DECISION_TYPE}&id=${id}`)
             }

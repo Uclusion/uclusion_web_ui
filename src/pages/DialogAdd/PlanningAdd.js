@@ -34,7 +34,7 @@ function PlanningAdd(props) {
   const [investmentExpiration, setInvestmentExpiration] = useState(
     storedExpiration || 14
   );
-  const [maxBudget, setMaxBudget] = useState(storedBudget || 14);
+  const [maxBudget, setMaxBudget] = useState(storedBudget);
   const [daysEstimate, setDaysEstimate] = useState(storedDaysEstimate);
   const [votesRequired, setVotesRequired] = useState(storedVotesRequired || 0);
   const [uploadedFiles, setUploadedFiles] = useState([]);

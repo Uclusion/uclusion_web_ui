@@ -57,7 +57,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function ECPInvite(props) {
-  const { hidden } = props;
+  const { hidden, utm } = props;
   const intl = useIntl();
   const history = useHistory();
   const [, marketsDispatch] = useContext(MarketsContext);
@@ -68,7 +68,9 @@ function ECPInvite(props) {
   const { user } = userState;
   const { name } = user || {};
   const classes = useStyles();
-
+  // TODO - Don't have a video specific to angencies yet
+  const storyLevelVideo = utm === 'founders' ? 'https://www.youtube.com/embed/3t7uzNGUxFk?showinfo=0'
+    : 'https://www.youtube.com/embed/v5QdMpnNr2M?showinfo=0';
   useEffect(() => {
     function createECPMarket(myName) {
       let createdMarketId;
@@ -106,7 +108,7 @@ function ECPInvite(props) {
             const storyAddInfo = {
               marketId: createdMarketId,
               name: intl.formatMessage({ id: 'ecpUclusionStoryName' }),
-              description: '<p>See <iframe allowfullscreen="true" class="ql-video" frameborder="0" src="https://www.youtube.com/embed/v5QdMpnNr2M?showinfo=0"></iframe> for an explanation of how to use Uclusion. You can ask questions in this story.</p>',
+              description: `<p>See <iframe allowfullscreen="true" class="ql-video" frameborder="0" src="${storyLevelVideo}"></iframe> for an explanation of how to use Uclusion. You can ask questions in this story.</p>`,
               assignments: [uclusionUser.id],
             };
             return addPlanningInvestible(storyAddInfo);
@@ -126,7 +128,7 @@ function ECPInvite(props) {
               const storyAddInfo = {
                 marketId: createdMarketId,
                 name: intl.formatMessage({ id: 'ecpToolsStoryName' }),
-                description: '<p>Edit this story to list the tools you use for team communications and project management and some information about how you use them.</p>',
+                description: '<p>Edit this story to list the tools you use for asynchronous communications and project management and some information about how you use them.</p>',
                 assignments: [myUserId],
               };
               return addPlanningInvestible(storyAddInfo);
@@ -166,7 +168,8 @@ function ECPInvite(props) {
           toastError('errorMarketFetchFailed');
         });
     }
-  }, [name, hidden, history, marketsDispatch, intl, diffDispatch, presenceDispatch, investiblesDispatch]);
+  }, [name, hidden, history, marketsDispatch, intl, diffDispatch, presenceDispatch, investiblesDispatch,
+    storyLevelVideo]);
 
   if (hidden) {
     return <React.Fragment/>
@@ -198,6 +201,7 @@ function ECPInvite(props) {
 
 ECPInvite.propTypes = {
   hidden: PropTypes.bool,
+  utm: PropTypes.string.isRequired,
 };
 
 ECPInvite.defaultProps = {

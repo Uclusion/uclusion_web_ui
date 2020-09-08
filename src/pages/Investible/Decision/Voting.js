@@ -70,13 +70,13 @@ function Voting(props) {
           quantity,
           investible_id: invId,
           max_budget: maxBudget,
-          max_budget_units: maxBudgetUnits,
+          max_budget_unit: maxBudgetUnit,
           updated_at: updatedAt,
           deleted
         } = investment;
         // // console.debug(investment);
         if (investibleId === invId && !deleted) {
-          acc.push({ name, userId: id, quantity, maxBudget, maxBudgetUnits, updatedAt });
+          acc.push({ name, userId: id, quantity, maxBudget, maxBudgetUnit, updatedAt });
         }
       });
     });
@@ -101,7 +101,7 @@ function Voting(props) {
   return (
     <ol className={classes.root}>
       {sortedVoters.map(voter => {
-        const { name, userId, quantity, maxBudget, maxBudgetUnits, updatedAt } = voter;
+        const { name, userId, quantity, maxBudget, maxBudgetUnit, updatedAt } = voter;
         const reason = getVoterReason(userId);
         const voteId = `cv${userId}`;
 
@@ -131,10 +131,10 @@ function Voting(props) {
             )}
             <CardContent className={classes.cardContent}>
               <Typography className={classes.voter} component="strong">
-                {maxBudget > 0 && !maxBudgetUnits && intl.formatMessage({id: 'maxBudgetValue'},
+                {maxBudget > 0 && !maxBudgetUnit && intl.formatMessage({id: 'maxBudgetValue'},
                   { x: maxBudget, name})}
-                {maxBudget > 0 && maxBudgetUnits && intl.formatMessage({id: 'maxBudgetValueWithUnits'},
-                  { x: maxBudget, y: maxBudgetUnits, name})}
+                {maxBudget > 0 && maxBudgetUnit && intl.formatMessage({id: 'maxBudgetValueWithUnits'},
+                  { x: maxBudget, y: maxBudgetUnit, name})}
                 {(!maxBudget > 0) && name}
               </Typography>
               {reason && <ReadOnlyQuillEditor value={reason.body} />}

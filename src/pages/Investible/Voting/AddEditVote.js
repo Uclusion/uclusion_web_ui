@@ -295,8 +295,9 @@ function AddEditVote(props) {
                 renderInput={(params) => <TextField {...params}
                                                     label={intl.formatMessage({ id: 'addUnit' })}
                                                     variant="outlined" />}
+                defaultValue={maxBudgetUnit}
                 className={classes.maxBudgetUnit}
-                onChange={onUnitChange}
+                onInputChange={onUnitChange}
               />
             </div>
           )}

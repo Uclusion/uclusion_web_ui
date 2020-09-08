@@ -73,6 +73,7 @@ function doPatchInvestment(state, action) {
     market_id,
     quantity,
     max_budget,
+    max_budget_unit,
     user_id,
     investible_id,
   } = investmentPatch;
@@ -88,7 +89,8 @@ function doPatchInvestment(state, action) {
     ...oldInvestment,
     investible_id,
     quantity,
-    max_budget
+    max_budget,
+    max_budget_unit
   };
   const newInvestments = allowMultiVote ?  _.unionBy([newInvestment], investments, 'investible_id') : [newInvestment];
   const newPresence = {

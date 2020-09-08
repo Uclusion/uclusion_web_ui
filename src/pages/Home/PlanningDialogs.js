@@ -32,7 +32,7 @@ import AssignmentIcon from '@material-ui/icons/Assignment'
 const useStyles = makeStyles((theme) => ({
   paper: {
     textAlign: 'left',
-    minHeight: '200px'
+    minHeight: '250px'
   },
   textData: {
     fontSize: 12,

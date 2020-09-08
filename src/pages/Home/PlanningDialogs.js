@@ -77,7 +77,6 @@ const useStyles = makeStyles((theme) => ({
   bottomContainer: {
     display: 'flex',
     flex: 1,
-    height: '60px'
   },
   draftContainer: {
     height: '50px',

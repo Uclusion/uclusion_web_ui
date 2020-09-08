@@ -501,7 +501,7 @@ const messages = defineMessages({
   decisionDialogExtendDaysLabel: 'Number of days to extend deadline?',
   decisionDialogNoInvestiblesWarning: 'No votable options',
   childDialogExplanation: 'Use if you need collaborators that are not in this workspace.',
-  childDialogPlanningExplanation: 'Reach a decision with collaborators in this workspace',
+  childDialogPlanningExplanation: 'Reach a decision with collaborators in this workspace.',
   childPlanExplanation: 'Click to create and link in a child workspace relevant to this initiative.',
   decisionAddHelp: 'A Dialog gives you a timed box way to decide with others between options that you control.',
   backToOptionPoolWarning: 'Moving this option back to Proposed Options deletes all approval.',

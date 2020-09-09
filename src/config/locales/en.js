@@ -137,6 +137,10 @@ const messages = defineMessages({
   addLabel: 'Add label',
   addUnit: 'unit',
   created: 'Created ',
+  hours: 'hours',
+  days: 'days',
+  points: 'points',
+  currency: 'dollars',
 
   // Share story
   shareButtonExplanation: 'Share a read only link',

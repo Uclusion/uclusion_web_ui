@@ -5,9 +5,10 @@ export function addPresenceToMarket(dispatch, marketId, presence) {
   dispatch(addMarketPresence(marketId, presence));
 }
 
-export function getMarketUnits(state, marketId) {
+export function getMarketUnits(state, marketId, intl) {
   const presences = getMarketPresences(state, marketId);
-  let units = [];
+  let units = [intl.formatMessage({ id: "hours" }), intl.formatMessage({ id: "days" }),
+    intl.formatMessage({ id: "points" }), intl.formatMessage({ id: "currency" })];
   (presences || []).forEach((presence) => {
     const { investments } = presence;
     (investments || []).forEach((investment) => {

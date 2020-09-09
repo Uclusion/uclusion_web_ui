@@ -32,7 +32,6 @@ import clsx from 'clsx'
 import { Dialog } from '../../../components/Dialogs'
 import WarningIcon from '@material-ui/icons/Warning'
 import { useLockedDialogStyles } from '../../Dialog/DialogEdit'
-import InfoText from '../../../components/Descriptions/InfoText'
 import { urlHelperGetName } from '../../../utils/marketIdPathFunctions'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
@@ -43,6 +42,11 @@ const useStyles = makeStyles(
     return {
       sideBySide: {
         display: 'flex',
+        paddingBottom: '5px',
+      },
+      overTop: {
+        display: 'flex',
+        paddingBottom: '3px',
       },
       certainty: {},
       certaintyGroup: {
@@ -69,7 +73,6 @@ const useStyles = makeStyles(
         display: "block"
       },
       maxBudgetUnit: {
-        marginTop: "40px",
         width: 230
       },
       actions: {
@@ -138,12 +141,11 @@ function AddEditVote(props) {
   const myHelperText = storyMaxBudget ?
     intl.formatMessage({ id: "maxBudgetInputHelperText" }, { x: storyMaxBudget + 1 }) : '';
   const units = getMarketUnits(marketPresencesState, marketId);
-  console.debug(units);
   const defaultProps = {
     options: units,
     getOptionLabel: (option) => option,
   };
-
+  //TODO - put in default units
   function toggleOpen() {
     setOpen(!open);
   }
@@ -273,8 +275,11 @@ function AddEditVote(props) {
             </RadioGroup>
           </FormControl>
           {showBudget && (
-            <div className={classes.sideBySide}>
-              <InfoText textId="agilePlanFormMaxMaxBudgetInputLabel">
+            <>
+              <div className={classes.overTop}>
+                <FormattedMessage id="agilePlanFormMaxMaxBudgetInputLabel" />
+              </div>
+              <div className={classes.sideBySide}>
                 <TextField
                   className={classes.maxBudget}
                   id="vote-max-budget"
@@ -286,20 +291,20 @@ function AddEditVote(props) {
                   error={storyMaxBudget > 0 && maxBudget > storyMaxBudget}
                   helperText={myHelperText}
                 />
-              </InfoText>
-              <Autocomplete
-                {...defaultProps}
-                id="addBudgetUnit"
-                key="budgetUnit"
-                freeSolo
-                renderInput={(params) => <TextField {...params}
-                                                    label={intl.formatMessage({ id: 'addUnit' })}
-                                                    variant="outlined" />}
-                value={maxBudgetUnit}
-                className={classes.maxBudgetUnit}
-                onInputChange={onUnitChange}
-              />
-            </div>
+                <Autocomplete
+                  {...defaultProps}
+                  id="addBudgetUnit"
+                  key="budgetUnit"
+                  freeSolo
+                  renderInput={(params) => <TextField {...params}
+                                                      label={intl.formatMessage({ id: 'addUnit' })}
+                                                      variant="outlined" />}
+                  value={maxBudgetUnit}
+                  className={classes.maxBudgetUnit}
+                  onInputChange={onUnitChange}
+                />
+              </div>
+            </>
           )}
           <QuillEditor
             marketId={marketId}

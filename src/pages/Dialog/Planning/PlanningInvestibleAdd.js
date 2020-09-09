@@ -79,6 +79,7 @@ function PlanningInvestibleAdd(props) {
   const isAssigned = (assignments || []).includes(myPresence.id);
   const [quantity, setQuantity] = useState(50);
   const [maxBudget, setMaxBudget] = useState('');
+  const [maxBudgetUnit, setMaxBudgetUnit] = useState('');
   const [reason, setReason] = useState('');
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
@@ -92,15 +93,14 @@ function PlanningInvestibleAdd(props) {
 
   useEffect(() => {
     // Long form to prevent flicker
-    if (name && !_.isEmpty(assignments) && (isAssigned ||
-      (maxBudget > 0 && maxBudget <= storyMaxBudget))) {
+    if (name && !_.isEmpty(assignments)) {
       if (!validForm) {
         setValidForm(true);
       }
     } else if (validForm) {
       setValidForm(false);
     }
-  }, [name, assignments, validForm, isAssigned, maxBudget, storyMaxBudget]);
+  }, [name, assignments, validForm]);
 
   const itemKey = `add_investible_${marketId}`;
   function handleDraftState(newDraftState) {
@@ -128,6 +128,10 @@ function PlanningInvestibleAdd(props) {
     } else {
       setMaxBudget('');
     }
+  }
+
+  function onUnitChange(event, value) {
+    setMaxBudgetUnit(value);
   }
 
   function onReasonChange(body) {
@@ -209,7 +213,8 @@ function PlanningInvestibleAdd(props) {
         currentQuantity: 0,
         newReasonText: reason,
         reasonNeedsUpdate: !_.isEmpty(reason),
-        maxBudget
+        maxBudget,
+        maxBudgetUnit
       };
       return updateInvestment(updateInfo).then(result => {
         const { commentResult, investmentResult } = result;
@@ -278,7 +283,9 @@ function PlanningInvestibleAdd(props) {
             onChange={onQuantityChange}
             onEditorChange={onReasonChange}
             newQuantity={quantity}
+            onUnitChange={onUnitChange}
             maxBudget={maxBudget}
+            maxBudgetUnit={maxBudgetUnit}
             body={reason}
           />
         )}

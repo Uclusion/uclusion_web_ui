@@ -13,14 +13,26 @@ import {
   TextField
 } from '@material-ui/core'
 import QuillEditor from '../../../components/TextEditors/QuillEditor'
-import InfoText from '../../../components/Descriptions/InfoText'
 import { urlHelperGetName } from '../../../utils/marketIdPathFunctions'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
+import Autocomplete from '@material-ui/lab/Autocomplete'
+import { getMarketUnits } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 
 const useStyles = makeStyles(
   theme => {
     return {
+      sideBySide: {
+        display: 'flex',
+      },
+      overTop: {
+        display: 'flex',
+        paddingBottom: '3px',
+      },
+      maxBudgetUnit: {
+        width: 230
+      },
       certainty: {},
       cardContent: {
         padding: theme.spacing(6),
@@ -80,15 +92,24 @@ function AddInitialVote(props) {
     onEditorChange,
     onBudgetChange,
     onChange,
+    onUnitChange,
     newQuantity,
     maxBudget,
+    maxBudgetUnit,
     body,
   } = props;
   const intl = useIntl();
   const classes = useStyles();
   const [marketState] = useContext(MarketsContext);
   const [investibleState] = useContext(InvestiblesContext);
-
+  const [marketPresencesState] = useContext(MarketPresencesContext);
+  const myHelperText = storyMaxBudget ?
+    intl.formatMessage({ id: "maxBudgetInputHelperText" }, { x: storyMaxBudget + 1 }) : '';
+  const units = getMarketUnits(marketPresencesState, marketId);
+  const defaultProps = {
+    options: units,
+    getOptionLabel: (option) => option,
+  };
   return (
     <Card elevation={0}>
       <CardContent className={classes.cardContent}>
@@ -125,7 +146,10 @@ function AddInitialVote(props) {
             })}
           </RadioGroup>
         </FormControl>
-        <InfoText textId="agilePlanFormMaxMaxBudgetInputLabel">
+        <div className={classes.overTop}>
+          <FormattedMessage id="agilePlanFormMaxMaxBudgetInputLabel" />
+        </div>
+        <div className={classes.sideBySide}>
           <TextField
             className={classes.maxBudget}
             id="vote-max-budget"
@@ -134,15 +158,22 @@ function AddInitialVote(props) {
             variant="filled"
             onChange={onBudgetChange}
             value={maxBudget}
-            error={maxBudget > storyMaxBudget}
-            helperText={intl.formatMessage(
-              {
-                id: "maxBudgetInputHelperText"
-              },
-              { x: storyMaxBudget + 1 }
-            )}
+            error={storyMaxBudget > 0 && maxBudget > storyMaxBudget}
+            helperText={myHelperText}
           />
-        </InfoText>
+          <Autocomplete
+            {...defaultProps}
+            id="addBudgetUnit"
+            key="budgetUnit"
+            freeSolo
+            renderInput={(params) => <TextField {...params}
+                                                label={intl.formatMessage({ id: 'addUnit' })}
+                                                variant="outlined" />}
+            value={maxBudgetUnit}
+            className={classes.maxBudgetUnit}
+            onInputChange={onUnitChange}
+          />
+        </div>
         <QuillEditor
           marketId={marketId}
           placeholder={intl.formatMessage({ id: "yourReason" })}
@@ -162,8 +193,10 @@ AddInitialVote.propTypes = {
   onEditorChange: PropTypes.func.isRequired,
   onBudgetChange: PropTypes.func.isRequired,
   onChange: PropTypes.func.isRequired,
+  onUnitChange: PropTypes.func.isRequired,
   newQuantity: PropTypes.number,
   maxBudget: PropTypes.any,
+  maxBudgetUnit: PropTypes.any,
   body: PropTypes.string
 };
 

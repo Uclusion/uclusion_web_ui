@@ -135,7 +135,7 @@ const messages = defineMessages({
   close: 'Close',
   typeOrChoose: 'Type and hit enter or choose from dropdown',
   addLabel: 'Add label',
-  addUnit: 'Add unit',
+  addUnit: 'unit',
   created: 'Created ',
 
   // Share story
@@ -193,7 +193,7 @@ const messages = defineMessages({
   agilePlanFormDaysEstimateLabel: 'Days estimate',
   agilePlanFormDaysEstimatePlaceholder: 'Very rough number of days to complete',
   agilePlanFormInvestmentExpirationLabel: 'approval expiration (in days)',
-  agilePlanFormMaxMaxBudgetInputLabel: 'A number budget for this story in the chosen unit - hours, days, points, dollars.',
+  agilePlanFormMaxMaxBudgetInputLabel: 'Optionally enter a budget number for this story and then enter your own unit or choose from the drop down.',
   agilePlanFormSaveLabel: 'Save & Post',
 
   // Market Nav

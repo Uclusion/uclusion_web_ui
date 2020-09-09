@@ -138,6 +138,7 @@ function AddEditVote(props) {
   const myHelperText = storyMaxBudget ?
     intl.formatMessage({ id: "maxBudgetInputHelperText" }, { x: storyMaxBudget + 1 }) : '';
   const units = getMarketUnits(marketPresencesState, marketId);
+  console.debug(units);
   const defaultProps = {
     options: units,
     getOptionLabel: (option) => option,
@@ -225,7 +226,6 @@ function AddEditVote(props) {
   }
 
   function onUnitChange(event, value) {
-    console.debug(`Got here unit change with ${value}`);
     setMaxBudgetUnit(value);
   }
 
@@ -295,7 +295,7 @@ function AddEditVote(props) {
                 renderInput={(params) => <TextField {...params}
                                                     label={intl.formatMessage({ id: 'addUnit' })}
                                                     variant="outlined" />}
-                defaultValue={maxBudgetUnit}
+                value={maxBudgetUnit}
                 className={classes.maxBudgetUnit}
                 onInputChange={onUnitChange}
               />

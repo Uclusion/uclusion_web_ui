@@ -21,15 +21,12 @@ export function extractUsersList (marketPresencesState, addToMarketId, workspace
       return {};
     }
     const macc = {};
-    let included = true;
-    if (!_.isEmpty(workspaces)) {
-      included = false;
-      workspaces.forEach((workspace) => {
-        if (marketId === workspace.id) {
-          included = true;
-        }
-      })
-    }
+    let included = false;
+    (workspaces || []).forEach((workspace) => {
+      if (marketId === workspace.id) {
+        included = true;
+      }
+    })
     if (included) {
       marketPresences.forEach((presence) => {
         const {

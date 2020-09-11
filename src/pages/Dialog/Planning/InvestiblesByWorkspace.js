@@ -50,7 +50,7 @@ function InvestiblesByWorkspace(props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [chosenPerson, setChosenPerson] = React.useState(undefined);
-
+  const activeWorkspaces = (workspaces || []).filter((market) => market.market_stage === ACTIVE_STAGE);
   function handleClick(event) {
     setAnchorEl(event.currentTarget);
   }
@@ -73,7 +73,7 @@ function InvestiblesByWorkspace(props) {
       }}>{itemName}</MenuItem>
     );
   }
-  const people = Object.entries(extractUsersList(marketPresencesState, undefined, workspaces, false));
+  const people = Object.entries(extractUsersList(marketPresencesState, undefined, activeWorkspaces, false));
   const sortedPeople = _.sortBy(people, [function(o) {
     const {
       current_user: currentUser
@@ -103,7 +103,7 @@ function InvestiblesByWorkspace(props) {
           {peopleChoices}
         </Menu>
       </div>
-      {workspaces.map(market => {
+      {activeWorkspaces.map(market => {
         const marketPresences = getMarketPresences(marketPresencesState, market.id);
         const myPresence = marketPresences && marketPresences.find((presence) => {
           return chosenPerson ? presence.external_id === chosenPerson.external_id : presence.current_user;

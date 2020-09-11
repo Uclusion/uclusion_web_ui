@@ -22,7 +22,6 @@ export function createMyDialog (dispatchers, formData, updateFormData) {
     dialogOptions,
     dialogExpiration,
     addOptionsSkipped,
-    marketId,
   } = formData;
   const marketDescription = dialogReason === undefined ? ' ' : dialogReason;
   const marketInfo = {
@@ -42,8 +41,8 @@ export function createMyDialog (dispatchers, formData, updateFormData) {
       } = marketDetails;
       createdMarketId = market.id;
       addMarketToStorage(marketsDispatch, diffDispatch, market);
-      pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, marketId, stages });
-      addPresenceToMarket(presenceDispatch, marketId, presence);
+      pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, createdMarketId, stages });
+      addPresenceToMarket(presenceDispatch, createdMarketId, presence);
       createdStage = stages.find((stage) => !stage.allows_investment);
       inVotingStage = stages.find((stage) => stage.allows_investment);
       if (addOptionsSkipped) {

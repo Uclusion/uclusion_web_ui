@@ -79,7 +79,10 @@ export function addMarket(result, marketDispatch, diffDispatch, presenceDispatch
  * @param marketDetails
  * @param fromNetwork whether this is from versios or quick add
  */
-export function addMarketToStorage(dispatch, diffDispatch, marketDetails, fromNetwork){
+export function addMarketToStorage(dispatch, diffDispatch, marketDetails, fromNetwork) {
+  if (!marketDetails.currentUserId) {
+    marketDetails.currentUserId = marketDetails.current_user_id;
+  }
   const fixed = fixupItemForStorage(marketDetails);
   if (diffDispatch) {
     diffDispatch(addContents([fixed]));

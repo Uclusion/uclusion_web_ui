@@ -184,6 +184,7 @@ const useStageClasses = makeStyles(
 
 function Stage(props) {
   const {
+    fallbackOnClick,
     comments,
     fallbackWarning,
     id,
@@ -212,10 +213,13 @@ function Stage(props) {
   const classes = useStageClasses(props);
 
   if (fallbackWarning !== undefined && stageInvestibles.length === 0) {
+    const style = fallbackOnClick? { cursor: 'pointer' } : {}
     return (
-      <dd className={clsx(classes.root, classes.fallback)}>
-        {fallbackWarning}
-      </dd>
+      <div onClick={fallbackOnClick? fallbackOnClick: () => {}} style={style}>
+        <dd className={clsx(classes.root, classes.fallback)}>
+          {fallbackWarning}
+        </dd>
+      </div>
     );
   }
 
@@ -251,8 +255,10 @@ function Stage(props) {
 Stage.propTypes = {
   id: PropTypes.string.isRequired,
   investibles: PropTypes.array.isRequired,
-  marketId: PropTypes.string.isRequired
+  marketId: PropTypes.string.isRequired,
+  fallbackOnClick: PropTypes.func,
 };
+
 
 const useVotingStageClasses = makeStyles(
   theme => {
@@ -283,6 +289,7 @@ function VotingStage(props) {
   }
 
   return (
+
     <Stage
       classes={classes}
       fallbackWarning={
@@ -301,6 +308,7 @@ function VotingStage(props) {
       marketId={marketId}
       comments={comments}
       isVoting
+      fallbackOnClick={onClick}
       marketPresences={marketPresences}
       updatedText={intl.formatMessage({
         id: "inDialogInvestiblesUpdatedAt"

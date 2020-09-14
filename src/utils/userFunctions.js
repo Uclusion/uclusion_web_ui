@@ -27,7 +27,7 @@ export function extractUsersList (marketPresencesState, addToMarketId, workspace
         included = true;
       }
     })
-    if (included) {
+    if (included || includeNotFollowing) {
       marketPresences.forEach((presence) => {
         const {
           id: user_id, name, account_id, external_id, email, market_banned: banned, current_user, following

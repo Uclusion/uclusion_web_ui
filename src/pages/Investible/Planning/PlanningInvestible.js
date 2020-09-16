@@ -569,7 +569,7 @@ function PlanningInvestible(props) {
   const proposed = getInlineInvestiblesForStage(proposedStage);
   const inlineInvestibleComments = getMarketComments(commentsState, inlineMarketId);
   const yourPresence = marketPresences.find((presence) => presence.current_user);
-  const yourVote = yourPresence && yourPresence.investments.find((investment) => investment.investible_id === investibleId);
+  const yourVote = yourPresence && yourPresence.investments && yourPresence.investments.find((investment) => investment.investible_id === investibleId);
   const todoWarning = isInVoting ? null : fullStage.allows_todos ? 'todoWarningPlanning' : 'todoWarningDone'
   function toggleAssign() {
     navigate(history, `${formInvestibleEditLink(marketId, investibleId)}#assign=true`);

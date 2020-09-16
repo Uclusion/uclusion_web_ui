@@ -900,6 +900,7 @@ const messages = defineMessages({
   AddOptionWizardOptionDescriptionStepLabel: 'Option Description',
   AddOptionWizardOptionNamePlaceHolder: 'Your option\'s name',
   AddOptionWizardOptionDescriptionPlaceHolder: 'Your option\'s description',
+  AddOptionWizardCancelOption: 'Cancel New Option',
 
   //InitiativeWizard
   InitiativeWizardTitle: 'Your Initiative',

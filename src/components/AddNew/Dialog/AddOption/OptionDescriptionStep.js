@@ -58,9 +58,11 @@ function OptionDescriptionStep (props) {
           getUrlName={urlHelperGetName(marketState, investibleState)}
         />
         <div className={classes.borderBottom}/>
-        <StepButtons {...props}
-                     onPrevious={onStepChange}
-                     onNext={onStepChange}
+        <StepButtons
+          {...props}
+          startOverLabel="AddOptionWizardCancelOption"
+          onPrevious={onStepChange}
+          onNext={onStepChange}
         />
       </div>
     </WizardStepContainer>

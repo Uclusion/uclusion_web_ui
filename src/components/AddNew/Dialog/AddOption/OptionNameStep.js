@@ -41,7 +41,7 @@ function OptionNameStep (props) {
           onChange={onNameChange}
         />
         <div className={classes.borderBottom}></div>
-        <StepButtons {...props} validForm={validForm}/>
+        <StepButtons {...props} startOverLabel="AddOptionWizardCancelOption" validForm={validForm}/>
       </div>
     </WizardStepContainer>
   );

@@ -861,6 +861,8 @@ const messages = defineMessages({
   ReqWorkspaceWizardTodoStepLabel: 'What\'s still TODO?',
   ReqWorkspaceWizardTodoPlaceholder: 'Things TODO',
   ReqWorkspaceWizardCreatingworkspaceStepLabel: 'Creating Workspace',
+  ReqWorkspaceNameStepIntro: 'Great! We\'re creating a structured environment for group editing and discussion.',
+  ReqWorkspaceNameStepHelp: 'Your Workspace\'s name could be the name of a project, the name of your team or anything else you want to sync on.',
 
   //StoryWorkspaceWizard
   WorkspaceWizardTitle: 'Your Workspace',
@@ -871,7 +873,7 @@ const messages = defineMessages({
   WorkspaceWizardTakeMeToWorkspace: 'I\'ve shared the link, take me to my Workspace',
 
   //SignupWizard
-  SignupWizardTitle: 'What do you want to do?',
+  SignupWizardTitle: 'What do you want to create?',
   SignupWizardWelcome: 'Welcome to Uclusion!',
   SignupWizardQuestion: 'What do you want to do?',
   SignupWizardRequirementsWorkspace: 'Workspace to document project requirements or team topics',
@@ -909,6 +911,9 @@ const messages = defineMessages({
   InitiativeWizardInitiativeExpirationStepLabel: 'How long can you wait?',
   InitiativeWizardInitiativeExpirationPlaceHolder: 'Days you can wait',
   InitiativeWizardTakeMeToInitiative: 'I\'ve shared the link, take me to my Initiative',
+
+  // StepHeaders
+  StepHeadersStepCount: 'Step {currentStep} of {totalSteps}'
 
 });
 

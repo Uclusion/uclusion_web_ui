@@ -125,13 +125,14 @@ DialogActions.propTypes = {
   initiativeId: PropTypes.string,
   isAdmin: PropTypes.bool,
   isFollowing: PropTypes.bool,
-  isGuest: PropTypes.bool.isRequired,
+  isGuest: PropTypes.bool,
 };
 
 DialogActions.defaultProps = {
   isAdmin: false,
   isFollowing: true,
   initiativeId: '',
+  isGuest: false,
 };
 
 export default DialogActions;

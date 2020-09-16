@@ -21,7 +21,7 @@ import { formMarketManageLink, navigate } from '../../utils/marketIdPathFunction
 import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions'
 import DismissableText from '../../components/Notifications/DismissableText'
 import { getAndClearRedirect, redirectToPath } from '../../utils/redirectUtils'
-import AddNewWizard from '../../components/AddNew/AddNewWizard'
+import WizardSelector from '../../components/AddNew/WizardSelector'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 
 const useStyles = makeStyles(() => ({
@@ -121,7 +121,7 @@ function Home(props) {
       loading={loading}
       sidebarActions={ACTIONBAR_ACTIONS}
     >
-      <AddNewWizard
+      <WizardSelector
         hidden={!wizardActive}
         onFinish={onWizardFinish}
         onCancel={() => setWizardActive(false)} />

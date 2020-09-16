@@ -1,45 +1,28 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-import WorkspaceNameStep from './WorkspaceNameStep'
-import CreationWizard from '../../CreationWizard'
-import { useIntl } from 'react-intl'
-import InitialRequirementsStep from './InitialRequirementsStep'
-import TodoStep from './TodoStep'
+import React from 'react';
+import PropTypes from 'prop-types';
+import WorkspaceNameStep from './WorkspaceNameStep';
+import FormdataWizard from 'react-formdata-wizard';
+import InitialRequirementsStep from './InitialRequirementsStep';
+import TodoStep from './TodoStep';
+import { WizardStylesProvider } from '../../WizardStylesContext';
 
 function RequirementsWorkspaceWizard (props) {
-  const { hidden, onStartOver, isHome, onFinish } = props;
-  const intl = useIntl();
-
-  const stepPrototypes = [
-    {
-      label: 'ReqWorkspaceWizardNameStepLabel',
-      content: <WorkspaceNameStep />,
-    },
-    {
-      label: 'ReqWorkspaceWizardRequirementsStepLabel',
-      content: <InitialRequirementsStep/>,
-    },
-    {
-      label: 'ReqWorkspaceWizardTodoStepLabel',
-      content: <TodoStep/>,
-    },
-
-  ];
-
+  const { onStartOver, onFinish } = props;
   return (
-    <CreationWizard
-      title={intl.formatMessage({ id: 'WorkspaceWizardTitle' })}
-      hidden={hidden}
-      isHome={isHome}
-      onFinish={onFinish}
-      onStartOver={onStartOver}
-      stepPrototypes={stepPrototypes}
-    />
+    <WizardStylesProvider>
+      <FormdataWizard name="requirements_workspace_wizard"
+                      onFinish={onFinish}
+                      onStartOver={onStartOver}
+      >
+        <WorkspaceNameStep/>
+        <InitialRequirementsStep/>
+        <TodoStep/>
+      </FormdataWizard>
+    </WizardStylesProvider>
   );
 }
 
 RequirementsWorkspaceWizard.propTypes = {
-  hidden: PropTypes.bool.isRequired,
   onStartOver: PropTypes.func,
   isHome: PropTypes.bool,
   onFinish: PropTypes.func,

@@ -10039,6 +10039,9 @@ react-floater@^0.7.2:
     react-proptype-conditional-require "^1.0.4"
     tree-changes "^0.5.1"
 
+"react-formdata-wizard@file:../react-formdata-wizard":
+  version "0.0.1"
+
 react-helmet@^6.0.0:
   version "6.0.0"
   resolved "https://registry.yarnpkg.com/react-helmet/-/react-helmet-6.0.0.tgz#fcb93ebaca3ba562a686eb2f1f9d46093d83b5f8"

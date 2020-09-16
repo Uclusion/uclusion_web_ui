@@ -1,46 +1,51 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-import { TextField, Typography } from '@material-ui/core'
-import { useIntl } from 'react-intl'
-import _ from 'lodash'
-import StepButtons from '../../StepButtons'
-import { updateValues } from '../../wizardReducer'
+import React, { useContext } from 'react';
+import PropTypes from 'prop-types';
+import { TextField, Typography } from '@material-ui/core';
+import { useIntl } from 'react-intl';
+import _ from 'lodash';
+import StepButtons from '../../StepButtons';
+import WizardStepContainer from '../../WizardStepContainer';
+import { WizardStylesContext } from '../../WizardStylesContext';
 
 function WorkspaceNameStep (props) {
-  const { updateFormData, formData, active, classes } = props;
+  const { updateFormData, formData } = props;
+  const classes = useContext(WizardStylesContext);
   const intl = useIntl();
   const value = formData.workspaceName || '';
   const validForm = !_.isEmpty(value);
+  const titleId = 'ReqWorkspaceWizardNameStepLabel';
 
   function onNameChange (event) {
     const { value } = event.target;
-    updateFormData(updateValues({
+    updateFormData({
       workspaceName: value
-    }));
-  }
-
-  if (!active) {
-    return React.Fragment;
+    });
   }
 
   return (
-    <div>
-      <Typography className={classes.introText} variant="body2">
-        Great! We're creating a structured environment for group editing and discussion.
-      </Typography>
-      <Typography className={classes.introText} variant="body2">
-        Your Workspace's name could be the name of a project, the name of your team or anything else you want to sync on.
-      </Typography>
-      <label className={classes.inputLabel} htmlFor="name">{intl.formatMessage({ id: 'WorkspaceWizardMeetingPlaceHolder' })}</label>
-      <TextField
-        id="name"
-        className={classes.input}
-        value={value}
-        onChange={onNameChange}
-      />
-      <div className={classes.borderBottom}></div>
-      <StepButtons {...props} validForm={validForm}/>
-    </div>
+    <WizardStepContainer
+      titleId={titleId}
+      {...props}
+    >
+      <div>
+        <Typography className={classes.introText} variant="body2">
+          {intl.formatMessage({ id: 'ReqWorkspaceNameStepIntro' })}
+        </Typography>
+        <Typography className={classes.introText} variant="body2">
+          {intl.formatMessage({ id: 'ReqWorkspaceNameStepHelp' })}
+        </Typography>
+        <label className={classes.inputLabel}
+               htmlFor="name">{intl.formatMessage({ id: 'WorkspaceWizardMeetingPlaceHolder' })}</label>
+        <TextField
+          id="name"
+          className={classes.input}
+          value={value}
+          onChange={onNameChange}
+        />
+        <div className={classes.borderBottom}></div>
+        <StepButtons {...props} validForm={validForm}/>
+      </div>
+    </WizardStepContainer>
   );
 }
 

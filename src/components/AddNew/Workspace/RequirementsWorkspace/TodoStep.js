@@ -123,12 +123,10 @@ function TodoStep (props) {
 TodoStep.propTypes = {
   updateFormData: PropTypes.func.isRequired,
   formData: PropTypes.object.isRequired,
-  active: PropTypes.bool.isRequired,
 };
 
 TodoStep.defaultProps = {
   updateFormData: () => {},
   formData: {},
-  active: false,
 };
 export default TodoStep;

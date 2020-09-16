@@ -4,7 +4,6 @@ import { PUSH_STAGE_CHANNEL, VERSIONS_EVENT } from '../../../contexts/VersionsCo
 import { addPresenceToMarket } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { addDecisionInvestible } from '../../../api/investibles'
 import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
-import { resetValues } from '../wizardReducer'
 import { processTextAndFilesForSave } from '../../../api/files'
 import { createInitiative } from '../../../api/markets'
 
@@ -54,7 +53,6 @@ export function createMyInitiative (dispatchers, formData, updateFormData) {
       return addDecisionInvestible(investibleInfo)
         .then((investible) => {
           addInvestible(investiblesDispatch, diffDispatch, investible);
-          updateFormData(resetValues());
           return createdMarketId;
         });
     });

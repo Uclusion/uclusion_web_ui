@@ -79,13 +79,11 @@ function InitialRequirementsStep (props) {
 InitialRequirementsStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object,
-  active: PropTypes.bool,
 };
 
 InitialRequirementsStep.defaultProps = {
   updateFormData: () => {},
   formData: {},
-  active: false,
 };
 
 export default InitialRequirementsStep;

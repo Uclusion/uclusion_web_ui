@@ -1,7 +1,5 @@
 import React, { useContext } from 'react';
 import { useIntl } from 'react-intl'
-
-import { updateValues } from '../wizardReducer'
 import { Typography } from '@material-ui/core'
 import StepButtons from '../StepButtons'
 import ExpirationSelector from '../../Expiration/ExpirationSelector'
@@ -11,10 +9,13 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { createMyInitiative } from './initiativeCreator';
+import WizardStepContainer from '../WizardStepContainer';
+import { WizardStylesContext } from '../WizardStylesContext';
 
 function InitiativeExpirationStep(props) {
-  const { updateFormData, formData, active, classes, onFinish } = props;
+  const { updateFormData, formData } = props;
   const intl = useIntl();
+  const classes = useContext(WizardStylesContext);
   const [, diffDispatch] = useContext(DiffContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, marketsDispatch] = useContext(MarketsContext);
@@ -22,16 +23,13 @@ function InitiativeExpirationStep(props) {
 
   const value = formData.initiativeExpiration || 1440;
 
-  if (!active) {
-    return React.Fragment;
-  }
   const validForm = value !== 0;
 
   function onExpiresChange(event) {
     const { value } = event.target;
-    updateFormData(updateValues({
+    updateFormData({
       initiativeExpiration: value,
-    }));
+    });
   }
 
   function doCreateInitiative(formData){
@@ -44,18 +42,22 @@ function InitiativeExpirationStep(props) {
     return createMyInitiative(dispatchers, formData, updateFormData);
   }
 
-  function myOnFinish() {
+  function onNext() {
    const newValues = {
       initiativeExpiration: value,
     }
-    updateFormData(updateValues(newValues));
+    updateFormData(newValues);
     return doCreateInitiative({...formData, ...newValues})
       .then((marketId) => {
-        onFinish({ ...formData, marketId });
+        return ({ ...formData, marketId });
       });
   }
 
   return (
+    <WizardStepContainer
+      {...props}
+      titleId="InitiativeWizardInitiativeExpirationStepLabel"
+    >
     <div>
       <Typography className={classes.introText} variant="body2">
         Votes from a long time ago aren't very useful when determining support.
@@ -65,21 +67,20 @@ function InitiativeExpirationStep(props) {
       <label className={classes.inputLabel} htmlFor="name">{intl.formatMessage({ id: 'InitiativeWizardInitiativeExpirationPlaceHolder' })}</label>
       <ExpirationSelector value={value} onChange={onExpiresChange}/>
       <div className={classes.borderBottom}></div>
-      <StepButtons {...props} spinOnClick validForm={validForm} onFinish={myOnFinish}/>
+      <StepButtons {...props} spinOnClick validForm={validForm} onNext={onNext} />
     </div>
+    </WizardStepContainer>
   );
 }
 
 InitiativeExpirationStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object,
-  active: PropTypes.bool,
 };
 
 InitiativeExpirationStep.defaultProps = {
   updateFormData: () => {},
   formData: {},
-  active: false,
 };
 
 export default InitiativeExpirationStep;

@@ -54,7 +54,6 @@ WorkspaceNameStep.propTypes = {
 WorkspaceNameStep.defaultProps = {
   updateFormData: () => {},
   formData: {},
-  active: false,
 };
 
 export default WorkspaceNameStep;

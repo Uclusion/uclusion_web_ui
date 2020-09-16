@@ -9,7 +9,6 @@ import _ from 'lodash';
 import { saveComment } from '../../../../api/comments';
 import { TODO_TYPE } from '../../../../constants/comments';
 import { addCommentToMarket } from '../../../../contexts/CommentsContext/commentsContextHelper';
-import { resetValues } from '../../wizardReducer';
 
 export function doCreateRequirementsWorkspace (dispatchers, formData, updateFormData) {
   const {
@@ -56,7 +55,6 @@ export function doCreateRequirementsWorkspace (dispatchers, formData, updateForm
       if (addedComment) {
         addCommentToMarket(addedComment, commentsState, commentsDispatch, versionsDispatch);
       }
-      updateFormData(resetValues()); //zero out form data since it's useless, and we want the state to be cleared
       return createdMarketId;
     });
 }

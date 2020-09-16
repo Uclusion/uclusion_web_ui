@@ -7,7 +7,6 @@ import { AllSequentialMap } from '../../../utils/PromiseUtils'
 import { processTextAndFilesForSave } from '../../../api/files'
 import { addInvestibleToStage } from '../../../api/investibles'
 import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
-import { resetValues } from '../wizardReducer'
 
 export function createMyDialog (dispatchers, formData, updateFormData) {
   const {
@@ -74,7 +73,6 @@ export function createMyDialog (dispatchers, formData, updateFormData) {
       });
     })
     .then(() => {
-      updateFormData(resetValues());
       return createdMarketId;
     });
 }

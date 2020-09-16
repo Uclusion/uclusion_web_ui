@@ -1,18 +1,18 @@
 import React, { useContext } from 'react';
-import PropTypes from 'prop-types'
-//import { useIntl } from 'react-intl';
-import { Button, List, ListItem, ListItemSecondaryAction, ListItemText, Typography } from '@material-ui/core'
-import StepButtons from '../StepButtons'
-import DeleteIcon from '@material-ui/icons/Delete'
+import PropTypes from 'prop-types';
+import { Button, List, ListItem, ListItemSecondaryAction, ListItemText, Typography } from '@material-ui/core';
+import StepButtons from '../StepButtons';
+import DeleteIcon from '@material-ui/icons/Delete';
 
-import { updateValues } from '../wizardReducer'
-import TooltipIconButton from '../../Buttons/TooltipIconButton'
-import AddOptionWizard from './AddOption/AddOptionWizard'
+import TooltipIconButton from '../../Buttons/TooltipIconButton';
+import AddOptionWizard from './AddOption/AddOptionWizard';
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { createMyDialog } from './dialogCreator';
+import { WizardStylesContext } from '../WizardStylesContext';
+import WizardStepContainer from '../WizardStepContainer';
 
 function AddOptionsStep (props) {
   const [, diffDispatch] = useContext(DiffContext);
@@ -20,53 +20,38 @@ function AddOptionsStep (props) {
   const [, marketsDispatch] = useContext(MarketsContext);
   const [, presenceDispatch] = useContext(MarketPresencesContext);
 
-
   const {
     formData,
     updateFormData,
-    active,
-    setOverrideUIContent,
-    classes,
-    isHome,
-    setOperationStatus,
-    onFinish,
   } = props;
-  //const intl = useIntl();
+  const classes = useContext(WizardStylesContext);
   const { addShowSubWizard } = formData;
-
-
-  if (!active) {
-    return React.Fragment;
-  }
 
   const dialogOptions = formData.dialogOptions || [];
 
   function deleteOption (index) {
     const newOptions = [...dialogOptions];
     newOptions.splice(index, 1); // remove the element
-    updateFormData(updateValues({
+    updateFormData({
       dialogOptions: newOptions,
-    }));
+    });
   }
 
   function startSubWizard () {
-    updateFormData(updateValues({
+    updateFormData({
       addShowSubWizard: true,
-    }));
-    setOverrideUIContent(true);
+    });
   }
 
   function hideSubWizard () {
-    updateFormData(updateValues({addShowSubWizard: false}));
-    setOverrideUIContent(false);
+    updateFormData({ addShowSubWizard: false });
   }
 
   function onSubWizardFinish (optionData) {
-    console.log(optionData);
     const newOptions = [...dialogOptions, optionData];
-    updateFormData(updateValues({
+    updateFormData({
       dialogOptions: newOptions,
-    }));
+    });
     hideSubWizard();
   }
 
@@ -74,50 +59,46 @@ function AddOptionsStep (props) {
     hideSubWizard();
   }
 
-
   const validForm = dialogOptions.length >= 1;
 
   if (addShowSubWizard) {
-   return (<AddOptionWizard
-      hidden={false}
-      isHome={isHome}
+    return (<AddOptionWizard
       onStartOver={onSubWizardStartOver}
       onFinish={onSubWizardFinish}
     />);
   }
 
-  function createDialog(formData) {
+  function createDialog (formData) {
     const dispatchers = {
       diffDispatch,
       marketsDispatch,
       investiblesDispatch,
       presenceDispatch
     };
-    return createMyDialog(dispatchers, formData, updateFormData, setOperationStatus)
+    return createMyDialog(dispatchers, formData, updateFormData)
       .then((marketId) => {
-        onFinish({ ...formData, marketId });
+        return ({ ...formData, marketId });
       });
   }
 
-
-  function onSkip(){
+  function onSkip () {
     const newValues = {
       addOptionsSkipped: true
     };
-    updateFormData(updateValues(newValues));
-    return createDialog({...formData, ...newValues});
+    updateFormData(newValues);
+    return createDialog({ ...formData, ...newValues });
   }
 
-  function onPrevious() {
-    updateFormData(updateValues({ addOptionsSkipped: false}));
+  function onPrevious () {
+    updateFormData({ addOptionsSkipped: false });
   }
 
-  function myOnFinish() {
+  function onNext () {
     const newValues = {
       addOptionsSkipped: false,
     };
     updateFormData(newValues);
-    return createDialog({...formData, ...newValues});
+    return createDialog({ ...formData, ...newValues });
   }
 
   function currentOptions () {
@@ -145,23 +126,29 @@ function AddOptionsStep (props) {
 
 // now for the card UI
   return (
-    <div>
-      <Typography className={classes.introText} variant="body2">
-        We'll be adding the options you know about here and any option your team proposes must
-        be approved by you before people can choose it.
-      </Typography>
-      {currentOptions()}
-      <Button className={classes.buttonClass} onClick={startSubWizard}>Add New Option</Button>
-      <div className={classes.borderBottom}></div>
-      <StepButtons
-        {...props}
-        spinOnClick
-        validForm={validForm}
-        onSkip={onSkip}
-        onFinish={myOnFinish}
-        onPrevious={onPrevious}
-        showSkip={isHome}/>
-    </div>
+    <WizardStepContainer
+      {...props}
+      titleId="DialogWizardAddOptionsStepLabel"
+    >
+      <div>
+        <Typography className={classes.introText} variant="body2">
+          We'll be adding the options you know about here and any option your team proposes must
+          be approved by you before people can choose it.
+        </Typography>
+        {currentOptions()}
+        <Button className={classes.buttonClass} onClick={startSubWizard}>Add New Option</Button>
+        <div className={classes.borderBottom}></div>
+        <StepButtons
+          {...props}
+          spinOnClick
+          validForm={validForm}
+          onSkip={onSkip}
+          onNext={onNext}
+          onPrevious={onPrevious}
+          showSkip
+        />
+      </div>
+    </WizardStepContainer>
   );
 
 }
@@ -169,17 +156,11 @@ function AddOptionsStep (props) {
 AddOptionsStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object,
-  active: PropTypes.bool,
-  setOverrideUIContent: PropTypes.func,
-  isHome: PropTypes.bool,
 };
 
 AddOptionsStep.defaultProps = {
   updateFormData: () => {},
-  setOverrideUIContent: () => {},
   formData: {},
-  active: false,
-  isHome: false,
 };
 
 export default AddOptionsStep;

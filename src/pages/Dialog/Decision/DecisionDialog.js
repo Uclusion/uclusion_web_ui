@@ -47,7 +47,7 @@ import { TourContext } from '../../../contexts/TourContext/TourContext'
 import InviteLinker from '../InviteLinker'
 import StepButtons from '../../../components/AddNew/StepButtons'
 import queryString from 'query-string'
-import { wizardStyles } from '../../../components/AddNew/CreationWizard'
+import { wizardStyles } from '../../../components/AddNew/WizardStylesContext';
 import Header from '../../../containers/Header'
 import { INVITE_DIALOG_FIRST_VIEW } from '../../../contexts/TourContext/tourContextHelper'
 import { attachFilesToMarket, deleteAttachedFilesFromMarket } from '../../../api/markets'

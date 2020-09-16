@@ -41,7 +41,7 @@
     "react-datepicker": "^2.14.1",
     "react-dom": "^16.13.1",
     "react-dropzone": "^11.0.1",
-    "react-formdata-wizard": "file:../react-formdata-wizard",
+    "react-formdata-wizard": "^0.0.2",
     "react-helmet": "^6.0.0",
     "react-intl": "^4.5.3",
     "react-joyride": "^2.2.1",

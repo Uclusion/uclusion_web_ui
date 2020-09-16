@@ -24,13 +24,11 @@ function RequirementsWorkspaceWizard (props) {
 
 RequirementsWorkspaceWizard.propTypes = {
   onStartOver: PropTypes.func,
-  isHome: PropTypes.bool,
   onFinish: PropTypes.func,
 };
 
 RequirementsWorkspaceWizard.defaultProps = {
   onStartOver: () => {},
-  isHome: false,
   onFinish: () => {},
 };
 

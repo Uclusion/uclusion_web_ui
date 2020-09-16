@@ -8,7 +8,7 @@ import { useTheme } from '@material-ui/core';
  */
 
 const WizardStylesContext = React.createContext({});
-const useStyles = makeStyles(
+export const wizardStyles = makeStyles(
   theme => {
     return {
 
@@ -247,7 +247,7 @@ const useStyles = makeStyles(
 function WizardStylesProvider(props) {
   const { children } = props;
   const theme = useTheme();
-  const classes = useStyles(theme);
+  const classes = wizardStyles(theme);
 
   return (
     <WizardStylesContext.Provider value={classes}>

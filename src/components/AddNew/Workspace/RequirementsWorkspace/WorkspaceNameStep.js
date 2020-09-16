@@ -52,13 +52,11 @@ function WorkspaceNameStep (props) {
 WorkspaceNameStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object,
-  active: PropTypes.bool,
 };
 
 WorkspaceNameStep.defaultProps = {
   updateFormData: () => {},
   formData: {},
-  active: false,
 };
 
 export default WorkspaceNameStep;

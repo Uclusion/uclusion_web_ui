@@ -1,60 +1,62 @@
-import React from 'react'
-import { useIntl } from 'react-intl'
+import React, { useContext } from 'react';
+import { useIntl } from 'react-intl';
+import { Typography } from '@material-ui/core';
+import StepButtons from '../StepButtons';
+import ExpirationSelector from '../../Expiration/ExpirationSelector';
+import PropTypes from 'prop-types';
+import WizardStepContainer from '../WizardStepContainer';
+import { WizardStylesContext } from '../WizardStylesContext';
 
-import { updateValues } from '../wizardReducer'
-import { Typography } from '@material-ui/core'
-import StepButtons from '../StepButtons'
-import ExpirationSelector from '../../Expiration/ExpirationSelector'
-import PropTypes from 'prop-types'
-
-function DialogExpirationStep(props) {
-  const { updateFormData, formData, active, classes } = props;
+function DialogExpirationStep (props) {
+  const { updateFormData, formData } = props;
   const intl = useIntl();
-
+  const classes = useContext(WizardStylesContext);
   const value = formData.dialogExpiration || 1440;
 
-  if (!active) {
-    return React.Fragment;
-  }
   const validForm = value !== 0;
 
-  function onExpiresChange(event) {
+  function onExpiresChange (event) {
     const { value } = event.target;
-    updateFormData(updateValues({
+    updateFormData({
       dialogExpiration: value,
-    }));
+    });
   }
 
-  function onNext() {
-    updateFormData(updateValues({
+  function onNext () {
+    updateFormData({
       dialogExpiration: value,
-    }));
+    });
   }
 
   return (
-    <div>
-      <Typography className={classes.introText} variant="body2">
-        Uclusion Dialogs require all activity to stop after a set number of days.
-        Use the slider below to select the number of days until the Dialog expires, you can extend the expiration later.
-      </Typography>
-      <label className={classes.inputLabel} htmlFor="name">{intl.formatMessage({ id: 'DialogWizardDialogExpirationPlaceHolder' })}</label>
-      <ExpirationSelector value={value} onChange={onExpiresChange}/>
-      <div className={classes.borderBottom}></div>
-      <StepButtons {...props} validForm={validForm} onNext={onNext}/>
-    </div>
+    <WizardStepContainer
+      {...props}
+      titleId="DialogWizardDialogExpirationStepLabel"
+    >
+      <div>
+        <Typography className={classes.introText} variant="body2">
+          Uclusion Dialogs require all activity to stop after a set number of days.
+          Use the slider below to select the number of days until the Dialog expires, you can extend the expiration
+          later.
+        </Typography>
+        <label className={classes.inputLabel}
+               htmlFor="name">{intl.formatMessage({ id: 'DialogWizardDialogExpirationPlaceHolder' })}</label>
+        <ExpirationSelector value={value} onChange={onExpiresChange}/>
+        <div className={classes.borderBottom}></div>
+        <StepButtons {...props} validForm={validForm} onNext={onNext}/>
+      </div>
+    </WizardStepContainer>
   );
 }
 
 DialogExpirationStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object,
-  active: PropTypes.bool,
 };
 
 DialogExpirationStep.defaultProps = {
   updateFormData: () => {},
   formData: {},
-  active: false,
 };
 
 export default DialogExpirationStep;

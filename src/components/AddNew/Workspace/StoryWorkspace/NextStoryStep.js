@@ -140,13 +140,11 @@ function NextStoryStep (props) {
 NextStoryStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object,
-  active: PropTypes.bool,
 };
 
 NextStoryStep.defaultProps = {
   updateFormData: () => {},
   formData: {},
-  active: false,
 };
 
 export default NextStoryStep;

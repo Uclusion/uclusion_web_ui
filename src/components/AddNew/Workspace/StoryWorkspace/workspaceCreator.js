@@ -11,7 +11,6 @@ import { addInvestible } from '../../../../contexts/InvestibesContext/investible
 import { saveComment } from '../../../../api/comments'
 import { REPORT_TYPE } from '../../../../constants/comments'
 import { addCommentToMarket } from '../../../../contexts/CommentsContext/commentsContextHelper'
-import { resetValues } from '../../wizardReducer'
 
 /**
  * Creates the story workspace from the formdata and does all the magic to make the
@@ -129,7 +128,6 @@ export function doCreateStoryWorkspace(dispatchers, formData, updateFormData, in
       if (addedComment) {
         addCommentToMarket(addedComment, commentsState, commentsDispatch, versionsDispatch);
       }
-      updateFormData(resetValues()); //zero out form data since it's useless, and we want the state to be cleared
       return createdMarketId;
     });
 }

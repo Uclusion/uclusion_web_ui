@@ -1,26 +1,28 @@
-import React, { useContext, useState } from 'react'
-import PropTypes from 'prop-types'
-import { TextField, Typography } from '@material-ui/core'
-import { useIntl } from 'react-intl'
-import _ from 'lodash'
+import React, { useContext, useState } from 'react';
+import PropTypes from 'prop-types';
+import { TextField, Typography } from '@material-ui/core';
+import { useIntl } from 'react-intl';
+import _ from 'lodash';
 import {
   urlHelperGetName
 } from '../../../../utils/marketIdPathFunctions';
-import StepButtons from '../../StepButtons'
-import QuillEditor from '../../../TextEditors/QuillEditor'
-import { updateValues } from '../../wizardReducer'
-import { DiffContext } from '../../../../contexts/DiffContext/DiffContext'
+import StepButtons from '../../StepButtons';
+import QuillEditor from '../../../TextEditors/QuillEditor';
+import { DiffContext } from '../../../../contexts/DiffContext/DiffContext';
 
-import { MarketsContext } from '../../../../contexts/MarketsContext/MarketsContext'
-import { InvestiblesContext } from '../../../../contexts/InvestibesContext/InvestiblesContext'
-import { MarketPresencesContext } from '../../../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { VersionsContext } from '../../../../contexts/VersionsContext/VersionsContext'
-import { CommentsContext } from '../../../../contexts/CommentsContext/CommentsContext'
-import { doCreateStoryWorkspace } from './workspaceCreator'
+import { MarketsContext } from '../../../../contexts/MarketsContext/MarketsContext';
+import { InvestiblesContext } from '../../../../contexts/InvestibesContext/InvestiblesContext';
+import { MarketPresencesContext } from '../../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { VersionsContext } from '../../../../contexts/VersionsContext/VersionsContext';
+import { CommentsContext } from '../../../../contexts/CommentsContext/CommentsContext';
+import { doCreateStoryWorkspace } from './workspaceCreator';
+import { WizardStylesContext } from '../../WizardStylesContext';
+import WizardStepContainer from '../../WizardStepContainer';
 
 function NextStoryStep (props) {
-  const { updateFormData, formData, active, classes, setOperationStatus, onFinish } = props;
+  const { updateFormData, formData } = props;
   const intl = useIntl();
+  const classes = useContext(WizardStylesContext);
   const [marketState, marketsDispatch] = useContext(MarketsContext);
   const [, diffDispatch] = useContext(DiffContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
@@ -37,26 +39,21 @@ function NextStoryStep (props) {
   const storyName = nextStoryName || '';
   const validForm = !_.isEmpty(nextStoryName);
 
-
   function onNameChange (event) {
     const { value } = event.target;
-    updateFormData(updateValues({
+    updateFormData({
       nextStoryName: value
-    }));
+    });
   }
 
-  if (!active) {
-    return React.Fragment;
-  }
-
-  function onEditorChange(content) {
+  function onEditorChange (content) {
     setEditorContents(content);
   }
 
-  function onS3Upload(metadatas) {
-    const oldUploadedFiles = nextStoryUploadedFiles || []
+  function onS3Upload (metadatas) {
+    const oldUploadedFiles = nextStoryUploadedFiles || [];
     const newUploadedFiles = _.uniqBy([...oldUploadedFiles, ...metadatas], 'path');
-    updateFormData(updateValues({nextStoryUploadedFiles: newUploadedFiles}));
+    updateFormData({ nextStoryUploadedFiles: newUploadedFiles });
   }
 
   function createMarket (formData) {
@@ -69,70 +66,74 @@ function NextStoryStep (props) {
       commentsDispatch,
       commentsState,
     };
-    return doCreateStoryWorkspace(dispatchers, formData, updateFormData, intl, setOperationStatus)
+    return doCreateStoryWorkspace(dispatchers, formData, updateFormData, intl)
       .then((marketId) => {
-        onFinish({ ...formData, marketId });
+        return ({ ...formData, marketId });
       });
   }
 
-  function onPrevious() {
+  function onPrevious () {
     const newValues = {
       nextStoryDescription: editorContents,
       nextStorySkipped: false,
     };
-    updateFormData(updateValues(newValues));
+    updateFormData(newValues);
   }
 
-  function myOnFinish() {
+  function onNext () {
     const newValues = {
       nextStoryDescription: editorContents,
       nextStorySkipped: false,
     };
-    updateFormData(updateValues(newValues));
-    return createMarket({...formData, ...newValues});
+    updateFormData(newValues);
+    return createMarket({ ...formData, ...newValues });
   }
 
-
-  function onSkip() {
+  function onSkip () {
     const newValues = {
       nextStoryDescription: editorContents,
       nextStorySkipped: true,
     };
-    updateFormData(updateValues(newValues));
-    return createMarket({...formData, ...newValues});
+    updateFormData(newValues);
+    return createMarket({ ...formData, ...newValues });
   }
 
   return (
-    <div>
-      <Typography variant="body1">
-        Do you have a story you want to work on next? If so, enter it here and it will become a "Proposed" story
-        in your workspace. Others can approve, <strong>BEFORE</strong> you start work.
-        If you don't have one, that's OK, you can add it after the Workspace has been created.
-      </Typography>
-      <label className={classes.inputLabel}>Name your next story</label>
-      <TextField
-        className={classes.input}
-        value={storyName}
-        onChange={onNameChange}
-      />
-      <QuillEditor
-        placeholder={intl.formatMessage({ id: 'OnboardingWizardNextStoryDescriptionPlaceHolder'})}
-        value={editorContents}
-        defaultValue={editorContents}
-        onS3Upload={onS3Upload}
-        onChange={onEditorChange}
-        getUrlName={urlHelperGetName(marketState, investibleState)}
+    <WizardStepContainer
+      {...props}
+      titleId="OnboardingWizardNextStoryStepLabel"
+    >
+      <div>
+        <Typography variant="body1">
+          Do you have a story you want to work on next? If so, enter it here and it will become a "Proposed" story
+          in your workspace. Others can approve, <strong>BEFORE</strong> you start work.
+          If you don't have one, that's OK, you can add it after the Workspace has been created.
+        </Typography>
+        <label className={classes.inputLabel}>Name your next story</label>
+        <TextField
+          className={classes.input}
+          value={storyName}
+          onChange={onNameChange}
+        />
+        <QuillEditor
+          placeholder={intl.formatMessage({ id: 'OnboardingWizardNextStoryDescriptionPlaceHolder' })}
+          value={editorContents}
+          defaultValue={editorContents}
+          onS3Upload={onS3Upload}
+          onChange={onEditorChange}
+          getUrlName={urlHelperGetName(marketState, investibleState)}
         />
         <div className={classes.borderBottom}></div>
-      <StepButtons
-        {...props}
-        validForm={validForm}
-        showSkip
-        spinOnClick
-        onPrevious={onPrevious}
-        onSkip={onSkip}
-        onFinish={myOnFinish}/>
-    </div>
+        <StepButtons
+          {...props}
+          validForm={validForm}
+          showSkip
+          spinOnClick
+          onPrevious={onPrevious}
+          onSkip={onSkip}
+          onNext={onNext}/>
+      </div>
+    </WizardStepContainer>
   );
 }
 

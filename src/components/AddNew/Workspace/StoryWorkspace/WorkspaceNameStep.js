@@ -1,29 +1,31 @@
-import React from 'react'
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types'
 import { TextField, Typography } from '@material-ui/core'
 import { useIntl } from 'react-intl'
 import _ from 'lodash'
 import StepButtons from '../../StepButtons'
-import { updateValues } from '../../wizardReducer'
+import WizardStepContainer from '../../WizardStepContainer';
+import { WizardStylesContext } from '../../WizardStylesContext';
 
 function WorkspaceNameStep (props) {
-  const { updateFormData, formData, active, classes } = props;
+  const { updateFormData, formData } = props;
   const intl = useIntl();
   const value = formData.meetingName || '';
   const validForm = !_.isEmpty(value);
+  const classes = useContext(WizardStylesContext);
 
   function onNameChange (event) {
     const { value } = event.target;
-    updateFormData(updateValues({
+    updateFormData({
       meetingName: value
-    }));
-  }
-
-  if (!active) {
-    return React.Fragment;
+    });
   }
 
   return (
+    <WizardStepContainer
+      {...props}
+      titleId="WorkspaceWizardMeetingStepLabel"
+    >
     <div>
       <Typography className={classes.introText} variant="body2">
         Great! We're going to be creating a Uclusion Workspace that tracks stories, notifies people
@@ -40,13 +42,13 @@ function WorkspaceNameStep (props) {
       <div className={classes.borderBottom}></div>
       <StepButtons {...props} validForm={validForm}/>
     </div>
+    </WizardStepContainer>
   );
 }
 
 WorkspaceNameStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object,
-  active: PropTypes.bool,
 };
 
 WorkspaceNameStep.defaultProps = {

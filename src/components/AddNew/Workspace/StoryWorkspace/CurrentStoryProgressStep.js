@@ -6,13 +6,14 @@ import _ from 'lodash'
 import StepButtons from '../../StepButtons'
 import QuillEditor from '../../../TextEditors/QuillEditor'
 import { DaysEstimate } from '../../../AgilePlan'
-import { updateValues } from '../../wizardReducer'
 import { urlHelperGetName } from '../../../../utils/marketIdPathFunctions'
 import { MarketsContext } from '../../../../contexts/MarketsContext/MarketsContext'
 import { InvestiblesContext } from '../../../../contexts/InvestibesContext/InvestiblesContext'
+import WizardStepContainer from '../../WizardStepContainer';
+import { WizardStylesContext } from '../../WizardStylesContext';
 
 function CurrentStoryProgressStep (props) {
-  const { updateFormData, formData, active, classes } = props;
+  const { updateFormData, formData} = props;
   const intl = useIntl();
   const [marketState] = useContext(MarketsContext);
   const [investibleState] = useContext(InvestiblesContext);
@@ -20,7 +21,7 @@ function CurrentStoryProgressStep (props) {
     currentStoryProgress,
     currentStoryEstimate,
   } = formData;
-
+  const classes = useContext(WizardStylesContext);
   const [editorContents, setEditorContents] = useState(currentStoryProgress || '');
 
   const validForm = _.isNumber(currentStoryEstimate);
@@ -32,30 +33,31 @@ function CurrentStoryProgressStep (props) {
   function onEstimateChange(event) {
     const { value } = event.target;
     const valueInt = value ? parseInt(value, 10) : null;
-    updateFormData(updateValues({
+    updateFormData({
       currentStoryEstimate: valueInt
-    }));
+    });
   }
 
   function onStepChange() {
-    updateFormData(updateValues({
+    updateFormData({
       currentStoryProgress: editorContents,
       currentStoryProgressSkipped: false,
-    }));
+    });
   }
 
   function onSkip() {
-    updateFormData(updateValues({
+    updateFormData({
       currentStoryProgress: editorContents,
       currentStoryProgressSkipped: true,
-    }));
+    });
   }
 
-  if (!active) {
-    return React.Fragment;
-  }
 
   return (
+    <WizardStepContainer
+      {...props}
+      titleId="OnboardingWizardCurrentStoryProgressStepLabel"
+    >
     <div>
       <Typography variant="body1">
         Great, now that we have what you're currently working on, we can provide an update by
@@ -83,19 +85,19 @@ function CurrentStoryProgressStep (props) {
                    showSkip
                    onSkip={onSkip}/>
     </div>
+    </WizardStepContainer>
   );
 }
 
 CurrentStoryProgressStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object,
-  active: PropTypes.bool,
+
 };
 
 CurrentStoryProgressStep.defaultProps = {
   updateFormData: () => {},
   formData: {},
-  active: false,
 };
 
 

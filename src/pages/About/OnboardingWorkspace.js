@@ -7,10 +7,10 @@ import { createPlanning } from '../../api/markets'
 import { checkMarketInStorage } from '../../contexts/MarketsContext/marketsContextHelper'
 import { addParticipants } from '../../api/users'
 import clsx from 'clsx'
-import config from '../../config'
 import { makeStyles } from '@material-ui/core'
 import { PLANNING_TYPE } from '../../constants/markets'
 import PropTypes from 'prop-types'
+import { getRandomSupportUser } from '../../utils/userFunctions'
 
 const useStyles = makeStyles((theme) => ({
   name: {},
@@ -55,9 +55,10 @@ function OnboardingWorkspace(props) {
         const { market } = result;
         const { id: marketId } = market;
         const link = formMarketLink(marketId);
+        const supportUser = getRandomSupportUser();
         return addParticipants(marketId, [{
-          user_id: config.support_user_id,
-          account_id: config.support_account_id,
+          user_id: supportUser.user_id,
+          account_id: supportUser.account_id,
           is_observer: false,
         }])
           .then(() => ({

@@ -14,7 +14,6 @@ import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUse
 import { PLANNING_TYPE } from '../../constants/markets'
 import { createPlanning } from '../../api/markets'
 import { addParticipants } from '../../api/users'
-import config from '../../config'
 import { addPlanningInvestible, stageChangeInvestible } from '../../api/investibles'
 import { addInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
@@ -28,6 +27,7 @@ import { TODO_TYPE } from '../../constants/comments'
 import LoadingDisplay from '../../components/LoadingDisplay';
 import { createMyInitiative } from '../../components/AddNew/Initiative/initiativeCreator'
 import { createMyDialog } from '../../components/AddNew/Dialog/dialogCreator'
+import { getRandomSupportUser } from '../../utils/userFunctions'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -118,9 +118,10 @@ function ECPInvite(props) {
           inProgressStage = stages.find((stage) => stage.singular_only);
           inReviewStage = stages.find((stage) => (!stage.allows_investment && stage.appears_in_context
             && !stage.singular_only && !stage.allows_issues));
+          const supportUser = getRandomSupportUser();
           return addParticipants(createdMarketId, [{
-            user_id: config.support_user_id,
-            account_id: config.support_account_id,
+            user_id: supportUser.user_id,
+            account_id: supportUser.account_id,
             is_observer: false,
           }]).then((users) => {
             const uclusionUser = users[0];

@@ -7,6 +7,7 @@ import TokenStorageManager from '../authorization/TokenStorageManager'
 import { Auth } from 'aws-amplify'
 import { getMarketPresences } from '../contexts/MarketPresencesContext/marketPresencesHelper'
 import _ from 'lodash'
+import config from '../config'
 
 export function extractUsersList (marketPresencesState, addToMarketId, workspaces, includeNotFollowing=true) {
   const addToMarketPresencesRaw = getMarketPresences(marketPresencesState, addToMarketId) || [];
@@ -44,6 +45,11 @@ export function extractUsersList (marketPresencesState, addToMarketId, workspace
     }
     return { ...acc, ...macc };
   }, {});
+}
+
+export function getRandomSupportUser() {
+  const supportUsers = config.support_users;
+  return _.sample(supportUsers);
 }
 
 export function getFlags(user) {

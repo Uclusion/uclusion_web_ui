@@ -31,7 +31,7 @@ import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants
 import { FormattedMessage, useIntl } from 'react-intl'
 import { extractUsersList } from '../../../utils/userFunctions'
 import SubSection from '../../../containers/SubSection/SubSection'
-import { SECTION_TYPE_SECONDARY } from '../../../constants/global'
+import { SECTION_TYPE_SECONDARY_WARNING } from '../../../constants/global'
 import ArchiveInvestbiles from '../../DialogArchives/ArchiveInvestibles'
 import Link from '@material-ui/core/Link'
 import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions'
@@ -148,7 +148,7 @@ function InvestiblesByWorkspace(props) {
             <CardContent className={classes.content}>
               {!_.isEmpty(requiresInputInvestibles) && (
                 <SubSection
-                  type={SECTION_TYPE_SECONDARY}
+                  type={SECTION_TYPE_SECONDARY_WARNING}
                   title={intl.formatMessage({ id: 'requiresInputHeader' })}
                 >
                   <ArchiveInvestbiles

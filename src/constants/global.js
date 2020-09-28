@@ -1,4 +1,5 @@
 export const SECTION_TYPE_SECONDARY = 'secondary';
+export const SECTION_TYPE_SECONDARY_WARNING = 'secondaryWarning';
 
 export const CHART_WIDTH = 70;
 export const CHART_HEIGHT = 45;

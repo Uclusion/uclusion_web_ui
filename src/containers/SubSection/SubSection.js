@@ -1,26 +1,14 @@
 import React from 'react'
 import { AppBar, makeStyles, Toolbar, Typography, } from '@material-ui/core'
 import PropTypes from 'prop-types'
-import { pink } from '@material-ui/core/colors'
 import { SECTION_TYPE_SECONDARY } from '../../constants/global'
 
 const useStyles = makeStyles((theme) => {
   return {
-    primarySubHeader: {
+    secondarySubHeaderWarning: {
       boxShadow: 'none',
-      background: '#fff',
-      color: '#323232',
-      minHeight: 32,
-      borderRadius: '2px',
-      marginBottom: '6px',
-    },
-    primarySubHeaderWarning: {
-      boxShadow: 'none',
-      background: '#fff',
-      color: pink[500],
-      minHeight: 32,
-      borderRadius: '2px',
-      marginBottom: '6px',
+      background: '#D54F22',
+      color: '#fff',
     },
     secondarySubHeader: {
       boxShadow: 'none',
@@ -50,7 +38,6 @@ function SubSection(props) {
     hidden,
     title,
     actionButton,
-    // eslint-disable-next-line no-unused-vars
     type,
     titleIcon,
     id,
@@ -62,7 +49,7 @@ function SubSection(props) {
     <React.Fragment>
       <AppBar
         id={id}
-        className={classes.secondarySubHeader}
+        className={type === SECTION_TYPE_SECONDARY ? classes.secondarySubHeader : classes.secondarySubHeaderWarning}
         position="static"
         hidden={hidden}
       >

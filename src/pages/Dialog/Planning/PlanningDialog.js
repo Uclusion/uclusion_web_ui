@@ -38,7 +38,7 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import { getMarketPresences, getPresenceMap } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import InvestibleAddActionButton from './InvestibleAddActionButton'
 import DismissableText from '../../../components/Notifications/DismissableText'
-import { SECTION_TYPE_SECONDARY } from '../../../constants/global'
+import { SECTION_TYPE_SECONDARY, SECTION_TYPE_SECONDARY_WARNING } from '../../../constants/global'
 import ArchiveInvestbiles from '../../DialogArchives/ArchiveInvestibles'
 import SubSection from '../../../containers/SubSection/SubSection'
 import { getInvestiblesInStage } from '../../../contexts/InvestibesContext/investiblesContextHelper'
@@ -249,7 +249,7 @@ function PlanningDialog(props) {
       )}
       {!_.isEmpty(requiresInputInvestibles) && (
         <SubSection
-          type={SECTION_TYPE_SECONDARY}
+          type={SECTION_TYPE_SECONDARY_WARNING}
           title={intl.formatMessage({ id: 'requiresInputHeader' })}
         >
           <ArchiveInvestbiles

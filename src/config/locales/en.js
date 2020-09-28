@@ -274,7 +274,7 @@ const messages = defineMessages({
   investibleAddHeader: 'Add Investible',
   investibleEditStageHelper: 'Select to change stage',
   investibleEditInvestibleFetchFailed: 'There was a problem loading your investible for edit. Please try again later',
-  investibleAddToVotingLabel: 'Move to Options',
+  investibleAddToVotingLabel: 'Move to Approvable Options',
   investibleBackToOptionPoolLabel: 'Back to Proposed Options',
   investibleAddToVotingExplanation: 'Move to approvable option. Can be moved back to proposed later.',
   investibleRemoveFromVotingExplanation: 'Remove current approval and move back to Proposed Option',
@@ -497,7 +497,7 @@ const messages = defineMessages({
 
   // Decision Dialog
   decisionDialogSummaryLabel: 'Background Information',
-  decisionDialogCurrentVotingLabel: 'Options',
+  decisionDialogCurrentVotingLabel: 'Approvable Options',
   storyCurrentVotingLabel: 'Options for doing this story',
   decisionDialogProposedOptionsLabel: 'Proposed Options',
   decisionDialogDiscussionLabel: 'Discussion',

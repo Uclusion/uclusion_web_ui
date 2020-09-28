@@ -183,19 +183,19 @@ function PlanningInvestibleEdit(props) {
         type={STORY_TYPE}
         subtype={subtype}
       />
-      <CardContent className={classes.cardContent}>
+      <CardContent>
         {isAssign && (
-          <AssignmentList
-            marketId={marketId}
-            previouslyAssigned={marketAssigned}
-            onChange={handleAssignmentChange}
-          />
+          <div className={classes.cardContent}>
+            <AssignmentList
+              marketId={marketId}
+              previouslyAssigned={marketAssigned}
+              onChange={handleAssignmentChange}
+            />
+          </div>
         )}
         {!isAssign && (
           <>
-            <fieldset className={myClasses.fieldset}>
-              <DaysEstimate onChange={onDaysEstimateChange} value={daysEstimate} createdAt={createdAt} />
-            </fieldset>
+          <div className={classes.cardContent}>
             <TextField
               fullWidth
               id="plan-investible-name"
@@ -207,10 +207,15 @@ function PlanningInvestibleEdit(props) {
               value={name}
               variant="filled"
             />
+            <fieldset className={myClasses.fieldset}>
+              <DaysEstimate onChange={onDaysEstimateChange} value={daysEstimate} createdAt={createdAt} />
+            </fieldset>
+          </div>
           <QuillEditor
             onS3Upload={handleFileUpload}
             marketId={marketId}
             onChange={onEditorChange}
+            placeholder={intl.formatMessage({ id: 'investibleAddDescriptionDefault' })}
             onStoreChange={onStorageChange}
             defaultValue={description}
             setOperationInProgress={setOperationRunning}

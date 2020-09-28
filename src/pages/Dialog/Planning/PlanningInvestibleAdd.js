@@ -243,16 +243,7 @@ function PlanningInvestibleAdd(props) {
           })}`}
           type={STORY_TYPE}
         />
-        <CardContent className={classes.cardContent}>
-          <AssignmentList
-            marketId={marketId}
-            onChange={onAssignmentsChange}
-            previouslyAssigned={choosePreviouslyAssigned()}
-          />
-          <fieldset className={classes.fieldset}>
-            <legend>optional</legend>
-            <DaysEstimate onChange={onDaysEstimateChange} value={daysEstimate} createdAt={createdAt} />
-          </fieldset>
+        <CardContent>
           <TextField
             fullWidth
             id="plan-investible-name"
@@ -264,6 +255,17 @@ function PlanningInvestibleAdd(props) {
             value={name}
             variant="filled"
           />
+          <div className={classes.cardContent}>
+            <AssignmentList
+              marketId={marketId}
+              onChange={onAssignmentsChange}
+              previouslyAssigned={choosePreviouslyAssigned()}
+            />
+            <fieldset className={classes.fieldset}>
+              <legend>optional</legend>
+              <DaysEstimate onChange={onDaysEstimateChange} value={daysEstimate} createdAt={createdAt} />
+            </fieldset>
+          </div>
           <QuillEditor
             marketId={marketId}
             onChange={onEditorChange}

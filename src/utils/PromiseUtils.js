@@ -2,9 +2,11 @@ import _ from 'lodash'
 
 /**
  Like Promise.all, but each promise executes sequentially instead of in parallel
- * @param promises array of promises to run
+ * @param sources
+ * @param promiseGenerator function that takes an item from source array and returns a promise
+ * @param doThrowError - set to false to suppress errors
  */
-export function AllSequentialMap(sources, promiseGenerator) {
+export function AllSequentialMap(sources, promiseGenerator, doThrowError=true) {
   return sources.reduce((acc, source) => {
     return acc.then((previous) => {
       // // console.debug(previous);
@@ -16,7 +18,13 @@ export function AllSequentialMap(sources, promiseGenerator) {
       return aPromise.then((result) => {
           // // console.debug(result);
           return [...previous, result];
-        });
+        }).catch((error) => {
+          if (doThrowError) {
+            throw error;
+          }
+        console.error(error);
+        return [...previous];
+      });
     });
   }, Promise.resolve([]));
 }

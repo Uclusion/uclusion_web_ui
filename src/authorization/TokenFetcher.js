@@ -45,7 +45,7 @@ class TokenFetcher {
     return this.tokenStorageManager.getExpiringTokens(this.tokenType, windowHours)
     .then((expiring) => {
       //console.error(expiring);
-      return AllSequentialMap(expiring, (itemId) => this.getRefreshedToken(itemId));
+      return AllSequentialMap(expiring, (itemId) => this.getRefreshedToken(itemId), false);
     });
   }
 

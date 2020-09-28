@@ -1,7 +1,7 @@
 import { getAccountClient, getMarketClient } from './uclusionClient'
 import { fixupItemForStorage } from '../contexts/ContextUtils'
 import { toastErrorAndThrow } from '../utils/userMessage'
-import { INITIATIVE_TYPE, PLANNING_TYPE, DECISION_TYPE } from '../constants/markets';
+import { INITIATIVE_TYPE, PLANNING_TYPE, DECISION_TYPE, ACTIVE_STAGE, INACTIVE_STAGE } from '../constants/markets'
 
 function fixupMarketForStorage(market) {
   const itemFixed = fixupItemForStorage(market);
@@ -133,11 +133,19 @@ export function hideMarket(marketId) {
     .catch((error) => toastErrorAndThrow(error, 'errorMarketHideFailed'));
 }
 
-export function archiveMarket(marketId) {
-  const updateOptions = { market_stage: 'Inactive' };
+export function archiveMarket(marketId, marketType) {
+  const marketStage = marketType === PLANNING_TYPE ? INACTIVE_STAGE : 'Cancelled';
+  const updateOptions = { market_stage: marketStage };
   return getMarketClient(marketId)
     .then((client) => client.markets.updateMarket(updateOptions))
     .catch((error) => toastErrorAndThrow(error, 'errorMarketArchiveFailed'));
+}
+
+export function activateMarket(marketId) {
+  const updateOptions = { market_stage: ACTIVE_STAGE };
+  return getMarketClient(marketId)
+    .then((client) => client.markets.updateMarket(updateOptions))
+    .catch((error) => toastErrorAndThrow(error, 'errorMarketActivateFailed'));
 }
 
 // below called in hub messages, so difficult to decide when to toast a message

@@ -488,6 +488,7 @@ const messages = defineMessages({
   inlineAddExplanation: 'Add a how to do this story option and collect approval on it.',
   deactivateInlineQuestion: 'Changing stage will deactivate any dialogs associated with this story.',
   deactivateDialogQuestion: 'Do you want to deactivate and stop any further work?',
+  activateDialogQuestion: 'This Workspace is inactive. Do you want to activate and continue work?',
   yesAndProceed: 'Change stage and deactivate',
   suggestCount: 'Open suggestions',
   todoCount: 'Open TODOs',
@@ -513,6 +514,7 @@ const messages = defineMessages({
   backToOptionPoolWarning: 'Moving this option back to Proposed Options deletes all approval.',
   yesAndProceedDeactive: 'Archive and deactivate',
   noAndProceedDeactivate: 'Archive only',
+  proceedActivate: 'Activate Workspace',
   // Investibles in decision dialog display
   decisionDialogInvestiblesUpdatedAt: 'Last Updated:',
   dialogAddParticipantsLabel: 'Manage Collaborators',
@@ -758,6 +760,7 @@ const messages = defineMessages({
   errorCommentDeleteFailed: 'There was a problem removing',
   errorCommentReopenFailed: 'There was a problem reopening',
   errorMarketArchiveFailed: 'There was a problem deactivating the dialog',
+  errorMarketActivateFailed: 'There was a problem activating the Workspace',
   errorInvestibleMoveToCurrentVotingFailed: 'There was a problem moving the option to Options. Please try again.',
   errorInvestibleMoveToOptionPoolFailed: 'There was a problem moving the option back to Proposed Options. Please try again.',
   errorInvestibleFetchFailed: 'There was a problem receiving the data',

@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { ACTIVE_STAGE, DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
+import { ACTIVE_STAGE, DECISION_TYPE, INACTIVE_STAGE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
 import { makeStyles } from '@material-ui/core'
 import {
   decomposeMarketPath,
@@ -15,6 +15,7 @@ import EditMarketButton from '../Dialog/EditMarketButton'
 import ChangeToObserverButton from '../Dialog/ChangeToObserverButton'
 import ChangeToParticipantButton from '../Dialog/ChangeToParticipantButton'
 import ShareStoryButton from '../Investible/Planning/ShareStoryButton'
+import ActivateMarketButton from '../Dialog/Planning/ActivateMarketButton'
 
 const useStyles = makeStyles(() => {
   return {
@@ -92,6 +93,11 @@ function DialogActions(props) {
           <EditMarketButton key="edit" labelId={editLabel} marketId={marketId} onClick={editAction} />
         );
       }
+    }
+    if (marketStage === INACTIVE_STAGE && !isGuest) {
+      actions.push(
+        <ActivateMarketButton key="activate-market" marketId={marketId} isFollowing={isFollowing}/>,
+      );
     }
     if (activeMarket && !isGuest) {
       if (isFollowing) {

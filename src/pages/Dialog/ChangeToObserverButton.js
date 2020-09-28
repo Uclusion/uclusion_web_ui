@@ -9,7 +9,7 @@ import { changeObserverStatus, getMarketPresences } from '../../contexts/MarketP
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { EMPTY_SPIN_RESULT } from '../../constants/global'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
-import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
+import { addMarketToStorage, getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 import { PLANNING_TYPE } from '../../constants/markets'
 import { useLockedDialogStyles } from './DialogEdit'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
@@ -19,11 +19,12 @@ import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton
 import WarningDialog from '../../components/Warnings/WarningDialog'
 import { Dialog } from '../../components/Dialogs'
 import { ACTION_BUTTON_COLOR } from '../../components/Buttons/ButtonConstants'
+import { DiffContext } from '../../contexts/DiffContext/DiffContext'
 
 function ChangeToObserverButton(props) {
   const { marketId, onClick } = props;
   const [mpState, mpDispatch] = useContext(MarketPresencesContext);
-  const [marketState] = useContext(MarketsContext);
+  const [marketState, marketsDispatch] = useContext(MarketsContext);
   const [operationRunning] = useContext(OperationInProgressContext);
   const [open, setOpen] = React.useState(false);
   const market = getMarket(marketState, marketId);
@@ -33,6 +34,7 @@ function ChangeToObserverButton(props) {
   const presences = getMarketPresences(marketPresencesState, marketId) || [];
   const myPresence = presences.find((presence) => presence.current_user);
   const autoFocusRef = React.useRef(null);
+  const [, diffDispatch] = useContext(DiffContext);
 
   const handleOpen = () => {
     setOpen(true);
@@ -51,9 +53,13 @@ function ChangeToObserverButton(props) {
   }
 
   function myOnClick(myIsDeactivate) {
-    const actionPromise = myIsDeactivate ? archiveMarket(marketId) : changeUserToObserver(marketId);
-    return actionPromise.then(() => {
-        changeObserverStatus(mpState, mpDispatch, marketId, true);
+    const actionPromise = myIsDeactivate ? archiveMarket(marketId, marketType) : changeUserToObserver(marketId);
+    return actionPromise.then((response) => {
+        if (myIsDeactivate) {
+          addMarketToStorage(marketsDispatch, diffDispatch, response);
+        } else {
+          changeObserverStatus(mpState, mpDispatch, marketId, true);
+        }
         return EMPTY_SPIN_RESULT;
       });
   }

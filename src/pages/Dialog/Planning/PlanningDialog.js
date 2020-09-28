@@ -298,6 +298,7 @@ function PlanningDialog(props) {
               <CommentAddBox
                 allowedTypes={allowedCommentTypes}
                 marketId={marketId}
+                isPlanning
               />
             )}
             <CommentBox comments={marketComments} marketId={marketId} allowedTypes={allowedCommentTypes} />

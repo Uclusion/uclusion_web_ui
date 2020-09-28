@@ -24,7 +24,7 @@ import CardType from '../CardType'
 import { EMPTY_SPIN_RESULT } from '../../constants/global'
 import { addCommentToMarket, removeComments } from '../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
-import { ACTIVE_STAGE } from '../../constants/markets'
+import { ACTIVE_STAGE, PLANNING_TYPE } from '../../constants/markets'
 import { red } from '@material-ui/core/colors'
 import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
 import { EXPANDED_CONTROL, ExpandedCommentContext } from '../../contexts/CommentsContext/ExpandedCommentContext'
@@ -166,13 +166,13 @@ function Comment(props) {
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const intl = useIntl();
   const classes = useCommentStyles();
-  const { id, comment_type: commentType, resolved } = comment;
+  const { id, comment_type: commentType, resolved, investible_id: investibleId } = comment;
   const presences = usePresences(marketId);
   const createdBy = useCommenter(comment, presences) || unknownPresence;
   const updatedBy = useUpdatedBy(comment, presences) || unknownPresence;
   const [marketsState] = useContext(MarketsContext);
   const market = getMarket(marketsState, marketId) || {};
-  const { market_stage: marketStage } = market;
+  const { market_stage: marketStage, market_type: marketType } = market;
   const userId = getMyUserForMarket(marketsState, marketId) || {};
   const activeMarket = marketStage === ACTIVE_STAGE;
   const myPresence = presences.find((presence) => presence.current_user) || {};
@@ -244,7 +244,7 @@ function Comment(props) {
   const { expanded: myRepliesExpanded } = myExpandedState;
   const myRepliesExpandedCalc = myRepliesExpanded === undefined ? _.isEmpty(highlightIds) ? undefined : true : myRepliesExpanded;
   const repliesExpanded = myRepliesExpandedCalc === undefined ? !comment.resolved || comment.reply_id : myRepliesExpandedCalc;
-
+  const overrideLabel = (marketType === PLANNING_TYPE && !investibleId) ? <FormattedMessage id="nonBlockIssuePresent" /> : undefined;
   useEffect(() => {
     if (!_.isEmpty(highlightIds) && !myRepliesExpanded && commentType !== REPLY_TYPE) {
       // Open if need to highlight inside - user can close again
@@ -272,7 +272,12 @@ function Comment(props) {
     <React.Fragment>
       <Card elevation={0} className={getCommentHighlightStyle()}>
         <Box display="flex">
-          <CardType className={classes.commentType} type={commentType} resolved={resolved} />
+          {overrideLabel && (
+            <CardType className={classes.commentType} type={commentType} resolved={resolved} label={overrideLabel} />
+          )}
+          {!overrideLabel && (
+            <CardType className={classes.commentType} type={commentType} resolved={resolved} />
+          )}
           <Typography className={classes.updatedBy}>
             {displayUpdatedBy &&
               `${intl.formatMessage({ id: "lastUpdatedBy" })} ${

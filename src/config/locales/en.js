@@ -800,6 +800,7 @@ const messages = defineMessages({
 
   // Issue Present
   issuePresent: 'Blocking Issue',
+  nonBlockIssuePresent: 'Issue',
   questionPresent: 'Question',
   suggestPresent: 'Suggestion',
   reportPresent: 'Progress Report',

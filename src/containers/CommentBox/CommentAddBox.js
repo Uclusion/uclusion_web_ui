@@ -120,6 +120,7 @@ function CommentAddBox(props) {
     onSave,
     issueWarningId,
     todoWarningId,
+    isPlanning
   } = props;
   const [type, setType] = useState('');
   const classes = useStyles();
@@ -153,6 +154,12 @@ function CommentAddBox(props) {
       }
     }
   }
+  function getMessageId(aCommentType) {
+    if (!isPlanning || aCommentType !== ISSUE_TYPE) {
+      return `${aCommentType.toLowerCase()}Present`;
+    }
+    return "nonBlockIssuePresent";
+  }
   return (
     <>
       <Card elevation={0} className={classes.commentTypeContainer}>
@@ -185,7 +192,7 @@ function CommentAddBox(props) {
                       /* prevent clicking the label stealing focus */
                       onMouseDown={e => e.preventDefault()}
                       control={<Radio color="primary" />}
-                      label={window.outerWidth < 600 ? getIcon(commentType) : <FormattedMessage id={`${commentType.toLowerCase()}Present`} />}
+                      label={window.outerWidth < 600 ? getIcon(commentType) : <FormattedMessage id={getMessageId(commentType)} />}
                       labelPlacement="end"
                       value={commentType}
                     />
@@ -220,6 +227,7 @@ CommentAddBox.propTypes = {
   investible: PropTypes.any,
   allowedTypes: PropTypes.arrayOf(PropTypes.string).isRequired,
   onSave: PropTypes.func,
+  isPlanning: PropTypes.bool,
 };
 
 CommentAddBox.defaultProps = {
@@ -227,6 +235,7 @@ CommentAddBox.defaultProps = {
   onSave: () => {},
   issueWarningId: null,
   todoWarningId: null,
+  isPlanning: false,
 };
 
 export default CommentAddBox;

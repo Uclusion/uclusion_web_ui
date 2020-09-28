@@ -35,10 +35,9 @@ export function extractUsersList (marketPresencesState, addToMarketId, workspace
         } = presence;
         if (!banned && !addToMarketPresencesHash[external_id] && !acc[user_id] && !macc[user_id]
           && (includeNotFollowing || following)) {
-          const emailSplit = email ? email.split('@') : ['', ''];
           addToMarketPresencesHash[external_id] = true;
           macc[user_id] = {
-            user_id, name, account_id, domain: emailSplit[1], isChecked: false, external_id, current_user
+            user_id, name, account_id, domain: email, isChecked: false, external_id, current_user
           };
         }
       });

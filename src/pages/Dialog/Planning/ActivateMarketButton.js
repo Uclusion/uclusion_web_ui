@@ -1,7 +1,7 @@
 import React, { useContext } from 'react'
 import UnarchiveIcon from '@material-ui/icons/Unarchive'
 import PropTypes from 'prop-types'
-import { activateMarket, changeUserToObserver } from '../../../api/markets'
+import { activateMarket, changeUserToParticipant } from '../../../api/markets'
 import { changeObserverStatus } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { EMPTY_SPIN_RESULT } from '../../../constants/global'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
@@ -40,8 +40,8 @@ function ActivateMarketButton(props) {
     activateMarket(marketId).then((market) => {
       addMarketToStorage(marketsDispatch, diffDispatch, market);
       if (!isFollowing) {
-        return changeUserToObserver(marketId).then(() => {
-          changeObserverStatus(mpState, mpDispatch, marketId, true);
+        return changeUserToParticipant(marketId).then(() => {
+          changeObserverStatus(mpState, mpDispatch, marketId, false);
           return EMPTY_SPIN_RESULT;
         });
       }

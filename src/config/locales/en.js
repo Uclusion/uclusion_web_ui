@@ -494,6 +494,7 @@ const messages = defineMessages({
   todoCount: 'Open TODOs',
   questionCount: 'Open questions',
   issueCount: 'Open blocking issues',
+  planningMarketActivate: 'Activate Workspace',
 
   // Decision Dialog
   decisionDialogSummaryLabel: 'Background Information',

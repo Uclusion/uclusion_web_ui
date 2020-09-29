@@ -52,7 +52,7 @@ function ActivateMarketButton(props) {
   return (
     <>
       <TooltipIconButton disabled={operationRunning} icon={<UnarchiveIcon htmlColor={ACTION_BUTTON_COLOR} />} onClick={handleOpen}
-                         translationId="decisionDialogsBecomeObserver" />
+                         translationId="planningMarketActivate" />
       <Dialog
         autoFocusRef={autoFocusRef}
         classes={{

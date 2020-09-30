@@ -231,7 +231,7 @@ function PlanningDialogs(props) {
       return { ...market, marketUpdatedAt, questionCount, issueCount, suggestCount, todoCount }
     });
     const sortedMarkets = _.sortBy(marketsWithUpdatedAt, 'marketUpdatedAt').reverse();
-    return sortedMarkets.map((market) => {
+    return sortedMarkets.map((market, index) => {
       const {
         id: marketId, name, market_type: marketType, market_stage: marketStage,
         parent_market_id: parentMarketId, parent_investible_id: parentInvestibleId, marketUpdatedAt, questionCount,
@@ -250,6 +250,7 @@ function PlanningDialogs(props) {
       return (
         <Grid
           item
+          id={`ws${index}`}
           key={marketId}
           md={4}
           xs={12}

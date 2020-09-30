@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { useHistory } from 'react-router'
+import { useHistory, useLocation } from 'react-router';
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import MenuBookIcon from '@material-ui/icons/MenuBook'
@@ -23,6 +23,13 @@ import DismissableText from '../../components/Notifications/DismissableText'
 import { getAndClearRedirect, redirectToPath } from '../../utils/redirectUtils'
 import WizardSelector from '../../components/AddNew/WizardSelector'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
+import UclusionTour from '../../components/Tours/UclusionTour';
+import { SIGNUP_HOME } from '../../contexts/TourContext/tourContextHelper';
+import { signupHomeSteps } from '../../components/Tours/InviteTours/signupHome';
+import { CognitoUserContext } from '../../contexts/CognitoUserContext/CongitoUserContext';
+import queryString from 'query-string';
+import { startTour } from '../../contexts/TourContext/tourContextReducer';
+import { TourContext } from '../../contexts/TourContext/TourContext';
 
 const useStyles = makeStyles(() => ({
     spacer: {
@@ -45,11 +52,18 @@ function Home(props) {
   const { hidden } = props;
   const history = useHistory();
   const intl = useIntl();
+  const location = useLocation();
+  const { hash } = location;
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [operationInProgress] = useContext(OperationInProgressContext);
   const classes = useStyles();
   const [wizardActive, setWizardActive] = useState(false);
+  const user = useContext(CognitoUserContext) || {};
+  const [, tourDispatch] = useContext(TourContext);
+
+  const hashValues = queryString.parse(hash || '');
+  const { onboarded } = hashValues || {};
 
   useEffect(() => {
     const redirect = getAndClearRedirect();
@@ -58,6 +72,12 @@ function Home(props) {
       redirectToPath(history, redirect);
     }
   })
+
+  useEffect(() => {
+    if (!onboarded) {
+      tourDispatch(startTour(SIGNUP_HOME));
+    }
+  }, [onboarded, tourDispatch]);
 
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(
     marketsState,
@@ -121,6 +141,10 @@ function Home(props) {
       loading={loading}
       sidebarActions={ACTIONBAR_ACTIONS}
     >
+      <UclusionTour
+        name={SIGNUP_HOME}
+        steps={signupHomeSteps(user)}
+      />
       <WizardSelector
         hidden={!wizardActive}
         onFinish={onWizardFinish}

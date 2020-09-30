@@ -170,7 +170,7 @@ function InitiativeDialogs(props) {
   }
 
   function getMarketItems() {
-    return markets.map((market) => {
+    return markets.map((market, index) => {
       const {
         id: marketId, created_at: createdAt, expiration_minutes: expirationMinutes, created_by: createdBy,
         market_type: marketType, market_stage: marketStage, updated_at: updatedAt, parent_market_id: parentMarketId,
@@ -246,6 +246,7 @@ function InitiativeDialogs(props) {
       return (
         <Grid
           item
+          id={`ini${index}`}
           key={marketId}
           xs={12}
           className={classes.lastChild}

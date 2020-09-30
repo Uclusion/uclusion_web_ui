@@ -170,7 +170,7 @@ function DecisionDialogs(props) {
     );
   }
   function getMarketItems() {
-    return markets.map((market) => {
+    return markets.map((market, index) => {
       const {
         id: marketId, name, created_at: createdAt, expiration_minutes: expirationMinutes, created_by: createdBy,
         market_type: marketType, market_stage: marketStage, updated_at: updatedAt, parent_market_id: parentMarketId,
@@ -254,10 +254,10 @@ function DecisionDialogs(props) {
       return (
         <Grid
           item
+          id={`dia${index}`}
           key={marketId}
           xs={12}
           className={classes.lastChild}
-
         >
           <RaisedCard
             className={classes.paper}

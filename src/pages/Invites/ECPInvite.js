@@ -65,7 +65,7 @@ function ECPInvite(props) {
       const dispatchers = {marketsDispatch, diffDispatch, presenceDispatch, investiblesDispatch};
       createECPMarkets(dispatchers)
         .then(() => {
-          navigate(history, '/');
+          navigate(history, '/#onboarded');
         })
         .catch((error) => {
           console.error(error);

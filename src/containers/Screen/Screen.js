@@ -102,7 +102,7 @@ function Screen(props) {
   }
   const myContainerClass = classes.containerAll;
   return (
-    <div className={classes.root}>
+    <div className={classes.root} id="root">
       <Helmet defer={false}>
         <title>
           {`${prePendWarning}Uclusion | ${createTitle(

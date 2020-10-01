@@ -65,6 +65,7 @@ function Home(props) {
   const hashValues = queryString.parse(hash || '');
   const { onboarded } = hashValues || {};
 
+
   useEffect(() => {
     const redirect = getAndClearRedirect();
     if (!_.isEmpty(redirect)) {
@@ -74,7 +75,7 @@ function Home(props) {
   })
 
   useEffect(() => {
-    if (!onboarded) {
+    if (onboarded !== undefined) {
       tourDispatch(startTour(SIGNUP_HOME));
     }
   }, [onboarded, tourDispatch]);

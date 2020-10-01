@@ -31,12 +31,6 @@ export function signupHomeSteps(variables) {
       placement: 'right',
       target: '#ws0',
       content: "When you're ready, the Small Project Workspace is where you can create requirements and execute stories.",
-    },
-    {
-      disableBeacon: true,
-      target: '#ini0',
-      placement: 'top',
-    },
-
+    }
   ]
 }

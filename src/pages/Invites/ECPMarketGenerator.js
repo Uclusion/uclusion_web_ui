@@ -67,7 +67,7 @@ function createDialog (dispatchers) {
   const dialogExpiration = 1440;
   const dialogName = 'How should I make decisions with my team?';
   const dialogReason = '<p>This is a free Dialog with a staff member of Uclusion so you can get experience with Dialogs and we can learn more about you.</p>' +
-    '<p> Feel free to include other collaborators in this Dialog if you want.</p>';
+    '<p> Please include other collaborators in this Dialog if you want.</p>';
   const dialogOptions = [{ optionName: 'Your current tools', optionDescription: '<p>Approve this option to continue making team decisions with current tool set.</p>' },
     { optionName: 'Use Uclusion', optionDescription: '<p>Once everyone is using Uclusion Dialogs, you have a good chance of avoiding meetings entirely,' +
         ' but if not the options and opinions are known so the meeting will be short.</p><p/>\n' +

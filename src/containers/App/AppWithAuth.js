@@ -76,7 +76,7 @@ function AppWithAuth(props) {
         const oldUserName = getUclusionLocalStorageItem('userName');
         if (oldUserName && oldUserName !== username) {
           // Only clear if there was a userName there otherwise window refresh during signup
-          clearUclusionLocalStorage(false).then(() => new TokenStorageManager().clearTokenStorage());
+          new TokenStorageManager().clearTokenStorage().then(() => clearUclusionLocalStorage(true));
         }
         setUclusionLocalStorageItem('userName', username);
         break;

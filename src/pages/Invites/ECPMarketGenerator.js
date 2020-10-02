@@ -64,7 +64,7 @@ function createInitiative (dispatchers) {
 }
 
 function createDialog (dispatchers) {
-  const dialogExpiration = 1440;
+  const dialogExpiration = 1440 * 14;
   const dialogName = 'How should I make decisions with my team?';
   const dialogReason = '<p>This is a free Dialog with a staff member of Uclusion so you can get experience with Dialogs and we can learn more about you.</p><p/>\n' +
     '<p>Please include other collaborators in this Dialog if you want.</p>';

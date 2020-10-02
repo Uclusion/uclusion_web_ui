@@ -5,7 +5,7 @@ import { PUSH_STAGE_CHANNEL, VERSIONS_EVENT } from '../../../contexts/VersionsCo
 import { addPresenceToMarket } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { AllSequentialMap } from '../../../utils/PromiseUtils'
 import { processTextAndFilesForSave } from '../../../api/files'
-import { addInvestibleToStage } from '../../../api/investibles'
+import { addDecisionInvestible, addInvestibleToStage } from '../../../api/investibles'
 import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 
 export function createMyDialog (dispatchers, formData, updateFormData) {
@@ -51,7 +51,8 @@ export function createMyDialog (dispatchers, formData, updateFormData) {
         const {
           optionUploadedFiles,
           optionName,
-          optionDescription
+          optionDescription,
+          optionDoNotPromote
         } = option;
         const realUploadedFiles = optionUploadedFiles || [];
         const processed = processTextAndFilesForSave(realUploadedFiles, optionDescription);
@@ -66,8 +67,8 @@ export function createMyDialog (dispatchers, formData, updateFormData) {
             stage_id: inVotingStage.id,
           },
         };
-        return addInvestibleToStage(addInfo)
-          .then((investible) => {
+        const createPromise = optionDoNotPromote ? addDecisionInvestible(addInfo) : addInvestibleToStage(addInfo);
+        return createPromise.then((investible) => {
             addInvestible(investiblesDispatch, diffDispatch, investible);
           });
       });

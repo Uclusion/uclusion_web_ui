@@ -1,6 +1,8 @@
 import { createMyInitiative } from '../../components/AddNew/Initiative/initiativeCreator';
 import { createMyDialog } from '../../components/AddNew/Dialog/dialogCreator';
 import { doCreateRequirementsWorkspace } from '../../components/AddNew/Workspace/RequirementsWorkspace/workspaceCreator';
+import { getRandomSupportUser } from '../../utils/userFunctions'
+import { addParticipants } from '../../api/users'
 
 export function createECPMarkets (dispatchers) {
   let initiativeId = null;
@@ -62,21 +64,25 @@ function createInitiative (dispatchers) {
 }
 
 function createDialog (dispatchers) {
-  const dialogExpiration = 1440 * 3;
-  const dialogName = 'Your first Dialog';
-  const dialogReason = '<p>We created this Dialog for you, so it won\'t count against your free allotment</p>' +
-    '<p> Once your team is used to weighing in on a single idea, it’s time to introduce them to Dialogs, by editing this Dialog and sending it to them.</p>' +
-    '<p>The same concepts from Initiatives apply, but now they can vote for one or more options, and even propose their own.</p>' +
-    '<p>Once everyone is using Dialogs, you have a good chance of avoiding meetings entirely,' +
-    ' but if not the options and opinions are known so the meeting will be short.' +
-    ' They also serve as ‘Architecture Decision Records’ when you add a link to the Dialog in your\n' +
-    '                    code or commit messages.</p>' +
-    '<p><br/></p>' +
-    'So get to editing, add a few options, and then invite them!';
-
+  const dialogExpiration = 1440;
+  const dialogName = 'How should I make decisions with my team?';
+  const dialogReason = '<p>This is a free Dialog with a staff member of Uclusion so you can get experience with Dialogs and we can learn more about you.</p>' +
+    '<p> Feel free to include other collaborators in this Dialog if you want.</p>';
+  const dialogOptions = [{ optionName: 'Your current tools', optionDescription: '<p>Approve this option to continue making team decisions with current tool set.</p>' },
+    { optionName: 'Use Uclusion', optionDescription: '<p>Once everyone is using Uclusion Dialogs, you have a good chance of avoiding meetings entirely,' +
+        ' but if not the options and opinions are known so the meeting will be short.' +
+        ' They also serve as ‘Architecture Decision Records’ when you add a link to the Dialog in your\n' +
+        '                    code or commit messages.</p>', optionDoNotPromote: true }];
+  const supportUser = getRandomSupportUser();
   return createMyDialog(dispatchers,
-    { dialogName, dialogReason, dialogOptions: [], dialogExpiration, addOptionsSkipped: true },
-    () => {});
+    { dialogName, dialogReason, dialogOptions, dialogExpiration },
+    () => {}).then((marketId) => {
+    return addParticipants(marketId, [{
+      user_id: supportUser.user_id,
+      account_id: supportUser.account_id,
+      is_observer: false,
+    }]);
+  });
 }
 
 function createTeamWorkspace (dispatchers) {

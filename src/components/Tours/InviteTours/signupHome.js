@@ -6,13 +6,13 @@ export function signupHomeSteps(variables) {
       target: '#root',
       placement: 'center',
       title: `Welcome to Uclusion${name}!`,
-      content: "We've created your first collaborations to get you started on your autonomous teamwork journey.",
+      content: "We've created your first collaborations to get you started on your <a target='_blank' href='https://www.uclusion.com/autonomousteamwork'>autonomous teamwork</a> journey.",
     },
     {
       disableBeacon: true,
       target: '#ini0',
       placement: 'top',
-      content: 'Initiatives let you measure a support for an idea and are a great introduction to autonomous teamwork concepts.',
+      content: "Initiatives let you measure a support for an idea and gather feedback from your team. We've created your first one which you can edit and send out.",
     },
     {
       disableBeacon: true,

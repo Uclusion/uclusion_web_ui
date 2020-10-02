@@ -66,8 +66,8 @@ function createDialog (dispatchers) {
     '<p>Please include other collaborators in this Dialog if you want.</p>';
   const dialogOptions = [{ optionName: 'Stick with current tools', optionDescription: '<p>Approve this option to continue making team decisions with the current tool set.</p>' },
     { optionName: 'Try Uclusion', optionDescription: '<p>Once everyone is using Uclusion Dialogs, you have a good chance of avoiding meetings entirely,' +
-        ' but if not the options and opinions are known so the meeting will be short.</p><p/>' +
-        '<p>They also serve as ‘Architecture Decision Records’ when you add a link to the Dialog in your code or commit messages.</p><p/>' +
+        ' but if not the options and opinions will be known and the meeting short.</p><p/>' +
+        '<p>Dialogs also serve as ‘Architecture Decision Records’ when you add a link to the Dialog in your code or commit messages.</p><p/>' +
         '<p>See our <a href="https://www.uclusion.com/onboarding">onboarding document</a> for a full explanation of how to start with Initiatives and Dialogs and move on to Uclusion Workspaces.</p>',
       optionDoNotPromote: true }];
   const supportUser = getRandomSupportUser();
@@ -85,7 +85,7 @@ function createDialog (dispatchers) {
 function createTeamWorkspace (dispatchers) {
   const workspaceName = 'A Demonstration Team Workspace';
   const workspaceDescription = '<p>With a team Workspace you can organize team wide documentation, store onboarding materials, and drive important discussions about team wide topics</p><p/>' +
-    '<p>You can archive this demo Workspace or invite collaborators and have them edit to start using.</p>';
+    '<p>You can archive this demo Workspace or invite collaborators and have edit it as you see fit.</p>';
   return doCreateRequirementsWorkspace(dispatchers, { workspaceName, workspaceDescription });
 }
 

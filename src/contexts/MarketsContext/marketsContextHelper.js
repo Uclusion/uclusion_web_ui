@@ -1,6 +1,4 @@
 import { addPresenceToMarket, getMarketPresences } from '../MarketPresencesContext/marketPresencesHelper'
-import LocalForageHelper from '../../utils/LocalForageHelper'
-import { MARKET_CONTEXT_NAMESPACE } from './MarketsContext'
 import { addContents } from '../DiffContext/diffContextReducer'
 import { updateMarketDetails, versionsUpdateDetails } from './marketsContextReducer'
 import { fixupItemForStorage } from '../ContextUtils'
@@ -107,14 +105,4 @@ export function getNotHiddenMarketDetailsForUser(state, marketPresencesState) {
     return { marketDetails: newMarketDetails };
   }
   return state;
-}
-
-
-export function checkMarketInStorage(marketId) {
-  const lfh = new LocalForageHelper(MARKET_CONTEXT_NAMESPACE);
-  return lfh.getState()
-    .then((state) => {
-      // console.debug(`Checking localforage for market ${marketId}`);
-      return !!getMarket(state, marketId);
-    });
 }

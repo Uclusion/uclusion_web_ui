@@ -46,7 +46,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function ECPInvite(props) {
-  const { hidden, utm } = props;
+  const { hidden } = props;
   const intl = useIntl();
   const history = useHistory();
   const [, marketsDispatch] = useContext(MarketsContext);
@@ -102,12 +102,10 @@ function ECPInvite(props) {
 
 ECPInvite.propTypes = {
   hidden: PropTypes.bool,
-  utm: PropTypes.string,
 };
 
 ECPInvite.defaultProps = {
   hidden: false,
-  utm: 'team',
 };
 
 export default ECPInvite;

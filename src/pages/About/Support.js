@@ -9,7 +9,6 @@ import config from '../../config'
 import { toastErrorAndThrow } from '../../utils/userMessage'
 import { getSSOInfo } from '../../api/sso'
 import { makeBreadCrumbs } from '../../utils/marketIdPathFunctions'
-import FeatureRequest from './FeatureRequest'
 import { clearUclusionLocalStorage } from '../../components/utils'
 import OnboardingWorkspace from './OnboardingWorkspace'
 
@@ -89,8 +88,7 @@ function Support(props) {
 
   useEffect(() => {
     if (!externalId && !hidden) {
-      async function doIt () {
-        await getSSOInfo().then((ssoInfo) => {
+      getSSOInfo().then((ssoInfo) => {
           const { idToken, ssoClient } = ssoInfo;
           return ssoClient.accountCognitoLogin(idToken).then((loginInfo) => {
             const { user: myUser } = loginInfo;
@@ -99,8 +97,6 @@ function Support(props) {
             setUser(myUser);
           });
         }).catch((error) => toastErrorAndThrow(error, 'errorGetIdFailed'));
-      }
-      doIt();
     }
   }, [externalId, hidden]);
   const breadCrumbs = makeBreadCrumbs(history, [], true);
@@ -149,7 +145,6 @@ function Support(props) {
             <OnboardingWorkspace user={user} />
           )}
           <br />
-          <FeatureRequest />
           <Button 
             variant="contained"
             fullWidth={true}

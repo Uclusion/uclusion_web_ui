@@ -4,7 +4,7 @@ import SettingsIcon from '@material-ui/icons/Settings'
 import { useHistory } from 'react-router'
 import MenuItem from '@material-ui/core/MenuItem'
 import { useIntl } from 'react-intl'
-import { navigate, openInNewTab } from '../../utils/marketIdPathFunctions'
+import { navigate } from '../../utils/marketIdPathFunctions'
 import SignOut from '../../pages/Authentication/SignOut'
 import { CognitoUserContext } from '../../contexts/CognitoUserContext/CongitoUserContext'
 import config from '../../config'
@@ -125,13 +125,6 @@ function Identity () {
             </Typography>
           </MenuItem>
         )}
-        <MenuItem
-          onClick={() => openInNewTab(config.videoChannelLink)}
-        >
-          <Typography className={classes.name}>
-            {intl.formatMessage({ id: 'helpVideos' })}
-          </Typography>
-        </MenuItem>
           <MenuItem>
             <SignOut/>
           </MenuItem>

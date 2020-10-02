@@ -1,16 +1,18 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { useHistory } from 'react-router'
 import { useIntl } from 'react-intl'
 import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions'
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton'
-import { createPlanning } from '../../api/markets'
-import { checkMarketInStorage } from '../../contexts/MarketsContext/marketsContextHelper'
 import { addParticipants } from '../../api/users'
 import clsx from 'clsx'
 import { makeStyles } from '@material-ui/core'
-import { PLANNING_TYPE } from '../../constants/markets'
 import PropTypes from 'prop-types'
 import { getRandomSupportUser } from '../../utils/userFunctions'
+import { doCreateRequirementsWorkspace } from '../../components/AddNew/Workspace/RequirementsWorkspace/workspaceCreator'
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
+import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
+import { DiffContext } from '../../contexts/DiffContext/DiffContext'
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 
 const useStyles = makeStyles((theme) => ({
   name: {},
@@ -40,30 +42,30 @@ function OnboardingWorkspace(props) {
   const history = useHistory();
   const intl = useIntl();
   const classes = useStyles();
+  const [, marketsDispatch] = useContext(MarketsContext);
+  const [, investiblesDispatch] = useContext(InvestiblesContext);
+  const [, diffDispatch] = useContext(DiffContext);
+  const [, presenceDispatch] = useContext(MarketPresencesContext);
+  const dispatchers = {marketsDispatch, diffDispatch, presenceDispatch, investiblesDispatch};
+
   function onDone(marketLink) {
     navigate(history, marketLink);
   }
 
   function handleSave() {
-    const addInfo = {
-      name: intl.formatMessage({ id: 'onboardingWorkspace' }, { x: name }),
-      market_type: PLANNING_TYPE,
-      description: '<h2>Thanks for reaching out!</h2><p>If you have any questions, suggestions or issues please don\'t hesitate to open them below and we will get back to you as soon as possible.</p>',
-    };
-    return createPlanning(addInfo)
-      .then((result) => {
-        const { market } = result;
-        const { id: marketId } = market;
+    return doCreateRequirementsWorkspace(dispatchers, {
+      workspaceName: intl.formatMessage({ id: 'onboardingWorkspace' }, { x: name }),
+      workspaceDescription: '<h2>Thanks for reaching out!</h2><p/><p>If you have any questions, suggestions or issues please don\'t hesitate to open them below and we will get back to you as soon as possible.</p>'})
+      .then((marketId) => {
         const link = formMarketLink(marketId);
         const supportUser = getRandomSupportUser();
         return addParticipants(marketId, [{
           user_id: supportUser.user_id,
           account_id: supportUser.account_id,
           is_observer: false,
-        }])
-          .then(() => ({
+        }]).then(() => ({
             result: link,
-            spinChecker: () => checkMarketInStorage(marketId),
+            spinChecker: () => Promise.resolve(true),
           }));
       });
   }

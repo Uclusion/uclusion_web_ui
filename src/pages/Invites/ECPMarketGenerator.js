@@ -22,11 +22,11 @@ function createInitiative (dispatchers) {
     '    Uclusion Initiatives are a great way to measure support for an idea, and are a good introduction to' +
     ' <a href="https://www.uclusion.com/autonomousteamwork">autonomous teamwork</a>.' +
     '</p>' +
-    '<p></p>' +
+    '<p/>' +
     '<p>' +
     '    Initiatives have several features to make sure you get timely constructive feedback:' +
     '</p>' +
-    '<p></p>' +
+    '<p/>' +
     '<p>' +
     '    Initiatives have a deadline, and collaborators will be notified to respond as it approaches.<br>' +
     '    <img src="https://www.uclusion.com/static/media/onboarding/expiry.png" height="160"/>' +
@@ -36,7 +36,7 @@ function createInitiative (dispatchers) {
     '    Communication is <em>structured</em> so you always know what a collaborator is trying to say.' +
     '    <img src="https://www.uclusion.com/static/media/onboarding/suggestion.png"/>' +
     '</p>' +
-    '<p></p>' +
+    '<p/>' +
     '<p>' +
     'Your collaborators can vote for or against the idea, express how certain they are, and give reasons for their vote.<br/>' +
     '<img src="https://www.uclusion.com/static/media/onboarding/initiative_vote.png"/>' +
@@ -46,12 +46,12 @@ function createInitiative (dispatchers) {
     '    We present a simple tally on your home page, so you can see how it\'s going at a glance.<br/>' +
     '    <img src="https://www.uclusion.com/static/media/onboarding/initiative_outcome.png"/>' +
     '</p>' +
-    '<p></p>' +
-    '<p></p>' +
+    '<p/>' +
+    '<p/>' +
     '<p>' +
     '    In short, we eliminate the incessant back and forth on emails, and the uncertainty of whether people really agree with you or not.' +
     '</p>' +
-    '<p></p>' +
+    '<p/>' +
     '<p>' +
     '    <b>With Uclusion, you know exactly where your idea stands at all times.</b>' +
     '</p>';
@@ -84,22 +84,15 @@ function createDialog (dispatchers) {
 
 function createTeamWorkspace (dispatchers) {
   const workspaceName = 'A Demonstration Team Workspace';
-  const workspaceDescription = '<p>We created this workspace for your team so you can organize team wide documentation, store onboarding materials, and drive important discussions about team wide topics</p>' +
-    '<p>To get started, invite everyone on your team, and have them edit this description as they see fit.</p>';
-
+  const workspaceDescription = '<p>With a team Workspace you can organize team wide documentation, store onboarding materials, and drive important discussions about team wide topics</p><p/>' +
+    '<p>You can archive this demo Workspace or invite collaborators and have them edit to start using.</p>';
   return doCreateRequirementsWorkspace(dispatchers, { workspaceName, workspaceDescription });
 }
 
 function createProjectWorkspace (dispatchers) {
   const workspaceName = 'A Demonstration Project Workspace';
-  const workspaceDescription = '<p>We created this workspace to help your team to run a small project from start to finish inside Uclusion.</p>' +
-  'List all the requirements just like you would do for a wiki, but this time use the comments' +
-  ' section to drive discussion.</p>' +
-  '<p>You’ll get incremental updates of changes, but won’t be tied to' +
-  ' meetings in order to create good requirements and you’ll have Dialogs linked to the Workspace to' +
-  ' help make and record any decisions.</p>' +
-  '<p>When ready to start work, create stories in the Workspace.</p>' +
-  '<p>Each story gets its own discussion section, and the status of that story takes discussion into' +
-  ' account, so you won’t need your normal standup meetings.</p>';
+  const workspaceDescription = '<p>With a project Workspace you can describe and complete requirements from start to finish inside Uclusion.</p><p/>' +
+  'You can archive this demo Workspace or invite collaborators and try using it for some small project.</p><p/>' +
+  '<p>See <iframe allowfullscreen="true" class="ql-video" frameborder="0" src="https://www.youtube.com/embed/v5QdMpnNr2M?showinfo=0"></iframe> for a walk through on using a Workspace for stories.</p>';
   return doCreateRequirementsWorkspace(dispatchers, { workspaceName, workspaceDescription });
 }

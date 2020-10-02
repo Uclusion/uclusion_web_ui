@@ -13,8 +13,8 @@ import { WizardStylesContext } from '../../WizardStylesContext';
 
 function OptionDescriptionStep (props) {
   const { updateFormData, formData } = props;
-  const { dialogReason, dialogReasonUploadedFiles } = formData;
-  const [editorContents, setEditorContents] = useState(dialogReason || '');
+  const { optionDescription, optionUploadedFiles } = formData;
+  const [editorContents, setEditorContents] = useState(optionDescription || '');
   const intl = useIntl();
   const classes = useContext(WizardStylesContext);
   const [marketState] = useContext(MarketsContext);
@@ -24,14 +24,30 @@ function OptionDescriptionStep (props) {
     setEditorContents(content);
   }
 
-  function onStepChange () {
-    updateFormData({
+  function onPrevious () {
+    const newData = {
       optionDescription: editorContents,
+    };
+    updateFormData(newData);
+  }
+
+  function onFinish() {
+    const newData = {
+      optionDescription: editorContents,
+    };
+    updateFormData(newData);
+    // due to binding, when the parent on finish is called
+    // it might not have the form data at the time of the call.
+    // but finish on step buttons always passes along
+    // the return value of onNext if it's the last step
+    return ({
+      ...formData,
+      ...newData,
     });
   }
 
   function onS3Upload (metadatas) {
-    const oldUploadedFiles = dialogReasonUploadedFiles || [];
+    const oldUploadedFiles = optionUploadedFiles || [];
     const newUploadedFiles = _.uniqBy([...oldUploadedFiles, metadatas], 'path');
     updateFormData({
       optionUploadedFiles: newUploadedFiles
@@ -61,8 +77,8 @@ function OptionDescriptionStep (props) {
         <StepButtons
           {...props}
           startOverLabel="AddOptionWizardCancelOption"
-          onPrevious={onStepChange}
-          onNext={onStepChange}
+          onPrevious={onPrevious}
+          onNext={onFinish}
         />
       </div>
     </WizardStepContainer>

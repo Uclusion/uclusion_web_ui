@@ -4,7 +4,7 @@ import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { getCommentRoot } from '../../contexts/CommentsContext/commentsContextHelper'
 import { Link, } from '@material-ui/core'
 import _ from 'lodash'
-import { formCommentLink } from '../../utils/marketIdPathFunctions'
+import { formCommentLink, navigate } from '../../utils/marketIdPathFunctions'
 import { useIntl } from 'react-intl'
 import {
   ISSUE_TYPE,
@@ -19,6 +19,7 @@ import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 import CardType from '../CardType'
+import { useHistory } from 'react-router'
 
 
 function getIntlMessage (commentType) {
@@ -48,6 +49,7 @@ function CommentSearchResult (props) {
     classes
   } = props;
   const intl = useIntl();
+  const history = useHistory();
   const [commentsState] = useContext(CommentsContext);
   const [investibleState] = useContext(InvestiblesContext);
   const [marketsState] = useContext(MarketsContext);
@@ -85,7 +87,13 @@ function CommentSearchResult (props) {
 
 
   return (
-    <Link href={linkTarget} className={classes.link}>
+    <Link href={linkTarget} className={classes.link} onClick={
+      (event) => {
+        event.stopPropagation();
+        event.preventDefault();
+        navigate(history, linkTarget);
+      }
+    }>
       <CardType
         type={type}
         label={linkText}

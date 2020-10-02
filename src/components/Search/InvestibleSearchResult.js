@@ -5,9 +5,10 @@ import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper';
 import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets';
 import CardType, { GENERIC_STORY_TYPE, VOTING_TYPE } from '../CardType';
 import { Link } from '@material-ui/core';
-import { formInvestibleLink } from '../../utils/marketIdPathFunctions';
+import { formInvestibleLink, navigate } from '../../utils/marketIdPathFunctions'
 import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
+import { useHistory } from 'react-router'
 
 function getCardType(marketType) {
   switch (marketType){
@@ -25,6 +26,7 @@ function InvestibleSearchResult (props) {
   const { investibleId, classes } = props;
   const [marketsState] = useContext(MarketsContext);
   const [investibleState] = useContext(InvestiblesContext);
+  const history = useHistory();
   const inv = getInvestible(investibleState, investibleId);
   // we're going to assume the first info is what we want
   const { investible: { name }, market_infos: [firstInfo,] } = inv;
@@ -38,6 +40,13 @@ function InvestibleSearchResult (props) {
     <Link
       href={linkTarget}
       className={classes.link}
+      onClick={
+        (event) => {
+          event.stopPropagation();
+          event.preventDefault();
+          navigate(history, linkTarget);
+        }
+      }
     >
       <CardType
         type={cardType}

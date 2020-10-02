@@ -61,15 +61,14 @@ function createInitiative (dispatchers) {
 }
 
 function createDialog (dispatchers) {
-  const dialogExpiration = 1440;
+  const dialogExpiration = 1440 * 14;
   const dialogName = 'How should I make decisions with my team?';
-  const dialogReason = '<p>This is a free Dialog with a staff member of Uclusion so you can get experience with Dialogs and we can learn more about you.</p>' +
-    '<p> Feel free to include other collaborators in this Dialog if you want.</p>';
+  const dialogReason = '<p>This is a free Dialog with a staff member of Uclusion so you can get experience with Dialogs and we can learn more about you.</p><p/>\n' +
+    '<p>Please include other collaborators in this Dialog if you want.</p>';
   const dialogOptions = [{ optionName: 'Your current tools', optionDescription: '<p>Approve this option to continue making team decisions with current tool set.</p>' },
     { optionName: 'Use Uclusion', optionDescription: '<p>Once everyone is using Uclusion Dialogs, you have a good chance of avoiding meetings entirely,' +
-        ' but if not the options and opinions are known so the meeting will be short.' +
-        ' They also serve as ‘Architecture Decision Records’ when you add a link to the Dialog in your' +
-        '                    code or commit messages.</p>', optionDoNotPromote: true }];
+        ' but if not the options and opinions are known so the meeting will be short.</p><p/>' +
+        '<p>They also serve as ‘Architecture Decision Records’ when you add a link to the Dialog in your code or commit messages.</p>', optionDoNotPromote: true }];
   const supportUser = getRandomSupportUser();
   return createMyDialog(dispatchers,
     { dialogName, dialogReason, dialogOptions, dialogExpiration },

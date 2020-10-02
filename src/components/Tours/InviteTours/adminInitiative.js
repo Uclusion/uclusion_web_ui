@@ -25,7 +25,7 @@ export function adminInitiativeSteps(variables) {
       disableBeacon: true,
       placement: 'left',
       target: '#adminManageCollaborators',
-      content: 'Lastly, collaborators can be added here.',
+      content: 'This initiative is all ready to go, so send it to your team by adding collaborators here.',
     },
 
   ]

@@ -16,7 +16,7 @@ export function signupHomeSteps(variables) {
       disableBeacon: true,
       target: '#ini0',
       placement: 'top',
-      content: "Initiatives let you measure a support for an idea and gather feedback from your team. We've created your first one which you can edit and send out.",
+      content: "Initiatives let you measure a support for an idea and gather feedback from your team. We've created your first one which you can send to your team.",
     },
     {
       disableBeacon: true,

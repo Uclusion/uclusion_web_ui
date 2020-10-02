@@ -170,8 +170,8 @@ function CommentAdd (props) {
           const blockingStage = getBlockedStage(marketStagesState, marketId);
           if (blockingStage) {
             // TODO: this breaks if investible exists in more than one market
-            const rootInvestible = getInvestible(investibleState, investibleId)
-            const { market_infos } = rootInvestible;
+            const inv = getInvestible(investibleState, investibleId);
+            const { market_infos, investible: rootInvestible } = inv;
             const [info] = market_infos;
             const newInfo = {
               ...info,

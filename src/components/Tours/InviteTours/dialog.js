@@ -7,13 +7,13 @@ export function inviteDialogSteps(variables) {
       target: '#dialogMain',
       placement: 'center',
       title: `Welcome ${name}!`,
-      content: 'Uclusion Dialogs let you and your collaborators make a decision by voting for the options you prefer.',
+      content: 'Uclusion Dialogs let you and your collaborators make a decision by approving options.',
     },
     {
       disableBeacon: true,
       target: '#option0',
       placement: 'right',
-      content: 'Click on an option to see its details and vote for it.',
+      content: 'Click on an option to see its details and approve it.',
     },
     {
       disableBeacon: true,

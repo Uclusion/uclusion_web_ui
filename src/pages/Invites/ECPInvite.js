@@ -57,9 +57,7 @@ function ECPInvite(props) {
   const { user } = userState;
   const { name } = user || {};
   const classes = useStyles();
-  // TODO - Don't have a video specific to agencies yet
-  const storyLevelVideo = utm === 'founders' ? 'https://www.youtube.com/embed/3t7uzNGUxFk?showinfo=0'
-    : 'https://www.youtube.com/embed/v5QdMpnNr2M?showinfo=0';
+
   useEffect(() => {
     if (!hidden && !_.isEmpty(name)) {
       const dispatchers = {marketsDispatch, diffDispatch, presenceDispatch, investiblesDispatch};
@@ -72,8 +70,7 @@ function ECPInvite(props) {
           toastError('errorMarketFetchFailed');
         });
     }
-  }, [name, hidden, history, marketsDispatch, intl, diffDispatch, presenceDispatch, investiblesDispatch,
-    storyLevelVideo]);
+  }, [name, hidden, history, marketsDispatch, intl, diffDispatch, presenceDispatch, investiblesDispatch]);
 
   if (hidden) {
     return <React.Fragment/>

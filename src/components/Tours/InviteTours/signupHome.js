@@ -16,25 +16,25 @@ export function signupHomeSteps(variables) {
       disableBeacon: true,
       target: '#ini0',
       placement: 'top',
-      content: "Initiatives let you measure a support for an idea and gather feedback from your team. We've created your first one which you can send to your team.",
+      content: "Initiatives let you gather feedback and measure support for an idea. We've created your first one so you can try sending it to others.",
     },
     {
       disableBeacon: true,
       target: '#dia0',
       placement: 'left',
-      content: "After your team is comfortable with Initiatives, send them a Dialog which lets them weigh in on multiple options.",
+      content: "We've also created a Dialog as you and added someone from Uclusion as a collaborator. Dialogs let you reach decisions more easily.",
     },
     {
       disableBeacon: true,
       placement: 'left',
       target: '#ws1',
-      content: 'The Team Workspace we created for you is a great place to hold team-wide discussions, and record new member onboarding materials.',
+      content: 'A Team Workspace is a great place to hold team-wide discussions, and record new member onboarding materials.',
     },
     {
       disableBeacon: true,
       placement: 'right',
       target: '#ws0',
-      content: "When you're ready, the Small Project Workspace is where you can create requirements and execute stories.",
+      content: "When you're ready, a Project Workspace is where you create requirements and execute stories.",
     }
   ]
 }

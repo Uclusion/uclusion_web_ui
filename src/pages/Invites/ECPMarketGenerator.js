@@ -24,8 +24,7 @@ function createInitiative (dispatchers) {
     '</p>' +
     '<p></p>' +
     '<p>' +
-    '    Initiatives don\'t require you to make big process changes, and have several features to make sure you get timely' +
-    '    constructive feedback:' +
+    '    Initiatives have several features to make sure you get timely constructive feedback:' +
     '</p>' +
     '<p></p>' +
     '<p>' +
@@ -63,12 +62,14 @@ function createInitiative (dispatchers) {
 function createDialog (dispatchers) {
   const dialogExpiration = 1440 * 14;
   const dialogName = 'How should I make decisions with my team?';
-  const dialogReason = '<p>This is a free Dialog with a staff member of Uclusion so you can get experience with Dialogs and we can learn more about you.</p><p/>\n' +
+  const dialogReason = '<p>This is a free Dialog with a staff member of Uclusion so you can get experience with Dialogs and we can learn more about you.</p><p/>' +
     '<p>Please include other collaborators in this Dialog if you want.</p>';
-  const dialogOptions = [{ optionName: 'Your current tools', optionDescription: '<p>Approve this option to continue making team decisions with current tool set.</p>' },
-    { optionName: 'Use Uclusion', optionDescription: '<p>Once everyone is using Uclusion Dialogs, you have a good chance of avoiding meetings entirely,' +
+  const dialogOptions = [{ optionName: 'Stick with current tools', optionDescription: '<p>Approve this option to continue making team decisions with the current tool set.</p>' },
+    { optionName: 'Try Uclusion', optionDescription: '<p>Once everyone is using Uclusion Dialogs, you have a good chance of avoiding meetings entirely,' +
         ' but if not the options and opinions are known so the meeting will be short.</p><p/>' +
-        '<p>They also serve as ‘Architecture Decision Records’ when you add a link to the Dialog in your code or commit messages.</p>', optionDoNotPromote: true }];
+        '<p>They also serve as ‘Architecture Decision Records’ when you add a link to the Dialog in your code or commit messages.</p><p/>' +
+        '<p>See our <a href="https://www.uclusion.com/onboarding">onboarding document</a> for a full explanation of how to start with Initiatives and Dialogs and move on to Uclusion Workspaces.</p>',
+      optionDoNotPromote: true }];
   const supportUser = getRandomSupportUser();
   return createMyDialog(dispatchers,
     { dialogName, dialogReason, dialogOptions, dialogExpiration },
@@ -82,7 +83,7 @@ function createDialog (dispatchers) {
 }
 
 function createTeamWorkspace (dispatchers) {
-  const workspaceName = 'Your Team Workspace';
+  const workspaceName = 'A Demonstration Team Workspace';
   const workspaceDescription = '<p>We created this workspace for your team so you can organize team wide documentation, store onboarding materials, and drive important discussions about team wide topics</p>' +
     '<p>To get started, invite everyone on your team, and have them edit this description as they see fit.</p>';
 
@@ -90,7 +91,7 @@ function createTeamWorkspace (dispatchers) {
 }
 
 function createProjectWorkspace (dispatchers) {
-  const workspaceName = 'Your Small Project Workspace';
+  const workspaceName = 'A Demonstration Project Workspace';
   const workspaceDescription = '<p>We created this workspace to help your team to run a small project from start to finish inside Uclusion.</p>' +
   'List all the requirements just like you would do for a wiki, but this time use the comments' +
   ' section to drive discussion.</p>' +

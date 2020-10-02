@@ -10,25 +10,55 @@ import { MarketsContext } from '../../../../contexts/MarketsContext/MarketsConte
 import { InvestiblesContext } from '../../../../contexts/InvestibesContext/InvestiblesContext';
 import { WizardStylesContext } from '../../WizardStylesContext';
 import WizardStepContainer from '../../WizardStepContainer';
+import { doCreateRequirementsWorkspace } from './workspaceCreator';
+import { DiffContext } from '../../../../contexts/DiffContext/DiffContext';
+import { MarketPresencesContext } from '../../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { VersionsContext } from '../../../../contexts/VersionsContext/VersionsContext';
 
 function InitialRequirementsStep (props) {
-  const { updateFormData, formData, active } = props;
+  const { updateFormData, formData } = props;
   const classes = useContext(WizardStylesContext);
 
   const { workspaceDescription, workspaceDescriptionUploadedFiles } = formData;
   const [editorContents, setEditorContents] = useState(workspaceDescription || '');
   const intl = useIntl();
-  const [marketState] = useContext(MarketsContext);
+
+  const [marketState, marketsDispatch] = useContext(MarketsContext);
   const [investibleState] = useContext(InvestiblesContext);
+  const [, diffDispatch] = useContext(DiffContext);
+  const [, presenceDispatch] = useContext(MarketPresencesContext);
+  const [, versionsDispatch] = useContext(VersionsContext);
 
   function onEditorChange (content) {
     setEditorContents(content);
   }
 
-  function onStepChange () {
+  function onPrevious () {
     updateFormData({
       workspaceDescription: editorContents,
     });
+  }
+
+  function createWorkspace (formData) {
+    const dispatchers = {
+      marketsDispatch,
+      diffDispatch,
+      presenceDispatch,
+      versionsDispatch,
+    };
+    return doCreateRequirementsWorkspace(dispatchers, formData, updateFormData)
+      .then((marketId) => {
+        return ({ ...formData, marketId });
+      });
+  }
+
+
+  function myFinish () {
+    const newValues = {
+      workspaceDescription: editorContents,
+    };
+    updateFormData(newValues);
+    return createWorkspace({ ...formData, ...newValues });
   }
 
   function onS3Upload (metadatas) {
@@ -37,10 +67,6 @@ function InitialRequirementsStep (props) {
     updateFormData({
       workspaceDescriptionUploadedFiles: newUploadedFiles
     });
-  }
-
-  if (!active) {
-    return React.Fragment;
   }
 
   const validForm = !_.isEmpty(editorContents);
@@ -69,8 +95,8 @@ function InitialRequirementsStep (props) {
         <div className={classes.borderBottom}></div>
         <StepButtons {...props}
                      validForm={validForm}
-                     onNext={onStepChange}
-                     onPrevious={onStepChange}/>
+                     onNext={myFinish}
+                     onPrevious={onPrevious}/>
       </div>
     </WizardStepContainer>
   );

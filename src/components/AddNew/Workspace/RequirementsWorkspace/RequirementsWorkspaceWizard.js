@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import WorkspaceNameStep from './WorkspaceNameStep';
 import FormdataWizard from 'react-formdata-wizard';
 import InitialRequirementsStep from './InitialRequirementsStep';
-import TodoStep from './TodoStep';
+
 import { WizardStylesProvider } from '../../WizardStylesContext';
 
 function RequirementsWorkspaceWizard (props) {
@@ -16,7 +16,6 @@ function RequirementsWorkspaceWizard (props) {
       >
         <WorkspaceNameStep/>
         <InitialRequirementsStep/>
-        <TodoStep/>
       </FormdataWizard>
     </WizardStylesProvider>
   );

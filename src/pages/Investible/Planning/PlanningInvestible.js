@@ -817,7 +817,7 @@ function PlanningInvestible(props) {
             </SubSection>
           </Grid>
         )}
-        <Grid item xs={12} style={{ marginTop: '71px' }}>
+        <Grid item xs={12} style={{ marginTop: '15px' }}>
           {!inArchives && isAdmin && (!isInVoting || !canVote || yourVote) && (
             <CommentAddBox
               allowedTypes={allowedCommentTypes}

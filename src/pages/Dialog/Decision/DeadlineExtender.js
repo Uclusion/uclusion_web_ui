@@ -8,6 +8,17 @@ import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingBut
 import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { usePlanFormStyles } from '../../../components/AgilePlan';
+import { makeStyles } from '@material-ui/core/styles'
+
+const useStyles = makeStyles(
+  theme => ({
+    actions: {
+      margin: theme.spacing(1, 0, 0, 0),
+      paddingTop: theme.spacing(5),
+    },
+  }),
+  { name: "Extender" }
+);
 
 function DeadlineExtender(props) {
   const {
@@ -16,7 +27,8 @@ function DeadlineExtender(props) {
   const [, marketsDispatch] = useContext(MarketsContext);
   const { id: marketId, expiration_minutes: expirationMinutes } = market;
   const classes = usePlanFormStyles();
-  const [extensionPeriod, setExtensionPeriod] = useState(0);
+  const myClasses = useStyles();
+  const [extensionPeriod, setExtensionPeriod] = useState(1440);
 
   function selectorOnChange(event) {
     const { value } = event.target;
@@ -39,7 +51,7 @@ function DeadlineExtender(props) {
   }
 
   function myCancel() {
-    setExtensionPeriod(0);
+    setExtensionPeriod(1440);
     onCancel();
   }
 
@@ -49,7 +61,7 @@ function DeadlineExtender(props) {
         value={extensionPeriod}
         onChange={selectorOnChange}
       />
-      <CardActions className={classes.actions}>
+      <CardActions className={myClasses.actions}>
         <Button
           onClick={myCancel}
           className={classes.actionSecondary}
@@ -66,7 +78,6 @@ function DeadlineExtender(props) {
           variant="contained"
           color="primary"
           className={classes.actionPrimary}
-          disabled={extensionPeriod === 0}
           onClick={mySave}
           onSpinStop={onSpinStop}
           hasSpinChecker
@@ -81,7 +92,6 @@ function DeadlineExtender(props) {
 }
 
 DeadlineExtender.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types
   market: PropTypes.any.isRequired,
   onCancel: PropTypes.func.isRequired,
 };

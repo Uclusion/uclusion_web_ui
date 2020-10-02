@@ -10,11 +10,7 @@ function ExpirationSelector(props) {
 
   function createDaysOption(numDays) {
     const value = numDays * DAY_IN_MINUTES;
-    /* const label = (numDays === 1)
-       ? intl.formatMessage({ id: 'expirationSelectorOneDay' })
-       : intl.formatMessage({ id: 'expirationSelectorXDays' }, { x: numDays });
-     */
-    return { value, numDays };
+    return { value, label: numDays };
   }
 
   const options = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14].map((numDays) => createDaysOption(numDays));

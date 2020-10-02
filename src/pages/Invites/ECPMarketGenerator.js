@@ -70,8 +70,8 @@ function createDialog (dispatchers) {
     '<p> Feel free to include other collaborators in this Dialog if you want.</p>';
   const dialogOptions = [{ optionName: 'Your current tools', optionDescription: '<p>Approve this option to continue making team decisions with current tool set.</p>' },
     { optionName: 'Use Uclusion', optionDescription: '<p>Once everyone is using Uclusion Dialogs, you have a good chance of avoiding meetings entirely,' +
-        ' but if not the options and opinions are known so the meeting will be short.' +
-        ' They also serve as ‘Architecture Decision Records’ when you add a link to the Dialog in your\n' +
+        ' but if not the options and opinions are known so the meeting will be short.</p><p/>\n' +
+        '<p>They also serve as ‘Architecture Decision Records’ when you add a link to the Dialog in your\n' +
         '                    code or commit messages.</p>', optionDoNotPromote: true }];
   const supportUser = getRandomSupportUser();
   return createMyDialog(dispatchers,

@@ -1,3 +1,4 @@
+import React from 'react';
 export function signupHomeSteps(variables) {
   const { name } = variables;
   return [
@@ -6,7 +7,10 @@ export function signupHomeSteps(variables) {
       target: '#root',
       placement: 'center',
       title: `Welcome to Uclusion${name}!`,
-      content: "We've created your first collaborations to get you started on your <a target='_blank' href='https://www.uclusion.com/autonomousteamwork'>autonomous teamwork</a> journey.",
+      content: (
+        <React.Fragment>
+          We've created your first collaborations to get you started on your <a target='_blank' href='https://www.uclusion.com/autonomousteamwork' rel="noopener noreferrer">autonomous teamwork</a> journey.
+        </React.Fragment>),
     },
     {
       disableBeacon: true,

@@ -18,46 +18,43 @@ export function createECPMarkets (dispatchers) {
 function createInitiative (dispatchers) {
   const initiativeExpiration = 1440 * 14;
   const initiativeName = 'Checkout Uclusion Initiatives';
-  const initiativeDescription = '<p>\n' +
-    '    Uclusion Initiatives are a great way to measure support for an idea, and are a good introduction to\n' +
-    '    <a href="https://www.uclusion.com/autonomousteamwork">autonomous teamwork</a>.\n' +
-    '</p>\n' +
-    '<p/>\n' +
-    '<p>\n' +
-    '    Initiatives don\'t require you to make big process changes, and have several features to make sure you get timely\n' +
-    '    constructive feedback.\n' +
-    '</p>\n' +
-    '<p/>\n' +
-    '<p>\n' +
-    '    Initiatives have a deadline, and collaborators will be notified to respond as it approaches.<br>\n' +
-    '    <img src="https://www.uclusion.com/static/media/onboarding/expiry.png" height="200"/>\n' +
-    '</p>\n' +
-    '<p/>\n' +
-    '<p>\n' +
-    '    Communication is <em>structured</em> so you always know what a collaborator is trying to say.\n' +
-    '    <img src="https://www.uclusion.com/static/media/onboarding/suggestion.png"/>\n' +
-    '</p>\n' +
-    '<p/>\n' +
-    '<p>\n' +
-    'Collaborators can vote for or against, fully express how certain they are, and give reasons for their vote.<br/>\n' +
-    '<img src="https://www.uclusion.com/static/media/onboarding/initiative_vote.png"/>\n' +
-    '</p>\n' +
-    '<p/>\n' +
-    '<p>\n' +
-    '    We present a simple tally on your home page, so you can see how it\'s going at a glance.<br/>\n' +
-    '    <img src="https://www.uclusion.com/static/media/onboarding/initiative_outcome.png"/>\n' +
-    '</p>\n' +
-    '<p/>\n' +
-    '<p>\n' +
-    '    In short, we eliminate the incessant back and forth on emails, and the uncertainty of weather people really agree with you or not.\n' +
-    '</p>\n' +
-    '<p>\n' +
-    '    <b>With Uclusion, you know exactly where your idea stands at all times.</b>\n' +
-    '</p>\n' +
-    '<p/>\n' +
-    '<p>\n' +
-    '    So click on "Manage Collaborators" and send this to your team to get them started too.<br/>\n' +
-    '    <img src="https://www.uclusion.com/static/media/onboarding/add_collaborators.png"/>\n' +
+  const initiativeDescription = '<p>' +
+    '    Uclusion Initiatives are a great way to measure support for an idea, and are a good introduction to' +
+    ' <a href="https://www.uclusion.com/autonomousteamwork">autonomous teamwork</a>.' +
+    '</p>' +
+    '<p></p>' +
+    '<p>' +
+    '    Initiatives don\'t require you to make big process changes, and have several features to make sure you get timely' +
+    '    constructive feedback:' +
+    '</p>' +
+    '<p></p>' +
+    '<p>' +
+    '    Initiatives have a deadline, and collaborators will be notified to respond as it approaches.<br>' +
+    '    <img src="https://www.uclusion.com/static/media/onboarding/expiry.png" height="160"/>' +
+    '</p>' +
+    '<p/>' +
+    '<p>' +
+    '    Communication is <em>structured</em> so you always know what a collaborator is trying to say.' +
+    '    <img src="https://www.uclusion.com/static/media/onboarding/suggestion.png"/>' +
+    '</p>' +
+    '<p></p>' +
+    '<p>' +
+    'Your collaborators can vote for or against the idea, express how certain they are, and give reasons for their vote.<br/>' +
+    '<img src="https://www.uclusion.com/static/media/onboarding/initiative_vote.png"/>' +
+    '</p>' +
+    '<p/>' +
+    '<p>' +
+    '    We present a simple tally on your home page, so you can see how it\'s going at a glance.<br/>' +
+    '    <img src="https://www.uclusion.com/static/media/onboarding/initiative_outcome.png"/>' +
+    '</p>' +
+    '<p></p>' +
+    '<p></p>' +
+    '<p>' +
+    '    In short, we eliminate the incessant back and forth on emails, and the uncertainty of whether people really agree with you or not.' +
+    '</p>' +
+    '<p></p>' +
+    '<p>' +
+    '    <b>With Uclusion, you know exactly where your idea stands at all times.</b>' +
     '</p>';
   return createMyInitiative(dispatchers, { initiativeName, initiativeDescription, initiativeExpiration },
     () => {});
@@ -71,7 +68,7 @@ function createDialog (dispatchers) {
   const dialogOptions = [{ optionName: 'Your current tools', optionDescription: '<p>Approve this option to continue making team decisions with current tool set.</p>' },
     { optionName: 'Use Uclusion', optionDescription: '<p>Once everyone is using Uclusion Dialogs, you have a good chance of avoiding meetings entirely,' +
         ' but if not the options and opinions are known so the meeting will be short.' +
-        ' They also serve as ‘Architecture Decision Records’ when you add a link to the Dialog in your\n' +
+        ' They also serve as ‘Architecture Decision Records’ when you add a link to the Dialog in your' +
         '                    code or commit messages.</p>', optionDoNotPromote: true }];
   const supportUser = getRandomSupportUser();
   return createMyDialog(dispatchers,

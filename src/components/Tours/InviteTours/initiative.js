@@ -23,7 +23,7 @@ export function inviteInitiativeSteps(variables) {
     },
     {
       disableBeacon: true,
-      target: '#commentAddArea',
+      target: '#cabox',
       placement: 'top',
       content: 'Lastly, you can ask questions or provide suggestions in this section.',
     },

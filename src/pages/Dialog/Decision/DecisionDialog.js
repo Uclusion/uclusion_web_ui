@@ -410,7 +410,7 @@ function DecisionDialog(props) {
             <dl className={metaClasses.root}>
               <div className={clsx(metaClasses.group, metaClasses.assignments)}>
                 <ExpandableAction
-                  id="proposeOption"
+                  id="addOption"
                   onClick={() => navigate(history, formMarketAddInvestibleLink(marketId))}
                   icon={<AddIcon htmlColor={ACTION_BUTTON_COLOR} />}
                   label={intl.formatMessage({ id: addLabelExplanation })}

@@ -17,8 +17,8 @@ export function inviteDialogSteps(variables) {
     },
     {
       disableBeacon: true,
-      placement: 'left',
-      target: '#proposeOption',
+      placement: 'right',
+      target: '#addOption',
       content: 'Or you can create something different.'
     },
     {

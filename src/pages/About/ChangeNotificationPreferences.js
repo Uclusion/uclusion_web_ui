@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react';
 import {
   Card,
   Checkbox,
@@ -14,19 +14,19 @@ import {
   makeStyles,
   TextField,
   Typography,
-} from '@material-ui/core'
-import _ from 'lodash'
-import { useIntl } from 'react-intl'
-import PropTypes from 'prop-types'
-import { updateUser } from '../../api/users'
-import clsx from 'clsx'
-import config from '../../config'
-import Screen from '../../containers/Screen/Screen'
-import { makeBreadCrumbs } from '../../utils/marketIdPathFunctions'
-import { useHistory } from 'react-router'
-import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
-import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton'
+} from '@material-ui/core';
+import _ from 'lodash';
+import { useIntl } from 'react-intl';
+import PropTypes from 'prop-types';
+import { updateUser } from '../../api/users';
+import clsx from 'clsx';
+import config from '../../config';
+import Screen from '../../containers/Screen/Screen';
+import { makeBreadCrumbs } from '../../utils/marketIdPathFunctions';
+import { useHistory } from 'react-router';
+import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
 
 const useStyles = makeStyles((theme) => ({
   name: {},
@@ -78,9 +78,9 @@ function ChangeNotificationPreferences (props) {
 
   useEffect(() => {
     if (!_.isEmpty(user)) {
-      setEmailEnabled(user.email_enabled)
+      setEmailEnabled(user.email_enabled);
       setSlackDelay(user.slack_delay);
-      setSlackEnabled(!slackNotAvailable && user.slack_enabled)
+      setSlackEnabled(!slackNotAvailable && user.slack_enabled);
       setEmailDelay(user.email_delay);
     }
   }, [user, setEmailEnabled, setEmailDelay, setSlackEnabled, setSlackDelay, slackNotAvailable]);
@@ -103,16 +103,20 @@ function ChangeNotificationPreferences (props) {
   function handleChangeSlackDelay (event) {
     const { value } = event.target;
     const parsed = parseInt(value, 10);
-    if (parsed && parsed > 0) {
+    if (!isNaN(parsed)) {
       setSlackDelay(parsed);
+    }else{
+      setSlackDelay(undefined);
     }
   }
 
   function handleChangeEmailDelay (event) {
     const { value } = event.target;
     const parsed = parseInt(value, 10);
-    if (parsed && parsed > 0) {
+    if (!isNaN(parsed)) {
       setEmailDelay(parsed * 60);
+    } else {
+      setEmailDelay(undefined);
     }
   }
 
@@ -120,6 +124,7 @@ function ChangeNotificationPreferences (props) {
   const advancedEnabled = slackEnabled || emailEnabled;
   const history = useHistory();
   const breadCrumbs = makeBreadCrumbs(history, [], true);
+  const invalidForm = emailDelay === undefined || slackDelay === undefined;
   return (
     <Screen
       title={intl.formatMessage({ id: 'changePreferencesHeader' })}
@@ -221,6 +226,7 @@ function ChangeNotificationPreferences (props) {
                             id="emailDelay"
                             type="number"
                             variant="outlined"
+                            inputProps={{ min: 0 }}
                             disabled={!emailEnabled}
                             onChange={handleChangeEmailDelay}
                             value={emailDelayInHours}
@@ -236,6 +242,7 @@ function ChangeNotificationPreferences (props) {
                               type="number"
                               disabled={!slackEnabled}
                               variant="outlined"
+                              inputProps={{ min: 0 }}
                               onChange={handleChangeSlackDelay}
                               value={slackDelay}
                             />
@@ -260,6 +267,7 @@ function ChangeNotificationPreferences (props) {
                 fullWidth={true}
                 marketId=""
                 color="primary"
+                disabled={invalidForm}
                 className={clsx(
                   classes.action,
                   classes.actionPrimary

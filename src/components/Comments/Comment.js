@@ -185,7 +185,8 @@ function Comment(props) {
   const [editOpen, setEditOpen] = useState(false);
   const [operationRunning] = useContext(OperationInProgressContext);
   const [, versionsDispatch] = useContext(VersionsContext);
-  const enableEditing = !inArchives;
+  const enableActions = !inArchives
+  const enableEditing = !inArchives && !resolved; //resolved comments or those in archive aren't editable
 
   function toggleReply() {
     setReplyOpen(!replyOpen);
@@ -304,7 +305,7 @@ function Comment(props) {
               <FormattedMessage id="edit" />
             </Button>
           )}
-          {enableEditing && (
+          {enableActions && (
             <SpinBlockingButton
               className={clsx(
                 classes.action,
@@ -322,7 +323,7 @@ function Comment(props) {
               })}
             </SpinBlockingButton>
           )}
-          {(myPresence.is_admin || isEditable) && enableEditing && commentType !== REPORT_TYPE && comment.resolved && (
+          {(myPresence.is_admin || isEditable) && enableActions && commentType !== REPORT_TYPE && comment.resolved && (
             <SpinBlockingButton
               className={clsx(
                 classes.action,
@@ -380,7 +381,7 @@ function Comment(props) {
                 />
               </Button>
             )}
-            {!comment.resolved && enableEditing && (
+            {enableEditing && (
               <React.Fragment>
                 {commentType !== REPORT_TYPE && (
                   <Button

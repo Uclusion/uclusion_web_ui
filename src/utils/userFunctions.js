@@ -10,7 +10,8 @@ import _ from 'lodash'
 import config from '../config'
 
 export function extractUsersList (marketPresencesState, addToMarketId, workspaces, includeNotFollowing=true) {
-  const addToMarketPresencesRaw = getMarketPresences(marketPresencesState, addToMarketId) || [];
+  // The account user is being stored with an undefined market ID and so need to avoid it
+  const addToMarketPresencesRaw = addToMarketId ? getMarketPresences(marketPresencesState, addToMarketId) || [] : [];
   const addToMarketPresences = addToMarketPresencesRaw.filter((presence) => !presence.market_guest);
   const addToMarketPresencesHash = addToMarketPresences.reduce((acc, presence) => {
     const { external_id } = presence;

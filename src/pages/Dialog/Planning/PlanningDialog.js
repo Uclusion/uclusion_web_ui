@@ -360,6 +360,13 @@ export const useInvestiblesByPersonStyles = makeStyles(
           width: 'auto'
         }
       },
+      expansionControlHome: {
+        backgroundColor: '#ecf0f1',
+        width: '40%',
+        [theme.breakpoints.down('sm')]: {
+          width: 'auto'
+        }
+      },
       fontControl: {
         alignItems: "center",
         textTransform: 'none',

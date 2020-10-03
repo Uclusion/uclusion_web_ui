@@ -83,7 +83,7 @@ function InvestiblesByWorkspace(props) {
   const peopleChoices = [sortedPeople.map((entry) => renderParticipantEntry(entry))];
   return (
     <>
-      <div className={classes.expansionControl}>
+      <div className={classes.expansionControlHome}>
         <Button
           className={classes.menuButton}
           endIcon={<ExpandMoreIcon style={{ marginRight: '16px' }} htmlColor={ACTION_BUTTON_COLOR}/>}

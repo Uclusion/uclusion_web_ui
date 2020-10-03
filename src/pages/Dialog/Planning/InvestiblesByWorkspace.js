@@ -29,7 +29,7 @@ import { Button, Menu, MenuItem } from '@material-ui/core'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
 import { FormattedMessage, useIntl } from 'react-intl'
-import { extractUsersList } from '../../../utils/userFunctions'
+import { extractUsersList, getMarketInfo } from '../../../utils/userFunctions'
 import SubSection from '../../../containers/SubSection/SubSection'
 import { SECTION_TYPE_SECONDARY_WARNING } from '../../../constants/global'
 import ArchiveInvestbiles from '../../DialogArchives/ArchiveInvestibles'
@@ -129,7 +129,23 @@ function InvestiblesByWorkspace(props) {
           investibles,
           visibleStages,
         );
-        const requiresInputInvestibles = getInvestiblesInStage(myInvestibles, requiresInputStage.id);
+        const requiresInputInvestiblesAll = getInvestiblesInStage(investibles, requiresInputStage.id);
+        const requiresInputInvestibles = requiresInputInvestiblesAll.filter((investible) => {
+          const marketInfo = getMarketInfo(investible, market.id);
+          const { inline_market_id: inlineMarketId, assigned } = marketInfo;
+          const assignedFull = Array.isArray(assigned) ? assigned : [];
+          if (assignedFull.includes(presence.id)) {
+            return true;
+          }
+          // If this is inline then check if they have an approval or not. If its not inline ignore as it will
+          // show up in the Dialogs section anyway and no need to show twice.
+          const inlineMarketPresences = getMarketPresences(marketPresencesState, inlineMarketId);
+          const myInlinePresence = inlineMarketPresences && inlineMarketPresences.find((presence) => {
+            return chosenPerson ? presence.external_id === chosenPerson.external_id : presence.current_user;
+          });
+          const investments = myInlinePresence ? myInlinePresence.investments : [];
+          return _.isEmpty(investments);
+        });
         if (_.isEmpty(myInvestibles)) {
           return React.Fragment;
         }

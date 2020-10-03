@@ -62,6 +62,7 @@ const messages = defineMessages({
   submit: 'Submit',
   delete: 'Delete',
   ok: 'OK',
+  help: 'Help Guide',
   delete_account_dialog_title: 'Delete Account?',
   delete_account_dialog_message: 'Your account will be deleted and you will lose all your data!',
   email_not_verified: 'E-Mail is not verified!',

@@ -1,11 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { useIntl } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl'
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import _ from 'lodash';
-import { AppBar, Breadcrumbs, Link, Paper, Toolbar, Typography, } from '@material-ui/core';
+import { AppBar, Breadcrumbs, Link, Paper, Toolbar, Tooltip, Typography, } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles';
-import { createTitle, navigate } from '../../utils/marketIdPathFunctions';
+import { createTitle, navigate, openInNewTab } from '../../utils/marketIdPathFunctions'
 import { OnlineStateContext } from '../../contexts/OnlineStateContext';
 import Identity from '../Screen/Identity';
 import SearchBox from '../../components/Search/SearchBox';
@@ -13,6 +13,8 @@ import SearchResults from '../../components/Search/SearchResults';
 import Notifications from '../../components/Notifications/Notifications';
 import { useHistory } from 'react-router';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
+import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
+import config from '../../config';
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -69,7 +71,8 @@ const useStyles = makeStyles((theme) => {
       },
     },
     searchBox: {
-      marginRight: '15px',
+      marginRight: '2rem',
+      paddingLeft: '1rem',
     },
     notification: {
       display: 'flex',
@@ -101,7 +104,7 @@ const useStyles = makeStyles((theme) => {
       },
     },
     notificationBox: {
-      marginRight: '15px'
+      marginRight: '2rem'
     }
   };
 });
@@ -251,6 +254,10 @@ function Header (props) {
                 <SearchBox/>
               </div>
               <SearchResults/>
+              <Tooltip title={<FormattedMessage id="help" />}>
+                <HelpOutlineIcon color="primary" style={{cursor: 'pointer'}}
+                                 onClick={() => openInNewTab(config.helpLink)} />
+              </Tooltip>
               <Identity/>
             </React.Fragment>
           )}

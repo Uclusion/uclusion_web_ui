@@ -72,6 +72,7 @@ function Identity () {
   return (
     <div
       id="profileLink"
+      style={{ paddingLeft: '2rem' }}
     >
       <Button
         onClick={recordPositionToggle}

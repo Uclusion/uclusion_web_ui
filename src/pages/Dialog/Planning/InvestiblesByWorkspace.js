@@ -144,7 +144,7 @@ function InvestiblesByWorkspace(props) {
             return chosenPerson ? presence.external_id === chosenPerson.external_id : presence.current_user;
           });
           const investments = myInlinePresence ? myInlinePresence.investments : [];
-          const investmentsFiltered = investments.filter((investment) => !investment.deleted);
+          const investmentsFiltered = (investments || []).filter((investment) => !investment.deleted);
           return _.isEmpty(investmentsFiltered);
         });
         if (_.isEmpty(myInvestibles)) {

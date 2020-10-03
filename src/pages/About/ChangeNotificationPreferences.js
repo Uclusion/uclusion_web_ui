@@ -124,7 +124,7 @@ function ChangeNotificationPreferences (props) {
   const advancedEnabled = slackEnabled || emailEnabled;
   const history = useHistory();
   const breadCrumbs = makeBreadCrumbs(history, [], true);
-  const invalidForm = emailDelay === undefined || slackDelay === undefined;
+  const invalidForm = (emailEnabled && (emailDelay === undefined)) || (slackEnabled && (slackDelay === undefined));
   return (
     <Screen
       title={intl.formatMessage({ id: 'changePreferencesHeader' })}

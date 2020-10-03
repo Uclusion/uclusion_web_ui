@@ -206,7 +206,7 @@ function InitiativeInvestible(props) {
   const tourName = isAdmin ? ADMIN_INITIATIVE_FIRST_VIEW : INVITE_INITIATIVE_FIRST_VIEW
   const tourSteps = isAdmin ? adminInitiativeSteps(cognitoUser) : inviteInitiativeSteps(cognitoUser)
   const yourPresence = marketPresences.find((presence) => presence.current_user)
-  const yourVote = yourPresence && yourPresence.investments.find((investment) => investment.investible_id === investibleId)
+  const yourVote = yourPresence && yourPresence.investments && yourPresence.investments.find((investment) => investment.investible_id === investibleId)
 
   function onAttachFile (metadatas) {
     return attachFilesToMarket(marketId, metadatas)

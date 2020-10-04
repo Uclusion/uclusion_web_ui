@@ -29,22 +29,22 @@ function createInitiative (dispatchers) {
     '<p/>' +
     '<p>' +
     '    Initiatives have a deadline, and collaborators will be notified to respond as it approaches.<br>' +
-    '    <img src="https://www.uclusion.com/static/media/onboardingImages/initiatives/expiry.png" height="160"/>' +
+    '    <img src="https://www.uclusion.com/onboardingImages/initiatives/expiry.png" height="160"/>' +
     '</p>' +
     '<p/>' +
     '<p>' +
     '    Communication is <em>structured</em> so you always know what a collaborator is trying to say.' +
-    '    <img src="https://www.uclusion.com/static/media/onboardingImages/initiatives/suggestion.png"/>' +
+    '    <img src="https://www.uclusion.com/onboardingImages/initiatives/suggestion.png"/>' +
     '</p>' +
     '<p/>' +
     '<p>' +
     'Your collaborators can vote for or against the idea, express how certain they are, and give reasons for their vote.<br/>' +
-    '<img src="https://www.uclusion.com/static/media/onboardingImages/initiatives/initiative_vote.png"/>' +
+    '<img src="https://www.uclusion.com/onboardingImages/initiatives/initiative_vote.png"/>' +
     '</p>' +
     '<p/>' +
     '<p>' +
     '    We present a simple tally on your home page, so you can see how it\'s going at a glance.<br/>' +
-    '    <img src="https://www.uclusion.com/static/media/onboardingImages/initiatives/initiative_outcome.png"/>' +
+    '    <img src="https://www.uclusion.com/onboardingImages/initiatives/initiative_outcome.png"/>' +
     '</p>' +
     '<p/>' +
     '<p/>' +

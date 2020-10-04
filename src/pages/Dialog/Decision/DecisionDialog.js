@@ -408,12 +408,13 @@ function DecisionDialog(props) {
         <Grid item xs={12}>
           {!inArchives && (
             <dl className={metaClasses.root}>
-              <div className={clsx(metaClasses.group, metaClasses.assignments)}>
+              <div className={metaClasses.blue}>
                 <ExpandableAction
                   id="addOption"
-                  onClick={() => navigate(history, formMarketAddInvestibleLink(marketId))}
-                  icon={<AddIcon htmlColor={ACTION_BUTTON_COLOR} />}
+                  key="addOption"
                   label={intl.formatMessage({ id: addLabelExplanation })}
+                  onClick={() => navigate(history, formMarketAddInvestibleLink(marketId))}
+                  icon={<AddIcon />}
                   openLabel={intl.formatMessage({ id: addLabel })}
                 />
               </div>

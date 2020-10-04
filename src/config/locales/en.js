@@ -486,7 +486,7 @@ const messages = defineMessages({
   uploadFilesDisplay: 'Attach New Files',
   uploadFilesTooltip: 'Drag files here or click to attach new files',
   uploadInProgress: 'Uploading Files',
-  inlineAddExplanation: 'Add a how to do this story option and collect approval on it.',
+  inlineAddExplanation: 'Add options for how to do this story and collect approval.',
   deactivateInlineQuestion: 'Changing stage will deactivate any dialogs associated with this story.',
   deactivateDialogQuestion: 'Do you want to deactivate and stop any further work?',
   activateDialogQuestion: 'This Workspace is inactive. Do you want to activate and continue work?',

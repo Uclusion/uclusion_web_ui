@@ -29,7 +29,7 @@
     transform: translateY(100%);
     bottom: 0;
     width: 100%;
-    
+
 }
 @media screen and (max-width: 600px) {
     .ql-disabled .ql-editor{

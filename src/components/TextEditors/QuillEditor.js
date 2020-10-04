@@ -17,7 +17,6 @@ import './editorStyles.css';
 import _ from 'lodash';
 import { injectIntl } from 'react-intl';
 import { withTheme } from '@material-ui/core';
-import Grid from '@material-ui/core/Grid';
 import { isTinyWindow } from '../../utils/windowUtils';
 
 // install our filtering paste module, and disable the uploader
@@ -260,36 +259,22 @@ class QuillEditor extends React.PureComponent {
     };
 
     return (
-        <Grid
-          container
-        >
-          <Grid
-            item
-            xs={12}
-            >
-          <div ref={this.editorContainer} style={{ maxWidth: '100%', zIndex: '2' }} id={id}>
-
-            <LoadingOverlay
-              active={uploadInProgress}
-              spinner
-              className="editor-wrapper"
-              text={intl.formatMessage({ id: 'quillEditorUploadInProgress' })}
-            >
-              <div ref={this.editorBox} id='editorbox' style={editorStyle}/>
-            </LoadingOverlay>
-            {children}
-          </div>
-          </Grid>
-
-          {isTinyWindow() && (
-            <Grid
-              item
-              xs={12}
-              style={{height: "20px"}}
-              >
-            </Grid>
-          )}
-        </Grid>
+      <div>
+        <div ref={this.editorContainer} style={{ maxWidth: '100%', zIndex: '2' }} id={id}>
+          <LoadingOverlay
+            active={uploadInProgress}
+            spinner
+            className="editor-wrapper"
+            text={intl.formatMessage({ id: 'quillEditorUploadInProgress' })}
+          >
+            <div ref={this.editorBox} id='editorbox' style={editorStyle}/>
+          </LoadingOverlay>
+        </div>
+        {isTinyWindow() && <div style={{height: "40px"}}>&nbsp;</div>}
+        <div>
+        {children}
+        </div>
+      </div>
     );
   }
 }

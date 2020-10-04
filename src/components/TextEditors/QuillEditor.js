@@ -1,22 +1,24 @@
 /** A simple wrapper around the quill editor that passes props
  through, and sets up some of the options we'll always want
  **/
-import React from 'react'
-import PropTypes from 'prop-types'
-import Quill from 'quill'
-import LoadingOverlay from 'react-loading-overlay'
-import ImageResize from 'quill-image-resize-module-withfix'
-import QuillS3ImageUploader from './QuillS3ImageUploader'
-import NoOpUploader from './NoOpUploader'
-import CustomQuillClipboard from './CustomQuillClipboard'
-import CustomCodeBlock from './CustomCodeBlock'
-import QuillTableUI from 'quill-table-ui'
-import 'quill/dist/quill.snow.css'
-import 'quill-table-ui/dist/index.css'
-import './editorStyles.css'
-import _ from 'lodash'
-import { injectIntl } from 'react-intl'
-import { withTheme } from '@material-ui/core'
+import React from 'react';
+import PropTypes from 'prop-types';
+import Quill from 'quill';
+import LoadingOverlay from 'react-loading-overlay';
+import ImageResize from 'quill-image-resize-module-withfix';
+import QuillS3ImageUploader from './QuillS3ImageUploader';
+import NoOpUploader from './NoOpUploader';
+import CustomQuillClipboard from './CustomQuillClipboard';
+import CustomCodeBlock from './CustomCodeBlock';
+import QuillTableUI from 'quill-table-ui';
+import 'quill/dist/quill.snow.css';
+import 'quill-table-ui/dist/index.css';
+import './editorStyles.css';
+import _ from 'lodash';
+import { injectIntl } from 'react-intl';
+import { withTheme } from '@material-ui/core';
+import Grid from '@material-ui/core/Grid';
+import { isTinyWindow } from '../../utils/windowUtils';
 
 // install our filtering paste module, and disable the uploader
 Quill.register('modules/clipboard', CustomQuillClipboard, true);
@@ -27,10 +29,9 @@ Quill.register('modules/s3Upload', QuillS3ImageUploader);
 Quill.register('modules/imageResize', ImageResize);
 Quill.register(CustomCodeBlock, true);
 
-function editorEmpty(contents) {
+function editorEmpty (contents) {
   return (contents.length === 0 || contents === '<p></p>' || contents === '<p><br></p>');
 }
-
 
 // code derived from https://github.com/quilljs/quill/issues/1447
 class QuillEditor extends React.PureComponent {
@@ -55,14 +56,18 @@ class QuillEditor extends React.PureComponent {
     ['clean'],
   ];
 
-  constructor(props) {
+  tinyToolBar = [
+    ['bold', 'italic', 'link', 'image', 'video'],
+  ];
+
+  constructor (props) {
     super(props);
     this.state = { uploads: [], uploadInProgress: false };
     this.editorBox = React.createRef();
     this.editorContainer = React.createRef();
   }
 
-  addLinkFixer() {
+  addLinkFixer () {
     const Link = Quill.import('formats/link');
     var builtinSanitizer = Link.sanitize;
     Link.sanitize = function (linkValue) {
@@ -71,19 +76,20 @@ class QuillEditor extends React.PureComponent {
         return builtinSanitizer.call(this, linkValue);
       }
       return builtinSanitizer.call(this, 'https://' + linkValue);
-    }
+    };
   }
 
   /** The default UI for links sucks, This is a new one that's better
    *
    * @param value
    */
-  renderLinkUI(value) {
+  renderLinkUI (value) {
 
   }
 
-  createEditor() {
-    const { onChange, onStoreChange, setEditorClearFunc, setEditorFocusFunc, setEditorDefaultFunc,
+  createEditor () {
+    const {
+      onChange, onStoreChange, setEditorClearFunc, setEditorFocusFunc, setEditorDefaultFunc,
       marketId,
       placeholder,
       uploadDisabled,
@@ -133,6 +139,11 @@ class QuillEditor extends React.PureComponent {
       this.modules.s3Upload = false;
       this.modules.imageResize = false;
     }
+
+    if (isTinyWindow()) {
+      this.modules.toolbar = this.tinyToolBar;
+    }
+
     if (noToolbar) {
       this.modules.toolbar = false;
     }
@@ -146,10 +157,7 @@ class QuillEditor extends React.PureComponent {
       readOnly: false,
       theme: 'snow',
       bounds: '#editorbox'
-    }
-    if(window.outerWidth < 600){
-      this.options.modules.toolbar = false
-    }
+    };
     this.editor = new Quill(this.editorBox.current, this.options);
     this.editor.getUrlName = getUrlName;
     this.addLinkFixer();
@@ -179,7 +187,7 @@ class QuillEditor extends React.PureComponent {
     const editorClearFunc = () => (newPlaceHolder) => {
       // this might not really work, zo C-Z will undo the clear, but it's still better than nothing
       this.editor.history.clear();
-      this.editor.root.innerHTML='';
+      this.editor.root.innerHTML = '';
       this.editor.setContents([{ insert: '' }]);
       if (newPlaceHolder) {
         const el = this.editorBox.current.firstChild;
@@ -212,7 +220,7 @@ class QuillEditor extends React.PureComponent {
     }
   }
 
-  componentDidMount() {
+  componentDidMount () {
     const { defaultValue } = this.props;
     this.editorBox.current.innerHTML = defaultValue;
 
@@ -220,20 +228,20 @@ class QuillEditor extends React.PureComponent {
 
   }
 
-  setUploadInProgress(value) {
+  setUploadInProgress (value) {
     this.setState({
       uploadInProgress: value,
     });
   }
 
-  disableToolbarTabs(editorNode) {
+  disableToolbarTabs (editorNode) {
     const toolbarButtons = editorNode.querySelectorAll('.ql-toolbar *');
     toolbarButtons.forEach((button) => {
       button.tabIndex = -1;
     });
   }
 
-  statefulUpload(metadatas) {
+  statefulUpload (metadatas) {
     const { uploads } = this.state;
     const newUploads = [...uploads, ...metadatas];
     this.setState({ uploads: newUploads });
@@ -243,7 +251,7 @@ class QuillEditor extends React.PureComponent {
     }
   }
 
-  render() {
+  render () {
     const { children, theme, intl, id } = this.props;
     const { uploadInProgress } = this.state;
     const editorStyle = {
@@ -252,18 +260,36 @@ class QuillEditor extends React.PureComponent {
     };
 
     return (
-      <div ref={this.editorContainer} style={{maxWidth: '100%', zIndex: '2'}} id={id}>
-
-        <LoadingOverlay
-          active={uploadInProgress}
-          spinner
-          className="editor-wrapper"
-          text={intl.formatMessage({ id: 'quillEditorUploadInProgress' })}
+        <Grid
+          container
         >
-          <div ref={this.editorBox} id='editorbox' style={editorStyle} />
-        </LoadingOverlay>
-        {children}
-      </div>
+          <Grid
+            item
+            xs={12}
+            >
+          <div ref={this.editorContainer} style={{ maxWidth: '100%', zIndex: '2' }} id={id}>
+
+            <LoadingOverlay
+              active={uploadInProgress}
+              spinner
+              className="editor-wrapper"
+              text={intl.formatMessage({ id: 'quillEditorUploadInProgress' })}
+            >
+              <div ref={this.editorBox} id='editorbox' style={editorStyle}/>
+            </LoadingOverlay>
+            {children}
+          </div>
+          </Grid>
+
+          {isTinyWindow() && (
+            <Grid
+              item
+              xs={12}
+              style={{height: "20px"}}
+              >
+            </Grid>
+          )}
+        </Grid>
     );
   }
 }
@@ -311,6 +337,5 @@ QuillEditor.defaultProps = {
   id: undefined,
   simple: false,
 };
-
 
 export default withTheme(injectIntl(QuillEditor));

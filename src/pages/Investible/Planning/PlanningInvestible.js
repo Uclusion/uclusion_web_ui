@@ -911,6 +911,9 @@ export const useMetaDataStyles = makeStyles(
           
         }
       },
+      blue: {
+        backgroundColor: '#2d9cdb',
+      },
       expansionControl: {
         backgroundColor: '#ecf0f1',
         width: '100%'

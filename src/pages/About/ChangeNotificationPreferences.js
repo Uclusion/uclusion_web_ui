@@ -120,7 +120,7 @@ function ChangeNotificationPreferences (props) {
     }
   }
 
-  const emailDelayInHours = Math.round(emailDelay / 60);
+  const emailDelayInHours = emailDelay === 0? 0 : Math.round(emailDelay / 60);
   const advancedEnabled = slackEnabled || emailEnabled;
   const history = useHistory();
   const breadCrumbs = makeBreadCrumbs(history, [], true);

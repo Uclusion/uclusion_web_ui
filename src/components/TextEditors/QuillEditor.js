@@ -56,7 +56,7 @@ class QuillEditor extends React.PureComponent {
   ];
 
   tinyToolBar = [
-    ['bold', 'italic', 'link', 'image', 'video'],
+    ['bold', 'italic', 'link', 'image', 'video', 'clean'],
   ];
 
   constructor (props) {

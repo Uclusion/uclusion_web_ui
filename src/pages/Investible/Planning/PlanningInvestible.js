@@ -163,6 +163,9 @@ const useStyles = makeStyles(
 
     },
     actions: {},
+    blue: {
+      backgroundColor: '#2d9cdb',
+    },
     upperRightCard: {
       display: "inline-flex",
       float: "right",
@@ -761,13 +764,13 @@ function PlanningInvestible(props) {
         <Grid item xs={12} style={{ marginTop: '30px' }}>
           {!inArchives && (isInVoting || isInAccepted) && (!inlineMarketId && isAssigned) && (
             <dl className={classes.root}>
-              <div className={clsx(classes.group, classes.assignments)}>
+              <div className={classes.blue}>
                 <ExpandableAction
                   id="newOption"
                   key="newOption"
                   label={intl.formatMessage({ id: 'inlineAddExplanation' })}
                   onClick={() => navigate(history, `${formMarketAddInvestibleLink(marketId)}#parentInvestibleId=${investibleId}`)}
-                  icon={<AddIcon htmlColor={ACTION_BUTTON_COLOR}/>}
+                  icon={<AddIcon />}
                   openLabel={intl.formatMessage({ id: 'inlineAddLabel' })}
                 />
               </div>
@@ -775,13 +778,13 @@ function PlanningInvestible(props) {
           )}
           {!inArchives && inlineMarketId && (
             <dl className={classes.root}>
-              <div className={clsx(classes.group, classes.assignments)}>
+              <div className={classes.blue}>
                 <ExpandableAction
                   id="newOption"
                   key="newOption"
                   label={intl.formatMessage({ id: 'inlineAddExplanation' })}
                   onClick={() => navigate(history, formMarketAddInvestibleLink(inlineMarketId))}
-                  icon={<AddIcon htmlColor={ACTION_BUTTON_COLOR}/>}
+                  icon={<AddIcon />}
                   openLabel={intl.formatMessage({ id: 'inlineAddLabel' })}
                 />
               </div>

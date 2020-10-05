@@ -46,7 +46,8 @@ function CommentSearchResult (props) {
   const {
     marketId,
     commentId,
-    classes
+    classes,
+    afterOnClick,
   } = props;
   const intl = useIntl();
   const history = useHistory();
@@ -92,6 +93,7 @@ function CommentSearchResult (props) {
         event.stopPropagation();
         event.preventDefault();
         navigate(history, linkTarget);
+        afterOnClick();
       }
     }>
       <CardType
@@ -108,7 +110,12 @@ function CommentSearchResult (props) {
 CommentSearchResult.propTypes = {
   marketId: PropTypes.string.isRequired,
   commentId: PropTypes.string.isRequired,
+  afterOnClick: PropTypes.func,
 };
+
+CommentSearchResult.defaultProps = {
+  afterOnClick: () => {},
+}
 
 export default CommentSearchResult;
 

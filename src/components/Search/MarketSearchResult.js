@@ -22,7 +22,7 @@ function getCardType (marketType) {
 }
 
 function MarketSearchResult (props) {
-  const { marketId, classes } = props;
+  const { marketId, classes, afterOnClick } = props;
   const [marketsState] = useContext(MarketsContext);
   const history = useHistory();
   const market = getMarket(marketsState, marketId);
@@ -41,6 +41,7 @@ function MarketSearchResult (props) {
           event.stopPropagation();
           event.preventDefault();
           navigate(history, linkTarget);
+          afterOnClick();
         }
       }
     >
@@ -56,6 +57,11 @@ function MarketSearchResult (props) {
 
 MarketSearchResult.propTypes = {
   marketId: PropTypes.string.isRequired,
+  afterOnClick: PropTypes.func,
 };
+
+MarketSearchResult.defaultProps = {
+  afterOnClick: () => {},
+}
 
 export default MarketSearchResult;

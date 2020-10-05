@@ -11,6 +11,7 @@ import InvestibleSearchResult from './InvestibleSearchResult'
 import MarketSearchResult from './MarketSearchResult'
 import { List, ListItem, Paper, Popper } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
+import { isTinyWindow } from '../../utils/windowUtils';
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -49,16 +50,18 @@ function SearchResults () {
     });
   }
 
+  const afterOnClick = isTinyWindow()? zeroResults : () => {}
+
   function getSearchResult (item) {
     const { id, type, marketId } = item;
     if (type === INDEX_COMMENT_TYPE) {
-      return (<CommentSearchResult marketId={marketId} commentId={id} classes={classes}/>);
+      return (<CommentSearchResult marketId={marketId} commentId={id} classes={classes} afterOnClick={afterOnClick}/>);
     }
     if (type === INDEX_INVESTIBLE_TYPE) {
-      return (<InvestibleSearchResult investibleId={id} classes={classes}/>);
+      return (<InvestibleSearchResult investibleId={id} classes={classes} afterOnClick={afterOnClick}/>);
     }
     if (type === INDEX_MARKET_TYPE) {
-      return (<MarketSearchResult marketId={id} classes={classes}/>);
+      return (<MarketSearchResult marketId={id} classes={classes} afterOnClick={afterOnClick}/>);
     }
   }
 

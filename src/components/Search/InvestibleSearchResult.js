@@ -23,7 +23,7 @@ function getCardType(marketType) {
 }
 
 function InvestibleSearchResult (props) {
-  const { investibleId, classes } = props;
+  const { investibleId, classes, afterOnClick } = props;
   const [marketsState] = useContext(MarketsContext);
   const [investibleState] = useContext(InvestiblesContext);
   const history = useHistory();
@@ -45,6 +45,7 @@ function InvestibleSearchResult (props) {
           event.stopPropagation();
           event.preventDefault();
           navigate(history, linkTarget);
+          afterOnClick();
         }
       }
     >
@@ -60,6 +61,11 @@ function InvestibleSearchResult (props) {
 
 InvestibleSearchResult.propTypes = {
   investibleId: PropTypes.string.isRequired,
+  afterOnClick: PropTypes.func,
 };
+
+InvestibleSearchResult.defaultProps = {
+  afterOnClick: () => {},
+}
 
 export default InvestibleSearchResult;

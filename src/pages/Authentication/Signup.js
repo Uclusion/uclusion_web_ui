@@ -35,10 +35,10 @@ const useStyles = makeStyles(theme => ({
     width: "100%"
   },
   formRoot: {
-    maxWidth: "600px",
+    maxWidth: '450px',
     marginLeft: 'auto',
     marginRight: 'auto',
-    minWidth: '450px'
+    minWidth: '300px'
   },
   paper: {
     marginTop: theme.spacing(8),
@@ -129,10 +129,10 @@ const useStyles = makeStyles(theme => ({
     display: 'flex'
   },
   centerColumn: {
-    maxWidth: "600px",
+    maxWidth: "450px",
     marginLeft: 'auto',
     marginRight: 'auto',
-    minWidth: '450px'
+    minWidth: '300px'
   },
   marginTop: {
     marginTop: '20px',

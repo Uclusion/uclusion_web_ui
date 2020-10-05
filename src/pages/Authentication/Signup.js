@@ -25,20 +25,14 @@ import { toastError } from '../../utils/userMessage'
 import queryString from 'query-string'
 
 const useStyles = makeStyles(theme => ({
-  outer: {
-    marginLeft: "10%",
-    width: "80%"
-  },
   root: {
     alignItems: "flex-start",
     display: "flex",
     width: "100%"
   },
   formRoot: {
-    maxWidth: '450px',
     marginLeft: 'auto',
     marginRight: 'auto',
-    minWidth: '300px'
   },
   paper: {
     marginTop: theme.spacing(8),
@@ -129,10 +123,8 @@ const useStyles = makeStyles(theme => ({
     display: 'flex'
   },
   centerColumn: {
-    maxWidth: "450px",
     marginLeft: 'auto',
     marginRight: 'auto',
-    minWidth: '300px'
   },
   marginTop: {
     marginTop: '20px',
@@ -364,7 +356,7 @@ function Signup(props) {
   const phoneValid = _.isEmpty(phone) || phoneChecker.test(phone);
   const formInvalid = !phoneValid || !terms || _.isEmpty(name) || _.isEmpty(email) || _.isEmpty(password) || _.isEmpty(repeat) || password !== repeat || password.length < 6;
   return (
-    <div className={classes.outer}>
+    <Container component="main" maxWidth="xs">
       <Helmet>
         <meta name="google-signin-client_id" content="YOUR_CLIENT_ID.apps.googleusercontent.com"></meta>
         <script src="https://apis.google.com/js/platform.js"></script>
@@ -612,7 +604,7 @@ function Signup(props) {
           </div>
         </div>
       </dl>
-    </div>
+    </Container>
   );
 }
 

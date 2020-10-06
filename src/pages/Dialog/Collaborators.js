@@ -13,6 +13,10 @@ const useStyles = makeStyles( () => ({
     normal: {
       fontSize: 14,
     },
+    containerRed: {
+      boxShadow: "10px 5px 5px red"
+    },
+    noStyle: {},
     assignmentFlexRow: {
       width: '100%',
       display: 'flex',
@@ -68,16 +72,18 @@ export function Collaborators(props) {
         </ul>
         <div className={classes.flex1}>
           {!authorDisplay && myPresence && myPresence.following && (
-            <Tooltip
-              title={intl.formatMessage({ id: 'dialogAddParticipantsLabel' })}
-            >
-              <IconButton
-                id="adminManageCollaborators"
-                onClick={() => navigate(history, `${formMarketManageLink(marketId)}#participation=true`)}
+            <div className={marketPresences.length < 2 ? classes.containerRed : classes.noStyle}>
+              <Tooltip
+                title={intl.formatMessage({ id: 'dialogAddParticipantsLabel' })}
               >
-                <PersonAddIcon htmlColor={ACTION_BUTTON_COLOR} />
-              </IconButton>
-            </Tooltip>
+                <IconButton
+                  id="adminManageCollaborators"
+                  onClick={() => navigate(history, `${formMarketManageLink(marketId)}#participation=true`)}
+                >
+                  <PersonAddIcon htmlColor={ACTION_BUTTON_COLOR} />
+                </IconButton>
+              </Tooltip>
+            </div>
           )}
         </div>
     </span>

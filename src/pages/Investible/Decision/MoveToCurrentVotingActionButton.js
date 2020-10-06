@@ -12,6 +12,9 @@ import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants
 import { makeStyles } from '@material-ui/styles'
 import { ListItemText } from '@material-ui/core'
 import { useIntl } from 'react-intl'
+import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
+import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 
 const style = makeStyles(() => {
     return {
@@ -34,6 +37,8 @@ function MoveToCurrentVotingActionButton(props) {
   const intl = useIntl();
   const classes = style();
   const [marketStagesState] = useContext(MarketStagesContext);
+  const [, diffDispatch] = useContext(DiffContext);
+  const [, invDispatch] = useContext(InvestiblesContext);
   const inCurrentVotingStage = getInCurrentVotingStage(marketStagesState, marketId);
   const proposedStage = getProposedOptionsStage(marketStagesState, marketId);
 
@@ -47,7 +52,10 @@ function MoveToCurrentVotingActionButton(props) {
       },
     };
     return moveInvestibleToCurrentVoting(moveInfo)
-      .then(() => onClick());
+      .then((inv) => {
+        refreshInvestibles(invDispatch, diffDispatch, [inv]);
+        onClick();
+      });
   }
 
   return (

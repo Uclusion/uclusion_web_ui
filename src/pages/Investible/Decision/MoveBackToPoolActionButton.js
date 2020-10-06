@@ -15,12 +15,17 @@ import { useLockedDialogStyles } from '../../Dialog/DialogEdit'
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton'
 import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
+import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
+import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 
 function MoveBackToPoolActionButton(props) {
   const { onClick, investibleId, marketId } = props;
   const intl = useIntl();
   const [open, setOpen] = React.useState(false);
   const [marketStagesState] = useContext(MarketStagesContext);
+  const [, diffDispatch] = useContext(DiffContext);
+  const [, invDispatch] = useContext(InvestiblesContext);
   const inCurrentVotingStage = getInCurrentVotingStage(marketStagesState, marketId);
   const proposedStage = getProposedOptionsStage(marketStagesState, marketId);
 
@@ -34,7 +39,10 @@ function MoveBackToPoolActionButton(props) {
       },
     };
     return moveInvestibleBackToOptionPool(moveInfo)
-      .then(() => onClick());
+      .then((inv) => {
+        refreshInvestibles(invDispatch, diffDispatch, [inv]);
+        onClick();
+      });
   }
 
   const handleOpen = () => {

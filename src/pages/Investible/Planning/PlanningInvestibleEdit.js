@@ -53,8 +53,7 @@ function PlanningInvestibleEdit(props) {
   const [assignments, setAssignments] = useState(marketAssigned);
   const [daysEstimate, setDaysEstimate] = useState(daysEstimatePersisted);
   const { name } = currentValues;
-  const initialUploadedFiles = myInvestible.uploaded_files || [];
-  const [uploadedFiles, setUploadedFiles] = useState(initialUploadedFiles);
+  const [uploadedFiles, setUploadedFiles] = useState([]);
   const [description, setDescription] = useState(storedDescription || initialDescription);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [open, setOpen] = useState(false);
@@ -132,7 +131,7 @@ function PlanningInvestibleEdit(props) {
     } else {
       // uploaded files on edit is the union of the new uploaded files and the old uploaded files
       const oldInvestibleUploadedFiles = myInvestible.uploaded_files || [];
-      const newUploadedFiles = [...uploadedFiles, ...oldInvestibleUploadedFiles];
+      const newUploadedFiles = _.uniqBy([...uploadedFiles, ...oldInvestibleUploadedFiles], 'path');
       const {
         uploadedFiles: filteredUploads,
         text: tokensRemoved,

@@ -68,7 +68,7 @@ function DecisionDialogEdit(props) {
   function handleSave() {
     // the set of files for the market is all the old files, plus our new ones
     const oldMarketUploadedFiles = market.uploaded_files || [];
-    const newUploadedFiles = [...uploadedFiles, ...oldMarketUploadedFiles];
+    const newUploadedFiles = _.uniqBy([...uploadedFiles, ...oldMarketUploadedFiles], 'path');
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,

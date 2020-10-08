@@ -26,6 +26,7 @@ import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
 import { urlHelperGetName } from '../../utils/marketIdPathFunctions'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
+import _ from 'lodash';
 
 const useStyles = makeStyles(() => ({
   hidden: {
@@ -59,7 +60,7 @@ function CommentEdit(props) {
   } = props;
   const { id, body: initialBody, uploaded_files: initialUploadedFiles, comment_type: commentType } = comment;
   const [body, setBody] = useState(initialBody);
-  const [uploadedFiles, setUploadedFiles] = useState(initialUploadedFiles);
+  const [uploadedFiles, setUploadedFiles] = useState([]);
   const classes = useStyles();
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentState, commentDispatch] = useContext(CommentsContext);
@@ -73,10 +74,11 @@ function CommentEdit(props) {
   }
 
   function handleSave() {
+    const newUploadedFiles = _.uniqBy([...initialUploadedFiles, ...uploadedFiles], 'path');
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
-    } = processTextAndFilesForSave(uploadedFiles, body);
+    } = processTextAndFilesForSave(newUploadedFiles, body);
     const updatedType = type !== commentType ? type : undefined;
     return updateComment(marketId, id, tokensRemoved, filteredUploads, updatedType)
       .then((comment) => {

@@ -1,5 +1,6 @@
 import React, { useContext, useState } from 'react'
 import { FormattedMessage, useIntl } from 'react-intl'
+import _ from 'lodash';
 import { Card, CardActions, CardContent, TextField, } from '@material-ui/core'
 import PropTypes from 'prop-types'
 import localforage from 'localforage'
@@ -27,8 +28,7 @@ function DecisionInvestibleEdit(props) {
   const { id, description: initialDescription, name: initialName } = myInvestible;
   const [currentValues, setCurrentValues] = useState({ ...myInvestible, name: storedName || initialName });
   const { name } = currentValues;
-  const initialUploadedFiles = myInvestible.uploaded_files || [];
-  const [uploadedFiles, setUploadedFiles] = useState(initialUploadedFiles);
+  const [uploadedFiles, setUploadedFiles] = useState([]);
   const [description, setDescription] = useState(storedDescription || initialDescription);
   const [marketState] = useContext(MarketsContext);
   const [investibleState] = useContext(InvestiblesContext);
@@ -64,7 +64,7 @@ function DecisionInvestibleEdit(props) {
   function saveInvestible() {
     const oldInvestibleUploadedFiles = myInvestible.uploaded_files || [];
     // uploaded files on edit is the union of the new uploaded files and the old uploaded files
-    const newUploadedFiles = [...uploadedFiles, ...oldInvestibleUploadedFiles];
+    const newUploadedFiles = _.uniqBy([...uploadedFiles, ...oldInvestibleUploadedFiles], 'path');
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,

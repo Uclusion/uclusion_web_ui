@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { Button, Card, CardActions, CardContent, TextField, } from '@material-ui/core'
 import _ from 'lodash'
 import localforage from 'localforage'
@@ -52,7 +52,6 @@ function PlanningInvestibleEdit(props) {
   const [currentValues, setCurrentValues] = useState({ ...myInvestible, name: storedName || initialName });
   const [assignments, setAssignments] = useState(marketAssigned);
   const [daysEstimate, setDaysEstimate] = useState(daysEstimatePersisted);
-  const [validForm, setValidForm] = useState(true);
   const { name } = currentValues;
   const initialUploadedFiles = myInvestible.uploaded_files || [];
   const [uploadedFiles, setUploadedFiles] = useState(initialUploadedFiles);
@@ -77,24 +76,14 @@ function PlanningInvestibleEdit(props) {
     });
     return found;
   });
+  const validForm = name && (!isAssign || (Array.isArray(assignments) && assignments.length > 0));
+
   const handleOpen = () => {
     setOpen(true);
   };
   const handleClose = () => {
     setOpen(false);
   };
-
-  useEffect(() => {
-    // Long form to prevent flicker
-    if (name && description && description.length > 0
-      && (!isAssign || (Array.isArray(assignments) && assignments.length > 0))) {
-      if (!validForm) {
-        setValidForm(true);
-      }
-    } else if (validForm) {
-      setValidForm(false);
-    }
-  }, [name, description, assignments, validForm, isAssign]);
 
   function handleDraftState(newDraftState) {
     setDraftState(newDraftState);

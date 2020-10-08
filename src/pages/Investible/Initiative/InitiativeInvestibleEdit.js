@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { FormattedMessage, useIntl } from 'react-intl'
 import { Card, CardActions, CardContent, TextField, } from '@material-ui/core'
 import localforage from 'localforage'
@@ -26,24 +26,12 @@ function InitiativeInvestibleEdit(props) {
   const myInvestible = fullInvestible.investible;
   const { id, description: initialDescription, name: initialName } = myInvestible;
   const [currentValues, setCurrentValues] = useState({ ...myInvestible, name: storedName || initialName });
-  const [validForm, setValidForm] = useState(true);
   const { name } = currentValues;
   const initialUploadedFiles = myInvestible.uploaded_files || [];
   const [uploadedFiles, setUploadedFiles] = useState(initialUploadedFiles);
   const [description, setDescription] = useState(storedDescription || initialDescription);
   const [marketState] = useContext(MarketsContext);
   const [investibleState] = useContext(InvestiblesContext);
-
-  useEffect(() => {
-    // Long form to prevent flicker
-    if (name && description && description.length > 0) {
-      if (!validForm) {
-        setValidForm(true);
-      }
-    } else if (validForm) {
-      setValidForm(false);
-    }
-  }, [name, description, validForm]);
 
   function handleDraftState(newDraftState) {
     setDraftState(newDraftState);
@@ -146,7 +134,7 @@ function InitiativeInvestibleEdit(props) {
           variant="contained"
           color="primary"
           onClick={saveInvestible}
-          disabled={!validForm}
+          disabled={!name}
           onSpinStop={onSave}
           hasSpinChecker
           id="save"

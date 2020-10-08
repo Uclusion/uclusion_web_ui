@@ -877,6 +877,7 @@ export const useMetaDataStyles = makeStyles(
         alignItems: "flex-start",
         display: "flex",
         flexDirection: 'column',
+        width: '100%',
         '& > div': {
           borderRadius: '6px',
           marginBottom: '1rem'

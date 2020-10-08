@@ -48,7 +48,7 @@ function OptionDescriptionStep (props) {
 
   function onS3Upload (metadatas) {
     const oldUploadedFiles = optionUploadedFiles || [];
-    const newUploadedFiles = _.uniqBy([...oldUploadedFiles, metadatas], 'path');
+    const newUploadedFiles = _.uniqBy([...oldUploadedFiles, ...metadatas], 'path');
     updateFormData({
       optionUploadedFiles: newUploadedFiles
     });

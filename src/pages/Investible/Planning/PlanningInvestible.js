@@ -326,6 +326,10 @@ function PlanningInvestible(props) {
   if (!isAssigned) {
     allowedCommentTypes.push(SUGGEST_CHANGE_TYPE);
     allowedCommentTypes.push(TODO_TYPE);
+    if (isInReview) {
+      // Reviewers or QE may need to open progress reports
+      allowedCommentTypes.push(REPORT_TYPE);
+    }
   }
   if (!isInNotDoing) {
     allowedCommentTypes.push(ISSUE_TYPE);

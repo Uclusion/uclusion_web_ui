@@ -121,7 +121,7 @@ function StageChangeAction(props) {
       <>
         <TooltipIconButton disabled={operationRunning || disabled} icon={icon} onClick={handleOpen}
                            translationId={explanationId} >
-          {(isOpen !== undefined ? isOpen : true) && (
+          {isOpen && (
             <ListItemText className={classes.menuTitle}>
               {intl.formatMessage({ id: translationId })}
             </ListItemText>
@@ -165,7 +165,7 @@ function StageChangeAction(props) {
       <>
         <TooltipIconButton disabled={operationRunning || disabled} icon={icon} onClick={handleOpen}
                            translationId={explanationId} >
-        {(isOpen !== undefined ? isOpen : true) && (
+        {isOpen && (
           <ListItemText className={classes.menuTitle}>
             {intl.formatMessage({ id: translationId })}
           </ListItemText>
@@ -242,7 +242,7 @@ StageChangeAction.propTypes = {
   marketId: PropTypes.string.isRequired,
   currentStageId: PropTypes.string.isRequired,
   targetStageId: PropTypes.string.isRequired,
-  isOpen: PropTypes.bool.isRequired,
+  isOpen: PropTypes.bool,
   disabled: PropTypes.bool.isRequired,
   removeAssignments: PropTypes.bool,
   operationBlocked: PropTypes.bool,
@@ -254,5 +254,6 @@ StageChangeAction.defaultProps = {
   removeAssignments: false,
   operationBlocked: false,
   blockedOperationTranslationId: '',
+  isOpen: true
 };
 export default StageChangeAction;

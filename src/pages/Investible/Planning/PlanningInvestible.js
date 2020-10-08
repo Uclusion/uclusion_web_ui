@@ -1011,12 +1011,17 @@ function MarketMetaData(props) {
     case 'Accepted':
       stageLabel = 'planningInvestibleNextStageAcceptedLabel';
       break;
+    case 'Requires Input':
+      stageLabel = 'requiresInputStageLabel';
+      break;
     default:
       stageLabel = 'changeStage'
   }
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, diffDispatch] = useContext(DiffContext);
+  const classes = useMetaDataStyles();
+  const attachedFiles = marketInvestible.investible && marketInvestible.investible.attached_files;
 
   function handleClick(event) {
     setAnchorEl(event.currentTarget);
@@ -1041,23 +1046,21 @@ function MarketMetaData(props) {
       .then((investible) => addInvestible(investiblesDispatch, diffDispatch, investible));
   }
 
-  const classes = useMetaDataStyles();
-  const attachedFiles = marketInvestible.investible && marketInvestible.investible.attached_files;
   return (
     <dl className={classes.root}>
       {market.id && marketInvestible.investible && (
         <div className={classes.assignmentContainer}>
           <FormattedMessage id="planningInvestibleAssignments" />
-        <div className={clsx(classes.group, classes.assignments)}>
-          <Assignments
-            classes={classes}
-            marketId={market.id}
-            marketPresences={marketPresences}
-            investible={marketInvestible}
-            isAdmin={isAdmin}
-            toggleAssign={toggleAssign}
-          />
-        </div>
+          <div className={clsx(classes.group, classes.assignments)}>
+            <Assignments
+              classes={classes}
+              marketId={market.id}
+              marketPresences={marketPresences}
+              investible={marketInvestible}
+              isAdmin={isAdmin}
+              toggleAssign={toggleAssign}
+            />
+          </div>
         </div>
       )}
       {!_.isEmpty(stageActions) &&

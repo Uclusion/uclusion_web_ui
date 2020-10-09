@@ -35,12 +35,6 @@ const useStyles = makeStyles(theme => ({
     marginRight: 'auto',
   },
   paper: {
-    marginTop: theme.spacing(8),
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
-  paperNoTop: {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -365,7 +359,7 @@ function Signup(props) {
       <dl className={clsx(myMarket ? classes.stack : classes.root)} >
 
         {action === 'invite' && myMarket && (
-          <div className={clsx(classes.paperNoTop, classes.centerColumn)}>
+          <div className={clsx(classes.paper, classes.centerColumn)}>
             <svg style={{ verticalAlign: 'middle', width: '140px', marginTop: '2rem', marginBottom: '-1rem' }}
                    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600">
                 <path fill="#fff"
@@ -394,10 +388,10 @@ function Signup(props) {
           </div>
         )}
         <div className={myMarket ? classes.formRoot : clsx(classes.formRoot, classes.centerColumn)}>
-          <div className={myMarket? clsx(classes.paperNoTop, classes.marginTop) : classes.paper}>
+          <div className={myMarket? clsx(classes.paper, classes.marginTop) : classes.paper}>
             { action !== 'invite' &&
             <span>
-              <svg style={{ verticalAlign: 'middle', width: '140px', marginTop: '2rem', marginBottom: '-1rem' }}
+              <svg style={{ verticalAlign: 'middle', width: '140px', marginBottom: '-1rem' }}
                     xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600">
                 <path fill="#fff"
                       d="M888.67,328.66a43,43,0,0,1-34.38,42.12v43.84l-43-43H174.05a62.72,62.72,0,0,1-62.72-62.72V228.36a43,43,0,0,1,43-43H845.69a43,43,0,0,1,43,43Z"/>
@@ -470,7 +464,7 @@ function Signup(props) {
               </span>
             </div>
           )}
-          <div className={classes.paperNoTop}>
+          <div className={classes.paper}>
             <form
               className={classes.form}
               autoComplete="off"

@@ -18,6 +18,8 @@ import { AccountContext } from '../../contexts/AccountContext/AccountContext'
 import { canCreate, getAccount } from '../../contexts/AccountContext/accountContextHelper'
 import config from '../../config'
 import { SUBSCRIPTION_STATUS_CANCELED } from '../../constants/billing'
+import { getInlineBreadCrumbs } from '../Investible/Decision/DecisionInvestible'
+import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 
 function DialogAdd(props) {
   const { hidden } = props;
@@ -30,7 +32,8 @@ function DialogAdd(props) {
 
   const [, diffDispatch] = useContext(DiffContext);
   const [, presenceDispatch] = useContext(MarketPresencesContext);
-  const [, marketDispatch] = useContext(MarketsContext);
+  const [marketState, marketDispatch] = useContext(MarketsContext);
+  const [investiblesState] = useContext(InvestiblesContext);
   const addTitleName = type === DECISION_TYPE ? 'addDecision' : type === PLANNING_TYPE ? 'addPlanning' : 'addInitiative';
   const [storedState, setStoredState] = useState(undefined);
   const [idLoaded, setIdLoaded] = useState(undefined);
@@ -68,8 +71,14 @@ function DialogAdd(props) {
         }
       });
   }
-
-  const breadCrumbs = makeBreadCrumbs(history, [], true);
+  let crumbs = [];
+  if (type === DECISION_TYPE) {
+    const { investibleId: parentInvestibleId, id: parentMarketId } = values;
+    if (parentMarketId) {
+      crumbs = getInlineBreadCrumbs(marketState, parentMarketId, parentInvestibleId, investiblesState)
+    }
+  }
+  const breadCrumbs = makeBreadCrumbs(history, crumbs, true);
   return (
     <Screen
       title={intl.formatMessage({ id: addTitleName })}

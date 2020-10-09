@@ -49,8 +49,8 @@ function InvestibleAdd(props) {
     // The inline market will be created along with the option
     breadCrumbTemplates = getInlineBreadCrumbs(marketsState, marketId, parentInvestibleId, investiblesState);
   } else if (isInline) {
-    breadCrumbTemplates = getInlineBreadCrumbs(marketsState, parentMarketId, inlineParentInvestibleId,
-      investiblesState);
+    breadCrumbTemplates = getInlineBreadCrumbs(marketsState, parentMarketId,
+      inlineParentInvestibleId || parentInvestibleId, investiblesState);
   } else {
     breadCrumbTemplates = [{ name: currentMarketName, link: formMarketLink(marketId) }];
   }

@@ -330,7 +330,7 @@ PlanningInvestibleAdd.propTypes = {
   onSave: PropTypes.func,
   marketPresences: PropTypes.arrayOf(PropTypes.object).isRequired,
   storedState: PropTypes.object.isRequired,
-  storyMaxBudget: PropTypes.number.isRequired,
+  storyMaxBudget: PropTypes.number,
   allowMultiVote: PropTypes.bool.isRequired
 };
 

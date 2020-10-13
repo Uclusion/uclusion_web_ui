@@ -578,6 +578,15 @@ function Signup(props) {
                     </Typography>
                   </div>
                 </Grid>
+                {code && (
+                  <Grid item xs={12}>
+                    <div style={{ display: 'inline-flex', alignItems: 'center' }}>
+                      <Typography>
+                        {intl.formatMessage({ id: 'signupRedirectLogin' })}
+                      </Typography>
+                    </div>
+                  </Grid>
+                )}
               </Grid>
               <SpinningButton
                 spinning={callActive}

@@ -353,7 +353,7 @@ function Signup(props) {
 
 
   const phoneValid = _.isEmpty(phone) || phoneChecker.test(phone);
-  const formInvalid = !phoneValid || !terms || _.isEmpty(name) || _.isEmpty(email) || _.isEmpty(password) || _.isEmpty(repeat) || password !== repeat || password.length < 6;
+  const formInvalid = !phoneValid || !terms || _.isEmpty(name) || (_.isEmpty(email) && _.isEmpty(code)) || _.isEmpty(password) || _.isEmpty(repeat) || password !== repeat || password.length < 6;
   return (
     <Container component="main" maxWidth="xs">
       <Helmet>

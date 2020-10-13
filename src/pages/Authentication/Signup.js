@@ -151,7 +151,7 @@ function reducer(state, action) {
 
 function Signup(props) {
   const classes = useStyles();
-  const { authState, action, marketToken, onStateChange } = props;
+  const { authState, action, marketToken, code, onStateChange } = props;
   const history = useHistory();
   const { location } = history;
   const { search } = location;
@@ -261,12 +261,17 @@ function Signup(props) {
     if (phone && !phone.startsWith('+')) {
       phone = '+' + phone;
     }
-    const signupData = { name, email, password, phone };
+    const signupData = { name, email, password, code, phone };
     let redirect = getRedirect();
     return signUp(signupData, redirect).then((result) => {
       const { response } = result;
-      setPostSignUp(response);
-      setCallActive(false);
+      if (response === 'ACCOUNT_CREATED') {
+        setRedirect(redirect);
+        window.location.pathname = '/';
+      } else {
+        setPostSignUp(response);
+        setCallActive(false);
+      }
     });
   }
 
@@ -485,20 +490,22 @@ function Signup(props) {
                     onChange={handleChange('name')}
                   />
                 </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    value={userState.email}
-                    variant="outlined"
-                    required
-                    fullWidth
-                    id="email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    label={intl.formatMessage({ id: 'signupEmailLabel' })}
-                    onChange={handleChange('email')}
-                  />
-                </Grid>
+                {!code && (
+                  <Grid item xs={12}>
+                    <TextField
+                      value={userState.email}
+                      variant="outlined"
+                      required
+                      fullWidth
+                      id="email"
+                      name="email"
+                      type="email"
+                      autoComplete="email"
+                      label={intl.formatMessage({ id: 'signupEmailLabel' })}
+                      onChange={handleChange('email')}
+                    />
+                  </Grid>
+                )}
                 <Grid item xs={12}>
                   <PhoneField
                     variant="outlined"
@@ -606,6 +613,7 @@ Signup.propTypes = {
   authState: PropTypes.string,
   action: PropTypes.string,
   marketToken: PropTypes.string,
+  code: PropTypes.string,
   onStateChange: PropTypes.func,
 };
 

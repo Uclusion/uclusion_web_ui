@@ -19,7 +19,7 @@ import SpinningButton from '../../components/SpinBlocking/SpinningButton'
 import PhoneField, { phoneChecker } from '../../components/TextFields/PhoneField'
 import { Helmet } from 'react-helmet'
 import { Auth } from 'aws-amplify'
-import { setRedirect, setUtm } from '../../utils/redirectUtils'
+import { setEmail, setRedirect, setUtm } from '../../utils/redirectUtils'
 import { GithubLoginButton } from 'react-social-login-buttons'
 import { toastError } from '../../utils/userMessage'
 import queryString from 'query-string'
@@ -264,10 +264,12 @@ function Signup(props) {
     const signupData = { name, email, password, code, phone };
     let redirect = getRedirect();
     return signUp(signupData, redirect).then((result) => {
-      const { response } = result;
+      const { response, user } = result;
       if (response === 'ACCOUNT_CREATED') {
+        const { email } = user;
         setRedirect(redirect);
-        window.location.pathname = '/';
+        setEmail(email);
+        window.location.pathname ='/' ;
       } else {
         setPostSignUp(response);
         setCallActive(false);

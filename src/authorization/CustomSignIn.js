@@ -17,7 +17,7 @@ import { Visibility, VisibilityOff } from '@material-ui/icons'
 import { Auth } from 'aws-amplify'
 import { Helmet } from 'react-helmet'
 import { withRouter } from 'react-router';
-import { setRedirect } from '../utils/redirectUtils';
+import { getAndClearEmail, setRedirect } from '../utils/redirectUtils'
 
 const useStyles = (theme) => ({
   paper: {
@@ -130,8 +130,13 @@ class CustomSignIn extends SignIn {
   }
   constructor(props) {
     super(props);
+    const { defaultEmail } = props;
     this._validAuthStates = ['signIn', 'signedOut', 'signedUp'];
     this.onSubmit = this.onSubmit.bind(this);
+    if (defaultEmail) {
+      this.defaultEmail = defaultEmail;
+      this.getUsernameFromInput = () => defaultEmail;
+    }
   }
 
   onSubmit(form) {
@@ -197,6 +202,7 @@ class CustomSignIn extends SignIn {
         <form className={classes.form} onSubmit={this.onSubmit}>
           <div className={classes.hiddenSubmit}><input type="submit" tabIndex="-1"/></div>
           <TextField
+            ref={this.ref}
             variant="outlined"
             margin="normal"
             required
@@ -205,6 +211,8 @@ class CustomSignIn extends SignIn {
             key="username"
             name="username"
             onChange={this.handleInputChange}
+            defaultValue={this.defaultEmail}
+            disabled={this.defaultEmail !== undefined}
             type="email"
             label={intl.formatMessage({ id: 'signInEmailLabel' })}
             autoComplete="email"

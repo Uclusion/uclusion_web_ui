@@ -26,6 +26,7 @@ import {
 import _ from 'lodash'
 import { decomposeMarketPath } from '../../utils/marketIdPathFunctions'
 import queryString from 'query-string'
+import { getAndClearEmail } from '../../utils/redirectUtils'
 
 
 LogRocket.init(config.logRocketInstance)
@@ -148,7 +149,7 @@ function AppWithAuth(props) {
             theme={authenticatorTheme}
             hide={[Greetings, SignIn, SignUp, SignOut, ForgotPassword]}>
             <UclusionSignup action={action} marketToken={marketToken} code={code} />
-            <CustomSignIn />
+            <CustomSignIn defaultEmail={getAndClearEmail()}/>
             <UclusionForgotPassword />
             <App />
           </Authenticator>

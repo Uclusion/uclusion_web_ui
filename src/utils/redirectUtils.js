@@ -2,6 +2,7 @@ import { getLoginPersistentItem, setLoginPersistentItem } from '../components/ut
 
 const REDIRECT_LOCAL_STORAGE_KEY = 'redirection';
 const UTM_LOCAL_STORAGE_KEY = 'utm';
+const EMAIL_LOCAL_STORAGE_KEY = 'email_storage';
 
 export function setRedirect(location) {
   setLoginPersistentItem(REDIRECT_LOCAL_STORAGE_KEY, location);
@@ -9,6 +10,10 @@ export function setRedirect(location) {
 
 export function setUtm(utm) {
   setLoginPersistentItem(UTM_LOCAL_STORAGE_KEY, utm);
+}
+
+export function setEmail(email) {
+  setLoginPersistentItem(EMAIL_LOCAL_STORAGE_KEY, email);
 }
 
 export function getRedirect() {
@@ -19,10 +24,20 @@ export function getUtm() {
   return getLoginPersistentItem(UTM_LOCAL_STORAGE_KEY);
 }
 
+export function getEmail() {
+  return getLoginPersistentItem(EMAIL_LOCAL_STORAGE_KEY);
+}
+
 export function getAndClearRedirect() {
   const redirect = getRedirect();
   setLoginPersistentItem(REDIRECT_LOCAL_STORAGE_KEY, undefined);
   return redirect;
+}
+
+export function getAndClearEmail() {
+  const email = getEmail();
+  setLoginPersistentItem(EMAIL_LOCAL_STORAGE_KEY, undefined);
+  return email;
 }
 
 export function redirectToPath(history, subPath) {

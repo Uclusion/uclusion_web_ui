@@ -6,12 +6,23 @@ import MenuBookIcon from '@material-ui/icons/MenuBook'
 import { formMarketArchivesLink, navigate } from '../../../utils/marketIdPathFunctions'
 import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
+import { makeStyles } from '@material-ui/core'
+
+const useStyles = makeStyles(
+  () => ({
+    grey: {
+      backgroundColor: '#e0e0e0',
+    },
+  }),
+  { name: "InvestibleAdd" }
+);
 
 function ViewArchiveActionButton(props) {
 
   const intl = useIntl();
   const { marketId } = props;
   const history = useHistory();
+  const classes = useStyles();
 
   function onClick(){
     navigate(history, formMarketArchivesLink(marketId));
@@ -19,11 +30,13 @@ function ViewArchiveActionButton(props) {
 
 
   return (
-    <ExpandableAction
-      icon={<MenuBookIcon htmlColor={ACTION_BUTTON_COLOR} />}
-      label={intl.formatMessage({ id: 'planningDialogViewArchivesExplanation'})}
-      openLabel={intl.formatMessage({ id: 'planningDialogViewArchivesLabel'})}
-      onClick={onClick}/>
+    <div className={classes.grey}>
+      <ExpandableAction
+        icon={<MenuBookIcon htmlColor={ACTION_BUTTON_COLOR} />}
+        label={intl.formatMessage({ id: 'planningDialogViewArchivesExplanation'})}
+        openLabel={intl.formatMessage({ id: 'planningDialogViewArchivesLabel'})}
+        onClick={onClick}/>
+    </div>
   );
 }
 

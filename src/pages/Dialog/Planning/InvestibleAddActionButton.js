@@ -3,19 +3,31 @@ import PropTypes from 'prop-types'
 import { useIntl } from 'react-intl'
 import AddIcon from '@material-ui/icons/Add'
 import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
-import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
+import { makeStyles } from '@material-ui/core'
+
+const useStyles = makeStyles(
+  () => ({
+    blue: {
+      backgroundColor: '#2d9cdb',
+    },
+  }),
+  { name: "InvestibleAdd" }
+);
 
 function InvestibleAddActionButton(props) {
   const { onClick } = props;
   const intl = useIntl();
+  const classes = useStyles();
 
   return (
-    <ExpandableAction
-      icon={<AddIcon htmlColor={ACTION_BUTTON_COLOR} />}
-      label={intl.formatMessage({ id: 'planningDialogAddInvestibleExplanation' })}
-      openLabel={intl.formatMessage({ id: 'planningDialogAddInvestibleLabel' })}
-      onClick={onClick}
-    />
+    <div className={classes.blue}>
+      <ExpandableAction
+        icon={<AddIcon />}
+        label={intl.formatMessage({ id: 'planningDialogAddInvestibleExplanation' })}
+        openLabel={intl.formatMessage({ id: 'planningDialogAddInvestibleLabel' })}
+        onClick={onClick}
+      />
+    </div>
   );
 }
 

@@ -81,7 +81,11 @@ class QuillEditor extends React.PureComponent {
   addLinkFixer () {
     const Link = Quill.import('formats/link');
     var builtinSanitizer = Link.sanitize;
-    Link.sanitize = function (linkValue) {
+    Link.sanitize = function (originalLinkValue) {
+      let linkValue = originalLinkValue;
+      if (linkValue && linkValue.includes('loom.com/share')) {
+        linkValue = linkValue.replace('loom.com/share', 'loom.com/embed');
+      }
       // do nothing, since this implies user's already using a custom protocol
       if (/^\w+:/.test(linkValue)) {
         return builtinSanitizer.call(this, linkValue);

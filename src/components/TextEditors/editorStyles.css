@@ -6,6 +6,9 @@
     padding-left: 2px;
     overflow: visible;
 }
+.ql-snow .ql-tooltip[data-mode=video]::before {
+    content: "Video / Loom";
+}
 .ql-code-block {
     background-color: #efefef; /* <== change this color */
     color: #1d1c1d;

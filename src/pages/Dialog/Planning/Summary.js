@@ -243,17 +243,6 @@ function Summary(props) {
         </Grid>
         <Grid className={classes.borderLeft} item xs={3}>
           <CardActions className={classes.actions}>
-            {!inArchives && (
-              <Tooltip
-                title={intl.formatMessage({ id: 'dialogRemoveParticipantsLabel' })}
-              >
-                <IconButton
-                  onClick={() => navigate(history, `${formMarketManageLink(id)}#removal=true`)}
-                >
-                  <PersonOutlineIcon />
-                </IconButton>
-              </Tooltip>
-            )}
             <DialogActions
               isAdmin={myPresence.is_admin}
               isFollowing={myPresence.following}

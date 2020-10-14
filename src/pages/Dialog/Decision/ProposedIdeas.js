@@ -41,8 +41,7 @@ function ProposedIdeas(props) {
           >
             <CardContent className={classes.noPadding}>
               <OptionCard
-                title={name}
-                latestDate={investible.updated_at} />
+                title={name} />
             </CardContent>
           </RaisedCard>
         </Grid>

@@ -132,7 +132,7 @@ function DialogManage (props) {
             />
           </>
         )}
-        {removal && marketType === PLANNING_TYPE && (
+        {removal && (
           <>
             <CardType
               className={classes.cardType}

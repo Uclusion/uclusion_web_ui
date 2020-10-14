@@ -1,13 +1,13 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { ACTIVE_STAGE, DECISION_TYPE, INACTIVE_STAGE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
-import { makeStyles } from '@material-ui/core'
+import { IconButton, makeStyles, Tooltip } from '@material-ui/core'
 import {
   decomposeMarketPath,
   formInvestibleEditLink,
   formInvestibleLink,
   formMarketEditLink,
-  formMarketLink,
+  formMarketLink, formMarketManageLink,
   navigate
 } from '../../utils/marketIdPathFunctions'
 import { useHistory, useLocation } from 'react-router'
@@ -16,6 +16,8 @@ import ChangeToObserverButton from '../Dialog/ChangeToObserverButton'
 import ChangeToParticipantButton from '../Dialog/ChangeToParticipantButton'
 import ShareStoryButton from '../Investible/Planning/ShareStoryButton'
 import ActivateMarketButton from '../Dialog/Planning/ActivateMarketButton'
+import PersonOutlineIcon from '@material-ui/icons/PersonOutline'
+import { useIntl } from 'react-intl'
 
 const useStyles = makeStyles(() => {
   return {
@@ -49,6 +51,7 @@ function DialogActions(props) {
   const activeMarket = marketStage === ACTIVE_STAGE;
   const inArchives = !activeMarket || !isFollowing;
   const classes = useStyles();
+  const intl = useIntl();
 
   function goHome() {
     if (action === 'dialog') {
@@ -87,12 +90,21 @@ function DialogActions(props) {
       ? formInvestibleEditLink(marketId, initiativeId)
       : formMarketEditLink(marketId);
     const editAction = () => navigate(history, editLink);
-    if (isAdmin) {
-      if (!inArchives && !hideEdit) {
-        actions.push(
-          <EditMarketButton key="edit" labelId={editLabel} marketId={marketId} onClick={editAction} />
-        );
-      }
+    if (isAdmin && !inArchives && !hideEdit) {
+      actions.push(
+        <EditMarketButton key="edit" labelId={editLabel} marketId={marketId} onClick={editAction} />
+      );
+      actions.push(
+        <Tooltip
+          title={intl.formatMessage({ id: 'dialogRemoveParticipantsLabel' })}
+        >
+          <IconButton
+            onClick={() => navigate(history, `${formMarketManageLink(marketId)}#removal=true`)}
+          >
+            <PersonOutlineIcon />
+          </IconButton>
+        </Tooltip>
+      );
     }
     if (marketStage === INACTIVE_STAGE && !isGuest) {
       actions.push(

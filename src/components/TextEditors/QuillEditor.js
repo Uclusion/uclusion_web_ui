@@ -32,6 +32,18 @@ function editorEmpty (contents) {
   return (contents.length === 0 || contents === '<p></p>' || contents === '<p><br></p>');
 }
 
+function setTooltip(toolbar, selector, title, title2) {
+  const selected = title2 ? toolbar.querySelectorAll(selector) : toolbar.querySelector(selector);
+  if (selected) {
+    if (title2) {
+      selected[0].setAttribute('title', title);
+      selected[1].setAttribute('title', title2);
+    } else {
+      selected.setAttribute('title', title);
+    }
+  }
+}
+
 // code derived from https://github.com/quilljs/quill/issues/1447
 class QuillEditor extends React.PureComponent {
 
@@ -209,7 +221,25 @@ class QuillEditor extends React.PureComponent {
       this.editor.focus();
     };
     setEditorFocusFunc(editorFocusFunc);
-
+    const toolbar = this.editor.container.previousSibling;
+    setTooltip(toolbar, 'button.ql-bold', 'Bold');
+    setTooltip(toolbar, 'button.ql-italic', 'Italic');
+    setTooltip(toolbar, 'button.ql-link', 'Link');
+    setTooltip(toolbar, 'button.ql-clean', 'Clear Formatting');
+    setTooltip(toolbar, 'button.ql-image', 'Image');
+    setTooltip(toolbar, 'button.ql-video', 'Video or Loom Link');
+    setTooltip(toolbar, 'button.ql-underline', 'Underline');
+    setTooltip(toolbar, 'button.ql-strike', 'Strike');
+    setTooltip(toolbar, 'button.ql-list', 'Number List', 'Bullet List');
+    setTooltip(toolbar, 'button.ql-table', 'Table');
+    setTooltip(toolbar, 'span.ql-color', 'Text Color');
+    setTooltip(toolbar, 'span.ql-background', 'Background Color');
+    setTooltip(toolbar, 'span.ql-align', 'Text Alignment');
+    setTooltip(toolbar, 'span.ql-font', 'Font Style');
+    setTooltip(toolbar, 'span.ql-header', 'Font Size');
+    setTooltip(toolbar, 'button.ql-code-block', 'Code Block');
+    setTooltip(toolbar, 'button.ql-script', 'Subscript', 'Superscript');
+    setTooltip(toolbar, 'button.ql-indent', 'Unindent', 'Indent');
   }
 
   componentDidUpdate (prevProps, prevState, snapshot) {

@@ -17,7 +17,7 @@ import { Visibility, VisibilityOff } from '@material-ui/icons'
 import { Auth } from 'aws-amplify'
 import { Helmet } from 'react-helmet'
 import { withRouter } from 'react-router';
-import { getAndClearEmail, setRedirect } from '../utils/redirectUtils'
+import { setRedirect } from '../utils/redirectUtils'
 
 const useStyles = (theme) => ({
   paper: {

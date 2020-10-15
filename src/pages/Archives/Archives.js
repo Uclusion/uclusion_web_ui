@@ -9,11 +9,10 @@ import { getHiddenMarketDetailsForUser, } from '../../contexts/MarketsContext/ma
 import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
 import Screen from '../../containers/Screen/Screen'
 import PlanningDialogs from '../Home/PlanningDialogs'
-import DecisionDialogs from '../Home/DecisionDialogs'
-import InitiativeDialogs from '../Home/InitiativeDialogs'
 import { makeBreadCrumbs } from '../../utils/marketIdPathFunctions'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import ArchivesCheatSheet from './ArchivesCheatSheet'
+import InitiativesAndDialogs from '../Home/InitiativesAndDialogs'
 
 const useStyles = makeStyles((theme) => ({
   spacer: {
@@ -51,8 +50,7 @@ function Archives(props) {
         <>
             <PlanningDialogs markets={planningDetails} isArchives/>
             <hr className={classes.spacer}/>
-            <DecisionDialogs markets={decisionDetails}/>
-            <InitiativeDialogs markets={initiativeDetails}/>
+            <InitiativesAndDialogs dialogs={decisionDetails} initiatives={initiativeDetails}/>
         </>
       )}
     </Screen>

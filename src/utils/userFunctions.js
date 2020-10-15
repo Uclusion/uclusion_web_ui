@@ -83,6 +83,44 @@ export function getVoteTotalsForUser(presence) {
   }, {});
 }
 
+export function getMarketUpdatedAt(updatedAt, marketPresences, investibles, comments, marketId) {
+  let mostRecentUpdate = updatedAt;
+  marketPresences.forEach((presence) => {
+    const { investments } = presence;
+    if (investments) {
+      investments.forEach((investment) => {
+        const { updated_at: investmentUpdatedAt } = investment;
+        const fixed = new Date(investmentUpdatedAt);
+        if (fixed > mostRecentUpdate) {
+          mostRecentUpdate = fixed;
+        }
+      });
+    }
+  });
+  investibles.forEach((fullInvestible) => {
+    const { investible } = fullInvestible;
+    const { updated_at: investibleUpdatedAt } = investible;
+    let fixed = new Date(investibleUpdatedAt);
+    if (fixed > mostRecentUpdate) {
+      mostRecentUpdate = fixed;
+    }
+    const marketInfo = getMarketInfo(fullInvestible, marketId);
+    const { updated_at: infoUpdatedAt } = marketInfo;
+    fixed = new Date(infoUpdatedAt);
+    if (fixed > mostRecentUpdate) {
+      mostRecentUpdate = fixed;
+    }
+  });
+  comments.forEach((comment) => {
+    const { updated_at: commentUpdatedAt } = comment;
+    const fixed = new Date(commentUpdatedAt);
+    if (fixed > mostRecentUpdate) {
+      mostRecentUpdate = fixed;
+    }
+  });
+  return mostRecentUpdate;
+}
+
 export function getVotedInvestible(presence, marketInvestibles) {
   const { investments } = presence;
   if (!Array.isArray(investments) || investments.length === 0) {

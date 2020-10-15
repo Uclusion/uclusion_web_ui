@@ -19,7 +19,7 @@ import { InvestiblesContext } from '../../contexts/InvestibesContext/Investibles
 import DialogActions from './DialogActions'
 import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
-import { getMarketInfo } from '../../utils/userFunctions'
+import { getMarketUpdatedAt } from '../../utils/userFunctions'
 import { ACTIVE_STAGE } from '../../constants/markets'
 import InvestiblesByWorkspace from '../Dialog/Planning/InvestiblesByWorkspace'
 import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../constants/comments'
@@ -172,44 +172,6 @@ function PlanningDialogs(props) {
     const { investible } = inv;
     const { name } = investible;
     return name;
-  }
-
-  function getMarketUpdatedAt(updatedAt, marketPresences, investibles, comments, marketId) {
-    let mostRecentUpdate = updatedAt;
-    marketPresences.forEach((presence) => {
-      const { investments } = presence;
-      if (investments) {
-        investments.forEach((investment) => {
-          const { updated_at: investmentUpdatedAt } = investment;
-          const fixed = new Date(investmentUpdatedAt);
-          if (fixed > mostRecentUpdate) {
-            mostRecentUpdate = fixed;
-          }
-        });
-      }
-    });
-    investibles.forEach((fullInvestible) => {
-      const { investible } = fullInvestible;
-      const { updated_at: investibleUpdatedAt } = investible;
-      let fixed = new Date(investibleUpdatedAt);
-      if (fixed > mostRecentUpdate) {
-        mostRecentUpdate = fixed;
-      }
-      const marketInfo = getMarketInfo(fullInvestible, marketId);
-      const { updated_at: infoUpdatedAt } = marketInfo;
-      fixed = new Date(infoUpdatedAt);
-      if (fixed > mostRecentUpdate) {
-        mostRecentUpdate = fixed;
-      }
-    });
-    comments.forEach((comment) => {
-      const { updated_at: commentUpdatedAt } = comment;
-      const fixed = new Date(commentUpdatedAt);
-      if (fixed > mostRecentUpdate) {
-        mostRecentUpdate = fixed;
-      }
-    });
-    return mostRecentUpdate;
   }
 
   function getCommentsCount(comments, commentType) {

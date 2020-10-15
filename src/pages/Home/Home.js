@@ -13,9 +13,7 @@ import {
   getNotHiddenMarketDetailsForUser,
 } from '../../contexts/MarketsContext/marketsContextHelper';
 import PlanningDialogs from './PlanningDialogs'
-import DecisionDialogs from './DecisionDialogs'
 import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE, } from '../../constants/markets'
-import InitiativeDialogs from './InitiativeDialogs'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { formMarketManageLink, navigate } from '../../utils/marketIdPathFunctions';
 import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions'
@@ -30,6 +28,7 @@ import { CognitoUserContext } from '../../contexts/CognitoUserContext/CongitoUse
 import queryString from 'query-string';
 import { startTour } from '../../contexts/TourContext/tourContextReducer';
 import { TourContext } from '../../contexts/TourContext/TourContext';
+import InitiativesAndDialogs from './InitiativesAndDialogs'
 
 const useStyles = makeStyles(() => ({
     spacer: {
@@ -162,8 +161,7 @@ function Home(props) {
           </div>
           <PlanningDialogs markets={planningDetails}/>
           <hr className={classes.spacer}/>
-          <DecisionDialogs markets={decisionDetails}/>
-          <InitiativeDialogs markets={initiativeDetails}/>
+          <InitiativesAndDialogs dialogs={decisionDetails} initiatives={initiativeDetails}/>
         </React.Fragment>
       )}
     </Screen>

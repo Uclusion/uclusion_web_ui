@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { FormattedDate, FormattedMessage, useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
-import { Box, Button, Card, CardActions, CardContent, Typography } from '@material-ui/core'
+import { Avatar, Box, Button, Card, CardActions, CardContent, Typography } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import clsx from 'clsx'
 import _ from 'lodash'
@@ -29,6 +29,8 @@ import { red } from '@material-ui/core/colors'
 import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
 import { EXPANDED_CONTROL, ExpandedCommentContext } from '../../contexts/CommentsContext/ExpandedCommentContext'
 import UsefulRelativeTime from '../TextFields/UseRelativeTime'
+import md5 from 'md5'
+import { nameToAvatarText } from '../../utils/stringFunctions'
 
 const useCommentStyles = makeStyles(
   theme => {
@@ -342,9 +344,13 @@ function Comment(props) {
           )}
         </Box>
         <CardContent className={classes.cardContent}>
-          <Typography className={classes.createdBy} variant="caption">
-            {createdBy.name}
-          </Typography>
+          <div style={{ display: 'inline-flex', alignItems: 'center' }}>
+            <Avatar key={userId}
+                    src={`https://www.gravatar.com/avatar/${md5(createdBy.email, {encoding: "binary"})}?d=blank`} />
+            <Typography className={classes.createdBy} variant="caption">
+              {createdBy.name}
+            </Typography>
+          </div>
           <Box marginTop={1}>
             <ReadOnlyQuillEditor value={comment.body} />
             {editOpen && (

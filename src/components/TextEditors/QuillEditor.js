@@ -36,8 +36,8 @@ function setTooltip(toolbar, selector, title, title2) {
   const selected = title2 ? toolbar.querySelectorAll(selector) : toolbar.querySelector(selector);
   if (selected) {
     if (title2) {
-      selected[0].setAttribute('title', title);
-      selected[1].setAttribute('title', title2);
+      selected[0] && selected[0].setAttribute('title', title);
+      selected[1] && selected[1].setAttribute('title', title2);
     } else {
       selected.setAttribute('title', title);
     }

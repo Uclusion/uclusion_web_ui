@@ -15,6 +15,7 @@ import { nameToAvatarText } from '../../../utils/stringFunctions';
 import BanUserButton from './BanUserButton';
 import UnBanUserButton from './UnBanUserButton';
 import { makeStyles } from '@material-ui/styles';
+import md5 from 'md5'
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -43,7 +44,7 @@ function ExistingUsers (props) {
 
   function getUsers () {
     return withoutYou.map((presence) => {
-      const { name, id, market_banned: banned } = presence;
+      const { name, email, id, market_banned: banned } = presence;
       return (
         <ListItem
           key={id}
@@ -51,6 +52,7 @@ function ExistingUsers (props) {
           <ListItemAvatar>
             <Avatar
               className={banned? classes.banned : classes.unbanned}
+              src={`https://www.gravatar.com/avatar/${md5(email, {encoding: "binary"})}?d=404`}
             >
               {nameToAvatarText(name)}
             </Avatar>

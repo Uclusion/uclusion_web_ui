@@ -32,6 +32,7 @@ import { nameToAvatarText } from '../../utils/stringFunctions'
 import ThumbUpIcon from '@material-ui/icons/ThumbUp'
 import clsx from 'clsx'
 import ThumbDownIcon from '@material-ui/icons/ThumbDown'
+import md5 from 'md5'
 
 const dialogStyles = makeStyles((theme) => ({
   paper: {
@@ -267,8 +268,12 @@ function InitiativesAndDialogs(props) {
               max={window.outerWidth > 600 ? 4 : 1}
               spacing="small">
               {presences.map((presence) => {
-                const { id: userId, name } = presence;
-                return <Tooltip key={`tip${userId}`} title={name}><Avatar className={classes.green} key={userId}>{nameToAvatarText(name)}</Avatar></Tooltip>
+                const { id: userId, name, email } = presence;
+                return <Tooltip key={`tip${userId}`} title={name}>
+                  <Avatar className={classes.green} key={userId}
+                          src={`https://www.gravatar.com/avatar/${md5(email, {encoding: "binary"})}?d=404`}>
+                    {nameToAvatarText(name)}
+                  </Avatar></Tooltip>
                 })
               }
             </AvatarGroup>

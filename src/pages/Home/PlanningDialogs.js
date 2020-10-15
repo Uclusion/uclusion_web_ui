@@ -1,5 +1,6 @@
 import React, { useContext } from 'react'
 import { Avatar, CardActions, CardContent, Grid, Link, Tooltip, Typography } from '@material-ui/core'
+import md5 from 'md5'
 import _ from 'lodash'
 import { useHistory } from 'react-router'
 import { makeStyles } from '@material-ui/styles'
@@ -153,8 +154,12 @@ function PlanningDialogs(props) {
                 max={4}
                 spacing="medium">
                 {presences.map((presence) => {
-                  const { id: userId, name } = presence;
-                  return <Tooltip key={`tip${userId}`} title={name}><Avatar className={classes.green} key={userId}>{nameToAvatarText(name)}</Avatar></Tooltip>
+                  const { id: userId, name, email } = presence;
+                  return <Tooltip key={`tip${userId}`} title={name}>
+                    <Avatar className={classes.green} key={userId}
+                            src={`https://www.gravatar.com/avatar/${md5(email, {encoding: "binary"})}?d=404`}>
+                    {nameToAvatarText(name)}
+                  </Avatar></Tooltip>
                   })
                 }
               </AvatarGroup>

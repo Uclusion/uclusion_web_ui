@@ -172,7 +172,6 @@ class CustomQuillClipboard extends Clipboard {
     const range = this.quill.getSelection(true);
     if (range == null) return;
     const html = e.clipboardData.getData('text/html');
-    alert(html);
     let filteredHtml = stripDangerousImageTags(html);
     let text = e.clipboardData.getData('text/plain');
     if(isUrl(text)){

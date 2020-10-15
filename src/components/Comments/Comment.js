@@ -30,7 +30,6 @@ import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
 import { EXPANDED_CONTROL, ExpandedCommentContext } from '../../contexts/CommentsContext/ExpandedCommentContext'
 import UsefulRelativeTime from '../TextFields/UseRelativeTime'
 import md5 from 'md5'
-import { nameToAvatarText } from '../../utils/stringFunctions'
 
 const useCommentStyles = makeStyles(
   theme => {

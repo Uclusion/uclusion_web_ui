@@ -597,6 +597,9 @@ function PlanningInvestible(props) {
   function expansionChanged(event, expanded) {
     setChangeStagesExpanded(expanded);
   }
+  function getPreviousDecisions() {
+
+  }
   return (
     <Screen
       title={name}
@@ -840,6 +843,7 @@ function PlanningInvestible(props) {
             allowedTypes={allowedCommentTypes}
           />
         </Grid>
+        {getPreviousDecisions()}
       </Grid>
     </Screen>
   );

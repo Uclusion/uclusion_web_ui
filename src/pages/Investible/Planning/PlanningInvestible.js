@@ -73,7 +73,7 @@ import CardType, {
   STORY_TYPE
 } from '../../../components/CardType'
 import clsx from 'clsx'
-import { DECISION_TYPE } from '../../../constants/markets'
+import { ACTIVE_STAGE, DECISION_TYPE } from '../../../constants/markets'
 import DismissableText from '../../../components/Notifications/DismissableText'
 import PersonAddIcon from '@material-ui/icons/PersonAdd'
 import SubSection from '../../../containers/SubSection/SubSection'
@@ -104,6 +104,8 @@ import ShareStoryButton from './ShareStoryButton'
 import Chip from '@material-ui/core/Chip'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import TextField from '@material-ui/core/TextField'
+import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 
 const useStyles = makeStyles(
   theme => ({
@@ -360,6 +362,8 @@ function PlanningInvestible(props) {
   const [newLabel, setNewLabel] = useState(undefined);
   const [clearMeHack, setClearMeHack] = useState('a');
   const [labelFocus, setLabelFocus] = useState(false);
+  const [marketState] = useContext(MarketsContext);
+
   if (!investibleId) {
     // we have no usable data;
     return <></>;
@@ -598,7 +602,38 @@ function PlanningInvestible(props) {
     setChangeStagesExpanded(expanded);
   }
   function getPreviousDecisions() {
-
+    return (children || []).map((aMarketId) => {
+      const anInlineMarket = getMarket(marketState, aMarketId);
+      if (!anInlineMarket) {
+        return React.Fragment;
+      }
+      const { is_inline: isInline, market_stage: marketStage } = anInlineMarket;
+      if (!isInline || marketStage === ACTIVE_STAGE) {
+        return React.Fragment;
+      }
+      const anInlineMarketInvestibleComments = getMarketComments(commentsState, anInlineMarket.id) || [];
+      const anInlineMarketPresences = getMarketPresences(marketPresencesState, anInlineMarket.id) || [];
+      const anInlineMarketInvestibles = getMarketInvestibles(investiblesState, anInlineMarket.id) || [];
+      return (
+        <Grid item xs={12} style={{ marginTop: '56px' }}>
+          <SubSection
+            id={anInlineMarket.id}
+            type={SECTION_TYPE_SECONDARY}
+            title={intl.formatMessage({ id: 'inlineMarketOptionsLabel'},
+              {expireDate: intl.formatDate(anInlineMarket.updated_at),
+                expireTime: intl.formatTime(anInlineMarket.updated_at)})}
+          >
+            <CurrentVoting
+              marketPresences={anInlineMarketPresences}
+              investibles={anInlineMarketInvestibles}
+              marketId={anInlineMarket.id}
+              comments={anInlineMarketInvestibleComments}
+              inArchives={true}
+            />
+          </SubSection>
+        </Grid>
+      );
+    })
   }
   return (
     <Screen

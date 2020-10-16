@@ -502,6 +502,7 @@ const messages = defineMessages({
   decisionDialogSummaryLabel: 'Background Information',
   decisionDialogCurrentVotingLabel: 'Approvable Options',
   storyCurrentVotingLabel: 'Options for doing this story',
+  inlineMarketOptionsLabel: 'From decision on {expireDate} {expireTime}',
   decisionDialogProposedOptionsLabel: 'Proposed Options',
   decisionDialogDiscussionLabel: 'Discussion',
   decisionDialogAddInvestibleLabel: 'Add Option',

@@ -56,8 +56,8 @@ function MarketLinks (props) {
   const [marketState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [marketNameState, marketNamesDispatch] = useReducer((state, action) => {
-    const { marketId, marketToken, name, marketType, marketStage, isInline, createdAt } = action;
-    return { ...state, [marketId]: { name, marketType, marketStage, isInline, createdAt, marketToken } };
+    const { marketId, marketToken, name, marketType, marketStage, createdAt } = action;
+    return { ...state, [marketId]: { name, marketType, marketStage, createdAt, marketToken } };
   }, {});
   
   useEffect(() => {
@@ -68,13 +68,17 @@ function MarketLinks (props) {
           name, market_type: marketType, market_stage: marketStage, is_inline: isInline,
           created_at: createdAt
         } = marketDetails;
-        marketNamesDispatch({ marketId, name, marketType, marketStage, isInline, createdAt });
+        if (!isInline) {
+          marketNamesDispatch({ marketId, name, marketType, marketStage, createdAt });
+        }
       } else {
         console.info(`Getting ${marketId} for market links`);
         getMarketInfo(marketId).then((market) => {
           const { name, market_type: marketType, market_stage: marketStage, is_inline: isInline,
             created_at: createdAt, invite_capability: marketToken } = convertDates(market);
-          marketNamesDispatch({ marketId, marketToken, name, marketType, marketStage, isInline, createdAt });
+          if (!isInline) {
+            marketNamesDispatch({ marketId, marketToken, name, marketType, marketStage, createdAt })
+          }
         });
       }
     });
@@ -110,8 +114,7 @@ function MarketLinks (props) {
                     navigate(history, baseLink)
                   }}
                 >
-                  {marketInfo.isInline ? intl.formatMessage({ id: 'inlineMarketName' }, { x: index + 1})
-                    : marketInfo.name}
+                  {marketInfo.name}
                 </Link>
               </Typography>
             )}

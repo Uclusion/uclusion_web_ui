@@ -120,8 +120,7 @@ function InvestiblesByWorkspace(props) {
           inDialogStage.id,
           acceptedStage.id,
           inReviewStage.id,
-          inBlockingStage.id,
-          requiresInputStage.id
+          inBlockingStage.id
         ];
         const myInvestibles = getUserInvestibles(
           presence.id,
@@ -147,7 +146,7 @@ function InvestiblesByWorkspace(props) {
           const investmentsFiltered = (investments || []).filter((investment) => !investment.deleted);
           return _.isEmpty(investmentsFiltered);
         });
-        if (_.isEmpty(myInvestibles)) {
+        if (_.isEmpty(myInvestibles) && _.isEmpty(requiresInputInvestibles)) {
           return React.Fragment;
         }
         return (
@@ -177,7 +176,7 @@ function InvestiblesByWorkspace(props) {
                   <hr />
                 </SubSection>
               )}
-              {market.id &&
+              {market.id && !_.isEmpty(myInvestibles) &&
               acceptedStage &&
               inDialogStage &&
               inReviewStage &&

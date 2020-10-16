@@ -118,7 +118,7 @@ function addContentState(state, item) {
   }
   // ok at this point, you've seen something, and this new stuff
   // is genuinely new to you. Hence we need to calculate the diff
-  const diff = HtmlDiff.execute(lastSeenContent, description);
+  const diff = HtmlDiff.execute(lastSeenContent, description || '');
   const newContent = {
     id,
     lastSeenContent,

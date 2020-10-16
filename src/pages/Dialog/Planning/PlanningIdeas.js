@@ -111,7 +111,6 @@ function PlanningIdeas(props) {
       return stageChangeInvestible(moveInfo)
         .then((inv) => {
           refreshInvestibles(invDispatch, diffDispatch, [inv]);
-          target.style.cursor = 'default';
         });
     }
   }

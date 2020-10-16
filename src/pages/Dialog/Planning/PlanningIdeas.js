@@ -13,6 +13,15 @@ import { DaysEstimate } from '../../../components/AgilePlan'
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import Chip from '@material-ui/core/Chip'
+import { stageChangeInvestible } from '../../../api/investibles'
+import {
+  getInvestible,
+  refreshInvestibles
+} from '../../../contexts/InvestibesContext/investiblesContextHelper'
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
+import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
+import { getMarketInfo } from '../../../utils/userFunctions'
+import { ISSUE_TYPE, TODO_TYPE } from '../../../constants/comments'
 
 const warningColor = red["400"];
 
@@ -55,6 +64,8 @@ function PlanningIdeas(props) {
   const intl = useIntl();
   const classes = usePlanningIdStyles();
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [invState, invDispatch] = useContext(InvestiblesContext);
+  const [, diffDispatch] = useContext(DiffContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const warnAccepted = checkInProgressWarning(investibles, comments, acceptedStageId, presenceId, marketId);
   const acceptedFull = !_.isEmpty(investibles.filter(investible => {
@@ -63,9 +74,74 @@ function PlanningIdeas(props) {
     return marketInfo !== undefined && marketInfo.stage === acceptedStageId;
   }));
   const acceptedStageLabel = acceptedFull? 'planningAcceptedStageFullLabel' : 'planningAcceptedStageLabel';
+  const myPresence = (marketPresences || []).find((presence) => presence.current_user) || {};
+  function isBlockedByIssue(investibleId, currentStageId, targetStageId) {
+    const investibleComments = comments.filter((comment) => comment.investible_id === investibleId) || [];
+    const blockingComments = investibleComments.filter(
+      comment => comment.comment_type === ISSUE_TYPE && !comment.resolved
+    );
+    const todoComments = investibleComments.filter(
+      comment => comment.comment_type === TODO_TYPE && !comment.resolved
+    );
+    if (!_.isEmpty(blockingComments)) {
+      return true;
+    }
+    if (currentStageId !== inBlockingStageId && !_.isEmpty(todoComments)) {
+      if (currentStageId !== inDialogStageId || targetStageId === inReviewStageId) {
+        return true;
+      }
+    }
+    return false;
+  }
+  function stageChange(event, targetStageId) {
+    event.preventDefault();
+    const investibleId = event.dataTransfer.getData("text");
+    const currentStageId = event.dataTransfer.getData("stageId");
+    if (!isBlockedByIssue(investibleId, currentStageId, targetStageId)) {
+      const target = event.target;
+      target.style.cursor = 'wait';
+      const moveInfo = {
+        marketId,
+        investibleId,
+        stageInfo: {
+          current_stage_id: currentStageId,
+          stage_id: targetStageId,
+        },
+      };
+      return stageChangeInvestible(moveInfo)
+        .then((inv) => {
+          refreshInvestibles(invDispatch, diffDispatch, [inv]);
+          target.style.cursor = 'default';
+        });
+    }
+  }
+  function isAssigned(event) {
+    const investibleId = event.dataTransfer.getData("text");
+    const investible = getInvestible(invState, investibleId);
+    const marketInfo = getMarketInfo(investible, marketId);
+    const { assigned } = marketInfo;
+    return (assigned || []).includes(myPresence.id);
+  }
+  function onDropVoting(event) {
+    const currentStageId = event.dataTransfer.getData("stageId");
+    if (isAssigned(event) || currentStageId === inBlockingStageId) {
+      stageChange(event, inDialogStageId);
+    }
+  }
+  function onDropAccepted(event) {
+    if (isAssigned(event) && !acceptedFull) {
+      stageChange(event, acceptedStageId);
+    }
+  }
+  function onDropReview(event) {
+    stageChange(event, inReviewStageId);
+  }
+  function onDragOverStage(event) {
+    event.preventDefault();
+  }
   return (
     <dl className={classes.stages}>
-      <div>
+      <div onDrop={onDropVoting} onDragOver={onDragOverStage}>
         <Tooltip
           title={intl.formatMessage({ id: 'planningVotingStageDescription' })}
         >
@@ -84,7 +160,7 @@ function PlanningIdeas(props) {
           comments={comments}
         />
       </div>
-      <div>
+      <div onDrop={onDropAccepted} onDragOver={onDragOverStage}>
         <Tooltip
           title={intl.formatMessage({ id: 'planningAcceptedStageDescription' })}
         >
@@ -100,7 +176,7 @@ function PlanningIdeas(props) {
           warnAccepted={warnAccepted}
         />
       </div>
-      <div>
+      <div onDrop={onDropReview} onDragOver={onDragOverStage}>
         <Tooltip
           title={intl.formatMessage({ id: 'planningReviewStageDescription' })}
         >
@@ -223,6 +299,11 @@ function Stage(props) {
     );
   }
 
+  function investibleOnDragStart(event) {
+    event.dataTransfer.setData("text", event.target.id);
+    event.dataTransfer.setData("stageId", id);
+  }
+
   return (
     <dd className={warnAccepted ? classes.rootWarnAccepted : classes.root}>
       <ul className={classes.list}>
@@ -233,7 +314,7 @@ function Stage(props) {
           );
 
           return (
-            <li key={investible.id}>
+            <li key={investible.id} id={investible.id} onDragStart={investibleOnDragStart}>
               <StageInvestible
                 comments={comments}
                 investible={investible}
@@ -400,6 +481,7 @@ function StageInvestible(props) {
   return (
     <StageLink
       href={to}
+      id={id}
       onClick={event => {
         event.preventDefault();
         navigate(history, to);

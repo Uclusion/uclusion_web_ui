@@ -56,7 +56,11 @@ function OnboardingWorkspace(props) {
     return doCreateRequirementsWorkspace(dispatchers, {
       workspaceName: intl.formatMessage({ id: 'onboardingWorkspace' }, { x: name }),
       workspaceDescription: '<h2>Thanks for reaching out!</h2><p/><p>If you have any questions, suggestions or issues please don\'t hesitate to open them below and we will get back to you as soon as possible.</p>'})
-      .then((marketId) => {
+      .then((marketDetails) => {
+        const {
+          market
+        } = marketDetails;
+        const marketId = market.id;
         const link = formMarketLink(marketId);
         const supportUser = getRandomSupportUser();
         return addParticipants(marketId, [{

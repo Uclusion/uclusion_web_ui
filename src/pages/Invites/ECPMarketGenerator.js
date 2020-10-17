@@ -3,6 +3,9 @@ import { createMyDialog } from '../../components/AddNew/Dialog/dialogCreator';
 import { doCreateRequirementsWorkspace } from '../../components/AddNew/Workspace/RequirementsWorkspace/workspaceCreator';
 import { getRandomSupportUser } from '../../utils/userFunctions'
 import { addParticipants } from '../../api/users'
+import { addPlanningInvestible } from '../../api/investibles'
+import { addInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
+import { processTextAndFilesForSave } from '../../api/files'
 
 export function createECPMarkets (dispatchers) {
   let initiativeId = null;
@@ -85,14 +88,37 @@ function createDialog (dispatchers) {
 function createTeamWorkspace (dispatchers) {
   const workspaceName = 'A Demonstration Team Workspace';
   const workspaceDescription = '<p>With a team Workspace you can organize team wide documentation, store onboarding materials, and drive important discussions about team wide topics</p><p/>' +
-    '<p>You can archive this demo Workspace or invite collaborators and edit it as you see fit.</p>';
+    '<p>You can archive this demo Workspace or invite collaborators and edit it.</p>';
   return doCreateRequirementsWorkspace(dispatchers, { workspaceName, workspaceDescription });
 }
 
 function createProjectWorkspace (dispatchers) {
   const workspaceName = 'A Demonstration Project Workspace';
   const workspaceDescription = '<p>With a project Workspace you can describe and complete requirements from start to finish inside Uclusion.</p><p/>' +
-  'You can archive this demo Workspace or invite collaborators and try using it for some small project.</p><p/>' +
   '<p>See <iframe allowfullscreen="true" class="ql-video" frameborder="0" src="https://www.youtube.com/embed/v5QdMpnNr2M?showinfo=0"></iframe> for a walk through on using a Workspace for stories.</p>';
-  return doCreateRequirementsWorkspace(dispatchers, { workspaceName, workspaceDescription });
+  return doCreateRequirementsWorkspace(dispatchers, { workspaceName, workspaceDescription }).then((marketDetails) => {
+    const {
+      market,
+      presence,
+    } = marketDetails;
+    const marketId = market.id;
+    const userId = presence.id;
+    const processed = processTextAndFilesForSave([], 'Archive this demo Workspace or invite collaborators and try using it for some small project.');
+    // add the story
+    const processedStoryDescription = processed.text ? processed.text : ' ';
+    const addInfo = {
+      marketId: marketId,
+      name: 'Demo cleanup',
+      description: processedStoryDescription,
+      uploadedFiles: processed.uploadedFiles,
+      assignments: [userId],
+    };
+    return addPlanningInvestible(addInfo).then((addedStory) => {
+      const {
+        investiblesDispatch,
+        diffDispatch,
+      } = dispatchers;
+      return addInvestible(investiblesDispatch, diffDispatch, addedStory);
+    });
+  });
 }

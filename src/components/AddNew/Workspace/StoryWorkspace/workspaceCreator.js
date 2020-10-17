@@ -31,10 +31,8 @@ export function doCreateStoryWorkspace(dispatchers, formData, updateFormData, in
     commentsDispatch,
     versionsDispatch
   } = dispatchers;
-  const isOnboarding = window.location.href.includes('onboarding');
-  const homeContent = `<p>${intl.formatMessage({ id: 'WorkspaceWizardWorkspaceDescription' }, { meetingName })}</p>`;
-  const onboardingContent = `${homeContent}<p>Use the <img src="https://www.uclusion.com/onboardingImages/pencil.png">in this Workspace's upper right to edit this description and replace the content below with your own.</p><p><br></p><h2>Want to collaborate with the founders?</h2><p><br></p><p>Choose <em>Support</em> from the drop down in the upper right hand corner with your name:</p><p><img src="https://www.uclusion.com/onboardingImages/dropDown.png"></p><p>And then</p><p><img src="https://www.uclusion.com/onboardingImages/supportHelp.png"></p><p><br></p><p>Also the notifications icon above <img src="https://www.uclusion.com/onboardingImages/jar.png"> always shows you what next needs your attention. If you click it now it will take you to notification preferences where you can set up Slack integration or change your email settings.</p>`;
-  const descriptionContent = isOnboarding ? onboardingContent : homeContent;
+
+  const descriptionContent = `<p>${intl.formatMessage({ id: 'WorkspaceWizardWorkspaceDescription' }, { meetingName })}</p>`;
   const marketInfo = {
     name: meetingName,
     description: descriptionContent,

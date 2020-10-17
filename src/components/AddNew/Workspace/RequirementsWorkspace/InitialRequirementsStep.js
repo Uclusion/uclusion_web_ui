@@ -47,7 +47,11 @@ function InitialRequirementsStep (props) {
       versionsDispatch,
     };
     return doCreateRequirementsWorkspace(dispatchers, formData, updateFormData)
-      .then((marketId) => {
+      .then((marketDetails) => {
+        const {
+          market
+        } = marketDetails;
+        const marketId = market.id;
         return ({ ...formData, marketId });
       });
   }

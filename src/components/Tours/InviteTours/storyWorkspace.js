@@ -19,7 +19,7 @@ export function inviteStoriesWorkspaceSteps (variables) {
       disableBeacon: true,
       target: '#swimLanes',
       placement: 'top',
-      content: 'Swim lanes under each assignee\'s name let you see at a glance what stage a story is at. Click on someone else\'s story in \'Ready to Start\' to vote whether or not that person should do it.',
+      content: 'Swimlanes show at a glance what everyone is doing. Click on someone else\'s story in \'Ready to Start\' to approve.',
     },
     {
       disableBeacon: true,

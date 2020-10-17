@@ -34,7 +34,7 @@ export function signupHomeSteps(variables) {
       disableBeacon: true,
       placement: 'right',
       target: '#ws0',
-      content: "A Project Workspace is where you create requirements and execute stories.",
+      content: "A project Workspace is where you create requirements and execute stories.",
     }
   ]
 }

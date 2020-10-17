@@ -37,6 +37,6 @@ export function doCreateRequirementsWorkspace (dispatchers, formData, updateForm
       addMarketToStorage(marketsDispatch, diffDispatch, market);
       pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, marketId: createdMarketId, stages });
       addPresenceToMarket(presenceDispatch, createdMarketId, presence);
-      return createdMarketId;
+      return marketDetails;
     });
 }

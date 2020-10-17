@@ -85,7 +85,7 @@ function createDialog (dispatchers) {
 function createTeamWorkspace (dispatchers) {
   const workspaceName = 'A Demonstration Team Workspace';
   const workspaceDescription = '<p>With a team Workspace you can organize team wide documentation, store onboarding materials, and drive important discussions about team wide topics</p><p/>' +
-    '<p>You can archive this demo Workspace or invite collaborators and have edit it as you see fit.</p>';
+    '<p>You can archive this demo Workspace or invite collaborators and edit it as you see fit.</p>';
   return doCreateRequirementsWorkspace(dispatchers, { workspaceName, workspaceDescription });
 }
 

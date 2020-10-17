@@ -25,7 +25,7 @@ export function inviteStoriesWorkspaceSteps (variables) {
       disableBeacon: true,
       target: '#addStory',
       placement: 'right',
-      content: '\'Create Story\' lets you create a new story assigned to a member of your team.',
+      content: '\'Create Story\' lets you create a new story and assign.',
     },
     {
       disableBeacon: true,

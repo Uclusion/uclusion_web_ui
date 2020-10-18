@@ -15,6 +15,7 @@ import {
 import { filterMessagesByMarket, nextMessage } from '../../contexts/NotificationsContext/notificationsContextHelper'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import DisplayNotifications from './DisplayNotifications'
+import { useIntl } from 'react-intl'
 
 const useStyles = makeStyles(
   theme => {
@@ -97,6 +98,7 @@ function Notifications() {
   const { messages } = filteredMessagesState;
   const current = nextMessage(filteredMessagesState || {});
   const history = useHistory();
+  const intl = useIntl();
   const classes = useStyles();
 
   function getBackgroundClass() {
@@ -141,7 +143,7 @@ function Notifications() {
           getBackgroundClass())}
       >
         {current && (
-          <Tooltip title={current.text}>
+          <Tooltip title={intl.formatMessage({ id: 'notificationsHelp' }, { x: current.text })}>
             <NotificationImportant className={classes.uncolored} />
           </Tooltip>
         )}

@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState } from 'react'
 import { NotificationImportant, Notifications as NotificationsIcon } from '@material-ui/icons'
 import { Fab, makeStyles, Tooltip } from '@material-ui/core'
 import clsx from 'clsx'
@@ -14,6 +14,7 @@ import {
 } from '../../constants/notifications'
 import { filterMessagesByMarket, nextMessage } from '../../contexts/NotificationsContext/notificationsContextHelper'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
+import DisplayNotifications from './DisplayNotifications'
 
 const useStyles = makeStyles(
   theme => {
@@ -88,10 +89,12 @@ export function getFullLink(current) {
   return fullLink;
 }
 
-function Notifications(props) {
+function Notifications() {
+  const [open, setOpen] = useState(false);
   const [messagesState] = useContext(NotificationsContext);
   const [marketsState] = useContext(MarketsContext);
   const filteredMessagesState = filterMessagesByMarket(messagesState, marketsState);
+  const { messages } = filteredMessagesState;
   const current = nextMessage(filteredMessagesState || {});
   const history = useHistory();
   const classes = useStyles();
@@ -111,27 +114,41 @@ function Notifications(props) {
     }
   }
 
-  function nextOnClick() {
+  function onSingleClick() {
+    if (open) {
+      setOpen(false);
+    }
+    else if (current) {
+      setOpen(true);
+    }
+  }
+
+  function onDoubleClick() {
     if (current) {
       navigate(history, getFullLink(current));
     }
   }
 
   return (
-    <Fab
-      disabled={!current}
-      onClick={nextOnClick}
-      className={clsx(
-        classes.fab,
-        getBackgroundClass())}
-    >
-      {current && (
-        <Tooltip title={current.text}>
-          <NotificationImportant className={classes.uncolored} />
-        </Tooltip>
-      )}
-      {!current && <NotificationsIcon className={classes.uncolored} />}
-    </Fab>
+    <>
+      <Fab
+        id="notifications-fab"
+        disabled={!current}
+        onClick={onSingleClick}
+        onDoubleClick={onDoubleClick}
+        className={clsx(
+          classes.fab,
+          getBackgroundClass())}
+      >
+        {current && (
+          <Tooltip title={current.text}>
+            <NotificationImportant className={classes.uncolored} />
+          </Tooltip>
+        )}
+        {!current && <NotificationsIcon className={classes.uncolored} />}
+      </Fab>
+      <DisplayNotifications results={messages} open={open} setOpen={setOpen} />
+    </>
   );
 }
 

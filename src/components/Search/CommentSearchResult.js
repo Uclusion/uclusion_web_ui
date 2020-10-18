@@ -48,6 +48,7 @@ function CommentSearchResult (props) {
     commentId,
     classes,
     afterOnClick,
+    link
   } = props;
   const intl = useIntl();
   const history = useHistory();
@@ -84,7 +85,7 @@ function CommentSearchResult (props) {
   const containerName = !_.isEmpty(investibleId) ? getInvestibleName(investibleId) : getMarketName(marketId);
   const messageId = getIntlMessage(type);
   const linkText = intl.formatMessage({ id: messageId }, { name: containerName });
-  const linkTarget = formCommentLink(marketId, investibleId, rootId);
+  const linkTarget = link ? link : formCommentLink(marketId, investibleId, rootId);
 
 
   return (
@@ -110,11 +111,13 @@ function CommentSearchResult (props) {
 CommentSearchResult.propTypes = {
   marketId: PropTypes.string.isRequired,
   commentId: PropTypes.string.isRequired,
+  link: PropTypes.string,
   afterOnClick: PropTypes.func,
 };
 
 CommentSearchResult.defaultProps = {
   afterOnClick: () => {},
+  link: undefined
 }
 
 export default CommentSearchResult;

@@ -23,7 +23,7 @@ function getCardType(marketType) {
 }
 
 function InvestibleSearchResult (props) {
-  const { investibleId, classes, afterOnClick } = props;
+  const { investibleId, classes, afterOnClick, link } = props;
   const [marketsState] = useContext(MarketsContext);
   const [investibleState] = useContext(InvestiblesContext);
   const history = useHistory();
@@ -35,7 +35,7 @@ function InvestibleSearchResult (props) {
   // investibles for type initiative, are really markets, so treat it as such
   const { market_type: marketType } = market;
   const cardType = getCardType(marketType);
-  const linkTarget = formInvestibleLink(marketId, investibleId);
+  const linkTarget = link ? link : formInvestibleLink(marketId, investibleId);
   return (
     <Link
       href={linkTarget}
@@ -61,11 +61,13 @@ function InvestibleSearchResult (props) {
 
 InvestibleSearchResult.propTypes = {
   investibleId: PropTypes.string.isRequired,
+  link: PropTypes.string,
   afterOnClick: PropTypes.func,
 };
 
 InvestibleSearchResult.defaultProps = {
   afterOnClick: () => {},
+  link: undefined
 }
 
 export default InvestibleSearchResult;

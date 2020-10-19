@@ -34,9 +34,9 @@ function NotificationsProvider(props) {
     lfg.getState()
       .then((state) => {
         if (state) {
-          const { messages } = state;
+          const { messages, recent } = state;
           //We don't want to load up page or lastPage from disk
-          dispatch(initializeState({ messages }));
+          dispatch(initializeState({ messages, recent }));
         } else {
           dispatch(initializeState({
             page: undefined,

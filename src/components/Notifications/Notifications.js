@@ -117,12 +117,7 @@ function Notifications() {
   }
 
   function onSingleClick() {
-    if (open) {
-      setOpen(false);
-    }
-    else if (current) {
-      setOpen(true);
-    }
+    setOpen(!open);
   }
 
   function onDoubleClick() {
@@ -135,7 +130,6 @@ function Notifications() {
     <>
       <Fab
         id="notifications-fab"
-        disabled={!current}
         onClick={onSingleClick}
         onDoubleClick={onDoubleClick}
         className={clsx(

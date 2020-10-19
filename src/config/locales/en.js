@@ -400,6 +400,7 @@ const messages = defineMessages({
   noticeNewApplicationVersion: 'A new version of the application is available! It will load when you close this message.',
   noticeVersionForceLogout: 'This version of the application requires signout which will happen when you close this message.',
   notificationsHelp: 'Double click goes to - {x}',
+  notificationsRecent: 'Recently viewed',
 
   // stages
   marketStageFollowTooltip: 'Subscribe',

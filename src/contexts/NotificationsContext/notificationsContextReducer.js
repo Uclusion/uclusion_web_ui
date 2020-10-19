@@ -113,13 +113,21 @@ function removeStoredMessagesForAction(messages, action) {
 
 /** Removes messages from the state that are for a
  * page pertaining to a market, or a subpage of a market
- * @param messages
+ * @param state
  * @param page
  * @returns {{marketMessages: *}|*}
  */
-function removeStoredMessagesForMarketPage (messages, page) {
+function removeStoredMessagesForMarketPage (state, page) {
   const { marketId, investibleId } = page;
-  return messages.filter((message) => message.marketId !== marketId || message.investibleId !== investibleId);
+  const messages = (state || {}).messages || emptyMessagesState;
+  const { recent } = state;
+  const newState = {
+    ...state,
+    recent: _.union(recent || [],
+      messages.filter((message) => message.marketId === marketId && message.investibleId === investibleId)),
+  }
+  return storeMessagesInState(newState,
+    messages.filter((message) => message.marketId !== marketId || message.investibleId !== investibleId));
 }
 
 /**
@@ -131,12 +139,12 @@ function removeStoredMessagesForMarketPage (messages, page) {
  */
 function removeStoredMessagesForPage(state, page) {
   const { action } = page;
-  const messages = (state || {}).messages || emptyMessagesState;
   // all market pages are under /dialog
   if (action === 'dialog') {
-    return removeStoredMessagesForMarketPage(messages, page);
+    return removeStoredMessagesForMarketPage(state, page);
   }
-  return removeStoredMessagesForAction(messages, action);
+  const messages = (state || {}).messages || emptyMessagesState;
+  return storeMessagesInState(state, removeStoredMessagesForAction(messages, action))
 }
 
 /**
@@ -242,8 +250,7 @@ function processPageChange (state, action) {
   const newMessageState = removeStoredMessagesForPage(state, page);
   // then update the page to the current page
   const newState = {
-    ...state,
-    messages: newMessageState,
+    ...newMessageState,
     page
   };
   // now do all the magic for the messages we want to display
@@ -260,10 +267,11 @@ function processPageChange (state, action) {
  * @returns {*}
  */
 function storeMessagesInState(state, messagesToStore) {
-  const { initializing } = state;
+  const { initializing, recent } = state;
   if (initializing) {
     return {
       messages: messagesToStore,
+      recent
     };
   }
   return {
@@ -292,11 +300,11 @@ function doUpdateMessages (state, action) {
   // incoming messages look like they came from the store
   const pageMessages = getStoredMessagesForPage({messages: massagedMessages}, page);
   // the messages to store are the ones we can't immediately handle on the current page
-  const messagesToStore = removeStoredMessagesForPage({ messages: massagedMessages}, page);
+  const newStore = removeStoredMessagesForPage(storeMessagesInState(state, massagedMessages), page);
   // now do all the magic for the messages we want to display
   handleMessagesForPage(pageMessages);
   // last compute the new state
-  return storeMessagesInState(state, messagesToStore);
+  return newStore;
 }
 
 function computeNewState (state, action) {

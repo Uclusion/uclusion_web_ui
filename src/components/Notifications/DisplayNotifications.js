@@ -1,13 +1,15 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import _ from 'lodash'
 import CommentSearchResult from '../Search/CommentSearchResult'
 import InvestibleSearchResult from '../Search/InvestibleSearchResult'
 import MarketSearchResult from '../Search/MarketSearchResult'
-import { List, ListItem, Paper, Popper } from '@material-ui/core'
+import { List, ListItem, Paper, Popper, Typography } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import { isTinyWindow } from '../../utils/windowUtils';
 import { getFullLink } from './Notifications'
 import { USER_POKED_TYPE } from '../../constants/notifications'
+import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
+import { useIntl } from 'react-intl'
 
 const useStyles = makeStyles(() => {
   return {
@@ -24,19 +26,19 @@ const useStyles = makeStyles(() => {
 });
 
 /**
- * Can add 'double click to go to' the hover text on the notification jar.
  * In addition to results displays after title 'Recent' from a new context which holds notifications from last day.
  * When you get recent notifications you tell the context to remove older than a day.
- * Will need to customize the search results below to for high lighting red (stored in item)
- * and expose remove X borrowed from dismiss text you can click to remove without going there.
  * @param props
  * @returns {JSX.Element}
  * @constructor
  */
 function DisplayNotifications(props) {
   const { results, open, setOpen } = props;
+  const intl = useIntl();
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = useState(null);
+  const [messagesState] = useContext(NotificationsContext);
+  const { recent } = messagesState;
 
   useEffect(() => {
     if (_.isEmpty(anchorEl)) {
@@ -82,8 +84,8 @@ function DisplayNotifications(props) {
     }
   }
 
-  function getResults () {
-    return (results || []).map((item) => {
+  function getResults(toDisplay) {
+    return (toDisplay || []).map((item) => {
       const {
         marketId,
         investibleId,
@@ -116,11 +118,25 @@ function DisplayNotifications(props) {
       className={classes.popper}
     >
       <Paper>
-        <List
-          dense
-        >
-          {getResults()}
-        </List>
+        {!_.isEmpty(results) && (
+          <List
+            dense
+          >
+            {getResults(results)}
+          </List>
+        )}
+        {!_.isEmpty(recent) && (
+          <>
+            <Typography variant="h6" align="center">
+              {intl.formatMessage({ id: 'notificationsRecent' })}
+            </Typography>
+            <List
+            dense
+            >
+            {getResults(recent)}
+            </List>
+          </>
+        )}
       </Paper>
     </Popper>
   );

@@ -22,7 +22,6 @@ import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { addCommentToMarket } from '../../contexts/CommentsContext/commentsContextHelper'
 import { EMPTY_SPIN_RESULT } from '../../constants/global'
 import { ISSUE_TYPE, QUESTION_TYPE } from '../../constants/comments'
-import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
 import { urlHelperGetName } from '../../utils/marketIdPathFunctions'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
@@ -64,7 +63,6 @@ function CommentEdit(props) {
   const classes = useStyles();
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentState, commentDispatch] = useContext(CommentsContext);
-  const [, versionsDispatch] = useContext(VersionsContext);
   const [type, setType] = useState(commentType);
   const [marketState] = useContext(MarketsContext);
   const [investibleState] = useContext(InvestiblesContext);
@@ -82,7 +80,7 @@ function CommentEdit(props) {
     const updatedType = type !== commentType ? type : undefined;
     return updateComment(marketId, id, tokensRemoved, filteredUploads, updatedType)
       .then((comment) => {
-        addCommentToMarket(comment, commentState, commentDispatch, versionsDispatch);
+        addCommentToMarket(comment, commentState, commentDispatch);
         return EMPTY_SPIN_RESULT;
       })
   }

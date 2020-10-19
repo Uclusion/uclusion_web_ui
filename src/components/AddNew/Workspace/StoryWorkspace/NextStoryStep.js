@@ -13,7 +13,6 @@ import { DiffContext } from '../../../../contexts/DiffContext/DiffContext';
 import { MarketsContext } from '../../../../contexts/MarketsContext/MarketsContext';
 import { InvestiblesContext } from '../../../../contexts/InvestibesContext/InvestiblesContext';
 import { MarketPresencesContext } from '../../../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { VersionsContext } from '../../../../contexts/VersionsContext/VersionsContext';
 import { CommentsContext } from '../../../../contexts/CommentsContext/CommentsContext';
 import { doCreateStoryWorkspace } from './workspaceCreator';
 import { WizardStylesContext } from '../../WizardStylesContext';
@@ -27,7 +26,6 @@ function NextStoryStep (props) {
   const [, diffDispatch] = useContext(DiffContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, presenceDispatch] = useContext(MarketPresencesContext);
-  const [, versionsDispatch] = useContext(VersionsContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [investibleState] = useContext(InvestiblesContext);
   const {
@@ -62,7 +60,6 @@ function NextStoryStep (props) {
       investiblesDispatch,
       marketsDispatch,
       presenceDispatch,
-      versionsDispatch,
       commentsDispatch,
       commentsState,
     };

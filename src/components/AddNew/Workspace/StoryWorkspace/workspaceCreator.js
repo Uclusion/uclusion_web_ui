@@ -29,7 +29,6 @@ export function doCreateStoryWorkspace(dispatchers, formData, updateFormData, in
     investiblesDispatch,
     commentsState,
     commentsDispatch,
-    versionsDispatch
   } = dispatchers;
 
   const descriptionContent = `<p>${intl.formatMessage({ id: 'WorkspaceWizardWorkspaceDescription' }, { meetingName })}</p>`;
@@ -124,7 +123,7 @@ export function doCreateStoryWorkspace(dispatchers, formData, updateFormData, in
     })
     .then((addedComment) => {
       if (addedComment) {
-        addCommentToMarket(addedComment, commentsState, commentsDispatch, versionsDispatch);
+        addCommentToMarket(addedComment, commentsState, commentsDispatch);
       }
       return createdMarketId;
     });

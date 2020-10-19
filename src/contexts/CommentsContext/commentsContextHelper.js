@@ -42,7 +42,7 @@ export function removeComments(dispatch, marketId, comments) {
   dispatch(removeCommentsFromMarket(marketId, comments));
 }
 
-export function addCommentToMarket(comment, state, dispatch, versionsDispatch) {
+export function addCommentToMarket(comment, state, dispatch) {
   let updates = [comment];
   const { reply_id: replyId, id, market_id: marketId } = comment;
   const comments = getMarketComments(state, marketId);

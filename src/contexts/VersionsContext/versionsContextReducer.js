@@ -6,7 +6,6 @@ export const EMPTY_GLOBAL_VERSION = 'FAKE';
 export const EMPTY_STATE = {
   globalVersion: EMPTY_GLOBAL_VERSION,
   existingMarkets: '',
-  requiredSignatures: [],
   notificationVersion: {version: -1 },
 };
 export const MY_STORED_EMPTY_STATE = {
@@ -121,7 +120,6 @@ function reducer(state, action) {
       newState = {
         ...state,
         globalVersion: action.globalVersion,
-        requiredSignatures: [],
       };
       break;
     case NEW_MARKET:

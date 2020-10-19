@@ -24,7 +24,6 @@ import { Dialog } from '../Dialogs'
 import WarningIcon from '@material-ui/icons/Warning'
 import { useLockedDialogStyles } from '../../pages/Dialog/DialogEdit'
 import { EMPTY_SPIN_RESULT } from '../../constants/global'
-import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
 import { getBlockedStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { addInvestible, getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
@@ -104,7 +103,6 @@ function CommentAdd (props) {
   const [investibleState, investibleDispatch] = useContext(InvestiblesContext);
   const [marketState] = useContext(MarketsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
-  const [, versionsDispatch] = useContext(VersionsContext);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [openIssue, setOpenIssue] = useState(false);
   const classes = useStyles();
@@ -189,7 +187,7 @@ function CommentAdd (props) {
             addInvestible(investibleDispatch, ()=> {}, newInvestible);
           }
         }
-        addCommentToMarket(comment, commentsState, commentDispatch, versionsDispatch);
+        addCommentToMarket(comment, commentsState, commentDispatch);
         return EMPTY_SPIN_RESULT;
       });
   }

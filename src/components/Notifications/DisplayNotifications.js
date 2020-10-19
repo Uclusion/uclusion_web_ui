@@ -25,13 +25,6 @@ const useStyles = makeStyles(() => {
   };
 });
 
-/**
- * In addition to results displays after title 'Recent' from a new context which holds notifications from last day.
- * When you get recent notifications you tell the context to remove older than a day.
- * @param props
- * @returns {JSX.Element}
- * @constructor
- */
 function DisplayNotifications(props) {
   const { results, open, setOpen } = props;
   const intl = useIntl();
@@ -127,13 +120,13 @@ function DisplayNotifications(props) {
         )}
         {!_.isEmpty(recent) && (
           <>
-            <Typography variant="h6" align="center">
+            <Typography align="center">
               {intl.formatMessage({ id: 'notificationsRecent' })}
             </Typography>
             <List
-            dense
+              dense
             >
-            {getResults(recent)}
+              {getResults(recent)}
             </List>
           </>
         )}

@@ -7,11 +7,13 @@ import { TOAST_CHANNEL } from './NotificationsContext'
 import { HIGHLIGHTED_COMMENT_CHANNEL } from '../HighlightingContexts/highligtedCommentContextMessages'
 import { HIGHLIGHTED_VOTING_CHANNEL } from '../HighlightingContexts/highligtedVotingContextMessages'
 import { deleteMessage } from '../../api/users'
+import { getFullLink } from '../../components/Notifications/Notifications'
 
 export const NOTIFICATIONS_CONTEXT_NAMESPACE = 'notifications';
 const UPDATE_MESSAGES = 'UPDATE_MESSAGES';
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const PAGE_CHANGED = 'PAGE_CHANGED';
+const REFRESH_RECENT= 'REFRESH_RECENT';
 
 // Empty state of the various subkeys of the state, useful for avoiding errors
 const emptyMessagesState = [];
@@ -21,6 +23,12 @@ export function updateMessages (messages) {
   return {
     type: UPDATE_MESSAGES,
     messages,
+  };
+}
+
+export function refreshRecent() {
+  return {
+    type: REFRESH_RECENT,
   };
 }
 
@@ -121,10 +129,14 @@ function removeStoredMessagesForMarketPage (state, page) {
   const { marketId, investibleId } = page;
   const messages = (state || {}).messages || emptyMessagesState;
   const { recent } = state;
+  const removed = messages.filter((message) =>
+    message.marketId === marketId && message.investibleId === investibleId);
+  const removedMassaged = removed.map((item) => {
+    return { ...item, link: getFullLink(item), viewedAt: new Date()};
+  });
   const newState = {
     ...state,
-    recent: _.union(recent || [],
-      messages.filter((message) => message.marketId === marketId && message.investibleId === investibleId)),
+    recent: _.unionBy(removedMassaged, recent || [], 'link'),
   }
   return storeMessagesInState(newState,
     messages.filter((message) => message.marketId !== marketId || message.investibleId !== investibleId));
@@ -258,6 +270,17 @@ function processPageChange (state, action) {
   return newState;
 }
 
+function refreshRecentMessages(state) {
+  const { recent } = state;
+  const date = new Date();
+  const yesterday = date.setDate(date.getDate() - 1);
+  const recentFiltered = (recent || []).filter((item) => item.viewedAt > yesterday);
+  return {
+    ...state,
+    recent: recentFiltered,
+  };
+}
+
 /**
  * Stores messages in the state. Note,
  * we do not store messages for the page you are
@@ -318,6 +341,8 @@ function computeNewState (state, action) {
         return action.newState;
       }
       return state;
+    case REFRESH_RECENT:
+      return refreshRecentMessages(state);
     default:
       return state;
   }

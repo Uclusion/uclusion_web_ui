@@ -16,6 +16,8 @@ import { filterMessagesByMarket, nextMessage } from '../../contexts/Notification
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import DisplayNotifications from './DisplayNotifications'
 import { useIntl } from 'react-intl'
+import { refreshRecent } from '../../contexts/NotificationsContext/notificationsContextReducer'
+import _ from 'lodash'
 
 const useStyles = makeStyles(
   theme => {
@@ -92,7 +94,7 @@ export function getFullLink(current) {
 
 function Notifications() {
   const [open, setOpen] = useState(false);
-  const [messagesState] = useContext(NotificationsContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [marketsState] = useContext(MarketsContext);
   const filteredMessagesState = filterMessagesByMarket(messagesState, marketsState);
   const { messages } = filteredMessagesState;
@@ -100,6 +102,8 @@ function Notifications() {
   const history = useHistory();
   const intl = useIntl();
   const classes = useStyles();
+  const { recent } = messagesState;
+
 
   function getBackgroundClass() {
     if (!current) {
@@ -118,6 +122,7 @@ function Notifications() {
 
   function onSingleClick() {
     setOpen(!open);
+    messagesDispatch(refreshRecent());
   }
 
   function onDoubleClick() {
@@ -132,6 +137,7 @@ function Notifications() {
         id="notifications-fab"
         onClick={onSingleClick}
         onDoubleClick={onDoubleClick}
+        disabled={_.isEmpty(recent) && _.isEmpty(messages)}
         className={clsx(
           classes.fab,
           getBackgroundClass())}

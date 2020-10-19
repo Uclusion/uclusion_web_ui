@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
 import _ from 'lodash'
-import CommentSearchResult from '../Search/CommentSearchResult'
 import InvestibleSearchResult from '../Search/InvestibleSearchResult'
 import MarketSearchResult from '../Search/MarketSearchResult'
 import { List, ListItem, Paper, Popper, Typography } from '@material-ui/core'
@@ -50,14 +49,9 @@ function DisplayNotifications(props) {
       marketId,
       investibleId,
       aType,
-      commentId,
       pokeType,
     } = item;
     const link = getFullLink(item);
-    if (commentId) {
-      return (<CommentSearchResult marketId={marketId} commentId={commentId} classes={classes}
-                                   afterOnClick={afterOnClick} link={link}/>);
-    }
     if (investibleId) {
       return (<InvestibleSearchResult investibleId={investibleId} classes={classes} afterOnClick={afterOnClick}
                                       link={link}/>);
@@ -77,20 +71,25 @@ function DisplayNotifications(props) {
     }
   }
 
+  // Show each market or investible once across preview and recently viewed lists
+  // The email is the gateway to the app and so has full detail
+  // Here we are just trying to get you to or back to a page
+  const deDupe = {}
+
   function getResults(toDisplay) {
     return (toDisplay || []).map((item) => {
       const {
         marketId,
         investibleId,
-        userId,
-        aType,
-        commentId,
-        associatedUserId,
-        pokeType,
       } = item;
+      const key = `${marketId}_${investibleId}`;
+      if (key in deDupe) {
+        return React.Fragment;
+      }
+      deDupe[key] = true;
       return (
         <ListItem
-          key={`${aType}_${marketId}_${investibleId}_${commentId}_${userId}_${associatedUserId}_${pokeType}`}
+          key={key}
           button
           onClick={zeroResults}
         >

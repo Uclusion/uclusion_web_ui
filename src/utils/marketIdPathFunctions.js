@@ -21,6 +21,7 @@ export function decomposeMarketPath(path) {
 
 export function broadcastView(marketId, investibleId, isEntry, action) {
   const message = { marketId, investibleId, isEntry, action };
+  console.info('Broadcasting visit');
   pushMessage(
     VISIT_CHANNEL,
     {

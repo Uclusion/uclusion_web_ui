@@ -25,8 +25,7 @@ function SignOut(props) {
 
   return (
     <Button
-      variant="text"
-      fullWidth={true}
+      variant="outlined"
       onClick={myOnSignOut}
       className={classes.action}
       disableRipple

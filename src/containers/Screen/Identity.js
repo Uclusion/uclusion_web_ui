@@ -1,18 +1,21 @@
-import React, { useContext, useState } from 'react'
-import { Button, makeStyles, Menu, Typography } from '@material-ui/core'
-import SettingsIcon from '@material-ui/icons/Settings'
-import { useHistory } from 'react-router'
-import MenuItem from '@material-ui/core/MenuItem'
-import { useIntl } from 'react-intl'
-import { navigate } from '../../utils/marketIdPathFunctions'
-import SignOut from '../../pages/Authentication/SignOut'
-import { CognitoUserContext } from '../../contexts/CognitoUserContext/CongitoUserContext'
-import config from '../../config'
-import { isFederated } from '../../contexts/CognitoUserContext/cognitoUserContextHelper'
+import React, { useContext, useState } from 'react';
+import { Avatar, Button, makeStyles, Menu, Typography } from '@material-ui/core';
+import SettingsIcon from '@material-ui/icons/Settings';
+import { useHistory } from 'react-router';
+import MenuItem from '@material-ui/core/MenuItem';
+import Divider from '@material-ui/core/Divider';
+import Link from '@material-ui/core/Link';
+import { useIntl } from 'react-intl';
+import { navigate } from '../../utils/marketIdPathFunctions';
+import SignOut from '../../pages/Authentication/SignOut';
+import { CognitoUserContext } from '../../contexts/CognitoUserContext/CongitoUserContext';
+import config from '../../config';
+import { isFederated } from '../../contexts/CognitoUserContext/cognitoUserContextHelper';
+import md5 from 'md5';
 
 const useStyles = makeStyles((theme) => ({
   name: {
-    color: theme.palette.text.primary,    
+    color: theme.palette.text.primary,
     [theme.breakpoints.down('sm')]: {
       fontSize: '0.75rem'
     },
@@ -20,13 +23,31 @@ const useStyles = makeStyles((theme) => ({
   menuStyle: {
     position: 'relative',
   },
+  terms: {
+    textAlign: 'center',
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
+  },
+  identityBlock: {
+    paddingBottom: theme.spacing(1),
+    textAlign: 'center',
+  },
+  changeAvatar: {
+    color: theme.palette.text.secondary,
+  },
+  termsLink: {
+    color: theme.palette.text.secondary,
+    [theme.breakpoints.down('sm')]: {
+      fontSize: '0.75rem'
+    },
+  },
   buttonClass: {
     backgroundColor: '#efefef',
     textTransform: 'Capitalize',
     borderRadius: '8px',
     '& .MuiButton-label': {
       lineHeight: '.7'
-    },    
+    },
     [theme.breakpoints.down('sm')]: {
       width: 'auto',
       minWidth: 'auto',
@@ -35,7 +56,19 @@ const useStyles = makeStyles((theme) => ({
       }
     },
   },
-  user: {    
+  signOut: {
+    textAlign: 'center',
+    paddingTop: theme.spacing(2),
+    paddingBottom: theme.spacing(2),
+  },
+  largeAvatar: {
+    width: theme.spacing(8),
+    height: theme.spacing(8),
+    display: 'block',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+  },
+  user: {
     [theme.breakpoints.down('sm')]: {
       display: 'none'
     },
@@ -51,15 +84,16 @@ function Identity (props) {
   const [menuOpen, setMenuOpen] = useState(false);
   const history = useHistory();
   const intl = useIntl();
+  const email = !user ? '' : user.email;
   const chipLabel = !user ? '' : user.name;
-
+  const gravatarId = email ? md5(email, { encoding: 'binary' }) : '';
   const recordPositionToggle = (event) => {
-    if(anchorEl === null){
+    if (anchorEl === null) {
       setAnchorEl(event.currentTarget);
-      setMenuOpen(true)
+      setMenuOpen(true);
     } else {
-      setAnchorEl(null)
-      setMenuOpen(false)
+      setAnchorEl(null);
+      setMenuOpen(false);
     }
   };
 
@@ -70,6 +104,7 @@ function Identity (props) {
     };
   }
 
+  const gravatarUrl = `https://www.gravatar.com/avatar/${gravatarId}?d=blank`;
   return (
     <div
       id="profileLink"
@@ -77,10 +112,12 @@ function Identity (props) {
     >
       <Button
         onClick={recordPositionToggle}
-        endIcon={<SettingsIcon htmlColor="#bdbdbd" />}
+        endIcon={<SettingsIcon htmlColor="#bdbdbd"/>}
         className={classes.buttonClass}
       >
-        <span className={classes.user}>{chipLabel}</span>
+        <Avatar key={chipLabel}
+                src={gravatarUrl}/>
+      </Button>
       <Menu
         id="profile-menu"
         open={menuOpen}
@@ -97,27 +134,40 @@ function Identity (props) {
         anchorEl={anchorEl}
         disableRestoreFocus
       >
-          <MenuItem
-            onClick={goTo('/support')}
+        <div className={classes.identityBlock}>
+          <Avatar className={classes.largeAvatar} src={gravatarUrl}/>
+          <Typography>{chipLabel}</Typography>
+          <Typography>{email}</Typography>
+          <Link underline="hover"
+                href="https://www.gravatar.com"
+                className={classes.changeAvatar}
+                target="_blank"
           >
-            <Typography className={classes.name}>
-              {intl.formatMessage({ id: 'support' })}
-            </Typography>
-          </MenuItem>
-          <MenuItem
-            onClick={goTo('/notificationPreferences')}
-          >
-            <Typography className={classes.name}>
-              {intl.formatMessage({ id: 'changePreferencesHeader' })}
-            </Typography>
-          </MenuItem>
-          { canChangeUserValues && (<MenuItem
-            onClick={goTo('/changePassword')}
-          >
-            <Typography className={classes.name}>
-              {intl.formatMessage({ id: 'changePasswordHeader' })}
-            </Typography>
-          </MenuItem>)}
+            {intl.formatMessage({ id: 'IdentityChangeAvatar' })}
+          </Link>
+        </div>
+        <Divider/>
+        <MenuItem
+          onClick={goTo('/support')}
+        >
+          <Typography className={classes.name}>
+            {intl.formatMessage({ id: 'support' })}
+          </Typography>
+        </MenuItem>
+        <MenuItem
+          onClick={goTo('/notificationPreferences')}
+        >
+          <Typography className={classes.name}>
+            {intl.formatMessage({ id: 'changePreferencesHeader' })}
+          </Typography>
+        </MenuItem>
+        {canChangeUserValues && (<MenuItem
+          onClick={goTo('/changePassword')}
+        >
+          <Typography className={classes.name}>
+            {intl.formatMessage({ id: 'changePasswordHeader' })}
+          </Typography>
+        </MenuItem>)}
         {config.payments.enabled && (
           <MenuItem
             onClick={goTo('/billing')}
@@ -127,11 +177,22 @@ function Identity (props) {
             </Typography>
           </MenuItem>
         )}
-          <MenuItem>
-            <SignOut logoutChannel={logoutChannel}/>
-          </MenuItem>
+        <Divider/>
+        <div className={classes.signOut}>
+          <SignOut logoutChannel={logoutChannel}/>
+        </div>
+        <Divider/>
+        <div className={classes.terms}>
+          <Link
+            href={config.termsOfUseLink}
+            target="_blank"
+            className={classes.termsLink}
+            underline="hover"
+          >
+            {intl.formatMessage({ id: 'IdentityTermsOfUse' })}
+          </Link>
+        </div>
       </Menu>
-      </Button>
     </div>
   );
 }

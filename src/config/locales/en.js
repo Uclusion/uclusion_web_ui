@@ -924,7 +924,12 @@ const messages = defineMessages({
   InitiativeWizardTakeMeToInitiative: 'I\'ve shared the link, take me to my Initiative',
 
   // StepHeaders
-  StepHeadersStepCount: 'Step {currentStep} of {totalSteps}'
+  StepHeadersStepCount: 'Step {currentStep} of {totalSteps}',
+
+  IdentityChangeAvatar: 'Change your avatar',
+  IdentityTermsOfUse: 'Terms of Use',
+
+
 
 });
 

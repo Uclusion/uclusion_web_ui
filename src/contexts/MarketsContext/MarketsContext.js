@@ -1,11 +1,12 @@
 import React, { useContext, useEffect, useReducer, useState } from 'react'
 import beginListening from './marketsContextMessages'
-import reducer, { initializeState } from './marketsContextReducer'
+import reducer, { initializeState, replaceState } from './marketsContextReducer'
 import LocalForageHelper from '../../utils/LocalForageHelper'
 import { DiffContext } from '../DiffContext/DiffContext'
 import { INDEX_MARKET_TYPE, INDEX_UPDATE, SEARCH_INDEX_CHANNEL } from '../SearchIndexContext/searchIndexContextMessages'
 import { pushMessage } from '../../utils/MessageBusUtils'
 import { BroadcastChannel } from 'broadcast-channel'
+import { LeaderContext } from '../LeaderContext/LeaderContext'
 
 const MEMORY_MARKET_CONTEXT_NAMESPACE = 'memory_market_context';
 const MARKET_CONTEXT_NAMESPACE = 'market_context';
@@ -20,6 +21,8 @@ function MarketsProvider(props) {
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
   const [, diffDispatch] = useContext(DiffContext);
   const [, setChannel] = useState(undefined);
+  const [leaderState] = useContext(LeaderContext);
+  const { isLeader } = leaderState;
 
   useEffect(() => {
     const myChannel = new BroadcastChannel(MARKETS_CHANNEL);
@@ -32,7 +35,7 @@ function MarketsProvider(props) {
             const { marketDetails } = diskState;
             const indexMessage = { event: INDEX_UPDATE, itemType: INDEX_MARKET_TYPE, items: marketDetails};
             pushMessage(SEARCH_INDEX_CHANNEL, indexMessage);
-            dispatch(initializeState(diskState));
+            dispatch(replaceState(diskState));
           }
         });
     }
@@ -44,6 +47,23 @@ function MarketsProvider(props) {
     beginListening(dispatch, diffDispatch);
     return () => {};
   }, [diffDispatch]);
+
+  useEffect(() => {
+    if (isLeader !== undefined && !isLeader) {
+      console.info('Not leader so reloading from memory namespace');
+      const lfg = new LocalForageHelper(MEMORY_MARKET_CONTEXT_NAMESPACE);
+      lfg.getState()
+        .then((diskState) => {
+          if (diskState) {
+            const { marketDetails } = diskState;
+            const indexMessage = { event: INDEX_UPDATE, itemType: INDEX_MARKET_TYPE, items: marketDetails };
+            pushMessage(SEARCH_INDEX_CHANNEL, indexMessage);
+            dispatch(replaceState(diskState));
+          }
+        });
+    }
+    return () => {};
+  }, [isLeader]);
 
   useEffect(() => {
     // load state from storage

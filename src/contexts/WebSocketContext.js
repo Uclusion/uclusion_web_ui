@@ -2,7 +2,7 @@
  * Web socket context provider must appear within the markets context, since it needs to
  * properly update it
  */
-import React, { useReducer, useState } from 'react'
+import React, { useContext, useReducer, useState } from 'react'
 import PropTypes from 'prop-types'
 import WebSocketRunner from '../components/BackgroundProcesses/WebSocketRunner'
 import config from '../config'
@@ -13,6 +13,8 @@ import { refreshNotifications, refreshVersions } from './VersionsContext/version
 import { getLoginPersistentItem, setLoginPersistentItem } from '../components/utils'
 import { getNotifications } from '../api/summaries'
 import { onSignOut } from '../utils/userFunctions'
+import { LEADER_CHANNEL, LeaderContext } from './LeaderContext/LeaderContext'
+import { BroadcastChannel } from 'broadcast-channel'
 
 export const AUTH_HUB_CHANNEL = 'auth'; // this is case sensitive.
 export const VERSIONS_HUB_CHANNEL = 'VersionsChannel';
@@ -58,6 +60,8 @@ export function notifyNewApplicationVersion(currentVersion, cacheClearVersion) {
 
 function WebSocketProvider(props) {
   const { children, config } = props;
+  const [leaderState] = useContext(LeaderContext);
+  const { isLeader } = leaderState;
   const [state, setState] = useState();
   const [socketListener, setSocketListener] = useState();
   const [, connectionCheckTimerDispatch] = useReducer((state, action) => {
@@ -73,6 +77,15 @@ function WebSocketProvider(props) {
     return {};
   }, {});
 
+  function myRefreshVersion() {
+    if (isLeader) {
+      refreshVersions().then(() => console.info('Refreshed versions'));
+    } else if (isLeader !== undefined) {
+      const myChannel = new BroadcastChannel(LEADER_CHANNEL);
+      myChannel.postMessage('refresh').then(() => myChannel.close());
+    }
+  }
+
   function createWebSocket() {
     // console.debug('Creating new websocket');
     const { webSockets } = config;
@@ -80,8 +93,16 @@ function WebSocketProvider(props) {
     const newSocket = new WebSocketRunner(sockConfig);
     // this will incidentally subscribe to the identity
     newSocket.connect();
+    const myChannel = new BroadcastChannel(LEADER_CHANNEL);
+    myChannel.onmessage = (msg) => {
+      if (msg === 'refresh' && isLeader) {
+        //Each context is setup to tell the other tabs to reload from the memory namespace
+        //so refresh versions just needs to run as normal and changes will propagate
+        refreshVersions().then(() => console.info('Refreshed versions from message'));
+      }
+    }
     // we also want to always be subscribed to new app versions
-    newSocket.registerHandler('UI_UPDATE_REQUIRED', (message) => {
+    newSocket.registerHandler('UI_UPDATE_REQUIRED', () => {
       getNotifications();
     });
 
@@ -89,34 +110,33 @@ function WebSocketProvider(props) {
       connectionCheckTimerDispatch({});
     });
 
-    newSocket.registerHandler('market', (message) => {
-      refreshVersions();
+    newSocket.registerHandler('market', () => {
+      myRefreshVersion();
     });
-    newSocket.registerHandler('investible', (message) => {
-      refreshVersions();
+    newSocket.registerHandler('investible', () => {
+      myRefreshVersion();
     });
-    newSocket.registerHandler('market_investible', (message) => {
-      refreshVersions();
+    newSocket.registerHandler('market_investible', () => {
+      myRefreshVersion();
     });
-    newSocket.registerHandler('comment', (message) => {
-      refreshVersions();
+    newSocket.registerHandler('comment', () => {
+      myRefreshVersion();
     });
-    newSocket.registerHandler('market_capability', (message) => {
-      refreshVersions();
+    newSocket.registerHandler('market_capability', () => {
+      myRefreshVersion();
     });
-    newSocket.registerHandler('investment', (message) => {
-      refreshVersions();
+    newSocket.registerHandler('investment', () => {
+      myRefreshVersion();
     });
+    // Go ahead and get the latest when bring up a new socket since you may not have been listening
+    myRefreshVersion();
+    refreshNotifications();
 
-    newSocket.registerHandler('notification', (message) => {
+    newSocket.registerHandler('notification', () => {
       // Try to be up to date before we push the notification out (which might need new data)
-      refreshVersions();
+      myRefreshVersion();
       refreshNotifications();
     });
-
-    // Go ahead and get the latest when bring up a new socket since you may not have been listening
-    refreshVersions();
-    refreshNotifications();
 
     // we need to subscribe to our identity, but that requires reworking subscribe
     // newSocket.subscribe
@@ -142,7 +162,8 @@ function WebSocketProvider(props) {
         // console.debug(`Ignoring auth event ${event}`);
     }
   });
-  if (!state) {
+
+  function initialize() {
     Promise.resolve(createWebSocket())
       .then((newSocket) => {
         setState(newSocket);
@@ -161,7 +182,7 @@ function WebSocketProvider(props) {
               if (isEntry && (Date.now() - newSocket.getSocketLastSentTime()) > 30000) {
                 // console.debug('Pong and refresh');
                 // Otherwise if we miss a push out of luck until tab is closed
-                refreshVersions();
+                myRefreshVersion();
                 refreshNotifications();
                 if (newSocket.getSocketState() === WebSocket.OPEN) {
                   const actionString = JSON.stringify({ action: 'ping' });
@@ -177,12 +198,16 @@ function WebSocketProvider(props) {
               break;
             }
             default:
-              // console.debug(`Ignoring event ${event}`);
+            // console.debug(`Ignoring event ${event}`);
           }
         };
         registerListener(VISIT_CHANNEL, 'webSocketPongTimer', myListener);
         setSocketListener(myListener);
       });
+  }
+
+  if (!state) {
+    initialize();
   }
 
   return (

@@ -27,53 +27,56 @@ import { DismissTextProvider } from '../../contexts/DismissTextContext'
 import { SearchResultsProvider } from '../../contexts/SearchResultsContext/SearchResultsContext'
 import { ScrollProvider } from '../../contexts/ScrollContext'
 import { ExpandedCommentProvider } from '../../contexts/CommentsContext/ExpandedCommentContext'
+import { LeaderProvider } from '../../contexts/LeaderContext/LeaderContext'
 
 function Main (props) {
   const stripePromise = loadStripe(config.payments.stripeKey);
   return (
     <div>
-      <AccountProvider>
-        <DismissTextProvider>
-          <HighlightedVotingProvider>
-            <HighlightedCommentProvider>
-              <ExpandedCommentProvider>
-                <SearchIndexProvider>
-                  <SearchResultsProvider>
-                    <DiffProvider>
-                      <OperationInProgressProvider>
-                        <OperationInProgressGlobalProvider>
-                          <VersionsProvider>
-                            <ScrollProvider>
-                              <NotificationsProvider>
-                                <MarketsProvider>
-                                  <MarketStagesProvider>
-                                    <CommentsProvider>
-                                      <InvestiblesProvider>
-                                        <MarketPresencesProvider>
-                                          <LocaleProvider>
-                                            <ToastContainer position="top-center" pauseOnFocusLoss={false}/>
-                                            <Elements stripe={stripePromise}>
-                                              <AppWithAuth/>
-                                            </Elements>
-                                          </LocaleProvider>
-                                        </MarketPresencesProvider>
-                                      </InvestiblesProvider>
-                                    </CommentsProvider>
-                                  </MarketStagesProvider>
-                                </MarketsProvider>
-                              </NotificationsProvider>
-                            </ScrollProvider>
-                          </VersionsProvider>
-                        </OperationInProgressGlobalProvider>
-                      </OperationInProgressProvider>
-                    </DiffProvider>
-                  </SearchResultsProvider>
-                </SearchIndexProvider>
-              </ExpandedCommentProvider>
-            </HighlightedCommentProvider>
-          </HighlightedVotingProvider>
-        </DismissTextProvider>
-      </AccountProvider>
+      <LeaderProvider>
+        <AccountProvider>
+          <DismissTextProvider>
+            <HighlightedVotingProvider>
+              <HighlightedCommentProvider>
+                <ExpandedCommentProvider>
+                  <SearchIndexProvider>
+                    <SearchResultsProvider>
+                      <DiffProvider>
+                        <OperationInProgressProvider>
+                          <OperationInProgressGlobalProvider>
+                            <VersionsProvider>
+                              <ScrollProvider>
+                                <NotificationsProvider>
+                                  <MarketsProvider>
+                                    <MarketStagesProvider>
+                                      <CommentsProvider>
+                                        <InvestiblesProvider>
+                                          <MarketPresencesProvider>
+                                            <LocaleProvider>
+                                              <ToastContainer position="top-center" pauseOnFocusLoss={false}/>
+                                              <Elements stripe={stripePromise}>
+                                                <AppWithAuth/>
+                                              </Elements>
+                                            </LocaleProvider>
+                                          </MarketPresencesProvider>
+                                        </InvestiblesProvider>
+                                      </CommentsProvider>
+                                    </MarketStagesProvider>
+                                  </MarketsProvider>
+                                </NotificationsProvider>
+                              </ScrollProvider>
+                            </VersionsProvider>
+                          </OperationInProgressGlobalProvider>
+                        </OperationInProgressProvider>
+                      </DiffProvider>
+                    </SearchResultsProvider>
+                  </SearchIndexProvider>
+                </ExpandedCommentProvider>
+              </HighlightedCommentProvider>
+            </HighlightedVotingProvider>
+          </DismissTextProvider>
+        </AccountProvider>
+      </LeaderProvider>
     </div>
   );
 }

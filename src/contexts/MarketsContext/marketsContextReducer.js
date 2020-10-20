@@ -4,6 +4,7 @@ import { MARKET_CONTEXT_NAMESPACE, MARKETS_CHANNEL, MEMORY_MARKET_CONTEXT_NAMESP
 import { BroadcastChannel } from 'broadcast-channel'
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
+const REPLACE_STATE = 'REPLACE_STATE';
 const UPDATE_MARKET_DETAILS = 'UPDATE_MARKET_DETAILS';
 const REMOVE_MARKET_DETAILS = 'REMOVE_MARKET_DETAILS';
 const UPDATE_FROM_VERSIONS = 'UPDATE_FROM_VERSIONS';
@@ -12,6 +13,13 @@ const UPDATE_FROM_VERSIONS = 'UPDATE_FROM_VERSIONS';
 export function initializeState(newState) {
   return {
     type: INITIALIZE_STATE,
+    newState,
+  };
+}
+
+export function replaceState(newState) {
+  return {
+    type: REPLACE_STATE,
     newState,
   };
 }
@@ -73,6 +81,8 @@ function computeNewState(state, action) {
       return doUpdateMarketDetails(state, action);
     case REMOVE_MARKET_DETAILS:
       return removeStoredMarkets(state, action);
+    case REPLACE_STATE:
+      return action.newState;
     case INITIALIZE_STATE:
       if (state.initializing) {
         return action.newState;
@@ -92,7 +102,7 @@ function reducer(state, action) {
     const lfh = new LocalForageHelper(MEMORY_MARKET_CONTEXT_NAMESPACE);
     lfh.setState(newState).then(() => {
       const myChannel = new BroadcastChannel(MARKETS_CHANNEL);
-      return myChannel.postMessage('markets');
+      return myChannel.postMessage('markets').then(() => myChannel.close());
     }).then(() => console.info('Update market context sent.'));
   }
   return newState;

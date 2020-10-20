@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useReducer } from 'react'
+import React, { useContext, useEffect, useReducer, useState } from 'react'
 import reducer, { initializeState } from './investiblesContextReducer'
 import LocalForageHelper from '../../utils/LocalForageHelper'
 import beginListening from './investiblesContextMessages'
@@ -9,8 +9,12 @@ import {
   INDEX_UPDATE,
   SEARCH_INDEX_CHANNEL
 } from '../SearchIndexContext/searchIndexContextMessages'
+import { LeaderContext } from '../LeaderContext/LeaderContext'
+import { BroadcastChannel } from 'broadcast-channel'
 
+const INVESTIBLES_CHANNEL = 'investibles';
 const INVESTIBLES_CONTEXT_NAMESPACE = 'investibles';
+const MEMORY_INVESTIBLES_CONTEXT_NAMESPACE = 'memory_investibles';
 const EMPTY_STATE = {initializing: true};
 
 const InvestiblesContext = React.createContext(EMPTY_STATE);
@@ -18,11 +22,50 @@ const InvestiblesContext = React.createContext(EMPTY_STATE);
 function InvestiblesProvider(props) {
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
   const [, diffDispatch] = useContext(DiffContext);
+  const [, setChannel] = useState(undefined);
+  const [leaderState] = useContext(LeaderContext);
+  const { isLeader } = leaderState;
+
+  useEffect(() => {
+    const myChannel = new BroadcastChannel(INVESTIBLES_CHANNEL);
+    myChannel.onmessage = () => {
+      console.info('Reloading on markets channel message');
+      const lfg = new LocalForageHelper(MEMORY_INVESTIBLES_CONTEXT_NAMESPACE);
+      lfg.getState()
+        .then((diskState) => {
+          if (diskState) {
+            const indexItems = Object.values(diskState).map((item) => item.investible);
+            const indexMessage = {event: INDEX_UPDATE, itemType: INDEX_INVESTIBLE_TYPE, items: indexItems};
+            pushMessage(SEARCH_INDEX_CHANNEL, indexMessage);
+            dispatch(initializeState(diskState));
+          }
+        });
+    }
+    setChannel(myChannel);
+    return () => {};
+  }, []);
 
   useEffect(() => {
     beginListening(dispatch, diffDispatch);
     return () => {};
   }, [diffDispatch]);
+
+  useEffect(() => {
+    if (isLeader !== undefined && !isLeader) {
+      console.info('Not leader so reloading from memory namespace');
+      const lfg = new LocalForageHelper(MEMORY_INVESTIBLES_CONTEXT_NAMESPACE);
+      lfg.getState()
+        .then((diskState) => {
+          if (diskState) {
+            const indexItems = Object.values(diskState).map((item) => item.investible);
+            const indexMessage = {event: INDEX_UPDATE, itemType: INDEX_INVESTIBLE_TYPE, items: indexItems};
+            pushMessage(SEARCH_INDEX_CHANNEL, indexMessage);
+            dispatch(initializeState(diskState));
+          }
+        });
+    }
+    return () => {};
+  }, [isLeader]);
 
   useEffect(() => {
     // load state from storage
@@ -50,4 +93,5 @@ function InvestiblesProvider(props) {
   );
 }
 
-export { InvestiblesProvider, InvestiblesContext, EMPTY_STATE, INVESTIBLES_CONTEXT_NAMESPACE };
+export { InvestiblesProvider, InvestiblesContext, EMPTY_STATE, INVESTIBLES_CONTEXT_NAMESPACE, INVESTIBLES_CHANNEL,
+  MEMORY_INVESTIBLES_CONTEXT_NAMESPACE };

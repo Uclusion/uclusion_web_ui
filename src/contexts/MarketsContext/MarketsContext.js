@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useReducer, useState } from 'react'
 import beginListening from './marketsContextMessages'
-import reducer, { initializeState, replaceState } from './marketsContextReducer'
+import reducer, { initializeState } from './marketsContextReducer'
 import LocalForageHelper from '../../utils/LocalForageHelper'
 import { DiffContext } from '../DiffContext/DiffContext'
 import { INDEX_MARKET_TYPE, INDEX_UPDATE, SEARCH_INDEX_CHANNEL } from '../SearchIndexContext/searchIndexContextMessages'
@@ -35,7 +35,7 @@ function MarketsProvider(props) {
             const { marketDetails } = diskState;
             const indexMessage = { event: INDEX_UPDATE, itemType: INDEX_MARKET_TYPE, items: marketDetails};
             pushMessage(SEARCH_INDEX_CHANNEL, indexMessage);
-            dispatch(replaceState(diskState));
+            dispatch(initializeState(diskState));
           }
         });
     }
@@ -58,7 +58,7 @@ function MarketsProvider(props) {
             const { marketDetails } = diskState;
             const indexMessage = { event: INDEX_UPDATE, itemType: INDEX_MARKET_TYPE, items: marketDetails };
             pushMessage(SEARCH_INDEX_CHANNEL, indexMessage);
-            dispatch(replaceState(diskState));
+            dispatch(initializeState(diskState));
           }
         });
     }

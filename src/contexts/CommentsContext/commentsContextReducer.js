@@ -1,6 +1,7 @@
 import _ from 'lodash'
 import LocalForageHelper from '../../utils/LocalForageHelper'
-import { COMMENTS_CONTEXT_NAMESPACE } from './CommentsContext'
+import { COMMENTS_CHANNEL, COMMENTS_CONTEXT_NAMESPACE, MEMORY_COMMENTS_CONTEXT_NAMESPACE } from './CommentsContext'
+import { BroadcastChannel } from 'broadcast-channel'
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const REMOVE_MARKETS_COMMENT = 'REMOVE_MARKETS_COMMENT';
@@ -96,10 +97,7 @@ function computeNewState(state, action) {
     case UPDATE_FROM_VERSIONS:
       return doOverwriteMarketComments(state, action);
     case INITIALIZE_STATE:
-      if (state.initializing) {
-        return action.newState;
-      }
-      return state;
+      return action.newState;
     default:
       return state;
   }
@@ -107,6 +105,14 @@ function computeNewState(state, action) {
 
 function reducer(state, action) {
   const newState = computeNewState(state, action);
+  const lfh = new LocalForageHelper(MEMORY_COMMENTS_CONTEXT_NAMESPACE);
+  lfh.setState(newState).then(() => {
+    if (action.type !== INITIALIZE_STATE) {
+      const myChannel = new BroadcastChannel(COMMENTS_CHANNEL);
+      return myChannel.postMessage('comments').then(() => myChannel.close())
+        .then(() => console.info('Update comment context sent.'));
+    }
+  });
   if (action.type === UPDATE_FROM_VERSIONS) {
     const lfh = new LocalForageHelper(COMMENTS_CONTEXT_NAMESPACE);
     lfh.setState(newState);

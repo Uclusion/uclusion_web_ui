@@ -1,6 +1,11 @@
 import LocalForageHelper from '../../utils/LocalForageHelper'
-import { MARKET_PRESENCES_CONTEXT_NAMESPACE } from './MarketPresencesContext'
+import {
+  MARKET_PRESENCES_CONTEXT_NAMESPACE,
+  MEMORY_MARKET_PRESENCES_CONTEXT_NAMESPACE,
+  PRESENCE_CHANNEL
+} from './MarketPresencesContext'
 import _ from 'lodash'
+import { BroadcastChannel } from 'broadcast-channel'
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const ADD_MARKET_PRESENCE = 'ADD_MARKET_PRESENCE';
@@ -170,10 +175,7 @@ function doRemoveMarketsPresence(state, action) {
 function computeNewState(state, action) {
   switch (action.type) {
     case INITIALIZE_STATE:
-      if (state.initializing) {
-        return action.newState;
-      }
-      return state;
+      return action.newState;
     case ADD_MARKET_PRESENCE:
       return doAddMarketPresence(state, action);
     case ADD_MARKET_PRESENCES:
@@ -193,8 +195,18 @@ function computeNewState(state, action) {
 
 function reducer(state, action) {
   const newState = computeNewState(state, action);
-  const lfh = new LocalForageHelper(MARKET_PRESENCES_CONTEXT_NAMESPACE);
-  lfh.setState(newState);
+  const lfh = new LocalForageHelper(MEMORY_MARKET_PRESENCES_CONTEXT_NAMESPACE);
+  lfh.setState(newState).then(() => {
+    if (action.type !== INITIALIZE_STATE) {
+      const myChannel = new BroadcastChannel(PRESENCE_CHANNEL);
+      return myChannel.postMessage('presence').then(() => myChannel.close())
+        .then(() => console.info('Update presence context sent.'));
+    }
+  });
+  if (action.type === UPDATE_FROM_VERSIONS) {
+    const lfh = new LocalForageHelper(MARKET_PRESENCES_CONTEXT_NAMESPACE);
+    lfh.setState(newState);
+  }
   return newState;
 }
 

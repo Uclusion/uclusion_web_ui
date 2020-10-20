@@ -42,7 +42,8 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-function Identity () {
+function Identity (props) {
+  const { logoutChannel } = props;
   const classes = useStyles();
   const user = useContext(CognitoUserContext);
   const canChangeUserValues = !isFederated(user);
@@ -127,7 +128,7 @@ function Identity () {
           </MenuItem>
         )}
           <MenuItem>
-            <SignOut/>
+            <SignOut logoutChannel={logoutChannel}/>
           </MenuItem>
       </Menu>
       </Button>

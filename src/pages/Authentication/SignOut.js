@@ -12,15 +12,22 @@ const useStyles = makeStyles( {
     }
   }
 })
-function SignOut() {
+function SignOut(props) {
+  const { logoutChannel } = props;
   const classes = useStyles();
   const intl = useIntl();
+
+  function myOnSignOut() {
+    logoutChannel.postMessage('signedOut').then(() => onSignOut()).then(() => {
+      console.info('Reloaded already in onSignOut');
+    });
+  }
 
   return (
     <Button
       variant="text"
       fullWidth={true}
-      onClick={onSignOut}
+      onClick={myOnSignOut}
       className={classes.action}
       disableRipple
     >

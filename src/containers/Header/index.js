@@ -15,6 +15,8 @@ import { useHistory } from 'react-router';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import config from '../../config';
+import { BroadcastChannel } from 'broadcast-channel'
+import { onSignOut } from '../../utils/userFunctions'
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -127,6 +129,18 @@ function Header (props) {
   const [logoTimer, setLogoTimer] = useState(undefined);
   const [logoImage, setLogoImage] = useState(NORMAL_LOGO);
   const [pegLogo, setPegLogo] = useState(false);
+  const [logoutChannel, setLogoutChannel] = useState(undefined);
+
+  useEffect(() => {
+    console.info('Setting up logout channel');
+    const myLogoutChannel = new BroadcastChannel('logout');
+    myLogoutChannel.onmessage = () => {
+      console.info('Logging out from message');
+      onSignOut().then(() => console.info('Done logging out'));
+    }
+    setLogoutChannel(myLogoutChannel);
+    return () => {};
+  }, []);
 
   useEffect(() => {
     if (appEnabled) {
@@ -258,7 +272,7 @@ function Header (props) {
                 <HelpOutlineIcon color="primary" style={{cursor: 'pointer'}}
                                  onClick={() => openInNewTab(config.helpLink)} />
               </Tooltip>
-              <Identity/>
+              <Identity logoutChannel={logoutChannel}/>
             </React.Fragment>
           )}
         </Toolbar>

@@ -64,7 +64,7 @@ export function executeRefreshTimerChain(refreshAll, resolve, reject) {
         resolve(true);
         return Promise.resolve(true);
       }).catch((error) => {
-        console.error(error.message);
+        console.error(error);
         // we'll log match problems, but raise the rest
         if (error instanceof MatchError) {
           return false;

@@ -1,6 +1,7 @@
 import _ from 'lodash'
 import LocalForageHelper from '../../utils/LocalForageHelper'
-import { MARKET_CONTEXT_NAMESPACE } from './MarketsContext'
+import { MARKET_CONTEXT_NAMESPACE, MARKETS_CHANNEL, MEMORY_MARKET_CONTEXT_NAMESPACE } from './MarketsContext'
+import { BroadcastChannel } from 'broadcast-channel'
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const UPDATE_MARKET_DETAILS = 'UPDATE_MARKET_DETAILS';
@@ -87,6 +88,12 @@ function reducer(state, action) {
   if (action.type === UPDATE_FROM_VERSIONS) {
     const lfh = new LocalForageHelper(MARKET_CONTEXT_NAMESPACE);
     lfh.setState(newState);
+  } else if (action.type === UPDATE_MARKET_DETAILS) {
+    const lfh = new LocalForageHelper(MEMORY_MARKET_CONTEXT_NAMESPACE);
+    lfh.setState(newState).then(() => {
+      const myChannel = new BroadcastChannel(MARKETS_CHANNEL);
+      return myChannel.postMessage('markets');
+    }).then(() => console.info('Update market context sent.'));
   }
   return newState;
 }

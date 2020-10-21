@@ -127,7 +127,7 @@ function CommentSearchResult (props) {
       <Card className={cardClass}>
         <Typography className={classes.commentSearchTitle}>{typeName}</Typography>
         <Typography className={classes.commentSearchName}>{containerName}</Typography>
-        <Typography className={classes.commentSearchExcerpt}>{intl.formatMessage({id: 'CommentsSearchResultExceprt'}, {excerpt})}</Typography>
+        <Typography className={classes.commentSearchExcerpt}>{intl.formatMessage({id: 'CommentSearchResultExcerpt'}, {excerpt})}</Typography>
       </Card>
     </Link>
   );

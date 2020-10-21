@@ -289,12 +289,15 @@ class QuillEditor extends React.PureComponent {
     const { uploadInProgress } = this.state;
     const editorStyle = {
       fontFamily: theme.typography.fontFamily,
-      fontSize: theme.typography.fontSize
+      fontSize: theme.typography.fontSize,
+      maxHeight: '425px',
+      overflow: 'scroll',
+      overflowX: 'hidden',
     };
 
     return (
       <div>
-        <div ref={this.editorContainer} style={{ maxWidth: '100%', zIndex: '2' }} id={id}>
+        <div ref={this.editorContainer} style={{ maxWidth: '100%', zIndex: '2'}} id={id}>
           <LoadingOverlay
             active={uploadInProgress}
             spinner

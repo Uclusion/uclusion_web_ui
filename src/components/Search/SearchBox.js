@@ -8,6 +8,7 @@ import { SearchResultsContext } from '../../contexts/SearchResultsContext/Search
 import { INDEX_COMMENT_TYPE } from '../../contexts/SearchIndexContext/searchIndexContextMessages'
 import { getCommentRoot } from '../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
+import CloseIcon from '@material-ui/icons/Close';
 
 function SearchBox (props) {
   const MAX_RESULTS = 15;
@@ -15,6 +16,14 @@ function SearchBox (props) {
   const [index] = useContext(SearchIndexContext);
   const [searchResults, setSearchResults] = useContext(SearchResultsContext);
   const [commentsState] = useContext(CommentsContext);
+
+  function clearSearch () {
+    setSearchResults({
+      search: '',
+      results: [],
+    });
+  }
+
   function isEqual(a, b) {
     if (a.type !== b.type) {
       return false;
@@ -35,6 +44,12 @@ function SearchBox (props) {
     });
   }
 
+  const endAdornment = _.isEmpty(searchResults.search)? null : (
+    <InputAdornment onClick={clearSearch} position="end">
+      <CloseIcon/>
+    </InputAdornment>
+  );
+
   return (
     <div id='search-box'>
       <TextField
@@ -49,6 +64,7 @@ function SearchBox (props) {
               <SearchIcon />
             </InputAdornment>
           ),
+          endAdornment,
         }}
       />
     </div>

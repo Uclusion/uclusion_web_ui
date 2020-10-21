@@ -3,13 +3,14 @@ import _ from 'lodash'
 import CommentSearchResult from '../Search/CommentSearchResult'
 import InvestibleSearchResult from '../Search/InvestibleSearchResult'
 import MarketSearchResult from '../Search/MarketSearchResult'
-import { List, ListItem, Paper, Popper, Typography } from '@material-ui/core'
+import { List, ListItem, Paper, Popper, Typography, useTheme } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles'
 import { isTinyWindow } from '../../utils/windowUtils';
 import { getFullLink } from './Notifications'
 import { USER_POKED_TYPE } from '../../constants/notifications'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 import { useIntl } from 'react-intl'
+import { searchStyles } from '../Search/SearchResults';
 
 const useStyles = makeStyles(() => {
   return {
@@ -28,7 +29,9 @@ const useStyles = makeStyles(() => {
 function DisplayNotifications(props) {
   const { open, setOpen } = props;
   const intl = useIntl();
+  const theme = useTheme();
   const classes = useStyles();
+  const searchClasses = searchStyles(theme);
   const [anchorEl, setAnchorEl] = useState(null);
   const [messagesState] = useContext(NotificationsContext);
   const { recent } = messagesState;
@@ -55,15 +58,15 @@ function DisplayNotifications(props) {
     } = item;
     const link = getFullLink(item);
     if (commentId) {
-      return (<CommentSearchResult marketId={marketId} commentId={commentId} classes={classes}
+      return (<CommentSearchResult marketId={marketId} commentId={commentId} classes={searchClasses}
                                    afterOnClick={afterOnClick} link={link}/>);
     }
     if (investibleId) {
-      return (<InvestibleSearchResult investibleId={investibleId} classes={classes} afterOnClick={afterOnClick}
+      return (<InvestibleSearchResult investibleId={investibleId} classes={searchClasses} afterOnClick={afterOnClick}
                                       link={link}/>);
     }
     if (marketId) {
-      return (<MarketSearchResult marketId={marketId} classes={classes} afterOnClick={afterOnClick}
+      return (<MarketSearchResult marketId={marketId} classes={searchClasses} afterOnClick={afterOnClick}
                                   link={link}/>);
     }
     if (aType === USER_POKED_TYPE) {

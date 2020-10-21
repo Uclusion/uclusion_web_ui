@@ -1,7 +1,7 @@
 import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
-import { getCommentRoot } from '../../contexts/CommentsContext/commentsContextHelper'
+import { getComment, getCommentRoot } from '../../contexts/CommentsContext/commentsContextHelper';
 import { Link, Card } from '@material-ui/core'
 import _ from 'lodash'
 import { formCommentLink, navigate } from '../../utils/marketIdPathFunctions'
@@ -56,6 +56,10 @@ function CommentSearchResult (props) {
   const [investibleState] = useContext(InvestiblesContext);
   const [marketsState] = useContext(MarketsContext);
   const commentRoot = getCommentRoot(commentsState, marketId, commentId);
+  const comment = getComment(commentsState, marketId, commentId);
+  const { body } = comment;
+  const strippedBody =  !body? '' : body.replace(/(<([^>]+)>)/gi, "");
+  const excerpt = !body? '' : strippedBody.substr(0, Math.min(body.length, 20));
   if (_.isEmpty(commentRoot)) {
     return <React.Fragment key={commentId}/>;
   }
@@ -111,7 +115,6 @@ function CommentSearchResult (props) {
   //const subTitle = intl.formatMessage({ id: 'CommentSearchResultSubTitle' }, { name: containerName });
   const linkTarget = link ? link : formCommentLink(marketId, investibleId, rootId);
 
-
   return (
     <Link href={linkTarget} className={classes.link} onClick={
       (event) => {
@@ -124,6 +127,7 @@ function CommentSearchResult (props) {
       <Card className={cardClass}>
         <Typography className={classes.commentSearchTitle}>{typeName}</Typography>
         <Typography className={classes.commentSearchName}>{containerName}</Typography>
+        <Typography className={classes.commentSearchExcerpt}>{intl.formatMessage({id: 'CommentsSearchResultExceprt'}, {excerpt})}</Typography>
       </Card>
     </Link>
   );

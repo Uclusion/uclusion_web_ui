@@ -13,11 +13,11 @@ import { List, ListItem, Paper, Popper, useTheme } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles'
 import { isTinyWindow } from '../../utils/windowUtils';
 
-const useStyles = makeStyles((theme) => {
+export const searchStyles = makeStyles((theme) => {
   return {
     popper: {
       zIndex: 1500,
-      maxHeight: '80%',
+      maxHeight: '90%',
       overflow: 'auto',
       marginTop: '1rem'
     },
@@ -86,6 +86,8 @@ const useStyles = makeStyles((theme) => {
     },
     commentSearchName: {
       fontWeight: 'bold',
+    },
+    commentSearchExcerpt: {
       fontStyle: 'italic',
     }
 
@@ -97,7 +99,7 @@ function SearchResults () {
   const [open, setOpen] = useState(false);
   const { results } = searchResults;
   const theme = useTheme();
-  const classes = useStyles(theme);
+  const classes = searchStyles(theme);
   const [anchorEl, setAnchorEl] = useState(null);
 
   useEffect(() => {

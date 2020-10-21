@@ -67,6 +67,7 @@ const useStyles = makeStyles((theme) => ({
     display: 'block',
     marginLeft: 'auto',
     marginRight: 'auto',
+    fontSize: theme.spacing(4),
   },
   user: {
     [theme.breakpoints.down('sm')]: {
@@ -85,7 +86,7 @@ function Identity (props) {
   const history = useHistory();
   const intl = useIntl();
   const email = !user ? '' : user.email;
-  const chipLabel = !user ? '' : user.name;
+  const chipLabel = !user ? '' : (user.name || '');
   const gravatarId = email ? md5(email, { encoding: 'binary' }) : '';
   const recordPositionToggle = (event) => {
     if (anchorEl === null) {
@@ -104,7 +105,7 @@ function Identity (props) {
     };
   }
 
-  const gravatarUrl = `https://www.gravatar.com/avatar/${gravatarId}?d=blank`;
+  const gravatarUrl = `https://www.gravatar.com/avatar/${gravatarId}?d=404`;
   return (
     <div
       id="profileLink"

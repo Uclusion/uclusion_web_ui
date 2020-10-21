@@ -13,7 +13,7 @@ import { DaysEstimate } from '../../../components/AgilePlan'
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import Chip from '@material-ui/core/Chip'
-import { stageChangeInvestible } from '../../../api/investibles'
+import { stageChangeInvestible, updateInvestible } from '../../../api/investibles'
 import {
   getInvestible,
   refreshInvestibles
@@ -67,7 +67,7 @@ function PlanningIdeas(props) {
   const [invState, invDispatch] = useContext(InvestiblesContext);
   const [, diffDispatch] = useContext(DiffContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
-  const warnAccepted = checkInProgressWarning(investibles, comments, acceptedStageId, presenceId, marketId);
+  const warnAccepted = checkInProgressWarning(investibles, comments, acceptedStageId, marketId);
   const acceptedFull = !_.isEmpty(investibles.filter(investible => {
     const { market_infos: marketInfos } = investible;
     const marketInfo = marketInfos.find(info => info.market_id === marketId);
@@ -114,26 +114,42 @@ function PlanningIdeas(props) {
         });
     }
   }
-  function isAssigned(event) {
+  function isAssignedInvestible(event, assignedToId) {
     const investibleId = event.dataTransfer.getData("text");
     const investible = getInvestible(invState, investibleId);
     const marketInfo = getMarketInfo(investible, marketId);
     const { assigned } = marketInfo;
-    return (assigned || []).includes(myPresence.id);
+    return (assigned || []).includes(assignedToId);
   }
   function onDropVoting(event) {
-    const currentStageId = event.dataTransfer.getData("stageId");
-    if (isAssigned(event) || currentStageId === inBlockingStageId) {
-      stageChange(event, inDialogStageId);
+    const investibleId = event.dataTransfer.getData("text");
+    if (isAssignedInvestible(event, myPresence.id) || myPresence.id === presenceId) {
+      if (isAssignedInvestible(event, myPresence.id) && myPresence.id === presenceId) {
+        stageChange(event, inDialogStageId);
+      } else {
+        // Assignment can be changed even on a blocked investible
+        const assignments = [presenceId];
+        const updateInfo = {
+          marketId,
+          investibleId,
+          assignments,
+        };
+        updateInvestible(updateInfo)
+          .then((fullInvestible) => {
+            refreshInvestibles(invDispatch, diffDispatch, [fullInvestible]);
+          });
+      }
     }
   }
   function onDropAccepted(event) {
-    if (isAssigned(event) && !acceptedFull) {
+    if (isAssignedInvestible(event, myPresence.id) && myPresence.id === presenceId && !acceptedFull) {
       stageChange(event, acceptedStageId);
     }
   }
   function onDropReview(event) {
-    stageChange(event, inReviewStageId);
+    if (isAssignedInvestible(event, presenceId)) {
+      stageChange(event, inReviewStageId);
+    }
   }
   function onDragOverStage(event) {
     event.preventDefault();

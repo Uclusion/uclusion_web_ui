@@ -1,5 +1,5 @@
-import React, { useContext } from 'react'
-import PropTypes from 'prop-types'
+import React, { useContext, useState } from 'react'
+import PropTypes, { func } from 'prop-types'
 import _ from 'lodash';
 import { useHistory } from 'react-router'
 import { Link, Tooltip, Typography } from '@material-ui/core'
@@ -20,9 +20,11 @@ import {
 } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
-import { getMarketInfo } from '../../../utils/userFunctions'
+import { getMarketInfo, getVotesForInvestible } from '../../../utils/userFunctions'
 import { ISSUE_TYPE, TODO_TYPE } from '../../../constants/comments'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
+import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
 
 const warningColor = red["400"];
 
@@ -44,7 +46,14 @@ const usePlanningIdStyles = makeStyles(
           }
         }
       },
-      stageLabel: {}
+      stageLabel: {},
+      containerEmpty: {},
+      containerRed: {
+        background: "red",
+      },
+      containerGreen: {
+        background: "green",
+      }
     };
   },
   { name: "PlanningIdea" }
@@ -65,8 +74,14 @@ function PlanningIdeas(props) {
   const intl = useIntl();
   const classes = usePlanningIdStyles();
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [marketsState] = useContext(MarketsContext);
+  const market = getMarket(marketsState, marketId);
+  // investibles for type initiative, are really markets, so treat it as such
+  const { votes_required: votesRequired } = (market || {});
   const [invState, invDispatch] = useContext(InvestiblesContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
+  // For security reasons you can't access source data while being dragged in case you are not the target website
+  const [beingDraggedHack, setBeingDraggedHack] = useState(undefined);
   const [, diffDispatch] = useContext(DiffContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const warnAccepted = checkInProgressWarning(investibles, comments, acceptedStageId, marketId);
@@ -99,7 +114,8 @@ function PlanningIdeas(props) {
     event.preventDefault();
     const investibleId = event.dataTransfer.getData("text");
     const currentStageId = event.dataTransfer.getData("stageId");
-    if (!operationRunning && !isBlockedByIssue(investibleId, currentStageId, targetStageId)) {
+    if (!operationRunning && !isBlockedByIssue(investibleId, currentStageId, targetStageId) &&
+      currentStageId !== targetStageId) {
       const target = event.target;
       target.style.cursor = 'wait';
       const moveInfo = {
@@ -148,8 +164,18 @@ function PlanningIdeas(props) {
     }
   }
   function onDropAccepted(event) {
-    if (isAssignedInvestible(event, myPresence.id) && myPresence.id === presenceId && !acceptedFull) {
-      stageChange(event, acceptedStageId);
+    const investibleId = event.dataTransfer.getData("text");
+    const investible = getInvestible(invState, investibleId);
+    const marketInfo = getMarketInfo(investible, marketId);
+    const { assigned } = marketInfo;
+    if ((assigned || []).length === 1) {
+      // Not supporting drag and drop to accepted for multiple assigned
+      const invested = getVotesForInvestible(marketPresences, investibleId);
+      const hasEnoughVotes = votesRequired ? (invested || []).length > votesRequired : true;
+      if (isAssignedInvestible(event, myPresence.id) && myPresence.id === presenceId && !acceptedFull &&
+        hasEnoughVotes) {
+        stageChange(event, acceptedStageId);
+      }
     }
   }
   function onDropReview(event) {
@@ -157,12 +183,63 @@ function PlanningIdeas(props) {
       stageChange(event, inReviewStageId);
     }
   }
-  function onDragOverStage(event) {
-    event.preventDefault();
+  function isEligableDrop(divId) {
+    const { id, stageId } = beingDraggedHack;
+    const investible = getInvestible(invState, id);
+    const marketInfo = getMarketInfo(investible, marketId);
+    const { assigned } = marketInfo;
+    const draggerIsAssigned = (assigned || []).includes(myPresence.id);
+    const swimLaneIsAssigned = (assigned || []).includes(presenceId);
+    const isBlocked = isBlockedByIssue(id, stageId, divId);
+    if (divId === inDialogStageId) {
+      return (draggerIsAssigned && myPresence.id === presenceId && !isBlocked) ||
+        (draggerIsAssigned || myPresence.id === presenceId);
+    }
+    if (isBlocked) {
+      return false;
+    }
+    if (divId === acceptedStageId) {
+      if ((assigned || []).length === 1) {
+        // Not supporting drag and drop to accepted for multiple assigned
+        const invested = getVotesForInvestible(marketPresences, id);
+        const hasEnoughVotes = votesRequired ? (invested || []).length > votesRequired : true;
+        return draggerIsAssigned && myPresence.id === presenceId && !acceptedFull && hasEnoughVotes;
+      }
+    }
+    if (divId === inReviewStageId) {
+      return swimLaneIsAssigned;
+    }
+    return false;
+  }
+  function onDragEnterStage(event, divId) {
+    const { id, stageId, previousStageId } = beingDraggedHack;
+    if (previousStageId && previousStageId !== divId) {
+      document.getElementById(previousStageId).className = classes.containerEmpty;
+    }
+    if (stageId !== divId) {
+      if (isEligableDrop(divId)) {
+        if (!operationRunning) {
+          event.dataTransfer.dropEffect = "move";
+          document.getElementById(divId).className = classes.containerGreen;
+          setBeingDraggedHack({ id, stageId, previousStageId:divId });
+        }
+      } else {
+        event.dataTransfer.dropEffect = "none";
+        document.getElementById(divId).className = classes.containerRed;
+        setBeingDraggedHack({ id, stageId, previousStageId:divId });
+      }
+    }
+  }
+  function onDragEndStage() {
+    const { previousStageId } = beingDraggedHack;
+    document.getElementById(previousStageId).className = classes.containerEmpty;
+    setBeingDraggedHack(undefined);
   }
   return (
     <dl className={classes.stages}>
-      <div onDrop={onDropVoting} onDragOver={onDragOverStage}>
+      <div id={inDialogStageId} onDrop={onDropVoting} onDragOver={(event) => event.preventDefault()}
+           onDragEnter={(event) => onDragEnterStage(event, inDialogStageId)}
+           onDragEnd={onDragEndStage}>
         <Tooltip
           title={intl.formatMessage({ id: 'planningVotingStageDescription' })}
         >
@@ -179,9 +256,12 @@ function PlanningIdeas(props) {
           activeMarket={activeMarket}
           marketPresences={marketPresences}
           comments={comments}
+          dragHack={setBeingDraggedHack}
         />
       </div>
-      <div onDrop={onDropAccepted} onDragOver={onDragOverStage}>
+      <div id={acceptedStageId} onDrop={onDropAccepted} onDragOver={(event) => event.preventDefault()}
+           onDragEnter={(event) => onDragEnterStage(event, acceptedStageId)}
+           onDragEnd={onDragEndStage}>
         <Tooltip
           title={intl.formatMessage({ id: 'planningAcceptedStageDescription' })}
         >
@@ -195,9 +275,12 @@ function PlanningIdeas(props) {
           investibles={investibles}
           marketId={marketId}
           warnAccepted={warnAccepted}
+          dragHack={setBeingDraggedHack}
         />
       </div>
-      <div onDrop={onDropReview} onDragOver={onDragOverStage}>
+      <div id={inReviewStageId} onDrop={onDropReview} onDragOver={(event) => event.preventDefault()}
+           onDragEnter={(event) => onDragEnterStage(event, inReviewStageId)}
+           onDragEnd={onDragEndStage}>
         <Tooltip
           title={intl.formatMessage({ id: 'planningReviewStageDescription' })}
         >
@@ -211,6 +294,7 @@ function PlanningIdeas(props) {
           investibles={investibles}
           marketId={marketId}
           comments={comments}
+          dragHack={setBeingDraggedHack}
         />
       </div>
       <div>
@@ -293,6 +377,7 @@ function Stage(props) {
     isVoting,
     showCompletion,
     marketPresences,
+    dragHack,
   } = props;
 
   const stageInvestibles = investibles.filter(investible => {
@@ -323,6 +408,7 @@ function Stage(props) {
   function investibleOnDragStart(event) {
     event.dataTransfer.setData("text", event.target.id);
     event.dataTransfer.setData("stageId", id);
+    dragHack({id:event.target.id, stageId: id});
   }
 
   return (

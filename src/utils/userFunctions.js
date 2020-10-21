@@ -83,6 +83,23 @@ export function getVoteTotalsForUser(presence) {
   }, {});
 }
 
+export function getVotesForInvestible(marketPresences, investibleId) {
+  return (marketPresences || []).filter(presence => {
+    const { investments } = presence;
+    if (!Array.isArray(investments) || investments.length === 0) {
+      return false;
+    }
+    let found = false;
+    investments.forEach(investment => {
+      const { investible_id: invId, deleted } = investment;
+      if (invId === investibleId && !deleted) {
+        found = true;
+      }
+    });
+    return found;
+  });
+}
+
 export function getMarketUpdatedAt(updatedAt, marketPresences, investibles, comments, marketId) {
   let mostRecentUpdate = updatedAt;
   marketPresences.forEach((presence) => {

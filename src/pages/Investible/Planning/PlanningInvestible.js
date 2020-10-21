@@ -39,7 +39,7 @@ import {
 import Screen from '../../../containers/Screen/Screen'
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
 import MoveToNextVisibleStageActionButton from './MoveToNextVisibleStageActionButton'
-import { getMarketInfo } from '../../../utils/userFunctions'
+import { getMarketInfo, getVotesForInvestible } from '../../../utils/userFunctions'
 import {
   getAcceptedStage,
   getBlockedStage,
@@ -368,20 +368,7 @@ function PlanningInvestible(props) {
     // we have no usable data;
     return <></>;
   }
-  const invested = marketPresences.filter(presence => {
-    const { investments } = presence;
-    if (!Array.isArray(investments) || investments.length === 0) {
-      return false;
-    }
-    let found = false;
-    investments.forEach(investment => {
-      const { investible_id: invId, deleted } = investment;
-      if (invId === investibleId && !deleted) {
-        found = true;
-      }
-    });
-    return found;
-  });
+  const invested = getVotesForInvestible(marketPresences, investibleId);
 
   function assignedInStage(investibles, userId, stageId) {
     return investibles.filter(investible => {

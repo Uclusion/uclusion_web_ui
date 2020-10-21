@@ -141,7 +141,7 @@ function Notifications() {
       setInside(false);
       setPegLeftTimer(setTimeout(() => {
         setPegLeft(true);
-      }, 4000));
+      }, 2000));
     }
   }
 

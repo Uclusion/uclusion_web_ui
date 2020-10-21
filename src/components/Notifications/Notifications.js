@@ -120,13 +120,10 @@ function Notifications() {
     }
   }
 
-  function onHover() {
+  function onEnter() {
     if (!open) {
       messagesDispatch(refreshRecent());
     }
-  }
-
-  function onEnter() {
     setOpen(true);
     setInside(true);
     if (pegLeftTimer) {
@@ -164,7 +161,6 @@ function Notifications() {
       <Fab
         id="notifications-fab"
         onClick={onSingleClick}
-        onMouseOver={onHover}
         className={clsx(
           classes.fab,
           getBackgroundClass())}

@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import _ from 'lodash'
+import CommentSearchResult from '../Search/CommentSearchResult'
 import InvestibleSearchResult from '../Search/InvestibleSearchResult'
 import MarketSearchResult from '../Search/MarketSearchResult'
 import { List, ListItem, Paper, Popper, Typography } from '@material-ui/core'
@@ -25,7 +26,7 @@ const useStyles = makeStyles(() => {
 });
 
 function DisplayNotifications(props) {
-  const { results, open, setOpen } = props;
+  const { open, setOpen } = props;
   const intl = useIntl();
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = useState(null);
@@ -49,9 +50,14 @@ function DisplayNotifications(props) {
       marketId,
       investibleId,
       aType,
+      commentId,
       pokeType,
     } = item;
     const link = getFullLink(item);
+    if (commentId) {
+      return (<CommentSearchResult marketId={marketId} commentId={commentId} classes={classes}
+                                   afterOnClick={afterOnClick} link={link}/>);
+    }
     if (investibleId) {
       return (<InvestibleSearchResult investibleId={investibleId} classes={classes} afterOnClick={afterOnClick}
                                       link={link}/>);
@@ -81,8 +87,9 @@ function DisplayNotifications(props) {
       const {
         marketId,
         investibleId,
+        commentId,
       } = item;
-      const key = `${marketId}_${investibleId}`;
+      const key = `${marketId}_${investibleId}_${commentId}`;
       if (key in deDupe) {
         return React.Fragment;
       }
@@ -110,13 +117,6 @@ function DisplayNotifications(props) {
       className={classes.popper}
     >
       <Paper>
-        {!_.isEmpty(results) && (
-          <List
-            dense
-          >
-            {getResults(results)}
-          </List>
-        )}
         {!_.isEmpty(recent) && (
           <>
             <Typography align="center">

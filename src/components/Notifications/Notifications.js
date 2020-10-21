@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { NotificationImportant, Notifications as NotificationsIcon } from '@material-ui/icons'
 import { Fab, makeStyles, Tooltip } from '@material-ui/core'
 import clsx from 'clsx'
@@ -94,6 +94,8 @@ export function getFullLink(current) {
 
 function Notifications() {
   const [open, setOpen] = useState(false);
+  const [inside, setInside] = useState(false);
+  const [pegLeft, setPegLeft] = useState(false);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [marketsState] = useContext(MarketsContext);
   const filteredMessagesState = filterMessagesByMarket(messagesState, marketsState);
@@ -120,24 +122,47 @@ function Notifications() {
     }
   }
 
-  function onSingleClick() {
-    setOpen(!open);
-    messagesDispatch(refreshRecent());
+  function onHover() {
+    if (!open) {
+      messagesDispatch(refreshRecent());
+    }
   }
 
-  function onDoubleClick() {
+  function onEnter() {
+    setOpen(true);
+    setInside(true);
+    setPegLeft(false);
+  }
+
+  function onOut() {
+    if (inside) {
+      setInside(false);
+      setTimeout(() => {
+        setPegLeft(true);
+      }, 2000);
+    }
+  }
+
+  function onSingleClick() {
     if (current) {
       navigate(history, getFullLink(current));
     }
   }
 
+  useEffect(() => {
+    if (pegLeft && !inside) {
+      setPegLeft(false);
+      setOpen(false);
+    }
+    return () => {};
+  }, [inside, pegLeft]);
+
   return (
-    <>
+    <div onMouseOut={onOut} onMouseOver={onEnter}>
       <Fab
         id="notifications-fab"
         onClick={onSingleClick}
-        onDoubleClick={onDoubleClick}
-        disabled={_.isEmpty(recent) && _.isEmpty(messages)}
+        onMouseOver={onHover}
         className={clsx(
           classes.fab,
           getBackgroundClass())}
@@ -149,8 +174,8 @@ function Notifications() {
         )}
         {!current && <NotificationsIcon className={classes.uncolored} />}
       </Fab>
-      <DisplayNotifications results={messages} open={open} setOpen={setOpen} />
-    </>
+      <DisplayNotifications open={open} setOpen={setOpen} />
+    </div>
   );
 }
 

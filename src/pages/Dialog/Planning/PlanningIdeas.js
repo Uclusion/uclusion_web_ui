@@ -22,6 +22,7 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { getMarketInfo } from '../../../utils/userFunctions'
 import { ISSUE_TYPE, TODO_TYPE } from '../../../constants/comments'
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 
 const warningColor = red["400"];
 
@@ -65,6 +66,7 @@ function PlanningIdeas(props) {
   const classes = usePlanningIdStyles();
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [invState, invDispatch] = useContext(InvestiblesContext);
+  const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [, diffDispatch] = useContext(DiffContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const warnAccepted = checkInProgressWarning(investibles, comments, acceptedStageId, marketId);
@@ -97,7 +99,7 @@ function PlanningIdeas(props) {
     event.preventDefault();
     const investibleId = event.dataTransfer.getData("text");
     const currentStageId = event.dataTransfer.getData("stageId");
-    if (!isBlockedByIssue(investibleId, currentStageId, targetStageId)) {
+    if (!operationRunning && !isBlockedByIssue(investibleId, currentStageId, targetStageId)) {
       const target = event.target;
       target.style.cursor = 'wait';
       const moveInfo = {
@@ -108,9 +110,11 @@ function PlanningIdeas(props) {
           stage_id: targetStageId,
         },
       };
+      setOperationRunning(true);
       return stageChangeInvestible(moveInfo)
         .then((inv) => {
           refreshInvestibles(invDispatch, diffDispatch, [inv]);
+          setOperationRunning(false);
         });
     }
   }
@@ -126,7 +130,7 @@ function PlanningIdeas(props) {
     if (isAssignedInvestible(event, myPresence.id) || myPresence.id === presenceId) {
       if (isAssignedInvestible(event, myPresence.id) && myPresence.id === presenceId) {
         stageChange(event, inDialogStageId);
-      } else {
+      } else if (!operationRunning) {
         // Assignment can be changed even on a blocked investible
         const assignments = [presenceId];
         const updateInfo = {
@@ -134,9 +138,11 @@ function PlanningIdeas(props) {
           investibleId,
           assignments,
         };
+        setOperationRunning(true);
         updateInvestible(updateInfo)
           .then((fullInvestible) => {
             refreshInvestibles(invDispatch, diffDispatch, [fullInvestible]);
+            setOperationRunning(false);
           });
       }
     }

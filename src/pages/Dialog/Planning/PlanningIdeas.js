@@ -234,9 +234,9 @@ function PlanningIdeas(props) {
     return false;
   }
   function onDragEnterStage(event, divId, divPresenceId) {
-    const { id, stageId, previousElementId } = beingDraggedHack;
+    const { id, stageId, previousElementId, originalElementId } = beingDraggedHack;
     const elementId = `${divId}_${divPresenceId}`;
-    if (elementId !== previousElementId) {
+    if (elementId !== originalElementId && elementId !== previousElementId) {
       if (previousElementId) {
         document.getElementById(previousElementId).className = classes.containerEmpty;
       }
@@ -244,12 +244,12 @@ function PlanningIdeas(props) {
         if (!operationRunning) {
           event.dataTransfer.dropEffect = "move";
           document.getElementById(elementId).className = classes.containerGreen;
-          setBeingDraggedHack({ id, stageId, previousElementId:elementId });
+          setBeingDraggedHack({ id, stageId, previousElementId:elementId, originalElementId });
         }
       } else {
         event.dataTransfer.dropEffect = "none";
         document.getElementById(elementId).className = classes.containerRed;
-        setBeingDraggedHack({ id, stageId, previousElementId:elementId });
+        setBeingDraggedHack({ id, stageId, previousElementId:elementId, originalElementId });
       }
     }
   }
@@ -301,6 +301,7 @@ function PlanningIdeas(props) {
           id={acceptedStageId}
           investibles={investibles}
           marketId={marketId}
+          presenceId={presenceId}
           warnAccepted={warnAccepted}
           dragHack={setBeingDraggedHack}
         />
@@ -321,6 +322,7 @@ function PlanningIdeas(props) {
           id={inReviewStageId}
           investibles={investibles}
           marketId={marketId}
+          presenceId={presenceId}
           comments={comments}
           dragHack={setBeingDraggedHack}
         />
@@ -406,6 +408,7 @@ function Stage(props) {
     showCompletion,
     marketPresences,
     dragHack,
+    presenceId
   } = props;
 
   const stageInvestibles = investibles.filter(investible => {
@@ -436,7 +439,8 @@ function Stage(props) {
   function investibleOnDragStart(event) {
     event.dataTransfer.setData("text", event.target.id);
     event.dataTransfer.setData("stageId", id);
-    dragHack({id:event.target.id, stageId: id});
+    const originalElementId = `${id}_${presenceId}`;
+    dragHack({id:event.target.id, stageId: id, originalElementId});
   }
 
   return (

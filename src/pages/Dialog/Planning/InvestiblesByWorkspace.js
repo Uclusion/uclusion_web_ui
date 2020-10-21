@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState } from 'react'
 import _ from 'lodash'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
@@ -50,6 +50,8 @@ function InvestiblesByWorkspace(props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [chosenPerson, setChosenPerson] = React.useState(undefined);
+  // For security reasons you can't access source data while being dragged in case you are not the target website
+  const [beingDraggedHack, setBeingDraggedHack] = useState({});
   const activeWorkspaces = (workspaces || []).filter((market) => market.market_stage === ACTIVE_STAGE);
   function handleClick(event) {
     setAnchorEl(event.currentTarget);
@@ -191,6 +193,8 @@ function InvestiblesByWorkspace(props) {
                   activeMarket={market.market_stage === ACTIVE_STAGE}
                   comments={comments}
                   presenceId={presence.id}
+                  beingDraggedHack={beingDraggedHack}
+                  setBeingDraggedHack={setBeingDraggedHack}
                 />
               )}
             </CardContent>

@@ -1,7 +1,7 @@
 /**
  * A component that renders a _planning_ dialog
  */
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { useHistory } from 'react-router'
 import { useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
@@ -454,6 +454,8 @@ function InvestiblesByPerson(props) {
     activeMarket,
   } = props;
   const classes = useInvestiblesByPersonStyles();
+  // For security reasons you can't access source data while being dragged in case you are not the target website
+  const [beingDraggedHack, setBeingDraggedHack] = useState({});
   const marketPresencesSortedAlmost = _.sortBy(marketPresences, 'name');
   const marketPresencesSorted = _.sortBy(marketPresencesSortedAlmost, function (presence) {
     return !presence.current_user;
@@ -491,6 +493,8 @@ function InvestiblesByPerson(props) {
                 activeMarket={activeMarket}
                 comments={comments}
                 presenceId={presence.id}
+                beingDraggedHack={beingDraggedHack}
+                setBeingDraggedHack={setBeingDraggedHack}
               />
             )}
         </CardContent>

@@ -25,6 +25,8 @@ import { ISSUE_TYPE, TODO_TYPE } from '../../../constants/comments'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
+import { getFullStage, getStages } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 
 const warningColor = red["400"];
 
@@ -69,19 +71,20 @@ function PlanningIdeas(props) {
     inBlockingStageId,
     presenceId,
     activeMarket,
-    comments
+    comments,
+    beingDraggedHack,
+    setBeingDraggedHack
   } = props;
   const intl = useIntl();
   const classes = usePlanningIdStyles();
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [marketsState] = useContext(MarketsContext);
+  const [marketStagesState] = useContext(MarketStagesContext);
   const market = getMarket(marketsState, marketId);
   // investibles for type initiative, are really markets, so treat it as such
   const { votes_required: votesRequired } = (market || {});
   const [invState, invDispatch] = useContext(InvestiblesContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
-  // For security reasons you can't access source data while being dragged in case you are not the target website
-  const [beingDraggedHack, setBeingDraggedHack] = useState(undefined);
   const [, diffDispatch] = useContext(DiffContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const warnAccepted = checkInProgressWarning(investibles, comments, acceptedStageId, marketId);
@@ -114,8 +117,9 @@ function PlanningIdeas(props) {
     event.preventDefault();
     const investibleId = event.dataTransfer.getData("text");
     const currentStageId = event.dataTransfer.getData("stageId");
+    const marketStages = getStages(marketStagesState, marketId);
     if (!operationRunning && !isBlockedByIssue(investibleId, currentStageId, targetStageId) &&
-      currentStageId !== targetStageId) {
+      currentStageId !== targetStageId && (marketStages || []).includes(currentStageId)) {
       const target = event.target;
       target.style.cursor = 'wait';
       const moveInfo = {
@@ -141,50 +145,68 @@ function PlanningIdeas(props) {
     const { assigned } = marketInfo;
     return (assigned || []).includes(assignedToId);
   }
+  function checkStageMatching(stageId) {
+    const marketStages = getStages(marketStagesState, marketId);
+    const stage = getFullStage(marketStagesState, marketId, stageId)
+    console.debug(`Returning ${(marketStages || []).includes(stage)}`);
+    return (marketStages || []).includes(stage);
+  }
   function onDropVoting(event) {
     const investibleId = event.dataTransfer.getData("text");
-    if (isAssignedInvestible(event, myPresence.id) || myPresence.id === presenceId) {
-      if (isAssignedInvestible(event, myPresence.id) && myPresence.id === presenceId) {
-        stageChange(event, inDialogStageId);
-      } else if (!operationRunning) {
-        // Assignment can be changed even on a blocked investible
-        const assignments = [presenceId];
-        const updateInfo = {
-          marketId,
-          investibleId,
-          assignments,
-        };
-        setOperationRunning(true);
-        updateInvestible(updateInfo)
-          .then((fullInvestible) => {
-            refreshInvestibles(invDispatch, diffDispatch, [fullInvestible]);
-            setOperationRunning(false);
-          });
+    const currentStageId = event.dataTransfer.getData("stageId");
+    if (checkStageMatching(currentStageId)) {
+      if (isAssignedInvestible(event, myPresence.id) || myPresence.id === presenceId) {
+        if (isAssignedInvestible(event, myPresence.id) && myPresence.id === presenceId) {
+          stageChange(event, inDialogStageId);
+        } else if (!operationRunning && !isAssignedInvestible(event, presenceId)) {
+          // Assignment can be changed even on a blocked investible
+          const assignments = [presenceId];
+          const updateInfo = {
+            marketId,
+            investibleId,
+            assignments,
+          };
+          setOperationRunning(true);
+          updateInvestible(updateInfo)
+            .then((fullInvestible) => {
+              refreshInvestibles(invDispatch, diffDispatch, [fullInvestible]);
+              setOperationRunning(false);
+            });
+        }
       }
     }
   }
   function onDropAccepted(event) {
     const investibleId = event.dataTransfer.getData("text");
-    const investible = getInvestible(invState, investibleId);
-    const marketInfo = getMarketInfo(investible, marketId);
-    const { assigned } = marketInfo;
-    if ((assigned || []).length === 1) {
-      // Not supporting drag and drop to accepted for multiple assigned
-      const invested = getVotesForInvestible(marketPresences, investibleId);
-      const hasEnoughVotes = votesRequired ? (invested || []).length > votesRequired : true;
-      if (isAssignedInvestible(event, myPresence.id) && myPresence.id === presenceId && !acceptedFull &&
-        hasEnoughVotes) {
-        stageChange(event, acceptedStageId);
+    const currentStageId = event.dataTransfer.getData("stageId");
+    if (checkStageMatching(currentStageId)) {
+      const investible = getInvestible(invState, investibleId);
+      const marketInfo = getMarketInfo(investible, marketId);
+      const { assigned } = marketInfo;
+      if ((assigned || []).length === 1) {
+        // Not supporting drag and drop to accepted for multiple assigned
+        const invested = getVotesForInvestible(marketPresences, investibleId);
+        const hasEnoughVotes = votesRequired ? (invested || []).length > votesRequired : true;
+        if (isAssignedInvestible(event, myPresence.id) && myPresence.id === presenceId && !acceptedFull &&
+          hasEnoughVotes) {
+          stageChange(event, acceptedStageId);
+        }
       }
     }
   }
   function onDropReview(event) {
-    if (isAssignedInvestible(event, presenceId)) {
-      stageChange(event, inReviewStageId);
+    const currentStageId = event.dataTransfer.getData("stageId");
+    if (checkStageMatching(currentStageId)) {
+      if (isAssignedInvestible(event, presenceId)) {
+        stageChange(event, inReviewStageId);
+      }
     }
   }
   function isEligableDrop(divId) {
     const { id, stageId } = beingDraggedHack;
+    if (!checkStageMatching(stageId)) {
+      return false;
+    }
     const investible = getInvestible(invState, id);
     const marketInfo = getMarketInfo(investible, marketId);
     const { assigned } = marketInfo;
@@ -211,34 +233,38 @@ function PlanningIdeas(props) {
     }
     return false;
   }
-  function onDragEnterStage(event, divId) {
-    const { id, stageId, previousStageId } = beingDraggedHack;
-    if (previousStageId && previousStageId !== divId) {
-      document.getElementById(previousStageId).className = classes.containerEmpty;
-    }
-    if (stageId !== divId) {
+  function onDragEnterStage(event, divId, divPresenceId) {
+    const { id, stageId, previousElementId } = beingDraggedHack;
+    const elementId = `${divId}_${divPresenceId}`;
+    if (elementId !== previousElementId) {
+      if (previousElementId) {
+        document.getElementById(previousElementId).className = classes.containerEmpty;
+      }
       if (isEligableDrop(divId)) {
         if (!operationRunning) {
           event.dataTransfer.dropEffect = "move";
-          document.getElementById(divId).className = classes.containerGreen;
-          setBeingDraggedHack({ id, stageId, previousStageId:divId });
+          document.getElementById(elementId).className = classes.containerGreen;
+          setBeingDraggedHack({ id, stageId, previousElementId:elementId });
         }
       } else {
         event.dataTransfer.dropEffect = "none";
-        document.getElementById(divId).className = classes.containerRed;
-        setBeingDraggedHack({ id, stageId, previousStageId:divId });
+        document.getElementById(elementId).className = classes.containerRed;
+        setBeingDraggedHack({ id, stageId, previousElementId:elementId });
       }
     }
   }
   function onDragEndStage() {
-    const { previousStageId } = beingDraggedHack;
-    document.getElementById(previousStageId).className = classes.containerEmpty;
-    setBeingDraggedHack(undefined);
+    const { previousElementId } = beingDraggedHack;
+    if (previousElementId) {
+      document.getElementById(previousElementId).className = classes.containerEmpty;
+      setBeingDraggedHack({});
+    }
   }
   return (
     <dl className={classes.stages}>
-      <div id={inDialogStageId} onDrop={onDropVoting} onDragOver={(event) => event.preventDefault()}
-           onDragEnter={(event) => onDragEnterStage(event, inDialogStageId)}
+      <div id={`${inDialogStageId}_${presenceId}`} onDrop={onDropVoting}
+           onDragOver={(event) => event.preventDefault()}
+           onDragEnter={(event) => onDragEnterStage(event, inDialogStageId, presenceId)}
            onDragEnd={onDragEndStage}>
         <Tooltip
           title={intl.formatMessage({ id: 'planningVotingStageDescription' })}
@@ -259,8 +285,9 @@ function PlanningIdeas(props) {
           dragHack={setBeingDraggedHack}
         />
       </div>
-      <div id={acceptedStageId} onDrop={onDropAccepted} onDragOver={(event) => event.preventDefault()}
-           onDragEnter={(event) => onDragEnterStage(event, acceptedStageId)}
+      <div id={`${acceptedStageId}_${presenceId}`} onDrop={onDropAccepted}
+           onDragOver={(event) => event.preventDefault()}
+           onDragEnter={(event) => onDragEnterStage(event, acceptedStageId, presenceId)}
            onDragEnd={onDragEndStage}>
         <Tooltip
           title={intl.formatMessage({ id: 'planningAcceptedStageDescription' })}
@@ -278,8 +305,9 @@ function PlanningIdeas(props) {
           dragHack={setBeingDraggedHack}
         />
       </div>
-      <div id={inReviewStageId} onDrop={onDropReview} onDragOver={(event) => event.preventDefault()}
-           onDragEnter={(event) => onDragEnterStage(event, inReviewStageId)}
+      <div id={`${inReviewStageId}_${presenceId}`} onDrop={onDropReview}
+           onDragOver={(event) => event.preventDefault()}
+           onDragEnter={(event) => onDragEnterStage(event, inReviewStageId, presenceId)}
            onDragEnd={onDragEndStage}>
         <Tooltip
           title={intl.formatMessage({ id: 'planningReviewStageDescription' })}

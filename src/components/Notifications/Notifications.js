@@ -17,7 +17,6 @@ import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import DisplayNotifications from './DisplayNotifications'
 import { useIntl } from 'react-intl'
 import { refreshRecent } from '../../contexts/NotificationsContext/notificationsContextReducer'
-import _ from 'lodash'
 
 const useStyles = makeStyles(
   theme => {
@@ -99,12 +98,10 @@ function Notifications() {
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [marketsState] = useContext(MarketsContext);
   const filteredMessagesState = filterMessagesByMarket(messagesState, marketsState);
-  const { messages } = filteredMessagesState;
   const current = nextMessage(filteredMessagesState || {});
   const history = useHistory();
   const intl = useIntl();
   const classes = useStyles();
-  const { recent } = messagesState;
 
 
   function getBackgroundClass() {

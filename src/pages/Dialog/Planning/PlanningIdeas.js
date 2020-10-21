@@ -1,5 +1,5 @@
-import React, { useContext, useState } from 'react'
-import PropTypes, { func } from 'prop-types'
+import React, { useContext } from 'react'
+import PropTypes from 'prop-types'
 import _ from 'lodash';
 import { useHistory } from 'react-router'
 import { Link, Tooltip, Typography } from '@material-ui/core'

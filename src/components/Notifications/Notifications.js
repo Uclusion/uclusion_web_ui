@@ -95,6 +95,7 @@ function Notifications() {
   const [open, setOpen] = useState(false);
   const [inside, setInside] = useState(false);
   const [pegLeft, setPegLeft] = useState(false);
+  const [pegLeftTimer, setPegLeftTimer] = useState(undefined);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [marketsState] = useContext(MarketsContext);
   const filteredMessagesState = filterMessagesByMarket(messagesState, marketsState);
@@ -128,15 +129,19 @@ function Notifications() {
   function onEnter() {
     setOpen(true);
     setInside(true);
+    if (pegLeftTimer) {
+      clearTimeout(pegLeftTimer);
+      setPegLeftTimer(undefined);
+    }
     setPegLeft(false);
   }
 
   function onOut() {
-    if (inside) {
+    if (!pegLeft) {
       setInside(false);
-      setTimeout(() => {
+      setPegLeftTimer(setTimeout(() => {
         setPegLeft(true);
-      }, 4000);
+      }, 4000));
     }
   }
 
@@ -165,7 +170,8 @@ function Notifications() {
           getBackgroundClass())}
       >
         {current && (
-          <Tooltip title={intl.formatMessage({ id: 'notificationsHelp' }, { x: current.text })}>
+          <Tooltip title={intl.formatMessage({ id: 'notificationsHelp' }, { x: current.text })}
+                   placement="right-start">
             <NotificationImportant className={classes.uncolored} />
           </Tooltip>
         )}

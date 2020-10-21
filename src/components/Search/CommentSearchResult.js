@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { getCommentRoot } from '../../contexts/CommentsContext/commentsContextHelper'
-import { Link, } from '@material-ui/core'
+import { Link, Card } from '@material-ui/core'
 import _ from 'lodash'
 import { formCommentLink, navigate } from '../../utils/marketIdPathFunctions'
 import { useIntl } from 'react-intl'
@@ -18,24 +18,24 @@ import { InvestiblesContext } from '../../contexts/InvestibesContext/Investibles
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
-import CardType from '../CardType'
 import { useHistory } from 'react-router'
+import Typography from '@material-ui/core/Typography';
 
 
-function getIntlMessage (commentType) {
+function getTypeNameId (commentType) {
   switch (commentType) {
     case ISSUE_TYPE:
-      return 'commentSearchResultIssue';
+      return 'CommentSearchResultIssue';
     case JUSTIFY_TYPE:
-      return 'commentSearchResultJustify';
+      return 'CommentSearchResultJustify';
     case QUESTION_TYPE:
-      return 'commentSearchResultQuestion';
+      return 'CommentSearchResultQuestion';
     case SUGGEST_CHANGE_TYPE:
-      return 'commentSearchResultSuggestion';
+      return 'CommentSearchResultSuggestion';
     case TODO_TYPE:
-      return 'commentSearchResultTodo';
+      return 'CommentSearchResultTodo';
     case REPORT_TYPE:
-      return 'commentSearchResultReport';
+      return 'CommentSearchResultProgress';
     default:
       console.error('Unknown comment type ' + commentType);
       return '';
@@ -60,6 +60,29 @@ function CommentSearchResult (props) {
     return <React.Fragment key={commentId}/>;
   }
 
+  const { comment_type: type, investible_id: investibleId, id: rootId } = commentRoot;
+
+  function getCardClass() {
+    switch (type) {
+      case ISSUE_TYPE:
+        return classes.issueCard;
+      case JUSTIFY_TYPE:
+        return classes.justifyCard;
+      case QUESTION_TYPE:
+        return classes.questionCard;
+      case SUGGEST_CHANGE_TYPE:
+        return classes.suggestionCard;
+      case TODO_TYPE:
+        return classes.todoCard;
+      case REPORT_TYPE:
+        return classes.reportCard;
+      default:
+        console.error('Unknown comment type ' + type);
+        return ''
+    }
+  }
+
+
   function getMarketName (marketId) {
     const market = getMarket(marketsState, marketId);
     if (_.isEmpty(market)) {
@@ -80,11 +103,12 @@ function CommentSearchResult (props) {
     return name;
   }
 
-  const { comment_type: type, investible_id: investibleId, id: rootId } = commentRoot;
+
 
   const containerName = !_.isEmpty(investibleId) ? getInvestibleName(investibleId) : getMarketName(marketId);
-  const messageId = getIntlMessage(type);
-  const linkText = intl.formatMessage({ id: messageId }, { name: containerName });
+  const cardClass = getCardClass();
+  const typeName = intl.formatMessage({ id: getTypeNameId(type)})
+  //const subTitle = intl.formatMessage({ id: 'CommentSearchResultSubTitle' }, { name: containerName });
   const linkTarget = link ? link : formCommentLink(marketId, investibleId, rootId);
 
 
@@ -97,12 +121,10 @@ function CommentSearchResult (props) {
         afterOnClick();
       }
     }>
-      <CardType
-        type={type}
-        label={linkText}
-        fullWidth
-      >
-      </CardType>
+      <Card className={cardClass}>
+        <Typography className={classes.commentSearchTitle}>{typeName}</Typography>
+        <Typography className={classes.commentSearchName}>{containerName}</Typography>
+      </Card>
     </Link>
   );
 

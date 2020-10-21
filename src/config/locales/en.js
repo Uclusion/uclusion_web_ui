@@ -819,12 +819,21 @@ const messages = defineMessages({
 
   // Search
   searchBoxPlaceholder: 'Search',
-  commentSearchResultIssue: 'Issue in {name}',
-  commentSearchResultJustify: 'Approval reason in {name}',
-  commentSearchResultSuggestion: 'Suggestion in {name}',
-  commentSearchResultTodo: 'TODO in {name}',
-  commentSearchResultQuestion: 'Question in {name}',
-  commentSearchResultReport: 'Report in {name}',
+  CommentSearchResultIssue: 'Blocking Issue In:',
+  CommentSearchResultSuggestion: 'Suggestion In:',
+  CommentSearchResultTodo: 'TODO In:',
+  CommentSearchResultProgress: 'Progress Report In:',
+  CommentSearchResultQuestion: 'Question In:',
+  CommentSearchResultJustify: 'Vote Reason In:',
+  CommentSearchResultSubTitle: '{name}',
+  MarketSearchResultWorkspace: 'Workspace',
+  MarketSearchResultInitiative: 'Initiative',
+  MarketSearchResultDialog: 'Dialog',
+  InvestibleSearchResultTitle: '{type} in {marketName}',
+
+  InvestibleSearchResultStory: 'Story',
+  InvestibleSearchResultOption: 'Option',
+
 
   // existing users
   existingUsersBanUser: 'Remove collaborator',

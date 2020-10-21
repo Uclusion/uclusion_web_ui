@@ -9,7 +9,7 @@ import {
 import CommentSearchResult from './CommentSearchResult'
 import InvestibleSearchResult from './InvestibleSearchResult'
 import MarketSearchResult from './MarketSearchResult'
-import { List, ListItem, Paper, Popper } from '@material-ui/core'
+import { List, ListItem, Paper, Popper, useTheme } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles'
 import { isTinyWindow } from '../../utils/windowUtils';
 
@@ -23,7 +23,72 @@ const useStyles = makeStyles((theme) => {
     },
     link: {
       width: '100%'
+    },
+    searchResultHeader: {
+
+    },
+    marketSearchName: {
+      fontWeight: 'bold',
+      fontStyle: 'italic',
+    },
+    investibleSearchTitle: {
+
+    },
+    investibleSearchName: {
+      fontWeight: 'bold',
+      fontStyle: 'italic',
+    },
+    marketCard: {
+      border: '1px solid',
+      padding: theme.spacing(1),
+    },
+    investibleCard: {
+      border: '1px solid',
+      padding: theme.spacing(1),
+    },
+    issueCard: {
+      border: '1px solid',
+      backgroundColor: '#E85757',
+      color: '#ffffff',
+      padding: theme.spacing(1),
+    },
+    questionCard: {
+      border: '1px solid',
+      backgroundColor: '#2F80ED',
+      color: '#ffffff',
+      padding: theme.spacing(1),
+    },
+    suggestionCard: {
+      border: '1px solid',
+      backgroundColor: '#e6e969',
+      padding: theme.spacing(1),
+    },
+    todoCard: {
+      border: '1px solid',
+      backgroundColor: '#F29100',
+      color: '#ffffff',
+      padding: theme.spacing(1),
+    },
+    reportCard: {
+      border: '1px solid',
+      backgroundColor: '#73B76C',
+      color: '#ffffff',
+      padding: theme.spacing(1),
+    },
+    justifyCard: {
+      border: '1px solid',
+      backgroundColor: '#9B51E0',
+      padding: theme.spacing(1),
+      color: '#ffffff',
+    },
+    commentSearchTitle: {
+
+    },
+    commentSearchName: {
+      fontWeight: 'bold',
+      fontStyle: 'italic',
     }
+
   };
 });
 
@@ -31,7 +96,8 @@ function SearchResults () {
   const [searchResults, setSearchResults] = useContext(SearchResultsContext);
   const [open, setOpen] = useState(false);
   const { results } = searchResults;
-  const classes = useStyles();
+  const theme = useTheme();
+  const classes = useStyles(theme);
   const [anchorEl, setAnchorEl] = useState(null);
 
   useEffect(() => {
@@ -66,7 +132,8 @@ function SearchResults () {
   }
 
   function getResults () {
-    return results.map((item) => {
+    const deduped = _.uniqBy(results, 'id');
+    return deduped.map((item) => {
       const { id } = item;
       return (
         <ListItem

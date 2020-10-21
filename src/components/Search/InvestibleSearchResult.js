@@ -2,40 +2,38 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper';
-import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets';
-import CardType, { GENERIC_STORY_TYPE, VOTING_TYPE } from '../CardType';
-import { Link } from '@material-ui/core';
+import { INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets';
+import { Link, Card } from '@material-ui/core';
 import { formInvestibleLink, navigate } from '../../utils/marketIdPathFunctions'
 import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { useHistory } from 'react-router'
+import Typography from '@material-ui/core/Typography';
+import { useIntl } from 'react-intl';
+import MarketSearchResult from './MarketSearchResult';
 
-function getCardType(marketType) {
-  switch (marketType){
-    case PLANNING_TYPE:
-      return GENERIC_STORY_TYPE;
-    case INITIATIVE_TYPE:
-      return VOTING_TYPE;
-      //default to decision because it prevents a name conflict with card type and market type as import
-    default:
-      return DECISION_TYPE;
-  }
-}
 
 function InvestibleSearchResult (props) {
   const { investibleId, classes, afterOnClick, link } = props;
   const [marketsState] = useContext(MarketsContext);
   const [investibleState] = useContext(InvestiblesContext);
   const history = useHistory();
+  const intl = useIntl();
   const inv = getInvestible(investibleState, investibleId);
   // we're going to assume the first info is what we want
   const { investible: { name }, market_infos: [firstInfo,] } = inv;
   const { market_id: marketId } = firstInfo;
   const market = getMarket(marketsState, marketId);
-  // investibles for type initiative, are really markets, so treat it as such
-  const { market_type: marketType } = market;
-  const cardType = getCardType(marketType);
+  const { market_type: marketType, name: marketName } = market;
   const linkTarget = link ? link : formInvestibleLink(marketId, investibleId);
+  const cardTypeId = marketType === PLANNING_TYPE? 'InvestibleSearchResultStory' : 'InvestibleSearchResultOption';
+  const cardType = intl.formatMessage({ id: cardTypeId});
+
+  // Initiative investibles are really the market, so render it as such
+  if (marketType === INITIATIVE_TYPE) {
+    return <MarketSearchResult marketId={marketId} initiativeName={name} {...props}/>
+  }
+
   return (
     <Link
       href={linkTarget}
@@ -49,11 +47,10 @@ function InvestibleSearchResult (props) {
         }
       }
     >
-      <CardType
-        type={cardType}
-        label={name}
-        fullWidth
-      />
+      <Card className={classes.investibleCard}>
+        <Typography className={classes.investibleSearchTitle}>{intl.formatMessage({ id: 'InvestibleSearchResultTitle'}, {type: cardType, marketName})}</Typography>
+        <Typography className={classes.investibleSearchName}>{name}</Typography>
+      </Card>
     </Link>
   );
 

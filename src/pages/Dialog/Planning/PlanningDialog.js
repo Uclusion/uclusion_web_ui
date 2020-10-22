@@ -374,6 +374,9 @@ export const useInvestiblesByPersonStyles = makeStyles(
         marginLeft: '5px',
         fontWeight: 700
       },
+      rightSpace: {
+        paddingRight: theme.spacing(1),
+      }
     };
   },
   { name: "InvestiblesByPerson" }

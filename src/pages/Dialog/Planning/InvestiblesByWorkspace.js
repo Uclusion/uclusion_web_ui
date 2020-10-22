@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import _ from 'lodash'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
@@ -25,10 +25,10 @@ import {
   getRequiredInputStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
-import { Avatar, Button, Menu, MenuItem } from '@material-ui/core'
+import { Avatar, Button, Menu, MenuItem, Typography } from '@material-ui/core'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
-import { FormattedMessage, useIntl } from 'react-intl'
+import { useIntl } from 'react-intl'
 import { extractUsersList, getMarketInfo } from '../../../utils/userFunctions'
 import SubSection from '../../../containers/SubSection/SubSection'
 import { SECTION_TYPE_SECONDARY_WARNING } from '../../../constants/global'
@@ -50,34 +50,10 @@ function InvestiblesByWorkspace(props) {
   const [commentsState] = useContext(CommentsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [anchorEl, setAnchorEl] = React.useState(null);
-  const [chosenPerson, setChosenPerson] = React.useState(undefined);
+  const [chosenPerson, setChosenPerson] = React.useState({name:'', domain:'', external_id: ''});
   // For security reasons you can't access source data while being dragged in case you are not the target website
   const [beingDraggedHack, setBeingDraggedHack] = useState({});
   const activeWorkspaces = (workspaces || []).filter((market) => market.market_stage === ACTIVE_STAGE);
-  function handleClick(event) {
-    setAnchorEl(event.currentTarget);
-  }
-  function handleClose() {
-    setAnchorEl(null);
-  }
-  function renderParticipantEntry (presenceEntry) {
-    const {
-      name, domain, external_id: externalId, current_user: currentUser
-    } = presenceEntry[1];
-    const itemName = `${name} ${domain}`;
-    return (
-      <MenuItem key={externalId} onClick={()=>{
-        if (currentUser) {
-          setChosenPerson(undefined);
-        } else {
-          setChosenPerson(presenceEntry[1]);
-        }
-        handleClose();
-      }}><Avatar className={classes.green}
-                 src={`https://www.gravatar.com/avatar/${md5(domain, {encoding: "binary"})}?d=blank`} />
-         {itemName}</MenuItem>
-    );
-  }
   const people = Object.entries(extractUsersList(marketPresencesState, undefined, activeWorkspaces, false));
   const sortedPeople = _.sortBy(people, [function(o) {
     const {
@@ -86,6 +62,36 @@ function InvestiblesByWorkspace(props) {
     return currentUser;
   }]);
   const peopleChoices = [sortedPeople.map((entry) => renderParticipantEntry(entry))];
+  useEffect(() => {
+    if ((!chosenPerson || chosenPerson.external_id === '') && !_.isEmpty(sortedPeople)) {
+      setChosenPerson(sortedPeople[0][1])
+    }
+    return () => {};
+  }, [chosenPerson, sortedPeople]);
+
+  function handleClick(event) {
+    setAnchorEl(event.currentTarget);
+  }
+  function handleClose() {
+    setAnchorEl(null);
+  }
+  function renderParticipantEntry (presenceEntry) {
+    const {
+      name, domain, external_id: externalId
+    } = presenceEntry[1];
+    const itemName = `${name} ${domain}`;
+    return (
+      <MenuItem key={externalId} onClick={()=>{
+        setChosenPerson(presenceEntry[1]);
+        handleClose();
+      }}>
+        <div className={classes.rightSpace}>
+        <Avatar src={`https://www.gravatar.com/avatar/${md5(domain, {encoding: "binary"})}?d=blank`} />
+        </div>
+        {itemName}
+      </MenuItem>
+    );
+  }
   return (
     <>
       <div className={classes.expansionControlHome}>
@@ -97,8 +103,7 @@ function InvestiblesByWorkspace(props) {
           onClick={handleClick}
         >
           <div className={classes.fontControl}>
-            {chosenPerson ? `${intl.formatMessage({ id: "displaying" })} ${chosenPerson.name} ${chosenPerson.domain}`
-              : <FormattedMessage id="personChooserLabel"/>}
+            {`${intl.formatMessage({ id: "displaying" })} ${chosenPerson.name} ${chosenPerson.domain}`}
           </div>
         </Button>
         <Menu
@@ -111,7 +116,7 @@ function InvestiblesByWorkspace(props) {
       {activeWorkspaces.map(market => {
         const marketPresences = getMarketPresences(marketPresencesState, market.id);
         const myPresence = marketPresences && marketPresences.find((presence) => {
-          return chosenPerson ? presence.external_id === chosenPerson.external_id : presence.current_user;
+          return presence.external_id === chosenPerson.external_id;
         });
         const presence = myPresence || {};
         const comments = getMarketComments(commentsState, market.id);
@@ -145,7 +150,7 @@ function InvestiblesByWorkspace(props) {
           // show up in the Dialogs section anyway and no need to show twice.
           const inlineMarketPresences = getMarketPresences(marketPresencesState, inlineMarketId);
           const myInlinePresence = inlineMarketPresences && inlineMarketPresences.find((presence) => {
-            return chosenPerson ? presence.external_id === chosenPerson.external_id : presence.current_user;
+            return presence.external_id === chosenPerson.external_id;
           });
           const investments = myInlinePresence ? myInlinePresence.investments : [];
           const investmentsFiltered = (investments || []).filter((investment) => !investment.deleted);

@@ -51,10 +51,16 @@ const usePlanningIdStyles = makeStyles(
       stageLabel: {},
       containerEmpty: {},
       containerRed: {
-        background: "red",
+        borderColor: "red",
+        borderStyle: "dashed",
+        borderWidth: "3px",
+        borderRadius: 6
       },
       containerGreen: {
-        background: "green",
+        borderColor: "green",
+        borderStyle: "dashed",
+        borderWidth: "3px",
+        borderRadius: 6
       }
     };
   },
@@ -527,6 +533,7 @@ function VotingStage(props) {
       }
       marketId={marketId}
       comments={comments}
+      presenceId={presenceId}
       isVoting
       fallbackOnClick={onClick}
       marketPresences={marketPresences}

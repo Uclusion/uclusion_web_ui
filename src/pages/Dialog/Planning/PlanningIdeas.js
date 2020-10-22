@@ -123,9 +123,8 @@ function PlanningIdeas(props) {
     event.preventDefault();
     const investibleId = event.dataTransfer.getData("text");
     const currentStageId = event.dataTransfer.getData("stageId");
-    const marketStages = getStages(marketStagesState, marketId);
     if (!operationRunning && !isBlockedByIssue(investibleId, currentStageId, targetStageId) &&
-      currentStageId !== targetStageId && (marketStages || []).includes(currentStageId)) {
+      currentStageId !== targetStageId && checkStageMatching(currentStageId)) {
       const target = event.target;
       target.style.cursor = 'wait';
       const moveInfo = {
@@ -154,7 +153,6 @@ function PlanningIdeas(props) {
   function checkStageMatching(stageId) {
     const marketStages = getStages(marketStagesState, marketId);
     const stage = getFullStage(marketStagesState, marketId, stageId)
-    console.debug(`Returning ${(marketStages || []).includes(stage)}`);
     return (marketStages || []).includes(stage);
   }
   function onDropVoting(event) {

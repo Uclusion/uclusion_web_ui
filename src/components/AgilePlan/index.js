@@ -31,7 +31,7 @@ export const usePlanFormStyles = makeStyles(
       flexWrap: "wrap",
       padding: theme.spacing(6),
       paddingTop: theme.spacing(3),
-      "& >": {
+      "& > *": {
         "flex-grow": 1,
         margin: theme.spacing(1, 0),
         "&:first-child": {
@@ -79,7 +79,7 @@ export const usePlanFormStyles = makeStyles(
       margin: 50,
       padding: 0,
       "& > legend": {},
-      "& > :not(legend)": {
+      "& > *:not(legend)": {
         margin: theme.spacing(1)
       }
     },

@@ -52,6 +52,8 @@ export const usePlanFormStyles = makeStyles(
       },
     },
     nestedCard: {
+      "flex-grow": 1,
+      margin: theme.spacing(1, 0),
       [theme.breakpoints.down('sm')]: {
         paddingLeft: '10px',
         paddingRight: '10px',

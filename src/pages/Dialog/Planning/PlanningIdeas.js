@@ -175,6 +175,9 @@ function PlanningIdeas(props) {
           setOperationRunning(true);
           updateInvestible(updateInfo)
             .then((fullInvestible) => {
+              const { market_infos: marketInfos } = fullInvestible;
+              const marketInfo = marketInfos.find(info => info.market_id === marketId);
+              marketInfo.stage = inDialogStageId;
               refreshInvestibles(invDispatch, diffDispatch, [fullInvestible]);
               setOperationRunning(false);
             });

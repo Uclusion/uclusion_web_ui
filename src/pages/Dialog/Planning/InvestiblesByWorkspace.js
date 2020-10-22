@@ -25,7 +25,7 @@ import {
   getRequiredInputStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
-import { Avatar, Button, Menu, MenuItem, Typography } from '@material-ui/core'
+import { Avatar, Button, Menu, MenuItem } from '@material-ui/core'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
 import { useIntl } from 'react-intl'

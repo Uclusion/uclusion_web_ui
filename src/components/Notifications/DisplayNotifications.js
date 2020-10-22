@@ -11,6 +11,8 @@ import { NotificationsContext } from '../../contexts/NotificationsContext/Notifi
 import { useIntl } from 'react-intl'
 import { searchStyles } from '../Search/SearchResults';
 import VotingNotificationResult from './VotingNotificationResult'
+import { getCommentRoot } from '../../contexts/CommentsContext/commentsContextHelper'
+import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 
 const useStyles = makeStyles(() => {
   return {
@@ -38,6 +40,7 @@ function DisplayNotifications(props) {
   const searchClasses = searchStyles(theme);
   const [anchorEl, setAnchorEl] = useState(null);
   const [messagesState] = useContext(NotificationsContext);
+  const [commentsState] = useContext(CommentsContext);
   const { recent } = messagesState;
 
   useEffect(() => {
@@ -67,7 +70,7 @@ function DisplayNotifications(props) {
     } else {
       if (commentId) {
         return (<CommentSearchResult marketId={marketId} commentId={commentId} classes={searchClasses}
-                                     afterOnClick={afterOnClick} link={link}/>);
+                                     afterOnClick={afterOnClick} />);
       }
       if (investibleId) {
         return (<InvestibleSearchResult investibleId={investibleId} classes={searchClasses} afterOnClick={afterOnClick}
@@ -92,7 +95,9 @@ function DisplayNotifications(props) {
         investibleId,
         commentId,
       } = item;
-      const key = `${marketId}_${investibleId}_${commentId}`;
+      const commentRoot = getCommentRoot(commentsState, marketId, commentId);
+      const commentRootId = commentRoot ? commentRoot.id : commentId;
+      const key = `${marketId}_${investibleId}_${commentRootId}`;
       if (key in deDupe) {
         return React.Fragment;
       }

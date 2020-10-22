@@ -3,12 +3,14 @@ import _ from 'lodash'
 import { getMassagedMessages, splitIntoLevels } from '../../utils/messageUtils'
 import { intl } from '../../components/ContextHacks/IntlGlobalProvider'
 import { pushMessage } from '../../utils/MessageBusUtils'
-import { TOAST_CHANNEL } from './NotificationsContext'
+import { NOTIFICATIONS_CHANNEL, TOAST_CHANNEL } from './NotificationsContext'
 import { HIGHLIGHTED_COMMENT_CHANNEL } from '../HighlightingContexts/highligtedCommentContextMessages'
 import { HIGHLIGHTED_VOTING_CHANNEL } from '../HighlightingContexts/highligtedVotingContextMessages'
 import { deleteMessage } from '../../api/users'
 import { getFullLink } from '../../components/Notifications/Notifications'
 import { NO_PIPELINE_TYPE, USER_POKED_TYPE } from '../../constants/notifications'
+import { BroadcastChannel } from 'broadcast-channel'
+import { MARKETS_CHANNEL } from '../MarketsContext/MarketsContext'
 
 export const NOTIFICATIONS_CONTEXT_NAMESPACE = 'notifications';
 const UPDATE_MESSAGES = 'UPDATE_MESSAGES';
@@ -340,10 +342,7 @@ function computeNewState (state, action) {
     case PAGE_CHANGED:
       return processPageChange(state, action);
     case INITIALIZE_STATE:
-      if (state.initializing) {
-        return action.newState;
-      }
-      return state;
+      return action.newState;
     case REFRESH_RECENT:
       return refreshRecentMessages(state);
     default:
@@ -353,10 +352,18 @@ function computeNewState (state, action) {
 
 function reducer (state, action) {
   const newState = computeNewState(state, action);
-  //// console.log(`Processed ${JSON.stringify(action)} to produce ${JSON.stringify(newState)}`);
   if (action.type !== INITIALIZE_STATE) {
     const lfh = new LocalForageHelper(NOTIFICATIONS_CONTEXT_NAMESPACE);
-    lfh.setState(newState);
+    lfh.setState(newState).then(() => {
+      // Recently viewed is client specific. It does not work off of messages removed by the back
+      // end because those might not have been recently viewed. Nor are we saving recently viewed globally.
+      // So each local tab must be informed of changes.
+      if (action.type !== REFRESH_RECENT) {
+        const myChannel = new BroadcastChannel(NOTIFICATIONS_CHANNEL);
+        return myChannel.postMessage('notifications').then(() => myChannel.close())
+          .then(() => console.info('Update notifications context sent.'));
+      }
+    });
   }
   return newState;
 }

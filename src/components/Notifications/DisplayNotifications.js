@@ -7,10 +7,10 @@ import { List, ListItem, Paper, Popper, Typography, useTheme } from '@material-u
 import { makeStyles } from '@material-ui/styles'
 import { isTinyWindow } from '../../utils/windowUtils';
 import { getFullLink } from './Notifications'
-import { USER_POKED_TYPE } from '../../constants/notifications'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 import { useIntl } from 'react-intl'
 import { searchStyles } from '../Search/SearchResults';
+import VotingNotificationResult from './VotingNotificationResult'
 
 const useStyles = makeStyles(() => {
   return {
@@ -22,6 +22,10 @@ const useStyles = makeStyles(() => {
     },
     link: {
       width: '100%'
+    },
+    viewed: {
+      paddingTop: '1rem',
+      fontWeight: 'bold'
     }
   };
 });
@@ -54,28 +58,24 @@ function DisplayNotifications(props) {
       investibleId,
       aType,
       commentId,
-      pokeType,
+      userId,
     } = item;
     const link = getFullLink(item);
-    if (commentId) {
-      return (<CommentSearchResult marketId={marketId} commentId={commentId} classes={searchClasses}
-                                   afterOnClick={afterOnClick} link={link}/>);
-    }
-    if (investibleId) {
-      return (<InvestibleSearchResult investibleId={investibleId} classes={searchClasses} afterOnClick={afterOnClick}
-                                      link={link}/>);
-    }
-    if (marketId) {
-      return (<MarketSearchResult marketId={marketId} classes={searchClasses} afterOnClick={afterOnClick}
-                                  link={link}/>);
-    }
-    if (aType === USER_POKED_TYPE) {
-      //TODO handle poke type
-      if (pokeType === 'slack_reminder') {
-
+    if (aType === 'NEW_VOTES') {
+      return (<VotingNotificationResult marketId={marketId} investibleId={investibleId} classes={searchClasses}
+                                        userId={userId} afterOnClick={afterOnClick} link={link}/>);
+    } else {
+      if (commentId) {
+        return (<CommentSearchResult marketId={marketId} commentId={commentId} classes={searchClasses}
+                                     afterOnClick={afterOnClick} link={link}/>);
       }
-      else if (pokeType === 'upgrade_reminder') {
-
+      if (investibleId) {
+        return (<InvestibleSearchResult investibleId={investibleId} classes={searchClasses} afterOnClick={afterOnClick}
+                                        link={link}/>);
+      }
+      if (marketId) {
+        return (<MarketSearchResult marketId={marketId} classes={searchClasses} afterOnClick={afterOnClick}
+                                    link={link}/>);
       }
     }
   }
@@ -122,7 +122,7 @@ function DisplayNotifications(props) {
       <Paper>
         {!_.isEmpty(recent) && (
           <>
-            <Typography align="center">
+            <Typography align="center" className={classes.viewed}>
               {intl.formatMessage({ id: 'notificationsRecent' })}
             </Typography>
             <List

@@ -825,6 +825,7 @@ const messages = defineMessages({
   CommentSearchResultProgress: 'Progress Report In:',
   CommentSearchResultQuestion: 'Question In:',
   CommentSearchResultJustify: 'Vote Reason In:',
+  NotificationResultJustify: 'Vote In:',
   CommentSearchResultSubTitle: '{name}',
   CommentSearchResultExcerpt: '{excerpt}...',
   MarketSearchResultWorkspace: 'Workspace',

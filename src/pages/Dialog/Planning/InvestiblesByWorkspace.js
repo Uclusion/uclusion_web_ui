@@ -25,7 +25,7 @@ import {
   getRequiredInputStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
-import { Button, Menu, MenuItem } from '@material-ui/core'
+import { Avatar, Button, Menu, MenuItem } from '@material-ui/core'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
 import { FormattedMessage, useIntl } from 'react-intl'
@@ -36,6 +36,8 @@ import ArchiveInvestbiles from '../../DialogArchives/ArchiveInvestibles'
 import Link from '@material-ui/core/Link'
 import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
+import md5 from 'md5'
+import { nameToAvatarText } from '../../../utils/stringFunctions'
 
 function InvestiblesByWorkspace(props) {
   const {
@@ -63,7 +65,7 @@ function InvestiblesByWorkspace(props) {
     const {
       name, domain, external_id: externalId, current_user: currentUser
     } = presenceEntry[1];
-    const itemName = currentUser ? intl.formatMessage({ id: "clear" }) : `${name} ${domain}`;
+    const itemName = `${name} ${domain}`;
     return (
       <MenuItem key={externalId} onClick={()=>{
         if (currentUser) {
@@ -72,7 +74,9 @@ function InvestiblesByWorkspace(props) {
           setChosenPerson(presenceEntry[1]);
         }
         handleClose();
-      }}>{itemName}</MenuItem>
+      }}><Avatar className={classes.green}
+                 src={`https://www.gravatar.com/avatar/${md5(domain, {encoding: "binary"})}?d=blank`} />
+         {itemName}</MenuItem>
     );
   }
   const people = Object.entries(extractUsersList(marketPresencesState, undefined, activeWorkspaces, false));

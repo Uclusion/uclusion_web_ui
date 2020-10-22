@@ -10,7 +10,6 @@ import { deleteMessage } from '../../api/users'
 import { getFullLink } from '../../components/Notifications/Notifications'
 import { NO_PIPELINE_TYPE, USER_POKED_TYPE } from '../../constants/notifications'
 import { BroadcastChannel } from 'broadcast-channel'
-import { MARKETS_CHANNEL } from '../MarketsContext/MarketsContext'
 
 export const NOTIFICATIONS_CONTEXT_NAMESPACE = 'notifications';
 const UPDATE_MESSAGES = 'UPDATE_MESSAGES';

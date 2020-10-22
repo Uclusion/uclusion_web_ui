@@ -37,7 +37,6 @@ import Link from '@material-ui/core/Link'
 import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
 import md5 from 'md5'
-import { nameToAvatarText } from '../../../utils/stringFunctions'
 
 function InvestiblesByWorkspace(props) {
   const {

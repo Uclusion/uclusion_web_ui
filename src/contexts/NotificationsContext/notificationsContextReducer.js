@@ -8,6 +8,7 @@ import { HIGHLIGHTED_COMMENT_CHANNEL } from '../HighlightingContexts/highligtedC
 import { HIGHLIGHTED_VOTING_CHANNEL } from '../HighlightingContexts/highligtedVotingContextMessages'
 import { deleteMessage } from '../../api/users'
 import { getFullLink } from '../../components/Notifications/Notifications'
+import { NO_PIPELINE_TYPE, USER_POKED_TYPE } from '../../constants/notifications'
 
 export const NOTIFICATIONS_CONTEXT_NAMESPACE = 'notifications';
 const UPDATE_MESSAGES = 'UPDATE_MESSAGES';
@@ -131,12 +132,14 @@ function removeStoredMessagesForMarketPage (state, page) {
   const { recent } = state;
   const removed = messages.filter((message) =>
     message.marketId === marketId && message.investibleId === investibleId);
-  const removedMassaged = removed.map((item) => {
+  const removedMassaged = (removed || []).map((item) => {
     return { ...item, link: getFullLink(item), viewedAt: new Date()};
   });
+  const removedMassagedFiltered = (removedMassaged || []).filter((item) => item.aType !== NO_PIPELINE_TYPE
+    && item.aType !== USER_POKED_TYPE)
   const newState = {
     ...state,
-    recent: _.unionBy(removedMassaged, recent || [], 'link'),
+    recent: _.unionBy(removedMassagedFiltered || [], recent || [], 'link'),
   }
   return storeMessagesInState(newState,
     messages.filter((message) => message.marketId !== marketId || message.investibleId !== investibleId));

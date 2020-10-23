@@ -57,7 +57,7 @@ function CommentSearchResult (props) {
   const [marketsState] = useContext(MarketsContext);
   const commentRoot = getCommentRoot(commentsState, marketId, commentId);
   const comment = getComment(commentsState, marketId, commentId);
-  const { body } = comment;
+  const { body } = (comment || {});
   const strippedBody =  !body? '' : body.replace(/(<([^>]+)>)/gi, "");
   const excerpt = !body? '' : strippedBody.substr(0, Math.min(body.length, 20));
   if (_.isEmpty(commentRoot)) {

@@ -107,7 +107,6 @@ import TextField from '@material-ui/core/TextField'
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import SettingsIcon from '@material-ui/icons/Settings';
-import EditIcon from '@material-ui/icons/Edit'
 import InvestibleBodyEdit from '../InvestibleBodyEdit'
 
 const useStyles = makeStyles(

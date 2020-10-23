@@ -85,10 +85,20 @@ export const useLockedDialogStyles = makeStyles(
   { name: "LockedDialog" }
 );
 
+const useStyles = makeStyles(
+  theme => ({
+    actions: {
+      margin: theme.spacing(9, 0, 0, 0)
+    },
+  }),
+  { name: "DialogEdit" }
+);
+
 function DialogBodyEdit(props) {
   const { hidden, setBeingEdited, marketId } = props;
   const intl = useIntl();
-  const classes = usePlanFormStyles();
+  const editClasses = usePlanFormStyles();
+  const classes = useStyles();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketsState, marketsDispatch] = useContext(MarketsContext);
   const [investiblesState] = useContext(InvestiblesContext);
@@ -279,7 +289,7 @@ function DialogBodyEdit(props) {
       <CardActions className={classes.actions}>
         <Button
           onClick={onCancel}
-          className={classes.actionSecondary}
+          className={editClasses.actionSecondary}
           color="secondary"
           variant="contained">
           <FormattedMessage
@@ -293,7 +303,7 @@ function DialogBodyEdit(props) {
           color="primary"
           onClick={handleSave}
           onSpinStop={onSave}
-          className={classes.actionPrimary}
+          className={editClasses.actionPrimary}
           hasSpinChecker
         >
           <FormattedMessage

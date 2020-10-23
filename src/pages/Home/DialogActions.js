@@ -91,9 +91,11 @@ function DialogActions(props) {
       : formMarketEditLink(marketId);
     const editAction = () => navigate(history, editLink);
     if (isAdmin && !inArchives && !hideEdit) {
-      actions.push(
-        <EditMarketButton key="edit" labelId={editLabel} marketId={marketId} onClick={editAction} />
-      );
+      if (marketType !== INITIATIVE_TYPE) {
+        actions.push(
+          <EditMarketButton key="edit" labelId={editLabel} marketId={marketId} onClick={editAction}/>
+        );
+      }
       actions.push(
         <Tooltip
           title={intl.formatMessage({ id: 'dialogRemoveParticipantsLabel' })}

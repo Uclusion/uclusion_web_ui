@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import { useHistory } from 'react-router'
@@ -42,6 +42,7 @@ import {
   HIGHLIGHT_REMOVE,
   HighlightedCommentContext
 } from '../../../contexts/HighlightingContexts/HighlightedCommentContext'
+import InvestibleBodyEdit from '../InvestibleBodyEdit'
 
 const useStyles = makeStyles((theme) => ({
   mobileColumn: {
@@ -126,6 +127,17 @@ const useStyles = makeStyles((theme) => ({
       padding: '20px'
     }
   },
+  fullWidthCentered: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    display: "flex",
+    marginTop: '20px',
+    [theme.breakpoints.down("xs")]: {
+      maxWidth: '100%',
+      flexBasis: '100%',
+      flexDirection: 'column'
+    }
+  },
 }));
 
 export function getInlineBreadCrumbs (marketState, parentMarketId, parentInvestibleId, investiblesState) {
@@ -164,7 +176,6 @@ function DecisionInvestible(props) {
     userId,
     market,
     fullInvestible,
-    toggleEdit,
     isAdmin,
     inArchives,
     hidden,
@@ -202,6 +213,7 @@ function DecisionInvestible(props) {
   const marketInfo = marketInfos.find((info) => info.market_id === marketId)
   const allowDelete = marketPresences && marketPresences.length < 2
   const [marketStagesState] = useContext(MarketStagesContext)
+  const [beingEdited, setBeingEdited] = useState(false);
   const inProposedStage = getProposedOptionsStage(marketStagesState, marketId)
   const inProposed = inProposedStage && marketInfo.stage === inProposedStage.id
   const activeMarket = marketStage === ACTIVE_STAGE
@@ -252,13 +264,6 @@ function DecisionInvestible(props) {
           key="delete"
           investibleId={investibleId}
           marketId={marketId}
-        />
-      )}
-      {!inArchives && (isAdmin || (inProposed && createdBy === userId)) && (
-        <EditMarketButton
-          labelId="edit"
-          marketId={marketId}
-          onClick={toggleEdit}
         />
       )}
     </dl>
@@ -314,18 +319,35 @@ function DecisionInvestible(props) {
           <Grid item md={9} xs={12}>
 
         <CardContent className={classes.votingCardContent}>
-          <Typography className={classes.title} variant="h3" component="h1">
-            {name}
-          </Typography>
+          {!beingEdited && (
+            <Typography className={classes.title} variant="h3" component="h1">
+              {name}
+            </Typography>
+          )}
           {lockedBy && (
             <Typography>
               {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}
             </Typography>
           )}
-          <DescriptionOrDiff
-            id={investibleId}
-            description={description}
-          />
+          {beingEdited && (
+            <InvestibleBodyEdit hidden={hidden} marketId={marketId} investibleId={investibleId}
+                                setBeingEdited={setBeingEdited} />
+          )}
+          {!beingEdited && (
+            <DescriptionOrDiff
+              id={investibleId}
+              description={description}
+            />
+          )}
+          <Grid item xs={9} className={classes.fullWidthCentered}>
+            {!inArchives && (isAdmin || (inProposed && createdBy === userId)) && !beingEdited && (
+              <EditMarketButton
+                labelId="edit"
+                marketId={marketId}
+                onClick={() => setBeingEdited(true)}
+              />
+            )}
+          </Grid>
         </CardContent>
           </Grid>
           <Grid className={classes.borderLeft} item md={3} xs={12}>
@@ -425,8 +447,6 @@ DecisionInvestible.defaultProps = {
   marketPresences: [],
   investibleComments: [],
   comments: [],
-  toggleEdit: () => {
-  },
   isAdmin: false,
   inArchives: false,
   hidden: false,

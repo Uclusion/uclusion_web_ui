@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import { useHistory } from 'react-router'
 import { FormattedMessage, useIntl } from 'react-intl'
@@ -42,6 +42,8 @@ import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsCont
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { EMPTY_SPIN_RESULT } from '../../../constants/global'
+import InvestibleBodyEdit from '../InvestibleBodyEdit'
+import EditMarketButton from '../../Dialog/EditMarketButton'
 
 const useStyles = makeStyles(
   theme => ({
@@ -132,7 +134,18 @@ const useStyles = makeStyles(
         alignItems: 'center',
         padding: '20px'
       }
-    }
+    },
+    fullWidthCentered: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      display: "flex",
+      marginTop: '20px',
+      [theme.breakpoints.down("xs")]: {
+        maxWidth: '100%',
+        flexBasis: '100%',
+        flexDirection: 'column'
+      }
+    },
   }),
   { name: "InitiativeInvestible" }
 );
@@ -167,6 +180,7 @@ function InitiativeInvestible(props) {
   const [, marketsDispatch] = useContext(MarketsContext);
   const [, diffDispatch] = useContext(DiffContext);
   const cognitoUser = useContext(CognitoUserContext) || {};
+  const [beingEdited, setBeingEdited] = useState(false);
   const { description, name } = investible;
   const {
     id: marketId,
@@ -271,13 +285,30 @@ function InitiativeInvestible(props) {
                   {intl.formatMessage({ id: "draft" })}
                 </Typography>
               )}
-              <Typography className={classes.title} variant="h3" component="h1">
-                {name}
-              </Typography>
-              <DescriptionOrDiff
-                id={investibleId}
-                description={description}
-              />
+              {beingEdited && (
+                <InvestibleBodyEdit hidden={hidden} marketId={marketId} investibleId={investibleId}
+                                    setBeingEdited={setBeingEdited} />
+              )}
+              {!beingEdited && (
+                <>
+                  <Typography className={classes.title} variant="h3" component="h1">
+                    {name}
+                  </Typography>
+                  <DescriptionOrDiff
+                  id={investibleId}
+                  description={description}
+                  />
+                </>
+              )}
+              <Grid item xs={9} className={classes.fullWidthCentered}>
+                {isAdmin && !inArchives && !beingEdited && (
+                  <EditMarketButton
+                    labelId="edit"
+                    marketId={marketId}
+                    onClick={() => setBeingEdited(true)}
+                  />
+                )}
+              </Grid>
             </CardContent>
           </Grid>
           <Grid className={classes.borderLeft} item md={3} xs={12}>

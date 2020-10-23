@@ -106,6 +106,9 @@ import Autocomplete from '@material-ui/lab/Autocomplete'
 import TextField from '@material-ui/core/TextField'
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
+import SettingsIcon from '@material-ui/icons/Settings';
+import EditIcon from '@material-ui/icons/Edit'
+import InvestibleBodyEdit from '../InvestibleBodyEdit'
 
 const useStyles = makeStyles(
   theme => ({
@@ -363,6 +366,7 @@ function PlanningInvestible(props) {
   const [clearMeHack, setClearMeHack] = useState('a');
   const [labelFocus, setLabelFocus] = useState(false);
   const [marketState] = useContext(MarketsContext);
+  const [beingEdited, setBeingEdited] = useState(false);
 
   if (!investibleId) {
     // we have no usable data;
@@ -622,6 +626,7 @@ function PlanningInvestible(props) {
       );
     })
   }
+  const displayEdit = !inArchives && (isAssigned || isInNotDoing || isInVoting || isReadyFurtherWork || isRequiresInput);
   return (
     <Screen
       title={name}
@@ -651,22 +656,29 @@ function PlanningInvestible(props) {
           subtype={subtype}
           createdAt={createdAt}
         />
-        
         <CardContent className={classes.votingCardContent}>
           <Grid container className={classes.mobileColumn}>
             <Grid item xs={9} className={classes.fullWidth}>
-              <h2>
-                {name}
-              </h2>
+              {!beingEdited && (
+                <h2>
+                  {name}
+                </h2>
+              )}
               {lockedBy && (
                 <Typography>
                   {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}
                 </Typography>
               )}
-              <DescriptionOrDiff
-                id={investibleId}
-                description={description}
-              />
+              {beingEdited && (
+                <InvestibleBodyEdit hidden={hidden} marketId={marketId} investibleId={investibleId}
+                                    setBeingEdited={setBeingEdited} />
+              )}
+              {!beingEdited && (
+                <DescriptionOrDiff
+                  id={investibleId}
+                  description={description}
+                />
+              )}
             </Grid>
             <Grid className={classes.borderLeft} item xs={3}>
               <div className={classes.editRow}>
@@ -684,18 +696,19 @@ function PlanningInvestible(props) {
                       hasTodos={!_.isEmpty(todoComments)}
                     />
                   )}
-                  {!inArchives && (isAssigned || isInNotDoing || isInVoting || isReadyFurtherWork || isRequiresInput) && (
+                  {displayEdit && (
                     <EditMarketButton
-                      labelId="edit"
+                      labelId="changeCompletionDate"
                       marketId={marketId}
                       onClick={toggleEdit}
+                      icon={<SettingsIcon htmlColor={ACTION_BUTTON_COLOR} />}
                     />
                   )}
                 </dl>
               </div>
-                {daysEstimate > 0 && (
-                  <DaysEstimate readOnly value={daysEstimate} createdAt={createdAt} />
-                )}
+              {daysEstimate > 0 && (
+                <DaysEstimate readOnly value={daysEstimate} createdAt={createdAt} />
+              )}
               <MarketMetaData
                 stage={marketInfo.stage_name}
                 investibleId={investibleId}
@@ -713,6 +726,13 @@ function PlanningInvestible(props) {
             </Grid>
           </Grid>
           <Grid item xs={9} className={classes.fullWidthCentered}>
+            {displayEdit && !beingEdited && (
+              <EditMarketButton
+                labelId="edit"
+                marketId={marketId}
+                onClick={() => setBeingEdited(true)}
+              />
+            )}
             {labelList && labelList.map((label) =>
               <div key={label} className={classes.labelChip}>
                 <Chip label={label} onDelete={()=>deleteLabel(`${label}`)} color="primary" />

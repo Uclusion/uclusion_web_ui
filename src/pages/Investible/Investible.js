@@ -114,7 +114,6 @@ function Investible(props) {
         comments={comments}
         marketPresences={marketPresences}
         investibleComments={investibleComments}
-        toggleEdit={toggleEdit}
         isAdmin={isAdmin}
         inArchives={inArchives}
         hidden={hidden}

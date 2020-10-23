@@ -74,6 +74,7 @@ const messages = defineMessages({
   users: 'Users',
   manage: 'Manage Collaborators',
   edit: 'Edit',
+  changeCompletionDate: 'Change Completion Date',
   edit_lock: 'Someone else is editing!',
   online: 'Online',
   offline: 'Offline',

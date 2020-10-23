@@ -12,7 +12,7 @@ import { OperationInProgressContext } from '../../contexts/OperationInProgressCo
 import { DiffContext } from '../../contexts/DiffContext/DiffContext'
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton'
 import clsx from 'clsx'
-import { LockedDialog, useLockedDialogStyles } from '../Dialog/DialogEdit'
+import { LockedDialog, useLockedDialogStyles } from '../Dialog/DialogBodyEdit'
 import { EMPTY_SPIN_RESULT } from '../../constants/global'
 import _ from 'lodash'
 import QuillEditor from '../../components/TextEditors/QuillEditor'

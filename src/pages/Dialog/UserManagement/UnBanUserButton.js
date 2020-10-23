@@ -7,7 +7,7 @@ import WarningDialog from '../../../components/Warnings/WarningDialog'
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton'
 import clsx from 'clsx'
 import { FormattedMessage } from 'react-intl'
-import { useLockedDialogStyles } from '../DialogEdit'
+import { useLockedDialogStyles } from '../DialogBodyEdit'
 import { changeBanStatus } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 

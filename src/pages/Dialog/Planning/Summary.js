@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState } from 'react'
 import PropTypes from 'prop-types'
 import { FormattedMessage, useIntl } from 'react-intl'
 import { Card, CardActions, CardContent, Grid,Typography } from '@material-ui/core'
@@ -28,6 +28,8 @@ import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsCont
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { EMPTY_SPIN_RESULT } from '../../../constants/global'
+import DialogBodyEdit from '../DialogBodyEdit'
+import EditMarketButton from '../EditMarketButton'
 
 const useStyles = makeStyles(theme => ({
   section: {
@@ -173,6 +175,17 @@ const useStyles = makeStyles(theme => ({
     width: '100%',
     textTransform: 'capitalize'
   },
+  fullWidthCentered: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    display: "flex",
+    marginTop: '20px',
+    [theme.breakpoints.down("xs")]: {
+      maxWidth: '100%',
+      flexBasis: '100%',
+      flexDirection: 'column'
+    }
+  },
 }));
 
 function Summary(props) {
@@ -201,7 +214,8 @@ function Summary(props) {
   const myPresence =
     marketPresences.find(presence => presence.current_user) || {};
   const metaClasses = useMetaDataStyles();
-
+  const [beingEdited, setBeingEdited] = useState(false);
+  const isAdmin = myPresence.is_admin;
   function onAttachFile(metadatas) {
     return attachFilesToMarket(id, metadatas)
       .then((market) => {
@@ -234,16 +248,32 @@ function Summary(props) {
                 {intl.formatMessage({ id: "inactive" })}
               </Typography>
             )}
-            <Typography className={classes.title} variant="h3" component="h1">
-              {name}
-            </Typography>
-            <DescriptionOrDiff id={id} description={description} />
+            {!beingEdited && (
+              <>
+                <Typography className={classes.title} variant="h3" component="h1">
+                  {name}
+                </Typography>
+                <DescriptionOrDiff id={id} description={description} />
+              </>
+            )}
+            {beingEdited && (
+              <DialogBodyEdit hidden={hidden} setBeingEdited={setBeingEdited} marketId={id} />
+            )}
           </CardContent>
+          <Grid item xs={9} className={classes.fullWidthCentered}>
+            {!inArchives && isAdmin && !beingEdited && (
+              <EditMarketButton
+                labelId="edit"
+                marketId={id}
+                onClick={() => setBeingEdited(true)}
+              />
+            )}
+          </Grid>
         </Grid>
         <Grid className={classes.borderLeft} item xs={3}>
           <CardActions className={classes.actions}>
             <DialogActions
-              isAdmin={myPresence.is_admin}
+              isAdmin={isAdmin}
               isFollowing={myPresence.following}
               isGuest={myPresence.market_guest}
               marketStage={marketStage}
@@ -295,7 +325,6 @@ function Summary(props) {
         </dl>
         </Grid>
       </Grid>
-
     </Card>
   );
 }

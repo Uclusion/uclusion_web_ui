@@ -211,8 +211,8 @@ const messages = defineMessages({
   marketEditCancelLabel: 'Close',
   marketEditSaveLabel: 'Save',
 
-  editMarketButtonPlan: 'Edit workspace',
-  editMarketButtonDecision: 'Edit dialog',
+  editMarketButtonPlan: 'Workspace settings',
+  editMarketButtonDecision: 'Dialog settings',
   editMarketButtonInitiative: 'Edit initiative',
 
   // InvestibleEditButton

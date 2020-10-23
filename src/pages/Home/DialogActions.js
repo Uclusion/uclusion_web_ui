@@ -18,6 +18,8 @@ import ShareStoryButton from '../Investible/Planning/ShareStoryButton'
 import ActivateMarketButton from '../Dialog/Planning/ActivateMarketButton'
 import PersonOutlineIcon from '@material-ui/icons/PersonOutline'
 import { useIntl } from 'react-intl'
+import SettingsIcon from '@material-ui/icons/Settings'
+import { ACTION_BUTTON_COLOR } from '../../components/Buttons/ButtonConstants'
 
 const useStyles = makeStyles(() => {
   return {
@@ -75,8 +77,6 @@ function DialogActions(props) {
         return 'editMarketButtonPlan';
       case DECISION_TYPE:
         return 'editMarketButtonDecision';
-      case INITIATIVE_TYPE:
-        return 'editMarketButtonInitiative';
       default:
         return 'editMarketButtonDecision';
     }
@@ -93,7 +93,8 @@ function DialogActions(props) {
     if (isAdmin && !inArchives && !hideEdit) {
       if (marketType !== INITIATIVE_TYPE) {
         actions.push(
-          <EditMarketButton key="edit" labelId={editLabel} marketId={marketId} onClick={editAction}/>
+          <EditMarketButton key="edit" labelId={editLabel} marketId={marketId} onClick={editAction}
+                            icon={<SettingsIcon htmlColor={ACTION_BUTTON_COLOR} />}/>
         );
       }
       actions.push(

@@ -31,7 +31,7 @@ import { getMarketUnits, partialUpdateInvestment } from '../../../contexts/Marke
 import clsx from 'clsx'
 import { Dialog } from '../../../components/Dialogs'
 import WarningIcon from '@material-ui/icons/Warning'
-import { useLockedDialogStyles } from '../../Dialog/DialogEdit'
+import { useLockedDialogStyles } from '../../Dialog/DialogBodyEdit'
 import { urlHelperGetName } from '../../../utils/marketIdPathFunctions'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'

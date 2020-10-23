@@ -5,7 +5,7 @@ import { Button } from '@material-ui/core'
 import { Dialog } from '../../../components/Dialogs'
 import clsx from 'clsx'
 import { FormattedMessage } from 'react-intl'
-import { useLockedDialogStyles } from '../../Dialog/DialogEdit'
+import { useLockedDialogStyles } from '../../Dialog/DialogBodyEdit'
 import InviteLinker from '../../Dialog/InviteLinker'
 
 function ShareStoryButton(props) {

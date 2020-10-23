@@ -22,7 +22,7 @@ import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { addCommentToMarket } from '../../contexts/CommentsContext/commentsContextHelper'
 import { Dialog } from '../Dialogs'
 import WarningIcon from '@material-ui/icons/Warning'
-import { useLockedDialogStyles } from '../../pages/Dialog/DialogEdit'
+import { useLockedDialogStyles } from '../../pages/Dialog/DialogBodyEdit'
 import { EMPTY_SPIN_RESULT } from '../../constants/global'
 import { getBlockedStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { addInvestible, getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';

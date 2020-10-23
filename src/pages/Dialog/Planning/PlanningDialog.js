@@ -6,7 +6,7 @@ import { useHistory } from 'react-router'
 import { useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
-import { Container, Grid, Typography } from '@material-ui/core'
+import { Grid, Typography } from '@material-ui/core'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import CardHeader from '@material-ui/core/CardHeader'
@@ -16,7 +16,6 @@ import PlanningIdeas from './PlanningIdeas'
 import Screen from '../../../containers/Screen/Screen'
 import {
   formMarketAddInvestibleLink,
-  formMarketLink,
   makeArchiveBreadCrumbs,
   makeBreadCrumbs,
   navigate
@@ -32,7 +31,7 @@ import {
 } from '../../../constants/comments'
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
 import CommentBox from '../../../containers/CommentBox/CommentBox'
-import { ACTIVE_STAGE, PLANNING_TYPE, STORIES_SUB_TYPE } from '../../../constants/markets'
+import { ACTIVE_STAGE, STORIES_SUB_TYPE } from '../../../constants/markets'
 import { getUserInvestibles } from './userUtils'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { getMarketPresences, getPresenceMap } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
@@ -51,27 +50,12 @@ import { CognitoUserContext } from '../../../contexts/CognitoUserContext/Congito
 import UclusionTour from '../../../components/Tours/UclusionTour'
 import { inviteStoriesWorkspaceSteps } from '../../../components/Tours/InviteTours/storyWorkspace'
 import { inviteRequirementsWorkspaceSteps } from '../../../components/Tours/InviteTours/requirementsWorkspace'
-import { wizardStyles } from '../../../components/AddNew/WizardStylesContext'
-import Header from '../../../containers/Header'
-import InviteLinker from '../InviteLinker'
-import StepButtons from '../../../components/AddNew/StepButtons'
-import queryString from 'query-string'
 import moment from 'moment'
 import {
   INVITE_REQ_WORKSPACE_FIRST_VIEW,
   INVITE_STORIES_WORKSPACE_FIRST_VIEW
 } from '../../../contexts/TourContext/tourContextHelper'
 import { getVoteTotalsForUser } from '../../../utils/userFunctions'
-
-const useStyles = makeStyles(
-  () => ({
-    wizardContainer: {
-      background: '#efefef',
-      padding: '24px 20px 156px',
-      marginTop: '80px',
-      width: '500px',
-    },
-  }));
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -83,11 +67,7 @@ function PlanningDialog(props) {
     comments,
     hidden,
     myPresence,
-    hash,
   } = props;
-  const classes = useStyles();
-  const values = queryString.parse(hash || '');
-  const { onboarded } = values || {};
   const cognitoUser = useContext(CognitoUserContext);
   const [, tourDispatch] = useContext(TourContext);
   const intl = useIntl();
@@ -95,12 +75,13 @@ function PlanningDialog(props) {
   const { id: marketId, market_stage: marketStage } = market;
   const activeMarket = marketStage === ACTIVE_STAGE;
   const inArchives = !activeMarket || (myPresence && !myPresence.following);
+  const isAdmin = myPresence.is_admin;
   const breadCrumbs = inArchives
       ? makeArchiveBreadCrumbs(history)
       : makeBreadCrumbs(history);
   const marketComments = comments.filter(comment => !comment.investible_id);
   const allowedCommentTypes = [QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE, ISSUE_TYPE];
-  const { name: marketName, locked_by: lockedBy, invite_capability: marketToken } = market;
+  const { name: marketName, locked_by: lockedBy } = market;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const presences = getMarketPresences(marketPresencesState, marketId);
   const acceptedStage = marketStages.find(
@@ -165,53 +146,8 @@ function PlanningDialog(props) {
   const tourSteps = storyWorkspace ? inviteStoriesWorkspaceSteps(cognitoUser)
     : inviteRequirementsWorkspaceSteps(cognitoUser);
   useEffect(() => {
-    if (!onboarded) {
-      tourDispatch(startTour(tourName));
-    }
-  }, [onboarded, tourDispatch, tourName]);
-
-  const wizardStyle = wizardStyles();
-  if (onboarded) {
-    return (
-      <div className={hidden ? wizardStyle.hidden : wizardStyle.normal}>
-        <Header
-          title={intl.formatMessage({ id: 'OnboardingWizardTitle' })}
-          breadCrumbs={[]}
-          toolbarButtons={[]}
-          hidden={hidden}
-          appEnabled
-          logoLinkDisabled
-          hideTools
-        />
-        <Container className={classes.wizardContainer}>
-          <Card className={wizardStyle.baseCard} elevation={0} raised={false}>
-            <div>
-              <div>
-                <Typography variant="body1">
-                  We've created your Workspace, please share this link with your team to invite them.
-                </Typography>
-                <div className={wizardStyle.linkContainer}>
-                  <InviteLinker
-                    marketType={PLANNING_TYPE}
-                    marketToken={marketToken}
-                  />
-                </div>
-                <div className={wizardStyle.borderBottom}></div>
-                <StepButtons
-                  totalSteps={1}
-                  currentStep={0}
-                  classes={wizardStyle}
-                  showGoBack={false}
-                  finishLabel="WorkspaceWizardTakeMeToWorkspace"
-                  showStartOver={false}
-                  onFinish={() => history.push(formMarketLink(marketId))}/>
-              </div>
-            </div>
-          </Card>
-        </Container>
-      </div>
-    );
-  }
+    tourDispatch(startTour(tourName));
+  }, [tourDispatch, tourName]);
 
   return (
     <Screen
@@ -234,7 +170,7 @@ function PlanningDialog(props) {
         </Typography>
       )}
       <dl className={clsx(metaClasses.root, metaClasses.flexRow)}>
-        {!inArchives && (
+        {!inArchives && isAdmin && (
           <div id="addStory" className={clsx(metaClasses.group, metaClasses.assignments)}>
             <InvestibleAddActionButton key="investibleadd" onClick={onClick} />
           </div>
@@ -309,18 +245,12 @@ function PlanningDialog(props) {
 }
 
 PlanningDialog.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types
   market: PropTypes.object.isRequired,
-  // eslint-disable-next-line react/forbid-prop-types
   investibles: PropTypes.arrayOf(PropTypes.object),
-  // eslint-disable-next-line react/forbid-prop-types
   marketPresences: PropTypes.arrayOf(PropTypes.object),
-  // eslint-disable-next-line react/forbid-prop-types
   marketStages: PropTypes.arrayOf(PropTypes.object),
   hidden: PropTypes.bool,
-  // eslint-disable-next-line react/forbid-prop-types
   comments: PropTypes.arrayOf(PropTypes.object),
-  // eslint-disable-next-line react/forbid-prop-types
   myPresence: PropTypes.object.isRequired,
   hash: PropTypes.string.isRequired,
 };

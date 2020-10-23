@@ -1,16 +1,15 @@
 /**
  * A component that renders a _decision_ dialog
  */
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import { FormattedMessage, useIntl } from 'react-intl'
 import { useHistory } from 'react-router'
-import { Card, CardContent, Container, Grid, makeStyles, Typography } from '@material-ui/core'
+import { Card, CardContent, Grid, makeStyles, Typography } from '@material-ui/core'
 import _ from 'lodash'
 import AddIcon from '@material-ui/icons/Add'
 import {
   formMarketAddInvestibleLink,
-  formMarketLink,
   makeArchiveBreadCrumbs,
   makeBreadCrumbs,
   navigate,
@@ -43,16 +42,13 @@ import { inviteDialogSteps } from '../../../components/Tours/InviteTours/dialog'
 import { CognitoUserContext } from '../../../contexts/CognitoUserContext/CongitoUserContext'
 import { startTour } from '../../../contexts/TourContext/tourContextReducer'
 import { TourContext } from '../../../contexts/TourContext/TourContext'
-import InviteLinker from '../InviteLinker'
-import StepButtons from '../../../components/AddNew/StepButtons'
-import queryString from 'query-string'
-import { wizardStyles } from '../../../components/AddNew/WizardStylesContext';
-import Header from '../../../containers/Header'
 import { INVITE_DIALOG_FIRST_VIEW } from '../../../contexts/TourContext/tourContextHelper'
 import { attachFilesToMarket, deleteAttachedFilesFromMarket } from '../../../api/markets'
 import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import AttachedFilesList from '../../../components/Files/AttachedFilesList'
+import DialogBodyEdit from '../DialogBodyEdit'
+import EditMarketButton from '../EditMarketButton'
 
 const useStyles = makeStyles(
   theme => ({
@@ -144,11 +140,16 @@ const useStyles = makeStyles(
         padding: '20px'
       }
     },
-    wizardContainer: {
-      background: '#efefef',
-      padding: '24px 20px 156px',
-      marginTop: '80px',
-      width: '500px'
+    fullWidthCentered: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      display: "flex",
+      marginTop: '20px',
+      [theme.breakpoints.down("xs")]: {
+        maxWidth: '100%',
+        flexBasis: '100%',
+        flexDirection: 'column'
+      }
     },
   }),
   { name: "DecisionDialog" }
@@ -163,7 +164,6 @@ function DecisionDialog(props) {
     marketStages,
     marketPresences,
     myPresence,
-    hash,
   } = props;
   const classes = useStyles();
   const metaClasses = useMetaDataStyles();
@@ -195,14 +195,12 @@ function DecisionDialog(props) {
     parent_market_id: parentMarketId,
     parent_investible_id: parentInvestibleId,
     is_inline: isInline,
-    invite_capability: marketToken,
   } = market;
   const [marketState] = useContext(MarketsContext);
   const [investiblesState] = useContext(InvestiblesContext);
+  const [beingEdited, setBeingEdited] = useState(false);
   const activeMarket = marketStage === ACTIVE_STAGE;
   const inArchives = !activeMarket || (myPresence && !myPresence.following);
-  const values = queryString.parse(hash || '');
-  const { onboarded } = values || {};
   let breadCrumbTemplates = [];
   if (isInline) {
     breadCrumbTemplates = getInlineBreadCrumbs(marketState, parentMarketId, parentInvestibleId, investiblesState);
@@ -213,10 +211,8 @@ function DecisionDialog(props) {
   const addLabelExplanation = isAdmin ? 'decisionDialogAddExplanationLabel' : 'decisionDialogProposeExplanationLabel';
 
   useEffect(() => {
-    if (!onboarded) {
-      tourDispatch(startTour(INVITE_DIALOG_FIRST_VIEW));
-    }
-  }, [onboarded, tourDispatch])
+    tourDispatch(startTour(INVITE_DIALOG_FIRST_VIEW));
+  }, [tourDispatch])
 
   function onAttachFile(metadatas) {
     return attachFilesToMarket(marketId, metadatas)
@@ -252,48 +248,6 @@ function DecisionDialog(props) {
   }
   const underConsideration = getInvestiblesForStage(underConsiderationStage);
   const proposed = getInvestiblesForStage(proposedStage);
-  const wizardStyle = wizardStyles();
-  if (onboarded) {
-    return (
-      <div className={hidden ? wizardStyle.hidden : wizardStyle.normal}>
-        <Header
-          title={intl.formatMessage({ id: 'OnboardingWizardTitle' })}
-          breadCrumbs={[]}
-          toolbarButtons={[]}
-          hidden={hidden}
-          appEnabled
-          logoLinkDisabled
-          hideTools
-        />
-        <Container className={classes.wizardContainer}>
-          <Card className={wizardStyle.baseCard} elevation={0} raised={false}>
-            <div>
-              <div>
-                <Typography variant="body1">
-                  We've created your Dialog, please share the link below.
-                </Typography>
-                <div className={wizardStyle.linkContainer}>
-                  <InviteLinker
-                    marketType={DECISION_TYPE}
-                    marketToken={marketToken}
-                  />
-                </div>
-                <div className={wizardStyle.borderBottom}></div>
-                <StepButtons
-                  totalSteps={1}
-                  currentStep={0}
-                  classes={wizardStyle}
-                  showGoBack={false}
-                  finishLabel="DialogWizardTakeMeToDialog"
-                  showStartOver={false}
-                  onFinish={() => history.push(formMarketLink(marketId))}/>
-              </div>
-            </div>
-          </Card>
-        </Container>
-      </div>
-    );
-  }
 
   return (
     <Screen
@@ -320,7 +274,10 @@ function DecisionDialog(props) {
                   {intl.formatMessage({ id: 'draft' })}
                 </Typography>
               )}
-              {!isInline && (
+              {beingEdited && (
+                <DialogBodyEdit hidden={hidden} setBeingEdited={setBeingEdited} marketId={marketId} />
+              )}
+              {!isInline && !beingEdited && (
                 <>
                   <Typography className={classes.title} variant="h3" component="h1">
                     {marketName}
@@ -329,6 +286,15 @@ function DecisionDialog(props) {
                 </>
               )}
             </CardContent>
+            <Grid item xs={9} className={classes.fullWidthCentered}>
+              {!inArchives && isAdmin && !beingEdited && (
+                <EditMarketButton
+                  labelId="edit"
+                  marketId={marketId}
+                  onClick={() => setBeingEdited(true)}
+                />
+              )}
+            </Grid>
           </Grid>
           <Grid className={classes.borderLeft} item xs={3}>
             <CardActions className={classes.actions}>

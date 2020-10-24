@@ -106,7 +106,7 @@ import Autocomplete from '@material-ui/lab/Autocomplete'
 import TextField from '@material-ui/core/TextField'
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
-import SettingsIcon from '@material-ui/icons/Settings';
+import EventIcon from '@material-ui/icons/Event';
 import InvestibleBodyEdit from '../InvestibleBodyEdit'
 
 const useStyles = makeStyles(
@@ -710,7 +710,7 @@ function PlanningInvestible(props) {
                       labelId="changeCompletionDate"
                       marketId={marketId}
                       onClick={toggleEdit}
-                      icon={<SettingsIcon htmlColor={ACTION_BUTTON_COLOR} />}
+                      icon={<EventIcon htmlColor={ACTION_BUTTON_COLOR} />}
                     />
                   )}
                   {displayEdit && !beingEdited && (

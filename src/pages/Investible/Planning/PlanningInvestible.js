@@ -154,6 +154,17 @@ const useStyles = makeStyles(
         flexDirection: 'column'
       }
     },
+    editCardContent: {
+      margin: theme.spacing(2, 1),
+      padding: 0,
+      '& img': {
+        margin: '.75rem 0',
+      },
+      [theme.breakpoints.down("xs")]: {
+        margin: 0,
+        padding: '15px'
+      }
+    },
     votingCardContent: {
       margin: theme.spacing(2, 6),
       padding: 0,
@@ -164,7 +175,6 @@ const useStyles = makeStyles(
         margin: 0,
         padding: '15px'
       }
-
     },
     actions: {},
     blue: {
@@ -260,7 +270,18 @@ function PlanningInvestible(props) {
     hidden
   } = props;
   const classes = useStyles();
+  const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
+  const [marketState] = useContext(MarketsContext);
+  const [, diffDispatch] = useContext(DiffContext);
+  const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [commentsState] = useContext(CommentsContext);
+  const [changeStagesExpanded, setChangeStagesExpanded] = useState(false);
+  const [newLabel, setNewLabel] = useState(undefined);
+  const [clearMeHack, setClearMeHack] = useState('a');
+  const [labelFocus, setLabelFocus] = useState(false);
+  const [beingEdited, setBeingEdited] = useState(false);
   const { name: marketName, id: marketId, votes_required: votesRequired } = market;
+  const labels = getMarketLabels(investiblesState, marketId);
   const investmentReasonsRemoved = investibleComments.filter(
     comment => comment.comment_type !== JUSTIFY_TYPE
   );
@@ -355,17 +376,6 @@ function PlanningInvestible(props) {
     : isRequiresInput
     ? intl.formatMessage({ id: "requiresInputStageLabel" }) :
           intl.formatMessage({ id: "planningNotDoingStageLabel" });
-  const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
-  const [, diffDispatch] = useContext(DiffContext);
-  const labels = getMarketLabels(investiblesState, marketId);
-  const [marketPresencesState] = useContext(MarketPresencesContext);
-  const [commentsState] = useContext(CommentsContext);
-  const [changeStagesExpanded, setChangeStagesExpanded] = useState(false);
-  const [newLabel, setNewLabel] = useState(undefined);
-  const [clearMeHack, setClearMeHack] = useState('a');
-  const [labelFocus, setLabelFocus] = useState(false);
-  const [marketState] = useContext(MarketsContext);
-  const [beingEdited, setBeingEdited] = useState(false);
 
   if (!investibleId) {
     // we have no usable data;
@@ -655,7 +665,7 @@ function PlanningInvestible(props) {
           subtype={subtype}
           createdAt={createdAt}
         />
-        <CardContent className={classes.votingCardContent}>
+        <CardContent className={beingEdited ? classes.editCardContent : classes.votingCardContent}>
           <Grid container className={classes.mobileColumn}>
             <Grid item xs={9} className={classes.fullWidth}>
               {!beingEdited && (
@@ -703,6 +713,13 @@ function PlanningInvestible(props) {
                       icon={<SettingsIcon htmlColor={ACTION_BUTTON_COLOR} />}
                     />
                   )}
+                  {displayEdit && !beingEdited && (
+                    <EditMarketButton
+                      labelId="edit"
+                      marketId={marketId}
+                      onClick={() => setBeingEdited(true)}
+                    />
+                  )}
                 </dl>
               </div>
               {daysEstimate > 0 && (
@@ -725,13 +742,6 @@ function PlanningInvestible(props) {
             </Grid>
           </Grid>
           <Grid item xs={9} className={classes.fullWidthCentered}>
-            {displayEdit && !beingEdited && (
-              <EditMarketButton
-                labelId="edit"
-                marketId={marketId}
-                onClick={() => setBeingEdited(true)}
-              />
-            )}
             {labelList && labelList.map((label) =>
               <div key={label} className={classes.labelChip}>
                 <Chip label={label} onDelete={()=>deleteLabel(`${label}`)} color="primary" />

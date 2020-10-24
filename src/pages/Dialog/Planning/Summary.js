@@ -85,6 +85,13 @@ const useStyles = makeStyles(theme => ({
       marginRight: '-8px'
     }
   },
+  editContent: {
+    flexBasis: "100%",
+    padding: theme.spacing(4, 1, 4, 1),
+    [theme.breakpoints.down("xs")]: {
+      padding: '15px'
+    }
+  },
   content: {
     flexBasis: "100%",
     padding: theme.spacing(4),
@@ -237,7 +244,7 @@ function Summary(props) {
       <CardType className={classes.type} type={AGILE_PLAN_TYPE} />
       <Grid container className={classes.mobileColumn}>
         <Grid item xs={9} className={classes.fullWidth}>
-          <CardContent className={classes.content}>
+          <CardContent className={beingEdited ? classes.editContent : classes.content}>
             {isDraft && activeMarket && (
               <Typography className={classes.draft}>
                 {intl.formatMessage({ id: "draft" })}
@@ -260,15 +267,6 @@ function Summary(props) {
               <DialogBodyEdit hidden={hidden} setBeingEdited={setBeingEdited} marketId={id} />
             )}
           </CardContent>
-          <Grid item xs={9} className={classes.fullWidthCentered}>
-            {!inArchives && isAdmin && !beingEdited && (
-              <EditMarketButton
-                labelId="edit"
-                marketId={id}
-                onClick={() => setBeingEdited(true)}
-              />
-            )}
-          </Grid>
         </Grid>
         <Grid className={classes.borderLeft} item xs={3}>
           <CardActions className={classes.actions}>
@@ -282,6 +280,8 @@ function Summary(props) {
               parentInvestibleId={parentInvestibleId}
               marketId={id}
               initiativeId={investibleId}
+              beingEdited={beingEdited}
+              setBeingEdited={setBeingEdited}
             />
           </CardActions>
         <dl className={metaClasses.root}>

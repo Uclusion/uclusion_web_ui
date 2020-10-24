@@ -117,6 +117,10 @@ const useStyles = makeStyles((theme) => ({
     padding: 0,
     margin: 0,
   },
+  editCardContent: {
+    margin: theme.spacing(2, 1),
+    padding: 0
+  },
   votingCardContent: {
     margin: theme.spacing(2, 6),
     padding: 0
@@ -266,6 +270,13 @@ function DecisionInvestible(props) {
           marketId={marketId}
         />
       )}
+      {!inArchives && (isAdmin || (inProposed && createdBy === userId)) && !beingEdited && (
+        <EditMarketButton
+          labelId="edit"
+          marketId={marketId}
+          onClick={() => setBeingEdited(true)}
+        />
+      )}
     </dl>
     );
   }
@@ -318,7 +329,7 @@ function DecisionInvestible(props) {
         <Grid container className={classes.mobileColumn}>
           <Grid item md={9} xs={12}>
 
-        <CardContent className={classes.votingCardContent}>
+        <CardContent className={beingEdited ? classes.editCardContent : classes.votingCardContent}>
           {!beingEdited && (
             <Typography className={classes.title} variant="h3" component="h1">
               {name}
@@ -339,15 +350,6 @@ function DecisionInvestible(props) {
               description={description}
             />
           )}
-          <Grid item xs={9} className={classes.fullWidthCentered}>
-            {!inArchives && (isAdmin || (inProposed && createdBy === userId)) && !beingEdited && (
-              <EditMarketButton
-                labelId="edit"
-                marketId={marketId}
-                onClick={() => setBeingEdited(true)}
-              />
-            )}
-          </Grid>
         </CardContent>
           </Grid>
           <Grid className={classes.borderLeft} item md={3} xs={12}>

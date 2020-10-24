@@ -88,6 +88,10 @@ const useStyles = makeStyles(
         justifyContent: 'center',
       }
     },
+    editContent: {
+      flexBasis: "100%",
+      padding: theme.spacing(4, 1, 4, 1)
+    },
     content: {
       flexBasis: "100%",
       padding: theme.spacing(4)
@@ -279,7 +283,7 @@ function InitiativeInvestible(props) {
         />
         <Grid container className={classes.mobileColumn}>
           <Grid item md={9} xs={12}>
-            <CardContent className={classes.content}>
+            <CardContent className={beingEdited ? classes.editContent : classes.content}>
               {isDraft && activeMarket && (
                 <Typography className={classes.draft}>
                   {intl.formatMessage({ id: "draft" })}
@@ -300,15 +304,6 @@ function InitiativeInvestible(props) {
                   />
                 </>
               )}
-              <Grid item xs={9} className={classes.fullWidthCentered}>
-                {isAdmin && !inArchives && !beingEdited && (
-                  <EditMarketButton
-                    labelId="edit"
-                    marketId={marketId}
-                    onClick={() => setBeingEdited(true)}
-                  />
-                )}
-              </Grid>
             </CardContent>
           </Grid>
           <Grid className={classes.borderLeft} item md={3} xs={12}>
@@ -323,6 +318,8 @@ function InitiativeInvestible(props) {
                 isGuest={myPresence.market_guest}
                 marketId={marketId}
                 initiativeId={investibleId}
+                beingEdited={beingEdited}
+                setBeingEdited={setBeingEdited}
               />
             </CardActions>
             <dl className={clsx(metaClasses.root, classes.flexCenter)}>

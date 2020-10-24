@@ -93,6 +93,10 @@ const useStyles = makeStyles(
         justifyContent: 'center',
       },
     },
+    editContent: {
+      flexBasis: "100%",
+      padding: theme.spacing(4, 1, 4, 1)
+    },
     content: {
       flexBasis: "100%",
       padding: theme.spacing(4)
@@ -268,7 +272,7 @@ function DecisionDialog(props) {
         />
         <Grid id="dialogMain" container className={classes.mobileColumn}>
           <Grid item xs={9}>
-            <CardContent className={classes.content}>
+            <CardContent className={beingEdited ? classes.editContent : classes.content}>
               {isDraft && activeMarket && (
                 <Typography className={classes.draft}>
                   {intl.formatMessage({ id: 'draft' })}
@@ -286,15 +290,6 @@ function DecisionDialog(props) {
                 </>
               )}
             </CardContent>
-            <Grid item xs={9} className={classes.fullWidthCentered}>
-              {!inArchives && isAdmin && !beingEdited && (
-                <EditMarketButton
-                  labelId="edit"
-                  marketId={marketId}
-                  onClick={() => setBeingEdited(true)}
-                />
-              )}
-            </Grid>
           </Grid>
           <Grid className={classes.borderLeft} item xs={3}>
             <CardActions className={classes.actions}>
@@ -307,6 +302,8 @@ function DecisionDialog(props) {
                 parentMarketId={parentMarketId}
                 parentInvestibleId={parentInvestibleId}
                 marketId={marketId}
+                beingEdited={beingEdited}
+                setBeingEdited={setBeingEdited}
               />
             </CardActions>
             <dl className={clsx(metaClasses.root, classes.flexCenter)}>

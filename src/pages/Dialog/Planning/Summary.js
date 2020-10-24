@@ -73,6 +73,7 @@ const useStyles = makeStyles(theme => ({
     alignItems: "flex-start",
     display: "flex",
     flexWrap: "wrap",
+    overflow: "visible",
     justifyContent: "space-between"
   },
   actions: {

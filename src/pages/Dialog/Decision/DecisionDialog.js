@@ -55,7 +55,8 @@ const useStyles = makeStyles(
       alignItems: "flex-start",
       display: "flex",
       flexWrap: "wrap",
-      justifyContent: "space-between"
+      justifyContent: "space-between",
+      overflow: "visible",
     },
     cardType: {
       display: "inline-flex"

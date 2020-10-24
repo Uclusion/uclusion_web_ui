@@ -235,7 +235,7 @@ function PlanningInvestibleAdd(props) {
   return (
     <>
       <DismissableText textId='planningInvestibleAddHelp' />
-      <Card elevation={0}>
+      <Card elevation={0} className={classes.overflowVisible}>
         <CardType
           className={classes.cardType}
           label={`${intl.formatMessage({

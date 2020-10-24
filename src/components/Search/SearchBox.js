@@ -45,7 +45,7 @@ function SearchBox (props) {
   }
 
   const endAdornment = _.isEmpty(searchResults.search)? null : (
-    <InputAdornment onClick={clearSearch} position="end">
+    <InputAdornment style={{cursor: 'pointer'}} onClick={clearSearch} position="end">
       <CloseIcon/>
     </InputAdornment>
   );

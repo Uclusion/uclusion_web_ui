@@ -29,7 +29,6 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { EMPTY_SPIN_RESULT } from '../../../constants/global'
 import DialogBodyEdit from '../DialogBodyEdit'
-import EditMarketButton from '../EditMarketButton'
 
 const useStyles = makeStyles(theme => ({
   section: {

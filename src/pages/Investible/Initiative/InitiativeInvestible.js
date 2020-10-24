@@ -43,7 +43,6 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { EMPTY_SPIN_RESULT } from '../../../constants/global'
 import InvestibleBodyEdit from '../InvestibleBodyEdit'
-import EditMarketButton from '../../Dialog/EditMarketButton'
 
 const useStyles = makeStyles(
   theme => ({

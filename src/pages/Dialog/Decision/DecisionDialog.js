@@ -48,7 +48,6 @@ import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsCont
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import AttachedFilesList from '../../../components/Files/AttachedFilesList'
 import DialogBodyEdit from '../DialogBodyEdit'
-import EditMarketButton from '../EditMarketButton'
 
 const useStyles = makeStyles(
   theme => ({

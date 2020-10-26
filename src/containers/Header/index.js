@@ -269,7 +269,7 @@ function Header (props) {
               <SearchResults/>
               {window.outerWidth > 600 && (
                 <Tooltip title={<FormattedMessage id="help" />}>
-                  <HelpOutlineIcon color="primary" style={{cursor: 'pointer'}}
+                  <HelpOutlineIcon color="primary" style={{cursor: 'pointer', marginLeft: '2rem'}}
                                    onClick={() => openInNewTab(config.helpLink)} />
                 </Tooltip>
               )}

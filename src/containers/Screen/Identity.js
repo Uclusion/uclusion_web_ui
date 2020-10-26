@@ -110,7 +110,7 @@ function Identity (props) {
   return (
     <div
       id="profileLink"
-      style={{ paddingLeft: '2rem' }}
+      style={{ paddingLeft: window.outerWidth > 600 ? '2rem' : '0.5rem' }}
     >
       <Button
         onClick={recordPositionToggle}

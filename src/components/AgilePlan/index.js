@@ -558,7 +558,7 @@ export function DaysEstimate(props) {
               placeholderText={intl.formatMessage({ id: "selectDate" })}
               selected={getStartDate()}
               onChange={handleDateChange}
-              popperPlacement="right"
+              popperPlacement={window.outerWidth < 600 ? 'bottom' : 'right'}
               minDate={new Date()}
             />
           </span>

@@ -7,7 +7,7 @@ import clsx from 'clsx'
 import _ from 'lodash'
 import ReadOnlyQuillEditor from '../TextEditors/ReadOnlyQuillEditor'
 import CommentAdd from './CommentAdd'
-import { JUSTIFY_TYPE, REPLY_TYPE, REPORT_TYPE } from '../../constants/comments'
+import { ISSUE_TYPE, JUSTIFY_TYPE, REPLY_TYPE, REPORT_TYPE } from '../../constants/comments'
 import { removeComment, reopenComment, resolveComment } from '../../api/comments'
 import SpinBlockingButton from '../SpinBlocking/SpinBlockingButton'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
@@ -246,7 +246,8 @@ function Comment(props) {
   const { expanded: myRepliesExpanded } = myExpandedState;
   const myRepliesExpandedCalc = myRepliesExpanded === undefined ? _.isEmpty(highlightIds) ? undefined : true : myRepliesExpanded;
   const repliesExpanded = myRepliesExpandedCalc === undefined ? !comment.resolved || comment.reply_id : myRepliesExpandedCalc;
-  const overrideLabel = (marketType === PLANNING_TYPE && !investibleId) ? <FormattedMessage id="nonBlockIssuePresent" /> : undefined;
+  const overrideLabel = (marketType === PLANNING_TYPE && !investibleId && commentType === ISSUE_TYPE) ?
+    <FormattedMessage id="nonBlockIssuePresent" /> : undefined;
   useEffect(() => {
     if (!_.isEmpty(highlightIds) && !myRepliesExpanded && commentType !== REPLY_TYPE) {
       // Open if need to highlight inside - user can close again

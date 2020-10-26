@@ -42,7 +42,6 @@ function InvestibleBodyEdit (props) {
   const { investible: myInvestible } = fullInvestible;
   const { locked_by: lockedBy } = myInvestible;
   const [idLoaded, setIdLoaded] = useState(undefined);
-  const [storedState, setStoredState] = useState({});
   const emptyMarket = { name: '' };
   const market = getMarket(marketsState, marketId) || emptyMarket;
   const [lockFailed, setLockFailed] = useState(false);
@@ -50,11 +49,9 @@ function InvestibleBodyEdit (props) {
   const someoneElseEditing = !_.isEmpty(lockedBy) && (lockedBy !== userId);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [uploadedFiles, setUploadedFiles] = useState([]);
-  const { description: storedDescription, name: storedName } = storedState;
   const { id, description: initialDescription, name: initialName } = myInvestible;
-  const [description, setDescription] = useState(storedDescription || initialDescription);
-  const [name, setName] = useState(storedName || initialName);
-  const [draftState, setDraftState] = useState(storedState);
+  const [description, setDescription] = useState(initialDescription);
+  const [name, setName] = useState(initialName);
 
   function onLock (result) {
     if (result) {
@@ -68,7 +65,13 @@ function InvestibleBodyEdit (props) {
   useEffect(() => {
     if (!hidden) {
       localforage.getItem(investibleId).then((stateFromDisk) => {
-        setStoredState(stateFromDisk || {});
+        const { description: storedDescription, name: storedName } = (stateFromDisk || {});
+        if (storedName) {
+          setName(storedName);
+        }
+        if (storedDescription) {
+          setDescription(storedDescription);
+        }
         setIdLoaded(investibleId);
       });
     }
@@ -117,7 +120,6 @@ function InvestibleBodyEdit (props) {
   }
 
   function handleDraftState(newDraftState) {
-    setDraftState(newDraftState);
     localforage.setItem(myInvestible.id, newDraftState).then(() => {});
   }
 
@@ -126,9 +128,7 @@ function InvestibleBodyEdit (props) {
   }
 
   function onStorageChange(description) {
-    localforage.getItem(id).then((stateFromDisk) => {
-      handleDraftState({ ...stateFromDisk, description });
-    });
+    handleDraftState({ name, description });
   }
 
   function handleFileUpload(metadatas) {
@@ -138,7 +138,7 @@ function InvestibleBodyEdit (props) {
   function onNameChange(event) {
     const { value } = event.target;
     setName(value);
-    handleDraftState({ ...draftState, name: value });
+    handleDraftState({ description, name: value });
   }
 
   function onCancel() {

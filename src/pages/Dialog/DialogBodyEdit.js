@@ -104,26 +104,28 @@ function DialogBodyEdit(props) {
   const [investiblesState] = useContext(InvestiblesContext);
   const [, diffDispatch] = useContext(DiffContext);
   const renderableMarket = getMarket(marketsState, marketId) || {};
-  const { market_type: marketType, locked_by: lockedBy } = renderableMarket;
+  const { id, name: initialName, description: initialDescription,
+    market_type: marketType, locked_by: lockedBy } = renderableMarket;
   const [idLoaded, setIdLoaded] = useState(undefined);
-  const [storedState, setStoredState] = useState({});
   const userId = getMyUserForMarket(marketsState, marketId) || {};
   const loading = !userId || !marketType || idLoaded !== marketId;
   const [lockFailed, setLockFailed] = useState(false);
   const someoneElseEditing = !_.isEmpty(lockedBy) && (lockedBy !== userId);
   const [operationRunning] = useContext(OperationInProgressContext);
-  const [draftState, setDraftState] = useState(storedState);
-  const { id, name: initialMarketName, description: initialDescription } = renderableMarket;
-  const { description: storedDescription, name: storedName } = storedState;
-  const [mutableMarket, setMutableMarket] = useState({ ...renderableMarket, name: storedName || initialMarketName });
+  const [name, setName] = useState(initialName);
   const [uploadedFiles, setUploadedFiles] = useState([]);
-  const [description, setDescription] = useState(storedDescription || initialDescription);
-  const { name } = mutableMarket;
+  const [description, setDescription] = useState(initialDescription);
 
   useEffect(() => {
     if (!hidden) {
       localforage.getItem(marketId).then((stateFromDisk) => {
-        setStoredState(stateFromDisk || {});
+        const { description: storedDescription, name: storedName } = (stateFromDisk || {});
+        if (storedName) {
+          setName(storedName);
+        }
+        if (storedDescription) {
+          setDescription(storedDescription);
+        }
         setIdLoaded(marketId);
       });
     }
@@ -154,7 +156,7 @@ function DialogBodyEdit(props) {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
     } = processTextAndFilesForSave(newUploadedFiles, description);
-    const updatedName = name !== initialMarketName ? name : null;
+    const updatedName = name !== initialName ? name : null;
     const updatedDescription = description !== initialDescription ? tokensRemoved : null;
     const updatedFilteredUploads = _.isEmpty(uploadedFiles) ? filteredUploads : null;
     return updateMarket(id, updatedName, updatedDescription, updatedFilteredUploads, null,
@@ -214,21 +216,20 @@ function DialogBodyEdit(props) {
 
   const lockedDialogClasses = useLockedDialogStyles();
 
-  if (_.isEmpty(marketId)) {
+  if (loading) {
     return <React.Fragment/>
   }
 
   function handleChange(name) {
     return (event) => {
       const { value } = event.target;
-      setMutableMarket({ ...mutableMarket, [name]: value });
-      handleDraftState({ ...draftState, [name]: value });
+      setName(value);
+      handleDraftState({ description, [name]: value });
     };
   }
 
   function handleDraftState(newDraftState) {
-    setDraftState(newDraftState);
-    localforage.setItem(id, newDraftState);
+    localforage.setItem(id, newDraftState).then(() => {});
   }
 
   function onEditorChange(content) {
@@ -236,9 +237,7 @@ function DialogBodyEdit(props) {
   }
 
   function onStorageChange(description) {
-    localforage.getItem(id).then(stateFromDisk => {
-      handleDraftState({ ...stateFromDisk, description });
-    });
+    handleDraftState({ name, description });
   }
 
   function onS3Upload(metadatas) {

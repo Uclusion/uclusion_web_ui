@@ -1,17 +1,18 @@
 import React, { useContext, useState } from 'react';
-import { Avatar, Button, makeStyles, Menu, Typography } from '@material-ui/core';
+import { Avatar, Button, makeStyles, Menu, Tooltip, Typography } from '@material-ui/core'
 import SettingsIcon from '@material-ui/icons/Settings';
 import { useHistory } from 'react-router';
 import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
 import Link from '@material-ui/core/Link';
-import { useIntl } from 'react-intl';
-import { navigate } from '../../utils/marketIdPathFunctions';
+import { FormattedMessage, useIntl } from 'react-intl'
+import { navigate, openInNewTab } from '../../utils/marketIdPathFunctions'
 import SignOut from '../../pages/Authentication/SignOut';
 import { CognitoUserContext } from '../../contexts/CognitoUserContext/CongitoUserContext';
 import config from '../../config';
 import { isFederated } from '../../contexts/CognitoUserContext/cognitoUserContextHelper';
 import md5 from 'md5';
+import HelpOutlineIcon from '@material-ui/icons/HelpOutline'
 
 const useStyles = makeStyles((theme) => ({
   name: {
@@ -184,6 +185,12 @@ function Identity (props) {
         </div>
         <Divider/>
         <div className={classes.terms}>
+          {window.outerWidth <= 600 && (
+            <Tooltip title={<FormattedMessage id="help" />}>
+              <HelpOutlineIcon color="primary" style={{cursor: 'pointer', marginRight: '1rem'}}
+                               onClick={() => openInNewTab(config.helpLink)} />
+            </Tooltip>
+          )}
           <Link
             href={config.termsOfUseLink}
             target="_blank"

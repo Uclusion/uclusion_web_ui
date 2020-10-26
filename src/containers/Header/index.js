@@ -268,10 +268,12 @@ function Header (props) {
                 <SearchBox/>
               </div>
               <SearchResults/>
-              <Tooltip title={<FormattedMessage id="help" />}>
-                <HelpOutlineIcon color="primary" style={{cursor: 'pointer'}}
-                                 onClick={() => openInNewTab(config.helpLink)} />
-              </Tooltip>
+              {window.outerWidth > 600 && (
+                <Tooltip title={<FormattedMessage id="help" />}>
+                  <HelpOutlineIcon color="primary" style={{cursor: 'pointer'}}
+                                   onClick={() => openInNewTab(config.helpLink)} />
+                </Tooltip>
+              )}
               <Identity logoutChannel={logoutChannel}/>
             </React.Fragment>
           )}

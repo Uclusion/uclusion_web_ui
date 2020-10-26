@@ -352,7 +352,9 @@ function Comment(props) {
             </Typography>
           </div>
           <Box marginTop={1}>
-            <ReadOnlyQuillEditor value={comment.body} />
+            {!editOpen && (
+              <ReadOnlyQuillEditor value={comment.body} />
+            )}
             {editOpen && (
               <CommentEdit
                 marketId={marketId}

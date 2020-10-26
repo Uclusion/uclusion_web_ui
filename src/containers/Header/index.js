@@ -73,7 +73,6 @@ const useStyles = makeStyles((theme) => {
       },
     },
     searchBox: {
-      marginRight: '2rem',
       paddingLeft: '1rem',
     },
     notification: {

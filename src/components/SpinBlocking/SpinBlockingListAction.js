@@ -45,6 +45,7 @@ function SpinBlockingListAction(props) {
     customClasses,
     isOpen,
     disabled,
+    highlight
   } = props;
   const myClasses = useStyles();
   const classes = customClasses || myClasses;
@@ -65,13 +66,13 @@ function SpinBlockingListAction(props) {
       disabled={disabled}
     >
       <Tooltip title={label}>
-        <ListItemIcon className={classes.menuIcon}>
+        <ListItemIcon className={highlight ? classes.menuIconHighlighted : classes.menuIcon}>
           {icon}
         </ListItemIcon>
       </Tooltip>
       {(isOpen !== undefined ? isOpen : true) && (
         <Tooltip title={label}>
-          <ListItemText className={classes.menuTitle}>
+          <ListItemText className={highlight ? classes.menuTitleHighlighted : classes.menuTitle}>
             {openLabel}
           </ListItemText>
         </Tooltip>

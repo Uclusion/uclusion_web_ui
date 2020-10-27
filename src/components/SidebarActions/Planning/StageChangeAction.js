@@ -44,6 +44,28 @@ export const useStyles = makeStyles(() => {
         height: '30px',
       },
     },
+    menuIconHighlighted: {
+      paddingLeft: 0,
+      paddingRight: 0,
+      marginRight: 0,
+      display: 'flex',
+      justifyContent: 'center',
+      boxShadow: "0px 5px 0px yellow",
+      color: 'black',
+      '& > .MuiSvgIcon-root': {
+        width: '30px',
+        height: '50px',
+      },
+    },
+    menuTitleHighlighted: {
+      paddingLeft: 0,
+      paddingRight: 0,
+      marginRight: 0,
+      marginLeft: 0,
+      color: 'black',
+      fontWeight: 'bold',
+      boxShadow: "5px 5px 5px yellow, 0px 5px 0px yellow"
+    },
     menuTitle: {
       paddingLeft: 0,
       paddingRight: 0,
@@ -69,6 +91,7 @@ function StageChangeAction(props) {
     removeAssignments,
     operationBlocked,
     blockedOperationTranslationId,
+    highlight,
   } = props;
   const classes = useStyles();
   const intl = useIntl();
@@ -229,6 +252,7 @@ function StageChangeAction(props) {
       customClasses={classes}
       isOpen={isOpen}
       disabled={disabled}
+      highlight={highlight}
     />
   );
 }

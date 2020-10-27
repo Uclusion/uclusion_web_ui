@@ -85,11 +85,6 @@ function Investible(props) {
     }
   }, [isInitialization, hidden, marketId, realMarket, marketPresences]);
 
-
-  function toggleEdit() {
-    navigate(history, formInvestibleEditLink(marketId, investibleId));
-  }
-
   if (loading) {
     return (
       <Screen
@@ -132,7 +127,6 @@ function Investible(props) {
         commentsHash={commentsHash}
         marketPresences={marketPresences}
         investibleComments={investibleComments}
-        toggleEdit={toggleEdit}
         inArchives={inArchives}
         isAdmin={isAdmin}
         hidden={hidden}

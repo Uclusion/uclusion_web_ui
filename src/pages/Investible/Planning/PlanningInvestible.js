@@ -108,6 +108,8 @@ import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import EventIcon from '@material-ui/icons/Event';
 import InvestibleBodyEdit from '../InvestibleBodyEdit'
+import DatePicker from 'react-datepicker'
+import moment from 'moment'
 
 const useStyles = makeStyles(
   theme => ({
@@ -244,6 +246,55 @@ const useStyles = makeStyles(
         flexBasis: '100%'
       }
     },
+    datePicker: {
+      font: 'inherit',
+      color: 'currentColor',
+      width: '100%',
+      border: 0,
+      height: '1.1876em',
+      margin: 0,
+      display: 'block',
+      padding: '6px 0 7px',
+      minWidth: 0,
+      boxSizing: 'content-box',
+      position: 'absolute',
+      zIndex: 1000,
+      animationName: 'mui-auto-fill-cancel',
+      textAlign: 'center',
+      '&:focus' : {
+        outline: 'none'
+      }
+    },
+    input: {
+      backgroundColor: '#ecf0f1',
+      border: 0,
+      borderRadius: 8,
+      padding: '4px',
+      '& > div': {
+        marginTop: 14
+      },
+      '& > div:before': {
+        borderBottom: 0
+      },
+      '& > div:after': {
+        borderBottom: 0
+      },
+      '& > label': {
+        marginLeft: 10,
+      },
+      '& > label.Mui-focused': {
+        color: 'black'
+      },
+      '& > label:not(.MuiInputLabel-shrink)': {
+        transform: 'translate(0, 18px) scale(1)'
+      },
+      '& > div:hover:not(.Mui-disabled):before': {
+        borderBottom: 0
+      },
+      '& > div:active:not(.Mui-disabled):before': {
+        borderBottom: 0
+      },
+    },
   }),
   { name: "PlanningInvestible" }
 );
@@ -264,7 +315,6 @@ function PlanningInvestible(props) {
     market,
     marketInvestible,
     investibles,
-    toggleEdit,
     isAdmin,
     inArchives,
     hidden
@@ -277,6 +327,7 @@ function PlanningInvestible(props) {
   const [commentsState] = useContext(CommentsContext);
   const [changeStagesExpanded, setChangeStagesExpanded] = useState(false);
   const [newLabel, setNewLabel] = useState(undefined);
+  const [showDatepicker, setShowDatepicker] = useState(false);
   const [clearMeHack, setClearMeHack] = useState('a');
   const [labelFocus, setLabelFocus] = useState(false);
   const [beingEdited, setBeingEdited] = useState(false);
@@ -289,7 +340,8 @@ function PlanningInvestible(props) {
     comment => comment.comment_type === JUSTIFY_TYPE
   );
   const marketInfo = getMarketInfo(marketInvestible, marketId) || {};
-  const { stage, assigned: invAssigned, children, days_estimate: daysEstimate, inline_market_id: inlineMarketId } = marketInfo;
+  const { stage, assigned: invAssigned, children, days_estimate: marketDaysEstimate, inline_market_id: inlineMarketId } = marketInfo;
+  const [daysEstimate, setDaysEstimate] = useState(marketDaysEstimate);
   const assigned = invAssigned || []; // handle the empty case to make subsequent code easier
   const presencesFollowing = (marketPresences || []).filter((presence) => presence.following && !presence.market_banned) || [];
   const everyoneAssigned = !_.isEmpty(marketPresences) && assigned.length === presencesFollowing.length;
@@ -585,6 +637,20 @@ function PlanningInvestible(props) {
   function toggleAssign() {
     navigate(history, `${formInvestibleEditLink(marketId, investibleId)}#assign=true`);
   }
+  function toggleEdit() {
+    setShowDatepicker(!showDatepicker);
+  }
+  function getStartDate() {
+    if (daysEstimate && createdAt) {
+      return moment(createdAt).add(daysEstimate, 'days').toDate();
+    }
+    return undefined;
+  }
+  function handleDateChange(date) {
+    const usedDate = createdAt ? createdAt : new Date();
+    const myValue = moment(date).diff(moment(usedDate), 'days', true);
+    setDaysEstimate(myValue);
+  }
   const availableLabels = _.difference(labels, labelList);
   const defaultProps = {
     options: availableLabels,
@@ -706,12 +772,26 @@ function PlanningInvestible(props) {
                     />
                   )}
                   {displayEdit && (
-                    <EditMarketButton
-                      labelId="changeCompletionDate"
-                      marketId={marketId}
-                      onClick={toggleEdit}
-                      icon={<EventIcon htmlColor={ACTION_BUTTON_COLOR} />}
-                    />
+                    <>
+                      <EditMarketButton
+                        labelId="changeCompletionDate"
+                        marketId={marketId}
+                        onClick={toggleEdit}
+                        icon={<EventIcon htmlColor={ACTION_BUTTON_COLOR} />}
+                      />
+                      {showDatepicker && (
+                        <DatePicker
+                          className={clsx("MuiInputBase-root", classes.input, classes.datePicker)}
+                          placeholderText={intl.formatMessage({ id: "selectDate" })}
+                          selected={getStartDate()}
+                          onChange={handleDateChange}
+                          popperPlacement={'bottom'}
+                          minDate={new Date()}
+                          inline
+                          onClickOutside={toggleEdit}
+                        />
+                      )}
+                    </>
                   )}
                   {displayEdit && !beingEdited && (
                     <EditMarketButton
@@ -722,8 +802,8 @@ function PlanningInvestible(props) {
                   )}
                 </dl>
               </div>
-              {daysEstimate > 0 && (
-                <DaysEstimate readOnly value={daysEstimate} createdAt={createdAt} />
+              {marketDaysEstimate > 0 && (
+                <DaysEstimate readOnly value={marketDaysEstimate} createdAt={createdAt} />
               )}
               <MarketMetaData
                 stage={marketInfo.stage_name}
@@ -913,7 +993,6 @@ PlanningInvestible.propTypes = {
   investibles: PropTypes.arrayOf(PropTypes.object),
   investibleId: PropTypes.string.isRequired,
   userId: PropTypes.string.isRequired,
-  toggleEdit: PropTypes.func,
   isAdmin: PropTypes.bool,
   inArchives: PropTypes.bool,
   hidden: PropTypes.bool
@@ -923,7 +1002,6 @@ PlanningInvestible.defaultProps = {
   marketPresences: [],
   investibleComments: [],
   investibles: [],
-  toggleEdit: () => {},
   isAdmin: false,
   inArchives: false,
   hidden: false

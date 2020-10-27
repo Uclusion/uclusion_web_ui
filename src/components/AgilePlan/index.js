@@ -395,7 +395,7 @@ export function Form(props) {
                   <Votes onChange={onVotesRequiredChange} value={votesRequired} />
                 </Grid>
                 <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
-                  <DaysEstimate showLabel={ window.outerWidth < 600 ? false : true } onChange={onDaysEstimate} value={daysEstimate} createdAt={createdAt} />
+                  <DaysEstimate showLabel={ window.outerWidth >= 600 } onChange={onDaysEstimate} value={daysEstimate} createdAt={createdAt} />
                 </Grid>
               </Grid>
             </ExpansionPanelDetails>

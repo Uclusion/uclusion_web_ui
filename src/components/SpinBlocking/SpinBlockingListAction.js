@@ -3,6 +3,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { ListItem, ListItemIcon, ListItemText, Tooltip, } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
+import { isTinyWindow } from '../../utils/windowUtils'
 
 const useStyles = makeStyles(() => {
   return {
@@ -66,7 +67,8 @@ function SpinBlockingListAction(props) {
       disabled={disabled}
     >
       <Tooltip title={label}>
-        <ListItemIcon className={highlight ? classes.menuIconHighlighted : classes.menuIcon}>
+        <ListItemIcon className={highlight ? isTinyWindow() ? classes.mobileMenuIconHighlighted :
+          classes.menuIconHighlighted : classes.menuIcon}>
           {icon}
         </ListItemIcon>
       </Tooltip>

@@ -247,53 +247,8 @@ const useStyles = makeStyles(
       }
     },
     datePicker: {
-      font: 'inherit',
-      color: 'currentColor',
-      width: '100%',
-      border: 0,
-      height: '1.1876em',
-      margin: 0,
-      display: 'block',
-      padding: '6px 0 7px',
-      minWidth: 0,
-      boxSizing: 'content-box',
       position: 'absolute',
-      zIndex: 1000,
-      animationName: 'mui-auto-fill-cancel',
-      textAlign: 'center',
-      '&:focus' : {
-        outline: 'none'
-      }
-    },
-    input: {
-      backgroundColor: '#ecf0f1',
-      border: 0,
-      borderRadius: 8,
-      padding: '4px',
-      '& > div': {
-        marginTop: 14
-      },
-      '& > div:before': {
-        borderBottom: 0
-      },
-      '& > div:after': {
-        borderBottom: 0
-      },
-      '& > label': {
-        marginLeft: 10,
-      },
-      '& > label.Mui-focused': {
-        color: 'black'
-      },
-      '& > label:not(.MuiInputLabel-shrink)': {
-        transform: 'translate(0, 18px) scale(1)'
-      },
-      '& > div:hover:not(.Mui-disabled):before': {
-        borderBottom: 0
-      },
-      '& > div:active:not(.Mui-disabled):before': {
-        borderBottom: 0
-      },
+      zIndex: 1000
     },
   }),
   { name: "PlanningInvestible" }
@@ -758,6 +713,29 @@ function PlanningInvestible(props) {
             <Grid className={classes.borderLeft} item xs={3}>
               <div className={classes.editRow}>
                 <dl className={classes.upperRightCard}>
+                  {displayEdit && (
+                    <div style={{paddingTop: '0.75rem'}}>
+                      <EditMarketButton
+                        labelId="changeCompletionDate"
+                        marketId={marketId}
+                        onClick={toggleEdit}
+                        icon={<EventIcon htmlColor={ACTION_BUTTON_COLOR} />}
+                      />
+                      {showDatepicker && (
+                        <div className={classes.datePicker}>
+                          <DatePicker
+                            placeholderText={intl.formatMessage({ id: "selectDate" })}
+                            selected={getStartDate()}
+                            onChange={handleDateChange}
+                            popperPlacement="bottom-start"
+                            minDate={new Date()}
+                            inline
+                            onClickOutside={toggleEdit}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  )}
                   <ShareStoryButton />
                   {!inArchives && isAssigned && (
                     <MoveToNextVisibleStageActionButton
@@ -770,28 +748,6 @@ function PlanningInvestible(props) {
                       acceptedStageAvailable={_.isEmpty(assignedInAcceptedStage)}
                       hasTodos={!_.isEmpty(todoComments)}
                     />
-                  )}
-                  {displayEdit && (
-                    <>
-                      <EditMarketButton
-                        labelId="changeCompletionDate"
-                        marketId={marketId}
-                        onClick={toggleEdit}
-                        icon={<EventIcon htmlColor={ACTION_BUTTON_COLOR} />}
-                      />
-                      {showDatepicker && (
-                        <DatePicker
-                          className={clsx("MuiInputBase-root", classes.input, classes.datePicker)}
-                          placeholderText={intl.formatMessage({ id: "selectDate" })}
-                          selected={getStartDate()}
-                          onChange={handleDateChange}
-                          popperPlacement={'bottom'}
-                          minDate={new Date()}
-                          inline
-                          onClickOutside={toggleEdit}
-                        />
-                      )}
-                    </>
                   )}
                   {displayEdit && !beingEdited && (
                     <EditMarketButton

@@ -5,11 +5,9 @@ import _ from 'lodash'
 import Screen from '../../containers/Screen/Screen'
 import {
   decomposeMarketPath,
-  formInvestibleEditLink,
   formMarketLink,
   makeArchiveBreadCrumbs,
   makeBreadCrumbs,
-  navigate,
 } from '../../utils/marketIdPathFunctions'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { getInvestible, getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'

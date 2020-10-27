@@ -8,7 +8,7 @@ import AssignmentList from '../../Dialog/Planning/AssignmentList'
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton'
 import CardType, { ASSIGN_TYPE, STORY_TYPE } from '../../../components/CardType'
 import { FormattedMessage, useIntl } from 'react-intl'
-import { DaysEstimate, usePlanFormStyles } from '../../../components/AgilePlan'
+import { usePlanFormStyles } from '../../../components/AgilePlan'
 import BlockIcon from '@material-ui/icons/Block'
 import WarningDialog from '../../../components/Warnings/WarningDialog'
 import { useLockedDialogStyles } from '../../Dialog/DialogBodyEdit'
@@ -29,17 +29,15 @@ export const usePlanInvestibleStyles = makeStyles(
 
 function PlanningInvestibleEdit(props) {
   const {
-    fullInvestible, onCancel, onSave, marketId, isAssign,
+    fullInvestible, onCancel, onSave, marketId,
   } = props;
   const intl = useIntl();
   const classes = usePlanFormStyles();
-  const myClasses = usePlanInvestibleStyles();
   const lockedDialogClasses = useLockedDialogStyles();
   const myInvestible = fullInvestible.investible;
   const marketInfo = getMarketInfo(fullInvestible, marketId) || {};
-  const { assigned: marketAssigned, days_estimate: marketDaysEstimate, created_at: createdAt } = marketInfo;
+  const { assigned: marketAssigned } = marketInfo;
   const [assignments, setAssignments] = useState(marketAssigned);
-  const [daysEstimate, setDaysEstimate] = useState(marketDaysEstimate);
   const [open, setOpen] = useState(false);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
@@ -57,7 +55,7 @@ function PlanningInvestibleEdit(props) {
     });
     return found;
   });
-  const validForm = (!isAssign || (Array.isArray(assignments) && assignments.length > 0));
+  const validForm = Array.isArray(assignments) && assignments.length > 0;
 
   const handleOpen = () => {
     setOpen(true);
@@ -66,37 +64,29 @@ function PlanningInvestibleEdit(props) {
     setOpen(false);
   };
 
-  function onDaysEstimateChange(event) {
-    const { value } = event.target;
-    const valueInt = value ? parseInt(value, 10) : null;
-    setDaysEstimate(valueInt);
-  }
-
   function handleSave() {
     const updateInfo = {
       marketId,
       investibleId: myInvestible.id,
+      assignments
     };
     const assignmentChanged = !_.isEmpty(_.xor(assignments, marketAssigned));
     if (assignmentChanged) {
-      updateInfo.assignments = assignments;
-    } else if (!_.isEqual(daysEstimate, marketDaysEstimate)) {
-      updateInfo.daysEstimate = daysEstimate;
+      return updateInvestible(updateInfo)
+        .then((fullInvestible) => {
+          return {
+            result: { fullInvestible, assignmentChanged },
+            spinChecker: () => Promise.resolve(true),
+          };
+        });
     }
-    return updateInvestible(updateInfo)
-      .then((fullInvestible) => {
-        return {
-          result: { fullInvestible, assignmentChanged },
-          spinChecker: () => Promise.resolve(true),
-        };
-      });
   }
 
   function handleAssignmentChange(newAssignments) {
     setAssignments(newAssignments);
   }
-  const subtype = isAssign ? ASSIGN_TYPE : STORY_TYPE;
-  const operationLabel = isAssign ? "investibleAssign" : "investibleDescription";
+  const subtype = ASSIGN_TYPE;
+  const operationLabel = "investibleAssign";
   return (
     <Card elevation={0} className={classes.overflowVisible}>
       <CardType
@@ -106,51 +96,26 @@ function PlanningInvestibleEdit(props) {
         subtype={subtype}
       />
       <CardContent>
-        {isAssign && (
-          <div className={classes.cardContent}>
-            <AssignmentList
-              marketId={marketId}
-              previouslyAssigned={marketAssigned}
-              onChange={handleAssignmentChange}
-            />
-          </div>
-        )}
-        {!isAssign && (
-          <div className={classes.cardContent}>
-            <fieldset className={myClasses.fieldset}>
-              <DaysEstimate onChange={onDaysEstimateChange} value={daysEstimate} createdAt={createdAt} />
-            </fieldset>
-          </div>
-        )}
+        <div className={classes.cardContent}>
+          <AssignmentList
+            marketId={marketId}
+            previouslyAssigned={marketAssigned}
+            onChange={handleAssignmentChange}
+          />
+        </div>
       </CardContent>
       <CardActions className={classes.actions}>
-        {isAssign && (
-          <Button
-            className={classes.actionSecondary}
-            color="secondary"
-            variant="contained"
-            onClick={onCancel}
-          >
-            <FormattedMessage
-              id={"marketAddCancelLabel"}
-            />
-          </Button>
-        )}
-        {!isAssign && (
-          <SpinBlockingButton
-            marketId={marketId}
-            onClick={onCancel}
-            className={classes.actionSecondary}
-            color="secondary"
-            variant="contained"
-            hasSpinChecker
-          >
-            <FormattedMessage
-              id={"marketAddCancelLabel"}
-            />
-          </SpinBlockingButton>
-        )}
-        {isAssign && hasVotes && (
+        <Button
+          className={classes.actionSecondary}
+          color="secondary"
+          variant="contained"
+          onClick={onCancel}
+        >
+          <FormattedMessage
+            id={"marketAddCancelLabel"}
+          />
+        </Button>
+        {hasVotes && (
           <Button
             className={classes.actionPrimary}
             color="primary"
@@ -162,7 +127,7 @@ function PlanningInvestibleEdit(props) {
             />
           </Button>
         )}
-        {isAssign && hasVotes && (
+        {hasVotes && (
           <WarningDialog
             classes={lockedDialogClasses}
             open={open}
@@ -186,7 +151,7 @@ function PlanningInvestibleEdit(props) {
             }
           />
         )}
-        {(!isAssign || !hasVotes) && (
+        {!hasVotes && (
           <SpinBlockingButton
             marketId={marketId}
             variant="contained"
@@ -212,7 +177,6 @@ PlanningInvestibleEdit.propTypes = {
   marketId: PropTypes.string.isRequired,
   onCancel: PropTypes.func,
   onSave: PropTypes.func,
-  isAssign: PropTypes.bool.isRequired,
 };
 
 PlanningInvestibleEdit.defaultProps = {

@@ -98,7 +98,12 @@ import { DaysEstimate } from '../../../components/AgilePlan'
 import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
 import AttachedFilesList from '../../../components/Files/AttachedFilesList'
-import { attachFilesToInvestible, changeLabels, deleteAttachedFilesFromInvestible } from '../../../api/investibles'
+import {
+  attachFilesToInvestible,
+  changeLabels,
+  deleteAttachedFilesFromInvestible,
+  updateInvestible
+} from '../../../api/investibles'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import ShareStoryButton from './ShareStoryButton'
 import Chip from '@material-ui/core/Chip'
@@ -110,6 +115,7 @@ import EventIcon from '@material-ui/icons/Event';
 import InvestibleBodyEdit from '../InvestibleBodyEdit'
 import DatePicker from 'react-datepicker'
 import moment from 'moment'
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 
 const useStyles = makeStyles(
   theme => ({
@@ -313,6 +319,7 @@ function PlanningInvestible(props) {
     }
   }
   const [marketStagesState] = useContext(MarketStagesContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
   const isInReview = inReviewStage && stage === inReviewStage.id;
   const inAcceptedStage = getAcceptedStage(marketStagesState, marketId) || {};
@@ -604,7 +611,22 @@ function PlanningInvestible(props) {
   function handleDateChange(date) {
     const usedDate = createdAt ? createdAt : new Date();
     const myValue = moment(date).diff(moment(usedDate), 'days', true);
-    setDaysEstimate(myValue);
+    const value = Math.ceil(myValue);
+    const valueInt = value ? parseInt(value, 10) : null;
+    if (!_.isEqual(valueInt, daysEstimate)) {
+      setDaysEstimate(valueInt);
+      toggleEdit();
+      const updateInfo = {
+        marketId,
+        investibleId,
+        daysEstimate: valueInt,
+      };
+      setOperationRunning(true);
+      return updateInvestible(updateInfo).then((fullInvestible) => {
+        refreshInvestibles(investiblesDispatch, diffDispatch, [fullInvestible]);
+        setOperationRunning(false);
+      });
+    }
   }
   const availableLabels = _.difference(labels, labelList);
   const defaultProps = {
@@ -759,7 +781,7 @@ function PlanningInvestible(props) {
                 </dl>
               </div>
               {marketDaysEstimate > 0 && (
-                <DaysEstimate readOnly value={marketDaysEstimate} createdAt={createdAt} />
+                <DaysEstimate readOnly value={daysEstimate} createdAt={createdAt} />
               )}
               <MarketMetaData
                 stage={marketInfo.stage_name}

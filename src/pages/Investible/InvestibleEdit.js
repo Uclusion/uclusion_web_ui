@@ -19,17 +19,13 @@ import Screen from '../../containers/Screen/Screen'
 import { PLANNING_TYPE } from '../../constants/markets'
 import PlanningInvestibleEdit from './Planning/PlanningInvestibleEdit'
 import { DiffContext } from '../../contexts/DiffContext/DiffContext'
-import queryString from 'query-string'
 
 function InvestibleEdit (props) {
   const { hidden } = props;
   const intl = useIntl();
   const history = useHistory();
   const location = useLocation();
-  const { pathname, hash } = location;
-  const values = queryString.parse(hash || '') || {};
-  const { assign } = values;
-  const isAssign = assign === 'true';
+  const { pathname } = location;
   const { marketId, investibleId } = decomposeMarketPath(pathname);
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [, diffDispatch] = useContext(DiffContext);
@@ -96,7 +92,6 @@ function InvestibleEdit (props) {
           onSave={onSave}
           onCancel={onCancel}
           isAdmin={isAdmin}
-          isAssign={isAssign}
         />
       )}
     </Screen>

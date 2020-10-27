@@ -57,19 +57,6 @@ export const useStyles = makeStyles(() => {
         height: '50px',
       },
     },
-    mobileMenuIconHighlighted: {
-      paddingLeft: 0,
-      paddingRight: 0,
-      marginRight: 0,
-      display: 'flex',
-      justifyContent: 'center',
-      boxShadow: "0px 5px 0px yellow",
-      color: 'black',
-      '& > .MuiSvgIcon-root': {
-        width: '30px',
-        height: '30px',
-      },
-    },
     menuTitleHighlighted: {
       paddingLeft: 0,
       paddingRight: 0,

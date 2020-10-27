@@ -67,7 +67,7 @@ export const useStyles = makeStyles(() => {
       color: 'black',
       '& > .MuiSvgIcon-root': {
         width: '30px',
-        height: '27px',
+        height: '30px',
       },
     },
     menuTitleHighlighted: {

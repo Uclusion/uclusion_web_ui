@@ -307,7 +307,8 @@ function PlanningInvestible(props) {
   const presencesFollowing = (marketPresences || []).filter((presence) => presence.following && !presence.market_banned) || [];
   const everyoneAssigned = !_.isEmpty(marketPresences) && assigned.length === presencesFollowing.length;
   const { investible } = marketInvestible;
-  const { description, name, locked_by: lockedBy, created_at: createdAt, label_list: labelList } = investible;
+  const { description, name, locked_by: lockedBy, created_at: createdAt, label_list: originalLabelList } = investible;
+  const [labelList, setLabelList] = useState(originalLabelList);
   let lockedByName;
   if (lockedBy) {
     const lockedByPresence = marketPresences.find(
@@ -418,14 +419,16 @@ function PlanningInvestible(props) {
   }
 
   function changeLabelsAndQuickAdd(marketId, investibleId, newLabels) {
-    changeLabels(marketId, investibleId, newLabels).then((fullInvestible) =>{
+    return changeLabels(marketId, investibleId, newLabels).then((fullInvestible) =>{
       refreshInvestibles(investiblesDispatch, diffDispatch, [fullInvestible]);
     });
   }
 
   function deleteLabel(aLabel) {
-    const newLabels = labelList.filter((label) => aLabel !== label) || [];
-    changeLabelsAndQuickAdd(marketId, investibleId, newLabels);
+    const originalLabels = labelList || [];
+    const newLabels = originalLabels.filter((label) => aLabel !== label) || [];
+    setLabelList(newLabels);
+    changeLabelsAndQuickAdd(marketId, investibleId, newLabels).catch(() => setLabelList(originalLabels));
   }
 
   function labelInputOnChange(event, value) {
@@ -438,7 +441,9 @@ function PlanningInvestible(props) {
 
   function addLabel() {
     const formerLabels = labelList ? labelList : [];
-    changeLabelsAndQuickAdd(marketId, investibleId, [...formerLabels, newLabel]);
+    const newLabels = [...formerLabels, newLabel];
+    setLabelList(newLabels);
+    changeLabelsAndQuickAdd(marketId, investibleId, newLabels).catch(() => setLabelList(formerLabels));
     setNewLabel(undefined);
     setClearMeHack(clearMeHack+clearMeHack);
   }

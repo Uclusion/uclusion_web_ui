@@ -11,9 +11,27 @@ import {
   getVerifiedStage,
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import StageChangeAction from '../../../components/SidebarActions/Planning/StageChangeAction'
+import { makeStyles } from '@material-ui/styles'
+
+const style = makeStyles(() => {
+    return {
+      containerYellow: {
+        boxShadow: "10px 5px 5px yellow",
+        border: '2px solid'
+      },
+      containerNone: {
+        border: '2px solid'
+      },
+      containerDisabled: {
+        border: '2px solid grey'
+      },
+    };
+  }
+);
 
 function MoveToNextVisibleStageActionButton(props) {
   const { marketId, currentStageId, disabled, enoughVotes, acceptedStageAvailable, hasTodos } = props;
+  const classes = style();
   const [marketStagesState] = useContext(MarketStagesContext);
   const acceptedStage = getAcceptedStage(marketStagesState, marketId) || {};
   const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
@@ -21,16 +39,16 @@ function MoveToNextVisibleStageActionButton(props) {
   const inBlockedStage = getBlockedStage(marketStagesState, marketId) || {};
   const inRequiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
   const verifiedStage = getVerifiedStage(marketStagesState, marketId) || {};
+  let highlightClass = disabled ? classes.containerDisabled : classes.containerNone;
   let destinationStage;
   let destinationExplanation;
   let destinationLabel;
-  let highlight = false;
   if (currentStageId === inVotingStage.id) {
     destinationStage = acceptedStage;
     destinationExplanation = 'planningInvestibleAcceptedExplanation';
     destinationLabel = 'planningInvestibleNextStageAcceptedLabel';
     if (!disabled) {
-      highlight = true;
+      highlightClass = classes.containerYellow;
     }
   } else if (currentStageId === acceptedStage.id) {
     destinationStage = inReviewStage;
@@ -57,19 +75,20 @@ function MoveToNextVisibleStageActionButton(props) {
   }
 
   return (
-    <StageChangeAction
-      {...props}
-      icon={<ArrowUpwardIcon />}
-      translationId={destinationLabel}
-      explanationId={destinationExplanation}
-      currentStageId={currentStageId}
-      targetStageId={destinationStage.id}
-      operationBlocked={hasTodos && (destinationStage === inReviewStage || destinationStage === verifiedStage)}
-      blockedOperationTranslationId="mustRemoveTodosExplanation"
-      disabled={disabled}
-      isOpen={true}
-      highlight={highlight}
-    />
+    <div className={highlightClass}>
+      <StageChangeAction
+        {...props}
+        icon={<ArrowUpwardIcon />}
+        translationId={destinationLabel}
+        explanationId={destinationExplanation}
+        currentStageId={currentStageId}
+        targetStageId={destinationStage.id}
+        operationBlocked={hasTodos && (destinationStage === inReviewStage || destinationStage === verifiedStage)}
+        blockedOperationTranslationId="mustRemoveTodosExplanation"
+        disabled={disabled}
+        isOpen={true}
+      />
+    </div>
   );
 }
 

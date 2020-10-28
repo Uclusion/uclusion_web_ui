@@ -741,7 +741,7 @@ function PlanningInvestible(props) {
               <div className={classes.editRow}>
                 <dl className={classes.upperRightCard}>
                   {displayEdit && (
-                    <div style={{paddingTop: '0.75rem'}}>
+                    <div>
                       <EditMarketButton
                         labelId="changeCompletionDate"
                         marketId={marketId}
@@ -763,30 +763,34 @@ function PlanningInvestible(props) {
                       )}
                     </div>
                   )}
-                  <ShareStoryButton />
+                  <div><ShareStoryButton /></div>
                   {!inArchives && isAssigned && (
-                    <MoveToNextVisibleStageActionButton
-                      key="visible"
-                      investibleId={investibleId}
-                      marketId={marketId}
-                      currentStageId={stage}
-                      disabled={!_.isEmpty(blockingComments) || !isAssigned || (isInVoting && (!enoughVotes || !_.isEmpty(assignedInAcceptedStage)))}
-                      enoughVotes={enoughVotes}
-                      acceptedStageAvailable={_.isEmpty(assignedInAcceptedStage)}
-                      hasTodos={!_.isEmpty(todoComments)}
-                    />
+                      <MoveToNextVisibleStageActionButton
+                        key="visible"
+                        investibleId={investibleId}
+                        marketId={marketId}
+                        currentStageId={stage}
+                        disabled={!_.isEmpty(blockingComments) || !isAssigned || (isInVoting && (!enoughVotes || !_.isEmpty(assignedInAcceptedStage)))}
+                        enoughVotes={enoughVotes}
+                        acceptedStageAvailable={_.isEmpty(assignedInAcceptedStage)}
+                        hasTodos={!_.isEmpty(todoComments)}
+                      />
                   )}
                   {displayEdit && !beingEdited && (
-                    <EditMarketButton
-                      labelId="edit"
-                      marketId={marketId}
-                      onClick={() => setBeingEdited(true)}
-                    />
+                    <div>
+                      <EditMarketButton
+                        labelId="edit"
+                        marketId={marketId}
+                        onClick={() => setBeingEdited(true)}
+                      />
+                    </div>
                   )}
                 </dl>
               </div>
               {marketDaysEstimate > 0 && (
-                <DaysEstimate readOnly value={daysEstimate} createdAt={createdAt} />
+                <div style={{paddingTop: '1.5rem'}}>
+                  <DaysEstimate readOnly value={daysEstimate} createdAt={createdAt} />
+                </div>
               )}
               <MarketMetaData
                 stage={marketInfo.stage_name}

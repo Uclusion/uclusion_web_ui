@@ -19,6 +19,7 @@ import { injectIntl } from 'react-intl';
 import { withTheme } from '@material-ui/core';
 import { isTinyWindow } from '../../utils/windowUtils';
 
+
 // install our filtering paste module, and disable the uploader
 Quill.register('modules/clipboard', CustomQuillClipboard, true);
 Quill.register('modules/uploader', NoOpUploader, true);
@@ -111,7 +112,8 @@ class QuillEditor extends React.PureComponent {
       noToolbar,
       simple,
       setOperationInProgress,
-      getUrlName
+      getUrlName,
+      id,
     } = this.props;
     const defaultModules = {
       toolbar: [
@@ -162,7 +164,7 @@ class QuillEditor extends React.PureComponent {
     if (noToolbar) {
       this.modules.toolbar = false;
     }
-
+    const boundsId = `editorBox-${id || marketId}`;
     this.options = {
       modules: this.modules,
       handlers: {
@@ -171,7 +173,7 @@ class QuillEditor extends React.PureComponent {
       placeholder,
       readOnly: false,
       theme: 'snow',
-      bounds: '#editorbox'
+      bounds: `#${boundsId}`,
     };
     this.editor = new Quill(this.editorBox.current, this.options);
     this.editor.getUrlName = getUrlName;
@@ -285,7 +287,8 @@ class QuillEditor extends React.PureComponent {
   }
 
   render () {
-    const { children, theme, intl, id } = this.props;
+    const { children, theme, intl, id, marketId } = this.props;
+    const boundsId = `editorBox-${id || marketId}`;
     const { uploadInProgress } = this.state;
     const editorStyle = {
       fontFamily: theme.typography.fontFamily,
@@ -304,7 +307,7 @@ class QuillEditor extends React.PureComponent {
             className="editor-wrapper"
             text={intl.formatMessage({ id: 'quillEditorUploadInProgress' })}
           >
-            <div ref={this.editorBox} id='editorbox' style={editorStyle}/>
+            <div ref={this.editorBox} id={boundsId} style={editorStyle}/>
           </LoadingOverlay>
         </div>
         {isTinyWindow() && <div style={{height: "40px"}}>&nbsp;</div>}

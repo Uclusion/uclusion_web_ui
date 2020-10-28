@@ -12,6 +12,7 @@ import {
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import StageChangeAction from '../../../components/SidebarActions/Planning/StageChangeAction'
 import { makeStyles } from '@material-ui/styles'
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 
 const style = makeStyles(() => {
     return {
@@ -33,13 +34,14 @@ function MoveToNextVisibleStageActionButton(props) {
   const { marketId, currentStageId, disabled, enoughVotes, acceptedStageAvailable, hasTodos } = props;
   const classes = style();
   const [marketStagesState] = useContext(MarketStagesContext);
+  const [operationRunning] = useContext(OperationInProgressContext);
   const acceptedStage = getAcceptedStage(marketStagesState, marketId) || {};
   const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
   const inVotingStage = getInCurrentVotingStage(marketStagesState, marketId) || {};
   const inBlockedStage = getBlockedStage(marketStagesState, marketId) || {};
   const inRequiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
   const verifiedStage = getVerifiedStage(marketStagesState, marketId) || {};
-  let highlightClass = disabled ? classes.containerDisabled : classes.containerNone;
+  let highlightClass = (disabled || operationRunning) ? classes.containerDisabled : classes.containerNone;
   let destinationStage;
   let destinationExplanation;
   let destinationLabel;
@@ -47,7 +49,7 @@ function MoveToNextVisibleStageActionButton(props) {
     destinationStage = acceptedStage;
     destinationExplanation = 'planningInvestibleAcceptedExplanation';
     destinationLabel = 'planningInvestibleNextStageAcceptedLabel';
-    if (!disabled) {
+    if (!(disabled || operationRunning)) {
       highlightClass = classes.containerYellow;
     }
   } else if (currentStageId === acceptedStage.id) {

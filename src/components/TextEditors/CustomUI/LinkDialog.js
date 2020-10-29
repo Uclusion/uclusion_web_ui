@@ -6,16 +6,20 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { Button, Typography } from '@material-ui/core';
 import TextField from '@material-ui/core/TextField';
 
-function VideoDialog (props) {
+function LinkDialog (props) {
   const {
     open,
     onSave,
-    onClose
+    onClose,
   } = props;
 
-  const [videoUrl, setVideoUrl] = useState("");
+  const [linkUrl, setLinkUrl] = useState("");
   const autoFocusRef = useRef(null);
   const intl = useIntl();
+
+  function resetForm() {
+    setLinkUrl("");
+  }
 
   return (
     <Dialog
@@ -25,38 +29,38 @@ function VideoDialog (props) {
       content={(
         <div>
           <Typography>
-            {intl.formatMessage({id: 'VideoDialogExplanation'})}
+            {intl.formatMessage({id: 'LinkDialogExplanation'})}
           </Typography>
           <TextField
             ref={autoFocusRef}
             fullWidth
-            label={intl.formatMessage({ id: "VideoDialogUrl" })}
-            onChange={(event) => setVideoUrl(event.target.value)}
+            label={intl.formatMessage({ id: "LinkDialogUrl" })}
+            onChange={(event) => setLinkUrl(event.target.value)}
             placeholder={intl.formatMessage({
-              id: "VideoDialogUrlPlaceholder"
+              id: "LinkDialogUrlPlaceHolder"
             })}
-            value={videoUrl}
+            value={linkUrl}
             variant="filled"
           />
         </div>
       )}
-      title={<FormattedMessage id="VideoDialogTitle"/>}
+      title={<FormattedMessage id="LinkDialogTitle"/>}
       actions={
         <React.Fragment>
           <Button
             disableFocusRipple
             onClick={() => {
-              setVideoUrl("");
+              resetForm();
               onClose();
             }}
           >
             <FormattedMessage id="cancel"/>
           </Button>
           <Button
-            disabled={_.isEmpty(videoUrl)}
+            disabled={_.isEmpty(linkUrl)}
             onClick={() => {
-              onSave(videoUrl);
-              setVideoUrl("");
+              onSave(linkUrl);
+              resetForm();
               onClose();
             }}
           >
@@ -69,17 +73,17 @@ function VideoDialog (props) {
   );
 }
 
-VideoDialog.propTypes = {
+LinkDialog.propTypes = {
   onSave: PropTypes.func,
   onClose: PropTypes.func,
   open: PropTypes.bool,
 };
 
-VideoDialog.defaultProps = {
+LinkDialog.defaultProps = {
   open: false,
   onSave: () => {},
   onClose: () => {},
 }
 
 
-export default VideoDialog;
+export default LinkDialog;

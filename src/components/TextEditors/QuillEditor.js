@@ -21,6 +21,7 @@ import { isTinyWindow } from '../../utils/windowUtils';
 import { addQuillLinkFixer } from './Utilities/LinkUtils';
 import VideoDialog from './CustomUI/VideoDialog';
 import { embeddifyVideoLink } from './Utilities/VideoUtils';
+import LinkDialog from './CustomUI/LinkDialog';
 
 // install our filtering paste module, and disable the uploader
 Quill.register('modules/clipboard', CustomQuillClipboard, true);
@@ -76,26 +77,11 @@ class QuillEditor extends React.PureComponent {
 
   constructor (props) {
     super(props);
-    this.state = { uploads: [], uploadInProgress: false };
+    this.state = { uploads: [], uploadInProgress: false};
     this.editorBox = React.createRef();
     this.editorContainer = React.createRef();
   }
 
-  addLinkFixer () {
-    const Link = Quill.import('formats/link');
-    var builtinSanitizer = Link.sanitize;
-    Link.sanitize = function (originalLinkValue) {
-      let linkValue = originalLinkValue;
-      if (linkValue && linkValue.includes('loom.com/share')) {
-        linkValue = linkValue.replace('loom.com/share', 'loom.com/embed');
-      }
-      // do nothing, since this implies user's already using a custom protocol
-      if (/^\w+:/.test(linkValue)) {
-        return builtinSanitizer.call(this, linkValue);
-      }
-      return builtinSanitizer.call(this, 'https://' + linkValue);
-    };
-  }
 
   /**
    * The UI for videos is quite poor, so we need
@@ -109,6 +95,36 @@ class QuillEditor extends React.PureComponent {
         onSave={(link) => {
           const embedded = embeddifyVideoLink(link);
           this.editor.format('video', embedded);
+        }}
+      />
+    );
+  }
+
+  /**
+   * The UI for links is also quite poor, so we need
+   * to replace it with ours
+   */
+  createLinkUi () {
+    return (
+      <LinkDialog
+        open={this.state.linkDialogOpen}
+        onClose={() => this.setState({ linkDialogOpen: false})}
+        onSave={(link) => {
+          console.error(link);
+          // if they haven't got anything selected, just get the current
+          // position and insert the url as the text,
+          // otherwise just format the current selection as a link
+          const selected = this.editor.getSelection(true);
+         // console.error(selected);
+          //do we have nothing selected i.e. a zero length selection?
+          if (selected.length === 0) {
+            const index = selected? selected.index : 0; // no position? do it at the front
+            // if so, the selection is just the cursor position, so insert our new text there
+            this.editor.insertText(index, link, 'link', link, 'user');
+          }else {
+          //  console.error('adding link' + link);
+            this.editor.format('link', link);
+          }
         }}
       />
     );
@@ -133,8 +149,15 @@ class QuillEditor extends React.PureComponent {
       toolbar: {
         handlers : {
           'video': () => {
-
             this.setState({videoDialogOpen: true})
+          },
+          'link': (value) => {
+            console.error(value);
+            if (value){
+              this.setState({linkDialogOpen: true});
+            }else{
+              this.editor.format('link', false);
+            }
           }
         },
         //for various reasons, the array form is stored in the container property when you're
@@ -315,6 +338,12 @@ class QuillEditor extends React.PureComponent {
     this.bridgeReactAndQuillState();
   }
 
+  /**
+   * Mostly a guard to redo the editor if we rerender the components
+   * @param prevProps
+   * @param prevState
+   * @param snapshot
+   */
   componentDidUpdate (prevProps, prevState, snapshot) {
     if (prevProps.marketId !== this.props.marketId) {
       console.debug('Updating Quill');
@@ -325,9 +354,7 @@ class QuillEditor extends React.PureComponent {
   componentDidMount () {
     const { defaultValue } = this.props;
     this.editorBox.current.innerHTML = defaultValue;
-
     this.createEditor();
-
   }
 
   setUploadInProgress (value) {
@@ -371,6 +398,7 @@ class QuillEditor extends React.PureComponent {
     return (
       <div>
         {this.createVideoUi()}
+        {this.createLinkUi()}
         <div ref={this.editorContainer} style={{ maxWidth: '100%', zIndex: '2' }} id={id}>
           <LoadingOverlay
             active={uploadInProgress}

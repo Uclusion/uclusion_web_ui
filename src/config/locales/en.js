@@ -941,11 +941,16 @@ const messages = defineMessages({
   IdentityChangeAvatar: 'Change your avatar',
   IdentityTermsOfUse: 'Terms of Use',
 
-  VideoDialogTitle: 'Add Video',
-  VideoDialogTitleAddButton: 'Add',
-  VideoDialogUrl: "URL for Video",
-  VideoDialogUrlPlaceholder: "Video URL",
-  VideoDialogExplanation: "Please provide the URL of the video to include. We integrate with YouTube, Loom, Vimeo, and support links to most video format files."
+  VideoDialogTitle: 'Insert a Video',
+  VideoDialogTitleAddButton: 'Insert',
+  VideoDialogUrl: 'URL for Video',
+  VideoDialogUrlPlaceholder: 'Video URL',
+  VideoDialogExplanation: 'Please provide the URL of the video to insert. We integrate with YouTube, Loom, and Vimeo, and support links to most video format files.',
+
+  LinkDialogTitle: 'Insert a Link',
+  LinkDialogExplanation: 'Please provide the URL of the link you want to insert.',
+  LinkDialogUrl: 'URL for Link',
+  LinkDialogUrlPlaceHolder: 'Link URL',
 
 });
 

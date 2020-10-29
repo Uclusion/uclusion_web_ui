@@ -1,10 +1,9 @@
 import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
-import _ from 'lodash'
 import { FormattedMessage, useIntl } from 'react-intl'
 import SpinBlockingListAction from '../../../components/SpinBlocking/SpinBlockingListAction'
 import { stageChangeInvestible } from '../../../api/investibles'
-import { getInvestible, refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
+import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { EMPTY_SPIN_RESULT } from '../../../constants/global'
@@ -66,18 +65,14 @@ function StageChangeAction(props) {
     onSpinStop,
     isOpen,
     disabled,
-    removeAssignments,
     operationBlocked,
     blockedOperationTranslationId,
   } = props;
   const classes = useStyles();
   const intl = useIntl();
-  const [invState, invDispatch] = useContext(InvestiblesContext);
+  const [, invDispatch] = useContext(InvestiblesContext);
   const [operationRunning] = useContext(OperationInProgressContext);
   const [, diffDispatch] = useContext(DiffContext);
-  const inv = getInvestible(invState, investibleId) || {};
-  const { market_infos: marketInfos } = inv;
-  const thisMarketInfo = (marketInfos || []).find((info) => info.market_id === marketId);
   const autoFocusRef = React.useRef(null);
   const lockedDialogClasses = useLockedDialogStyles();
   const [open, setOpen] = React.useState(false);
@@ -97,20 +92,7 @@ function StageChangeAction(props) {
       },
     };
     return stageChangeInvestible(moveInfo)
-      .then(() => {
-        const newInfo = {
-          ...thisMarketInfo,
-          stage: targetStageId
-        };
-        if (removeAssignments) {
-          delete newInfo.assigned;
-        }
-        const newMarketInfos = _.unionBy([newInfo], marketInfos, 'id');
-        const newInv = {
-          ...inv,
-          market_infos: newMarketInfos
-        };
-        // console.log(newInv);
+      .then((newInv) => {
         refreshInvestibles(invDispatch, diffDispatch, [newInv]);
         return EMPTY_SPIN_RESULT;
       });
@@ -244,14 +226,12 @@ StageChangeAction.propTypes = {
   targetStageId: PropTypes.string.isRequired,
   isOpen: PropTypes.bool,
   disabled: PropTypes.bool.isRequired,
-  removeAssignments: PropTypes.bool,
   operationBlocked: PropTypes.bool,
   blockedOperationTranslationId: PropTypes.string,
 };
 
 StageChangeAction.defaultProps = {
   onSpinStop: () => {},
-  removeAssignments: false,
   operationBlocked: false,
   blockedOperationTranslationId: '',
   isOpen: true

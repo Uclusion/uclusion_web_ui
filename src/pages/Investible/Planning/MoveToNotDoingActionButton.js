@@ -22,7 +22,6 @@ function MoveToNotDoingActionButton(props) {
       translationId="planningInvestibleMoveToNotDoingLabel"
       explanationId="planningInvestibleNotDoingExplanation"
       disabled={disabled}
-      removeAssignments
     />
   );
 }

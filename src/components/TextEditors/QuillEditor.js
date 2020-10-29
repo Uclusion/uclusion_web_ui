@@ -18,6 +18,7 @@ import _ from 'lodash';
 import { injectIntl } from 'react-intl';
 import { withTheme } from '@material-ui/core';
 import { isTinyWindow } from '../../utils/windowUtils';
+import { addQuillLinkFixer } from './Utilities/LinkUtils';
 
 
 // install our filtering paste module, and disable the uploader
@@ -95,24 +96,19 @@ class QuillEditor extends React.PureComponent {
     };
   }
 
-  /** The default UI for links sucks, This is a new one that's better
-   *
-   * @param value
-   */
-  renderLinkUI (value) {
-
-  }
-
-  createEditor () {
+  /**
+   * Takes our properties and generates a quill options object
+   * that configures the editor to what the properties imply.
+   * @returns the quill options for the editor
+   * */
+  generateEditorOptions () {
     const {
-      onChange, onStoreChange, setEditorClearFunc, setEditorFocusFunc, setEditorDefaultFunc,
       marketId,
       placeholder,
       uploadDisabled,
       noToolbar,
       simple,
       setOperationInProgress,
-      getUrlName,
       id,
     } = this.props;
     const defaultModules = {
@@ -145,39 +141,49 @@ class QuillEditor extends React.PureComponent {
       table: true,
       tableUI: true,
     };
-    this.modules = { ...defaultModules };
+    const modules = { ...defaultModules };
     if (simple) {
-      this.modules.toolbar = this.simplifiedToolBar;
-      this.modules.s3Upload = false;
-      this.modules.imageResize = false;
+      modules.toolbar = this.simplifiedToolBar;
+      modules.s3Upload = false;
+      modules.imageResize = false;
     }
     if (uploadDisabled && !simple) {
-      this.modules.toolbar = this.uploadLessToolbar;
-      this.modules.s3Upload = false;
-      this.modules.imageResize = false;
+      modules.toolbar = this.uploadLessToolbar;
+      modules.s3Upload = false;
+      modules.imageResize = false;
     }
 
     if (isTinyWindow()) {
-      this.modules.toolbar = this.tinyToolBar;
+      modules.toolbar = this.tinyToolBar;
     }
 
     if (noToolbar) {
-      this.modules.toolbar = false;
+      modules.toolbar = false;
     }
     const boundsId = `editorBox-${id || marketId}`;
-    this.options = {
-      modules: this.modules,
-      handlers: {
-        link: this.renderLinkUI,
-      },
+    return {
+      modules,
       placeholder,
       readOnly: false,
       theme: 'snow',
       bounds: `#${boundsId}`,
     };
-    this.editor = new Quill(this.editorBox.current, this.options);
-    this.editor.getUrlName = getUrlName;
-    this.addLinkFixer();
+  }
+
+  /**
+   * Configures the load and store
+   * from our browser stores and memory,
+   * so that the editor
+   * picks up where it left off it you
+   * reload or come back to the page,
+   * and upstream objects get the updates
+   * via onchange
+   */
+  setupStoreAndChangeSyncing() {
+    const {
+      onChange,
+      onStoreChange
+    } = this.props;
     const debouncedOnChange = _.debounce((delta) => {
       const contents = this.editor.root.innerHTML;
       if (editorEmpty(contents)) {
@@ -198,8 +204,44 @@ class QuillEditor extends React.PureComponent {
       debouncedOnChange(delta);
       debouncedOnStoreChange(delta);
     };
-    this.disableToolbarTabs(this.editorContainer.current);
     this.editor.on('text-change', both);
+  }
+
+  /** Adds the tooltips
+   * to the items in the toolbar.
+   */
+  addToolTips(){
+    const toolbar = this.editor.container.previousSibling;
+    setTooltip(toolbar, 'button.ql-bold', 'Bold');
+    setTooltip(toolbar, 'button.ql-italic', 'Italic');
+    setTooltip(toolbar, 'button.ql-link', 'Link');
+    setTooltip(toolbar, 'button.ql-clean', 'Clear Formatting');
+    setTooltip(toolbar, 'button.ql-image', 'Image');
+    setTooltip(toolbar, 'button.ql-video', 'Video or Loom Link');
+    setTooltip(toolbar, 'button.ql-underline', 'Underline');
+    setTooltip(toolbar, 'button.ql-strike', 'Strike');
+    setTooltip(toolbar, 'button.ql-list', 'Number List', 'Bullet List');
+    setTooltip(toolbar, 'button.ql-table', 'Table');
+    setTooltip(toolbar, 'span.ql-color', 'Text Color');
+    setTooltip(toolbar, 'span.ql-background', 'Background Color');
+    setTooltip(toolbar, 'span.ql-align', 'Text Alignment');
+    setTooltip(toolbar, 'span.ql-font', 'Font Style');
+    setTooltip(toolbar, 'span.ql-header', 'Font Size');
+    setTooltip(toolbar, 'button.ql-code-block', 'Code Block');
+    setTooltip(toolbar, 'button.ql-script', 'Subscript', 'Superscript');
+    setTooltip(toolbar, 'button.ql-indent', 'Unindent', 'Indent');
+  }
+
+  /** Quill and react state updates
+   * don't really play nice with each other.
+   * This code bridges between the two worlds
+   */
+  bridgeReactAndQuillState(){
+    const {
+      setEditorClearFunc,
+      setEditorFocusFunc,
+      setEditorDefaultFunc,
+    } = this.props;
     // see https://stackoverflow.com/questions/55621212/is-it-possible-to-react-usestate-in-react
     const editorClearFunc = () => (newPlaceHolder) => {
       // this might not really work, zo C-Z will undo the clear, but it's still better than nothing
@@ -227,25 +269,19 @@ class QuillEditor extends React.PureComponent {
       this.editor.focus();
     };
     setEditorFocusFunc(editorFocusFunc);
-    const toolbar = this.editor.container.previousSibling;
-    setTooltip(toolbar, 'button.ql-bold', 'Bold');
-    setTooltip(toolbar, 'button.ql-italic', 'Italic');
-    setTooltip(toolbar, 'button.ql-link', 'Link');
-    setTooltip(toolbar, 'button.ql-clean', 'Clear Formatting');
-    setTooltip(toolbar, 'button.ql-image', 'Image');
-    setTooltip(toolbar, 'button.ql-video', 'Video or Loom Link');
-    setTooltip(toolbar, 'button.ql-underline', 'Underline');
-    setTooltip(toolbar, 'button.ql-strike', 'Strike');
-    setTooltip(toolbar, 'button.ql-list', 'Number List', 'Bullet List');
-    setTooltip(toolbar, 'button.ql-table', 'Table');
-    setTooltip(toolbar, 'span.ql-color', 'Text Color');
-    setTooltip(toolbar, 'span.ql-background', 'Background Color');
-    setTooltip(toolbar, 'span.ql-align', 'Text Alignment');
-    setTooltip(toolbar, 'span.ql-font', 'Font Style');
-    setTooltip(toolbar, 'span.ql-header', 'Font Size');
-    setTooltip(toolbar, 'button.ql-code-block', 'Code Block');
-    setTooltip(toolbar, 'button.ql-script', 'Subscript', 'Superscript');
-    setTooltip(toolbar, 'button.ql-indent', 'Unindent', 'Indent');
+  }
+
+  createEditor () {
+    const {
+      getUrlName,
+    } = this.props;
+    const editorOptions = this.generateEditorOptions();
+    this.editor = new Quill(this.editorBox.current, editorOptions);
+    this.editor.getUrlName = getUrlName;
+    addQuillLinkFixer();
+    this.setupStoreAndChangeSyncing();
+    this.disableToolbarTabs(this.editorContainer.current);
+    this.bridgeReactAndQuillState();
   }
 
   componentDidUpdate (prevProps, prevState, snapshot) {

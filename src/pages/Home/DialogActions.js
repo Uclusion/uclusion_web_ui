@@ -98,6 +98,7 @@ function DialogActions(props) {
           <EditMarketButton
             labelId="edit"
             marketId={marketId}
+            key="editbutton"
             onClick={() => setBeingEdited(true)}
           />);
       }
@@ -109,6 +110,7 @@ function DialogActions(props) {
       }
       actions.push(
         <Tooltip
+          key="removeParticipantsTooltip"
           title={intl.formatMessage({ id: 'dialogRemoveParticipantsLabel' })}
         >
           <IconButton

@@ -19,7 +19,8 @@ import { injectIntl } from 'react-intl';
 import { withTheme } from '@material-ui/core';
 import { isTinyWindow } from '../../utils/windowUtils';
 import { addQuillLinkFixer } from './Utilities/LinkUtils';
-
+import VideoDialog from './CustomUI/VideoDialog';
+import { embeddifyVideoLink } from './Utilities/VideoUtils';
 
 // install our filtering paste module, and disable the uploader
 Quill.register('modules/clipboard', CustomQuillClipboard, true);
@@ -34,7 +35,7 @@ function editorEmpty (contents) {
   return (contents.length === 0 || contents === '<p></p>' || contents === '<p><br></p>');
 }
 
-function setTooltip(toolbar, selector, title, title2) {
+function setTooltip (toolbar, selector, title, title2) {
   const selected = title2 ? toolbar.querySelectorAll(selector) : toolbar.querySelector(selector);
   if (selected) {
     if (title2) {
@@ -97,6 +98,23 @@ class QuillEditor extends React.PureComponent {
   }
 
   /**
+   * The UI for videos is quite poor, so we need
+   * to replace it with ours
+   */
+  createVideoUi () {
+    return (
+      <VideoDialog
+        open={this.state.videoDialogOpen}
+        onClose={() => this.setState({ videoDialogOpen: false })}
+        onSave={(link) => {
+          const embedded = embeddifyVideoLink(link);
+          this.editor.format('video', embedded);
+        }}
+      />
+    );
+  }
+
+  /**
    * Takes our properties and generates a quill options object
    * that configures the editor to what the properties imply.
    * @returns the quill options for the editor
@@ -112,17 +130,27 @@ class QuillEditor extends React.PureComponent {
       id,
     } = this.props;
     const defaultModules = {
-      toolbar: [
-        [{ font: [] }],
-        [{ header: [1, 2, false] }],
-        ['bold', 'italic', 'underline', 'strike', { script: 'sub' }, { script: 'super' }],
-        [{ color: [] }, { background: [] }],
-        [{ align: [] }],
-        [{ list: 'ordered' }, { list: 'bullet' }, { indent: '-1' }, { indent: '+1' }],
-        ['link', 'code-block', 'image', 'video'],
-        ['table'],
-        ['clean'],
-      ],
+      toolbar: {
+        handlers : {
+          'video': () => {
+
+            this.setState({videoDialogOpen: true})
+          }
+        },
+        //for various reasons, the array form is stored in the container property when you're
+        // passing in an object for the toolbar
+        container: [
+          [{ font: [] }],
+          [{ header: [1, 2, false] }],
+          ['bold', 'italic', 'underline', 'strike', { script: 'sub' }, { script: 'super' }],
+          [{ color: [] }, { background: [] }],
+          [{ align: [] }],
+          [{ list: 'ordered' }, { list: 'bullet' }, { indent: '-1' }, { indent: '+1' }],
+          ['link', 'code-block', 'image', 'video'],
+          ['table'],
+          ['clean'],
+        ]
+      },
       imageResize: {
         modules: ['Resize', 'DisplaySize'],
       },
@@ -160,6 +188,9 @@ class QuillEditor extends React.PureComponent {
     if (noToolbar) {
       modules.toolbar = false;
     }
+    // quill will constrain ui elements to the boundaries
+    // of the element specified in the bounds parameter
+    // which in our case is a css id
     const boundsId = `editorBox-${id || marketId}`;
     return {
       modules,
@@ -179,7 +210,7 @@ class QuillEditor extends React.PureComponent {
    * and upstream objects get the updates
    * via onchange
    */
-  setupStoreAndChangeSyncing() {
+  setupStoreAndChangeSyncing () {
     const {
       onChange,
       onStoreChange
@@ -210,7 +241,7 @@ class QuillEditor extends React.PureComponent {
   /** Adds the tooltips
    * to the items in the toolbar.
    */
-  addToolTips(){
+  addToolTips () {
     const toolbar = this.editor.container.previousSibling;
     setTooltip(toolbar, 'button.ql-bold', 'Bold');
     setTooltip(toolbar, 'button.ql-italic', 'Italic');
@@ -236,7 +267,7 @@ class QuillEditor extends React.PureComponent {
    * don't really play nice with each other.
    * This code bridges between the two worlds
    */
-  bridgeReactAndQuillState(){
+  bridgeReactAndQuillState () {
     const {
       setEditorClearFunc,
       setEditorFocusFunc,
@@ -324,6 +355,9 @@ class QuillEditor extends React.PureComponent {
 
   render () {
     const { children, theme, intl, id, marketId } = this.props;
+    // quill will constrain ui elements to the boundaries
+    // of the element specified in the bounds parameter
+    // which in our case is a css id
     const boundsId = `editorBox-${id || marketId}`;
     const { uploadInProgress } = this.state;
     const editorStyle = {
@@ -336,7 +370,8 @@ class QuillEditor extends React.PureComponent {
 
     return (
       <div>
-        <div ref={this.editorContainer} style={{ maxWidth: '100%', zIndex: '2'}} id={id}>
+        {this.createVideoUi()}
+        <div ref={this.editorContainer} style={{ maxWidth: '100%', zIndex: '2' }} id={id}>
           <LoadingOverlay
             active={uploadInProgress}
             spinner
@@ -346,9 +381,9 @@ class QuillEditor extends React.PureComponent {
             <div ref={this.editorBox} id={boundsId} style={editorStyle}/>
           </LoadingOverlay>
         </div>
-        {isTinyWindow() && <div style={{height: "40px"}}>&nbsp;</div>}
+        {isTinyWindow() && <div style={{ height: '40px' }}>&nbsp;</div>}
         <div>
-        {children}
+          {children}
         </div>
       </div>
     );

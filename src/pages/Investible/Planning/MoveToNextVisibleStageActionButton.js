@@ -21,10 +21,12 @@ const style = makeStyles(() => {
         border: '2px solid'
       },
       containerNone: {
-        border: '2px solid'
+        border: '2px solid',
+        borderRadius: 6,
       },
       containerDisabled: {
-        border: '2px solid grey'
+        border: '2px solid grey',
+        borderRadius: 6,
       },
     };
   }

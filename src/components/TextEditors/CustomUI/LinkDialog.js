@@ -33,6 +33,7 @@ function LinkDialog (props) {
           </Typography>
           <TextField
             ref={autoFocusRef}
+            autoFocus
             fullWidth
             label={intl.formatMessage({ id: "LinkDialogUrl" })}
             onChange={(event) => setLinkUrl(event.target.value)}

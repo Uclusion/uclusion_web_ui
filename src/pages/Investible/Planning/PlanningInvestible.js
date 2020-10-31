@@ -1115,19 +1115,19 @@ function Assignments(props) {
   const { investible, marketId, marketPresences, isAdmin, toggleAssign, classes } = props;
   const intl = useIntl();
   const marketInfo = getMarketInfo(investible, marketId) || {};
-  const { assigned = [] } = marketInfo;
+  const { assigned } = marketInfo;
   const myPresence = marketPresences.find((presence) => presence.current_user);
   const isFollowing = myPresence && myPresence.following;
-
+  const safeAssigned = assigned || [];
   return (
     <span className={classes.assignmentFlexRow}>
       <ul>
-        {_.isEmpty(assigned) && (
+        {_.isEmpty(safeAssigned) && (
           <Typography key="unassigned" component="li">
             {intl.formatMessage({ id: 'reassignToMove' })}
           </Typography>
         )}
-        {assigned.map(userId => {
+        {safeAssigned.map(userId => {
           let user = marketPresences.find(presence => presence.id === userId);
           if (!user) {
             user = { name: "Removed" };

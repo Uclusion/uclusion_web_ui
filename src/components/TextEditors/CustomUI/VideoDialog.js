@@ -30,6 +30,7 @@ function VideoDialog (props) {
           <TextField
             ref={autoFocusRef}
             fullWidth
+            autoFocus
             label={intl.formatMessage({ id: "VideoDialogUrl" })}
             onChange={(event) => setVideoUrl(event.target.value)}
             placeholder={intl.formatMessage({

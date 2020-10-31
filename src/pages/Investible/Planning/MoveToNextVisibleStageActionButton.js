@@ -33,7 +33,8 @@ const style = makeStyles(() => {
 );
 
 function MoveToNextVisibleStageActionButton(props) {
-  const { marketId, currentStageId, disabled, enoughVotes, acceptedStageAvailable, hasTodos } = props;
+  const { marketId, currentStageId, disabled, enoughVotes, acceptedStageAvailable, hasTodos,
+    hasAssignedQuestions } = props;
   const classes = style();
   const [marketStagesState] = useContext(MarketStagesContext);
   const [operationRunning] = useContext(OperationInProgressContext);
@@ -77,7 +78,7 @@ function MoveToNextVisibleStageActionButton(props) {
   if (!destinationStage) {
     return React.Fragment;
   }
-
+  const blockedByTodos = hasTodos && (destinationStage === inReviewStage || destinationStage === verifiedStage);
   return (
     <div className={highlightClass}>
       <StageChangeAction
@@ -87,8 +88,9 @@ function MoveToNextVisibleStageActionButton(props) {
         explanationId={destinationExplanation}
         currentStageId={currentStageId}
         targetStageId={destinationStage.id}
-        operationBlocked={hasTodos && (destinationStage === inReviewStage || destinationStage === verifiedStage)}
-        blockedOperationTranslationId="mustRemoveTodosExplanation"
+        operationBlocked={blockedByTodos || (hasAssignedQuestions
+          && [inReviewStage, acceptedStage, inVotingStage].includes(destinationStage))}
+        blockedOperationTranslationId={blockedByTodos ? 'mustRemoveTodosExplanation' : 'mustResolveAssignedQuestions'}
         disabled={disabled}
         isOpen={true}
       />
@@ -103,6 +105,7 @@ MoveToNextVisibleStageActionButton.propTypes = {
   enoughVotes: PropTypes.bool.isRequired,
   acceptedStageAvailable: PropTypes.bool.isRequired,
   hasTodos: PropTypes.bool.isRequired,
+  hasAssignedQuestions: PropTypes.bool.isRequired
 };
 
 export default MoveToNextVisibleStageActionButton;

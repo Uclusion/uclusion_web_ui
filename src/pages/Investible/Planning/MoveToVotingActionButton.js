@@ -6,7 +6,7 @@ import { getInCurrentVotingStage, } from '../../../contexts/MarketStagesContext/
 import StageChangeAction from '../../../components/SidebarActions/Planning/StageChangeAction'
 
 function MoveToVotingActionButton(props) {
-  const { marketId, disabled } = props;
+  const { marketId, disabled, hasAssignedQuestions } = props;
 
   const [marketStagesState] = useContext(MarketStagesContext);
   const votingStage = getInCurrentVotingStage(marketStagesState, marketId);
@@ -22,6 +22,8 @@ function MoveToVotingActionButton(props) {
       targetStageId={votingStage.id}
       translationId="planningInvestibleToVotingLabel"
       explanationId="planningInvestibleVotingExplanation"
+      operationBlocked={hasAssignedQuestions}
+      blockedOperationTranslationId="mustResolveAssignedQuestions"
       disabled={disabled}
     />
   );
@@ -30,6 +32,7 @@ function MoveToVotingActionButton(props) {
 MoveToVotingActionButton.propTypes = {
   marketId: PropTypes.string.isRequired,
   disabled: PropTypes.bool.isRequired,
+  hasAssignedQuestions: PropTypes.bool.isRequired
 };
 
 export default MoveToVotingActionButton;

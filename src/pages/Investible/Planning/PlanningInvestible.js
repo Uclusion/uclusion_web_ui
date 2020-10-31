@@ -467,6 +467,9 @@ function PlanningInvestible(props) {
   const todoComments = investibleComments.filter(
     comment => comment.comment_type === TODO_TYPE && !comment.resolved
   );
+  const questionByAssignedComments = investibleComments.filter(
+    comment => comment.comment_type === QUESTION_TYPE && !comment.resolved && assigned.includes(comment.created_by)
+  );
   function getStageActions() {
     if (inArchives || isInNotDoing) {
       return [];
@@ -498,6 +501,7 @@ function PlanningInvestible(props) {
           currentStageId={stage}
           isOpen={changeStagesExpanded}
           disabled={isInVoting || (!isAssigned && !isInBlocked) || !_.isEmpty(blockingComments)}
+          hasAssignedQuestions={!_.isEmpty(questionByAssignedComments)}
         />
       </MenuItem>,
       <MenuItem
@@ -510,6 +514,7 @@ function PlanningInvestible(props) {
           isOpen={changeStagesExpanded}
           full={!_.isEmpty(assignedInAcceptedStage)}
           disabled={!isAssigned || !_.isEmpty(blockingComments) || !_.isEmpty(assignedInAcceptedStage) || !enoughVotes}
+          hasAssignedQuestions={!_.isEmpty(questionByAssignedComments)}
         />
       </MenuItem>,
       <MenuItem
@@ -522,6 +527,7 @@ function PlanningInvestible(props) {
           isOpen={changeStagesExpanded}
           disabled={isInReview || !_.isEmpty(blockingComments)}
           hasTodos={!_.isEmpty(todoComments)}
+          hasAssignedQuestions={!_.isEmpty(questionByAssignedComments)}
         />
       </MenuItem>,
       <MenuItem
@@ -704,6 +710,7 @@ function PlanningInvestible(props) {
                         enoughVotes={enoughVotes}
                         acceptedStageAvailable={_.isEmpty(assignedInAcceptedStage)}
                         hasTodos={!_.isEmpty(todoComments)}
+                        hasAssignedQuestions={!_.isEmpty(questionByAssignedComments)}
                       />
                   )}
                   {displayEdit && !beingEdited && (

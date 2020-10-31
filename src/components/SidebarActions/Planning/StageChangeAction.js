@@ -12,13 +12,8 @@ import { Dialog } from '../../Dialogs'
 import { Button, ListItemText } from '@material-ui/core'
 import clsx from 'clsx'
 import { useLockedDialogStyles } from '../../../pages/Dialog/DialogBodyEdit'
-import SpinBlockingButton from '../../SpinBlocking/SpinBlockingButton'
-import ArchiveIcon from '@material-ui/icons/Archive'
 import TooltipIconButton from '../../Buttons/TooltipIconButton'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
-import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
-import { getRequiredInputStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
-import { ACTION_BUTTON_COLOR } from '../../Buttons/ButtonConstants'
 
 export const useStyles = makeStyles(() => {
   return {
@@ -76,7 +71,6 @@ function StageChangeAction(props) {
   const autoFocusRef = React.useRef(null);
   const lockedDialogClasses = useLockedDialogStyles();
   const [open, setOpen] = React.useState(false);
-  const [marketStagesState] = useContext(MarketStagesContext);
   const handleOpen = () => {
     setOpen(true);
   };
@@ -135,63 +129,6 @@ function StageChangeAction(props) {
           title={
             <React.Fragment>
               <FormattedMessage id="blockedNotice" />
-            </React.Fragment>
-          }
-        />
-      </>
-    );
-  }
-
-  if (currentStageId === (getRequiredInputStage(marketStagesState, marketId) || {}).id) {
-    return (
-      <>
-        <TooltipIconButton disabled={operationRunning || disabled} icon={icon} onClick={handleOpen}
-                           translationId={explanationId} >
-        {isOpen && (
-          <ListItemText className={classes.menuTitle}>
-            {intl.formatMessage({ id: translationId })}
-          </ListItemText>
-        )}
-        </TooltipIconButton>
-        <br />
-        <Dialog
-          autoFocusRef={autoFocusRef}
-          classes={{
-            root: lockedDialogClasses.root,
-            actions: lockedDialogClasses.actions,
-            content: lockedDialogClasses.issueWarningContent,
-            title: lockedDialogClasses.title
-          }}
-          open={open}
-          onClose={() => setOpen(false)}
-          /* slots */
-          actions={
-            <React.Fragment>
-              <SpinBlockingButton
-                className={clsx(lockedDialogClasses.action, lockedDialogClasses.actionEdit)}
-                disableFocusRipple
-                marketId={marketId}
-                onClick={moveToTarget}
-                hasSpinChecker
-                onSpinStop={onSpinStop}
-              >
-                <FormattedMessage id="yesAndProceed" />
-              </SpinBlockingButton>
-              <Button
-                className={clsx(lockedDialogClasses.action, lockedDialogClasses.actionCancel)}
-                disableFocusRipple
-                onClick={() => setOpen(false)}
-                ref={autoFocusRef}
-              >
-                <FormattedMessage id="lockDialogCancel" />
-              </Button>
-            </React.Fragment>
-          }
-          content={<FormattedMessage id="deactivateInlineQuestion" />}
-          title={
-            <React.Fragment>
-              <ArchiveIcon htmlColor={ACTION_BUTTON_COLOR} />
-              <FormattedMessage id="warning" />
             </React.Fragment>
           }
         />

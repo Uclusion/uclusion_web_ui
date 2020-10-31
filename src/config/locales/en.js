@@ -314,6 +314,7 @@ const messages = defineMessages({
   planningEstimatedCompletion: 'Estimated completion',
   planningInvestibleDescription: '- Description',
   mustRemoveTodosExplanation: 'Cannot change to this stage with open TODOs',
+  mustResolveAssignedQuestions: 'Cannot change to this stage with unresolved questions from an assignee',
   daysEstimateHelp: 'Optional very rough expected date of completion.',
   daysEstimateMarketLabel: 'date of completion',
   votesRequiredHelp: 'Number of approvers required before a story can be moved in progress',

@@ -29,7 +29,6 @@ import {
 } from '../../../constants/comments'
 import {
   formInvestibleEditLink,
-  formMarketAddInvestibleLink,
   formMarketArchivesLink,
   formMarketLink,
   makeArchiveBreadCrumbs,
@@ -287,7 +286,7 @@ function PlanningInvestible(props) {
     comment => comment.comment_type === JUSTIFY_TYPE
   );
   const marketInfo = getMarketInfo(marketInvestible, marketId) || {};
-  const { stage, assigned: invAssigned, children, days_estimate: marketDaysEstimate, inline_market_id: inlineMarketId } = marketInfo;
+  const { stage, assigned: invAssigned, children, days_estimate: marketDaysEstimate } = marketInfo;
   const [daysEstimate, setDaysEstimate] = useState(marketDaysEstimate);
   const assigned = invAssigned || []; // handle the empty case to make subsequent code easier
   const presencesFollowing = (marketPresences || []).filter((presence) => presence.following && !presence.market_banned) || [];

@@ -44,21 +44,12 @@ import {
   getProposedOptionsStage
 } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
-import ExpandableAction from '../SidebarActions/Planning/ExpandableAction'
 import { formMarketAddInvestibleLink, navigate } from '../../utils/marketIdPathFunctions'
-import AddIcon from '@material-ui/icons/Add'
 import { useHistory } from 'react-router'
 
 const useCommentStyles = makeStyles(
   theme => {
     return {
-      root: {
-        alignItems: "flex-start",
-        display: "flex"
-      },
-      blue: {
-        backgroundColor: '#2d9cdb',
-      },
       chip: {
         margin: 0,
         marginBottom: 18
@@ -260,23 +251,23 @@ function Comment(props) {
     const proposed = getInlineInvestiblesForStage(proposedStage, inlineInvestibles);
     return (
       <>
-      <Grid item xs={12}>
         {!_.isEmpty(underConsideration) && (
-          <SubSection
-            id="currentVoting"
-            type={SECTION_TYPE_SECONDARY}
-            title={intl.formatMessage({ id: 'storyCurrentVotingLabel' })}
-          >
-            <CurrentVoting
-              marketPresences={anInlineMarketPresences}
-              investibles={underConsideration}
-              marketId={anInlineMarket.id}
-              comments={anInlineMarketInvestibleComments}
-              inArchives={inArchives}
-            />
-          </SubSection>
-        )}
-      </Grid>
+          <Grid item xs={12}>
+            <SubSection
+              id="currentVoting"
+              type={SECTION_TYPE_SECONDARY}
+              title={intl.formatMessage({ id: 'storyCurrentVotingLabel' })}
+            >
+              <CurrentVoting
+                marketPresences={anInlineMarketPresences}
+                investibles={underConsideration}
+                marketId={anInlineMarket.id}
+                comments={anInlineMarketInvestibleComments}
+                inArchives={inArchives}
+              />
+            </SubSection>
+          </Grid>
+      )}
       {!_.isEmpty(proposed) && (
         <Grid item xs={12}>
           <SubSection
@@ -467,33 +458,26 @@ function Comment(props) {
         {showActions && (
           <CardActions className={`${classes.cardActions} ${classes.actions}`}>
             {commentType === QUESTION_TYPE && !inArchives && !inlineMarketId && (
-              <dl className={classes.root}>
-                <div className={classes.blue}>
-                  <ExpandableAction
-                    id="newOption"
-                    key="newOption"
-                    label={intl.formatMessage({ id: 'inlineAddExplanation' })}
-                    onClick={() => navigate(history, `${formMarketAddInvestibleLink(marketId)}#parentCommentId=${id}`)}
-                    icon={<AddIcon />}
-                    openLabel={intl.formatMessage({ id: 'inlineAddLabel' })}
-                  />
-                </div>
-              </dl>
+              <Button
+                className={clsx(classes.action, classes.actionPrimary)}
+                color="primary"
+                disabled={operationRunning}
+                onClick={() => navigate(history, `${formMarketAddInvestibleLink(marketId)}#parentCommentId=${id}`)}
+                variant="contained"
+              >
+                {intl.formatMessage({ id: "inlineAddLabel" })}
+              </Button>
             )}
             {commentType === QUESTION_TYPE && !inArchives && inlineMarketId && (
-              <dl className={classes.root}>
-                <div className={classes.blue}>
-                  <ExpandableAction
-                    id="newOption"
-                    key="newOption"
-                    label={intl.formatMessage({ id: 'inlineAddExplanation' })}
-                    onClick={() => navigate(history, formMarketAddInvestibleLink(inlineMarketId))}
-                    icon={<AddIcon />}
-                    openLabel={intl.formatMessage({ id: 'inlineAddLabel' })}
-                  />
-                </div>
-              </dl>
-              )}
+              <Button
+                className={clsx(classes.action, classes.actionPrimary)}
+                color="primary"
+                disabled={operationRunning}
+                onClick={() => navigate(history, formMarketAddInvestibleLink(inlineMarketId))}
+                variant="contained"
+              >
+                {intl.formatMessage({ id: "inlineAddLabel" })}
+              </Button>
             )}
             {replies.length > 0 && (
               <Button
@@ -570,7 +554,7 @@ function Comment(props) {
             })}
         </LocalCommentsContext.Provider>
       </Box>
-      {inlineMarketId && getDecision(inlineMarketId)}
+      {getDecision(inlineMarketId)}
     </React.Fragment>
   );
 }

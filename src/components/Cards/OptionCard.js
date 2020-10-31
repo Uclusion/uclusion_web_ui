@@ -49,13 +49,11 @@ function OptionCard(props) {
 
 OptionCard.propTypes = {
   title: PropTypes.string,
-  latestDate: PropTypes.instanceOf(Date),
   comments: PropTypes.arrayOf(PropTypes.object),
 };
 
 OptionCard.defaultProps = {
   title: '',
-  latestDate: '',
   comments: [],
 };
 

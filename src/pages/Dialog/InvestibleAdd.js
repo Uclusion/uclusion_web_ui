@@ -43,7 +43,7 @@ function InvestibleAdd(props) {
   } = renderableMarket;
   const [commentsState] = useContext(CommentsContext);
   const comments = getMarketComments(commentsState, marketId) || [];
-  const parentComment = comments.find((comment) => comment.investible_id = (parentCommentId || inlineParentCommentId)) || {};
+  const parentComment = comments.find((comment) => comment.investible_id === (parentCommentId || inlineParentCommentId)) || {};
   const parentInvestibleId = parentComment.investible_id;
   const parentMarketId = parentComment.market_id;
   const isInline = !_.isEmpty(parentCommentId);

@@ -282,6 +282,9 @@ function Comment(props) {
           </SubSection>
         </Grid>
       )}
+        {(!_.isEmpty(proposed)||!_.isEmpty(underConsideration)) && (
+          <div style={{paddingBottom: '2rem'}} />
+        )}
     </>
     );
   }

@@ -28,6 +28,8 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import { addMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
+import { addCommentToMarket } from '../../../contexts/CommentsContext/commentsContextHelper'
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 
 function DecisionInvestibleAdd(props) {
   const {
@@ -69,8 +71,7 @@ function DecisionInvestibleAdd(props) {
   const [marketState, marketDispatch] = useContext(MarketsContext);
   const [, diffDispatch] = useContext(DiffContext);
   const [investibleState] = useContext(InvestiblesContext);
-  const fullParentInvestible = getInvestible(investibleState, parentInvestibleId) || {};
-  const { investible: parentInvestible } = fullParentInvestible;
+  const [commentState, commentDispatch] = useContext(CommentsContext);
 
   useEffect(() => {
     // Long form to prevent flicker
@@ -131,8 +132,7 @@ function DecisionInvestibleAdd(props) {
     return createDecision(addDialogInfo).then((result) => {
       addMarket(result, marketDispatch, diffDispatch, marketPresenceDispatch);
       const { market, stages, parent } = result;
-      // The parent investible market info was modified so quick add that change also
-      onSave({ 'investible': parentInvestible, 'market_infos': [parent] });
+      addCommentToMarket(parent, commentState, commentDispatch);
       const allowsInvestment = stages.find((stage) => stage.allows_investment);
       const notAllowsInvestment = stages.find((stage) => !stage.allows_investment);
       const stageInfo = {

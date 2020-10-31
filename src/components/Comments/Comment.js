@@ -256,7 +256,7 @@ function Comment(props) {
             <SubSection
               id="currentVoting"
               type={SECTION_TYPE_SECONDARY}
-              title={intl.formatMessage({ id: 'storyCurrentVotingLabel' })}
+              title={intl.formatMessage({ id: 'decisionDialogCurrentVotingLabel' })}
             >
               <CurrentVoting
                 marketPresences={anInlineMarketPresences}

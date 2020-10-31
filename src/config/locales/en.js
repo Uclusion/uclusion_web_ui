@@ -485,7 +485,7 @@ const messages = defineMessages({
   planningInvestibleEnoughVotesHelp: 'This story has approval so consider using the up arrow to move \'In Progress\'',
   planningInvestibleAcceptedFullHelp: 'You can only have one story at a time \'In Progress\' so the up arrow is not visible yet.',
   planningEditHelp: 'Workspace descriptions communicate requirements well with notifications and a difference display of the change.',
-  planningInvestibleAcceptedHelp: 'For help brainstorming create a question and add options to it.',
+  planningInvestibleAcceptedHelp: 'For help create a question and add options to it.',
   planningInvestibleVotingHelp: 'Input how certain you are this story should be done or open an issue.',
   inlineAddLabel: 'Add Option',
   uploadFilesDisplay: 'Attach New Files',

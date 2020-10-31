@@ -460,7 +460,8 @@ function Comment(props) {
         </CardContent>
         {showActions && (
           <CardActions className={`${classes.cardActions} ${classes.actions}`}>
-            {commentType === QUESTION_TYPE && !inArchives && !inlineMarketId && (
+            {commentType === QUESTION_TYPE && !inArchives && !inlineMarketId && marketType === PLANNING_TYPE
+            && investibleId && (
               <Button
                 className={clsx(classes.action, classes.actionPrimary)}
                 color="primary"

@@ -27,7 +27,6 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import { addMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
-import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { addCommentToMarket } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 
@@ -42,6 +41,7 @@ function DecisionInvestibleAdd(props) {
     onSpinComplete,
     parentCommentId,
     parentInvestibleId,
+    parentMarketId
   } = props;
   const intl = useIntl();
   const history = useHistory();
@@ -169,7 +169,7 @@ function DecisionInvestibleAdd(props) {
           spinChecker: () => Promise.resolve(true),
         };
       }
-      const link = formInvestibleLink(marketId, parentInvestibleId);
+      const link = formInvestibleLink(parentMarketId, parentInvestibleId);
       return {
         result: link,
         spinChecker: () => Promise.resolve(true),
@@ -319,6 +319,7 @@ DecisionInvestibleAdd.propTypes = {
   onSpinComplete: PropTypes.func,
   parentCommentId: PropTypes.string,
   parentInvestibleId: PropTypes.string,
+  parentMarketId: PropTypes.string
 };
 
 DecisionInvestibleAdd.defaultProps = {

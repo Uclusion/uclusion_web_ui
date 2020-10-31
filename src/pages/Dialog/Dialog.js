@@ -76,9 +76,12 @@ function Dialog(props) {
   const comments = getMarketComments(commentsState, marketId);
   const loadedMarket = getMarket(marketsState, marketId);
   const renderableMarket = loadedMarket || {};
-  const { market_type: marketType, parent_investible_id: parentInvestibleId,
-    parent_market_id: parentMarketId, parent_comment_id: parentCommentId, market_stage: marketStage } = renderableMarket || '';
+  const { market_type: marketType, parent_comment_market_id: parentMarketId, parent_comment_id: parentCommentId,
+    market_stage: marketStage } = renderableMarket || '';
   const isInline = !_.isEmpty(parentCommentId);
+  const inlineComments = getMarketComments(commentsState, parentMarketId || marketId) || [];
+  const parentComment = inlineComments.find((comment) => comment.id === parentCommentId) || {};
+  const parentInvestibleId = parentComment.investible_id;
   const activeMarket = marketStage === ACTIVE_STAGE;
   const isInitialization = marketsState.initializing || investiblesState.initializing || marketPresencesState.initializing || marketStagesState.initializing;
   const marketStages = getStages(marketStagesState, marketId);

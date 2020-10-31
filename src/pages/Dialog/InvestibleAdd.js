@@ -39,13 +39,12 @@ function InvestibleAdd(props) {
   const classes = usePlanFormStyles();
   const renderableMarket = getMarket(marketsState, marketId) || {};
   const { market_type: marketType, created_at: createdAt, parent_comment_id: inlineParentCommentId,
-    max_budget: storyMaxBudget, allow_multi_vote: allowMultiVote
+    parent_comment_market_id: parentMarketId, max_budget: storyMaxBudget, allow_multi_vote: allowMultiVote
   } = renderableMarket;
   const [commentsState] = useContext(CommentsContext);
-  const comments = getMarketComments(commentsState, marketId) || [];
-  const parentComment = comments.find((comment) => comment.investible_id === (parentCommentId || inlineParentCommentId)) || {};
+  const comments = getMarketComments(commentsState, parentMarketId || marketId) || [];
+  const parentComment = comments.find((comment) => comment.id === (parentCommentId || inlineParentCommentId)) || {};
   const parentInvestibleId = parentComment.investible_id;
-  const parentMarketId = parentComment.market_id;
   const isInline = !_.isEmpty(parentCommentId);
   const currentMarketName = (renderableMarket && renderableMarket.name) || '';
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
@@ -54,6 +53,7 @@ function InvestibleAdd(props) {
   const { is_admin: isAdmin } = myTruePresence;
   let breadCrumbTemplates;
   if (parentCommentId) {
+    console.debug(`parent investible id is ${parentInvestibleId}`);
     // The inline market will be created along with the option
     breadCrumbTemplates = getInlineBreadCrumbs(marketsState, marketId, parentInvestibleId, investiblesState);
   } else if (isInline) {
@@ -116,6 +116,7 @@ function InvestibleAdd(props) {
           classes={classes}
           parentCommentId={parentCommentId}
           parentInvestibleId={parentInvestibleId}
+          parentMarketId={parentMarketId || marketId}
         />
       )}
       {isPlanning && idLoaded === marketId && (

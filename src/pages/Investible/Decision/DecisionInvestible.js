@@ -43,6 +43,8 @@ import {
   HighlightedCommentContext
 } from '../../../contexts/HighlightingContexts/HighlightedCommentContext'
 import InvestibleBodyEdit from '../InvestibleBodyEdit'
+import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper'
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 
 const useStyles = makeStyles((theme) => ({
   mobileColumn: {
@@ -193,13 +195,16 @@ function DecisionInvestible(props) {
   const [, diffDispatch] = useContext(DiffContext);
   const [, highlightedCommentDispatch] = useContext(HighlightedCommentContext);
   const { name: marketName, id: marketId, market_stage: marketStage, allow_multi_vote: allowMultiVote,
-    parent_comment_id: parentCommentId, parent_investible_id: parentInvestibleId, parent_market_id: parentMarketId } = market;
+    parent_comment_id: parentCommentId, parent_comment_market_id: parentCommentMarketId } = market;
   const isInline = !_.isEmpty(parentCommentId);
+  const [commentsState] = useContext(CommentsContext);
   let breadCrumbTemplates = [{ name: marketName, link: formMarketLink(marketId), id: 'marketCrumb'}];
   const [marketState] = useContext(MarketsContext);
   const [investiblesState] = useContext(InvestiblesContext);
   if (isInline) {
-    breadCrumbTemplates = getInlineBreadCrumbs(marketState, parentMarketId, parentInvestibleId, investiblesState);
+    const comments = getMarketComments(commentsState, parentCommentMarketId) || [];
+    const parentComment = comments.find((comment) => comment.id === parentCommentId) || {};
+    breadCrumbTemplates = getInlineBreadCrumbs(marketState, parentCommentMarketId, parentComment.investible_id, investiblesState);
   }
   const breadCrumbs = inArchives
     ? makeArchiveBreadCrumbs(history, breadCrumbTemplates)

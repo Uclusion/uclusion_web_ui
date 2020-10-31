@@ -18,6 +18,9 @@ import { addInvestible } from '../../contexts/InvestibesContext/investiblesConte
 import { usePlanFormStyles } from '../../components/AgilePlan'
 import queryString from 'query-string'
 import { getInlineBreadCrumbs } from '../Investible/Decision/DecisionInvestible'
+import _ from 'lodash'
+import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper'
+import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 
 function InvestibleAdd(props) {
   const { hidden } = props;
@@ -26,7 +29,7 @@ function InvestibleAdd(props) {
   const location = useLocation();
   const { pathname, hash } = location;
   const values = queryString.parse(hash || '') || {};
-  const { parentInvestibleId } = values;
+  const { parentCommentId } = values;
   const { marketId } = decomposeMarketPath(pathname);
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -35,28 +38,32 @@ function InvestibleAdd(props) {
   const [, diffDispatch] = useContext(DiffContext);
   const classes = usePlanFormStyles();
   const renderableMarket = getMarket(marketsState, marketId) || {};
-  const { market_type: marketType, created_at: createdAt, parent_market_id: parentMarketId,
-    parent_investible_id: inlineParentInvestibleId, is_inline: isInline, max_budget: storyMaxBudget,
-    allow_multi_vote: allowMultiVote
+  const { market_type: marketType, created_at: createdAt, parent_comment_id: inlineParentCommentId,
+    max_budget: storyMaxBudget, allow_multi_vote: allowMultiVote
   } = renderableMarket;
+  const [commentsState] = useContext(CommentsContext);
+  const comments = getMarketComments(commentsState, marketId) || [];
+  const parentComment = comments.find((comment) => comment.investible_id = (parentCommentId || inlineParentCommentId)) || {};
+  const parentInvestibleId = parentComment.investible_id;
+  const parentMarketId = parentComment.market_id;
+  const isInline = !_.isEmpty(parentCommentId);
   const currentMarketName = (renderableMarket && renderableMarket.name) || '';
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
   const myTruePresence = myPresence || {};
   const { is_admin: isAdmin } = myTruePresence;
   let breadCrumbTemplates;
-  if (parentInvestibleId) {
+  if (parentCommentId) {
     // The inline market will be created along with the option
     breadCrumbTemplates = getInlineBreadCrumbs(marketsState, marketId, parentInvestibleId, investiblesState);
   } else if (isInline) {
-    breadCrumbTemplates = getInlineBreadCrumbs(marketsState, parentMarketId,
-      inlineParentInvestibleId || parentInvestibleId, investiblesState);
+    breadCrumbTemplates = getInlineBreadCrumbs(marketsState, parentMarketId, parentInvestibleId, investiblesState);
   } else {
     breadCrumbTemplates = [{ name: currentMarketName, link: formMarketLink(marketId) }];
   }
   const myBreadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
-  const isPlanning = marketType === PLANNING_TYPE && !parentInvestibleId;
-  const isDecision = marketType === DECISION_TYPE || parentInvestibleId;
+  const isPlanning = marketType === PLANNING_TYPE && !parentCommentId;
+  const isDecision = marketType === DECISION_TYPE || parentCommentId;
   const titleKey = isPlanning ? 'newStory' : 'newOption';
   const title = intl.formatMessage({ id: titleKey});
   const [storedState, setStoredState] = useState(undefined);
@@ -107,6 +114,7 @@ function InvestibleAdd(props) {
           isAdmin={isAdmin}
           storedState={storedState}
           classes={classes}
+          parentCommentId={parentCommentId}
           parentInvestibleId={parentInvestibleId}
         />
       )}

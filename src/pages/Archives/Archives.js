@@ -31,7 +31,7 @@ function Archives(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const hiddenMarkets = getHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   const planningDetails = hiddenMarkets.filter((market) => market.market_type === PLANNING_TYPE);
-  const decisionDetails = _.sortBy(hiddenMarkets.filter((market) => market.market_type === DECISION_TYPE && market.is_inline !== true), 'updated_at').reverse();
+  const decisionDetails = _.sortBy(hiddenMarkets.filter((market) => market.market_type === DECISION_TYPE && !market.parent_comment_id), 'updated_at').reverse();
   const initiativeDetails = _.sortBy(hiddenMarkets.filter((market) => market.market_type === INITIATIVE_TYPE), 'updated_at').reverse();
   const emptyArchives = _.isEmpty(planningDetails) && _.isEmpty(decisionDetails) && _.isEmpty(initiativeDetails);
 

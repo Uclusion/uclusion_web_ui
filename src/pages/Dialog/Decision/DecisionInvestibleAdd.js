@@ -38,6 +38,7 @@ function DecisionInvestibleAdd(props) {
     onSave,
     storedState,
     onSpinComplete,
+    parentCommentId,
     parentInvestibleId,
   } = props;
   const intl = useIntl();
@@ -125,9 +126,7 @@ function DecisionInvestibleAdd(props) {
       name: 'NA',
       market_type: DECISION_TYPE,
       description: 'NA',
-      is_inline: true,
-      parent_investible_id: parentInvestibleId,
-      parent_market_id: marketId,
+      parent_comment_id: parentCommentId,
     };
     return createDecision(addDialogInfo).then((result) => {
       addMarket(result, marketDispatch, diffDispatch, marketPresenceDispatch);
@@ -179,14 +178,14 @@ function DecisionInvestibleAdd(props) {
   }
 
   function handleSaveAddAnother() {
-    if (parentInvestibleId) {
+    if (parentCommentId) {
       return handleNewInlineSave(true);
     }
     return handleSave();
   }
 
   function handleSave() {
-    if (parentInvestibleId) {
+    if (parentCommentId) {
       return handleNewInlineSave(false);
     }
     const {
@@ -318,6 +317,7 @@ DecisionInvestibleAdd.propTypes = {
   storedState: PropTypes.object.isRequired,
   hidden: PropTypes.bool,
   onSpinComplete: PropTypes.func,
+  parentCommentId: PropTypes.string,
   parentInvestibleId: PropTypes.string,
 };
 

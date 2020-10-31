@@ -193,7 +193,8 @@ function DecisionInvestible(props) {
   const [, diffDispatch] = useContext(DiffContext);
   const [, highlightedCommentDispatch] = useContext(HighlightedCommentContext);
   const { name: marketName, id: marketId, market_stage: marketStage, allow_multi_vote: allowMultiVote,
-  is_inline: isInline, parent_investible_id: parentInvestibleId, parent_market_id: parentMarketId } = market;
+    parent_comment_id: parentCommentId, parent_investible_id: parentInvestibleId, parent_market_id: parentMarketId } = market;
+  const isInline = !_.isEmpty(parentCommentId);
   let breadCrumbTemplates = [{ name: marketName, link: formMarketLink(marketId), id: 'marketCrumb'}];
   const [marketState] = useContext(MarketsContext);
   const [investiblesState] = useContext(InvestiblesContext);

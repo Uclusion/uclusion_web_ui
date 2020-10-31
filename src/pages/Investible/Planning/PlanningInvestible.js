@@ -48,7 +48,6 @@ import {
   getInCurrentVotingStage,
   getInReviewStage,
   getNotDoingStage,
-  getProposedOptionsStage,
   getRequiredInputStage,
   getVerifiedStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
@@ -73,24 +72,16 @@ import CardType, {
   STORY_TYPE
 } from '../../../components/CardType'
 import clsx from 'clsx'
-import { ACTIVE_STAGE, DECISION_TYPE } from '../../../constants/markets'
+import { DECISION_TYPE } from '../../../constants/markets'
 import DismissableText from '../../../components/Notifications/DismissableText'
 import PersonAddIcon from '@material-ui/icons/PersonAdd'
-import SubSection from '../../../containers/SubSection/SubSection'
-import { EMPTY_SPIN_RESULT, SECTION_TYPE_SECONDARY } from '../../../constants/global'
-import CurrentVoting from '../../Dialog/Decision/CurrentVoting'
-import ProposedIdeas from '../../Dialog/Decision/ProposedIdeas'
+import { EMPTY_SPIN_RESULT } from '../../../constants/global'
 import {
   addInvestible,
-  getMarketInvestibles,
   getMarketLabels,
   refreshInvestibles
 } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
-import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
-import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper'
-import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import AddIcon from '@material-ui/icons/Add'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import MoveToFurtherWorkActionButton from './MoveToFurtherWorkActionButton'
@@ -109,8 +100,6 @@ import ShareStoryButton from './ShareStoryButton'
 import Chip from '@material-ui/core/Chip'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import TextField from '@material-ui/core/TextField'
-import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
-import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import EventIcon from '@material-ui/icons/Event';
 import InvestibleBodyEdit from '../InvestibleBodyEdit'
 import DatePicker from 'react-datepicker'
@@ -282,10 +271,7 @@ function PlanningInvestible(props) {
   } = props;
   const classes = useStyles();
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
-  const [marketState] = useContext(MarketsContext);
   const [, diffDispatch] = useContext(DiffContext);
-  const [marketPresencesState] = useContext(MarketPresencesContext);
-  const [commentsState] = useContext(CommentsContext);
   const [changeStagesExpanded, setChangeStagesExpanded] = useState(false);
   const [newLabel, setNewLabel] = useState(undefined);
   const [showDatepicker, setShowDatepicker] = useState(false);
@@ -576,28 +562,7 @@ function PlanningInvestible(props) {
     ];
   }
 
-  const inlineInvestibles = getMarketInvestibles(investiblesState, inlineMarketId) || [];
-  function getInlineInvestiblesForStage(stage) {
-    if (stage) {
-      return inlineInvestibles.reduce((acc, inv) => {
-        const { market_infos: marketInfos } = inv;
-        for (let x = 0; x < marketInfos.length; x += 1) {
-          if (marketInfos[x].stage === stage.id && !marketInfos[x].deleted) {
-            return [...acc, inv]
-          }
-        }
-        return acc;
-      }, []);
-    }
-    return [];
-  }
   const canVote = !isAssigned && isInVoting && !inArchives;
-  const inlineMarketPresences = getMarketPresences(marketPresencesState, inlineMarketId);
-  const underConsiderationStage = getInCurrentVotingStage(marketStagesState, inlineMarketId);
-  const underConsideration = getInlineInvestiblesForStage(underConsiderationStage);
-  const proposedStage = getProposedOptionsStage(marketStagesState, inlineMarketId);
-  const proposed = getInlineInvestiblesForStage(proposedStage);
-  const inlineInvestibleComments = getMarketComments(commentsState, inlineMarketId);
   const yourPresence = marketPresences.find((presence) => presence.current_user);
   const yourVote = yourPresence && yourPresence.investments && yourPresence.investments.find((investment) => investment.investible_id === investibleId);
   const todoWarning = isInVoting ? null : fullStage.allows_todos ? 'todoWarningPlanning' : 'todoWarningDone'
@@ -648,40 +613,6 @@ function PlanningInvestible(props) {
                 IN_VERIFIED;
   function expansionChanged(event, expanded) {
     setChangeStagesExpanded(expanded);
-  }
-  function getPreviousDecisions() {
-    return (children || []).map((aMarketId) => {
-      const anInlineMarket = getMarket(marketState, aMarketId);
-      if (!anInlineMarket) {
-        return React.Fragment;
-      }
-      const { is_inline: isInline, market_stage: marketStage } = anInlineMarket;
-      if (!isInline || marketStage === ACTIVE_STAGE) {
-        return React.Fragment;
-      }
-      const anInlineMarketInvestibleComments = getMarketComments(commentsState, anInlineMarket.id) || [];
-      const anInlineMarketPresences = getMarketPresences(marketPresencesState, anInlineMarket.id) || [];
-      const anInlineMarketInvestibles = getMarketInvestibles(investiblesState, anInlineMarket.id) || [];
-      return (
-        <Grid item xs={12} style={{ marginTop: '56px' }}>
-          <SubSection
-            id={anInlineMarket.id}
-            type={SECTION_TYPE_SECONDARY}
-            title={intl.formatMessage({ id: 'inlineMarketOptionsLabel'},
-              {expireDate: intl.formatDate(anInlineMarket.updated_at),
-                expireTime: intl.formatTime(anInlineMarket.updated_at)})}
-          >
-            <CurrentVoting
-              marketPresences={anInlineMarketPresences}
-              investibles={anInlineMarketInvestibles}
-              marketId={anInlineMarket.id}
-              comments={anInlineMarketInvestibleComments}
-              inArchives={true}
-            />
-          </SubSection>
-        </Grid>
-      );
-    })
   }
   const displayEdit = !inArchives && (isAssigned || isInNotDoing || isInVoting || isReadyFurtherWork || isRequiresInput);
   return (
@@ -886,65 +817,6 @@ function PlanningInvestible(props) {
         expirationMinutes={market.investment_expiration * 1440}
       />
       <Grid container spacing={2}>
-        <Grid item xs={12} style={{ marginTop: '30px' }}>
-          {!inArchives && (isInVoting || isInAccepted) && (!inlineMarketId && isAssigned) && (
-            <dl className={classes.root}>
-              <div className={classes.blue}>
-                <ExpandableAction
-                  id="newOption"
-                  key="newOption"
-                  label={intl.formatMessage({ id: 'inlineAddExplanation' })}
-                  onClick={() => navigate(history, `${formMarketAddInvestibleLink(marketId)}#parentInvestibleId=${investibleId}`)}
-                  icon={<AddIcon />}
-                  openLabel={intl.formatMessage({ id: 'inlineAddLabel' })}
-                />
-              </div>
-            </dl>
-          )}
-          {!inArchives && inlineMarketId && (
-            <dl className={classes.root}>
-              <div className={classes.blue}>
-                <ExpandableAction
-                  id="newOption"
-                  key="newOption"
-                  label={intl.formatMessage({ id: 'inlineAddExplanation' })}
-                  onClick={() => navigate(history, formMarketAddInvestibleLink(inlineMarketId))}
-                  icon={<AddIcon />}
-                  openLabel={intl.formatMessage({ id: 'inlineAddLabel' })}
-                />
-              </div>
-            </dl>
-          )}
-          {!_.isEmpty(underConsideration) && (
-            <SubSection
-              id="currentVoting"
-              type={SECTION_TYPE_SECONDARY}
-              title={intl.formatMessage({ id: 'storyCurrentVotingLabel' })}
-            >
-              <CurrentVoting
-                marketPresences={inlineMarketPresences}
-                investibles={underConsideration}
-                marketId={inlineMarketId}
-                comments={inlineInvestibleComments}
-                inArchives={inArchives}
-              />
-            </SubSection>
-          )}
-        </Grid>
-        {!_.isEmpty(proposed) && (
-          <Grid item xs={12} style={{ marginTop: '56px' }}>
-            <SubSection
-              type={SECTION_TYPE_SECONDARY}
-              title={intl.formatMessage({ id: 'decisionDialogProposedOptionsLabel' })}
-            >
-              <ProposedIdeas
-                investibles={proposed}
-                marketId={inlineMarketId}
-                comments={inlineInvestibleComments}
-              />
-            </SubSection>
-          </Grid>
-        )}
         <Grid item xs={12} style={{ marginTop: '15px' }}>
           {!inArchives && isAdmin && (!isInVoting || !canVote || yourVote) && (
             <CommentAddBox
@@ -961,7 +833,6 @@ function PlanningInvestible(props) {
             allowedTypes={allowedCommentTypes}
           />
         </Grid>
-        {getPreviousDecisions()}
       </Grid>
     </Screen>
   );

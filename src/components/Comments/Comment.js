@@ -1,13 +1,13 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { FormattedDate, FormattedMessage, useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
-import { Avatar, Box, Button, Card, CardActions, CardContent, Typography } from '@material-ui/core'
+import { Avatar, Box, Button, Card, CardActions, CardContent, Grid, Typography } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import clsx from 'clsx'
 import _ from 'lodash'
 import ReadOnlyQuillEditor from '../TextEditors/ReadOnlyQuillEditor'
 import CommentAdd from './CommentAdd'
-import { ISSUE_TYPE, JUSTIFY_TYPE, REPLY_TYPE, REPORT_TYPE } from '../../constants/comments'
+import { ISSUE_TYPE, JUSTIFY_TYPE, QUESTION_TYPE, REPLY_TYPE, REPORT_TYPE } from '../../constants/comments'
 import { removeComment, reopenComment, resolveComment } from '../../api/comments'
 import SpinBlockingButton from '../SpinBlocking/SpinBlockingButton'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
@@ -21,8 +21,12 @@ import {
   HighlightedCommentContext
 } from '../../contexts/HighlightingContexts/HighlightedCommentContext'
 import CardType from '../CardType'
-import { EMPTY_SPIN_RESULT } from '../../constants/global'
-import { addCommentToMarket, removeComments } from '../../contexts/CommentsContext/commentsContextHelper'
+import { EMPTY_SPIN_RESULT, SECTION_TYPE_SECONDARY } from '../../constants/global'
+import {
+  addCommentToMarket,
+  getMarketComments,
+  removeComments
+} from '../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { ACTIVE_STAGE, PLANNING_TYPE } from '../../constants/markets'
 import { red } from '@material-ui/core/colors'
@@ -30,118 +34,139 @@ import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
 import { EXPANDED_CONTROL, ExpandedCommentContext } from '../../contexts/CommentsContext/ExpandedCommentContext'
 import UsefulRelativeTime from '../TextFields/UseRelativeTime'
 import md5 from 'md5'
+import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
+import SubSection from '../../containers/SubSection/SubSection'
+import CurrentVoting from '../../pages/Dialog/Decision/CurrentVoting'
+import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
+import ProposedIdeas from '../../pages/Dialog/Decision/ProposedIdeas'
+import {
+  getInCurrentVotingStage,
+  getProposedOptionsStage
+} from '../../contexts/MarketStagesContext/marketStagesContextHelper'
+import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
+import ExpandableAction from '../SidebarActions/Planning/ExpandableAction'
+import { formMarketAddInvestibleLink, navigate } from '../../utils/marketIdPathFunctions'
+import AddIcon from '@material-ui/icons/Add'
+import { useHistory } from 'react-router'
 
 const useCommentStyles = makeStyles(
   theme => {
     return {
-    chip: {
-      margin: 0,
-      marginBottom: 18
-    },
-    content: {
-      marginTop: "12px",
-      fontSize: 15,
-      lineHeight: "175%"
-    },
-    cardContent: {
-      padding: "0 20px"
-    },
-    cardActions: {
-      padding: "8px"
-    },
-    actions: {
-      display: "flex",
-      justifyContent: "flex-end",
-      boxShadow: "none",
-      width: "100%"
-    },
-    action: {
-      boxShadow: "none",
-      fontSize: 12,
-      padding: "4px 16px",
-      textTransform: "none",
-      "&:hover": {
-        boxShadow: "none"
-      }
-    },
-    actionPrimary: {
-      backgroundColor: "#2D9CDB",
-      color: "white",
-      "&:hover": {
-        backgroundColor: "#2D9CDB"
-      }
-    },
-    actionSecondary: {
-      backgroundColor: "#BDBDBD",
-      color: "black",
-      "&:hover": {
-        backgroundColor: "#BDBDBD"
-      }
-    },
-    actionWarned: {
-      backgroundColor: "#BDBDBD",
-      color: "black",
-      "&:hover": {
-        backgroundColor: red["400"],
-      }
-    },
-    updatedBy: {
-      alignSelf: "baseline",
-      color: "#434343",
-      fontWeight: "bold",
-      fontSize: 12,
-      lineHeight: 1.75,
-      marginLeft: "auto"
-    },
-    actionResolveToggle: {
-      alignSelf: "baseline",
-      margin: "11px 12px 11px 16px",
-      [theme.breakpoints.down('sm')]: {
-        margin: "11px 0px 11px 3px",
+      root: {
+        alignItems: "flex-start",
+        display: "flex"
       },
-    },
-    actionEdit: {
-      alignSelf: "baseline",
-      margin: "11px 0px 11px 16px",
-      [theme.breakpoints.down('sm')]: {
-        margin: "11px 0px 11px 3px",
+      blue: {
+        backgroundColor: '#2d9cdb',
       },
-    },
-    commentType: {
-      alignSelf: "start",
-      display: "inline-flex"
-    },
-    createdBy: {
-      fontSize: "15px",
-      fontWeight: "bold"
-    },
-    childWrapper: {
-      // borderTop: '1px solid #DCDCDC',
-    },
-    initialComment: {
-      display: "flex"
-    },
-    avatarWrapper: {
-      marginRight: "20px"
-    },
-    containerRed: {
-      boxShadow: "10px 5px 5px red",
-      overflow: "visible"
-    },
-    containerYellow: {
-      boxShadow: "10px 5px 5px yellow",
-      overflow: "visible"
-    },
-    container: {
-      overflow: "visible"
-    },
-    timeElapsed: {
-      [theme.breakpoints.down('sm')]: {
-        fontSize: '.7rem',
-        lineHeight: 1,
-        paddingLeft: '5px'
+      chip: {
+        margin: 0,
+        marginBottom: 18
       },
-    }
+      content: {
+        marginTop: "12px",
+        fontSize: 15,
+        lineHeight: "175%"
+      },
+      cardContent: {
+        padding: "0 20px"
+      },
+      cardActions: {
+        padding: "8px"
+      },
+      actions: {
+        display: "flex",
+        justifyContent: "flex-end",
+        boxShadow: "none",
+        width: "100%"
+      },
+      action: {
+        boxShadow: "none",
+        fontSize: 12,
+        padding: "4px 16px",
+        textTransform: "none",
+        "&:hover": {
+          boxShadow: "none"
+        }
+      },
+      actionPrimary: {
+        backgroundColor: "#2D9CDB",
+        color: "white",
+        "&:hover": {
+          backgroundColor: "#2D9CDB"
+        }
+      },
+      actionSecondary: {
+        backgroundColor: "#BDBDBD",
+        color: "black",
+        "&:hover": {
+          backgroundColor: "#BDBDBD"
+        }
+      },
+      actionWarned: {
+        backgroundColor: "#BDBDBD",
+        color: "black",
+        "&:hover": {
+          backgroundColor: red["400"],
+        }
+      },
+      updatedBy: {
+        alignSelf: "baseline",
+        color: "#434343",
+        fontWeight: "bold",
+        fontSize: 12,
+        lineHeight: 1.75,
+        marginLeft: "auto"
+      },
+      actionResolveToggle: {
+        alignSelf: "baseline",
+        margin: "11px 12px 11px 16px",
+        [theme.breakpoints.down('sm')]: {
+          margin: "11px 0px 11px 3px",
+        },
+      },
+      actionEdit: {
+        alignSelf: "baseline",
+        margin: "11px 0px 11px 16px",
+        [theme.breakpoints.down('sm')]: {
+          margin: "11px 0px 11px 3px",
+        },
+      },
+      commentType: {
+        alignSelf: "start",
+        display: "inline-flex"
+      },
+      createdBy: {
+        fontSize: "15px",
+        fontWeight: "bold"
+      },
+      childWrapper: {
+        // borderTop: '1px solid #DCDCDC',
+      },
+      initialComment: {
+        display: "flex"
+      },
+      avatarWrapper: {
+        marginRight: "20px"
+      },
+      containerRed: {
+        boxShadow: "10px 5px 5px red",
+        overflow: "visible"
+      },
+      containerYellow: {
+        boxShadow: "10px 5px 5px yellow",
+        overflow: "visible"
+      },
+      container: {
+        overflow: "visible"
+      },
+      timeElapsed: {
+        [theme.breakpoints.down('sm')]: {
+          fontSize: '.7rem',
+          lineHeight: 1,
+          paddingLeft: '5px'
+        },
+      }
   }
 },
 { name: "Comment" }
@@ -164,10 +189,11 @@ function useMarketId() {
  */
 function Comment(props) {
   const { comment, marketId, comments, allowedTypes } = props;
+  const history = useHistory();
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const intl = useIntl();
   const classes = useCommentStyles();
-  const { id, comment_type: commentType, resolved, investible_id: investibleId } = comment;
+  const { id, comment_type: commentType, resolved, investible_id: investibleId, inline_market_id: inlineMarketId } = comment;
   const presences = usePresences(marketId);
   const createdBy = useCommenter(comment, presences) || unknownPresence;
   const updatedBy = useUpdatedBy(comment, presences) || unknownPresence;
@@ -186,6 +212,10 @@ function Comment(props) {
   const [editOpen, setEditOpen] = useState(false);
   const [operationRunning] = useContext(OperationInProgressContext);
   const [, versionsDispatch] = useContext(VersionsContext);
+  const [marketState] = useContext(MarketsContext);
+  const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [investiblesState] = useContext(InvestiblesContext);
+  const [marketStagesState] = useContext(MarketStagesContext);
   const enableActions = !inArchives
   const enableEditing = !inArchives && !resolved; //resolved comments or those in archive aren't editable
 
@@ -195,6 +225,74 @@ function Comment(props) {
 
   function toggleEdit() {
     setEditOpen(!editOpen);
+  }
+
+  function getInlineInvestiblesForStage(stage, inlineInvestibles) {
+    if (stage) {
+      return inlineInvestibles.reduce((acc, inv) => {
+        const { market_infos: marketInfos } = inv;
+        for (let x = 0; x < marketInfos.length; x += 1) {
+          if (marketInfos[x].stage === stage.id && !marketInfos[x].deleted) {
+            return [...acc, inv]
+          }
+        }
+        return acc;
+      }, []);
+    }
+    return [];
+  }
+
+  function getDecision(aMarketId) {
+    const anInlineMarket = getMarket(marketState, aMarketId);
+    if (!anInlineMarket) {
+      return React.Fragment;
+    }
+    const { parent_comment_id: parentCommentId } = anInlineMarket;
+    if (!parentCommentId) {
+      return React.Fragment;
+    }
+    const inlineInvestibles = getMarketInvestibles(investiblesState, anInlineMarket.id) || [];
+    const anInlineMarketInvestibleComments = getMarketComments(commentsState, anInlineMarket.id) || [];
+    const anInlineMarketPresences = getMarketPresences(marketPresencesState, anInlineMarket.id) || [];
+    const underConsiderationStage = getInCurrentVotingStage(marketStagesState, anInlineMarket.id);
+    const underConsideration = getInlineInvestiblesForStage(underConsiderationStage, inlineInvestibles);
+    const proposedStage = getProposedOptionsStage(marketStagesState, anInlineMarket.id);
+    const proposed = getInlineInvestiblesForStage(proposedStage, inlineInvestibles);
+    return (
+      <>
+      <Grid item xs={12}>
+        {!_.isEmpty(underConsideration) && (
+          <SubSection
+            id="currentVoting"
+            type={SECTION_TYPE_SECONDARY}
+            title={intl.formatMessage({ id: 'storyCurrentVotingLabel' })}
+          >
+            <CurrentVoting
+              marketPresences={anInlineMarketPresences}
+              investibles={underConsideration}
+              marketId={anInlineMarket.id}
+              comments={anInlineMarketInvestibleComments}
+              inArchives={inArchives}
+            />
+          </SubSection>
+        )}
+      </Grid>
+      {!_.isEmpty(proposed) && (
+        <Grid item xs={12}>
+          <SubSection
+            type={SECTION_TYPE_SECONDARY}
+            title={intl.formatMessage({ id: 'decisionDialogProposedOptionsLabel' })}
+          >
+            <ProposedIdeas
+              investibles={proposed}
+              marketId={anInlineMarket.id}
+              comments={anInlineMarketInvestibleComments}
+            />
+          </SubSection>
+        </Grid>
+      )}
+    </>
+    );
   }
 
   function reopen() {
@@ -368,6 +466,35 @@ function Comment(props) {
         </CardContent>
         {showActions && (
           <CardActions className={`${classes.cardActions} ${classes.actions}`}>
+            {commentType === QUESTION_TYPE && !inArchives && !inlineMarketId && (
+              <dl className={classes.root}>
+                <div className={classes.blue}>
+                  <ExpandableAction
+                    id="newOption"
+                    key="newOption"
+                    label={intl.formatMessage({ id: 'inlineAddExplanation' })}
+                    onClick={() => navigate(history, `${formMarketAddInvestibleLink(marketId)}#parentCommentId=${id}`)}
+                    icon={<AddIcon />}
+                    openLabel={intl.formatMessage({ id: 'inlineAddLabel' })}
+                  />
+                </div>
+              </dl>
+            )}
+            {commentType === QUESTION_TYPE && !inArchives && inlineMarketId && (
+              <dl className={classes.root}>
+                <div className={classes.blue}>
+                  <ExpandableAction
+                    id="newOption"
+                    key="newOption"
+                    label={intl.formatMessage({ id: 'inlineAddExplanation' })}
+                    onClick={() => navigate(history, formMarketAddInvestibleLink(inlineMarketId))}
+                    icon={<AddIcon />}
+                    openLabel={intl.formatMessage({ id: 'inlineAddLabel' })}
+                  />
+                </div>
+              </dl>
+              )}
+            )}
             {replies.length > 0 && (
               <Button
                 className={clsx(classes.action, classes.actionSecondary)}
@@ -443,6 +570,7 @@ function Comment(props) {
             })}
         </LocalCommentsContext.Provider>
       </Box>
+      {inlineMarketId && getDecision(inlineMarketId)}
     </React.Fragment>
   );
 }

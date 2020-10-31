@@ -198,8 +198,9 @@ function DecisionDialog(props) {
     created_by: createdBy,
     parent_market_id: parentMarketId,
     parent_investible_id: parentInvestibleId,
-    is_inline: isInline,
+    parent_comment_id: parentCommentId
   } = market;
+  const isInline = !_.isEmpty(parentCommentId);
   const [marketState] = useContext(MarketsContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [beingEdited, setBeingEdited] = useState(false);

@@ -65,17 +65,19 @@ function MarketLinks (props) {
       const marketDetails = getMarket(marketState, marketId);
       if (marketDetails) {
         const {
-          name, market_type: marketType, market_stage: marketStage, is_inline: isInline,
+          name, market_type: marketType, market_stage: marketStage, parent_comment_id: parentCommentId,
           created_at: createdAt
         } = marketDetails;
+        const isInline = !_.isEmpty(parentCommentId);
         if (!isInline) {
           marketNamesDispatch({ marketId, name, marketType, marketStage, createdAt });
         }
       } else {
         console.info(`Getting ${marketId} for market links`);
         getMarketInfo(marketId).then((market) => {
-          const { name, market_type: marketType, market_stage: marketStage, is_inline: isInline,
+          const { name, market_type: marketType, market_stage: marketStage, parent_comment_id: parentCommentId,
             created_at: createdAt, invite_capability: marketToken } = convertDates(market);
+          const isInline = !_.isEmpty(parentCommentId);
           if (!isInline) {
             marketNamesDispatch({ marketId, marketToken, name, marketType, marketStage, createdAt })
           }

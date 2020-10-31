@@ -32,7 +32,7 @@ export function getMarketDetailsForType(state, marketPresencesState, marketType 
       if (myPresence.market_banned) {
         return false;
       }
-      return market.market_type === marketType && market.is_inline !== true;
+      return market.market_type === marketType && !market.parent_comment_id;
     });
   }
   return null;

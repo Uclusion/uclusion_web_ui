@@ -13,5 +13,5 @@
 [Authenticated S3 Downloads Without Passing Through Your Lambdas](https://dev.to/uclusionhq/authenticated-s3-downloads-without-passing-through-your-lambdas-3i3k)   
 [Uploading user files to S3 without passing through your Lambdas](https://dev.to/uclusionhq/using-a-message-bus-and-react-context-instead-of-redux-with-promise-based-apis-26ic)  
 [Using a message bus and React context instead of Redux with promise based APIs](https://dev.to/uclusionhq/using-a-message-bus-and-react-context-instead-of-redux-with-promise-based-apis-26ic)  
-[Amplify and Github Login](https://dev.to/uclusionhq/circleci-aws-cognito-amplify-and-github-login-3poc)
-[Multiple tabs in your app](https://dev.to/uclusionhq/multiple-tabs-in-your-app-133b)
+[Amplify and Github Login](https://dev.to/uclusionhq/circleci-aws-cognito-amplify-and-github-login-3poc)  
+[Multiple tabs in your app](https://dev.to/uclusionhq/multiple-tabs-in-your-app-133b)  

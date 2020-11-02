@@ -399,7 +399,7 @@ class QuillEditor extends React.PureComponent {
       <div>
         {this.createVideoUi()}
         {this.createLinkUi()}
-        <div ref={this.editorContainer} style={{ maxWidth: '100%', zIndex: '2' }} id={id}>
+        <div ref={this.editorContainer} style={{ maxWidth: '100%', zIndex: '2', borderTop: '1px solid lightgrey' }} id={id}>
           <LoadingOverlay
             active={uploadInProgress}
             spinner

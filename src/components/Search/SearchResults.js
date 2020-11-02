@@ -163,12 +163,12 @@ function SearchResults () {
   function createSearchNavigation () {
     const pageStart = page * PAGE_SIZE;
     const pageEnd = Math.min((pageStart + PAGE_SIZE), results.length);
-    //did we have results that we can't display?
-    const remaining = results.length - pageEnd;
+    // how many pages do we have?
+    const pages = Math.ceil((results.length * 1.0) / PAGE_SIZE);
     // do I need to display the pagination menu?
     const firstPage = pageStart === 0;
     const resultsRemaining = pageEnd < results.length;
-    const needPagenation = !firstPage || resultsRemaining;
+    const needPagenation = pages > 1;
     // no pages in results? No UI needed
     if (!needPagenation) {
       return <React.Fragment/>;
@@ -180,9 +180,7 @@ function SearchResults () {
       >
         <div className={classes.searchUIContainer}>
           {<Button dense disabled={firstPage} onClick={previousPage}>{intl.formatMessage({id: 'SearchResultsPrevious'})}</Button>}
-          {resultsRemaining && <Typography
-            className={classes.searchUIMiddle}>{intl.formatMessage({ id: 'SearchResultsOverflow' }, { remaining })}</Typography>}
-          {!resultsRemaining && <div className={classes.searchUIMiddle}> &nbsp; </div>}
+          {<Typography className={classes.searchUIMiddle}>{intl.formatMessage({ id: 'SearchResultsOverflow' }, { page: (page + 1), pages })}</Typography>}
           {<Button disabled={!resultsRemaining} onClick={nextPage}>{intl.formatMessage({id: 'SearchResultsNext'})}</Button>}
         </div>
       </ListItem>

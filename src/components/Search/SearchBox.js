@@ -10,6 +10,8 @@ import { getCommentRoot } from '../../contexts/CommentsContext/commentsContextHe
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import CloseIcon from '@material-ui/icons/Close';
 
+const MAX_ALLOWABLE_RESULTS = 100;
+
 function SearchBox (props) {
   const intl = useIntl();
   const [index] = useContext(SearchIndexContext);
@@ -36,17 +38,31 @@ function SearchBox (props) {
     return a.id === b.id && a.marketId === b.marketId;
   }
 
-  function onSearchChange (event) {
-    const { value } = event.target;
+  function updateIndex(searchQuery){
     // query the index
-    const foundResults = index.search(value);
+    const foundResults = index.search(searchQuery);
+    // cap the max results we'll consider at 100 for perf reasons
+    const limitedResults = _.take(foundResults, MAX_ALLOWABLE_RESULTS);
     //dedup by id
-    const results = _.uniqWith(foundResults, isEqualWithComment);
+    const results = _.uniqWith(limitedResults, isEqualWithComment);
     setSearchResults({
-      search: value,
+      search: searchQuery,
       results,
       page: 0,
     });
+  }
+
+  // don't burn time querying the index if their input is fast
+  const debouncedUpdateIndex = _.debounce(updateIndex, 75);
+
+  function onSearchChange (event) {
+    const { value } = event.target;
+    setSearchResults({
+      search: value,
+      results: [],
+      page: 0,
+    });
+    debouncedUpdateIndex(value);
   }
 
   const endAdornment = _.isEmpty(searchResults.search)? null : (

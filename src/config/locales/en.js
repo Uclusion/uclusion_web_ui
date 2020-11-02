@@ -819,7 +819,7 @@ const messages = defineMessages({
 
   // Search
   searchBoxPlaceholder: 'Search',
-  SearchResultsOverflow: '...and {remaining} other(s)',
+  SearchResultsOverflow: 'Page {page} of {pages}',
   SearchResultsPrevious: 'Previous',
   SearchResultsNext: 'Next',
   CommentSearchResultIssue: 'Blocking Issue In:',

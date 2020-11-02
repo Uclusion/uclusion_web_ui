@@ -52,8 +52,10 @@ function SearchBox (props) {
     });
   }
 
+  // fast typists are at around 120MS per keystroke, so we're going to let them hit two keys
+  const SEARCH_DEBOUNCE_WAIT = 200;
   // don't burn time querying the index if their input is fast
-  const debouncedUpdateIndex = _.debounce(updateIndex, 75);
+  const debouncedUpdateIndex = _.debounce(updateIndex, SEARCH_DEBOUNCE_WAIT);
 
   function onSearchChange (event) {
     const { value } = event.target;

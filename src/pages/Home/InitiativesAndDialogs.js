@@ -23,7 +23,10 @@ import ExpiredDisplay from '../../components/Expiration/ExpiredDisplay'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
-import { getInvestible, getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
+import {
+  getInvestibleName,
+  getMarketInvestibles
+} from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { getMarketUpdatedAt, getVoteTotalsForUser } from '../../utils/userFunctions'
 import { ISSUE_TYPE } from '../../constants/comments'
 import CardType from '../../components/CardType'
@@ -345,15 +348,6 @@ function InitiativesAndDialogs(props) {
       const isSmall = true;
       const investibles = getMarketInvestibles(investiblesState, marketId);
       const marketUpdatedAt = getMarketUpdatedAt(updatedAt, marketPresences, investibles, comments, marketId);
-      function getInvestibleName(investibleId) {
-        const inv = getInvestible(investibleState, investibleId);
-        if (!inv) {
-          return '';
-        }
-        const { investible } = inv;
-        const { name } = investible;
-        return name;
-      }
 
       const votes = getInvestibleVotes(investibles, marketPresences);
       const votesArray = Object.values(votes);
@@ -367,7 +361,7 @@ function InitiativesAndDialogs(props) {
       sortedVotesArray.map((sortedVote) => sortedVote.investments.map((investment) => chartData.push(investment)));
       let parentName;
       if (parentInvestibleId) {
-        parentName = getInvestibleName(parentInvestibleId);
+        parentName = getInvestibleName(parentInvestibleId, investibleState);
       } else if (parentMarketId) {
         const parentMarketDetails = getMarket(marketsState, parentMarketId) || {};
         parentName = parentMarketDetails.name;

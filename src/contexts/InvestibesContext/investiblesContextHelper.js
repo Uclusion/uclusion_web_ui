@@ -34,6 +34,16 @@ export function getInvestible(state, investibleId) {
   return state[investibleId];
 }
 
+export function getInvestibleName(investibleId, investibleState) {
+  const inv = getInvestible(investibleState, investibleId);
+  if (!inv) {
+    return '';
+  }
+  const { investible } = inv;
+  const { name } = investible;
+  return name;
+}
+
 export function getInvestiblesInStage(investibles, stageId) {
   return investibles.filter((inv) => {
     const { market_infos } = inv;

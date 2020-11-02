@@ -5,7 +5,7 @@ import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper';
 import { INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets';
 import { Link, Card } from '@material-ui/core';
 import { formInvestibleLink, navigate } from '../../utils/marketIdPathFunctions'
-import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
+import { getInvestible, getInvestibleName } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { useHistory } from 'react-router'
 import Typography from '@material-ui/core/Typography';
@@ -31,7 +31,7 @@ function InvestibleSearchResult (props) {
   const [commentsState] = useContext(CommentsContext);
   const inlineComments = getMarketComments(commentsState, parentMarketId || marketId) || [];
   const parentComment = inlineComments.find((comment) => comment.id === parentCommentId) || {};
-  const parentInv = parentComment.investible_id ? getInvestible(investibleState, parentComment.investible_id) : undefined;
+  const parentInv = parentComment.investible_id ? getInvestibleName(parentComment.investible_id, investibleState) : undefined;
   const linkTarget = link ? link : formInvestibleLink(marketId, investibleId);
   const cardTypeId = marketType === PLANNING_TYPE? 'InvestibleSearchResultStory' : 'InvestibleSearchResultOption';
   const cardType = intl.formatMessage({ id: cardTypeId});

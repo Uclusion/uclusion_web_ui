@@ -4,7 +4,7 @@ import { Link, Card } from '@material-ui/core'
 import { navigate } from '../../utils/marketIdPathFunctions'
 import { useIntl } from 'react-intl'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
-import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
+import { getInvestibleName } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { useHistory } from 'react-router'
 import Typography from '@material-ui/core/Typography';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
@@ -35,14 +35,7 @@ function VotingNotificationResult(props) {
       return classes.justifyCard;
   }
 
-  function getInvestibleName (investibleId) {
-    const inv = getInvestible(investibleState, investibleId);
-    const { investible } = inv;
-    const { name } = investible;
-    return name;
-  }
-
-  const containerName = getInvestibleName(investibleId);
+  const containerName = getInvestibleName(investibleId, investibleState);
   const cardClass = getCardClass();
   const typeName = intl.formatMessage({ id: getTypeNameId()});
   const excerpt = (creator || {}).name;

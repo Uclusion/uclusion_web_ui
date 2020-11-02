@@ -360,6 +360,7 @@ const messages = defineMessages({
   commentAddIssueDefault: 'Your issue...',
   commentAddTODODefault: 'Your TODO...',
   commentAddQuestionDefault: 'Your question...',
+  commentAddStoryQuestionDefault: 'Your question and after save can add approvable options',
   commentAddSuggestDefault: 'Your suggestion...',
   commentAddReplyDefault: 'Your reply...',
   commentAddReportDefault: 'Your progress report...',
@@ -834,7 +835,7 @@ const messages = defineMessages({
   MarketSearchResultWorkspace: 'Workspace',
   MarketSearchResultInitiative: 'Initiative',
   MarketSearchResultDialog: 'Dialog',
-  InvestibleSearchResultTitle: '{type} in {marketName}',
+  InvestibleSearchResultTitle: '{type} in {parentName}',
 
   InvestibleSearchResultStory: 'Story',
   InvestibleSearchResultOption: 'Option',

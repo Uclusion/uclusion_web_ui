@@ -16,7 +16,7 @@ import {
 } from '../../constants/comments'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
-import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
+import { getInvestibleName } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 import { useHistory } from 'react-router'
 import Typography from '@material-ui/core/Typography';
@@ -86,7 +86,6 @@ function CommentSearchResult (props) {
     }
   }
 
-
   function getMarketName (marketId) {
     const market = getMarket(marketsState, marketId);
     if (_.isEmpty(market)) {
@@ -96,20 +95,7 @@ function CommentSearchResult (props) {
     return name;
   }
 
-  function getInvestibleName (investibleId) {
-    const inv = getInvestible(investibleState, investibleId);
-    if (_.isEmpty(inv)) {
-      // falll back to the market at a minimum;
-      return getMarketName(marketId);
-    }
-    const { investible } = inv;
-    const { name } = investible;
-    return name;
-  }
-
-
-
-  const containerName = !_.isEmpty(investibleId) ? getInvestibleName(investibleId) : getMarketName(marketId);
+  const containerName = !_.isEmpty(investibleId) ? getInvestibleName(investibleId, investibleState) : getMarketName(marketId);
   const cardClass = getCardClass();
   const typeName = intl.formatMessage({ id: getTypeNameId(type)})
   //const subTitle = intl.formatMessage({ id: 'CommentSearchResultSubTitle' }, { name: containerName });

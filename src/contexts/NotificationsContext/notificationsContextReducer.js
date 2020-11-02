@@ -15,7 +15,6 @@ export const NOTIFICATIONS_CONTEXT_NAMESPACE = 'notifications';
 const UPDATE_MESSAGES = 'UPDATE_MESSAGES';
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const PAGE_CHANGED = 'PAGE_CHANGED';
-const REFRESH_RECENT= 'REFRESH_RECENT';
 
 // Empty state of the various subkeys of the state, useful for avoiding errors
 const emptyMessagesState = [];
@@ -25,12 +24,6 @@ export function updateMessages (messages) {
   return {
     type: UPDATE_MESSAGES,
     messages,
-  };
-}
-
-export function refreshRecent() {
-  return {
-    type: REFRESH_RECENT,
   };
 }
 
@@ -301,10 +294,12 @@ function storeMessagesInState(state, messagesToStore) {
       recent
     };
   }
-  return {
+  const newState = {
     ...state,
     messages: messagesToStore,
   };
+  // Take this opportunity to clear old messages from the recent list
+  return refreshRecentMessages(newState)
 }
 
 /**
@@ -342,8 +337,6 @@ function computeNewState (state, action) {
       return processPageChange(state, action);
     case INITIALIZE_STATE:
       return action.newState;
-    case REFRESH_RECENT:
-      return refreshRecentMessages(state);
     default:
       return state;
   }
@@ -354,14 +347,10 @@ function reducer (state, action) {
   if (action.type !== INITIALIZE_STATE) {
     const lfh = new LocalForageHelper(NOTIFICATIONS_CONTEXT_NAMESPACE);
     lfh.setState(newState).then(() => {
-      // Recently viewed is client specific. It does not work off of messages removed by the back
-      // end because those might not have been recently viewed. Nor are we saving recently viewed globally.
-      // So each local tab must be informed of changes.
-      if (action.type !== REFRESH_RECENT) {
-        const myChannel = new BroadcastChannel(NOTIFICATIONS_CHANNEL);
-        return myChannel.postMessage('notifications').then(() => myChannel.close())
-          .then(() => console.info('Update notifications context sent.'));
-      }
+      // In case the other tabs don't get the message
+      const myChannel = new BroadcastChannel(NOTIFICATIONS_CHANNEL);
+      return myChannel.postMessage('notifications').then(() => myChannel.close())
+        .then(() => console.info('Update notifications context sent.'));
     });
   }
   return newState;

@@ -35,9 +35,7 @@ import DialogActions from '../../Home/DialogActions'
 import ParentSummary from '../ParentSummary'
 import CardActions from '@material-ui/core/CardActions'
 import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
-import { getInlineBreadCrumbs } from '../../Investible/Decision/DecisionInvestible'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
-import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import { inviteDialogSteps } from '../../../components/Tours/InviteTours/dialog'
 import { CognitoUserContext } from '../../../contexts/CognitoUserContext/CongitoUserContext'
 import { startTour } from '../../../contexts/TourContext/tourContextReducer'
@@ -197,19 +195,12 @@ function DecisionDialog(props) {
     expiration_minutes: expirationMinutes,
     created_by: createdBy,
     parent_market_id: parentMarketId,
-    parent_investible_id: parentInvestibleId,
-    parent_comment_id: parentCommentId
+    parent_investible_id: parentInvestibleId
   } = market;
-  const isInline = !_.isEmpty(parentCommentId);
-  const [marketState] = useContext(MarketsContext);
-  const [investiblesState] = useContext(InvestiblesContext);
   const [beingEdited, setBeingEdited] = useState(false);
   const activeMarket = marketStage === ACTIVE_STAGE;
   const inArchives = !activeMarket || (myPresence && !myPresence.following);
   let breadCrumbTemplates = [];
-  if (isInline) {
-    breadCrumbTemplates = getInlineBreadCrumbs(marketState, parentMarketId, parentInvestibleId, investiblesState);
-  }
   const breadCrumbs = inArchives ? _.isEmpty(breadCrumbTemplates) ? makeArchiveBreadCrumbs(history)
     : makeBreadCrumbs(history, breadCrumbTemplates) : makeBreadCrumbs(history);
   const addLabel = isAdmin ? 'decisionDialogAddInvestibleLabel' : 'decisionDialogProposeInvestibleLabel';
@@ -256,7 +247,7 @@ function DecisionDialog(props) {
 
   return (
     <Screen
-      title={isInline ? intl.formatMessage({ id: 'archiveInlineTitle' }) : marketName}
+      title={marketName}
       tabTitle={marketName}
       hidden={hidden}
       breadCrumbs={breadCrumbs}
@@ -282,7 +273,7 @@ function DecisionDialog(props) {
               {beingEdited && (
                 <DialogBodyEdit hidden={hidden} setBeingEdited={setBeingEdited} marketId={marketId} />
               )}
-              {!isInline && !beingEdited && (
+              {!beingEdited && (
                 <>
                   <Typography className={classes.title} variant="h3" component="h1">
                     {marketName}

@@ -31,9 +31,12 @@ import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketSt
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { urlHelperGetName } from '../../utils/marketIdPathFunctions'
 
-function getPlaceHolderLabelId (type) {
+function getPlaceHolderLabelId (type, isStory) {
   switch (type) {
     case QUESTION_TYPE:
+      if (isStory) {
+        return 'commentAddStoryQuestionDefault';
+      }
       return 'commentAddQuestionDefault';
     case SUGGEST_CHANGE_TYPE:
       return 'commentAddSuggestDefault';
@@ -97,6 +100,7 @@ const useStyles = makeStyles((theme) => ({
 function CommentAdd (props) {
   const {
     intl, marketId, onSave, onCancel, type, clearType, investible, parent, hidden, issueWarningId, todoWarningId,
+    isStory
   } = props;
   const [body, setBody] = useState('');
   const [commentsState, commentDispatch] = useContext(CommentsContext);
@@ -106,7 +110,7 @@ function CommentAdd (props) {
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [openIssue, setOpenIssue] = useState(false);
   const classes = useStyles();
-  const placeHolderLabelId = getPlaceHolderLabelId(type);
+  const placeHolderLabelId = getPlaceHolderLabelId(type, isStory);
   const placeHolder = intl.formatMessage({ id: placeHolderLabelId });
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [firstOpen, setFirstOpen] = useState(true);
@@ -353,6 +357,7 @@ CommentAdd.propTypes = {
   onCancel: PropTypes.func,
   hidden: PropTypes.bool,
   clearType: PropTypes.func,
+  isStory: PropTypes.bool
 };
 
 CommentAdd.defaultProps = {
@@ -362,6 +367,7 @@ CommentAdd.defaultProps = {
   onCancel: () => {},
   clearType: () => {},
   hidden: false,
+  isStory: false
 };
 
 export default injectIntl(CommentAdd);

@@ -15,7 +15,10 @@ import {
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { formInvestibleLink, formMarketLink, navigate } from '../../utils/marketIdPathFunctions'
 import RaisedCard from '../../components/Cards/RaisedCard'
-import { getInvestible, getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
+import {
+  getInvestibleName,
+  getMarketInvestibles
+} from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import DialogActions from './DialogActions'
 import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper'
@@ -169,16 +172,6 @@ function PlanningDialogs(props) {
       );
   }
 
-  function getInvestibleName(investibleId) {
-    const inv = getInvestible(investibleState, investibleId);
-    if (!inv) {
-      return '';
-    }
-    const { investible } = inv;
-    const { name } = investible;
-    return name;
-  }
-
   function getCommentsCount(comments, commentType) {
     return comments.filter((comment) => comment.comment_type === commentType).length;
   }
@@ -211,7 +204,7 @@ function PlanningDialogs(props) {
       const sortedPresences = _.sortBy(marketPresencesFollowing, 'name');
       let parentName;
       if (parentInvestibleId) {
-        parentName = getInvestibleName(parentInvestibleId);
+        parentName = getInvestibleName(parentInvestibleId, investibleState);
       }
       const updatedMessageId = marketStage === ACTIVE_STAGE ? 'homeUpdated' : 'homeArchived';
       return (

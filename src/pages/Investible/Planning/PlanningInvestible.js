@@ -805,6 +805,7 @@ function PlanningInvestible(props) {
                 marketId={marketId}
                 issueWarningId="issueWarningPlanning"
                 todoWarningId={todoWarning}
+                isStory
               />
             </>
           )}
@@ -831,6 +832,7 @@ function PlanningInvestible(props) {
               marketId={marketId}
               issueWarningId="issueWarningPlanning"
               todoWarningId={todoWarning}
+              isStory
             />
           )}
           <CommentBox

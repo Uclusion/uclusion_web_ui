@@ -29,13 +29,12 @@ function InvestibleSearchResult (props) {
   const { market_type: marketType, name: marketName, parent_comment_market_id: parentMarketId,
     parent_comment_id: parentCommentId} = market;
   const [commentsState] = useContext(CommentsContext);
-  const inlineComments = getMarketComments(commentsState, parentMarketId || marketId) || [];
+  const inlineComments = getMarketComments(commentsState, parentMarketId) || [];
   const parentComment = inlineComments.find((comment) => comment.id === parentCommentId) || {};
-  const parentInv = parentComment.investible_id ? getInvestibleName(parentComment.investible_id, investibleState) : undefined;
+  const parentName = parentComment.investible_id ? getInvestibleName(parentComment.investible_id, investibleState) : marketName;
   const linkTarget = link ? link : formInvestibleLink(marketId, investibleId);
   const cardTypeId = marketType === PLANNING_TYPE? 'InvestibleSearchResultStory' : 'InvestibleSearchResultOption';
   const cardType = intl.formatMessage({ id: cardTypeId});
-  const parentName = parentInv ? parentInv.name : marketName;
   // Initiative investibles are really the market, so render it as such
   if (marketType === INITIATIVE_TYPE) {
     return <MarketSearchResult marketId={marketId} initiativeName={name} {...props}/>

@@ -819,6 +819,7 @@ const messages = defineMessages({
 
   // Search
   searchBoxPlaceholder: 'Search',
+  SearchResultsOverflow: '...and {overflow} other(s) not shown',
   CommentSearchResultIssue: 'Blocking Issue In:',
   CommentSearchResultSuggestion: 'Suggestion In:',
   CommentSearchResultTodo: 'TODO In:',

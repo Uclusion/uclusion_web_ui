@@ -1,17 +1,18 @@
-import React, { useContext, useEffect, useState } from 'react'
-import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
-import _ from 'lodash'
+import React, { useContext, useEffect, useState } from 'react';
+import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext';
+import _ from 'lodash';
 import {
   INDEX_COMMENT_TYPE,
   INDEX_INVESTIBLE_TYPE,
   INDEX_MARKET_TYPE
-} from '../../contexts/SearchIndexContext/searchIndexContextMessages'
-import CommentSearchResult from './CommentSearchResult'
-import InvestibleSearchResult from './InvestibleSearchResult'
-import MarketSearchResult from './MarketSearchResult'
+} from '../../contexts/SearchIndexContext/searchIndexContextMessages';
+import CommentSearchResult from './CommentSearchResult';
+import InvestibleSearchResult from './InvestibleSearchResult';
+import MarketSearchResult from './MarketSearchResult';
 import { List, ListItem, Paper, Popper, useTheme } from '@material-ui/core';
-import { makeStyles } from '@material-ui/styles'
+import { makeStyles } from '@material-ui/styles';
 import { isTinyWindow } from '../../utils/windowUtils';
+import { useIntl } from 'react-intl';
 
 export const searchStyles = makeStyles((theme) => {
   return {
@@ -24,16 +25,12 @@ export const searchStyles = makeStyles((theme) => {
     link: {
       width: '100%'
     },
-    searchResultHeader: {
-
-    },
+    searchResultHeader: {},
     marketSearchName: {
       fontWeight: 'bold',
       fontStyle: 'italic',
     },
-    investibleSearchTitle: {
-
-    },
+    investibleSearchTitle: {},
     investibleSearchName: {
       fontWeight: 'bold',
       fontStyle: 'italic',
@@ -81,9 +78,7 @@ export const searchStyles = makeStyles((theme) => {
       padding: theme.spacing(1),
       color: '#ffffff',
     },
-    commentSearchTitle: {
-
-    },
+    commentSearchTitle: {},
     commentSearchName: {
       fontWeight: 'bold',
     },
@@ -97,7 +92,8 @@ export const searchStyles = makeStyles((theme) => {
 function SearchResults () {
   const [searchResults, setSearchResults] = useContext(SearchResultsContext);
   const [open, setOpen] = useState(false);
-  const { results } = searchResults;
+  const { results, resultsFound } = searchResults;
+  const intl = useIntl();
   const theme = useTheme();
   const classes = searchStyles(theme);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -114,11 +110,12 @@ function SearchResults () {
   function zeroResults () {
     setSearchResults({
       search: '',
-      results: []
+      results: [],
+      resultsFound: 0,
     });
   }
 
-  const afterOnClick = isTinyWindow()? zeroResults : () => {}
+  const afterOnClick = isTinyWindow() ? zeroResults : () => {};
 
   function getSearchResult (item) {
     const { id, type, marketId } = item;
@@ -134,8 +131,8 @@ function SearchResults () {
   }
 
   function getResults () {
-    const deduped = _.uniqBy(results, 'id');
-    return deduped.map((item) => {
+    const overflow = resultsFound - results.length;
+    const resultUIElements = results.map((item) => {
       const { id } = item;
       return (
         <ListItem
@@ -143,10 +140,24 @@ function SearchResults () {
           button
           onClick={zeroResults}
         >
-            {getSearchResult(item)}
+          {getSearchResult(item)}
         </ListItem>
       );
     });
+    //did we have results that we can't display?
+    console.error(overflow);
+    if (overflow > 0) {
+      resultUIElements.push((
+        <ListItem
+          key="overflow"
+          dense
+          disabled
+        >
+          {intl.formatMessage({ id: 'SearchResultsOverflow' }, { overflow })}
+        </ListItem>
+      ));
+    }
+    return resultUIElements;
   }
 
   const placement = 'bottom';

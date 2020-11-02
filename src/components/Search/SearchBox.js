@@ -21,10 +21,11 @@ function SearchBox (props) {
     setSearchResults({
       search: '',
       results: [],
+      resultsFound: 0,
     });
   }
 
-  function isEqual(a, b) {
+  function isEqualWithComment(a, b) {
     if (a.type !== b.type) {
       return false;
     }
@@ -35,12 +36,19 @@ function SearchBox (props) {
     }
     return a.id === b.id && a.marketId === b.marketId;
   }
+
   function onSearchChange (event) {
     const { value } = event.target;
-    const results = _.uniqWith(_.take(index.search(value), MAX_RESULTS), isEqual);
+    // query the index
+    const foundResults = index.search(value);
+    //dedup by id
+    const uniqueResults = _.uniqWith(foundResults, isEqualWithComment);
+    // and cap the amount to MAX Results
+    const results = _.take(uniqueResults, MAX_RESULTS);
     setSearchResults({
       search: value,
-      results
+      results,
+      resultsFound: foundResults.length,
     });
   }
 

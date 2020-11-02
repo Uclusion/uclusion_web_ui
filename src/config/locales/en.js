@@ -359,7 +359,7 @@ const messages = defineMessages({
   // CommentAdd
   commentAddIssueDefault: 'Your issue...',
   commentAddTODODefault: 'Your TODO...',
-  commentAddQuestionDefault: 'Your question...',
+  commentAddQuestionDefault: 'Your question and after save can add approvable options',
   commentAddSuggestDefault: 'Your suggestion...',
   commentAddReplyDefault: 'Your reply...',
   commentAddReportDefault: 'Your progress report...',

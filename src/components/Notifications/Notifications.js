@@ -16,7 +16,6 @@ import { filterMessagesByMarket, nextMessage } from '../../contexts/Notification
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import DisplayNotifications from './DisplayNotifications'
 import { useIntl } from 'react-intl'
-import { refreshRecent } from '../../contexts/NotificationsContext/notificationsContextReducer'
 
 const useStyles = makeStyles(
   theme => {
@@ -96,7 +95,7 @@ function Notifications() {
   const [inside, setInside] = useState(false);
   const [pegLeft, setPegLeft] = useState(false);
   const [pegLeftTimer, setPegLeftTimer] = useState(undefined);
-  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const [messagesState] = useContext(NotificationsContext);
   const [marketsState] = useContext(MarketsContext);
   const filteredMessagesState = filterMessagesByMarket(messagesState, marketsState);
   const current = nextMessage(filteredMessagesState || {});
@@ -121,9 +120,6 @@ function Notifications() {
   }
 
   function onEnter() {
-    if (!open) {
-      messagesDispatch(refreshRecent());
-    }
     setOpen(true);
     setInside(true);
     if (pegLeftTimer) {

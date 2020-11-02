@@ -11,6 +11,8 @@ import { useHistory } from 'react-router'
 import Typography from '@material-ui/core/Typography';
 import { useIntl } from 'react-intl';
 import MarketSearchResult from './MarketSearchResult';
+import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper'
+import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 
 
 function InvestibleSearchResult (props) {
@@ -24,11 +26,16 @@ function InvestibleSearchResult (props) {
   const { investible: { name }, market_infos: [firstInfo,] } = inv;
   const { market_id: marketId } = firstInfo;
   const market = getMarket(marketsState, marketId);
-  const { market_type: marketType, name: marketName } = market;
+  const { market_type: marketType, name: marketName, parent_comment_market_id: parentMarketId,
+    parent_comment_id: parentCommentId} = market;
+  const [commentsState] = useContext(CommentsContext);
+  const inlineComments = getMarketComments(commentsState, parentMarketId || marketId) || [];
+  const parentComment = inlineComments.find((comment) => comment.id === parentCommentId) || {};
+  const parentInv = parentComment.investible_id ? getInvestible(investibleState, parentComment.investible_id) : undefined;
   const linkTarget = link ? link : formInvestibleLink(marketId, investibleId);
   const cardTypeId = marketType === PLANNING_TYPE? 'InvestibleSearchResultStory' : 'InvestibleSearchResultOption';
   const cardType = intl.formatMessage({ id: cardTypeId});
-
+  const parentName = parentInv ? parentInv.name : marketName;
   // Initiative investibles are really the market, so render it as such
   if (marketType === INITIATIVE_TYPE) {
     return <MarketSearchResult marketId={marketId} initiativeName={name} {...props}/>
@@ -48,7 +55,9 @@ function InvestibleSearchResult (props) {
       }
     >
       <Card className={classes.investibleCard}>
-        <Typography className={classes.investibleSearchTitle}>{intl.formatMessage({ id: 'InvestibleSearchResultTitle'}, {type: cardType, marketName})}</Typography>
+        <Typography className={classes.investibleSearchTitle}>{
+          intl.formatMessage({ id: 'InvestibleSearchResultTitle'},
+            {type: cardType, parentName})}</Typography>
         <Typography className={classes.investibleSearchName}>{name}</Typography>
       </Card>
     </Link>

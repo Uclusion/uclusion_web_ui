@@ -835,7 +835,7 @@ const messages = defineMessages({
   MarketSearchResultWorkspace: 'Workspace',
   MarketSearchResultInitiative: 'Initiative',
   MarketSearchResultDialog: 'Dialog',
-  InvestibleSearchResultTitle: '{type} in {marketName}',
+  InvestibleSearchResultTitle: '{type} in {parentName}',
 
   InvestibleSearchResultStory: 'Story',
   InvestibleSearchResultOption: 'Option',

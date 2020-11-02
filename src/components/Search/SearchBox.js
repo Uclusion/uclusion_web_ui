@@ -11,7 +11,6 @@ import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import CloseIcon from '@material-ui/icons/Close';
 
 function SearchBox (props) {
-  const MAX_RESULTS = 15;
   const intl = useIntl();
   const [index] = useContext(SearchIndexContext);
   const [searchResults, setSearchResults] = useContext(SearchResultsContext);
@@ -42,13 +41,11 @@ function SearchBox (props) {
     // query the index
     const foundResults = index.search(value);
     //dedup by id
-    const uniqueResults = _.uniqWith(foundResults, isEqualWithComment);
-    // and cap the amount to MAX Results
-    const results = _.take(uniqueResults, MAX_RESULTS);
+    const results = _.uniqWith(foundResults, isEqualWithComment);
     setSearchResults({
       search: value,
       results,
-      resultsFound: foundResults.length,
+      page: 0,
     });
   }
 

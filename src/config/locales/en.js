@@ -819,7 +819,9 @@ const messages = defineMessages({
 
   // Search
   searchBoxPlaceholder: 'Search',
-  SearchResultsOverflow: '...and {overflow} other(s) not shown',
+  SearchResultsOverflow: '...and {remaining} other(s)',
+  SearchResultsPrevious: 'Previous',
+  SearchResultsNext: 'Next',
   CommentSearchResultIssue: 'Blocking Issue In:',
   CommentSearchResultSuggestion: 'Suggestion In:',
   CommentSearchResultTodo: 'TODO In:',
@@ -951,6 +953,7 @@ const messages = defineMessages({
   LinkDialogExplanation: 'Please provide the URL of the link you want to add.',
   LinkDialogUrl: 'URL for Link',
   LinkDialogUrlPlaceHolder: 'Link URL',
+
 
 });
 

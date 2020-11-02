@@ -9,10 +9,11 @@ import {
 import CommentSearchResult from './CommentSearchResult';
 import InvestibleSearchResult from './InvestibleSearchResult';
 import MarketSearchResult from './MarketSearchResult';
-import { List, ListItem, Paper, Popper, useTheme } from '@material-ui/core';
+import { List, ListItem, Paper, Popper, Typography, useTheme } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 import { isTinyWindow } from '../../utils/windowUtils';
 import { useIntl } from 'react-intl';
+import Button from '@material-ui/core/Button';
 
 export const searchStyles = makeStyles((theme) => {
   return {
@@ -84,15 +85,28 @@ export const searchStyles = makeStyles((theme) => {
     },
     commentSearchExcerpt: {
       fontStyle: 'italic',
+    },
+    searchUIContainer: {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'baseline',
+      width: '100%',
+    },
+    searchUIMiddle: {
+      display: 'block',
+      textAlign: 'center',
+      flexGrow: 1,
     }
-
   };
 });
+
+// 10 is a good balance of useability and screen size
+const PAGE_SIZE = 10;
 
 function SearchResults () {
   const [searchResults, setSearchResults] = useContext(SearchResultsContext);
   const [open, setOpen] = useState(false);
-  const { results, resultsFound } = searchResults;
+  const { results, page, search } = searchResults;
   const intl = useIntl();
   const theme = useTheme();
   const classes = searchStyles(theme);
@@ -107,11 +121,27 @@ function SearchResults () {
 
   }, [setAnchorEl, anchorEl, results]);
 
+
+  function nextPage() {
+    setSearchResults({
+      search,
+      results,
+      page: page + 1,
+    });
+  }
+  function previousPage() {
+    setSearchResults({
+      search,
+      results,
+      page: page - 1,
+    });
+  }
+
   function zeroResults () {
     setSearchResults({
       search: '',
       results: [],
-      resultsFound: 0,
+      page: 0,
     });
   }
 
@@ -130,9 +160,43 @@ function SearchResults () {
     }
   }
 
+  function createSearchNavigation () {
+    const pageStart = page * PAGE_SIZE;
+    const pageEnd = Math.min((pageStart + PAGE_SIZE), results.length);
+    //did we have results that we can't display?
+    const remaining = results.length - pageEnd;
+    // do I need to display the pagination menu?
+    const firstPage = pageStart === 0;
+    const resultsRemaining = pageEnd < results.length;
+    const needPagenation = !firstPage || resultsRemaining;
+    // no pages in results? No UI needed
+    if (!needPagenation) {
+      return <React.Fragment/>;
+    }
+    return (
+      <ListItem
+        key="overflow"
+        dense
+      >
+        <div className={classes.searchUIContainer}>
+          {<Button dense disabled={firstPage} onClick={previousPage}>{intl.formatMessage({id: 'SearchResultsPrevious'})}</Button>}
+          {resultsRemaining && <Typography
+            className={classes.searchUIMiddle}>{intl.formatMessage({ id: 'SearchResultsOverflow' }, { remaining })}</Typography>}
+          {!resultsRemaining && <div className={classes.searchUIMiddle}> &nbsp; </div>}
+          {<Button disabled={!resultsRemaining} onClick={nextPage}>{intl.formatMessage({id: 'SearchResultsNext'})}</Button>}
+        </div>
+      </ListItem>
+    );
+  }
+
   function getResults () {
-    const overflow = resultsFound - results.length;
-    const resultUIElements = results.map((item) => {
+    const pageStart = page * PAGE_SIZE;
+    const pageEnd = Math.min((pageStart + PAGE_SIZE), results.length);
+    //_.range does NOT include the end, so this is safe
+    const pageIndexes = _.range(pageStart, pageEnd);
+
+    const resultUIElements = pageIndexes.map((index) => {
+      const item = results[index];
       const { id } = item;
       return (
         <ListItem
@@ -144,19 +208,8 @@ function SearchResults () {
         </ListItem>
       );
     });
-    //did we have results that we can't display?
-    console.error(overflow);
-    if (overflow > 0) {
-      resultUIElements.push((
-        <ListItem
-          key="overflow"
-          dense
-          disabled
-        >
-          {intl.formatMessage({ id: 'SearchResultsOverflow' }, { overflow })}
-        </ListItem>
-      ));
-    }
+    // add our nav ui
+    resultUIElements.push(createSearchNavigation());
     return resultUIElements;
   }
 

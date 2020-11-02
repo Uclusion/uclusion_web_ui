@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 const EMPTY_STATE = {
   search: '',
   results: [],
-  resultsFound: 0,
+  page: 0,
 };
 
 const SearchResultsContext = React.createContext(EMPTY_STATE);

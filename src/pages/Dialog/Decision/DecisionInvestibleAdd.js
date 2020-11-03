@@ -219,7 +219,7 @@ function DecisionInvestibleAdd(props) {
         setCurrentValues({ name: '' });
         editorClearFunc();
       });
-    if (parentInvestibleId) {
+    if (parentCommentId) {
       navigate(history, formMarketAddInvestibleLink(inlineMarketId));
     }
   }

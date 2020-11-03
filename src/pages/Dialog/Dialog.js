@@ -135,7 +135,7 @@ function Dialog(props) {
     return () => {
     };
   }, [hidden, marketType, investibles, marketId, history, location, marketStages, marketPresences, isInline,
-    activeMarket, parentMarketId, parentInvestibleId]);
+    parentMarketId, parentInvestibleId, parentCommentId]);
 
   if (loading) {
     return (

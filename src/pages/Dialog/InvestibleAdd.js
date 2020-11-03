@@ -18,7 +18,6 @@ import { addInvestible } from '../../contexts/InvestibesContext/investiblesConte
 import { usePlanFormStyles } from '../../components/AgilePlan'
 import queryString from 'query-string'
 import { getInlineBreadCrumbs } from '../Investible/Decision/DecisionInvestible'
-import _ from 'lodash'
 import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 
@@ -45,7 +44,6 @@ function InvestibleAdd(props) {
   const comments = getMarketComments(commentsState, parentMarketId || marketId) || [];
   const parentComment = comments.find((comment) => comment.id === (parentCommentId || inlineParentCommentId)) || {};
   const parentInvestibleId = parentComment.investible_id;
-  const isInline = !_.isEmpty(parentCommentId);
   const currentMarketName = (renderableMarket && renderableMarket.name) || '';
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
@@ -53,10 +51,9 @@ function InvestibleAdd(props) {
   const { is_admin: isAdmin } = myTruePresence;
   let breadCrumbTemplates;
   if (parentCommentId) {
-    console.debug(`parent investible id is ${parentInvestibleId}`);
     // The inline market will be created along with the option
     breadCrumbTemplates = getInlineBreadCrumbs(marketsState, marketId, parentInvestibleId, investiblesState);
-  } else if (isInline) {
+  } else if (inlineParentCommentId) {
     breadCrumbTemplates = getInlineBreadCrumbs(marketsState, parentMarketId, parentInvestibleId, investiblesState);
   } else {
     breadCrumbTemplates = [{ name: currentMarketName, link: formMarketLink(marketId) }];
@@ -115,6 +112,7 @@ function InvestibleAdd(props) {
           storedState={storedState}
           classes={classes}
           parentCommentId={parentCommentId}
+          inlineParentCommentId={inlineParentCommentId}
           parentInvestibleId={parentInvestibleId}
           parentMarketId={parentMarketId || marketId}
         />

@@ -30,7 +30,11 @@ import MoveBackToPoolActionButton from './MoveBackToPoolActionButton'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
-import { addInvestible, getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
+import {
+  addInvestible,
+  getInvestible,
+  getInvestibleName
+} from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import CardActions from '@material-ui/core/CardActions'
 import clsx from 'clsx'
 import AttachedFilesList from '../../../components/Files/AttachedFilesList'
@@ -155,15 +159,10 @@ export function getInlineBreadCrumbs (marketState, parentMarketId, parentInvesti
     breadCrumbTemplates = [{ name: inlineParentMarketName, link: formMarketLink(parentMarketId), id: 'marketCrumb' }]
   }
   if (parentInvestibleId) {
-    const inlineParentInvestible = getInvestible(investiblesState, parentInvestibleId)
-    if (inlineParentInvestible) {
-      const { investible } = inlineParentInvestible
-      const { name: parentInvestibleName } = investible
-      breadCrumbTemplates.push({
-        name: parentInvestibleName,
-        link: formInvestibleLink(parentMarketId, parentInvestibleId), id: 'marketCrumb'
-      })
-    }
+    breadCrumbTemplates.push({
+      name: getInvestibleName(parentInvestibleId, investiblesState),
+      link: formInvestibleLink(parentMarketId, parentInvestibleId), id: 'marketCrumb'
+    })
   }
   return breadCrumbTemplates
 }
@@ -218,17 +217,17 @@ function DecisionInvestible(props) {
   const hasIssueOrMarketIssue = hasMarketIssue || hasIssue;
   const votingBlockedMessage = hasMarketIssue
     ? 'decisionInvestibleVotingBlockedMarket'
-    : 'decisionInvestibleVotingBlockedInvestible'
-  const { investible, market_infos: marketInfos } = fullInvestible
-  const marketInfo = marketInfos.find((info) => info.market_id === marketId)
-  const allowDelete = marketPresences && marketPresences.length < 2
-  const [marketStagesState] = useContext(MarketStagesContext)
+    : 'decisionInvestibleVotingBlockedInvestible';
+  const { investible, market_infos: marketInfos } = fullInvestible;
+  const marketInfo = marketInfos.find((info) => info.market_id === marketId) || {};
+  const allowDelete = marketPresences && marketPresences.length < 2;
+  const [marketStagesState] = useContext(MarketStagesContext);
   const [beingEdited, setBeingEdited] = useState(false);
-  const inProposedStage = getProposedOptionsStage(marketStagesState, marketId)
-  const inProposed = inProposedStage && marketInfo.stage === inProposedStage.id
-  const activeMarket = marketStage === ACTIVE_STAGE
+  const inProposedStage = getProposedOptionsStage(marketStagesState, marketId);
+  const inProposed = inProposedStage && marketInfo.stage === inProposedStage.id;
+  const activeMarket = marketStage === ACTIVE_STAGE;
   const yourPresence = marketPresences.find((presence) => presence.current_user)
-  const yourVote = yourPresence && yourPresence.investments.find((investment) => investment.investible_id === investibleId)
+  const yourVote = yourPresence && yourPresence.investments.find((investment) => investment.investible_id === investibleId);
   const cardDescription = inProposed ? "decisionProposedInvestibleDescription" : "decisionInvestibleDescription";
   const {
     description, name, created_by: createdBy, locked_by: lockedBy, attached_files: attachedFiles,

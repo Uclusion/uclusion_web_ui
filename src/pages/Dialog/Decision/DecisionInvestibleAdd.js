@@ -40,6 +40,7 @@ function DecisionInvestibleAdd(props) {
     storedState,
     onSpinComplete,
     parentCommentId,
+    inlineParentCommentId,
     parentInvestibleId,
     parentMarketId
   } = props;
@@ -114,7 +115,11 @@ function DecisionInvestibleAdd(props) {
   }
 
   function handleCancel() {
-    const link = parentInvestibleId ? formInvestibleLink(marketId, parentInvestibleId) : formMarketLink(marketId);
+    let link = parentInvestibleId ? formInvestibleLink(parentMarketId, parentInvestibleId) : formMarketLink(marketId);
+    if (parentCommentId || inlineParentCommentId) {
+      link = `${link}#c${parentCommentId || inlineParentCommentId}`;
+    }
+    console.debug(`link is ${link}`);
     onCancel(link);
   }
 
@@ -318,6 +323,7 @@ DecisionInvestibleAdd.propTypes = {
   hidden: PropTypes.bool,
   onSpinComplete: PropTypes.func,
   parentCommentId: PropTypes.string,
+  inlineParentCommentId: PropTypes.string,
   parentInvestibleId: PropTypes.string,
   parentMarketId: PropTypes.string
 };

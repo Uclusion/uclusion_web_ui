@@ -32,7 +32,6 @@ import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import {
   addInvestible,
-  getInvestible,
   getInvestibleName
 } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import CardActions from '@material-ui/core/CardActions'

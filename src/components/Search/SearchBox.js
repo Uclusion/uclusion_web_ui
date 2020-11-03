@@ -10,7 +10,7 @@ import { getCommentRoot } from '../../contexts/CommentsContext/commentsContextHe
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import CloseIcon from '@material-ui/icons/Close';
 
-const MAX_ALLOWABLE_RESULTS = 100;
+const MAX_ALLOWABLE_RESULTS = 75;
 
 function SearchBox (props) {
   const intl = useIntl();
@@ -52,19 +52,9 @@ function SearchBox (props) {
     });
   }
 
-  // fast typists are at around 120MS per keystroke, so we're going to let them hit two keys
-  const SEARCH_DEBOUNCE_WAIT = 200;
-  // don't burn time querying the index if their input is fast
-  const debouncedUpdateIndex = _.debounce(updateIndex, SEARCH_DEBOUNCE_WAIT);
-
   function onSearchChange (event) {
     const { value } = event.target;
-    setSearchResults({
-      search: value,
-      results: [],
-      page: 0,
-    });
-    debouncedUpdateIndex(value);
+    updateIndex(value);
   }
 
   const endAdornment = _.isEmpty(searchResults.search)? null : (

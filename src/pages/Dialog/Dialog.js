@@ -121,10 +121,9 @@ function Dialog(props) {
     }
     if (!hidden) {
       if (isInline) {
-        if (activeMarket) {
-          const link = formInvestibleLink(parentMarketId, parentInvestibleId);
-          navigate(history, link);
-        }
+        const link = formInvestibleLink(parentMarketId, parentInvestibleId);
+        const fullLink = `${link}#c${parentCommentId}`;
+        navigate(history, fullLink);
       }
       else if (marketType === INITIATIVE_TYPE) {
         if (Array.isArray(investibles) && investibles.length > 0) {

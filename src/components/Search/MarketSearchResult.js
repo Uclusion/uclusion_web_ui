@@ -8,6 +8,10 @@ import { DECISION_TYPE, INITIATIVE_TYPE } from '../../constants/markets';
 import { useHistory } from 'react-router';
 import Typography from '@material-ui/core/Typography';
 import { useIntl } from 'react-intl';
+import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
+import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper'
+import { getInvestibleName } from '../../contexts/InvestibesContext/investiblesContextHelper'
+import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 
 
 
@@ -20,9 +24,9 @@ function MarketSearchResult (props) {
   const {
     market_type: type,
     name,
+    parent_comment_market_id: parentMarketId,
+    parent_comment_id: parentCommentId
   } = market;
-  const linkTarget = link ? link : formMarketLink(marketId);
-
   function getTypeId(type) {
     switch (type) {
       case DECISION_TYPE:
@@ -33,9 +37,13 @@ function MarketSearchResult (props) {
         return 'MarketSearchResultWorkspace';
     }
   }
-
-  const usedMarketName = type === INITIATIVE_TYPE? initiativeName : name;
-
+  const [commentsState] = useContext(CommentsContext);
+  const [investibleState] = useContext(InvestiblesContext);
+  const inlineComments = getMarketComments(commentsState, parentMarketId) || [];
+  const parentComment = inlineComments.find((comment) => comment.id === parentCommentId) || {};
+  const parentName = parentComment.investible_id ? getInvestibleName(parentComment.investible_id, investibleState) : name;
+  const usedMarketName = type === INITIATIVE_TYPE? initiativeName : parentName;
+  const linkTarget = link ? link : formMarketLink(marketId);
   const typeName = intl.formatMessage({id: getTypeId(type)});
 
   return (

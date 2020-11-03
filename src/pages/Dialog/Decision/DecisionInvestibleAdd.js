@@ -84,7 +84,7 @@ function DecisionInvestibleAdd(props) {
     }
   }, [name, validForm]);
 
-  const itemKey = `add_investible_${marketId}`;
+  const itemKey = `add_investible_${parentCommentId || marketId}`;
   function handleDraftState(newDraftState) {
     setDraftState(newDraftState);
     localforage.setItem(itemKey, newDraftState);

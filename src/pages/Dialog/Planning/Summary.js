@@ -127,7 +127,7 @@ const useStyles = makeStyles(theme => ({
   },
   titleEditable: {
     fontSize: 32,
-    cursor: 'pointer',
+    cursor: "url('/images/edit_cursor.svg') 0 24, pointer",
     fontWeight: "bold",
     lineHeight: "42px",
     paddingBottom: "9px",

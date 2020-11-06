@@ -5,7 +5,7 @@ import { makeStyles } from "@material-ui/core";
 import clsx from "clsx";
 import 'quill/dist/quill.snow.css';
 import 'quill-table-ui/dist/index.css';
-import './editorStylesReadOnly.css';
+import './editorStyles.css';
 
 
 const useStyles = makeStyles(
@@ -23,7 +23,7 @@ const useStyles = makeStyles(
       },
       editable: {
         "& > *": {
-          cursor: "pointer !important",
+          cursor: "url('/images/edit_cursor.svg') 0 24, pointer"
         }
       },
       notEditable: {},

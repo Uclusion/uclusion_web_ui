@@ -136,7 +136,7 @@ const useStyles = makeStyles(
       fontWeight: "bold",
       lineHeight: "42px",
       paddingBottom: "9px",
-      cursor: "pointer",
+      cursor: "url('/images/edit_cursor.svg') 0 24, pointer",
       [theme.breakpoints.down("xs")]: {
         fontSize: 25
       }

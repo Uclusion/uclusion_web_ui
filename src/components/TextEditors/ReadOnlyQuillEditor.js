@@ -5,7 +5,8 @@ import { makeStyles } from "@material-ui/core";
 import clsx from "clsx";
 import 'quill/dist/quill.snow.css';
 import 'quill-table-ui/dist/index.css';
-import './editorStyles.css';
+import './editorStylesReadOnly.css';
+
 
 const useStyles = makeStyles(
   theme => {
@@ -18,7 +19,7 @@ const useStyles = makeStyles(
         },
         "& .ql-editor": {
           paddingLeft: 0
-        }
+        },
       },
 
       heading: {

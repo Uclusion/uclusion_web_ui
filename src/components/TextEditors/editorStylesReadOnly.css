@@ -1,0 +1,62 @@
+.ql-snow .ql-editor .ql-code-block-container{
+    background-color: #efefef;
+    padding-top: 2px;
+    padding-right: 2px;
+    padding-bottom: 2px;
+    padding-left: 2px;
+    overflow: visible;
+}
+.ql-snow .ql-tooltip[data-mode=video]::before {
+    content: "Video / Loom";
+}
+.ql-code-block {
+    background-color: #efefef; /* <== change this color */
+    color: #1d1c1d;
+}
+._loading_overlay_wrapper {
+    position: relative;
+    margin-bottom: 45px;
+}
+@media screen and (max-width: 925px) {
+    ._loading_overlay_wrapper {
+        margin-bottom: 70px;
+    }
+}
+@media screen and (max-width: 600px) {
+    ._loading_overlay_wrapper {
+        margin-bottom: 0;
+    }  
+}
+.ql-toolbar {
+    position: absolute;
+    transform: translateY(100%);
+    bottom: 0;
+    width: 100%;
+
+}
+@media screen and (max-width: 600px) {
+    .ql-disabled .ql-editor{
+        padding: 0
+    }
+}
+.ql-editor {
+    min-height: 6rem;
+}
+.ql-disabled .ql-editor {
+    min-height: auto
+}
+.editor-wrapper {
+    z-index: 7;
+}
+.ql-editor p {
+    cursor: url('/images/edit_cursor.svg'), pointer;
+}
+#editorbox {
+    border-top: 1px solid #ccc;
+    border-bottom: 0;
+}
+@media screen and (max-width: 600px) {
+    #editorbox {
+        border-bottom: 1px solid #ccc;
+    }
+}

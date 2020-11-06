@@ -121,6 +121,7 @@ class QuillEditor extends React.PureComponent {
             const index = selected? selected.index : 0; // no position? do it at the front
             // if so, the selection is just the cursor position, so insert our new text there
             this.editor.insertText(index, link, 'link', link, 'user');
+            //refocus the editor because for some reason it moves to the top during insert
           }else {
           //  console.error('adding link' + link);
             this.editor.format('link', link);
@@ -143,8 +144,9 @@ class QuillEditor extends React.PureComponent {
       noToolbar,
       simple,
       setOperationInProgress,
-      id,
     } = this.props;
+    // CSS id of the container from which scroll and bounds checks operate
+    const boundsId = this.getBoundsId();
     const defaultModules = {
       toolbar: {
         handlers : {
@@ -191,6 +193,7 @@ class QuillEditor extends React.PureComponent {
       },
       table: true,
       tableUI: true,
+
     };
     const modules = { ...defaultModules };
     if (simple) {
@@ -211,17 +214,25 @@ class QuillEditor extends React.PureComponent {
     if (noToolbar) {
       modules.toolbar = false;
     }
-    // quill will constrain ui elements to the boundaries
-    // of the element specified in the bounds parameter
-    // which in our case is a css id
-    const boundsId = `editorBox-${id || marketId}`;
+
     return {
       modules,
       placeholder,
       readOnly: false,
       theme: 'snow',
       bounds: `#${boundsId}`,
+      // sets the element responsible for scroll
+      scrollingContainer: `#${boundsId}`,
     };
+  }
+
+  getBoundsId() {
+    const { id, marketId } = this.props;
+    // quill will constrain ui elements to the boundaries
+    // of the element specified in the bounds parameter
+    // which in our case is a css id
+    const boundsId = `editorBox-${id || marketId}`;
+    return boundsId;
   }
 
   /**
@@ -381,11 +392,11 @@ class QuillEditor extends React.PureComponent {
   }
 
   render () {
-    const { children, theme, intl, id, marketId } = this.props;
+    const { children, theme, intl, id } = this.props;
     // quill will constrain ui elements to the boundaries
     // of the element specified in the bounds parameter
     // which in our case is a css id
-    const boundsId = `editorBox-${id || marketId}`;
+    const boundsId = this.getBoundsId();
     const { uploadInProgress } = this.state;
     const editorStyle = {
       fontFamily: theme.typography.fontFamily,

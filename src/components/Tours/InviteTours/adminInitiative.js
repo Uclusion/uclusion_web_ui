@@ -11,15 +11,9 @@ export function adminInitiativeSteps(variables) {
     },
     {
       disableBeacon: true,
-      target: '#adminEdit',
-      placement: 'left',
-      content: 'You can make changes to the proposal by editing it.',
-    },
-    {
-      disableBeacon: true,
       target: '#adminEditExpiration',
       placement: 'left',
-      content: 'Or extend the deadline by clicking on the clock.',
+      content: 'You can extend the deadline by clicking on the clock.',
     },
     {
       disableBeacon: true,

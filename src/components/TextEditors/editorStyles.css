@@ -42,6 +42,8 @@
 .ql-editor {
     min-height: 6rem;
 }
+.ql-editor div,
+.ql-editor ol,
 .ql-editor p {
     cursor: inherit;
 }

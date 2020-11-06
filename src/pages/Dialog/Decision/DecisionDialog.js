@@ -232,8 +232,11 @@ function DecisionDialog(props) {
   }
 
 
-  function mySetBeingEdited(isEdit) {
+  function mySetBeingEdited(isEdit, event) {
     if (isEdit) {
+      if (event && event.target && event.target.localName === 'a') {
+        return;
+      }
       if (isEditableByUser()) {
         setBeingEdited(isEdit);
       }

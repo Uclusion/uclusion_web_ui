@@ -238,6 +238,9 @@ function DecisionDialog(props) {
         return;
       }
       if (isEditableByUser()) {
+        const headerEl = document.getElementById('app-header');
+        const headerHeight = headerEl.scrollHeight;
+        window.scroll(0, headerHeight);
         setBeingEdited(isEdit);
       }
     } else {

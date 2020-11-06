@@ -209,7 +209,7 @@ function Header (props) {
         position="fixed"
         className={myAppClass}
       >
-        <div className={classes.topBar}/>
+        <div className={classes.topBar} id="app-header"/>
         <Toolbar className={classes.topBar}>
           {!hideTools && generateTitle()}
           <div className={classes.sidebarLogo}>

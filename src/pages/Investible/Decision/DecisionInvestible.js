@@ -47,6 +47,7 @@ import {
 import InvestibleBodyEdit from '../InvestibleBodyEdit'
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
+import { doSetEditWhenValid } from '../../../utils/windowUtils'
 
 const useStyles = makeStyles((theme) => ({
   mobileColumn: {
@@ -254,19 +255,7 @@ function DecisionInvestible(props) {
   }
 
   function mySetBeingEdited(isEdit, event) {
-    if (isEdit) {
-      if (event && event.target && event.target.localName === 'a') {
-        return;
-      }
-      if (isEditableByUser()) {
-        const headerEl = document.getElementById('app-header');
-        const headerHeight = headerEl.scrollHeight;
-        window.scroll(0, headerHeight);
-        setBeingEdited(isEdit);
-      }
-    } else {
-      setBeingEdited(isEdit);
-    }
+    doSetEditWhenValid(isEdit, isEditableByUser, setBeingEdited, event);
   }
 
   const allowedCommentTypes = [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE];

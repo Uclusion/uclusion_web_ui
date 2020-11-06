@@ -43,6 +43,7 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { EMPTY_SPIN_RESULT } from '../../../constants/global'
 import InvestibleBodyEdit from '../InvestibleBodyEdit'
+import { doSetEditWhenValid } from '../../../utils/windowUtils'
 
 const useStyles = makeStyles(
   theme => ({
@@ -257,19 +258,7 @@ function InitiativeInvestible(props) {
 
 
   function mySetBeingEdited(isEdit, event) {
-    if (isEdit) {
-      if (event && event.target && event.target.localName === 'a') {
-        return;
-      }
-      if (isEditableByUser()) {
-        const headerEl = document.getElementById('app-header');
-        const headerHeight = headerEl.scrollHeight;
-        window.scroll(0, headerHeight);
-        setBeingEdited(isEdit);
-      }
-    } else {
-      setBeingEdited(isEdit);
-    }
+    doSetEditWhenValid(isEdit, isEditableByUser, setBeingEdited, event);
   }
 
   useEffect(() => {

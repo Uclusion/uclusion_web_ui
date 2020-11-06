@@ -46,6 +46,7 @@ import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsCont
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import AttachedFilesList from '../../../components/Files/AttachedFilesList'
 import DialogBodyEdit from '../DialogBodyEdit'
+import { doSetEditWhenValid } from '../../../utils/windowUtils'
 
 const useStyles = makeStyles(
   theme => ({
@@ -233,19 +234,7 @@ function DecisionDialog(props) {
 
 
   function mySetBeingEdited(isEdit, event) {
-    if (isEdit) {
-      if (event && event.target && event.target.localName === 'a') {
-        return;
-      }
-      if (isEditableByUser()) {
-        const headerEl = document.getElementById('app-header');
-        const headerHeight = headerEl.scrollHeight;
-        window.scroll(0, headerHeight);
-        setBeingEdited(isEdit);
-      }
-    } else {
-      setBeingEdited(isEdit);
-    }
+    doSetEditWhenValid(isEdit, isEditableByUser, setBeingEdited, event);
   }
 
   function onDeleteFile(path) {

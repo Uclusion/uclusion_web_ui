@@ -23,7 +23,6 @@ import { getProposedOptionsStage, } from '../../../contexts/MarketStagesContext/
 import { ACTIVE_STAGE } from '../../../constants/markets'
 import DeleteInvestibleActionButton from './DeleteInvestibleActionButton'
 import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff'
-import EditMarketButton from '../../Dialog/EditMarketButton'
 import CardType, { OPTION, PROPOSED, VOTING_TYPE } from '../../../components/CardType'
 import DismissableText from '../../../components/Notifications/DismissableText'
 import MoveBackToPoolActionButton from './MoveBackToPoolActionButton'

@@ -20,7 +20,12 @@ const useStyles = makeStyles(
           paddingLeft: 0
         }
       },
-
+      editable: {
+        "& > *": {
+          cursor: "pointer !important",
+        }
+      },
+      notEditable: {},
       heading: {
         "& .ql-container.ql-snow": {
           fontSize: 20,
@@ -33,7 +38,7 @@ const useStyles = makeStyles(
 );
 
 function ReadOnlyQuillEditor(props) {
-  const { className, heading, value } = props;
+  const { className, heading, value, setBeingEdited, isEditable } = props;
   const box = useRef(null);
 
   const classes = useStyles(props);
@@ -55,8 +60,9 @@ function ReadOnlyQuillEditor(props) {
   }, [box, value, quillOptions]);
 
   return (
-    <div className={clsx(classes.root, heading && classes.heading, className)}>
-      <div ref={box} />
+    <div className={clsx(classes.root, heading && classes.heading, className)}
+         onClick={() => setBeingEdited(true)}>
+      <div ref={box} className={isEditable ? classes.editable : classes.notEditable} />
     </div>
   );
 }
@@ -64,12 +70,16 @@ function ReadOnlyQuillEditor(props) {
 ReadOnlyQuillEditor.propTypes = {
   editorClassName: PropTypes.string,
   value: PropTypes.string,
-  heading: PropTypes.bool
+  heading: PropTypes.bool,
+  setBeingEdited: PropTypes.func,
+  isEditable: PropTypes.bool,
 };
 
 ReadOnlyQuillEditor.defaultProps = {
   heading: false,
-  value: ''
+  value: '',
+  setBeingEdited: () => {},
+  isEditable: false
 };
 
 export default ReadOnlyQuillEditor;

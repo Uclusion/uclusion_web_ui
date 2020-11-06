@@ -133,6 +133,16 @@ const useStyles = makeStyles(
         fontSize: 25
       }
     },
+    titleEditable: {
+      fontSize: 32,
+      fontWeight: "bold",
+      lineHeight: "42px",
+      paddingBottom: "9px",
+      cursor: "pointer",
+      [theme.breakpoints.down("xs")]: {
+        fontSize: 25
+      }
+    },
     flexCenter: {
       [theme.breakpoints.down("xs")]: {
         alignItems: 'center',
@@ -241,6 +251,20 @@ function InitiativeInvestible(props) {
       });
   }
 
+  function isEditableByUser() {
+    return isAdmin && !inArchives;
+  }
+
+
+  function mySetBeingEdited(isEdit) {
+    if (isEdit) {
+      if (isEditableByUser()) {
+        setBeingEdited(isEdit);
+      }
+    } else {
+      setBeingEdited(isEdit);
+    }
+  }
 
   useEffect(() => {
       tourDispatch(startTour(tourName));
@@ -291,17 +315,16 @@ function InitiativeInvestible(props) {
               )}
               {beingEdited && (
                 <InvestibleBodyEdit hidden={hidden} marketId={marketId} investibleId={investibleId}
-                                    setBeingEdited={setBeingEdited} />
+                                    setBeingEdited={mySetBeingEdited} />
               )}
               {!beingEdited && (
                 <>
-                  <Typography className={classes.title} variant="h3" component="h1">
+                  <Typography className={isEditableByUser() ? classes.titleEditable : classes.title} variant="h3" component="h1"
+                              onClick={() => mySetBeingEdited(true)}>
                     {name}
                   </Typography>
-                  <DescriptionOrDiff
-                  id={investibleId}
-                  description={description}
-                  />
+                  <DescriptionOrDiff id={investibleId} description={description} setBeingEdited={mySetBeingEdited}
+                                     isEditable={isEditableByUser()} />
                 </>
               )}
             </CardContent>
@@ -318,8 +341,6 @@ function InitiativeInvestible(props) {
                 isGuest={myPresence.market_guest}
                 marketId={marketId}
                 initiativeId={investibleId}
-                beingEdited={beingEdited}
-                setBeingEdited={setBeingEdited}
               />
             </CardActions>
             <dl className={clsx(metaClasses.root, classes.flexCenter)}>

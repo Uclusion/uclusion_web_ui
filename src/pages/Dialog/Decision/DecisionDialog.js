@@ -108,6 +108,16 @@ const useStyles = makeStyles(
         fontSize: 25
       }
     },
+    titleEditable: {
+      fontSize: 32,
+      fontWeight: "bold",
+      lineHeight: "42px",
+      paddingBottom: "9px",
+      cursor: "pointer",
+      [theme.breakpoints.down("xs")]: {
+        fontSize: 25
+      }
+    },
     assignments: {
       padding: 0,
       "& ul": {
@@ -217,6 +227,21 @@ function DecisionDialog(props) {
       })
   }
 
+  function isEditableByUser() {
+    return isAdmin && !inArchives;
+  }
+
+
+  function mySetBeingEdited(isEdit) {
+    if (isEdit) {
+      if (isEditableByUser()) {
+        setBeingEdited(isEdit);
+      }
+    } else {
+      setBeingEdited(isEdit);
+    }
+  }
+
   function onDeleteFile(path) {
     return deleteAttachedFilesFromMarket(marketId, [path])
       .then((market) => {
@@ -271,14 +296,17 @@ function DecisionDialog(props) {
                 </Typography>
               )}
               {beingEdited && (
-                <DialogBodyEdit hidden={hidden} setBeingEdited={setBeingEdited} marketId={marketId} />
+                <DialogBodyEdit hidden={hidden} setBeingEdited={mySetBeingEdited} marketId={marketId} />
               )}
               {!beingEdited && (
                 <>
-                  <Typography className={classes.title} variant="h3" component="h1">
+                  <Typography className={isEditableByUser() ? classes.titleEditable : classes.title}
+                              variant="h3" component="h1"
+                              onClick={() => mySetBeingEdited(true)}>
                     {marketName}
                   </Typography>
-                  <DescriptionOrDiff id={marketId} description={description}/>
+                  <DescriptionOrDiff id={marketId} description={description} setBeingEdited={mySetBeingEdited}
+                                     isEditable={isEditableByUser()}/>
                 </>
               )}
             </CardContent>
@@ -294,8 +322,6 @@ function DecisionDialog(props) {
                 parentMarketId={parentMarketId}
                 parentInvestibleId={parentInvestibleId}
                 marketId={marketId}
-                beingEdited={beingEdited}
-                setBeingEdited={setBeingEdited}
               />
             </CardActions>
             <dl className={clsx(metaClasses.root, classes.flexCenter)}>

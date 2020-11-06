@@ -102,6 +102,16 @@ const useStyles = makeStyles((theme) => ({
       fontSize: 25
     }
   },
+  titleEditable: {
+    fontSize: 32,
+    fontWeight: "bold",
+    lineHeight: "42px",
+    paddingBottom: "9px",
+    cursor: "pointer",
+    [theme.breakpoints.down("xs")]: {
+      fontSize: 25
+    }
+  },
   content: {
     fontSize: "15 !important",
     lineHeight: "175%",
@@ -240,6 +250,20 @@ function DecisionInvestible(props) {
     }
   }
 
+  function isEditableByUser() {
+    return !inArchives && (isAdmin || (inProposed && createdBy === userId));
+  }
+
+  function mySetBeingEdited(isEdit) {
+    if (isEdit) {
+      if (isEditableByUser()) {
+        setBeingEdited(isEdit);
+      }
+    } else {
+      setBeingEdited(isEdit);
+    }
+  }
+
   const allowedCommentTypes = [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE];
 
   useEffect(() => {
@@ -272,13 +296,6 @@ function DecisionInvestible(props) {
           key="delete"
           investibleId={investibleId}
           marketId={marketId}
-        />
-      )}
-      {!inArchives && (isAdmin || (inProposed && createdBy === userId)) && !beingEdited && (
-        <EditMarketButton
-          labelId="edit"
-          marketId={marketId}
-          onClick={() => setBeingEdited(true)}
         />
       )}
     </dl>
@@ -335,7 +352,8 @@ function DecisionInvestible(props) {
 
         <CardContent className={beingEdited ? classes.editCardContent : classes.votingCardContent}>
           {!beingEdited && (
-            <Typography className={classes.title} variant="h3" component="h1">
+            <Typography className={isEditableByUser() ? classes.titleEditable : classes.title} variant="h3"
+                        component="h1" onClick={() => mySetBeingEdited(true)}>
               {name}
             </Typography>
           )}
@@ -346,12 +364,14 @@ function DecisionInvestible(props) {
           )}
           {beingEdited && (
             <InvestibleBodyEdit hidden={hidden} marketId={marketId} investibleId={investibleId}
-                                setBeingEdited={setBeingEdited} />
+                                setBeingEdited={mySetBeingEdited} />
           )}
           {!beingEdited && (
             <DescriptionOrDiff
               id={investibleId}
               description={description}
+              setBeingEdited={mySetBeingEdited}
+              isEditable={isEditableByUser()}
             />
           )}
         </CardContent>

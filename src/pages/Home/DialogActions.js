@@ -48,9 +48,7 @@ function DialogActions(props) {
     isFollowing,
     isGuest,
     initiativeId,
-    hideEdit,
-    beingEdited = false,
-    setBeingEdited
+    hideEdit
   } = props;
   const activeMarket = marketStage === ACTIVE_STAGE;
   const inArchives = !activeMarket || !isFollowing;
@@ -93,15 +91,6 @@ function DialogActions(props) {
       : formMarketEditLink(marketId);
     const editAction = () => navigate(history, editLink);
     if (isAdmin && !inArchives && !hideEdit) {
-      if (!beingEdited) {
-        actions.push(
-          <EditMarketButton
-            labelId="edit"
-            marketId={marketId}
-            key="editbutton"
-            onClick={() => setBeingEdited(true)}
-          />);
-      }
       if (marketType !== INITIATIVE_TYPE) {
         actions.push(
           <EditMarketButton key="edit" labelId={editLabel} marketId={marketId} onClick={editAction}

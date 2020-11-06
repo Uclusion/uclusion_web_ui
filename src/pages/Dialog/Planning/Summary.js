@@ -125,6 +125,16 @@ const useStyles = makeStyles(theme => ({
       fontSize: 25
     }
   },
+  titleEditable: {
+    fontSize: 32,
+    cursor: 'pointer',
+    fontWeight: "bold",
+    lineHeight: "42px",
+    paddingBottom: "9px",
+    [theme.breakpoints.down("xs")]: {
+      fontSize: 25
+    }
+  },
   mobileColumn: {
     [theme.breakpoints.down("xs")]: {
       flexDirection: 'column'
@@ -238,6 +248,19 @@ function Summary(props) {
       })
   }
 
+  function isEditableByUser() {
+    return isAdmin && !inArchives;
+  }
+
+  function mySetBeingEdited(isEdit) {
+    if (isEdit) {
+      if (isEditableByUser()) {
+        setBeingEdited(isEdit);
+      }
+    } else {
+      setBeingEdited(isEdit);
+    }
+  }
 
   return (
     <Card elevation={0} className={classes.root} id="summary">
@@ -257,14 +280,16 @@ function Summary(props) {
             )}
             {!beingEdited && (
               <>
-                <Typography className={classes.title} variant="h3" component="h1">
+                <Typography className={isEditableByUser() ? classes.titleEditable : classes.title} variant="h3" component="h1"
+                            onClick={() => mySetBeingEdited(true)}>
                   {name}
                 </Typography>
-                <DescriptionOrDiff id={id} description={description} />
+                <DescriptionOrDiff id={id} description={description} setBeingEdited={mySetBeingEdited}
+                                   isEditable={isEditableByUser()} />
               </>
             )}
             {beingEdited && (
-              <DialogBodyEdit hidden={hidden} setBeingEdited={setBeingEdited} marketId={id} />
+              <DialogBodyEdit hidden={hidden} setBeingEdited={mySetBeingEdited} marketId={id} />
             )}
           </CardContent>
         </Grid>
@@ -280,8 +305,6 @@ function Summary(props) {
               parentInvestibleId={parentInvestibleId}
               marketId={id}
               initiativeId={investibleId}
-              beingEdited={beingEdited}
-              setBeingEdited={setBeingEdited}
             />
           </CardActions>
         <dl className={metaClasses.root}>

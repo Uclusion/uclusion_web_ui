@@ -131,6 +131,16 @@ const useStyles = makeStyles(
         fontSize: 25
       }
     },
+    titleEditable: {
+      fontSize: 32,
+      fontWeight: "bold",
+      lineHeight: "42px",
+      paddingBottom: "9px",
+      cursor: "pointer",
+      [theme.breakpoints.down("xs")]: {
+        fontSize: 25
+      }
+    },
     content: {
       fontSize: "15 !important",
       lineHeight: "175%",
@@ -619,7 +629,22 @@ function PlanningInvestible(props) {
   function expansionChanged(event, expanded) {
     setChangeStagesExpanded(expanded);
   }
-  const displayEdit = !inArchives && (isAssigned || isInNotDoing || isInVoting || isReadyFurtherWork || isRequiresInput);
+  const displayEdit = isAdmin && !inArchives && (isAssigned || isInNotDoing || isInVoting || isReadyFurtherWork || isRequiresInput);
+
+  function isEditableByUser() {
+    return displayEdit;
+  }
+
+  function mySetBeingEdited(isEdit) {
+    if (isEdit) {
+      if (isEditableByUser()) {
+        setBeingEdited(isEdit);
+      }
+    } else {
+      setBeingEdited(isEdit);
+    }
+  }
+
   return (
     <Screen
       title={name}
@@ -653,9 +678,10 @@ function PlanningInvestible(props) {
           <Grid container className={classes.mobileColumn}>
             <Grid item xs={9} className={classes.fullWidth}>
               {!beingEdited && (
-                <h2>
+                <Typography className={isEditableByUser() ? classes.titleEditable : classes.title} variant="h3"
+                            component="h1" onClick={() => mySetBeingEdited(true)}>
                   {name}
-                </h2>
+                </Typography>
               )}
               {lockedBy && (
                 <Typography>
@@ -664,12 +690,14 @@ function PlanningInvestible(props) {
               )}
               {beingEdited && (
                 <InvestibleBodyEdit hidden={hidden} marketId={marketId} investibleId={investibleId}
-                                    setBeingEdited={setBeingEdited} />
+                                    setBeingEdited={mySetBeingEdited} />
               )}
               {!beingEdited && (
                 <DescriptionOrDiff
                   id={investibleId}
                   description={description}
+                  setBeingEdited={mySetBeingEdited}
+                  isEditable={isEditableByUser()}
                 />
               )}
             </Grid>
@@ -712,15 +740,6 @@ function PlanningInvestible(props) {
                         hasTodos={!_.isEmpty(todoComments)}
                         hasAssignedQuestions={!_.isEmpty(questionByAssignedComments)}
                       />
-                  )}
-                  {displayEdit && !beingEdited && (
-                    <div>
-                      <EditMarketButton
-                        labelId="edit"
-                        marketId={marketId}
-                        onClick={() => setBeingEdited(true)}
-                      />
-                    </div>
                   )}
                 </dl>
               </div>

@@ -52,6 +52,8 @@ function DescriptionOrDiff(props) {
   const {
     id,
     description,
+    setBeingEdited,
+    isEditable
   } = props;
 
   const intl = useIntl();
@@ -80,6 +82,8 @@ function DescriptionOrDiff(props) {
     <div>
       <ReadOnlyQuillEditor
         value={description}
+        setBeingEdited={setBeingEdited}
+        isEditable={isEditable}
       />
       {diffAvailable && (
         <Button
@@ -95,7 +99,7 @@ function DescriptionOrDiff(props) {
 
 DescriptionOrDiff.propTypes = {
   id: PropTypes.string.isRequired,
-  description: PropTypes.string.isRequired,
+  description: PropTypes.string.isRequired
 };
 
 export default DescriptionOrDiff;

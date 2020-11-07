@@ -98,6 +98,7 @@ function PlanningDialogEdit(props) {
                 <Select
                   value={allowedInvestibles}
                   onChange={onAllowedInvestiblesChange}
+                  style={{backgroundColor: "#ecf0f1"}}
                 >
                   <MenuItem value={0}>
                     {intl.formatMessage({ id: 'allowedInvestiblesUnlimitedValue' })}
@@ -108,7 +109,7 @@ function PlanningDialogEdit(props) {
                   <MenuItem value={4}>4</MenuItem>
                   <MenuItem value={5}>5</MenuItem>
                 </Select>
-                <FormHelperText>
+                <FormHelperText style={{color: "black"}}>
                   {intl.formatMessage({ id: 'allowedInvestiblesDropdownHelp' })}</FormHelperText>
               </FormControl>
             </Grid>

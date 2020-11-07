@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import { FormattedMessage, useIntl } from 'react-intl'
-import { updateMarket } from '../../../api/markets'
+import { updateMarket, updateStage } from '../../../api/markets'
 import DismissableText from '../../../components/Notifications/DismissableText'
 import CardType, { AGILE_PLAN_TYPE } from '../../../components/CardType'
 import CardContent from '@material-ui/core/CardContent'
@@ -12,9 +12,11 @@ import Button from '@material-ui/core/Button'
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton'
 import Card from '@material-ui/core/Card'
 import { DaysEstimate, MaxBudget, usePlanFormStyles, VoteExpiration, Votes } from '../../../components/AgilePlan'
+import { FormControl, FormHelperText, MenuItem, Select } from '@material-ui/core'
+import InputLabel from '@material-ui/core/InputLabel'
 
 function PlanningDialogEdit(props) {
-  const { onSpinStop, onCancel, market } = props;
+  const { onSpinStop, onCancel, market, acceptedStage } = props;
   const {
     id,
     name: initialMarketName,
@@ -25,6 +27,7 @@ function PlanningDialogEdit(props) {
   } = market;
   const intl = useIntl();
   const classes = usePlanFormStyles();
+  const [allowedInvestibles, setAllowedInvestibles] = useState(acceptedStage.allowed_investibles);
   const [mutableMarket, setMutableMarket] = useState({
     ...market,
     name: initialMarketName,
@@ -48,6 +51,11 @@ function PlanningDialogEdit(props) {
     };
   }
 
+  function onAllowedInvestiblesChange(event) {
+    const { value } = event.target;
+    setAllowedInvestibles(parseInt(value, 10));
+  }
+
   function handleSave() {
     const daysEstimateInt =
       days_estimate != null ? parseInt(days_estimate, 10) : null;
@@ -64,10 +72,14 @@ function PlanningDialogEdit(props) {
           daysEstimateInt,
           votesRequiredInt
         ).then(market => {
-            return {
-              result: market,
-              spinChecker: () => Promise.resolve(true)
-            };
+          const retValue = {
+            result: market,
+            spinChecker: () => Promise.resolve(true)
+          };
+          if (allowedInvestibles !== acceptedStage.allowed_investibles) {
+            return updateStage(id, acceptedStage.id, allowedInvestibles).then(() => retValue);
+          }
+          return retValue;
         });
   }
 
@@ -80,7 +92,25 @@ function PlanningDialogEdit(props) {
           <legend className={classes.optional}>*{intl.formatMessage({ id: "optionalEdit" })}</legend>
           <Grid container className={clsx(classes.fieldset, classes.flex, classes.justifySpace)}>
             <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
-              <MaxBudget onChange={handleChange("max_budget")} value={max_budget} />
+              <FormControl variant="filled">
+                <InputLabel id="select-allowed-investibles-label">
+                  {intl.formatMessage({ id: 'allowedInvestiblesDropdownLabel' })}</InputLabel>
+                <Select
+                  value={allowedInvestibles}
+                  onChange={onAllowedInvestiblesChange}
+                >
+                  <MenuItem value={0}>
+                    {intl.formatMessage({ id: 'allowedInvestiblesUnlimitedValue' })}
+                  </MenuItem>
+                  <MenuItem value={1}>1</MenuItem>
+                  <MenuItem value={2}>2</MenuItem>
+                  <MenuItem value={3}>3</MenuItem>
+                  <MenuItem value={4}>4</MenuItem>
+                  <MenuItem value={5}>5</MenuItem>
+                </Select>
+                <FormHelperText>
+                  {intl.formatMessage({ id: 'allowedInvestiblesDropdownHelp' })}</FormHelperText>
+              </FormControl>
             </Grid>
             <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
               <VoteExpiration
@@ -95,6 +125,9 @@ function PlanningDialogEdit(props) {
               <DaysEstimate showLabel={ window.outerWidth >= 600 }
                             onChange={handleChange("days_estimate")} value={days_estimate}
                             createdAt={createdAt} />
+            </Grid>
+            <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
+              <MaxBudget onChange={handleChange("max_budget")} value={max_budget} />
             </Grid>
           </Grid>
         </CardContent>
@@ -131,6 +164,7 @@ function PlanningDialogEdit(props) {
 
 PlanningDialogEdit.propTypes = {
   market: PropTypes.object.isRequired,
+  acceptedStage: PropTypes.object.isRequired,
   onSpinStop: PropTypes.func,
   onCancel: PropTypes.func,
 };

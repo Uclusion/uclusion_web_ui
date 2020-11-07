@@ -11,6 +11,8 @@ import { DECISION_TYPE, PLANNING_TYPE } from '../../constants/markets'
 import PlanningDialogEdit from './Planning/PlanningDialogEdit'
 import DecisionDialogEdit from './Decision/DecisionDialogEdit'
 import { DiffContext } from '../../contexts/DiffContext/DiffContext'
+import { getAcceptedStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
+import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 
 function DialogEdit(props) {
   const { hidden } = props;
@@ -22,6 +24,8 @@ function DialogEdit(props) {
   const [marketsState, marketsDispatch] = useContext(MarketsContext);
   const [, diffDispatch] = useContext(DiffContext);
   const renderableMarket = getMarket(marketsState, marketId) || {};
+  const [marketStagesState] = useContext(MarketStagesContext);
+  const acceptedStage = getAcceptedStage(marketStagesState, marketId);
   const { market_type: marketType } = renderableMarket;
   const currentMarketName = (renderableMarket && renderableMarket.name) || '';
   const breadCrumbTemplates = [{ name: currentMarketName, link: formMarketLink(marketId) }];
@@ -67,11 +71,12 @@ function DialogEdit(props) {
           onCancel={onCancel}
         />
       )}
-      {!hidden && marketType === PLANNING_TYPE && (
+      {!hidden && marketType === PLANNING_TYPE && acceptedStage && (
         <PlanningDialogEdit
           onSpinStop={onSave}
           market={renderableMarket}
           onCancel={onCancel}
+          acceptedStage={acceptedStage}
         />
       )}
     </Screen>

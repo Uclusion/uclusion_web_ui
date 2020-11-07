@@ -780,6 +780,7 @@ const messages = defineMessages({
   errorClearFailed: 'There was a problem clearing your data. Please try again',
   errorGetIdFailed: 'There was a problem displaying your identification.',
   errorUpdateUserFailed: 'There was a problem updating your profile. Please try again.',
+  errorUpdateStageFailed: 'There was a problem updating allowed stories. Please try again.',
   errorMarketFetchFailed: 'There was an error processing your invite. Please try again.',
   errorBanUserFailed: 'There was a problem removing the collaborator. Please try again.',
   errorCancelSubFailed: 'There was a problem cancelling your subscription. Please try again.',
@@ -800,6 +801,11 @@ const messages = defineMessages({
   //assigneeFilterDropdown
   assigneeFilterDropdownAll: 'Everyone',
   assigneeFilterLabel: 'Show stories for:',
+
+  //allowed investibles dropdown
+  allowedInvestiblesDropdownHelp: 'Number of stories to allow in progress per person',
+  allowedInvestiblesDropdownLabel: 'Maximum stories in progress',
+  allowedInvestiblesUnlimitedValue: 'Unlimited',
 
   // warnings
   warningOffline: 'You are offline',

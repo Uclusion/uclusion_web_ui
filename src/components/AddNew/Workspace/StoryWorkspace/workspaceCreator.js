@@ -55,7 +55,7 @@ export function doCreateStoryWorkspace(dispatchers, formData, updateFormData, in
       pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, marketId: createdMarketId, stages });
       addPresenceToMarket(presenceDispatch, createdMarketId, presence);
       inVotingStage = stages.find((stage) => stage.allows_investment);
-      inProgressStage = stages.find((stage) => stage.singular_only);
+      inProgressStage = stages.find((stage) => stage.assignee_enter_only);
       // add the next story if you have it
       const { nextStoryName, nextStoryDescription, nextStoryUploadedFiles, nextStorySkipped } = formData;
       if (!_.isEmpty(nextStoryName) && !nextStorySkipped) {

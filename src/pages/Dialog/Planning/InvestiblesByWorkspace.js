@@ -194,7 +194,7 @@ function InvestiblesByWorkspace(props) {
                 <PlanningIdeas
                   investibles={myInvestibles}
                   marketId={market.id}
-                  acceptedStageId={acceptedStage.id}
+                  acceptedStage={acceptedStage}
                   inDialogStageId={inDialogStage.id}
                   inReviewStageId={inReviewStage.id}
                   inBlockingStageId={inBlockingStage.id}

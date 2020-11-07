@@ -15,13 +15,13 @@ export function getProposedOptionsStage(state, marketId) {
 
 export function getAcceptedStage(state, marketId) {
   const marketStages = getStages(state, marketId);
-  return marketStages.find((stage) => stage.singular_only);
+  return marketStages.find((stage) => stage.assignee_enter_only);
 }
 
 export function getInReviewStage(state, marketId) {
   const marketStages = getStages(state, marketId);
-  return marketStages.find((stage) => (!stage.allows_investment && stage.appears_in_context && !stage.singular_only
-    && !stage.allows_issues));
+  return marketStages.find((stage) => (!stage.allows_investment && stage.appears_in_context &&
+    !stage.assignee_enter_only && !stage.allows_issues));
 }
 
 export function getBlockedStage(state, marketId) {

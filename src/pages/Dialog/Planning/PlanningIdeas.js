@@ -71,7 +71,7 @@ function PlanningIdeas(props) {
   const {
     investibles,
     marketId,
-    acceptedStageId,
+    acceptedStage,
     inDialogStageId,
     inReviewStageId,
     inBlockingStageId,
@@ -82,6 +82,7 @@ function PlanningIdeas(props) {
     setBeingDraggedHack
   } = props;
   const intl = useIntl();
+  const acceptedStageId = acceptedStage.id;
   const classes = usePlanningIdStyles();
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [marketsState] = useContext(MarketsContext);
@@ -94,11 +95,13 @@ function PlanningIdeas(props) {
   const [, diffDispatch] = useContext(DiffContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const warnAccepted = checkInProgressWarning(investibles, comments, acceptedStageId, marketId);
-  const acceptedFull = !_.isEmpty(investibles.filter(investible => {
+  const acceptedInvestibles = investibles.filter(investible => {
     const { market_infos: marketInfos } = investible;
     const marketInfo = marketInfos.find(info => info.market_id === marketId);
     return marketInfo !== undefined && marketInfo.stage === acceptedStageId;
-  }));
+  }) || [];
+  const acceptedFull = acceptedStage.allowed_investibles > 0
+    && acceptedInvestibles.length >= acceptedStage.allowed_investibles;
   const acceptedStageLabel = acceptedFull? 'planningAcceptedStageFullLabel' : 'planningAcceptedStageLabel';
   const myPresence = (marketPresences || []).find((presence) => presence.current_user) || {};
   function isBlockedByIssue(investibleId, currentStageId, targetStageId) {
@@ -357,7 +360,7 @@ PlanningIdeas.propTypes = {
   comments: PropTypes.arrayOf(PropTypes.object),
   investibles: PropTypes.arrayOf(PropTypes.object),
   marketId: PropTypes.string.isRequired,
-  acceptedStageId: PropTypes.string.isRequired,
+  acceptedStage: PropTypes.object.isRequired,
   inDialogStageId: PropTypes.string.isRequired,
   inReviewStageId: PropTypes.string.isRequired,
   inBlockingStageId: PropTypes.string.isRequired,

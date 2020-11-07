@@ -123,6 +123,9 @@ function WebSocketProvider(props) {
       newSocket.registerHandler('comment', () => {
         myRefreshVersion();
       });
+      newSocket.registerHandler('stage', () => {
+        myRefreshVersion();
+      });
       newSocket.registerHandler('market_capability', () => {
         myRefreshVersion();
       });

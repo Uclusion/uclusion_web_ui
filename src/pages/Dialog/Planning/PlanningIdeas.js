@@ -390,6 +390,14 @@ const useStageClasses = makeStyles(
         padding: theme.spacing(1, 2),
         backgroundColor: yellow["400"],
       },
+      outlinedAccepted: {
+        border: `1px solid ${theme.palette.grey["400"]}`,
+        borderRadius: theme.spacing(1),
+        fontSize: ".8em",
+        margin: theme.spacing(1, 0),
+        padding: theme.spacing(1, 2),
+      },
+      regularAccepted: {},
       fallback: {
         backgroundColor: theme.palette.grey["400"]
       },
@@ -452,9 +460,12 @@ function Stage(props) {
     const originalElementId = `${id}_${presenceId}`;
     dragHack({id:event.target.id, stageId: id, originalElementId});
   }
-
+  const warnAcceptedSafe = warnAccepted || {};
+  const warnKeys = Object.keys(warnAcceptedSafe);
+  const warnAcceptedSingle = warnKeys.length === 1;
+  const warned = warnKeys.find((key) => warnAcceptedSafe[key]);
   return (
-    <dd className={warnAccepted ? classes.rootWarnAccepted : classes.root}>
+    <dd className={warnAcceptedSingle && warnAcceptedSafe[warnKeys[0]] ? classes.rootWarnAccepted : classes.root}>
       <ul className={classes.list}>
         {stageInvestibles.map(inv => {
           const { investible, market_infos: marketInfos } = inv;
@@ -463,7 +474,9 @@ function Stage(props) {
           );
 
           return (
-            <li key={investible.id} id={investible.id} onDragStart={investibleOnDragStart}>
+            <li key={investible.id} id={investible.id} onDragStart={investibleOnDragStart}
+                className={!warnAcceptedSingle && warnAcceptedSafe[investible.id] ? classes.rootWarnAccepted
+                  : !warnAcceptedSingle && warned ? classes.outlinedAccepted : classes.regularAccepted}>
               <StageInvestible
                 comments={comments}
                 investible={investible}

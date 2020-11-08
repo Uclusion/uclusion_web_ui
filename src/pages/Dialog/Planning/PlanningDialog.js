@@ -313,38 +313,47 @@ export const useInvestiblesByPersonStyles = makeStyles(
 );
 
 export function checkInProgressWarning(investibles, comments, inProgressStageId, marketId) {
-  const inProgressInvestible = investibles.find((investible) => {
+  const warnHash = {};
+  const inProgressInvestibles = investibles.filter((investible) => {
     const { market_infos: marketInfos } = investible;
     const marketInfo = marketInfos.find(info => info.market_id === marketId);
     return marketInfo !== undefined && marketInfo.stage === inProgressStageId;
   });
-  if (!inProgressInvestible) {
-    return false;
+  if (!inProgressInvestibles) {
+    return warnHash;
   }
-  const { investible, market_infos: marketInfos } = inProgressInvestible;
-  const { id } = investible;
-  const marketInfo = marketInfos.find(info => info.market_id === marketId);
-  const { days_estimate: daysEstimate, last_stage_change_date: stageEntry, created_at: createdAt } = marketInfo;
-  if (Date.now() - Date.parse(stageEntry) < 86400000) {
-    // Never any point bothering if less than a day in progress
-    return false;
-  }
-  if (daysEstimate) {
-    const dayEstimated = moment(createdAt).add(daysEstimate, 'days').toDate();
-    const today = new Date();
-    if (today <= dayEstimated) {
-      // Also do not bother if we are before the date chosen for completion
-      return false;
+  inProgressInvestibles.forEach((inProgressInvestible) => {
+    const { investible, market_infos: marketInfos } = inProgressInvestible;
+    const { id } = investible;
+    const marketInfo = marketInfos.find(info => info.market_id === marketId);
+    const { days_estimate: daysEstimate, last_stage_change_date: stageEntry, created_at: createdAt } = marketInfo;
+    if (Date.now() - Date.parse(stageEntry) < 86400000) {
+      // Never any point bothering if less than a day in progress
+      warnHash[id] = false;
+      return;
     }
-  }
-  if (!comments) {
-    return true;
-  }
-  const progressReportCommentIn24 = comments.find((comment) => {
-    const { investible_id: investibleId, comment_type: commentType, created_at: createdAtComment } = comment;
-    return id === investibleId && commentType === REPORT_TYPE && (Date.now() - Date.parse(createdAtComment) < 86400000);
+    if (daysEstimate) {
+      const dayEstimated = moment(createdAt).add(daysEstimate, 'days').toDate();
+      const today = new Date();
+      if (today <= dayEstimated) {
+        // Also do not bother if we are before the date chosen for completion
+        warnHash[id] = false;
+        return;
+      }
+    }
+    if (!comments) {
+      warnHash[id] = false;
+      return;
+    }
+    const progressReportCommentIn24 = comments.find((comment) => {
+      const { investible_id: investibleId, comment_type: commentType, created_at: createdAtComment } = comment;
+      return id === investibleId && commentType === REPORT_TYPE && (Date.now() - Date.parse(createdAtComment) < 86400000);
+    });
+    if (_.isEmpty(progressReportCommentIn24)) {
+      warnHash[id] = true;
+    }
   });
-  return _.isEmpty(progressReportCommentIn24);
+  return warnHash;
 }
 
 export function checkReviewWarning(investible, comments) {

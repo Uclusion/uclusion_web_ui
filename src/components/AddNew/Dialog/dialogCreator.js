@@ -19,13 +19,17 @@ export function createMyDialog (dispatchers, formData, updateFormData) {
     dialogName,
     dialogReason,
     dialogOptions,
+    dialogReasonUploadedFiles,
     dialogExpiration,
     addOptionsSkipped,
   } = formData;
   const marketDescription = dialogReason === undefined ? ' ' : dialogReason;
+  const safeReasonUploadedFiles = dialogReasonUploadedFiles || [];
+  const processed = processTextAndFilesForSave(safeReasonUploadedFiles, marketDescription);
   const marketInfo = {
     name: dialogName,
-    description: marketDescription,
+    description: processed.text,
+    uploaded_files: processed.uploadedFiles,
     expiration_minutes: dialogExpiration,
   };
   let createdMarketId;

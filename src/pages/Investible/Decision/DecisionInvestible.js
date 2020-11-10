@@ -231,7 +231,6 @@ function DecisionInvestible(props) {
   const marketInfo = marketInfos.find((info) => info.market_id === marketId) || {};
   const allowDelete = marketPresences && marketPresences.length < 2;
   const [marketStagesState] = useContext(MarketStagesContext);
-  const [beingEdited, setBeingEdited] = useState(false);
   const inProposedStage = getProposedOptionsStage(marketStagesState, marketId);
   const inProposed = inProposedStage && marketInfo.stage === inProposedStage.id;
   const activeMarket = marketStage === ACTIVE_STAGE;
@@ -240,7 +239,11 @@ function DecisionInvestible(props) {
   const cardDescription = inProposed ? "decisionProposedInvestibleDescription" : "decisionInvestibleDescription";
   const {
     description, name, created_by: createdBy, locked_by: lockedBy, attached_files: attachedFiles,
-  } = investible
+  } = investible;
+  function isEditableByUser() {
+    return !inArchives && (isAdmin || (inProposed && createdBy === userId));
+  }
+  const [beingEdited, setBeingEdited] = useState(lockedBy === yourPresence.id && isEditableByUser() ? investibleId : undefined);
   let lockedByName
   if (lockedBy) {
     const lockedByPresence = marketPresences.find((presence) => presence.id === lockedBy)
@@ -250,12 +253,8 @@ function DecisionInvestible(props) {
     }
   }
 
-  function isEditableByUser() {
-    return !inArchives && (isAdmin || (inProposed && createdBy === userId));
-  }
-
   function mySetBeingEdited(isEdit, event) {
-    doSetEditWhenValid(isEdit, isEditableByUser, setBeingEdited, event);
+    doSetEditWhenValid(isEdit, isEditableByUser, setBeingEdited, investibleId, event);
   }
 
   const allowedCommentTypes = [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE];
@@ -313,8 +312,7 @@ function DecisionInvestible(props) {
     // we have no usable data;
     return <></>;
   }
-
-
+  const myBeingEdited = beingEdited === investibleId;
   return (
     <Screen
       title={name}
@@ -344,8 +342,8 @@ function DecisionInvestible(props) {
         <Grid container className={classes.mobileColumn}>
           <Grid item md={9} xs={12}>
 
-        <CardContent className={beingEdited ? classes.editCardContent : classes.votingCardContent}>
-          {!beingEdited && (
+        <CardContent className={myBeingEdited ? classes.editCardContent : classes.votingCardContent}>
+          {!myBeingEdited && (
             <Typography className={isEditableByUser() ? classes.titleEditable : classes.title} variant="h3"
                         component="h1" onClick={() => mySetBeingEdited(true)}>
               {name}
@@ -356,11 +354,11 @@ function DecisionInvestible(props) {
               {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}
             </Typography>
           )}
-          {beingEdited && (
+          {myBeingEdited && (
             <InvestibleBodyEdit hidden={hidden} marketId={marketId} investibleId={investibleId}
                                 setBeingEdited={mySetBeingEdited} />
           )}
-          {!beingEdited && (
+          {!myBeingEdited && (
             <DescriptionOrDiff
               id={investibleId}
               description={description}

@@ -20,6 +20,7 @@ import { CardActions, TextField } from '@material-ui/core'
 import { processTextAndFilesForSave } from '../../api/files'
 import { usePlanFormStyles } from '../../components/AgilePlan'
 import { makeStyles } from '@material-ui/core/styles'
+import { INITIATIVE_TYPE } from '../../constants/markets'
 
 const useStyles = makeStyles(
   theme => ({
@@ -44,6 +45,7 @@ function InvestibleBodyEdit (props) {
   const [idLoaded, setIdLoaded] = useState(undefined);
   const emptyMarket = { name: '' };
   const market = getMarket(marketsState, marketId) || emptyMarket;
+  const { market_type: marketType } = market;
   const [lockFailed, setLockFailed] = useState(false);
   const loading = idLoaded !== investibleId || !market || !inv || !userId;
   const someoneElseEditing = !_.isEmpty(lockedBy) && (lockedBy !== userId);
@@ -56,7 +58,7 @@ function InvestibleBodyEdit (props) {
   function onLock (result) {
     if (result) {
       setLockFailed(false);
-      onSave({ investible: result } , true);
+      onSave(result , true);
     } else {
       setLockFailed(true);
     }
@@ -67,6 +69,9 @@ function InvestibleBodyEdit (props) {
       localforage.getItem(investibleId).then((stateFromDisk) => {
         const { description: storedDescription, name: storedName } = (stateFromDisk || {});
         if (storedName) {
+          if (marketType === INITIATIVE_TYPE) {
+            setBeingEdited(true);
+          }
           setName(storedName);
         }
         if (storedDescription) {
@@ -83,17 +88,18 @@ function InvestibleBodyEdit (props) {
         setLockFailed(false);
       }
     };
-  }, [hidden, investibleId, idLoaded]);
+  }, [hidden, investibleId, idLoaded, marketType, setBeingEdited]);
 
   useEffect(() => {
     if (!hidden) {
       if (!loading && !someoneElseEditing && !lockFailed) {
         lockInvestibleForEdit(marketId, investibleId)
+          .then((newInv) => refreshInvestibles(investiblesDispatch, diffDispatch, [newInv]))
           .catch(() => setLockFailed(true));
       }
     }
     return () => {};
-  }, [hidden, investibleId, marketId, someoneElseEditing, loading, lockFailed]);
+  }, [hidden, investibleId, marketId, someoneElseEditing, loading, lockFailed, investiblesDispatch, diffDispatch]);
 
   function handleSave() {
     // uploaded files on edit is the union of the new uploaded files and the old uploaded files
@@ -113,7 +119,7 @@ function InvestibleBodyEdit (props) {
     return updateInvestible(updateInfo)
       .then((fullInvestible) => {
         return {
-          result: { fullInvestible },
+          result: fullInvestible,
           spinChecker: () => Promise.resolve(true),
         };
       });
@@ -150,18 +156,9 @@ function InvestibleBodyEdit (props) {
           if (!lockFailed) {
             return realeaseInvestibleEditLock(marketId, investibleId);
           }
-          return true;
+          return fullInvestible;
         })
-        .then(() => {
-          const newInvestible = {
-            ...myInvestible,
-            locked_by: undefined,
-            locked_at: undefined,
-          };
-          const newInv = {
-            ...inv,
-            investible: newInvestible
-          };
+        .then((newInv) => {
           refreshInvestibles(investiblesDispatch, diffDispatch, [newInv]);
           return EMPTY_SPIN_RESULT;
         })
@@ -169,10 +166,8 @@ function InvestibleBodyEdit (props) {
     }
   }
 
-  function onSave (result, stillEditing) {
-    // the edit ony contains the investible data and assignments, not the full market infos
-    if (result) {
-      const { fullInvestible} = result;
+  function onSave (fullInvestible, stillEditing) {
+    if (fullInvestible) {
       localforage.removeItem(investibleId)
         .then(() => {
           refreshInvestibles(investiblesDispatch, diffDispatch, [fullInvestible]);

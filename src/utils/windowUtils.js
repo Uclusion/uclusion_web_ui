@@ -2,7 +2,7 @@ export function isTinyWindow(){
   return window.outerWidth < 600;
 }
 
-export function doSetEditWhenValid(isEdit, isEditableByUser, setBeingEdited, event) {
+export function doSetEditWhenValid(isEdit, isEditableByUser, setBeingEdited, id, event) {
   if (isEdit) {
     if (event && event.target && event.target.localName === 'a') {
       return;
@@ -15,9 +15,9 @@ export function doSetEditWhenValid(isEdit, isEditableByUser, setBeingEdited, eve
       const headerEl = document.getElementById('app-header');
       const headerHeight = headerEl.scrollHeight;
       window.scroll(0, headerHeight);
-      setBeingEdited(isEdit);
+      setBeingEdited(id);
     }
   } else {
-    setBeingEdited(isEdit);
+    setBeingEdited(undefined);
   }
 }

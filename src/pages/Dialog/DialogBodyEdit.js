@@ -121,6 +121,9 @@ function DialogBodyEdit(props) {
       localforage.getItem(marketId).then((stateFromDisk) => {
         const { description: storedDescription, name: storedName } = (stateFromDisk || {});
         if (storedName) {
+          if (marketType !== PLANNING_TYPE) {
+            setBeingEdited(true);
+          }
           setName(storedName);
         }
         if (storedDescription) {
@@ -137,7 +140,7 @@ function DialogBodyEdit(props) {
         setLockFailed(false);
       }
     };
-  }, [hidden, marketId, idLoaded]);
+  }, [hidden, marketId, idLoaded, setBeingEdited, marketType]);
   
   useEffect(() => {
     if (!hidden) {

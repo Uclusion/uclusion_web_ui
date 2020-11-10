@@ -287,7 +287,6 @@ function PlanningInvestible(props) {
   const [showDatepicker, setShowDatepicker] = useState(false);
   const [clearMeHack, setClearMeHack] = useState('a');
   const [labelFocus, setLabelFocus] = useState(false);
-  const [beingEdited, setBeingEdited] = useState(false);
   const { name: marketName, id: marketId, votes_required: votesRequired } = market;
   const labels = getMarketLabels(investiblesState, marketId);
   const investmentReasonsRemoved = investibleComments.filter(
@@ -339,6 +338,9 @@ function PlanningInvestible(props) {
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   const inMarketArchives = isInNotDoing || isInVerified;
   const isAssigned = assigned.includes(userId);
+  const displayEdit = isAdmin && !inArchives && (isAssigned || isInNotDoing || isInVoting || isReadyFurtherWork || isRequiresInput);
+  const myPresence = marketPresences.find((presence) => presence.current_user) || {};
+  const [beingEdited, setBeingEdited] = useState(lockedBy === myPresence.id && displayEdit ? investibleId : undefined);
   const breadCrumbTemplates = [
     { name: marketName, link: formMarketLink(marketId) }
   ];
@@ -629,16 +631,15 @@ function PlanningInvestible(props) {
   function expansionChanged(event, expanded) {
     setChangeStagesExpanded(expanded);
   }
-  const displayEdit = isAdmin && !inArchives && (isAssigned || isInNotDoing || isInVoting || isReadyFurtherWork || isRequiresInput);
 
   function isEditableByUser() {
     return displayEdit;
   }
 
   function mySetBeingEdited(isEdit, event) {
-    doSetEditWhenValid(isEdit, isEditableByUser, setBeingEdited, event);
+    doSetEditWhenValid(isEdit, isEditableByUser, setBeingEdited, investibleId, event);
   }
-
+  const myBeingEdited = beingEdited === investibleId;
   return (
     <Screen
       title={name}
@@ -668,10 +669,10 @@ function PlanningInvestible(props) {
           subtype={subtype}
           createdAt={createdAt}
         />
-        <CardContent className={beingEdited ? classes.editCardContent : classes.votingCardContent}>
+        <CardContent className={myBeingEdited ? classes.editCardContent : classes.votingCardContent}>
           <Grid container className={classes.mobileColumn}>
             <Grid item xs={9} className={classes.fullWidth}>
-              {!beingEdited && (
+              {!myBeingEdited && (
                 <Typography className={isEditableByUser() ? classes.titleEditable : classes.title} variant="h3"
                             component="h1" onClick={() => mySetBeingEdited(true)}>
                   {name}
@@ -682,11 +683,11 @@ function PlanningInvestible(props) {
                   {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}
                 </Typography>
               )}
-              {beingEdited && (
+              {myBeingEdited && (
                 <InvestibleBodyEdit hidden={hidden} marketId={marketId} investibleId={investibleId}
                                     setBeingEdited={mySetBeingEdited} />
               )}
-              {!beingEdited && (
+              {!myBeingEdited && (
                 <DescriptionOrDiff
                   id={investibleId}
                   description={description}

@@ -195,7 +195,6 @@ function InitiativeInvestible(props) {
   const [, marketsDispatch] = useContext(MarketsContext);
   const [, diffDispatch] = useContext(DiffContext);
   const cognitoUser = useContext(CognitoUserContext) || {};
-  const [beingEdited, setBeingEdited] = useState(false);
   const { description, name } = investible;
   const {
     id: marketId,
@@ -235,8 +234,12 @@ function InitiativeInvestible(props) {
   const tourName = isAdmin ? ADMIN_INITIATIVE_FIRST_VIEW : INVITE_INITIATIVE_FIRST_VIEW
   const tourSteps = isAdmin ? adminInitiativeSteps(cognitoUser) : inviteInitiativeSteps(cognitoUser)
   const yourPresence = marketPresences.find((presence) => presence.current_user)
-  const yourVote = yourPresence && yourPresence.investments && yourPresence.investments.find((investment) => investment.investible_id === investibleId)
-
+  const yourVote = yourPresence && yourPresence.investments &&
+    yourPresence.investments.find((investment) => investment.investible_id === investibleId)
+  function isEditableByUser() {
+    return isAdmin && !inArchives;
+  }
+  const [beingEdited, setBeingEdited] = useState(undefined);
   function onAttachFile (metadatas) {
     return attachFilesToMarket(marketId, metadatas)
       .then((market) => {
@@ -252,26 +255,19 @@ function InitiativeInvestible(props) {
       });
   }
 
-  function isEditableByUser() {
-    return isAdmin && !inArchives;
-  }
-
-
   function mySetBeingEdited(isEdit, event) {
-    doSetEditWhenValid(isEdit, isEditableByUser, setBeingEdited, event);
+    doSetEditWhenValid(isEdit, isEditableByUser, setBeingEdited, investibleId, event);
   }
 
   useEffect(() => {
       tourDispatch(startTour(tourName));
   }, [tourDispatch, tourName]);
 
-
-
   if (!investibleId) {
     // we have no usable data;
     return <></>;
   }
-
+  const myBeingEdited = beingEdited === investibleId && isEditableByUser();
   return (
     <Screen
       title={name}
@@ -302,17 +298,17 @@ function InitiativeInvestible(props) {
         />
         <Grid container className={classes.mobileColumn}>
           <Grid item md={9} xs={12}>
-            <CardContent className={beingEdited ? classes.editContent : classes.content}>
+            <CardContent className={myBeingEdited ? classes.editContent : classes.content}>
               {isDraft && activeMarket && (
                 <Typography className={classes.draft}>
                   {intl.formatMessage({ id: "draft" })}
                 </Typography>
               )}
-              {beingEdited && (
+              {myBeingEdited && (
                 <InvestibleBodyEdit hidden={hidden} marketId={marketId} investibleId={investibleId}
                                     setBeingEdited={mySetBeingEdited} />
               )}
-              {!beingEdited && (
+              {!myBeingEdited && (
                 <>
                   <Typography className={isEditableByUser() ? classes.titleEditable : classes.title} variant="h3" component="h1"
                               onClick={() => mySetBeingEdited(true)}>

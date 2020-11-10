@@ -222,6 +222,7 @@ function Summary(props) {
     parent_investible_id: parentInvestibleId,
     created_at: createdAt,
     attached_files: attachedFiles,
+    locked_by: lockedBy,
     children,
   } = market;
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -232,8 +233,11 @@ function Summary(props) {
   const myPresence =
     marketPresences.find(presence => presence.current_user) || {};
   const metaClasses = useMetaDataStyles();
-  const [beingEdited, setBeingEdited] = useState(false);
   const isAdmin = myPresence.is_admin;
+  function isEditableByUser() {
+    return isAdmin && !inArchives;
+  }
+  const [beingEdited, setBeingEdited] = useState(lockedBy === myPresence.id && isEditableByUser() ? id : undefined);
   function onAttachFile(metadatas) {
     return attachFilesToMarket(id, metadatas)
       .then((market) => {
@@ -249,20 +253,16 @@ function Summary(props) {
       })
   }
 
-  function isEditableByUser() {
-    return isAdmin && !inArchives;
-  }
-
   function mySetBeingEdited(isEdit, event) {
-    doSetEditWhenValid(isEdit, isEditableByUser, setBeingEdited, event);
+    doSetEditWhenValid(isEdit, isEditableByUser, setBeingEdited, id, event);
   }
-
+  const myBeingEdited = beingEdited === id;
   return (
     <Card elevation={0} className={classes.root} id="summary">
       <CardType className={classes.type} type={AGILE_PLAN_TYPE} />
       <Grid container className={classes.mobileColumn}>
         <Grid item xs={9} className={classes.fullWidth}>
-          <CardContent className={beingEdited ? classes.editContent : classes.content}>
+          <CardContent className={myBeingEdited ? classes.editContent : classes.content}>
             {isDraft && activeMarket && (
               <Typography className={classes.draft}>
                 {intl.formatMessage({ id: "draft" })}
@@ -273,7 +273,7 @@ function Summary(props) {
                 {intl.formatMessage({ id: "inactive" })}
               </Typography>
             )}
-            {!beingEdited && (
+            {!myBeingEdited && (
               <>
                 <Typography className={isEditableByUser() ? classes.titleEditable : classes.title} variant="h3" component="h1"
                             onClick={() => mySetBeingEdited(true)}>
@@ -283,7 +283,7 @@ function Summary(props) {
                                    isEditable={isEditableByUser()} />
               </>
             )}
-            {beingEdited && (
+            {myBeingEdited && (
               <DialogBodyEdit hidden={hidden} setBeingEdited={mySetBeingEdited} marketId={id} />
             )}
           </CardContent>

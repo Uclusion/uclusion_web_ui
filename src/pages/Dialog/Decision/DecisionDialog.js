@@ -208,7 +208,7 @@ function DecisionDialog(props) {
     parent_market_id: parentMarketId,
     parent_investible_id: parentInvestibleId
   } = market;
-  const [beingEdited, setBeingEdited] = useState(false);
+  const [beingEdited, setBeingEdited] = useState(undefined);
   const activeMarket = marketStage === ACTIVE_STAGE;
   const inArchives = !activeMarket || (myPresence && !myPresence.following);
   let breadCrumbTemplates = [];
@@ -234,7 +234,7 @@ function DecisionDialog(props) {
 
 
   function mySetBeingEdited(isEdit, event) {
-    doSetEditWhenValid(isEdit, isEditableByUser, setBeingEdited, event);
+    doSetEditWhenValid(isEdit, isEditableByUser, setBeingEdited, marketId, event);
   }
 
   function onDeleteFile(path) {
@@ -264,7 +264,7 @@ function DecisionDialog(props) {
   }
   const underConsideration = getInvestiblesForStage(underConsiderationStage);
   const proposed = getInvestiblesForStage(proposedStage);
-
+  const myBeingEdited = beingEdited === marketId && isEditableByUser();
   return (
     <Screen
       title={marketName}
@@ -284,16 +284,16 @@ function DecisionDialog(props) {
         />
         <Grid id="dialogMain" container className={classes.mobileColumn}>
           <Grid item xs={9}>
-            <CardContent className={beingEdited ? classes.editContent : classes.content}>
+            <CardContent className={myBeingEdited ? classes.editContent : classes.content}>
               {isDraft && activeMarket && (
                 <Typography className={classes.draft}>
                   {intl.formatMessage({ id: 'draft' })}
                 </Typography>
               )}
-              {beingEdited && (
+              {myBeingEdited  && (
                 <DialogBodyEdit hidden={hidden} setBeingEdited={mySetBeingEdited} marketId={marketId} />
               )}
-              {!beingEdited && (
+              {!myBeingEdited && (
                 <>
                   <Typography className={isEditableByUser() ? classes.titleEditable : classes.title}
                               variant="h3" component="h1"

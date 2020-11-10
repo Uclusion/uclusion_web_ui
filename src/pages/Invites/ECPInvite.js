@@ -74,6 +74,8 @@ function ECPInvite(props) {
               console.error(error);
               toastError('errorMarketFetchFailed');
             });
+        } else {
+          navigate(history, '/#onboarded');
         }
       }
     }

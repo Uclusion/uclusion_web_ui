@@ -49,7 +49,7 @@ function ECPInvite(props) {
   const { hidden } = props;
   const intl = useIntl();
   const history = useHistory();
-  const [, marketsDispatch] = useContext(MarketsContext);
+  const [marketsState, marketsDispatch] = useContext(MarketsContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, diffDispatch] = useContext(DiffContext);
   const [, presenceDispatch] = useContext(MarketPresencesContext);
@@ -60,17 +60,25 @@ function ECPInvite(props) {
 
   useEffect(() => {
     if (!hidden && !_.isEmpty(name)) {
-      const dispatchers = {marketsDispatch, diffDispatch, presenceDispatch, investiblesDispatch};
-      createECPMarkets(dispatchers)
-        .then(() => {
-          navigate(history, '/#onboarded');
-        })
-        .catch((error) => {
-          console.error(error);
-          toastError('errorMarketFetchFailed');
-        });
+      const isInitialization = !marketsState || marketsState.initializing;
+      if (!isInitialization) {
+        const { marketDetails } = marketsState;
+        if (_.isEmpty(marketDetails)) {
+          // Do not create onboarding markets if they already have markets
+          const dispatchers = { marketsDispatch, diffDispatch, presenceDispatch, investiblesDispatch };
+          createECPMarkets(dispatchers)
+            .then(() => {
+              navigate(history, '/#onboarded');
+            })
+            .catch((error) => {
+              console.error(error);
+              toastError('errorMarketFetchFailed');
+            });
+        }
+      }
     }
-  }, [name, hidden, history, marketsDispatch, intl, diffDispatch, presenceDispatch, investiblesDispatch]);
+  }, [name, hidden, history, marketsDispatch, intl, diffDispatch, presenceDispatch, investiblesDispatch,
+    marketsState]);
 
   if (hidden) {
     return <React.Fragment/>

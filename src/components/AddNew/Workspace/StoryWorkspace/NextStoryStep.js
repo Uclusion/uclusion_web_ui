@@ -8,26 +8,18 @@ import {
 } from '../../../../utils/marketIdPathFunctions';
 import StepButtons from '../../StepButtons';
 import QuillEditor from '../../../TextEditors/QuillEditor';
-import { DiffContext } from '../../../../contexts/DiffContext/DiffContext';
-
-import { MarketsContext } from '../../../../contexts/MarketsContext/MarketsContext';
-import { InvestiblesContext } from '../../../../contexts/InvestibesContext/InvestiblesContext';
-import { MarketPresencesContext } from '../../../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { CommentsContext } from '../../../../contexts/CommentsContext/CommentsContext';
-import { doCreateStoryWorkspace } from './workspaceCreator';
 import { WizardStylesContext } from '../../WizardStylesContext';
 import WizardStepContainer from '../../WizardStepContainer';
+import { MarketsContext } from '../../../../contexts/MarketsContext/MarketsContext';
+import { InvestiblesContext } from '../../../../contexts/InvestibesContext/InvestiblesContext';
 
 function NextStoryStep (props) {
   const { updateFormData, formData } = props;
+  const [marketState] = useContext(MarketsContext);
+  const [investibleState] = useContext(InvestiblesContext);
+
   const intl = useIntl();
   const classes = useContext(WizardStylesContext);
-  const [marketState, marketsDispatch] = useContext(MarketsContext);
-  const [, diffDispatch] = useContext(DiffContext);
-  const [, investiblesDispatch] = useContext(InvestiblesContext);
-  const [, presenceDispatch] = useContext(MarketPresencesContext);
-  const [commentsState, commentsDispatch] = useContext(CommentsContext);
-  const [investibleState] = useContext(InvestiblesContext);
   const {
     nextStoryName,
     nextStoryDescription,
@@ -54,45 +46,25 @@ function NextStoryStep (props) {
     updateFormData({ nextStoryUploadedFiles: newUploadedFiles });
   }
 
-  function createMarket (formData) {
-    const dispatchers = {
-      diffDispatch,
-      investiblesDispatch,
-      marketsDispatch,
-      presenceDispatch,
-      commentsDispatch,
-      commentsState,
-    };
-    return doCreateStoryWorkspace(dispatchers, formData, updateFormData, intl)
-      .then((marketId) => {
-        return ({ ...formData, marketId });
-      });
-  }
-
-  function onPrevious () {
+  function updateState(nextStorySkipped) {
     const newValues = {
       nextStoryDescription: editorContents,
-      nextStorySkipped: false,
+      nextStorySkipped,
     };
     updateFormData(newValues);
+  }
+
+
+  function onPrevious () {
+    updateState(false);
   }
 
   function onNext () {
-    const newValues = {
-      nextStoryDescription: editorContents,
-      nextStorySkipped: false,
-    };
-    updateFormData(newValues);
-    return createMarket({ ...formData, ...newValues });
+    updateState(false);
   }
 
   function onSkip () {
-    const newValues = {
-      nextStoryDescription: editorContents,
-      nextStorySkipped: true,
-    };
-    updateFormData(newValues);
-    return createMarket({ ...formData, ...newValues });
+    updateState(true);
   }
 
   return (

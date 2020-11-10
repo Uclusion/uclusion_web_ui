@@ -171,7 +171,7 @@ function SearchResults () {
     const needPagenation = pages > 1;
     // no pages in results? No UI needed
     if (!needPagenation) {
-      return <React.Fragment/>;
+      return <React.Fragment key="nullItem"/>;
     }
     return (
       <ListItem

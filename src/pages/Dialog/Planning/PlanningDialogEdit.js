@@ -11,9 +11,8 @@ import CardActions from '@material-ui/core/CardActions'
 import Button from '@material-ui/core/Button'
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton'
 import Card from '@material-ui/core/Card'
-import { DaysEstimate, MaxBudget, usePlanFormStyles, VoteExpiration, Votes } from '../../../components/AgilePlan'
-import { FormControl, FormHelperText, MenuItem, Select } from '@material-ui/core'
-import InputLabel from '@material-ui/core/InputLabel'
+import { usePlanFormStyles, VoteExpiration, Votes } from '../../../components/AgilePlan'
+import AllowedInProgress from './AllowedInProgress';
 
 function PlanningDialogEdit(props) {
   const { onSpinStop, onCancel, market, acceptedStage } = props;
@@ -40,7 +39,6 @@ function PlanningDialogEdit(props) {
     max_budget,
     investment_expiration,
     days_estimate,
-    created_at: createdAt,
     votes_required
   } = mutableMarket;
 
@@ -92,26 +90,10 @@ function PlanningDialogEdit(props) {
           <legend className={classes.optional}>*{intl.formatMessage({ id: "optionalEdit" })}</legend>
           <Grid container className={clsx(classes.fieldset, classes.flex, classes.justifySpace)}>
             <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
-              <FormControl variant="filled">
-                <InputLabel id="select-allowed-investibles-label">
-                  {intl.formatMessage({ id: 'allowedInvestiblesDropdownLabel' })}</InputLabel>
-                <Select
-                  value={allowedInvestibles}
-                  onChange={onAllowedInvestiblesChange}
-                  style={{backgroundColor: "#ecf0f1"}}
-                >
-                  <MenuItem value={0}>
-                    {intl.formatMessage({ id: 'allowedInvestiblesUnlimitedValue' })}
-                  </MenuItem>
-                  <MenuItem value={1}>1</MenuItem>
-                  <MenuItem value={2}>2</MenuItem>
-                  <MenuItem value={3}>3</MenuItem>
-                  <MenuItem value={4}>4</MenuItem>
-                  <MenuItem value={5}>5</MenuItem>
-                </Select>
-                <FormHelperText style={{color: "black"}}>
-                  {intl.formatMessage({ id: 'allowedInvestiblesDropdownHelp' })}</FormHelperText>
-              </FormControl>
+              <AllowedInProgress
+                onChange={onAllowedInvestiblesChange}
+                value={allowedInvestibles}
+              />
             </Grid>
             <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
               <VoteExpiration
@@ -121,14 +103,6 @@ function PlanningDialogEdit(props) {
             </Grid>
             <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
               <Votes onChange={handleChange("votes_required")} value={votes_required} />
-            </Grid>
-            <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
-              <DaysEstimate showLabel={ window.outerWidth >= 600 }
-                            onChange={handleChange("days_estimate")} value={days_estimate}
-                            createdAt={createdAt} />
-            </Grid>
-            <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
-              <MaxBudget onChange={handleChange("max_budget")} value={max_budget} />
             </Grid>
           </Grid>
         </CardContent>

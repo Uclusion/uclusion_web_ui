@@ -191,6 +191,9 @@ export const wizardStyles = makeStyles(
       OnboardingWizardNextStoryStepLabel: {
         maxWidth: '725px'
       },
+      OnboardingWizardAdvancedOptionsStepLabel: {
+        maxWidth: '725px'
+      },
       WorkspaceWizardCreatingWorkspaceStepLabel: {
         maxWidth: '500px'
       },

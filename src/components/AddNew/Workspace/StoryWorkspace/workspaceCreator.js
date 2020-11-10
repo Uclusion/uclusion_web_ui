@@ -1,16 +1,17 @@
-import { STORIES_SUB_TYPE } from '../../../../constants/markets'
-import { createPlanning } from '../../../../api/markets'
-import { addMarketToStorage } from '../../../../contexts/MarketsContext/marketsContextHelper'
-import { pushMessage } from '../../../../utils/MessageBusUtils'
-import { PUSH_STAGE_CHANNEL, VERSIONS_EVENT } from '../../../../contexts/VersionsContext/versionsContextHelper'
-import { addPresenceToMarket } from '../../../../contexts/MarketPresencesContext/marketPresencesHelper'
-import _ from 'lodash'
-import { processTextAndFilesForSave } from '../../../../api/files'
-import { addPlanningInvestible, stageChangeInvestible } from '../../../../api/investibles'
-import { addInvestible } from '../../../../contexts/InvestibesContext/investiblesContextHelper'
-import { saveComment } from '../../../../api/comments'
-import { REPORT_TYPE } from '../../../../constants/comments'
-import { addCommentToMarket } from '../../../../contexts/CommentsContext/commentsContextHelper'
+import { STORIES_SUB_TYPE } from '../../../../constants/markets';
+import { createPlanning, updateStage } from '../../../../api/markets';
+import { addMarketToStorage } from '../../../../contexts/MarketsContext/marketsContextHelper';
+import { pushMessage } from '../../../../utils/MessageBusUtils';
+import { PUSH_STAGE_CHANNEL, VERSIONS_EVENT } from '../../../../contexts/VersionsContext/versionsContextHelper';
+import { addPresenceToMarket } from '../../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import _ from 'lodash';
+import { processTextAndFilesForSave } from '../../../../api/files';
+import { addPlanningInvestible, stageChangeInvestible } from '../../../../api/investibles';
+import { addInvestible } from '../../../../contexts/InvestibesContext/investiblesContextHelper';
+import { saveComment } from '../../../../api/comments';
+import { REPORT_TYPE } from '../../../../constants/comments';
+import { addCommentToMarket } from '../../../../contexts/CommentsContext/commentsContextHelper';
+import { updateStagesForMarket } from '../../../../contexts/MarketStagesContext/marketStagesContextHelper';
 
 /**
  * Creates the story workspace from the formdata and does all the magic to make the
@@ -20,10 +21,11 @@ import { addCommentToMarket } from '../../../../contexts/CommentsContext/comment
  * @param updateFormData
  * @param intl
  */
-export function doCreateStoryWorkspace(dispatchers, formData, updateFormData, intl) {
-  const { meetingName } = formData;
+export function doCreateStoryWorkspace (dispatchers, formData, updateFormData, intl) {
+  const { meetingName, advancedOptionsSkipped } = formData;
   const {
     marketsDispatch,
+    marketStagesDispatch,
     diffDispatch,
     presenceDispatch,
     investiblesDispatch,
@@ -37,11 +39,23 @@ export function doCreateStoryWorkspace(dispatchers, formData, updateFormData, in
     description: descriptionContent,
     market_sub_type: STORIES_SUB_TYPE,
   };
+  // see if we have any advanced options set, and set up the basic create info
+  // don't want any null values so doing this the stupid way
+  if (!advancedOptionsSkipped) {
+    if (formData.votesRequired) {
+      marketInfo.votes_required = formData.votesRequired;
+    }
+    if (formData.investmentExpiration) {
+      marketInfo.investment_expiration = formData.investmentExpiration;
+    }
+  }
+
   let createdMarketId;
   let investibleId;
   let inProgressStage;
   let inVotingStage;
   let myUserId;
+
   return createPlanning(marketInfo)
     .then((marketDetails) => {
       const {
@@ -56,6 +70,19 @@ export function doCreateStoryWorkspace(dispatchers, formData, updateFormData, in
       addPresenceToMarket(presenceDispatch, createdMarketId, presence);
       inVotingStage = stages.find((stage) => stage.allows_investment);
       inProgressStage = stages.find((stage) => stage.assignee_enter_only);
+      // setup the allowed stories in the in progress stage if the option is set
+      if (!advancedOptionsSkipped && formData.allowedInvestibles !== undefined) {
+        return updateStage(createdMarketId, inProgressStage.id, formData.allowedInvestibles)
+          .then((newStage) => {
+            const newStages = _.unionBy([newStage], stages, 'id');
+            updateStagesForMarket(marketStagesDispatch, createdMarketId, newStages);
+            return Promise.resolve(true);
+          })
+      }
+      return Promise.resolve(false);
+    })
+    .then(() => {
+      //currently don't use the return value, but success is good enough here.
       // add the next story if you have it
       const { nextStoryName, nextStoryDescription, nextStoryUploadedFiles, nextStorySkipped } = formData;
       if (!_.isEmpty(nextStoryName) && !nextStorySkipped) {

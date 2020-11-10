@@ -1,3 +1,8 @@
+import { updateMarketStages } from './marketStagesContextReducer';
+
+export function updateStagesForMarket(dispatch, marketId, newStages){
+  dispatch(updateMarketStages(marketId, newStages));
+}
 
 export function getStages(state, marketId) {
   return state[marketId] || [];

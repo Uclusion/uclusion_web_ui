@@ -183,7 +183,7 @@ const messages = defineMessages({
   investmentExpirationInputLabel: 'Number of days before an approval expires',
   maxMaxBudgetInputLabel: 'maximum story budget',
   daysEstimateInputLabel: 'Very rough number of days to complete',
-  votesRequiredInputLabelShort: 'approval required',
+  votesRequiredInputLabelShort: 'Approvals Required',
   votesRequiredInputHelperText: 'Number of approvals required to move a story to in progress',
   investmentExpiration: 'before approval expires',
   initiativeExpiration: 'before initiative expires',
@@ -198,7 +198,7 @@ const messages = defineMessages({
   agilePlanFormFieldsetLabelRequired: 'Required',
   agilePlanFormDaysEstimateLabel: 'Days estimate',
   agilePlanFormDaysEstimatePlaceholder: 'Very rough number of days to complete',
-  agilePlanFormInvestmentExpirationLabel: 'approval expiration (in days)',
+  agilePlanFormInvestmentExpirationLabel: 'Approval Expiration (in days)',
   agilePlanFormMaxMaxBudgetInputLabel: 'Optionally enter a budget number for this story and then enter your own unit or choose from the drop down.',
   agilePlanFormSaveLabel: 'Save & Post',
 
@@ -317,9 +317,9 @@ const messages = defineMessages({
   mustResolveAssignedQuestions: 'Cannot change to this stage with unresolved questions from an assignee',
   daysEstimateHelp: 'Optional very rough expected date of completion.',
   daysEstimateMarketLabel: 'date of completion',
-  votesRequiredHelp: 'Number of approvers required before a story can be moved in progress',
+  votesRequiredHelp: "Number of approvals required before a story can be moved to 'In Progress'",
   maxBudgetHelp: 'Maximum budget allowed for a story. Used to prevent stories from being too large.',
-  voteExpirationHelp: 'How many days before approvals expire. Prevents very old approval from being used to move a story in progress.',
+  voteExpirationHelp: "How many days before approvals expire. Prevents very old approval from being used to move a story to 'In Progress'.",
   reassignToMove: 'Re-assigning will move into voting.',
   initiativePlanningParent: 'Create Workspace',
   marketLinksSection: 'links',
@@ -803,7 +803,7 @@ const messages = defineMessages({
   assigneeFilterLabel: 'Show stories for:',
 
   //allowed investibles dropdown
-  allowedInvestiblesDropdownHelp: 'Number of stories to allow in progress per person',
+  allowedInvestiblesDropdownHelp: 'Number of stories to allow in \'In Progress\' per person',
   allowedInvestiblesDropdownLabel: 'Maximum stories in progress',
   allowedInvestiblesUnlimitedValue: 'Unlimited',
 
@@ -877,6 +877,7 @@ const messages = defineMessages({
   OnboardingWizardCurrentStoryStepLabel: 'Current Story',
   OnboardingWizardCurrentStoryProgressStepLabel: 'Current Story Progress (Optional)',
   OnboardingWizardNextStoryStepLabel: 'Next Story (Optional)',
+  OnboardingWizardAdvancedOptionsStepLabel: 'Advanced Configuration (Optional)',
   OnboardingWizardCurrentStoryNamePlaceHolder: 'Your current story\'s name',
   OnboardingWizardCurrentStoryDescriptionPlaceHolder: 'Your current story\'s description',
   OnboardingWizardNextStoryNamePlaceHolder: 'Your next story\'s name',

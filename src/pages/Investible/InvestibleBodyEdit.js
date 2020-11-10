@@ -170,11 +170,11 @@ function InvestibleBodyEdit (props) {
     if (fullInvestible) {
       localforage.removeItem(investibleId)
         .then(() => {
+          if (!stillEditing) {
+            setBeingEdited(false);
+          }
           refreshInvestibles(investiblesDispatch, diffDispatch, [fullInvestible]);
         });
-    }
-    if (!stillEditing) {
-      setBeingEdited(false);
     }
   }
   const classes = useStyles();

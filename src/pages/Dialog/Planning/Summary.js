@@ -30,7 +30,6 @@ import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { EMPTY_SPIN_RESULT } from '../../../constants/global'
 import DialogBodyEdit from '../DialogBodyEdit'
 import { doSetEditWhenValid } from '../../../utils/windowUtils'
-import InvestibleBodyEdit from '../../Investible/InvestibleBodyEdit'
 
 const useStyles = makeStyles(theme => ({
   section: {

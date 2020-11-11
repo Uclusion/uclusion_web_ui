@@ -47,7 +47,6 @@ import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import AttachedFilesList from '../../../components/Files/AttachedFilesList'
 import DialogBodyEdit from '../DialogBodyEdit'
 import { doSetEditWhenValid } from '../../../utils/windowUtils'
-import InvestibleBodyEdit from '../../Investible/InvestibleBodyEdit'
 
 const useStyles = makeStyles(
   theme => ({

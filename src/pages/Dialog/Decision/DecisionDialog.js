@@ -47,6 +47,7 @@ import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import AttachedFilesList from '../../../components/Files/AttachedFilesList'
 import DialogBodyEdit from '../DialogBodyEdit'
 import { doSetEditWhenValid } from '../../../utils/windowUtils'
+import InvestibleBodyEdit from '../../Investible/InvestibleBodyEdit'
 
 const useStyles = makeStyles(
   theme => ({
@@ -178,6 +179,7 @@ function DecisionDialog(props) {
     marketPresences,
     myPresence,
   } = props;
+  const [lastEdit, setLastEdit] = useState(undefined);
   const classes = useStyles();
   const metaClasses = useMetaDataStyles();
   const intl = useIntl();
@@ -281,6 +283,7 @@ function DecisionDialog(props) {
         <CardType
           className={classes.cardType}
           type={DECISION_TYPE}
+          lastEdit={lastEdit}
         />
         <Grid id="dialogMain" container className={classes.mobileColumn}>
           <Grid item xs={9}>
@@ -291,7 +294,8 @@ function DecisionDialog(props) {
                 </Typography>
               )}
               {myBeingEdited  && (
-                <DialogBodyEdit hidden={hidden} setBeingEdited={mySetBeingEdited} marketId={marketId} />
+                <DialogBodyEdit hidden={hidden} setBeingEdited={mySetBeingEdited} marketId={marketId}
+                                setLastEdit={setLastEdit} lastEdit={lastEdit}/>
               )}
               {!myBeingEdited && (
                 <>

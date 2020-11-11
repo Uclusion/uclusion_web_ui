@@ -139,6 +139,7 @@ const messages = defineMessages({
   addLabel: 'Add label',
   addUnit: 'unit',
   created: 'Created ',
+  edited: 'Saved locally',
   hours: 'hours',
   days: 'days',
   points: 'points',

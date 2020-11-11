@@ -100,6 +100,14 @@ const useCardTypeStyles = makeStyles(theme => ({
       lineHeight: 1,
       textTransform: 'capitalize'
     },
+    lastEdited: {
+      fontWeight: 900,
+      [theme.breakpoints.down('sm')]: {
+        fontSize: '.7rem',
+        lineHeight: 1,
+        paddingLeft: '5px'
+      },
+    },
     timeElapsed: {
       [theme.breakpoints.down('sm')]: {
         fontSize: '.7rem',
@@ -134,6 +142,7 @@ export default function CardType(props) {
     subtype,
     label = <FormattedMessage id={labelIntlIds[type]}/>,
     createdAt,
+    lastEdit,
     fullWidth = false
   } = props;
   const classes = useCardTypeStyles({ type, resolved })
@@ -170,11 +179,18 @@ export default function CardType(props) {
 
   return (
     <Grid container>
-      <Grid item xs={fullWidth ? 12 : 7}>
+      <Grid item xs={fullWidth ? 12 : 6}>
         <div className={clsx(classes.root, className)}>
           <IconComponent className={classes.icon}/>
           <span className={classes.label}>{label}</span>
         </div>
+      </Grid>
+      <Grid item xs={fullWidth ? false : 1}>
+        {lastEdit && (
+          <Typography className={classes.lastEdited} variant="body2">
+            {intl.formatMessage({ id: 'edited' })}
+          </Typography>
+        )}
       </Grid>
       <Grid item xs={fullWidth ? false : 2}>
         {createdAt && (

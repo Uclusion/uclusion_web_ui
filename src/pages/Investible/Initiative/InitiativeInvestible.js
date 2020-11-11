@@ -182,6 +182,7 @@ function InitiativeInvestible(props) {
     inArchives,
     hidden,
   } = props;
+  const [lastEdit, setLastEdit] = useState(undefined);
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
   const isDraft = !_.isEmpty(myPresence) && marketPresences.length === 1;
   const intl = useIntl();
@@ -295,6 +296,7 @@ function InitiativeInvestible(props) {
             id: "initiativeInvestibleDescription"
           })}`}
           type={VOTING_TYPE}
+          lastEdit={lastEdit}
         />
         <Grid container className={classes.mobileColumn}>
           <Grid item md={9} xs={12}>
@@ -306,7 +308,7 @@ function InitiativeInvestible(props) {
               )}
               {myBeingEdited && (
                 <InvestibleBodyEdit hidden={hidden} marketId={marketId} investibleId={investibleId}
-                                    setBeingEdited={mySetBeingEdited} />
+                                    setBeingEdited={mySetBeingEdited} setLastEdit={setLastEdit} lastEdit={lastEdit} />
               )}
               {!myBeingEdited && (
                 <>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import PropTypes from 'prop-types'
 import { FormattedMessage, useIntl } from 'react-intl'
 import { updateMarket, updateStage } from '../../../api/markets'
@@ -13,9 +13,13 @@ import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingBut
 import Card from '@material-ui/core/Card'
 import { usePlanFormStyles, VoteExpiration, Votes } from '../../../components/AgilePlan'
 import AllowedInProgress from './AllowedInProgress';
+import { getStages, updateStagesForMarket } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
+import _ from 'lodash'
 
 function PlanningDialogEdit(props) {
   const { onSpinStop, onCancel, market, acceptedStage } = props;
+  const [marketStagesState, marketStagesDispatch] = useContext(MarketStagesContext);
   const {
     id,
     name: initialMarketName,
@@ -75,7 +79,12 @@ function PlanningDialogEdit(props) {
             spinChecker: () => Promise.resolve(true)
           };
           if (allowedInvestibles !== acceptedStage.allowed_investibles) {
-            return updateStage(id, acceptedStage.id, allowedInvestibles).then(() => retValue);
+            return updateStage(id, acceptedStage.id, allowedInvestibles).then((newStage) => {
+              const marketStages = getStages(marketStagesState, id);
+              const newStages = _.unionBy([newStage], marketStages, 'id');
+              updateStagesForMarket(marketStagesDispatch, id, newStages);
+              return retValue;
+            });
           }
           return retValue;
         });

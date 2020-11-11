@@ -397,7 +397,9 @@ const useStageClasses = makeStyles(
         margin: theme.spacing(1, 0),
         padding: theme.spacing(1, 2),
       },
-      regularAccepted: {},
+      regularAccepted: {
+        marginLeft: 0
+      },
       fallback: {
         backgroundColor: theme.palette.grey["400"]
       },
@@ -462,10 +464,10 @@ function Stage(props) {
   }
   const warnAcceptedSafe = warnAccepted || {};
   const warnKeys = Object.keys(warnAcceptedSafe);
-  const warnAcceptedSingle = warnKeys.length === 1;
-  const warned = warnKeys.find((key) => warnAcceptedSafe[key]);
+  const singleInvestible = (stageInvestibles || []).length === 1;
   return (
-    <dd className={warnAcceptedSingle && warnAcceptedSafe[warnKeys[0]] ? classes.rootWarnAccepted : classes.root}>
+    <dd className={singleInvestible && warnAcceptedSafe[warnKeys[0]] ? classes.rootWarnAccepted :
+      singleInvestible ? classes.root : classes.regularAccepted}>
       <ul className={classes.list}>
         {stageInvestibles.map(inv => {
           const { investible, market_infos: marketInfos } = inv;
@@ -475,8 +477,8 @@ function Stage(props) {
 
           return (
             <li key={investible.id} id={investible.id} onDragStart={investibleOnDragStart}
-                className={!warnAcceptedSingle && warnAcceptedSafe[investible.id] ? classes.rootWarnAccepted
-                  : !warnAcceptedSingle && warned ? classes.outlinedAccepted : classes.regularAccepted}>
+                className={!singleInvestible && warnAcceptedSafe[investible.id] ? classes.rootWarnAccepted
+                  : !singleInvestible ? classes.outlinedAccepted : classes.regularAccepted}>
               <StageInvestible
                 comments={comments}
                 investible={investible}

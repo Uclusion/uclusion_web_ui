@@ -4,6 +4,7 @@ import { NOTIFICATION_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../WebSocketCo
 import { getMessages } from '../../api/sso'
 import _ from 'lodash'
 import { NOTIFICATION_VERSION_UPDATE } from './versionsContextMessages'
+import { EMPTY_GLOBAL_VERSION, INITIALIZATION_GLOBAL_VERSION } from './versionsContextReducer'
 
 export const NOTIFICATIONS_HUB_CHANNEL = 'NotificationsChannel';
 export const PUSH_HOME_USER_CHANNEL = 'HomeUserChannel';
@@ -19,6 +20,12 @@ export const BANNED_LIST = 'banned_list';
 
 export function getGlobalVersion (state) {
   return state.globalVersion;
+}
+
+// The user has to exist so if this function returns false the initial sync is still in progress
+export function hasInitializedGlobalVersion(state) {
+  const globalVersion = getGlobalVersion(state || {});
+  return globalVersion && globalVersion !== EMPTY_GLOBAL_VERSION && globalVersion !== INITIALIZATION_GLOBAL_VERSION;
 }
 
 export function getExistingMarkets (state) {

@@ -3,13 +3,14 @@ import LocalForageHelper from '../../utils/LocalForageHelper'
 import { Auth } from 'aws-amplify';
 export const VERSIONS_CONTEXT_NAMESPACE = 'versions_context';
 export const EMPTY_GLOBAL_VERSION = 'FAKE';
+export const INITIALIZATION_GLOBAL_VERSION = 'INITIALIZATION';
 export const EMPTY_STATE = {
   globalVersion: EMPTY_GLOBAL_VERSION,
   existingMarkets: '',
   notificationVersion: {version: -1 },
 };
 export const MY_STORED_EMPTY_STATE = {
-  globalVersion: 'INITIALIZATION',
+  globalVersion: INITIALIZATION_GLOBAL_VERSION,
   existingMarkets: '',
   notificationVersion: {version: -1 },
 };

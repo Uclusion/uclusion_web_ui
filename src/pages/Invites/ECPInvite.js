@@ -15,6 +15,8 @@ import { DiffContext } from '../../contexts/DiffContext/DiffContext'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import LoadingDisplay from '../../components/LoadingDisplay';
 import { createECPMarkets } from './ECPMarketGenerator';
+import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
+import { hasInitializedGlobalVersion } from '../../contexts/VersionsContext/versionsContextHelper'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -53,6 +55,7 @@ function ECPInvite(props) {
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, diffDispatch] = useContext(DiffContext);
   const [, presenceDispatch] = useContext(MarketPresencesContext);
+  const [versionsContext] = useContext(VersionsContext);
   const [userState] = useContext(AccountUserContext);
   const { user } = userState;
   const { name } = user || {};
@@ -61,7 +64,7 @@ function ECPInvite(props) {
   useEffect(() => {
     if (!hidden && !_.isEmpty(name)) {
       const isInitialization = !marketsState || marketsState.initializing;
-      if (!isInitialization) {
+      if (!isInitialization && hasInitializedGlobalVersion(versionsContext)) {
         const { marketDetails } = marketsState;
         if (_.isEmpty(marketDetails)) {
           // Do not create onboarding markets if they already have markets
@@ -80,7 +83,7 @@ function ECPInvite(props) {
       }
     }
   }, [name, hidden, history, marketsDispatch, intl, diffDispatch, presenceDispatch, investiblesDispatch,
-    marketsState]);
+    marketsState, versionsContext]);
 
   if (hidden) {
     return <React.Fragment/>

@@ -600,6 +600,14 @@ const useBlockingStageStyles = makeStyles(theme => {
     root: {
       backgroundColor: warningColor
     },
+    outlinedAccepted: {
+      border: `1px solid ${theme.palette.grey["400"]}`,
+      borderRadius: theme.spacing(1),
+      fontSize: ".8em",
+      margin: theme.spacing(1, 0),
+      padding: theme.spacing(1, 2),
+      backgroundColor: warningColor
+    },
     fallback: {
       backgroundColor: theme.palette.grey["400"]
     }

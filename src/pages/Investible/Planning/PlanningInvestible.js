@@ -701,7 +701,7 @@ function PlanningInvestible(props) {
             <Grid className={classes.borderLeft} item xs={3}>
               <div className={classes.editRow}>
                 <dl className={classes.upperRightCard}>
-                  {displayEdit && (
+                  {displayEdit && !inMarketArchives && (
                     <div>
                       <EditMarketButton
                         labelId="changeCompletionDate"

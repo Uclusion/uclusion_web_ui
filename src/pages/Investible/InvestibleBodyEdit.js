@@ -147,7 +147,6 @@ function InvestibleBodyEdit (props) {
   }
 
   function handleDraftState(newDraftState) {
-    setLastEdit(new Date());
     localforage.setItem(myInvestible.id, newDraftState).then(() => {});
   }
 
@@ -156,6 +155,8 @@ function InvestibleBodyEdit (props) {
   }
 
   function onStorageChange(description) {
+    // Even debounce not working for make typing in name smooth so only use it here
+    setLastEdit(new Date());
     handleDraftState({ name, description });
   }
 

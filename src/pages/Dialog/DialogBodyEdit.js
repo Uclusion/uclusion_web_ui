@@ -253,7 +253,6 @@ function DialogBodyEdit(props) {
   }
 
   function handleDraftState(newDraftState) {
-    setLastEdit(new Date());
     localforage.setItem(id, newDraftState).then(() => {});
   }
 
@@ -262,6 +261,8 @@ function DialogBodyEdit(props) {
   }
 
   function onStorageChange(description) {
+    // Even debounce not working for make typing in name smooth so only use it here
+    setLastEdit(new Date());
     handleDraftState({ name, description });
   }
 

@@ -194,7 +194,6 @@ function DecisionInvestible(props) {
     inArchives,
     hidden,
   } = props;
-  const [lastEdit, setLastEdit] = useState(undefined);
   const intl = useIntl();
   const history = useHistory();
   const classes = useStyles();

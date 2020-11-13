@@ -225,7 +225,6 @@ function Summary(props) {
     locked_by: lockedBy,
     children,
   } = market;
-  const [lastEdit, setLastEdit] = useState(undefined);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [, marketsDispatch] = useContext(MarketsContext);
   const [, diffDispatch] = useContext(DiffContext);

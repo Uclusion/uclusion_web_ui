@@ -298,7 +298,6 @@ function PlanningInvestible(props) {
   const marketInfo = getMarketInfo(marketInvestible, marketId) || {};
   const { stage, assigned: invAssigned, children, days_estimate: marketDaysEstimate } = marketInfo;
   const [daysEstimate, setDaysEstimate] = useState(marketDaysEstimate);
-  const [lastEdit, setLastEdit] = useState(undefined);
   const assigned = invAssigned || []; // handle the empty case to make subsequent code easier
   const presencesFollowing = (marketPresences || []).filter((presence) => presence.following && !presence.market_banned) || [];
   const everyoneAssigned = !_.isEmpty(marketPresences) && assigned.length === presencesFollowing.length;

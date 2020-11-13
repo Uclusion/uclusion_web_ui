@@ -178,7 +178,6 @@ function DecisionDialog(props) {
     marketPresences,
     myPresence,
   } = props;
-  const [lastEdit, setLastEdit] = useState(undefined);
   const classes = useStyles();
   const metaClasses = useMetaDataStyles();
   const intl = useIntl();

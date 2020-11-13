@@ -182,7 +182,6 @@ function InitiativeInvestible(props) {
     inArchives,
     hidden,
   } = props;
-  const [lastEdit, setLastEdit] = useState(undefined);
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
   const isDraft = !_.isEmpty(myPresence) && marketPresences.length === 1;
   const intl = useIntl();

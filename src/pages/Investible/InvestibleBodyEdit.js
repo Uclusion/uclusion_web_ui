@@ -32,7 +32,7 @@ const useStyles = makeStyles(
 );
 
 function InvestibleBodyEdit (props) {
-  const { hidden, marketId, investibleId, setBeingEdited, setLastEdit, lastEdit } = props;
+  const { hidden, marketId, investibleId, setBeingEdited } = props;
   const intl = useIntl();
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [, diffDispatch] = useContext(DiffContext);
@@ -43,7 +43,6 @@ function InvestibleBodyEdit (props) {
   const { investible: myInvestible } = fullInvestible;
   const { locked_by: lockedBy } = myInvestible;
   const [idLoaded, setIdLoaded] = useState(undefined);
-  const [lastIntervalRun, setLastIntervalRun] = useState(undefined);
   const emptyMarket = { name: '' };
   const market = getMarket(marketsState, marketId) || emptyMarket;
   const { market_type: marketType } = market;
@@ -92,26 +91,6 @@ function InvestibleBodyEdit (props) {
   }, [hidden, investibleId, idLoaded, marketType, setBeingEdited]);
 
   useEffect(() => {
-    if (lastEdit && lastIntervalRun) {
-      const secondsOfDisplay = (lastIntervalRun.getTime() - lastEdit.getTime()) / 1000;
-      if (secondsOfDisplay > 3) {
-        setLastEdit(undefined);
-      }
-    }
-    return () => {};
-  }, [lastEdit, lastIntervalRun, setLastEdit]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setLastIntervalRun(new Date());
-    }, 1000);
-    return () => {
-      setLastEdit(undefined);
-      clearInterval(interval);
-    };
-  }, [setLastEdit]);
-
-  useEffect(() => {
     if (!hidden) {
       if (!loading && !someoneElseEditing && !lockFailed) {
         lockInvestibleForEdit(marketId, investibleId)
@@ -155,8 +134,6 @@ function InvestibleBodyEdit (props) {
   }
 
   function onStorageChange(description) {
-    // Even debounce not working for make typing in name smooth so only use it here
-    setLastEdit(new Date());
     handleDraftState({ name, description });
   }
 
@@ -301,7 +278,6 @@ InvestibleBodyEdit.propTypes = {
   marketId: PropTypes.string.isRequired,
   investibleId: PropTypes.string.isRequired,
   setBeingEdited: PropTypes.func.isRequired,
-  setLastEdit: PropTypes.func.isRequired
 };
 
 InvestibleBodyEdit.defaultProps = {

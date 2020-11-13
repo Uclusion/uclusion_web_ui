@@ -142,7 +142,7 @@ export default function CardType(props) {
     subtype,
     label = <FormattedMessage id={labelIntlIds[type]}/>,
     createdAt,
-    lastEdit,
+    myBeingEdited,
     fullWidth = false
   } = props;
   const classes = useCardTypeStyles({ type, resolved })
@@ -186,7 +186,7 @@ export default function CardType(props) {
         </div>
       </Grid>
       <Grid item xs={fullWidth ? false : 1}>
-        {lastEdit && (
+        {myBeingEdited && (
           <Typography className={classes.lastEdited} variant="body2">
             {intl.formatMessage({ id: 'edited' })}
           </Typography>

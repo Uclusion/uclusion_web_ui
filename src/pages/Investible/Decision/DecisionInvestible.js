@@ -338,7 +338,7 @@ function DecisionInvestible(props) {
           label={`${intl.formatMessage({ id: cardDescription })}`}
           type={VOTING_TYPE}
           subtype={inProposed ? PROPOSED : OPTION}
-          lastEdit={lastEdit}
+          myBeingEdited={myBeingEdited}
         />
         <Grid container className={classes.mobileColumn}>
           <Grid item md={9} xs={12}>
@@ -357,7 +357,7 @@ function DecisionInvestible(props) {
           )}
           {myBeingEdited && (
             <InvestibleBodyEdit hidden={hidden} marketId={marketId} investibleId={investibleId}
-                                setBeingEdited={mySetBeingEdited} setLastEdit={setLastEdit} lastEdit={lastEdit} />
+                                setBeingEdited={mySetBeingEdited} />
           )}
           {!myBeingEdited && (
             <DescriptionOrDiff

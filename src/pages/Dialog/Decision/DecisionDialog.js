@@ -282,7 +282,7 @@ function DecisionDialog(props) {
         <CardType
           className={classes.cardType}
           type={DECISION_TYPE}
-          lastEdit={lastEdit}
+          myBeingEdited={myBeingEdited}
         />
         <Grid id="dialogMain" container className={classes.mobileColumn}>
           <Grid item xs={9}>
@@ -293,8 +293,7 @@ function DecisionDialog(props) {
                 </Typography>
               )}
               {myBeingEdited  && (
-                <DialogBodyEdit hidden={hidden} setBeingEdited={mySetBeingEdited} marketId={marketId}
-                                setLastEdit={setLastEdit} lastEdit={lastEdit}/>
+                <DialogBodyEdit hidden={hidden} setBeingEdited={mySetBeingEdited} marketId={marketId} />
               )}
               {!myBeingEdited && (
                 <>

@@ -669,7 +669,7 @@ function PlanningInvestible(props) {
           type={STORY_TYPE}
           subtype={subtype}
           createdAt={createdAt}
-          lastEdit={lastEdit}
+          myBeingEdited={myBeingEdited}
         />
         <CardContent className={myBeingEdited ? classes.editCardContent : classes.votingCardContent}>
           <Grid container className={classes.mobileColumn}>
@@ -687,7 +687,7 @@ function PlanningInvestible(props) {
               )}
               {myBeingEdited && (
                 <InvestibleBodyEdit hidden={hidden} marketId={marketId} investibleId={investibleId}
-                                    setBeingEdited={mySetBeingEdited} setLastEdit={setLastEdit} lastEdit={lastEdit} />
+                                    setBeingEdited={mySetBeingEdited} />
               )}
               {!myBeingEdited && (
                 <DescriptionOrDiff

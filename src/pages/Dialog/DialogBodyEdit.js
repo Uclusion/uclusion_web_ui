@@ -95,8 +95,7 @@ const useStyles = makeStyles(
 );
 
 function DialogBodyEdit(props) {
-  const { hidden, setBeingEdited, marketId, setLastEdit, lastEdit } = props;
-  const [lastIntervalRun, setLastIntervalRun] = useState(undefined);
+  const { hidden, setBeingEdited, marketId } = props;
   const intl = useIntl();
   const editClasses = usePlanFormStyles();
   const classes = useStyles();
@@ -151,26 +150,6 @@ function DialogBodyEdit(props) {
     }
     return () => {};
   }, [hidden, marketType, loading, lockFailed, someoneElseEditing, marketId]);
-
-  useEffect(() => {
-    if (lastEdit && lastIntervalRun) {
-      const secondsOfDisplay = (lastIntervalRun.getTime() - lastEdit.getTime()) / 1000;
-      if (secondsOfDisplay > 3) {
-        setLastEdit(undefined);
-      }
-    }
-    return () => {};
-  }, [lastEdit, lastIntervalRun, setLastEdit]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setLastIntervalRun(new Date());
-    }, 1000);
-    return () => {
-      setLastEdit(undefined);
-      clearInterval(interval);
-    };
-  }, [setLastEdit]);
 
   function handleSave() {
     // the set of files for the market is all the old files, plus our new ones
@@ -261,8 +240,6 @@ function DialogBodyEdit(props) {
   }
 
   function onStorageChange(description) {
-    // Even debounce not working for make typing in name smooth so only use it here
-    setLastEdit(new Date());
     handleDraftState({ name, description });
   }
 
@@ -342,8 +319,6 @@ function DialogBodyEdit(props) {
 
 DialogBodyEdit.propTypes = {
   hidden: PropTypes.bool.isRequired,
-  setBeingEdited: PropTypes.func.isRequired,
-  setLastEdit: PropTypes.func.isRequired,
   marketId: PropTypes.string.isRequired,
 };
 

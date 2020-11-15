@@ -926,7 +926,10 @@ const messages = defineMessages({
   DialogWizardAddOptionsStepLabel: 'What are the options?',
   DialogWizardTakeMeToDialog: 'I\'ve shared the link, take me to my Dialog',
   DialogWizardCreatingDialogStepLabel: 'Dialog Creation',
+  DialogWizardMultipleVotesStepLabel: 'Can participants vote for more than one option?',
 
+  DialogWizardDialogMultipleVotesYes: 'Allow voting for more than one option',
+  DialogWizardDialogMultipleVotesNo: "Don't allow voting for more than one option",
   //AddOptionWizard
   AddOptionWizardTitle: 'Your Option',
   AddOptionWizardOptionNameStepLabel : 'Option Name',

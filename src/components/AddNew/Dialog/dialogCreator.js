@@ -22,6 +22,7 @@ export function createMyDialog (dispatchers, formData, updateFormData) {
     dialogReasonUploadedFiles,
     dialogExpiration,
     addOptionsSkipped,
+    allowMultipleVotes,
   } = formData;
   const marketDescription = dialogReason === undefined ? ' ' : dialogReason;
   const safeReasonUploadedFiles = dialogReasonUploadedFiles || [];
@@ -32,6 +33,10 @@ export function createMyDialog (dispatchers, formData, updateFormData) {
     uploaded_files: processed.uploadedFiles,
     expiration_minutes: dialogExpiration,
   };
+  if (allowMultipleVotes === 'true') {
+    marketInfo.allow_multi_vote = true;
+  }
+
   let createdMarketId;
   let inVotingStage;
   let createdStage;

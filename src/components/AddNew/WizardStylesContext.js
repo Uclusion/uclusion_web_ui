@@ -213,6 +213,9 @@ export const wizardStyles = makeStyles(
       DialogWizardDialogExpirationStepLabel: {
         maxWidth: '725px'
       },
+      DialogWizardMultipleVotesStepLabel: {
+        maxWidth: '725px'
+      },
       DialogWizardAddOptionsStepLabel: {
         maxWidth: '500px'
       },

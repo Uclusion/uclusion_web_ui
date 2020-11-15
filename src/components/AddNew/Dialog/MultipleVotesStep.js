@@ -1,62 +1,54 @@
 import React, { useContext } from 'react';
 import { useIntl } from 'react-intl';
-import { Typography } from '@material-ui/core';
+import { FormControlLabel, RadioGroup, Radio, Typography } from '@material-ui/core';
 import StepButtons from '../StepButtons';
-import ExpirationSelector from '../../Expiration/ExpirationSelector';
 import PropTypes from 'prop-types';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 
-function DialogExpirationStep (props) {
+function MultipleVotesStep (props) {
   const { updateFormData, formData } = props;
   const intl = useIntl();
   const classes = useContext(WizardStylesContext);
-  const value = formData.dialogExpiration || 1440;
+  const value = formData.allowMultipleVotes || "false";
 
-  const validForm = value !== 0;
 
-  function onExpiresChange (event) {
+  function onChange (event) {
     const { value } = event.target;
     updateFormData({
-      dialogExpiration: value,
+      allowMultipleVotes: value,
     });
   }
 
-  function onNext () {
-    updateFormData({
-      dialogExpiration: value,
-    });
-  }
 
   return (
     <WizardStepContainer
       {...props}
-      titleId="DialogWizardDialogExpirationStepLabel"
+      titleId="DialogWizardMultipleVotesStepLabel"
     >
       <div>
         <Typography className={classes.introText} variant="body2">
-          Uclusion Dialogs require all activity to stop after a set number of days.
-          Use the slider below to select the number of days until the Dialog expires, you can extend the expiration
-          later.
+          Uclusion Dialogs can allow participants to vote for more than one option, or one option only.
         </Typography>
-        <label className={classes.inputLabel}
-               htmlFor="name">{intl.formatMessage({ id: 'DialogWizardDialogExpirationPlaceHolder' })}</label>
-        <ExpirationSelector value={value} onChange={onExpiresChange}/>
+        <RadioGroup value={value} onChange={onChange}>
+          <FormControlLabel value={"true"} control={<Radio/>} label={intl.formatMessage({id: 'DialogWizardDialogMultipleVotesYes'})}/>
+          <FormControlLabel value={"false"} control={<Radio/>} label={intl.formatMessage({id: 'DialogWizardDialogMultipleVotesNo'})}/>
+        </RadioGroup>
         <div className={classes.borderBottom}></div>
-        <StepButtons {...props} validForm={validForm} onNext={onNext}/>
+        <StepButtons {...props} validForm={true}/>
       </div>
     </WizardStepContainer>
   );
 }
 
-DialogExpirationStep.propTypes = {
+MultipleVotesStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object,
 };
 
-DialogExpirationStep.defaultProps = {
+MultipleVotesStep.defaultProps = {
   updateFormData: () => {},
   formData: {},
 };
 
-export default DialogExpirationStep;
+export default MultipleVotesStep;

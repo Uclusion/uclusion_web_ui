@@ -6,6 +6,7 @@ import AddOptionsStep from './AddOptionsStep'
 import DialogExpirationStep from './DialogExpirationStep'
 import { WizardStylesProvider } from '../WizardStylesContext';
 import FormdataWizard from 'react-formdata-wizard';
+import MultipleVotesStep from './MultipleVotesStep';
 
 function DialogWizard (props) {
 
@@ -20,6 +21,7 @@ function DialogWizard (props) {
         <DialogNameStep/>
         <DialogReasonStep />
         <DialogExpirationStep />
+        <MultipleVotesStep />
         <AddOptionsStep />
       </FormdataWizard>
     </WizardStylesProvider>

@@ -44,6 +44,7 @@
 }
 .ql-editor div,
 .ql-editor ol,
+.ql-editor table,
 .ql-editor p {
     cursor: inherit;
 }

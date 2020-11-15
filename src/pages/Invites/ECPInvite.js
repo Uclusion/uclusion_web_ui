@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet';
 import { useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
@@ -16,7 +16,7 @@ import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/Ma
 import LoadingDisplay from '../../components/LoadingDisplay';
 import { createECPMarkets } from './ECPMarketGenerator';
 import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
-import { hasInitializedGlobalVersion } from '../../contexts/VersionsContext/versionsContextHelper'
+import { getExistingMarkets, hasInitializedGlobalVersion } from '../../contexts/VersionsContext/versionsContextHelper'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -51,39 +51,45 @@ function ECPInvite(props) {
   const { hidden } = props;
   const intl = useIntl();
   const history = useHistory();
-  const [marketsState, marketsDispatch] = useContext(MarketsContext);
+  const [, marketsDispatch] = useContext(MarketsContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, diffDispatch] = useContext(DiffContext);
   const [, presenceDispatch] = useContext(MarketPresencesContext);
   const [versionsContext] = useContext(VersionsContext);
   const [userState] = useContext(AccountUserContext);
+  const [clearedToCreate, setClearedToCreate] = useState(undefined);
   const { user } = userState;
   const { name } = user || {};
   const classes = useStyles();
 
   useEffect(() => {
-    if (!hidden && !_.isEmpty(name)) {
-      const isInitialization = !marketsState || marketsState.initializing;
-      if (!isInitialization && hasInitializedGlobalVersion(versionsContext)) {
-        const { marketDetails } = marketsState;
-        if (_.isEmpty(marketDetails)) {
-          // Do not create onboarding markets if they already have markets
-          const dispatchers = { marketsDispatch, diffDispatch, presenceDispatch, investiblesDispatch };
-          createECPMarkets(dispatchers)
-            .then(() => {
-              navigate(history, '/#onboarded');
-            })
-            .catch((error) => {
-              console.error(error);
-              toastError('errorMarketFetchFailed');
-            });
-        } else {
-          navigate(history, '/#onboarded');
-        }
+    // If cleared to create has been set already then do not re-enter
+    // The gap where versions context can change before cleared to create is set is fine because
+    // the onboarding user still won't have any markets until cleared to create is set and creation begins
+    if (!_.isEmpty(name) && hasInitializedGlobalVersion(versionsContext) && clearedToCreate === undefined) {
+      // Do not create onboarding markets if they already have markets
+      setClearedToCreate(_.isEmpty(getExistingMarkets(versionsContext)));
+    }
+  }, [clearedToCreate, name, versionsContext]);
+
+  useEffect(() => {
+    if (!hidden && clearedToCreate !== undefined) {
+      if (clearedToCreate) {
+        // Only hidden, history and clearedToCreate dependencies can change so safe from re-entry
+        const dispatchers = { marketsDispatch, diffDispatch, presenceDispatch, investiblesDispatch };
+        createECPMarkets(dispatchers)
+          .then(() => {
+            navigate(history, '/#onboarded');
+          })
+          .catch((error) => {
+            console.error(error);
+            toastError('errorMarketFetchFailed');
+          });
+      } else {
+        navigate(history, '/#onboarded');
       }
     }
-  }, [name, hidden, history, marketsDispatch, intl, diffDispatch, presenceDispatch, investiblesDispatch,
-    marketsState, versionsContext]);
+  }, [hidden, history, marketsDispatch, diffDispatch, presenceDispatch, investiblesDispatch, clearedToCreate]);
 
   if (hidden) {
     return <React.Fragment/>

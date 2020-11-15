@@ -298,7 +298,6 @@ function PlanningInvestible(props) {
   const marketInfo = getMarketInfo(marketInvestible, marketId) || {};
   const { stage, assigned: invAssigned, children, days_estimate: marketDaysEstimate } = marketInfo;
   const [daysEstimate, setDaysEstimate] = useState(marketDaysEstimate);
-  const [lastEdit, setLastEdit] = useState(undefined);
   const assigned = invAssigned || []; // handle the empty case to make subsequent code easier
   const presencesFollowing = (marketPresences || []).filter((presence) => presence.following && !presence.market_banned) || [];
   const everyoneAssigned = !_.isEmpty(marketPresences) && assigned.length === presencesFollowing.length;
@@ -669,7 +668,7 @@ function PlanningInvestible(props) {
           type={STORY_TYPE}
           subtype={subtype}
           createdAt={createdAt}
-          lastEdit={lastEdit}
+          myBeingEdited={myBeingEdited}
         />
         <CardContent className={myBeingEdited ? classes.editCardContent : classes.votingCardContent}>
           <Grid container className={classes.mobileColumn}>
@@ -687,7 +686,7 @@ function PlanningInvestible(props) {
               )}
               {myBeingEdited && (
                 <InvestibleBodyEdit hidden={hidden} marketId={marketId} investibleId={investibleId}
-                                    setBeingEdited={mySetBeingEdited} setLastEdit={setLastEdit} lastEdit={lastEdit} />
+                                    setBeingEdited={mySetBeingEdited} />
               )}
               {!myBeingEdited && (
                 <DescriptionOrDiff
@@ -701,7 +700,7 @@ function PlanningInvestible(props) {
             <Grid className={classes.borderLeft} item xs={3}>
               <div className={classes.editRow}>
                 <dl className={classes.upperRightCard}>
-                  {displayEdit && (
+                  {displayEdit && !inMarketArchives && (
                     <div>
                       <EditMarketButton
                         labelId="changeCompletionDate"

@@ -225,7 +225,6 @@ function Summary(props) {
     locked_by: lockedBy,
     children,
   } = market;
-  const [lastEdit, setLastEdit] = useState(undefined);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [, marketsDispatch] = useContext(MarketsContext);
   const [, diffDispatch] = useContext(DiffContext);
@@ -260,7 +259,7 @@ function Summary(props) {
   const myBeingEdited = beingEdited === id;
   return (
     <Card elevation={0} className={classes.root} id="summary">
-      <CardType className={classes.type} type={AGILE_PLAN_TYPE} lastEdit={lastEdit} />
+      <CardType className={classes.type} type={AGILE_PLAN_TYPE} myBeingEdited={myBeingEdited} />
       <Grid container className={classes.mobileColumn}>
         <Grid item xs={9} className={classes.fullWidth}>
           <CardContent className={myBeingEdited ? classes.editContent : classes.content}>
@@ -285,8 +284,7 @@ function Summary(props) {
               </>
             )}
             {myBeingEdited && (
-              <DialogBodyEdit hidden={hidden} setBeingEdited={mySetBeingEdited} marketId={id}
-                              setLastEdit={setLastEdit} lastEdit={lastEdit} />
+              <DialogBodyEdit hidden={hidden} setBeingEdited={mySetBeingEdited} marketId={id} />
             )}
           </CardContent>
         </Grid>

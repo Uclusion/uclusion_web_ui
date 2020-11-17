@@ -24,12 +24,14 @@ import { Dialog } from '../Dialogs'
 import WarningIcon from '@material-ui/icons/Warning'
 import { useLockedDialogStyles } from '../../pages/Dialog/DialogBodyEdit'
 import { EMPTY_SPIN_RESULT } from '../../constants/global'
-import { getBlockedStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
+import { getBlockedStage, getRequiredInputStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { addInvestible, getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { urlHelperGetName } from '../../utils/marketIdPathFunctions'
+import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 
 function getPlaceHolderLabelId (type, isStory) {
   switch (type) {
@@ -107,6 +109,7 @@ function CommentAdd (props) {
   const [investibleState, investibleDispatch] = useContext(InvestiblesContext);
   const [marketState] = useContext(MarketsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
+  const [marketPresencesState] = useContext(MarketPresencesContext);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [openIssue, setOpenIssue] = useState(false);
   const classes = useStyles();
@@ -164,21 +167,26 @@ function CommentAdd (props) {
     const investibleId = (investible) ? investible.id : parentInvestible;
     // what about not doing state?
     const investibleBlocks = (investibleId && apiType === ISSUE_TYPE);
-
+    // TODO: this breaks if investible exists in more than one market
+    const inv = getInvestible(investibleState, investibleId) || {};
+    const { market_infos, investible: rootInvestible } = inv;
+    const [info] = (market_infos || []);
+    const presences = getMarketPresences(marketPresencesState, marketId) || [];
+    const myPresence = presences.find((presence) => presence.current_user) || {};
+    const { assigned } = (info || {});
+    const investibleRequiresInput = (apiType === QUESTION_TYPE && (assigned || []).includes(myPresence.id));
     return saveComment(marketId, investibleId, parentId, tokensRemoved, apiType, filteredUploads)
       .then((comment) => {
-        // move the investible to blocked state if it exists
-        if(investibleBlocks) {
+        // move the investible to other state if necessary
+        if (investibleBlocks || investibleRequiresInput) {
           const blockingStage = getBlockedStage(marketStagesState, marketId);
-          if (blockingStage) {
-            // TODO: this breaks if investible exists in more than one market
-            const inv = getInvestible(investibleState, investibleId);
-            const { market_infos, investible: rootInvestible } = inv;
-            const [info] = market_infos;
+          const requiresInputStage = getRequiredInputStage(marketStagesState, marketId);
+          const newStage = investibleBlocks ? blockingStage : requiresInputStage;
+          if (newStage) {
             const newInfo = {
               ...info,
-              stage: blockingStage.id,
-              stage_name: blockingStage.name,
+              stage: newStage.id,
+              stage_name: newStage.name,
               open_for_investment: false,
               last_stage_change_date: Date.now().toString(),
             };

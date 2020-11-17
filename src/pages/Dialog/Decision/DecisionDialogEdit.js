@@ -23,15 +23,20 @@ function DecisionDialogEdit(props) {
   }
 
   function handleSave() {
-    const updatedMultiVote = allowMultiVote !== multiVote ? multiVote : null;
-    return updateMarket(id, null, null, null, null,
-      null, null, null, updatedMultiVote)
-      .then((market) => {
-        return {
-          result: market,
-          spinChecker: () => Promise.resolve(true),
-        };
-      });
+    if (allowMultiVote !== multiVote) {
+      return updateMarket(id, null, null, null, null,
+        null, null, null, multiVote)
+        .then((market) => {
+          return {
+            result: market,
+            spinChecker: () => Promise.resolve(true),
+          };
+        });
+    }
+    return {
+      result: market,
+      spinChecker: () => Promise.resolve(true),
+    };
   }
 
   return (

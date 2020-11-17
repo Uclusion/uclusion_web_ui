@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { FormattedDate, FormattedMessage, useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
-import { Avatar, Box, Button, Card, CardActions, CardContent, Grid, Typography } from '@material-ui/core'
+import { Avatar, Box, Button, Card, CardActions, CardContent, Checkbox, Grid, Typography } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import clsx from 'clsx'
 import _ from 'lodash'
@@ -15,7 +15,7 @@ import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/Ma
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import CommentEdit from './CommentEdit'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
-import { getMarket, getMyUserForMarket } from '../../contexts/MarketsContext/marketsContextHelper'
+import { addMarketToStorage, getMarket, getMyUserForMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 import {
   HIGHLIGHT_REMOVE,
   HighlightedCommentContext
@@ -46,6 +46,7 @@ import {
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 import { formMarketAddInvestibleLink, navigate } from '../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
+import { updateMarket } from '../../api/markets'
 
 const useCommentStyles = makeStyles(
   theme => {
@@ -188,7 +189,10 @@ function Comment(props) {
   const presences = usePresences(marketId);
   const createdBy = useCommenter(comment, presences) || unknownPresence;
   const updatedBy = useUpdatedBy(comment, presences) || unknownPresence;
-  const [marketsState] = useContext(MarketsContext);
+  const [marketsState, marketsDispatch] = useContext(MarketsContext);
+  const inlineMarket = getMarket(marketsState, inlineMarketId) || {};
+  const { allow_multi_vote: originalAllowMultiVote, created_by: inlineCreatedBy } = inlineMarket;
+  const [multiVote, setMultiVote] = useState(originalAllowMultiVote);
   const market = getMarket(marketsState, marketId) || {};
   const { market_stage: marketStage, market_type: marketType } = market;
   const userId = getMyUserForMarket(marketsState, marketId) || {};
@@ -203,12 +207,23 @@ function Comment(props) {
   const [editOpen, setEditOpen] = useState(false);
   const [operationRunning] = useContext(OperationInProgressContext);
   const [, versionsDispatch] = useContext(VersionsContext);
-  const [marketState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const enableActions = !inArchives
   const enableEditing = !inArchives && !resolved; //resolved comments or those in archive aren't editable
+
+  function toggleMultiVote() {
+    const myMultiVote = !multiVote;
+    setMultiVote(myMultiVote);
+    if (myMultiVote !== originalAllowMultiVote) {
+      return updateMarket(inlineMarketId, null, null, null, null,
+        null, null, null, myMultiVote)
+        .then((market) => {
+          addMarketToStorage(marketsDispatch, undefined, market);
+        });
+    }
+  }
 
   function toggleReply() {
     setReplyOpen(!replyOpen);
@@ -234,7 +249,7 @@ function Comment(props) {
   }
 
   function getDecision(aMarketId) {
-    const anInlineMarket = getMarket(marketState, aMarketId);
+    const anInlineMarket = getMarket(marketsState, aMarketId);
     if (!anInlineMarket) {
       return React.Fragment;
     }
@@ -473,15 +488,27 @@ function Comment(props) {
               </Button>
             )}
             {commentType === QUESTION_TYPE && !inArchives && inlineMarketId && (
-              <Button
-                className={clsx(classes.action, classes.actionPrimary)}
-                color="primary"
-                disabled={operationRunning}
-                onClick={() => navigate(history, formMarketAddInvestibleLink(inlineMarketId))}
-                variant="contained"
-              >
-                {intl.formatMessage({ id: "inlineAddLabel" })}
-              </Button>
+              <>
+                <Typography>
+                  {intl.formatMessage({ id: 'allowMultiVoteQuestion' })}
+                  <Checkbox
+                    id="multiVote"
+                    name="multiVote"
+                    checked={multiVote}
+                    onChange={toggleMultiVote}
+                    disabled={inlineCreatedBy !== userId}
+                  />
+                </Typography>
+                <Button
+                  className={clsx(classes.action, classes.actionPrimary)}
+                  color="primary"
+                  disabled={operationRunning}
+                  onClick={() => navigate(history, formMarketAddInvestibleLink(inlineMarketId))}
+                  variant="contained"
+                >
+                  {intl.formatMessage({ id: "inlineAddLabel" })}
+                </Button>
+              </>
             )}
             {replies.length > 0 && (
               <Button

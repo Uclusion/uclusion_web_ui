@@ -191,6 +191,7 @@ function Comment(props) {
   const updatedBy = useUpdatedBy(comment, presences) || unknownPresence;
   const [marketsState, marketsDispatch] = useContext(MarketsContext);
   const inlineMarket = getMarket(marketsState, inlineMarketId) || {};
+  const inlineUserId = getMyUserForMarket(marketsState, inlineMarketId) || {};
   const { allow_multi_vote: originalAllowMultiVote, created_by: inlineCreatedBy } = inlineMarket;
   const [multiVote, setMultiVote] = useState(originalAllowMultiVote);
   const market = getMarket(marketsState, marketId) || {};
@@ -496,7 +497,7 @@ function Comment(props) {
                     name="multiVote"
                     checked={multiVote}
                     onChange={toggleMultiVote}
-                    disabled={inlineCreatedBy !== userId}
+                    disabled={inlineCreatedBy !== inlineUserId}
                   />
                 </Typography>
                 <Button

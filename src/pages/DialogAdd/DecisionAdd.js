@@ -19,9 +19,13 @@ import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { addParticipants } from '../../api/users'
 import CardType from '../../components/CardType'
 import { usePlanFormStyles } from '../../components/AgilePlan'
-import { formMarketAddInvestibleLink, urlHelperGetName } from '../../utils/marketIdPathFunctions'
+import { formMarketAddInvestibleLink, formMarketManageLink, urlHelperGetName } from '../../utils/marketIdPathFunctions'
 import DismissableText from '../../components/Notifications/DismissableText'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
+import { getRequiredInputStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
+import _ from 'lodash'
+import { addInvestible, getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
+import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 
 function DecisionAdd(props) {
   const intl = useIntl();
@@ -44,8 +48,9 @@ function DecisionAdd(props) {
   const { name, expiration_minutes } = currentValues;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [marketState] = useContext(MarketsContext);
-  const [investibleState] = useContext(InvestiblesContext);
+  const [investibleState, investibleDispatch] = useContext(InvestiblesContext);
   const [multiVote, setMultiVote] = useState(false);
+  const [marketStagesState] = useContext(MarketStagesContext);
 
   function toggleMultiVote() {
     setMultiVote(!multiVote);
@@ -127,8 +132,12 @@ function DecisionAdd(props) {
         const { market } = result;
         onSave(result);
         const { id: marketId } = market;
-        turnOffSpin.result = formMarketAddInvestibleLink(marketId);
-        if (parentMarketId) {
+        turnOffSpin.result = `${formMarketManageLink(marketId)}#participation=true`;
+        if (parentMarketId && !parentInvestibleId) {
+          // Only automatically add participants at the Workspace level
+          // At the story level they can use a Question for team level decisions
+          // There is no Question dialog at the Workspace level because you need to control the cliff manually
+          // See https://production.uclusion.com/dialog/ba6e2925-20f7-4621-b89b-389e269d2182/585a86c4-183e-4ab0-bfad-d9a1d5636670
           const planningMarkets = getMarketDetailsForType(marketState, marketPresencesState, PLANNING_TYPE);
           const marketDetails = planningMarkets.find((planningMarket) => planningMarket.id === parentMarketId);
           if (marketDetails) {
@@ -142,7 +151,35 @@ function DecisionAdd(props) {
                   is_observer: !presence.following
                 };
               });
+              turnOffSpin.result = formMarketAddInvestibleLink(marketId);
               return addParticipants(marketId, participants).then(() => turnOffSpin);
+            }
+          }
+        }
+        if (parentInvestibleId && parentMarketId) {
+          // Quick add the investible move to requires input
+          const requiresInputStage = getRequiredInputStage(marketStagesState, parentMarketId);
+          if (requiresInputStage) {
+            const inv = getInvestible(investibleState, parentInvestibleId);
+            if (inv) {
+              const { market_infos, investible: rootInvestible } = inv;
+              const [info] = (market_infos || []);
+              if (info) {
+                const newInfo = {
+                  ...info,
+                  stage: requiresInputStage.id,
+                  stage_name: requiresInputStage.name,
+                  open_for_investment: false,
+                  last_stage_change_date: Date.now().toString(),
+                };
+                const newInfos = _.unionBy([newInfo], market_infos, 'id');
+                const newInvestible = {
+                  investible: rootInvestible,
+                  market_infos: newInfos
+                };
+                // no diff here, so no diff dispatch
+                addInvestible(investibleDispatch, ()=> {}, newInvestible);
+              }
             }
           }
         }

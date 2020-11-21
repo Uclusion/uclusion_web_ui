@@ -29,7 +29,7 @@ import { Avatar, Button, Menu, MenuItem } from '@material-ui/core'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
 import { useIntl } from 'react-intl'
-import { extractUsersList, getMarketInfo } from '../../../utils/userFunctions'
+import { extractUsersList, hasNotVoted } from '../../../utils/userFunctions'
 import SubSection from '../../../containers/SubSection/SubSection'
 import { SECTION_TYPE_SECONDARY_WARNING } from '../../../constants/global'
 import ArchiveInvestbiles from '../../DialogArchives/ArchiveInvestibles'
@@ -138,23 +138,12 @@ function InvestiblesByWorkspace(props) {
           investibles,
           visibleStages,
         );
-        const requiresInputInvestiblesAll = getInvestiblesInStage(investibles, requiresInputStage.id);
-        const requiresInputInvestibles = requiresInputInvestiblesAll.filter((investible) => {
-          const marketInfo = getMarketInfo(investible, market.id);
-          const { inline_market_id: inlineMarketId, assigned } = marketInfo;
-          const assignedFull = Array.isArray(assigned) ? assigned : [];
-          if (assignedFull.includes(presence.id)) {
-            return true;
+        const requiresInputInvestibles = getInvestiblesInStage(investibles, requiresInputStage.id) || [];
+        const highlightMap = {};
+        requiresInputInvestibles.forEach((investible) => {
+          if (hasNotVoted(investible, marketPresencesState, comments, market.id, chosenPerson.external_id)) {
+            highlightMap[investible.investible.id] = true;
           }
-          // If this is inline then check if they have an approval or not. If its not inline ignore as it will
-          // show up in the Dialogs section anyway and no need to show twice.
-          const inlineMarketPresences = getMarketPresences(marketPresencesState, inlineMarketId);
-          const myInlinePresence = inlineMarketPresences && inlineMarketPresences.find((presence) => {
-            return presence.external_id === chosenPerson.external_id;
-          });
-          const investments = myInlinePresence ? myInlinePresence.investments : [];
-          const investmentsFiltered = (investments || []).filter((investment) => !investment.deleted);
-          return _.isEmpty(investmentsFiltered);
         });
         if (_.isEmpty(myInvestibles) && _.isEmpty(requiresInputInvestibles)) {
           return React.Fragment;
@@ -182,6 +171,7 @@ function InvestiblesByWorkspace(props) {
                     marketId={market.id}
                     presenceMap={getPresenceMap(marketPresencesState, market.id)}
                     investibles={requiresInputInvestibles}
+                    highlightMap={highlightMap}
                   />
                   <hr />
                 </SubSection>

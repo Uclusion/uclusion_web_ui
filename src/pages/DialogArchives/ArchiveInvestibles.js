@@ -6,6 +6,8 @@ import RaisedCard from '../../components/Cards/RaisedCard'
 import { useIntl } from 'react-intl'
 import { formInvestibleLink, navigate } from '../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
+import { makeStyles } from '@material-ui/core/styles'
+import { yellow } from '@material-ui/core/colors'
 
 function getInvestibleOnClick(id, marketId, history) {
   return () => {
@@ -14,7 +16,26 @@ function getInvestibleOnClick(id, marketId, history) {
   };
 }
 
-export function getInvestibles(investibles, presenceMap, marketId, history, intl, elevation) {
+const myClasses = makeStyles(
+  theme => {
+    return {
+      warn: {
+        border: `1px solid ${theme.palette.grey["400"]}`,
+        borderRadius: theme.spacing(1),
+        padding: theme.spacing(1, 2),
+        backgroundColor: yellow["400"],
+      },
+      outlined: {
+        border: `1px solid ${theme.palette.grey["400"]}`,
+        borderRadius: theme.spacing(1),
+        padding: theme.spacing(1, 2),
+      },
+    };
+  },
+  { name: "Archive" }
+);
+
+export function getInvestibles(investibles, presenceMap, marketId, history, intl, elevation, highlightMap) {
   const investibleData = investibles.map((inv) => inv.investible);
   const sortedData = _.sortBy(investibleData, 'updated_at', 'name').reverse();
   const infoMap = investibles.reduce((acc, inv) => {
@@ -26,6 +47,8 @@ export function getInvestibles(investibles, presenceMap, marketId, history, intl
       [id]: myInfo,
     };
   }, {});
+  const classes = myClasses();
+  console.debug(highlightMap);
   return sortedData.map((investible) => {
     const { id, name, updated_at } = investible;
     const info = infoMap[id] || {};
@@ -46,9 +69,11 @@ export function getInvestibles(investibles, presenceMap, marketId, history, intl
           onClick={getInvestibleOnClick(id, marketId, history)}
           elevation={elevation}
         >
-          <Typography style={{fontSize: '.75rem', flex: 1}}>Updated at: {intl.formatDate(updated_at)}</Typography>
-          <Typography style={{fontWeight: 700, flex: 2}}>{name}</Typography>
-          {assignedNames.map((name) => (<Typography style={{fontStyle: 'italic', fontSize: '.75rem', flex: 1}} key={name}>Assignee: {name}</Typography>))}
+          <div className={highlightMap[id] ? classes.warn : classes.outlined}>
+            <Typography style={{fontSize: '.75rem', flex: 1}}>Updated at: {intl.formatDate(updated_at)}</Typography>
+            <Typography style={{fontWeight: 700, flex: 2}}>{name}</Typography>
+            {assignedNames.map((name) => (<Typography style={{fontStyle: 'italic', fontSize: '.75rem', flex: 1}} key={name}>Assignee: {name}</Typography>))}
+          </div>
         </RaisedCard>
       </Grid>
     );
@@ -60,7 +85,8 @@ function ArchiveInvestbiles(props) {
     investibles,
     marketId,
     presenceMap,
-    elevation
+    elevation,
+    highlightMap
   } = props;
   const intl = useIntl();
   const history = useHistory();
@@ -69,7 +95,7 @@ function ArchiveInvestbiles(props) {
       container
       spacing={2}
     >
-      {getInvestibles(investibles, presenceMap, marketId, history, intl, elevation)}
+      {getInvestibles(investibles, presenceMap, marketId, history, intl, elevation, highlightMap)}
     </Grid>
   );
 }
@@ -78,11 +104,13 @@ ArchiveInvestbiles.propTypes = {
   investibles: PropTypes.arrayOf(PropTypes.object),
   marketId: PropTypes.string.isRequired,
   presenceMap: PropTypes.object,
+  highlightMap: PropTypes.object,
 };
 
 ArchiveInvestbiles.defaultProps = {
   investibles: [],
   presenceMap: {},
+  highlightMap: {}
 };
 
 export default ArchiveInvestbiles;

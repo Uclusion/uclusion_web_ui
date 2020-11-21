@@ -55,7 +55,7 @@ import {
   INVITE_REQ_WORKSPACE_FIRST_VIEW,
   INVITE_STORIES_WORKSPACE_FIRST_VIEW
 } from '../../../contexts/TourContext/tourContextHelper'
-import { getVoteTotalsForUser } from '../../../utils/userFunctions'
+import { getVoteTotalsForUser, hasNotVoted } from '../../../utils/userFunctions'
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -140,6 +140,12 @@ function PlanningDialog(props) {
     && stage.allows_todos && !stage.appears_in_market_summary)) || {};
   const furtherWorkInvestibles = getInvestiblesInStage(investibles, furtherWorkStage.id);
   const requiresInputInvestibles = getInvestiblesInStage(investibles, requiresInputStage.id);
+  const highlightMap = {};
+  requiresInputInvestibles.forEach((investible) => {
+    if (hasNotVoted(investible, marketPresencesState, comments, marketId, myPresence.external_id)) {
+      highlightMap[investible.id] = true;
+    }
+  });
   const presenceMap = getPresenceMap(marketPresencesState, marketId);
   const storyWorkspace = isStoryWorkspace();
   const tourName = storyWorkspace ? INVITE_STORIES_WORKSPACE_FIRST_VIEW : INVITE_REQ_WORKSPACE_FIRST_VIEW;
@@ -193,6 +199,7 @@ function PlanningDialog(props) {
             marketId={marketId}
             presenceMap={presenceMap}
             investibles={requiresInputInvestibles}
+            highlightMap={highlightMap}
           />
         </SubSection>
       )}

@@ -143,7 +143,7 @@ function PlanningDialog(props) {
   const highlightMap = {};
   requiresInputInvestibles.forEach((investible) => {
     if (hasNotVoted(investible, marketPresencesState, comments, marketId, myPresence.external_id)) {
-      highlightMap[investible.id] = true;
+      highlightMap[investible.investible.id] = true;
     }
   });
   const presenceMap = getPresenceMap(marketPresencesState, marketId);

@@ -30,6 +30,11 @@ const myClasses = makeStyles(
         borderRadius: theme.spacing(1),
         padding: theme.spacing(1, 2),
       },
+      white: {
+        backgroundColor: "white",
+        padding: 0,
+        margin: 0
+      }
     };
   },
   { name: "Archive" }
@@ -87,12 +92,13 @@ function ArchiveInvestbiles(props) {
     elevation,
     highlightMap
   } = props;
+  const classes = myClasses();
   const intl = useIntl();
   const history = useHistory();
   return (
     <Grid
       container
-      spacing={2}
+      className={classes.white}
     >
       {getInvestibles(investibles, presenceMap, marketId, history, intl, elevation, highlightMap)}
     </Grid>

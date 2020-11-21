@@ -48,7 +48,6 @@ export function getInvestibles(investibles, presenceMap, marketId, history, intl
     };
   }, {});
   const classes = myClasses();
-  console.debug(highlightMap);
   return sortedData.map((investible) => {
     const { id, name, updated_at } = investible;
     const info = infoMap[id] || {};

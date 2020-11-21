@@ -50,12 +50,12 @@ export function extractUsersList (marketPresencesState, addToMarketId, workspace
 export function hasNotVoted(investible, marketPresencesState, comments, marketId, externalId) {
   const { market_infos } = investible;
   const myInfo = market_infos.find((info) => info.market_id === marketId);
-  const { children, investible_id: investibleId } = myInfo;
+  const { children } = myInfo;
   const marketsToCheck = children || [];
   const commentsSafe = comments || [];
   commentsSafe.forEach((comment) => {
     const { investible_id: myInvestibleId, inline_market_id: inlineMarketId } = comment;
-    if (investibleId === myInvestibleId && inlineMarketId) {
+    if (investible.investible.id === myInvestibleId && inlineMarketId) {
       marketsToCheck.push(inlineMarketId);
     }
   })

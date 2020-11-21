@@ -193,6 +193,7 @@ function PlanningDialog(props) {
         <SubSection
           type={SECTION_TYPE_SECONDARY_WARNING}
           title={intl.formatMessage({ id: 'requiresInputHeader' })}
+          helpTextId="requiresInputSectionHelp"
         >
           <ArchiveInvestbiles
             elevation={0}

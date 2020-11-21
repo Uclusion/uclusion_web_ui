@@ -1,7 +1,8 @@
 import React from 'react'
-import { AppBar, makeStyles, Toolbar, Typography, } from '@material-ui/core'
+import { AppBar, makeStyles, Toolbar, Tooltip, Typography, } from '@material-ui/core'
 import PropTypes from 'prop-types'
 import { SECTION_TYPE_SECONDARY } from '../../constants/global'
+import { useIntl } from 'react-intl'
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -41,8 +42,9 @@ function SubSection(props) {
     type,
     titleIcon,
     id,
+    helpTextId
   } = props;
-
+  const intl = useIntl();
   const classes = useStyles();
 
   return (
@@ -55,9 +57,20 @@ function SubSection(props) {
       >
         <Toolbar variant="dense">
           {titleIcon}
-          <Typography className={classes.headerTitle}>
-            {title}
-          </Typography>
+          {helpTextId && (
+            <Tooltip
+              title={intl.formatMessage({ id: helpTextId })}
+            >
+              <Typography className={classes.headerTitle}>
+                {title}
+              </Typography>
+            </Tooltip>
+          )}
+          {!helpTextId && (
+            <Typography className={classes.headerTitle}>
+              {title}
+            </Typography>
+          )}
           <div className={classes.grow}/>
           {actionButton}
         </Toolbar>

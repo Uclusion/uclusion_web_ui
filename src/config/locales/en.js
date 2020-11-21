@@ -616,6 +616,7 @@ const messages = defineMessages({
   dialogArchivesLabel: 'Workspace Archive',
   readyFurtherWorkHeader: 'Ready for Further Work',
   requiresInputHeader: 'Requires Input',
+  requiresInputSectionHelp: 'These stories have open questions or Dialogs. If yellow your approval on options is missing.',
 
   // SignIn
   signInEmailLabel: 'Email',

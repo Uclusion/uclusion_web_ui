@@ -1,4 +1,4 @@
-import { ISSUE_TYPE, RED_LEVEL, YELLOW_LEVEL } from '../constants/notifications'
+import { BLUE_LEVEL, ISSUE_TYPE, RED_LEVEL, YELLOW_LEVEL } from '../constants/notifications'
 
 export function messageComparator (a, b) {
   if (a.level === b.level) {
@@ -33,9 +33,11 @@ export function splitIntoLevels(messages){
   // extract the red
   const redMessages = messages.filter((message) => message.level === RED_LEVEL);
   const yellowMessages = messages.filter((message) => message.level === YELLOW_LEVEL);
+  const blueMessages = messages.filter((message) => message.level === BLUE_LEVEL);
   return {
     redMessages,
-    yellowMessages
+    yellowMessages,
+    blueMessages
   }
 }
 

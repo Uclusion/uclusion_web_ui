@@ -182,8 +182,16 @@ function processHighlighting(messagesForPage) {
  * @param messagesForPage
  */
 function processToasts(messagesForPage) {
-  const { redMessages, yellowMessages } = splitIntoLevels(messagesForPage);
+  const { redMessages, yellowMessages, blueMessages } = splitIntoLevels(messagesForPage);
   redMessages.forEach((message) => pushMessage(TOAST_CHANNEL, message));
+  blueMessages.forEach((message) => {
+    const { text } = message;
+    if ( text === 'Attachments modified' || text === 'Labels modified') {
+      // Since labels and attachments can be removed and we have no good way of showing that
+      // for now just make sure the toast happens and not in a multi update message
+      pushMessage(TOAST_CHANNEL, message);
+    }
+  })
   // for not bombarding the users sake, if we have more than one yellow message, we're
   // just going to display a summary message saying you have a bunch of updates
   if (!_.isEmpty(yellowMessages)) {

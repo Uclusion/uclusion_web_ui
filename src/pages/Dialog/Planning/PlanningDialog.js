@@ -170,7 +170,7 @@ function PlanningDialog(props) {
       <div id="workspaceMain">
         <Summary market={market} hidden={hidden} activeMarket={activeMarket} inArchives={inArchives} />
       </div>
-      {lockedBy && (
+      {lockedBy && myPresence.id !== lockedBy && (
         <Typography>
           {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}
         </Typography>

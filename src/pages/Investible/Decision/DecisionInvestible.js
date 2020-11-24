@@ -233,8 +233,8 @@ function DecisionInvestible(props) {
   const inProposedStage = getProposedOptionsStage(marketStagesState, marketId);
   const inProposed = inProposedStage && marketInfo.stage === inProposedStage.id;
   const activeMarket = marketStage === ACTIVE_STAGE;
-  const yourPresence = marketPresences.find((presence) => presence.current_user)
-  const yourVote = yourPresence && yourPresence.investments.find((investment) => investment.investible_id === investibleId);
+  const yourPresence = marketPresences.find((presence) => presence.current_user) || {};
+  const yourVote = yourPresence.investments && yourPresence.investments.find((investment) => investment.investible_id === investibleId);
   const cardDescription = inProposed ? "decisionProposedInvestibleDescription" : "decisionInvestibleDescription";
   const {
     description, name, created_by: createdBy, locked_by: lockedBy, attached_files: attachedFiles,
@@ -349,7 +349,7 @@ function DecisionInvestible(props) {
               {name}
             </Typography>
           )}
-          {lockedBy && (
+          {lockedBy && yourPresence.id !== lockedBy && (
             <Typography>
               {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}
             </Typography>

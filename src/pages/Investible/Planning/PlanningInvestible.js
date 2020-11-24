@@ -679,7 +679,7 @@ function PlanningInvestible(props) {
                   {name}
                 </Typography>
               )}
-              {lockedBy && (
+              {lockedBy && myPresence.id !== lockedBy && (
                 <Typography>
                   {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}
                 </Typography>

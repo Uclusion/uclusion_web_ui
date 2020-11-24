@@ -119,7 +119,6 @@ function DecisionInvestibleAdd(props) {
     if (parentCommentId || inlineParentCommentId) {
       link = `${link}#c${parentCommentId || inlineParentCommentId}`;
     }
-    console.debug(`link is ${link}`);
     onCancel(link);
   }
 

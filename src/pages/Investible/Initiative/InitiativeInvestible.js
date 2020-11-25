@@ -295,6 +295,7 @@ function InitiativeInvestible(props) {
             id: "initiativeInvestibleDescription"
           })}`}
           type={VOTING_TYPE}
+          createdAt={createdAt}
           myBeingEdited={myBeingEdited}
         />
         <Grid container className={classes.mobileColumn}>

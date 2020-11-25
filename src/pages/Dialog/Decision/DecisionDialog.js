@@ -281,6 +281,7 @@ function DecisionDialog(props) {
         <CardType
           className={classes.cardType}
           type={DECISION_TYPE}
+          createdAt={createdAt}
           myBeingEdited={myBeingEdited}
         />
         <Grid id="dialogMain" container className={classes.mobileColumn}>

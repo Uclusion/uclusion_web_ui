@@ -70,9 +70,9 @@ const useStyles = makeStyles(
     },
     borderLeft: {
       borderLeft: '1px solid #e0e0e0',
-      padding: '2rem',
-      marginBottom: '-42px',
-      marginTop: '-42px',
+      padding: '0 2rem 2rem 2rem',
+      marginBottom: '-5px',
+      marginTop: '-30px',
       [theme.breakpoints.down("xs")]: {
         padding: '1rem 0',
         marginTop: '1rem',

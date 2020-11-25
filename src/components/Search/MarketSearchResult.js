@@ -12,15 +12,25 @@ import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper'
 import { getInvestibleName } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
+import _ from 'lodash';
 
 
 
 function MarketSearchResult (props) {
   const { marketId, classes, afterOnClick, link, initiativeName } = props;
   const [marketsState] = useContext(MarketsContext);
+  const [commentsState] = useContext(CommentsContext);
+  const [investibleState] = useContext(InvestiblesContext);
+
   const history = useHistory();
-  const market = getMarket(marketsState, marketId);
   const intl = useIntl();
+
+  const market = getMarket(marketsState, marketId);
+  // give up if market is not found
+  if (_.isEmpty(market)) {
+    return <React.Fragment key={marketId}/>;
+  }
+
   const {
     market_type: type,
     name,
@@ -37,8 +47,6 @@ function MarketSearchResult (props) {
         return 'MarketSearchResultWorkspace';
     }
   }
-  const [commentsState] = useContext(CommentsContext);
-  const [investibleState] = useContext(InvestiblesContext);
   const inlineComments = getMarketComments(commentsState, parentMarketId) || [];
   const parentComment = inlineComments.find((comment) => comment.id === parentCommentId) || {};
   const parentName = parentComment.investible_id ? getInvestibleName(parentComment.investible_id, investibleState) : name;

@@ -13,22 +13,36 @@ import { useIntl } from 'react-intl';
 import MarketSearchResult from './MarketSearchResult';
 import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
+import _ from 'lodash';
 
 
 function InvestibleSearchResult (props) {
   const { investibleId, classes, afterOnClick, link } = props;
   const [marketsState] = useContext(MarketsContext);
   const [investibleState] = useContext(InvestiblesContext);
+  const [commentsState] = useContext(CommentsContext);
+
   const history = useHistory();
   const intl = useIntl();
+
   const inv = getInvestible(investibleState, investibleId);
+  // give up if the investible isn't found
+  if (_.isEmpty(inv)) {
+    return <React.Fragment key={investibleId}/>;
+  }
+  
   // we're going to assume the first info is what we want
   const { investible: { name }, market_infos: [firstInfo,] } = inv;
   const { market_id: marketId } = firstInfo;
+
   const market = getMarket(marketsState, marketId);
+  // give up if market isn't found
+  if (_.isEmpty(market)) {
+    return <React.Fragment key={investibleId}/>;
+  }
+
   const { market_type: marketType, name: marketName, parent_comment_market_id: parentMarketId,
     parent_comment_id: parentCommentId} = market;
-  const [commentsState] = useContext(CommentsContext);
   const inlineComments = getMarketComments(commentsState, parentMarketId) || [];
   const parentComment = inlineComments.find((comment) => comment.id === parentCommentId) || {};
   const parentName = parentComment.investible_id ? getInvestibleName(parentComment.investible_id, investibleState) : marketName;

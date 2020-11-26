@@ -174,7 +174,8 @@ function CommentAdd (props) {
     const presences = getMarketPresences(marketPresencesState, marketId) || [];
     const myPresence = presences.find((presence) => presence.current_user) || {};
     const { assigned } = (info || {});
-    const investibleRequiresInput = (apiType === QUESTION_TYPE && (assigned || []).includes(myPresence.id));
+    const investibleRequiresInput = ((apiType === QUESTION_TYPE || apiType === SUGGEST_CHANGE_TYPE)
+      && (assigned || []).includes(myPresence.id));
     return saveComment(marketId, investibleId, parentId, tokensRemoved, apiType, filteredUploads)
       .then((comment) => {
         // move the investible to other state if necessary

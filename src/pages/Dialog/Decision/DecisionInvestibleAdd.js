@@ -114,12 +114,16 @@ function DecisionInvestibleAdd(props) {
     setUploadedFiles(metadatas);
   }
 
-  function handleCancel() {
+  function generateReturnLink() {
     let link = parentInvestibleId ? formInvestibleLink(parentMarketId, parentInvestibleId) : formMarketLink(marketId);
     if (parentCommentId || inlineParentCommentId) {
       link = `${link}#c${parentCommentId || inlineParentCommentId}`;
     }
-    onCancel(link);
+    return link;
+  }
+
+  function handleCancel() {
+    onCancel(generateReturnLink());
   }
 
   function handleNewInlineSave(isAddAnother) {
@@ -173,9 +177,8 @@ function DecisionInvestibleAdd(props) {
           spinChecker: () => Promise.resolve(true),
         };
       }
-      const link = formInvestibleLink(parentMarketId, parentInvestibleId);
       return {
-        result: link,
+        result: generateReturnLink(),
         spinChecker: () => Promise.resolve(true),
       };
     });
@@ -206,7 +209,6 @@ function DecisionInvestibleAdd(props) {
     };
     const promise = isAdmin ? addInvestibleToStage(addInfo) : addDecisionInvestible(addInfo);
     return promise.then((investible) => {
-      // console.log('Adding investible to market');
       onSave(investible);
       const link = formMarketLink(marketId);
       return {

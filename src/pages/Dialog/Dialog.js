@@ -4,7 +4,7 @@ import { useHistory, useLocation } from 'react-router';
 import PropTypes from 'prop-types'
 import { withStyles } from '@material-ui/core/styles'
 import { useIntl } from 'react-intl'
-import { decomposeMarketPath, formInvestibleLink, navigate, } from '../../utils/marketIdPathFunctions'
+import { decomposeMarketPath, formInvestibleLink, formMarketLink, navigate, } from '../../utils/marketIdPathFunctions'
 import Screen from '../../containers/Screen/Screen'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
@@ -121,7 +121,8 @@ function Dialog(props) {
     }
     if (!hidden) {
       if (isInline) {
-        const link = formInvestibleLink(parentMarketId, parentInvestibleId);
+        const link = parentInvestibleId ? formInvestibleLink(parentMarketId, parentInvestibleId) :
+          formMarketLink(parentMarketId);
         const fullLink = `${link}#c${parentCommentId}`;
         navigate(history, fullLink);
       }

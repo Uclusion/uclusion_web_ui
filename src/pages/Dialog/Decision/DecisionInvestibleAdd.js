@@ -152,7 +152,7 @@ function DecisionInvestibleAdd(props) {
         stageInfo: stageInfo,
       };
       const marketPresences = getMarketPresences(marketPresencesState, marketId);
-      const others = marketPresences.filter((presence) => !presence.current_user)
+      const others = marketPresences.filter((presence) => !presence.current_user && !presence.market_banned);
       if (others) {
         const participants = others.map((presence) => {
             return {

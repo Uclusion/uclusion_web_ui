@@ -490,6 +490,7 @@ const messages = defineMessages({
   planningInvestibleAcceptedHelp: 'For help create a question and add options to it.',
   planningInvestibleVotingHelp: 'Input how certain you are this story should be done or open an issue.',
   inlineAddLabel: 'Add Option',
+  allowVoteSuggestion: 'Allow voting',
   uploadFilesDisplay: 'Attach New Files',
   uploadFilesTooltip: 'Drag files here or click to attach new files',
   uploadInProgress: 'Uploading Files',

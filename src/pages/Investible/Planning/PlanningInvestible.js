@@ -354,13 +354,12 @@ function PlanningInvestible(props) {
     ? makeArchiveBreadCrumbs(history, breadCrumbTemplates)
     : makeBreadCrumbs(history, breadCrumbTemplates);
 
-  const allowedCommentTypes = [QUESTION_TYPE];
+  const allowedCommentTypes = [QUESTION_TYPE, SUGGEST_CHANGE_TYPE];
   if (isAssigned) {
     allowedCommentTypes.push(REPORT_TYPE);
     allowedCommentTypes.push(TODO_TYPE);
   }
   if (!isAssigned) {
-    allowedCommentTypes.push(SUGGEST_CHANGE_TYPE);
     allowedCommentTypes.push(TODO_TYPE);
     if (isInReview) {
       // Reviewers or QE may need to open progress reports

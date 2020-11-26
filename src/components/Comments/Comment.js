@@ -7,7 +7,14 @@ import clsx from 'clsx'
 import _ from 'lodash'
 import ReadOnlyQuillEditor from '../TextEditors/ReadOnlyQuillEditor'
 import CommentAdd from './CommentAdd'
-import { ISSUE_TYPE, JUSTIFY_TYPE, QUESTION_TYPE, REPLY_TYPE, REPORT_TYPE } from '../../constants/comments'
+import {
+  ISSUE_TYPE,
+  JUSTIFY_TYPE,
+  QUESTION_TYPE,
+  REPLY_TYPE,
+  REPORT_TYPE,
+  SUGGEST_CHANGE_TYPE
+} from '../../constants/comments'
 import { removeComment, reopenComment, resolveComment } from '../../api/comments'
 import SpinBlockingButton from '../SpinBlocking/SpinBlockingButton'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
@@ -15,7 +22,12 @@ import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/Ma
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import CommentEdit from './CommentEdit'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
-import { addMarketToStorage, getMarket, getMyUserForMarket } from '../../contexts/MarketsContext/marketsContextHelper'
+import {
+  addMarket,
+  addMarketToStorage,
+  getMarket,
+  getMyUserForMarket
+} from '../../contexts/MarketsContext/marketsContextHelper'
 import {
   HIGHLIGHT_REMOVE,
   HighlightedCommentContext
@@ -28,13 +40,13 @@ import {
   removeComments
 } from '../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
-import { ACTIVE_STAGE, PLANNING_TYPE } from '../../constants/markets'
+import { ACTIVE_STAGE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
 import { red } from '@material-ui/core/colors'
 import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
 import { EXPANDED_CONTROL, ExpandedCommentContext } from '../../contexts/CommentsContext/ExpandedCommentContext'
 import UsefulRelativeTime from '../TextFields/UseRelativeTime'
 import md5 from 'md5'
-import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
+import { addInvestible, getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import SubSection from '../../containers/SubSection/SubSection'
 import CurrentVoting from '../../pages/Dialog/Decision/CurrentVoting'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
@@ -46,7 +58,11 @@ import {
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 import { formMarketAddInvestibleLink, navigate } from '../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
-import { updateMarket } from '../../api/markets'
+import { createInitiative, updateMarket } from '../../api/markets'
+import { addDecisionInvestible } from '../../api/investibles'
+import YourVoting from '../../pages/Investible/Voting/YourVoting'
+import Voting from '../../pages/Investible/Decision/Voting'
+import { addParticipants } from '../../api/users'
 
 const useCommentStyles = makeStyles(
   theme => {
@@ -185,7 +201,8 @@ function Comment(props) {
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const intl = useIntl();
   const classes = useCommentStyles();
-  const { id, comment_type: commentType, resolved, investible_id: investibleId, inline_market_id: inlineMarketId } = comment;
+  const { id, comment_type: commentType, resolved, investible_id: investibleId, inline_market_id: inlineMarketId,
+  created_by: commentCreatedBy} = comment;
   const presences = usePresences(marketId);
   const createdBy = useCommenter(comment, presences) || unknownPresence;
   const updatedBy = useUpdatedBy(comment, presences) || unknownPresence;
@@ -208,8 +225,8 @@ function Comment(props) {
   const [editOpen, setEditOpen] = useState(false);
   const [operationRunning] = useContext(OperationInProgressContext);
   const [, versionsDispatch] = useContext(VersionsContext);
-  const [marketPresencesState] = useContext(MarketPresencesContext);
-  const [investiblesState] = useContext(InvestiblesContext);
+  const [marketPresencesState, presenceDispatch] = useContext(MarketPresencesContext);
+  const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const enableActions = !inArchives
   const enableEditing = !inArchives && !resolved; //resolved comments or those in archive aren't editable
@@ -224,6 +241,40 @@ function Comment(props) {
           addMarketToStorage(marketsDispatch, undefined, market);
         });
     }
+  }
+
+  function allowSuggestionVote() {
+    const addInfo = {
+      name: 'NA',
+      market_type: INITIATIVE_TYPE,
+      description: 'NA',
+      parent_comment_id: id,
+    };
+    return createInitiative(addInfo)
+      .then((result) => {
+        addMarket(result, marketsDispatch, () => {}, presenceDispatch);
+        const { market: { id: inlineMarketId }} = result;
+        const addInfo = {
+          marketId: inlineMarketId,
+          description: 'NA',
+          name: 'NA',
+        };
+        return addDecisionInvestible(addInfo).then((investible) => {
+          addInvestible(investiblesDispatch, () => {}, investible);
+          const marketPresences = getMarketPresences(marketPresencesState, marketId);
+          const others = marketPresences.filter((presence) => !presence.current_user && !presence.market_banned);
+          if (others) {
+            const participants = others.map((presence) => {
+              return {
+                user_id: presence.id,
+                account_id: presence.account_id,
+                is_observer: !presence.following
+              };
+            });
+            return addParticipants(inlineMarketId, participants);
+          }
+        });
+      });
   }
 
   function toggleReply() {
@@ -249,15 +300,7 @@ function Comment(props) {
     return [];
   }
 
-  function getDecision(aMarketId) {
-    const anInlineMarket = getMarket(marketsState, aMarketId);
-    if (!anInlineMarket) {
-      return React.Fragment;
-    }
-    const { parent_comment_id: parentCommentId } = anInlineMarket;
-    if (!parentCommentId) {
-      return React.Fragment;
-    }
+  function getDialog(anInlineMarket) {
     const inlineInvestibles = getMarketInvestibles(investiblesState, anInlineMarket.id) || [];
     const anInlineMarketInvestibleComments = getMarketComments(commentsState, anInlineMarket.id) || [];
     const anInlineMarketPresences = getMarketPresences(marketPresencesState, anInlineMarket.id) || [];
@@ -283,26 +326,98 @@ function Comment(props) {
               />
             </SubSection>
           </Grid>
-      )}
-      {!_.isEmpty(proposed) && (
-        <Grid item xs={12}>
-          <SubSection
-            type={SECTION_TYPE_SECONDARY}
-            title={intl.formatMessage({ id: 'decisionDialogProposedOptionsLabel' })}
-          >
-            <ProposedIdeas
-              investibles={proposed}
-              marketId={anInlineMarket.id}
-              comments={anInlineMarketInvestibleComments}
-            />
-          </SubSection>
-        </Grid>
-      )}
+        )}
+        {!_.isEmpty(proposed) && (
+          <Grid item xs={12}>
+            <SubSection
+              type={SECTION_TYPE_SECONDARY}
+              title={intl.formatMessage({ id: 'decisionDialogProposedOptionsLabel' })}
+            >
+              <ProposedIdeas
+                investibles={proposed}
+                marketId={anInlineMarket.id}
+                comments={anInlineMarketInvestibleComments}
+              />
+            </SubSection>
+          </Grid>
+        )}
         {(!_.isEmpty(proposed)||!_.isEmpty(underConsideration)) && (
           <div style={{paddingBottom: '2rem'}} />
         )}
-    </>
+      </>
     );
+  }
+
+  function getInitiative(anInlineMarket) {
+    const anInlineMarketPresences = getMarketPresences(marketPresencesState, anInlineMarket.id) || [];
+    const myInlinePresence = anInlineMarketPresences.find((presence) => presence.current_user);
+    const isAdmin = myInlinePresence && myInlinePresence.is_admin;
+    const inlineInvestibles = getMarketInvestibles(investiblesState, anInlineMarket.id) || [];
+    const [fullInlineInvestible] = inlineInvestibles;
+    const inlineInvestibleId = fullInlineInvestible ? fullInlineInvestible.investible.id : undefined;
+    const comments = getMarketComments(commentsState, anInlineMarket.id);
+    const investibleComments = comments.filter((comment) => comment.investible_id === inlineInvestibleId);
+    const investmentReasons = investibleComments.filter((comment) => comment.comment_type === JUSTIFY_TYPE);
+    const positiveVoters = anInlineMarketPresences.filter((presence) => {
+      const { investments } = presence
+      const negInvestment = (investments || []).find((investment) => {
+        const { quantity } = investment
+        return quantity > 0
+      })
+      return !_.isEmpty(negInvestment)
+    });
+    const negativeVoters = anInlineMarketPresences.filter((presence) => {
+      const { investments } = presence;
+      const negInvestment = (investments || []).find((investment) => {
+        const { quantity } = investment;
+        return quantity < 0;
+      });
+      return !_.isEmpty(negInvestment);
+    });
+    return (
+      <>
+        {!isAdmin && (
+          <YourVoting
+            investibleId={inlineInvestibleId}
+            marketPresences={anInlineMarketPresences}
+            comments={investmentReasons}
+            userId={inlineUserId}
+            market={anInlineMarket}
+          />
+        )}
+        <h2>
+          <FormattedMessage id="initiativeVotingFor"/>
+        </h2>
+        <Voting
+          investibleId={inlineInvestibleId}
+          marketPresences={positiveVoters}
+          investmentReasons={investmentReasons}
+        />
+        <h2>
+          <FormattedMessage id="initiativeVotingAgainst" />
+        </h2>
+        <Voting
+          investibleId={inlineInvestibleId}
+          marketPresences={negativeVoters}
+          investmentReasons={investmentReasons}
+        />
+      </>
+    );
+  }
+
+  function getDecision(aMarketId) {
+    const anInlineMarket = getMarket(marketsState, aMarketId);
+    if (!anInlineMarket) {
+      return React.Fragment;
+    }
+    const { parent_comment_id: parentCommentId, market_type: marketType } = anInlineMarket;
+    if (!parentCommentId) {
+      return React.Fragment;
+    }
+    if (marketType === INITIATIVE_TYPE) {
+      return getInitiative(anInlineMarket);
+    }
+    return getDialog(anInlineMarket);
   }
 
   function reopen() {
@@ -510,6 +625,18 @@ function Comment(props) {
                   {intl.formatMessage({ id: "inlineAddLabel" })}
                 </Button>
               </>
+            )}
+            {commentType === SUGGEST_CHANGE_TYPE && !inArchives && (
+              <Typography>
+                {intl.formatMessage({ id: 'allowVoteSuggestion' })}
+                <Checkbox
+                  id="suggestionVote"
+                  name="suggestionVote"
+                  checked={inlineMarketId !== undefined}
+                  onChange={allowSuggestionVote}
+                  disabled={inlineMarketId !== undefined || operationRunning || commentCreatedBy !== userId}
+                />
+              </Typography>
             )}
             {replies.length > 0 && (
               <Button

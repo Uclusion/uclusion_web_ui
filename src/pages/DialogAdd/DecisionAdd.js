@@ -8,18 +8,14 @@ import ExpirationSelector from '../../components/Expiration/ExpirationSelector'
 import { createDecision } from '../../api/markets'
 import { processTextAndFilesForSave } from '../../api/files'
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton'
-import { DECISION_TYPE, PLANNING_TYPE } from '../../constants/markets'
+import { DECISION_TYPE } from '../../constants/markets'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { useLocation } from 'react-router'
 import queryString from 'query-string'
-import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
-import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { getMarketDetailsForType } from '../../contexts/MarketsContext/marketsContextHelper'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
-import { addParticipants } from '../../api/users'
 import CardType from '../../components/CardType'
 import { usePlanFormStyles } from '../../components/AgilePlan'
-import { formMarketAddInvestibleLink, formMarketManageLink, urlHelperGetName } from '../../utils/marketIdPathFunctions'
+import { formMarketManageLink, urlHelperGetName } from '../../utils/marketIdPathFunctions'
 import DismissableText from '../../components/Notifications/DismissableText'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { getRequiredInputStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
@@ -46,7 +42,6 @@ function DecisionAdd(props) {
   const [description, setDescription] = useState(storedDescription);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const { name, expiration_minutes } = currentValues;
-  const [marketPresencesState] = useContext(MarketPresencesContext);
   const [marketState] = useContext(MarketsContext);
   const [investibleState, investibleDispatch] = useContext(InvestiblesContext);
   const [multiVote, setMultiVote] = useState(false);

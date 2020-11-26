@@ -223,7 +223,7 @@ function Comment(props) {
   const [expandedCommentState, expandedCommentDispatch] = useContext(ExpandedCommentContext);
   const [replyOpen, setReplyOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
-  const [operationRunning] = useContext(OperationInProgressContext);
+  const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [, versionsDispatch] = useContext(VersionsContext);
   const [marketPresencesState, presenceDispatch] = useContext(MarketPresencesContext);
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
@@ -244,6 +244,7 @@ function Comment(props) {
   }
 
   function allowSuggestionVote() {
+    setOperationRunning(true);
     const addInfo = {
       name: 'NA',
       market_type: INITIATIVE_TYPE,
@@ -273,7 +274,7 @@ function Comment(props) {
             });
             return addParticipants(inlineMarketId, participants);
           }
-        });
+        }).then(() => setOperationRunning(false));
       });
   }
 

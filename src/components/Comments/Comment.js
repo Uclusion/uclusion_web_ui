@@ -376,33 +376,35 @@ function Comment(props) {
       return !_.isEmpty(negInvestment);
     });
     return (
-      <>
-        {!isAdmin && (
-          <YourVoting
+      <div style={{border: '1px solid black', marginBottom: '1.5rem'}}>
+        <div style={{paddingLeft: '1rem', paddingRight: '1rem', paddingBottom: '0.5rem'}}>
+          {!isAdmin && (
+            <YourVoting
+              investibleId={inlineInvestibleId}
+              marketPresences={anInlineMarketPresences}
+              comments={investmentReasons}
+              userId={inlineUserId}
+              market={anInlineMarket}
+            />
+          )}
+          <h2>
+            <FormattedMessage id="initiativeVotingFor"/>
+          </h2>
+          <Voting
             investibleId={inlineInvestibleId}
-            marketPresences={anInlineMarketPresences}
-            comments={investmentReasons}
-            userId={inlineUserId}
-            market={anInlineMarket}
+            marketPresences={positiveVoters}
+            investmentReasons={investmentReasons}
           />
-        )}
-        <h2>
-          <FormattedMessage id="initiativeVotingFor"/>
-        </h2>
-        <Voting
-          investibleId={inlineInvestibleId}
-          marketPresences={positiveVoters}
-          investmentReasons={investmentReasons}
-        />
-        <h2>
-          <FormattedMessage id="initiativeVotingAgainst" />
-        </h2>
-        <Voting
-          investibleId={inlineInvestibleId}
-          marketPresences={negativeVoters}
-          investmentReasons={investmentReasons}
-        />
-      </>
+          <h2>
+            <FormattedMessage id="initiativeVotingAgainst" />
+          </h2>
+          <Voting
+            investibleId={inlineInvestibleId}
+            marketPresences={negativeVoters}
+            investmentReasons={investmentReasons}
+          />
+          </div>
+      </div>
     );
   }
 

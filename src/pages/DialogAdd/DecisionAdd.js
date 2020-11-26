@@ -133,29 +133,6 @@ function DecisionAdd(props) {
         onSave(result);
         const { id: marketId } = market;
         turnOffSpin.result = `${formMarketManageLink(marketId)}#participation=true`;
-        if (parentMarketId && !parentInvestibleId) {
-          // Only automatically add participants at the Workspace level
-          // At the story level they can use a Question for team level decisions
-          // There is no Question dialog at the Workspace level because you need to control the cliff manually
-          // See https://production.uclusion.com/dialog/ba6e2925-20f7-4621-b89b-389e269d2182/585a86c4-183e-4ab0-bfad-d9a1d5636670
-          const planningMarkets = getMarketDetailsForType(marketState, marketPresencesState, PLANNING_TYPE);
-          const marketDetails = planningMarkets.find((planningMarket) => planningMarket.id === parentMarketId);
-          if (marketDetails) {
-            const marketPresences = getMarketPresences(marketPresencesState, parentMarketId);
-            const others = marketPresences.filter((presence) => !presence.current_user && !presence.market_banned)
-            if (others) {
-              const participants = others.map((presence) => {
-                return {
-                  user_id: presence.id,
-                  account_id: presence.account_id,
-                  is_observer: !presence.following
-                };
-              });
-              turnOffSpin.result = formMarketAddInvestibleLink(marketId);
-              return addParticipants(marketId, participants).then(() => turnOffSpin);
-            }
-          }
-        }
         if (parentInvestibleId && parentMarketId) {
           // Quick add the investible move to requires input
           const requiresInputStage = getRequiredInputStage(marketStagesState, parentMarketId);

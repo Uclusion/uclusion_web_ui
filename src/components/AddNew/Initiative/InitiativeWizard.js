@@ -5,6 +5,7 @@ import InitiativeDescriptionStep from './InitiativeDescriptionStep'
 import InitiativeExpirationStep from './InitiativeExpirationStep'
 import { WizardStylesProvider } from '../WizardStylesContext';
 import FormdataWizard from 'react-formdata-wizard';
+import InitiativeRestrictStep from './InitiativeRestrictStep'
 
 
 function InitiativeWizard(props) {
@@ -20,6 +21,7 @@ function InitiativeWizard(props) {
         <InitiativeNameStep/>
         <InitiativeDescriptionStep />
         <InitiativeExpirationStep />
+        <InitiativeRestrictStep />
       </FormdataWizard>
     </WizardStylesProvider>
   );

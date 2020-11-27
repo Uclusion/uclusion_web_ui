@@ -4,11 +4,6 @@ import { Typography } from '@material-ui/core'
 import StepButtons from '../StepButtons'
 import ExpirationSelector from '../../Expiration/ExpirationSelector'
 import PropTypes from 'prop-types'
-import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
-import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
-import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
-import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { createMyInitiative } from './initiativeCreator';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 
@@ -16,13 +11,7 @@ function InitiativeExpirationStep(props) {
   const { updateFormData, formData } = props;
   const intl = useIntl();
   const classes = useContext(WizardStylesContext);
-  const [, diffDispatch] = useContext(DiffContext);
-  const [, investiblesDispatch] = useContext(InvestiblesContext);
-  const [, marketsDispatch] = useContext(MarketsContext);
-  const [, presenceDispatch] = useContext(MarketPresencesContext);
-
   const value = formData.initiativeExpiration || 1440;
-
   const validForm = value !== 0;
 
   function onExpiresChange(event) {
@@ -32,25 +21,10 @@ function InitiativeExpirationStep(props) {
     });
   }
 
-  function doCreateInitiative(formData){
-    const dispatchers = {
-      diffDispatch,
-      investiblesDispatch,
-      marketsDispatch,
-      presenceDispatch,
-    };
-    return createMyInitiative(dispatchers, formData, updateFormData);
-  }
-
-  function onNext() {
-   const newValues = {
+  function onNext () {
+    updateFormData({
       initiativeExpiration: value,
-    }
-    updateFormData(newValues);
-    return doCreateInitiative({...formData, ...newValues})
-      .then((marketId) => {
-        return ({ ...formData, marketId });
-      });
+    });
   }
 
   return (
@@ -66,8 +40,8 @@ function InitiativeExpirationStep(props) {
       </Typography>
       <label className={classes.inputLabel} htmlFor="name">{intl.formatMessage({ id: 'InitiativeWizardInitiativeExpirationPlaceHolder' })}</label>
       <ExpirationSelector value={value} onChange={onExpiresChange}/>
-      <div className={classes.borderBottom}></div>
-      <StepButtons {...props} spinOnClick validForm={validForm} onNext={onNext} />
+      <div className={classes.borderBottom} />
+      <StepButtons {...props} validForm={validForm} onNext={onNext} />
     </div>
     </WizardStepContainer>
   );

@@ -20,12 +20,16 @@ export function createMyInitiative (dispatchers, formData, updateFormData) {
     initiativeDescription,
     initiativeDescriptionUploadedFiles,
     initiativeExpiration,
+    isRestricted
   } = formData;
   const marketInfo = {
     name: 'NA',
     description: 'NA',
     expiration_minutes: initiativeExpiration,
   };
+  if (isRestricted === 'true') {
+    marketInfo.is_restricted = true;
+  }
   const realUploadedFiles = initiativeDescriptionUploadedFiles || [];
   const {
     uploadedFiles: filteredUploads,

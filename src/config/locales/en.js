@@ -949,7 +949,10 @@ const messages = defineMessages({
   InitiativeWizardInitiativeDescriptionPlaceholder: 'Your idea',
   InitiativeWizardCreatingInitiativeStepLabel: 'Initiative Creation',
   InitiativeWizardInitiativeExpirationStepLabel: 'How long can you wait?',
+  InitiativeWizardRestrictStepLabel: 'Are collaborators aware of each other?',
   InitiativeWizardInitiativeExpirationPlaceHolder: 'Days you can wait',
+  InitiativeWizardRestrictYes: 'Allow collaborators to see each other\'s participation.',
+  InitiativeWizardRestrictNo: 'Don\'t allow collaborators to see each other.',
   InitiativeWizardTakeMeToInitiative: 'I\'ve shared the link, take me to my Initiative',
 
   // StepHeaders

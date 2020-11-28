@@ -40,14 +40,22 @@ function InvestibleSearchResult (props) {
   if (_.isEmpty(market)) {
     return <React.Fragment key={investibleId}/>;
   }
-
+  function getMarketName (marketId) {
+    const market = getMarket(marketsState, marketId);
+    if (_.isEmpty(market)) {
+      return '';
+    }
+    const { name } = market;
+    return name;
+  }
   const { market_type: marketType, name: marketName, parent_comment_market_id: parentMarketId,
     parent_comment_id: parentCommentId} = market;
   const inlineComments = getMarketComments(commentsState, parentMarketId) || [];
   const parentComment = inlineComments.find((comment) => comment.id === parentCommentId) || {};
-  const parentName = parentComment.investible_id ? getInvestibleName(parentComment.investible_id, investibleState) : marketName;
+  const parentName = parentComment.investible_id ? getInvestibleName(parentComment.investible_id, investibleState) :
+    parentComment.market_id ? getMarketName(parentComment.market_id) : marketName;
   const linkTarget = link ? link : formInvestibleLink(marketId, investibleId);
-  const cardTypeId = marketType === PLANNING_TYPE? 'InvestibleSearchResultStory' : 'InvestibleSearchResultOption';
+  const cardTypeId = marketType === PLANNING_TYPE ? 'InvestibleSearchResultStory' : 'InvestibleSearchResultOption';
   const cardType = intl.formatMessage({ id: cardTypeId});
   // Initiative investibles are really the market, so render it as such
   if (marketType === INITIATIVE_TYPE) {

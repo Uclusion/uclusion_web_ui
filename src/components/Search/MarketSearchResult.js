@@ -47,10 +47,19 @@ function MarketSearchResult (props) {
         return 'MarketSearchResultWorkspace';
     }
   }
+  function getMarketName (marketId) {
+    const market = getMarket(marketsState, marketId);
+    if (_.isEmpty(market)) {
+      return '';
+    }
+    const { name } = market;
+    return name;
+  }
   const inlineComments = getMarketComments(commentsState, parentMarketId) || [];
   const parentComment = inlineComments.find((comment) => comment.id === parentCommentId) || {};
-  const parentName = parentComment.investible_id ? getInvestibleName(parentComment.investible_id, investibleState) : name;
-  const usedMarketName = type === INITIATIVE_TYPE? initiativeName : parentName;
+  const parentName = parentComment.investible_id ? getInvestibleName(parentComment.investible_id, investibleState) :
+    parentComment.market_id ? getMarketName(parentComment.market_id) : name;
+  const usedMarketName = type === INITIATIVE_TYPE && !parentMarketId ? initiativeName : parentName;
   const linkTarget = link ? link : formMarketLink(marketId);
   const typeName = intl.formatMessage({id: getTypeId(type)});
 

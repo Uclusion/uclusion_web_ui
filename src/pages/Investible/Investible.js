@@ -4,10 +4,10 @@ import { useHistory, useLocation } from 'react-router'
 import _ from 'lodash'
 import Screen from '../../containers/Screen/Screen'
 import {
-  decomposeMarketPath,
+  decomposeMarketPath, formInvestibleLink,
   formMarketLink,
   makeArchiveBreadCrumbs,
-  makeBreadCrumbs,
+  makeBreadCrumbs, navigate,
 } from '../../utils/marketIdPathFunctions'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { getInvestible, getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
@@ -19,7 +19,7 @@ import { getMarketPresences } from '../../contexts/MarketPresencesContext/market
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import DecisionInvestible from './Decision/DecisionInvestible'
 import PlanningInvestible from './Planning/PlanningInvestible'
-import { ACTIVE_STAGE, DECISION_TYPE, PLANNING_TYPE } from '../../constants/markets'
+import { ACTIVE_STAGE, DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
 import InitiativeInvestible from './Initiative/InitiativeInvestible'
 import { getMarketFromUrl } from '../../api/uclusionClient'
 import { pollForMarketLoad } from '../../api/versionedFetchUtils'
@@ -82,6 +82,22 @@ function Investible(props) {
         });
     }
   }, [isInitialization, hidden, marketId, realMarket, marketPresences]);
+
+  useEffect(() => {
+    if (!hidden) {
+      const {market_type: type, parent_comment_market_id: parentMarketId, parent_comment_id: parentCommentId} = market;
+      if (parentCommentId && type === INITIATIVE_TYPE) {
+        // If land on an inline Initiative then redirect to comment
+        const inlineComments = getMarketComments(commentsState, parentMarketId) || [];
+        const parentComment = inlineComments.find((comment) => comment.id === parentCommentId) || {};
+        const link = parentComment.investible_id ? formInvestibleLink(parentMarketId, parentComment.investible_id) :
+          formMarketLink(parentMarketId);
+        const fullLink = `${link}#c${parentCommentId}`;
+        navigate(history, fullLink);
+      }
+    }
+    return () => {};
+  }, [hidden, market, history, commentsState]);
 
   if (loading) {
     return (

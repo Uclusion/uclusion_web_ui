@@ -37,6 +37,7 @@ import Link from '@material-ui/core/Link'
 import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
 import md5 from 'md5'
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 
 function InvestiblesByWorkspace(props) {
   const {
@@ -49,6 +50,7 @@ function InvestiblesByWorkspace(props) {
   const [investiblesState] = useContext(InvestiblesContext);
   const [commentsState] = useContext(CommentsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
+  const [marketsState] = useContext(MarketsContext);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [chosenPerson, setChosenPerson] = React.useState({name:'', domain:'', external_id: ''});
   // For security reasons you can't access source data while being dragged in case you are not the target website
@@ -141,7 +143,7 @@ function InvestiblesByWorkspace(props) {
         const requiresInputInvestibles = getInvestiblesInStage(investibles, requiresInputStage.id) || [];
         const highlightMap = {};
         requiresInputInvestibles.forEach((investible) => {
-          if (hasNotVoted(investible, marketPresencesState, comments, market.id, chosenPerson.external_id)) {
+          if (hasNotVoted(investible, marketPresencesState, marketsState, comments, market.id, chosenPerson.external_id)) {
             highlightMap[investible.investible.id] = true;
           }
         });

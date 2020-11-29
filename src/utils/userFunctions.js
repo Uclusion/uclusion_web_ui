@@ -8,6 +8,7 @@ import { Auth } from 'aws-amplify'
 import { getMarketPresences } from '../contexts/MarketPresencesContext/marketPresencesHelper'
 import _ from 'lodash'
 import config from '../config'
+import { getMarket } from '../contexts/MarketsContext/marketsContextHelper'
 
 export function extractUsersList (marketPresencesState, addToMarketId, workspaces, includeNotFollowing=true) {
   // The account user is being stored with an undefined market ID and so need to avoid it
@@ -47,7 +48,7 @@ export function extractUsersList (marketPresencesState, addToMarketId, workspace
   }, {});
 }
 
-export function hasNotVoted(investible, marketPresencesState, comments, marketId, externalId) {
+export function hasNotVoted(investible, marketPresencesState, marketsState, comments, marketId, externalId) {
   const { market_infos } = investible;
   const myInfo = market_infos.find((info) => info.market_id === marketId);
   const { children } = myInfo;
@@ -60,10 +61,17 @@ export function hasNotVoted(investible, marketPresencesState, comments, marketId
     }
   })
   const marketsFound = marketsToCheck.filter((inlineMarketId) => {
+    const market = getMarket(marketsState, inlineMarketId) || {};
+    const { market_type: marketType } = market;
     const inlineMarketPresences = getMarketPresences(marketPresencesState, inlineMarketId);
     const myInlinePresence = inlineMarketPresences && inlineMarketPresences.find((presence) => {
       return presence.external_id === externalId;
     });
+    const isAdmin = myInlinePresence && myInlinePresence.is_admin;
+    if (marketType === INITIATIVE_TYPE && isAdmin) {
+      // Initiative admins do not vote
+      return false;
+    }
     const investments = myInlinePresence ? myInlinePresence.investments : [];
     const investmentsFiltered = (investments || []).filter((investment) => !investment.deleted);
     return _.isEmpty(investmentsFiltered);

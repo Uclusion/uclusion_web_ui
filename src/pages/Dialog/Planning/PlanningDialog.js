@@ -56,6 +56,7 @@ import {
   INVITE_STORIES_WORKSPACE_FIRST_VIEW
 } from '../../../contexts/TourContext/tourContextHelper'
 import { getVoteTotalsForUser, hasNotVoted } from '../../../utils/userFunctions'
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -70,6 +71,7 @@ function PlanningDialog(props) {
   } = props;
   const cognitoUser = useContext(CognitoUserContext);
   const [, tourDispatch] = useContext(TourContext);
+  const [marketsState] = useContext(MarketsContext);
   const intl = useIntl();
   const metaClasses = useMetaDataStyles();
   const { id: marketId, market_stage: marketStage } = market;
@@ -142,7 +144,7 @@ function PlanningDialog(props) {
   const requiresInputInvestibles = getInvestiblesInStage(investibles, requiresInputStage.id);
   const highlightMap = {};
   requiresInputInvestibles.forEach((investible) => {
-    if (hasNotVoted(investible, marketPresencesState, comments, marketId, myPresence.external_id)) {
+    if (hasNotVoted(investible, marketPresencesState, marketsState, comments, marketId, myPresence.external_id)) {
       highlightMap[investible.investible.id] = true;
     }
   });

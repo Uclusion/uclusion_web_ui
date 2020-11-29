@@ -233,6 +233,7 @@ function Comment(props) {
   const [marketPresencesState, presenceDispatch] = useContext(MarketPresencesContext);
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
+  const [commentState, commentDispatch] = useContext(CommentsContext);
   const enableActions = !inArchives
   const enableEditing = !inArchives && !resolved; //resolved comments or those in archive aren't editable
 
@@ -259,7 +260,8 @@ function Comment(props) {
     return createInitiative(addInfo)
       .then((result) => {
         addMarket(result, marketsDispatch, () => {}, presenceDispatch);
-        const { market: { id: inlineMarketId }} = result;
+        const { market: { id: inlineMarketId }, parent } = result;
+        addCommentToMarket(parent, commentState, commentDispatch);
         const addInfo = {
           marketId: inlineMarketId,
           description: 'NA',

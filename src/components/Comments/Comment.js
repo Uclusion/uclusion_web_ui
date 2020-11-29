@@ -168,6 +168,11 @@ const useCommentStyles = makeStyles(
       container: {
         overflow: "visible"
       },
+      inlineBorder: {
+        border: '1px solid black',
+        marginBottom: '1.5rem'
+      },
+      inlineBorderNone: {},
       timeElapsed: {
         [theme.breakpoints.down('sm')]: {
           fontSize: '.7rem',
@@ -376,35 +381,33 @@ function Comment(props) {
       return !_.isEmpty(negInvestment);
     });
     return (
-      <div style={{border: '1px solid black', marginBottom: '1.5rem'}}>
-        <div style={{paddingLeft: '1rem', paddingRight: '1rem', paddingBottom: '0.5rem'}}>
-          {!isAdmin && (
-            <YourVoting
-              investibleId={inlineInvestibleId}
-              marketPresences={anInlineMarketPresences}
-              comments={investmentReasons}
-              userId={inlineUserId}
-              market={anInlineMarket}
-            />
-          )}
-          <h2>
-            <FormattedMessage id="initiativeVotingFor"/>
-          </h2>
-          <Voting
+      <div style={{paddingLeft: '1rem', paddingRight: '1rem', paddingBottom: '0.5rem'}}>
+        {!isAdmin && (
+          <YourVoting
             investibleId={inlineInvestibleId}
-            marketPresences={positiveVoters}
-            investmentReasons={investmentReasons}
+            marketPresences={anInlineMarketPresences}
+            comments={investmentReasons}
+            userId={inlineUserId}
+            market={anInlineMarket}
           />
-          <h2>
-            <FormattedMessage id="initiativeVotingAgainst" />
-          </h2>
-          <Voting
-            investibleId={inlineInvestibleId}
-            marketPresences={negativeVoters}
-            investmentReasons={investmentReasons}
-          />
-          </div>
-      </div>
+        )}
+        <h2>
+          <FormattedMessage id="initiativeVotingFor"/>
+        </h2>
+        <Voting
+          investibleId={inlineInvestibleId}
+          marketPresences={positiveVoters}
+          investmentReasons={investmentReasons}
+        />
+        <h2>
+          <FormattedMessage id="initiativeVotingAgainst" />
+        </h2>
+        <Voting
+          investibleId={inlineInvestibleId}
+          marketPresences={negativeVoters}
+          investmentReasons={investmentReasons}
+        />
+        </div>
     );
   }
 
@@ -498,7 +501,7 @@ function Comment(props) {
   const isEditable = comment.created_by === userId;
 
   return (
-    <React.Fragment>
+    <div className={inlineMarketId ? classes.inlineBorder : classes.inlineBorderNone}>
       <Card elevation={0} className={getCommentHighlightStyle()}>
         <Box display="flex">
           {overrideLabel && (
@@ -628,7 +631,7 @@ function Comment(props) {
                 </Button>
               </>
             )}
-            {commentType === SUGGEST_CHANGE_TYPE && !inArchives && (
+            {commentType === SUGGEST_CHANGE_TYPE && !inArchives && !inlineMarketId && (
               <Typography>
                 {intl.formatMessage({ id: 'allowVoteSuggestion' })}
                 <Checkbox
@@ -636,7 +639,7 @@ function Comment(props) {
                   name="suggestionVote"
                   checked={inlineMarketId !== undefined}
                   onChange={allowSuggestionVote}
-                  disabled={inlineMarketId !== undefined || operationRunning || commentCreatedBy !== userId}
+                  disabled={operationRunning || commentCreatedBy !== userId}
                 />
               </Typography>
             )}
@@ -716,7 +719,7 @@ function Comment(props) {
         </LocalCommentsContext.Provider>
       </Box>
       {getDecision(inlineMarketId)}
-    </React.Fragment>
+    </div>
   );
 }
 

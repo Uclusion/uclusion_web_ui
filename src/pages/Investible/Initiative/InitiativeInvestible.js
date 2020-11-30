@@ -44,6 +44,7 @@ import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { EMPTY_SPIN_RESULT } from '../../../constants/global'
 import InvestibleBodyEdit from '../InvestibleBodyEdit'
 import { doSetEditWhenValid } from '../../../utils/windowUtils'
+import LinkMarket from '../../Dialog/LinkMarket'
 
 const useStyles = makeStyles(
   theme => ({
@@ -188,7 +189,6 @@ function InitiativeInvestible(props) {
   const history = useHistory();
   const classes = useStyles();
   const investmentReasonsRemoved = investibleComments.filter((comment) => comment.comment_type !== JUSTIFY_TYPE);
-  // eslint-disable-next-line max-len
   const investmentReasons = investibleComments.filter((comment) => comment.comment_type === JUSTIFY_TYPE);
   const { investible, market_infos: marketInfos } = fullInvestible;
   const [, tourDispatch] = useContext(TourContext);
@@ -381,7 +381,7 @@ function InitiativeInvestible(props) {
                   </div>
                 </>
               )}
-              <MarketLinks links={children || []} actions={!inArchives ? [<ExpandableAction
+              <LinkMarket actions={!inArchives ? [<ExpandableAction
                 id="link"
                 key="link"
                 icon={<InsertLinkIcon htmlColor={ACTION_BUTTON_COLOR}/>}
@@ -437,6 +437,7 @@ function InitiativeInvestible(props) {
         marketPresences={negativeVoters}
         investmentReasons={investmentReasons}
       />
+      <MarketLinks links={children || []} />
       <Grid container spacing={2}>
         <Grid item xs={12} style={{ marginTop: '71px' }} id="commentAddArea">
           {!inArchives && !isAdmin && yourVote && (

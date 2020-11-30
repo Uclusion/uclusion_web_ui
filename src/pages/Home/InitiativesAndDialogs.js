@@ -36,6 +36,7 @@ import ThumbUpIcon from '@material-ui/icons/ThumbUp'
 import clsx from 'clsx'
 import ThumbDownIcon from '@material-ui/icons/ThumbDown'
 import md5 from 'md5'
+import MarketLinks from '../Dialog/MarketLinks'
 
 const dialogStyles = makeStyles((theme) => ({
   paper: {
@@ -247,7 +248,7 @@ function InitiativesAndDialogs(props) {
   const dialogClasses = dialogStyles();
   const initiativeClasses = initiativeStyles();
   const intl = useIntl();
-  const { dialogs, initiatives } = props;
+  const { dialogs, initiatives, showParentOf } = props;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [commentsState] = useContext(CommentsContext);
   const [marketsState] = useContext(MarketsContext);
@@ -331,7 +332,7 @@ function InitiativesAndDialogs(props) {
       const {
         id: marketId, name, created_at: createdAt, expiration_minutes: expirationMinutes, created_by: createdBy,
         market_type: marketType, market_stage: marketStage, updated_at: updatedAt, parent_market_id: parentMarketId,
-        parent_investible_id: parentInvestibleId,
+        parent_investible_id: parentInvestibleId, isNotCollaborator
       } = market;
       
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
@@ -401,7 +402,7 @@ function InitiativesAndDialogs(props) {
               <Grid container>
                 <Grid item xs={12} md={6}>
                   <CardContent className={classes.cardContent}>
-                    {parentName &&
+                    {parentName && showParentOf &&
                     <Link
                       href={formMarketLink(parentMarketId)}
                       variant="inherit"
@@ -453,26 +454,33 @@ function InitiativesAndDialogs(props) {
                     <Chart data={chartData} />
                     <span className={classes.chartValue}>
                           {intl.formatMessage({ id: 'numVoting' }, { x: chartData.length })}
-                        </span>
+                    </span>
                   </div>
                   }
                 </Grid>
-                <Grid item md={4} xs={5} style={{display: 'flex'}}>
-                  {getParticipantInfo(sortedPresences, classes)}
-                  <CardActions style={{display: 'inline-block', flex: 5, alignSelf: 'center'}}>
-                    <DialogActions
-                      isAdmin={myPresence.is_admin}
-                      isFollowing={myPresence.following}
-                      isGuest={myPresence.market_guest}
-                      marketStage={marketStage}
-                      marketType={marketType}
-                      parentMarketId={parentMarketId}
-                      parentInvestibleId={parentInvestibleId}
-                      marketId={marketId}
-                      hideEdit={true}
-                    />
-                  </CardActions>
-                </Grid>
+                {isNotCollaborator && (
+                  <Typography className={classes.byline}>
+                    {intl.formatMessage({id: 'dialogNotParticipating'})}
+                  </Typography>
+                )}
+                {!_.isEmpty(myPresence) && (
+                  <Grid item md={4} xs={5} style={{display: 'flex'}}>
+                    {getParticipantInfo(sortedPresences, classes)}
+                    <CardActions style={{display: 'inline-block', flex: 5, alignSelf: 'center'}}>
+                      <DialogActions
+                        isAdmin={myPresence.is_admin}
+                        isFollowing={myPresence.following}
+                        isGuest={myPresence.market_guest}
+                        marketStage={marketStage}
+                        marketType={marketType}
+                        parentMarketId={parentMarketId}
+                        parentInvestibleId={parentInvestibleId}
+                        marketId={marketId}
+                        hideEdit={true}
+                      />
+                    </CardActions>
+                  </Grid>
+                )}
               </Grid>
             </div>
           </Grid>
@@ -652,6 +660,11 @@ function InitiativesAndDialogs(props) {
 InitiativesAndDialogs.propTypes = {
   dialogs: PropTypes.arrayOf(PropTypes.object).isRequired,
   initiatives: PropTypes.arrayOf(PropTypes.object).isRequired,
+  showParentOf: PropTypes.bool
+};
+
+InitiativesAndDialogs.defaultProps = {
+  showParentOf: true,
 };
 
 export default InitiativesAndDialogs;

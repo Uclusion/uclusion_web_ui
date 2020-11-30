@@ -332,6 +332,7 @@ const messages = defineMessages({
   homeArchived: 'Deactivated {x}',
   homeInitiativeLabel: 'Initiative by {x} updated {y}',
   homeDialogLabel: 'Dialog by {x} updated {y}',
+  dialogNotParticipating: 'Click to become a collaborator',
   inlineMarketName: 'Decision {x}',
   marketObservationLink: 'Observe - {x}',
   lockedBy: 'Locked by {x}',

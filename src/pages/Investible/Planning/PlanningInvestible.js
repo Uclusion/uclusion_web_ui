@@ -105,6 +105,7 @@ import DatePicker from 'react-datepicker'
 import moment from 'moment'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { doSetEditWhenValid } from '../../../utils/windowUtils'
+import LinkMarket from '../../Dialog/LinkMarket'
 
 const useStyles = makeStyles(
   theme => ({
@@ -837,6 +838,7 @@ function PlanningInvestible(props) {
         showExpiration={fullStage.has_expiration}
         expirationMinutes={market.investment_expiration * 1440}
       />
+      <MarketLinks links={children} />
       <Grid container spacing={2}>
         <Grid item xs={12} style={{ marginTop: '15px' }}>
           {!inArchives && isAdmin && (!isInVoting || !canVote || yourVote) && (
@@ -1108,7 +1110,7 @@ function MarketMetaData(props) {
           </div>
         </React.Fragment>
       )}
-      <MarketLinks links={children} actions={actions} />
+      <LinkMarket actions={actions} />
       <AttachedFilesList
         marketId={market.id}
         onUpload={onAttachFiles}

@@ -14,7 +14,7 @@ import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDif
 import CardType, { AGILE_PLAN_TYPE, DECISION_TYPE } from '../../../components/CardType'
 import { DaysEstimate } from '../../../components/AgilePlan'
 import ParentSummary from '../ParentSummary'
-import MarketLinks from '../MarketLinks'
+import LinkMarket from '../LinkMarket'
 import { useMetaDataStyles } from '../../Investible/Planning/PlanningInvestible'
 import InsertLinkIcon from '@material-ui/icons/InsertLink'
 import { navigate } from '../../../utils/marketIdPathFunctions'
@@ -223,7 +223,6 @@ function Summary(props) {
     created_at: createdAt,
     attached_files: attachedFiles,
     locked_by: lockedBy,
-    children,
   } = market;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [, marketsDispatch] = useContext(MarketsContext);
@@ -322,7 +321,7 @@ function Summary(props) {
             </div>
           </div>
           <ParentSummary market={market} hidden={hidden}/>
-          <MarketLinks links={children || []} actions={inArchives ? [] : [<ExpandableAction
+          <LinkMarket actions={inArchives ? [] : [<ExpandableAction
             id="link"
             key="link"
             icon={<InsertLinkIcon htmlColor={ACTION_BUTTON_COLOR} />}
@@ -348,7 +347,6 @@ function Summary(props) {
 }
 
 Summary.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types
   market: PropTypes.object.isRequired,
   investibleName: PropTypes.string,
   investibleDescription: PropTypes.string,

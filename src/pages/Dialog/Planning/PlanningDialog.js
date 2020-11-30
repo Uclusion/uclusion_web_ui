@@ -57,6 +57,7 @@ import {
 } from '../../../contexts/TourContext/tourContextHelper'
 import { getVoteTotalsForUser, hasNotVoted } from '../../../utils/userFunctions'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
+import MarketLinks from '../MarketLinks'
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -74,7 +75,7 @@ function PlanningDialog(props) {
   const [marketsState] = useContext(MarketsContext);
   const intl = useIntl();
   const metaClasses = useMetaDataStyles();
-  const { id: marketId, market_stage: marketStage } = market;
+  const { id: marketId, market_stage: marketStage, children } = market;
   const activeMarket = marketStage === ACTIVE_STAGE;
   const inArchives = !activeMarket || (myPresence && !myPresence.following);
   const isAdmin = myPresence.is_admin;
@@ -238,8 +239,9 @@ function PlanningDialog(props) {
       {isChannel && (
         <DismissableText textId='storyHelp' />
       )}
+      <MarketLinks links={children} />
       <Grid container spacing={2}>
-          <Grid item id="commentAddArea"  xs={12} style={{ marginTop: '30px' }}>
+          <Grid item id="commentAddArea"  xs={12} style={{ marginTop: '15px' }}>
             {!inArchives && (
               <CommentAddBox
                 allowedTypes={allowedCommentTypes}

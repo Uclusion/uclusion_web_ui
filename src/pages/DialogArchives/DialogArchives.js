@@ -23,6 +23,7 @@ import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/Ma
 import { getMarketPresences, getPresenceMap } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import AssigneeFilterDropdown from './AssigneeFilterDropdown'
 import { ACTIVE_STAGE } from '../../constants/markets'
+import MarketLinks from '../Dialog/MarketLinks'
 
 function DialogArchives(props) {
   const { hidden } = props;
@@ -59,7 +60,7 @@ function DialogArchives(props) {
     return myInfo && myInfo.assigned.includes(assigneeFilter);
   });
 
-  const { name, market_stage: marketStage } = renderableMarket;
+  const { name, market_stage: marketStage, children } = renderableMarket;
   const inArchives = marketStage !== ACTIVE_STAGE || (myPresence && !myPresence.following);
   const breadCrumbTemplates = [{ name, link: formMarketLink(marketId) }];
   const breadCrumbs = inArchives? makeArchiveBreadCrumbs(history, breadCrumbTemplates)
@@ -125,6 +126,7 @@ function DialogArchives(props) {
           elevation={0}
         />
       </SubSection>
+      <MarketLinks links={children || []} isArchive />
     </Screen>
   );
 }

@@ -1,173 +1,76 @@
 import React, { useContext, useEffect, useReducer } from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
-import { FormattedMessage, useIntl } from 'react-intl'
-import { Link, List, Paper, Typography, } from '@material-ui/core'
-import { makeStyles } from '@material-ui/styles'
-import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { getMarketPresences, } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
-import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions'
-import { useHistory } from 'react-router'
 import { getMarketInfo } from '../../api/sso'
-import clsx from 'clsx'
-import { useMetaDataStyles } from '../Investible/Planning/PlanningInvestible'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
-import { ACTIVE_STAGE } from '../../constants/markets'
 import { convertDates } from '../../contexts/ContextUtils'
-
-const useStyles = makeStyles((theme) => ({
-  container: {
-    padding: '3px',
-    marginTop: '-6px',
-    boxShadow: 'none',
-    width: '100%',
-  },
-  inactiveMarket: {
-    textDecoration: 'line-through',
-    padding: '10px'
-  },
-  activeMarket: {
-    padding: '10px'
-  },
-  sidebarContent: {
-    display: 'flex',
-    justifyContent: 'center',
-    flexDirection: 'column',
-    paddingTop: '0',
-    paddingBottom: '0',
-    '& span': {
-      fontSize: '.9375rem',
-      fontWeight: 700
-    }
-  },
-  capitalize: {
-    textTransform: 'capitalize'
-  }
-}))
+import InitiativesAndDialogs from '../Home/InitiativesAndDialogs'
+import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { ACTIVE_STAGE } from '../../constants/markets'
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 
 function MarketLinks (props) {
-  const {
-    links, actions
-  } = props
-  const intl = useIntl();
-  const history = useHistory();
-  const classes = useStyles();
+  const { links, isArchive } = props
   const [marketState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
-  const [marketNameState, marketNamesDispatch] = useReducer((state, action) => {
-    const { marketId, marketToken, name, marketType, marketStage, createdAt } = action;
-    return { ...state, [marketId]: { name, marketType, marketStage, createdAt, marketToken } };
-  }, {});
+  const [marketInfoList, marketInfoDispatch] = useReducer((state, action) => {
+    const { marketDetails } = action;
+    return _.unionBy(state, [{ ...marketDetails }], 'id');
+  }, []);
   
   useEffect(() => {
+    function addMarket(marketDetails, active) {
+      if (isArchive) {
+        if (!active) {
+          marketInfoDispatch({ marketDetails });
+        }
+      }
+      else if (active) {
+        marketInfoDispatch({ marketDetails });
+      }
+    }
     links.forEach((marketId) => {
       const marketDetails = getMarket(marketState, marketId);
       if (marketDetails) {
-        const {
-          name, market_type: marketType, market_stage: marketStage, parent_comment_id: parentCommentId,
-          created_at: createdAt
-        } = marketDetails;
-        const isInline = !_.isEmpty(parentCommentId);
-        if (!isInline) {
-          marketNamesDispatch({ marketId, name, marketType, marketStage, createdAt });
-        }
+        const marketPresences = getMarketPresences(marketPresencesState, marketDetails.id) || [];
+        const myPresence = marketPresences.find((presence) => presence.current_user) || {};
+        const { following } = myPresence;
+        const { market_stage: marketStage } = marketDetails;
+        const active = marketStage === ACTIVE_STAGE && following;
+        addMarket(marketDetails, active);
       } else {
         console.info(`Getting ${marketId} for market links`);
         getMarketInfo(marketId).then((market) => {
-          const { name, market_type: marketType, market_stage: marketStage, parent_comment_id: parentCommentId,
-            created_at: createdAt, invite_capability: marketToken } = convertDates(market);
-          const isInline = !_.isEmpty(parentCommentId);
-          if (!isInline) {
-            marketNamesDispatch({ marketId, marketToken, name, marketType, marketStage, createdAt })
-          }
+          const marketDetails = convertDates(market);
+          marketDetails.isNotCollaborator = true;
+          const { market_stage: marketStage } = marketDetails;
+          const active = marketStage === ACTIVE_STAGE;
+          addMarket(marketDetails, active);
         });
       }
     });
     return () => {};
-  }, [links, marketState]);
+  }, [isArchive, links, marketPresencesState, marketState]);
 
-  const metaClasses = useMetaDataStyles();
-  function displayLinksList (linksList) {
-    const resolvedLinks = linksList.map((marketId) => {
-      const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
-      const myPresence = marketPresences.find((presence) => presence.current_user);
-      const baseLink = formMarketLink(marketId);
-      const marketInfo = marketNameState && [marketId] in marketNameState ? marketNameState[marketId] : undefined;
-      const createdAt = marketInfo ? marketInfo.createdAt : undefined;
-      const baseInviteLink = marketInfo ? `/invite/${marketInfo.marketToken}` : undefined;
-      return {marketId, myPresence, baseLink, baseInviteLink, marketInfo, createdAt};
-    });
-    const sortedLinks = _.orderBy(resolvedLinks, ['createdAt'], ['desc']);
-    return sortedLinks.map((info, index) => {
-      const {marketId, myPresence, baseLink, baseInviteLink, marketInfo} = info;
-      return (
-        <ul key={marketId}>
-            {marketInfo && (myPresence || marketInfo.marketStage !== ACTIVE_STAGE)  && (
-              <Typography key={marketId} component="li">
-                <Link
-                  href={baseLink}
-                  variant="inherit"
-                  underline="always"
-                  color="primary"
-                  className={marketInfo.marketStage === ACTIVE_STAGE ? classes.activeMarket : classes.inactiveMarket}
-                  onClick={(event) => {
-                    event.preventDefault()
-                    navigate(history, baseLink)
-                  }}
-                >
-                  {marketInfo.name}
-                </Link>
-              </Typography>
-            )}
-            {!myPresence && marketInfo && (
-              <Typography key={marketId} component="li">
-                <Link
-                  href={`${baseInviteLink}#is_obs=false`}
-                  variant="inherit"
-                  underline="always"
-                  color="primary"
-                  className={marketInfo.marketStage === ACTIVE_STAGE ? classes.activeMarket : classes.inactiveMarket}
-                  onClick={(event) => {
-                    event.preventDefault()
-                    navigate(history, `${baseInviteLink}#is_obs=false`)
-                  }}
-                >
-                  {intl.formatMessage({ id: 'marketParticipationLink' }, { x: marketInfo.name })}
-                </Link>
-              </Typography>
-            )}
-        </ul>
-      )
-    })
-  }
-
-  if (_.isEmpty(links) && _.isEmpty(actions)) {
+  if (_.isEmpty(links)) {
     return React.Fragment;
   }
 
   return (
-    <Paper className={classes.container} id="summary">
-      <div className={classes.capitalize}>
-        <FormattedMessage id="marketLinksSection" />
-        <div className={clsx(metaClasses.group, metaClasses.assignments, metaClasses.linkContainer, metaClasses.scrollContainer)}>
-          <List className={classes.sidebarContent}>
-            {actions}
-          </List>
-          {displayLinksList(links)}
-        </div>
-      </div>
-    </Paper>
+    <div style={{ marginTop: '40px' }}>
+      <InitiativesAndDialogs dialogs={marketInfoList} initiatives={[]} showParentOf={false}/>
+    </div>
   )
 }
 
 MarketLinks.propTypes = {
   links: PropTypes.arrayOf(PropTypes.string).isRequired,
-  actions: PropTypes.arrayOf(PropTypes.element),
+  isArchive:PropTypes.bool
 }
 
 MarketLinks.defaultProps = {
-  actions: [],
+  isArchive: false,
 };
 
 export default MarketLinks

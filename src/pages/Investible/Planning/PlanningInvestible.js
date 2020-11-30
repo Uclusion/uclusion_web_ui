@@ -858,6 +858,7 @@ function PlanningInvestible(props) {
           />
         </Grid>
       </Grid>
+      <MarketLinks links={children} isArchive />
     </Screen>
   );
 }

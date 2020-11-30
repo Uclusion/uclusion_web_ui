@@ -332,7 +332,7 @@ function InitiativesAndDialogs(props) {
       const {
         id: marketId, name, created_at: createdAt, expiration_minutes: expirationMinutes, created_by: createdBy,
         market_type: marketType, market_stage: marketStage, updated_at: updatedAt, parent_market_id: parentMarketId,
-        parent_investible_id: parentInvestibleId, isNotCollaborator
+        parent_investible_id: parentInvestibleId, invite_capability: marketToken, isNotCollaborator
       } = market;
       
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
@@ -403,29 +403,30 @@ function InitiativesAndDialogs(props) {
                 <Grid item xs={12} md={6}>
                   <CardContent className={classes.cardContent}>
                     {parentName && showParentOf &&
-                    <Link
-                      href={formMarketLink(parentMarketId)}
-                      variant="inherit"
-                      underline="always"
-                      color="primary"
-                      onClick={
-                        (event) => {
-                          event.stopPropagation();
-                          event.preventDefault();
-                          navigate(history, formMarketLink(parentMarketId));
+                      <Link
+                        href={formMarketLink(parentMarketId)}
+                        variant="inherit"
+                        underline="always"
+                        color="primary"
+                        onClick={
+                          (event) => {
+                            event.stopPropagation();
+                            event.preventDefault();
+                            navigate(history, formMarketLink(parentMarketId));
+                          }
                         }
-                      }
-                    >
-                      <Typography className={classes.childText}>
-                        Child of {parentName}
-                      </Typography>
-                    </Link>
+                      >
+                        <Typography className={classes.childText}>
+                          Child of {parentName}
+                        </Typography>
+                      </Link>
                     }
                     <div
                       className={classes.isLinked}
                       onClick={(event) => {
                         event.preventDefault();
-                        navigate(history, formMarketLink(marketId));
+                        navigate(history, isNotCollaborator ? `/invite/${marketToken}` :
+                          formMarketLink(marketId));
                       }}>
                       {isDraft && (
                         <Typography

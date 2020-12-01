@@ -117,14 +117,14 @@ function Dialog(props) {
       const { investible } = baseInvestible;
       const { id } = investible;
       const link = formInvestibleLink(marketId, id);
-      navigate(history, link);
+      navigate(history, link, true);
     }
     if (!hidden) {
       if (isInline) {
         const link = parentInvestibleId ? formInvestibleLink(parentMarketId, parentInvestibleId) :
           formMarketLink(parentMarketId);
         const fullLink = `${link}#c${parentCommentId}`;
-        navigate(history, fullLink);
+        navigate(history, fullLink, true);
       }
       else if (marketType === INITIATIVE_TYPE) {
         if (Array.isArray(investibles) && investibles.length > 0) {

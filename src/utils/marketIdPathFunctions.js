@@ -31,7 +31,7 @@ export function broadcastView(marketId, investibleId, isEntry, action) {
   );
 }
 
-export function navigate(history, to) {
+export function navigate(history, to, insideUseEffect) {
   const {
     action: fromAction,
     marketId: fromMarketId,
@@ -39,9 +39,24 @@ export function navigate(history, to) {
   } = decomposeMarketPath(history.location.pathname);
   broadcastView(fromMarketId, fromInvestibleId, false, fromAction);
   if (to) {
-    history.push(to);
+    if (insideUseEffect) {
+      // Without the set timeout the use effect can be re-run before the push is complete
+      // though not clear why that run wouldn't run it again. Also no point if inside a promise
+      // as that useEffect must be stable or the promise would not run.
+      setTimeout(() => {
+        history.push(to);
+      }, 0);
+    } else {
+      history.push(to);
+    }
   } else {
-    history.goBack();
+    if (insideUseEffect) {
+      setTimeout(() => {
+        history.goBack();
+      }, 1);
+    } else {
+      history.goBack();
+    }
   }
   const {
     action: toAction,

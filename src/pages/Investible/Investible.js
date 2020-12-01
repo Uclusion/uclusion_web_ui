@@ -60,7 +60,7 @@ function Investible(props) {
   const loading = !investibleId || _.isEmpty(inv) || _.isEmpty(myPresence) || !userId || _.isEmpty(realMarket);
   const isDecision = market && market.market_type === DECISION_TYPE;
   const isPlanning = market && market.market_type === PLANNING_TYPE;
-  const { market_stage: marketStage } = market;
+  const { market_stage: marketStage, parent_comment_id: parentCommentId, market_type: type } = market;
   const isAdmin = myPresence && myPresence.is_admin;
   const inArchives = marketStage !== ACTIVE_STAGE || (myPresence && !myPresence.following);
   const breadCrumbs = inArchives ?
@@ -86,21 +86,25 @@ function Investible(props) {
 
   useEffect(() => {
     if (!hidden) {
-      const {market_type: type, parent_comment_market_id: parentMarketId, parent_comment_id: parentCommentId} = market;
-      if (parentCommentId && type === INITIATIVE_TYPE) {
-        // If land on an inline Initiative then redirect to comment
-        const inlineComments = getMarketComments(commentsState, parentMarketId) || [];
-        const parentComment = inlineComments.find((comment) => comment.id === parentCommentId) || {};
-        const link = parentComment.investible_id ? formInvestibleLink(parentMarketId, parentComment.investible_id) :
-          formMarketLink(parentMarketId);
-        const fullLink = `${link}#c${parentCommentId}`;
-        navigate(history, fullLink);
+      const currentMarket = getMarket(marketsState, marketId);
+      if (currentMarket) {
+        const {market_type: type, parent_comment_market_id: parentMarketId,
+          parent_comment_id: parentCommentId} = currentMarket;
+        if (parentCommentId && type === INITIATIVE_TYPE) {
+          // If land on an inline Initiative then redirect to comment
+          const inlineComments = getMarketComments(commentsState, parentMarketId) || [];
+          const parentComment = inlineComments.find((comment) => comment.id === parentCommentId) || {};
+          const link = parentComment.investible_id ? formInvestibleLink(parentMarketId, parentComment.investible_id) :
+            formMarketLink(parentMarketId);
+          const fullLink = `${link}#c${parentCommentId}`;
+          navigate(history, fullLink, true);
+        }
       }
     }
     return () => {};
-  }, [hidden, market, history, commentsState]);
+  }, [hidden, marketId, history, commentsState, marketsState]);
 
-  if (loading) {
+  if (loading || (parentCommentId && type === INITIATIVE_TYPE)) {
     return (
       <Screen
         title={name}

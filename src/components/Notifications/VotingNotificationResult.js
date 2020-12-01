@@ -30,7 +30,6 @@ function VotingNotificationResult(props) {
     link,
     userId
   } = props;
-  console.debug(`userId is ${userId}`);
   const intl = useIntl();
   const history = useHistory();
   const [investibleState] = useContext(InvestiblesContext);

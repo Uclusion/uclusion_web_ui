@@ -27,7 +27,7 @@ function ChangeToObserverButton(props) {
   const [marketState, marketsDispatch] = useContext(MarketsContext);
   const [operationRunning] = useContext(OperationInProgressContext);
   const [open, setOpen] = React.useState(false);
-  const market = getMarket(marketState, marketId);
+  const market = getMarket(marketState, marketId) || {};
   const { market_type: marketType } = market;
   const lockedDialogClasses = useLockedDialogStyles();
   const [marketPresencesState] = useContext(MarketPresencesContext);

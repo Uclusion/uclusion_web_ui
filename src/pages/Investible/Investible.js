@@ -71,6 +71,7 @@ function Investible(props) {
   useEffect(() => {
     const noMarketLoad = _.isEmpty(realMarket) && _.isEmpty(marketPresences);
     if (!isInitialization && noMarketLoad && !hidden && marketId) {
+      console.log(`Loading ${marketId} on no market`);
         // Login with market id to create guest capability if necessary
         getMarketFromUrl(marketId).then((loginData) =>{
           const { market } = loginData;

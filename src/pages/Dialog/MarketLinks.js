@@ -9,14 +9,21 @@ import InitiativesAndDialogs from '../Home/InitiativesAndDialogs'
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { ACTIVE_STAGE } from '../../constants/markets'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { NonParticipantMarketsContext } from '../../contexts/NonParticipantMarketsContext/NonParticipantMarketsContext'
+import { updateNonParticipatingMarketDetails } from '../../contexts/NonParticipantMarketsContext/nonParticipantsMarketsContextReducer'
 
 function MarketLinks (props) {
   const { links, isArchive } = props
   const [marketState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [nonParticipantMarketState, nonParticipantMarketDispatch] = useContext(NonParticipantMarketsContext);
   const [marketInfoList, marketInfoDispatch] = useReducer((state, action) => {
     const { marketDetails } = action;
-    return _.unionBy(state, [{ ...marketDetails }], 'id');
+    if (marketDetails.isNotCollaborator) {
+      return _.unionBy(state, [{ ...marketDetails }], 'id');
+    }
+    // If we have local data make sure it overwrites the not collaborator version
+    return _.unionBy([{ ...marketDetails }], state, 'id');
   }, []);
   
   useEffect(() => {
@@ -30,28 +37,40 @@ function MarketLinks (props) {
         marketInfoDispatch({ marketDetails });
       }
     }
-    links.forEach((marketId) => {
-      const marketDetails = getMarket(marketState, marketId);
-      if (marketDetails) {
-        const marketPresences = getMarketPresences(marketPresencesState, marketDetails.id) || [];
-        const myPresence = marketPresences.find((presence) => presence.current_user) || {};
-        const { following } = myPresence;
-        const { market_stage: marketStage } = marketDetails;
-        const active = marketStage === ACTIVE_STAGE && following;
-        addMarket(marketDetails, active);
-      } else {
-        console.info(`Getting ${marketId} for market links`);
-        getMarketInfo(marketId).then((market) => {
-          const marketDetails = convertDates(market);
-          marketDetails.isNotCollaborator = true;
+    if (!marketState.initializing && !marketPresencesState.initializing) {
+      links.forEach((marketId) => {
+        const marketDetails = getMarket(marketState, marketId);
+        const foundMarket = marketInfoList.find((aMarket) => aMarket.id === marketId);
+        if (marketDetails && (!foundMarket || foundMarket.isNotCollaborator)) {
+          const marketPresences = getMarketPresences(marketPresencesState, marketDetails.id) || [];
+          const myPresence = marketPresences.find((presence) => presence.current_user) || {};
+          const { following } = myPresence;
           const { market_stage: marketStage } = marketDetails;
-          const active = marketStage === ACTIVE_STAGE;
+          const active = marketStage === ACTIVE_STAGE && following;
           addMarket(marketDetails, active);
-        });
-      }
-    });
+        } else if (!foundMarket) {
+          const nonParticipatingMarketDetails = getMarket(nonParticipantMarketState, marketId);
+          if (!nonParticipatingMarketDetails) {
+            console.info(`Getting ${marketId} for market links`);
+            getMarketInfo(marketId).then((originalMarket) => {
+              const market = convertDates(originalMarket);
+              market.isNotCollaborator = true;
+              nonParticipantMarketDispatch(updateNonParticipatingMarketDetails(market));
+              const { market_stage: marketStage } = market;
+              const active = marketStage === ACTIVE_STAGE;
+              addMarket(market, active);
+            });
+          } else {
+            const { market_stage: marketStage } = nonParticipatingMarketDetails;
+            const active = marketStage === ACTIVE_STAGE;
+            addMarket(nonParticipatingMarketDetails, active);
+          }
+        }
+      });
+    }
     return () => {};
-  }, [isArchive, links, marketPresencesState, marketState]);
+  }, [isArchive, links, marketInfoList, marketPresencesState, marketState, nonParticipantMarketDispatch,
+    nonParticipantMarketState]);
 
   if (_.isEmpty(links)) {
     return React.Fragment;

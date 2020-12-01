@@ -28,6 +28,7 @@ import { SearchResultsProvider } from '../../contexts/SearchResultsContext/Searc
 import { ScrollProvider } from '../../contexts/ScrollContext'
 import { ExpandedCommentProvider } from '../../contexts/CommentsContext/ExpandedCommentContext'
 import { LeaderProvider } from '../../contexts/LeaderContext/LeaderContext'
+import { NonParticipantsMarketsProvider } from '../../contexts/NonParticipantMarketsContext/NonParticipantMarketsContext'
 
 function Main (props) {
   const stripePromise = loadStripe(config.payments.stripeKey);
@@ -47,22 +48,24 @@ function Main (props) {
                             <VersionsProvider>
                               <ScrollProvider>
                                 <NotificationsProvider>
-                                  <MarketsProvider>
-                                    <MarketStagesProvider>
-                                      <CommentsProvider>
-                                        <InvestiblesProvider>
-                                          <MarketPresencesProvider>
-                                            <LocaleProvider>
-                                              <ToastContainer position="top-center" pauseOnFocusLoss={false}/>
-                                              <Elements stripe={stripePromise}>
-                                                <AppWithAuth/>
-                                              </Elements>
-                                            </LocaleProvider>
-                                          </MarketPresencesProvider>
-                                        </InvestiblesProvider>
-                                      </CommentsProvider>
-                                    </MarketStagesProvider>
-                                  </MarketsProvider>
+                                  <NonParticipantsMarketsProvider>
+                                    <MarketsProvider>
+                                      <MarketStagesProvider>
+                                        <CommentsProvider>
+                                          <InvestiblesProvider>
+                                            <MarketPresencesProvider>
+                                              <LocaleProvider>
+                                                <ToastContainer position="top-center" pauseOnFocusLoss={false}/>
+                                                <Elements stripe={stripePromise}>
+                                                  <AppWithAuth/>
+                                                </Elements>
+                                              </LocaleProvider>
+                                            </MarketPresencesProvider>
+                                          </InvestiblesProvider>
+                                        </CommentsProvider>
+                                      </MarketStagesProvider>
+                                    </MarketsProvider>
+                                  </NonParticipantsMarketsProvider>
                                 </NotificationsProvider>
                               </ScrollProvider>
                             </VersionsProvider>

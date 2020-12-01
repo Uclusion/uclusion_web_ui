@@ -753,7 +753,6 @@ function PlanningInvestible(props) {
                 marketPresences={marketPresences}
                 isAdmin={isAdmin && !inArchives}
                 toggleAssign={toggleAssign}
-                children={children || []}
                 stageActions={getStageActions()}
                 expansionChanged={expansionChanged}
                 actions={getSidebarActions()}
@@ -1006,7 +1005,6 @@ function MarketMetaData(props) {
     marketInvestible,
     isAdmin,
     toggleAssign,
-    children,
     stageActions,
     expansionChanged,
     actions,
@@ -1130,7 +1128,6 @@ MarketMetaData.propTypes = {
   marketInvestible: PropTypes.object.isRequired,
   isAdmin: PropTypes.bool.isRequired,
   toggleAssign: PropTypes.func.isRequired,
-  children: PropTypes.arrayOf(PropTypes.string).isRequired,
   stageActions: PropTypes.array,
   expansionChanged: PropTypes.func.isRequired,
   actions: PropTypes.arrayOf(PropTypes.element).isRequired,

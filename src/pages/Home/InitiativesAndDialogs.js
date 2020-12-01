@@ -36,7 +36,6 @@ import ThumbUpIcon from '@material-ui/icons/ThumbUp'
 import clsx from 'clsx'
 import ThumbDownIcon from '@material-ui/icons/ThumbDown'
 import md5 from 'md5'
-import MarketLinks from '../Dialog/MarketLinks'
 
 const dialogStyles = makeStyles((theme) => ({
   paper: {

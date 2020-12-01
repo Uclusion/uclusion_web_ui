@@ -29,7 +29,7 @@ function InvestiblesProvider(props) {
   useEffect(() => {
     const myChannel = new BroadcastChannel(INVESTIBLES_CHANNEL);
     myChannel.onmessage = () => {
-      console.info('Reloading on markets channel message');
+      console.info('Reloading on investibles channel message');
       const lfg = new LocalForageHelper(MEMORY_INVESTIBLES_CONTEXT_NAMESPACE);
       lfg.getState()
         .then((diskState) => {

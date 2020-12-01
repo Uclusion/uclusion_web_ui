@@ -239,7 +239,7 @@ function PlanningDialog(props) {
       {isChannel && (
         <DismissableText textId='storyHelp' />
       )}
-      <MarketLinks links={children} />
+      <MarketLinks links={children|| []} />
       <Grid container spacing={2}>
           <Grid item id="commentAddArea"  xs={12} style={{ marginTop: '15px' }}>
             {!inArchives && (

@@ -170,7 +170,7 @@ const useCommentStyles = makeStyles(
       },
       inlineBorder: {
         border: '1px solid black',
-        borderRadius: 3,
+        borderRadius: '0 6px 6px 6px',
         marginBottom: '1.5rem'
       },
       inlineBorderNone: {},
@@ -504,7 +504,7 @@ function Comment(props) {
   const isEditable = comment.created_by === userId;
 
   return (
-    <div className={inlineMarketId ? classes.inlineBorder : classes.inlineBorderNone}>
+    <div className={inlineMarketId && repliesExpanded ? classes.inlineBorder : classes.inlineBorderNone}>
       <Card elevation={0} className={getCommentHighlightStyle()}>
         <Box display="flex">
           {overrideLabel && (

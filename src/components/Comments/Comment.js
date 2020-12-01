@@ -170,6 +170,7 @@ const useCommentStyles = makeStyles(
       },
       inlineBorder: {
         border: '1px solid black',
+        borderRadius: 3,
         marginBottom: '1.5rem'
       },
       inlineBorderNone: {},
@@ -645,7 +646,7 @@ function Comment(props) {
                 />
               </Typography>
             )}
-            {replies.length > 0 && (
+            {(replies.length > 0 || inlineMarketId) && (
               <Button
                 className={clsx(classes.action, classes.actionSecondary)}
                 variant="contained"
@@ -720,7 +721,7 @@ function Comment(props) {
             })}
         </LocalCommentsContext.Provider>
       </Box>
-      {getDecision(inlineMarketId)}
+      {repliesExpanded && getDecision(inlineMarketId)}
     </div>
   );
 }

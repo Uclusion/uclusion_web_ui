@@ -61,12 +61,12 @@ function DisplayNotifications(props) {
       investibleId,
       aType,
       commentId,
-      userId,
+      associatedUserId
     } = item;
     const link = getFullLink(item);
     if (aType === 'NEW_VOTES') {
       return (<VotingNotificationResult marketId={marketId} investibleId={investibleId} classes={searchClasses}
-                                        userId={userId} afterOnClick={afterOnClick} link={link}/>);
+                                        userId={associatedUserId} afterOnClick={afterOnClick} link={link}/>);
     } else {
       if (commentId) {
         return (<CommentSearchResult marketId={marketId} commentId={commentId} classes={searchClasses}

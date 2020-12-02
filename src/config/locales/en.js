@@ -505,6 +505,8 @@ const messages = defineMessages({
   questionCount: 'Open questions',
   issueCount: 'Open blocking issues',
   planningMarketActivate: 'Activate Workspace',
+  immediate: 'Immediate',
+  immediateSectionHelp: 'These TODOs should be converted to stories and completed as soon as possible.',
 
   // Decision Dialog
   decisionDialogSummaryLabel: 'Background Information',

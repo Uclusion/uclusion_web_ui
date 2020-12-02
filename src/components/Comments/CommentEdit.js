@@ -112,7 +112,7 @@ function CommentEdit(props) {
               value={type}
               row
             >
-              {allowedTypes.map((commentType) => {
+              {allowedTypes.length > 1 && allowedTypes.map((commentType) => {
                 return (
                   <FormControlLabel
                     key={commentType}

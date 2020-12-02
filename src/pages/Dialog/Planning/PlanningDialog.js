@@ -58,6 +58,7 @@ import {
 import { getVoteTotalsForUser, hasNotVoted } from '../../../utils/userFunctions'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import MarketLinks from '../MarketLinks'
+import MarketTodos from './MarketTodos'
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -82,8 +83,9 @@ function PlanningDialog(props) {
   const breadCrumbs = inArchives
       ? makeArchiveBreadCrumbs(history)
       : makeBreadCrumbs(history);
-  const marketComments = comments.filter(comment => !comment.investible_id);
-  const allowedCommentTypes = [QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE, ISSUE_TYPE];
+  const marketComments = comments.filter(comment => !comment.investible_id && comment.comment_type !== TODO_TYPE);
+  const todoComments = comments.filter(comment => !comment.investible_id && comment.comment_type === TODO_TYPE);
+  const allowedCommentTypes = [QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE];
   const { name: marketName, locked_by: lockedBy } = market;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const presences = getMarketPresences(marketPresencesState, marketId);
@@ -252,6 +254,7 @@ function PlanningDialog(props) {
             <CommentBox comments={marketComments} marketId={marketId} allowedTypes={allowedCommentTypes} />
           </Grid>
       </Grid>
+      <MarketTodos comments={todoComments} marketId={marketId} />
     </Screen>
   );
 }

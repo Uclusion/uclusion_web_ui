@@ -202,7 +202,7 @@ function useMarketId() {
  * @param {{comment: Comment, comments: Comment[]}} props
  */
 function Comment(props) {
-  const { comment, marketId, comments, allowedTypes } = props;
+  const { comment, marketId, comments, allowedTypes, editOpenDefault, noReply, noAuthor, onDone } = props;
   const history = useHistory();
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const intl = useIntl();
@@ -228,7 +228,7 @@ function Comment(props) {
   const [highlightedCommentState, highlightedCommentDispatch] = useContext(HighlightedCommentContext);
   const [expandedCommentState, expandedCommentDispatch] = useContext(ExpandedCommentContext);
   const [replyOpen, setReplyOpen] = useState(false);
-  const [editOpen, setEditOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(editOpenDefault);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [, versionsDispatch] = useContext(VersionsContext);
   const [marketPresencesState, presenceDispatch] = useContext(MarketPresencesContext);
@@ -291,6 +291,9 @@ function Comment(props) {
   }
 
   function toggleEdit() {
+    if (editOpen) {
+      onDone();
+    }
     setEditOpen(!editOpen);
   }
 
@@ -576,13 +579,15 @@ function Comment(props) {
           )}
         </Box>
         <CardContent className={classes.cardContent}>
-          <div style={{ display: 'inline-flex', alignItems: 'center' }}>
-            <Avatar key={userId}
-                    src={`https://www.gravatar.com/avatar/${md5(createdBy.email, {encoding: "binary"})}?d=blank`} />
-            <Typography className={classes.createdBy} variant="caption">
-              {createdBy.name}
-            </Typography>
-          </div>
+          {!noAuthor && (
+            <div style={{ display: 'inline-flex', alignItems: 'center' }}>
+              <Avatar key={userId}
+                      src={`https://www.gravatar.com/avatar/${md5(createdBy.email, {encoding: "binary"})}?d=blank`} />
+              <Typography className={classes.createdBy} variant="caption">
+                {createdBy.name}
+              </Typography>
+            </div>
+          )}
           <Box marginTop={1}>
             {!editOpen && (
               <ReadOnlyQuillEditor value={comment.body} />
@@ -669,7 +674,7 @@ function Comment(props) {
             )}
             {enableEditing && (
               <React.Fragment>
-                {commentType !== REPORT_TYPE && (
+                {commentType !== REPORT_TYPE && !noReply && (
                   <Button
                     className={clsx(classes.action, classes.actionPrimary)}
                     color="primary"
@@ -729,7 +734,10 @@ function Comment(props) {
 Comment.propTypes = {
   allowedTypes: PropTypes.arrayOf(PropTypes.string).isRequired,
   comment: PropTypes.object.isRequired,
-  // eslint-disable-next-line react/forbid-prop-types
+  editOpenDefault: PropTypes.bool,
+  noReply: PropTypes.bool,
+  noAuthor: PropTypes.bool,
+  onDone: PropTypes.func,
   comments: PropTypes.arrayOf(PropTypes.object).isRequired,
   depth: () => {
     // TODO error
@@ -737,6 +745,13 @@ Comment.propTypes = {
     return null;
   },
   marketId: PropTypes.string.isRequired
+};
+
+Comment.defaultProps = {
+  editOpenDefault: false,
+  noReply: false,
+  noAuthor: false,
+  onDone: () => {}
 };
 
 function InitialReply(props) {

@@ -52,7 +52,7 @@ export function hasNotVoted(investible, marketPresencesState, marketsState, comm
   const { market_infos } = investible;
   const myInfo = market_infos.find((info) => info.market_id === marketId);
   const { children } = myInfo;
-  const marketsToCheck = [].concat(children);
+  const marketsToCheck = [].concat(children || []);
   const commentsSafe = comments || [];
   commentsSafe.forEach((comment) => {
     const { investible_id: myInvestibleId, inline_market_id: inlineMarketId } = comment;

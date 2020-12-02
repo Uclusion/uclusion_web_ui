@@ -74,7 +74,7 @@ export function getInvestibles(investibles, presenceMap, marketId, history, intl
           elevation={elevation}
         >
           <div className={highlightMap[id] ? classes.warn : classes.outlined}>
-            <Typography style={{fontSize: '.75rem', flex: 1}}>Updated at: {intl.formatDate(updated_at)}</Typography>
+            <Typography style={{fontSize: '.75rem', flex: 1}}>Updated: {intl.formatDate(updated_at)}</Typography>
             <Typography style={{fontWeight: 700, flex: 2}}>{name}</Typography>
             {assignedNames.map((name) => (<Typography style={{fontStyle: 'italic', fontSize: '.75rem', flex: 1}} key={name}>Assignee: {name}</Typography>))}
           </div>

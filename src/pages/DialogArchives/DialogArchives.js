@@ -141,7 +141,6 @@ function DialogArchives(props) {
           <CommentBox comments={notTodoComments} marketId={marketId} allowedTypes={[]} />
         </Grid>
       </Grid>
-      <div style={{ marginTop: '15px' }} />
       <MarketTodos comments={todoComments} marketId={marketId} />
     </Screen>
   );

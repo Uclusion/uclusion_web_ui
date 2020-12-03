@@ -75,6 +75,7 @@ function MarketTodos(props) {
 
   return (
     <>
+      <div style={{ marginTop: '15px' }} />
       {!_.isEmpty(redComments) && (
         <>
           {editRedCard && (

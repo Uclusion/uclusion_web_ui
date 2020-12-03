@@ -24,7 +24,7 @@ import {
   QUESTION_TYPE,
   REPLY_TYPE,
   REPORT_TYPE,
-  SUGGEST_CHANGE_TYPE, TODO_TYPE
+  SUGGEST_CHANGE_TYPE,
 } from '../../constants/comments'
 import { removeComment, reopenComment, resolveComment } from '../../api/comments'
 import SpinBlockingButton from '../SpinBlocking/SpinBlockingButton'

@@ -1,7 +1,18 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { FormattedDate, FormattedMessage, useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
-import { Avatar, Box, Button, Card, CardActions, CardContent, Checkbox, Grid, Typography } from '@material-ui/core'
+import {
+  Avatar,
+  Box,
+  Button,
+  Card,
+  CardActions,
+  CardContent,
+  Checkbox,
+  FormControl, FormControlLabel,
+  Grid, Radio, RadioGroup, Tooltip,
+  Typography
+} from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import clsx from 'clsx'
 import _ from 'lodash'
@@ -13,7 +24,7 @@ import {
   QUESTION_TYPE,
   REPLY_TYPE,
   REPORT_TYPE,
-  SUGGEST_CHANGE_TYPE
+  SUGGEST_CHANGE_TYPE, TODO_TYPE
 } from '../../constants/comments'
 import { removeComment, reopenComment, resolveComment } from '../../api/comments'
 import SpinBlockingButton from '../SpinBlocking/SpinBlockingButton'
@@ -180,6 +191,76 @@ const useCommentStyles = makeStyles(
           lineHeight: 1,
           paddingLeft: '5px'
         },
+      },
+      todoLabelType: {
+        [theme.breakpoints.down('sm')]: {
+          display: 'block',
+          marginLeft: 'auto',
+          marginRight: 'auto'
+        }
+      },
+      commentTypeGroup: {
+        display: "flex",
+        flexDirection: "row",
+        [theme.breakpoints.down('sm')]: {
+          display: 'block'
+        }
+      },
+      chipItem: {
+        color: '#fff',
+        borderRadius: '8px',
+        '& .MuiChip-label': {
+          fontSize: 12,
+        },
+        '& .MuiFormControlLabel-label': {
+          paddingRight: '5px',
+          fontWeight: 'bold',
+          textTransform: 'capitalize',
+          [theme.breakpoints.down('sm')]: {
+            height: '100%',
+            verticalAlign: 'middle',
+            display: 'inline-block',
+            '& .MuiSvgIcon-root': {
+              display: 'block'
+            }
+          },
+        },
+        '& .MuiChip-avatar': {
+          width: '16px',
+          height: '14px',
+          color: '#fff',
+        },
+        '& .MuiRadio-colorPrimary.Mui-checked':{
+          '&.Mui-checked': {
+            color: 'white'
+          }
+        },
+        paddingRight: theme.spacing(1),
+        paddingLeft: theme.spacing(1),
+        margin: theme.spacing(0, 0, 0, 4),
+        [theme.breakpoints.down('sm')]: {
+          margin: '10px'
+        },
+      },
+      selected: {
+        opacity: 1
+      },
+      unselected: {
+        opacity: '.6'
+      },
+      chipItemQuestion: {
+        background: '#2F80ED',
+      },
+      chipItemIssue: {
+        background: '#E85757',
+        color: 'black'
+      },
+      chipItemSuggestion: {
+        background: '#e6e969',
+        color: 'black'
+      },
+      commentTypeContainer: {
+        borderRadius: '4px 4px 0 0'
       }
   }
 },
@@ -208,7 +289,8 @@ function Comment(props) {
   const intl = useIntl();
   const classes = useCommentStyles();
   const { id, comment_type: commentType, resolved, investible_id: investibleId, inline_market_id: inlineMarketId,
-  created_by: commentCreatedBy} = comment;
+  created_by: commentCreatedBy, notification_type: originalNotificationType} = comment;
+  const [myNotificationType, setMyNotificationType] = useState(originalNotificationType);
   const presences = usePresences(marketId);
   const createdBy = useCommenter(comment, presences) || unknownPresence;
   const updatedBy = useUpdatedBy(comment, presences) || unknownPresence;
@@ -503,7 +585,10 @@ function Comment(props) {
     }
     return classes.container;
   }
-
+  function onNotificationTypeChange(event) {
+    const { value } = event.target;
+    setMyNotificationType(value);
+  }
   const isEditable = comment.created_by === userId;
 
   return (
@@ -579,6 +664,41 @@ function Comment(props) {
           )}
         </Box>
         <CardContent className={classes.cardContent}>
+          {myNotificationType && (
+            <FormControl component="fieldset" className={classes.todoLabelType}>
+              <RadioGroup
+                aria-labelledby="notification-type-choice"
+                className={classes.commentType}
+                onChange={onNotificationTypeChange}
+                value={myNotificationType}
+                row
+              >
+                {['RED', 'YELLOW', 'BLUE'].map((notificationType) => {
+                  return (
+                    <Tooltip key={`tip${notificationType}`}
+                             title={<FormattedMessage id={`${notificationType.toLowerCase()}Tip`} />}>
+                      <FormControlLabel
+                        id={`commentAddNotificationType${notificationType}`}
+                        key={notificationType}
+                        className={clsx(
+                          notificationType === 'RED' ? `${classes.chipItem} ${classes.chipItemIssue}`
+                            : notificationType === 'BLUE' ? `${classes.chipItem} ${classes.chipItemQuestion}`
+                            : `${classes.chipItem} ${classes.chipItemSuggestion}`,
+                          myNotificationType === notificationType ? classes.selected : classes.unselected
+                        )}
+                        /* prevent clicking the label stealing focus */
+                        onMouseDown={e => e.preventDefault()}
+                        control={<Radio color="primary" />}
+                        label={<FormattedMessage id={`notificationLabel${notificationType}`} />}
+                        labelPlacement="end"
+                        value={notificationType}
+                      />
+                    </Tooltip>
+                  );
+                })}
+              </RadioGroup>
+            </FormControl>
+          )}
           {!noAuthor && (
             <div style={{ display: 'inline-flex', alignItems: 'center' }}>
               <Avatar key={userId}
@@ -599,6 +719,7 @@ function Comment(props) {
                 onSave={toggleEdit}
                 onCancel={toggleEdit}
                 allowedTypes={allowedTypes}
+                myNotificationType={myNotificationType}
               />
             )}
           </Box>

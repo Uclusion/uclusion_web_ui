@@ -111,6 +111,29 @@ export const useStyles = makeStyles((theme) => ({
   }
 }));
 
+export function getIcon(commentType) {
+
+  switch (commentType) {
+    case SUGGEST_CHANGE_TYPE: {
+      return <EmojiObjectsIcon />;
+    }
+    case ISSUE_TYPE: {
+      return <BlockIcon />;
+    }
+    case QUESTION_TYPE: {
+      return <HelpIcon />;
+    }
+    case TODO_TYPE: {
+      return <AssignmentIcon />;
+    }
+    case 'REPORT': {
+      return <DescriptionIcon />;
+    }
+    default: {
+      return null;
+    }
+  }
+}
 
 function CommentAddBox(props) {
   const {
@@ -131,29 +154,6 @@ function CommentAddBox(props) {
   }
   function clearType() {
     setType('');
-  }
-  function getIcon(commentType) {
-    
-    switch (commentType) {
-      case SUGGEST_CHANGE_TYPE: {
-        return <EmojiObjectsIcon />;
-      }
-      case ISSUE_TYPE: {
-        return <BlockIcon />;
-      }
-      case QUESTION_TYPE: {
-        return <HelpIcon />;
-      }
-      case TODO_TYPE: {
-        return <AssignmentIcon />;
-      }
-      case 'REPORT': {
-        return <DescriptionIcon />;
-      }
-      default: {
-        return null;
-      }
-    }
   }
   function getMessageId(aCommentType) {
     if (!isPlanning || aCommentType !== ISSUE_TYPE) {

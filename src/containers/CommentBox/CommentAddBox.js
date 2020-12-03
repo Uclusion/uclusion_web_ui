@@ -163,7 +163,7 @@ function CommentAddBox(props) {
   }
   return (
     <>
-      <Card elevation={0} className={classes.commentTypeContainer}>
+      <Card elevation={0} className={type === TODO_TYPE && !investible ? classes.hidden : classes.commentTypeContainer}>
         <CardContent>
           <FormControl component="fieldset" className={classes.commentType}>
             <RadioGroup

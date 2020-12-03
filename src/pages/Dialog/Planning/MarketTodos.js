@@ -7,7 +7,7 @@ import { useIntl } from 'react-intl'
 import { useHistory } from 'react-router'
 import { makeStyles } from '@material-ui/core/styles'
 import { yellow } from '@material-ui/core/colors'
-import { SECTION_TYPE_SECONDARY_WARNING } from '../../../constants/global'
+import { SECTION_TYPE_SECONDARY, SECTION_TYPE_SECONDARY_WARNING } from '../../../constants/global'
 import SubSection from '../../../containers/SubSection/SubSection'
 import ReadOnlyQuillEditor from '../../../components/TextEditors/ReadOnlyQuillEditor'
 import Comment from '../../../components/Comments/Comment'
@@ -46,7 +46,11 @@ function MarketTodos(props) {
   const intl = useIntl();
   const history = useHistory();
   const [editCard, setEditCard] = useState(undefined);
-
+  const [editRedCard, setEditRedCard] = useState(undefined);
+  const [editYellowCard, setEditYellowCard] = useState(undefined);
+  const blueComments = (comments || []).filter((comment) => comment.notification_type === 'BLUE');
+  const yellowComments = (comments || []).filter((comment) => comment.notification_type === 'YELLOW');
+  const redComments = (comments || []).filter((comment) => comment.notification_type === 'RED');
   function getCards(comments, marketId, history, intl) {
     const sortedData = _.sortBy(comments, 'updated_at').reverse();
     const classes = myClasses();
@@ -72,12 +76,12 @@ function MarketTodos(props) {
 
   return (
     <>
-      {editCard && (
+      {editRedCard && (
         <Comment
           depth={0}
           marketId={marketId}
-          comment={editCard}
-          onDone={() => setEditCard(undefined)}
+          comment={editRedCard}
+          onDone={() => setEditRedCard(undefined)}
           comments={comments}
           allowedTypes={[TODO_TYPE]}
           editOpenDefault
@@ -94,7 +98,59 @@ function MarketTodos(props) {
           container
           className={classes.white}
         >
-          {getCards(comments, marketId, history, intl)}
+          {getCards(redComments, marketId, history, intl)}
+        </Grid>
+        <hr />
+      </SubSection>
+      {editYellowCard && (
+        <Comment
+          depth={0}
+          marketId={marketId}
+          comment={editYellowCard}
+          onDone={() => setEditYellowCard(undefined)}
+          comments={comments}
+          allowedTypes={[TODO_TYPE]}
+          editOpenDefault
+          noReply
+          noAuthor
+        />
+      )}
+      <SubSection
+        type={SECTION_TYPE_SECONDARY}
+        title={intl.formatMessage({ id: 'able' })}
+        helpTextId="ableSectionHelp"
+      >
+        <Grid
+          container
+          className={classes.white}
+        >
+          {getCards(yellowComments, marketId, history, intl)}
+        </Grid>
+        <hr />
+      </SubSection>
+      {editCard && (
+        <Comment
+          depth={0}
+          marketId={marketId}
+          comment={editCard}
+          onDone={() => setEditCard(undefined)}
+          comments={comments}
+          allowedTypes={[TODO_TYPE]}
+          editOpenDefault
+          noReply
+          noAuthor
+        />
+      )}
+      <SubSection
+        type={SECTION_TYPE_SECONDARY}
+        title={intl.formatMessage({ id: 'convenient' })}
+        helpTextId="convenientSectionHelp"
+      >
+        <Grid
+          container
+          className={classes.white}
+        >
+          {getCards(blueComments, marketId, history, intl)}
         </Grid>
         <hr />
       </SubSection>

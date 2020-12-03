@@ -818,7 +818,7 @@ const messages = defineMessages({
   warningOffline: 'You are offline',
   optionalEdit: 'These fields are optional and can be changed at any time',
 
-  // Issue Present
+  // Comments
   issuePresent: 'Blocking Issue',
   nonBlockIssuePresent: 'Issue',
   questionPresent: 'Question',
@@ -830,6 +830,14 @@ const messages = defineMessages({
   suggestTip: 'Suggestion',
   reportTip: 'After estimated completion date use to report daily status.',
   todoTip: 'Use to insure this item is done in this story.',
+  redTip: 'Alerts team with highest priority notification',
+  blueTip: 'Does not send a notification but does highlight new',
+  yellowTip: 'Alerts team with notification',
+  notificationLabelRED: 'Immediate',
+  notificationLabelBLUE: 'When Able',
+  notificationLabelYELLOW: 'When Convenient',
+  able: 'When Able',
+  convenient: 'When Convenient',
 
   // Search
   searchBoxPlaceholder: 'Search',

@@ -529,7 +529,7 @@ function Comment(props) {
               />
             </Typography>
           )}
-          {enableEditing && isEditable && (
+          {enableEditing && isEditable && !editOpenDefault && (
             <Button
               className={clsx(
                 classes.action,

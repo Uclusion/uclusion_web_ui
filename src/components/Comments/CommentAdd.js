@@ -3,7 +3,17 @@ import { FormattedMessage, injectIntl } from 'react-intl'
 import classNames from 'clsx'
 import clsx from 'clsx'
 import _ from 'lodash'
-import { Button, darken, makeStyles, Paper } from '@material-ui/core'
+import {
+  Button, Card, CardContent,
+  darken,
+  FormControl,
+  FormControlLabel,
+  makeStyles,
+  Paper,
+  Radio,
+  RadioGroup,
+  Tooltip
+} from '@material-ui/core'
 import PropTypes from 'prop-types'
 import QuillEditor from '../TextEditors/QuillEditor'
 import { saveComment } from '../../api/comments'
@@ -32,6 +42,7 @@ import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { urlHelperGetName } from '../../utils/marketIdPathFunctions'
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
+import CardType from '../CardType'
 
 function getPlaceHolderLabelId (type, isStory) {
   switch (type) {
@@ -73,7 +84,6 @@ const useStyles = makeStyles((theme) => ({
     display: 'none',
   },
   add: {
-    display: 'flex',
     marginBottom: 16,
   },
   editor: {
@@ -97,6 +107,81 @@ const useStyles = makeStyles((theme) => ({
       backgroundColor: darken('#2d9cdb', 0.24)
     },
   },
+  addBox: {},
+  todoLabelType: {
+    alignSelf: "start",
+    display: "inline-flex"
+  },
+  commentType: {
+    [theme.breakpoints.down('sm')]: {
+      display: 'block',
+      marginLeft: 'auto',
+      marginRight: 'auto'
+    }
+  },
+  commentTypeGroup: {
+    display: "flex",
+    flexDirection: "row",
+    [theme.breakpoints.down('sm')]: {
+      display: 'block'
+    }
+  },
+  chipItem: {
+    color: '#fff',
+    borderRadius: '8px',
+    '& .MuiChip-label': {
+      fontSize: 12,
+    },
+    '& .MuiFormControlLabel-label': {
+      paddingRight: '5px',
+      fontWeight: 'bold',
+      textTransform: 'capitalize',
+      [theme.breakpoints.down('sm')]: {
+        height: '100%',
+        verticalAlign: 'middle',
+        display: 'inline-block',
+        '& .MuiSvgIcon-root': {
+          display: 'block'
+        }
+      },
+    },
+    '& .MuiChip-avatar': {
+      width: '16px',
+      height: '14px',
+      color: '#fff',
+    },
+    '& .MuiRadio-colorPrimary.Mui-checked':{
+      '&.Mui-checked': {
+        color: 'white'
+      }
+    },
+    paddingRight: theme.spacing(1),
+    paddingLeft: theme.spacing(1),
+    margin: theme.spacing(0, 0, 0, 4),
+    [theme.breakpoints.down('sm')]: {
+      margin: '10px'
+    },
+  },
+  selected: {
+    opacity: 1
+  },
+  unselected: {
+    opacity: '.6'
+  },
+  chipItemQuestion: {
+    background: '#2F80ED',
+  },
+  chipItemIssue: {
+    background: '#E85757',
+    color: 'black'
+  },
+  chipItemSuggestion: {
+    background: '#e6e969',
+    color: 'black'
+  },
+  commentTypeContainer: {
+    borderRadius: '4px 4px 0 0'
+  }
 }), { name: 'CommentAdd' });
 
 function CommentAdd (props) {
@@ -118,6 +203,7 @@ function CommentAdd (props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [firstOpen, setFirstOpen] = useState(true);
   const [placeHolderType, setPlaceHolderType] = useState(type);
+  const [myNotificationType, setMyNotificationType] = useState('BLUE');
   const defaultClearFunc = (newPlaceHolder) => {};
   //see https://stackoverflow.com/questions/55621212/is-it-possible-to-react-usestate-in-react for why we have a func
   // that returns  func for editorClearFunc
@@ -176,7 +262,7 @@ function CommentAdd (props) {
     const { assigned } = (info || {});
     const investibleRequiresInput = ((apiType === QUESTION_TYPE || apiType === SUGGEST_CHANGE_TYPE)
       && (assigned || []).includes(myPresence.id));
-    return saveComment(marketId, investibleId, parentId, tokensRemoved, apiType, filteredUploads)
+    return saveComment(marketId, investibleId, parentId, tokensRemoved, apiType, filteredUploads, myNotificationType)
       .then((comment) => {
         // move the investible to other state if necessary
         if (investibleBlocks || investibleRequiresInput) {
@@ -222,7 +308,10 @@ function CommentAdd (props) {
     onSave();
     clearType();
   }
-
+  function onNotificationTypeChange(event) {
+    const { value } = event.target;
+    setMyNotificationType(value);
+  }
   const commentSaveLabel = parent ? 'commentAddSaveLabel' : 'commentReplySaveLabel';
   const commentCancelLabel = parent ? 'commentReplyCancelLabel' : 'commentAddCancelLabel';
   const showIssueWarning = (issueWarningId !== null && type === ISSUE_TYPE) ||
@@ -230,76 +319,118 @@ function CommentAdd (props) {
   const myWarningId = type === TODO_TYPE ? todoWarningId : issueWarningId;
   const lockedDialogClasses = useLockedDialogStyles();
   return (
-    <Paper
-      id={hidden ? '' : 'cabox'}
-      className={(hidden) ? classes.hidden : classes.add}
-      elevation={0}
-    >
-      <div className={classes.editor}>
-        <QuillEditor
-          marketId={marketId}
-          placeholder={placeHolder}
-          defaultValue={body}
-          onChange={onEditorChange}
-          onS3Upload={onS3Upload}
-          setOperationInProgress={setOperationRunning}
-          setEditorClearFunc={(func) => {
-            setEditorClearFunc(func);
-          }}
-          setEditorFocusFunc={(func) => {
-            // console.log('Setting focus func');
-            setEditorFocusFunc(func);
-          }}
-          getUrlName={urlHelperGetName(marketState, investibleState)}
-        >
-          <Button
-            onClick={handleCancel}
-            className={classes.button}
+    <>
+      {type === TODO_TYPE && !investible && (
+        <Card elevation={0} className={classes.commentTypeContainer}>
+          <CardType className={classes.todoLabelType} type={type} resolved={false} />
+          <CardContent>
+            <FormControl component="fieldset" className={classes.commentType}>
+              <RadioGroup
+                aria-labelledby="notification-type-choice"
+                className={classes.commentTypeGroup}
+                onChange={onNotificationTypeChange}
+                value={myNotificationType}
+                row
+              >
+                {['RED', 'YELLOW', 'BLUE'].map((notificationType) => {
+                  return (
+                    <Tooltip key={`tip${notificationType}`}
+                             title={<FormattedMessage id={`${notificationType.toLowerCase()}Tip`} />}>
+                      <FormControlLabel
+                        id={`commentAddNotificationType${notificationType}`}
+                        key={notificationType}
+                        className={clsx(
+                          notificationType === 'RED' ? `${classes.chipItem} ${classes.chipItemIssue}`
+                            : notificationType === 'BLUE' ? `${classes.chipItem} ${classes.chipItemQuestion}`
+                            : `${classes.chipItem} ${classes.chipItemSuggestion}`,
+                          myNotificationType === notificationType ? classes.selected : classes.unselected
+                        )}
+                        /* prevent clicking the label stealing focus */
+                        onMouseDown={e => e.preventDefault()}
+                        control={<Radio color="primary" />}
+                        label={<FormattedMessage id={`notificationLabel${notificationType}`} />}
+                        labelPlacement="end"
+                        value={notificationType}
+                      />
+                    </Tooltip>
+                  );
+                })}
+              </RadioGroup>
+            </FormControl>
+          </CardContent>
+        </Card>
+      )}
+      <Paper
+        id={hidden ? '' : 'cabox'}
+        className={(hidden) ? classes.hidden : classes.add}
+        elevation={0}
+      >
+        <div className={classes.editor}>
+          <QuillEditor
+            marketId={marketId}
+            placeholder={placeHolder}
+            defaultValue={body}
+            onChange={onEditorChange}
+            onS3Upload={onS3Upload}
+            setOperationInProgress={setOperationRunning}
+            setEditorClearFunc={(func) => {
+              setEditorClearFunc(func);
+            }}
+            setEditorFocusFunc={(func) => {
+              // console.log('Setting focus func');
+              setEditorFocusFunc(func);
+            }}
+            getUrlName={urlHelperGetName(marketState, investibleState)}
           >
-            {intl.formatMessage({ id: commentCancelLabel })}
-          </Button>
-          {!showIssueWarning && (
-            <SpinBlockingButton
-              className={classNames(classes.button, classes.buttonPrimary)}
-              marketId={marketId}
-              onClick={handleSave}
-              onSpinStop={handleSpinStop}
-              disabled={_.isEmpty(body) || _.isEmpty(type)}
-              hasSpinChecker
+            <Button
+              onClick={handleCancel}
+              className={classes.button}
             >
-              {intl.formatMessage({ id: commentSaveLabel })}
-            </SpinBlockingButton>
-          )}
-          {showIssueWarning && (
-            <Button className={classNames(classes.button, classes.buttonPrimary)} onClick={toggleIssue}>
-              {intl.formatMessage({ id: commentSaveLabel })}
+              {intl.formatMessage({ id: commentCancelLabel })}
             </Button>
-          )}
-          {myWarningId && (
-            <IssueDialog
-              classes={lockedDialogClasses}
-              open={!hidden && openIssue}
-              onClose={toggleIssue}
-              issueWarningId={myWarningId}
-              /* slots */
-              actions={
-                <SpinBlockingButton
-                  className={clsx(lockedDialogClasses.action, lockedDialogClasses.actionEdit)}
-                  disableFocusRipple
-                  marketId={marketId}
-                  onClick={handleSave}
-                  onSpinStop={handleSpinStop}
-                  disabled={_.isEmpty(body)}
-                  hasSpinChecker
-                >
-                  <FormattedMessage id="issueProceed" />
-                </SpinBlockingButton>
-              }
-            />
-          )}
-        </QuillEditor>
-      </div>
-    </Paper>
+            {!showIssueWarning && (
+              <SpinBlockingButton
+                className={classNames(classes.button, classes.buttonPrimary)}
+                marketId={marketId}
+                onClick={handleSave}
+                onSpinStop={handleSpinStop}
+                disabled={_.isEmpty(body) || _.isEmpty(type)}
+                hasSpinChecker
+              >
+                {intl.formatMessage({ id: commentSaveLabel })}
+              </SpinBlockingButton>
+            )}
+            {showIssueWarning && (
+              <Button className={classNames(classes.button, classes.buttonPrimary)} onClick={toggleIssue}>
+                {intl.formatMessage({ id: commentSaveLabel })}
+              </Button>
+            )}
+            {myWarningId && (
+              <IssueDialog
+                classes={lockedDialogClasses}
+                open={!hidden && openIssue}
+                onClose={toggleIssue}
+                issueWarningId={myWarningId}
+                /* slots */
+                actions={
+                  <SpinBlockingButton
+                    className={clsx(lockedDialogClasses.action, lockedDialogClasses.actionEdit)}
+                    disableFocusRipple
+                    marketId={marketId}
+                    onClick={handleSave}
+                    onSpinStop={handleSpinStop}
+                    disabled={_.isEmpty(body)}
+                    hasSpinChecker
+                  >
+                    <FormattedMessage id="issueProceed" />
+                  </SpinBlockingButton>
+                }
+              />
+            )}
+          </QuillEditor>
+        </div>
+      </Paper>
+    </>
   );
 }
 

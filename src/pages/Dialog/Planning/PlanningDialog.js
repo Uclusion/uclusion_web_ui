@@ -21,7 +21,6 @@ import {
   navigate
 } from '../../../utils/marketIdPathFunctions'
 import {
-  ISSUE_TYPE,
   JUSTIFY_TYPE,
   QUESTION_TYPE,
   REPLY_TYPE,

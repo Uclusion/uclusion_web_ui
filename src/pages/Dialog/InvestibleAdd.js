@@ -28,7 +28,7 @@ function InvestibleAdd(props) {
   const location = useLocation();
   const { pathname, hash } = location;
   const values = queryString.parse(hash || '') || {};
-  const { parentCommentId } = values;
+  const { parentCommentId, fromCommentId } = values;
   const { marketId } = decomposeMarketPath(pathname);
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -125,6 +125,7 @@ function InvestibleAdd(props) {
           onSpinComplete={onDone}
           marketPresences={marketPresences}
           createdAt={createdAt}
+          fromCommentId={fromCommentId}
           storedState={storedState}
           classes={classes}
           storyMaxBudget={storyMaxBudget}

@@ -507,6 +507,9 @@ const messages = defineMessages({
   planningMarketActivate: 'Activate Workspace',
   immediate: 'Immediate',
   immediateSectionHelp: 'These TODOs should be converted to stories and completed as soon as possible.',
+  convenientSectionHelp: 'These TODOs are a priority if there are no immediate ones.',
+  ableSectionHelp: 'These TODOs may or may not be a priority.',
+  storyFromComment: 'Move to story',
 
   // Decision Dialog
   decisionDialogSummaryLabel: 'Background Information',

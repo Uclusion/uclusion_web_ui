@@ -772,6 +772,17 @@ function Comment(props) {
                 />
               </Typography>
             )}
+            {myNotificationType && !inArchives && (
+              <Button
+                className={clsx(classes.action, classes.actionPrimary)}
+                color="primary"
+                disabled={operationRunning}
+                onClick={() => navigate(history, `${formMarketAddInvestibleLink(marketId)}#fromCommentId=${id}`)}
+                variant="contained"
+              >
+                {intl.formatMessage({ id: "storyFromComment" })}
+              </Button>
+            )}
             {(replies.length > 0 || inlineMarketId) && (
               <Button
                 className={clsx(classes.action, classes.actionSecondary)}

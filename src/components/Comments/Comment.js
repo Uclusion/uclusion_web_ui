@@ -965,7 +965,8 @@ const useReplyStyles = makeStyles(
  * @type {Presence}
  */
 const unknownPresence = {
-  name: "unknown"
+  name: "unknown",
+  email: ""
 };
 
 /**

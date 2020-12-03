@@ -82,8 +82,9 @@ function PlanningDialog(props) {
   const breadCrumbs = inArchives
       ? makeArchiveBreadCrumbs(history)
       : makeBreadCrumbs(history);
-  const marketComments = comments.filter(comment => !comment.investible_id && comment.comment_type !== TODO_TYPE);
-  const todoComments = comments.filter(comment => !comment.investible_id && comment.comment_type === TODO_TYPE);
+  const unResolvedMarketComments = comments.filter(comment => !comment.investible_id && !comment.resolved) || [];
+  const notTodoComments = unResolvedMarketComments.filter(comment => comment.comment_type !== TODO_TYPE);
+  const todoComments = unResolvedMarketComments.filter(comment => comment.comment_type === TODO_TYPE);
   const allowedCommentTypes = [QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE];
   const { name: marketName, locked_by: lockedBy } = market;
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -250,7 +251,7 @@ function PlanningDialog(props) {
                 isPlanning
               />
             )}
-            <CommentBox comments={marketComments} marketId={marketId} allowedTypes={allowedCommentTypes} />
+            <CommentBox comments={notTodoComments} marketId={marketId} allowedTypes={allowedCommentTypes} />
           </Grid>
       </Grid>
       <MarketTodos comments={todoComments} marketId={marketId} />

@@ -53,7 +53,6 @@ function MarketTodos(props) {
   const redComments = (comments || []).filter((comment) => comment.notification_type === 'RED');
   function getCards(comments, marketId, history, intl, setCard) {
     const sortedData = _.sortBy(comments, 'updated_at').reverse();
-    const classes = myClasses();
     return sortedData.map((comment) => {
       const { id, body, updated_at } = comment;
       return (

@@ -243,7 +243,7 @@ function PlanningDialog(props) {
       )}
       <MarketTodos comments={todoComments} marketId={marketId} />
       <Grid container spacing={2}>
-          <Grid item id="commentAddArea"  xs={12} style={{ marginTop: '15px' }}>
+          <Grid item id="commentAddArea"  xs={12}>
             {!inArchives && (
               <CommentAddBox
                 allowedTypes={allowedCommentTypes}

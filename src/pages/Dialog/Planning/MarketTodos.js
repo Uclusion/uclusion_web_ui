@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import PropTypes from 'prop-types'
 import { Grid, Typography } from '@material-ui/core'
 import _ from 'lodash'
@@ -15,15 +15,18 @@ import { TODO_TYPE } from '../../../constants/comments'
 import AddIcon from '@material-ui/icons/Add'
 import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
 import CommentAdd from '../../../components/Comments/CommentAdd'
+import { HighlightedCommentContext } from '../../../contexts/HighlightingContexts/HighlightedCommentContext'
 
 const myClasses = makeStyles(
   theme => {
     return {
       warn: {
-        border: `1px solid ${theme.palette.grey["400"]}`,
+        border: `1px solid ${theme.palette.grey['400']}`,
         borderRadius: theme.spacing(1),
-        padding: theme.spacing(1, 2),
-        backgroundColor: yellow["400"],
+        padding: theme.spacing(1, 0, 0, 2),
+        overflowY: 'auto',
+        maxHeight: '275px',
+        backgroundColor: yellow['400'],
       },
       outlined: {
         border: `1px solid ${theme.palette.grey["400"]}`,
@@ -49,8 +52,9 @@ function MarketTodos(props) {
   } = props;
   const classes = myClasses();
   const intl = useIntl();
-  const history = useHistory();
-  const [editCard, setEditCard] = useState(undefined);
+  const history = useHistory()
+  const [highlightedCommentState] = useContext(HighlightedCommentContext)
+  const [editCard, setEditCard] = useState(undefined)
   const [createCard, setCreateCard] = useState(undefined);
   const [editRedCard, setEditRedCard] = useState(undefined);
   const [createRedCard, setCreateRedCard] = useState(undefined);
@@ -62,18 +66,20 @@ function MarketTodos(props) {
   function getCards(comments, marketId, history, intl, setCard) {
     const sortedData = _.sortBy(comments, 'updated_at').reverse();
     return sortedData.map((comment) => {
-      const { id, body, updated_at } = comment;
+      const { id, body, updated_at } = comment
+      const { level } = highlightedCommentState[id] || {}
       return (
         <Grid
-          key={id}
+          id={`c${id}`}
+          key={`c${id}`}
           item
           md={3}
           xs={12}
         >
           <RaisedCard onClick={() => setCard(comment)} elevation={0}>
-            <div className={classes.outlined}>
-              <Typography style={{fontSize: '.75rem', flex: 1}}>Updated: {intl.formatDate(updated_at)}</Typography>
-              <ReadOnlyQuillEditor value={body} />
+            <div className={level ? classes.warn : classes.outlined}>
+              <Typography style={{ fontSize: '.75rem', flex: 1 }}>Updated: {intl.formatDate(updated_at)}</Typography>
+              <ReadOnlyQuillEditor value={body}/>
             </div>
           </RaisedCard>
         </Grid>

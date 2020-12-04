@@ -772,7 +772,7 @@ function Comment(props) {
                 />
               </Typography>
             )}
-            {myNotificationType && !inArchives && (
+            {commentType === TODO_TYPE && !investibleId && !inArchives && (
               <Button
                 className={clsx(classes.action, classes.actionPrimary)}
                 color="primary"

@@ -262,7 +262,9 @@ function CommentAdd (props) {
     const { assigned } = (info || {});
     const investibleRequiresInput = ((apiType === QUESTION_TYPE || apiType === SUGGEST_CHANGE_TYPE)
       && (assigned || []).includes(myPresence.id));
-    return saveComment(marketId, investibleId, parentId, tokensRemoved, apiType, filteredUploads, myNotificationType)
+    const myActualNotificationType = type === TODO_TYPE && !investibleId ? myNotificationType : undefined;
+    return saveComment(marketId, investibleId, parentId, tokensRemoved, apiType, filteredUploads,
+      myActualNotificationType)
       .then((comment) => {
         // move the investible to other state if necessary
         if (investibleBlocks || investibleRequiresInput) {

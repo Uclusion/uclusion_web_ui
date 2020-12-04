@@ -24,7 +24,7 @@ import {
   QUESTION_TYPE,
   REPLY_TYPE,
   REPORT_TYPE,
-  SUGGEST_CHANGE_TYPE,
+  SUGGEST_CHANGE_TYPE, TODO_TYPE,
 } from '../../constants/comments'
 import { removeComment, reopenComment, resolveComment } from '../../api/comments'
 import SpinBlockingButton from '../SpinBlocking/SpinBlockingButton'
@@ -664,7 +664,7 @@ function Comment(props) {
           )}
         </Box>
         <CardContent className={classes.cardContent}>
-          {myNotificationType && (
+          {commentType === TODO_TYPE && !investibleId && (
             <FormControl component="fieldset" className={classes.todoLabelType}>
               <RadioGroup
                 aria-labelledby="notification-type-choice"

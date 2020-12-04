@@ -148,7 +148,7 @@ function CommentEdit(props) {
     intl, marketId, onSave, onCancel, comment, allowedTypes, myNotificationType
   } = props;
   const { id, body: initialBody, uploaded_files: initialUploadedFiles, comment_type: commentType,
-    inline_market_id: inlineMarketId } = comment;
+    inline_market_id: inlineMarketId, investible_id: investibleId } = comment;
   const [body, setBody] = useState(initialBody);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const classes = useStyles();
@@ -169,7 +169,8 @@ function CommentEdit(props) {
       text: tokensRemoved,
     } = processTextAndFilesForSave(newUploadedFiles, body);
     const updatedType = type !== commentType ? type : undefined;
-    return updateComment(marketId, id, tokensRemoved, filteredUploads, updatedType, myNotificationType)
+    const myActualNotificationType = commentType === TODO_TYPE && !investibleId ? myNotificationType : undefined;
+    return updateComment(marketId, id, tokensRemoved, filteredUploads, updatedType, myActualNotificationType)
       .then((comment) => {
         addCommentToMarket(comment, commentState, commentDispatch);
         return EMPTY_SPIN_RESULT;

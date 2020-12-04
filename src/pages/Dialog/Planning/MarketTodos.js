@@ -25,7 +25,9 @@ const myClasses = makeStyles(
       outlined: {
         border: `1px solid ${theme.palette.grey["400"]}`,
         borderRadius: theme.spacing(1),
-        padding: theme.spacing(1, 2),
+        padding: theme.spacing(1, 0, 0, 2),
+        overflowY: 'auto',
+        maxHeight: '275px'
       },
       white: {
         backgroundColor: "white",

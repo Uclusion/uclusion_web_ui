@@ -135,13 +135,13 @@ function DialogArchives(props) {
           elevation={0}
         />
       </SubSection>
+      <MarketTodos comments={todoComments} marketId={marketId} />
       <MarketLinks links={children || []} isArchive />
       <Grid container spacing={2}>
         <Grid item id="commentAddArea"  xs={12} style={{ marginTop: '15px' }}>
           <CommentBox comments={notTodoComments} marketId={marketId} allowedTypes={[]} />
         </Grid>
       </Grid>
-      <MarketTodos comments={todoComments} marketId={marketId} />
     </Screen>
   );
 }

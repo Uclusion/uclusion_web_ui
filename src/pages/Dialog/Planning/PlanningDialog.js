@@ -241,7 +241,7 @@ function PlanningDialog(props) {
       {isChannel && (
         <DismissableText textId='storyHelp' />
       )}
-      <MarketLinks links={children|| []} />
+      <MarketTodos comments={todoComments} marketId={marketId} />
       <Grid container spacing={2}>
           <Grid item id="commentAddArea"  xs={12} style={{ marginTop: '15px' }}>
             {!inArchives && (
@@ -254,7 +254,7 @@ function PlanningDialog(props) {
             <CommentBox comments={notTodoComments} marketId={marketId} allowedTypes={allowedCommentTypes} />
           </Grid>
       </Grid>
-      <MarketTodos comments={todoComments} marketId={marketId} />
+      <MarketLinks links={children|| []} />
     </Screen>
   );
 }

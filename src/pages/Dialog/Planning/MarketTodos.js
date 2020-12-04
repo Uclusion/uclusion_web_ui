@@ -12,6 +12,9 @@ import SubSection from '../../../containers/SubSection/SubSection'
 import ReadOnlyQuillEditor from '../../../components/TextEditors/ReadOnlyQuillEditor'
 import Comment from '../../../components/Comments/Comment'
 import { TODO_TYPE } from '../../../constants/comments'
+import AddIcon from '@material-ui/icons/Add'
+import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
+import CommentAdd from '../../../components/Comments/CommentAdd'
 
 const myClasses = makeStyles(
   theme => {
@@ -48,7 +51,10 @@ function MarketTodos(props) {
   const intl = useIntl();
   const history = useHistory();
   const [editCard, setEditCard] = useState(undefined);
+  const [createCard, setCreateCard] = useState(undefined);
   const [editRedCard, setEditRedCard] = useState(undefined);
+  const [createRedCard, setCreateRedCard] = useState(undefined);
+  const [createYellowCard, setCreateYellowCard] = useState(undefined);
   const [editYellowCard, setEditYellowCard] = useState(undefined);
   const blueComments = (comments || []).filter((comment) => comment.notification_type === 'BLUE');
   const yellowComments = (comments || []).filter((comment) => comment.notification_type === 'YELLOW');
@@ -75,101 +81,155 @@ function MarketTodos(props) {
     });
   }
 
+  function onCreateRed() {
+    setEditRedCard(false);
+    setCreateRedCard(!createRedCard);
+  }
+
+  function onCreate() {
+    setEditCard(false);
+    setCreateCard(!createCard);
+  }
+
+  function onCreateYellow() {
+    setEditYellowCard(false);
+    setCreateYellowCard(!createYellowCard);
+  }
+
   return (
     <>
       <div style={{ marginTop: '15px' }} />
-      {!_.isEmpty(redComments) && (
-        <>
-          {editRedCard && (
-            <Comment
-              depth={0}
-              marketId={marketId}
-              comment={editRedCard}
-              onDone={() => setEditRedCard(undefined)}
-              comments={comments}
-              allowedTypes={[TODO_TYPE]}
-              editOpenDefault
-              noReply
-              noAuthor
-            />
-          )}
-          <SubSection
-            type={SECTION_TYPE_SECONDARY_WARNING}
-            title={intl.formatMessage({ id: 'immediate' })}
-            helpTextId="immediateSectionHelp"
+        {createRedCard && (
+          <CommentAdd
+            key="CommentAdd"
+            type={TODO_TYPE}
+            marketId={marketId}
+            onSave={onCreateRed}
+            defaultNotificationType="RED"
+            isStory={false}
+          />
+        )}
+        {editRedCard && (
+          <Comment
+            depth={0}
+            marketId={marketId}
+            comment={editRedCard}
+            onDone={() => setEditRedCard(undefined)}
+            comments={comments}
+            allowedTypes={[TODO_TYPE]}
+            editOpenDefault
+            noReply
+            noAuthor
+          />
+        )}
+        <SubSection
+          type={SECTION_TYPE_SECONDARY_WARNING}
+          title={intl.formatMessage({ id: 'immediate' })}
+          helpTextId="immediateSectionHelp"
+          actionButton={
+            (<ExpandableAction
+              icon={<AddIcon />}
+              label={intl.formatMessage({ id: 'createRedExplanation' })}
+              onClick={onCreateRed}
+              tipPlacement="top-end"
+            />)}
+        >
+          <Grid
+            container
+            className={classes.white}
           >
-            <Grid
-              container
-              className={classes.white}
-            >
-              {getCards(redComments, marketId, history, intl, setEditRedCard)}
-            </Grid>
-            <hr />
-          </SubSection>
-          <div style={{paddingBottom: '15px'}}/>
-        </>
-      )}
-      {!_.isEmpty(yellowComments) && (
-        <>
-          {editYellowCard && (
-            <Comment
-              depth={0}
-              marketId={marketId}
-              comment={editYellowCard}
-              onDone={() => setEditYellowCard(undefined)}
-              comments={comments}
-              allowedTypes={[TODO_TYPE]}
-              editOpenDefault
-              noReply
-              noAuthor
-            />
-          )}
-          <SubSection
-            type={SECTION_TYPE_SECONDARY}
-            title={intl.formatMessage({ id: 'able' })}
-            helpTextId="ableSectionHelp"
+            {getCards(redComments, marketId, history, intl, setEditRedCard)}
+          </Grid>
+          <hr />
+        </SubSection>
+      <div style={{paddingBottom: '15px'}}/>
+        {createYellowCard && (
+          <CommentAdd
+            key="CommentAdd"
+            type={TODO_TYPE}
+            marketId={marketId}
+            onSave={onCreateYellow}
+            defaultNotificationType="YELLOW"
+            isStory={false}
+          />
+        )}
+        {editYellowCard && (
+          <Comment
+            depth={0}
+            marketId={marketId}
+            comment={editYellowCard}
+            onDone={() => setEditYellowCard(undefined)}
+            comments={comments}
+            allowedTypes={[TODO_TYPE]}
+            editOpenDefault
+            noReply
+            noAuthor
+          />
+        )}
+        <SubSection
+          type={SECTION_TYPE_SECONDARY}
+          title={intl.formatMessage({ id: 'able' })}
+          helpTextId="ableSectionHelp"
+          actionButton={
+            (<ExpandableAction
+              icon={<AddIcon />}
+              label={intl.formatMessage({ id: 'createYellowExplanation' })}
+              onClick={onCreateYellow}
+              tipPlacement="top-end"
+            />)}
+        >
+          <Grid
+            container
+            className={classes.white}
           >
-            <Grid
-              container
-              className={classes.white}
-            >
-              {getCards(yellowComments, marketId, history, intl, setEditYellowCard)}
-            </Grid>
-            <hr />
-          </SubSection>
-          <div style={{paddingBottom: '15px'}}/>
-        </>
-      )}
-      {!_.isEmpty(blueComments) && (
-        <>
-          {editCard && (
-            <Comment
-              depth={0}
-              marketId={marketId}
-              comment={editCard}
-              onDone={() => setEditCard(undefined)}
-              comments={comments}
-              allowedTypes={[TODO_TYPE]}
-              editOpenDefault
-              noReply
-              noAuthor
-            />
-          )}
-          <SubSection
-            type={SECTION_TYPE_SECONDARY}
-            title={intl.formatMessage({ id: 'convenient' })}
-            helpTextId="convenientSectionHelp"
+            {getCards(yellowComments, marketId, history, intl, setEditYellowCard)}
+          </Grid>
+          <hr />
+        </SubSection>
+        <div style={{paddingBottom: '15px'}}/>
+        {createCard && (
+          <CommentAdd
+            key="CommentAdd"
+            type={TODO_TYPE}
+            marketId={marketId}
+            onSave={onCreate}
+            defaultNotificationType="BLUE"
+            isStory={false}
+          />
+        )}
+        {editCard && (
+          <Comment
+            depth={0}
+            marketId={marketId}
+            comment={editCard}
+            onDone={() => setEditCard(undefined)}
+            comments={comments}
+            allowedTypes={[TODO_TYPE]}
+            editOpenDefault
+            noReply
+            noAuthor
+          />
+        )}
+        <SubSection
+          type={SECTION_TYPE_SECONDARY}
+          title={intl.formatMessage({ id: 'convenient' })}
+          helpTextId="convenientSectionHelp"
+          actionButton={
+            (<ExpandableAction
+              icon={<AddIcon />}
+              label={intl.formatMessage({ id: 'createBlueExplanation' })}
+              onClick={onCreate}
+              tipPlacement="top-end"
+            />)}
+        >
+          <Grid
+            container
+            className={classes.white}
           >
-            <Grid
-              container
-              className={classes.white}
-            >
-              {getCards(blueComments, marketId, history, intl, setEditCard)}
-            </Grid>
-            <hr />
-          </SubSection>
-        </>
-      )}
+            {getCards(blueComments, marketId, history, intl, setEditCard)}
+          </Grid>
+          <hr />
+        </SubSection>
     </>
   );
 }

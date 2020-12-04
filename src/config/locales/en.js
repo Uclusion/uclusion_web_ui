@@ -841,6 +841,9 @@ const messages = defineMessages({
   notificationLabelYELLOW: 'When Convenient',
   able: 'When Able',
   convenient: 'When Convenient',
+  createRedExplanation: 'Create new Immediate TODO',
+  createYellowExplanation: 'Create new When Able TODO',
+  createBlueExplanation: 'Create new When Convenient TODO',
 
   // Search
   searchBoxPlaceholder: 'Search',

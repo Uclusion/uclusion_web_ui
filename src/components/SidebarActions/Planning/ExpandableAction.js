@@ -36,6 +36,7 @@ function ExpandableAction(props) {
     toolTip,
     openLabel,
     onClick,
+    tipPlacement = 'bottom'
   } = props;
 
   const classes = useStyles();
@@ -46,7 +47,7 @@ function ExpandableAction(props) {
   }
 
   return (
-    <Tooltip title={toolTip || label}>
+    <Tooltip title={toolTip || label} placement={tipPlacement}>
       <ListItem
         id={id}
         className={classes.menuItem}
@@ -72,6 +73,7 @@ ExpandableAction.propTypes = {
   icon: PropTypes.element.isRequired,
   label: PropTypes.string.isRequired,
   openLabel: PropTypes.string,
+  tipPlacement: PropTypes.string,
   onClick: PropTypes.func.isRequired,
   toolTip: PropTypes.string,
 };

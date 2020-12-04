@@ -187,7 +187,7 @@ const useStyles = makeStyles((theme) => ({
 function CommentAdd (props) {
   const {
     intl, marketId, onSave, onCancel, type, clearType, investible, parent, hidden, issueWarningId, todoWarningId,
-    isStory
+    isStory, defaultNotificationType
   } = props;
   const [body, setBody] = useState('');
   const [commentsState, commentDispatch] = useContext(CommentsContext);
@@ -203,7 +203,7 @@ function CommentAdd (props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [firstOpen, setFirstOpen] = useState(true);
   const [placeHolderType, setPlaceHolderType] = useState(type);
-  const [myNotificationType, setMyNotificationType] = useState('BLUE');
+  const [myNotificationType, setMyNotificationType] = useState(defaultNotificationType);
   const defaultClearFunc = (newPlaceHolder) => {};
   //see https://stackoverflow.com/questions/55621212/is-it-possible-to-react-usestate-in-react for why we have a func
   // that returns  func for editorClearFunc
@@ -499,13 +499,15 @@ CommentAdd.propTypes = {
   onCancel: PropTypes.func,
   hidden: PropTypes.bool,
   clearType: PropTypes.func,
-  isStory: PropTypes.bool
+  isStory: PropTypes.bool,
+  defaultNotificationType: PropTypes.string
 };
 
 CommentAdd.defaultProps = {
   parent: null,
   investible: null,
   todoWarningId: null,
+  defaultNotificationType: 'BLUE',
   onCancel: () => {},
   clearType: () => {},
   hidden: false,

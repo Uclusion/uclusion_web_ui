@@ -21,9 +21,8 @@ const myClasses = makeStyles(
   theme => {
     return {
       outlined: {
-        border: `2px solid ${theme.palette.grey['400']}`,
-        borderRadius: '6px',
-        margin: '0.25rem'
+        outline: `2px solid ${theme.palette.grey['400']}`,
+        outlineOffset: '-5px'
       },
       warnCard: {
         backgroundColor: yellow['400'],

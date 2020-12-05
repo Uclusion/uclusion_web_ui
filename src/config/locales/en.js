@@ -844,6 +844,9 @@ const messages = defineMessages({
   createRedExplanation: 'Create new Immediate TODO',
   createYellowExplanation: 'Create new When Able TODO',
   createBlueExplanation: 'Create new When Convenient TODO',
+  todoSection: 'TODOs',
+  todoSectionHelp: 'Holder for simple issues or tasks that are not yet being worked on',
+  toggleTodosExplanation: 'Click to open or close TODO section',
 
   // Search
   searchBoxPlaceholder: 'Search',

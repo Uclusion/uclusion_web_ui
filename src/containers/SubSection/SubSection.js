@@ -10,6 +10,9 @@ import { useIntl } from 'react-intl'
 
 const useStyles = makeStyles((theme) => {
   return {
+    hide: {
+      display: 'none'
+    },
     secondarySubHeaderWarning: {
       boxShadow: 'none',
       background: '#D54F22',
@@ -92,7 +95,7 @@ function SubSection(props) {
           {actionButton}
         </Toolbar>
       </AppBar>
-      <div className={classes.toolbar}>
+      <div className={children ? classes.toolbar : classes.hide}>
         {children}
       </div>
     </React.Fragment>

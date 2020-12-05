@@ -23,6 +23,7 @@ const useStyles = makeStyles((theme) => {
       fontSize: 16,
       lineHeight: 1,
       cursor: 'default',
+      whiteSpace: 'nowrap'
     },
     headerPrimaryTitle: {
       fontSize: 18,

@@ -4,7 +4,13 @@ import { useHistory, useLocation } from 'react-router';
 import PropTypes from 'prop-types'
 import { withStyles } from '@material-ui/core/styles'
 import { useIntl } from 'react-intl'
-import { decomposeMarketPath, formInvestibleLink, formMarketLink, navigate, } from '../../utils/marketIdPathFunctions'
+import {
+  decomposeMarketPath,
+  formInvestibleLink,
+  formMarketArchivesLink,
+  formMarketLink,
+  navigate,
+} from '../../utils/marketIdPathFunctions'
 import Screen from '../../containers/Screen/Screen'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
@@ -13,7 +19,7 @@ import { getMarketInvestibles } from '../../contexts/InvestibesContext/investibl
 import DecisionDialog from './Decision/DecisionDialog'
 import PlanningDialog from './Planning/PlanningDialog'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
-import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper'
+import { getComment, getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 import { getStages } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
@@ -65,8 +71,9 @@ function Dialog(props) {
   const history = useHistory();
   const intl = useIntl();
   const location = useLocation();
-  const { pathname, hash } = location;
-  const { marketId } = decomposeMarketPath(pathname);
+  const { pathname, hash } = location
+  const myHashFragment = (hash && hash.length > 1) ? hash.substring(1, hash.length) : undefined
+  const { marketId } = decomposeMarketPath(pathname)
   const [marketsState] = useContext(MarketsContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -128,15 +135,26 @@ function Dialog(props) {
       }
       else if (marketType === INITIATIVE_TYPE) {
         if (Array.isArray(investibles) && investibles.length > 0) {
-          getInitiativeInvestible(investibles[0]);
+          getInitiativeInvestible(investibles[0])
+        }
+      } else if (marketType === PLANNING_TYPE && myHashFragment) {
+        if (!myHashFragment.startsWith('cv') && myHashFragment.startsWith('c')) {
+          const commentId = myHashFragment.substr(1)
+          const comment = getComment(commentsState, marketId, commentId) || {}
+          const { resolved, investible_id: investibleId } = comment
+          if (resolved && !investibleId) {
+            const link = formMarketArchivesLink(marketId)
+            const fullLink = `${link}#c${commentId}`
+            navigate(history, fullLink, true)
+          }
         }
       }
     }
 
     return () => {
-    };
+    }
   }, [hidden, marketType, investibles, marketId, history, location, marketStages, marketPresences, isInline,
-    parentMarketId, parentInvestibleId, parentCommentId]);
+    parentMarketId, parentInvestibleId, parentCommentId, myHashFragment, commentsState]);
 
   if (loading) {
     return (
@@ -164,7 +182,6 @@ function Dialog(props) {
           marketStages={marketStages}
           marketPresences={marketPresences}
           myPresence={myPresence}
-          hash={hash}
         />
       )}
       {marketType === PLANNING_TYPE && (
@@ -178,7 +195,6 @@ function Dialog(props) {
           marketStages={marketStages}
           marketPresences={marketPresences}
           myPresence={myPresence}
-          hash={hash}
         />
       )}
     </>

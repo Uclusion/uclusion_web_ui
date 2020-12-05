@@ -267,7 +267,6 @@ PlanningDialog.propTypes = {
   hidden: PropTypes.bool,
   comments: PropTypes.arrayOf(PropTypes.object),
   myPresence: PropTypes.object.isRequired,
-  hash: PropTypes.string.isRequired,
 };
 
 PlanningDialog.defaultProps = {

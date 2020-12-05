@@ -444,20 +444,13 @@ function DecisionDialog(props) {
 }
 
 DecisionDialog.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types
   market: PropTypes.object.isRequired,
-  // eslint-disable-next-line react/forbid-prop-types
   investibles: PropTypes.arrayOf(PropTypes.object),
-  // eslint-disable-next-line react/forbid-prop-types
   comments: PropTypes.arrayOf(PropTypes.object),
-  // eslint-disable-next-line react/forbid-prop-types
   marketStages: PropTypes.arrayOf(PropTypes.object),
-  // eslint-disable-next-line react/forbid-prop-types
   marketPresences: PropTypes.arrayOf(PropTypes.object).isRequired,
-  // eslint-disable-next-line react/forbid-prop-types
   myPresence: PropTypes.object.isRequired,
   hidden: PropTypes.bool,
-  hash: PropTypes.string.isRequired,
 };
 
 DecisionDialog.defaultProps = {

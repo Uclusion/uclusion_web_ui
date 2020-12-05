@@ -20,23 +20,24 @@ import { HighlightedCommentContext } from '../../../contexts/HighlightingContext
 const myClasses = makeStyles(
   theme => {
     return {
-      warn: {
-        border: `1px solid ${theme.palette.grey['400']}`,
-        borderRadius: theme.spacing(1),
+      outlined: {
+        border: `2px solid ${theme.palette.grey['400']}`,
+        borderRadius: '6px',
+        margin: '0.25rem'
+      },
+      warnCard: {
+        backgroundColor: yellow['400'],
         padding: theme.spacing(1, 0, 0, 2),
         overflowY: 'auto',
-        maxHeight: '275px',
-        backgroundColor: yellow['400'],
+        maxHeight: '275px'
       },
-      outlined: {
-        border: `1px solid ${theme.palette.grey["400"]}`,
-        borderRadius: theme.spacing(1),
+      card: {
         padding: theme.spacing(1, 0, 0, 2),
         overflowY: 'auto',
         maxHeight: '275px'
       },
       white: {
-        backgroundColor: "white",
+        backgroundColor: 'white',
         padding: 0,
         margin: 0
       }
@@ -75,9 +76,10 @@ function MarketTodos(props) {
           item
           md={3}
           xs={12}
+          className={classes.outlined}
         >
           <RaisedCard onClick={() => setCard(comment)} elevation={0}>
-            <div className={level ? classes.warn : classes.outlined}>
+            <div className={level ? classes.warnCard : classes.card}>
               <Typography style={{ fontSize: '.75rem', flex: 1 }}>Updated: {intl.formatDate(updated_at)}</Typography>
               <ReadOnlyQuillEditor value={body}/>
             </div>

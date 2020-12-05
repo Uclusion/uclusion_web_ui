@@ -22,18 +22,20 @@ function ScrollProvider(props) {
       return (mutationsList, observer) => {
         const element = document.getElementById(scrollTarget);
         if (element !== null) {
-          if (observer) observer.disconnect();
-          element.scrollIntoView({ block: 'center' });
+          if (observer) observer.disconnect()
+          element.scrollIntoView({ block: 'center' })
+          // Remove the hash from the URL so we don't end up scrolling again
+          history.push(window.location.pathname)
           if (scrollTarget.startsWith('cv')) {
             const message = {
               associatedUserId: scrollTarget.substr(2)
-            };
-            pushMessage(HIGHLIGHTED_VOTING_CHANNEL, message);
+            }
+            pushMessage(HIGHLIGHTED_VOTING_CHANNEL, message)
           } else if (scrollTarget.startsWith('c')) {
             const message = {
               commentId: scrollTarget.substr(1),
               level: YELLOW_LEVEL
-            };
+            }
             pushMessage(HIGHLIGHTED_COMMENT_CHANNEL, message);
           }
           return true;
@@ -54,16 +56,17 @@ function ScrollProvider(props) {
           });
           // if the element doesn't show up in 10 seconds, stop checking
           window.setTimeout(() => {
-            myObserver.disconnect();
-          }, 10000);
+            myObserver.disconnect()
+          }, 10000)
         }
       }, 0);
     }
+
     if (hashFragment) {
-      hashLinkScroll(hashFragment);
-      setHashFragment(undefined);
+      hashLinkScroll(hashFragment)
+      setHashFragment(undefined)
     }
-  }, [hashFragment]);
+  }, [hashFragment, history]);
 
   useEffect(() => {
     if (processedPath !== pathname) {
@@ -75,8 +78,6 @@ function ScrollProvider(props) {
         window.scrollTo(0, 0);
       } else {
         setHashFragment(myHashFragment);
-        // Remove the hash from the URL so we don't end up scrolling again
-        history.push(pathname);
       } 
     }
     return () => {

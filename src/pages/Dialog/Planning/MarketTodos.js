@@ -8,7 +8,6 @@ import { useHistory } from 'react-router'
 import { makeStyles } from '@material-ui/core/styles'
 import { yellow } from '@material-ui/core/colors'
 import {
-  SECTION_TYPE_SECONDARY,
   SECTION_TYPE_SECONDARY_WARNING,
   SECTION_TYPE_TERTIARY_WARNING, SECTION_TYPE_WARNING
 } from '../../../constants/global'

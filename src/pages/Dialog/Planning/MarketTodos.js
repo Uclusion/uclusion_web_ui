@@ -69,7 +69,7 @@ function MarketTodos (props) {
   const [expandedCommentState, expandedCommentDispatch] = useContext(ExpandedCommentContext)
   const myExpandedState = expandedCommentState[EXPANDED_ID] || {}
   const { expanded: myExpanded } = myExpandedState
-  const [showTodos, setShowTodos] = useState(myExpanded)
+  const [showTodos, setShowTodos] = useState(myExpanded === undefined ? true : myExpanded)
   const [editCard, setEditCard] = useState(undefined)
   const [createCard, setCreateCard] = useState(undefined)
   const [editRedCard, setEditRedCard] = useState(undefined)
@@ -81,7 +81,7 @@ function MarketTodos (props) {
   const redComments = (comments || []).filter((comment) => comment.notification_type === 'RED')
 
   function getCards (comments, marketId, history, intl, setCard) {
-    const sortedData = _.sortBy(comments, 'updated_at').reverse();
+    const sortedData = _.sortBy(comments, 'updated_at').reverse()
     return sortedData.map((comment) => {
       const { id, body, updated_at } = comment
       const { level } = highlightedCommentState[id] || {}

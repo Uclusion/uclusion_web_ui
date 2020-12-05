@@ -68,8 +68,7 @@ function MarketTodos (props) {
   const [highlightedCommentState] = useContext(HighlightedCommentContext)
   const [expandedCommentState, expandedCommentDispatch] = useContext(ExpandedCommentContext)
   const myExpandedState = expandedCommentState[EXPANDED_ID] || {}
-  const { expanded: myExpanded } = myExpandedState
-  const [showTodos, setShowTodos] = useState(myExpanded === undefined ? true : myExpanded)
+  const { expanded: showTodos } = myExpandedState
   const [editCard, setEditCard] = useState(undefined)
   const [createCard, setCreateCard] = useState(undefined)
   const [editRedCard, setEditRedCard] = useState(undefined)
@@ -106,9 +105,7 @@ function MarketTodos (props) {
   }
 
   function toggleShowTodos () {
-    const newShowTodosState = !showTodos
-    expandedCommentDispatch({ type: EXPANDED_CONTROL, commentId: EXPANDED_ID, expanded: newShowTodosState })
-    setShowTodos(newShowTodosState)
+    expandedCommentDispatch({ type: EXPANDED_CONTROL, commentId: EXPANDED_ID, expanded: !showTodos })
   }
 
   function onCreateRed () {

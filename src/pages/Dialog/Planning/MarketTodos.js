@@ -138,7 +138,7 @@ function MarketTodos (props) {
               tipPlacement="top-end"
             />)}
         >
-          {showTodos && (
+          {(showTodos || showTodos === undefined) && (
             <>
               {createRedCard && (
                 <CommentAdd

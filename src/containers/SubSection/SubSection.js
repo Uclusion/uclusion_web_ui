@@ -1,7 +1,11 @@
 import React from 'react'
 import { AppBar, makeStyles, Toolbar, Tooltip, Typography, } from '@material-ui/core'
 import PropTypes from 'prop-types'
-import { SECTION_TYPE_SECONDARY } from '../../constants/global'
+import {
+  SECTION_TYPE_SECONDARY,
+  SECTION_TYPE_SECONDARY_WARNING,
+  SECTION_TYPE_TERTIARY_WARNING
+} from '../../constants/global'
 import { useIntl } from 'react-intl'
 
 const useStyles = makeStyles((theme) => {
@@ -9,6 +13,16 @@ const useStyles = makeStyles((theme) => {
     secondarySubHeaderWarning: {
       boxShadow: 'none',
       background: '#D54F22',
+      color: '#fff',
+    },
+    subHeaderWarning: {
+      boxShadow: 'none',
+      background: '#e6e969',
+      color: '#fff',
+    },
+    tertiarySubHeaderWarning: {
+      boxShadow: 'none',
+      background: '#2F80ED',
       color: '#fff',
     },
     secondarySubHeader: {
@@ -52,7 +66,9 @@ function SubSection(props) {
     <React.Fragment>
       <AppBar
         id={id}
-        className={type === SECTION_TYPE_SECONDARY ? classes.secondarySubHeader : classes.secondarySubHeaderWarning}
+        className={type === SECTION_TYPE_SECONDARY ? classes.secondarySubHeader :
+          type === SECTION_TYPE_SECONDARY_WARNING ? classes.secondarySubHeaderWarning :
+            type === SECTION_TYPE_TERTIARY_WARNING ? classes.tertiarySubHeaderWarning : classes.subHeaderWarning}
         position="static"
         hidden={hidden}
       >

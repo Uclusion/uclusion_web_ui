@@ -7,7 +7,11 @@ import { useIntl } from 'react-intl'
 import { useHistory } from 'react-router'
 import { makeStyles } from '@material-ui/core/styles'
 import { yellow } from '@material-ui/core/colors'
-import { SECTION_TYPE_SECONDARY, SECTION_TYPE_SECONDARY_WARNING } from '../../../constants/global'
+import {
+  SECTION_TYPE_SECONDARY,
+  SECTION_TYPE_SECONDARY_WARNING,
+  SECTION_TYPE_TERTIARY_WARNING, SECTION_TYPE_WARNING
+} from '../../../constants/global'
 import SubSection from '../../../containers/SubSection/SubSection'
 import ReadOnlyQuillEditor from '../../../components/TextEditors/ReadOnlyQuillEditor'
 import Comment from '../../../components/Comments/Comment'
@@ -173,7 +177,7 @@ function MarketTodos(props) {
         />
       )}
       <SubSection
-        type={SECTION_TYPE_SECONDARY}
+        type={SECTION_TYPE_WARNING}
         title={intl.formatMessage({ id: 'able' })}
         helpTextId="ableSectionHelp"
         actionButton={
@@ -216,7 +220,7 @@ function MarketTodos(props) {
         />
       )}
       <SubSection
-        type={SECTION_TYPE_SECONDARY}
+        type={SECTION_TYPE_TERTIARY_WARNING}
         title={intl.formatMessage({ id: 'convenient' })}
         helpTextId="convenientSectionHelp"
         actionButton={

@@ -187,10 +187,9 @@ const useCommentStyles = makeStyles(
       inlineBorderNone: {},
       timeElapsed: {
         whiteSpace: 'nowrap',
+        paddingRight: '50px',
         [theme.breakpoints.down('sm')]: {
-          fontSize: '.7rem',
-          lineHeight: 1,
-          paddingLeft: '5px'
+          display: 'none'
         },
       },
       todoLabelType: {
@@ -603,12 +602,12 @@ function Comment(props) {
           )}
           {commentType !== JUSTIFY_TYPE && commentType !== REPLY_TYPE && (
             <Typography className={classes.timeElapsed} variant="body2">
-              Created: <UsefulRelativeTime value={Date.parse(comment.created_at) - Date.now()}/>
+              Created <UsefulRelativeTime value={Date.parse(comment.created_at) - Date.now()}/>.
               {comment.created_at < comment.updated_at && !resolved && (
-                <> Updated: <UsefulRelativeTime value={Date.parse(comment.updated_at) - Date.now()}/></>
+                <> Updated <UsefulRelativeTime value={Date.parse(comment.updated_at) - Date.now()}/></>
               )}
               {comment.created_at < comment.updated_at && resolved && (
-                <> Resolved: <UsefulRelativeTime value={Date.parse(comment.updated_at) - Date.now()}/></>
+                <> Resolved <UsefulRelativeTime value={Date.parse(comment.updated_at) - Date.now()}/></>
               )}
               {displayUpdatedBy &&
               `${intl.formatMessage({ id: 'lastUpdatedBy' })} ${updatedBy.name}`}

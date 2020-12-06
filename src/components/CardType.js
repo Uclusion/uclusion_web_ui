@@ -109,6 +109,7 @@ const useCardTypeStyles = makeStyles(theme => ({
       },
     },
     timeElapsed: {
+      paddingTop: '5px',
       whiteSpace: 'nowrap',
       [theme.breakpoints.down('sm')]: {
         fontSize: '.7rem',

@@ -189,6 +189,7 @@ const useCommentStyles = makeStyles(
       timeElapsed: {
         whiteSpace: 'nowrap',
         paddingRight: '50px',
+        paddingTop: '5px',
         [theme.breakpoints.down('sm')]: {
           display: 'none'
         },

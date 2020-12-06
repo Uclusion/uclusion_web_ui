@@ -156,8 +156,9 @@ const useCommentStyles = makeStyles(
         display: "inline-flex"
       },
       createdBy: {
-        fontSize: "15px",
-        fontWeight: "bold"
+        paddingLeft: '5px',
+        fontSize: '15px',
+        fontWeight: 'bold'
       },
       childWrapper: {
         // borderTop: '1px solid #DCDCDC',

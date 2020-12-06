@@ -186,6 +186,7 @@ const useCommentStyles = makeStyles(
       },
       inlineBorderNone: {},
       timeElapsed: {
+        whiteSpace: 'nowrap',
         [theme.breakpoints.down('sm')]: {
           fontSize: '.7rem',
           lineHeight: 1,
@@ -572,8 +573,7 @@ function Comment(props) {
     }
   }, [id, myRepliesExpanded, expandedCommentDispatch, highlightIds, commentType]);
 
-  const displayUpdatedBy =
-    updatedBy !== undefined && comment.updated_by !== comment.created_by;
+  const displayUpdatedBy = updatedBy !== undefined && comment.updated_by !== comment.created_by
 
   const showActions = !replyOpen || replies.length > 0;
   function getCommentHighlightStyle() {
@@ -601,17 +601,17 @@ function Comment(props) {
           {!overrideLabel && (
             <CardType className={classes.commentType} type={commentType} resolved={resolved} />
           )}
-          <Typography className={classes.updatedBy}>
-            {displayUpdatedBy &&
-              `${intl.formatMessage({ id: "lastUpdatedBy" })} ${
-                updatedBy.name
-              }`}
-          </Typography>
           {commentType !== JUSTIFY_TYPE && commentType !== REPLY_TYPE && (
             <Typography className={classes.timeElapsed} variant="body2">
-              <UsefulRelativeTime
-                value={Date.parse(comment.updated_at) - Date.now()}
-              />
+              Created: <UsefulRelativeTime value={Date.parse(comment.created_at) - Date.now()}/>
+              {comment.created_at < comment.updated_at && !resolved && (
+                <> Updated: <UsefulRelativeTime value={Date.parse(comment.updated_at) - Date.now()}/></>
+              )}
+              {comment.created_at < comment.updated_at && resolved && (
+                <> Resolved: <UsefulRelativeTime value={Date.parse(comment.updated_at) - Date.now()}/></>
+              )}
+              {displayUpdatedBy &&
+              `${intl.formatMessage({ id: 'lastUpdatedBy' })} ${updatedBy.name}`}
             </Typography>
           )}
           {enableEditing && isEditable && !editOpenDefault && (

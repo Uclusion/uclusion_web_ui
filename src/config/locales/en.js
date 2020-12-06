@@ -391,7 +391,7 @@ const messages = defineMessages({
   commentRemoveLabel: 'Delete',
   commentViewThreadLabel: 'View Thread',
   commentCloseThreadLabel: 'Close Thread',
-  lastUpdatedBy: 'Last Updated By',
+  lastUpdatedBy: ' by',
 
   // card types
   cardTypeLabelIssue: 'blocking issue',

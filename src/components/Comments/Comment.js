@@ -606,13 +606,16 @@ function Comment(props) {
             <Typography className={classes.timeElapsed} variant="body2">
               Created <UsefulRelativeTime value={Date.parse(comment.created_at) - Date.now()}/>.
               {comment.created_at < comment.updated_at && !resolved && (
-                <> Updated <UsefulRelativeTime value={Date.parse(comment.updated_at) - Date.now()}/></>
+                <> Updated <UsefulRelativeTime value={Date.parse(comment.updated_at) - Date.now()}/>.</>
               )}
               {comment.created_at < comment.updated_at && resolved && (
                 <> Resolved <UsefulRelativeTime value={Date.parse(comment.updated_at) - Date.now()}/></>
               )}
+              {comment.created_at < comment.updated_at && resolved && !displayUpdatedBy && (
+                <>.</>
+              )}
               {displayUpdatedBy &&
-              `${intl.formatMessage({ id: 'lastUpdatedBy' })} ${updatedBy.name}`}
+              `${intl.formatMessage({ id: 'lastUpdatedBy' })} ${updatedBy.name}.`}
             </Typography>
           )}
           {enableEditing && isEditable && !editOpenDefault && (

@@ -79,6 +79,10 @@ function MarketTodos (props) {
   const yellowComments = (comments || []).filter((comment) => comment.notification_type === 'YELLOW')
   const redComments = (comments || []).filter((comment) => comment.notification_type === 'RED')
 
+  function onDragStart (event) {
+    event.dataTransfer.setData('text', event.target.id.substring(1))
+  }
+
   function getCards (comments, marketId, history, intl, setCard) {
     const sortedData = _.sortBy(comments, 'updated_at').reverse()
     return sortedData.map((comment) => {
@@ -91,6 +95,8 @@ function MarketTodos (props) {
           item
           md={3}
           xs={12}
+          draggable
+          onDragStart={onDragStart}
           className={classes.outlined}
         >
           <RaisedCard onClick={() => setCard(comment)} elevation={0}>
@@ -118,9 +124,14 @@ function MarketTodos (props) {
     setCreateCard(!createCard)
   }
 
-  function onCreateYellow() {
-    setEditYellowCard(false);
-    setCreateYellowCard(!createYellowCard);
+  function onCreateYellow () {
+    setEditYellowCard(false)
+    setCreateYellowCard(!createYellowCard)
+  }
+
+  function onDropImmediate (event) {
+    const commentId = event.dataTransfer.getData('text')
+    console.debug(`on drop immediate with ${commentId}`)
   }
 
   return (
@@ -178,6 +189,8 @@ function MarketTodos (props) {
                 <Grid
                   container
                   className={classes.white}
+                  id="immediateSection" onDrop={onDropImmediate}
+                  onDragOver={(event) => event.preventDefault()}
                 >
                   {getCards(redComments, marketId, history, intl, setEditRedCard)}
                 </Grid>

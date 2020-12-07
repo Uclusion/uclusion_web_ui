@@ -130,7 +130,7 @@ function MarketTodos (props) {
   }
 
   function onDropImmediate (event) {
-    const commentId = event.dataTransfer.getData('text')
+    const commentId = event.dataTransfer.getData('text');
     console.debug(`on drop immediate with ${commentId}`)
   }
 

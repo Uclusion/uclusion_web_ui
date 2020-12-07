@@ -534,6 +534,7 @@ function Comment(props) {
     return resolveComment(marketId, id)
       .then((comment) => {
         addCommentToMarket(comment, commentsState, commentsDispatch, versionsDispatch);
+        onDone();
         return EMPTY_SPIN_RESULT;
       });
   }

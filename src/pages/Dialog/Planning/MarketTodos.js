@@ -22,6 +22,10 @@ import CommentAdd from '../../../components/Comments/CommentAdd'
 import { HighlightedCommentContext } from '../../../contexts/HighlightingContexts/HighlightedCommentContext'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { EXPANDED_CONTROL, ExpandedCommentContext } from '../../../contexts/CommentsContext/ExpandedCommentContext'
+import { updateComment } from '../../../api/comments'
+import { addCommentToMarket } from '../../../contexts/CommentsContext/commentsContextHelper'
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 
 const myClasses = makeStyles(
   theme => {
@@ -62,12 +66,14 @@ function MarketTodos (props) {
     comments,
     marketId,
   } = props
-  const classes = myClasses()
-  const intl = useIntl()
-  const history = useHistory()
-  const [highlightedCommentState] = useContext(HighlightedCommentContext)
-  const [expandedCommentState, expandedCommentDispatch] = useContext(ExpandedCommentContext)
-  const myExpandedState = expandedCommentState[EXPANDED_ID] || {}
+  const classes = myClasses();
+  const intl = useIntl();
+  const history = useHistory();
+  const [highlightedCommentState] = useContext(HighlightedCommentContext);
+  const [expandedCommentState, expandedCommentDispatch] = useContext(ExpandedCommentContext);
+  const [commentState, commentDispatch] = useContext(CommentsContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const myExpandedState = expandedCommentState[EXPANDED_ID] || {};
   const { expanded: showTodos } = myExpandedState
   const [editCard, setEditCard] = useState(undefined)
   const [createCard, setCreateCard] = useState(undefined)
@@ -111,27 +117,44 @@ function MarketTodos (props) {
   }
 
   function toggleShowTodos () {
-    expandedCommentDispatch({ type: EXPANDED_CONTROL, commentId: EXPANDED_ID, expanded: !showTodos })
+    expandedCommentDispatch({ type: EXPANDED_CONTROL, commentId: EXPANDED_ID, expanded: !showTodos });
   }
 
   function onCreateRed () {
-    setEditRedCard(false)
-    setCreateRedCard(!createRedCard)
+    setEditRedCard(false);
+    setCreateRedCard(!createRedCard);
   }
 
   function onCreate () {
-    setEditCard(false)
-    setCreateCard(!createCard)
+    setEditCard(false);
+    setCreateCard(!createCard);
   }
 
   function onCreateYellow () {
-    setEditYellowCard(false)
-    setCreateYellowCard(!createYellowCard)
+    setEditYellowCard(false);
+    setCreateYellowCard(!createYellowCard);
   }
 
-  function onDropImmediate (event) {
+  function onDrop(event, notificationType) {
     const commentId = event.dataTransfer.getData('text');
-    console.debug(`on drop immediate with ${commentId}`)
+    setOperationRunning(true);
+    updateComment(marketId, commentId, undefined, undefined, undefined, notificationType)
+      .then((comment) => {
+        addCommentToMarket(comment, commentState, commentDispatch);
+        setOperationRunning(false);
+      });
+  }
+
+  function onDropImmediate(event) {
+    onDrop(event, 'RED');
+  }
+
+  function onDropConvenient(event) {
+    onDrop(event, 'YELLOW');
+  }
+
+  function onDropAble(event) {
+    onDrop(event, 'BLUE');
   }
 
   return (
@@ -234,6 +257,8 @@ function MarketTodos (props) {
                 <Grid
                   container
                   className={classes.white}
+                  id="convenientSection" onDrop={onDropConvenient}
+                  onDragOver={(event) => event.preventDefault()}
                 >
                   {getCards(yellowComments, marketId, history, intl, setEditYellowCard)}
                 </Grid>
@@ -277,6 +302,8 @@ function MarketTodos (props) {
                 <Grid
                   container
                   className={classes.white}
+                  id="ableSection" onDrop={onDropAble}
+                  onDragOver={(event) => event.preventDefault()}
                 >
                   {getCards(blueComments, marketId, history, intl, setEditCard)}
                 </Grid>

@@ -21,7 +21,7 @@ const useStyles = makeStyles((theme) => {
     subHeaderWarning: {
       boxShadow: 'none',
       background: '#e6e969',
-      color: '#fff',
+      color: 'black',
     },
     tertiarySubHeaderWarning: {
       boxShadow: 'none',

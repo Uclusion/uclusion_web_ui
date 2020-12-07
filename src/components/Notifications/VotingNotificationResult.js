@@ -53,7 +53,7 @@ function VotingNotificationResult(props) {
   }
   const containerName = marketType === INITIATIVE_TYPE ?
     parentComment.investible_id ? getInvestibleName(parentComment.investible_id, investibleState) :
-    parentComment.market_id ? getMarketName(parentComment.market_id) : getMarketName(marketId)
+    parentComment.market_id ? getMarketName(parentComment.market_id) : getInvestibleName(investibleId, investibleState)
     : getInvestibleName(investibleId, investibleState);
   function getCardClass() {
       return classes.justifyCard;

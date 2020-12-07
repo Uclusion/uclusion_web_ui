@@ -64,25 +64,27 @@ function ScrollProvider(props) {
 
     if (hashFragment) {
       hashLinkScroll(hashFragment)
-      setHashFragment(undefined)
     }
   }, [hashFragment, history]);
 
   useEffect(() => {
-    if (processedPath !== pathname) {
+    const myHashFragment = (hash && hash.length > 1) ? hash.substring(1, hash.length) : undefined;
+    if (processedPath !== pathname || hashFragment !== myHashFragment) {
       setProcessedPath(pathname);
       const { action } = decomposeMarketPath(pathname);
-      const myHashFragment = (hash && hash.length > 1) ? hash.substring(1, hash.length) : undefined;
       if (!myHashFragment || action !== 'dialog' || hash.includes('onboarded')) {
         //Scroll to the top if its a new page and there is no anchor to scroll to
-        window.scrollTo(0, 0);
+        if (!hashFragment) {
+          window.scrollTo(0, 0);
+        }
+        setHashFragment(undefined);
       } else {
         setHashFragment(myHashFragment);
       } 
     }
     return () => {
     };
-  }, [pathname, hash, processedPath, history]);
+  }, [pathname, hash, processedPath, history, hashFragment]);
 
   return (
     <ScrollContext.Provider value={hashFragment}>

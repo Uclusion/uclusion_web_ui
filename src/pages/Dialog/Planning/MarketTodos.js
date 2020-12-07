@@ -26,6 +26,7 @@ import { updateComment } from '../../../api/comments'
 import { addCommentToMarket } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions'
 
 const myClasses = makeStyles(
   theme => {
@@ -90,6 +91,10 @@ function MarketTodos (props) {
   }
 
   function getCards (comments, marketId, history, intl, setCard) {
+    function setCardAndScroll(comment) {
+      setCard(comment);
+      navigate(history, `${formMarketLink(marketId)}#editc${comment.id}`);
+    }
     const sortedData = _.sortBy(comments, 'updated_at').reverse()
     return sortedData.map((comment) => {
       const { id, body, updated_at } = comment
@@ -105,7 +110,7 @@ function MarketTodos (props) {
           onDragStart={onDragStart}
           className={classes.outlined}
         >
-          <RaisedCard onClick={() => setCard(comment)} elevation={0}>
+          <RaisedCard onClick={() => setCardAndScroll(comment)} elevation={0}>
             <div className={level ? classes.warnCard : classes.card}>
               <Typography style={{ fontSize: '.75rem', flex: 1 }}>Updated: {intl.formatDate(updated_at)}</Typography>
               <ReadOnlyQuillEditor value={body}/>
@@ -185,17 +190,19 @@ function MarketTodos (props) {
                 />
               )}
               {editRedCard && (
-                <Comment
-                  depth={0}
-                  marketId={marketId}
-                  comment={editRedCard}
-                  onDone={() => setEditRedCard(undefined)}
-                  comments={comments}
-                  allowedTypes={[TODO_TYPE]}
-                  editOpenDefault
-                  noReply
-                  noAuthor
-                />
+                <div id={`editc${editRedCard.id}`}>
+                  <Comment
+                    depth={0}
+                    marketId={marketId}
+                    comment={editRedCard}
+                    onDone={() => setEditRedCard(undefined)}
+                    comments={comments}
+                    allowedTypes={[TODO_TYPE]}
+                    editOpenDefault
+                    noReply
+                    noAuthor
+                  />
+                </div>
               )}
               <SubSection
                 type={SECTION_TYPE_SECONDARY_WARNING}
@@ -230,17 +237,19 @@ function MarketTodos (props) {
                 />
               )}
               {editYellowCard && (
-                <Comment
-                  depth={0}
-                  marketId={marketId}
-                  comment={editYellowCard}
-                  onDone={() => setEditYellowCard(undefined)}
-                  comments={comments}
-                  allowedTypes={[TODO_TYPE]}
-                  editOpenDefault
-                  noReply
-                  noAuthor
-                />
+                <div id={`editc${editYellowCard.id}`}>
+                  <Comment
+                    depth={0}
+                    marketId={marketId}
+                    comment={editYellowCard}
+                    onDone={() => setEditYellowCard(undefined)}
+                    comments={comments}
+                    allowedTypes={[TODO_TYPE]}
+                    editOpenDefault
+                    noReply
+                    noAuthor
+                  />
+                </div>
               )}
               <SubSection
                 type={SECTION_TYPE_WARNING}
@@ -275,17 +284,19 @@ function MarketTodos (props) {
                 />
               )}
               {editCard && (
-                <Comment
-                  depth={0}
-                  marketId={marketId}
-                  comment={editCard}
-                  onDone={() => setEditCard(undefined)}
-                  comments={comments}
-                  allowedTypes={[TODO_TYPE]}
-                  editOpenDefault
-                  noReply
-                  noAuthor
-                />
+                <div id={`editc${editCard.id}`}>
+                  <Comment
+                    depth={0}
+                    marketId={marketId}
+                    comment={editCard}
+                    onDone={() => setEditCard(undefined)}
+                    comments={comments}
+                    allowedTypes={[TODO_TYPE]}
+                    editOpenDefault
+                    noReply
+                    noAuthor
+                  />
+                </div>
               )}
               <SubSection
                 type={SECTION_TYPE_TERTIARY_WARNING}

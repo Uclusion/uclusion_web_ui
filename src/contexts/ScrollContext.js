@@ -18,25 +18,29 @@ function ScrollProvider(props) {
 
   useLayoutEffect(() => {
     // See https://github.com/rafrex/react-router-hash-link/blob/master/src/index.js
-    function getElAndScroll(scrollTarget) {
+    function getElAndScroll(originalScrollTarget) {
+      const noHighlight = originalScrollTarget.startsWith('nohighlight');
+      const scrollTarget = noHighlight ? originalScrollTarget.substring('nohighlight'.length) : originalScrollTarget;
       return (mutationsList, observer) => {
         const element = document.getElementById(scrollTarget);
         if (element !== null) {
           if (observer) observer.disconnect()
           element.scrollIntoView({ block: 'center' })
           // Remove the hash from the URL so we don't end up scrolling again
-          history.push(window.location.pathname)
-          if (scrollTarget.startsWith('cv')) {
-            const message = {
-              associatedUserId: scrollTarget.substr(2)
+          history.push(window.location.pathname);
+          if (!noHighlight) {
+            if (scrollTarget.startsWith('cv')) {
+              const message = {
+                associatedUserId: scrollTarget.substr(2)
+              }
+              pushMessage(HIGHLIGHTED_VOTING_CHANNEL, message)
+            } else if (scrollTarget.startsWith('c')) {
+              const message = {
+                commentId: scrollTarget.substr(1),
+                level: YELLOW_LEVEL
+              }
+              pushMessage(HIGHLIGHTED_COMMENT_CHANNEL, message);
             }
-            pushMessage(HIGHLIGHTED_VOTING_CHANNEL, message)
-          } else if (scrollTarget.startsWith('c')) {
-            const message = {
-              commentId: scrollTarget.substr(1),
-              level: YELLOW_LEVEL
-            }
-            pushMessage(HIGHLIGHTED_COMMENT_CHANNEL, message);
           }
           return true;
         }

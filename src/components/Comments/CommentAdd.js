@@ -252,26 +252,27 @@ function CommentAdd (props) {
     const apiType = (type === REPLY_TYPE) ? undefined : type;
     const investibleId = (investible) ? investible.id : parentInvestible;
     // what about not doing state?
-    const investibleBlocks = (investibleId && apiType === ISSUE_TYPE);
     // TODO: this breaks if investible exists in more than one market
     const inv = getInvestible(investibleState, investibleId) || {};
     const { market_infos, investible: rootInvestible } = inv;
     const [info] = (market_infos || []);
     const presences = getMarketPresences(marketPresencesState, marketId) || [];
     const myPresence = presences.find((presence) => presence.current_user) || {};
-    const { assigned } = (info || {});
+    const { assigned, stage: currentStageId } = (info || {});
+    const blockingStage = getBlockedStage(marketStagesState, marketId) || {};
+    const requiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
     const investibleRequiresInput = ((apiType === QUESTION_TYPE || apiType === SUGGEST_CHANGE_TYPE)
-      && (assigned || []).includes(myPresence.id));
+      && (assigned || []).includes(myPresence.id)) && currentStageId !== blockingStage.id
+      && currentStageId !== requiresInputStage.id;
+    const investibleBlocks = (investibleId && apiType === ISSUE_TYPE) && currentStageId !== blockingStage.id;
     const myActualNotificationType = type === TODO_TYPE && !investibleId ? myNotificationType : undefined;
     return saveComment(marketId, investibleId, parentId, tokensRemoved, apiType, filteredUploads,
       myActualNotificationType)
       .then((comment) => {
         // move the investible to other state if necessary
         if (investibleBlocks || investibleRequiresInput) {
-          const blockingStage = getBlockedStage(marketStagesState, marketId);
-          const requiresInputStage = getRequiredInputStage(marketStagesState, marketId);
           const newStage = investibleBlocks ? blockingStage : requiresInputStage;
-          if (newStage) {
+          if (newStage.id) {
             const newInfo = {
               ...info,
               stage: newStage.id,

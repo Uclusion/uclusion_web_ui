@@ -25,6 +25,26 @@ export function deleteMessage(message) {
     .then((client) => client.users.removePageNotifications(investibleId || associatedInvestibleId));
 }
 
+export function applyPromoCode(promoCode) {
+  return getAccountClient()
+    .then((client) => client.users.addPromoToSubscription(promoCode))
+    .catch((error) => {
+      const { status } = error;
+      // status 409 means they're reusing the code so no toast needed
+      if (status === 409) {
+        throw error;
+      }else {
+        toastErrorAndThrow(error, 'errorPromoApplyFailed')
+      }
+    });
+}
+
+export function validatePromoCode(promoCode) {
+  return getAccountClient()
+    .then((client) => client.users.validatePromoCode(promoCode))
+    .catch((error) => toastErrorAndThrow(error, 'errorPromoValidateFailed'));
+}
+
 export function startSubscription(paymentId, tier) {
   return getAccountClient()
     .then((client) => client.users.startSubscription(paymentId, tier))

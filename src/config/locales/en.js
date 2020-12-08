@@ -145,6 +145,11 @@ const messages = defineMessages({
   points: 'points',
   currency: 'dollars',
 
+  // Upgrade
+  upgradeNow: 'Upgrade Now',
+  upgradeNowDialog: 'Upgrade now to Add Dialog',
+  upgradeBannerText: 'You are on our Free plan and creation of new Dialogs, Initiatives and Workspaces is not available.',
+
   // Share story
   shareButtonExplanation: 'Share a read only link',
   shareButtonTitle: 'Share',
@@ -720,20 +725,23 @@ const messages = defineMessages({
   // Spinning
   spinVersionCheckError: 'There was an error. Please retry your operation.',
 
+  // subscription page
+  BillingHomeTitle: 'Your Plan',
+
   //upgradeMenu
-  billingMenuItem: 'Manage Subscription',
-  billingFreeTier: 'You are currently on the Free plan.',
-  billingStandardTier: 'You are currently on the Standard plan.',
+  billingMenuItem: 'Your Plan',
+  billingFreeTier: 'You are currently on the Free Forever plan.',
+  billingStandardTier: 'You are currently on the Personal plan.',
   billingUnknownTier: 'You are on a custom plan.',
   billingSubCanceled: 'Your subscription is cancelled.',
-  billingSubUnsubscribed: 'You have no subscription.',
-  billingSubTrial: 'You are in a free trial.',
+  billingSubUnsubscribed: 'You have not subscribed to any plan.',
+  billingSubTrial: 'Your Personal Free Trial ends on {date}.',
   billingSubActive: 'Your subscription is active.',
   billingSubUnknown: 'You have a custom subscription.',
   billingSubEnd: 'Subscription End:',
-  billingSubBegin: 'Begin Subscription',
+  billingSubStartTrial: 'Start Free Trial of Personal',
   billingSubCancel: 'Cancel Subscription',
-  billingMustPay: 'Create not available because trial period is over. Please go to manage subscription.',
+  billingMustPay: 'Create not available because trial period is over. Please go to \'Your Plan\' to update your billing information.',
   billingStartSubscription: 'Please go to manage subscription and start a free trial to enable create.',
 
   // upgrade form
@@ -795,6 +803,8 @@ const messages = defineMessages({
   errorBanUserFailed: 'There was a problem removing the collaborator. Please try again.',
   errorCancelSubFailed: 'There was a problem cancelling your subscription. Please try again.',
   errorStartSubFailed: 'There was a problem starting your subscription. Please try again.',
+  errorPromoValidateFailed: 'There was a problem validating your promo code. Please try again',
+  errorPromoApplyFailed: 'There was a problem applying your promo code. Please try again',
   errorRestartSubFailed: 'There was a problem restarting your subscription. Please try again.',
   errorUnbanUserFailed: 'There was a problem readmitting the collaborator. Please try again.',
   errorUpdatePaymentFailed: 'There was a problem updating your payment card. Please try again.',

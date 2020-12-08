@@ -30,6 +30,8 @@ import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { EMPTY_SPIN_RESULT } from '../../../constants/global'
 import DialogBodyEdit from '../DialogBodyEdit'
 import { doSetEditWhenValid } from '../../../utils/windowUtils'
+import { AccountContext } from '../../../contexts/AccountContext/AccountContext';
+import { canCreate } from '../../../contexts/AccountContext/accountContextHelper';
 
 const useStyles = makeStyles(theme => ({
   section: {
@@ -225,6 +227,7 @@ function Summary(props) {
     locked_by: lockedBy,
   } = market;
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [accountState] = useContext(AccountContext);
   const [, marketsDispatch] = useContext(MarketsContext);
   const [, diffDispatch] = useContext(DiffContext);
   const marketPresences = getMarketPresences(marketPresencesState, id) || [];
@@ -233,6 +236,7 @@ function Summary(props) {
     marketPresences.find(presence => presence.current_user) || {};
   const metaClasses = useMetaDataStyles();
   const isAdmin = myPresence.is_admin;
+  const creatEnabled = canCreate(accountState);
   function isEditableByUser() {
     return isAdmin && !inArchives;
   }
@@ -256,6 +260,38 @@ function Summary(props) {
     doSetEditWhenValid(isEdit, isEditableByUser, setBeingEdited, id, event);
   }
   const myBeingEdited = beingEdited === id;
+
+  function getLinkedMarketActions () {
+    if (inArchives) {
+      return [];
+    }
+    if (creatEnabled) {
+      return [<ExpandableAction
+        id="link"
+        key="link"
+        icon={<InsertLinkIcon htmlColor={ACTION_BUTTON_COLOR}/>}
+        openLabel={intl.formatMessage({ id: 'planningInvestibleDecision' })}
+        label={intl.formatMessage({ id: 'childDialogPlanningExplanation' })}
+        onClick={() =>
+          navigate(history, `/dialogAdd#type=${DECISION_TYPE}&id=${id}`)
+        }
+      />];
+    }
+    return [
+      [<ExpandableAction
+        id="upgrade"
+        key="upgrade"
+        icon={<InsertLinkIcon htmlColor={ACTION_BUTTON_COLOR}/>}
+        openLabel={intl.formatMessage({ id: 'upgradeNowDialog' })}
+        onClick={() =>
+          navigate(history, `/billing`)
+        }
+      />]
+    ];
+  }
+
+
+
   return (
     <Card elevation={0} className={classes.root} id="summary">
       <CardType className={classes.type} type={AGILE_PLAN_TYPE} myBeingEdited={myBeingEdited} />
@@ -321,16 +357,7 @@ function Summary(props) {
             </div>
           </div>
           <ParentSummary market={market} hidden={hidden}/>
-          <LinkMarket actions={inArchives ? [] : [<ExpandableAction
-            id="link"
-            key="link"
-            icon={<InsertLinkIcon htmlColor={ACTION_BUTTON_COLOR} />}
-            openLabel={intl.formatMessage({ id: "planningInvestibleDecision" })}
-            label={intl.formatMessage({ id: "childDialogPlanningExplanation" })}
-            onClick={() =>
-              navigate(history, `/dialogAdd#type=${DECISION_TYPE}&id=${id}`)
-            }
-          />]} />
+          <LinkMarket actions={getLinkedMarketActions()} />
           <AttachedFilesList
             key="files"
             marketId={id}

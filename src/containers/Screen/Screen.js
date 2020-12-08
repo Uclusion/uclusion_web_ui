@@ -66,7 +66,8 @@ function Screen(props) {
     toolbarButtons,
     appEnabled,
     isHome,
-    isOnboarding
+    isOnboarding,
+    banner
   } = props;
   let prePendWarning = '';
   if (!_.isEmpty(messagesState)) {
@@ -118,12 +119,21 @@ function Screen(props) {
         hidden={reallyAmLoading}
         appEnabled={appEnabled}
       />
+      {banner && (
+        <Container className={classes.bannerContainer}>
+          {banner}
+        </Container>
+      )}
       {!_.isEmpty(sidebarActions) && !reallyAmLoading && (
-        <Container className={classes.actionContainer}><ActionBar actionBarActions={sidebarActions} appEnabled={appEnabled} /></Container>
+        <Container className={classes.actionContainer}>
+          <ActionBar actionBarActions={sidebarActions} appEnabled={appEnabled} />
+        </Container>
       )}
       <div className={classes.content}>
         {!reallyAmLoading && (
-          <Container className={myContainerClass}>{children}</Container>
+          <Container className={myContainerClass}>
+            {children}
+          </Container>
         )}
         {reallyAmLoading && (
          <LoadingDisplay showMessage messageId="loadingMessage" />
@@ -147,6 +157,7 @@ Screen.propTypes = {
   appEnabled: PropTypes.bool,
   isHome: PropTypes.bool,
   isOnboarding: PropTypes.bool,
+  banner: PropTypes.node,
 };
 
 Screen.defaultProps = {
@@ -159,6 +170,7 @@ Screen.defaultProps = {
   appEnabled: true,
   isHome: false,
   isOnboarding: false,
+  banner: undefined,
 };
 
 export default Screen;

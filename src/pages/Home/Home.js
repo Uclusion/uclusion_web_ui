@@ -29,6 +29,10 @@ import queryString from 'query-string';
 import { startTour } from '../../contexts/TourContext/tourContextReducer';
 import { TourContext } from '../../contexts/TourContext/TourContext';
 import InitiativesAndDialogs from './InitiativesAndDialogs'
+import AddNewOrUpgradeButton from './AddNewOrUpgradeButton';
+import { canCreate } from '../../contexts/AccountContext/accountContextHelper';
+import UpgradeBanner from '../../components/Banners/UpgradeBanner';
+import { AccountContext } from '../../contexts/AccountContext/AccountContext';
 
 const useStyles = makeStyles(() => ({
     spacer: {
@@ -54,6 +58,7 @@ function Home(props) {
   const location = useLocation();
   const { hash } = location;
   const [marketsState] = useContext(MarketsContext);
+  const [accountState] = useContext(AccountContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [operationInProgress] = useContext(OperationInProgressContext);
   const classes = useStyles();
@@ -64,6 +69,8 @@ function Home(props) {
   const hashValues = queryString.parse(hash || '');
   const { onboarded } = hashValues || {};
 
+  const createEnabled = canCreate(accountState);
+  const banner = createEnabled? undefined : <UpgradeBanner/>;
 
   useEffect(() => {
     const redirect = getAndClearRedirect();
@@ -117,8 +124,7 @@ function Home(props) {
     });
   } else {
     ACTIONBAR_ACTIONS.push({
-      label: intl.formatMessage({ id: 'homeAddNewExplanation' }),
-      openLabel: intl.formatMessage({ id: 'homeAddNew' }),
+      prototype: <AddNewOrUpgradeButton/>,
       id: 'addNew',
       onClick: () => setWizardActive(true),
     });
@@ -140,6 +146,7 @@ function Home(props) {
       isHome
       loading={loading}
       sidebarActions={ACTIONBAR_ACTIONS}
+      banner={banner}
     >
       <UclusionTour
         name={SIGNUP_HOME}

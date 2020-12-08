@@ -376,7 +376,7 @@ const messages = defineMessages({
   commentAddSelectIssueLabel: 'Please select a type',
   issueWarning: 'Opening an issue will halt voting on this dialog.',
   issueWarningInvestible: 'Opening an issue will halt voting on this option.',
-  issueWarningPlanning: 'Opening an issue will move this story to blocked and stop execution and new approval.',
+  issueWarningPlanning: 'Opening an issue moves this story to blocked and stops new approval.',
   todoWarningPlanning: 'Opening a TODO prevents this story from changing stages until resolved.',
   todoWarningDone: 'Opening a TODO moves this story to Ready to Start.',
 
@@ -396,7 +396,7 @@ const messages = defineMessages({
   commentRemoveLabel: 'Delete',
   commentViewThreadLabel: 'View Thread',
   commentCloseThreadLabel: 'Close Thread',
-  lastUpdatedBy: 'Last Updated By',
+  lastUpdatedBy: ' by',
 
   // card types
   cardTypeLabelIssue: 'blocking issue',
@@ -478,7 +478,7 @@ const messages = defineMessages({
   planningDialogAddInvestibleLabel: 'Create Story',
   planningDialogAddInvestibleExplanation: 'Create a story and collaborate on what to do',
   planningDialogManageParticipantsExplanation: 'Add collaborators to this workspace',
-  planningDialogViewArchivesExplanation: 'See archived Dialogs and stories in Verified and Not Doing',
+  planningDialogViewArchivesExplanation: 'See archived Dialogs, comments and stories in Verified and Not Doing',
   planningDialogViewArchivesLabel: 'View Archive',
   planningNoneAcceptedWarning: 'No In Progress story',
   planningNoneInDialogWarning: 'No Ready to Start story',
@@ -510,6 +510,11 @@ const messages = defineMessages({
   questionCount: 'Open questions',
   issueCount: 'Open blocking issues',
   planningMarketActivate: 'Activate Workspace',
+  immediate: 'Immediate',
+  immediateSectionHelp: 'These TODOs should be converted to stories and completed as soon as possible.',
+  convenientSectionHelp: 'These TODOs are a priority if there are no immediate ones.',
+  ableSectionHelp: 'These TODOs may or may not be a priority.',
+  storyFromComment: 'Move to story',
 
   // Decision Dialog
   decisionDialogSummaryLabel: 'Background Information',
@@ -826,7 +831,7 @@ const messages = defineMessages({
   warningOffline: 'You are offline',
   optionalEdit: 'These fields are optional and can be changed at any time',
 
-  // Issue Present
+  // Comments
   issuePresent: 'Blocking Issue',
   nonBlockIssuePresent: 'Issue',
   questionPresent: 'Question',
@@ -838,6 +843,20 @@ const messages = defineMessages({
   suggestTip: 'Suggestion',
   reportTip: 'After estimated completion date use to report daily status.',
   todoTip: 'Use to insure this item is done in this story.',
+  redTip: 'Alerts team with highest priority notification',
+  blueTip: 'Does not send a notification but does highlight new',
+  yellowTip: 'Alerts team with notification',
+  notificationLabelRED: 'Immediate',
+  notificationLabelYELLOW: 'When Able',
+  notificationLabelBLUE: 'When Convenient',
+  able: 'When Able',
+  convenient: 'When Convenient',
+  createRedExplanation: 'Create new Immediate TODO',
+  createYellowExplanation: 'Create new When Able TODO',
+  createBlueExplanation: 'Create new When Convenient TODO',
+  todoSection: 'TODOs',
+  todoSectionHelp: 'Holder for simple issues or tasks that are not yet being worked on',
+  toggleTodosExplanation: 'Click to open or close TODO section',
 
   // Search
   searchBoxPlaceholder: 'Search',

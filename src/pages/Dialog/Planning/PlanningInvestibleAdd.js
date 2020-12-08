@@ -25,7 +25,11 @@ import {
   partialUpdateInvestment
 } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { updateInvestment } from '../../../api/marketInvestibles'
-import { getMarketComments, refreshMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper'
+import {
+  getMarketComments,
+  refreshMarketComments,
+  removeComments
+} from '../../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { TourContext } from '../../../contexts/TourContext/TourContext'
 import { AccountUserContext } from '../../../contexts/AccountUserContext/AccountUserContext'
@@ -36,19 +40,24 @@ import {
 } from '../../../contexts/TourContext/tourContextHelper'
 import { storeTourCompleteInBackend } from '../../../components/Tours/UclusionTour'
 import { getUiPreferences } from '../../../contexts/AccountUserContext/accountUserContextHelper'
+import { removeComment } from '../../../api/comments'
 
 function PlanningInvestibleAdd(props) {
   const {
-    marketId, classes, onCancel, onSave, storedState, onSpinComplete, createdAt, storyMaxBudget, allowMultiVote
+    marketId, classes, onCancel, onSave, storedState, onSpinComplete, createdAt, storyMaxBudget, allowMultiVote,
+    fromCommentId
   } = props;
   const intl = useIntl();
+  const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const { description: storedDescription, name: storedName, assignments: storedAssignments, storedUrlAssignee,
     days_estimate: storedDaysEstimate } = storedState;
   const [draftState, setDraftState] = useState(storedState);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const emptyInvestible = { name: storedName };
   const [currentValues, setCurrentValues] = useState(emptyInvestible);
-  const [description, setDescription] = useState(storedDescription);
+  const comments = getMarketComments(commentsState, marketId) || [];
+  const fromComment = comments.find((comment) => comment.id === fromCommentId) || {};
+  const [description, setDescription] = useState(fromComment.body || storedDescription);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const location = useLocation();
   function getUrlAssignee() {
@@ -56,7 +65,9 @@ function PlanningInvestibleAdd(props) {
     if (!_.isEmpty(hash)) {
       const values = queryString.parse(hash);
       const { assignee } = values;
-      return [assignee];
+      if (assignee) {
+        return [assignee];
+      }
     }
     return undefined;
   }
@@ -81,7 +92,6 @@ function PlanningInvestibleAdd(props) {
   const [maxBudget, setMaxBudget] = useState('');
   const [maxBudgetUnit, setMaxBudgetUnit] = useState('');
   const [reason, setReason] = useState('');
-  const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [tourState, tourDispatch] = useContext(TourContext);
   const isStoriesTourCompleted = isTourCompleted(tourState, INVITE_STORIES_WORKSPACE_FIRST_VIEW);
@@ -197,6 +207,15 @@ function PlanningInvestibleAdd(props) {
       addInfo.daysEstimate = daysEstimate;
     }
     return addPlanningInvestible(addInfo).then((inv) => {
+      if (fromCommentId) {
+        return removeComment(marketId, fromCommentId)
+          .then(() => {
+            removeComments(commentsDispatch, marketId, [fromCommentId]);
+            return inv;
+          });
+      }
+      return inv;
+    }).then((inv) => {
       const { investible } = inv;
       onSave(inv);
       const link = formInvestibleLink(marketId, investible.id);

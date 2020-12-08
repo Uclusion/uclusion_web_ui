@@ -113,7 +113,7 @@ function AddOptionsStep (props) {
               <ListItemSecondaryAction>
                 <TooltipIconButton
                   translationId="delete"
-                  icon={<DeleteIcon/>}
+                  icon={<DeleteIcon htmlColor="black" />}
                   onClick={() => deleteOption(index)}
                 />
               </ListItemSecondaryAction>

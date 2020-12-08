@@ -1,7 +1,18 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { FormattedDate, FormattedMessage, useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
-import { Avatar, Box, Button, Card, CardActions, CardContent, Checkbox, Grid, Typography } from '@material-ui/core'
+import {
+  Avatar,
+  Box,
+  Button,
+  Card,
+  CardActions,
+  CardContent,
+  Checkbox,
+  FormControl, FormControlLabel,
+  Grid, Radio, RadioGroup, Tooltip,
+  Typography
+} from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import clsx from 'clsx'
 import _ from 'lodash'
@@ -13,7 +24,7 @@ import {
   QUESTION_TYPE,
   REPLY_TYPE,
   REPORT_TYPE,
-  SUGGEST_CHANGE_TYPE
+  SUGGEST_CHANGE_TYPE, TODO_TYPE,
 } from '../../constants/comments'
 import { removeComment, reopenComment, resolveComment } from '../../api/comments'
 import SpinBlockingButton from '../SpinBlocking/SpinBlockingButton'
@@ -145,8 +156,9 @@ const useCommentStyles = makeStyles(
         display: "inline-flex"
       },
       createdBy: {
-        fontSize: "15px",
-        fontWeight: "bold"
+        paddingLeft: '5px',
+        fontSize: '15px',
+        fontWeight: 'bold'
       },
       childWrapper: {
         // borderTop: '1px solid #DCDCDC',
@@ -175,11 +187,82 @@ const useCommentStyles = makeStyles(
       },
       inlineBorderNone: {},
       timeElapsed: {
+        whiteSpace: 'nowrap',
+        paddingRight: '50px',
+        paddingTop: '5px',
         [theme.breakpoints.down('sm')]: {
-          fontSize: '.7rem',
-          lineHeight: 1,
-          paddingLeft: '5px'
+          display: 'none'
         },
+      },
+      todoLabelType: {
+        [theme.breakpoints.down('sm')]: {
+          display: 'block',
+          marginLeft: 'auto',
+          marginRight: 'auto'
+        }
+      },
+      commentTypeGroup: {
+        display: "flex",
+        flexDirection: "row",
+        [theme.breakpoints.down('sm')]: {
+          display: 'block'
+        }
+      },
+      chipItem: {
+        color: '#fff',
+        borderRadius: '8px',
+        '& .MuiChip-label': {
+          fontSize: 12,
+        },
+        '& .MuiFormControlLabel-label': {
+          paddingRight: '5px',
+          fontWeight: 'bold',
+          textTransform: 'capitalize',
+          [theme.breakpoints.down('sm')]: {
+            height: '100%',
+            verticalAlign: 'middle',
+            display: 'inline-block',
+            '& .MuiSvgIcon-root': {
+              display: 'block'
+            }
+          },
+        },
+        '& .MuiChip-avatar': {
+          width: '16px',
+          height: '14px',
+          color: '#fff',
+        },
+        '& .MuiRadio-colorPrimary.Mui-checked':{
+          '&.Mui-checked': {
+            color: 'white'
+          }
+        },
+        paddingRight: theme.spacing(1),
+        paddingLeft: theme.spacing(1),
+        margin: theme.spacing(0, 0, 0, 4),
+        [theme.breakpoints.down('sm')]: {
+          margin: '10px'
+        },
+      },
+      selected: {
+        opacity: 1
+      },
+      unselected: {
+        opacity: '.6'
+      },
+      chipItemQuestion: {
+        background: '#2F80ED',
+      },
+      chipItemIssue: {
+        background: '#E85757',
+        color: 'black'
+      },
+      chipItemSuggestion: {
+        background: '#e6e969',
+        color: 'black'
+      },
+      commentTypeContainer: {
+        borderRadius: '4px 4px 0 0'
       }
   }
 },
@@ -202,13 +285,14 @@ function useMarketId() {
  * @param {{comment: Comment, comments: Comment[]}} props
  */
 function Comment(props) {
-  const { comment, marketId, comments, allowedTypes } = props;
+  const { comment, marketId, comments, allowedTypes, editOpenDefault, noReply, noAuthor, onDone } = props;
   const history = useHistory();
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const intl = useIntl();
   const classes = useCommentStyles();
   const { id, comment_type: commentType, resolved, investible_id: investibleId, inline_market_id: inlineMarketId,
-  created_by: commentCreatedBy} = comment;
+  created_by: commentCreatedBy, notification_type: originalNotificationType} = comment;
+  const [myNotificationType, setMyNotificationType] = useState(originalNotificationType);
   const presences = usePresences(marketId);
   const createdBy = useCommenter(comment, presences) || unknownPresence;
   const updatedBy = useUpdatedBy(comment, presences) || unknownPresence;
@@ -228,7 +312,7 @@ function Comment(props) {
   const [highlightedCommentState, highlightedCommentDispatch] = useContext(HighlightedCommentContext);
   const [expandedCommentState, expandedCommentDispatch] = useContext(ExpandedCommentContext);
   const [replyOpen, setReplyOpen] = useState(false);
-  const [editOpen, setEditOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(editOpenDefault);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [, versionsDispatch] = useContext(VersionsContext);
   const [marketPresencesState, presenceDispatch] = useContext(MarketPresencesContext);
@@ -291,6 +375,9 @@ function Comment(props) {
   }
 
   function toggleEdit() {
+    if (editOpen) {
+      onDone();
+    }
     setEditOpen(!editOpen);
   }
 
@@ -447,6 +534,7 @@ function Comment(props) {
     return resolveComment(marketId, id)
       .then((comment) => {
         addCommentToMarket(comment, commentsState, commentsDispatch, versionsDispatch);
+        onDone();
         return EMPTY_SPIN_RESULT;
       });
   }
@@ -487,8 +575,7 @@ function Comment(props) {
     }
   }, [id, myRepliesExpanded, expandedCommentDispatch, highlightIds, commentType]);
 
-  const displayUpdatedBy =
-    updatedBy !== undefined && comment.updated_by !== comment.created_by;
+  const displayUpdatedBy = updatedBy !== undefined && comment.updated_by !== comment.created_by
 
   const showActions = !replyOpen || replies.length > 0;
   function getCommentHighlightStyle() {
@@ -500,7 +587,10 @@ function Comment(props) {
     }
     return classes.container;
   }
-
+  function onNotificationTypeChange(event) {
+    const { value } = event.target;
+    setMyNotificationType(value);
+  }
   const isEditable = comment.created_by === userId;
 
   return (
@@ -513,20 +603,23 @@ function Comment(props) {
           {!overrideLabel && (
             <CardType className={classes.commentType} type={commentType} resolved={resolved} />
           )}
-          <Typography className={classes.updatedBy}>
-            {displayUpdatedBy &&
-              `${intl.formatMessage({ id: "lastUpdatedBy" })} ${
-                updatedBy.name
-              }`}
-          </Typography>
           {commentType !== JUSTIFY_TYPE && commentType !== REPLY_TYPE && (
             <Typography className={classes.timeElapsed} variant="body2">
-              <UsefulRelativeTime
-                value={Date.parse(comment.updated_at) - Date.now()}
-              />
+              Created <UsefulRelativeTime value={Date.parse(comment.created_at) - Date.now()}/>.
+              {comment.created_at < comment.updated_at && !resolved && (
+                <> Updated <UsefulRelativeTime value={Date.parse(comment.updated_at) - Date.now()}/>.</>
+              )}
+              {comment.created_at < comment.updated_at && resolved && (
+                <> Resolved <UsefulRelativeTime value={Date.parse(comment.updated_at) - Date.now()}/></>
+              )}
+              {comment.created_at < comment.updated_at && resolved && !displayUpdatedBy && (
+                <>.</>
+              )}
+              {displayUpdatedBy &&
+              `${intl.formatMessage({ id: 'lastUpdatedBy' })} ${updatedBy.name}.`}
             </Typography>
           )}
-          {enableEditing && isEditable && (
+          {enableEditing && isEditable && !editOpenDefault && (
             <Button
               className={clsx(
                 classes.action,
@@ -576,13 +669,50 @@ function Comment(props) {
           )}
         </Box>
         <CardContent className={classes.cardContent}>
-          <div style={{ display: 'inline-flex', alignItems: 'center' }}>
-            <Avatar key={userId}
-                    src={`https://www.gravatar.com/avatar/${md5(createdBy.email, {encoding: "binary"})}?d=blank`} />
-            <Typography className={classes.createdBy} variant="caption">
-              {createdBy.name}
-            </Typography>
-          </div>
+          {commentType === TODO_TYPE && !investibleId && (
+            <FormControl component="fieldset" className={classes.todoLabelType}>
+              <RadioGroup
+                aria-labelledby="notification-type-choice"
+                className={classes.commentType}
+                onChange={onNotificationTypeChange}
+                value={myNotificationType}
+                row
+              >
+                {['RED', 'YELLOW', 'BLUE'].map((notificationType) => {
+                  return (
+                    <Tooltip key={`tip${notificationType}`}
+                             title={<FormattedMessage id={`${notificationType.toLowerCase()}Tip`} />}>
+                      <FormControlLabel
+                        id={`commentAddNotificationType${notificationType}`}
+                        key={notificationType}
+                        className={clsx(
+                          notificationType === 'RED' ? `${classes.chipItem} ${classes.chipItemIssue}`
+                            : notificationType === 'BLUE' ? `${classes.chipItem} ${classes.chipItemQuestion}`
+                            : `${classes.chipItem} ${classes.chipItemSuggestion}`,
+                          myNotificationType === notificationType ? classes.selected : classes.unselected
+                        )}
+                        /* prevent clicking the label stealing focus */
+                        onMouseDown={e => e.preventDefault()}
+                        control={<Radio color="primary" />}
+                        label={<FormattedMessage id={`notificationLabel${notificationType}`} />}
+                        labelPlacement="end"
+                        value={notificationType}
+                      />
+                    </Tooltip>
+                  );
+                })}
+              </RadioGroup>
+            </FormControl>
+          )}
+          {!noAuthor && (
+            <div style={{ display: 'inline-flex', alignItems: 'center' }}>
+              <Avatar key={userId}
+                      src={`https://www.gravatar.com/avatar/${md5(createdBy.email, {encoding: "binary"})}?d=blank`} />
+              <Typography className={classes.createdBy} variant="caption">
+                {createdBy.name}
+              </Typography>
+            </div>
+          )}
           <Box marginTop={1}>
             {!editOpen && (
               <ReadOnlyQuillEditor value={comment.body} />
@@ -594,6 +724,7 @@ function Comment(props) {
                 onSave={toggleEdit}
                 onCancel={toggleEdit}
                 allowedTypes={allowedTypes}
+                myNotificationType={myNotificationType}
               />
             )}
           </Box>
@@ -646,6 +777,17 @@ function Comment(props) {
                 />
               </Typography>
             )}
+            {commentType === TODO_TYPE && !investibleId && !inArchives && (
+              <Button
+                className={clsx(classes.action, classes.actionPrimary)}
+                color="primary"
+                disabled={operationRunning}
+                onClick={() => navigate(history, `${formMarketAddInvestibleLink(marketId)}#fromCommentId=${id}`)}
+                variant="contained"
+              >
+                {intl.formatMessage({ id: "storyFromComment" })}
+              </Button>
+            )}
             {(replies.length > 0 || inlineMarketId) && (
               <Button
                 className={clsx(classes.action, classes.actionSecondary)}
@@ -669,7 +811,7 @@ function Comment(props) {
             )}
             {enableEditing && (
               <React.Fragment>
-                {commentType !== REPORT_TYPE && (
+                {commentType !== REPORT_TYPE && !noReply && (
                   <Button
                     className={clsx(classes.action, classes.actionPrimary)}
                     color="primary"
@@ -729,7 +871,10 @@ function Comment(props) {
 Comment.propTypes = {
   allowedTypes: PropTypes.arrayOf(PropTypes.string).isRequired,
   comment: PropTypes.object.isRequired,
-  // eslint-disable-next-line react/forbid-prop-types
+  editOpenDefault: PropTypes.bool,
+  noReply: PropTypes.bool,
+  noAuthor: PropTypes.bool,
+  onDone: PropTypes.func,
   comments: PropTypes.arrayOf(PropTypes.object).isRequired,
   depth: () => {
     // TODO error
@@ -737,6 +882,13 @@ Comment.propTypes = {
     return null;
   },
   marketId: PropTypes.string.isRequired
+};
+
+Comment.defaultProps = {
+  editOpenDefault: false,
+  noReply: false,
+  noAuthor: false,
+  onDone: () => {}
 };
 
 function InitialReply(props) {
@@ -829,7 +981,8 @@ const useReplyStyles = makeStyles(
  * @type {Presence}
  */
 const unknownPresence = {
-  name: "unknown"
+  name: "unknown",
+  email: ""
 };
 
 /**

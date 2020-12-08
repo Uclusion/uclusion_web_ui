@@ -24,6 +24,12 @@ import { getMarketPresences, getPresenceMap } from '../../contexts/MarketPresenc
 import AssigneeFilterDropdown from './AssigneeFilterDropdown'
 import { ACTIVE_STAGE } from '../../constants/markets'
 import MarketLinks from '../Dialog/MarketLinks'
+import { Grid } from '@material-ui/core'
+import CommentBox from '../../containers/CommentBox/CommentBox'
+import MarketTodos from '../Dialog/Planning/MarketTodos'
+import { TODO_TYPE } from '../../constants/comments'
+import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper'
+import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 
 function DialogArchives(props) {
   const { hidden } = props;
@@ -39,17 +45,20 @@ function DialogArchives(props) {
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [commentsState] = useContext(CommentsContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || []
   const myPresence = marketPresences.find((presence) => presence.current_user);
   const presenceMap = getPresenceMap(marketPresencesState, marketId);
   const renderableMarket = getMarket(marketsState, marketId) || {};
   const verifiedStage = getVerifiedStage(marketStagesState, marketId) || {};
   const notDoingStage = getNotDoingStage(marketStagesState, marketId) || {};
-
   const marketInvestibles = getMarketInvestibles(investiblesState, marketId) || [];
-
   const verifiedInvestibles = getInvestiblesInStage(marketInvestibles, verifiedStage.id);
   const notDoingInvestibles = getInvestiblesInStage(marketInvestibles, notDoingStage.id);
+  const comments = getMarketComments(commentsState, marketId) || [];
+  const resolvedMarketComments = comments.filter(comment => !comment.investible_id && comment.resolved) || [];
+  const notTodoComments = resolvedMarketComments.filter(comment => comment.comment_type !== TODO_TYPE);
+  const todoComments = resolvedMarketComments.filter(comment => comment.comment_type === TODO_TYPE);
 
   const filteredVerifiedInvestibles = verifiedInvestibles.filter((inv) => {
     if (_.isEmpty(assigneeFilter)) {
@@ -126,7 +135,13 @@ function DialogArchives(props) {
           elevation={0}
         />
       </SubSection>
+      <MarketTodos comments={todoComments} marketId={marketId} />
       <MarketLinks links={children || []} isArchive />
+      <Grid container spacing={2}>
+        <Grid item id="commentAddArea"  xs={12} style={{ marginTop: '15px' }}>
+          <CommentBox comments={notTodoComments} marketId={marketId} allowedTypes={[]} />
+        </Grid>
+      </Grid>
     </Screen>
   );
 }

@@ -109,6 +109,8 @@ const useCardTypeStyles = makeStyles(theme => ({
       },
     },
     timeElapsed: {
+      paddingTop: '5px',
+      whiteSpace: 'nowrap',
       [theme.breakpoints.down('sm')]: {
         fontSize: '.7rem',
         lineHeight: 1,
@@ -195,10 +197,7 @@ export default function CardType(props) {
       <Grid item xs={fullWidth ? false : 2}>
         {createdAt && (
           <Typography className={classes.timeElapsed} variant="body2">
-            {intl.formatMessage({ id: 'created' })}
-            <UsefulRelativeTime
-              value={Date.parse(createdAt) - Date.now()}
-            />
+            {intl.formatMessage({ id: 'created' })} <UsefulRelativeTime value={Date.parse(createdAt) - Date.now()}/>
           </Typography>
         )}
       </Grid>

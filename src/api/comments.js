@@ -16,16 +16,17 @@ export function fetchComments(idList, marketId) {
   }).catch((error) => toastErrorAndThrow(error, 'errorCommentFetchFailed'));
 }
 
-export function saveComment(marketId, investibleId, replyId, body, commentType, uploadedFiles) {
+export function saveComment(marketId, investibleId, replyId, body, commentType, uploadedFiles, notificationType) {
   return getMarketClient(marketId)
-    .then((client) => client.investibles.createComment(investibleId, body,
-      replyId, commentType, uploadedFiles))
+    .then((client) => client.investibles.createComment(investibleId, body, replyId, commentType, uploadedFiles,
+      notificationType))
     .catch((error) => toastErrorAndThrow(error, 'errorCommentSaveFailed'));
 }
 
-export function updateComment(marketId, commentId, body, uploadedFiles, commentType) {
+export function updateComment(marketId, commentId, body, uploadedFiles, commentType, notificationType) {
   return getMarketClient(marketId)
-    .then((client) => client.investibles.updateComment(commentId, body, undefined, uploadedFiles, commentType))
+    .then((client) => client.investibles.updateComment(commentId, body, undefined, uploadedFiles, commentType,
+      notificationType))
     .catch((error) => toastErrorAndThrow(error, 'errorCommentSaveFailed'));
 }
 

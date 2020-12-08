@@ -14,11 +14,15 @@ export const useStyles = makeStyles((theme) => {
       flex: 1,
       display: 'flex',
       justifyContent: 'flex-end',
-      color: '#bdbdbd',
       '& > .MuiSvgIcon-root': {
         width: '30px',
         height: '30px',
       },
+    },
+    menuTitleWhite: {
+      flex: 3,
+      color: 'white',
+      fontWeight: 700
     },
     menuTitle: {
       flex: 3,
@@ -36,6 +40,8 @@ function ExpandableAction(props) {
     toolTip,
     openLabel,
     onClick,
+    tipPlacement = 'bottom',
+    useWhiteText
   } = props;
 
   const classes = useStyles();
@@ -46,7 +52,7 @@ function ExpandableAction(props) {
   }
 
   return (
-    <Tooltip title={toolTip || label}>
+    <Tooltip title={toolTip || label} placement={tipPlacement}>
       <ListItem
         id={id}
         className={classes.menuItem}
@@ -56,7 +62,7 @@ function ExpandableAction(props) {
         onClick={myOnClick}
       >
         {openLabel && (
-          <ListItemText className={classes.menuTitle}>
+          <ListItemText className={useWhiteText ? classes.menuTitleWhite : classes.menuTitle}>
             {openLabel}
           </ListItemText>
         )}
@@ -72,8 +78,14 @@ ExpandableAction.propTypes = {
   icon: PropTypes.element.isRequired,
   label: PropTypes.string.isRequired,
   openLabel: PropTypes.string,
+  tipPlacement: PropTypes.string,
   onClick: PropTypes.func.isRequired,
   toolTip: PropTypes.string,
+  useWhiteText: PropTypes.bool
+};
+
+ExpandableAction.defaultProps = {
+  useWhiteText: false,
 };
 
 export default ExpandableAction;

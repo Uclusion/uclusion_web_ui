@@ -21,7 +21,6 @@ import {
   navigate
 } from '../../../utils/marketIdPathFunctions'
 import {
-  ISSUE_TYPE,
   JUSTIFY_TYPE,
   QUESTION_TYPE,
   REPLY_TYPE,
@@ -58,6 +57,7 @@ import {
 import { getVoteTotalsForUser, hasNotVoted } from '../../../utils/userFunctions'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import MarketLinks from '../MarketLinks'
+import MarketTodos from './MarketTodos'
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -82,8 +82,10 @@ function PlanningDialog(props) {
   const breadCrumbs = inArchives
       ? makeArchiveBreadCrumbs(history)
       : makeBreadCrumbs(history);
-  const marketComments = comments.filter(comment => !comment.investible_id);
-  const allowedCommentTypes = [QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE, ISSUE_TYPE];
+  const unResolvedMarketComments = comments.filter(comment => !comment.investible_id && !comment.resolved) || [];
+  const notTodoComments = unResolvedMarketComments.filter(comment => comment.comment_type !== TODO_TYPE);
+  const todoComments = unResolvedMarketComments.filter(comment => comment.comment_type === TODO_TYPE);
+  const allowedCommentTypes = [QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE];
   const { name: marketName, locked_by: lockedBy } = market;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const presences = getMarketPresences(marketPresencesState, marketId);
@@ -239,9 +241,9 @@ function PlanningDialog(props) {
       {isChannel && (
         <DismissableText textId='storyHelp' />
       )}
-      <MarketLinks links={children|| []} />
+      <MarketTodos comments={todoComments} marketId={marketId} />
       <Grid container spacing={2}>
-          <Grid item id="commentAddArea"  xs={12} style={{ marginTop: '15px' }}>
+          <Grid item id="commentAddArea"  xs={12}>
             {!inArchives && (
               <CommentAddBox
                 allowedTypes={allowedCommentTypes}
@@ -249,9 +251,10 @@ function PlanningDialog(props) {
                 isPlanning
               />
             )}
-            <CommentBox comments={marketComments} marketId={marketId} allowedTypes={allowedCommentTypes} />
+            <CommentBox comments={notTodoComments} marketId={marketId} allowedTypes={allowedCommentTypes} />
           </Grid>
       </Grid>
+      <MarketLinks links={children|| []} />
     </Screen>
   );
 }
@@ -264,7 +267,6 @@ PlanningDialog.propTypes = {
   hidden: PropTypes.bool,
   comments: PropTypes.arrayOf(PropTypes.object),
   myPresence: PropTypes.object.isRequired,
-  hash: PropTypes.string.isRequired,
 };
 
 PlanningDialog.defaultProps = {

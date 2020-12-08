@@ -3,7 +3,6 @@ import PropTypes from 'prop-types'
 import { ListItem, ListItemIcon, ListItemText, Tooltip, } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
-import AddOptionsStep from '../../AddNew/Dialog/AddOptionsStep'
 
 export const useStyles = makeStyles((theme) => {
   return {

@@ -1,4 +1,4 @@
-import React  from 'react';
+import React from 'react';
 
 import PropTypes from 'prop-types';
 import Screen from '../../containers/Screen/Screen';
@@ -6,12 +6,11 @@ import { useIntl } from 'react-intl';
 import SubscriptionStatus from './SubscriptionStatus';
 import PromoCodeInput from './PromoCodeInput';
 import AccountPromos from './AccountPromos';
-
+import PaymentInfo from './PaymentInfo';
 
 function BillingHome (props) {
   const { hidden } = props;
   const intl = useIntl();
-
 
   const title = intl.formatMessage({ id: 'BillingHomeTitle' });
 
@@ -24,6 +23,8 @@ function BillingHome (props) {
       <SubscriptionStatus/>
       <AccountPromos/>
       <PromoCodeInput/>
+      <PaymentInfo/>
+
     </Screen>
   );
 }

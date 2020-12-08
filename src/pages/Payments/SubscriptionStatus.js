@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { Card, Grid, makeStyles, Typography } from '@material-ui/core';
 import Invoices from './Invoices';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
@@ -51,8 +51,6 @@ function SubscriptionStatus (props) {
   const classes = styleClasses();
   const upgradable = tier === PRODUCT_TIER_FREE;
 
-  // TODO: this should really depend on if the account state needs it open
-  const [paymentInfoVisible, setPaymentInfoVisible] = useState(false);
   // some helpful constants
   const onFree = tier === PRODUCT_TIER_FREE;
   const onTrial = subStatus === SUBSCRIPTION_STATUS_TRIAL;
@@ -60,7 +58,6 @@ function SubscriptionStatus (props) {
 
   const cancellable = canCancelSubscription();
   const restartable = !cancellable && !upgradable;
-  const billingSubmit = restartable ? resumeSubscription : undefined;
 
   const tierMessage = intl.formatMessage({ id: getTierMessageId() });
   const subMessage = getSubscriptionMessage();

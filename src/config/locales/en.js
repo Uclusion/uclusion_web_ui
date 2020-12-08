@@ -744,6 +744,10 @@ const messages = defineMessages({
   billingMustPay: 'Create not available because trial period is over. Please go to \'Your Plan\' to update your billing information.',
   billingStartSubscription: 'Please go to manage subscription and start a free trial to enable create.',
 
+  // payment info
+  paymentInfoButtonAdd: 'Add a Card',
+  paymentInfoButtonUpdate: 'Update your Card',
+
   // upgrade form
   upgradeFormCardName: 'Cardholder Name',
   upgradeFormCardPhone: 'Cardholder Phone Number',

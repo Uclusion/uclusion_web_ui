@@ -57,7 +57,7 @@ export function subscriptionCancellable(state) {
   return subStatus === SUBSCRIPTION_STATUS_ACTIVE || subStatus === SUBSCRIPTION_STATUS_TRIAL;
 }
 
-export function getCurrentBillingInfo(state) {
+export function getCurrentBillingCardInfo(state) {
   if (_.isEmpty(state.billingInfo)){
     return undefined;
   }

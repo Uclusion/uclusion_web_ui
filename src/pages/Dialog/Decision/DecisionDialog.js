@@ -391,7 +391,8 @@ function DecisionDialog(props) {
                   key="addOption"
                   label={intl.formatMessage({ id: addLabelExplanation })}
                   onClick={() => navigate(history, formMarketAddInvestibleLink(marketId))}
-                  icon={<AddIcon />}
+                  useWhiteText
+                  icon={<AddIcon htmlColor="white" />}
                   openLabel={intl.formatMessage({ id: addLabel })}
                 />
               </div>

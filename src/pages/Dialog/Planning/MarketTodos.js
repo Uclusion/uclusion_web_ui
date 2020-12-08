@@ -179,7 +179,7 @@ function MarketTodos (props) {
           helpTextId="todoSectionHelp"
           actionButton={
             (<ExpandableAction
-              icon={<ExpandMoreIcon/>}
+              icon={<ExpandMoreIcon htmlColor="white"/>}
               label={intl.formatMessage({ id: 'toggleTodosExplanation' })}
               onClick={toggleShowTodos}
               tipPlacement="top-end"
@@ -218,7 +218,7 @@ function MarketTodos (props) {
                 helpTextId="immediateSectionHelp"
                 actionButton={
                   (<ExpandableAction
-                    icon={<AddIcon/>}
+                    icon={<AddIcon htmlColor="white"/>}
                     label={intl.formatMessage({ id: 'createRedExplanation' })}
                     onClick={onCreateRed}
                     tipPlacement="top-end"
@@ -265,7 +265,7 @@ function MarketTodos (props) {
                 helpTextId="ableSectionHelp"
                 actionButton={
                   (<ExpandableAction
-                    icon={<AddIcon/>}
+                    icon={<AddIcon htmlColor="black" />}
                     label={intl.formatMessage({ id: 'createYellowExplanation' })}
                     onClick={onCreateYellow}
                     tipPlacement="top-end"
@@ -312,7 +312,7 @@ function MarketTodos (props) {
                 helpTextId="convenientSectionHelp"
                 actionButton={
                   (<ExpandableAction
-                    icon={<AddIcon/>}
+                    icon={<AddIcon htmlColor="white"/>}
                     label={intl.formatMessage({ id: 'createBlueExplanation' })}
                     onClick={onCreate}
                     tipPlacement="top-end"

@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import { ListItem, ListItemIcon, ListItemText, Tooltip, } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
+import AddOptionsStep from '../../AddNew/Dialog/AddOptionsStep'
 
 export const useStyles = makeStyles((theme) => {
   return {
@@ -14,11 +15,15 @@ export const useStyles = makeStyles((theme) => {
       flex: 1,
       display: 'flex',
       justifyContent: 'flex-end',
-      color: '#bdbdbd',
       '& > .MuiSvgIcon-root': {
         width: '30px',
         height: '30px',
       },
+    },
+    menuTitleWhite: {
+      flex: 3,
+      color: 'white',
+      fontWeight: 700
     },
     menuTitle: {
       flex: 3,
@@ -36,7 +41,8 @@ function ExpandableAction(props) {
     toolTip,
     openLabel,
     onClick,
-    tipPlacement = 'bottom'
+    tipPlacement = 'bottom',
+    useWhiteText
   } = props;
 
   const classes = useStyles();
@@ -57,7 +63,7 @@ function ExpandableAction(props) {
         onClick={myOnClick}
       >
         {openLabel && (
-          <ListItemText className={classes.menuTitle}>
+          <ListItemText className={useWhiteText ? classes.menuTitleWhite : classes.menuTitle}>
             {openLabel}
           </ListItemText>
         )}
@@ -76,6 +82,11 @@ ExpandableAction.propTypes = {
   tipPlacement: PropTypes.string,
   onClick: PropTypes.func.isRequired,
   toolTip: PropTypes.string,
+  useWhiteText: PropTypes.bool
+};
+
+ExpandableAction.defaultProps = {
+  useWhiteText: false,
 };
 
 export default ExpandableAction;

@@ -22,7 +22,8 @@ function InvestibleAddActionButton(props) {
   return (
     <div className={classes.blue}>
       <ExpandableAction
-        icon={<AddIcon />}
+        useWhiteText
+        icon={<AddIcon htmlColor="white" />}
         label={intl.formatMessage({ id: 'planningDialogAddInvestibleExplanation' })}
         openLabel={intl.formatMessage({ id: 'planningDialogAddInvestibleLabel' })}
         onClick={onClick}

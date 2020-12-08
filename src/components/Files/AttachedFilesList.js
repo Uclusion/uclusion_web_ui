@@ -107,7 +107,7 @@ function AttachedFilesList(props) {
                 translationId="delete"
                 edge="end"
                 onClick={() => onDeleteClick(path)}
-                icon={<DeleteIcon/>}
+                icon={<DeleteIcon htmlColor="black" />}
                 aria-label="delete"
                 hasSpinChecker
               />

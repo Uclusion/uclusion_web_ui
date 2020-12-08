@@ -3,7 +3,7 @@ import React  from 'react';
 import PropTypes from 'prop-types';
 import Screen from '../../containers/Screen/Screen';
 import { useIntl } from 'react-intl';
-
+import SubscriptionStatus from './SubscriptionStatus';
 import PromoCodeInput from './PromoCodeInput';
 import AccountPromos from './AccountPromos';
 
@@ -21,7 +21,7 @@ function BillingHome (props) {
       title={title}
       tabTitle={title}
     >
-
+      <SubscriptionStatus/>
       <AccountPromos/>
       <PromoCodeInput/>
     </Screen>

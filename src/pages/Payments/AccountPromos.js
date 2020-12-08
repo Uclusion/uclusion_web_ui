@@ -25,10 +25,10 @@ function AccountPromos (props) {
       <Typography>
         You have the following promotions active on your account:
       </Typography>
-      {safePromotions.each((promo) => {
+      {safePromotions.map((promo) => {
         const { code, months, percent_off } = promo;
         return (
-          <Typography>
+          <Typography key={code}>
             {code} for {months} month(s) at {percent_off}% off.
           </Typography>
         );

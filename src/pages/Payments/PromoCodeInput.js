@@ -1,9 +1,10 @@
 import React, { useContext, useState } from 'react';
 import _ from 'lodash';
-import { Button, TextField, Typography } from '@material-ui/core';
+import { TextField, Typography } from '@material-ui/core';
 import { applyPromoCode, validatePromoCode } from '../../api/users';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
 import { updateAccount } from '../../contexts/AccountContext/accountContextHelper';
+import SpinningButton from '../../components/SpinBlocking/SpinningButton';
 
 
 function PromoCodeInput(props) {
@@ -11,7 +12,7 @@ function PromoCodeInput(props) {
   const [promoBoxValue, setPromoBoxValue] = useState('');
   const [, accountDispatch] = useContext(AccountContext);
   const { valid, code, reused } = activePromo;
-
+  const [spinning, setSpinning] = useState(false);
 
   function promoBoxOnChange(event) {
     const { value } = event.target;
@@ -20,17 +21,20 @@ function PromoCodeInput(props) {
 
   function validatePromo() {
     const trimmed = promoBoxValue.trim();
+    setSpinning(true);
     validatePromoCode(trimmed)
       .then((promoCheckResult) => {
         if (!promoCheckResult.valid) {
           // set the active promo to the invalid one so that we know it's not going to work
           setActivePromo(promoCheckResult);
+          setSpinning(false);
         }else{
           return applyPromoCode(trimmed)
             .then((account) => {
               setActivePromo(promoCheckResult);
               // quick add the account to show the new billing info;
-              updateAccount(accountDispatch, account);
+              updateAccount(accountDispatch, account)
+              setSpinning(false);
             })
             .catch((error) => {
               const { status } = error;
@@ -38,6 +42,7 @@ function PromoCodeInput(props) {
                 // let the UI know we've reused the code
                 setActivePromo({valid: false, code: trimmed, reused: true});
               }
+              setSpinning(false);
             });
         }
       });
@@ -48,12 +53,14 @@ function PromoCodeInput(props) {
   return (
     <div>
       <TextField value={promoBoxValue} onChange={promoBoxOnChange}/>
-      <Button
+      <SpinningButton
         disabled={_.isEmpty(promoBoxValue)}
+        hasSpinChecker
+        spinning={spinning}
         onClick={validatePromo}
       >
         Apply Promo Code
-      </Button>
+      </SpinningButton>
       { invalidPromoGiven && !reused && (
         <Typography>
           Promo Code {code} is not valid

@@ -148,7 +148,7 @@ const messages = defineMessages({
   // Upgrade
   upgradeNow: 'Upgrade Now',
   upgradeNowDialog: 'Upgrade now to Add Dialog',
-  upgradeBannerText: 'You are our Free plan and creation of new Dialogs, Initiatives and Workspaces is not available.',
+  upgradeBannerText: 'You are on our Free plan and creation of new Dialogs, Initiatives and Workspaces is not available.',
 
   // Share story
   shareButtonExplanation: 'Share a read only link',

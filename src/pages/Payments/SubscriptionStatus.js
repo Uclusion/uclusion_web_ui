@@ -53,7 +53,9 @@ function SubscriptionStatus (props) {
 
   // TODO: this should really depend on if the account state needs it open
   const [paymentInfoVisible, setPaymentInfoVisible] = useState(false);
-
+  // some helpful constants
+  const onFree = tier === PRODUCT_TIER_FREE;
+  const onTrial = subStatus === SUBSCRIPTION_STATUS_TRIAL;
 
 
   const cancellable = canCancelSubscription();
@@ -63,9 +65,7 @@ function SubscriptionStatus (props) {
   const tierMessage = intl.formatMessage({ id: getTierMessageId() });
   const subMessage = getSubscriptionMessage();
 
-  // some helpful constants
-  const onFree = tier === PRODUCT_TIER_FREE;
-  const onTrial = subStatus === SUBSCRIPTION_STATUS_TRIAL;
+
 
   function onSpinStop (account) {
     updateAccount(accountDispatch, account);

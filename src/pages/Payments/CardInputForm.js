@@ -4,7 +4,7 @@ import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { useStripe, useElements, CardElement } from '@stripe/react-stripe-js';
-import { Paper, TextField, Typography } from '@material-ui/core';
+import { TextField, Typography } from '@material-ui/core';
 import { useIntl } from 'react-intl';
 import Grid from '@material-ui/core/Grid';
 import SpinningButton from '../../components/SpinBlocking/SpinningButton';
@@ -15,9 +15,9 @@ import PhoneField from '../../components/TextFields/PhoneField';
 import {
   updateBilling,
   updateAccount,
-  getCurrentBillingInfo
 } from '../../contexts/AccountContext/accountContextHelper';
 import clsx from 'clsx';
+import Button from '@material-ui/core/Button';
 // this is used to style the Elements Card component
 const CARD_OPTIONS = {
   iconStyle: 'solid',
@@ -37,18 +37,22 @@ const useStyles = makeStyles(theme => ({
     color: '#fff',
   },
   action: {
-    boxShadow: "none",
-    padding: "4px 16px",
-    textTransform: "none",
-    "&:hover": {
-      boxShadow: "none"
+    boxShadow: 'none',
+    padding: '4px 16px',
+    textTransform: 'none',
+    '&:hover': {
+      boxShadow: 'none'
     }
   },
+  error: {
+    color: 'red',
+    border: '1px solid red',
+  },
   actionPrimary: {
-    backgroundColor: "#2D9CDB",
-    color: "white",
-    "&:hover": {
-      backgroundColor: "#2D9CDB"
+    backgroundColor: '#2D9CDB',
+    color: 'white',
+    '&:hover': {
+      backgroundColor: '#2D9CDB'
     }
   },
 }));
@@ -57,14 +61,14 @@ const EMPTY_DETAILS = { name: '', email: '', phone: '' };
 
 function CardInputForm (props) {
 
-  const { onUpdate, onSubmit, submitLabelId } = props;
+  const { onUpdate, onSubmit, submitLabelId, onCancel } = props;
 
   const classes = useStyles();
   const stripe = useStripe();
   const elements = useElements();
   const intl = useIntl();
 
-  const [accountState, accountDispatch] = useContext(AccountContext);
+  const [, accountDispatch] = useContext(AccountContext);
   const [cardComplete, setCardComplete] = useState(false);
   // we have to manage our own processing state because it's a form submit
   const [processing, setProcessing] = useState(false);
@@ -73,7 +77,7 @@ function CardInputForm (props) {
   const billingDetailsValid = !_.isEmpty(billingDetails.name)
     && !_.isEmpty(billingDetails.email)
     && !_.isEmpty(billingDetails.phone);
-  const billingInfo = getCurrentBillingInfo(accountState);
+
   const validForm = stripe && elements && cardComplete && !error && billingDetailsValid;
 
   function resetForm () {
@@ -95,24 +99,24 @@ function CardInputForm (props) {
       setProcessing(true);
     }
     const updateBillingSubmit = (paymentResult) => {
-     return updatePaymentInfo(paymentResult.paymentMethod.id)
+      return updatePaymentInfo(paymentResult.paymentMethod.id)
         .then((upgradedAccount) => {
           updateAccount(accountDispatch, upgradedAccount);
           return getPaymentInfo();
         }).then((info) => {
-        updateBilling(accountDispatch, info);
-        resetForm();
-        onUpdate();
-      });
+          updateBilling(accountDispatch, info);
+          resetForm();
+          onUpdate();
+        });
     };
 
-    const usedSubmit = (onSubmit)? onSubmit : updateBillingSubmit;
+    const usedSubmit = (onSubmit) ? onSubmit : updateBillingSubmit;
 
     return stripe.createPaymentMethod(({
       type: 'card',
       card: elements.getElement(CardElement),
       billing_details: billingDetails
-    })).then((paymentResult) =>{
+    })).then((paymentResult) => {
       // console.log('Payment method creation successful');
       return usedSubmit(paymentResult, resetForm);
     }).catch((e) => {
@@ -136,41 +140,15 @@ function CardInputForm (props) {
     setCardComplete(e.complete);
   }
 
-  function renderCurrentBillingInfo () {
-    if (_.isEmpty(billingInfo)) {
-      return <React.Fragment/>;
-    }
-
-    const cardInfos = billingInfo.map(cardInfo => {
-      const {
-        brand,
-        last4,
-        exp_month: expMonth,
-        exp_year: expYear
-      } = cardInfo;
-      return (
-        <Typography>
-          {brand}: ****-{last4} {expMonth}/{expYear}
-        </Typography>
-      );
-    });
-
-    return (
-      <Paper>
-        <Typography>
-          Current Cards:
-        </Typography>
-        {cardInfos}
-      </Paper>
-    );
-  }
-
   return (
-    <div>
-      {renderCurrentBillingInfo()}
-      <div>
-        Error Info: {error}
-      </div>
+    <div className={classes.root}>
+      {error && (
+        <div className={classes.error}>
+          <Typography>
+            {error}
+          </Typography>
+        </div>
+      )}
       <form
         className={classes.form}
         autoComplete="off"
@@ -222,21 +200,26 @@ function CardInputForm (props) {
               onChange={onBillingDetailsChange('phone')}
             />
           </Grid>
-
-          <SpinningButton
-            spinning={processing}
-            fullWidth
-            variant="contained"
-            className={clsx(
-              classes.submit,
-              classes.action,
-              classes.actionPrimary
+          <div className={classes.buttonBox}>
+            <SpinningButton
+              spinning={processing}
+              variant="contained"
+              className={clsx(
+                classes.submit,
+                classes.action,
+                classes.actionPrimary
               )}
-            type="submit"
-            disabled={!validForm}
-          >
-            {intl.formatMessage({ id: submitLabelId })}
-          </SpinningButton>
+              type="submit"
+              disabled={!validForm}
+            >
+              {intl.formatMessage({ id: submitLabelId })}
+            </SpinningButton>
+            <Button
+              onClick={onCancel}
+            >
+              {intl.formatMessage({ id: 'cancel' })}
+            </Button>
+          </div>
         </Grid>
       </form>
     </div>

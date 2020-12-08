@@ -1,8 +1,8 @@
-import React  from 'react'
-import PropTypes from 'prop-types'
-import clsx from 'clsx'
-import { Button,  Grid, darken } from '@material-ui/core'
-import { makeStyles } from '@material-ui/styles'
+import React from 'react';
+import PropTypes from 'prop-types';
+import clsx from 'clsx';
+import { Button, Grid, darken } from '@material-ui/core';
+import { makeStyles } from '@material-ui/styles';
 
 const useStyles = makeStyles((theme) => ({
   drawer: {
@@ -52,27 +52,29 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-function ActionBar(props) {
+function ActionBar (props) {
   const classes = useStyles();
   const { actionBarActions } = props;
 
-
   const addNewClass = clsx(classes.button, classes.buttonPrimary, classes.fullWidth);
 
-
-  function getActionBar() {
+  function getActionBar () {
     return (
-      <Grid container style={{ marginTop: '5rem' }}>
+      <Grid container style={{ marginTop: '1rem' }}>
         <Grid item xs={12} justify="flex-end" container>
           {actionBarActions.map((action) => {
+            const { prototype, onClick, id, openLabel } = action;
             const isAddNew = action.id === 'addNew';
-            const className = !isAddNew? classes.button : addNewClass;
-            const gridProps = !isAddNew? { xs: 3, justify: 'flex-end'} : {md:1, xs:3};
+            const className = !isAddNew ? classes.button : addNewClass;
+            const gridProps = !isAddNew ? { xs: 3, justify: 'flex-end' } : { md: 1, xs: 3 };
             return (
               <Grid item key={action.id} {...gridProps} container>
-                <Button key={action.id} onClick={action.onClick} className={className}>
-                  {action.openLabel}
-                </Button>
+                {prototype && React.cloneElement(prototype, { key: id, onClick, className })}
+                {!prototype && (
+                  <Button key={action.id} onClick={action.onClick} className={className}>
+                    {openLabel}
+                  </Button>
+                )}
               </Grid>
             );
           })}
@@ -82,9 +84,9 @@ function ActionBar(props) {
   }
 
   return (
-      <div>
-        {getActionBar()}
-      </div>
+    <div>
+      {getActionBar()}
+    </div>
   );
 }
 

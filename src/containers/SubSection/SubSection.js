@@ -2,6 +2,7 @@ import React from 'react'
 import { AppBar, makeStyles, Toolbar, Tooltip, Typography, } from '@material-ui/core'
 import PropTypes from 'prop-types'
 import {
+  SECTION_SUB_HEADER,
   SECTION_TYPE_SECONDARY,
   SECTION_TYPE_SECONDARY_WARNING,
   SECTION_TYPE_TERTIARY_WARNING
@@ -17,21 +18,31 @@ const useStyles = makeStyles((theme) => {
       boxShadow: 'none',
       background: '#D54F22',
       color: '#fff',
+      borderRadius: '6px 6px 0 0'
     },
     subHeaderWarning: {
       boxShadow: 'none',
       background: '#e6e969',
       color: 'black',
+      borderRadius: '6px 6px 0 0'
     },
     tertiarySubHeaderWarning: {
       boxShadow: 'none',
       background: '#2F80ED',
       color: '#fff',
+      borderRadius: '6px 6px 0 0'
     },
     secondarySubHeader: {
       boxShadow: 'none',
       background: '#3F6B72',
       color: '#fff',
+      borderRadius: '6px 6px 0 0'
+    },
+    sectionSubHeader: {
+      boxShadow: 'none',
+      background: theme.palette.grey["300"],
+      color: 'black',
+      borderRadius: '6px 6px 0 0'
     },
     grow: {
       flexGrow: 1,
@@ -71,7 +82,8 @@ function SubSection(props) {
         id={id}
         className={type === SECTION_TYPE_SECONDARY ? classes.secondarySubHeader :
           type === SECTION_TYPE_SECONDARY_WARNING ? classes.secondarySubHeaderWarning :
-            type === SECTION_TYPE_TERTIARY_WARNING ? classes.tertiarySubHeaderWarning : classes.subHeaderWarning}
+            type === SECTION_TYPE_TERTIARY_WARNING ? classes.tertiarySubHeaderWarning :
+              type === SECTION_SUB_HEADER ? classes.sectionSubHeader : classes.subHeaderWarning}
         position="static"
         hidden={hidden}
       >

@@ -8,6 +8,7 @@ import { useHistory } from 'react-router'
 import { makeStyles } from '@material-ui/core/styles'
 import { yellow } from '@material-ui/core/colors'
 import {
+  SECTION_SUB_HEADER,
   SECTION_TYPE_SECONDARY,
   SECTION_TYPE_SECONDARY_WARNING,
   SECTION_TYPE_TERTIARY_WARNING, SECTION_TYPE_WARNING
@@ -54,6 +55,7 @@ const myClasses = makeStyles(
       outerBorder: {
         marginTop: '30px',
         border: '1px solid black',
+        borderRadius: '6px 6px 0 0'
       },
       grow: {
         padding: '30px',
@@ -174,12 +176,12 @@ function MarketTodos (props) {
     <>
       <div className={classes.outerBorder}>
         <SubSection
-          type={SECTION_TYPE_SECONDARY}
+          type={SECTION_SUB_HEADER}
           title={intl.formatMessage({ id: 'todoSection' })}
           helpTextId="todoSectionHelp"
           actionButton={
             (<ExpandableAction
-              icon={<ExpandMoreIcon htmlColor="white"/>}
+              icon={<ExpandMoreIcon htmlColor="black"/>}
               label={intl.formatMessage({ id: 'toggleTodosExplanation' })}
               onClick={toggleShowTodos}
               tipPlacement="top-end"

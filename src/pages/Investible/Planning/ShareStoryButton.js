@@ -9,6 +9,7 @@ import { useLockedDialogStyles } from '../../Dialog/DialogBodyEdit'
 import InviteLinker from '../../Dialog/InviteLinker'
 
 function ShareStoryButton(props) {
+  const { commentId } = props;
   const autoFocusRef = React.useRef(null);
   const lockedDialogClasses = useLockedDialogStyles();
   const [open, setOpen] = React.useState(false);
@@ -44,7 +45,7 @@ function ShareStoryButton(props) {
         }
         content={<InviteLinker
           marketType="story"
-          marketToken={window.location.href}
+          marketToken={commentId ? `${window.location.href}#c${commentId}` : window.location.href}
         />}
         title={
           <React.Fragment>

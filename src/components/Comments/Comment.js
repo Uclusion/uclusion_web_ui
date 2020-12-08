@@ -74,6 +74,7 @@ import { addDecisionInvestible } from '../../api/investibles'
 import YourVoting from '../../pages/Investible/Voting/YourVoting'
 import Voting from '../../pages/Investible/Decision/Voting'
 import { addParticipants } from '../../api/users'
+import ShareStoryButton from '../../pages/Investible/Planning/ShareStoryButton'
 
 const useCommentStyles = makeStyles(
   theme => {
@@ -618,6 +619,9 @@ function Comment(props) {
               {displayUpdatedBy &&
               `${intl.formatMessage({ id: 'lastUpdatedBy' })} ${updatedBy.name}.`}
             </Typography>
+          )}
+          {!investibleId && commentType === TODO_TYPE && (
+            <div><ShareStoryButton commentId={id} /></div>
           )}
           {enableEditing && isEditable && !editOpenDefault && (
             <Button

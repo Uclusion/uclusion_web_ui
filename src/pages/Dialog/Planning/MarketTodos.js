@@ -55,6 +55,11 @@ const myClasses = makeStyles(
         marginTop: '30px',
         border: '1px solid black',
       },
+      grow: {
+        padding: '30px',
+        flexGrow: 1,
+        backgroundColor: 'white',
+      },
     };
   },
   { name: 'Archive' }
@@ -95,7 +100,10 @@ function MarketTodos (props) {
       setCard(comment);
       navigate(history, `${formMarketLink(marketId)}#editc${comment.id}`);
     }
-    const sortedData = _.sortBy(comments, 'updated_at').reverse()
+    if (_.isEmpty(comments)) {
+      return <div className={classes.grow} />
+    }
+    const sortedData = _.sortBy(comments, 'updated_at').reverse();
     return sortedData.map((comment) => {
       const { id, body, updated_at } = comment
       const { level } = highlightedCommentState[id] || {}

@@ -27,6 +27,7 @@ import { addCommentToMarket } from '../../../contexts/CommentsContext/commentsCo
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions'
+import { ExpandLess } from '@material-ui/icons'
 
 const myClasses = makeStyles(
   theme => {
@@ -180,7 +181,7 @@ function MarketTodos (props) {
           helpTextId="todoSectionHelp"
           actionButton={
             (<ExpandableAction
-              icon={<ExpandMoreIcon htmlColor="black"/>}
+              icon={showTodos ? <ExpandLess htmlColor="black"/> : <ExpandMoreIcon htmlColor="black"/>}
               label={intl.formatMessage({ id: 'toggleTodosExplanation' })}
               onClick={toggleShowTodos}
               tipPlacement="top-end"

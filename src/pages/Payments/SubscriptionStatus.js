@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
 import { Card, Grid, makeStyles, Typography } from '@material-ui/core';
-import Invoices from './Invoices';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
 import clsx from 'clsx';
 import {
@@ -9,7 +8,11 @@ import {
   SUBSCRIPTION_STATUS_ACTIVE, SUBSCRIPTION_STATUS_CANCELED,
   SUBSCRIPTION_STATUS_TRIAL, SUBSCRIPTION_STATUS_UNSUBSCRIBED
 } from '../../constants/billing';
-import { getAccount, subscriptionCancellable, updateAccount } from '../../contexts/AccountContext/accountContextHelper';
+import {
+  getAccount,
+  subscriptionCancellable,
+  updateAccount
+} from '../../contexts/AccountContext/accountContextHelper';
 import { endSubscription, restartSubscription, startSubscription } from '../../api/users';
 import { useIntl } from 'react-intl';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
@@ -46,7 +49,8 @@ function SubscriptionStatus (props) {
   const {
     tier,
     billing_subscription_status: subStatus,
-    billing_subscription_end: subEnd
+    billing_subscription_end: subEnd,
+    billing_trial_end: trialEnd,
   } = account;
   const classes = styleClasses();
   const upgradable = tier === PRODUCT_TIER_FREE;
@@ -54,14 +58,14 @@ function SubscriptionStatus (props) {
   // some helpful constants
   const onFree = tier === PRODUCT_TIER_FREE;
   const onTrial = subStatus === SUBSCRIPTION_STATUS_TRIAL;
-
-
+  const cancelledBefore = subStatus === SUBSCRIPTION_STATUS_CANCELED;
   const cancellable = canCancelSubscription();
-  const restartable = !cancellable && !upgradable;
+  const resumable  = upgradable && cancelledBefore;
+
+
 
   const tierMessage = intl.formatMessage({ id: getTierMessageId() });
   const subMessage = getSubscriptionMessage();
-
 
 
   function onSpinStop (account) {
@@ -87,7 +91,7 @@ function SubscriptionStatus (props) {
     }
     // if we're on a trial it's only cancelable within 7 days of trial end
     const cancelableDate = new Date();
-    cancelableDate.setDate(cancelableDate.getDate() + 7);
+    cancelableDate.setDate(cancelableDate.getDate() + 190);
     return subEnd <= cancelableDate;
   }
 
@@ -101,15 +105,15 @@ function SubscriptionStatus (props) {
       });
   }
 
-  function resumeSubscription (paymentResult, formResetter) {
-    // console.log('Resume called');
-    return restartSubscription(paymentResult.paymentMethod.id)
+  function resumeSubscription() {
+    return restartSubscription()
       .then((restartedAccount) => {
-        updateAccount(accountDispatch, restartedAccount);
-        formResetter();
-      });
+        return {
+          result: restartedAccount,
+          spinChecker: () => Promise.resolve(true)
+        }
+      })
   }
-
 
   function getTierMessageId () {
     switch (tier) {
@@ -125,11 +129,11 @@ function SubscriptionStatus (props) {
   function getSubscriptionMessage () {
     switch (subStatus) {
       case SUBSCRIPTION_STATUS_TRIAL:
-        return intl.formatMessage({ id: 'billingSubTrial' }, { date: intl.formatDate(subEnd) });
+        return intl.formatMessage({ id: 'billingSubTrial' }, {date: intl.formatDate(trialEnd)});
       case SUBSCRIPTION_STATUS_ACTIVE:
-        return intl.formatMessage({ id: 'billingSubActive' });
+        return intl.formatMessage({ id: 'billingSubActive' }, {date: intl.formatDate(subEnd)});
       case SUBSCRIPTION_STATUS_CANCELED:
-        return intl.formatMessage({ id: 'billingSubCanceled' });
+        return intl.formatMessage({ id: 'billingSubCanceled' }, {date: intl.formatDate(subEnd)});
       case SUBSCRIPTION_STATUS_UNSUBSCRIBED:
         return intl.formatMessage({ id: 'billingSubUnsubscribed' });
       default:
@@ -146,21 +150,11 @@ function SubscriptionStatus (props) {
             {tierMessage}
           </Typography>
           {!onFree && (
-            <React.Fragment>
               <Typography>
                 <strong>{subMessage}</strong>
               </Typography>
-              {!onTrial && (
-                <React.Fragment>
-                  <Typography>
-                    <strong>{intl.formatMessage({ id: 'billingSubEnd' })}</strong>
-                  </Typography>
-                  <Invoices/>
-                </React.Fragment>
-              )}
-            </React.Fragment>
           )}
-          {upgradable && (
+          {upgradable && !resumable && (
             <SpinBlockingButton
               onClick={beginSubscription}
               onSpinStop={onSpinStop}
@@ -172,8 +166,24 @@ function SubscriptionStatus (props) {
                 classes.subscriptionButton
               )}
             >
-              {intl.formatMessage({ id: 'billingSubBegin' })}
+              {intl.formatMessage({ id: 'billingSubStartTrial' })}
             </SpinBlockingButton>
+          )}
+          {resumable && (
+            <SpinBlockingButton
+              onClick={resumeSubscription}
+              onSpinStop={onSpinStop}
+              hasSpinChecker
+              marketId="unused"
+              className={clsx(
+                classes.action,
+                classes.actionPrimary,
+                classes.subscriptionButton
+              )}
+            >
+              {intl.formatMessage({ id: 'billingSubRestart' })}
+            </SpinBlockingButton>
+
           )}
           {cancellable && (
             <SpinBlockingButton

@@ -7,6 +7,7 @@ import SubscriptionStatus from './SubscriptionStatus';
 import PromoCodeInput from './PromoCodeInput';
 import AccountPromos from './AccountPromos';
 import PaymentInfo from './PaymentInfo';
+import Invoices from './Invoices';
 
 function BillingHome (props) {
   const { hidden } = props;
@@ -24,6 +25,7 @@ function BillingHome (props) {
       <AccountPromos/>
       <PromoCodeInput/>
       <PaymentInfo/>
+      <Invoices/>
 
     </Screen>
   );

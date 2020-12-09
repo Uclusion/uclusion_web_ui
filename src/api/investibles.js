@@ -59,9 +59,10 @@ export function addPlanningInvestible (addInfo) {
     uploadedFiles,
     assignments,
     daysEstimate,
+    labelList
   } = addInfo;
   return getMarketClient(marketId)
-    .then((client) => client.investibles.create(name, description, uploadedFiles, assignments, daysEstimate))
+    .then((client) => client.investibles.create(name, description, uploadedFiles, assignments, daysEstimate, labelList))
     .catch((error) => toastErrorAndThrow(error, 'errorPlanningInvestibleAddFailed'));
 }
 

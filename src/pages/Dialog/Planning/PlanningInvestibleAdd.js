@@ -206,6 +206,9 @@ function PlanningInvestibleAdd(props) {
     if (daysEstimate) {
       addInfo.daysEstimate = daysEstimate;
     }
+    if (fromComment.notification_type) {
+      addInfo.labelList = [intl.formatMessage({ id: `notificationLabel${fromComment.notification_type}` })];
+    }
     return addPlanningInvestible(addInfo).then((inv) => {
       if (fromCommentId) {
         return removeComment(marketId, fromCommentId)

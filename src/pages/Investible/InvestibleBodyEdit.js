@@ -16,11 +16,12 @@ import { LockedDialog, useLockedDialogStyles } from '../Dialog/DialogBodyEdit'
 import { EMPTY_SPIN_RESULT } from '../../constants/global'
 import _ from 'lodash'
 import QuillEditor from '../../components/TextEditors/QuillEditor'
-import { CardActions, TextField } from '@material-ui/core'
+import { CardActions } from '@material-ui/core'
 import { processTextAndFilesForSave } from '../../api/files'
 import { usePlanFormStyles } from '../../components/AgilePlan'
 import { makeStyles } from '@material-ui/core/styles'
 import { INITIATIVE_TYPE } from '../../constants/markets'
+import NameField from '../../components/TextFields/NameField'
 
 const useStyles = makeStyles(
   theme => ({
@@ -141,9 +142,11 @@ function InvestibleBodyEdit (props) {
     setUploadedFiles(metadatas);
   }
 
-  function onNameChange(event) {
-    const { value } = event.target;
+  function handleNameChange(value) {
     setName(value);
+  }
+
+  function handleNameStorage(value) {
     handleDraftState({ description, name: value });
   }
 
@@ -220,17 +223,8 @@ function InvestibleBodyEdit (props) {
           </SpinBlockingButton>
         }
       />
-      <TextField
-        fullWidth
-        id="plan-investible-name"
-        label={intl.formatMessage({ id: "agilePlanFormTitleLabel" })}
-        onChange={onNameChange}
-        placeholder={intl.formatMessage({
-          id: "storyTitlePlaceholder"
-        })}
-        value={name}
-        variant="filled"
-      />
+      <NameField onEditorChange={handleNameChange} onStorageChange={handleNameStorage} description={description}
+                 name={name} />
       <QuillEditor
         onS3Upload={handleFileUpload}
         marketId={marketId}

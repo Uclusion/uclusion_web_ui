@@ -16,11 +16,12 @@ import { Dialog } from '../../components/Dialogs'
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { DiffContext } from '../../contexts/DiffContext/DiffContext'
-import { CardActions, TextField } from '@material-ui/core'
+import { CardActions, CircularProgress, Typography } from '@material-ui/core'
 import QuillEditor from '../../components/TextEditors/QuillEditor'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { processTextAndFilesForSave } from '../../api/files'
 import { usePlanFormStyles } from '../../components/AgilePlan'
+import NameField from '../../components/TextFields/NameField'
 
 export const useLockedDialogStyles = makeStyles(
   () => {
@@ -223,12 +224,12 @@ function DialogBodyEdit(props) {
     return <React.Fragment/>
   }
 
-  function handleChange(name) {
-    return (event) => {
-      const { value } = event.target;
-      setName(value);
-      handleDraftState({ description, [name]: value });
-    };
+  function handleNameChange(value) {
+    setName(value);
+  }
+
+  function handleNameStorage(value) {
+    handleDraftState({ description, name: value });
   }
 
   function handleDraftState(newDraftState) {
@@ -268,26 +269,28 @@ function DialogBodyEdit(props) {
           </SpinBlockingButton>
         }
       />
-      <TextField
-        fullWidth
-        id="decision-name"
-        label={intl.formatMessage({ id: "agilePlanFormTitleLabel" })}
-        onChange={handleChange('name')}
-        placeholder={intl.formatMessage({
-          id: "decisionTitlePlaceholder"
-        })}
-        value={name}
-        variant="filled"
-      />
-      <QuillEditor
-        onChange={onEditorChange}
-        onStoreChange={onStorageChange}
-        defaultValue={description}
-        marketId={marketId}
-        onS3Upload={onS3Upload}
-        setOperationInProgress={setOperationRunning}
-        getUrlName={urlHelperGetName(marketsState, investiblesState)}
-      />
+      {lockedBy === userId && (
+        <>
+          <NameField onEditorChange={handleNameChange} onStorageChange={handleNameStorage} description={description}
+                     name={name} label="agilePlanFormTitleLabel" placeHolder="decisionTitlePlaceholder"
+                     id="decision-name" />
+          <QuillEditor
+            onChange={onEditorChange}
+            onStoreChange={onStorageChange}
+            defaultValue={description}
+            marketId={marketId}
+            onS3Upload={onS3Upload}
+            setOperationInProgress={setOperationRunning}
+            getUrlName={urlHelperGetName(marketsState, investiblesState)}
+          />
+        </>
+      )}
+      {lockedBy !== userId && (
+        <div align='center'>
+          <Typography>{intl.formatMessage({ id: "gettingLockMessage" })}</Typography>
+          <CircularProgress type="indeterminate"/>
+        </div>
+      )}
       <CardActions className={classes.actions}>
         <Button
           onClick={onCancel}

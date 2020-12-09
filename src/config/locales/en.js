@@ -169,7 +169,7 @@ const messages = defineMessages({
   loadableImageAlt: 'User provided image',
 
   archiveInlineTitle: 'Dialog',
-
+  gettingLockMessage: 'Obtaining lock',
   loadingMessage: 'Page Loading',
   loadingMarket: 'Processing Invite',
   loadingSlack: 'Slack Integration',

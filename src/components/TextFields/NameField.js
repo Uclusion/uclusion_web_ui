@@ -7,7 +7,7 @@ import _ from 'lodash'
 function NameField(props) {
   const intl = useIntl();
   const {
-    onEditorChange, onStorageChange, description, name
+    onEditorChange, onStorageChange, description, name, label, placeHolder, id
   } = props;
   const debouncedOnStoreChange = _.debounce((value) => {
     onStorageChange(value);
@@ -46,11 +46,11 @@ function NameField(props) {
     <TextField
       onFocus={createDefaultName}
       fullWidth
-      id="plan-investible-name"
-      label={intl.formatMessage({ id: "agilePlanFormTitleLabel" })}
+      id={id}
+      label={intl.formatMessage({ id: label })}
       onChange={handleChange}
       placeholder={intl.formatMessage({
-        id: "storyTitlePlaceholder"
+        id: placeHolder
       })}
       value={name}
       variant="filled"
@@ -61,8 +61,17 @@ function NameField(props) {
 NameField.propTypes = {
   onEditorChange: PropTypes.func.isRequired,
   onStorageChange: PropTypes.func.isRequired,
-  description: PropTypes.string.isRequired,
-  name: PropTypes.string.isRequired
+  description: PropTypes.string,
+  name: PropTypes.string,
+  id: PropTypes.string,
+  placeHolder: PropTypes.string,
+  label: PropTypes.string
+}
+
+NameField.defaultProps = {
+  id: "plan-investible-name",
+  placeHolder: "storyTitlePlaceholder",
+  label: "agilePlanFormTitleLabel"
 }
 
 export default NameField;

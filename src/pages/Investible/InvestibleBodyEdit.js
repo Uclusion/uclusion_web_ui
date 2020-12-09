@@ -16,7 +16,7 @@ import { LockedDialog, useLockedDialogStyles } from '../Dialog/DialogBodyEdit'
 import { EMPTY_SPIN_RESULT } from '../../constants/global'
 import _ from 'lodash'
 import QuillEditor from '../../components/TextEditors/QuillEditor'
-import { CardActions } from '@material-ui/core'
+import { CardActions, CircularProgress, Typography } from '@material-ui/core'
 import { processTextAndFilesForSave } from '../../api/files'
 import { usePlanFormStyles } from '../../components/AgilePlan'
 import { makeStyles } from '@material-ui/core/styles'
@@ -223,18 +223,28 @@ function InvestibleBodyEdit (props) {
           </SpinBlockingButton>
         }
       />
-      <NameField onEditorChange={handleNameChange} onStorageChange={handleNameStorage} description={description}
-                 name={name} />
-      <QuillEditor
-        onS3Upload={handleFileUpload}
-        marketId={marketId}
-        onChange={onEditorChange}
-        placeholder={intl.formatMessage({ id: 'investibleAddDescriptionDefault' })}
-        onStoreChange={onStorageChange}
-        defaultValue={description}
-        setOperationInProgress={setOperationRunning}
-        getUrlName={urlHelperGetName(marketsState, investiblesState)}
-      />
+      {lockedBy === userId && (
+        <>
+          <NameField onEditorChange={handleNameChange} onStorageChange={handleNameStorage} description={description}
+                     name={name} />
+          <QuillEditor
+            onS3Upload={handleFileUpload}
+            marketId={marketId}
+            onChange={onEditorChange}
+            placeholder={intl.formatMessage({ id: 'investibleAddDescriptionDefault' })}
+            onStoreChange={onStorageChange}
+            defaultValue={description}
+            setOperationInProgress={setOperationRunning}
+            getUrlName={urlHelperGetName(marketsState, investiblesState)}
+          />
+        </>
+      )}
+      {lockedBy !== userId && (
+        <div align='center'>
+          <Typography>{intl.formatMessage({ id: "gettingLockMessage" })}</Typography>
+          <CircularProgress type="indeterminate"/>
+        </div>
+      )}
       <CardActions className={classes.actions}>
         <SpinBlockingButton
           marketId={marketId}

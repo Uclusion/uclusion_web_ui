@@ -1,6 +1,6 @@
 import React, { useContext, Fragment } from 'react';
 import _ from 'lodash';
-import { Card, Link, Typography } from '@material-ui/core';
+import { Link, Typography } from '@material-ui/core';
 import { useIntl } from 'react-intl';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
 import { getCurrentInvoices } from '../../contexts/AccountContext/accountContextHelper';
@@ -11,14 +11,12 @@ function Invoices (props) {
   const invoices = getCurrentInvoices(accountState);
   const intl = useIntl();
 
-  function getInvoiceData () {
-    if (_.isEmpty(invoices)) {
-      return (
-        <Typography>
-          <strong>No Invoices</strong>
-        </Typography>
-      );
-    }
+  if (_.isEmpty(invoices)) {
+    return (
+      <React.Fragment/>
+    );
+  }
+  function getInvoices() {
     const sortedInvoices = _.sortBy(invoices, 'created').reverse();
     return sortedInvoices.map((invoice) => {
       const { total, created, invoice_pdf } = invoice;
@@ -36,12 +34,14 @@ function Invoices (props) {
       );
     });
   }
-
   return (
-    <Card elevation={0} style={{padding: '1rem'}}>
-      {getInvoiceData()}
-    </Card>
-  );
+    <div>
+      Previous Invoices:
+      <div>
+        {getInvoices()}
+      </div>
+    </div>
+  )
 }
 
 export default Invoices;

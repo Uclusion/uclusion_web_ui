@@ -27,7 +27,10 @@ export function nameFromDescription(description) {
   if (found >= 0) {
     const foundSubstring = description.substring(0, found);
     if (foundSubstring) {
-      return foundSubstring.replace(/(<([^>]+)>)/ig,'');
+      const htmlRemoved = foundSubstring.replace(/(<([^>]+)>)/ig,'');
+      if (htmlRemoved) {
+        return htmlRemoved.trim();
+      }
     }
   }
   return undefined;

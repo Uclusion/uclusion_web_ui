@@ -122,7 +122,7 @@ function PlanningIdeas(props) {
     if (!_.isEmpty(blockingComments)) {
       return true;
     }
-    if (currentStageId !== inBlockingStageId && !_.isEmpty(todoComments)) {
+    if (currentStageId !== inBlockingStageId && targetStageId !== inDialogStageId && !_.isEmpty(todoComments)) {
       if (currentStageId !== inDialogStageId || targetStageId === inReviewStageId) {
         return true;
       }
@@ -380,7 +380,7 @@ function PlanningIdeas(props) {
           dragHack={setBeingDraggedHack}
         />
       </div>
-      <div>
+      <div id={`${inBlockingStageId}_${presenceId}`} onDragEnd={onDragEndStage}>
         <Tooltip
           title={intl.formatMessage({ id: 'planningBlockedStageDescription' })}
         >
@@ -393,6 +393,7 @@ function PlanningIdeas(props) {
           id={inBlockingStageId}
           investibles={investibles}
           marketId={marketId}
+          dragHack={setBeingDraggedHack}
         />
       </div>
     </dl>

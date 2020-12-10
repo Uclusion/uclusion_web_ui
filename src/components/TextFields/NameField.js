@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { TextField } from '@material-ui/core';
 import { useIntl } from 'react-intl';
 import _ from 'lodash'
+import { nameFromDescription } from '../../utils/stringFunctions'
 
 function NameField(props) {
   const intl = useIntl();
@@ -13,25 +14,11 @@ function NameField(props) {
     onStorageChange(value);
   }, 500);
 
-  function findFirst(list) {
-    let found = -1;
-    for (let i = 0, len = list.length; i < len; i++) {
-      let index = description.indexOf(list[i]);
-      if (index >= 0) {
-        if (found < 0 || index < found) found = index;
-      }
-    }
-    if (found >= 0) {
-      return description.substring(0, found);
-    }
-    return undefined;
-  }
-
   function createDefaultName() {
     if (description && !name) {
-      const found = findFirst(["</p", "</li", "</td"]);
+      const found = nameFromDescription(description);
       if (found) {
-        onEditorChange(found.replace(/(<([^>]+)>)/ig,''));
+        onEditorChange(found);
       }
     }
   }

@@ -13,8 +13,9 @@ import { DaysEstimate } from '../../../components/AgilePlan'
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import Chip from '@material-ui/core/Chip'
-import { stageChangeInvestible, updateInvestible } from '../../../api/investibles'
+import { addPlanningInvestible, stageChangeInvestible, updateInvestible } from '../../../api/investibles'
 import {
+  addInvestible,
   getInvestible,
   refreshInvestibles
 } from '../../../contexts/InvestibesContext/investiblesContextHelper'
@@ -27,6 +28,11 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { getFullStage, getStages } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
+import { processTextAndFilesForSave } from '../../../api/files'
+import { removeComment } from '../../../api/comments'
+import { getMarketComments, removeComments } from '../../../contexts/CommentsContext/commentsContextHelper'
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
+import { nameFromDescription } from '../../../utils/stringFunctions'
 
 const warningColor = red["400"];
 
@@ -92,6 +98,7 @@ function PlanningIdeas(props) {
   const { votes_required: votesRequired } = (market || {});
   const [invState, invDispatch] = useContext(InvestiblesContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
+  const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, diffDispatch] = useContext(DiffContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const warnAccepted = checkInProgressWarning(investibles, comments, acceptedStageId, marketId);
@@ -121,6 +128,35 @@ function PlanningIdeas(props) {
       }
     }
     return false;
+  }
+  function onDropTodo(event) {
+    const commentId = event.dataTransfer.getData('text');
+    const comments = getMarketComments(commentsState, marketId) || [];
+    const fromComment = comments.find((comment) => comment.id === commentId);
+    if (fromComment) {
+      setOperationRunning(true);
+      const {
+        uploadedFiles: filteredUploads,
+        text: tokensRemoved,
+      } = processTextAndFilesForSave(undefined, fromComment.body);
+      const processedDescription = tokensRemoved ? tokensRemoved : ' ';
+      const name = nameFromDescription(fromComment.body);
+      const addInfo = {
+        marketId,
+        uploadedFiles: filteredUploads,
+        description: processedDescription,
+        name,
+        assignments: [presenceId],
+      };
+      if (fromComment.notification_type) {
+        addInfo.labelList = [intl.formatMessage({ id: `notificationLabel${fromComment.notification_type}` })];
+      }
+      addPlanningInvestible(addInfo).then((inv) => removeComment(marketId, commentId).then(() => {
+        removeComments(commentsDispatch, marketId, [commentId]);
+        addInvestible(invDispatch, diffDispatch, inv);
+        setOperationRunning(false);
+      }));
+    }
   }
   function stageChange(event, targetStageId) {
     event.preventDefault();
@@ -159,9 +195,12 @@ function PlanningIdeas(props) {
     return (marketStages || []).includes(stage);
   }
   function onDropVoting(event) {
-    const investibleId = event.dataTransfer.getData("text");
     const currentStageId = event.dataTransfer.getData("stageId");
-    if (checkStageMatching(currentStageId)) {
+    if (!currentStageId) {
+      // This is a dragged TODO
+      onDropTodo(event);
+    } else if (checkStageMatching(currentStageId)) {
+      const investibleId = event.dataTransfer.getData("text");
       if (isAssignedInvestible(event, myPresence.id) || myPresence.id === presenceId) {
         if (isAssignedInvestible(event, myPresence.id) && myPresence.id === presenceId) {
           stageChange(event, inDialogStageId);

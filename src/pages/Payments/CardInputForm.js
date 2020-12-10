@@ -32,7 +32,7 @@ const useStyles = makeStyles(theme => ({
     marginTop: theme.spacing(3),
   },
   submit: {
-    margin: theme.spacing(3, 0, 2),
+    margin: theme.spacing(3, 2, 2),
     backgroundColor: '#3f6b72',
     color: '#fff',
   },
@@ -47,6 +47,7 @@ const useStyles = makeStyles(theme => ({
   error: {
     color: 'red',
     border: '1px solid red',
+    margin: theme.spacing(1,1,1,1),
   },
   actionPrimary: {
     backgroundColor: '#2D9CDB',
@@ -55,6 +56,26 @@ const useStyles = makeStyles(theme => ({
       backgroundColor: '#2D9CDB'
     }
   },
+  cancelButton: {
+    margin: theme.spacing(3, 2, 2),
+    textTransform: 'capitalize',
+    backgroundColor: '#E85757',
+    color: 'white',
+    '&:hover': {
+      backgroundColor: '#E85757'
+    }
+  },
+  buttonBox: {
+    display: 'flex',
+    width: '100%',
+  },
+  buttonSpacer: {
+    flexGrow: 1,
+  },
+  cardContainer: {
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1),
+  }
 }));
 
 const EMPTY_DETAILS = { name: '', email: '', phone: '' };
@@ -110,19 +131,19 @@ function CardInputForm (props) {
         });
     };
 
-    const usedSubmit = (onSubmit) ? onSubmit : updateBillingSubmit;
-
     return stripe.createPaymentMethod(({
       type: 'card',
       card: elements.getElement(CardElement),
       billing_details: billingDetails
     })).then((paymentResult) => {
       // console.log('Payment method creation successful');
-      return usedSubmit(paymentResult, resetForm);
+      return updateBillingSubmit(paymentResult, resetForm)
+        .then(() => onSubmit());
     }).catch((e) => {
       setError(e.error || e.error_message);
       setProcessing(false);
     });
+
   }
 
   function onBillingDetailsChange (name) {
@@ -149,6 +170,8 @@ function CardInputForm (props) {
           </Typography>
         </div>
       )}
+
+      <div className={classes.cardContainer}>
       <form
         className={classes.form}
         autoComplete="off"
@@ -201,27 +224,35 @@ function CardInputForm (props) {
             />
           </Grid>
           <div className={classes.buttonBox}>
-            <SpinningButton
-              spinning={processing}
-              variant="contained"
-              className={clsx(
-                classes.submit,
-                classes.action,
-                classes.actionPrimary
-              )}
-              type="submit"
-              disabled={!validForm}
-            >
-              {intl.formatMessage({ id: submitLabelId })}
-            </SpinningButton>
-            <Button
-              onClick={onCancel}
-            >
-              {intl.formatMessage({ id: 'cancel' })}
-            </Button>
-          </div>
+            <div>
+              <Button
+                className={classes.cancelButton}
+                onClick={onCancel}
+              >
+                {intl.formatMessage({ id: 'cancel' })}
+              </Button>
+            </div>
+
+            <div className={classes.buttonSpacer}>&nbsp;</div>
+            <div>
+              <SpinningButton
+                spinning={processing}
+                variant="contained"
+                className={clsx(
+                  classes.submit,
+                  classes.action,
+                  classes.actionPrimary
+                )}
+                type="submit"
+                disabled={!validForm}
+              >
+                {intl.formatMessage({ id: submitLabelId })}
+              </SpinningButton>
+            </div>
+            </div>
         </Grid>
       </form>
+      </div>
     </div>
   );
 }

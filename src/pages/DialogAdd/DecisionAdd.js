@@ -30,7 +30,7 @@ function DecisionAdd(props) {
   const values = queryString.parse(hash);
   const { investibleId: parentInvestibleId, id: parentMarketId } = values;
   const {
-    onSpinStop, storedState, onSave, createEnabled, billingDismissText
+    onSpinStop, storedState, onSave, createEnabled
   } = props;
   const { description: storedDescription, name: storedName, expiration_minutes: storedExpirationMinutes } = storedState;
   const [draftState, setDraftState] = useState(storedState);
@@ -161,7 +161,7 @@ function DecisionAdd(props) {
 
   return (
     <>
-      <DismissableText textId={createEnabled ? 'decisionAddHelp' : billingDismissText} />
+      <DismissableText textId={'decisionAddHelp'} />
       <Card elevation={0} id="tourRoot">
         <CardType className={classes.cardType} type={DECISION_TYPE} />
         <CardContent className={classes.cardContent}>

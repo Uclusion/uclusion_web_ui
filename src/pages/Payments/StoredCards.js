@@ -6,11 +6,15 @@ import { makeStyles } from '@material-ui/core/styles';
 // this is the styling for OUR components
 const useStyles = makeStyles(theme => {
   return {
-    cardInfo: {
-      border: '1px solid'
-    },
   };
 });
+
+function capitalize(string) {
+  if (_.isEmpty(string)) {
+    return string;
+  }
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
 
 function StoredCards (props) {
   const {
@@ -36,7 +40,7 @@ function StoredCards (props) {
     } = cardInfo;
     return (
       <Typography>
-        {brand} ending in {last4} and expiring {expMonth}/{expYear}.
+        {capitalize(brand)} ending in {last4} and expiring {expMonth}/{expYear}.
       </Typography>
     );
   });

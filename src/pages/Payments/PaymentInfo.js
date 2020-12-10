@@ -6,27 +6,56 @@ import { AccountContext } from '../../contexts/AccountContext/AccountContext';
 import { getCurrentBillingCardInfo } from '../../contexts/AccountContext/accountContextHelper';
 import StoredCards from './StoredCards';
 import { useIntl } from 'react-intl';
+import SubSection from '../../containers/SubSection/SubSection';
+import { Card } from '@material-ui/core';
+import { makeStyles, useTheme } from '@material-ui/styles';
+
+const useStyles = makeStyles((theme) => {
+  return {
+    addPaymentButton: {
+      backgroundColor: '#2D9CDB',
+      color: 'white',
+      '&:hover': {
+        backgroundColor: '#2D9CDB'
+      },
+      textTransform: 'capitalize',
+      marginTop: theme.spacing(1),
+    },
+
+  };
+});
 
 function PaymentInfo (props) {
   const [addCardVisible, setAddCardVisible] = useState(false);
   const intl = useIntl();
   const [accountState] = useContext(AccountContext);
   const billingInfo = getCurrentBillingCardInfo(accountState);
-
+  const theme = useTheme();
+  const classes = useStyles(theme);
   const addButtonLabel = _.isEmpty(billingInfo) ? 'paymentInfoButtonAdd' : 'paymentInfoButtonUpdate';
 
   return (
-    <div>
-      <StoredCards billingInfo={billingInfo}/>
-      <Button
-        onClick={() => setAddCardVisible(true)}
+    <Card>
+      <SubSection
+        title="Payment Cards"
       >
-        {intl.formatMessage({ id: addButtonLabel })}
-      </Button>
-      {addCardVisible && (
-        <CardInputForm onCancel={() => setAddCardVisible(false)}/>
-      )}
-    </div>);
+
+        <StoredCards billingInfo={billingInfo}/>
+        {!addCardVisible && (
+          <Button
+            className={classes.addPaymentButton}
+            onClick={() => setAddCardVisible(true)}
+          >
+            {intl.formatMessage({ id: addButtonLabel })}
+          </Button>
+        )}
+        {addCardVisible && (
+          <CardInputForm onSubmit={() => setAddCardVisible(false)} onCancel={() => setAddCardVisible(false)}/>
+        )}
+
+      </SubSection>
+    </Card>
+  );
 }
 
 export default PaymentInfo;

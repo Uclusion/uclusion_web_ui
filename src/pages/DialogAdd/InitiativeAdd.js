@@ -23,7 +23,7 @@ import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 function InitiativeAdd(props) {
   const intl = useIntl();
   const {
-    onSpinStop, onSave, storedState, createEnabled, billingDismissText
+    onSpinStop, onSave, storedState, createEnabled
   } = props;
   const { description: storedDescription, name: storedName, expiration_minutes: storedExpirationMinutes } = storedState;
   const [draftState, setDraftState] = useState(storedState);
@@ -119,7 +119,7 @@ function InitiativeAdd(props) {
 
   return (
     <>
-      <DismissableText textId={createEnabled ? 'initiativeAddHelp' : billingDismissText} />
+      <DismissableText textId={'initiativeAddHelp'} />
       <Card elevation={0}>
         <CardType
           className={classes.cardType}

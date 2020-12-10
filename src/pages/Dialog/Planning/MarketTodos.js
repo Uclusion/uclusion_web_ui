@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react'
 import PropTypes from 'prop-types'
-import { Grid, Typography } from '@material-ui/core'
+import { Grid, InputAdornment, TextField, Typography } from '@material-ui/core'
 import _ from 'lodash'
 import RaisedCard from '../../../components/Cards/RaisedCard'
 import { useIntl } from 'react-intl'
@@ -32,6 +32,11 @@ import { getStages } from '../../../contexts/MarketStagesContext/marketStagesCon
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
+import SearchIcon from '@material-ui/icons/Search'
+import { SearchIndexContext } from '../../../contexts/SearchIndexContext/SearchIndexContext'
+import { filterCommentsToSearch } from '../../../contexts/SearchIndexContext/searchIndexContextHelper'
+import CloseIcon from '@material-ui/icons/Close'
+import { isTinyWindow } from '../../../utils/windowUtils'
 
 const myClasses = makeStyles(
   theme => {
@@ -68,6 +73,9 @@ const myClasses = makeStyles(
         backgroundColor: 'white',
       },
       containerEmpty: {},
+      searchInput: {
+        background: 'white',
+      }
     };
   },
   { name: 'Archive' }
@@ -89,17 +97,21 @@ function MarketTodos (props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [index] = useContext(SearchIndexContext);
   const myExpandedState = expandedCommentState[EXPANDED_ID] || {};
-  const { expanded: showTodos } = myExpandedState
-  const [editCard, setEditCard] = useState(undefined)
-  const [createCard, setCreateCard] = useState(undefined)
-  const [editRedCard, setEditRedCard] = useState(undefined)
-  const [createRedCard, setCreateRedCard] = useState(undefined)
-  const [createYellowCard, setCreateYellowCard] = useState(undefined)
-  const [editYellowCard, setEditYellowCard] = useState(undefined)
-  const blueComments = (comments || []).filter((comment) => comment.notification_type === 'BLUE')
-  const yellowComments = (comments || []).filter((comment) => comment.notification_type === 'YELLOW')
-  const redComments = (comments || []).filter((comment) => comment.notification_type === 'RED')
+  const { expanded: showTodos } = myExpandedState;
+  const [editCard, setEditCard] = useState(undefined);
+  const [createCard, setCreateCard] = useState(undefined);
+  const [editRedCard, setEditRedCard] = useState(undefined);
+  const [createRedCard, setCreateRedCard] = useState(undefined);
+  const [createYellowCard, setCreateYellowCard] = useState(undefined);
+  const [editYellowCard, setEditYellowCard] = useState(undefined);
+  const [searchQuery, setSearchQuery] = useState(undefined);
+  const foundResults = searchQuery ? index.search(searchQuery) : undefined;
+  const restrictedComments = filterCommentsToSearch(foundResults, comments) || [];
+  const blueComments = restrictedComments.filter((comment) => comment.notification_type === 'BLUE');
+  const yellowComments = restrictedComments.filter((comment) => comment.notification_type === 'YELLOW');
+  const redComments = restrictedComments.filter((comment) => comment.notification_type === 'RED');
 
   function onDragStart(event) {
     event.dataTransfer.setData('text', event.target.id.substring(1));
@@ -203,6 +215,27 @@ function MarketTodos (props) {
           type={SECTION_SUB_HEADER}
           title={intl.formatMessage({ id: 'todoSection' })}
           helpTextId="todoSectionHelp"
+          searchBar={(<TextField
+            style={{paddingTop: '3px', width: isTinyWindow() ? '300px' : '600px'}}
+            onChange={(event) => setSearchQuery(event.target.value)}
+            value={searchQuery}
+            placeholder={intl.formatMessage({ id: 'searchBoxPlaceholder' })}
+            variant="outlined"
+            size="small"
+            InputProps={{
+              className: classes.searchInput,
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+              endAdornment: searchQuery ? (
+                <InputAdornment style={{cursor: 'pointer'}} onClick={() => setSearchQuery('')}
+                                position="end">
+                  <CloseIcon/>
+                </InputAdornment>
+              ) : null,
+            }}/>)}
           actionButton={
             (<ExpandableAction
               icon={showTodos ? <ExpandLess htmlColor="black"/> : <ExpandMoreIcon htmlColor="black"/>}

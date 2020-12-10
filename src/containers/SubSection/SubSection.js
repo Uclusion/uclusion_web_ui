@@ -59,6 +59,12 @@ const useStyles = makeStyles((theme) => {
       cursor: 'default',
     },
     toolbar: theme.mixins.toolbar,
+    searchContainer: {
+      display: 'flex',
+      [theme.breakpoints.down("xs")]: {
+        flexDirection: 'column'
+      }
+    },
   };
 });
 
@@ -68,6 +74,7 @@ function SubSection(props) {
     hidden,
     title,
     actionButton,
+    searchBar,
     type,
     titleIcon,
     id,
@@ -104,7 +111,10 @@ function SubSection(props) {
             </Typography>
           )}
           <div className={classes.grow}/>
-          {actionButton}
+          <div className={classes.searchContainer}>
+            {searchBar}
+            {actionButton}
+          </div>
         </Toolbar>
       </AppBar>
       <div className={children ? classes.toolbar : classes.hide}>
@@ -120,6 +130,7 @@ SubSection.propTypes = {
   title: PropTypes.string,
   children: PropTypes.any,
   actionButton: PropTypes.object,
+  searchBar: PropTypes.object,
   type: PropTypes.string,
   titleIcon: PropTypes.element,
   id: PropTypes.string,

@@ -6,13 +6,9 @@ import _ from 'lodash'
 import {
   Button, Card, CardContent, Checkbox,
   darken,
-  FormControl,
   FormControlLabel,
   makeStyles,
   Paper,
-  Radio,
-  RadioGroup,
-  Tooltip
 } from '@material-ui/core'
 import PropTypes from 'prop-types'
 import QuillEditor from '../TextEditors/QuillEditor'
@@ -42,7 +38,6 @@ import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { urlHelperGetName } from '../../utils/marketIdPathFunctions'
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
-import CardType from '../CardType'
 
 function getPlaceHolderLabelId (type, isStory) {
   switch (type) {

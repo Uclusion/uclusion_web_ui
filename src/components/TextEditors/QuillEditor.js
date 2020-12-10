@@ -193,7 +193,16 @@ class QuillEditor extends React.PureComponent {
       },
       table: true,
       tableUI: true,
-
+      keyboard: {
+        bindings: {
+          'tab': {
+            key: 9,
+            handler: function(range, context) {
+              return true;
+            }
+          }
+        }
+      }
     };
     const modules = { ...defaultModules };
     if (simple) {

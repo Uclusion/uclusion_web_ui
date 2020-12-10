@@ -14,3 +14,21 @@ export function nameToAvatarText(name) {
   }, "");
   return firstLetters.toUpperCase();
 }
+
+export function nameFromDescription(description) {
+  const list = ["</p", "</li", "</td"];
+  let found = -1;
+  for (let i = 0, len = list.length; i < len; i++) {
+    let index = description.indexOf(list[i]);
+    if (index >= 0) {
+      if (found < 0 || index < found) found = index;
+    }
+  }
+  if (found >= 0) {
+    const foundSubstring = description.substring(0, found);
+    if (foundSubstring) {
+      return foundSubstring.replace(/(<([^>]+)>)/ig,'');
+    }
+  }
+  return undefined;
+}

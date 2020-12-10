@@ -5,6 +5,7 @@ import '@formatjs/intl-relativetimeformat/polyfill-locales'
 import { withA2HS } from 'a2hs'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import '../../toast.css';
 import { MarketsProvider } from '../../contexts/MarketsContext/MarketsContext'
 import { InvestiblesProvider } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { LocaleProvider } from '../../contexts/LocaleContext'

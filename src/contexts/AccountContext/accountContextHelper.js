@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import config from '../../config';
 import {
   PRODUCT_TIER_FREE,
   SUBSCRIPTION_STATUS_ACTIVE,
@@ -13,6 +14,11 @@ import { accountRefresh, billingInfoRefresh, invoicesRefresh } from './accountCo
  * @returns {boolean}
  */
 export function canCreate (state) {
+  // if payments are turned off we can always create
+  if (!config.payments || !config.payments.enabled) {
+    return true;
+  }
+
   if (_.isEmpty(state.account)) {
     return false;
   }

@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Card, Grid, makeStyles, Typography } from '@material-ui/core';
+import { Card, makeStyles, Typography } from '@material-ui/core';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
 import clsx from 'clsx';
 import {
@@ -10,15 +10,20 @@ import {
 } from '../../constants/billing';
 import {
   getAccount,
-  subscriptionCancellable,
+  subscriptionCancellable, subscriptionNeedsPayment,
   updateAccount
 } from '../../contexts/AccountContext/accountContextHelper';
 import { endSubscription, restartSubscription, startSubscription } from '../../api/users';
 import { useIntl } from 'react-intl';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
+import SubSection from '../../containers/SubSection/SubSection';
+
 
 const styleClasses = makeStyles(
   {
+    noPayment: {
+      color: 'red',
+    },
     action: {
       boxShadow: 'none',
       padding: '4px 16px',
@@ -36,10 +41,17 @@ const styleClasses = makeStyles(
     },
     subscriptionButton: {
       margin: '16px 0'
+    },
+    cancelSubscriptionButton: {
+      textTransform: 'none',
+      backgroundColor: '#E85757',
+      color: 'white',
+      '&:hover': {
+        backgroundColor: '#E85757'
+      }
     }
   }, { name: 'change' }
 );
-
 
 function SubscriptionStatus (props) {
 
@@ -60,13 +72,11 @@ function SubscriptionStatus (props) {
   const onTrial = subStatus === SUBSCRIPTION_STATUS_TRIAL;
   const cancelledBefore = subStatus === SUBSCRIPTION_STATUS_CANCELED;
   const cancellable = canCancelSubscription();
-  const resumable  = upgradable && cancelledBefore;
-
-
+  const resumable = upgradable && cancelledBefore;
+  const needsPayment = subscriptionNeedsPayment(accountState);
 
   const tierMessage = intl.formatMessage({ id: getTierMessageId() });
   const subMessage = getSubscriptionMessage();
-
 
   function onSpinStop (account) {
     updateAccount(accountDispatch, account);
@@ -82,7 +92,7 @@ function SubscriptionStatus (props) {
       });
   }
 
-  function canCancelSubscription(){
+  function canCancelSubscription () {
     // is the subscription itself cancellable?
     const subCancelable = subscriptionCancellable(accountState);
     // are we not on a trial? If we aren't then it's just if the sub is
@@ -105,14 +115,14 @@ function SubscriptionStatus (props) {
       });
   }
 
-  function resumeSubscription() {
+  function resumeSubscription () {
     return restartSubscription()
       .then((restartedAccount) => {
         return {
           result: restartedAccount,
           spinChecker: () => Promise.resolve(true)
-        }
-      })
+        };
+      });
   }
 
   function getTierMessageId () {
@@ -129,11 +139,11 @@ function SubscriptionStatus (props) {
   function getSubscriptionMessage () {
     switch (subStatus) {
       case SUBSCRIPTION_STATUS_TRIAL:
-        return intl.formatMessage({ id: 'billingSubTrial' }, {date: intl.formatDate(trialEnd)});
+        return intl.formatMessage({ id: 'billingSubTrial' }, { date: intl.formatDate(trialEnd) });
       case SUBSCRIPTION_STATUS_ACTIVE:
-        return intl.formatMessage({ id: 'billingSubActive' }, {date: intl.formatDate(subEnd)});
+        return intl.formatMessage({ id: 'billingSubActive' }, { date: intl.formatDate(subEnd) });
       case SUBSCRIPTION_STATUS_CANCELED:
-        return intl.formatMessage({ id: 'billingSubCanceled' }, {date: intl.formatDate(subEnd)});
+        return intl.formatMessage({ id: 'billingSubCanceled' }, { date: intl.formatDate(subEnd) });
       case SUBSCRIPTION_STATUS_UNSUBSCRIBED:
         return intl.formatMessage({ id: 'billingSubUnsubscribed' });
       default:
@@ -141,62 +151,68 @@ function SubscriptionStatus (props) {
     }
   }
 
-
   return (
-    <Card elevation={0} style={{ padding: '2rem' }}>
-      <Grid container spacing={3}>
-        <Grid item xs={12}>
+    <Card>
+      <SubSection
+        title="Subscription"
+      >
+        <Typography>
+          {tierMessage}
+        </Typography>
+        {!onFree && (
           <Typography>
-            {tierMessage}
+            <strong>{subMessage}</strong>
           </Typography>
-          {!onFree && (
-              <Typography>
-                <strong>{subMessage}</strong>
-              </Typography>
-          )}
-          {upgradable && !resumable && (
-            <SpinBlockingButton
-              onClick={beginSubscription}
-              onSpinStop={onSpinStop}
-              hasSpinChecker
-              marketId="unused"
-              className={clsx(
-                classes.action,
-                classes.actionPrimary,
-                classes.subscriptionButton
-              )}
-            >
-              {intl.formatMessage({ id: 'billingSubStartTrial' })}
-            </SpinBlockingButton>
-          )}
-          {resumable && (
-            <SpinBlockingButton
-              onClick={resumeSubscription}
-              onSpinStop={onSpinStop}
-              hasSpinChecker
-              marketId="unused"
-              className={clsx(
-                classes.action,
-                classes.actionPrimary,
-                classes.subscriptionButton
-              )}
-            >
-              {intl.formatMessage({ id: 'billingSubRestart' })}
-            </SpinBlockingButton>
+        )}
+        {upgradable && !resumable && (
+          <SpinBlockingButton
+            onClick={beginSubscription}
+            onSpinStop={onSpinStop}
+            hasSpinChecker
+            marketId="unused"
+            className={clsx(
+              classes.action,
+              classes.actionPrimary,
+              classes.subscriptionButton
+            )}
+          >
+            {intl.formatMessage({ id: 'billingSubStartTrial' })}
+          </SpinBlockingButton>
+        )}
+        {resumable && needsPayment && (
+          <Typography className={classes.noPayment}>
+            {intl.formatMessage({ id: 'billingNeedCard' })}
+          </Typography>
+        )}
+        {resumable && !needsPayment && (
+          <SpinBlockingButton
+            onClick={resumeSubscription}
+            onSpinStop={onSpinStop}
+            hasSpinChecker
+            marketId="unused"
+            className={clsx(
+              classes.action,
+              classes.actionPrimary,
+              classes.subscriptionButton
+            )}
+          >
+            {intl.formatMessage({ id: 'billingSubRestart' })}
+          </SpinBlockingButton>
 
-          )}
-          {cancellable && (
-            <SpinBlockingButton
-              onClick={cancelSubscription}
-              onSpinStop={onSpinStop}
-              marketId="unused"
-              hasSpinChecker
-            >
-              {intl.formatMessage({ id: 'billingSubCancel' })}
-            </SpinBlockingButton>
-          )}
-        </Grid>
-      </Grid>
+        )}
+        {cancellable && (
+          <SpinBlockingButton
+            className={classes.cancelSubscriptionButton}
+            onClick={cancelSubscription}
+            onSpinStop={onSpinStop}
+            marketId="unused"
+            hasSpinChecker
+          >
+            {intl.formatMessage({ id: 'billingSubCancel' })}
+          </SpinBlockingButton>
+        )}
+
+      </SubSection>
     </Card>
   );
 }

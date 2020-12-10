@@ -1,22 +1,44 @@
-import React, { useContext, Fragment } from 'react';
+import React, { useContext } from 'react';
 import _ from 'lodash';
-import { Link, Typography } from '@material-ui/core';
+import { Card, Link, Typography, useTheme } from '@material-ui/core';
 import { useIntl } from 'react-intl';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
 import { getCurrentInvoices } from '../../contexts/AccountContext/accountContextHelper';
+import { makeStyles } from '@material-ui/styles';
+import SubSection from '../../containers/SubSection/SubSection';
+
+
+const useStyles = makeStyles((theme) => {
+  return {
+    table: {
+      border: '1px solid',
+      width: '100%',
+      tableLayout: 'fixed'
+    },
+    td: {
+      border: '1px dashed',
+      textAlign: 'right',
+    },
+
+  };
+});
 
 function Invoices (props) {
 
   const [accountState] = useContext(AccountContext);
   const invoices = getCurrentInvoices(accountState);
   const intl = useIntl();
-
+  const theme = useTheme();
+  const classes = useStyles(theme);
   if (_.isEmpty(invoices)) {
     return (
-      <React.Fragment/>
+      <Typography>
+        No invoices have been sent to your account.
+      </Typography>
     );
   }
-  function getInvoices() {
+
+  function getInvoices () {
     const sortedInvoices = _.sortBy(invoices, 'created').reverse();
     return sortedInvoices.map((invoice) => {
       const { total, created, invoice_pdf } = invoice;
@@ -25,23 +47,51 @@ function Invoices (props) {
       const createdDate = new Date(milliCreated);
       const formattedDate = intl.formatDate(createdDate);
       return (
-        <Fragment>
-          <Typography>
-            Invoice Date: {formattedDate}, Amount: {totalDollars}
-          </Typography>
-          <Link href={invoice_pdf} target="_blank">PDF</Link>
-        </Fragment>
+        <tr key={created} className={classes.tr}>
+          <td className={classes.td}>
+            <Typography>
+              {formattedDate}
+            </Typography>
+          </td>
+          <td className={classes.td}>
+            <Typography>
+              {totalDollars}
+            </Typography>
+          </td>
+          <td className={classes.td}>
+            <Link href={invoice_pdf} target="_blank">Download</Link>
+          </td>
+        </tr>
       );
     });
   }
+
   return (
-    <div>
-      Previous Invoices:
-      <div>
-        {getInvoices()}
-      </div>
-    </div>
-  )
+    <Card>
+      <SubSection
+        title="Invoices"
+      >
+        <table className={classes.table}>
+          <thead>
+          <tr className={classes.tr}>
+            <th className={classes.th}>
+              Date
+            </th>
+            <th className={classes.th}>
+              Amount
+            </th>
+            <th className={classes.th}>
+              PDF
+            </th>
+          </tr>
+          </thead>
+          <tbody>
+          {getInvoices()}
+          </tbody>
+        </table>
+      </SubSection>
+    </Card>
+  );
 }
 
 export default Invoices;

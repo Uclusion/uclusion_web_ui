@@ -5,6 +5,30 @@ import { applyPromoCode, validatePromoCode } from '../../api/users';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
 import { updateAccount } from '../../contexts/AccountContext/accountContextHelper';
 import SpinningButton from '../../components/SpinBlocking/SpinningButton';
+import { makeStyles, useTheme } from '@material-ui/styles';
+
+const useStyles = makeStyles((theme) => {
+  return {
+    promoInputBox: {
+      marginTop: theme.spacing(2),
+    },
+    applyPromoButton: {
+      backgroundColor: '#2D9CDB',
+      color: 'white',
+      '&:hover': {
+        backgroundColor: '#2D9CDB'
+      },
+      textTransform: 'none',
+      marginTop: theme.spacing(1),
+      marginBottom: theme.spacing(1),
+    },
+    promoInput: {
+      marginLeft: theme.spacing(1),
+      marginRight: theme.spacing(1),
+    }
+
+  }
+});
 
 
 function PromoCodeInput(props) {
@@ -13,6 +37,8 @@ function PromoCodeInput(props) {
   const [, accountDispatch] = useContext(AccountContext);
   const { valid, code, reused } = activePromo;
   const [spinning, setSpinning] = useState(false);
+  const theme = useTheme();
+  const classes = useStyles(theme);
 
   function promoBoxOnChange(event) {
     const { value } = event.target;
@@ -51,11 +77,11 @@ function PromoCodeInput(props) {
   const invalidPromoGiven = !_.isEmpty(activePromo) && !valid;
 
   return (
-    <div>
-      <TextField value={promoBoxValue} onChange={promoBoxOnChange}/>
+    <div className={classes.promoInputBox}>
+      <TextField className={classes.promoInput} value={promoBoxValue} onChange={promoBoxOnChange}/>
       <SpinningButton
+        className={classes.applyPromoButton}
         disabled={_.isEmpty(promoBoxValue)}
-        hasSpinChecker
         spinning={spinning}
         onClick={validatePromo}
       >

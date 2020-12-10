@@ -1,0 +1,6 @@
+/** Some custom styles to our toasts **/
+/** Set our toasts borders to a nice rounded shape **/
+.Toastify__toast {
+    border-radius: 6px;
+
+}

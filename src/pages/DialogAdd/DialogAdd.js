@@ -16,7 +16,6 @@ import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { addMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 import { AccountContext } from '../../contexts/AccountContext/AccountContext'
 import { canCreate } from '../../contexts/AccountContext/accountContextHelper'
-import config from '../../config'
 import { getInlineBreadCrumbs } from '../Investible/Decision/DecisionInvestible'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import UpgradeBanner from '../../components/Banners/UpgradeBanner';
@@ -38,8 +37,7 @@ function DialogAdd(props) {
   const [storedState, setStoredState] = useState(undefined);
   const [idLoaded, setIdLoaded] = useState(undefined);
   const [accountState] = useContext(AccountContext);
-  const accountCanCreate = canCreate(accountState);
-  const createEnabled = !config.payments.enabled || accountCanCreate;
+  const createEnabled = canCreate(accountState);
   const banner = !createEnabled? <UpgradeBanner/> : undefined;
 
   useEffect(() => {

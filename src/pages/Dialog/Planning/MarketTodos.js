@@ -28,11 +28,16 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions'
 import { ExpandLess } from '@material-ui/icons'
+import { getStages } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
+import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 
 const myClasses = makeStyles(
   theme => {
     return {
       outlined: {
+        cursor: 'grab',
         outline: `2px solid ${theme.palette.grey['400']}`,
         outlineOffset: '-5px'
       },
@@ -62,6 +67,7 @@ const myClasses = makeStyles(
         flexGrow: 1,
         backgroundColor: 'white',
       },
+      containerEmpty: {},
     };
   },
   { name: 'Archive' }
@@ -81,6 +87,8 @@ function MarketTodos (props) {
   const [expandedCommentState, expandedCommentDispatch] = useContext(ExpandedCommentContext);
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [marketStagesState] = useContext(MarketStagesContext);
+  const [marketPresencesState] = useContext(MarketPresencesContext);
   const myExpandedState = expandedCommentState[EXPANDED_ID] || {};
   const { expanded: showTodos } = myExpandedState
   const [editCard, setEditCard] = useState(undefined)
@@ -93,8 +101,23 @@ function MarketTodos (props) {
   const yellowComments = (comments || []).filter((comment) => comment.notification_type === 'YELLOW')
   const redComments = (comments || []).filter((comment) => comment.notification_type === 'RED')
 
-  function onDragStart (event) {
-    event.dataTransfer.setData('text', event.target.id.substring(1))
+  function onDragStart(event) {
+    event.dataTransfer.setData('text', event.target.id.substring(1));
+  }
+
+  function onDragEnd() {
+    // We don't know where we were dragged so just turn all dashed lines off
+    const marketStages = getStages(marketStagesState, marketId) || [];
+    const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+    marketStages.forEach((stage) => {
+      marketPresences.forEach((presence) => {
+        const elementId = `${stage.id}_${presence.id}`;
+        const element = document.getElementById(elementId);
+        if (element) {
+          element.className = classes.containerEmpty;
+        }
+      });
+    });
   }
 
   function getCards (comments, marketId, history, intl, setCard) {
@@ -118,6 +141,7 @@ function MarketTodos (props) {
           xs={12}
           draggable
           onDragStart={onDragStart}
+          onDragEnd={onDragEnd}
           className={classes.outlined}
         >
           <RaisedCard onClick={() => setCardAndScroll(comment)} elevation={0}>

@@ -606,14 +606,16 @@ function Comment(props) {
           )}
           {commentType !== JUSTIFY_TYPE && commentType !== REPLY_TYPE && (
             <Typography className={classes.timeElapsed} variant="body2">
-              Created <UsefulRelativeTime value={Date.parse(comment.created_at) - Date.now()}/>.
+              Created <UsefulRelativeTime value={Date.parse(comment.created_at) - Date.now()}/>
+              {noAuthor &&
+              `${intl.formatMessage({ id: 'lastUpdatedBy' })} ${updatedBy.name}`}.
               {comment.created_at < comment.updated_at && !resolved && (
-                <> Updated <UsefulRelativeTime value={Date.parse(comment.updated_at) - Date.now()}/>.</>
+                <> Updated <UsefulRelativeTime value={Date.parse(comment.updated_at) - Date.now()}/></>
               )}
-              {comment.created_at < comment.updated_at && resolved && (
+              {resolved && (
                 <> Resolved <UsefulRelativeTime value={Date.parse(comment.updated_at) - Date.now()}/></>
               )}
-              {comment.created_at < comment.updated_at && resolved && !displayUpdatedBy && (
+              {comment.created_at < comment.updated_at && !displayUpdatedBy && (
                 <>.</>
               )}
               {displayUpdatedBy &&

@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react'
 import _ from 'lodash'
 import { FormattedMessage, useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
-import { Button, Card, CardActions, CardContent, TextField, } from '@material-ui/core'
+import { Button, Card, CardActions, CardContent, } from '@material-ui/core'
 import localforage from 'localforage'
 import { addPlanningInvestible } from '../../../api/investibles'
 import QuillEditor from '../../../components/TextEditors/QuillEditor'
@@ -41,6 +41,7 @@ import {
 import { storeTourCompleteInBackend } from '../../../components/Tours/UclusionTour'
 import { getUiPreferences } from '../../../contexts/AccountUserContext/accountUserContextHelper'
 import { removeComment } from '../../../api/comments'
+import NameField from '../../../components/TextFields/NameField'
 
 function PlanningInvestibleAdd(props) {
   const {
@@ -117,13 +118,14 @@ function PlanningInvestibleAdd(props) {
     setDraftState(newDraftState);
     localforage.setItem(itemKey, newDraftState);
   }
-  function handleChange(field) {
-    return (event) => {
-      const { value } = event.target;
-      const newValues = { ...currentValues, [field]: value };
-      setCurrentValues(newValues);
-      handleDraftState({ ...draftState, [field]: value });
-    };
+
+  function handleNameStorage(value) {
+    handleDraftState({ ...draftState, name: value });
+  }
+
+  function handleNameChange(value) {
+    const newValues = { ...currentValues, name: value };
+    setCurrentValues(newValues);
   }
 
   function onQuantityChange(event) {
@@ -266,17 +268,6 @@ function PlanningInvestibleAdd(props) {
           type={STORY_TYPE}
         />
         <CardContent>
-          <TextField
-            fullWidth
-            id="plan-investible-name"
-            label={intl.formatMessage({ id: "agilePlanFormTitleLabel" })}
-            onChange={handleChange('name')}
-            placeholder={intl.formatMessage({
-              id: "storyTitlePlaceholder"
-            })}
-            value={name}
-            variant="filled"
-          />
           <div className={classes.cardContent}>
             <AssignmentList
               marketId={marketId}
@@ -298,6 +289,8 @@ function PlanningInvestibleAdd(props) {
             setOperationInProgress={setOperationRunning}
             getUrlName={urlHelperGetName(marketState, investibleState)}
           />
+          <NameField onEditorChange={handleNameChange} onStorageChange={handleNameStorage} description={description}
+                     name={name} />
         </CardContent>
         {!isAssigned && (
           <AddInitialVote

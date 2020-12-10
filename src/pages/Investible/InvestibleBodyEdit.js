@@ -16,11 +16,12 @@ import { LockedDialog, useLockedDialogStyles } from '../Dialog/DialogBodyEdit'
 import { EMPTY_SPIN_RESULT } from '../../constants/global'
 import _ from 'lodash'
 import QuillEditor from '../../components/TextEditors/QuillEditor'
-import { CardActions, TextField } from '@material-ui/core'
+import { CardActions, CircularProgress, Typography } from '@material-ui/core'
 import { processTextAndFilesForSave } from '../../api/files'
 import { usePlanFormStyles } from '../../components/AgilePlan'
 import { makeStyles } from '@material-ui/core/styles'
 import { INITIATIVE_TYPE } from '../../constants/markets'
+import NameField from '../../components/TextFields/NameField'
 
 const useStyles = makeStyles(
   theme => ({
@@ -141,9 +142,11 @@ function InvestibleBodyEdit (props) {
     setUploadedFiles(metadatas);
   }
 
-  function onNameChange(event) {
-    const { value } = event.target;
+  function handleNameChange(value) {
     setName(value);
+  }
+
+  function handleNameStorage(value) {
     handleDraftState({ description, name: value });
   }
 
@@ -220,27 +223,28 @@ function InvestibleBodyEdit (props) {
           </SpinBlockingButton>
         }
       />
-      <TextField
-        fullWidth
-        id="plan-investible-name"
-        label={intl.formatMessage({ id: "agilePlanFormTitleLabel" })}
-        onChange={onNameChange}
-        placeholder={intl.formatMessage({
-          id: "storyTitlePlaceholder"
-        })}
-        value={name}
-        variant="filled"
-      />
-      <QuillEditor
-        onS3Upload={handleFileUpload}
-        marketId={marketId}
-        onChange={onEditorChange}
-        placeholder={intl.formatMessage({ id: 'investibleAddDescriptionDefault' })}
-        onStoreChange={onStorageChange}
-        defaultValue={description}
-        setOperationInProgress={setOperationRunning}
-        getUrlName={urlHelperGetName(marketsState, investiblesState)}
-      />
+      {lockedBy === userId && (
+        <>
+          <NameField onEditorChange={handleNameChange} onStorageChange={handleNameStorage} description={description}
+                     name={name} />
+          <QuillEditor
+            onS3Upload={handleFileUpload}
+            marketId={marketId}
+            onChange={onEditorChange}
+            placeholder={intl.formatMessage({ id: 'investibleAddDescriptionDefault' })}
+            onStoreChange={onStorageChange}
+            defaultValue={description}
+            setOperationInProgress={setOperationRunning}
+            getUrlName={urlHelperGetName(marketsState, investiblesState)}
+          />
+        </>
+      )}
+      {lockedBy !== userId && (
+        <div align='center'>
+          <Typography>{intl.formatMessage({ id: "gettingLockMessage" })}</Typography>
+          <CircularProgress type="indeterminate"/>
+        </div>
+      )}
       <CardActions className={classes.actions}>
         <SpinBlockingButton
           marketId={marketId}

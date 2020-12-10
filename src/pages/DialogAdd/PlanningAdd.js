@@ -17,7 +17,7 @@ function PlanningAdd(props) {
   const { hash } = location;
   const values = queryString.parse(hash);
   const { investibleId: parentInvestibleId, id: parentMarketId } = values;
-  const { onSpinStop, storedState, onSave, createEnabled, billingDismissText } = props;
+  const { onSpinStop, storedState, onSave, createEnabled } = props;
   const {
     description: storedDescription,
     name: storedName,
@@ -145,7 +145,7 @@ function PlanningAdd(props) {
   }
   return (
     <>
-      <DismissableText textId={createEnabled ? 'planningAddHelp' : billingDismissText} />
+      <DismissableText textId={'planningAddHelp'} />
       <Form
         marketId=""
         daysEstimate={daysEstimate}

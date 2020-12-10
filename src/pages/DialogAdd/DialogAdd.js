@@ -15,11 +15,11 @@ import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/Ma
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { addMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 import { AccountContext } from '../../contexts/AccountContext/AccountContext'
-import { canCreate, getAccount } from '../../contexts/AccountContext/accountContextHelper'
+import { canCreate } from '../../contexts/AccountContext/accountContextHelper'
 import config from '../../config'
-import { SUBSCRIPTION_STATUS_CANCELED } from '../../constants/billing'
 import { getInlineBreadCrumbs } from '../Investible/Decision/DecisionInvestible'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
+import UpgradeBanner from '../../components/Banners/UpgradeBanner';
 
 function DialogAdd(props) {
   const { hidden } = props;
@@ -40,8 +40,7 @@ function DialogAdd(props) {
   const [accountState] = useContext(AccountContext);
   const accountCanCreate = canCreate(accountState);
   const createEnabled = !config.payments.enabled || accountCanCreate;
-  const { billing_subscription_status: subStatus } = getAccount(accountState);
-  const billingDismissText = subStatus === SUBSCRIPTION_STATUS_CANCELED ? 'billingMustPay' : 'billingStartSubscription';
+  const banner = !createEnabled? <UpgradeBanner/> : undefined;
 
   useEffect(() => {
     if (!hidden) {
@@ -84,20 +83,21 @@ function DialogAdd(props) {
       title={intl.formatMessage({ id: addTitleName })}
       tabTitle={intl.formatMessage({ id: addTitleName })}
       hidden={hidden}
+      banner={banner}
       breadCrumbs={breadCrumbs}
     >
       {type === PLANNING_TYPE && idLoaded === type && (
         <PlanningAdd onSave={onSave} onSpinStop={onDone} storedState={storedState}
-                     createEnabled={createEnabled} billingDismissText={billingDismissText}/>
+                     createEnabled={createEnabled} />
       )}
       {type === DECISION_TYPE && idLoaded === type && (
         <DecisionAdd onSave={onSave} onSpinStop={onDone} storedState={storedState}
-                     createEnabled={createEnabled} billingDismissText={billingDismissText}/>
+                     createEnabled={createEnabled} />
       )}
 
       {type === INITIATIVE_TYPE && idLoaded === type && (
         <InitiativeAdd onSave={onSave} onSpinStop={onDone} storedState={storedState}
-                       createEnabled={createEnabled} billingDismissText={billingDismissText}/>
+                       createEnabled={createEnabled} />
       )}
     </Screen>
   );

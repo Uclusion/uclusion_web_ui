@@ -737,6 +737,17 @@ function Comment(props) {
         </CardContent>
         {showActions && (
           <CardActions className={`${classes.cardActions} ${classes.actions}`}>
+            {investibleId && commentType === REPORT_TYPE && (
+              <FormControlLabel
+                control={<Checkbox
+                  id="notifyAll"
+                  name="notifyAll"
+                  checked={originalNotificationType === 'YELLOW'}
+                  disabled={true}
+                />}
+                label={intl.formatMessage({ id: "notifyAll" })}
+              />
+            )}
             {commentType === QUESTION_TYPE && !inArchives && !inlineMarketId && marketType === PLANNING_TYPE && (
               <Button
                 className={clsx(classes.action, classes.actionPrimary)}

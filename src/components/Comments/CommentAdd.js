@@ -4,7 +4,7 @@ import classNames from 'clsx'
 import clsx from 'clsx'
 import _ from 'lodash'
 import {
-  Button, Card, CardContent,
+  Button, Card, CardContent, Checkbox,
   darken,
   FormControl,
   FormControlLabel,
@@ -265,10 +265,10 @@ function CommentAdd (props) {
       && (assigned || []).includes(myPresence.id)) && currentStageId !== blockingStage.id
       && currentStageId !== requiresInputStage.id;
     const investibleBlocks = (investibleId && apiType === ISSUE_TYPE) && currentStageId !== blockingStage.id;
-    const myActualNotificationType = type === TODO_TYPE && !investibleId ? myNotificationType : undefined;
     return saveComment(marketId, investibleId, parentId, tokensRemoved, apiType, filteredUploads,
-      myActualNotificationType)
+      myNotificationType)
       .then((comment) => {
+        setMyNotificationType(undefined);
         // move the investible to other state if necessary
         if (investibleBlocks || investibleRequiresInput) {
           const newStage = investibleBlocks ? blockingStage : requiresInputStage;
@@ -311,10 +311,12 @@ function CommentAdd (props) {
     onSave();
     clearType();
   }
-  function onNotificationTypeChange(event) {
-    const { value } = event.target;
-    setMyNotificationType(value);
+
+  function handleNotifyAllChange(event) {
+    const { target: { checked } } = event;
+    setMyNotificationType( checked ? 'YELLOW' : undefined);
   }
+
   const commentSaveLabel = parent ? 'commentAddSaveLabel' : 'commentReplySaveLabel';
   const commentCancelLabel = parent ? 'commentReplyCancelLabel' : 'commentAddCancelLabel';
   const showIssueWarning = (issueWarningId !== null && type === ISSUE_TYPE) ||
@@ -323,43 +325,18 @@ function CommentAdd (props) {
   const lockedDialogClasses = useLockedDialogStyles();
   return (
     <>
-      {type === TODO_TYPE && !investible && (
+      {investible && type === REPORT_TYPE && (
         <Card elevation={0} className={classes.commentTypeContainer}>
-          <CardType className={classes.todoLabelType} type={type} resolved={false} />
           <CardContent>
-            <FormControl component="fieldset" className={classes.commentType}>
-              <RadioGroup
-                aria-labelledby="notification-type-choice"
-                className={classes.commentTypeGroup}
-                onChange={onNotificationTypeChange}
-                value={myNotificationType}
-                row
-              >
-                {['RED', 'YELLOW', 'BLUE'].map((notificationType) => {
-                  return (
-                    <Tooltip key={`tip${notificationType}`}
-                             title={<FormattedMessage id={`${notificationType.toLowerCase()}Tip`} />}>
-                      <FormControlLabel
-                        id={`commentAddNotificationType${notificationType}`}
-                        key={notificationType}
-                        className={clsx(
-                          notificationType === 'RED' ? `${classes.chipItem} ${classes.chipItemIssue}`
-                            : notificationType === 'BLUE' ? `${classes.chipItem} ${classes.chipItemQuestion}`
-                            : `${classes.chipItem} ${classes.chipItemSuggestion}`,
-                          myNotificationType === notificationType ? classes.selected : classes.unselected
-                        )}
-                        /* prevent clicking the label stealing focus */
-                        onMouseDown={e => e.preventDefault()}
-                        control={<Radio color="primary" />}
-                        label={<FormattedMessage id={`notificationLabel${notificationType}`} />}
-                        labelPlacement="end"
-                        value={notificationType}
-                      />
-                    </Tooltip>
-                  );
-                })}
-              </RadioGroup>
-            </FormControl>
+            <FormControlLabel
+              control={<Checkbox
+                id="notifyAll"
+                name="notifyAll"
+                checked={myNotificationType === 'YELLOW'}
+                onChange={handleNotifyAllChange}
+              />}
+              label={intl.formatMessage({ id: "notifyAll" })}
+            />
           </CardContent>
         </Card>
       )}

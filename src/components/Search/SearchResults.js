@@ -23,6 +23,9 @@ export const searchStyles = makeStyles((theme) => {
       overflow: 'auto',
       marginTop: '1rem'
     },
+    cardContainer: {
+      width: '400px',
+    },
     link: {
       width: '100%'
     },
@@ -221,7 +224,7 @@ function SearchResults () {
       placement={placement}
       className={classes.popper}
     >
-      <Paper>
+      <Paper className={classes.cardContainer}>
         <List
           dense
         >

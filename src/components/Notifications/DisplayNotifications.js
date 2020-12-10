@@ -22,6 +22,9 @@ const useStyles = makeStyles(() => {
       overflow: 'auto',
       marginTop: '1rem'
     },
+    cardContainer: {
+      width: '400px',
+    },
     link: {
       width: '100%'
     },
@@ -124,7 +127,7 @@ function DisplayNotifications(props) {
       placement={placement}
       className={classes.popper}
     >
-      <Paper>
+      <Paper className={classes.cardContainer}>
         {!_.isEmpty(recent) && (
           <>
             <Typography align="center" className={classes.viewed}>

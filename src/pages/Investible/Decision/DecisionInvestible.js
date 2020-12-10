@@ -349,7 +349,7 @@ function DecisionInvestible(props) {
               {name}
             </Typography>
           )}
-          {lockedBy && yourPresence.id !== lockedBy && (
+          {lockedBy && yourPresence.id !== lockedBy && isEditableByUser() && (
             <Typography>
               {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}
             </Typography>

@@ -11,6 +11,7 @@ const useStyles = makeStyles((theme) => {
   return {
     promoInputBox: {
       marginTop: theme.spacing(2),
+      marginBottom: theme.spacing(1),
     },
     applyPromoButton: {
       backgroundColor: '#2D9CDB',
@@ -20,7 +21,6 @@ const useStyles = makeStyles((theme) => {
       },
       textTransform: 'none',
       marginTop: theme.spacing(1),
-      marginBottom: theme.spacing(1),
     },
     promoInput: {
       marginLeft: theme.spacing(1),
@@ -78,7 +78,12 @@ function PromoCodeInput(props) {
 
   return (
     <div className={classes.promoInputBox}>
-      <TextField className={classes.promoInput} value={promoBoxValue} onChange={promoBoxOnChange}/>
+      <TextField
+        label="Code"
+        className={classes.promoInput}
+        value={promoBoxValue} onChange={promoBoxOnChange}
+        placeholder="Your Code"
+      />
       <SpinningButton
         className={classes.applyPromoButton}
         disabled={_.isEmpty(promoBoxValue)}

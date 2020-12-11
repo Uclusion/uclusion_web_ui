@@ -67,8 +67,10 @@ function ECPInvite(props) {
     // The gap where versions context can change before cleared to create is set is fine because
     // the onboarding user still won't have any markets until cleared to create is set and creation begins
     if (!_.isEmpty(name) && hasInitializedGlobalVersion(versionsContext) && clearedToCreate === undefined) {
+      const myClear = _.isEmpty(getExistingMarkets(versionsContext));
+      console.log(`Onboarding with ${myClear}`);
       // Do not create onboarding markets if they already have markets
-      setClearedToCreate(_.isEmpty(getExistingMarkets(versionsContext)));
+      setClearedToCreate(myClear);
     }
   }, [clearedToCreate, name, versionsContext]);
 
@@ -79,6 +81,7 @@ function ECPInvite(props) {
         const dispatchers = { marketsDispatch, diffDispatch, presenceDispatch, investiblesDispatch };
         createECPMarkets(dispatchers)
           .then(() => {
+            console.log('Done creating and navigating away');
             navigate(history, '/#onboarded', true);
           })
           .catch((error) => {
@@ -86,6 +89,7 @@ function ECPInvite(props) {
             toastError('errorMarketFetchFailed');
           });
       } else {
+        console.log('Done onboarding and navigating away');
         navigate(history, '/#onboarded', true);
       }
     }

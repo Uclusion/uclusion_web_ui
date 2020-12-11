@@ -79,14 +79,14 @@ function ECPInvite(props) {
         const dispatchers = { marketsDispatch, diffDispatch, presenceDispatch, investiblesDispatch };
         createECPMarkets(dispatchers)
           .then(() => {
-            navigate(history, '/#onboarded');
+            navigate(history, '/#onboarded', true);
           })
           .catch((error) => {
             console.error(error);
             toastError('errorMarketFetchFailed');
           });
       } else {
-        navigate(history, '/#onboarded');
+        navigate(history, '/#onboarded', true);
       }
     }
   }, [hidden, history, marketsDispatch, diffDispatch, presenceDispatch, investiblesDispatch, clearedToCreate]);
@@ -101,7 +101,7 @@ function ECPInvite(props) {
       defer={false}
     >
       <title>{intl.formatMessage({ id: 'loadingMarket' })}</title>
-    </Helmet>)
+    </Helmet>
     <Header
       title={intl.formatMessage({ id: 'loadingMarket' })}
       breadCrumbs={[]}
@@ -112,7 +112,6 @@ function ECPInvite(props) {
       hideTools
     />
     <div className={classes.content}>
-      <div>LLL1</div>
       <LoadingDisplay showMessage={true} messageId="OnboardingCreatingCustomWorkspace" />
     </div>
   </div>

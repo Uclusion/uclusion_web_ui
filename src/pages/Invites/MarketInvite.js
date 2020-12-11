@@ -70,7 +70,7 @@ function MarketInvite(props) {
           const loadedMarket = getMarket(marketsState, id);
           if (!_.isEmpty(loadedMarket)) {
             // Someone followed an invite link for a market they already had
-            navigate(history, formMarketLink(id));
+            navigate(history, formMarketLink(id), true);
             return;
           }
           return pollForMarketLoad(id);

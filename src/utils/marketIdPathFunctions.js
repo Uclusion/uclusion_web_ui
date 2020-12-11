@@ -41,8 +41,7 @@ export function navigate(history, to, insideUseEffect) {
   if (to) {
     if (insideUseEffect) {
       // Without the set timeout the use effect can be re-run before the push is complete
-      // though not clear why that run wouldn't run it again. Also no point if inside a promise
-      // as that useEffect must be stable or the promise would not run.
+      // though not clear why that run wouldn't run it again.
       setTimeout(() => {
         history.push(to);
       }, 0);

@@ -6,7 +6,7 @@ import { useHistory, useLocation } from 'react-router'
 import Market from '../../pages/Dialog/Dialog'
 import Support from '../../pages/About/Support'
 import PageNotFound from '../../pages/PageNotFound/PageNotFound'
-import { broadcastView, decomposeMarketPath, navigate, } from '../../utils/marketIdPathFunctions'
+import { broadcastView, decomposeMarketPath, } from '../../utils/marketIdPathFunctions'
 import Home from '../../pages/Home/Home'
 import Investible from '../../pages/Investible/Investible'
 import DialogArchives from '../../pages/DialogArchives/DialogArchives'
@@ -24,10 +24,7 @@ import ChangePassword from '../../pages/Authentication/ChangePassword'
 import ChangeNotificationPreferences from '../../pages/About/ChangeNotificationPreferences'
 import BillingHome from '../../pages/Payments/BillingHome'
 import { refreshNotifications, refreshVersions } from '../../contexts/VersionsContext/versionsContextHelper'
-import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
-import { isNewUser } from '../../contexts/AccountUserContext/accountUserContextHelper'
 import { registerMarketTokenListeners } from '../../authorization/tokenUtils';
-import ECPInvite from '../../pages/Invites/ECPInvite'
 import { getUtm } from '../../utils/redirectUtils'
 
 const useStyles = makeStyles({
@@ -60,87 +57,77 @@ function Root() {
   const { marketId, investibleId, action } = decomposeMarketPath(pathname);
   const [, setOperationsLocked] = useContext(OperationInProgressContext);
   const [, setOnline] = useContext(OnlineStateContext);
-  const [userState] = useContext(AccountUserContext) || {};
-  const myAction = isNewUser(userState) && action !== 'invite' && action !== 'dialog' ? 'onboarding' : action;
   const utm = getUtm();
-
-  if (myAction === 'onboarding' && myAction !== action) {
-    navigate(history, '/onboarding');
-  }
 
   function hideHome() {
     return !pathname || pathname !== '/';
   }
 
-  function hideOnboarding() {
-    return myAction !== 'onboarding';
-  }
-
   function hideSupport() {
-    return myAction !== 'support';
+    return action !== 'support';
   }
 
   function hideChangePassword() {
-    return myAction !== 'changePassword';
+    return action !== 'changePassword';
   }
 
   function hideChangeNotification() {
-    return myAction !== 'notificationPreferences';
+    return action !== 'notificationPreferences';
   }
 
   function hideAddMarket() {
-    return myAction !== 'dialogAdd';
+    return action !== 'dialogAdd';
   }
 
   function hideMarket() {
-    return myAction !== 'dialog' || (!marketId) || (!!marketId && !!investibleId);
+    return action !== 'dialog' || (!marketId) || (!!marketId && !!investibleId);
   }
 
   function hideInvestible() {
-    return (myAction !== 'dialog') || !investibleId;
+    return (action !== 'dialog') || !investibleId;
   }
 
   function hideInvestibleEdit() {
-    return (myAction !== 'investibleEdit') || !investibleId;
+    return (action !== 'investibleEdit') || !investibleId;
   }
 
   function hideInvestibleAdd() {
-    return (myAction !== 'investibleAdd') || !marketId;
+    return (action !== 'investibleAdd') || !marketId;
   }
 
   function hideDialogEdit() {
-    return (myAction !== 'marketEdit') || !marketId;
+    return (action !== 'marketEdit') || !marketId;
   }
 
   function hideDialogManage() {
-    return (myAction !== 'marketManage') || !marketId;
+    return (action !== 'marketManage') || !marketId;
   }
 
   function hideDialogArchives() {
-    return (myAction !== 'dialogArchives');
+    return (action !== 'dialogArchives');
   }
 
   function hideArchvies() {
-    return (myAction !== 'archives');
+    return (action !== 'archives');
   }
 
   function hideSlackInvite() {
-    return myAction !== 'slack';
+    return action !== 'slack';
   }
 
   function hideMarketInvite() {
-    return myAction !== 'invite' || !marketId;
+    return action !== 'invite' || !marketId;
   }
 
   function hideBillingHome() {
-    return myAction !== 'billing';
+    return action !== 'billing';
   }
 
   const hidePNF = !(hideMarket() && hideSupport() && hideHome() && hideInvestible()
     && hideDialogArchives() && hideArchvies() && hideInvestibleEdit() && hideInvestibleAdd()
     && hideAddMarket() && hideDialogEdit() && hideDialogManage() && hideMarketInvite()
     && hideSlackInvite() && hideChangePassword() && hideChangeNotification()
-    && hideBillingHome() && hideOnboarding());
+    && hideBillingHome());
 
   useEffect(() => {
     function pegView(isEntry) {
@@ -199,8 +186,7 @@ function Root() {
       <div className={classes.body}>
         <div className={classes.root}>
           <div className={classes.content}>
-            <ECPInvite hidden={hideOnboarding()} utm={utm} />
-            <Home hidden={hideHome()}/>
+            <Home hidden={hideHome()} utm={utm}/>
             <Market hidden={hideMarket()}/>
             <Support hidden={hideSupport()}/>
             <BillingHome hidden={hideBillingHome()}/>

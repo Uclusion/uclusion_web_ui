@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { useHistory, useLocation } from 'react-router';
+import { useHistory } from 'react-router';
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import MenuBookIcon from '@material-ui/icons/MenuBook'
@@ -15,7 +15,7 @@ import {
 import PlanningDialogs from './PlanningDialogs'
 import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE, } from '../../constants/markets'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { formMarketManageLink, navigate } from '../../utils/marketIdPathFunctions';
+import { formMarketManageLink, navigate } from '../../utils/marketIdPathFunctions'
 import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions'
 import DismissableText from '../../components/Notifications/DismissableText'
 import { getAndClearRedirect, redirectToPath } from '../../utils/redirectUtils'
@@ -25,7 +25,6 @@ import UclusionTour from '../../components/Tours/UclusionTour';
 import { SIGNUP_HOME } from '../../contexts/TourContext/tourContextHelper';
 import { signupHomeSteps } from '../../components/Tours/InviteTours/signupHome';
 import { CognitoUserContext } from '../../contexts/CognitoUserContext/CongitoUserContext';
-import queryString from 'query-string';
 import { startTour } from '../../contexts/TourContext/tourContextReducer';
 import { TourContext } from '../../contexts/TourContext/TourContext';
 import InitiativesAndDialogs from './InitiativesAndDialogs'
@@ -33,6 +32,13 @@ import AddNewOrUpgradeButton from './AddNewOrUpgradeButton';
 import { canCreate } from '../../contexts/AccountContext/accountContextHelper';
 import UpgradeBanner from '../../components/Banners/UpgradeBanner';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
+import { getExistingMarkets, hasInitializedGlobalVersion } from '../../contexts/VersionsContext/versionsContextHelper'
+import { createECPMarkets } from '../Invites/ECPMarketGenerator'
+import { toastError } from '../../utils/userMessage'
+import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
+import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
+import { DiffContext } from '../../contexts/DiffContext/DiffContext'
+import OnboardingBanner from '../../components/Banners/OnboardingBanner'
 
 const useStyles = makeStyles(() => ({
     spacer: {
@@ -55,36 +61,63 @@ function Home(props) {
   const { hidden } = props;
   const history = useHistory();
   const intl = useIntl();
-  const location = useLocation();
-  const { hash } = location;
-  const [marketsState] = useContext(MarketsContext);
+  const [, investiblesDispatch] = useContext(InvestiblesContext);
+  const [, diffDispatch] = useContext(DiffContext);
+  const [marketsState, marketsDispatch] = useContext(MarketsContext);
   const [accountState] = useContext(AccountContext);
-  const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [marketPresencesState, presenceDispatch] = useContext(MarketPresencesContext);
   const [operationInProgress] = useContext(OperationInProgressContext);
   const classes = useStyles();
   const [wizardActive, setWizardActive] = useState(false);
   const user = useContext(CognitoUserContext) || {};
   const [, tourDispatch] = useContext(TourContext);
-
-  const hashValues = queryString.parse(hash || '');
-  const { onboarded } = hashValues || {};
+  const [versionsContext] = useContext(VersionsContext);
+  const [clearedToCreate, setClearedToCreate] = useState(undefined);
 
   const createEnabled = canCreate(accountState);
-  const banner = createEnabled? undefined : <UpgradeBanner/>;
+  const banner = clearedToCreate ? <OnboardingBanner /> :
+    createEnabled || !hasInitializedGlobalVersion(versionsContext) ? undefined : <UpgradeBanner/>;
 
   useEffect(() => {
     const redirect = getAndClearRedirect();
-    if (!_.isEmpty(redirect)) {
+    if (!_.isEmpty(redirect) && redirect !== '/') {
       console.log(`Redirecting you to ${redirect}`);
       redirectToPath(history, redirect);
     }
   })
 
   useEffect(() => {
-    if (onboarded !== undefined) {
-      tourDispatch(startTour(SIGNUP_HOME));
+    // If cleared to create has been set already then do not re-enter
+    // The gap where versions context can change before cleared to create is set is fine because
+    // the onboarding user still won't have any markets until cleared to create is set and creation begins
+    if (hasInitializedGlobalVersion(versionsContext) && clearedToCreate === undefined) {
+      const myClear = _.isEmpty(getExistingMarkets(versionsContext));
+      console.log(`Onboarding with ${myClear}`);
+      // Do not create onboarding markets if they already have markets
+      setClearedToCreate(myClear);
     }
-  }, [onboarded, tourDispatch]);
+  }, [clearedToCreate, versionsContext]);
+
+  useEffect(() => {
+    if (!hidden && clearedToCreate !== undefined) {
+      if (clearedToCreate) {
+        // Only hidden, history and clearedToCreate dependencies can change so safe from re-entry
+        const dispatchers = { marketsDispatch, diffDispatch, presenceDispatch, investiblesDispatch };
+        //TODO if we want to do something utm based it was passed as prop to Home
+        createECPMarkets(dispatchers)
+          .then(() => {
+            console.log('Done creating');
+            setClearedToCreate(false);
+            tourDispatch(startTour(SIGNUP_HOME));
+          })
+          .catch((error) => {
+            console.error(error);
+            toastError('errorMarketFetchFailed');
+          });
+      }
+    }
+  }, [hidden, history, marketsDispatch, diffDispatch, presenceDispatch, investiblesDispatch, clearedToCreate,
+    tourDispatch]);
 
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(
     marketsState,

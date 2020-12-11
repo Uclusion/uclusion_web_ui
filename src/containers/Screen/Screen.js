@@ -66,7 +66,6 @@ function Screen(props) {
     toolbarButtons,
     appEnabled,
     isHome,
-    isOnboarding,
     banner
   } = props;
   let prePendWarning = '';
@@ -92,7 +91,7 @@ function Screen(props) {
       prePendWarning = '*';
     }
   }
-  const reallyAmLoading = !hidden && appEnabled && (loading || (!isOnboarding && _.isEmpty(user)));
+  const reallyAmLoading = !hidden && appEnabled && (loading || _.isEmpty(user));
 
   if (hidden) {
     return <React.Fragment/>
@@ -156,7 +155,6 @@ Screen.propTypes = {
   tabTitle: PropTypes.string.isRequired,
   appEnabled: PropTypes.bool,
   isHome: PropTypes.bool,
-  isOnboarding: PropTypes.bool,
   banner: PropTypes.node,
 };
 
@@ -169,7 +167,6 @@ Screen.defaultProps = {
   sidebarActions: [],
   appEnabled: true,
   isHome: false,
-  isOnboarding: false,
   banner: undefined,
 };
 

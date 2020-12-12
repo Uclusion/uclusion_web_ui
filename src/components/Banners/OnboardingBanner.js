@@ -2,6 +2,7 @@ import React from 'react';
 import { Box, Card, Typography } from '@material-ui/core';
 import { useIntl } from 'react-intl';
 import { makeStyles } from '@material-ui/styles';
+import PropTypes from 'prop-types'
 
 const useStyles = makeStyles(() => {
   return {
@@ -19,7 +20,8 @@ const useStyles = makeStyles(() => {
   };
 });
 
-function OnboardingBanner() {
+function OnboardingBanner(props) {
+  const { messageId } = props;
   const intl = useIntl();
   const classes = useStyles();
 
@@ -28,12 +30,16 @@ function OnboardingBanner() {
       <Card className={classes.bannerCard}>
         <Typography>
           <Box fontWeight="bold">
-            {intl.formatMessage({ id: 'OnboardingCreatingCustomWorkspace' })}
+            {intl.formatMessage({ id: messageId })}
           </Box>
         </Typography>
       </Card>
     </div>
   );
 }
+
+OnboardingBanner.propTypes = {
+  messageId: PropTypes.string.isRequired,
+};
 
 export default OnboardingBanner;

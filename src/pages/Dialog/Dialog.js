@@ -13,7 +13,7 @@ import {
 } from '../../utils/marketIdPathFunctions'
 import Screen from '../../containers/Screen/Screen'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
-import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
+import { addMarketToStorage, getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import DecisionDialog from './Decision/DecisionDialog'
@@ -23,11 +23,17 @@ import { getComment, getMarketComments } from '../../contexts/CommentsContext/co
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 import { getStages } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { addPresenceToMarket, getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { ACTIVE_STAGE, DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
-import { getMarketFromUrl } from '../../api/uclusionClient'
-import { pollForMarketLoad } from '../../api/versionedFetchUtils'
+import { getMarketFromInvite, getMarketFromUrl } from '../../api/uclusionClient'
+import { createMarketListeners, pollForMarketLoad } from '../../api/versionedFetchUtils'
 import { toastError } from '../../utils/userMessage'
+import queryString from 'query-string'
+import jwt_decode from 'jwt-decode'
+import { userIsLoaded } from '../../contexts/AccountUserContext/accountUserContextHelper'
+import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
+import OnboardingBanner from '../../components/Banners/OnboardingBanner'
 
 const styles = (theme) => ({
   root: {
@@ -73,12 +79,14 @@ function Dialog(props) {
   const location = useLocation();
   const { pathname, hash } = location
   const myHashFragment = (hash && hash.length > 1) ? hash.substring(1, hash.length) : undefined
-  const { marketId } = decomposeMarketPath(pathname)
-  const [marketsState] = useContext(MarketsContext);
+  const { marketId: marketEntity, action } = decomposeMarketPath(pathname);
+  const [marketId, setMarketId] = useState(undefined);
+  const [marketsState, marketsDispatch] = useContext(MarketsContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentsState] = useContext(CommentsContext);
-  const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [marketPresencesState, presenceDispatch] = useContext(MarketPresencesContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const investibles = getMarketInvestibles(investiblesState, marketId);
   const comments = getMarketComments(commentsState, marketId);
   const loadedMarket = getMarket(marketsState, marketId);
@@ -95,23 +103,64 @@ function Dialog(props) {
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
   const loading = !myPresence || !marketType || marketType === INITIATIVE_TYPE || (isInline && activeMarket);
+  const [userState] = useContext(AccountUserContext);
+  const hasUser = userIsLoaded(userState);
+  const banner = !isInitialization && !loading && _.isEmpty(marketStages) ?
+    <OnboardingBanner messageId='OnboardingInviteDialog' /> : undefined;
 
   useEffect(() => {
-    if (!hidden && _.isEmpty(loadedMarket) && !isInitialization) {
-      // Login with market id to create guest capability if necessary
-      getMarketFromUrl(marketId).then((loginData) =>{
-        const { market } = loginData;
-        const { id } = market;
-        return pollForMarketLoad(id);
-      }).catch((error) => {
-        console.error(error);
-        toastError('errorMarketFetchFailed');
-      });
+    if (!hidden && !isInitialization && hasUser) {
+      let loginPromise;
+      let proposedMarketId;
+      if (action === 'invite') {
+        const values = queryString.parse(hash);
+        const { is_obs: isObserver } = values;
+        const marketToken = marketEntity;
+        loginPromise = getMarketFromInvite(marketToken, isObserver === 'true');
+        const decodedToken = jwt_decode(marketToken);
+        proposedMarketId = decodedToken.market_id;
+        console.log(`Using invite for ${proposedMarketId}`);
+      } else {
+        // Login with market id to create guest capability if necessary
+        loginPromise = getMarketFromUrl(marketEntity);
+        proposedMarketId = marketEntity;
+      }
+      const loadedMarket = getMarket(marketsState, proposedMarketId);
+      // Check if followed an invite link for a market they already had
+      if (_.isEmpty(loadedMarket)) {
+        setOperationRunning(true);
+        loginPromise.then((result) => {
+          console.log('Quick adding market');
+          const { market, uclusion_token: tokenString, user } = result;
+          const { id } = market;
+          const decoded = jwt_decode(tokenString);
+          const { is_admin, role } = decoded;
+          const market_guest = role === 'MarketAnonymousUser';
+          addMarketToStorage(marketsDispatch, () => {}, market);
+          const presence = { ...user, is_admin, following: true, market_banned: false, market_guest };
+          addPresenceToMarket(presenceDispatch, id, presence);
+          createMarketListeners(id, setOperationRunning);
+          setMarketId(id);
+          return pollForMarketLoad(id);
+        }).catch((error) => {
+          console.error(error);
+          toastError('errorMarketFetchFailed');
+        });
+      } else {
+        setMarketId(proposedMarketId);
+      }
     }
+  }, [action, hasUser, hash, hidden, isInitialization, marketEntity, marketsDispatch, marketsState,
+    presenceDispatch, setOperationRunning]);
 
-    return () => {
-    };
-  }, [hidden, marketId, isInitialization, loadedMarket]);
+  useEffect(() => {
+    if (!hidden && action === 'invite' && marketId && !_.isEmpty(marketStages) && marketType !== INITIATIVE_TYPE) {
+      // Try to remove the market token from the URL to avoid book marking it or other weirdness
+      // Potentially this fails since inside useEffect
+      history.push(formMarketLink(marketId));
+    }
+    return () => {}
+  }, [hidden, action, history, marketId, marketStages, marketType]);
 
   useEffect(() => {
     function getInitiativeInvestible(baseInvestible) {
@@ -182,6 +231,7 @@ function Dialog(props) {
           marketStages={marketStages}
           marketPresences={marketPresences}
           myPresence={myPresence}
+          banner={banner}
         />
       )}
       {marketType === PLANNING_TYPE && (
@@ -195,6 +245,7 @@ function Dialog(props) {
           marketStages={marketStages}
           marketPresences={marketPresences}
           myPresence={myPresence}
+          banner={banner}
         />
       )}
     </>

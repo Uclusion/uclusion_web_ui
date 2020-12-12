@@ -18,7 +18,6 @@ import InvestibleAdd from '../../pages/Dialog/InvestibleAdd'
 import DialogAdd from '../../pages/DialogAdd/DialogAdd'
 import DialogEdit from '../../pages/Dialog/DialogEdit'
 import DialogManage from '../../pages/Dialog/DialogManage'
-import MarketInvite from '../../pages/Invites/MarketInvite'
 import SlackInvite from '../../pages/Invites/SlackInvite'
 import ChangePassword from '../../pages/Authentication/ChangePassword'
 import ChangeNotificationPreferences from '../../pages/About/ChangeNotificationPreferences'
@@ -80,7 +79,7 @@ function Root() {
   }
 
   function hideMarket() {
-    return action !== 'dialog' || (!marketId) || (!!marketId && !!investibleId);
+    return (action !== 'dialog' && action !== 'invite') || (!marketId) || (!!marketId && !!investibleId);
   }
 
   function hideInvestible() {
@@ -115,19 +114,14 @@ function Root() {
     return action !== 'slack';
   }
 
-  function hideMarketInvite() {
-    return action !== 'invite' || !marketId;
-  }
-
   function hideBillingHome() {
     return action !== 'billing';
   }
 
   const hidePNF = !(hideMarket() && hideSupport() && hideHome() && hideInvestible()
     && hideDialogArchives() && hideArchvies() && hideInvestibleEdit() && hideInvestibleAdd()
-    && hideAddMarket() && hideDialogEdit() && hideDialogManage() && hideMarketInvite()
-    && hideSlackInvite() && hideChangePassword() && hideChangeNotification()
-    && hideBillingHome());
+    && hideAddMarket() && hideDialogEdit() && hideDialogManage() && hideSlackInvite() && hideChangePassword()
+    && hideChangeNotification() && hideBillingHome());
 
   useEffect(() => {
     function pegView(isEntry) {
@@ -198,7 +192,6 @@ function Root() {
             <DialogAdd hidden={hideAddMarket()}/>
             <DialogEdit hidden={hideDialogEdit()}/>
             <DialogManage hidden={hideDialogManage()}/>
-            <MarketInvite hidden={hideMarketInvite()}/>
             <SlackInvite hidden={hideSlackInvite()}/>
             <ChangePassword hidden={hideChangePassword()}/>
             <ChangeNotificationPreferences hidden={hideChangeNotification()}/>

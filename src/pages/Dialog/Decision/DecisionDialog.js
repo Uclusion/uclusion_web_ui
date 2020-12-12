@@ -177,6 +177,7 @@ function DecisionDialog(props) {
     marketStages,
     marketPresences,
     myPresence,
+    banner,
   } = props;
   const classes = useStyles();
   const metaClasses = useMetaDataStyles();
@@ -271,6 +272,7 @@ function DecisionDialog(props) {
       tabTitle={marketName}
       hidden={hidden}
       breadCrumbs={breadCrumbs}
+      banner={banner}
     >
       <UclusionTour
         hidden={hidden}

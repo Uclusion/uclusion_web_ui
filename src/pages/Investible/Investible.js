@@ -12,18 +12,20 @@ import {
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { getInvestible, getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
-import { getMarket, getMyUserForMarket } from '../../contexts/MarketsContext/marketsContextHelper'
+import { addMarketToStorage, getMarket, getMyUserForMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper'
-import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { addPresenceToMarket, getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import DecisionInvestible from './Decision/DecisionInvestible'
 import PlanningInvestible from './Planning/PlanningInvestible'
 import { ACTIVE_STAGE, DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
 import InitiativeInvestible from './Initiative/InitiativeInvestible'
 import { getMarketFromUrl } from '../../api/uclusionClient'
-import { pollForMarketLoad } from '../../api/versionedFetchUtils'
+import { createMarketListeners, pollForMarketLoad } from '../../api/versionedFetchUtils'
 import { toastError } from '../../utils/userMessage'
+import jwt_decode from 'jwt-decode'
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 
 const emptyInvestible = { investible: { name: '', description: '' } };
 const emptyMarket = { name: '' };
@@ -38,9 +40,9 @@ function Investible(props) {
   const location = useLocation();
   const { pathname } = location;
   const { marketId, investibleId } = decomposeMarketPath(pathname);
-  const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [marketPresencesState, presenceDispatch] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
-  const [marketsState] = useContext(MarketsContext);
+  const [marketsState, marketsDispatch] = useContext(MarketsContext);
   const realMarket = getMarket(marketsState, marketId);
   const market = realMarket || emptyMarket;
   const userId = getMyUserForMarket(marketsState, marketId) || '';
@@ -49,6 +51,7 @@ function Investible(props) {
   const investibleComments = comments.filter((comment) => comment.investible_id === investibleId);
   const commentsHash = createCommentsHash(investibleComments);
   const [investiblesState] = useContext(InvestiblesContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const isInitialization = investiblesState.initializing || marketsState.initializing || marketPresencesState.initializing || commentsState.initializing;
   const investibles = getMarketInvestibles(investiblesState, marketId);
   const inv = getInvestible(investiblesState, investibleId);
@@ -67,22 +70,31 @@ function Investible(props) {
     makeArchiveBreadCrumbs(history, breadCrumbTemplates) :
     makeBreadCrumbs(history, breadCrumbTemplates);
 
-
   useEffect(() => {
     const noMarketLoad = _.isEmpty(realMarket) && _.isEmpty(marketPresences);
     if (!isInitialization && noMarketLoad && !hidden && marketId) {
       console.log(`Loading ${marketId} on no market`);
-        // Login with market id to create guest capability if necessary
-        getMarketFromUrl(marketId).then((loginData) =>{
-          const { market } = loginData;
-          const { id } = market;
-          return pollForMarketLoad(id);
-        }).catch((error) => {
-          console.error(error);
-          toastError('errorMarketFetchFailed');
-        });
+      setOperationRunning(true);
+      // Login with market id to create guest capability
+      getMarketFromUrl(marketId).then((result) =>{
+        console.log('Quick adding market');
+        const { market, uclusion_token: tokenString, user } = result;
+        const { id } = market;
+        const decoded = jwt_decode(tokenString);
+        const { is_admin, role } = decoded;
+        const market_guest = role === 'MarketAnonymousUser';
+        addMarketToStorage(marketsDispatch, () => {}, market);
+        const presence = { ...user, is_admin, following: true, market_banned: false, market_guest };
+        addPresenceToMarket(presenceDispatch, id, presence);
+        createMarketListeners(id, setOperationRunning);
+        return pollForMarketLoad(id);
+      }).catch((error) => {
+        console.error(error);
+        toastError('errorMarketFetchFailed');
+      });
     }
-  }, [isInitialization, hidden, marketId, realMarket, marketPresences]);
+  }, [isInitialization, hidden, marketId, realMarket, marketPresences, setOperationRunning, marketsDispatch,
+    presenceDispatch]);
 
   useEffect(() => {
     if (!hidden) {

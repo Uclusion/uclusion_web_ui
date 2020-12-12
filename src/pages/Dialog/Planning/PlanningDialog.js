@@ -69,6 +69,7 @@ function PlanningDialog(props) {
     comments,
     hidden,
     myPresence,
+    banner
   } = props;
   const cognitoUser = useContext(CognitoUserContext);
   const [, tourDispatch] = useContext(TourContext);
@@ -166,6 +167,7 @@ function PlanningDialog(props) {
       hidden={hidden}
       tabTitle={marketName}
       breadCrumbs={breadCrumbs}
+      banner={banner}
     >
       <UclusionTour
         name={tourName}

@@ -75,7 +75,7 @@ function Home(props) {
   const [clearedToCreate, setClearedToCreate] = useState(undefined);
 
   const createEnabled = canCreate(accountState);
-  const banner = clearedToCreate ? <OnboardingBanner /> :
+  const banner = clearedToCreate ? <OnboardingBanner messageId='OnboardingCreatingCustomWorkspace' /> :
     createEnabled || !hasInitializedGlobalVersion(versionsContext) ? undefined : <UpgradeBanner/>;
 
   useEffect(() => {

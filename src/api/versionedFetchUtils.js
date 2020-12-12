@@ -29,7 +29,6 @@ import config from '../config'
 import LocalForageHelper from '../utils/LocalForageHelper'
 import { EMPTY_GLOBAL_VERSION, VERSIONS_CONTEXT_NAMESPACE } from '../contexts/VersionsContext/versionsContextReducer'
 import { getHomeAccountUser } from './sso'
-import { formMarketLink, navigate } from '../utils/marketIdPathFunctions'
 import { checkInStorage } from './storageIntrospector'
 
 const MAX_RETRIES = 10;
@@ -113,20 +112,14 @@ export function refreshGlobalVersion (refreshCalled) {
     });
 }
 
-export function createMarketListeners(id, history) {
-  function redirectToMarket() {
-    console.log(`Redirecting us to market ${id}`);
-    navigate(history, formMarketLink(id));
-  }
+export function createMarketListeners(id, setOperationRunning) {
   registerListener(VERSIONS_HUB_CHANNEL, 'inviteListenerNewMarket', (data) => {
     const { payload: { event, marketId: messageMarketId } } = data;
     switch (event) {
       case  NEW_MARKET:
         if (messageMarketId === id) {
           removeListener(VERSIONS_HUB_CHANNEL, 'inviteListenerNewMarket');
-          if (history) {
-            redirectToMarket();
-          }
+          setOperationRunning(false);
         }
         break;
       default:
@@ -140,9 +133,7 @@ export function createMarketListeners(id, history) {
         // console.debug(`Markets context responding to updated market event ${event}`);
         if (marketDetails.id === id) {
           removeListener(PUSH_MARKETS_CHANNEL, 'marketPushInvite');
-          if (history) {
-            redirectToMarket();
-          }
+          setOperationRunning(false);
         }
         break;
       default:
@@ -154,12 +145,8 @@ export function createMarketListeners(id, history) {
 /**
  * add a listener to all places a market can show up, then kick off global version to make sure it gets filled
  * @param id
- * @param history
  */
-export function pollForMarketLoad(id, history) {
-  if (history) {
-    createMarketListeners(id, history);
-  }
+export function pollForMarketLoad(id) {
   return new Promise((resolve, reject) => {
     const execFunction = () => {
       return getChangedIds(null)

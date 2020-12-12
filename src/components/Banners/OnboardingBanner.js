@@ -11,7 +11,7 @@ const useStyles = makeStyles(() => {
       textAlign: 'center',
       border: '2px solid #2d9cdb',
       borderRadius: 6,
-      marginBottom: '1rem',
+      marginBottom: '2rem',
     },
     bannerCard: {
       padding: '10px',

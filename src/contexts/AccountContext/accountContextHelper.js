@@ -8,6 +8,7 @@ import {
 } from '../../constants/billing';
 import { accountRefresh, billingInfoRefresh, invoicesRefresh } from './accountContextReducer';
 
+
 /**
  * Returns whether or not the user can create new markets
  * @param state
@@ -18,9 +19,8 @@ export function canCreate (state) {
   if (!config.payments || !config.payments.enabled) {
     return true;
   }
-
   if (_.isEmpty(state.account)) {
-    return false;
+    return true;
   }
   const {
     tier,

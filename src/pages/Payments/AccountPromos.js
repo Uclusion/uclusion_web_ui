@@ -28,9 +28,19 @@ function AccountPromos (props) {
   const safePromotions = billing_promotions || [];
   if (_.isEmpty(safePromotions)) {
     return (
-      <Typography>
-        You have no promotions active on your account.
-      </Typography>
+      <Card>
+        <SubSection
+          title="Promo Codes"
+        >
+          <div>
+            <Typography>
+              You have no promotions active on your account.
+            </Typography>
+          </div>
+          <PromoCodeInput/>
+        </SubSection>
+      </Card>
+
     );
   }
 

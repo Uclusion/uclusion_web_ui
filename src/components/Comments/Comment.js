@@ -782,7 +782,7 @@ function Comment(props) {
                 </Button>
               </>
             )}
-            {commentType === SUGGEST_CHANGE_TYPE && !inArchives && !inlineMarketId && (
+            {commentType === SUGGEST_CHANGE_TYPE && !inArchives && !inlineMarketId && marketType === PLANNING_TYPE && (
               <Typography>
                 {intl.formatMessage({ id: 'allowVoteSuggestion' })}
                 <Checkbox

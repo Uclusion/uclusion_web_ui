@@ -40,8 +40,8 @@ const useStyles = makeStyles((theme) => {
     },
     sectionSubHeader: {
       boxShadow: 'none',
-      background: theme.palette.grey["300"],
-      color: 'black',
+      background: 'white',
+      color: '#F29100',
       borderRadius: '6px 6px 0 0'
     },
     grow: {
@@ -51,6 +51,13 @@ const useStyles = makeStyles((theme) => {
       fontSize: 16,
       lineHeight: 1,
       cursor: 'default',
+      whiteSpace: 'nowrap'
+    },
+    headerTitleBolder: {
+      fontSize: 16,
+      lineHeight: 1,
+      cursor: 'default',
+      fontWeight: 'bolder',
       whiteSpace: 'nowrap'
     },
     headerPrimaryTitle: {
@@ -78,7 +85,9 @@ function SubSection(props) {
     type,
     titleIcon,
     id,
-    helpTextId
+    helpTextId,
+    bolder,
+    hideChildren
   } = props;
   const intl = useIntl();
   const classes = useStyles();
@@ -100,7 +109,7 @@ function SubSection(props) {
             <Tooltip
               title={intl.formatMessage({ id: helpTextId })}
             >
-              <Typography className={classes.headerTitle}>
+              <Typography className={bolder ? classes.headerTitleBolder : classes.headerTitle}>
                 {title}
               </Typography>
             </Tooltip>
@@ -117,7 +126,7 @@ function SubSection(props) {
           </div>
         </Toolbar>
       </AppBar>
-      <div className={children ? classes.toolbar : classes.hide}>
+      <div className={children && !hideChildren ? classes.toolbar : classes.hide}>
         {children}
       </div>
     </React.Fragment>
@@ -134,15 +143,19 @@ SubSection.propTypes = {
   type: PropTypes.string,
   titleIcon: PropTypes.element,
   id: PropTypes.string,
+  bolder: PropTypes.bool,
+  hideChildren: PropTypes.bool
 };
 
 SubSection.defaultProps = {
   title: '',
   hidden: false,
+  hideChildren: false,
   children: undefined,
   type: SECTION_TYPE_SECONDARY,
   titleIcon: undefined,
   id: undefined,
+  bolder: false
 };
 
 export default SubSection;

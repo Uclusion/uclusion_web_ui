@@ -8,7 +8,8 @@ export const useStyles = makeStyles((theme) => {
   return {
     menuItem: {
       display: 'flex',
-      flexDirection:'row'
+      flexDirection:'row',
+      width: 'unset'
     },
     menuIcon: {
       flex: 1,

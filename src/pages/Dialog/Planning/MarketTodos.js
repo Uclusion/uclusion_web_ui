@@ -73,6 +73,9 @@ const myClasses = makeStyles(
         backgroundColor: 'white',
       },
       containerEmpty: {},
+      containerHidden: {
+        display: 'none'
+      },
       searchInput: {
         background: 'white',
       }
@@ -168,7 +171,8 @@ function MarketTodos (props) {
   }
 
   function toggleShowTodos () {
-    expandedCommentDispatch({ type: EXPANDED_CONTROL, commentId: EXPANDED_ID, expanded: !showTodos });
+    const toggleValue = showTodos === undefined ? false : !showTodos;
+    expandedCommentDispatch({ type: EXPANDED_CONTROL, commentId: EXPANDED_ID, expanded: toggleValue });
   }
 
   function onCreateRed () {
@@ -213,10 +217,18 @@ function MarketTodos (props) {
       <div className={classes.outerBorder}>
         <SubSection
           type={SECTION_SUB_HEADER}
+          bolder
+          hideChildren={!(showTodos || showTodos === undefined)}
           title={intl.formatMessage({ id: 'todoSection' })}
           helpTextId="todoSectionHelp"
           searchBar={(<TextField
-            style={{paddingTop: '3px', width: isTinyWindow() ? '300px' : '600px'}}
+            style={{paddingTop: '3px', width: '300px'}}
+            onFocus={() => {
+                if (!showTodos) {
+                  toggleShowTodos();
+                }
+              }
+            }
             onChange={(event) => setSearchQuery(event.target.value)}
             value={searchQuery}
             placeholder={intl.formatMessage({ id: 'searchBoxPlaceholder' })}
@@ -244,150 +256,148 @@ function MarketTodos (props) {
               tipPlacement="top-end"
             />)}
         >
-          {(showTodos || showTodos === undefined) && (
-            <>
-              {createRedCard && (
-                <CommentAdd
-                  key="CommentAdd"
-                  type={TODO_TYPE}
+          <div className={showTodos || showTodos === undefined ? classes.containerEmpty : classes.containerHidden }>
+            {createRedCard && (
+              <CommentAdd
+                key="CommentAdd"
+                type={TODO_TYPE}
+                marketId={marketId}
+                onSave={onCreateRed}
+                defaultNotificationType="RED"
+                isStory={false}
+              />
+            )}
+            {editRedCard && (
+              <div id={`editc${editRedCard.id}`}>
+                <Comment
+                  depth={0}
                   marketId={marketId}
-                  onSave={onCreateRed}
-                  defaultNotificationType="RED"
-                  isStory={false}
+                  comment={editRedCard}
+                  onDone={() => setEditRedCard(undefined)}
+                  comments={comments}
+                  allowedTypes={[TODO_TYPE]}
+                  editOpenDefault
+                  noReply
+                  noAuthor
                 />
-              )}
-              {editRedCard && (
-                <div id={`editc${editRedCard.id}`}>
-                  <Comment
-                    depth={0}
-                    marketId={marketId}
-                    comment={editRedCard}
-                    onDone={() => setEditRedCard(undefined)}
-                    comments={comments}
-                    allowedTypes={[TODO_TYPE]}
-                    editOpenDefault
-                    noReply
-                    noAuthor
-                  />
-                </div>
-              )}
-              <SubSection
-                type={SECTION_TYPE_SECONDARY_WARNING}
-                title={intl.formatMessage({ id: 'immediate' })}
-                helpTextId="immediateSectionHelp"
-                actionButton={
-                  (<ExpandableAction
-                    icon={<AddIcon htmlColor="white"/>}
-                    label={intl.formatMessage({ id: 'createRedExplanation' })}
-                    onClick={onCreateRed}
-                    tipPlacement="top-end"
-                  />)}
+              </div>
+            )}
+            <SubSection
+              type={SECTION_TYPE_SECONDARY_WARNING}
+              title={intl.formatMessage({ id: 'immediate' })}
+              helpTextId="immediateSectionHelp"
+              actionButton={
+                (<ExpandableAction
+                  icon={<AddIcon htmlColor="white"/>}
+                  label={intl.formatMessage({ id: 'createRedExplanation' })}
+                  onClick={onCreateRed}
+                  tipPlacement="top-end"
+                />)}
+            >
+              <Grid
+                container
+                className={classes.white}
+                id="immediateSection" onDrop={onDropImmediate}
+                onDragOver={(event) => event.preventDefault()}
               >
-                <Grid
-                  container
-                  className={classes.white}
-                  id="immediateSection" onDrop={onDropImmediate}
-                  onDragOver={(event) => event.preventDefault()}
-                >
-                  {getCards(redComments, marketId, history, intl, setEditRedCard)}
-                </Grid>
-              </SubSection>
-              {!_.isEmpty(redComments) && (<div style={{ paddingBottom: '15px' }}/>)}
-              {createYellowCard && (
-                <CommentAdd
-                  key="CommentAdd"
-                  type={TODO_TYPE}
+                {getCards(redComments, marketId, history, intl, setEditRedCard)}
+              </Grid>
+            </SubSection>
+            {!_.isEmpty(redComments) && (<div style={{ paddingBottom: '15px' }}/>)}
+            {createYellowCard && (
+              <CommentAdd
+                key="CommentAdd"
+                type={TODO_TYPE}
+                marketId={marketId}
+                onSave={onCreateYellow}
+                defaultNotificationType="YELLOW"
+                isStory={false}
+              />
+            )}
+            {editYellowCard && (
+              <div id={`editc${editYellowCard.id}`}>
+                <Comment
+                  depth={0}
                   marketId={marketId}
-                  onSave={onCreateYellow}
-                  defaultNotificationType="YELLOW"
-                  isStory={false}
+                  comment={editYellowCard}
+                  onDone={() => setEditYellowCard(undefined)}
+                  comments={comments}
+                  allowedTypes={[TODO_TYPE]}
+                  editOpenDefault
+                  noReply
+                  noAuthor
                 />
-              )}
-              {editYellowCard && (
-                <div id={`editc${editYellowCard.id}`}>
-                  <Comment
-                    depth={0}
-                    marketId={marketId}
-                    comment={editYellowCard}
-                    onDone={() => setEditYellowCard(undefined)}
-                    comments={comments}
-                    allowedTypes={[TODO_TYPE]}
-                    editOpenDefault
-                    noReply
-                    noAuthor
-                  />
-                </div>
-              )}
-              <SubSection
-                type={SECTION_TYPE_WARNING}
-                title={intl.formatMessage({ id: 'able' })}
-                helpTextId="ableSectionHelp"
-                actionButton={
-                  (<ExpandableAction
-                    icon={<AddIcon htmlColor="black" />}
-                    label={intl.formatMessage({ id: 'createYellowExplanation' })}
-                    onClick={onCreateYellow}
-                    tipPlacement="top-end"
-                  />)}
+              </div>
+            )}
+            <SubSection
+              type={SECTION_TYPE_WARNING}
+              title={intl.formatMessage({ id: 'able' })}
+              helpTextId="ableSectionHelp"
+              actionButton={
+                (<ExpandableAction
+                  icon={<AddIcon htmlColor="black" />}
+                  label={intl.formatMessage({ id: 'createYellowExplanation' })}
+                  onClick={onCreateYellow}
+                  tipPlacement="top-end"
+                />)}
+            >
+              <Grid
+                container
+                className={classes.white}
+                id="convenientSection" onDrop={onDropConvenient}
+                onDragOver={(event) => event.preventDefault()}
               >
-                <Grid
-                  container
-                  className={classes.white}
-                  id="convenientSection" onDrop={onDropConvenient}
-                  onDragOver={(event) => event.preventDefault()}
-                >
-                  {getCards(yellowComments, marketId, history, intl, setEditYellowCard)}
-                </Grid>
-              </SubSection>
-              {!_.isEmpty(yellowComments) && (<div style={{ paddingBottom: '15px' }}/>)}
-              {createCard && (
-                <CommentAdd
-                  key="CommentAdd"
-                  type={TODO_TYPE}
+                {getCards(yellowComments, marketId, history, intl, setEditYellowCard)}
+              </Grid>
+            </SubSection>
+            {!_.isEmpty(yellowComments) && (<div style={{ paddingBottom: '15px' }}/>)}
+            {createCard && (
+              <CommentAdd
+                key="CommentAdd"
+                type={TODO_TYPE}
+                marketId={marketId}
+                onSave={onCreate}
+                defaultNotificationType="BLUE"
+                isStory={false}
+              />
+            )}
+            {editCard && (
+              <div id={`editc${editCard.id}`}>
+                <Comment
+                  depth={0}
                   marketId={marketId}
-                  onSave={onCreate}
-                  defaultNotificationType="BLUE"
-                  isStory={false}
+                  comment={editCard}
+                  onDone={() => setEditCard(undefined)}
+                  comments={comments}
+                  allowedTypes={[TODO_TYPE]}
+                  editOpenDefault
+                  noReply
+                  noAuthor
                 />
-              )}
-              {editCard && (
-                <div id={`editc${editCard.id}`}>
-                  <Comment
-                    depth={0}
-                    marketId={marketId}
-                    comment={editCard}
-                    onDone={() => setEditCard(undefined)}
-                    comments={comments}
-                    allowedTypes={[TODO_TYPE]}
-                    editOpenDefault
-                    noReply
-                    noAuthor
-                  />
-                </div>
-              )}
-              <SubSection
-                type={SECTION_TYPE_TERTIARY_WARNING}
-                title={intl.formatMessage({ id: 'convenient' })}
-                helpTextId="convenientSectionHelp"
-                actionButton={
-                  (<ExpandableAction
-                    icon={<AddIcon htmlColor="white"/>}
-                    label={intl.formatMessage({ id: 'createBlueExplanation' })}
-                    onClick={onCreate}
-                    tipPlacement="top-end"
-                  />)}
+              </div>
+            )}
+            <SubSection
+              type={SECTION_TYPE_TERTIARY_WARNING}
+              title={intl.formatMessage({ id: 'convenient' })}
+              helpTextId="convenientSectionHelp"
+              actionButton={
+                (<ExpandableAction
+                  icon={<AddIcon htmlColor="white"/>}
+                  label={intl.formatMessage({ id: 'createBlueExplanation' })}
+                  onClick={onCreate}
+                  tipPlacement="top-end"
+                />)}
+            >
+              <Grid
+                container
+                className={classes.white}
+                id="ableSection" onDrop={onDropAble}
+                onDragOver={(event) => event.preventDefault()}
               >
-                <Grid
-                  container
-                  className={classes.white}
-                  id="ableSection" onDrop={onDropAble}
-                  onDragOver={(event) => event.preventDefault()}
-                >
-                  {getCards(blueComments, marketId, history, intl, setEditCard)}
-                </Grid>
-              </SubSection>
-            </>
-          )}
+                {getCards(blueComments, marketId, history, intl, setEditCard)}
+              </Grid>
+            </SubSection>
+          </div>
         </SubSection>
       </div>
       <div style={{ marginTop: '30px' }}/>

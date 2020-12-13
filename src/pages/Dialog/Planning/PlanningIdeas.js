@@ -151,11 +151,12 @@ function PlanningIdeas(props) {
       if (fromComment.notification_type) {
         addInfo.labelList = [intl.formatMessage({ id: `notificationLabel${fromComment.notification_type}` })];
       }
-      addPlanningInvestible(addInfo).then((inv) => removeComment(marketId, commentId).then(() => {
-        removeComments(commentsDispatch, marketId, [commentId]);
+      addPlanningInvestible(addInfo).then((inv) => {
         addInvestible(invDispatch, diffDispatch, inv);
-        setOperationRunning(false);
-      }));
+        return removeComment(marketId, commentId)}).then(() => {
+          removeComments(commentsDispatch, marketId, [commentId]);
+          setOperationRunning(false);
+        });
     }
   }
   function stageChange(event, targetStageId) {

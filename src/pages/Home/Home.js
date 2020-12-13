@@ -7,20 +7,14 @@ import { makeStyles, Typography } from '@material-ui/core'
 import { useIntl } from 'react-intl'
 import Screen from '../../containers/Screen/Screen'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
-import {
-  getHiddenMarketDetailsForUser,
-  getMarketDetailsForType,
-  getNotHiddenMarketDetailsForUser,
-} from '../../contexts/MarketsContext/marketsContextHelper';
+import { getMarketDetailsForType, getNotHiddenMarketDetailsForUser } from '../../contexts/MarketsContext/marketsContextHelper';
 import PlanningDialogs from './PlanningDialogs'
 import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE, } from '../../constants/markets'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { formMarketManageLink, navigate } from '../../utils/marketIdPathFunctions'
 import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions'
-import DismissableText from '../../components/Notifications/DismissableText'
 import { getAndClearRedirect, redirectToPath } from '../../utils/redirectUtils'
 import WizardSelector from '../../components/AddNew/WizardSelector'
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import UclusionTour from '../../components/Tours/UclusionTour';
 import { SIGNUP_HOME } from '../../contexts/TourContext/tourContextHelper';
 import { signupHomeSteps } from '../../components/Tours/InviteTours/signupHome';
@@ -66,7 +60,6 @@ function Home(props) {
   const [marketsState, marketsDispatch] = useContext(MarketsContext);
   const [accountState] = useContext(AccountContext);
   const [marketPresencesState, presenceDispatch] = useContext(MarketPresencesContext);
-  const [operationInProgress] = useContext(OperationInProgressContext);
   const classes = useStyles();
   const [wizardActive, setWizardActive] = useState(false);
   const user = useContext(CognitoUserContext) || {};
@@ -123,7 +116,7 @@ function Home(props) {
     marketsState,
     marketPresencesState,
   );
-  const hiddenMarkets = getHiddenMarketDetailsForUser(marketsState, marketPresencesState);
+
   const planningDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, PLANNING_TYPE);
   const decisionDetails = _.sortBy(getMarketDetailsForType(
     myNotHiddenMarketsState,
@@ -135,8 +128,6 @@ function Home(props) {
     marketPresencesState,
     INITIATIVE_TYPE,
   ), 'created_at').reverse();
-
-  const noMarkets = _.isEmpty(planningDetails) && _.isEmpty(decisionDetails) && _.isEmpty(initiativeDetails);
   
   const ACTIONBAR_ACTIONS = [
     {
@@ -162,7 +153,6 @@ function Home(props) {
       onClick: () => setWizardActive(true),
     });
   }
-  const loading = operationInProgress && noMarkets && _.isEmpty(hiddenMarkets);
 
   function onWizardFinish (formData) {
     const { marketId } = formData;
@@ -177,7 +167,6 @@ function Home(props) {
       tabTitle={intl.formatMessage({ id: 'homeBreadCrumb' })}
       hidden={hidden}
       isHome
-      loading={loading}
       sidebarActions={ACTIONBAR_ACTIONS}
       banner={banner}
     >
@@ -190,20 +179,15 @@ function Home(props) {
         onFinish={onWizardFinish}
         onCancel={() => setWizardActive(false)} />
 
-      {noMarkets && (
-          <DismissableText textId="homeNoMarkets"/>
-      )}
-      {!noMarkets && (
-        <React.Fragment>
-          <div className={classes.titleContainer}>
-            { getDialogTypeIcon(PLANNING_TYPE, false, "#333333") }
-            <Typography className={classes.title} variant="h6">Workspaces</Typography>
-          </div>
-          <PlanningDialogs markets={planningDetails}/>
-          <hr className={classes.spacer}/>
-          <InitiativesAndDialogs dialogs={decisionDetails} initiatives={initiativeDetails}/>
-        </React.Fragment>
-      )}
+      <React.Fragment>
+        <div className={classes.titleContainer}>
+          { getDialogTypeIcon(PLANNING_TYPE, false, "#333333") }
+          <Typography className={classes.title} variant="h6">Workspaces</Typography>
+        </div>
+        <PlanningDialogs markets={planningDetails}/>
+        <hr className={classes.spacer}/>
+        <InitiativesAndDialogs dialogs={decisionDetails} initiatives={initiativeDetails}/>
+      </React.Fragment>
     </Screen>
   );
 }

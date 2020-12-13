@@ -36,7 +36,7 @@ import SearchIcon from '@material-ui/icons/Search'
 import { SearchIndexContext } from '../../../contexts/SearchIndexContext/SearchIndexContext'
 import { filterCommentsToSearch } from '../../../contexts/SearchIndexContext/searchIndexContextHelper'
 import CloseIcon from '@material-ui/icons/Close'
-import { isTinyWindow } from '../../../utils/windowUtils'
+import Chip from '@material-ui/core/Chip'
 
 const myClasses = makeStyles(
   theme => {
@@ -66,6 +66,9 @@ const myClasses = makeStyles(
         marginTop: '30px',
         border: '1px solid black',
         borderRadius: '6px 6px 0 0'
+      },
+      chipStyle: {
+        marginRight: '5px',
       },
       grow: {
         padding: '30px',
@@ -285,6 +288,8 @@ function MarketTodos (props) {
             <SubSection
               type={SECTION_TYPE_SECONDARY_WARNING}
               title={intl.formatMessage({ id: 'immediate' })}
+              titleIcon={<Chip label={`${redComments.length}`} color="primary" size='small'
+                               className={classes.chipStyle} />}
               helpTextId="immediateSectionHelp"
               actionButton={
                 (<ExpandableAction
@@ -332,6 +337,8 @@ function MarketTodos (props) {
             <SubSection
               type={SECTION_TYPE_WARNING}
               title={intl.formatMessage({ id: 'able' })}
+              titleIcon={<Chip label={`${yellowComments.length}`} color="primary" size='small'
+                               className={classes.chipStyle} />}
               helpTextId="ableSectionHelp"
               actionButton={
                 (<ExpandableAction
@@ -379,6 +386,8 @@ function MarketTodos (props) {
             <SubSection
               type={SECTION_TYPE_TERTIARY_WARNING}
               title={intl.formatMessage({ id: 'convenient' })}
+              titleIcon={<Chip label={`${blueComments.length}`} color="primary" size='small'
+                               className={classes.chipStyle} />}
               helpTextId="convenientSectionHelp"
               actionButton={
                 (<ExpandableAction

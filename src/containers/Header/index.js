@@ -206,7 +206,7 @@ function Header (props) {
   return (
     <>
       <AppBar
-        position="sticky"
+        position="fixed"
         className={myAppClass}
       >
         <div className={classes.topBar} id="app-header"/>

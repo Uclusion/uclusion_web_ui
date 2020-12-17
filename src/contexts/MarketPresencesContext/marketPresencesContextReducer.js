@@ -199,7 +199,8 @@ function reducer(state, action) {
   lfh.setState(newState).then(() => {
     if (action.type !== INITIALIZE_STATE) {
       const myChannel = new BroadcastChannel(PRESENCE_CHANNEL);
-      return myChannel.postMessage('presence').then(() => myChannel.close())
+      const { broadcastId } = newState;
+      return myChannel.postMessage(broadcastId || 'presence').then(() => myChannel.close())
         .then(() => console.info('Update presence context sent.'));
     }
   });

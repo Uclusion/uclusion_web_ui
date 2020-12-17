@@ -26,18 +26,21 @@ function MarketsProvider(props) {
 
   useEffect(() => {
     const myChannel = new BroadcastChannel(MARKETS_CHANNEL);
-    myChannel.onmessage = () => {
-      console.info('Reloading on markets channel message');
-      const lfg = new LocalForageHelper(MEMORY_MARKET_CONTEXT_NAMESPACE);
-      lfg.getState()
-        .then((diskState) => {
-          if (diskState) {
-            const { marketDetails } = diskState;
-            const indexMessage = { event: INDEX_UPDATE, itemType: INDEX_MARKET_TYPE, items: marketDetails};
-            pushMessage(SEARCH_INDEX_CHANNEL, indexMessage);
-            dispatch(initializeState(diskState));
-          }
-        });
+    const broadcastId = Date.now();
+    myChannel.onmessage = (msg) => {
+      if (msg !== broadcastId) {
+        console.info(`Reloading on markets channel message ${msg} with ${broadcastId}`);
+        const lfg = new LocalForageHelper(MEMORY_MARKET_CONTEXT_NAMESPACE);
+        lfg.getState()
+          .then((diskState) => {
+            if (diskState) {
+              const { marketDetails } = diskState;
+              const indexMessage = { event: INDEX_UPDATE, itemType: INDEX_MARKET_TYPE, items: marketDetails };
+              pushMessage(SEARCH_INDEX_CHANNEL, indexMessage);
+              dispatch(initializeState({ ...diskState, broadcastId }));
+            }
+          });
+      }
     }
     setChannel(myChannel);
     return () => {};

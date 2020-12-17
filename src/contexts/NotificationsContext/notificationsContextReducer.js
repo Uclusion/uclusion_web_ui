@@ -357,7 +357,8 @@ function reducer (state, action) {
     lfh.setState(newState).then(() => {
       // In case the other tabs don't get the message
       const myChannel = new BroadcastChannel(NOTIFICATIONS_CHANNEL);
-      return myChannel.postMessage('notifications').then(() => myChannel.close())
+      const { broadcastId } = newState;
+      return myChannel.postMessage(broadcastId || 'notifications').then(() => myChannel.close())
         .then(() => console.info('Update notifications context sent.'));
     });
   }

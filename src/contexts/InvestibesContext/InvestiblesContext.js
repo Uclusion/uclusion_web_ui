@@ -28,18 +28,21 @@ function InvestiblesProvider(props) {
 
   useEffect(() => {
     const myChannel = new BroadcastChannel(INVESTIBLES_CHANNEL);
-    myChannel.onmessage = () => {
-      console.info('Reloading on investibles channel message');
-      const lfg = new LocalForageHelper(MEMORY_INVESTIBLES_CONTEXT_NAMESPACE);
-      lfg.getState()
-        .then((diskState) => {
-          if (diskState) {
-            const indexItems = Object.values(diskState).map((item) => item.investible);
-            const indexMessage = {event: INDEX_UPDATE, itemType: INDEX_INVESTIBLE_TYPE, items: indexItems};
-            pushMessage(SEARCH_INDEX_CHANNEL, indexMessage);
-            dispatch(initializeState(diskState));
-          }
-        });
+    const broadcastId = Date.now();
+    myChannel.onmessage = (msg) => {
+      if (msg !== broadcastId) {
+        console.info(`Reloading on investibles channel message ${msg} with ${broadcastId}`);
+        const lfg = new LocalForageHelper(MEMORY_INVESTIBLES_CONTEXT_NAMESPACE);
+        lfg.getState()
+          .then((diskState) => {
+            if (diskState) {
+              const indexItems = Object.values(diskState).map((item) => item.investible);
+              const indexMessage = { event: INDEX_UPDATE, itemType: INDEX_INVESTIBLE_TYPE, items: indexItems };
+              pushMessage(SEARCH_INDEX_CHANNEL, indexMessage);
+              dispatch(initializeState({ ...diskState, broadcastId }));
+            }
+          });
+      }
     }
     setChannel(myChannel);
     return () => {};

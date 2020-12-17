@@ -109,7 +109,8 @@ function reducer(state, action) {
   lfh.setState(newState).then(() => {
     if (action.type !== INITIALIZE_STATE) {
       const myChannel = new BroadcastChannel(COMMENTS_CHANNEL);
-      return myChannel.postMessage('comments').then(() => myChannel.close())
+      const { broadcastId } = newState;
+      return myChannel.postMessage(broadcastId || 'comments').then(() => myChannel.close())
         .then(() => console.info('Update comment context sent.'));
     }
   });

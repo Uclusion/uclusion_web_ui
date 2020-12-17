@@ -19,15 +19,18 @@ function MarketPresencesProvider(props) {
 
   useEffect(() => {
     const myChannel = new BroadcastChannel(PRESENCE_CHANNEL);
-    myChannel.onmessage = () => {
-      console.info('Reloading on markets channel message');
-      const lfg = new LocalForageHelper(MEMORY_MARKET_PRESENCES_CONTEXT_NAMESPACE);
-      lfg.getState()
-        .then((diskState) => {
-          if (diskState) {
-            dispatch(initializeState(diskState));
-          }
-        });
+    const broadcastId = Date.now();
+    myChannel.onmessage = (msg) => {
+      if (msg !== broadcastId) {
+        console.info(`Reloading on presence channel message ${msg} with ${broadcastId}`);
+        const lfg = new LocalForageHelper(MEMORY_MARKET_PRESENCES_CONTEXT_NAMESPACE);
+        lfg.getState()
+          .then((diskState) => {
+            if (diskState) {
+              dispatch(initializeState({ ...diskState, broadcastId }));
+            }
+          });
+      }
     }
     setChannel(myChannel);
     return () => {};

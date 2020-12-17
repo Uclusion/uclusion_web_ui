@@ -27,17 +27,20 @@ function NotificationsProvider(props) {
 
   useEffect(() => {
     const myChannel = new BroadcastChannel(NOTIFICATIONS_CHANNEL);
-    myChannel.onmessage = () => {
-      console.info('Reloading on notifications channel message');
-      const lfg = new LocalForageHelper(NOTIFICATIONS_CONTEXT_NAMESPACE);
-      lfg.getState()
-        .then((diskState) => {
-          if (diskState) {
-            const { messages, recent } = diskState;
-            //We don't want to load up page or lastPage from disk
-            dispatch(initializeState({ messages, recent }));
-          }
-        });
+    const broadcastId = Date.now();
+    myChannel.onmessage = (msg) => {
+      if (msg !== broadcastId) {
+        console.info(`Reloading on notifications channel message ${msg} with ${broadcastId}`);
+        const lfg = new LocalForageHelper(NOTIFICATIONS_CONTEXT_NAMESPACE);
+        lfg.getState()
+          .then((diskState) => {
+            if (diskState) {
+              const { messages, recent } = diskState;
+              //We don't want to load up page or lastPage from disk
+              dispatch(initializeState({ messages, recent, broadcastId }));
+            }
+          });
+      }
     }
     setChannel(myChannel);
     return () => {};

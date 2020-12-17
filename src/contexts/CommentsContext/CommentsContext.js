@@ -27,18 +27,21 @@ function CommentsProvider(props) {
 
   useEffect(() => {
     const myChannel = new BroadcastChannel(COMMENTS_CHANNEL);
-    myChannel.onmessage = () => {
-      console.info('Reloading on comments channel message');
-      const lfg = new LocalForageHelper(MEMORY_COMMENTS_CONTEXT_NAMESPACE);
-      lfg.getState()
-        .then((diskState) => {
-          if (diskState) {
-            const indexItems = _.flatten(Object.values(diskState));
-            const indexMessage = {event: INDEX_UPDATE, itemType: INDEX_COMMENT_TYPE, items: indexItems};
-            pushMessage(SEARCH_INDEX_CHANNEL, indexMessage);
-            dispatch(initializeState(diskState));
-          }
-        });
+    const broadcastId = Date.now();
+    myChannel.onmessage = (msg) => {
+      if (msg !== broadcastId) {
+        console.info(`Reloading on comments channel message ${msg} with ${broadcastId}`);
+        const lfg = new LocalForageHelper(MEMORY_COMMENTS_CONTEXT_NAMESPACE);
+        lfg.getState()
+          .then((diskState) => {
+            if (diskState) {
+              const indexItems = _.flatten(Object.values(diskState));
+              const indexMessage = { event: INDEX_UPDATE, itemType: INDEX_COMMENT_TYPE, items: indexItems };
+              pushMessage(SEARCH_INDEX_CHANNEL, indexMessage);
+              dispatch(initializeState({ ...diskState, broadcastId }));
+            }
+          });
+      }
     }
     setChannel(myChannel);
     return () => {};

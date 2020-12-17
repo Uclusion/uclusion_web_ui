@@ -65,7 +65,8 @@ function reducer(state, action) {
   lfh.setState(newState).then(() => {
     if (action.type !== INITIALIZE_STATE) {
       const myChannel = new BroadcastChannel(INVESTIBLES_CHANNEL);
-      return myChannel.postMessage('investibles').then(() => myChannel.close())
+      const { broadcastId } = newState;
+      return myChannel.postMessage(broadcastId || 'investibles').then(() => myChannel.close())
         .then(() => console.info('Update investible context sent.'));
     }
   });

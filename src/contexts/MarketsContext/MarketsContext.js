@@ -17,6 +17,12 @@ const EMPTY_STATE = {
 const MARKETS_CHANNEL = 'markets';
 const MarketsContext = React.createContext(EMPTY_STATE);
 
+function pushIndexItems(diskState) {
+  const { marketDetails } = diskState;
+  const indexMessage = { event: INDEX_UPDATE, itemType: INDEX_MARKET_TYPE, items: marketDetails };
+  pushMessage(SEARCH_INDEX_CHANNEL, indexMessage);
+}
+
 function MarketsProvider(props) {
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
   const [, diffDispatch] = useContext(DiffContext);
@@ -34,9 +40,7 @@ function MarketsProvider(props) {
         lfg.getState()
           .then((diskState) => {
             if (diskState) {
-              const { marketDetails } = diskState;
-              const indexMessage = { event: INDEX_UPDATE, itemType: INDEX_MARKET_TYPE, items: marketDetails };
-              pushMessage(SEARCH_INDEX_CHANNEL, indexMessage);
+              pushIndexItems(diskState);
               dispatch(initializeState({ ...diskState, broadcastId }));
             }
           });
@@ -58,9 +62,7 @@ function MarketsProvider(props) {
       lfg.getState()
         .then((diskState) => {
           if (diskState) {
-            const { marketDetails } = diskState;
-            const indexMessage = { event: INDEX_UPDATE, itemType: INDEX_MARKET_TYPE, items: marketDetails };
-            pushMessage(SEARCH_INDEX_CHANNEL, indexMessage);
+            pushIndexItems(diskState);
             dispatch(initializeState(diskState));
           }
         });
@@ -74,9 +76,7 @@ function MarketsProvider(props) {
     lfg.getState()
       .then((diskState) => {
         if (diskState) {
-          const { marketDetails } = diskState;
-          const indexMessage = { event: INDEX_UPDATE, itemType: INDEX_MARKET_TYPE, items: marketDetails};
-          pushMessage(SEARCH_INDEX_CHANNEL, indexMessage);
+          pushIndexItems(diskState);
           dispatch(initializeState(diskState));
         } else {
           dispatch(initializeState({

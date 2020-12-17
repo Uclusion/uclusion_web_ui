@@ -19,6 +19,13 @@ const EMPTY_STATE = {initializing: true};
 
 const CommentsContext = React.createContext(EMPTY_STATE);
 
+function pushIndexItems(diskState) {
+  const comments = Object.values(diskState).filter((item) => item.id) || [];
+  const indexItems = _.flatten(comments);
+  const indexMessage = { event: INDEX_UPDATE, itemType: INDEX_COMMENT_TYPE, items: indexItems };
+  pushMessage(SEARCH_INDEX_CHANNEL, indexMessage);
+}
+
 function CommentsProvider(props) {
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
   const [, setChannel] = useState(undefined);
@@ -35,9 +42,7 @@ function CommentsProvider(props) {
         lfg.getState()
           .then((diskState) => {
             if (diskState) {
-              const indexItems = _.flatten(Object.values(diskState));
-              const indexMessage = { event: INDEX_UPDATE, itemType: INDEX_COMMENT_TYPE, items: indexItems };
-              pushMessage(SEARCH_INDEX_CHANNEL, indexMessage);
+              pushIndexItems(diskState);
               dispatch(initializeState({ ...diskState, broadcastId }));
             }
           });
@@ -54,9 +59,7 @@ function CommentsProvider(props) {
       lfg.getState()
         .then((diskState) => {
           if (diskState) {
-            const indexItems = _.flatten(Object.values(diskState));
-            const indexMessage = {event: INDEX_UPDATE, itemType: INDEX_COMMENT_TYPE, items: indexItems};
-            pushMessage(SEARCH_INDEX_CHANNEL, indexMessage);
+            pushIndexItems(diskState);
             dispatch(initializeState(diskState));
           }
         });
@@ -74,9 +77,7 @@ function CommentsProvider(props) {
         // // console.debug(`Found comments ${state}`);
         // // console.debug(state);
         if (state) {
-          const indexItems = _.flatten(Object.values(state));
-          const indexMessage = {event: INDEX_UPDATE, itemType: INDEX_COMMENT_TYPE, items: indexItems};
-          pushMessage(SEARCH_INDEX_CHANNEL, indexMessage);
+          pushIndexItems(state);
           dispatch(initializeState(state));
         } else {
           dispatch(initializeState({}));

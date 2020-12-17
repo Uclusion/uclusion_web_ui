@@ -19,6 +19,13 @@ const EMPTY_STATE = {initializing: true};
 
 const InvestiblesContext = React.createContext(EMPTY_STATE);
 
+function pushIndexItems(diskState) {
+  const investibles = Object.values(diskState).filter((item) => item.investible) || [];
+  const indexItems = investibles.map((item) => item.investible);
+  const indexMessage = { event: INDEX_UPDATE, itemType: INDEX_INVESTIBLE_TYPE, items: indexItems };
+  pushMessage(SEARCH_INDEX_CHANNEL, indexMessage);
+}
+
 function InvestiblesProvider(props) {
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
   const [, diffDispatch] = useContext(DiffContext);
@@ -36,9 +43,7 @@ function InvestiblesProvider(props) {
         lfg.getState()
           .then((diskState) => {
             if (diskState) {
-              const indexItems = Object.values(diskState).map((item) => item.investible);
-              const indexMessage = { event: INDEX_UPDATE, itemType: INDEX_INVESTIBLE_TYPE, items: indexItems };
-              pushMessage(SEARCH_INDEX_CHANNEL, indexMessage);
+              pushIndexItems(diskState);
               dispatch(initializeState({ ...diskState, broadcastId }));
             }
           });
@@ -60,9 +65,7 @@ function InvestiblesProvider(props) {
       lfg.getState()
         .then((diskState) => {
           if (diskState) {
-            const indexItems = Object.values(diskState).map((item) => item.investible);
-            const indexMessage = {event: INDEX_UPDATE, itemType: INDEX_INVESTIBLE_TYPE, items: indexItems};
-            pushMessage(SEARCH_INDEX_CHANNEL, indexMessage);
+            pushIndexItems(diskState);
             dispatch(initializeState(diskState));
           }
         });
@@ -76,9 +79,7 @@ function InvestiblesProvider(props) {
     lfg.getState()
       .then((state) => {
         if (state) {
-          const indexItems = Object.values(state).map((item) => item.investible);
-          const indexMessage = {event: INDEX_UPDATE, itemType: INDEX_INVESTIBLE_TYPE, items: indexItems};
-          pushMessage(SEARCH_INDEX_CHANNEL, indexMessage);
+          pushIndexItems(state);
           dispatch(initializeState(state));
         } else {
           dispatch(initializeState({}));

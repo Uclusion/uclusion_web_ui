@@ -480,7 +480,7 @@ CommentAdd.defaultProps = {
   parent: null,
   investible: null,
   todoWarningId: null,
-  defaultNotificationType: 'BLUE',
+  defaultNotificationType: undefined,
   onCancel: () => {},
   clearType: () => {},
   hidden: false,

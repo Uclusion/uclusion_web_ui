@@ -6,7 +6,6 @@ import MarketSearchResult from '../Search/MarketSearchResult'
 import { List, ListItem, Paper, Popper, Typography, useTheme } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles'
 import { isTinyWindow } from '../../utils/windowUtils';
-import { getFullLink } from './Notifications'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 import { useIntl } from 'react-intl'
 import { searchStyles } from '../Search/SearchResults';
@@ -64,24 +63,32 @@ function DisplayNotifications(props) {
       investibleId,
       aType,
       commentId,
-      associatedUserId
+      associatedUserId,
+      investible_name: investibleName,
+      market_name: marketName,
+      link,
+      link_type: linkType,
+      name
     } = item;
-    const link = getFullLink(item);
+    const parentName = (linkType === 'INLINE_STORY_INITIATIVE' || linkType === 'INLINE_STORY_INVESTIBLE')
+      ? investibleName : undefined;
     if (aType === 'NEW_VOTES') {
-      return (<VotingNotificationResult marketId={marketId} investibleId={investibleId} classes={searchClasses}
-                                        userId={associatedUserId} afterOnClick={afterOnClick} link={link}/>);
+      return (<VotingNotificationResult marketId={marketId} containerName={investibleName || marketName}
+                                        classes={searchClasses} userId={associatedUserId} afterOnClick={afterOnClick}
+                                        link={link}/>);
     } else {
       if (commentId) {
         return (<CommentSearchResult marketId={marketId} commentId={commentId} classes={searchClasses}
-                                     afterOnClick={afterOnClick} />);
+                                     afterOnClick={afterOnClick} containerName={investibleName || marketName}
+                                     link={link} defaultExcerpt={name} />);
       }
       if (investibleId) {
         return (<InvestibleSearchResult investibleId={investibleId} classes={searchClasses} afterOnClick={afterOnClick}
-                                        link={link}/>);
+                                        link={link} containerName={parentName || marketName} />);
       }
       if (marketId) {
         return (<MarketSearchResult marketId={marketId} classes={searchClasses} afterOnClick={afterOnClick}
-                                    link={link}/>);
+                                    link={link} containerName={marketName}/>);
       }
     }
   }

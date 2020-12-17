@@ -21,34 +21,15 @@ import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 import { useHistory } from 'react-router'
 import Typography from '@material-ui/core/Typography';
 
-
-function getTypeNameId (commentType) {
-  switch (commentType) {
-    case ISSUE_TYPE:
-      return 'CommentSearchResultIssue';
-    case JUSTIFY_TYPE:
-      return 'CommentSearchResultJustify';
-    case QUESTION_TYPE:
-      return 'CommentSearchResultQuestion';
-    case SUGGEST_CHANGE_TYPE:
-      return 'CommentSearchResultSuggestion';
-    case TODO_TYPE:
-      return 'CommentSearchResultTodo';
-    case REPORT_TYPE:
-      return 'CommentSearchResultProgress';
-    default:
-      console.error('Unknown comment type ' + commentType);
-      return '';
-  }
-}
-
 function CommentSearchResult (props) {
   const {
     marketId,
     commentId,
     classes,
     afterOnClick,
-    link
+    link,
+    containerName,
+    defaultExcerpt
   } = props;
   const intl = useIntl();
   const history = useHistory();
@@ -95,9 +76,11 @@ function CommentSearchResult (props) {
     return name;
   }
 
-  const containerName = !_.isEmpty(investibleId) ? getInvestibleName(investibleId, investibleState) : getMarketName(marketId);
+  const calculateContainerName = !_.isEmpty(investibleId) ? getInvestibleName(investibleId, investibleState)
+    : getMarketName(marketId);
   const cardClass = getCardClass();
-  const typeName = intl.formatMessage({ id: getTypeNameId(type)})
+  const typeName = intl.formatMessage({ id: 'CommentSearchResult' },
+    { parentName: (containerName || calculateContainerName) })
   //const subTitle = intl.formatMessage({ id: 'CommentSearchResultSubTitle' }, { name: containerName });
   const linkTarget = link ? link : formCommentLink(marketId, investibleId, rootId);
 
@@ -112,8 +95,8 @@ function CommentSearchResult (props) {
     }>
       <Card className={cardClass}>
         <Typography className={classes.commentSearchTitle}>{typeName}</Typography>
-        <Typography className={classes.commentSearchName}>{containerName}</Typography>
-        <Typography className={classes.commentSearchExcerpt}>{intl.formatMessage({id: 'CommentSearchResultExcerpt'}, {excerpt})}</Typography>
+        <Typography className={classes.commentSearchExcerpt}>{intl.formatMessage(
+          {id: 'CommentSearchResultExcerpt'}, {excerpt: (defaultExcerpt || excerpt)})}</Typography>
       </Card>
     </Link>
   );
@@ -123,13 +106,17 @@ function CommentSearchResult (props) {
 CommentSearchResult.propTypes = {
   marketId: PropTypes.string.isRequired,
   commentId: PropTypes.string.isRequired,
+  containerName: PropTypes.string,
   link: PropTypes.string,
   afterOnClick: PropTypes.func,
+  defaultExcerpt: PropTypes.string,
 };
 
 CommentSearchResult.defaultProps = {
   afterOnClick: () => {},
-  link: undefined
+  link: undefined,
+  containerName: undefined,
+  defaultExcerpt: undefined
 }
 
 export default CommentSearchResult;

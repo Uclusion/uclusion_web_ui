@@ -17,11 +17,10 @@ import _ from 'lodash';
 
 
 function InvestibleSearchResult (props) {
-  const { investibleId, classes, afterOnClick, link } = props;
+  const { investibleId, classes, afterOnClick, link, containerName } = props;
   const [marketsState] = useContext(MarketsContext);
   const [investibleState] = useContext(InvestiblesContext);
   const [commentsState] = useContext(CommentsContext);
-
   const history = useHistory();
   const intl = useIntl();
 
@@ -57,6 +56,7 @@ function InvestibleSearchResult (props) {
   const linkTarget = link ? link : formInvestibleLink(marketId, investibleId);
   const cardTypeId = marketType === PLANNING_TYPE ? 'InvestibleSearchResultStory' : 'InvestibleSearchResultOption';
   const cardType = intl.formatMessage({ id: cardTypeId});
+  const useParentName = containerName || parentName;
   // Initiative investibles are really the market, so render it as such
   if (marketType === INITIATIVE_TYPE) {
     return <MarketSearchResult marketId={marketId} initiativeName={name} {...props}/>
@@ -78,7 +78,7 @@ function InvestibleSearchResult (props) {
       <Card className={classes.investibleCard}>
         <Typography className={classes.investibleSearchTitle}>{
           intl.formatMessage({ id: 'InvestibleSearchResultTitle'},
-            {type: cardType, parentName})}</Typography>
+            {type: cardType, parentName: useParentName})}</Typography>
         <Typography className={classes.investibleSearchName}>{name}</Typography>
       </Card>
     </Link>
@@ -90,11 +90,13 @@ InvestibleSearchResult.propTypes = {
   investibleId: PropTypes.string.isRequired,
   link: PropTypes.string,
   afterOnClick: PropTypes.func,
+  containerName: PropTypes.string,
 };
 
 InvestibleSearchResult.defaultProps = {
   afterOnClick: () => {},
-  link: undefined
+  link: undefined,
+  containerName: undefined
 }
 
 export default InvestibleSearchResult;

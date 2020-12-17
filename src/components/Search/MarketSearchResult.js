@@ -17,7 +17,7 @@ import _ from 'lodash';
 
 
 function MarketSearchResult (props) {
-  const { marketId, classes, afterOnClick, link, initiativeName } = props;
+  const { marketId, classes, afterOnClick, link, initiativeName, containerName } = props;
   const [marketsState] = useContext(MarketsContext);
   const [commentsState] = useContext(CommentsContext);
   const [investibleState] = useContext(InvestiblesContext);
@@ -62,6 +62,7 @@ function MarketSearchResult (props) {
   const usedMarketName = type === INITIATIVE_TYPE && !parentMarketId ? initiativeName : parentName;
   const linkTarget = link ? link : formMarketLink(marketId);
   const typeName = intl.formatMessage({id: getTypeId(type)});
+  const reallyUseMarketName = containerName || usedMarketName;
 
   return (
     <Link
@@ -78,7 +79,7 @@ function MarketSearchResult (props) {
     >
       <Card className={classes.marketCard}>
         <Typography className={classes.searchResultHeader}>{typeName}</Typography>
-        <Typography className={classes.marketSearchName}>{usedMarketName}</Typography>
+        <Typography className={classes.marketSearchName}>{reallyUseMarketName}</Typography>
       </Card>
     </Link>
   );
@@ -90,12 +91,14 @@ MarketSearchResult.propTypes = {
   link: PropTypes.string,
   afterOnClick: PropTypes.func,
   initiativeName: PropTypes.string,
+  containerName: PropTypes.string,
 };
 
 MarketSearchResult.defaultProps = {
   afterOnClick: () => {},
   link: undefined,
   initiativeName: '',
+  containerName: undefined
 };
 
 export default MarketSearchResult;

@@ -20,7 +20,7 @@ export function extractUsersList (marketPresencesState, addToMarketId, workspace
   }, {});
   return Object.keys(marketPresencesState).reduce((acc, marketId) => {
     const marketPresences = marketPresencesState[marketId] || [];
-    if(_.isEmpty(marketPresences)) {
+    if(_.isEmpty(marketPresences) || !Array.isArray(marketPresences)) {
       return {};
     }
     const macc = {};

@@ -34,6 +34,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   actionContainer: {
+    marginTop: '5rem',
     marginBottom: '-6rem'
   },
   content: {

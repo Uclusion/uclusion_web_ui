@@ -37,6 +37,7 @@ import { SearchIndexContext } from '../../../contexts/SearchIndexContext/SearchI
 import { filterCommentsToSearch } from '../../../contexts/SearchIndexContext/searchIndexContextHelper'
 import CloseIcon from '@material-ui/icons/Close'
 import Chip from '@material-ui/core/Chip'
+import { headerStyles, restoreHeader } from '../../../containers/Header'
 
 const myClasses = makeStyles(
   theme => {
@@ -95,6 +96,7 @@ function MarketTodos (props) {
     marketId,
   } = props
   const classes = myClasses();
+  const headerClasses = headerStyles();
   const intl = useIntl();
   const history = useHistory();
   const [highlightedCommentState] = useContext(HighlightedCommentContext);
@@ -125,6 +127,7 @@ function MarketTodos (props) {
   }
 
   function onDragEnd() {
+    restoreHeader(headerClasses);
     // We don't know where we were dragged so just turn all dashed lines off
     const marketStages = getStages(marketStagesState, marketId) || [];
     const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];

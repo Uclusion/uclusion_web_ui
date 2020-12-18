@@ -135,7 +135,8 @@ export function formInviteLink(marketToken) {
 export function urlHelperGetName(marketState, investibleState) {
   return (url) => {
     const urlParts = new URL(url);
-    if (urlParts.host === window.location.host) {
+    if (urlParts.host === window.location.host && !urlParts.hash) {
+      // Ignore hash related as they can go to comments, user in swimlane, vote etc. which are difficult to name
       const { action, marketId, investibleId } = decomposeMarketPath(urlParts.pathname);
       if (action === 'dialog') {
         if (investibleId) {

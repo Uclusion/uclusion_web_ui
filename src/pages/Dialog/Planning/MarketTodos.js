@@ -169,11 +169,11 @@ function MarketTodos (props) {
               <div style={{display: 'flex'}}>
                 <Typography style={{ fontSize: '.75rem', flex: 1 }}>Updated: {intl.formatDate(updated_at)}</Typography>
                 {replies.length > 0 && (
-                  <>
-                    <Typography style={{ fontSize: '.75rem', flex: 1 }}>
-                      Replies: <Chip label={`${replies.length}`} color="primary" size='small' />
-                    </Typography>
-                  </>
+                  <div style={{display: 'flex'}}>
+                    <Typography style={{ fontSize: '.75rem' }}>Replies:</Typography>
+                    <Chip label={`${replies.length}`} color="primary" size='small'
+                          style={{ marginLeft: '5px', marginRight: '15px'}} />
+                  </div>
                 )}
               </div>
               <ReadOnlyQuillEditor value={body}/>

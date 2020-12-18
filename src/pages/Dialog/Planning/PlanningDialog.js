@@ -85,7 +85,6 @@ function PlanningDialog(props) {
       : makeBreadCrumbs(history);
   const unResolvedMarketComments = comments.filter(comment => !comment.investible_id && !comment.resolved) || [];
   const notTodoComments = unResolvedMarketComments.filter(comment => comment.comment_type !== TODO_TYPE);
-  const todoComments = unResolvedMarketComments.filter(comment => comment.comment_type === TODO_TYPE);
   const allowedCommentTypes = [QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE];
   const { name: marketName, locked_by: lockedBy } = market;
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -243,7 +242,7 @@ function PlanningDialog(props) {
       {isChannel && (
         <DismissableText textId='storyHelp' />
       )}
-      <MarketTodos comments={todoComments} marketId={marketId} />
+      <MarketTodos comments={unResolvedMarketComments} marketId={marketId} />
       <Grid container spacing={2}>
           <Grid item id="commentAddArea"  xs={12}>
             {!inArchives && (

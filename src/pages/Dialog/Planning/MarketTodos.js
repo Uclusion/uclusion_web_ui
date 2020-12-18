@@ -114,7 +114,8 @@ function MarketTodos (props) {
   const [editYellowCard, setEditYellowCard] = useState(undefined);
   const [searchQuery, setSearchQuery] = useState(undefined);
   const foundResults = searchQuery ? index.search(searchQuery) : undefined;
-  const restrictedComments = filterCommentsToSearch(foundResults, comments) || [];
+  const todoComments = comments.filter(comment => comment.comment_type === TODO_TYPE);
+  const restrictedComments = filterCommentsToSearch(foundResults, todoComments) || [];
   const blueComments = restrictedComments.filter((comment) => comment.notification_type === 'BLUE');
   const yellowComments = restrictedComments.filter((comment) => comment.notification_type === 'YELLOW');
   const redComments = restrictedComments.filter((comment) => comment.notification_type === 'RED');
@@ -138,18 +139,19 @@ function MarketTodos (props) {
     });
   }
 
-  function getCards (comments, marketId, history, intl, setCard) {
+  function getCards (commentsGetting, marketId, history, intl, setCard) {
     function setCardAndScroll(comment) {
       setCard(comment);
       navigate(history, `${formMarketLink(marketId)}#editc${comment.id}`);
     }
-    if (_.isEmpty(comments)) {
+    if (_.isEmpty(commentsGetting)) {
       return <div className={classes.grow} />
     }
-    const sortedData = _.sortBy(comments, 'updated_at').reverse();
+    const sortedData = _.sortBy(commentsGetting, 'updated_at').reverse();
     return sortedData.map((comment) => {
-      const { id, body, updated_at } = comment
-      const { level } = highlightedCommentState[id] || {}
+      const { id, body, updated_at } = comment;
+      const replies = comments.filter(comment => comment.reply_id === id) || [];
+      const { level } = highlightedCommentState[id] || {};
       return (
         <Grid
           id={`c${id}`}
@@ -164,7 +166,16 @@ function MarketTodos (props) {
         >
           <RaisedCard onClick={() => setCardAndScroll(comment)} elevation={0}>
             <div className={level ? classes.warnCard : classes.card}>
-              <Typography style={{ fontSize: '.75rem', flex: 1 }}>Updated: {intl.formatDate(updated_at)}</Typography>
+              <div style={{display: 'flex'}}>
+                <Typography style={{ fontSize: '.75rem', flex: 1 }}>Updated: {intl.formatDate(updated_at)}</Typography>
+                {replies.length > 0 && (
+                  <>
+                    <Typography style={{ fontSize: '.75rem', flex: 1 }}>
+                      Replies: <Chip label={`${replies.length}`} color="primary" size='small' />
+                    </Typography>
+                  </>
+                )}
+              </div>
               <ReadOnlyQuillEditor value={body}/>
             </div>
           </RaisedCard>
@@ -280,7 +291,6 @@ function MarketTodos (props) {
                   comments={comments}
                   allowedTypes={[TODO_TYPE]}
                   editOpenDefault
-                  noReply
                   noAuthor
                 />
               </div>
@@ -329,7 +339,6 @@ function MarketTodos (props) {
                   comments={comments}
                   allowedTypes={[TODO_TYPE]}
                   editOpenDefault
-                  noReply
                   noAuthor
                 />
               </div>
@@ -378,7 +387,6 @@ function MarketTodos (props) {
                   comments={comments}
                   allowedTypes={[TODO_TYPE]}
                   editOpenDefault
-                  noReply
                   noAuthor
                 />
               </div>

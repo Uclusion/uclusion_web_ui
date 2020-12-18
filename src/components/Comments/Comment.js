@@ -9,8 +9,8 @@ import {
   CardActions,
   CardContent,
   Checkbox,
-  FormControl, FormControlLabel,
-  Grid, Radio, RadioGroup, Tooltip,
+  FormControlLabel,
+  Grid,
   Typography
 } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
@@ -286,14 +286,13 @@ function useMarketId() {
  * @param {{comment: Comment, comments: Comment[]}} props
  */
 function Comment(props) {
-  const { comment, marketId, comments, allowedTypes, editOpenDefault, noReply, noAuthor, onDone } = props;
+  const { comment, marketId, comments, allowedTypes, editOpenDefault, noAuthor, onDone } = props;
   const history = useHistory();
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const intl = useIntl();
   const classes = useCommentStyles();
   const { id, comment_type: commentType, resolved, investible_id: investibleId, inline_market_id: inlineMarketId,
-  created_by: commentCreatedBy, notification_type: originalNotificationType} = comment;
-  const [myNotificationType, setMyNotificationType] = useState(originalNotificationType);
+  created_by: commentCreatedBy, notification_type: myNotificationType} = comment;
   const presences = usePresences(marketId);
   const createdBy = useCommenter(comment, presences) || unknownPresence;
   const updatedBy = useUpdatedBy(comment, presences) || unknownPresence;
@@ -588,10 +587,7 @@ function Comment(props) {
     }
     return classes.container;
   }
-  function onNotificationTypeChange(event) {
-    const { value } = event.target;
-    setMyNotificationType(value);
-  }
+
   const isEditable = comment.created_by === userId;
 
   return (
@@ -622,8 +618,8 @@ function Comment(props) {
               `${intl.formatMessage({ id: 'lastUpdatedBy' })} ${updatedBy.name}.`}
             </Typography>
           )}
-          {!investibleId && commentType === TODO_TYPE && (
-            <div><ShareStoryButton commentId={id} /></div>
+          {commentType !== JUSTIFY_TYPE && commentType !== REPLY_TYPE && (
+            <div><ShareStoryButton commentId={id} commentType={commentType} investibleId={investibleId} /></div>
           )}
           {enableEditing && isEditable && !editOpenDefault && (
             <Button
@@ -675,41 +671,6 @@ function Comment(props) {
           )}
         </Box>
         <CardContent className={classes.cardContent}>
-          {commentType === TODO_TYPE && !investibleId && (
-            <FormControl component="fieldset" className={classes.todoLabelType}>
-              <RadioGroup
-                aria-labelledby="notification-type-choice"
-                className={classes.commentType}
-                onChange={onNotificationTypeChange}
-                value={myNotificationType}
-                row
-              >
-                {['RED', 'YELLOW', 'BLUE'].map((notificationType) => {
-                  return (
-                    <Tooltip key={`tip${notificationType}`}
-                             title={<FormattedMessage id={`${notificationType.toLowerCase()}Tip`} />}>
-                      <FormControlLabel
-                        id={`commentAddNotificationType${notificationType}`}
-                        key={notificationType}
-                        className={clsx(
-                          notificationType === 'RED' ? `${classes.chipItem} ${classes.chipItemIssue}`
-                            : notificationType === 'BLUE' ? `${classes.chipItem} ${classes.chipItemQuestion}`
-                            : `${classes.chipItem} ${classes.chipItemSuggestion}`,
-                          myNotificationType === notificationType ? classes.selected : classes.unselected
-                        )}
-                        /* prevent clicking the label stealing focus */
-                        onMouseDown={e => e.preventDefault()}
-                        control={<Radio color="primary" />}
-                        label={<FormattedMessage id={`notificationLabel${notificationType}`} />}
-                        labelPlacement="end"
-                        value={notificationType}
-                      />
-                    </Tooltip>
-                  );
-                })}
-              </RadioGroup>
-            </FormControl>
-          )}
           {!noAuthor && (
             <div style={{ display: 'inline-flex', alignItems: 'center' }}>
               <Avatar key={userId}
@@ -742,7 +703,7 @@ function Comment(props) {
                 control={<Checkbox
                   id="notifyAll"
                   name="notifyAll"
-                  checked={originalNotificationType === 'YELLOW'}
+                  checked={myNotificationType === 'YELLOW'}
                   disabled={true}
                 />}
                 label={intl.formatMessage({ id: "notifyAll" })}
@@ -828,7 +789,7 @@ function Comment(props) {
             )}
             {enableEditing && (
               <React.Fragment>
-                {commentType !== REPORT_TYPE && !noReply && (
+                {commentType !== REPORT_TYPE && (
                   <Button
                     className={clsx(classes.action, classes.actionPrimary)}
                     color="primary"
@@ -889,7 +850,6 @@ Comment.propTypes = {
   allowedTypes: PropTypes.arrayOf(PropTypes.string).isRequired,
   comment: PropTypes.object.isRequired,
   editOpenDefault: PropTypes.bool,
-  noReply: PropTypes.bool,
   noAuthor: PropTypes.bool,
   onDone: PropTypes.func,
   comments: PropTypes.arrayOf(PropTypes.object).isRequired,
@@ -903,7 +863,6 @@ Comment.propTypes = {
 
 Comment.defaultProps = {
   editOpenDefault: false,
-  noReply: false,
   noAuthor: false,
   onDone: () => {}
 };

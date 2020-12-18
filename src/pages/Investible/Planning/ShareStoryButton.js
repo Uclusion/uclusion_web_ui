@@ -7,9 +7,12 @@ import clsx from 'clsx'
 import { FormattedMessage } from 'react-intl'
 import { useLockedDialogStyles } from '../../Dialog/DialogBodyEdit'
 import InviteLinker from '../../Dialog/InviteLinker'
+import { TODO_TYPE } from '../../../constants/comments'
 
 function ShareStoryButton(props) {
-  const { commentId } = props;
+  const { commentId, commentType, investibleId } = props;
+  const hashPart = commentId ? !investibleId && commentType === TODO_TYPE ? `#editc${commentId}` : `#c${commentId}`
+    : undefined;
   const autoFocusRef = React.useRef(null);
   const lockedDialogClasses = useLockedDialogStyles();
   const [open, setOpen] = React.useState(false);
@@ -45,7 +48,7 @@ function ShareStoryButton(props) {
         }
         content={<InviteLinker
           marketType="story"
-          marketToken={commentId ? `${window.location.href}#c${commentId}` : window.location.href}
+          marketToken={hashPart ? `${window.location.href}${hashPart}` : window.location.href}
         />}
         title={
           <React.Fragment>

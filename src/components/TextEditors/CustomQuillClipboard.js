@@ -16,11 +16,7 @@ function stripDangerousImageTags(html){
   // remove all image tags
   for (let x = 0; x < imageTags.length; x += 1) {
     const image = imageTags[x];
-    // NOTE: Copy and pasting images from a different market will
-    // need more complicated logic
-    if (!image.src.startsWith(process.env.REACT_APP_FILE_URL)) {
-      image.remove();
-    }
+    image.remove();
   }
   const filtered = sandbox.innerHTML;
   return filtered;

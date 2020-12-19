@@ -153,7 +153,7 @@ function MarketTodos (props) {
     const sortedData = _.sortBy(commentsGetting, 'updated_at').reverse();
     return sortedData.map((comment) => {
       const { id, body, updated_at } = comment;
-      const replies = comments.filter(comment => comment.reply_id === id) || [];
+      const replies = comments.filter(comment => comment.root_comment_id === id) || [];
       const { level } = highlightedCommentState[id] || {};
       return (
         <Grid
@@ -173,7 +173,7 @@ function MarketTodos (props) {
                 <Typography style={{ fontSize: '.75rem', flex: 1 }}>Updated: {intl.formatDate(updated_at)}</Typography>
                 {replies.length > 0 && (
                   <div style={{display: 'flex'}}>
-                    <Typography style={{ fontSize: '.75rem' }}>Replies:</Typography>
+                    <Typography style={{ fontSize: '.75rem' }}>Thread:</Typography>
                     <Chip label={`${replies.length}`} color="primary" size='small'
                           style={{ marginLeft: '5px', marginRight: '15px'}} />
                   </div>

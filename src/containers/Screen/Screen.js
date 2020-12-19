@@ -33,6 +33,10 @@ const useStyles = makeStyles((theme) => ({
       padding: '24px 12px 156px',
     },
   },
+  bannerContainer: {
+    marginTop: '5rem',
+    marginBottom: '-4rem',
+  },
   actionContainer: {
     marginTop: '5rem',
     marginBottom: '-6rem'

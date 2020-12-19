@@ -223,7 +223,7 @@ function InvestibleBodyEdit (props) {
           </SpinBlockingButton>
         }
       />
-      {lockedBy === userId && (
+      {(!lockedBy || (lockedBy === userId)) && (
         <>
           <NameField onEditorChange={handleNameChange} onStorageChange={handleNameStorage} description={description}
                      name={name} />
@@ -239,7 +239,7 @@ function InvestibleBodyEdit (props) {
           />
         </>
       )}
-      {lockedBy !== userId && (
+      {(lockedBy && (lockedBy !== userId)) && (
         <div align='center'>
           <Typography>{intl.formatMessage({ id: "gettingLockMessage" })}</Typography>
           <CircularProgress type="indeterminate"/>

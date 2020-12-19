@@ -108,10 +108,10 @@ export const headerStyles = makeStyles((theme) => {
   };
 });
 
-export function restoreHeader(headerClasses) {
-  const myBar = document.getElementsByClassName(headerClasses.appBar) || [];
-  if (myBar.length > 0) {
-    myBar[0].style.display = 'block';
+export function restoreHeader() {
+  const headerEl = document.getElementById('app-header');
+  if (headerEl) {
+    headerEl.style.display = 'block';
   }
 }
 
@@ -209,11 +209,12 @@ function Header (props) {
   return (
     <AppBar
       position="fixed"
+      id="app-header"
       className={classes.appBar}
       onDragOver={(event) => {
-        const myBar = document.getElementsByClassName(classes.appBar) || [];
-        if (myBar.length > 0) {
-          myBar[0].style.display = 'none';
+        const headerEl = document.getElementById('app-header');
+        if (headerEl) {
+          headerEl.style.display = 'none';
         }
       }}
     >

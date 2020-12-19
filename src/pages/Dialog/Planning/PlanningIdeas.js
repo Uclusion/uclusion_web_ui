@@ -33,7 +33,7 @@ import { removeComment } from '../../../api/comments'
 import { getMarketComments, removeComments } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { nameFromDescription } from '../../../utils/stringFunctions'
-import { headerStyles, restoreHeader } from '../../../containers/Header'
+import { restoreHeader } from '../../../containers/Header'
 
 const warningColor = red["400"];
 
@@ -89,7 +89,6 @@ function PlanningIdeas(props) {
     setBeingDraggedHack
   } = props;
   const intl = useIntl();
-  const headerClasses = headerStyles();
   const acceptedStageId = acceptedStage.id;
   const classes = usePlanningIdStyles();
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -310,7 +309,7 @@ function PlanningIdeas(props) {
     }
   }
   function onDragEndStage() {
-    restoreHeader(headerClasses);
+    restoreHeader();
     const { previousElementId } = beingDraggedHack;
     if (previousElementId) {
       document.getElementById(previousElementId).className = classes.containerEmpty;

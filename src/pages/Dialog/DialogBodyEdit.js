@@ -269,7 +269,7 @@ function DialogBodyEdit(props) {
           </SpinBlockingButton>
         }
       />
-      {lockedBy === userId && (
+      {(!lockedBy || (lockedBy === userId)) && (
         <>
           <NameField onEditorChange={handleNameChange} onStorageChange={handleNameStorage} description={description}
                      name={name} label="agilePlanFormTitleLabel" placeHolder="decisionTitlePlaceholder"
@@ -285,7 +285,7 @@ function DialogBodyEdit(props) {
           />
         </>
       )}
-      {lockedBy !== userId && (
+      {(lockedBy && (lockedBy !== userId)) && (
         <div align='center'>
           <Typography>{intl.formatMessage({ id: "gettingLockMessage" })}</Typography>
           <CircularProgress type="indeterminate"/>

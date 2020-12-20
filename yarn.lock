@@ -9988,9 +9988,10 @@ quill@^1.2.2:
     parchment "^1.1.4"
     quill-delta "^3.6.2"
 
-quill@^2.0.0-dev.3:
+quill@^2.0.0-dev.4:
   version "2.0.0-dev.4"
   resolved "https://registry.yarnpkg.com/quill/-/quill-2.0.0-dev.4.tgz#130e38efe7a16b3766d767d750c8aacc038945e7"
+  integrity sha512-9WmMVCEIhf3lDdhzl+i+GBDeDl0BFi65waC4Im8Y4HudEJ9kEEb1lciAz9A8pcDmLMjiMbvz84lNt/U5OBS8Vg==
   dependencies:
     clone "^2.1.2"
     deep-equal "^2.0.2"

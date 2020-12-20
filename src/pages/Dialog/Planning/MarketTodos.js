@@ -172,7 +172,7 @@ function MarketTodos (props) {
                 <Typography style={{ fontSize: '.75rem', flex: 1 }}>Updated: {intl.formatDate(updated_at)}</Typography>
                 {replies.length > 0 && (
                   <div style={{display: 'flex'}}>
-                    <Typography style={{ fontSize: '.75rem' }}>Thread:</Typography>
+                    <Typography style={{ fontSize: '.75rem' }}>Comments:</Typography>
                     <Chip label={`${replies.length}`} color="primary" size='small'
                           style={{ marginLeft: '5px', marginRight: '15px'}} />
                   </div>

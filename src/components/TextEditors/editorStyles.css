@@ -9,6 +9,9 @@
 .ql-snow .ql-tooltip[data-mode=video]::before {
     content: "Video / Loom";
 }
+.ql-editor li > .ql-ui:before {
+    margin-right: 0.5em;
+}
 .ql-code-block {
     background-color: #efefef; /* <== change this color */
     color: #1d1c1d;

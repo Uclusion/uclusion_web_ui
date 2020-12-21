@@ -6,7 +6,13 @@ import { updateInvestible } from '../../../api/investibles'
 import { getMarketInfo } from '../../../utils/userFunctions'
 import AssignmentList from '../../Dialog/Planning/AssignmentList'
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton'
-import CardType, { ASSIGN_TYPE, STORY_TYPE } from '../../../components/CardType'
+import CardType, {
+  ASSIGN_TYPE,
+  STORY_TYPE,
+  ISSUE_TYPE,
+  QUESTION_TYPE,
+  SUGGEST_CHANGE_TYPE
+} from '../../../components/CardType'
 import { FormattedMessage, useIntl } from 'react-intl'
 import { usePlanFormStyles } from '../../../components/AgilePlan'
 import BlockIcon from '@material-ui/icons/Block'
@@ -15,6 +21,13 @@ import { useLockedDialogStyles } from '../../Dialog/DialogBodyEdit'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { makeStyles } from '@material-ui/core/styles'
+import {
+  getBlockedStage,
+  getInCurrentVotingStage, getRequiredInputStage
+} from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
+import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper'
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 
 export const usePlanInvestibleStyles = makeStyles(
   theme => ({
@@ -41,6 +54,8 @@ function PlanningInvestibleEdit(props) {
   const [open, setOpen] = useState(false);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+  const [marketStagesState] = useContext(MarketStagesContext);
+  const [commentsState] = useContext(CommentsContext);
   const hasVotes = marketPresences.find(presence => {
     const { investments } = presence;
     if (_.isEmpty(investments)) {
@@ -73,7 +88,34 @@ function PlanningInvestibleEdit(props) {
     const assignmentChanged = !_.isEmpty(_.xor(assignments, marketAssigned));
     if (assignmentChanged) {
       return updateInvestible(updateInfo)
-        .then((fullInvestible) => {
+        .then((investible) => {
+          let fullInvestible = investible;
+          if (_.isEmpty(marketAssigned)) {
+            const comments = getMarketComments(commentsState, marketId);
+            // Going from unassigned to assigned moves to in voting, blocked or requires input
+            const unresolvedComments = comments.filter(comment => comment.investible_id === myInvestible.id &&
+              !comment.resolved);
+            const blockingComments = unresolvedComments.filter(comment => comment.comment_type === ISSUE_TYPE);
+            const requiresInputComments = unresolvedComments.filter(comment => comment.comment_type === QUESTION_TYPE ||
+              comment.comment_type === SUGGEST_CHANGE_TYPE);
+            const newStage = _.isEmpty(blockingComments) ? _.isEmpty(requiresInputComments) ?
+              getInCurrentVotingStage(marketStagesState, marketId) : getRequiredInputStage(marketStagesState, marketId)
+              : getBlockedStage(marketStagesState, marketId);
+            const { market_infos, investible: rootInvestible } = fullInvestible;
+            const [info] = (market_infos || []);
+            const newInfo = {
+              ...info,
+              stage: newStage.id,
+              stage_name: newStage.name,
+              open_for_investment: false,
+              last_stage_change_date: Date.now().toString(),
+            };
+            const newInfos = _.unionBy([newInfo], market_infos, 'id');
+            fullInvestible = {
+              investible: rootInvestible,
+              market_infos: newInfos
+            };
+          }
           return {
             result: { fullInvestible, assignmentChanged },
             spinChecker: () => Promise.resolve(true),

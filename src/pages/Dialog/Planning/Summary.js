@@ -29,7 +29,7 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { EMPTY_SPIN_RESULT } from '../../../constants/global'
 import DialogBodyEdit from '../DialogBodyEdit'
-import { doSetEditWhenValid } from '../../../utils/windowUtils'
+import { doSetEditWhenValid, isTinyWindow } from '../../../utils/windowUtils'
 import { AccountContext } from '../../../contexts/AccountContext/AccountContext';
 import { canCreate } from '../../../contexts/AccountContext/accountContextHelper';
 
@@ -311,10 +311,11 @@ function Summary(props) {
             {!myBeingEdited && (
               <>
                 <Typography className={isEditableByUser() ? classes.titleEditable : classes.title} variant="h3" component="h1"
-                            onClick={() => mySetBeingEdited(true)}>
+                            onClick={() => !isTinyWindow() && mySetBeingEdited(true)}>
                   {name}
                 </Typography>
-                <DescriptionOrDiff id={id} description={description} setBeingEdited={mySetBeingEdited}
+                <DescriptionOrDiff id={id} description={description}
+                                   setBeingEdited={isTinyWindow() ? () => {} : mySetBeingEdited}
                                    isEditable={isEditableByUser()} />
               </>
             )}
@@ -335,6 +336,8 @@ function Summary(props) {
               parentInvestibleId={parentInvestibleId}
               marketId={id}
               initiativeId={investibleId}
+              mySetBeingEdited={mySetBeingEdited}
+              beingEdited={beingEdited}
             />
           </CardActions>
         <dl className={metaClasses.root}>

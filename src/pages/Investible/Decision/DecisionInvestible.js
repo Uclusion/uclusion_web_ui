@@ -47,7 +47,8 @@ import {
 import InvestibleBodyEdit from '../InvestibleBodyEdit'
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
-import { doSetEditWhenValid } from '../../../utils/windowUtils'
+import { doSetEditWhenValid, isTinyWindow } from '../../../utils/windowUtils'
+import EditMarketButton from '../../Dialog/EditMarketButton'
 
 const useStyles = makeStyles((theme) => ({
   mobileColumn: {
@@ -269,6 +270,13 @@ function DecisionInvestible(props) {
   function getActions() {
     return (
     <dl className={classes.upperRightCard}>
+      {isTinyWindow() && isEditableByUser() && !beingEdited && (
+          <EditMarketButton
+            labelId="edit"
+            marketId={marketId}
+            onClick={() => mySetBeingEdited(true)}
+          />
+      )}
       {isAdmin && inProposed && (
           <MoveToCurrentVotingActionButton
             key="moveToCurrent"
@@ -345,7 +353,7 @@ function DecisionInvestible(props) {
         <CardContent className={myBeingEdited ? classes.editCardContent : classes.votingCardContent}>
           {!myBeingEdited && (
             <Typography className={isEditableByUser() ? classes.titleEditable : classes.title} variant="h3"
-                        component="h1" onClick={() => mySetBeingEdited(true)}>
+                        component="h1" onClick={() => !isTinyWindow() && mySetBeingEdited(true)}>
               {name}
             </Typography>
           )}
@@ -362,7 +370,7 @@ function DecisionInvestible(props) {
             <DescriptionOrDiff
               id={investibleId}
               description={description}
-              setBeingEdited={mySetBeingEdited}
+              setBeingEdited={isTinyWindow() ? () => {} : mySetBeingEdited}
               isEditable={isEditableByUser()}
             />
           )}

@@ -43,7 +43,7 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { EMPTY_SPIN_RESULT } from '../../../constants/global'
 import InvestibleBodyEdit from '../InvestibleBodyEdit'
-import { doSetEditWhenValid } from '../../../utils/windowUtils'
+import { doSetEditWhenValid, isTinyWindow } from '../../../utils/windowUtils'
 import LinkMarket from '../../Dialog/LinkMarket'
 
 const useStyles = makeStyles(
@@ -313,10 +313,11 @@ function InitiativeInvestible(props) {
               {!myBeingEdited && (
                 <>
                   <Typography className={isEditableByUser() ? classes.titleEditable : classes.title} variant="h3" component="h1"
-                              onClick={() => mySetBeingEdited(true)}>
+                              onClick={() => !isTinyWindow() && mySetBeingEdited(true)}>
                     {name}
                   </Typography>
-                  <DescriptionOrDiff id={investibleId} description={description} setBeingEdited={mySetBeingEdited}
+                  <DescriptionOrDiff id={investibleId} description={description}
+                                     setBeingEdited={isTinyWindow() ? () => {} : mySetBeingEdited}
                                      isEditable={isEditableByUser()} />
                 </>
               )}
@@ -334,6 +335,8 @@ function InitiativeInvestible(props) {
                 isGuest={myPresence.market_guest}
                 marketId={marketId}
                 initiativeId={investibleId}
+                mySetBeingEdited={mySetBeingEdited}
+                beingEdited={beingEdited}
               />
             </CardActions>
             <dl className={clsx(metaClasses.root, classes.flexCenter)}>

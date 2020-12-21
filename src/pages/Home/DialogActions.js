@@ -20,6 +20,7 @@ import PersonOutlineIcon from '@material-ui/icons/PersonOutline'
 import { useIntl } from 'react-intl'
 import SettingsIcon from '@material-ui/icons/Settings'
 import { ACTION_BUTTON_COLOR } from '../../components/Buttons/ButtonConstants'
+import { isTinyWindow } from '../../utils/windowUtils'
 
 const useStyles = makeStyles(() => {
   return {
@@ -48,7 +49,9 @@ function DialogActions(props) {
     isFollowing,
     isGuest,
     initiativeId,
-    hideEdit
+    hideEdit,
+    beingEdited,
+    mySetBeingEdited
   } = props;
   const activeMarket = marketStage === ACTIVE_STAGE;
   const inArchives = !activeMarket || !isFollowing;
@@ -129,6 +132,14 @@ function DialogActions(props) {
     if (action === 'dialog' && ((marketType === PLANNING_TYPE) || !activeMarket)) {
       actions.push(<ShareStoryButton key="share-story"/>)
     }
+    if (isTinyWindow() && !beingEdited) {
+      actions.push(
+        <EditMarketButton
+          labelId="edit"
+          marketId={marketId}
+          onClick={() => mySetBeingEdited(true)}
+        />);
+    }
     return actions;
   }
 
@@ -148,6 +159,8 @@ DialogActions.propTypes = {
   isAdmin: PropTypes.bool,
   isFollowing: PropTypes.bool,
   isGuest: PropTypes.bool,
+  beingEdited: PropTypes.string,
+  mySetBeingEdited: PropTypes.func
 };
 
 DialogActions.defaultProps = {
@@ -155,6 +168,8 @@ DialogActions.defaultProps = {
   isFollowing: true,
   initiativeId: '',
   isGuest: false,
+  beingEdited: undefined,
+  mySetBeingEdited: () => {}
 };
 
 export default DialogActions;

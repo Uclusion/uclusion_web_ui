@@ -104,7 +104,7 @@ import InvestibleBodyEdit from '../InvestibleBodyEdit'
 import DatePicker from 'react-datepicker'
 import moment from 'moment'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
-import { doSetEditWhenValid } from '../../../utils/windowUtils'
+import { doSetEditWhenValid, isTinyWindow } from '../../../utils/windowUtils'
 import LinkMarket from '../../Dialog/LinkMarket'
 
 const useStyles = makeStyles(
@@ -675,7 +675,7 @@ function PlanningInvestible(props) {
             <Grid item xs={9} className={classes.fullWidth}>
               {!myBeingEdited && (
                 <Typography className={isEditableByUser() ? classes.titleEditable : classes.title} variant="h3"
-                            component="h1" onClick={() => mySetBeingEdited(true)}>
+                            component="h1" onClick={() => !isTinyWindow() && mySetBeingEdited(true)}>
                   {name}
                 </Typography>
               )}
@@ -692,7 +692,7 @@ function PlanningInvestible(props) {
                 <DescriptionOrDiff
                   id={investibleId}
                   description={description}
-                  setBeingEdited={mySetBeingEdited}
+                  setBeingEdited={isTinyWindow() ? () => {} : mySetBeingEdited}
                   isEditable={isEditableByUser()}
                 />
               )}
@@ -700,6 +700,15 @@ function PlanningInvestible(props) {
             <Grid className={classes.borderLeft} item xs={3}>
               <div className={classes.editRow}>
                 <dl className={classes.upperRightCard}>
+                  {isTinyWindow() && !inMarketArchives && isEditableByUser() && !beingEdited && (
+                    <div>
+                      <EditMarketButton
+                        labelId="edit"
+                        marketId={marketId}
+                        onClick={() => mySetBeingEdited(true)}
+                      />
+                    </div>
+                  )}
                   {displayEdit && !inMarketArchives && (
                     <div>
                       <EditMarketButton

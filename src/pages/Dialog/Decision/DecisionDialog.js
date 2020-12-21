@@ -46,7 +46,7 @@ import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsCont
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import AttachedFilesList from '../../../components/Files/AttachedFilesList'
 import DialogBodyEdit from '../DialogBodyEdit'
-import { doSetEditWhenValid } from '../../../utils/windowUtils'
+import { doSetEditWhenValid, isTinyWindow } from '../../../utils/windowUtils'
 
 const useStyles = makeStyles(
   theme => ({
@@ -301,10 +301,11 @@ function DecisionDialog(props) {
                 <>
                   <Typography className={isEditableByUser() ? classes.titleEditable : classes.title}
                               variant="h3" component="h1"
-                              onClick={() => mySetBeingEdited(true)}>
+                              onClick={() => !isTinyWindow() && mySetBeingEdited(true)}>
                     {marketName}
                   </Typography>
-                  <DescriptionOrDiff id={marketId} description={description} setBeingEdited={mySetBeingEdited}
+                  <DescriptionOrDiff id={marketId} description={description}
+                                     setBeingEdited={isTinyWindow() ? () => {} : mySetBeingEdited}
                                      isEditable={isEditableByUser()}/>
                 </>
               )}
@@ -321,6 +322,8 @@ function DecisionDialog(props) {
                 parentMarketId={parentMarketId}
                 parentInvestibleId={parentInvestibleId}
                 marketId={marketId}
+                mySetBeingEdited={mySetBeingEdited}
+                beingEdited={beingEdited}
               />
             </CardActions>
             <dl className={clsx(metaClasses.root, classes.flexCenter)}>

@@ -31,13 +31,14 @@ import WarningIcon from '@material-ui/icons/Warning'
 import { useLockedDialogStyles } from '../../pages/Dialog/DialogBodyEdit'
 import { EMPTY_SPIN_RESULT } from '../../constants/global'
 import { getBlockedStage, getRequiredInputStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
-import { addInvestible, getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
+import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { urlHelperGetName } from '../../utils/marketIdPathFunctions'
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { changeInvestibleStageOnCommentChange } from '../../utils/commentFunctions'
 
 function getPlaceHolderLabelId (type, isStory) {
   switch (type) {
@@ -264,26 +265,8 @@ function CommentAdd (props) {
       myNotificationType)
       .then((comment) => {
         setMyNotificationType(undefined);
-        // move the investible to other state if necessary
-        if (investibleBlocks || investibleRequiresInput) {
-          const newStage = investibleBlocks ? blockingStage : requiresInputStage;
-          if (newStage.id) {
-            const newInfo = {
-              ...info,
-              stage: newStage.id,
-              stage_name: newStage.name,
-              open_for_investment: false,
-              last_stage_change_date: Date.now().toString(),
-            };
-            const newInfos = _.unionBy([newInfo], market_infos, 'id');
-            const newInvestible = {
-              investible: rootInvestible,
-              market_infos: newInfos
-            };
-            // no diff here, so no diff dispatch
-            addInvestible(investibleDispatch, ()=> {}, newInvestible);
-          }
-        }
+        changeInvestibleStageOnCommentChange(investibleBlocks, investibleRequiresInput,
+          blockingStage, requiresInputStage, info, market_infos, rootInvestible, investibleDispatch);
         addCommentToMarket(comment, commentsState, commentDispatch);
         return EMPTY_SPIN_RESULT;
       });

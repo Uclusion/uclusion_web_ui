@@ -57,14 +57,19 @@ import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
 import { EXPANDED_CONTROL, ExpandedCommentContext } from '../../contexts/CommentsContext/ExpandedCommentContext'
 import UsefulRelativeTime from '../TextFields/UseRelativeTime'
 import md5 from 'md5'
-import { addInvestible, getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
+import {
+  addInvestible,
+  getInvestible,
+  getMarketInvestibles
+} from '../../contexts/InvestibesContext/investiblesContextHelper'
 import SubSection from '../../containers/SubSection/SubSection'
 import CurrentVoting from '../../pages/Dialog/Decision/CurrentVoting'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import ProposedIdeas from '../../pages/Dialog/Decision/ProposedIdeas'
 import {
+  getBlockedStage,
   getInCurrentVotingStage,
-  getProposedOptionsStage
+  getProposedOptionsStage, getRequiredInputStage
 } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 import { formMarketAddInvestibleLink, navigate } from '../../utils/marketIdPathFunctions'
@@ -75,6 +80,7 @@ import YourVoting from '../../pages/Investible/Voting/YourVoting'
 import Voting from '../../pages/Investible/Decision/Voting'
 import { addParticipants } from '../../api/users'
 import ShareStoryButton from '../../pages/Investible/Planning/ShareStoryButton'
+import { changeInvestibleStageOnCommentChange } from '../../utils/commentFunctions'
 
 const useCommentStyles = makeStyles(
   theme => {
@@ -318,6 +324,7 @@ function Comment(props) {
   const [marketPresencesState, presenceDispatch] = useContext(MarketPresencesContext);
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
+  const [investibleState, investibleDispatch] = useContext(InvestiblesContext);
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const enableActions = !inArchives
   const enableEditing = !inArchives && !resolved; //resolved comments or those in archive aren't editable
@@ -519,6 +526,20 @@ function Comment(props) {
   function reopen() {
     return reopenComment(marketId, id)
       .then((comment) => {
+        const inv = getInvestible(investibleState, investibleId) || {};
+        const { market_infos, investible: rootInvestible } = inv;
+        const [info] = (market_infos || []);
+        const { assigned, stage: currentStageId } = (info || {});
+        const blockingStage = getBlockedStage(marketStagesState, marketId) || {};
+        const requiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
+        const investibleRequiresInput = ((comment.comment_type === QUESTION_TYPE ||
+          comment.comment_type === SUGGEST_CHANGE_TYPE)
+          && (assigned || []).includes(myPresence.id)) && currentStageId !== blockingStage.id
+          && currentStageId !== requiresInputStage.id;
+        const investibleBlocks = (investibleId && comment.comment_type === ISSUE_TYPE)
+          && currentStageId !== blockingStage.id;
+        changeInvestibleStageOnCommentChange(investibleBlocks, investibleRequiresInput,
+          blockingStage, requiresInputStage, info, market_infos, rootInvestible, investibleDispatch);
         addCommentToMarket(comment, commentsState, commentsDispatch, versionsDispatch);
         return EMPTY_SPIN_RESULT;
       });

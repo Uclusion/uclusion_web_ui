@@ -2,6 +2,7 @@ import _ from 'lodash'
 import LocalForageHelper from '../../utils/LocalForageHelper'
 import { MARKET_CONTEXT_NAMESPACE, MARKETS_CHANNEL, MEMORY_MARKET_CONTEXT_NAMESPACE } from './MarketsContext'
 import { BroadcastChannel } from 'broadcast-channel'
+import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const UPDATE_MARKET_DETAILS = 'UPDATE_MARKET_DETAILS';
@@ -86,7 +87,6 @@ function reducer(state, action) {
   lfh.setState(newState).then(() => {
     if (action.type !== INITIALIZE_STATE) {
       const myChannel = new BroadcastChannel(MARKETS_CHANNEL);
-      const { broadcastId } = newState;
       return myChannel.postMessage(broadcastId || 'markets').then(() => myChannel.close())
         .then(() => console.info('Update market context sent.'));
     }

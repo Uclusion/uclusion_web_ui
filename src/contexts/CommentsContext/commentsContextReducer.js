@@ -2,6 +2,7 @@ import _ from 'lodash'
 import LocalForageHelper from '../../utils/LocalForageHelper'
 import { COMMENTS_CHANNEL, COMMENTS_CONTEXT_NAMESPACE, MEMORY_COMMENTS_CONTEXT_NAMESPACE } from './CommentsContext'
 import { BroadcastChannel } from 'broadcast-channel'
+import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const REMOVE_MARKETS_COMMENT = 'REMOVE_MARKETS_COMMENT';
@@ -109,7 +110,6 @@ function reducer(state, action) {
   lfh.setState(newState).then(() => {
     if (action.type !== INITIALIZE_STATE) {
       const myChannel = new BroadcastChannel(COMMENTS_CHANNEL);
-      const { broadcastId } = newState;
       return myChannel.postMessage(broadcastId || 'comments').then(() => myChannel.close())
         .then(() => console.info('Update comment context sent.'));
     }

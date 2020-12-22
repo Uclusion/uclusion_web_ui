@@ -5,6 +5,7 @@ import {
   MEMORY_INVESTIBLES_CONTEXT_NAMESPACE
 } from './InvestiblesContext'
 import { BroadcastChannel } from 'broadcast-channel'
+import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const UPDATE_INVESTIBLES = 'UPDATE_INVESTIBLES';
@@ -65,7 +66,6 @@ function reducer(state, action) {
   lfh.setState(newState).then(() => {
     if (action.type !== INITIALIZE_STATE) {
       const myChannel = new BroadcastChannel(INVESTIBLES_CHANNEL);
-      const { broadcastId } = newState;
       return myChannel.postMessage(broadcastId || 'investibles').then(() => myChannel.close())
         .then(() => console.info('Update investible context sent.'));
     }

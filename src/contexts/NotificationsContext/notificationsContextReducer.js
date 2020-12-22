@@ -10,6 +10,7 @@ import { deleteMessage } from '../../api/users'
 import { getFullLink } from '../../components/Notifications/Notifications'
 import { NO_PIPELINE_TYPE, USER_POKED_TYPE } from '../../constants/notifications'
 import { BroadcastChannel } from 'broadcast-channel'
+import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
 
 export const NOTIFICATIONS_CONTEXT_NAMESPACE = 'notifications';
 const UPDATE_MESSAGES = 'UPDATE_MESSAGES';
@@ -357,7 +358,6 @@ function reducer (state, action) {
     lfh.setState(newState).then(() => {
       // In case the other tabs don't get the message
       const myChannel = new BroadcastChannel(NOTIFICATIONS_CHANNEL);
-      const { broadcastId } = newState;
       return myChannel.postMessage(broadcastId || 'notifications').then(() => myChannel.close())
         .then(() => console.info('Update notifications context sent.'));
     });

@@ -4,6 +4,7 @@ import reducer, { initializeState } from './marketPresencesContextReducer'
 import LocalForageHelper from '../../utils/LocalForageHelper'
 import { LeaderContext } from '../LeaderContext/LeaderContext'
 import { BroadcastChannel } from 'broadcast-channel'
+import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
 
 const PRESENCE_CHANNEL = 'presence';
 const MEMORY_MARKET_PRESENCES_CONTEXT_NAMESPACE = 'memory_market_presences';
@@ -19,7 +20,6 @@ function MarketPresencesProvider(props) {
 
   useEffect(() => {
     const myChannel = new BroadcastChannel(PRESENCE_CHANNEL);
-    const broadcastId = Date.now();
     myChannel.onmessage = (msg) => {
       if (msg !== broadcastId) {
         console.info(`Reloading on presence channel message ${msg} with ${broadcastId}`);
@@ -27,7 +27,7 @@ function MarketPresencesProvider(props) {
         lfg.getState()
           .then((diskState) => {
             if (diskState) {
-              dispatch(initializeState({ ...diskState, broadcastId }));
+              dispatch(initializeState({ ...diskState }));
             }
           });
       }

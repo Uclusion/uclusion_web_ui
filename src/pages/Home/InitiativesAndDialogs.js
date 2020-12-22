@@ -268,7 +268,7 @@ function InitiativesAndDialogs(props) {
             style={{alignSelf: 'center', display: 'flex', justifyContent: 'flex-end', paddingRight: '1rem'}}
           >
             <AvatarGroup
-              max={window.outerWidth > 600 ? 4 : 1}
+              max={window.outerWidth > 600 ? 4 : 2}
               spacing="small">
               {presences.map((presence) => {
                 const { id: userId, name, email } = presence;

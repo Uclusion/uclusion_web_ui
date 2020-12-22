@@ -11,6 +11,7 @@ import {
 } from '../SearchIndexContext/searchIndexContextMessages'
 import { LeaderContext } from '../LeaderContext/LeaderContext'
 import { BroadcastChannel } from 'broadcast-channel'
+import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
 
 const COMMENTS_CHANNEL = 'comments';
 const MEMORY_COMMENTS_CONTEXT_NAMESPACE = 'memory_comments_context';
@@ -34,7 +35,6 @@ function CommentsProvider(props) {
 
   useEffect(() => {
     const myChannel = new BroadcastChannel(COMMENTS_CHANNEL);
-    const broadcastId = Date.now();
     myChannel.onmessage = (msg) => {
       if (msg !== broadcastId) {
         console.info(`Reloading on comments channel message ${msg} with ${broadcastId}`);
@@ -43,7 +43,7 @@ function CommentsProvider(props) {
           .then((diskState) => {
             if (diskState) {
               pushIndexItems(diskState);
-              dispatch(initializeState({ ...diskState, broadcastId }));
+              dispatch(initializeState({ ...diskState }));
             }
           });
       }

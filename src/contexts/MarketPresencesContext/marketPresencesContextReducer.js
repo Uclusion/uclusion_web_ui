@@ -6,6 +6,7 @@ import {
 } from './MarketPresencesContext'
 import _ from 'lodash'
 import { BroadcastChannel } from 'broadcast-channel'
+import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const ADD_MARKET_PRESENCE = 'ADD_MARKET_PRESENCE';
@@ -199,7 +200,6 @@ function reducer(state, action) {
   lfh.setState(newState).then(() => {
     if (action.type !== INITIALIZE_STATE) {
       const myChannel = new BroadcastChannel(PRESENCE_CHANNEL);
-      const { broadcastId } = newState;
       return myChannel.postMessage(broadcastId || 'presence').then(() => myChannel.close())
         .then(() => console.info('Update presence context sent.'));
     }

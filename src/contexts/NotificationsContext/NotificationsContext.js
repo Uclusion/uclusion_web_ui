@@ -5,6 +5,7 @@ import reducer, { initializeState, NOTIFICATIONS_CONTEXT_NAMESPACE, } from './no
 import beginListening from './notificationsContextMessages'
 import LocalForageHelper from '../../utils/LocalForageHelper'
 import { BroadcastChannel } from 'broadcast-channel'
+import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
 
 export const EMPTY_STATE = {
   initializing: true,
@@ -27,7 +28,6 @@ function NotificationsProvider(props) {
 
   useEffect(() => {
     const myChannel = new BroadcastChannel(NOTIFICATIONS_CHANNEL);
-    const broadcastId = Date.now();
     myChannel.onmessage = (msg) => {
       if (msg !== broadcastId) {
         console.info(`Reloading on notifications channel message ${msg} with ${broadcastId}`);
@@ -37,7 +37,7 @@ function NotificationsProvider(props) {
             if (diskState) {
               const { messages, recent } = diskState;
               //We don't want to load up page or lastPage from disk
-              dispatch(initializeState({ messages, recent, broadcastId }));
+              dispatch(initializeState({ messages, recent }));
             }
           });
       }

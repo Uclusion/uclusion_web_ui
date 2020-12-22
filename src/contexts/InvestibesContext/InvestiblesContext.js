@@ -11,6 +11,7 @@ import {
 } from '../SearchIndexContext/searchIndexContextMessages'
 import { LeaderContext } from '../LeaderContext/LeaderContext'
 import { BroadcastChannel } from 'broadcast-channel'
+import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
 
 const INVESTIBLES_CHANNEL = 'investibles';
 const INVESTIBLES_CONTEXT_NAMESPACE = 'investibles';
@@ -35,7 +36,6 @@ function InvestiblesProvider(props) {
 
   useEffect(() => {
     const myChannel = new BroadcastChannel(INVESTIBLES_CHANNEL);
-    const broadcastId = Date.now();
     myChannel.onmessage = (msg) => {
       if (msg !== broadcastId) {
         console.info(`Reloading on investibles channel message ${msg} with ${broadcastId}`);
@@ -44,7 +44,7 @@ function InvestiblesProvider(props) {
           .then((diskState) => {
             if (diskState) {
               pushIndexItems(diskState);
-              dispatch(initializeState({ ...diskState, broadcastId }));
+              dispatch(initializeState({ ...diskState }));
             }
           });
       }

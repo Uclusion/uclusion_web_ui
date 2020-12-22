@@ -7,6 +7,7 @@ import { INDEX_MARKET_TYPE, INDEX_UPDATE, SEARCH_INDEX_CHANNEL } from '../Search
 import { pushMessage } from '../../utils/MessageBusUtils'
 import { BroadcastChannel } from 'broadcast-channel'
 import { LeaderContext } from '../LeaderContext/LeaderContext'
+import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
 
 const MEMORY_MARKET_CONTEXT_NAMESPACE = 'memory_market_context';
 const MARKET_CONTEXT_NAMESPACE = 'market_context';
@@ -32,7 +33,6 @@ function MarketsProvider(props) {
 
   useEffect(() => {
     const myChannel = new BroadcastChannel(MARKETS_CHANNEL);
-    const broadcastId = Date.now();
     myChannel.onmessage = (msg) => {
       if (msg !== broadcastId) {
         console.info(`Reloading on markets channel message ${msg} with ${broadcastId}`);
@@ -41,7 +41,7 @@ function MarketsProvider(props) {
           .then((diskState) => {
             if (diskState) {
               pushIndexItems(diskState);
-              dispatch(initializeState({ ...diskState, broadcastId }));
+              dispatch(initializeState({ ...diskState }));
             }
           });
       }

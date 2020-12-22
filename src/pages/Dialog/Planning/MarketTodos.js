@@ -1,10 +1,10 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import { Grid, InputAdornment, TextField, Typography } from '@material-ui/core'
 import _ from 'lodash'
 import RaisedCard from '../../../components/Cards/RaisedCard'
 import { useIntl } from 'react-intl'
-import { useHistory } from 'react-router'
+import { useHistory, useLocation } from 'react-router'
 import { makeStyles } from '@material-ui/core/styles'
 import { yellow } from '@material-ui/core/colors'
 import {
@@ -88,8 +88,6 @@ const myClasses = makeStyles(
   { name: 'Archive' }
 );
 
-const EXPANDED_ID = 'todos'
-
 function MarketTodos (props) {
   const {
     comments,
@@ -105,7 +103,7 @@ function MarketTodos (props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [index] = useContext(SearchIndexContext);
-  const myExpandedState = expandedCommentState[EXPANDED_ID] || {};
+  const myExpandedState = expandedCommentState[marketId] || {};
   const { expanded: showTodos } = myExpandedState;
   const [editCard, setEditCard] = useState(undefined);
   const [createCard, setCreateCard] = useState(undefined);
@@ -115,11 +113,20 @@ function MarketTodos (props) {
   const [editYellowCard, setEditYellowCard] = useState(undefined);
   const [searchQuery, setSearchQuery] = useState(undefined);
   const foundResults = searchQuery ? index.search(searchQuery) : undefined;
-  const todoComments = comments.filter(comment => comment.comment_type === TODO_TYPE);
+  const todoComments = comments.filter(comment => comment.comment_type === TODO_TYPE) || [];
   const restrictedComments = filterCommentsToSearch(foundResults, todoComments) || [];
   const blueComments = restrictedComments.filter((comment) => comment.notification_type === 'BLUE');
   const yellowComments = restrictedComments.filter((comment) => comment.notification_type === 'YELLOW');
   const redComments = restrictedComments.filter((comment) => comment.notification_type === 'RED');
+  const location = useLocation();
+  const { hash } = location;
+
+  useEffect(() => {
+    if (!showTodos && hash && todoComments.find((comment) => hash.includes(comment.id))) {
+      expandedCommentDispatch({ type: EXPANDED_CONTROL, commentId: marketId, expanded: true });
+    }
+    return () => {};
+  }, [expandedCommentDispatch, hash, marketId, showTodos, todoComments]);
 
   function onDragStart(event) {
     event.dataTransfer.setData('text', event.target.id.substring(1));
@@ -188,7 +195,7 @@ function MarketTodos (props) {
 
   function toggleShowTodos () {
     const toggleValue = showTodos === undefined ? false : !showTodos;
-    expandedCommentDispatch({ type: EXPANDED_CONTROL, commentId: EXPANDED_ID, expanded: toggleValue });
+    expandedCommentDispatch({ type: EXPANDED_CONTROL, commentId: marketId, expanded: toggleValue });
   }
 
   function onCreateRed () {

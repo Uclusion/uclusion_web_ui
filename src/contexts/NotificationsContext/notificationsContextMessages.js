@@ -22,6 +22,7 @@ function beginListening(dispatch, history) {
     if (toast.isActive(toastId)) {
       return;
     }
+    navigate(history, link);
     switch(level) {
       case RED_LEVEL:
         return toast.error(text, toastOptions);

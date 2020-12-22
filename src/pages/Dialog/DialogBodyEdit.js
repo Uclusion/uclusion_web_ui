@@ -118,7 +118,7 @@ function DialogBodyEdit(props) {
   const [description, setDescription] = useState(initialDescription);
 
   useEffect(() => {
-    if (!hidden) {
+    if (!hidden && idLoaded !== marketId) {
       localforage.getItem(marketId).then((stateFromDisk) => {
         const { description: storedDescription, name: storedName } = (stateFromDisk || {});
         if (storedName) {

@@ -66,7 +66,7 @@ function InvestibleBodyEdit (props) {
   }
 
   useEffect(() => {
-    if (!hidden) {
+    if (!hidden && idLoaded !== investibleId) {
       localforage.getItem(investibleId).then((stateFromDisk) => {
         const { description: storedDescription, name: storedName } = (stateFromDisk || {});
         if (storedName) {

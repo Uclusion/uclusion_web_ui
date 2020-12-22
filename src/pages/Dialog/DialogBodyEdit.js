@@ -146,11 +146,12 @@ function DialogBodyEdit(props) {
   useEffect(() => {
     if (!hidden) {
       if (marketType === PLANNING_TYPE && !loading && !someoneElseEditing && !lockFailed) {
-        lockPlanningMarketForEdit(marketId);
+        lockPlanningMarketForEdit(marketId)
+          .then((market) => addMarketToStorage(marketsDispatch, () => {}, market));
       }
     }
     return () => {};
-  }, [hidden, marketType, loading, lockFailed, someoneElseEditing, marketId]);
+  }, [hidden, marketType, loading, lockFailed, someoneElseEditing, marketId, marketsDispatch]);
 
   function handleSave() {
     // the set of files for the market is all the old files, plus our new ones

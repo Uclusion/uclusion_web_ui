@@ -8,7 +8,7 @@ import { nameFromDescription } from '../../utils/stringFunctions'
 function NameField(props) {
   const intl = useIntl();
   const {
-    onEditorChange, onStorageChange, description, name, label, placeHolder, id
+    onEditorChange, onStorageChange, description, name, label, placeHolder, id, useCreateDefault
   } = props;
   const debouncedOnStoreChange = _.debounce((value) => {
     onStorageChange(value);
@@ -30,18 +30,35 @@ function NameField(props) {
   }
 
   return (
-    <TextField
-      onFocus={createDefaultName}
-      fullWidth
-      id={id}
-      label={intl.formatMessage({ id: label })}
-      onChange={handleChange}
-      placeholder={intl.formatMessage({
-        id: placeHolder
-      })}
-      value={name}
-      variant="filled"
-    />
+    <>
+      {useCreateDefault && (
+        <TextField
+          onFocus={createDefaultName}
+          fullWidth
+          id={id}
+          label={intl.formatMessage({ id: label })}
+          onChange={handleChange}
+          placeholder={intl.formatMessage({
+            id: placeHolder
+          })}
+          value={name}
+          variant="filled"
+        />
+      )}
+      {!useCreateDefault && (
+        <TextField
+          fullWidth
+          id={id}
+          label={intl.formatMessage({ id: label })}
+          onChange={handleChange}
+          placeholder={intl.formatMessage({
+            id: placeHolder
+          })}
+          defaultValue={name}
+          variant="filled"
+        />
+      )}
+    </>
   )
 }
 
@@ -52,13 +69,15 @@ NameField.propTypes = {
   name: PropTypes.string,
   id: PropTypes.string,
   placeHolder: PropTypes.string,
-  label: PropTypes.string
+  label: PropTypes.string,
+  useCreateDefault: PropTypes.bool
 }
 
 NameField.defaultProps = {
   id: "plan-investible-name",
   placeHolder: "storyTitlePlaceholder",
-  label: "agilePlanFormTitleLabel"
+  label: "agilePlanFormTitleLabel",
+  useCreateDefault: false
 }
 
 export default NameField;

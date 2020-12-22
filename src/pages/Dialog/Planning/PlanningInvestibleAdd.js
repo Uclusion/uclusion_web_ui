@@ -290,7 +290,7 @@ function PlanningInvestibleAdd(props) {
             getUrlName={urlHelperGetName(marketState, investibleState)}
           />
           <NameField onEditorChange={handleNameChange} onStorageChange={handleNameStorage} description={description}
-                     name={name} />
+                     name={name} useCreateDefault />
         </CardContent>
         {!isAssigned && (
           <AddInitialVote

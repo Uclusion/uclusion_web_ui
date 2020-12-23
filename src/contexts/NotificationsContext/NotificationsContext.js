@@ -16,7 +16,6 @@ export const EMPTY_STATE = {
 const NotificationsContext = React.createContext(EMPTY_STATE);
 
 export const VISIT_CHANNEL = 'VisitChannel';
-export const TOAST_CHANNEL = 'ToastChannel';
 export const VIEW_EVENT = 'pageView';
 const NOTIFICATIONS_CHANNEL = 'notifications';
 

@@ -16,6 +16,7 @@ import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import config from '../../config';
 import { BroadcastChannel } from 'broadcast-channel'
 import { onSignOut } from '../../utils/userFunctions'
+import RecentNotifications from '../../components/Notifications/RecentNotifications'
 
 export const headerStyles = makeStyles((theme) => {
   return {
@@ -267,6 +268,9 @@ function Header (props) {
           (
             <React.Fragment>
               <div className={classes.grow}/>
+              <div id="recent-notifications" style={{marginRight: '4rem', paddingTop: '1rem'}}>
+                <RecentNotifications/>
+              </div>
               <div id="notifications" className={classes.notificationBox}>
                 <div className={classes.notification}>
                   <Notifications/>

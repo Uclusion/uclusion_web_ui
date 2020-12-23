@@ -1,9 +1,10 @@
 import React, { useContext, useEffect, useState } from 'react'
 import _ from 'lodash'
+import PropTypes from 'prop-types'
 import CommentSearchResult from '../Search/CommentSearchResult'
 import InvestibleSearchResult from '../Search/InvestibleSearchResult'
 import MarketSearchResult from '../Search/MarketSearchResult'
-import { List, ListItem, Paper, Popper, Typography, useTheme } from '@material-ui/core';
+import { List, ListItem, Paper, Popper, Typography, useTheme } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import { isTinyWindow } from '../../utils/windowUtils';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
@@ -12,6 +13,8 @@ import { searchStyles } from '../Search/SearchResults';
 import VotingNotificationResult from './VotingNotificationResult'
 import { getCommentRoot } from '../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
+import NotificationMessageDisplay from './NotificationMessageDisplay'
+import { splitIntoLevels } from '../../utils/messageUtils'
 
 const useStyles = makeStyles(() => {
   return {
@@ -35,7 +38,7 @@ const useStyles = makeStyles(() => {
 });
 
 function DisplayNotifications(props) {
-  const { open, setOpen } = props;
+  const { open, setOpen, isRecent } = props;
   const intl = useIntl();
   const theme = useTheme();
   const classes = useStyles();
@@ -43,13 +46,15 @@ function DisplayNotifications(props) {
   const [anchorEl, setAnchorEl] = useState(null);
   const [messagesState] = useContext(NotificationsContext);
   const [commentsState] = useContext(CommentsContext);
-  const { recent } = messagesState;
+  const { recent, messages } = messagesState;
+  const anchorElementId = isRecent ? 'recent-notifications' : 'notifications-fab';
+  const { redMessages, yellowMessages, blueMessages } = splitIntoLevels(messages);
 
   useEffect(() => {
     if (_.isEmpty(anchorEl)) {
-      setAnchorEl(document.getElementById('notifications-fab'));
+      setAnchorEl(document.getElementById(anchorElementId));
     }
-  }, [setAnchorEl, anchorEl]);
+  }, [setAnchorEl, anchorEl, anchorElementId]);
 
   function zeroResults () {
     setOpen(false);
@@ -98,7 +103,24 @@ function DisplayNotifications(props) {
   // Here we are just trying to get you to or back to a page
   const deDupe = {}
 
-  function getResults(toDisplay) {
+  function getMessageResults(toDisplay) {
+    return (toDisplay || []).map((message) => {
+      const {
+        link,
+      } = message;
+      return (
+        <ListItem
+          key={link}
+          button
+          onClick={zeroResults}
+        >
+          <NotificationMessageDisplay message={message} />
+        </ListItem>
+      );
+    });
+  }
+
+  function getRecentResults(toDisplay) {
     return (toDisplay || []).map((item) => {
       const {
         marketId,
@@ -125,7 +147,8 @@ function DisplayNotifications(props) {
   }
 
   const placement = 'bottom';
-
+  const displayingResults = isRecent ? recent : messages;
+  const notificationsDescription = isRecent ? 'notificationsRecent' : 'notifications';
   return (
     <Popper
       open={open}
@@ -135,15 +158,18 @@ function DisplayNotifications(props) {
       className={classes.popper}
     >
       <Paper className={classes.cardContainer}>
-        {!_.isEmpty(recent) && (
+        {!_.isEmpty(displayingResults) && (
           <>
             <Typography align="center" className={classes.viewed}>
-              {intl.formatMessage({ id: 'notificationsRecent' })}
+              {intl.formatMessage({ id: notificationsDescription })}
             </Typography>
             <List
               dense
             >
-              {getResults(recent)}
+              {isRecent && getRecentResults(recent)}
+              {!isRecent && getMessageResults(redMessages)}
+              {!isRecent && getMessageResults(yellowMessages)}
+              {!isRecent && getMessageResults(blueMessages)}
             </List>
           </>
         )}
@@ -151,5 +177,13 @@ function DisplayNotifications(props) {
     </Popper>
   );
 }
+
+DisplayNotifications.propTypes = {
+  isRecent: PropTypes.bool
+};
+
+DisplayNotifications.defaultProps = {
+  isRecent: false
+};
 
 export default DisplayNotifications;

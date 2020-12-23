@@ -1,9 +1,8 @@
 import LocalForageHelper from '../../utils/LocalForageHelper'
 import _ from 'lodash'
-import { getMassagedMessages, splitIntoLevels } from '../../utils/messageUtils'
-import { intl } from '../../components/ContextHacks/IntlGlobalProvider'
+import { getMassagedMessages } from '../../utils/messageUtils'
 import { pushMessage } from '../../utils/MessageBusUtils'
-import { NOTIFICATIONS_CHANNEL, TOAST_CHANNEL } from './NotificationsContext'
+import { NOTIFICATIONS_CHANNEL } from './NotificationsContext'
 import { HIGHLIGHTED_COMMENT_CHANNEL } from '../HighlightingContexts/highligtedCommentContextMessages'
 import { HIGHLIGHTED_VOTING_CHANNEL } from '../HighlightingContexts/highligtedVotingContextMessages'
 import { deleteMessage } from '../../api/users'
@@ -179,36 +178,6 @@ function processHighlighting(messagesForPage) {
   });
 }
 
-/* Generates the toasts for the messages on this page
- * @param messagesForPage
- */
-function processToasts(messagesForPage) {
-  const { redMessages, yellowMessages, blueMessages } = splitIntoLevels(messagesForPage);
-  redMessages.forEach((message) => pushMessage(TOAST_CHANNEL, message));
-  blueMessages.forEach((message) => {
-    const { text } = message;
-    if ( text === 'Attachments modified' || text === 'Labels modified') {
-      // Since labels and attachments can be removed and we have no good way of showing that
-      // for now just make sure the toast happens and not in a multi update message
-      pushMessage(TOAST_CHANNEL, message);
-    }
-  })
-  // for not bombarding the users sake, if we have more than one yellow message, we're
-  // just going to display a summary message saying you have a bunch of updates
-  if (!_.isEmpty(yellowMessages)) {
-    const firstYellow = yellowMessages[0]
-    if (yellowMessages.length > 1){
-      const text = intl.formatMessage({id: 'notificationMulitpleUpdates'}, { n: yellowMessages.length})
-      pushMessage(TOAST_CHANNEL, {
-        ...firstYellow,
-        text,
-      });
-    }else {
-      pushMessage(TOAST_CHANNEL, firstYellow);
-    }
-  }
-}
-
 /** Functions that mutate the state */
 /**
  * The messages for the current page need to
@@ -219,8 +188,6 @@ function handleMessagesForPage(pageMessages) {
   if (!_.isEmpty(pageMessages)) {
     // process highlighting
     processHighlighting(pageMessages);
-    // toast the page messages
-    processToasts(pageMessages);
     const notAssociatedInvestible = pageMessages.filter((message) => {
       const { associatedInvestibleId } = message;
       if (associatedInvestibleId) {

@@ -27,13 +27,14 @@ export function messageComparator (a, b) {
  * }
  * where the messages of each type are of the corresponding level
  */
-export function splitIntoLevels(messages){
+export function splitIntoLevels(unsafeMessages){
+  const messages = unsafeMessages || [];
   // first sort
   messages.sort(messageComparator);
   // extract the red
-  const redMessages = messages.filter((message) => message.level === RED_LEVEL);
-  const yellowMessages = messages.filter((message) => message.level === YELLOW_LEVEL);
-  const blueMessages = messages.filter((message) => message.level === BLUE_LEVEL);
+  const redMessages = messages.filter((message) => message.level === RED_LEVEL) || [];
+  const yellowMessages = messages.filter((message) => message.level === YELLOW_LEVEL) || [];
+  const blueMessages = messages.filter((message) => message.level === BLUE_LEVEL) || [];
   return {
     redMessages,
     yellowMessages,

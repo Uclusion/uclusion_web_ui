@@ -1,14 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { NotificationImportant, Notifications as NotificationsIcon } from '@material-ui/icons'
-import { Fab, makeStyles, Tooltip } from '@material-ui/core'
+import { Fab, makeStyles } from '@material-ui/core'
 import clsx from 'clsx'
-import { useHistory } from 'react-router'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
-import { navigate } from '../../utils/marketIdPathFunctions'
 import { filterMessagesByMarket, nextMessage } from '../../contexts/NotificationsContext/notificationsContextHelper'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import DisplayNotifications from './DisplayNotifications'
-import { useIntl } from 'react-intl'
 
 const useStyles = makeStyles(
   theme => {
@@ -56,10 +53,7 @@ function Notifications() {
   const [marketsState] = useContext(MarketsContext);
   const filteredMessagesState = filterMessagesByMarket(messagesState, marketsState);
   const current = nextMessage(filteredMessagesState || {});
-  const history = useHistory();
-  const intl = useIntl();
   const classes = useStyles();
-
 
   function getBackgroundClass() {
     if (!current) {
@@ -95,12 +89,6 @@ function Notifications() {
     }
   }
 
-  function onSingleClick() {
-    if (current) {
-      navigate(history, getFullLink(current));
-    }
-  }
-
   useEffect(() => {
     if (pegLeft && !inside) {
       setPegLeft(false);
@@ -113,16 +101,12 @@ function Notifications() {
     <div onMouseOut={onOut} onMouseOver={onEnter}>
       <Fab
         id="notifications-fab"
-        onClick={onSingleClick}
         className={clsx(
           classes.fab,
           getBackgroundClass())}
       >
         {current && (
-          <Tooltip title={intl.formatMessage({ id: 'notificationsHelp' }, { x: current.text })}
-                   placement="right-start">
             <NotificationImportant className={classes.uncolored} />
-          </Tooltip>
         )}
         {!current && <NotificationsIcon className={classes.uncolored} />}
       </Fab>

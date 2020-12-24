@@ -4,7 +4,7 @@ import PropTypes from 'prop-types'
 import CommentSearchResult from '../Search/CommentSearchResult'
 import InvestibleSearchResult from '../Search/InvestibleSearchResult'
 import MarketSearchResult from '../Search/MarketSearchResult'
-import { List, ListItem, Paper, Popper, Typography, useTheme } from '@material-ui/core'
+import { Card, List, ListItem, Paper, Popper, Typography, useTheme } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import { isTinyWindow } from '../../utils/windowUtils';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
@@ -15,6 +15,13 @@ import { getCommentRoot } from '../../contexts/CommentsContext/commentsContextHe
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import NotificationMessageDisplay from './NotificationMessageDisplay'
 import { splitIntoLevels } from '../../utils/messageUtils'
+import { DECISION_TYPE, PLANNING_TYPE } from '../../constants/markets'
+import GavelIcon from '@material-ui/icons/Gavel'
+import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
+import VotingIcon from '@material-ui/icons/Assessment'
+import AssignmentIcon from '@material-ui/icons/Assignment'
+import StarRateIcon from '@material-ui/icons/StarRate'
+import NotificationImportantIcon from '@material-ui/icons/NotificationImportant'
 
 const useStyles = makeStyles(() => {
   return {
@@ -36,6 +43,55 @@ const useStyles = makeStyles(() => {
     }
   };
 });
+
+function getNameIcon(message, linkType) {
+  const { market_type: marketType } = message;
+  switch (linkType) {
+    case 'INVESTIBLE':
+      return marketType === PLANNING_TYPE ? AssignmentIcon : StarRateIcon;
+    case 'MARKET':
+      return marketType === PLANNING_TYPE ? AgilePlanIcon : marketType === DECISION_TYPE
+        ? GavelIcon : VotingIcon;
+    default:
+      return NotificationImportantIcon;
+  }
+}
+
+function createMarketView(messages) {
+  const markets = [];
+  const marketsHash = {};
+  messages.forEach((message) => {
+    const { marketId, market_type: marketType, market_name: marketName, investible_name: investibleName,
+    investible_link: investibleLink } = message;
+    if (!marketsHash[marketId]) {
+      if (!marketId) {
+        const name = marketType === 'slack' ? 'Notification preferences' : 'Upgrade';
+        markets.push({ name, typeIcon: getNameIcon(message, 'MARKET'), investibles: [],
+          items: [{ message }] });
+      } else {
+        const aMarket = { name: marketName, typeIcon: getNameIcon(message, 'MARKET'), investiblesHash: {},
+          investibles: [], items: [] };
+        markets.push(aMarket);
+        marketsHash[marketId] = aMarket;
+      }
+    }
+    const market = marketsHash[marketId];
+    if (investibleLink) {
+      const investiblesHash = market.investiblesHash;
+      if (!investiblesHash[investibleLink]) {
+        const anInvestible = { name: investibleName, typeIcon: getNameIcon(message, 'INVESTIBLE'),
+          items: [] };
+        investiblesHash[investibleLink] = anInvestible;
+        market.investibles.push(anInvestible);
+      }
+      const investible = investiblesHash[investibleLink];
+      investible.items.push({ message });
+    } else if (market) {
+      market.items.push({ message });
+    }
+  });
+  return markets;
+}
 
 function DisplayNotifications(props) {
   const { open, setOpen, isRecent } = props;
@@ -103,19 +159,48 @@ function DisplayNotifications(props) {
   // Here we are just trying to get you to or back to a page
   const deDupe = {}
 
-  function getMessageResults(toDisplay) {
-    return (toDisplay || []).map((message) => {
-      const {
-        link,
-      } = message;
+  function getItemResult(item) {
+    const {
+      link,
+    } = item.message;
+    return (
+      <ListItem
+        key={link}
+        button
+        onClick={zeroResults}
+      >
+        <NotificationMessageDisplay message={item.message} />
+      </ListItem>
+    )
+  }
+
+  function getInvestibleResult(investible) {
+      const IconComponent = investible.typeIcon;
       return (
-        <ListItem
-          key={link}
-          button
-          onClick={zeroResults}
-        >
-          <NotificationMessageDisplay message={message} />
-        </ListItem>
+        <>
+          <Typography style={{paddingLeft: '1rem', fontStyle: 'italic'}}>
+            <IconComponent style={{marginRight: '6px', height: '16px', width: '16px' }} />{investible.name}</Typography>
+          <div style={{paddingLeft: '1rem'}}>
+            {investible.items.map(investibleItem => getItemResult(investibleItem))}
+          </div>
+        </>
+      );
+  }
+
+  function getMessageResults(toDisplay) {
+    const markets = createMarketView(toDisplay);
+    return markets.map((market) => {
+      const IconComponent = market.typeIcon;
+      return (
+        <Card style={{ border: '1px solid'}}>
+          <Typography style={{paddingRight: '1rem', paddingLeft: '1rem', fontStyle: 'italic'}}>
+            <IconComponent style={{marginRight: '6px', height: '16px', width: '16px' }} />{market.name}
+          </Typography>
+          <div style={{paddingLeft: '1rem', paddingRight: '1rem'}}>
+            {market.items.map((item) => getItemResult(item))}
+            {market.investibles.map((investible) => getInvestibleResult(investible))}
+          </div>
+        </Card>
       );
     });
   }
@@ -149,6 +234,7 @@ function DisplayNotifications(props) {
   const placement = 'bottom';
   const displayingResults = isRecent ? recent : messages;
   const notificationsDescription = isRecent ? 'notificationsRecent' : 'notifications';
+  const hasRedOrYellow = !_.isEmpty(redMessages) || !_.isEmpty(yellowMessages);
   return (
     <Popper
       open={open}
@@ -167,9 +253,8 @@ function DisplayNotifications(props) {
               dense
             >
               {isRecent && getRecentResults(recent)}
-              {!isRecent && getMessageResults(redMessages)}
-              {!isRecent && getMessageResults(yellowMessages)}
-              {!isRecent && getMessageResults(blueMessages)}
+              {!isRecent && hasRedOrYellow && getMessageResults(redMessages.concat(yellowMessages))}
+              {!isRecent && !hasRedOrYellow && getMessageResults(blueMessages)}
             </List>
           </>
         )}

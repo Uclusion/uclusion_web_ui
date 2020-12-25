@@ -61,7 +61,7 @@ export function getInvestibles(investibles, presenceMap, marketId, history, intl
     const { id, name, updated_at } = investible;
     const info = infoMap[id] || {};
     const { assigned } = info;
-    const requiresInputComments = unResolvedMarketComments.filter((comment) => {
+    const requiresInputComments = (unResolvedMarketComments || []).filter((comment) => {
       return ((comment.comment_type === QUESTION_TYPE || comment.comment_type === SUGGEST_CHANGE_TYPE))
         && (assigned || []).includes(presenceId) && (comment.investible_id === id);
     });

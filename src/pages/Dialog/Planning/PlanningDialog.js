@@ -88,6 +88,8 @@ function PlanningDialog(props) {
   const allowedCommentTypes = [QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE];
   const { name: marketName, locked_by: lockedBy } = market;
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  // For security reasons you can't access source data while being dragged in case you are not the target website
+  const [beingDraggedHack, setBeingDraggedHack] = useState({});
   const presences = getMarketPresences(marketPresencesState, marketId);
   const acceptedStage = marketStages.find(
     stage => stage.assignee_enter_only
@@ -207,6 +209,12 @@ function PlanningDialog(props) {
             presenceMap={presenceMap}
             investibles={requiresInputInvestibles}
             highlightMap={highlightMap}
+            stageId={requiresInputStage.id}
+            presenceId={myPresence.id}
+            allowDragDrop
+            beingDraggedHack={beingDraggedHack}
+            setBeingDraggedHack={setBeingDraggedHack}
+            unResolvedMarketComments={comments.filter(comment => !comment.resolved) || []}
           />
         </SubSection>
       )}
@@ -223,6 +231,8 @@ function PlanningDialog(props) {
             inBlockingStage={inBlockingStage}
             inReviewStage={inReviewStage}
             activeMarket={activeMarket}
+            beingDraggedHack={beingDraggedHack}
+            setBeingDraggedHack={setBeingDraggedHack}
           />
         </div>
       )}
@@ -409,10 +419,10 @@ function InvestiblesByPerson(props) {
     inBlockingStage,
     inReviewStage,
     activeMarket,
+    beingDraggedHack,
+    setBeingDraggedHack
   } = props;
   const classes = useInvestiblesByPersonStyles();
-  // For security reasons you can't access source data while being dragged in case you are not the target website
-  const [beingDraggedHack, setBeingDraggedHack] = useState({});
   const marketPresencesSortedAlmost = _.sortBy(marketPresences, 'name');
   const marketPresencesSorted = _.sortBy(marketPresencesSortedAlmost, function (presence) {
     return !presence.current_user;

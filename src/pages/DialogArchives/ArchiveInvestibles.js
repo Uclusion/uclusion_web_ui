@@ -8,6 +8,8 @@ import { formInvestibleLink, navigate } from '../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
 import { makeStyles } from '@material-ui/core/styles'
 import { yellow } from '@material-ui/core/colors'
+import { restoreHeader } from '../../containers/Header'
+import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../constants/comments'
 
 function getInvestibleOnClick(id, marketId, history) {
   return () => {
@@ -34,13 +36,15 @@ const myClasses = makeStyles(
         backgroundColor: "white",
         padding: 0,
         margin: 0
-      }
+      },
+      containerEmpty: {}
     };
   },
   { name: "Archive" }
 );
 
-export function getInvestibles(investibles, presenceMap, marketId, history, intl, elevation, highlightMap) {
+export function getInvestibles(investibles, presenceMap, marketId, history, intl, elevation, highlightMap,
+  allowDragDrop, onDragEnd, onDragStart, unResolvedMarketComments, presenceId) {
   const investibleData = investibles.map((inv) => inv.investible);
   const sortedData = _.sortBy(investibleData, 'updated_at', 'name').reverse();
   const infoMap = investibles.reduce((acc, inv) => {
@@ -57,6 +61,10 @@ export function getInvestibles(investibles, presenceMap, marketId, history, intl
     const { id, name, updated_at } = investible;
     const info = infoMap[id] || {};
     const { assigned } = info;
+    const requiresInputComments = unResolvedMarketComments.filter((comment) => {
+      return ((comment.comment_type === QUESTION_TYPE || comment.comment_type === SUGGEST_CHANGE_TYPE))
+        && (assigned || []).includes(presenceId) && (comment.investible_id === id);
+    });
     const usedAssignees = assigned || [];
     const assignedNames = usedAssignees.map((element) => {
       const presence = presenceMap[element];
@@ -65,9 +73,13 @@ export function getInvestibles(investibles, presenceMap, marketId, history, intl
     return (
       <Grid
         key={id}
+        id={id}
         item
         md={3}
         xs={12}
+        draggable={allowDragDrop && _.isEmpty(requiresInputComments)}
+        onDragStart={onDragStart}
+        onDragEnd={onDragEnd}
       >
         <RaisedCard
           onClick={getInvestibleOnClick(id, marketId, history)}
@@ -90,17 +102,41 @@ function ArchiveInvestbiles(props) {
     marketId,
     presenceMap,
     elevation,
-    highlightMap
+    highlightMap,
+    allowDragDrop,
+    stageId,
+    presenceId,
+    beingDraggedHack,
+    setBeingDraggedHack,
+    unResolvedMarketComments
   } = props;
   const classes = myClasses();
   const intl = useIntl();
   const history = useHistory();
+
+  function onDragEnd() {
+    restoreHeader();
+    const { previousElementId } = beingDraggedHack;
+    if (previousElementId) {
+      document.getElementById(previousElementId).className = classes.containerEmpty;
+      setBeingDraggedHack({});
+    }
+  }
+
+  function onDragStart(event) {
+    event.dataTransfer.setData("text", event.target.id);
+    event.dataTransfer.setData("stageId", stageId);
+    const originalElementId = `${stageId}_${presenceId}`;
+    setBeingDraggedHack({id:event.target.id, stageId, originalElementId});
+  }
+
   return (
     <Grid
       container
       className={classes.white}
     >
-      {getInvestibles(investibles, presenceMap, marketId, history, intl, elevation, highlightMap)}
+      {getInvestibles(investibles, presenceMap, marketId, history, intl, elevation, highlightMap, allowDragDrop,
+      onDragEnd, onDragStart, unResolvedMarketComments, presenceId)}
     </Grid>
   );
 }

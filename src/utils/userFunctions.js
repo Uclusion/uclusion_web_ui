@@ -55,8 +55,8 @@ export function hasNotVoted(investible, marketPresencesState, marketsState, comm
   const marketsToCheck = [].concat(children || []);
   const commentsSafe = comments || [];
   commentsSafe.forEach((comment) => {
-    const { investible_id: myInvestibleId, inline_market_id: inlineMarketId } = comment;
-    if (investible.investible.id === myInvestibleId && inlineMarketId) {
+    const { investible_id: myInvestibleId, inline_market_id: inlineMarketId, resolved } = comment;
+    if (investible.investible.id === myInvestibleId && inlineMarketId && !resolved) {
       marketsToCheck.push(inlineMarketId);
     }
   })

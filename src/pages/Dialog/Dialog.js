@@ -144,13 +144,17 @@ function Dialog(props) {
           return pollForMarketLoad(id);
         }).catch((error) => {
           console.error(error);
-          toastError('errorMarketFetchFailed');
+          if (error.status === 400 || error.status === 404) {
+            history.push(`/${error.status}`);
+          } else {
+            toastError('errorMarketFetchFailed');
+          }
         });
       } else {
         setMarketId(proposedMarketId);
       }
     }
-  }, [action, hasUser, hash, hidden, isInitialization, marketEntity, marketsDispatch, marketsState,
+  }, [action, hasUser, hash, hidden, history, isInitialization, marketEntity, marketsDispatch, marketsState,
     presenceDispatch, setOperationRunning]);
 
   useEffect(() => {

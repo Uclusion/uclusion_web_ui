@@ -90,11 +90,15 @@ function Investible(props) {
         return pollForMarketLoad(id);
       }).catch((error) => {
         console.error(error);
-        toastError('errorMarketFetchFailed');
+        if (error.status === 400 || error.status === 404) {
+          history.push(`/${error.status}`);
+        } else {
+          toastError('errorMarketFetchFailed');
+        }
       });
     }
   }, [isInitialization, hidden, marketId, realMarket, marketPresences, setOperationRunning, marketsDispatch,
-    presenceDispatch]);
+    presenceDispatch, history]);
 
   useEffect(() => {
     if (!hidden) {

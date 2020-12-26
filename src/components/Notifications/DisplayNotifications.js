@@ -66,7 +66,7 @@ function createMarketView(messages) {
     if (!marketsHash[marketId]) {
       if (!marketId) {
         const name = marketType === 'slack' ? 'Notification preferences' : 'Upgrade';
-        markets.push({ name, typeIcon: getNameIcon(message, 'MARKET'), investibles: [],
+        markets.push({ name, typeIcon: getNameIcon(message), investibles: [],
           items: [{ message }] });
       } else {
         const aMarket = { name: marketName, typeIcon: getNameIcon(message, 'MARKET'), investiblesHash: {},

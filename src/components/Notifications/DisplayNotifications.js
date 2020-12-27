@@ -61,9 +61,9 @@ function createMarketView(messages) {
   const markets = [];
   const marketsHash = {};
   messages.forEach((message) => {
-    const { marketId, market_type: marketType, market_name: marketName, investible_name: investibleName,
+    const { marketId, market_link: marketLink, market_type: marketType, market_name: marketName, investible_name: investibleName,
     investible_link: investibleLink } = message;
-    if (!marketsHash[marketId]) {
+    if (!marketsHash[marketLink]) {
       if (!marketId) {
         const name = marketType === 'slack' ? 'Notification preferences' : 'Upgrade';
         markets.push({ name, typeIcon: getNameIcon(message), investibles: [],
@@ -72,10 +72,10 @@ function createMarketView(messages) {
         const aMarket = { name: marketName, typeIcon: getNameIcon(message, 'MARKET'), investiblesHash: {},
           investibles: [], items: [] };
         markets.push(aMarket);
-        marketsHash[marketId] = aMarket;
+        marketsHash[marketLink] = aMarket;
       }
     }
-    const market = marketsHash[marketId];
+    const market = marketsHash[marketLink];
     if (investibleLink) {
       const investiblesHash = market.investiblesHash;
       if (!investiblesHash[investibleLink]) {

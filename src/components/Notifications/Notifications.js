@@ -6,6 +6,7 @@ import { NotificationsContext } from '../../contexts/NotificationsContext/Notifi
 import { filterMessagesByMarket, nextMessage } from '../../contexts/NotificationsContext/notificationsContextHelper'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import DisplayNotifications from './DisplayNotifications'
+import { BLUE_LEVEL, RED_LEVEL, YELLOW_LEVEL } from '../../constants/notifications'
 
 const useStyles = makeStyles(
   theme => {
@@ -19,6 +20,12 @@ const useStyles = makeStyles(
       backgroundColor: '#F29100',
       '&:hover': {
         backgroundColor: '#F29100',
+      }
+    },
+    blue: {
+      backgroundColor: '#2D9CDB',
+      '&:hover': {
+        backgroundColor: '#2D9CDB',
       }
     },
     uncolored: {
@@ -61,10 +68,12 @@ function Notifications() {
     }
     const { level } = current;
     switch (level) {
-      case 'RED':
+      case RED_LEVEL:
         return classes.red;
-      case 'YELLOW':
+      case YELLOW_LEVEL:
         return classes.yellow;
+      case BLUE_LEVEL:
+        return classes.blue;
       default:
         return classes.uncolored;
     }

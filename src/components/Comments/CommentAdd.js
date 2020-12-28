@@ -3,6 +3,7 @@ import { FormattedMessage, injectIntl } from 'react-intl'
 import classNames from 'clsx'
 import clsx from 'clsx'
 import _ from 'lodash'
+import localforage from 'localforage'
 import {
   Button, Card, CardContent, Checkbox,
   darken,
@@ -206,6 +207,25 @@ function CommentAdd (props) {
   const [editorClearFunc, setEditorClearFunc] = useState(() => defaultClearFunc);
   const defaultFocusFunc = () => {};
   const [editorFocusFunc, setEditorFocusFunc] = useState(() => defaultFocusFunc);
+  const defaultDefaultFunc = (newDefault) => {};
+  const [editorDefaultFunc, setEditorDefaultFunc] = useState(() => defaultDefaultFunc);
+  const [loadedId, setLoadedId] = useState(undefined);
+  const usedParent = parent || {};
+  const { investible_id: parentInvestible, id: parentId } = usedParent;
+  const investibleId = investible ? investible.id : parentInvestible;
+  const loadId = investibleId ? `${marketId}_${investibleId}` :
+    type === TODO_TYPE ? `${type}_${marketId}` : `${marketId}`;
+
+  useEffect(() => {
+    if (!hidden && loadedId !== loadId) {
+      localforage.getItem(loadId).then((stateFromDisk) => {
+        setBody(stateFromDisk);
+        editorDefaultFunc(stateFromDisk);
+        setLoadedId(loadId);
+      });
+    }
+    return () => {};
+  }, [hidden, loadedId, loadId, editorDefaultFunc]);
 
   useEffect(() => {
     if (!hidden && firstOpen) {
@@ -238,15 +258,12 @@ function CommentAdd (props) {
   }
 
   function handleSave () {
-    const usedParent = parent || {};
-    const { investible_id: parentInvestible, id: parentId } = usedParent;
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
     } = processTextAndFilesForSave(uploadedFiles, body);
     // the API does _not_ want you to send reply type, so suppress if our type is reply
     const apiType = (type === REPLY_TYPE) ? undefined : type;
-    const investibleId = (investible) ? investible.id : parentInvestible;
     // what about not doing state?
     // TODO: this breaks if investible exists in more than one market
     const inv = getInvestible(investibleState, investibleId) || {};
@@ -270,6 +287,10 @@ function CommentAdd (props) {
         addCommentToMarket(comment, commentsState, commentDispatch);
         return EMPTY_SPIN_RESULT;
       });
+  }
+
+  function onStorageChange(value) {
+    localforage.setItem(loadId, value).then(() => {});
   }
 
   function handleCancel () {
@@ -330,6 +351,7 @@ function CommentAdd (props) {
             defaultValue={body}
             onChange={onEditorChange}
             onS3Upload={onS3Upload}
+            onStoreChange={onStorageChange}
             setOperationInProgress={setOperationRunning}
             setEditorClearFunc={(func) => {
               setEditorClearFunc(func);
@@ -338,11 +360,15 @@ function CommentAdd (props) {
               // console.log('Setting focus func');
               setEditorFocusFunc(func);
             }}
+            setEditorDefaultFunc={(func) => {
+              setEditorDefaultFunc(func);
+            }}
             getUrlName={urlHelperGetName(marketState, investibleState)}
           >
             <Button
               onClick={handleCancel}
               className={classes.button}
+              style={{border: "1px solid black"}}
             >
               {intl.formatMessage({ id: commentCancelLabel })}
             </Button>
@@ -363,6 +389,9 @@ function CommentAdd (props) {
                 {intl.formatMessage({ id: commentSaveLabel })}
               </Button>
             )}
+            <Button className={classes.button}>
+              {intl.formatMessage({ id: 'edited' })}
+            </Button>
             {myWarningId && (
               <IssueDialog
                 classes={lockedDialogClasses}

@@ -144,7 +144,8 @@ function CommentAddBox(props) {
     issueWarningId,
     todoWarningId,
     isPlanning,
-    isStory
+    isStory,
+    hidden
   } = props;
   const [type, setType] = useState('');
   const classes = useStyles();
@@ -215,6 +216,7 @@ function CommentAddBox(props) {
           onSave={onSave}
           todoWarningId={todoWarningId}
           isStory={isStory}
+          hidden={hidden}
         />
       </div>
     </>
@@ -230,7 +232,8 @@ CommentAddBox.propTypes = {
   allowedTypes: PropTypes.arrayOf(PropTypes.string).isRequired,
   onSave: PropTypes.func,
   isPlanning: PropTypes.bool,
-  isStory: PropTypes.bool
+  isStory: PropTypes.bool,
+  hidden: PropTypes.bool
 };
 
 CommentAddBox.defaultProps = {
@@ -239,7 +242,8 @@ CommentAddBox.defaultProps = {
   issueWarningId: null,
   todoWarningId: null,
   isPlanning: false,
-  isStory: false
+  isStory: false,
+  hidden: false
 };
 
 export default CommentAddBox;

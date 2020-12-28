@@ -419,6 +419,7 @@ function InitiativeInvestible(props) {
                 allowedTypes={allowedCommentTypes}
                 investible={investible}
                 marketId={marketId}
+                hidden={hidden}
               />
             </>
           )}
@@ -448,6 +449,7 @@ function InitiativeInvestible(props) {
               allowedTypes={allowedCommentTypes}
               investible={investible}
               marketId={marketId}
+              hidden={hidden}
             />
           )}
           <CommentBox comments={investmentReasonsRemoved} marketId={marketId} allowedTypes={allowedCommentTypes} />

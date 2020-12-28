@@ -260,6 +260,7 @@ function PlanningDialog(props) {
                 allowedTypes={allowedCommentTypes}
                 marketId={marketId}
                 isPlanning
+                hidden={hidden}
               />
             )}
             <CommentBox comments={notTodoComments} marketId={marketId} allowedTypes={allowedCommentTypes} />

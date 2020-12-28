@@ -416,6 +416,7 @@ function DecisionInvestible(props) {
                 investible={investible}
                 marketId={marketId}
                 issueWarningId="issueWarningInvestible"
+                hidden={hidden}
               />
             </>
           )}
@@ -441,6 +442,7 @@ function DecisionInvestible(props) {
               investible={investible}
               marketId={marketId}
               issueWarningId="issueWarningInvestible"
+              hidden={hidden}
             />
           )}
           <CommentBox comments={investmentReasonsRemoved} marketId={marketId} allowedTypes={allowedCommentTypes} />

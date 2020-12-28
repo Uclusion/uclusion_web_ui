@@ -436,6 +436,7 @@ function DecisionDialog(props) {
               allowedTypes={allowedCommentTypes}
               marketId={marketId}
               issueWarningId="issueWarning"
+              hidden={hidden}
             />
           )}
           <CommentBox

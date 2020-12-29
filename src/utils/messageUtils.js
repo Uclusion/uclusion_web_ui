@@ -1,4 +1,4 @@
-import { BLUE_LEVEL, ISSUE_TYPE, RED_LEVEL, YELLOW_LEVEL } from '../constants/notifications'
+import { ISSUE_TYPE, RED_LEVEL} from '../constants/notifications'
 
 export function messageComparator (a, b) {
   if (a.level === b.level) {
@@ -20,26 +20,15 @@ export function messageComparator (a, b) {
 }
 
 /**
- * Splits the message stream into a tuple
- * of {
- *   redMessages,
- *   yellowMessages
- * }
- * where the messages of each type are of the corresponding level
+ * Gets all messages of the given level. If no messages of that level are found
+ * returns []
+ * @param level
+ * @param unsafeMessages
  */
-export function splitIntoLevels(unsafeMessages){
+export function filterMessagesToLevel(level, unsafeMessages){
   const messages = unsafeMessages || [];
-  // first sort
-  messages.sort(messageComparator);
-  // extract the red
-  const redMessages = messages.filter((message) => message.level === RED_LEVEL) || [];
-  const yellowMessages = messages.filter((message) => message.level === YELLOW_LEVEL) || [];
-  const blueMessages = messages.filter((message) => message.level === BLUE_LEVEL) || [];
-  return {
-    redMessages,
-    yellowMessages,
-    blueMessages
-  }
+  const levelMessages = messages.filter((message) => message.level === level) || [];
+  return levelMessages;
 }
 
 /**

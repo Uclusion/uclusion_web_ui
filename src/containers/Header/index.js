@@ -9,14 +9,14 @@ import { OnlineStateContext } from '../../contexts/OnlineStateContext';
 import Identity from '../Screen/Identity';
 import SearchBox from '../../components/Search/SearchBox';
 import SearchResults from '../../components/Search/SearchResults';
-import Notifications from '../../components/Notifications/Notifications';
 import { useHistory } from 'react-router';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import config from '../../config';
 import { BroadcastChannel } from 'broadcast-channel'
 import { onSignOut } from '../../utils/userFunctions'
-import RecentNotifications from '../../components/Notifications/RecentNotifications'
+import RecentlyVisited from '../../components/RecentlyVisited/RecentlyVisited'
+import NotificationsContainer from '../../components/Notifications/NotificationsContainer';
 
 export const headerStyles = makeStyles((theme) => {
   return {
@@ -268,13 +268,10 @@ function Header (props) {
           (
             <React.Fragment>
               <div className={classes.grow}/>
-              <div id="recent-notifications" style={{marginRight: '4rem', paddingTop: '1rem'}}>
-                <RecentNotifications/>
-              </div>
               <div id="notifications" className={classes.notificationBox}>
                 <div className={classes.notification}>
-                  <Notifications/>
-                </div>
+                  <NotificationsContainer/>
+                 </div>
               </div>
               <div className={classes.searchBox}>
                 <SearchBox/>
@@ -282,11 +279,14 @@ function Header (props) {
               <SearchResults/>
               {window.outerWidth > 600 && (
                 <Tooltip title={<FormattedMessage id="help" />}>
-                  <HelpOutlineIcon color="primary" style={{cursor: 'pointer', marginLeft: '2rem'}}
+                  <HelpOutlineIcon color="primary" style={{cursor: 'pointer', marginLeft: '1rem'}}
                                    onClick={() => openInNewTab(config.helpLink)} />
                 </Tooltip>
               )}
               <Identity logoutChannel={logoutChannel}/>
+              <div id="recent-notifications" style={{ marginLeft: '1em', marginRight: '0.25em'}}>
+                <RecentlyVisited/>
+              </div>
             </React.Fragment>
           )}
         </Toolbar>

@@ -1,18 +1,16 @@
 import _ from 'lodash'
 import { getMarket } from '../MarketsContext/marketsContextHelper'
-import { splitIntoLevels } from '../../utils/messageUtils'
+import { filterMessagesToLevel } from '../../utils/messageUtils';
 
-export function nextMessage(state) {
+export function levelMessages(state, level) {
   const { messages } = state;
-  const { redMessages, yellowMessages } = splitIntoLevels(messages);
+  return filterMessagesToLevel(level, messages);
+}
+
+export function nextMessage(state, level) {
+  const messages = levelMessages(state, level);
   if (_.isEmpty(messages)) {
     return undefined;
-  }
-  if (!_.isEmpty(redMessages)) {
-    return redMessages[0];
-  }
-  if (!_.isEmpty(yellowMessages)) {
-    return yellowMessages[0];
   }
   return messages[0];
 }

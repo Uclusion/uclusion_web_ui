@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import NotificationImportantIcon from '@material-ui/icons/NotificationImportant';
 import WarningIcon from '@material-ui/icons/Warning';
+import HourglassFullIcon from '@material-ui/icons/HourglassFull';
 import NotesIcon from '@material-ui/icons/Notes';
 import { Fab, makeStyles } from '@material-ui/core';
 import clsx from 'clsx';
@@ -77,7 +78,7 @@ function Notifications (props) {
       case RED_LEVEL:
         return <WarningIcon className={classes.uncolored}/>
       case YELLOW_LEVEL:
-        return <NotificationImportantIcon className={classes.uncolored}/>
+        return <HourglassFullIcon className={classes.uncolored}/>
       case BLUE_LEVEL:
         return <NotesIcon className={classes.uncolored}/>
       default:

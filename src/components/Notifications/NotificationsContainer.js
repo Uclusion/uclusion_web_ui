@@ -5,6 +5,7 @@ import { BLUE_LEVEL, RED_LEVEL, YELLOW_LEVEL } from '../../constants/notificatio
 import { makeStyles } from '@material-ui/core/styles';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import { levelMessages } from '../../contexts/NotificationsContext/notificationsContextHelper';
+import { isTinyWindow } from '../../utils/windowUtils';
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -24,6 +25,9 @@ function NotificationsContainer (props) {
   const yellowMessages = levelMessages(messagesState, YELLOW_LEVEL);
   const blueMessages = levelMessages(messagesState, BLUE_LEVEL);
 
+  // on small windows we only have room for one, so drop blue and yellow if we have red
+  const showYellowMessages = !_.isEmpty(yellowMessages) && (!isTinyWindow() || _.isEmpty(redMessages));
+  const showBlueMessages = !_.isEmpty(blueMessages) && (!isTinyWindow() || _.isEmpty(redMessages) || _.isEmpty(yellowMessages));
   return (
     <React.Fragment>
       {!_.isEmpty(redMessages) && (
@@ -34,7 +38,7 @@ function NotificationsContainer (props) {
             active={activeLevel}
             setActive={setActiveLevel}/>
         </div>)}
-      {!_.isEmpty(yellowMessages) && (
+      {showYellowMessages && (
         <div className={classes.bellButton}>
           <Notifications
             level={YELLOW_LEVEL}
@@ -42,7 +46,7 @@ function NotificationsContainer (props) {
             active={activeLevel}
             setActive={setActiveLevel}/>
         </div>)}
-      {!_.isEmpty(blueMessages) && (
+      {showBlueMessages && (
         <div className={classes.bellButton}>
           <Notifications
             level={BLUE_LEVEL}

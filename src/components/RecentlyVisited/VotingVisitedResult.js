@@ -13,7 +13,7 @@ function getTypeNameId() {
   return 'NotificationResultJustify';
 }
 
-function VotingNotificationResult(props) {
+function VotingVisitedResult(props) {
   const {
     marketId,
     containerName,
@@ -54,7 +54,7 @@ function VotingNotificationResult(props) {
 
 }
 
-VotingNotificationResult.propTypes = {
+VotingVisitedResult.propTypes = {
   marketId: PropTypes.string.isRequired,
   containerName: PropTypes.string.isRequired,
   userId: PropTypes.string.isRequired,
@@ -62,9 +62,9 @@ VotingNotificationResult.propTypes = {
   afterOnClick: PropTypes.func,
 };
 
-VotingNotificationResult.defaultProps = {
+VotingVisitedResult.defaultProps = {
   afterOnClick: () => {},
 }
 
-export default VotingNotificationResult;
+export default VotingVisitedResult;
 

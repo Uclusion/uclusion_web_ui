@@ -1,72 +1,92 @@
-import React, { useContext, useEffect, useState } from 'react'
-import { NotificationImportant, Notifications as NotificationsIcon } from '@material-ui/icons'
-import { Fab, makeStyles } from '@material-ui/core'
-import clsx from 'clsx'
-import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
-import { filterMessagesByMarket, nextMessage } from '../../contexts/NotificationsContext/notificationsContextHelper'
-import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
-import DisplayNotifications from './DisplayNotifications'
-import { BLUE_LEVEL, RED_LEVEL, YELLOW_LEVEL } from '../../constants/notifications'
+import React, { useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
+import _ from 'lodash';
+import NotificationImportantIcon from '@material-ui/icons/NotificationImportant';
+import WarningIcon from '@material-ui/icons/Warning';
+import HourglassFullIcon from '@material-ui/icons/HourglassFull';
+import NotesIcon from '@material-ui/icons/Notes';
+import { Fab, makeStyles } from '@material-ui/core';
+import clsx from 'clsx';
+import DisplayNotifications from './DisplayNotifications';
+import { BLUE_LEVEL, RED_LEVEL, YELLOW_LEVEL } from '../../constants/notifications';
 
 const useStyles = makeStyles(
   theme => {
-    return {red: {
-      backgroundColor: 'red',
-      '&:hover': {
-        backgroundColor: 'red',
-      }
-    },
-    yellow: {
-      backgroundColor: '#F29100',
-      '&:hover': {
-        backgroundColor: '#F29100',
-      }
-    },
-    blue: {
-      backgroundColor: '#2D9CDB',
-      '&:hover': {
-        backgroundColor: '#2D9CDB',
-      }
-    },
-    uncolored: {
-      fontSize: 24,
-      color: '#fff'
-    },
-    fab: {
-      borderRadius: '50%',
-      width: '48px',
-      height: '48px',
-      boxShadow: 'none',
-      minHeight: '48px',
-      [theme.breakpoints.down('sm')]: {
-        width: '36px',
-        height: '36px',
-        minHeight: '36px'
-      },
-    }
-  }
-});
+    return {
 
-export function getFullLink(current) {
+      red: {
+        backgroundColor: 'red',
+        '&:hover': {
+          backgroundColor: 'red',
+        }
+      },
+      yellow: {
+        backgroundColor: '#e6e969',
+        '&:hover': {
+          backgroundColor: '#e6e969',
+        }
+      },
+      blue: {
+        backgroundColor: '#2D9CDB',
+        '&:hover': {
+          backgroundColor: '#2D9CDB',
+        }
+      },
+      uncolored: {
+        fontSize: 24,
+        color: '#fff'
+      },
+      fab: {
+        borderRadius: '50%',
+        width: '48px',
+        height: '48px',
+        boxShadow: 'none',
+        minHeight: '48px',
+        [theme.breakpoints.down('sm')]: {
+          width: '36px',
+          height: '36px',
+          minHeight: '36px'
+        },
+      }
+    };
+  });
+
+export function getFullLink (current) {
   return current.link;
 }
 
-function Notifications() {
+function Notifications (props) {
+
+  const {
+    level,
+    active,
+    setActive,
+    messages,
+  } = props;
+
   const [open, setOpen] = useState(false);
   const [inside, setInside] = useState(false);
   const [pegLeft, setPegLeft] = useState(false);
   const [pegLeftTimer, setPegLeftTimer] = useState(undefined);
-  const [messagesState] = useContext(NotificationsContext);
-  const [marketsState] = useContext(MarketsContext);
-  const filteredMessagesState = filterMessagesByMarket(messagesState, marketsState);
-  const current = nextMessage(filteredMessagesState || {});
+
   const classes = useStyles();
 
-  function getBackgroundClass() {
-    if (!current) {
-      return classes.uncolored;
+
+
+  function getIcon () {
+    switch(level) {
+      case RED_LEVEL:
+        return <WarningIcon className={classes.uncolored}/>
+      case YELLOW_LEVEL:
+        return <HourglassFullIcon className={classes.uncolored}/>
+      case BLUE_LEVEL:
+        return <NotesIcon className={classes.uncolored}/>
+      default:
+        return <NotificationImportantIcon className={classes.uncolored}/>
     }
-    const { level } = current;
+  }
+
+  function getBackgroundClass () {
     switch (level) {
       case RED_LEVEL:
         return classes.red;
@@ -79,7 +99,21 @@ function Notifications() {
     }
   }
 
-  function onEnter() {
+  function getTitleId () {
+    switch(level) {
+      case RED_LEVEL:
+        return 'criticalTasks';
+      case YELLOW_LEVEL:
+        return 'urgentTasks';
+      case BLUE_LEVEL:
+        return 'informational';
+      default:
+        return 'notifications';
+    }
+  }
+
+  function onEnter () {
+    setActive(level);
     setOpen(true);
     setInside(true);
     if (pegLeftTimer) {
@@ -89,7 +123,7 @@ function Notifications() {
     setPegLeft(false);
   }
 
-  function onOut() {
+  function onOut () {
     if (!pegLeft) {
       setInside(false);
       setPegLeftTimer(setTimeout(() => {
@@ -106,6 +140,12 @@ function Notifications() {
     return () => {};
   }, [inside, pegLeft]);
 
+  if (_.isEmpty(messages)) {
+    return <React.Fragment/>;
+  }
+
+  const amOpenAndActive = open && (active === level);
+
   return (
     <div onMouseOut={onOut} onMouseOver={onEnter}>
       <Fab
@@ -114,14 +154,23 @@ function Notifications() {
           classes.fab,
           getBackgroundClass())}
       >
-        {current && (
-            <NotificationImportant className={classes.uncolored} />
-        )}
-        {!current && <NotificationsIcon className={classes.uncolored} />}
+        {getIcon()}
       </Fab>
-      <DisplayNotifications open={open} setOpen={setOpen} />
+      <DisplayNotifications level={level} messages={messages} open={amOpenAndActive} setOpen={setOpen} titleId={getTitleId()}/>
     </div>
   );
 }
+
+Notifications.propTypes = {
+  active: PropTypes.string,
+  setActive: PropTypes.func,
+  messages: PropTypes.arrayOf(PropTypes.object),
+};
+
+Notifications.defaultProps = {
+  active: null,
+  setActive: () => {},
+  messages: [],
+};
 
 export default Notifications;

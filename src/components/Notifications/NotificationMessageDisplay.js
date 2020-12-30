@@ -31,7 +31,7 @@ function NotificationMessageDisplay(props) {
           <Typography style={{fontStyle: 'italic'}}>
             {name}</Typography>
         )}
-        <Typography style={{backgroundColor: color, color: fontColor, paddingLeft: '1rem'}}>{text}</Typography>
+        <Typography style={{backgroundColor: color, color: fontColor, paddingLeft: '1rem', borderRadius: '3px'}}>{text}</Typography>
       </>
     </Link>
   );

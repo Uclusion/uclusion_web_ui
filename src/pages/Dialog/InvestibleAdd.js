@@ -30,7 +30,7 @@ function InvestibleAdd(props) {
   const { pathname, hash } = location;
   const values = queryString.parse(hash || '') || {};
   const { parentCommentId, fromCommentId } = values;
-  const fromCommentIds = _.isArray(fromCommentId) ? fromCommentId : [fromCommentId];
+  const fromCommentIds = _.isArray(fromCommentId) ? fromCommentId : fromCommentId ? [fromCommentId] : undefined;
   const { marketId } = decomposeMarketPath(pathname);
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);

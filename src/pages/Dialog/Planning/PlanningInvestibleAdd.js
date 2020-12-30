@@ -28,7 +28,6 @@ import { updateInvestment } from '../../../api/marketInvestibles'
 import {
   getMarketComments,
   refreshMarketComments,
-  removeComments
 } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { TourContext } from '../../../contexts/TourContext/TourContext'
@@ -40,7 +39,7 @@ import {
 } from '../../../contexts/TourContext/tourContextHelper'
 import { storeTourCompleteInBackend } from '../../../components/Tours/UclusionTour'
 import { getUiPreferences } from '../../../contexts/AccountUserContext/accountUserContextHelper'
-import { moveComments, removeComment } from '../../../api/comments'
+import { moveComments } from '../../../api/comments'
 import NameField from '../../../components/TextFields/NameField'
 import Comment from '../../../components/Comments/Comment'
 

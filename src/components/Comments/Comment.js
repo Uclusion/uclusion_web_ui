@@ -292,7 +292,7 @@ function useMarketId() {
  * @param {{comment: Comment, comments: Comment[]}} props
  */
 function Comment(props) {
-  const { comment, marketId, comments, allowedTypes, editOpenDefault, noAuthor, onDone } = props;
+  const { comment, marketId, comments, allowedTypes, editOpenDefault, noAuthor, onDone,  readOnly } = props;
   const history = useHistory();
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const intl = useIntl();
@@ -326,8 +326,8 @@ function Comment(props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const [investibleState, investibleDispatch] = useContext(InvestiblesContext);
   const [commentState, commentDispatch] = useContext(CommentsContext);
-  const enableActions = !inArchives
-  const enableEditing = !inArchives && !resolved; //resolved comments or those in archive aren't editable
+  const enableActions = !inArchives && !readOnly;
+  const enableEditing = !inArchives && !resolved && !readOnly; //resolved comments or those in archive aren't editable
 
   function toggleMultiVote() {
     const myMultiVote = !multiVote;
@@ -776,7 +776,7 @@ function Comment(props) {
                 />
               </Typography>
             )}
-            {commentType === TODO_TYPE && !investibleId && !inArchives && (
+            {commentType === TODO_TYPE && !investibleId && !inArchives && enableActions && (
               <Button
                 className={clsx(classes.action, classes.actionPrimary)}
                 color="primary"
@@ -872,6 +872,7 @@ Comment.propTypes = {
   comment: PropTypes.object.isRequired,
   editOpenDefault: PropTypes.bool,
   noAuthor: PropTypes.bool,
+  readOnly: PropTypes.bool,
   onDone: PropTypes.func,
   comments: PropTypes.arrayOf(PropTypes.object).isRequired,
   depth: () => {
@@ -885,6 +886,7 @@ Comment.propTypes = {
 Comment.defaultProps = {
   editOpenDefault: false,
   noAuthor: false,
+  readOnly: false,
   onDone: () => {}
 };
 

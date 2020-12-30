@@ -3,6 +3,7 @@ import { useHistory, useLocation } from 'react-router'
 import PropTypes from 'prop-types'
 import { useIntl } from 'react-intl'
 import localforage from 'localforage'
+import _ from 'lodash'
 import { decomposeMarketPath, formMarketLink, makeBreadCrumbs, navigate, } from '../../utils/marketIdPathFunctions'
 import Screen from '../../containers/Screen/Screen'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
@@ -29,6 +30,7 @@ function InvestibleAdd(props) {
   const { pathname, hash } = location;
   const values = queryString.parse(hash || '') || {};
   const { parentCommentId, fromCommentId } = values;
+  const fromCommentIds = _.isArray(fromCommentId) ? fromCommentId : [fromCommentId];
   const { marketId } = decomposeMarketPath(pathname);
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -125,7 +127,7 @@ function InvestibleAdd(props) {
           onSpinComplete={onDone}
           marketPresences={marketPresences}
           createdAt={createdAt}
-          fromCommentId={fromCommentId}
+          fromCommentIds={fromCommentIds}
           storedState={storedState}
           classes={classes}
           storyMaxBudget={storyMaxBudget}

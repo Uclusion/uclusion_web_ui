@@ -81,6 +81,7 @@ function SubSection(props) {
     hidden,
     title,
     actionButton,
+    createButton,
     searchBar,
     type,
     titleIcon,
@@ -121,6 +122,7 @@ function SubSection(props) {
           )}
           <div className={classes.grow}/>
           <div className={classes.searchContainer}>
+            {createButton}
             {searchBar}
             {actionButton}
           </div>
@@ -139,6 +141,7 @@ SubSection.propTypes = {
   title: PropTypes.string,
   children: PropTypes.any,
   actionButton: PropTypes.object,
+  createButton: PropTypes.object,
   searchBar: PropTypes.object,
   type: PropTypes.string,
   titleIcon: PropTypes.element,

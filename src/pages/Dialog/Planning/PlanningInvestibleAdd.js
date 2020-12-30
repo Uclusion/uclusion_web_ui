@@ -13,7 +13,7 @@ import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingBut
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { useLocation } from 'react-router';
 import queryString from 'query-string'
-import CardType, { STORY_TYPE } from '../../../components/CardType'
+import CardType, { STORY_TYPE, TODO_TYPE } from '../../../components/CardType'
 import { DaysEstimate } from '../../../components/AgilePlan'
 import DismissableText from '../../../components/Notifications/DismissableText'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
@@ -40,13 +40,14 @@ import {
 } from '../../../contexts/TourContext/tourContextHelper'
 import { storeTourCompleteInBackend } from '../../../components/Tours/UclusionTour'
 import { getUiPreferences } from '../../../contexts/AccountUserContext/accountUserContextHelper'
-import { removeComment } from '../../../api/comments'
+import { moveComments, removeComment } from '../../../api/comments'
 import NameField from '../../../components/TextFields/NameField'
+import Comment from '../../../components/Comments/Comment'
 
 function PlanningInvestibleAdd(props) {
   const {
     marketId, classes, onCancel, onSave, storedState, onSpinComplete, createdAt, storyMaxBudget, allowMultiVote,
-    fromCommentId
+    fromCommentIds
   } = props;
   const intl = useIntl();
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
@@ -57,8 +58,7 @@ function PlanningInvestibleAdd(props) {
   const emptyInvestible = { name: storedName };
   const [currentValues, setCurrentValues] = useState(emptyInvestible);
   const comments = getMarketComments(commentsState, marketId) || [];
-  const fromComment = comments.find((comment) => comment.id === fromCommentId) || {};
-  const [description, setDescription] = useState(fromComment.body || storedDescription);
+  const [description, setDescription] = useState(storedDescription);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const location = useLocation();
   function getUrlAssignee() {
@@ -208,14 +208,13 @@ function PlanningInvestibleAdd(props) {
     if (daysEstimate) {
       addInfo.daysEstimate = daysEstimate;
     }
-    if (fromComment.notification_type) {
-      addInfo.labelList = [intl.formatMessage({ id: `notificationLabel${fromComment.notification_type}` })];
-    }
     return addPlanningInvestible(addInfo).then((inv) => {
-      if (fromCommentId) {
-        return removeComment(marketId, fromCommentId)
-          .then(() => {
-            removeComments(commentsDispatch, marketId, [fromCommentId]);
+      if (fromCommentIds) {
+        const { investible } = inv;
+        return moveComments(marketId, investible.id, fromCommentIds)
+          .then((movedComments) => {
+            const comments = getMarketComments(commentsState, marketId);
+            refreshMarketComments(commentsDispatch, marketId, [...movedComments, ...comments]);
             return inv;
           });
       }
@@ -253,6 +252,24 @@ function PlanningInvestibleAdd(props) {
           spinChecker: () => Promise.resolve(true),
         };
       });
+    });
+  }
+
+  function getAddedComments() {
+    return (fromCommentIds || []).map((fromCommentId) => {
+      const fromComment = comments.find((comment) => comment.id === fromCommentId);
+      return (
+        <div style={{marginTop: "2rem"}}>
+          <Comment
+            depth={0}
+            marketId={marketId}
+            comment={fromComment}
+            comments={comments}
+            allowedTypes={[TODO_TYPE]}
+            readOnly
+          />
+        </div>
+      );
     });
   }
 
@@ -333,6 +350,7 @@ function PlanningInvestibleAdd(props) {
             </SpinBlockingButton>
         </CardActions>
       </Card>
+      {getAddedComments()}
     </>
   );
 }

@@ -23,12 +23,14 @@ export const useStyles = makeStyles((theme) => {
     menuTitleWhite: {
       flex: 3,
       color: 'white',
-      fontWeight: 700
+      fontWeight: 700,
+      whiteSpace: 'nowrap'
     },
     menuTitle: {
       flex: 3,
       color: 'black',
-      fontWeight: 700
+      fontWeight: 700,
+      whiteSpace: 'nowrap'
     },
   };
 });

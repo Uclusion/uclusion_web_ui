@@ -1,11 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
-import { Grid, InputAdornment, TextField, Typography } from '@material-ui/core'
+import { Button, Checkbox, Grid, InputAdornment, TextField, Typography } from '@material-ui/core'
 import _ from 'lodash'
 import RaisedCard from '../../../components/Cards/RaisedCard'
-import { useIntl } from 'react-intl'
+import { FormattedMessage, useIntl } from 'react-intl'
 import { useHistory, useLocation } from 'react-router'
-import { makeStyles } from '@material-ui/core/styles'
+import { darken, makeStyles } from '@material-ui/core/styles'
 import { yellow } from '@material-ui/core/colors'
 import {
   SECTION_SUB_HEADER,
@@ -26,7 +26,7 @@ import { updateComment } from '../../../api/comments'
 import { addCommentToMarket } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
-import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions'
+import { formMarketAddInvestibleLink, formMarketLink, navigate } from '../../../utils/marketIdPathFunctions'
 import { ExpandLess } from '@material-ui/icons'
 import { getStages } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
@@ -82,7 +82,20 @@ const myClasses = makeStyles(
       },
       searchInput: {
         background: 'white',
-      }
+      },
+      actionSecondary: {
+        backgroundColor: "#2d9cdb",
+        color: "white",
+        textTransform: 'none',
+        fontWeight: '700',
+        marginRight: '1rem',
+        "&:hover": {
+          backgroundColor: darken("#2d9cdb", 0.04)
+        },
+        "&:focus": {
+          backgroundColor: darken("#2d9cdb", 0.12)
+        }
+      },
     };
   },
   { name: 'Archive' }
@@ -111,6 +124,8 @@ function MarketTodos (props) {
   const [createRedCard, setCreateRedCard] = useState(undefined);
   const [createYellowCard, setCreateYellowCard] = useState(undefined);
   const [editYellowCard, setEditYellowCard] = useState(undefined);
+  const [showSelectTodos, setShowSelectTodos] = useState(false);
+  const [checked, setChecked] = useState({});
   const [searchQuery, setSearchQuery] = useState(undefined);
   const foundResults = searchQuery ? index.search(searchQuery) : undefined;
   const todoComments = comments.filter(comment => comment.comment_type === TODO_TYPE) || [];
@@ -148,6 +163,17 @@ function MarketTodos (props) {
     });
   }
 
+  function todoSelectedToggle(id) {
+    return () => {
+      const { isChecked } = checked[id] || { isChecked: false };
+      const newChecked = {
+        ...checked,
+        [id]: { isChecked: !isChecked },
+      };
+      setChecked(newChecked);
+    };
+  }
+
   function getCards (commentsGetting, marketId, history, intl, setCard) {
     function setCardAndScroll(comment) {
       setCard(comment);
@@ -161,6 +187,7 @@ function MarketTodos (props) {
       const { id, body, updated_at } = comment;
       const replies = comments.filter(comment => comment.root_comment_id === id) || [];
       const { level } = highlightedCommentState[id] || {};
+      const { isChecked } = checked[id] || { isChecked: false };
       return (
         <Grid
           id={`c${id}`}
@@ -173,6 +200,13 @@ function MarketTodos (props) {
           onDragEnd={onDragEnd}
           className={classes.outlined}
         >
+          {showSelectTodos && (
+            <Checkbox
+              value={id}
+              checked={isChecked}
+              onChange={todoSelectedToggle(id)}
+            />
+          )}
           <RaisedCard onClick={() => setCardAndScroll(comment)} elevation={0}>
             <div className={level ? classes.warnCard : classes.card}>
               <div style={{display: 'flex'}}>
@@ -196,6 +230,27 @@ function MarketTodos (props) {
   function toggleShowTodos () {
     const toggleValue = showTodos === undefined ? false : !showTodos;
     expandedCommentDispatch({ type: EXPANDED_CONTROL, commentId: marketId, expanded: toggleValue });
+  }
+
+  function toggleShowSelectTodos() {
+    const currentShowSelect = showSelectTodos;
+    setShowSelectTodos(!showSelectTodos);
+    if (currentShowSelect && !_.isEmpty(checked)) {
+      let checkedString;
+      Object.keys(checked).forEach((anId) => {
+        if (checked[anId].isChecked) {
+          if (checkedString) {
+            checkedString += `&fromCommentId=${anId}`;
+          } else {
+            checkedString = `#fromCommentId=${anId}`;
+          }
+        }
+      });
+      setChecked({});
+      if (checkedString) {
+        navigate(history, `${formMarketAddInvestibleLink(marketId)}${checkedString}`);
+      }
+    }
   }
 
   function onCreateRed () {
@@ -271,6 +326,19 @@ function MarketTodos (props) {
                 </InputAdornment>
               ) : null,
             }}/>)}
+          createButton={
+            (<Button
+              onClick={toggleShowSelectTodos}
+              className={classes.actionSecondary}
+              color="secondary"
+              variant="contained"
+            >
+              <FormattedMessage
+                id={intl.formatMessage({ id: showSelectTodos ? 'todosCreateStory'
+                    : 'todosSelectForStory' })}
+              />
+            </Button>
+            )}
           actionButton={
             (<ExpandableAction
               icon={showTodos ? <ExpandLess htmlColor="black"/> : <ExpandMoreIcon htmlColor="black"/>}

@@ -44,6 +44,12 @@ export function removeComment(marketId, commentId) {
     .catch((error) => toastErrorAndThrow(error, 'errorCommentDeleteFailed'));
 }
 
+export function moveComments(marketId, investibleId, commentIds) {
+  return getMarketClient(marketId)
+    .then((client) => client.investibles.moveComments(investibleId, commentIds))
+    .catch((error) => toastErrorAndThrow(error, 'errorCommentMoveFailed'));
+}
+
 export function reopenComment(marketId, commentId) {
   // comments don't have uploaded files, hence we don't need to worry about zeroing them out.
   // otherwise we'd need the full comment to resolve whether or not we're changing them

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 
-import { Card, List, ListItem, Paper, Popper, Typography } from '@material-ui/core';
+import { Card, List, ListItem, Popper, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 import { useIntl } from 'react-intl';
 import NotificationMessageDisplay from './NotificationMessageDisplay';
@@ -14,8 +14,11 @@ import VotingIcon from '@material-ui/icons/Assessment';
 import AssignmentIcon from '@material-ui/icons/Assignment';
 import StarRateIcon from '@material-ui/icons/StarRate';
 import NotificationImportantIcon from '@material-ui/icons/NotificationImportant';
+import CardHeader from '@material-ui/core/CardHeader';
+import CardContent from '@material-ui/core/CardContent';
+import { BLUE_LEVEL, RED_LEVEL, YELLOW_LEVEL } from '../../constants/notifications';
 
-const useStyles = makeStyles(() => {
+const useStyles = makeStyles((theme) => {
   return {
     popper: {
       zIndex: 1500,
@@ -24,14 +27,32 @@ const useStyles = makeStyles(() => {
       marginTop: '1rem'
     },
     cardContainer: {
-      width: '400px',
+      width: '400px'
     },
     link: {
       width: '100%'
     },
-    viewed: {
-      paddingTop: '1rem',
-      fontWeight: 'bold'
+    messageItem: {
+      marginTop: theme.spacing(0.5),
+      marginBottom: theme.spacing(0.5),
+      border: '1px solid'
+    },
+    criticalTitleBar: {
+      backgroundColor: 'red',
+      fontWeight: 'bold',
+      borderRadius: '3px 3px 0px 0px',
+      color: '#ffffff',
+    },
+    delayableTitleBar : {
+      backgroundColor: '#e6e969',
+      fontWeight: 'bold',
+      borderRadius: '3px 3px 0px 0px',
+    },
+    informationalTitleBar: {
+      backgroundColor: '#2D9CDB',
+      fontWeight: 'bold',
+      borderRadius: '3px 3px 0px 0px',
+      color: '#ffffff',
     }
   };
 });
@@ -49,7 +70,7 @@ function getNameIcon (message, linkType) {
   }
 }
 
-function createMarketView(messages) {
+function createMarketView (messages) {
   const markets = [];
   const marketsHash = {};
   messages.forEach((message) => {
@@ -98,11 +119,11 @@ function createMarketView(messages) {
 }
 
 function DisplayNotifications (props) {
-  const { open, setOpen, isRecent, messages, titleId } = props;
+  const { open, setOpen,  messages, titleId, level } = props;
   const intl = useIntl();
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = useState(null);
-  const anchorElementId = isRecent ? 'recent-notifications' : 'notifications-fab';
+  const anchorElementId = 'notifications-fab';
 
   useEffect(() => {
     if (_.isEmpty(anchorEl)) {
@@ -116,7 +137,7 @@ function DisplayNotifications (props) {
 
   const safeMessages = messages || [];
 
-  function getItemResult(item) {
+  function getItemResult (item) {
     const {
       link,
     } = item.message;
@@ -149,7 +170,7 @@ function DisplayNotifications (props) {
     return markets.map((market) => {
       const IconComponent = market.typeIcon;
       return (
-        <Card style={{ border: '1px solid' }}>
+        <Card className={classes.messageItem} >
           <Typography style={{ paddingRight: '1rem', paddingLeft: '1rem', fontStyle: 'italic' }}>
             <IconComponent style={{ marginRight: '6px', height: '16px', width: '16px' }}/>{market.name}
           </Typography>
@@ -162,26 +183,45 @@ function DisplayNotifications (props) {
     });
   }
 
-  const placement = 'bottom';
+  function getTitleClass () {
+    switch (level) {
+      case RED_LEVEL:
+        return classes.criticalTitleBar;
+      case YELLOW_LEVEL:
+        return classes.delayableTitleBar;
+      case BLUE_LEVEL:
+        return classes.informationalTitleBar;
+      default:
+        return classes.titleBar;
+    }
+  }
 
   return (
     <Popper
       open={open}
       id="search-results"
       anchorEl={anchorEl}
-      placement={placement}
+      placement="bottom"
       className={classes.popper}
     >
-      <Paper className={classes.cardContainer}>
-        <Typography align="center" className={classes.viewed}>
-          {intl.formatMessage({ id: titleId })}
-        </Typography>
-        <List
-          dense
-        >
-          {getMessageResults(safeMessages)}
-        </List>
-      </Paper>
+      <Card
+        className={classes.cardContainer}
+        variant="outlined"
+      >
+        <CardHeader
+          titleTypographyProps={{align: 'center', variant: 'body1'}}
+          title={intl.formatMessage({ id: titleId })}
+          className={getTitleClass()}>
+
+        </CardHeader>
+        <CardContent>
+          <List
+            dense
+          >
+            {getMessageResults(safeMessages)}
+          </List>
+        </CardContent>
+      </Card>
     </Popper>
   );
 }
@@ -190,11 +230,13 @@ DisplayNotifications.propTypes = {
   isRecent: PropTypes.bool,
   messages: PropTypes.arrayOf(PropTypes.object),
   titleId: PropTypes.string,
+  level: PropTypes.string,
 };
 
 DisplayNotifications.defaultProps = {
   isRecent: false,
   messages: [],
+  level: '',
   titleId: 'notifications',
 };
 

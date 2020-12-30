@@ -21,9 +21,9 @@ const useStyles = makeStyles(
         }
       },
       yellow: {
-        backgroundColor: '#F29100',
+        backgroundColor: '#e6e969',
         '&:hover': {
-          backgroundColor: '#F29100',
+          backgroundColor: '#e6e969',
         }
       },
       blue: {
@@ -156,7 +156,7 @@ function Notifications (props) {
       >
         {getIcon()}
       </Fab>
-      <DisplayNotifications messages={messages} open={amOpenAndActive} setOpen={setOpen} titleId={getTitleId()}/>
+      <DisplayNotifications level={level} messages={messages} open={amOpenAndActive} setOpen={setOpen} titleId={getTitleId()}/>
     </div>
   );
 }

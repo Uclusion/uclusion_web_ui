@@ -15,8 +15,8 @@ function NotificationMessageDisplay(props) {
     market_name: marketName
   } = message;
   const history = useHistory();
-  const color = level === RED_LEVEL ? '#E85757' : level === YELLOW_LEVEL ? '#e6e969' : '#2D9CDB';
-  const fontColor = level === RED_LEVEL ? 'white' : level === YELLOW_LEVEL ? 'black' : 'white';
+  const color = level === RED_LEVEL ? '#ff9b9b' : level === YELLOW_LEVEL ? '#e8e9a9' : '#85bddb';
+  const fontColor = level === RED_LEVEL ? 'black' : level === YELLOW_LEVEL ? 'black' : 'white';
   const containerName = investibleName || marketName;
   return (
     <Link href={link} style={{ width: '100%' }}  onClick={

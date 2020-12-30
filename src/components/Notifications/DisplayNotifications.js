@@ -14,8 +14,6 @@ import VotingIcon from '@material-ui/icons/Assessment';
 import AssignmentIcon from '@material-ui/icons/Assignment';
 import StarRateIcon from '@material-ui/icons/StarRate';
 import NotificationImportantIcon from '@material-ui/icons/NotificationImportant';
-import CardHeader from '@material-ui/core/CardHeader';
-import CardContent from '@material-ui/core/CardContent';
 import { BLUE_LEVEL, RED_LEVEL, YELLOW_LEVEL } from '../../constants/notifications';
 
 const useStyles = makeStyles((theme) => {
@@ -29,30 +27,47 @@ const useStyles = makeStyles((theme) => {
     cardContainer: {
       width: '400px'
     },
+    itemContainers: {
+      width: '100%',
+      paddingLeft: 15,
+      paddingRight: 15,
+      paddingBottom: 10,
+      paddingTop: 10,
+    },
+    titleText: {
+      fontWeight: 'bold',
+    },
     link: {
       width: '100%'
     },
     messageItem: {
-      marginTop: theme.spacing(0.5),
-      marginBottom: theme.spacing(0.5),
-      border: '1px solid'
+      marginTop: theme.spacing(1),
+      marginBottom: theme.spacing(1),
     },
     criticalTitleBar: {
-      backgroundColor: 'red',
-      fontWeight: 'bold',
+      height: '3rem',
+      backgroundColor: '#E85757',
       borderRadius: '3px 3px 0px 0px',
       color: '#ffffff',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
     },
-    delayableTitleBar : {
+    delayableTitleBar: {
       backgroundColor: '#e6e969',
-      fontWeight: 'bold',
       borderRadius: '3px 3px 0px 0px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
     },
     informationalTitleBar: {
       backgroundColor: '#2D9CDB',
       fontWeight: 'bold',
       borderRadius: '3px 3px 0px 0px',
       color: '#ffffff',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
     }
   };
 });
@@ -119,7 +134,7 @@ function createMarketView (messages) {
 }
 
 function DisplayNotifications (props) {
-  const { open, setOpen,  messages, titleId, level } = props;
+  const { open, setOpen, messages, titleId, level } = props;
   const intl = useIntl();
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = useState(null);
@@ -170,7 +185,10 @@ function DisplayNotifications (props) {
     return markets.map((market) => {
       const IconComponent = market.typeIcon;
       return (
-        <Card className={classes.messageItem} >
+        <Card
+          raised
+          className={classes.messageItem}
+        >
           <Typography style={{ paddingRight: '1rem', paddingLeft: '1rem', fontStyle: 'italic' }}>
             <IconComponent style={{ marginRight: '6px', height: '16px', width: '16px' }}/>{market.name}
           </Typography>
@@ -208,19 +226,25 @@ function DisplayNotifications (props) {
         className={classes.cardContainer}
         variant="outlined"
       >
-        <CardHeader
-          titleTypographyProps={{align: 'center', variant: 'body1'}}
-          title={intl.formatMessage({ id: titleId })}
-          className={getTitleClass()}>
-
-        </CardHeader>
-        <CardContent>
+        <div
+          className={getTitleClass()}
+        >
+          <Typography
+            align="center"
+            className={classes.titleText}
+          >
+            {intl.formatMessage({ id: titleId })}
+          </Typography>
+        </div>
+        <div
+          className={classes.itemContainers}
+        >
           <List
             dense
           >
             {getMessageResults(safeMessages)}
           </List>
-        </CardContent>
+        </div>
       </Card>
     </Popper>
   );

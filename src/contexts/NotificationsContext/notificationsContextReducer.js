@@ -143,10 +143,10 @@ function removeStoredMessagesForMarketPage (state, page) {
     ...state,
     recent: _.unionBy(removedMassagedFiltered || [], recent || [], 'link'),
   }
-  // TODO for now stop removing comments and eventually all on new system
+  // TODO for now stop removing comments and UNREAD and eventually all on new system
   return storeMessagesInState(newState,
-    messages.filter((message) => message.commentId || (message.marketId !== marketId
-      || message.investibleId !== investibleId)));
+    messages.filter((message) => message.commentId || message.aType === 'UNREAD'
+      || (message.marketId !== marketId || message.investibleId !== investibleId)));
 }
 
 /**
@@ -199,15 +199,15 @@ function handleMessagesForPage(pageMessages) {
     // process highlighting
     processHighlighting(pageMessages);
     const notAssociatedInvestible = pageMessages.filter((message) => {
-      const { associatedInvestibleId, commentId } = message;
+      const { associatedInvestibleId, commentId, aType } = message;
       if (associatedInvestibleId) {
         // Each of these has to be deleted individually since we are not on that page
         deleteMessage(message)
           .catch((error) => console.error(error));
         return false;
       }
-      //TODO eventually do not page delete anything - for now put comments on new system
-      return !commentId;
+      //TODO eventually do not page delete anything - for now put comments and UNREAD on new system
+      return !commentId && aType !== 'UNREAD';
     })
     if (!_.isEmpty(notAssociatedInvestible)) {
       // and tell the backend we've processed them immediately

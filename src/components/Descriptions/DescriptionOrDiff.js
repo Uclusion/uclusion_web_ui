@@ -10,6 +10,10 @@ import ReadOnlyQuillEditor from '../TextEditors/ReadOnlyQuillEditor';
 import { useIntl } from 'react-intl';
 import { Button, darken } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
+import { deleteSingleMessage } from '../../api/users'
+import { removeMessage } from '../../contexts/NotificationsContext/notificationsContextReducer'
+import { findMessageOfTypeAndId } from '../../utils/messageUtils'
+import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 
 const style = makeStyles(() => {
     return {
@@ -63,8 +67,13 @@ function DescriptionOrDiff(props) {
   const [showDiff, setShowDiff] = useState(false);
   const diffAvailable = hasDiff(diffState, id);
   const highlightClass = hasNewDiff ? classes.containerYellow : classes.containerNone;
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const myMessage = findMessageOfTypeAndId("UNREAD", id, messagesState);
 
   function toggleDiffShow() {
+    if (myMessage) {
+      deleteSingleMessage(myMessage).then(() => messagesDispatch(removeMessage(myMessage)));
+    }
     markContentViewed(diffDispatch, id, description);
     setShowDiff(!showDiff);
   }
@@ -84,6 +93,8 @@ function DescriptionOrDiff(props) {
         value={description}
         setBeingEdited={setBeingEdited}
         isEditable={isEditable}
+        notificationId={id}
+        notificationType="UNREAD"
       />
       {diffAvailable && (
         <Button

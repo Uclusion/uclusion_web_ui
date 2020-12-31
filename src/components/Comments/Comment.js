@@ -1039,6 +1039,7 @@ function Reply(props) {
           <ReadOnlyQuillEditor
             className={classes.editor}
             value={comment.body}
+            notificationType="ISSUE" notificationId={comment.id}
           />
         )}
       </CardContent>

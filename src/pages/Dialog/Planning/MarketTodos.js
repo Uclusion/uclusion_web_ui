@@ -219,7 +219,7 @@ function MarketTodos (props) {
                   </div>
                 )}
               </div>
-              <ReadOnlyQuillEditor value={body}/>
+              <ReadOnlyQuillEditor value={body} notificationType="ISSUE" notificationId={id}/>
             </div>
           </RaisedCard>
         </Grid>

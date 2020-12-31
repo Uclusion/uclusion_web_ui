@@ -219,8 +219,10 @@ function CommentAdd (props) {
   useEffect(() => {
     if (!hidden && loadedId !== loadId) {
       localforage.getItem(loadId).then((stateFromDisk) => {
-        setBody(stateFromDisk);
-        editorDefaultFunc(stateFromDisk);
+        if (stateFromDisk) {
+          setBody(stateFromDisk);
+          editorDefaultFunc(stateFromDisk);
+        }
         setLoadedId(loadId);
       });
     }
@@ -293,22 +295,24 @@ function CommentAdd (props) {
     localforage.setItem(loadId, value).then(() => {});
   }
 
+  function clearMe() {
+    localforage.removeItem(loadId).then(() => {
+      setBody('');
+      editorClearFunc();
+      setUploadedFiles([]);
+      setOpenIssue(false);
+      clearType();
+    });
+  }
+
   function handleCancel () {
-    setBody('');
-    editorClearFunc();
-    setUploadedFiles([]);
-    setOpenIssue(false);
+    clearMe();
     onCancel();
-    clearType();
   }
 
   function handleSpinStop () {
-    setBody('');
-    editorClearFunc();
-    setUploadedFiles([]);
-    setOpenIssue(false);
+    clearMe();
     onSave();
-    clearType();
   }
 
   function handleNotifyAllChange(event) {

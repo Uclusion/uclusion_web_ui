@@ -703,7 +703,7 @@ function Comment(props) {
           )}
           <Box marginTop={1}>
             {!editOpen && (
-              <ReadOnlyQuillEditor value={comment.body} />
+              <ReadOnlyQuillEditor value={comment.body} notificationType="ISSUE" notificationId={comment.id} />
             )}
             {editOpen && (
               <CommentEdit

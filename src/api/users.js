@@ -25,6 +25,14 @@ export function deleteMessage(message) {
     .then((client) => client.users.removePageNotifications(investibleId || associatedInvestibleId));
 }
 
+export function deleteSingleMessage(message) {
+  const { marketId, type_object_id: typeObjectId, aType } = message;
+  const objectId = typeObjectId.split('_').pop();
+  // TODO re-use poke one till have real api
+  return getMarketClient(marketId)
+    .then((client) => client.users.removeNotification(objectId, aType, marketId));
+}
+
 export function applyPromoCode(promoCode) {
   return getAccountClient()
     .then((client) => client.users.addPromoToSubscription(promoCode))

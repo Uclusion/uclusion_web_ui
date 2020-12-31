@@ -15,6 +15,7 @@ export const NOTIFICATIONS_CONTEXT_NAMESPACE = 'notifications';
 const UPDATE_MESSAGES = 'UPDATE_MESSAGES';
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const PAGE_CHANGED = 'PAGE_CHANGED';
+const REMOVE_MESSAGE = 'REMOVE_MESSAGE';
 
 // Empty state of the various subkeys of the state, useful for avoiding errors
 const emptyMessagesState = [];
@@ -25,6 +26,13 @@ export function updateMessages (messages) {
     type: UPDATE_MESSAGES,
     messages,
   };
+}
+
+export function removeMessage(message) {
+  return {
+    type: REMOVE_MESSAGE,
+    message
+  }
 }
 
 export function pageChanged (page) {
@@ -125,7 +133,7 @@ function removeStoredMessagesForMarketPage (state, page) {
   const messages = (state || {}).messages || emptyMessagesState;
   const { recent } = state;
   const removed = messages.filter((message) =>
-    message.marketId === marketId && message.investibleId === investibleId);
+    message.marketId === marketId && message.investibleId === investibleId && !message.commentId);
   const removedMassaged = (removed || []).map((item) => {
     return { ...item, link: getFullLink(item), viewedAt: new Date()};
   });
@@ -135,8 +143,10 @@ function removeStoredMessagesForMarketPage (state, page) {
     ...state,
     recent: _.unionBy(removedMassagedFiltered || [], recent || [], 'link'),
   }
+  // TODO for now stop removing comments and eventually all on new system
   return storeMessagesInState(newState,
-    messages.filter((message) => message.marketId !== marketId || message.investibleId !== investibleId));
+    messages.filter((message) => message.commentId || (message.marketId !== marketId
+      || message.investibleId !== investibleId)));
 }
 
 /**
@@ -189,14 +199,15 @@ function handleMessagesForPage(pageMessages) {
     // process highlighting
     processHighlighting(pageMessages);
     const notAssociatedInvestible = pageMessages.filter((message) => {
-      const { associatedInvestibleId } = message;
+      const { associatedInvestibleId, commentId } = message;
       if (associatedInvestibleId) {
         // Each of these has to be deleted individually since we are not on that page
         deleteMessage(message)
           .catch((error) => console.error(error));
         return false;
       }
-      return true;
+      //TODO eventually do not page delete anything - for now put comments on new system
+      return !commentId;
     })
     if (!_.isEmpty(notAssociatedInvestible)) {
       // and tell the backend we've processed them immediately
@@ -305,6 +316,14 @@ function doUpdateMessages (state, action) {
   return newStore;
 }
 
+function removeSingleMessage(state, action) {
+  const { message } = action;
+  const { messages } = state;
+  const filteredMessages = (messages || []).filter((aMessage) =>
+    aMessage.market_id_user_id !== message.market_id_user_id || aMessage.type_object_id !== message.type_object_id);
+  return storeMessagesInState(state, filteredMessages);
+}
+
 function computeNewState (state, action) {
   switch (action.type) {
     case UPDATE_MESSAGES:
@@ -313,6 +332,8 @@ function computeNewState (state, action) {
       return processPageChange(state, action);
     case INITIALIZE_STATE:
       return action.newState;
+    case REMOVE_MESSAGE:
+      return removeSingleMessage(state, action);
     default:
       return state;
   }

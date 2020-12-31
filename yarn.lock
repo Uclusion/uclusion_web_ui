@@ -6389,7 +6389,7 @@ hoek@4.2.1:
   version "4.2.1"
   resolved "https://registry.yarnpkg.com/hoek/-/hoek-4.2.1.tgz#9634502aa12c445dd5a7c5734b572bb8738aacbb"
 
-hoist-non-react-statics@^3.1.0, hoist-non-react-statics@^3.3.0, hoist-non-react-statics@^3.3.2:
+hoist-non-react-statics@^3.0.0, hoist-non-react-statics@^3.1.0, hoist-non-react-statics@^3.3.0, hoist-non-react-statics@^3.3.2:
   version "3.3.2"
   resolved "https://registry.yarnpkg.com/hoist-non-react-statics/-/hoist-non-react-statics-3.3.2.tgz#ece0acaf71d62c2969c2ec59feff42a4b1a85b45"
   dependencies:
@@ -10160,6 +10160,13 @@ react-helmet@^6.0.0:
     prop-types "^15.7.2"
     react-fast-compare "^2.0.4"
     react-side-effect "^2.1.0"
+
+react-in-viewport@^1.0.0-alpha.15:
+  version "1.0.0-alpha.15"
+  resolved "https://registry.yarnpkg.com/react-in-viewport/-/react-in-viewport-1.0.0-alpha.15.tgz#15960a388492ed3cbab31ff138ec047b4f20326e"
+  integrity sha512-e5donFgw+ynzKqgPqqBSS56iXUUg0IwRV5Ru/G6qR06RKXd2xIZOvkRpPSOAL1z3/oMBDBYFwoEAdiS5qhA9XQ==
+  dependencies:
+    hoist-non-react-statics "^3.0.0"
 
 react-intl@^4.5.3:
   version "4.5.3"

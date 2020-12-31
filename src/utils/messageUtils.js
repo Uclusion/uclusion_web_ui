@@ -27,8 +27,15 @@ export function messageComparator (a, b) {
  */
 export function filterMessagesToLevel(level, unsafeMessages){
   const messages = unsafeMessages || [];
-  const levelMessages = messages.filter((message) => message.level === level) || [];
-  return levelMessages;
+  return messages.filter((message) => message.level === level) || [];
+}
+
+export function findMessageOfTypeAndId(notificationType, notificationId, state) {
+  const { messages } = (state || {});
+  const safeMessages = messages || [];
+  return safeMessages.find((message) => message.aType === notificationType
+    && (message.commentId === notificationId || message.associatedUserId === notificationId ||
+    message.investibleId === notificationId || message.marketId === notificationId));
 }
 
 /**

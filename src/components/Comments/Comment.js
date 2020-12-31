@@ -703,7 +703,7 @@ function Comment(props) {
           )}
           <Box marginTop={1}>
             {!editOpen && (
-              <ReadOnlyQuillEditor value={comment.body} notificationType="ISSUE" notificationId={comment.id} />
+              <ReadOnlyQuillEditor value={comment.body} notificationId={comment.id} />
             )}
             {editOpen && (
               <CommentEdit
@@ -1039,7 +1039,7 @@ function Reply(props) {
           <ReadOnlyQuillEditor
             className={classes.editor}
             value={comment.body}
-            notificationType="ISSUE" notificationId={comment.id}
+            notificationId={comment.id}
           />
         )}
       </CardContent>

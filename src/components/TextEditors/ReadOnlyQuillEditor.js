@@ -44,10 +44,10 @@ const useStyles = makeStyles(
 );
 
 function ReadOnlyQuillEditor(props) {
-  const { className, heading, value, setBeingEdited, isEditable, notificationType, notificationId } = props;
+  const { className, heading, value, setBeingEdited, isEditable, notificationId } = props;
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [viewTimer, setViewTimer] = useState(undefined);
-  const myMessage = findMessageOfTypeAndId(notificationType, notificationId, messagesState);
+  const myMessage = findMessageOfTypeAndId(notificationId, messagesState);
   const box = useRef(null);
 
   const classes = useStyles(props);
@@ -105,7 +105,6 @@ function ReadOnlyQuillEditor(props) {
 
 ReadOnlyQuillEditor.propTypes = {
   editorClassName: PropTypes.string,
-  notificationType: PropTypes.string,
   notificationId: PropTypes.string,
   value: PropTypes.string,
   heading: PropTypes.bool,

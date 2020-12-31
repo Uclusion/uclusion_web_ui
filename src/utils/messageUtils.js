@@ -30,9 +30,10 @@ export function filterMessagesToLevel(level, unsafeMessages){
   return messages.filter((message) => message.level === level) || [];
 }
 
-export function findMessageOfTypeAndId(notificationType, notificationId, state) {
+export function findMessageOfTypeAndId(notificationId, state) {
   const { messages } = (state || {});
   const safeMessages = messages || [];
+  const notificationType = 'UNREAD';
   return safeMessages.find((message) => message.aType === notificationType
     && (message.commentId === notificationId || message.associatedUserId === notificationId ||
     message.investibleId === notificationId || message.marketId === notificationId));

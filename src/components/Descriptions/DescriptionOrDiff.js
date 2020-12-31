@@ -68,7 +68,7 @@ function DescriptionOrDiff(props) {
   const diffAvailable = hasDiff(diffState, id);
   const highlightClass = hasNewDiff ? classes.containerYellow : classes.containerNone;
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
-  const myMessage = findMessageOfTypeAndId("UNREAD", id, messagesState);
+  const myMessage = findMessageOfTypeAndId(id, messagesState);
 
   function toggleDiffShow() {
     if (myMessage) {
@@ -94,7 +94,6 @@ function DescriptionOrDiff(props) {
         setBeingEdited={setBeingEdited}
         isEditable={isEditable}
         notificationId={id}
-        notificationType="UNREAD"
       />
       {diffAvailable && (
         <Button

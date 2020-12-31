@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useReducer } from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import { FormattedMessage, useIntl } from 'react-intl'
@@ -9,6 +9,11 @@ import { HighlightedVotingContext } from '../../../contexts/HighlightingContexts
 import { makeStyles } from '@material-ui/styles'
 import CardType from '../../../components/CardType'
 import ProgressBar from '../../../components/Expiration/ProgressBarExpiration'
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
+import { findMessageOfTypeAndId } from '../../../utils/messageUtils'
+import handleViewport from 'react-in-viewport'
+import { deleteSingleMessage } from '../../../api/users'
+import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
 
 const useVoteStyles = makeStyles(
   theme => {
@@ -59,6 +64,14 @@ const useVoteStyles = makeStyles(
 function Voting(props) {
   const { marketPresences, investibleId, investmentReasons, showExpiration, expirationMinutes } = props;
   const [highlightedVoteState] = useContext(HighlightedVotingContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const [timersState, timersDispatch] = useReducer((state, action) => {
+    const { timer, userId } = action;
+    if (timer) {
+      return { ...state, [userId]: timer};
+    }
+    return { ...state, [userId]: undefined};
+  }, {});
   const classes = useVoteStyles();
   const intl = useIntl();
   function getInvestibleVoters() {
@@ -102,8 +115,40 @@ function Voting(props) {
     <ol className={classes.root}>
       {sortedVoters.map(voter => {
         const { name, userId, quantity, maxBudget, maxBudgetUnit, updatedAt } = voter;
+        const myMessage = findMessageOfTypeAndId(userId, messagesState);
         const reason = getVoterReason(userId);
         const voteId = `cv${userId}`;
+
+        function removeMyMessage() {
+          if (myMessage && !timersState[userId]) {
+            const timer = setTimeout(() => {
+              return deleteSingleMessage(myMessage).then(() => messagesDispatch(removeMessage(myMessage)));
+            }, 5000)
+            timersDispatch({timer, userId});
+          }
+        }
+
+        function cancelRemoveMessage() {
+          if (timersState[userId]) {
+            clearTimeout(timersState[userId]);
+            timersDispatch({userId});
+          }
+        }
+
+        const TextCardType = (props) => {
+          // inViewport, enterCount, leaveCount also available
+          const { forwardedRef } = props;
+          return (
+            <div ref={forwardedRef}>
+              <CardType
+                className={classes.cardType}
+                type={`certainty${Math.abs(quantity)}`}
+              />
+            </div>
+          )
+        };
+
+        const ViewportBlock = handleViewport(TextCardType, /** options: {}, config: {} **/);
 
         return (
           <Card
@@ -116,10 +161,7 @@ function Voting(props) {
             component="li"
             id={voteId}
           >
-            <CardType
-              className={classes.cardType}
-              type={`certainty${Math.abs(quantity)}`}
-            />
+            <ViewportBlock onEnterViewport={removeMyMessage} onLeaveViewport={cancelRemoveMessage} />
             {showExpiration && (
               <div className={classes.expiresDisplay}>
                 <ProgressBar

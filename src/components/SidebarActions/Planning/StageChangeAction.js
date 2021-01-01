@@ -14,6 +14,8 @@ import clsx from 'clsx'
 import { useLockedDialogStyles } from '../../../pages/Dialog/DialogBodyEdit'
 import TooltipIconButton from '../../Buttons/TooltipIconButton'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { resolveInvestibleComments } from '../../../contexts/CommentsContext/commentsContextHelper'
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 
 export const useStyles = makeStyles(() => {
   return {
@@ -66,6 +68,7 @@ function StageChangeAction(props) {
   const classes = useStyles();
   const intl = useIntl();
   const [, invDispatch] = useContext(InvestiblesContext);
+  const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [operationRunning] = useContext(OperationInProgressContext);
   const [, diffDispatch] = useContext(DiffContext);
   const autoFocusRef = React.useRef(null);
@@ -88,6 +91,7 @@ function StageChangeAction(props) {
     return stageChangeInvestible(moveInfo)
       .then((newInv) => {
         refreshInvestibles(invDispatch, diffDispatch, [newInv]);
+        resolveInvestibleComments(investibleId, marketId, commentsState, commentsDispatch);
         return EMPTY_SPIN_RESULT;
       });
   }

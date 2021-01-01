@@ -30,7 +30,11 @@ import { getFullStage, getStages } from '../../../contexts/MarketStagesContext/m
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import { processTextAndFilesForSave } from '../../../api/files'
 import { removeComment } from '../../../api/comments'
-import { getMarketComments, removeComments } from '../../../contexts/CommentsContext/commentsContextHelper'
+import {
+  getMarketComments,
+  removeComments,
+  resolveInvestibleComments
+} from '../../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { nameFromDescription } from '../../../utils/stringFunctions'
 import { restoreHeader } from '../../../containers/Header'
@@ -180,6 +184,7 @@ function PlanningIdeas(props) {
       return stageChangeInvestible(moveInfo)
         .then((inv) => {
           refreshInvestibles(invDispatch, diffDispatch, [inv]);
+          resolveInvestibleComments(investibleId, marketId, commentsState, commentsDispatch);
           setOperationRunning(false);
         });
     }

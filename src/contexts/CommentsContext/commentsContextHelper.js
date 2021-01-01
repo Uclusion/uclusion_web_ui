@@ -42,6 +42,17 @@ export function removeComments(dispatch, marketId, comments) {
   dispatch(removeCommentsFromMarket(marketId, comments));
 }
 
+export function resolveInvestibleComments(investibleId, marketId, state, dispatch) {
+  const comments = getMarketComments(state, marketId);
+  const unresolvedComments = comments.filter(comment => comment.investible_id === investibleId &&
+    !comment.resolved) || [];
+  const resolvedComments = unresolvedComments.map((comment) => {
+    return { resolved: true, ...comment };
+  });
+  const newComments = _.unionBy(resolvedComments, comments, 'id');
+  refreshMarketComments(dispatch, marketId, newComments);
+}
+
 export function addCommentToMarket(comment, state, dispatch) {
   let updates = [comment];
   const { reply_id: replyId, id, market_id: marketId } = comment;

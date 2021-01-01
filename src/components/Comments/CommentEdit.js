@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { FormattedMessage, injectIntl } from 'react-intl'
 import {
   Button,
@@ -28,6 +28,7 @@ import { InvestiblesContext } from '../../contexts/InvestibesContext/Investibles
 import _ from 'lodash';
 import clsx from 'clsx'
 import { getIcon } from '../../containers/CommentBox/CommentAddBox'
+import localforage from 'localforage'
 
 const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -42,6 +43,13 @@ const useStyles = makeStyles((theme) => ({
   },
   cardActions: {
     padding: 8,
+  },
+  button: {
+    borderRadius: '4px',
+    fontSize: '14px',
+    fontWeight: 'bold',
+    margin: 8,
+    textTransform: 'capitalize',
   },
   buttonPrimary: {
     backgroundColor: '#2d9cdb',
@@ -157,9 +165,32 @@ function CommentEdit(props) {
   const [type, setType] = useState(commentType);
   const [marketState] = useContext(MarketsContext);
   const [investibleState] = useContext(InvestiblesContext);
+  const defaultDefaultFunc = (newDefault) => {};
+  const [editorDefaultFunc, setEditorDefaultFunc] = useState(() => defaultDefaultFunc);
+  const [loadedId, setLoadedId] = useState(undefined);
+
+  useEffect(() => {
+    if (loadedId !== id) {
+      localforage.getItem(id).then((stateFromDisk) => {
+        if (stateFromDisk) {
+          setBody(stateFromDisk);
+          editorDefaultFunc(stateFromDisk);
+        } else {
+          setBody(initialBody);
+          editorDefaultFunc(initialBody);
+        }
+        setLoadedId(id);
+      });
+    }
+    return () => {};
+  }, [loadedId, id, editorDefaultFunc, initialBody]);
 
   function onEditorChange(content) {
     setBody(content);
+  }
+
+  function onStorageChange(value) {
+    localforage.setItem(id, value).then(() => {});
   }
 
   function handleSave() {
@@ -177,12 +208,16 @@ function CommentEdit(props) {
       })
   }
 
+  function handleSpinStop() {
+    localforage.removeItem(id).then(() => onSave());
+  }
+
   function onS3Upload(metadatas) {
     setUploadedFiles(metadatas);
   }
 
   function handleCancel() {
-    onCancel();
+    localforage.removeItem(id).then(() => onCancel());
   }
 
   function onTypeChange(event) {
@@ -238,6 +273,10 @@ function CommentEdit(props) {
             onS3Upload={onS3Upload}
             setOperationInProgress={setOperationRunning}
             getUrlName={urlHelperGetName(marketState, investibleState)}
+            onStoreChange={onStorageChange}
+            setEditorDefaultFunc={(func) => {
+              setEditorDefaultFunc(func);
+            }}
           />
         </CardContent>
         <CardActions className={classes.cardActions}>
@@ -246,6 +285,8 @@ function CommentEdit(props) {
             disabled={operationRunning}
             variant="text"
             size="small"
+            className={classes.button}
+            style={{border: "1px solid black"}}
           >
             {intl.formatMessage({ id: 'cancel' })}
           </Button>
@@ -257,11 +298,13 @@ function CommentEdit(props) {
             marketId={marketId}
             onClick={handleSave}
             hasSpinChecker
-            onSpinStop={onSave}
+            onSpinStop={handleSpinStop}
           >
             {intl.formatMessage({ id: 'save' })}
           </SpinBlockingButton>
-
+          <Button className={classes.button}>
+            {intl.formatMessage({ id: 'edited' })}
+          </Button>
         </CardActions>
       </Card>
     </div>

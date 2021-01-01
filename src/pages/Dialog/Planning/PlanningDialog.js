@@ -1,7 +1,7 @@
 /**
  * A component that renders a _planning_ dialog
  */
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useReducer, useState } from 'react'
 import { useHistory } from 'react-router'
 import { useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
@@ -58,6 +58,12 @@ import { getVoteTotalsForUser, hasNotVoted } from '../../../utils/userFunctions'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import MarketLinks from '../MarketLinks'
 import MarketTodos from './MarketTodos'
+import { findMessageOfTypeAndId } from '../../../utils/messageUtils'
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
+import CardType from '../../../components/CardType'
+import handleViewport from 'react-in-viewport'
+import { deleteSingleMessage } from '../../../api/users'
+import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -424,6 +430,14 @@ function InvestiblesByPerson(props) {
     setBeingDraggedHack
   } = props;
   const classes = useInvestiblesByPersonStyles();
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const [timersState, timersDispatch] = useReducer((state, action) => {
+    const { timer, userId } = action;
+    if (timer) {
+      return { ...state, [userId]: timer};
+    }
+    return { ...state, [userId]: undefined};
+  }, {});
   const marketPresencesSortedAlmost = _.sortBy(marketPresences, 'name');
   const marketPresencesSorted = _.sortBy(marketPresencesSortedAlmost, function (presence) {
     return !presence.current_user;
@@ -436,15 +450,42 @@ function InvestiblesByPerson(props) {
       visibleStages,
     );
     const { id, name } = presence;
+    const myMessage = findMessageOfTypeAndId(marketId, messagesState, 'SWIMLANE');
+    const TextCardHeader = (props) => {
+      // inViewport, enterCount, leaveCount also available
+      const { forwardedRef } = props;
+      return (
+        <div ref={forwardedRef}>
+          <CardHeader
+            className={classes.header}
+            id={`u${id}`}
+            title={name}
+            titleTypographyProps={{ variant: "subtitle2" }}
+          />
+        </div>
+      )
+    };
+
+    function removeMyMessage() {
+      if (myMessage && !timersState[id]) {
+        const timer = setTimeout(() => {
+          return deleteSingleMessage(myMessage).then(() => messagesDispatch(removeMessage(myMessage)));
+        }, 5000)
+        timersDispatch({timer, id});
+      }
+    }
+
+    function cancelRemoveMessage() {
+      if (timersState[id]) {
+        clearTimeout(timersState[id]);
+        timersDispatch({id});
+      }
+    }
+
+    const ViewportBlock = handleViewport(TextCardHeader, /** options: {}, config: {} **/);
     return (
       <Card key={id} elevation={0} className={classes.root}>
-        {/* TODO avatar */}
-        <CardHeader
-          className={classes.header}
-          id={`u${id}`}
-          title={name}
-          titleTypographyProps={{ variant: "subtitle2" }}
-        />
+        <ViewportBlock onEnterViewport={removeMyMessage} onLeaveViewport={cancelRemoveMessage} />
         <CardContent className={classes.content}>
           {marketId &&
             acceptedStage &&

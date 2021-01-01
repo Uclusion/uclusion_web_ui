@@ -30,13 +30,11 @@ export function filterMessagesToLevel(level, unsafeMessages){
   return messages.filter((message) => message.level === level) || [];
 }
 
-export function findMessageOfTypeAndId(notificationId, state) {
+export function findMessageOfTypeAndId(notificationId, state, subtype) {
   const { messages } = (state || {});
   const safeMessages = messages || [];
-  const notificationType = 'UNREAD';
-  return safeMessages.find((message) => message.aType === notificationType
-    && (message.commentId === notificationId || message.associatedUserId === notificationId ||
-    message.investibleId === notificationId || message.marketId === notificationId));
+  const typeObjectId = subtype ? `UNREAD_${subtype}_${notificationId}` : `UNREAD_${notificationId}`;
+  return safeMessages.find((message) => message.type_object_id === typeObjectId);
 }
 
 /**

@@ -145,8 +145,8 @@ function removeStoredMessagesForMarketPage (state, page) {
   }
   // TODO for now stop removing comments and UNREAD and eventually all on new system
   return storeMessagesInState(newState,
-    messages.filter((message) => message.commentId || message.aType === 'UNREAD'
-      || (message.marketId !== marketId || message.investibleId !== investibleId)));
+    messages.filter((message) => message.commentId || message.aType === 'UNREAD' || message.aType === 'UNREAD_VOTE' ||
+      message.aType === 'UNREAD_SWIM' || (message.marketId !== marketId || message.investibleId !== investibleId)));
 }
 
 /**
@@ -207,7 +207,7 @@ function handleMessagesForPage(pageMessages) {
         return false;
       }
       //TODO eventually do not page delete anything - for now put comments and UNREAD on new system
-      return !commentId && aType !== 'UNREAD';
+      return !commentId && aType !== 'UNREAD' && aType !== 'UNREAD_VOTE' && aType !== 'UNREAD_SWIM';
     })
     if (!_.isEmpty(notAssociatedInvestible)) {
       // and tell the backend we've processed them immediately

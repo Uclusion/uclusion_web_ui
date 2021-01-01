@@ -776,7 +776,7 @@ function Comment(props) {
                 />
               </Typography>
             )}
-            {commentType === TODO_TYPE && !investibleId && !inArchives && enableActions && (
+            {!investibleId && !inArchives && enableActions && !resolved && (
               <Button
                 className={clsx(classes.action, classes.actionPrimary)}
                 color="primary"

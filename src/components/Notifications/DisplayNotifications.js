@@ -54,6 +54,7 @@ const useStyles = makeStyles((theme) => {
       justifyContent: 'center'
     },
     delayableTitleBar: {
+      height: '3rem',
       backgroundColor: '#e6e969',
       borderRadius: '3px 3px 0px 0px',
       display: 'flex',
@@ -61,6 +62,7 @@ const useStyles = makeStyles((theme) => {
       justifyContent: 'center'
     },
     informationalTitleBar: {
+      height: '3rem',
       backgroundColor: '#2D9CDB',
       fontWeight: 'bold',
       borderRadius: '3px 3px 0px 0px',

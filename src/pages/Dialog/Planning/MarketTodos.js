@@ -229,10 +229,19 @@ function MarketTodos (props) {
 
   function toggleShowTodos () {
     const toggleValue = showTodos === undefined ? false : !showTodos;
+    if (!toggleValue) {
+      setEditRedCard(undefined);
+      setEditYellowCard(undefined);
+      setEditCard(undefined);
+      setShowSelectTodos(false);
+    }
     expandedCommentDispatch({ type: EXPANDED_CONTROL, commentId: marketId, expanded: toggleValue });
   }
 
   function toggleShowSelectTodos() {
+    if (!showTodos) {
+      toggleShowTodos();
+    }
     const currentShowSelect = showSelectTodos;
     setShowSelectTodos(!showSelectTodos);
     if (currentShowSelect && !_.isEmpty(checked)) {
@@ -289,7 +298,7 @@ function MarketTodos (props) {
   function onDropAble(event) {
     onDrop(event, 'BLUE');
   }
-
+  const isSingleTodoSelected = editRedCard || editYellowCard || editCard;
   return (
     <>
       <div className={classes.outerBorder}>
@@ -299,7 +308,7 @@ function MarketTodos (props) {
           hideChildren={!(showTodos || showTodos === undefined)}
           title={intl.formatMessage({ id: 'todoSection' })}
           helpTextId="todoSectionHelp"
-          searchBar={(<TextField
+          searchBar={isSingleTodoSelected ? undefined : (<TextField
             style={{paddingTop: '3px', width: '300px'}}
             onFocus={() => {
                 if (!showTodos) {
@@ -326,7 +335,7 @@ function MarketTodos (props) {
                 </InputAdornment>
               ) : null,
             }}/>)}
-          createButton={
+          createButton={ isSingleTodoSelected ? undefined :
             (<Button
               onClick={toggleShowSelectTodos}
               className={classes.actionSecondary}

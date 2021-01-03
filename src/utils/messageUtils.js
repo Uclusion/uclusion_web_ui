@@ -79,7 +79,7 @@ export function getMassagedMessages (messages) {
       };
     }
     if (associatedObjectId) {
-      if (aType === 'NEW_VOTES') {
+      if (aType === 'UNREAD_VOTE') {
         return {
           ...message,
           marketId,

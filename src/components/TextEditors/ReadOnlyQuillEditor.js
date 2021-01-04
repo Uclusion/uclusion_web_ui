@@ -11,7 +11,8 @@ import { NotificationsContext } from '../../contexts/NotificationsContext/Notifi
 import { findMessageOfTypeAndId } from '../../utils/messageUtils'
 import { deleteSingleMessage } from '../../api/users'
 import { removeMessage } from '../../contexts/NotificationsContext/notificationsContextReducer'
-
+import QuillMention from 'quill-mention-uclusion';
+Quill.register('modules/mention', QuillMention);
 
 const useStyles = makeStyles(
   theme => {

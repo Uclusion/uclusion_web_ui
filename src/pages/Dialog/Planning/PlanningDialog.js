@@ -96,17 +96,11 @@ function PlanningDialog(props) {
   // For security reasons you can't access source data while being dragged in case you are not the target website
   const [beingDraggedHack, setBeingDraggedHack] = useState({});
   const presences = getMarketPresences(marketPresencesState, marketId);
-  const acceptedStage = marketStages.find(
-    stage => stage.assignee_enter_only
-  ) || {};
+  const acceptedStage = marketStages.find(stage => stage.assignee_enter_only) || {};
   const inDialogStage = marketStages.find(stage => stage.allows_investment) || {};
   const inReviewStage = marketStages.find(
-    stage =>
-      !stage.allows_investment && stage.appears_in_context && !stage.assignee_enter_only && !stage.allows_issues
-  ) || {};
-  const inBlockingStage = marketStages.find(
-    stage => stage.appears_in_context && stage.allows_issues
-  ) || {};
+    stage => stage.close_comments_on_entrance && stage.appears_in_context && !stage.assignee_enter_only) || {};
+  const inBlockingStage = marketStages.find(stage => stage.appears_in_context && stage.allows_issues) || {};
   const visibleStages = [
     inDialogStage.id,
     acceptedStage.id,

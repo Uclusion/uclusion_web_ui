@@ -25,8 +25,8 @@ export function getAcceptedStage(state, marketId) {
 
 export function getInReviewStage(state, marketId) {
   const marketStages = getStages(state, marketId);
-  return marketStages.find((stage) => (!stage.allows_investment && stage.appears_in_context &&
-    !stage.assignee_enter_only && !stage.allows_issues));
+  return marketStages.find((stage) => (stage.close_comments_on_entrance && stage.appears_in_context &&
+    !stage.assignee_enter_only));
 }
 
 export function getBlockedStage(state, marketId) {
@@ -41,8 +41,7 @@ export function getVerifiedStage(state, marketId) {
 
 export function getFurtherWorkStage(state, marketId) {
   const marketStages = getStages(state, marketId);
-  return marketStages.find((stage) => (!stage.appears_in_context && !stage.allows_issues
-    && !stage.appears_in_market_summary));
+  return marketStages.find((stage) => (!stage.allows_assignment && !stage.close_comments_on_entrance));
 }
 
 export function getFullStage(state, marketId, stageId) {
@@ -52,11 +51,11 @@ export function getFullStage(state, marketId, stageId) {
 
 export function getRequiredInputStage(state, marketId) {
   const marketStages = getStages(state, marketId);
-  return marketStages.find((stage) => (!stage.appears_in_context && stage.allows_issues && stage.allows_todos));
+  return marketStages.find((stage) => (!stage.appears_in_context && stage.allows_assignment
+    && !stage.close_comments_on_entrance));
 }
 
 export function getNotDoingStage(state, marketId) {
   const marketStages = getStages(state, marketId);
-  return marketStages.find((stage) => (!stage.appears_in_context && !stage.appears_in_market_summary
-  && stage.allows_issues && !stage.allows_todos));
+  return marketStages.find((stage) => (!stage.allows_assignment && stage.close_comments_on_entrance));
 }

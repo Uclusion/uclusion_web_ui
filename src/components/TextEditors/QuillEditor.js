@@ -22,6 +22,7 @@ import { addQuillLinkFixer } from './Utilities/LinkUtils';
 import VideoDialog from './CustomUI/VideoDialog';
 import { embeddifyVideoLink } from './Utilities/VideoUtils';
 import LinkDialog from './CustomUI/LinkDialog';
+import QuillMention from 'quill-mention-uclusion';
 
 // install our filtering paste module, and disable the uploader
 Quill.register('modules/clipboard', CustomQuillClipboard, true);
@@ -30,6 +31,7 @@ Quill.register('modules/uploader', NoOpUploader, true);
 Quill.register('modules/tableUI', QuillTableUI);
 Quill.register('modules/s3Upload', QuillS3ImageUploader);
 Quill.register('modules/imageResize', ImageResize);
+Quill.register('modules/mention', QuillMention);
 Quill.register(CustomCodeBlock, true);
 
 function editorEmpty (contents) {
@@ -144,10 +146,29 @@ class QuillEditor extends React.PureComponent {
       noToolbar,
       simple,
       setOperationInProgress,
+      participants,
     } = this.props;
     // CSS id of the container from which scroll and bounds checks operate
     const boundsId = this.getBoundsId();
     const defaultModules = {
+      mention: {
+        mentionDenotationChars: ['@'],
+        source: function (searchTerm, renderList) {
+          if (searchTerm.length === 0) {
+            renderList(participants, searchTerm);
+          } else {
+            const matches = [];
+            participants.forEach((participant) => {
+              console.error(participant);
+              const { name, id } = participant;
+              if (name.toLowerCase().includes(searchTerm.toLowerCase())) {
+                matches.push({id, value: name});
+              }
+            });
+            renderList(matches, searchTerm);
+          }
+        }
+      },
       toolbar: {
         handlers : {
           'video': () => {
@@ -456,6 +477,7 @@ QuillEditor.propTypes = {
   setEditorFocusFunc: PropTypes.func,
   setEditorDefaultFunc: PropTypes.func,
   simple: PropTypes.bool,
+  participants: PropTypes.arrayOf(PropTypes.object),
 };
 
 QuillEditor.defaultProps = {
@@ -480,6 +502,7 @@ QuillEditor.defaultProps = {
   noToolbar: false,
   id: undefined,
   simple: false,
+  participants: [],
 };
 
 export default withTheme(injectIntl(QuillEditor));

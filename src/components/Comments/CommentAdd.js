@@ -216,6 +216,9 @@ function CommentAdd (props) {
   const loadId = investibleId ? `${marketId}_${investibleId}` :
     type === TODO_TYPE ? `${type}_${marketId}` : `${marketId}`;
 
+  const presences = getMarketPresences(marketPresencesState, marketId) || [];
+  const myPresence = presences.find((presence) => presence.current_user) || {};
+
   useEffect(() => {
     if (!hidden && loadedId !== loadId) {
       localforage.getItem(loadId).then((stateFromDisk) => {
@@ -271,8 +274,7 @@ function CommentAdd (props) {
     const inv = getInvestible(investibleState, investibleId) || {};
     const { market_infos, investible: rootInvestible } = inv;
     const [info] = (market_infos || []);
-    const presences = getMarketPresences(marketPresencesState, marketId) || [];
-    const myPresence = presences.find((presence) => presence.current_user) || {};
+
     const { assigned, stage: currentStageId } = (info || {});
     const blockingStage = getBlockedStage(marketStagesState, marketId) || {};
     const requiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
@@ -350,6 +352,7 @@ function CommentAdd (props) {
       >
         <div className={classes.editor}>
           <QuillEditor
+            participants={presences}
             marketId={marketId}
             placeholder={placeHolder}
             defaultValue={body}

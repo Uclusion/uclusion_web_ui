@@ -354,8 +354,20 @@ function PlanningInvestible(props) {
   const breadCrumbs = inArchives
     ? makeArchiveBreadCrumbs(history, breadCrumbTemplates)
     : makeBreadCrumbs(history, breadCrumbTemplates);
-
-  const allowedCommentTypes = [QUESTION_TYPE, SUGGEST_CHANGE_TYPE];
+  function canGetInput() {
+    const blockingComments = investibleComments.filter(
+      comment => comment.comment_type === ISSUE_TYPE && !comment.resolved
+    );
+    return !_.isEmpty(blockingComments) && !isInVerified && !isInNotDoing;
+  }
+  function canOpenBlocking() {
+    const assignedInputComments = investibleComments.filter(
+      comment => (comment.comment_type === QUESTION_TYPE || comment.comment_type === SUGGEST_CHANGE_TYPE)
+        && !comment.resolved && assigned.includes(comment.created_by)
+    );
+    return !_.isEmpty(assignedInputComments) && !isInVerified && !isInNotDoing;
+  }
+  const allowedCommentTypes = canGetInput() ? [] : [QUESTION_TYPE, SUGGEST_CHANGE_TYPE];
   if (isAssigned) {
     allowedCommentTypes.push(REPORT_TYPE);
     allowedCommentTypes.push(TODO_TYPE);
@@ -367,7 +379,7 @@ function PlanningInvestible(props) {
       allowedCommentTypes.push(REPORT_TYPE);
     }
   }
-  if (!isInNotDoing) {
+  if (canOpenBlocking()) {
     allowedCommentTypes.push(ISSUE_TYPE);
   }
   const stageName = isInVoting

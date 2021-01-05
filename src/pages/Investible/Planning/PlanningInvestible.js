@@ -838,7 +838,7 @@ function PlanningInvestible(props) {
                 allowedTypes={allowedCommentTypes}
                 investible={investible}
                 marketId={marketId}
-                issueWarningId="issueWarningPlanning"
+                issueWarningId={isReadyFurtherWork ? undefined : 'issueWarningPlanning'}
                 todoWarningId={todoWarning}
                 hidden={hidden}
                 isStory
@@ -867,7 +867,7 @@ function PlanningInvestible(props) {
               allowedTypes={allowedCommentTypes}
               investible={investible}
               marketId={marketId}
-              issueWarningId="issueWarningPlanning"
+              issueWarningId={isReadyFurtherWork ? undefined : 'issueWarningPlanning'}
               todoWarningId={todoWarning}
               hidden={hidden}
               isStory

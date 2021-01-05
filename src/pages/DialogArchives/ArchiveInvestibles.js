@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import { Grid, Typography } from '@material-ui/core'
 import _ from 'lodash'
@@ -10,6 +10,11 @@ import { makeStyles } from '@material-ui/core/styles'
 import { yellow } from '@material-ui/core/colors'
 import { restoreHeader } from '../../containers/Header'
 import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../constants/comments'
+import { stageChangeInvestible } from '../../api/investibles'
+import { refreshInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
+import { resolveInvestibleComments } from '../../contexts/CommentsContext/commentsContextHelper'
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 
 function getInvestibleOnClick(id, marketId, history) {
   return () => {
@@ -114,6 +119,8 @@ function ArchiveInvestbiles(props) {
   const classes = myClasses();
   const intl = useIntl();
   const history = useHistory();
+  const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
+  const [, invDispatch] = useContext(InvestiblesContext);
 
   function onDragEnd() {
     restoreHeader();
@@ -121,6 +128,33 @@ function ArchiveInvestbiles(props) {
     if (previousElementId) {
       document.getElementById(previousElementId).className = classes.containerEmpty;
       setBeingDraggedHack({});
+    }
+  }
+
+  function onDrop(event) {
+    if (!isInFurtherWork) {
+      return;
+    }
+    event.preventDefault();
+    const investibleId = event.dataTransfer.getData("text");
+    const currentStageId = event.dataTransfer.getData("stageId");
+    if (!operationRunning) {
+      const target = event.target;
+      target.style.cursor = 'wait';
+      const moveInfo = {
+        marketId,
+        investibleId,
+        stageInfo: {
+          current_stage_id: currentStageId,
+          stage_id: stageId,
+        },
+      };
+      setOperationRunning(true);
+      return stageChangeInvestible(moveInfo)
+        .then((inv) => {
+          refreshInvestibles(invDispatch, () => {}, [inv]);
+          setOperationRunning(false);
+        });
     }
   }
 
@@ -135,6 +169,8 @@ function ArchiveInvestbiles(props) {
     <Grid
       container
       className={classes.white}
+      onDrop={onDrop}
+      onDragOver={(event) => isInFurtherWork && event.preventDefault()}
     >
       {getInvestibles(investibles, presenceMap, marketId, history, intl, elevation, highlightMap, allowDragDrop,
       onDragEnd, onDragStart, unResolvedMarketComments, presenceId, isInFurtherWork)}

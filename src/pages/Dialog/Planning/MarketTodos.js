@@ -279,6 +279,11 @@ function MarketTodos (props) {
 
   function onDrop(event, notificationType) {
     const commentId = event.dataTransfer.getData('text');
+    const currentStageId = event.dataTransfer.getData("stageId");
+    if (currentStageId) {
+      // This is a story so ignore
+      return;
+    }
     setOperationRunning(true);
     updateComment(marketId, commentId, undefined, undefined, undefined, notificationType)
       .then((comment) => {

@@ -245,6 +245,11 @@ function PlanningDialog(props) {
             marketId={marketId}
             presenceMap={presenceMap}
             investibles={furtherWorkInvestibles}
+            stageId={furtherWorkStage.id}
+            presenceId={myPresence.id}
+            allowDragDrop
+            beingDraggedHack={beingDraggedHack}
+            setBeingDraggedHack={setBeingDraggedHack}
           />
         </SubSection>
       )}

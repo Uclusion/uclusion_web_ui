@@ -626,7 +626,7 @@ const messages = defineMessages({
   slackIntegrationPartial: 'Almost there! Now type /uclusion in any Slack channel to complete installation.',
 
   // Assignment List
-  assignmentListHeader: 'Assigned to (required)',
+  assignmentListHeader: 'Assigned to (unassigned goes to Further Work)',
   // Address List
   addressListHeader: 'Addressed to',
   addressListMakeObserver: 'Make Yourself an Observer',

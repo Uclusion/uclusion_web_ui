@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useState } from 'react'
 import _ from 'lodash'
 import { FormattedMessage, useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
@@ -79,7 +79,6 @@ function PlanningInvestibleAdd(props) {
     return urlAssignee;
   }
   const [assignments, setAssignments] = useState(choosePreviouslyAssigned());
-  const [validForm, setValidForm] = useState(false);
   const [daysEstimate, setDaysEstimate] = useState(storedDaysEstimate);
   const { name } = currentValues;
   const [marketState] = useContext(MarketsContext);
@@ -87,7 +86,8 @@ function PlanningInvestibleAdd(props) {
   const [presencesState] = useContext(MarketPresencesContext);
   const presences = getMarketPresences(presencesState, marketId) || [];
   const myPresence = presences.find((presence) => presence.current_user) || {};
-  const isAssigned = (assignments || []).includes(myPresence.id);
+  const isAssignedToMe = (assignments || []).includes(myPresence.id);
+  const isAssigned = !_.isEmpty(assignments);
   const [quantity, setQuantity] = useState(50);
   const [maxBudget, setMaxBudget] = useState('');
   const [maxBudgetUnit, setMaxBudgetUnit] = useState('');
@@ -100,17 +100,6 @@ function PlanningInvestibleAdd(props) {
   const tourPreferences = userPreferences.tours || {};
   const { completedTours } = tourPreferences;
   const safeCompletedTours = _.isArray(completedTours)? completedTours : [];
-
-  useEffect(() => {
-    // Long form to prevent flicker
-    if (name && !_.isEmpty(assignments)) {
-      if (!validForm) {
-        setValidForm(true);
-      }
-    } else if (validForm) {
-      setValidForm(false);
-    }
-  }, [name, assignments, validForm]);
 
   const itemKey = `add_investible_${marketId}`;
   function handleDraftState(newDraftState) {
@@ -201,9 +190,11 @@ function PlanningInvestibleAdd(props) {
       marketId,
       uploadedFiles: filteredUploads,
       description: processedDescription,
-      name,
-      assignments,
+      name
     };
+    if (isAssigned) {
+      addInfo.assignments = assignments;
+    }
     if (daysEstimate) {
       addInfo.daysEstimate = daysEstimate;
     }
@@ -222,7 +213,7 @@ function PlanningInvestibleAdd(props) {
       const { investible } = inv;
       onSave(inv);
       const link = formInvestibleLink(marketId, investible.id);
-      if (isAssigned) {
+      if (isAssignedToMe || !isAssigned) {
         return {
           result: link,
           spinChecker: () => Promise.resolve(true),
@@ -308,7 +299,7 @@ function PlanningInvestibleAdd(props) {
           <NameField onEditorChange={handleNameChange} onStorageChange={handleNameStorage} description={description}
                      name={name} useCreateDefault />
         </CardContent>
-        {!isAssigned && (
+        {!isAssignedToMe && isAssigned && (
           <AddInitialVote
             marketId={marketId}
             storyMaxBudget={storyMaxBudget}
@@ -339,7 +330,7 @@ function PlanningInvestibleAdd(props) {
               onSpinStop={onSpinComplete}
               className={classes.actionPrimary}
               color="primary"
-              disabled={!validForm}
+              disabled={!name}
               marketId={marketId}
               variant="contained"
             >

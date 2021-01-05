@@ -209,35 +209,33 @@ function PlanningIdeas(props) {
       onDropTodo(event);
     } else if (checkStageMatching(currentStageId)) {
       const investibleId = event.dataTransfer.getData("text");
-      if (isAssignedInvestible(event, myPresence.id) || myPresence.id === presenceId) {
-        if (isAssignedInvestible(event, myPresence.id) && myPresence.id === presenceId) {
-          stageChange(event, inDialogStageId);
-        } else if (!operationRunning && !isAssignedInvestible(event, presenceId)) {
-          // Assignment can be changed even on a blocked investible
-          const assignments = [presenceId];
-          const updateInfo = {
-            marketId,
-            investibleId,
-            assignments,
-          };
-          setOperationRunning(true);
-          updateInvestible(updateInfo)
-            .then((fullInvestible) => {
-              const { market_infos: marketInfos } = fullInvestible;
-              const marketInfo = marketInfos.find(info => info.market_id === marketId);
-              const investibleComments = comments.filter((comment) => comment.investible_id === investibleId
-                && !comment.resolved) || [];
-              const blockingComments = investibleComments.filter(comment => comment.comment_type === ISSUE_TYPE);
-              const assignedInputComments = investibleComments.filter(
-                comment => (comment.comment_type === QUESTION_TYPE || comment.comment_type === SUGGEST_CHANGE_TYPE)
-                  && marketInfo.assigned.includes(comment.created_by)
-              );
-              marketInfo.stage = !_.isEmpty(blockingComments) ? inBlockingStageId :
-                _.isEmpty(assignedInputComments) ? inDialogStageId : inRequiresInputStageId;
-              refreshInvestibles(invDispatch, diffDispatch, [fullInvestible]);
-              setOperationRunning(false);
-            });
-        }
+      if (isAssignedInvestible(event, myPresence.id) && myPresence.id === presenceId) {
+        stageChange(event, inDialogStageId);
+      } else if (!operationRunning && !isAssignedInvestible(event, presenceId)) {
+        // Assignment can be changed at any time to anyone not already assigned when moving into voting
+        const assignments = [presenceId];
+        const updateInfo = {
+          marketId,
+          investibleId,
+          assignments,
+        };
+        setOperationRunning(true);
+        updateInvestible(updateInfo)
+          .then((fullInvestible) => {
+            const { market_infos: marketInfos } = fullInvestible;
+            const marketInfo = marketInfos.find(info => info.market_id === marketId);
+            const investibleComments = comments.filter((comment) => comment.investible_id === investibleId
+              && !comment.resolved) || [];
+            const blockingComments = investibleComments.filter(comment => comment.comment_type === ISSUE_TYPE);
+            const assignedInputComments = investibleComments.filter(
+              comment => (comment.comment_type === QUESTION_TYPE || comment.comment_type === SUGGEST_CHANGE_TYPE)
+                && marketInfo.assigned.includes(comment.created_by)
+            );
+            marketInfo.stage = !_.isEmpty(blockingComments) ? inBlockingStageId :
+              _.isEmpty(assignedInputComments) ? inDialogStageId : inRequiresInputStageId;
+            refreshInvestibles(invDispatch, diffDispatch, [fullInvestible]);
+            setOperationRunning(false);
+          });
       }
     }
   }

@@ -326,7 +326,7 @@ const messages = defineMessages({
   votesRequiredHelp: "Number of approvals required before a story can be moved to 'In Progress'",
   maxBudgetHelp: 'Maximum budget allowed for a story. Used to prevent stories from being too large.',
   voteExpirationHelp: "How many days before approvals expire. Prevents very old approval from being used to move a story to 'In Progress'.",
-  reassignToMove: 'Re-assigning will move the story to the swimlanes.',
+  reassignToMove: 'Re-assigning moves to the swimlanes.',
   initiativePlanningParent: 'Create Workspace',
   marketLinksSection: 'links',
   attachedFilesSection: 'attached files',

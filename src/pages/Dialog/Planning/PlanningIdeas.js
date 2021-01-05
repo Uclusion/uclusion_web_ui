@@ -280,12 +280,11 @@ function PlanningIdeas(props) {
     const draggerIsAssigned = (assigned || []).includes(myPresence.id);
     const swimLaneIsAssigned = (assigned || []).includes(presenceId);
     const isBlocked = isBlockedByIssue(id, stageId, divId);
-    if (divId === inDialogStageId) {
-      return (draggerIsAssigned && myPresence.id === presenceId && !isBlocked) ||
-        (draggerIsAssigned || myPresence.id === presenceId);
-    }
     if (isBlocked) {
       return false;
+    }
+    if (divId === inDialogStageId) {
+      return true;
     }
     if (divId === acceptedStageId) {
       if ((assigned || []).length === 1) {

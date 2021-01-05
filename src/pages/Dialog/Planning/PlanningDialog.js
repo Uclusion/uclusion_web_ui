@@ -229,6 +229,7 @@ function PlanningDialog(props) {
             inDialogStage={inDialogStage}
             inBlockingStage={inBlockingStage}
             inReviewStage={inReviewStage}
+            requiresInputStage={requiresInputStage}
             activeMarket={activeMarket}
             beingDraggedHack={beingDraggedHack}
             setBeingDraggedHack={setBeingDraggedHack}
@@ -423,6 +424,7 @@ function InvestiblesByPerson(props) {
     inDialogStage,
     inBlockingStage,
     inReviewStage,
+    requiresInputStage,
     activeMarket,
     beingDraggedHack,
     setBeingDraggedHack
@@ -497,6 +499,7 @@ function InvestiblesByPerson(props) {
                 inDialogStageId={inDialogStage.id}
                 inReviewStageId={inReviewStage.id}
                 inBlockingStageId={inBlockingStage.id}
+                inRequiresInputStageId={requiresInputStage.id}
                 activeMarket={activeMarket}
                 comments={comments}
                 presenceId={presence.id}

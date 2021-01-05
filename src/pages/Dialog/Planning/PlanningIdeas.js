@@ -22,7 +22,7 @@ import {
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { getMarketInfo, getVotesForInvestible } from '../../../utils/userFunctions'
-import { ISSUE_TYPE, TODO_TYPE } from '../../../constants/comments'
+import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
@@ -86,6 +86,7 @@ function PlanningIdeas(props) {
     inDialogStageId,
     inReviewStageId,
     inBlockingStageId,
+    inRequiresInputStageId,
     presenceId,
     activeMarket,
     comments,
@@ -224,7 +225,15 @@ function PlanningIdeas(props) {
             .then((fullInvestible) => {
               const { market_infos: marketInfos } = fullInvestible;
               const marketInfo = marketInfos.find(info => info.market_id === marketId);
-              marketInfo.stage = inDialogStageId;
+              const investibleComments = comments.filter((comment) => comment.investible_id === investibleId
+                && !comment.resolved) || [];
+              const blockingComments = investibleComments.filter(comment => comment.comment_type === ISSUE_TYPE);
+              const assignedInputComments = investibleComments.filter(
+                comment => (comment.comment_type === QUESTION_TYPE || comment.comment_type === SUGGEST_CHANGE_TYPE)
+                  && marketInfo.assigned.includes(comment.created_by)
+              );
+              marketInfo.stage = !_.isEmpty(blockingComments) ? inBlockingStageId :
+                _.isEmpty(assignedInputComments) ? inDialogStageId : inRequiresInputStageId;
               refreshInvestibles(invDispatch, diffDispatch, [fullInvestible]);
               setOperationRunning(false);
             });

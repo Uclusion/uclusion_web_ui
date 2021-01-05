@@ -191,6 +191,7 @@ function InvestiblesByWorkspace(props) {
                   inDialogStageId={inDialogStage.id}
                   inReviewStageId={inReviewStage.id}
                   inBlockingStageId={inBlockingStage.id}
+                  inRequiresInputStageId={requiresInputStage.id}
                   activeMarket={market.market_stage === ACTIVE_STAGE}
                   comments={comments}
                   presenceId={presence.id}

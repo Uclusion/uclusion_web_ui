@@ -140,10 +140,9 @@ function PlanningDialog(props) {
     return startedAsStory || hasStoriesNow;
   }
 
-  const furtherWorkStage = marketStages.find((stage) => (!stage.appears_in_context && !stage.allows_issues
-    && !stage.appears_in_market_summary)) || {};
-  const requiresInputStage = marketStages.find((stage) => (!stage.appears_in_context && stage.allows_issues
-    && stage.allows_todos && !stage.appears_in_market_summary)) || {};
+  const furtherWorkStage = marketStages.find((stage) => (!stage.allows_assignment && !stage.close_comments_on_entrance)) || {};
+  const requiresInputStage = marketStages.find((stage) => (!stage.appears_in_context && stage.allows_assignment
+    && !stage.close_comments_on_entrance)) || {};
   const furtherWorkInvestibles = getInvestiblesInStage(investibles, furtherWorkStage.id);
   const requiresInputInvestibles = getInvestiblesInStage(investibles, requiresInputStage.id);
   const highlightMap = {};
@@ -249,6 +248,7 @@ function PlanningDialog(props) {
             stageId={furtherWorkStage.id}
             presenceId={myPresence.id}
             allowDragDrop
+            isInFurtherWork
             beingDraggedHack={beingDraggedHack}
             setBeingDraggedHack={setBeingDraggedHack}
           />

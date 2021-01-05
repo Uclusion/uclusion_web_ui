@@ -44,7 +44,7 @@ const myClasses = makeStyles(
 );
 
 export function getInvestibles(investibles, presenceMap, marketId, history, intl, elevation, highlightMap,
-  allowDragDrop, onDragEnd, onDragStart, unResolvedMarketComments, presenceId) {
+  allowDragDrop, onDragEnd, onDragStart, unResolvedMarketComments, presenceId, isInFurtherWork) {
   const investibleData = investibles.map((inv) => inv.investible);
   const sortedData = _.sortBy(investibleData, 'updated_at', 'name').reverse();
   const infoMap = investibles.reduce((acc, inv) => {
@@ -77,7 +77,7 @@ export function getInvestibles(investibles, presenceMap, marketId, history, intl
         item
         md={3}
         xs={12}
-        draggable={allowDragDrop && _.isEmpty(requiresInputComments)}
+        draggable={allowDragDrop && (_.isEmpty(requiresInputComments) || isInFurtherWork)}
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
       >
@@ -106,6 +106,7 @@ function ArchiveInvestbiles(props) {
     allowDragDrop,
     stageId,
     presenceId,
+    isInFurtherWork,
     beingDraggedHack,
     setBeingDraggedHack,
     unResolvedMarketComments
@@ -136,7 +137,7 @@ function ArchiveInvestbiles(props) {
       className={classes.white}
     >
       {getInvestibles(investibles, presenceMap, marketId, history, intl, elevation, highlightMap, allowDragDrop,
-      onDragEnd, onDragStart, unResolvedMarketComments, presenceId)}
+      onDragEnd, onDragStart, unResolvedMarketComments, presenceId, isInFurtherWork)}
     </Grid>
   );
 }

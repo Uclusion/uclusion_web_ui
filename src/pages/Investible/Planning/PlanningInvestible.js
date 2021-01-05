@@ -358,16 +358,16 @@ function PlanningInvestible(props) {
     const blockingComments = investibleComments.filter(
       comment => comment.comment_type === ISSUE_TYPE && !comment.resolved
     );
-    return !_.isEmpty(blockingComments) && !isInVerified && !isInNotDoing;
+    return _.isEmpty(blockingComments) && !isInVerified && !isInNotDoing;
   }
   function canOpenBlocking() {
     const assignedInputComments = investibleComments.filter(
       comment => (comment.comment_type === QUESTION_TYPE || comment.comment_type === SUGGEST_CHANGE_TYPE)
         && !comment.resolved && assigned.includes(comment.created_by)
     );
-    return !_.isEmpty(assignedInputComments) && !isInVerified && !isInNotDoing;
+    return _.isEmpty(assignedInputComments) && !isInVerified && !isInNotDoing;
   }
-  const allowedCommentTypes = canGetInput() ? [] : [QUESTION_TYPE, SUGGEST_CHANGE_TYPE];
+  const allowedCommentTypes = canGetInput() ? [QUESTION_TYPE, SUGGEST_CHANGE_TYPE] : [];
   if (isAssigned) {
     allowedCommentTypes.push(REPORT_TYPE);
     allowedCommentTypes.push(TODO_TYPE);

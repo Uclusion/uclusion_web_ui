@@ -92,7 +92,7 @@ function createMarketView (messages) {
   const marketsHash = {};
   messages.forEach((message) => {
     const {
-      marketId,
+      market_id: marketId,
       market_link: marketLink,
       market_type: marketType,
       market_name: marketName,

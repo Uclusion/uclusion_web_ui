@@ -14,7 +14,7 @@ import {
 } from '@material-ui/core'
 import PropTypes from 'prop-types'
 import QuillEditor from '../TextEditors/QuillEditor'
-import { updateComment } from '../../api/comments'
+import { getMentionsFromText, updateComment } from '../../api/comments';
 import { processTextAndFilesForSave } from '../../api/files'
 import SpinBlockingButton from '../SpinBlocking/SpinBlockingButton'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
@@ -25,6 +25,8 @@ import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../..
 import { urlHelperGetName } from '../../utils/marketIdPathFunctions'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
+import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import _ from 'lodash';
 import clsx from 'clsx'
 import { getIcon } from '../../containers/CommentBox/CommentAddBox'
@@ -168,6 +170,9 @@ function CommentEdit(props) {
   const defaultDefaultFunc = (newDefault) => {};
   const [editorDefaultFunc, setEditorDefaultFunc] = useState(() => defaultDefaultFunc);
   const [loadedId, setLoadedId] = useState(undefined);
+  const [marketPresencesState] = useContext(MarketPresencesContext);
+  const presences = getMarketPresences(marketPresencesState, marketId);
+
 
   useEffect(() => {
     if (loadedId !== id) {
@@ -199,9 +204,10 @@ function CommentEdit(props) {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
     } = processTextAndFilesForSave(newUploadedFiles, body);
+    const mentions = getMentionsFromText(tokensRemoved);
     const updatedType = type !== commentType ? type : undefined;
     const myActualNotificationType = commentType === TODO_TYPE && !investibleId ? myNotificationType : undefined;
-    return updateComment(marketId, id, tokensRemoved, filteredUploads, updatedType, myActualNotificationType)
+    return updateComment(marketId, id, tokensRemoved, updatedType, filteredUploads, mentions, myActualNotificationType)
       .then((comment) => {
         addCommentToMarket(comment, commentState, commentDispatch);
         return EMPTY_SPIN_RESULT;
@@ -277,6 +283,7 @@ function CommentEdit(props) {
             setEditorDefaultFunc={(func) => {
               setEditorDefaultFunc(func);
             }}
+            participants={presences}
           />
         </CardContent>
         <CardActions className={classes.cardActions}>

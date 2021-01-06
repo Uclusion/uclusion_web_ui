@@ -285,7 +285,7 @@ function MarketTodos (props) {
       return;
     }
     setOperationRunning(true);
-    updateComment(marketId, commentId, undefined, undefined, undefined, notificationType)
+    updateComment(marketId, commentId, undefined, undefined, undefined, undefined, notificationType)
       .then((comment) => {
         addCommentToMarket(comment, commentState, commentDispatch);
         setOperationRunning(false);

@@ -43,6 +43,7 @@ export function updateInvestment(updateInfo) {
     currentQuantity,
     currentReasonId,
     newReasonText,
+    newMentions,
     reasonNeedsUpdate,
     maxBudget,
     maxBudgetUnit
@@ -68,7 +69,7 @@ export function updateInvestment(updateInfo) {
             });
         }
         return client.investibles.createComment(investibleId, newReasonText,
-          undefined, JUSTIFY_TYPE, [])
+          undefined, JUSTIFY_TYPE, [], newMentions)
           .then((comment) => {
             return {
               commentAction: 'CREATED',

@@ -175,15 +175,13 @@ function removeStoredMessagesForPage(state, page) {
 function processHighlighting(messagesForPage) {
   messagesForPage.forEach((message) => {
     const {
-      commentId,
-      associatedUserId,
-      associatedInvestibleId
+      link_type: linkType
     } = message;
-    if (!_.isEmpty(commentId) || !_.isEmpty(associatedInvestibleId)) {
-      pushMessage(HIGHLIGHTED_COMMENT_CHANNEL, message);
-    }
-    if (!_.isEmpty(associatedUserId)) {
+    if (linkType.includes('VOTE')) {
       pushMessage(HIGHLIGHTED_VOTING_CHANNEL, message);
+    }
+    else if ( linkType.includes('COMMENT') || linkType.includes('INVESTIBLE')) {
+      pushMessage(HIGHLIGHTED_COMMENT_CHANNEL, message);
     }
   });
 }
@@ -198,22 +196,16 @@ function handleMessagesForPage(pageMessages) {
   if (!_.isEmpty(pageMessages)) {
     // process highlighting
     processHighlighting(pageMessages);
-    const notAssociatedInvestible = pageMessages.filter((message) => {
-      const { associatedInvestibleId, commentId, aType } = message;
-      if (associatedInvestibleId) {
-        // Each of these has to be deleted individually since we are not on that page
-        deleteMessage(message)
-          .catch((error) => console.error(error));
-        return false;
-      }
+    const notAssociated = pageMessages.filter((message) => {
+      const { comment_id: commentId, type: aType } = message;
       //TODO eventually do not page delete anything - for now put comments and UNREAD on new system
       return !commentId && aType !== 'UNREAD' && aType !== 'UNREAD_VOTE' && aType !== 'UNREAD_SWIM';
     })
-    if (!_.isEmpty(notAssociatedInvestible)) {
+    if (!_.isEmpty(notAssociated)) {
       // and tell the backend we've processed them immediately
       // the backend only needs the first message to figure out all of them
       // have been viewed
-      const firstMessage = notAssociatedInvestible[0];
+      const firstMessage = notAssociated[0];
       deleteMessage(firstMessage)
         .catch((error) => console.error(error)); // not much to do other than log it.
     }

@@ -38,93 +38,36 @@ export function findMessageOfTypeAndId(notificationId, state, subtype) {
 }
 
 /**
- * Converts the raw message stream from the backed into something that's more easily handled
- * by the frontend. I.E. it converts type object ids, etc into marketIds, investibleIds, commentIds
- * and so on. Note, the massaged messages still contain their original values, such as
- * type_object_id, etc, as we need to be able to look them up by those values when removing.
+ * Converts and orders the raw message stream from the backed into something that's more easily handled
+ * by the frontend.
  * @param messages
  * @returns {*}
  */
 export function getMassagedMessages (messages) {
   const massagedMessages = messages.map((message) => {
     const {
-      type_object_id: typeObjectId,
-      market_id_user_id: marketIdUserId,
-      level,
-      associated_object_id: associatedObjectId,
+      type: aType,
+      market_id: marketId
     } = message;
-    const objectId = typeObjectId.substring(typeObjectId.lastIndexOf('_') + 1);
-    const aType = typeObjectId.substring(0, typeObjectId.lastIndexOf('_'));
-    const marketId = marketIdUserId.substring(0, marketIdUserId.lastIndexOf('_'));
-    const userId = marketIdUserId.substring(marketIdUserId.lastIndexOf('_') + 1);
+
     // USER poke messages store their type of poke in the marketID for historical reasons
     if (aType === 'USER_POKED') {
       return {
-        ...message, pokeType: marketId, aType, level, userId,
+        ...message, pokeType: marketId
       };
     }
-    if (aType === 'NEW_OPTION') {
-      return {
-        ...message,
-        marketId,
-        aType,
-        level,
-        associatedInvestibleId: objectId,
-        userId,
-      };
-    }
-    if (marketId === objectId || userId === objectId) {
-      return {
-        ...message, marketId, aType, level, userId,
-      };
-    }
-    if (associatedObjectId) {
-      if (aType === 'UNREAD_VOTE') {
-        return {
-          ...message,
-          marketId,
-          aType,
-          level,
-          investibleId: objectId,
-          associatedUserId: associatedObjectId,
-          userId,
-        };
-      }
-      return {
-        ...message,
-        marketId,
-        aType,
-        level,
-        investibleId: associatedObjectId,
-        commentId: objectId,
-        userId,
-      };
-    }
-    if (aType.startsWith('ISSUE')) {
-      // Comment thread on context
-      return {
-        ...message,
-        marketId,
-        aType,
-        level,
-        commentId: objectId,
-        userId,
-      };
-    }
-    return {
-      ...message, marketId, aType, level, investibleId: objectId, userId,
-    };
+    return message;
   });
   //market level must come before investibles in the market
   massagedMessages.sort(function (a, b) {
     const {
-      marketId: aMarketId,
-      investibleId: aInvestibleId,
+      market_id: aMarketId,
+      investible_id: aInvestibleId,
       level: aLevel,
     } = a;
     const {
-      marketId: bMarketId,
-      investibleId: bInvestibleId,
+      market_id: bMarketId,
+      investible_id: bInvestibleId,
       level: bLevel,
     } = b;
     if (aLevel === bLevel) {

@@ -443,14 +443,14 @@ function InvestiblesByPerson(props) {
     return !presence.current_user;
   });
   return marketPresencesSorted.map(presence => {
+    const { id, name } = presence;
     const myInvestibles = getUserInvestibles(
-      presence.id,
+      id,
       marketId,
       investibles,
       visibleStages,
     );
-    const { id, name } = presence;
-    const myMessage = findMessageOfTypeAndId(marketId, messagesState, 'SWIMLANE');
+    const myMessage = findMessageOfTypeAndId(`${marketId}_${id}`, messagesState, 'SWIMLANE');
     const TextCardHeader = (props) => {
       // inViewport, enterCount, leaveCount also available
       const { forwardedRef } = props;

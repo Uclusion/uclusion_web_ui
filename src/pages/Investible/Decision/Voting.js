@@ -115,7 +115,7 @@ function Voting(props) {
     <ol className={classes.root}>
       {sortedVoters.map(voter => {
         const { name, userId, quantity, maxBudget, maxBudgetUnit, updatedAt } = voter;
-        const myMessage = findMessageOfTypeAndId(userId, messagesState, 'VOTE');
+        const myMessage = findMessageOfTypeAndId(`${investibleId}_${userId}`, messagesState, 'VOTE');
         const reason = getVoterReason(userId);
         const voteId = `cv${userId}`;
 

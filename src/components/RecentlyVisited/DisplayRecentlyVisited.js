@@ -63,11 +63,10 @@ function DisplayRecentlyVisited (props) {
 
   function getSearchResult (item) {
     const {
-      marketId,
-      investibleId,
-      aType,
-      commentId,
-      associatedUserId,
+      market_id: marketId,
+      investible_id: investibleId,
+      comment_id: commentId,
+      associated_object_id: associatedUserId,
       investible_name: investibleName,
       market_name: marketName,
       link,
@@ -76,7 +75,7 @@ function DisplayRecentlyVisited (props) {
     } = item;
     const parentName = (linkType === 'INLINE_STORY_INITIATIVE' || linkType === 'INLINE_STORY_INVESTIBLE')
       ? investibleName : undefined;
-    if (aType === 'NEW_VOTES') {
+    if (linkType.includes('VOTE')) {
       return (<VotingVisitedResult marketId={marketId} containerName={investibleName || marketName}
                                    classes={searchClasses} userId={associatedUserId} afterOnClick={afterOnClick}
                                    link={link}/>);

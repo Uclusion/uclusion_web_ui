@@ -8,10 +8,10 @@ function beginListening (dispatch) {
     const { payload: message } = data;
     const {
       level,
-      commentId,
-      associatedInvestibleId
+      comment_id: commentId,
+      investible_id: investibleId
     } = message;
-    dispatch({ type: HIGHLIGHT_ADD, commentId: commentId || associatedInvestibleId, level });
+    dispatch({ type: HIGHLIGHT_ADD, commentId: commentId || investibleId, level });
   });
 }
 

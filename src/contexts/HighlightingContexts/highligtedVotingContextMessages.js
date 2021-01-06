@@ -8,7 +8,7 @@ function beginListening (dispatch) {
     const { payload: message } = data;
     const {
       level,
-      associatedUserId,
+      associated_object_id: associatedUserId,
     } = message;
     dispatch({ type: HIGHLIGHT_ADD, associatedUserId, level });
   });

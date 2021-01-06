@@ -16,16 +16,16 @@ export function fetchComments(idList, marketId) {
   }).catch((error) => toastErrorAndThrow(error, 'errorCommentFetchFailed'));
 }
 
-export function saveComment(marketId, investibleId, replyId, body, commentType, uploadedFiles, notificationType) {
+export function saveComment(marketId, investibleId, replyId, body, commentType, uploadedFiles, mentions, notificationType) {
   return getMarketClient(marketId)
-    .then((client) => client.investibles.createComment(investibleId, body, replyId, commentType, uploadedFiles,
+    .then((client) => client.investibles.createComment(investibleId, body, replyId, commentType, uploadedFiles, mentions,
       notificationType))
     .catch((error) => toastErrorAndThrow(error, 'errorCommentSaveFailed'));
 }
 
-export function updateComment(marketId, commentId, body, uploadedFiles, commentType, notificationType) {
+export function updateComment(marketId, commentId, body, commentType, uploadedFiles, mentions, notificationType) {
   return getMarketClient(marketId)
-    .then((client) => client.investibles.updateComment(commentId, body, undefined, uploadedFiles, commentType,
+    .then((client) => client.investibles.updateComment(commentId, body, undefined, uploadedFiles, mentions, commentType,
       notificationType))
     .catch((error) => toastErrorAndThrow(error, 'errorCommentSaveFailed'));
 }
@@ -56,4 +56,24 @@ export function reopenComment(marketId, commentId) {
   return getMarketClient(marketId)
     .then((client) => client.investibles.updateComment(commentId, undefined, false, []))
     .catch((error) => toastErrorAndThrow(error, 'errorCommentReopenFailed'));
+}
+
+export function getMentionsFromText(body) {
+  const sandbox = document.createElement('div');
+  sandbox.innerHTML = body;
+  const spans = sandbox.getElementsByTagName('span');
+  const mentions = [];
+  // inspect all spans for the format we expect
+  // which is with the data index, id, value, and denotation-char set
+  for (let x = 0; x < spans.length; x += 1) {
+    const span = spans[x]
+    const isMention = span.hasAttribute('data-id') && span.hasAttribute('data-index')
+      && span.hasAttribute('data-value') && span.hasAttribute('data-denotation-char');
+    if (isMention){
+      // the presence id is the data-id
+      mentions.push(span.getAttribute('data-id'));
+    }
+  }
+  // dedupe, since people can be mentioned twice
+  return _.uniq(mentions);
 }

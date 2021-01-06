@@ -152,8 +152,8 @@ class QuillEditor extends React.PureComponent {
     const boundsId = this.getBoundsId();
     const defaultModules = {
       mention: {
-        mentionDenotationChars: ['@'],
         source: function (searchTerm, renderList) {
+          console.error(`Search term ${searchTerm}`);
           if (searchTerm.length === 0) {
             renderList(participants, searchTerm);
           } else {

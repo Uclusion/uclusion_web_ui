@@ -13,7 +13,7 @@ import {
 } from '@material-ui/core'
 import PropTypes from 'prop-types'
 import QuillEditor from '../TextEditors/QuillEditor'
-import { saveComment } from '../../api/comments'
+import { getMentionsFromText, saveComment } from '../../api/comments';
 import {
   ISSUE_TYPE,
   QUESTION_TYPE,
@@ -267,6 +267,7 @@ function CommentAdd (props) {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
     } = processTextAndFilesForSave(uploadedFiles, body);
+    const mentions = getMentionsFromText(tokensRemoved);
     // the API does _not_ want you to send reply type, so suppress if our type is reply
     const apiType = (type === REPLY_TYPE) ? undefined : type;
     // what about not doing state?
@@ -282,7 +283,7 @@ function CommentAdd (props) {
       && (assigned || []).includes(myPresence.id)) && currentStageId !== blockingStage.id
       && currentStageId !== requiresInputStage.id;
     const investibleBlocks = (investibleId && apiType === ISSUE_TYPE) && currentStageId !== blockingStage.id;
-    return saveComment(marketId, investibleId, parentId, tokensRemoved, apiType, filteredUploads,
+    return saveComment(marketId, investibleId, parentId, tokensRemoved, apiType, filteredUploads, mentions,
       myNotificationType)
       .then((comment) => {
         setMyNotificationType(undefined);

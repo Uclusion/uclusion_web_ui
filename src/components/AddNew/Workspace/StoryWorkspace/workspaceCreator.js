@@ -143,7 +143,7 @@ export function doCreateStoryWorkspace (dispatchers, formData, updateFormData, i
       addInvestible(investiblesDispatch, diffDispatch, investible);
       const { currentStoryProgress, currentStoryProgressSkipped } = formData;
       if (!_.isEmpty(currentStoryProgress) && !currentStoryProgressSkipped) {
-        return saveComment(createdMarketId, investibleId, undefined, currentStoryProgress, REPORT_TYPE, []);
+        return saveComment(createdMarketId, investibleId, undefined, currentStoryProgress, REPORT_TYPE, [], []);
       } else {
         return Promise.resolve(false);
       }

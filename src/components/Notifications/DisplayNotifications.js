@@ -123,7 +123,7 @@ function createMarketView (messages) {
         const name = marketType === 'slack' ? 'Notification preferences' : 'Upgrade';
         markets.push({
           name, typeIcon: getNameIcon(message), investibles: [],
-          items: [{ message }]
+          items: [message]
         });
       } else {
         const aMarket = {
@@ -147,7 +147,7 @@ function createMarketView (messages) {
       }
       const investible = investiblesHash[investibleLink];
       if (!linkMultiple) {
-        investible.items.push({ message });
+        investible.items.push(message);
       } else {
         if (!investible.linkMultipleHash[linkMultiple]) {
           investible.linkMultipleHash[linkMultiple] = [];
@@ -156,7 +156,7 @@ function createMarketView (messages) {
       }
     } else if (market) {
       if (!linkMultiple) {
-        market.items.push({ message });
+        market.items.push(message);
       } else {
         if (!market.linkMultipleHash[linkMultiple]) {
           market.linkMultipleHash[linkMultiple] = [];
@@ -194,14 +194,14 @@ function DisplayNotifications (props) {
   function getItemResult (item) {
     const {
       link,
-    } = item.message;
+    } = item;
     return (
       <ListItem
         key={link}
         button
         onClick={zeroResults}
       >
-        <NotificationMessageDisplay message={item.message}/>
+        <NotificationMessageDisplay message={item}/>
       </ListItem>
     );
   }

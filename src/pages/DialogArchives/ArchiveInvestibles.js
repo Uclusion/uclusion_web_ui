@@ -12,7 +12,6 @@ import { restoreHeader } from '../../containers/Header'
 import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../constants/comments'
 import { stageChangeInvestible } from '../../api/investibles'
 import { refreshInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
-import { resolveInvestibleComments } from '../../contexts/CommentsContext/commentsContextHelper'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 

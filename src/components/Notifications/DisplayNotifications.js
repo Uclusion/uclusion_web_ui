@@ -87,20 +87,39 @@ function getNameIcon (message, linkType) {
   }
 }
 
+function processDuplicates(page) {
+  const { linkMultipleHash, items } = page;
+  Object.values(linkMultipleHash).forEach((duplicates) => {
+    const lenDuplicates = duplicates.length;
+    const first = duplicates[0];
+    if (lenDuplicates === 1) {
+      items.push({ message: first});
+    } else {
+      const { link_type: linkType, link: firstLink, link_multiple: linkMultiple } = first;
+      let link = firstLink;
+      if (linkType.includes('INVESTIBLE')) {
+        // We do not want to go inside the investible for new options or reviews as you won't see the others
+        link = linkMultiple;
+      }
+      items.push({ ...first, link, lenDuplicates });
+    }
+  });
+}
+
 function createMarketView (messages) {
   const markets = [];
   const marketsHash = {};
   messages.forEach((message) => {
     const {
-      market_id: marketId,
       market_link: marketLink,
       market_type: marketType,
       market_name: marketName,
       investible_name: investibleName,
-      investible_link: investibleLink
+      investible_link: investibleLink,
+      link_multiple: linkMultiple
     } = message;
     if (!marketsHash[marketLink]) {
-      if (!marketId) {
+      if (marketType === 'slack' || marketType === 'upgrade') {
         const name = marketType === 'slack' ? 'Notification preferences' : 'Upgrade';
         markets.push({
           name, typeIcon: getNameIcon(message), investibles: [],
@@ -109,7 +128,7 @@ function createMarketView (messages) {
       } else {
         const aMarket = {
           name: marketName, typeIcon: getNameIcon(message, 'MARKET'), investiblesHash: {},
-          investibles: [], items: []
+          investibles: [], items: [], linkMultipleHash: {}
         };
         markets.push(aMarket);
         marketsHash[marketLink] = aMarket;
@@ -121,16 +140,34 @@ function createMarketView (messages) {
       if (!investiblesHash[investibleLink]) {
         const anInvestible = {
           name: investibleName, typeIcon: getNameIcon(message, 'INVESTIBLE'),
-          items: []
+          items: [], linkMultipleHash: {}
         };
         investiblesHash[investibleLink] = anInvestible;
         market.investibles.push(anInvestible);
       }
       const investible = investiblesHash[investibleLink];
-      investible.items.push({ message });
+      if (!linkMultiple) {
+        investible.items.push({ message });
+      } else {
+        if (!investible.linkMultipleHash[linkMultiple]) {
+          investible.linkMultipleHash[linkMultiple] = [];
+        }
+        investible.linkMultipleHash[linkMultiple].push(message);
+      }
     } else if (market) {
-      market.items.push({ message });
+      if (!linkMultiple) {
+        market.items.push({ message });
+      } else {
+        if (!market.linkMultipleHash[linkMultiple]) {
+          market.linkMultipleHash[linkMultiple] = [];
+        }
+        market.linkMultipleHash[linkMultiple].push(message);
+      }
     }
+  });
+  markets.forEach((market) => {
+    processDuplicates(market);
+    market.investibles.forEach((investible) => processDuplicates(investible));
   });
   return markets;
 }

@@ -5,12 +5,13 @@ import { navigate } from '../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
 import Typography from '@material-ui/core/Typography';
 import { RED_LEVEL, YELLOW_LEVEL } from '../../constants/notifications'
+import Chip from '@material-ui/core/Chip'
 
 function NotificationMessageDisplay(props) {
   const {
     message
   } = props;
-  const { link, level, name, text,
+  const { link, level, name, text, lenDuplicates,
     investible_name: investibleName,
     market_name: marketName
   } = message;
@@ -27,6 +28,10 @@ function NotificationMessageDisplay(props) {
       }
     }>
       <>
+        {lenDuplicates && (
+          <Chip label={`${lenDuplicates}`} color="primary" size='small'
+                style={{ marginRight: '0.5rem'}} />
+        )}
         {name !== containerName && name !== text && (
           <Typography style={{fontStyle: 'italic'}}>
             {name}</Typography>

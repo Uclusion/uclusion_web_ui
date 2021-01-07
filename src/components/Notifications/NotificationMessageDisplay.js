@@ -28,15 +28,16 @@ function NotificationMessageDisplay(props) {
       }
     }>
       <>
-        {lenDuplicates && (
-          <Chip label={`${lenDuplicates}`} color="primary" size='small'
-                style={{ marginRight: '0.5rem'}} />
-        )}
         {name !== containerName && name !== text && (
           <Typography style={{fontStyle: 'italic'}}>
             {name}</Typography>
         )}
-        <Typography style={{backgroundColor: color, color: fontColor, paddingLeft: '1rem', borderRadius: '3px'}}>{text}</Typography>
+        <Typography style={{backgroundColor: color, color: fontColor, paddingLeft: '1rem', borderRadius: '3px'}}>{text}
+          {lenDuplicates && (
+            <Chip label={`${lenDuplicates}`} color="primary" size='small'
+                  style={{ marginLeft: '0.5rem'}} />
+          )}
+        </Typography>
       </>
     </Link>
   );

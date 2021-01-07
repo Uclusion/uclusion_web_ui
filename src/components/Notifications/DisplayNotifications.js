@@ -93,7 +93,7 @@ function processDuplicates(page) {
     const lenDuplicates = duplicates.length;
     const first = duplicates[0];
     if (lenDuplicates === 1) {
-      items.push({ message: first});
+      items.push(first);
     } else {
       const { link_type: linkType, link: firstLink, link_multiple: linkMultiple } = first;
       let link = firstLink;

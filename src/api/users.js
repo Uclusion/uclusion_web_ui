@@ -26,7 +26,7 @@ export function deleteMessage(message) {
 }
 
 export function deleteSingleMessage(message) {
-  const { marketId, type_object_id: typeObjectId, aType } = message;
+  const { market_id: marketId, type_object_id: typeObjectId, type: aType } = message;
   const objectId = typeObjectId.split('_').pop();
   // TODO re-use poke one till have real api
   return getMarketClient(marketId)

@@ -19,7 +19,7 @@ import BlockIcon from '@material-ui/icons/Block'
 import clsx from 'clsx'
 import CommentAdd from '../../components/Comments/CommentAdd'
 import { FormattedMessage } from 'react-intl'
-import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../constants/comments'
+import { ISSUE_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../constants/comments'
 
 export const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -126,7 +126,7 @@ export function getIcon(commentType) {
     case TODO_TYPE: {
       return <AssignmentIcon />;
     }
-    case 'REPORT': {
+    case REPORT_TYPE: {
       return <DescriptionIcon />;
     }
     default: {
@@ -145,6 +145,7 @@ function CommentAddBox(props) {
     todoWarningId,
     isPlanning,
     isStory,
+    isInReview,
     hidden
   } = props;
   const [type, setType] = useState('');
@@ -157,10 +158,10 @@ function CommentAddBox(props) {
     setType('');
   }
   function getMessageId(aCommentType) {
-    if (!isPlanning || aCommentType !== ISSUE_TYPE) {
+    if (!isInReview || aCommentType !== REPORT_TYPE) {
       return `${aCommentType.toLowerCase()}Present`;
     }
-    return "nonBlockIssuePresent";
+    return "reviewReportPresent";
   }
   return (
     <>
@@ -177,7 +178,8 @@ function CommentAddBox(props) {
               {allowedTypes.map((commentType) => {
                 return (
                   <Tooltip key={`tip${commentType}`}
-                           title={<FormattedMessage id={`${commentType.toLowerCase()}Tip`} />}>
+                           title={<FormattedMessage id={isInReview && commentType === REPORT_TYPE ? 'reportReviewTip' :
+                             `${commentType.toLowerCase()}Tip`} />}>
                     <FormControlLabel
                       id={`commentAddLabel${commentType}`}
                       key={commentType}

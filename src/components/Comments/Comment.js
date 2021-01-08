@@ -68,7 +68,7 @@ import { InvestiblesContext } from '../../contexts/InvestibesContext/Investibles
 import ProposedIdeas from '../../pages/Dialog/Decision/ProposedIdeas'
 import {
   getBlockedStage,
-  getInCurrentVotingStage,
+  getInCurrentVotingStage, getInReviewStage,
   getProposedOptionsStage, getRequiredInputStage
 } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
@@ -298,7 +298,7 @@ function Comment(props) {
   const intl = useIntl();
   const classes = useCommentStyles();
   const { id, comment_type: commentType, resolved, investible_id: investibleId, inline_market_id: inlineMarketId,
-  created_by: commentCreatedBy, notification_type: myNotificationType} = comment;
+  created_by: commentCreatedBy, notification_type: myNotificationType, creation_stage_id: createdStageId} = comment;
   const presences = usePresences(marketId);
   const createdBy = useCommenter(comment, presences) || unknownPresence;
   const updatedBy = useUpdatedBy(comment, presences) || unknownPresence;
@@ -587,8 +587,10 @@ function Comment(props) {
   const { expanded: myRepliesExpanded } = myExpandedState;
   const myRepliesExpandedCalc = myRepliesExpanded === undefined ? _.isEmpty(highlightIds) ? undefined : true : myRepliesExpanded;
   const repliesExpanded = myRepliesExpandedCalc === undefined ? !comment.resolved || comment.reply_id : myRepliesExpandedCalc;
-  const overrideLabel = (marketType === PLANNING_TYPE && !investibleId && commentType === ISSUE_TYPE) ?
-    <FormattedMessage id="nonBlockIssuePresent" /> : undefined;
+  const isInReview = createdStageId === (getInReviewStage(marketStagesState, marketId) || {id: 'fake'}).id;
+  const overrideLabel = (marketType === PLANNING_TYPE && commentType === REPORT_TYPE && isInReview) ?
+    <FormattedMessage id="reviewReportPresent" /> : undefined;
+  console.debug(overrideLabel);
   useEffect(() => {
     if (!_.isEmpty(highlightIds) && !myRepliesExpanded && commentType !== REPLY_TYPE) {
       // Open if need to highlight inside - user can close again
@@ -713,6 +715,7 @@ function Comment(props) {
                 onCancel={toggleEdit}
                 allowedTypes={allowedTypes}
                 myNotificationType={myNotificationType}
+                isInReview={isInReview}
               />
             )}
           </Box>

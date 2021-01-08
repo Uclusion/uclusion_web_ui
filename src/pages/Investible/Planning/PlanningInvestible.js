@@ -841,6 +841,7 @@ function PlanningInvestible(props) {
                 marketId={marketId}
                 issueWarningId={isReadyFurtherWork ? undefined : 'issueWarningPlanning'}
                 todoWarningId={todoWarning}
+                isInReview={isInReview}
                 hidden={hidden}
                 isStory
               />
@@ -870,6 +871,7 @@ function PlanningInvestible(props) {
               marketId={marketId}
               issueWarningId={isReadyFurtherWork ? undefined : 'issueWarningPlanning'}
               todoWarningId={todoWarning}
+              isInReview={isInReview}
               hidden={hidden}
               isStory
             />

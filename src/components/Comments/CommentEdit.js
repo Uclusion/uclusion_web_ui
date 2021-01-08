@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { FormattedMessage, injectIntl } from 'react-intl'
+import { FormattedMessage, useIntl } from 'react-intl'
 import {
   Button,
   Card,
@@ -21,7 +21,7 @@ import { OperationInProgressContext } from '../../contexts/OperationInProgressCo
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { addCommentToMarket } from '../../contexts/CommentsContext/commentsContextHelper'
 import { EMPTY_SPIN_RESULT } from '../../constants/global'
-import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../constants/comments'
+import { ISSUE_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../constants/comments'
 import { urlHelperGetName } from '../../utils/marketIdPathFunctions'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
@@ -163,8 +163,9 @@ const useStyles = makeStyles((theme) => ({
 
 function CommentEdit(props) {
   const {
-    intl, marketId, onSave, onCancel, comment, allowedTypes, myNotificationType
+    marketId, onSave, onCancel, comment, allowedTypes, myNotificationType, isInReview
   } = props;
+  const intl = useIntl();
   const { id, body: initialBody, uploaded_files: initialUploadedFiles, comment_type: commentType,
     inline_market_id: inlineMarketId, investible_id: investibleId } = comment;
   const [body, setBody] = useState(initialBody);
@@ -273,7 +274,8 @@ function CommentEdit(props) {
                       onMouseDown={e => e.preventDefault()}
                       control={<Radio color="primary" />}
                       label={window.outerWidth < 600 ? getIcon(commentType) :
-                        <FormattedMessage id={`${commentType.toLowerCase()}Present`} />}
+                        <FormattedMessage id={isInReview && commentType === REPORT_TYPE ? 'reviewReportPresent'
+                          : `${commentType.toLowerCase()}Present`} />}
                       labelPlacement="end"
                       value={commentType}
                     />
@@ -333,9 +335,6 @@ CommentEdit.propTypes = {
   allowedTypes: PropTypes.arrayOf(PropTypes.string),
   marketId: PropTypes.string.isRequired,
   onSave: PropTypes.func,
-  // eslint-disable-next-line react/forbid-prop-types
-  intl: PropTypes.object.isRequired,
-  // eslint-disable-next-line react/forbid-prop-types
   comment: PropTypes.object.isRequired,
   onCancel: PropTypes.func,
 };
@@ -348,4 +347,4 @@ CommentEdit.defaultProps = {
   },
 };
 
-export default injectIntl(CommentEdit);
+export default CommentEdit;

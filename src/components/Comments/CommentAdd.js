@@ -478,11 +478,7 @@ CommentAdd.propTypes = {
   issueWarningId: PropTypes.string,
   todoWarningId: PropTypes.string,
   onSave: PropTypes.func.isRequired,
-  // eslint-disable-next-line react/forbid-prop-types
-  intl: PropTypes.object.isRequired,
-  // eslint-disable-next-line react/forbid-prop-types
   investible: PropTypes.object,
-  // eslint-disable-next-line react/forbid-prop-types
   parent: PropTypes.object,
   onCancel: PropTypes.func,
   hidden: PropTypes.bool,

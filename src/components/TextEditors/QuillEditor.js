@@ -23,6 +23,7 @@ import { embeddifyVideoLink } from './Utilities/VideoUtils';
 import LinkDialog from './CustomUI/LinkDialog';
 import QuillMention from 'quill-mention-uclusion';
 import Quill from 'quill';
+import { useTheme } from '@material-ui/styles';
 // install our filtering paste module, and disable the uploader
 
 Quill.register('modules/clipboard', CustomQuillClipboard, true);
@@ -78,23 +79,39 @@ function QuillEditor (props) {
     onChange,
     defaultValue,
     children,
-    theme,
     id,
     getUrlName,
-    placeHolder,
     setEditorClearFunc,
+    marketId,
+    placeholder,
+    uploadDisabled,
+    noToolbar,
+    simple,
+    setOperationInProgress,
+    participants,
   } = props;
   const intl = useIntl();
   const [uploads, setUploads] = useState([]);
   const [uploadInProgress, setUploadInProgress] = useState(false);
   const [videoDialogOpen, setVideoDialogOpen] = useState(false);
   const [linkDialogOpen, setLinkDialogOpen] = useState(false);
-
-  const editorOptions = generateEditorOptions();
+  const theme = useTheme();
 
   const editorContainer = useRef();
-  const quillRef = useRef();
 
+
+  function getBoundsId () {
+    const { id, marketId } = props;
+    // quill will constrain ui elements to the boundaries
+    // of the element specified in the bounds parameter
+    // which in our case is a css id
+    return `editorBox-${id || marketId}`;
+  }
+
+  // quill will constrain ui elements to the boundaries
+  // of the element specified in the bounds parameter
+  // which in our case is a css id
+  const boundsId = getBoundsId();
 
   /**
    * The UI for videos is quite poor, so we need
@@ -107,7 +124,7 @@ function QuillEditor (props) {
         onClose={() => setVideoDialogOpen(false)}
         onSave={(link) => {
           const embedded = embeddifyVideoLink(link);
-          quill.format('video', embedded);
+          //quill.format('video', embedded);
         }}
       />
     );
@@ -131,11 +148,11 @@ function QuillEditor (props) {
           if (selected.length === 0) {
             const index = selected ? selected.index : 0; // no position? do it at the front
             // if so, the selection is just the cursor position, so insert our new text there
-            quill.insertText(index, link, 'link', link, 'user');
+            //quill.insertText(index, link, 'link', link, 'user');
             //refocus the editor because for some reason it moves to the top during insert
           } else {
             //  console.error('adding link' + link);
-            quill.format('link', link);
+            //quill.format('link', link);
           }
         }}
       />
@@ -149,89 +166,7 @@ function QuillEditor (props) {
     });
   }
 
-  // instantiate the quill, and only pay attention to changes in quill itself for sanity's sake
-  useEffect(() => {
-    /** Adds the tooltips
-     * to the items in the toolbar.
-     */
-
-    function addToolTips (quill) {
-      const toolbar = quill.container.previousSibling;
-      setTooltip(toolbar, 'button.ql-bold', 'Bold');
-      setTooltip(toolbar, 'button.ql-italic', 'Italic');
-      setTooltip(toolbar, 'button.ql-link', 'Link');
-      setTooltip(toolbar, 'button.ql-clean', 'Clear Formatting');
-      setTooltip(toolbar, 'button.ql-image', 'Image');
-      setTooltip(toolbar, 'button.ql-video', 'Video or Loom Link');
-      setTooltip(toolbar, 'button.ql-underline', 'Underline');
-      setTooltip(toolbar, 'button.ql-strike', 'Strike');
-      setTooltip(toolbar, 'button.ql-list', 'Number List', 'Bullet List');
-      setTooltip(toolbar, 'button.ql-table', 'Table');
-      setTooltip(toolbar, 'span.ql-color', 'Text Color');
-      setTooltip(toolbar, 'span.ql-background', 'Background Color');
-      setTooltip(toolbar, 'span.ql-align', 'Text Alignment');
-      setTooltip(toolbar, 'span.ql-font', 'Font Style');
-      setTooltip(toolbar, 'span.ql-header', 'Font Size');
-      setTooltip(toolbar, 'button.ql-code-block', 'Code Block');
-      setTooltip(toolbar, 'button.ql-script', 'Subscript', 'Superscript');
-      setTooltip(toolbar, 'button.ql-indent', 'Unindent', 'Indent');
-    }
-
-    // make sure we have the container, and if so check if quill exists
-    if (quillRef.current) {
-      disableToolbarTabs(quillRef.current);
-      const quill = new Quill(quillRef.current, editorOptions);
-      //set up our link fixing
-      addQuillLinkFixer();
-      //addToolTips(quill);
-      const debouncedOnChange = _.debounce((delta) => {
-        const contents = quill.root.innerHTML;
-        if (editorEmpty(contents)) {
-          onChange('', delta);
-        } else {
-          onChange(contents, delta);
-        }
-      }, 50);
-      quill.on('text-change', debouncedOnChange);
-      // register our modules if we've not created the editor yet
-      // we have the editor, register our on change handlers
-      // and our url magic
-      quill.getUrlName = getUrlName;
-      // since we have a handle
-      function editorClear () {
-        console.error('editorClearInvoked');
-        // this might not really work, zo C-Z will undo the clear, but it's still better than nothing
-        quill.history.clear();
-        quill.root.innerHTML = '';
-        quill.setContents([{ insert: '' }]);
-        if (placeHolder) {
-          const el = quillRef.current.firstChild;
-          el.setAttribute('data-placeholder', placeHolder);
-        }
-        if (!_.isEmpty(quillRef.current.children)) {
-          quillRef.current.children[0].click();
-        }
-        quill.focus();
-      }
-      setEditorClearFunc(() => editorClear);
-    }
-  }, [onChange, quillRef, getUrlName, setEditorClearFunc, placeHolder, editorOptions, defaultValue]);
-
-  /**
-   * Takes our properties and generates a quill options object
-   * that configures the editor to what the properties imply.
-   * @returns the quill options for the editor
-   * */
   function generateEditorOptions () {
-    const {
-      marketId,
-      placeholder,
-      uploadDisabled,
-      noToolbar,
-      simple,
-      setOperationInProgress,
-      participants,
-    } = props;
     // CSS id of the container from which scroll and bounds checks operate
     const boundsId = getBoundsId();
     const defaultModules = {
@@ -334,7 +269,6 @@ function QuillEditor (props) {
         }
       };
     }
-
     return {
       modules,
       placeholder,
@@ -346,13 +280,70 @@ function QuillEditor (props) {
     };
   }
 
-  function getBoundsId () {
-    const { id, marketId } = props;
-    // quill will constrain ui elements to the boundaries
-    // of the element specified in the bounds parameter
-    // which in our case is a css id
-    return `editorBox-${id || marketId}`;
+
+  /** Adds the tooltips
+   * to the items in the toolbar.
+   */
+
+  function addToolTips (quill) {
+    const toolbar = quill.container.previousSibling;
+    setTooltip(toolbar, 'button.ql-bold', 'Bold');
+    setTooltip(toolbar, 'button.ql-italic', 'Italic');
+    setTooltip(toolbar, 'button.ql-link', 'Link');
+    setTooltip(toolbar, 'button.ql-clean', 'Clear Formatting');
+    setTooltip(toolbar, 'button.ql-image', 'Image');
+    setTooltip(toolbar, 'button.ql-video', 'Video or Loom Link');
+    setTooltip(toolbar, 'button.ql-underline', 'Underline');
+    setTooltip(toolbar, 'button.ql-strike', 'Strike');
+    setTooltip(toolbar, 'button.ql-list', 'Number List', 'Bullet List');
+    setTooltip(toolbar, 'button.ql-table', 'Table');
+    setTooltip(toolbar, 'span.ql-color', 'Text Color');
+    setTooltip(toolbar, 'span.ql-background', 'Background Color');
+    setTooltip(toolbar, 'span.ql-align', 'Text Alignment');
+    setTooltip(toolbar, 'span.ql-font', 'Font Style');
+    setTooltip(toolbar, 'span.ql-header', 'Font Size');
+    setTooltip(toolbar, 'button.ql-code-block', 'Code Block');
+    setTooltip(toolbar, 'button.ql-script', 'Subscript', 'Superscript');
+    setTooltip(toolbar, 'button.ql-indent', 'Unindent', 'Indent');
   }
+
+  // make sure we have the container, and if so check if quill exists
+  //disableToolbarTabs(quillRef.current);
+  const quill = new Quill(`#${boundsId}`, generateEditorOptions());
+  //set up our link fixing
+  //addQuillLinkFixer();
+  //addToolTips(quill);
+  const debouncedOnChange = _.debounce((delta) => {
+    const contents = quill.root.innerHTML;
+    if (editorEmpty(contents)) {
+      onChange('', delta);
+    } else {
+      onChange(contents, delta);
+    }
+  }, 50);
+  // quill.on('text-change', debouncedOnChange);
+  // register our modules if we've not created the editor yet
+  // we have the editor, register our on change handlers
+  // and our url magic
+  quill.getUrlName = getUrlName;
+  // since we have a handle
+  /*   function editorClear () {
+       console.error('editorClearInvoked');
+       // this might not really work, zo C-Z will undo the clear, but it's still better than nothing
+       quill.history.clear();
+       quill.root.innerHTML = '';
+       quill.setContents([{ insert: '' }]);
+       if (placeholder) {
+         const el = quillRef.current.firstChild;
+         el.setAttribute('data-placeholder', placeholder);
+       }
+       if (!_.isEmpty(quillRef.current.children)) {
+         quillRef.current.children[0].click();
+       }
+       quill.focus();
+     }
+   //  setEditorClearFunc(() => editorClear);
+  }*/
 
   function handleUploads (metadatas) {
     const newUploads = [...uploads, ...metadatas];
@@ -363,10 +354,6 @@ function QuillEditor (props) {
     }
   }
 
-  // quill will constrain ui elements to the boundaries
-  // of the element specified in the bounds parameter
-  // which in our case is a css id
-  const boundsId = getBoundsId();
   const editorStyle = {
     fontFamily: theme.typography.fontFamily,
     fontSize: theme.typography.fontSize,
@@ -386,7 +373,7 @@ function QuillEditor (props) {
           className="editor-wrapper"
           text={intl.formatMessage({ id: 'quillEditorUploadInProgress' })}
         >
-          <div ref={quillRef} id={boundsId} style={editorStyle}/>
+          <div id={boundsId} style={editorStyle}/>
         </LoadingOverlay>
       </div>
       {isTinyWindow() && <div style={{ height: '40px' }}>&nbsp;</div>}

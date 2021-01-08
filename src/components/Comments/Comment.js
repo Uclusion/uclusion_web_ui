@@ -535,7 +535,7 @@ function Comment(props) {
         const requiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
         const investibleRequiresInput = ((comment.comment_type === QUESTION_TYPE ||
           comment.comment_type === SUGGEST_CHANGE_TYPE)
-          && (assigned || []).includes(myPresence.id)) && currentStageId !== blockingStage.id
+          && (assigned || []).includes(comment.created_by)) && currentStageId !== blockingStage.id
           && currentStageId !== requiresInputStage.id;
         const investibleBlocks = (investibleId && comment.comment_type === ISSUE_TYPE)
           && currentStageId !== blockingStage.id;

@@ -79,7 +79,6 @@ function QuillEditor (props) {
     defaultValue,
     children,
     theme,
-    intl,
     id,
     getUrlName,
     placeHolder,

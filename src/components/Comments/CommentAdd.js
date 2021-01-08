@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { FormattedMessage, injectIntl } from 'react-intl'
+import { FormattedMessage, useIntl } from 'react-intl';
 import classNames from 'clsx'
 import clsx from 'clsx'
 import _ from 'lodash'
@@ -183,9 +183,12 @@ const useStyles = makeStyles((theme) => ({
 
 function CommentAdd (props) {
   const {
-    intl, marketId, onSave, onCancel, type, clearType, investible, parent, hidden, issueWarningId, todoWarningId,
+    marketId, onSave, onCancel, type, clearType, investible, parent, hidden, issueWarningId, todoWarningId,
     isStory, defaultNotificationType
   } = props;
+
+  const intl = useIntl();
+
   const [body, setBody] = useState('');
   const [commentsState, commentDispatch] = useContext(CommentsContext);
   const [investibleState, investibleDispatch] = useContext(InvestiblesContext);
@@ -313,7 +316,7 @@ function CommentAdd (props) {
   }
 
   function handleSpinStop () {
-    clearMe();
+ //   clearMe();
     onSave();
   }
 
@@ -499,4 +502,4 @@ CommentAdd.defaultProps = {
   isStory: false
 };
 
-export default injectIntl(CommentAdd);
+export default CommentAdd;

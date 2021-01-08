@@ -225,8 +225,6 @@ function QuillEditor (props) {
         }
         quill.focus();
       }
-      console.error('invoking set editor clear func');
-      console.error(editorClear);
       setEditorClearFunc(editorClear);
     }
   }, [onChange, quill, getUrlName, setEditorClearFunc, placeHolder]);

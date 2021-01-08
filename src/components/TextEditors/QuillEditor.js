@@ -196,7 +196,6 @@ function QuillEditor (props) {
   // do all the post quill initialization
   useEffect(() => {
     if (quill) {
-      setPostInitializationRan(true);
       const debouncedOnChange = _.debounce((delta) => {
         const contents = quill.root.innerHTML;
         if (editorEmpty(contents)) {

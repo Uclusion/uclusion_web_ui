@@ -31,7 +31,11 @@ import { Dialog } from '../Dialogs'
 import WarningIcon from '@material-ui/icons/Warning'
 import { useLockedDialogStyles } from '../../pages/Dialog/DialogBodyEdit'
 import { EMPTY_SPIN_RESULT } from '../../constants/global'
-import { getBlockedStage, getRequiredInputStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
+import {
+  getBlockedStage,
+  getInReviewStage,
+  getRequiredInputStage
+} from '../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
@@ -41,7 +45,7 @@ import { getMarketPresences } from '../../contexts/MarketPresencesContext/market
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { changeInvestibleStageOnCommentChange } from '../../utils/commentFunctions'
 
-function getPlaceHolderLabelId (type, isStory) {
+function getPlaceHolderLabelId (type, isStory, isInReview) {
   switch (type) {
     case QUESTION_TYPE:
       if (isStory) {
@@ -55,6 +59,9 @@ function getPlaceHolderLabelId (type, isStory) {
     case REPLY_TYPE:
       return 'commentAddReplyDefault';
     case REPORT_TYPE:
+      if (isInReview) {
+        return 'commentAddReviewReportDefault';
+      }
       return 'commentAddReportDefault';
     case TODO_TYPE:
       return 'commentAddTODODefault';
@@ -198,7 +205,16 @@ function CommentAdd (props) {
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [openIssue, setOpenIssue] = useState(false);
   const classes = useStyles();
-  const placeHolderLabelId = getPlaceHolderLabelId(type, isStory);
+  const usedParent = parent || {};
+  const { investible_id: parentInvestible, id: parentId } = usedParent;
+  const investibleId = investible ? investible.id : parentInvestible;
+  // TODO: this breaks if investible exists in more than one market
+  const inv = getInvestible(investibleState, investibleId) || {};
+  const { market_infos, investible: rootInvestible } = inv;
+  const [info] = (market_infos || []);
+  const { assigned, stage: currentStageId } = (info || {});
+  const inReviewStage = getInReviewStage(marketStagesState, marketId) || {id: 'fake'};
+  const placeHolderLabelId = getPlaceHolderLabelId(type, isStory, currentStageId === inReviewStage.id);
   const placeHolder = intl.formatMessage({ id: placeHolderLabelId });
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [firstOpen, setFirstOpen] = useState(true);
@@ -212,9 +228,6 @@ function CommentAdd (props) {
   const [editorDefaultFunc, setEditorDefaultFunc] = useState(() => () => {});
 
   const [loadedId, setLoadedId] = useState(undefined);
-  const usedParent = parent || {};
-  const { investible_id: parentInvestible, id: parentId } = usedParent;
-  const investibleId = investible ? investible.id : parentInvestible;
   const loadId = investibleId ? `${marketId}_${investibleId}` :
     type === TODO_TYPE ? `${type}_${marketId}` : `${marketId}`;
 
@@ -247,9 +260,10 @@ function CommentAdd (props) {
         editorFocusFunc();
       }
       setPlaceHolderType(type);
+      editorClearFunc(placeHolder);
     }
     return () => {};
-  }, [hidden, firstOpen, editorFocusFunc, body, type, placeHolderType, placeHolder]);
+  }, [hidden, firstOpen, editorFocusFunc, body, type, placeHolderType, placeHolder, editorClearFunc]);
 
   function onEditorChange (content) {
     setBody(content);
@@ -272,12 +286,6 @@ function CommentAdd (props) {
     // the API does _not_ want you to send reply type, so suppress if our type is reply
     const apiType = (type === REPLY_TYPE) ? undefined : type;
     // what about not doing state?
-    // TODO: this breaks if investible exists in more than one market
-    const inv = getInvestible(investibleState, investibleId) || {};
-    const { market_infos, investible: rootInvestible } = inv;
-    const [info] = (market_infos || []);
-
-    const { assigned, stage: currentStageId } = (info || {});
     const blockingStage = getBlockedStage(marketStagesState, marketId) || {};
     const requiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
     const investibleRequiresInput = ((apiType === QUESTION_TYPE || apiType === SUGGEST_CHANGE_TYPE)

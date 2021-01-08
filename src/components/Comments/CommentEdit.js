@@ -32,6 +32,14 @@ import clsx from 'clsx'
 import { getIcon } from '../../containers/CommentBox/CommentAddBox'
 import localforage from 'localforage'
 
+/***
+ * MASSIVE TODOS
+ * 1) We need to move storage into local storage etc into the editor
+ * 2) We need to convert to a functional style
+ * 3) We need to pass in a react object of SIMPLE TYPES, that define all the params
+ * the editor needs to start up, and rebuild the editor if those simple types change
+ * (this could be the props object, but the use effects can get long
+ */
 const useStyles = makeStyles((theme) => ({
   hidden: {
     display: 'none',
@@ -286,6 +294,7 @@ function CommentEdit(props) {
               setEditorDefaultFunc(func);
             }}
             participants={presences}
+            editorStorageId={id}
           />
         </CardContent>
         <CardActions className={classes.cardActions}>

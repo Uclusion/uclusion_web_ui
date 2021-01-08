@@ -386,7 +386,10 @@ class QuillEditor extends React.PureComponent {
    * @param snapshot
    */
   componentDidUpdate (prevProps, prevState, snapshot) {
-    if (prevProps.marketId !== this.props.marketId) {
+    const marketChanged = prevProps.marketId !== this.props.marketId;
+    const storageIdChanged = prevProps.editorStorageId !== this.props.editorStorageId;
+    const needsUpdate = marketChanged || storageIdChanged;
+    if (needsUpdate) {
       console.debug('Updating Quill');
       this.createEditor();
     }
@@ -478,6 +481,7 @@ QuillEditor.propTypes = {
   setEditorDefaultFunc: PropTypes.func,
   simple: PropTypes.bool,
   participants: PropTypes.arrayOf(PropTypes.object),
+  editorStorageId: PropTypes.string,
 };
 
 QuillEditor.defaultProps = {
@@ -503,6 +507,7 @@ QuillEditor.defaultProps = {
   id: undefined,
   simple: false,
   participants: [],
+  editorStorageId:'',
 };
 
 export default withTheme(injectIntl(QuillEditor));

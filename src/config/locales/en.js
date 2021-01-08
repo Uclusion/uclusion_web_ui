@@ -277,6 +277,8 @@ const messages = defineMessages({
   investibleEditLabel: 'Edit',
   investibleAssignLabel: 'Assign',
   investibleAssign: 'Story - Assignments',
+  investibleReviewers: 'Story - Required Reviewers',
+  investibleApprovers: 'Story - Required Approvers',
   createAssignment: 'Assign story',
   investibleAssignForVotingLabel: 'Assign & Move Voting',
   investibleAddHeader: 'Add Investible',
@@ -315,6 +317,8 @@ const messages = defineMessages({
   requiresInputStageLabel: 'Requires Input',
   planningNotDoingStageLabel: 'Not Doing',
   planningInvestibleAssignments: 'assigned',
+  requiredApprovers: 'required approvers',
+  requiredReviewers: 'required reviewers',
   planningInvestibleDecision: 'Add Dialog',
   planningInvestibleCantVote: 'You can\'t approve if you\'re assigned',
   planningEstimatedCompletion: 'Estimated completion',
@@ -550,6 +554,8 @@ const messages = defineMessages({
   dialogAddParticipantsLabel: 'Manage Collaborators',
   dialogRemoveParticipantsLabel: 'Remove Collaborators',
   storyAddParticipantsLabel: 'Change Assigned',
+  storyApproversLabel: 'Change Required Approvers',
+  storyReviewersLabel: 'Change Required Reviewers',
   dialogEditExpiresLabel: 'Add Time',
   dialogExpiresLabel: 'Once the Dialog expires it is frozen for changes and cannot be re-activated.',
   searchParticipantsLabel: 'Search in Uclusion',
@@ -627,6 +633,8 @@ const messages = defineMessages({
 
   // Assignment List
   assignmentListHeader: 'Assigned to (unassigned goes to Further Work)',
+  reviewListHeader: 'Required reviewers',
+  approveListHeader: 'Required approvers',
   // Address List
   addressListHeader: 'Addressed to',
   addressListMakeObserver: 'Make Yourself an Observer',

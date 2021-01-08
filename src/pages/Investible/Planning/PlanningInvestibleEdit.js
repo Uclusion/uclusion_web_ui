@@ -42,15 +42,17 @@ export const usePlanInvestibleStyles = makeStyles(
 
 function PlanningInvestibleEdit(props) {
   const {
-    fullInvestible, onCancel, onSave, marketId,
+    fullInvestible, onCancel, onSave, marketId, isAssign, isApprove, isReview
   } = props;
   const intl = useIntl();
   const classes = usePlanFormStyles();
   const lockedDialogClasses = useLockedDialogStyles();
   const myInvestible = fullInvestible.investible;
   const marketInfo = getMarketInfo(fullInvestible, marketId) || {};
-  const { assigned: marketAssigned } = marketInfo;
-  const [assignments, setAssignments] = useState(marketAssigned);
+  const { assigned: marketAssigned, required_approvers: requiredApprovers,
+    required_reviews: requiredReviewers } = marketInfo;
+  const initialAssigned = isAssign ? marketAssigned : isReview ? requiredReviewers : requiredApprovers;
+  const [assignments, setAssignments] = useState(initialAssigned);
   const [open, setOpen] = useState(false);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
@@ -82,15 +84,23 @@ function PlanningInvestibleEdit(props) {
   function handleSave() {
     const updateInfo = {
       marketId,
-      investibleId: myInvestible.id,
-      assignments
+      investibleId: myInvestible.id
     };
-    const assignmentChanged = !_.isEmpty(_.xor(assignments, marketAssigned));
+    if (isApprove) {
+      updateInfo.assignments = assignments;
+    }
+    if (isReview) {
+      updateInfo.required_reviews = assignments;
+    }
+    if (isApprove) {
+      updateInfo.required_approvers = assignments;
+    }
+    const assignmentChanged = !_.isEmpty(_.xor(assignments, initialAssigned));
     if (assignmentChanged) {
       return updateInvestible(updateInfo)
         .then((investible) => {
           let fullInvestible = investible;
-          if (_.isEmpty(marketAssigned)) {
+          if (isApprove && _.isEmpty(marketAssigned)) {
             const comments = getMarketComments(commentsState, marketId);
             // Going from unassigned to assigned moves to in voting, blocked or requires input
             const unresolvedComments = comments.filter(comment => comment.investible_id === myInvestible.id &&
@@ -123,12 +133,60 @@ function PlanningInvestibleEdit(props) {
         });
     }
   }
-
   function handleAssignmentChange(newAssignments) {
     setAssignments(newAssignments);
   }
+  const operationLabel = isAssign ? "investibleAssign" : isReview ? "investibleReviewers" : "investibleApprovers";
   const subtype = ASSIGN_TYPE;
-  const operationLabel = "investibleAssign";
+  if (isReview || isApprove) {
+    return (
+      <Card elevation={0} className={classes.overflowVisible}>
+        <CardType
+          className={classes.cardType}
+          label={intl.formatMessage({ id: operationLabel })}
+          type={STORY_TYPE}
+          subtype={subtype}
+        />
+        <CardContent>
+          <div className={classes.cardContent}>
+            <AssignmentList
+              marketId={marketId}
+              previouslyAssigned={initialAssigned}
+              onChange={handleAssignmentChange}
+              listHeader={isReview ? 'reviewListHeader' : 'approveListHeader'}
+            />
+          </div>
+        </CardContent>
+        <CardActions className={classes.actions}>
+          <Button
+            className={classes.actionSecondary}
+            color="secondary"
+            variant="contained"
+            onClick={onCancel}
+          >
+            <FormattedMessage
+              id={"marketAddCancelLabel"}
+            />
+          </Button>
+          <SpinBlockingButton
+            marketId={marketId}
+            variant="contained"
+            color="primary"
+            className={classes.actionPrimary}
+            onClick={handleSave}
+            disabled={!validForm}
+            onSpinStop={onSave}
+            hasSpinChecker
+          >
+            <FormattedMessage
+              id={"agilePlanFormSaveLabel"}
+            />
+          </SpinBlockingButton>
+        </CardActions>
+      </Card>
+    );
+  }
+
   return (
     <Card elevation={0} className={classes.overflowVisible}>
       <CardType
@@ -141,7 +199,7 @@ function PlanningInvestibleEdit(props) {
         <div className={classes.cardContent}>
           <AssignmentList
             marketId={marketId}
-            previouslyAssigned={marketAssigned}
+            previouslyAssigned={initialAssigned}
             onChange={handleAssignmentChange}
           />
         </div>

@@ -9,6 +9,7 @@ import {
   makeBreadCrumbs,
   navigate,
 } from '../../utils/marketIdPathFunctions'
+import queryString from 'query-string'
 import { getInvestible, refreshInvestibles, } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { getMarket, getMyUserForMarket, } from '../../contexts/MarketsContext/marketsContextHelper'
@@ -25,7 +26,9 @@ function InvestibleEdit (props) {
   const intl = useIntl();
   const history = useHistory();
   const location = useLocation();
-  const { pathname } = location;
+  const { pathname, hash } = location;
+  const values = queryString.parse(hash || '') || {};
+  const { assign, review, approve } = values;
   const { marketId, investibleId } = decomposeMarketPath(pathname);
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [, diffDispatch] = useContext(DiffContext);
@@ -92,6 +95,9 @@ function InvestibleEdit (props) {
           onSave={onSave}
           onCancel={onCancel}
           isAdmin={isAdmin}
+          isAssign={assign === 'true'}
+          isReview={review === 'true'}
+          isApprove={approve === 'true'}
         />
       )}
     </Screen>

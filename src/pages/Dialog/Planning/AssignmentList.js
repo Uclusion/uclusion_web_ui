@@ -39,6 +39,7 @@ function AssignmentList(props) {
     marketId,
     onChange,
     previouslyAssigned,
+    listHeader
   } = props;
 
   const classes = useStyles();
@@ -183,7 +184,7 @@ function AssignmentList(props) {
           </ListItemText>
         </ListItem>
       <ListSubheader>
-        {intl.formatMessage({ id: 'assignmentListHeader' })}
+        {intl.formatMessage({ id: listHeader })}
       </ListSubheader>
       <List
           dense
@@ -198,11 +199,13 @@ function AssignmentList(props) {
 
 AssignmentList.propTypes = {
   marketId: PropTypes.string.isRequired,
+  listHeader: PropTypes.string,
   previouslyAssigned: PropTypes.arrayOf(PropTypes.string),
   onChange: PropTypes.func,
 };
 
 AssignmentList.defaultProps = {
+  listHeader: 'assignmentListHeader',
   onChange: () => {
   },
   previouslyAssigned: [],

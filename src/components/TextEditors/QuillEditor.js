@@ -89,6 +89,7 @@ function QuillEditor (props) {
     simple,
     setOperationInProgress,
     participants,
+    onS3Upload,
   } = props;
   const intl = useIntl();
   const [uploads, setUploads] = useState([]);
@@ -166,120 +167,6 @@ function QuillEditor (props) {
     });
   }
 
-  function generateEditorOptions () {
-    // CSS id of the container from which scroll and bounds checks operate
-    const boundsId = getBoundsId();
-    const defaultModules = {
-      toolbar: {
-        handlers: {
-          'video': () => {
-            setLinkDialogOpen(true);
-          },
-          // we want a function for it's binding effects below instead of an arrow function
-          'link': function (value) {
-            console.error(value);
-            if (value) {
-              setLinkDialogOpen(true);
-            } else {
-              // handlers are bound to the toolbar
-              // so the this is pointed to quill _after_ initialization
-              this.quill.format('link', false);
-            }
-          }
-        },
-        //for various reasons, the array form is stored in the container property when you're
-        // passing in an object for the toolbar
-        container: [
-          [{ font: [] }],
-          [{ header: [1, 2, false] }],
-          ['bold', 'italic', 'underline', 'strike', { script: 'sub' }, { script: 'super' }],
-          [{ color: [] }, { background: [] }],
-          [{ align: [] }],
-          [{ list: 'ordered' }, { list: 'bullet' }, { indent: '-1' }, { indent: '+1' }],
-          ['link', 'code-block', 'image', 'video'],
-          ['table'],
-          ['clean'],
-        ]
-      },
-      imageResize: {
-        modules: ['Resize', 'DisplaySize'],
-      },
-      s3Upload: {
-        marketId,
-        onS3Upload: handleUploads,
-        onUploadStart: () => {
-          setUploadInProgress(true);
-          setOperationInProgress(true);
-        },
-        onUploadStop: () => {
-          setUploadInProgress(false);
-          setOperationInProgress(false);
-        },
-      },
-      table: true,
-      tableUI: true,
-      keyboard: {
-        bindings: {
-          'tab': {
-            key: 9,
-            handler: function (range, context) {
-              return true;
-            }
-          }
-        }
-      }
-    };
-    const modules = { ...defaultModules };
-    if (simple) {
-      modules.toolbar = simplifiedToolBar;
-      modules.s3Upload = false;
-      modules.imageResize = false;
-    }
-    if (uploadDisabled && !simple) {
-      modules.toolbar = uploadLessToolbar;
-      modules.s3Upload = false;
-      modules.imageResize = false;
-    }
-
-    if (isTinyWindow()) {
-      modules.toolbar = tinyToolBar;
-    }
-
-    if (noToolbar) {
-      modules.toolbar = false;
-    }
-
-    // Include the mention module if we have participants that we can mention
-    if (!_.isEmpty(participants)) {
-      modules.mention = {
-        positioningStrategy: 'fixed',
-        source: function (searchTerm, renderList) {
-          if (searchTerm.length === 0) {
-            renderList(participants.map((presence) => ({ id: presence.id, value: presence.name })), searchTerm);
-          } else {
-            const matches = [];
-            participants.forEach((participant) => {
-              const { name, id } = participant;
-              if (name.toLowerCase().includes(searchTerm.toLowerCase())) {
-                matches.push({ id, value: name });
-              }
-            });
-            renderList(matches, searchTerm);
-          }
-        }
-      };
-    }
-    return {
-      modules,
-      placeholder,
-      readOnly: false,
-      theme: 'snow',
-      bounds: `#${boundsId}`,
-      // sets the element responsible for scroll
-      scrollingContainer: `#${boundsId}`,
-    };
-  }
-
 
   /** Adds the tooltips
    * to the items in the toolbar.
@@ -307,52 +194,174 @@ function QuillEditor (props) {
     setTooltip(toolbar, 'button.ql-indent', 'Unindent', 'Indent');
   }
 
-  // make sure we have the container, and if so check if quill exists
-  //disableToolbarTabs(quillRef.current);
-  const quill = new Quill(`#${boundsId}`, generateEditorOptions());
-  //set up our link fixing
-  //addQuillLinkFixer();
-  //addToolTips(quill);
-  const debouncedOnChange = _.debounce((delta) => {
-    const contents = quill.root.innerHTML;
-    if (editorEmpty(contents)) {
-      onChange('', delta);
-    } else {
-      onChange(contents, delta);
+  useEffect(() => {
+    function handleUploads (metadatas) {
+      const newUploads = [...uploads, ...metadatas];
+      setUploads(newUploads);
+      if (onS3Upload) {
+        onS3Upload(newUploads);
+      }
     }
-  }, 50);
-  // quill.on('text-change', debouncedOnChange);
-  // register our modules if we've not created the editor yet
-  // we have the editor, register our on change handlers
-  // and our url magic
-  quill.getUrlName = getUrlName;
-  // since we have a handle
-  /*   function editorClear () {
-       console.error('editorClearInvoked');
-       // this might not really work, zo C-Z will undo the clear, but it's still better than nothing
-       quill.history.clear();
-       quill.root.innerHTML = '';
-       quill.setContents([{ insert: '' }]);
-       if (placeholder) {
-         const el = quillRef.current.firstChild;
-         el.setAttribute('data-placeholder', placeholder);
-       }
-       if (!_.isEmpty(quillRef.current.children)) {
-         quillRef.current.children[0].click();
-       }
-       quill.focus();
-     }
-   //  setEditorClearFunc(() => editorClear);
-  }*/
+    function getMyBoundsId () {
+      // quill will constrain ui elements to the boundaries
+      // of the element specified in the bounds parameter
+      // which in our case is a css id
+      return `editorBox-${id || marketId}`;
+    }
+    function generateEditorOptions () {
+      // CSS id of the container from which scroll and bounds checks operate
+      const boundsId = getMyBoundsId();
+      const defaultModules = {
+        toolbar: {
+          handlers: {
+            'video': () => {
+              setLinkDialogOpen(true);
+            },
+            // we want a function for it's binding effects below instead of an arrow function
+            'link': function (value) {
+              console.error(value);
+              if (value) {
+                setLinkDialogOpen(true);
+              } else {
+                // handlers are bound to the toolbar
+                // so the this is pointed to quill _after_ initialization
+                this.quill.format('link', false);
+              }
+            }
+          },
+          //for various reasons, the array form is stored in the container property when you're
+          // passing in an object for the toolbar
+          container: [
+            [{ font: [] }],
+            [{ header: [1, 2, false] }],
+            ['bold', 'italic', 'underline', 'strike', { script: 'sub' }, { script: 'super' }],
+            [{ color: [] }, { background: [] }],
+            [{ align: [] }],
+            [{ list: 'ordered' }, { list: 'bullet' }, { indent: '-1' }, { indent: '+1' }],
+            ['link', 'code-block', 'image', 'video'],
+            ['table'],
+            ['clean'],
+          ]
+        },
+        imageResize: {
+          modules: ['Resize', 'DisplaySize'],
+        },
+        s3Upload: {
+          marketId,
+          onS3Upload: handleUploads,
+          onUploadStart: () => {
+            setUploadInProgress(true);
+            setOperationInProgress(true);
+          },
+          onUploadStop: () => {
+            setUploadInProgress(false);
+            setOperationInProgress(false);
+          },
+        },
+        table: true,
+        tableUI: true,
+        keyboard: {
+          bindings: {
+            'tab': {
+              key: 9,
+              handler: function (range, context) {
+                return true;
+              }
+            }
+          }
+        }
+      };
+      const modules = { ...defaultModules };
+      if (simple) {
+        modules.toolbar = simplifiedToolBar;
+        modules.s3Upload = false;
+        modules.imageResize = false;
+      }
+      if (uploadDisabled && !simple) {
+        modules.toolbar = uploadLessToolbar;
+        modules.s3Upload = false;
+        modules.imageResize = false;
+      }
 
-  function handleUploads (metadatas) {
-    const newUploads = [...uploads, ...metadatas];
-    setUploads(newUploads);
-    const { onS3Upload } = props;
-    if (onS3Upload) {
-      onS3Upload(newUploads);
+      if (isTinyWindow()) {
+        modules.toolbar = tinyToolBar;
+      }
+
+      if (noToolbar) {
+        modules.toolbar = false;
+      }
+
+      // Include the mention module if we have participants that we can mention
+      if (!_.isEmpty(participants)) {
+        modules.mention = {
+          positioningStrategy: 'fixed',
+          source: function (searchTerm, renderList) {
+            if (searchTerm.length === 0) {
+              renderList(participants.map((presence) => ({ id: presence.id, value: presence.name })), searchTerm);
+            } else {
+              const matches = [];
+              participants.forEach((participant) => {
+                const { name, id } = participant;
+                if (name.toLowerCase().includes(searchTerm.toLowerCase())) {
+                  matches.push({ id, value: name });
+                }
+              });
+              renderList(matches, searchTerm);
+            }
+          }
+        };
+      }
+      return {
+        modules,
+        placeholder,
+        readOnly: false,
+        theme: 'snow',
+        bounds: `#${boundsId}`,
+        // sets the element responsible for scroll
+        scrollingContainer: `#${boundsId}`,
+      };
     }
-  }
+    // make sure we have the container, and if so check if quill exists
+    //disableToolbarTabs(quillRef.current);
+    console.debug('Creating new Quill');
+    const quill = new Quill(`#${boundsId}`, generateEditorOptions());
+    //set up our link fixing
+    addQuillLinkFixer();
+    addToolTips(quill);
+    const debouncedOnChange = _.debounce((delta) => {
+      const contents = quill.root.innerHTML;
+      if (editorEmpty(contents)) {
+        onChange('', delta);
+      } else {
+        onChange(contents, delta);
+      }
+    }, 50);
+    quill.on('text-change', debouncedOnChange);
+    // register our modules if we've not created the editor yet
+    // we have the editor, register our on change handlers
+    // and our url magic
+    quill.getUrlName = getUrlName;
+    // since we have a handle
+    /*   function editorClear () {
+         console.error('editorClearInvoked');
+         // this might not really work, zo C-Z will undo the clear, but it's still better than nothing
+         quill.history.clear();
+         quill.root.innerHTML = '';
+         quill.setContents([{ insert: '' }]);
+         if (placeholder) {
+           const el = quillRef.current.firstChild;
+           el.setAttribute('data-placeholder', placeholder);
+         }
+         if (!_.isEmpty(quillRef.current.children)) {
+           quillRef.current.children[0].click();
+         }
+         quill.focus();
+       }
+     //  setEditorClearFunc(() => editorClear);
+    }*/
+    return () => {};
+  }, [boundsId, getUrlName, id, marketId, noToolbar, onChange, onS3Upload, participants, placeholder,
+    setOperationInProgress, simple, uploadDisabled, uploads]);
 
   const editorStyle = {
     fontFamily: theme.typography.fontFamily,

@@ -766,9 +766,10 @@ function PlanningInvestible(props) {
                 </div>
               )}
               <MarketMetaData
-                stage={marketInfo.stage_name}
+                stageName={marketInfo.stage_name}
                 investibleId={investibleId}
                 isInVoting={isInVoting}
+                isInReview={isInReview}
                 market={market}
                 marketInvestible={marketInvestible}
                 marketPresences={marketPresences}
@@ -1031,10 +1032,13 @@ function MarketMetaData(props) {
     stageActions,
     expansionChanged,
     actions,
-    stage,
+    stageName,
+    isInReview,
+    isInVoting
   } = props;
+  const history = useHistory();
   let stageLabel;
-  switch (stage) {
+  switch (stageName) {
     case 'In Dialog':
       stageLabel = 'planningInvestibleToVotingLabel';
       break;
@@ -1064,6 +1068,8 @@ function MarketMetaData(props) {
   const [, diffDispatch] = useContext(DiffContext);
   const classes = useMetaDataStyles();
   const attachedFiles = marketInvestible.investible && marketInvestible.investible.attached_files;
+  const marketInfo = (market.id && marketInvestible.investible && getMarketInfo(marketInvestible, market.id)) || {};
+  const { assigned, required_approvers: requiredApprovers, required_reviews: requiredReviewers } = marketInfo;
 
   function handleClick(event) {
     setAnchorEl(event.currentTarget);
@@ -1088,6 +1094,14 @@ function MarketMetaData(props) {
       .then((investible) => addInvestible(investiblesDispatch, diffDispatch, investible));
   }
 
+  function toggleReviewers() {
+    navigate(history, `${formInvestibleEditLink(market.id, marketInvestible.investible.id)}#review=true`);
+  }
+
+  function toggleApprovers() {
+    navigate(history, `${formInvestibleEditLink(market.id, marketInvestible.investible.id)}#approve=true`);
+  }
+
   return (
     <dl className={classes.root}>
       {market.id && marketInvestible.investible && (
@@ -1096,11 +1110,27 @@ function MarketMetaData(props) {
           <div className={clsx(classes.group, classes.assignments)}>
             <Assignments
               classes={classes}
-              marketId={market.id}
               marketPresences={marketPresences}
-              investible={marketInvestible}
+              assigned={assigned}
               isAdmin={isAdmin}
               toggleAssign={toggleAssign}
+              toolTipId="storyAddParticipantsLabel"
+              showMoveMessage
+            />
+          </div>
+        </div>
+      )}
+      {market.id && marketInvestible.investible && (isInVoting || isInReview) && (
+        <div className={classes.assignmentContainer}>
+          <FormattedMessage id={isInVoting ? 'requiredApprovers': 'requiredReviewers'} />
+          <div className={clsx(classes.group, classes.assignments)}>
+            <Assignments
+              classes={classes}
+              marketPresences={marketPresences}
+              assigned={isInVoting ? requiredApprovers : requiredReviewers}
+              isAdmin={isAdmin}
+              toggleAssign={isInVoting ? toggleApprovers : toggleReviewers}
+              toolTipId={isInVoting ? 'storyApproversLabel' : 'storyReviewersLabel'}
             />
           </div>
         </div>
@@ -1157,17 +1187,15 @@ MarketMetaData.propTypes = {
 }
 
 function Assignments(props) {
-  const { investible, marketId, marketPresences, isAdmin, toggleAssign, classes } = props;
+  const { marketPresences, isAdmin, toggleAssign, classes, assigned, showMoveMessage, toolTipId } = props;
   const intl = useIntl();
-  const marketInfo = getMarketInfo(investible, marketId) || {};
-  const { assigned } = marketInfo;
   const myPresence = marketPresences.find((presence) => presence.current_user);
   const isFollowing = myPresence && myPresence.following;
   const safeAssigned = assigned || [];
   return (
     <span className={classes.assignmentFlexRow}>
       <ul>
-        {_.isEmpty(safeAssigned) && (
+        {_.isEmpty(safeAssigned) && showMoveMessage && (
           <Typography key="unassigned" component="li">
             {intl.formatMessage({ id: 'reassignToMove' })}
           </Typography>
@@ -1188,7 +1216,7 @@ function Assignments(props) {
         {isAdmin && isFollowing && (
           <div className={classes.assignIconContainer}>
             <Tooltip
-              title={intl.formatMessage({ id: 'storyAddParticipantsLabel' })}
+              title={intl.formatMessage({ id: toolTipId })}
             >
               <IconButton
                 className={classes.noPad}

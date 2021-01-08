@@ -196,6 +196,7 @@ function QuillEditor (props) {
   // do all the post quill initialization
   useEffect(() => {
     if (quill) {
+      setPostInitializationRan(true);
       const debouncedOnChange = _.debounce((delta) => {
         const contents = quill.root.innerHTML;
         if (editorEmpty(contents)) {
@@ -229,7 +230,7 @@ function QuillEditor (props) {
       console.error(editorClear);
       setEditorClearFunc(editorClear);
     }
-  }, [quill]);
+  }, [onChange, quill, getUrlName, setEditorClearFunc, placeHolder]);
 
   /**
    * Takes our properties and generates a quill options object

@@ -298,7 +298,8 @@ function Comment(props) {
   const intl = useIntl();
   const classes = useCommentStyles();
   const { id, comment_type: commentType, resolved, investible_id: investibleId, inline_market_id: inlineMarketId,
-  created_by: commentCreatedBy, notification_type: myNotificationType, creation_stage_id: createdStageId} = comment;
+  created_by: commentCreatedBy, notification_type: myNotificationType, creation_stage_id: createdStageId,
+  mentions } = comment;
   const presences = usePresences(marketId);
   const createdBy = useCommenter(comment, presences) || unknownPresence;
   const updatedBy = useUpdatedBy(comment, presences) || unknownPresence;
@@ -812,7 +813,7 @@ function Comment(props) {
             )}
             {enableEditing && (
               <React.Fragment>
-                {commentType !== REPORT_TYPE && (
+                {(commentType !== REPORT_TYPE || (mentions || []).includes(myPresence.id)) && (
                   <Button
                     className={clsx(classes.action, classes.actionPrimary)}
                     color="primary"

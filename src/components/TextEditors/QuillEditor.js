@@ -225,7 +225,7 @@ function QuillEditor (props) {
         }
         quill.focus();
       }
-      setEditorClearFunc(editorClear);
+      setEditorClearFunc(() => editorClear);
     }
   }, [onChange, quill, getUrlName, setEditorClearFunc, placeHolder]);
 

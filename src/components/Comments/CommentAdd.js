@@ -340,21 +340,6 @@ function CommentAdd (props) {
   const lockedDialogClasses = useLockedDialogStyles();
   return (
     <>
-      {investible && type === REPORT_TYPE && (
-        <Card elevation={0} className={classes.commentTypeContainer}>
-          <CardContent>
-            <FormControlLabel
-              control={<Checkbox
-                id="notifyAll"
-                name="notifyAll"
-                checked={myNotificationType === 'YELLOW'}
-                onChange={handleNotifyAllChange}
-              />}
-              label={intl.formatMessage({ id: "notifyAll" })}
-            />
-          </CardContent>
-        </Card>
-      )}
       <Paper
         id={hidden ? '' : 'cabox'}
         className={(hidden) ? classes.hidden : classes.add}
@@ -398,6 +383,17 @@ function CommentAdd (props) {
               <Button className={classNames(classes.button, classes.buttonPrimary)} onClick={toggleIssue}>
                 {intl.formatMessage({ id: commentSaveLabel })}
               </Button>
+            )}
+            {investible && type === REPORT_TYPE && (
+              <FormControlLabel
+                control={<Checkbox
+                  id="notifyAll"
+                  name="notifyAll"
+                  checked={myNotificationType === 'YELLOW'}
+                  onChange={handleNotifyAllChange}
+                />}
+                label={intl.formatMessage({ id: "notifyAll" })}
+              />
             )}
             <Button className={classes.button}>
               {intl.formatMessage({ id: 'edited' })}

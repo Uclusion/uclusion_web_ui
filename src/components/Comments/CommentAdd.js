@@ -316,7 +316,7 @@ function CommentAdd (props) {
   }
 
   function handleSpinStop () {
- //   clearMe();
+    clearMe();
     onSave();
   }
 

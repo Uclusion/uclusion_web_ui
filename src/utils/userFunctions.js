@@ -1,7 +1,7 @@
 import { VerticalBarSeries, XYPlot } from 'react-vis'
 import React from 'react'
 import { Card, Grid, Typography } from '@material-ui/core'
-import { INITIATIVE_TYPE } from '../constants/markets'
+import { ACTIVE_STAGE, INITIATIVE_TYPE } from '../constants/markets'
 import { clearUclusionLocalStorage } from '../components/utils'
 import TokenStorageManager from '../authorization/TokenStorageManager'
 import { Auth } from 'aws-amplify'
@@ -62,7 +62,10 @@ export function hasNotVoted(investible, marketPresencesState, marketsState, comm
   })
   const marketsFound = marketsToCheck.filter((inlineMarketId) => {
     const market = getMarket(marketsState, inlineMarketId) || {};
-    const { market_type: marketType } = market;
+    const { market_type: marketType, market_stage: marketStage } = market;
+    if (marketStage !== ACTIVE_STAGE) {
+      return false;
+    }
     const inlineMarketPresences = getMarketPresences(marketPresencesState, inlineMarketId);
     const myInlinePresence = inlineMarketPresences && inlineMarketPresences.find((presence) => {
       return presence.external_id === externalId;

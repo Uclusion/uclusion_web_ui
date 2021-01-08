@@ -15,18 +15,18 @@ export function banUser(marketId, userId) {
 }
 
 export function deleteMessage(message) {
-  const { marketId, type_object_id: typeObjectId, aType, pokeType, investibleId, associatedInvestibleId } = message;
+  const { market_id: marketId, type_object_id: typeObjectId, type: aType, pokeType, investible_id: investibleId } = message;
   const objectId = typeObjectId.split('_').pop();
   if (aType === USER_POKED_TYPE) {
     return getAccountClient()
       .then((client) => client.users.removeNotification(objectId, aType, pokeType));
   }
   return getMarketClient(marketId)
-    .then((client) => client.users.removePageNotifications(investibleId || associatedInvestibleId));
+    .then((client) => client.users.removePageNotifications(investibleId));
 }
 
 export function deleteSingleMessage(message) {
-  const { marketId, type_object_id: typeObjectId, aType } = message;
+  const { market_id: marketId, type_object_id: typeObjectId, type: aType } = message;
   const objectId = typeObjectId.split('_').pop();
   // TODO re-use poke one till have real api
   return getMarketClient(marketId)

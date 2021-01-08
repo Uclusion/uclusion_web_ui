@@ -77,14 +77,15 @@ function Screen(props) {
   if (!_.isEmpty(messagesState)) {
     const { messages } = messagesState;
     let hasYellow = false;
-    const pageHash = {};
+    const dupeHash = {};
     if (!_.isEmpty(messages)) {
       messages.forEach((message) => {
-        const { level } = message;
+        const { level, link_multiple: linkMultiple } = message;
         if (level === 'RED') {
-          const hash = `${message.marketId}_${message.investibleId}`;
-          if (!(hash in pageHash)) {
-            pageHash[hash] = message;
+          if (!linkMultiple) {
+            prePendWarning += '!';
+          } else if (!(linkMultiple in dupeHash)) {
+            dupeHash[linkMultiple] = message;
             prePendWarning += '!';
           }
         } else if (level === 'YELLOW') {

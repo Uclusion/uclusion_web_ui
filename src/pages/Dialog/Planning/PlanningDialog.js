@@ -264,7 +264,6 @@ function PlanningDialog(props) {
               <CommentAddBox
                 allowedTypes={allowedCommentTypes}
                 marketId={marketId}
-                isPlanning
                 hidden={hidden}
               />
             )}

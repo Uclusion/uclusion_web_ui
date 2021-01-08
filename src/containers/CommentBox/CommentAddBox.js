@@ -143,7 +143,6 @@ function CommentAddBox(props) {
     onSave,
     issueWarningId,
     todoWarningId,
-    isPlanning,
     isStory,
     isInReview,
     hidden
@@ -233,7 +232,6 @@ CommentAddBox.propTypes = {
   investible: PropTypes.any,
   allowedTypes: PropTypes.arrayOf(PropTypes.string).isRequired,
   onSave: PropTypes.func,
-  isPlanning: PropTypes.bool,
   isStory: PropTypes.bool,
   hidden: PropTypes.bool
 };
@@ -243,7 +241,6 @@ CommentAddBox.defaultProps = {
   onSave: () => {},
   issueWarningId: null,
   todoWarningId: null,
-  isPlanning: false,
   isStory: false,
   hidden: false
 };

@@ -14,7 +14,7 @@ import 'quill/dist/quill.snow.css';
 import 'quill-table-ui/dist/index.css';
 import './editorStyles.css';
 import _ from 'lodash';
-import { injectIntl } from 'react-intl';
+import { injectIntl, useIntl } from 'react-intl';
 import { withTheme } from '@material-ui/core';
 import { isTinyWindow } from '../../utils/windowUtils';
 import { addQuillLinkFixer } from './Utilities/LinkUtils';
@@ -85,15 +85,13 @@ function QuillEditor (props) {
     placeHolder,
     setEditorClearFunc,
   } = props;
-
+  const intl = useIntl();
   const [uploads, setUploads] = useState([]);
   const [uploadInProgress, setUploadInProgress] = useState(false);
   const [videoDialogOpen, setVideoDialogOpen] = useState(false);
   const [linkDialogOpen, setLinkDialogOpen] = useState(false);
 
   const editorOptions = generateEditorOptions();
-
-  const [quill, setQuill] = useState(null);
 
   const editorContainer = useRef();
   const quillRef = useRef();
@@ -182,21 +180,11 @@ function QuillEditor (props) {
 
     // make sure we have the container, and if so check if quill exists
     if (quillRef.current) {
-      quillRef.current.innerHTML = defaultValue;
       disableToolbarTabs(quillRef.current);
       const quill = new Quill(quillRef.current, editorOptions);
-      setQuill(quill);
       //set up our link fixing
       addQuillLinkFixer();
-      addToolTips(quill);
-    }
-
-  }, [quillRef, editorOptions, defaultValue]);
-
-
-  // do all the post quill initialization
-  useEffect(() => {
-    if (quill) {
+      //addToolTips(quill);
       const debouncedOnChange = _.debounce((delta) => {
         const contents = quill.root.innerHTML;
         if (editorEmpty(contents)) {
@@ -228,7 +216,7 @@ function QuillEditor (props) {
       }
       setEditorClearFunc(() => editorClear);
     }
-  }, [onChange, quill, getUrlName, setEditorClearFunc, placeHolder]);
+  }, [onChange, quillRef, getUrlName, setEditorClearFunc, placeHolder, editorOptions, defaultValue]);
 
   /**
    * Takes our properties and generates a quill options object
@@ -422,7 +410,6 @@ QuillEditor.propTypes = {
   noToolbar: PropTypes.bool,
   setOperationInProgress: PropTypes.func,
   getUrlName: PropTypes.func.isRequired,
-  intl: PropTypes.object.isRequired,
   id: PropTypes.string,
   setEditorClearFunc: PropTypes.func,
   setEditorFocusFunc: PropTypes.func,
@@ -456,4 +443,4 @@ QuillEditor.defaultProps = {
   participants: [],
 };
 
-export default withTheme(injectIntl(QuillEditor));
+export default QuillEditor;

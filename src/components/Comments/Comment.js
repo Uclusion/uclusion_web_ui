@@ -590,7 +590,6 @@ function Comment(props) {
   const isInReview = createdStageId === (getInReviewStage(marketStagesState, marketId) || {id: 'fake'}).id;
   const overrideLabel = (marketType === PLANNING_TYPE && commentType === REPORT_TYPE && isInReview) ?
     <FormattedMessage id="reviewReportPresent" /> : undefined;
-  console.debug(overrideLabel);
   useEffect(() => {
     if (!_.isEmpty(highlightIds) && !myRepliesExpanded && commentType !== REPLY_TYPE) {
       // Open if need to highlight inside - user can close again

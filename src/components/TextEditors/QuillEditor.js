@@ -181,7 +181,7 @@ function QuillEditor (props) {
     }
 
     // make sure we have the container, and if so check if quill exists
-    if (quillRef.current && !quill) {
+    if (quillRef.current) {
       quillRef.current.innerHTML = defaultValue;
       disableToolbarTabs(quillRef.current);
       const quill = new Quill(quillRef.current, editorOptions);
@@ -191,11 +191,13 @@ function QuillEditor (props) {
       addToolTips(quill);
     }
 
-  }, [quill, quillRef, editorOptions, defaultValue]);
+  }, [quillRef, editorOptions]);
+
 
   // do all the post quill initialization
   useEffect(() => {
     if (quill) {
+      quillRef.current.innerHTML = defaultValue;
       const debouncedOnChange = _.debounce((delta) => {
         const contents = quill.root.innerHTML;
         if (editorEmpty(contents)) {

@@ -19,7 +19,6 @@ import { processTextAndFilesForSave } from '../../api/files'
 import SpinBlockingButton from '../SpinBlocking/SpinBlockingButton'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
-import { addCommentToMarket } from '../../contexts/CommentsContext/commentsContextHelper'
 import { EMPTY_SPIN_RESULT } from '../../constants/global'
 import { ISSUE_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../constants/comments'
 import { urlHelperGetName } from '../../utils/marketIdPathFunctions'
@@ -31,6 +30,9 @@ import _ from 'lodash';
 import clsx from 'clsx'
 import { getIcon } from '../../containers/CommentBox/CommentAddBox'
 import localforage from 'localforage'
+import { onCommentOpen } from '../../utils/commentFunctions'
+import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
+import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
 
 /***
  * MASSIVE TODOS
@@ -175,13 +177,14 @@ function CommentEdit(props) {
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [type, setType] = useState(commentType);
   const [marketState] = useContext(MarketsContext);
-  const [investibleState] = useContext(InvestiblesContext);
+  const [investibleState, investibleDispatch] = useContext(InvestiblesContext);
   const defaultDefaultFunc = (newDefault) => {};
   const [editorDefaultFunc, setEditorDefaultFunc] = useState(() => defaultDefaultFunc);
   const [loadedId, setLoadedId] = useState(undefined);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const presences = getMarketPresences(marketPresencesState, marketId);
-
+  const [marketStagesState] = useContext(MarketStagesContext);
+  const [, versionsDispatch] = useContext(VersionsContext);
 
   useEffect(() => {
     if (loadedId !== id) {
@@ -220,7 +223,8 @@ function CommentEdit(props) {
     const myActualNotificationType = commentType === TODO_TYPE && !investibleId ? myNotificationType : undefined;
     return updateComment(marketId, id, tokensRemoved, updatedType, filteredUploads, mentions, myActualNotificationType)
       .then((comment) => {
-        addCommentToMarket(comment, commentState, commentDispatch);
+        onCommentOpen(investibleState, investibleId, marketStagesState, marketId, comment, investibleDispatch,
+          commentState, commentDispatch, versionsDispatch);
         return EMPTY_SPIN_RESULT;
       })
   }

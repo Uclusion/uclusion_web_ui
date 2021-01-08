@@ -5,7 +5,7 @@ import clsx from 'clsx'
 import _ from 'lodash'
 import localforage from 'localforage'
 import {
-  Button, Card, CardContent, Checkbox,
+  Button, Checkbox,
   darken,
   FormControlLabel,
   makeStyles,

@@ -151,24 +151,6 @@ class QuillEditor extends React.PureComponent {
     // CSS id of the container from which scroll and bounds checks operate
     const boundsId = this.getBoundsId();
     const defaultModules = {
-      mention: {
-        source: function (searchTerm, renderList) {
-          console.error(`Search term ${searchTerm}`);
-          if (searchTerm.length === 0) {
-            renderList(participants, searchTerm);
-          } else {
-            const matches = [];
-            participants.forEach((participant) => {
-              console.error(participant);
-              const { name, id } = participant;
-              if (name.toLowerCase().includes(searchTerm.toLowerCase())) {
-                matches.push({id, value: name});
-              }
-            });
-            renderList(matches, searchTerm);
-          }
-        }
-      },
       toolbar: {
         handlers : {
           'video': () => {
@@ -212,6 +194,7 @@ class QuillEditor extends React.PureComponent {
           setOperationInProgress(false);
         },
       },
+
       table: true,
       tableUI: true,
       keyboard: {
@@ -243,6 +226,27 @@ class QuillEditor extends React.PureComponent {
 
     if (noToolbar) {
       modules.toolbar = false;
+    }
+
+    if (!_.isEmpty(participants)) {
+      modules.mention = {
+        positioningStrategy: 'fixed',
+          source: function (searchTerm, renderList) {
+          if (searchTerm.length === 0) {
+            renderList(participants.map((presence) => ({id: presence.id, value: presence.name})), searchTerm);
+          } else {
+            const matches = [];
+            participants.forEach((participant) => {
+              console.error(participant);
+              const { name, id } = participant;
+              if (name.toLowerCase().includes(searchTerm.toLowerCase())) {
+                matches.push({id, value: name});
+              }
+            });
+            renderList(matches, searchTerm);
+          }
+        }
+      };
     }
 
     return {

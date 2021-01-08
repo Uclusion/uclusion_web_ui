@@ -302,7 +302,6 @@ function CommentAdd (props) {
   function clearMe() {
     localforage.removeItem(loadId).then(() => {
       setBody('');
-      console.error(editorClearFunc);
       editorClearFunc();
       setUploadedFiles([]);
       setOpenIssue(false);

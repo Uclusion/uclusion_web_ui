@@ -40,6 +40,7 @@ function AssignmentList(props) {
     onChange,
     previouslyAssigned,
     cannotBeAssigned,
+    checkMeByDefault,
     listHeader
   } = props;
 
@@ -60,7 +61,10 @@ function AssignmentList(props) {
         [id]: true,
       }), {});
     }
-    return { [userId]: true };
+    if (checkMeByDefault) {
+      return { [userId]: true };
+    }
+    return {};
   }
 
   const participantEntries = getSortedPresenceWithAssignable();
@@ -204,9 +208,11 @@ AssignmentList.propTypes = {
   previouslyAssigned: PropTypes.arrayOf(PropTypes.string),
   cannotBeAssigned: PropTypes.arrayOf(PropTypes.string),
   onChange: PropTypes.func,
+  checkMeByDefault: PropTypes.bool
 };
 
 AssignmentList.defaultProps = {
+  checkMeByDefault: false,
   listHeader: 'assignmentListHeader',
   onChange: () => {
   },

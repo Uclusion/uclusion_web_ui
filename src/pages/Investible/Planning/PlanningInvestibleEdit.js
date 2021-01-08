@@ -90,10 +90,10 @@ function PlanningInvestibleEdit(props) {
       updateInfo.assignments = assignments;
     }
     if (isReview) {
-      updateInfo.required_reviews = assignments;
+      updateInfo.requiredReviewers = assignments;
     }
     if (isApprove) {
-      updateInfo.required_approvers = assignments;
+      updateInfo.requiredApprovers = assignments;
     }
     const assignmentChanged = !_.isEmpty(_.xor(assignments, initialAssigned));
     if (assignmentChanged) {
@@ -175,7 +175,7 @@ function PlanningInvestibleEdit(props) {
             color="primary"
             className={classes.actionPrimary}
             onClick={handleSave}
-            disabled={!validForm}
+            disabled={_.isEmpty(_.xor(assignments, initialAssigned))}
             onSpinStop={onSave}
             hasSpinChecker
           >
@@ -202,6 +202,7 @@ function PlanningInvestibleEdit(props) {
             marketId={marketId}
             previouslyAssigned={initialAssigned}
             onChange={handleAssignmentChange}
+            checkMeByDefault
           />
         </div>
       </CardContent>

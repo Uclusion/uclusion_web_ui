@@ -191,13 +191,12 @@ function QuillEditor (props) {
       addToolTips(quill);
     }
 
-  }, [quillRef, editorOptions]);
+  }, [quillRef, editorOptions, defaultValue]);
 
 
   // do all the post quill initialization
   useEffect(() => {
     if (quill) {
-      quillRef.current.innerHTML = defaultValue;
       const debouncedOnChange = _.debounce((delta) => {
         const contents = quill.root.innerHTML;
         if (editorEmpty(contents)) {

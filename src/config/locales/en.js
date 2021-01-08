@@ -153,7 +153,7 @@ const messages = defineMessages({
   // Share story
   shareButtonExplanation: 'Share a read only link',
   shareButtonTitle: 'Share',
-  inviteLinkerStory: 'For non-collaborators this link will also grant read only access to this workspace.',
+  inviteLinkerStory: 'For non-collaborators this link will also grant read only access.',
 
   // Support
   supportInfoText: 'Create bugs (but not feature requests) in <a>Uclusion issues</a> or send an email to <b>support</b> which includes the version and user ID above.',

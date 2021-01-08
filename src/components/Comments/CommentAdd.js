@@ -201,14 +201,13 @@ function CommentAdd (props) {
   const [firstOpen, setFirstOpen] = useState(true);
   const [placeHolderType, setPlaceHolderType] = useState(type);
   const [myNotificationType, setMyNotificationType] = useState(defaultNotificationType);
-  const defaultClearFunc = (newPlaceHolder) => {};
+
   //see https://stackoverflow.com/questions/55621212/is-it-possible-to-react-usestate-in-react for why we have a func
-  // that returns  func for editorClearFunc
-  const [editorClearFunc, setEditorClearFunc] = useState(() => defaultClearFunc);
-  const defaultFocusFunc = () => {};
-  const [editorFocusFunc, setEditorFocusFunc] = useState(() => defaultFocusFunc);
-  const defaultDefaultFunc = (newDefault) => {};
-  const [editorDefaultFunc, setEditorDefaultFunc] = useState(() => defaultDefaultFunc);
+  // that returns  func for editor funcs stored in state
+  const [editorClearFunc, setEditorClearFunc] = useState(() => () => {});
+  const [editorFocusFunc, setEditorFocusFunc] = useState(() => () => {});
+  const [editorDefaultFunc, setEditorDefaultFunc] = useState(() => () => {});
+
   const [loadedId, setLoadedId] = useState(undefined);
   const usedParent = parent || {};
   const { investible_id: parentInvestible, id: parentId } = usedParent;
@@ -245,10 +244,9 @@ function CommentAdd (props) {
         editorFocusFunc();
       }
       setPlaceHolderType(type);
-      editorClearFunc(placeHolder);
     }
     return () => {};
-  }, [hidden, firstOpen, editorFocusFunc, body, type, placeHolderType, placeHolder, editorClearFunc]);
+  }, [hidden, firstOpen, editorFocusFunc, body, type, placeHolderType, placeHolder]);
 
   function onEditorChange (content) {
     setBody(content);
@@ -301,6 +299,7 @@ function CommentAdd (props) {
   function clearMe() {
     localforage.removeItem(loadId).then(() => {
       setBody('');
+      console.error(editorClearFunc);
       editorClearFunc();
       setUploadedFiles([]);
       setOpenIssue(false);
@@ -361,16 +360,9 @@ function CommentAdd (props) {
             onS3Upload={onS3Upload}
             onStoreChange={onStorageChange}
             setOperationInProgress={setOperationRunning}
-            setEditorClearFunc={(func) => {
-              setEditorClearFunc(func);
-            }}
-            setEditorFocusFunc={(func) => {
-              // console.log('Setting focus func');
-              setEditorFocusFunc(func);
-            }}
-            setEditorDefaultFunc={(func) => {
-              setEditorDefaultFunc(func);
-            }}
+            setEditorClearFunc={setEditorClearFunc}
+            setEditorFocusFunc={setEditorFocusFunc}
+            setEditorDefaultFunc={setEditorDefaultFunc}
             getUrlName={urlHelperGetName(marketState, investibleState)}
           >
             <Button

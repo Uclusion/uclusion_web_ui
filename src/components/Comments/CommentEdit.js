@@ -185,7 +185,9 @@ function CommentEdit(props) {
           editorDefaultFunc(initialBody);
         }
         setLoadedId(id);
-      });
+      }
+
+      );
     }
     return () => {};
   }, [loadedId, id, editorDefaultFunc, initialBody]);

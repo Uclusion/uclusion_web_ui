@@ -1,9 +1,8 @@
 /** A simple wrapper around the quill editor that passes props
  through, and sets up some of the options we'll always want
  **/
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import Quill from 'quill';
 import LoadingOverlay from 'react-loading-overlay';
 import ImageResize from 'quill-image-resize-module-withfix';
 import QuillS3ImageUploader from './QuillS3ImageUploader';
@@ -23,11 +22,11 @@ import VideoDialog from './CustomUI/VideoDialog';
 import { embeddifyVideoLink } from './Utilities/VideoUtils';
 import LinkDialog from './CustomUI/LinkDialog';
 import QuillMention from 'quill-mention-uclusion';
-
+import Quill from 'quill';
 // install our filtering paste module, and disable the uploader
+
 Quill.register('modules/clipboard', CustomQuillClipboard, true);
 Quill.register('modules/uploader', NoOpUploader, true);
-
 Quill.register('modules/tableUI', QuillTableUI);
 Quill.register('modules/s3Upload', QuillS3ImageUploader);
 Quill.register('modules/imageResize', ImageResize);
@@ -50,95 +49,196 @@ function setTooltip (toolbar, selector, title, title2) {
   }
 }
 
+const uploadLessToolbar = [
+  [{ font: [] }],
+  [{ header: [1, 2, false] }],
+  ['bold', 'italic', 'underline', 'strike', { script: 'sub' }, { script: 'super' }],
+  [{ color: [] }, { background: [] }],
+  [{ align: [] }],
+  [{ list: 'ordered' }, { list: 'bullet' }, { indent: '-1' }, { indent: '+1' }],
+  ['link', 'code-block'],
+  ['table'],
+  ['clean'],
+];
+
+const simplifiedToolBar = [
+  ['bold', 'italic', 'underline', 'strike'],
+  ['link', 'code-block'],
+  ['clean'],
+];
+
+const tinyToolBar = [
+  ['bold', 'italic', 'link', 'image', 'video', 'clean'],
+];
+
 // code derived from https://github.com/quilljs/quill/issues/1447
-class QuillEditor extends React.PureComponent {
+function QuillEditor (props) {
 
-  editor;
+  const {
+    onChange,
+    defaultValue,
+    children,
+    theme,
+    intl,
+    id,
+    getUrlName,
+    placeHolder,
+    setEditorClearFunc,
+  } = props;
 
-  uploadLessToolbar = [
-    [{ font: [] }],
-    [{ header: [1, 2, false] }],
-    ['bold', 'italic', 'underline', 'strike', { script: 'sub' }, { script: 'super' }],
-    [{ color: [] }, { background: [] }],
-    [{ align: [] }],
-    [{ list: 'ordered' }, { list: 'bullet' }, { indent: '-1' }, { indent: '+1' }],
-    ['link', 'code-block'],
-    ['table'],
-    ['clean'],
-  ];
+  const [uploads, setUploads] = useState([]);
+  const [uploadInProgress, setUploadInProgress] = useState(false);
+  const [videoDialogOpen, setVideoDialogOpen] = useState(false);
+  const [linkDialogOpen, setLinkDialogOpen] = useState(false);
 
-  simplifiedToolBar = [
-    ['bold', 'italic', 'underline', 'strike'],
-    ['link', 'code-block'],
-    ['clean'],
-  ];
+  const editorOptions = generateEditorOptions();
 
-  tinyToolBar = [
-    ['bold', 'italic', 'link', 'image', 'video', 'clean'],
-  ];
+  const [quill, setQuill] = useState(null);
 
-  constructor (props) {
-    super(props);
-    this.state = { uploads: [], uploadInProgress: false};
-    this.editorBox = React.createRef();
-    this.editorContainer = React.createRef();
-  }
+  const editorContainer = useRef();
+  const quillRef = useRef();
 
 
   /**
    * The UI for videos is quite poor, so we need
    * to replace it with ours
    */
-  createVideoUi () {
+  function createVideoUi () {
     return (
       <VideoDialog
-        open={this.state.videoDialogOpen}
-        onClose={() => this.setState({ videoDialogOpen: false })}
+        open={videoDialogOpen}
+        onClose={() => setVideoDialogOpen(false)}
         onSave={(link) => {
           const embedded = embeddifyVideoLink(link);
-          this.editor.format('video', embedded);
+          quill.format('video', embedded);
         }}
       />
     );
   }
 
   /**
-   * The UI for links is also quite poor, so we need
+   * The UI for links is quite poor, so we need
    * to replace it with ours
    */
-  createLinkUi () {
+  function createLinkUi () {
     return (
       <LinkDialog
-        open={this.state.linkDialogOpen}
-        onClose={() => this.setState({ linkDialogOpen: false})}
+        open={linkDialogOpen}
+        onClose={() => this.setState({ linkDialogOpen: false })}
         onSave={(link) => {
-          console.error(link);
           // if they haven't got anything selected, just get the current
           // position and insert the url as the text,
           // otherwise just format the current selection as a link
           const selected = this.editor.getSelection(true);
-         // console.error(selected);
           //do we have nothing selected i.e. a zero length selection?
           if (selected.length === 0) {
-            const index = selected? selected.index : 0; // no position? do it at the front
+            const index = selected ? selected.index : 0; // no position? do it at the front
             // if so, the selection is just the cursor position, so insert our new text there
-            this.editor.insertText(index, link, 'link', link, 'user');
+            quill.insertText(index, link, 'link', link, 'user');
             //refocus the editor because for some reason it moves to the top during insert
-          }else {
-          //  console.error('adding link' + link);
-            this.editor.format('link', link);
+          } else {
+            //  console.error('adding link' + link);
+            quill.format('link', link);
           }
         }}
       />
     );
   }
 
+  function disableToolbarTabs (editorNode) {
+    const toolbarButtons = editorNode.querySelectorAll('.ql-toolbar *');
+    toolbarButtons.forEach((button) => {
+      button.tabIndex = -1;
+    });
+  }
+
+  // instantiate the quill, and only pay attention to changes in quill itself for sanity's sake
+  useEffect(() => {
+    /** Adds the tooltips
+     * to the items in the toolbar.
+     */
+
+    function addToolTips (quill) {
+      const toolbar = quill.container.previousSibling;
+      setTooltip(toolbar, 'button.ql-bold', 'Bold');
+      setTooltip(toolbar, 'button.ql-italic', 'Italic');
+      setTooltip(toolbar, 'button.ql-link', 'Link');
+      setTooltip(toolbar, 'button.ql-clean', 'Clear Formatting');
+      setTooltip(toolbar, 'button.ql-image', 'Image');
+      setTooltip(toolbar, 'button.ql-video', 'Video or Loom Link');
+      setTooltip(toolbar, 'button.ql-underline', 'Underline');
+      setTooltip(toolbar, 'button.ql-strike', 'Strike');
+      setTooltip(toolbar, 'button.ql-list', 'Number List', 'Bullet List');
+      setTooltip(toolbar, 'button.ql-table', 'Table');
+      setTooltip(toolbar, 'span.ql-color', 'Text Color');
+      setTooltip(toolbar, 'span.ql-background', 'Background Color');
+      setTooltip(toolbar, 'span.ql-align', 'Text Alignment');
+      setTooltip(toolbar, 'span.ql-font', 'Font Style');
+      setTooltip(toolbar, 'span.ql-header', 'Font Size');
+      setTooltip(toolbar, 'button.ql-code-block', 'Code Block');
+      setTooltip(toolbar, 'button.ql-script', 'Subscript', 'Superscript');
+      setTooltip(toolbar, 'button.ql-indent', 'Unindent', 'Indent');
+    }
+
+    // make sure we have the container, and if so check if quill exists
+    if (quillRef.current && !quill) {
+      quillRef.current.innerHTML = defaultValue;
+      disableToolbarTabs(quillRef.current);
+      const quill = new Quill(quillRef.current, editorOptions);
+      setQuill(quill);
+      //set up our link fixing
+      addQuillLinkFixer();
+      addToolTips(quill);
+    }
+
+  }, [quill, quillRef, editorOptions, defaultValue]);
+
+  const [postInitializationRan, setPostInitializationRan] = useState(false);
+  // do all the post quill initialization
+  useEffect(() => {
+    if (quill && !postInitializationRan) {
+      setPostInitializationRan(true);
+      const debouncedOnChange = _.debounce((delta) => {
+        const contents = quill.root.innerHTML;
+        if (editorEmpty(contents)) {
+          onChange('', delta);
+        } else {
+          onChange(contents, delta);
+        }
+      }, 50);
+      quill.on('text-change', debouncedOnChange);
+      // register our modules if we've not created the editor yet
+      // we have the editor, register our on change handlers
+      // and our url magic
+      quill.getUrlName = getUrlName;
+      // since we have a handle
+      function editorClear () {
+        console.error('editorClearInvoked');
+        // this might not really work, zo C-Z will undo the clear, but it's still better than nothing
+        quill.history.clear();
+        quill.root.innerHTML = '';
+        quill.setContents([{ insert: '' }]);
+        if (placeHolder) {
+          const el = quillRef.current.firstChild;
+          el.setAttribute('data-placeholder', placeHolder);
+        }
+        if (!_.isEmpty(quillRef.current.children)) {
+          quillRef.current.children[0].click();
+        }
+        quill.focus();
+      }
+      console.error('invoking set editor clear func');
+      console.error(editorClear);
+      setEditorClearFunc(editorClear);
+    }
+  }, [onChange, quill, getUrlName, setEditorClearFunc, postInitializationRan, placeHolder]);
+
   /**
    * Takes our properties and generates a quill options object
    * that configures the editor to what the properties imply.
    * @returns the quill options for the editor
    * */
-  generateEditorOptions () {
+  function generateEditorOptions () {
     const {
       marketId,
       placeholder,
@@ -147,21 +247,24 @@ class QuillEditor extends React.PureComponent {
       simple,
       setOperationInProgress,
       participants,
-    } = this.props;
+    } = props;
     // CSS id of the container from which scroll and bounds checks operate
-    const boundsId = this.getBoundsId();
+    const boundsId = getBoundsId();
     const defaultModules = {
       toolbar: {
-        handlers : {
+        handlers: {
           'video': () => {
-            this.setState({videoDialogOpen: true})
+            setLinkDialogOpen(true);
           },
-          'link': (value) => {
+          // we want a function for it's binding effects below instead of an arrow function
+          'link': function (value) {
             console.error(value);
-            if (value){
-              this.setState({linkDialogOpen: true});
-            }else{
-              this.editor.format('link', false);
+            if (value) {
+              setLinkDialogOpen(true);
+            } else {
+              // handlers are bound to the toolbar
+              // so the this is pointed to quill _after_ initialization
+              this.quill.format('link', false);
             }
           }
         },
@@ -184,13 +287,13 @@ class QuillEditor extends React.PureComponent {
       },
       s3Upload: {
         marketId,
-        onS3Upload: this.statefulUpload.bind(this),
+        onS3Upload: handleUploads,
         onUploadStart: () => {
-          this.setUploadInProgress(true);
+          setUploadInProgress(true);
           setOperationInProgress(true);
         },
         onUploadStop: () => {
-          this.setUploadInProgress(false);
+          setUploadInProgress(false);
           setOperationInProgress(false);
         },
       },
@@ -200,7 +303,7 @@ class QuillEditor extends React.PureComponent {
         bindings: {
           'tab': {
             key: 9,
-            handler: function(range, context) {
+            handler: function (range, context) {
               return true;
             }
           }
@@ -209,18 +312,18 @@ class QuillEditor extends React.PureComponent {
     };
     const modules = { ...defaultModules };
     if (simple) {
-      modules.toolbar = this.simplifiedToolBar;
+      modules.toolbar = simplifiedToolBar;
       modules.s3Upload = false;
       modules.imageResize = false;
     }
     if (uploadDisabled && !simple) {
-      modules.toolbar = this.uploadLessToolbar;
+      modules.toolbar = uploadLessToolbar;
       modules.s3Upload = false;
       modules.imageResize = false;
     }
 
     if (isTinyWindow()) {
-      modules.toolbar = this.tinyToolBar;
+      modules.toolbar = tinyToolBar;
     }
 
     if (noToolbar) {
@@ -233,19 +336,19 @@ class QuillEditor extends React.PureComponent {
         positioningStrategy: 'fixed',
         source: function (searchTerm, renderList) {
           if (searchTerm.length === 0) {
-            renderList(participants.map((presence) => ({id: presence.id, value: presence.name})), searchTerm);
+            renderList(participants.map((presence) => ({ id: presence.id, value: presence.name })), searchTerm);
           } else {
             const matches = [];
             participants.forEach((participant) => {
               const { name, id } = participant;
               if (name.toLowerCase().includes(searchTerm.toLowerCase())) {
-                matches.push({id, value: name});
+                matches.push({ id, value: name });
               }
             });
             renderList(matches, searchTerm);
           }
         }
-      }
+      };
     }
 
     return {
@@ -259,207 +362,55 @@ class QuillEditor extends React.PureComponent {
     };
   }
 
-  getBoundsId() {
-    const { id, marketId } = this.props;
+  function getBoundsId () {
+    const { id, marketId } = props;
     // quill will constrain ui elements to the boundaries
     // of the element specified in the bounds parameter
     // which in our case is a css id
-    const boundsId = `editorBox-${id || marketId}`;
-    return boundsId;
+    return `editorBox-${id || marketId}`;
   }
 
-  /**
-   * Configures the load and store
-   * from our browser stores and memory,
-   * so that the editor
-   * picks up where it left off it you
-   * reload or come back to the page,
-   * and upstream objects get the updates
-   * via onchange
-   */
-  setupStoreAndChangeSyncing () {
-    const {
-      onChange,
-      onStoreChange
-    } = this.props;
-    const debouncedOnChange = _.debounce((delta) => {
-      const contents = this.editor.root.innerHTML;
-      if (editorEmpty(contents)) {
-        onChange('', delta);
-      } else {
-        onChange(contents, delta);
-      }
-    }, 50);
-    const debouncedOnStoreChange = _.debounce((delta) => {
-      const contents = this.editor.root.innerHTML;
-      if (editorEmpty(contents)) {
-        onStoreChange('', delta);
-      } else {
-        onStoreChange(contents, delta);
-      }
-    }, 500);
-    const both = (delta) => {
-      debouncedOnChange(delta);
-      debouncedOnStoreChange(delta);
-    };
-    this.editor.on('text-change', both);
-  }
-
-  /** Adds the tooltips
-   * to the items in the toolbar.
-   */
-  addToolTips () {
-    const toolbar = this.editor.container.previousSibling;
-    setTooltip(toolbar, 'button.ql-bold', 'Bold');
-    setTooltip(toolbar, 'button.ql-italic', 'Italic');
-    setTooltip(toolbar, 'button.ql-link', 'Link');
-    setTooltip(toolbar, 'button.ql-clean', 'Clear Formatting');
-    setTooltip(toolbar, 'button.ql-image', 'Image');
-    setTooltip(toolbar, 'button.ql-video', 'Video or Loom Link');
-    setTooltip(toolbar, 'button.ql-underline', 'Underline');
-    setTooltip(toolbar, 'button.ql-strike', 'Strike');
-    setTooltip(toolbar, 'button.ql-list', 'Number List', 'Bullet List');
-    setTooltip(toolbar, 'button.ql-table', 'Table');
-    setTooltip(toolbar, 'span.ql-color', 'Text Color');
-    setTooltip(toolbar, 'span.ql-background', 'Background Color');
-    setTooltip(toolbar, 'span.ql-align', 'Text Alignment');
-    setTooltip(toolbar, 'span.ql-font', 'Font Style');
-    setTooltip(toolbar, 'span.ql-header', 'Font Size');
-    setTooltip(toolbar, 'button.ql-code-block', 'Code Block');
-    setTooltip(toolbar, 'button.ql-script', 'Subscript', 'Superscript');
-    setTooltip(toolbar, 'button.ql-indent', 'Unindent', 'Indent');
-  }
-
-  /** Quill and react state updates
-   * don't really play nice with each other.
-   * This code bridges between the two worlds
-   */
-  bridgeReactAndQuillState () {
-    const {
-      setEditorClearFunc,
-      setEditorFocusFunc,
-      setEditorDefaultFunc,
-    } = this.props;
-    // see https://stackoverflow.com/questions/55621212/is-it-possible-to-react-usestate-in-react
-    const editorClearFunc = () => (newPlaceHolder) => {
-      // this might not really work, zo C-Z will undo the clear, but it's still better than nothing
-      this.editor.history.clear();
-      this.editor.root.innerHTML = '';
-      this.editor.setContents([{ insert: '' }]);
-      if (newPlaceHolder) {
-        const el = this.editorBox.current.firstChild;
-        el.setAttribute('data-placeholder', newPlaceHolder);
-      }
-      if (this.editorBox.current && !_.isEmpty(this.editorBox.current.children)) {
-        this.editorBox.current.children[0].click();
-      }
-      this.editor.focus();
-    };
-    setEditorClearFunc(editorClearFunc);
-    const editorDefaultFunc = () => (newDefault) => {
-      this.editor.setContents([{ insert: '' }]);
-      if (newDefault) {
-        this.editor.clipboard.dangerouslyPasteHTML(newDefault);
-      }
-    };
-    setEditorDefaultFunc(editorDefaultFunc);
-    const editorFocusFunc = () => () => {
-      this.editor.focus();
-    };
-    setEditorFocusFunc(editorFocusFunc);
-  }
-
-  createEditor () {
-    const {
-      getUrlName,
-    } = this.props;
-    const editorOptions = this.generateEditorOptions();
-    this.editor = new Quill(this.editorBox.current, editorOptions);
-    this.editor.getUrlName = getUrlName;
-    addQuillLinkFixer();
-    this.setupStoreAndChangeSyncing();
-    this.disableToolbarTabs(this.editorContainer.current);
-    this.bridgeReactAndQuillState();
-  }
-
-  /**
-   * Mostly a guard to redo the editor if we rerender the components
-   * @param prevProps
-   * @param prevState
-   * @param snapshot
-   */
-  componentDidUpdate (prevProps, prevState, snapshot) {
-    if (prevProps.marketId !== this.props.marketId) {
-      console.debug('Updating Quill');
-      this.createEditor();
-    }
-  }
-
-  componentDidMount () {
-    const { defaultValue } = this.props;
-    this.editorBox.current.innerHTML = defaultValue;
-    this.createEditor();
-  }
-
-  setUploadInProgress (value) {
-    this.setState({
-      uploadInProgress: value,
-    });
-  }
-
-  disableToolbarTabs (editorNode) {
-    const toolbarButtons = editorNode.querySelectorAll('.ql-toolbar *');
-    toolbarButtons.forEach((button) => {
-      button.tabIndex = -1;
-    });
-  }
-
-  statefulUpload (metadatas) {
-    const { uploads } = this.state;
+  function handleUploads (metadatas) {
     const newUploads = [...uploads, ...metadatas];
-    this.setState({ uploads: newUploads });
-    const { onS3Upload } = this.props;
+    setUploads(newUploads);
+    const { onS3Upload } = props;
     if (onS3Upload) {
       onS3Upload(newUploads);
     }
   }
 
-  render () {
-    const { children, theme, intl, id } = this.props;
-    // quill will constrain ui elements to the boundaries
-    // of the element specified in the bounds parameter
-    // which in our case is a css id
-    const boundsId = this.getBoundsId();
-    const { uploadInProgress } = this.state;
-    const editorStyle = {
-      fontFamily: theme.typography.fontFamily,
-      fontSize: theme.typography.fontSize,
-      maxHeight: '425px',
-      overflow: 'scroll',
-      overflowX: 'hidden',
-    };
+  // quill will constrain ui elements to the boundaries
+  // of the element specified in the bounds parameter
+  // which in our case is a css id
+  const boundsId = getBoundsId();
+  const editorStyle = {
+    fontFamily: theme.typography.fontFamily,
+    fontSize: theme.typography.fontSize,
+    maxHeight: '425px',
+    overflow: 'scroll',
+    overflowX: 'hidden',
+  };
 
-    return (
-      <div>
-        {this.createVideoUi()}
-        {this.createLinkUi()}
-        <div ref={this.editorContainer} style={{ maxWidth: '100%', zIndex: '2', borderTop: '1px solid lightgrey' }} id={id}>
-          <LoadingOverlay
-            active={uploadInProgress}
-            spinner
-            className="editor-wrapper"
-            text={intl.formatMessage({ id: 'quillEditorUploadInProgress' })}
-          >
-            <div ref={this.editorBox} id={boundsId} style={editorStyle}/>
-          </LoadingOverlay>
-        </div>
-        {isTinyWindow() && <div style={{ height: '40px' }}>&nbsp;</div>}
-        <div>
-          {children}
-        </div>
+  return (
+    <div>
+      {createVideoUi()}
+      {createLinkUi()}
+      <div ref={editorContainer} style={{ maxWidth: '100%', zIndex: '2', borderTop: '1px solid lightgrey' }} id={id}>
+        <LoadingOverlay
+          active={uploadInProgress}
+          spinner
+          className="editor-wrapper"
+          text={intl.formatMessage({ id: 'quillEditorUploadInProgress' })}
+        >
+          <div ref={quillRef} id={boundsId} style={editorStyle}/>
+        </LoadingOverlay>
       </div>
-    );
-  }
+      {isTinyWindow() && <div style={{ height: '40px' }}>&nbsp;</div>}
+      <div>
+        {children}
+      </div>
+    </div>
+  );
 }
 
 QuillEditor.propTypes = {

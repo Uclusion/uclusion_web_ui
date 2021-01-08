@@ -49,6 +49,7 @@ import { getMarketComments } from '../../../contexts/CommentsContext/commentsCon
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { doSetEditWhenValid, isTinyWindow } from '../../../utils/windowUtils'
 import EditMarketButton from '../../Dialog/EditMarketButton'
+import ShareStoryButton from '../Planning/ShareStoryButton'
 
 const useStyles = makeStyles((theme) => ({
   mobileColumn: {
@@ -277,6 +278,7 @@ function DecisionInvestible(props) {
             onClick={() => mySetBeingEdited(true)}
           />
       )}
+      <ShareStoryButton />
       {isAdmin && inProposed && (
           <MoveToCurrentVotingActionButton
             key="moveToCurrent"

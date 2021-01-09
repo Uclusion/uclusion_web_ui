@@ -593,8 +593,9 @@ function PlanningInvestible(props) {
 
   const canVote = !isAssigned && isInVoting && !inArchives;
   const yourPresence = marketPresences.find((presence) => presence.current_user);
-  const yourVote = yourPresence && yourPresence.investments && yourPresence.investments.find((investment) => investment.investible_id === investibleId);
-  const todoWarning = isInVoting ? null : fullStage.allows_todos ? 'todoWarningPlanning' : 'todoWarningDone'
+  const yourVote = yourPresence && yourPresence.investments &&
+    yourPresence.investments.find((investment) => investment.investible_id === investibleId);
+  const todoWarning = isInVoting || isReadyFurtherWork || isInBlocked || isRequiresInput ? null : 'todoWarningPlanning';
   function toggleAssign() {
     navigate(history, `${formInvestibleEditLink(marketId, investibleId)}#assign=true`);
   }
@@ -864,7 +865,7 @@ function PlanningInvestible(props) {
       <MarketLinks links={children || []} />
       <Grid container spacing={2}>
         <Grid item xs={12} style={{ marginTop: '15px' }}>
-          {!inArchives && isAdmin && (!isInVoting || !canVote || yourVote) && (
+          {!inArchives && isAdmin && !isInNotDoing && !isInVerified && (!isInVoting || !canVote || yourVote) && (
             <CommentAddBox
               allowedTypes={allowedCommentTypes}
               investible={investible}

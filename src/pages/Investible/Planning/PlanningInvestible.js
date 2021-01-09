@@ -305,6 +305,7 @@ function PlanningInvestible(props) {
   const { investible } = marketInvestible;
   const { description, name, locked_by: lockedBy, created_at: createdAt, label_list: originalLabelList } = investible;
   const [labelList, setLabelList] = useState(originalLabelList);
+  const [anchorEl, setAnchorEl] = React.useState(null);
   let lockedByName;
   if (lockedBy) {
     const lockedByPresence = marketPresences.find(
@@ -509,6 +510,7 @@ function PlanningInvestible(props) {
           marketId={marketId}
           currentStageId={stage}
           isOpen={changeStagesExpanded}
+          onSpinStop={() => setAnchorEl(null)}
           disabled={isReadyFurtherWork}
         />
       </MenuItem>];
@@ -524,6 +526,7 @@ function PlanningInvestible(props) {
             marketId={marketId}
             currentStageId={stage}
             isOpen={changeStagesExpanded}
+            onSpinStop={() => setAnchorEl(null)}
             disabled={isInNotDoing}
           />
         </MenuItem>
@@ -538,6 +541,7 @@ function PlanningInvestible(props) {
           marketId={marketId}
           currentStageId={stage}
           isOpen={changeStagesExpanded}
+          onSpinStop={() => setAnchorEl(null)}
           disabled={isInVoting || (!isAssigned && !isInBlocked) || !_.isEmpty(blockingComments)}
           hasAssignedQuestions={!_.isEmpty(questionByAssignedComments)}
         />
@@ -551,6 +555,7 @@ function PlanningInvestible(props) {
           currentStageId={stage}
           isOpen={changeStagesExpanded}
           full={acceptedFull}
+          onSpinStop={() => setAnchorEl(null)}
           disabled={!isAssigned || !_.isEmpty(blockingComments) || acceptedFull || !enoughVotes}
           hasAssignedQuestions={!_.isEmpty(questionByAssignedComments)}
         />
@@ -563,6 +568,7 @@ function PlanningInvestible(props) {
           marketId={marketId}
           currentStageId={stage}
           isOpen={changeStagesExpanded}
+          onSpinStop={() => setAnchorEl(null)}
           disabled={isInReview || !_.isEmpty(blockingComments)}
           hasTodos={!_.isEmpty(todoComments)}
           hasAssignedQuestions={!_.isEmpty(questionByAssignedComments)}
@@ -576,6 +582,7 @@ function PlanningInvestible(props) {
           marketId={marketId}
           currentStageId={stage}
           isOpen={changeStagesExpanded}
+          onSpinStop={() => setAnchorEl(null)}
           disabled={isReadyFurtherWork}
         />
       </MenuItem>,
@@ -587,6 +594,7 @@ function PlanningInvestible(props) {
           marketId={marketId}
           currentStageId={stage}
           isOpen={changeStagesExpanded}
+          onSpinStop={() => setAnchorEl(null)}
           disabled={isInVerified || !_.isEmpty(blockingComments)}
           hasTodos={!_.isEmpty(todoComments)}
         />
@@ -599,6 +607,7 @@ function PlanningInvestible(props) {
           marketId={marketId}
           currentStageId={stage}
           isOpen={changeStagesExpanded}
+          onSpinStop={() => setAnchorEl(null)}
           disabled={isInNotDoing}
         />
       </MenuItem>
@@ -793,6 +802,8 @@ function PlanningInvestible(props) {
                 stageActions={getStageActions()}
                 expansionChanged={expansionChanged}
                 actions={getSidebarActions()}
+                anchorEl={anchorEl}
+                setAnchorEl={setAnchorEl}
               />
             </Grid>
           </Grid>
@@ -1051,7 +1062,9 @@ function MarketMetaData(props) {
     actions,
     stageName,
     isInReview,
-    isInVoting
+    isInVoting,
+    anchorEl,
+    setAnchorEl
   } = props;
   const history = useHistory();
   let stageLabel;
@@ -1080,7 +1093,6 @@ function MarketMetaData(props) {
     default:
       stageLabel = 'changeStage'
   }
-  const [anchorEl, setAnchorEl] = React.useState(null);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, diffDispatch] = useContext(DiffContext);
   const classes = useMetaDataStyles();

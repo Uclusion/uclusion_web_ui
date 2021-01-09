@@ -44,7 +44,8 @@ function ExpandableAction(props) {
     openLabel,
     onClick,
     tipPlacement = 'bottom',
-    useWhiteText
+    useWhiteText,
+    disabled
   } = props;
 
   const classes = useStyles();
@@ -61,7 +62,7 @@ function ExpandableAction(props) {
         className={classes.menuItem}
         key={label}
         button
-        disabled={operationRunning}
+        disabled={operationRunning || disabled}
         onClick={myOnClick}
       >
         {openLabel && (

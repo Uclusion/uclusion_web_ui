@@ -267,7 +267,14 @@ const useCommentStyles = makeStyles(
       },
       commentTypeContainer: {
         borderRadius: '4px 4px 0 0'
-      }
+      },
+      button: {
+        borderRadius: '4px',
+        fontSize: '14px',
+        fontWeight: 'bold',
+        margin: 8,
+        textTransform: 'capitalize',
+      },
   }
 },
 { name: "Comment" }
@@ -701,6 +708,15 @@ function Comment(props) {
                 myNotificationType={myNotificationType}
                 isInReview={isInReview}
               />
+            )}
+            {noAuthor && !editOpen && (
+              <Button
+                onClick={onDone}
+                className={classes.button}
+                style={{border: "1px solid black"}}
+              >
+                {intl.formatMessage({ id: 'cancel' })}
+              </Button>
             )}
           </Box>
         </CardContent>

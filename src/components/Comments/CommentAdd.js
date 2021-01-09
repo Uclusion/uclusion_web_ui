@@ -191,7 +191,7 @@ const useStyles = makeStyles((theme) => ({
 function CommentAdd (props) {
   const {
     marketId, onSave, onCancel, type, clearType, investible, parent, hidden, issueWarningId, todoWarningId,
-    isStory, defaultNotificationType
+    isStory, defaultNotificationType, onDone
   } = props;
 
   const intl = useIntl();
@@ -360,6 +360,15 @@ function CommentAdd (props) {
             setEditorDefaultFunc={setEditorDefaultFunc}
             getUrlName={urlHelperGetName(marketState, investibleState)}
           >
+            {!isStory && (
+              <Button
+                onClick={onDone}
+                className={classes.button}
+                style={{border: "1px solid black"}}
+              >
+                {intl.formatMessage({ id: 'cancel' })}
+              </Button>
+            )}
             <Button
               onClick={handleCancel}
               className={classes.button}

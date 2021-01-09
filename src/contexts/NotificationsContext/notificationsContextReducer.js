@@ -194,21 +194,7 @@ function processHighlighting(messagesForPage) {
  */
 function handleMessagesForPage(pageMessages) {
   if (!_.isEmpty(pageMessages)) {
-    // process highlighting
     processHighlighting(pageMessages);
-    const notAssociated = pageMessages.filter((message) => {
-      const { comment_id: commentId, type: aType } = message;
-      //TODO eventually do not page delete anything - for now put comments and UNREAD on new system
-      return !commentId && aType !== 'UNREAD' && aType !== 'UNREAD_VOTE' && aType !== 'UNREAD_SWIM';
-    })
-    if (!_.isEmpty(notAssociated)) {
-      // and tell the backend we've processed them immediately
-      // the backend only needs the first message to figure out all of them
-      // have been viewed
-      const firstMessage = notAssociated[0];
-      deleteMessage(firstMessage)
-        .catch((error) => console.error(error)); // not much to do other than log it.
-    }
   }
 }
 

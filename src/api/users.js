@@ -1,6 +1,5 @@
 import { getAccountClient, getMarketClient } from './uclusionClient'
 import { toastErrorAndThrow } from '../utils/userMessage'
-import { USER_POKED_TYPE } from '../constants/notifications'
 
 export function unbanUser(marketId, userId) {
   return getMarketClient(marketId)
@@ -12,17 +11,6 @@ export function banUser(marketId, userId) {
   return getMarketClient(marketId)
     .then((client) => client.users.banUser(userId, true))
     .catch((error) => toastErrorAndThrow(error, 'errorBanUserFailed'));
-}
-
-export function deleteMessage(message) {
-  const { market_id: marketId, type_object_id: typeObjectId, type: aType, pokeType, investible_id: investibleId } = message;
-  const objectId = typeObjectId.split('_').pop();
-  if (aType === USER_POKED_TYPE) {
-    return getAccountClient()
-      .then((client) => client.users.removeNotification(objectId, aType, pokeType));
-  }
-  return getMarketClient(marketId)
-    .then((client) => client.users.removePageNotifications(investibleId));
 }
 
 export function deleteSingleMessage(message) {

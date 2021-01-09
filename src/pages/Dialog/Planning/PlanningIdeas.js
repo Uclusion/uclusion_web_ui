@@ -544,7 +544,8 @@ function Stage(props) {
                 marketInfo={marketInfo}
                 updatedText={updatedText}
                 showWarning={isReview ? checkReviewWarning(investible, comments) :
-                  isVoting ? checkReviewWarning(investible, comments) || checkVotingWarning(investible.id, marketPresences) : false}
+                  isVoting ? checkReviewWarning(investible, comments, true) ||
+                    checkVotingWarning(investible.id, marketPresences) : false}
                 showCompletion={showCompletion}
               />
             </li>

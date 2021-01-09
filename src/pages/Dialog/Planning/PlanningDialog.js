@@ -386,13 +386,16 @@ export function checkInProgressWarning(investibles, comments, inProgressStageId,
   return warnHash;
 }
 
-export function checkReviewWarning(investible, comments) {
+export function checkReviewWarning(investible, comments, excludeTodos) {
   const { id } = investible;
   if (_.isEmpty(comments)) {
     return false;
   }
   const openComments = comments.find((comment) => {
     const { investible_id: investibleId, comment_type: commentType, resolved } = comment;
+    if (excludeTodos && commentType === TODO_TYPE) {
+      return false;
+    }
     return !resolved && id === investibleId && commentType !== REPORT_TYPE && commentType !== REPLY_TYPE
       && commentType !== JUSTIFY_TYPE;
   });

@@ -496,8 +496,22 @@ function PlanningInvestible(props) {
   const acceptedFull = inAcceptedStage.allowed_investibles > 0
     && assignedInAcceptedStage.length >= inAcceptedStage.allowed_investibles;
   function getStageActions() {
-    if (inArchives || isInNotDoing) {
+    if (inArchives) {
       return [];
+    }
+
+    if (isInNotDoing) {
+      return [<MenuItem
+        key="furtherwork"
+      >
+        <MoveToFurtherWorkActionButton
+          investibleId={investibleId}
+          marketId={marketId}
+          currentStageId={stage}
+          isOpen={changeStagesExpanded}
+          disabled={isReadyFurtherWork}
+        />
+      </MenuItem>];
     }
 
     if (isReadyFurtherWork) {

@@ -94,12 +94,17 @@ function ReadOnlyQuillEditor(props) {
     )
   };
 
-  const ViewportBlock = handleViewport(TextDiv, /** options: {}, config: {} **/);
+  const ViewportBlock = myMessage ? handleViewport(TextDiv, /** options: {}, config: {} **/) : undefined;
 
   return (
     <div className={clsx(classes.root, heading && classes.heading, className)}
          onClick={(event) => setBeingEdited(true, event)}>
-      <ViewportBlock onEnterViewport={removeMyMessage} onLeaveViewport={cancelRemoveMessage} />
+      {myMessage && (
+        <ViewportBlock onEnterViewport={removeMyMessage} onLeaveViewport={cancelRemoveMessage} />
+      )}
+      {!myMessage && (
+        <div ref={box} className={isEditable ? classes.editable : classes.notEditable} />
+      )}
     </div>
   );
 }

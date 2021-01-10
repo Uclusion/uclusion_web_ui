@@ -148,7 +148,7 @@ function Voting(props) {
           )
         };
 
-        const ViewportBlock = handleViewport(TextCardType, /** options: {}, config: {} **/);
+        const ViewportBlock = myMessage ? handleViewport(TextCardType, /** options: {}, config: {} **/) : undefined;
 
         return (
           <Card
@@ -161,7 +161,15 @@ function Voting(props) {
             component="li"
             id={voteId}
           >
-            <ViewportBlock onEnterViewport={removeMyMessage} onLeaveViewport={cancelRemoveMessage} />
+            {!myMessage && (
+              <CardType
+                className={classes.cardType}
+                type={`certainty${Math.abs(quantity)}`}
+              />
+            )}
+            {myMessage && (
+              <ViewportBlock onEnterViewport={removeMyMessage} onLeaveViewport={cancelRemoveMessage} />
+            )}
             {showExpiration && (
               <div className={classes.expiresDisplay}>
                 <ProgressBar

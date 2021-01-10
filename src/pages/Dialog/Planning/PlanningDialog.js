@@ -484,10 +484,20 @@ function InvestiblesByPerson(props) {
       }
     }
 
-    const ViewportBlock = handleViewport(TextCardHeader, /** options: {}, config: {} **/);
+    const ViewportBlock = myMessage ? handleViewport(TextCardHeader, /** options: {}, config: {} **/) : undefined;
     return (
       <Card key={id} elevation={0} className={classes.root}>
-        <ViewportBlock onEnterViewport={removeMyMessage} onLeaveViewport={cancelRemoveMessage} />
+        {!myMessage && (
+          <CardHeader
+            className={classes.header}
+            id={`u${id}`}
+            title={name}
+            titleTypographyProps={{ variant: "subtitle2" }}
+          />
+        )}
+        {myMessage && (
+          <ViewportBlock onEnterViewport={removeMyMessage} onLeaveViewport={cancelRemoveMessage} />
+        )}
         <CardContent className={classes.content}>
           {marketId &&
             acceptedStage &&

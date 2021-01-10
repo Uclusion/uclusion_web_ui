@@ -47,7 +47,6 @@ export function initializeState (newState) {
   };
 }
 
-
 /**
  * Data structure for storing messages is
  * state : {
@@ -57,49 +56,17 @@ export function initializeState (newState) {
  */
 
 /**
- * Returns stored messages for a page which
- * is just a user action (not pertianing to a market)
- * @param messages
- * @param action
- * @returns {*[]|*}
- */
-function getStoredMessagesForActionPage(messages, action) {
-  switch(action){
-    case 'notificationPreferences':
-      return messages.filter((message) => message.pokeType === 'slack_reminder');
-    case 'upgrade':
-      return messages.filter((message) => message.pokeType === 'upgrade_reminder');
-    default:
-      return [];
-  }
-}
-
-/**
- * Gets all messages for that pertain to a particular market page
- * @param messages
- * @param page
- * @returns {*|*[]}
- */
-function getStoredMessagesForMarketPage(messages, page) {
-  const { marketId, investibleId } = page;
-  // it is assumed a page for a market will have an undefined investible id
-  // and that a store message for the market will also
-  return messages.filter((message) => message.market_id === marketId && message.investible_id === investibleId);
-}
-
-/**
  * Returns the stored message for the given page
  * @param state
  * @param page
  * @returns {*|*[]|[]}
  */
 function getStoredMessagesForPage(state, page) {
-  const { action } = page;
   const messages = (state || {messages: []}).messages || emptyMessagesState;
-  if (action === 'dialog') {
-    return getStoredMessagesForMarketPage(messages, page);
-  }
-  return getStoredMessagesForActionPage(messages, action);
+  const { marketId, investibleId } = page;
+  // it is assumed a page for a market will have an undefined investible id
+  // and that a store message for the market will also
+  return messages.filter((message) => message.market_id === marketId && message.investible_id === investibleId);
 }
 
 /** Stores recently viewed in the state

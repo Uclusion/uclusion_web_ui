@@ -618,7 +618,7 @@ function Comment(props) {
             <Typography className={classes.timeElapsed} variant="body2">
               Created <UsefulRelativeTime value={Date.parse(comment.created_at) - Date.now()}/>
               {noAuthor &&
-              `${intl.formatMessage({ id: 'lastUpdatedBy' })} ${updatedBy.name}`}.
+              `${intl.formatMessage({ id: 'lastUpdatedBy' })} ${createdBy.name}`}.
               {comment.created_at < comment.updated_at && !resolved && (
                 <> Updated <UsefulRelativeTime value={Date.parse(comment.updated_at) - Date.now()}/></>
               )}

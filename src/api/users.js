@@ -14,11 +14,11 @@ export function banUser(marketId, userId) {
 }
 
 export function deleteSingleMessage(message) {
-  const { market_id: marketId, type_object_id: typeObjectId, type: aType } = message;
-  const objectId = typeObjectId.split('_').pop();
-  // TODO re-use poke one till have real api
-  return getMarketClient(marketId)
-    .then((client) => client.users.removeNotification(objectId, aType, marketId));
+  const { market_id: marketId, type_object_id: typeObjectId } = message;
+  if (marketId === 'slack_reminder') {
+    return getAccountClient().then((client) => client.users.removeNotification(typeObjectId));
+  }
+  return getMarketClient(marketId).then((client) => client.users.removeNotification(typeObjectId));
 }
 
 export function applyPromoCode(promoCode) {

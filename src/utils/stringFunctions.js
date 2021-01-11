@@ -16,7 +16,7 @@ export function nameToAvatarText(name) {
 }
 
 export function nameFromDescription(description) {
-  const list = ["</p", "</li", "</td"];
+  const list = ["</p", "</li", "</td", "</h"];
   let found = -1;
   for (let i = 0, len = list.length; i < len; i++) {
     let index = description.indexOf(list[i]);

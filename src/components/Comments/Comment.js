@@ -533,6 +533,7 @@ function Comment(props) {
       .then((comment) => {
         onCommentOpen(investibleState, investibleId, marketStagesState, marketId, comment, investibleDispatch,
           commentsState, commentsDispatch, versionsDispatch);
+        onDone();
         return EMPTY_SPIN_RESULT;
       });
   }
@@ -540,6 +541,7 @@ function Comment(props) {
     return removeComment(marketId, id)
       .then(() => {
         removeComments(commentsDispatch, marketId, [id]);
+        onDone();
         return EMPTY_SPIN_RESULT;
       });
   }

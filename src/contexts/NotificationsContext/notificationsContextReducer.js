@@ -8,6 +8,7 @@ import { HIGHLIGHTED_VOTING_CHANNEL } from '../HighlightingContexts/highligtedVo
 import { NO_PIPELINE_TYPE, USER_POKED_TYPE } from '../../constants/notifications'
 import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
+import { decomposeMarketPath } from '../../utils/marketIdPathFunctions'
 
 export const NOTIFICATIONS_CONTEXT_NAMESPACE = 'notifications';
 const UPDATE_MESSAGES = 'UPDATE_MESSAGES';
@@ -66,7 +67,19 @@ function getStoredMessagesForPage(state, page) {
   const { marketId, investibleId } = page;
   // it is assumed a page for a market will have an undefined investible id
   // and that a store message for the market will also
-  return messages.filter((message) => message.market_id === marketId && message.investible_id === investibleId);
+  return messages.filter((message) => {
+    const { market_id: messageMarketId, investible_id: messageInvestibleId, link_multiple: linkMultiple } = message;
+    if (messageMarketId === marketId && messageInvestibleId === investibleId) {
+      return true;
+    }
+    if (!linkMultiple) {
+      return false;
+    }
+    const urlParts = new URL(linkMultiple, 'https://blah');
+    // A link multiple may contain an alternate market id and investible id for instance for decision options
+    const { marketId: linkMarketId, investibleId: linkInvestibleId } = decomposeMarketPath(urlParts.pathname);
+    return marketId === linkMarketId && investibleId === linkInvestibleId;
+  });
 }
 
 /** Stores recently viewed in the state

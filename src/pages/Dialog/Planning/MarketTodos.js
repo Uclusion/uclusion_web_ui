@@ -118,7 +118,7 @@ function MarketTodos (props) {
   const [highlightedCommentState] = useContext(HighlightedCommentContext);
   const [expandedCommentState, expandedCommentDispatch] = useContext(ExpandedCommentContext);
   const [commentState, commentDispatch] = useContext(CommentsContext);
-  const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [index] = useContext(SearchIndexContext);
@@ -202,7 +202,7 @@ function MarketTodos (props) {
           item
           md={3}
           xs={12}
-          draggable
+          draggable={!operationRunning}
           onDragStart={onDragStart}
           onDragEnd={onDragEnd}
           className={classes.outlined}

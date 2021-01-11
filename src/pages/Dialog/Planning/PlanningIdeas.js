@@ -302,12 +302,16 @@ function PlanningIdeas(props) {
         if (!operationRunning) {
           event.dataTransfer.dropEffect = "move";
           document.getElementById(elementId).className = classes.containerGreen;
-          setBeingDraggedHack({ id, stageId, previousElementId:elementId, originalElementId });
+          if (!_.isEmpty(beingDraggedHack)) {
+            setBeingDraggedHack({ id, stageId, previousElementId: elementId, originalElementId });
+          }
         }
       } else {
         event.dataTransfer.dropEffect = "none";
         document.getElementById(elementId).className = classes.containerRed;
-        setBeingDraggedHack({ id, stageId, previousElementId:elementId, originalElementId });
+        if (!_.isEmpty(beingDraggedHack)) {
+          setBeingDraggedHack({ id, stageId, previousElementId: elementId, originalElementId });
+        }
       }
     }
   }

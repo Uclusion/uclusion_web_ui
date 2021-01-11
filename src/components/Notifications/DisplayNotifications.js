@@ -97,8 +97,9 @@ function processDuplicates(page) {
     } else {
       const { link_type: linkType, link: firstLink, link_multiple: linkMultiple } = first;
       let link = firstLink;
-      if (linkType.includes('INVESTIBLE')) {
-        // We do not want to go inside the investible for new options or reviews as you won't see the others
+      if (linkType ==='INVESTIBLE' || linkType === 'INLINE_WORKSPACE_INVESTIBLE'
+        || linkType === 'INLINE_STORY_INVESTIBLE') {
+        // Do not go inside the investible for new options, votes needed or reviews as you won't see the others
         link = linkMultiple;
       }
       items.push({ ...first, link, lenDuplicates });

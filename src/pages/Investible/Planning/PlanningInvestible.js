@@ -720,10 +720,8 @@ function PlanningInvestible(props) {
                   {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}
                 </Typography>
               )}
-              {myBeingEdited && (
-                <InvestibleBodyEdit hidden={hidden} marketId={marketId} investibleId={investibleId}
-                                    setBeingEdited={mySetBeingEdited} />
-              )}
+              <InvestibleBodyEdit hidden={hidden} marketId={marketId} investibleId={investibleId}
+                                  setBeingEdited={mySetBeingEdited} beingEdited={myBeingEdited} />
               {!myBeingEdited && (
                 <DescriptionOrDiff
                   id={investibleId}

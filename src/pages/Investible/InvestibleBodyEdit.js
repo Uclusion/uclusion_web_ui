@@ -20,7 +20,7 @@ import { CardActions, CircularProgress, Typography } from '@material-ui/core'
 import { processTextAndFilesForSave } from '../../api/files'
 import { usePlanFormStyles } from '../../components/AgilePlan'
 import { makeStyles } from '@material-ui/core/styles'
-import { INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
+import { PLANNING_TYPE } from '../../constants/markets'
 import NameField from '../../components/TextFields/NameField'
 import { getMarketInfo } from '../../utils/userFunctions'
 import { getFullStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
@@ -36,7 +36,7 @@ const useStyles = makeStyles(
 );
 
 function InvestibleBodyEdit (props) {
-  const { hidden, marketId, investibleId, setBeingEdited } = props;
+  const { hidden, marketId, investibleId, setBeingEdited, beingEdited } = props;
   const intl = useIntl();
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -55,7 +55,7 @@ function InvestibleBodyEdit (props) {
   const market = getMarket(marketsState, marketId) || emptyMarket;
   const { market_type: marketType } = market;
   const [lockFailed, setLockFailed] = useState(false);
-  const loading = idLoaded !== investibleId || !market || !inv || !userId;
+  const loading = !beingEdited || idLoaded !== investibleId || !market || !inv || !userId;
   const someoneElseEditing = !_.isEmpty(lockedBy) && (lockedBy !== userId);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [uploadedFiles, setUploadedFiles] = useState([]);
@@ -76,10 +76,10 @@ function InvestibleBodyEdit (props) {
     if (!hidden && idLoaded !== investibleId) {
       localforage.getItem(investibleId).then((stateFromDisk) => {
         const { description: storedDescription, name: storedName } = (stateFromDisk || {});
+        if (storedName || storedDescription) {
+          setBeingEdited(true);
+        }
         if (storedName) {
-          if (marketType === INITIATIVE_TYPE) {
-            setBeingEdited(true);
-          }
           setName(storedName);
         }
         if (storedDescription) {
@@ -161,21 +161,31 @@ function InvestibleBodyEdit (props) {
   }
 
   function onCancel() {
-    if (_.isEmpty(lockedBy) || (lockedBy !== userId)) {
-      setBeingEdited(false);
+    setName(initialName);
+    setDescription(initialDescription);
+    if (!_.isEmpty(lockedBy) && (lockedBy !== userId)) {
+      // If its locked by someone else then skip all the below checks
+      localforage.removeItem(investibleId).then(() => setBeingEdited(false));
     } else {
-      return localforage.removeItem(investibleId)
-        .then(() => {
-          if (!lockFailed) {
-            return realeaseInvestibleEditLock(marketId, investibleId);
-          }
-          return fullInvestible;
-        })
-        .then((newInv) => {
-          refreshInvestibles(investiblesDispatch, diffDispatch, [newInv]);
-          return EMPTY_SPIN_RESULT;
-        })
-        .finally(() => setBeingEdited(false));
+      // Now try to figure out if we locked it - we can't use lockedBy because race condition with useEffect above
+      const { editable_by_roles: editableByRoles, allows_assignment: allowsAssignment } = stage;
+      if (_.size(editableByRoles) > 1 ||
+        (marketType === PLANNING_TYPE && (_.size(assigned) > 1 || !allowsAssignment))) {
+        return localforage.removeItem(investibleId)
+          .then(() => {
+            if (!lockFailed) {
+              return realeaseInvestibleEditLock(marketId, investibleId);
+            }
+            return fullInvestible;
+          })
+          .then((newInv) => {
+            refreshInvestibles(investiblesDispatch, diffDispatch, [newInv]);
+            return EMPTY_SPIN_RESULT;
+          })
+          .finally(() => setBeingEdited(false));
+      } else {
+        localforage.removeItem(investibleId).then(() => setBeingEdited(false));
+      }
     }
   }
 

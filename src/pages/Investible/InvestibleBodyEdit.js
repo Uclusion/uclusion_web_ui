@@ -20,8 +20,11 @@ import { CardActions, CircularProgress, Typography } from '@material-ui/core'
 import { processTextAndFilesForSave } from '../../api/files'
 import { usePlanFormStyles } from '../../components/AgilePlan'
 import { makeStyles } from '@material-ui/core/styles'
-import { INITIATIVE_TYPE } from '../../constants/markets'
+import { INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
 import NameField from '../../components/TextFields/NameField'
+import { getMarketInfo } from '../../utils/userFunctions'
+import { getFullStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
+import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 
 const useStyles = makeStyles(
   theme => ({
@@ -36,9 +39,13 @@ function InvestibleBodyEdit (props) {
   const { hidden, marketId, investibleId, setBeingEdited } = props;
   const intl = useIntl();
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
+  const [marketStagesState] = useContext(MarketStagesContext);
   const [, diffDispatch] = useContext(DiffContext);
   const inv = getInvestible(investiblesState, investibleId);
   const fullInvestible = inv || { investible: { name: '' } };
+  const marketInfo = getMarketInfo(fullInvestible, marketId) || {};
+  const { assigned, stage: stageId } = marketInfo;
+  const stage = getFullStage(marketStagesState, marketId, stageId)
   const [marketsState] = useContext(MarketsContext);
   const userId = getMyUserForMarket(marketsState, marketId);
   const { investible: myInvestible } = fullInvestible;
@@ -92,8 +99,10 @@ function InvestibleBodyEdit (props) {
   }, [hidden, investibleId, idLoaded, marketType, setBeingEdited]);
 
   useEffect(() => {
-    if (!hidden) {
-      if (!loading && !someoneElseEditing && !lockFailed && marketType !== INITIATIVE_TYPE) {
+    if (!hidden && !loading && !someoneElseEditing && !lockFailed) {
+      const { editable_by_roles: editableByRoles, allows_assignment: allowsAssignment } = stage;
+      if (_.size(editableByRoles) > 1 ||
+        (marketType === PLANNING_TYPE && (_.size(assigned) > 1 || !allowsAssignment))) {
         lockInvestibleForEdit(marketId, investibleId)
           .then((newInv) => refreshInvestibles(investiblesDispatch, diffDispatch, [newInv]))
           .catch(() => setLockFailed(true));
@@ -101,7 +110,7 @@ function InvestibleBodyEdit (props) {
     }
     return () => {};
   }, [hidden, investibleId, marketId, someoneElseEditing, loading, lockFailed, investiblesDispatch, diffDispatch,
-    marketType]);
+    stage, assigned, marketType]);
 
   function handleSave() {
     // uploaded files on edit is the union of the new uploaded files and the old uploaded files

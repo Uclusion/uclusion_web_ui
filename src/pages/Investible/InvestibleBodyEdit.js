@@ -93,14 +93,15 @@ function InvestibleBodyEdit (props) {
 
   useEffect(() => {
     if (!hidden) {
-      if (!loading && !someoneElseEditing && !lockFailed) {
+      if (!loading && !someoneElseEditing && !lockFailed && marketType !== INITIATIVE_TYPE) {
         lockInvestibleForEdit(marketId, investibleId)
           .then((newInv) => refreshInvestibles(investiblesDispatch, diffDispatch, [newInv]))
           .catch(() => setLockFailed(true));
       }
     }
     return () => {};
-  }, [hidden, investibleId, marketId, someoneElseEditing, loading, lockFailed, investiblesDispatch, diffDispatch]);
+  }, [hidden, investibleId, marketId, someoneElseEditing, loading, lockFailed, investiblesDispatch, diffDispatch,
+    marketType]);
 
   function handleSave() {
     // uploaded files on edit is the union of the new uploaded files and the old uploaded files

@@ -3747,7 +3747,7 @@ available-typed-arrays@^1.0.2:
   dependencies:
     array-filter "^1.0.0"
 
-aws-amplify-react@^4.2.17:
+aws-amplify-react@^4.2.18:
   version "4.2.18"
   resolved "https://registry.yarnpkg.com/aws-amplify-react/-/aws-amplify-react-4.2.18.tgz#2550f00d229f2d6bce5c69168a7ffbcd78cd0fbb"
   integrity sha512-sMadvoA7SeEfzPJr5elUSQf5AmGuIlpdnk5ELdcUqujw7ToUGGJmxgoEpMYPaXCetLmGCzbYycslthltAw+H3Q==
@@ -3755,7 +3755,7 @@ aws-amplify-react@^4.2.17:
     qrcode.react "^0.8.0"
     regenerator-runtime "^0.11.1"
 
-aws-amplify@^3.3.13:
+aws-amplify@^3.3.14:
   version "3.3.14"
   resolved "https://registry.yarnpkg.com/aws-amplify/-/aws-amplify-3.3.14.tgz#eb678fe70d3bc503b0917b6b9dfc3e426e2ff7ca"
   integrity sha512-5UrGnpvgsB1NLKvq5LAWL6aDzn91gx5i/IEV/khihdVjF+3P+1YU0q3eXLXbKS6gQKWEN9kcUm/uGzGPVa8dEA==

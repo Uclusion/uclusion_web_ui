@@ -264,7 +264,6 @@ function PlanningDialog(props) {
               <CommentAddBox
                 allowedTypes={allowedCommentTypes}
                 marketId={marketId}
-                isPlanning
                 hidden={hidden}
               />
             )}
@@ -387,13 +386,16 @@ export function checkInProgressWarning(investibles, comments, inProgressStageId,
   return warnHash;
 }
 
-export function checkReviewWarning(investible, comments) {
+export function checkReviewWarning(investible, comments, excludeTodos) {
   const { id } = investible;
   if (_.isEmpty(comments)) {
     return false;
   }
   const openComments = comments.find((comment) => {
     const { investible_id: investibleId, comment_type: commentType, resolved } = comment;
+    if (excludeTodos && commentType === TODO_TYPE) {
+      return false;
+    }
     return !resolved && id === investibleId && commentType !== REPORT_TYPE && commentType !== REPLY_TYPE
       && commentType !== JUSTIFY_TYPE;
   });
@@ -482,10 +484,20 @@ function InvestiblesByPerson(props) {
       }
     }
 
-    const ViewportBlock = handleViewport(TextCardHeader, /** options: {}, config: {} **/);
+    const ViewportBlock = myMessage ? handleViewport(TextCardHeader, /** options: {}, config: {} **/) : undefined;
     return (
       <Card key={id} elevation={0} className={classes.root}>
-        <ViewportBlock onEnterViewport={removeMyMessage} onLeaveViewport={cancelRemoveMessage} />
+        {!myMessage && (
+          <CardHeader
+            className={classes.header}
+            id={`u${id}`}
+            title={name}
+            titleTypographyProps={{ variant: "subtitle2" }}
+          />
+        )}
+        {myMessage && (
+          <ViewportBlock onEnterViewport={removeMyMessage} onLeaveViewport={cancelRemoveMessage} />
+        )}
         <CardContent className={classes.content}>
           {marketId &&
             acceptedStage &&

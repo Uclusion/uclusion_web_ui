@@ -19,7 +19,6 @@ import _ from 'lodash'
 import ReadOnlyQuillEditor from '../TextEditors/ReadOnlyQuillEditor'
 import CommentAdd from './CommentAdd'
 import {
-  ISSUE_TYPE,
   JUSTIFY_TYPE,
   QUESTION_TYPE,
   REPLY_TYPE,
@@ -59,7 +58,6 @@ import UsefulRelativeTime from '../TextFields/UseRelativeTime'
 import md5 from 'md5'
 import {
   addInvestible,
-  getInvestible,
   getMarketInvestibles
 } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import SubSection from '../../containers/SubSection/SubSection'
@@ -67,9 +65,8 @@ import CurrentVoting from '../../pages/Dialog/Decision/CurrentVoting'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import ProposedIdeas from '../../pages/Dialog/Decision/ProposedIdeas'
 import {
-  getBlockedStage,
-  getInCurrentVotingStage,
-  getProposedOptionsStage, getRequiredInputStage
+  getInCurrentVotingStage, getInReviewStage,
+  getProposedOptionsStage
 } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 import { formMarketAddInvestibleLink, navigate } from '../../utils/marketIdPathFunctions'
@@ -80,7 +77,7 @@ import YourVoting from '../../pages/Investible/Voting/YourVoting'
 import Voting from '../../pages/Investible/Decision/Voting'
 import { addParticipants } from '../../api/users'
 import ShareStoryButton from '../../pages/Investible/Planning/ShareStoryButton'
-import { changeInvestibleStageOnCommentChange } from '../../utils/commentFunctions'
+import { onCommentOpen } from '../../utils/commentFunctions'
 
 const useCommentStyles = makeStyles(
   theme => {
@@ -270,7 +267,14 @@ const useCommentStyles = makeStyles(
       },
       commentTypeContainer: {
         borderRadius: '4px 4px 0 0'
-      }
+      },
+      button: {
+        borderRadius: '4px',
+        fontSize: '14px',
+        fontWeight: 'bold',
+        margin: 8,
+        textTransform: 'capitalize',
+      },
   }
 },
 { name: "Comment" }
@@ -298,7 +302,8 @@ function Comment(props) {
   const intl = useIntl();
   const classes = useCommentStyles();
   const { id, comment_type: commentType, resolved, investible_id: investibleId, inline_market_id: inlineMarketId,
-  created_by: commentCreatedBy, notification_type: myNotificationType} = comment;
+  created_by: commentCreatedBy, notification_type: myNotificationType, creation_stage_id: createdStageId,
+  mentions } = comment;
   const presences = usePresences(marketId);
   const createdBy = useCommenter(comment, presences) || unknownPresence;
   const updatedBy = useUpdatedBy(comment, presences) || unknownPresence;
@@ -526,21 +531,9 @@ function Comment(props) {
   function reopen() {
     return reopenComment(marketId, id)
       .then((comment) => {
-        const inv = getInvestible(investibleState, investibleId) || {};
-        const { market_infos, investible: rootInvestible } = inv;
-        const [info] = (market_infos || []);
-        const { assigned, stage: currentStageId } = (info || {});
-        const blockingStage = getBlockedStage(marketStagesState, marketId) || {};
-        const requiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
-        const investibleRequiresInput = ((comment.comment_type === QUESTION_TYPE ||
-          comment.comment_type === SUGGEST_CHANGE_TYPE)
-          && (assigned || []).includes(myPresence.id)) && currentStageId !== blockingStage.id
-          && currentStageId !== requiresInputStage.id;
-        const investibleBlocks = (investibleId && comment.comment_type === ISSUE_TYPE)
-          && currentStageId !== blockingStage.id;
-        changeInvestibleStageOnCommentChange(investibleBlocks, investibleRequiresInput,
-          blockingStage, requiresInputStage, info, market_infos, rootInvestible, investibleDispatch);
-        addCommentToMarket(comment, commentsState, commentsDispatch, versionsDispatch);
+        onCommentOpen(investibleState, investibleId, marketStagesState, marketId, comment, investibleDispatch,
+          commentsState, commentsDispatch, versionsDispatch);
+        onDone();
         return EMPTY_SPIN_RESULT;
       });
   }
@@ -548,6 +541,7 @@ function Comment(props) {
     return removeComment(marketId, id)
       .then(() => {
         removeComments(commentsDispatch, marketId, [id]);
+        onDone();
         return EMPTY_SPIN_RESULT;
       });
   }
@@ -587,8 +581,9 @@ function Comment(props) {
   const { expanded: myRepliesExpanded } = myExpandedState;
   const myRepliesExpandedCalc = myRepliesExpanded === undefined ? _.isEmpty(highlightIds) ? undefined : true : myRepliesExpanded;
   const repliesExpanded = myRepliesExpandedCalc === undefined ? !comment.resolved || comment.reply_id : myRepliesExpandedCalc;
-  const overrideLabel = (marketType === PLANNING_TYPE && !investibleId && commentType === ISSUE_TYPE) ?
-    <FormattedMessage id="nonBlockIssuePresent" /> : undefined;
+  const isInReview = createdStageId === (getInReviewStage(marketStagesState, marketId) || {id: 'fake'}).id;
+  const overrideLabel = (marketType === PLANNING_TYPE && commentType === REPORT_TYPE && isInReview) ?
+    <FormattedMessage id="reviewReportPresent" /> : undefined;
   useEffect(() => {
     if (!_.isEmpty(highlightIds) && !myRepliesExpanded && commentType !== REPLY_TYPE) {
       // Open if need to highlight inside - user can close again
@@ -625,7 +620,7 @@ function Comment(props) {
             <Typography className={classes.timeElapsed} variant="body2">
               Created <UsefulRelativeTime value={Date.parse(comment.created_at) - Date.now()}/>
               {noAuthor &&
-              `${intl.formatMessage({ id: 'lastUpdatedBy' })} ${updatedBy.name}`}.
+              `${intl.formatMessage({ id: 'lastUpdatedBy' })} ${createdBy.name}`}.
               {comment.created_at < comment.updated_at && !resolved && (
                 <> Updated <UsefulRelativeTime value={Date.parse(comment.updated_at) - Date.now()}/></>
               )}
@@ -713,7 +708,17 @@ function Comment(props) {
                 onCancel={toggleEdit}
                 allowedTypes={allowedTypes}
                 myNotificationType={myNotificationType}
+                isInReview={isInReview}
               />
+            )}
+            {noAuthor && !editOpen && (
+              <Button
+                onClick={onDone}
+                className={classes.button}
+                style={{border: "1px solid black"}}
+              >
+                {intl.formatMessage({ id: 'cancel' })}
+              </Button>
             )}
           </Box>
         </CardContent>
@@ -810,7 +815,7 @@ function Comment(props) {
             )}
             {enableEditing && (
               <React.Fragment>
-                {commentType !== REPORT_TYPE && (
+                {(commentType !== REPORT_TYPE || (mentions || []).includes(myPresence.id)) && (
                   <Button
                     className={clsx(classes.action, classes.actionPrimary)}
                     color="primary"

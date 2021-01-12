@@ -26,7 +26,12 @@ import { updateComment } from '../../../api/comments'
 import { addCommentToMarket } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
-import { formMarketAddInvestibleLink, formMarketLink, navigate } from '../../../utils/marketIdPathFunctions'
+import {
+  formMarketAddInvestibleLink,
+  formMarketArchivesLink,
+  formMarketLink,
+  navigate
+} from '../../../utils/marketIdPathFunctions'
 import { ExpandLess } from '@material-ui/icons'
 import { getStages } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
@@ -105,6 +110,7 @@ function MarketTodos (props) {
   const {
     comments,
     marketId,
+    isInArchives
   } = props
   const classes = myClasses();
   const intl = useIntl();
@@ -112,18 +118,18 @@ function MarketTodos (props) {
   const [highlightedCommentState] = useContext(HighlightedCommentContext);
   const [expandedCommentState, expandedCommentDispatch] = useContext(ExpandedCommentContext);
   const [commentState, commentDispatch] = useContext(CommentsContext);
-  const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [index] = useContext(SearchIndexContext);
   const myExpandedState = expandedCommentState[marketId] || {};
   const { expanded: showTodos } = myExpandedState;
-  const [editCard, setEditCard] = useState(undefined);
-  const [createCard, setCreateCard] = useState(undefined);
-  const [editRedCard, setEditRedCard] = useState(undefined);
-  const [createRedCard, setCreateRedCard] = useState(undefined);
-  const [createYellowCard, setCreateYellowCard] = useState(undefined);
-  const [editYellowCard, setEditYellowCard] = useState(undefined);
+  const [editCard, setEditCard] = useState(false);
+  const [createCard, setCreateCard] = useState(false);
+  const [editRedCard, setEditRedCard] = useState(false);
+  const [createRedCard, setCreateRedCard] = useState(false);
+  const [createYellowCard, setCreateYellowCard] = useState(false);
+  const [editYellowCard, setEditYellowCard] = useState(false);
   const [showSelectTodos, setShowSelectTodos] = useState(false);
   const [checked, setChecked] = useState({});
   const [searchQuery, setSearchQuery] = useState(undefined);
@@ -177,7 +183,8 @@ function MarketTodos (props) {
   function getCards (commentsGetting, marketId, history, intl, setCard) {
     function setCardAndScroll(comment) {
       setCard(comment);
-      navigate(history, `${formMarketLink(marketId)}#editc${comment.id}`);
+      navigate(history,
+        `${isInArchives ? formMarketArchivesLink(marketId) : formMarketLink(marketId)}#editc${comment.id}`);
     }
     if (_.isEmpty(commentsGetting)) {
       return <div className={classes.grow} />
@@ -195,7 +202,7 @@ function MarketTodos (props) {
           item
           md={3}
           xs={12}
-          draggable
+          draggable={!operationRunning}
           onDragStart={onDragStart}
           onDragEnd={onDragEnd}
           className={classes.outlined}
@@ -340,7 +347,7 @@ function MarketTodos (props) {
                 </InputAdornment>
               ) : null,
             }}/>)}
-          createButton={ isSingleTodoSelected ? undefined :
+          createButton={ isSingleTodoSelected || isInArchives ? undefined :
             (<Button
               onClick={toggleShowSelectTodos}
               className={classes.actionSecondary}
@@ -364,10 +371,11 @@ function MarketTodos (props) {
           <div className={showTodos || showTodos === undefined ? classes.containerEmpty : classes.containerHidden }>
             {createRedCard && (
               <CommentAdd
-                key="CommentAdd"
+                key="CommentAddRed"
                 type={TODO_TYPE}
                 marketId={marketId}
                 onSave={onCreateRed}
+                onDone={onCreateRed}
                 defaultNotificationType="RED"
                 isStory={false}
               />
@@ -381,7 +389,7 @@ function MarketTodos (props) {
                   onDone={() => setEditRedCard(undefined)}
                   comments={comments}
                   allowedTypes={[TODO_TYPE]}
-                  editOpenDefault
+                  editOpenDefault={!isInArchives}
                   noAuthor
                 />
               </div>
@@ -392,11 +400,12 @@ function MarketTodos (props) {
               titleIcon={<Chip label={`${redComments.length}`} color="primary" size='small'
                                className={classes.chipStyle} />}
               helpTextId="immediateSectionHelp"
-              actionButton={
+              actionButton={ isInArchives ? null :
                 (<ExpandableAction
                   icon={<AddIcon htmlColor="white"/>}
                   label={intl.formatMessage({ id: 'createRedExplanation' })}
                   onClick={onCreateRed}
+                  disabled={createRedCard}
                   tipPlacement="top-end"
                 />)}
             >
@@ -412,10 +421,11 @@ function MarketTodos (props) {
             {!_.isEmpty(redComments) && (<div style={{ paddingBottom: '15px' }}/>)}
             {createYellowCard && (
               <CommentAdd
-                key="CommentAdd"
+                key="CommentAddYellow"
                 type={TODO_TYPE}
                 marketId={marketId}
                 onSave={onCreateYellow}
+                onDone={onCreateYellow}
                 defaultNotificationType="YELLOW"
                 isStory={false}
               />
@@ -429,7 +439,7 @@ function MarketTodos (props) {
                   onDone={() => setEditYellowCard(undefined)}
                   comments={comments}
                   allowedTypes={[TODO_TYPE]}
-                  editOpenDefault
+                  editOpenDefault={!isInArchives}
                   noAuthor
                 />
               </div>
@@ -440,11 +450,12 @@ function MarketTodos (props) {
               titleIcon={<Chip label={`${yellowComments.length}`} color="primary" size='small'
                                className={classes.chipStyle} />}
               helpTextId="ableSectionHelp"
-              actionButton={
+              actionButton={ isInArchives ? null :
                 (<ExpandableAction
                   icon={<AddIcon htmlColor="black" />}
                   label={intl.formatMessage({ id: 'createYellowExplanation' })}
                   onClick={onCreateYellow}
+                  disabled={createYellowCard}
                   tipPlacement="top-end"
                 />)}
             >
@@ -460,9 +471,10 @@ function MarketTodos (props) {
             {!_.isEmpty(yellowComments) && (<div style={{ paddingBottom: '15px' }}/>)}
             {createCard && (
               <CommentAdd
-                key="CommentAdd"
+                key="CommentAddBlue"
                 type={TODO_TYPE}
                 marketId={marketId}
+                onDone={onCreate}
                 onSave={onCreate}
                 defaultNotificationType="BLUE"
                 isStory={false}
@@ -477,7 +489,7 @@ function MarketTodos (props) {
                   onDone={() => setEditCard(undefined)}
                   comments={comments}
                   allowedTypes={[TODO_TYPE]}
-                  editOpenDefault
+                  editOpenDefault={!isInArchives}
                   noAuthor
                 />
               </div>
@@ -488,11 +500,12 @@ function MarketTodos (props) {
               titleIcon={<Chip label={`${blueComments.length}`} color="primary" size='small'
                                className={classes.chipStyle} />}
               helpTextId="convenientSectionHelp"
-              actionButton={
+              actionButton={ isInArchives ? null :
                 (<ExpandableAction
                   icon={<AddIcon htmlColor="white"/>}
                   label={intl.formatMessage({ id: 'createBlueExplanation' })}
                   onClick={onCreate}
+                  disabled={createCard}
                   tipPlacement="top-end"
                 />)}
             >

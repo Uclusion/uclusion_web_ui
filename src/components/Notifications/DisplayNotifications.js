@@ -1,12 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import _ from 'lodash';
+import React from 'react';
 import PropTypes from 'prop-types';
-
 import { Card, List, ListItem, Popper, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 import { useIntl } from 'react-intl';
 import NotificationMessageDisplay from './NotificationMessageDisplay';
-
 import { DECISION_TYPE, PLANNING_TYPE } from '../../constants/markets';
 import GavelIcon from '@material-ui/icons/Gavel';
 import AgilePlanIcon from '@material-ui/icons/PlaylistAdd';
@@ -97,8 +94,9 @@ function processDuplicates(page) {
     } else {
       const { link_type: linkType, link: firstLink, link_multiple: linkMultiple } = first;
       let link = firstLink;
-      if (linkType.includes('INVESTIBLE')) {
-        // We do not want to go inside the investible for new options or reviews as you won't see the others
+      if (linkType ==='INVESTIBLE' || linkType === 'INLINE_WORKSPACE_INVESTIBLE'
+        || linkType === 'INLINE_STORY_INVESTIBLE') {
+        // Do not go inside the investible for new options, votes needed or reviews as you won't see the others
         link = linkMultiple;
       }
       items.push({ ...first, link, lenDuplicates });
@@ -173,17 +171,9 @@ function createMarketView (messages) {
 }
 
 function DisplayNotifications (props) {
-  const { open, setOpen, messages, titleId, level } = props;
+  const { open, setOpen, messages, titleId, level, anchorEl } = props;
   const intl = useIntl();
   const classes = useStyles();
-  const [anchorEl, setAnchorEl] = useState(null);
-  const anchorElementId = 'notifications-fab';
-
-  useEffect(() => {
-    if (_.isEmpty(anchorEl)) {
-      setAnchorEl(document.getElementById(anchorElementId));
-    }
-  }, [setAnchorEl, anchorEl, anchorElementId]);
 
   function zeroResults () {
     setOpen(false);
@@ -249,7 +239,7 @@ function DisplayNotifications (props) {
       case BLUE_LEVEL:
         return classes.informationalTitleBar;
       default:
-        return classes.titleBar;
+        return classes.criticalTitleBar;
     }
   }
 

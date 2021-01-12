@@ -68,7 +68,7 @@ function Notifications (props) {
   const [inside, setInside] = useState(false);
   const [pegLeft, setPegLeft] = useState(false);
   const [pegLeftTimer, setPegLeftTimer] = useState(undefined);
-
+  const [anchorEl, setAnchorEl] = useState(null);
   const classes = useStyles();
 
 
@@ -112,7 +112,8 @@ function Notifications (props) {
     }
   }
 
-  function onEnter () {
+  function onEnter(event) {
+    setAnchorEl(event.currentTarget);
     setActive(level);
     setOpen(true);
     setInside(true);
@@ -156,7 +157,13 @@ function Notifications (props) {
       >
         {getIcon()}
       </Fab>
-      <DisplayNotifications level={level} messages={messages} open={amOpenAndActive} setOpen={setOpen} titleId={getTitleId()}/>
+      <DisplayNotifications
+        level={level}
+        messages={messages}
+        open={amOpenAndActive}
+        setOpen={setOpen}
+        anchorEl={anchorEl}
+        titleId={getTitleId()}/>
     </div>
   );
 }

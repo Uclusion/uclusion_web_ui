@@ -5,11 +5,10 @@ import { pushMessage } from '../../utils/MessageBusUtils'
 import { NOTIFICATIONS_CHANNEL } from './NotificationsContext'
 import { HIGHLIGHTED_COMMENT_CHANNEL } from '../HighlightingContexts/highligtedCommentContextMessages'
 import { HIGHLIGHTED_VOTING_CHANNEL } from '../HighlightingContexts/highligtedVotingContextMessages'
-import { deleteMessage } from '../../api/users'
-import { getFullLink } from '../../components/Notifications/Notifications'
 import { NO_PIPELINE_TYPE, USER_POKED_TYPE } from '../../constants/notifications'
 import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
+import { decomposeMarketPath } from '../../utils/marketIdPathFunctions'
 
 export const NOTIFICATIONS_CONTEXT_NAMESPACE = 'notifications';
 const UPDATE_MESSAGES = 'UPDATE_MESSAGES';
@@ -49,7 +48,6 @@ export function initializeState (newState) {
   };
 }
 
-
 /**
  * Data structure for storing messages is
  * state : {
@@ -59,121 +57,59 @@ export function initializeState (newState) {
  */
 
 /**
- * Returns stored messages for a page which
- * is just a user action (not pertianing to a market)
- * @param messages
- * @param action
- * @returns {*[]|*}
- */
-function getStoredMessagesForActionPage(messages, action) {
-  switch(action){
-    case 'notificationPreferences':
-      return messages.filter((message) => message.pokeType === 'slack_reminder');
-    case 'upgrade':
-      return messages.filter((message) => message.pokeType === 'upgrade_reminder');
-    default:
-      return [];
-  }
-}
-
-/**
- * Gets all messages for that pertain to a particular market page
- * @param messages
- * @param page
- * @returns {*|*[]}
- */
-function getStoredMessagesForMarketPage(messages, page) {
-  const { marketId, investibleId } = page;
-  // it is assumed a page for a market will have an undefined investible id
-  // and that a store message for the market will also
-  return messages.filter((message) => message.marketId === marketId && message.investibleId === investibleId);
-}
-
-/**
  * Returns the stored message for the given page
  * @param state
  * @param page
  * @returns {*|*[]|[]}
  */
 function getStoredMessagesForPage(state, page) {
-  const { action } = page;
   const messages = (state || {messages: []}).messages || emptyMessagesState;
-  if (action === 'dialog') {
-    return getStoredMessagesForMarketPage(messages, page);
-  }
-  return getStoredMessagesForActionPage(messages, action);
+  const { marketId, investibleId } = page;
+  // it is assumed a page for a market will have an undefined investible id
+  // and that a store message for the market will also
+  return messages.filter((message) => {
+    const { market_id: messageMarketId, investible_id: messageInvestibleId, link_multiple: linkMultiple } = message;
+    if (messageMarketId === marketId && messageInvestibleId === investibleId) {
+      return true;
+    }
+    if (!linkMultiple) {
+      return false;
+    }
+    const urlParts = new URL(linkMultiple, 'https://blah');
+    // A link multiple may contain an alternate market id and investible id for instance for decision options
+    const { marketId: linkMarketId, investibleId: linkInvestibleId } = decomposeMarketPath(urlParts.pathname);
+    return marketId === linkMarketId && investibleId === linkInvestibleId;
+  });
 }
 
-/**
- * Removes user messages from list that pertain to a particular
- * action
- * @param messages
- * @param action
- * @returns {*}
- */
-function removeStoredMessagesForAction(messages, action) {
-  switch (action){
-    case 'notificationPreferences':
-      return messages.filter((message) => message.pokeType !== 'slack_reminder');
-    case 'upgrade':
-      return messages.filter((message) => message.pokeType !== 'upgrade_reminder');
-    default:
-      return messages;
-  }
-}
-
-/** Removes messages from the state that are for a
- * page pertaining to a market, or a subpage of a market
+/** Stores recently viewed in the state
  * @param state
  * @param page
  * @returns {{marketMessages: *}|*}
  */
-function removeStoredMessagesForMarketPage (state, page) {
+function processRecentlyViewed(state, page) {
   const { marketId, investibleId } = page;
   const messages = (state || {}).messages || emptyMessagesState;
   const { recent } = state;
-  const removed = messages.filter((message) =>
-    message.marketId === marketId && message.investibleId === investibleId && !message.commentId);
-  const removedMassaged = (removed || []).map((item) => {
-    return { ...item, link: getFullLink(item), viewedAt: new Date()};
-  });
-  const removedMassagedFiltered = (removedMassaged || []).filter((item) => item.aType !== NO_PIPELINE_TYPE
-    && item.aType !== USER_POKED_TYPE)
+  const viewed = messages.filter((message) => message.market_id === marketId && message.investible_id === investibleId);
+  const viewedMassaged = (viewed || []).map((item) => { return { ...item, viewedAt: new Date()}; });
+  const viewedMassagedFiltered = (viewedMassaged || []).filter((item) => item.type !== NO_PIPELINE_TYPE
+    && item.type !== USER_POKED_TYPE)
   const newState = {
     ...state,
-    recent: _.unionBy(removedMassagedFiltered || [], recent || [], 'link'),
+    recent: _.unionBy(viewedMassagedFiltered || [], recent || [], 'link'),
   }
-  // TODO for now stop removing comments and UNREAD and eventually all on new system
-  return storeMessagesInState(newState,
-    messages.filter((message) => message.commentId || message.aType === 'UNREAD' || message.aType === 'UNREAD_VOTE' ||
-      message.aType === 'UNREAD_SWIM' || (message.marketId !== marketId || message.investibleId !== investibleId)));
-}
-
-/**
- * Removes messages from the state for any page in the system
- * even those that don't pertain to markets (e.g. Direct Messages,
- * or upgrade notifications etc)
- * @param state
- * @param page
- */
-function removeStoredMessagesForPage(state, page) {
-  const { action } = page;
-  // all market pages are under /dialog
-  if (action === 'dialog') {
-    return removeStoredMessagesForMarketPage(state, page);
-  }
-  const messages = (state || {}).messages || emptyMessagesState;
-  return storeMessagesInState(state, removeStoredMessagesForAction(messages, action))
+  return storeMessagesInState(newState, messages);
 }
 
 /**
  * Sends messages to the highlighting system
  * to tell it to highlight sections of the page
  * pertaining to the messages
- * @param messagesForPage
  */
-function processHighlighting(messagesForPage) {
-  messagesForPage.forEach((message) => {
+function processHighlighting(state, page) {
+  const messagesForPage = getStoredMessagesForPage(state, page);
+  (messagesForPage || []).forEach((message) => {
     const {
       link_type: linkType
     } = message;
@@ -184,32 +120,6 @@ function processHighlighting(messagesForPage) {
       pushMessage(HIGHLIGHTED_COMMENT_CHANNEL, message);
     }
   });
-}
-
-/** Functions that mutate the state */
-/**
- * The messages for the current page need to
- * be toasted, highlighted, reported to the server, etc.
- * @param pageMessages
- */
-function handleMessagesForPage(pageMessages) {
-  if (!_.isEmpty(pageMessages)) {
-    // process highlighting
-    processHighlighting(pageMessages);
-    const notAssociated = pageMessages.filter((message) => {
-      const { comment_id: commentId, type: aType } = message;
-      //TODO eventually do not page delete anything - for now put comments and UNREAD on new system
-      return !commentId && aType !== 'UNREAD' && aType !== 'UNREAD_VOTE' && aType !== 'UNREAD_SWIM';
-    })
-    if (!_.isEmpty(notAssociated)) {
-      // and tell the backend we've processed them immediately
-      // the backend only needs the first message to figure out all of them
-      // have been viewed
-      const firstMessage = notAssociated[0];
-      deleteMessage(firstMessage)
-        .catch((error) => console.error(error)); // not much to do other than log it.
-    }
-  }
 }
 
 /**
@@ -223,7 +133,7 @@ function handleMessagesForPage(pageMessages) {
 function processPageChange (state, action) {
   const { page } = action;
   if (_.isEmpty(page)) {
-    return state; // send me a bad page I ingore you
+    return state; // send me a bad page I ignore you
   }
   const { isEntry } = page;
   if (!isEntry) {
@@ -233,17 +143,14 @@ function processPageChange (state, action) {
       page: undefined
     };
   }
-  const messagesForPage = getStoredMessagesForPage(state, page);
+  processHighlighting(state, page);
   // first compute what the new messages will look like
-  const newMessageState = removeStoredMessagesForPage(state, page);
+  const newMessageState = processRecentlyViewed(state, page);
   // then update the page to the current page
-  const newState = {
+  return {
     ...newMessageState,
     page
   };
-  // now do all the magic for the messages we want to display
-  handleMessagesForPage(messagesForPage);
-  return newState;
 }
 
 function refreshRecentMessages(state) {
@@ -292,20 +199,12 @@ function storeMessagesInState(state, messagesToStore) {
 function doUpdateMessages (state, action) {
   const { messages } = action;
   const massagedMessages = getMassagedMessages(messages);
-  // extract any messages for this page right now
   const { page } = state;
   if (_.isEmpty(page)) {
     return storeMessagesInState(state, massagedMessages);
   }
-  // we can reuse the code for finding and removing page messages in the store, if we make the new
-  // incoming messages look like they came from the store
-  const pageMessages = getStoredMessagesForPage({messages: massagedMessages}, page);
-  // the messages to store are the ones we can't immediately handle on the current page
-  const newStore = removeStoredMessagesForPage(storeMessagesInState(state, massagedMessages), page);
-  // now do all the magic for the messages we want to display
-  handleMessagesForPage(pageMessages);
-  // last compute the new state
-  return newStore;
+  processHighlighting({messages: massagedMessages}, page);
+  return storeMessagesInState(state, massagedMessages);
 }
 
 function removeSingleMessage(state, action) {

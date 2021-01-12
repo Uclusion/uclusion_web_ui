@@ -153,7 +153,7 @@ const messages = defineMessages({
   // Share story
   shareButtonExplanation: 'Share a read only link',
   shareButtonTitle: 'Share',
-  inviteLinkerStory: 'For non-collaborators this link will also grant read only access to this workspace.',
+  inviteLinkerStory: 'For non-collaborators this link will also grant read only access.',
 
   // Support
   supportInfoText: 'Create bugs (but not feature requests) in <a>Uclusion issues</a> or send an email to <b>support</b> which includes the version and user ID above.',
@@ -375,6 +375,7 @@ const messages = defineMessages({
   commentAddSuggestDefault: 'Your suggestion...',
   commentAddReplyDefault: 'Your reply...',
   commentAddReportDefault: 'Your progress report...',
+  commentAddReviewReportDefault: 'Your review report...',
   commentAddSaveLabel: 'Save',
   commentAddCancelLabel: 'Clear',
   commentAddSelectIssueLabel: 'Please select a type',
@@ -382,7 +383,6 @@ const messages = defineMessages({
   issueWarningInvestible: 'Opening an issue will halt voting on this option.',
   issueWarningPlanning: 'Opening an issue moves this story to blocked and stops new approval.',
   todoWarningPlanning: 'Opening a TODO prevents this story from changing stages until resolved.',
-  todoWarningDone: 'Opening a TODO moves this story to Ready to Start.',
 
   // CommentBox
   commentIconRaiseIssueLabel: 'Raise Issue',
@@ -860,11 +860,13 @@ const messages = defineMessages({
   questionPresent: 'Question',
   suggestPresent: 'Suggestion',
   reportPresent: 'Progress Report',
+  reviewReportPresent: 'Review Report',
   todoPresent: 'TODO',
   issueTip: 'Use to halt an option or story until resolved.',
   questionTip: 'Question',
   suggestTip: 'Suggestion',
   reportTip: 'After estimated completion date use to report daily status.',
+  reportReviewTip: 'Report made after review of this story. Required reviewers must create.',
   todoTip: 'Use to insure this item is done in this story.',
   redTip: 'Alerts team with highest priority notification',
   blueTip: 'Does not send a notification but does highlight new',

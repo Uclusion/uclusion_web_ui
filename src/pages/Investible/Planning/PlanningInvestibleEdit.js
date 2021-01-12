@@ -51,7 +51,7 @@ function PlanningInvestibleEdit(props) {
   const marketInfo = getMarketInfo(fullInvestible, marketId) || {};
   const { assigned: marketAssigned, required_approvers: requiredApprovers,
     required_reviews: requiredReviewers } = marketInfo;
-  const initialAssigned = isAssign ? marketAssigned : isReview ? requiredReviewers : requiredApprovers;
+  const initialAssigned = (isAssign ? marketAssigned : isReview ? requiredReviewers : requiredApprovers) || [];
   const [assignments, setAssignments] = useState(initialAssigned);
   const [open, setOpen] = useState(false);
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -86,21 +86,21 @@ function PlanningInvestibleEdit(props) {
       marketId,
       investibleId: myInvestible.id
     };
-    if (isApprove) {
+    if (isAssign) {
       updateInfo.assignments = assignments;
     }
     if (isReview) {
-      updateInfo.required_reviews = assignments;
+      updateInfo.requiredReviewers = assignments;
     }
     if (isApprove) {
-      updateInfo.required_approvers = assignments;
+      updateInfo.requiredApprovers = assignments;
     }
     const assignmentChanged = !_.isEmpty(_.xor(assignments, initialAssigned));
     if (assignmentChanged) {
       return updateInvestible(updateInfo)
         .then((investible) => {
           let fullInvestible = investible;
-          if (isApprove && _.isEmpty(marketAssigned)) {
+          if (isAssign && _.isEmpty(marketAssigned)) {
             const comments = getMarketComments(commentsState, marketId);
             // Going from unassigned to assigned moves to in voting, blocked or requires input
             const unresolvedComments = comments.filter(comment => comment.investible_id === myInvestible.id &&
@@ -152,6 +152,7 @@ function PlanningInvestibleEdit(props) {
             <AssignmentList
               marketId={marketId}
               previouslyAssigned={initialAssigned}
+              cannotBeAssigned={marketAssigned}
               onChange={handleAssignmentChange}
               listHeader={isReview ? 'reviewListHeader' : 'approveListHeader'}
             />
@@ -174,7 +175,7 @@ function PlanningInvestibleEdit(props) {
             color="primary"
             className={classes.actionPrimary}
             onClick={handleSave}
-            disabled={!validForm}
+            disabled={_.isEmpty(_.xor(assignments, initialAssigned))}
             onSpinStop={onSave}
             hasSpinChecker
           >
@@ -201,6 +202,7 @@ function PlanningInvestibleEdit(props) {
             marketId={marketId}
             previouslyAssigned={initialAssigned}
             onChange={handleAssignmentChange}
+            checkMeByDefault
           />
         </div>
       </CardContent>

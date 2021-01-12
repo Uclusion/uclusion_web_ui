@@ -28,11 +28,9 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { getFullStage, getStages } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
-import { processTextAndFilesForSave } from '../../../api/files'
-import { removeComment } from '../../../api/comments'
+import { moveComments } from '../../../api/comments'
 import {
-  getMarketComments,
-  removeComments,
+  getMarketComments, refreshMarketComments,
   resolveInvestibleComments
 } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
@@ -141,27 +139,21 @@ function PlanningIdeas(props) {
     const fromComment = comments.find((comment) => comment.id === commentId);
     if (fromComment) {
       setOperationRunning(true);
-      const {
-        uploadedFiles: filteredUploads,
-        text: tokensRemoved,
-      } = processTextAndFilesForSave(undefined, fromComment.body);
-      const processedDescription = tokensRemoved ? tokensRemoved : ' ';
       const name = nameFromDescription(fromComment.body);
       const addInfo = {
         marketId,
-        uploadedFiles: filteredUploads,
-        description: processedDescription,
         name,
         assignments: [presenceId],
       };
-      if (fromComment.notification_type) {
-        addInfo.labelList = [intl.formatMessage({ id: `notificationLabel${fromComment.notification_type}` })];
-      }
       addPlanningInvestible(addInfo).then((inv) => {
-        addInvestible(invDispatch, diffDispatch, inv);
-        return removeComment(marketId, commentId)}).then(() => {
-          removeComments(commentsDispatch, marketId, [commentId]);
-          setOperationRunning(false);
+        const { investible } = inv;
+        return moveComments(marketId, investible.id, [commentId])
+            .then((movedComments) => {
+              const comments = getMarketComments(commentsState, marketId);
+              refreshMarketComments(commentsDispatch, marketId, [...movedComments, ...comments]);
+              addInvestible(invDispatch, diffDispatch, inv);
+              setOperationRunning(false);
+            });
         });
     }
   }
@@ -310,12 +302,16 @@ function PlanningIdeas(props) {
         if (!operationRunning) {
           event.dataTransfer.dropEffect = "move";
           document.getElementById(elementId).className = classes.containerGreen;
-          setBeingDraggedHack({ id, stageId, previousElementId:elementId, originalElementId });
+          if (!_.isEmpty(beingDraggedHack)) {
+            setBeingDraggedHack({ id, stageId, previousElementId: elementId, originalElementId });
+          }
         }
       } else {
         event.dataTransfer.dropEffect = "none";
         document.getElementById(elementId).className = classes.containerRed;
-        setBeingDraggedHack({ id, stageId, previousElementId:elementId, originalElementId });
+        if (!_.isEmpty(beingDraggedHack)) {
+          setBeingDraggedHack({ id, stageId, previousElementId: elementId, originalElementId });
+        }
       }
     }
   }
@@ -544,7 +540,8 @@ function Stage(props) {
                 marketInfo={marketInfo}
                 updatedText={updatedText}
                 showWarning={isReview ? checkReviewWarning(investible, comments) :
-                  isVoting ? checkReviewWarning(investible, comments) || checkVotingWarning(investible.id, marketPresences) : false}
+                  isVoting ? checkReviewWarning(investible, comments, true) ||
+                    checkVotingWarning(investible.id, marketPresences) : false}
                 showCompletion={showCompletion}
               />
             </li>

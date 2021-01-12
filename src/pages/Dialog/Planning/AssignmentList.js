@@ -39,6 +39,8 @@ function AssignmentList(props) {
     marketId,
     onChange,
     previouslyAssigned,
+    cannotBeAssigned,
+    checkMeByDefault,
     listHeader
   } = props;
 
@@ -59,7 +61,10 @@ function AssignmentList(props) {
         [id]: true,
       }), {});
     }
-    return { [userId]: true };
+    if (checkMeByDefault) {
+      return { [userId]: true };
+    }
+    return {};
   }
 
   const participantEntries = getSortedPresenceWithAssignable();
@@ -82,7 +87,7 @@ function AssignmentList(props) {
     return sortedParticipants.map((presence) => {
       return {
         ...presence,
-        assignable: presence.following,
+        assignable: (presence.following && !cannotBeAssigned.includes(presence.id)),
       };
     });
   }
@@ -201,14 +206,18 @@ AssignmentList.propTypes = {
   marketId: PropTypes.string.isRequired,
   listHeader: PropTypes.string,
   previouslyAssigned: PropTypes.arrayOf(PropTypes.string),
+  cannotBeAssigned: PropTypes.arrayOf(PropTypes.string),
   onChange: PropTypes.func,
+  checkMeByDefault: PropTypes.bool
 };
 
 AssignmentList.defaultProps = {
+  checkMeByDefault: false,
   listHeader: 'assignmentListHeader',
   onChange: () => {
   },
   previouslyAssigned: [],
+  cannotBeAssigned: []
 };
 
 export default AssignmentList;

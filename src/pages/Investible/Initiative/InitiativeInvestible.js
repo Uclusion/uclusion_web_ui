@@ -306,10 +306,8 @@ function InitiativeInvestible(props) {
                   {intl.formatMessage({ id: "draft" })}
                 </Typography>
               )}
-              {myBeingEdited && (
-                <InvestibleBodyEdit hidden={hidden} marketId={marketId} investibleId={investibleId}
-                                    setBeingEdited={mySetBeingEdited} />
-              )}
+              <InvestibleBodyEdit hidden={hidden} marketId={marketId} investibleId={investibleId}
+                                  setBeingEdited={mySetBeingEdited} beingEdited={myBeingEdited} />
               {!myBeingEdited && (
                 <>
                   <Typography className={isEditableByUser() ? classes.titleEditable : classes.title} variant="h3" component="h1"

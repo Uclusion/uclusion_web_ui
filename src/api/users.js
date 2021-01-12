@@ -1,6 +1,5 @@
 import { getAccountClient, getMarketClient } from './uclusionClient'
 import { toastErrorAndThrow } from '../utils/userMessage'
-import { USER_POKED_TYPE } from '../constants/notifications'
 
 export function unbanUser(marketId, userId) {
   return getMarketClient(marketId)
@@ -14,23 +13,12 @@ export function banUser(marketId, userId) {
     .catch((error) => toastErrorAndThrow(error, 'errorBanUserFailed'));
 }
 
-export function deleteMessage(message) {
-  const { market_id: marketId, type_object_id: typeObjectId, type: aType, pokeType, investible_id: investibleId } = message;
-  const objectId = typeObjectId.split('_').pop();
-  if (aType === USER_POKED_TYPE) {
-    return getAccountClient()
-      .then((client) => client.users.removeNotification(objectId, aType, pokeType));
-  }
-  return getMarketClient(marketId)
-    .then((client) => client.users.removePageNotifications(investibleId));
-}
-
 export function deleteSingleMessage(message) {
-  const { market_id: marketId, type_object_id: typeObjectId, type: aType } = message;
-  const objectId = typeObjectId.split('_').pop();
-  // TODO re-use poke one till have real api
-  return getMarketClient(marketId)
-    .then((client) => client.users.removeNotification(objectId, aType, marketId));
+  const { market_id: marketId, type_object_id: typeObjectId } = message;
+  if (marketId === 'slack_reminder') {
+    return getAccountClient().then((client) => client.users.removeNotification(typeObjectId));
+  }
+  return getMarketClient(marketId).then((client) => client.users.removeNotification(typeObjectId));
 }
 
 export function applyPromoCode(promoCode) {

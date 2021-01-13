@@ -23,7 +23,6 @@ function NotificationMessageDisplay (props) {
     market_name: marketName,
     type
   } = message;
-  console.error(message);
   const dismissable = type === UNREAD_TYPE && level !== RED_LEVEL;
   const history = useHistory();
   const color = level === RED_LEVEL ? '#ff9b9b' : level === YELLOW_LEVEL ? '#e8e9a9' : '#85bddb';

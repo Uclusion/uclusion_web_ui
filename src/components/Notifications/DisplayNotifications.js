@@ -197,13 +197,15 @@ function DisplayNotifications (props) {
   function getInvestibleResult (investible) {
     const IconComponent = investible.typeIcon;
     return (
-      <>
+      <React.Fragment key={investible.id}>
         <Typography style={{ paddingLeft: '1rem', fontStyle: 'italic' }}>
-          <IconComponent style={{ marginRight: '6px', height: '16px', width: '16px' }}/>{investible.name}</Typography>
+          <IconComponent style={{ marginRight: '6px', height: '16px', width: '16px' }}/>
+          {investible.name}
+        </Typography>
         <div style={{ paddingLeft: '1rem' }}>
           {investible.items.map(investibleItem => getItemResult(investibleItem))}
         </div>
-      </>
+      </React.Fragment>
     );
   }
 
@@ -214,6 +216,7 @@ function DisplayNotifications (props) {
       return (
         <Card
           raised
+          key={market.id}
           className={classes.messageItem}
         >
           <Typography style={{ paddingRight: '1rem', paddingLeft: '1rem', fontStyle: 'italic' }}>

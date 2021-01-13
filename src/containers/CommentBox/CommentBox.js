@@ -31,7 +31,6 @@ function CommentBox(props) {
     return { ...root, rootUpdatedAt: findGreatestUpdatedAt([root], comments) };
   });
   const sortedRoots = _.orderBy(withRootUpdatedAt, ['resolved', 'rootUpdatedAt'], ['asc', 'desc']);
-  console.error(sortedRoots);
 
   function getCommentCards() {
     return sortedRoots.map(comment => {

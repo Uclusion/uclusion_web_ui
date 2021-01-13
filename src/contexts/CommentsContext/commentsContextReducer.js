@@ -3,6 +3,7 @@ import LocalForageHelper from '../../utils/LocalForageHelper'
 import { COMMENTS_CHANNEL, COMMENTS_CONTEXT_NAMESPACE, MEMORY_COMMENTS_CONTEXT_NAMESPACE } from './CommentsContext'
 import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
+import { REPORT_TYPE } from '../../constants/comments';
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const REMOVE_MARKETS_COMMENT = 'REMOVE_MARKETS_COMMENT';
@@ -55,15 +56,34 @@ export function removeMarketsComments(marketIds) {
 // Required for quick add because version of parent comment has not changed
 function doOverwriteMarketComments(state, action) {
   const { marketId, comments } = action;
+  // progress reports are considered resolved by the front end when they
+  // are 24 hours old
+  const OneDay = 60*60*24*1000;
+  function isResolved(comment) {
+    const { created_at, comment_type, resolved } = comment;
+    if (!created_at) {
+      console.error('no created at');
+      return false;
+    }
+    if (comment_type === REPORT_TYPE) {
+      const now = Date.now();
+      const expires = created_at.getTime() + OneDay;
+      return now >= expires;
+    }
+    return resolved;
+  }
+
+  const progressResolvedComments = comments.map((comment) => ({...comment, resolved: isResolved(comment)}));
+
   const { initializing } = state;
   if (initializing) {
     return {
-      [marketId]: comments,
+      [marketId]: progressResolvedComments,
     };
   }
   return {
     ...state,
-    [marketId]: comments,
+    [marketId]: progressResolvedComments,
   };
 }
 

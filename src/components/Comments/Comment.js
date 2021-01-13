@@ -302,10 +302,8 @@ function Comment(props) {
   const intl = useIntl();
   const classes = useCommentStyles();
   const { id, comment_type: commentType, investible_id: investibleId, inline_market_id: inlineMarketId,
-  created_by: commentCreatedBy, notification_type: myNotificationType, creation_stage_id: createdStageId,
+  created_by: commentCreatedBy, resolved, notification_type: myNotificationType, creation_stage_id: createdStageId,
   mentions } = comment;
-  // progress reports are considered resolved if they are > 24 hours
-  const resolved = isResolved();
   const presences = usePresences(marketId);
   const createdBy = useCommenter(comment, presences) || unknownPresence;
   const updatedBy = useUpdatedBy(comment, presences) || unknownPresence;
@@ -321,7 +319,7 @@ function Comment(props) {
   const myPresence = presences.find((presence) => presence.current_user) || {};
   const inArchives = !activeMarket || !myPresence.following;
   const replies = comments.filter(comment => comment.reply_id === id);
-  const sortedReplies = _.sortBy(replies, [(item) => Date.parse(item.created_at)]);
+  const sortedReplies = _.sortBy(replies, "created_at");
   const [highlightedCommentState, highlightedCommentDispatch] = useContext(HighlightedCommentContext);
   const [expandedCommentState, expandedCommentDispatch] = useContext(ExpandedCommentContext);
   const [replyOpen, setReplyOpen] = useState(false);
@@ -346,21 +344,6 @@ function Comment(props) {
           addMarketToStorage(marketsDispatch, undefined, market);
         });
     }
-  }
-
-  function isResolved() {
-    if (!comment.created_at) {
-      return false;
-    }
-    // progress reports are considered resolved if they
-    // are older than 24 hours
-    const OneDay = 60*60*24*1000;
-    if (commentType === REPORT_TYPE) {
-      const now = Date.now();
-      const parsed = Date.parse(comment.created_at);
-      return now >= (parsed + OneDay);
-    }
-    return comment.resolved;
   }
 
   function allowSuggestionVote() {
@@ -635,14 +618,14 @@ function Comment(props) {
           )}
           {commentType !== JUSTIFY_TYPE && commentType !== REPLY_TYPE && (
             <Typography className={classes.timeElapsed} variant="body2">
-              Created <UsefulRelativeTime value={Date.parse(comment.created_at) - Date.now()}/>
+              Created <UsefulRelativeTime value={comment.created_at - Date.now()}/>
               {noAuthor &&
               `${intl.formatMessage({ id: 'lastUpdatedBy' })} ${createdBy.name}`}.
               {comment.created_at < comment.updated_at && !resolved && (
-                <> Updated <UsefulRelativeTime value={Date.parse(comment.updated_at) - Date.now()}/></>
+                <> Updated <UsefulRelativeTime value={comment.updated_at - Date.now()}/></>
               )}
               {resolved && (
-                <> Resolved <UsefulRelativeTime value={Date.parse(comment.updated_at) - Date.now()}/></>
+                <> Resolved <UsefulRelativeTime value={comment.updated_at - Date.now()}/></>
               )}
               {comment.created_at < comment.updated_at && !displayUpdatedBy && (
                 <>.</>

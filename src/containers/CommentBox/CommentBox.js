@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { Grid } from '@material-ui/core';
 import Comment from '../../components/Comments/Comment';
+import { REPORT_TYPE } from '../../constants/comments';
 
 function findGreatestUpdatedAt(roots, comments, rootUpdatedAt) {
   let myRootUpdatedAt = rootUpdatedAt;
@@ -25,12 +26,12 @@ function findGreatestUpdatedAt(roots, comments, rootUpdatedAt) {
 
 function CommentBox(props) {
   const { comments, marketId, allowedTypes } = props;
-
   const threadRoots = comments.filter(comment => !comment.reply_id);
   const withRootUpdatedAt = threadRoots.map((root) => {
     return { ...root, rootUpdatedAt: findGreatestUpdatedAt([root], comments) };
   });
   const sortedRoots = _.orderBy(withRootUpdatedAt, ['resolved', 'rootUpdatedAt'], ['asc', 'desc']);
+  console.error(sortedRoots);
 
   function getCommentCards() {
     return sortedRoots.map(comment => {

@@ -194,10 +194,10 @@ function DisplayNotifications (props) {
     );
   }
 
-  function getInvestibleResult (investible) {
+  function getInvestibleResult (investible, index) {
     const IconComponent = investible.typeIcon;
     return (
-      <React.Fragment key={investible.id}>
+      <React.Fragment key={index}>
         <Typography style={{ paddingLeft: '1rem', fontStyle: 'italic' }}>
           <IconComponent style={{ marginRight: '6px', height: '16px', width: '16px' }}/>
           {investible.name}
@@ -211,20 +211,21 @@ function DisplayNotifications (props) {
 
   function getMessageResults (toDisplay) {
     const markets = createMarketView(toDisplay);
-    return markets.map((market) => {
+    return markets.map((market, index) => {
       const IconComponent = market.typeIcon;
       return (
         <Card
           raised
-          key={market.id}
+          key={index}
           className={classes.messageItem}
         >
           <Typography style={{ paddingRight: '1rem', paddingLeft: '1rem', fontStyle: 'italic' }}>
-            <IconComponent style={{ marginRight: '6px', height: '16px', width: '16px' }}/>{market.name}
+            <IconComponent style={{ marginRight: '6px', height: '16px', width: '16px' }}/>
+            {market.name}
           </Typography>
           <div style={{ paddingLeft: '1rem', paddingRight: '1rem' }}>
             {market.items.map((item) => getItemResult(item))}
-            {market.investibles.map((investible) => getInvestibleResult(investible))}
+            {market.investibles.map((investible) => getInvestibleResult(investible, index))}
           </div>
         </Card>
       );

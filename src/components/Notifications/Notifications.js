@@ -148,7 +148,7 @@ function Notifications (props) {
   const amOpenAndActive = open && (active === level);
 
   return (
-    <div onMouseOut={onOut} onMouseOver={onEnter}>
+    <div key={level} onMouseOut={onOut} onMouseOver={onEnter}>
       <Fab
         id="notifications-fab"
         className={clsx(

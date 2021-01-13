@@ -24,7 +24,7 @@ function NotificationMessageDisplay (props) {
     type
   } = message;
   console.error(message);
-  const dismissable = type === UNREAD_TYPE;
+  const dismissable = type === UNREAD_TYPE && level !== RED_LEVEL;
   const history = useHistory();
   const color = level === RED_LEVEL ? '#ff9b9b' : level === YELLOW_LEVEL ? '#e8e9a9' : '#85bddb';
   const fontColor = level === RED_LEVEL ? 'black' : level === YELLOW_LEVEL ? 'black' : 'white';

@@ -188,10 +188,8 @@ function DisplayNotifications (props) {
     return (
       <ListItem
         key={link}
-        button
-        onClick={zeroResults}
       >
-        <NotificationMessageDisplay message={item}/>
+        <NotificationMessageDisplay onLinkClick={zeroResults} message={item}/>
       </ListItem>
     );
   }

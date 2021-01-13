@@ -756,7 +756,7 @@ function Comment(props) {
               <Button
                 className={clsx(classes.action, classes.actionPrimary)}
                 color="primary"
-                disabled={operationRunning}
+                disabled={operationRunning || commentCreatedBy !== userId}
                 onClick={() => navigate(history, `${formMarketAddInvestibleLink(marketId)}#parentCommentId=${id}`)}
                 variant="contained"
               >

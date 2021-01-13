@@ -909,6 +909,7 @@ const messages = defineMessages({
 
   // Notifications
   notificationMulitpleUpdates: '{n} Updates',
+  notificationDismiss: 'Dismiss',
 
   // phone field
   phoneFieldErrorText: 'Phone should begin with plus or just be the digits',

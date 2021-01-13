@@ -99,7 +99,7 @@ function InvestibleBodyEdit (props) {
   }, [hidden, investibleId, idLoaded, marketType, setBeingEdited]);
 
   useEffect(() => {
-    if (!hidden && !loading && !someoneElseEditing && !lockFailed) {
+    if (!hidden && !loading && !someoneElseEditing && !lockFailed && stage) {
       const { editable_by_roles: editableByRoles, allows_assignment: allowsAssignment } = stage;
       if (_.size(editableByRoles) > 1 ||
         (marketType === PLANNING_TYPE && (_.size(assigned) > 1 || !allowsAssignment))) {

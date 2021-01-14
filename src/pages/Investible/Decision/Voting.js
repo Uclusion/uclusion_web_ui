@@ -14,6 +14,7 @@ import { findMessageOfTypeAndId } from '../../../utils/messageUtils'
 import handleViewport from 'react-in-viewport'
 import { deleteSingleMessage } from '../../../api/users'
 import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
+import Gravatar from '../../../components/Gravatar';
 
 const useVoteStyles = makeStyles(
   theme => {
@@ -38,6 +39,7 @@ const useVoteStyles = makeStyles(
         display: "inline-block"
       },
       voter: {
+        marginLeft: 6,
         fontSize: 16,
         fontWeight: "bold"
       },
@@ -114,7 +116,7 @@ function Voting(props) {
   return (
     <ol className={classes.root}>
       {sortedVoters.map(voter => {
-        const { name, userId, quantity, maxBudget, maxBudgetUnit, updatedAt } = voter;
+        const { name, email, userId, quantity, maxBudget, maxBudgetUnit, updatedAt } = voter;
         const myMessage = findMessageOfTypeAndId(`${investibleId}_${userId}`, messagesState, 'VOTE');
         const reason = getVoterReason(userId);
         const voteId = `cv${userId}`;
@@ -180,13 +182,16 @@ function Voting(props) {
               </div>
             )}
             <CardContent className={classes.cardContent}>
+              <div style={{display: 'flex', alignItems: 'center'}}>
+              <Gravatar email={email} name={name}/>
               <Typography className={classes.voter} component="strong">
                 {maxBudget > 0 && !maxBudgetUnit && intl.formatMessage({id: 'maxBudgetValue'},
-                  { x: maxBudget, name})}
+                  { x: maxBudget})}
                 {maxBudget > 0 && maxBudgetUnit && intl.formatMessage({id: 'maxBudgetValueWithUnits'},
                   { x: maxBudget, y: maxBudgetUnit, name})}
                 {(!maxBudget > 0) && name}
               </Typography>
+              </div>
               {reason && <ReadOnlyQuillEditor value={reason.body} />}
             </CardContent>
           </Card>

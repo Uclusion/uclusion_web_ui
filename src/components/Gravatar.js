@@ -15,6 +15,8 @@ function Gravatar (props) {
   const blankCode = useBlank ? 'blank' : '404';
   const url = `https://www.gravatar.com/avatar/${md5(email, { encoding: 'binary' })}?d=${blankCode}`;
 
+
+
   // you won't get the default image if you have a child element,
   // so we have to have two versions of the avatar render
   if (name) {

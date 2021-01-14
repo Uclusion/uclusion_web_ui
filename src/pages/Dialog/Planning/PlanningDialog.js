@@ -63,6 +63,7 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import handleViewport from 'react-in-viewport'
 import { deleteSingleMessage } from '../../../api/users'
 import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
+import Gravatar from '../../../components/Gravatar';
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -305,6 +306,8 @@ export const useInvestiblesByPersonStyles = makeStyles(
           paddingBottom: "inherit"
         }
       },
+      smallGravatar: {
+      },
       header: {
         backgroundColor: theme.palette.grey["300"],
         padding: theme.spacing(1)
@@ -445,7 +448,7 @@ function InvestiblesByPerson(props) {
     return !presence.current_user;
   });
   return marketPresencesSorted.map(presence => {
-    const { id, name } = presence;
+    const { id, name, email } = presence;
     const myInvestibles = getUserInvestibles(
       id,
       marketId,
@@ -492,6 +495,7 @@ function InvestiblesByPerson(props) {
             className={classes.header}
             id={`u${id}`}
             title={name}
+            avatar={<Gravatar className={classes.smallGravatar} email={email} name={name}/>}
             titleTypographyProps={{ variant: "subtitle2" }}
           />
         )}

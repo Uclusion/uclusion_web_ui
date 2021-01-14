@@ -689,9 +689,9 @@ function Comment(props) {
           {!noAuthor && (
             <div style={{ display: 'inline-flex', alignItems: 'center' }}>
               <Gravatar
-                useBlank
                 key={userId}
                 email={createdBy.email}
+                name={createdBy.name}
               />
               <Typography className={classes.createdBy} variant="caption">
                 {createdBy.name}

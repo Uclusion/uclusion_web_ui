@@ -4,6 +4,7 @@ import { formMarketManageLink, navigate } from '../../utils/marketIdPathFunction
 import PersonAddIcon from '@material-ui/icons/PersonAdd'
 import { FormattedMessage } from 'react-intl'
 import { ACTION_BUTTON_COLOR } from '../../components/Buttons/ButtonConstants'
+import Gravatar from '../../components/Gravatar';
 
 const useStyles = makeStyles( () => ({
     archived: {
@@ -48,7 +49,7 @@ export function Collaborators(props) {
           </Typography>
         )}
         {!authorDisplay && marketPresences.map(presence => {
-          const { id: presenceId, name, following } = presence;
+          const { id: presenceId, name, following, email } = presence;
           const myClassName = following ? classes.normal : classes.archived;
           if (presenceId === authorId ) {
             return <React.Fragment key={presenceId}/>;
@@ -64,9 +65,12 @@ export function Collaborators(props) {
             );
           }
           return (
-            <Typography key={presenceId} component="li" className={myClassName}>
+            <div style={{display: 'flex', alignItems: 'center'}}>
+              <Gravatar name={name} email={email}/>
+              <Typography key={presenceId} component="li" className={myClassName}>
               {name}
             </Typography>
+            </div>
           );
         })}
         </ul>

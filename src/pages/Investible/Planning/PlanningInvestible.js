@@ -106,6 +106,7 @@ import moment from 'moment'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { doSetEditWhenValid, isTinyWindow } from '../../../utils/windowUtils'
 import LinkMarket from '../../Dialog/LinkMarket'
+import Gravatar from '../../../components/Gravatar';
 
 const useStyles = makeStyles(
   theme => ({
@@ -1233,9 +1234,14 @@ function Assignments(props) {
             user = { name: "Removed" };
           }
           return (
-            <Typography key={userId} component="li">
-              {user.name}
-            </Typography>
+            <div
+              style={{ display: 'flex', alignItems: 'center' }}
+            >
+              <Gravatar email={user.email} name={user.name}/>
+              <Typography key={userId} component="li">
+                {user.name}
+              </Typography>
+            </div>
           );
         })}
       </ul>

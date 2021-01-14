@@ -2,7 +2,6 @@ import React, { useContext, useEffect, useState } from 'react'
 import { FormattedDate, FormattedMessage, useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
 import {
-  Avatar,
   Box,
   Button,
   Card,
@@ -55,7 +54,6 @@ import { red } from '@material-ui/core/colors'
 import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
 import { EXPANDED_CONTROL, ExpandedCommentContext } from '../../contexts/CommentsContext/ExpandedCommentContext'
 import UsefulRelativeTime from '../TextFields/UseRelativeTime'
-import md5 from 'md5'
 import {
   addInvestible,
   getMarketInvestibles
@@ -78,6 +76,7 @@ import Voting from '../../pages/Investible/Decision/Voting'
 import { addParticipants } from '../../api/users'
 import ShareStoryButton from '../../pages/Investible/Planning/ShareStoryButton'
 import { onCommentOpen } from '../../utils/commentFunctions'
+import Gravatar from '../Gravatar';
 
 const useCommentStyles = makeStyles(
   theme => {
@@ -689,8 +688,11 @@ function Comment(props) {
         <CardContent className={classes.cardContent}>
           {!noAuthor && (
             <div style={{ display: 'inline-flex', alignItems: 'center' }}>
-              <Avatar key={userId}
-                      src={`https://www.gravatar.com/avatar/${md5(createdBy.email, {encoding: "binary"})}?d=blank`} />
+              <Gravatar
+                useBlank
+                key={userId}
+                email={createdBy.email}
+              />
               <Typography className={classes.createdBy} variant="caption">
                 {createdBy.name}
               </Typography>

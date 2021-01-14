@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Avatar, Button, makeStyles, Menu, Tooltip, Typography } from '@material-ui/core'
+import { Button, makeStyles, Menu, Tooltip, Typography } from '@material-ui/core'
 import SettingsIcon from '@material-ui/icons/Settings';
 import { useHistory } from 'react-router';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -11,8 +11,8 @@ import SignOut from '../../pages/Authentication/SignOut';
 import { CognitoUserContext } from '../../contexts/CognitoUserContext/CongitoUserContext';
 import config from '../../config';
 import { isFederated } from '../../contexts/CognitoUserContext/cognitoUserContextHelper';
-import md5 from 'md5';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline'
+import Gravatar from '../../components/Gravatar';
 
 const useStyles = makeStyles((theme) => ({
   name: {
@@ -88,7 +88,6 @@ function Identity (props) {
   const intl = useIntl();
   const email = !user ? '' : user.email;
   const chipLabel = !user ? '' : (user.name || '');
-  const gravatarId = email ? md5(email, { encoding: 'binary' }) : '';
   const recordPositionToggle = (event) => {
     if (anchorEl === null) {
       setAnchorEl(event.currentTarget);
@@ -106,7 +105,6 @@ function Identity (props) {
     };
   }
 
-  const gravatarUrl = `https://www.gravatar.com/avatar/${gravatarId}?d=404`;
   return (
     <div
       id="profileLink"
@@ -117,8 +115,10 @@ function Identity (props) {
         endIcon={<SettingsIcon htmlColor="#bdbdbd"/>}
         className={classes.buttonClass}
       >
-        <Avatar key={chipLabel}
-                src={gravatarUrl}/>
+        <Gravatar
+          key={chipLabel}
+          email={email}
+        />
       </Button>
       <Menu
         id="profile-menu"
@@ -137,7 +137,7 @@ function Identity (props) {
         disableRestoreFocus
       >
         <div className={classes.identityBlock}>
-          <Avatar className={classes.largeAvatar} src={gravatarUrl}/>
+          <Gravatar className={classes.largeAvatar} email={email}/>
           <Typography>{chipLabel}</Typography>
           <Typography>{email}</Typography>
           <Link underline="hover"

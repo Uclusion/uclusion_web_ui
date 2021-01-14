@@ -1,6 +1,6 @@
 import React, { useContext } from 'react'
 import { AvatarGroup } from '@material-ui/lab'
-import { Avatar, CardActions, CardContent, Grid, Link, Tooltip, Typography } from '@material-ui/core'
+import { CardActions, CardContent, Grid, Link, Tooltip, Typography } from '@material-ui/core'
 import _ from 'lodash'
 import { useHistory } from 'react-router'
 import { makeStyles } from '@material-ui/styles'
@@ -31,11 +31,10 @@ import { getMarketUpdatedAt, getVoteTotalsForUser } from '../../utils/userFuncti
 import { ISSUE_TYPE } from '../../constants/comments'
 import CardType from '../../components/CardType'
 import Chart from '../../components/Cards/Chart'
-import { nameToAvatarText } from '../../utils/stringFunctions'
 import ThumbUpIcon from '@material-ui/icons/ThumbUp'
 import clsx from 'clsx'
 import ThumbDownIcon from '@material-ui/icons/ThumbDown'
-import md5 from 'md5'
+import Gravatar from '../../components/Gravatar';
 
 const dialogStyles = makeStyles((theme) => ({
   paper: {
@@ -273,12 +272,14 @@ function InitiativesAndDialogs(props) {
               {presences.map((presence) => {
                 const { id: userId, name, email } = presence;
                 return <Tooltip key={`tip${userId}`} title={name}>
-                  <Avatar className={classes.green} key={userId}
-                          src={`https://www.gravatar.com/avatar/${md5(email, {encoding: "binary"})}?d=404`}>
-                    {nameToAvatarText(name)}
-                  </Avatar></Tooltip>
-                })
-              }
+                  <Gravatar
+                    className={classes.green}
+                    key={userId}
+                    email={email}
+                    name={name}
+                    />
+                 </Tooltip>
+                })}
             </AvatarGroup>
             </Grid> 
         </Grid>

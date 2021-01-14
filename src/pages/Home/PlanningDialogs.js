@@ -1,13 +1,11 @@
 import React, { useContext } from 'react'
-import { Avatar, CardActions, CardContent, Grid, Link, Tooltip, Typography } from '@material-ui/core'
-import md5 from 'md5'
+import { CardActions, CardContent, Grid, Link, Tooltip, Typography } from '@material-ui/core'
 import _ from 'lodash'
 import { useHistory } from 'react-router'
 import { makeStyles } from '@material-ui/styles'
 import { AvatarGroup } from '@material-ui/lab'
 import PropTypes from 'prop-types'
 import { useIntl } from 'react-intl'
-import { nameToAvatarText } from '../../utils/stringFunctions'
 import {
   getMarketPresences,
   marketHasOnlyCurrentUser
@@ -32,6 +30,7 @@ import Badge from '@material-ui/core/Badge'
 import BlockIcon from '@material-ui/icons/Block'
 import HelpIcon from '@material-ui/icons/Help'
 import AssignmentIcon from '@material-ui/icons/Assignment'
+import Gravatar from '../../components/Gravatar';
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -159,10 +158,13 @@ function PlanningDialogs(props) {
                 {presences.map((presence) => {
                   const { id: userId, name, email } = presence;
                   return <Tooltip key={`tip${userId}`} title={name}>
-                    <Avatar className={classes.green} key={userId}
-                            src={`https://www.gravatar.com/avatar/${md5(email, {encoding: "binary"})}?d=404`}>
-                    {nameToAvatarText(name)}
-                  </Avatar></Tooltip>
+                    <Gravatar
+                      className={classes.green}
+                      key={userId}
+                      email={email}
+                      name={name}
+                    />
+                  </Tooltip>
                   })
                 }
               </AvatarGroup>

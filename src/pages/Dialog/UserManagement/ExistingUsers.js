@@ -6,16 +6,14 @@ import { getMarketPresences } from '../../../contexts/MarketPresencesContext/mar
 import {
   List,
   ListItem,
-  Avatar,
   ListItemAvatar,
   ListItemText,
   ListItemSecondaryAction
 } from '@material-ui/core';
-import { nameToAvatarText } from '../../../utils/stringFunctions';
 import BanUserButton from './BanUserButton';
 import UnBanUserButton from './UnBanUserButton';
 import { makeStyles } from '@material-ui/styles';
-import md5 from 'md5'
+import Gravatar from '../../../components/Gravatar';
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -50,12 +48,11 @@ function ExistingUsers (props) {
           key={id}
         >
           <ListItemAvatar>
-            <Avatar
+            <Gravatar
+              name={name}
+              email={email}
               className={banned? classes.banned : classes.unbanned}
-              src={`https://www.gravatar.com/avatar/${md5(email, {encoding: "binary"})}?d=404`}
-            >
-              {nameToAvatarText(name)}
-            </Avatar>
+            />
           </ListItemAvatar>
           <ListItemText
             className={banned? classes.banned : classes.unbanned}

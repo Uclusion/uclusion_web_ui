@@ -62,7 +62,7 @@ function SubscriptionStatus (props) {
     tier,
     billing_subscription_status: subStatus,
     billing_subscription_end: subEnd,
-    billing_trial_end: trialEnd,
+    billing_subscription_trial_end: trialEnd,
   } = account;
   const classes = styleClasses();
   const upgradable = tier === PRODUCT_TIER_FREE;

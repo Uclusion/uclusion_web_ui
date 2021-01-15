@@ -84,24 +84,26 @@ function getNameIcon (message, linkType) {
   }
 }
 
-function processDuplicates(page) {
+function processDuplicates (page) {
   const { linkMultipleHash, items } = page;
-  Object.values(linkMultipleHash).forEach((duplicates) => {
-    const lenDuplicates = duplicates.length;
-    const first = duplicates[0];
-    if (lenDuplicates === 1) {
-      items.push(first);
-    } else {
-      const { link_type: linkType, link: firstLink, link_multiple: linkMultiple } = first;
-      let link = firstLink;
-      if (linkType ==='INVESTIBLE' || linkType === 'INLINE_WORKSPACE_INVESTIBLE'
-        || linkType === 'INLINE_STORY_INVESTIBLE') {
-        // Do not go inside the investible for new options, votes needed or reviews as you won't see the others
-        link = linkMultiple;
+  if (linkMultipleHash) {
+    Object.values(linkMultipleHash).forEach((duplicates) => {
+      const lenDuplicates = duplicates.length;
+      const first = duplicates[0];
+      if (lenDuplicates === 1) {
+        items.push(first);
+      } else {
+        const { link_type: linkType, link: firstLink, link_multiple: linkMultiple } = first;
+        let link = firstLink;
+        if (linkType === 'INVESTIBLE' || linkType === 'INLINE_WORKSPACE_INVESTIBLE'
+          || linkType === 'INLINE_STORY_INVESTIBLE') {
+          // Do not go inside the investible for new options, votes needed or reviews as you won't see the others
+          link = linkMultiple;
+        }
+        items.push({ ...first, link, lenDuplicates });
       }
-      items.push({ ...first, link, lenDuplicates });
-    }
-  });
+    });
+  }
 }
 
 function createMarketView (messages) {

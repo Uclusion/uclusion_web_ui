@@ -18,7 +18,7 @@ function MoveToVerfiedActionButton(props) {
   return (
     <StageChangeAction
       { ...props }
-      icon={<VerifiedUserIcon />}
+      icon={hasTodos ? <VerifiedUserIcon color="disabled" /> : <VerifiedUserIcon />}
       targetStageId={verifiedStage.id}
       translationId="planningInvestibleMoveToVerifiedLabel"
       explanationId="planningInvestibleVerifiedExplanation"
@@ -33,6 +33,6 @@ MoveToVerfiedActionButton.propTypes = {
   marketId: PropTypes.string.isRequired,
   disabled: PropTypes.bool.isRequired,
   hasTodos: PropTypes.bool.isRequired,
-};
+}
 
 export default MoveToVerfiedActionButton;

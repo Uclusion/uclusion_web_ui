@@ -93,6 +93,7 @@ function MoveToNextVisibleStageActionButton(props) {
         blockedOperationTranslationId={blockedByTodos ? 'mustRemoveTodosExplanation' : 'mustResolveAssignedQuestions'}
         disabled={disabled}
         isOpen={true}
+        standAlone
       />
     </div>
   );

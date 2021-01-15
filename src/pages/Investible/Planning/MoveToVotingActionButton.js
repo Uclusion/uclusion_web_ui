@@ -18,7 +18,7 @@ function MoveToVotingActionButton(props) {
   return (
     <StageChangeAction
       {...props}
-      icon={<ThumbsUpDownIcon />}
+      icon={hasAssignedQuestions ? <ThumbsUpDownIcon color="disabled" /> : <ThumbsUpDownIcon />}
       targetStageId={votingStage.id}
       translationId="planningInvestibleToVotingLabel"
       explanationId="planningInvestibleVotingExplanation"
@@ -33,6 +33,6 @@ MoveToVotingActionButton.propTypes = {
   marketId: PropTypes.string.isRequired,
   disabled: PropTypes.bool.isRequired,
   hasAssignedQuestions: PropTypes.bool.isRequired
-};
+}
 
 export default MoveToVotingActionButton;

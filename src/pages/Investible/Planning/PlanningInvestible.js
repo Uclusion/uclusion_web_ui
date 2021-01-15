@@ -768,7 +768,7 @@ function PlanningInvestible(props) {
                       )}
                     </div>
                   )}
-                  <div><ShareStoryButton /></div>
+                  <div style={{paddingLeft: "1rem", paddingRight: "1rem"}}><ShareStoryButton /></div>
                   {!inArchives && isAssigned && (
                       <MoveToNextVisibleStageActionButton
                         key="visible"

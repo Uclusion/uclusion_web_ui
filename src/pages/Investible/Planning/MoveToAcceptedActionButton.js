@@ -18,7 +18,7 @@ function MoveToAcceptedActionButton(props) {
   return (
     <StageChangeAction
       {...props}
-      icon={<PlayForWorkIcon />}
+      icon={hasAssignedQuestions ? <PlayForWorkIcon color="disabled" /> : <PlayForWorkIcon /> }
       targetStageId={acceptedStage.id}
       translationId={translationId}
       operationBlocked={hasAssignedQuestions}
@@ -34,7 +34,7 @@ MoveToAcceptedActionButton.propTypes = {
   disabled: PropTypes.bool.isRequired,
   hasAssignedQuestions: PropTypes.bool.isRequired,
   full: PropTypes.bool,
-};
+}
 
 MoveToAcceptedActionButton.defaultProps = {
   full: false,

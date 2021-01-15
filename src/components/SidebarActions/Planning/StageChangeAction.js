@@ -9,13 +9,13 @@ import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { EMPTY_SPIN_RESULT } from '../../../constants/global'
 import { makeStyles } from '@material-ui/styles'
 import { Dialog } from '../../Dialogs'
-import { Button, ListItemText } from '@material-ui/core'
+import { Button, ListItemIcon, ListItemText, Tooltip } from '@material-ui/core'
 import clsx from 'clsx'
 import { useLockedDialogStyles } from '../../../pages/Dialog/DialogBodyEdit'
-import TooltipIconButton from '../../Buttons/TooltipIconButton'
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { resolveInvestibleComments } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
+import TooltipIconButton from '../../Buttons/TooltipIconButton'
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 
 export const useStyles = makeStyles(() => {
   return {
@@ -47,6 +47,13 @@ export const useStyles = makeStyles(() => {
       color: 'black',
       fontWeight: 'bold',
     },
+    menuTitleDisabled: {
+      paddingLeft: 0,
+      paddingRight: 0,
+      marginRight: 0,
+      color: 'grey',
+      fontWeight: 'bold',
+    },
   };
 });
 
@@ -64,16 +71,18 @@ function StageChangeAction(props) {
     disabled,
     operationBlocked,
     blockedOperationTranslationId,
+    standAlone
   } = props;
   const classes = useStyles();
   const intl = useIntl();
   const [, invDispatch] = useContext(InvestiblesContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
-  const [operationRunning] = useContext(OperationInProgressContext);
   const [, diffDispatch] = useContext(DiffContext);
   const autoFocusRef = React.useRef(null);
   const lockedDialogClasses = useLockedDialogStyles();
   const [open, setOpen] = React.useState(false);
+  const [operationRunning] = useContext(OperationInProgressContext);
+
   const handleOpen = () => {
     setOpen(true);
   };
@@ -99,14 +108,32 @@ function StageChangeAction(props) {
   if (operationBlocked) {
     return (
       <>
-        <TooltipIconButton disabled={operationRunning || disabled} icon={icon} onClick={handleOpen}
-                           translationId={explanationId} >
-          {isOpen && (
-            <ListItemText className={classes.menuTitle}>
-              {intl.formatMessage({ id: translationId })}
-            </ListItemText>
-          )}
-        </TooltipIconButton>
+        {standAlone && (
+          <TooltipIconButton disabled={operationRunning || disabled} icon={icon} onClick={handleOpen}
+                             translationId={explanationId} >
+            {isOpen && (
+              <ListItemText className={classes.menuTitleDisabled}>
+                {intl.formatMessage({ id: translationId })}
+              </ListItemText>
+            )}
+          </TooltipIconButton>
+        )}
+        {!standAlone && (
+          <>
+            <Tooltip title={intl.formatMessage({ id: explanationId })}>
+              <ListItemIcon className={classes.menuIcon} onClick={handleOpen}>
+                {icon}
+              </ListItemIcon>
+            </Tooltip>
+            {(isOpen !== undefined ? isOpen : true) && (
+              <Tooltip title={intl.formatMessage({ id: explanationId })}>
+                <ListItemText className={classes.menuTitleDisabled} onClick={handleOpen}>
+                  {intl.formatMessage({ id: translationId })}
+                </ListItemText>
+              </Tooltip>
+            )}
+          </>
+        )}
         <br />
         <Dialog
           autoFocusRef={autoFocusRef}
@@ -169,12 +196,14 @@ StageChangeAction.propTypes = {
   disabled: PropTypes.bool.isRequired,
   operationBlocked: PropTypes.bool,
   blockedOperationTranslationId: PropTypes.string,
+  standAlone: PropTypes.bool
 };
 
 StageChangeAction.defaultProps = {
   onSpinStop: () => {},
   operationBlocked: false,
   blockedOperationTranslationId: '',
-  isOpen: true
+  isOpen: true,
+  standAlone: false
 };
 export default StageChangeAction;

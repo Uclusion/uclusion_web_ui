@@ -69,14 +69,14 @@ function ChangeNotificationPreferences (props) {
   const { hidden } = props;
   const [userState] = useContext(AccountUserContext) || {};
   const { user } = userState;
-
+  const safeUser = user || {};
   const [emailEnabled, setEmailEnabled] = useState(undefined);
   const [slackEnabled, setSlackEnabled] = useState(undefined);
   const [slackDelay, setSlackDelay] = useState(undefined);
   const [emailDelay, setEmailDelay] = useState(undefined);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const { messages } = (messagesState || {});
-  const myMessage =  (messages || []).find((message) => message.type_object_id === `USER_POKED_${user.id}`);
+  const myMessage =  (messages || []).find((message) => message.type_object_id === `USER_POKED_${safeUser.id}`);
   const slackNotAvailable = _.isEmpty(user) || !user.is_slack_addressable;
   const intl = useIntl();
   const classes = useStyles();

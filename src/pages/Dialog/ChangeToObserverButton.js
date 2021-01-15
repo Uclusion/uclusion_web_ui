@@ -128,7 +128,7 @@ function ChangeToObserverButton(props) {
   }
 
   return (
-    <div>
+    <>
       <TooltipIconButton disabled={operationRunning} icon={<ArchiveIcon htmlColor={ACTION_BUTTON_COLOR} />} onClick={handleOpen}
                          translationId="decisionDialogsBecomeObserver" />
       <WarningDialog
@@ -163,7 +163,7 @@ function ChangeToObserverButton(props) {
           </React.Fragment>
         }
       />
-    </div>
+    </>
   );
 }
 

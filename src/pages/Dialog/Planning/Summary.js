@@ -148,9 +148,9 @@ const useStyles = makeStyles(theme => ({
   },
   borderLeft: {
     borderLeft: '1px solid #e0e0e0',
-    padding: '2rem',
-    marginBottom: '-42px',
-    marginTop: '-42px',
+    paddingRight: '2rem',
+    paddingLeft: '1rem',
+    marginTop: '-2rem',
     [theme.breakpoints.down("xs")]: {
       paddingTop: '1rem',
       marginTop: '1rem',

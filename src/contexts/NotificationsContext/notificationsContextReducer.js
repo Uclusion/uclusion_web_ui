@@ -113,6 +113,9 @@ function processHighlighting(state, page) {
     const {
       link_type: linkType
     } = message;
+    if (!linkType) {
+      return;
+    }
     if (linkType.includes('VOTE')) {
       pushMessage(HIGHLIGHTED_VOTING_CHANNEL, message);
     }

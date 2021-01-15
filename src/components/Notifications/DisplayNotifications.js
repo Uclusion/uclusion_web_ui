@@ -30,6 +30,7 @@ const useStyles = makeStyles((theme) => {
       paddingRight: 15,
       paddingBottom: 10,
       paddingTop: 10,
+      overflowWrap: "break-word"
     },
     titleText: {
       fontWeight: 'bold',
@@ -67,6 +68,9 @@ const useStyles = makeStyles((theme) => {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center'
+    },
+    wrapNicely: {
+      overflowWrap: 'break-word'
     }
   };
 });

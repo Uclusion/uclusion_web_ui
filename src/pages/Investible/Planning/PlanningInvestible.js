@@ -159,6 +159,7 @@ const useStyles = makeStyles(
       display: "inline-flex"
     },
     mobileColumn: {
+      overflowWrap: "break-word",
       [theme.breakpoints.down("xs")]: {
         flexDirection: 'column'
       }

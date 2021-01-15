@@ -434,7 +434,8 @@ const useStageClasses = makeStyles(
         borderRadius: theme.spacing(1),
         fontSize: ".8em",
         margin: theme.spacing(1, 0),
-        padding: theme.spacing(1, 2)
+        padding: theme.spacing(1, 2),
+        overflowWrap: "break-word"
       },
       rootWarnAccepted: {
         border: `1px solid ${theme.palette.grey["400"]}`,
@@ -443,6 +444,7 @@ const useStageClasses = makeStyles(
         margin: theme.spacing(1, 0),
         padding: theme.spacing(1, 2),
         backgroundColor: yellow["400"],
+        overflowWrap: "break-word"
       },
       outlinedAccepted: {
         border: `1px solid ${theme.palette.grey["400"]}`,
@@ -450,9 +452,11 @@ const useStageClasses = makeStyles(
         fontSize: ".8em",
         margin: theme.spacing(1, 0),
         padding: theme.spacing(1, 2),
+        overflowWrap: "break-word"
       },
       regularAccepted: {
-        marginLeft: 0
+        marginLeft: 0,
+        overflowWrap: "break-word"
       },
       fallback: {
         backgroundColor: theme.palette.grey["400"]

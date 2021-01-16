@@ -199,8 +199,7 @@ const useStyles = makeStyles(
     borderLeft: {
       borderLeft: '1px solid #e0e0e0',
       padding: '0 0 0 2rem',
-      marginBottom: '-42px',
-      marginTop: '-42px',
+      marginTop: '-1.5rem',
       [theme.breakpoints.down("xs")]: {
         padding: '1rem 0',
         marginTop: '1rem',
@@ -212,7 +211,7 @@ const useStyles = makeStyles(
       }
     },
     editRow: {
-      height: '4rem'
+      height: '3rem'
     },
     fullWidthCentered: {
       alignItems: 'center',

@@ -9,7 +9,7 @@ function MentionListItem(props) {
     mentionResult
   } = props;
 
-  const { value: name, id, email } = mentionResult;
+  const { value: name, email } = mentionResult;
 
   return (
     <div

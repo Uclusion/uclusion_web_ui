@@ -2,6 +2,7 @@
  through, and sets up some of the options we'll always want
  **/
 import React from 'react';
+import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import Quill from 'quill';
 import LoadingOverlay from 'react-loading-overlay';
@@ -23,6 +24,7 @@ import VideoDialog from './CustomUI/VideoDialog';
 import { embeddifyVideoLink } from './Utilities/VideoUtils';
 import LinkDialog from './CustomUI/LinkDialog';
 import QuillMention from 'quill-mention-uclusion';
+import MentionListItem from './CustomUI/MentionListItem';
 
 // install our filtering paste module, and disable the uploader
 Quill.register('modules/clipboard', CustomQuillClipboard, true);
@@ -79,11 +81,10 @@ class QuillEditor extends React.PureComponent {
 
   constructor (props) {
     super(props);
-    this.state = { uploads: [], uploadInProgress: false};
+    this.state = { uploads: [], uploadInProgress: false };
     this.editorBox = React.createRef();
     this.editorContainer = React.createRef();
   }
-
 
   /**
    * The UI for videos is quite poor, so we need
@@ -110,22 +111,22 @@ class QuillEditor extends React.PureComponent {
     return (
       <LinkDialog
         open={this.state.linkDialogOpen}
-        onClose={() => this.setState({ linkDialogOpen: false})}
+        onClose={() => this.setState({ linkDialogOpen: false })}
         onSave={(link) => {
           console.error(link);
           // if they haven't got anything selected, just get the current
           // position and insert the url as the text,
           // otherwise just format the current selection as a link
           const selected = this.editor.getSelection(true);
-         // console.error(selected);
+          // console.error(selected);
           //do we have nothing selected i.e. a zero length selection?
           if (selected.length === 0) {
-            const index = selected? selected.index : 0; // no position? do it at the front
+            const index = selected ? selected.index : 0; // no position? do it at the front
             // if so, the selection is just the cursor position, so insert our new text there
             this.editor.insertText(index, link, 'link', link, 'user');
             //refocus the editor because for some reason it moves to the top during insert
-          }else {
-          //  console.error('adding link' + link);
+          } else {
+            //  console.error('adding link' + link);
             this.editor.format('link', link);
           }
         }}
@@ -152,15 +153,15 @@ class QuillEditor extends React.PureComponent {
     const boundsId = this.getBoundsId();
     const defaultModules = {
       toolbar: {
-        handlers : {
+        handlers: {
           'video': () => {
-            this.setState({videoDialogOpen: true})
+            this.setState({ videoDialogOpen: true });
           },
           'link': (value) => {
             console.error(value);
-            if (value){
-              this.setState({linkDialogOpen: true});
-            }else{
+            if (value) {
+              this.setState({ linkDialogOpen: true });
+            } else {
               this.editor.format('link', false);
             }
           }
@@ -201,7 +202,7 @@ class QuillEditor extends React.PureComponent {
         bindings: {
           'tab': {
             key: 9,
-            handler: function(range, context) {
+            handler: function (range, context) {
               return true;
             }
           }
@@ -231,16 +232,28 @@ class QuillEditor extends React.PureComponent {
     if (!_.isEmpty(participants)) {
       modules.mention = {
         positioningStrategy: 'fixed',
-          source: function (searchTerm, renderList) {
+        renderItem: function(item) {
+          // we want an html string here which gets slammed into inner html, so we have to do some trickery
+          // to let react render the result
+          const container = document.createElement('div');
+          container.style.display = 'none';
+          ReactDOM.render(<MentionListItem mentionResult={item}/>, container);
+          const html = container.innerHTML;
+          container.remove();
+          return html;
+        },
+        source: function (searchTerm, renderList) {
           if (searchTerm.length === 0) {
-            renderList(participants.map((presence) => ({id: presence.id, value: presence.name})), searchTerm);
+            renderList(participants.map((presence) => {
+              const { name, id, email } = presence;
+              return { id, value: name, email };
+            }), searchTerm);
           } else {
             const matches = [];
-            participants.forEach((participant) => {
-              console.error(participant);
-              const { name, id } = participant;
+            participants.forEach((presence) => {
+              const { name, id, email } = presence;
               if (name.toLowerCase().includes(searchTerm.toLowerCase())) {
-                matches.push({id, value: name});
+                matches.push({ id, value: name, email });
               }
             });
             renderList(matches, searchTerm);
@@ -260,7 +273,7 @@ class QuillEditor extends React.PureComponent {
     };
   }
 
-  getBoundsId() {
+  getBoundsId () {
     const { id, marketId } = this.props;
     // quill will constrain ui elements to the boundaries
     // of the element specified in the bounds parameter
@@ -447,7 +460,8 @@ class QuillEditor extends React.PureComponent {
       <div>
         {this.createVideoUi()}
         {this.createLinkUi()}
-        <div ref={this.editorContainer} style={{ maxWidth: '100%', zIndex: '2', borderTop: '1px solid lightgrey' }} id={id}>
+        <div ref={this.editorContainer} style={{ maxWidth: '100%', zIndex: '2', borderTop: '1px solid lightgrey' }}
+             id={id}>
           <LoadingOverlay
             active={uploadInProgress}
             spinner
@@ -511,7 +525,7 @@ QuillEditor.defaultProps = {
   id: undefined,
   simple: false,
   participants: [],
-  editorStorageId:'',
+  editorStorageId: '',
 };
 
 export default withTheme(injectIntl(QuillEditor));

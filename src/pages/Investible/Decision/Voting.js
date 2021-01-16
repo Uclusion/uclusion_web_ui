@@ -79,7 +79,7 @@ function Voting(props) {
   function getInvestibleVoters() {
     const acc = [];
     marketPresences.forEach(presence => {
-      const { name, id, investments } = presence;
+      const { name, id, email, investments } = presence;
       investments.forEach(investment => {
         const {
           quantity,
@@ -91,7 +91,7 @@ function Voting(props) {
         } = investment;
         // // console.debug(investment);
         if (investibleId === invId && !deleted) {
-          acc.push({ name, userId: id, quantity, maxBudget, maxBudgetUnit, updatedAt });
+          acc.push({ name, userId: id, email, quantity, maxBudget, maxBudgetUnit, updatedAt });
         }
       });
     });

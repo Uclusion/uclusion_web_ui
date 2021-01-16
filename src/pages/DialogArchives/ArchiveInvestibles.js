@@ -14,6 +14,7 @@ import { stageChangeInvestible } from '../../api/investibles'
 import { refreshInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
+import { LocalPlanningDragContext } from '../Dialog/Planning/InvestiblesByWorkspace'
 
 function getInvestibleOnClick(id, marketId, history) {
   return () => {
@@ -111,8 +112,6 @@ function ArchiveInvestbiles(props) {
     stageId,
     presenceId,
     isInFurtherWork,
-    beingDraggedHack,
-    setBeingDraggedHack,
     unResolvedMarketComments
   } = props;
   const classes = myClasses();
@@ -120,6 +119,7 @@ function ArchiveInvestbiles(props) {
   const history = useHistory();
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [, invDispatch] = useContext(InvestiblesContext);
+  const [beingDraggedHack, setBeingDraggedHack] = useContext(LocalPlanningDragContext);
 
   function onDragEnd() {
     restoreHeader();

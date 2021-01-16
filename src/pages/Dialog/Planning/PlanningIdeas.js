@@ -8,7 +8,11 @@ import { red, yellow } from '@material-ui/core/colors'
 import { FormattedDate, FormattedMessage, useIntl } from 'react-intl'
 import { formInvestibleLink, formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions'
 import clsx from 'clsx'
-import { checkInProgressWarning, checkReviewWarning, checkVotingWarning } from './PlanningDialog'
+import {
+  checkInProgressWarning,
+  checkReviewWarning,
+  checkVotingWarning,
+} from './PlanningDialog'
 import { DaysEstimate } from '../../../components/AgilePlan'
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
@@ -36,6 +40,7 @@ import {
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { nameFromDescription } from '../../../utils/stringFunctions'
 import { restoreHeader } from '../../../containers/Header'
+import { LocalPlanningDragContext } from './InvestiblesByWorkspace'
 
 const warningColor = red["400"];
 
@@ -87,9 +92,7 @@ function PlanningIdeas(props) {
     inRequiresInputStageId,
     presenceId,
     activeMarket,
-    comments,
-    beingDraggedHack,
-    setBeingDraggedHack
+    comments
   } = props;
   const intl = useIntl();
   const acceptedStageId = acceptedStage.id;
@@ -97,6 +100,7 @@ function PlanningIdeas(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [marketsState] = useContext(MarketsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
+  const [beingDraggedHack, setBeingDraggedHack] = useContext(LocalPlanningDragContext);
   const market = getMarket(marketsState, marketId);
   // investibles for type initiative, are really markets, so treat it as such
   const { votes_required: votesRequired } = (market || {});
@@ -345,7 +349,6 @@ function PlanningIdeas(props) {
           activeMarket={activeMarket}
           marketPresences={marketPresences}
           comments={comments}
-          dragHack={setBeingDraggedHack}
         />
       </div>
       <div id={`${acceptedStageId}_${presenceId}`} onDrop={onDropAccepted}
@@ -366,7 +369,6 @@ function PlanningIdeas(props) {
           marketId={marketId}
           presenceId={presenceId}
           warnAccepted={warnAccepted}
-          dragHack={setBeingDraggedHack}
         />
       </div>
       <div id={`${inReviewStageId}_${presenceId}`} onDrop={onDropReview}
@@ -387,7 +389,6 @@ function PlanningIdeas(props) {
           marketId={marketId}
           presenceId={presenceId}
           comments={comments}
-          dragHack={setBeingDraggedHack}
         />
       </div>
       <div id={`${inBlockingStageId}_${presenceId}`} onDragEnd={onDragEndStage}>
@@ -403,7 +404,6 @@ function PlanningIdeas(props) {
           id={inBlockingStageId}
           investibles={investibles}
           marketId={marketId}
-          dragHack={setBeingDraggedHack}
         />
       </div>
     </dl>
@@ -485,10 +485,9 @@ function Stage(props) {
     isVoting,
     showCompletion,
     marketPresences,
-    dragHack,
     presenceId
   } = props;
-
+  const [, dragHack] = useContext(LocalPlanningDragContext);
   const stageInvestibles = investibles.filter(investible => {
     const { market_infos: marketInfos } = investible;
     // console.log(`Investible id is ${id}`);

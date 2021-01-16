@@ -33,16 +33,13 @@ import {
   navigate
 } from '../../../utils/marketIdPathFunctions'
 import { ExpandLess } from '@material-ui/icons'
-import { getStages } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
-import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
-import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
-import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import SearchIcon from '@material-ui/icons/Search'
 import { SearchIndexContext } from '../../../contexts/SearchIndexContext/SearchIndexContext'
 import { filterCommentsToSearch } from '../../../contexts/SearchIndexContext/searchIndexContextHelper'
 import CloseIcon from '@material-ui/icons/Close'
 import Chip from '@material-ui/core/Chip'
 import { restoreHeader } from '../../../containers/Header'
+import { LocalPlanningDragContext } from './InvestiblesByWorkspace'
 
 const myClasses = makeStyles(
   theme => {
@@ -119,9 +116,8 @@ function MarketTodos (props) {
   const [expandedCommentState, expandedCommentDispatch] = useContext(ExpandedCommentContext);
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
-  const [marketStagesState] = useContext(MarketStagesContext);
-  const [marketPresencesState] = useContext(MarketPresencesContext);
   const [index] = useContext(SearchIndexContext);
+  const [beingDraggedHack, setBeingDraggedHack] = useContext(LocalPlanningDragContext);
   const myExpandedState = expandedCommentState[marketId] || {};
   const { expanded: showTodos } = myExpandedState;
   const [editCard, setEditCard] = useState(false);
@@ -151,22 +147,16 @@ function MarketTodos (props) {
 
   function onDragStart(event) {
     event.dataTransfer.setData('text', event.target.id.substring(1));
+    setBeingDraggedHack({id:event.target.id});
   }
 
   function onDragEnd() {
     restoreHeader();
-    // We don't know where we were dragged so just turn all dashed lines off
-    const marketStages = getStages(marketStagesState, marketId) || [];
-    const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
-    marketStages.forEach((stage) => {
-      marketPresences.forEach((presence) => {
-        const elementId = `${stage.id}_${presence.id}`;
-        const element = document.getElementById(elementId);
-        if (element) {
-          element.className = classes.containerEmpty;
-        }
-      });
-    });
+    const { previousElementId } = beingDraggedHack;
+    if (previousElementId) {
+      document.getElementById(previousElementId).className = classes.containerEmpty;
+      setBeingDraggedHack({});
+    }
   }
 
   function todoSelectedToggle(id) {

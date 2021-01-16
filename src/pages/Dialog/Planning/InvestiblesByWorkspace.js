@@ -4,7 +4,7 @@ import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import CardHeader from '@material-ui/core/CardHeader';
 import PlanningIdeas from './PlanningIdeas';
-import { useInvestiblesByPersonStyles } from './PlanningDialog';
+import { useInvestiblesByPersonStyles } from './PlanningDialog'
 import { getUserInvestibles } from './userUtils';
 import PropTypes from 'prop-types';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
@@ -38,6 +38,8 @@ import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import Gravatar from '../../../components/Gravatar';
+
+export const LocalPlanningDragContext = React.createContext([]);
 
 function InvestiblesByWorkspace (props) {
   const {
@@ -121,95 +123,95 @@ function InvestiblesByWorkspace (props) {
           {peopleChoices}
         </Menu>
       </div>
-      {activeWorkspaces.map(market => {
-        const marketPresences = getMarketPresences(marketPresencesState, market.id);
-        const myPresence = marketPresences && marketPresences.find((presence) => {
-          return presence.external_id === chosenPerson.external_id;
-        });
-        const presence = myPresence || {};
-        const comments = getMarketComments(commentsState, market.id);
-        const investibles = getMarketInvestibles(investiblesState, market.id);
-        const acceptedStage = getAcceptedStage(marketStagesState, market.id) || {};
-        const inDialogStage = getInCurrentVotingStage(marketStagesState, market.id) || {};
-        const inReviewStage = getInReviewStage(marketStagesState, market.id) || {};
-        const inBlockingStage = getBlockedStage(marketStagesState, market.id) || {};
-        const requiresInputStage = getRequiredInputStage(marketStagesState, market.id) || {};
-        const visibleStages = [
-          inDialogStage.id,
-          acceptedStage.id,
-          inReviewStage.id,
-          inBlockingStage.id
-        ];
-        const myInvestibles = getUserInvestibles(
-          presence.id,
-          market.id,
-          investibles,
-          visibleStages,
-        );
-        const requiresInputInvestibles = getInvestiblesInStage(investibles, requiresInputStage.id) || [];
-        const highlightMap = {};
-        requiresInputInvestibles.forEach((investible) => {
-          if (hasNotVoted(investible, marketPresencesState, marketsState, comments, market.id, chosenPerson.external_id)) {
-            highlightMap[investible.investible.id] = true;
+      <LocalPlanningDragContext.Provider value={[beingDraggedHack, setBeingDraggedHack]}>
+        {activeWorkspaces.map(market => {
+          const marketPresences = getMarketPresences(marketPresencesState, market.id);
+          const myPresence = marketPresences && marketPresences.find((presence) => {
+            return presence.external_id === chosenPerson.external_id;
+          });
+          const presence = myPresence || {};
+          const comments = getMarketComments(commentsState, market.id);
+          const investibles = getMarketInvestibles(investiblesState, market.id);
+          const acceptedStage = getAcceptedStage(marketStagesState, market.id) || {};
+          const inDialogStage = getInCurrentVotingStage(marketStagesState, market.id) || {};
+          const inReviewStage = getInReviewStage(marketStagesState, market.id) || {};
+          const inBlockingStage = getBlockedStage(marketStagesState, market.id) || {};
+          const requiresInputStage = getRequiredInputStage(marketStagesState, market.id) || {};
+          const visibleStages = [
+            inDialogStage.id,
+            acceptedStage.id,
+            inReviewStage.id,
+            inBlockingStage.id
+          ];
+          const myInvestibles = getUserInvestibles(
+            presence.id,
+            market.id,
+            investibles,
+            visibleStages,
+          );
+          const requiresInputInvestibles = getInvestiblesInStage(investibles, requiresInputStage.id) || [];
+          const highlightMap = {};
+          requiresInputInvestibles.forEach((investible) => {
+            if (hasNotVoted(investible, marketPresencesState, marketsState, comments, market.id, chosenPerson.external_id)) {
+              highlightMap[investible.investible.id] = true;
+            }
+          });
+          if (_.isEmpty(myInvestibles) && _.isEmpty(requiresInputInvestibles)) {
+            return React.Fragment;
           }
-        });
-        if (_.isEmpty(myInvestibles) && _.isEmpty(requiresInputInvestibles)) {
-          return React.Fragment;
-        }
-        return (
-          <Card key={market.id} elevation={0} className={classes.root}>
-            <CardHeader
-              className={classes.header}
-              id={`m${market.id}`}
-              title={<Link color="secondary" id={market.id} key={market.id} href={formMarketLink(market.id)}
-                           onClick={(e) => {
-                             e.preventDefault();
-                             navigate(history, formMarketLink(market.id));
-                           }
-                           }>{market.name}</Link>}
-              titleTypographyProps={{ variant: 'subtitle2' }}
-            />
-            <CardContent className={classes.content}>
-              {!_.isEmpty(requiresInputInvestibles) && (
-                <SubSection
-                  type={SECTION_TYPE_SECONDARY_WARNING}
-                  title={intl.formatMessage({ id: 'requiresInputHeader' })}
-                  helpTextId="requiresInputSectionHelp"
-                >
-                  <ArchiveInvestbiles
-                    elevation={0}
+          return (
+            <Card key={market.id} elevation={0} className={classes.root}>
+              <CardHeader
+                className={classes.header}
+                id={`m${market.id}`}
+                title={<Link color="secondary" id={market.id} key={market.id} href={formMarketLink(market.id)}
+                             onClick={(e) => {
+                               e.preventDefault();
+                               navigate(history, formMarketLink(market.id));
+                             }
+                             }>{market.name}</Link>}
+                titleTypographyProps={{ variant: 'subtitle2' }}
+              />
+              <CardContent className={classes.content}>
+                {!_.isEmpty(requiresInputInvestibles) && (
+                  <SubSection
+                    type={SECTION_TYPE_SECONDARY_WARNING}
+                    title={intl.formatMessage({ id: 'requiresInputHeader' })}
+                    helpTextId="requiresInputSectionHelp"
+                  >
+                    <ArchiveInvestbiles
+                      elevation={0}
+                      marketId={market.id}
+                      presenceMap={getPresenceMap(marketPresencesState, market.id)}
+                      investibles={requiresInputInvestibles}
+                      highlightMap={highlightMap}
+                    />
+                    <hr/>
+                  </SubSection>
+                )}
+                {market.id && !_.isEmpty(myInvestibles) &&
+                acceptedStage &&
+                inDialogStage &&
+                inReviewStage &&
+                inBlockingStage && (
+                  <PlanningIdeas
+                    investibles={myInvestibles}
                     marketId={market.id}
-                    presenceMap={getPresenceMap(marketPresencesState, market.id)}
-                    investibles={requiresInputInvestibles}
-                    highlightMap={highlightMap}
+                    acceptedStage={acceptedStage}
+                    inDialogStageId={inDialogStage.id}
+                    inReviewStageId={inReviewStage.id}
+                    inBlockingStageId={inBlockingStage.id}
+                    inRequiresInputStageId={requiresInputStage.id}
+                    activeMarket={market.market_stage === ACTIVE_STAGE}
+                    comments={comments}
+                    presenceId={presence.id}
                   />
-                  <hr/>
-                </SubSection>
-              )}
-              {market.id && !_.isEmpty(myInvestibles) &&
-              acceptedStage &&
-              inDialogStage &&
-              inReviewStage &&
-              inBlockingStage && (
-                <PlanningIdeas
-                  investibles={myInvestibles}
-                  marketId={market.id}
-                  acceptedStage={acceptedStage}
-                  inDialogStageId={inDialogStage.id}
-                  inReviewStageId={inReviewStage.id}
-                  inBlockingStageId={inBlockingStage.id}
-                  inRequiresInputStageId={requiresInputStage.id}
-                  activeMarket={market.market_stage === ACTIVE_STAGE}
-                  comments={comments}
-                  presenceId={presence.id}
-                  beingDraggedHack={beingDraggedHack}
-                  setBeingDraggedHack={setBeingDraggedHack}
-                />
-              )}
-            </CardContent>
-          </Card>
-        );
-      })}
+                )}
+              </CardContent>
+            </Card>
+          );
+        })}
+      </LocalPlanningDragContext.Provider>
     </>
   );
 }

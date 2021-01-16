@@ -64,6 +64,7 @@ import handleViewport from 'react-in-viewport'
 import { deleteSingleMessage } from '../../../api/users'
 import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
 import Gravatar from '../../../components/Gravatar';
+import { LocalPlanningDragContext } from './InvestiblesByWorkspace'
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -196,69 +197,65 @@ function PlanningDialog(props) {
         <DismissableText textId='stageHelp' textId1='stageHelp1' textId2='stageHelp2' textId3='stageHelp3'
                          textId4='stageHelp4'/>
       )}
-      {!_.isEmpty(requiresInputInvestibles) && (
-        <SubSection
-          type={SECTION_TYPE_SECONDARY_WARNING}
-          title={intl.formatMessage({ id: 'requiresInputHeader' })}
-          helpTextId="requiresInputSectionHelp"
-        >
-          <ArchiveInvestbiles
-            elevation={0}
-            marketId={marketId}
-            presenceMap={presenceMap}
-            investibles={requiresInputInvestibles}
-            highlightMap={highlightMap}
-            stageId={requiresInputStage.id}
-            presenceId={myPresence.id}
-            allowDragDrop
-            beingDraggedHack={beingDraggedHack}
-            setBeingDraggedHack={setBeingDraggedHack}
-            unResolvedMarketComments={comments.filter(comment => !comment.resolved) || []}
-          />
-        </SubSection>
-      )}
-      {!isChannel && (
-        <div id="swimLanes">
-          <InvestiblesByPerson
-            comments={comments}
-            investibles={investibles}
-            marketId={marketId}
-            marketPresences={assignedPresences}
-            visibleStages={visibleStages}
-            acceptedStage={acceptedStage}
-            inDialogStage={inDialogStage}
-            inBlockingStage={inBlockingStage}
-            inReviewStage={inReviewStage}
-            requiresInputStage={requiresInputStage}
-            activeMarket={activeMarket}
-            beingDraggedHack={beingDraggedHack}
-            setBeingDraggedHack={setBeingDraggedHack}
-          />
-        </div>
-      )}
-      {!_.isEmpty(furtherWorkInvestibles) && (
-        <SubSection
-          type={SECTION_TYPE_SECONDARY}
-          title={intl.formatMessage({ id: 'readyFurtherWorkHeader' })}
-        >
-          <ArchiveInvestbiles
-            elevation={0}
-            marketId={marketId}
-            presenceMap={presenceMap}
-            investibles={furtherWorkInvestibles}
-            stageId={furtherWorkStage.id}
-            presenceId={myPresence.id}
-            allowDragDrop
-            isInFurtherWork
-            beingDraggedHack={beingDraggedHack}
-            setBeingDraggedHack={setBeingDraggedHack}
-          />
-        </SubSection>
-      )}
-      {isChannel && (
-        <DismissableText textId='storyHelp' />
-      )}
-      <MarketTodos comments={unResolvedMarketComments} marketId={marketId} />
+      <LocalPlanningDragContext.Provider value={[beingDraggedHack, setBeingDraggedHack]}>
+        {!_.isEmpty(requiresInputInvestibles) && (
+          <SubSection
+            type={SECTION_TYPE_SECONDARY_WARNING}
+            title={intl.formatMessage({ id: 'requiresInputHeader' })}
+            helpTextId="requiresInputSectionHelp"
+          >
+            <ArchiveInvestbiles
+              elevation={0}
+              marketId={marketId}
+              presenceMap={presenceMap}
+              investibles={requiresInputInvestibles}
+              highlightMap={highlightMap}
+              stageId={requiresInputStage.id}
+              presenceId={myPresence.id}
+              allowDragDrop
+              unResolvedMarketComments={comments.filter(comment => !comment.resolved) || []}
+            />
+          </SubSection>
+        )}
+        {!isChannel && (
+          <div id="swimLanes">
+            <InvestiblesByPerson
+              comments={comments}
+              investibles={investibles}
+              marketId={marketId}
+              marketPresences={assignedPresences}
+              visibleStages={visibleStages}
+              acceptedStage={acceptedStage}
+              inDialogStage={inDialogStage}
+              inBlockingStage={inBlockingStage}
+              inReviewStage={inReviewStage}
+              requiresInputStage={requiresInputStage}
+              activeMarket={activeMarket}
+            />
+          </div>
+        )}
+        {!_.isEmpty(furtherWorkInvestibles) && (
+          <SubSection
+            type={SECTION_TYPE_SECONDARY}
+            title={intl.formatMessage({ id: 'readyFurtherWorkHeader' })}
+          >
+            <ArchiveInvestbiles
+              elevation={0}
+              marketId={marketId}
+              presenceMap={presenceMap}
+              investibles={furtherWorkInvestibles}
+              stageId={furtherWorkStage.id}
+              presenceId={myPresence.id}
+              allowDragDrop
+              isInFurtherWork
+            />
+          </SubSection>
+        )}
+        {isChannel && (
+          <DismissableText textId='storyHelp' />
+        )}
+        <MarketTodos comments={unResolvedMarketComments} marketId={marketId} />
+      </LocalPlanningDragContext.Provider>
       <Grid container spacing={2}>
           <Grid item id="commentAddArea"  xs={12}>
             {!inArchives && (
@@ -430,9 +427,7 @@ function InvestiblesByPerson(props) {
     inBlockingStage,
     inReviewStage,
     requiresInputStage,
-    activeMarket,
-    beingDraggedHack,
-    setBeingDraggedHack
+    activeMarket
   } = props;
   const classes = useInvestiblesByPersonStyles();
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
@@ -519,8 +514,6 @@ function InvestiblesByPerson(props) {
                 activeMarket={activeMarket}
                 comments={comments}
                 presenceId={presence.id}
-                beingDraggedHack={beingDraggedHack}
-                setBeingDraggedHack={setBeingDraggedHack}
               />
             )}
         </CardContent>

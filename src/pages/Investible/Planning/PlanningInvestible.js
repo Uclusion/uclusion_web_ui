@@ -543,7 +543,7 @@ function PlanningInvestible(props) {
           currentStageId={stage}
           isOpen={changeStagesExpanded}
           onSpinStop={() => setAnchorEl(null)}
-          disabled={isInVoting || (!isAssigned && !isInBlocked) || !_.isEmpty(blockingComments)}
+          disabled={isInVoting || !_.isEmpty(blockingComments)}
           hasAssignedQuestions={!_.isEmpty(questionByAssignedComments)}
         />
       </MenuItem>,
@@ -774,7 +774,7 @@ function PlanningInvestible(props) {
                         investibleId={investibleId}
                         marketId={marketId}
                         currentStageId={stage}
-                        disabled={!_.isEmpty(blockingComments) || !isAssigned || (isInVoting && (!enoughVotes || acceptedFull))}
+                        disabled={!_.isEmpty(blockingComments) || (isInVoting && (!isAssigned || !enoughVotes || acceptedFull))}
                         enoughVotes={enoughVotes}
                         acceptedStageAvailable={!acceptedFull}
                         hasTodos={!_.isEmpty(todoComments)}

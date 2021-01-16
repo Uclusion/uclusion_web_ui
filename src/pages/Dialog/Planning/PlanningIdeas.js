@@ -143,7 +143,10 @@ function PlanningIdeas(props) {
     const fromComment = comments.find((comment) => comment.id === commentId);
     if (fromComment) {
       setOperationRunning(true);
-      const name = nameFromDescription(fromComment.body);
+      let name = nameFromDescription(fromComment.body);
+      if (!name) {
+        name = intl.formatMessage({ id: `notificationLabel${fromComment.notification_type}` });
+      }
       const addInfo = {
         marketId,
         name,

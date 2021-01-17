@@ -363,7 +363,7 @@ export function checkInProgressWarning(investibles, comments, inProgressStageId,
       return;
     }
     if (daysEstimate) {
-      const dayEstimated = moment(createdAt).add(daysEstimate, 'days').toDate();
+      const dayEstimated = moment(createdAt).set({hour:23,minute:59,second:59,millisecond:999}).add(daysEstimate, 'days').toDate();
       const today = new Date();
       if (today <= dayEstimated) {
         // Also do not bother if we are before the date chosen for completion

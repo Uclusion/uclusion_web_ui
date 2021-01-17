@@ -301,6 +301,7 @@ function MarketTodos (props) {
     onDrop(event, 'BLUE');
   }
   const isSingleTodoSelected = editRedCard || editYellowCard || editCard;
+  const todosButtonMsgId = showSelectTodos ? 'todosCreateStory' : 'todosSelectForStory';
   return (
     <>
       <div className={classes.outerBorder}>
@@ -344,10 +345,7 @@ function MarketTodos (props) {
               color="secondary"
               variant="contained"
             >
-              <FormattedMessage
-                id={intl.formatMessage({ id: showSelectTodos ? 'todosCreateStory'
-                    : 'todosSelectForStory' })}
-              />
+              <FormattedMessage id={todosButtonMsgId} />
             </Button>
             )}
           actionButton={

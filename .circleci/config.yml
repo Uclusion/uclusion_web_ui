@@ -7,7 +7,7 @@ version: 2.1
 defaults: &defaults
   working_directory: ~/repo
   docker:
-    - image: circleci/python:3.7.3-node
+    - image: circleci/python:3.7-node
   resource_class: xlarge
 
 jobs:
@@ -42,6 +42,7 @@ jobs:
           command: |
             cd ~/repo
             npm run-script build
+          no_output_timeout: 30m
 
       - run:
           name: Deploy web ui

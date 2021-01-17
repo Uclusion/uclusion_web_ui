@@ -70,7 +70,7 @@
     "analyze": "source-map-explorer build/static/js/main.*",
     "start": "REACT_APP_VERSION=`git rev-parse HEAD | head -c 16` react-scripts start",
     "standard": "standard src/**/*.js",
-    "build": "REACT_APP_VERSION=`git rev-parse HEAD | head -c 16` react-scripts --optimize-for-size --max-old-space-size=12192 build",
+    "build": "REACT_APP_VERSION=`git rev-parse HEAD | head -c 16` react-scripts --optimize-for-size --max-old-space-size=14000 build",
     "deploy-stage": "aws s3 sync --delete build/ s3://uclusion-web-ui",
     "deploy-production": "aws s3 sync --delete build/ s3://uclusion-web-ui-production",
     "test": "react-scripts test --env=jsdom",

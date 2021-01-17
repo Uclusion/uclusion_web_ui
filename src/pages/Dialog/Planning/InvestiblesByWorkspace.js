@@ -185,6 +185,10 @@ function InvestiblesByWorkspace (props) {
                       presenceMap={getPresenceMap(marketPresencesState, market.id)}
                       investibles={requiresInputInvestibles}
                       highlightMap={highlightMap}
+                      presenceId={myPresence.id}
+                      stageId={requiresInputStage.id}
+                      allowDragDrop
+                      unResolvedMarketComments={comments.filter(comment => !comment.resolved) || []}
                     />
                     <hr/>
                   </SubSection>

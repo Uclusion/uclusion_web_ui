@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Avatar } from '@material-ui/core';
+import { Avatar, Tooltip } from '@material-ui/core'
 import md5 from 'md5';
 import { nameToAvatarText } from '../utils/stringFunctions';
 
@@ -21,22 +21,30 @@ function Gravatar (props) {
   // so we have to have two versions of the avatar render
   if (name) {
     return (
-      <Avatar
-        className={className}
-        key={email}
-        src={url}
-      >
-        {nameToAvatarText(name)}
-      </Avatar>
+      <Tooltip key={`tip${email}`} title={name}>
+        <div>
+          <Avatar
+            className={className}
+            key={email}
+            src={url}
+          >
+            {nameToAvatarText(name)}
+          </Avatar>
+        </div>
+      </Tooltip>
     )
   }
 
   return (
-    <Avatar
-      className={className}
-      key={email}
-      src={url}
-    />
+    <Tooltip key={`tip${email}`} title={name}>
+      <div>
+        <Avatar
+          className={className}
+          key={email}
+          src={url}
+        />
+      </div>
+    </Tooltip>
   );
 }
 

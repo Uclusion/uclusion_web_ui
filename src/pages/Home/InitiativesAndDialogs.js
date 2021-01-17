@@ -1,6 +1,6 @@
 import React, { useContext } from 'react'
 import { AvatarGroup } from '@material-ui/lab'
-import { CardActions, CardContent, Grid, Link, Tooltip, Typography } from '@material-ui/core'
+import { CardActions, CardContent, Grid, Link, Typography } from '@material-ui/core'
 import _ from 'lodash'
 import { useHistory } from 'react-router'
 import { makeStyles } from '@material-ui/styles'
@@ -271,14 +271,12 @@ function InitiativesAndDialogs(props) {
               spacing="small">
               {presences.map((presence) => {
                 const { id: userId, name, email } = presence;
-                return <Tooltip key={`tip${userId}`} title={name}>
-                  <Gravatar
+                return <Gravatar
                     className={classes.green}
                     key={userId}
                     email={email}
                     name={name}
                     />
-                 </Tooltip>
                 })}
             </AvatarGroup>
             </Grid> 

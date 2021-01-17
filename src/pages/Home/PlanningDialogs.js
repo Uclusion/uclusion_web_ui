@@ -157,14 +157,12 @@ function PlanningDialogs(props) {
                 spacing="medium">
                 {presences.map((presence) => {
                   const { id: userId, name, email } = presence;
-                  return <Tooltip key={`tip${userId}`} title={name}>
-                    <Gravatar
-                      className={classes.green}
-                      key={userId}
-                      email={email}
-                      name={name}
-                    />
-                  </Tooltip>
+                  return <Gravatar
+                        className={classes.green}
+                        key={userId}
+                        email={email}
+                        name={name}
+                      />
                   })
                 }
               </AvatarGroup>

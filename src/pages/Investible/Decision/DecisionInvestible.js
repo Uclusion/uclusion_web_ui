@@ -12,6 +12,7 @@ import { ISSUE_TYPE, JUSTIFY_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, } from '.
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
 import Screen from '../../../containers/Screen/Screen'
 import {
+  formCommentLink,
   formInvestibleLink,
   formMarketLink,
   makeArchiveBreadCrumbs,
@@ -161,7 +162,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export function getInlineBreadCrumbs (marketState, parentMarketId, parentInvestibleId, investiblesState) {
+export function getInlineBreadCrumbs (marketState, parentMarketId, parentInvestibleId, investiblesState,
+  parentCommentId) {
   const inlineParentMarket = getMarket(marketState, parentMarketId);
   let breadCrumbTemplates = [];
   if (inlineParentMarket) {
@@ -173,6 +175,12 @@ export function getInlineBreadCrumbs (marketState, parentMarketId, parentInvesti
     breadCrumbTemplates.push({
       name: getInvestibleName(parentInvestibleId, investiblesState),
       link: formInvestibleLink(parentMarketId, parentInvestibleId), id: 'marketCrumb'
+    })
+  }
+  if (parentCommentId) {
+    breadCrumbTemplates.push({
+      name: 'Question',
+      link: formCommentLink(parentMarketId, parentInvestibleId, parentCommentId), id: 'marketCrumb'
     })
   }
   return breadCrumbTemplates
@@ -213,7 +221,8 @@ function DecisionInvestible(props) {
   if (isInline) {
     const comments = getMarketComments(commentsState, parentCommentMarketId) || [];
     const parentComment = comments.find((comment) => comment.id === parentCommentId) || {};
-    breadCrumbTemplates = getInlineBreadCrumbs(marketState, parentCommentMarketId, parentComment.investible_id, investiblesState);
+    breadCrumbTemplates = getInlineBreadCrumbs(marketState, parentCommentMarketId, parentComment.investible_id,
+      investiblesState, parentComment.id);
   }
   const breadCrumbs = inArchives
     ? makeArchiveBreadCrumbs(history, breadCrumbTemplates)

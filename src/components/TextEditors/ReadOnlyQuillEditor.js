@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useContext, useState } from 'react'
+import React, { useRef, useEffect, useContext, useState, useCallback } from 'react'
 import PropTypes from "prop-types";
 import Quill from "quill";
 import handleViewport from 'react-in-viewport';
@@ -69,13 +69,14 @@ function ReadOnlyQuillEditor(props) {
     return () => {};
   }, [box, value, quillOptions]);
 
-  function removeMyMessage() {
-    if (myMessage && !viewTimer) {
+  const removeMyMessage = useCallback( () => {
+      if (viewTimer) return;
       setViewTimer(setTimeout(() => {
-        return deleteSingleMessage(myMessage).then(() => messagesDispatch(removeMessage(myMessage)));
-      }, 5000));
-    }
-  }
+        messagesDispatch(removeMessage(myMessage));
+        return deleteSingleMessage(myMessage).then(() => setViewTimer(undefined));
+      }, 3000));
+    }, [messagesDispatch, myMessage, viewTimer],
+  );
 
   function cancelRemoveMessage() {
     if (viewTimer) {

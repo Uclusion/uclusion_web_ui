@@ -109,7 +109,7 @@ function DescriptionOrDiff(props) {
 
 DescriptionOrDiff.propTypes = {
   id: PropTypes.string.isRequired,
-  description: PropTypes.string.isRequired
+  description: PropTypes.string
 };
 
 export default DescriptionOrDiff;

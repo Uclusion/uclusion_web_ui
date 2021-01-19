@@ -206,7 +206,7 @@ Voting.propTypes = {
   investmentReasons: PropTypes.arrayOf(PropTypes.object),
   // eslint-disable-next-line react/forbid-prop-types
   marketPresences: PropTypes.arrayOf(PropTypes.object),
-  investibleId: PropTypes.string.isRequired
+  investibleId: PropTypes.string
 };
 
 Voting.defaultProps = {

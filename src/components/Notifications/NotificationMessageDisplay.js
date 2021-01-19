@@ -4,7 +4,7 @@ import { Link } from '@material-ui/core';
 import { navigate } from '../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import Typography from '@material-ui/core/Typography';
-import { RED_LEVEL, UNREAD_TYPE, YELLOW_LEVEL } from '../../constants/notifications';
+import { BLUE_LEVEL, RED_LEVEL, UNREAD_TYPE, YELLOW_LEVEL } from '../../constants/notifications'
 import Chip from '@material-ui/core/Chip';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import SpinningTooltipIconButton from '../SpinBlocking/SpinningTooltipIconButton';
@@ -54,7 +54,8 @@ function NotificationMessageDisplay (props) {
           <Typography
             style={{ backgroundColor: color, color: fontColor, paddingLeft: '1rem', borderRadius: '3px' }}>{text}
             {lenDuplicates && (
-              <Chip label={`${lenDuplicates}`} color="primary" size='small'
+              <Chip component={'span'} label={`${lenDuplicates}`}
+                    color={level === BLUE_LEVEL ? 'secondary' : 'primary'} size='small'
                     style={{ marginLeft: '0.5rem' }}/>
             )}
           </Typography>

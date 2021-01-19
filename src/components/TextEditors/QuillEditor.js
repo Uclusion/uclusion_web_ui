@@ -2,7 +2,7 @@
  through, and sets up some of the options we'll always want
  **/
 import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOMServer from 'react-dom/server';
 import PropTypes from 'prop-types';
 import Quill from 'quill';
 import LoadingOverlay from 'react-loading-overlay';
@@ -235,11 +235,7 @@ class QuillEditor extends React.PureComponent {
         renderItem: function(item) {
           // we want an html string here which gets slammed into inner html, so we have to do some trickery
           // to let react render the result
-          const container = document.createElement('div');
-          container.style.display = 'none';
-          ReactDOM.render(<MentionListItem mentionResult={item}/>, container);
-          const html = container.innerHTML;
-          container.remove();
+          const html = ReactDOMServer.renderToString(<MentionListItem mentionResult={item}/>);
           return html;
         },
         source: function (searchTerm, renderList) {

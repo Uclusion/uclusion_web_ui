@@ -231,6 +231,7 @@ class QuillEditor extends React.PureComponent {
 
     if (!_.isEmpty(participants)) {
       modules.mention = {
+        dataAttributes: ['id', 'value', 'denotationChar', 'link', 'target', 'externalId'],
         positioningStrategy: 'fixed',
         renderItem: function(item) {
           // we want an html string here which gets slammed into inner html, so we have to do some trickery
@@ -241,15 +242,15 @@ class QuillEditor extends React.PureComponent {
         source: function (searchTerm, renderList) {
           if (searchTerm.length === 0) {
             renderList(participants.map((presence) => {
-              const { name, id, email } = presence;
-              return { id, value: name, email };
+              const { name, id, email, external_id } = presence;
+              return { id, value: name, email, externalId: external_id };
             }), searchTerm);
           } else {
             const matches = [];
             participants.forEach((presence) => {
-              const { name, id, email } = presence;
+              const { name, id, email, external_id } = presence;
               if (name.toLowerCase().includes(searchTerm.toLowerCase())) {
-                matches.push({ id, value: name, email });
+                matches.push({ id, value: name, email, externalId: external_id });
               }
             });
             renderList(matches, searchTerm);

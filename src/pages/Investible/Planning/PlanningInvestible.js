@@ -1236,9 +1236,10 @@ function Assignments(props) {
           return (
             <div
               style={{ display: 'flex', alignItems: 'center' }}
+              key={`${userId}${toolTipId}`}
             >
               <Gravatar email={user.email} name={user.name}/>
-              <Typography key={userId} component="li">
+              <Typography component="li">
                 {user.name}
               </Typography>
             </div>

@@ -202,8 +202,11 @@ function DisplayNotifications (props) {
 
   function getInvestibleResult (investible, index) {
     const IconComponent = investible.typeIcon;
+    if (!investible.name) {
+      return React.Fragment;
+    }
     return (
-      <React.Fragment key={index}>
+      <React.Fragment key={`${index}${investible.name}`}>
         <Typography style={{ paddingLeft: '1rem', fontStyle: 'italic' }}>
           <IconComponent style={{ marginRight: '6px', height: '16px', width: '16px' }}/>
           {investible.name}
@@ -222,7 +225,7 @@ function DisplayNotifications (props) {
       return (
         <Card
           raised
-          key={index}
+          key={`${index}${level}`}
           className={classes.messageItem}
         >
           <Typography style={{ paddingRight: '1rem', paddingLeft: '1rem', fontStyle: 'italic' }}>

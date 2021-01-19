@@ -21,6 +21,7 @@ function NotificationMessageDisplay (props) {
     link, level, name, text, lenDuplicates,
     investible_name: investibleName,
     market_name: marketName,
+    market_id: marketId,
     type
   } = message;
   const dismissable = type && type.startsWith(UNREAD_TYPE);
@@ -65,6 +66,7 @@ function NotificationMessageDisplay (props) {
           icon={<DeleteForeverIcon/>}
           translationId="notificationDismiss"
           onClick={handleDismiss}
+          marketId={marketId}
         />
       )}
     </>

@@ -150,7 +150,7 @@ function Notifications (props) {
   return (
     <div key={level} onMouseOut={onOut} onMouseOver={onEnter}>
       <Fab
-        id="notifications-fab"
+        id={`notifications-fab${level}`}
         className={clsx(
           classes.fab,
           getBackgroundClass())}

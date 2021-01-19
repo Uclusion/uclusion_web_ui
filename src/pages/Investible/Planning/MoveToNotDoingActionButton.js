@@ -28,7 +28,7 @@ function MoveToNotDoingActionButton(props) {
 
 MoveToNotDoingActionButton.propTypes = {
   marketId: PropTypes.string.isRequired,
-  disabled: PropTypes.bool.isRequired,
+  disabled: PropTypes.bool,
 };
 
 export default MoveToNotDoingActionButton;

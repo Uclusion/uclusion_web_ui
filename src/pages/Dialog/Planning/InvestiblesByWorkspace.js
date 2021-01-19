@@ -37,7 +37,7 @@ import Link from '@material-ui/core/Link';
 import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
-import Gravatar from '../../../components/Gravatar';
+import Gravatar from '../../../components/Avatars/Gravatar';
 
 export const LocalPlanningDragContext = React.createContext([]);
 

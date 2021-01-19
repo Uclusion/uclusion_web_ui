@@ -106,7 +106,7 @@ import moment from 'moment'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { doSetEditWhenValid, isTinyWindow } from '../../../utils/windowUtils'
 import LinkMarket from '../../Dialog/LinkMarket'
-import Gravatar from '../../../components/Gravatar';
+import Gravatar from '../../../components/Avatars/Gravatar';
 
 const useStyles = makeStyles(
   theme => ({

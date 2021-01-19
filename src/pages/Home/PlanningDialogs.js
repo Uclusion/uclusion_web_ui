@@ -30,7 +30,7 @@ import Badge from '@material-ui/core/Badge'
 import BlockIcon from '@material-ui/icons/Block'
 import HelpIcon from '@material-ui/icons/Help'
 import AssignmentIcon from '@material-ui/icons/Assignment'
-import Gravatar from '../../components/Gravatar';
+import Gravatar from '../../components/Avatars/Gravatar';
 
 const useStyles = makeStyles((theme) => ({
   paper: {

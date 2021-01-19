@@ -34,7 +34,7 @@ import Chart from '../../components/Cards/Chart'
 import ThumbUpIcon from '@material-ui/icons/ThumbUp'
 import clsx from 'clsx'
 import ThumbDownIcon from '@material-ui/icons/ThumbDown'
-import Gravatar from '../../components/Gravatar';
+import Gravatar from '../../components/Avatars/Gravatar';
 
 const dialogStyles = makeStyles((theme) => ({
   paper: {

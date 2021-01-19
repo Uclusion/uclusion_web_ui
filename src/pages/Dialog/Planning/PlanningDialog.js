@@ -63,7 +63,7 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import handleViewport from 'react-in-viewport'
 import { deleteSingleMessage } from '../../../api/users'
 import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
-import Gravatar from '../../../components/Gravatar';
+import Gravatar from '../../../components/Avatars/Gravatar';
 import { LocalPlanningDragContext } from './InvestiblesByWorkspace'
 
 function PlanningDialog(props) {

@@ -13,7 +13,7 @@ import {
 import BanUserButton from './BanUserButton';
 import UnBanUserButton from './UnBanUserButton';
 import { makeStyles } from '@material-ui/styles';
-import Gravatar from '../../../components/Gravatar';
+import Gravatar from '../../../components/Avatars/Gravatar';
 
 const useStyles = makeStyles((theme) => {
   return {

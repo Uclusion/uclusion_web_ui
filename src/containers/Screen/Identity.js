@@ -12,7 +12,7 @@ import { CognitoUserContext } from '../../contexts/CognitoUserContext/CongitoUse
 import config from '../../config';
 import { isFederated } from '../../contexts/CognitoUserContext/cognitoUserContextHelper';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline'
-import Gravatar from '../../components/Gravatar';
+import Gravatar from '../../components/Avatars/Gravatar';
 
 const useStyles = makeStyles((theme) => ({
   name: {

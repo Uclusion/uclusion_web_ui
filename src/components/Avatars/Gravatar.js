@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Avatar, Tooltip } from '@material-ui/core'
 import md5 from 'md5';
-import { nameToAvatarText } from '../utils/stringFunctions';
+import { nameToAvatarText } from '../../utils/stringFunctions';
 
 function Gravatar (props) {
   const {

@@ -4,7 +4,7 @@ import { formMarketManageLink, navigate } from '../../utils/marketIdPathFunction
 import PersonAddIcon from '@material-ui/icons/PersonAdd'
 import { FormattedMessage } from 'react-intl'
 import { ACTION_BUTTON_COLOR } from '../../components/Buttons/ButtonConstants'
-import Gravatar from '../../components/Gravatar';
+import Gravatar from '../../components/Avatars/Gravatar';
 
 const useStyles = makeStyles( () => ({
     archived: {

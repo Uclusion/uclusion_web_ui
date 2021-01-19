@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Gravatar from '../../Gravatar';
+import Gravatar from '../../Avatars/Gravatar';
 import { Typography } from '@material-ui/core';
 
 

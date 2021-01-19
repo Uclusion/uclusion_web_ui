@@ -76,7 +76,7 @@ import Voting from '../../pages/Investible/Decision/Voting'
 import { addParticipants } from '../../api/users'
 import ShareStoryButton from '../../pages/Investible/Planning/ShareStoryButton'
 import { onCommentOpen } from '../../utils/commentFunctions'
-import Gravatar from '../Gravatar';
+import Gravatar from '../Avatars/Gravatar';
 
 const useCommentStyles = makeStyles(
   theme => {

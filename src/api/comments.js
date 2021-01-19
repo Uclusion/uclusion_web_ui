@@ -58,7 +58,7 @@ export function reopenComment(marketId, commentId) {
     .catch((error) => toastErrorAndThrow(error, 'errorCommentReopenFailed'));
 }
 
-export function getMentionsFromText(body, marketId) {
+export function getMentionsFromText(body) {
   const sandbox = document.createElement('div');
   sandbox.innerHTML = body;
   const spans = sandbox.getElementsByTagName('span');
@@ -74,20 +74,19 @@ export function getMentionsFromText(body, marketId) {
       mentions.push(
         {
           user_id: span.getAttribute('data-id'),
-          market_id: marketId,
           external_id: span.getAttribute('data-external-id'),
         });
     }
   }
-  const deduped = Object.values(mentions.reduce((acc, currentMention) => {
+  const dedupedObject = mentions.reduce((acc, currentMention) => {
     const { user_id } = currentMention;
     if (!acc[user_id]) {
       return {
         ...acc,
         [user_id]: currentMention
       };
-      return acc;
     }
-  }, {}));
-  return deduped;
+    return acc;
+  }, {});
+  return Object.values(dedupedObject);
 }

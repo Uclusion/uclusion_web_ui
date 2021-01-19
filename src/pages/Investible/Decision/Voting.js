@@ -14,7 +14,7 @@ import { findMessageOfTypeAndId } from '../../../utils/messageUtils'
 import handleViewport from 'react-in-viewport'
 import { deleteSingleMessage } from '../../../api/users'
 import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
-import Gravatar from '../../../components/Gravatar';
+import Gravatar from '../../../components/Avatars/Gravatar';
 
 const useVoteStyles = makeStyles(
   theme => {

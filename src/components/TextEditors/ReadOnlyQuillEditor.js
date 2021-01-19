@@ -78,12 +78,13 @@ function ReadOnlyQuillEditor(props) {
     }, [messagesDispatch, myMessage, viewTimer],
   );
 
-  function cancelRemoveMessage() {
-    if (viewTimer) {
-      setViewTimer(undefined);
-      clearTimeout(viewTimer);
-    }
-  }
+  const cancelRemoveMessage = useCallback( () => {
+      if (viewTimer) {
+        setViewTimer(undefined);
+        clearTimeout(viewTimer);
+      }
+    }, [viewTimer],
+  );
 
   const TextDiv = (props) => {
     // inViewport, enterCount, leaveCount also available

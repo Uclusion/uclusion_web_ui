@@ -1,8 +1,8 @@
 import jwt_decode from 'jwt-decode';
 import { getTokenFetcher } from '../api/uclusionClient';
 import { TOKEN_TYPE_MARKET } from './TokenStorageManager';
-import { VIEW_EVENT, VISIT_CHANNEL } from '../contexts/NotificationsContext/NotificationsContext';
 import { registerListener } from '../utils/MessageBusUtils';
+import { VIEW_EVENT, VISIT_CHANNEL } from '../utils/marketIdPathFunctions'
 
 
 

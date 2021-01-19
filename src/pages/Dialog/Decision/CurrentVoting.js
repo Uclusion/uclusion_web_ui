@@ -11,7 +11,8 @@ import RaisedCard from '../../../components/Cards/RaisedCard'
 import { getVoteTotalsForUser } from '../../../utils/userFunctions'
 import VoteCard from '../../../components/Cards/VoteCard'
 import useFitText from 'use-fit-text'
-import { HighlightedCommentContext } from '../../../contexts/HighlightingContexts/HighlightedCommentContext'
+import { findMessageOfTypeAndId } from '../../../utils/messageUtils'
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 
 const useStyles = makeStyles(theme => ({
   noPadding: {
@@ -55,7 +56,7 @@ function CurrentVoting(props) {
   const intl = useIntl();
   const { marketPresences, investibles, marketId, comments, inArchives } = props;
   const strippedInvestibles = investibles.map(inv => inv.investible);
-  const [highlightedCommentState] = useContext(HighlightedCommentContext);
+  const [messagesState] = useContext(NotificationsContext);
 
   function getInvestibleVotes() {
     // first set every investibles support and investments to 0
@@ -94,6 +95,7 @@ function CurrentVoting(props) {
     const investibleComments = comments.filter(
       comment => comment.investible_id === id && !comment.parent_id
     );
+    const myMessage = findMessageOfTypeAndId(id, messagesState);
     const cssId = `option${index}`;
     return (
       <Grid item id={cssId} key={id} xs={12} sm={12} md={6}>
@@ -101,7 +103,7 @@ function CurrentVoting(props) {
           className="raisedcard"
           onClick={() => navigate(history, formInvestibleLink(marketId, id))}
         >
-          <CardContent className={id in highlightedCommentState ? classes.noPaddingHighlighted : classes.noPadding}>
+          <CardContent className={myMessage ? classes.noPaddingHighlighted : classes.noPadding}>
             <VoteCard
               title={name}
               comments={investibleComments}

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useState } from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import { useHistory } from 'react-router'
@@ -41,10 +41,6 @@ import { useMetaDataStyles } from '../Planning/PlanningInvestible'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { attachFilesToInvestible, deleteAttachedFilesFromInvestible } from '../../../api/investibles'
 import { EMPTY_SPIN_RESULT } from '../../../constants/global'
-import {
-  HIGHLIGHT_REMOVE,
-  HighlightedCommentContext
-} from '../../../contexts/HighlightingContexts/HighlightedCommentContext'
 import InvestibleBodyEdit from '../InvestibleBodyEdit'
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
@@ -210,7 +206,6 @@ function DecisionInvestible(props) {
   const metaClasses = useMetaDataStyles();
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, diffDispatch] = useContext(DiffContext);
-  const [, highlightedCommentDispatch] = useContext(HighlightedCommentContext);
   const { name: marketName, id: marketId, market_stage: marketStage, allow_multi_vote: allowMultiVote,
     parent_comment_id: parentCommentId, parent_comment_market_id: parentCommentMarketId } = market;
   const isInline = !_.isEmpty(parentCommentId);
@@ -268,14 +263,6 @@ function DecisionInvestible(props) {
   }
 
   const allowedCommentTypes = [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE];
-
-  useEffect(() => {
-    if (!hidden) {
-      // Just go ahead and remove because checking if there is dangerous
-      highlightedCommentDispatch({ type: HIGHLIGHT_REMOVE, commentId: investibleId });
-    }
-  }, [hidden, highlightedCommentDispatch, investibleId]);
-
 
   function getActions() {
     return (

@@ -37,10 +37,6 @@ import {
   getMarket,
   getMyUserForMarket
 } from '../../contexts/MarketsContext/marketsContextHelper'
-import {
-  HIGHLIGHT_REMOVE,
-  HighlightedCommentContext
-} from '../../contexts/HighlightingContexts/HighlightedCommentContext'
 import CardType from '../CardType'
 import { EMPTY_SPIN_RESULT, SECTION_TYPE_SECONDARY } from '../../constants/global'
 import {
@@ -77,6 +73,8 @@ import { addParticipants } from '../../api/users'
 import ShareStoryButton from '../../pages/Investible/Planning/ShareStoryButton'
 import { onCommentOpen } from '../../utils/commentFunctions'
 import Gravatar from '../Avatars/Gravatar';
+import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
+import { findMessageForCommentId } from '../../utils/messageUtils'
 
 const useCommentStyles = makeStyles(
   theme => {
@@ -319,7 +317,6 @@ function Comment(props) {
   const inArchives = !activeMarket || !myPresence.following;
   const replies = comments.filter(comment => comment.reply_id === id);
   const sortedReplies = _.sortBy(replies, "created_at");
-  const [highlightedCommentState, highlightedCommentDispatch] = useContext(HighlightedCommentContext);
   const [expandedCommentState, expandedCommentDispatch] = useContext(ExpandedCommentContext);
   const [replyOpen, setReplyOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(editOpenDefault);
@@ -330,6 +327,7 @@ function Comment(props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const [investibleState, investibleDispatch] = useContext(InvestiblesContext);
   const [commentState, commentDispatch] = useContext(CommentsContext);
+  const [messagesState] = useContext(NotificationsContext);
   const enableActions = !inArchives && !readOnly;
   const enableEditing = !inArchives && !resolved && !readOnly; //resolved comments or those in archive aren't editable
 
@@ -554,12 +552,13 @@ function Comment(props) {
   }
   function getHilightedIds(myReplies, highLightedIds) {
     const highLighted = highLightedIds || [];
-    if (_.isEmpty(myReplies) || _.isEmpty(highlightedCommentState)) {
+    if (_.isEmpty(myReplies)) {
       return highLighted;
     }
     myReplies.forEach(reply => {
-      if (reply.id in highlightedCommentState) {
-        const { level } = highlightedCommentState[reply.id];
+      const replyMessage = findMessageForCommentId(reply.id, messagesState);
+      if (replyMessage) {
+        const { level } = replyMessage;
         if (level) {
           highLighted.push(reply.id);
         }
@@ -574,7 +573,8 @@ function Comment(props) {
     return highLighted;
   }
   const highlightIds = getHilightedIds(replies);
-  const myHighlightedState = highlightedCommentState[id] || {};
+  const myMessage = findMessageForCommentId(id, messagesState);
+  const myHighlightedState = myMessage || {};
   const myExpandedState = expandedCommentState[id] || {};
   const { level: myHighlightedLevel } = myHighlightedState;
   const { expanded: myRepliesExpanded } = myExpandedState;
@@ -799,11 +799,7 @@ function Comment(props) {
                 className={clsx(classes.action, classes.actionSecondary)}
                 variant="contained"
                 onClick={() => {
-                  const newRepliesExpanded = !repliesExpanded;
-                  expandedCommentDispatch({ type: EXPANDED_CONTROL, commentId: id, expanded: newRepliesExpanded });
-                  if (!newRepliesExpanded && !_.isEmpty(highlightIds)) {
-                    highlightIds.forEach((commentId) => highlightedCommentDispatch({ type: HIGHLIGHT_REMOVE, commentId }));
-                  }
+                  expandedCommentDispatch({ type: EXPANDED_CONTROL, commentId: id, expanded: !repliesExpanded });
                 }}
               >
                 <FormattedMessage

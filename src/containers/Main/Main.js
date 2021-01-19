@@ -18,8 +18,6 @@ import AppWithAuth from '../App/AppWithAuth'
 import { OperationInProgressProvider } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import OperationInProgressGlobalProvider from '../../components/ContextHacks/OperationInProgressGlobalProvider'
 import { DiffProvider } from '../../contexts/DiffContext/DiffContext'
-import { HighlightedCommentProvider } from '../../contexts/HighlightingContexts/HighlightedCommentContext'
-import { HighlightedVotingProvider } from '../../contexts/HighlightingContexts/HighlightedVotingContext'
 import { AccountProvider } from '../../contexts/AccountContext/AccountContext'
 import { Elements } from '@stripe/react-stripe-js'
 import { loadStripe } from '@stripe/stripe-js'
@@ -38,46 +36,42 @@ function Main (props) {
       <LeaderProvider>
         <AccountProvider>
           <DismissTextProvider>
-            <HighlightedVotingProvider>
-              <HighlightedCommentProvider>
-                <ExpandedCommentProvider>
-                  <SearchIndexProvider>
-                    <SearchResultsProvider>
-                      <DiffProvider>
-                        <OperationInProgressProvider>
-                          <OperationInProgressGlobalProvider>
-                            <VersionsProvider>
-                              <ScrollProvider>
-                                <NotificationsProvider>
-                                  <NonParticipantsMarketsProvider>
-                                    <MarketsProvider>
-                                      <MarketStagesProvider>
-                                        <CommentsProvider>
-                                          <InvestiblesProvider>
-                                            <MarketPresencesProvider>
-                                              <LocaleProvider>
-                                                <ToastContainer position="top-center" pauseOnFocusLoss={false}/>
-                                                <Elements stripe={stripePromise}>
-                                                  <AppWithAuth/>
-                                                </Elements>
-                                              </LocaleProvider>
-                                            </MarketPresencesProvider>
-                                          </InvestiblesProvider>
-                                        </CommentsProvider>
-                                      </MarketStagesProvider>
-                                    </MarketsProvider>
-                                  </NonParticipantsMarketsProvider>
-                                </NotificationsProvider>
-                              </ScrollProvider>
-                            </VersionsProvider>
-                          </OperationInProgressGlobalProvider>
-                        </OperationInProgressProvider>
-                      </DiffProvider>
-                    </SearchResultsProvider>
-                  </SearchIndexProvider>
-                </ExpandedCommentProvider>
-              </HighlightedCommentProvider>
-            </HighlightedVotingProvider>
+            <ExpandedCommentProvider>
+              <SearchIndexProvider>
+                <SearchResultsProvider>
+                  <DiffProvider>
+                    <OperationInProgressProvider>
+                      <OperationInProgressGlobalProvider>
+                        <VersionsProvider>
+                          <ScrollProvider>
+                            <NotificationsProvider>
+                              <NonParticipantsMarketsProvider>
+                                <MarketsProvider>
+                                  <MarketStagesProvider>
+                                    <CommentsProvider>
+                                      <InvestiblesProvider>
+                                        <MarketPresencesProvider>
+                                          <LocaleProvider>
+                                            <ToastContainer position="top-center" pauseOnFocusLoss={false}/>
+                                            <Elements stripe={stripePromise}>
+                                              <AppWithAuth/>
+                                            </Elements>
+                                          </LocaleProvider>
+                                        </MarketPresencesProvider>
+                                      </InvestiblesProvider>
+                                    </CommentsProvider>
+                                  </MarketStagesProvider>
+                                </MarketsProvider>
+                              </NonParticipantsMarketsProvider>
+                            </NotificationsProvider>
+                          </ScrollProvider>
+                        </VersionsProvider>
+                      </OperationInProgressGlobalProvider>
+                    </OperationInProgressProvider>
+                  </DiffProvider>
+                </SearchResultsProvider>
+              </SearchIndexProvider>
+            </ExpandedCommentProvider>
           </DismissTextProvider>
         </AccountProvider>
       </LeaderProvider>

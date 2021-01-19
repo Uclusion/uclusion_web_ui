@@ -5,7 +5,6 @@ import { FormattedMessage, useIntl } from 'react-intl'
 import clsx from 'clsx'
 import { Card, CardContent, Typography } from '@material-ui/core'
 import ReadOnlyQuillEditor from '../../../components/TextEditors/ReadOnlyQuillEditor'
-import { HighlightedVotingContext } from '../../../contexts/HighlightingContexts/HighlightedVotingContext'
 import { makeStyles } from '@material-ui/styles'
 import CardType from '../../../components/CardType'
 import ProgressBar from '../../../components/Expiration/ProgressBarExpiration'
@@ -65,7 +64,6 @@ const useVoteStyles = makeStyles(
  */
 function Voting(props) {
   const { marketPresences, investibleId, investmentReasons, showExpiration, expirationMinutes } = props;
-  const [highlightedVoteState] = useContext(HighlightedVotingContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [timersState, timersDispatch] = useReducer((state, action) => {
     const { timer, userId } = action;
@@ -158,7 +156,7 @@ function Voting(props) {
             key={userId}
             className={clsx(
               classes.card,
-              userId in highlightedVoteState && classes.highlighted
+              myMessage && classes.highlighted
             )}
             component="li"
             id={voteId}

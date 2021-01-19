@@ -9,14 +9,10 @@ import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
 
 export const EMPTY_STATE = {
   initializing: true,
-  page: undefined,
   messages: [],
 };
 
 const NotificationsContext = React.createContext(EMPTY_STATE);
-
-export const VISIT_CHANNEL = 'VisitChannel';
-export const VIEW_EVENT = 'pageView';
 const NOTIFICATIONS_CHANNEL = 'notifications';
 
 function NotificationsProvider(props) {
@@ -34,9 +30,7 @@ function NotificationsProvider(props) {
         lfg.getState()
           .then((diskState) => {
             if (diskState) {
-              const { messages, recent } = diskState;
-              //We don't want to load up page or lastPage from disk
-              dispatch(initializeState({ messages, recent }));
+              dispatch(initializeState(diskState));
             }
           });
       }
@@ -56,9 +50,7 @@ function NotificationsProvider(props) {
     lfg.getState()
       .then((state) => {
         if (state) {
-          const { messages, recent } = state;
-          //We don't want to load up page or lastPage from disk
-          dispatch(initializeState({ messages, recent }));
+          dispatch(initializeState(state));
         } else {
           dispatch(initializeState({
             page: undefined,

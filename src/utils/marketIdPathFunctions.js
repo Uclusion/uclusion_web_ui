@@ -1,9 +1,11 @@
-import { VIEW_EVENT, VISIT_CHANNEL } from '../contexts/NotificationsContext/NotificationsContext'
 import { intl } from '../components/ContextHacks/IntlGlobalProvider'
 import { pushMessage } from './MessageBusUtils'
 import _ from 'lodash'
 import { getInvestible } from '../contexts/InvestibesContext/investiblesContextHelper'
 import { getMarket } from '../contexts/MarketsContext/marketsContextHelper'
+
+export const VISIT_CHANNEL = 'VisitChannel';
+export const VIEW_EVENT = 'pageView';
 
 /** Given the pathpart _without the hash or query params
  * will extract the action, the marketId and the investibleId

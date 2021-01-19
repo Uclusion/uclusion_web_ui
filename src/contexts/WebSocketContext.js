@@ -7,7 +7,6 @@ import PropTypes from 'prop-types'
 import WebSocketRunner from '../components/BackgroundProcesses/WebSocketRunner'
 import config from '../config'
 import { sendInfoPersistent, toastError } from '../utils/userMessage'
-import { VIEW_EVENT, VISIT_CHANNEL } from './NotificationsContext/NotificationsContext'
 import { registerListener } from '../utils/MessageBusUtils'
 import { refreshNotifications, refreshVersions } from './VersionsContext/versionsContextHelper'
 import { getLoginPersistentItem, setLoginPersistentItem } from '../components/utils'
@@ -15,6 +14,7 @@ import { getNotifications } from '../api/summaries'
 import { onSignOut } from '../utils/userFunctions'
 import { LEADER_CHANNEL, LeaderContext } from './LeaderContext/LeaderContext'
 import { BroadcastChannel } from 'broadcast-channel'
+import { VIEW_EVENT, VISIT_CHANNEL } from '../utils/marketIdPathFunctions'
 
 export const AUTH_HUB_CHANNEL = 'auth'; // this is case sensitive.
 export const VERSIONS_HUB_CHANNEL = 'VersionsChannel';

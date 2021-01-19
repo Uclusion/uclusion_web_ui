@@ -117,7 +117,7 @@ function DecisionInvestibleAdd(props) {
   function generateReturnLink() {
     let link = parentInvestibleId ? formInvestibleLink(parentMarketId, parentInvestibleId) : formMarketLink(marketId);
     if (parentCommentId || inlineParentCommentId) {
-      link = `${link}#nohighlightc${parentCommentId || inlineParentCommentId}`;
+      link = `${link}#c${parentCommentId || inlineParentCommentId}`;
     }
     return link;
   }

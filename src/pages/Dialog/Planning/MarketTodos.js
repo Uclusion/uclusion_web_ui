@@ -19,7 +19,6 @@ import { TODO_TYPE } from '../../../constants/comments'
 import AddIcon from '@material-ui/icons/Add'
 import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
 import CommentAdd from '../../../components/Comments/CommentAdd'
-import { HighlightedCommentContext } from '../../../contexts/HighlightingContexts/HighlightedCommentContext'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { EXPANDED_CONTROL, ExpandedCommentContext } from '../../../contexts/CommentsContext/ExpandedCommentContext'
 import { updateComment } from '../../../api/comments'
@@ -40,6 +39,8 @@ import CloseIcon from '@material-ui/icons/Close'
 import Chip from '@material-ui/core/Chip'
 import { restoreHeader } from '../../../containers/Header'
 import { LocalPlanningDragContext } from './InvestiblesByWorkspace'
+import { findMessageForCommentId } from '../../../utils/messageUtils'
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 
 const myClasses = makeStyles(
   theme => {
@@ -112,12 +113,12 @@ function MarketTodos (props) {
   const classes = myClasses();
   const intl = useIntl();
   const history = useHistory();
-  const [highlightedCommentState] = useContext(HighlightedCommentContext);
   const [expandedCommentState, expandedCommentDispatch] = useContext(ExpandedCommentContext);
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [index] = useContext(SearchIndexContext);
   const [beingDraggedHack, setBeingDraggedHack] = useContext(LocalPlanningDragContext);
+  const [messagesState] = useContext(NotificationsContext);
   const myExpandedState = expandedCommentState[marketId] || {};
   const { expanded: showTodos } = myExpandedState;
   const [editCard, setEditCard] = useState(false);
@@ -183,7 +184,8 @@ function MarketTodos (props) {
     return sortedData.map((comment) => {
       const { id, body, updated_at } = comment;
       const replies = comments.filter(comment => comment.root_comment_id === id) || [];
-      const { level } = highlightedCommentState[id] || {};
+      const myMessage = findMessageForCommentId(id, messagesState);
+      const { level } = myMessage || {};
       const { isChecked } = checked[id] || { isChecked: false };
       return (
         <Grid

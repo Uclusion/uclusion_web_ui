@@ -188,6 +188,7 @@ function InvestiblesByWorkspace (props) {
                       presenceId={presence.id}
                       stageId={requiresInputStage.id}
                       allowDragDrop
+                      comments={comments}
                       unResolvedMarketComments={comments.filter(comment => !comment.resolved) || []}
                     />
                     <hr/>

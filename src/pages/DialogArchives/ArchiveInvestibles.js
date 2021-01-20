@@ -15,6 +15,7 @@ import { refreshInvestibles } from '../../contexts/InvestibesContext/investibles
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { LocalPlanningDragContext } from '../Dialog/Planning/InvestiblesByWorkspace'
+import GravatarGroup from '../../components/Avatars/GravatarGroup';
 
 function getInvestibleOnClick(id, marketId, history) {
   return () => {
@@ -48,7 +49,7 @@ const myClasses = makeStyles(
   { name: "Archive" }
 );
 
-export function getInvestibles(investibles, presenceMap, marketId, history, intl, elevation, highlightMap,
+export function getInvestibles(investibles, presenceMap, marketId, comments, history, intl, elevation, highlightMap,
   allowDragDrop, onDragEnd, onDragStart, unResolvedMarketComments, presenceId, isInFurtherWork) {
   const investibleData = investibles.map((inv) => inv.investible);
   const sortedData = _.sortBy(investibleData, 'updated_at', 'name').reverse();
@@ -75,6 +76,9 @@ export function getInvestibles(investibles, presenceMap, marketId, history, intl
       const presence = presenceMap[element];
       return presence ? presence.name : '';
     });
+    const investibleComments = comments.filter(comment => comment.investible_id === id);
+    const investibleCommenters = _.uniq(investibleComments.map((comment) => comment.created_by));
+    const commentPresences = investibleCommenters.map((userId) => presenceMap[userId]);
     return (
       <Grid
         key={id}
@@ -94,6 +98,7 @@ export function getInvestibles(investibles, presenceMap, marketId, history, intl
             <Typography style={{fontSize: '.75rem', flex: 1}}>Updated: {intl.formatDate(updated_at)}</Typography>
             <Typography style={{fontWeight: 700, flex: 2}}>{name}</Typography>
             {assignedNames.map((name) => (<Typography style={{fontStyle: 'italic', fontSize: '.75rem', flex: 1}} key={name}>Assignee: {name}</Typography>))}
+            <GravatarGroup users={commentPresences}/>
           </div>
         </RaisedCard>
       </Grid>
@@ -104,6 +109,7 @@ export function getInvestibles(investibles, presenceMap, marketId, history, intl
 function ArchiveInvestbiles(props) {
   const {
     investibles,
+    comments,
     marketId,
     presenceMap,
     elevation,
@@ -171,7 +177,7 @@ function ArchiveInvestbiles(props) {
       onDrop={onDrop}
       onDragOver={(event) => isInFurtherWork && event.preventDefault()}
     >
-      {getInvestibles(investibles, presenceMap, marketId, history, intl, elevation, highlightMap, allowDragDrop,
+      {getInvestibles(investibles, presenceMap, marketId, comments, history, intl, elevation, highlightMap, allowDragDrop,
       onDragEnd, onDragStart, unResolvedMarketComments, presenceId, isInFurtherWork)}
     </Grid>
   );

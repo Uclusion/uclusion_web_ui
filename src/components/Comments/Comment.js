@@ -72,9 +72,9 @@ import Voting from '../../pages/Investible/Decision/Voting'
 import { addParticipants } from '../../api/users'
 import ShareStoryButton from '../../pages/Investible/Planning/ShareStoryButton'
 import { onCommentOpen } from '../../utils/commentFunctions'
-import Gravatar from '../Avatars/Gravatar';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 import { findMessageForCommentId } from '../../utils/messageUtils'
+import GravatarAndName from '../Avatars/GravatarAndName';
 
 const useCommentStyles = makeStyles(
   theme => {
@@ -157,7 +157,6 @@ const useCommentStyles = makeStyles(
         display: "inline-flex"
       },
       createdBy: {
-        paddingLeft: '5px',
         fontSize: '15px',
         fontWeight: 'bold'
       },
@@ -687,16 +686,13 @@ function Comment(props) {
         </Box>
         <CardContent className={classes.cardContent}>
           {!noAuthor && (
-            <div style={{ display: 'inline-flex', alignItems: 'center' }}>
-              <Gravatar
-                key={userId}
-                email={createdBy.email}
-                name={createdBy.name}
+            <GravatarAndName
+              key={userId}
+              email={createdBy.email}
+              name={createdBy.name}
+              typographyVariant="caption"
+              typographyClassName={classes.createdBy}
               />
-              <Typography className={classes.createdBy} variant="caption">
-                {createdBy.name}
-              </Typography>
-            </div>
           )}
           <Box marginTop={1}>
             {!editOpen && (

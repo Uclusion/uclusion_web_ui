@@ -4,7 +4,7 @@ import { formMarketManageLink, navigate } from '../../utils/marketIdPathFunction
 import PersonAddIcon from '@material-ui/icons/PersonAdd'
 import { FormattedMessage } from 'react-intl'
 import { ACTION_BUTTON_COLOR } from '../../components/Buttons/ButtonConstants'
-import Gravatar from '../../components/Avatars/Gravatar';
+import GravatarAndName from '../../components/Avatars/GravatarAndName';
 
 const useStyles = makeStyles( () => ({
     archived: {
@@ -51,13 +51,13 @@ export function Collaborators(props) {
         {!authorDisplay && marketPresences.map(presence => {
           const { id: presenceId, name, following, email } = presence;
           const myClassName = following ? classes.normal : classes.archived;
-          if (presenceId === authorId ) {
+          if (presenceId === authorId) {
             return <React.Fragment key={presenceId}/>;
           }
           if (!following) {
             return (
               <Tooltip key={`tip${presenceId}`}
-                      title={<FormattedMessage id="collaboratorNotFollowing" />}>
+                       title={<FormattedMessage id="collaboratorNotFollowing"/>}>
                 <Typography key={presenceId} component="li" className={myClassName}>
                   {name}
                 </Typography>
@@ -65,12 +65,13 @@ export function Collaborators(props) {
             );
           }
           return (
-            <div style={{display: 'flex', alignItems: 'center'}}>
-              <Gravatar name={name} email={email}/>
-              <Typography key={presenceId} component="li" className={myClassName}>
-              {name}
-            </Typography>
-            </div>
+            <GravatarAndName
+              key={email}
+              email={email}
+              name={name}
+              typographyClassName={myClassName}
+              typographyComponent="li"
+            />
           );
         })}
         </ul>

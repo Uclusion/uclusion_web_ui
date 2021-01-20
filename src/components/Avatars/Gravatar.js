@@ -55,7 +55,6 @@ Gravatar.propTypes = {
 };
 
 Gravatar.defaultProps = {
-  user: '',
   name: '',
   email: '',
   useBlank: false,

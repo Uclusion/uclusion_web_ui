@@ -1,87 +1,88 @@
-import React, { useContext } from 'react'
-import PropTypes from 'prop-types'
+import React, { useContext } from 'react';
+import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { useHistory } from 'react-router'
-import { Link, Tooltip, Typography } from '@material-ui/core'
-import { makeStyles } from '@material-ui/core/styles'
-import { red, yellow } from '@material-ui/core/colors'
-import { FormattedDate, FormattedMessage, useIntl } from 'react-intl'
-import { formInvestibleLink, formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions'
-import clsx from 'clsx'
+import { useHistory } from 'react-router';
+import { Link, Tooltip, Typography } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+import { red, yellow } from '@material-ui/core/colors';
+import { FormattedDate, FormattedMessage, useIntl } from 'react-intl';
+import { formInvestibleLink, formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
+import clsx from 'clsx';
 import {
   checkInProgressWarning,
   checkReviewWarning,
   checkVotingWarning,
-} from './PlanningDialog'
-import { DaysEstimate } from '../../../components/AgilePlan'
-import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
-import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
-import Chip from '@material-ui/core/Chip'
-import { addPlanningInvestible, stageChangeInvestible, updateInvestible } from '../../../api/investibles'
+} from './PlanningDialog';
+import { DaysEstimate } from '../../../components/AgilePlan';
+import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import Chip from '@material-ui/core/Chip';
+import { addPlanningInvestible, stageChangeInvestible, updateInvestible } from '../../../api/investibles';
 import {
   addInvestible,
   getInvestible,
   refreshInvestibles
-} from '../../../contexts/InvestibesContext/investiblesContextHelper'
-import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
-import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
-import { getMarketInfo, getVotesForInvestible } from '../../../utils/userFunctions'
-import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments'
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
-import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
-import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
-import { getFullStage, getStages } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
-import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
-import { moveComments } from '../../../api/comments'
+} from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
+import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
+import { getMarketInfo, getVotesForInvestible } from '../../../utils/userFunctions';
+import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
+import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
+import { getFullStage, getStages } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
+import { moveComments } from '../../../api/comments';
 import {
   getMarketComments, refreshMarketComments,
   resolveInvestibleComments
-} from '../../../contexts/CommentsContext/commentsContextHelper'
-import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
-import { nameFromDescription } from '../../../utils/stringFunctions'
-import { restoreHeader } from '../../../containers/Header'
-import { LocalPlanningDragContext } from './InvestiblesByWorkspace'
+} from '../../../contexts/CommentsContext/commentsContextHelper';
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
+import { nameFromDescription } from '../../../utils/stringFunctions';
+import { restoreHeader } from '../../../containers/Header';
+import { LocalPlanningDragContext } from './InvestiblesByWorkspace';
+import GravatarGroup from '../../../components/Avatars/GravatarGroup';
 
-const warningColor = red["400"];
+const warningColor = red['400'];
 
 const usePlanningIdStyles = makeStyles(
   theme => {
     return {
       stages: {
-        display: "flex",
-        flexDirection: "row",
-        flexWrap: "wrap",
+        display: 'flex',
+        flexDirection: 'row',
+        flexWrap: 'wrap',
         margin: 0,
-        "& > *": {
-          borderRight: `1px solid ${theme.palette.grey["300"]}`,
-          flex: "1 1 25%",
-          minWidth: "15ch",
+        '& > *': {
+          borderRight: `1px solid ${theme.palette.grey['300']}`,
+          flex: '1 1 25%',
+          minWidth: '15ch',
           padding: theme.spacing(1),
-          "&:last-child": {
-            borderRight: "none"
+          '&:last-child': {
+            borderRight: 'none'
           }
         }
       },
       stageLabel: {},
       containerEmpty: {},
       containerRed: {
-        borderColor: "red",
-        borderStyle: "dashed",
-        borderWidth: "3px",
+        borderColor: 'red',
+        borderStyle: 'dashed',
+        borderWidth: '3px',
         borderRadius: 6
       },
       containerGreen: {
-        borderColor: "green",
-        borderStyle: "dashed",
-        borderWidth: "3px",
+        borderColor: 'green',
+        borderStyle: 'dashed',
+        borderWidth: '3px',
         borderRadius: 6
       }
     };
   },
-  { name: "PlanningIdea" }
+  { name: 'PlanningIdea' }
 );
 
-function PlanningIdeas(props) {
+function PlanningIdeas (props) {
   const {
     investibles,
     marketId,
@@ -117,9 +118,10 @@ function PlanningIdeas(props) {
   }) || [];
   const acceptedFull = acceptedStage.allowed_investibles > 0
     && acceptedInvestibles.length >= acceptedStage.allowed_investibles;
-  const acceptedStageLabel = acceptedFull? 'planningAcceptedStageFullLabel' : 'planningAcceptedStageLabel';
+  const acceptedStageLabel = acceptedFull ? 'planningAcceptedStageFullLabel' : 'planningAcceptedStageLabel';
   const myPresence = (marketPresences || []).find((presence) => presence.current_user) || {};
-  function isBlockedByIssue(investibleId, currentStageId, targetStageId) {
+
+  function isBlockedByIssue (investibleId, currentStageId, targetStageId) {
     const investibleComments = comments.filter((comment) => comment.investible_id === investibleId) || [];
     const blockingComments = investibleComments.filter(
       comment => comment.comment_type === ISSUE_TYPE && !comment.resolved
@@ -137,7 +139,8 @@ function PlanningIdeas(props) {
     }
     return false;
   }
-  function onDropTodo(event) {
+
+  function onDropTodo (event) {
     const commentId = event.dataTransfer.getData('text');
     const comments = getMarketComments(commentsState, marketId) || [];
     const fromComment = comments.find((comment) => comment.id === commentId);
@@ -155,19 +158,20 @@ function PlanningIdeas(props) {
       addPlanningInvestible(addInfo).then((inv) => {
         const { investible } = inv;
         return moveComments(marketId, investible.id, [commentId])
-            .then((movedComments) => {
-              const comments = getMarketComments(commentsState, marketId);
-              refreshMarketComments(commentsDispatch, marketId, [...movedComments, ...comments]);
-              addInvestible(invDispatch, diffDispatch, inv);
-              setOperationRunning(false);
-            });
-        });
+          .then((movedComments) => {
+            const comments = getMarketComments(commentsState, marketId);
+            refreshMarketComments(commentsDispatch, marketId, [...movedComments, ...comments]);
+            addInvestible(invDispatch, diffDispatch, inv);
+            setOperationRunning(false);
+          });
+      });
     }
   }
-  function stageChange(event, targetStageId) {
+
+  function stageChange (event, targetStageId) {
     event.preventDefault();
-    const investibleId = event.dataTransfer.getData("text");
-    const currentStageId = event.dataTransfer.getData("stageId");
+    const investibleId = event.dataTransfer.getData('text');
+    const currentStageId = event.dataTransfer.getData('stageId');
     if (!operationRunning && !isBlockedByIssue(investibleId, currentStageId, targetStageId) &&
       currentStageId !== targetStageId && checkStageMatching(currentStageId)) {
       const target = event.target;
@@ -189,25 +193,28 @@ function PlanningIdeas(props) {
         });
     }
   }
-  function isAssignedInvestible(event, assignedToId) {
-    const investibleId = event.dataTransfer.getData("text");
+
+  function isAssignedInvestible (event, assignedToId) {
+    const investibleId = event.dataTransfer.getData('text');
     const investible = getInvestible(invState, investibleId);
     const marketInfo = getMarketInfo(investible, marketId);
     const { assigned } = marketInfo;
     return (assigned || []).includes(assignedToId);
   }
-  function checkStageMatching(stageId) {
+
+  function checkStageMatching (stageId) {
     const marketStages = getStages(marketStagesState, marketId);
-    const stage = getFullStage(marketStagesState, marketId, stageId)
+    const stage = getFullStage(marketStagesState, marketId, stageId);
     return (marketStages || []).includes(stage);
   }
-  function onDropVoting(event) {
-    const currentStageId = event.dataTransfer.getData("stageId");
+
+  function onDropVoting (event) {
+    const currentStageId = event.dataTransfer.getData('stageId');
     if (!currentStageId) {
       // This is a dragged TODO
       onDropTodo(event);
     } else if (checkStageMatching(currentStageId)) {
-      const investibleId = event.dataTransfer.getData("text");
+      const investibleId = event.dataTransfer.getData('text');
       if (isAssignedInvestible(event, myPresence.id) && myPresence.id === presenceId) {
         stageChange(event, inDialogStageId);
       } else if (!operationRunning && !isAssignedInvestible(event, presenceId)) {
@@ -238,9 +245,10 @@ function PlanningIdeas(props) {
       }
     }
   }
-  function onDropAccepted(event) {
-    const investibleId = event.dataTransfer.getData("text");
-    const currentStageId = event.dataTransfer.getData("stageId");
+
+  function onDropAccepted (event) {
+    const investibleId = event.dataTransfer.getData('text');
+    const currentStageId = event.dataTransfer.getData('stageId');
     if (checkStageMatching(currentStageId)) {
       const investible = getInvestible(invState, investibleId);
       const marketInfo = getMarketInfo(investible, marketId);
@@ -256,15 +264,17 @@ function PlanningIdeas(props) {
       }
     }
   }
-  function onDropReview(event) {
-    const currentStageId = event.dataTransfer.getData("stageId");
+
+  function onDropReview (event) {
+    const currentStageId = event.dataTransfer.getData('stageId');
     if (checkStageMatching(currentStageId)) {
       if (isAssignedInvestible(event, presenceId)) {
         stageChange(event, inReviewStageId);
       }
     }
   }
-  function isEligableDrop(divId) {
+
+  function isEligableDrop (divId) {
     const { id, stageId } = beingDraggedHack;
     if (!stageId) {
       // This is a TODO being dragged
@@ -298,7 +308,8 @@ function PlanningIdeas(props) {
     }
     return false;
   }
-  function onDragEnterStage(event, divId, divPresenceId) {
+
+  function onDragEnterStage (event, divId, divPresenceId) {
     const { id, stageId, previousElementId, originalElementId } = beingDraggedHack;
     const elementId = `${divId}_${divPresenceId}`;
     if (elementId !== originalElementId && elementId !== previousElementId) {
@@ -307,14 +318,14 @@ function PlanningIdeas(props) {
       }
       if (isEligableDrop(divId)) {
         if (!operationRunning) {
-          event.dataTransfer.dropEffect = "move";
+          event.dataTransfer.dropEffect = 'move';
           document.getElementById(elementId).className = classes.containerGreen;
           if (!_.isEmpty(beingDraggedHack)) {
             setBeingDraggedHack({ id, stageId, previousElementId: elementId, originalElementId });
           }
         }
       } else {
-        event.dataTransfer.dropEffect = "none";
+        event.dataTransfer.dropEffect = 'none';
         document.getElementById(elementId).className = classes.containerRed;
         if (!_.isEmpty(beingDraggedHack)) {
           setBeingDraggedHack({ id, stageId, previousElementId: elementId, originalElementId });
@@ -322,7 +333,8 @@ function PlanningIdeas(props) {
       }
     }
   }
-  function onDragEndStage() {
+
+  function onDragEndStage () {
     restoreHeader();
     const { previousElementId } = beingDraggedHack;
     if (previousElementId) {
@@ -330,6 +342,7 @@ function PlanningIdeas(props) {
       setBeingDraggedHack({});
     }
   }
+
   return (
     <dl className={classes.stages}>
       <div id={`${inDialogStageId}_${presenceId}`} onDrop={onDropVoting}
@@ -340,7 +353,7 @@ function PlanningIdeas(props) {
           title={intl.formatMessage({ id: 'planningVotingStageDescription' })}
         >
           <dt className={classes.stageLabel}>
-            <FormattedMessage id="planningVotingStageLabel" />
+            <FormattedMessage id="planningVotingStageLabel"/>
           </dt>
         </Tooltip>
         <VotingStage
@@ -362,7 +375,7 @@ function PlanningIdeas(props) {
           title={intl.formatMessage({ id: 'planningAcceptedStageDescription' })}
         >
           <dt className={classes.stageLabel}>
-            <FormattedMessage id={acceptedStageLabel} />
+            <FormattedMessage id={acceptedStageLabel}/>
           </dt>
         </Tooltip>
         <AcceptedStage
@@ -382,7 +395,7 @@ function PlanningIdeas(props) {
           title={intl.formatMessage({ id: 'planningReviewStageDescription' })}
         >
           <dt className={classes.stageLabel}>
-            <FormattedMessage id="planningReviewStageLabel" />
+            <FormattedMessage id="planningReviewStageLabel"/>
           </dt>
         </Tooltip>
         <ReviewStage
@@ -399,7 +412,7 @@ function PlanningIdeas(props) {
           title={intl.formatMessage({ id: 'planningBlockedStageDescription' })}
         >
           <dt className={classes.stageLabel}>
-            <FormattedMessage id="planningBlockedStageLabel" />
+            <FormattedMessage id="planningBlockedStageLabel"/>
           </dt>
         </Tooltip>
         <BlockingStage
@@ -433,48 +446,48 @@ const useStageClasses = makeStyles(
   theme => {
     return {
       root: {
-        border: `1px solid ${theme.palette.grey["400"]}`,
+        border: `1px solid ${theme.palette.grey['400']}`,
         borderRadius: theme.spacing(1),
-        fontSize: ".8em",
+        fontSize: '.8em',
         margin: theme.spacing(1, 0),
         padding: theme.spacing(1, 2),
-        overflowWrap: "break-word"
+        overflowWrap: 'break-word'
       },
       rootWarnAccepted: {
-        border: `1px solid ${theme.palette.grey["400"]}`,
+        border: `1px solid ${theme.palette.grey['400']}`,
         borderRadius: theme.spacing(1),
-        fontSize: ".8em",
+        fontSize: '.8em',
         margin: theme.spacing(1, 0),
         padding: theme.spacing(1, 2),
-        backgroundColor: yellow["400"],
-        overflowWrap: "break-word"
+        backgroundColor: yellow['400'],
+        overflowWrap: 'break-word'
       },
       outlinedAccepted: {
-        border: `1px solid ${theme.palette.grey["400"]}`,
+        border: `1px solid ${theme.palette.grey['400']}`,
         borderRadius: theme.spacing(1),
-        fontSize: ".8em",
+        fontSize: '.8em',
         margin: theme.spacing(1, 0),
         padding: theme.spacing(1, 2),
-        overflowWrap: "break-word"
+        overflowWrap: 'break-word'
       },
       regularAccepted: {
         marginLeft: 0,
-        overflowWrap: "break-word"
+        overflowWrap: 'break-word'
       },
       fallback: {
-        backgroundColor: theme.palette.grey["400"]
+        backgroundColor: theme.palette.grey['400']
       },
       list: {
-        listStyle: "none",
+        listStyle: 'none',
         margin: 0,
         padding: 0
       }
     };
   },
-  { name: "Stage" }
+  { name: 'Stage' }
 );
 
-function Stage(props) {
+function Stage (props) {
   const {
     fallbackOnClick,
     comments,
@@ -495,7 +508,7 @@ function Stage(props) {
     const { market_infos: marketInfos } = investible;
     // console.log(`Investible id is ${id}`);
     const marketInfo = marketInfos.find(info => info.market_id === marketId);
-    if (process.env.NODE_ENV !== "production") {
+    if (process.env.NODE_ENV !== 'production') {
       if (marketInfo === undefined) {
         console.warn(`no marketinfo for ${marketId} with `, marketInfos);
       }
@@ -506,9 +519,9 @@ function Stage(props) {
   const classes = useStageClasses(props);
 
   if (fallbackWarning !== undefined && stageInvestibles.length === 0) {
-    const style = fallbackOnClick? { cursor: 'pointer' } : {}
+    const style = fallbackOnClick ? { cursor: 'pointer' } : {};
     return (
-      <div onClick={fallbackOnClick? fallbackOnClick: () => {}} style={style}>
+      <div onClick={fallbackOnClick ? fallbackOnClick : () => {}} style={style}>
         <dd className={clsx(classes.root, classes.fallback)}>
           {fallbackWarning}
         </dd>
@@ -516,12 +529,13 @@ function Stage(props) {
     );
   }
 
-  function investibleOnDragStart(event) {
-    event.dataTransfer.setData("text", event.target.id);
-    event.dataTransfer.setData("stageId", id);
+  function investibleOnDragStart (event) {
+    event.dataTransfer.setData('text', event.target.id);
+    event.dataTransfer.setData('stageId', id);
     const originalElementId = `${id}_${presenceId}`;
-    dragHack({id:event.target.id, stageId: id, originalElementId});
+    dragHack({ id: event.target.id, stageId: id, originalElementId });
   }
+
   const warnAcceptedSafe = warnAccepted || {};
   const warnKeys = Object.keys(warnAcceptedSafe);
   const singleInvestible = (stageInvestibles || []).length === 1;
@@ -540,7 +554,8 @@ function Stage(props) {
                 className={!singleInvestible && warnAcceptedSafe[investible.id] ? classes.rootWarnAccepted
                   : !singleInvestible ? classes.outlinedAccepted : classes.regularAccepted}>
               <StageInvestible
-                comments={comments}
+                marketPresences={marketPresences || []}
+                comments={comments || []}
                 investible={investible}
                 marketId={marketId}
                 marketInfo={marketInfo}
@@ -565,21 +580,20 @@ Stage.propTypes = {
   fallbackOnClick: PropTypes.func,
 };
 
-
 const useVotingStageClasses = makeStyles(
   theme => {
     return {
       root: {},
       fallback: {
         backgroundColor: warningColor,
-        color: "white"
+        color: 'white'
       }
     };
   },
-  { name: "VotingStage" }
+  { name: 'VotingStage' }
 );
 
-function VotingStage(props) {
+function VotingStage (props) {
   const { className, marketId, presenceId, activeMarket, comments, marketPresences, ...other } = props;
 
   const classes = useVotingStageClasses();
@@ -588,7 +602,8 @@ function VotingStage(props) {
   const history = useHistory();
   const link = formMarketAddInvestibleLink(marketId);
   const assignedLink = link + `#assignee=${presenceId}`;
-  function onClick(event) {
+
+  function onClick (event) {
     // prevent browser navigation
     event.preventDefault();
     navigate(history, assignedLink);
@@ -600,15 +615,15 @@ function VotingStage(props) {
       classes={classes}
       fallbackWarning={
         activeMarket ?
-        <React.Fragment>
-          <FormattedMessage id="planningNoneInDialogWarning" />
-          <StageLink href={assignedLink} onClick={onClick}>
-            {intl.formatMessage({
-              id: "createAssignment"
-            })}
-          </StageLink>
-        </React.Fragment> : <React.Fragment>
-            <FormattedMessage id="planningNoneInDialogWarning" />
+          <React.Fragment>
+            <FormattedMessage id="planningNoneInDialogWarning"/>
+            <StageLink href={assignedLink} onClick={onClick}>
+              {intl.formatMessage({
+                id: 'createAssignment'
+              })}
+            </StageLink>
+          </React.Fragment> : <React.Fragment>
+            <FormattedMessage id="planningNoneInDialogWarning"/>
           </React.Fragment>
       }
       marketId={marketId}
@@ -618,20 +633,20 @@ function VotingStage(props) {
       fallbackOnClick={onClick}
       marketPresences={marketPresences}
       updatedText={intl.formatMessage({
-        id: "inDialogInvestiblesUpdatedAt"
+        id: 'inDialogInvestiblesUpdatedAt'
       })}
       {...other}
-   />
+    />
   );
 }
 
-function AcceptedStage(props) {
+function AcceptedStage (props) {
   const intl = useIntl();
   return (
     <Stage
-      fallbackWarning={<FormattedMessage id="planningNoneAcceptedWarning" />}
+      fallbackWarning={<FormattedMessage id="planningNoneAcceptedWarning"/>}
       updatedText={intl.formatMessage({
-        id: "acceptedInvestiblesUpdatedAt"
+        id: 'acceptedInvestiblesUpdatedAt'
       })}
       showCompletion
       {...props}
@@ -639,16 +654,16 @@ function AcceptedStage(props) {
   );
 }
 
-function ReviewStage(props) {
+function ReviewStage (props) {
   const intl = useIntl();
 
   return (
     <Stage
       fallbackWarning={intl.formatMessage({
-        id: "planningNoneInReviewWarning"
+        id: 'planningNoneInReviewWarning'
       })}
       updatedText={intl.formatMessage({
-        id: "reviewingInvestiblesUpdatedAt"
+        id: 'reviewingInvestiblesUpdatedAt'
       })}
       isReview
       {...props}
@@ -662,15 +677,15 @@ const useBlockingStageStyles = makeStyles(theme => {
       backgroundColor: warningColor
     },
     outlinedAccepted: {
-      border: `1px solid ${theme.palette.grey["400"]}`,
+      border: `1px solid ${theme.palette.grey['400']}`,
       borderRadius: theme.spacing(1),
-      fontSize: ".8em",
+      fontSize: '.8em',
       margin: theme.spacing(1, 0),
       padding: theme.spacing(1, 2),
       backgroundColor: warningColor
     },
     fallback: {
-      backgroundColor: theme.palette.grey["400"]
+      backgroundColor: theme.palette.grey['400']
     }
   };
 });
@@ -681,12 +696,12 @@ const generalStageStyles = makeStyles(() => {
       fontSize: 10,
     },
     chipsClass: {
-      display: "flex",
+      display: 'flex',
     }
-  }
+  };
 });
 
-function BlockingStage(props) {
+function BlockingStage (props) {
   const intl = useIntl();
   const classes = useBlockingStageStyles();
 
@@ -694,64 +709,88 @@ function BlockingStage(props) {
     <Stage
       classes={classes}
       fallbackWarning={intl.formatMessage({
-        id: "planningNoneInBlockingWarning"
+        id: 'planningNoneInBlockingWarning'
       })}
       updatedText={intl.formatMessage({
-        id: "blockedInvestiblesUpdatedAt"
+        id: 'blockedInvestiblesUpdatedAt'
       })}
       {...props}
     />
   );
 }
 
-function StageInvestible(props) {
-  const { investible, marketId, marketInfo, updatedText, showWarning, showCompletion } = props;
+
+function StageInvestible (props) {
+  const {
+    investible,
+    marketId,
+    marketInfo,
+    updatedText,
+    showWarning,
+    showCompletion,
+    comments,
+    marketPresences
+  } = props;
   const { days_estimate: daysEstimate } = marketInfo;
   const { id, name, created_at: createdAt, label_list: labelList } = investible;
   const history = useHistory();
   const to = formInvestibleLink(marketId, id);
   const safeChangeDate = Date.parse(marketInfo.last_stage_change_date);
   const classes = generalStageStyles();
+
+  const commentsForInvestible = comments.filter((comment) => comment.investible_id === id);
+  const commentersForInvestible = _.uniq(commentsForInvestible.map((comment) => comment.created_by));
+  const commenterPresences = marketPresences.filter((presence) => commentersForInvestible.includes(presence.id));
+
   return (
-    <StageLink
-      href={to}
-      id={id}
-      onClick={event => {
+    <div>
+      <StageLink
+        href={to}
+        id={id}
+        onClick={event => {
+          event.preventDefault();
+          navigate(history, to);
+        }}
+      >
+        <Typography color={showWarning ? 'error' : 'initial'} variant="subtitle2">{name}</Typography>
+        <Typography variant="inherit">
+          {updatedText}
+          <FormattedDate value={safeChangeDate}/>
+        </Typography>
+        {showCompletion && daysEstimate && (
+          <DaysEstimate readOnly value={daysEstimate} createdAt={createdAt}/>
+        )}
+        <div className={classes.chipsClass}>
+          {labelList && labelList.map((label) =>
+            <div key={label}>
+              <Chip size="small" label={label} className={classes.chipClass} color="primary"/>
+            </div>
+          )}
+        </div>
+
+      </StageLink>
+      <div onClick={(event) => {
         event.preventDefault();
         navigate(history, to);
-      }}
-    >
-      <Typography color={showWarning ? 'error' : 'initial'} variant="subtitle2">{name}</Typography>
-      <Typography variant="inherit">
-        {updatedText}
-        <FormattedDate value={safeChangeDate} />
-      </Typography>
-      {showCompletion && daysEstimate && (
-        <DaysEstimate readOnly value={daysEstimate} createdAt={createdAt} />
-      )}
-      <div className={classes.chipsClass}>
-        {labelList && labelList.map((label) =>
-          <div key={label}>
-            <Chip size="small" label={label} className={classes.chipClass} color="primary" />
-          </div>
-        )}
+      }}>
+        <GravatarGroup users={commenterPresences}/>
       </div>
-    </StageLink>
+    </div>
   );
 }
 
 const useStageLinkStyles = makeStyles(theme => {
   return {
     root: {
-      color: "inherit",
-      display: "block",
-      height: "100%",
-      width: "100%"
+      color: 'inherit',
+      display: 'block',
+      height: '100%',
+      width: '100%'
     }
   };
 });
 
-function StageLink(props) {
+function StageLink (props) {
   const { className, ...other } = props;
   const classes = useStageLinkStyles();
   return <Link className={clsx(classes.root, className)} {...other} />;

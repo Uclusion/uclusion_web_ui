@@ -3,7 +3,6 @@ import { CardActions, CardContent, Grid, Link, Tooltip, Typography } from '@mate
 import _ from 'lodash'
 import { useHistory } from 'react-router'
 import { makeStyles } from '@material-ui/styles'
-import { AvatarGroup } from '@material-ui/lab'
 import PropTypes from 'prop-types'
 import { useIntl } from 'react-intl'
 import {
@@ -30,7 +29,7 @@ import Badge from '@material-ui/core/Badge'
 import BlockIcon from '@material-ui/icons/Block'
 import HelpIcon from '@material-ui/icons/Help'
 import AssignmentIcon from '@material-ui/icons/Assignment'
-import Gravatar from '../../components/Avatars/Gravatar';
+import GravatarGroup from '../../components/Avatars/GravatarGroup';
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -152,20 +151,10 @@ function PlanningDialogs(props) {
               item
               xs={3}
             >
-              <AvatarGroup
-                max={4}
-                spacing="medium">
-                {presences.map((presence) => {
-                  const { id: userId, name, email } = presence;
-                  return <Gravatar
-                        className={classes.green}
-                        key={userId}
-                        email={email}
-                        name={name}
-                      />
-                  })
-                }
-              </AvatarGroup>
+              <GravatarGroup
+                users={presences}
+                gravatarClassName={classes.green}
+                />
               </Grid> 
           </Grid>
         </div>

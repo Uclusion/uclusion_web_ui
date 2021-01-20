@@ -297,6 +297,7 @@ function PlanningInvestible(props) {
   const investmentReasons = investibleComments.filter(
     comment => comment.comment_type === JUSTIFY_TYPE
   );
+  const investibleCommentors = _.uniq(investibleComments.map((comment) => comment.created_by));
   const marketInfo = getMarketInfo(marketInvestible, marketId) || {};
   const { stage, assigned: invAssigned, children, days_estimate: marketDaysEstimate } = marketInfo;
   const [daysEstimate, setDaysEstimate] = useState(marketDaysEstimate);
@@ -803,6 +804,7 @@ function PlanningInvestible(props) {
                 actions={getSidebarActions()}
                 anchorEl={anchorEl}
                 setAnchorEl={setAnchorEl}
+                commentors={investibleCommentors || []}
               />
             </Grid>
           </Grid>
@@ -1063,7 +1065,8 @@ function MarketMetaData(props) {
     isInReview,
     isInVoting,
     anchorEl,
-    setAnchorEl
+    setAnchorEl,
+    commentors,
   } = props;
   const history = useHistory();
   let stageLabel;
@@ -1163,6 +1166,7 @@ function MarketMetaData(props) {
           </div>
         </div>
       )}
+
       {!_.isEmpty(stageActions) &&
       (
         <React.Fragment>
@@ -1189,6 +1193,21 @@ function MarketMetaData(props) {
             </Menu>
           </div>
         </React.Fragment>
+      )}
+      {!_.isEmpty(commentors) && (
+        <div className={classes.assignmentContainer}>
+          <FormattedMessage id="collaborators" />
+          <div className={clsx(classes.group, classes.assignments)}>
+            <Assignments
+              classes={classes}
+              marketPresences={marketPresences}
+              assigned={commentors}
+              isAdmin={false}
+              toggleAssign={() => {}}
+              toolTipId="collaborators"
+            />
+          </div>
+        </div>
       )}
       <LinkMarket actions={actions} />
       <AttachedFilesList

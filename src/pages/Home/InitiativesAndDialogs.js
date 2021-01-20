@@ -1,5 +1,4 @@
 import React, { useContext } from 'react'
-import { AvatarGroup } from '@material-ui/lab'
 import { CardActions, CardContent, Grid, Link, Typography } from '@material-ui/core'
 import _ from 'lodash'
 import { useHistory } from 'react-router'
@@ -34,7 +33,7 @@ import Chart from '../../components/Cards/Chart'
 import ThumbUpIcon from '@material-ui/icons/ThumbUp'
 import clsx from 'clsx'
 import ThumbDownIcon from '@material-ui/icons/ThumbDown'
-import Gravatar from '../../components/Avatars/Gravatar';
+import GravatarGroup from '../../components/Avatars/GravatarGroup';
 
 const dialogStyles = makeStyles((theme) => ({
   paper: {
@@ -266,19 +265,11 @@ function InitiativesAndDialogs(props) {
             xs={12}
             style={{alignSelf: 'center', display: 'flex', justifyContent: 'flex-end', paddingRight: '1rem'}}
           >
-            <AvatarGroup
+            <GravatarGroup
               max={window.outerWidth > 600 ? 4 : 2}
-              spacing="small">
-              {presences.map((presence) => {
-                const { id: userId, name, email } = presence;
-                return <Gravatar
-                    className={classes.green}
-                    key={userId}
-                    email={email}
-                    name={name}
-                    />
-                })}
-            </AvatarGroup>
+              spacing="small"
+              users={presences}
+            />
             </Grid> 
         </Grid>
       </div>

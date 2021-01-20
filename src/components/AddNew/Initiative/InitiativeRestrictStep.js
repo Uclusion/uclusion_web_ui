@@ -57,8 +57,9 @@ function InitiativeRestrictStep (props) {
     >
       <div>
         <Typography className={classes.introText} variant="body2">
-          Uclusion Initiatives can restrict participants from seeing each other's votes. The Initiative creator can
-          still reply to comments. This setting cannot be changed once the Initiative is created.
+          Uclusion Initiatives can restrict participants from seeing each other's votes.
+          The Initiative creator can still reply to comments.
+          This setting cannot be changed once the Initiative is created.
         </Typography>
         <RadioGroup value={value} onChange={onChange}>
           <FormControlLabel value={"false"} control={<Radio/>} label={intl.formatMessage({id: 'InitiativeWizardRestrictYes'})}/>

@@ -65,6 +65,7 @@ import { deleteSingleMessage } from '../../../api/users'
 import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
 import Gravatar from '../../../components/Avatars/Gravatar';
 import { LocalPlanningDragContext } from './InvestiblesByWorkspace'
+import { isInReviewStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -100,9 +101,8 @@ function PlanningDialog(props) {
   const presences = getMarketPresences(marketPresencesState, marketId);
   const acceptedStage = marketStages.find(stage => stage.assignee_enter_only) || {};
   const inDialogStage = marketStages.find(stage => stage.allows_investment) || {};
-  const inReviewStage = marketStages.find(
-    stage => stage.close_comments_on_entrance && stage.appears_in_context && !stage.assignee_enter_only) || {};
-  const inBlockingStage = marketStages.find(stage => stage.appears_in_context && stage.allows_issues) || {};
+  const inReviewStage = marketStages.find(stage => isInReviewStage(stage)) || {};
+  const inBlockingStage = marketStages.find(stage => stage.move_on_comment && stage.allows_issues) || {};
   const visibleStages = [
     inDialogStage.id,
     acceptedStage.id,
@@ -143,8 +143,7 @@ function PlanningDialog(props) {
   }
 
   const furtherWorkStage = marketStages.find((stage) => (!stage.allows_assignment && !stage.close_comments_on_entrance)) || {};
-  const requiresInputStage = marketStages.find((stage) => (!stage.appears_in_context && stage.allows_assignment
-    && !stage.close_comments_on_entrance)) || {};
+  const requiresInputStage = marketStages.find((stage) => (!stage.allows_issues && stage.move_on_comment)) || {};
   const furtherWorkInvestibles = getInvestiblesInStage(investibles, furtherWorkStage.id);
   const requiresInputInvestibles = getInvestiblesInStage(investibles, requiresInputStage.id);
   const highlightMap = {};

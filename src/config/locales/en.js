@@ -509,6 +509,7 @@ const messages = defineMessages({
   planningEditHelp: 'Workspace descriptions communicate requirements well with notifications and a difference display of the change.',
   planningInvestibleAcceptedHelp: 'For help create a question and add options to it.',
   planningInvestibleVotingHelp: 'Input how certain you are this story should be done or open an issue.',
+  collaborators: 'Collaborators',
   inlineAddLabel: 'Add Option',
   allowVoteSuggestion: 'Allow voting',
   uploadFilesDisplay: 'Attach New Files',

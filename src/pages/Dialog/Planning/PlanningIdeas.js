@@ -384,6 +384,8 @@ function PlanningIdeas (props) {
           investibles={investibles}
           marketId={marketId}
           presenceId={presenceId}
+          marketPresences={marketPresences}
+          comments={comments}
           warnAccepted={warnAccepted}
         />
       </div>
@@ -405,6 +407,7 @@ function PlanningIdeas (props) {
           marketId={marketId}
           presenceId={presenceId}
           comments={comments}
+          marketPresences={marketPresences}
         />
       </div>
       <div id={`${inBlockingStageId}_${presenceId}`} onDragEnd={onDragEndStage}>

@@ -85,7 +85,7 @@ function Home(props) {
     // the onboarding user still won't have any markets until cleared to create is set and creation begins
     if (hasInitializedGlobalVersion(versionsContext) && clearedToCreate === undefined) {
       const myClear = _.isEmpty(getExistingMarkets(versionsContext));
-      console.log(`Onboarding with ${myClear}`);
+      // console.log(`Onboarding with ${myClear}`);
       // Do not create onboarding markets if they already have markets
       setClearedToCreate(myClear);
     }

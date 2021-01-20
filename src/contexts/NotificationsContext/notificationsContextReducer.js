@@ -43,8 +43,8 @@ export function initializeState (newState) {
 function refreshRecentMessages(state) {
   const { recent } = state;
   const date = new Date();
-  const yesterday = date.setDate(date.getDate() - 1);
-  const recentFiltered = (recent || []).filter((item) => item.viewedAt > yesterday);
+  const threeDaysAgo = date.setDate(date.getDate() - 3);
+  const recentFiltered = (recent || []).filter((item) => item.removedAt > threeDaysAgo);
   return {
     ...state,
     recent: recentFiltered,
@@ -65,12 +65,16 @@ function storeMessagesInState(state, messagesToStore) {
       recent
     };
   }
+  const { messages: previousMessages } = state;
+  const removed = _.differenceBy(previousMessages || [], messagesToStore || [], 'link');
+  (removed || []).forEach((item) => item.removedAt = new Date());
   const newState = {
     ...state,
     messages: messagesToStore,
+    recent: _.unionBy(removed || [], recent || [], 'link')
   };
   // Take this opportunity to clear old messages from the recent list
-  return refreshRecentMessages(newState)
+  return refreshRecentMessages(newState);
 }
 
 /**
@@ -82,13 +86,7 @@ function storeMessagesInState(state, messagesToStore) {
 function doUpdateMessages (state, action) {
   const { messages } = action;
   const massagedMessages = getMassagedMessages(messages);
-  const { recent, messages: previousMessages } = state;
-  const removed = _.differenceBy(massagedMessages || [], previousMessages || [], 'link');
-  const newState = {
-    ...state,
-    recent: _.unionBy(removed || [], recent || [], 'link')
-  }
-  return storeMessagesInState(newState, massagedMessages);
+  return storeMessagesInState(state, massagedMessages);
 }
 
 function removeSingleMessage(state, action) {

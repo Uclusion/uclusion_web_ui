@@ -105,9 +105,9 @@ function DisplayRecentlyVisited (props) {
   function getRecentResults (toDisplay) {
     return (toDisplay || []).map((item) => {
       const {
-        marketId,
-        investibleId,
-        commentId,
+        market_id: marketId,
+        investible_id: investibleId,
+        comment_id: commentId,
       } = item;
       const commentRoot = getCommentRoot(commentsState, marketId, commentId);
       const commentRootId = commentRoot ? commentRoot.id : commentId;

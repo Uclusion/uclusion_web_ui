@@ -43,8 +43,8 @@ export function initializeState (newState) {
 function refreshRecentMessages(state) {
   const { recent } = state;
   const date = new Date();
-  const yesterday = date.setDate(date.getDate() - 1);
-  const recentFiltered = (recent || []).filter((item) => item.viewedAt > yesterday);
+  const threeDaysAgo = date.setDate(date.getDate() - 3);
+  const recentFiltered = (recent || []).filter((item) => item.removedAt > threeDaysAgo);
   return {
     ...state,
     recent: recentFiltered,
@@ -83,7 +83,8 @@ function doUpdateMessages (state, action) {
   const { messages } = action;
   const massagedMessages = getMassagedMessages(messages);
   const { recent, messages: previousMessages } = state;
-  const removed = _.differenceBy(massagedMessages || [], previousMessages || [], 'link');
+  const removed = _.differenceBy(previousMessages || [], massagedMessages || [], 'link');
+  (removed || []).forEach((item) => item.removedAt = new Date());
   const newState = {
     ...state,
     recent: _.unionBy(removed || [], recent || [], 'link')

@@ -231,6 +231,7 @@ class QuillEditor extends React.PureComponent {
 
     if (!_.isEmpty(participants)) {
       modules.mention = {
+        isolateCharacter: true,
         dataAttributes: ['id', 'value', 'denotationChar', 'link', 'target', 'externalId'],
         positioningStrategy: 'fixed',
         renderItem: function(item) {

@@ -65,7 +65,7 @@ import { deleteSingleMessage } from '../../../api/users'
 import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
 import Gravatar from '../../../components/Avatars/Gravatar';
 import { LocalPlanningDragContext } from './InvestiblesByWorkspace'
-import { getVerifiedStage, isInReviewStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
+import { getStages, isInReviewStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -104,18 +104,14 @@ function PlanningDialog(props) {
   const inReviewStage = marketStages.find(stage => isInReviewStage(stage)) || {};
   const inBlockingStage = marketStages.find(stage => stage.move_on_comment && stage.allows_issues) || {};
   const inVerifiedStage = marketStages.find(stage => stage.appears_in_market_summary) || {};
-  const visibleStages = [
-    inDialogStage.id,
-    acceptedStage.id,
-    inReviewStage.id,
-    inBlockingStage.id
-  ];
+  const visibleStages = marketStages.filter((stage) => stage.appears_in_context) || [];
+  const visibleStageIds = visibleStages.map((stage) => stage.id);
   const assignedPresences = presences.filter(presence => {
     const assignedInvestibles = getUserInvestibles(
       presence.id,
       marketId,
       investibles,
-      visibleStages
+      visibleStageIds
     );
     return !_.isEmpty(assignedInvestibles);
   });
@@ -213,7 +209,7 @@ function PlanningDialog(props) {
               presenceId={myPresence.id}
               stage={inBlockingStage}
               allowDragDrop
-              unResolvedMarketComments={comments.filter(comment => !comment.resolved) || []}
+              comments={comments}
             />
             <hr/>
           </SubSection>
@@ -234,7 +230,6 @@ function PlanningDialog(props) {
               stage={requiresInputStage}
               presenceId={myPresence.id}
               allowDragDrop
-              unResolvedMarketComments={comments.filter(comment => !comment.resolved) || []}
             />
           </SubSection>
         )}
@@ -245,7 +240,7 @@ function PlanningDialog(props) {
               investibles={investibles}
               marketId={marketId}
               marketPresences={assignedPresences}
-              visibleStages={visibleStages}
+              visibleStages={visibleStageIds}
               acceptedStage={acceptedStage}
               inDialogStage={inDialogStage}
               inBlockingStage={inBlockingStage}

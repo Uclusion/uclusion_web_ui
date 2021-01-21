@@ -9,12 +9,14 @@ import { useHistory } from 'react-router'
 import { makeStyles } from '@material-ui/core/styles'
 import { yellow } from '@material-ui/core/colors'
 import { restoreHeader } from '../../containers/Header'
-import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../constants/comments'
+import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../constants/comments'
 import { stageChangeInvestible } from '../../api/investibles'
 import { refreshInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { LocalPlanningDragContext } from '../Dialog/Planning/InvestiblesByWorkspace'
+import { isBlockedStage, isInReviewStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
+import GravatarGroup from '../../components/Avatars/GravatarGroup'
 
 function getInvestibleOnClick(id, marketId, history) {
   return () => {
@@ -88,7 +90,7 @@ export function getInvestibles(investibles, presenceMap, marketId, comments, his
         item
         md={3}
         xs={12}
-        draggable={allowDragDrop && ((_.isEmpty(requiresInputComments) && isInReviewStage(stage) )
+        draggable={allowDragDrop && stage && ((_.isEmpty(requiresInputComments) && isInReviewStage(stage) )
           || (_.isEmpty(blockedComments) && isBlockedStage(stage)) || !stage.allows_assignment)}
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
@@ -119,13 +121,13 @@ function ArchiveInvestbiles(props) {
     highlightMap,
     allowDragDrop,
     stage,
-    presenceId,
-    unResolvedMarketComments
+    presenceId
   } = props;
   const classes = myClasses();
   const intl = useIntl();
   const history = useHistory();
-  const stageId = stage.id;
+  const stageId = stage ? stage.id : undefined;
+  const unResolvedMarketComments = comments.filter(comment => !comment.resolved) || [];
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [, invDispatch] = useContext(InvestiblesContext);
   const [beingDraggedHack, setBeingDraggedHack] = useContext(LocalPlanningDragContext);
@@ -178,7 +180,7 @@ function ArchiveInvestbiles(props) {
       container
       className={classes.white}
       onDrop={onDrop}
-      onDragOver={(event) => isInFurtherWork && event.preventDefault()}
+      onDragOver={(event) => (stage && !stage.move_on_comment) && event.preventDefault()}
     >
       {getInvestibles(investibles, presenceMap, marketId, comments, history, intl, elevation, highlightMap, allowDragDrop,
       onDragEnd, onDragStart, unResolvedMarketComments, presenceId, stage)}

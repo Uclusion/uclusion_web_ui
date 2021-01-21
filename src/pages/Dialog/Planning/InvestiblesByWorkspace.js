@@ -138,12 +138,14 @@ function InvestiblesByWorkspace (props) {
           const inBlockingStage = getBlockedStage(marketStagesState, market.id) || {};
           const inVerifiedStage = getVerifiedStage(marketStagesState, market.id) || {};
           const requiresInputStage = getRequiredInputStage(marketStagesState, market.id) || {};
-          const visibleStages = getStages(marketStagesState, market.id).filter((stage) => stage.appears_in_context);
+          const visibleStages = getStages(marketStagesState, market.id).filter((stage) => stage.appears_in_context)
+            || [];
+          const visibleStageIds = visibleStages.map((stage) => stage.id);
           const myInvestibles = getUserInvestibles(
             presence.id,
             market.id,
             investibles,
-            visibleStages,
+            visibleStageIds,
           );
           const requiresInputInvestibles = getInvestiblesInStage(investibles, requiresInputStage.id) || [];
           const blockedInvestibles = getInvestiblesInStage(investibles, inBlockingStage.id) || [];
@@ -184,7 +186,7 @@ function InvestiblesByWorkspace (props) {
                       presenceId={presence.id}
                       stage={inBlockingStage}
                       allowDragDrop
-                      unResolvedMarketComments={comments.filter(comment => !comment.resolved) || []}
+                      comments={comments}
                     />
                     <hr/>
                   </SubSection>
@@ -205,7 +207,6 @@ function InvestiblesByWorkspace (props) {
                       stage={requiresInputStage}
                       allowDragDrop
                       comments={comments}
-                      unResolvedMarketComments={comments.filter(comment => !comment.resolved) || []}
                     />
                     <hr/>
                   </SubSection>

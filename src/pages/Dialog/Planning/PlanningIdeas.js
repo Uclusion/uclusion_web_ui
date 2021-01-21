@@ -433,6 +433,9 @@ function PlanningIdeas(props) {
           className={classes.stage}
           id={inVerifiedStageId}
           investibles={investibles}
+          presenceId={presenceId}
+          comments={comments}
+          marketPresences={marketPresences}
           marketId={marketId}
         />
       </div>

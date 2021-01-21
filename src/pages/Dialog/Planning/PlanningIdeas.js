@@ -122,26 +122,15 @@ function PlanningIdeas(props) {
   const acceptedStageLabel = acceptedFull ? 'planningAcceptedStageFullLabel' : 'planningAcceptedStageLabel';
   const myPresence = (marketPresences || []).find((presence) => presence.current_user) || {};
 
-  function isBlockedByIssue (investibleId, currentStageId, targetStageId) {
+  function isBlockedByTodo(investibleId, currentStageId, targetStageId) {
     const investibleComments = comments.filter((comment) => comment.investible_id === investibleId) || [];
-    const blockingComments = investibleComments.filter(
-      comment => comment.comment_type === ISSUE_TYPE && !comment.resolved
-    );
     const todoComments = investibleComments.filter(
       comment => comment.comment_type === TODO_TYPE && !comment.resolved
     );
-    if (!_.isEmpty(blockingComments)) {
-      return true;
-    }
-    if (currentStageId !== inBlockingStageId && targetStageId !== inDialogStageId && !_.isEmpty(todoComments)) {
-      if (currentStageId !== inDialogStageId || targetStageId === inReviewStageId) {
-        return true;
-      }
-    }
-    return false;
+    return targetStageId === inVerifiedStageId && !_.isEmpty(todoComments);
   }
 
-  function onDropTodo (event) {
+  function onDropTodo(event) {
     const commentId = event.dataTransfer.getData('text');
     const comments = getMarketComments(commentsState, marketId) || [];
     const fromComment = comments.find((comment) => comment.id === commentId);
@@ -173,7 +162,7 @@ function PlanningIdeas(props) {
     event.preventDefault();
     const investibleId = event.dataTransfer.getData('text');
     const currentStageId = event.dataTransfer.getData('stageId');
-    if (!operationRunning && !isBlockedByIssue(investibleId, currentStageId, targetStageId) &&
+    if (!operationRunning && !isBlockedByTodo(investibleId, currentStageId, targetStageId) &&
       currentStageId !== targetStageId && checkStageMatching(currentStageId)) {
       const target = event.target;
       target.style.cursor = 'wait';
@@ -296,7 +285,7 @@ function PlanningIdeas(props) {
     const { assigned } = marketInfo;
     const draggerIsAssigned = (assigned || []).includes(myPresence.id);
     const swimLaneIsAssigned = (assigned || []).includes(presenceId);
-    const isBlocked = isBlockedByIssue(id, stageId, divId);
+    const isBlocked = isBlockedByTodo(id, stageId, divId);
     if (isBlocked) {
       return false;
     }

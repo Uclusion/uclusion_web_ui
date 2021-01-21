@@ -572,7 +572,6 @@ function PlanningInvestible(props) {
           isOpen={changeStagesExpanded}
           onSpinStop={() => setAnchorEl(null)}
           disabled={isInReview || !_.isEmpty(blockingComments)}
-          hasTodos={!_.isEmpty(todoComments)}
           hasAssignedQuestions={!_.isEmpty(questionByAssignedComments)}
         />
       </MenuItem>,

@@ -7,7 +7,7 @@ import StageChangeAction from '../../../components/SidebarActions/Planning/Stage
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 
 function MoveToInReviewActionButton(props) {
-  const { marketId, disabled, hasTodos, hasAssignedQuestions } = props;
+  const { marketId, disabled, hasAssignedQuestions } = props;
   const [marketStagesState] = useContext(MarketStagesContext);
   const inReviewStage = getInReviewStage(marketStagesState, marketId);
   const [operationRunning] = useContext(OperationInProgressContext);
@@ -15,17 +15,17 @@ function MoveToInReviewActionButton(props) {
   if (!inReviewStage) {
     return React.Fragment;
   }
-  const operationBlocked = hasTodos || hasAssignedQuestions;
+
   return (
     <StageChangeAction
       {...props}
-      icon={operationBlocked ? <RateReviewIcon color="disabled" /> : <RateReviewIcon />}
+      icon={hasAssignedQuestions ? <RateReviewIcon color="disabled" /> : <RateReviewIcon />}
       targetStageId={inReviewStage.id}
       translationId="planningInvestibleNextStageInReviewLabel"
       explanationId="planningInvestibleInReviewExplanation"
       disabled={operationRunning || disabled}
-      operationBlocked={operationBlocked}
-      blockedOperationTranslationId={hasTodos ? 'mustRemoveTodosExplanation' : 'mustResolveAssignedQuestions'}
+      operationBlocked={hasAssignedQuestions}
+      blockedOperationTranslationId="mustResolveAssignedQuestions"
     />
   );
 }
@@ -33,7 +33,6 @@ function MoveToInReviewActionButton(props) {
 MoveToInReviewActionButton.propTypes = {
   marketId: PropTypes.string.isRequired,
   disabled: PropTypes.bool.isRequired,
-  hasTodos: PropTypes.bool.isRequired,
   hasAssignedQuestions: PropTypes.bool.isRequired
 }
 

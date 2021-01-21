@@ -433,6 +433,7 @@ function PlanningIdeas(props) {
           className={classes.stage}
           id={inVerifiedStageId}
           investibles={investibles}
+          stage={getFullStage(marketStagesState, marketId, inVerifiedStageId)}
           presenceId={presenceId}
           comments={comments}
           marketPresences={marketPresences}
@@ -518,10 +519,11 @@ function Stage (props) {
     isVoting,
     showCompletion,
     marketPresences,
-    presenceId
+    presenceId,
+    limitInvestibles
   } = props;
   const [, dragHack] = useContext(LocalPlanningDragContext);
-  const stageInvestibles = investibles.filter(investible => {
+  let stageInvestibles = investibles.filter(investible => {
     const { market_infos: marketInfos } = investible;
     // console.log(`Investible id is ${id}`);
     const marketInfo = marketInfos.find(info => info.market_id === marketId);
@@ -532,7 +534,16 @@ function Stage (props) {
     }
     return marketInfo !== undefined && marketInfo.stage === id;
   });
-
+  if (limitInvestibles && stageInvestibles) {
+    const sortedInvestibles = stageInvestibles.sort(function(a, b) {
+      const { market_infos: aMarketInfos } = a;
+      const aMarketInfo = aMarketInfos.find(info => info.market_id === marketId);
+      const { market_infos: bMarketInfos } = b;
+      const bMarketInfo = bMarketInfos.find(info => info.market_id === marketId);
+      return aMarketInfo.updated_at > bMarketInfo.updated_at;
+    });
+    stageInvestibles = _.slice(sortedInvestibles, 0, limitInvestibles);
+  }
   const classes = useStageClasses(props);
 
   if (fallbackWarning !== undefined && stageInvestibles.length === 0) {
@@ -701,7 +712,8 @@ const generalStageStyles = makeStyles(() => {
 
 function VerifiedStage(props) {
   const intl = useIntl();
-
+  const { stage } = props;
+  const limitInvestibles = (stage || {}).allowed_investibles;
   return (
     <Stage
       fallbackWarning={intl.formatMessage({
@@ -710,6 +722,7 @@ function VerifiedStage(props) {
       updatedText={intl.formatMessage({
         id: 'verifiedInvestiblesUpdatedAt'
       })}
+      limitInvestibles={limitInvestibles}
       {...props}
     />
   );

@@ -540,7 +540,7 @@ function Stage (props) {
       const aMarketInfo = aMarketInfos.find(info => info.market_id === marketId);
       const { market_infos: bMarketInfos } = b;
       const bMarketInfo = bMarketInfos.find(info => info.market_id === marketId);
-      return aMarketInfo.updated_at > bMarketInfo.updated_at;
+      return new Date(bMarketInfo.updated_at) - new Date(aMarketInfo.updated_at);
     });
     stageInvestibles = _.slice(sortedInvestibles, 0, limitInvestibles);
   }

@@ -65,7 +65,7 @@ import { deleteSingleMessage } from '../../../api/users'
 import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
 import Gravatar from '../../../components/Avatars/Gravatar';
 import { LocalPlanningDragContext } from './InvestiblesByWorkspace'
-import { getStages, isInReviewStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
+import { isInReviewStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 
 function PlanningDialog(props) {
   const history = useHistory();

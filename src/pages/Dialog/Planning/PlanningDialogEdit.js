@@ -16,9 +16,10 @@ import AllowedInProgress from './AllowedInProgress';
 import { getStages, updateStagesForMarket } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import _ from 'lodash'
+import ShowInVerifiedStage from './ShowInVerifiedStage'
 
 function PlanningDialogEdit(props) {
-  const { onSpinStop, onCancel, market, acceptedStage } = props;
+  const { onSpinStop, onCancel, market, acceptedStage, verifiedStage } = props;
   const [marketStagesState, marketStagesDispatch] = useContext(MarketStagesContext);
   const {
     id,
@@ -31,6 +32,7 @@ function PlanningDialogEdit(props) {
   const intl = useIntl();
   const classes = usePlanFormStyles();
   const [allowedInvestibles, setAllowedInvestibles] = useState(acceptedStage.allowed_investibles);
+  const [showInvestibles, setShowInvestibles] = useState(verifiedStage.allowed_investibles);
   const [mutableMarket, setMutableMarket] = useState({
     ...market,
     name: initialMarketName,
@@ -58,6 +60,20 @@ function PlanningDialogEdit(props) {
     setAllowedInvestibles(parseInt(value, 10));
   }
 
+  function onShowInvestiblesChange(event) {
+    const { value } = event.target;
+    setShowInvestibles(parseInt(value, 10));
+  }
+
+  function updateShowInvestibles(retValue) {
+    return updateStage(id, verifiedStage.id, showInvestibles).then((newStage) => {
+      const marketStages = getStages(marketStagesState, id);
+      const newStages = _.unionBy([newStage], marketStages, 'id');
+      updateStagesForMarket(marketStagesDispatch, id, newStages);
+      return retValue;
+    });
+  }
+
   function handleSave() {
     const daysEstimateInt =
       days_estimate != null ? parseInt(days_estimate, 10) : null;
@@ -83,8 +99,14 @@ function PlanningDialogEdit(props) {
               const marketStages = getStages(marketStagesState, id);
               const newStages = _.unionBy([newStage], marketStages, 'id');
               updateStagesForMarket(marketStagesDispatch, id, newStages);
+              if (showInvestibles !== verifiedStage.allowed_investibles) {
+                return updateShowInvestibles(retValue);
+              }
               return retValue;
             });
+          }
+          if (showInvestibles !== verifiedStage.allowed_investibles) {
+            return updateShowInvestibles(retValue);
           }
           return retValue;
         });
@@ -102,6 +124,12 @@ function PlanningDialogEdit(props) {
               <AllowedInProgress
                 onChange={onAllowedInvestiblesChange}
                 value={allowedInvestibles}
+              />
+            </Grid>
+            <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
+              <ShowInVerifiedStage
+                onChange={onShowInvestiblesChange}
+                value={showInvestibles}
               />
             </Grid>
             <Grid item md={5} xs={12} className={classes.fieldsetContainer}>

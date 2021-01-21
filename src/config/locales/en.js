@@ -853,6 +853,11 @@ const messages = defineMessages({
   allowedInvestiblesDropdownLabel: 'Maximum stories in progress',
   allowedInvestiblesUnlimitedValue: 'Unlimited',
 
+  //show investibles dropdown
+  showInvestiblesDropdownHelp: 'Number of stories to allow in \'Verified\' per person',
+  showInvestiblesDropdownLabel: 'Maximum verified stories shown in swim lane',
+  showInvestiblesUnlimitedValue: 'Unlimited',
+
   // warnings
   warningOffline: 'You are offline',
   optionalEdit: 'These fields are optional and can be changed at any time',

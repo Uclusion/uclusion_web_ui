@@ -82,7 +82,7 @@ const usePlanningIdStyles = makeStyles(
   { name: 'PlanningIdea' }
 );
 
-function PlanningIdeas (props) {
+function PlanningIdeas(props) {
   const {
     investibles,
     marketId,
@@ -90,6 +90,7 @@ function PlanningIdeas (props) {
     inDialogStageId,
     inReviewStageId,
     inBlockingStageId,
+    inVerifiedStageId,
     inRequiresInputStageId,
     presenceId,
     activeMarket,
@@ -274,6 +275,13 @@ function PlanningIdeas (props) {
     }
   }
 
+  function onDropVerified(event) {
+    const currentStageId = event.dataTransfer.getData('stageId');
+    if (checkStageMatching(currentStageId)) {
+      stageChange(event, inVerifiedStageId);
+    }
+  }
+
   function isEligableDrop (divId) {
     const { id, stageId } = beingDraggedHack;
     if (!stageId) {
@@ -410,17 +418,20 @@ function PlanningIdeas (props) {
           marketPresences={marketPresences}
         />
       </div>
-      <div id={`${inBlockingStageId}_${presenceId}`} onDragEnd={onDragEndStage}>
+      <div id={`${inVerifiedStageId}_${presenceId}`} onDrop={onDropVerified}
+           onDragOver={(event) => event.preventDefault()}
+           onDragEnter={(event) => onDragEnterStage(event, inVerifiedStageId, presenceId)}
+           onDragEnd={onDragEndStage}>
         <Tooltip
-          title={intl.formatMessage({ id: 'planningBlockedStageDescription' })}
+          title={intl.formatMessage({ id: 'planningVerifiedStageDescription' })}
         >
           <dt className={classes.stageLabel}>
-            <FormattedMessage id="planningBlockedStageLabel"/>
+            <FormattedMessage id="verifiedBlockedStageLabel"/>
           </dt>
         </Tooltip>
-        <BlockingStage
+        <VerifiedStage
           className={classes.stage}
-          id={inBlockingStageId}
+          id={inVerifiedStageId}
           investibles={investibles}
           marketId={marketId}
         />
@@ -674,25 +685,6 @@ function ReviewStage (props) {
   );
 }
 
-const useBlockingStageStyles = makeStyles(theme => {
-  return {
-    root: {
-      backgroundColor: warningColor
-    },
-    outlinedAccepted: {
-      border: `1px solid ${theme.palette.grey['400']}`,
-      borderRadius: theme.spacing(1),
-      fontSize: '.8em',
-      margin: theme.spacing(1, 0),
-      padding: theme.spacing(1, 2),
-      backgroundColor: warningColor
-    },
-    fallback: {
-      backgroundColor: theme.palette.grey['400']
-    }
-  };
-});
-
 const generalStageStyles = makeStyles(() => {
   return {
     chipClass: {
@@ -704,18 +696,16 @@ const generalStageStyles = makeStyles(() => {
   };
 });
 
-function BlockingStage (props) {
+function VerifiedStage(props) {
   const intl = useIntl();
-  const classes = useBlockingStageStyles();
 
   return (
     <Stage
-      classes={classes}
       fallbackWarning={intl.formatMessage({
-        id: 'planningNoneInBlockingWarning'
+        id: 'planningNoneInVerifiedWarning'
       })}
       updatedText={intl.formatMessage({
-        id: 'blockedInvestiblesUpdatedAt'
+        id: 'verifiedInvestiblesUpdatedAt'
       })}
       {...props}
     />

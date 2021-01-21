@@ -33,9 +33,13 @@ export function getInReviewStage(state, marketId) {
   return marketStages.find((stage) => isInReviewStage(stage));
 }
 
+export function isBlockedStage(stage) {
+  return stage.allows_issues && stage.move_on_comment;
+}
+
 export function getBlockedStage(state, marketId) {
   const marketStages = getStages(state, marketId);
-  return marketStages.find((stage) => (stage.allows_issues && stage.move_on_comment));
+  return marketStages.find((stage) => isBlockedStage(stage));
 }
 
 export function getVerifiedStage(state, marketId) {

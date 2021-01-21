@@ -65,7 +65,7 @@ import { deleteSingleMessage } from '../../../api/users'
 import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
 import Gravatar from '../../../components/Avatars/Gravatar';
 import { LocalPlanningDragContext } from './InvestiblesByWorkspace'
-import { isInReviewStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
+import { getVerifiedStage, isInReviewStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -103,6 +103,7 @@ function PlanningDialog(props) {
   const inDialogStage = marketStages.find(stage => stage.allows_investment) || {};
   const inReviewStage = marketStages.find(stage => isInReviewStage(stage)) || {};
   const inBlockingStage = marketStages.find(stage => stage.move_on_comment && stage.allows_issues) || {};
+  const inVerifiedStage = marketStages.find(stage => stage.appears_in_market_summary) || {};
   const visibleStages = [
     inDialogStage.id,
     acceptedStage.id,
@@ -146,6 +147,7 @@ function PlanningDialog(props) {
   const requiresInputStage = marketStages.find((stage) => (!stage.allows_issues && stage.move_on_comment)) || {};
   const furtherWorkInvestibles = getInvestiblesInStage(investibles, furtherWorkStage.id);
   const requiresInputInvestibles = getInvestiblesInStage(investibles, requiresInputStage.id);
+  const blockedInvestibles = getInvestiblesInStage(investibles, inBlockingStage.id);
   const highlightMap = {};
   requiresInputInvestibles.forEach((investible) => {
     if (hasNotVoted(investible, marketPresencesState, marketsState, comments, marketId, myPresence.external_id)) {
@@ -197,6 +199,25 @@ function PlanningDialog(props) {
                          textId4='stageHelp4'/>
       )}
       <LocalPlanningDragContext.Provider value={[beingDraggedHack, setBeingDraggedHack]}>
+        {!_.isEmpty(blockedInvestibles) && (
+          <SubSection
+            type={SECTION_TYPE_SECONDARY_WARNING}
+            title={intl.formatMessage({ id: 'blockedHeader' })}
+            helpTextId="blockedSectionHelp"
+          >
+            <ArchiveInvestbiles
+              elevation={0}
+              marketId={market.id}
+              presenceMap={getPresenceMap(marketPresencesState, market.id)}
+              investibles={blockedInvestibles}
+              presenceId={myPresence.id}
+              stage={inBlockingStage}
+              allowDragDrop
+              unResolvedMarketComments={comments.filter(comment => !comment.resolved) || []}
+            />
+            <hr/>
+          </SubSection>
+        )}
         {!_.isEmpty(requiresInputInvestibles) && (
           <SubSection
             type={SECTION_TYPE_SECONDARY_WARNING}
@@ -209,7 +230,7 @@ function PlanningDialog(props) {
               presenceMap={presenceMap}
               investibles={requiresInputInvestibles}
               highlightMap={highlightMap}
-              stageId={requiresInputStage.id}
+              stage={requiresInputStage}
               presenceId={myPresence.id}
               allowDragDrop
               unResolvedMarketComments={comments.filter(comment => !comment.resolved) || []}
@@ -228,6 +249,7 @@ function PlanningDialog(props) {
               inDialogStage={inDialogStage}
               inBlockingStage={inBlockingStage}
               inReviewStage={inReviewStage}
+              inVerifiedStage={inVerifiedStage}
               requiresInputStage={requiresInputStage}
               activeMarket={activeMarket}
             />
@@ -243,7 +265,7 @@ function PlanningDialog(props) {
               marketId={marketId}
               presenceMap={presenceMap}
               investibles={furtherWorkInvestibles}
-              stageId={furtherWorkStage.id}
+              stage={furtherWorkStage}
               presenceId={myPresence.id}
               allowDragDrop
               isInFurtherWork
@@ -426,6 +448,7 @@ function InvestiblesByPerson(props) {
     inBlockingStage,
     inReviewStage,
     requiresInputStage,
+    inVerifiedStage,
     activeMarket
   } = props;
   const classes = useInvestiblesByPersonStyles();
@@ -501,6 +524,7 @@ function InvestiblesByPerson(props) {
             acceptedStage &&
             inDialogStage &&
             inReviewStage &&
+            inVerifiedStage &&
             inBlockingStage && (
               <PlanningIdeas
                 investibles={myInvestibles}
@@ -510,6 +534,7 @@ function InvestiblesByPerson(props) {
                 inReviewStageId={inReviewStage.id}
                 inBlockingStageId={inBlockingStage.id}
                 inRequiresInputStageId={requiresInputStage.id}
+                inVerifiedStageId={inVerifiedStage.id}
                 activeMarket={activeMarket}
                 comments={comments}
                 presenceId={presence.id}

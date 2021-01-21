@@ -282,7 +282,7 @@ function PlanningIdeas(props) {
     }
   }
 
-  function isEligableDrop (divId) {
+  function isEligableDrop(divId) {
     const { id, stageId } = beingDraggedHack;
     if (!stageId) {
       // This is a TODO being dragged
@@ -300,7 +300,7 @@ function PlanningIdeas(props) {
     if (isBlocked) {
       return false;
     }
-    if (divId === inDialogStageId) {
+    if (divId === inDialogStageId || divId === inVerifiedStageId) {
       return true;
     }
     if (divId === acceptedStageId) {

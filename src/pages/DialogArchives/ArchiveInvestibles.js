@@ -9,13 +9,12 @@ import { useHistory } from 'react-router'
 import { makeStyles } from '@material-ui/core/styles'
 import { yellow } from '@material-ui/core/colors'
 import { restoreHeader } from '../../containers/Header'
-import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../constants/comments'
+import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../constants/comments'
 import { stageChangeInvestible } from '../../api/investibles'
 import { refreshInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { LocalPlanningDragContext } from '../Dialog/Planning/InvestiblesByWorkspace'
-import { isBlockedStage, isInReviewStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
 
 function getInvestibleOnClick(id, marketId, history) {
   return () => {
@@ -49,7 +48,7 @@ const myClasses = makeStyles(
   { name: "Archive" }
 );
 
-export function getInvestibles(investibles, presenceMap, marketId, history, intl, elevation, highlightMap,
+export function getInvestibles(investibles, presenceMap, marketId, comments, history, intl, elevation, highlightMap,
   allowDragDrop, onDragEnd, onDragStart, unResolvedMarketComments, presenceId, stage) {
   const investibleData = investibles.map((inv) => inv.investible);
   const sortedData = _.sortBy(investibleData, 'updated_at', 'name').reverse();
@@ -79,6 +78,9 @@ export function getInvestibles(investibles, presenceMap, marketId, history, intl
       const presence = presenceMap[element];
       return presence ? presence.name : '';
     });
+    const investibleComments = comments.filter(comment => comment.investible_id === id);
+    const investibleCommenters = _.uniq(investibleComments.map((comment) => comment.created_by));
+    const commentPresences = investibleCommenters.map((userId) => presenceMap[userId]);
     return (
       <Grid
         key={id}
@@ -99,6 +101,7 @@ export function getInvestibles(investibles, presenceMap, marketId, history, intl
             <Typography style={{fontSize: '.75rem', flex: 1}}>Updated: {intl.formatDate(updated_at)}</Typography>
             <Typography style={{fontWeight: 700, flex: 2}}>{name}</Typography>
             {assignedNames.map((name) => (<Typography style={{fontStyle: 'italic', fontSize: '.75rem', flex: 1}} key={name}>Assignee: {name}</Typography>))}
+            <GravatarGroup users={commentPresences}/>
           </div>
         </RaisedCard>
       </Grid>
@@ -109,6 +112,7 @@ export function getInvestibles(investibles, presenceMap, marketId, history, intl
 function ArchiveInvestbiles(props) {
   const {
     investibles,
+    comments,
     marketId,
     presenceMap,
     elevation,
@@ -174,9 +178,9 @@ function ArchiveInvestbiles(props) {
       container
       className={classes.white}
       onDrop={onDrop}
-      onDragOver={(event) => !stage.move_on_comment && event.preventDefault()}
+      onDragOver={(event) => isInFurtherWork && event.preventDefault()}
     >
-      {getInvestibles(investibles, presenceMap, marketId, history, intl, elevation, highlightMap, allowDragDrop,
+      {getInvestibles(investibles, presenceMap, marketId, comments, history, intl, elevation, highlightMap, allowDragDrop,
       onDragEnd, onDragStart, unResolvedMarketComments, presenceId, stage)}
     </Grid>
   );

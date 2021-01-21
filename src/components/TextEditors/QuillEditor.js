@@ -230,7 +230,14 @@ class QuillEditor extends React.PureComponent {
     }
 
     if (!_.isEmpty(participants)) {
+      /* Note, due to lifecycles if they edit a comment begin creating a mention
+        and hit save before selecting one (or clicking off to not do so), then
+        the mention menu will stick open. Fixing this would require fairly
+        invasive surgery to the mention module and some way in this code to know you've
+        exited edit mode. Hence we're not fixing it as of 01/20/21
+       */
       modules.mention = {
+        isolateCharacter: true,
         dataAttributes: ['id', 'value', 'denotationChar', 'link', 'target', 'externalId'],
         positioningStrategy: 'fixed',
         renderItem: function(item) {

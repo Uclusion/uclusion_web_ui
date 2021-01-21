@@ -225,6 +225,7 @@ function PlanningDialog(props) {
             helpTextId="requiresInputSectionHelp"
           >
             <ArchiveInvestbiles
+              comments={comments}
               elevation={0}
               marketId={marketId}
               presenceMap={presenceMap}
@@ -261,6 +262,7 @@ function PlanningDialog(props) {
             title={intl.formatMessage({ id: 'readyFurtherWorkHeader' })}
           >
             <ArchiveInvestbiles
+              comments={comments}
               elevation={0}
               marketId={marketId}
               presenceMap={presenceMap}

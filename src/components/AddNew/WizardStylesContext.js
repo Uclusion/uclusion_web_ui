@@ -237,6 +237,9 @@ export const wizardStyles = makeStyles(
       InitiativeWizardInitiativeExpirationStepLabel: {
         maxWidth: '725px'
       },
+      InitiativeWizardRestrictStepLabel: {
+        maxWidth: '725px',
+      },
       InitiativeWizardCreatingInitiativeStepLabel: {
         maxWidth: '725px'
       },

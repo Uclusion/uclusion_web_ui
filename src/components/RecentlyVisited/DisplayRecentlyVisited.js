@@ -75,7 +75,7 @@ function DisplayRecentlyVisited (props) {
     } = item;
     const parentName = (linkType === 'INLINE_STORY_INITIATIVE' || linkType === 'INLINE_STORY_INVESTIBLE')
       ? investibleName : undefined;
-    if (linkType.includes('VOTE')) {
+    if (linkType && linkType.includes('VOTE')) {
       return (<VotingVisitedResult marketId={marketId} containerName={investibleName || marketName}
                                    classes={searchClasses} userId={associatedUserId} afterOnClick={afterOnClick}
                                    link={link}/>);

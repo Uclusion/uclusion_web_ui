@@ -148,6 +148,7 @@ class QuillEditor extends React.PureComponent {
       simple,
       setOperationInProgress,
       participants,
+      mentionsAllowed,
     } = this.props;
     // CSS id of the container from which scroll and bounds checks operate
     const boundsId = this.getBoundsId();
@@ -229,7 +230,7 @@ class QuillEditor extends React.PureComponent {
       modules.toolbar = false;
     }
 
-    if (!_.isEmpty(participants)) {
+    if (!_.isEmpty(participants) && mentionsAllowed) {
       /* Note, due to lifecycles if they edit a comment begin creating a mention
         and hit save before selecting one (or clicking off to not do so), then
         the mention menu will stick open. Fixing this would require fairly
@@ -504,6 +505,7 @@ QuillEditor.propTypes = {
   simple: PropTypes.bool,
   participants: PropTypes.arrayOf(PropTypes.object),
   editorStorageId: PropTypes.string,
+  mentionsAllowed: PropTypes.bool,
 };
 
 QuillEditor.defaultProps = {
@@ -530,6 +532,7 @@ QuillEditor.defaultProps = {
   simple: false,
   participants: [],
   editorStorageId: '',
+  mentionsAllowed: true,
 };
 
 export default withTheme(injectIntl(QuillEditor));

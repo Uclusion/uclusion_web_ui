@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { useHistory } from 'react-router';
-import { Link, Tooltip, Typography } from '@material-ui/core';
+import { Grid, Link, Tooltip, Typography } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles';
 import { red, yellow } from '@material-ui/core/colors';
 import { FormattedDate, FormattedMessage, useIntl } from 'react-intl';
@@ -464,7 +464,7 @@ const useStageClasses = makeStyles(
         border: `1px solid ${theme.palette.grey['400']}`,
         borderRadius: theme.spacing(1),
         fontSize: '.8em',
-        margin: theme.spacing(1, 0),
+        margin: theme.spacing(0.5, 0),
         padding: theme.spacing(1, 2),
         backgroundColor: yellow['400'],
         overflowWrap: 'break-word'
@@ -473,7 +473,7 @@ const useStageClasses = makeStyles(
         border: `1px solid ${theme.palette.grey['400']}`,
         borderRadius: theme.spacing(1),
         fontSize: '.8em',
-        margin: theme.spacing(1, 0),
+        margin: theme.spacing(0.5, 0),
         padding: theme.spacing(1, 2),
         overflowWrap: 'break-word'
       },
@@ -560,6 +560,8 @@ function Stage (props) {
     <dd className={singleInvestible && warnAcceptedSafe[warnKeys[0]] ? classes.rootWarnAccepted :
       singleInvestible ? classes.root : classes.regularAccepted}>
       <ul className={classes.list}>
+        <Grid
+          container>
         {stageInvestibles.map(inv => {
           const { investible, market_infos: marketInfos } = inv;
           const marketInfo = marketInfos.find(
@@ -567,24 +569,27 @@ function Stage (props) {
           );
 
           return (
-            <li key={investible.id} id={investible.id} onDragStart={investibleOnDragStart}
-                className={!singleInvestible && warnAcceptedSafe[investible.id] ? classes.rootWarnAccepted
-                  : !singleInvestible ? classes.outlinedAccepted : classes.regularAccepted}>
-              <StageInvestible
-                marketPresences={marketPresences || []}
-                comments={comments || []}
-                investible={investible}
-                marketId={marketId}
-                marketInfo={marketInfo}
-                updatedText={updatedText}
-                showWarning={isReview ? checkReviewWarning(investible, comments) :
-                  isVoting ? checkReviewWarning(investible, comments, true) ||
-                    checkVotingWarning(investible.id, marketPresences) : false}
-                showCompletion={showCompletion}
-              />
-            </li>
+            <Grid item xs="12" onDragStart={investibleOnDragStart} id={investible.id} draggable
+                  className={!singleInvestible && warnAcceptedSafe[investible.id] ? classes.rootWarnAccepted
+              : !singleInvestible ? classes.outlinedAccepted : classes.regularAccepted}>
+              <li key={investible.id}>
+                <StageInvestible
+                  marketPresences={marketPresences || []}
+                  comments={comments || []}
+                  investible={investible}
+                  marketId={marketId}
+                  marketInfo={marketInfo}
+                  updatedText={updatedText}
+                  showWarning={isReview ? checkReviewWarning(investible, comments) :
+                    isVoting ? checkReviewWarning(investible, comments, true) ||
+                      checkVotingWarning(investible.id, marketPresences) : false}
+                  showCompletion={showCompletion}
+                />
+              </li>
+            </Grid>
           );
         })}
+        </Grid>
       </ul>
     </dd>
   );
@@ -598,7 +603,7 @@ Stage.propTypes = {
 };
 
 const useVotingStageClasses = makeStyles(
-  theme => {
+  () => {
     return {
       root: {},
       fallback: {

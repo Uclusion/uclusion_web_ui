@@ -634,7 +634,11 @@ function Comment(props) {
             </Typography>
           )}
           {commentType !== JUSTIFY_TYPE && commentType !== REPLY_TYPE && (
-            <div><ShareStoryButton commentId={id} commentType={commentType} investibleId={investibleId} /></div>
+            <div className={clsx(
+              classes.action,
+              classes.actionEdit
+            )}>
+              <ShareStoryButton commentId={id} commentType={commentType} investibleId={investibleId} /></div>
           )}
           {enableEditing && isEditable && !editOpenDefault && (
             <Button

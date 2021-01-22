@@ -1,16 +1,11 @@
-import React, { useRef, useEffect, useContext, useState, useCallback } from 'react'
+import React, { useRef, useEffect } from "react";
 import PropTypes from "prop-types";
 import Quill from "quill";
-import handleViewport from 'react-in-viewport';
 import { makeStyles } from "@material-ui/core";
 import clsx from "clsx";
 import 'quill/dist/quill.snow.css';
 import 'quill-table-ui/dist/index.css';
 import './editorStyles.css';
-import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
-import { findMessageOfTypeAndId } from '../../utils/messageUtils'
-import { deleteSingleMessage } from '../../api/users'
-import { removeMessage } from '../../contexts/NotificationsContext/notificationsContextReducer'
 import QuillMention from 'quill-mention-uclusion';
 Quill.register('modules/mention', QuillMention);
 
@@ -45,10 +40,7 @@ const useStyles = makeStyles(
 );
 
 function ReadOnlyQuillEditor(props) {
-  const { className, heading, value, setBeingEdited, isEditable, notificationId } = props;
-  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
-  const [viewTimer, setViewTimer] = useState(undefined);
-  const myMessage = findMessageOfTypeAndId(notificationId, messagesState);
+  const { className, heading, value, setBeingEdited, isEditable } = props;
   const box = useRef(null);
 
   const classes = useStyles(props);
@@ -69,51 +61,16 @@ function ReadOnlyQuillEditor(props) {
     return () => {};
   }, [box, value, quillOptions]);
 
-  const removeMyMessage = useCallback( () => {
-      if (viewTimer) return;
-      setViewTimer(setTimeout(() => {
-        messagesDispatch(removeMessage(myMessage));
-        return deleteSingleMessage(myMessage).then(() => setViewTimer(undefined));
-      }, 3000));
-    }, [messagesDispatch, myMessage, viewTimer],
-  );
-
-  const cancelRemoveMessage = useCallback( () => {
-      if (viewTimer) {
-        setViewTimer(undefined);
-        clearTimeout(viewTimer);
-      }
-    }, [viewTimer],
-  );
-
-  const TextDiv = (props) => {
-    // inViewport, enterCount, leaveCount also available
-    const { forwardedRef } = props;
-    return (
-      <div ref={forwardedRef}>
-        <div ref={box} className={isEditable ? classes.editable : classes.notEditable} />
-      </div>
-    )
-  };
-
-  const ViewportBlock = myMessage ? handleViewport(TextDiv, /** options: {}, config: {} **/) : undefined;
-
   return (
     <div className={clsx(classes.root, heading && classes.heading, className)}
          onClick={(event) => setBeingEdited(true, event)}>
-      {myMessage && (
-        <ViewportBlock onEnterViewport={removeMyMessage} onLeaveViewport={cancelRemoveMessage} />
-      )}
-      {!myMessage && (
-        <div ref={box} className={isEditable ? classes.editable : classes.notEditable} />
-      )}
+      <div ref={box} className={isEditable ? classes.editable : classes.notEditable} />
     </div>
   );
 }
 
 ReadOnlyQuillEditor.propTypes = {
   editorClassName: PropTypes.string,
-  notificationId: PropTypes.string,
   value: PropTypes.string,
   heading: PropTypes.bool,
   setBeingEdited: PropTypes.func,

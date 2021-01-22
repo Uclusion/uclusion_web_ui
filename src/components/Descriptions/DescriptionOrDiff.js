@@ -93,7 +93,6 @@ function DescriptionOrDiff(props) {
         value={description}
         setBeingEdited={setBeingEdited}
         isEditable={isEditable}
-        notificationId={id}
       />
       {diffAvailable && (
         <Button

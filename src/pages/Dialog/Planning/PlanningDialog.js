@@ -1,7 +1,7 @@
 /**
  * A component that renders a _planning_ dialog
  */
-import React, { useContext, useEffect, useReducer, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { useHistory } from 'react-router'
 import { useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
@@ -58,11 +58,6 @@ import { getVoteTotalsForUser, hasNotVoted } from '../../../utils/userFunctions'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import MarketLinks from '../MarketLinks'
 import MarketTodos from './MarketTodos'
-import { findMessageOfTypeAndId } from '../../../utils/messageUtils'
-import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
-import handleViewport from 'react-in-viewport'
-import { deleteSingleMessage } from '../../../api/users'
-import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
 import Gravatar from '../../../components/Avatars/Gravatar';
 import { LocalPlanningDragContext } from './InvestiblesByWorkspace'
 import { isInReviewStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
@@ -449,14 +444,6 @@ function InvestiblesByPerson(props) {
     activeMarket
   } = props;
   const classes = useInvestiblesByPersonStyles();
-  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
-  const [timersState, timersDispatch] = useReducer((state, action) => {
-    const { timer, userId } = action;
-    if (timer) {
-      return { ...state, [userId]: timer};
-    }
-    return { ...state, [userId]: undefined};
-  }, {});
   const marketPresencesSortedAlmost = _.sortBy(marketPresences, 'name');
   const marketPresencesSorted = _.sortBy(marketPresencesSortedAlmost, function (presence) {
     return !presence.current_user;
@@ -469,53 +456,16 @@ function InvestiblesByPerson(props) {
       investibles,
       visibleStages,
     );
-    const myMessage = findMessageOfTypeAndId(`${marketId}_${id}`, messagesState, 'SWIMLANE');
-    const TextCardHeader = (props) => {
-      // inViewport, enterCount, leaveCount also available
-      const { forwardedRef } = props;
-      return (
-        <div ref={forwardedRef}>
-          <CardHeader
-            className={classes.header}
-            id={`u${id}`}
-            title={name}
-            titleTypographyProps={{ variant: "subtitle2" }}
-          />
-        </div>
-      )
-    };
 
-    function removeMyMessage() {
-      if (myMessage && !timersState[id]) {
-        const timer = setTimeout(() => {
-          return deleteSingleMessage(myMessage).then(() => messagesDispatch(removeMessage(myMessage)));
-        }, 5000)
-        timersDispatch({timer, id});
-      }
-    }
-
-    function cancelRemoveMessage() {
-      if (timersState[id]) {
-        clearTimeout(timersState[id]);
-        timersDispatch({id});
-      }
-    }
-
-    const ViewportBlock = myMessage ? handleViewport(TextCardHeader, /** options: {}, config: {} **/) : undefined;
     return (
       <Card key={id} elevation={0} className={classes.root}>
-        {!myMessage && (
-          <CardHeader
-            className={classes.header}
-            id={`u${id}`}
-            title={name}
-            avatar={<Gravatar className={classes.smallGravatar} email={email} name={name}/>}
-            titleTypographyProps={{ variant: "subtitle2" }}
-          />
-        )}
-        {myMessage && (
-          <ViewportBlock onEnterViewport={removeMyMessage} onLeaveViewport={cancelRemoveMessage} />
-        )}
+        <CardHeader
+          className={classes.header}
+          id={`u${id}`}
+          title={name}
+          avatar={<Gravatar className={classes.smallGravatar} email={email} name={name}/>}
+          titleTypographyProps={{ variant: "subtitle2" }}
+        />
         <CardContent className={classes.content}>
           {marketId &&
             acceptedStage &&

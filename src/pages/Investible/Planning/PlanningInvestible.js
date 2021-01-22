@@ -130,6 +130,7 @@ const useStyles = makeStyles(
       fontWeight: "bold",
       lineHeight: "42px",
       paddingBottom: "9px",
+      paddingRight: "0.5rem",
       [theme.breakpoints.down("xs")]: {
         fontSize: 25
       }
@@ -139,6 +140,7 @@ const useStyles = makeStyles(
       fontWeight: "bold",
       lineHeight: "42px",
       paddingBottom: "9px",
+      paddingRight: "0.5rem",
       cursor: "url('/images/edit_cursor.svg') 0 24, pointer",
       [theme.breakpoints.down("xs")]: {
         fontSize: 25
@@ -176,7 +178,7 @@ const useStyles = makeStyles(
       }
     },
     votingCardContent: {
-      margin: theme.spacing(2, 6),
+      margin: theme.spacing(2, 6, 2, 3.65),
       padding: 0,
       '& img': {
         margin: '.75rem 0',

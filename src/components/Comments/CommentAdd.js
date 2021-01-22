@@ -360,7 +360,7 @@ function CommentAdd (props) {
             setEditorDefaultFunc={setEditorDefaultFunc}
             getUrlName={urlHelperGetName(marketState, investibleState)}
           >
-            {!isStory && (
+            {!isStory && onDone && (
               <Button
                 onClick={onDone}
                 className={classes.button}

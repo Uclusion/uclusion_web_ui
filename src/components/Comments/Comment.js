@@ -75,6 +75,7 @@ import { onCommentOpen } from '../../utils/commentFunctions'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 import { findMessageForCommentId } from '../../utils/messageUtils'
 import GravatarAndName from '../Avatars/GravatarAndName';
+import { isTinyWindow } from '../../utils/windowUtils'
 
 const useCommentStyles = makeStyles(
   theme => {
@@ -746,16 +747,6 @@ function Comment(props) {
             )}
             {commentType === QUESTION_TYPE && !inArchives && inlineMarketId && (
               <>
-                <Typography>
-                  {intl.formatMessage({ id: 'allowMultiVoteQuestion' })}
-                  <Checkbox
-                    id="multiVote"
-                    name="multiVote"
-                    checked={multiVote}
-                    onChange={toggleMultiVote}
-                    disabled={inlineCreatedBy !== inlineUserId}
-                  />
-                </Typography>
                 <Button
                   className={clsx(classes.action, classes.actionPrimary)}
                   color="primary"
@@ -765,6 +756,17 @@ function Comment(props) {
                 >
                   {intl.formatMessage({ id: "inlineAddLabel" })}
                 </Button>
+                <Typography style={{fontSize: 12}}>
+                  {intl.formatMessage({ id: isTinyWindow() ? 'allowMultiVoteQuestionMobile'
+                      : 'allowMultiVoteQuestion' })}
+                  <Checkbox
+                    id="multiVote"
+                    name="multiVote"
+                    checked={multiVote}
+                    onChange={toggleMultiVote}
+                    disabled={inlineCreatedBy !== inlineUserId}
+                  />
+                </Typography>
               </>
             )}
             {commentType === SUGGEST_CHANGE_TYPE && !inArchives && !inlineMarketId && marketType === PLANNING_TYPE && (
@@ -790,7 +792,7 @@ function Comment(props) {
                 {intl.formatMessage({ id: "storyFromComment" })}
               </Button>
             )}
-            {(replies.length > 0 || inlineMarketId) && (
+            {(replies.length > 0 || inlineMarketId) && (!isTinyWindow() || !inlineMarketId) && (
               <Button
                 className={clsx(classes.action, classes.actionSecondary)}
                 variant="contained"

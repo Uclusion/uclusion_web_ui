@@ -41,6 +41,7 @@ import { restoreHeader } from '../../../containers/Header'
 import { LocalPlanningDragContext } from './InvestiblesByWorkspace'
 import { findMessageForCommentId } from '../../../utils/messageUtils'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
+import { isTinyWindow } from '../../../utils/windowUtils'
 
 const myClasses = makeStyles(
   theme => {
@@ -314,7 +315,7 @@ function MarketTodos (props) {
           title={intl.formatMessage({ id: 'todoSection' })}
           helpTextId="todoSectionHelp"
           searchBar={isSingleTodoSelected ? undefined : (<TextField
-            style={{paddingTop: '3px', width: '300px'}}
+            style={{paddingTop: '3px', width: `${isTinyWindow() ? '9rem' : '18rem'}`}}
             onFocus={() => {
                 if (!showTodos) {
                   toggleShowTodos();
@@ -340,7 +341,7 @@ function MarketTodos (props) {
                 </InputAdornment>
               ) : null,
             }}/>)}
-          createButton={ isSingleTodoSelected || isInArchives ? undefined :
+          createButton={ isSingleTodoSelected || isInArchives || isTinyWindow() ? undefined :
             (<Button
               onClick={toggleShowSelectTodos}
               className={classes.actionSecondary}

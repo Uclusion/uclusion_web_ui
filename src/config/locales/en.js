@@ -622,6 +622,7 @@ const messages = defineMessages({
   deadlineExtenderCancel: 'Close',
   allowMultiVote: 'Can collaborator\'s approve more than one option?',
   allowMultiVoteQuestion: 'Allow approve multiple options?',
+  allowMultiVoteQuestionMobile: 'Allow multi-option?',
 
   // invite linker
   inviteLinkerDirectionsDecision: 'Share this link',

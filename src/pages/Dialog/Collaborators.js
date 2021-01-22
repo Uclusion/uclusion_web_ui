@@ -44,7 +44,7 @@ export function Collaborators(props) {
     <span className={classes.assignmentFlexRow}>
       <ul>
         {authorDisplay && author && (
-          <GravatarAndName key={author.id} name={author.name} typographyComponent="li"/>
+          <GravatarAndName key={author.id} name={author.name} email={author.email} typographyComponent="li"/>
         )}
         {!authorDisplay && marketPresences.map(presence => {
           const { id: presenceId, name, following, email } = presence;

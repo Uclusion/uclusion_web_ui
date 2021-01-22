@@ -779,7 +779,7 @@ function Comment(props) {
                 />
               </Typography>
             )}
-            {!investibleId && !inArchives && enableActions && !resolved && (
+            {!investibleId && !inArchives && enableActions && !resolved && marketType === PLANNING_TYPE && (
               <Button
                 className={clsx(classes.action, classes.actionPrimary)}
                 color="primary"

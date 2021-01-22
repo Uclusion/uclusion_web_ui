@@ -51,7 +51,8 @@ function MoveToNextVisibleStageActionButton(props) {
   if (currentStageId === inVotingStage.id) {
     destinationStage = acceptedStage;
     destinationExplanation = 'planningInvestibleAcceptedExplanation';
-    destinationLabel = 'planningInvestibleNextStageAcceptedLabel';
+    destinationLabel = disabled ? 'planningInvestibleNextStageAcceptedFullLabel' :
+      'planningInvestibleNextStageAcceptedLabel';
     if (!(disabled || operationRunning)) {
       highlightClass = classes.containerYellow;
     }

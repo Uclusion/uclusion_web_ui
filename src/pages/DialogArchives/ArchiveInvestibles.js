@@ -17,6 +17,7 @@ import { InvestiblesContext } from '../../contexts/InvestibesContext/Investibles
 import { LocalPlanningDragContext } from '../Dialog/Planning/InvestiblesByWorkspace'
 import { isBlockedStage, isInReviewStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
 import GravatarGroup from '../../components/Avatars/GravatarGroup'
+import Link from '@material-ui/core/Link'
 
 function getInvestibleOnClick(id, marketId, history) {
   return () => {
@@ -99,12 +100,15 @@ export function getInvestibles(investibles, presenceMap, marketId, comments, his
           onClick={getInvestibleOnClick(id, marketId, history)}
           elevation={elevation}
         >
-          <div className={highlightMap[id] ? classes.warn : classes.outlined}>
-            <Typography style={{fontSize: '.75rem', flex: 1}}>Updated: {intl.formatDate(updated_at)}</Typography>
-            <Typography style={{fontWeight: 700, flex: 2}}>{name}</Typography>
-            {assignedNames.map((name) => (<Typography style={{fontStyle: 'italic', fontSize: '.75rem', flex: 1}} key={name}>Assignee: {name}</Typography>))}
-            <GravatarGroup users={commentPresences}/>
-          </div>
+          <Link href={formInvestibleLink(marketId, id)} color="inherit">
+            <div className={highlightMap[id] ? classes.warn : classes.outlined}>
+              <Typography style={{fontSize: '.75rem', flex: 1}}>Updated: {intl.formatDate(updated_at)}</Typography>
+              <Typography style={{fontWeight: 700, flex: 2}}>{name}</Typography>
+              {assignedNames.map((name) => (<Typography
+                style={{fontStyle: 'italic', fontSize: '.75rem', flex: 1}} key={name}>Assignee: {name}</Typography>))}
+              <GravatarGroup users={commentPresences}/>
+            </div>
+          </Link>
         </RaisedCard>
       </Grid>
     );

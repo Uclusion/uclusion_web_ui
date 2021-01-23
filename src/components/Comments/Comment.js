@@ -653,7 +653,7 @@ function Comment(props) {
               <FormattedMessage id="edit" />
             </Button>
           )}
-          {enableActions && (
+          {enableActions && (!resolved || userId === commentCreatedBy) && (
             <SpinBlockingButton
               className={clsx(
                 classes.action,
@@ -661,17 +661,17 @@ function Comment(props) {
                 classes.actionResolveToggle
               )}
               marketId={marketId}
-              onClick={commentType === REPORT_TYPE ? remove : comment.resolved ? reopen : resolve}
+              onClick={commentType === REPORT_TYPE ? remove : resolved ? reopen : resolve}
               variant="contained"
               hasSpinChecker
             >
               {intl.formatMessage({
-                id: commentType === REPORT_TYPE ? "commentRemoveLabel" : comment.resolved ? "commentReopenLabel"
+                id: commentType === REPORT_TYPE ? "commentRemoveLabel" : resolved ? "commentReopenLabel"
                   : "commentResolveLabel"
               })}
             </SpinBlockingButton>
           )}
-          {(myPresence.is_admin || isEditable) && enableActions && commentType !== REPORT_TYPE && comment.resolved && (
+          {(myPresence.is_admin || isEditable) && enableActions && commentType !== REPORT_TYPE && resolved && (
             <SpinBlockingButton
               className={clsx(
                 classes.action,

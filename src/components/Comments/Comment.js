@@ -749,7 +749,7 @@ function Comment(props) {
                 {intl.formatMessage({ id: "inlineAddLabel" })}
               </Button>
             )}
-            {commentType === QUESTION_TYPE && !inArchives && inlineMarketId && (
+            {commentType === QUESTION_TYPE && !inArchives && inlineMarketId && !resolved && (
               <>
                 <Button
                   className={clsx(classes.action, classes.actionPrimary)}

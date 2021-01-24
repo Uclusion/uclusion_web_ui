@@ -104,7 +104,7 @@ const useCommentStyles = makeStyles(
       action: {
         boxShadow: "none",
         fontSize: 12,
-        padding: "4px 16px",
+        padding: "4px 16px, 0, 0",
         textTransform: "none",
         "&:hover": {
           boxShadow: "none"
@@ -140,10 +140,9 @@ const useCommentStyles = makeStyles(
         marginLeft: "auto"
       },
       actionResolveToggle: {
-        alignSelf: "baseline",
         margin: "11px 12px 11px 16px",
         [theme.breakpoints.down('sm')]: {
-          margin: "11px 0px 11px 3px",
+          margin: "11px 6px 11px 3px",
         },
       },
       actionEdit: {
@@ -653,6 +652,23 @@ function Comment(props) {
               <FormattedMessage id="edit" />
             </Button>
           )}
+          {(myPresence.is_admin || isEditable) && enableActions && commentType !== REPORT_TYPE && resolved && (
+            <SpinBlockingButton
+              className={clsx(
+                classes.action,
+                classes.actionWarned,
+                classes.actionResolveToggle
+              )}
+              marketId={marketId}
+              onClick={remove}
+              variant="contained"
+              hasSpinChecker
+            >
+              {intl.formatMessage({
+                id: "commentRemoveLabel"
+              })}
+            </SpinBlockingButton>
+          )}
           {enableActions && (!resolved || userId === commentCreatedBy) && (
             <SpinBlockingButton
               className={clsx(
@@ -668,23 +684,6 @@ function Comment(props) {
               {intl.formatMessage({
                 id: commentType === REPORT_TYPE ? "commentRemoveLabel" : resolved ? "commentReopenLabel"
                   : "commentResolveLabel"
-              })}
-            </SpinBlockingButton>
-          )}
-          {(myPresence.is_admin || isEditable) && enableActions && commentType !== REPORT_TYPE && resolved && (
-            <SpinBlockingButton
-              className={clsx(
-                classes.action,
-                classes.actionWarned,
-                classes.actionResolveToggle
-              )}
-              marketId={marketId}
-              onClick={remove}
-              variant="contained"
-              hasSpinChecker
-            >
-              {intl.formatMessage({
-                id: "commentRemoveLabel"
               })}
             </SpinBlockingButton>
           )}

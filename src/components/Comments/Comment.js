@@ -65,7 +65,7 @@ import {
 } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 import { formMarketAddInvestibleLink, navigate } from '../../utils/marketIdPathFunctions'
-import { useHistory } from 'react-router'
+import { useHistory, useLocation } from 'react-router'
 import { createInitiative, updateMarket } from '../../api/markets'
 import { addDecisionInvestible } from '../../api/investibles'
 import YourVoting from '../../pages/Investible/Voting/YourVoting'
@@ -295,6 +295,8 @@ function useMarketId() {
 function Comment(props) {
   const { comment, marketId, comments, allowedTypes, editOpenDefault, noAuthor, onDone,  readOnly } = props;
   const history = useHistory();
+  const location = useLocation();
+  const { hash } = location;
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const intl = useIntl();
   const classes = useCommentStyles();
@@ -416,7 +418,7 @@ function Comment(props) {
     return (
       <>
         {!_.isEmpty(underConsideration) && (
-          <Grid item xs={12}>
+          <Grid item xs={12} style={{marginTop: '1rem'}}>
             <SubSection
               id="currentVoting"
               type={SECTION_TYPE_SECONDARY}
@@ -433,7 +435,7 @@ function Comment(props) {
           </Grid>
         )}
         {!_.isEmpty(proposed) && (
-          <Grid item xs={12}>
+          <Grid item xs={12} style={{marginTop: '1rem'}}>
             <SubSection
               type={SECTION_TYPE_SECONDARY}
               title={intl.formatMessage({ id: 'decisionDialogProposedOptionsLabel' })}
@@ -578,19 +580,21 @@ function Comment(props) {
   const myExpandedState = expandedCommentState[id] || {};
   const { level: myHighlightedLevel } = myHighlightedState;
   const { expanded: myRepliesExpanded } = myExpandedState;
-  const myRepliesExpandedCalc = myRepliesExpanded === undefined ? _.isEmpty(highlightIds) ? undefined : true : myRepliesExpanded;
-  const repliesExpanded = myRepliesExpandedCalc === undefined ? !comment.resolved || comment.reply_id : myRepliesExpandedCalc;
+  const repliesExpanded = myRepliesExpanded === undefined ? !comment.resolved : myRepliesExpanded;
   const isInReview = createdStageId === (getInReviewStage(marketStagesState, marketId) || {id: 'fake'}).id;
   const overrideLabel = (marketType === PLANNING_TYPE && commentType === REPORT_TYPE && isInReview) ?
     <FormattedMessage id="reviewReportPresent" /> : undefined;
-  useEffect(() => {
-    if (!_.isEmpty(highlightIds) && !myRepliesExpanded && commentType !== REPLY_TYPE) {
-      // Open if need to highlight inside - user can close again
-      expandedCommentDispatch({ type: EXPANDED_CONTROL, commentId: id, expanded: true });
-    }
-  }, [id, myRepliesExpanded, expandedCommentDispatch, highlightIds, commentType]);
 
-  const displayUpdatedBy = updatedBy !== undefined && comment.updated_by !== comment.created_by
+  const displayUpdatedBy = updatedBy !== undefined && comment.updated_by !== comment.created_by;
+
+  useEffect(() => {
+    if (!repliesExpanded && hash && !_.isEmpty(highlightIds)) {
+      if (highlightIds.find((anId) => hash.includes(anId))) {
+        expandedCommentDispatch({ type: EXPANDED_CONTROL, commentId: id, expanded: true });
+      }
+    }
+    return () => {};
+  }, [expandedCommentDispatch, highlightIds, id, repliesExpanded]);
 
   const showActions = !replyOpen || replies.length > 0;
   function getCommentHighlightStyle() {
@@ -599,6 +603,9 @@ function Comment(props) {
         return classes.containerYellow;
       }
       return classes.containerRed;
+    }
+    if (!_.isEmpty(highlightIds) && !repliesExpanded) {
+      return classes.containerYellow;
     }
     return classes.container;
   }

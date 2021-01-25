@@ -141,11 +141,24 @@ function MarketTodos (props) {
   const { hash } = location;
 
   useEffect(() => {
-    if (!showTodos && hash && todoComments.find((comment) => hash.includes(comment.id))) {
-      expandedCommentDispatch({ type: EXPANDED_CONTROL, commentId: marketId, expanded: true });
+    if (!showTodos && hash) {
+      const todoParents = comments.filter(comment => comment.comment_type === TODO_TYPE) || [];
+      const todoCommentIds = [];
+      todoParents.forEach((comment) => {
+        todoCommentIds.push(comment.id);
+        comments.forEach((treeCandidate) => {
+          const { root_comment_id: rootId } = treeCandidate;
+          if (comment.id === rootId) {
+            todoCommentIds.push(treeCandidate.id);
+          }
+        })
+      })
+      if (todoCommentIds.find((anId) => hash.includes(anId))) {
+        expandedCommentDispatch({ type: EXPANDED_CONTROL, commentId: marketId, expanded: true });
+      }
     }
     return () => {};
-  }, [expandedCommentDispatch, hash, marketId, showTodos, todoComments]);
+  }, [expandedCommentDispatch, hash, marketId, showTodos, comments]);
 
   function onDragStart(event) {
     event.dataTransfer.setData('text', event.target.id.substring(1));
@@ -186,7 +199,14 @@ function MarketTodos (props) {
       const { id, body, updated_at } = comment;
       const replies = comments.filter(comment => comment.root_comment_id === id) || [];
       const myMessage = findMessageForCommentId(id, messagesState);
-      const { level } = myMessage || {};
+      const { level: myLevel } = myMessage || {};
+      let level = myLevel;
+      replies.forEach((reply) => {
+        const aMessage = findMessageForCommentId(reply.id, messagesState);
+        if (aMessage) {
+          level = 'YELLOW';
+        }
+      })
       const { isChecked } = checked[id] || { isChecked: false };
       return (
         <Grid
@@ -372,7 +392,7 @@ function MarketTodos (props) {
               />
             )}
             {editRedCard && (
-              <div id={`editc${editRedCard.id}`}>
+              <div id={`editc${editRedCard.id}`} style={{marginBottom: '2rem'}}>
                 <Comment
                   depth={0}
                   marketId={marketId}
@@ -422,7 +442,7 @@ function MarketTodos (props) {
               />
             )}
             {editYellowCard && (
-              <div id={`editc${editYellowCard.id}`}>
+              <div id={`editc${editYellowCard.id}`} style={{marginBottom: '2rem'}}>
                 <Comment
                   depth={0}
                   marketId={marketId}
@@ -472,7 +492,7 @@ function MarketTodos (props) {
               />
             )}
             {editCard && (
-              <div id={`editc${editCard.id}`}>
+              <div id={`editc${editCard.id}`} style={{marginBottom: '2rem'}}>
                 <Comment
                   depth={0}
                   marketId={marketId}

@@ -18,11 +18,12 @@ import _ from 'lodash'
 import ReadOnlyQuillEditor from '../TextEditors/ReadOnlyQuillEditor'
 import CommentAdd from './CommentAdd'
 import {
+  ISSUE_TYPE,
   JUSTIFY_TYPE,
   QUESTION_TYPE,
   REPLY_TYPE,
   REPORT_TYPE,
-  SUGGEST_CHANGE_TYPE,
+  SUGGEST_CHANGE_TYPE, TODO_TYPE,
 } from '../../constants/comments'
 import { removeComment, reopenComment, resolveComment } from '../../api/comments'
 import SpinBlockingButton from '../SpinBlocking/SpinBlockingButton'
@@ -669,7 +670,8 @@ function Comment(props) {
               })}
             </SpinBlockingButton>
           )}
-          {enableActions && (!resolved || userId === commentCreatedBy) && (
+          {enableActions &&
+          (!resolved || userId === commentCreatedBy || commentType === TODO_TYPE || commentType === ISSUE_TYPE) && (
             <SpinBlockingButton
               className={clsx(
                 classes.action,

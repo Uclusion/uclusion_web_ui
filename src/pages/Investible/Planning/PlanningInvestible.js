@@ -167,7 +167,7 @@ const useStyles = makeStyles(
       }
     },
     editCardContent: {
-      margin: theme.spacing(2, 1),
+      margin: theme.spacing(2, 1, 2, 2),
       padding: 0,
       '& img': {
         margin: '.75rem 0',
@@ -178,7 +178,7 @@ const useStyles = makeStyles(
       }
     },
     votingCardContent: {
-      margin: theme.spacing(2, 6, 2, 3.65),
+      margin: theme.spacing(2, 6, 2, 2),
       padding: 0,
       '& img': {
         margin: '.75rem 0',
@@ -198,6 +198,18 @@ const useStyles = makeStyles(
       padding: 0,
       margin: 0,
     },
+    borderRight: {
+      marginTop: '-0.5rem',
+      [theme.breakpoints.down("xs")]: {
+        padding: '1rem 0',
+        marginTop: '1rem',
+        borderRight: 'none',
+        borderTop: '1px solid #e0e0e0',
+        flexGrow: 'unset',
+        maxWidth: 'unset',
+        flexBasis: 'auto'
+      }
+    },
     borderLeft: {
       borderLeft: '1px solid #e0e0e0',
       padding: '0 0 0 2rem',
@@ -209,6 +221,7 @@ const useStyles = makeStyles(
         borderTop: '1px solid #e0e0e0',
         flexGrow: 'unset',
         maxWidth: 'unset',
+        marginRight: 'unset',
         flexBasis: 'auto'
       }
     },
@@ -250,14 +263,69 @@ const useStyles = makeStyles(
       }
     },
     fullWidth: {
+      borderLeft: '1px solid #e0e0e0',
+      paddingLeft: '2rem',
+      marginLeft: '-2rem',
+      marginRight: '2rem',
       [theme.breakpoints.down("xs")]: {
         maxWidth: '100%',
-        flexBasis: '100%'
+        flexBasis: '100%',
+        borderLeft: 'none',
+        marginLeft: 'unset'
       }
     },
     datePicker: {
       position: 'absolute',
       zIndex: 1000
+    },
+    assignments: {
+      padding: 0,
+      "& ul": {
+        flex: 4,
+        margin: 0,
+        padding: 0
+      },
+      "& li": {
+        display: "inline-flex",
+        fontWeight: "bold",
+        marginLeft: theme.spacing(1)
+      }
+    },
+    assignmentContainer: {
+      width: '80%',
+      textTransform: 'capitalize'
+    },
+    assignIconContainer: {
+      display: 'flex',
+      justifyContent: 'center'
+    },
+    assignmentFlexRow: {
+      width: '100%',
+      display: 'flex',
+      padding: '8px'
+    },
+    rolesRoot: {
+      alignItems: "flex-start",
+      display: "flex",
+      flexDirection: 'column',
+      width: '100%',
+      '& > div': {
+        borderRadius: '6px',
+        marginBottom: '1rem'
+      }
+    },
+    group: {
+      backgroundColor: '#ecf0f1',
+      borderRadius: 6,
+      display: "flex",
+      flexDirection: "row",
+      padding: theme.spacing(1, 1),
+      "&:first-child": {
+        marginLeft: 0
+      },
+      [theme.breakpoints.down("xs")]: {
+        backgroundColor: '#fff',
+      }
     },
   }),
   { name: "PlanningInvestible" }
@@ -301,9 +369,10 @@ function PlanningInvestible(props) {
   );
   const investibleCommentors = _.uniq(investibleComments.map((comment) => comment.created_by));
   const marketInfo = getMarketInfo(marketInvestible, marketId) || {};
-  const { stage, assigned: invAssigned, children, days_estimate: marketDaysEstimate } = marketInfo;
+  const { stage, assigned: invAssigned, children, days_estimate: marketDaysEstimate,
+    required_approvers: requiredApprovers, required_reviews: requiredReviewers } = marketInfo;
   const [daysEstimate, setDaysEstimate] = useState(marketDaysEstimate);
-  const assigned = invAssigned || []; // handle the empty case to make subsequent code easier
+  const assigned = invAssigned || [];
   const presencesFollowing = (marketPresences || []).filter((presence) => presence.following && !presence.market_banned) || [];
   const everyoneAssigned = !_.isEmpty(marketPresences) && assigned.length === presencesFollowing.length;
   const { investible } = marketInvestible;
@@ -678,6 +747,14 @@ function PlanningInvestible(props) {
   function mySetBeingEdited(isEdit, event) {
     doSetEditWhenValid(isEdit, isEditableByUser, setBeingEdited, investibleId, event);
   }
+  function toggleReviewers() {
+    navigate(history, `${formInvestibleEditLink(market.id, marketInvestible.investible.id)}#review=true`);
+  }
+
+  function toggleApprovers() {
+    navigate(history, `${formInvestibleEditLink(market.id, marketInvestible.investible.id)}#approve=true`);
+  }
+  const commentors = investibleCommentors || [];
   const myBeingEdited = beingEdited === investibleId;
   return (
     <Screen
@@ -711,7 +788,57 @@ function PlanningInvestible(props) {
         />
         <CardContent className={myBeingEdited ? classes.editCardContent : classes.votingCardContent}>
           <Grid container className={classes.mobileColumn}>
-            <Grid item xs={9} className={classes.fullWidth}>
+            <Grid className={classes.borderRight} item xs={3}>
+              <dl className={classes.rolesRoot}>
+                {market.id && marketInvestible.investible && (
+                  <div className={classes.assignmentContainer}>
+                    <FormattedMessage id="planningInvestibleAssignments" />
+                    <div className={clsx(classes.group, classes.assignments)}>
+                      <Assignments
+                        classes={classes}
+                        marketPresences={marketPresences}
+                        assigned={assigned}
+                        isAdmin={isAdmin}
+                        toggleAssign={toggleAssign}
+                        toolTipId="storyAddParticipantsLabel"
+                        showMoveMessage
+                      />
+                    </div>
+                  </div>
+                )}
+                {!_.isEmpty(commentors) && (
+                  <div className={classes.assignmentContainer}>
+                    <FormattedMessage id="collaborators" />
+                    <div className={clsx(classes.group, classes.assignments)}>
+                      <Assignments
+                        classes={classes}
+                        marketPresences={marketPresences}
+                        assigned={commentors}
+                        isAdmin={false}
+                        toggleAssign={() => {}}
+                        toolTipId="collaborators"
+                      />
+                    </div>
+                  </div>
+                )}
+                {market.id && marketInvestible.investible && (isInVoting || isInReview) && (
+                  <div className={classes.assignmentContainer}>
+                    <FormattedMessage id={isInVoting ? 'requiredApprovers': 'requiredReviewers'} />
+                    <div className={clsx(classes.group, classes.assignments)}>
+                      <Assignments
+                        classes={classes}
+                        marketPresences={marketPresences}
+                        assigned={isInVoting ? requiredApprovers : requiredReviewers}
+                        isAdmin={isAdmin}
+                        toggleAssign={isInVoting ? toggleApprovers : toggleReviewers}
+                        toolTipId={isInVoting ? 'storyApproversLabel' : 'storyReviewersLabel'}
+                      />
+                    </div>
+                  </div>
+                )}
+              </dl>
+            </Grid>
+            <Grid xs={6} className={classes.fullWidth}>
               {!myBeingEdited && (
                 <Typography className={isEditableByUser() ? classes.titleEditable : classes.title} variant="h3"
                             component="h1" onClick={() => !isTinyWindow() && mySetBeingEdited(true)}>
@@ -793,19 +920,14 @@ function PlanningInvestible(props) {
               <MarketMetaData
                 stageName={marketInfo.stage_name}
                 investibleId={investibleId}
-                isInVoting={isInVoting}
-                isInReview={isInReview}
                 market={market}
                 marketInvestible={marketInvestible}
-                marketPresences={marketPresences}
                 isAdmin={isAdmin && !inArchives}
-                toggleAssign={toggleAssign}
                 stageActions={getStageActions()}
                 expansionChanged={expansionChanged}
                 actions={getSidebarActions()}
                 anchorEl={anchorEl}
                 setAnchorEl={setAnchorEl}
-                commentors={investibleCommentors || []}
               />
             </Grid>
           </Grid>
@@ -1055,21 +1177,16 @@ export const useMetaDataStyles = makeStyles(
 function MarketMetaData(props) {
   const {
     market,
-    marketPresences,
     marketInvestible,
     isAdmin,
-    toggleAssign,
     stageActions,
     expansionChanged,
     actions,
     stageName,
-    isInReview,
-    isInVoting,
     anchorEl,
     setAnchorEl,
-    commentors,
   } = props;
-  const history = useHistory();
+
   let stageLabel;
   switch (stageName) {
     case 'In Dialog':
@@ -1100,8 +1217,6 @@ function MarketMetaData(props) {
   const [, diffDispatch] = useContext(DiffContext);
   const classes = useMetaDataStyles();
   const attachedFiles = marketInvestible.investible && marketInvestible.investible.attached_files;
-  const marketInfo = (market.id && marketInvestible.investible && getMarketInfo(marketInvestible, market.id)) || {};
-  const { assigned, required_approvers: requiredApprovers, required_reviews: requiredReviewers } = marketInfo;
 
   function handleClick(event) {
     setAnchorEl(event.currentTarget);
@@ -1126,48 +1241,8 @@ function MarketMetaData(props) {
       .then((investible) => addInvestible(investiblesDispatch, diffDispatch, investible));
   }
 
-  function toggleReviewers() {
-    navigate(history, `${formInvestibleEditLink(market.id, marketInvestible.investible.id)}#review=true`);
-  }
-
-  function toggleApprovers() {
-    navigate(history, `${formInvestibleEditLink(market.id, marketInvestible.investible.id)}#approve=true`);
-  }
-
   return (
     <dl className={classes.root}>
-      {market.id && marketInvestible.investible && (
-        <div className={classes.assignmentContainer}>
-          <FormattedMessage id="planningInvestibleAssignments" />
-          <div className={clsx(classes.group, classes.assignments)}>
-            <Assignments
-              classes={classes}
-              marketPresences={marketPresences}
-              assigned={assigned}
-              isAdmin={isAdmin}
-              toggleAssign={toggleAssign}
-              toolTipId="storyAddParticipantsLabel"
-              showMoveMessage
-            />
-          </div>
-        </div>
-      )}
-      {market.id && marketInvestible.investible && (isInVoting || isInReview) && (
-        <div className={classes.assignmentContainer}>
-          <FormattedMessage id={isInVoting ? 'requiredApprovers': 'requiredReviewers'} />
-          <div className={clsx(classes.group, classes.assignments)}>
-            <Assignments
-              classes={classes}
-              marketPresences={marketPresences}
-              assigned={isInVoting ? requiredApprovers : requiredReviewers}
-              isAdmin={isAdmin}
-              toggleAssign={isInVoting ? toggleApprovers : toggleReviewers}
-              toolTipId={isInVoting ? 'storyApproversLabel' : 'storyReviewersLabel'}
-            />
-          </div>
-        </div>
-      )}
-
       {!_.isEmpty(stageActions) &&
       (
         <React.Fragment>
@@ -1195,21 +1270,6 @@ function MarketMetaData(props) {
           </div>
         </React.Fragment>
       )}
-      {!_.isEmpty(commentors) && (
-        <div className={classes.assignmentContainer}>
-          <FormattedMessage id="collaborators" />
-          <div className={clsx(classes.group, classes.assignments)}>
-            <Assignments
-              classes={classes}
-              marketPresences={marketPresences}
-              assigned={commentors}
-              isAdmin={false}
-              toggleAssign={() => {}}
-              toolTipId="collaborators"
-            />
-          </div>
-        </div>
-      )}
       <LinkMarket actions={actions} />
       <AttachedFilesList
         marketId={market.id}
@@ -1223,12 +1283,9 @@ function MarketMetaData(props) {
 
 MarketMetaData.propTypes = {
   investibleId: PropTypes.string.isRequired,
-  isInVoting: PropTypes.bool.isRequired,
   market: PropTypes.object.isRequired,
-  marketPresences: PropTypes.array.isRequired,
   marketInvestible: PropTypes.object.isRequired,
   isAdmin: PropTypes.bool.isRequired,
-  toggleAssign: PropTypes.func.isRequired,
   stageActions: PropTypes.array,
   expansionChanged: PropTypes.func.isRequired,
   actions: PropTypes.arrayOf(PropTypes.element).isRequired,

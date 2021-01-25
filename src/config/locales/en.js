@@ -316,6 +316,7 @@ const messages = defineMessages({
   planningFurtherWorkStageLabel: 'Further Work',
   requiresInputStageLabel: 'Requires Input',
   planningNotDoingStageLabel: 'Not Doing',
+  planningBlockedStageLabel: 'Blocked',
   planningInvestibleAssignments: 'assigned',
   requiredApprovers: 'required approvers',
   requiredReviewers: 'required reviewers',

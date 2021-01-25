@@ -20,10 +20,8 @@ import GravatarGroup from '../../components/Avatars/GravatarGroup'
 import Link from '@material-ui/core/Link'
 
 function getInvestibleOnClick(id, marketId, history) {
-  return () => {
-    const link = formInvestibleLink(marketId, id);
-    navigate(history, link);
-  };
+  const link = formInvestibleLink(marketId, id);
+  navigate(history, link);
 }
 
 const myClasses = makeStyles(
@@ -97,7 +95,11 @@ export function getInvestibles(investibles, presenceMap, marketId, comments, his
         onDragEnd={onDragEnd}
       >
         <RaisedCard
-          onClick={getInvestibleOnClick(id, marketId, history)}
+          onClick={(event) => {
+            event.stopPropagation();
+            event.preventDefault();
+            getInvestibleOnClick(id, marketId, history);
+          }}
           elevation={elevation}
         >
           <Link href={formInvestibleLink(marketId, id)} color="inherit">

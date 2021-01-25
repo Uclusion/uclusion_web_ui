@@ -838,7 +838,7 @@ function PlanningInvestible(props) {
                 )}
               </dl>
             </Grid>
-            <Grid xs={6} className={classes.fullWidth}>
+            <Grid item xs={6} className={classes.fullWidth}>
               {!myBeingEdited && (
                 <Typography className={isEditableByUser() ? classes.titleEditable : classes.title} variant="h3"
                             component="h1" onClick={() => !isTinyWindow() && mySetBeingEdited(true)}>

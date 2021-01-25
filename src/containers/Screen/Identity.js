@@ -78,7 +78,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function Identity (props) {
-  const { logoutChannel } = props;
   const classes = useStyles();
   const user = useContext(CognitoUserContext);
   const canChangeUserValues = !isFederated(user);
@@ -181,7 +180,7 @@ function Identity (props) {
         )}
         <Divider/>
         <div className={classes.signOut}>
-          <SignOut logoutChannel={logoutChannel}/>
+          <SignOut />
         </div>
         <Divider/>
         <div className={classes.terms}>

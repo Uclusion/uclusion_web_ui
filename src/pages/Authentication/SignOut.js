@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { Button, makeStyles } from '@material-ui/core'
 import { useIntl } from 'react-intl'
 import { onSignOut } from '../../utils/userFunctions'
+import { LogoutContext } from '../../containers/App/App'
 
 const useStyles = makeStyles( {
   action: {
@@ -13,14 +14,16 @@ const useStyles = makeStyles( {
   }
 })
 function SignOut(props) {
-  const { logoutChannel } = props;
+  const logoutChannel = useContext(LogoutContext);
   const classes = useStyles();
   const intl = useIntl();
 
   function myOnSignOut() {
-    logoutChannel.postMessage('signedOut').then(() => onSignOut()).then(() => {
-      console.info('Reloaded already in onSignOut');
-    });
+    if (logoutChannel) {
+      logoutChannel.postMessage('signedOut').then(() => onSignOut()).then(() => {
+        console.info('Reloaded already in onSignOut');
+      });
+    }
   }
 
   return (

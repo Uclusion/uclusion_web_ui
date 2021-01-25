@@ -14,12 +14,29 @@ import { TourProvider } from '../../contexts/TourContext/TourContext'
 import { CognitoUserProvider } from '../../contexts/CognitoUserContext/CongitoUserContext'
 import { AccountUserProvider } from '../../contexts/AccountUserContext/AccountUserContext'
 import AccountPoller from '../Root/AccountPoller'
+import { BroadcastChannel } from 'broadcast-channel'
+import { onSignOut } from '../../utils/userFunctions'
+
+export const LogoutContext = React.createContext([]);
 
 function App (props) {
 
   const { authState } = props;
   const configs = { ...config };
   const [userAttributes, setUserAttributes] = useState({});
+  const [logoutChannel, setLogoutChannel] = useState(undefined);
+
+  useEffect(() => {
+    console.info('Setting up logout channel');
+    const myLogoutChannel = new BroadcastChannel('logout');
+    myLogoutChannel.onmessage = () => {
+      console.info('Logging out from message');
+      onSignOut().then(() => console.info('Done logging out'));
+    };
+    setLogoutChannel(myLogoutChannel);
+    return () => {};
+  }, []);
+
   useEffect(() => {
     function completeLogin (loginInfo) {
       setUserAttributes(loginInfo)
@@ -67,7 +84,9 @@ function App (props) {
               <ThemeProvider theme={defaultTheme}>
                 <TourProvider>
                   <AccountPoller>
-                    <Root appConfig={configs}/>
+                    <LogoutContext.Provider value={logoutChannel}>
+                      <Root appConfig={configs}/>
+                    </LogoutContext.Provider>
                   </AccountPoller>
                 </TourProvider>
               </ThemeProvider>

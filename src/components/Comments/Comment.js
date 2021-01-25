@@ -594,7 +594,7 @@ function Comment(props) {
       }
     }
     return () => {};
-  }, [expandedCommentDispatch, highlightIds, id, repliesExpanded]);
+  }, [expandedCommentDispatch, hash, highlightIds, id, repliesExpanded]);
 
   const showActions = !replyOpen || replies.length > 0;
   function getCommentHighlightStyle() {

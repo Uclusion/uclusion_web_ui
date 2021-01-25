@@ -569,10 +569,10 @@ function Stage (props) {
           );
 
           return (
-            <Grid item xs="12" onDragStart={investibleOnDragStart} id={investible.id} draggable
+            <Grid key={investible.id} item xs={12} onDragStart={investibleOnDragStart} id={investible.id} draggable
                   className={!singleInvestible && warnAcceptedSafe[investible.id] ? classes.rootWarnAccepted
               : !singleInvestible ? classes.outlinedAccepted : classes.regularAccepted}>
-              <li key={investible.id}>
+              <li>
                 <StageInvestible
                   marketPresences={marketPresences || []}
                   comments={comments || []}

@@ -178,7 +178,7 @@ const useStyles = makeStyles(
       }
     },
     votingCardContent: {
-      margin: theme.spacing(2, 6, 2, 2),
+      margin: theme.spacing(2),
       padding: 0,
       '& img': {
         margin: '.75rem 0',
@@ -204,7 +204,7 @@ const useStyles = makeStyles(
         padding: '1rem 0',
         marginTop: '1rem',
         borderRight: 'none',
-        borderTop: '1px solid #e0e0e0',
+        borderBottom: '1px solid #e0e0e0',
         flexGrow: 'unset',
         maxWidth: 'unset',
         flexBasis: 'auto'
@@ -913,7 +913,7 @@ function PlanningInvestible(props) {
                 </dl>
               </div>
               {marketDaysEstimate > 0 && (
-                <div style={{paddingTop: '1.5rem'}}>
+                <div style={{paddingTop: '1.5rem', marginTop: '1.5rem'}}>
                   <DaysEstimate readOnly value={daysEstimate} createdAt={createdAt} />
                 </div>
               )}
@@ -927,6 +927,7 @@ function PlanningInvestible(props) {
                 expansionChanged={expansionChanged}
                 actions={getSidebarActions()}
                 anchorEl={anchorEl}
+                marketDaysEstimate={marketDaysEstimate}
                 setAnchorEl={setAnchorEl}
               />
             </Grid>
@@ -1185,6 +1186,7 @@ function MarketMetaData(props) {
     stageName,
     anchorEl,
     setAnchorEl,
+    marketDaysEstimate
   } = props;
 
   let stageLabel;
@@ -1246,7 +1248,7 @@ function MarketMetaData(props) {
       {!_.isEmpty(stageActions) &&
       (
         <React.Fragment>
-        <span>
+        <span style={{marginTop: `${marketDaysEstimate > 0 ? '0' : '1.5rem'}`}}>
           <FormattedMessage id="changeStage"/>
         </span>
           <div className={classes.expansionControl} onChange={expansionChanged}>

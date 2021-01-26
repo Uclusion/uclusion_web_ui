@@ -31,7 +31,7 @@ export function inviteStoriesWorkspaceSteps (variables) {
       disableBeacon: true,
       target: '#viewArchive',
       placement: 'right',
-      content: 'Lastly, \'View Archive\' shows you Dialogs and stories that are complete or are not going to be done.',
+      content: 'Lastly, \'View Archive\' shows you stories that are complete or are not going to be done.',
     }
   ];
 }

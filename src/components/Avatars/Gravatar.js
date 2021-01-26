@@ -21,7 +21,7 @@ function Gravatar (props) {
   // so we have to have two versions of the avatar render
   if (name) {
     return (
-      <Tooltip key={`tip${email}`} title={name}>
+      <Tooltip key={`tip${email}`} title={(<div>{name}<br/>{email}</div>)}>
         <div>
           <Avatar
             className={className}
@@ -36,7 +36,7 @@ function Gravatar (props) {
   }
 
   return (
-    <Tooltip key={`tip${email}`} title={name}>
+    <Tooltip key={`tip${email}`} title={email}>
       <div>
         <Avatar
           className={className}

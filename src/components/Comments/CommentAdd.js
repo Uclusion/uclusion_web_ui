@@ -191,7 +191,7 @@ const useStyles = makeStyles((theme) => ({
 function CommentAdd (props) {
   const {
     marketId, onSave, onCancel, type, clearType, investible, parent, hidden, issueWarningId, todoWarningId,
-    isStory, defaultNotificationType, onDone
+    isStory, defaultNotificationType, onDone, mentionsAllowed
   } = props;
 
   const intl = useIntl();
@@ -358,6 +358,7 @@ function CommentAdd (props) {
             setEditorClearFunc={setEditorClearFunc}
             setEditorFocusFunc={setEditorFocusFunc}
             setEditorDefaultFunc={setEditorDefaultFunc}
+            mentionsAllowed={mentionsAllowed}
             getUrlName={urlHelperGetName(marketState, investibleState)}
           >
             {!isStory && onDone && (
@@ -496,7 +497,8 @@ CommentAdd.propTypes = {
   hidden: PropTypes.bool,
   clearType: PropTypes.func,
   isStory: PropTypes.bool,
-  defaultNotificationType: PropTypes.string
+  defaultNotificationType: PropTypes.string,
+  mentionsAllowed: PropTypes.bool,
 };
 
 CommentAdd.defaultProps = {
@@ -507,7 +509,8 @@ CommentAdd.defaultProps = {
   onCancel: () => {},
   clearType: () => {},
   hidden: false,
-  isStory: false
+  isStory: false,
+  mentionsAllowed: true,
 };
 
 export default CommentAdd;

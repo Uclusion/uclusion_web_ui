@@ -361,7 +361,7 @@ function CommentAdd (props) {
             mentionsAllowed={mentionsAllowed}
             getUrlName={urlHelperGetName(marketState, investibleState)}
           >
-            {!isStory && (
+            {!isStory && onDone && (
               <Button
                 onClick={onDone}
                 className={classes.button}

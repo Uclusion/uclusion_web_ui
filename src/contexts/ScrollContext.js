@@ -21,7 +21,8 @@ function ScrollProvider(props) {
           if (observer) observer.disconnect()
           element.scrollIntoView({ block: 'center' })
           // Remove the hash from the URL so we don't end up scrolling again
-          history.push(window.location.pathname);
+          // - use replace instead of push so back button works
+          history.replace(window.location.pathname);
           return true;
         }
         return false;

@@ -13,8 +13,6 @@ import { useHistory } from 'react-router';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import config from '../../config';
-import { BroadcastChannel } from 'broadcast-channel';
-import { onSignOut } from '../../utils/userFunctions';
 import RecentlyVisited from '../../components/RecentlyVisited/RecentlyVisited';
 import NotificationsContainer from '../../components/Notifications/NotificationsContainer';
 import { isTinyWindow } from '../../utils/windowUtils';
@@ -131,18 +129,6 @@ function Header (props) {
   const [logoTimer, setLogoTimer] = useState(undefined);
   const [logoImage, setLogoImage] = useState(NORMAL_LOGO);
   const [pegLogo, setPegLogo] = useState(false);
-  const [logoutChannel, setLogoutChannel] = useState(undefined);
-
-  useEffect(() => {
-    console.info('Setting up logout channel');
-    const myLogoutChannel = new BroadcastChannel('logout');
-    myLogoutChannel.onmessage = () => {
-      console.info('Logging out from message');
-      onSignOut().then(() => console.info('Done logging out'));
-    };
-    setLogoutChannel(myLogoutChannel);
-    return () => {};
-  }, []);
 
   useEffect(() => {
     if (appEnabled) {
@@ -280,7 +266,7 @@ function Header (props) {
                                    onClick={() => openInNewTab(config.helpLink)}/>
                 </Tooltip>
               )}
-              <Identity logoutChannel={logoutChannel}/>
+              <Identity />
               {!isTinyWindow() && (
                 <div id="recent-notifications" style={{ marginLeft: '1em', marginRight: '0.25em' }}>
                   <RecentlyVisited/>

@@ -9,19 +9,19 @@ import { useHistory } from 'react-router'
 import { makeStyles } from '@material-ui/core/styles'
 import { yellow } from '@material-ui/core/colors'
 import { restoreHeader } from '../../containers/Header'
-import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../constants/comments'
+import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../constants/comments'
 import { stageChangeInvestible } from '../../api/investibles'
 import { refreshInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { LocalPlanningDragContext } from '../Dialog/Planning/InvestiblesByWorkspace'
-import GravatarGroup from '../../components/Avatars/GravatarGroup';
+import { isBlockedStage, isInReviewStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
+import GravatarGroup from '../../components/Avatars/GravatarGroup'
+import Link from '@material-ui/core/Link'
 
 function getInvestibleOnClick(id, marketId, history) {
-  return () => {
-    const link = formInvestibleLink(marketId, id);
-    navigate(history, link);
-  };
+  const link = formInvestibleLink(marketId, id);
+  navigate(history, link);
 }
 
 const myClasses = makeStyles(
@@ -50,7 +50,7 @@ const myClasses = makeStyles(
 );
 
 export function getInvestibles(investibles, presenceMap, marketId, comments, history, intl, elevation, highlightMap,
-  allowDragDrop, onDragEnd, onDragStart, unResolvedMarketComments, presenceId, isInFurtherWork) {
+  allowDragDrop, onDragEnd, onDragStart, unResolvedMarketComments, presenceId, stage) {
   const investibleData = investibles.map((inv) => inv.investible);
   const sortedData = _.sortBy(investibleData, 'updated_at', 'name').reverse();
   const infoMap = investibles.reduce((acc, inv) => {
@@ -71,6 +71,9 @@ export function getInvestibles(investibles, presenceMap, marketId, comments, his
       return ((comment.comment_type === QUESTION_TYPE || comment.comment_type === SUGGEST_CHANGE_TYPE))
         && (assigned || []).includes(presenceId) && (comment.investible_id === id);
     });
+    const blockedComments = (unResolvedMarketComments || []).filter((comment) => {
+      return (comment.comment_type === ISSUE_TYPE) && (comment.investible_id === id);
+    });
     const usedAssignees = assigned || [];
     const assignedNames = usedAssignees.map((element) => {
       const presence = presenceMap[element];
@@ -86,20 +89,28 @@ export function getInvestibles(investibles, presenceMap, marketId, comments, his
         item
         md={3}
         xs={12}
-        draggable={allowDragDrop && (_.isEmpty(requiresInputComments) || isInFurtherWork)}
+        draggable={allowDragDrop && stage && ((_.isEmpty(requiresInputComments) && isInReviewStage(stage) )
+          || (_.isEmpty(blockedComments) && isBlockedStage(stage)) || !stage.allows_assignment)}
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
       >
         <RaisedCard
-          onClick={getInvestibleOnClick(id, marketId, history)}
+          onClick={(event) => {
+            event.stopPropagation();
+            event.preventDefault();
+            getInvestibleOnClick(id, marketId, history);
+          }}
           elevation={elevation}
         >
-          <div className={highlightMap[id] ? classes.warn : classes.outlined}>
-            <Typography style={{fontSize: '.75rem', flex: 1}}>Updated: {intl.formatDate(updated_at)}</Typography>
-            <Typography style={{fontWeight: 700, flex: 2}}>{name}</Typography>
-            {assignedNames.map((name) => (<Typography style={{fontStyle: 'italic', fontSize: '.75rem', flex: 1}} key={name}>Assignee: {name}</Typography>))}
-            <GravatarGroup users={commentPresences}/>
-          </div>
+          <Link href={formInvestibleLink(marketId, id)} color="inherit">
+            <div className={highlightMap[id] ? classes.warn : classes.outlined}>
+              <Typography style={{fontSize: '.75rem', flex: 1}}>Updated: {intl.formatDate(updated_at)}</Typography>
+              <Typography style={{fontWeight: 700, flex: 2}}>{name}</Typography>
+              {assignedNames.map((name) => (<Typography
+                style={{fontStyle: 'italic', fontSize: '.75rem', flex: 1}} key={name}>Assignee: {name}</Typography>))}
+              <GravatarGroup users={commentPresences}/>
+            </div>
+          </Link>
         </RaisedCard>
       </Grid>
     );
@@ -115,14 +126,14 @@ function ArchiveInvestbiles(props) {
     elevation,
     highlightMap,
     allowDragDrop,
-    stageId,
-    presenceId,
-    isInFurtherWork,
-    unResolvedMarketComments
+    stage,
+    presenceId
   } = props;
   const classes = myClasses();
   const intl = useIntl();
   const history = useHistory();
+  const stageId = stage ? stage.id : undefined;
+  const unResolvedMarketComments = comments.filter(comment => !comment.resolved) || [];
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [, invDispatch] = useContext(InvestiblesContext);
   const [beingDraggedHack, setBeingDraggedHack] = useContext(LocalPlanningDragContext);
@@ -137,7 +148,7 @@ function ArchiveInvestbiles(props) {
   }
 
   function onDrop(event) {
-    if (!isInFurtherWork) {
+    if (stage.move_on_comment) {
       return;
     }
     event.preventDefault();
@@ -175,10 +186,10 @@ function ArchiveInvestbiles(props) {
       container
       className={classes.white}
       onDrop={onDrop}
-      onDragOver={(event) => isInFurtherWork && event.preventDefault()}
+      onDragOver={(event) => (stage && !stage.move_on_comment) && event.preventDefault()}
     >
       {getInvestibles(investibles, presenceMap, marketId, comments, history, intl, elevation, highlightMap, allowDragDrop,
-      onDragEnd, onDragStart, unResolvedMarketComments, presenceId, isInFurtherWork)}
+      onDragEnd, onDragStart, unResolvedMarketComments, presenceId, stage)}
     </Grid>
   );
 }

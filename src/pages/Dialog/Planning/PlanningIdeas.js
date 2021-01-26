@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { useHistory } from 'react-router';
-import { Link, Tooltip, Typography } from '@material-ui/core';
+import { Grid, Link, Tooltip, Typography } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles';
 import { red, yellow } from '@material-ui/core/colors';
 import { FormattedDate, FormattedMessage, useIntl } from 'react-intl';
@@ -82,7 +82,7 @@ const usePlanningIdStyles = makeStyles(
   { name: 'PlanningIdea' }
 );
 
-function PlanningIdeas (props) {
+function PlanningIdeas(props) {
   const {
     investibles,
     marketId,
@@ -90,6 +90,7 @@ function PlanningIdeas (props) {
     inDialogStageId,
     inReviewStageId,
     inBlockingStageId,
+    inVerifiedStageId,
     inRequiresInputStageId,
     presenceId,
     activeMarket,
@@ -121,26 +122,15 @@ function PlanningIdeas (props) {
   const acceptedStageLabel = acceptedFull ? 'planningAcceptedStageFullLabel' : 'planningAcceptedStageLabel';
   const myPresence = (marketPresences || []).find((presence) => presence.current_user) || {};
 
-  function isBlockedByIssue (investibleId, currentStageId, targetStageId) {
+  function isBlockedByTodo(investibleId, currentStageId, targetStageId) {
     const investibleComments = comments.filter((comment) => comment.investible_id === investibleId) || [];
-    const blockingComments = investibleComments.filter(
-      comment => comment.comment_type === ISSUE_TYPE && !comment.resolved
-    );
     const todoComments = investibleComments.filter(
       comment => comment.comment_type === TODO_TYPE && !comment.resolved
     );
-    if (!_.isEmpty(blockingComments)) {
-      return true;
-    }
-    if (currentStageId !== inBlockingStageId && targetStageId !== inDialogStageId && !_.isEmpty(todoComments)) {
-      if (currentStageId !== inDialogStageId || targetStageId === inReviewStageId) {
-        return true;
-      }
-    }
-    return false;
+    return targetStageId === inVerifiedStageId && !_.isEmpty(todoComments);
   }
 
-  function onDropTodo (event) {
+  function onDropTodo(event) {
     const commentId = event.dataTransfer.getData('text');
     const comments = getMarketComments(commentsState, marketId) || [];
     const fromComment = comments.find((comment) => comment.id === commentId);
@@ -172,7 +162,7 @@ function PlanningIdeas (props) {
     event.preventDefault();
     const investibleId = event.dataTransfer.getData('text');
     const currentStageId = event.dataTransfer.getData('stageId');
-    if (!operationRunning && !isBlockedByIssue(investibleId, currentStageId, targetStageId) &&
+    if (!operationRunning && !isBlockedByTodo(investibleId, currentStageId, targetStageId) &&
       currentStageId !== targetStageId && checkStageMatching(currentStageId)) {
       const target = event.target;
       target.style.cursor = 'wait';
@@ -274,7 +264,14 @@ function PlanningIdeas (props) {
     }
   }
 
-  function isEligableDrop (divId) {
+  function onDropVerified(event) {
+    const currentStageId = event.dataTransfer.getData('stageId');
+    if (checkStageMatching(currentStageId)) {
+      stageChange(event, inVerifiedStageId);
+    }
+  }
+
+  function isEligableDrop(divId) {
     const { id, stageId } = beingDraggedHack;
     if (!stageId) {
       // This is a TODO being dragged
@@ -288,11 +285,11 @@ function PlanningIdeas (props) {
     const { assigned } = marketInfo;
     const draggerIsAssigned = (assigned || []).includes(myPresence.id);
     const swimLaneIsAssigned = (assigned || []).includes(presenceId);
-    const isBlocked = isBlockedByIssue(id, stageId, divId);
+    const isBlocked = isBlockedByTodo(id, stageId, divId);
     if (isBlocked) {
       return false;
     }
-    if (divId === inDialogStageId) {
+    if (divId === inDialogStageId || divId === inVerifiedStageId) {
       return true;
     }
     if (divId === acceptedStageId) {
@@ -410,18 +407,25 @@ function PlanningIdeas (props) {
           marketPresences={marketPresences}
         />
       </div>
-      <div id={`${inBlockingStageId}_${presenceId}`} onDragEnd={onDragEndStage}>
+      <div id={`${inVerifiedStageId}_${presenceId}`} onDrop={onDropVerified}
+           onDragOver={(event) => event.preventDefault()}
+           onDragEnter={(event) => onDragEnterStage(event, inVerifiedStageId, presenceId)}
+           onDragEnd={onDragEndStage}>
         <Tooltip
-          title={intl.formatMessage({ id: 'planningBlockedStageDescription' })}
+          title={intl.formatMessage({ id: 'planningVerifiedStageDescription' })}
         >
           <dt className={classes.stageLabel}>
-            <FormattedMessage id="planningBlockedStageLabel"/>
+            <FormattedMessage id="verifiedBlockedStageLabel"/>
           </dt>
         </Tooltip>
-        <BlockingStage
+        <VerifiedStage
           className={classes.stage}
-          id={inBlockingStageId}
+          id={inVerifiedStageId}
           investibles={investibles}
+          stage={getFullStage(marketStagesState, marketId, inVerifiedStageId)}
+          presenceId={presenceId}
+          comments={comments}
+          marketPresences={marketPresences}
           marketId={marketId}
         />
       </div>
@@ -460,7 +464,7 @@ const useStageClasses = makeStyles(
         border: `1px solid ${theme.palette.grey['400']}`,
         borderRadius: theme.spacing(1),
         fontSize: '.8em',
-        margin: theme.spacing(1, 0),
+        margin: theme.spacing(0.5, 0),
         padding: theme.spacing(1, 2),
         backgroundColor: yellow['400'],
         overflowWrap: 'break-word'
@@ -469,7 +473,7 @@ const useStageClasses = makeStyles(
         border: `1px solid ${theme.palette.grey['400']}`,
         borderRadius: theme.spacing(1),
         fontSize: '.8em',
-        margin: theme.spacing(1, 0),
+        margin: theme.spacing(0.5, 0),
         padding: theme.spacing(1, 2),
         overflowWrap: 'break-word'
       },
@@ -504,10 +508,11 @@ function Stage (props) {
     isVoting,
     showCompletion,
     marketPresences,
-    presenceId
+    presenceId,
+    limitInvestibles
   } = props;
   const [, dragHack] = useContext(LocalPlanningDragContext);
-  const stageInvestibles = investibles.filter(investible => {
+  let stageInvestibles = investibles.filter(investible => {
     const { market_infos: marketInfos } = investible;
     // console.log(`Investible id is ${id}`);
     const marketInfo = marketInfos.find(info => info.market_id === marketId);
@@ -518,7 +523,16 @@ function Stage (props) {
     }
     return marketInfo !== undefined && marketInfo.stage === id;
   });
-
+  if (limitInvestibles && stageInvestibles) {
+    const sortedInvestibles = stageInvestibles.sort(function(a, b) {
+      const { market_infos: aMarketInfos } = a;
+      const aMarketInfo = aMarketInfos.find(info => info.market_id === marketId);
+      const { market_infos: bMarketInfos } = b;
+      const bMarketInfo = bMarketInfos.find(info => info.market_id === marketId);
+      return new Date(bMarketInfo.updated_at) - new Date(aMarketInfo.updated_at);
+    });
+    stageInvestibles = _.slice(sortedInvestibles, 0, limitInvestibles);
+  }
   const classes = useStageClasses(props);
 
   if (fallbackWarning !== undefined && stageInvestibles.length === 0) {
@@ -546,6 +560,8 @@ function Stage (props) {
     <dd className={singleInvestible && warnAcceptedSafe[warnKeys[0]] ? classes.rootWarnAccepted :
       singleInvestible ? classes.root : classes.regularAccepted}>
       <ul className={classes.list}>
+        <Grid
+          container>
         {stageInvestibles.map(inv => {
           const { investible, market_infos: marketInfos } = inv;
           const marketInfo = marketInfos.find(
@@ -553,24 +569,27 @@ function Stage (props) {
           );
 
           return (
-            <li key={investible.id} id={investible.id} onDragStart={investibleOnDragStart}
-                className={!singleInvestible && warnAcceptedSafe[investible.id] ? classes.rootWarnAccepted
-                  : !singleInvestible ? classes.outlinedAccepted : classes.regularAccepted}>
-              <StageInvestible
-                marketPresences={marketPresences || []}
-                comments={comments || []}
-                investible={investible}
-                marketId={marketId}
-                marketInfo={marketInfo}
-                updatedText={updatedText}
-                showWarning={isReview ? checkReviewWarning(investible, comments) :
-                  isVoting ? checkReviewWarning(investible, comments, true) ||
-                    checkVotingWarning(investible.id, marketPresences) : false}
-                showCompletion={showCompletion}
-              />
-            </li>
+            <Grid key={investible.id} item xs={12} onDragStart={investibleOnDragStart} id={investible.id} draggable
+                  className={!singleInvestible && warnAcceptedSafe[investible.id] ? classes.rootWarnAccepted
+              : !singleInvestible ? classes.outlinedAccepted : classes.regularAccepted}>
+              <li>
+                <StageInvestible
+                  marketPresences={marketPresences || []}
+                  comments={comments || []}
+                  investible={investible}
+                  marketId={marketId}
+                  marketInfo={marketInfo}
+                  updatedText={updatedText}
+                  showWarning={isReview ? checkReviewWarning(investible, comments) :
+                    isVoting ? checkReviewWarning(investible, comments, true) ||
+                      checkVotingWarning(investible.id, marketPresences) : false}
+                  showCompletion={showCompletion}
+                />
+              </li>
+            </Grid>
           );
         })}
+        </Grid>
       </ul>
     </dd>
   );
@@ -584,7 +603,7 @@ Stage.propTypes = {
 };
 
 const useVotingStageClasses = makeStyles(
-  theme => {
+  () => {
     return {
       root: {},
       fallback: {
@@ -674,25 +693,6 @@ function ReviewStage (props) {
   );
 }
 
-const useBlockingStageStyles = makeStyles(theme => {
-  return {
-    root: {
-      backgroundColor: warningColor
-    },
-    outlinedAccepted: {
-      border: `1px solid ${theme.palette.grey['400']}`,
-      borderRadius: theme.spacing(1),
-      fontSize: '.8em',
-      margin: theme.spacing(1, 0),
-      padding: theme.spacing(1, 2),
-      backgroundColor: warningColor
-    },
-    fallback: {
-      backgroundColor: theme.palette.grey['400']
-    }
-  };
-});
-
 const generalStageStyles = makeStyles(() => {
   return {
     chipClass: {
@@ -704,19 +704,19 @@ const generalStageStyles = makeStyles(() => {
   };
 });
 
-function BlockingStage (props) {
+function VerifiedStage(props) {
   const intl = useIntl();
-  const classes = useBlockingStageStyles();
-
+  const { stage } = props;
+  const limitInvestibles = (stage || {}).allowed_investibles;
   return (
     <Stage
-      classes={classes}
       fallbackWarning={intl.formatMessage({
-        id: 'planningNoneInBlockingWarning'
+        id: 'planningNoneInVerifiedWarning'
       })}
       updatedText={intl.formatMessage({
-        id: 'blockedInvestiblesUpdatedAt'
+        id: 'verifiedInvestiblesUpdatedAt'
       })}
+      limitInvestibles={limitInvestibles}
       {...props}
     />
   );

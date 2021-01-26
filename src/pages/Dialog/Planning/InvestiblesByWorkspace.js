@@ -22,8 +22,8 @@ import {
   getBlockedStage,
   getInCurrentVotingStage,
   getInReviewStage,
-  getRequiredInputStage
-} from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+  getRequiredInputStage, getStages, getVerifiedStage
+} from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { Button, Menu, MenuItem } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
@@ -136,20 +136,19 @@ function InvestiblesByWorkspace (props) {
           const inDialogStage = getInCurrentVotingStage(marketStagesState, market.id) || {};
           const inReviewStage = getInReviewStage(marketStagesState, market.id) || {};
           const inBlockingStage = getBlockedStage(marketStagesState, market.id) || {};
+          const inVerifiedStage = getVerifiedStage(marketStagesState, market.id) || {};
           const requiresInputStage = getRequiredInputStage(marketStagesState, market.id) || {};
-          const visibleStages = [
-            inDialogStage.id,
-            acceptedStage.id,
-            inReviewStage.id,
-            inBlockingStage.id
-          ];
+          const visibleStages = getStages(marketStagesState, market.id).filter((stage) => stage.appears_in_context)
+            || [];
+          const visibleStageIds = visibleStages.map((stage) => stage.id);
           const myInvestibles = getUserInvestibles(
             presence.id,
             market.id,
             investibles,
-            visibleStages,
+            visibleStageIds,
           );
           const requiresInputInvestibles = getInvestiblesInStage(investibles, requiresInputStage.id) || [];
+          const blockedInvestibles = getInvestiblesInStage(investibles, inBlockingStage.id) || [];
           const highlightMap = {};
           requiresInputInvestibles.forEach((investible) => {
             if (hasNotVoted(investible, marketPresencesState, marketsState, comments, market.id, chosenPerson.external_id)) {
@@ -173,6 +172,25 @@ function InvestiblesByWorkspace (props) {
                 titleTypographyProps={{ variant: 'subtitle2' }}
               />
               <CardContent className={classes.content}>
+                {!_.isEmpty(blockedInvestibles) && (
+                  <SubSection
+                    type={SECTION_TYPE_SECONDARY_WARNING}
+                    title={intl.formatMessage({ id: 'blockedHeader' })}
+                    helpTextId="blockedSectionHelp"
+                  >
+                    <ArchiveInvestbiles
+                      elevation={0}
+                      marketId={market.id}
+                      presenceMap={getPresenceMap(marketPresencesState, market.id)}
+                      investibles={blockedInvestibles}
+                      presenceId={presence.id}
+                      stage={inBlockingStage}
+                      allowDragDrop
+                      comments={comments}
+                    />
+                    <hr/>
+                  </SubSection>
+                )}
                 {!_.isEmpty(requiresInputInvestibles) && (
                   <SubSection
                     type={SECTION_TYPE_SECONDARY_WARNING}
@@ -186,10 +204,9 @@ function InvestiblesByWorkspace (props) {
                       investibles={requiresInputInvestibles}
                       highlightMap={highlightMap}
                       presenceId={presence.id}
-                      stageId={requiresInputStage.id}
+                      stage={requiresInputStage}
                       allowDragDrop
                       comments={comments}
-                      unResolvedMarketComments={comments.filter(comment => !comment.resolved) || []}
                     />
                     <hr/>
                   </SubSection>
@@ -198,6 +215,7 @@ function InvestiblesByWorkspace (props) {
                 acceptedStage &&
                 inDialogStage &&
                 inReviewStage &&
+                inVerifiedStage &&
                 inBlockingStage && (
                   <PlanningIdeas
                     investibles={myInvestibles}
@@ -206,6 +224,7 @@ function InvestiblesByWorkspace (props) {
                     inDialogStageId={inDialogStage.id}
                     inReviewStageId={inReviewStage.id}
                     inBlockingStageId={inBlockingStage.id}
+                    inVerifiedStageId={inVerifiedStage.id}
                     inRequiresInputStageId={requiresInputStage.id}
                     activeMarket={market.market_stage === ACTIVE_STAGE}
                     comments={comments}

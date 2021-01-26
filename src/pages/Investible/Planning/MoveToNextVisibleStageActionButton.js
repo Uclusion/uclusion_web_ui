@@ -51,7 +51,8 @@ function MoveToNextVisibleStageActionButton(props) {
   if (currentStageId === inVotingStage.id) {
     destinationStage = acceptedStage;
     destinationExplanation = 'planningInvestibleAcceptedExplanation';
-    destinationLabel = 'planningInvestibleNextStageAcceptedLabel';
+    destinationLabel = disabled ? 'planningInvestibleNextStageAcceptedFullLabel' :
+      'planningInvestibleNextStageAcceptedLabel';
     if (!(disabled || operationRunning)) {
       highlightClass = classes.containerYellow;
     }
@@ -78,7 +79,7 @@ function MoveToNextVisibleStageActionButton(props) {
   if (!destinationStage) {
     return React.Fragment;
   }
-  const blockedByTodos = hasTodos && (destinationStage === inReviewStage || destinationStage === verifiedStage);
+  const blockedByTodos = hasTodos && destinationStage === verifiedStage;
   return (
     <div className={highlightClass}>
       <StageChangeAction
@@ -88,8 +89,7 @@ function MoveToNextVisibleStageActionButton(props) {
         explanationId={destinationExplanation}
         currentStageId={currentStageId}
         targetStageId={destinationStage.id}
-        operationBlocked={blockedByTodos || (hasAssignedQuestions
-          && [inReviewStage, acceptedStage, inVotingStage].includes(destinationStage))}
+        operationBlocked={blockedByTodos || hasAssignedQuestions}
         blockedOperationTranslationId={blockedByTodos ? 'mustRemoveTodosExplanation' : 'mustResolveAssignedQuestions'}
         disabled={disabled}
         isOpen={true}

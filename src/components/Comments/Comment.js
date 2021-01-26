@@ -18,11 +18,12 @@ import _ from 'lodash'
 import ReadOnlyQuillEditor from '../TextEditors/ReadOnlyQuillEditor'
 import CommentAdd from './CommentAdd'
 import {
+  ISSUE_TYPE,
   JUSTIFY_TYPE,
   QUESTION_TYPE,
   REPLY_TYPE,
   REPORT_TYPE,
-  SUGGEST_CHANGE_TYPE,
+  SUGGEST_CHANGE_TYPE, TODO_TYPE,
 } from '../../constants/comments'
 import { removeComment, reopenComment, resolveComment } from '../../api/comments'
 import SpinBlockingButton from '../SpinBlocking/SpinBlockingButton'
@@ -64,7 +65,7 @@ import {
 } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 import { formMarketAddInvestibleLink, navigate } from '../../utils/marketIdPathFunctions'
-import { useHistory } from 'react-router'
+import { useHistory, useLocation } from 'react-router'
 import { createInitiative, updateMarket } from '../../api/markets'
 import { addDecisionInvestible } from '../../api/investibles'
 import YourVoting from '../../pages/Investible/Voting/YourVoting'
@@ -75,6 +76,7 @@ import { onCommentOpen } from '../../utils/commentFunctions'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 import { findMessageForCommentId } from '../../utils/messageUtils'
 import GravatarAndName from '../Avatars/GravatarAndName';
+import { isTinyWindow } from '../../utils/windowUtils'
 
 const useCommentStyles = makeStyles(
   theme => {
@@ -103,7 +105,7 @@ const useCommentStyles = makeStyles(
       action: {
         boxShadow: "none",
         fontSize: 12,
-        padding: "4px 16px",
+        padding: "4px 16px, 0, 0",
         textTransform: "none",
         "&:hover": {
           boxShadow: "none"
@@ -139,10 +141,9 @@ const useCommentStyles = makeStyles(
         marginLeft: "auto"
       },
       actionResolveToggle: {
-        alignSelf: "baseline",
         margin: "11px 12px 11px 16px",
         [theme.breakpoints.down('sm')]: {
-          margin: "11px 0px 11px 3px",
+          margin: "11px 6px 11px 3px",
         },
       },
       actionEdit: {
@@ -294,6 +295,8 @@ function useMarketId() {
 function Comment(props) {
   const { comment, marketId, comments, allowedTypes, editOpenDefault, noAuthor, onDone,  readOnly } = props;
   const history = useHistory();
+  const location = useLocation();
+  const { hash } = location;
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const intl = useIntl();
   const classes = useCommentStyles();
@@ -415,7 +418,7 @@ function Comment(props) {
     return (
       <>
         {!_.isEmpty(underConsideration) && (
-          <Grid item xs={12}>
+          <Grid item xs={12} style={{marginTop: '1rem'}}>
             <SubSection
               id="currentVoting"
               type={SECTION_TYPE_SECONDARY}
@@ -432,7 +435,7 @@ function Comment(props) {
           </Grid>
         )}
         {!_.isEmpty(proposed) && (
-          <Grid item xs={12}>
+          <Grid item xs={12} style={{marginTop: '1rem'}}>
             <SubSection
               type={SECTION_TYPE_SECONDARY}
               title={intl.formatMessage({ id: 'decisionDialogProposedOptionsLabel' })}
@@ -577,19 +580,21 @@ function Comment(props) {
   const myExpandedState = expandedCommentState[id] || {};
   const { level: myHighlightedLevel } = myHighlightedState;
   const { expanded: myRepliesExpanded } = myExpandedState;
-  const myRepliesExpandedCalc = myRepliesExpanded === undefined ? _.isEmpty(highlightIds) ? undefined : true : myRepliesExpanded;
-  const repliesExpanded = myRepliesExpandedCalc === undefined ? !comment.resolved || comment.reply_id : myRepliesExpandedCalc;
+  const repliesExpanded = myRepliesExpanded === undefined ? !comment.resolved : myRepliesExpanded;
   const isInReview = createdStageId === (getInReviewStage(marketStagesState, marketId) || {id: 'fake'}).id;
   const overrideLabel = (marketType === PLANNING_TYPE && commentType === REPORT_TYPE && isInReview) ?
     <FormattedMessage id="reviewReportPresent" /> : undefined;
-  useEffect(() => {
-    if (!_.isEmpty(highlightIds) && !myRepliesExpanded && commentType !== REPLY_TYPE) {
-      // Open if need to highlight inside - user can close again
-      expandedCommentDispatch({ type: EXPANDED_CONTROL, commentId: id, expanded: true });
-    }
-  }, [id, myRepliesExpanded, expandedCommentDispatch, highlightIds, commentType]);
 
-  const displayUpdatedBy = updatedBy !== undefined && comment.updated_by !== comment.created_by
+  const displayUpdatedBy = updatedBy !== undefined && comment.updated_by !== comment.created_by;
+
+  useEffect(() => {
+    if (!repliesExpanded && hash && !_.isEmpty(highlightIds)) {
+      if (highlightIds.find((anId) => hash.includes(anId))) {
+        expandedCommentDispatch({ type: EXPANDED_CONTROL, commentId: id, expanded: true });
+      }
+    }
+    return () => {};
+  }, [expandedCommentDispatch, hash, highlightIds, id, repliesExpanded]);
 
   const showActions = !replyOpen || replies.length > 0;
   function getCommentHighlightStyle() {
@@ -598,6 +603,9 @@ function Comment(props) {
         return classes.containerYellow;
       }
       return classes.containerRed;
+    }
+    if (!_.isEmpty(highlightIds) && !repliesExpanded) {
+      return classes.containerYellow;
     }
     return classes.container;
   }
@@ -633,7 +641,11 @@ function Comment(props) {
             </Typography>
           )}
           {commentType !== JUSTIFY_TYPE && commentType !== REPLY_TYPE && (
-            <div><ShareStoryButton commentId={id} commentType={commentType} investibleId={investibleId} /></div>
+            <div className={clsx(
+              classes.action,
+              classes.actionEdit
+            )}>
+              <ShareStoryButton commentId={id} commentType={commentType} investibleId={investibleId} /></div>
           )}
           {enableEditing && isEditable && !editOpenDefault && (
             <Button
@@ -648,25 +660,7 @@ function Comment(props) {
               <FormattedMessage id="edit" />
             </Button>
           )}
-          {enableActions && (
-            <SpinBlockingButton
-              className={clsx(
-                classes.action,
-                commentType === REPORT_TYPE ? classes.actionWarned : classes.actionSecondary,
-                classes.actionResolveToggle
-              )}
-              marketId={marketId}
-              onClick={commentType === REPORT_TYPE ? remove : comment.resolved ? reopen : resolve}
-              variant="contained"
-              hasSpinChecker
-            >
-              {intl.formatMessage({
-                id: commentType === REPORT_TYPE ? "commentRemoveLabel" : comment.resolved ? "commentReopenLabel"
-                  : "commentResolveLabel"
-              })}
-            </SpinBlockingButton>
-          )}
-          {(myPresence.is_admin || isEditable) && enableActions && commentType !== REPORT_TYPE && comment.resolved && (
+          {(myPresence.is_admin || isEditable) && enableActions && commentType !== REPORT_TYPE && resolved && (
             <SpinBlockingButton
               className={clsx(
                 classes.action,
@@ -683,6 +677,25 @@ function Comment(props) {
               })}
             </SpinBlockingButton>
           )}
+          {enableActions &&
+          (!resolved || userId === commentCreatedBy || commentType === TODO_TYPE || commentType === ISSUE_TYPE) && (
+            <SpinBlockingButton
+              className={clsx(
+                classes.action,
+                commentType === REPORT_TYPE ? classes.actionWarned : classes.actionSecondary,
+                classes.actionResolveToggle
+              )}
+              marketId={marketId}
+              onClick={commentType === REPORT_TYPE ? remove : resolved ? reopen : resolve}
+              variant="contained"
+              hasSpinChecker
+            >
+              {intl.formatMessage({
+                id: commentType === REPORT_TYPE ? "commentRemoveLabel" : resolved ? "commentReopenLabel"
+                  : "commentResolveLabel"
+              })}
+            </SpinBlockingButton>
+          )}
         </Box>
         <CardContent className={classes.cardContent}>
           {!noAuthor && (
@@ -696,7 +709,7 @@ function Comment(props) {
           )}
           <Box marginTop={1}>
             {!editOpen && (
-              <ReadOnlyQuillEditor value={comment.body} notificationId={comment.id} />
+              <ReadOnlyQuillEditor value={comment.body} />
             )}
             {editOpen && (
               <CommentEdit
@@ -744,18 +757,8 @@ function Comment(props) {
                 {intl.formatMessage({ id: "inlineAddLabel" })}
               </Button>
             )}
-            {commentType === QUESTION_TYPE && !inArchives && inlineMarketId && (
+            {commentType === QUESTION_TYPE && !inArchives && inlineMarketId && !resolved && (
               <>
-                <Typography>
-                  {intl.formatMessage({ id: 'allowMultiVoteQuestion' })}
-                  <Checkbox
-                    id="multiVote"
-                    name="multiVote"
-                    checked={multiVote}
-                    onChange={toggleMultiVote}
-                    disabled={inlineCreatedBy !== inlineUserId}
-                  />
-                </Typography>
                 <Button
                   className={clsx(classes.action, classes.actionPrimary)}
                   color="primary"
@@ -765,6 +768,17 @@ function Comment(props) {
                 >
                   {intl.formatMessage({ id: "inlineAddLabel" })}
                 </Button>
+                <Typography style={{fontSize: 12}}>
+                  {intl.formatMessage({ id: isTinyWindow() ? 'allowMultiVoteQuestionMobile'
+                      : 'allowMultiVoteQuestion' })}
+                  <Checkbox
+                    id="multiVote"
+                    name="multiVote"
+                    checked={multiVote}
+                    onChange={toggleMultiVote}
+                    disabled={inlineCreatedBy !== inlineUserId}
+                  />
+                </Typography>
               </>
             )}
             {commentType === SUGGEST_CHANGE_TYPE && !inArchives && !inlineMarketId && marketType === PLANNING_TYPE && (
@@ -779,7 +793,7 @@ function Comment(props) {
                 />
               </Typography>
             )}
-            {!investibleId && !inArchives && enableActions && !resolved && (
+            {!investibleId && !inArchives && enableActions && !resolved && marketType === PLANNING_TYPE && (
               <Button
                 className={clsx(classes.action, classes.actionPrimary)}
                 color="primary"
@@ -790,7 +804,7 @@ function Comment(props) {
                 {intl.formatMessage({ id: "storyFromComment" })}
               </Button>
             )}
-            {(replies.length > 0 || inlineMarketId) && (
+            {(replies.length > 0 || inlineMarketId) && (!isTinyWindow() || !inlineMarketId) && (
               <Button
                 className={clsx(classes.action, classes.actionSecondary)}
                 variant="contained"
@@ -1038,7 +1052,6 @@ function Reply(props) {
           <ReadOnlyQuillEditor
             className={classes.editor}
             value={comment.body}
-            notificationId={comment.id}
           />
         )}
       </CardContent>

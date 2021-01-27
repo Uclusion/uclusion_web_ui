@@ -787,7 +787,7 @@ function Comment(props) {
                 <Checkbox
                   id="suggestionVote"
                   name="suggestionVote"
-                  checked={inlineMarketId !== undefined}
+                  checked={!_.isEmpty(inlineMarketId)}
                   onChange={allowSuggestionVote}
                   disabled={operationRunning || commentCreatedBy !== userId}
                 />

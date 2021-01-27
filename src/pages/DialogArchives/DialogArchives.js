@@ -27,7 +27,7 @@ import MarketLinks from '../Dialog/MarketLinks'
 import { Grid } from '@material-ui/core'
 import CommentBox from '../../containers/CommentBox/CommentBox'
 import MarketTodos from '../Dialog/Planning/MarketTodos'
-import { TODO_TYPE } from '../../constants/comments'
+import { REPLY_TYPE, TODO_TYPE } from '../../constants/comments'
 import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 
@@ -58,7 +58,13 @@ function DialogArchives(props) {
   const comments = getMarketComments(commentsState, marketId) || [];
   const resolvedMarketComments = comments.filter(comment => !comment.investible_id && comment.resolved) || [];
   const notTodoComments = resolvedMarketComments.filter(comment => comment.comment_type !== TODO_TYPE);
-  const todoComments = resolvedMarketComments.filter(comment => comment.comment_type === TODO_TYPE);
+  const todoComments = comments.filter(comment => {
+    if (comment.comment_type === TODO_TYPE) {
+      return !comment.investible_id && comment.resolved;
+    }
+    //Just return all replies also because market todos component needs them
+    return comment.comment_type === REPLY_TYPE;
+  });
 
   const filteredVerifiedInvestibles = verifiedInvestibles.filter((inv) => {
     if (_.isEmpty(assigneeFilter)) {

@@ -138,7 +138,7 @@ function Voting(props) {
               <Gravatar email={email} name={name}/>
               <Typography className={classes.voter} component="strong">
                 {maxBudget > 0 && !maxBudgetUnit && intl.formatMessage({id: 'maxBudgetValue'},
-                  { x: maxBudget})}
+                  { x: maxBudget, name})}
                 {maxBudget > 0 && maxBudgetUnit && intl.formatMessage({id: 'maxBudgetValueWithUnits'},
                   { x: maxBudget, y: maxBudgetUnit, name})}
                 {(!maxBudget > 0) && name}

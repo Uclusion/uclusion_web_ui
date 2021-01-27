@@ -19,8 +19,6 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import CardType, { DECISION_TYPE, OPTION, VOTING_TYPE } from '../../../components/CardType'
 import { FormattedMessage, useIntl } from 'react-intl'
 import { createDecision } from '../../../api/markets'
-import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
-import { addParticipants } from '../../../api/users'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { useHistory } from 'react-router'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
@@ -68,7 +66,7 @@ function DecisionInvestibleAdd(props) {
   const [validForm, setValidForm] = useState(false);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const { name } = currentValues;
-  const [marketPresencesState, marketPresenceDispatch] = useContext(MarketPresencesContext);
+  const [, marketPresenceDispatch] = useContext(MarketPresencesContext);
   const [marketState, marketDispatch] = useContext(MarketsContext);
   const [, diffDispatch] = useContext(DiffContext);
   const [investibleState] = useContext(InvestiblesContext);
@@ -155,18 +153,6 @@ function DecisionInvestibleAdd(props) {
         name,
         stageInfo: stageInfo,
       };
-      const marketPresences = getMarketPresences(marketPresencesState, marketId);
-      const others = marketPresences.filter((presence) => !presence.current_user && !presence.market_banned);
-      if (others) {
-        const participants = others.map((presence) => {
-            return {
-              user_id: presence.id,
-              account_id: presence.account_id,
-              is_observer: !presence.following
-            };
-        });
-        return addParticipants(market.id, participants).then(() => addInvestibleToStage(addInfo));
-      }
       return addInvestibleToStage(addInfo);
     }).then((investible) => {
       onSave(investible);

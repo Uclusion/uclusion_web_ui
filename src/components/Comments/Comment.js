@@ -70,7 +70,6 @@ import { createInitiative, updateMarket } from '../../api/markets'
 import { addDecisionInvestible } from '../../api/investibles'
 import YourVoting from '../../pages/Investible/Voting/YourVoting'
 import Voting from '../../pages/Investible/Decision/Voting'
-import { addParticipants } from '../../api/users'
 import ShareStoryButton from '../../pages/Investible/Planning/ShareStoryButton'
 import { onCommentOpen } from '../../utils/commentFunctions'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
@@ -365,19 +364,8 @@ function Comment(props) {
         };
         return addDecisionInvestible(addInfo).then((investible) => {
           addInvestible(investiblesDispatch, () => {}, investible);
-          const marketPresences = getMarketPresences(marketPresencesState, marketId);
-          const others = marketPresences.filter((presence) => !presence.current_user && !presence.market_banned);
-          if (others) {
-            const participants = others.map((presence) => {
-              return {
-                user_id: presence.id,
-                account_id: presence.account_id,
-                is_observer: !presence.following
-              };
-            });
-            return addParticipants(inlineMarketId, participants);
-          }
-        }).then(() => setOperationRunning(false));
+          setOperationRunning(false);
+        });
       });
   }
 

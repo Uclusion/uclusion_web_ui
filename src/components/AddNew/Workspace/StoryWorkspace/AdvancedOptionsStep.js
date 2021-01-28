@@ -18,6 +18,8 @@ import AllowedInProgress from '../../../../pages/Dialog/Planning/AllowedInProgre
 import { VoteExpiration, Votes } from '../../../AgilePlan';
 import { makeStyles } from '@material-ui/styles';
 import { MarketStagesContext } from '../../../../contexts/MarketStagesContext/MarketStagesContext';
+import ShowInVerifiedStage from '../../../../pages/Dialog/Planning/ShowInVerifiedStage'
+import ShowInVerifiedStageAge from '../../../../pages/Dialog/Planning/ShowInVerifiedStageAge'
 
 const useOptionsStyles = makeStyles(theme => {
   return {
@@ -102,6 +104,8 @@ function AdvancedOptionsStep (props) {
     allowedInvestibles,
     investmentExpiration,
     votesRequired,
+    showInvestiblesLimit,
+    showInvestiblesAge
   } = formData;
 
   return (
@@ -114,11 +118,10 @@ function AdvancedOptionsStep (props) {
           We've set up good defaults for you but you can change core behavior of the workspace if needed.
         </Typography>
         <Card>
-        <Grid container direction="column">
+        <Grid container spacing={2} direction="column">
           <Grid
             item
             xs={12}
-            spacing={2}
             className={optionsClasses.item}
           >
             <AllowedInProgress
@@ -129,7 +132,26 @@ function AdvancedOptionsStep (props) {
           <Grid
             item
             xs={12}
-            spacing={2}
+            className={optionsClasses.item}
+          >
+            <ShowInVerifiedStage
+              onChange={handleChange('showInvestiblesLimit')}
+              value={showInvestiblesLimit}
+            />
+          </Grid>
+          <Grid
+            item
+            xs={12}
+            className={optionsClasses.item}
+          >
+            <ShowInVerifiedStageAge
+              onChange={handleChange('showInvestiblesAge')}
+              value={showInvestiblesAge}
+            />
+          </Grid>
+          <Grid
+            item
+            xs={12}
             className={optionsClasses.item}
           >
             <VoteExpiration
@@ -140,13 +162,10 @@ function AdvancedOptionsStep (props) {
           <Grid
             item
             xs={12}
-            spacing={2}
             className={optionsClasses.item}
           >
             <Votes onChange={handleChange('votesRequired')} value={votesRequired}/>
           </Grid>
-
-
         </Grid>
         </Card>
         <div className={classes.borderBottom}/>

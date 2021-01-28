@@ -70,9 +70,31 @@ export function doCreateStoryWorkspace (dispatchers, formData, updateFormData, i
       addPresenceToMarket(presenceDispatch, createdMarketId, presence);
       inVotingStage = stages.find((stage) => stage.allows_investment);
       inProgressStage = stages.find((stage) => stage.assignee_enter_only);
+      const verifiedStage = stages.find((stage) => stage.appears_in_market_summary);
       // setup the allowed stories in the in progress stage if the option is set
       if (!advancedOptionsSkipped && formData.allowedInvestibles !== undefined) {
+        console.debug(`Got here with ${formData.allowedInvestibles}`);
         return updateStage(createdMarketId, inProgressStage.id, formData.allowedInvestibles)
+          .then((newStage) => {
+            const newStages = _.unionBy([newStage], stages, 'id');
+            updateStagesForMarket(marketStagesDispatch, createdMarketId, newStages);
+            if (formData.showInvestiblesLimit !== undefined || formData.showInvestiblesAge !== undefined) {
+              console.debug(`Got here inside with ${formData.showInvestiblesLimit} ${formData.showInvestiblesAge}`);
+              return updateStage(createdMarketId, verifiedStage.id, formData.showInvestiblesLimit,
+                formData.showInvestiblesAge)
+                .then((newStage) => {
+                  const newStages = _.unionBy([newStage], stages, 'id');
+                  updateStagesForMarket(marketStagesDispatch, createdMarketId, newStages);
+                  return Promise.resolve(true);
+                })
+            }
+            return Promise.resolve(true);
+          })
+      }
+      if (!advancedOptionsSkipped
+        && (formData.showInvestiblesLimit !== undefined || formData.showInvestiblesAge !== undefined)) {
+        console.debug(`Got here other with ${formData.showInvestiblesLimit} ${formData.showInvestiblesAge}`);
+        return updateStage(createdMarketId, verifiedStage.id, formData.showInvestiblesLimit, formData.showInvestiblesAge)
           .then((newStage) => {
             const newStages = _.unionBy([newStage], stages, 'id');
             updateStagesForMarket(marketStagesDispatch, createdMarketId, newStages);

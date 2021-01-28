@@ -18,6 +18,7 @@ import { LocalPlanningDragContext } from '../Dialog/Planning/InvestiblesByWorksp
 import { isBlockedStage, isInReviewStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
 import GravatarGroup from '../../components/Avatars/GravatarGroup'
 import Link from '@material-ui/core/Link'
+import { getMarketInfo } from '../../utils/userFunctions'
 
 function getInvestibleOnClick(id, marketId, history) {
   const link = formInvestibleLink(marketId, id);
@@ -51,8 +52,14 @@ const myClasses = makeStyles(
 
 export function getInvestibles(investibles, presenceMap, marketId, comments, history, intl, elevation, highlightMap,
   allowDragDrop, onDragEnd, onDragStart, unResolvedMarketComments, presenceId, stage) {
-  const investibleData = investibles.map((inv) => inv.investible);
-  const sortedData = _.sortBy(investibleData, 'updated_at', 'name').reverse();
+  const investibleData = investibles.map((inv) => {
+    const aMarketInfo = getMarketInfo(inv, marketId);
+    const { updated_at: invUpdatedAt } = inv.investible;
+    const { updated_at: infoUpdatedAt } = aMarketInfo;
+    const updatedAt = new Date(invUpdatedAt) > new Date(infoUpdatedAt) ? invUpdatedAt : infoUpdatedAt;
+    return { ...inv.investible, updatedAt };
+  });
+  const sortedData = _.sortBy(investibleData, 'updatedAt', 'name').reverse();
   const infoMap = investibles.reduce((acc, inv) => {
     const { investible, market_infos } = inv;
     const myInfo = market_infos.find((info) => info.market_id === marketId);
@@ -64,7 +71,7 @@ export function getInvestibles(investibles, presenceMap, marketId, comments, his
   }, {});
   const classes = myClasses();
   return sortedData.map((investible) => {
-    const { id, name, updated_at } = investible;
+    const { id, name, updatedAt } = investible;
     const info = infoMap[id] || {};
     const { assigned } = info;
     const requiresInputComments = (unResolvedMarketComments || []).filter((comment) => {
@@ -104,7 +111,7 @@ export function getInvestibles(investibles, presenceMap, marketId, comments, his
         >
           <Link href={formInvestibleLink(marketId, id)} color="inherit">
             <div className={highlightMap[id] ? classes.warn : classes.outlined}>
-              <Typography style={{fontSize: '.75rem', flex: 1}}>Updated: {intl.formatDate(updated_at)}</Typography>
+              <Typography style={{fontSize: '.75rem', flex: 1}}>Updated: {intl.formatDate(updatedAt)}</Typography>
               <Typography style={{fontWeight: 700, flex: 2}}>{name}</Typography>
               {assignedNames.map((name) => (<Typography
                 style={{fontStyle: 'italic', fontSize: '.75rem', flex: 1}} key={name}>Assignee: {name}</Typography>))}

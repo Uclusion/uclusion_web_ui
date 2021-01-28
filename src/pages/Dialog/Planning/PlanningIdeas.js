@@ -43,6 +43,7 @@ import { restoreHeader } from '../../../containers/Header';
 import { LocalPlanningDragContext } from './InvestiblesByWorkspace';
 import GravatarGroup from '../../../components/Avatars/GravatarGroup';
 import { getInvestibleVoters } from '../../../utils/votingUtils';
+import { getUserSwimlaneInvestibles } from './userUtils'
 
 const warningColor = red['400'];
 
@@ -514,34 +515,8 @@ function Stage (props) {
     limitInvestiblesAge
   } = props;
   const [, dragHack] = useContext(LocalPlanningDragContext);
-  let stageInvestibles = investibles.filter(investible => {
-    const { market_infos: marketInfos } = investible;
-    // console.log(`Investible id is ${id}`);
-    const marketInfo = marketInfos.find(info => info.market_id === marketId);
-    if (process.env.NODE_ENV !== 'production') {
-      if (marketInfo === undefined) {
-        console.warn(`no marketinfo for ${marketId} with `, marketInfos);
-      }
-    }
-    return marketInfo !== undefined && marketInfo.stage === id;
-  });
-  if (limitInvestibles && stageInvestibles) {
-    const sortedInvestibles = stageInvestibles.sort(function(a, b) {
-      const { market_infos: aMarketInfos } = a;
-      const aMarketInfo = aMarketInfos.find(info => info.market_id === marketId);
-      const { market_infos: bMarketInfos } = b;
-      const bMarketInfo = bMarketInfos.find(info => info.market_id === marketId);
-      return new Date(bMarketInfo.updated_at) - new Date(aMarketInfo.updated_at);
-    });
-    stageInvestibles = _.slice(sortedInvestibles, 0, limitInvestibles);
-    if (limitInvestiblesAge > 0 && stageInvestibles) {
-      stageInvestibles = stageInvestibles.filter((investible) => {
-        const { market_infos: aMarketInfos } = investible;
-        const aMarketInfo = aMarketInfos.find(info => info.market_id === marketId);
-        return Date.now() - new Date(aMarketInfo.updated_at).getTime() < limitInvestiblesAge*24*60*60*1000;
-      });
-    }
-  }
+  const stageInvestibles = getUserSwimlaneInvestibles(investibles, limitInvestibles, limitInvestiblesAge,
+    marketId, id);
   const classes = useStageClasses(props);
 
   if (fallbackWarning !== undefined && stageInvestibles.length === 0) {

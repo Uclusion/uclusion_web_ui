@@ -108,6 +108,7 @@ import { doSetEditWhenValid, isTinyWindow } from '../../../utils/windowUtils'
 import LinkMarket from '../../Dialog/LinkMarket'
 import Gravatar from '../../../components/Avatars/Gravatar';
 import { getInvestibleVoters } from '../../../utils/votingUtils';
+import { inVerifedSwimLane } from '../../Dialog/Planning/userUtils'
 
 const useStyles = makeStyles(
   theme => ({
@@ -424,7 +425,7 @@ function PlanningInvestible(props) {
   const breadCrumbTemplates = [
     { name: marketName, link: formMarketLink(marketId) }
   ];
-  if (inMarketArchives) {
+  if (inMarketArchives && !inVerifedSwimLane(marketInvestible, investibles, inVerifiedStage, marketId)) {
     breadCrumbTemplates.push({
       name: intl.formatMessage({ id: "dialogArchivesLabel" }),
       link: formMarketArchivesLink(marketId)

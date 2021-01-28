@@ -60,8 +60,8 @@ function InvestibleBodyEdit (props) {
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const { id, description: initialDescription, name: initialName } = myInvestible;
-  const [description, setDescription] = useState(initialDescription);
-  const [name, setName] = useState(initialName);
+  const [description, setDescription] = useState(undefined);
+  const [name, setName] = useState(undefined);
 
   function onLock (result) {
     if (result) {
@@ -79,12 +79,9 @@ function InvestibleBodyEdit (props) {
         if (storedName || storedDescription) {
           setBeingEdited(true);
         }
-        if (storedName) {
-          setName(storedName);
-        }
-        if (storedDescription) {
-          setDescription(storedDescription);
-        }
+        // Set here to avoid danger of having some other investible name and description in state
+        setName(storedName || initialName);
+        setDescription(storedDescription || initialDescription);
         setIdLoaded(investibleId);
       });
     }
@@ -96,7 +93,7 @@ function InvestibleBodyEdit (props) {
         setLockFailed(false);
       }
     };
-  }, [hidden, investibleId, idLoaded, marketType, setBeingEdited]);
+  }, [hidden, investibleId, idLoaded, marketType, setBeingEdited, initialName, initialDescription]);
 
   useEffect(() => {
     if (!hidden && !loading && !someoneElseEditing && !lockFailed && stage) {

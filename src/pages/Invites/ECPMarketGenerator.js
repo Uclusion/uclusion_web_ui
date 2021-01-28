@@ -12,10 +12,8 @@ export function createECPMarkets (dispatchers) {
   return createInitiative(dispatchers)
     .then((createdId) => {
       initiativeId = createdId;
-      return createDialog(dispatchers);
-    }).then(() => createTeamWorkspace(dispatchers))
-    .then(() => createProjectWorkspace(dispatchers))
-    .then(() => initiativeId);
+      return createProjectWorkspace(dispatchers);
+    }).then(() => initiativeId);
 }
 
 function createInitiative (dispatchers) {
@@ -62,39 +60,9 @@ function createInitiative (dispatchers) {
     () => {});
 }
 
-function createDialog (dispatchers) {
-  const dialogExpiration = 1440 * 14;
-  const dialogName = 'How should I make decisions with my team?';
-  const dialogReason = '<p>This is a free Dialog with a staff member of Uclusion so you can get experience with Dialogs and we can learn more about you.</p><p/>' +
-    '<p>Please include other collaborators in this Dialog if you want.</p>';
-  const dialogOptions = [{ optionName: 'Stick with current tools', optionDescription: '<p>Approve this option to continue making team decisions with the current tool set.</p>' },
-    { optionName: 'Try Uclusion', optionDescription: '<p>Once everyone is using Uclusion Dialogs, you have a good chance of avoiding meetings entirely,' +
-        ' but if not the options and opinions will be known and the meeting short.</p><p/>' +
-        '<p>Dialogs also serve as ‘Architecture Decision Records’ when you add a link to the Dialog in your code or commit messages.</p><p/>' +
-        '<p>See our <a href="https://www.uclusion.com/onboarding">onboarding document</a> for a full explanation of how to start with Initiatives and Dialogs and move on to Uclusion Workspaces.</p>',
-      optionDoNotPromote: true }];
-  const supportUser = getRandomSupportUser();
-  return createMyDialog(dispatchers,
-    { dialogName, dialogReason, dialogOptions, dialogExpiration },
-    () => {}).then((marketId) => {
-    return addParticipants(marketId, [{
-      user_id: supportUser.user_id,
-      account_id: supportUser.account_id,
-      is_observer: false,
-    }]);
-  });
-}
-
-function createTeamWorkspace (dispatchers) {
-  const workspaceName = 'A Demonstration Team Workspace';
-  const workspaceDescription = '<p>With a team Workspace you can organize team wide documentation, store onboarding materials, and drive important discussions about team wide topics</p><p/>' +
-    '<p>You can archive this demo Workspace or invite collaborators and edit it.</p>';
-  return doCreateRequirementsWorkspace(dispatchers, { workspaceName, workspaceDescription });
-}
-
 function createProjectWorkspace (dispatchers) {
   const workspaceName = 'A Demonstration Project Workspace';
-  const workspaceDescription = '<p>With a project Workspace you can describe and complete requirements from start to finish inside Uclusion.</p><p/>' +
+  const workspaceDescription = '<p>Some ideas for getting started with Uclusion.</p><p/>' +
   '<p>See <iframe allowfullscreen="true" class="ql-video" frameborder="0" src="https://www.youtube.com/embed/v5QdMpnNr2M?showinfo=0"></iframe> for a walk through on using a Workspace for stories.</p>';
   return doCreateRequirementsWorkspace(dispatchers, { workspaceName, workspaceDescription }).then((marketDetails) => {
     const {

@@ -11,6 +11,7 @@ import ProgressBar from '../../../components/Expiration/ProgressBarExpiration'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { findMessageOfTypeAndId } from '../../../utils/messageUtils'
 import Gravatar from '../../../components/Avatars/Gravatar';
+import { getInvestibleVoters } from '../../../utils/votingUtils';
 
 const useVoteStyles = makeStyles(
   theme => {
@@ -64,33 +65,13 @@ function Voting(props) {
   const [messagesState] = useContext(NotificationsContext);
   const classes = useVoteStyles();
   const intl = useIntl();
-  function getInvestibleVoters() {
-    const acc = [];
-    marketPresences.forEach(presence => {
-      const { name, id, email, investments } = presence;
-      investments.forEach(investment => {
-        const {
-          quantity,
-          investible_id: invId,
-          max_budget: maxBudget,
-          max_budget_unit: maxBudgetUnit,
-          updated_at: updatedAt,
-          deleted
-        } = investment;
-        // // console.debug(investment);
-        if (investibleId === invId && !deleted) {
-          acc.push({ name, userId: id, email, quantity, maxBudget, maxBudgetUnit, updatedAt });
-        }
-      });
-    });
-    return acc;
-  }
+
 
   function getVoterReason(userId) {
     return investmentReasons.find(comment => comment.created_by === userId);
   }
 
-  const voters = getInvestibleVoters();
+  const voters = getInvestibleVoters(marketPresences, investibleId);
   const sortedVoters = _.sortBy(voters, "quantity");
 
   if (sortedVoters.length === 0) {
@@ -104,7 +85,7 @@ function Voting(props) {
   return (
     <ol className={classes.root}>
       {sortedVoters.map(voter => {
-        const { name, email, userId, quantity, maxBudget, maxBudgetUnit, updatedAt } = voter;
+        const { name, email, id: userId, quantity, maxBudget, maxBudgetUnit, updatedAt } = voter;
         const myMessage = findMessageOfTypeAndId(`${investibleId}_${userId}`, messagesState, 'VOTE');
         const reason = getVoterReason(userId);
         const voteId = `cv${userId}`;

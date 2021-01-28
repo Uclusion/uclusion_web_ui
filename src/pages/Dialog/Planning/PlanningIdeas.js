@@ -42,6 +42,7 @@ import { nameFromDescription } from '../../../utils/stringFunctions';
 import { restoreHeader } from '../../../containers/Header';
 import { LocalPlanningDragContext } from './InvestiblesByWorkspace';
 import GravatarGroup from '../../../components/Avatars/GravatarGroup';
+import { getInvestibleVoters } from '../../../utils/votingUtils';
 
 const warningColor = red['400'];
 
@@ -744,7 +745,9 @@ function StageInvestible (props) {
   const commentsForInvestible = comments.filter((comment) => comment.investible_id === id);
   const commentersForInvestible = _.uniq(commentsForInvestible.map((comment) => comment.created_by));
   const commenterPresences = marketPresences.filter((presence) => commentersForInvestible.includes(presence.id));
-
+  const votersForInvestible = getInvestibleVoters(marketPresences, id);
+  const concated = [...votersForInvestible, ...commenterPresences];
+  const collaboratorsForInvestible = _.uniqBy(concated, 'id')
   return (
     <div>
       <StageLink
@@ -776,7 +779,7 @@ function StageInvestible (props) {
         event.preventDefault();
         navigate(history, to);
       }}>
-        <GravatarGroup users={commenterPresences}/>
+        <GravatarGroup users={collaboratorsForInvestible}/>
       </div>
     </div>
   );

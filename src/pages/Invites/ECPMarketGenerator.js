@@ -1,8 +1,5 @@
 import { createMyInitiative } from '../../components/AddNew/Initiative/initiativeCreator';
-import { createMyDialog } from '../../components/AddNew/Dialog/dialogCreator';
 import { doCreateRequirementsWorkspace } from '../../components/AddNew/Workspace/RequirementsWorkspace/workspaceCreator';
-import { getRandomSupportUser } from '../../utils/userFunctions'
-import { addParticipants } from '../../api/users'
 import { addPlanningInvestible } from '../../api/investibles'
 import { addInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { processTextAndFilesForSave } from '../../api/files'

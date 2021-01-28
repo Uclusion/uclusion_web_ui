@@ -856,8 +856,10 @@ const messages = defineMessages({
   allowedInvestiblesUnlimitedValue: 'Unlimited',
 
   //show investibles dropdown
-  showInvestiblesDropdownHelp: 'Number of stories to allow in \'Verified\' per person',
+  showInvestiblesDropdownHelp: 'Number of stories to allow in \'Verified\' swimlane per person',
+  showInvestiblesDropdownAgeHelp: 'Age of stories to allow in \'Verified\' swimlanes',
   showInvestiblesDropdownLabel: 'Maximum verified stories shown in swim lane',
+  showInvestiblesDropdownAgeLabel: 'Maximum age in days to show verified stories',
   showInvestiblesUnlimitedValue: 'Unlimited',
 
   // warnings

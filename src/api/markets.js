@@ -148,9 +148,9 @@ export function activateMarket(marketId) {
     .catch((error) => toastErrorAndThrow(error, 'errorMarketActivateFailed'));
 }
 
-export function updateStage(marketId, stageId, allowedInvestibles) {
+export function updateStage(marketId, stageId, allowedInvestibles, daysVisible) {
   return getMarketClient(marketId)
-    .then((client) => client.markets.updateStage(stageId, allowedInvestibles))
+    .then((client) => client.markets.updateStage(stageId, allowedInvestibles, daysVisible))
     .catch((error) => toastErrorAndThrow(error, 'errorUpdateStageFailed'));
 }
 

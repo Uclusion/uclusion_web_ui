@@ -107,6 +107,7 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { doSetEditWhenValid, isTinyWindow } from '../../../utils/windowUtils'
 import LinkMarket from '../../Dialog/LinkMarket'
 import Gravatar from '../../../components/Avatars/Gravatar';
+import { getInvestibleVoters } from '../../../utils/votingUtils';
 
 const useStyles = makeStyles(
   theme => ({
@@ -367,7 +368,11 @@ function PlanningInvestible(props) {
   const investmentReasons = investibleComments.filter(
     comment => comment.comment_type === JUSTIFY_TYPE
   );
-  const investibleCommentors = _.uniq(investibleComments.map((comment) => comment.created_by));
+  const investibleCommentors = _.uniq(investibleComments.map((comment) => comment.created_by)) || [];
+  const voters = getInvestibleVoters(marketPresences, investibleId).map((voter) => voter.id);
+  const concated = [...voters, ...investibleCommentors];
+  const investibleCollaborators = _.uniq(concated, 'id');
+
   const marketInfo = getMarketInfo(marketInvestible, marketId) || {};
   const { stage, assigned: invAssigned, children, days_estimate: marketDaysEstimate,
     required_approvers: requiredApprovers, required_reviews: requiredReviewers } = marketInfo;
@@ -754,7 +759,6 @@ function PlanningInvestible(props) {
   function toggleApprovers() {
     navigate(history, `${formInvestibleEditLink(market.id, marketInvestible.investible.id)}#approve=true`);
   }
-  const commentors = investibleCommentors || [];
   const myBeingEdited = beingEdited === investibleId;
   return (
     <Screen
@@ -806,14 +810,14 @@ function PlanningInvestible(props) {
                     </div>
                   </div>
                 )}
-                {!_.isEmpty(commentors) && (
+                {!_.isEmpty(investibleCollaborators) && (
                   <div className={classes.assignmentContainer}>
                     <FormattedMessage id="collaborators" />
                     <div className={clsx(classes.group, classes.assignments)}>
                       <Assignments
                         classes={classes}
                         marketPresences={marketPresences}
-                        assigned={commentors}
+                        assigned={investibleCollaborators}
                         isAdmin={false}
                         toggleAssign={() => {}}
                         toolTipId="collaborators"

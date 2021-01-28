@@ -9,20 +9,14 @@ export function signupHomeSteps(variables) {
       title: `Welcome to Uclusion ${name}!`,
       content: (
         <React.Fragment>
-          We've created your first collaborations.
+          We've created somethings for you to help you get familiar.
         </React.Fragment>),
-    },
-    {
-      disableBeacon: true,
-      target: '#ini0',
-      placement: 'top',
-      content: "Initiatives let you gather feedback and measure support for an idea. We've created one for you to send to others.",
     },
     {
       disableBeacon: true,
       placement: 'right',
       target: '#ws0',
-      content: "A project Workspace is where you create requirements and execute stories.",
+      content: "A Workspace is where you create requirements and bugs and execute stories.",
     }
   ]
 }

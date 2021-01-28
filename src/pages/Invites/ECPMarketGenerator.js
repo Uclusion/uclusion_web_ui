@@ -1,89 +1,122 @@
-import { createMyInitiative } from '../../components/AddNew/Initiative/initiativeCreator';
 import { doCreateRequirementsWorkspace } from '../../components/AddNew/Workspace/RequirementsWorkspace/workspaceCreator';
-import { addPlanningInvestible } from '../../api/investibles'
+import { addDecisionInvestible, addInvestibleToStage, addPlanningInvestible } from '../../api/investibles'
 import { addInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { processTextAndFilesForSave } from '../../api/files'
+import { saveComment } from '../../api/comments'
+import { QUESTION_TYPE } from '../../constants/comments'
+import { changeInvestibleStageOnCommentChange } from '../../utils/commentFunctions'
+import {
+  isBlockedStage
+} from '../../contexts/MarketStagesContext/marketStagesContextHelper'
+import { addCommentToMarket, refreshMarketComments } from '../../contexts/CommentsContext/commentsContextHelper'
+import { DECISION_TYPE } from '../../constants/markets'
+import { createDecision } from '../../api/markets'
+import { addMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 
 export function createECPMarkets (dispatchers) {
-  let initiativeId = null;
-  return createInitiative(dispatchers)
+  return createProjectWorkspace(dispatchers)
     .then((createdId) => {
-      initiativeId = createdId;
-      return createProjectWorkspace(dispatchers);
-    }).then(() => initiativeId);
-}
-
-function createInitiative (dispatchers) {
-  const initiativeExpiration = 1440 * 14;
-  const initiativeName = 'Checkout Uclusion Initiatives';
-  const initiativeDescription = '<p>' +
-    '    Uclusion Initiatives are a great way to measure support for an idea, and are a good introduction to' +
-    ' <a href="https://www.uclusion.com/autonomousteamwork">autonomous teamwork</a>.' +
-    '</p>' +
-    '<p/>' +
-    '<p>' +
-    '    Initiatives have several features to make sure you get timely constructive feedback:' +
-    '</p>' +
-    '<p/>' +
-    '<p>' +
-    '    Initiatives have a deadline, and collaborators will be notified to respond as it approaches.<br>' +
-    '    <img src="https://www.uclusion.com/onboardingImages/initiatives/expiry.png" height="160"/>' +
-    '</p>' +
-    '<p/>' +
-    '<p>' +
-    '    Communication is <em>structured</em> so you always know what a collaborator is trying to say.' +
-    '    <img src="https://www.uclusion.com/onboardingImages/initiatives/suggestion.png"/>' +
-    '</p>' +
-    '<p/>' +
-    '<p>' +
-    'Your collaborators can vote for or against the idea, express how certain they are, and give reasons for their vote.<br/>' +
-    '<img src="https://www.uclusion.com/onboardingImages/initiatives/initiative_vote.png"/>' +
-    '</p>' +
-    '<p/>' +
-    '<p>' +
-    '    We present a simple tally on your home page, so you can see how it\'s going at a glance.<br/>' +
-    '    <img src="https://www.uclusion.com/onboardingImages/initiatives/initiative_outcome.png"/>' +
-    '</p>' +
-    '<p/>' +
-    '<p/>' +
-    '<p>' +
-    '    In short, we eliminate the incessant back and forth on emails, and the uncertainty of whether people really agree with you or not.' +
-    '</p>' +
-    '<p/>' +
-    '<p>' +
-    '    <b>With Uclusion, you know exactly where your idea stands at all times.</b>' +
-    '</p>';
-  return createMyInitiative(dispatchers, { initiativeName, initiativeDescription, initiativeExpiration },
-    () => {});
+      return createdId;
+    });
 }
 
 function createProjectWorkspace (dispatchers) {
   const workspaceName = 'A Demonstration Project Workspace';
-  const workspaceDescription = '<p>Some ideas for getting started with Uclusion.</p><p/>' +
-  '<p>See <iframe allowfullscreen="true" class="ql-video" frameborder="0" src="https://www.youtube.com/embed/v5QdMpnNr2M?showinfo=0"></iframe> for a walk through on using a Workspace for stories.</p>';
+  const workspaceDescription = '<p><b>Welcome to Uclusion!</b> This demo workspace has pre-created items to let quickly see some of the features.</p><p/>' +
+  '<p>The workspace description can be used to hold ideas and requirements before they become stories.</p>';
   return doCreateRequirementsWorkspace(dispatchers, { workspaceName, workspaceDescription }).then((marketDetails) => {
     const {
       market,
       presence,
+      stages
     } = marketDetails;
     const marketId = market.id;
     const userId = presence.id;
-    const processed = processTextAndFilesForSave([], 'Archive this demo Workspace or invite collaborators and try using it for some small project.');
+    const blockingStage = stages.find((stage) => isBlockedStage(stage));
+    const requiresInputStage = stages.find((stage) => (!stage.allows_issues && stage.move_on_comment));
     // add the story
-    const processedStoryDescription = processed.text ? processed.text : ' ';
     const addInfo = {
       marketId: marketId,
-      name: 'Demo cleanup',
-      description: processedStoryDescription,
-      uploadedFiles: processed.uploadedFiles,
+      name: 'Invite collaborators',
+      description: '<p>Invite others to this workspace to better see Uclusion features like mentions.</p>',
       assignments: [userId],
     };
+    const {
+      marketsDispatch,
+      investiblesDispatch,
+      diffDispatch,
+      commentsDispatch,
+      presenceDispatch
+    } = dispatchers;
+    let rootInvestible;
+    let rootMarketInfos;
+    const marketComments = [];
     return addPlanningInvestible(addInfo).then((addedStory) => {
-      const {
-        investiblesDispatch,
-        diffDispatch,
-      } = dispatchers;
-      return addInvestible(investiblesDispatch, diffDispatch, addedStory);
+      addInvestible(investiblesDispatch, diffDispatch, addedStory);
+      // add the story
+      const addInfo = {
+        marketId: marketId,
+        name: 'Plan a story',
+        description: '<p>The Further Work stage can be used to plan stories that are not ready to be assigned.</p>',
+      };
+      return addPlanningInvestible(addInfo);
+    }).then((addedStory) => {
+      addInvestible(investiblesDispatch, diffDispatch, addedStory);
+      // add the story
+      const addInfo = {
+        marketId: marketId,
+        name: 'A question in Uclusion',
+        description: '<p>This story automatically moved to Requires Input when an assignee asked a question.</p>',
+        assignments: [userId],
+      };
+      return addPlanningInvestible(addInfo);
+    }).then((addedStory) => {
+      addInvestible(investiblesDispatch, diffDispatch, addedStory);
+      const { market_infos: marketInfos, investible } = addedStory;
+      rootMarketInfos = marketInfos;
+      rootInvestible = investible;
+      const body = '<p>Do you prefer asking questions with options or without? You can promote options others suggest also.</p>';
+      return saveComment(marketId, investible.id, undefined, body, QUESTION_TYPE);
+    }).then((comment) => {
+      const [info] = rootMarketInfos;
+      changeInvestibleStageOnCommentChange(false, true,
+        blockingStage, requiresInputStage, info, rootMarketInfos, rootInvestible, investiblesDispatch);
+      refreshMarketComments(commentsDispatch, marketId, [comment]);
+      const addDialogInfo = {
+        name: 'NA',
+        market_type: DECISION_TYPE,
+        description: 'NA',
+        parent_comment_id: comment.id,
+      };
+      return createDecision(addDialogInfo).then((result) => {
+        addMarket(result, marketsDispatch, diffDispatch, presenceDispatch);
+        const { market, stages, parent } = result;
+        marketComments.push(parent);
+        refreshMarketComments(commentsDispatch, marketId, marketComments);
+        const allowsInvestment = stages.find((stage) => stage.allows_investment);
+        const notAllowsInvestment = stages.find((stage) => !stage.allows_investment);
+        const stageInfo = {
+          stage_id: allowsInvestment.id,
+          current_stage_id: notAllowsInvestment.id,
+        };
+        const addInfo = {
+          marketId: market.id,
+          description: '<p>Options make decisions more clear.</p>',
+          name: 'Questions with options',
+          stageInfo: stageInfo,
+        };
+        return addInvestibleToStage(addInfo).then((addedOption) => {
+          addInvestible(investiblesDispatch, diffDispatch, addedOption);
+          const addInfo = {
+            marketId: market.id,
+            description: '<p>Promote this option if you want to approve it.</p>',
+            name: 'Questions without options',
+          };
+          return addDecisionInvestible(addInfo);
+        });
+      }).then((addedOption) => {
+        addInvestible(investiblesDispatch, diffDispatch, addedOption);
+      });
     });
   });
 }

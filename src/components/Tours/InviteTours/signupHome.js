@@ -9,7 +9,7 @@ export function signupHomeSteps(variables) {
       title: `Welcome to Uclusion ${name}!`,
       content: (
         <React.Fragment>
-          We've created somethings for you to help you get familiar.
+          We've created things for you to help you get familiar.
         </React.Fragment>),
     },
     {

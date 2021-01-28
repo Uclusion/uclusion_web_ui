@@ -92,6 +92,9 @@ export function getFlags(user) {
 }
 
 export function getMarketInfo(investible, marketId) {
+  if (!investible || !investible.market_infos) {
+    return {};
+  }
   return investible.market_infos.find((info) => info.market_id === marketId);
 }
 

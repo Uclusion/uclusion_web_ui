@@ -54,8 +54,6 @@ function createProjectWorkspace (dispatchers) {
       commentsDispatch,
       presenceDispatch
     } = dispatchers;
-    let rootInvestible;
-    let rootMarketInfos;
     const marketComments = [];
     const marketInvestibles = [];
     const addedMarkets = [];
@@ -79,17 +77,14 @@ function createProjectWorkspace (dispatchers) {
       };
       return addPlanningInvestible(addInfo);
     }).then((addedStory) => {
-      marketInvestibles.push(addedStory);
       const { market_infos: marketInfos, investible } = addedStory;
-      rootMarketInfos = marketInfos;
-      rootInvestible = investible;
+      const [info] = marketInfos;
+      changeInvestibleStageOnCommentChange(false, true,
+        blockingStage, requiresInputStage, info, marketInfos, investible, investiblesDispatch);
       const body = '<h2>Do you prefer asking questions with options or without?</h2><p><br></p>' +
         '<p>The option in Proposed Options cannot be approved unless you promote it.</p>';
       return saveComment(marketId, investible.id, undefined, body, QUESTION_TYPE);
     }).then((comment) => {
-      const [info] = rootMarketInfos;
-      changeInvestibleStageOnCommentChange(false, true,
-        blockingStage, requiresInputStage, info, rootMarketInfos, rootInvestible, investiblesDispatch);
       marketComments.push(comment);
       const addDialogInfo = {
         name: 'NA',
@@ -132,16 +127,13 @@ function createProjectWorkspace (dispatchers) {
         };
         return addPlanningInvestible(addInfo);
       }).then((addedStory) => {
-        marketInvestibles.push(addedStory);
         const { market_infos: marketInfos, investible } = addedStory;
-        rootMarketInfos = marketInfos;
-        rootInvestible = investible;
+        const [info] = marketInfos;
+        changeInvestibleStageOnCommentChange(true, false,
+          blockingStage, requiresInputStage, info, marketInfos, investible, investiblesDispatch);
         const body = '<p>Only by resolving this issue can this story be moved to a different stage.</p>';
         return saveComment(marketId, investible.id, undefined, body, ISSUE_TYPE);
       }).then((comment) => {
-        const [info] = rootMarketInfos;
-        changeInvestibleStageOnCommentChange(true, false,
-          blockingStage, requiresInputStage, info, rootMarketInfos, rootInvestible, investiblesDispatch);
         marketComments.push(comment);
         const description = '<p>Only you can move a story to this stage. How many stories are allowed in Not Ready for Feedback is controlled by Workspace configuration.</p><p><br></p>' +
           '<p>Try moving this story to Ready for Feedback.</p>';

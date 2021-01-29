@@ -7,7 +7,7 @@ import {
 } from '../../api/investibles'
 import { addInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { saveComment } from '../../api/comments'
-import { ISSUE_TYPE, QUESTION_TYPE } from '../../constants/comments'
+import { ISSUE_TYPE, QUESTION_TYPE, TODO_TYPE } from '../../constants/comments'
 import { changeInvestibleStageOnCommentChange } from '../../utils/commentFunctions'
 import {
   isBlockedStage
@@ -44,7 +44,7 @@ function createProjectWorkspace (dispatchers) {
     const addInfo = {
       marketId: marketId,
       name: 'Invite collaborators',
-      description: '<p>Invite others to this workspace to better see Uclusion features like mentions.</p>',
+      description: '<p>Invite others to this workspace to better see Uclusion features like approving stories and mentions.</p>',
       assignments: [userId],
     };
     const {
@@ -164,7 +164,14 @@ function createProjectWorkspace (dispatchers) {
         return stageChangeInvestible(moveInfo);
       }).then((addedStory) => {
         addInvestible(investiblesDispatch, diffDispatch, addedStory);
+        const body = '<p>Workspace TODOs are great for recording bugs.</p><p><br></p>' +
+          '<p>You can click on this TODO to edit or drag and drop to assign.</p>';
+        return saveComment(marketId, undefined, undefined, body, TODO_TYPE, undefined,
+          undefined, 'RED');
       });
+    }).then((comment) => {
+      marketComments.push(comment);
+      refreshMarketComments(commentsDispatch, marketId, marketComments);
     });
   });
 }

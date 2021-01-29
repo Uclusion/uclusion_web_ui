@@ -30,7 +30,7 @@ import {
 } from '../../../constants/comments'
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
 import CommentBox from '../../../containers/CommentBox/CommentBox'
-import { ACTIVE_STAGE, STORIES_SUB_TYPE } from '../../../constants/markets'
+import { ACTIVE_STAGE } from '../../../constants/markets'
 import { getUserInvestibles } from './userUtils'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { getMarketPresences, getPresenceMap } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
@@ -48,10 +48,8 @@ import { startTour } from '../../../contexts/TourContext/tourContextReducer'
 import { CognitoUserContext } from '../../../contexts/CognitoUserContext/CongitoUserContext'
 import UclusionTour from '../../../components/Tours/UclusionTour'
 import { inviteStoriesWorkspaceSteps } from '../../../components/Tours/InviteTours/storyWorkspace'
-import { inviteRequirementsWorkspaceSteps } from '../../../components/Tours/InviteTours/requirementsWorkspace'
 import moment from 'moment'
 import {
-  INVITE_REQ_WORKSPACE_FIRST_VIEW,
   INVITE_STORIES_WORKSPACE_FIRST_VIEW
 } from '../../../contexts/TourContext/tourContextHelper'
 import { getVoteTotalsForUser, hasNotVoted } from '../../../utils/userFunctions'

@@ -9,14 +9,14 @@ export function signupHomeSteps(variables) {
       title: `Welcome to Uclusion ${name}!`,
       content: (
         <React.Fragment>
-          We've created a demonstration Workspace to show you how Uclusion works.
+          This is your home screen. We've created a demonstration to show you how Uclusion works.
         </React.Fragment>),
     },
     {
       disableBeacon: true,
       placement: 'right',
       target: '#ws0',
-      content: "Here's where you create requirements, file bugs, and execute stories.",
+      content: "Feel free to explore. When you are ready, click on this Workspace to continue the tour.",
     }
   ]
 }

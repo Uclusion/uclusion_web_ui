@@ -69,8 +69,9 @@ function Home(props) {
   const [clearedToCreate, setClearedToCreate] = useState(undefined);
   const [, commentsDispatch] = useContext(CommentsContext);
   const createEnabled = canCreate(accountState);
-  const banner = clearedToCreate ? <OnboardingBanner messageId='OnboardingCreatingCustomWorkspace' /> :
-    createEnabled || !hasInitializedGlobalVersion(versionsContext) ? undefined : <UpgradeBanner/>;
+  const banner = !hasInitializedGlobalVersion(versionsContext) ?
+    undefined : clearedToCreate ? <OnboardingBanner messageId='OnboardingCreatingCustomWorkspace' /> :
+    createEnabled ? undefined : <UpgradeBanner/>;
 
   useEffect(() => {
     const redirect = getAndClearRedirect();
@@ -169,6 +170,7 @@ function Home(props) {
       isHome
       sidebarActions={ACTIONBAR_ACTIONS}
       banner={banner}
+      loading={!hasInitializedGlobalVersion(versionsContext)}
     >
       <UclusionTour
         name={SIGNUP_HOME}

@@ -5,7 +5,6 @@ import {
   addPlanningInvestible,
   stageChangeInvestible
 } from '../../api/investibles'
-import { addInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { saveComment } from '../../api/comments'
 import { ISSUE_TYPE, QUESTION_TYPE, TODO_TYPE } from '../../constants/comments'
 import { changeInvestibleStageOnCommentChange } from '../../utils/commentFunctions'
@@ -16,6 +15,7 @@ import { refreshMarketComments } from '../../contexts/CommentsContext/commentsCo
 import { DECISION_TYPE } from '../../constants/markets'
 import { createDecision } from '../../api/markets'
 import { addMarket } from '../../contexts/MarketsContext/marketsContextHelper'
+import { refreshInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
 
 export function createECPMarkets (dispatchers) {
   return createProjectWorkspace(dispatchers)
@@ -57,8 +57,10 @@ function createProjectWorkspace (dispatchers) {
     let rootInvestible;
     let rootMarketInfos;
     const marketComments = [];
+    const marketInvestibles = [];
+    const addedMarkets = [];
     return addPlanningInvestible(addInfo).then((addedStory) => {
-      addInvestible(investiblesDispatch, diffDispatch, addedStory);
+      marketInvestibles.push(addedStory);
       const description = '<p>The Further Work stage can be used to plan stories that are not ready to be assigned.</p><p><br></p>' +
         '<p>Try moving this story to Ready for Approval. You can drag and drop or re-assign to yourself.</p>';
       const addInfo = {
@@ -68,7 +70,7 @@ function createProjectWorkspace (dispatchers) {
       };
       return addPlanningInvestible(addInfo);
     }).then((addedStory) => {
-      addInvestible(investiblesDispatch, diffDispatch, addedStory);
+      marketInvestibles.push(addedStory);
       const addInfo = {
         marketId: marketId,
         name: 'A question in Uclusion',
@@ -77,7 +79,7 @@ function createProjectWorkspace (dispatchers) {
       };
       return addPlanningInvestible(addInfo);
     }).then((addedStory) => {
-      addInvestible(investiblesDispatch, diffDispatch, addedStory);
+      marketInvestibles.push(addedStory);
       const { market_infos: marketInfos, investible } = addedStory;
       rootMarketInfos = marketInfos;
       rootInvestible = investible;
@@ -88,7 +90,7 @@ function createProjectWorkspace (dispatchers) {
       const [info] = rootMarketInfos;
       changeInvestibleStageOnCommentChange(false, true,
         blockingStage, requiresInputStage, info, rootMarketInfos, rootInvestible, investiblesDispatch);
-      refreshMarketComments(commentsDispatch, marketId, [comment]);
+      marketComments.push(comment);
       const addDialogInfo = {
         name: 'NA',
         market_type: DECISION_TYPE,
@@ -96,10 +98,9 @@ function createProjectWorkspace (dispatchers) {
         parent_comment_id: comment.id,
       };
       return createDecision(addDialogInfo).then((result) => {
-        addMarket(result, marketsDispatch, diffDispatch, presenceDispatch);
+        addedMarkets.push(result);
         const { market, stages, parent } = result;
         marketComments.push(parent);
-        refreshMarketComments(commentsDispatch, marketId, marketComments);
         const allowsInvestment = stages.find((stage) => stage.allows_investment);
         const notAllowsInvestment = stages.find((stage) => !stage.allows_investment);
         const stageInfo = {
@@ -113,7 +114,7 @@ function createProjectWorkspace (dispatchers) {
           stageInfo: stageInfo,
         };
         return addInvestibleToStage(addInfo).then((addedOption) => {
-          addInvestible(investiblesDispatch, diffDispatch, addedOption);
+          marketInvestibles.push(addedOption);
           const addInfo = {
             marketId: market.id,
             description: '<p>Promote this option if you want to approve it.</p>',
@@ -122,7 +123,7 @@ function createProjectWorkspace (dispatchers) {
           return addDecisionInvestible(addInfo);
         });
       }).then((addedOption) => {
-        addInvestible(investiblesDispatch, diffDispatch, addedOption);
+        marketInvestibles.push(addedOption);
         const addInfo = {
           marketId: marketId,
           name: 'A story that needs help',
@@ -131,7 +132,7 @@ function createProjectWorkspace (dispatchers) {
         };
         return addPlanningInvestible(addInfo);
       }).then((addedStory) => {
-        addInvestible(investiblesDispatch, diffDispatch, addedStory);
+        marketInvestibles.push(addedStory);
         const { market_infos: marketInfos, investible } = addedStory;
         rootMarketInfos = marketInfos;
         rootInvestible = investible;
@@ -142,7 +143,6 @@ function createProjectWorkspace (dispatchers) {
         changeInvestibleStageOnCommentChange(true, false,
           blockingStage, requiresInputStage, info, rootMarketInfos, rootInvestible, investiblesDispatch);
         marketComments.push(comment);
-        refreshMarketComments(commentsDispatch, marketId, marketComments);
         const description = '<p>Only you can move a story to this stage. How many stories are allowed in Not Ready for Feedback is controlled by Workspace configuration.</p><p><br></p>' +
           '<p>Try moving this story to Ready for Feedback.</p>';
         const addInfo = {
@@ -163,7 +163,7 @@ function createProjectWorkspace (dispatchers) {
         };
         return stageChangeInvestible(moveInfo);
       }).then((addedStory) => {
-        addInvestible(investiblesDispatch, diffDispatch, addedStory);
+        marketInvestibles.push(addedStory);
         const body = '<p>Workspace TODOs are great for recording bugs.</p><p><br></p>' +
           '<p>You can click on this TODO to edit or drag and drop to assign.</p>';
         return saveComment(marketId, undefined, undefined, body, TODO_TYPE, undefined,
@@ -171,7 +171,10 @@ function createProjectWorkspace (dispatchers) {
       });
     }).then((comment) => {
       marketComments.push(comment);
+      addedMarkets.forEach((result) => addMarket(result, marketsDispatch, diffDispatch, presenceDispatch));
       refreshMarketComments(commentsDispatch, marketId, marketComments);
+      refreshInvestibles(investiblesDispatch, diffDispatch, marketInvestibles);
+      return Promise.resolve(true);
     });
   });
 }

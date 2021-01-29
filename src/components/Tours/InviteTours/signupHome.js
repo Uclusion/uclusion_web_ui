@@ -9,14 +9,14 @@ export function signupHomeSteps(variables) {
       title: `Welcome to Uclusion ${name}!`,
       content: (
         <React.Fragment>
-          We've created things for you to help you get familiar.
+          We've created a demonstration Workspace to show you how Uclusion works.
         </React.Fragment>),
     },
     {
       disableBeacon: true,
       placement: 'right',
       target: '#ws0',
-      content: "A Workspace is where you create requirements and bugs and execute stories.",
+      content: "Here's where you create requirements, file bugs, and execute stories.",
     }
   ]
 }

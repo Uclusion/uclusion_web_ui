@@ -133,12 +133,10 @@ class CustomSignIn extends SignIn {
     const { defaultEmail } = props;
     this._validAuthStates = ['signIn', 'signedOut', 'signedUp'];
     this.onSubmit = this.onSubmit.bind(this);
-    this.handleInput = this.handleInput.bind(this);
     if (defaultEmail) {
       this.defaultEmail = defaultEmail;
       this.getUsernameFromInput = () => defaultEmail;
     }
-    this.state = {...this.state, submitEnabled: false}
   }
 
   onSubmit(form) {
@@ -146,15 +144,10 @@ class CustomSignIn extends SignIn {
     super.signIn();
   }
 
-  handleInput(event) {
-    super.handleInputChange(event);
-    const submitEnabled = this.inputs.username && this.inputs.password;
-    this.setState({submitEnabled});
-  }
-
   showComponent() {
     const { classes, intl } = this.props;
     const ALTERNATE_SIDEBAR_LOGO = 'Uclusion_Logo_White_Micro.png';
+
     return (
       <Container component="main" maxWidth="xs">
         <Helmet>
@@ -217,7 +210,7 @@ class CustomSignIn extends SignIn {
             id="username"
             key="username"
             name="username"
-            onChange={this.handleInput}
+            onChange={this.handleInputChange}
             defaultValue={this.defaultEmail}
             disabled={this.defaultEmail !== undefined}
             type="email"
@@ -235,7 +228,7 @@ class CustomSignIn extends SignIn {
             key="password"
             type={this.state.showPassword ? 'text' : 'password'}
             id="password"
-            onChange={this.handleInput}
+            onChange={this.handleInputChange}
             autoComplete="current-password"
             InputProps={{
               endAdornment:
@@ -253,7 +246,6 @@ class CustomSignIn extends SignIn {
           <SpinningButton
             type="submit"
             spinning={this.state.loading}
-            disabled={!this.state.submitEnabled}
             fullWidth
             variant="contained"
             className={classes.submit}

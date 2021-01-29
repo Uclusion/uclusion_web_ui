@@ -122,70 +122,67 @@ function PlanningDialogEdit(props) {
   }
 
   return (
-    <>
-      <DismissableText textId='planningEditHelp' />
-      <Card className={classes.overflowVisible}>
-        <CardType className={classes.cardType} type={AGILE_PLAN_TYPE} />
-        <CardContent className={classes.cardContent}>
-          <legend className={classes.optional}>*{intl.formatMessage({ id: "optionalEdit" })}</legend>
-          <Grid container className={clsx(classes.fieldset, classes.flex, classes.justifySpace)}>
-            <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
-              <AllowedInProgress
-                onChange={onAllowedInvestiblesChange}
-                value={allowedInvestibles}
-              />
-            </Grid>
-            <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
-              <ShowInVerifiedStage
-                onChange={onShowInvestiblesChange}
-                value={showInvestibles}
-              />
-            </Grid>
-            <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
-              <ShowInVerifiedStageAge
-                onChange={onShowInvestiblesAgeChange}
-                value={showInvestiblesAge}
-              />
-            </Grid>
-            <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
-              <VoteExpiration
-                onChange={handleChange("investment_expiration")}
-                value={investment_expiration}
-              />
-            </Grid>
-            <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
-              <Votes onChange={handleChange("votes_required")} value={votes_required} />
-            </Grid>
+    <Card className={classes.overflowVisible}>
+      <CardType className={classes.cardType} type={AGILE_PLAN_TYPE} />
+      <CardContent className={classes.cardContent}>
+        <legend className={classes.optional}>*{intl.formatMessage({ id: "optionalEdit" })}</legend>
+        <Grid container className={clsx(classes.fieldset, classes.flex, classes.justifySpace)}>
+          <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
+            <AllowedInProgress
+              onChange={onAllowedInvestiblesChange}
+              value={allowedInvestibles}
+            />
           </Grid>
-        </CardContent>
-        <CardActions className={classes.actions}>
-          <Button
-            className={classes.actionSecondary}
-            color="secondary"
-            onClick={onCancel}
-            variant="contained"
-          >
-            <FormattedMessage
-              id="marketAddCancelLabel"
+          <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
+            <ShowInVerifiedStage
+              onChange={onShowInvestiblesChange}
+              value={showInvestibles}
             />
-          </Button>
-          <SpinBlockingButton
-            className={classes.actionPrimary}
-            color="primary"
-            disabled={!(parseInt(investment_expiration, 10) > 0)}
-            marketId={id}
-            onClick={handleSave}
-            hasSpinChecker
-            onSpinStop={onSpinStop}
-            variant="contained"
-          >
-            <FormattedMessage
-              id="marketEditSaveLabel"
+          </Grid>
+          <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
+            <ShowInVerifiedStageAge
+              onChange={onShowInvestiblesAgeChange}
+              value={showInvestiblesAge}
             />
-          </SpinBlockingButton>
-        </CardActions>
-      </Card>
-    </>
+          </Grid>
+          <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
+            <VoteExpiration
+              onChange={handleChange("investment_expiration")}
+              value={investment_expiration}
+            />
+          </Grid>
+          <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
+            <Votes onChange={handleChange("votes_required")} value={votes_required} />
+          </Grid>
+        </Grid>
+      </CardContent>
+      <CardActions className={classes.actions}>
+        <Button
+          className={classes.actionSecondary}
+          color="secondary"
+          onClick={onCancel}
+          variant="contained"
+        >
+          <FormattedMessage
+            id="marketAddCancelLabel"
+          />
+        </Button>
+        <SpinBlockingButton
+          className={classes.actionPrimary}
+          color="primary"
+          disabled={!(parseInt(investment_expiration, 10) > 0)}
+          marketId={id}
+          onClick={handleSave}
+          hasSpinChecker
+          onSpinStop={onSpinStop}
+          variant="contained"
+        >
+          <FormattedMessage
+            id="marketEditSaveLabel"
+          />
+        </SpinBlockingButton>
+      </CardActions>
+    </Card>
   );
 }
 

@@ -128,12 +128,6 @@ function PlanningDialog(props) {
     navigate(history, link);
   }
 
-  function isStoryWorkspace() {
-    const startedAsStory = market && (!market.market_sub_type || market.market_sub_type === STORIES_SUB_TYPE);
-    const hasStoriesNow = !_.isEmpty((investibles));
-    return startedAsStory || hasStoriesNow;
-  }
-
   const furtherWorkStage = marketStages.find((stage) => (!stage.allows_assignment && !stage.close_comments_on_entrance)) || {};
   const requiresInputStage = marketStages.find((stage) => (!stage.allows_issues && stage.move_on_comment)) || {};
   const furtherWorkInvestibles = getInvestiblesInStage(investibles, furtherWorkStage.id);
@@ -146,13 +140,10 @@ function PlanningDialog(props) {
     }
   });
   const presenceMap = getPresenceMap(marketPresencesState, marketId);
-  const storyWorkspace = isStoryWorkspace();
-  const tourName = storyWorkspace ? INVITE_STORIES_WORKSPACE_FIRST_VIEW : INVITE_REQ_WORKSPACE_FIRST_VIEW;
-  const tourSteps = storyWorkspace ? inviteStoriesWorkspaceSteps(cognitoUser)
-    : inviteRequirementsWorkspaceSteps(cognitoUser);
+  const tourSteps = inviteStoriesWorkspaceSteps(cognitoUser);
   useEffect(() => {
-    tourDispatch(startTour(tourName));
-  }, [tourDispatch, tourName]);
+    tourDispatch(startTour(INVITE_STORIES_WORKSPACE_FIRST_VIEW));
+  }, [tourDispatch]);
 
   return (
     <Screen
@@ -163,10 +154,11 @@ function PlanningDialog(props) {
       banner={banner}
     >
       <UclusionTour
-        name={tourName}
+        name={INVITE_STORIES_WORKSPACE_FIRST_VIEW}
         hidden={hidden}
         steps={tourSteps}
         />
+      <DismissableText textId='planningEditHelp' />
       <div id="workspaceMain">
         <Summary market={market} hidden={hidden} activeMarket={activeMarket} inArchives={inArchives} />
       </div>

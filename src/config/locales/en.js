@@ -330,7 +330,7 @@ const messages = defineMessages({
   daysEstimateMarketLabel: 'date of completion',
   votesRequiredHelp: "Number of approvals required before a story can be moved to 'Not Ready For Feedback'",
   maxBudgetHelp: 'Maximum budget allowed for a story. Used to prevent stories from being too large.',
-  voteExpirationHelp: "How many days before approvals expire. Prevents very old approval from being used to move a story to 'Not Ready For Feedback'.",
+  voteExpirationHelp: "How many days before approvals expire. Prevents very old approval from being used.",
   reassignToMove: 'Re-assigning moves to the swimlanes.',
   initiativePlanningParent: 'Create Workspace',
   marketLinksSection: 'links',

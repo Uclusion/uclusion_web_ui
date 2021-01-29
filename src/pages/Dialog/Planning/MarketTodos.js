@@ -327,7 +327,7 @@ function MarketTodos (props) {
   const todosButtonMsgId = showSelectTodos ? 'todosCreateStory' : 'todosSelectForStory';
   return (
     <>
-      <div className={classes.outerBorder}>
+      <div className={classes.outerBorder} id="marketTodos">
         <SubSection
           type={SECTION_SUB_HEADER}
           bolder

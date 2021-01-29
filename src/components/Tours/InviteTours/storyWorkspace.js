@@ -1,37 +1,23 @@
 
-export function inviteStoriesWorkspaceSteps (variables) {
-  const { name } = variables;
+export function inviteStoriesWorkspaceSteps () {
   return [
-    {
-      disableBeacon: true,
-      target: '#workspaceMain',
-      title: `Welcome ${name}!`,
-      placement: 'center',
-      content: 'Uclusion Workspaces help you track story progress and decide what to work on next.',
-    },
-    {
-      disableBeacon: true,
-      target: '#adminManageCollaborators',
-      placement: 'left',
-      content: 'You can add others to the workspace with \'Manage collaborators\'.',
-    },
     {
       disableBeacon: true,
       target: '#swimLanes',
       placement: 'top',
-      content: 'Swimlanes show at a glance what everyone is doing.',
+      content: 'Swimlanes use built-in stages and context based colors to show status at a glance.',
     },
     {
       disableBeacon: true,
-      target: '#addStory',
+      target: '#marketTodos',
       placement: 'right',
-      content: '\'Create Story\' lets you create a new story and assign it to someone.',
+      content: 'Workspace TODOs are also color coded and their notifications use the same priority.',
     },
     {
       disableBeacon: true,
-      target: '#viewArchive',
-      placement: 'right',
-      content: 'Lastly, \'View Archive\' shows you stories that are complete or are not going to be done.',
+      target: '#decisionDialogsBecomeObserver',
+      placement: 'left',
+      content: 'When you are done with this demonstration Workspace use this button to send it to the archives.',
     }
   ];
 }

@@ -6,7 +6,7 @@ export function getInvestibleVoters(marketPresences, investibleId) {
   const acc = [];
   marketPresences.forEach(presence => {
     const { name, id, email, investments } = presence;
-    investments.forEach(investment => {
+    (investments || []).forEach(investment => {
       const {
         quantity,
         investible_id: invId,
@@ -15,7 +15,6 @@ export function getInvestibleVoters(marketPresences, investibleId) {
         updated_at: updatedAt,
         deleted
       } = investment;
-      // // console.debug(investment);
       if (investibleId === invId && !deleted) {
         acc.push({ name, id, email, quantity, maxBudget, maxBudgetUnit, updatedAt });
       }

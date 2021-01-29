@@ -1,14 +1,18 @@
 import { doCreateRequirementsWorkspace } from '../../components/AddNew/Workspace/RequirementsWorkspace/workspaceCreator';
-import { addDecisionInvestible, addInvestibleToStage, addPlanningInvestible } from '../../api/investibles'
+import {
+  addDecisionInvestible,
+  addInvestibleToStage,
+  addPlanningInvestible,
+  stageChangeInvestible
+} from '../../api/investibles'
 import { addInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
-import { processTextAndFilesForSave } from '../../api/files'
 import { saveComment } from '../../api/comments'
-import { QUESTION_TYPE } from '../../constants/comments'
+import { ISSUE_TYPE, QUESTION_TYPE } from '../../constants/comments'
 import { changeInvestibleStageOnCommentChange } from '../../utils/commentFunctions'
 import {
   isBlockedStage
 } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
-import { addCommentToMarket, refreshMarketComments } from '../../contexts/CommentsContext/commentsContextHelper'
+import { refreshMarketComments } from '../../contexts/CommentsContext/commentsContextHelper'
 import { DECISION_TYPE } from '../../constants/markets'
 import { createDecision } from '../../api/markets'
 import { addMarket } from '../../contexts/MarketsContext/marketsContextHelper'
@@ -22,7 +26,7 @@ export function createECPMarkets (dispatchers) {
 
 function createProjectWorkspace (dispatchers) {
   const workspaceName = 'A Demonstration Project Workspace';
-  const workspaceDescription = '<p><b>Welcome to Uclusion!</b> This demo workspace has pre-created items to let quickly see some of the features.</p><p/>' +
+  const workspaceDescription = '<p><b>Welcome to Uclusion!</b> This demo workspace has pre-created items to let quickly see some of the features.</p><p><br></p>' +
   '<p>The workspace description can be used to hold ideas and requirements before they become stories.</p>';
   return doCreateRequirementsWorkspace(dispatchers, { workspaceName, workspaceDescription }).then((marketDetails) => {
     const {
@@ -34,6 +38,8 @@ function createProjectWorkspace (dispatchers) {
     const userId = presence.id;
     const blockingStage = stages.find((stage) => isBlockedStage(stage));
     const requiresInputStage = stages.find((stage) => (!stage.allows_issues && stage.move_on_comment));
+    const readyForApprovalStage = stages.find((stage) => stage.allows_investment);
+    const acceptedStage = stages.find((stage) => stage.assignee_enter_only);
     // add the story
     const addInfo = {
       marketId: marketId,
@@ -53,16 +59,16 @@ function createProjectWorkspace (dispatchers) {
     const marketComments = [];
     return addPlanningInvestible(addInfo).then((addedStory) => {
       addInvestible(investiblesDispatch, diffDispatch, addedStory);
-      // add the story
+      const description = '<p>The Further Work stage can be used to plan stories that are not ready to be assigned.</p><p><br></p>' +
+        '<p>Try moving this story to Ready for Approval. You can drag and drop or re-assign to yourself.</p>';
       const addInfo = {
         marketId: marketId,
         name: 'Plan a story',
-        description: '<p>The Further Work stage can be used to plan stories that are not ready to be assigned.</p>',
+        description,
       };
       return addPlanningInvestible(addInfo);
     }).then((addedStory) => {
       addInvestible(investiblesDispatch, diffDispatch, addedStory);
-      // add the story
       const addInfo = {
         marketId: marketId,
         name: 'A question in Uclusion',
@@ -75,7 +81,8 @@ function createProjectWorkspace (dispatchers) {
       const { market_infos: marketInfos, investible } = addedStory;
       rootMarketInfos = marketInfos;
       rootInvestible = investible;
-      const body = '<p>Do you prefer asking questions with options or without? You can promote options others suggest also.</p>';
+      const body = '<h2>Do you prefer asking questions with options or without?</h2><p><br></p>' +
+        '<p>The option in Proposed Options cannot be approved unless you promote it.</p>';
       return saveComment(marketId, investible.id, undefined, body, QUESTION_TYPE);
     }).then((comment) => {
       const [info] = rootMarketInfos;
@@ -116,6 +123,47 @@ function createProjectWorkspace (dispatchers) {
         });
       }).then((addedOption) => {
         addInvestible(investiblesDispatch, diffDispatch, addedOption);
+        const addInfo = {
+          marketId: marketId,
+          name: 'A story that needs help',
+          description: '<p>This story automatically moved to Blocked when a blocking issue comment was opened.</p>',
+          assignments: [userId],
+        };
+        return addPlanningInvestible(addInfo);
+      }).then((addedStory) => {
+        addInvestible(investiblesDispatch, diffDispatch, addedStory);
+        const { market_infos: marketInfos, investible } = addedStory;
+        rootMarketInfos = marketInfos;
+        rootInvestible = investible;
+        const body = '<p>Only by resolving this issue can this story be moved to a different stage.</p>';
+        return saveComment(marketId, investible.id, undefined, body, ISSUE_TYPE);
+      }).then((comment) => {
+        const [info] = rootMarketInfos;
+        changeInvestibleStageOnCommentChange(true, false,
+          blockingStage, requiresInputStage, info, rootMarketInfos, rootInvestible, investiblesDispatch);
+        marketComments.push(comment);
+        refreshMarketComments(commentsDispatch, marketId, marketComments);
+        const description = '<p>Only you can move a story to this stage. How many stories are allowed in Not Ready for Feedback is controlled by Workspace configuration.</p><p><br></p>' +
+          '<p>Try moving this story to Ready for Feedback.</p>';
+        const addInfo = {
+          marketId: marketId,
+          name: 'A story you are actively doing',
+          description,
+          assignments: [userId],
+        };
+        return addPlanningInvestible(addInfo);
+      }).then((addedStory) => {
+        const moveInfo = {
+          marketId,
+          investibleId: addedStory.investible.id,
+          stageInfo: {
+            current_stage_id: readyForApprovalStage.id,
+            stage_id: acceptedStage.id,
+          },
+        };
+        return stageChangeInvestible(moveInfo);
+      }).then((addedStory) => {
+        addInvestible(investiblesDispatch, diffDispatch, addedStory);
       });
     });
   });

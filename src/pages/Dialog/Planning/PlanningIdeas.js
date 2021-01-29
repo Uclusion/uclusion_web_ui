@@ -180,7 +180,10 @@ function PlanningIdeas(props) {
       return stageChangeInvestible(moveInfo)
         .then((inv) => {
           refreshInvestibles(invDispatch, diffDispatch, [inv]);
-          resolveInvestibleComments(investibleId, marketId, commentsState, commentsDispatch);
+          const targetStage = getFullStage(marketStagesState, marketId, targetStageId);
+          if (targetStage.close_comments_on_entrance) {
+            resolveInvestibleComments(investibleId, marketId, commentsState, commentsDispatch);
+          }
           setOperationRunning(false);
         });
     }

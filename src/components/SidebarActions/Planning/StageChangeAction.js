@@ -16,6 +16,8 @@ import { resolveInvestibleComments } from '../../../contexts/CommentsContext/com
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import TooltipIconButton from '../../Buttons/TooltipIconButton'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 
 export const useStyles = makeStyles(() => {
   return {
@@ -77,6 +79,7 @@ function StageChangeAction(props) {
   const intl = useIntl();
   const [, invDispatch] = useContext(InvestiblesContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
+  const [marketStagesState] = useContext(MarketStagesContext);
   const [, diffDispatch] = useContext(DiffContext);
   const autoFocusRef = React.useRef(null);
   const lockedDialogClasses = useLockedDialogStyles();
@@ -100,7 +103,10 @@ function StageChangeAction(props) {
     return stageChangeInvestible(moveInfo)
       .then((newInv) => {
         refreshInvestibles(invDispatch, diffDispatch, [newInv]);
-        resolveInvestibleComments(investibleId, marketId, commentsState, commentsDispatch);
+        const targetStage = getFullStage(marketStagesState, marketId, targetStageId);
+        if (targetStage.close_comments_on_entrance) {
+          resolveInvestibleComments(investibleId, marketId, commentsState, commentsDispatch);
+        }
         return EMPTY_SPIN_RESULT;
       });
   }

@@ -18,7 +18,7 @@ import {
 import _ from 'lodash';
 import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import { deleteSingleMessage, updateUser } from '../../api/users'
+import { updateUser } from '../../api/users'
 import clsx from 'clsx';
 import config from '../../config';
 import Screen from '../../containers/Screen/Screen';
@@ -27,8 +27,6 @@ import { useHistory } from 'react-router';
 import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
-import { removeMessage } from '../../contexts/NotificationsContext/notificationsContextReducer'
-import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 
 const useStyles = makeStyles((theme) => ({
   name: {},
@@ -69,23 +67,13 @@ function ChangeNotificationPreferences (props) {
   const { hidden } = props;
   const [userState] = useContext(AccountUserContext) || {};
   const { user } = userState;
-  const safeUser = user || {};
   const [emailEnabled, setEmailEnabled] = useState(undefined);
   const [slackEnabled, setSlackEnabled] = useState(undefined);
   const [slackDelay, setSlackDelay] = useState(undefined);
   const [emailDelay, setEmailDelay] = useState(undefined);
-  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
-  const { messages } = (messagesState || {});
-  const myMessage =  (messages || []).find((message) => message.type_object_id === `USER_POKED_${safeUser.id}`);
   const slackNotAvailable = _.isEmpty(user) || !user.is_slack_addressable;
   const intl = useIntl();
   const classes = useStyles();
-
-  useEffect(() => {
-    if (!hidden && myMessage) {
-      deleteSingleMessage(myMessage).then(() => messagesDispatch(removeMessage(myMessage)));
-    }
-  }, [hidden, messagesDispatch, myMessage]);
 
   useEffect(() => {
     if (!_.isEmpty(user)) {

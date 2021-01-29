@@ -24,7 +24,7 @@ function NotificationMessageDisplay (props) {
     market_id: marketId,
     type
   } = message;
-  const dismissable = type && type.startsWith(UNREAD_TYPE);
+  const dismissable = (type && type.startsWith(UNREAD_TYPE))||(marketId && marketId.startsWith('slack'));
   const history = useHistory();
   const color = level === RED_LEVEL ? '#ff9b9b' : level === YELLOW_LEVEL ? '#e8e9a9' : '#85bddb';
   const fontColor = level === RED_LEVEL ? 'black' : level === YELLOW_LEVEL ? 'black' : 'white';

@@ -1,14 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, ButtonGroup, Card, makeStyles, Typography, useTheme } from '@material-ui/core';
+import { Button, Card, makeStyles, Typography, useTheme } from '@material-ui/core';
 import { useIntl } from 'react-intl';
 
 const useStyles = makeStyles(
   theme => {
     return {
-      title: {
-        margin: '1rem 0'
-      },
       myCard: {
         maxWidth: '725px',
         marginLeft: 'auto',
@@ -18,18 +15,11 @@ const useStyles = makeStyles(
           marginTop: '15px',
         }
       },
-      buttonContainer: {
-        width: '35rem',
+      buttonClassLarge: {
         marginLeft: 'auto',
-        marginRight: 'auto',
-        marginTop: '3rem',
-        display: 'flex',
-        [theme.breakpoints.down('xs')]: {
-          width: '11rem',
-        }
-      },
-      buttonClass: {
-        marginBottom: '15px',
+        width: '35rem',
+        marginTop: '2rem',
+        marginBottom: '2rem',
         borderRadius: 4,
         border: 'none',
         textTransform: 'capitalize',
@@ -37,6 +27,30 @@ const useStyles = makeStyles(
         '&.MuiButtonGroup-groupedOutlinedVertical:not(:last-child)': {
           borderBottom: 'none',
           borderRadius: 4,
+        },
+        "&:hover": {
+          border: '1px solid'
+        },
+        [theme.breakpoints.down('xs')]: {
+          width: '16rem',
+        }
+      },
+      buttonClass: {
+        marginBottom: '15px',
+        borderRadius: 4,
+        width: '35rem',
+        border: 'none',
+        textTransform: 'capitalize',
+        backgroundColor: '#ecf0f1',
+        '&.MuiButtonGroup-groupedOutlinedVertical:not(:last-child)': {
+          borderBottom: 'none',
+          borderRadius: 4,
+        },
+        "&:hover": {
+          border: '1px solid'
+        },
+        [theme.breakpoints.down('xs')]: {
+          width: '16rem',
         }
       },
       borderBottom: {
@@ -55,38 +69,27 @@ function WhatDoYouWantToDo (props) {
   const classes = useStyles(theme);
   return (
     <Card className={classes.myCard} elevation={0} raised={false}>
-      <Typography className={classes.title} variant="h4">{intl.formatMessage({ id: 'SignupWizardTitle' })}</Typography>
-      <div>
-        <ButtonGroup
-          orientation="vertical"
-          className={classes.buttonContainer}
-        >
-          <Button
-            className={classes.buttonClass}
-            onClick={() => setWizardToShow('requirementsWorkspace')}
-          >
-            {intl.formatMessage({ id: 'SignupWizardRequirementsWorkspace' })}
-          </Button>
-          <Button
-            className={classes.buttonClass}
-            onClick={() => setWizardToShow('storyWorkspace')}
-          >
-            {intl.formatMessage({ id: 'SignupWizardStoryWorkspace' })}
-          </Button>
-          <Button
-            className={classes.buttonClass}
-            onClick={() => setWizardToShow('dialog')}
-          >
-            {intl.formatMessage({ id: 'SignupWizardDialog' })}
-          </Button>
-          <Button
-            className={classes.buttonClass}
-            onClick={() => setWizardToShow('initiative')}
-          >
-            {intl.formatMessage({ id: 'SignupWizardInitiative' })}
-          </Button>
-        </ButtonGroup>
-      </div>
+      <Typography variant="h5">
+        {intl.formatMessage({ id: 'SignupWizardTitle' })}
+      </Typography>
+      <Button
+        className={classes.buttonClassLarge}
+        onClick={() => setWizardToShow('storyWorkspace')}
+      >
+        {intl.formatMessage({ id: 'SignupWizardStoryWorkspace' })}
+      </Button>
+      <Button
+        className={classes.buttonClass}
+        onClick={() => setWizardToShow('dialog')}
+      >
+        {intl.formatMessage({ id: 'SignupWizardDialog' })}
+      </Button>
+      <Button
+        className={classes.buttonClass}
+        onClick={() => setWizardToShow('initiative')}
+      >
+        {intl.formatMessage({ id: 'SignupWizardInitiative' })}
+      </Button>
     </Card>
   );
 }

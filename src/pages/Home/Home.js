@@ -83,6 +83,7 @@ function Home(props) {
   })
 
   useEffect(() => {
+    if (clearedToCreate === undefined) {
       if (!_.isEmpty(getExistingMarkets(versionsContext))) {
         // If there are markets already then do not run demo creation
         setClearedToCreate(false);
@@ -98,6 +99,7 @@ function Home(props) {
           setClearedToCreate(_.isEmpty(foregroundList) && _.isEmpty(backgroundList) && _.isEmpty(bannedList));
         });
       }
+    }
   }, [clearedToCreate, versionsContext]);
 
   useEffect(() => {

@@ -163,7 +163,7 @@ function InvestiblesByWorkspace (props) {
               <CardHeader
                 className={classes.header}
                 id={`m${market.id}`}
-                title={<Link color="secondary" id={market.id} key={market.id} href={formMarketLink(market.id)}
+                title={<Link color="inherit" id={market.id} key={market.id} href={formMarketLink(market.id)}
                              onClick={(e) => {
                                e.preventDefault();
                                navigate(history, formMarketLink(market.id));

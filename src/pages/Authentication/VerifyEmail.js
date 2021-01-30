@@ -65,6 +65,7 @@ function VerifyEmail (props) {
     }
 
     if (code && verificationState === 'READY_TO_PROCESS') {
+      console.log('Processing ready to process');
       setVerificationState('PROCESSING');
       verifyEmail(code)
         .then(result => {

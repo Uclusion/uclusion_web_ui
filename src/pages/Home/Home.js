@@ -34,6 +34,7 @@ import { InvestiblesContext } from '../../contexts/InvestibesContext/Investibles
 import { DiffContext } from '../../contexts/DiffContext/DiffContext'
 import OnboardingBanner from '../../components/Banners/OnboardingBanner'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
+import { getChangedIds } from '../../api/summaries'
 
 const useStyles = makeStyles(() => ({
     spacer: {
@@ -87,8 +88,18 @@ function Home(props) {
     // the onboarding user still won't have any markets until cleared to create is set and creation begins
     if (hasInitializedGlobalVersion(versionsContext) && clearedToCreate === undefined) {
       const myClear = _.isEmpty(getExistingMarkets(versionsContext));
-      // Do not create onboarding markets if they already have markets
-      setClearedToCreate(myClear);
+      if (myClear) {
+        // We unfortunately cannot trust versions context to have the existing markets correctly.
+        // Possibly because of the way it is using the message bus. Therefore call the API before
+        // potential accidental duplicate demo market creation
+        getChangedIds(null).then((versions) => {
+          const {
+            foreground: foregroundList, background: backgroundList, banned: bannedList
+          } = versions;
+          // Do not create onboarding markets if they already have markets
+          setClearedToCreate(_.isEmpty(foregroundList) && _.isEmpty(backgroundList) && _.isEmpty(bannedList));
+        });
+      }
     }
   }, [clearedToCreate, versionsContext]);
 

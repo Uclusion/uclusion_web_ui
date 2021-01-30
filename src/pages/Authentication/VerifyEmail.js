@@ -48,7 +48,10 @@ function VerifyEmail (props) {
     // we unconditionally sign out in case they are signed in to the user in another tab.
     // if it fails, we weren't logged in.
     Auth.currentAuthenticatedUser().then(() => setVerificationState('MUST_LOGOUT'))
-      .catch(() => setVerificationState('READY_TO_PROCESS'))
+      .catch(() => {
+        console.log('Ignore the 400 error we were checking if user existed.');
+        setVerificationState('READY_TO_PROCESS');
+      })
     return () => {}
   }, [])
 

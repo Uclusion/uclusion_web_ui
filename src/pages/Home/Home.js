@@ -83,12 +83,10 @@ function Home(props) {
   })
 
   useEffect(() => {
-    // If cleared to create has been set already then do not re-enter
-    // The gap where versions context can change before cleared to create is set is fine because
-    // the onboarding user still won't have any markets until cleared to create is set and creation begins
-    if (hasInitializedGlobalVersion(versionsContext) && clearedToCreate === undefined) {
-      const myClear = _.isEmpty(getExistingMarkets(versionsContext));
-      if (myClear) {
+      if (!_.isEmpty(getExistingMarkets(versionsContext))) {
+        // If there are markets already then do not run demo creation
+        setClearedToCreate(false);
+      } else if (hasInitializedGlobalVersion(versionsContext)) {
         // We unfortunately cannot trust versions context to have the existing markets correctly.
         // Possibly because of the way it is using the message bus. Therefore call the API before
         // potential accidental duplicate demo market creation
@@ -100,7 +98,6 @@ function Home(props) {
           setClearedToCreate(_.isEmpty(foregroundList) && _.isEmpty(backgroundList) && _.isEmpty(bannedList));
         });
       }
-    }
   }, [clearedToCreate, versionsContext]);
 
   useEffect(() => {
@@ -181,7 +178,7 @@ function Home(props) {
       isHome
       sidebarActions={ACTIONBAR_ACTIONS}
       banner={banner}
-      loading={!hasInitializedGlobalVersion(versionsContext)}
+      loading={clearedToCreate === undefined}
     >
       <UclusionTour
         name={SIGNUP_HOME}

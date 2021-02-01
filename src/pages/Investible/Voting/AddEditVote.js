@@ -186,8 +186,6 @@ function AddEditVote(props) {
     };
     // console.debug(updateInfo);
     return updateInvestment(updateInfo).then(result => {
-      // console.log("INVESTMENT");
-      // console.log(result);
       return {
         result,
         spinChecker: () => Promise.resolve(true),
@@ -213,7 +211,12 @@ function AddEditVote(props) {
   }
 
   function onRemove() {
-    return removeInvestment(marketId, investibleId);
+    return removeInvestment(marketId, investibleId).then(result => {
+      return {
+        result,
+        spinChecker: () => Promise.resolve(true),
+      };
+    });
   }
 
   function onChange(event) {
@@ -324,7 +327,7 @@ function AddEditVote(props) {
               className={classes.secondaryAction}
               marketId={marketId}
               onClick={onRemove}
-              onSpinStop={onSave}
+              onSpinStop={onSaveSpinStop}
             >
               {intl.formatMessage({ id: removeVoteId })}
             </SpinBlockingButton>

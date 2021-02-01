@@ -17,8 +17,13 @@ export function fetchInvestibles(idList, marketId) {
 
 export function removeInvestment(marketId, investibleId) {
   return getMarketClient(marketId)
-    .then((client) => client.markets.removeInvestment(investibleId))
-    .catch((error) => toastErrorAndThrow(error, 'errorInvestmentUpdateFailed'));
+    .then((client) => client.markets.removeInvestment(investibleId)).then((investmentResult) => {
+      const commentResult = { commentAction: 'DELETED', comment: { id: undefined } };
+      return {
+        commentResult,
+        investmentResult,
+      };
+    }).catch((error) => toastErrorAndThrow(error, 'errorInvestmentUpdateFailed'));
 }
 
 /**

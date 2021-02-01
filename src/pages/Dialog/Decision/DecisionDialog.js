@@ -9,10 +9,8 @@ import { Card, CardContent, Grid, makeStyles, Typography } from '@material-ui/co
 import _ from 'lodash'
 import AddIcon from '@material-ui/icons/Add'
 import {
-  formMarketAddInvestibleLink,
   makeArchiveBreadCrumbs,
   makeBreadCrumbs,
-  navigate,
 } from '../../../utils/marketIdPathFunctions'
 import ProposedIdeas from './ProposedIdeas'
 import SubSection from '../../../containers/SubSection/SubSection'
@@ -47,6 +45,10 @@ import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import AttachedFilesList from '../../../components/Files/AttachedFilesList'
 import DialogBodyEdit from '../DialogBodyEdit'
 import { doSetEditWhenValid, isTinyWindow } from '../../../utils/windowUtils'
+import DecisionInvestibleAdd from './DecisionInvestibleAdd'
+import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
+import localforage from 'localforage'
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 
 const useStyles = makeStyles(
   theme => ({
@@ -189,6 +191,10 @@ function DecisionDialog(props) {
   const [, tourDispatch] = useContext(TourContext);
   const [, marketsDispatch] = useContext(MarketsContext);
   const [, diffDispatch] = useContext(DiffContext);
+  const [, investiblesDispatch] = useContext(InvestiblesContext);
+  const [investibleAdd, setInvestibleAdd] = useState(false);
+  const [storedState, setStoredState] = useState(undefined);
+  const [idLoaded, setIdLoaded] = useState(undefined);
   const underConsiderationStage = marketStages.find((stage) => stage.allows_investment);
   const proposedStage = marketStages.find((stage) => !stage.allows_investment);
   const history = useHistory();
@@ -215,18 +221,32 @@ function DecisionDialog(props) {
   let breadCrumbTemplates = [];
   const breadCrumbs = inArchives ? _.isEmpty(breadCrumbTemplates) ? makeArchiveBreadCrumbs(history)
     : makeBreadCrumbs(history, breadCrumbTemplates) : makeBreadCrumbs(history);
-  const addLabel = isAdmin ? 'decisionDialogAddInvestibleLabel' : 'decisionDialogProposeInvestibleLabel';
-  const addLabelExplanation = isAdmin ? 'decisionDialogAddExplanationLabel' : 'decisionDialogProposeExplanationLabel';
 
   useEffect(() => {
     tourDispatch(startTour(INVITE_DIALOG_FIRST_VIEW));
-  }, [tourDispatch])
+  }, [tourDispatch]);
+
+  useEffect(() => {
+    if (investibleAdd) {
+      localforage.getItem(`add_investible_${marketId}`).then((stateFromDisk) => {
+        setStoredState(stateFromDisk || {});
+        setIdLoaded(marketId);
+      });
+    }
+    if (!investibleAdd) {
+      setIdLoaded(undefined);
+    }
+  }, [investibleAdd, marketId]);
 
   function onAttachFile(metadatas) {
     return attachFilesToMarket(marketId, metadatas)
       .then((market) => {
         addMarketToStorage(marketsDispatch, diffDispatch, market, false);
       })
+  }
+
+  function toggleInvestibleAdd() {
+    setInvestibleAdd(!investibleAdd);
   }
 
   function isEditableByUser() {
@@ -387,26 +407,31 @@ function DecisionDialog(props) {
         </Grid>
       </Card>
       <Grid container spacing={2}>
-        <Grid item xs={12}>
-          {!inArchives && (
-            <dl className={metaClasses.root}>
-              <div className={metaClasses.blue}>
-                <ExpandableAction
-                  id="addOption"
-                  key="addOption"
-                  label={intl.formatMessage({ id: addLabelExplanation })}
-                  onClick={() => navigate(history, formMarketAddInvestibleLink(marketId))}
-                  useWhiteText
-                  icon={<AddIcon htmlColor="white" />}
-                  openLabel={intl.formatMessage({ id: addLabel })}
-                />
-              </div>
-            </dl>
+        <Grid item xs={12} style={{ marginTop: '2rem' }}>
+          {investibleAdd && idLoaded === marketId && (
+            <div style={{marginBottom: '2rem'}}>
+              <DecisionInvestibleAdd
+                marketId={marketId}
+                onSave={(investible) => addInvestible(investiblesDispatch, () => {}, investible)}
+                onCancel={toggleInvestibleAdd}
+                onSpinComplete={toggleInvestibleAdd}
+                isAdmin={isAdmin}
+                storedState={storedState}
+              />
+            </div>
           )}
           <SubSection
             id="currentVoting"
             type={SECTION_TYPE_SECONDARY}
             title={intl.formatMessage({ id: 'decisionDialogCurrentVotingLabel' })}
+            actionButton={ inArchives ? null :
+              (<ExpandableAction
+                icon={<AddIcon htmlColor="white"/>}
+                label={intl.formatMessage({ id: 'decisionDialogAddExplanationLabel' })}
+                onClick={toggleInvestibleAdd}
+                disabled={!isAdmin}
+                tipPlacement="top-end"
+              />)}
           >
             <CurrentVoting
               marketPresences={marketPresences}
@@ -417,19 +442,25 @@ function DecisionDialog(props) {
             />
           </SubSection>
         </Grid>
-        {!_.isEmpty(proposed) && (
-          <Grid item xs={12} style={{ marginTop: '56px' }}>
-            <SubSection
-              type={SECTION_TYPE_SECONDARY}
-              title={intl.formatMessage({ id: 'decisionDialogProposedOptionsLabel' })}
-            >
-              <ProposedIdeas
-                investibles={proposed}
-                marketId={marketId}
-              />
-            </SubSection>
-          </Grid>
-        )}
+        <Grid item xs={12} style={{ marginTop: '1.5rem' }}>
+          <SubSection
+            type={SECTION_TYPE_SECONDARY}
+            title={intl.formatMessage({ id: 'decisionDialogProposedOptionsLabel' })}
+            actionButton={ inArchives ? null :
+              (<ExpandableAction
+                icon={<AddIcon htmlColor="white"/>}
+                label={intl.formatMessage({ id: 'decisionDialogProposeExplanationLabel' })}
+                onClick={toggleInvestibleAdd}
+                disabled={isAdmin}
+                tipPlacement="top-end"
+              />)}
+          >
+            <ProposedIdeas
+              investibles={proposed}
+              marketId={marketId}
+            />
+          </SubSection>
+        </Grid>
         <Grid id="commentAddArea" item xs={12} style={{ marginTop: '71px' }}>
           {!inArchives && (
             <CommentAddBox

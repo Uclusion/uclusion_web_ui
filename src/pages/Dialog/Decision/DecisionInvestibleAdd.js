@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, } from 'react'
+import React, { useContext, useState, } from 'react'
 import PropTypes from 'prop-types'
 import { Button, Card, CardActions, CardContent, TextField, } from '@material-ui/core'
 import localforage from 'localforage'
@@ -8,42 +8,34 @@ import { processTextAndFilesForSave } from '../../../api/files'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import { getStages } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import {
-  formInvestibleLink,
-  formMarketAddInvestibleLink,
-  formMarketLink,
-  navigate,
   urlHelperGetName,
 } from '../../../utils/marketIdPathFunctions'
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
-import CardType, { DECISION_TYPE, OPTION, VOTING_TYPE } from '../../../components/CardType'
+import { DECISION_TYPE } from '../../../constants/markets'
 import { FormattedMessage, useIntl } from 'react-intl'
 import { createDecision } from '../../../api/markets'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { useHistory } from 'react-router'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import { addMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { addCommentToMarket } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
+import { usePlanFormStyles } from '../../../components/AgilePlan'
 
 function DecisionInvestibleAdd(props) {
   const {
     marketId,
-    classes,
     onCancel,
     isAdmin,
     onSave,
     storedState,
     onSpinComplete,
-    parentCommentId,
-    inlineParentCommentId,
-    parentInvestibleId,
-    parentMarketId
+    parentCommentId
   } = props;
   const intl = useIntl();
-  const history = useHistory();
+  const classes = usePlanFormStyles();
   const [operationRunning] = useContext(OperationInProgressContext);
   const { description: storedDescription, name: storedName } = storedState;
   const [draftState, setDraftState] = useState(storedState);
@@ -63,7 +55,6 @@ function DecisionInvestibleAdd(props) {
   const [editorClearFunc, setEditorClearFunc] = useState(() => defaultClearFunc);
   const [description, setDescription] = useState(storedDescription);
   const [uploadedFiles, setUploadedFiles] = useState([]);
-  const [validForm, setValidForm] = useState(false);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const { name } = currentValues;
   const [, marketPresenceDispatch] = useContext(MarketPresencesContext);
@@ -71,17 +62,6 @@ function DecisionInvestibleAdd(props) {
   const [, diffDispatch] = useContext(DiffContext);
   const [investibleState] = useContext(InvestiblesContext);
   const [commentState, commentDispatch] = useContext(CommentsContext);
-
-  useEffect(() => {
-    // Long form to prevent flicker
-    if (name) {
-      if (!validForm) {
-        setValidForm(true);
-      }
-    } else if (validForm) {
-      setValidForm(false);
-    }
-  }, [name, validForm]);
 
   const itemKey = `add_investible_${parentCommentId || marketId}`;
   function handleDraftState(newDraftState) {
@@ -112,16 +92,8 @@ function DecisionInvestibleAdd(props) {
     setUploadedFiles(metadatas);
   }
 
-  function generateReturnLink() {
-    let link = parentInvestibleId ? formInvestibleLink(parentMarketId, parentInvestibleId) : formMarketLink(marketId);
-    if (parentCommentId || inlineParentCommentId) {
-      link = `${link}#c${parentCommentId || inlineParentCommentId}`;
-    }
-    return link;
-  }
-
   function handleCancel() {
-    onCancel(generateReturnLink());
+    localforage.removeItem(itemKey).then(() =>  onCancel());
   }
 
   function handleNewInlineSave(isAddAnother) {
@@ -156,15 +128,14 @@ function DecisionInvestibleAdd(props) {
       return addInvestibleToStage(addInfo);
     }).then((investible) => {
       onSave(investible);
+      return localforage.removeItem(itemKey);
+    }).then(() => {
       if (isAddAnother) {
-        const { market_infos } = investible;
         return {
-          result: market_infos[0].market_id,
           spinChecker: () => Promise.resolve(true),
         };
       }
       return {
-        result: generateReturnLink(),
         spinChecker: () => Promise.resolve(true),
       };
     });
@@ -196,36 +167,25 @@ function DecisionInvestibleAdd(props) {
     const promise = isAdmin ? addInvestibleToStage(addInfo) : addDecisionInvestible(addInfo);
     return promise.then((investible) => {
       onSave(investible);
-      const link = formMarketLink(marketId);
+      return localforage.removeItem(itemKey);
+    }).then(() => {
       return {
-        result: link,
         //stop spinning immediately
         spinChecker: () => Promise.resolve(true),
       };
     });
   }
 
-  function onSaveAddAnother(inlineMarketId) {
+  function onSaveAddAnother() {
     localforage.removeItem(itemKey)
       .finally(() => {
         setCurrentValues({ name: '' });
         editorClearFunc();
       });
-    if (parentCommentId) {
-      navigate(history, formMarketAddInvestibleLink(inlineMarketId));
-    }
   }
 
   return (
     <Card elevation={0} className={classes.overflowVisible}>
-      <CardType
-        className={classes.cardType}
-        label={`${intl.formatMessage({
-          id: "decisionInvestibleDescription"
-        })}`}
-        type={VOTING_TYPE}
-        subtype={OPTION}
-      />
       <CardContent className={classes.cardContent}>
         <TextField
           fullWidth
@@ -271,7 +231,7 @@ function DecisionInvestibleAdd(props) {
           onSpinStop={onSpinComplete}
           className={classes.actionPrimary}
           color="primary"
-          disabled={!validForm || !stageChangeInfo.current_stage_id}
+          disabled={!name || (!parentCommentId && !stageChangeInfo.current_stage_id)}
           hasSpinChecker
           marketId={marketId}
           variant="contained"
@@ -283,7 +243,7 @@ function DecisionInvestibleAdd(props) {
         <SpinBlockingButton
           variant="contained"
           color="primary"
-          disabled={!validForm || !stageChangeInfo.current_stage_id}
+          disabled={!name || (!parentCommentId && !stageChangeInfo.current_stage_id)}
           id="saveAddAnother"
           onClick={handleSaveAddAnother}
           hasSpinChecker
@@ -301,7 +261,6 @@ function DecisionInvestibleAdd(props) {
 }
 
 DecisionInvestibleAdd.propTypes = {
-  classes: PropTypes.object.isRequired,
   marketId: PropTypes.string.isRequired,
   onCancel: PropTypes.func,
   onSave: PropTypes.func,

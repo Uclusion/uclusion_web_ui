@@ -10,8 +10,7 @@ import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
-import { DECISION_TYPE, PLANNING_TYPE } from '../../constants/markets'
-import DecisionInvestibleAdd from './Decision/DecisionInvestibleAdd'
+import { PLANNING_TYPE } from '../../constants/markets'
 import PlanningInvestibleAdd from './Planning/PlanningInvestibleAdd'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { DiffContext } from '../../contexts/DiffContext/DiffContext'
@@ -48,9 +47,6 @@ function InvestibleAdd(props) {
   const parentInvestibleId = parentComment.investible_id;
   const currentMarketName = (renderableMarket && renderableMarket.name) || '';
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
-  const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
-  const myTruePresence = myPresence || {};
-  const { is_admin: isAdmin } = myTruePresence;
   let breadCrumbTemplates;
   if (parentCommentId) {
     // The inline market will be created along with the option
@@ -61,8 +57,7 @@ function InvestibleAdd(props) {
     breadCrumbTemplates = [{ name: currentMarketName, link: formMarketLink(marketId) }];
   }
   const myBreadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
-  const isPlanning = marketType === PLANNING_TYPE && !parentCommentId;
-  const isDecision = marketType === DECISION_TYPE || parentCommentId;
+  const isPlanning = marketType === PLANNING_TYPE;
   const titleKey = isPlanning ? 'newStory' : 'newOption';
   const title = intl.formatMessage({ id: titleKey});
   const [storedState, setStoredState] = useState(undefined);
@@ -95,7 +90,7 @@ function InvestibleAdd(props) {
     }
   }, [hidden, marketId, itemKey]);
 
-  const loading = idLoaded !== marketId || !marketType || (isDecision && !myPresence);
+  const loading = idLoaded !== marketId || !marketType;
   return (
     <Screen
       title={title}
@@ -104,21 +99,6 @@ function InvestibleAdd(props) {
       breadCrumbs={myBreadCrumbs}
       loading={loading}
     >
-      {isDecision && myPresence && idLoaded === marketId && (
-        <DecisionInvestibleAdd
-          marketId={marketId}
-          onSave={onInvestibleSave}
-          onCancel={onDone}
-          onSpinComplete={onDone}
-          isAdmin={isAdmin}
-          storedState={storedState}
-          classes={classes}
-          parentCommentId={parentCommentId}
-          inlineParentCommentId={inlineParentCommentId}
-          parentInvestibleId={parentInvestibleId}
-          parentMarketId={parentMarketId || marketId}
-        />
-      )}
       {isPlanning && idLoaded === marketId && (
         <PlanningInvestibleAdd
           marketId={marketId}

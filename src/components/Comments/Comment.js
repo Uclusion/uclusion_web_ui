@@ -76,6 +76,10 @@ import { NotificationsContext } from '../../contexts/NotificationsContext/Notifi
 import { findMessageForCommentId } from '../../utils/messageUtils'
 import GravatarAndName from '../Avatars/GravatarAndName';
 import { isTinyWindow } from '../../utils/windowUtils'
+import localforage from 'localforage'
+import DecisionInvestibleAdd from '../../pages/Dialog/Decision/DecisionInvestibleAdd'
+import ExpandableAction from '../SidebarActions/Planning/ExpandableAction'
+import AddIcon from '@material-ui/icons/Add'
 
 const useCommentStyles = makeStyles(
   theme => {
@@ -320,17 +324,23 @@ function Comment(props) {
   const sortedReplies = _.sortBy(replies, "created_at");
   const [expandedCommentState, expandedCommentDispatch] = useContext(ExpandedCommentContext);
   const [replyOpen, setReplyOpen] = useState(false);
+  const [inlineInvestibleAdd, setInlineInvestibleAdd] = useState(false);
   const [editOpen, setEditOpen] = useState(editOpenDefault);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [, versionsDispatch] = useContext(VersionsContext);
   const [marketPresencesState, presenceDispatch] = useContext(MarketPresencesContext);
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
-  const [investibleState, investibleDispatch] = useContext(InvestiblesContext);
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [messagesState] = useContext(NotificationsContext);
   const enableActions = !inArchives && !readOnly;
   const enableEditing = !inArchives && !resolved && !readOnly; //resolved comments or those in archive aren't editable
+  const [storedState, setStoredState] = useState(undefined);
+  const [idLoaded, setIdLoaded] = useState(undefined);
+
+  function toggleInlineInvestibleAdd() {
+    setInlineInvestibleAdd(!inlineInvestibleAdd);
+  }
 
   function toggleMultiVote() {
     const myMultiVote = !multiVote;
@@ -405,37 +415,49 @@ function Comment(props) {
     const proposed = getInlineInvestiblesForStage(proposedStage, inlineInvestibles);
     return (
       <>
-        {!_.isEmpty(underConsideration) && (
-          <Grid item xs={12} style={{marginTop: '1rem'}}>
-            <SubSection
-              id="currentVoting"
-              type={SECTION_TYPE_SECONDARY}
-              title={intl.formatMessage({ id: 'decisionDialogCurrentVotingLabel' })}
-            >
-              <CurrentVoting
-                marketPresences={anInlineMarketPresences}
-                investibles={underConsideration}
-                marketId={anInlineMarket.id}
-                comments={anInlineMarketInvestibleComments}
-                inArchives={inArchives}
-              />
-            </SubSection>
-          </Grid>
-        )}
-        {!_.isEmpty(proposed) && (
-          <Grid item xs={12} style={{marginTop: '1rem'}}>
-            <SubSection
-              type={SECTION_TYPE_SECONDARY}
-              title={intl.formatMessage({ id: 'decisionDialogProposedOptionsLabel' })}
-            >
-              <ProposedIdeas
-                investibles={proposed}
-                marketId={anInlineMarket.id}
-                comments={anInlineMarketInvestibleComments}
-              />
-            </SubSection>
-          </Grid>
-        )}
+        <Grid item xs={12} style={{marginTop: '1rem'}}>
+          <SubSection
+            id="currentVoting"
+            type={SECTION_TYPE_SECONDARY}
+            title={intl.formatMessage({ id: 'decisionDialogCurrentVotingLabel' })}
+            actionButton={ inArchives ? null :
+              (<ExpandableAction
+                icon={<AddIcon htmlColor="white"/>}
+                label={intl.formatMessage({ id: 'createDialogApprovableExplanation' })}
+                onClick={toggleInlineInvestibleAdd}
+                disabled={commentCreatedBy !== userId}
+                tipPlacement="top-end"
+              />)}
+          >
+            <CurrentVoting
+              marketPresences={anInlineMarketPresences}
+              investibles={underConsideration}
+              marketId={anInlineMarket.id}
+              comments={anInlineMarketInvestibleComments}
+              inArchives={inArchives}
+            />
+          </SubSection>
+        </Grid>
+        <Grid item xs={12} style={{marginTop: '1rem'}}>
+          <SubSection
+            type={SECTION_TYPE_SECONDARY}
+            title={intl.formatMessage({ id: 'decisionDialogProposedOptionsLabel' })}
+            actionButton={ inArchives ? null :
+              (<ExpandableAction
+                icon={<AddIcon htmlColor="white"/>}
+                label={intl.formatMessage({ id: 'createDialogProposedExplanation' })}
+                onClick={toggleInlineInvestibleAdd}
+                disabled={commentCreatedBy === userId}
+                tipPlacement="top-end"
+              />)}
+          >
+            <ProposedIdeas
+              investibles={proposed}
+              marketId={anInlineMarket.id}
+              comments={anInlineMarketInvestibleComments}
+            />
+          </SubSection>
+        </Grid>
         {(!_.isEmpty(proposed)||!_.isEmpty(underConsideration)) && (
           <div style={{paddingBottom: '2rem'}} />
         )}
@@ -518,7 +540,7 @@ function Comment(props) {
   function reopen() {
     return reopenComment(marketId, id)
       .then((comment) => {
-        onCommentOpen(investibleState, investibleId, marketStagesState, marketId, comment, investibleDispatch,
+        onCommentOpen(investiblesState, investibleId, marketStagesState, marketId, comment, investiblesDispatch,
           commentsState, commentsDispatch, versionsDispatch);
         onDone();
         return EMPTY_SPIN_RESULT;
@@ -583,6 +605,18 @@ function Comment(props) {
     }
     return () => {};
   }, [expandedCommentDispatch, hash, highlightIds, id, repliesExpanded]);
+
+  useEffect(() => {
+    if (inlineInvestibleAdd) {
+      localforage.getItem(`add_investible_${id}`).then((stateFromDisk) => {
+        setStoredState(stateFromDisk || {});
+        setIdLoaded(id);
+      });
+    }
+    if (!inlineInvestibleAdd) {
+      setIdLoaded(undefined);
+    }
+  }, [inlineInvestibleAdd, id]);
 
   const showActions = !replyOpen || replies.length > 0;
   function getCommentHighlightStyle() {
@@ -739,35 +773,24 @@ function Comment(props) {
                 className={clsx(classes.action, classes.actionPrimary)}
                 color="primary"
                 disabled={operationRunning || commentCreatedBy !== userId}
-                onClick={() => navigate(history, `${formMarketAddInvestibleLink(marketId)}#parentCommentId=${id}`)}
+                onClick={toggleInlineInvestibleAdd}
                 variant="contained"
               >
                 {intl.formatMessage({ id: "inlineAddLabel" })}
               </Button>
             )}
             {commentType === QUESTION_TYPE && !inArchives && inlineMarketId && !resolved && (
-              <>
-                <Button
-                  className={clsx(classes.action, classes.actionPrimary)}
-                  color="primary"
-                  disabled={operationRunning}
-                  onClick={() => navigate(history, formMarketAddInvestibleLink(inlineMarketId))}
-                  variant="contained"
-                >
-                  {intl.formatMessage({ id: "inlineAddLabel" })}
-                </Button>
-                <Typography style={{fontSize: 12}}>
-                  {intl.formatMessage({ id: isTinyWindow() ? 'allowMultiVoteQuestionMobile'
-                      : 'allowMultiVoteQuestion' })}
-                  <Checkbox
-                    id="multiVote"
-                    name="multiVote"
-                    checked={multiVote}
-                    onChange={toggleMultiVote}
-                    disabled={inlineCreatedBy !== inlineUserId}
-                  />
-                </Typography>
-              </>
+              <Typography style={{fontSize: 12}}>
+                {intl.formatMessage({ id: isTinyWindow() ? 'allowMultiVoteQuestionMobile'
+                    : 'allowMultiVoteQuestion' })}
+                <Checkbox
+                  id="multiVote"
+                  name="multiVote"
+                  checked={multiVote}
+                  onChange={toggleMultiVote}
+                  disabled={inlineCreatedBy !== inlineUserId}
+                />
+              </Typography>
             )}
             {commentType === SUGGEST_CHANGE_TYPE && !inArchives && !inlineMarketId && marketType === PLANNING_TYPE && (
               <Typography>
@@ -863,6 +886,22 @@ function Comment(props) {
             })}
         </LocalCommentsContext.Provider>
       </Box>
+      {inlineInvestibleAdd && idLoaded === id && (
+        <div style={{marginTop: '2rem'}}>
+          <DecisionInvestibleAdd
+            marketId={inlineMarketId}
+            onSave={(investible) => addInvestible(investiblesDispatch, () => {}, investible)}
+            onCancel={toggleInlineInvestibleAdd}
+            onSpinComplete={toggleInlineInvestibleAdd}
+            isAdmin={commentCreatedBy === userId}
+            storedState={storedState}
+            parentCommentId={inlineMarketId ? undefined: id}
+          />
+        </div>
+      )}
+      {!inlineMarketId && inlineInvestibleAdd && (
+        <div style={{marginTop: '2rem'}} />
+      )}
       {repliesExpanded && getDecision(inlineMarketId)}
     </div>
   );

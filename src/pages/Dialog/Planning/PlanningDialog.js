@@ -48,7 +48,6 @@ import { startTour } from '../../../contexts/TourContext/tourContextReducer'
 import { CognitoUserContext } from '../../../contexts/CognitoUserContext/CongitoUserContext'
 import UclusionTour from '../../../components/Tours/UclusionTour'
 import { inviteStoriesWorkspaceSteps } from '../../../components/Tours/InviteTours/storyWorkspace'
-import moment from 'moment'
 import {
   INVITE_STORIES_WORKSPACE_FIRST_VIEW
 } from '../../../contexts/TourContext/tourContextHelper'
@@ -59,6 +58,7 @@ import MarketTodos from './MarketTodos'
 import Gravatar from '../../../components/Avatars/Gravatar';
 import { LocalPlanningDragContext } from './InvestiblesByWorkspace'
 import { isInReviewStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
+import { findMessageOfTypeAndId } from '../../../utils/messageUtils'
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -345,44 +345,15 @@ export const useInvestiblesByPersonStyles = makeStyles(
   { name: "InvestiblesByPerson" }
 );
 
-export function checkInProgressWarning(investibles, comments, inProgressStageId, marketId) {
+export function checkInProgressWarning(investibles, myPresence, messagesState) {
   const warnHash = {};
-  const inProgressInvestibles = investibles.filter((investible) => {
-    const { market_infos: marketInfos } = investible;
-    const marketInfo = marketInfos.find(info => info.market_id === marketId);
-    return marketInfo !== undefined && marketInfo.stage === inProgressStageId;
-  });
-  if (!inProgressInvestibles) {
+  if (!myPresence.id) {
     return warnHash;
   }
-  inProgressInvestibles.forEach((inProgressInvestible) => {
-    const { investible, market_infos: marketInfos } = inProgressInvestible;
+  investibles.forEach((fullInvestible) => {
+    const { investible } = fullInvestible;
     const { id } = investible;
-    const marketInfo = marketInfos.find(info => info.market_id === marketId);
-    const { days_estimate: daysEstimate, last_stage_change_date: stageEntry, created_at: createdAt } = marketInfo;
-    if (Date.now() - Date.parse(stageEntry) < 86400000) {
-      // Never any point bothering if less than a day in progress
-      warnHash[id] = false;
-      return;
-    }
-    if (daysEstimate) {
-      const dayEstimated = moment(createdAt).set({hour:23,minute:59,second:59,millisecond:999}).add(daysEstimate, 'days').toDate();
-      const today = new Date();
-      if (today <= dayEstimated) {
-        // Also do not bother if we are before the date chosen for completion
-        warnHash[id] = false;
-        return;
-      }
-    }
-    if (!comments) {
-      warnHash[id] = false;
-      return;
-    }
-    const progressReportCommentIn24 = comments.find((comment) => {
-      const { investible_id: investibleId, comment_type: commentType, created_at: createdAtComment } = comment;
-      return id === investibleId && commentType === REPORT_TYPE && (Date.now() - Date.parse(createdAtComment) < 86400000);
-    });
-    if (_.isEmpty(progressReportCommentIn24)) {
+    if (findMessageOfTypeAndId(id, messagesState, 'REPORT')) {
       warnHash[id] = true;
     }
   });

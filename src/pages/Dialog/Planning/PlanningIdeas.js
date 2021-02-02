@@ -44,6 +44,7 @@ import { LocalPlanningDragContext } from './InvestiblesByWorkspace';
 import GravatarGroup from '../../../components/Avatars/GravatarGroup';
 import { getInvestibleVoters } from '../../../utils/votingUtils';
 import { getUserSwimlaneInvestibles } from './userUtils'
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 
 const warningColor = red['400'];
 
@@ -113,7 +114,9 @@ function PlanningIdeas(props) {
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, diffDispatch] = useContext(DiffContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
-  const warnAccepted = checkInProgressWarning(investibles, comments, acceptedStageId, marketId);
+  const myPresence = (marketPresences || []).find((presence) => presence.current_user) || {};
+  const [messagesState] = useContext(NotificationsContext);
+  const warnAccepted = checkInProgressWarning(investibles, myPresence, messagesState);
   const acceptedInvestibles = investibles.filter(investible => {
     const { market_infos: marketInfos } = investible;
     const marketInfo = marketInfos.find(info => info.market_id === marketId);
@@ -122,7 +125,6 @@ function PlanningIdeas(props) {
   const acceptedFull = acceptedStage.allowed_investibles > 0
     && acceptedInvestibles.length >= acceptedStage.allowed_investibles;
   const acceptedStageLabel = acceptedFull ? 'planningAcceptedStageFullLabel' : 'planningAcceptedStageLabel';
-  const myPresence = (marketPresences || []).find((presence) => presence.current_user) || {};
 
   function isBlockedByTodo(investibleId, currentStageId, targetStageId) {
     const investibleComments = comments.filter((comment) => comment.investible_id === investibleId) || [];

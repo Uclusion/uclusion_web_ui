@@ -58,7 +58,7 @@ import MarketTodos from './MarketTodos'
 import Gravatar from '../../../components/Avatars/Gravatar';
 import { LocalPlanningDragContext } from './InvestiblesByWorkspace'
 import { isInReviewStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
-import { findMessageOfTypeAndId } from '../../../utils/messageUtils'
+import { findMessageOfType, findMessageOfTypeAndId } from '../../../utils/messageUtils'
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -353,7 +353,8 @@ export function checkInProgressWarning(investibles, myPresence, messagesState) {
   investibles.forEach((fullInvestible) => {
     const { investible } = fullInvestible;
     const { id } = investible;
-    if (findMessageOfTypeAndId(id, messagesState, 'REPORT')) {
+    if (findMessageOfTypeAndId(id, messagesState, 'REPORT')
+      || findMessageOfType('REPORT_REQUIRED', id, messagesState)) {
       warnHash[id] = true;
     }
   });

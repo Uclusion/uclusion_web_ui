@@ -36,11 +36,15 @@ export function findMessageForCommentId(commentId, state) {
   return safeMessages.find((message) => message.comment_id === commentId);
 }
 
-export function findMessageOfTypeAndId(notificationId, state, subtype) {
+export function findMessageOfType(aType, notificationId, state, subtype) {
   const { messages } = (state || {});
   const safeMessages = messages || [];
-  const typeObjectId = subtype ? `UNREAD_${subtype}_${notificationId}` : `UNREAD_${notificationId}`;
+  const typeObjectId = subtype ? `${aType}_${subtype}_${notificationId}` : `${aType}_${notificationId}`;
   return safeMessages.find((message) => message.type_object_id === typeObjectId);
+}
+
+export function findMessageOfTypeAndId(notificationId, state, subtype) {
+  return findMessageOfType('UNREAD', notificationId, state, subtype);
 }
 
 /**

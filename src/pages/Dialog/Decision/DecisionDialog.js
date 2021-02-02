@@ -439,6 +439,7 @@ function DecisionDialog(props) {
               marketId={marketId}
               comments={investibleComments}
               inArchives={inArchives}
+              isAdmin={isAdmin}
             />
           </SubSection>
         </Grid>
@@ -458,6 +459,7 @@ function DecisionDialog(props) {
             <ProposedIdeas
               investibles={proposed}
               marketId={marketId}
+              isAdmin={isAdmin}
             />
           </SubSection>
         </Grid>

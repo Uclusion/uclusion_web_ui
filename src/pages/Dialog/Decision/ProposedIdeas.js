@@ -37,7 +37,7 @@ const useStyles = makeStyles((theme) => ({
 function ProposedIdeas(props) {
   const history = useHistory();
   const classes = useStyles();
-  const { investibles, marketId } = props;
+  const { investibles, marketId, isAdmin } = props;
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, diffDispatch] = useContext(DiffContext);
@@ -77,7 +77,7 @@ function ProposedIdeas(props) {
           key={id} id={id}
           xs={12}
           sm={6}
-          draggable={!operationRunning} onDragStart={onDragStart}
+          draggable={!operationRunning && isAdmin} onDragStart={onDragStart}
         >
           <RaisedCard
             className="raisedcard"
@@ -106,7 +106,7 @@ function ProposedIdeas(props) {
 }
 
 ProposedIdeas.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types
+  isAdmin: PropTypes.bool.isRequired,
   investibles: PropTypes.arrayOf(PropTypes.object).isRequired,
   marketId: PropTypes.string.isRequired,
 };

@@ -64,7 +64,7 @@ function CurrentVoting(props) {
   const history = useHistory();
   const classes = useStyles();
   const intl = useIntl();
-  const { marketPresences, investibles, marketId, comments, inArchives } = props;
+  const { marketPresences, investibles, marketId, comments, inArchives, isAdmin } = props;
   const strippedInvestibles = investibles.map(inv => inv.investible);
   const [messagesState] = useContext(NotificationsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -117,7 +117,8 @@ function CurrentVoting(props) {
     );
     const myMessage = findMessageOfTypeAndId(id, messagesState);
     return (
-      <Grid item id={id} key={id} xs={12} sm={12} md={6} draggable={!operationRunning} onDragStart={onDragStart}>
+      <Grid item id={id} key={id} xs={12} sm={12} md={6} draggable={!operationRunning && isAdmin}
+            onDragStart={onDragStart}>
         <RaisedCard
           className="raisedcard"
           onClick={() => navigate(history, formInvestibleLink(marketId, id))}
@@ -201,12 +202,10 @@ function CurrentVoting(props) {
 }
 
 CurrentVoting.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types
+  isAdmin: PropTypes.bool.isRequired,
   investibles: PropTypes.arrayOf(PropTypes.object),
-  // eslint-disable-next-line react/forbid-prop-types
   marketPresences: PropTypes.arrayOf(PropTypes.object),
   marketId: PropTypes.string.isRequired,
-  // eslint-disable-next-line react/forbid-prop-types
   comments: PropTypes.arrayOf(PropTypes.object),
   inArchives: PropTypes.bool.isRequired,
 };

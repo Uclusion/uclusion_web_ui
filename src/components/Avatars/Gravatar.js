@@ -22,7 +22,6 @@ function Gravatar (props) {
   if (name) {
     return (
       <Tooltip key={`tip${email}`} title={(<div>{name}<br/>{email}</div>)}>
-        <div>
           <Avatar
             className={className}
             key={email}
@@ -30,20 +29,17 @@ function Gravatar (props) {
           >
             {nameToAvatarText(name)}
           </Avatar>
-        </div>
       </Tooltip>
     )
   }
 
   return (
     <Tooltip key={`tip${email}`} title={email}>
-      <div>
         <Avatar
           className={className}
           key={email}
           src={url}
         />
-      </div>
     </Tooltip>
   );
 }

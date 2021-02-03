@@ -10,12 +10,14 @@ function GravatarGroup(props) {
     users,
     max,
     spacing,
+    className,
   } = props;
 
   return (
     <AvatarGroup
       max={max}
       spacing={spacing}
+      className={className}
     >
       {users.map((user) => {
         const { id: userId, name, email } = user;
@@ -36,11 +38,13 @@ GravatarGroup.propTypes = {
   gravatarClassName: PropTypes.string,
   max: PropTypes.number,
   spacing: PropTypes.string,
+  className: PropTypes.string,
 };
 
 GravatarGroup.defaultProps = {
   users: [],
   gravatarClassName: '',
+  className: '',
   max: 4,
   spacing: 'medium',
 }

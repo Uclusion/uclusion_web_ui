@@ -8,15 +8,30 @@ import CustomChip from '../CustomChip';
 import Chart from './Chart';
 import { ISSUE_TYPE } from '../../constants/comments';
 import { getCommentTypeIcon } from '../../utils/iconFunctions';
+import GravatarGroup from '../Avatars/GravatarGroup';
 
 const useStyles = makeStyles(() => ({
   container: {
     display: 'grid',
-    gridTemplateColumns: 'calc(100% - 130px) 130px',
+    gridTemplateColumns: 'calc(100% - 260px) 130px 132px',
     width: '100%',
     height: '97px',
     padding: '10px 0',
     background: 'white',
+  },
+  gravatarContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '132px',
+    marginLeft: '3px',
+    borderLeft: '1px solid #eaeaea',
+  },
+  gravatarGroup: {
+  },
+  smallGravatar: {
+    width: '48px',
+    height: '48px',
   },
   title: {
     display: 'flex',
@@ -51,10 +66,10 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-function VoteCard(props) {
+function VoteCard (props) {
   const { title, comments, votes } = props;
   const filteredComments = comments.filter((comment) => !comment.resolved && getCommentTypeIcon(comment.comment_type));
-  filteredComments.sort(function(a, b) {
+  filteredComments.sort(function (a, b) {
     if (a.comment_type === b.comment_type) {
       return 0;
     }
@@ -70,7 +85,6 @@ function VoteCard(props) {
   const intl = useIntl();
   const issuesComment = filteredComments.length > 0 ? filteredComments[0] : undefined;
   const { fontSize, ref } = useFitText({ maxFontSize: 200 });
-
   return (
     <div className={classes.container}>
       <div
@@ -85,18 +99,28 @@ function VoteCard(props) {
       {issuesComment && (
         <Grid className={classes.iconGrid} container spacing={1}>
           <Grid item key="issue">
-            <CustomChip type={issuesComment.comment_type} />
+            <CustomChip type={issuesComment.comment_type}/>
           </Grid>
         </Grid>
       )}
       {!issuesComment && (
         <div className={classes.chartContent}>
-          <Chart data={votes} />
+          <Chart data={votes}/>
           <span className={classes.chartValue}>
             {intl.formatMessage({ id: 'numVoting' }, { x: votes.length })}
           </span>
         </div>
       )}
+      {votes && (
+        <div
+          className={classes.gravatarContainer}
+        >
+          <GravatarGroup
+            className={classes.gravatarGroup}
+            users={votes}
+            max={3}
+            gravatarClassName={classes.smallGravatar}/>
+        </div>)}
     </div>
   );
 }

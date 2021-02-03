@@ -107,7 +107,7 @@ export function onSignOut() {
 }
 
 export function getVoteTotalsForUser(presence) {
-  const { investments, name } = presence;
+  const { investments, name, email } = presence;
   if (!investments) {
     return {};
   }
@@ -116,7 +116,7 @@ export function getVoteTotalsForUser(presence) {
     const { investible_id, quantity } = investment;
     return {
       ...uInv,
-      [investible_id]: { x: name, y: quantity, color: quantity / 30 }
+      [investible_id]: { x: name, y: quantity, color: quantity / 30, email, name }
     };
   }, {});
 }

@@ -55,7 +55,7 @@ const useStyles = makeStyles({
   },
 });
 
-function AppWithAuth(props) {
+function AppWithAuth() {
   const [localeState] = useContext(LocaleContext);
   const { locale } = localeState;
   const classes = useStyles();
@@ -63,7 +63,6 @@ function AppWithAuth(props) {
   const { location } = history;
   const { pathname, hash, search } = location;
   const { marketId: marketToken, action, investibleId: code } = decomposeMarketPath(pathname);
-  // console.debug(location);
   const messages = {
     ...getLocaleMessages(locale),
   };
@@ -148,7 +147,7 @@ function AppWithAuth(props) {
             authState={authState}
             theme={authenticatorTheme}
             hide={[Greetings, SignIn, SignUp, SignOut, ForgotPassword]}>
-            <UclusionSignup action={action} marketToken={marketToken} code={code} />
+            <UclusionSignup marketToken={marketToken} code={code} />
             <CustomSignIn defaultEmail={getAndClearEmail()}/>
             <UclusionForgotPassword />
             <App />

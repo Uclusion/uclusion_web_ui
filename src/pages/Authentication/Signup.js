@@ -151,7 +151,7 @@ function reducer(state, action) {
 
 function Signup(props) {
   const classes = useStyles();
-  const { authState, action, marketToken, code, onStateChange } = props;
+  const { authState, marketToken, code, onStateChange } = props;
   const history = useHistory();
   const { location } = history;
   const { search } = location;
@@ -176,20 +176,18 @@ function Signup(props) {
   const LOGO_COLOR = '#3F6B72';
 
   useEffect(() => {
-    if (action === 'invite') {
+    if (marketToken) {
       setInvitationMarker();
-      if (marketToken) {
-        console.info('Loading info');
-        getMarketInfoForToken(marketToken)
-          .then((market) => {
-            setMyMarket(market);
-          }).catch((error) => {
-          console.error(error);
-          toastError('errorMarketFetchFailed');
-        });
-      }
+      console.info('Loading info');
+      getMarketInfoForToken(marketToken)
+        .then((market) => {
+          setMyMarket(market);
+        }).catch((error) => {
+        console.error(error);
+        toastError('errorMarketFetchFailed');
+      });
     }
-  }, [marketToken, action]);
+  }, [marketToken]);
 
   useEffect(() => {
     if (utm) {
@@ -368,7 +366,7 @@ function Signup(props) {
       <CssBaseline/>
       <dl className={clsx(myMarket ? classes.stack : classes.root)} >
 
-        {action === 'invite' && myMarket && (
+        {myMarket && (
           <div className={clsx(classes.paper, classes.centerColumn)}>
             <svg style={{ verticalAlign: 'middle', width: '140px', marginTop: '2rem', marginBottom: '-1rem' }}
                    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600">
@@ -399,7 +397,7 @@ function Signup(props) {
         )}
         <div className={myMarket ? classes.formRoot : clsx(classes.formRoot, classes.centerColumn)}>
           <div className={myMarket? clsx(classes.paper, classes.marginTop) : classes.paper}>
-            { action !== 'invite' &&
+            { !myMarket &&
             <span>
               <svg style={{ verticalAlign: 'middle', width: '140px', marginBottom: '-1rem' }}
                     xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600">
@@ -625,7 +623,6 @@ function Signup(props) {
 
 Signup.propTypes = {
   authState: PropTypes.string,
-  action: PropTypes.string,
   marketToken: PropTypes.string,
   code: PropTypes.string,
   onStateChange: PropTypes.func,
@@ -633,7 +630,6 @@ Signup.propTypes = {
 
 Signup.defaultProps = {
   authState: '',
-  action: '',
   marketToken: '',
   onStateChange: () => {},
 };

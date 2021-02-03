@@ -42,7 +42,7 @@ function VerifyEmail (props) {
   const classes = useStyles()
   const params = new URL(document.location).searchParams
   const [verificationState, setVerificationState] = useState(undefined)
-  const code = params.get('code')
+  const code = params.get('verifyCode')
 
   useEffect(() => {
     // we unconditionally sign out in case they are signed in to the user in another tab.

@@ -13,7 +13,7 @@ import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE, } from '../../constants/
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { formMarketManageLink, navigate } from '../../utils/marketIdPathFunctions'
 import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions'
-import { getAndClearRedirect, redirectToPath } from '../../utils/redirectUtils'
+import { getAndClearRedirect, getInvitationMarker, redirectToPath } from '../../utils/redirectUtils'
 import WizardSelector from '../../components/AddNew/WizardSelector'
 import UclusionTour from '../../components/Tours/UclusionTour';
 import { SIGNUP_HOME } from '../../contexts/TourContext/tourContextHelper';
@@ -87,7 +87,7 @@ function Home(props) {
       if (!_.isEmpty(getExistingMarkets(versionsContext))) {
         // If there are markets already then do not run demo creation
         setClearedToCreate(false);
-      } else if (hasInitializedGlobalVersion(versionsContext)) {
+      } else if (hasInitializedGlobalVersion(versionsContext) && !hidden && _.isEmpty(getInvitationMarker())) {
         // We unfortunately cannot trust versions context to have the existing markets correctly.
         // Possibly because of the way it is using the message bus. Therefore call the API before
         // potential accidental duplicate demo market creation
@@ -100,7 +100,7 @@ function Home(props) {
         });
       }
     }
-  }, [clearedToCreate, versionsContext]);
+  }, [clearedToCreate, hidden, versionsContext]);
 
   useEffect(() => {
     if (!hidden && clearedToCreate !== undefined) {

@@ -3,9 +3,14 @@ import { getLoginPersistentItem, setLoginPersistentItem } from '../components/ut
 const REDIRECT_LOCAL_STORAGE_KEY = 'redirection';
 const UTM_LOCAL_STORAGE_KEY = 'utm';
 const EMAIL_LOCAL_STORAGE_KEY = 'email_storage';
+const INVITATION_MARKER_STORAGE_KEY = 'invitation_marker';
 
 export function setRedirect(location) {
   setLoginPersistentItem(REDIRECT_LOCAL_STORAGE_KEY, location);
+}
+
+export function setInvitationMarker() {
+  setLoginPersistentItem(INVITATION_MARKER_STORAGE_KEY, 'invited');
 }
 
 export function setUtm(utm) {
@@ -22,6 +27,10 @@ export function getRedirect() {
 
 export function getUtm() {
   return getLoginPersistentItem(UTM_LOCAL_STORAGE_KEY);
+}
+
+export function getInvitationMarker() {
+  return getLoginPersistentItem(INVITATION_MARKER_STORAGE_KEY);
 }
 
 export function getEmail() {

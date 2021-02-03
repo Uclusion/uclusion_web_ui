@@ -19,7 +19,7 @@ import SpinningButton from '../../components/SpinBlocking/SpinningButton'
 import PhoneField, { phoneChecker } from '../../components/TextFields/PhoneField'
 import { Helmet } from 'react-helmet'
 import { Auth } from 'aws-amplify'
-import { setEmail, setRedirect, setUtm } from '../../utils/redirectUtils'
+import { setEmail, setInvitationMarker, setRedirect, setUtm } from '../../utils/redirectUtils'
 import { GithubLoginButton } from 'react-social-login-buttons'
 import { toastError } from '../../utils/userMessage'
 import queryString from 'query-string'
@@ -176,15 +176,18 @@ function Signup(props) {
   const LOGO_COLOR = '#3F6B72';
 
   useEffect(() => {
-    if (action === 'invite' && marketToken) {
-      console.info('Loading info');
-      getMarketInfoForToken(marketToken)
-        .then((market) => {
-          setMyMarket(market);
-        }).catch((error) => {
+    if (action === 'invite') {
+      setInvitationMarker();
+      if (marketToken) {
+        console.info('Loading info');
+        getMarketInfoForToken(marketToken)
+          .then((market) => {
+            setMyMarket(market);
+          }).catch((error) => {
           console.error(error);
           toastError('errorMarketFetchFailed');
         });
+      }
     }
   }, [marketToken, action]);
 

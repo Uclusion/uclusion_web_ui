@@ -27,7 +27,7 @@ function YourVoting(props) {
   const isInitiative = marketType === INITIATIVE_TYPE;
   const isDecision = marketType === DECISION_TYPE;
   let yourPresence = marketPresences.find((presence) => presence.current_user);
-  let yourVote = yourPresence && yourPresence.investments.find((investment) => investment.investible_id === investibleId);
+  let yourVote = yourPresence && yourPresence.investments && yourPresence.investments.find((investment) => investment.investible_id === investibleId);
   const { quantity } = yourVote || {};
   const myQuantity = quantity ? quantity : 0;
   const yourReason = comments.find((comment) => comment.created_by === userId);

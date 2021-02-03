@@ -12,7 +12,7 @@ import {
   isBlockedStage
 } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { refreshMarketComments } from '../../contexts/CommentsContext/commentsContextHelper'
-import { DECISION_TYPE } from '../../constants/markets'
+import { DECISION_TYPE, REQUIREMENTS_SUB_TYPE } from '../../constants/markets'
 import { createDecision } from '../../api/markets'
 import { addMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 import { refreshInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
@@ -28,7 +28,8 @@ function createProjectWorkspace (dispatchers) {
   const workspaceName = 'A Demonstration Project Workspace';
   const workspaceDescription = '<p><b>Welcome to Uclusion!</b> This demo workspace has pre-created items to let quickly see some of the features.</p><p><br></p>' +
   '<p>The workspace description can be used to hold ideas and requirements before they become stories.</p>';
-  return doCreateRequirementsWorkspace(dispatchers, { workspaceName, workspaceDescription }).then((marketDetails) => {
+  return doCreateRequirementsWorkspace(dispatchers,
+    { workspaceName, workspaceDescription, marketSubType: REQUIREMENTS_SUB_TYPE }).then((marketDetails) => {
     const {
       market,
       presence,

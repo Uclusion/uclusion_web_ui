@@ -87,7 +87,7 @@ function PlanningDialog(props) {
   const unResolvedMarketComments = comments.filter(comment => !comment.investible_id && !comment.resolved) || [];
   const notTodoComments = unResolvedMarketComments.filter(comment => comment.comment_type !== TODO_TYPE);
   const allowedCommentTypes = [QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE];
-  const { name: marketName, locked_by: lockedBy } = market;
+  const { name: marketName, locked_by: lockedBy, market_sub_type: marketSubType, created_by: marketCreatedBy } = market;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   // For security reasons you can't access source data while being dragged in case you are not the target website
   const [beingDraggedHack, setBeingDraggedHack] = useState({});
@@ -139,9 +139,12 @@ function PlanningDialog(props) {
   });
   const presenceMap = getPresenceMap(marketPresencesState, marketId);
   const tourSteps = inviteStoriesWorkspaceSteps(cognitoUser);
+  const isMarketOwner = marketCreatedBy === myPresence.id;
   useEffect(() => {
-    tourDispatch(startTour(INVITE_STORIES_WORKSPACE_FIRST_VIEW));
-  }, [tourDispatch]);
+    if (!_.isEmpty(marketSubType) && isMarketOwner) {
+      tourDispatch(startTour(INVITE_STORIES_WORKSPACE_FIRST_VIEW));
+    }
+  }, [marketCreatedBy, marketSubType, isMarketOwner, tourDispatch]);
 
   return (
     <Screen

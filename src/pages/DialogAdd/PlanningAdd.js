@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import localforage from 'localforage'
 import { createPlanning } from '../../api/markets'
 import { processTextAndFilesForSave } from '../../api/files'
-import { PLANNING_TYPE, STORIES_SUB_TYPE } from '../../constants/markets'
+import { PLANNING_TYPE } from '../../constants/markets'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import {  useLocation } from 'react-router'
 import queryString from 'query-string'
@@ -112,7 +112,6 @@ function PlanningAdd(props) {
       uploaded_files: filteredUploads,
       market_type: PLANNING_TYPE,
       description: processedDescription,
-      market_sub_type: STORIES_SUB_TYPE,
     };
     if (investmentExpiration != null) {
       addInfo.investment_expiration = investmentExpiration;

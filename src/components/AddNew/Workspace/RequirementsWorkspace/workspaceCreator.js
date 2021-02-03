@@ -1,5 +1,4 @@
 import { processTextAndFilesForSave } from '../../../../api/files';
-import { REQUIREMENTS_SUB_TYPE } from '../../../../constants/markets';
 import { createPlanning } from '../../../../api/markets';
 import { addMarketToStorage } from '../../../../contexts/MarketsContext/marketsContextHelper';
 import { pushMessage } from '../../../../utils/MessageBusUtils';
@@ -11,6 +10,7 @@ export function doCreateRequirementsWorkspace (dispatchers, formData, updateForm
     workspaceName,
     workspaceDescription,
     workspaceDescriptionUploadedFiles,
+    marketSubType,
   } = formData;
   const {
     marketsDispatch,
@@ -23,8 +23,10 @@ export function doCreateRequirementsWorkspace (dispatchers, formData, updateForm
     name: workspaceName,
     description: processed.text,
     uploaded_files: processed.uploadedFiles,
-    market_sub_type: REQUIREMENTS_SUB_TYPE,
   };
+  if (marketSubType) {
+    marketInfo.market_sub_type = marketSubType;
+  }
   let createdMarketId;
   return createPlanning(marketInfo)
     .then((marketDetails) => {

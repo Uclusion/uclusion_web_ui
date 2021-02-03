@@ -1,4 +1,3 @@
-import { STORIES_SUB_TYPE } from '../../../../constants/markets';
 import { createPlanning, updateStage } from '../../../../api/markets';
 import { addMarketToStorage } from '../../../../contexts/MarketsContext/marketsContextHelper';
 import { pushMessage } from '../../../../utils/MessageBusUtils';
@@ -37,7 +36,6 @@ export function doCreateStoryWorkspace (dispatchers, formData, updateFormData, i
   const marketInfo = {
     name: meetingName,
     description: descriptionContent,
-    market_sub_type: STORIES_SUB_TYPE,
   };
   // see if we have any advanced options set, and set up the basic create info
   // don't want any null values so doing this the stupid way

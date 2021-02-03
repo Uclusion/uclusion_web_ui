@@ -136,8 +136,9 @@ function AppWithAuth() {
     }
     return message;
   };
+  const isInvite = action === 'invite';
   const email = queryString.parse(search || '');
-  const authState = (!_.isEmpty(hash) && (hash.toUpperCase() === '#SIGNUP'))||(action === 'invite') || email.email ? 'signUp' : 'signIn';
+  const authState = (!_.isEmpty(hash) && (hash.toUpperCase() === '#SIGNUP'))||isInvite || email.email ? 'signUp' : 'signIn';
   return (
     <div className={classes.root}>
       <IntlProvider locale={locale} key={locale} messages={messages}>
@@ -147,7 +148,7 @@ function AppWithAuth() {
             authState={authState}
             theme={authenticatorTheme}
             hide={[Greetings, SignIn, SignUp, SignOut, ForgotPassword]}>
-            <UclusionSignup marketToken={marketToken} code={code} />
+            <UclusionSignup marketToken={isInvite ? marketToken : undefined} code={code} />
             <CustomSignIn defaultEmail={getAndClearEmail()}/>
             <UclusionForgotPassword />
             <App />

@@ -134,8 +134,6 @@ function AddEditVote(props) {
   const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [open, setOpen] = useState(false);
   const warnClearVotes = !allowMultiVote && hasVoted && _.isEmpty(investment);
-  const defaultDefaultFunc = (newDefault) => {};
-  const [editorDefaultFunc, setEditorDefaultFunc] = useState(() => defaultDefaultFunc);
   const [marketState] = useContext(MarketsContext);
   const [investibleState] = useContext(InvestiblesContext);
   const myHelperText = storyMaxBudget ?
@@ -148,19 +146,6 @@ function AddEditVote(props) {
   function toggleOpen() {
     setOpen(!open);
   }
-
-  // If new data comes in then reset
-  useEffect(() => {
-    const {
-      quantity: investmentQuantity,
-      max_budget: investmentBudget
-    } = investment;
-    const initialInvestment = !investmentQuantity ? 50 : Math.abs(investmentQuantity);
-    setNewQuantity(initialInvestment);
-    setMaxBudget(investmentBudget || '');
-    setReasonText(body || '');
-    editorDefaultFunc(body);
-  }, [investment, setNewQuantity, setMaxBudget, body, editorDefaultFunc]);
 
   const saveEnabled =
     addMode ||
@@ -315,9 +300,6 @@ function AddEditVote(props) {
             onChange={onEditorChange}
             uploadDisabled
             setOperationInProgress={setOperationRunning}
-            setEditorDefaultFunc={(func) => {
-              setEditorDefaultFunc(func);
-            }}
             getUrlName={urlHelperGetName(marketState, investibleState)}
           />
         </CardContent>

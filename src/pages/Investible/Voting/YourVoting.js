@@ -99,7 +99,7 @@ function YourVoting(props) {
         investibleId={investibleId}
         reason={yourReason}
         investment={yourVote}
-        hasVoted={yourPresence && yourPresence.investments.length > 0}
+        hasVoted={yourPresence && yourPresence.investments && yourPresence.investments.length > 0}
         allowMultiVote={allowMultiVote}
         showBudget={showBudget}
         onSave={onVoteSave}

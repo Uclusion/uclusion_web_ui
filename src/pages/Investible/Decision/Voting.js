@@ -30,7 +30,7 @@ const useVoteStyles = makeStyles(
         margin: theme.spacing(2, 2, 0),
         "& .ql-editor": {
           padding: 0
-        }
+        },
       },
       cardType: {
         display: "inline-block"

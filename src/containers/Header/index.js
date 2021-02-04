@@ -13,9 +13,7 @@ import { useHistory } from 'react-router';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import config from '../../config';
-import RecentlyVisited from '../../components/RecentlyVisited/RecentlyVisited';
 import NotificationsContainer from '../../components/Notifications/NotificationsContainer';
-import { isTinyWindow } from '../../utils/windowUtils';
 
 export const headerStyles = makeStyles((theme) => {
   return {

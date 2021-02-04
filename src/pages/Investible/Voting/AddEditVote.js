@@ -44,6 +44,9 @@ const useStyles = makeStyles(
         display: 'flex',
         paddingBottom: '5px',
       },
+      visible: {
+        overflow: 'visible'
+      },
       overTop: {
         display: 'flex',
         paddingBottom: '3px',
@@ -227,7 +230,7 @@ function AddEditVote(props) {
   const removeVoteId = multiplier < 0 ? "removeReject" : "removeVote";
   return (
     <React.Fragment>
-      <Card elevation={0}>
+      <Card elevation={0} className={classes.visible}>
         <CardContent>
           <FormControl className={classes.certainty}>
             <FormLabel

@@ -154,7 +154,8 @@ function PlanningIdeas(props) {
         return moveComments(marketId, investible.id, [commentId])
           .then((movedComments) => {
             const comments = getMarketComments(commentsState, marketId);
-            refreshMarketComments(commentsDispatch, marketId, [...movedComments, ...comments]);
+            const newComments = _.unionBy(movedComments, comments, 'id')
+            refreshMarketComments(commentsDispatch, marketId, newComments);
             addInvestible(invDispatch, diffDispatch, inv);
             setOperationRunning(false);
           });

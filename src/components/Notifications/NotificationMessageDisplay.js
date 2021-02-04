@@ -48,17 +48,30 @@ function NotificationMessageDisplay (props) {
       }>
         <>
           {name !== containerName && name !== text && (
-            <Typography style={{ fontStyle: 'italic' }}>
-              {name}</Typography>
+            <div style={{borderRadius: '3px', border: '2px solid black'}}>
+              <Typography style={{ backgroundColor: color, color: fontColor, paddingLeft: '0.5rem'}}>
+                {name}
+                {lenDuplicates && (
+                  <Chip component="span" label={`${lenDuplicates}`} color="primary" size='small'
+                        style={{ marginLeft: '0.5rem', marginRight: '0.25rem' }}/>
+                )}
+              </Typography>
+              <Typography style={{color: '#414141', fontWeight: 'bold', paddingLeft: '0.5rem'}}>
+                {text}
+              </Typography>
+            </div>
           )}
-          <Typography
-            style={{ backgroundColor: color, color: fontColor, paddingLeft: '1rem', borderRadius: '3px' }}>{text}
-            {lenDuplicates && (
-              <Chip component={'span'} label={`${lenDuplicates}`}
-                    color={level === BLUE_LEVEL ? 'secondary' : 'primary'} size='small'
-                    style={{ marginLeft: '0.5rem' }}/>
-            )}
-          </Typography>
+          {(name === containerName || name === text) && (
+            <Typography
+              style={{ backgroundColor: color, color: fontColor, paddingLeft: '0.5rem', borderRadius: '3px' }}>
+              {text}
+              {lenDuplicates && (
+                <Chip component={'span'} label={`${lenDuplicates}`}
+                      color={level === BLUE_LEVEL ? 'secondary' : 'primary'} size='small'
+                      style={{ marginLeft: '0.5rem', marginRight: '0.25rem' }}/>
+              )}
+            </Typography>
+          )}
         </>
       </Link>
       {dismissable && (

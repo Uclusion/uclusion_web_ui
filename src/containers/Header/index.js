@@ -267,11 +267,6 @@ function Header (props) {
                 </Tooltip>
               )}
               <Identity />
-              {!isTinyWindow() && (
-                <div id="recent-notifications" style={{ marginLeft: '1em', marginRight: '0.25em' }}>
-                  <RecentlyVisited/>
-                </div>
-              )}
             </React.Fragment>
           )}
         </Toolbar>

@@ -25,12 +25,10 @@ export const headerStyles = makeStyles((theme) => {
     },
     appBar: {
       background: '#fff',
-      boxShadow: 'none',
       height: '67px',
     },
     appBarNoSidebar: {
       background: '#fff',
-      boxShadow: 'none',
       height: `67px`,
     },
 

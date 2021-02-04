@@ -317,6 +317,11 @@ function CommentAdd (props) {
     });
   }
 
+  function myOnDone() {
+    clearMe();
+    onDone();
+  }
+
   function handleCancel () {
     clearMe();
     onCancel();
@@ -363,7 +368,7 @@ function CommentAdd (props) {
           >
             {!isStory && onDone && (
               <Button
-                onClick={onDone}
+                onClick={myOnDone}
                 className={classes.button}
                 style={{border: "1px solid black"}}
               >

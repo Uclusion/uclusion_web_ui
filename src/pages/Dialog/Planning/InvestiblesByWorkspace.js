@@ -25,7 +25,7 @@ import {
   getRequiredInputStage, getStages, getVerifiedStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
-import { Button, Menu, MenuItem } from '@material-ui/core';
+import { Button, Menu, MenuItem, Tooltip, Typography } from '@material-ui/core'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants';
 import { useIntl } from 'react-intl';
@@ -38,6 +38,7 @@ import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import Gravatar from '../../../components/Avatars/Gravatar';
+import Chip from '@material-ui/core/Chip'
 
 export const LocalPlanningDragContext = React.createContext([]);
 
@@ -147,6 +148,8 @@ function InvestiblesByWorkspace (props) {
             investibles,
             visibleStageIds,
           );
+          const { critical_notifications: criticalNotifications,
+            delayable_notifications: delayableNotifications } = presence;
           const requiresInputInvestibles = getInvestiblesInStage(investibles, requiresInputStage.id) || [];
           const blockedInvestibles = getInvestiblesInStage(investibles, inBlockingStage.id) || [];
           const highlightMap = {};
@@ -163,12 +166,28 @@ function InvestiblesByWorkspace (props) {
               <CardHeader
                 className={classes.header}
                 id={`m${market.id}`}
-                title={<Link color="inherit" id={market.id} key={market.id} href={formMarketLink(market.id)}
+                title={<Typography>
+                  <Link color="inherit" id={market.id} key={market.id} href={formMarketLink(market.id)}
                              onClick={(e) => {
                                e.preventDefault();
                                navigate(history, formMarketLink(market.id));
                              }
-                             }>{market.name}</Link>}
+                             }>{market.name}</Link>
+                {criticalNotifications > 0 && (
+                  <Tooltip key={`tipcrit${market.id}`}
+                  title={intl.formatMessage({ id: 'redNotificationCountExplanation' })}>
+                  <Chip component="span" label={`${criticalNotifications}`} size='small'
+                  style={{ marginLeft: '0.5rem', backgroundColor: '#E85757' }}/>
+                  </Tooltip>
+                  )}
+                {delayableNotifications > 0 && (
+                  <Tooltip key={`tipdel${market.id}`}
+                  title={intl.formatMessage({ id: 'yellowNotificationCountExplanation' })}>
+                  <Chip component="span" label={`${delayableNotifications}`} size='small'
+                  style={{ marginLeft: '0.5rem', backgroundColor: '#e6e969' }}/>
+                  </Tooltip>
+                  )}
+                </Typography>}
                 titleTypographyProps={{ variant: 'subtitle2' }}
               />
               <CardContent className={classes.content}>

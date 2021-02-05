@@ -39,7 +39,8 @@ import { useHistory } from 'react-router';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import Gravatar from '../../../components/Avatars/Gravatar';
 import Chip from '@material-ui/core/Chip'
-
+import WarningIcon from '@material-ui/icons/Warning';
+import HourglassFullIcon from '@material-ui/icons/HourglassFull';
 export const LocalPlanningDragContext = React.createContext([]);
 
 function InvestiblesByWorkspace (props) {
@@ -176,15 +177,15 @@ function InvestiblesByWorkspace (props) {
                 {criticalNotifications > 0 && (
                   <Tooltip key={`tipcrit${market.id}`}
                   title={intl.formatMessage({ id: 'redNotificationCountExplanation' })}>
-                  <Chip component="span" label={`${criticalNotifications}`} size='small'
-                  style={{ marginLeft: '0.5rem', backgroundColor: '#E85757' }}/>
+                  <Chip component="span" icon={<WarningIcon style={{ color: '#ffffff'}}/>} label={`${criticalNotifications}`} size='small'
+                  style={{ marginLeft: '0.5rem', color: '#ffffff', backgroundColor: '#E85757' }}/>
                   </Tooltip>
                   )}
                 {delayableNotifications > 0 && (
                   <Tooltip key={`tipdel${market.id}`}
                   title={intl.formatMessage({ id: 'yellowNotificationCountExplanation' })}>
-                  <Chip component="span" label={`${delayableNotifications}`} size='small'
-                  style={{ marginLeft: '0.5rem', backgroundColor: '#e6e969' }}/>
+                  <Chip component="span" icon={<HourglassFullIcon style={{ color: '#ffffff'}}/>} label={`${delayableNotifications}`} size='small'
+                  style={{ marginLeft: '0.5rem', backgroundColor: '#e6e969', color: '#ffffff'}}/>
                   </Tooltip>
                   )}
                 </Typography>}

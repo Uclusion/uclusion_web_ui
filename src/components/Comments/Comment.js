@@ -635,7 +635,7 @@ function Comment(props) {
   }
 
   const isEditable = comment.created_by === userId;
-
+  const inReviewStageId = (getInReviewStage(marketStagesState, marketId) || {}).id;
   return (
     <div className={inlineMarketId && repliesExpanded ? classes.inlineBorder : classes.inlineBorderNone}>
       <Card elevation={0} className={getCommentHighlightStyle()}>
@@ -836,7 +836,7 @@ function Comment(props) {
             )}
             {enableEditing && (
               <React.Fragment>
-                {(commentType !== REPORT_TYPE || (mentions || []).includes(myPresence.id)) && (
+                {((commentType !== REPORT_TYPE || createdStageId === inReviewStageId) || (mentions || []).includes(myPresence.id)) && (
                   <Button
                     className={clsx(classes.action, classes.actionPrimary)}
                     color="primary"

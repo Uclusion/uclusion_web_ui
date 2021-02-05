@@ -54,7 +54,7 @@ function InvestiblesByWorkspace (props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const [marketsState] = useContext(MarketsContext);
   const [anchorEl, setAnchorEl] = React.useState(null);
-  const [chosenPerson, setChosenPerson] = React.useState({ name: '', domain: '', external_id: '' });
+  const [chosenPerson, setChosenPerson] = React.useState({ name: '', email: '', external_id: '' });
   // For security reasons you can't access source data while being dragged in case you are not the target website
   const [beingDraggedHack, setBeingDraggedHack] = useState({});
   const activeWorkspaces = (workspaces || []).filter((market) => market.market_stage === ACTIVE_STAGE);
@@ -83,9 +83,9 @@ function InvestiblesByWorkspace (props) {
 
   function renderParticipantEntry (presenceEntry) {
     const {
-      name, domain, external_id: externalId
+      name, email, external_id: externalId
     } = presenceEntry[1];
-    const itemName = `${name} ${domain}`;
+    const itemName = `${name} ${email}`;
     return (
       <MenuItem key={externalId} onClick={() => {
         setChosenPerson(presenceEntry[1]);
@@ -93,7 +93,7 @@ function InvestiblesByWorkspace (props) {
       }}>
         <div className={classes.rightSpace}>
           <Gravatar
-            email={domain}
+            email={email}
             useBlank
           />
         </div>
@@ -113,7 +113,7 @@ function InvestiblesByWorkspace (props) {
           onClick={handleClick}
         >
           <div className={classes.fontControl}>
-            {`${intl.formatMessage({ id: 'displaying' })} ${chosenPerson.name} ${chosenPerson.domain}`}
+            {`${intl.formatMessage({ id: 'displaying' })} ${chosenPerson.name} ${chosenPerson.email}`}
           </div>
         </Button>
         <Menu

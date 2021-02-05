@@ -39,7 +39,7 @@ export function extractUsersList (marketPresencesState, addToMarketId, workspace
           && (includeNotFollowing || following)) {
           addToMarketPresencesHash[external_id] = true;
           macc[user_id] = {
-            user_id, name, account_id, domain: email, isChecked: false, external_id, current_user
+            user_id, name, account_id, email, isChecked: false, external_id, current_user
           };
         }
       });

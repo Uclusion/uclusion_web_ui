@@ -163,7 +163,8 @@ export const usePlanFormStyles = makeStyles(
       borderRadius: 8,
       marginBottom: 15,
       [theme.breakpoints.down('sm')]: {
-        marginRight: 0
+        marginRight: 0,
+        maxWidth: 300,
       },
     },
     listItem: {

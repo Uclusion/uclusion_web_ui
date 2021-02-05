@@ -8,12 +8,12 @@ import {
   IconButton,
   InputAdornment,
   List,
-  ListItem,
+  ListItem, ListItemAvatar,
   ListItemIcon,
   ListItemText,
   TextField,
   Typography,
-} from '@material-ui/core'
+} from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search'
 import clsx from 'clsx'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
@@ -23,6 +23,7 @@ import InviteLinker from '../InviteLinker'
 import { usePlanFormStyles } from '../../../components/AgilePlan'
 import { addMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesContextReducer'
 import { extractUsersList } from '../../../utils/userFunctions'
+import Gravatar from '../../../components/Avatars/Gravatar';
 
 function AddNewUsers (props) {
   const {
@@ -86,7 +87,7 @@ function AddNewUsers (props) {
 
   function renderParticipantEntry (presenceEntry) {
     const {
-      user_id: id, name, isChecked, domain,
+      user_id: id, name, isChecked, email,
     } = presenceEntry[1];
     return (
       <ListItem
@@ -104,11 +105,12 @@ function AddNewUsers (props) {
         >
           {name}
         </ListItemText>
-        <ListItemText
-          className={classes.name}
-        >
-          {domain}
-        </ListItemText>
+        <ListItemAvatar>
+          <Gravatar
+            name={name}
+            email={email}
+            />
+        </ListItemAvatar>
       </ListItem>
     );
   }

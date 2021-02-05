@@ -6,7 +6,7 @@ import { useHistory } from 'react-router'
 import { useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
-import { Grid, Typography } from '@material-ui/core'
+import { Grid, Tooltip, Typography } from '@material-ui/core'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import CardHeader from '@material-ui/core/CardHeader'
@@ -59,6 +59,7 @@ import Gravatar from '../../../components/Avatars/Gravatar';
 import { LocalPlanningDragContext } from './InvestiblesByWorkspace'
 import { isInReviewStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { findMessageOfType, findMessageOfTypeAndId } from '../../../utils/messageUtils'
+import Chip from '@material-ui/core/Chip'
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -408,13 +409,15 @@ function InvestiblesByPerson(props) {
     inVerifiedStage,
     activeMarket
   } = props;
+  const intl = useIntl();
   const classes = useInvestiblesByPersonStyles();
   const marketPresencesSortedAlmost = _.sortBy(marketPresences, 'name');
   const marketPresencesSorted = _.sortBy(marketPresencesSortedAlmost, function (presence) {
     return !presence.current_user;
   });
   return marketPresencesSorted.map(presence => {
-    const { id, name, email } = presence;
+    const { id, name, email, critical_notifications: criticalNotifications,
+      delayable_notifications: delayableNotifications } = presence;
     const myInvestibles = getUserInvestibles(
       id,
       marketId,
@@ -427,7 +430,23 @@ function InvestiblesByPerson(props) {
         <CardHeader
           className={classes.header}
           id={`u${id}`}
-          title={name}
+          title={<Typography>
+            {name}
+            {criticalNotifications > 0 && (
+              <Tooltip key={`tipcrit${id}`}
+                       title={intl.formatMessage({ id: 'redNotificationCountExplanation' })}>
+                <Chip component="span" label={`${criticalNotifications}`} size='small'
+                      style={{ marginLeft: '0.5rem', backgroundColor: '#E85757' }}/>
+              </Tooltip>
+            )}
+            {delayableNotifications > 0 && (
+              <Tooltip key={`tipdel${id}`}
+                       title={intl.formatMessage({ id: 'yellowNotificationCountExplanation' })}>
+                <Chip component="span" label={`${delayableNotifications}`} size='small'
+                      style={{ marginLeft: '0.5rem', backgroundColor: '#e6e969' }}/>
+              </Tooltip>
+            )}
+          </Typography>}
           avatar={<Gravatar className={classes.smallGravatar} email={email} name={name}/>}
           titleTypographyProps={{ variant: "subtitle2" }}
         />

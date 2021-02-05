@@ -198,7 +198,7 @@ export default function CardType(props) {
       <Grid item xs={fullWidth ? false : 2}>
         {createdAt && (
           <Typography className={classes.timeElapsed} variant="body2">
-            {intl.formatMessage({ id: 'created' })} <UsefulRelativeTime value={Date.parse(createdAt) - Date.now()}/>
+            {intl.formatMessage({ id: 'created' })} <UsefulRelativeTime value={Date.parse(createdAt)}/>
           </Typography>
         )}
       </Grid>

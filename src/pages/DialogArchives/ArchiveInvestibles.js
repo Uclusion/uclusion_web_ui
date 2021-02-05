@@ -161,6 +161,9 @@ function ArchiveInvestbiles(props) {
     event.preventDefault();
     const investibleId = event.dataTransfer.getData("text");
     const currentStageId = event.dataTransfer.getData("stageId");
+    if (currentStageId === stageId) {
+      return;
+    }
     if (!operationRunning) {
       const target = event.target;
       target.style.cursor = 'wait';
@@ -176,6 +179,8 @@ function ArchiveInvestbiles(props) {
       return stageChangeInvestible(moveInfo)
         .then((inv) => {
           refreshInvestibles(invDispatch, () => {}, [inv]);
+        }).finally(() => {
+          target.style.cursor = 'pointer';
           setOperationRunning(false);
         });
     }

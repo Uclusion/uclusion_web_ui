@@ -187,6 +187,8 @@ function PlanningIdeas(props) {
           if (targetStage.close_comments_on_entrance) {
             resolveInvestibleComments(investibleId, marketId, commentsState, commentsDispatch);
           }
+        }).finally(() => {
+          target.style.cursor = 'pointer';
           setOperationRunning(false);
         });
     }
@@ -323,7 +325,6 @@ function PlanningIdeas(props) {
       }
       if (isEligableDrop(divId)) {
         if (!operationRunning) {
-          event.dataTransfer.dropEffect = 'move';
           document.getElementById(elementId).className = classes.containerGreen;
           if (!_.isEmpty(beingDraggedHack)) {
             setBeingDraggedHack({ id, stageId, previousElementId: elementId, originalElementId });
@@ -348,10 +349,15 @@ function PlanningIdeas(props) {
     }
   }
 
+  function onDragOverProcess(event) {
+    event.dataTransfer.dropEffect = 'move';
+    event.preventDefault();
+  }
+
   return (
     <dl className={classes.stages}>
       <div id={`${inDialogStageId}_${presenceId}`} onDrop={onDropVoting}
-           onDragOver={(event) => event.preventDefault()}
+           onDragOver={onDragOverProcess}
            onDragEnter={(event) => onDragEnterStage(event, inDialogStageId, presenceId)}
            onDragEnd={onDragEndStage}>
         <Tooltip
@@ -373,7 +379,7 @@ function PlanningIdeas(props) {
         />
       </div>
       <div id={`${acceptedStageId}_${presenceId}`} onDrop={onDropAccepted}
-           onDragOver={(event) => event.preventDefault()}
+           onDragOver={onDragOverProcess}
            onDragEnter={(event) => onDragEnterStage(event, acceptedStageId, presenceId)}
            onDragEnd={onDragEndStage}>
         <Tooltip
@@ -395,7 +401,7 @@ function PlanningIdeas(props) {
         />
       </div>
       <div id={`${inReviewStageId}_${presenceId}`} onDrop={onDropReview}
-           onDragOver={(event) => event.preventDefault()}
+           onDragOver={onDragOverProcess}
            onDragEnter={(event) => onDragEnterStage(event, inReviewStageId, presenceId)}
            onDragEnd={onDragEndStage}>
         <Tooltip
@@ -416,7 +422,7 @@ function PlanningIdeas(props) {
         />
       </div>
       <div id={`${inVerifiedStageId}_${presenceId}`} onDrop={onDropVerified}
-           onDragOver={(event) => event.preventDefault()}
+           onDragOver={onDragOverProcess}
            onDragEnter={(event) => onDragEnterStage(event, inVerifiedStageId, presenceId)}
            onDragEnd={onDragEndStage}>
         <Tooltip
@@ -537,6 +543,7 @@ function Stage (props) {
   }
 
   function investibleOnDragStart (event) {
+    event.dataTransfer.effectAllowed = 'move';
     event.dataTransfer.setData('text', event.target.id);
     event.dataTransfer.setData('stageId', id);
     const originalElementId = `${id}_${presenceId}`;

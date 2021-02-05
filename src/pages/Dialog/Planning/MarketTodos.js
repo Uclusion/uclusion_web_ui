@@ -160,8 +160,9 @@ function MarketTodos (props) {
     return () => {};
   }, [expandedCommentDispatch, hash, marketId, showTodos, comments]);
 
-  function onDragStart(event) {
+  function onDragStart(event, notificationType) {
     event.dataTransfer.setData('text', event.target.id.substring(1));
+    event.dataTransfer.setData('notificationType', notificationType);
     setBeingDraggedHack({id:event.target.id});
   }
 
@@ -196,7 +197,7 @@ function MarketTodos (props) {
     }
     const sortedData = _.sortBy(commentsGetting, 'updated_at').reverse();
     return sortedData.map((comment) => {
-      const { id, body, updated_at } = comment;
+      const { id, body, updated_at, notification_type: notificationType } = comment;
       const replies = comments.filter(comment => comment.root_comment_id === id) || [];
       const myMessage = findMessageForCommentId(id, messagesState);
       const { level: myLevel } = myMessage || {};
@@ -216,7 +217,7 @@ function MarketTodos (props) {
           md={3}
           xs={12}
           draggable={!operationRunning}
-          onDragStart={onDragStart}
+          onDragStart={(event) => onDragStart(event, notificationType)}
           onDragEnd={onDragEnd}
           className={classes.outlined}
         >
@@ -300,16 +301,26 @@ function MarketTodos (props) {
   function onDrop(event, notificationType) {
     const commentId = event.dataTransfer.getData('text');
     const currentStageId = event.dataTransfer.getData("stageId");
+    const currentNotificationType = event.dataTransfer.getData("notificationType");
     if (currentStageId) {
       // This is a story so ignore
       return;
     }
+    if (currentNotificationType === notificationType) {
+      return;
+    }
     setOperationRunning(true);
-    updateComment(marketId, commentId, undefined, undefined, undefined, undefined, notificationType)
+    const target = event.target;
+    target.style.cursor = 'wait';
+    updateComment(marketId, commentId, undefined, undefined, undefined, undefined,
+      notificationType)
       .then((comment) => {
         addCommentToMarket(comment, commentState, commentDispatch);
         setOperationRunning(false);
-      });
+      }).finally(() => {
+      target.style.cursor = 'pointer';
+      setOperationRunning(false);
+    });
   }
 
   function onDropImmediate(event) {

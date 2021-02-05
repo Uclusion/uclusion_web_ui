@@ -637,7 +637,7 @@ function Comment(props) {
   const isEditable = comment.created_by === userId;
   const inReviewStageId = (getInReviewStage(marketStagesState, marketId) || {}).id;
   return (
-    <div className={inlineMarketId && repliesExpanded ? classes.inlineBorder : classes.inlineBorderNone}>
+    <div className={repliesExpanded ? classes.inlineBorder : classes.inlineBorderNone}>
       <Card elevation={0} className={getCommentHighlightStyle()}>
         <Box display="flex">
           {overrideLabel && (

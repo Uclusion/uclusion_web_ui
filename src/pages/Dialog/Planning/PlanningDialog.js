@@ -6,7 +6,7 @@ import { useHistory } from 'react-router'
 import { useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
-import { Grid, Tooltip, Typography } from '@material-ui/core'
+import { Grid, Typography } from '@material-ui/core'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import CardHeader from '@material-ui/core/CardHeader'
@@ -59,9 +59,7 @@ import Gravatar from '../../../components/Avatars/Gravatar';
 import { LocalPlanningDragContext } from './InvestiblesByWorkspace'
 import { isInReviewStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { findMessageOfType, findMessageOfTypeAndId } from '../../../utils/messageUtils'
-import Chip from '@material-ui/core/Chip'
-import WarningIcon from '@material-ui/icons/Warning';
-import HourglassFullIcon from '@material-ui/icons/HourglassFull';
+import NotificationCountChips from '../NotificationCountChips'
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -434,20 +432,8 @@ function InvestiblesByPerson(props) {
           id={`u${id}`}
           title={<Typography>
             {name}
-            {criticalNotifications > 0 && (
-              <Tooltip key={`tipcrit${id}`}
-                       title={intl.formatMessage({ id: 'redNotificationCountExplanation' })}>
-                <Chip component="span" icon={<WarningIcon style={{ color: '#ffffff'}}/>} label={`${criticalNotifications}`} size='small'
-                      style={{ marginLeft: '0.5rem', color: '#ffffff', backgroundColor: '#E85757' }}/>
-              </Tooltip>
-            )}
-            {delayableNotifications > 0 && (
-              <Tooltip key={`tipdel${id}`}
-                       title={intl.formatMessage({ id: 'yellowNotificationCountExplanation' })}>
-                <Chip component="span" icon={<HourglassFullIcon style={{ color: '#ffffff'}}/>} label={`${delayableNotifications}`} size='small'
-                      style={{ marginLeft: '0.5rem', backgroundColor: '#e6e969', color: '#ffffff'}}/>
-              </Tooltip>
-            )}
+            <NotificationCountChips id={id} criticalNotifications={criticalNotifications}
+                                    delayableNotifications={delayableNotifications} />
           </Typography>}
           avatar={<Gravatar className={classes.smallGravatar} email={email} name={name}/>}
           titleTypographyProps={{ variant: "subtitle2" }}

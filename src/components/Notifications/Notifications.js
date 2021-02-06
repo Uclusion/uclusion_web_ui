@@ -157,13 +157,15 @@ function Notifications (props) {
       >
         {getIcon()}
       </Fab>
-      <DisplayNotifications
-        level={level}
-        messages={messages}
-        open={amOpenAndActive}
-        setOpen={setOpen}
-        anchorEl={anchorEl}
-        titleId={getTitleId()}/>
+      {anchorEl && (
+        <DisplayNotifications
+          level={level}
+          messages={messages}
+          open={amOpenAndActive}
+          setOpen={setOpen}
+          anchorEl={anchorEl}
+          titleId={getTitleId()}/>
+      )}
     </div>
   );
 }

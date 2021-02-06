@@ -272,8 +272,7 @@ const useCommentStyles = makeStyles(
         borderRadius: '4px',
         fontSize: '14px',
         fontWeight: 'bold',
-        margin: 8,
-        textTransform: 'capitalize',
+        margin: 8
       },
   }
 },

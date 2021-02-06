@@ -17,9 +17,8 @@ import { DaysEstimate } from '../../../components/AgilePlan';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import Chip from '@material-ui/core/Chip';
-import { addPlanningInvestible, stageChangeInvestible, updateInvestible } from '../../../api/investibles';
+import { stageChangeInvestible, updateInvestible } from '../../../api/investibles';
 import {
-  addInvestible,
   getInvestible,
   refreshInvestibles
 } from '../../../contexts/InvestibesContext/investiblesContextHelper';
@@ -32,13 +31,10 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { getFullStage, getStages } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
-import { moveComments } from '../../../api/comments';
 import {
-  getMarketComments, refreshMarketComments,
   resolveInvestibleComments
 } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
-import { nameFromDescription } from '../../../utils/stringFunctions';
 import { restoreHeader } from '../../../containers/Header';
 import { LocalPlanningDragContext } from './InvestiblesByWorkspace';
 import GravatarGroup from '../../../components/Avatars/GravatarGroup';

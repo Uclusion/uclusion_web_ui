@@ -16,7 +16,7 @@ export function nameToAvatarText(name) {
 }
 
 export function nameFromDescription(description) {
-  const list = ["</p", "</li", "</td", "</h"];
+  const list = ["</p", "</li", "</td", "</h", ". "];
   let found = -1;
   for (let i = 0, len = list.length; i < len; i++) {
     let index = description.indexOf(list[i]);
@@ -29,7 +29,11 @@ export function nameFromDescription(description) {
     if (foundSubstring) {
       const htmlRemoved = foundSubstring.replace(/(<([^>]+)>)/ig,'');
       if (htmlRemoved) {
-        return htmlRemoved.trim();
+        const candidate = htmlRemoved.trim();
+        if (candidate.length > 250) {
+          return candidate.substring(0, 250) + '...';
+        }
+        return candidate;
       }
     }
   }

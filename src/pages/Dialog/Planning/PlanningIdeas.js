@@ -184,7 +184,7 @@ function PlanningIdeas(props) {
         presenceId);
     } else if (checkStageMatching(currentStageId)) {
       const investibleId = event.dataTransfer.getData('text');
-      if (isAssignedInvestible(event, myPresence.id) && myPresence.id === presenceId) {
+      if (isAssignedInvestible(event, presenceId)) {
         stageChange(event, inDialogStageId);
       } else if (!operationRunning && !isAssignedInvestible(event, presenceId)) {
         // Assignment can be changed at any time to anyone not already assigned when moving into voting

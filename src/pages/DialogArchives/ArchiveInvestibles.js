@@ -53,7 +53,7 @@ const myClasses = makeStyles(
 );
 
 export function getInvestibles(investibles, presenceMap, marketId, comments, history, intl, elevation, highlightMap,
-  allowDragDrop, onDragEnd, onDragStart, unResolvedMarketComments, presenceId, stage) {
+  allowDragDrop, onDragEnd, unResolvedMarketComments, presenceId, stage, setBeingDraggedHack) {
   const investibleData = investibles.map((inv) => {
     const aMarketInfo = getMarketInfo(inv, marketId);
     const { updated_at: invUpdatedAt } = inv.investible;
@@ -91,6 +91,15 @@ export function getInvestibles(investibles, presenceMap, marketId, comments, his
     const investibleComments = comments.filter(comment => comment.investible_id === id);
     const investibleCommenters = _.uniq(investibleComments.map((comment) => comment.created_by));
     const commentPresences = investibleCommenters.map((userId) => presenceMap[userId]);
+
+    function onDragStart(event) {
+      const stageId = stage ? stage.id : undefined;
+      event.dataTransfer.setData("text", id);
+      event.dataTransfer.setData("stageId", stageId);
+      const originalElementId = `${stageId}_${presenceId}`;
+      setBeingDraggedHack({id, stageId, originalElementId});
+    }
+
     return (
       <Grid
         key={id}
@@ -193,13 +202,6 @@ function ArchiveInvestbiles(props) {
     }
   }
 
-  function onDragStart(event) {
-    event.dataTransfer.setData("text", event.target.id);
-    event.dataTransfer.setData("stageId", stageId);
-    const originalElementId = `${stageId}_${presenceId}`;
-    setBeingDraggedHack({id:event.target.id, stageId, originalElementId});
-  }
-
   return (
     <Grid
       container
@@ -208,7 +210,7 @@ function ArchiveInvestbiles(props) {
       onDragOver={(event) => (stage && !stage.move_on_comment) && event.preventDefault()}
     >
       {getInvestibles(investibles, presenceMap, marketId, comments, history, intl, elevation, highlightMap, allowDragDrop,
-      onDragEnd, onDragStart, unResolvedMarketComments, presenceId, stage)}
+      onDragEnd, unResolvedMarketComments, presenceId, stage, setBeingDraggedHack)}
     </Grid>
   );
 }

@@ -1,5 +1,10 @@
 import { getMarketInfo } from '../../../utils/userFunctions';
 import _ from 'lodash'
+import { getMarketComments, refreshMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper'
+import { nameFromDescription } from '../../../utils/stringFunctions'
+import { addPlanningInvestible } from '../../../api/investibles'
+import { moveComments } from '../../../api/comments'
+import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 
 /**
  * Returns the investibles in the market assigned to the user
@@ -73,4 +78,35 @@ export function inVerifedSwimLane(inv, investibles, verifiedStage, marketId) {
       verifiedStageSafe.days_visible, marketId, verifiedStageId);
     return (inVerified || []).some((investible) => investible.investible.id === inv.investible.id);
   });
+}
+
+export function onDropTodo(commentId, commentsState, marketId, setOperationRunning, intl, commentsDispatch, invDispatch,
+  presenceId) {
+  const comments = getMarketComments(commentsState, marketId) || [];
+  const fromComment = comments.find((comment) => comment.id === commentId);
+  if (fromComment) {
+    setOperationRunning(true);
+    let name = nameFromDescription(fromComment.body);
+    if (!name) {
+      name = intl.formatMessage({ id: `notificationLabel${fromComment.notification_type}` });
+    }
+    const addInfo = {
+      marketId,
+      name,
+    };
+    if (presenceId) {
+      addInfo.assignments = [presenceId];
+    }
+    addPlanningInvestible(addInfo).then((inv) => {
+      const { investible } = inv;
+      return moveComments(marketId, investible.id, [commentId])
+        .then((movedComments) => {
+          const comments = getMarketComments(commentsState, marketId);
+          const newComments = _.unionBy(movedComments, comments, 'id')
+          refreshMarketComments(commentsDispatch, marketId, newComments);
+          addInvestible(invDispatch, () => {}, inv);
+          setOperationRunning(false);
+        });
+    });
+  }
 }

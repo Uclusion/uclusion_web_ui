@@ -43,7 +43,7 @@ import { restoreHeader } from '../../../containers/Header';
 import { LocalPlanningDragContext } from './InvestiblesByWorkspace';
 import GravatarGroup from '../../../components/Avatars/GravatarGroup';
 import { getInvestibleVoters } from '../../../utils/votingUtils';
-import { getUserSwimlaneInvestibles } from './userUtils'
+import { getUserSwimlaneInvestibles, onDropTodo } from './userUtils'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 
 const warningColor = red['400'];
@@ -134,35 +134,6 @@ function PlanningIdeas(props) {
     return targetStageId === inVerifiedStageId && !_.isEmpty(todoComments);
   }
 
-  function onDropTodo(event) {
-    const commentId = event.dataTransfer.getData('text');
-    const comments = getMarketComments(commentsState, marketId) || [];
-    const fromComment = comments.find((comment) => comment.id === commentId);
-    if (fromComment) {
-      setOperationRunning(true);
-      let name = nameFromDescription(fromComment.body);
-      if (!name) {
-        name = intl.formatMessage({ id: `notificationLabel${fromComment.notification_type}` });
-      }
-      const addInfo = {
-        marketId,
-        name,
-        assignments: [presenceId],
-      };
-      addPlanningInvestible(addInfo).then((inv) => {
-        const { investible } = inv;
-        return moveComments(marketId, investible.id, [commentId])
-          .then((movedComments) => {
-            const comments = getMarketComments(commentsState, marketId);
-            const newComments = _.unionBy(movedComments, comments, 'id')
-            refreshMarketComments(commentsDispatch, marketId, newComments);
-            addInvestible(invDispatch, diffDispatch, inv);
-            setOperationRunning(false);
-          });
-      });
-    }
-  }
-
   function stageChange (event, targetStageId) {
     event.preventDefault();
     const investibleId = event.dataTransfer.getData('text');
@@ -212,7 +183,9 @@ function PlanningIdeas(props) {
     const currentStageId = event.dataTransfer.getData('stageId');
     if (!currentStageId) {
       // This is a dragged TODO
-      onDropTodo(event);
+      const commentId = event.dataTransfer.getData('text');
+      onDropTodo(commentId, commentsState, marketId, setOperationRunning, intl, commentsDispatch, invDispatch,
+        presenceId);
     } else if (checkStageMatching(currentStageId)) {
       const investibleId = event.dataTransfer.getData('text');
       if (isAssignedInvestible(event, myPresence.id) && myPresence.id === presenceId) {

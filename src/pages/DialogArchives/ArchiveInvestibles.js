@@ -19,6 +19,8 @@ import { isBlockedStage, isInReviewStage } from '../../contexts/MarketStagesCont
 import GravatarGroup from '../../components/Avatars/GravatarGroup'
 import Link from '@material-ui/core/Link'
 import { getMarketInfo } from '../../utils/userFunctions'
+import { onDropTodo } from '../Dialog/Planning/userUtils'
+import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 
 function getInvestibleOnClick(id, marketId, history) {
   const link = formInvestibleLink(marketId, id);
@@ -139,6 +141,7 @@ function ArchiveInvestbiles(props) {
   const classes = myClasses();
   const intl = useIntl();
   const history = useHistory();
+  const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const stageId = stage ? stage.id : undefined;
   const unResolvedMarketComments = comments.filter(comment => !comment.resolved) || [];
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
@@ -159,8 +162,12 @@ function ArchiveInvestbiles(props) {
       return;
     }
     event.preventDefault();
-    const investibleId = event.dataTransfer.getData("text");
+    const anId = event.dataTransfer.getData("text");
     const currentStageId = event.dataTransfer.getData("stageId");
+    if (!currentStageId) {
+      onDropTodo(anId, commentsState, marketId, setOperationRunning, intl, commentsDispatch, invDispatch);
+      return;
+    }
     if (currentStageId === stageId) {
       return;
     }
@@ -169,7 +176,7 @@ function ArchiveInvestbiles(props) {
       target.style.cursor = 'wait';
       const moveInfo = {
         marketId,
-        investibleId,
+        investibleId: anId,
         stageInfo: {
           current_stage_id: currentStageId,
           stage_id: stageId,

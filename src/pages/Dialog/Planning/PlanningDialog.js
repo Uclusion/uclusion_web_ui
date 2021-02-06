@@ -254,7 +254,6 @@ function PlanningDialog(props) {
               stage={furtherWorkStage}
               presenceId={myPresence.id}
               allowDragDrop
-              isInFurtherWork
             />
           </SubSection>
         )}

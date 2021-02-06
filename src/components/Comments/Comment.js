@@ -667,7 +667,7 @@ function Comment(props) {
             <div className={clsx(
               classes.action,
               classes.actionEdit
-            )}>
+            )} style={{marginRight: '2rem'}}>
               <ShareStoryButton commentId={id} commentType={commentType} investibleId={investibleId} /></div>
           )}
           {enableEditing && isEditable && !editOpenDefault && (

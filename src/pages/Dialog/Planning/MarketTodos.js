@@ -172,8 +172,20 @@ function MarketTodos (props) {
   function onDragEnd() {
     restoreHeader();
     const { previousElementId, previousClass, id } = beingDraggedHack;
-    if (previousClass && id) {
-      document.getElementById(`drag${id.substring(1)}`).className = previousClass;
+    if (id) {
+      const commentId = id.substring(1);
+      if (editCard && editCard.id === commentId) {
+        setEditCard(undefined);
+      }
+      if (editRedCard && editRedCard.id === commentId) {
+        setEditRedCard(undefined);
+      }
+      if (editYellowCard && editYellowCard.id === commentId) {
+        setEditYellowCard(undefined);
+      }
+      if (previousClass) {
+        document.getElementById(`drag${commentId}`).className = previousClass;
+      }
     }
     if (previousElementId) {
       document.getElementById(previousElementId).className = classes.containerEmpty;

@@ -17,8 +17,7 @@ const useStyles = makeStyles(() => ({
   },
   delayableStyle: {
     marginLeft: '0.5rem',
-    backgroundColor: '#e6e969',
-    color: '#ffffff'
+    backgroundColor: '#e6e969'
   },
   iconStyle: {
     color: '#ffffff'

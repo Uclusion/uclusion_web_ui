@@ -409,7 +409,7 @@ function InvestiblesByPerson(props) {
     inVerifiedStage,
     activeMarket
   } = props;
-  const intl = useIntl();
+
   const classes = useInvestiblesByPersonStyles();
   const marketPresencesSortedAlmost = _.sortBy(marketPresences, 'name');
   const marketPresencesSorted = _.sortBy(marketPresencesSortedAlmost, function (presence) {

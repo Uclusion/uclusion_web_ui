@@ -161,14 +161,20 @@ function MarketTodos (props) {
   }, [expandedCommentDispatch, hash, marketId, showTodos, comments]);
 
   function onDragStart(event, notificationType) {
-    event.dataTransfer.setData('text', event.target.id.substring(1));
+    const commentId = event.target.id.substring(1);
+    event.dataTransfer.setData('text', commentId);
     event.dataTransfer.setData('notificationType', notificationType);
-    setBeingDraggedHack({id:event.target.id});
+    const previousClass = document.getElementById(`drag${commentId}`).className;
+    setBeingDraggedHack({id:event.target.id, previousClass});
+    document.getElementById(`drag${commentId}`).className = classes.containerEmpty;
   }
 
   function onDragEnd() {
     restoreHeader();
-    const { previousElementId } = beingDraggedHack;
+    const { previousElementId, previousClass, id } = beingDraggedHack;
+    if (previousClass && id) {
+      document.getElementById(`drag${id.substring(1)}`).className = previousClass;
+    }
     if (previousElementId) {
       document.getElementById(previousElementId).className = classes.containerEmpty;
       setBeingDraggedHack({});
@@ -229,7 +235,7 @@ function MarketTodos (props) {
             />
           )}
           <RaisedCard onClick={() => setCardAndScroll(comment)} elevation={0}>
-            <div className={level ? classes.warnCard : classes.card}>
+            <div id={`drag${id}`} className={level ? classes.warnCard : classes.card}>
               <div style={{display: 'flex'}}>
                 <Typography style={{ fontSize: '.75rem', flex: 1 }}>Updated: {intl.formatDate(updated_at)}</Typography>
                 {replies.length > 0 && (

@@ -9,7 +9,7 @@ import WarningIcon from '@material-ui/icons/Warning'
 import HourglassFullIcon from '@material-ui/icons/HourglassFull'
 
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   criticalStyle: {
     marginLeft: '0.5rem',
     color: '#ffffff',

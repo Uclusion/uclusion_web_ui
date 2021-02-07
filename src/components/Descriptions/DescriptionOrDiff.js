@@ -2,16 +2,13 @@ import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import { DiffContext } from '../../contexts/DiffContext/DiffContext';
 import {
-  hasDiff,
-  hasUnViewedDiff, markContentViewed,
+  markContentViewed,
 } from '../../contexts/DiffContext/diffContextHelper'
 import DiffDisplay from '../TextEditors/DiffDisplay';
 import ReadOnlyQuillEditor from '../TextEditors/ReadOnlyQuillEditor';
 import { useIntl } from 'react-intl';
 import { Button, darken } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
-import { deleteSingleMessage } from '../../api/users'
-import { removeMessage } from '../../contexts/NotificationsContext/notificationsContextReducer'
 import { findMessageOfTypeAndId } from '../../utils/messageUtils'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 
@@ -62,23 +59,18 @@ function DescriptionOrDiff(props) {
 
   const intl = useIntl();
   const classes = style();
-  const [diffState, diffDispatch] = useContext(DiffContext);
-  const hasNewDiff = hasUnViewedDiff(diffState, id);
+  const [,diffDispatch] = useContext(DiffContext);
   const [showDiff, setShowDiff] = useState(false);
-  const diffAvailable = hasDiff(diffState, id);
-  const highlightClass = hasNewDiff ? classes.containerYellow : classes.containerNone;
-  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const [messagesState] = useContext(NotificationsContext);
   const myMessage = findMessageOfTypeAndId(id, messagesState);
+  const highlightClass = myMessage ? classes.containerYellow : classes.containerNone;
 
   function toggleDiffShow() {
-    if (myMessage) {
-      deleteSingleMessage(myMessage).then(() => messagesDispatch(removeMessage(myMessage)));
-    }
     markContentViewed(diffDispatch, id, description);
     setShowDiff(!showDiff);
   }
 
-  if (showDiff && diffAvailable) {
+  if (showDiff && myMessage) {
     return (
       <DiffDisplay
         id={id}
@@ -94,7 +86,7 @@ function DescriptionOrDiff(props) {
         setBeingEdited={setBeingEdited}
         isEditable={isEditable}
       />
-      {diffAvailable && (
+      {myMessage && (
         <Button
           onClick={toggleDiffShow}
           className={highlightClass}

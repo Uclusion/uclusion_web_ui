@@ -15,27 +15,42 @@ export function nameToAvatarText(name) {
   return firstLetters.toUpperCase();
 }
 
-export function nameFromDescription(description) {
-  const list = ["</p", "</li", "</td", "</h", ". "];
-  let found = -1;
-  for (let i = 0, len = list.length; i < len; i++) {
-    let index = description.indexOf(list[i]);
-    if (index >= 0) {
-      if (found < 0 || index < found) found = index;
-    }
-  }
-  if (found >= 0) {
-    const foundSubstring = description.substring(0, found);
-    if (foundSubstring) {
-      const htmlRemoved = foundSubstring.replace(/(<([^>]+)>)/ig,'');
-      if (htmlRemoved) {
-        const candidate = htmlRemoved.trim();
-        if (candidate.length > 250) {
-          return candidate.substring(0, 250) + '...';
-        }
-        return candidate;
+function extractName(foundSubstring) {
+  if (foundSubstring) {
+    const htmlRemoved = foundSubstring.replace(/(<([^>]+)>)/ig,'');
+    if (htmlRemoved) {
+      const candidate = htmlRemoved.trim();
+      if (candidate.length > 250) {
+        return candidate.substring(0, 250) + '...';
       }
+      return candidate;
     }
   }
   return undefined;
+}
+
+export function nameFromDescription(description) {
+  console.debug(description);
+  const list = ["</p>", "</li>", "</td>", "</h>", ". "];
+  let found = -1;
+  let latestExtract = extractName(description);
+  list.forEach((entry) => {
+    const parts = description.split(entry) || [];
+    if (parts.length >= 2) {
+      parts.forEach((part) => {
+        if (!_.isEmpty(part)) {
+          const index = description.indexOf(part);
+          const extracted = extractName(part);
+          if (!_.isEmpty(extracted)) {
+            if (found < 0 || index < found || (index === found &&
+              (!latestExtract || extracted.length < latestExtract.length))) {
+              latestExtract = extracted;
+              found = index;
+            }
+          }
+        }
+      });
+    }
+  });
+  return latestExtract;
 }

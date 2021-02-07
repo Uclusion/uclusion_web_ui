@@ -21,8 +21,7 @@ const EMPTY_STATE = {initializing: true};
 const CommentsContext = React.createContext(EMPTY_STATE);
 
 function pushIndexItems(diskState) {
-  const comments = Object.values(diskState).filter((item) => item.id) || [];
-  const indexItems = _.flatten(comments);
+  const indexItems = _.flatten(Object.values(diskState));
   const indexMessage = { event: INDEX_UPDATE, itemType: INDEX_COMMENT_TYPE, items: indexItems };
   pushMessage(SEARCH_INDEX_CHANNEL, indexMessage);
 }

@@ -5,7 +5,7 @@ import CardContent from '@material-ui/core/CardContent';
 import CardHeader from '@material-ui/core/CardHeader';
 import PlanningIdeas from './PlanningIdeas';
 import { useInvestiblesByPersonStyles } from './PlanningDialog'
-import { getUserInvestibles } from './userUtils';
+import { getUserInvestibles, sumNotificationCounts } from './userUtils'
 import PropTypes from 'prop-types';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { getMarketPresences, getPresenceMap } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
@@ -147,8 +147,8 @@ function InvestiblesByWorkspace (props) {
             investibles,
             visibleStageIds,
           );
-          const { critical_notifications: criticalNotifications,
-            delayable_notifications: delayableNotifications } = presence;
+          const { criticalNotificationCount, delayableNotificationCount } = sumNotificationCounts(presence, comments,
+            marketPresencesState);
           const requiresInputInvestibles = getInvestiblesInStage(investibles, requiresInputStage.id) || [];
           const blockedInvestibles = getInvestiblesInStage(investibles, inBlockingStage.id) || [];
           const highlightMap = {};
@@ -172,8 +172,8 @@ function InvestiblesByWorkspace (props) {
                                navigate(history, formMarketLink(market.id));
                              }
                              }>{market.name}</Link>
-                  <NotificationCountChips id={market.id} criticalNotifications={criticalNotifications}
-                                          delayableNotifications={delayableNotifications} />
+                  <NotificationCountChips id={market.id} criticalNotifications={criticalNotificationCount}
+                                          delayableNotifications={delayableNotificationCount} />
                 </Typography>}
                 titleTypographyProps={{ variant: 'subtitle2' }}
               />

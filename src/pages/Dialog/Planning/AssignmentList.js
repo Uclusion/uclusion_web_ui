@@ -18,8 +18,6 @@ import SearchIcon from '@material-ui/icons/Search'
 import { useIntl } from 'react-intl'
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
-import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { usePlanFormStyles } from '../../../components/AgilePlan'
 
 const useStyles = makeStyles((theme) => ({

@@ -31,7 +31,7 @@ import {
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
 import CommentBox from '../../../containers/CommentBox/CommentBox'
 import { ACTIVE_STAGE } from '../../../constants/markets'
-import { getUserInvestibles } from './userUtils'
+import { getUserInvestibles, sumNotificationCounts } from './userUtils'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { getMarketPresences, getPresenceMap } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import InvestibleAddActionButton from './InvestibleAddActionButton'
@@ -408,15 +408,16 @@ function InvestiblesByPerson(props) {
     inVerifiedStage,
     activeMarket
   } = props;
-
+  const [marketPresencesState] = useContext(MarketPresencesContext);
   const classes = useInvestiblesByPersonStyles();
   const marketPresencesSortedAlmost = _.sortBy(marketPresences, 'name');
   const marketPresencesSorted = _.sortBy(marketPresencesSortedAlmost, function (presence) {
     return !presence.current_user;
   });
   return marketPresencesSorted.map(presence => {
-    const { id, name, email, critical_notifications: criticalNotifications,
-      delayable_notifications: delayableNotifications } = presence;
+    const { id, name, email } = presence;
+    const { criticalNotificationCount, delayableNotificationCount } = sumNotificationCounts(presence, comments,
+      marketPresencesState);
     const myInvestibles = getUserInvestibles(
       id,
       marketId,
@@ -431,8 +432,8 @@ function InvestiblesByPerson(props) {
           id={`u${id}`}
           title={<Typography>
             {name}
-            <NotificationCountChips id={id} criticalNotifications={criticalNotifications}
-                                    delayableNotifications={delayableNotifications} />
+            <NotificationCountChips id={id} criticalNotifications={criticalNotificationCount}
+                                    delayableNotifications={delayableNotificationCount} />
           </Typography>}
           avatar={<Gravatar className={classes.smallGravatar} email={email} name={name}/>}
           titleTypographyProps={{ variant: "subtitle2" }}

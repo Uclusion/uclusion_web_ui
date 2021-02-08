@@ -5,6 +5,7 @@ import { nameFromDescription } from '../../../utils/stringFunctions'
 import { addPlanningInvestible } from '../../../api/investibles'
 import { moveComments } from '../../../api/comments'
 import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
+import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 
 /**
  * Returns the investibles in the market assigned to the user
@@ -78,6 +79,29 @@ export function inVerifedSwimLane(inv, investibles, verifiedStage, marketId) {
       verifiedStageSafe.days_visible, marketId, verifiedStageId);
     return (inVerified || []).some((investible) => investible.investible.id === inv.investible.id);
   });
+}
+
+export function sumNotificationCounts(presence, comments, marketPresencesState) {
+  const { critical_notifications: criticalNotifications,
+    delayable_notifications: delayableNotifications, external_id: externalId } = presence;
+  let criticalNotificationCount = criticalNotifications;
+  let delayableNotificationCount = delayableNotifications;
+  (comments || []).forEach((comment) => {
+    const { inline_market_id: inlineMarketId } = comment;
+    if (inlineMarketId) {
+      const inlineMarketPresences = getMarketPresences(marketPresencesState, inlineMarketId);
+      const myInlinePresence = inlineMarketPresences && inlineMarketPresences.find((presence) => {
+        return presence.external_id === externalId;
+      });
+      if (myInlinePresence) {
+        const { critical_notifications: inlineCriticalNotifications,
+          delayable_notifications: inlineDelayableNotifications } = myInlinePresence;
+        criticalNotificationCount += inlineCriticalNotifications;
+        delayableNotificationCount += inlineDelayableNotifications;
+      }
+    }
+  });
+  return { criticalNotificationCount, delayableNotificationCount};
 }
 
 export function onDropTodo(commentId, commentsState, marketId, setOperationRunning, intl, commentsDispatch, invDispatch,

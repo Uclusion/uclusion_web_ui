@@ -12,7 +12,7 @@ import {
   ListItemText,
   ListSubheader,
   makeStyles,
-  TextField, Typography
+  TextField
 } from '@material-ui/core'
 import SearchIcon from '@material-ui/icons/Search'
 import { useIntl } from 'react-intl'

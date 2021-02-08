@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import { DiffContext } from '../../contexts/DiffContext/DiffContext';
 import {
+  getDiff,
   markContentViewed,
 } from '../../contexts/DiffContext/diffContextHelper'
 import DiffDisplay from '../TextEditors/DiffDisplay';
@@ -59,11 +60,12 @@ function DescriptionOrDiff(props) {
 
   const intl = useIntl();
   const classes = style();
-  const [,diffDispatch] = useContext(DiffContext);
+  const [diffState,diffDispatch] = useContext(DiffContext);
   const [showDiff, setShowDiff] = useState(false);
   const [messagesState] = useContext(NotificationsContext);
   const myMessage = findMessageOfTypeAndId(id, messagesState);
   const highlightClass = myMessage ? classes.containerYellow : classes.containerNone;
+  const diff = getDiff(diffState, id);
 
   function toggleDiffShow() {
     markContentViewed(diffDispatch, id, description);
@@ -86,7 +88,7 @@ function DescriptionOrDiff(props) {
         setBeingEdited={setBeingEdited}
         isEditable={isEditable}
       />
-      {myMessage && (
+      {myMessage && diff && (
         <Button
           onClick={toggleDiffShow}
           className={highlightClass}

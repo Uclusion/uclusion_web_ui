@@ -51,6 +51,10 @@ function DiffDisplay(props) {
     showToggle();
   }
 
+  if (!diff) {
+    return React.Fragment;
+  }
+
   return (
     <div>
       <div ref={ref} className={classes.diffContainer}/>

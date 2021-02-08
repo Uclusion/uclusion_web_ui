@@ -15,7 +15,10 @@ import { InvestiblesContext } from '../../contexts/InvestibesContext/Investibles
 import { getMarket, getMyUserForMarket, } from '../../contexts/MarketsContext/marketsContextHelper'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
+import {
+  getMarketPresences,
+  removeInvestibleInvestments
+} from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import Screen from '../../containers/Screen/Screen'
 import { PLANNING_TYPE } from '../../constants/markets'
 import PlanningInvestibleEdit from './Planning/PlanningInvestibleEdit'
@@ -36,7 +39,7 @@ function InvestibleEdit (props) {
   const fullInvestible = inv || { investible: { name: '' } };
   const [marketsState] = useContext(MarketsContext);
   const userId = getMyUserForMarket(marketsState, marketId);
-  const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
   const isAdmin = myPresence && myPresence.is_admin;
@@ -54,8 +57,11 @@ function InvestibleEdit (props) {
   function onSave (result, stillEditing) {
     // the edit ony contains the investible data and assignments, not the full market infos
     if (result) {
-      const { fullInvestible} = result;
+      const { fullInvestible, assignmentChanged } = result;
       refreshInvestibles(investiblesDispatch, diffDispatch, [fullInvestible]);
+      if (assignmentChanged) {
+        removeInvestibleInvestments(marketPresencesState, marketPresencesDispatch, marketId, investibleId);
+      }
     }
     if (!stillEditing) {
       navigate(history, formInvestibleLink(marketId, investibleId));

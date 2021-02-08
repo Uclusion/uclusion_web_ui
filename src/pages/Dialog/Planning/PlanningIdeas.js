@@ -14,7 +14,10 @@ import {
   checkVotingWarning,
 } from './PlanningDialog';
 import { DaysEstimate } from '../../../components/AgilePlan';
-import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import {
+  getMarketPresences,
+  removeInvestibleInvestments
+} from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import Chip from '@material-ui/core/Chip';
 import { stageChangeInvestible, updateInvestible } from '../../../api/investibles';
@@ -98,7 +101,7 @@ function PlanningIdeas(props) {
   const intl = useIntl();
   const acceptedStageId = acceptedStage.id;
   const classes = usePlanningIdStyles();
-  const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [marketsState] = useContext(MarketsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [beingDraggedHack, setBeingDraggedHack] = useContext(LocalPlanningDragContext);
@@ -209,6 +212,7 @@ function PlanningIdeas(props) {
             marketInfo.stage = !_.isEmpty(blockingComments) ? inBlockingStageId :
               _.isEmpty(assignedInputComments) ? inDialogStageId : inRequiresInputStageId;
             refreshInvestibles(invDispatch, diffDispatch, [fullInvestible]);
+            removeInvestibleInvestments(marketPresencesState, marketPresencesDispatch, marketId, investibleId);
             setOperationRunning(false);
           });
       }

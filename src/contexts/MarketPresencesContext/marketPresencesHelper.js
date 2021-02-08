@@ -21,6 +21,30 @@ export function getMarketUnits(state, marketId, intl) {
   return units;
 }
 
+export function removeInvestibleInvestments(state, dispatch, marketId, investibleId) {
+  const presences = state[marketId] || [];
+  presences.forEach((presence) => {
+    const { investments: oldInvestments } = presence;
+    let modified = false;
+    const investments = oldInvestments.map((investment) => {
+      const { investible_id: myInvestibleId, deleted } = investment;
+      if (myInvestibleId !== investibleId || deleted) {
+        return investment;
+      }
+      modified = true;
+      return { ...investment, deleted: true };
+    });
+    if (modified) {
+      const newPresence = {
+        ...presence,
+      };
+      newPresence.investments = investments;
+      console.debug(newPresence);
+      dispatch(addMarketPresence(marketId, newPresence));
+    }
+  });
+}
+
 export function getMarketPresences(state, marketId) {
   const presences = state[marketId] || []
   return presences.map((presence) => {

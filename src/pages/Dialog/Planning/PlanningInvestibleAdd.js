@@ -280,7 +280,6 @@ function PlanningInvestibleAdd(props) {
               marketId={marketId}
               onChange={onAssignmentsChange}
               previouslyAssigned={choosePreviouslyAssigned()}
-              checkMeByDefault
             />
             <fieldset className={classes.fieldset}>
               <legend>optional</legend>

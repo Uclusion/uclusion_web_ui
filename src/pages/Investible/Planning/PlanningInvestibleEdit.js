@@ -202,7 +202,6 @@ function PlanningInvestibleEdit(props) {
             marketId={marketId}
             previouslyAssigned={initialAssigned}
             onChange={handleAssignmentChange}
-            checkMeByDefault
           />
         </div>
       </CardContent>

@@ -40,7 +40,6 @@ function AssignmentList(props) {
     onChange,
     previouslyAssigned,
     cannotBeAssigned,
-    checkMeByDefault,
     listHeader
   } = props;
 
@@ -49,8 +48,6 @@ function AssignmentList(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const fullMarketPresences = getMarketPresences(marketPresencesState, marketId) || {};
   const marketPresences = fullMarketPresences.filter((presence) => !presence.market_banned);
-  const [marketsState] = useContext(MarketsContext);
-  const userId = getMyUserForMarket(marketsState, marketId) || {};
   const formClasses = usePlanFormStyles();
 
   function getDefaultChecked() {
@@ -59,9 +56,6 @@ function AssignmentList(props) {
         ...acc,
         [id]: true,
       }), {});
-    }
-    if (checkMeByDefault) {
-      return { [userId]: true };
     }
     return {};
   }
@@ -214,11 +208,9 @@ AssignmentList.propTypes = {
   previouslyAssigned: PropTypes.arrayOf(PropTypes.string),
   cannotBeAssigned: PropTypes.arrayOf(PropTypes.string),
   onChange: PropTypes.func,
-  checkMeByDefault: PropTypes.bool
 };
 
 AssignmentList.defaultProps = {
-  checkMeByDefault: false,
   listHeader: 'assignmentListHeader',
   onChange: () => {
   },

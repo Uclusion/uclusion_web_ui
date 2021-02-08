@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useState } from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import clsx from 'clsx'
@@ -12,7 +12,7 @@ import {
   ListItemText,
   ListSubheader,
   makeStyles,
-  TextField
+  TextField, Typography
 } from '@material-ui/core'
 import SearchIcon from '@material-ui/icons/Search'
 import { useIntl } from 'react-intl'
@@ -46,7 +46,6 @@ function AssignmentList(props) {
 
   const classes = useStyles();
   const intl = useIntl();
-
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const fullMarketPresences = getMarketPresences(marketPresencesState, marketId) || {};
   const marketPresences = fullMarketPresences.filter((presence) => !presence.market_banned);
@@ -68,19 +67,9 @@ function AssignmentList(props) {
   }
 
   const participantEntries = getSortedPresenceWithAssignable();
-  const [checked, setChecked] = useState(getDefaultChecked());
-  const [searchValue, setSearchValue] = useState(undefined);
   const [participants, ] = useState(participantEntries)
   const [filteredNames, setFilteredNames] = useState(undefined);
   const [submitted, setSubmitted] = useState(getDefaultChecked());
-
-  useEffect(() => {
-    if (submitted !== checked) {
-      setSubmitted(checked);
-      const checkedIds = Object.keys(checked).filter((key) => checked[key]);
-      onChange(checkedIds);
-    }
-  }, [checked, onChange, submitted]);
 
   function getSortedPresenceWithAssignable() {
     const sortedParticipants = _.sortBy(marketPresences, 'name');
@@ -92,57 +81,25 @@ function AssignmentList(props) {
     });
   }
 
-  function getCheckToggle(canBeAssigned, id) {
-    if (canBeAssigned) {
-      return () => {
-        const newChecked = {
-          ...checked,
-          [id]: !checked[id],
-        };
-        setChecked(newChecked);
-      };
-    }
+  function getCheckToggle(id) {
     return () => {
+      const newChecked = {
+        ...submitted,
+        [id]: !submitted[id],
+      };
+      if (submitted !== newChecked) {
+        setSubmitted(newChecked);
+        const checkedIds = Object.keys(newChecked).filter((key) => newChecked[key]);
+        onChange(checkedIds);
+      }
     };
   }
   function onSearchChange (event) {
     const { value } = event.target;
-    setSearchValue(value);
-  }
-  function renderParticipantEntry(presenceEntry) {
-    const { name, assignable, id } = presenceEntry;
-    const alreadyAssigned = previouslyAssigned.includes(id);
-    const canBeAssigned = alreadyAssigned || assignable;
-    const boxChecked = (canBeAssigned && checked[id]);
-    return (
-      <ListItem
-        key={id}
-        button
-        className={ boxChecked ? clsx( formClasses.unselected, formClasses.selected ) : formClasses.unselected }
-        onClick={getCheckToggle(canBeAssigned, id)}
-      >
-        <ListItemIcon>
-          <Checkbox
-            value={!!boxChecked}
-            disabled={!canBeAssigned}
-            checked={!!boxChecked}
-          />
-        </ListItemIcon>
-        <ListItemText
-          className={canBeAssigned ? classes.name : classes.disabled}
-        >
-          {name}
-        </ListItemText>
-      </ListItem>
-    );
-  }
-
-
-  useEffect(() => {
-    if (!searchValue) {
+    if (_.isEmpty(value)) {
       setFilteredNames(undefined);
     } else if (participants) {
-      const searchValueLower = searchValue.toLowerCase();
+      const searchValueLower = value.toLowerCase();
       const filteredEntries = participants.filter((entry) => {
         const { name } = entry;
         const nameLower = name.toLowerCase();
@@ -161,15 +118,58 @@ function AssignmentList(props) {
         setFilteredNames(filteredEntries);
       }
     }
-  }, [searchValue, participants, filteredNames]);
+  }
+  function renderParticipantEntry(presenceEntry) {
+    const { name, assignable, id } = presenceEntry;
+    const alreadyAssigned = previouslyAssigned.includes(id);
+    const canBeAssigned = alreadyAssigned || assignable;
+    const boxChecked = submitted[id];
+    return (
+      <ListItem
+        key={id}
+        button
+        className={ boxChecked ? clsx( formClasses.unselected, formClasses.selected ) : formClasses.unselected }
+      >
+        <ListItemIcon>
+          <Checkbox
+            value={!!boxChecked}
+            disabled={!canBeAssigned}
+            checked={!!boxChecked}
+            onClick={getCheckToggle(id)}
+          />
+        </ListItemIcon>
+        <ListItemText
+          className={canBeAssigned ? classes.name : classes.disabled}
+        >
+          {name}
+        </ListItemText>
+      </ListItem>
+    );
+  }
+
+  function renderAssignedEntry(presenceEntry) {
+    const { name, id } = presenceEntry;
+    if (!submitted[id]) {
+      return React.Fragment;
+    }
+    return (
+      <ListItem key={`assigned${id}`}>
+        <ListItemText
+          className={classes.name}
+        >
+          {name}
+        </ListItemText>
+      </ListItem>
+    );
+  }
 
   const displayNames = filteredNames || participants || [];
 
   return (
     <List
-    dense
-    className={clsx(formClasses.scrollableList, formClasses.sharedForm, formClasses.paddingRight)}
-  >
+      dense
+      className={clsx(formClasses.scrollableList, formClasses.sharedForm, formClasses.paddingRight)}
+    >
      <ListItem className={formClasses.searchContainer} key="search">
           <ListItemText >
             <TextField
@@ -188,15 +188,21 @@ function AssignmentList(props) {
             />
           </ListItemText>
         </ListItem>
-      <ListSubheader>
-        {intl.formatMessage({ id: listHeader })}
-      </ListSubheader>
       <List
           dense
           id="addressBook"
           className={clsx(formClasses.scrollContainer, classes.scrollContainerHeight)}
         >
       {displayNames.map((entry) => renderParticipantEntry(entry))}
+      </List>
+      <ListSubheader>
+          {intl.formatMessage({ id: listHeader })}
+      </ListSubheader>
+      <List
+        dense
+        id="addressBook"
+      >
+        {participants.map((entry) => renderAssignedEntry(entry))}
       </List>
     </List>
   );

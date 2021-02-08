@@ -157,7 +157,6 @@ export const usePlanFormStyles = makeStyles(
       height: 'calc(350px - (4rem + 20px))'
     },
     scrollableList: {
-      height: 350,
       overflowY: 'hidden',
       border: '1px solid #cfcfcf',
       borderRadius: 8,

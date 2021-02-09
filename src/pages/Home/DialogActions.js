@@ -58,21 +58,6 @@ function DialogActions(props) {
   const classes = useStyles();
   const intl = useIntl();
 
-  function goHome() {
-    if (action === 'dialog') {
-      // If you are on some page that is not in dialog path then stay there
-      if (parentMarketId) {
-        if (parentInvestibleId) {
-          navigate(history, formInvestibleLink(parentMarketId, parentInvestibleId));
-        } else {
-          navigate(history, formMarketLink(parentMarketId));
-        }
-      } else {
-        navigate(history, '/');
-      }
-    }
-  }
-
 
   function getEditLabel(){
     switch (marketType) {
@@ -121,7 +106,7 @@ function DialogActions(props) {
     if (activeMarket && !isGuest) {
       if (isFollowing) {
         actions.push(
-          <ChangeToObserverButton key="change-to-observer" marketId={marketId} onClick={goHome}/>,
+          <ChangeToObserverButton key="change-to-observer" marketId={marketId} />,
         );
       } else {
         actions.push(

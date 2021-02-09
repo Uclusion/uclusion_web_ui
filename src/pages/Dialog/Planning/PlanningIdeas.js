@@ -65,6 +65,10 @@ const usePlanningIdStyles = makeStyles(
           }
         }
       },
+      verifiedOverflow: {
+        overflowY: 'auto',
+        maxHeight: '30rem'
+      },
       stageLabel: {},
       containerEmpty: {},
       containerRed: {
@@ -414,6 +418,7 @@ function PlanningIdeas(props) {
           comments={comments}
           marketPresences={marketPresences}
           marketId={marketId}
+          overflowClass={classes.verifiedOverflow}
         />
       </div>
     </dl>
@@ -497,7 +502,8 @@ function Stage (props) {
     marketPresences,
     presenceId,
     limitInvestibles,
-    limitInvestiblesAge
+    limitInvestiblesAge,
+    overflowClass
   } = props;
   const [, dragHack] = useContext(LocalPlanningDragContext);
   const stageInvestibles = getUserSwimlaneInvestibles(investibles, limitInvestibles, limitInvestiblesAge,
@@ -531,6 +537,7 @@ function Stage (props) {
       singleInvestible ? classes.root : classes.regularAccepted}>
       <ul className={classes.list}>
         <Grid
+          className={overflowClass}
           container>
         {stageInvestibles.map(inv => {
           const { investible, market_infos: marketInfos } = inv;
@@ -569,7 +576,7 @@ Stage.propTypes = {
   id: PropTypes.string.isRequired,
   investibles: PropTypes.array.isRequired,
   marketId: PropTypes.string.isRequired,
-  fallbackOnClick: PropTypes.func,
+  fallbackOnClick: PropTypes.func
 };
 
 const useVotingStageClasses = makeStyles(

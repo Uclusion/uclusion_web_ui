@@ -135,13 +135,6 @@ function CurrentVoting(props) {
     );
   }
 
-  function goToAddOption() {
-    if (!inArchives) {
-      const link = formMarketAddInvestibleLink(marketId);
-      navigate(history, link);
-    }
-  }
-
   function onDropApprovable(event) {
     const investibleId = event.dataTransfer.getData('text');
     const moveInfo = {
@@ -175,26 +168,21 @@ function CurrentVoting(props) {
       {!_.isEmpty(sortedTalliesArray) && sortedTalliesArray.map((item) => getItemVote(item))}
       {_.isEmpty(sortedTalliesArray) && (
         <Grid item key="noneWarning">
-          <Link
-            onClick={goToAddOption}
-            underline="none"
+          <RaisedCard
+            className="raisedcard"
           >
-            <RaisedCard
-              className="raisedcard"
-            >
-              <CardContent className={classes.warnNoOptions}>
-                <div
-                  ref={ref}
-                  style={{
-                    fontSize,
-                  }}
-                  className={classes.title}
-                >
-                  {intl.formatMessage({ id: 'decisionDialogNoInvestiblesWarning' })}
-                </div>
-              </CardContent>
-            </RaisedCard>
-          </Link>
+            <CardContent className={classes.warnNoOptions}>
+              <div
+                ref={ref}
+                style={{
+                  fontSize,
+                }}
+                className={classes.title}
+              >
+                {intl.formatMessage({ id: 'decisionDialogNoInvestiblesWarning' })}
+              </div>
+            </CardContent>
+          </RaisedCard>
         </Grid>
       )}
     </Grid>

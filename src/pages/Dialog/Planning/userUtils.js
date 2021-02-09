@@ -96,12 +96,16 @@ export function sumNotificationCounts(presence, comments, marketPresencesState) 
       if (myInlinePresence) {
         const { critical_notifications: inlineCriticalNotifications,
           delayable_notifications: inlineDelayableNotifications } = myInlinePresence;
-        criticalNotificationCount += inlineCriticalNotifications;
-        delayableNotificationCount += inlineDelayableNotifications;
+        if (inlineCriticalNotifications) {
+          criticalNotificationCount += inlineCriticalNotifications;
+        }
+        if (inlineDelayableNotifications) {
+          delayableNotificationCount += inlineDelayableNotifications;
+        }
       }
     }
   });
-  return { criticalNotificationCount, delayableNotificationCount};
+  return { criticalNotificationCount, delayableNotificationCount };
 }
 
 export function onDropTodo(commentId, commentsState, marketId, setOperationRunning, intl, commentsDispatch, invDispatch,

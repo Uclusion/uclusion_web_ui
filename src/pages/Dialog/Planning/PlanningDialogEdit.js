@@ -32,7 +32,6 @@ function PlanningDialogEdit(props) {
   const intl = useIntl();
   const classes = usePlanFormStyles();
   const [allowedInvestibles, setAllowedInvestibles] = useState(acceptedStage.allowed_investibles);
-  const [showInvestibles, setShowInvestibles] = useState(verifiedStage.allowed_investibles);
   const [showInvestiblesAge, setShowInvestiblesAge] = useState(verifiedStage.days_visible);
   const [mutableMarket, setMutableMarket] = useState({
     ...market,
@@ -61,18 +60,13 @@ function PlanningDialogEdit(props) {
     setAllowedInvestibles(parseInt(value, 10));
   }
 
-  function onShowInvestiblesChange(event) {
-    const { value } = event.target;
-    setShowInvestibles(parseInt(value, 10));
-  }
-
   function onShowInvestiblesAgeChange(event) {
     const { value } = event.target;
     setShowInvestiblesAge(parseInt(value, 10));
   }
 
   function updateShowInvestibles(retValue) {
-    return updateStage(id, verifiedStage.id, showInvestibles, showInvestiblesAge).then((newStage) => {
+    return updateStage(id, verifiedStage.id, undefined, showInvestiblesAge).then((newStage) => {
       const marketStages = getStages(marketStagesState, id);
       const newStages = _.unionBy([newStage], marketStages, 'id');
       updateStagesForMarket(marketStagesDispatch, id, newStages);
@@ -105,15 +99,13 @@ function PlanningDialogEdit(props) {
               const marketStages = getStages(marketStagesState, id);
               const newStages = _.unionBy([newStage], marketStages, 'id');
               updateStagesForMarket(marketStagesDispatch, id, newStages);
-              if (showInvestibles !== verifiedStage.allowed_investibles
-                || showInvestiblesAge !== verifiedStage.days_visible) {
+              if (showInvestiblesAge !== verifiedStage.days_visible) {
                 return updateShowInvestibles(retValue);
               }
               return retValue;
             });
           }
-          if (showInvestibles !== verifiedStage.allowed_investibles
-            || showInvestiblesAge !== verifiedStage.days_visible) {
+          if (showInvestiblesAge !== verifiedStage.days_visible) {
             return updateShowInvestibles(retValue);
           }
           return retValue;
@@ -130,12 +122,6 @@ function PlanningDialogEdit(props) {
             <AllowedInProgress
               onChange={onAllowedInvestiblesChange}
               value={allowedInvestibles}
-            />
-          </Grid>
-          <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
-            <ShowInVerifiedStage
-              onChange={onShowInvestiblesChange}
-              value={showInvestibles}
             />
           </Grid>
           <Grid item md={5} xs={12} className={classes.fieldsetContainer}>

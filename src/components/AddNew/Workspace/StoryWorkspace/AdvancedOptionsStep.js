@@ -104,7 +104,6 @@ function AdvancedOptionsStep (props) {
     allowedInvestibles,
     investmentExpiration,
     votesRequired,
-    showInvestiblesLimit,
     showInvestiblesAge
   } = formData;
 
@@ -127,16 +126,6 @@ function AdvancedOptionsStep (props) {
             <AllowedInProgress
               onChange={handleChange('allowedInvestibles')}
               value={allowedInvestibles}
-            />
-          </Grid>
-          <Grid
-            item
-            xs={12}
-            className={optionsClasses.item}
-          >
-            <ShowInVerifiedStage
-              onChange={handleChange('showInvestiblesLimit')}
-              value={showInvestiblesLimit}
             />
           </Grid>
           <Grid

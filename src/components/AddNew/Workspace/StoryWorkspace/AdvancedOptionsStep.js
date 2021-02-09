@@ -18,7 +18,6 @@ import AllowedInProgress from '../../../../pages/Dialog/Planning/AllowedInProgre
 import { VoteExpiration, Votes } from '../../../AgilePlan';
 import { makeStyles } from '@material-ui/styles';
 import { MarketStagesContext } from '../../../../contexts/MarketStagesContext/MarketStagesContext';
-import ShowInVerifiedStage from '../../../../pages/Dialog/Planning/ShowInVerifiedStage'
 import ShowInVerifiedStageAge from '../../../../pages/Dialog/Planning/ShowInVerifiedStageAge'
 
 const useOptionsStyles = makeStyles(theme => {

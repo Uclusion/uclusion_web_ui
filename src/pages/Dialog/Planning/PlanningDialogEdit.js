@@ -15,7 +15,6 @@ import AllowedInProgress from './AllowedInProgress';
 import { getStages, updateStagesForMarket } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import _ from 'lodash'
-import ShowInVerifiedStage from './ShowInVerifiedStage'
 import ShowInVerifiedStageAge from './ShowInVerifiedStageAge'
 
 function PlanningDialogEdit(props) {

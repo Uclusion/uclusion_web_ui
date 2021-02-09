@@ -92,6 +92,8 @@ function PlanningDialog(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   // For security reasons you can't access source data while being dragged in case you are not the target website
   const [beingDraggedHack, setBeingDraggedHack] = useState({});
+  const [startTourNow, setStartTourNow] = useState(undefined);
+  const [runTourNow, setRunTourNow] = useState(undefined);
   const presences = getMarketPresences(marketPresencesState, marketId);
   const acceptedStage = marketStages.find(stage => stage.assignee_enter_only) || {};
   const inDialogStage = marketStages.find(stage => stage.allows_investment) || {};
@@ -141,11 +143,22 @@ function PlanningDialog(props) {
   const presenceMap = getPresenceMap(marketPresencesState, marketId);
   const tourSteps = inviteStoriesWorkspaceSteps(cognitoUser);
   const isMarketOwner = marketCreatedBy === myPresence.id;
+
   useEffect(() => {
-    if (!_.isEmpty(marketSubType) && isMarketOwner) {
+    if (startTourNow === true) {
       tourDispatch(startTour(INVITE_STORIES_WORKSPACE_FIRST_VIEW));
+      setRunTourNow(true);
     }
-  }, [marketCreatedBy, marketSubType, isMarketOwner, tourDispatch]);
+  }, [startTourNow, tourDispatch]);
+
+  useEffect(() => {
+    function hasMarketTodo() {
+      return !_.isEmpty(unResolvedMarketComments.find(comment => comment.comment_type === TODO_TYPE));
+    }
+    if (startTourNow === undefined && !_.isEmpty(marketSubType) && isMarketOwner && !isChannel && hasMarketTodo()) {
+      setStartTourNow(true);
+    }
+  }, [marketSubType, isMarketOwner, unResolvedMarketComments, isChannel, startTourNow]);
 
   return (
     <Screen
@@ -155,11 +168,14 @@ function PlanningDialog(props) {
       breadCrumbs={breadCrumbs}
       banner={banner}
     >
-      <UclusionTour
-        name={INVITE_STORIES_WORKSPACE_FIRST_VIEW}
-        hidden={hidden}
-        steps={tourSteps}
+      {runTourNow && (
+        <UclusionTour
+          name={INVITE_STORIES_WORKSPACE_FIRST_VIEW}
+          hidden={hidden}
+          ignoreTourRunning
+          steps={tourSteps}
         />
+      )}
       <DismissableText textId='planningEditHelp' />
       <div id="workspaceMain">
         <Summary market={market} hidden={hidden} activeMarket={activeMarket} inArchives={inArchives} />

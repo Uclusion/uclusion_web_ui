@@ -144,20 +144,22 @@ function CurrentVoting(props) {
 
   function onDropApprovable(event) {
     const investibleId = event.dataTransfer.getData('text');
-    const moveInfo = {
-      marketId,
-      investibleId,
-      stageInfo: {
-        current_stage_id: proposedStage.id,
-        stage_id: inCurrentVotingStage.id,
-      },
-    };
-    setOperationRunning(true);
-    return moveInvestibleToCurrentVoting(moveInfo)
-      .then((inv) => {
-        refreshInvestibles(invDispatch, diffDispatch, [inv]);
-        setOperationRunning(false);
-      });
+    if (isAdmin) {
+      const moveInfo = {
+        marketId,
+        investibleId,
+        stageInfo: {
+          current_stage_id: proposedStage.id,
+          stage_id: inCurrentVotingStage.id,
+        },
+      };
+      setOperationRunning(true);
+      return moveInvestibleToCurrentVoting(moveInfo)
+        .then((inv) => {
+          refreshInvestibles(invDispatch, diffDispatch, [inv]);
+          setOperationRunning(false);
+        });
+    }
   }
 
   const tallies = getInvestibleVotes();

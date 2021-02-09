@@ -45,12 +45,6 @@ function YourVoting(props) {
     setType(value);
   }
 
-  function onVoteSave() {
-    if (!isInitiative) {
-      navigate(history, formMarketLink(marketId));
-    }
-  }
-
   return (
     <div  id="pleaseVote">
       <h2>{yourVote ? isInitiative ? intl.formatMessage({ id: 'changeVoteInitiative' })
@@ -102,7 +96,6 @@ function YourVoting(props) {
         hasVoted={yourPresence && yourPresence.investments && yourPresence.investments.length > 0}
         allowMultiVote={allowMultiVote}
         showBudget={showBudget}
-        onSave={onVoteSave}
         storyMaxBudget={storyMaxBudget}
         multiplier={ type === undefined ? undefined : type === FOR ? 1 : -1}
       />

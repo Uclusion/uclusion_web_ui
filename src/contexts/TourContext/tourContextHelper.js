@@ -30,10 +30,6 @@ export function completeTour(dispatch, name){
   dispatch(markTourCompleted(name));
 }
 
-export function isTourRunning(state, name) {
-  return state && state.runningTour === name;
-}
-
 
 export function setCurrentStep(dispatch, name, currentStep){
   dispatch(setTourCurrentStep(name, currentStep));

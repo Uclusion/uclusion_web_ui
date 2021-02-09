@@ -7,7 +7,6 @@ import {
   getCurrentStep,
   getTourFamily,
   isTourCompleted,
-  isTourRunning,
   setCurrentStep
 } from '../../contexts/TourContext/tourContextHelper'
 import ReactJoyride from 'react-joyride'
@@ -39,7 +38,6 @@ function UclusionTour(props) {
     name,
     shouldRun,
     hidden,
-    ignoreTourRunning,
     ...rest
   } = props;
 
@@ -104,12 +102,11 @@ function UclusionTour(props) {
 
   useEffect(() => {
     const uiPrefCantRun = !hasUser || safeCompletedTours.includes(name);
-    const tourActive = isTourRunning(tourState, name) || ignoreTourRunning;
-    const iCanRun = !hidden && shouldRun && tourActive && !isCompleted && !uiPrefCantRun;
+    const iCanRun = !hidden && shouldRun && !isCompleted && !uiPrefCantRun;
     setRunTour(iCanRun);
     return () => {
     };
-  }, [hasUser, safeCompletedTours, hidden, tourState, shouldRun, isCompleted, name, ignoreTourRunning]);
+  }, [hasUser, safeCompletedTours, hidden, tourState, shouldRun, isCompleted, name]);
   if (!runTour) {
     return <React.Fragment/>;
   }

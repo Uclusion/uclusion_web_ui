@@ -434,7 +434,7 @@ function Comment(props) {
               marketId={anInlineMarket.id}
               comments={anInlineMarketInvestibleComments}
               inArchives={inArchives}
-              isAdmin={commentCreatedBy !== userId}
+              isAdmin={commentCreatedBy === userId}
             />
           </SubSection>
         </Grid>

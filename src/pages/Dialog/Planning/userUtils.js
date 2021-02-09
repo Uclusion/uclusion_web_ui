@@ -87,8 +87,8 @@ export function sumNotificationCounts(presence, comments, marketPresencesState) 
   let criticalNotificationCount = criticalNotifications;
   let delayableNotificationCount = delayableNotifications;
   (comments || []).forEach((comment) => {
-    const { inline_market_id: inlineMarketId } = comment;
-    if (inlineMarketId) {
+    const { inline_market_id: inlineMarketId, resolved } = comment;
+    if (inlineMarketId && !resolved) {
       const inlineMarketPresences = getMarketPresences(marketPresencesState, inlineMarketId);
       const myInlinePresence = inlineMarketPresences && inlineMarketPresences.find((presence) => {
         return presence.external_id === externalId;

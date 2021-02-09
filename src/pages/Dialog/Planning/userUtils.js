@@ -114,7 +114,6 @@ export function getCommenterPresences(marketPresences, comments, marketPresences
   return idList.concat(thisCommentPresences);
   }, []);
   const deduped = _.uniqBy(undeduped, 'id');
-  const filtered = deduped.filter((presence) => !presence.removed);
   return filtered;
 }
 

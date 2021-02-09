@@ -1,8 +1,6 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import AddEditVote from './AddEditVote'
-import { useHistory } from 'react-router'
-import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions'
 import { FormattedMessage, useIntl } from 'react-intl'
 import { DECISION_TYPE, INITIATIVE_TYPE } from '../../../constants/markets'
 import { Card, CardContent, FormControl, FormControlLabel, Radio, RadioGroup } from '@material-ui/core'
@@ -21,7 +19,6 @@ function YourVoting(props) {
     showBudget,
   } = props;
   const intl = useIntl();
-  const history = useHistory();
   const classes = useStyles();
   const { id: marketId, max_budget: storyMaxBudget, allow_multi_vote: allowMultiVote, market_type: marketType } = market;
   const isInitiative = marketType === INITIATIVE_TYPE;

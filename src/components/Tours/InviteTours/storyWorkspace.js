@@ -11,7 +11,7 @@ export function inviteStoriesWorkspaceSteps () {
       disableBeacon: true,
       target: '#marketTodos',
       placement: 'right',
-      content: 'Workspace TODOs are also color coded and their notifications use the same priority.',
+      content: 'The critical notification above reminds everyone to assign this immediate TODO or reduce its level.',
     },
     {
       disableBeacon: true,

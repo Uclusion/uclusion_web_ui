@@ -1,12 +1,12 @@
 import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
-import { CardContent, Grid, Link } from '@material-ui/core'
+import { CardContent, Grid } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import { red } from '@material-ui/core/colors'
 import { useIntl } from 'react-intl'
 import { useHistory } from 'react-router'
-import { formInvestibleLink, formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions'
+import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions'
 import RaisedCard from '../../../components/Cards/RaisedCard'
 import { getVoteTotalsForUser } from '../../../utils/userFunctions'
 import VoteCard from '../../../components/Cards/VoteCard'
@@ -64,7 +64,7 @@ function CurrentVoting(props) {
   const history = useHistory();
   const classes = useStyles();
   const intl = useIntl();
-  const { marketPresences, investibles, marketId, comments, inArchives, isAdmin } = props;
+  const { marketPresences, investibles, marketId, comments, isAdmin } = props;
   const strippedInvestibles = investibles.map(inv => inv.investible);
   const [messagesState] = useContext(NotificationsContext);
   const [marketStagesState] = useContext(MarketStagesContext);

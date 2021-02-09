@@ -5,9 +5,8 @@ import { IconButton, makeStyles, Tooltip } from '@material-ui/core'
 import {
   decomposeMarketPath,
   formInvestibleEditLink,
-  formInvestibleLink,
   formMarketEditLink,
-  formMarketLink, formMarketManageLink,
+  formMarketManageLink,
   navigate
 } from '../../utils/marketIdPathFunctions'
 import { useHistory, useLocation } from 'react-router'
@@ -43,8 +42,6 @@ function DialogActions(props) {
     marketId,
     marketStage,
     marketType,
-    parentMarketId,
-    parentInvestibleId,
     isAdmin,
     isFollowing,
     isGuest,

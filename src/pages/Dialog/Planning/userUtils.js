@@ -81,6 +81,44 @@ export function inVerifedSwimLane(inv, investibles, verifiedStage, marketId) {
   });
 }
 
+/**
+ * Gets all presence ids related to the comments <em>Including those on submarkets for the comment</em>
+ * A sub market participant is considered a collaborator if they've VOTED only.
+ * TODO, we should probably account for sub market comments too, but that's a bit of an edge case
+ * if they haven't voted
+ * @param presence
+ * @param comments
+ * @param marketPresencesState
+ */
+export function getCommenterPresences(marketPresences, comments, marketPresencesState) {
+  const undeduped = (comments || []).reduce((idList, comment) => {
+    const thisCommentPresences = [];
+    const { inline_market_id: inlineMarketId, created_by } = comment;
+    const createdPresence = marketPresences.find((presence) => presence.id === created_by);
+    if (createdPresence) {
+      thisCommentPresences.push(createdPresence);
+    }
+    if (inlineMarketId) {
+      // get all of the presences out of the inline market, and find the presences
+      // in THIS market that correspond to the inline market presence external ids
+      // (all presences are joinable on the external ID which is a unique id for the user across all markets)
+      // if that's found, and they have voted in the inline market, then add this market's presence to the collaborator list
+      const inlinePresences = getMarketPresences(marketPresencesState, inlineMarketId);
+      inlinePresences.forEach((inlinePresence) => {
+        const thisMarketPresence = marketPresences.find((presence) => presence.external_id === inlinePresence.external_id);
+        if (thisMarketPresence && inlinePresence.investments) {
+          thisCommentPresences.push(thisMarketPresence);
+        }
+      });
+    }
+  return idList.concat(thisCommentPresences);
+  }, []);
+  const deduped = _.uniqBy(undeduped, 'id');
+  const filtered = deduped.filter((presence) => !presence.removed);
+  return filtered;
+}
+
+
 export function sumNotificationCounts(presence, comments, marketPresencesState) {
   const { critical_notifications: criticalNotifications,
     delayable_notifications: delayableNotifications, external_id: externalId } = presence;

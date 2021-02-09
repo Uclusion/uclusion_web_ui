@@ -108,7 +108,8 @@ import { doSetEditWhenValid, isTinyWindow } from '../../../utils/windowUtils'
 import LinkMarket from '../../Dialog/LinkMarket'
 import Gravatar from '../../../components/Avatars/Gravatar';
 import { getInvestibleVoters } from '../../../utils/votingUtils';
-import { inVerifedSwimLane } from '../../Dialog/Planning/userUtils'
+import { getCommenterPresences, inVerifedSwimLane } from '../../Dialog/Planning/userUtils';
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 
 const useStyles = makeStyles(
   theme => ({
@@ -355,6 +356,7 @@ function PlanningInvestible(props) {
   } = props;
   const classes = useStyles();
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
+  const [marketPresencesState] = useContext(MarketPresencesContext);
   const [, diffDispatch] = useContext(DiffContext);
   const [changeStagesExpanded, setChangeStagesExpanded] = useState(false);
   const [newLabel, setNewLabel] = useState(undefined);
@@ -369,14 +371,15 @@ function PlanningInvestible(props) {
   const investmentReasons = investibleComments.filter(
     comment => comment.comment_type === JUSTIFY_TYPE
   );
-  const investibleCommentors = _.uniq(investibleComments.map((comment) => comment.created_by)) || [];
-  const voters = getInvestibleVoters(marketPresences, investibleId).map((voter) => voter.id);
+  const investibleCommentorPresences = getCommenterPresences(marketPresences, investibleComments, marketPresencesState);
+  const investibleCommentors = investibleCommentorPresences.map((presence) => presence.id);
+  const voters = getInvestibleVoters(marketPresences, investibleId);
   const concated = [...voters, ...investibleCommentors];
-  const investibleCollaborators = _.uniq(concated, 'id');
+  const investibleCollaborators = _.uniq(concated);
 
   const marketInfo = getMarketInfo(marketInvestible, marketId) || {};
   const { stage, assigned: invAssigned, children, days_estimate: marketDaysEstimate,
-    required_approvers: requiredApprovers, required_reviews: requiredReviewers } = marketInfo;
+    required_approvers:  requiredApprovers, required_reviews: requiredReviewers } = marketInfo;
   const [daysEstimate, setDaysEstimate] = useState(marketDaysEstimate);
   const assigned = invAssigned || [];
   const presencesFollowing = (marketPresences || []).filter((presence) => presence.following && !presence.market_banned) || [];

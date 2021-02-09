@@ -42,7 +42,7 @@ import { restoreHeader } from '../../../containers/Header';
 import { LocalPlanningDragContext } from './InvestiblesByWorkspace';
 import GravatarGroup from '../../../components/Avatars/GravatarGroup';
 import { getInvestibleVoters } from '../../../utils/votingUtils';
-import { getUserSwimlaneInvestibles, onDropTodo } from './userUtils'
+import { getCommenterPresences, getUserSwimlaneInvestibles, onDropTodo } from './userUtils';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 
 const warningColor = red['400'];
@@ -710,15 +710,17 @@ function StageInvestible (props) {
   const { id, name, created_at: createdAt, label_list: labelList } = investible;
   const history = useHistory();
   const to = formInvestibleLink(marketId, id);
+  const [marketPresencesState] = useContext(MarketPresencesContext);
   const safeChangeDate = Date.parse(marketInfo.last_stage_change_date);
   const classes = generalStageStyles();
 
   const commentsForInvestible = comments.filter((comment) => comment.investible_id === id);
-  const commentersForInvestible = _.uniq(commentsForInvestible.map((comment) => comment.created_by));
-  const commenterPresences = marketPresences.filter((presence) => commentersForInvestible.includes(presence.id));
+
+  const commenterPresences = getCommenterPresences(marketPresences, commentsForInvestible, marketPresencesState);
   const votersForInvestible = getInvestibleVoters(marketPresences, id);
   const concated = [...votersForInvestible, ...commenterPresences];
-  const collaboratorsForInvestible = _.uniqBy(concated, 'id')
+
+  const collaboratorsForInvestible = _.uniqBy(concated, 'id');
   return (
     <div>
       <StageLink

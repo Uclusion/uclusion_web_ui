@@ -19,8 +19,11 @@ import { isBlockedStage, isInReviewStage } from '../../contexts/MarketStagesCont
 import GravatarGroup from '../../components/Avatars/GravatarGroup'
 import Link from '@material-ui/core/Link'
 import { getMarketInfo } from '../../utils/userFunctions'
-import { onDropTodo } from '../Dialog/Planning/userUtils'
+import { getCommenterPresences, onDropTodo } from '../Dialog/Planning/userUtils';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { getInvestibleVoters } from '../../utils/votingUtils';
 
 function getInvestibleOnClick(id, marketId, history) {
   const link = formInvestibleLink(marketId, id);
@@ -52,7 +55,7 @@ const myClasses = makeStyles(
   { name: "Archive" }
 );
 
-export function getInvestibles(investibles, presenceMap, marketId, comments, history, intl, elevation, highlightMap,
+export function getInvestibles(investibles, marketPresences, marketPresencesState, presenceMap, marketId, comments, history, intl, elevation, highlightMap,
   allowDragDrop, onDragEnd, unResolvedMarketComments, presenceId, stage, setBeingDraggedHack) {
   const investibleData = investibles.map((inv) => {
     const aMarketInfo = getMarketInfo(inv, marketId);
@@ -89,9 +92,10 @@ export function getInvestibles(investibles, presenceMap, marketId, comments, his
       return presence ? presence.name : '';
     });
     const investibleComments = comments.filter(comment => comment.investible_id === id);
-    const investibleCommenters = _.uniq(investibleComments.map((comment) => comment.created_by));
-    const commentPresences = investibleCommenters.map((userId) => presenceMap[userId]);
-
+    const voters = getInvestibleVoters(marketPresences, id);
+    const commentPresences = getCommenterPresences(marketPresences, investibleComments, marketPresencesState);
+    const concated = [...voters, ...commentPresences];
+    const collaborators =  _.uniqBy(concated, 'id');
     function onDragStart(event) {
       const stageId = stage ? stage.id : undefined;
       event.dataTransfer.setData("text", id);
@@ -126,7 +130,7 @@ export function getInvestibles(investibles, presenceMap, marketId, comments, his
               <Typography style={{fontWeight: 700, flex: 2}}>{name}</Typography>
               {assignedNames.map((name) => (<Typography
                 style={{fontStyle: 'italic', fontSize: '.75rem', flex: 1}} key={name}>Assignee: {name}</Typography>))}
-              <GravatarGroup users={commentPresences}/>
+              <GravatarGroup users={collaborators}/>
             </div>
           </Link>
         </RaisedCard>
@@ -156,6 +160,8 @@ function ArchiveInvestbiles(props) {
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [, invDispatch] = useContext(InvestiblesContext);
   const [beingDraggedHack, setBeingDraggedHack] = useContext(LocalPlanningDragContext);
+  const [marketPresencesState] = useContext(MarketPresencesContext);
+  const marketPresences = getMarketPresences(marketPresencesState, marketId);
 
   function onDragEnd() {
     restoreHeader();
@@ -209,7 +215,7 @@ function ArchiveInvestbiles(props) {
       onDrop={onDrop}
       onDragOver={(event) => (stage && !stage.move_on_comment) && event.preventDefault()}
     >
-      {getInvestibles(investibles, presenceMap, marketId, comments, history, intl, elevation, highlightMap, allowDragDrop,
+      {getInvestibles(investibles, marketPresences, marketPresencesState, presenceMap, marketId, comments, history, intl, elevation, highlightMap, allowDragDrop,
       onDragEnd, unResolvedMarketComments, presenceId, stage, setBeingDraggedHack)}
     </Grid>
   );

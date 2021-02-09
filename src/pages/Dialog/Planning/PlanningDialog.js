@@ -172,6 +172,7 @@ function PlanningDialog(props) {
         <UclusionTour
           name={INVITE_STORIES_WORKSPACE_FIRST_VIEW}
           hidden={hidden}
+          ignoreTourRunning
           steps={tourSteps}
         />
       )}

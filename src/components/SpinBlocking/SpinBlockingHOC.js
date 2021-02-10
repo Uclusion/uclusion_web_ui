@@ -40,12 +40,14 @@ export function withSpinLock(Component) {
      * Only called if you don't have a spin checker
      */
     function myOnSpinStop(result) {
+      removeListener(VERSIONS_HUB_CHANNEL, listenerName);
       // if we don't have a spin checker, then just stop spinning
       endSpinning(result);
     }
 
     function myOnError(error) {
       console.error(error);
+      removeListener(VERSIONS_HUB_CHANNEL, listenerName);
       toastError('spinVersionCheckError');
       setSpinning(false);
       setOperationRunning(false);

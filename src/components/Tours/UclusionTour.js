@@ -108,7 +108,7 @@ function UclusionTour(props) {
     setRunTour(iCanRun);
     return () => {
     };
-  }, [hasUser, safeCompletedTours, hidden, tourState, shouldRun, isCompleted, name, ignoreTourRunning]);
+  }, [hasUser, safeCompletedTours, hidden, tourState, shouldRun, isCompleted, name]);
   if (!runTour) {
     return <React.Fragment/>;
   }

@@ -11,7 +11,7 @@ export function inviteStoriesWorkspaceSteps () {
       disableBeacon: true,
       target: '#marketTodos',
       placement: 'right',
-      content: 'The critical notification above reminds everyone to assign this immediate TODO or reduce its level.',
+      content: 'Creating an Immediate TODO for a bug or small task sends the critical notification you see in the header.',
     },
     {
       disableBeacon: true,

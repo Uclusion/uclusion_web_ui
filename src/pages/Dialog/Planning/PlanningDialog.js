@@ -93,7 +93,6 @@ function PlanningDialog(props) {
   // For security reasons you can't access source data while being dragged in case you are not the target website
   const [beingDraggedHack, setBeingDraggedHack] = useState({});
   const [startTourNow, setStartTourNow] = useState(undefined);
-  const [runTourNow, setRunTourNow] = useState(undefined);
   const presences = getMarketPresences(marketPresencesState, marketId);
   const acceptedStage = marketStages.find(stage => stage.assignee_enter_only) || {};
   const inDialogStage = marketStages.find(stage => stage.allows_investment) || {};
@@ -147,7 +146,6 @@ function PlanningDialog(props) {
   useEffect(() => {
     if (startTourNow === true) {
       tourDispatch(startTour(INVITE_STORIES_WORKSPACE_FIRST_VIEW));
-      setRunTourNow(true);
     }
   }, [startTourNow, tourDispatch]);
 
@@ -168,13 +166,11 @@ function PlanningDialog(props) {
       breadCrumbs={breadCrumbs}
       banner={banner}
     >
-      {runTourNow && (
-        <UclusionTour
-          name={INVITE_STORIES_WORKSPACE_FIRST_VIEW}
-          hidden={hidden}
-          steps={tourSteps}
-        />
-      )}
+      <UclusionTour
+        name={INVITE_STORIES_WORKSPACE_FIRST_VIEW}
+        hidden={hidden}
+        steps={tourSteps}
+      />
       <DismissableText textId='planningEditHelp' />
       <div id="workspaceMain">
         <Summary market={market} hidden={hidden} activeMarket={activeMarket} inArchives={inArchives} />

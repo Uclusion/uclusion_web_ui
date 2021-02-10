@@ -5,7 +5,6 @@ import PropTypes from 'prop-types'
 import { MARKET_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../../contexts/WebSocketContext'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { registerListener, removeListener } from '../../utils/MessageBusUtils'
-import { refreshGlobalVersion } from '../../api/versionedFetchUtils'
 
 const SPIN_CHECKER_POLL_DELAY = 75; // how often to run the spin checker
 
@@ -41,10 +40,8 @@ export function withSpinLock(Component) {
      * Only called if you don't have a spin checker
      */
     function myOnSpinStop(result) {
-      // if we don't have a spin checker, then just stop spinning and
-      // force a refresh (which will have it's own spin stuff)
+      // if we don't have a spin checker, then just stop spinning
       endSpinning(result);
-      refreshGlobalVersion();
     }
 
     function myOnError(error) {

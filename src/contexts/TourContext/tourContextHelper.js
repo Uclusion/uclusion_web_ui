@@ -31,7 +31,7 @@ export function completeTour(dispatch, name){
 }
 
 export function isTourRunning(state, name) {
-  return state && state.runningTour === name;
+  return state && state.runningTours && state.runningTours[name];
 }
 
 

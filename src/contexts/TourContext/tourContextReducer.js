@@ -56,9 +56,14 @@ function setCurrentStep(state, action) {
 
 function markTourStarted(state, action) {
   const { name } = action;
+  const running = state.runningTours || {};
+  const newRunning = {
+    ...running,
+    [name]: true,
+  };
   const newState = {
     ...state,
-    runningTour: name,
+    runningTours: newRunning,
   };
   return newState;
 }

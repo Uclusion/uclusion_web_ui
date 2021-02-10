@@ -67,7 +67,7 @@ const usePlanningIdStyles = makeStyles(
       },
       verifiedOverflow: {
         overflowY: 'auto',
-        maxHeight: '30rem'
+        maxHeight: '25rem'
       },
       stageLabel: {},
       containerEmpty: {},

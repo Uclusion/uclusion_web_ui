@@ -71,7 +71,6 @@ export function doCreateStoryWorkspace (dispatchers, formData, updateFormData, i
       const verifiedStage = stages.find((stage) => stage.appears_in_market_summary);
       // setup the allowed stories in the in progress stage if the option is set
       if (!advancedOptionsSkipped && formData.allowedInvestibles !== undefined) {
-        console.debug(`Got here with ${formData.allowedInvestibles}`);
         return updateStage(createdMarketId, inProgressStage.id, formData.allowedInvestibles)
           .then((newStage) => {
             const newStages = _.unionBy([newStage], stages, 'id');

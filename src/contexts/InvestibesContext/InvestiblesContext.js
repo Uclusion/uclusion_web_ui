@@ -12,6 +12,7 @@ import {
 import { LeaderContext } from '../LeaderContext/LeaderContext'
 import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
+import { TICKET_INDEX_CHANNEL } from '../TicketContext/ticketIndexContextMessages'
 
 const INVESTIBLES_CHANNEL = 'investibles';
 const INVESTIBLES_CONTEXT_NAMESPACE = 'investibles';
@@ -25,6 +26,17 @@ function pushIndexItems(diskState) {
   const indexItems = investibles.map((item) => item.investible);
   const indexMessage = { event: INDEX_UPDATE, itemType: INDEX_INVESTIBLE_TYPE, items: indexItems };
   pushMessage(SEARCH_INDEX_CHANNEL, indexMessage);
+  const ticketCodeItems = []
+  investibles.forEach((inv) => {
+    const { market_infos: marketInfos, investible } = inv;
+    marketInfos.forEach((item) => {
+      const { market_id: marketId, ticket_code: ticketCode } = item;
+      if (ticketCode) {
+        ticketCodeItems.push({ ticketCode, marketId, investibleId: investible.id });
+      }
+    });
+  });
+  pushMessage(TICKET_INDEX_CHANNEL, ticketCodeItems);
 }
 
 function InvestiblesProvider(props) {

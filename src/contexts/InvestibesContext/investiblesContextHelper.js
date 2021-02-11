@@ -8,6 +8,7 @@ import {
   INDEX_UPDATE,
   SEARCH_INDEX_CHANNEL
 } from '../SearchIndexContext/searchIndexContextMessages'
+import { TICKET_INDEX_CHANNEL } from '../TicketContext/ticketIndexContextMessages'
 
 export function getMarketInvestibles(state, marketId) {
   const values = Object.values(state);
@@ -75,6 +76,17 @@ export function refreshInvestibles(dispatch, diffDispatch, investibles, fromNetw
     return { ...investible, updated_by_you };
   });
   pushMessage(SEARCH_INDEX_CHANNEL, { event: INDEX_UPDATE, itemType: INDEX_INVESTIBLE_TYPE, items: diffInvestibles});
+  const ticketCodeItems = [];
+  investibles.forEach((inv) => {
+    const { market_infos: marketInfos, investible } = inv;
+    marketInfos.forEach((item) => {
+      const {market_id: marketId, ticket_code: ticketCode} = item;
+      if (ticketCode) {
+        ticketCodeItems.push({ ticketCode, marketId, investibleId: investible.id });
+      }
+    });
+  });
+  pushMessage(TICKET_INDEX_CHANNEL, ticketCodeItems);
   diffDispatch(addContents(diffInvestibles));
   const investibleHash = _.keyBy(fixed, (item) => item.investible.id);
   // // console.debug(investibleHash);

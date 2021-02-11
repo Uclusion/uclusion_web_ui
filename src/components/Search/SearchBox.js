@@ -9,13 +9,19 @@ import { INDEX_COMMENT_TYPE } from '../../contexts/SearchIndexContext/searchInde
 import { getCommentRoot } from '../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import CloseIcon from '@material-ui/icons/Close';
+import { TicketIndexContext } from '../../contexts/TicketContext/TicketIndexContext'
+import { getTicket } from '../../contexts/TicketContext/ticketIndexContextHelper'
+import { formInvestibleLink, navigate } from '../../utils/marketIdPathFunctions'
+import { useHistory } from 'react-router'
 
 const MAX_ALLOWABLE_RESULTS = 75;
 
 function SearchBox (props) {
   const intl = useIntl();
+  const history = useHistory();
   const [index] = useContext(SearchIndexContext);
   const [searchResults, setSearchResults] = useContext(SearchResultsContext);
+  const [ticketState] = useContext(TicketIndexContext);
   const [commentsState] = useContext(CommentsContext);
 
   function clearSearch () {
@@ -54,7 +60,13 @@ function SearchBox (props) {
 
   function onSearchChange (event) {
     const { value } = event.target;
-    updateIndex(value);
+    const ticket = getTicket(ticketState, value);
+    if (ticket) {
+      const { marketId, investibleId } = ticket;
+      navigate(history, formInvestibleLink(marketId, investibleId));
+    } else {
+      updateIndex(value);
+    }
   }
 
   const endAdornment = _.isEmpty(searchResults.search)? null : (

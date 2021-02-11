@@ -154,6 +154,7 @@ const messages = defineMessages({
   shareButtonExplanation: 'Share a read only link',
   shareButtonTitle: 'Share',
   inviteLinkerStory: 'For non-collaborators this link will also grant read only access.',
+  inviteLinkerTicketCode: 'Human friendly story identifier',
 
   // Support
   supportInfoText: 'Create bugs (but not feature requests) in <a>Uclusion issues</a> or send an email to <b>support</b> which includes the version and user ID above.',
@@ -329,6 +330,7 @@ const messages = defineMessages({
   daysEstimateHelp: 'Optional very rough expected date of completion.',
   daysEstimateMarketLabel: 'date of completion',
   votesRequiredHelp: "Number of approvals required before a story can be moved to 'Not Ready For Feedback'",
+  ticketSubCodeHelp: 'Short string to use in the human readable story code. Should be unique to this Workspace.',
   maxBudgetHelp: 'Maximum budget allowed for a story. Used to prevent stories from being too large.',
   voteExpirationHelp: "How many days before approvals expire. Prevents very old approval from being used.",
   reassignToMove: 'Re-assigning moves to the swimlanes.',

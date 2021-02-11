@@ -902,7 +902,9 @@ function PlanningInvestible(props) {
                       )}
                     </div>
                   )}
-                  <div style={{paddingLeft: "1rem", paddingRight: "1rem"}}><ShareStoryButton /></div>
+                  <div style={{paddingLeft: "1rem", paddingRight: "1rem"}}>
+                    <ShareStoryButton investibleId={investibleId} marketId={marketId} />
+                  </div>
                   {!inArchives && isAssigned && (
                       <MoveToNextVisibleStageActionButton
                         key="visible"

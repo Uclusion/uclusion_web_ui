@@ -10,7 +10,7 @@ import InviteLinker from '../../Dialog/InviteLinker'
 import { TODO_TYPE } from '../../../constants/comments'
 
 function ShareStoryButton(props) {
-  const { commentId, commentType, investibleId } = props;
+  const { commentId, commentType, investibleId, marketId } = props;
   const hashPart = commentId ? !investibleId && commentType === TODO_TYPE ? `#editc${commentId}` : `#c${commentId}`
     : undefined;
   const autoFocusRef = React.useRef(null);
@@ -49,6 +49,8 @@ function ShareStoryButton(props) {
         content={<InviteLinker
           marketType="story"
           marketToken={hashPart ? `${window.location.href}${hashPart}` : window.location.href}
+          investibleId={investibleId}
+          marketId={marketId}
         />}
         title={
           <React.Fragment>

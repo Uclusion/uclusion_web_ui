@@ -46,6 +46,9 @@ export function doCreateStoryWorkspace (dispatchers, formData, updateFormData, i
     if (formData.investmentExpiration) {
       marketInfo.investment_expiration = formData.investmentExpiration;
     }
+    if (formData.ticketSubCode) {
+      marketInfo.ticket_sub_code = formData.ticketSubCode;
+    }
   }
 
   let createdMarketId;

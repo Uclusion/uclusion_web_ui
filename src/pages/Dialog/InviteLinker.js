@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import { makeStyles } from '@material-ui/styles'
 import FileCopyIcon from '@material-ui/icons/FileCopy'
@@ -7,6 +7,9 @@ import { formInviteLink } from '../../utils/marketIdPathFunctions'
 import { Divider, InputBase, Typography } from '@material-ui/core'
 import TooltipIconButton from '../../components/Buttons/TooltipIconButton'
 import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
+import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
+import { getMarketInfo } from '../../utils/userFunctions'
+import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
 
 const useStyles = makeStyles(() => ({
   hidden: {
@@ -39,9 +42,14 @@ function InviteLinker(props) {
     marketToken,
     hidden,
     marketType,
+    investibleId,
+    marketId
   } = props;
   const classes = useStyles();
-
+  const [investiblesState] = useContext(InvestiblesContext);
+  const inv = getInvestible(investiblesState, investibleId);
+  const marketInfo = getMarketInfo(inv, marketId) || {};
+  const { ticket_code: ticketCode } = marketInfo;
   function getDirectionsId() {
     switch (marketType) {
       case PLANNING_TYPE:
@@ -65,12 +73,22 @@ function InviteLinker(props) {
     />
     </>
   );
+  const ticketCodeIcon = (
+    <>
+      <Divider className={classes.divider} orientation="vertical" />
+      <TooltipIconButton
+        translationId="inviteLinkerCopyToClipboard"
+        icon={<FileCopyIcon htmlColor="#3f6b72"/>}
+        onClick={() => navigator.clipboard.writeText(ticketCode)}
+      />
+    </>
+  );
   return (
     <div
       id="inviteLinker"
       className={hidden ? classes.hidden : classes.linkContainer}
     >
-      <Typography className={classes.input}>
+      <Typography style={{width: '100%'}}>
         { intl.formatMessage({ id: getDirectionsId() }) }
       </Typography>
       <InputBase
@@ -82,6 +100,22 @@ function InviteLinker(props) {
         endAdornment={icon}
         color={"primary"}
       />
+      {ticketCode && marketType === 'story' && (
+        <>
+          <Typography style={{marginTop: '1rem', width: '100%'}}>
+            { intl.formatMessage({ id: 'inviteLinkerTicketCode' }) }
+          </Typography>
+          <InputBase
+            className={classes.inputField}
+            fullWidth={true}
+            placeholder={ticketCode}
+            inputProps={{ 'aria-label': link, border: '1px solid #ccc' }}
+            value={ticketCode}
+            endAdornment={ticketCodeIcon}
+            color={"primary"}
+          />
+        </>
+      )}
     </div>
   );
 }

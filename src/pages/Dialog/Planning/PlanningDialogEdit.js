@@ -16,6 +16,7 @@ import { getStages, updateStagesForMarket } from '../../../contexts/MarketStages
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import _ from 'lodash'
 import ShowInVerifiedStageAge from './ShowInVerifiedStageAge'
+import { TextField, Typography } from '@material-ui/core'
 
 function PlanningDialogEdit(props) {
   const { onSpinStop, onCancel, market, acceptedStage, verifiedStage } = props;
@@ -44,7 +45,8 @@ function PlanningDialogEdit(props) {
     max_budget,
     investment_expiration,
     days_estimate,
-    votes_required
+    votes_required,
+    ticket_sub_code
   } = mutableMarket;
 
   function handleChange(name) {
@@ -87,7 +89,9 @@ function PlanningDialogEdit(props) {
           maxBudget,
           parseInt(investment_expiration, 10),
           daysEstimateInt,
-          votesRequiredInt
+          votesRequiredInt,
+          undefined,
+          ticket_sub_code
         ).then(market => {
           const retValue = {
             result: market,
@@ -137,6 +141,17 @@ function PlanningDialogEdit(props) {
           </Grid>
           <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
             <Votes onChange={handleChange("votes_required")} value={votes_required} />
+          </Grid>
+          <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
+            <TextField
+              id="name"
+              className={classes.input}
+              value={ticket_sub_code}
+              onChange={handleChange("ticket_sub_code")}
+            />
+            <Typography>
+              {intl.formatMessage({ id: "ticketSubCodeHelp" })}
+            </Typography>
           </Grid>
         </Grid>
       </CardContent>

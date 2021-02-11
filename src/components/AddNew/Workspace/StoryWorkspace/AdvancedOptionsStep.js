@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import { Typography, Card } from '@material-ui/core';
+import { Typography, Card, TextField } from '@material-ui/core'
 import { useIntl } from 'react-intl';
 import StepButtons from '../../StepButtons';
 import { DiffContext } from '../../../../contexts/DiffContext/DiffContext';
@@ -86,6 +86,12 @@ function AdvancedOptionsStep (props) {
     return createMarket({ ...formData, ...newValues });
   }
 
+  function onTicketSubCodeChange(event) {
+    const { value } = event.target;
+    updateFormData({
+      ticketSubCode: value
+    });
+  }
 
   function handleChange (name) {
     return (event) => {
@@ -103,7 +109,8 @@ function AdvancedOptionsStep (props) {
     allowedInvestibles,
     investmentExpiration,
     votesRequired,
-    showInvestiblesAge
+    showInvestiblesAge,
+    ticketSubCode
   } = formData;
 
   return (
@@ -154,6 +161,21 @@ function AdvancedOptionsStep (props) {
           >
             <Votes onChange={handleChange('votesRequired')} value={votesRequired}/>
           </Grid>
+        </Grid>
+        <Grid
+          item
+          xs={12}
+          className={optionsClasses.item}
+        >
+          <TextField
+            id="name"
+            className={classes.input}
+            value={ticketSubCode}
+            onChange={onTicketSubCodeChange}
+          />
+          <Typography>
+            {intl.formatMessage({ id: "ticketSubCodeHelp" })}
+          </Typography>
         </Grid>
         </Card>
         <div className={classes.borderBottom}/>

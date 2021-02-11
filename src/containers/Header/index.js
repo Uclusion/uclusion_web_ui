@@ -102,6 +102,13 @@ export const headerStyles = makeStyles((theme) => {
   };
 });
 
+export function removeHeader() {
+  const headerEl = document.getElementById('app-header-control');
+  if (headerEl) {
+    headerEl.style.display = 'none';
+  }
+}
+
 export function restoreHeader () {
   const headerEl = document.getElementById('app-header-control');
   if (headerEl) {
@@ -194,12 +201,6 @@ function Header (props) {
         position="fixed"
         id="app-header"
         className={classes.appBar}
-        onDragOver={(event) => {
-          const headerEl = document.getElementById('app-header-control');
-          if (headerEl) {
-            headerEl.style.display = 'none';
-          }
-        }}
       >
         <Toolbar className={classes.topBar}>
           {!hideTools && generateTitle()}

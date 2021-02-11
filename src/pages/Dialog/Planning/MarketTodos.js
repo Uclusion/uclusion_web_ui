@@ -37,7 +37,7 @@ import { SearchIndexContext } from '../../../contexts/SearchIndexContext/SearchI
 import { filterCommentsToSearch } from '../../../contexts/SearchIndexContext/searchIndexContextHelper'
 import CloseIcon from '@material-ui/icons/Close'
 import Chip from '@material-ui/core/Chip'
-import { restoreHeader } from '../../../containers/Header'
+import { removeHeader, restoreHeader } from '../../../containers/Header'
 import { LocalPlanningDragContext } from './InvestiblesByWorkspace'
 import { findMessageForCommentId } from '../../../utils/messageUtils'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
@@ -161,6 +161,7 @@ function MarketTodos (props) {
   }, [expandedCommentDispatch, hash, marketId, showTodos, comments]);
 
   function onDragStart(event, notificationType) {
+    removeHeader();
     const commentId = event.target.id.substring(1);
     event.dataTransfer.setData('text', commentId);
     event.dataTransfer.setData('notificationType', notificationType);

@@ -38,7 +38,7 @@ import {
   resolveInvestibleComments
 } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
-import { restoreHeader } from '../../../containers/Header';
+import { removeHeader, restoreHeader } from '../../../containers/Header'
 import { LocalPlanningDragContext } from './InvestiblesByWorkspace';
 import GravatarGroup from '../../../components/Avatars/GravatarGroup';
 import { getInvestibleVoters } from '../../../utils/votingUtils';
@@ -294,6 +294,7 @@ function PlanningIdeas(props) {
   }
 
   function onDragEnterStage (event, divId, divPresenceId) {
+    removeHeader();
     const { id, stageId, previousElementId, originalElementId } = beingDraggedHack;
     const elementId = `${divId}_${divPresenceId}`;
     if (elementId !== originalElementId && elementId !== previousElementId) {

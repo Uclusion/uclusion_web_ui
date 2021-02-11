@@ -8,7 +8,7 @@ import { formInvestibleLink, navigate } from '../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
 import { makeStyles } from '@material-ui/core/styles'
 import { yellow } from '@material-ui/core/colors'
-import { restoreHeader } from '../../containers/Header'
+import { removeHeader, restoreHeader } from '../../containers/Header'
 import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../constants/comments'
 import { stageChangeInvestible } from '../../api/investibles'
 import { refreshInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
@@ -97,6 +97,7 @@ export function getInvestibles(investibles, marketPresences, marketPresencesStat
     const concated = [...voters, ...commentPresences];
     const collaborators =  _.uniqBy(concated, 'id');
     function onDragStart(event) {
+      removeHeader();
       const stageId = stage ? stage.id : undefined;
       event.dataTransfer.setData("text", id);
       event.dataTransfer.setData("stageId", stageId);

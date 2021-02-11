@@ -86,7 +86,7 @@ export function inVerifedSwimLane(inv, investibles, verifiedStage, marketId) {
  * A sub market participant is considered a collaborator if they've VOTED only.
  * TODO, we should probably account for sub market comments too, but that's a bit of an edge case
  * if they haven't voted
- * @param presence
+ * @param marketPresences
  * @param comments
  * @param marketPresencesState
  */
@@ -103,7 +103,7 @@ export function getCommenterPresences(marketPresences, comments, marketPresences
       // in THIS market that correspond to the inline market presence external ids
       // (all presences are joinable on the external ID which is a unique id for the user across all markets)
       // if that's found, and they have voted in the inline market, then add this market's presence to the collaborator list
-      const inlinePresences = getMarketPresences(marketPresencesState, inlineMarketId);
+      const inlinePresences = getMarketPresences(marketPresencesState, inlineMarketId, true);
       inlinePresences.forEach((inlinePresence) => {
         const thisMarketPresence = marketPresences.find((presence) => presence.external_id === inlinePresence.external_id);
         if (thisMarketPresence && inlinePresence.investments) {
@@ -113,8 +113,7 @@ export function getCommenterPresences(marketPresences, comments, marketPresences
     }
   return idList.concat(thisCommentPresences);
   }, []);
-  const deduped = _.uniqBy(undeduped, 'id');
-  return deduped;
+  return _.uniqBy(undeduped, 'id');
 }
 
 

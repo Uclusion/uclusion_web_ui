@@ -372,11 +372,9 @@ function PlanningInvestible(props) {
     comment => comment.comment_type === JUSTIFY_TYPE
   );
   const investibleCommentorPresences = getCommenterPresences(marketPresences, investibleComments, marketPresencesState);
-  const investibleCommentors = investibleCommentorPresences.map((presence) => presence.id);
   const voters = getInvestibleVoters(marketPresences, investibleId);
-  const concated = [...voters, ...investibleCommentors];
-  const investibleCollaborators = _.uniq(concated);
-
+  const concated = [...voters, ...investibleCommentorPresences];
+  const investibleCollaborators = _.uniq((concated || []).map((presence) => presence.id));
   const marketInfo = getMarketInfo(marketInvestible, marketId) || {};
   const { stage, assigned: invAssigned, children, days_estimate: marketDaysEstimate,
     required_approvers:  requiredApprovers, required_reviews: requiredReviewers } = marketInfo;

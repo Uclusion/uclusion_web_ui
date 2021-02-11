@@ -45,11 +45,11 @@ export function removeInvestibleInvestments(state, dispatch, marketId, investibl
   });
 }
 
-export function getMarketPresences(state, marketId) {
+export function getMarketPresences(state, marketId, excludeExpired) {
   const presences = state[marketId] || []
   return presences.map((presence) => {
     const { investments, current_user: isCurrentUser } = presence;
-    if (isCurrentUser) {
+    if (isCurrentUser && !excludeExpired) {
       // Need to show expired investments for planning investible
       return presence;
     }

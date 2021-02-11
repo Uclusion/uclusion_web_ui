@@ -1065,7 +1065,7 @@ function Reply(props) {
         </Typography>
         <Typography className={classes.timeElapsed} variant="body2">
           <UsefulRelativeTime
-            value={Date.parse(comment.created_at)}
+            value={comment.created_at}
           />
         </Typography>
         {editing ? (

@@ -30,7 +30,7 @@ function UsefulRelativeTime (props) {
 }
 
 UsefulRelativeTime.propTypes = {
-  value: PropTypes.number.isRequired,
+  value: PropTypes.instanceOf(Date).isRequired,
 }
 
 export default UsefulRelativeTime

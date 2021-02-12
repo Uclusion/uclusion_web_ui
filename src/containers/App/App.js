@@ -16,11 +16,15 @@ import { AccountUserProvider } from '../../contexts/AccountUserContext/AccountUs
 import AccountPoller from '../Root/AccountPoller'
 import { BroadcastChannel } from 'broadcast-channel'
 import { onSignOut } from '../../utils/userFunctions'
+import { LeaderProvider } from '../../contexts/LeaderContext/LeaderContext'
+import { CommentsProvider } from '../../contexts/CommentsContext/CommentsContext'
+import { InvestiblesProvider } from '../../contexts/InvestibesContext/InvestiblesContext'
+import { MarketPresencesProvider } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { MarketsProvider } from '../../contexts/MarketsContext/MarketsContext'
 
 export const LogoutContext = React.createContext([]);
 
-function App (props) {
-
+function App(props) {
   const { authState } = props;
   const configs = { ...config };
   const [userAttributes, setUserAttributes] = useState({});
@@ -77,23 +81,33 @@ function App (props) {
 
   return (
     <CognitoUserProvider authState={authState}>
-      <AccountUserProvider authState={authState}>
-        <OnlineStateProvider>
-          <WebSocketProvider config={config}>
-            <AppConfigProvider appConfig={configs}>
-              <ThemeProvider theme={defaultTheme}>
-                <TourProvider>
-                  <AccountPoller>
-                    <LogoutContext.Provider value={logoutChannel}>
-                      <Root appConfig={configs}/>
-                    </LogoutContext.Provider>
-                  </AccountPoller>
-                </TourProvider>
-              </ThemeProvider>
-            </AppConfigProvider>
-          </WebSocketProvider>
-        </OnlineStateProvider>
-      </AccountUserProvider>
+      <LeaderProvider authState={authState}>
+        <MarketsProvider>
+          <CommentsProvider>
+            <InvestiblesProvider>
+              <MarketPresencesProvider>
+                <AccountUserProvider authState={authState}>
+                  <OnlineStateProvider>
+                    <WebSocketProvider config={config}>
+                      <AppConfigProvider appConfig={configs}>
+                        <ThemeProvider theme={defaultTheme}>
+                          <TourProvider>
+                            <AccountPoller>
+                              <LogoutContext.Provider value={logoutChannel}>
+                                <Root appConfig={configs}/>
+                              </LogoutContext.Provider>
+                            </AccountPoller>
+                          </TourProvider>
+                        </ThemeProvider>
+                      </AppConfigProvider>
+                    </WebSocketProvider>
+                  </OnlineStateProvider>
+                </AccountUserProvider>
+              </MarketPresencesProvider>
+            </InvestiblesProvider>
+          </CommentsProvider>
+        </MarketsProvider>
+      </LeaderProvider>
     </CognitoUserProvider>
   );
 }

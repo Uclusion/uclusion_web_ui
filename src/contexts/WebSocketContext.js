@@ -88,7 +88,7 @@ function WebSocketProvider(props) {
       }
     }
     function createWebSocket() {
-      // console.debug('Creating new websocket');
+      console.info(`Creating new websocket with is leader ${isLeader}`);
       const { webSockets } = config;
       const sockConfig = { wsUrl: webSockets.wsUrl, reconnectInterval: webSockets.reconnectInterval };
       const newSocket = new WebSocketRunner(sockConfig);

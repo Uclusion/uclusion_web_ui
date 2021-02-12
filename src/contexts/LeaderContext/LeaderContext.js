@@ -8,6 +8,7 @@ const LEADER_CHANNEL = 'leader';
 const LeaderContext = React.createContext(EMPTY_STATE);
 
 function LeaderProvider(props) {
+  const { children, authState } = props;
   const [state, dispatch] = useReducer((state, action) => {
     const { isLeader } = action;
     return { isLeader };
@@ -15,23 +16,29 @@ function LeaderProvider(props) {
   const [, setElector] = useState(undefined);
 
   useEffect(() => {
-    const myChannel = new BroadcastChannel(LEADER_CHANNEL);
-    const elector = createLeaderElection(myChannel);
-    elector.applyOnce().then((isLeader) => {
-      console.info(`Setting leader to ${isLeader}`);
-      dispatch({ isLeader });
-      if (!isLeader) {
-        return elector.awaitLeadership().then(() => dispatch({isLeader: true}));
-      }
-      return isLeader;
-    });
-    setElector(elector);
+    console.info(`Processing leader with authState ${authState}`);
+    if (authState === 'signedIn') {
+      const myChannel = new BroadcastChannel(LEADER_CHANNEL);
+      // If you grab leader not signed in then you risk stalling out as no one gets data
+      const elector = createLeaderElection(myChannel);
+      elector.applyOnce().then((isLeader) => {
+        console.info(`Setting leader to ${isLeader}`);
+        // Could use broadcast ID to send message out to others to refresh out of login page
+        // but its a bit risky as can somehow infinite refresh and corner of corner case anyway
+        dispatch({ isLeader });
+        if (!isLeader) {
+          return elector.awaitLeadership().then(() => dispatch({isLeader: true}));
+        }
+        return isLeader;
+      });
+      setElector(elector);
+    }
     return () => {};
-  }, []);
+  }, [authState]);
 
   return (
     <LeaderContext.Provider value={[state]}>
-      {props.children}
+      {children}
     </LeaderContext.Provider>
   );
 }

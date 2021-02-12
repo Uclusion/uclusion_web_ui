@@ -87,17 +87,22 @@ function Home(props) {
       if (!_.isEmpty(getExistingMarkets(versionsContext))) {
         // If there are markets already then do not run demo creation
         setClearedToCreate(false);
-      } else if (hasInitializedGlobalVersion(versionsContext) && !hidden && _.isEmpty(getInvitationMarker())) {
-        // We unfortunately cannot trust versions context to have the existing markets correctly.
-        // Possibly because of the way it is using the message bus. Therefore call the API before
-        // potential accidental duplicate demo market creation
-        getChangedIds(null).then((versions) => {
-          const {
-            foreground: foregroundList, background: backgroundList, banned: bannedList
-          } = versions;
-          // Do not create onboarding markets if they already have markets
-          setClearedToCreate(_.isEmpty(foregroundList) && _.isEmpty(backgroundList) && _.isEmpty(bannedList));
-        });
+      } else if (hasInitializedGlobalVersion(versionsContext) && !hidden) {
+        if (_.isEmpty(getInvitationMarker())) {
+          // We unfortunately cannot trust versions context to have the existing markets correctly.
+          // Possibly because of the way it is using the message bus. Therefore call the API before
+          // potential accidental duplicate demo market creation
+          getChangedIds(null).then((versions) => {
+            const {
+              foreground: foregroundList, background: backgroundList, banned: bannedList
+            } = versions;
+            // Do not create onboarding markets if they already have markets
+            setClearedToCreate(_.isEmpty(foregroundList) && _.isEmpty(backgroundList) && _.isEmpty(bannedList));
+          });
+        } else {
+          // If they came in on an invitation don't run demo
+          setClearedToCreate(false);
+        }
       }
     }
   }, [clearedToCreate, hidden, versionsContext]);

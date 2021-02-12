@@ -47,9 +47,13 @@ export function getVerifiedStage(state, marketId) {
   return marketStages.find((stage) => (stage.appears_in_market_summary));
 }
 
+export function isFurtherWorkStage(stage) {
+  return !stage.allows_assignment && !stage.close_comments_on_entrance;
+}
+
 export function getFurtherWorkStage(state, marketId) {
   const marketStages = getStages(state, marketId);
-  return marketStages.find((stage) => (!stage.allows_assignment && !stage.close_comments_on_entrance));
+  return marketStages.find((stage) => isFurtherWorkStage(stage));
 }
 
 export function getFullStage(state, marketId, stageId) {
@@ -57,9 +61,13 @@ export function getFullStage(state, marketId, stageId) {
   return marketStages.find((stage) => stage.id === stageId);
 }
 
+export function isRequiredInputStage(stage) {
+  return !stage.allows_issues && stage.move_on_comment;
+}
+
 export function getRequiredInputStage(state, marketId) {
   const marketStages = getStages(state, marketId);
-  return marketStages.find((stage) => (!stage.allows_issues && stage.move_on_comment));
+  return marketStages.find((stage) => isRequiredInputStage(stage));
 }
 
 export function getNotDoingStage(state, marketId) {

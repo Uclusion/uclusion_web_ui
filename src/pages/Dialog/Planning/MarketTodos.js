@@ -235,7 +235,7 @@ function MarketTodos (props) {
           item
           md={3}
           xs={12}
-          draggable={!operationRunning}
+          draggable={!operationRunning && !isInArchives}
           onDragStart={(event) => onDragStart(event, notificationType)}
           onDragEnd={onDragEnd}
           className={classes.outlined}

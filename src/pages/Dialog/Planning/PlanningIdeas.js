@@ -734,6 +734,7 @@ function StageInvestible (props) {
       <StageLink
         href={to}
         id={id}
+        draggable="false"
         onClick={event => {
           event.preventDefault();
           navigate(history, to);

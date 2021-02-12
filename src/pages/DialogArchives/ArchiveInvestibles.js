@@ -15,7 +15,10 @@ import { refreshInvestibles } from '../../contexts/InvestibesContext/investibles
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { LocalPlanningDragContext } from '../Dialog/Planning/InvestiblesByWorkspace'
-import { isBlockedStage, isInReviewStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
+import {
+  isBlockedStage, isFurtherWorkStage,
+  isRequiredInputStage
+} from '../../contexts/MarketStagesContext/marketStagesContextHelper'
 import GravatarGroup from '../../components/Avatars/GravatarGroup'
 import Link from '@material-ui/core/Link'
 import { getMarketInfo } from '../../utils/userFunctions'
@@ -104,7 +107,8 @@ export function getInvestibles(investibles, marketPresences, marketPresencesStat
       const originalElementId = `${stageId}_${presenceId}`;
       setBeingDraggedHack({id, stageId, originalElementId});
     }
-
+    const isDraggable = allowDragDrop && stage && ((_.isEmpty(requiresInputComments) && isRequiredInputStage(stage) )
+      || (_.isEmpty(blockedComments) && isBlockedStage(stage)) || isFurtherWorkStage(stage));
     return (
       <Grid
         key={id}
@@ -112,8 +116,7 @@ export function getInvestibles(investibles, marketPresences, marketPresencesStat
         item
         md={3}
         xs={12}
-        draggable={allowDragDrop && stage && ((_.isEmpty(requiresInputComments) && isInReviewStage(stage) )
-          || (_.isEmpty(blockedComments) && isBlockedStage(stage)) || !stage.allows_assignment)}
+        draggable={isDraggable}
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
       >
@@ -125,7 +128,7 @@ export function getInvestibles(investibles, marketPresences, marketPresencesStat
           }}
           elevation={elevation}
         >
-          <Link href={formInvestibleLink(marketId, id)} color="inherit">
+          <Link href={formInvestibleLink(marketId, id)} color="inherit" draggable="false">
             <div className={highlightMap[id] ? classes.warn : classes.outlined}>
               <Typography style={{fontSize: '.75rem', flex: 1}}>Updated: {intl.formatDate(updatedAt)}</Typography>
               <Typography style={{fontWeight: 700, flex: 2}}>{name}</Typography>

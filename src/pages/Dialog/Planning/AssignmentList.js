@@ -162,7 +162,8 @@ function AssignmentList(props) {
       dense
       className={clsx(formClasses.scrollableList, formClasses.sharedForm, formClasses.paddingRight)}
     >
-     <ListItem className={formClasses.searchContainer} key="search">
+      {participants && participants.length > 10 && (
+        <ListItem className={formClasses.searchContainer} key="search">
           <ListItemText >
             <TextField
               className={formClasses.search}
@@ -180,6 +181,7 @@ function AssignmentList(props) {
             />
           </ListItemText>
         </ListItem>
+      )}
       <List
           dense
           id="addressBook"

@@ -42,6 +42,7 @@ import { LocalPlanningDragContext } from './InvestiblesByWorkspace'
 import { findMessageForCommentId } from '../../../utils/messageUtils'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { isTinyWindow } from '../../../utils/windowUtils'
+import MarketTodoMenu from './MarketTodoMenu'
 
 const myClasses = makeStyles(
   theme => {
@@ -139,6 +140,8 @@ function MarketTodos (props) {
   const redComments = restrictedComments.filter((comment) => comment.notification_type === 'RED');
   const location = useLocation();
   const { hash } = location;
+  const [openMenuTodoId, setOpenMenuTodoId] = useState(undefined);
+  const [anchorEl, setAnchorEl] = useState(null);
 
   useEffect(() => {
     if (!showTodos && hash) {
@@ -205,6 +208,15 @@ function MarketTodos (props) {
     };
   }
 
+  function setOpenMenuCard(id, event) {
+    if (openMenuTodoId === id) {
+      setOpenMenuTodoId(undefined);
+    } else {
+      setAnchorEl(event.currentTarget);
+      setOpenMenuTodoId(id);
+    }
+  }
+
   function getCards (commentsGetting, marketId, history, intl, setCard) {
     function setCardAndScroll(comment) {
       setCard(comment);
@@ -247,7 +259,11 @@ function MarketTodos (props) {
               onChange={todoSelectedToggle(id)}
             />
           )}
-          <RaisedCard onClick={() => setCardAndScroll(comment)} elevation={0}>
+          {openMenuTodoId === id && anchorEl && (
+            <MarketTodoMenu comment={comment} editViewFunc={setCardAndScroll}
+                            openIdFunc={setOpenMenuTodoId} anchorEl={anchorEl} />
+          )}
+          <RaisedCard onClick={(event) => setOpenMenuCard(id, event)} elevation={0}>
             <div id={`drag${id}`} className={level ? classes.warnCard : classes.card}>
               <div style={{display: 'flex'}}>
                 <Typography style={{ fontSize: '.75rem', flex: 1 }}>Updated: {intl.formatDate(updated_at)}</Typography>

@@ -646,6 +646,7 @@ const messages = defineMessages({
   approveListHeader: 'Required approvers',
   // Address List
   addressListHeader: 'Addressed to',
+  todoAddressListHeader: 'Assign to',
   addressListMakeObserver: 'Make Yourself an Observer',
   addressListMakeParticipant: 'Make Yourself a Participant',
 
@@ -902,6 +903,10 @@ const messages = defineMessages({
   todoSection: 'TODOs',
   todoSectionHelp: 'Holder for simple issues or tasks that are not yet being worked on',
   toggleTodosExplanation: 'Click to open or close TODO section',
+  editTodo: 'Edit / View Thread',
+  moveTodoRed: 'Move to Immediate',
+  moveTodoYellow: 'Move to When Able',
+  moveTodoBlue: 'Move to When Convenient',
 
   // Search
   searchBoxPlaceholder: 'Search',

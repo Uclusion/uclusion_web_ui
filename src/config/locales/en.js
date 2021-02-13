@@ -354,7 +354,7 @@ const messages = defineMessages({
   newStory: 'New Story',
   newOption: 'New Option',
   noVoters: 'None',
-  storyHelp: 'Need something assigned and approved? Use the Create Story button.',
+  storyHelp: 'Need something assigned and approved? Create a story using the buttons in the swimlanes.',
   stageHelp: 'Hover over the name of a stage, like Ready for Approval, in the swim lane to see more information about it. The flow is',
   stageHelp1: 'Ideas and requirements go in the workspace description and bugs in workspace TODOs.',
   stageHelp2: 'When you are ready to start something create a story in "Ready for Approval".',

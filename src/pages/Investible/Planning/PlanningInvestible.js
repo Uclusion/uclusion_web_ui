@@ -693,7 +693,7 @@ function PlanningInvestible(props) {
     ];
   }
 
-  const canVote = !isAssigned && isInVoting && !inArchives;
+  const canVote = isInVoting && !inArchives;
   const yourPresence = marketPresences.find((presence) => presence.current_user);
   const yourVote = yourPresence && yourPresence.investments &&
     yourPresence.investments.find((investment) => investment.investible_id === investibleId);
@@ -981,8 +981,11 @@ function PlanningInvestible(props) {
           </Grid>
         </CardContent>
       </Card>
-      {isInVoting && !inArchives && isAdmin && (canVote ? (
+      {isInVoting && !inArchives && isAdmin && canVote && (
         <>
+          {isAssigned && (
+            <DismissableText textId="planningInvestibleCantVote" />
+          )}
           <YourVoting
             investibleId={investibleId}
             marketPresences={marketPresences}
@@ -1007,9 +1010,7 @@ function PlanningInvestible(props) {
             </>
           )}
         </>
-          ) : (
-            <DismissableText textId="planningInvestibleCantVote" />
-        ))}
+          )}
       <h2>
         <FormattedMessage id="decisionInvestibleOthersVoting" />
       </h2>

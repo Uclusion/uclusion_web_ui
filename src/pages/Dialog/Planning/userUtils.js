@@ -106,7 +106,7 @@ export function getCommenterPresences(marketPresences, comments, marketPresences
       const inlinePresences = getMarketPresences(marketPresencesState, inlineMarketId, true);
       inlinePresences.forEach((inlinePresence) => {
         const thisMarketPresence = marketPresences.find((presence) => presence.external_id === inlinePresence.external_id);
-        if (thisMarketPresence && inlinePresence.investments) {
+        if (thisMarketPresence && !_.isEmpty(inlinePresence.investments)) {
           thisCommentPresences.push(thisMarketPresence);
         }
       });

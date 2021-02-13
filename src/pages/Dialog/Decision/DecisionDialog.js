@@ -428,6 +428,8 @@ function DecisionDialog(props) {
               (<ExpandableAction
                 icon={<AddIcon htmlColor="white"/>}
                 label={intl.formatMessage({ id: 'decisionDialogAddExplanationLabel' })}
+                openLabel={intl.formatMessage({ id: 'decisionDialogAddInvestibleLabel'})}
+                useWhiteText
                 onClick={toggleInvestibleAdd}
                 disabled={!isAdmin}
                 tipPlacement="top-end"
@@ -451,6 +453,8 @@ function DecisionDialog(props) {
               (<ExpandableAction
                 icon={<AddIcon htmlColor="white"/>}
                 label={intl.formatMessage({ id: 'decisionDialogProposeExplanationLabel' })}
+                openLabel={intl.formatMessage({ id: 'decisionDialogProposeInvestibleLabel'})}
+                useWhiteText
                 onClick={toggleInvestibleAdd}
                 disabled={isAdmin}
                 tipPlacement="top-end"

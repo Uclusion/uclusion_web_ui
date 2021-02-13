@@ -52,7 +52,11 @@ const myClasses = makeStyles(
         padding: 0,
         margin: 0
       },
-      containerEmpty: {}
+      containerEmpty: {},
+      grow: {
+        padding: '30px',
+        flexGrow: 1,
+      },
     };
   },
   { name: "Archive" }
@@ -219,6 +223,9 @@ function ArchiveInvestbiles(props) {
       onDrop={onDrop}
       onDragOver={(event) => (stage && !stage.move_on_comment) && event.preventDefault()}
     >
+      {_.isEmpty(investibles) && (
+        <div className={classes.grow} />
+      )}
       {getInvestibles(investibles, marketPresences, marketPresencesState, presenceMap, marketId, comments, history, intl, elevation, highlightMap, allowDragDrop,
       onDragEnd, unResolvedMarketComments, presenceId, stage, setBeingDraggedHack)}
     </Grid>

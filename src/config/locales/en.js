@@ -280,7 +280,8 @@ const messages = defineMessages({
   investibleAssign: 'Story - Assignments',
   investibleReviewers: 'Story - Required Reviewers',
   investibleApprovers: 'Story - Required Approvers',
-  createAssignment: 'Assign story',
+  createAssignment: 'Assign Story',
+  createAssignmentExplanation: 'Assign new story to this person. Can add other assignees also.',
   investibleAssignForVotingLabel: 'Assign & Move Voting',
   investibleAddHeader: 'Add Investible',
   investibleEditStageHelper: 'Select to change stage',
@@ -535,7 +536,7 @@ const messages = defineMessages({
   immediateSectionHelp: 'These TODOs should be converted to stories and completed as soon as possible.',
   convenientSectionHelp: 'These TODOs are a priority if there are no immediate ones.',
   ableSectionHelp: 'These TODOs may or may not be a priority.',
-  storyFromComment: 'Move to story',
+  storyFromComment: 'Move to Story',
 
   // Decision Dialog
   decisionDialogSummaryLabel: 'Background Information',
@@ -653,6 +654,7 @@ const messages = defineMessages({
   dialogArchivesVerifiedHeader: 'Verified',
   dialogArchivesLabel: 'Workspace Archive',
   readyFurtherWorkHeader: 'Further Work',
+  createFurtherWorkExplanation: 'Create a new story that sends a notification demanding assignment.',
   requiresInputHeader: 'Requires Input',
   blockedHeader: 'Blocked',
   requiresInputSectionHelp: 'These stories have open questions or Dialogs. If yellow your approval on options is missing.',

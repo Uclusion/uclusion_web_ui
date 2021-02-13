@@ -60,6 +60,8 @@ import { LocalPlanningDragContext } from './InvestiblesByWorkspace'
 import { isInReviewStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { findMessageOfType, findMessageOfTypeAndId } from '../../../utils/messageUtils'
 import NotificationCountChips from '../NotificationCountChips'
+import AddIcon from '@material-ui/icons/Add'
+import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -123,11 +125,6 @@ function PlanningDialog(props) {
     }
   }
 
-  function onClick() {
-    const link = formMarketAddInvestibleLink(marketId);
-    navigate(history, link);
-  }
-
   const furtherWorkStage = marketStages.find((stage) => (!stage.allows_assignment && !stage.close_comments_on_entrance)) || {};
   const requiresInputStage = marketStages.find((stage) => (!stage.allows_issues && stage.move_on_comment)) || {};
   const furtherWorkInvestibles = getInvestiblesInStage(investibles, furtherWorkStage.id);
@@ -158,6 +155,10 @@ function PlanningDialog(props) {
     }
   }, [marketSubType, isMarketOwner, unResolvedMarketComments, isChannel, startTourNow]);
 
+  function onClickFurther() {
+    const link = formMarketAddInvestibleLink(marketId);
+    navigate(history, link);
+  }
   return (
     <Screen
       title={marketName}
@@ -181,11 +182,6 @@ function PlanningDialog(props) {
         </Typography>
       )}
       <dl className={clsx(metaClasses.root, metaClasses.flexRow)}>
-        {!inArchives && isAdmin && (
-          <div id="addStory" className={clsx(metaClasses.group, metaClasses.assignments)}>
-            <InvestibleAddActionButton key="investibleadd" onClick={onClick} />
-          </div>
-        )}
         <div id="viewArchive" className={clsx(metaClasses.group, metaClasses.assignments)}>
           <ViewArchiveActionButton key="archives" marketId={marketId} />
         </div>
@@ -248,26 +244,36 @@ function PlanningDialog(props) {
               inVerifiedStage={inVerifiedStage}
               requiresInputStage={requiresInputStage}
               activeMarket={activeMarket}
+              isAdmin={isAdmin}
             />
           </div>
         )}
-        {!_.isEmpty(furtherWorkInvestibles) && (
-          <SubSection
-            type={SECTION_TYPE_SECONDARY}
-            title={intl.formatMessage({ id: 'readyFurtherWorkHeader' })}
-          >
-            <ArchiveInvestbiles
-              comments={comments}
-              elevation={0}
-              marketId={marketId}
-              presenceMap={presenceMap}
-              investibles={furtherWorkInvestibles}
-              stage={furtherWorkStage}
-              presenceId={myPresence.id}
-              allowDragDrop
+        <SubSection
+          type={SECTION_TYPE_SECONDARY}
+          title={intl.formatMessage({ id: 'readyFurtherWorkHeader' })}
+          actionButton={
+            <ExpandableAction
+              icon={<AddIcon htmlColor="white"/>}
+              label={intl.formatMessage({ id: 'createFurtherWorkExplanation' })}
+              openLabel={intl.formatMessage({ id: 'planningDialogAddInvestibleLabel'})}
+              onClick={onClickFurther}
+              useWhiteText
+              disabled={!isAdmin}
+              tipPlacement="top-end"
             />
-          </SubSection>
-        )}
+          }
+        >
+          <ArchiveInvestbiles
+            comments={comments}
+            elevation={0}
+            marketId={marketId}
+            presenceMap={presenceMap}
+            investibles={furtherWorkInvestibles}
+            stage={furtherWorkStage}
+            presenceId={myPresence.id}
+            allowDragDrop
+          />
+        </SubSection>
         {isChannel && (
           <DismissableText textId='storyHelp' />
         )}
@@ -417,14 +423,23 @@ function InvestiblesByPerson(props) {
     inReviewStage,
     requiresInputStage,
     inVerifiedStage,
-    activeMarket
+    activeMarket,
+    isAdmin
   } = props;
+  const intl = useIntl();
+  const history = useHistory();
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const classes = useInvestiblesByPersonStyles();
   const marketPresencesSortedAlmost = _.sortBy(marketPresences, 'name');
   const marketPresencesSorted = _.sortBy(marketPresencesSortedAlmost, function (presence) {
     return !presence.current_user;
   });
+
+  function onClick(id) {
+    const link = formMarketAddInvestibleLink(marketId);
+    navigate(history, `${link}#assignee=${id}`);
+  }
+
   return marketPresencesSorted.map(presence => {
     const { id, name, email } = presence;
     const { criticalNotificationCount, delayableNotificationCount } = sumNotificationCounts(presence, comments,
@@ -441,11 +456,23 @@ function InvestiblesByPerson(props) {
         <CardHeader
           className={classes.header}
           id={`u${id}`}
-          title={<Typography>
-            {name}
-            <NotificationCountChips id={id} criticalNotifications={criticalNotificationCount}
-                                    delayableNotifications={delayableNotificationCount} />
-          </Typography>}
+          title={
+          <div style={{alignItems: "center", display: "flex", flexDirection: 'row'}}>
+            <Typography>
+              {name}
+              <NotificationCountChips id={id} criticalNotifications={criticalNotificationCount}
+                                      delayableNotifications={delayableNotificationCount} />
+            </Typography>
+            <div style={{flexGrow: 1}} />
+            <ExpandableAction
+              icon={<AddIcon htmlColor="black"/>}
+              label={intl.formatMessage({ id: 'createAssignmentExplanation' })}
+              openLabel={intl.formatMessage({ id: 'createAssignment'})}
+              onClick={() => onClick(id)}
+              disabled={!isAdmin}
+              tipPlacement="top-end"
+            />
+          </div>}
           avatar={<Gravatar className={classes.smallGravatar} email={email} name={name}/>}
           titleTypographyProps={{ variant: "subtitle2" }}
         />

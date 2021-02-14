@@ -123,6 +123,7 @@ export function getInvestibles(investibles, marketPresences, marketPresencesStat
         draggable={isDraggable}
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
+        style={{overflowWrap: "break-word"}}
       >
         <RaisedCard
           onClick={(event) => {

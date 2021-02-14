@@ -102,7 +102,8 @@ function PlanningDialog(props) {
   const inVerifiedStage = marketStages.find(stage => stage.appears_in_market_summary) || {};
   const visibleStages = marketStages.filter((stage) => stage.appears_in_context) || [];
   const visibleStageIds = visibleStages.map((stage) => stage.id);
-  const assignablePresences = presences.filter((presence) => !presence.market_banned && presence.following);
+  const assignablePresences = presences.filter((presence) => !presence.market_banned && presence.following
+    && !presence.market_guest);
   const isChannel = _.isEmpty(investibles);
 
   let lockedByName;

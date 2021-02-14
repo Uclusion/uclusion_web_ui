@@ -1,6 +1,6 @@
 import React, { useContext } from 'react'
 import PropTypes from 'prop-types';
-import { List, ListItem, ListItemText, ListSubheader, Popper, Typography } from '@material-ui/core'
+import { List, ListItem, ListItemText, ListSubheader, Popper } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles';
 import { useIntl } from 'react-intl';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
@@ -35,19 +35,6 @@ const useStyles = makeStyles((theme) => {
       fontWeight: 'bold',
       overflowWrap: 'break-word',
       cursor: 'pointer'
-    },
-    menuName: {
-      fontSize: '15px',
-      fontWeight: 'bold',
-      paddingLeft: '1rem',
-      paddingRight: '1rem',
-      cursor: 'pointer',
-    },
-    menu: {
-      "&:hover": {
-        border: '1px solid',
-        width: '100%'
-      },
     }
   };
 });
@@ -68,7 +55,7 @@ function MarketTodoMenu(props) {
     const { name, email, id } = presence;
 
     return (
-      <ListItem key={`assignTodo${id}`} className={classes.menu}
+      <ListItem key={`assignTodo${id}`} button
                 onClick={() => onDropTodo(commentId, commentState, marketId, setOperationRunning, intl,
                   commentDispatch, invDispatch, id)}>
         <GravatarAndName
@@ -112,31 +99,23 @@ function MarketTodoMenu(props) {
         dense
         className={classes.scrollableList}
       >
-        <ListItemText onClick={doEdit} className={classes.menu}>
-          <Typography variant="caption" className={classes.menuName}>
-            {intl.formatMessage({ id: 'editTodo' })}
-          </Typography>
-        </ListItemText>
+        <ListItem button onClick={doEdit}>
+          <ListItemText primary={intl.formatMessage({ id: 'editTodo' })} />
+        </ListItem>
         {myNotificationType !== 'RED' && (
-          <ListItemText onClick={() => moveTodo('RED')} className={classes.menu}>
-            <Typography variant="caption" className={classes.menuName}>
-              {intl.formatMessage({ id: 'moveTodoRed' })}
-            </Typography>
-          </ListItemText>
+          <ListItem onClick={() => moveTodo('RED')} button >
+            <ListItemText primary={intl.formatMessage({ id: 'moveTodoRed' })} />
+          </ListItem>
         )}
         {myNotificationType !== 'YELLOW' && (
-          <ListItemText onClick={() => moveTodo('YELLOW')} className={classes.menu}>
-            <Typography variant="caption" className={classes.menuName}>
-              {intl.formatMessage({ id: 'moveTodoYellow' })}
-            </Typography>
-          </ListItemText>
+          <ListItem onClick={() => moveTodo('YELLOW')} button >
+            <ListItemText primary={intl.formatMessage({ id: 'moveTodoYellow' })} />
+          </ListItem>
         )}
         {myNotificationType !== 'BLUE' && (
-          <ListItemText onClick={() => moveTodo('BLUE')} className={classes.menu}>
-            <Typography variant="caption" className={classes.menuName}>
-              {intl.formatMessage({ id: 'moveTodoBlue' })}
-            </Typography>
-          </ListItemText>
+          <ListItem onClick={() => moveTodo('BLUE')} button >
+            <ListItemText primary={intl.formatMessage({ id: 'moveTodoBlue' })} />
+          </ListItem>
         )}
         <ListSubheader>
           {intl.formatMessage({ id: 'todoAddressListHeader' })}

@@ -34,11 +34,13 @@ import SubSection from '../../../containers/SubSection/SubSection';
 import { SECTION_TYPE_SECONDARY_WARNING } from '../../../constants/global';
 import ArchiveInvestbiles from '../../DialogArchives/ArchiveInvestibles';
 import Link from '@material-ui/core/Link';
-import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formMarketAddInvestibleLink, formMarketLink, navigate } from '../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import Gravatar from '../../../components/Avatars/Gravatar';
 import NotificationCountChips from '../NotificationCountChips'
+import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
+import AddIcon from '@material-ui/icons/Add'
 export const LocalPlanningDragContext = React.createContext([]);
 
 function InvestiblesByWorkspace (props) {
@@ -124,8 +126,14 @@ function InvestiblesByWorkspace (props) {
         </Menu>
       </div>
       <LocalPlanningDragContext.Provider value={[beingDraggedHack, setBeingDraggedHack]}>
-        {activeWorkspaces.map(market => {
+        {activeWorkspaces.map((market) => {
+          function onClick(id) {
+            const link = formMarketAddInvestibleLink(market.id);
+            navigate(history, `${link}#assignee=${id}`);
+          }
           const marketPresences = getMarketPresences(marketPresencesState, market.id);
+          const assigningPresenceRaw = marketPresences && marketPresences.find((presence) => presence.current_user);
+          const assigningPresence = assigningPresenceRaw || {};
           const myPresence = marketPresences && marketPresences.find((presence) => {
             return presence.external_id === chosenPerson.external_id;
           });
@@ -165,16 +173,29 @@ function InvestiblesByWorkspace (props) {
               <CardHeader
                 className={classes.header}
                 id={`m${market.id}`}
-                title={<Typography>
-                  <Link color="inherit" id={market.id} key={market.id} href={formMarketLink(market.id)}
-                             onClick={(e) => {
-                               e.preventDefault();
-                               navigate(history, formMarketLink(market.id));
-                             }
-                             }>{market.name}</Link>
-                  <NotificationCountChips id={market.id} criticalNotifications={criticalNotificationCount}
-                                          delayableNotifications={delayableNotificationCount} />
-                </Typography>}
+                title={
+                  <div style={{alignItems: "center", display: "flex", flexDirection: 'row'}}>
+                    <Typography>
+                      <Link color="inherit" id={market.id} key={market.id} href={formMarketLink(market.id)}
+                                 onClick={(e) => {
+                                   e.preventDefault();
+                                   navigate(history, formMarketLink(market.id));
+                                 }
+                                 }>{market.name}</Link>
+                      <NotificationCountChips id={market.id} criticalNotifications={criticalNotificationCount}
+                                              delayableNotifications={delayableNotificationCount} />
+                    </Typography>
+                    <div style={{flexGrow: 1}} />
+                    <ExpandableAction
+                      icon={<AddIcon htmlColor="black"/>}
+                      label={intl.formatMessage({ id: 'createAssignmentExplanation' })}
+                      openLabel={intl.formatMessage({ id: 'createAssignment'})}
+                      onClick={() => onClick(presence.id)}
+                      disabled={!assigningPresence.is_admin}
+                      tipPlacement="top-end"
+                    />
+                  </div>
+                }
                 titleTypographyProps={{ variant: 'subtitle2' }}
               />
               <CardContent className={classes.content}>

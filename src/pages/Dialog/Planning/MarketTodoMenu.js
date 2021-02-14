@@ -62,7 +62,8 @@ function MarketTodoMenu(props) {
   const { market_id: marketId, id: commentId, notification_type: myNotificationType } = comment;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
-
+  const assignablePresences = marketPresences.filter((presence) => !presence.market_banned && presence.following
+    && !presence.market_guest) || [];
   function renderAssignedEntry(presence) {
     const { name, email, id } = presence;
 
@@ -140,7 +141,7 @@ function MarketTodoMenu(props) {
         <ListSubheader>
           {intl.formatMessage({ id: 'todoAddressListHeader' })}
         </ListSubheader>
-        {marketPresences.map((entry) => renderAssignedEntry(entry))}
+        {assignablePresences.map((entry) => renderAssignedEntry(entry))}
       </List>
     </Popper>
   );

@@ -102,16 +102,8 @@ function PlanningDialog(props) {
   const inVerifiedStage = marketStages.find(stage => stage.appears_in_market_summary) || {};
   const visibleStages = marketStages.filter((stage) => stage.appears_in_context) || [];
   const visibleStageIds = visibleStages.map((stage) => stage.id);
-  const assignedPresences = presences.filter(presence => {
-    const assignedInvestibles = getUserInvestibles(
-      presence.id,
-      marketId,
-      investibles,
-      visibleStageIds
-    );
-    return !_.isEmpty(assignedInvestibles);
-  });
-  const isChannel = _.isEmpty(assignedPresences);
+  const assignablePresences = presences.filter((presence) => !presence.market_banned);
+  const isChannel = _.isEmpty(investibles);
 
   let lockedByName;
   if (lockedBy) {
@@ -234,7 +226,7 @@ function PlanningDialog(props) {
               comments={comments}
               investibles={investibles}
               marketId={marketId}
-              marketPresences={assignedPresences}
+              marketPresences={assignablePresences}
               visibleStages={visibleStageIds}
               acceptedStage={acceptedStage}
               inDialogStage={inDialogStage}

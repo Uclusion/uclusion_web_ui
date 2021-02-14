@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import PropTypes from 'prop-types';
 import { List, ListItem, ListItemText, ListSubheader, Popper } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles';
@@ -51,6 +51,11 @@ function MarketTodoMenu(props) {
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const assignablePresences = marketPresences.filter((presence) => !presence.market_banned && presence.following
     && !presence.market_guest) || [];
+
+  const [inside, setInside] = useState(false);
+  const [pegLeft, setPegLeft] = useState(false);
+  const [pegLeftTimer, setPegLeftTimer] = useState(undefined);
+
   function renderAssignedEntry(presence) {
     const { name, email, id } = presence;
 
@@ -87,6 +92,32 @@ function MarketTodoMenu(props) {
     });
   }
 
+  function onEnter() {
+    setInside(true);
+    if (pegLeftTimer) {
+      clearTimeout(pegLeftTimer);
+      setPegLeftTimer(undefined);
+    }
+    setPegLeft(false);
+  }
+
+  function onOut() {
+    if (!pegLeft) {
+      setInside(false);
+      setPegLeftTimer(setTimeout(() => {
+        setPegLeft(true);
+      }, 1000));
+    }
+  }
+
+  useEffect(() => {
+    if (pegLeft && !inside) {
+      setPegLeft(false);
+      openIdFunc(undefined);
+    }
+    return () => {};
+  }, [inside, openIdFunc, pegLeft]);
+
   return (
     <Popper
       open={true}
@@ -96,6 +127,7 @@ function MarketTodoMenu(props) {
       className={classes.popper}
     >
       <List
+        onMouseOut={onOut} onMouseOver={onEnter}
         dense
         className={classes.scrollableList}
       >

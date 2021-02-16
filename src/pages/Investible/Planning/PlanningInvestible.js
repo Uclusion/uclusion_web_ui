@@ -778,7 +778,7 @@ function PlanningInvestible(props) {
       {!inArchives && isInAccepted && isAssigned && (
         <DismissableText textId='planningInvestibleAcceptedHelp' />
       )}
-      {!yourVote && !inArchives && canVote && (
+      {!yourVote && !inArchives && canVote && !isAssigned && (
         <DismissableText textId='planningInvestibleVotingHelp' />
       )}
       <Card elevation={0}>

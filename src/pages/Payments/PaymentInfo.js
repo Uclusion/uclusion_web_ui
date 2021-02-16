@@ -38,6 +38,7 @@ function PaymentInfo (props) {
     <Card>
       <SubSection
         title="Payment Cards"
+        padChildren
       >
 
         <StoredCards billingInfo={billingInfo}/>

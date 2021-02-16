@@ -155,6 +155,7 @@ function SubscriptionStatus (props) {
     <Card>
       <SubSection
         title="Subscription"
+        padChildren
       >
         <Typography>
           {tierMessage}

@@ -1,18 +1,23 @@
-import React from 'react'
-import { AppBar, makeStyles, Toolbar, Tooltip, Typography, } from '@material-ui/core'
-import PropTypes from 'prop-types'
+import React from 'react';
+import { AppBar, makeStyles, Toolbar, Tooltip, Typography, } from '@material-ui/core';
+import PropTypes from 'prop-types';
 import {
   SECTION_SUB_HEADER,
   SECTION_TYPE_SECONDARY,
   SECTION_TYPE_SECONDARY_WARNING,
   SECTION_TYPE_TERTIARY_WARNING
-} from '../../constants/global'
-import { useIntl } from 'react-intl'
+} from '../../constants/global';
+import { useIntl } from 'react-intl';
 
 const useStyles = makeStyles((theme) => {
   return {
     hide: {
       display: 'none'
+    },
+    childContainer: {
+    },
+    paddedChildContainer: {
+        padding: '1rem',
     },
     secondarySubHeaderWarning: {
       boxShadow: 'none',
@@ -68,14 +73,14 @@ const useStyles = makeStyles((theme) => {
     toolbar: theme.mixins.toolbar,
     searchContainer: {
       display: 'flex',
-      [theme.breakpoints.down("xs")]: {
+      [theme.breakpoints.down('xs')]: {
         flexDirection: 'column'
       }
     },
   };
 });
 
-function SubSection(props) {
+function SubSection (props) {
   const {
     children,
     hidden,
@@ -88,7 +93,8 @@ function SubSection(props) {
     id,
     helpTextId,
     bolder,
-    hideChildren
+    hideChildren,
+    padChildren,
   } = props;
   const intl = useIntl();
   const classes = useStyles();
@@ -129,7 +135,9 @@ function SubSection(props) {
         </Toolbar>
       </AppBar>
       <div className={children && !hideChildren ? classes.toolbar : classes.hide}>
-        {children}
+        <div className={padChildren? classes.paddedChildContainer : classes.childContainer}>
+          {children}
+        </div>
       </div>
     </React.Fragment>
 
@@ -147,7 +155,8 @@ SubSection.propTypes = {
   titleIcon: PropTypes.element,
   id: PropTypes.string,
   bolder: PropTypes.bool,
-  hideChildren: PropTypes.bool
+  hideChildren: PropTypes.bool,
+  padChildren: PropTypes.bool,
 };
 
 SubSection.defaultProps = {
@@ -158,7 +167,8 @@ SubSection.defaultProps = {
   type: SECTION_TYPE_SECONDARY,
   titleIcon: undefined,
   id: undefined,
-  bolder: false
+  bolder: false,
+  padChildren: false,
 };
 
 export default SubSection;

@@ -70,6 +70,7 @@ function Invoices (props) {
     <Card>
       <SubSection
         title="Invoices"
+        padChildren
       >
         <table className={classes.table}>
           <thead>

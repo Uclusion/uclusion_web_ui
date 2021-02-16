@@ -132,41 +132,49 @@ export function doCreateStoryWorkspace (dispatchers, formData, updateFormData, i
         currentStoryEstimate,
         currentStoryProgressSkipped,
       } = formData;
-      const realUploadedFiles = currentStoryUploadedFiles || [];
-      const processed = processTextAndFilesForSave(realUploadedFiles, currentStoryDescription);
-      const processedStoryDescription = processed.text ? processed.text : ' ';
-      const addInfo = {
-        marketId: createdMarketId,
-        name: currentStoryName,
-        description: processedStoryDescription,
-        uploadedFiles: processed.uploadedFiles,
-        assignments: [myUserId],
-      };
-      if (_.isNumber(currentStoryEstimate) && currentStoryEstimate > 0 && !currentStoryProgressSkipped) {
-        addInfo.daysEstimate = currentStoryEstimate;
-      }
-      return addPlanningInvestible(addInfo);
-    })
-    .then((investible) => {
-      investibleId = investible.investible.id;
-      const updateInfo = {
-        marketId: createdMarketId,
-        investibleId,
-        stageInfo: {
-          current_stage_id: inVotingStage.id,
-          stage_id: inProgressStage.id,
+      if (!_.isEmpty(currentStoryName)) {
+        const realUploadedFiles = currentStoryUploadedFiles || [];
+        const processed = processTextAndFilesForSave(realUploadedFiles, currentStoryDescription);
+        const processedStoryDescription = processed.text ? processed.text : ' ';
+        const addInfo = {
+          marketId: createdMarketId,
+          name: currentStoryName,
+          description: processedStoryDescription,
+          uploadedFiles: processed.uploadedFiles,
+          assignments: [myUserId],
+        };
+        if (_.isNumber(currentStoryEstimate) && currentStoryEstimate > 0 && !currentStoryProgressSkipped) {
+          addInfo.daysEstimate = currentStoryEstimate;
         }
-      };
-      return stageChangeInvestible(updateInfo);
+        return addPlanningInvestible(addInfo);
+      }
+      return Promise.resolve(false);
     })
     .then((investible) => {
-      addInvestible(investiblesDispatch, diffDispatch, investible);
-      const { currentStoryProgress, currentStoryProgressSkipped } = formData;
-      if (!_.isEmpty(currentStoryProgress) && !currentStoryProgressSkipped) {
-        return saveComment(createdMarketId, investibleId, undefined, currentStoryProgress, REPORT_TYPE, [], []);
-      } else {
-        return Promise.resolve(false);
+      if (investible) {
+        investibleId = investible.investible.id;
+        const updateInfo = {
+          marketId: createdMarketId,
+          investibleId,
+          stageInfo: {
+            current_stage_id: inVotingStage.id,
+            stage_id: inProgressStage.id,
+          }
+        };
+        return stageChangeInvestible(updateInfo);
       }
+      return Promise.resolve(false);
+    }).then((investible) => {
+      if (investible) {
+        addInvestible(investiblesDispatch, diffDispatch, investible);
+        const { currentStoryProgress, currentStoryProgressSkipped } = formData;
+        if (!_.isEmpty(currentStoryProgress) && !currentStoryProgressSkipped) {
+          return saveComment(createdMarketId, investibleId, undefined, currentStoryProgress, REPORT_TYPE, [], []);
+        } else {
+          return Promise.resolve(false);
+        }
+      }
+      return Promise.resolve(false);
     })
     .then((addedComment) => {
       if (addedComment) {

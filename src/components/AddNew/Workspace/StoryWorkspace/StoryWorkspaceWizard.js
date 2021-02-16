@@ -1,9 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import WorkspaceNameStep from './WorkspaceNameStep'
-import CurrentStoryStep from './CurrentStoryStep'
-import CurrentStoryProgressStep from './CurrentStoryProgressStep'
-import NextStoryStep from './NextStoryStep'
 import { WizardStylesProvider } from '../../WizardStylesContext';
 import FormdataWizard from 'react-formdata-wizard';
 import AdvancedOptionsStep from './AdvancedOptionsStep';
@@ -18,9 +15,6 @@ function StoryWorkspaceWizard(props) {
                         onStartOver={onStartOver}
         >
           <WorkspaceNameStep />
-          <CurrentStoryStep />
-          <CurrentStoryProgressStep/>
-          <NextStoryStep />
           <AdvancedOptionsStep />
         </FormdataWizard>
       </WizardStylesProvider>

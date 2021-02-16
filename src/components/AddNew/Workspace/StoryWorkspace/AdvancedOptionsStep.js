@@ -15,7 +15,7 @@ import WizardStepContainer from '../../WizardStepContainer';
 import Grid from '@material-ui/core/Grid';
 
 import AllowedInProgress from '../../../../pages/Dialog/Planning/AllowedInProgress';
-import { VoteExpiration, Votes } from '../../../AgilePlan';
+import { usePlanFormStyles, VoteExpiration, Votes } from '../../../AgilePlan'
 import { makeStyles } from '@material-ui/styles';
 import { MarketStagesContext } from '../../../../contexts/MarketStagesContext/MarketStagesContext';
 import ShowInVerifiedStageAge from '../../../../pages/Dialog/Planning/ShowInVerifiedStageAge'
@@ -104,6 +104,7 @@ function AdvancedOptionsStep (props) {
   }
 
   const optionsClasses = useOptionsStyles();
+  const otherClasses = usePlanFormStyles();
 
   const {
     allowedInvestibles,
@@ -169,7 +170,7 @@ function AdvancedOptionsStep (props) {
         >
           <TextField
             id="name"
-            className={classes.input}
+            className={otherClasses.input}
             value={ticketSubCode}
             onChange={onTicketSubCodeChange}
           />

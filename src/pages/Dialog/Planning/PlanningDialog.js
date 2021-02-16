@@ -221,25 +221,23 @@ function PlanningDialog(props) {
             />
           </SubSection>
         )}
-        {!isChannel && (
-          <div id="swimLanes">
-            <InvestiblesByPerson
-              comments={comments}
-              investibles={investibles}
-              marketId={marketId}
-              marketPresences={assignablePresences}
-              visibleStages={visibleStageIds}
-              acceptedStage={acceptedStage}
-              inDialogStage={inDialogStage}
-              inBlockingStage={inBlockingStage}
-              inReviewStage={inReviewStage}
-              inVerifiedStage={inVerifiedStage}
-              requiresInputStage={requiresInputStage}
-              activeMarket={activeMarket}
-              isAdmin={isAdmin}
-            />
-          </div>
-        )}
+        <div id="swimLanes">
+          <InvestiblesByPerson
+            comments={comments}
+            investibles={investibles}
+            marketId={marketId}
+            marketPresences={assignablePresences}
+            visibleStages={visibleStageIds}
+            acceptedStage={acceptedStage}
+            inDialogStage={inDialogStage}
+            inBlockingStage={inBlockingStage}
+            inReviewStage={inReviewStage}
+            inVerifiedStage={inVerifiedStage}
+            requiresInputStage={requiresInputStage}
+            activeMarket={activeMarket}
+            isAdmin={isAdmin}
+          />
+        </div>
         <SubSection
           type={SECTION_TYPE_SECONDARY}
           title={intl.formatMessage({ id: 'readyFurtherWorkHeader' })}

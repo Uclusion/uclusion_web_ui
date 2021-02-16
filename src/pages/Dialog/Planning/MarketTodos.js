@@ -15,7 +15,7 @@ import {
 import SubSection from '../../../containers/SubSection/SubSection'
 import ReadOnlyQuillEditor from '../../../components/TextEditors/ReadOnlyQuillEditor'
 import Comment from '../../../components/Comments/Comment'
-import { TODO_TYPE } from '../../../constants/comments'
+import { REPLY_TYPE, TODO_TYPE } from '../../../constants/comments'
 import AddIcon from '@material-ui/icons/Add'
 import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
 import CommentAdd from '../../../components/Comments/CommentAdd'
@@ -144,7 +144,7 @@ function MarketTodos (props) {
   const [anchorEl, setAnchorEl] = useState(null);
 
   useEffect(() => {
-    if (!showTodos && hash) {
+    if (hash) {
       const todoParents = comments.filter(comment => comment.comment_type === TODO_TYPE) || [];
       const todoCommentIds = [];
       todoParents.forEach((comment) => {
@@ -156,8 +156,25 @@ function MarketTodos (props) {
           }
         })
       })
-      if (todoCommentIds.find((anId) => hash.includes(anId))) {
-        expandedCommentDispatch({ type: EXPANDED_CONTROL, commentId: marketId, expanded: true });
+      const foundCommentId = todoCommentIds.find((anId) => hash.includes(anId));
+      if (foundCommentId) {
+        const foundComment = comments.find((comment) => comment.id === foundCommentId);
+        const { root_comment_id: rootId, comment_type: commentType } = foundComment;
+        let rootComment = foundComment;
+        if (commentType === REPLY_TYPE) {
+          rootComment = comments.find((comment) => comment.id === rootId);
+        }
+        const { notification_type: notificationType } = rootComment;
+        if (notificationType === 'RED') {
+          setEditRedCard(rootComment);
+        } else if (notificationType === 'YELLOW') {
+          setEditYellowCard(rootComment);
+        } else {
+          setEditCard(rootComment);
+        }
+        if (!showTodos) {
+          expandedCommentDispatch({ type: EXPANDED_CONTROL, commentId: marketId, expanded: true });
+        }
       }
     }
     return () => {};

@@ -263,7 +263,13 @@ function MarketTodos (props) {
             <MarketTodoMenu comment={comment} editViewFunc={setCardAndScroll}
                             openIdFunc={setOpenMenuTodoId} anchorEl={anchorEl} />
           )}
-          <RaisedCard onClick={(event) => setOpenMenuCard(id, event)} elevation={0}>
+          <RaisedCard onClick={(event) => {
+            if (isInArchives) {
+              setCardAndScroll(comment);
+            } else {
+              setOpenMenuCard(id, event);
+            }
+          }} elevation={0}>
             <div id={`drag${id}`} className={level ? classes.warnCard : classes.card}>
               <div style={{display: 'flex'}}>
                 <Typography style={{ fontSize: '.75rem', flex: 1 }}>Updated: {intl.formatDate(updated_at)}</Typography>

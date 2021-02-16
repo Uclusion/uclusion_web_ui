@@ -30,6 +30,7 @@ function AccountPromos (props) {
     return (
       <Card>
         <SubSection
+          padChildren
           title="Promo Codes"
         >
           <div>
@@ -61,6 +62,7 @@ function AccountPromos (props) {
     <Card>
       <SubSection
         title="Promotion Codes"
+        padChildren
       >
         <div>
           <Typography>

@@ -240,6 +240,8 @@ function CommentAdd (props) {
         if (stateFromDisk) {
           setBody(stateFromDisk);
           editorDefaultFunc(stateFromDisk);
+        } else {
+          setBody('');
         }
         setLoadedId(loadId);
       });

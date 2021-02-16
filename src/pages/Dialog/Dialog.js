@@ -2,7 +2,6 @@ import React, { useContext, useEffect, useState } from 'react'
 import _ from 'lodash'
 import { useHistory, useLocation } from 'react-router';
 import PropTypes from 'prop-types'
-import { withStyles } from '@material-ui/core/styles'
 import { useIntl } from 'react-intl'
 import {
   decomposeMarketPath,
@@ -34,42 +33,6 @@ import { userIsLoaded } from '../../contexts/AccountUserContext/accountUserConte
 import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import OnboardingBanner from '../../components/Banners/OnboardingBanner'
-
-const styles = (theme) => ({
-  root: {
-    height: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  toolbar: {
-    width: '100%',
-    display: 'flex',
-    alignItems: 'flex-end',
-    flexWrap: 'wrap',
-  },
-  toolbarButton: {
-    margin: theme.spacing(1),
-  },
-  content: {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  hidden: {
-    display: 'none',
-  },
-  dialog: {},
-  stageSelector: {
-    display: 'flex',
-    alignItems: 'center',
-    margin: theme.spacing(),
-    marginTop: theme.spacing(2),
-    width: 384,
-    [theme.breakpoints.only('xs')]: {
-      width: '100%',
-    },
-  },
-});
 
 function Dialog(props) {
   const { hidden } = props;
@@ -195,11 +158,15 @@ function Dialog(props) {
           const commentId = myHashFragment.startsWith('c') ? myHashFragment.substr(1)
             : myHashFragment.substr(5);
           const comment = getComment(commentsState, marketId, commentId) || {}
-          const { resolved, investible_id: investibleId } = comment
-          if (resolved && !investibleId) {
-            const link = formMarketArchivesLink(marketId)
+          const { resolved, investible_id: investibleId } = comment;
+          if (investibleId) {
+            const link = formInvestibleLink(marketId, investibleId);
+            const fullLink = `${link}#c${commentId}`;
+            navigate(history, fullLink, true);
+          } else if (resolved) {
+            const link = formMarketArchivesLink(marketId);
             const fullLink = myHashFragment.startsWith('c') ? `${link}#c${commentId}` : `${link}#editc${commentId}`;
-            navigate(history, fullLink, true)
+            navigate(history, fullLink, true);
           }
         }
       }
@@ -261,4 +228,4 @@ Dialog.propTypes = {
   hidden: PropTypes.bool.isRequired,
 };
 
-export default withStyles(styles)(Dialog);
+export default Dialog;

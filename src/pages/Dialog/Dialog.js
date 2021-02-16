@@ -191,13 +191,14 @@ function Dialog(props) {
           getInitiativeInvestible(investibles[0])
         }
       } else if (marketType === PLANNING_TYPE && myHashFragment) {
-        if (!myHashFragment.startsWith('cv') && myHashFragment.startsWith('c')) {
-          const commentId = myHashFragment.substr(1)
+        if (!myHashFragment.startsWith('cv') && (myHashFragment.startsWith('c')||myHashFragment.startsWith('editc'))) {
+          const commentId = myHashFragment.startsWith('c') ? myHashFragment.substr(1)
+            : myHashFragment.substr(5);
           const comment = getComment(commentsState, marketId, commentId) || {}
           const { resolved, investible_id: investibleId } = comment
           if (resolved && !investibleId) {
             const link = formMarketArchivesLink(marketId)
-            const fullLink = `${link}#c${commentId}`
+            const fullLink = myHashFragment.startsWith('c') ? `${link}#c${commentId}` : `${link}#editc${commentId}`;
             navigate(history, fullLink, true)
           }
         }

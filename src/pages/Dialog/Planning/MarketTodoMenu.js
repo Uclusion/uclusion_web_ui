@@ -45,7 +45,7 @@ function MarketTodoMenu(props) {
   const classes = useStyles();
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [, invDispatch] = useContext(InvestiblesContext);
-  const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const { market_id: marketId, id: commentId, notification_type: myNotificationType } = comment;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
@@ -120,7 +120,7 @@ function MarketTodoMenu(props) {
 
   return (
     <Popper
-      open={true}
+      open={!operationRunning}
       id="todo-menu"
       anchorEl={anchorEl}
       placement="top"

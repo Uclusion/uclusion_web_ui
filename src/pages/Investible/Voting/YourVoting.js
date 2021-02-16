@@ -27,7 +27,7 @@ function YourVoting(props) {
   let yourVote = yourPresence && yourPresence.investments && yourPresence.investments.find((investment) => investment.investible_id === investibleId);
   const { quantity } = yourVote || {};
   const myQuantity = quantity ? quantity : 0;
-  const yourReason = comments.find((comment) => comment.created_by === userId);
+  const yourReason = comments.find((comment) => comment.created_by === userId && comment.investible_id === investibleId);
   const [type, setType] = useState(isInitiative && myQuantity === 0 ? undefined : myQuantity < 0 ? AGAINST : FOR);
   if (isInitiative || isDecision) {
     if (yourVote && yourVote.deleted) {

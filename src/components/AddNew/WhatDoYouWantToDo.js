@@ -15,6 +15,13 @@ const useStyles = makeStyles(
           marginTop: '15px',
         }
       },
+      buttonContainer: {
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+      },
       buttonClassLarge: {
         marginLeft: 'auto',
         width: '35rem',
@@ -28,7 +35,7 @@ const useStyles = makeStyles(
           borderBottom: 'none',
           borderRadius: 4,
         },
-        "&:hover": {
+        '&:hover': {
           border: '1px solid'
         },
         [theme.breakpoints.down('xs')]: {
@@ -46,7 +53,7 @@ const useStyles = makeStyles(
           borderBottom: 'none',
           borderRadius: 4,
         },
-        "&:hover": {
+        '&:hover': {
           border: '1px solid'
         },
         [theme.breakpoints.down('xs')]: {
@@ -72,24 +79,34 @@ function WhatDoYouWantToDo (props) {
       <Typography variant="h5">
         {intl.formatMessage({ id: 'SignupWizardTitle' })}
       </Typography>
-      <Button
-        className={classes.buttonClassLarge}
-        onClick={() => setWizardToShow('storyWorkspace')}
+      <div
+        className={classes.buttonContainer}
       >
-        {intl.formatMessage({ id: 'SignupWizardStoryWorkspace' })}
-      </Button>
-      <Button
-        className={classes.buttonClass}
-        onClick={() => setWizardToShow('dialog')}
-      >
-        {intl.formatMessage({ id: 'SignupWizardDialog' })}
-      </Button>
-      <Button
-        className={classes.buttonClass}
-        onClick={() => setWizardToShow('initiative')}
-      >
-        {intl.formatMessage({ id: 'SignupWizardInitiative' })}
-      </Button>
+        <div>
+        <Button
+          className={classes.buttonClassLarge}
+          onClick={() => setWizardToShow('storyWorkspace')}
+        >
+          {intl.formatMessage({ id: 'SignupWizardStoryWorkspace' })}
+        </Button>
+        </div>
+        <div>
+        <Button
+          className={classes.buttonClass}
+          onClick={() => setWizardToShow('dialog')}
+        >
+          {intl.formatMessage({ id: 'SignupWizardDialog' })}
+        </Button>
+        </div>
+        <div>
+        <Button
+          className={classes.buttonClass}
+          onClick={() => setWizardToShow('initiative')}
+        >
+          {intl.formatMessage({ id: 'SignupWizardInitiative' })}
+        </Button>
+        </div>
+      </div>
     </Card>
   );
 }

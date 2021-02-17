@@ -47,6 +47,7 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { doSetEditWhenValid, isTinyWindow } from '../../../utils/windowUtils'
 import EditMarketButton from '../../Dialog/EditMarketButton'
 import ShareStoryButton from '../Planning/ShareStoryButton'
+import GavelIcon from '@material-ui/icons/Gavel';
 
 const useStyles = makeStyles((theme) => ({
   mobileColumn: {
@@ -210,7 +211,7 @@ function DecisionInvestible(props) {
     parent_comment_id: parentCommentId, parent_comment_market_id: parentCommentMarketId } = market;
   const isInline = !_.isEmpty(parentCommentId);
   const [commentsState] = useContext(CommentsContext);
-  let breadCrumbTemplates = [{ name: marketName, link: formMarketLink(marketId), id: 'marketCrumb'}];
+  let breadCrumbTemplates = [{ name: marketName, link: formMarketLink(marketId), id: 'marketCrumb', icon: <GavelIcon/>}];
   const [marketState] = useContext(MarketsContext);
   const [investiblesState] = useContext(InvestiblesContext);
   if (isInline) {

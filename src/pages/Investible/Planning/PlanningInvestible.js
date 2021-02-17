@@ -110,6 +110,7 @@ import Gravatar from '../../../components/Avatars/Gravatar';
 import { getInvestibleVoters } from '../../../utils/votingUtils';
 import { getCommenterPresences, inVerifedSwimLane } from '../../Dialog/Planning/userUtils';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import PlaylistAddCheckIcon from '@material-ui/icons/PlaylistAddCheck';
 
 const useStyles = makeStyles(
   theme => ({
@@ -424,7 +425,7 @@ function PlanningInvestible(props) {
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
   const [beingEdited, setBeingEdited] = useState(lockedBy === myPresence.id && displayEdit ? investibleId : undefined);
   const breadCrumbTemplates = [
-    { name: marketName, link: formMarketLink(marketId) }
+    { name: marketName, link: formMarketLink(marketId), icon: <PlaylistAddCheckIcon/> }
   ];
   if (inMarketArchives && !inVerifedSwimLane(marketInvestible, investibles, inVerifiedStage, marketId)) {
     breadCrumbTemplates.push({

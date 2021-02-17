@@ -49,6 +49,7 @@ import DecisionInvestibleAdd from './DecisionInvestibleAdd'
 import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import localforage from 'localforage'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
+import GavelIcon from '@material-ui/icons/Gavel';
 
 const useStyles = makeStyles(
   theme => ({
@@ -218,9 +219,7 @@ function DecisionDialog(props) {
   const [beingEdited, setBeingEdited] = useState(undefined);
   const activeMarket = marketStage === ACTIVE_STAGE;
   const inArchives = !activeMarket || (myPresence && !myPresence.following);
-  let breadCrumbTemplates = [];
-  const breadCrumbs = inArchives ? _.isEmpty(breadCrumbTemplates) ? makeArchiveBreadCrumbs(history)
-    : makeBreadCrumbs(history, breadCrumbTemplates) : makeBreadCrumbs(history);
+  const breadCrumbs = inArchives ? makeArchiveBreadCrumbs(history) : makeBreadCrumbs(history);
 
   useEffect(() => {
     tourDispatch(startTour(INVITE_DIALOG_FIRST_VIEW));
@@ -289,6 +288,7 @@ function DecisionDialog(props) {
   return (
     <Screen
       title={marketName}
+      titleIcon={<GavelIcon/>}
       tabTitle={marketName}
       hidden={hidden}
       breadCrumbs={breadCrumbs}

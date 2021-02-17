@@ -61,6 +61,7 @@ import { findMessageOfType, findMessageOfTypeAndId } from '../../../utils/messag
 import NotificationCountChips from '../NotificationCountChips'
 import AddIcon from '@material-ui/icons/Add'
 import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
+import PlaylistAddCheckIcon from '@material-ui/icons/PlaylistAddCheck';
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -156,6 +157,7 @@ function PlanningDialog(props) {
       title={marketName}
       hidden={hidden}
       tabTitle={marketName}
+      titleIcon={<PlaylistAddCheckIcon/>}
       breadCrumbs={breadCrumbs}
       banner={banner}
     >

@@ -20,6 +20,12 @@ export const headerStyles = makeStyles((theme) => {
     elevated: {
       zIndex: 1900,
     },
+    titleIcon: {
+      height: 16,
+      width: 16,
+      marginRight: 4,
+      marginBottom: -2,
+    },
     grow: {
       flexGrow: 1,
     },
@@ -125,7 +131,7 @@ function Header (props) {
   const [online] = useContext(OnlineStateContext);
   const history = useHistory();
   const {
-    breadCrumbs, toolbarButtons, appEnabled, hidden, title, logoLinkDisabled, hideTools
+    breadCrumbs, toolbarButtons, appEnabled, hidden, title, logoLinkDisabled, hideTools, titleIcon
   } = props;
 
   const [operationRunning] = useContext(OperationInProgressContext);
@@ -164,12 +170,27 @@ function Header (props) {
     };
   }, [operationRunning, logoTimer, pegLogo, logoImage, appEnabled]);
 
-  function generateTitle () {
+  function generateTitleCrumb (titleText, titleIcon) {
+    return (<div style={{ display: 'flex', alignItems: 'center' }}>
+        {titleIcon && (
+          <div>
+            {React.cloneElement(titleIcon, {className: classes.titleIcon})}
+          </div>
+        )}
+        <div>
+          {titleText}
+        </div>
+      </div>
+    );
+  }
+
+  function generateBreadCrumbs () {
+    // if we've been passed in breadcrumbs and are not hidden generate them
     if (breadCrumbs && !hidden) {
       return (
         <Breadcrumbs className={classes.breadcrumbs} separator="/">
           {breadCrumbs.map((crumb, index) => {
-            const { id, onClick, link, image, title } = crumb;
+            const { id, onClick, link, image, title, titleIcon } = crumb;
             const href = _.isEmpty(link) ? '#' : link;
             return (
               <Link id={id} key={index} href={href} onClick={onClick} color="inherit">
@@ -180,17 +201,18 @@ function Header (props) {
                     className={classes.breadCrumbImage}
                   />
                 )}
-                {!crumb.image && createTitle(title, 25)}
+                {!crumb.image && generateTitleCrumb(createTitle(title, 25), titleIcon)}
               </Link>
             );
           })}
-          <Typography color="textPrimary">{createTitle(title, 25)}</Typography>
+          <Typography color="textPrimary">{generateTitleCrumb(createTitle(title, 25), titleIcon)}</Typography>
         </Breadcrumbs>
       );
     }
+    // nothing passed, fall back to title itself
     return (
       <div className={classes.breadcrumbs}>
-        <Typography color="textPrimary">{createTitle(title, 30)}</Typography>
+        <Typography color="textPrimary">{createTitle(title, 30, titleIcon)}</Typography>
       </div>
     );
   }
@@ -203,7 +225,7 @@ function Header (props) {
         className={classes.appBar}
       >
         <Toolbar className={classes.topBar}>
-          {!hideTools && generateTitle()}
+          {!hideTools && generateBreadCrumbs()}
           <div className={classes.sidebarLogo}>
             <Link href="/" onClick={(event) => {
               event.preventDefault();
@@ -277,6 +299,7 @@ Header.propTypes = {
   breadCrumbs: PropTypes.arrayOf(PropTypes.object),
   toolbarButtons: PropTypes.arrayOf(PropTypes.any),
   title: PropTypes.any,
+  titleIcon: PropTypes.any,
   hidden: PropTypes.bool,
   appEnabled: PropTypes.bool.isRequired,
   logoLinkDisabled: PropTypes.bool,
@@ -287,6 +310,7 @@ Header.defaultProps = {
   breadCrumbs: [],
   toolbarButtons: [],
   title: '',
+  titleIcon: undefined,
   hidden: false,
   logoLinkDisabled: false,
   hideTools: false,

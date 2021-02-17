@@ -45,6 +45,7 @@ import { EMPTY_SPIN_RESULT } from '../../../constants/global'
 import InvestibleBodyEdit from '../InvestibleBodyEdit'
 import { doSetEditWhenValid, isTinyWindow } from '../../../utils/windowUtils'
 import LinkMarket from '../../Dialog/LinkMarket'
+import { Assessment } from '@material-ui/icons';
 
 const useStyles = makeStyles(
   theme => ({
@@ -272,6 +273,7 @@ function InitiativeInvestible(props) {
     <Screen
       title={name}
       tabTitle={name}
+      titleIcon={<Assessment/>}
       breadCrumbs={breadCrumbs}
       hidden={hidden}
     >

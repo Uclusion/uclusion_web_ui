@@ -65,6 +65,7 @@ function Screen(props) {
     hidden,
     loading,
     title,
+    titleIcon,
     children,
     sidebarActions,
     tabTitle,
@@ -119,6 +120,7 @@ function Screen(props) {
       </Helmet>
       <Header
         title={title}
+        titleIcon={titleIcon}
         breadCrumbs={usedBreadCrumbs}
         toolbarButtons={toolbarButtons}
         hidden={reallyAmLoading}
@@ -156,6 +158,7 @@ Screen.propTypes = {
   hidden: PropTypes.bool,
   loading: PropTypes.bool,
   title: PropTypes.any,
+  titleIcon: PropTypes.any,
   children: PropTypes.any.isRequired,
   sidebarActions: PropTypes.arrayOf(PropTypes.object),
   tabTitle: PropTypes.string.isRequired,
@@ -167,6 +170,7 @@ Screen.propTypes = {
 Screen.defaultProps = {
   breadCrumbs: [],
   title: '',
+  titleIcon: undefined,
   hidden: false,
   loading: false,
   toolbarButtons: [],

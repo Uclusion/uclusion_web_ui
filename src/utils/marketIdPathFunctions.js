@@ -71,6 +71,7 @@ export function navigate(history, to, insideUseEffect) {
 /**
  *
  * @param history
+ * @param marketType
  * @param crumbs A list objects of the type { name, link }
  * @param includeHome if Home Should be prepended to the list
  */
@@ -82,13 +83,14 @@ export function makeBreadCrumbs(history, crumbs = [], includeHome = true) {
   }
   const myCrumbs = homeCrumb.concat(crumbs);
   const breadCrumbs = myCrumbs.map((crumb) => {
-    const { name, link, image, id, onClick } = crumb;
+    const { name, link, image, id, onClick, icon } = crumb;
     const usedOnClick = onClick || ((event) => {
       event.preventDefault();
       navigate(history, link);
     });
     return {
       title: name,
+      titleIcon: icon,
       image,
       id,
       link,

@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react'
 import _ from 'lodash'
 import { FormattedMessage, useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
-import { Button, Card, CardActions, CardContent, } from '@material-ui/core'
+import { Button, Card, CardActions, CardContent, Checkbox, FormControlLabel, } from '@material-ui/core'
 import localforage from 'localforage'
 import { addPlanningInvestible } from '../../../api/investibles'
 import QuillEditor from '../../../components/TextEditors/QuillEditor'
@@ -42,14 +42,19 @@ import { getUiPreferences } from '../../../contexts/AccountUserContext/accountUs
 import { moveComments } from '../../../api/comments'
 import NameField from '../../../components/TextFields/NameField'
 import Comment from '../../../components/Comments/Comment'
+import { getAcceptedStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
+import { assignedInStage } from '../../../utils/userFunctions'
+import { getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 
 function PlanningInvestibleAdd(props) {
   const {
     marketId, classes, onCancel, onSave, storedState, onSpinComplete, createdAt, storyMaxBudget, allowMultiVote,
-    fromCommentIds
+    fromCommentIds, votesRequired
   } = props;
   const intl = useIntl();
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
+  const [marketStagesState] = useContext(MarketStagesContext);
   const { description: storedDescription, name: storedName, assignments: storedAssignments, storedUrlAssignee,
     days_estimate: storedDaysEstimate } = storedState;
   const [draftState, setDraftState] = useState(storedState);
@@ -91,6 +96,7 @@ function PlanningInvestibleAdd(props) {
   const [quantity, setQuantity] = useState(50);
   const [maxBudget, setMaxBudget] = useState('');
   const [maxBudgetUnit, setMaxBudgetUnit] = useState('');
+  const [skipApproval, setSkipApproval] = useState(false);
   const [reason, setReason] = useState('');
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [tourState, tourDispatch] = useContext(TourContext);
@@ -100,6 +106,7 @@ function PlanningInvestibleAdd(props) {
   const tourPreferences = userPreferences.tours || {};
   const { completedTours } = tourPreferences;
   const safeCompletedTours = _.isArray(completedTours)? completedTours : [];
+  const acceptedStage = getAcceptedStage(marketStagesState, marketId) || {};
 
   const itemKey = `add_investible_${marketId}`;
   function handleDraftState(newDraftState) {
@@ -198,6 +205,9 @@ function PlanningInvestibleAdd(props) {
     if (daysEstimate) {
       addInfo.daysEstimate = daysEstimate;
     }
+    if (skipApproval) {
+      addInfo.stageId = acceptedStage.id;
+    }
     return addPlanningInvestible(addInfo).then((inv) => {
       if (fromCommentIds) {
         const { investible } = inv;
@@ -263,6 +273,10 @@ function PlanningInvestibleAdd(props) {
     });
   }
 
+  const assignedInAcceptedStage = assignedInStage(getMarketInvestibles(investibleState, marketId), myPresence.id,
+    acceptedStage.id, marketId);
+  const acceptedFull = acceptedStage.allowed_investibles > 0 && assignedInAcceptedStage.length >= acceptedStage.allowed_investibles;
+
   return (
     <>
       <DismissableText textId='planningInvestibleAddHelp' />
@@ -284,6 +298,19 @@ function PlanningInvestibleAdd(props) {
             <fieldset className={classes.fieldset}>
               <legend>optional</legend>
               <DaysEstimate onChange={onDaysEstimateChange} value={daysEstimate} createdAt={createdAt} />
+              {isAssignedToMe && assignments.length === 1 && (
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      value={skipApproval}
+                      disabled={votesRequired > 1 || acceptedFull || !acceptedStage.id}
+                      checked={skipApproval}
+                      onClick={() => setSkipApproval(!skipApproval)}
+                    />
+                  }
+                  label={intl.formatMessage({ id: 'skipApprovalExplanation' })}
+                />
+              )}
             </fieldset>
           </div>
           <QuillEditor

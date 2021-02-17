@@ -38,7 +38,7 @@ import {
 import Screen from '../../../containers/Screen/Screen'
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
 import MoveToNextVisibleStageActionButton from './MoveToNextVisibleStageActionButton'
-import { getMarketInfo, getVotesForInvestible } from '../../../utils/userFunctions'
+import { assignedInStage, getMarketInfo, getVotesForInvestible } from '../../../utils/userFunctions'
 import {
   getAcceptedStage,
   getBlockedStage,
@@ -486,21 +486,8 @@ function PlanningInvestible(props) {
     // we have no usable data;
     return <></>;
   }
-  const invested = getVotesForInvestible(marketPresences, investibleId);
 
-  function assignedInStage(investibles, userId, stageId) {
-    return investibles.filter(investible => {
-      const { market_infos: marketInfos } = investible;
-      // // console.log(`Investible id is ${id}`);
-      const marketInfo = marketInfos.find(info => info.market_id === marketId);
-      // eslint-disable-next-line max-len
-      return (
-        marketInfo.stage === stageId &&
-        marketInfo.assigned &&
-        marketInfo.assigned.includes(userId)
-      );
-    });
-  }
+  const invested = getVotesForInvestible(marketPresences, investibleId);
 
   function hasEnoughVotes(myInvested, myRequired) {
     // if everyone is assigned, then we can't require any votes as nobody can vote
@@ -563,7 +550,8 @@ function PlanningInvestible(props) {
     return acc.concat(assignedInStage(
       investibles,
       userId,
-      inAcceptedStage.id
+      inAcceptedStage.id,
+      marketId
     ));
   }, []);
   const blockingComments = investibleComments.filter(
@@ -770,10 +758,12 @@ function PlanningInvestible(props) {
       breadCrumbs={breadCrumbs}
       hidden={hidden}
     >
-      {!inArchives && isInVoting && isAssigned && enoughVotes && _.size(invested) > 0 && _.isEmpty(assignedInStage(investibles, userId, inAcceptedStage.id)) && (
+      {!inArchives && isInVoting && isAssigned && enoughVotes && _.size(invested) > 0
+      && _.isEmpty(assignedInStage(investibles, userId, inAcceptedStage.id, marketId)) && (
         <DismissableText textId='planningInvestibleEnoughVotesHelp' />
       )}
-      {!inArchives && isInVoting && isAssigned && enoughVotes && !_.isEmpty(assignedInStage(investibles, userId, inAcceptedStage.id)) && (
+      {!inArchives && isInVoting && isAssigned && enoughVotes
+      && !_.isEmpty(assignedInStage(investibles, userId, inAcceptedStage.id, marketId)) && (
         <DismissableText textId='planningInvestibleAcceptedFullHelp' />
       )}
       {!inArchives && isInAccepted && isAssigned && (

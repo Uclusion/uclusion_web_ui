@@ -264,6 +264,7 @@ const messages = defineMessages({
   investibleAddDescriptionDefault: 'Add a description...',
   investibleAddCancelLabel: 'Cancel',
   investibleAddSaveLabel: 'Save',
+  skipApprovalExplanation: 'Skip getting approvals',
 
 
   // InvestibleEdit

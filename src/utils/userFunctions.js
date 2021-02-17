@@ -48,6 +48,20 @@ export function extractUsersList (marketPresencesState, addToMarketId, workspace
   }, {});
 }
 
+export function assignedInStage(investibles, userId, stageId, marketId) {
+  return investibles.filter(investible => {
+    const { market_infos: marketInfos } = investible;
+    // // console.log(`Investible id is ${id}`);
+    const marketInfo = marketInfos.find(info => info.market_id === marketId);
+    // eslint-disable-next-line max-len
+    return (
+      marketInfo.stage === stageId &&
+      marketInfo.assigned &&
+      marketInfo.assigned.includes(userId)
+    );
+  });
+}
+
 export function hasNotVoted(investible, marketPresencesState, marketsState, comments, marketId, externalId) {
   const { market_infos } = investible;
   const myInfo = market_infos.find((info) => info.market_id === marketId);

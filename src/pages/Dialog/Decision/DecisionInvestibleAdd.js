@@ -42,11 +42,6 @@ function DecisionInvestibleAdd(props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const marketStages = getStages(marketStagesState, marketId) || [];
   const investmentAllowedStage = marketStages.find((stage) => stage.allows_investment) || {};
-  const createdStage = marketStages.find((stage) => !stage.allows_investment) || {};
-  const stageChangeInfo = {
-    stage_id: investmentAllowedStage.id,
-    current_stage_id: createdStage.id,
-  };
   const emptyInvestible = { name: storedName || '', description: storedDescription };
   const [currentValues, setCurrentValues] = useState(emptyInvestible);
   const defaultClearFunc = () => {};
@@ -112,18 +107,13 @@ function DecisionInvestibleAdd(props) {
       const { market, stages, parent } = result;
       addCommentToMarket(parent, commentState, commentDispatch);
       const allowsInvestment = stages.find((stage) => stage.allows_investment);
-      const notAllowsInvestment = stages.find((stage) => !stage.allows_investment);
-      const stageInfo = {
-        stage_id: allowsInvestment.id,
-        current_stage_id: notAllowsInvestment.id,
-      };
       const processedDescription = tokensRemoved ? tokensRemoved : ' ';
       const addInfo = {
         marketId: market.id,
         uploadedFiles: filteredUploads,
         description: processedDescription,
         name,
-        stageInfo: stageInfo,
+        stageId: allowsInvestment.id,
       };
       return addInvestibleToStage(addInfo);
     }).then((investible) => {
@@ -162,7 +152,7 @@ function DecisionInvestibleAdd(props) {
       uploadedFiles: filteredUploads,
       description: processedDescription,
       name,
-      stageInfo: stageChangeInfo, // ignored by addDecisionInvestible
+      stageId: investmentAllowedStage.id, // ignored by addDecisionInvestible
     };
     const promise = isAdmin ? addInvestibleToStage(addInfo) : addDecisionInvestible(addInfo);
     return promise.then((investible) => {
@@ -231,7 +221,7 @@ function DecisionInvestibleAdd(props) {
           onSpinStop={onSpinComplete}
           className={classes.actionPrimary}
           color="primary"
-          disabled={!name || (!parentCommentId && !stageChangeInfo.current_stage_id)}
+          disabled={!name || (!parentCommentId && !investmentAllowedStage.id)}
           hasSpinChecker
           marketId={marketId}
           variant="contained"
@@ -243,7 +233,7 @@ function DecisionInvestibleAdd(props) {
         <SpinBlockingButton
           variant="contained"
           color="primary"
-          disabled={!name || (!parentCommentId && !stageChangeInfo.current_stage_id)}
+          disabled={!name || (!parentCommentId && !investmentAllowedStage.id)}
           id="saveAddAnother"
           onClick={handleSaveAddAnother}
           hasSpinChecker

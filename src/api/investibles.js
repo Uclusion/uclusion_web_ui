@@ -42,30 +42,19 @@ export function deleteAttachedFilesFromInvestible(marketId, investibleId, paths)
     .catch((error) => toastErrorAndThrow(error, 'errorInvestibleRemoveAttachedFilesFailed'));
 }
 
-export function addDecisionInvestible (addInfo) {
+export function addDecisionInvestible(addInfo) {
   const {
     marketId,
-    name,
-    description,
-    uploadedFiles,
   } = addInfo;
   return getMarketClient(marketId)
-    .then((client) => client.investibles.create(name, description, uploadedFiles))
+    .then((client) => client.investibles.create(addInfo))
     .catch((error) => toastErrorAndThrow(error, 'errorDecisionInvestibleAddFailed'));
 }
 
 export function addPlanningInvestible (addInfo) {
-  const {
-    marketId,
-    name,
-    description,
-    uploadedFiles,
-    assignments,
-    daysEstimate,
-    labelList
-  } = addInfo;
+  const { marketId } = addInfo;
   return getMarketClient(marketId)
-    .then((client) => client.investibles.create(name, description, uploadedFiles, assignments, daysEstimate, labelList))
+    .then((client) => client.investibles.create(addInfo))
     .catch((error) => toastErrorAndThrow(error, 'errorPlanningInvestibleAddFailed'));
 }
 
@@ -109,16 +98,8 @@ export function deleteInvestible (marketId, investibleId) {
 export function addInvestibleToStage(addInfo) {
   const {
     marketId,
-    name,
-    description,
-    uploadedFiles,
-    stageInfo, // contains the current and next stage like change investible stage
   } = addInfo;
   return getMarketClient(marketId)
-    .then((client) => client.investibles.create(name, description, uploadedFiles)
-      .then((inv) => {
-        const { investible } = inv;
-        const { id } = investible;
-        return client.investibles.stateChange(id, stageInfo);
-      })).catch((error) => toastErrorAndThrow(error, 'errorInvestibleAddFailed'));
+    .then((client) => client.investibles.create(addInfo))
+      .catch((error) => toastErrorAndThrow(error, 'errorInvestibleAddFailed'));
 }

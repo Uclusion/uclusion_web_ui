@@ -98,16 +98,11 @@ function createProjectWorkspace (dispatchers) {
         const { market, stages, parent } = result;
         marketComments.push(parent);
         const allowsInvestment = stages.find((stage) => stage.allows_investment);
-        const notAllowsInvestment = stages.find((stage) => !stage.allows_investment);
-        const stageInfo = {
-          stage_id: allowsInvestment.id,
-          current_stage_id: notAllowsInvestment.id,
-        };
         const addInfo = {
           marketId: market.id,
           description: '<p>Options make decisions more clear.</p>',
           name: 'Questions with options',
-          stageInfo: stageInfo,
+          stageId: allowsInvestment.id,
         };
         return addInvestibleToStage(addInfo).then((addedOption) => {
           marketInvestibles.push(addedOption);

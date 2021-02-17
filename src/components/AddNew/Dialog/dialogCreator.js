@@ -39,7 +39,6 @@ export function createMyDialog (dispatchers, formData, updateFormData) {
 
   let createdMarketId;
   let inVotingStage;
-  let createdStage;
   return createDecision(marketInfo)
     .then((marketDetails) => {
       const {
@@ -51,7 +50,6 @@ export function createMyDialog (dispatchers, formData, updateFormData) {
       addMarketToStorage(marketsDispatch, diffDispatch, market);
       pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, createdMarketId, stages });
       addPresenceToMarket(presenceDispatch, createdMarketId, presence);
-      createdStage = stages.find((stage) => !stage.allows_investment);
       inVotingStage = stages.find((stage) => stage.allows_investment);
       if (addOptionsSkipped) {
         return Promise.resolve(true);
@@ -71,10 +69,7 @@ export function createMyDialog (dispatchers, formData, updateFormData) {
           name: optionName,
           description: processedOptionDescription,
           uploadedFiles: processed.uploadedFiles,
-          stageInfo: {
-            current_stage_id: createdStage.id,
-            stage_id: inVotingStage.id,
-          },
+          stageId: inVotingStage.id,
         };
         const createPromise = optionDoNotPromote ? addDecisionInvestible(addInfo) : addInvestibleToStage(addInfo);
         return createPromise.then((investible) => {

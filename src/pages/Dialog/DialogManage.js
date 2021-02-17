@@ -44,7 +44,8 @@ function DialogManage (props) {
   const { market_type: marketType, market_stage: marketStage } = renderableMarket;
   const active = marketStage === ACTIVE_STAGE;
   const currentMarketName = (renderableMarket && renderableMarket.name) || '';
-  const manageVerbiage = intl.formatMessage({ id: 'manage' });
+  const manageVerbId = expires ? 'delayExpiration' : 'manage';
+  const manageVerbiage =intl.formatMessage({ id: manageVerbId });
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);

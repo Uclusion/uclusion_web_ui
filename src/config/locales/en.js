@@ -178,6 +178,7 @@ const messages = defineMessages({
   // ExpirationSelector
   expirationSelectorOneDay: '1 day',
   expirationSelectorXDays: '{x} days',
+  delayExpiration: 'Delay Expiration',
 
   // Market Add
   marketAddTitleDefault: 'Add a name...',

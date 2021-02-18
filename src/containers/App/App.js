@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import _ from 'lodash'
 import NoAccount from '../../pages/NoAccount/NoAccount'
 import Root from '../Root'
 import AppConfigProvider from '../../components/AppConfigProvider'
@@ -53,6 +52,7 @@ function App(props) {
         .then((user) => {
           const { attributes } = user
           const userId = attributes['custom:user_id']
+          console.error(attributes)
           const loginInfo = {
             ...attributes,
             userId,
@@ -64,8 +64,7 @@ function App(props) {
   }, [authState, userAttributes]);
 
   const { userId, email } = userAttributes;
-  const hasAccount = !_.isEmpty(userId);
-  if (!hasAccount && email) {
+  if (!userId && email) {
     return (
       <OnlineStateProvider>
         <ThemeProvider theme={defaultTheme}>
@@ -75,41 +74,43 @@ function App(props) {
     );
   }
 
-  if (authState !== 'signedIn') {
-    return <></>;
+  // only start up the app if we're really sure they're properly logged in and verified
+  if (authState === 'signedIn' && userId && email) {
+    return (
+      <CognitoUserProvider authState={authState}>
+        <LeaderProvider authState={authState}>
+          <MarketsProvider>
+            <CommentsProvider>
+              <InvestiblesProvider>
+                <MarketPresencesProvider>
+                  <AccountUserProvider authState={authState}>
+                    <OnlineStateProvider>
+                      <WebSocketProvider config={config}>
+                        <AppConfigProvider appConfig={configs}>
+                          <ThemeProvider theme={defaultTheme}>
+                            <TourProvider>
+                              <AccountPoller>
+                                <LogoutContext.Provider value={logoutChannel}>
+                                  <Root appConfig={configs}/>
+                                </LogoutContext.Provider>
+                              </AccountPoller>
+                            </TourProvider>
+                          </ThemeProvider>
+                        </AppConfigProvider>
+                      </WebSocketProvider>
+                    </OnlineStateProvider>
+                  </AccountUserProvider>
+                </MarketPresencesProvider>
+              </InvestiblesProvider>
+            </CommentsProvider>
+          </MarketsProvider>
+        </LeaderProvider>
+      </CognitoUserProvider>
+    );
   }
 
-  return (
-    <CognitoUserProvider authState={authState}>
-      <LeaderProvider authState={authState}>
-        <MarketsProvider>
-          <CommentsProvider>
-            <InvestiblesProvider>
-              <MarketPresencesProvider>
-                <AccountUserProvider authState={authState}>
-                  <OnlineStateProvider>
-                    <WebSocketProvider config={config}>
-                      <AppConfigProvider appConfig={configs}>
-                        <ThemeProvider theme={defaultTheme}>
-                          <TourProvider>
-                            <AccountPoller>
-                              <LogoutContext.Provider value={logoutChannel}>
-                                <Root appConfig={configs}/>
-                              </LogoutContext.Provider>
-                            </AccountPoller>
-                          </TourProvider>
-                        </ThemeProvider>
-                      </AppConfigProvider>
-                    </WebSocketProvider>
-                  </OnlineStateProvider>
-                </AccountUserProvider>
-              </MarketPresencesProvider>
-            </InvestiblesProvider>
-          </CommentsProvider>
-        </MarketsProvider>
-      </LeaderProvider>
-    </CognitoUserProvider>
-  );
+  // something's not right. White screen it
+  return <></>
 }
 
 export default App;

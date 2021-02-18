@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { useIntl } from 'react-intl'
-import { ERROR, sendIntlMessageBase } from '../../utils/userMessage'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import Typography from '@material-ui/core/Typography'
 import Container from '@material-ui/core/Container'
@@ -36,12 +35,9 @@ function NoAccount(props) {
   useEffect(() => {
     if (authState === 'signedIn') {
       console.info('Signing out with no account');
-      Auth.signOut().catch((error) => {
-        console.error(error);
-        sendIntlMessageBase(intl, ERROR, 'errorVerifyFailed');
-      });
+      Auth.signOut();
     }
-  }, [authState, intl]);
+  }, [authState]);
 
   function onResend() {
     return resendVerification(email);

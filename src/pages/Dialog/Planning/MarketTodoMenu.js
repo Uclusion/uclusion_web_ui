@@ -56,6 +56,19 @@ function MarketTodoMenu(props) {
   const [pegLeft, setPegLeft] = useState(false);
   const [pegLeftTimer, setPegLeftTimer] = useState(undefined);
 
+  useEffect(() => {
+    function handleClick() {
+      setPegLeftTimer(setTimeout(() => {
+        setPegLeft(true);
+      }, 1000));
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => {
+      // Unbind the event listener on clean up
+      document.removeEventListener("mousedown", handleClick);
+    };
+  }, []);
+
   function renderAssignedEntry(presence) {
     const { name, email, id } = presence;
 

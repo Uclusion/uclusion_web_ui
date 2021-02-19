@@ -52,7 +52,6 @@ function App(props) {
         .then((user) => {
           const { attributes } = user
           const userId = attributes['custom:user_id']
-          console.error(attributes)
           const loginInfo = {
             ...attributes,
             userId,

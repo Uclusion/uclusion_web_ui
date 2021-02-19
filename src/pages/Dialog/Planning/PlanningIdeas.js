@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react'
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { useHistory } from 'react-router';
@@ -44,6 +44,7 @@ import GravatarGroup from '../../../components/Avatars/GravatarGroup';
 import { getInvestibleVoters } from '../../../utils/votingUtils';
 import { getCommenterPresences, getUserSwimlaneInvestibles, onDropTodo } from './userUtils';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
+import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 
 const warningColor = red['400'];
 
@@ -510,7 +511,8 @@ function Stage (props) {
   const stageInvestibles = getUserSwimlaneInvestibles(investibles, limitInvestibles, limitInvestiblesAge,
     marketId, id);
   const classes = useStageClasses(props);
-
+  const [showEdit, setShowEdit] = useState(undefined);
+  const history = useHistory();
   if (fallbackWarning !== undefined && stageInvestibles.length === 0) {
     const style = fallbackOnClick ? { cursor: 'pointer' } : {};
     return (
@@ -533,6 +535,9 @@ function Stage (props) {
   const warnAcceptedSafe = warnAccepted || {};
   const warnKeys = Object.keys(warnAcceptedSafe);
   const singleInvestible = (stageInvestibles || []).length === 1;
+  function doShowEdit(id) {
+    setShowEdit(id);
+  }
   return (
     <dd className={singleInvestible && warnAcceptedSafe[warnKeys[0]] ? classes.rootWarnAccepted :
       singleInvestible ? classes.root : classes.regularAccepted}>
@@ -549,21 +554,34 @@ function Stage (props) {
           return (
             <Grid key={investible.id} item xs={12} onDragStart={investibleOnDragStart} id={investible.id} draggable
                   className={!singleInvestible && warnAcceptedSafe[investible.id] ? classes.rootWarnAccepted
-              : !singleInvestible ? classes.outlinedAccepted : classes.regularAccepted}>
-              <li>
-                <StageInvestible
-                  marketPresences={marketPresences || []}
-                  comments={comments || []}
-                  investible={investible}
-                  marketId={marketId}
-                  marketInfo={marketInfo}
-                  updatedText={updatedText}
-                  showWarning={isReview ? checkReviewWarning(investible, comments) :
-                    isVoting ? checkReviewWarning(investible, comments, true) ||
-                      checkVotingWarning(investible.id, marketPresences) : false}
-                  showCompletion={showCompletion}
-                />
-              </li>
+              : !singleInvestible ? classes.outlinedAccepted : classes.regularAccepted}
+                  onMouseOver={() => doShowEdit(investible.id)} onMouseOut={() => doShowEdit(undefined)}
+                  onClick={event => {
+                    event.preventDefault();
+                    navigate(history, formInvestibleLink(marketId, investible.id));
+                  }}
+            >
+              <Grid container>
+                <Grid item xs={showEdit === investible.id ? 11 : 12}>
+                  <StageInvestible
+                    marketPresences={marketPresences || []}
+                    comments={comments || []}
+                    investible={investible}
+                    marketId={marketId}
+                    marketInfo={marketInfo}
+                    updatedText={updatedText}
+                    showWarning={isReview ? checkReviewWarning(investible, comments) :
+                      isVoting ? checkReviewWarning(investible, comments, true) ||
+                        checkVotingWarning(investible.id, marketPresences) : false}
+                    showCompletion={showCompletion}
+                  />
+                </Grid>
+                {showEdit === investible.id && (
+                  <Grid item xs={1}>
+                    <EditOutlinedIcon />
+                  </Grid>
+                )}
+              </Grid>
             </Grid>
           );
         })}

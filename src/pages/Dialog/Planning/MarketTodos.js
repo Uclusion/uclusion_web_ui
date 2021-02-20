@@ -43,6 +43,7 @@ import { findMessageForCommentId } from '../../../utils/messageUtils'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { isTinyWindow } from '../../../utils/windowUtils'
 import MarketTodoMenu from './MarketTodoMenu'
+import EditOutlinedIcon from '@material-ui/icons/EditOutlined'
 
 const myClasses = makeStyles(
   theme => {
@@ -56,11 +57,13 @@ const myClasses = makeStyles(
         backgroundColor: yellow['400'],
         padding: theme.spacing(1, 0, 0, 2),
         overflowY: 'auto',
+        overflowX: 'hidden',
         maxHeight: '275px'
       },
       card: {
         padding: theme.spacing(1, 0, 0, 2),
         overflowY: 'auto',
+        overflowX: 'hidden',
         maxHeight: '275px'
       },
       white: {
@@ -142,6 +145,11 @@ function MarketTodos (props) {
   const { hash } = location;
   const [openMenuTodoId, setOpenMenuTodoId] = useState(undefined);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [showEdit, setShowEdit] = useState(undefined);
+
+  function doShowEdit(id) {
+    setShowEdit(id);
+  }
 
   useEffect(() => {
     if (hash) {
@@ -268,6 +276,7 @@ function MarketTodos (props) {
           onDragStart={(event) => onDragStart(event, notificationType)}
           onDragEnd={onDragEnd}
           className={classes.outlined}
+          onMouseOver={() => doShowEdit(id)} onMouseOut={() => doShowEdit(undefined)}
         >
           {showSelectTodos && (
             <Checkbox
@@ -280,26 +289,36 @@ function MarketTodos (props) {
             <MarketTodoMenu comment={comment} editViewFunc={setCardAndScroll}
                             openIdFunc={setOpenMenuTodoId} anchorEl={anchorEl} />
           )}
-          <RaisedCard onClick={(event) => {
-            if (isInArchives) {
-              setCardAndScroll(comment);
-            } else {
-              setOpenMenuCard(id, event);
-            }
-          }} elevation={0}>
-            <div id={`drag${id}`} className={level ? classes.warnCard : classes.card}>
-              <div style={{display: 'flex'}}>
-                <Typography style={{ fontSize: '.75rem', flex: 1 }}>Updated: {intl.formatDate(updated_at)}</Typography>
-                {replies.length > 0 && (
-                  <div style={{display: 'flex'}}>
-                    <Typography style={{ fontSize: '.75rem' }}>Comments:</Typography>
-                    <Chip label={`${replies.length}`} color="primary" size='small'
-                          style={{ marginLeft: '5px', marginRight: '15px'}} />
-                  </div>
-                )}
-              </div>
-              <ReadOnlyQuillEditor value={body} />
-            </div>
+          <RaisedCard elevation={0}>
+            <Grid container id={`drag${id}`} className={level ? classes.warnCard : classes.card}
+                  onClick={(event) => {
+                    if (isInArchives) {
+                      setCardAndScroll(comment);
+                    } else {
+                      setOpenMenuCard(id, event);
+                    }
+                  }}>
+              <Grid item xs={showEdit === id ? 11 : 12}>
+                <div style={{display: 'flex'}}>
+                  <Typography style={{ fontSize: '.75rem', flex: 1 }}>
+                    Updated: {intl.formatDate(updated_at)}
+                  </Typography>
+                  {replies.length > 0 && (
+                    <div style={{display: 'flex'}}>
+                      <Typography style={{ fontSize: '.75rem' }}>Comments:</Typography>
+                      <Chip label={`${replies.length}`} color="primary" size='small'
+                            style={{ marginLeft: '5px', marginRight: '15px'}} />
+                    </div>
+                  )}
+                </div>
+                <ReadOnlyQuillEditor value={body} />
+              </Grid>
+              {showEdit === id && (
+                <Grid item xs={1}>
+                  <EditOutlinedIcon />
+                </Grid>
+              )}
+            </Grid>
           </RaisedCard>
         </Grid>
       );

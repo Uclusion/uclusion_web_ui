@@ -298,7 +298,7 @@ function MarketTodos (props) {
                       setOpenMenuCard(id, event);
                     }
                   }}>
-              <Grid item xs={showEdit === id ? 11 : 12}>
+              <Grid item xs={showEdit === id ? 11 : 12} style={{pointerEvents: 'none'}}>
                 <div style={{display: 'flex'}}>
                   <Typography style={{ fontSize: '.75rem', flex: 1 }}>
                     Updated: {intl.formatDate(updated_at)}
@@ -314,7 +314,7 @@ function MarketTodos (props) {
                 <ReadOnlyQuillEditor value={body} />
               </Grid>
               {showEdit === id && (
-                <Grid item xs={1}>
+                <Grid item xs={1} style={{pointerEvents: 'none'}}>
                   <EditOutlinedIcon />
                 </Grid>
               )}

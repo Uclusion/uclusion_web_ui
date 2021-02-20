@@ -152,7 +152,7 @@ function getInvestibles(investibles, marketPresences, marketPresencesState, pres
                   <GravatarGroup users={collaborators}/>
                     </Grid>
                     {showEdit === id && (
-                      <Grid item xs={1}>
+                      <Grid item xs={1} style={{pointerEvents: 'none'}}>
                         <EditOutlinedIcon />
                       </Grid>
                     )}

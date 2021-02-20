@@ -577,7 +577,7 @@ function Stage (props) {
                   />
                 </Grid>
                 {showEdit === investible.id && (
-                  <Grid item xs={1}>
+                  <Grid item xs={1} style={{pointerEvents: 'none'}}>
                     <EditOutlinedIcon />
                   </Grid>
                 )}

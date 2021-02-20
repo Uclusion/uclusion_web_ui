@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState } from 'react'
 import PropTypes from 'prop-types'
 import { Grid, Typography } from '@material-ui/core'
 import _ from 'lodash'
@@ -27,6 +27,7 @@ import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { getInvestibleVoters } from '../../utils/votingUtils';
+import EditOutlinedIcon from '@material-ui/icons/EditOutlined'
 
 function getInvestibleOnClick(id, marketId, history) {
   const link = formInvestibleLink(marketId, id);
@@ -62,8 +63,8 @@ const myClasses = makeStyles(
   { name: "Archive" }
 );
 
-export function getInvestibles(investibles, marketPresences, marketPresencesState, presenceMap, marketId, comments, history, intl, elevation, highlightMap,
-  allowDragDrop, onDragEnd, unResolvedMarketComments, presenceId, stage, setBeingDraggedHack) {
+function getInvestibles(investibles, marketPresences, marketPresencesState, presenceMap, marketId, comments, history, intl, elevation, highlightMap,
+  allowDragDrop, onDragEnd, unResolvedMarketComments, presenceId, stage, setBeingDraggedHack, showEdit, doShowEdit) {
   const investibleData = investibles.map((inv) => {
     const aMarketInfo = getMarketInfo(inv, marketId);
     const { updated_at: invUpdatedAt } = inv.investible;
@@ -124,22 +125,38 @@ export function getInvestibles(investibles, marketPresences, marketPresencesStat
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
         style={{overflowWrap: "break-word"}}
+        onMouseOver={() => doShowEdit(id)} onMouseOut={() => doShowEdit(undefined)}
+        onClick={(event) => {
+          event.stopPropagation();
+          event.preventDefault();
+          getInvestibleOnClick(id, marketId, history);
+        }}
       >
         <RaisedCard
-          onClick={(event) => {
-            event.stopPropagation();
-            event.preventDefault();
-            getInvestibleOnClick(id, marketId, history);
-          }}
           elevation={elevation}
         >
           <Link href={formInvestibleLink(marketId, id)} color="inherit" draggable="false">
             <div className={highlightMap[id] ? classes.warn : classes.outlined}>
-              <Typography style={{fontSize: '.75rem', flex: 1}}>Updated: {intl.formatDate(updatedAt)}</Typography>
-              <Typography style={{fontWeight: 700, flex: 2}}>{name}</Typography>
-              {assignedNames.map((name) => (<Typography
-                style={{fontStyle: 'italic', fontSize: '.75rem', flex: 1}} key={name}>Assignee: {name}</Typography>))}
-              <GravatarGroup users={collaborators}/>
+              <Grid container>
+                <Grid item xs={showEdit === id ? 11 : 12}>
+                  <Typography style={{fontSize: '.75rem', flex: 1}}>
+                    Updated: {intl.formatDate(updatedAt)}
+                  </Typography>
+                  <Typography style={{fontWeight: 700, flex: 2}}>
+                    {name}
+                  </Typography>
+                  {assignedNames.map((name) => (<Typography
+                    style={{fontStyle: 'italic', fontSize: '.75rem', flex: 1}}
+                    key={name}>Assignee: {name}
+                  </Typography>))}
+                  <GravatarGroup users={collaborators}/>
+                    </Grid>
+                    {showEdit === id && (
+                      <Grid item xs={1}>
+                        <EditOutlinedIcon />
+                      </Grid>
+                    )}
+              </Grid>
             </div>
           </Link>
         </RaisedCard>
@@ -171,6 +188,11 @@ function ArchiveInvestbiles(props) {
   const [beingDraggedHack, setBeingDraggedHack] = useContext(LocalPlanningDragContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
+  const [showEdit, setShowEdit] = useState(undefined);
+
+  function doShowEdit(id) {
+    setShowEdit(id);
+  }
 
   function onDragEnd() {
     restoreHeader();
@@ -228,7 +250,7 @@ function ArchiveInvestbiles(props) {
         <div className={classes.grow} />
       )}
       {getInvestibles(investibles, marketPresences, marketPresencesState, presenceMap, marketId, comments, history, intl, elevation, highlightMap, allowDragDrop,
-      onDragEnd, unResolvedMarketComments, presenceId, stage, setBeingDraggedHack)}
+      onDragEnd, unResolvedMarketComments, presenceId, stage, setBeingDraggedHack, showEdit, doShowEdit)}
     </Grid>
   );
 }

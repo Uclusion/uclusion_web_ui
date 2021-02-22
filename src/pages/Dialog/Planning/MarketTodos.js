@@ -44,6 +44,7 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import { isTinyWindow } from '../../../utils/windowUtils'
 import MarketTodoMenu from './MarketTodoMenu'
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined'
+import { doRemoveEdit, doShowEdit } from './userUtils'
 
 const myClasses = makeStyles(
   theme => {
@@ -145,11 +146,6 @@ function MarketTodos (props) {
   const { hash } = location;
   const [openMenuTodoId, setOpenMenuTodoId] = useState(undefined);
   const [anchorEl, setAnchorEl] = useState(null);
-  const [showEdit, setShowEdit] = useState(undefined);
-
-  function doShowEdit(id) {
-    setShowEdit(id);
-  }
 
   useEffect(() => {
     if (hash) {
@@ -276,7 +272,7 @@ function MarketTodos (props) {
           onDragStart={(event) => onDragStart(event, notificationType)}
           onDragEnd={onDragEnd}
           className={classes.outlined}
-          onMouseOver={() => doShowEdit(id)} onMouseOut={() => doShowEdit(undefined)}
+          onMouseOver={() => doShowEdit(id)} onMouseOut={() => doRemoveEdit(id)}
         >
           {showSelectTodos && (
             <Checkbox
@@ -298,7 +294,7 @@ function MarketTodos (props) {
                       setOpenMenuCard(id, event);
                     }
                   }}>
-              <Grid item xs={showEdit === id ? 11 : 12} style={{pointerEvents: 'none'}}>
+              <Grid item xs={11} style={{pointerEvents: 'none'}}>
                 <div style={{display: 'flex'}}>
                   <Typography style={{ fontSize: '.75rem', flex: 1 }}>
                     Updated: {intl.formatDate(updated_at)}
@@ -312,10 +308,10 @@ function MarketTodos (props) {
                   )}
                 </div>
               </Grid>
-              <Grid item xs={1} style={{pointerEvents: 'none', display: `${showEdit === id ? 'block' : 'none'}`}}>
+              <Grid id={`showEdit0${id}`} item xs={1} style={{pointerEvents: 'none', display: 'none'}}>
                 <EditOutlinedIcon style={{maxHeight: '1.25rem'}} />
               </Grid>
-              <Grid item xs={12} style={{pointerEvents: 'none', paddingTop: `${showEdit === id ? '0' : '0.5rem'}`}}>
+              <Grid id={`showEdit1${id}`} item xs={12} style={{pointerEvents: 'none', paddingTop: '0.5rem'}}>
                 <ReadOnlyQuillEditor value={body} />
               </Grid>
             </Grid>

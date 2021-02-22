@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import { Grid, Typography } from '@material-ui/core'
 import _ from 'lodash'
@@ -22,7 +22,7 @@ import {
 import GravatarGroup from '../../components/Avatars/GravatarGroup'
 import Link from '@material-ui/core/Link'
 import { getMarketInfo } from '../../utils/userFunctions'
-import { getCommenterPresences, onDropTodo } from '../Dialog/Planning/userUtils';
+import { doRemoveEdit, doShowEdit, getCommenterPresences, onDropTodo } from '../Dialog/Planning/userUtils'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
@@ -64,7 +64,7 @@ const myClasses = makeStyles(
 );
 
 function getInvestibles(investibles, marketPresences, marketPresencesState, presenceMap, marketId, comments, history, intl, elevation, highlightMap,
-  allowDragDrop, onDragEnd, unResolvedMarketComments, presenceId, stage, setBeingDraggedHack, showEdit, doShowEdit) {
+  allowDragDrop, onDragEnd, unResolvedMarketComments, presenceId, stage, setBeingDraggedHack) {
   const investibleData = investibles.map((inv) => {
     const aMarketInfo = getMarketInfo(inv, marketId);
     const { updated_at: invUpdatedAt } = inv.investible;
@@ -125,7 +125,7 @@ function getInvestibles(investibles, marketPresences, marketPresencesState, pres
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
         style={{overflowWrap: "break-word"}}
-        onMouseOver={() => doShowEdit(id)} onMouseOut={() => doShowEdit(undefined)}
+        onMouseOver={() => doShowEdit(id)} onMouseOut={() => doRemoveEdit(id)}
         onClick={(event) => {
           event.stopPropagation();
           event.preventDefault();
@@ -138,15 +138,15 @@ function getInvestibles(investibles, marketPresences, marketPresencesState, pres
           <Link href={formInvestibleLink(marketId, id)} color="inherit" draggable="false">
             <div className={highlightMap[id] ? classes.warn : classes.outlined}>
               <Grid container>
-                <Grid item xs={showEdit === id ? 11 : 12}>
+                <Grid item xs={11}>
                   <Typography style={{fontSize: '.75rem', flex: 1}}>
                     Updated: {intl.formatDate(updatedAt)}
                   </Typography>
                 </Grid>
-                <Grid item xs={1} style={{pointerEvents: 'none', display: `${showEdit === id ? 'block' : 'none'}`}}>
+                <Grid id={`showEdit0${id}`} item xs={1} style={{pointerEvents: 'none', display: 'none'}}>
                   <EditOutlinedIcon style={{maxHeight: '1.25rem'}} />
                 </Grid>
-                <Grid item xs={12} style={{paddingTop: `${showEdit === id ? '0' : '0.5rem'}`}}>
+                <Grid id={`showEdit1${id}`} item xs={12} style={{paddingTop: '0.5rem'}}>
                   <Typography style={{fontWeight: 700, flex: 2}}>
                     {name}
                   </Typography>
@@ -188,11 +188,6 @@ function ArchiveInvestbiles(props) {
   const [beingDraggedHack, setBeingDraggedHack] = useContext(LocalPlanningDragContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
-  const [showEdit, setShowEdit] = useState(undefined);
-
-  function doShowEdit(id) {
-    setShowEdit(id);
-  }
 
   function onDragEnd() {
     restoreHeader();
@@ -250,7 +245,7 @@ function ArchiveInvestbiles(props) {
         <div className={classes.grow} />
       )}
       {getInvestibles(investibles, marketPresences, marketPresencesState, presenceMap, marketId, comments, history, intl, elevation, highlightMap, allowDragDrop,
-      onDragEnd, unResolvedMarketComments, presenceId, stage, setBeingDraggedHack, showEdit, doShowEdit)}
+      onDragEnd, unResolvedMarketComments, presenceId, stage, setBeingDraggedHack)}
     </Grid>
   );
 }

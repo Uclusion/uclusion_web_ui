@@ -116,6 +116,27 @@ export function getCommenterPresences(marketPresences, comments, marketPresences
   return _.uniqBy(undeduped, 'id');
 }
 
+export function doShowEdit(id) {
+  const pencilIconHolder = document.getElementById(`showEdit0${id}`);
+  const belowPencilHolder = document.getElementById(`showEdit1${id}`);
+  if (pencilIconHolder) {
+    pencilIconHolder.style.display = 'block';
+  }
+  if (belowPencilHolder) {
+    belowPencilHolder.style.paddingTop = '0';
+  }
+}
+
+export function doRemoveEdit(id) {
+  const pencilIconHolder = document.getElementById(`showEdit0${id}`);
+  const belowPencilHolder = document.getElementById(`showEdit1${id}`);
+  if (pencilIconHolder) {
+    pencilIconHolder.style.display = 'none';
+  }
+  if (belowPencilHolder) {
+    belowPencilHolder.style.paddingTop = '0.5rem';
+  }
+}
 
 export function sumNotificationCounts(presence, comments, marketPresencesState) {
   const { critical_notifications: criticalNotifications,

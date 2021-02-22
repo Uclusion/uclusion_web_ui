@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext } from 'react'
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { useHistory } from 'react-router';
@@ -42,7 +42,7 @@ import { removeHeader, restoreHeader } from '../../../containers/Header'
 import { LocalPlanningDragContext } from './InvestiblesByWorkspace';
 import GravatarGroup from '../../../components/Avatars/GravatarGroup';
 import { getInvestibleVoters } from '../../../utils/votingUtils';
-import { getCommenterPresences, getUserSwimlaneInvestibles, onDropTodo } from './userUtils';
+import { doRemoveEdit, doShowEdit, getCommenterPresences, getUserSwimlaneInvestibles, onDropTodo } from './userUtils'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 
@@ -461,7 +461,8 @@ const useStageClasses = makeStyles(
         margin: theme.spacing(0.5, 0),
         padding: theme.spacing(1, 2),
         backgroundColor: yellow['400'],
-        overflowWrap: 'break-word'
+        overflowWrap: 'break-word',
+        overflowX: 'hidden'
       },
       outlinedAccepted: {
         border: `1px solid ${theme.palette.grey['400']}`,
@@ -469,11 +470,13 @@ const useStageClasses = makeStyles(
         fontSize: '.8em',
         margin: theme.spacing(0.5, 0),
         padding: theme.spacing(1, 2),
-        overflowWrap: 'break-word'
+        overflowWrap: 'break-word',
+        overflowX: 'hidden'
       },
       regularAccepted: {
         marginLeft: 0,
-        overflowWrap: 'break-word'
+        overflowWrap: 'break-word',
+        overflowX: 'hidden'
       },
       fallback: {
         backgroundColor: theme.palette.grey['400']
@@ -511,7 +514,6 @@ function Stage (props) {
   const stageInvestibles = getUserSwimlaneInvestibles(investibles, limitInvestibles, limitInvestiblesAge,
     marketId, id);
   const classes = useStageClasses(props);
-  const [showEdit, setShowEdit] = useState(undefined);
   const history = useHistory();
   if (fallbackWarning !== undefined && stageInvestibles.length === 0) {
     const style = fallbackOnClick ? { cursor: 'pointer' } : {};
@@ -535,9 +537,7 @@ function Stage (props) {
   const warnAcceptedSafe = warnAccepted || {};
   const warnKeys = Object.keys(warnAcceptedSafe);
   const singleInvestible = (stageInvestibles || []).length === 1;
-  function doShowEdit(id) {
-    setShowEdit(id);
-  }
+
   return (
     <dd className={singleInvestible && warnAcceptedSafe[warnKeys[0]] ? classes.rootWarnAccepted :
       singleInvestible ? classes.root : classes.regularAccepted}>
@@ -555,7 +555,7 @@ function Stage (props) {
             <Grid key={investible.id} item xs={12} onDragStart={investibleOnDragStart} id={investible.id} draggable
                   className={!singleInvestible && warnAcceptedSafe[investible.id] ? classes.rootWarnAccepted
               : !singleInvestible ? classes.outlinedAccepted : classes.regularAccepted}
-                  onMouseOver={() => doShowEdit(investible.id)} onMouseOut={() => doShowEdit(undefined)}
+                  onMouseOver={() => doShowEdit(investible.id)} onMouseOut={() => doRemoveEdit(investible.id)}
                   onClick={event => {
                     event.preventDefault();
                     navigate(history, formInvestibleLink(marketId, investible.id));
@@ -568,7 +568,6 @@ function Stage (props) {
                   marketId={marketId}
                   marketInfo={marketInfo}
                   updatedText={updatedText}
-                  showEdit={showEdit === investible.id}
                   showWarning={isReview ? checkReviewWarning(investible, comments) :
                     isVoting ? checkReviewWarning(investible, comments, true) ||
                       checkVotingWarning(investible.id, marketPresences) : false}
@@ -722,8 +721,7 @@ function StageInvestible (props) {
     showWarning,
     showCompletion,
     comments,
-    marketPresences,
-    showEdit
+    marketPresences
   } = props;
   const { days_estimate: daysEstimate } = marketInfo;
   const { id, name, created_at: createdAt, label_list: labelList } = investible;
@@ -742,7 +740,7 @@ function StageInvestible (props) {
   const collaboratorsForInvestible = _.uniqBy(concated, 'id');
   return (
     <Grid container>
-      <Grid item xs={showEdit ? 11 : 12}>
+      <Grid item xs={11}>
         <Typography variant="inherit">
           {updatedText}
           <FormattedDate value={safeChangeDate}/>
@@ -751,10 +749,10 @@ function StageInvestible (props) {
           <DaysEstimate readOnly value={daysEstimate} createdAt={createdAt}/>
         )}
       </Grid>
-      <Grid item xs={1} style={{pointerEvents: 'none', display: `${showEdit ? 'block' : 'none'}`}}>
+      <Grid id={`showEdit0${id}`} item xs={1} style={{pointerEvents: 'none', display: 'none'}}>
         <EditOutlinedIcon style={{maxHeight: '1.25rem'}} />
       </Grid>
-      <Grid item xs={12} style={{paddingTop: `${showEdit && !hasDaysEstimate ? '0' : '0.5rem'}`}}>
+      <Grid id={`showEdit1${id}`} item xs={12} style={{paddingTop: '0.5rem'}}>
         <StageLink
           href={to}
           id={id}

@@ -311,13 +311,13 @@ function MarketTodos (props) {
                     </div>
                   )}
                 </div>
+              </Grid>
+              <Grid item xs={1} style={{pointerEvents: 'none', display: `${showEdit === id ? 'block' : 'none'}`}}>
+                <EditOutlinedIcon style={{maxHeight: '1.25rem'}} />
+              </Grid>
+              <Grid item xs={12} style={{pointerEvents: 'none', paddingTop: `${showEdit === id ? '0' : '0.5rem'}`}}>
                 <ReadOnlyQuillEditor value={body} />
               </Grid>
-              {showEdit === id && (
-                <Grid item xs={1} style={{pointerEvents: 'none'}}>
-                  <EditOutlinedIcon />
-                </Grid>
-              )}
             </Grid>
           </RaisedCard>
         </Grid>

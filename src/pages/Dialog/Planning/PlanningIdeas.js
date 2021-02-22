@@ -561,27 +561,19 @@ function Stage (props) {
                     navigate(history, formInvestibleLink(marketId, investible.id));
                   }}
             >
-              <Grid container>
-                <Grid item xs={showEdit === investible.id ? 11 : 12}>
-                  <StageInvestible
-                    marketPresences={marketPresences || []}
-                    comments={comments || []}
-                    investible={investible}
-                    marketId={marketId}
-                    marketInfo={marketInfo}
-                    updatedText={updatedText}
-                    showWarning={isReview ? checkReviewWarning(investible, comments) :
-                      isVoting ? checkReviewWarning(investible, comments, true) ||
-                        checkVotingWarning(investible.id, marketPresences) : false}
-                    showCompletion={showCompletion}
-                  />
-                </Grid>
-                {showEdit === investible.id && (
-                  <Grid item xs={1} style={{pointerEvents: 'none'}}>
-                    <EditOutlinedIcon />
-                  </Grid>
-                )}
-              </Grid>
+                <StageInvestible
+                  marketPresences={marketPresences || []}
+                  comments={comments || []}
+                  investible={investible}
+                  marketId={marketId}
+                  marketInfo={marketInfo}
+                  updatedText={updatedText}
+                  showEdit={showEdit === investible.id}
+                  showWarning={isReview ? checkReviewWarning(investible, comments) :
+                    isVoting ? checkReviewWarning(investible, comments, true) ||
+                      checkVotingWarning(investible.id, marketPresences) : false}
+                  showCompletion={showCompletion}
+                />
             </Grid>
           );
         })}
@@ -730,7 +722,8 @@ function StageInvestible (props) {
     showWarning,
     showCompletion,
     comments,
-    marketPresences
+    marketPresences,
+    showEdit
   } = props;
   const { days_estimate: daysEstimate } = marketInfo;
   const { id, name, created_at: createdAt, label_list: labelList } = investible;
@@ -745,43 +738,46 @@ function StageInvestible (props) {
   const commenterPresences = getCommenterPresences(marketPresences, commentsForInvestible, marketPresencesState);
   const votersForInvestible = getInvestibleVoters(marketPresences, id);
   const concated = [...votersForInvestible, ...commenterPresences];
-
+  const hasDaysEstimate = showCompletion && daysEstimate;
   const collaboratorsForInvestible = _.uniqBy(concated, 'id');
   return (
-    <div>
-      <StageLink
-        href={to}
-        id={id}
-        draggable="false"
-        onClick={event => {
-          event.preventDefault();
-          navigate(history, to);
-        }}
-      >
-        <Typography color={showWarning ? 'error' : 'initial'} variant="subtitle2">{name}</Typography>
+    <Grid container>
+      <Grid item xs={showEdit ? 11 : 12}>
         <Typography variant="inherit">
           {updatedText}
           <FormattedDate value={safeChangeDate}/>
         </Typography>
-        {showCompletion && daysEstimate && (
+        {hasDaysEstimate && (
           <DaysEstimate readOnly value={daysEstimate} createdAt={createdAt}/>
         )}
-        <div className={classes.chipsClass}>
-          {labelList && labelList.map((label) =>
-            <div key={label}>
-              <Chip size="small" label={label} className={classes.chipClass} color="primary"/>
-            </div>
-          )}
-        </div>
-
-      </StageLink>
-      <div onClick={(event) => {
-        event.preventDefault();
-        navigate(history, to);
-      }}>
-        <GravatarGroup users={collaboratorsForInvestible}/>
-      </div>
-    </div>
+      </Grid>
+      <Grid item xs={1} style={{pointerEvents: 'none', display: `${showEdit ? 'block' : 'none'}`}}>
+        <EditOutlinedIcon style={{maxHeight: '1.25rem'}} />
+      </Grid>
+      <Grid item xs={12} style={{paddingTop: `${showEdit && !hasDaysEstimate ? '0' : '0.5rem'}`}}>
+        <StageLink
+          href={to}
+          id={id}
+          draggable="false"
+          onClick={event => {
+            event.preventDefault();
+            navigate(history, to);
+          }}
+        >
+          <Typography color={showWarning ? 'error' : 'initial'} variant="subtitle2">{name}</Typography>
+          <div className={classes.chipsClass} style={{paddingTop: `${!_.isEmpty(labelList) ? '0.5rem': '0'}`}}>
+            {labelList && labelList.map((label) =>
+              <div key={label}>
+                <Chip size="small" label={label} className={classes.chipClass} color="primary"/>
+              </div>
+            )}
+          </div>
+          <div style={{paddingTop: '0.5rem'}}>
+            <GravatarGroup users={collaboratorsForInvestible}/>
+          </div>
+        </StageLink>
+      </Grid>
+    </Grid>
   );
 }
 

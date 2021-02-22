@@ -142,6 +142,11 @@ function getInvestibles(investibles, marketPresences, marketPresencesState, pres
                   <Typography style={{fontSize: '.75rem', flex: 1}}>
                     Updated: {intl.formatDate(updatedAt)}
                   </Typography>
+                </Grid>
+                <Grid item xs={1} style={{pointerEvents: 'none', display: `${showEdit === id ? 'block' : 'none'}`}}>
+                  <EditOutlinedIcon style={{maxHeight: '1.25rem'}} />
+                </Grid>
+                <Grid item xs={12} style={{paddingTop: `${showEdit === id ? '0' : '0.5rem'}`}}>
                   <Typography style={{fontWeight: 700, flex: 2}}>
                     {name}
                   </Typography>
@@ -150,12 +155,7 @@ function getInvestibles(investibles, marketPresences, marketPresencesState, pres
                     key={name}>Assignee: {name}
                   </Typography>))}
                   <GravatarGroup users={collaborators}/>
-                    </Grid>
-                    {showEdit === id && (
-                      <Grid item xs={1} style={{pointerEvents: 'none'}}>
-                        <EditOutlinedIcon />
-                      </Grid>
-                    )}
+                </Grid>
               </Grid>
             </div>
           </Link>

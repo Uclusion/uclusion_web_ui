@@ -569,10 +569,10 @@ function Comment(props) {
       });
   }
   function getHilightedIds(myReplies, highLightedIds, passedMessages) {
-    const highLighted = highLightedIds || [];
+    const highlighted = highLightedIds || [];
     const messages = passedMessages || [];
     if (_.isEmpty(myReplies)) {
-      return {highLighted, messages};
+      return {highlighted, messages};
     }
     myReplies.forEach(reply => {
       const replyMessage = findMessageForCommentId(reply.id, messagesState);
@@ -580,7 +580,7 @@ function Comment(props) {
         const { level, is_highlighted: isHighlighted } = replyMessage;
         if (level && isHighlighted) {
           messages.push(replyMessage);
-          highLighted.push(reply.id);
+          highlighted.push(reply.id);
         }
       }
     });
@@ -588,9 +588,9 @@ function Comment(props) {
       const replyReplies = comments.filter(
         comment => comment.reply_id === reply.id
       );
-      getHilightedIds(replyReplies, highLighted, messages);
+      getHilightedIds(replyReplies, highlighted, messages);
     });
-    return {highLighted, messages};
+    return {highlighted, messages};
   }
   const {highlighted, messages} = getHilightedIds(replies);
   const myMessage = findMessageForCommentId(id, messagesState);

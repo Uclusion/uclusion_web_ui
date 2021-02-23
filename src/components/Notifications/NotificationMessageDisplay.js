@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import { Link } from '@material-ui/core';
 import { navigate } from '../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
@@ -8,7 +9,7 @@ import { BLUE_LEVEL, RED_LEVEL, UNREAD_TYPE, YELLOW_LEVEL } from '../../constant
 import Chip from '@material-ui/core/Chip';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import SpinningTooltipIconButton from '../SpinBlocking/SpinningTooltipIconButton';
-import { deleteSingleMessage } from '../../api/users';
+import { deleteOrDehilightMessages, deleteSingleMessage } from '../../api/users'
 import { removeMessage } from '../../contexts/NotificationsContext/notificationsContextReducer';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 
@@ -18,7 +19,7 @@ function NotificationMessageDisplay (props) {
     onLinkClick
   } = props;
   const {
-    link, level, name, text, lenDuplicates,
+    link, level, name, text, lenDuplicates, dismissMessages,
     investible_name: investibleName,
     market_name: marketName,
     market_id: marketId,
@@ -32,6 +33,9 @@ function NotificationMessageDisplay (props) {
   const [, messagesDispatch] = useContext(NotificationsContext);
 
   function handleDismiss () {
+    if (!_.isEmpty(dismissMessages)) {
+      return deleteOrDehilightMessages(dismissMessages, messagesDispatch);
+    }
     return deleteSingleMessage(message)
       .then(() => messagesDispatch(removeMessage(message)));
   }

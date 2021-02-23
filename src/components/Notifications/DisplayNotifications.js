@@ -97,14 +97,18 @@ function processDuplicates (page) {
       if (lenDuplicates === 1) {
         items.push(first);
       } else {
-        const { link_type: linkType, link: firstLink, link_multiple: linkMultiple } = first;
+        const { link_type: linkType, link: firstLink, link_multiple: linkMultiple, type } = first;
         let link = firstLink;
         if (linkType === 'INVESTIBLE' || linkType === 'INLINE_WORKSPACE_INVESTIBLE'
           || linkType === 'INLINE_STORY_INVESTIBLE') {
           // Do not go inside the investible for new options, votes needed or reviews as you won't see the others
           link = linkMultiple;
         }
-        items.push({ ...first, link, lenDuplicates });
+        const item = { ...first, link, lenDuplicates };
+        if (type === 'UNREAD_VOTE') {
+          item.dismissMessages = duplicates;
+        }
+        items.push(item);
       }
     });
   }

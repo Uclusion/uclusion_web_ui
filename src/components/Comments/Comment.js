@@ -80,6 +80,7 @@ import localforage from 'localforage'
 import DecisionInvestibleAdd from '../../pages/Dialog/Decision/DecisionInvestibleAdd'
 import ExpandableAction from '../SidebarActions/Planning/ExpandableAction'
 import AddIcon from '@material-ui/icons/Add'
+import { deleteOrDehilightMessages } from '../../api/users'
 
 const useCommentStyles = makeStyles(
   theme => {
@@ -331,7 +332,7 @@ function Comment(props) {
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentState, commentDispatch] = useContext(CommentsContext);
-  const [messagesState] = useContext(NotificationsContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const enableActions = !inArchives && !readOnly;
   const enableEditing = !inArchives && !resolved && !readOnly; //resolved comments or those in archive aren't editable
   const [storedState, setStoredState] = useState(undefined);
@@ -567,16 +568,18 @@ function Comment(props) {
         return EMPTY_SPIN_RESULT;
       });
   }
-  function getHilightedIds(myReplies, highLightedIds) {
+  function getHilightedIds(myReplies, highLightedIds, passedMessages) {
     const highLighted = highLightedIds || [];
+    const messages = passedMessages || [];
     if (_.isEmpty(myReplies)) {
-      return highLighted;
+      return {highLighted, messages};
     }
     myReplies.forEach(reply => {
       const replyMessage = findMessageForCommentId(reply.id, messagesState);
       if (replyMessage) {
-        const { level } = replyMessage;
-        if (level) {
+        const { level, is_highlighted: isHighlighted } = replyMessage;
+        if (level && isHighlighted) {
+          messages.push(replyMessage);
           highLighted.push(reply.id);
         }
       }
@@ -585,15 +588,18 @@ function Comment(props) {
       const replyReplies = comments.filter(
         comment => comment.reply_id === reply.id
       );
-      getHilightedIds(replyReplies, highLighted);
+      getHilightedIds(replyReplies, highLighted, messages);
     });
-    return highLighted;
+    return {highLighted, messages};
   }
-  const highlightIds = getHilightedIds(replies);
+  const {highlighted, messages} = getHilightedIds(replies);
   const myMessage = findMessageForCommentId(id, messagesState);
   const myHighlightedState = myMessage || {};
   const myExpandedState = expandedCommentState[id] || {};
-  const { level: myHighlightedLevel } = myHighlightedState;
+  const { level: myHighlightedLevel, is_highlighted: isHighlighted } = myHighlightedState;
+  if (isHighlighted) {
+    messages.push(myMessage);
+  }
   const { expanded: myRepliesExpanded } = myExpandedState;
   const repliesExpanded = myRepliesExpanded === undefined ? !comment.resolved : myRepliesExpanded;
   const isInReview = createdStageId === (getInReviewStage(marketStagesState, marketId) || {id: 'fake'}).id;
@@ -603,13 +609,13 @@ function Comment(props) {
   const displayUpdatedBy = updatedBy !== undefined && comment.updated_by !== comment.created_by;
 
   useEffect(() => {
-    if (!repliesExpanded && hash && !_.isEmpty(highlightIds)) {
-      if (highlightIds.find((anId) => hash.includes(anId))) {
+    if (!repliesExpanded && hash && !_.isEmpty(highlighted)) {
+      if (highlighted.find((anId) => hash.includes(anId))) {
         expandedCommentDispatch({ type: EXPANDED_CONTROL, commentId: id, expanded: true });
       }
     }
     return () => {};
-  }, [expandedCommentDispatch, hash, highlightIds, id, repliesExpanded]);
+  }, [expandedCommentDispatch, hash, highlighted, id, repliesExpanded]);
 
   useEffect(() => {
     if (inlineInvestibleAdd) {
@@ -625,13 +631,13 @@ function Comment(props) {
 
   const showActions = !replyOpen || replies.length > 0;
   function getCommentHighlightStyle() {
-    if (myHighlightedLevel) {
+    if (myHighlightedLevel && isHighlighted) {
       if (myHighlightedLevel === "YELLOW" || myHighlightedLevel === "BLUE") {
         return classes.containerYellow;
       }
       return classes.containerRed;
     }
-    if (!_.isEmpty(highlightIds) && !repliesExpanded) {
+    if (!_.isEmpty(highlighted) && !repliesExpanded) {
       return classes.containerYellow;
     }
     return classes.container;
@@ -837,6 +843,21 @@ function Comment(props) {
                 />
               </Button>
             )}
+            {!isTinyWindow() && !_.isEmpty(messages) && (
+              <Button
+                className={clsx(classes.action, classes.actionSecondary)}
+                variant="contained"
+                onClick={() => {
+                  setOperationRunning(true);
+                  deleteOrDehilightMessages(messages, messagesDispatch).then(() => setOperationRunning(false))
+                    .finally(() => {
+                      setOperationRunning(false);
+                    });
+                }}
+              >
+                <FormattedMessage id="markRead" />
+              </Button>
+            )}
             {enableEditing && (
               <React.Fragment>
                 {((commentType !== REPORT_TYPE || createdStageId === inReviewStageId) || (mentions || []).includes(myPresence.id)) && (
@@ -884,7 +905,7 @@ function Comment(props) {
                   key={childId}
                   comment={child}
                   marketId={marketId}
-                  highLightId={highlightIds}
+                  highLightId={highlighted}
                   enableEditing={enableEditing}
                 />
               );

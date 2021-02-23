@@ -184,7 +184,7 @@ function StageChangeAction(props) {
       onClick={moveToTarget}
       customClasses={classes}
       isOpen={isOpen}
-      disabled={disabled}
+      disabled={disabled || operationRunning}
     />
   );
 }

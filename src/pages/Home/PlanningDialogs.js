@@ -30,6 +30,8 @@ import BlockIcon from '@material-ui/icons/Block'
 import HelpIcon from '@material-ui/icons/Help'
 import AssignmentIcon from '@material-ui/icons/Assignment'
 import GravatarGroup from '../../components/Avatars/GravatarGroup';
+import { doRemoveEdit, doShowEdit } from '../Dialog/Planning/userUtils'
+import EditOutlinedIcon from '@material-ui/icons/EditOutlined'
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -59,8 +61,8 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'space-between',
     height: '100%',
   },
-  upperRight: {
-    textAlign: 'right',
+  upperLeft: {
+    textAlign: 'left',
     fontSize: '.825rem'
   },
   innerContainer: {
@@ -180,7 +182,7 @@ function PlanningDialogs(props) {
       return { ...market, marketUpdatedAt, questionCount, issueCount, suggestCount, todoCount }
     });
     const sortedMarkets = _.sortBy(marketsWithUpdatedAt, 'marketUpdatedAt').reverse();
-    return sortedMarkets.map((market, index) => {
+    return sortedMarkets.map((market) => {
       const {
         id: marketId, name, market_type: marketType, market_stage: marketStage,
         parent_market_id: parentMarketId, parent_investible_id: parentInvestibleId, marketUpdatedAt, questionCount,
@@ -199,20 +201,28 @@ function PlanningDialogs(props) {
       return (
         <Grid
           item
-          id={`ws${index}`}
+          id={`ws${marketId}`}
           key={marketId}
           md={4}
           xs={12}
           className={classes.lessPadding}
+          onMouseOver={() => doShowEdit(marketId)} onMouseOut={() => doRemoveEdit(marketId)}
         >
           <RaisedCard
             className={classes.paper}
             border={1}
           >
-            <Typography className={classes.upperRight}>
-              {intl.formatMessage({ id: updatedMessageId }, { x: intl.formatDate(marketUpdatedAt) })}
-            </Typography>
-            <CardContent className={classes.cardContent}>
+            <Grid container>
+              <Grid item xs={11} style={{pointerEvents: 'none'}}>
+                <Typography className={classes.upperLeft}>
+                  {intl.formatMessage({ id: updatedMessageId }, { x: intl.formatDate(marketUpdatedAt) })}
+                </Typography>
+              </Grid>
+              <Grid id={`showEdit0${marketId}`} item xs={1} style={{pointerEvents: 'none', display: 'none'}}>
+                <EditOutlinedIcon style={{maxHeight: '1.25rem'}} />
+              </Grid>
+            </Grid>
+            <CardContent id={`showEdit1${marketId}`} className={classes.cardContent} style={{paddingTop: '0.5rem'}}>
             {parentMarketId &&
               <Link
                 href={formInvestibleLink(parentMarketId, parentInvestibleId)}

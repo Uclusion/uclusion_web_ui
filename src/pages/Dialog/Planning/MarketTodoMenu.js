@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import { List, ListItem, ListItemText, ListSubheader, Popper } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles';
 import { useIntl } from 'react-intl';
@@ -12,12 +13,13 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { onDropTodo } from './userUtils'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
+import { deleteOrDehilightMessages } from '../../../api/users'
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 
 const useStyles = makeStyles((theme) => {
   return {
     popper: {
-      zIndex: 1500,
-      marginTop: '1rem'
+      zIndex: 1500
     },
     scrollableList: {
       height: '230px',
@@ -40,10 +42,11 @@ const useStyles = makeStyles((theme) => {
 });
 
 function MarketTodoMenu(props) {
-  const { comment, editViewFunc, openIdFunc, anchorEl } = props;
+  const { comment, editViewFunc, openIdFunc, anchorEl, messages } = props;
   const intl = useIntl();
   const classes = useStyles();
   const [commentState, commentDispatch] = useContext(CommentsContext);
+  const [, messagesDispatch] = useContext(NotificationsContext);
   const [, invDispatch] = useContext(InvestiblesContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const { market_id: marketId, id: commentId, notification_type: myNotificationType } = comment;
@@ -90,6 +93,15 @@ function MarketTodoMenu(props) {
   function doEdit() {
     editViewFunc(comment);
     openIdFunc(undefined);
+  }
+
+  function doMarkRead() {
+    setOperationRunning(true);
+    deleteOrDehilightMessages(messages, messagesDispatch).then(() => setOperationRunning(false))
+      .finally(() => {
+        openIdFunc(undefined);
+        setOperationRunning(false);
+    });
   }
 
   function moveTodo(notificationType) {
@@ -147,6 +159,11 @@ function MarketTodoMenu(props) {
         <ListItem button onClick={doEdit}>
           <ListItemText primary={intl.formatMessage({ id: 'editTodo' })} />
         </ListItem>
+        {!_.isEmpty(messages) && (
+          <ListItem button onClick={doMarkRead}>
+            <ListItemText primary={intl.formatMessage({ id: 'markRead' })} />
+          </ListItem>
+        )}
         {myNotificationType !== 'RED' && (
           <ListItem onClick={() => moveTodo('RED')} button >
             <ListItemText primary={intl.formatMessage({ id: 'moveTodoRed' })} />

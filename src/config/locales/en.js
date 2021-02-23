@@ -906,6 +906,7 @@ const messages = defineMessages({
   todoSectionHelp: 'Holder for simple issues or tasks that are not yet being worked on',
   toggleTodosExplanation: 'Click to open or close TODO section',
   editTodo: 'Edit / View Thread',
+  markRead: 'Mark Thread Read',
   moveTodoRed: 'Move to Immediate',
   moveTodoYellow: 'Move to When Able',
   moveTodoBlue: 'Move to When Convenient',

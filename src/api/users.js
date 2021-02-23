@@ -1,5 +1,6 @@
 import { getAccountClient, getMarketClient } from './uclusionClient'
 import { toastErrorAndThrow } from '../utils/userMessage'
+import { dehighlightMessage, removeMessage } from '../contexts/NotificationsContext/notificationsContextReducer'
 
 export function unbanUser(marketId, userId) {
   return getMarketClient(marketId)
@@ -19,6 +20,25 @@ export function deleteSingleMessage(message) {
     return getAccountClient().then((client) => client.users.removeNotification(typeObjectId));
   }
   return getMarketClient(marketId).then((client) => client.users.removeNotification(typeObjectId));
+}
+
+export function deleteOrDehilightMessages(messages, messagesDispatch) {
+  const typeObjectIds = [];
+  let useMarketId;
+  messages.forEach((message) => {
+    const { market_id: marketId, type_object_id: typeObjectId } = message;
+    useMarketId = marketId;
+    typeObjectIds.push(typeObjectId);
+    if (typeObjectId.startsWith('UNREAD')) {
+      messagesDispatch(removeMessage(message));
+    } else {
+      messagesDispatch(dehighlightMessage(message));
+    }
+  });
+  if (useMarketId) {
+    return getMarketClient(useMarketId).then((client) => client.users.removeNotifications(typeObjectIds));
+  }
+  return Promise.resolve(true);
 }
 
 export function applyPromoCode(promoCode) {

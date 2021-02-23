@@ -9,6 +9,7 @@ export const NOTIFICATIONS_CONTEXT_NAMESPACE = 'notifications';
 const UPDATE_MESSAGES = 'UPDATE_MESSAGES';
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const REMOVE_MESSAGE = 'REMOVE_MESSAGE';
+const DEHIGHLIGHT_MESSAGE = 'DEHIGHLIGHT_MESSAGE';
 
 /** Messages you can send the reducer */
 
@@ -22,6 +23,13 @@ export function updateMessages (messages) {
 export function removeMessage(message) {
   return {
     type: REMOVE_MESSAGE,
+    message
+  }
+}
+
+export function dehighlightMessage(message) {
+  return {
+    type: DEHIGHLIGHT_MESSAGE,
     message
   }
 }
@@ -97,6 +105,23 @@ function removeSingleMessage(state, action) {
   return storeMessagesInState(state, filteredMessages);
 }
 
+function dehighlightSingleMessage(state, action) {
+  const { message } = action;
+  const { messages } = state;
+  const oldMessage = (messages || []).find((oldMessage) => oldMessage.market_id_user_id === message.market_id_user_id
+    && oldMessage.type_object_id === message.type_object_id);
+  if (oldMessage) {
+    const newMessage = {
+      ...oldMessage,
+      is_highlighted: false,
+    };
+    // type_object_id sufficient to do the union because user id is the same and object id unique even without market id
+    const newMessages = _.unionBy([newMessage], messages, 'type_object_id');
+    return storeMessagesInState(state, newMessages);
+  }
+  return state;
+}
+
 function computeNewState (state, action) {
   switch (action.type) {
     case UPDATE_MESSAGES:
@@ -105,6 +130,8 @@ function computeNewState (state, action) {
       return action.newState;
     case REMOVE_MESSAGE:
       return removeSingleMessage(state, action);
+    case DEHIGHLIGHT_MESSAGE:
+      return dehighlightSingleMessage(state, action);
     default:
       return state;
   }

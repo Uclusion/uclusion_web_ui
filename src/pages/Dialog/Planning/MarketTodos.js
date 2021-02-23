@@ -252,12 +252,15 @@ function MarketTodos (props) {
       const { id, body, updated_at, notification_type: notificationType } = comment;
       const replies = comments.filter(comment => comment.root_comment_id === id) || [];
       const myMessage = findMessageForCommentId(id, messagesState);
-      const { level: myLevel } = myMessage || {};
-      let level = myLevel;
+      const { is_highlighted: isHighlighted } = myMessage || {};
+      const messages = isHighlighted ? [myMessage] : [];
+      let useHighlight = isHighlighted;
       replies.forEach((reply) => {
         const aMessage = findMessageForCommentId(reply.id, messagesState);
-        if (aMessage) {
-          level = 'YELLOW';
+        const { is_highlighted: isHighlighted } = aMessage || {};
+        if (isHighlighted) {
+          messages.push(aMessage);
+          useHighlight = true;
         }
       })
       const { isChecked } = checked[id] || { isChecked: false };
@@ -283,10 +286,10 @@ function MarketTodos (props) {
           )}
           {openMenuTodoId === id && anchorEl && (
             <MarketTodoMenu comment={comment} editViewFunc={setCardAndScroll}
-                            openIdFunc={setOpenMenuTodoId} anchorEl={anchorEl} />
+                            openIdFunc={setOpenMenuTodoId} anchorEl={anchorEl} messages={messages} />
           )}
           <RaisedCard elevation={0}>
-            <Grid container id={`drag${id}`} className={level ? classes.warnCard : classes.card}
+            <Grid container id={`drag${id}`} className={useHighlight ? classes.warnCard : classes.card}
                   onClick={(event) => {
                     if (isInArchives) {
                       setCardAndScroll(comment);

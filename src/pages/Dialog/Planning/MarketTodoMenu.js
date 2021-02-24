@@ -11,7 +11,7 @@ import { updateComment } from '../../../api/comments'
 import { addCommentToMarket } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
-import { onDropTodo } from './userUtils'
+import { doRemoveEdit, onDropTodo } from './userUtils'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import { deleteOrDehilightMessages } from '../../../api/users'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
@@ -93,6 +93,7 @@ function MarketTodoMenu(props) {
   function doEdit() {
     editViewFunc(comment);
     openIdFunc(undefined);
+    doRemoveEdit(commentId);
   }
 
   function doMarkRead() {
@@ -100,6 +101,7 @@ function MarketTodoMenu(props) {
     deleteOrDehilightMessages(messages, messagesDispatch).then(() => setOperationRunning(false))
       .finally(() => {
         openIdFunc(undefined);
+        doRemoveEdit(commentId);
         setOperationRunning(false);
     });
   }

@@ -264,6 +264,7 @@ function MarketTodos (props) {
         }
       })
       const { isChecked } = checked[id] || { isChecked: false };
+      const showChip = replies.length > 0;
       return (
         <Grid
           id={`c${id}`}
@@ -302,7 +303,7 @@ function MarketTodos (props) {
                   <Typography style={{ fontSize: '.75rem', flex: 1 }}>
                     Updated: {intl.formatDate(updated_at)}
                   </Typography>
-                  {replies.length > 0 && (
+                  {showChip && (
                     <div style={{display: 'flex'}}>
                       <Typography style={{ fontSize: '.75rem' }}>Comments:</Typography>
                       <Chip label={`${replies.length}`} color="primary" size='small'
@@ -314,7 +315,8 @@ function MarketTodos (props) {
               <Grid id={`showEdit0${id}`} item xs={1} style={{pointerEvents: 'none', display: 'none'}}>
                 <EditOutlinedIcon style={{maxHeight: '1.25rem'}} />
               </Grid>
-              <Grid id={`showEdit1${id}`} item xs={12} style={{pointerEvents: 'none', paddingTop: '0.5rem'}}>
+              <Grid id={`showEdit1${showChip ? '' : id}`} item xs={12} style={{pointerEvents: 'none',
+                paddingTop: `${showChip ? 0 : 0.5}rem`}}>
                 <ReadOnlyQuillEditor value={body} />
               </Grid>
             </Grid>

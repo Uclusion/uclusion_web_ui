@@ -5,6 +5,7 @@ import { toast } from 'react-toastify'
 import { intl } from '../components/ContextHacks/IntlGlobalProvider'
 import { setOperationInProgress } from '../components/ContextHacks/OperationInProgressGlobalProvider'
 
+export const DEBUG = 'debug';
 export const INFO = 'info';
 export const WARN = 'warn';
 export const ERROR = 'error';
@@ -25,6 +26,9 @@ export function sendIntlMessageBase(intl, level, i18nMessageId, ii18nMessageValu
   const message = intl.formatMessage({ id: i18nMessageId }, ii18nMessageValues);
   // it's expected this function will bet more complex as we customize toasts
   switch (level) {
+    case DEBUG:
+      console.info(message);
+      break;
     case INFO:
       toast.info(message);
       break;
@@ -40,6 +44,15 @@ export function sendIntlMessageBase(intl, level, i18nMessageId, ii18nMessageValu
     default:
       toast(message);
   }
+}
+
+export function errorAndThrow(error, messageKey) {
+  sendIntlMessage(DEBUG, messageKey);
+  console.error(error);
+  if (setOperationInProgress) {
+    setOperationInProgress(false);
+  }
+  throw error;
 }
 
 /**

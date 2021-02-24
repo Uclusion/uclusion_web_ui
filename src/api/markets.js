@@ -1,6 +1,6 @@
 import { getAccountClient, getMarketClient } from './uclusionClient'
 import { fixupItemForStorage } from '../contexts/ContextUtils'
-import { toastErrorAndThrow } from '../utils/userMessage'
+import { errorAndThrow, toastErrorAndThrow } from '../utils/userMessage'
 import { INITIATIVE_TYPE, PLANNING_TYPE, DECISION_TYPE, ACTIVE_STAGE, INACTIVE_STAGE } from '../constants/markets'
 
 function fixupMarketForStorage(market) {
@@ -177,5 +177,6 @@ export function getMarketUsers(marketId) {
     console.error('No marketId');
     throw new Error('NO MARKET ID');
   }
-  return getMarketClient(marketId).then((client) => client.markets.listUsers());
+  return getMarketClient(marketId).then((client) => client.markets.listUsers())
+    .catch((error) => errorAndThrow(error, 'errorUsersFetchFailed'));
 }

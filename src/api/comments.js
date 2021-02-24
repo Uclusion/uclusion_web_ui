@@ -1,19 +1,16 @@
 import _ from 'lodash'
 import { getMarketClient } from './uclusionClient'
-import { toastErrorAndThrow } from '../utils/userMessage'
+import { errorAndThrow, toastErrorAndThrow } from '../utils/userMessage'
 import { AllSequentialMap } from '../utils/PromiseUtils'
-
-// import { commentCreated, commentDeleted, commentsReceived } from '../store/Comments/actions';
 
 export function fetchComments(idList, marketId) {
   const clientPromise = getMarketClient(marketId);
   const chunks = _.chunk(idList, 50);
-  // // console.debug(idList);
   return clientPromise.then((client) => {
     return AllSequentialMap(chunks, (chunk) => {
       return client.investibles.getMarketComments(chunk);
     }).then((commentsLists) => _.flatten(commentsLists));
-  }).catch((error) => toastErrorAndThrow(error, 'errorCommentFetchFailed'));
+  }).catch((error) => errorAndThrow(error, 'errorCommentFetchFailed'));
 }
 
 export function saveComment(marketId, investibleId, replyId, body, commentType, uploadedFiles, mentions, notificationType) {

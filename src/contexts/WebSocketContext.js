@@ -63,6 +63,7 @@ function WebSocketProvider(props) {
   const [leaderState] = useContext(LeaderContext);
   const { isLeader } = leaderState;
   const [state, setState] = useState();
+  const [pegRefresh, setPegRefresh] = useState();
   const [, setSocketListener] = useState();
   const [, connectionCheckTimerDispatch] = useReducer((state, action) => {
     const { timer } = state;
@@ -78,17 +79,22 @@ function WebSocketProvider(props) {
   }, {});
 
   useEffect(() => {
-    function myRefreshVersion() {
-      if (isLeader) {
-        refreshVersions().then(() => console.info('Refreshed versions'));
-      } else if (isLeader !== undefined) {
-        console.info('Not leader sending refresh');
+    function myRefreshVersion(peg, amLeader) {
+      if (amLeader) {
+        refreshVersions().then(() => console.info(`Refreshed versions from ${peg}`));
+      } else if (amLeader !== undefined) {
+        console.info(`Not leader sending refresh from ${peg}`);
         const myChannel = new BroadcastChannel(LEADER_CHANNEL);
         myChannel.postMessage('refresh').then(() => myChannel.close());
       }
     }
+    myRefreshVersion(pegRefresh, isLeader);
+    return () => {};
+  }, [pegRefresh, isLeader]);
+
+  useEffect(() => {
     function createWebSocket() {
-      console.info(`Creating new websocket with is leader ${isLeader}`);
+      console.info('Creating new websocket');
       const { webSockets } = config;
       const sockConfig = { wsUrl: webSockets.wsUrl, reconnectInterval: webSockets.reconnectInterval };
       const newSocket = new WebSocketRunner(sockConfig);
@@ -96,10 +102,10 @@ function WebSocketProvider(props) {
       newSocket.connect();
       const myChannel = new BroadcastChannel(LEADER_CHANNEL);
       myChannel.onmessage = (msg) => {
-        if (msg === 'refresh' && isLeader) {
+        if (msg === 'refresh') {
           //Each context is setup to tell the other tabs to reload from the memory namespace
           //so refresh versions just needs to run as normal and changes will propagate
-          refreshVersions().then(() => console.info('Refreshed versions from message'));
+          setPegRefresh(`leaderChannel${Date.now()}`);
         }
       }
       // we also want to always be subscribed to new app versions
@@ -112,33 +118,33 @@ function WebSocketProvider(props) {
       });
 
       newSocket.registerHandler('market', () => {
-        myRefreshVersion();
+        setPegRefresh(`market${Date.now()}`);
       });
       newSocket.registerHandler('investible', () => {
-        myRefreshVersion();
+        setPegRefresh(`investible${Date.now()}`);
       });
       newSocket.registerHandler('market_investible', () => {
-        myRefreshVersion();
+        setPegRefresh(`marketInvestible${Date.now()}`);
       });
       newSocket.registerHandler('comment', () => {
-        myRefreshVersion();
+        setPegRefresh(`comment${Date.now()}`);
       });
       newSocket.registerHandler('stage', () => {
-        myRefreshVersion();
+        setPegRefresh(`stage${Date.now()}`);
       });
       newSocket.registerHandler('market_capability', () => {
-        myRefreshVersion();
+        setPegRefresh(`marketCapability${Date.now()}`);
       });
       newSocket.registerHandler('investment', () => {
-        myRefreshVersion();
+        setPegRefresh(`investment${Date.now()}`);
       });
       // Go ahead and get the latest when bring up a new socket since you may not have been listening
-      myRefreshVersion();
+      setPegRefresh(`initialized${Date.now()}`);
       refreshNotifications();
 
       newSocket.registerHandler('notification', () => {
         // Try to be up to date before we push the notification out (which might need new data)
-        myRefreshVersion();
+        setPegRefresh(`notification${Date.now()}`);
         refreshNotifications();
       });
 
@@ -147,12 +153,10 @@ function WebSocketProvider(props) {
       return newSocket;
     }
     function initialize() {
-      console.info(`Initializing web socket with leader ${isLeader}`);
       Promise.resolve(createWebSocket())
         .then((newSocket) => {
           setState(newSocket);
           const myListener = (data) => {
-            console.info('Web socket responding to visit');
             if (!data) {
               return;
             }
@@ -161,15 +165,13 @@ function WebSocketProvider(props) {
               case VIEW_EVENT: {
                 const { isEntry } = message;
                 if (isEntry && (Date.now() - newSocket.getSocketLastSentTime()) > 30000) {
-                  // console.debug('Pong and refresh');
                   // Otherwise if we miss a push out of luck until tab is closed
-                  myRefreshVersion();
+                  setPegRefresh(`visit${Date.now()}`);
                   refreshNotifications();
                   if (newSocket.getSocketState() === WebSocket.OPEN) {
                     const actionString = JSON.stringify({ action: 'ping' });
                     newSocket.send(actionString);
                     const pongTimer = setTimeout((socket, setSocket) => {
-                      // console.debug('Terminating socket connection');
                       socket.terminate();
                       setSocket(undefined);
                     }, 5000, newSocket, setState);
@@ -188,11 +190,10 @@ function WebSocketProvider(props) {
     }
     initialize();
     return () => {};
-  }, [config, isLeader]);
+  }, [config]);
 
   registerListener(AUTH_HUB_CHANNEL, 'webSocketsAuth', (data) => {
     const { payload: { event } } = data;
-    // console.debug(`Web Sockets context responding to auth event ${event}`);
     switch (event) {
       case 'signOut':
         if (state) {
@@ -206,7 +207,6 @@ function WebSocketProvider(props) {
         }
         break;
       default:
-        // console.debug(`Ignoring auth event ${event}`);
     }
   });
 
@@ -218,9 +218,7 @@ function WebSocketProvider(props) {
 }
 
 WebSocketProvider.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types,react/require-default-props
   children: PropTypes.object,
-  // eslint-disable-next-line react/forbid-prop-types
   config: PropTypes.object.isRequired,
 };
 

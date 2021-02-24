@@ -799,6 +799,7 @@ const messages = defineMessages({
   errorInvestibleStageChangeFailed: 'There was a problem accepting or archiving the story',
   errorInvestibleUpdateFailed: 'There was a problem updating the option.',
   errorCommentFetchFailed: 'There was a problem retrieving comments',
+  errorUsersFetchFailed: 'There was a problem retrieving users',
   errorCommentSaveFailed: 'There was a problem saving your comment',
   errorInvestmentUpdateFailed: 'There was a problem updating your approval',
   errorAddParticipantsFailed: 'There was a problem adding participants',

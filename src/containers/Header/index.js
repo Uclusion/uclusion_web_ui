@@ -146,7 +146,7 @@ function Header (props) {
           setPegLogo(true);
         }, 500));
       }
-      if (!operationRunning && logoTimer) {
+      if (!operationRunning) {
         setLogoTimer(undefined);
         clearInterval(logoTimer);
         setPegLogo(false);

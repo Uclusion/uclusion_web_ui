@@ -539,8 +539,8 @@ function Stage (props) {
   const singleInvestible = (stageInvestibles || []).length === 1;
 
   return (
-    <dd className={singleInvestible && warnAcceptedSafe[warnKeys[0]] ? classes.rootWarnAccepted :
-      singleInvestible ? classes.root : classes.regularAccepted}>
+    <dd className={singleInvestible && warnAcceptedSafe[warnKeys[stageInvestibles[0].investible.id]] ?
+      classes.rootWarnAccepted : singleInvestible ? classes.root : classes.regularAccepted}>
       <ul className={classes.list}>
         <Grid
           className={overflowClass}

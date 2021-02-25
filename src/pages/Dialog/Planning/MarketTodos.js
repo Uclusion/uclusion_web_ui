@@ -45,6 +45,7 @@ import { isTinyWindow } from '../../../utils/windowUtils'
 import MarketTodoMenu from './MarketTodoMenu'
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined'
 import { doRemoveEdit, doShowEdit } from './userUtils'
+import localforage from 'localforage'
 
 const myClasses = makeStyles(
   theme => {
@@ -114,7 +115,8 @@ function MarketTodos (props) {
   const {
     comments,
     marketId,
-    isInArchives
+    isInArchives,
+    hidden
   } = props
   const classes = myClasses();
   const intl = useIntl();
@@ -127,12 +129,15 @@ function MarketTodos (props) {
   const [messagesState] = useContext(NotificationsContext);
   const myExpandedState = expandedCommentState[marketId] || {};
   const { expanded: showTodos } = myExpandedState;
-  const [editCard, setEditCard] = useState(false);
+  const [editCard, setEditCardComment] = useState(false);
+  const [cardLoadId, setCardLoadId] = useState(false);
   const [createCard, setCreateCard] = useState(false);
-  const [editRedCard, setEditRedCard] = useState(false);
+  const [editRedCard, setEditRedCardComment] = useState(false);
   const [createRedCard, setCreateRedCard] = useState(false);
+  const [redLoadId, setRedLoadId] = useState(undefined);
   const [createYellowCard, setCreateYellowCard] = useState(false);
-  const [editYellowCard, setEditYellowCard] = useState(false);
+  const [editYellowCard, setEditYellowCardComment] = useState(false);
+  const [yellowLoadId, setYellowLoadId] = useState(false);
   const [showSelectTodos, setShowSelectTodos] = useState(false);
   const [checked, setChecked] = useState({});
   const [searchQuery, setSearchQuery] = useState(undefined);
@@ -146,6 +151,69 @@ function MarketTodos (props) {
   const { hash } = location;
   const [openMenuTodoId, setOpenMenuTodoId] = useState(undefined);
   const [anchorEl, setAnchorEl] = useState(null);
+
+  function setEditRedCard(comment) {
+    if (comment) {
+      localforage.setItem('redCardEditing', comment.id).then(() => {});
+    } else {
+      localforage.removeItem('redCardEditing').then(() => {});
+    }
+    setEditRedCardComment(comment);
+  }
+
+  useEffect(() => {
+    if (redLoadId) {
+      const toLoad = comments.find((comment) => comment.id === redLoadId);
+      setEditRedCardComment(toLoad);
+      setRedLoadId(undefined);
+    }
+    return () => {};
+  }, [comments, redLoadId]);
+
+  function setEditYellowCard(comment) {
+    if (comment) {
+      localforage.setItem('yellowCardEditing', comment.id).then(() => {});
+    } else {
+      localforage.removeItem('yellowCardEditing').then(() => {});
+    }
+    setEditYellowCardComment(comment);
+  }
+
+  useEffect(() => {
+    if (yellowLoadId) {
+      const toLoad = comments.find((comment) => comment.id === yellowLoadId);
+      setEditYellowCardComment(toLoad);
+      setYellowLoadId(undefined);
+    }
+    return () => {};
+  }, [comments, yellowLoadId]);
+
+  function setEditCard(comment) {
+    if (comment) {
+      localforage.setItem('cardEditing', comment.id).then(() => {});
+    } else {
+      localforage.removeItem('cardEditing').then(() => {});
+    }
+    setEditCardComment(comment);
+  }
+
+  useEffect(() => {
+    if (cardLoadId) {
+      const toLoad = comments.find((comment) => comment.id === cardLoadId);
+      setEditCardComment(toLoad);
+      setCardLoadId(undefined);
+    }
+    return () => {};
+  }, [comments, cardLoadId]);
+
+  useEffect(() => {
+    if (!hidden) {
+      localforage.getItem('redCardEditing').then((commentId) => setRedLoadId(commentId));
+      localforage.getItem('yellowCardEditing').then((commentId) => setYellowLoadId(commentId));
+      localforage.getItem('cardEditing').then((commentId) => setCardLoadId(commentId));
+    }
+    return () => {};
+  }, [hidden]);
 
   useEffect(() => {
     if (hash) {

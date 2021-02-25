@@ -269,7 +269,7 @@ function PlanningDialog(props) {
         {isChannel && (
           <DismissableText textId='storyHelp' />
         )}
-        <MarketTodos comments={unResolvedMarketComments} marketId={marketId} />
+        <MarketTodos comments={unResolvedMarketComments} marketId={marketId} hidden={hidden} />
       </LocalPlanningDragContext.Provider>
       <Grid container spacing={2}>
           <Grid item id="commentAddArea"  xs={12}>

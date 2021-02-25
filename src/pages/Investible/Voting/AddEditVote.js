@@ -183,7 +183,9 @@ function AddEditVote(props) {
 
   function onSaveSpinStop(result) {
     if (!result) {
-      toggleOpen();
+      if (open) {
+        toggleOpen();
+      }
       return;
     }
     const { commentResult, investmentResult } = result;
@@ -196,7 +198,9 @@ function AddEditVote(props) {
       refreshMarketComments(commentsDispatch, marketId, [comment, ...comments]);
     }
     partialUpdateInvestment(marketPresencesDispatch, investmentResult, allowMultiVote);
-    toggleOpen();
+    if (open) {
+      toggleOpen();
+    }
     onSave();
   }
 

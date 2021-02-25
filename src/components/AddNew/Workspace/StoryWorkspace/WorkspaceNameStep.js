@@ -34,7 +34,7 @@ function WorkspaceNameStep (props) {
       </Typography>
       <label className={classes.inputLabel} htmlFor="name">{intl.formatMessage({ id: 'WorkspaceWizardMeetingPlaceHolder' })}</label>
       <TextField
-        id="name"
+        id="workspaceName"
         className={classes.input}
         value={value}
         onChange={onNameChange}

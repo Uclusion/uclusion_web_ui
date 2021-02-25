@@ -207,13 +207,13 @@ function MarketTodos (props) {
   }, [comments, cardLoadId]);
 
   useEffect(() => {
-    if (!hidden) {
+    if (!hidden && !isInArchives) {
       localforage.getItem('redCardEditing').then((commentId) => setRedLoadId(commentId));
       localforage.getItem('yellowCardEditing').then((commentId) => setYellowLoadId(commentId));
       localforage.getItem('cardEditing').then((commentId) => setCardLoadId(commentId));
     }
     return () => {};
-  }, [hidden]);
+  }, [hidden, isInArchives]);
 
   useEffect(() => {
     if (hash) {

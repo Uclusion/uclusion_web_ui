@@ -11,10 +11,7 @@ const useStyles = makeStyles({
   clickableCard: {
     padding: '8px',
     display: 'flex',
-    flexDirection: 'column',
-    '&:hover': {
-      backgroundColor: 'rgba( 0, 0, 0, 0.1)'
-    }
+    flexDirection: 'column'
   }
 })
 

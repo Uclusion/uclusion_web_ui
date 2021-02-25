@@ -289,15 +289,14 @@ function MarketTodos (props) {
             <MarketTodoMenu comment={comment} editViewFunc={setCardAndScroll}
                             openIdFunc={setOpenMenuTodoId} anchorEl={anchorEl} messages={messages} />
           )}
-          <RaisedCard elevation={0}>
-            <Grid container id={`drag${id}`} className={useHighlight ? classes.warnCard : classes.card}
-                  onClick={(event) => {
-                    if (isInArchives) {
-                      setCardAndScroll(comment);
-                    } else {
-                      setOpenMenuCard(id, event);
-                    }
-                  }}>
+          <RaisedCard elevation={0} onClick={(event) => {
+            if (isInArchives) {
+              setCardAndScroll(comment);
+            } else {
+              setOpenMenuCard(id, event);
+            }
+          }}>
+            <Grid container id={`drag${id}`} className={useHighlight ? classes.warnCard : classes.card}>
               <Grid item xs={11} style={{pointerEvents: 'none'}}>
                 <div style={{display: 'flex'}}>
                   <Typography style={{ fontSize: '.75rem', flex: 1 }}>

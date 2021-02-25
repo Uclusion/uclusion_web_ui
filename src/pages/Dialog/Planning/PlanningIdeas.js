@@ -513,6 +513,11 @@ function Stage (props) {
   const [, dragHack] = useContext(LocalPlanningDragContext);
   const stageInvestibles = getUserSwimlaneInvestibles(investibles, limitInvestibles, limitInvestiblesAge,
     marketId, id);
+  const sortedInvestibles = stageInvestibles.sort(function(a, b) {
+    const aMarketInfo = getMarketInfo(a, marketId);
+    const bMarketInfo = getMarketInfo(b, marketId);
+    return new Date(bMarketInfo.updated_at) - new Date(aMarketInfo.updated_at);
+  });
   const classes = useStageClasses(props);
   const history = useHistory();
   if (fallbackWarning !== undefined && stageInvestibles.length === 0) {
@@ -545,7 +550,7 @@ function Stage (props) {
         <Grid
           className={overflowClass}
           container>
-        {stageInvestibles.map(inv => {
+        {sortedInvestibles.map(inv => {
           const { investible, market_infos: marketInfos } = inv;
           const marketInfo = marketInfos.find(
             info => info.market_id === marketId

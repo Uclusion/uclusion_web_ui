@@ -127,6 +127,7 @@ export const wizardStyles = makeStyles(
         backgroundColor: '#2D9CDB',
         color: 'white',
         textTransform: 'unset',
+        marginRight: '20px',
         '&:hover': {
           backgroundColor: '#2D9CDB'
         },
@@ -138,7 +139,7 @@ export const wizardStyles = makeStyles(
       actionSecondary: {
         backgroundColor: '#e0e0e0',
         textTransform: 'unset',
-        marginRight: '10px',
+        marginRight: '20px',
         '&:hover': {
           backgroundColor: '#e0e0e0'
         }
@@ -178,6 +179,9 @@ export const wizardStyles = makeStyles(
       marginBottom: {
         marginBottom: '20px'
       },
+      stepDefault: {
+        maxWidth: '725px'
+      },
       WorkspaceWizardMeetingStepLabel: {
         maxWidth: '500px'
       },
@@ -197,7 +201,6 @@ export const wizardStyles = makeStyles(
       WorkspaceWizardCreatingWorkspaceStepLabel: {
         maxWidth: '500px'
       },
-
       ReqWorkspaceWizardNameStepLabel: {
         maxWidth: '500px'
       },

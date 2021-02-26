@@ -1,9 +1,8 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import { Typography, Card, TextField } from '@material-ui/core'
+import { Typography, Card } from '@material-ui/core'
 import { useIntl } from 'react-intl';
 import StepButtons from '../../StepButtons';
-import _ from 'lodash';
 import { DiffContext } from '../../../../contexts/DiffContext/DiffContext';
 import { MarketsContext } from '../../../../contexts/MarketsContext/MarketsContext';
 import { InvestiblesContext } from '../../../../contexts/InvestibesContext/InvestiblesContext';
@@ -13,31 +12,11 @@ import { doCreateStoryWorkspace } from './workspaceCreator';
 import { WizardStylesContext } from '../../WizardStylesContext';
 import WizardStepContainer from '../../WizardStepContainer';
 import Grid from '@material-ui/core/Grid';
-import { usePlanFormStyles } from '../../../AgilePlan'
-import { makeStyles } from '@material-ui/styles';
+import { VoteExpiration, Votes } from '../../../AgilePlan'
 import { MarketStagesContext } from '../../../../contexts/MarketStagesContext/MarketStagesContext';
+import { useOptionsStyles } from './AdvancedOptionsStep'
 
-export const useOptionsStyles = makeStyles(theme => {
-  return {
-    item: {
-      marginTop: theme.spacing(2),
-      marginBottom: theme.spacing(2),
-      width: '100%',
-      '& > *': {
-        width: '100%',
-      }
-    },
-    helper: {
-      fontStyle: "italic",
-      marginBottom: theme.spacing(2),
-    },
-    cardStyle: {
-      padding: '1rem'
-    }
-  };
-});
-
-function AdvancedOptionsStep (props) {
+function ApprovalOptionsStep (props) {
   const { updateFormData, formData } = props;
   const intl = useIntl();
   const classes = useContext(WizardStylesContext);
@@ -66,36 +45,36 @@ function AdvancedOptionsStep (props) {
 
   function onPrevious () {}
 
-  function onNext () {}
-
-  function onSkip () {}
-
   function onFinish() {
     return createMarket({ ...formData });
   }
 
-  function onTicketSubCodeChange(event) {
-    const { value } = event.target;
-    updateFormData({
-      ticketSubCode: value
-    });
+  function handleChange (name) {
+    return (event) => {
+      const { value } = event.target;
+      const parsed = parseInt(value, 10);
+      updateFormData({
+        [name]: parsed,
+      });
+    };
   }
 
   const optionsClasses = useOptionsStyles();
-  const otherClasses = usePlanFormStyles();
 
   const {
-    ticketSubCode
+    investmentExpiration,
+    votesRequired,
   } = formData;
 
   return (
     <WizardStepContainer
       {...props}
-      titleId="OnboardingWizardAdvancedOptionsStepLabel"
     >
       <div>
+        <Typography className={classes.title} variant="h5">Approval Configuration</Typography>
         <Typography variant="body1" className={optionsClasses.helper}>
-          We've set up good defaults for you and any of these options can be changed later.
+          Approvals are part of Uclusion built-in workflows. You can control how many approvals a story requires and
+          how long they last.
         </Typography>
         <Card className={optionsClasses.cardStyle}>
           <Grid container spacing={2} direction="column">
@@ -104,48 +83,41 @@ function AdvancedOptionsStep (props) {
               xs={12}
               className={optionsClasses.item}
             >
-              <TextField
-                id="name"
-                className={otherClasses.input}
-                value={ticketSubCode}
-                onChange={onTicketSubCodeChange}
-                placeholder="Ticket sub-code"
+              <VoteExpiration
+                onChange={handleChange('investmentExpiration')}
+                value={investmentExpiration}
               />
-              <Typography>
-                {intl.formatMessage({ id: "ticketSubCodeHelp" })}
-              </Typography>
-              <br />
-              <Typography>
-                {intl.formatMessage({ id: "ticketSubCodeHelp1" })}
-              </Typography>
+            </Grid>
+            <Grid
+              item
+              xs={12}
+              className={optionsClasses.item}
+            >
+              <Votes onChange={handleChange('votesRequired')} value={votesRequired || 0}/>
             </Grid>
           </Grid>
         </Card>
         <div className={classes.borderBottom}/>
         <StepButtons
           {...props}
-          validForm={!_.isEmpty(ticketSubCode)}
           showSkip
-          showFinish
           spinOnClick
           onPrevious={onPrevious}
-          onSkip={onSkip}
-          onNext={onNext}
-          finish={onFinish}
+          onFinish={onFinish}
         />
       </div>
     </WizardStepContainer>
   );
 }
 
-AdvancedOptionsStep.propTypes = {
+ApprovalOptionsStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object,
 };
 
-AdvancedOptionsStep.defaultProps = {
+ApprovalOptionsStep.defaultProps = {
   updateFormData: () => {},
   formData: {},
 };
 
-export default AdvancedOptionsStep;
+export default ApprovalOptionsStep;

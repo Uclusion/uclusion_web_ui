@@ -8,7 +8,7 @@ import { WizardStylesContext } from './WizardStylesContext';
 function WizardStepContainer (props) {
   const { hideSteppers, titleId, children, ...other } = props;
   const classes = useContext(WizardStylesContext);
-  const titleClass = classes[titleId];
+  const titleClass = titleId ? classes[titleId] : classes.stepDefault;
   return (
     <Card className={clsx(titleClass, classes.baseCard)} elevation={0} raised={false}>
       <div>

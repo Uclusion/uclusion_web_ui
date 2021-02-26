@@ -4,6 +4,8 @@ import WorkspaceNameStep from './WorkspaceNameStep'
 import { WizardStylesProvider } from '../../WizardStylesContext';
 import FormdataWizard from 'react-formdata-wizard';
 import AdvancedOptionsStep from './AdvancedOptionsStep';
+import SwimlanesOptionsStep from './SwimlanesOptionsStep'
+import ApprovalOptionsStep from './ApprovalOptionsStep'
 
 function StoryWorkspaceWizard(props) {
   const { onStartOver, onFinish } = props;
@@ -16,6 +18,8 @@ function StoryWorkspaceWizard(props) {
         >
           <WorkspaceNameStep />
           <AdvancedOptionsStep />
+          <SwimlanesOptionsStep />
+          <ApprovalOptionsStep />
         </FormdataWizard>
       </WizardStylesProvider>
   );

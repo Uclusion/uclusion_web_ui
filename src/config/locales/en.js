@@ -334,6 +334,7 @@ const messages = defineMessages({
   daysEstimateMarketLabel: 'date of completion',
   votesRequiredHelp: "Number of approvals required before a story can be moved to 'Not Ready For Feedback'",
   ticketSubCodeHelp: 'Short string to use in the human readable story code. Should be unique to this Workspace.',
+  ticketSubCodeHelp1: 'The code will be of the form U-[string entered here]-[sequence] where sequence is a zero indexed count of stories created in this Workspace.',
   maxBudgetHelp: 'Maximum budget allowed for a story. Used to prevent stories from being too large.',
   voteExpirationHelp: "How many days before approvals expire. Prevents very old approval from being used.",
   reassignToMove: 'Re-assigning moves to the swimlanes.',
@@ -868,7 +869,7 @@ const messages = defineMessages({
 
   //show investibles dropdown
   showInvestiblesDropdownHelp: 'Number of stories to allow in \'Verified\' swimlane per person',
-  showInvestiblesDropdownAgeHelp: 'Age of stories to show in \'Verified\' swimlanes',
+  showInvestiblesDropdownAgeHelp: 'Maximum age of stories shown in \'Verified\' swimlanes',
   showInvestiblesDropdownLabel: 'Maximum verified stories shown in swim lane',
   showInvestiblesDropdownAgeLabel: 'Maximum age in days to show verified stories',
   showInvestiblesUnlimitedValue: 'Unlimited',

@@ -21,7 +21,7 @@ import { updateStagesForMarket } from '../../../../contexts/MarketStagesContext/
  * @param intl
  */
 export function doCreateStoryWorkspace (dispatchers, formData, updateFormData, intl) {
-  const { meetingName, advancedOptionsSkipped } = formData;
+  const { meetingName } = formData;
   const {
     marketsDispatch,
     marketStagesDispatch,
@@ -37,18 +37,15 @@ export function doCreateStoryWorkspace (dispatchers, formData, updateFormData, i
     name: meetingName,
     description: descriptionContent,
   };
-  // see if we have any advanced options set, and set up the basic create info
-  // don't want any null values so doing this the stupid way
-  if (!advancedOptionsSkipped) {
-    if (formData.votesRequired) {
-      marketInfo.votes_required = formData.votesRequired;
-    }
-    if (formData.investmentExpiration) {
-      marketInfo.investment_expiration = formData.investmentExpiration;
-    }
-    if (formData.ticketSubCode) {
-      marketInfo.ticket_sub_code = formData.ticketSubCode;
-    }
+
+  if (formData.votesRequired) {
+    marketInfo.votes_required = formData.votesRequired;
+  }
+  if (formData.investmentExpiration) {
+    marketInfo.investment_expiration = formData.investmentExpiration;
+  }
+  if (formData.ticketSubCode) {
+    marketInfo.ticket_sub_code = formData.ticketSubCode;
   }
 
   let createdMarketId;
@@ -73,7 +70,7 @@ export function doCreateStoryWorkspace (dispatchers, formData, updateFormData, i
       inProgressStage = stages.find((stage) => stage.assignee_enter_only);
       const verifiedStage = stages.find((stage) => stage.appears_in_market_summary);
       // setup the allowed stories in the in progress stage if the option is set
-      if (!advancedOptionsSkipped && formData.allowedInvestibles !== undefined) {
+      if (formData.allowedInvestibles !== undefined) {
         return updateStage(createdMarketId, inProgressStage.id, formData.allowedInvestibles)
           .then((newStage) => {
             const newStages = _.unionBy([newStage], stages, 'id');
@@ -90,8 +87,7 @@ export function doCreateStoryWorkspace (dispatchers, formData, updateFormData, i
             return Promise.resolve(true);
           })
       }
-      if (!advancedOptionsSkipped
-        && (formData.showInvestiblesAge !== undefined)) {
+      if (formData.showInvestiblesAge !== undefined) {
         return updateStage(createdMarketId, verifiedStage.id, undefined, formData.showInvestiblesAge)
           .then((newStage) => {
             const newStages = _.unionBy([newStage], stages, 'id');

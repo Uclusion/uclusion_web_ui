@@ -47,7 +47,7 @@ ShowInVerifiedStageAge.propTypes = {
 }
 
 ShowInVerifiedStageAge.defaultProps = {
-  value: 7,
+  value: 14,
   onChange: () => {},
 }
 

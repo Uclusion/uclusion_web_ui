@@ -28,7 +28,9 @@ function StepHeaders (props) {
         variant="caption">
         {intl.formatMessage({ id: 'StepHeadersStepCount' }, { currentStep: oneIndexedCurrentStep, totalSteps })}
       </Typography>}
-      <Typography className={classes.title} variant="h4">{intl.formatMessage({ id: titleId })}</Typography>
+      {titleId && (
+        <Typography className={classes.title} variant="h4">{intl.formatMessage({ id: titleId })}</Typography>
+      )}
     </div>
   );
 }

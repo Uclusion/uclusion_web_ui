@@ -20,6 +20,7 @@ function StepButtons (props) {
     showSkip,
     showGoBack,
     showNext,
+    showFinish,
     finishLabel,
     startOverLabel,
     showStartOver,
@@ -61,6 +62,10 @@ function StepButtons (props) {
     return nextState(onSkip);
   }
 
+  async function myFinish() {
+    return await Promise.resolve(finish);
+  }
+
   const nextLabel = lastStep ? finishLabel : 'OnboardingWizardContinue';
 
   const startOverClass = startOverDestroysData ? classes.actionStartOver : classes.actionPrimary;
@@ -86,6 +91,10 @@ function StepButtons (props) {
           <SpinningButton spinning={spinning} className={classes.actionPrimary} disabled={!validForm}
                           onClick={myNext}>{intl.formatMessage({ id: nextLabel })}</SpinningButton>
         )}
+        {showFinish && (
+          <SpinningButton spinning={spinning} className={classes.actionPrimary} disabled={!validForm}
+                          onClick={myFinish}>{intl.formatMessage({ id: finishLabel })}</SpinningButton>
+        )}
       </div>
     </div>
   );
@@ -102,6 +111,7 @@ StepButtons.propTypes = {
   validForm: PropTypes.bool,
   startOver: PropTypes.func,
   showSkip: PropTypes.bool,
+  showFinish: PropTypes.bool,
   showGoBack: PropTypes.bool,
   finishLabel: PropTypes.string,
   finish: PropTypes.func,
@@ -125,6 +135,7 @@ StepButtons.defaultProps = {
   currentStep: 0,
   validForm: true,
   showSkip: false,
+  showFinish: false,
   showGoBack: true,
   showNext: true,
   showStartOver: true,

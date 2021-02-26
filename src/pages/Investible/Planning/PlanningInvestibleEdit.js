@@ -100,14 +100,14 @@ function PlanningInvestibleEdit(props) {
       return updateInvestible(updateInfo)
         .then((investible) => {
           let fullInvestible = investible;
-          if (isAssign && _.isEmpty(marketAssigned)) {
+          if (isAssign) {
             const comments = getMarketComments(commentsState, marketId);
-            // Going from unassigned to assigned moves to in voting, blocked or requires input
+            // Changing assignment moves to in voting, blocked or requires input
             const unresolvedComments = comments.filter(comment => comment.investible_id === myInvestible.id &&
               !comment.resolved);
             const blockingComments = unresolvedComments.filter(comment => comment.comment_type === ISSUE_TYPE);
-            const requiresInputComments = unresolvedComments.filter(comment => comment.comment_type === QUESTION_TYPE ||
-              comment.comment_type === SUGGEST_CHANGE_TYPE);
+            const requiresInputComments = unresolvedComments.filter(comment => (comment.comment_type === QUESTION_TYPE ||
+              comment.comment_type === SUGGEST_CHANGE_TYPE) && assignments.includes(comment.created_by));
             const newStage = _.isEmpty(blockingComments) ? _.isEmpty(requiresInputComments) ?
               getInCurrentVotingStage(marketStagesState, marketId) : getRequiredInputStage(marketStagesState, marketId)
               : getBlockedStage(marketStagesState, marketId);
@@ -117,7 +117,7 @@ function PlanningInvestibleEdit(props) {
               ...info,
               stage: newStage.id,
               stage_name: newStage.name,
-              open_for_investment: false,
+              open_for_investment: newStage.allows_investment,
               last_stage_change_date: Date.now().toString(),
             };
             const newInfos = _.unionBy([newInfo], market_infos, 'id');

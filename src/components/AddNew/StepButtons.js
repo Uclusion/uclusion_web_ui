@@ -26,6 +26,7 @@ function StepButtons (props) {
     showStartOver,
     startOverDestroysData,
     spinOnClick,
+    onFinish
   } = props;
   const intl = useIntl();
   const classes = useContext(WizardStylesContext);
@@ -63,7 +64,11 @@ function StepButtons (props) {
   }
 
   async function myFinish() {
-    return await Promise.resolve(finish);
+    if (spinOnClick) {
+      setSpinning(true);
+    }
+    const resolved = await Promise.resolve(onFinish());
+    return finish(resolved);
   }
 
   const nextLabel = lastStep ? finishLabel : 'OnboardingWizardContinue';
@@ -115,6 +120,7 @@ StepButtons.propTypes = {
   showGoBack: PropTypes.bool,
   finishLabel: PropTypes.string,
   finish: PropTypes.func,
+  onFinish: PropTypes.func,
   showStartOver: PropTypes.bool,
   startOverLabel: PropTypes.string,
   showNext: PropTypes.bool,
@@ -129,6 +135,7 @@ StepButtons.defaultProps = {
   previousStep: () => {},
   nextStep: () => {},
   skipStep: () => {},
+  onFinish: () => {},
   finish: () => {},
   formData: {},
   totalSteps: 0,

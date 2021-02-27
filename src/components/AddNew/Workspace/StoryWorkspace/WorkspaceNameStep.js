@@ -28,9 +28,7 @@ function WorkspaceNameStep (props) {
     >
     <div>
       <Typography className={classes.introText} variant="body2">
-        Great! We're going to be creating a Uclusion Workspace that tracks stories, notifies people
-        when their input is needed, lets them weigh in on stories before implementation, and provides
-        structured communication.
+        Great! Workspaces track stories, notify when input is needed, and provide structured communication.
       </Typography>
       <label className={classes.inputLabel} htmlFor="name">{intl.formatMessage({ id: 'WorkspaceWizardMeetingPlaceHolder' })}</label>
       <TextField
@@ -40,7 +38,7 @@ function WorkspaceNameStep (props) {
         onChange={onNameChange}
       />
       <div className={classes.borderBottom}></div>
-      <StepButtons {...props} validForm={validForm}/>
+      <StepButtons {...props} showFinish={false} validForm={validForm}/>
     </div>
     </WizardStepContainer>
   );

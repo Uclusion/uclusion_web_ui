@@ -43,8 +43,6 @@ function ApprovalOptionsStep (props) {
       });
   }
 
-  function onPrevious () {}
-
   function onFinish() {
     return createMarket({ ...formData });
   }
@@ -100,7 +98,6 @@ function ApprovalOptionsStep (props) {
         <div className={classes.borderBottom}/>
         <StepButtons
           {...props}
-          onPrevious={onPrevious}
           onNext={onFinish}
           showFinish={false}
         />

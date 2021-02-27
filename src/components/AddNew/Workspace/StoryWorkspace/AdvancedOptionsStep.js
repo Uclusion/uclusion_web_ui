@@ -41,37 +41,17 @@ function AdvancedOptionsStep (props) {
   const { updateFormData, formData } = props;
   const intl = useIntl();
   const classes = useContext(WizardStylesContext);
-  const [, marketsDispatch] = useContext(MarketsContext);
-  const [, marketStagesDispatch] = useContext(MarketStagesContext);
-  const [, diffDispatch] = useContext(DiffContext);
-  const [, investiblesDispatch] = useContext(InvestiblesContext);
-  const [, presenceDispatch] = useContext(MarketPresencesContext);
-  const [commentsState, commentsDispatch] = useContext(CommentsContext);
-
-  function createMarket (formData) {
-    const dispatchers = {
-      marketStagesDispatch,
-      diffDispatch,
-      investiblesDispatch,
-      marketsDispatch,
-      presenceDispatch,
-      commentsDispatch,
-      commentsState,
-    };
-    return doCreateStoryWorkspace(dispatchers, formData, updateFormData, intl)
-      .then((marketId) => {
-        return ({ ...formData, marketId });
-      });
-  }
-
-  function onFinish() {
-    return createMarket({ ...formData });
-  }
 
   function onTicketSubCodeChange(event) {
     const { value } = event.target;
     updateFormData({
       ticketSubCode: value
+    });
+  }
+
+  function onSkip() {
+    updateFormData({
+      ticketSubCode: undefined
     });
   }
 
@@ -120,7 +100,8 @@ function AdvancedOptionsStep (props) {
           {...props}
           validForm={!_.isEmpty(ticketSubCode)}
           showSkip
-          finish={onFinish}
+          showFinish={false}
+          onSkip={onSkip}
         />
       </div>
     </WizardStepContainer>

@@ -52,12 +52,10 @@ function ApprovalOptionsStep (props) {
   function handleChange (name) {
     return (event) => {
       const { value } = event.target;
-      if (Number.isInteger(value)) {
-        const parsed = parseInt(value, 10);
-        updateFormData({
-          [name]: parsed,
-        });
-      }
+      const parsed = parseInt(value, 10);
+      updateFormData({
+        [name]: Number.isNaN(parsed) ? '' : parsed,
+      });
     };
   }
 

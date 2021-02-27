@@ -115,7 +115,6 @@ function SwimlanesOptionsStep (props) {
           showFinish
           spinOnClick
           onPrevious={onPrevious}
-          onSkip={onSkip}
           onNext={onNext}
           onFinish={onFinish}
         />

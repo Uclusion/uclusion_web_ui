@@ -125,11 +125,9 @@ function AdvancedOptionsStep (props) {
         <StepButtons
           {...props}
           validForm={!_.isEmpty(ticketSubCode)}
-          showSkip
           showFinish
           spinOnClick
           onPrevious={onPrevious}
-          onSkip={onSkip}
           onNext={onNext}
           finish={onFinish}
         />

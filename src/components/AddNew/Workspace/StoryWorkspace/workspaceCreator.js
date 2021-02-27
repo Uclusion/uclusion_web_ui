@@ -70,7 +70,7 @@ export function doCreateStoryWorkspace (dispatchers, formData, updateFormData, i
       inProgressStage = stages.find((stage) => stage.assignee_enter_only);
       const verifiedStage = stages.find((stage) => stage.appears_in_market_summary);
       // setup the allowed stories in the in progress stage if the option is set
-      if (formData.allowedInvestibles !== undefined) {
+      if (!_.isEmpty(formData.allowedInvestibles)) {
         return updateStage(createdMarketId, inProgressStage.id, formData.allowedInvestibles)
           .then((newStage) => {
             const newStages = _.unionBy([newStage], stages, 'id');
@@ -87,7 +87,7 @@ export function doCreateStoryWorkspace (dispatchers, formData, updateFormData, i
             return Promise.resolve(true);
           })
       }
-      if (formData.showInvestiblesAge !== undefined) {
+      if (!_.isEmpty(formData.showInvestiblesAge)) {
         return updateStage(createdMarketId, verifiedStage.id, undefined, formData.showInvestiblesAge)
           .then((newStage) => {
             const newStages = _.unionBy([newStage], stages, 'id');

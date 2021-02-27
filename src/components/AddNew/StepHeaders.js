@@ -36,7 +36,7 @@ function StepHeaders (props) {
 }
 
 StepHeaders.propTypes = {
-  titleId: PropTypes.string.isRequired,
+  titleId: PropTypes.string,
   hideSteppers: PropTypes.bool,
   currentStep: PropTypes.number.isRequired,
   totalSteps: PropTypes.number.isRequired,

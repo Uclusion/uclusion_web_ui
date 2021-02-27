@@ -38,13 +38,13 @@ export function doCreateStoryWorkspace (dispatchers, formData, updateFormData, i
     description: descriptionContent,
   };
 
-  if (formData.votesRequired) {
+  if (formData.votesRequired > 0) {
     marketInfo.votes_required = formData.votesRequired;
   }
-  if (formData.investmentExpiration) {
+  if (formData.investmentExpiration > 0) {
     marketInfo.investment_expiration = formData.investmentExpiration;
   }
-  if (formData.ticketSubCode) {
+  if (!_.isEmpty(formData.ticketSubCode)) {
     marketInfo.ticket_sub_code = formData.ticketSubCode;
   }
 
@@ -70,12 +70,12 @@ export function doCreateStoryWorkspace (dispatchers, formData, updateFormData, i
       inProgressStage = stages.find((stage) => stage.assignee_enter_only);
       const verifiedStage = stages.find((stage) => stage.appears_in_market_summary);
       // setup the allowed stories in the in progress stage if the option is set
-      if (!_.isEmpty(formData.allowedInvestibles)) {
+      if (formData.allowedInvestibles > 0) {
         return updateStage(createdMarketId, inProgressStage.id, formData.allowedInvestibles)
           .then((newStage) => {
             const newStages = _.unionBy([newStage], stages, 'id');
             updateStagesForMarket(marketStagesDispatch, createdMarketId, newStages);
-            if (!_.isEmpty(formData.showInvestiblesAge)) {
+            if (formData.showInvestiblesAge > 0) {
               return updateStage(createdMarketId, verifiedStage.id, undefined,
                 formData.showInvestiblesAge)
                 .then((newStage) => {
@@ -87,7 +87,7 @@ export function doCreateStoryWorkspace (dispatchers, formData, updateFormData, i
             return Promise.resolve(true);
           })
       }
-      if (!_.isEmpty(formData.showInvestiblesAge)) {
+      if (formData.showInvestiblesAge > 0) {
         return updateStage(createdMarketId, verifiedStage.id, undefined, formData.showInvestiblesAge)
           .then((newStage) => {
             const newStages = _.unionBy([newStage], stages, 'id');

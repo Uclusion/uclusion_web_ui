@@ -21,7 +21,7 @@ function WizardStepContainer (props) {
 }
 
 WizardStepContainer.propTypes = {
-  titleId: PropTypes.string.isRequired,
+  titleId: PropTypes.string,
   hideSteppers: PropTypes.bool,
 };
 

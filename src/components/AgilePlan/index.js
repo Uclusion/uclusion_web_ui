@@ -482,6 +482,7 @@ export function VoteExpiration(props) {
           inputMode: "numeric",
           pattern: "[0-9]*"
         }}
+        defaultValue="14"
         label={intl.formatMessage({
           id: "agilePlanFormInvestmentExpirationLabel"
         })}

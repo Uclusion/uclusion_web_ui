@@ -64,10 +64,6 @@ function AdvancedOptionsStep (props) {
       });
   }
 
-  function onPrevious () {}
-
-  function onNext () {}
-
   function onFinish() {
     return createMarket({ ...formData });
   }
@@ -123,10 +119,7 @@ function AdvancedOptionsStep (props) {
         <StepButtons
           {...props}
           validForm={!_.isEmpty(ticketSubCode)}
-          showFinish
-          spinOnClick
-          onPrevious={onPrevious}
-          onNext={onNext}
+          showSkip
           finish={onFinish}
         />
       </div>

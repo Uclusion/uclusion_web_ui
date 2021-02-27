@@ -75,12 +75,12 @@ export function doCreateStoryWorkspace (dispatchers, formData, updateFormData, i
           .then((newStage) => {
             const newStages = _.unionBy([newStage], stages, 'id');
             updateStagesForMarket(marketStagesDispatch, createdMarketId, newStages);
-            if (formData.showInvestiblesAge !== undefined) {
+            if (!_.isEmpty(formData.showInvestiblesAge)) {
               return updateStage(createdMarketId, verifiedStage.id, undefined,
                 formData.showInvestiblesAge)
                 .then((newStage) => {
-                  const newStages = _.unionBy([newStage], stages, 'id');
-                  updateStagesForMarket(marketStagesDispatch, createdMarketId, newStages);
+                  const newerStages = _.unionBy([newStage], newStages, 'id');
+                  updateStagesForMarket(marketStagesDispatch, createdMarketId, newerStages);
                   return Promise.resolve(true);
                 })
             }

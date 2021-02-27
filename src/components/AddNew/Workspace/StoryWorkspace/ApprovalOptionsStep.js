@@ -100,9 +100,9 @@ function ApprovalOptionsStep (props) {
         <div className={classes.borderBottom}/>
         <StepButtons
           {...props}
-          spinOnClick
           onPrevious={onPrevious}
           onNext={onFinish}
+          showFinish={false}
         />
       </div>
     </WizardStepContainer>

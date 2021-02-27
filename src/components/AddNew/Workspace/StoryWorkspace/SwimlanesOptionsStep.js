@@ -46,10 +46,6 @@ function SwimlanesOptionsStep (props) {
       });
   }
 
-  function onPrevious () {}
-
-  function onNext () {}
-
   function onFinish() {
     return createMarket({ ...formData });
   }
@@ -109,10 +105,6 @@ function SwimlanesOptionsStep (props) {
         <div className={classes.borderBottom}/>
         <StepButtons
           {...props}
-          showFinish
-          spinOnClick
-          onPrevious={onPrevious}
-          onNext={onNext}
           onFinish={onFinish}
         />
       </div>

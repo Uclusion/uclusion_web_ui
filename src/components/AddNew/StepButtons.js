@@ -135,14 +135,14 @@ StepButtons.defaultProps = {
   currentStep: 0,
   validForm: true,
   showSkip: false,
-  showFinish: false,
+  showFinish: true,
   showGoBack: true,
   showNext: true,
   showStartOver: true,
   startOverDestroysData: true,
   finishLabel: 'OnboardingWizardFinish',
   startOverLabel: 'OnboardingWizardStartOver',
-  spinOnClick: false,
+  spinOnClick: true,
 };
 
 export default StepButtons;

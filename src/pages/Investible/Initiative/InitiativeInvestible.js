@@ -30,12 +30,12 @@ import { TourContext } from '../../../contexts/TourContext/TourContext'
 import { startTour } from '../../../contexts/TourContext/tourContextReducer'
 import UclusionTour from '../../../components/Tours/UclusionTour'
 import { CognitoUserContext } from '../../../contexts/CognitoUserContext/CongitoUserContext'
-import { adminInitiativeSteps } from '../../../components/Tours/InviteTours/adminInitiative'
+import { adminInitiativeSteps } from '../../../components/Tours/adminInitiative'
 import {
   ADMIN_INITIATIVE_FIRST_VIEW,
   INVITE_INITIATIVE_FIRST_VIEW
 } from '../../../contexts/TourContext/tourContextHelper'
-import { inviteInitiativeSteps } from '../../../components/Tours/InviteTours/initiative'
+import { inviteInitiativeSteps } from '../../../components/Tours/initiative'
 import AttachedFilesList from '../../../components/Files/AttachedFilesList'
 import { attachFilesToMarket, deleteAttachedFilesFromMarket } from '../../../api/markets'
 import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper'

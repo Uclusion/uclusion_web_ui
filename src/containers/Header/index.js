@@ -272,7 +272,7 @@ function Header (props) {
           (
             <React.Fragment>
               <div className={classes.grow}/>
-              <div className={classes.notification}>
+              <div className={classes.notification} id="notifications">
                 <NotificationsContainer/>
               </div>
               <div className={classes.searchBox}>

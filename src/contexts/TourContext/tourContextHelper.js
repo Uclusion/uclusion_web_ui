@@ -4,6 +4,7 @@ import _ from 'lodash'
 export const INVITE_DIALOG_FIRST_VIEW = 'invite_dialog_first_view';
 export const INVITE_STORIES_WORKSPACE_FIRST_VIEW = 'invite_stories_workspace_first_view';
 export const INVITE_REQ_WORKSPACE_FIRST_VIEW = 'invite_req_workspace_first_view';
+export const INVITED_USER_WORKSPACE = 'invited_user_workspace';
 export const ADMIN_INITIATIVE_FIRST_VIEW = 'admin_initiative_first_view';
 export const INVITE_INITIATIVE_FIRST_VIEW = 'invite_initiative_first_view';
 export const SIGNUP_HOME = 'signup_home';
@@ -13,8 +14,10 @@ export function getTourFamily(tourName) {
     case INVITE_DIALOG_FIRST_VIEW:
       return [INVITE_DIALOG_FIRST_VIEW];
     case INVITE_REQ_WORKSPACE_FIRST_VIEW:
+    case INVITED_USER_WORKSPACE:
+      return [INVITE_STORIES_WORKSPACE_FIRST_VIEW, INVITE_REQ_WORKSPACE_FIRST_VIEW, SIGNUP_HOME, INVITED_USER_WORKSPACE];
     case INVITE_STORIES_WORKSPACE_FIRST_VIEW:
-      return [INVITE_STORIES_WORKSPACE_FIRST_VIEW, INVITE_REQ_WORKSPACE_FIRST_VIEW, SIGNUP_HOME];
+      return [INVITE_STORIES_WORKSPACE_FIRST_VIEW, INVITE_REQ_WORKSPACE_FIRST_VIEW, SIGNUP_HOME, INVITED_USER_WORKSPACE];
     case ADMIN_INITIATIVE_FIRST_VIEW:
       return [ADMIN_INITIATIVE_FIRST_VIEW, INVITE_INITIATIVE_FIRST_VIEW];
     case INVITE_INITIATIVE_FIRST_VIEW:

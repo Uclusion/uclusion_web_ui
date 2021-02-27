@@ -17,7 +17,7 @@ import { getAndClearRedirect, getInvitationMarker, redirectToPath } from '../../
 import WizardSelector from '../../components/AddNew/WizardSelector'
 import UclusionTour from '../../components/Tours/UclusionTour';
 import { SIGNUP_HOME } from '../../contexts/TourContext/tourContextHelper';
-import { signupHomeSteps } from '../../components/Tours/InviteTours/signupHome';
+import { signupHomeSteps } from '../../components/Tours/signupHome';
 import { CognitoUserContext } from '../../contexts/CognitoUserContext/CongitoUserContext';
 import { startTour } from '../../contexts/TourContext/tourContextReducer';
 import { TourContext } from '../../contexts/TourContext/TourContext';

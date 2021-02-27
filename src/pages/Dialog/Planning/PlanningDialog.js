@@ -2,7 +2,7 @@
  * A component that renders a _planning_ dialog
  */
 import React, { useContext, useEffect, useState } from 'react'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router';
 import { useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
@@ -19,7 +19,7 @@ import {
   makeArchiveBreadCrumbs,
   makeBreadCrumbs,
   navigate
-} from '../../../utils/marketIdPathFunctions'
+} from '../../../utils/marketIdPathFunctions';
 import {
   JUSTIFY_TYPE,
   QUESTION_TYPE,
@@ -46,10 +46,10 @@ import { TourContext } from '../../../contexts/TourContext/TourContext'
 import { startTour } from '../../../contexts/TourContext/tourContextReducer'
 import { CognitoUserContext } from '../../../contexts/CognitoUserContext/CongitoUserContext'
 import UclusionTour from '../../../components/Tours/UclusionTour'
-import { inviteStoriesWorkspaceSteps } from '../../../components/Tours/InviteTours/storyWorkspace'
+import { inviteStoriesWorkspaceSteps } from '../../../components/Tours/storyWorkspace'
 import {
-  INVITE_STORIES_WORKSPACE_FIRST_VIEW
-} from '../../../contexts/TourContext/tourContextHelper'
+  INVITE_STORIES_WORKSPACE_FIRST_VIEW, INVITED_USER_WORKSPACE
+} from '../../../contexts/TourContext/tourContextHelper';
 import { getVoteTotalsForUser, hasNotVoted } from '../../../utils/userFunctions'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import MarketLinks from '../MarketLinks'
@@ -62,6 +62,7 @@ import NotificationCountChips from '../NotificationCountChips'
 import AddIcon from '@material-ui/icons/Add'
 import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
 import PlaylistAddCheckIcon from '@material-ui/icons/PlaylistAddCheck';
+import { workspaceInvitedUserSteps } from '../../../components/Tours/InviteTours/workspaceInvitedUser';
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -130,20 +131,23 @@ function PlanningDialog(props) {
     }
   });
   const presenceMap = getPresenceMap(marketPresencesState, marketId);
-  const tourSteps = inviteStoriesWorkspaceSteps(cognitoUser);
   const isMarketOwner = marketCreatedBy === myPresence.id;
+
+  // if you're the creator we give you the first view , else you're an invited user
+  const tourName = isMarketOwner? INVITE_STORIES_WORKSPACE_FIRST_VIEW :  INVITED_USER_WORKSPACE;
+  const tourSteps = isMarketOwner? inviteStoriesWorkspaceSteps(cognitoUser) : workspaceInvitedUserSteps(myPresence);
 
   useEffect(() => {
     if (startTourNow === true) {
-      tourDispatch(startTour(INVITE_STORIES_WORKSPACE_FIRST_VIEW));
+      tourDispatch(startTour(tourName));
     }
-  }, [startTourNow, tourDispatch]);
+  }, [startTourNow, tourDispatch, tourName]);
 
   useEffect(() => {
     function hasMarketTodo() {
       return !_.isEmpty(unResolvedMarketComments.find(comment => comment.comment_type === TODO_TYPE));
     }
-    if (startTourNow === undefined && !_.isEmpty(marketSubType) && isMarketOwner && !isChannel && hasMarketTodo()) {
+    if (startTourNow === undefined && !_.isEmpty(marketSubType) && !isChannel && hasMarketTodo()) {
       setStartTourNow(true);
     }
   }, [marketSubType, isMarketOwner, unResolvedMarketComments, isChannel, startTourNow]);
@@ -162,7 +166,7 @@ function PlanningDialog(props) {
       banner={banner}
     >
       <UclusionTour
-        name={INVITE_STORIES_WORKSPACE_FIRST_VIEW}
+        name={tourName}
         hidden={hidden}
         steps={tourSteps}
       />
@@ -444,7 +448,7 @@ function InvestiblesByPerson(props) {
     );
 
     return (
-      <Card key={id} elevation={0} className={classes.root}>
+      <Card id={`sl${id}`} key={id} elevation={0} className={classes.root}>
         <CardHeader
           className={classes.header}
           id={`u${id}`}

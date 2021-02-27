@@ -52,10 +52,12 @@ function ApprovalOptionsStep (props) {
   function handleChange (name) {
     return (event) => {
       const { value } = event.target;
-      const parsed = parseInt(value, 10);
-      updateFormData({
-        [name]: parsed,
-      });
+      if (Number.isInteger(value)) {
+        const parsed = parseInt(value, 10);
+        updateFormData({
+          [name]: parsed,
+        });
+      }
     };
   }
 
@@ -93,7 +95,7 @@ function ApprovalOptionsStep (props) {
               xs={12}
               className={optionsClasses.item}
             >
-              <Votes onChange={handleChange('votesRequired')} value={votesRequired || 0}/>
+              <Votes onChange={handleChange('votesRequired')} value={votesRequired}/>
             </Grid>
           </Grid>
         </Card>

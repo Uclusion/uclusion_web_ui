@@ -512,6 +512,7 @@ export function Votes(props) {
           pattern: "[0-9]*",
           style: {textAlign: 'center'}
         }}
+        defaultValue="0"
         label={intl.formatMessage({ id: "votesRequiredInputLabelShort" })}
         {...other}
       />

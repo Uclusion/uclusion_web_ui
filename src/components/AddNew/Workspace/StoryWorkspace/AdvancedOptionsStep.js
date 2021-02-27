@@ -4,18 +4,11 @@ import { Typography, Card, TextField } from '@material-ui/core'
 import { useIntl } from 'react-intl';
 import StepButtons from '../../StepButtons';
 import _ from 'lodash';
-import { DiffContext } from '../../../../contexts/DiffContext/DiffContext';
-import { MarketsContext } from '../../../../contexts/MarketsContext/MarketsContext';
-import { InvestiblesContext } from '../../../../contexts/InvestibesContext/InvestiblesContext';
-import { MarketPresencesContext } from '../../../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { CommentsContext } from '../../../../contexts/CommentsContext/CommentsContext';
-import { doCreateStoryWorkspace } from './workspaceCreator';
 import { WizardStylesContext } from '../../WizardStylesContext';
 import WizardStepContainer from '../../WizardStepContainer';
 import Grid from '@material-ui/core/Grid';
 import { usePlanFormStyles } from '../../../AgilePlan'
 import { makeStyles } from '@material-ui/styles';
-import { MarketStagesContext } from '../../../../contexts/MarketStagesContext/MarketStagesContext';
 
 export const useOptionsStyles = makeStyles(theme => {
   return {

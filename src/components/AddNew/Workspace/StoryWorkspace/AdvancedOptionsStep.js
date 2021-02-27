@@ -68,8 +68,6 @@ function AdvancedOptionsStep (props) {
 
   function onNext () {}
 
-  function onSkip () {}
-
   function onFinish() {
     return createMarket({ ...formData });
   }

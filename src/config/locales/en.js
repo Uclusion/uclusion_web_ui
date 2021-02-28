@@ -438,7 +438,7 @@ const messages = defineMessages({
   changeStage: 'Change stage',
 
   // markets
-  signupInvite: '{x} invites you to collaborate on {y}',
+  signupInvite: 'invites you to collaborate on',
   signupRedirectLogin: 'Create account will redirect you to login.',
 
   // Rich text editor

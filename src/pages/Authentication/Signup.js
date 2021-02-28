@@ -5,7 +5,7 @@ import { useIntl } from 'react-intl'
 import { makeStyles, withStyles } from '@material-ui/core/styles'
 import _ from 'lodash'
 import clsx from 'clsx'
-import { Checkbox, TextField } from '@material-ui/core'
+import { Box, Card, Checkbox, TextField } from '@material-ui/core'
 import Container from '@material-ui/core/Container'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import Avatar from '@material-ui/core/Avatar'
@@ -23,6 +23,9 @@ import { setEmail, setInvitationMarker, setRedirect, setUtm } from '../../utils/
 import { GithubLoginButton } from 'react-social-login-buttons'
 import { toastError } from '../../utils/userMessage'
 import queryString from 'query-string'
+import Gravatar from '../../components/Avatars/Gravatar'
+import CardContent from '@material-ui/core/CardContent'
+import Divider from '@material-ui/core/Divider'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -123,12 +126,17 @@ const useStyles = makeStyles(theme => ({
   marginTop: {
     marginTop: '20px',
   },
-  inviteText: {
-    fontSize: '3rem'
-  },
   marginLeft: {
     marginLeft: '20px'
-  }
+  },
+  largeAvatar: {
+    width: theme.spacing(8),
+    height: theme.spacing(8),
+    display: 'block',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    fontSize: theme.spacing(4),
+  },
 }));
 
 const GreenCheckbox = withStyles({
@@ -368,7 +376,7 @@ function Signup(props) {
 
         {myMarket && (
           <div className={clsx(classes.paper, classes.centerColumn)}>
-            <svg style={{ verticalAlign: 'middle', width: '140px', marginTop: '2rem', marginBottom: '-1rem' }}
+            <svg style={{ verticalAlign: 'middle', width: '140px', marginBottom: '-1rem' }}
                    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600">
                 <path fill="#fff"
                       d="M888.67,328.66a43,43,0,0,1-34.38,42.12v43.84l-43-43H174.05a62.72,62.72,0,0,1-62.72-62.72V228.36a43,43,0,0,1,43-43H845.69a43,43,0,0,1,43,43Z"/>
@@ -390,13 +398,23 @@ function Signup(props) {
                 <path fill={LOGO_COLOR}
                       d="M845.69,171.05H154.31A57.38,57.38,0,0,0,97,228.36v80.56A77.06,77.06,0,0,0,174.05,386H805.37l38.78,38.78a14.32,14.32,0,0,0,24.46-10.13V381.17A57.4,57.4,0,0,0,903,328.66V228.36A57.38,57.38,0,0,0,845.69,171.05Zm43,157.61a43,43,0,0,1-34.38,42.12v43.84l-43-43H174.05a62.72,62.72,0,0,1-62.72-62.72V228.36a43,43,0,0,1,43-43H845.69a43,43,0,0,1,43,43Z"/>
               </svg>
-              <Typography component="h1" variant="h2" className={clsx(classes.inviteText, classes.centerText, classes.marginTop)}>
-                {intl.formatMessage({ id: 'signupInvite' }, { x: myMarket.created_by_name, y: myMarket.name })}
-              </Typography>
+            <Card className={clsx(classes.centerText, classes.marginTop)} style={{borderRadius: '16px'}}>
+              <CardContent>
+                <Gravatar className={classes.largeAvatar} email={myMarket.created_by_email}/>
+                <h3 style={{padding: '0', marginTop: '0.6rem', marginBottom: '0'}}>{myMarket.created_by_name}</h3>
+                <span style={{padding: '0'}}>{intl.formatMessage({ id: 'signupInvite' })}</span>
+                <Divider style={{padding: '0', marginTop: '1rem'}} />
+                <Box display={'flex'}>
+                  <Typography variant="h6" align="center" style={{paddingTop: '1rem'}}>
+                    {myMarket.name}
+                  </Typography>
+                </Box>
+              </CardContent>
+            </Card>
           </div>
         )}
         <div className={myMarket ? classes.formRoot : clsx(classes.formRoot, classes.centerColumn)}>
-          <div className={myMarket? clsx(classes.paper, classes.marginTop) : classes.paper}>
+          <div className={classes.paper}>
             { !myMarket &&
             <span>
               <svg style={{ verticalAlign: 'middle', width: '140px', marginBottom: '-1rem' }}

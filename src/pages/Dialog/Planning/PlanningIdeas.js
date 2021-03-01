@@ -757,7 +757,7 @@ function StageInvestible (props) {
       <Grid id={`showEdit0${id}`} item xs={1} style={{pointerEvents: 'none', display: 'none'}}>
         <EditOutlinedIcon style={{maxHeight: '1.25rem'}} />
       </Grid>
-      <Grid id={`showEdit1${id}`} item xs={12} style={{paddingTop: '0.5rem'}}>
+      <Grid id={`showEdit1${hasDaysEstimate ? '' : id}`} item xs={12} style={{paddingTop: '0.5rem'}}>
         <StageLink
           href={to}
           id={id}

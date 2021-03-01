@@ -1,9 +1,8 @@
 import _ from 'lodash'
 import LocalForageHelper from '../../utils/LocalForageHelper'
-import { COMMENTS_CHANNEL, COMMENTS_CONTEXT_NAMESPACE, MEMORY_COMMENTS_CONTEXT_NAMESPACE } from './CommentsContext'
+import { COMMENTS_CHANNEL, COMMENTS_CONTEXT_NAMESPACE } from './CommentsContext'
 import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
-import { REPORT_TYPE } from '../../constants/comments';
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const REMOVE_MARKETS_COMMENT = 'REMOVE_MARKETS_COMMENT';
@@ -53,37 +52,20 @@ export function removeMarketsComments(marketIds) {
 
 /** Functions that update the reducer state */
 
-// Required for quick add because version of parent comment has not changed
-function doOverwriteMarketComments(state, action) {
+function doAddMarketComments(state, action, isQuickAdd) {
   const { marketId, comments } = action;
-  // progress reports are considered resolved by the front end when they
-  // are 24 hours old
-  const OneDay = 60*60*24*1000;
-  function isResolved(comment) {
-    const { created_at, comment_type, resolved } = comment;
-    if (!created_at) {
-      console.error('no created at');
-      return false;
-    }
-    if (comment_type === REPORT_TYPE) {
-      const now = Date.now();
-      const expires = created_at.getTime() + OneDay;
-      return now >= expires;
-    }
-    return resolved;
-  }
-
-  const progressResolvedComments = comments.map((comment) => ({...comment, resolved: isResolved(comment)}));
-
-  const { initializing } = state;
-  if (initializing) {
-    return {
-      [marketId]: progressResolvedComments,
-    };
+  const transformedComments = isQuickAdd ? comments.map((comment) => {
+    return { ...comment, fromQuickAdd: true }
+  }) : comments;
+  const oldComments = state[marketId] || [];
+  const newComments = _.unionBy(transformedComments, oldComments, 'id');
+  if (!isQuickAdd && state.initializing) {
+    // In case network beats the initialization
+    delete state.initializing;
   }
   return {
     ...state,
-    [marketId]: progressResolvedComments,
+    [marketId]: newComments,
   };
 }
 
@@ -94,6 +76,7 @@ function doRemoveCommentsFromMarket(state, action) {
     const newComment = {...comment}
     if (comments.includes(comment.id)) {
       newComment.deleted = true;
+      newComment.fromQuickAdd = true;
     }
     return newComment;
   });
@@ -115,8 +98,9 @@ function computeNewState(state, action) {
     case REMOVE_COMMENTS_FROM_MARKET:
       return doRemoveCommentsFromMarket(state, action);
     case OVERWRITE_MARKET_COMMENTS:
+      return doAddMarketComments(state, action, true);
     case UPDATE_FROM_VERSIONS:
-      return doOverwriteMarketComments(state, action);
+      return doAddMarketComments(state, action);
     case INITIALIZE_STATE:
       return action.newState;
     default:
@@ -124,20 +108,18 @@ function computeNewState(state, action) {
   }
 }
 
+let commentsStoragePromiseChain = Promise.resolve(true);
+
 function reducer(state, action) {
   const newState = computeNewState(state, action);
-  const lfh = new LocalForageHelper(MEMORY_COMMENTS_CONTEXT_NAMESPACE);
-  lfh.setState(newState).then(() => {
+  const lfh = new LocalForageHelper(COMMENTS_CONTEXT_NAMESPACE);
+  commentsStoragePromiseChain = commentsStoragePromiseChain.then(() => lfh.setState(newState)).then(() => {
     if (action.type !== INITIALIZE_STATE) {
       const myChannel = new BroadcastChannel(COMMENTS_CHANNEL);
       return myChannel.postMessage(broadcastId || 'comments').then(() => myChannel.close())
         .then(() => console.info('Update comment context sent.'));
     }
   });
-  if (action.type === UPDATE_FROM_VERSIONS) {
-    const lfh = new LocalForageHelper(COMMENTS_CONTEXT_NAMESPACE);
-    lfh.setState(newState);
-  }
   return newState;
 }
 

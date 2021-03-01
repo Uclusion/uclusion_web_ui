@@ -1,7 +1,6 @@
 import LocalForageHelper from '../../utils/LocalForageHelper'
 import {
   MARKET_PRESENCES_CONTEXT_NAMESPACE,
-  MEMORY_MARKET_PRESENCES_CONTEXT_NAMESPACE,
   PRESENCE_CHANNEL
 } from './MarketPresencesContext'
 import _ from 'lodash'
@@ -102,6 +101,7 @@ function doPatchInvestment(state, action) {
   const newPresence = {
     ...oldPresence,
     investments: newInvestments,
+    fromQuickAdd: true
   };
   const newMarketUsers = _.unionBy([newPresence], oldMarketUsers, 'id');
   return {
@@ -115,7 +115,7 @@ function doPatchInvestment(state, action) {
 function doAddMarketPresence(state, action) {
   const { marketId, user } = action;
   const oldUsers = state[marketId] || [];
-  const newUsers = _.unionBy([user], oldUsers, 'id');
+  const newUsers = _.unionBy([{ ...user, fromQuickAdd: true }], oldUsers, 'id');
   return {
     ...state,
     [marketId]: newUsers,
@@ -125,7 +125,10 @@ function doAddMarketPresence(state, action) {
 function doAddMarketPresences(state, action) {
   const { marketId, users } = action;
   const oldUsers = state[marketId] || [];
-  const newUsers = _.unionBy(users, oldUsers, 'id');
+  const transformedUsers = users.map((user) => {
+    return { ...user, fromQuickAdd: true };
+  });
+  const newUsers = _.unionBy(transformedUsers, oldUsers, 'id');
   return {
     ...state,
     [marketId]: newUsers,
@@ -134,11 +137,9 @@ function doAddMarketPresences(state, action) {
 
 function doUpdateMarketPresences(state, action) {
   const { marketId, users } = action;
-  const { initializing } = state;
-  if (initializing) {
-    return {
-      [marketId]: users,
-    };
+  if (state.initializing) {
+    // In case network beats the initialization
+    delete state.initializing;
   }
   return {
     ...state,
@@ -146,6 +147,7 @@ function doUpdateMarketPresences(state, action) {
   };
 }
 
+// This can only come from the network
 function doProcessBanned(state, action) {
   const { bannedList } = action;
   if (_.isEmpty(bannedList)) {
@@ -194,20 +196,18 @@ function computeNewState(state, action) {
   }
 }
 
+let presencesStoragePromiseChain = Promise.resolve(true);
+
 function reducer(state, action) {
   const newState = computeNewState(state, action);
-  const lfh = new LocalForageHelper(MEMORY_MARKET_PRESENCES_CONTEXT_NAMESPACE);
-  lfh.setState(newState).then(() => {
+  const lfh = new LocalForageHelper(MARKET_PRESENCES_CONTEXT_NAMESPACE);
+  presencesStoragePromiseChain = presencesStoragePromiseChain.then(() =>lfh.setState(newState)).then(() => {
     if (action.type !== INITIALIZE_STATE) {
       const myChannel = new BroadcastChannel(PRESENCE_CHANNEL);
       return myChannel.postMessage(broadcastId || 'presence').then(() => myChannel.close())
         .then(() => console.info('Update presence context sent.'));
     }
   });
-  if (action.type === UPDATE_FROM_VERSIONS) {
-    const lfh = new LocalForageHelper(MARKET_PRESENCES_CONTEXT_NAMESPACE);
-    lfh.setState(newState);
-  }
   return newState;
 }
 

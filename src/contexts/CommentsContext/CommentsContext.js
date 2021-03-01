@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useReducer, useState } from 'react'
+import React, { useEffect, useReducer, useState } from 'react'
 import _ from 'lodash'
 import reducer, { initializeState } from './commentsContextReducer'
 import LocalForageHelper from '../../utils/LocalForageHelper'
@@ -9,12 +9,10 @@ import {
   INDEX_UPDATE,
   SEARCH_INDEX_CHANNEL
 } from '../SearchIndexContext/searchIndexContextMessages'
-import { LeaderContext } from '../LeaderContext/LeaderContext'
 import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
 
 const COMMENTS_CHANNEL = 'comments';
-const MEMORY_COMMENTS_CONTEXT_NAMESPACE = 'memory_comments_context';
 const COMMENTS_CONTEXT_NAMESPACE = 'comments_context';
 const EMPTY_STATE = {initializing: true};
 
@@ -29,15 +27,13 @@ function pushIndexItems(diskState) {
 function CommentsProvider(props) {
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
   const [, setChannel] = useState(undefined);
-  const [leaderState] = useContext(LeaderContext);
-  const { isLeader } = leaderState;
 
   useEffect(() => {
     const myChannel = new BroadcastChannel(COMMENTS_CHANNEL);
     myChannel.onmessage = (msg) => {
       if (msg !== broadcastId) {
         console.info(`Reloading on comments channel message ${msg} with ${broadcastId}`);
-        const lfg = new LocalForageHelper(MEMORY_COMMENTS_CONTEXT_NAMESPACE);
+        const lfg = new LocalForageHelper(COMMENTS_CONTEXT_NAMESPACE);
         lfg.getState()
           .then((diskState) => {
             if (diskState) {
@@ -52,29 +48,10 @@ function CommentsProvider(props) {
   }, []);
 
   useEffect(() => {
-    if (isLeader !== undefined && !isLeader) {
-      console.info('Not leader so reloading from memory namespace');
-      const lfg = new LocalForageHelper(MEMORY_COMMENTS_CONTEXT_NAMESPACE);
-      lfg.getState()
-        .then((diskState) => {
-          if (diskState) {
-            pushIndexItems(diskState);
-            dispatch(initializeState(diskState));
-          }
-        });
-    }
-    return () => {};
-  }, [isLeader]);
-
-  useEffect(() => {
-    // set the new state cache to something we control, so that our
-    // provider descendants will pick up changes to it
     // load state from storage
     const lfg = new LocalForageHelper(COMMENTS_CONTEXT_NAMESPACE);
     lfg.getState()
       .then((state) => {
-        // // console.debug(`Found comments ${state}`);
-        // // console.debug(state);
         if (state) {
           pushIndexItems(state);
           dispatch(initializeState(state));
@@ -93,5 +70,4 @@ function CommentsProvider(props) {
   );
 }
 
-export { CommentsProvider, CommentsContext, EMPTY_STATE, COMMENTS_CONTEXT_NAMESPACE, COMMENTS_CHANNEL,
-  MEMORY_COMMENTS_CONTEXT_NAMESPACE };
+export { CommentsProvider, CommentsContext, EMPTY_STATE, COMMENTS_CONTEXT_NAMESPACE, COMMENTS_CHANNEL };

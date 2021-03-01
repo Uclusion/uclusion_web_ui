@@ -1,6 +1,6 @@
 import _ from 'lodash'
 import LocalForageHelper from '../../utils/LocalForageHelper'
-import { MARKET_CONTEXT_NAMESPACE, MARKETS_CHANNEL, MEMORY_MARKET_CONTEXT_NAMESPACE } from './MarketsContext'
+import { MARKET_CONTEXT_NAMESPACE, MARKETS_CHANNEL } from './MarketsContext'
 import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
 
@@ -40,15 +40,14 @@ export function removeMarketDetails(marketIds) {
 
 /* Functions that mutate state */
 
-function doUpdateMarketDetails(state, action) {
+function doUpdateMarketDetails(state, action, isQuickAdd) {
   const { marketDetails } = action;
   const { marketDetails: oldMarketDetails } = state;
-  const newDetails = _.unionBy(marketDetails, oldMarketDetails, 'id');
-  const { initializing } = state;
-  if (initializing) {
-    return {
-      marketDetails: newDetails,
-    };
+  const transformedMarketDetails = isQuickAdd ? { ...marketDetails, fromQuickAdd: true } : marketDetails;
+  const newDetails = _.unionBy(transformedMarketDetails, oldMarketDetails, 'id');
+  if (!isQuickAdd && state.initializing) {
+    // In case network beats the initialization
+    delete state.initializing;
   }
   return {
     ...state,
@@ -70,6 +69,7 @@ function computeNewState(state, action) {
   // console.debug(`Computing state with type ${action.type}`);
   switch (action.type) {
     case UPDATE_MARKET_DETAILS:
+      return doUpdateMarketDetails(state, action, true);
     case UPDATE_FROM_VERSIONS:
       return doUpdateMarketDetails(state, action);
     case REMOVE_MARKET_DETAILS:
@@ -81,20 +81,18 @@ function computeNewState(state, action) {
   }
 }
 
+let marketsStoragePromiseChain = Promise.resolve(true);
+
 function reducer(state, action) {
   const newState = computeNewState(state, action);
-  const lfh = new LocalForageHelper(MEMORY_MARKET_CONTEXT_NAMESPACE);
-  lfh.setState(newState).then(() => {
+  const lfh = new LocalForageHelper(MARKET_CONTEXT_NAMESPACE);
+  marketsStoragePromiseChain = marketsStoragePromiseChain.then(() =>lfh.setState(newState)).then(() => {
     if (action.type !== INITIALIZE_STATE) {
       const myChannel = new BroadcastChannel(MARKETS_CHANNEL);
       return myChannel.postMessage(broadcastId || 'markets').then(() => myChannel.close())
         .then(() => console.info('Update market context sent.'));
     }
   });
-  if (action.type === UPDATE_FROM_VERSIONS) {
-    const lfh = new LocalForageHelper(MARKET_CONTEXT_NAMESPACE);
-    lfh.setState(newState);
-  }
   return newState;
 }
 

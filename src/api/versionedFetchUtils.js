@@ -298,7 +298,6 @@ function doRefreshAccount (componentSignatures) {
 async function doRefreshMarket (marketId, componentSignatures) {
   const serverFetchSignatures = getFetchSignaturesForMarket(componentSignatures);
   const fromStorage = await checkInStorage(marketId, serverFetchSignatures);
-  //console.error(fetchSignatures);
   const { markets, comments, marketPresences, marketStages, investibles } = fromStorage;
   let chain = null;
   if (!_.isEmpty(markets.unmatchedSignatures)) {
@@ -338,8 +337,7 @@ function fetchMarketComments (marketId, allComments) {
   return fetchComments(commentIds, marketId)
     .then((comments) => {
       const match = signatureMatcher(comments, commentsSignatures);
-      pushMessage(PUSH_COMMENTS_CHANNEL, { event: VERSIONS_EVENT, marketId,
-        comments: allComments.matched.concat(comments)});
+      pushMessage(PUSH_COMMENTS_CHANNEL, { event: VERSIONS_EVENT, marketId, comments });
       if (!match.allMatched) {
         throw new MatchError('Comments didn\'t match');
       }
@@ -352,8 +350,7 @@ function fetchMarketInvestibles (marketId, allInvestibles) {
   return fetchInvestibles(investibleIds, marketId)
     .then((investibles) => {
       const match = signatureMatcher(investibles, investiblesSignatures);
-      pushMessage(PUSH_INVESTIBLES_CHANNEL, { event: VERSIONS_EVENT, marketId,
-        investibles: allInvestibles.matched.concat(investibles) });
+      pushMessage(PUSH_INVESTIBLES_CHANNEL, { event: VERSIONS_EVENT, marketId, investibles });
       if (!match.allMatched) {
         throw new MatchError('Investibles didn\'t match');
       }

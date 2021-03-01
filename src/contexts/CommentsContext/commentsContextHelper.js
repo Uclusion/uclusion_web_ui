@@ -28,8 +28,7 @@ export function getCommentRoot(state, marketId, commentId) {
 
 export function getMarketComments(state, marketId) {
   const marketComments = state[marketId] || [];
-  const notDeleted = marketComments.filter((comment) => !comment.deleted);
-  return notDeleted;
+  return marketComments.filter((comment) => !comment.deleted);
 }
 
 /**
@@ -49,8 +48,7 @@ export function resolveInvestibleComments(investibleId, marketId, state, dispatc
   const resolvedComments = unresolvedComments.map((comment) => {
     return { resolved: true, ...comment };
   });
-  const newComments = _.unionBy(resolvedComments, comments, 'id');
-  refreshMarketComments(dispatch, marketId, newComments);
+  refreshMarketComments(dispatch, marketId, resolvedComments);
 }
 
 export function addCommentToMarket(comment, state, dispatch) {
@@ -71,8 +69,7 @@ export function addCommentToMarket(comment, state, dispatch) {
     }
   }
   pushMessage(SEARCH_INDEX_CHANNEL, { event: INDEX_UPDATE, itemType: INDEX_COMMENT_TYPE, items: updates});
-  const merged = _.unionBy(updates, comments, 'id');
-  dispatch(overwriteMarketComments(marketId, fixupItemsForStorage(merged)));
+  dispatch(overwriteMarketComments(marketId, fixupItemsForStorage(updates)));
 }
 
 export function refreshMarketComments(dispatch, marketId, comments) {

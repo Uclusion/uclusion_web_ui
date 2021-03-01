@@ -5,6 +5,8 @@ import { MARKET_STAGES_CONTEXT_NAMESPACE } from './MarketStagesContext'
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const UPDATE_MARKET_STAGES = 'UPDATE_MARKET_STAGES';
 const REMOVE_MARKET_STAGES = 'REMOVE_MARKET_STAGES';
+const UPDATE_MARKET_STAGES_FROM_NETWORK = 'UPDATE_MARKET_STAGES_FROM_NETWORK';
+
 /** Messages we can send the reducer **/
 
 export function initializeState(newState) {
@@ -22,6 +24,14 @@ export function updateMarketStages(marketId, stagesList) {
   };
 }
 
+export function updateMarketStagesFromNetwork(marketId, stagesList) {
+  return {
+    type: UPDATE_MARKET_STAGES_FROM_NETWORK,
+    marketId,
+    stagesList,
+  };
+}
+
 export function removeMarketsStageDetails(marketIds) {
   return {
     type: REMOVE_MARKET_STAGES,
@@ -31,17 +41,18 @@ export function removeMarketsStageDetails(marketIds) {
 
 /** Functions that generate the new state **/
 
-function doUpdateMarketStages(state, action) {
+function doUpdateMarketStages(state, action, isQuickAdd) {
   const { marketId, stagesList } = action;
-  const { initializing } = state;
-  if (initializing) {
-    return {
-      [marketId]: stagesList,
-    };
+  const stagesListTransformed = isQuickAdd ? stagesList.map((stage) => {
+    return { ...stage, fromQuickAdd: true };
+  }) : stagesList;
+  if (!isQuickAdd && state.initializing) {
+    // In case network beats the initialization
+    delete state.initializing;
   }
   return {
     ...state,
-    [marketId]: stagesList,
+    [marketId]: stagesListTransformed,
   };
 }
 
@@ -58,6 +69,8 @@ function computeNewState(state, action) {
       }
       return state;
     case UPDATE_MARKET_STAGES:
+      return doUpdateMarketStages(state, action, true);
+    case UPDATE_MARKET_STAGES_FROM_NETWORK:
       return doUpdateMarketStages(state, action);
     case REMOVE_MARKET_STAGES:
       return removeMarketStages(state, action);
@@ -66,10 +79,12 @@ function computeNewState(state, action) {
   }
 }
 
+let marketStagesStoragePromiseChain = Promise.resolve(true);
+
 function reducer(state, action) {
   const newState = computeNewState(state, action);
   const lfh = new LocalForageHelper(MARKET_STAGES_CONTEXT_NAMESPACE);
-  lfh.setState(newState);
+  marketStagesStoragePromiseChain = marketStagesStoragePromiseChain.then(() =>lfh.setState(newState));
   return newState;
 }
 

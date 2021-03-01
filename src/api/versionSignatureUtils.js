@@ -21,15 +21,13 @@ export const EMPTY_FETCH_SIGNATURES = {
 function signatureMatches (signature, object, checkVersion=true) {
   for (const key of Object.keys(signature)) {
     const signatureVersion = signature[key];
-    //  // console.log(signatureVersion);
     const objectVersion = object[key];
-    //   // console.log(objectVersion);
+    const fromQuickAdd = object.fromQuickAdd;
     if (!objectVersion) {
       return false;
     }
     let keySatisfied;
     if (_.isArray(signatureVersion)) {
-      // // console.log('Checking array match');
       if (!_.isArray(objectVersion)) {
         return false;
       }
@@ -40,25 +38,24 @@ function signatureMatches (signature, object, checkVersion=true) {
         return acc;
       }, true);
     } else if ('object' === typeof signatureVersion) {
-      //    // console.log('Checking object signature');
       keySatisfied = signatureMatches(signatureVersion, objectVersion, checkVersion);
     } else if (key.endsWith('id')) {
-      //   // console.log('Checking exact id match');
       keySatisfied = objectVersion === signatureVersion;
     } else {
       if (checkVersion) {
-        //    // console.log('Checking numeric version');
-        keySatisfied = objectVersion >= signatureVersion;
+        if (fromQuickAdd) {
+          keySatisfied = objectVersion > signatureVersion;
+        } else {
+          keySatisfied = objectVersion >= signatureVersion;
+        }
       } else {
         keySatisfied = true;
       }
     }
     if (!keySatisfied) {
-      //   // console.log('Key not satisifed');
       return false;
     }
   }
-  // // console.log("Key satisified");
   return true;
 }
 

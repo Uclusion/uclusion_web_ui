@@ -88,13 +88,11 @@ export function refreshInvestibles(dispatch, diffDispatch, investibles, fromNetw
   });
   pushMessage(TICKET_INDEX_CHANNEL, ticketCodeItems);
   diffDispatch(addContents(diffInvestibles));
-  const investibleHash = _.keyBy(fixed, (item) => item.investible.id);
-  // // console.debug(investibleHash);
   if (fromNetwork) {
-    dispatch(versionsUpdateInvestibles(investibleHash));
+    dispatch(versionsUpdateInvestibles(fixed));
   }
   else {
-    dispatch(updateStorableInvestibles(investibleHash));
+    dispatch(updateStorableInvestibles(fixed));
   }
 }
 

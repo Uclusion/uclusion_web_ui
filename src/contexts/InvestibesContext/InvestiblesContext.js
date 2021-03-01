@@ -9,14 +9,12 @@ import {
   INDEX_UPDATE,
   SEARCH_INDEX_CHANNEL
 } from '../SearchIndexContext/searchIndexContextMessages'
-import { LeaderContext } from '../LeaderContext/LeaderContext'
 import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
 import { TICKET_INDEX_CHANNEL } from '../TicketContext/ticketIndexContextMessages'
 
 const INVESTIBLES_CHANNEL = 'investibles';
 const INVESTIBLES_CONTEXT_NAMESPACE = 'investibles';
-const MEMORY_INVESTIBLES_CONTEXT_NAMESPACE = 'memory_investibles';
 const EMPTY_STATE = {initializing: true};
 
 const InvestiblesContext = React.createContext(EMPTY_STATE);
@@ -43,15 +41,13 @@ function InvestiblesProvider(props) {
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
   const [, diffDispatch] = useContext(DiffContext);
   const [, setChannel] = useState(undefined);
-  const [leaderState] = useContext(LeaderContext);
-  const { isLeader } = leaderState;
 
   useEffect(() => {
     const myChannel = new BroadcastChannel(INVESTIBLES_CHANNEL);
     myChannel.onmessage = (msg) => {
       if (msg !== broadcastId) {
         console.info(`Reloading on investibles channel message ${msg} with ${broadcastId}`);
-        const lfg = new LocalForageHelper(MEMORY_INVESTIBLES_CONTEXT_NAMESPACE);
+        const lfg = new LocalForageHelper(INVESTIBLES_CONTEXT_NAMESPACE);
         lfg.getState()
           .then((diskState) => {
             if (diskState) {
@@ -71,21 +67,6 @@ function InvestiblesProvider(props) {
   }, [diffDispatch]);
 
   useEffect(() => {
-    if (isLeader !== undefined && !isLeader) {
-      console.info('Not leader so reloading from memory namespace');
-      const lfg = new LocalForageHelper(MEMORY_INVESTIBLES_CONTEXT_NAMESPACE);
-      lfg.getState()
-        .then((diskState) => {
-          if (diskState) {
-            pushIndexItems(diskState);
-            dispatch(initializeState(diskState));
-          }
-        });
-    }
-    return () => {};
-  }, [isLeader]);
-
-  useEffect(() => {
     // load state from storage
     const lfg = new LocalForageHelper(INVESTIBLES_CONTEXT_NAMESPACE);
     lfg.getState()
@@ -100,8 +81,6 @@ function InvestiblesProvider(props) {
     return () => {};
   }, []);
 
-  // console.debug('Investibles context being rerendered');
-
   return (
     <InvestiblesContext.Provider value={[state, dispatch]}>
       {props.children}
@@ -109,5 +88,4 @@ function InvestiblesProvider(props) {
   );
 }
 
-export { InvestiblesProvider, InvestiblesContext, EMPTY_STATE, INVESTIBLES_CONTEXT_NAMESPACE, INVESTIBLES_CHANNEL,
-  MEMORY_INVESTIBLES_CONTEXT_NAMESPACE };
+export { InvestiblesProvider, InvestiblesContext, EMPTY_STATE, INVESTIBLES_CONTEXT_NAMESPACE, INVESTIBLES_CHANNEL };

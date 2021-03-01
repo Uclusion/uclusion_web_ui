@@ -3,7 +3,7 @@ import {
   REMOVED_MARKETS_CHANNEL,
   VERSIONS_EVENT,
 } from '../VersionsContext/versionsContextHelper';
-import { removeMarketsStageDetails, updateMarketStages } from './marketStagesContextReducer';
+import { removeMarketsStageDetails, updateMarketStagesFromNetwork } from './marketStagesContextReducer';
 import { registerListener } from '../../utils/MessageBusUtils';
 
 function beginListening(dispatch) {
@@ -23,7 +23,7 @@ function beginListening(dispatch) {
     switch (event) {
       case VERSIONS_EVENT:
         // console.debug(`Stages context responding to updated market event ${event}`);
-        dispatch(updateMarketStages(marketId, stages));
+        dispatch(updateMarketStagesFromNetwork(marketId, stages));
         break;
       default:
         // console.debug(`Ignoring identity event ${event}`);

@@ -6,6 +6,7 @@ import {
 import _ from 'lodash'
 import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
+import { removeInitializing } from '../../components/utils'
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const ADD_MARKET_PRESENCE = 'ADD_MARKET_PRESENCE';
@@ -137,12 +138,8 @@ function doAddMarketPresences(state, action) {
 
 function doUpdateMarketPresences(state, action) {
   const { marketId, users } = action;
-  if (state.initializing) {
-    // In case network beats the initialization
-    delete state.initializing;
-  }
   return {
-    ...state,
+    ...removeInitializing(state, false),
     [marketId]: users,
   };
 }

@@ -1,6 +1,7 @@
 import _ from 'lodash'
 import LocalForageHelper from '../../utils/LocalForageHelper'
 import { MARKET_STAGES_CONTEXT_NAMESPACE } from './MarketStagesContext'
+import { removeInitializing } from '../../components/utils'
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const UPDATE_MARKET_STAGES = 'UPDATE_MARKET_STAGES';
@@ -46,12 +47,8 @@ function doUpdateMarketStages(state, action, isQuickAdd) {
   const stagesListTransformed = isQuickAdd ? stagesList.map((stage) => {
     return { ...stage, fromQuickAdd: true };
   }) : stagesList;
-  if (!isQuickAdd && state.initializing) {
-    // In case network beats the initialization
-    delete state.initializing;
-  }
   return {
-    ...state,
+    ...removeInitializing(state, isQuickAdd),
     [marketId]: stagesListTransformed,
   };
 }

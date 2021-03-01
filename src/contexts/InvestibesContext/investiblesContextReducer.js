@@ -6,6 +6,7 @@ import {
 import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
 import _ from 'lodash'
+import { removeInitializing } from '../../components/utils'
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const UPDATE_INVESTIBLES = 'UPDATE_INVESTIBLES';
@@ -49,11 +50,7 @@ function doUpdateInvestibles(state, action, isQuickAdd) {
     return { investible: newInvestible, market_infos: newMarketInfos };
   }) : investibles;
   const investibleHash = _.keyBy(transformedInvestibles, (item) => item.investible.id);
-  if (!isQuickAdd && state.initializing) {
-    // In case network beats the initialization
-    delete state.initializing;
-  }
-  return { ...state, ...investibleHash };
+  return { ...removeInitializing(state, isQuickAdd), ...investibleHash };
 }
 
 function computeNewState(state, action) {

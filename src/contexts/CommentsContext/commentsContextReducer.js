@@ -3,6 +3,7 @@ import LocalForageHelper from '../../utils/LocalForageHelper'
 import { COMMENTS_CHANNEL, COMMENTS_CONTEXT_NAMESPACE } from './CommentsContext'
 import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
+import { removeInitializing } from '../../components/utils'
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const REMOVE_MARKETS_COMMENT = 'REMOVE_MARKETS_COMMENT';
@@ -59,12 +60,8 @@ function doAddMarketComments(state, action, isQuickAdd) {
   }) : comments;
   const oldComments = state[marketId] || [];
   const newComments = _.unionBy(transformedComments, oldComments, 'id');
-  if (!isQuickAdd && state.initializing) {
-    // In case network beats the initialization
-    delete state.initializing;
-  }
   return {
-    ...state,
+    ...removeInitializing(state, isQuickAdd),
     [marketId]: newComments,
   };
 }

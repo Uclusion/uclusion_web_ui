@@ -3,6 +3,7 @@ import LocalForageHelper from '../../utils/LocalForageHelper'
 import { MARKET_CONTEXT_NAMESPACE, MARKETS_CHANNEL } from './MarketsContext'
 import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
+import { removeInitializing } from '../../components/utils'
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const UPDATE_MARKET_DETAILS = 'UPDATE_MARKET_DETAILS';
@@ -45,12 +46,8 @@ function doUpdateMarketDetails(state, action, isQuickAdd) {
   const { marketDetails: oldMarketDetails } = state;
   const transformedMarketDetails = isQuickAdd ? { ...marketDetails, fromQuickAdd: true } : marketDetails;
   const newDetails = _.unionBy(transformedMarketDetails, oldMarketDetails, 'id');
-  if (!isQuickAdd && state.initializing) {
-    // In case network beats the initialization
-    delete state.initializing;
-  }
   return {
-    ...state,
+    ...removeInitializing(state, isQuickAdd),
     marketDetails: newDetails,
   };
 }

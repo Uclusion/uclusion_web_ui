@@ -96,7 +96,7 @@ function InvestibleBodyEdit (props) {
   }, [hidden, investibleId, idLoaded, marketType, setBeingEdited, initialName, initialDescription]);
 
   useEffect(() => {
-    if (!hidden && !loading && !someoneElseEditing && !lockFailed && stage) {
+    if (!hidden && !loading && !lockFailed && stage && _.isEmpty(lockedBy)) {
       const { editable_by_roles: editableByRoles, allows_assignment: allowsAssignment } = stage;
       if (_.size(editableByRoles) > 1 ||
         (marketType === PLANNING_TYPE && (_.size(assigned) > 1 || !allowsAssignment))) {
@@ -106,8 +106,8 @@ function InvestibleBodyEdit (props) {
       }
     }
     return () => {};
-  }, [hidden, investibleId, marketId, someoneElseEditing, loading, lockFailed, investiblesDispatch, diffDispatch,
-    stage, assigned, marketType]);
+  }, [hidden, investibleId, marketId, loading, lockedBy, lockFailed, investiblesDispatch, diffDispatch, stage,
+    assigned, marketType]);
 
   function handleSave() {
     // uploaded files on edit is the union of the new uploaded files and the old uploaded files

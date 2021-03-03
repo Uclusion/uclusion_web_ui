@@ -1316,15 +1316,15 @@ function Assignments(props) {
             {intl.formatMessage({ id: 'reassignToMove' })}
           </Typography>
         )}
-        {sortedAssigned.map(userId => {
+        {sortedAssigned.map(presence => {
           return (
             <div
               style={{ display: 'flex', alignItems: 'center' }}
-              key={`${userId}${toolTipId}`}
+              key={`${presence.id}${toolTipId}`}
             >
-              <Gravatar email={user.email} name={user.name}/>
+              <Gravatar email={presence.email} name={presence.name}/>
               <Typography component="li">
-                {user.name}
+                {presence.name}
               </Typography>
             </div>
           );

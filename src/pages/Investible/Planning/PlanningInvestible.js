@@ -1299,27 +1299,32 @@ function Assignments(props) {
   const myPresence = marketPresences.find((presence) => presence.current_user);
   const isFollowing = myPresence && myPresence.following;
   const safeAssigned = assigned || [];
+  const presences = safeAssigned.map((userId) => {
+    const presence = marketPresences.find(presence => presence.id === userId)
+    if (!presence) {
+      return { name : 'Removed', id: null }
+    }
+    return presence
+  });
+  // sort all removed last, then by name
+  const sortedAssigned = _.sortBy(presences, [((presence) => presence.id? 0 : 1), (presence) => presence.name]);
   return (
     <span className={classes.assignmentFlexRow}>
       <ul>
-        {_.isEmpty(safeAssigned) && showMoveMessage && (
+        {_.isEmpty(sortedAssigned) && showMoveMessage && (
           <Typography key="unassigned" component="li">
             {intl.formatMessage({ id: 'reassignToMove' })}
           </Typography>
         )}
-        {safeAssigned.map(userId => {
-          let user = marketPresences.find(presence => presence.id === userId);
-          if (!user) {
-            user = { name: "Removed" };
-          }
+        {sortedAssigned.map(presence => {
           return (
             <div
               style={{ display: 'flex', alignItems: 'center' }}
-              key={`${userId}${toolTipId}`}
+              key={`${presence.id}${toolTipId}`}
             >
-              <Gravatar email={user.email} name={user.name}/>
+              <Gravatar email={presence.email} name={presence.name}/>
               <Typography component="li">
-                {user.name}
+                {presence.name}
               </Typography>
             </div>
           );

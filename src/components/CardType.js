@@ -102,6 +102,7 @@ const useCardTypeStyles = makeStyles(theme => ({
       textTransform: 'capitalize'
     },
     lastEdited: {
+      paddingTop: '5px',
       fontWeight: 900,
       [theme.breakpoints.down('sm')]: {
         fontSize: '.7rem',

@@ -78,36 +78,37 @@ function InvestibleBodyEdit (props) {
         const { description: storedDescription, name: storedName } = (stateFromDisk || {});
         if (storedName || storedDescription) {
           setBeingEdited(true);
+          setName(storedName || '');
+          setDescription(storedDescription || '');
         }
         // Set here to avoid danger of having some other investible name and description in state
-        setName(storedName || initialName);
-        setDescription(storedDescription || initialDescription);
         setIdLoaded(investibleId);
       });
-    }
-    if (hidden && idLoaded) {
-      setIdLoaded(undefined);
     }
     return () => {
       if (hidden) {
         setLockFailed(false);
       }
     };
-  }, [hidden, investibleId, idLoaded, marketType, setBeingEdited, initialName, initialDescription]);
+  }, [hidden, investibleId, idLoaded, marketType, setBeingEdited]);
+
+  const { editable_by_roles: editableByRoles, allows_assignment: allowsAssignment,
+    allows_investment: allowsInvestment } = stage;
+  const isEditable = beingEdited && (_.size(editableByRoles) > 1 ||
+    (marketType === PLANNING_TYPE && (_.size(assigned) > 1 || !allowsAssignment || allowsInvestment)));
 
   useEffect(() => {
-    if (!hidden && !loading && !lockFailed && stage && _.isEmpty(lockedBy)) {
-      const { editable_by_roles: editableByRoles, allows_assignment: allowsAssignment } = stage;
-      if (_.size(editableByRoles) > 1 ||
-        (marketType === PLANNING_TYPE && (_.size(assigned) > 1 || !allowsAssignment))) {
-        lockInvestibleForEdit(marketId, investibleId)
-          .then((newInv) => refreshInvestibles(investiblesDispatch, diffDispatch, [newInv]))
-          .catch(() => setLockFailed(true));
-      }
+    if (!hidden && !loading && !lockFailed && _.isEmpty(lockedBy) && isEditable) {
+      lockInvestibleForEdit(marketId, investibleId)
+        .then((newInv) => refreshInvestibles(investiblesDispatch, diffDispatch, [newInv]))
+        .catch(() => setLockFailed(true));
     }
     return () => {};
-  }, [hidden, investibleId, marketId, loading, lockedBy, lockFailed, investiblesDispatch, diffDispatch, stage,
-    assigned, marketType]);
+  }, [diffDispatch, hidden, investibleId, investiblesDispatch, isEditable, loading, lockFailed, lockedBy,
+    marketId]);
+
+  const calculatedDescription = description === undefined ? initialDescription : description;
+  const calculatedName = name === undefined ? initialName : name;
 
   function handleSave() {
     // uploaded files on edit is the union of the new uploaded files and the old uploaded files
@@ -116,10 +117,10 @@ function InvestibleBodyEdit (props) {
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
-    } = processTextAndFilesForSave(newUploadedFiles, description);
+    } = processTextAndFilesForSave(newUploadedFiles, calculatedDescription);
     const updateInfo = {
       uploadedFiles: filteredUploads,
-      name,
+      name: calculatedName,
       description: tokensRemoved,
       marketId,
       investibleId: id,
@@ -158,16 +159,13 @@ function InvestibleBodyEdit (props) {
   }
 
   function onCancel() {
-    setName(initialName);
-    setDescription(initialDescription);
+    setName(undefined);
+    setDescription(undefined);
+    setBeingEdited(false);
     if (!_.isEmpty(lockedBy) && (lockedBy !== userId)) {
       // If its locked by someone else then skip all the below checks
-      localforage.removeItem(investibleId).then(() => setBeingEdited(false));
-    } else {
-      // Now try to figure out if we locked it - we can't use lockedBy because race condition with useEffect above
-      const { editable_by_roles: editableByRoles, allows_assignment: allowsAssignment } = stage;
-      if (_.size(editableByRoles) > 1 ||
-        (marketType === PLANNING_TYPE && (_.size(assigned) > 1 || !allowsAssignment))) {
+      return localforage.removeItem(investibleId).then(() => EMPTY_SPIN_RESULT);
+    } else if (isEditable) {
         return localforage.removeItem(investibleId)
           .then(() => {
             if (!lockFailed) {
@@ -178,11 +176,9 @@ function InvestibleBodyEdit (props) {
           .then((newInv) => {
             refreshInvestibles(investiblesDispatch, diffDispatch, [newInv]);
             return EMPTY_SPIN_RESULT;
-          })
-          .finally(() => setBeingEdited(false));
-      } else {
-        localforage.removeItem(investibleId).then(() => setBeingEdited(false));
-      }
+          });
+    } else {
+      return localforage.removeItem(investibleId).then(() => EMPTY_SPIN_RESULT);
     }
   }
 
@@ -200,6 +196,7 @@ function InvestibleBodyEdit (props) {
   const classes = useStyles();
   const editClasses = usePlanFormStyles();
   const lockedDialogClasses = useLockedDialogStyles();
+
   if (loading) {
     return React.Fragment;
   }
@@ -242,15 +239,16 @@ function InvestibleBodyEdit (props) {
       />
       {(!lockedBy || (lockedBy === userId)) && (
         <>
-          <NameField onEditorChange={handleNameChange} onStorageChange={handleNameStorage} description={description}
-                     name={name} />
+          <NameField onEditorChange={handleNameChange} onStorageChange={handleNameStorage}
+                     description={calculatedDescription}
+                     name={calculatedName} />
           <QuillEditor
             onS3Upload={handleFileUpload}
             marketId={marketId}
             onChange={onEditorChange}
             placeholder={intl.formatMessage({ id: 'investibleAddDescriptionDefault' })}
             onStoreChange={onStorageChange}
-            defaultValue={description}
+            defaultValue={calculatedDescription}
             setOperationInProgress={setOperationRunning}
             getUrlName={urlHelperGetName(marketsState, investiblesState)}
           />
@@ -281,7 +279,7 @@ function InvestibleBodyEdit (props) {
           color="primary"
           className={editClasses.actionPrimary}
           onClick={handleSave}
-          disabled={!name}
+          disabled={!calculatedName}
           onSpinStop={onSave}
           hasSpinChecker
         >

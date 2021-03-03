@@ -76,15 +76,15 @@ function AdvancedOptionsStep (props) {
                 className={otherClasses.input}
                 value={ticketSubCode}
                 onChange={onTicketSubCodeChange}
-                placeholder="Ticket sub-code"
+                placeholder="Workspace short code"
               />
               <Typography>
                 {intl.formatMessage({ id: "ticketSubCodeHelp" })}
               </Typography>
               <br />
-              <Typography>
-                {intl.formatMessage({ id: "ticketSubCodeHelp1" })}
-              </Typography>
+              {ticketSubCode && (<Typography>
+                {intl.formatMessage({ id: "ticketSubCodeHelp1" }, {code: ticketSubCode})}
+              </Typography>)}
             </Grid>
           </Grid>
         </Card>

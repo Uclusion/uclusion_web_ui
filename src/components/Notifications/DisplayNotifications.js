@@ -100,7 +100,7 @@ function processDuplicates (page) {
         const { link_type: linkType, link: firstLink, link_multiple: linkMultiple, type } = first;
         let link = firstLink;
         if (linkType === 'INVESTIBLE' || linkType === 'INLINE_WORKSPACE_INVESTIBLE'
-          || linkType === 'INLINE_STORY_INVESTIBLE') {
+          || linkType === 'INLINE_STORY_INVESTIBLE' || linkType === 'MARKET_TODO') {
           // Do not go inside the investible for new options, votes needed or reviews as you won't see the others
           link = linkMultiple;
         }

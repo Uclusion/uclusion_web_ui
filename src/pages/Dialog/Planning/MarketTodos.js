@@ -244,9 +244,9 @@ function MarketTodos (props) {
         } else {
           setEditCard(rootComment);
         }
-        if (!showTodos) {
-          expandedCommentDispatch({ type: EXPANDED_CONTROL, commentId: marketId, expanded: true });
-        }
+      }
+      if ((foundCommentId || hash.includes('Todos')) && !showTodos) {
+        expandedCommentDispatch({ type: EXPANDED_CONTROL, commentId: marketId, expanded: true });
       }
     }
     return () => {};
@@ -564,6 +564,7 @@ function MarketTodos (props) {
             )}
             <SubSection
               type={SECTION_TYPE_SECONDARY_WARNING}
+              id="immediateTodos"
               title={intl.formatMessage({ id: 'immediate' })}
               titleIcon={<Chip label={`${redComments.length}`} color="primary" size='small'
                                className={classes.chipStyle} />}
@@ -617,6 +618,7 @@ function MarketTodos (props) {
             )}
             <SubSection
               type={SECTION_TYPE_WARNING}
+              id="whenAbleTodos"
               title={intl.formatMessage({ id: 'able' })}
               titleIcon={<Chip label={`${yellowComments.length}`} color="primary" size='small'
                                className={classes.chipStyle} />}
@@ -672,6 +674,7 @@ function MarketTodos (props) {
               title={intl.formatMessage({ id: 'convenient' })}
               titleIcon={<Chip label={`${blueComments.length}`} color="primary" size='small'
                                className={classes.chipStyle} />}
+              id="whenConvenientTodos"
               helpTextId="convenientSectionHelp"
               actionButton={ isInArchives ? null :
                 (<ExpandableAction

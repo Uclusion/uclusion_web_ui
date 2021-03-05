@@ -63,11 +63,11 @@ function NotificationMessageDisplay (props) {
                   <Chip component="span" label={`${lenDuplicates}`} color="primary" size='small'
                         style={{ marginLeft: '0.5rem', marginRight: '0.25rem' }}/>
                 )}
+                {!lenDuplicates && (
+                  <br />
+                )}
                 {isOneDayAgo && (
-                  <>
-                    <br />
-                    <UsefulRelativeTime value={Date.parse(updatedAt)}/>
-                  </>
+                  <UsefulRelativeTime value={Date.parse(updatedAt)}/>
                 )}
               </Typography>
               <Typography style={{color: '#414141', fontWeight: 'bold', paddingLeft: '0.5rem',
@@ -85,11 +85,11 @@ function NotificationMessageDisplay (props) {
                       color={level === BLUE_LEVEL ? 'secondary' : 'primary'} size='small'
                       style={{ marginLeft: '0.5rem', marginRight: '0.25rem' }}/>
               )}
+              {!lenDuplicates && (
+                <br />
+              )}
               {isOneDayAgo && (
-                <>
-                  <br />
-                  <UsefulRelativeTime value={Date.parse(updatedAt)}/>
-                </>
+                <UsefulRelativeTime value={Date.parse(updatedAt)}/>
               )}
             </Typography>
           )}

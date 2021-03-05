@@ -12,6 +12,7 @@ import AssignmentIcon from '@material-ui/icons/Assignment';
 import StarRateIcon from '@material-ui/icons/StarRate';
 import NotificationImportantIcon from '@material-ui/icons/NotificationImportant';
 import { BLUE_LEVEL, RED_LEVEL, YELLOW_LEVEL } from '../../constants/notifications';
+import _ from 'lodash'
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -88,12 +89,16 @@ function getNameIcon (message, linkType) {
   }
 }
 
-function processDuplicates (page) {
+function processDuplicates(page) {
   const { linkMultipleHash, items } = page;
   if (linkMultipleHash) {
     Object.values(linkMultipleHash).forEach((duplicates) => {
       const lenDuplicates = duplicates.length;
-      const first = duplicates[0];
+      const sortedDuplicates = _.orderBy(duplicates, [function (o) {
+        const { updated_at: updatedAt } = o;
+        return Date.parse(updatedAt);
+      }], ['desc']);
+      const first = sortedDuplicates[0];
       if (lenDuplicates === 1) {
         items.push(first);
       } else {
@@ -175,9 +180,39 @@ function createMarketView (messages) {
   });
   markets.forEach((market) => {
     processDuplicates(market);
-    market.investibles.forEach((investible) => processDuplicates(investible));
+    market.items = _.orderBy(market.items, [function (o) {
+      const { updated_at: updatedAt } = o;
+      return Date.parse(updatedAt);
+    }], ['desc']);
+    market.investibles.forEach((investible) => {
+      processDuplicates(investible);
+      investible.items = _.orderBy(investible.items, [function (o) {
+        const { updated_at: updatedAt } = o;
+        return Date.parse(updatedAt);
+      }], ['desc']);
+    });
+    market.investibles = _.orderBy(market.investibles, [function (o) {
+      const { updated_at: updatedAt } = o.items[0];
+      return Date.parse(updatedAt);
+    }], ['desc']);
   });
-  return markets;
+  //sort the markets by the newer of first item or first investible item
+  return _.orderBy(markets, [function (o) {
+    let itemDate;
+    if (!_.isEmpty(o.items)) {
+      const { updated_at: updatedAt } = o.items[0];
+      itemDate = Date.parse(updatedAt);
+    }
+    let investibleDate;
+    if (!_.isEmpty(o.investibles)) {
+      const { updated_at: updatedAt } = o.investibles[0].items[0];
+      investibleDate = Date.parse(updatedAt);
+    }
+    if (itemDate > investibleDate) {
+      return itemDate;
+    }
+    return investibleDate;
+  }], ['desc']);
 }
 
 function DisplayNotifications (props) {

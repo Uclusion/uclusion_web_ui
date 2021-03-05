@@ -12,6 +12,7 @@ import SpinningTooltipIconButton from '../SpinBlocking/SpinningTooltipIconButton
 import { deleteOrDehilightMessages, deleteSingleMessage } from '../../api/users'
 import { removeMessage } from '../../contexts/NotificationsContext/notificationsContextReducer';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
+import UsefulRelativeTime from '../TextFields/UseRelativeTime'
 
 function NotificationMessageDisplay (props) {
   const {
@@ -23,6 +24,7 @@ function NotificationMessageDisplay (props) {
     investible_name: investibleName,
     market_name: marketName,
     market_id: marketId,
+    updated_at: updatedAt,
     type
   } = message;
   const dismissable = (type && type.startsWith(UNREAD_TYPE))||(marketId && marketId.startsWith('slack'));
@@ -39,6 +41,8 @@ function NotificationMessageDisplay (props) {
     return deleteSingleMessage(message)
       .then(() => messagesDispatch(removeMessage(message)));
   }
+
+  const isOneDayAgo = Date.now() - Date.parse(updatedAt) > 1000*60*60*24;
 
   return (
     <>
@@ -59,8 +63,15 @@ function NotificationMessageDisplay (props) {
                   <Chip component="span" label={`${lenDuplicates}`} color="primary" size='small'
                         style={{ marginLeft: '0.5rem', marginRight: '0.25rem' }}/>
                 )}
+                {isOneDayAgo && (
+                  <>
+                    <br />
+                    <UsefulRelativeTime value={Date.parse(updatedAt)}/>
+                  </>
+                )}
               </Typography>
-              <Typography style={{color: '#414141', fontWeight: 'bold', paddingLeft: '0.5rem'}}>
+              <Typography style={{color: '#414141', fontWeight: 'bold', paddingLeft: '0.5rem',
+                paddingRight: '0.5rem'}}>
                 {text}
               </Typography>
             </div>
@@ -73,6 +84,12 @@ function NotificationMessageDisplay (props) {
                 <Chip component={'span'} label={`${lenDuplicates}`}
                       color={level === BLUE_LEVEL ? 'secondary' : 'primary'} size='small'
                       style={{ marginLeft: '0.5rem', marginRight: '0.25rem' }}/>
+              )}
+              {isOneDayAgo && (
+                <>
+                  <br />
+                  <UsefulRelativeTime value={Date.parse(updatedAt)}/>
+                </>
               )}
             </Typography>
           )}

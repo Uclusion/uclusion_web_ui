@@ -5,7 +5,7 @@ import { useIntl } from 'react-intl'
 import { makeStyles, withStyles } from '@material-ui/core/styles'
 import _ from 'lodash'
 import clsx from 'clsx'
-import { Box, Card, Checkbox, TextField } from '@material-ui/core'
+import { Card, Checkbox, TextField } from '@material-ui/core'
 import Container from '@material-ui/core/Container'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import Avatar from '@material-ui/core/Avatar'
@@ -25,7 +25,6 @@ import { toastError } from '../../utils/userMessage'
 import queryString from 'query-string'
 import Gravatar from '../../components/Avatars/Gravatar'
 import CardContent from '@material-ui/core/CardContent'
-import Divider from '@material-ui/core/Divider'
 
 const useStyles = makeStyles(theme => ({
   root: {

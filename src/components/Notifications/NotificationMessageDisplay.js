@@ -63,11 +63,11 @@ function NotificationMessageDisplay (props) {
                   <Chip component="span" label={`${lenDuplicates}`} color="primary" size='small'
                         style={{ marginLeft: '0.5rem', marginRight: '0.25rem' }}/>
                 )}
-                {!lenDuplicates && (
-                  <br />
-                )}
                 {isOneDayAgo && (
-                  <UsefulRelativeTime value={Date.parse(updatedAt)}/>
+                  <>
+                    <br />
+                    <UsefulRelativeTime value={Date.parse(updatedAt)}/>
+                  </>
                 )}
               </Typography>
               <Typography style={{color: '#414141', fontWeight: 'bold', paddingLeft: '0.5rem',

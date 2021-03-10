@@ -403,12 +403,9 @@ function Signup(props) {
                 <Gravatar className={classes.largeAvatar} email={myMarket.created_by_email}/>
                 <h3 style={{padding: '0', marginTop: '0.6rem', marginBottom: '0'}}>{myMarket.created_by_name}</h3>
                 <span style={{padding: '0'}}>{intl.formatMessage({ id: 'signupInvite' })}</span>
-                <Divider style={{padding: '0', marginTop: '1rem'}} />
-                <Box display={'flex'}>
-                  <Typography variant="h6" align="center" style={{paddingTop: '1rem'}}>
-                    {myMarket.name}
-                  </Typography>
-                </Box>
+                <Typography variant="h6" align="center" style={{paddingTop: '1rem'}}>
+                  {myMarket.name}
+                </Typography>
               </CardContent>
             </Card>
           </div>

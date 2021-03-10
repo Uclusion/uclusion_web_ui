@@ -695,7 +695,11 @@ function PlanningInvestible(props) {
   }
   function getStartDate() {
     if (daysEstimate && createdAt) {
-      return moment(createdAt).add(daysEstimate, 'days').toDate();
+      const currEstimate = moment(createdAt).add(daysEstimate, 'days').toDate();
+      const nowDate = new Date();
+      if (currEstimate > nowDate) {
+        return currEstimate;
+      }
     }
     return undefined;
   }

@@ -245,6 +245,10 @@ function Signup(props) {
       // If they did not come from a market link then we want them to create a workspace
       redirect = '/';
     }
+    if (redirect.includes(code)) {
+      const slashCode = '/' + code;
+      redirect = redirect.replace(slashCode, '');
+    }
     return redirect;
   }
 

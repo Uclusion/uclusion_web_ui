@@ -303,9 +303,6 @@ export function Form(props) {
   const intl = useIntl();
 
   const {
-    daysEstimate,
-    createdAt,
-    onDaysEstimate,
     description,
     onDescriptionChange,
     investmentExpiration,
@@ -393,9 +390,6 @@ export function Form(props) {
                 </Grid>
                 <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
                   <Votes onChange={onVotesRequiredChange} value={votesRequired} />
-                </Grid>
-                <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
-                  <DaysEstimate showLabel={ window.outerWidth >= 600 } onChange={onDaysEstimate} value={daysEstimate} createdAt={createdAt} />
                 </Grid>
               </Grid>
             </ExpansionPanelDetails>
@@ -525,29 +519,21 @@ export function Votes(props) {
 }
 
 export function DaysEstimate(props) {
-  const { readOnly, value, onChange, createdAt, showLabel = true, showHelper = true } = props;
+  const { readOnly, value, onChange, showLabel = true, showHelper = true } = props;
 
   const classes = usePlanFormStyles();
   const intl = useIntl();
-  function getStartDate() {
-    if (value && createdAt) {
-      return moment(createdAt).add(value, 'days').toDate();
-    }
-    return undefined;
-  }
   
   function handleDateChange(date) {
-    const usedDate = createdAt ? createdAt : new Date();
-    const myValue = moment(date).diff(moment(usedDate), 'days', true);
     if(typeof onChange === 'function'){
-      onChange({target: {value: `${Math.ceil(myValue)}`}});
+      onChange({target: {value: date}});
     }
   }
 
   return (
       readOnly ? (
         <Typography className={classes.daysEstimation}>
-          {intl.formatMessage({ id: 'planningEstimatedCompletion' })} {intl.formatDate(getStartDate())}
+          {intl.formatMessage({ id: 'planningEstimatedCompletion' })} {intl.formatDate(value)}
         </Typography>
       ) : (
         <React.Fragment>
@@ -558,7 +544,7 @@ export function DaysEstimate(props) {
             <DatePicker
               className={clsx("MuiInputBase-root", classes.input, classes.datePicker)}
               placeholderText={intl.formatMessage({ id: "selectDate" })}
-              selected={getStartDate()}
+              selected={value}
               onChange={handleDateChange}
               popperPlacement={window.outerWidth < 600 ? 'bottom' : 'right'}
               minDate={new Date()}

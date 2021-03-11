@@ -45,7 +45,7 @@ export function deleteAttachedFilesFromMarket(marketId, files) {
 }
 
 export function updateMarket(marketId, name, description, uploadedFiles, maxBudget,
-  investmentExpiration, daysEstimate, votesRequired, allowMultiVote, ticketSubCode) {
+  investmentExpiration, votesRequired, allowMultiVote, ticketSubCode) {
   const updateOptions = {};
   if (name != null) {
     updateOptions.name = name;
@@ -61,9 +61,6 @@ export function updateMarket(marketId, name, description, uploadedFiles, maxBudg
   }
   if (investmentExpiration != null) {
     updateOptions.investment_expiration = investmentExpiration;
-  }
-  if (daysEstimate != null) {
-    updateOptions.days_estimate = daysEstimate;
   }
   if (votesRequired != null) {
     updateOptions.votes_required = votesRequired;

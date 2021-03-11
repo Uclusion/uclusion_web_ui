@@ -219,7 +219,6 @@ function Summary(props) {
     description,
     market_stage: marketStage,
     market_type: marketType,
-    days_estimate: daysEstimate,
     parent_market_id: parentMarketId,
     parent_investible_id: parentInvestibleId,
     created_at: createdAt,
@@ -340,13 +339,6 @@ function Summary(props) {
               beingEdited={beingEdited}
             />
           </CardActions>
-        <dl className={metaClasses.root}>
-          {daysEstimate && (
-            <fieldset className={classes.fieldset}>
-              <DaysEstimate readOnly value={daysEstimate} createdAt={createdAt} />
-            </fieldset>
-          )}
-        </dl>
         <dl className={metaClasses.root}>
           <div className={classes.assignmentContainer}>
             <FormattedMessage id="dialogParticipants" />

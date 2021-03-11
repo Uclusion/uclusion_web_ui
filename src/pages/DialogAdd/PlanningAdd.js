@@ -23,7 +23,6 @@ function PlanningAdd(props) {
     name: storedName,
     max_budget: storedBudget,
     investment_expiration: storedExpiration,
-    days_estimate: storedDaysEstimate,
     votes_required: storedVotesRequired
   } = storedState;
   const [draftState, setDraftState] = useState(storedState);
@@ -35,7 +34,6 @@ function PlanningAdd(props) {
     storedExpiration || 14
   );
   const [maxBudget, setMaxBudget] = useState(storedBudget);
-  const [daysEstimate, setDaysEstimate] = useState(storedDaysEstimate);
   const [votesRequired, setVotesRequired] = useState(storedVotesRequired || 0);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const { name } = currentValues;
@@ -87,13 +85,6 @@ function PlanningAdd(props) {
     handleDraftState({ ...draftState, max_budget: valueInt });
   }
 
-  function onDaysEstimateChange(event) {
-    const { value } = event.target;
-    const valueInt = value ? parseInt(value, 10) : null;
-    setDaysEstimate(valueInt);
-    handleDraftState({ ...draftState, days_estimate: valueInt });
-  }
-
   function onVotesRequiredEstimateChange(event) {
     const { value } = event.target;
     const valueInt = value ? parseInt(value, 10) : null;
@@ -118,9 +109,6 @@ function PlanningAdd(props) {
     }
     if (maxBudget != null) {
       addInfo.max_budget = maxBudget;
-    }
-    if (daysEstimate != null) {
-      addInfo.days_estimate = daysEstimate;
     }
     if (parentInvestibleId) {
       addInfo.parent_investible_id = parentInvestibleId;
@@ -147,9 +135,6 @@ function PlanningAdd(props) {
       <DismissableText textId={'planningAddHelp'} />
       <Form
         marketId=""
-        daysEstimate={daysEstimate}
-        createdAt={new Date()}
-        onDaysEstimate={onDaysEstimateChange}
         description={description}
         onDescriptionChange={onEditorChange}
         investmentExpiration={investmentExpiration}

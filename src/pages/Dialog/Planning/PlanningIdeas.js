@@ -728,7 +728,7 @@ function StageInvestible (props) {
     comments,
     marketPresences
   } = props;
-  const { days_estimate: daysEstimate } = marketInfo;
+  const { completion_estimate: daysEstimate } = marketInfo;
   const { id, name, created_at: createdAt, label_list: labelList } = investible;
   const history = useHistory();
   const to = formInvestibleLink(marketId, id);

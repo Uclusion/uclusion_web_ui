@@ -56,7 +56,7 @@ function PlanningInvestibleAdd(props) {
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const { description: storedDescription, name: storedName, assignments: storedAssignments, storedUrlAssignee,
-    days_estimate: storedDaysEstimate } = storedState;
+    completion_estimate: storedDaysEstimate } = storedState;
   const [draftState, setDraftState] = useState(storedState);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const emptyInvestible = { name: storedName };
@@ -176,9 +176,8 @@ function PlanningInvestibleAdd(props) {
 
   function onDaysEstimateChange(event) {
     const { value } = event.target;
-    const valueInt = value ? parseInt(value, 10) : null;
-    setDaysEstimate(valueInt);
-    handleDraftState({ ...draftState, days_estimate: valueInt });
+    setDaysEstimate(value);
+    handleDraftState({ ...draftState, completion_estimate: value });
   }
 
   function handleSave() {

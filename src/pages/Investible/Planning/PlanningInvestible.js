@@ -377,7 +377,7 @@ function PlanningInvestible(props) {
   const concated = [...voters, ...investibleCommentorPresences];
   const investibleCollaborators = _.uniq((concated || []).map((presence) => presence.id));
   const marketInfo = getMarketInfo(marketInvestible, marketId) || {};
-  const { stage, assigned: invAssigned, children, days_estimate: marketDaysEstimate,
+  const { stage, assigned: invAssigned, children, completion_estimate: marketDaysEstimate,
     required_approvers:  requiredApprovers, required_reviews: requiredReviewers } = marketInfo;
   const [daysEstimate, setDaysEstimate] = useState(marketDaysEstimate);
   const assigned = invAssigned || [];
@@ -695,26 +695,22 @@ function PlanningInvestible(props) {
   }
   function getStartDate() {
     if (daysEstimate && createdAt) {
-      const currEstimate = moment(createdAt).add(daysEstimate, 'days').toDate();
       const nowDate = new Date();
-      if (currEstimate > nowDate) {
-        return currEstimate;
+      if (daysEstimate > nowDate) {
+        return daysEstimate;
       }
     }
     return undefined;
   }
   function handleDateChange(date) {
-    const usedDate = createdAt ? createdAt : new Date();
-    const myValue = moment(date).diff(moment(usedDate), 'days', true);
-    const value = Math.ceil(myValue);
-    const valueInt = value ? parseInt(value, 10) : null;
-    if (!_.isEqual(valueInt, daysEstimate)) {
-      setDaysEstimate(valueInt);
+    console.debug(date);
+    if (!_.isEqual(date, daysEstimate)) {
+      setDaysEstimate(date);
       toggleEdit();
       const updateInfo = {
         marketId,
         investibleId,
-        daysEstimate: valueInt,
+        daysEstimate: date,
       };
       setOperationRunning(true);
       return updateInvestible(updateInfo).then((fullInvestible) => {
@@ -915,9 +911,9 @@ function PlanningInvestible(props) {
                   )}
                 </dl>
               </div>
-              {marketDaysEstimate > 0 && (
+              {marketDaysEstimate && (
                 <div style={{paddingTop: '1.5rem', marginTop: '1.5rem'}}>
-                  <DaysEstimate readOnly value={daysEstimate} createdAt={createdAt} />
+                  <DaysEstimate readOnly value={daysEstimate} />
                 </div>
               )}
               <MarketMetaData

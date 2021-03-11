@@ -26,7 +26,6 @@ function PlanningDialogEdit(props) {
     name: initialMarketName,
     max_budget: initialBudget,
     investment_expiration: initialExpiration,
-    days_estimate: initialDaysEstimate,
     votes_required: initialVotesRequired
   } = market;
   const intl = useIntl();
@@ -38,13 +37,11 @@ function PlanningDialogEdit(props) {
     name: initialMarketName,
     max_budget: initialBudget,
     investment_expiration: initialExpiration,
-    days_estimate: initialDaysEstimate,
     votes_required: initialVotesRequired
   });
   const {
     max_budget,
     investment_expiration,
-    days_estimate,
     votes_required,
     ticket_sub_code
   } = mutableMarket;
@@ -76,8 +73,6 @@ function PlanningDialogEdit(props) {
   }
 
   function handleSave() {
-    const daysEstimateInt =
-      days_estimate != null ? parseInt(days_estimate, 10) : null;
     const votesRequiredInt =
       votes_required != null ? parseInt(votes_required, 10) : null;
     const maxBudget = max_budget ? parseInt(max_budget, 10) : 0;
@@ -88,7 +83,6 @@ function PlanningDialogEdit(props) {
           undefined,
           maxBudget,
           parseInt(investment_expiration, 10),
-          daysEstimateInt,
           votesRequiredInt,
           undefined,
           ticket_sub_code

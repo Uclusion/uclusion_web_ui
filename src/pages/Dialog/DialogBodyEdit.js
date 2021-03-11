@@ -22,9 +22,11 @@ import { InvestiblesContext } from '../../contexts/InvestibesContext/Investibles
 import { processTextAndFilesForSave } from '../../api/files'
 import { usePlanFormStyles } from '../../components/AgilePlan'
 import NameField from '../../components/TextFields/NameField'
+import { isTinyWindow } from '../../utils/windowUtils'
+import DescriptionOrDiff from '../../components/Descriptions/DescriptionOrDiff'
 
 export const useLockedDialogStyles = makeStyles(
-  () => {
+  (theme) => {
     return {
       title: {
         backgroundColor: "#F2C94C",
@@ -39,6 +41,25 @@ export const useLockedDialogStyles = makeStyles(
         height: 16,
         width: 16,
         marginRight: 8,
+      },
+      titleDisplay: {
+        fontSize: 32,
+        fontWeight: "bold",
+        lineHeight: "42px",
+        paddingBottom: "9px",
+        [theme.breakpoints.down("xs")]: {
+          fontSize: 25
+        }
+      },
+      titleEditable: {
+        fontSize: 32,
+        cursor: "url('/images/edit_cursor.svg') 0 24, pointer",
+        fontWeight: "bold",
+        lineHeight: "42px",
+        paddingBottom: "9px",
+        [theme.breakpoints.down("xs")]: {
+          fontSize: 25
+        }
       },
       warningTitleIcon: {
         marginRight: 8,
@@ -96,7 +117,7 @@ const useStyles = makeStyles(
 );
 
 function DialogBodyEdit(props) {
-  const { hidden, setBeingEdited, marketId } = props;
+  const { hidden, setBeingEdited, marketId, isEditableByUser, beingEdited } = props;
   const intl = useIntl();
   const editClasses = usePlanFormStyles();
   const classes = useStyles();
@@ -106,7 +127,7 @@ function DialogBodyEdit(props) {
   const [, diffDispatch] = useContext(DiffContext);
   const renderableMarket = getMarket(marketsState, marketId) || {};
   const { id, name: initialName, description: initialDescription,
-    market_type: marketType, locked_by: lockedBy } = renderableMarket;
+    market_type: marketType, locked_by: lockedBy, version } = renderableMarket;
   const [idLoaded, setIdLoaded] = useState(undefined);
   const userId = getMyUserForMarket(marketsState, marketId) || {};
   const loading = !userId || !marketType || idLoaded !== marketId;
@@ -114,6 +135,7 @@ function DialogBodyEdit(props) {
   const someoneElseEditing = !_.isEmpty(lockedBy) && (lockedBy !== userId);
   const [operationRunning] = useContext(OperationInProgressContext);
   const [name, setName] = useState(initialName);
+  const [localVersion, setLocalVersion] = useState(undefined);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [description, setDescription] = useState(initialDescription);
 
@@ -144,14 +166,14 @@ function DialogBodyEdit(props) {
   }, [hidden, marketId, idLoaded, setBeingEdited, marketType]);
   
   useEffect(() => {
-    if (!hidden) {
+    if (!hidden && beingEdited) {
       if (marketType === PLANNING_TYPE && !loading && _.isEmpty(lockedBy) && !lockFailed) {
         lockPlanningMarketForEdit(marketId)
           .then((market) => addMarketToStorage(marketsDispatch, () => {}, market));
       }
     }
     return () => {};
-  }, [hidden, marketType, loading, lockFailed, marketId, marketsDispatch, lockedBy]);
+  }, [hidden, marketType, loading, lockFailed, marketId, marketsDispatch, lockedBy, beingEdited]);
 
   function handleSave() {
     // the set of files for the market is all the old files, plus our new ones
@@ -167,6 +189,7 @@ function DialogBodyEdit(props) {
     return updateMarket(id, updatedName, updatedDescription, updatedFilteredUploads, null,
       null, null, null, null)
       .then((market) => {
+        setLocalVersion(market.version);
         return {
           result: market,
           spinChecker: () => Promise.resolve(true),
@@ -249,74 +272,94 @@ function DialogBodyEdit(props) {
     setUploadedFiles(metadatas);
   }
 
+  const useLocal = localVersion && localVersion > version;
+  const calculatedName = useLocal ? name : initialName;
+  const calculatedDescription = useLocal ? description : initialDescription;
+
+  if (!hidden && beingEdited) {
+    return (
+      <>
+        <LockedDialog
+          classes={lockedDialogClasses}
+          open={!hidden && (someoneElseEditing || lockFailed)}
+          onClose={onCancel}
+          /* slots */
+          actions={
+            <SpinBlockingButton
+              className={clsx(lockedDialogClasses.action, lockedDialogClasses.actionEdit)}
+              disableFocusRipple
+              marketId={marketId}
+              onClick={myOnClick}
+              onSpinStop={onLock}
+              hasSpinChecker
+              disabled={operationRunning}
+            >
+              <FormattedMessage id="pageLockEditPage" />
+            </SpinBlockingButton>
+          }
+        />
+        {(!lockedBy || (lockedBy === userId)) && (
+          <>
+            <NameField onEditorChange={handleNameChange} onStorageChange={handleNameStorage} description={description}
+                       name={name} label="agilePlanFormTitleLabel" placeHolder="decisionTitlePlaceholder"
+                       id="decision-name" />
+            <QuillEditor
+              onChange={onEditorChange}
+              onStoreChange={onStorageChange}
+              defaultValue={description}
+              marketId={marketId}
+              onS3Upload={onS3Upload}
+              setOperationInProgress={setOperationRunning}
+              getUrlName={urlHelperGetName(marketsState, investiblesState)}
+            />
+          </>
+        )}
+        {(lockedBy && (lockedBy !== userId)) && (
+          <div align='center'>
+            <Typography>{intl.formatMessage({ id: "gettingLockMessage" })}</Typography>
+            <CircularProgress type="indeterminate"/>
+          </div>
+        )}
+        <CardActions className={classes.actions}>
+          <Button
+            onClick={onCancel}
+            className={editClasses.actionSecondary}
+            color="secondary"
+            variant="contained">
+            <FormattedMessage
+              id="marketAddCancelLabel"
+            />
+          </Button>
+          <SpinBlockingButton
+            marketId={id}
+            id="save"
+            variant="contained"
+            color="primary"
+            onClick={handleSave}
+            onSpinStop={onSave}
+            className={editClasses.actionPrimary}
+            hasSpinChecker
+          >
+            <FormattedMessage
+              id="agilePlanFormSaveLabel"
+            />
+          </SpinBlockingButton>
+        </CardActions>
+      </>
+    );
+  }
+
   return (
     <>
-      <LockedDialog
-        classes={lockedDialogClasses}
-        open={!hidden && (someoneElseEditing || lockFailed)}
-        onClose={onCancel}
-        /* slots */
-        actions={
-          <SpinBlockingButton
-            className={clsx(lockedDialogClasses.action, lockedDialogClasses.actionEdit)}
-            disableFocusRipple
-            marketId={marketId}
-            onClick={myOnClick}
-            onSpinStop={onLock}
-            hasSpinChecker
-            disabled={operationRunning}
-          >
-            <FormattedMessage id="pageLockEditPage" />
-          </SpinBlockingButton>
-        }
-      />
-      {(!lockedBy || (lockedBy === userId)) && (
-        <>
-          <NameField onEditorChange={handleNameChange} onStorageChange={handleNameStorage} description={description}
-                     name={name} label="agilePlanFormTitleLabel" placeHolder="decisionTitlePlaceholder"
-                     id="decision-name" />
-          <QuillEditor
-            onChange={onEditorChange}
-            onStoreChange={onStorageChange}
-            defaultValue={description}
-            marketId={marketId}
-            onS3Upload={onS3Upload}
-            setOperationInProgress={setOperationRunning}
-            getUrlName={urlHelperGetName(marketsState, investiblesState)}
-          />
-        </>
-      )}
-      {(lockedBy && (lockedBy !== userId)) && (
-        <div align='center'>
-          <Typography>{intl.formatMessage({ id: "gettingLockMessage" })}</Typography>
-          <CircularProgress type="indeterminate"/>
-        </div>
-      )}
-      <CardActions className={classes.actions}>
-        <Button
-          onClick={onCancel}
-          className={editClasses.actionSecondary}
-          color="secondary"
-          variant="contained">
-          <FormattedMessage
-            id="marketAddCancelLabel"
-          />
-        </Button>
-        <SpinBlockingButton
-          marketId={id}
-          id="save"
-          variant="contained"
-          color="primary"
-          onClick={handleSave}
-          onSpinStop={onSave}
-          className={editClasses.actionPrimary}
-          hasSpinChecker
-        >
-          <FormattedMessage
-            id="agilePlanFormSaveLabel"
-          />
-        </SpinBlockingButton>
-      </CardActions>
+      <Typography className={isEditableByUser() ? lockedDialogClasses.titleEditable :
+        lockedDialogClasses.titleDisplay}
+                  variant="h3" component="h1"
+                  onClick={() => !isTinyWindow() && setBeingEdited(true)}>
+        {calculatedName}
+      </Typography>
+      <DescriptionOrDiff id={marketId} description={calculatedDescription}
+                         setBeingEdited={isTinyWindow() ? () => {} : setBeingEdited}
+                         isEditable={isEditableByUser()}/>
     </>
   );
 }
@@ -337,7 +380,7 @@ export function LockedDialog(props) {
       classes={{
         root: classes.root,
         actions: classes.actions,
-        content: classes.contet,
+        content: classes.content,
         title: classes.title
       }}
       open={open}

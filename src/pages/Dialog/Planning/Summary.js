@@ -10,9 +10,7 @@ import {
   marketHasOnlyCurrentUser
 } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import DialogActions from '../../Home/DialogActions'
-import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff'
 import CardType, { AGILE_PLAN_TYPE, DECISION_TYPE } from '../../../components/CardType'
-import { DaysEstimate } from '../../../components/AgilePlan'
 import ParentSummary from '../ParentSummary'
 import LinkMarket from '../LinkMarket'
 import { useMetaDataStyles } from '../../Investible/Planning/PlanningInvestible'
@@ -29,7 +27,7 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { EMPTY_SPIN_RESULT } from '../../../constants/global'
 import DialogBodyEdit from '../DialogBodyEdit'
-import { doSetEditWhenValid, isTinyWindow } from '../../../utils/windowUtils'
+import { doSetEditWhenValid } from '../../../utils/windowUtils'
 import { AccountContext } from '../../../contexts/AccountContext/AccountContext';
 import { canCreate } from '../../../contexts/AccountContext/accountContextHelper';
 
@@ -119,25 +117,6 @@ const useStyles = makeStyles(theme => ({
   type: {
     display: "inline-flex"
   },
-  title: {
-    fontSize: 32,
-    fontWeight: "bold",
-    lineHeight: "42px",
-    paddingBottom: "9px",
-    [theme.breakpoints.down("xs")]: {
-      fontSize: 25
-    }
-  },
-  titleEditable: {
-    fontSize: 32,
-    cursor: "url('/images/edit_cursor.svg') 0 24, pointer",
-    fontWeight: "bold",
-    lineHeight: "42px",
-    paddingBottom: "9px",
-    [theme.breakpoints.down("xs")]: {
-      fontSize: 25
-    }
-  },
   mobileColumn: {
     [theme.breakpoints.down("xs")]: {
       flexDirection: 'column'
@@ -215,13 +194,10 @@ function Summary(props) {
   const classes = useStyles();
   const {
     id,
-    name,
-    description,
     market_stage: marketStage,
     market_type: marketType,
     parent_market_id: parentMarketId,
     parent_investible_id: parentInvestibleId,
-    created_at: createdAt,
     attached_files: attachedFiles,
     locked_by: lockedBy,
   } = market;
@@ -307,20 +283,8 @@ function Summary(props) {
                 {intl.formatMessage({ id: "inactive" })}
               </Typography>
             )}
-            {!myBeingEdited && (
-              <>
-                <Typography className={isEditableByUser() ? classes.titleEditable : classes.title} variant="h3" component="h1"
-                            onClick={() => !isTinyWindow() && mySetBeingEdited(true)}>
-                  {name}
-                </Typography>
-                <DescriptionOrDiff id={id} description={description}
-                                   setBeingEdited={isTinyWindow() ? () => {} : mySetBeingEdited}
-                                   isEditable={isEditableByUser()} />
-              </>
-            )}
-            {myBeingEdited && (
-              <DialogBodyEdit hidden={hidden} setBeingEdited={mySetBeingEdited} marketId={id} />
-            )}
+            <DialogBodyEdit hidden={hidden} setBeingEdited={mySetBeingEdited} marketId={id}
+                            isEditableByUser={isEditableByUser} beingEdited={myBeingEdited}/>
           </CardContent>
         </Grid>
         <Grid className={classes.borderLeft} item xs={3}>

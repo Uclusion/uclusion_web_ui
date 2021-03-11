@@ -102,7 +102,6 @@ import TextField from '@material-ui/core/TextField'
 import EventIcon from '@material-ui/icons/Event';
 import InvestibleBodyEdit from '../InvestibleBodyEdit'
 import DatePicker from 'react-datepicker'
-import moment from 'moment'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { doSetEditWhenValid, isTinyWindow } from '../../../utils/windowUtils'
 import LinkMarket from '../../Dialog/LinkMarket'

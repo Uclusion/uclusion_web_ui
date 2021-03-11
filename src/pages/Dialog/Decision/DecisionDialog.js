@@ -23,7 +23,6 @@ import { EMPTY_SPIN_RESULT, SECTION_TYPE_SECONDARY } from '../../../constants/gl
 import { ACTIVE_STAGE, DECISION_TYPE } from '../../../constants/markets'
 import UclusionTour from '../../../components/Tours/UclusionTour'
 import CardType from '../../../components/CardType'
-import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff'
 import clsx from 'clsx'
 import ExpiresDisplay from '../../../components/Expiration/ExpiresDisplay'
 import ExpiredDisplay from '../../../components/Expiration/ExpiredDisplay'
@@ -44,7 +43,7 @@ import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsCont
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import AttachedFilesList from '../../../components/Files/AttachedFilesList'
 import DialogBodyEdit from '../DialogBodyEdit'
-import { doSetEditWhenValid, isTinyWindow } from '../../../utils/windowUtils'
+import { doSetEditWhenValid } from '../../../utils/windowUtils'
 import DecisionInvestibleAdd from './DecisionInvestibleAdd'
 import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import localforage from 'localforage'
@@ -102,25 +101,6 @@ const useStyles = makeStyles(
     content: {
       flexBasis: "100%",
       padding: theme.spacing(4)
-    },
-    title: {
-      fontSize: 32,
-      fontWeight: "bold",
-      lineHeight: "42px",
-      paddingBottom: "9px",
-      [theme.breakpoints.down("xs")]: {
-        fontSize: 25
-      }
-    },
-    titleEditable: {
-      fontSize: 32,
-      fontWeight: "bold",
-      lineHeight: "42px",
-      paddingBottom: "9px",
-      cursor: "url('/images/edit_cursor.svg') 0 24, pointer",
-      [theme.breakpoints.down("xs")]: {
-        fontSize: 25
-      }
     },
     assignments: {
       padding: 0,
@@ -206,7 +186,6 @@ function DecisionDialog(props) {
   const {
     id: marketId,
     name: marketName,
-    description,
     market_stage: marketStage,
     market_type: marketType,
     created_at: createdAt,
@@ -314,21 +293,8 @@ function DecisionDialog(props) {
                   {intl.formatMessage({ id: 'draft' })}
                 </Typography>
               )}
-              {myBeingEdited  && (
-                <DialogBodyEdit hidden={hidden} setBeingEdited={mySetBeingEdited} marketId={marketId} />
-              )}
-              {!myBeingEdited && (
-                <>
-                  <Typography className={isEditableByUser() ? classes.titleEditable : classes.title}
-                              variant="h3" component="h1"
-                              onClick={() => !isTinyWindow() && mySetBeingEdited(true)}>
-                    {marketName}
-                  </Typography>
-                  <DescriptionOrDiff id={marketId} description={description}
-                                     setBeingEdited={isTinyWindow() ? () => {} : mySetBeingEdited}
-                                     isEditable={isEditableByUser()}/>
-                </>
-              )}
+              <DialogBodyEdit hidden={hidden} setBeingEdited={mySetBeingEdited} marketId={marketId}
+                              isEditableByUser={isEditableByUser} beingEdited={myBeingEdited} />
             </CardContent>
           </Grid>
           <Grid className={classes.borderLeft} item xs={3}>

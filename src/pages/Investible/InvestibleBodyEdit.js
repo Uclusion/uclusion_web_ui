@@ -70,7 +70,7 @@ function InvestibleBodyEdit (props) {
   const [marketsState] = useContext(MarketsContext);
   const userId = getMyUserForMarket(marketsState, marketId);
   const { investible: myInvestible } = fullInvestible;
-  const { locked_by: lockedBy, version } = myInvestible;
+  const { locked_by: lockedBy } = myInvestible;
   const [idLoaded, setIdLoaded] = useState(undefined);
   const emptyMarket = { name: '' };
   const market = getMarket(marketsState, marketId) || emptyMarket;

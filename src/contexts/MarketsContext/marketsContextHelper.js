@@ -87,9 +87,9 @@ export function addMarketToStorage(dispatch, diffDispatch, marketDetails, fromNe
   }
   pushMessage(SEARCH_INDEX_CHANNEL, { event: INDEX_UPDATE, itemType: INDEX_MARKET_TYPE, items: [fixed]});
   if (fromNetwork) {
-    dispatch(versionsUpdateDetails([fixed]));
+    dispatch(versionsUpdateDetails(fixed));
   } else {
-    dispatch(updateMarketDetails([fixed]));
+    dispatch(updateMarketDetails(fixed));
   }
 }
 

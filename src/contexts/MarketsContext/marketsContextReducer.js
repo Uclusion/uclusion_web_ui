@@ -18,17 +18,17 @@ export function initializeState(newState) {
   };
 }
 
-export function updateMarketDetails(marketDetails) {
+export function updateMarketDetails(marketDetail) {
   return {
     type: UPDATE_MARKET_DETAILS,
-    marketDetails,
+    marketDetail,
   };
 }
 
-export function versionsUpdateDetails(marketDetails) {
+export function versionsUpdateDetails(marketDetail) {
   return {
     type: UPDATE_FROM_VERSIONS,
-    marketDetails,
+    marketDetail,
   };
 }
 
@@ -42,9 +42,9 @@ export function removeMarketDetails(marketIds) {
 /* Functions that mutate state */
 
 function doUpdateMarketDetails(state, action, isQuickAdd) {
-  const { marketDetails } = action;
+  const { marketDetail } = action;
   const { marketDetails: oldMarketDetails } = state;
-  const transformedMarketDetails = isQuickAdd ? { ...marketDetails, fromQuickAdd: true } : marketDetails;
+  const transformedMarketDetails = isQuickAdd ? [{ ...marketDetail, fromQuickAdd: true }] : [marketDetail];
   const newDetails = _.unionBy(transformedMarketDetails, oldMarketDetails, 'id');
   return {
     ...removeInitializing(state, isQuickAdd),

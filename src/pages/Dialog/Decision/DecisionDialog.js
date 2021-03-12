@@ -293,7 +293,7 @@ function DecisionDialog(props) {
                   {intl.formatMessage({ id: 'draft' })}
                 </Typography>
               )}
-              <DialogBodyEdit hidden={hidden} setBeingEdited={mySetBeingEdited} marketId={marketId}
+              <DialogBodyEdit hidden={hidden} setBeingEdited={mySetBeingEdited} market={market}
                               isEditableByUser={isEditableByUser} beingEdited={myBeingEdited} />
             </CardContent>
           </Grid>

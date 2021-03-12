@@ -283,7 +283,7 @@ function Summary(props) {
                 {intl.formatMessage({ id: "inactive" })}
               </Typography>
             )}
-            <DialogBodyEdit hidden={hidden} setBeingEdited={mySetBeingEdited} marketId={id}
+            <DialogBodyEdit hidden={hidden} setBeingEdited={mySetBeingEdited} market={market}
                             isEditableByUser={isEditableByUser} beingEdited={myBeingEdited}/>
           </CardContent>
         </Grid>

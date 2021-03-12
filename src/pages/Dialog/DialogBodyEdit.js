@@ -9,7 +9,7 @@ import clsx from 'clsx'
 import _ from 'lodash'
 import { urlHelperGetName, } from '../../utils/marketIdPathFunctions'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
-import { addMarketToStorage, getMarket, getMyUserForMarket } from '../../contexts/MarketsContext/marketsContextHelper'
+import { addMarketToStorage, getMyUserForMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 import { PLANNING_TYPE } from '../../constants/markets'
 import { lockPlanningMarketForEdit, unlockPlanningMarketForEdit, updateMarket } from '../../api/markets'
 import { Dialog } from '../../components/Dialogs'
@@ -117,7 +117,7 @@ const useStyles = makeStyles(
 );
 
 function DialogBodyEdit(props) {
-  const { hidden, setBeingEdited, marketId, isEditableByUser, beingEdited } = props;
+  const { hidden, setBeingEdited, market, isEditableByUser, beingEdited } = props;
   const intl = useIntl();
   const editClasses = usePlanFormStyles();
   const classes = useStyles();
@@ -125,12 +125,11 @@ function DialogBodyEdit(props) {
   const [marketsState, marketsDispatch] = useContext(MarketsContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [, diffDispatch] = useContext(DiffContext);
-  const renderableMarket = getMarket(marketsState, marketId) || {};
   const { id, name: initialName, description: initialDescription,
-    market_type: marketType, locked_by: lockedBy } = renderableMarket;
+    market_type: marketType, locked_by: lockedBy } = market;
   const [idLoaded, setIdLoaded] = useState(undefined);
-  const userId = getMyUserForMarket(marketsState, marketId) || {};
-  const loading = !userId || !marketType || idLoaded !== marketId;
+  const userId = getMyUserForMarket(marketsState, id) || {};
+  const loading = !userId || !marketType || idLoaded !== id;
   const [lockFailed, setLockFailed] = useState(false);
   const someoneElseEditing = !_.isEmpty(lockedBy) && (lockedBy !== userId);
   const [operationRunning] = useContext(OperationInProgressContext);
@@ -139,8 +138,8 @@ function DialogBodyEdit(props) {
   const [description, setDescription] = useState(initialDescription);
 
   useEffect(() => {
-    if (!hidden && idLoaded !== marketId) {
-      localforage.getItem(marketId).then((stateFromDisk) => {
+    if (!hidden && idLoaded !== id) {
+      localforage.getItem(id).then((stateFromDisk) => {
         const { description: storedDescription, name: storedName } = (stateFromDisk || {});
         if (storedName) {
           if (marketType !== PLANNING_TYPE) {
@@ -151,7 +150,7 @@ function DialogBodyEdit(props) {
         if (storedDescription) {
           setDescription(storedDescription);
         }
-        setIdLoaded(marketId);
+        setIdLoaded(id);
       });
     }
     if (hidden && idLoaded) {
@@ -162,24 +161,24 @@ function DialogBodyEdit(props) {
         setLockFailed(false);
       }
     };
-  }, [hidden, marketId, idLoaded, setBeingEdited, marketType]);
+  }, [hidden, id, idLoaded, setBeingEdited, marketType]);
   
   useEffect(() => {
     if (!hidden && beingEdited) {
       if (marketType === PLANNING_TYPE && !loading && _.isEmpty(lockedBy) && !lockFailed) {
-        lockPlanningMarketForEdit(marketId)
+        lockPlanningMarketForEdit(id)
           .then((market) => addMarketToStorage(marketsDispatch, () => {}, market));
       }
     }
     return () => {};
-  }, [hidden, marketType, loading, lockFailed, marketId, marketsDispatch, lockedBy, beingEdited]);
+  }, [hidden, marketType, loading, lockFailed, id, marketsDispatch, lockedBy, beingEdited]);
 
   const calculatedDescription = description === undefined ? initialDescription : description;
   const calculatedName = name === undefined ? initialName : name;
 
   function handleSave() {
     // the set of files for the market is all the old files, plus our new ones
-    const oldMarketUploadedFiles = renderableMarket.uploaded_files || [];
+    const oldMarketUploadedFiles = market.uploaded_files || [];
     const newUploadedFiles = _.uniqBy([...uploadedFiles, ...oldMarketUploadedFiles], 'path');
     const {
       uploadedFiles: filteredUploads,
@@ -201,9 +200,9 @@ function DialogBodyEdit(props) {
     setDescription(undefined);
     setBeingEdited(false);
     if (marketType === PLANNING_TYPE) {
-      unlockPlanningMarketForEdit(marketId);
+      unlockPlanningMarketForEdit(id);
     }
-    localforage.removeItem(marketId);
+    return localforage.removeItem(id);
   }
 
   function updateMarketInStorage(market) {
@@ -220,11 +219,11 @@ function DialogBodyEdit(props) {
     setDescription(undefined);
     setBeingEdited(false);
     updateMarketInStorage(market);
-    return localforage.removeItem(marketId);
+    return localforage.removeItem(id);
   }
   function myOnClick() {
     const breakLock = true;
-    return lockPlanningMarketForEdit(marketId, breakLock)
+    return lockPlanningMarketForEdit(id, breakLock)
       .then((result) => {
         return {
           result,
@@ -246,10 +245,6 @@ function DialogBodyEdit(props) {
   }
 
   const lockedDialogClasses = useLockedDialogStyles();
-
-  if (loading) {
-    return <React.Fragment/>
-  }
 
   function handleNameChange(value) {
     setName(value);
@@ -287,7 +282,7 @@ function DialogBodyEdit(props) {
             <SpinBlockingButton
               className={clsx(lockedDialogClasses.action, lockedDialogClasses.actionEdit)}
               disableFocusRipple
-              marketId={marketId}
+              marketId={id}
               onClick={myOnClick}
               onSpinStop={onLock}
               hasSpinChecker
@@ -307,7 +302,7 @@ function DialogBodyEdit(props) {
               onChange={onEditorChange}
               onStoreChange={onStorageChange}
               defaultValue={calculatedDescription}
-              marketId={marketId}
+              marketId={id}
               onS3Upload={onS3Upload}
               setOperationInProgress={setOperationRunning}
               getUrlName={urlHelperGetName(marketsState, investiblesState)}
@@ -357,7 +352,7 @@ function DialogBodyEdit(props) {
                   onClick={() => !isTinyWindow() && setBeingEdited(true)}>
         {initialName}
       </Typography>
-      <DescriptionOrDiff id={marketId} description={initialDescription}
+      <DescriptionOrDiff id={id} description={initialDescription}
                          setBeingEdited={isTinyWindow() ? () => {} : setBeingEdited}
                          isEditable={isEditableByUser()}/>
     </>
@@ -366,7 +361,7 @@ function DialogBodyEdit(props) {
 
 DialogBodyEdit.propTypes = {
   hidden: PropTypes.bool.isRequired,
-  marketId: PropTypes.string.isRequired,
+  market: PropTypes.object.isRequired,
 };
 
 export function LockedDialog(props) {

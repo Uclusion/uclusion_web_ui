@@ -174,6 +174,9 @@ function DialogBodyEdit(props) {
     return () => {};
   }, [hidden, marketType, loading, lockFailed, marketId, marketsDispatch, lockedBy, beingEdited]);
 
+  const calculatedDescription = description === undefined ? initialDescription : description;
+  const calculatedName = name === undefined ? initialName : name;
+
   function handleSave() {
     // the set of files for the market is all the old files, plus our new ones
     const oldMarketUploadedFiles = renderableMarket.uploaded_files || [];
@@ -181,11 +184,9 @@ function DialogBodyEdit(props) {
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
-    } = processTextAndFilesForSave(newUploadedFiles, description);
-    const updatedName = name !== initialName ? name : null;
-    const updatedDescription = description !== initialDescription ? tokensRemoved : null;
+    } = processTextAndFilesForSave(newUploadedFiles, calculatedDescription);
     const updatedFilteredUploads = _.isEmpty(uploadedFiles) ? filteredUploads : null;
-    return updateMarket(id, updatedName, updatedDescription, updatedFilteredUploads, null,
+    return updateMarket(id, calculatedName, tokensRemoved, updatedFilteredUploads, null,
       null, null, null, null)
       .then((market) => {
         return {
@@ -298,13 +299,14 @@ function DialogBodyEdit(props) {
         />
         {(!lockedBy || (lockedBy === userId)) && (
           <>
-            <NameField onEditorChange={handleNameChange} onStorageChange={handleNameStorage} description={description}
-                       name={name} label="agilePlanFormTitleLabel" placeHolder="decisionTitlePlaceholder"
+            <NameField onEditorChange={handleNameChange} onStorageChange={handleNameStorage}
+                       description={calculatedDescription}
+                       name={calculatedName} label="agilePlanFormTitleLabel" placeHolder="decisionTitlePlaceholder"
                        id="decision-name" />
             <QuillEditor
               onChange={onEditorChange}
               onStoreChange={onStorageChange}
-              defaultValue={description}
+              defaultValue={calculatedDescription}
               marketId={marketId}
               onS3Upload={onS3Upload}
               setOperationInProgress={setOperationRunning}

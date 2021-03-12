@@ -66,7 +66,7 @@ function InitiativeRestrictStep (props) {
           <FormControlLabel value={"true"} control={<Radio/>} label={intl.formatMessage({id: 'InitiativeWizardRestrictNo'})}/>
         </RadioGroup>
         <div className={classes.borderBottom}/>
-        <StepButtons {...props} validForm={true} spinOnClick onNext={onNext}/>
+        <StepButtons {...props} validForm={true} spinOnClick onNext={onNext} showFinish={false}/>
       </div>
     </WizardStepContainer>
   );

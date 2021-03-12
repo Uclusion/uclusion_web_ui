@@ -25,18 +25,39 @@ import NameField from '../../components/TextFields/NameField'
 import { getMarketInfo } from '../../utils/userFunctions'
 import { getFullStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
+import { isTinyWindow } from '../../utils/windowUtils'
+import DescriptionOrDiff from '../../components/Descriptions/DescriptionOrDiff'
 
 const useStyles = makeStyles(
   theme => ({
     actions: {
       margin: theme.spacing(9, 0, 0, 0)
     },
+    title: {
+      fontSize: 32,
+      fontWeight: "bold",
+      lineHeight: "42px",
+      paddingBottom: "9px",
+      [theme.breakpoints.down("xs")]: {
+        fontSize: 25
+      }
+    },
+    titleEditable: {
+      fontSize: 32,
+      fontWeight: "bold",
+      lineHeight: "42px",
+      paddingBottom: "9px",
+      cursor: "url('/images/edit_cursor.svg') 0 24, pointer",
+      [theme.breakpoints.down("xs")]: {
+        fontSize: 25
+      }
+    },
   }),
   { name: "PlanningEdit" }
 );
 
 function InvestibleBodyEdit (props) {
-  const { hidden, marketId, investibleId, setBeingEdited, beingEdited } = props;
+  const { hidden, marketId, investibleId, setBeingEdited, beingEdited, isEditableByUser } = props;
   const intl = useIntl();
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -49,7 +70,7 @@ function InvestibleBodyEdit (props) {
   const [marketsState] = useContext(MarketsContext);
   const userId = getMyUserForMarket(marketsState, marketId);
   const { investible: myInvestible } = fullInvestible;
-  const { locked_by: lockedBy } = myInvestible;
+  const { locked_by: lockedBy, version } = myInvestible;
   const [idLoaded, setIdLoaded] = useState(undefined);
   const emptyMarket = { name: '' };
   const market = getMarket(marketsState, marketId) || emptyMarket;
@@ -62,6 +83,7 @@ function InvestibleBodyEdit (props) {
   const { id, description: initialDescription, name: initialName } = myInvestible;
   const [description, setDescription] = useState(undefined);
   const [name, setName] = useState(undefined);
+  const [localVersion, setLocalVersion] = useState(undefined);
 
   function onLock (result) {
     if (result) {
@@ -109,6 +131,9 @@ function InvestibleBodyEdit (props) {
 
   const calculatedDescription = description === undefined ? initialDescription : description;
   const calculatedName = name === undefined ? initialName : name;
+  const useLocal = localVersion && localVersion > version;
+  const calculatedDisplayDescription = useLocal ? calculatedDescription : initialDescription;
+  const calculatedDisplayName = useLocal ? calculatedName : initialName;
 
   function handleSave() {
     // uploaded files on edit is the union of the new uploaded files and the old uploaded files
@@ -127,6 +152,9 @@ function InvestibleBodyEdit (props) {
     };
     return updateInvestible(updateInfo)
       .then((fullInvestible) => {
+        const { investible: myInvestible } = fullInvestible;
+        const { version } = myInvestible;
+        setLocalVersion(version);
         return {
           result: fullInvestible,
           spinChecker: () => Promise.resolve(true),
@@ -197,10 +225,6 @@ function InvestibleBodyEdit (props) {
   const editClasses = usePlanFormStyles();
   const lockedDialogClasses = useLockedDialogStyles();
 
-  if (loading) {
-    return React.Fragment;
-  }
-
   function takeoutLock () {
     const breakLock = true;
     return lockInvestibleForEdit(marketId, investibleId, breakLock)
@@ -216,78 +240,91 @@ function InvestibleBodyEdit (props) {
         };
       });
   }
+  if (!hidden && beingEdited && !loading) {
+    return (
+      <>
+        <LockedDialog
+          classes={lockedDialogClasses}
+          open={!hidden && (someoneElseEditing || lockFailed)}
+          onClose={onCancel}
+          /* slots */
+          actions={
+            <SpinBlockingButton
+              className={clsx(lockedDialogClasses.action, lockedDialogClasses.actionEdit)}
+              disableFocusRipple
+              marketId={marketId}
+              onClick={takeoutLock}
+              onSpinStop={onLock}
+              hasSpinChecker
+              disabled={operationRunning}
+            >
+              <FormattedMessage id="pageLockEditPage"/>
+            </SpinBlockingButton>
+          }
+        />
+        {(!lockedBy || (lockedBy === userId)) && (
+          <>
+            <NameField onEditorChange={handleNameChange} onStorageChange={handleNameStorage}
+                       description={calculatedDescription}
+                       name={calculatedName}/>
+            <QuillEditor
+              onS3Upload={handleFileUpload}
+              marketId={marketId}
+              onChange={onEditorChange}
+              placeholder={intl.formatMessage({ id: 'investibleAddDescriptionDefault' })}
+              onStoreChange={onStorageChange}
+              defaultValue={calculatedDescription}
+              setOperationInProgress={setOperationRunning}
+              getUrlName={urlHelperGetName(marketsState, investiblesState)}
+            />
+          </>
+        )}
+        {(lockedBy && (lockedBy !== userId)) && (
+          <div align='center'>
+            <Typography>{intl.formatMessage({ id: "gettingLockMessage" })}</Typography>
+            <CircularProgress type="indeterminate"/>
+          </div>
+        )}
+        <CardActions className={classes.actions}>
+          <SpinBlockingButton
+            marketId={marketId}
+            onClick={onCancel}
+            className={editClasses.actionSecondary}
+            color="secondary"
+            variant="contained"
+            hasSpinChecker
+          >
+            <FormattedMessage
+              id={"marketAddCancelLabel"}
+            />
+          </SpinBlockingButton>
+          <SpinBlockingButton
+            marketId={marketId}
+            variant="contained"
+            color="primary"
+            className={editClasses.actionPrimary}
+            onClick={handleSave}
+            disabled={!calculatedName}
+            onSpinStop={onSave}
+            hasSpinChecker
+          >
+            <FormattedMessage
+              id={"agilePlanFormSaveLabel"}
+            />
+          </SpinBlockingButton>
+        </CardActions>
+      </>
+    );
+  }
   return (
     <>
-      <LockedDialog
-        classes={lockedDialogClasses}
-        open={!hidden && (someoneElseEditing || lockFailed)}
-        onClose={onCancel}
-        /* slots */
-        actions={
-          <SpinBlockingButton
-            className={clsx(lockedDialogClasses.action, lockedDialogClasses.actionEdit)}
-            disableFocusRipple
-            marketId={marketId}
-            onClick={takeoutLock}
-            onSpinStop={onLock}
-            hasSpinChecker
-            disabled={operationRunning}
-          >
-            <FormattedMessage id="pageLockEditPage" />
-          </SpinBlockingButton>
-        }
-      />
-      {(!lockedBy || (lockedBy === userId)) && (
-        <>
-          <NameField onEditorChange={handleNameChange} onStorageChange={handleNameStorage}
-                     description={calculatedDescription}
-                     name={calculatedName} />
-          <QuillEditor
-            onS3Upload={handleFileUpload}
-            marketId={marketId}
-            onChange={onEditorChange}
-            placeholder={intl.formatMessage({ id: 'investibleAddDescriptionDefault' })}
-            onStoreChange={onStorageChange}
-            defaultValue={calculatedDescription}
-            setOperationInProgress={setOperationRunning}
-            getUrlName={urlHelperGetName(marketsState, investiblesState)}
-          />
-        </>
-      )}
-      {(lockedBy && (lockedBy !== userId)) && (
-        <div align='center'>
-          <Typography>{intl.formatMessage({ id: "gettingLockMessage" })}</Typography>
-          <CircularProgress type="indeterminate"/>
-        </div>
-      )}
-      <CardActions className={classes.actions}>
-        <SpinBlockingButton
-          marketId={marketId}
-          onClick={onCancel}
-          className={editClasses.actionSecondary}
-          color="secondary"
-          variant="contained"
-          hasSpinChecker
-        >
-          <FormattedMessage
-            id={"marketAddCancelLabel"}
-          />
-        </SpinBlockingButton>
-        <SpinBlockingButton
-          marketId={marketId}
-          variant="contained"
-          color="primary"
-          className={editClasses.actionPrimary}
-          onClick={handleSave}
-          disabled={!calculatedName}
-          onSpinStop={onSave}
-          hasSpinChecker
-        >
-          <FormattedMessage
-            id={"agilePlanFormSaveLabel"}
-          />
-        </SpinBlockingButton>
-      </CardActions>
+      <Typography className={isEditableByUser() ? classes.titleEditable : classes.title} variant="h3" component="h1"
+                  onClick={() => !isTinyWindow() && setBeingEdited(true)}>
+        {calculatedDisplayName}
+      </Typography>
+      <DescriptionOrDiff id={investibleId} description={calculatedDisplayDescription}
+                         setBeingEdited={isTinyWindow() ? () => {} : setBeingEdited}
+                         isEditable={isEditableByUser()} />
     </>
   );
 }

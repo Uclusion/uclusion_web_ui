@@ -23,7 +23,6 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 import { getProposedOptionsStage, } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { ACTIVE_STAGE } from '../../../constants/markets'
 import DeleteInvestibleActionButton from './DeleteInvestibleActionButton'
-import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff'
 import CardType, { OPTION, PROPOSED, VOTING_TYPE } from '../../../components/CardType'
 import DismissableText from '../../../components/Notifications/DismissableText'
 import MoveBackToPoolActionButton from './MoveBackToPoolActionButton'
@@ -91,25 +90,6 @@ const useStyles = makeStyles((theme) => ({
       flexGrow: 'unset',
       maxWidth: 'unset',
       flexBasis: 'auto'
-    }
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: "bold",
-    lineHeight: "42px",
-    paddingBottom: "9px",
-    [theme.breakpoints.down("xs")]: {
-      fontSize: 25
-    }
-  },
-  titleEditable: {
-    fontSize: 32,
-    fontWeight: "bold",
-    lineHeight: "42px",
-    paddingBottom: "9px",
-    cursor: "url('/images/edit_cursor.svg') 0 24, pointer",
-    [theme.breakpoints.down("xs")]: {
-      fontSize: 25
     }
   },
   content: {
@@ -244,7 +224,7 @@ function DecisionInvestible(props) {
   const yourVote = yourPresence.investments && yourPresence.investments.find((investment) => investment.investible_id === investibleId);
   const cardDescription = inProposed ? "decisionProposedInvestibleDescription" : "decisionInvestibleDescription";
   const {
-    description, name, created_by: createdBy, locked_by: lockedBy, attached_files: attachedFiles,
+    name, created_by: createdBy, locked_by: lockedBy, attached_files: attachedFiles,
   } = investible;
   function isEditableByUser() {
     return !inArchives && (isAdmin || (inProposed && createdBy === userId));
@@ -350,27 +330,14 @@ function DecisionInvestible(props) {
           <Grid item md={9} xs={12}>
 
         <CardContent className={myBeingEdited ? classes.editCardContent : classes.votingCardContent}>
-          {!myBeingEdited && (
-            <Typography className={isEditableByUser() ? classes.titleEditable : classes.title} variant="h3"
-                        component="h1" onClick={() => !isTinyWindow() && mySetBeingEdited(true)}>
-              {name}
-            </Typography>
-          )}
           {lockedBy && yourPresence.id !== lockedBy && isEditableByUser() && (
             <Typography>
               {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}
             </Typography>
           )}
           <InvestibleBodyEdit hidden={hidden} marketId={marketId} investibleId={investibleId}
-                              setBeingEdited={mySetBeingEdited} beingEdited={myBeingEdited} />
-          {!myBeingEdited && (
-            <DescriptionOrDiff
-              id={investibleId}
-              description={description}
-              setBeingEdited={isTinyWindow() ? () => {} : mySetBeingEdited}
-              isEditable={isEditableByUser()}
-            />
-          )}
+                              setBeingEdited={mySetBeingEdited} beingEdited={myBeingEdited}
+                              isEditableByUser={isEditableByUser}/>
         </CardContent>
           </Grid>
           <Grid className={classes.borderLeft} item md={3} xs={12}>

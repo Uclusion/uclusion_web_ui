@@ -79,6 +79,7 @@ function OptionDescriptionStep (props) {
           startOverLabel="AddOptionWizardCancelOption"
           onPrevious={onPrevious}
           onNext={onFinish}
+          showFinish={false}
         />
       </div>
     </WizardStepContainer>

@@ -15,7 +15,6 @@ import { ACTIVE_STAGE, PLANNING_TYPE } from '../../../constants/markets'
 import InsertLinkIcon from '@material-ui/icons/InsertLink'
 import MarketLinks from '../../Dialog/MarketLinks'
 import CardType, { VOTING_TYPE } from '../../../components/CardType'
-import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff'
 import ExpiredDisplay from '../../../components/Expiration/ExpiredDisplay'
 import ExpiresDisplay from '../../../components/Expiration/ExpiresDisplay'
 import clsx from 'clsx'
@@ -43,7 +42,7 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { EMPTY_SPIN_RESULT } from '../../../constants/global'
 import InvestibleBodyEdit from '../InvestibleBodyEdit'
-import { doSetEditWhenValid, isTinyWindow } from '../../../utils/windowUtils'
+import { doSetEditWhenValid } from '../../../utils/windowUtils'
 import LinkMarket from '../../Dialog/LinkMarket'
 import { Assessment } from '@material-ui/icons';
 
@@ -127,25 +126,6 @@ const useStyles = makeStyles(
       width: '100%',
       textTransform: 'capitalize'
     },
-    title: {
-      fontSize: 32,
-      fontWeight: "bold",
-      lineHeight: "42px",
-      paddingBottom: "9px",
-      [theme.breakpoints.down("xs")]: {
-        fontSize: 25
-      }
-    },
-    titleEditable: {
-      fontSize: 32,
-      fontWeight: "bold",
-      lineHeight: "42px",
-      paddingBottom: "9px",
-      cursor: "url('/images/edit_cursor.svg') 0 24, pointer",
-      [theme.breakpoints.down("xs")]: {
-        fontSize: 25
-      }
-    },
     flexCenter: {
       [theme.breakpoints.down("xs")]: {
         alignItems: 'center',
@@ -196,7 +176,7 @@ function InitiativeInvestible(props) {
   const [, marketsDispatch] = useContext(MarketsContext);
   const [, diffDispatch] = useContext(DiffContext);
   const cognitoUser = useContext(CognitoUserContext) || {};
-  const { description, name } = investible;
+  const { name } = investible;
   const {
     id: marketId,
     market_stage: marketStage,
@@ -309,18 +289,8 @@ function InitiativeInvestible(props) {
                 </Typography>
               )}
               <InvestibleBodyEdit hidden={hidden} marketId={marketId} investibleId={investibleId}
-                                  setBeingEdited={mySetBeingEdited} beingEdited={myBeingEdited} />
-              {!myBeingEdited && (
-                <>
-                  <Typography className={isEditableByUser() ? classes.titleEditable : classes.title} variant="h3" component="h1"
-                              onClick={() => !isTinyWindow() && mySetBeingEdited(true)}>
-                    {name}
-                  </Typography>
-                  <DescriptionOrDiff id={investibleId} description={description}
-                                     setBeingEdited={isTinyWindow() ? () => {} : mySetBeingEdited}
-                                     isEditable={isEditableByUser()} />
-                </>
-              )}
+                                  setBeingEdited={mySetBeingEdited} beingEdited={myBeingEdited}
+                                  isEditableByUser={isEditableByUser} />
             </CardContent>
           </Grid>
           <Grid className={classes.borderLeft} item md={3} xs={12}>

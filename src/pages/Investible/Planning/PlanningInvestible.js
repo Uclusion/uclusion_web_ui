@@ -56,7 +56,6 @@ import MoveToVotingActionButton from './MoveToVotingActionButton'
 import MoveToNotDoingActionButton from './MoveToNotDoingActionButton'
 import MoveToAcceptedActionButton from './MoveToAcceptedActionButton'
 import MoveToInReviewActionButton from './MoveToInReviewActionButton'
-import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff'
 import EditMarketButton from '../../Dialog/EditMarketButton'
 import MarketLinks from '../../Dialog/MarketLinks'
 import CardType, {
@@ -127,27 +126,6 @@ const useStyles = makeStyles(
     },
     explain: {
       fontSize: 12,
-    },
-    title: {
-      fontSize: 32,
-      fontWeight: "bold",
-      lineHeight: "42px",
-      paddingBottom: "9px",
-      paddingRight: "0.5rem",
-      [theme.breakpoints.down("xs")]: {
-        fontSize: 25
-      }
-    },
-    titleEditable: {
-      fontSize: 32,
-      fontWeight: "bold",
-      lineHeight: "42px",
-      paddingBottom: "9px",
-      paddingRight: "0.5rem",
-      cursor: "url('/images/edit_cursor.svg') 0 24, pointer",
-      [theme.breakpoints.down("xs")]: {
-        fontSize: 25
-      }
     },
     content: {
       fontSize: "15 !important",
@@ -383,7 +361,7 @@ function PlanningInvestible(props) {
   const presencesFollowing = (marketPresences || []).filter((presence) => presence.following && !presence.market_banned) || [];
   const everyoneAssigned = !_.isEmpty(marketPresences) && assigned.length === presencesFollowing.length;
   const { investible } = marketInvestible;
-  const { description, name, locked_by: lockedBy, created_at: createdAt, label_list: originalLabelList } = investible;
+  const { name, locked_by: lockedBy, created_at: createdAt, label_list: originalLabelList } = investible;
   const [labelList, setLabelList] = useState(originalLabelList);
   const [anchorEl, setAnchorEl] = React.useState(null);
   let lockedByName;
@@ -417,12 +395,12 @@ function PlanningInvestible(props) {
   const isInVoting = inCurrentVotingStage && stage === inCurrentVotingStage.id;
   const notDoingStage = getNotDoingStage(marketStagesState, marketId);
   const isInNotDoing = notDoingStage && stage === notDoingStage.id;
-  const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
-  const inMarketArchives = isInNotDoing || isInVerified;
   const isAssigned = assigned.includes(userId);
   const displayEdit = isAdmin && !inArchives && (isAssigned || isInNotDoing || isInVoting || isReadyFurtherWork || isRequiresInput);
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
   const [beingEdited, setBeingEdited] = useState(lockedBy === myPresence.id && displayEdit ? investibleId : undefined);
+  const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
+  const inMarketArchives = isInNotDoing || isInVerified;
   const breadCrumbTemplates = [
     { name: marketName, link: formMarketLink(marketId), icon: <PlaylistAddCheckIcon/> }
   ];
@@ -480,11 +458,6 @@ function PlanningInvestible(props) {
     : isRequiresInput
     ? intl.formatMessage({ id: "requiresInputStageLabel" }) :
           intl.formatMessage({ id: "planningNotDoingStageLabel" });
-
-  if (!investibleId) {
-    // we have no usable data;
-    return <></>;
-  }
 
   const invested = getVotesForInvestible(marketPresences, investibleId);
 
@@ -835,27 +808,14 @@ function PlanningInvestible(props) {
               </dl>
             </Grid>
             <Grid item xs={6} className={classes.fullWidth}>
-              {!myBeingEdited && (
-                <Typography className={isEditableByUser() ? classes.titleEditable : classes.title} variant="h3"
-                            component="h1" onClick={() => !isTinyWindow() && mySetBeingEdited(true)}>
-                  {name}
-                </Typography>
-              )}
               {lockedBy && myPresence.id !== lockedBy && isEditableByUser() && (
                 <Typography>
                   {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}
                 </Typography>
               )}
               <InvestibleBodyEdit hidden={hidden} marketId={marketId} investibleId={investibleId}
-                                  setBeingEdited={mySetBeingEdited} beingEdited={myBeingEdited} />
-              {!myBeingEdited && (
-                <DescriptionOrDiff
-                  id={investibleId}
-                  description={description}
-                  setBeingEdited={isTinyWindow() ? () => {} : mySetBeingEdited}
-                  isEditable={isEditableByUser()}
-                />
-              )}
+                                  setBeingEdited={mySetBeingEdited} beingEdited={myBeingEdited}
+                                  isEditableByUser={isEditableByUser}/>
             </Grid>
             <Grid className={classes.borderLeft} item xs={3}>
               <div className={classes.editRow}>

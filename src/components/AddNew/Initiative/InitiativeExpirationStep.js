@@ -41,7 +41,7 @@ function InitiativeExpirationStep(props) {
       <label className={classes.inputLabel} htmlFor="name">{intl.formatMessage({ id: 'InitiativeWizardInitiativeExpirationPlaceHolder' })}</label>
       <ExpirationSelector value={value} onChange={onExpiresChange}/>
       <div className={classes.borderBottom} />
-      <StepButtons {...props} validForm={validForm} onNext={onNext} />
+      <StepButtons {...props} validForm={validForm} onNext={onNext} showFinish={false} />
     </div>
     </WizardStepContainer>
   );

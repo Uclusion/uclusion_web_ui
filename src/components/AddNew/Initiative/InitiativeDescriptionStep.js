@@ -65,6 +65,7 @@ function InitiativeDescriptionStep (props) {
         <StepButtons {...props}
                      validForm={validForm}
                      showSkip={true}
+                     showFinish={false}
                      onPrevious={onStepChange}
                      onNext={onStepChange}/>
       </div>

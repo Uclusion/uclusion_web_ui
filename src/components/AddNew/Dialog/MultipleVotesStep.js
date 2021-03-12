@@ -35,7 +35,7 @@ function MultipleVotesStep (props) {
           <FormControlLabel value={"false"} control={<Radio/>} label={intl.formatMessage({id: 'DialogWizardDialogMultipleVotesNo'})}/>
         </RadioGroup>
         <div className={classes.borderBottom}></div>
-        <StepButtons {...props} validForm={true}/>
+        <StepButtons {...props} validForm={true}showFinish={false} />
       </div>
     </WizardStepContainer>
   );

@@ -42,7 +42,7 @@ function DialogNameStep (props) {
           onChange={onNameChange}
         />
         <div className={classes.borderBottom}></div>
-        <StepButtons {...props} validForm={validForm}/>
+        <StepButtons {...props} validForm={validForm} showFinish={false}/>
       </div>
     </WizardStepContainer>
   );

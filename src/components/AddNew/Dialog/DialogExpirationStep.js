@@ -43,7 +43,7 @@ function DialogExpirationStep (props) {
                htmlFor="name">{intl.formatMessage({ id: 'DialogWizardDialogExpirationPlaceHolder' })}</label>
         <ExpirationSelector value={value} onChange={onExpiresChange}/>
         <div className={classes.borderBottom}></div>
-        <StepButtons {...props} validForm={validForm} onNext={onNext}/>
+        <StepButtons {...props} validForm={validForm} onNext={onNext} showFinish={false}/>
       </div>
     </WizardStepContainer>
   );

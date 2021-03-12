@@ -146,6 +146,7 @@ function AddOptionsStep (props) {
           onNext={onNext}
           onPrevious={onPrevious}
           showSkip
+          showFinish={false}
         />
       </div>
     </WizardStepContainer>

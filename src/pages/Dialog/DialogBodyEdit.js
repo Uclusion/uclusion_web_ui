@@ -127,7 +127,7 @@ function DialogBodyEdit(props) {
   const [, diffDispatch] = useContext(DiffContext);
   const renderableMarket = getMarket(marketsState, marketId) || {};
   const { id, name: initialName, description: initialDescription,
-    market_type: marketType, locked_by: lockedBy, version } = renderableMarket;
+    market_type: marketType, locked_by: lockedBy } = renderableMarket;
   const [idLoaded, setIdLoaded] = useState(undefined);
   const userId = getMyUserForMarket(marketsState, marketId) || {};
   const loading = !userId || !marketType || idLoaded !== marketId;
@@ -135,7 +135,6 @@ function DialogBodyEdit(props) {
   const someoneElseEditing = !_.isEmpty(lockedBy) && (lockedBy !== userId);
   const [operationRunning] = useContext(OperationInProgressContext);
   const [name, setName] = useState(initialName);
-  const [localVersion, setLocalVersion] = useState(undefined);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [description, setDescription] = useState(initialDescription);
 
@@ -189,7 +188,6 @@ function DialogBodyEdit(props) {
     return updateMarket(id, updatedName, updatedDescription, updatedFilteredUploads, null,
       null, null, null, null)
       .then((market) => {
-        setLocalVersion(market.version);
         return {
           result: market,
           spinChecker: () => Promise.resolve(true),
@@ -198,11 +196,13 @@ function DialogBodyEdit(props) {
   }
 
   function onCancel() {
+    setName(undefined);
+    setDescription(undefined);
+    setBeingEdited(false);
     if (marketType === PLANNING_TYPE) {
       unlockPlanningMarketForEdit(marketId);
     }
-    localforage.removeItem(marketId)
-      .finally(() => setBeingEdited(false));
+    localforage.removeItem(marketId);
   }
 
   function updateMarketInStorage(market) {
@@ -215,9 +215,11 @@ function DialogBodyEdit(props) {
   }
 
   function onSave(market) {
+    setName(undefined);
+    setDescription(undefined);
+    setBeingEdited(false);
     updateMarketInStorage(market);
-    return localforage.removeItem(marketId)
-      .finally(() => setBeingEdited(false));
+    return localforage.removeItem(marketId);
   }
   function myOnClick() {
     const breakLock = true;
@@ -271,10 +273,6 @@ function DialogBodyEdit(props) {
   function onS3Upload(metadatas) {
     setUploadedFiles(metadatas);
   }
-
-  const useLocal = localVersion && localVersion > version;
-  const calculatedName = useLocal ? name : initialName;
-  const calculatedDescription = useLocal ? description : initialDescription;
 
   if (!hidden && beingEdited) {
     return (
@@ -355,9 +353,9 @@ function DialogBodyEdit(props) {
         lockedDialogClasses.titleDisplay}
                   variant="h3" component="h1"
                   onClick={() => !isTinyWindow() && setBeingEdited(true)}>
-        {calculatedName}
+        {initialName}
       </Typography>
-      <DescriptionOrDiff id={marketId} description={calculatedDescription}
+      <DescriptionOrDiff id={marketId} description={initialDescription}
                          setBeingEdited={isTinyWindow() ? () => {} : setBeingEdited}
                          isEditable={isEditableByUser()}/>
     </>

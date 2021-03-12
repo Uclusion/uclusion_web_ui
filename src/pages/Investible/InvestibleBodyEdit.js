@@ -83,7 +83,6 @@ function InvestibleBodyEdit (props) {
   const { id, description: initialDescription, name: initialName } = myInvestible;
   const [description, setDescription] = useState(undefined);
   const [name, setName] = useState(undefined);
-  const [localVersion, setLocalVersion] = useState(undefined);
 
   function onLock (result) {
     if (result) {
@@ -131,9 +130,6 @@ function InvestibleBodyEdit (props) {
 
   const calculatedDescription = description === undefined ? initialDescription : description;
   const calculatedName = name === undefined ? initialName : name;
-  const useLocal = localVersion && localVersion > version;
-  const calculatedDisplayDescription = useLocal ? calculatedDescription : initialDescription;
-  const calculatedDisplayName = useLocal ? calculatedName : initialName;
 
   function handleSave() {
     // uploaded files on edit is the union of the new uploaded files and the old uploaded files
@@ -152,9 +148,6 @@ function InvestibleBodyEdit (props) {
     };
     return updateInvestible(updateInfo)
       .then((fullInvestible) => {
-        const { investible: myInvestible } = fullInvestible;
-        const { version } = myInvestible;
-        setLocalVersion(version);
         return {
           result: fullInvestible,
           spinChecker: () => Promise.resolve(true),
@@ -211,15 +204,15 @@ function InvestibleBodyEdit (props) {
   }
 
   function onSave (fullInvestible, stillEditing) {
-    if (fullInvestible) {
-      localforage.removeItem(investibleId)
-        .then(() => {
-          if (!stillEditing) {
-            setBeingEdited(false);
-          }
-          refreshInvestibles(investiblesDispatch, diffDispatch, [fullInvestible]);
-        });
+    setName(undefined);
+    setDescription(undefined);
+    if (!stillEditing) {
+      setBeingEdited(false);
     }
+    if (fullInvestible) {
+      refreshInvestibles(investiblesDispatch, diffDispatch, [fullInvestible]);
+    }
+    return localforage.removeItem(investibleId);
   }
   const classes = useStyles();
   const editClasses = usePlanFormStyles();
@@ -320,9 +313,9 @@ function InvestibleBodyEdit (props) {
     <>
       <Typography className={isEditableByUser() ? classes.titleEditable : classes.title} variant="h3" component="h1"
                   onClick={() => !isTinyWindow() && setBeingEdited(true)}>
-        {calculatedDisplayName}
+        {initialName}
       </Typography>
-      <DescriptionOrDiff id={investibleId} description={calculatedDisplayDescription}
+      <DescriptionOrDiff id={investibleId} description={initialDescription}
                          setBeingEdited={isTinyWindow() ? () => {} : setBeingEdited}
                          isEditable={isEditableByUser()} />
     </>

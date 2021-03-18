@@ -9,6 +9,7 @@ import { Fab, makeStyles } from '@material-ui/core';
 import clsx from 'clsx';
 import DisplayNotifications from './DisplayNotifications';
 import { BLUE_LEVEL, RED_LEVEL, YELLOW_LEVEL } from '../../constants/notifications';
+import Badge from '@material-ui/core/Badge'
 
 const useStyles = makeStyles(
   theme => {
@@ -149,6 +150,7 @@ function Notifications (props) {
 
   return (
     <div key={level} onMouseOut={onOut} onMouseOver={onEnter}>
+      <Badge badgeContent={messages.length} color="primary">
       <Fab
         id={`notifications-fab${level}`}
         className={clsx(
@@ -157,6 +159,7 @@ function Notifications (props) {
       >
         {getIcon()}
       </Fab>
+      </Badge>
       {anchorEl && (
         <DisplayNotifications
           level={level}

@@ -10,8 +10,9 @@ import { isTinyWindow } from '../../utils/windowUtils';
 const useStyles = makeStyles((theme) => {
   return {
     bellButton: {
-      marginLeft: '0.25em',
-      marginRight: '0.25em',
+      marginLeft: '0.5em',
+      marginRight: '0.5em',
+      marginTop: '0.5rem'
     }
   };
 });

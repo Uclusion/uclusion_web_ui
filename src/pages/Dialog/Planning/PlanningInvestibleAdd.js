@@ -46,6 +46,7 @@ import { getAcceptedStage } from '../../../contexts/MarketStagesContext/marketSt
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import { assignedInStage } from '../../../utils/userFunctions'
 import { getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
+import { nameFromDescription } from '../../../utils/stringFunctions'
 
 function PlanningInvestibleAdd(props) {
   const {
@@ -195,9 +196,13 @@ function PlanningInvestibleAdd(props) {
     const addInfo = {
       marketId,
       uploadedFiles: filteredUploads,
-      description: processedDescription,
-      name
+      description: processedDescription
     };
+    if (name) {
+      addInfo.name = name;
+    } else {
+      addInfo.name = nameFromDescription(description);
+    }
     if (isAssigned) {
       addInfo.assignments = assignments;
     }
@@ -356,7 +361,7 @@ function PlanningInvestibleAdd(props) {
               onSpinStop={onSpinComplete}
               className={classes.actionPrimary}
               color="primary"
-              disabled={!name}
+              disabled={!name && _.isEmpty(description)}
               marketId={marketId}
               variant="contained"
             >

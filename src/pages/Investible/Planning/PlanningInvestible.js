@@ -359,7 +359,7 @@ function PlanningInvestible(props) {
   const investibleCollaborators = _.uniq((concated || []).map((presence) => presence.id));
   const marketInfo = getMarketInfo(marketInvestible, marketId) || {};
   const { stage, assigned: invAssigned, children, completion_estimate: marketDaysEstimate,
-    required_approvers:  requiredApprovers, required_reviews: requiredReviewers } = marketInfo;
+    required_approvers:  requiredApprovers, required_reviews: requiredReviewers, ticket_code: ticketCode } = marketInfo;
   const [daysEstimate, setDaysEstimate] = useState(marketDaysEstimate);
   const assigned = invAssigned || [];
   const presencesFollowing = (marketPresences || []).filter((presence) => presence.following && !presence.market_banned) || [];
@@ -733,7 +733,7 @@ function PlanningInvestible(props) {
   const myBeingEdited = beingEdited === investibleId;
   return (
     <Screen
-      title={name}
+      title={ticketCode ? `${ticketCode} ${name}` : name}
       tabTitle={name}
       breadCrumbs={breadCrumbs}
       hidden={hidden}

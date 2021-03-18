@@ -109,6 +109,9 @@ import { getInvestibleVoters } from '../../../utils/votingUtils';
 import { getCommenterPresences, inVerifedSwimLane } from '../../Dialog/Planning/userUtils';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import PlaylistAddCheckIcon from '@material-ui/icons/PlaylistAddCheck';
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
+import { findMessageOfType } from '../../../utils/messageUtils'
+import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
 
 const useStyles = makeStyles(
   theme => ({
@@ -334,6 +337,7 @@ function PlanningInvestible(props) {
   } = props;
   const classes = useStyles();
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [, diffDispatch] = useContext(DiffContext);
   const [changeStagesExpanded, setChangeStagesExpanded] = useState(false);
@@ -687,6 +691,10 @@ function PlanningInvestible(props) {
       setOperationRunning(true);
       return updateInvestible(updateInfo).then((fullInvestible) => {
         refreshInvestibles(investiblesDispatch, diffDispatch, [fullInvestible]);
+        const message = findMessageOfType('REPORT_REQUIRED', investibleId, messagesState);
+        if (message) {
+          messagesDispatch(removeMessage(message));
+        }
         setOperationRunning(false);
       });
     }

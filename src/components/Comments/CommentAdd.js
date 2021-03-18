@@ -44,6 +44,9 @@ import { urlHelperGetName } from '../../utils/marketIdPathFunctions'
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { changeInvestibleStageOnCommentChange } from '../../utils/commentFunctions'
+import { findMessageOfType } from '../../utils/messageUtils'
+import { removeMessage } from '../../contexts/NotificationsContext/notificationsContextReducer'
+import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 
 function getPlaceHolderLabelId (type, isStory, isInReview) {
   switch (type) {
@@ -199,6 +202,7 @@ function CommentAdd (props) {
   const [body, setBody] = useState('');
   const [commentsState, commentDispatch] = useContext(CommentsContext);
   const [investibleState, investibleDispatch] = useContext(InvestiblesContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [marketState] = useContext(MarketsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -301,6 +305,12 @@ function CommentAdd (props) {
         changeInvestibleStageOnCommentChange(investibleBlocks, investibleRequiresInput,
           blockingStage, requiresInputStage, info, market_infos, rootInvestible, investibleDispatch);
         addCommentToMarket(comment, commentsState, commentDispatch);
+        if (apiType === REPORT_TYPE) {
+          const message = findMessageOfType('REPORT_REQUIRED', investibleId, messagesState);
+          if (message) {
+            messagesDispatch(removeMessage(message));
+          }
+        }
         return EMPTY_SPIN_RESULT;
       });
   }

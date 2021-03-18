@@ -33,6 +33,9 @@ import localforage from 'localforage'
 import { onCommentOpen } from '../../utils/commentFunctions'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
+import { findMessageOfType } from '../../utils/messageUtils'
+import { removeMessage } from '../../contexts/NotificationsContext/notificationsContextReducer'
+import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 
 /***
  * MASSIVE TODOS
@@ -178,6 +181,7 @@ function CommentEdit(props) {
   const [type, setType] = useState(commentType);
   const [marketState] = useContext(MarketsContext);
   const [investibleState, investibleDispatch] = useContext(InvestiblesContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const defaultDefaultFunc = (newDefault) => {};
   const [editorDefaultFunc, setEditorDefaultFunc] = useState(() => defaultDefaultFunc);
   const [loadedId, setLoadedId] = useState(undefined);
@@ -225,6 +229,12 @@ function CommentEdit(props) {
       .then((comment) => {
         onCommentOpen(investibleState, investibleId, marketStagesState, marketId, comment, investibleDispatch,
           commentState, commentDispatch, versionsDispatch);
+        if (commentType === REPORT_TYPE) {
+          const message = findMessageOfType('REPORT_REQUIRED', investibleId, messagesState);
+          if (message) {
+            messagesDispatch(removeMessage(message));
+          }
+        }
         return EMPTY_SPIN_RESULT;
       })
   }

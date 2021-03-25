@@ -14,6 +14,7 @@ import { OperationInProgressContext } from '../../contexts/OperationInProgressCo
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import config from '../../config';
 import NotificationsContainer from '../../components/Notifications/NotificationsContainer';
+import { isTinyWindow } from '../../utils/windowUtils'
 
 export const headerStyles = makeStyles((theme) => {
   return {
@@ -39,6 +40,7 @@ export const headerStyles = makeStyles((theme) => {
     },
 
     breadcrumbs: {
+      paddingTop: '1rem',
       flex: 3,
       '& > .MuiBreadcrumbs-ol': {
         flexWrap: 'nowrap',
@@ -69,9 +71,7 @@ export const headerStyles = makeStyles((theme) => {
     },
     topBar: {
       width: '100%',
-      [theme.breakpoints.down('sm')]: {
-        paddingLeft: 0
-      },
+      paddingLeft: 0
     },
     searchBox: {
       paddingLeft: '1rem',
@@ -86,9 +86,9 @@ export const headerStyles = makeStyles((theme) => {
       boxShadow: 'none',
     },
     sidebarLogo: {
-      padding: '10px',
+      padding: '10px 10px 10px 0',
       display: 'flex',
-      justifyContent: 'center',
+      justifyContent: 'left',
       alignItems: 'flex-start',
       width: '100%',
       flex: 3,
@@ -185,6 +185,7 @@ function Header (props) {
   }
 
   function generateBreadCrumbs () {
+    const titleSize = isTinyWindow() ? 25 : _.size(breadCrumbs) < 2 ? 100 : 50;
     // if we've been passed in breadcrumbs and are not hidden generate them
     if (breadCrumbs && !hidden) {
       return (
@@ -193,7 +194,7 @@ function Header (props) {
             const { id, onClick, link, image, title, titleIcon } = crumb;
             const href = _.isEmpty(link) ? '#' : link;
             return (
-              <Link id={id} key={index} href={href} onClick={onClick} color="inherit">
+              <Link id={id} key={index} href={href} onClick={onClick} color="inherit" variant='h6'>
                 {image && (
                   <img
                     src={image}
@@ -201,11 +202,13 @@ function Header (props) {
                     className={classes.breadCrumbImage}
                   />
                 )}
-                {!crumb.image && generateTitleCrumb(createTitle(title, 25), titleIcon)}
+                {!crumb.image && generateTitleCrumb(createTitle(title, titleSize), titleIcon)}
               </Link>
             );
           })}
-          <Typography color="textPrimary">{generateTitleCrumb(createTitle(title, 25), titleIcon)}</Typography>
+          <Typography color="textPrimary" variant='h6'>
+            {generateTitleCrumb(createTitle(title, titleSize), titleIcon)}
+          </Typography>
         </Breadcrumbs>
       );
     }
@@ -225,7 +228,6 @@ function Header (props) {
         className={classes.appBar}
       >
         <Toolbar className={classes.topBar}>
-          {!hideTools && generateBreadCrumbs()}
           <div className={classes.sidebarLogo}>
             <Link href="/" onClick={(event) => {
               event.preventDefault();
@@ -256,6 +258,7 @@ function Header (props) {
                       d="M845.69,171.05H154.31A57.38,57.38,0,0,0,97,228.36v80.56A77.06,77.06,0,0,0,174.05,386H805.37l38.78,38.78a14.32,14.32,0,0,0,24.46-10.13V381.17A57.4,57.4,0,0,0,903,328.66V228.36A57.38,57.38,0,0,0,845.69,171.05Zm43,157.61a43,43,0,0,1-34.38,42.12v43.84l-43-43H174.05a62.72,62.72,0,0,1-62.72-62.72V228.36a43,43,0,0,1,43-43H845.69a43,43,0,0,1,43,43Z"/>
               </svg>
             </Link>
+            {!hideTools && generateBreadCrumbs()}
           </div>
           {!hideTools && toolbarButtons}
           {!online && (

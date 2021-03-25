@@ -230,8 +230,9 @@ function ArchiveInvestbiles(props) {
     if (!currentStageId) {
       return onDropTodo(anId, commentsState, marketId, setOperationRunning, intl, commentsDispatch, invDispatch);
     }
+    const isFurtherWork = isFurtherWorkStage(stage);
     if (currentStageId === stageId) {
-      if (isFurtherWorkStage(stage) && !operationRunning) {
+      if (isFurtherWork && !operationRunning) {
         return onDropFurtherWorkSection(anId, !!isReadyToStart);
       }
       return;
@@ -249,6 +250,17 @@ function ArchiveInvestbiles(props) {
       };
       setOperationRunning(true);
       return stageChangeInvestible(moveInfo)
+        .then((inv) => {
+          if (isFurtherWork && isReadyToStart) {
+            const updateInfo = {
+              marketId,
+              investibleId: anId,
+              openForInvestment: true,
+            };
+            return updateInvestible(updateInfo);
+          }
+          return inv;
+        })
         .then((inv) => {
           refreshInvestibles(invDispatch, () => {}, [inv]);
         }).finally(() => {

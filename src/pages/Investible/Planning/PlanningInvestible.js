@@ -4,7 +4,7 @@ import _ from 'lodash'
 import {
   Button,
   Card,
-  CardContent,
+  CardContent, Checkbox, FormControlLabel,
   Grid,
   IconButton,
   makeStyles,
@@ -359,7 +359,8 @@ function PlanningInvestible(props) {
   const investibleCollaborators = _.uniq((concated || []).map((presence) => presence.id));
   const marketInfo = getMarketInfo(marketInvestible, marketId) || {};
   const { stage, assigned: invAssigned, children, completion_estimate: marketDaysEstimate,
-    required_approvers:  requiredApprovers, required_reviews: requiredReviewers, ticket_code: ticketCode } = marketInfo;
+    required_approvers:  requiredApprovers, required_reviews: requiredReviewers, ticket_code: ticketCode,
+    open_for_investment: openForInvestment } = marketInfo;
   const [daysEstimate, setDaysEstimate] = useState(marketDaysEstimate);
   const assigned = invAssigned || [];
   const presencesFollowing = (marketPresences || []).filter((presence) => presence.following && !presence.market_banned) || [];
@@ -379,7 +380,7 @@ function PlanningInvestible(props) {
     }
   }
   const [marketStagesState] = useContext(MarketStagesContext);
-  const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
   const isInReview = inReviewStage && stage === inReviewStage.id;
   const inAcceptedStage = getAcceptedStage(marketStagesState, marketId) || {};
@@ -720,6 +721,19 @@ function PlanningInvestible(props) {
     return displayEdit;
   }
 
+  function setReadyToStart(isReadyToStart) {
+    const updateInfo = {
+      marketId,
+      investibleId,
+      openForInvestment: isReadyToStart,
+    };
+    setOperationRunning(true);
+    return updateInvestible(updateInfo).then((fullInvestible) => {
+      refreshInvestibles(investiblesDispatch, () => {}, [fullInvestible]);
+      setOperationRunning(false);
+    });
+  }
+
   function mySetBeingEdited(isEdit, event) {
     doSetEditWhenValid(isEdit, isEditableByUser, setBeingEdited, investibleId, event);
   }
@@ -781,6 +795,21 @@ function PlanningInvestible(props) {
                         showMoveMessage
                       />
                     </div>
+                  </div>
+                )}
+                {market.id && marketInvestible.investible && isReadyFurtherWork && (
+                  <div className={classes.assignmentContainer}>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          value={openForInvestment}
+                          disabled={operationRunning || !isAdmin}
+                          checked={openForInvestment}
+                          onClick={() => setReadyToStart(!openForInvestment)}
+                        />
+                      }
+                      label={intl.formatMessage({ id: 'readyToStartCheckboxExplanation' })}
+                    />
                   </div>
                 )}
                 {!_.isEmpty(investibleCollaborators) && (

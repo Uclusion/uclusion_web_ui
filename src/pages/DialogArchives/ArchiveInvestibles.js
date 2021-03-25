@@ -215,7 +215,7 @@ function ArchiveInvestbiles(props) {
     };
     setOperationRunning(true);
     return updateInvestible(updateInfo).then((fullInvestible) => {
-      refreshInvestibles(invDispatch, invDispatch, [fullInvestible]);
+      refreshInvestibles(invDispatch, () => {}, [fullInvestible]);
       setOperationRunning(false);
     });
   }

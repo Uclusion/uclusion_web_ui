@@ -11,11 +11,17 @@ export function updateInvestible (updateInfo) {
     assignments,
     daysEstimate,
     requiredReviewers,
-    requiredApprovers
+    requiredApprovers,
+    openForInvestment
   } = updateInfo;
   if (assignments) {
     return getMarketClient(marketId)
       .then((client) => client.investibles.updateAssignments(investibleId, assignments))
+      .catch((error) => toastErrorAndThrow(error, 'errorInvestibleUpdateFailed'));
+  }
+  if (openForInvestment) {
+    return getMarketClient(marketId)
+      .then((client) => client.investibles.updateOpenForInvestment(investibleId, openForInvestment))
       .catch((error) => toastErrorAndThrow(error, 'errorInvestibleUpdateFailed'));
   }
   return getMarketClient(marketId)

@@ -49,6 +49,12 @@ const useStyles = makeStyles((theme) => {
       color: '#F29100',
       borderRadius: '6px 6px 0 0'
     },
+    sectionSubHeaderBlack: {
+      boxShadow: 'none',
+      background: 'white',
+      color: 'black',
+      borderRadius: '6px 6px 0 0'
+    },
     grow: {
       flexGrow: 1,
     },
@@ -95,6 +101,7 @@ function SubSection (props) {
     bolder,
     hideChildren,
     padChildren,
+    isBlackText
   } = props;
   const intl = useIntl();
   const classes = useStyles();
@@ -106,7 +113,8 @@ function SubSection (props) {
         className={type === SECTION_TYPE_SECONDARY ? classes.secondarySubHeader :
           type === SECTION_TYPE_SECONDARY_WARNING ? classes.secondarySubHeaderWarning :
             type === SECTION_TYPE_TERTIARY_WARNING ? classes.tertiarySubHeaderWarning :
-              type === SECTION_SUB_HEADER ? classes.sectionSubHeader : classes.subHeaderWarning}
+              type === SECTION_SUB_HEADER ? isBlackText ? classes.sectionSubHeaderBlack : classes.sectionSubHeader
+                : classes.subHeaderWarning}
         position="static"
         hidden={hidden}
       >

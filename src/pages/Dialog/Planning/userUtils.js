@@ -182,7 +182,7 @@ export function onDropTodo(commentId, commentsState, marketId, setOperationRunni
     if (presenceId) {
       addInfo.assignments = [presenceId];
     }
-    addPlanningInvestible(addInfo).then((inv) => {
+    return addPlanningInvestible(addInfo).then((inv) => {
       const { investible } = inv;
       return moveComments(marketId, investible.id, [commentId])
         .then((movedComments) => {

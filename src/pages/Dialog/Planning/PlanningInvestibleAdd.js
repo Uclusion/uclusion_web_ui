@@ -77,6 +77,17 @@ function PlanningInvestibleAdd(props) {
     }
     return undefined;
   }
+  function getUrlOpenForInvestment() {
+    const { hash } = location;
+    if (!_.isEmpty(hash)) {
+      const values = queryString.parse(hash);
+      const { start } = values;
+      if (start) {
+        return true;
+      }
+    }
+    return undefined;
+  }
   function choosePreviouslyAssigned() {
     const urlAssignee = getUrlAssignee();
     if (storedAssignments && (!urlAssignee || storedUrlAssignee === urlAssignee)) {
@@ -211,6 +222,10 @@ function PlanningInvestibleAdd(props) {
     }
     if (skipApproval) {
       addInfo.stageId = acceptedStage.id;
+    }
+    const openForInvestment = getUrlOpenForInvestment();
+    if (openForInvestment) {
+      addInfo.openForInvestment = true;
     }
     return addPlanningInvestible(addInfo).then((inv) => {
       if (fromCommentIds) {

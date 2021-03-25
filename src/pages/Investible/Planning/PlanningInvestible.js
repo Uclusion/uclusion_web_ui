@@ -1136,7 +1136,11 @@ export const useMetaDataStyles = makeStyles(
       scrollContainer: {
         maxHeight: '210px',
         overflow: 'auto'
-      }
+      },
+      outerBorder: {
+        border: '1px solid black',
+        borderRadius: '6px 6px 0 0'
+      },
     }
   },
   { name: "MetaData" }

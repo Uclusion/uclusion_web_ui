@@ -35,7 +35,7 @@ import { getUserInvestibles, sumNotificationCounts } from './userUtils'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { getMarketPresences, getPresenceMap } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import DismissableText from '../../../components/Notifications/DismissableText'
-import { SECTION_TYPE_SECONDARY, SECTION_TYPE_SECONDARY_WARNING } from '../../../constants/global'
+import { SECTION_SUB_HEADER, SECTION_TYPE_SECONDARY, SECTION_TYPE_SECONDARY_WARNING } from '../../../constants/global'
 import ArchiveInvestbiles from '../../DialogArchives/ArchiveInvestibles'
 import SubSection from '../../../containers/SubSection/SubSection'
 import { getInvestiblesInStage } from '../../../contexts/InvestibesContext/investiblesContextHelper'
@@ -50,7 +50,7 @@ import { inviteStoriesWorkspaceSteps } from '../../../components/Tours/storyWork
 import {
   INVITE_STORIES_WORKSPACE_FIRST_VIEW, INVITED_USER_WORKSPACE
 } from '../../../contexts/TourContext/tourContextHelper';
-import { getVoteTotalsForUser, hasNotVoted } from '../../../utils/userFunctions'
+import { getMarketInfo, getVoteTotalsForUser, hasNotVoted } from '../../../utils/userFunctions'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import MarketLinks from '../MarketLinks'
 import MarketTodos from './MarketTodos'
@@ -63,6 +63,9 @@ import AddIcon from '@material-ui/icons/Add'
 import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
 import PlaylistAddCheckIcon from '@material-ui/icons/PlaylistAddCheck';
 import { workspaceInvitedUserSteps } from '../../../components/Tours/InviteTours/workspaceInvitedUser';
+import { ExpandLess } from '@material-ui/icons'
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import { EXPANDED_CONTROL, ExpandedCommentContext } from '../../../contexts/CommentsContext/ExpandedCommentContext'
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -79,9 +82,12 @@ function PlanningDialog(props) {
   const cognitoUser = useContext(CognitoUserContext);
   const [, tourDispatch] = useContext(TourContext);
   const [marketsState] = useContext(MarketsContext);
+  const [expandedCommentState, expandedCommentDispatch] = useContext(ExpandedCommentContext);
   const intl = useIntl();
   const metaClasses = useMetaDataStyles();
   const { id: marketId, market_stage: marketStage, children } = market;
+  const myExpandedState = expandedCommentState[`${marketId}_further`] || {};
+  const { expanded: showFurther } = myExpandedState;
   const activeMarket = marketStage === ACTIVE_STAGE;
   const inArchives = !activeMarket || (myPresence && !myPresence.following);
   const isAdmin = myPresence.is_admin;
@@ -121,7 +127,12 @@ function PlanningDialog(props) {
 
   const furtherWorkStage = marketStages.find((stage) => (!stage.allows_assignment && !stage.close_comments_on_entrance)) || {};
   const requiresInputStage = marketStages.find((stage) => (!stage.allows_issues && stage.move_on_comment)) || {};
-  const furtherWorkInvestibles = getInvestiblesInStage(investibles, furtherWorkStage.id);
+  const furtherWorkInvestibles = getInvestiblesInStage(investibles, furtherWorkStage.id) || [];
+  const furtherWorkReadyToStart = _.remove(furtherWorkInvestibles, (investible) => {
+    const marketInfo = getMarketInfo(investible, marketId);
+    const { open_for_investment: openForInvestment } = marketInfo;
+    return openForInvestment;
+  });
   const requiresInputInvestibles = getInvestiblesInStage(investibles, requiresInputStage.id);
   const blockedInvestibles = getInvestiblesInStage(investibles, inBlockingStage.id);
   const highlightMap = {};
@@ -137,6 +148,11 @@ function PlanningDialog(props) {
   const tourName = isMarketOwner? INVITE_STORIES_WORKSPACE_FIRST_VIEW :  INVITED_USER_WORKSPACE;
   const tourSteps = isMarketOwner? inviteStoriesWorkspaceSteps(cognitoUser) : workspaceInvitedUserSteps(myPresence);
 
+  function toggleShowFurther() {
+    const toggleValue = showFurther === undefined ? false : !showFurther;
+    expandedCommentDispatch({ type: EXPANDED_CONTROL, commentId: `${marketId}_further`, expanded: toggleValue });
+  }
+
   useEffect(() => {
     if (startTourNow === true) {
       tourDispatch(startTour(tourName));
@@ -151,6 +167,11 @@ function PlanningDialog(props) {
       setStartTourNow(true);
     }
   }, [marketSubType, isMarketOwner, unResolvedMarketComments, isChannel, startTourNow]);
+
+  function onClickFurtherStart() {
+    const link = formMarketAddInvestibleLink(marketId);
+    navigate(history, `${link}#start=true`);
+  }
 
   function onClickFurther() {
     const link = formMarketAddInvestibleLink(marketId);
@@ -244,32 +265,78 @@ function PlanningDialog(props) {
             isAdmin={isAdmin}
           />
         </div>
-        <SubSection
-          type={SECTION_TYPE_SECONDARY}
-          title={intl.formatMessage({ id: 'readyFurtherWorkHeader' })}
-          actionButton={
-            <ExpandableAction
-              icon={<AddIcon htmlColor="white"/>}
-              label={intl.formatMessage({ id: 'createFurtherWorkExplanation' })}
-              openLabel={intl.formatMessage({ id: 'planningDialogAddInvestibleLabel'})}
-              onClick={onClickFurther}
-              useWhiteText
-              disabled={!isAdmin}
-              tipPlacement="top-end"
-            />
-          }
-        >
-          <ArchiveInvestbiles
-            comments={comments}
-            elevation={0}
-            marketId={marketId}
-            presenceMap={presenceMap}
-            investibles={furtherWorkInvestibles}
-            stage={furtherWorkStage}
-            presenceId={myPresence.id}
-            allowDragDrop
-          />
-        </SubSection>
+        <div className={metaClasses.outerBorder} id="marketTodos">
+          <SubSection
+            type={SECTION_SUB_HEADER}
+            isBlackText
+            bolder
+            helpTextId="furtherSectionHelp"
+            hideChildren={!(showFurther || showFurther === undefined)}
+            title={intl.formatMessage({ id: 'readyFurtherWorkHeader' })}
+            actionButton={
+              (<ExpandableAction
+                icon={showFurther ? <ExpandLess htmlColor="black"/> : <ExpandMoreIcon htmlColor="black"/>}
+                label={intl.formatMessage({ id: 'toggleFurtherExplanation' })}
+                onClick={toggleShowFurther}
+                tipPlacement="top-end"
+              />)}
+          >
+            <SubSection
+              type={SECTION_TYPE_SECONDARY_WARNING}
+              title={intl.formatMessage({ id: 'readyToStartHeader' })}
+              actionButton={
+                <ExpandableAction
+                  icon={<AddIcon htmlColor="white"/>}
+                  label={intl.formatMessage({ id: 'createFurtherWorkExplanation' })}
+                  openLabel={intl.formatMessage({ id: 'planningDialogAddInvestibleLabel'})}
+                  onClick={onClickFurtherStart}
+                  useWhiteText
+                  disabled={!isAdmin}
+                  tipPlacement="top-end"
+                />
+              }
+            >
+              <ArchiveInvestbiles
+                comments={comments}
+                elevation={0}
+                marketId={marketId}
+                presenceMap={presenceMap}
+                investibles={furtherWorkReadyToStart}
+                stage={furtherWorkStage}
+                presenceId={myPresence.id}
+                allowDragDrop
+                isReadyToStart
+              />
+            </SubSection>
+            {!_.isEmpty(furtherWorkInvestibles) && (<div style={{ paddingBottom: '15px' }}/>)}
+            <SubSection
+              type={SECTION_TYPE_SECONDARY}
+              title={intl.formatMessage({ id: 'notReadyToStartHeader' })}
+              actionButton={
+                <ExpandableAction
+                  icon={<AddIcon htmlColor="white"/>}
+                  label={intl.formatMessage({ id: 'createFurtherWorkExplanation' })}
+                  openLabel={intl.formatMessage({ id: 'planningDialogAddInvestibleLabel'})}
+                  onClick={onClickFurther}
+                  useWhiteText
+                  disabled={!isAdmin}
+                  tipPlacement="top-end"
+                />
+              }
+            >
+              <ArchiveInvestbiles
+                comments={comments}
+                elevation={0}
+                marketId={marketId}
+                presenceMap={presenceMap}
+                investibles={furtherWorkInvestibles}
+                stage={furtherWorkStage}
+                presenceId={myPresence.id}
+                allowDragDrop
+              />
+            </SubSection>
+          </SubSection>
+        </div>
         {isChannel && (
           <DismissableText textId='storyHelp' />
         )}

@@ -10,8 +10,8 @@ import { makeStyles } from '@material-ui/core/styles'
 import { yellow } from '@material-ui/core/colors'
 import { removeHeader, restoreHeader } from '../../containers/Header'
 import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../constants/comments'
-import { stageChangeInvestible } from '../../api/investibles'
-import { refreshInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
+import { stageChangeInvestible, updateInvestible } from '../../api/investibles'
+import { getInvestible, refreshInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { LocalPlanningDragContext } from '../Dialog/Planning/InvestiblesByWorkspace'
@@ -25,7 +25,9 @@ import { getMarketInfo } from '../../utils/userFunctions'
 import { doRemoveEdit, doShowEdit, getCommenterPresences, onDropTodo } from '../Dialog/Planning/userUtils'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
+import {
+  getMarketPresences,
+} from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { getInvestibleVoters } from '../../utils/votingUtils';
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined'
 
@@ -147,7 +149,7 @@ function getInvestibles(investibles, marketPresences, marketPresencesState, pres
                   <EditOutlinedIcon style={{maxHeight: '1.25rem'}} />
                 </Grid>
                 <Grid id={`showEdit1${id}`} item xs={12} style={{paddingTop: '0.5rem'}}>
-                  <Typography style={{fontWeight: 700, flex: 2}}>
+                  <Typography style={{flex: 2}}>
                     {name}
                   </Typography>
                   {assignedNames.map((name) => (<Typography
@@ -174,6 +176,7 @@ function ArchiveInvestbiles(props) {
     elevation,
     highlightMap,
     allowDragDrop,
+    isReadyToStart,
     stage,
     presenceId
   } = props;
@@ -184,7 +187,7 @@ function ArchiveInvestbiles(props) {
   const stageId = stage ? stage.id : undefined;
   const unResolvedMarketComments = comments.filter(comment => !comment.resolved) || [];
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
-  const [, invDispatch] = useContext(InvestiblesContext);
+  const [invState, invDispatch] = useContext(InvestiblesContext);
   const [beingDraggedHack, setBeingDraggedHack] = useContext(LocalPlanningDragContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
@@ -198,6 +201,25 @@ function ArchiveInvestbiles(props) {
     }
   }
 
+  function onDropFurtherWorkSection(investibleId, isReadyToStart) {
+    const investible = getInvestible(invState, investibleId);
+    const marketInfo = getMarketInfo(investible, marketId);
+    const { open_for_investment: openForInvestment } = marketInfo;
+    if (isReadyToStart === openForInvestment) {
+      return;
+    }
+    const updateInfo = {
+      marketId,
+      investibleId,
+      openForInvestment: isReadyToStart,
+    };
+    setOperationRunning(true);
+    return updateInvestible(updateInfo).then((fullInvestible) => {
+      refreshInvestibles(invDispatch, invDispatch, [fullInvestible]);
+      setOperationRunning(false);
+    });
+  }
+
   function onDrop(event) {
     if (stage.move_on_comment) {
       return;
@@ -206,10 +228,12 @@ function ArchiveInvestbiles(props) {
     const anId = event.dataTransfer.getData("text");
     const currentStageId = event.dataTransfer.getData("stageId");
     if (!currentStageId) {
-      onDropTodo(anId, commentsState, marketId, setOperationRunning, intl, commentsDispatch, invDispatch);
-      return;
+      return onDropTodo(anId, commentsState, marketId, setOperationRunning, intl, commentsDispatch, invDispatch);
     }
     if (currentStageId === stageId) {
+      if (isFurtherWorkStage(stage) && !operationRunning) {
+        return onDropFurtherWorkSection(anId, !!isReadyToStart);
+      }
       return;
     }
     if (!operationRunning) {

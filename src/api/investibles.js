@@ -19,7 +19,7 @@ export function updateInvestible (updateInfo) {
       .then((client) => client.investibles.updateAssignments(investibleId, assignments))
       .catch((error) => toastErrorAndThrow(error, 'errorInvestibleUpdateFailed'));
   }
-  if (openForInvestment) {
+  if (openForInvestment !== undefined) {
     return getMarketClient(marketId)
       .then((client) => client.investibles.updateOpenForInvestment(investibleId, openForInvestment))
       .catch((error) => toastErrorAndThrow(error, 'errorInvestibleUpdateFailed'));

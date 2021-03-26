@@ -29,7 +29,7 @@ import {
   TODO_TYPE
 } from '../../../constants/comments'
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
-import CommentBox from '../../../containers/CommentBox/CommentBox'
+import CommentBox, { getSortedRoots } from '../../../containers/CommentBox/CommentBox'
 import { ACTIVE_STAGE } from '../../../constants/markets'
 import { getUserInvestibles, sumNotificationCounts } from './userUtils'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
@@ -87,7 +87,7 @@ function PlanningDialog(props) {
   const myExpandedState = expandedCommentState[`${marketId}_further`] || {};
   const { expanded: showFurther } = myExpandedState;
   const activeMarket = marketStage === ACTIVE_STAGE;
-  const inArchives = !activeMarket || (myPresence && !myPresence.following);
+  const inArchives = !activeMarket || (myPresence && (!myPresence.following || myPresence.market_guest));
   const isAdmin = myPresence.is_admin;
   const breadCrumbs = inArchives
       ? makeArchiveBreadCrumbs(history)
@@ -190,11 +190,12 @@ function PlanningDialog(props) {
     }
     return comments;
   }
-  const questions = notTodoComments.filter((comment) => comment.comment_type === QUESTION_TYPE);
+  const sortedRoots = getSortedRoots(notTodoComments);
+  const questions = sortedRoots.filter((comment) => comment.comment_type === QUESTION_TYPE);
   const { id: questionId } = getFakeCommentsArray(questions)[0];
-  const suggestions = notTodoComments.filter((comment) => comment.comment_type === SUGGEST_CHANGE_TYPE);
+  const suggestions = sortedRoots.filter((comment) => comment.comment_type === SUGGEST_CHANGE_TYPE);
   const { id: suggestId } = getFakeCommentsArray(suggestions)[0];
-  const reports = notTodoComments.filter((comment) => comment.comment_type === REPORT_TYPE);
+  const reports = sortedRoots.filter((comment) => comment.comment_type === REPORT_TYPE);
   const { id: reportId } = getFakeCommentsArray(reports)[0];
   const todoComments = unResolvedMarketComments.filter((comment) => comment.comment_type === TODO_TYPE);
   const navigationMenu = {navHeaderText: intl.formatMessage({ id: 'workspace' }),
@@ -203,12 +204,12 @@ function PlanningDialog(props) {
       createNavListItem('requiresInputStageLabel', 'requiresInput', _.size(requiresInputInvestibles)),
       createNavListItem('swimLanes'),
       createNavListItem('planningInvestibleMoveToFurtherWorkLabel', 'furtherWork',
-        _.size(furtherWorkReadyToStart) + _.size(furtherWorkInvestibles), true),
-      createNavListItem('todoSection', 'marketTodos', _.size(todoComments), true),
-      createNavListItem('commentAddBox'),
+        _.size(furtherWorkReadyToStart) + _.size(furtherWorkInvestibles), !inArchives),
+      createNavListItem('todoSection', 'marketTodos', _.size(todoComments), !inArchives),
+      inArchives ? {} : createNavListItem('commentAddBox'),
       createNavListItem('questions', `c${questionId}`, _.size(questions)),
-      createNavListItem('suggestions', `c${suggestId}`, _.size(suggestions)),
       createNavListItem('reports', `c${reportId}`, _.size(reports)),
+      createNavListItem('suggestions', `c${suggestId}`, _.size(suggestions)),
       {text: intl.formatMessage({ id: 'planningDialogViewArchivesLabel' }),
         target: formMarketArchivesLink(marketId)}
     ]};

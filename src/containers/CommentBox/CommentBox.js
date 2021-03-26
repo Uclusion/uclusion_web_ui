@@ -23,13 +23,21 @@ function findGreatestUpdatedAt(roots, comments, rootUpdatedAt) {
   return myRootUpdatedAt;
 }
 
-function CommentBox(props) {
-  const { comments, marketId, allowedTypes } = props;
+export function getSortedRoots(comments) {
+  if (_.isEmpty(comments)) {
+    return [];
+  }
   const threadRoots = comments.filter(comment => !comment.reply_id);
   const withRootUpdatedAt = threadRoots.map((root) => {
     return { ...root, rootUpdatedAt: findGreatestUpdatedAt([root], comments) };
   });
-  const sortedRoots = _.orderBy(withRootUpdatedAt, ['resolved', 'rootUpdatedAt'], ['asc', 'desc']);
+  return _.orderBy(withRootUpdatedAt, ['resolved', 'comment_type', 'rootUpdatedAt'],
+    ['asc', 'asc', 'desc']);
+}
+
+function CommentBox(props) {
+  const { comments, marketId, allowedTypes } = props;
+  const sortedRoots = getSortedRoots(comments);
 
   function getCommentCards() {
     return sortedRoots.map(comment => {

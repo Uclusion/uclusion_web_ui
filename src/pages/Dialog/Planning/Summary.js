@@ -95,7 +95,7 @@ const useStyles = makeStyles(theme => ({
   },
   content: {
     flexBasis: "100%",
-    padding: theme.spacing(4),
+    padding: theme.spacing(2, 4, 4, 4),
     [theme.breakpoints.down("xs")]: {
       padding: '15px'
     }
@@ -129,7 +129,6 @@ const useStyles = makeStyles(theme => ({
     borderLeft: '1px solid #e0e0e0',
     paddingRight: '2rem',
     paddingLeft: '1rem',
-    marginTop: '-2rem',
     [theme.breakpoints.down("xs")]: {
       paddingTop: '1rem',
       marginTop: '1rem',

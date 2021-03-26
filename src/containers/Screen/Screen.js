@@ -2,15 +2,17 @@ import React, { useContext } from 'react'
 import _ from 'lodash'
 import PropTypes from 'prop-types'
 import { Helmet } from 'react-helmet'
-import { Container } from '@material-ui/core'
+import { Container, ListItem, ListItemText, ListSubheader, Paper } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import { useHistory } from 'react-router'
 import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
 import Header from '../Header'
 import ActionBar from '../ActionBar'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
-import { createTitle, makeBreadCrumbs } from '../../utils/marketIdPathFunctions'
+import { createTitle, makeBreadCrumbs, navigate } from '../../utils/marketIdPathFunctions'
 import LoadingDisplay from '../../components/LoadingDisplay';
+import List from '@material-ui/core/List'
+import { isTinyWindow } from '../../utils/windowUtils'
 
 const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -36,6 +38,31 @@ const useStyles = makeStyles((theme) => ({
   bannerContainer: {
     marginTop: '5rem',
     marginBottom: '-4rem',
+  },
+  listContainer: {
+    flex: '0 0 auto',
+    height: '100%',
+  },
+  navList: {
+    backgroundColor: 'white'
+  },
+  navListItem: {
+    '&:hover': {
+      backgroundColor: '#e0e0e0'
+    }
+  },
+  paper: {
+    // See https://github.com/mui-org/material-ui/blob/master/packages/material-ui/src/Drawer/Drawer.js
+    overflowY: 'auto',
+    display: 'flex',
+    flexDirection: 'column',
+    flex: '1 0 auto',
+    zIndex: 8,
+    WebkitOverflowScrolling: 'touch',
+    position: 'fixed',
+    top: '7rem',
+    background: '#efefef',
+    minWidth: '13rem',
   },
   actionContainer: {
     marginTop: '5rem',
@@ -72,7 +99,8 @@ function Screen(props) {
     toolbarButtons,
     appEnabled,
     isHome,
-    banner
+    banner,
+    navigationOptions
   } = props;
   let prePendWarning = '';
   if (!_.isEmpty(messagesState)) {
@@ -108,6 +136,7 @@ function Screen(props) {
     usedBreadCrumbs = makeBreadCrumbs(history);
   }
   const myContainerClass = classes.containerAll;
+  const { navHeaderText, navListItemTextArray } = navigationOptions || {};
   return (
     <div className={classes.root} id="root">
       <Helmet defer={false}>
@@ -126,6 +155,39 @@ function Screen(props) {
         hidden={reallyAmLoading}
         appEnabled={appEnabled}
       />
+      {!_.isEmpty(navListItemTextArray) && !isTinyWindow() && (
+        <div className={classes.listContainer}>
+          <Paper className={classes.paper}>
+            <List className={classes.navList}
+                  subheader={
+                    <ListSubheader component="div" id="nested-list-subheader">
+                      {navHeaderText}
+                    </ListSubheader>
+                  }
+            >
+              {navListItemTextArray.map((navItem) => {
+                const { text, target } = navItem;
+                if (!text) {
+                  return React.Fragment;
+                }
+                return (
+                  <ListItem className={classes.navListItem}
+                            onClick={
+                              (event) => {
+                                event.stopPropagation();
+                                event.preventDefault();
+                                navigate(history, target);
+                              }
+                            }
+                  >
+                    <ListItemText primary={text} />
+                  </ListItem>
+                );
+              })}
+            </List>
+          </Paper>
+        </div>
+      )}
       {banner && (
         <Container className={classes.bannerContainer}>
           {banner}

@@ -251,6 +251,18 @@ const messages = defineMessages({
   draft: 'Draft',
   inactive: 'Inactive',
 
+  // Navigation menu
+  swimLanes: 'Swimlanes',
+  commentAddBox: 'New Comment',
+  planningInvestibleMoveToFurtherWorkLabelNum: 'Further Work - {x}',
+  todoSectionNum: 'TODOs - {x}',
+  planningBlockedStageLabelNum: 'Blocked - {x}',
+  requiresInputStageLabelNum: 'Requires Input - {x}',
+  questionsNum: 'Questions - {x}',
+  suggestionsNum: 'Suggestions - {x}',
+  reportsNum: 'Reports - {x}',
+  workspace: 'Workspace',
+
   // Address list
   addressAddCancelLabel: 'Close',
   addressAddClearLabel: 'Close',

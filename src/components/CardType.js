@@ -134,7 +134,6 @@ const labelIntlIds = {
   certainty50: "certainty50",
   certainty75: "certainty75",
   certainty100: "certainty100",
-  [AGILE_PLAN_TYPE]: "cardTypeAgilePlan",
   [DECISION_TYPE]: "dialogDescription"
 };
 
@@ -144,7 +143,7 @@ export default function CardType(props) {
     type,
     resolved,
     subtype,
-    label = <FormattedMessage id={labelIntlIds[type]}/>,
+    label = type in labelIntlIds ? <FormattedMessage id={labelIntlIds[type]}/> : undefined,
     createdAt,
     myBeingEdited,
     fullWidth = false
@@ -183,12 +182,14 @@ export default function CardType(props) {
 
   return (
     <Grid container>
-      <Grid item xs={fullWidth ? 12 : 6}>
-        <div className={clsx(classes.root, className)}>
-          <IconComponent className={classes.icon}/>
-          <span className={classes.label}>{label}</span>
-        </div>
-      </Grid>
+      {label && (
+        <Grid item xs={fullWidth ? 12 : 6}>
+          <div className={clsx(classes.root, className)}>
+            <IconComponent className={classes.icon}/>
+            <span className={classes.label}>{label}</span>
+          </div>
+        </Grid>
+      )}
       <Grid item xs={fullWidth ? false : 1}>
         {myBeingEdited && (
           <Typography className={classes.lastEdited} variant="body2">

@@ -19,7 +19,13 @@ function ScrollProvider(props) {
         const element = document.getElementById(originalScrollTarget);
         if (element !== null) {
           if (observer) observer.disconnect()
-          element.scrollIntoView({ block: 'center' })
+          const headerOffset = document.getElementById('app-header').offsetHeight;
+          const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
+          const offsetPosition = elementPosition - headerOffset;
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: "smooth"
+          });
           // Remove the hash from the URL so we don't end up scrolling again
           // - use replace instead of push so back button works
           history.replace(window.location.pathname);

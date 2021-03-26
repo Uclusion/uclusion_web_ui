@@ -487,7 +487,7 @@ function MarketTodos (props) {
         <SubSection
           type={SECTION_SUB_HEADER}
           bolder
-          hideChildren={!(showTodos || showTodos === undefined)}
+          hideChildren={!showTodos}
           title={intl.formatMessage({ id: 'todoSection' })}
           helpTextId="todoSectionHelp"
           searchBar={isSingleTodoSelected ? undefined : (<TextField

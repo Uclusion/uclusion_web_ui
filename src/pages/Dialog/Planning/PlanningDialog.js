@@ -15,11 +15,11 @@ import Summary from './Summary'
 import PlanningIdeas from './PlanningIdeas'
 import Screen from '../../../containers/Screen/Screen'
 import {
-  formMarketAddInvestibleLink,
+  formMarketAddInvestibleLink, formMarketArchivesLink, formMarketLink,
   makeArchiveBreadCrumbs,
   makeBreadCrumbs,
   navigate
-} from '../../../utils/marketIdPathFunctions';
+} from '../../../utils/marketIdPathFunctions'
 import {
   JUSTIFY_TYPE,
   QUESTION_TYPE,
@@ -39,9 +39,7 @@ import { SECTION_SUB_HEADER, SECTION_TYPE_SECONDARY, SECTION_TYPE_SECONDARY_WARN
 import ArchiveInvestbiles from '../../DialogArchives/ArchiveInvestibles'
 import SubSection from '../../../containers/SubSection/SubSection'
 import { getInvestiblesInStage } from '../../../contexts/InvestibesContext/investiblesContextHelper'
-import clsx from 'clsx'
 import { useMetaDataStyles } from '../../Investible/Planning/PlanningInvestible'
-import ViewArchiveActionButton from './ViewArchivesActionButton'
 import { TourContext } from '../../../contexts/TourContext/TourContext'
 import { startTour } from '../../../contexts/TourContext/tourContextReducer'
 import { CognitoUserContext } from '../../../contexts/CognitoUserContext/CongitoUserContext'
@@ -95,7 +93,7 @@ function PlanningDialog(props) {
       ? makeArchiveBreadCrumbs(history)
       : makeBreadCrumbs(history);
   const unResolvedMarketComments = comments.filter(comment => !comment.investible_id && !comment.resolved) || [];
-  const notTodoComments = unResolvedMarketComments.filter(comment => comment.comment_type !== TODO_TYPE);
+  const notTodoComments = unResolvedMarketComments.filter(comment => comment.comment_type !== TODO_TYPE) || [];
   const allowedCommentTypes = [QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE];
   const { name: marketName, locked_by: lockedBy, market_sub_type: marketSubType, created_by: marketCreatedBy } = market;
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -177,6 +175,43 @@ function PlanningDialog(props) {
     const link = formMarketAddInvestibleLink(marketId);
     navigate(history, link);
   }
+  function createNavListItem(textId, anchorId, howManyNum, alwaysShow) {
+    if (howManyNum === 0 && alwaysShow !== true) {
+      return {};
+    }
+    const text = howManyNum > 0 ? intl.formatMessage({ id: `${textId}Num` }, { x: howManyNum }) :
+      intl.formatMessage({ id: textId });
+    const useAnchor = anchorId ? anchorId : textId;
+    return {text, target: `${formMarketLink(marketId)}#${useAnchor}`}
+  }
+  function getFakeCommentsArray(comments) {
+    if (_.isEmpty(comments)) {
+      return [{id: 'fake'}];
+    }
+    return comments;
+  }
+  const questions = notTodoComments.filter((comment) => comment.comment_type === QUESTION_TYPE);
+  const { id: questionId } = getFakeCommentsArray(questions)[0];
+  const suggestions = notTodoComments.filter((comment) => comment.comment_type === SUGGEST_CHANGE_TYPE);
+  const { id: suggestId } = getFakeCommentsArray(suggestions)[0];
+  const reports = notTodoComments.filter((comment) => comment.comment_type === REPORT_TYPE);
+  const { id: reportId } = getFakeCommentsArray(reports)[0];
+  const todoComments = unResolvedMarketComments.filter((comment) => comment.comment_type === TODO_TYPE);
+  const navigationMenu = {navHeaderText: intl.formatMessage({ id: 'workspace' }),
+    navListItemTextArray: [createNavListItem('description_label', 'workspaceMain'),
+      createNavListItem('planningBlockedStageLabel', 'blocked', _.size(blockedInvestibles)),
+      createNavListItem('requiresInputStageLabel', 'requiresInput', _.size(requiresInputInvestibles)),
+      createNavListItem('swimLanes'),
+      createNavListItem('planningInvestibleMoveToFurtherWorkLabel', 'furtherWork',
+        _.size(furtherWorkReadyToStart) + _.size(furtherWorkInvestibles), true),
+      createNavListItem('todoSection', 'marketTodos', _.size(todoComments), true),
+      createNavListItem('commentAddBox'),
+      createNavListItem('questions', `c${questionId}`, _.size(questions)),
+      createNavListItem('suggestions', `c${suggestId}`, _.size(suggestions)),
+      createNavListItem('reports', `c${reportId}`, _.size(reports)),
+      {text: intl.formatMessage({ id: 'planningDialogViewArchivesLabel' }),
+        target: formMarketArchivesLink(marketId)}
+    ]};
   return (
     <Screen
       title={marketName}
@@ -185,6 +220,7 @@ function PlanningDialog(props) {
       titleIcon={<PlaylistAddCheckIcon/>}
       breadCrumbs={breadCrumbs}
       banner={banner}
+      navigationOptions={navigationMenu}
     >
       <UclusionTour
         name={tourName}
@@ -200,11 +236,6 @@ function PlanningDialog(props) {
           {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}
         </Typography>
       )}
-      <dl className={clsx(metaClasses.root, metaClasses.flexRow)}>
-        <div id="viewArchive" className={clsx(metaClasses.group, metaClasses.assignments)}>
-          <ViewArchiveActionButton key="archives" marketId={marketId} />
-        </div>
-      </dl>
       {!isChannel && (
         <DismissableText textId='stageHelp' textId1='stageHelp1' textId2='stageHelp2' textId3='stageHelp3'
                          textId4='stageHelp4'/>
@@ -215,6 +246,7 @@ function PlanningDialog(props) {
             type={SECTION_TYPE_SECONDARY_WARNING}
             title={intl.formatMessage({ id: 'blockedHeader' })}
             helpTextId="blockedSectionHelp"
+            id="blocked"
           >
             <ArchiveInvestbiles
               elevation={0}
@@ -234,6 +266,7 @@ function PlanningDialog(props) {
             type={SECTION_TYPE_SECONDARY_WARNING}
             title={intl.formatMessage({ id: 'requiresInputHeader' })}
             helpTextId="requiresInputSectionHelp"
+            id="requiresInput"
           >
             <ArchiveInvestbiles
               comments={comments}
@@ -265,13 +298,14 @@ function PlanningDialog(props) {
             isAdmin={isAdmin}
           />
         </div>
-        <div className={metaClasses.outerBorder} id="marketTodos">
+        <div className={metaClasses.outerBorder}>
           <SubSection
             type={SECTION_SUB_HEADER}
             isBlackText
             bolder
             helpTextId="furtherSectionHelp"
-            hideChildren={!(showFurther || showFurther === undefined)}
+            id="furtherWork"
+            hideChildren={!showFurther}
             title={intl.formatMessage({ id: 'readyFurtherWorkHeader' })}
             actionButton={
               (<ExpandableAction

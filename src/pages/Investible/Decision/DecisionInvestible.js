@@ -47,6 +47,7 @@ import { doSetEditWhenValid, isTinyWindow } from '../../../utils/windowUtils'
 import EditMarketButton from '../../Dialog/EditMarketButton'
 import ShareStoryButton from '../Planning/ShareStoryButton'
 import GavelIcon from '@material-ui/icons/Gavel';
+import PlaylistAddCheckIcon from '@material-ui/icons/PlaylistAddCheck'
 
 const useStyles = makeStyles((theme) => ({
   mobileColumn: {
@@ -146,7 +147,8 @@ export function getInlineBreadCrumbs (marketState, parentMarketId, parentInvesti
   if (inlineParentMarket) {
     // Better would be to peg loading a level up since above can resolve with wrong
     const { name: inlineParentMarketName } = inlineParentMarket
-    breadCrumbTemplates = [{ name: inlineParentMarketName, link: formMarketLink(parentMarketId), id: 'marketCrumb' }]
+    breadCrumbTemplates = [{ name: inlineParentMarketName, link: formMarketLink(parentMarketId), id: 'marketCrumb',
+      icon: <PlaylistAddCheckIcon/> }]
   }
   if (parentInvestibleId) {
     breadCrumbTemplates.push({

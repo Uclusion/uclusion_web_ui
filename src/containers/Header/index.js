@@ -22,10 +22,10 @@ export const headerStyles = makeStyles((theme) => {
       zIndex: 1900,
     },
     titleIcon: {
-      height: 16,
-      width: 16,
+      height: 24,
+      width: 24,
       marginRight: 4,
-      marginBottom: -2,
+      marginBottom: -6,
     },
     grow: {
       flexGrow: 1,

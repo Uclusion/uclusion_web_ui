@@ -30,6 +30,7 @@ import MarketTodos from '../Dialog/Planning/MarketTodos'
 import { REPLY_TYPE, TODO_TYPE } from '../../constants/comments'
 import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
+import PlaylistAddCheckIcon from '@material-ui/icons/PlaylistAddCheck'
 
 function DialogArchives(props) {
   const { hidden } = props;
@@ -77,7 +78,7 @@ function DialogArchives(props) {
 
   const { name, market_stage: marketStage, children } = renderableMarket;
   const inArchives = marketStage !== ACTIVE_STAGE || (myPresence && !myPresence.following);
-  const breadCrumbTemplates = [{ name, link: formMarketLink(marketId) }];
+  const breadCrumbTemplates = [{ name, link: formMarketLink(marketId), icon: <PlaylistAddCheckIcon/> }];
   const breadCrumbs = inArchives? makeArchiveBreadCrumbs(history, breadCrumbTemplates)
     : makeBreadCrumbs(history, breadCrumbTemplates);
 

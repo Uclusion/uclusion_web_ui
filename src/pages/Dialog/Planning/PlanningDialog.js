@@ -260,9 +260,10 @@ function PlanningDialog(props) {
               allowDragDrop
               comments={comments}
             />
-            <hr/>
           </SubSection>
         )}
+        {!_.isEmpty(blockedInvestibles) && !_.isEmpty(requiresInputInvestibles) &&
+        (<div style={{ paddingBottom: '15px' }}/>)}
         {!_.isEmpty(requiresInputInvestibles) && (
           <SubSection
             type={SECTION_TYPE_SECONDARY_WARNING}

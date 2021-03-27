@@ -199,45 +199,6 @@ function InvestiblesByWorkspace (props) {
                 titleTypographyProps={{ variant: 'subtitle2' }}
               />
               <CardContent className={classes.content}>
-                {!_.isEmpty(blockedInvestibles) && (
-                  <SubSection
-                    type={SECTION_TYPE_SECONDARY_WARNING}
-                    title={intl.formatMessage({ id: 'blockedHeader' })}
-                    helpTextId="blockedSectionHelp"
-                  >
-                    <ArchiveInvestbiles
-                      elevation={0}
-                      marketId={market.id}
-                      presenceMap={getPresenceMap(marketPresencesState, market.id)}
-                      investibles={blockedInvestibles}
-                      presenceId={presence.id}
-                      stage={inBlockingStage}
-                      allowDragDrop
-                      comments={comments}
-                    />
-                    <hr/>
-                  </SubSection>
-                )}
-                {!_.isEmpty(requiresInputInvestibles) && (
-                  <SubSection
-                    type={SECTION_TYPE_SECONDARY_WARNING}
-                    title={intl.formatMessage({ id: 'requiresInputHeader' })}
-                    helpTextId="requiresInputSectionHelp"
-                  >
-                    <ArchiveInvestbiles
-                      elevation={0}
-                      marketId={market.id}
-                      presenceMap={getPresenceMap(marketPresencesState, market.id)}
-                      investibles={requiresInputInvestibles}
-                      highlightMap={highlightMap}
-                      presenceId={presence.id}
-                      stage={requiresInputStage}
-                      allowDragDrop
-                      comments={comments}
-                    />
-                    <hr/>
-                  </SubSection>
-                )}
                 {market.id && !_.isEmpty(myInvestibles) &&
                 acceptedStage &&
                 inDialogStage &&
@@ -257,6 +218,45 @@ function InvestiblesByWorkspace (props) {
                     comments={comments}
                     presenceId={presence.id}
                   />
+                )}
+                { !_.isEmpty(blockedInvestibles) && (<div style={{ paddingBottom: '15px' }}/>)}
+                {!_.isEmpty(blockedInvestibles) && (
+                  <SubSection
+                    type={SECTION_TYPE_SECONDARY_WARNING}
+                    title={intl.formatMessage({ id: 'blockedHeader' })}
+                    helpTextId="blockedSectionHelp"
+                  >
+                    <ArchiveInvestbiles
+                      elevation={0}
+                      marketId={market.id}
+                      presenceMap={getPresenceMap(marketPresencesState, market.id)}
+                      investibles={blockedInvestibles}
+                      presenceId={presence.id}
+                      stage={inBlockingStage}
+                      allowDragDrop
+                      comments={comments}
+                    />
+                  </SubSection>
+                )}
+                { !_.isEmpty(requiresInputInvestibles) && (<div style={{ paddingBottom: '15px' }}/>)}
+                {!_.isEmpty(requiresInputInvestibles) && (
+                  <SubSection
+                    type={SECTION_TYPE_SECONDARY_WARNING}
+                    title={intl.formatMessage({ id: 'requiresInputHeader' })}
+                    helpTextId="requiresInputSectionHelp"
+                  >
+                    <ArchiveInvestbiles
+                      elevation={0}
+                      marketId={market.id}
+                      presenceMap={getPresenceMap(marketPresencesState, market.id)}
+                      investibles={requiresInputInvestibles}
+                      highlightMap={highlightMap}
+                      presenceId={presence.id}
+                      stage={requiresInputStage}
+                      allowDragDrop
+                      comments={comments}
+                    />
+                  </SubSection>
                 )}
               </CardContent>
             </Card>

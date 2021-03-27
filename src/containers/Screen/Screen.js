@@ -13,6 +13,7 @@ import { createTitle, makeBreadCrumbs, navigate } from '../../utils/marketIdPath
 import LoadingDisplay from '../../components/LoadingDisplay';
 import List from '@material-ui/core/List'
 import { isTinyWindow } from '../../utils/windowUtils'
+import Typography from '@material-ui/core/Typography'
 
 const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -47,6 +48,7 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: 'white'
   },
   navListItem: {
+    cursor: 'pointer',
     '&:hover': {
       backgroundColor: '#e0e0e0'
     }
@@ -70,6 +72,9 @@ const useStyles = makeStyles((theme) => ({
   },
   content: {
     background: '#efefef',
+  },
+  disabled: {
+    color: theme.palette.text.disabled
   },
   elevated: {
     zIndex: 99,
@@ -160,15 +165,22 @@ function Screen(props) {
           <Paper className={classes.paper}>
             <List className={classes.navList}
                   subheader={
-                    <ListSubheader component="div" id="nested-list-subheader">
+                    <Typography align="center" variant="h6" style={{paddingTop: '1rem'}} id="nested-list-subheader">
                       {navHeaderText}
-                    </ListSubheader>
+                    </Typography>
                   }
             >
               {navListItemTextArray.map((navItem) => {
                 const { text, target } = navItem;
                 if (!text) {
                   return React.Fragment;
+                }
+                if (!target) {
+                  return (
+                    <ListItem>
+                      <ListItemText primary={text} primaryTypographyProps={{className: classes.disabled}} />
+                    </ListItem>
+                  );
                 }
                 return (
                   <ListItem className={classes.navListItem}

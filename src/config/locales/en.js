@@ -261,7 +261,11 @@ const messages = defineMessages({
   questionsNum: 'Questions - {x}',
   suggestionsNum: 'Suggestions - {x}',
   reportsNum: 'Reports - {x}',
+  blockingNum: 'Blocking - {x}',
   workspace: 'Workspace',
+  story: 'Story',
+  approvalsNum: 'Approvals - {x}',
+  pleaseVoteNav: 'Change Approval',
 
   // Address list
   addressAddCancelLabel: 'Close',

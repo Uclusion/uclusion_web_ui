@@ -176,11 +176,12 @@ function PlanningDialog(props) {
     navigate(history, link);
   }
   function createNavListItem(textId, anchorId, howManyNum, alwaysShow) {
-    if (howManyNum === 0 && alwaysShow !== true) {
-      return {};
-    }
-    const text = howManyNum > 0 ? intl.formatMessage({ id: `${textId}Num` }, { x: howManyNum }) :
+    const text = howManyNum !== undefined ?
+      intl.formatMessage({ id: `${textId}Num` }, { x: howManyNum }) :
       intl.formatMessage({ id: textId });
+    if (howManyNum === 0 && alwaysShow !== true) {
+      return {text};
+    }
     const useAnchor = anchorId ? anchorId : textId;
     return {text, target: `${formMarketLink(marketId)}#${useAnchor}`}
   }

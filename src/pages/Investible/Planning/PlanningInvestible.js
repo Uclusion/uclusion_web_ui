@@ -18,7 +18,7 @@ import { useHistory } from 'react-router'
 import { FormattedMessage, useIntl } from 'react-intl'
 import YourVoting from '../Voting/YourVoting'
 import Voting from '../Decision/Voting'
-import CommentBox from '../../../containers/CommentBox/CommentBox'
+import CommentBox, { getSortedRoots } from '../../../containers/CommentBox/CommentBox'
 import {
   ISSUE_TYPE,
   JUSTIFY_TYPE,
@@ -28,7 +28,7 @@ import {
   TODO_TYPE
 } from '../../../constants/comments'
 import {
-  formInvestibleEditLink,
+  formInvestibleEditLink, formInvestibleLink,
   formMarketArchivesLink,
   formMarketLink,
   makeArchiveBreadCrumbs,
@@ -162,7 +162,7 @@ const useStyles = makeStyles(
       }
     },
     votingCardContent: {
-      margin: theme.spacing(2),
+      margin: theme.spacing(0, 2, 2, 2),
       padding: 0,
       '& img': {
         margin: '.75rem 0',
@@ -183,7 +183,6 @@ const useStyles = makeStyles(
       margin: 0,
     },
     borderRight: {
-      marginTop: '-0.5rem',
       [theme.breakpoints.down("xs")]: {
         padding: '1rem 0',
         marginTop: '1rem',
@@ -347,9 +346,7 @@ function PlanningInvestible(props) {
   const [labelFocus, setLabelFocus] = useState(false);
   const { name: marketName, id: marketId, votes_required: votesRequired } = market;
   const labels = getMarketLabels(investiblesState, marketId);
-  const investmentReasonsRemoved = investibleComments.filter(
-    comment => comment.comment_type !== JUSTIFY_TYPE
-  );
+  const investmentReasonsRemoved = investibleComments.filter(comment => comment.comment_type !== JUSTIFY_TYPE) || [];
   const investmentReasons = investibleComments.filter(
     comment => comment.comment_type === JUSTIFY_TYPE
   );
@@ -446,23 +443,6 @@ function PlanningInvestible(props) {
   if (canOpenBlocking()) {
     allowedCommentTypes.push(ISSUE_TYPE);
   }
-  const stageName = isInVoting
-    ? intl.formatMessage({ id: "planningVotingStageLabel" })
-    : // eslint-disable-next-line no-nested-ternary
-    isInReview
-    ? intl.formatMessage({ id: "planningReviewStageLabel" })
-    : // eslint-disable-next-line no-nested-ternary
-    isInAccepted
-    ? intl.formatMessage({ id: "planningAcceptedStageLabel" })
-    : isInBlocked
-    ? intl.formatMessage({ id: "planningBlockedStageLabel" })
-    : isInVerified
-    ? intl.formatMessage({ id: "planningVerifiedStageLabel" })
-    : isReadyFurtherWork
-    ? intl.formatMessage({ id: "planningFurtherWorkStageLabel" })
-    : isRequiresInput
-    ? intl.formatMessage({ id: "requiresInputStageLabel" }) :
-          intl.formatMessage({ id: "planningNotDoingStageLabel" });
 
   const invested = getVotesForInvestible(marketPresences, investibleId);
 
@@ -744,13 +724,54 @@ function PlanningInvestible(props) {
   function toggleApprovers() {
     navigate(history, `${formInvestibleEditLink(market.id, marketInvestible.investible.id)}#approve=true`);
   }
+  function createNavListItem(textId, anchorId, howManyNum, alwaysShow) {
+    const text = howManyNum !== undefined ?
+      intl.formatMessage({ id: `${textId}Num` }, { x: howManyNum }) :
+      intl.formatMessage({ id: textId });
+    if (howManyNum === 0 && alwaysShow !== true) {
+      return {text};
+    }
+    const useAnchor = anchorId ? anchorId : textId;
+    return {text, target: `${formInvestibleLink(marketId, investibleId)}#${useAnchor}`}
+  }
+  function getFakeCommentsArray(comments) {
+    if (_.isEmpty(comments)) {
+      return [{id: 'fake'}];
+    }
+    return comments;
+  }
+  const displayVotingInput = isInVoting && !inArchives && isAdmin && canVote;
   const myBeingEdited = beingEdited === investibleId;
+  const openComments = investmentReasonsRemoved.filter((comment) => !comment.resolved) || [];
+  const sortedRoots = getSortedRoots(openComments);
+  const blocking = sortedRoots.filter((comment) => comment.comment_type === ISSUE_TYPE);
+  const { id: blockingId } = getFakeCommentsArray(blocking)[0];
+  const questions = sortedRoots.filter((comment) => comment.comment_type === QUESTION_TYPE);
+  const { id: questionId } = getFakeCommentsArray(questions)[0];
+  const suggestions = sortedRoots.filter((comment) => comment.comment_type === SUGGEST_CHANGE_TYPE);
+  const { id: suggestId } = getFakeCommentsArray(suggestions)[0];
+  const reports = sortedRoots.filter((comment) => comment.comment_type === REPORT_TYPE);
+  const { id: reportId } = getFakeCommentsArray(reports)[0];
+  const todoSortedComments = sortedRoots.filter((comment) => comment.comment_type === TODO_TYPE);
+  const { id: todoId } = getFakeCommentsArray(todoSortedComments)[0];
+  const navigationMenu = {navHeaderText: intl.formatMessage({ id: 'story' }),
+    navListItemTextArray: [createNavListItem('description_label', 'storyMain'),
+      displayVotingInput ? createNavListItem('pleaseVoteNav', 'pleaseVote') : {},
+      createNavListItem('approvals', 'approvals', _.size(invested)),
+      inArchives ? {} : createNavListItem('commentAddBox'),
+      createNavListItem('blocking', `c${blockingId}`, _.size(blocking)),
+      createNavListItem('questions', `c${questionId}`, _.size(questions)),
+      createNavListItem('reports', `c${reportId}`, _.size(reports)),
+      createNavListItem('suggestions', `c${suggestId}`, _.size(suggestions)),
+      createNavListItem('todoSection', `c${todoId}`, _.size(todoSortedComments)),
+    ]};
   return (
     <Screen
       title={ticketCode ? `${ticketCode} ${name}` : name}
       tabTitle={name}
       breadCrumbs={breadCrumbs}
       hidden={hidden}
+      navigationOptions={navigationMenu}
     >
       {!inArchives && isInVoting && isAssigned && enoughVotes && _.size(invested) > 0
       && _.isEmpty(assignedInStage(investibles, userId, inAcceptedStage.id, marketId)) && (
@@ -766,12 +787,9 @@ function PlanningInvestible(props) {
       {!yourVote && !inArchives && canVote && !isAssigned && (
         <DismissableText textId='planningInvestibleVotingHelp' />
       )}
-      <Card elevation={0}>
+      <Card elevation={0} id="storyMain">
         <CardType
           className={classes.cardType}
-          label={`${stageName} ${intl.formatMessage({
-            id: "planningInvestibleDescription"
-          })}`}
           type={STORY_TYPE}
           subtype={subtype}
           createdAt={createdAt}
@@ -968,7 +986,7 @@ function PlanningInvestible(props) {
           </Grid>
         </CardContent>
       </Card>
-      {isInVoting && !inArchives && isAdmin && canVote && (
+      {displayVotingInput && (
         <>
           {isAssigned && (
             <DismissableText textId="planningInvestibleCantVote" />
@@ -998,7 +1016,7 @@ function PlanningInvestible(props) {
           )}
         </>
           )}
-      <h2>
+      <h2 id="approvals">
         <FormattedMessage id="decisionInvestibleOthersVoting" />
       </h2>
       <Voting

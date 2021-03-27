@@ -1230,6 +1230,9 @@ function MarketMetaData(props) {
     case 'Requires Input':
       stageLabel = 'requiresInputStageLabel';
       break;
+    case 'Blocked':
+      stageLabel = 'planningBlockedStageLabel'
+      break;
     default:
       stageLabel = 'changeStage'
   }

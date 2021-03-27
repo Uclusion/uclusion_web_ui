@@ -12,9 +12,7 @@ export function doSetEditWhenValid(isEdit, isEditableByUser, setBeingEdited, id,
       return;
     }
     if (isEditableByUser()) {
-      const headerEl = document.getElementById('app-header');
-      const headerHeight = headerEl.scrollHeight;
-      window.scroll(0, headerHeight);
+      window.scrollTo(0, 0);
       setBeingEdited(id);
     }
   } else {

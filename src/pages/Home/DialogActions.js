@@ -1,12 +1,11 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { ACTIVE_STAGE, DECISION_TYPE, INACTIVE_STAGE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
-import { IconButton, makeStyles, Tooltip } from '@material-ui/core'
+import { makeStyles } from '@material-ui/core'
 import {
   decomposeMarketPath,
   formInvestibleEditLink,
   formMarketEditLink,
-  formMarketManageLink,
   navigate
 } from '../../utils/marketIdPathFunctions'
 import { useHistory, useLocation } from 'react-router'
@@ -15,8 +14,6 @@ import ChangeToObserverButton from '../Dialog/ChangeToObserverButton'
 import ChangeToParticipantButton from '../Dialog/ChangeToParticipantButton'
 import ShareStoryButton from '../Investible/Planning/ShareStoryButton'
 import ActivateMarketButton from '../Dialog/Planning/ActivateMarketButton'
-import PersonOutlineIcon from '@material-ui/icons/PersonOutline'
-import { useIntl } from 'react-intl'
 import SettingsIcon from '@material-ui/icons/Settings'
 import { ACTION_BUTTON_COLOR } from '../../components/Buttons/ButtonConstants'
 import { isTinyWindow } from '../../utils/windowUtils'
@@ -53,7 +50,6 @@ function DialogActions(props) {
   const activeMarket = marketStage === ACTIVE_STAGE;
   const inArchives = !activeMarket || !isFollowing;
   const classes = useStyles();
-  const intl = useIntl();
 
 
   function getEditLabel(){
@@ -82,25 +78,13 @@ function DialogActions(props) {
                             icon={<SettingsIcon htmlColor={ACTION_BUTTON_COLOR} />}/>
         );
       }
-      actions.push(
-        <Tooltip
-          key="removeParticipantsTooltip"
-          title={intl.formatMessage({ id: 'dialogRemoveParticipantsLabel' })}
-        >
-          <IconButton
-            onClick={() => navigate(history, `${formMarketManageLink(marketId)}#removal=true`)}
-          >
-            <PersonOutlineIcon />
-          </IconButton>
-        </Tooltip>
-      );
     }
     if (marketStage === INACTIVE_STAGE && !isGuest) {
       actions.push(
         <ActivateMarketButton key="activate-market" marketId={marketId} isFollowing={isFollowing}/>,
       );
     }
-    if (activeMarket && !isGuest) {
+    if (activeMarket && !isGuest && (hideEdit || marketType !== PLANNING_TYPE)) {
       if (isFollowing) {
         actions.push(
           <ChangeToObserverButton key="change-to-observer" marketId={marketId} />,

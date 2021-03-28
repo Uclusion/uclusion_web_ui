@@ -2,7 +2,6 @@ import React, { useContext, useState } from 'react'
 import PropTypes from 'prop-types'
 import { FormattedMessage, useIntl } from 'react-intl'
 import { updateMarket, updateStage } from '../../../api/markets'
-import CardType, { AGILE_PLAN_TYPE } from '../../../components/CardType'
 import CardContent from '@material-ui/core/CardContent'
 import Grid from '@material-ui/core/Grid'
 import clsx from 'clsx'
@@ -16,7 +15,17 @@ import { getStages, updateStagesForMarket } from '../../../contexts/MarketStages
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import _ from 'lodash'
 import ShowInVerifiedStageAge from './ShowInVerifiedStageAge'
-import { TextField, Typography } from '@material-ui/core'
+import { makeStyles, TextField, Typography } from '@material-ui/core'
+import ExistingUsers from '../UserManagement/ExistingUsers'
+
+const useStyles = makeStyles((theme) => {
+  return {
+    actions: {
+      margin: theme.spacing(-3, 0, 0, 6),
+      paddingBottom: '2rem'
+    }
+  };
+});
 
 function PlanningDialogEdit(props) {
   const { onSpinStop, onCancel, market, acceptedStage, verifiedStage } = props;
@@ -30,6 +39,7 @@ function PlanningDialogEdit(props) {
   } = market;
   const intl = useIntl();
   const classes = usePlanFormStyles();
+  const myClasses = useStyles();
   const [allowedInvestibles, setAllowedInvestibles] = useState(acceptedStage.allowed_investibles);
   const [showInvestiblesAge, setShowInvestiblesAge] = useState(verifiedStage.days_visible);
   const [mutableMarket, setMutableMarket] = useState({
@@ -111,10 +121,15 @@ function PlanningDialogEdit(props) {
 
   return (
     <Card className={classes.overflowVisible}>
-      <CardType className={classes.cardType} type={AGILE_PLAN_TYPE} />
       <CardContent className={classes.cardContent}>
-        <legend className={classes.optional}>*{intl.formatMessage({ id: "optionalEdit" })}</legend>
-        <Grid container className={clsx(classes.fieldset, classes.flex, classes.justifySpace)}>
+        <ExistingUsers market={market} />
+        <Grid container className={clsx(classes.fieldset, classes.flex, classes.justifySpace)}
+              style={{paddingTop: "2rem"}}>
+          <Grid item md={12} xs={12} className={classes.fieldsetContainer}>
+              <Typography variant="h6">
+               Workspace Options
+              </Typography>
+          </Grid>
           <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
             <AllowedInProgress
               onChange={onAllowedInvestiblesChange}
@@ -149,7 +164,7 @@ function PlanningDialogEdit(props) {
           </Grid>
         </Grid>
       </CardContent>
-      <CardActions className={classes.actions}>
+      <CardActions className={myClasses.actions}>
         <Button
           className={classes.actionSecondary}
           color="secondary"

@@ -14,7 +14,6 @@ import Screen from '../../containers/Screen/Screen'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 import { ACTIVE_STAGE, DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
-
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
@@ -22,11 +21,10 @@ import { InvestiblesContext } from '../../contexts/InvestibesContext/Investibles
 import queryString from 'query-string'
 import { Card, CardContent, Typography } from '@material-ui/core'
 import DeadlineExtender from './Decision/DeadlineExtender'
-import CardType, { AGILE_PLAN_TYPE, VOTING_TYPE } from '../../components/CardType'
+import CardType, { VOTING_TYPE } from '../../components/CardType'
 import { usePlanFormStyles } from '../../components/AgilePlan'
 import DismissableText from '../../components/Notifications/DismissableText'
 import ManageUsers from './UserManagement/ManageUsers'
-import RemoveUsers from './UserManagement/RemoveUsers'
 import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions';
 
 function DialogManage (props) {
@@ -37,7 +35,7 @@ function DialogManage (props) {
   const location = useLocation();
   const { pathname, hash } = location;
   const values = queryString.parse(hash || '');
-  const { expires, participation, removal } = values || {};
+  const { expires, participation } = values || {};
   const { marketId } = decomposeMarketPath(pathname);
   const [marketsState] = useContext(MarketsContext);
   const renderableMarket = getMarket(marketsState, marketId) || {};
@@ -74,7 +72,8 @@ function DialogManage (props) {
   const linkName = marketType === INITIATIVE_TYPE && !_.isEmpty(investibles)
     ? getInitiativeLinkName(investibles[0])
     : currentMarketName;
-  const breadCrumbTemplates = [{ name: linkName, link: formMarketLink(marketId), id: 'marketCrumb', icon: getDialogTypeIcon(marketType) }];
+  const breadCrumbTemplates = [{ name: linkName, link: formMarketLink(marketId), id: 'marketCrumb',
+    icon: getDialogTypeIcon(marketType) }];
   const myBreadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
   return (
     <Screen
@@ -84,7 +83,7 @@ function DialogManage (props) {
       breadCrumbs={myBreadCrumbs}
       loading={loading}
     >
-      {(participation || marketType === PLANNING_TYPE) && !removal && (
+      {(participation || marketType === PLANNING_TYPE) && (
         <DismissableText textId="participationHelp"/>
       )}
       <Card elevation={0}>
@@ -131,18 +130,6 @@ function DialogManage (props) {
               market={renderableMarket}
               onAddNewUsers={onActionDone}
               onCancel={onActionDone}
-            />
-          </>
-        )}
-        {removal && (
-          <>
-            <CardType
-              className={classes.cardType}
-              type={AGILE_PLAN_TYPE}
-              label={intl.formatMessage({ id: 'planRemoveAddress' })}
-            />
-            <RemoveUsers
-              market={renderableMarket}
             />
           </>
         )}

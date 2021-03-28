@@ -14,6 +14,7 @@ import BanUserButton from './BanUserButton';
 import UnBanUserButton from './UnBanUserButton';
 import { makeStyles } from '@material-ui/styles';
 import Gravatar from '../../../components/Avatars/Gravatar';
+import Typography from '@material-ui/core/Typography'
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -83,7 +84,11 @@ function ExistingUsers (props) {
   }
 
   return (
-    <List>
+    <List style={{maxWidth: "50%"}} subheader={
+      <Typography align="center" variant="h6">
+        Remove Collaborators
+      </Typography>
+    }>
       {getUsers()}
     </List>
   );

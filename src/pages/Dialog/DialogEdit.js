@@ -32,7 +32,7 @@ function DialogEdit(props) {
   const currentMarketName = (renderableMarket && renderableMarket.name) || '';
   const breadCrumbTemplates = [{ name: currentMarketName, link: formMarketLink(marketId), icon: getDialogTypeIcon(marketType) }];
   const myBreadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
-  const editVerbiage = intl.formatMessage({ id: 'edit' });
+  const editVerbiage = intl.formatMessage({ id: 'configure' });
   const userId = getMyUserForMarket(marketsState, marketId) || {};
   const loading = !userId || !marketType;
 

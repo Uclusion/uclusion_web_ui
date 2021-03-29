@@ -16,6 +16,8 @@ import { isTinyWindow } from '../../utils/windowUtils'
 import Typography from '@material-ui/core/Typography'
 import SearchBox from '../../components/Search/SearchBox'
 import clsx from 'clsx'
+import SearchResults from '../../components/Search/SearchResults'
+import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
 
 const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -41,6 +43,15 @@ const useStyles = makeStyles((theme) => ({
   containerAllLeftPad: {
     background: '#efefef',
     padding: '24px 20px 156px 100px',
+    marginTop: '80px',
+    width: '100%',
+    [theme.breakpoints.down('sm')]: {
+      padding: '24px 12px 156px',
+    },
+  },
+  containerSearchResults: {
+    background: '#efefef',
+    padding: '24px 20px 156px 500px',
     marginTop: '80px',
     width: '100%',
     [theme.breakpoints.down('sm')]: {
@@ -89,6 +100,10 @@ const useStyles = makeStyles((theme) => ({
   content: {
     background: '#efefef',
   },
+  contentSearch: {
+    background: '#efefef',
+    paddingLeft: '33rem'
+  },
   disabled: {
     color: theme.palette.text.disabled
   },
@@ -102,6 +117,8 @@ const useStyles = makeStyles((theme) => ({
 function Screen(props) {
   const classes = useStyles();
   const [userState] = useContext(AccountUserContext);
+  const [searchResults] = useContext(SearchResultsContext);
+  const { results } = searchResults;
   const { user: unsafeUser } = userState;
   const user = unsafeUser || {};
   const history = useHistory();
@@ -156,8 +173,9 @@ function Screen(props) {
   if (_.isEmpty(breadCrumbs) && !isHome) {
     usedBreadCrumbs = makeBreadCrumbs(history);
   }
-  const { navHeaderText, navListItemTextArray } = navigationOptions || {};
+  const { navHeaderText, navListItemTextArray, showSearchResults } = navigationOptions || {};
   const myContainerClass = navigationOptions ? classes.containerAllLeftPad : classes.containerAll;
+  const contentClass = showSearchResults && !_.isEmpty(results) ? classes.contentSearch : classes.content;
   return (
     <div className={classes.root} id="root">
       <Helmet defer={false}>
@@ -222,6 +240,9 @@ function Screen(props) {
             </List>
             <SearchBox/>
           </Paper>
+          {showSearchResults && (
+            <SearchResults placement="right"/>
+          )}
         </div>
       )}
       {banner && (
@@ -234,7 +255,7 @@ function Screen(props) {
           <ActionBar actionBarActions={sidebarActions} appEnabled={appEnabled} />
         </Container>
       )}
-      <div className={classes.content}>
+      <div className={contentClass}>
         {!reallyAmLoading && (
           <Container className={myContainerClass}>
             {children}

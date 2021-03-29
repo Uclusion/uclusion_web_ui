@@ -16,7 +16,7 @@ import { useHistory } from 'react-router'
 
 const MAX_ALLOWABLE_RESULTS = 75;
 
-function SearchBox (props) {
+function SearchBox () {
   const intl = useIntl();
   const history = useHistory();
   const [index] = useContext(SearchIndexContext);

@@ -186,7 +186,7 @@ function Home(props) {
 
   //TODO - across workspaces numbers meaningless before search so grab the search numbers out of the
   // search results - so when no search result just pass undefined instead of zero for num ON SWIMLANES AND ARCHIVE
-  const navigationMenu = {navHeaderText: intl.formatMessage({ id: 'home' }),
+  const navigationMenu = {navHeaderText: intl.formatMessage({ id: 'home' }), showSearchResults: true,
     navListItemTextArray: [createNavListItem(AddIcon, 'addNew', 'actionContainer'),
       createNavListItem(AgilePlanIcon, 'swimLanes', 'swimLanes',
         swimLaneInvestibles === undefined ? undefined : _.size(swimLaneInvestibles)),

@@ -106,7 +106,8 @@ export const searchStyles = makeStyles((theme) => {
 // 10 is a good balance of useability and screen size
 const PAGE_SIZE = 10;
 
-function SearchResults () {
+function SearchResults (props) {
+  const { placement = 'bottom' } = props;
   const [searchResults, setSearchResults] = useContext(SearchResultsContext);
   const [open, setOpen] = useState(false);
   const { results, page, search } = searchResults;
@@ -213,8 +214,6 @@ function SearchResults () {
     resultUIElements.push(createSearchNavigation());
     return resultUIElements;
   }
-
-  const placement = 'bottom';
 
   return (
     <Popper

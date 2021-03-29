@@ -141,7 +141,7 @@ function PlanningDialog(props) {
     }
     return market_infos.find((info) => {
       const stage = marketStages.find((stage) => stage.id === info.stage);
-      return stage.appears_in_context;
+      return stage.appears_in_context && !stage.appears_in_market_summary;
     });
   });
   const archiveInvestibles = investibles.filter((inv) => {
@@ -220,7 +220,7 @@ function PlanningDialog(props) {
   const todoComments = unResolvedMarketComments.filter((comment) => comment.comment_type === TODO_TYPE);
   const resolvedMarketComments = comments.filter(comment => !comment.investible_id && comment.resolved);
   const activeChildrenDialogs = marketInfoList || [];
-  const dialogId = _.size(activeChildrenDialogs) > 0 ? activeChildrenDialogs[0].id : undefined;
+  const dialogId = _.size(activeChildrenDialogs) > 0 ? activeChildrenDialogs[_.size(activeChildrenDialogs) - 1].id : undefined;
   const inactiveChildrenDialogs = (children || []).filter((aMarketId) =>
     !activeChildrenDialogs.find((aMarket) => aMarket.id === aMarketId));
   const navigationMenu = {navHeaderText: intl.formatMessage({ id: 'workspace' }),

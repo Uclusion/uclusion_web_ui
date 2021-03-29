@@ -15,6 +15,7 @@ import Summary from './Summary'
 import PlanningIdeas from './PlanningIdeas'
 import Screen from '../../../containers/Screen/Screen'
 import {
+  baseNavListItem,
   formMarketAddInvestibleLink, formMarketArchivesLink, formMarketLink,
   makeArchiveBreadCrumbs,
   makeBreadCrumbs,
@@ -197,12 +198,7 @@ function PlanningDialog(props) {
     navigate(history, link);
   }
   function createNavListItem(textId, anchorId, howManyNum, alwaysShow) {
-    const text = intl.formatMessage({ id: textId });
-    if (howManyNum === 0 && alwaysShow !== true) {
-      return {text, num: howManyNum};
-    }
-    const useAnchor = anchorId ? anchorId : textId;
-    return {text, target: `${formMarketLink(marketId)}#${useAnchor}`, num: howManyNum}
+    return baseNavListItem(formMarketLink(marketId), textId, anchorId, howManyNum, alwaysShow);
   }
   function getFakeCommentsArray(comments) {
     if (_.isEmpty(comments)) {
@@ -220,7 +216,6 @@ function PlanningDialog(props) {
   const todoComments = unResolvedMarketComments.filter((comment) => comment.comment_type === TODO_TYPE);
   const resolvedMarketComments = comments.filter(comment => !comment.investible_id && comment.resolved);
   const activeChildrenDialogs = marketInfoList || [];
-  const dialogId = _.size(activeChildrenDialogs) > 0 ? activeChildrenDialogs[_.size(activeChildrenDialogs) - 1].id : undefined;
   const inactiveChildrenDialogs = (children || []).filter((aMarketId) =>
     !activeChildrenDialogs.find((aMarket) => aMarket.id === aMarketId));
   const navigationMenu = {navHeaderText: intl.formatMessage({ id: 'workspace' }),
@@ -235,7 +230,7 @@ function PlanningDialog(props) {
       createNavListItem('questions', `c${questionId}`, _.size(questions)),
       createNavListItem('reports', `c${reportId}`, _.size(reports)),
       createNavListItem('suggestions', `c${suggestId}`, _.size(suggestions)),
-      createNavListItem('dialogs', dialogId, _.size(activeChildrenDialogs)),
+      createNavListItem('dialogs', 'dia0', _.size(activeChildrenDialogs)),
       {text: intl.formatMessage({ id: 'planningDialogViewArchivesLabel' }),
         target: formMarketArchivesLink(marketId), num: _.size(archiveInvestibles) + _.size(resolvedMarketComments)
       + _.size(inactiveChildrenDialogs)}

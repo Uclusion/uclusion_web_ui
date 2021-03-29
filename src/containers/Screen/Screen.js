@@ -203,7 +203,9 @@ function Screen(props) {
                             }
                   >
                     <span style={{width: "90%"}}><ListItemText primary={text} /></span>
-                    <span style={{width: "10%"}}><ListItemText primary={num} /></span>
+                    {num !== undefined && (
+                      <span style={{width: "10%"}}><ListItemText primary={num} /></span>
+                    )}
                   </ListItem>
                 );
               })}
@@ -218,7 +220,7 @@ function Screen(props) {
         </Container>
       )}
       {!_.isEmpty(sidebarActions) && !reallyAmLoading && (
-        <Container className={classes.actionContainer}>
+        <Container className={classes.actionContainer} id="actionContainer">
           <ActionBar actionBarActions={sidebarActions} appEnabled={appEnabled} />
         </Container>
       )}

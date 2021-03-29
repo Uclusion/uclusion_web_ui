@@ -28,6 +28,7 @@ import {
   TODO_TYPE
 } from '../../../constants/comments'
 import {
+  baseNavListItem,
   formInvestibleEditLink, formInvestibleLink,
   formMarketArchivesLink,
   formMarketLink,
@@ -725,12 +726,7 @@ function PlanningInvestible(props) {
     navigate(history, `${formInvestibleEditLink(market.id, marketInvestible.investible.id)}#approve=true`);
   }
   function createNavListItem(textId, anchorId, howManyNum, alwaysShow) {
-    const text = intl.formatMessage({ id: textId });
-    if (howManyNum === 0 && alwaysShow !== true) {
-      return {text, num: howManyNum};
-    }
-    const useAnchor = anchorId ? anchorId : textId;
-    return {text, target: `${formInvestibleLink(marketId, investibleId)}#${useAnchor}`, num: howManyNum}
+    return baseNavListItem(formInvestibleLink(marketId, investibleId), textId, anchorId, howManyNum, alwaysShow);
   }
   function getFakeCommentsArray(comments) {
     if (_.isEmpty(comments)) {

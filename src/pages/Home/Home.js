@@ -11,7 +11,13 @@ import { getMarketDetailsForType, getNotHiddenMarketDetailsForUser } from '../..
 import PlanningDialogs from './PlanningDialogs'
 import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE, } from '../../constants/markets'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { formMarketManageLink, navigate } from '../../utils/marketIdPathFunctions'
+import {
+  baseNavListItem,
+  formMarketArchivesLink,
+  formMarketLink,
+  formMarketManageLink,
+  navigate
+} from '../../utils/marketIdPathFunctions'
 import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions'
 import { getAndClearRedirect, getInvitationMarker, redirectToPath } from '../../utils/redirectUtils'
 import WizardSelector from '../../components/AddNew/WizardSelector'
@@ -145,15 +151,7 @@ function Home(props) {
     INITIATIVE_TYPE,
   ), 'created_at').reverse();
   
-  const ACTIONBAR_ACTIONS = [
-    {
-      label: intl.formatMessage({ id: 'homeViewArchivesExplanation' }),
-      openLabel: intl.formatMessage({ id: 'homeViewArchives' }),
-      icon: <MenuBookIcon/>,
-      id: 'archive',
-      onClick: () => navigate(history, '/archives'),
-    },
-  ];
+  const ACTIONBAR_ACTIONS = [];
 
   if (wizardActive) {
     ACTIONBAR_ACTIONS.push({
@@ -177,6 +175,25 @@ function Home(props) {
     navigate(history, link);
   }
 
+  function createNavListItem(textId, anchorId, howManyNum, alwaysShow) {
+    return baseNavListItem('/', textId, anchorId, howManyNum, alwaysShow);
+  }
+  const swimLaneInvestibles = undefined;
+  const archiveMarkets = undefined;
+
+  //TODO - across workspaces numbers meaningless before search so grab the search numbers out of the
+  // search results - so when no search result just pass undefined instead of zero for num ON SWIMLANES AND ARCHIVE
+  const navigationMenu = {navHeaderText: intl.formatMessage({ id: 'home' }),
+    navListItemTextArray: [createNavListItem('addNew', 'actionContainer'),
+      createNavListItem('swimLanes', 'swimLanes',
+        swimLaneInvestibles === undefined ? undefined : _.size(swimLaneInvestibles)),
+      createNavListItem('planningMarkets', 'planningMarkets', _.size(planningDetails)),
+      createNavListItem('dialogs', 'dia0', _.size(decisionDetails)),
+      createNavListItem('initiatives', 'ini0', _.size(initiativeDetails)),
+      {text: intl.formatMessage({ id: 'homeViewArchives' }), target: () => navigate(history, '/archives'),
+        num: archiveMarkets === undefined ? undefined : _.size(archiveMarkets)}
+    ]};
+
   return (
     <Screen
       title={intl.formatMessage({ 'id': 'homeBreadCrumb' })}
@@ -186,6 +203,7 @@ function Home(props) {
       sidebarActions={ACTIONBAR_ACTIONS}
       banner={banner}
       loading={clearedToCreate === undefined}
+      navigationOptions={banner || wizardActive ? [] : navigationMenu}
     >
       <UclusionTour
         name={SIGNUP_HOME}

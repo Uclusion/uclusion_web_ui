@@ -114,6 +114,15 @@ export function makeArchiveBreadCrumbs(history, crumbs = []) {
   return makeBreadCrumbs(history, myCrumbs);
 }
 
+export function baseNavListItem(linkRoot, textId, anchorId, howManyNum, alwaysShow) {
+  const text = intl.formatMessage({ id: textId });
+  if (howManyNum === 0 && alwaysShow !== true) {
+    return {text, num: howManyNum};
+  }
+  const useAnchor = anchorId ? anchorId : textId;
+  return {text, target: `${linkRoot}#${useAnchor}`, num: howManyNum}
+}
+
 export function createTitle(fullTitle, titleSize) {
   if (!fullTitle) {
     return '';

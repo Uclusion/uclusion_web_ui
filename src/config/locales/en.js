@@ -254,7 +254,7 @@ const messages = defineMessages({
 
   // Navigation menu
   swimLanes: 'Swimlanes',
-  commentAddBox: 'New Comment',
+  commentAddBox: 'Add Comment',
   questions: 'Questions',
   suggestions: 'Suggestions',
   reports: 'Reports',
@@ -264,6 +264,10 @@ const messages = defineMessages({
   approvals: 'Approvals',
   pleaseVoteNav: 'Change Approval',
   dialogs: 'Dialogs',
+  home: 'Home',
+  addNew: 'Add New',
+  initiatives: 'Initiatives',
+  planningMarkets: 'Workspaces',
 
   // Address list
   addressAddCancelLabel: 'Close',

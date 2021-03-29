@@ -725,14 +725,12 @@ function PlanningInvestible(props) {
     navigate(history, `${formInvestibleEditLink(market.id, marketInvestible.investible.id)}#approve=true`);
   }
   function createNavListItem(textId, anchorId, howManyNum, alwaysShow) {
-    const text = howManyNum !== undefined ?
-      intl.formatMessage({ id: `${textId}Num` }, { x: howManyNum }) :
-      intl.formatMessage({ id: textId });
+    const text = intl.formatMessage({ id: textId });
     if (howManyNum === 0 && alwaysShow !== true) {
-      return {text};
+      return {text, num: howManyNum};
     }
     const useAnchor = anchorId ? anchorId : textId;
-    return {text, target: `${formInvestibleLink(marketId, investibleId)}#${useAnchor}`}
+    return {text, target: `${formInvestibleLink(marketId, investibleId)}#${useAnchor}`, num: howManyNum}
   }
   function getFakeCommentsArray(comments) {
     if (_.isEmpty(comments)) {

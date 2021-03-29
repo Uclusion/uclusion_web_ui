@@ -171,7 +171,7 @@ function Screen(props) {
                   }
             >
               {navListItemTextArray.map((navItem) => {
-                const { text, target } = navItem;
+                const { text, target, num } = navItem;
                 if (!text) {
                   return React.Fragment;
                 }
@@ -192,7 +192,8 @@ function Screen(props) {
                               }
                             }
                   >
-                    <ListItemText primary={text} />
+                    <span style={{width: "80%"}}><ListItemText primary={text} /></span>
+                    <span style={{width: "20%"}}><ListItemText primary={num} /></span>
                   </ListItem>
                 );
               })}

@@ -255,17 +255,13 @@ const messages = defineMessages({
   // Navigation menu
   swimLanes: 'Swimlanes',
   commentAddBox: 'New Comment',
-  planningInvestibleMoveToFurtherWorkLabelNum: 'Further Work - {x}',
-  todoSectionNum: 'TODOs - {x}',
-  planningBlockedStageLabelNum: 'Blocked - {x}',
-  requiresInputStageLabelNum: 'Requires Input - {x}',
-  questionsNum: 'Questions - {x}',
-  suggestionsNum: 'Suggestions - {x}',
-  reportsNum: 'Reports - {x}',
-  blockingNum: 'Blocking - {x}',
+  questions: 'Questions',
+  suggestions: 'Suggestions',
+  reports: 'Reports',
+  blocking: 'Blocking',
   workspace: 'Workspace',
   story: 'Story',
-  approvalsNum: 'Approvals - {x}',
+  approvals: 'Approvals',
   pleaseVoteNav: 'Change Approval',
 
   // Address list

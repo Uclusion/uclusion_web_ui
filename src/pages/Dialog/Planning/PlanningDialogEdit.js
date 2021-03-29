@@ -17,6 +17,10 @@ import _ from 'lodash'
 import ShowInVerifiedStageAge from './ShowInVerifiedStageAge'
 import { makeStyles, TextField, Typography } from '@material-ui/core'
 import ExistingUsers from '../UserManagement/ExistingUsers'
+import ChangeToObserverButton from '../ChangeToObserverButton'
+import ChangeToParticipantButton from '../ChangeToParticipantButton'
+import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -30,6 +34,7 @@ const useStyles = makeStyles((theme) => {
 function PlanningDialogEdit(props) {
   const { onSpinStop, onCancel, market, acceptedStage, verifiedStage } = props;
   const [marketStagesState, marketStagesDispatch] = useContext(MarketStagesContext);
+  const [marketPresencesState] = useContext(MarketPresencesContext);
   const {
     id,
     name: initialMarketName,
@@ -37,6 +42,9 @@ function PlanningDialogEdit(props) {
     investment_expiration: initialExpiration,
     votes_required: initialVotesRequired
   } = market;
+  const marketPresences = getMarketPresences(marketPresencesState, id);
+  const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
+  const following = myPresence ? myPresence.following : false;
   const intl = useIntl();
   const classes = usePlanFormStyles();
   const myClasses = useStyles();
@@ -122,7 +130,25 @@ function PlanningDialogEdit(props) {
   return (
     <Card className={classes.overflowVisible}>
       <CardContent className={classes.cardContent}>
-        <ExistingUsers market={market} />
+        <Grid container className={clsx(classes.fieldset, classes.flex, classes.justifySpace)}>
+          <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
+            <ExistingUsers market={market} />
+          </Grid>
+          <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
+            <Typography variant="h6">
+              Archive or Restore Workspace
+            </Typography>
+            <Typography variant="body2" style={{marginBottom: "0.5rem"}}>
+              Archiving prevents notifications and moves the workspace from the home page to the archives.
+            </Typography>
+            {following && (
+              <ChangeToObserverButton key="change-to-observer" marketId={id} />
+            )}
+            {!following && (
+              <ChangeToParticipantButton key="change-to-participant" marketId={id}/>
+            )}
+          </Grid>
+        </Grid>
         <Grid container className={clsx(classes.fieldset, classes.flex, classes.justifySpace)}
               style={{paddingTop: "2rem"}}>
           <Grid item md={12} xs={12} className={classes.fieldsetContainer}>

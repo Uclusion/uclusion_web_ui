@@ -84,7 +84,7 @@ function ExistingUsers (props) {
   }
 
   return (
-    <List style={{maxWidth: "50%"}} subheader={
+    <List subheader={
       <Typography align="center" variant="h6">
         Remove Collaborators
       </Typography>

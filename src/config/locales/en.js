@@ -263,6 +263,7 @@ const messages = defineMessages({
   story: 'Story',
   approvals: 'Approvals',
   pleaseVoteNav: 'Change Approval',
+  dialogs: 'Dialogs',
 
   // Address list
   addressAddCancelLabel: 'Close',

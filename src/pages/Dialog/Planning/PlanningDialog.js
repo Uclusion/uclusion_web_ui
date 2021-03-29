@@ -54,7 +54,7 @@ import MarketLinks from '../MarketLinks'
 import MarketTodos from './MarketTodos'
 import Gravatar from '../../../components/Avatars/Gravatar';
 import { LocalPlanningDragContext } from './InvestiblesByWorkspace'
-import { isInReviewStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
+import { getFullStage, isInReviewStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { findMessageOfType, findMessageOfTypeAndId } from '../../../utils/messageUtils'
 import NotificationCountChips from '../NotificationCountChips'
 import AddIcon from '@material-ui/icons/Add'
@@ -99,6 +99,7 @@ function PlanningDialog(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   // For security reasons you can't access source data while being dragged in case you are not the target website
   const [beingDraggedHack, setBeingDraggedHack] = useState({});
+  const [marketInfoList, setMarketInfoList] = useState(undefined);
   const [startTourNow, setStartTourNow] = useState(undefined);
   const presences = getMarketPresences(marketPresencesState, marketId);
   const acceptedStage = marketStages.find(stage => stage.assignee_enter_only) || {};
@@ -133,6 +134,26 @@ function PlanningDialog(props) {
   });
   const requiresInputInvestibles = getInvestiblesInStage(investibles, requiresInputStage.id);
   const blockedInvestibles = getInvestiblesInStage(investibles, inBlockingStage.id);
+  const swimlaneInvestibles = investibles.filter((inv) => {
+    const { market_infos } = inv;
+    if (!market_infos) {
+      return false;
+    }
+    return market_infos.find((info) => {
+      const stage = marketStages.find((stage) => stage.id === info.stage);
+      return stage.appears_in_context;
+    });
+  });
+  const archiveInvestibles = investibles.filter((inv) => {
+    const { market_infos } = inv;
+    if (!market_infos) {
+      return false;
+    }
+    return market_infos.find((info) => {
+      const stage = marketStages.find((stage) => stage.id === info.stage);
+      return stage.close_comments_on_entrance;
+    });
+  });
   const highlightMap = {};
   requiresInputInvestibles.forEach((investible) => {
     if (hasNotVoted(investible, marketPresencesState, marketsState, comments, marketId, myPresence.external_id)) {
@@ -197,11 +218,16 @@ function PlanningDialog(props) {
   const reports = sortedRoots.filter((comment) => comment.comment_type === REPORT_TYPE);
   const { id: reportId } = getFakeCommentsArray(reports)[0];
   const todoComments = unResolvedMarketComments.filter((comment) => comment.comment_type === TODO_TYPE);
+  const resolvedMarketComments = comments.filter(comment => !comment.investible_id && comment.resolved);
+  const activeChildrenDialogs = marketInfoList || [];
+  const dialogId = _.size(activeChildrenDialogs) > 0 ? activeChildrenDialogs[0].id : undefined;
+  const inactiveChildrenDialogs = (children || []).filter((aMarketId) =>
+    !activeChildrenDialogs.find((aMarket) => aMarket.id === aMarketId));
   const navigationMenu = {navHeaderText: intl.formatMessage({ id: 'workspace' }),
     navListItemTextArray: [createNavListItem('description_label', 'workspaceMain'),
       createNavListItem('planningBlockedStageLabel', 'blocked', _.size(blockedInvestibles)),
       createNavListItem('requiresInputStageLabel', 'requiresInput', _.size(requiresInputInvestibles)),
-      createNavListItem('swimLanes'),
+      createNavListItem('swimLanes', 'swimLanes', _.size(swimlaneInvestibles), true),
       createNavListItem('planningInvestibleMoveToFurtherWorkLabel', 'furtherWork',
         _.size(furtherWorkReadyToStart) + _.size(furtherWorkInvestibles), !inArchives),
       createNavListItem('todoSection', 'marketTodos', _.size(todoComments), !inArchives),
@@ -209,8 +235,10 @@ function PlanningDialog(props) {
       createNavListItem('questions', `c${questionId}`, _.size(questions)),
       createNavListItem('reports', `c${reportId}`, _.size(reports)),
       createNavListItem('suggestions', `c${suggestId}`, _.size(suggestions)),
+      createNavListItem('dialogs', dialogId, _.size(activeChildrenDialogs)),
       {text: intl.formatMessage({ id: 'planningDialogViewArchivesLabel' }),
-        target: formMarketArchivesLink(marketId)}
+        target: formMarketArchivesLink(marketId), num: _.size(archiveInvestibles) + _.size(resolvedMarketComments)
+      + _.size(inactiveChildrenDialogs)}
     ]};
   return (
     <Screen
@@ -389,7 +417,7 @@ function PlanningDialog(props) {
             <CommentBox comments={notTodoComments} marketId={marketId} allowedTypes={allowedCommentTypes} />
           </Grid>
       </Grid>
-      <MarketLinks links={children|| []} />
+      <MarketLinks links={children|| []} setMarketInfoList={setMarketInfoList} />
     </Screen>
   );
 }

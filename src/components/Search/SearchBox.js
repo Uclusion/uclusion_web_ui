@@ -69,15 +69,10 @@ function SearchBox (props) {
     }
   }
 
-  const endAdornment = _.isEmpty(searchResults.search)? null : (
-    <InputAdornment style={{cursor: 'pointer'}} onClick={clearSearch} position="end">
-      <CloseIcon/>
-    </InputAdornment>
-  );
-
   return (
     <div id='search-box'>
       <TextField
+        style={{backgroundColor: "white", maxWidth: "13rem"}}
         onChange={onSearchChange}
         value={searchResults.search}
         placeholder={intl.formatMessage({ id: 'searchBoxPlaceholder' })}
@@ -89,7 +84,12 @@ function SearchBox (props) {
               <SearchIcon />
             </InputAdornment>
           ),
-          endAdornment,
+          endAdornment: (
+            <InputAdornment style={{cursor: 'pointer'}}
+                            onClick={clearSearch} position="end">
+              <CloseIcon style={{color: _.isEmpty(searchResults.search) ? 'white': 'black'}}/>
+            </InputAdornment>
+          ),
         }}
       />
     </div>

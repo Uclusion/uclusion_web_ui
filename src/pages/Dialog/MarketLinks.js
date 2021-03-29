@@ -15,7 +15,7 @@ import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
 import { hasInitializedGlobalVersion } from '../../contexts/VersionsContext/versionsContextHelper'
 
 function MarketLinks (props) {
-  const { links, isArchive } = props
+  const { links, isArchive, setMarketInfoList } = props
   const [marketState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [nonParticipantMarketState, nonParticipantMarketDispatch] = useContext(NonParticipantMarketsContext);
@@ -24,10 +24,14 @@ function MarketLinks (props) {
   const [marketInfoList, marketInfoDispatch] = useReducer((state, action) => {
     const { marketDetails } = action;
     if (marketDetails.isNotCollaborator) {
-      return _.unionBy(state, [{ ...marketDetails }], 'id');
+      const newState = _.unionBy(state, [{ ...marketDetails }], 'id');
+      setMarketInfoList(newState);
+      return newState;
     }
     // If we have local data make sure it overwrites the not collaborator version
-    return _.unionBy([{ ...marketDetails }], state, 'id');
+    const newState = _.unionBy([{ ...marketDetails }], state, 'id');
+    setMarketInfoList(newState);
+    return newState;
   }, []);
 
   useEffect(() => {
@@ -111,11 +115,13 @@ function MarketLinks (props) {
 
 MarketLinks.propTypes = {
   links: PropTypes.arrayOf(PropTypes.string).isRequired,
-  isArchive:PropTypes.bool
+  isArchive: PropTypes.bool,
+  setMarketInfoList: PropTypes.func
 }
 
 MarketLinks.defaultProps = {
   isArchive: false,
+  setMarketInfoList: () => {}
 };
 
 export default MarketLinks

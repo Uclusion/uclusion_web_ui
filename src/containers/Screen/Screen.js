@@ -14,6 +14,7 @@ import LoadingDisplay from '../../components/LoadingDisplay';
 import List from '@material-ui/core/List'
 import { isTinyWindow } from '../../utils/windowUtils'
 import Typography from '@material-ui/core/Typography'
+import SearchBox from '../../components/Search/SearchBox'
 
 const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -30,6 +31,15 @@ const useStyles = makeStyles((theme) => ({
   containerAll: {
     background: '#efefef',
     padding: '24px 20px 156px',
+    marginTop: '80px',
+    width: '100%',
+    [theme.breakpoints.down('sm')]: {
+      padding: '24px 12px 156px',
+    },
+  },
+  containerAllLeftPad: {
+    background: '#efefef',
+    padding: '24px 20px 156px 100px',
     marginTop: '80px',
     width: '100%',
     [theme.breakpoints.down('sm')]: {
@@ -140,8 +150,8 @@ function Screen(props) {
   if (_.isEmpty(breadCrumbs) && !isHome) {
     usedBreadCrumbs = makeBreadCrumbs(history);
   }
-  const myContainerClass = classes.containerAll;
   const { navHeaderText, navListItemTextArray } = navigationOptions || {};
+  const myContainerClass = navigationOptions ? classes.containerAllLeftPad : classes.containerAll;
   return (
     <div className={classes.root} id="root">
       <Helmet defer={false}>
@@ -177,13 +187,13 @@ function Screen(props) {
                 }
                 if (!target) {
                   return (
-                    <ListItem>
+                    <ListItem key={text}>
                       <ListItemText primary={text} primaryTypographyProps={{className: classes.disabled}} />
                     </ListItem>
                   );
                 }
                 return (
-                  <ListItem className={classes.navListItem}
+                  <ListItem key={text} className={classes.navListItem}
                             onClick={
                               (event) => {
                                 event.stopPropagation();
@@ -192,12 +202,13 @@ function Screen(props) {
                               }
                             }
                   >
-                    <span style={{width: "80%"}}><ListItemText primary={text} /></span>
-                    <span style={{width: "20%"}}><ListItemText primary={num} /></span>
+                    <span style={{width: "90%"}}><ListItemText primary={text} /></span>
+                    <span style={{width: "10%"}}><ListItemText primary={num} /></span>
                   </ListItem>
                 );
               })}
             </List>
+            <SearchBox/>
           </Paper>
         </div>
       )}

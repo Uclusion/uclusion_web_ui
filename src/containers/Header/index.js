@@ -73,7 +73,7 @@ export const headerStyles = makeStyles((theme) => {
       width: '100%',
       paddingLeft: 0
     },
-    searchBox: {
+    padLeft: {
       paddingLeft: '1rem',
     },
     notification: {
@@ -278,11 +278,14 @@ function Header (props) {
               <div className={classes.notification} id="notifications">
                 <NotificationsContainer/>
               </div>
-              <div className={classes.searchBox}>
-                <SearchBox/>
-              </div>
-              <SearchResults/>
-              {window.outerWidth > 600 && (
+              <div className={classes.padLeft} />
+              {isTinyWindow() && (
+                <>
+                  <SearchBox/>
+                  <SearchResults/>
+                </>
+              )}
+              {!isTinyWindow() && (
                 <Tooltip title={<FormattedMessage id="help"/>}>
                   <HelpOutlineIcon color="primary" style={{ cursor: 'pointer', marginLeft: '1rem' }}
                                    onClick={() => openInNewTab(config.helpLink)}/>

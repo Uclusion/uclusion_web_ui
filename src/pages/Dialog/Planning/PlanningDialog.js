@@ -55,7 +55,7 @@ import MarketLinks from '../MarketLinks'
 import MarketTodos from './MarketTodos'
 import Gravatar from '../../../components/Avatars/Gravatar';
 import { LocalPlanningDragContext } from './InvestiblesByWorkspace'
-import { getFullStage, isInReviewStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
+import { isInReviewStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { findMessageOfType, findMessageOfTypeAndId } from '../../../utils/messageUtils'
 import NotificationCountChips from '../NotificationCountChips'
 import AddIcon from '@material-ui/icons/Add'
@@ -65,6 +65,17 @@ import { workspaceInvitedUserSteps } from '../../../components/Tours/InviteTours
 import { ExpandLess } from '@material-ui/icons'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { EXPANDED_CONTROL, ExpandedCommentContext } from '../../../contexts/CommentsContext/ExpandedCommentContext'
+import WorkIcon from '@material-ui/icons/Work'
+import ListAltIcon from '@material-ui/icons/ListAlt'
+import EditIcon from '@material-ui/icons/Edit'
+import GavelIcon from '@material-ui/icons/Gavel'
+import BlockIcon from '@material-ui/icons/Block'
+import QuestionIcon from '@material-ui/icons/ContactSupport'
+import UpdateIcon from '@material-ui/icons/Update'
+import ChangeSuggstionIcon from '@material-ui/icons/ChangeHistory'
+import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
+import MenuBookIcon from '@material-ui/icons/MenuBook'
+import PlayForWorkIcon from '@material-ui/icons/PlayForWork'
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -197,8 +208,8 @@ function PlanningDialog(props) {
     const link = formMarketAddInvestibleLink(marketId);
     navigate(history, link);
   }
-  function createNavListItem(textId, anchorId, howManyNum, alwaysShow) {
-    return baseNavListItem(formMarketLink(marketId), textId, anchorId, howManyNum, alwaysShow);
+  function createNavListItem(icon, textId, anchorId, howManyNum, alwaysShow) {
+    return baseNavListItem(formMarketLink(marketId), icon, textId, anchorId, howManyNum, alwaysShow);
   }
   function getFakeCommentsArray(comments) {
     if (_.isEmpty(comments)) {
@@ -219,19 +230,19 @@ function PlanningDialog(props) {
   const inactiveChildrenDialogs = (children || []).filter((aMarketId) =>
     !activeChildrenDialogs.find((aMarket) => aMarket.id === aMarketId));
   const navigationMenu = {navHeaderText: intl.formatMessage({ id: 'workspace' }),
-    navListItemTextArray: [createNavListItem('description_label', 'workspaceMain'),
-      createNavListItem('planningBlockedStageLabel', 'blocked', _.size(blockedInvestibles)),
-      createNavListItem('requiresInputStageLabel', 'requiresInput', _.size(requiresInputInvestibles)),
-      createNavListItem('swimLanes', 'swimLanes', _.size(swimlaneInvestibles), true),
-      createNavListItem('planningInvestibleMoveToFurtherWorkLabel', 'furtherWork',
+    navListItemTextArray: [createNavListItem(EditIcon, 'description_label', 'workspaceMain'),
+      createNavListItem(BlockIcon,'planningBlockedStageLabel', 'blocked', _.size(blockedInvestibles)),
+      createNavListItem(PlayForWorkIcon,'requiresInputStageLabel', 'requiresInput', _.size(requiresInputInvestibles)),
+      createNavListItem(AgilePlanIcon,'swimLanes', 'swimLanes', _.size(swimlaneInvestibles), true),
+      createNavListItem(WorkIcon,'planningInvestibleMoveToFurtherWorkLabel', 'furtherWork',
         _.size(furtherWorkReadyToStart) + _.size(furtherWorkInvestibles), !inArchives),
-      createNavListItem('todoSection', 'marketTodos', _.size(todoComments), !inArchives),
-      inArchives ? {} : createNavListItem('commentAddBox'),
-      createNavListItem('questions', `c${questionId}`, _.size(questions)),
-      createNavListItem('reports', `c${reportId}`, _.size(reports)),
-      createNavListItem('suggestions', `c${suggestId}`, _.size(suggestions)),
-      createNavListItem('dialogs', 'dia0', _.size(activeChildrenDialogs)),
-      {text: intl.formatMessage({ id: 'planningDialogViewArchivesLabel' }),
+      createNavListItem(ListAltIcon,'todoSection', 'marketTodos', _.size(todoComments), !inArchives),
+      inArchives ? {} : createNavListItem(AddIcon,'commentAddBox'),
+      createNavListItem(QuestionIcon,'questions', `c${questionId}`, _.size(questions)),
+      createNavListItem(UpdateIcon,'reports', `c${reportId}`, _.size(reports)),
+      createNavListItem(ChangeSuggstionIcon,'suggestions', `c${suggestId}`, _.size(suggestions)),
+      createNavListItem(GavelIcon,'dialogs', 'dia0', _.size(activeChildrenDialogs)),
+      {icon: MenuBookIcon, text: intl.formatMessage({ id: 'planningDialogViewArchivesLabel' }),
         target: formMarketArchivesLink(marketId), num: _.size(archiveInvestibles) + _.size(resolvedMarketComments)
       + _.size(inactiveChildrenDialogs)}
     ]};

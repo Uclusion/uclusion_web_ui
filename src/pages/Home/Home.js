@@ -13,8 +13,6 @@ import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE, } from '../../constants/
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import {
   baseNavListItem,
-  formMarketArchivesLink,
-  formMarketLink,
   formMarketManageLink,
   navigate
 } from '../../utils/marketIdPathFunctions'
@@ -41,6 +39,11 @@ import { DiffContext } from '../../contexts/DiffContext/DiffContext'
 import OnboardingBanner from '../../components/Banners/OnboardingBanner'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { getChangedIds } from '../../api/summaries'
+import AddIcon from '@material-ui/icons/Add'
+import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
+import PlaylistAddCheckIcon from '@material-ui/icons/PlaylistAddCheck'
+import GavelIcon from '@material-ui/icons/Gavel'
+import PollIcon from '@material-ui/icons/Poll'
 
 const useStyles = makeStyles(() => ({
     spacer: {
@@ -175,8 +178,8 @@ function Home(props) {
     navigate(history, link);
   }
 
-  function createNavListItem(textId, anchorId, howManyNum, alwaysShow) {
-    return baseNavListItem('/', textId, anchorId, howManyNum, alwaysShow);
+  function createNavListItem(icon, textId, anchorId, howManyNum, alwaysShow) {
+    return baseNavListItem('/', icon, textId, anchorId, howManyNum, alwaysShow);
   }
   const swimLaneInvestibles = undefined;
   const archiveMarkets = undefined;
@@ -184,13 +187,14 @@ function Home(props) {
   //TODO - across workspaces numbers meaningless before search so grab the search numbers out of the
   // search results - so when no search result just pass undefined instead of zero for num ON SWIMLANES AND ARCHIVE
   const navigationMenu = {navHeaderText: intl.formatMessage({ id: 'home' }),
-    navListItemTextArray: [createNavListItem('addNew', 'actionContainer'),
-      createNavListItem('swimLanes', 'swimLanes',
+    navListItemTextArray: [createNavListItem(AddIcon, 'addNew', 'actionContainer'),
+      createNavListItem(AgilePlanIcon, 'swimLanes', 'swimLanes',
         swimLaneInvestibles === undefined ? undefined : _.size(swimLaneInvestibles)),
-      createNavListItem('planningMarkets', 'planningMarkets', _.size(planningDetails)),
-      createNavListItem('dialogs', 'dia0', _.size(decisionDetails)),
-      createNavListItem('initiatives', 'ini0', _.size(initiativeDetails)),
-      {text: intl.formatMessage({ id: 'homeViewArchives' }), target: () => navigate(history, '/archives'),
+      createNavListItem(PlaylistAddCheckIcon, 'planningMarkets', 'planningMarkets', _.size(planningDetails)),
+      createNavListItem(GavelIcon, 'dialogs', 'dia0', _.size(decisionDetails)),
+      createNavListItem(PollIcon, 'initiatives', 'ini0', _.size(initiativeDetails)),
+      {icon: MenuBookIcon, text: intl.formatMessage({ id: 'homeViewArchives' }),
+        target: () => navigate(history, '/archives'),
         num: archiveMarkets === undefined ? undefined : _.size(archiveMarkets)}
     ]};
 

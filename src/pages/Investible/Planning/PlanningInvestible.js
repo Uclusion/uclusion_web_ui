@@ -113,6 +113,14 @@ import PlaylistAddCheckIcon from '@material-ui/icons/PlaylistAddCheck';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { findMessageOfType } from '../../../utils/messageUtils'
 import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
+import QuestionIcon from '@material-ui/icons/ContactSupport'
+import UpdateIcon from '@material-ui/icons/Update'
+import BlockIcon from '@material-ui/icons/Block'
+import ChangeSuggstionIcon from '@material-ui/icons/ChangeHistory'
+import ListAltIcon from '@material-ui/icons/ListAlt'
+import EditIcon from '@material-ui/icons/Edit'
+import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown'
+import HowToVoteIcon from '@material-ui/icons/HowToVote'
 
 const useStyles = makeStyles(
   theme => ({
@@ -725,8 +733,8 @@ function PlanningInvestible(props) {
   function toggleApprovers() {
     navigate(history, `${formInvestibleEditLink(market.id, marketInvestible.investible.id)}#approve=true`);
   }
-  function createNavListItem(textId, anchorId, howManyNum, alwaysShow) {
-    return baseNavListItem(formInvestibleLink(marketId, investibleId), textId, anchorId, howManyNum, alwaysShow);
+  function createNavListItem(icon, textId, anchorId, howManyNum, alwaysShow) {
+    return baseNavListItem(formInvestibleLink(marketId, investibleId), icon, textId, anchorId, howManyNum, alwaysShow);
   }
   function getFakeCommentsArray(comments) {
     if (_.isEmpty(comments)) {
@@ -749,15 +757,15 @@ function PlanningInvestible(props) {
   const todoSortedComments = sortedRoots.filter((comment) => comment.comment_type === TODO_TYPE);
   const { id: todoId } = getFakeCommentsArray(todoSortedComments)[0];
   const navigationMenu = {navHeaderText: intl.formatMessage({ id: 'story' }),
-    navListItemTextArray: [createNavListItem('description_label', 'storyMain'),
-      displayVotingInput ? createNavListItem('pleaseVoteNav', 'pleaseVote') : {},
-      createNavListItem('approvals', 'approvals', _.size(invested)),
-      inArchives ? {} : createNavListItem('commentAddBox'),
-      createNavListItem('blocking', `c${blockingId}`, _.size(blocking)),
-      createNavListItem('questions', `c${questionId}`, _.size(questions)),
-      createNavListItem('reports', `c${reportId}`, _.size(reports)),
-      createNavListItem('suggestions', `c${suggestId}`, _.size(suggestions)),
-      createNavListItem('todoSection', `c${todoId}`, _.size(todoSortedComments)),
+    navListItemTextArray: [createNavListItem(EditIcon,'description_label', 'storyMain'),
+      displayVotingInput ? createNavListItem(HowToVoteIcon, 'pleaseVoteNav', 'pleaseVote') : {},
+      createNavListItem(ThumbsUpDownIcon, 'approvals', 'approvals', _.size(invested)),
+      inArchives ? {} : createNavListItem(AddIcon,'commentAddBox'),
+      createNavListItem(BlockIcon,'blocking', `c${blockingId}`, _.size(blocking)),
+      createNavListItem(QuestionIcon, 'questions', `c${questionId}`, _.size(questions)),
+      createNavListItem(UpdateIcon,'reports', `c${reportId}`, _.size(reports)),
+      createNavListItem(ChangeSuggstionIcon,'suggestions', `c${suggestId}`, _.size(suggestions)),
+      createNavListItem(ListAltIcon,'todoSection', `c${todoId}`, _.size(todoSortedComments)),
     ]};
   return (
     <Screen

@@ -15,6 +15,7 @@ import List from '@material-ui/core/List'
 import { isTinyWindow } from '../../utils/windowUtils'
 import Typography from '@material-ui/core/Typography'
 import SearchBox from '../../components/Search/SearchBox'
+import clsx from 'clsx'
 
 const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -56,6 +57,11 @@ const useStyles = makeStyles((theme) => ({
   },
   navList: {
     backgroundColor: 'white'
+  },
+  navListIcon: {
+    marginRight: 6,
+    height: 16,
+    width: 16
   },
   navListItem: {
     cursor: 'pointer',
@@ -181,13 +187,14 @@ function Screen(props) {
                   }
             >
               {navListItemTextArray.map((navItem) => {
-                const { text, target, num } = navItem;
+                const { text, target, num, icon: Icon } = navItem;
                 if (!text) {
                   return React.Fragment;
                 }
                 if (!target) {
                   return (
                     <ListItem key={text}>
+                      <Icon className={clsx(classes.navListIcon, classes.disabled)} />
                       <ListItemText primary={text} primaryTypographyProps={{className: classes.disabled}} />
                     </ListItem>
                   );
@@ -202,9 +209,12 @@ function Screen(props) {
                               }
                             }
                   >
-                    <span style={{width: "90%"}}><ListItemText primary={text} /></span>
+                    <Icon className={classes.navListIcon} />
+                    <span style={{width: "90%"}}>
+                      <ListItemText primary={text} />
+                    </span>
                     {num !== undefined && (
-                      <span style={{width: "10%"}}><ListItemText primary={num} /></span>
+                      <span style={{width: "7%"}}><ListItemText primary={num} /></span>
                     )}
                   </ListItem>
                 );

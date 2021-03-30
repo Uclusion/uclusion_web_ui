@@ -59,17 +59,7 @@ import MoveToAcceptedActionButton from './MoveToAcceptedActionButton'
 import MoveToInReviewActionButton from './MoveToInReviewActionButton'
 import EditMarketButton from '../../Dialog/EditMarketButton'
 import MarketLinks from '../../Dialog/MarketLinks'
-import CardType, {
-  FURTHER_WORK,
-  IN_BLOCKED,
-  IN_PROGRESS,
-  IN_REVIEW,
-  IN_VERIFIED,
-  IN_VOTING,
-  NOT_DOING,
-  REQUIRES_INPUT,
-  STORY_TYPE
-} from '../../../components/CardType'
+import CardType from '../../../components/CardType'
 import clsx from 'clsx'
 import { DECISION_TYPE } from '../../../constants/markets'
 import DismissableText from '../../../components/Notifications/DismissableText'
@@ -696,14 +686,7 @@ function PlanningInvestible(props) {
     options: availableLabels,
     getOptionLabel: (option) => option,
   };
-  const subtype = isInVoting ? IN_VOTING :
-    isInAccepted ? IN_PROGRESS :
-      isInReview ? IN_REVIEW :
-        isInBlocked ? IN_BLOCKED :
-          isInNotDoing ? NOT_DOING :
-            isReadyFurtherWork ? FURTHER_WORK :
-              isRequiresInput ? REQUIRES_INPUT :
-                IN_VERIFIED;
+
   function expansionChanged(event, expanded) {
     setChangeStagesExpanded(expanded);
   }
@@ -792,8 +775,6 @@ function PlanningInvestible(props) {
       <Card elevation={0} id="storyMain">
         <CardType
           className={classes.cardType}
-          type={STORY_TYPE}
-          subtype={subtype}
           createdAt={createdAt}
           myBeingEdited={myBeingEdited}
         />

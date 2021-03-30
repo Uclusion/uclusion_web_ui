@@ -187,8 +187,7 @@ function Home(props) {
       createNavListItem(GavelIcon, 'dialogs', 'dia0', _.size(decisionDetails)),
       createNavListItem(PollIcon, 'initiatives', 'ini0', _.size(initiativeDetails)),
       {icon: MenuBookIcon, text: intl.formatMessage({ id: 'homeViewArchives' }),
-        target: () => navigate(history, '/archives'),
-        num: archiveMarkets === undefined ? undefined : _.size(archiveMarkets)}
+        target: '/archives', num: archiveMarkets === undefined ? undefined : _.size(archiveMarkets)}
     ]};
 
   return (

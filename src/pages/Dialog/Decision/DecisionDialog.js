@@ -56,6 +56,7 @@ import BlockIcon from '@material-ui/icons/Block'
 import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
 import QuestionIcon from '@material-ui/icons/ContactSupport'
 import { getFakeCommentsArray } from '../../../utils/stringFunctions'
+import { QuestionAnswer } from '@material-ui/icons'
 
 const useStyles = makeStyles(
   theme => ({
@@ -275,9 +276,12 @@ function DecisionDialog(props) {
     return baseNavListItem(formMarketLink(marketId), icon, textId, anchorId, howManyNum, alwaysShow);
   }
   const sortedRoots = getSortedRoots(marketComments);
-  const questions = sortedRoots.filter((comment) => comment.comment_type === QUESTION_TYPE);
+  const closedComments = sortedRoots.filter((comment) => comment.resolved) || [];
+  const { id: closedId } = getFakeCommentsArray(closedComments)[0];
+  const openComments = sortedRoots.filter((comment) => !comment.resolved) || [];
+  const questions = openComments.filter((comment) => comment.comment_type === QUESTION_TYPE);
   const { id: questionId } = getFakeCommentsArray(questions)[0];
-  const blocked = sortedRoots.filter((comment) => comment.comment_type === ISSUE_TYPE);
+  const blocked = openComments.filter((comment) => comment.comment_type === ISSUE_TYPE);
   const { id: blockedId } = getFakeCommentsArray(blocked)[0];
   const navigationMenu = {navHeaderText: intl.formatMessage({ id: 'dialog' }),
     navListItemTextArray: [createNavListItem(EditIcon, 'description_label', 'dialogMain'),
@@ -286,7 +290,8 @@ function DecisionDialog(props) {
       createNavListItem(AgilePlanIcon,'proposed', 'proposed', _.size(proposed), true),
       inArchives ? {} : createNavListItem(AddIcon,'commentAddBox'),
       createNavListItem(BlockIcon,'planningBlockedStageLabel', `c${blockedId}`, _.size(blocked)),
-      createNavListItem(QuestionIcon,'questions', `c${questionId}`, _.size(questions))
+      createNavListItem(QuestionIcon,'questions', `c${questionId}`, _.size(questions)),
+      createNavListItem(QuestionAnswer,'closedComments', `c${closedId}`, _.size(closedComments))
     ]};
   return (
     <Screen

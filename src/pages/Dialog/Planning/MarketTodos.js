@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
-import { Button, Checkbox, Grid, InputAdornment, TextField, Typography } from '@material-ui/core'
+import { Button, Checkbox, Grid, Typography } from '@material-ui/core'
 import _ from 'lodash'
 import RaisedCard from '../../../components/Cards/RaisedCard'
 import { FormattedMessage, useIntl } from 'react-intl'
@@ -32,10 +32,6 @@ import {
   navigate
 } from '../../../utils/marketIdPathFunctions'
 import { ExpandLess } from '@material-ui/icons'
-import SearchIcon from '@material-ui/icons/Search'
-import { SearchIndexContext } from '../../../contexts/SearchIndexContext/SearchIndexContext'
-import { filterCommentsToSearch } from '../../../contexts/SearchIndexContext/searchIndexContextHelper'
-import CloseIcon from '@material-ui/icons/Close'
 import Chip from '@material-ui/core/Chip'
 import { removeHeader, restoreHeader } from '../../../containers/Header'
 import { LocalPlanningDragContext } from './InvestiblesByWorkspace'
@@ -90,9 +86,6 @@ const myClasses = makeStyles(
       containerHidden: {
         display: 'none'
       },
-      searchInput: {
-        background: 'white',
-      },
       actionSecondary: {
         backgroundColor: "#2d9cdb",
         color: "white",
@@ -124,7 +117,6 @@ function MarketTodos (props) {
   const [expandedCommentState, expandedCommentDispatch] = useContext(ExpandedCommentContext);
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
-  const [index] = useContext(SearchIndexContext);
   const [beingDraggedHack, setBeingDraggedHack] = useContext(LocalPlanningDragContext);
   const [messagesState] = useContext(NotificationsContext);
   const myExpandedState = expandedCommentState[marketId] || {};
@@ -140,13 +132,10 @@ function MarketTodos (props) {
   const [yellowLoadId, setYellowLoadId] = useState(false);
   const [showSelectTodos, setShowSelectTodos] = useState(false);
   const [checked, setChecked] = useState({});
-  const [searchQuery, setSearchQuery] = useState(undefined);
-  const foundResults = searchQuery ? index.search(searchQuery) : undefined;
   const todoComments = comments.filter(comment => comment.comment_type === TODO_TYPE) || [];
-  const restrictedComments = filterCommentsToSearch(foundResults, todoComments) || [];
-  const blueComments = restrictedComments.filter((comment) => comment.notification_type === 'BLUE');
-  const yellowComments = restrictedComments.filter((comment) => comment.notification_type === 'YELLOW');
-  const redComments = restrictedComments.filter((comment) => comment.notification_type === 'RED');
+  const blueComments = todoComments.filter((comment) => comment.notification_type === 'BLUE');
+  const yellowComments = todoComments.filter((comment) => comment.notification_type === 'YELLOW');
+  const redComments = todoComments.filter((comment) => comment.notification_type === 'RED');
   const location = useLocation();
   const { hash } = location;
   const [openMenuTodoId, setOpenMenuTodoId] = useState(undefined);
@@ -490,33 +479,6 @@ function MarketTodos (props) {
           hideChildren={!showTodos}
           title={intl.formatMessage({ id: 'todoSection' })}
           helpTextId="todoSectionHelp"
-          searchBar={isSingleTodoSelected ? undefined : (<TextField
-            style={{paddingTop: '3px', width: `${isTinyWindow() ? '9rem' : '18rem'}`}}
-            onFocus={() => {
-                if (!showTodos) {
-                  toggleShowTodos();
-                }
-              }
-            }
-            onChange={(event) => setSearchQuery(event.target.value)}
-            value={searchQuery}
-            placeholder={intl.formatMessage({ id: 'searchBoxPlaceholder' })}
-            variant="outlined"
-            size="small"
-            InputProps={{
-              className: classes.searchInput,
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon />
-                </InputAdornment>
-              ),
-              endAdornment: searchQuery ? (
-                <InputAdornment style={{cursor: 'pointer'}} onClick={() => setSearchQuery('')}
-                                position="end">
-                  <CloseIcon/>
-                </InputAdornment>
-              ) : null,
-            }}/>)}
           createButton={ isSingleTodoSelected || isInArchives || isTinyWindow() ? undefined :
             (<Button
               onClick={toggleShowSelectTodos}

@@ -6,11 +6,16 @@ import _ from 'lodash'
 import { Card, CardContent, Grid, makeStyles, Typography } from '@material-ui/core'
 import YourVoting from '../Voting/YourVoting'
 import Voting from '../Decision/Voting'
-import CommentBox from '../../../containers/CommentBox/CommentBox'
+import CommentBox, { getSortedRoots } from '../../../containers/CommentBox/CommentBox'
 import { JUSTIFY_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, } from '../../../constants/comments'
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
 import Screen from '../../../containers/Screen/Screen'
-import { makeArchiveBreadCrumbs, makeBreadCrumbs, navigate, } from '../../../utils/marketIdPathFunctions'
+import {
+  baseNavListItem, formInvestibleLink,
+  makeArchiveBreadCrumbs,
+  makeBreadCrumbs,
+  navigate,
+} from '../../../utils/marketIdPathFunctions'
 import { ACTIVE_STAGE, PLANNING_TYPE } from '../../../constants/markets'
 import InsertLinkIcon from '@material-ui/icons/InsertLink'
 import MarketLinks from '../../Dialog/MarketLinks'
@@ -45,6 +50,14 @@ import InvestibleBodyEdit from '../InvestibleBodyEdit'
 import { doSetEditWhenValid } from '../../../utils/windowUtils'
 import LinkMarket from '../../Dialog/LinkMarket'
 import { Assessment } from '@material-ui/icons';
+import EditIcon from '@material-ui/icons/Edit'
+import HowToVoteIcon from '@material-ui/icons/HowToVote'
+import AddIcon from '@material-ui/icons/Add'
+import QuestionIcon from '@material-ui/icons/ContactSupport'
+import ChangeSuggstionIcon from '@material-ui/icons/ChangeHistory'
+import ThumbUpIcon from '@material-ui/icons/ThumbUp'
+import ThumbDownIcon from '@material-ui/icons/ThumbDown'
+import { getFakeCommentsArray } from '../../../utils/stringFunctions'
 
 const useStyles = makeStyles(
   theme => ({
@@ -249,6 +262,25 @@ function InitiativeInvestible(props) {
     return <></>;
   }
   const myBeingEdited = beingEdited === investibleId && isEditableByUser();
+  function createNavListItem(icon, textId, anchorId, howManyNum, alwaysShow) {
+    return baseNavListItem(formInvestibleLink(marketId, investibleId), icon, textId, anchorId, howManyNum, alwaysShow);
+  }
+  const displayVoting = !isAdmin && !inArchives;
+  const openComments = investmentReasonsRemoved.filter((comment) => !comment.resolved) || [];
+  const sortedRoots = getSortedRoots(openComments);
+  const questions = sortedRoots.filter((comment) => comment.comment_type === QUESTION_TYPE);
+  const { id: questionId } = getFakeCommentsArray(questions)[0];
+  const suggestions = sortedRoots.filter((comment) => comment.comment_type === SUGGEST_CHANGE_TYPE);
+  const { id: suggestId } = getFakeCommentsArray(suggestions)[0];
+  const navigationMenu = {navHeaderText: intl.formatMessage({ id: 'initiative' }),
+    navListItemTextArray: [createNavListItem(EditIcon,'description_label', 'initiativeMain'),
+      displayVoting ? createNavListItem(HowToVoteIcon, 'pleaseVoteNav', 'pleaseVote') : {},
+      createNavListItem(ThumbUpIcon, 'for', 'for', _.size(positiveVoters)),
+      createNavListItem(ThumbDownIcon, 'against', 'against', _.size(negativeVoters)),
+      inArchives ? {} : createNavListItem(AddIcon,'commentAddBox'),
+      createNavListItem(QuestionIcon, 'questions', `c${questionId}`, _.size(questions)),
+      createNavListItem(ChangeSuggstionIcon,'suggestions', `c${suggestId}`, _.size(suggestions)),
+    ]};
   return (
     <Screen
       title={name}
@@ -256,6 +288,7 @@ function InitiativeInvestible(props) {
       titleIcon={<Assessment/>}
       breadCrumbs={breadCrumbs}
       hidden={hidden}
+      navigationOptions={navigationMenu}
     >
       <UclusionTour
         hidden={hidden}
@@ -273,9 +306,6 @@ function InitiativeInvestible(props) {
       >
         <CardType
           className={classes.cardType}
-          label={`${intl.formatMessage({
-            id: "initiativeInvestibleDescription"
-          })}`}
           type={VOTING_TYPE}
           createdAt={createdAt}
           myBeingEdited={myBeingEdited}
@@ -373,7 +403,7 @@ function InitiativeInvestible(props) {
           </Grid>
         </Grid>
       </Card>
-      {!isAdmin && !inArchives && (
+      {displayVoting && (
         <>
           <YourVoting
             investibleId={investibleId}
@@ -395,7 +425,7 @@ function InitiativeInvestible(props) {
           )}
         </>
       )}
-      <h2>
+      <h2 id="for">
         <FormattedMessage id="initiativeVotingFor"/>
       </h2>
       <Voting
@@ -403,7 +433,7 @@ function InitiativeInvestible(props) {
         marketPresences={positiveVoters}
         investmentReasons={investmentReasons}
       />
-      <h2>
+      <h2 id="against">
         <FormattedMessage id="initiativeVotingAgainst" />
       </h2>
       <Voting

@@ -7,7 +7,11 @@ import { makeStyles, Typography } from '@material-ui/core'
 import { useIntl } from 'react-intl'
 import Screen from '../../containers/Screen/Screen'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
-import { getMarketDetailsForType, getNotHiddenMarketDetailsForUser } from '../../contexts/MarketsContext/marketsContextHelper';
+import {
+  getArchivedSearchedMarketDetailsForUser,
+  getMarketDetailsForType,
+  getNotHiddenMarketDetailsForUser
+} from '../../contexts/MarketsContext/marketsContextHelper'
 import PlanningDialogs from './PlanningDialogs'
 import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE, } from '../../constants/markets'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
@@ -44,6 +48,7 @@ import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
 import PlaylistAddCheckIcon from '@material-ui/icons/PlaylistAddCheck'
 import GavelIcon from '@material-ui/icons/Gavel'
 import PollIcon from '@material-ui/icons/Poll'
+import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
 
 const useStyles = makeStyles(() => ({
     spacer: {
@@ -68,6 +73,8 @@ function Home(props) {
   const intl = useIntl();
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, diffDispatch] = useContext(DiffContext);
+  const [searchResults] = useContext(SearchResultsContext);
+  const { results } = searchResults;
   const [marketsState, marketsDispatch] = useContext(MarketsContext);
   const [accountState] = useContext(AccountContext);
   const [marketPresencesState, presenceDispatch] = useContext(MarketPresencesContext);
@@ -137,22 +144,12 @@ function Home(props) {
   }, [hidden, history, marketsDispatch, diffDispatch, presenceDispatch, investiblesDispatch, clearedToCreate,
     tourDispatch, commentsDispatch]);
 
-  const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(
-    marketsState,
-    marketPresencesState,
-  );
-
+  const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState, results);
   const planningDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, PLANNING_TYPE);
-  const decisionDetails = _.sortBy(getMarketDetailsForType(
-    myNotHiddenMarketsState,
-    marketPresencesState,
-    DECISION_TYPE,
-  ), 'created_at').reverse();
-  const initiativeDetails = _.sortBy(getMarketDetailsForType(
-    myNotHiddenMarketsState,
-    marketPresencesState,
-    INITIATIVE_TYPE,
-  ), 'created_at').reverse();
+  const decisionDetails = _.sortBy(getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState,
+    DECISION_TYPE), 'created_at').reverse();
+  const initiativeDetails = _.sortBy(getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState,
+    INITIATIVE_TYPE), 'created_at').reverse();
   
   const ACTIONBAR_ACTIONS = [];
 
@@ -181,15 +178,11 @@ function Home(props) {
   function createNavListItem(icon, textId, anchorId, howManyNum, alwaysShow) {
     return baseNavListItem('/', icon, textId, anchorId, howManyNum, alwaysShow);
   }
-  const swimLaneInvestibles = undefined;
-  const archiveMarkets = undefined;
 
-  //TODO - across workspaces numbers meaningless before search so grab the search numbers out of the
-  // search results - so when no search result just pass undefined instead of zero for num ON SWIMLANES AND ARCHIVE
+  const archiveMarkets = getArchivedSearchedMarketDetailsForUser(marketsState, marketPresencesState, results);
   const navigationMenu = {navHeaderText: intl.formatMessage({ id: 'home' }), showSearchResults: true,
     navListItemTextArray: [createNavListItem(AddIcon, 'addNew', 'actionContainer'),
-      createNavListItem(AgilePlanIcon, 'swimLanes', 'swimLanes',
-        swimLaneInvestibles === undefined ? undefined : _.size(swimLaneInvestibles)),
+      createNavListItem(AgilePlanIcon, 'swimLanes', 'swimLanes'),
       createNavListItem(PlaylistAddCheckIcon, 'planningMarkets', 'planningMarkets', _.size(planningDetails)),
       createNavListItem(GavelIcon, 'dialogs', 'dia0', _.size(decisionDetails)),
       createNavListItem(PollIcon, 'initiatives', 'ini0', _.size(initiativeDetails)),

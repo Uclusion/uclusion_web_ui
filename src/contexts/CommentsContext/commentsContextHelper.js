@@ -26,9 +26,15 @@ export function getCommentRoot(state, marketId, commentId) {
   return getCommentRoot(state, marketId, comment.reply_id);
 }
 
-export function getMarketComments(state, marketId) {
+export function getMarketComments(state, marketId, results) {
   const marketComments = state[marketId] || [];
-  return marketComments.filter((comment) => !comment.deleted);
+  const notDeleted = marketComments.filter((comment) => !comment.deleted);
+  if (_.isEmpty(results)) {
+    return notDeleted;
+  }
+  return notDeleted.filter((comment) => {
+    return results.find((item) => item.id === comment.id);
+  });
 }
 
 /**

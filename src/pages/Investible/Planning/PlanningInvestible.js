@@ -113,6 +113,8 @@ import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown'
 import HowToVoteIcon from '@material-ui/icons/HowToVote'
 import { getFakeCommentsArray } from '../../../utils/stringFunctions'
 import { QuestionAnswer } from '@material-ui/icons'
+import GavelIcon from '@material-ui/icons/Gavel'
+import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
 
 const useStyles = makeStyles(
   theme => ({
@@ -379,6 +381,8 @@ function PlanningInvestible(props) {
   }
   const [marketStagesState] = useContext(MarketStagesContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
+  const [searchResults] = useContext(SearchResultsContext);
+  const { results } = searchResults;
   const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
   const isInReview = inReviewStage && stage === inReviewStage.id;
   const inAcceptedStage = getAcceptedStage(marketStagesState, marketId) || {};
@@ -738,6 +742,8 @@ function PlanningInvestible(props) {
   const { id: reportId } = getFakeCommentsArray(reports)[0];
   const todoSortedComments = sortedRoots.filter((comment) => comment.comment_type === TODO_TYPE);
   const { id: todoId } = getFakeCommentsArray(todoSortedComments)[0];
+  const filteredChildren = _.isEmpty(results) || _.isEmpty(children) ? children :
+    children.filter((anId) => results.find((item) => item.id === anId));
   const navigationMenu = {navHeaderText: intl.formatMessage({ id: 'story' }),
     navListItemTextArray: [createNavListItem(EditIcon,'description_label', 'storyMain'),
       displayVotingInput ? createNavListItem(HowToVoteIcon, 'pleaseVoteNav', 'pleaseVote') : {},
@@ -748,7 +754,8 @@ function PlanningInvestible(props) {
       createNavListItem(UpdateIcon,'reports', `c${reportId}`, _.size(reports)),
       createNavListItem(ChangeSuggstionIcon,'suggestions', `c${suggestId}`, _.size(suggestions)),
       createNavListItem(ListAltIcon,'todoSection', `c${todoId}`, _.size(todoSortedComments)),
-      createNavListItem(QuestionAnswer,'closedComments', `c${closedId}`, _.size(sortedClosedRoots))
+      createNavListItem(QuestionAnswer,'closedComments', `c${closedId}`, _.size(sortedClosedRoots)),
+      createNavListItem(GavelIcon,'dialogs', 'dia0', _.size(filteredChildren)),
     ]};
   return (
     <Screen

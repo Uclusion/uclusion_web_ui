@@ -26,6 +26,7 @@ import { createMarketListeners, pollForMarketLoad } from '../../api/versionedFet
 import { toastError } from '../../utils/userMessage'
 import jwt_decode from 'jwt-decode'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
 
 const emptyInvestible = { investible: { name: '', description: '' } };
 const emptyMarket = { name: '' };
@@ -47,7 +48,9 @@ function Investible(props) {
   const market = realMarket || emptyMarket;
   const userId = getMyUserForMarket(marketsState, marketId) || '';
   const [commentsState] = useContext(CommentsContext);
-  const comments = getMarketComments(commentsState, marketId);
+  const [searchResults] = useContext(SearchResultsContext);
+  const { results } = searchResults;
+  const comments = getMarketComments(commentsState, marketId, results);
   const investibleComments = comments.filter((comment) => comment.investible_id === investibleId);
   const commentsHash = createCommentsHash(investibleComments);
   const [investiblesState] = useContext(InvestiblesContext);

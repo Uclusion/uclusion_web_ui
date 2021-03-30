@@ -33,6 +33,7 @@ import { userIsLoaded } from '../../contexts/AccountUserContext/accountUserConte
 import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import OnboardingBanner from '../../components/Banners/OnboardingBanner'
+import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
 
 function Dialog(props) {
   const { hidden } = props;
@@ -50,8 +51,17 @@ function Dialog(props) {
   const [commentsState] = useContext(CommentsContext);
   const [marketPresencesState, presenceDispatch] = useContext(MarketPresencesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const investibles = getMarketInvestibles(investiblesState, marketId);
-  const comments = getMarketComments(commentsState, marketId);
+  const [searchResults] = useContext(SearchResultsContext);
+  const { results } = searchResults;
+  const allInvestibles = getMarketInvestibles(investiblesState, marketId) || [];
+  const allComments = getMarketComments(commentsState, marketId) || [];
+  const investibles = _.isEmpty(results) ? allInvestibles : allInvestibles.filter((inv) => {
+    const { investible } = inv;
+    return results.find((item) => item.id === investible.id);
+  });
+  const comments = _.isEmpty(results) ? allComments : allComments.filter((comment) => {
+    return results.find((item) => item.id === comment.id);
+  });
   const loadedMarket = getMarket(marketsState, marketId);
   const renderableMarket = loadedMarket || {};
   const { market_type: marketType, parent_comment_market_id: parentMarketId, parent_comment_id: parentCommentId,

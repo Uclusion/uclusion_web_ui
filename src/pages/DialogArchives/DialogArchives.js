@@ -4,7 +4,8 @@ import _ from 'lodash'
 import Screen from '../../containers/Screen/Screen'
 import { useHistory, useLocation } from 'react-router';
 import {
-  decomposeMarketPath,
+  baseNavListItem,
+  decomposeMarketPath, formMarketArchivesLink,
   formMarketLink,
   makeArchiveBreadCrumbs,
   makeBreadCrumbs,
@@ -25,12 +26,21 @@ import AssigneeFilterDropdown from './AssigneeFilterDropdown'
 import { ACTIVE_STAGE } from '../../constants/markets'
 import MarketLinks from '../Dialog/MarketLinks'
 import { Grid } from '@material-ui/core'
-import CommentBox from '../../containers/CommentBox/CommentBox'
+import CommentBox, { getSortedRoots } from '../../containers/CommentBox/CommentBox'
 import MarketTodos from '../Dialog/Planning/MarketTodos'
-import { REPLY_TYPE, TODO_TYPE } from '../../constants/comments'
+import { QUESTION_TYPE, REPLY_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../constants/comments'
 import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import PlaylistAddCheckIcon from '@material-ui/icons/PlaylistAddCheck'
+import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
+import WorkIcon from '@material-ui/icons/Work'
+import ListAltIcon from '@material-ui/icons/ListAlt'
+import QuestionIcon from '@material-ui/icons/ContactSupport'
+import UpdateIcon from '@material-ui/icons/Update'
+import ChangeSuggstionIcon from '@material-ui/icons/ChangeHistory'
+import GavelIcon from '@material-ui/icons/Gavel'
+import { getFakeCommentsArray } from '../../utils/stringFunctions'
+import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
 
 function DialogArchives(props) {
   const { hidden } = props;
@@ -47,16 +57,19 @@ function DialogArchives(props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [commentsState] = useContext(CommentsContext);
+  const [searchResults] = useContext(SearchResultsContext);
+  const { results } = searchResults;
+  const [marketInfoList, setMarketInfoList] = useState(undefined);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || []
   const myPresence = marketPresences.find((presence) => presence.current_user);
   const presenceMap = getPresenceMap(marketPresencesState, marketId);
   const renderableMarket = getMarket(marketsState, marketId) || {};
   const verifiedStage = getVerifiedStage(marketStagesState, marketId) || {};
   const notDoingStage = getNotDoingStage(marketStagesState, marketId) || {};
-  const marketInvestibles = getMarketInvestibles(investiblesState, marketId) || [];
+  const marketInvestibles = getMarketInvestibles(investiblesState, marketId, results) || [];
   const verifiedInvestibles = getInvestiblesInStage(marketInvestibles, verifiedStage.id);
   const notDoingInvestibles = getInvestiblesInStage(marketInvestibles, notDoingStage.id);
-  const comments = getMarketComments(commentsState, marketId) || [];
+  const comments = getMarketComments(commentsState, marketId, results) || [];
   const resolvedMarketComments = comments.filter(comment => !comment.investible_id && comment.resolved) || [];
   const notTodoComments = resolvedMarketComments.filter(comment => comment.comment_type !== TODO_TYPE);
   const todoComments = comments.filter(comment => {
@@ -106,16 +119,42 @@ function DialogArchives(props) {
     );
   }
 
+  function createNavListItem(icon, textId, anchorId, howManyNum, alwaysShow) {
+    return baseNavListItem(formMarketArchivesLink(marketId), icon, textId, anchorId, howManyNum, alwaysShow);
+  }
+
+  const sortedRoots = getSortedRoots(resolvedMarketComments);
+  const questions = sortedRoots.filter((comment) => comment.comment_type === QUESTION_TYPE);
+  const { id: questionId } = getFakeCommentsArray(questions)[0];
+  const suggestions = sortedRoots.filter((comment) => comment.comment_type === SUGGEST_CHANGE_TYPE);
+  const { id: suggestId } = getFakeCommentsArray(suggestions)[0];
+  const reports = sortedRoots.filter((comment) => comment.comment_type === REPORT_TYPE);
+  const { id: reportId } = getFakeCommentsArray(reports)[0];
+  const inactiveChildrenDialogs = marketInfoList || [];
+  const navigationMenu = {navHeaderText: intl.formatMessage({ id: 'workspaceArchive' }),
+    navListItemTextArray: [
+      createNavListItem(AgilePlanIcon,'planningVerifiedStageLabel', 'verified',
+        _.size(verifiedInvestibles)),
+      createNavListItem(WorkIcon,'planningNotDoingStageLabel', 'notDoing', _.size(notDoingInvestibles)),
+      createNavListItem(ListAltIcon,'todoSection', 'marketTodos', _.size(todoComments)),
+      createNavListItem(QuestionIcon,'questions', `c${questionId}`, _.size(questions)),
+      createNavListItem(UpdateIcon,'reports', `c${reportId}`, _.size(reports)),
+      createNavListItem(ChangeSuggstionIcon,'suggestions', `c${suggestId}`, _.size(suggestions)),
+      createNavListItem(GavelIcon,'dialogs', 'dia0', _.size(inactiveChildrenDialogs))
+    ]};
+
   return (
     <Screen
       hidden={hidden}
       title={intl.formatMessage({ id: 'dialogArchivesLabel' })}
       tabTitle={intl.formatMessage({ id: 'dialogArchivesLabel' })}
       breadCrumbs={breadCrumbs}
+      navigationOptions={navigationMenu}
     >
       <SubSection
         type={SECTION_TYPE_SECONDARY}
         title={intl.formatMessage({ id: 'dialogArchivesVerifiedHeader' })}
+        id="verified"
         actionButton={
           (<AssigneeFilterDropdown
             onChange={onFilterChange}
@@ -133,6 +172,7 @@ function DialogArchives(props) {
       </SubSection>
       <SubSection
         type={SECTION_TYPE_SECONDARY}
+        id="notDoing"
         title={intl.formatMessage({ id: 'dialogArchivesNotDoingHeader' })}
         style={{marginTop: '16px'}}
       >
@@ -145,12 +185,12 @@ function DialogArchives(props) {
         />
       </SubSection>
       <MarketTodos comments={todoComments} marketId={marketId} isInArchives />
-      <MarketLinks links={children || []} isArchive />
       <Grid container spacing={2}>
         <Grid item id="commentAddArea"  xs={12} style={{ marginTop: '15px' }}>
           <CommentBox comments={notTodoComments} marketId={marketId} allowedTypes={[]} />
         </Grid>
       </Grid>
+      <MarketLinks links={children || []} isArchive setMarketInfoList={setMarketInfoList} />
     </Screen>
   );
 }

@@ -278,6 +278,7 @@ const messages = defineMessages({
   for: 'For',
   against: 'Against',
   closedComments: 'Resolved',
+  workspaceArchive: 'Workspace Archive',
 
   // Address list
   addressAddCancelLabel: 'Close',

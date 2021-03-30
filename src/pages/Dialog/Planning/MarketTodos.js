@@ -383,7 +383,7 @@ function MarketTodos (props) {
   }
 
   function toggleShowTodos () {
-    const toggleValue = showTodos === undefined ? false : !showTodos;
+    const toggleValue = showTodos === undefined ? true : !showTodos;
     if (!toggleValue) {
       setEditRedCard(undefined);
       setEditYellowCard(undefined);

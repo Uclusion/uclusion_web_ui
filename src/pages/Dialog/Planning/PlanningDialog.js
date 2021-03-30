@@ -182,7 +182,7 @@ function PlanningDialog(props) {
   const tourSteps = isMarketOwner? inviteStoriesWorkspaceSteps(cognitoUser) : workspaceInvitedUserSteps(myPresence);
 
   function toggleShowFurther() {
-    const toggleValue = showFurther === undefined ? false : !showFurther;
+    const toggleValue = showFurther === undefined ? true : !showFurther;
     expandedCommentDispatch({ type: EXPANDED_CONTROL, commentId: `${marketId}_further`, expanded: toggleValue });
   }
 

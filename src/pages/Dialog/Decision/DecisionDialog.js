@@ -10,7 +10,7 @@ import _ from 'lodash'
 import AddIcon from '@material-ui/icons/Add'
 import {
   baseNavListItem,
-  formMarketArchivesLink, formMarketLink,
+  formMarketLink,
   makeArchiveBreadCrumbs,
   makeBreadCrumbs,
 } from '../../../utils/marketIdPathFunctions'
@@ -53,14 +53,8 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import GavelIcon from '@material-ui/icons/Gavel';
 import EditIcon from '@material-ui/icons/Edit'
 import BlockIcon from '@material-ui/icons/Block'
-import PlayForWorkIcon from '@material-ui/icons/PlayForWork'
 import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
-import WorkIcon from '@material-ui/icons/Work'
-import ListAltIcon from '@material-ui/icons/ListAlt'
 import QuestionIcon from '@material-ui/icons/ContactSupport'
-import UpdateIcon from '@material-ui/icons/Update'
-import ChangeSuggstionIcon from '@material-ui/icons/ChangeHistory'
-import MenuBookIcon from '@material-ui/icons/MenuBook'
 import { getFakeCommentsArray } from '../../../utils/stringFunctions'
 
 const useStyles = makeStyles(

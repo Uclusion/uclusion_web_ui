@@ -13,12 +13,9 @@ import { baseNavListItem, makeBreadCrumbs } from '../../utils/marketIdPathFuncti
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import ArchivesCheatSheet from './ArchivesCheatSheet'
 import InitiativesAndDialogs from '../Home/InitiativesAndDialogs'
-import AddIcon from '@material-ui/icons/Add'
-import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
 import PlaylistAddCheckIcon from '@material-ui/icons/PlaylistAddCheck'
 import GavelIcon from '@material-ui/icons/Gavel'
 import PollIcon from '@material-ui/icons/Poll'
-import MenuBookIcon from '@material-ui/icons/MenuBook'
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
 
 const useStyles = makeStyles((theme) => ({

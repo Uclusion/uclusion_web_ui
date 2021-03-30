@@ -72,6 +72,7 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "space-between"
   },
   actions: {
+    paddingTop: "1rem",
     justifyContent: 'flex-end',
     '& > button': {
       marginRight: '-8px'
@@ -234,7 +235,6 @@ function DecisionInvestible(props) {
   const activeMarket = marketStage === ACTIVE_STAGE;
   const yourPresence = marketPresences.find((presence) => presence.current_user) || {};
   const yourVote = yourPresence.investments && yourPresence.investments.find((investment) => investment.investible_id === investibleId);
-  const cardDescription = inProposed ? "decisionProposedInvestibleDescription" : "decisionInvestibleDescription";
   const {
     name, created_by: createdBy, locked_by: lockedBy, attached_files: attachedFiles,
   } = investible;
@@ -324,7 +324,7 @@ function DecisionInvestible(props) {
   const { id: questionId } = getFakeCommentsArray(questions)[0];
   const suggestions = sortedRoots.filter((comment) => comment.comment_type === SUGGEST_CHANGE_TYPE);
   const { id: suggestId } = getFakeCommentsArray(suggestions)[0];
-  const navigationMenu = {navHeaderText: intl.formatMessage({ id: 'option' }),
+  const navigationMenu = {navHeaderText: intl.formatMessage({ id: inProposed ? 'proposedOption' : 'option' }),
     navListItemTextArray: [createNavListItem(EditIcon,'description_label', 'optionMain'),
       displayVotingInput ? createNavListItem(HowToVoteIcon, 'pleaseVoteNav', 'pleaseVote') : {},
       createNavListItem(ThumbsUpDownIcon, 'approvals', 'approvals', _.size(invested)),
@@ -392,7 +392,7 @@ function DecisionInvestible(props) {
           </Grid>
         </Grid>
       </Card>
-      {!displayVotingInput && (
+      {!displayVotingInput && !inProposed && (
         <Typography>
           {intl.formatMessage({ id: votingBlockedMessage })}
         </Typography>

@@ -273,6 +273,7 @@ const messages = defineMessages({
   approvable: 'Approvable',
   proposed: 'Proposed',
   option: 'Option',
+  proposedOption: 'Proposed Option',
 
   // Address list
   addressAddCancelLabel: 'Close',

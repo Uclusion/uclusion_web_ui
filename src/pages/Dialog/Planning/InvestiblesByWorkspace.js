@@ -165,7 +165,7 @@ function InvestiblesByWorkspace (props) {
               highlightMap[investible.investible.id] = true;
             }
           });
-          if (_.isEmpty(myInvestibles) && _.isEmpty(requiresInputInvestibles)) {
+          if (_.isEmpty(myInvestibles) && _.isEmpty(requiresInputInvestibles) && _.isEmpty(blockedInvestibles)) {
             return React.Fragment;
           }
           return (

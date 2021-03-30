@@ -61,6 +61,7 @@ import QuestionIcon from '@material-ui/icons/ContactSupport'
 import UpdateIcon from '@material-ui/icons/Update'
 import ChangeSuggstionIcon from '@material-ui/icons/ChangeHistory'
 import MenuBookIcon from '@material-ui/icons/MenuBook'
+import { getFakeCommentsArray } from '../../../utils/stringFunctions'
 
 const useStyles = makeStyles(
   theme => ({
@@ -278,12 +279,6 @@ function DecisionDialog(props) {
   const myBeingEdited = beingEdited === marketId && isEditableByUser();
   function createNavListItem(icon, textId, anchorId, howManyNum, alwaysShow) {
     return baseNavListItem(formMarketLink(marketId), icon, textId, anchorId, howManyNum, alwaysShow);
-  }
-  function getFakeCommentsArray(comments) {
-    if (_.isEmpty(comments)) {
-      return [{id: 'fake'}];
-    }
-    return comments;
   }
   const sortedRoots = getSortedRoots(marketComments);
   const questions = sortedRoots.filter((comment) => comment.comment_type === QUESTION_TYPE);

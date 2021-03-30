@@ -272,6 +272,7 @@ const messages = defineMessages({
   dialog: 'Dialog',
   approvable: 'Approvable',
   proposed: 'Proposed',
+  option: 'Option',
 
   // Address list
   addressAddCancelLabel: 'Close',

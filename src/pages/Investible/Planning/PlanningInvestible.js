@@ -121,6 +121,7 @@ import ListAltIcon from '@material-ui/icons/ListAlt'
 import EditIcon from '@material-ui/icons/Edit'
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown'
 import HowToVoteIcon from '@material-ui/icons/HowToVote'
+import { getFakeCommentsArray } from '../../../utils/stringFunctions'
 
 const useStyles = makeStyles(
   theme => ({
@@ -735,12 +736,6 @@ function PlanningInvestible(props) {
   }
   function createNavListItem(icon, textId, anchorId, howManyNum, alwaysShow) {
     return baseNavListItem(formInvestibleLink(marketId, investibleId), icon, textId, anchorId, howManyNum, alwaysShow);
-  }
-  function getFakeCommentsArray(comments) {
-    if (_.isEmpty(comments)) {
-      return [{id: 'fake'}];
-    }
-    return comments;
   }
   const displayVotingInput = isInVoting && !inArchives && isAdmin && canVote;
   const myBeingEdited = beingEdited === investibleId;

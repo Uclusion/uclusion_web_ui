@@ -7,11 +7,12 @@ import { Card, CardContent, Grid, Typography } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import YourVoting from '../Voting/YourVoting'
 import Voting from './Voting'
-import CommentBox from '../../../containers/CommentBox/CommentBox'
+import CommentBox, { getSortedRoots } from '../../../containers/CommentBox/CommentBox'
 import { ISSUE_TYPE, JUSTIFY_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, } from '../../../constants/comments'
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
 import Screen from '../../../containers/Screen/Screen'
 import {
+  baseNavListItem,
   formCommentLink,
   formInvestibleLink,
   formMarketLink,
@@ -48,6 +49,15 @@ import EditMarketButton from '../../Dialog/EditMarketButton'
 import ShareStoryButton from '../Planning/ShareStoryButton'
 import GavelIcon from '@material-ui/icons/Gavel';
 import PlaylistAddCheckIcon from '@material-ui/icons/PlaylistAddCheck'
+import EditIcon from '@material-ui/icons/Edit'
+import HowToVoteIcon from '@material-ui/icons/HowToVote'
+import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown'
+import AddIcon from '@material-ui/icons/Add'
+import BlockIcon from '@material-ui/icons/Block'
+import QuestionIcon from '@material-ui/icons/ContactSupport'
+import ChangeSuggstionIcon from '@material-ui/icons/ChangeHistory'
+import { getVotesForInvestible } from '../../../utils/userFunctions'
+import { getFakeCommentsArray } from '../../../utils/stringFunctions'
 
 const useStyles = makeStyles((theme) => ({
   mobileColumn: {
@@ -205,7 +215,7 @@ function DecisionInvestible(props) {
   const breadCrumbs = inArchives
     ? makeArchiveBreadCrumbs(history, breadCrumbTemplates)
     : makeBreadCrumbs(history, breadCrumbTemplates);
-  const investmentReasonsRemoved = investibleComments.filter((comment) => comment.comment_type !== JUSTIFY_TYPE);
+  const investmentReasonsRemoved = investibleComments.filter((comment) => comment.comment_type !== JUSTIFY_TYPE) || [];
   const investmentReasons = investibleComments.filter((comment) => comment.comment_type === JUSTIFY_TYPE);
   const myIssues = investibleComments.filter((comment) => comment.comment_type === ISSUE_TYPE && !comment.resolved);
   const marketIssues = comments.filter((comment) => comment.comment_type === ISSUE_TYPE && !comment.resolved && !comment.investible_id);
@@ -301,12 +311,35 @@ function DecisionInvestible(props) {
     return <></>;
   }
   const myBeingEdited = beingEdited === investibleId;
+  const displayVotingInput = !inProposed && !inArchives && !hasIssueOrMarketIssue;
+  function createNavListItem(icon, textId, anchorId, howManyNum, alwaysShow) {
+    return baseNavListItem(formInvestibleLink(marketId, investibleId), icon, textId, anchorId, howManyNum, alwaysShow);
+  }
+  const invested = getVotesForInvestible(marketPresences, investibleId);
+  const openComments = investmentReasonsRemoved.filter((comment) => !comment.resolved) || [];
+  const sortedRoots = getSortedRoots(openComments);
+  const blocking = sortedRoots.filter((comment) => comment.comment_type === ISSUE_TYPE);
+  const { id: blockingId } = getFakeCommentsArray(blocking)[0];
+  const questions = sortedRoots.filter((comment) => comment.comment_type === QUESTION_TYPE);
+  const { id: questionId } = getFakeCommentsArray(questions)[0];
+  const suggestions = sortedRoots.filter((comment) => comment.comment_type === SUGGEST_CHANGE_TYPE);
+  const { id: suggestId } = getFakeCommentsArray(suggestions)[0];
+  const navigationMenu = {navHeaderText: intl.formatMessage({ id: 'option' }),
+    navListItemTextArray: [createNavListItem(EditIcon,'description_label', 'optionMain'),
+      displayVotingInput ? createNavListItem(HowToVoteIcon, 'pleaseVoteNav', 'pleaseVote') : {},
+      createNavListItem(ThumbsUpDownIcon, 'approvals', 'approvals', _.size(invested)),
+      inArchives ? {} : createNavListItem(AddIcon,'commentAddBox'),
+      createNavListItem(BlockIcon,'blocking', `c${blockingId}`, _.size(blocking)),
+      createNavListItem(QuestionIcon, 'questions', `c${questionId}`, _.size(questions)),
+      createNavListItem(ChangeSuggstionIcon,'suggestions', `c${suggestId}`, _.size(suggestions)),
+    ]};
   return (
     <Screen
       title={name}
       tabTitle={name}
       breadCrumbs={breadCrumbs}
       hidden={hidden}
+      navigationOptions={navigationMenu}
     >
       {activeMarket && !inProposed && !allowMultiVote && (
         <DismissableText textId='decisionInvestibleVotingSingleHelp' />
@@ -323,7 +356,6 @@ function DecisionInvestible(props) {
       >
         <CardType
           className={classes.cardType}
-          label={`${intl.formatMessage({ id: cardDescription })}`}
           type={VOTING_TYPE}
           subtype={inProposed ? PROPOSED : OPTION}
           myBeingEdited={myBeingEdited}
@@ -360,12 +392,12 @@ function DecisionInvestible(props) {
           </Grid>
         </Grid>
       </Card>
-      {!inProposed && activeMarket && hasIssueOrMarketIssue && (
+      {!displayVotingInput && (
         <Typography>
           {intl.formatMessage({ id: votingBlockedMessage })}
         </Typography>
       )}
-      {!inProposed && !inArchives && !hasIssueOrMarketIssue && (
+      {displayVotingInput && (
         <>
           <YourVoting
             investibleId={investibleId}
@@ -390,7 +422,7 @@ function DecisionInvestible(props) {
       )}
       {!inProposed && (
         <>
-          <h2>
+          <h2 id="approvals">
             <FormattedMessage id="decisionInvestibleOthersVoting" />
           </h2>
           <Voting
@@ -419,15 +451,10 @@ function DecisionInvestible(props) {
 }
 
 DecisionInvestible.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types
   market: PropTypes.object.isRequired,
-  // eslint-disable-next-line react/forbid-prop-types
   fullInvestible: PropTypes.object.isRequired,
-  // eslint-disable-next-line react/forbid-prop-types
   marketPresences: PropTypes.arrayOf(PropTypes.object),
-  // eslint-disable-next-line react/forbid-prop-types
   investibleComments: PropTypes.arrayOf(PropTypes.object),
-  // eslint-disable-next-line react/forbid-prop-types
   comments: PropTypes.arrayOf(PropTypes.object),
   investibleId: PropTypes.string.isRequired,
   userId: PropTypes.string.isRequired,

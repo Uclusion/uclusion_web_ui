@@ -76,6 +76,7 @@ import ChangeSuggstionIcon from '@material-ui/icons/ChangeHistory'
 import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
 import MenuBookIcon from '@material-ui/icons/MenuBook'
 import PlayForWorkIcon from '@material-ui/icons/PlayForWork'
+import { getFakeCommentsArray } from '../../../utils/stringFunctions'
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -210,12 +211,6 @@ function PlanningDialog(props) {
   }
   function createNavListItem(icon, textId, anchorId, howManyNum, alwaysShow) {
     return baseNavListItem(formMarketLink(marketId), icon, textId, anchorId, howManyNum, alwaysShow);
-  }
-  function getFakeCommentsArray(comments) {
-    if (_.isEmpty(comments)) {
-      return [{id: 'fake'}];
-    }
-    return comments;
   }
   const sortedRoots = getSortedRoots(notTodoComments);
   const questions = sortedRoots.filter((comment) => comment.comment_type === QUESTION_TYPE);

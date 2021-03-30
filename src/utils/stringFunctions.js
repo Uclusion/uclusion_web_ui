@@ -54,3 +54,10 @@ export function nameFromDescription(description) {
   });
   return latestExtract;
 }
+
+export function getFakeCommentsArray(comments) {
+  if (_.isEmpty(comments)) {
+    return [{id: 'fake'}];
+  }
+  return comments;
+}

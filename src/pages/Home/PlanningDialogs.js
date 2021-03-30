@@ -329,7 +329,7 @@ function PlanningDialogs(props) {
           <hr className={classes.spacer}/>
         </>
       )}
-      <Grid container spacing={4}>
+      <Grid container spacing={4} id="planningMarkets">
         {getMarketItems()}
       </Grid>
     </>

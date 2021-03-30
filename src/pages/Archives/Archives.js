@@ -9,10 +9,16 @@ import { getHiddenMarketDetailsForUser, } from '../../contexts/MarketsContext/ma
 import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
 import Screen from '../../containers/Screen/Screen'
 import PlanningDialogs from '../Home/PlanningDialogs'
-import { makeBreadCrumbs } from '../../utils/marketIdPathFunctions'
+import { baseNavListItem, makeBreadCrumbs } from '../../utils/marketIdPathFunctions'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import ArchivesCheatSheet from './ArchivesCheatSheet'
 import InitiativesAndDialogs from '../Home/InitiativesAndDialogs'
+import AddIcon from '@material-ui/icons/Add'
+import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
+import PlaylistAddCheckIcon from '@material-ui/icons/PlaylistAddCheck'
+import GavelIcon from '@material-ui/icons/Gavel'
+import PollIcon from '@material-ui/icons/Poll'
+import MenuBookIcon from '@material-ui/icons/MenuBook'
 
 const useStyles = makeStyles((theme) => ({
   spacer: {
@@ -36,12 +42,22 @@ function Archives(props) {
   const emptyArchives = _.isEmpty(planningDetails) && _.isEmpty(decisionDetails) && _.isEmpty(initiativeDetails);
 
   const breadCrumbs = makeBreadCrumbs(history, [], true);
+  function createNavListItem(icon, textId, anchorId, howManyNum, alwaysShow) {
+    return baseNavListItem('/archives', icon, textId, anchorId, howManyNum, alwaysShow);
+  }
+  const navigationMenu = {navHeaderText: intl.formatMessage({ id: 'archives' }), showSearchResults: true,
+    navListItemTextArray: [createNavListItem(PlaylistAddCheckIcon, 'planningMarkets', 'planningMarkets',
+      _.size(planningDetails)),
+      createNavListItem(GavelIcon, 'dialogs', 'dia0', _.size(decisionDetails)),
+      createNavListItem(PollIcon, 'initiatives', 'ini0', _.size(initiativeDetails)),
+    ]};
   return (
     <Screen
       title={intl.formatMessage({ id: 'archivesTitle' })}
       tabTitle={intl.formatMessage({ id: 'archivesTitle' })}
       hidden={hidden}
       breadCrumbs={breadCrumbs}
+      navigationOptions={navigationMenu}
     >
       { emptyArchives && (
         <ArchivesCheatSheet />

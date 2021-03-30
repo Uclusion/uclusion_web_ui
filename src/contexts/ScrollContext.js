@@ -63,7 +63,8 @@ function ScrollProvider(props) {
     if (processedPath !== pathname || hashFragment !== myHashFragment) {
       setProcessedPath(pathname);
       const { action } = decomposeMarketPath(pathname);
-      if (!myHashFragment || (action !== 'dialog' && action !== 'dialogArchives' && pathname !== '/') || hash.includes('onboarded')) {
+      if (!myHashFragment || (action !== 'dialog' && action !== 'dialogArchives' && pathname !== '/'
+        && pathname !== '/archives') || hash.includes('onboarded')) {
         //Scroll to the top if its a new page and there is no anchor to scroll to
         if (!hashFragment) {
           window.scrollTo(0, 0);

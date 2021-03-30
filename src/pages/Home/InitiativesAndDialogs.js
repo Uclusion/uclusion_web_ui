@@ -482,16 +482,17 @@ function InitiativesAndDialogs(props) {
 
   function getInitiativeItems() {
     const classes = initiativeClasses;
-    return initiatives.map((market, index) => {
+    const realInitiatives = initiatives.filter((initiative) => {
+      const investibles = getMarketInvestibles(investiblesState, initiative.id);
+      return !_.isEmpty(investibles);
+    });
+    return realInitiatives.map((market, index) => {
       const {
         id: marketId, created_at: createdAt, expiration_minutes: expirationMinutes, created_by: createdBy,
         market_type: marketType, market_stage: marketStage, updated_at: updatedAt, parent_market_id: parentMarketId,
         parent_investible_id: parentInvestibleId,
       } = market;
       const investibles = getMarketInvestibles(investiblesState, marketId);
-      if (!investibles || _.isEmpty(investibles)) {
-        return <></>;
-      }
       const baseInvestible = investibles[0];
       const { investible } = baseInvestible;
       const { name, id: investibleId } = investible;
@@ -637,9 +638,10 @@ function InitiativesAndDialogs(props) {
     });
   }
 
-  const rawAllItems = getDialogItems().concat(getInitiativeItems());
-  const sortedAllItems = _.sortBy(rawAllItems, 'marketUpdatedAt').reverse();
-  const allItems = sortedAllItems.map((anItem) => anItem.item);
+  const sortedDialogItems = _.sortBy(getDialogItems(), 'marketUpdatedAt').reverse();
+  const sortedInitiativeItems = _.sortBy(getInitiativeItems(), 'marketUpdatedAt').reverse();
+  const rawAllItems = sortedDialogItems.concat(sortedInitiativeItems);
+  const allItems = rawAllItems.map((anItem) => anItem.item);
   return (
     <Grid container spacing={4}>
       {allItems}

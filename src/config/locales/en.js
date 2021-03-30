@@ -265,7 +265,7 @@ const messages = defineMessages({
   pleaseVoteNav: 'Change Approval',
   dialogs: 'Dialogs',
   home: 'Home',
-  archives: 'Archives',
+  archives: 'Archive',
   addNew: 'Add New',
   initiatives: 'Initiatives',
   planningMarkets: 'Workspaces',

@@ -49,7 +49,7 @@ import { EMPTY_SPIN_RESULT } from '../../../constants/global'
 import InvestibleBodyEdit from '../InvestibleBodyEdit'
 import { doSetEditWhenValid } from '../../../utils/windowUtils'
 import LinkMarket from '../../Dialog/LinkMarket'
-import { Assessment } from '@material-ui/icons';
+import { Assessment, QuestionAnswer } from '@material-ui/icons'
 import EditIcon from '@material-ui/icons/Edit'
 import HowToVoteIcon from '@material-ui/icons/HowToVote'
 import AddIcon from '@material-ui/icons/Add'
@@ -267,6 +267,9 @@ function InitiativeInvestible(props) {
   }
   const displayVoting = !isAdmin && !inArchives;
   const openComments = investmentReasonsRemoved.filter((comment) => !comment.resolved) || [];
+  const closedComments = investmentReasonsRemoved.filter((comment) => comment.resolved) || [];
+  const sortedClosedRoots = getSortedRoots(closedComments);
+  const { id: closedId } = getFakeCommentsArray(sortedClosedRoots)[0];
   const sortedRoots = getSortedRoots(openComments);
   const questions = sortedRoots.filter((comment) => comment.comment_type === QUESTION_TYPE);
   const { id: questionId } = getFakeCommentsArray(questions)[0];
@@ -280,6 +283,7 @@ function InitiativeInvestible(props) {
       inArchives ? {} : createNavListItem(AddIcon,'commentAddBox'),
       createNavListItem(QuestionIcon, 'questions', `c${questionId}`, _.size(questions)),
       createNavListItem(ChangeSuggstionIcon,'suggestions', `c${suggestId}`, _.size(suggestions)),
+      createNavListItem(QuestionAnswer,'closedComments', `c${closedId}`, _.size(sortedClosedRoots)),
     ]};
   return (
     <Screen

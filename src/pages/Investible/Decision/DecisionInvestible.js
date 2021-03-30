@@ -58,6 +58,7 @@ import QuestionIcon from '@material-ui/icons/ContactSupport'
 import ChangeSuggstionIcon from '@material-ui/icons/ChangeHistory'
 import { getVotesForInvestible } from '../../../utils/userFunctions'
 import { getFakeCommentsArray } from '../../../utils/stringFunctions'
+import { QuestionAnswer } from '@material-ui/icons'
 
 const useStyles = makeStyles((theme) => ({
   mobileColumn: {
@@ -317,6 +318,9 @@ function DecisionInvestible(props) {
   }
   const invested = getVotesForInvestible(marketPresences, investibleId);
   const openComments = investmentReasonsRemoved.filter((comment) => !comment.resolved) || [];
+  const closedComments = investmentReasonsRemoved.filter((comment) => comment.resolved) || [];
+  const sortedClosedRoots = getSortedRoots(closedComments);
+  const { id: closedId } = getFakeCommentsArray(sortedClosedRoots)[0];
   const sortedRoots = getSortedRoots(openComments);
   const blocking = sortedRoots.filter((comment) => comment.comment_type === ISSUE_TYPE);
   const { id: blockingId } = getFakeCommentsArray(blocking)[0];
@@ -332,6 +336,7 @@ function DecisionInvestible(props) {
       createNavListItem(BlockIcon,'blocking', `c${blockingId}`, _.size(blocking)),
       createNavListItem(QuestionIcon, 'questions', `c${questionId}`, _.size(questions)),
       createNavListItem(ChangeSuggstionIcon,'suggestions', `c${suggestId}`, _.size(suggestions)),
+      createNavListItem(QuestionAnswer,'closedComments', `c${closedId}`, _.size(sortedClosedRoots))
     ]};
   return (
     <Screen

@@ -122,6 +122,7 @@ import EditIcon from '@material-ui/icons/Edit'
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown'
 import HowToVoteIcon from '@material-ui/icons/HowToVote'
 import { getFakeCommentsArray } from '../../../utils/stringFunctions'
+import { QuestionAnswer } from '@material-ui/icons'
 
 const useStyles = makeStyles(
   theme => ({
@@ -740,6 +741,9 @@ function PlanningInvestible(props) {
   const displayVotingInput = isInVoting && !inArchives && isAdmin && canVote;
   const myBeingEdited = beingEdited === investibleId;
   const openComments = investmentReasonsRemoved.filter((comment) => !comment.resolved) || [];
+  const closedComments = investmentReasonsRemoved.filter((comment) => comment.resolved) || [];
+  const sortedClosedRoots = getSortedRoots(closedComments);
+  const { id: closedId } = getFakeCommentsArray(sortedClosedRoots)[0];
   const sortedRoots = getSortedRoots(openComments);
   const blocking = sortedRoots.filter((comment) => comment.comment_type === ISSUE_TYPE);
   const { id: blockingId } = getFakeCommentsArray(blocking)[0];
@@ -761,6 +765,7 @@ function PlanningInvestible(props) {
       createNavListItem(UpdateIcon,'reports', `c${reportId}`, _.size(reports)),
       createNavListItem(ChangeSuggstionIcon,'suggestions', `c${suggestId}`, _.size(suggestions)),
       createNavListItem(ListAltIcon,'todoSection', `c${todoId}`, _.size(todoSortedComments)),
+      createNavListItem(QuestionAnswer,'closedComments', `c${closedId}`, _.size(sortedClosedRoots))
     ]};
   return (
     <Screen

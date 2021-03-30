@@ -277,6 +277,7 @@ const messages = defineMessages({
   initiative: 'Initiative',
   for: 'For',
   against: 'Against',
+  closedComments: 'Resolved',
 
   // Address list
   addressAddCancelLabel: 'Close',

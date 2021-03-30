@@ -127,14 +127,18 @@ function PlanningDialogEdit(props) {
         });
   }
 
+  const isDraft = _.size(marketPresences) < 2;
+
   return (
     <Card className={classes.overflowVisible}>
       <CardContent className={classes.cardContent}>
         <Grid container className={clsx(classes.fieldset, classes.flex, classes.justifySpace)}>
-          <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
-            <ExistingUsers market={market} />
-          </Grid>
-          <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
+          {isDraft && (
+            <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
+              <ExistingUsers market={market} />
+            </Grid>
+          )}
+          <Grid item md={isDraft ? 12 : 5} xs={12} className={classes.fieldsetContainer}>
             <Typography variant="h6">
               Archive or Restore Workspace
             </Typography>

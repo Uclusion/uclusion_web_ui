@@ -9,15 +9,15 @@ export function inviteStoriesWorkspaceSteps () {
     },
     {
       disableBeacon: true,
-      target: '#marketTodos',
-      placement: 'right',
-      content: 'Creating an Immediate TODO for a bug or small task sends the critical notification you see in the header.',
+      target: '#redLevelNotification',
+      placement: 'bottom',
+      content: 'Immediate TODOs are useful for development bugs. Complete this notification task to automatically clear it.',
     },
     {
       disableBeacon: true,
-      target: '#decisionDialogsBecomeObserver',
+      target: '#editMarketButtonPlan',
       placement: 'left',
-      content: 'When you are done with this demonstration Workspace use this button to send it to the archives.',
+      content: 'When you are done with this demonstration Workspace your can send it to the archives from the configure screen or your home page.',
     }
   ];
 }

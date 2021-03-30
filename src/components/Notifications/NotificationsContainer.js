@@ -32,7 +32,7 @@ function NotificationsContainer (props) {
   return (
     <React.Fragment>
       {!_.isEmpty(redMessages) && (
-        <div className={classes.bellButton}>
+        <div className={classes.bellButton} id="redLevelNotification">
           <Notifications
             level={RED_LEVEL}
             messages={redMessages}

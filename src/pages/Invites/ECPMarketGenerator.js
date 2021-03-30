@@ -119,7 +119,7 @@ function addStoryFive(marketId, userId, acceptedStage, marketInvestibles) {
     name: 'A story you are actively doing',
     description,
     assignments: [userId],
-    stage_id: acceptedStage.id
+    stageId: acceptedStage.id
   };
   return addPlanningInvestible(addInfo).then((addedStory) => marketInvestibles.push(addedStory));
 }

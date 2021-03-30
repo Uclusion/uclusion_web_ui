@@ -9,13 +9,15 @@ import { Card, CardContent, Grid, makeStyles, Typography } from '@material-ui/co
 import _ from 'lodash'
 import AddIcon from '@material-ui/icons/Add'
 import {
+  baseNavListItem,
+  formMarketArchivesLink, formMarketLink,
   makeArchiveBreadCrumbs,
   makeBreadCrumbs,
 } from '../../../utils/marketIdPathFunctions'
 import ProposedIdeas from './ProposedIdeas'
 import SubSection from '../../../containers/SubSection/SubSection'
 import CurrentVoting from './CurrentVoting'
-import CommentBox from '../../../containers/CommentBox/CommentBox'
+import CommentBox, { getSortedRoots } from '../../../containers/CommentBox/CommentBox'
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
 import Screen from '../../../containers/Screen/Screen'
 import { ISSUE_TYPE, QUESTION_TYPE } from '../../../constants/comments'
@@ -49,6 +51,16 @@ import { addInvestible } from '../../../contexts/InvestibesContext/investiblesCo
 import localforage from 'localforage'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import GavelIcon from '@material-ui/icons/Gavel';
+import EditIcon from '@material-ui/icons/Edit'
+import BlockIcon from '@material-ui/icons/Block'
+import PlayForWorkIcon from '@material-ui/icons/PlayForWork'
+import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
+import WorkIcon from '@material-ui/icons/Work'
+import ListAltIcon from '@material-ui/icons/ListAlt'
+import QuestionIcon from '@material-ui/icons/ContactSupport'
+import UpdateIcon from '@material-ui/icons/Update'
+import ChangeSuggstionIcon from '@material-ui/icons/ChangeHistory'
+import MenuBookIcon from '@material-ui/icons/MenuBook'
 
 const useStyles = makeStyles(
   theme => ({
@@ -264,6 +276,29 @@ function DecisionDialog(props) {
   const underConsideration = getInvestiblesForStage(underConsiderationStage);
   const proposed = getInvestiblesForStage(proposedStage);
   const myBeingEdited = beingEdited === marketId && isEditableByUser();
+  function createNavListItem(icon, textId, anchorId, howManyNum, alwaysShow) {
+    return baseNavListItem(formMarketLink(marketId), icon, textId, anchorId, howManyNum, alwaysShow);
+  }
+  function getFakeCommentsArray(comments) {
+    if (_.isEmpty(comments)) {
+      return [{id: 'fake'}];
+    }
+    return comments;
+  }
+  const sortedRoots = getSortedRoots(marketComments);
+  const questions = sortedRoots.filter((comment) => comment.comment_type === QUESTION_TYPE);
+  const { id: questionId } = getFakeCommentsArray(questions)[0];
+  const blocked = sortedRoots.filter((comment) => comment.comment_type === ISSUE_TYPE);
+  const { id: blockedId } = getFakeCommentsArray(blocked)[0];
+  const navigationMenu = {navHeaderText: intl.formatMessage({ id: 'dialog' }),
+    navListItemTextArray: [createNavListItem(EditIcon, 'description_label', 'dialogMain'),
+      createNavListItem(AgilePlanIcon,'approvable', 'currentVoting', _.size(underConsideration),
+        true),
+      createNavListItem(AgilePlanIcon,'proposed', 'proposed', _.size(proposed), true),
+      inArchives ? {} : createNavListItem(AddIcon,'commentAddBox'),
+      createNavListItem(BlockIcon,'planningBlockedStageLabel', `c${blockedId}`, _.size(blocked)),
+      createNavListItem(QuestionIcon,'questions', `c${questionId}`, _.size(questions))
+    ]};
   return (
     <Screen
       title={marketName}
@@ -272,6 +307,7 @@ function DecisionDialog(props) {
       hidden={hidden}
       breadCrumbs={breadCrumbs}
       banner={banner}
+      navigationOptions={navigationMenu}
     >
       <UclusionTour
         hidden={hidden}
@@ -413,6 +449,7 @@ function DecisionDialog(props) {
         </Grid>
         <Grid item xs={12} style={{ marginTop: '1.5rem' }}>
           <SubSection
+            id="proposed"
             type={SECTION_TYPE_SECONDARY}
             title={intl.formatMessage({ id: 'decisionDialogProposedOptionsLabel' })}
             actionButton={ inArchives ? null :

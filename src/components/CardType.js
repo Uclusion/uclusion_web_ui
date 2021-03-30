@@ -133,8 +133,7 @@ const labelIntlIds = {
   certainty25: "certainty25",
   certainty50: "certainty50",
   certainty75: "certainty75",
-  certainty100: "certainty100",
-  [DECISION_TYPE]: "dialogDescription"
+  certainty100: "certainty100"
 };
 
 export default function CardType(props) {
@@ -189,6 +188,9 @@ export default function CardType(props) {
             <span className={classes.label}>{label}</span>
           </div>
         </Grid>
+      )}
+      {!label && (
+        <Grid item xs={fullWidth ? 12 : 6} />
       )}
       <Grid item xs={fullWidth ? false : 1}>
         {myBeingEdited && (

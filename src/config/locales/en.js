@@ -269,6 +269,9 @@ const messages = defineMessages({
   addNew: 'Add New',
   initiatives: 'Initiatives',
   planningMarkets: 'Workspaces',
+  dialog: 'Dialog',
+  approvable: 'Approvable',
+  proposed: 'Proposed',
 
   // Address list
   addressAddCancelLabel: 'Close',
@@ -360,7 +363,7 @@ const messages = defineMessages({
   initiativePlanningParent: 'Create Workspace',
   marketLinksSection: 'links',
   attachedFilesSection: 'attached files',
-  parentLinkSection: 'parent',
+  parentLinkSection: 'Parent',
   marketParticipationLink: 'Participate in - {x}',
   homeChildLinkName: 'Child of {x}',
   homeUpdated: 'Updated {x}',

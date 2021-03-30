@@ -83,7 +83,7 @@ function ParentSummary(props) {
       </ul>
     );
   }
-  if (!parentMarket) {
+  if (_.isEmpty(parentMarket)) {
     return <React.Fragment/>
   }
   return (

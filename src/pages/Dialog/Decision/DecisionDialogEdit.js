@@ -1,11 +1,23 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
-import { Button, Card, CardActions, CardContent, Checkbox, Typography, } from '@material-ui/core'
+import { Button, Card, CardActions, CardContent, Checkbox, makeStyles, Typography, } from '@material-ui/core'
 import { FormattedMessage, useIntl } from 'react-intl'
 import { updateMarket } from '../../../api/markets'
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton'
 import CardType, { DECISION_TYPE } from '../../../components/CardType'
 import { usePlanFormStyles } from '../../../components/AgilePlan'
+import ExistingUsers from '../UserManagement/ExistingUsers'
+import clsx from 'clsx'
+import Grid from '@material-ui/core/Grid'
+
+const useStyles = makeStyles((theme) => {
+  return {
+    actions: {
+      margin: theme.spacing(-3, 0, 0, 6),
+      paddingBottom: '2rem'
+    }
+  };
+});
 
 function DecisionDialogEdit(props) {
   const {
@@ -17,6 +29,7 @@ function DecisionDialogEdit(props) {
   const intl = useIntl();
   const classes = usePlanFormStyles();
   const [multiVote, setMultiVote] = useState(allowMultiVote);
+  const myClasses = useStyles();
 
   function toggleMultiVote() {
     setMultiVote(!multiVote);
@@ -43,17 +56,27 @@ function DecisionDialogEdit(props) {
     <Card elevation={0}>
       <CardType className={classes.cardType} type={DECISION_TYPE} />
       <CardContent className={classes.cardContent}>
-        <Typography>
-          {intl.formatMessage({ id: 'allowMultiVote' })}
-          <Checkbox
-            id="multiVote"
-            name="multiVote"
-            checked={multiVote}
-            onChange={toggleMultiVote}
-          />
-        </Typography>
+        <Grid container className={clsx(classes.fieldset, classes.flex, classes.justifySpace)}>
+          <Grid item md={6} xs={12} className={classes.fieldsetContainer}>
+            <ExistingUsers market={market} />
+          </Grid>
+        </Grid>
+        <Grid container className={clsx(classes.fieldset, classes.flex, classes.justifySpace)}
+              style={{paddingTop: "2rem"}}>
+          <Grid item md={12} xs={12} className={classes.fieldsetContainer}>
+            <Typography>
+              {intl.formatMessage({ id: 'allowMultiVote' })}
+              <Checkbox
+                id="multiVote"
+                name="multiVote"
+                checked={multiVote}
+                onChange={toggleMultiVote}
+              />
+            </Typography>
+          </Grid>
+        </Grid>
       </CardContent>
-      <CardActions className={classes.actions}>
+      <CardActions className={myClasses.actions}>
         <Button
           onClick={onCancel}
           className={classes.actionSecondary}

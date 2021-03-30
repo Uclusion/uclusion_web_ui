@@ -16,7 +16,6 @@ const ONE_HOUR = 36000000;
 const useStyles = makeStyles((theme) => ({
   countdownWrapper: {
     display: 'flex',
-    flexWrap: 'wrap',
   },
 
   countdownItem: {

@@ -38,21 +38,21 @@ export function getMarketDetailsForType(state, marketPresencesState, marketType 
   return null;
 }
 
-export function getHiddenMarketDetailsForUser(state, marketPresenceState) {
+export function getHiddenMarketDetailsForUser(state, marketPresenceState, results) {
   const { marketDetails } = state;
   if (marketDetails) {
     return marketDetails.filter((market) => {
       const { id, market_stage: marketStage } = market;
-      if (marketStage !== ACTIVE_STAGE) {
-        return true;
-      }
       const marketPresences = getMarketPresences(marketPresenceState, id) || [];
-
       const myPresence = marketPresences.find((presence) => presence.current_user) || {};
       if (myPresence.market_banned) {
         return false; // banned markets don't show up in the archives
       }
-      return !myPresence.following;
+      const shown = marketStage !== ACTIVE_STAGE || !myPresence.following;
+      if (_.isEmpty(results)) {
+        return shown;
+      }
+      return shown && results.find((item) => item.id === id);
     });
   }
   return [];
@@ -91,26 +91,6 @@ export function addMarketToStorage(dispatch, diffDispatch, marketDetails, fromNe
   } else {
     dispatch(updateMarketDetails(fixed));
   }
-}
-
-export function getArchivedSearchedMarketDetailsForUser(state, marketPresencesState, results) {
-  if (_.isEmpty(results)) {
-    return undefined;
-  }
-  if (state.marketDetails) {
-    const newMarketDetails = state.marketDetails.filter((market) => {
-      const marketPresences = getMarketPresences(marketPresencesState, market.id) || [];
-      const myPresence = marketPresences.find((presence) => presence.current_user) || {};
-      const { following } = myPresence;
-      const { market_stage: marketStage } = market;
-      return marketStage !== ACTIVE_STAGE || !following;
-    }) || [];
-    const inResultsMarketDetails = newMarketDetails.filter((market) => {
-      return results.find((item) => item.id === market.id);
-    })
-    return { marketDetails: inResultsMarketDetails };
-  }
-  return state;
 }
 
 export function getNotHiddenMarketDetailsForUser(state, marketPresencesState, results) {

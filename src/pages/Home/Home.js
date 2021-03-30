@@ -8,7 +8,7 @@ import { useIntl } from 'react-intl'
 import Screen from '../../containers/Screen/Screen'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import {
-  getArchivedSearchedMarketDetailsForUser,
+  getHiddenMarketDetailsForUser,
   getMarketDetailsForType,
   getNotHiddenMarketDetailsForUser
 } from '../../contexts/MarketsContext/marketsContextHelper'
@@ -179,7 +179,7 @@ function Home(props) {
     return baseNavListItem('/', icon, textId, anchorId, howManyNum, alwaysShow);
   }
 
-  const archiveMarkets = getArchivedSearchedMarketDetailsForUser(marketsState, marketPresencesState, results);
+  const archiveMarkets = getHiddenMarketDetailsForUser(marketsState, marketPresencesState, results);
   const navigationMenu = {navHeaderText: intl.formatMessage({ id: 'home' }), showSearchResults: true,
     navListItemTextArray: [createNavListItem(AddIcon, 'addNew', 'actionContainer'),
       createNavListItem(AgilePlanIcon, 'swimLanes', 'swimLanes'),
@@ -187,7 +187,7 @@ function Home(props) {
       createNavListItem(GavelIcon, 'dialogs', 'dia0', _.size(decisionDetails)),
       createNavListItem(PollIcon, 'initiatives', 'ini0', _.size(initiativeDetails)),
       {icon: MenuBookIcon, text: intl.formatMessage({ id: 'homeViewArchives' }),
-        target: '/archives', num: archiveMarkets === undefined ? undefined : _.size(archiveMarkets)}
+        target: '/archives', num: _.isEmpty(results) ? undefined : _.size(archiveMarkets)}
     ]};
 
   return (

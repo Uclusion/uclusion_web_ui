@@ -19,6 +19,7 @@ import PlaylistAddCheckIcon from '@material-ui/icons/PlaylistAddCheck'
 import GavelIcon from '@material-ui/icons/Gavel'
 import PollIcon from '@material-ui/icons/Poll'
 import MenuBookIcon from '@material-ui/icons/MenuBook'
+import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
 
 const useStyles = makeStyles((theme) => ({
   spacer: {
@@ -35,7 +36,9 @@ function Archives(props) {
   const classes = useStyles()
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
-  const hiddenMarkets = getHiddenMarketDetailsForUser(marketsState, marketPresencesState);
+  const [searchResults] = useContext(SearchResultsContext);
+  const { results } = searchResults;
+  const hiddenMarkets = getHiddenMarketDetailsForUser(marketsState, marketPresencesState, results) || [];
   const planningDetails = hiddenMarkets.filter((market) => market.market_type === PLANNING_TYPE);
   const decisionDetails = _.sortBy(hiddenMarkets.filter((market) => market.market_type === DECISION_TYPE && !market.parent_comment_id), 'updated_at').reverse();
   const initiativeDetails = _.sortBy(hiddenMarkets.filter((market) => market.market_type === INITIATIVE_TYPE), 'updated_at').reverse();
@@ -45,7 +48,7 @@ function Archives(props) {
   function createNavListItem(icon, textId, anchorId, howManyNum, alwaysShow) {
     return baseNavListItem('/archives', icon, textId, anchorId, howManyNum, alwaysShow);
   }
-  const navigationMenu = {navHeaderText: intl.formatMessage({ id: 'archives' }), showSearchResults: true,
+  const navigationMenu = {navHeaderText: intl.formatMessage({ id: 'archives' }),
     navListItemTextArray: [createNavListItem(PlaylistAddCheckIcon, 'planningMarkets', 'planningMarkets',
       _.size(planningDetails)),
       createNavListItem(GavelIcon, 'dialogs', 'dia0', _.size(decisionDetails)),
@@ -59,7 +62,7 @@ function Archives(props) {
       breadCrumbs={breadCrumbs}
       navigationOptions={navigationMenu}
     >
-      { emptyArchives && (
+      { emptyArchives && _.isEmpty(results) && (
         <ArchivesCheatSheet />
       )}
       {!emptyArchives && (

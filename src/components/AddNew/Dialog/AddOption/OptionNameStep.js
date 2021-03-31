@@ -29,8 +29,8 @@ function OptionNameStep (props) {
     >
       <div>
         <Typography className={classes.introText} variant="body2">
-          Every option to chose from needs a good name. It should be short, but descriptive, and tell your team
-          at a glance what the option is all about.
+          The option name tells your team at a glance what the option is about. You do not
+          need options like "Other" because collaborators can suggest their own at any time.
         </Typography>
         <label className={classes.inputLabel}
                htmlFor="name">{intl.formatMessage({ id: 'AddOptionWizardOptionNamePlaceHolder' })}</label>

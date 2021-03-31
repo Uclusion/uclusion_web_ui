@@ -146,6 +146,7 @@ function PlanningDialog(props) {
     const { open_for_investment: openForInvestment } = marketInfo;
     return openForInvestment;
   });
+  const undefinedFurtherIsOpenDefault = !(_.isEmpty(furtherWorkInvestibles) && _.isEmpty(furtherWorkReadyToStart));
   const requiresInputInvestibles = getInvestiblesInStage(investibles, requiresInputStage.id);
   const blockedInvestibles = getInvestiblesInStage(investibles, inBlockingStage.id);
   const swimlaneInvestibles = investibles.filter((inv) => {
@@ -155,7 +156,7 @@ function PlanningDialog(props) {
     }
     return market_infos.find((info) => {
       const stage = marketStages.find((stage) => stage.id === info.stage);
-      return stage.appears_in_context && !stage.appears_in_market_summary;
+      return stage && stage.appears_in_context && !stage.appears_in_market_summary;
     });
   });
   const archiveInvestibles = investibles.filter((inv) => {
@@ -165,7 +166,7 @@ function PlanningDialog(props) {
     }
     return market_infos.find((info) => {
       const stage = marketStages.find((stage) => stage.id === info.stage);
-      return stage.close_comments_on_entrance;
+      return stage && stage.close_comments_on_entrance;
     });
   });
   const highlightMap = {};
@@ -182,7 +183,7 @@ function PlanningDialog(props) {
   const tourSteps = isMarketOwner? inviteStoriesWorkspaceSteps(cognitoUser) : workspaceInvitedUserSteps(myPresence);
 
   function toggleShowFurther() {
-    const toggleValue = showFurther === undefined ? true : !showFurther;
+    const toggleValue = showFurther === undefined ? !undefinedFurtherIsOpenDefault : !showFurther;
     expandedCommentDispatch({ type: EXPANDED_CONTROL, commentId: `${marketId}_further`, expanded: toggleValue });
   }
 
@@ -336,7 +337,7 @@ function PlanningDialog(props) {
             bolder
             helpTextId="furtherSectionHelp"
             id="furtherWork"
-            hideChildren={!showFurther}
+            hideChildren={showFurther === false || (showFurther === undefined && !undefinedFurtherIsOpenDefault)}
             title={intl.formatMessage({ id: 'readyFurtherWorkHeader' })}
             actionButton={
               (<ExpandableAction

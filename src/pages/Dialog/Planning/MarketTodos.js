@@ -140,6 +140,7 @@ function MarketTodos (props) {
   const { hash } = location;
   const [openMenuTodoId, setOpenMenuTodoId] = useState(undefined);
   const [anchorEl, setAnchorEl] = useState(null);
+  const undefinedIsOpenDefault = !_.isEmpty(todoComments);
 
   function setEditRedCard(comment) {
     if (comment) {
@@ -383,7 +384,7 @@ function MarketTodos (props) {
   }
 
   function toggleShowTodos () {
-    const toggleValue = showTodos === undefined ? true : !showTodos;
+    const toggleValue = showTodos === undefined ? !undefinedIsOpenDefault : !showTodos;
     if (!toggleValue) {
       setEditRedCard(undefined);
       setEditYellowCard(undefined);
@@ -476,7 +477,7 @@ function MarketTodos (props) {
         <SubSection
           type={SECTION_SUB_HEADER}
           bolder
-          hideChildren={!showTodos}
+          hideChildren={showTodos === false || (showTodos === undefined && !undefinedIsOpenDefault)}
           title={intl.formatMessage({ id: 'todoSection' })}
           helpTextId="todoSectionHelp"
           createButton={ isSingleTodoSelected || isInArchives || isTinyWindow() ? undefined :
@@ -497,7 +498,7 @@ function MarketTodos (props) {
               tipPlacement="top-end"
             />)}
         >
-          <div className={showTodos || showTodos === undefined ? classes.containerEmpty : classes.containerHidden }>
+          <div>
             {createRedCard && (
               <CommentAdd
                 key="CommentAddRed"

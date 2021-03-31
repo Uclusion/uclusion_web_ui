@@ -228,11 +228,11 @@ function Screen(props) {
                             }
                   >
                     <Icon className={classes.navListIcon} />
-                    <span style={{width: "90%"}}>
+                    <span style={{width: "80%"}}>
                       <ListItemText primary={text} />
                     </span>
                     {num !== undefined && (
-                      <span style={{width: "7%"}}><ListItemText primary={num} /></span>
+                      <span style={{width: "17%"}}><ListItemText primary={num} /></span>
                     )}
                   </ListItem>
                 );

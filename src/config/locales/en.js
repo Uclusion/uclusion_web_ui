@@ -435,7 +435,7 @@ const messages = defineMessages({
   commentResolveLabel: 'Resolve',
   commentRemoveLabel: 'Delete',
   commentViewThreadLabel: 'View Thread',
-  commentCloseThreadLabel: 'Close Thread',
+  commentCloseThreadLabel: 'Hide Thread',
   lastUpdatedBy: ' by',
   notifyAll: 'Notify All',
 

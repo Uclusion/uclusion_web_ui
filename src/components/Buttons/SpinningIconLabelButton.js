@@ -1,0 +1,72 @@
+/** A simple button that when spinning is true, ignores it's children
+ * for a circular progress indicator
+ */
+import React, { useContext } from 'react'
+import PropTypes from 'prop-types';
+import { CircularProgress, Button, useTheme } from '@material-ui/core';
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { makeStyles } from '@material-ui/styles'
+
+const useStyles = makeStyles(
+  () => {
+    return {
+      button: {
+        marginRight: '1rem',
+        '& .MuiButton-label': {
+          textTransform: 'none'
+        },
+        "&:hover": {
+          backgroundColor: "#F1F1F1"
+        }
+      },
+    }
+  },
+  { name: "Button" }
+);
+
+function SpinningIconLabelButton(props) {
+  const {
+    disabled,
+    doSpin,
+    children,
+    icon: Icon,
+    ...rest
+  } = props;
+  const [operationRunning] = useContext(OperationInProgressContext);
+  const classes = useStyles();
+  const theme = useTheme();
+  const spinning = doSpin && operationRunning;
+
+  return (
+    <Button
+      disabled={spinning || disabled}
+      variant="outlined"
+      color="white"
+      size="small"
+      startIcon={<Icon htmlColor="black" />}
+      className={classes.button}
+      {...rest}
+    >
+      {spinning && (
+        <CircularProgress
+          size={theme.typography.fontSize}
+          color="inherit"
+        />
+      )}
+      {!spinning && children}
+    </Button>
+  );
+}
+
+SpinningIconLabelButton.propTypes = {
+  disabled: PropTypes.bool,
+  doSpin: PropTypes.bool,
+  icon: PropTypes.object.isRequired
+};
+
+SpinningIconLabelButton.defaultProps = {
+  disabled: false,
+  doSpin: true
+};
+
+export default SpinningIconLabelButton;

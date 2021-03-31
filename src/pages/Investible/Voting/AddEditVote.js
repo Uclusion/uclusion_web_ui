@@ -36,6 +36,8 @@ import { urlHelperGetName } from '../../../utils/marketIdPathFunctions'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import Autocomplete from '@material-ui/lab/Autocomplete'
+import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
+import { Add, Delete, SettingsBackupRestore } from '@material-ui/icons'
 
 const useStyles = makeStyles(
   theme => {
@@ -157,7 +159,7 @@ function AddEditVote(props) {
     reasonText !== body || (quantity < 0 && multiplier > 0) || (quantity > 0 && multiplier < 0);
 
   function mySave() {
-    // console.debug("saving now");
+    setOperationRunning(true);
     const oldQuantity = addMode ? 0 : quantity;
     // dont include reason text if it's not changing, otherwise we'll update the reason comment
     const reasonNeedsUpdate = reasonText !== body && !(_.isEmpty(reasonText) && _.isEmpty(body));
@@ -172,12 +174,10 @@ function AddEditVote(props) {
       maxBudget,
       maxBudgetUnit
     };
-    // console.debug(updateInfo);
+
     return updateInvestment(updateInfo).then(result => {
-      return {
-        result,
-        spinChecker: () => Promise.resolve(true),
-      };
+      onSaveSpinStop(result);
+      setOperationRunning(false);
     });
   }
 
@@ -205,11 +205,10 @@ function AddEditVote(props) {
   }
 
   function onRemove() {
+    setOperationRunning(true);
     return removeInvestment(marketId, investibleId).then(result => {
-      return {
-        result,
-        spinChecker: () => Promise.resolve(true),
-      };
+      onSaveSpinStop(result);
+      setOperationRunning(false);
     });
   }
 
@@ -314,27 +313,22 @@ function AddEditVote(props) {
         </CardContent>
         <CardActions className={classes.actions}>
           {multiplier && !addMode && (
-            <SpinBlockingButton
-              className={classes.secondaryAction}
-              marketId={marketId}
+            <SpinningIconLabelButton
+              icon={Delete}
               onClick={onRemove}
-              onSpinStop={onSaveSpinStop}
             >
               {intl.formatMessage({ id: removeVoteId })}
-            </SpinBlockingButton>
+            </SpinningIconLabelButton>
           )}
           {multiplier && saveEnabled && !warnClearVotes && (
-            <SpinBlockingButton
-              className={classes.primaryAction}
-              marketId={marketId}
+            <SpinningIconLabelButton
+              icon={addMode ? Add : SettingsBackupRestore}
               onClick={mySave}
-              onSpinStop={onSaveSpinStop}
-              hasSpinChecker
             >
               {addMode
                 ? intl.formatMessage({ id: voteId })
                 : intl.formatMessage({ id: updateVoteId })}
-            </SpinBlockingButton>
+            </SpinningIconLabelButton>
           )}
           {multiplier && saveEnabled && warnClearVotes && (
             <Button onClick={toggleOpen} className={classes.primaryAction}>

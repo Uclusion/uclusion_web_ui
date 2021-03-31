@@ -42,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
   },
   containerAllLeftPad: {
     background: '#efefef',
-    padding: '24px 20px 156px 100px',
+    padding: '24px 20px 156px 25px',
     marginTop: '80px',
     width: '100%',
     [theme.breakpoints.down('sm')]: {
@@ -99,6 +99,7 @@ const useStyles = makeStyles((theme) => ({
   },
   content: {
     background: '#efefef',
+    marginLeft: '15rem'
   },
   contentSearch: {
     background: '#efefef',
@@ -257,7 +258,7 @@ function Screen(props) {
       )}
       <div className={contentClass}>
         {!reallyAmLoading && (
-          <Container className={myContainerClass}>
+          <Container className={myContainerClass} maxWidth="xl">
             {children}
           </Container>
         )}

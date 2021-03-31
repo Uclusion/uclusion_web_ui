@@ -209,7 +209,7 @@ const messages = defineMessages({
   agilePlanFormDaysEstimatePlaceholder: 'Very rough number of days to complete',
   agilePlanFormInvestmentExpirationLabel: 'Approval Expiration (in days)',
   agilePlanFormMaxMaxBudgetInputLabel: 'Optionally enter a budget number for this story and then enter your own unit or choose from the drop down.',
-  agilePlanFormSaveLabel: 'Save & Post',
+  agilePlanFormSaveLabel: 'Save',
 
   // Market Nav
   marketNavTabContextLabel: 'Context',

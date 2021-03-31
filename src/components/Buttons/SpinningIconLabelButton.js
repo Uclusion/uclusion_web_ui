@@ -43,7 +43,7 @@ function SpinningIconLabelButton(props) {
       variant="outlined"
       color="white"
       size="small"
-      startIcon={<Icon htmlColor="black" />}
+      startIcon={disabled ? <Icon color='disabled' /> : <Icon htmlColor="black" />}
       className={classes.button}
       {...rest}
     >

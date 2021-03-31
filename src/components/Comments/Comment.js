@@ -552,12 +552,13 @@ function Comment(props) {
   }
 
   function reopen() {
+    setOperationRunning(true);
     return reopenComment(marketId, id)
       .then((comment) => {
         onCommentOpen(investiblesState, investibleId, marketStagesState, marketId, comment, investiblesDispatch,
           commentsState, commentsDispatch, versionsDispatch);
         onDone();
-        return EMPTY_SPIN_RESULT;
+        setOperationRunning(false);
       });
   }
   function remove() {
@@ -569,10 +570,12 @@ function Comment(props) {
       });
   }
   function resolve() {
+    setOperationRunning(true);
     return resolveComment(marketId, id)
       .then((comment) => {
         addCommentToMarket(comment, commentsState, commentsDispatch, versionsDispatch);
-        return onDone();
+        onDone();
+        setOperationRunning(false);
       });
   }
   function getHilightedIds(myReplies, highLightedIds, passedMessages) {

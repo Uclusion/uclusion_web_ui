@@ -47,6 +47,8 @@ import { changeInvestibleStageOnCommentChange } from '../../utils/commentFunctio
 import { findMessageOfType } from '../../utils/messageUtils'
 import { removeMessage } from '../../contexts/NotificationsContext/notificationsContextReducer'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
+import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'
+import { Add, Clear } from '@material-ui/icons'
 
 function getPlaceHolderLabelId (type, isStory, isInReview) {
   switch (type) {
@@ -92,6 +94,7 @@ const useStyles = makeStyles((theme) => ({
   },
   add: {
     marginBottom: 16,
+    padding: theme.spacing(0, 2)
   },
   editor: {
     flex: 1,
@@ -284,6 +287,7 @@ function CommentAdd (props) {
   }
 
   function handleSave () {
+    setOperationRunning(true);
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
@@ -311,7 +315,8 @@ function CommentAdd (props) {
             messagesDispatch(removeMessage(message));
           }
         }
-        return EMPTY_SPIN_RESULT;
+        setOperationRunning(false);
+        handleSpinStop();
       });
   }
 
@@ -387,24 +392,21 @@ function CommentAdd (props) {
                 {intl.formatMessage({ id: 'cancel' })}
               </Button>
             )}
-            <Button
+            <SpinningIconLabelButton
               onClick={handleCancel}
-              className={classes.button}
-              style={{border: "1px solid black"}}
+              doSpin={false}
+              icon={Clear}
             >
               {intl.formatMessage({ id: commentCancelLabel })}
-            </Button>
+            </SpinningIconLabelButton>
             {!showIssueWarning && (
-              <SpinBlockingButton
-                className={classNames(classes.button, classes.buttonPrimary)}
-                marketId={marketId}
+              <SpinningIconLabelButton
                 onClick={handleSave}
-                onSpinStop={handleSpinStop}
+                icon={Add}
                 disabled={_.isEmpty(body) || _.isEmpty(type)}
-                hasSpinChecker
               >
                 {intl.formatMessage({ id: commentSaveLabel })}
-              </SpinBlockingButton>
+              </SpinningIconLabelButton>
             )}
             {showIssueWarning && (
               <Button className={classNames(classes.button, classes.buttonPrimary)} onClick={toggleIssue}>

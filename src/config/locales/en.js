@@ -145,6 +145,7 @@ const messages = defineMessages({
   days: 'days',
   points: 'points',
   currency: 'dollars',
+  update: 'Update',
 
   // Upgrade
   upgradeNow: 'Upgrade Now',

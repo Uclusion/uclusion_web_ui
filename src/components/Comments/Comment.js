@@ -75,14 +75,14 @@ import { onCommentOpen } from '../../utils/commentFunctions'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 import { findMessageForCommentId } from '../../utils/messageUtils'
 import GravatarAndName from '../Avatars/GravatarAndName';
-import { isTinyWindow } from '../../utils/windowUtils'
+import { invalidEditEvent, isTinyWindow } from '../../utils/windowUtils'
 import localforage from 'localforage'
 import DecisionInvestibleAdd from '../../pages/Dialog/Decision/DecisionInvestibleAdd'
 import ExpandableAction from '../SidebarActions/Planning/ExpandableAction'
 import AddIcon from '@material-ui/icons/Add'
 import { deleteOrDehilightMessages } from '../../api/users'
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'
-import { Done, Eject, ExpandLess, ExpandMore, SettingsBackupRestore } from '@material-ui/icons'
+import { Clear, Done, Edit, Eject, ExpandLess, ExpandMore, SettingsBackupRestore } from '@material-ui/icons'
 import ReplyIcon from '@material-ui/icons/Reply'
 
 const useCommentStyles = makeStyles(
@@ -398,6 +398,13 @@ function Comment(props) {
     setEditOpen(!editOpen);
   }
 
+  function setBeingEdited(value, event) {
+    if (isTinyWindow() || invalidEditEvent(event)) {
+      return;
+    }
+    setEditOpen(value);
+  }
+
   function getInlineInvestiblesForStage(stage, inlineInvestibles) {
     if (stage) {
       return inlineInvestibles.reduce((acc, inv) => {
@@ -654,6 +661,7 @@ function Comment(props) {
   }
 
   const isEditable = comment.created_by === userId;
+  const displayEditing = enableEditing && isEditable && !editOpenDefault;
   const inReviewStageId = (getInReviewStage(marketStagesState, marketId) || {}).id;
   return (
     <div className={repliesExpanded ? classes.inlineBorder : classes.inlineBorderNone}>
@@ -690,18 +698,14 @@ function Comment(props) {
             )} style={{marginRight: '2rem'}}>
               <ShareStoryButton commentId={id} commentType={commentType} investibleId={investibleId} /></div>
           )}
-          {enableEditing && isEditable && !editOpenDefault && (
-            <Button
-              className={clsx(
-                classes.action,
-                classes.actionSecondary,
-                classes.actionEdit
-              )}
+          {displayEditing && isTinyWindow() && (
+            <SpinningIconLabelButton
               onClick={toggleEdit}
-              variant="contained"
+              doSpin={false}
+              icon={Edit}
             >
               <FormattedMessage id="edit" />
-            </Button>
+            </SpinningIconLabelButton>
           )}
           {(myPresence.is_admin || isEditable) && enableActions && commentType !== REPORT_TYPE && resolved && (
             <SpinBlockingButton
@@ -733,7 +737,8 @@ function Comment(props) {
           )}
           <Box marginTop={1}>
             {!editOpen && (
-              <ReadOnlyQuillEditor value={comment.body} />
+              <ReadOnlyQuillEditor value={comment.body} setBeingEdited={setBeingEdited}
+                                   isEditable={!isTinyWindow() && displayEditing}/>
             )}
             {editOpen && (
               <CommentEdit
@@ -747,13 +752,9 @@ function Comment(props) {
               />
             )}
             {noAuthor && !editOpen && (
-              <Button
-                onClick={onDone}
-                className={classes.button}
-                style={{border: "1px solid black"}}
-              >
+              <SpinningIconLabelButton onClick={onDone} doSpin={false} icon={Clear}>
                 {intl.formatMessage({ id: 'cancel' })}
-              </Button>
+              </SpinningIconLabelButton>
             )}
           </Box>
         </CardContent>

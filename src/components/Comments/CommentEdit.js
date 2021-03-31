@@ -16,10 +16,8 @@ import PropTypes from 'prop-types'
 import QuillEditor from '../TextEditors/QuillEditor'
 import { getMentionsFromText, updateComment } from '../../api/comments';
 import { processTextAndFilesForSave } from '../../api/files'
-import SpinBlockingButton from '../SpinBlocking/SpinBlockingButton'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
-import { EMPTY_SPIN_RESULT } from '../../constants/global'
 import { ISSUE_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../constants/comments'
 import { urlHelperGetName } from '../../utils/marketIdPathFunctions'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
@@ -36,6 +34,8 @@ import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
 import { findMessageOfType } from '../../utils/messageUtils'
 import { removeMessage } from '../../contexts/NotificationsContext/notificationsContextReducer'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
+import { Clear, Update } from '@material-ui/icons'
+import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'
 
 /***
  * MASSIVE TODOS
@@ -176,7 +176,7 @@ function CommentEdit(props) {
   const [body, setBody] = useState(initialBody);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const classes = useStyles();
-  const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [type, setType] = useState(commentType);
   const [marketState] = useContext(MarketsContext);
@@ -217,6 +217,7 @@ function CommentEdit(props) {
   }
 
   function handleSave() {
+    setOperationRunning(true);
     const newUploadedFiles = _.uniqBy([...initialUploadedFiles, ...uploadedFiles], 'path');
     const {
       uploadedFiles: filteredUploads,
@@ -235,7 +236,8 @@ function CommentEdit(props) {
             messagesDispatch(removeMessage(message));
           }
         }
-        return EMPTY_SPIN_RESULT;
+        handleSpinStop();
+        setOperationRunning(false);
       })
   }
 
@@ -314,28 +316,15 @@ function CommentEdit(props) {
           />
         </CardContent>
         <CardActions className={classes.cardActions}>
-          <Button
-            onClick={handleCancel}
-            disabled={operationRunning}
-            variant="text"
-            size="small"
-            className={classes.button}
-            style={{border: "1px solid black"}}
-          >
+          <SpinningIconLabelButton onClick={handleCancel} doSpin={false} icon={Clear}>
             {intl.formatMessage({ id: 'cancel' })}
-          </Button>
-          <SpinBlockingButton
-            className={classes.buttonPrimary}
-            disabled={operationRunning}
-            variant="contained"
-            size="small"
-            marketId={marketId}
+          </SpinningIconLabelButton>
+          <SpinningIconLabelButton
+            icon={Update}
             onClick={handleSave}
-            hasSpinChecker
-            onSpinStop={handleSpinStop}
           >
-            {intl.formatMessage({ id: 'save' })}
-          </SpinBlockingButton>
+            {intl.formatMessage({ id: 'update' })}
+          </SpinningIconLabelButton>
           <Button className={classes.button}>
             {intl.formatMessage({ id: 'edited' })}
           </Button>

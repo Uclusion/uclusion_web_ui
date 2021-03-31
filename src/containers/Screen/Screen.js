@@ -97,6 +97,9 @@ const useStyles = makeStyles((theme) => ({
     marginTop: '5rem',
     marginBottom: '-6rem'
   },
+  contentMobile: {
+    background: '#efefef',
+  },
   content: {
     background: '#efefef',
     marginLeft: '15rem'
@@ -175,8 +178,9 @@ function Screen(props) {
     usedBreadCrumbs = makeBreadCrumbs(history);
   }
   const { navHeaderText, navListItemTextArray, showSearchResults } = navigationOptions || {};
-  const myContainerClass = navigationOptions ? classes.containerAllLeftPad : classes.containerAll;
-  const contentClass = showSearchResults && !_.isEmpty(results) ? classes.contentSearch : classes.content;
+  const myContainerClass = navigationOptions && !isTinyWindow() ? classes.containerAllLeftPad : classes.containerAll;
+  const contentClass = isTinyWindow() ? classes.contentMobile : showSearchResults && !_.isEmpty(results) ?
+    classes.contentSearch : classes.content;
   return (
     <div className={classes.root} id="root">
       <Helmet defer={false}>

@@ -2,9 +2,13 @@ export function isTinyWindow(){
   return window.outerWidth < 600;
 }
 
+export function invalidEditEvent(event) {
+  return event && event.target && event.target.localName === 'a';
+}
+
 export function doSetEditWhenValid(isEdit, isEditableByUser, setBeingEdited, id, event) {
   if (isEdit) {
-    if (event && event.target && event.target.localName === 'a') {
+    if (invalidEditEvent(event)) {
       return;
     }
     const selection = window.getSelection();

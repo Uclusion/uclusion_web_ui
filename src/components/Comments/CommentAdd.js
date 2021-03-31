@@ -30,7 +30,6 @@ import { addCommentToMarket } from '../../contexts/CommentsContext/commentsConte
 import { Dialog } from '../Dialogs'
 import WarningIcon from '@material-ui/icons/Warning'
 import { useLockedDialogStyles } from '../../pages/Dialog/DialogBodyEdit'
-import { EMPTY_SPIN_RESULT } from '../../constants/global'
 import {
   getBlockedStage,
   getInReviewStage,

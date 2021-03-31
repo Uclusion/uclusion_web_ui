@@ -66,7 +66,7 @@ function NotificationMessageDisplay (props) {
                 {isOneDayAgo && (
                   <>
                     <br />
-                    <UsefulRelativeTime value={Date.parse(updatedAt)}/>
+                    <UsefulRelativeTime value={ new Date(updatedAt)}/>
                   </>
                 )}
               </Typography>
@@ -89,7 +89,7 @@ function NotificationMessageDisplay (props) {
                 <br />
               )}
               {isOneDayAgo && (
-                <UsefulRelativeTime value={Date.parse(updatedAt)}/>
+                <UsefulRelativeTime value={ new Date(updatedAt)}/>
               )}
             </Typography>
           )}

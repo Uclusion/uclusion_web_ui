@@ -20,10 +20,11 @@ import { CardActions, CircularProgress, Typography } from '@material-ui/core'
 import QuillEditor from '../../components/TextEditors/QuillEditor'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { processTextAndFilesForSave } from '../../api/files'
-import { usePlanFormStyles } from '../../components/AgilePlan'
 import NameField from '../../components/TextFields/NameField'
 import { isTinyWindow } from '../../utils/windowUtils'
 import DescriptionOrDiff from '../../components/Descriptions/DescriptionOrDiff'
+import { Clear, SettingsBackupRestore } from '@material-ui/icons'
+import SpinningIconLabelButton from '../../components/Buttons/SpinningIconLabelButton'
 
 export const useLockedDialogStyles = makeStyles(
   (theme) => {
@@ -119,7 +120,6 @@ const useStyles = makeStyles(
 function DialogBodyEdit(props) {
   const { hidden, setBeingEdited, market, isEditableByUser, beingEdited } = props;
   const intl = useIntl();
-  const editClasses = usePlanFormStyles();
   const classes = useStyles();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketsState, marketsDispatch] = useContext(MarketsContext);
@@ -177,6 +177,7 @@ function DialogBodyEdit(props) {
   const calculatedName = name === undefined ? initialName : name;
 
   function handleSave() {
+    setOperationRunning(true);
     // the set of files for the market is all the old files, plus our new ones
     const oldMarketUploadedFiles = market.uploaded_files || [];
     const newUploadedFiles = _.uniqBy([...uploadedFiles, ...oldMarketUploadedFiles], 'path');
@@ -188,10 +189,8 @@ function DialogBodyEdit(props) {
     return updateMarket(id, calculatedName, tokensRemoved, updatedFilteredUploads, null,
       null, null, null, null)
       .then((market) => {
-        return {
-          result: market,
-          spinChecker: () => Promise.resolve(true),
-        };
+        onSave(market);
+        setOperationRunning(false);
       });
   }
 
@@ -316,29 +315,17 @@ function DialogBodyEdit(props) {
           </div>
         )}
         <CardActions className={classes.actions}>
-          <Button
-            onClick={onCancel}
-            className={editClasses.actionSecondary}
-            color="secondary"
-            variant="contained">
-            <FormattedMessage
-              id="marketAddCancelLabel"
-            />
-          </Button>
-          <SpinBlockingButton
-            marketId={id}
-            id="save"
-            variant="contained"
-            color="primary"
+          <SpinningIconLabelButton onClick={onCancel} doSpin={false} icon={Clear}>
+            {intl.formatMessage({ id: 'marketAddCancelLabel' })}
+          </SpinningIconLabelButton>
+          <SpinningIconLabelButton
+            icon={SettingsBackupRestore}
             onClick={handleSave}
-            onSpinStop={onSave}
-            className={editClasses.actionPrimary}
-            hasSpinChecker
           >
             <FormattedMessage
               id="agilePlanFormSaveLabel"
             />
-          </SpinBlockingButton>
+          </SpinningIconLabelButton>
         </CardActions>
       </>
     );

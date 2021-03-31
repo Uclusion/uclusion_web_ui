@@ -18,7 +18,6 @@ import _ from 'lodash'
 import QuillEditor from '../../components/TextEditors/QuillEditor'
 import { CardActions, CircularProgress, Typography } from '@material-ui/core'
 import { processTextAndFilesForSave } from '../../api/files'
-import { usePlanFormStyles } from '../../components/AgilePlan'
 import { makeStyles } from '@material-ui/core/styles'
 import { PLANNING_TYPE } from '../../constants/markets'
 import NameField from '../../components/TextFields/NameField'
@@ -27,6 +26,8 @@ import { getFullStage } from '../../contexts/MarketStagesContext/marketStagesCon
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 import { isTinyWindow } from '../../utils/windowUtils'
 import DescriptionOrDiff from '../../components/Descriptions/DescriptionOrDiff'
+import { Clear, SettingsBackupRestore } from '@material-ui/icons'
+import SpinningIconLabelButton from '../../components/Buttons/SpinningIconLabelButton'
 
 const useStyles = makeStyles(
   theme => ({
@@ -132,6 +133,7 @@ function InvestibleBodyEdit (props) {
   const calculatedName = name === undefined ? initialName : name;
 
   function handleSave() {
+    setOperationRunning(true);
     // uploaded files on edit is the union of the new uploaded files and the old uploaded files
     const oldInvestibleUploadedFiles = myInvestible.uploaded_files || [];
     const newUploadedFiles = _.uniqBy([...uploadedFiles, ...oldInvestibleUploadedFiles], 'path');
@@ -148,10 +150,8 @@ function InvestibleBodyEdit (props) {
     };
     return updateInvestible(updateInfo)
       .then((fullInvestible) => {
-        return {
-          result: fullInvestible,
-          spinChecker: () => Promise.resolve(true),
-        };
+        onSave(fullInvestible);
+        setOperationRunning(false);
       });
   }
 
@@ -215,7 +215,6 @@ function InvestibleBodyEdit (props) {
     return localforage.removeItem(investibleId);
   }
   const classes = useStyles();
-  const editClasses = usePlanFormStyles();
   const lockedDialogClasses = useLockedDialogStyles();
 
   function takeoutLock () {
@@ -279,32 +278,18 @@ function InvestibleBodyEdit (props) {
           </div>
         )}
         <CardActions className={classes.actions}>
-          <SpinBlockingButton
-            marketId={marketId}
-            onClick={onCancel}
-            className={editClasses.actionSecondary}
-            color="secondary"
-            variant="contained"
-            hasSpinChecker
-          >
-            <FormattedMessage
-              id={"marketAddCancelLabel"}
-            />
-          </SpinBlockingButton>
-          <SpinBlockingButton
-            marketId={marketId}
-            variant="contained"
-            color="primary"
-            className={editClasses.actionPrimary}
-            onClick={handleSave}
+          <SpinningIconLabelButton onClick={onCancel} doSpin={false} icon={Clear}>
+            {intl.formatMessage({ id: 'marketAddCancelLabel' })}
+          </SpinningIconLabelButton>
+          <SpinningIconLabelButton
             disabled={!calculatedName}
-            onSpinStop={onSave}
-            hasSpinChecker
+            icon={SettingsBackupRestore}
+            onClick={handleSave}
           >
             <FormattedMessage
-              id={"agilePlanFormSaveLabel"}
+              id="agilePlanFormSaveLabel"
             />
-          </SpinBlockingButton>
+          </SpinningIconLabelButton>
         </CardActions>
       </>
     );

@@ -778,16 +778,19 @@ function Comment(props) {
                   </SpinningIconLabelButton>
                 )}
                 {commentType === SUGGEST_CHANGE_TYPE && !inArchives && !resolved && !inlineMarketId && marketType === PLANNING_TYPE && (
-                  <Typography>
-                    {intl.formatMessage({ id: 'allowVoteSuggestion' })}
-                    <Checkbox
-                      id="suggestionVote"
-                      name="suggestionVote"
-                      checked={!_.isEmpty(inlineMarketId)}
-                      onChange={allowSuggestionVote}
-                      disabled={operationRunning || commentCreatedBy !== userId}
-                    />
-                  </Typography>
+                  <div style={{marginLeft: '1rem', marginRight: '0.5rem', paddingTop: '0.25rem'}}>
+                    <Typography>
+                      {intl.formatMessage({ id: 'allowVoteSuggestion' })}
+                      <Checkbox
+                        style={{maxHeight: '1rem'}}
+                        id="suggestionVote"
+                        name="suggestionVote"
+                        checked={!_.isEmpty(inlineMarketId)}
+                        onChange={allowSuggestionVote}
+                        disabled={operationRunning || commentCreatedBy !== userId}
+                      />
+                    </Typography>
+                  </div>
                 )}
                 {(replies.length > 0 || inlineMarketId) && (!isTinyWindow() || !inlineMarketId) && (
                   <SpinningIconLabelButton

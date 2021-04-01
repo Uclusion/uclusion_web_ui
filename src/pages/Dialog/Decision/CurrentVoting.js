@@ -121,6 +121,7 @@ function CurrentVoting(props) {
             onDragStart={onDragStart}>
         <RaisedCard
           className="raisedcard"
+          elevation={1}
           onClick={() => navigate(history, formInvestibleLink(marketId, id))}
         >
           <CardContent className={myMessage ? classes.noPaddingHighlighted : classes.noPadding}>

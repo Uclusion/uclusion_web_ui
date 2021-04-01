@@ -304,10 +304,7 @@ function InitiativeInvestible(props) {
       {!isAdmin && !inArchives && (
         <DismissableText textId='initiativeVotingHelp'/>
       )}
-      <Card className={classes.root}
-        id="initiativeMain"
-        elevation={0}
-      >
+      <Card className={classes.root} id="initiativeMain">
         <CardType
           className={classes.cardType}
           type={VOTING_TYPE}

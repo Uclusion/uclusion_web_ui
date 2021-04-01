@@ -308,7 +308,7 @@ function DecisionDialog(props) {
         name={INVITE_DIALOG_FIRST_VIEW}
         steps={inviteDialogSteps(user)}
       />
-      <Card elevation={0} className={classes.root}>
+      <Card className={classes.root}>
         <CardType
           className={classes.cardType}
           type={DECISION_TYPE}

@@ -81,6 +81,7 @@ function ProposedIdeas(props) {
         >
           <RaisedCard
             className="raisedcard"
+            elevation={1}
             onClick={() => navigate(history, formInvestibleLink(marketId, id))}
           >
             <CardContent className={classes.noPadding}>

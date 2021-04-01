@@ -247,6 +247,17 @@ const useStyles = makeStyles(
         width: 'auto'
       }
     },
+    fullWidthEditable: {
+      paddingLeft: '2rem',
+      paddingTop: '1rem',
+      cursor: "url('/images/edit_cursor.svg') 0 24, pointer",
+      [theme.breakpoints.down("xs")]: {
+        maxWidth: '100%',
+        flexBasis: '100%',
+        borderLeft: 'none',
+        marginLeft: 'unset'
+      }
+    },
     fullWidth: {
       paddingLeft: '2rem',
       paddingTop: '1rem',
@@ -851,7 +862,8 @@ function PlanningInvestible(props) {
                 )}
               </dl>
             </Grid>
-            <Grid item xs={8} className={classes.fullWidth}>
+            <Grid item xs={8} className={!beingEdited && isEditableByUser() ? classes.fullWidthEditable : classes.fullWidth}
+                  onClick={() => !beingEdited && mySetBeingEdited(true)}>
               {lockedBy && myPresence.id !== lockedBy && isEditableByUser() && (
                 <Typography>
                   {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}

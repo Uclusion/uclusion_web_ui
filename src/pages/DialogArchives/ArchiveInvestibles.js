@@ -134,9 +134,7 @@ function getInvestibles(investibles, marketPresences, marketPresencesState, pres
           getInvestibleOnClick(id, marketId, history);
         }}
       >
-        <RaisedCard
-          elevation={elevation}
-        >
+        <RaisedCard>
           <Link href={formInvestibleLink(marketId, id)} color="inherit" draggable="false">
             <div className={highlightMap[id] ? classes.warn : classes.outlined}>
               <Grid container>

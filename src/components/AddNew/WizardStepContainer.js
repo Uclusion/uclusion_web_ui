@@ -10,7 +10,7 @@ function WizardStepContainer (props) {
   const classes = useContext(WizardStylesContext);
   const titleClass = titleId ? classes[titleId] : classes.stepDefault;
   return (
-    <Card className={clsx(titleClass, classes.baseCard)} elevation={0} raised={false}>
+    <Card className={clsx(titleClass, classes.baseCard)} raised={false}>
       <div>
         <StepHeaders titleId={titleId} hideSteppers={hideSteppers} {...other} />
       </div>

@@ -348,6 +348,7 @@ function PlanningDialog(props) {
               tipPlacement="top-end"
             />)}
         >
+          <div style={{paddingTop: '1rem'}} />
           <SubSection
             type={SECTION_TYPE_SECONDARY_WARNING}
             title={intl.formatMessage({ id: 'readyToStartHeader' })}

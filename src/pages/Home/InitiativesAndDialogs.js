@@ -363,10 +363,7 @@ function InitiativesAndDialogs(props) {
         xs={12}
         className={classes.lastChild}
       >
-        <RaisedCard
-          className={classes.paper}
-          border={1}
-        >
+        <RaisedCard className={classes.paper} elevation={1}>
           <Grid container >
             <div className={active ? classes.gridSliver : classes.mobileExpired}>
               <div className={classes.countdownContainer}>
@@ -535,7 +532,7 @@ function InitiativesAndDialogs(props) {
       >
         <RaisedCard
           className={classes.paper}
-          border={1}
+          elevation={1}
         >
           <Grid container >
             <div className={active ? classes.gridSliver : classes.mobileExpired}>

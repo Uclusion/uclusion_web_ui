@@ -210,7 +210,7 @@ function PlanningDialogs(props) {
         >
           <RaisedCard
             className={classes.paper}
-            border={1}
+            elevation={1}
           >
             <Grid container>
               <Grid item xs={11} style={{pointerEvents: 'none'}}>

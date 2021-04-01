@@ -184,14 +184,17 @@ const useCommentStyles = makeStyles(
       },
       containerRed: {
         boxShadow: "10px 5px 5px red",
-        overflow: "visible"
+        overflow: "visible",
+        marginBottom: "1.5rem"
       },
       containerYellow: {
         boxShadow: "10px 5px 5px yellow",
-        overflow: "visible"
+        overflow: "visible",
+        marginBottom: "1.5rem"
       },
       container: {
-        overflow: "visible"
+        overflow: "visible",
+        marginBottom: "1.5rem"
       },
       inlineBorder: {
         border: '1px solid black',
@@ -1026,7 +1029,11 @@ const useReplyStyles = makeStyles(
         fontSize: 12,
         fontWeight: "bold"
       },
+      container: {
+        marginBottom: '1.5rem'
+      },
       containerYellow: {
+        marginBottom: '1.5rem',
         boxShadow: "10px 5px 5px yellow"
       },
       editor: {
@@ -1205,8 +1212,8 @@ function ThreadedReplies(props) {
 
 function ThreadedReply(props) {
   const { comment, highLightId, enableEditing } = props;
-  return <Reply key={`c${comment.id}`} id={`c${comment.id}`} className={props.className} comment={comment} elevation={0} highLightId={highLightId}
-                enableEditing={enableEditing} />;
+  return <Reply key={`c${comment.id}`} id={`c${comment.id}`} className={props.className} comment={comment}
+                highLightId={highLightId} enableEditing={enableEditing} />;
 }
 
 /**

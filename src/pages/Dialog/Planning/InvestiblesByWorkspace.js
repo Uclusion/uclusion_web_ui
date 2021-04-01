@@ -169,7 +169,7 @@ function InvestiblesByWorkspace (props) {
             return React.Fragment;
           }
           return (
-            <Card key={market.id} elevation={0} className={classes.root}>
+            <Card key={market.id} className={classes.root}>
               <CardHeader
                 className={classes.header}
                 id={`m${market.id}`}

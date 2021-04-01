@@ -75,7 +75,6 @@ import AddIcon from '@material-ui/icons/Add'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import MoveToFurtherWorkActionButton from './MoveToFurtherWorkActionButton'
 import { DaysEstimate } from '../../../components/AgilePlan'
-import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
 import AttachedFilesList from '../../../components/Files/AttachedFilesList'
 import {
@@ -94,7 +93,6 @@ import InvestibleBodyEdit from '../InvestibleBodyEdit'
 import DatePicker from 'react-datepicker'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { doSetEditWhenValid, isTinyWindow } from '../../../utils/windowUtils'
-import LinkMarket from '../../Dialog/LinkMarket'
 import Gravatar from '../../../components/Avatars/Gravatar';
 import { getInvestibleVoters } from '../../../utils/votingUtils';
 import { getCommenterPresences, inVerifedSwimLane } from '../../Dialog/Planning/userUtils';
@@ -115,6 +113,7 @@ import { getFakeCommentsArray } from '../../../utils/stringFunctions'
 import { QuestionAnswer } from '@material-ui/icons'
 import GavelIcon from '@material-ui/icons/Gavel'
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
+import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 
 const useStyles = makeStyles(
   theme => ({
@@ -197,7 +196,7 @@ const useStyles = makeStyles(
       }
     },
     borderLeft: {
-      padding: '0 0 0 2rem',
+      paddingLeft: '1rem',
       marginTop: '-1.5rem',
       [theme.breakpoints.down("xs")]: {
         padding: '1rem 0',
@@ -247,8 +246,8 @@ const useStyles = makeStyles(
       }
     },
     fullWidth: {
-      marginLeft: '-2rem',
-      marginRight: '2rem',
+      paddingLeft: '2rem',
+      paddingTop: '1rem',
       [theme.breakpoints.down("xs")]: {
         maxWidth: '100%',
         flexBasis: '100%',
@@ -274,7 +273,7 @@ const useStyles = makeStyles(
       }
     },
     assignmentContainer: {
-      width: '80%',
+      width: '100%',
       textTransform: 'capitalize'
     },
     assignIconContainer: {
@@ -490,14 +489,15 @@ function PlanningInvestible(props) {
     const sidebarActions = [];
     if (!isInNotDoing) {
       if (isAssigned) {
-        sidebarActions.push(<ExpandableAction
-          id="link"
-          key="link"
-          icon={<InsertLinkIcon htmlColor={ACTION_BUTTON_COLOR}/>}
-          label={intl.formatMessage({ id: "childDialogExplanation" })}
-          openLabel={intl.formatMessage({ id: 'planningInvestibleDecision' })}
+        sidebarActions.push(<SpinningIconLabelButton
+          icon={InsertLinkIcon}
+          doSpin={false}
           onClick={() => navigate(history, `/dialogAdd#type=${DECISION_TYPE}&investibleId=${investibleId}&id=${marketId}`)}
-        />)
+        >
+          <FormattedMessage
+            id="planningInvestibleDecision"
+          />
+        </SpinningIconLabelButton>)
       }
     }
     return sidebarActions;
@@ -783,7 +783,7 @@ function PlanningInvestible(props) {
         />
         <CardContent className={myBeingEdited ? classes.editCardContent : classes.votingCardContent}>
           <Grid container className={classes.mobileColumn}>
-            <Grid className={classes.borderRight} item xs={3}>
+            <Grid className={classes.borderRight} item xs={2}>
               <dl className={classes.rolesRoot}>
                 {market.id && marketInvestible.investible && (
                   <div className={classes.assignmentContainer}>
@@ -848,7 +848,7 @@ function PlanningInvestible(props) {
                 )}
               </dl>
             </Grid>
-            <Grid item xs={6} className={classes.fullWidth}>
+            <Grid item xs={8} className={classes.fullWidth}>
               {lockedBy && myPresence.id !== lockedBy && isEditableByUser() && (
                 <Typography>
                   {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}
@@ -858,7 +858,7 @@ function PlanningInvestible(props) {
                                   setBeingEdited={mySetBeingEdited} beingEdited={myBeingEdited}
                                   isEditableByUser={isEditableByUser}/>
             </Grid>
-            <Grid className={classes.borderLeft} item xs={3}>
+            <Grid className={classes.borderLeft} item xs={2}>
               <div className={classes.editRow}>
                 <dl className={classes.upperRightCard}>
                   {isTinyWindow() && !inMarketArchives && isEditableByUser() && !beingEdited && (
@@ -1279,7 +1279,9 @@ function MarketMetaData(props) {
           </div>
         </React.Fragment>
       )}
-      <LinkMarket actions={actions} />
+      <div style={{paddingBottom: '1rem', paddingTop: '1rem'}}>
+        {actions}
+      </div>
       <AttachedFilesList
         marketId={market.id}
         onUpload={onAttachFiles}

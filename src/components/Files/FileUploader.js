@@ -47,7 +47,6 @@ function FileUploader(props) {
               onClick={()=>{}}
               icon={<CloudUploadIcon htmlColor={ACTION_BUTTON_COLOR} />}
               label={intl.formatMessage({ id: 'uploadFilesDisplay' })}
-              openLabel={intl.formatMessage({ id: 'uploadFilesDisplay' })}
               toolTip={intl.formatMessage({ id: 'uploadFilesTooltip'})}
             />
             <input {...getInputProps()} />

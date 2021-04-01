@@ -26,7 +26,6 @@ import {
   SUGGEST_CHANGE_TYPE, TODO_TYPE,
 } from '../../constants/comments'
 import { removeComment, reopenComment, resolveComment } from '../../api/comments'
-import SpinBlockingButton from '../SpinBlocking/SpinBlockingButton'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
@@ -39,7 +38,7 @@ import {
   getMyUserForMarket
 } from '../../contexts/MarketsContext/marketsContextHelper'
 import CardType from '../CardType'
-import { EMPTY_SPIN_RESULT, SECTION_TYPE_SECONDARY } from '../../constants/global'
+import { SECTION_TYPE_SECONDARY } from '../../constants/global'
 import {
   addCommentToMarket,
   getMarketComments,
@@ -82,8 +81,9 @@ import ExpandableAction from '../SidebarActions/Planning/ExpandableAction'
 import AddIcon from '@material-ui/icons/Add'
 import { deleteOrDehilightMessages } from '../../api/users'
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'
-import { Clear, Done, Edit, Eject, ExpandLess, ExpandMore, SettingsBackupRestore } from '@material-ui/icons'
+import { Clear, Delete, Done, Edit, Eject, ExpandLess, ExpandMore, SettingsBackupRestore } from '@material-ui/icons'
 import ReplyIcon from '@material-ui/icons/Reply'
+import TooltipIconButton from '../Buttons/TooltipIconButton'
 
 const useCommentStyles = makeStyles(
   theme => {
@@ -569,11 +569,12 @@ function Comment(props) {
       });
   }
   function remove() {
+    setOperationRunning(true);
     return removeComment(marketId, id)
       .then(() => {
         removeComments(commentsDispatch, marketId, [id]);
         onDone();
-        return EMPTY_SPIN_RESULT;
+        setOperationRunning(false);
       });
   }
   function resolve() {
@@ -691,13 +692,6 @@ function Comment(props) {
               `${intl.formatMessage({ id: 'lastUpdatedBy' })} ${updatedBy.name}.`}
             </Typography>
           )}
-          {commentType !== JUSTIFY_TYPE && commentType !== REPLY_TYPE && (
-            <div className={clsx(
-              classes.action,
-              classes.actionEdit
-            )} style={{marginRight: '2rem'}}>
-              <ShareStoryButton commentId={id} commentType={commentType} investibleId={investibleId} /></div>
-          )}
           {displayEditing && isTinyWindow() && (
             <SpinningIconLabelButton
               onClick={toggleEdit}
@@ -707,22 +701,20 @@ function Comment(props) {
               <FormattedMessage id="edit" />
             </SpinningIconLabelButton>
           )}
-          {(myPresence.is_admin || isEditable) && enableActions && commentType !== REPORT_TYPE && resolved && (
-            <SpinBlockingButton
-              className={clsx(
-                classes.action,
-                classes.actionWarned,
-                classes.actionResolveToggle
-              )}
-              marketId={marketId}
-              onClick={remove}
-              variant="contained"
-              hasSpinChecker
-            >
-              {intl.formatMessage({
-                id: "commentRemoveLabel"
-              })}
-            </SpinBlockingButton>
+          {commentType !== JUSTIFY_TYPE && commentType !== REPLY_TYPE && (
+            <div style={{marginRight: '1rem', marginTop: '0.5rem'}}>
+              <ShareStoryButton commentId={id} commentType={commentType} investibleId={investibleId} />
+            </div>
+          )}
+          {(myPresence.is_admin || isEditable) && enableActions && (commentType === REPORT_TYPE || resolved) && (
+            <div style={{marginRight: '2rem', marginTop: '0.5rem'}}>
+              <TooltipIconButton
+                disabled={operationRunning}
+                onClick={remove}
+                icon={<Delete />}
+                translationId="commentRemoveLabel"
+              />
+            </div>
           )}
         </Box>
         <CardContent className={classes.cardContent}>
@@ -762,15 +754,18 @@ function Comment(props) {
             <CardActions>
               <div className={classes.actions}>
                 {investibleId && commentType === REPORT_TYPE && (
-                  <FormControlLabel
-                    control={<Checkbox
-                      id="notifyAll"
-                      name="notifyAll"
-                      checked={myNotificationType === 'YELLOW'}
-                      disabled={true}
-                    />}
-                    label={intl.formatMessage({ id: "notifyAll" })}
-                  />
+                  <div style={{marginLeft: '1rem', paddingTop: '0.5rem'}}>
+                    <FormControlLabel
+                      control={<Checkbox
+                        style={{maxHeight: '1rem'}}
+                        id="notifyAll"
+                        name="notifyAll"
+                        checked={myNotificationType === 'YELLOW'}
+                        disabled={true}
+                      />}
+                      label={intl.formatMessage({ id: "notifyAll" })}
+                    />
+                  </div>
                 )}
                 {commentType === QUESTION_TYPE && !inArchives && !inlineMarketId && marketType === PLANNING_TYPE && (
                   <SpinningIconLabelButton
@@ -826,21 +821,21 @@ function Comment(props) {
                     <FormattedMessage id="markRead" />
                   </Button>
                 )}
-                {enableActions &&
-                (!resolved || userId === commentCreatedBy || commentType === TODO_TYPE || commentType === ISSUE_TYPE) && (
+                {enableActions && commentType !== REPORT_TYPE && (!resolved || userId === commentCreatedBy
+                  || commentType === TODO_TYPE || commentType === ISSUE_TYPE) && (
                   <SpinningIconLabelButton
-                    onClick={commentType === REPORT_TYPE ? remove : resolved ? reopen : resolve}
+                    onClick={resolved ? reopen : resolve}
                     icon={resolved ? SettingsBackupRestore : Done}
                   >
                     {intl.formatMessage({
-                      id: commentType === REPORT_TYPE ? "commentRemoveLabel" : resolved ? "commentReopenLabel"
-                        : "commentResolveLabel"
+                      id: resolved ? "commentReopenLabel" : "commentResolveLabel"
                     })}
                   </SpinningIconLabelButton>
                 )}
                 {enableEditing && (
                   <React.Fragment>
-                    {((commentType !== REPORT_TYPE || createdStageId === inReviewStageId) || (mentions || []).includes(myPresence.id)) && (
+                    {((commentType !== REPORT_TYPE || createdStageId === inReviewStageId)
+                      || (mentions || []).includes(myPresence.id)) && (
                       <SpinningIconLabelButton
                         onClick={toggleReply}
                         icon={ReplyIcon}

@@ -370,7 +370,7 @@ const messages = defineMessages({
   reassignToMove: 'Re-assigning moves to the swimlanes.',
   initiativePlanningParent: 'Create Workspace',
   marketLinksSection: 'links',
-  attachedFilesSection: 'attached files',
+  attachedFilesSection: 'attach files',
   parentLinkSection: 'Parent',
   marketParticipationLink: 'Participate in - {x}',
   homeChildLinkName: 'Child of {x}',

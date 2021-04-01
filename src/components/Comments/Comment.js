@@ -479,9 +479,6 @@ function Comment(props) {
             />
           </SubSection>
         </Grid>
-        {(!_.isEmpty(proposed)||!_.isEmpty(underConsideration)) && (
-          <div style={{paddingBottom: '2rem'}} />
-        )}
       </>
     );
   }
@@ -665,255 +662,253 @@ function Comment(props) {
   const displayEditing = enableEditing && isEditable && !editOpenDefault;
   const inReviewStageId = (getInReviewStage(marketStagesState, marketId) || {}).id;
   return (
-    <div className={repliesExpanded ? classes.inlineBorder : classes.inlineBorderNone}>
-      <Card elevation={0} className={getCommentHighlightStyle()}>
-        <Box display="flex">
-          {overrideLabel && (
-            <CardType className={classes.commentType} type={commentType} resolved={resolved} label={overrideLabel} />
+    <Card className={getCommentHighlightStyle()}>
+      <Box display="flex">
+        {overrideLabel && (
+          <CardType className={classes.commentType} type={commentType} resolved={resolved} label={overrideLabel} />
+        )}
+        {!overrideLabel && (
+          <CardType className={classes.commentType} type={commentType} resolved={resolved} />
+        )}
+        {commentType !== JUSTIFY_TYPE && commentType !== REPLY_TYPE && (
+          <Typography className={classes.timeElapsed} variant="body2">
+            Created <UsefulRelativeTime value={comment.created_at}/>
+            {noAuthor &&
+            `${intl.formatMessage({ id: 'lastUpdatedBy' })} ${createdBy.name}`}.
+            {comment.created_at < comment.updated_at && !resolved && (
+              <> Updated <UsefulRelativeTime value={comment.updated_at}/></>
+            )}
+            {resolved && (
+              <> Resolved <UsefulRelativeTime value={comment.updated_at}/></>
+            )}
+            {comment.created_at < comment.updated_at && !displayUpdatedBy && (
+              <>.</>
+            )}
+            {displayUpdatedBy &&
+            `${intl.formatMessage({ id: 'lastUpdatedBy' })} ${updatedBy.name}.`}
+          </Typography>
+        )}
+        {displayEditing && isTinyWindow() && (
+          <SpinningIconLabelButton
+            onClick={toggleEdit}
+            doSpin={false}
+            icon={Edit}
+          >
+            <FormattedMessage id="edit" />
+          </SpinningIconLabelButton>
+        )}
+        {commentType !== JUSTIFY_TYPE && commentType !== REPLY_TYPE && (
+          <div style={{marginRight: '1rem', marginTop: '0.5rem'}}>
+            <ShareStoryButton commentId={id} commentType={commentType} investibleId={investibleId} />
+          </div>
+        )}
+        {(myPresence.is_admin || isEditable) && enableActions && (commentType === REPORT_TYPE || resolved) && (
+          <div style={{marginRight: '2rem', marginTop: '0.5rem'}}>
+            <TooltipIconButton
+              disabled={operationRunning}
+              onClick={remove}
+              icon={<Delete />}
+              translationId="commentRemoveLabel"
+            />
+          </div>
+        )}
+      </Box>
+      <CardContent className={classes.cardContent}>
+        {!noAuthor && (
+          <GravatarAndName
+            key={userId}
+            email={createdBy.email}
+            name={createdBy.name}
+            typographyVariant="caption"
+            typographyClassName={classes.createdBy}
+            />
+        )}
+        <Box marginTop={1}>
+          {!editOpen && (
+            <ReadOnlyQuillEditor value={comment.body} setBeingEdited={setBeingEdited}
+                                 isEditable={!isTinyWindow() && displayEditing}/>
           )}
-          {!overrideLabel && (
-            <CardType className={classes.commentType} type={commentType} resolved={resolved} />
+          {editOpen && (
+            <CommentEdit
+              marketId={marketId}
+              comment={comment}
+              onSave={toggleEdit}
+              onCancel={toggleEdit}
+              allowedTypes={allowedTypes}
+              myNotificationType={myNotificationType}
+              isInReview={isInReview}
+            />
           )}
-          {commentType !== JUSTIFY_TYPE && commentType !== REPLY_TYPE && (
-            <Typography className={classes.timeElapsed} variant="body2">
-              Created <UsefulRelativeTime value={comment.created_at}/>
-              {noAuthor &&
-              `${intl.formatMessage({ id: 'lastUpdatedBy' })} ${createdBy.name}`}.
-              {comment.created_at < comment.updated_at && !resolved && (
-                <> Updated <UsefulRelativeTime value={comment.updated_at}/></>
-              )}
-              {resolved && (
-                <> Resolved <UsefulRelativeTime value={comment.updated_at}/></>
-              )}
-              {comment.created_at < comment.updated_at && !displayUpdatedBy && (
-                <>.</>
-              )}
-              {displayUpdatedBy &&
-              `${intl.formatMessage({ id: 'lastUpdatedBy' })} ${updatedBy.name}.`}
-            </Typography>
-          )}
-          {displayEditing && isTinyWindow() && (
-            <SpinningIconLabelButton
-              onClick={toggleEdit}
-              doSpin={false}
-              icon={Edit}
-            >
-              <FormattedMessage id="edit" />
+          {noAuthor && !editOpen && (
+            <SpinningIconLabelButton onClick={onDone} doSpin={false} icon={Clear}>
+              {intl.formatMessage({ id: 'cancel' })}
             </SpinningIconLabelButton>
           )}
-          {commentType !== JUSTIFY_TYPE && commentType !== REPLY_TYPE && (
-            <div style={{marginRight: '1rem', marginTop: '0.5rem'}}>
-              <ShareStoryButton commentId={id} commentType={commentType} investibleId={investibleId} />
-            </div>
-          )}
-          {(myPresence.is_admin || isEditable) && enableActions && (commentType === REPORT_TYPE || resolved) && (
-            <div style={{marginRight: '2rem', marginTop: '0.5rem'}}>
-              <TooltipIconButton
-                disabled={operationRunning}
-                onClick={remove}
-                icon={<Delete />}
-                translationId="commentRemoveLabel"
-              />
-            </div>
-          )}
         </Box>
-        <CardContent className={classes.cardContent}>
-          {!noAuthor && (
-            <GravatarAndName
-              key={userId}
-              email={createdBy.email}
-              name={createdBy.name}
-              typographyVariant="caption"
-              typographyClassName={classes.createdBy}
-              />
-          )}
-          <Box marginTop={1}>
-            {!editOpen && (
-              <ReadOnlyQuillEditor value={comment.body} setBeingEdited={setBeingEdited}
-                                   isEditable={!isTinyWindow() && displayEditing}/>
-            )}
-            {editOpen && (
-              <CommentEdit
-                marketId={marketId}
-                comment={comment}
-                onSave={toggleEdit}
-                onCancel={toggleEdit}
-                allowedTypes={allowedTypes}
-                myNotificationType={myNotificationType}
-                isInReview={isInReview}
-              />
-            )}
-            {noAuthor && !editOpen && (
-              <SpinningIconLabelButton onClick={onDone} doSpin={false} icon={Clear}>
-                {intl.formatMessage({ id: 'cancel' })}
-              </SpinningIconLabelButton>
-            )}
-          </Box>
-        </CardContent>
-        {showActions && (
-            <CardActions>
-              <div className={classes.actions}>
-                {investibleId && commentType === REPORT_TYPE && (
-                  <div style={{marginLeft: '1rem', paddingTop: '0.5rem'}}>
-                    <FormControlLabel
-                      control={<Checkbox
-                        style={{maxHeight: '1rem'}}
-                        id="notifyAll"
-                        name="notifyAll"
-                        checked={myNotificationType === 'YELLOW'}
-                        disabled={true}
-                      />}
-                      label={intl.formatMessage({ id: "notifyAll" })}
-                    />
-                  </div>
-                )}
-                {commentType === QUESTION_TYPE && !inArchives && !inlineMarketId && marketType === PLANNING_TYPE && (
-                  <SpinningIconLabelButton
-                    disabled={commentCreatedBy !== userId}
-                    onClick={toggleInlineInvestibleAdd}
-                    doSpin={false}
-                    icon={AddIcon}
-                  >
-                    {intl.formatMessage({ id: "inlineAddLabel" })}
-                  </SpinningIconLabelButton>
-                )}
-                {commentType === SUGGEST_CHANGE_TYPE && !inArchives && !resolved && !inlineMarketId && marketType === PLANNING_TYPE && (
-                  <div style={{marginLeft: '1rem', marginRight: '0.5rem', paddingTop: '0.25rem'}}>
-                    <Typography>
-                      {intl.formatMessage({ id: 'allowVoteSuggestion' })}
-                      <Checkbox
-                        style={{maxHeight: '1rem'}}
-                        id="suggestionVote"
-                        name="suggestionVote"
-                        checked={!_.isEmpty(inlineMarketId)}
-                        onChange={allowSuggestionVote}
-                        disabled={operationRunning || commentCreatedBy !== userId}
-                      />
-                    </Typography>
-                  </div>
-                )}
-                {(replies.length > 0 || inlineMarketId) && (!isTinyWindow() || !inlineMarketId) && (
-                  <SpinningIconLabelButton
-                    icon={repliesExpanded ? ExpandLess : ExpandMore}
-                    doSpin={false}
-                    onClick={() => {
-                      expandedCommentDispatch({ type: EXPANDED_CONTROL, commentId: id, expanded: !repliesExpanded });
-                    }}
-                  >
-                    <FormattedMessage
-                      id={
-                        repliesExpanded
-                          ? "commentCloseThreadLabel"
-                          : "commentViewThreadLabel"
-                      }
-                    />
-                  </SpinningIconLabelButton>
-                )}
-                {!isTinyWindow() && !_.isEmpty(messages) && (
-                  <Button
-                    className={clsx(classes.action, classes.actionSecondary)}
-                    variant="contained"
-                    onClick={() => {
-                      setOperationRunning(true);
-                      deleteOrDehilightMessages(messages, messagesDispatch).then(() => setOperationRunning(false))
-                        .finally(() => {
-                          setOperationRunning(false);
-                        });
-                    }}
-                  >
-                    <FormattedMessage id="markRead" />
-                  </Button>
-                )}
-                {enableActions && commentType !== REPORT_TYPE && (!resolved || userId === commentCreatedBy
-                  || commentType === TODO_TYPE || commentType === ISSUE_TYPE) && (
-                  <SpinningIconLabelButton
-                    onClick={resolved ? reopen : resolve}
-                    icon={resolved ? SettingsBackupRestore : Done}
-                  >
-                    {intl.formatMessage({
-                      id: resolved ? "commentReopenLabel" : "commentResolveLabel"
-                    })}
-                  </SpinningIconLabelButton>
-                )}
-                {enableEditing && (
-                  <React.Fragment>
-                    {((commentType !== REPORT_TYPE || createdStageId === inReviewStageId)
-                      || (mentions || []).includes(myPresence.id)) && (
-                      <SpinningIconLabelButton
-                        onClick={toggleReply}
-                        icon={ReplyIcon}
-                        doSpin={false}
-                      >
-                        {intl.formatMessage({ id: "commentReplyLabel" })}
-                      </SpinningIconLabelButton>
-                    )}
-                    {createdBy === userId && (
-                      <Button
-                        className={clsx(classes.action, classes.actionSecondary)}
-                        color="primary"
-                        disabled={operationRunning}
-                        onClick={toggleEdit}
-                        variant="contained"
-                      >
-                        {intl.formatMessage({ id: "commentEditLabel" })}
-                      </Button>
-                    )}
-                  </React.Fragment>
-                )}
-            </div>
-            <div className={classes.actionsEnd}>
-              {commentType === QUESTION_TYPE && !inArchives && inlineMarketId && !resolved && (
-                <div style={{marginRight: '1rem', paddingTop: '0.5rem'}}>
-                  <Typography style={{fontSize: 12}}>
-                    {intl.formatMessage({ id: isTinyWindow() ? 'allowMultiVoteQuestionMobile'
-                        : 'allowMultiVoteQuestion' })}
+      </CardContent>
+      {showActions && (
+          <CardActions>
+            <div className={classes.actions}>
+              {investibleId && commentType === REPORT_TYPE && (
+                <div style={{marginLeft: '1rem', paddingTop: '0.5rem'}}>
+                  <FormControlLabel
+                    control={<Checkbox
+                      style={{maxHeight: '1rem'}}
+                      id="notifyAll"
+                      name="notifyAll"
+                      checked={myNotificationType === 'YELLOW'}
+                      disabled={true}
+                    />}
+                    label={intl.formatMessage({ id: "notifyAll" })}
+                  />
+                </div>
+              )}
+              {commentType === QUESTION_TYPE && !inArchives && !inlineMarketId && marketType === PLANNING_TYPE && (
+                <SpinningIconLabelButton
+                  disabled={commentCreatedBy !== userId}
+                  onClick={toggleInlineInvestibleAdd}
+                  doSpin={false}
+                  icon={AddIcon}
+                >
+                  {intl.formatMessage({ id: "inlineAddLabel" })}
+                </SpinningIconLabelButton>
+              )}
+              {commentType === SUGGEST_CHANGE_TYPE && !inArchives && !resolved && !inlineMarketId && marketType === PLANNING_TYPE && (
+                <div style={{marginLeft: '1rem', marginRight: '0.5rem', paddingTop: '0.25rem'}}>
+                  <Typography>
+                    {intl.formatMessage({ id: 'allowVoteSuggestion' })}
                     <Checkbox
                       style={{maxHeight: '1rem'}}
-                      id="multiVote"
-                      name="multiVote"
-                      checked={multiVote}
-                      onChange={toggleMultiVote}
-                      disabled={inlineCreatedBy !== inlineUserId}
+                      id="suggestionVote"
+                      name="suggestionVote"
+                      checked={!_.isEmpty(inlineMarketId)}
+                      onChange={allowSuggestionVote}
+                      disabled={operationRunning || commentCreatedBy !== userId}
                     />
                   </Typography>
                 </div>
               )}
-              {!investibleId && !inArchives && enableActions && !resolved && marketType === PLANNING_TYPE && (
+              {(replies.length > 0 || inlineMarketId) && (!isTinyWindow() || !inlineMarketId) && (
                 <SpinningIconLabelButton
-                  onClick={() => navigate(history, `${formMarketAddInvestibleLink(marketId)}#fromCommentId=${id}`)}
+                  icon={repliesExpanded ? ExpandLess : ExpandMore}
                   doSpin={false}
-                  icon={Eject}
+                  onClick={() => {
+                    expandedCommentDispatch({ type: EXPANDED_CONTROL, commentId: id, expanded: !repliesExpanded });
+                  }}
                 >
-                  {intl.formatMessage({ id: "storyFromComment" })}
+                  <FormattedMessage
+                    id={
+                      repliesExpanded
+                        ? "commentCloseThreadLabel"
+                        : "commentViewThreadLabel"
+                    }
+                  />
                 </SpinningIconLabelButton>
               )}
-            </div>
-          </CardActions>
-        )}
-        <CommentAdd
-          marketId={marketId}
-          hidden={!replyOpen}
-          parent={comment}
-          onSave={toggleReply}
-          onCancel={toggleReply}
-          type={REPLY_TYPE}
-        />
-      </Card>
+              {!isTinyWindow() && !_.isEmpty(messages) && (
+                <Button
+                  className={clsx(classes.action, classes.actionSecondary)}
+                  variant="contained"
+                  onClick={() => {
+                    setOperationRunning(true);
+                    deleteOrDehilightMessages(messages, messagesDispatch).then(() => setOperationRunning(false))
+                      .finally(() => {
+                        setOperationRunning(false);
+                      });
+                  }}
+                >
+                  <FormattedMessage id="markRead" />
+                </Button>
+              )}
+              {enableActions && commentType !== REPORT_TYPE && (!resolved || userId === commentCreatedBy
+                || commentType === TODO_TYPE || commentType === ISSUE_TYPE) && (
+                <SpinningIconLabelButton
+                  onClick={resolved ? reopen : resolve}
+                  icon={resolved ? SettingsBackupRestore : Done}
+                >
+                  {intl.formatMessage({
+                    id: resolved ? "commentReopenLabel" : "commentResolveLabel"
+                  })}
+                </SpinningIconLabelButton>
+              )}
+              {enableEditing && (
+                <React.Fragment>
+                  {((commentType !== REPORT_TYPE || createdStageId === inReviewStageId)
+                    || (mentions || []).includes(myPresence.id)) && (
+                    <SpinningIconLabelButton
+                      onClick={toggleReply}
+                      icon={ReplyIcon}
+                      doSpin={false}
+                    >
+                      {intl.formatMessage({ id: "commentReplyLabel" })}
+                    </SpinningIconLabelButton>
+                  )}
+                  {createdBy === userId && (
+                    <Button
+                      className={clsx(classes.action, classes.actionSecondary)}
+                      color="primary"
+                      disabled={operationRunning}
+                      onClick={toggleEdit}
+                      variant="contained"
+                    >
+                      {intl.formatMessage({ id: "commentEditLabel" })}
+                    </Button>
+                  )}
+                </React.Fragment>
+              )}
+          </div>
+          <div className={classes.actionsEnd}>
+            {commentType === QUESTION_TYPE && !inArchives && inlineMarketId && !resolved && (
+              <div style={{marginRight: '1rem', paddingTop: '0.5rem'}}>
+                <Typography style={{fontSize: 12}}>
+                  {intl.formatMessage({ id: isTinyWindow() ? 'allowMultiVoteQuestionMobile'
+                      : 'allowMultiVoteQuestion' })}
+                  <Checkbox
+                    style={{maxHeight: '1rem'}}
+                    id="multiVote"
+                    name="multiVote"
+                    checked={multiVote}
+                    onChange={toggleMultiVote}
+                    disabled={inlineCreatedBy !== inlineUserId}
+                  />
+                </Typography>
+              </div>
+            )}
+            {!investibleId && !inArchives && enableActions && !resolved && marketType === PLANNING_TYPE && (
+              <SpinningIconLabelButton
+                onClick={() => navigate(history, `${formMarketAddInvestibleLink(marketId)}#fromCommentId=${id}`)}
+                doSpin={false}
+                icon={Eject}
+              >
+                {intl.formatMessage({ id: "storyFromComment" })}
+              </SpinningIconLabelButton>
+            )}
+          </div>
+        </CardActions>
+      )}
+      <CommentAdd
+        marketId={marketId}
+        hidden={!replyOpen}
+        parent={comment}
+        onSave={toggleReply}
+        onCancel={toggleReply}
+        type={REPLY_TYPE}
+      />
       <Box marginTop={1} paddingX={1} className={classes.childWrapper}>
         <LocalCommentsContext.Provider value={{ comments, marketId }}>
           {repliesExpanded &&
-            sortedReplies.map(child => {
-              const { id: childId } = child;
-              return (
-                <InitialReply
-                  key={childId}
-                  comment={child}
-                  marketId={marketId}
-                  highLightId={highlighted}
-                  enableEditing={enableEditing}
-                />
-              );
-            })}
+          sortedReplies.map(child => {
+            const { id: childId } = child;
+            return (
+              <InitialReply
+                key={childId}
+                comment={child}
+                marketId={marketId}
+                highLightId={highlighted}
+                enableEditing={enableEditing}
+              />
+            );
+          })}
         </LocalCommentsContext.Provider>
       </Box>
       {inlineInvestibleAdd && idLoaded === id && (
@@ -933,7 +928,7 @@ function Comment(props) {
         <div style={{marginTop: '2rem'}} />
       )}
       {repliesExpanded && getDecision(inlineMarketId)}
-    </div>
+    </Card>
   );
 }
 
@@ -1081,11 +1076,7 @@ function Reply(props) {
 
   const intl = useIntl();
   return (
-    <Card
-      elevation={0}
-      className={
-        highLightId.includes(comment.id) ? classes.containerYellow : classes.container
-      }
+    <Card className={highLightId.includes(comment.id) ? classes.containerYellow : classes.container}
       {...other}
     >
       <CardContent className={classes.cardContent}>

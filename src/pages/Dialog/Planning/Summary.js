@@ -278,7 +278,7 @@ function Summary(props) {
     <Card elevation={0} className={classes.root} id="summary">
       <CardType className={classes.type} type={AGILE_PLAN_TYPE} myBeingEdited={myBeingEdited} />
       <Grid container className={classes.mobileColumn}>
-        <Grid item xs={9} className={!beingEdited && isEditableByUser() ? classes.fullWidthEditable : classes.fullWidth}
+        <Grid item xs={10} className={!beingEdited && isEditableByUser() ? classes.fullWidthEditable : classes.fullWidth}
               onClick={() => !beingEdited && mySetBeingEdited(true)}>
           <CardContent className={myBeingEdited ? classes.editContent : classes.content}>
             {isDraft && activeMarket && (
@@ -295,7 +295,7 @@ function Summary(props) {
                             isEditableByUser={isEditableByUser} beingEdited={myBeingEdited}/>
           </CardContent>
         </Grid>
-        <Grid className={classes.borderLeft} item xs={3}>
+        <Grid className={classes.borderLeft} item xs={2}>
           <CardActions className={classes.actions}>
             <DialogActions
               isAdmin={isAdmin}

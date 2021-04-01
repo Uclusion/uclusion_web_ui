@@ -197,14 +197,12 @@ const useStyles = makeStyles(
       }
     },
     borderLeft: {
-      borderLeft: '1px solid #e0e0e0',
       padding: '0 0 0 2rem',
       marginTop: '-1.5rem',
       [theme.breakpoints.down("xs")]: {
         padding: '1rem 0',
         marginTop: '1rem',
         borderLeft: 'none',
-        borderTop: '1px solid #e0e0e0',
         flexGrow: 'unset',
         maxWidth: 'unset',
         marginRight: 'unset',
@@ -249,8 +247,6 @@ const useStyles = makeStyles(
       }
     },
     fullWidth: {
-      borderLeft: '1px solid #e0e0e0',
-      paddingLeft: '2rem',
       marginLeft: '-2rem',
       marginRight: '2rem',
       [theme.breakpoints.down("xs")]: {

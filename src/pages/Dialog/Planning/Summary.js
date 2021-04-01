@@ -275,7 +275,7 @@ function Summary(props) {
 
 
   return (
-    <Card elevation={0} className={classes.root} id="summary">
+    <Card className={classes.root} id="summary">
       <CardType className={classes.type} type={AGILE_PLAN_TYPE} myBeingEdited={myBeingEdited} />
       <Grid container className={classes.mobileColumn}>
         <Grid item xs={10} className={!beingEdited && isEditableByUser() ? classes.fullWidthEditable : classes.fullWidth}

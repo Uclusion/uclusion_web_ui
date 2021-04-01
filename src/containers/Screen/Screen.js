@@ -28,11 +28,9 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: 'column',
   },
   container: {
-    background: '#efefef',
     padding: '46px 20px 156px',
   },
   containerAll: {
-    background: '#efefef',
     padding: '24px 20px 156px',
     marginTop: '80px',
     width: '100%',
@@ -41,7 +39,6 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   containerAllLeftPad: {
-    background: '#efefef',
     padding: '24px 20px 156px 25px',
     marginTop: '80px',
     width: '100%',
@@ -50,7 +47,6 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   containerSearchResults: {
-    background: '#efefef',
     padding: '24px 20px 156px 500px',
     marginTop: '80px',
     width: '100%',
@@ -90,22 +86,17 @@ const useStyles = makeStyles((theme) => ({
     WebkitOverflowScrolling: 'touch',
     position: 'fixed',
     top: '7rem',
-    background: '#efefef',
     minWidth: '13rem',
   },
   actionContainer: {
     marginTop: '5rem',
     marginBottom: '-6rem'
   },
-  contentMobile: {
-    background: '#efefef',
-  },
+  contentMobile: {},
   content: {
-    background: '#efefef',
     marginLeft: '15rem'
   },
   contentSearch: {
-    background: '#efefef',
     paddingLeft: '33rem'
   },
   disabled: {

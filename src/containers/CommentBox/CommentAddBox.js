@@ -25,7 +25,9 @@ export const useStyles = makeStyles((theme) => ({
   hidden: {
     display: 'none',
   },
-  addBox: {},
+  addBox: {
+    paddingTop: '1rem'
+  },
   commentType: {
     [theme.breakpoints.down('sm')]: {
       display: 'block',
@@ -106,9 +108,7 @@ export const useStyles = makeStyles((theme) => ({
   chipItemReport: {
     background: '#73B76C',
   },
-  commentTypeContainer: {
-    borderRadius: '4px 4px 0 0'
-  }
+  commentTypeContainer: {}
 }));
 
 export function getIcon(commentType) {
@@ -163,65 +163,63 @@ function CommentAddBox(props) {
     return "reviewReportPresent";
   }
   return (
-    <>
-      <Card elevation={0} id="commentAddBox"
-            className={type === TODO_TYPE && !investible ? classes.hidden : classes.commentTypeContainer}>
-        <CardContent>
-          <FormControl component="fieldset" className={classes.commentType}>
-            <RadioGroup
-              aria-labelledby="comment-type-choice"
-              className={classes.commentTypeGroup}
-              onChange={onTypeChange}
-              value={type}
-              row
-            >
-              {allowedTypes.map((commentType) => {
-                return (
-                  <Tooltip key={`tip${commentType}`}
-                           title={<FormattedMessage id={isInReview && commentType === REPORT_TYPE ? 'reportReviewTip' :
-                             `${commentType.toLowerCase()}Tip`} />}>
-                    <FormControlLabel
-                      id={`commentAddLabel${commentType}`}
-                      key={commentType}
-                      className={clsx(
-                        commentType === ISSUE_TYPE
-                          ? `${classes.chipItem} ${classes.chipItemIssue}`
-                          : commentType === QUESTION_TYPE ? `${classes.chipItem} ${classes.chipItemQuestion}`
-                          : commentType === SUGGEST_CHANGE_TYPE ? `${classes.chipItem} ${classes.chipItemSuggestion}`
-                            : commentType === TODO_TYPE ? `${classes.chipItem} ${classes.chipItemTodo}`
-                              : `${classes.chipItem} ${classes.chipItemReport}`,
-                        type === commentType ? classes.selected : classes.unselected
-                      )
-                      }
-                      /* prevent clicking the label stealing focus */
-                      onMouseDown={e => e.preventDefault()}
-                      control={<Radio color="primary" />}
-                      label={window.outerWidth < 600 ? getIcon(commentType) : <FormattedMessage id={getMessageId(commentType)} />}
-                      labelPlacement="end"
-                      value={commentType}
-                    />
-                  </Tooltip>
-                );
-              })}
-            </RadioGroup>
-          </FormControl>
-        </CardContent>
-      </Card>
-      <div className={classes.addBox}>
-        <CommentAdd
-          key="CommentAdd"
-          type={type}
-          clearType={clearType}
-          investible={investible}
-          marketId={marketId}
-          issueWarningId={issueWarningId}
-          onSave={onSave}
-          todoWarningId={todoWarningId}
-          isStory={isStory}
-          hidden={hidden}
-        />
-      </div>
-    </>
+    <Card id="commentAddBox" style={{marginBottom: '2rem'}}>
+      <CardContent>
+        <FormControl component="fieldset" className={type === TODO_TYPE && !investible ? classes.hidden :
+          classes.commentType}>
+          <RadioGroup
+            aria-labelledby="comment-type-choice"
+            className={classes.commentTypeGroup}
+            onChange={onTypeChange}
+            value={type}
+            row
+          >
+            {allowedTypes.map((commentType) => {
+              return (
+                <Tooltip key={`tip${commentType}`}
+                         title={<FormattedMessage id={isInReview && commentType === REPORT_TYPE ? 'reportReviewTip' :
+                           `${commentType.toLowerCase()}Tip`} />}>
+                  <FormControlLabel
+                    id={`commentAddLabel${commentType}`}
+                    key={commentType}
+                    className={clsx(
+                      commentType === ISSUE_TYPE
+                        ? `${classes.chipItem} ${classes.chipItemIssue}`
+                        : commentType === QUESTION_TYPE ? `${classes.chipItem} ${classes.chipItemQuestion}`
+                        : commentType === SUGGEST_CHANGE_TYPE ? `${classes.chipItem} ${classes.chipItemSuggestion}`
+                          : commentType === TODO_TYPE ? `${classes.chipItem} ${classes.chipItemTodo}`
+                            : `${classes.chipItem} ${classes.chipItemReport}`,
+                      type === commentType ? classes.selected : classes.unselected
+                    )
+                    }
+                    /* prevent clicking the label stealing focus */
+                    onMouseDown={e => e.preventDefault()}
+                    control={<Radio color="primary" />}
+                    label={window.outerWidth < 600 ? getIcon(commentType) : <FormattedMessage id={getMessageId(commentType)} />}
+                    labelPlacement="end"
+                    value={commentType}
+                  />
+                </Tooltip>
+              );
+            })}
+          </RadioGroup>
+        </FormControl>
+        <div className={classes.addBox}>
+          <CommentAdd
+            key="CommentAdd"
+            type={type}
+            clearType={clearType}
+            investible={investible}
+            marketId={marketId}
+            issueWarningId={issueWarningId}
+            onSave={onSave}
+            todoWarningId={todoWarningId}
+            isStory={isStory}
+            hidden={hidden}
+          />
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 

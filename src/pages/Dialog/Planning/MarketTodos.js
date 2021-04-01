@@ -71,8 +71,6 @@ const myClasses = makeStyles(
       },
       outerBorder: {
         marginTop: '30px',
-        border: '1px solid black',
-        borderRadius: '6px 6px 0 0'
       },
       chipStyle: {
         marginRight: '5px',
@@ -477,6 +475,7 @@ function MarketTodos (props) {
         <SubSection
           type={SECTION_SUB_HEADER}
           bolder
+          isBlackText
           hideChildren={showTodos === false || (showTodos === undefined && !undefinedIsOpenDefault)}
           title={intl.formatMessage({ id: 'todoSection' })}
           helpTextId="todoSectionHelp"
@@ -498,7 +497,7 @@ function MarketTodos (props) {
               tipPlacement="top-end"
             />)}
         >
-          <div>
+          <div style={{paddingTop: '1rem'}}>
             {createRedCard && (
               <CommentAdd
                 key="CommentAddRed"
@@ -634,6 +633,7 @@ function MarketTodos (props) {
             )}
             <SubSection
               type={SECTION_TYPE_TERTIARY_WARNING}
+              padChildren
               title={intl.formatMessage({ id: 'convenient' })}
               titleIcon={<Chip label={`${blueComments.length}`} color="primary" size='small'
                                className={classes.chipStyle} />}

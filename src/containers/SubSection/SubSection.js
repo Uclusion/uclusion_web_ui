@@ -1,5 +1,5 @@
 import React from 'react';
-import { AppBar, makeStyles, Toolbar, Tooltip, Typography, } from '@material-ui/core';
+import { AppBar, Card, makeStyles, Toolbar, Tooltip, Typography, } from '@material-ui/core'
 import PropTypes from 'prop-types';
 import {
   SECTION_SUB_HEADER,
@@ -41,7 +41,6 @@ const useStyles = makeStyles((theme) => {
       boxShadow: 'none',
       background: '#3F6B72',
       color: '#fff',
-      borderRadius: '6px 6px 0 0'
     },
     sectionSubHeader: {
       boxShadow: 'none',
@@ -51,7 +50,6 @@ const useStyles = makeStyles((theme) => {
     },
     sectionSubHeaderBlack: {
       boxShadow: 'none',
-      background: 'white',
       color: 'black',
       borderRadius: '6px 6px 0 0'
     },
@@ -143,9 +141,9 @@ function SubSection (props) {
         </Toolbar>
       </AppBar>
       <div className={children && !hideChildren ? classes.toolbar : classes.hide}>
-        <div className={padChildren? classes.paddedChildContainer : classes.childContainer}>
+        <Card className={padChildren ? classes.paddedChildContainer : classes.childContainer}>
           {children}
-        </div>
+        </Card>
       </div>
     </React.Fragment>
 

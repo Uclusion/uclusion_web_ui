@@ -47,7 +47,7 @@ import { findMessageOfType } from '../../utils/messageUtils'
 import { removeMessage } from '../../contexts/NotificationsContext/notificationsContextReducer'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'
-import { Add, Clear } from '@material-ui/icons'
+import { Add, Clear, Delete } from '@material-ui/icons'
 
 function getPlaceHolderLabelId (type, isStory, isInReview) {
   switch (type) {
@@ -383,13 +383,9 @@ function CommentAdd (props) {
             getUrlName={urlHelperGetName(marketState, investibleState)}
           >
             {!isStory && onDone && (
-              <Button
-                onClick={myOnDone}
-                className={classes.button}
-                style={{border: "1px solid black"}}
-              >
+              <SpinningIconLabelButton onClick={myOnDone} doSpin={false} icon={Delete}>
                 {intl.formatMessage({ id: 'cancel' })}
-              </Button>
+              </SpinningIconLabelButton>
             )}
             <SpinningIconLabelButton
               onClick={handleCancel}

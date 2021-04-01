@@ -19,7 +19,7 @@ const defaultThemeDefinition = {
       contrastText: '#ffffff',
     },
     background: {
-      default: '#efefef'
+      default: '#ffffff'
     }
   },
 };

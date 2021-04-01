@@ -209,7 +209,9 @@ const useStyles = makeStyles(
       }
     },
     editRow: {
-      height: '3rem'
+      height: '3rem',
+      display: "flex",
+      marginTop: '0.3rem'
     },
     fullWidthCentered: {
       alignItems: 'center',
@@ -492,6 +494,7 @@ function PlanningInvestible(props) {
         sidebarActions.push(<SpinningIconLabelButton
           icon={InsertLinkIcon}
           doSpin={false}
+          key="planningInvestibleDecision"
           onClick={() => navigate(history, `/dialogAdd#type=${DECISION_TYPE}&investibleId=${investibleId}&id=${marketId}`)}
         >
           <FormattedMessage
@@ -860,63 +863,47 @@ function PlanningInvestible(props) {
             </Grid>
             <Grid className={classes.borderLeft} item xs={2}>
               <div className={classes.editRow}>
-                <dl className={classes.upperRightCard}>
-                  {isTinyWindow() && !inMarketArchives && isEditableByUser() && !beingEdited && (
-                    <div>
-                      <EditMarketButton
-                        labelId="edit"
-                        marketId={marketId}
-                        onClick={() => mySetBeingEdited(true)}
-                      />
-                    </div>
-                  )}
-                  {displayEdit && !inMarketArchives && (
-                    <div>
-                      <EditMarketButton
-                        labelId="changeCompletionDate"
-                        marketId={marketId}
-                        onClick={toggleEdit}
-                        icon={<EventIcon htmlColor={ACTION_BUTTON_COLOR} />}
-                      />
-                      {showDatepicker && (
-                        <div className={classes.datePicker}>
-                          <DatePicker
-                            placeholderText={intl.formatMessage({ id: "selectDate" })}
-                            selected={getStartDate()}
-                            onChange={handleDateChange}
-                            popperPlacement="bottom-start"
-                            minDate={new Date()}
-                            inline
-                            onClickOutside={toggleEdit}
-                          />
-                        </div>
-                      )}
-                    </div>
-                  )}
-                  <div style={{paddingLeft: "1rem", paddingRight: "1rem"}}>
-                    <ShareStoryButton investibleId={investibleId} marketId={marketId} />
+                {isTinyWindow() && !inMarketArchives && isEditableByUser() && !beingEdited && (
+                  <div>
+                    <EditMarketButton
+                      labelId="edit"
+                      marketId={marketId}
+                      onClick={() => mySetBeingEdited(true)}
+                    />
                   </div>
-                  {!inArchives && isAssigned && (
-                      <MoveToNextVisibleStageActionButton
-                        key="visible"
-                        investibleId={investibleId}
-                        marketId={marketId}
-                        currentStageId={stage}
-                        disabled={!_.isEmpty(blockingComments) || (isInVoting && (!isAssigned || !enoughVotes || acceptedFull))}
-                        enoughVotes={enoughVotes}
-                        acceptedStageAvailable={!acceptedFull}
-                        hasTodos={!_.isEmpty(todoComments)}
-                        hasAssignedQuestions={!_.isEmpty(questionByAssignedComments)}
-                      />
-                  )}
-                </dl>
+                )}
+                {displayEdit && !inMarketArchives && (
+                  <div>
+                    <EditMarketButton
+                      labelId="changeCompletionDate"
+                      marketId={marketId}
+                      onClick={toggleEdit}
+                      icon={<EventIcon htmlColor={ACTION_BUTTON_COLOR} />}
+                    />
+                    {showDatepicker && (
+                      <div className={classes.datePicker}>
+                        <DatePicker
+                          placeholderText={intl.formatMessage({ id: "selectDate" })}
+                          selected={getStartDate()}
+                          onChange={handleDateChange}
+                          popperPlacement="top"
+                          minDate={new Date()}
+                          inline
+                          onClickOutside={toggleEdit}
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
+                <div style={{paddingLeft: "1rem", paddingRight: "1rem"}}>
+                  <ShareStoryButton investibleId={investibleId} marketId={marketId} />
+                </div>
               </div>
               {marketDaysEstimate && (
-                <div style={{paddingTop: '1.5rem', marginTop: '1.5rem'}}>
-                  <DaysEstimate readOnly value={daysEstimate} />
-                </div>
+                <DaysEstimate readOnly value={daysEstimate} />
               )}
               <MarketMetaData
+                stage={stage}
                 stageName={marketInfo.stage_name}
                 investibleId={investibleId}
                 market={market}
@@ -928,6 +915,14 @@ function PlanningInvestible(props) {
                 anchorEl={anchorEl}
                 marketDaysEstimate={marketDaysEstimate}
                 setAnchorEl={setAnchorEl}
+                inArchives={inArchives}
+                isAssigned={isAssigned}
+                blockingComments={blockingComments}
+                todoComments={todoComments}
+                isInVoting={isInVoting}
+                enoughVotes={enoughVotes}
+                acceptedFull={acceptedFull}
+                questionByAssignedComments={questionByAssignedComments}
               />
             </Grid>
           </Grid>
@@ -947,7 +942,7 @@ function PlanningInvestible(props) {
                   renderInput={(params) => <TextField {...params}
                                                       label={intl.formatMessage({ id: 'addLabel' })}
                                                       variant="outlined" />}
-                  style={{ width: 230 }}
+                  style={{ width: 230, maxHeight: '1rem' }}
                   onFocus={labelInputFocus}
                   onBlur={labelInputFocus}
                   onChange={labelInputOnChange}
@@ -1040,15 +1035,10 @@ function PlanningInvestible(props) {
 }
 
 PlanningInvestible.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types
   market: PropTypes.object.isRequired,
-  // eslint-disable-next-line react/forbid-prop-types
   marketInvestible: PropTypes.object.isRequired,
-  // eslint-disable-next-line react/forbid-prop-types
   marketPresences: PropTypes.arrayOf(PropTypes.object),
-  // eslint-disable-next-line react/forbid-prop-types
   investibleComments: PropTypes.arrayOf(PropTypes.object),
-  // eslint-disable-next-line react/forbid-prop-types
   investibles: PropTypes.arrayOf(PropTypes.object),
   investibleId: PropTypes.string.isRequired,
   userId: PropTypes.string.isRequired,
@@ -1187,10 +1177,18 @@ function MarketMetaData(props) {
     stageActions,
     expansionChanged,
     actions,
+    stage,
     stageName,
     anchorEl,
     setAnchorEl,
-    marketDaysEstimate
+    inArchives,
+    isAssigned,
+    blockingComments,
+    todoComments,
+    isInVoting,
+    enoughVotes,
+    acceptedFull,
+    questionByAssignedComments
   } = props;
 
   let stageLabel;
@@ -1255,9 +1253,22 @@ function MarketMetaData(props) {
       {!_.isEmpty(stageActions) &&
       (
         <React.Fragment>
-        <span style={{marginTop: `${marketDaysEstimate > 0 ? '0' : '1.5rem'}`}}>
-          <FormattedMessage id="changeStage"/>
-        </span>
+          <div style={{paddingTop: '0.5rem', marginTop: '0.5rem'}}>
+            <FormattedMessage id="changeStage"/>
+          </div>
+          {!inArchives && isAssigned && (
+              <MoveToNextVisibleStageActionButton
+                key="visible"
+                investibleId={marketInvestible.investible.id}
+                marketId={market.id}
+                currentStageId={stage}
+                disabled={!_.isEmpty(blockingComments) || (isInVoting && (!isAssigned || !enoughVotes || acceptedFull))}
+                enoughVotes={enoughVotes}
+                acceptedStageAvailable={!acceptedFull}
+                hasTodos={!_.isEmpty(todoComments)}
+                hasAssignedQuestions={!_.isEmpty(questionByAssignedComments)}
+              />
+          )}
           <div className={classes.expansionControl} onChange={expansionChanged}>
             <Button
               className={classes.menuButton}

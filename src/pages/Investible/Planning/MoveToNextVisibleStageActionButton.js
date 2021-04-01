@@ -20,14 +20,7 @@ const style = makeStyles(() => {
         boxShadow: "10px 5px 5px yellow",
         border: '2px solid'
       },
-      containerNone: {
-        border: '2px solid',
-        borderRadius: 6,
-      },
-      containerDisabled: {
-        border: '2px solid grey',
-        borderRadius: 6,
-      },
+      containerNone: {},
     };
   }
 );
@@ -44,7 +37,7 @@ function MoveToNextVisibleStageActionButton(props) {
   const inBlockedStage = getBlockedStage(marketStagesState, marketId) || {};
   const inRequiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
   const verifiedStage = getVerifiedStage(marketStagesState, marketId) || {};
-  let highlightClass = (disabled || operationRunning) ? classes.containerDisabled : classes.containerNone;
+  let highlightClass = classes.containerNone;
   let destinationStage;
   let destinationExplanation;
   let destinationLabel;
@@ -84,7 +77,7 @@ function MoveToNextVisibleStageActionButton(props) {
     <div className={highlightClass}>
       <StageChangeAction
         {...props}
-        icon={<ArrowUpwardIcon />}
+        icon={ArrowUpwardIcon}
         translationId={destinationLabel}
         explanationId={destinationExplanation}
         currentStageId={currentStageId}

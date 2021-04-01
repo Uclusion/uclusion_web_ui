@@ -14,10 +14,10 @@ import clsx from 'clsx'
 import { useLockedDialogStyles } from '../../../pages/Dialog/DialogBodyEdit'
 import { resolveInvestibleComments } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
-import TooltipIconButton from '../../Buttons/TooltipIconButton'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
+import SpinningIconLabelButton from '../../Buttons/SpinningIconLabelButton'
 
 export const useStyles = makeStyles(() => {
   return {
@@ -73,7 +73,8 @@ function StageChangeAction(props) {
     disabled,
     operationBlocked,
     blockedOperationTranslationId,
-    standAlone
+    standAlone,
+    key
   } = props;
   const classes = useStyles();
   const intl = useIntl();
@@ -84,7 +85,7 @@ function StageChangeAction(props) {
   const autoFocusRef = React.useRef(null);
   const lockedDialogClasses = useLockedDialogStyles();
   const [open, setOpen] = React.useState(false);
-  const [operationRunning] = useContext(OperationInProgressContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
 
   const handleOpen = () => {
     setOpen(true);
@@ -92,6 +93,9 @@ function StageChangeAction(props) {
 
   function moveToTarget() {
     setOpen(false);
+    if (standAlone) {
+      setOperationRunning(true);
+    }
     const moveInfo = {
       marketId,
       investibleId,
@@ -107,7 +111,11 @@ function StageChangeAction(props) {
         if (targetStage.close_comments_on_entrance) {
           resolveInvestibleComments(investibleId, marketId, commentsState, commentsDispatch);
         }
-        return EMPTY_SPIN_RESULT;
+        if (standAlone) {
+          setOperationRunning(false);
+        } else {
+          return EMPTY_SPIN_RESULT;
+        }
       });
   }
 
@@ -115,14 +123,9 @@ function StageChangeAction(props) {
     return (
       <>
         {standAlone && (
-          <TooltipIconButton disabled={operationRunning || disabled} icon={icon} onClick={handleOpen}
-                             translationId={explanationId} >
-            {isOpen && (
-              <ListItemText className={classes.menuTitleDisabled}>
-                {intl.formatMessage({ id: translationId })}
-              </ListItemText>
-            )}
-          </TooltipIconButton>
+          <SpinningIconLabelButton icon={icon} onClick={handleOpen} disabled={disabled} key={key}>
+            <FormattedMessage id={translationId} />
+          </SpinningIconLabelButton>
         )}
         {!standAlone && (
           <>
@@ -172,6 +175,15 @@ function StageChangeAction(props) {
       </>
     );
   }
+  if (standAlone) {
+    return (
+      <SpinningIconLabelButton icon={icon} onClick={moveToTarget} disabled={disabled} key={key}>
+        <FormattedMessage
+          id={translationId}
+        />
+      </SpinningIconLabelButton>
+    );
+  }
 
   return (
     <SpinBlockingListAction
@@ -192,7 +204,7 @@ function StageChangeAction(props) {
 StageChangeAction.propTypes = {
   investibleId: PropTypes.string.isRequired,
   onSpinStop: PropTypes.func,
-  icon: PropTypes.element.isRequired,
+  icon: PropTypes.object.isRequired,
   translationId: PropTypes.string.isRequired,
   explanationId: PropTypes.string.isRequired,
   marketId: PropTypes.string.isRequired,

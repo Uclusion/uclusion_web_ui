@@ -126,7 +126,6 @@ const useStyles = makeStyles(theme => ({
     color: "#E85757"
   },
   borderLeft: {
-    borderLeft: '1px solid #e0e0e0',
     paddingRight: '2rem',
     paddingLeft: '1rem',
     [theme.breakpoints.down("xs")]: {
@@ -164,6 +163,13 @@ const useStyles = makeStyles(theme => ({
     }
   },
   fullWidth: {
+    [theme.breakpoints.down("xs")]: {
+      maxWidth: '100%',
+      flexBasis: '100%'
+    }
+  },
+  fullWidthEditable: {
+    cursor: "url('/images/edit_cursor.svg') 0 24, pointer",
     [theme.breakpoints.down("xs")]: {
       maxWidth: '100%',
       flexBasis: '100%'
@@ -257,6 +263,7 @@ function Summary(props) {
         key="upgrade"
         icon={<InsertLinkIcon htmlColor={ACTION_BUTTON_COLOR}/>}
         openLabel={intl.formatMessage({ id: 'upgradeNowDialog' })}
+        label={intl.formatMessage({ id: 'upgradeBannerText' })}
         onClick={() =>
           navigate(history, `/billing`)
         }
@@ -270,7 +277,8 @@ function Summary(props) {
     <Card elevation={0} className={classes.root} id="summary">
       <CardType className={classes.type} type={AGILE_PLAN_TYPE} myBeingEdited={myBeingEdited} />
       <Grid container className={classes.mobileColumn}>
-        <Grid item xs={9} className={classes.fullWidth}>
+        <Grid item xs={9} className={!beingEdited && isEditableByUser() ? classes.fullWidthEditable : classes.fullWidth}
+              onClick={() => !beingEdited && mySetBeingEdited(true)}>
           <CardContent className={myBeingEdited ? classes.editContent : classes.content}>
             {isDraft && activeMarket && (
               <Typography className={classes.draft}>

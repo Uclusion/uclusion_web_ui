@@ -862,8 +862,8 @@ function PlanningInvestible(props) {
                 )}
               </dl>
             </Grid>
-            <Grid item xs={8} className={!beingEdited && isEditableByUser() ? classes.fullWidthEditable : classes.fullWidth}
-                  onClick={() => !beingEdited && mySetBeingEdited(true)}>
+            <Grid item xs={8} className={!beingEdited && isEditableByUser() ? classes.fullWidthEditable :
+              classes.fullWidth} onClick={() => !beingEdited && mySetBeingEdited(true)}>
               {lockedBy && myPresence.id !== lockedBy && isEditableByUser() && (
                 <Typography>
                   {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}

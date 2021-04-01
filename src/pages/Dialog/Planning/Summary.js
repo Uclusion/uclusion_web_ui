@@ -12,7 +12,6 @@ import {
 import DialogActions from '../../Home/DialogActions'
 import CardType, { AGILE_PLAN_TYPE, DECISION_TYPE } from '../../../components/CardType'
 import ParentSummary from '../ParentSummary'
-import LinkMarket from '../LinkMarket'
 import { useMetaDataStyles } from '../../Investible/Planning/PlanningInvestible'
 import InsertLinkIcon from '@material-ui/icons/InsertLink'
 import { navigate } from '../../../utils/marketIdPathFunctions'
@@ -30,6 +29,7 @@ import DialogBodyEdit from '../DialogBodyEdit'
 import { doSetEditWhenValid } from '../../../utils/windowUtils'
 import { AccountContext } from '../../../contexts/AccountContext/AccountContext';
 import { canCreate } from '../../../contexts/AccountContext/accountContextHelper';
+import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 
 const useStyles = makeStyles(theme => ({
   section: {
@@ -246,16 +246,17 @@ function Summary(props) {
       return [];
     }
     if (creatEnabled) {
-      return [<ExpandableAction
-        id="link"
-        key="link"
-        icon={<InsertLinkIcon htmlColor={ACTION_BUTTON_COLOR}/>}
-        openLabel={intl.formatMessage({ id: 'planningInvestibleDecision' })}
-        label={intl.formatMessage({ id: 'childDialogPlanningExplanation' })}
-        onClick={() =>
-          navigate(history, `/dialogAdd#type=${DECISION_TYPE}&id=${id}`)
-        }
-      />];
+      return [
+        <SpinningIconLabelButton
+          icon={InsertLinkIcon}
+          doSpin={false}
+          key="planningInvestibleDecision"
+          onClick={() => navigate(history, `/dialogAdd#type=${DECISION_TYPE}&id=${id}`)}
+        >
+          <FormattedMessage
+            id="planningInvestibleDecision"
+          />
+        </SpinningIconLabelButton>];
     }
     return [
       [<ExpandableAction
@@ -323,7 +324,9 @@ function Summary(props) {
             </div>
           </div>
           <ParentSummary market={market} hidden={hidden}/>
-          <LinkMarket actions={getLinkedMarketActions()} />
+          <div style={{paddingBottom: '1rem', paddingTop: '1rem'}}>
+            {getLinkedMarketActions()}
+          </div>
           <AttachedFilesList
             key="files"
             marketId={id}

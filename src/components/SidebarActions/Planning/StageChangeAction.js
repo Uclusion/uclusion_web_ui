@@ -123,7 +123,7 @@ function StageChangeAction(props) {
     return (
       <>
         {standAlone && (
-          <SpinningIconLabelButton icon={icon} onClick={handleOpen} disabled={disabled} key={key}>
+          <SpinningIconLabelButton icon={icon} onClick={handleOpen} disabled={disabled} key={key} noMargin>
             <FormattedMessage id={translationId} />
           </SpinningIconLabelButton>
         )}
@@ -177,7 +177,7 @@ function StageChangeAction(props) {
   }
   if (standAlone) {
     return (
-      <SpinningIconLabelButton icon={icon} onClick={moveToTarget} disabled={disabled} key={key}>
+      <SpinningIconLabelButton icon={icon} onClick={moveToTarget} disabled={disabled} key={key} noMargin>
         <FormattedMessage
           id={translationId}
         />

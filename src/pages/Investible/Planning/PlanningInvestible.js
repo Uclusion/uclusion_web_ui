@@ -779,8 +779,7 @@ function PlanningInvestible(props) {
       && _.isEmpty(assignedInStage(investibles, userId, inAcceptedStage.id, marketId)) && (
         <DismissableText textId='planningInvestibleEnoughVotesHelp' />
       )}
-      {!inArchives && isInVoting && isAssigned && enoughVotes
-      && !_.isEmpty(assignedInStage(investibles, userId, inAcceptedStage.id, marketId)) && (
+      {!inArchives && isInVoting && isAssigned && enoughVotes && acceptedFull && (
         <DismissableText textId='planningInvestibleAcceptedFullHelp' />
       )}
       {!inArchives && isInAccepted && isAssigned && (

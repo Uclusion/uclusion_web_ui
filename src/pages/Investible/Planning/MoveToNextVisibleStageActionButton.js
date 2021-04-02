@@ -17,8 +17,7 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 const style = makeStyles(() => {
     return {
       containerYellow: {
-        boxShadow: "10px 5px 5px yellow",
-        border: '2px solid'
+        boxShadow: "10px 5px 5px yellow"
       },
       containerNone: {},
     };

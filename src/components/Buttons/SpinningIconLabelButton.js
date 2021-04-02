@@ -19,6 +19,14 @@ const useStyles = makeStyles(
           backgroundColor: "#F1F1F1"
         }
       },
+      buttonNoMargin: {
+        '& .MuiButton-label': {
+          textTransform: 'none'
+        },
+        "&:hover": {
+          backgroundColor: "#F1F1F1"
+        }
+      },
     }
   },
   { name: "Button" }
@@ -30,6 +38,7 @@ function SpinningIconLabelButton(props) {
     doSpin,
     children,
     icon: Icon,
+    noMargin,
     ...rest
   } = props;
   const [operationRunning] = useContext(OperationInProgressContext);
@@ -43,7 +52,7 @@ function SpinningIconLabelButton(props) {
       variant="outlined"
       size="small"
       startIcon={spinning || disabled ? <Icon color='disabled' /> : <Icon htmlColor="black" />}
-      className={classes.button}
+      className={noMargin ? classes.buttonNoMargin: classes.button}
       {...rest}
     >
       {spinning && (

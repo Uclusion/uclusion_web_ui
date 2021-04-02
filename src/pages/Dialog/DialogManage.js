@@ -86,7 +86,7 @@ function DialogManage (props) {
       {(participation || marketType === PLANNING_TYPE) && (
         <DismissableText textId="participationHelp"/>
       )}
-      <Card elevation={0}>
+      <Card>
         {participation && marketType === DECISION_TYPE && myPresence && (
           <div id="decisionAddressList">
             <CardType

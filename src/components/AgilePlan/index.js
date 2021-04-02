@@ -1,6 +1,5 @@
 import * as React from 'react'
 import { useContext } from 'react'
-import Button from '@material-ui/core/Button'
 import Card from '@material-ui/core/Card'
 import CardActions from '@material-ui/core/CardActions'
 import CardContent from '@material-ui/core/CardContent'
@@ -10,9 +9,8 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails'
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary'
 import { darken, makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
-import { FormattedMessage, useIntl } from 'react-intl'
+import { useIntl } from 'react-intl'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
-import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton'
 import CardType, { AGILE_PLAN_TYPE } from '../../components/CardType'
 import QuillEditor from '../../components/TextEditors/QuillEditor'
 import DatePicker from 'react-datepicker'
@@ -22,6 +20,8 @@ import clsx from 'clsx'
 import { urlHelperGetName } from '../../utils/marketIdPathFunctions'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
+import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'
+import { Clear, SettingsBackupRestore } from '@material-ui/icons'
 
 export const usePlanFormStyles = makeStyles(
   theme => ({
@@ -314,7 +314,6 @@ export function Form(props) {
     onCancel,
     onSave,
     onS3Upload,
-    onSpinStop,
     onStorageChange,
     setOperationRunning,
     votesRequired,
@@ -395,30 +394,13 @@ export function Form(props) {
         </ExpansionPanel>
       </CardContent>
       <CardActions className={classes.actions}>
-        <Button
-          className={classes.actionSecondary}
-          color="secondary"
-          onClick={onCancel}
-          variant="contained"
-        >
-          <FormattedMessage
-            id={isCreateForm ? "marketAddCancelLabel" : "marketAddCancelLabel"}
-          />
-        </Button>
-        <SpinBlockingButton
-          className={classes.actionPrimary}
-          color="primary"
-          disabled={(isCreateForm && !createEnabled) || !validForm}
-          marketId={marketId}
-          onClick={onSave}
-          hasSpinChecker
-          onSpinStop={onSpinStop}
-          variant="contained"
-        >
-          <FormattedMessage
-            id={isCreateForm ? "agilePlanFormSaveLabel" : "marketEditSaveLabel"}
-          />
-        </SpinBlockingButton>
+        <SpinningIconLabelButton onClick={onCancel} doSpin={false} icon={Clear}>
+          {intl.formatMessage({ id: isCreateForm ? "marketAddCancelLabel" : "marketAddCancelLabel" })}
+        </SpinningIconLabelButton>
+        <SpinningIconLabelButton onClick={onSave} icon={SettingsBackupRestore}
+                                 disabled={(isCreateForm && !createEnabled) || !validForm}>
+          {intl.formatMessage({ id: isCreateForm ? "agilePlanFormSaveLabel" : "marketEditSaveLabel" })}
+        </SpinningIconLabelButton>
       </CardActions>
     </Card>
   );

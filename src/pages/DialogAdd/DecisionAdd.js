@@ -1,13 +1,12 @@
 import React, { useContext, useEffect, useState, } from 'react'
 import PropTypes from 'prop-types'
-import { FormattedMessage, useIntl } from 'react-intl'
-import { Button, Card, CardActions, CardContent, Checkbox, TextField, Typography, } from '@material-ui/core'
+import { useIntl } from 'react-intl'
+import { Card, CardActions, CardContent, Checkbox, TextField, Typography, } from '@material-ui/core'
 import localforage from 'localforage'
 import QuillEditor from '../../components/TextEditors/QuillEditor'
 import ExpirationSelector from '../../components/Expiration/ExpirationSelector'
 import { createDecision } from '../../api/markets'
 import { processTextAndFilesForSave } from '../../api/files'
-import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton'
 import { DECISION_TYPE } from '../../constants/markets'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { useLocation } from 'react-router'
@@ -22,6 +21,9 @@ import { getRequiredInputStage } from '../../contexts/MarketStagesContext/market
 import _ from 'lodash'
 import { addInvestible, getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
+import SpinningIconLabelButton from '../../components/Buttons/SpinningIconLabelButton'
+import { Clear, SettingsBackupRestore } from '@material-ui/icons'
+import { usePlanInvestibleStyles } from '../Investible/Planning/PlanningInvestibleEdit'
 
 function DecisionAdd(props) {
   const intl = useIntl();
@@ -36,6 +38,7 @@ function DecisionAdd(props) {
   const [draftState, setDraftState] = useState(storedState);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const classes = usePlanFormStyles();
+  const myClasses = usePlanInvestibleStyles();
   const emptyMarket = { name: storedName, expiration_minutes: storedExpirationMinutes || 1440 };
   const [validForm, setValidForm] = useState(false);
   const [currentValues, setCurrentValues] = useState(emptyMarket);
@@ -97,6 +100,7 @@ function DecisionAdd(props) {
   }
 
   function handleSave() {
+    setOperationRunning(true);
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
@@ -117,17 +121,11 @@ function DecisionAdd(props) {
     if (parentMarketId) {
       addInfo.parent_market_id = parentMarketId;
     }
-    const turnOffSpin = {
-      spinChecker: () => {
-        return Promise.resolve(true);
-      },
-    };
     return createDecision(addInfo)
       .then((result) => {
         const { market } = result;
         onSave(result);
         const { id: marketId } = market;
-        turnOffSpin.result = `${formMarketManageLink(marketId)}#participation=true`;
         if (parentInvestibleId && parentMarketId) {
           // Quick add the investible move to requires input
           const requiresInputStage = getRequiredInputStage(marketStagesState, parentMarketId);
@@ -155,14 +153,15 @@ function DecisionAdd(props) {
             }
           }
         }
-        return turnOffSpin;
+        setOperationRunning(false);
+        onSpinStop(`${formMarketManageLink(marketId)}#participation=true`);
       });
   }
 
   return (
     <>
       <DismissableText textId={'decisionAddHelp'} />
-      <Card elevation={0} id="tourRoot">
+      <Card id="tourRoot">
         <CardType className={classes.cardType} type={DECISION_TYPE} />
         <CardContent className={classes.cardContent}>
           <Typography>
@@ -205,31 +204,14 @@ function DecisionAdd(props) {
             getUrlName={urlHelperGetName(marketState, investibleState)}
           />
         </CardContent>
-        <CardActions className={classes.actions}>
-          <Button
-            onClick={handleCancel}
-            className={classes.actionSecondary}
-            color="secondary"
-            variant="contained">
-            <FormattedMessage
-              id="marketAddCancelLabel"
-            />
-          </Button>
-          <SpinBlockingButton
-            marketId=""
-            id="save"
-            variant="contained"
-            color="primary"
-            onClick={handleSave}
-            hasSpinChecker
-            disabled={!createEnabled || !validForm}
-            onSpinStop={onSpinStop}
-            className={classes.actionPrimary}
-          >
-            <FormattedMessage
-              id="agilePlanFormSaveLabel"
-            />
-          </SpinBlockingButton>
+        <CardActions className={myClasses.actions}>
+          <SpinningIconLabelButton onClick={handleCancel} doSpin={false} icon={Clear}>
+            {intl.formatMessage({ id: 'marketAddCancelLabel' })}
+          </SpinningIconLabelButton>
+          <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore}
+                                   disabled={!createEnabled || !validForm}>
+            {intl.formatMessage({ id: 'agilePlanFormSaveLabel' })}
+          </SpinningIconLabelButton>
         </CardActions>
       </Card>
     </>

@@ -1,6 +1,6 @@
 import React, { useContext, useState, } from 'react'
 import PropTypes from 'prop-types'
-import { Button, Card, CardActions, CardContent, TextField, } from '@material-ui/core'
+import { Card, CardActions, CardContent, TextField, } from '@material-ui/core'
 import localforage from 'localforage'
 import { addDecisionInvestible, addInvestibleToStage } from '../../../api/investibles'
 import QuillEditor from '../../../components/TextEditors/QuillEditor'
@@ -10,10 +10,9 @@ import { getStages } from '../../../contexts/MarketStagesContext/marketStagesCon
 import {
   urlHelperGetName,
 } from '../../../utils/marketIdPathFunctions'
-import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { DECISION_TYPE } from '../../../constants/markets'
-import { FormattedMessage, useIntl } from 'react-intl'
+import { useIntl } from 'react-intl'
 import { createDecision } from '../../../api/markets'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
@@ -23,6 +22,8 @@ import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { addCommentToMarket } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { usePlanFormStyles } from '../../../components/AgilePlan'
+import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
+import { Clear, SettingsBackupRestore } from '@material-ui/icons'
 
 function DecisionInvestibleAdd(props) {
   const {
@@ -36,7 +37,6 @@ function DecisionInvestibleAdd(props) {
   } = props;
   const intl = useIntl();
   const classes = usePlanFormStyles();
-  const [operationRunning] = useContext(OperationInProgressContext);
   const { description: storedDescription, name: storedName } = storedState;
   const [draftState, setDraftState] = useState(storedState);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -91,7 +91,7 @@ function DecisionInvestibleAdd(props) {
     localforage.removeItem(itemKey).then(() =>  onCancel());
   }
 
-  function handleNewInlineSave(isAddAnother) {
+  function handleNewInlineSave(completionFunc) {
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
@@ -120,27 +120,23 @@ function DecisionInvestibleAdd(props) {
       onSave(investible);
       return localforage.removeItem(itemKey);
     }).then(() => {
-      if (isAddAnother) {
-        return {
-          spinChecker: () => Promise.resolve(true),
-        };
-      }
-      return {
-        spinChecker: () => Promise.resolve(true),
-      };
+      completionFunc();
+      setOperationRunning(false);
     });
   }
 
   function handleSaveAddAnother() {
+    setOperationRunning(true);
     if (parentCommentId) {
-      return handleNewInlineSave(true);
+      return handleNewInlineSave(onSaveAddAnother);
     }
-    return handleSave();
+    return handleSave(onSaveAddAnother);
   }
 
-  function handleSave() {
+  function handleSave(completionFunc) {
+    setOperationRunning(true);
     if (parentCommentId) {
-      return handleNewInlineSave(false);
+      return handleNewInlineSave(completionFunc);
     }
     const {
       uploadedFiles: filteredUploads,
@@ -159,10 +155,12 @@ function DecisionInvestibleAdd(props) {
       onSave(investible);
       return localforage.removeItem(itemKey);
     }).then(() => {
-      return {
-        //stop spinning immediately
-        spinChecker: () => Promise.resolve(true),
-      };
+      setOperationRunning(false);
+      if (typeof completionFunc === 'function') {
+        completionFunc();
+      } else {
+        onSpinComplete();
+      }
     });
   }
 
@@ -175,7 +173,7 @@ function DecisionInvestibleAdd(props) {
   }
 
   return (
-    <Card elevation={0} className={classes.overflowVisible}>
+    <Card className={classes.overflowVisible}>
       <CardContent className={classes.cardContent}>
         <TextField
           fullWidth
@@ -204,46 +202,17 @@ function DecisionInvestibleAdd(props) {
         />
       </CardContent>
       <CardActions className={classes.actions}>
-        <Button
-          onClick={handleCancel}
-          disabled={operationRunning}
-          className={classes.actionSecondary}
-          color="secondary"
-          variant="contained"
-        >
-          <FormattedMessage
-            id={"marketAddCancelLabel"}
-          />
-        </Button>
-        <SpinBlockingButton
-          id="save"
-          onClick={handleSave}
-          onSpinStop={onSpinComplete}
-          className={classes.actionPrimary}
-          color="primary"
-          disabled={!name || (!parentCommentId && !investmentAllowedStage.id)}
-          hasSpinChecker
-          marketId={marketId}
-          variant="contained"
-        >
-          <FormattedMessage
-            id={"agilePlanFormSaveLabel"}
-          />
-        </SpinBlockingButton>
-        <SpinBlockingButton
-          variant="contained"
-          color="primary"
-          disabled={!name || (!parentCommentId && !investmentAllowedStage.id)}
-          id="saveAddAnother"
-          onClick={handleSaveAddAnother}
-          hasSpinChecker
-          marketId={marketId}
-          onSpinStop={onSaveAddAnother}
-        >
-          <FormattedMessage
-            id="decisionInvestibleSaveAddAnother"
-          />
-        </SpinBlockingButton>
+        <SpinningIconLabelButton onClick={handleCancel} doSpin={false} icon={Clear}>
+          {intl.formatMessage({ id: 'marketAddCancelLabel' })}
+        </SpinningIconLabelButton>
+        <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore}
+                                 disabled={!name || (!parentCommentId && !investmentAllowedStage.id)}>
+          {intl.formatMessage({ id: 'agilePlanFormSaveLabel' })}
+        </SpinningIconLabelButton>
+        <SpinningIconLabelButton onClick={handleSaveAddAnother} icon={SettingsBackupRestore}
+                                 disabled={!name || (!parentCommentId && !investmentAllowedStage.id)}>
+          {intl.formatMessage({ id: 'decisionInvestibleSaveAddAnother' })}
+        </SpinningIconLabelButton>
       </CardActions>
     </Card>
 

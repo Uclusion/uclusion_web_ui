@@ -809,19 +809,15 @@ function Comment(props) {
                 </SpinningIconLabelButton>
               )}
               {!isTinyWindow() && !_.isEmpty(messages) && (
-                <Button
-                  className={clsx(classes.action, classes.actionSecondary)}
-                  variant="contained"
-                  onClick={() => {
-                    setOperationRunning(true);
-                    deleteOrDehilightMessages(messages, messagesDispatch).then(() => setOperationRunning(false))
-                      .finally(() => {
-                        setOperationRunning(false);
-                      });
-                  }}
-                >
-                  <FormattedMessage id="markRead" />
-                </Button>
+                <SpinningIconLabelButton onClick={() => {
+                  setOperationRunning(true);
+                  deleteOrDehilightMessages(messages, messagesDispatch).then(() => setOperationRunning(false))
+                    .finally(() => {
+                      setOperationRunning(false);
+                    });
+                }} icon={SettingsBackupRestore}>
+                  {intl.formatMessage({ id: 'markRead' })}
+                </SpinningIconLabelButton>
               )}
               {enableActions && commentType !== REPORT_TYPE && (!resolved || userId === commentCreatedBy
                 || commentType === TODO_TYPE || commentType === ISSUE_TYPE) && (

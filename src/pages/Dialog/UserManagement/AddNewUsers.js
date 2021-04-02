@@ -17,13 +17,15 @@ import {
 import SearchIcon from '@material-ui/icons/Search'
 import clsx from 'clsx'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
-import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton'
 import { addParticipants, inviteParticipants } from '../../../api/users'
 import InviteLinker from '../InviteLinker'
 import { usePlanFormStyles } from '../../../components/AgilePlan'
 import { addMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesContextReducer'
 import { extractUsersList } from '../../../utils/userFunctions'
 import Gravatar from '../../../components/Avatars/Gravatar';
+import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
+import { Clear, SettingsBackupRestore } from '@material-ui/icons'
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 
 function AddNewUsers (props) {
   const {
@@ -35,6 +37,7 @@ function AddNewUsers (props) {
   const classes = usePlanFormStyles();
   const intl = useIntl();
   const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [email1, setEmail1] = useState(undefined);
 
   function handleEmail1 (event) {
@@ -142,6 +145,7 @@ function AddNewUsers (props) {
     }
   }
   function handleSave () {
+    setOperationRunning(true);
     const toAdd = participants.filter((participant) => participant.isChecked) || [];
     const toAddClean = toAdd.map((participant) => {
       const { user_id, account_id } = participant;
@@ -149,17 +153,12 @@ function AddNewUsers (props) {
     });
     return addInvitees().then(() => {
       if (_.isEmpty(toAddClean)) {
-        return {
-          result: undefined,
-          spinChecker: () => Promise.resolve(true),
-        };
+        return onSaveSpinStop();
       }
       return addParticipants(addToMarketId, toAddClean)
         .then((result) => {
-          return {
-            result,
-            spinChecker: () => Promise.resolve(true),
-          };
+          setOperationRunning(false);
+          onSaveSpinStop(result);
         });
     });
   }
@@ -283,29 +282,13 @@ function AddNewUsers (props) {
           </ListItem>
           <ListItem id="emailButtons" key="emailButtons" className={clsx(classes.rightAlign, classes.listItem)}>
             <CardActions className={classes.actions}>
-              <SpinBlockingButton
-                  id="save"
-                  variant="contained"
-                  color="primary"
-                  className={classes.actionSecondary}
-                  onClick={handleCancel}
-                  marketId={addToMarketId}
-                >
-                {intl.formatMessage({ id: "addressAddCancelLabel" })}
-              </SpinBlockingButton>
-              <SpinBlockingButton
-                id="save"
-                variant="contained"
-                color="primary"
-                className={classes.actionPrimary}
-                onClick={handleSave}
-                marketId={addToMarketId}
-                onSpinStop={onSaveSpinStop}
-                hasSpinChecker
-                disabled={_.isEmpty(anySelected)&&_.isEmpty(email1)}
-              >
-                {intl.formatMessage({ id: "addressAddSaveLabel" })}
-              </SpinBlockingButton>
+              <SpinningIconLabelButton onClick={handleCancel} doSpin={false} icon={Clear}>
+                {intl.formatMessage({ id: 'addressAddCancelLabel' })}
+              </SpinningIconLabelButton>
+              <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore}
+                                       disabled={_.isEmpty(anySelected)&&_.isEmpty(email1)}>
+                {intl.formatMessage({ id: 'addressAddSaveLabel' })}
+              </SpinningIconLabelButton>
             </CardActions>
           </ListItem>
         </form>

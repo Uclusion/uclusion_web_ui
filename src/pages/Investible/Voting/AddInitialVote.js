@@ -111,7 +111,7 @@ function AddInitialVote(props) {
     getOptionLabel: (option) => option,
   };
   return (
-    <Card elevation={0}>
+    <Card>
       <CardContent className={classes.cardContent}>
         <h2>{ intl.formatMessage({ id: 'pleaseVoteStory' }) }</h2>
         <FormControl className={classes.certainty}>

@@ -93,6 +93,7 @@ function PlanningAdd(props) {
   }
 
   function handleSave() {
+    setOperationRunning(true);
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved
@@ -124,10 +125,8 @@ function PlanningAdd(props) {
       const {
         market: { id: marketId }
       } = result;
-      return {
-        result: parentMarketId ? formMarketLink(marketId) : `${formMarketManageLink(marketId)}#participation=true`,
-        spinChecker: () => Promise.resolve(true)
-      };
+      setOperationRunning(false);
+      onSpinStop(parentMarketId ? formMarketLink(marketId) : `${formMarketManageLink(marketId)}#participation=true`);
     });
   }
   return (
@@ -146,7 +145,6 @@ function PlanningAdd(props) {
         onCancel={handleCancel}
         onSave={handleSave}
         onS3Upload={onS3Upload}
-        onSpinStop={onSpinStop}
         onStorageChange={onStorageChange}
         setOperationRunning={setOperationRunning}
         votesRequired={votesRequired}

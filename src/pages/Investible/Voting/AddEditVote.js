@@ -235,7 +235,7 @@ function AddEditVote(props) {
   const removeVoteId = multiplier < 0 ? "removeReject" : "removeVote";
   return (
     <React.Fragment>
-      <Card elevation={0} className={classes.visible}>
+      <Card className={classes.visible}>
         <CardContent>
           <FormControl className={classes.certainty}>
             <FormLabel

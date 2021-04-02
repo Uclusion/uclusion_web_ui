@@ -355,10 +355,7 @@ function DecisionInvestible(props) {
       {activeMarket && inProposed && isAdmin && (
         <DismissableText textId='decisionInvestibleProposedHelp' />
       )}
-      <Card className={classes.root}
-            id="optionMain"
-            elevation={0}
-      >
+      <Card className={classes.root} id="optionMain">
         <CardType
           className={classes.cardType}
           type={VOTING_TYPE}

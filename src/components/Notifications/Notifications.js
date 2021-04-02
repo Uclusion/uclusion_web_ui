@@ -26,6 +26,13 @@ const useStyles = makeStyles(
         fontSize: 24,
         color: '#2D9CDB'
       },
+      chip: {
+        color: 'black',
+        '& .MuiBadge-badge': {
+          border: '0.5px solid grey',
+          backgroundColor: '#fff',
+        },
+      },
       fab: {
         backgroundColor: '#fff',
         borderRadius: '50%',
@@ -104,7 +111,7 @@ function Notifications (props) {
 
   return (
     <div key={level} onClick={recordPositionToggle}>
-      <Badge badgeContent={messages.length} color="primary">
+      <Badge badgeContent={messages.length} className={classes.chip} overlap="circle">
       <Fab id={`notifications-fab${level}`} className={classes.fab}>
         {getIcon()}
       </Fab>

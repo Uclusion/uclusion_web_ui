@@ -163,7 +163,7 @@ function CommentAddBox(props) {
     return "reviewReportPresent";
   }
   return (
-    <Card id="commentAddBox" style={{marginBottom: '2rem'}}>
+    <Card id="commentAddBox" style={{marginBottom: '2rem'}} elevation={3}>
       <CardContent>
         <FormControl component="fieldset" className={type === TODO_TYPE && !investible ? classes.hidden :
           classes.commentType}>

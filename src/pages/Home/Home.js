@@ -30,7 +30,6 @@ import { CognitoUserContext } from '../../contexts/CognitoUserContext/CongitoUse
 import { startTour } from '../../contexts/TourContext/tourContextReducer';
 import { TourContext } from '../../contexts/TourContext/TourContext';
 import InitiativesAndDialogs from './InitiativesAndDialogs'
-import AddNewOrUpgradeButton from './AddNewOrUpgradeButton';
 import { canCreate } from '../../contexts/AccountContext/accountContextHelper';
 import UpgradeBanner from '../../components/Banners/UpgradeBanner';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
@@ -150,23 +149,6 @@ function Home(props) {
     DECISION_TYPE), 'created_at').reverse();
   const initiativeDetails = _.sortBy(getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState,
     INITIATIVE_TYPE), 'created_at').reverse();
-  
-  const ACTIONBAR_ACTIONS = [];
-
-  if (wizardActive) {
-    ACTIONBAR_ACTIONS.push({
-      label: intl.formatMessage({ id: 'homeAddNewExplanation' }),
-      openLabel: intl.formatMessage({ id: 'cancel' }),
-      id: 'addNew',
-      onClick: () => setWizardActive(false),
-    });
-  } else {
-    ACTIONBAR_ACTIONS.push({
-      prototype: <AddNewOrUpgradeButton/>,
-      id: 'addNew',
-      onClick: () => setWizardActive(true),
-    });
-  }
 
   function onWizardFinish (formData) {
     const { marketId } = formData;
@@ -181,7 +163,11 @@ function Home(props) {
 
   const archiveMarkets = getHiddenMarketDetailsForUser(marketsState, marketPresencesState, results);
   const navigationMenu = {navHeaderText: intl.formatMessage({ id: 'home' }), showSearchResults: true,
-    navListItemTextArray: [createNavListItem(AddIcon, 'addNew', 'actionContainer'),
+    navListItemTextArray: [{icon: AddIcon, text: intl.formatMessage({ id: 'addNew' }),
+      onClickFunc: !wizardActive ? () => {
+      setWizardActive(true);
+      window.scrollTo(0, 0);
+    } : undefined},
       createNavListItem(AgilePlanIcon, 'swimLanes', 'swimLanes'),
       createNavListItem(PlaylistAddCheckIcon, 'planningMarkets', 'planningMarkets', _.size(planningDetails)),
       createNavListItem(GavelIcon, 'dialogs', 'dia0', _.size(decisionDetails)),
@@ -196,10 +182,9 @@ function Home(props) {
       tabTitle={intl.formatMessage({ id: 'homeBreadCrumb' })}
       hidden={hidden}
       isHome
-      sidebarActions={ACTIONBAR_ACTIONS}
       banner={banner}
       loading={clearedToCreate === undefined}
-      navigationOptions={banner || wizardActive ? [] : navigationMenu}
+      navigationOptions={banner ? [] : navigationMenu}
     >
       <UclusionTour
         name={SIGNUP_HOME}

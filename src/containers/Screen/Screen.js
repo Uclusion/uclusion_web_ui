@@ -201,11 +201,11 @@ function Screen(props) {
                   }
             >
               {navListItemTextArray.map((navItem) => {
-                const { text, target, num, icon: Icon } = navItem;
+                const { text, target, num, icon: Icon, onClickFunc } = navItem;
                 if (!text) {
                   return React.Fragment;
                 }
-                if (!target) {
+                if (!target && !onClickFunc) {
                   return (
                     <ListItem key={text}>
                       <Icon className={clsx(classes.navListIcon, classes.disabled)} />
@@ -219,7 +219,11 @@ function Screen(props) {
                               (event) => {
                                 event.stopPropagation();
                                 event.preventDefault();
-                                navigate(history, target);
+                                if (onClickFunc) {
+                                  onClickFunc();
+                                } else {
+                                  navigate(history, target);
+                                }
                               }
                             }
                   >

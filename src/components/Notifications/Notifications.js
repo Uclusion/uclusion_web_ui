@@ -16,32 +16,22 @@ const useStyles = makeStyles(
     return {
 
       red: {
-        backgroundColor: '#E85757',
-        '&:hover': {
-          backgroundColor: '#E85757',
-        }
+        fontSize: 24,
+        color: '#E85757',
       },
       yellow: {
-        backgroundColor: '#e6e969',
-        '&:hover': {
-          backgroundColor: '#e6e969',
-        }
+        fontSize: 24,
+        color: '#e6e969'
       },
       blue: {
-        backgroundColor: '#2D9CDB',
-        '&:hover': {
-          backgroundColor: '#2D9CDB',
-        }
-      },
-      uncolored: {
         fontSize: 24,
-        color: '#fff'
+        color: '#2D9CDB'
       },
       fab: {
+        backgroundColor: '#fff',
         borderRadius: '50%',
         width: '48px',
         height: '48px',
-        boxShadow: 'none',
         minHeight: '48px',
         [theme.breakpoints.down('sm')]: {
           width: '36px',
@@ -77,26 +67,13 @@ function Notifications (props) {
   function getIcon () {
     switch(level) {
       case RED_LEVEL:
-        return <WarningIcon className={classes.uncolored}/>
+        return <WarningIcon className={classes.red}/>
       case YELLOW_LEVEL:
-        return <HourglassFullIcon className={classes.uncolored}/>
+        return <HourglassFullIcon className={classes.yellow}/>
       case BLUE_LEVEL:
-        return <NotesIcon className={classes.uncolored}/>
+        return <NotesIcon className={classes.blue}/>
       default:
-        return <NotificationImportantIcon className={classes.uncolored}/>
-    }
-  }
-
-  function getBackgroundClass () {
-    switch (level) {
-      case RED_LEVEL:
-        return classes.red;
-      case YELLOW_LEVEL:
-        return classes.yellow;
-      case BLUE_LEVEL:
-        return classes.blue;
-      default:
-        return classes.uncolored;
+        return <NotificationImportantIcon />
     }
   }
 
@@ -151,12 +128,7 @@ function Notifications (props) {
   return (
     <div key={level} onMouseOut={onOut} onMouseOver={onEnter}>
       <Badge badgeContent={messages.length} color="primary">
-      <Fab
-        id={`notifications-fab${level}`}
-        className={clsx(
-          classes.fab,
-          getBackgroundClass())}
-      >
+      <Fab id={`notifications-fab${level}`} className={classes.fab}>
         {getIcon()}
       </Fab>
       </Badge>

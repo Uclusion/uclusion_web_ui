@@ -10,17 +10,16 @@ import HourglassFullIcon from '@material-ui/icons/HourglassFull'
 
 
 const useStyles = makeStyles(() => ({
-  criticalStyle: {
+  chipStyle: {
     marginLeft: '0.5rem',
-    color: '#ffffff',
-    backgroundColor: '#E85757'
+    color: 'black',
+    backgroundColor: '#ffffff'
   },
-  delayableStyle: {
-    marginLeft: '0.5rem',
-    backgroundColor: '#e6e969'
+  iconYellow: {
+    color: '#e6e969'
   },
-  iconStyle: {
-    color: '#ffffff'
+  iconRed: {
+    color: '#E85757'
   }
 }));
 
@@ -39,15 +38,15 @@ function NotificationCountChips(props) {
       {criticalNotifications > 0 && (
         <Tooltip key={`tipcrit${id}`}
                  title={intl.formatMessage({ id: 'redNotificationCountExplanation' })}>
-          <Chip component="span" icon={<WarningIcon className={classes.iconStyle}/>} label={`${criticalNotifications}`}
-                size='small' className={classes.criticalStyle}/>
+          <Chip component="span" icon={<WarningIcon className={classes.iconRed}/>} label={`${criticalNotifications}`}
+                size='small' className={classes.chipStyle}/>
         </Tooltip>
       )}
       {delayableNotifications > 0 && (
         <Tooltip key={`tipdel${id}`}
                  title={intl.formatMessage({ id: 'yellowNotificationCountExplanation' })}>
-          <Chip component="span" icon={<HourglassFullIcon className={classes.iconStyle}/>}
-                label={`${delayableNotifications}`} size='small' className={classes.delayableStyle}/>
+          <Chip component="span" icon={<HourglassFullIcon className={classes.iconYellow}/>}
+                label={`${delayableNotifications}`} size='small' className={classes.chipStyle}/>
         </Tooltip>
       )}
     </>

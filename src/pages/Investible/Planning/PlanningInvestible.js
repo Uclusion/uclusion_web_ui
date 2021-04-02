@@ -214,10 +214,8 @@ const useStyles = makeStyles(
       marginTop: '0.3rem'
     },
     fullWidthCentered: {
-      alignItems: 'center',
       justifyContent: 'center',
       display: "flex",
-      marginTop: '20px',
       [theme.breakpoints.down("xs")]: {
         maxWidth: '100%',
         flexBasis: '100%',
@@ -227,7 +225,6 @@ const useStyles = makeStyles(
     autocompleteContainer: {
       display: 'flex',
       marginLeft: '30px',
-      padding: '10px',
       [theme.breakpoints.down("xs")]: {
         marginLeft: '0',
         flexDirection: 'column'
@@ -235,6 +232,8 @@ const useStyles = makeStyles(
     },
     labelChip: {
       paddingRight: '10px',
+      paddingTop: '0.5rem',
+      maxHeight: '1rem',
       [theme.breakpoints.down("xs")]: {
         paddingRight: 0,
         paddingBottom: '5px'
@@ -937,7 +936,7 @@ function PlanningInvestible(props) {
               />
             </Grid>
           </Grid>
-          <Grid item xs={9} className={classes.fullWidthCentered}>
+          <Grid item xs={12} className={classes.fullWidthCentered}>
             {labelList && labelList.map((label) =>
               <div key={label} className={classes.labelChip}>
                 <Chip label={label} onDelete={()=>deleteLabel(`${label}`)} color="primary" />
@@ -953,7 +952,7 @@ function PlanningInvestible(props) {
                   renderInput={(params) => <TextField {...params}
                                                       label={intl.formatMessage({ id: 'addLabel' })}
                                                       variant="outlined" />}
-                  style={{ width: 230, maxHeight: '1rem' }}
+                  style={{ width: 150, maxHeight: '1rem' }}
                   onFocus={labelInputFocus}
                   onBlur={labelInputFocus}
                   onChange={labelInputOnChange}

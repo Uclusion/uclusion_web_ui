@@ -1,14 +1,16 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import PropTypes from 'prop-types'
-import { Button, Card, CardActions, CardContent, Checkbox, makeStyles, Typography, } from '@material-ui/core'
-import { FormattedMessage, useIntl } from 'react-intl'
+import { Card, CardActions, CardContent, Checkbox, makeStyles, Typography, } from '@material-ui/core'
+import { useIntl } from 'react-intl'
 import { updateMarket } from '../../../api/markets'
-import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton'
 import CardType, { DECISION_TYPE } from '../../../components/CardType'
 import { usePlanFormStyles } from '../../../components/AgilePlan'
 import ExistingUsers from '../UserManagement/ExistingUsers'
 import clsx from 'clsx'
 import Grid from '@material-ui/core/Grid'
+import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
+import { Clear, SettingsBackupRestore } from '@material-ui/icons'
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -25,6 +27,7 @@ function DecisionDialogEdit(props) {
     onCancel,
     market,
   } = props;
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const { id, allow_multi_vote: allowMultiVote } = market;
   const intl = useIntl();
   const classes = usePlanFormStyles();
@@ -37,23 +40,18 @@ function DecisionDialogEdit(props) {
 
   function handleSave() {
     if (allowMultiVote !== multiVote) {
+      setOperationRunning(true);
       return updateMarket(id, null, null, null, null,
         null, null, null, multiVote)
         .then((market) => {
-          return {
-            result: market,
-            spinChecker: () => Promise.resolve(true),
-          };
+          onSpinStop(market);
+          setOperationRunning(false);
         });
     }
-    return {
-      result: market,
-      spinChecker: () => Promise.resolve(true),
-    };
   }
 
   return (
-    <Card elevation={0}>
+    <Card>
       <CardType className={classes.cardType} type={DECISION_TYPE} />
       <CardContent className={classes.cardContent}>
         <Grid container className={clsx(classes.fieldset, classes.flex, classes.justifySpace)}>
@@ -77,29 +75,12 @@ function DecisionDialogEdit(props) {
         </Grid>
       </CardContent>
       <CardActions className={myClasses.actions}>
-        <Button
-          onClick={onCancel}
-          className={classes.actionSecondary}
-          color="secondary"
-          variant="contained">
-          <FormattedMessage
-            id="marketAddCancelLabel"
-          />
-        </Button>
-        <SpinBlockingButton
-          marketId={id}
-          id="save"
-          variant="contained"
-          color="primary"
-          onClick={handleSave}
-          onSpinStop={onSpinStop}
-          className={classes.actionPrimary}
-          hasSpinChecker
-        >
-          <FormattedMessage
-            id="agilePlanFormSaveLabel"
-          />
-        </SpinBlockingButton>
+        <SpinningIconLabelButton onClick={onCancel} doSpin={false} icon={Clear}>
+          {intl.formatMessage({ id: 'marketAddCancelLabel' })}
+        </SpinningIconLabelButton>
+        <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore}>
+          {intl.formatMessage({ id: 'agilePlanFormSaveLabel' })}
+        </SpinningIconLabelButton>
       </CardActions>
     </Card>
   );

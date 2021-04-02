@@ -2,7 +2,6 @@ import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import { FormattedMessage, useIntl } from 'react-intl'
-import clsx from 'clsx'
 import { Card, CardContent, Typography } from '@material-ui/core'
 import ReadOnlyQuillEditor from '../../../components/TextEditors/ReadOnlyQuillEditor'
 import { makeStyles } from '@material-ui/styles'
@@ -41,7 +40,7 @@ const useVoteStyles = makeStyles(
         fontWeight: "bold"
       },
       highlighted: {
-        boxShadow: "10px 5px 5px yellow"
+        boxShadow: "12px 5px 5px yellow"
       },
       expiresDisplay: {
         alignItems: "flex-end",
@@ -91,43 +90,41 @@ function Voting(props) {
         const voteId = `cv${userId}`;
 
         return (
-          <Card
-            elevation={0}
-            key={userId}
-            className={clsx(
-              classes.card,
-              myMessage && classes.highlighted
-            )}
-            component="li"
-            id={voteId}
-          >
-            <CardType
-              className={classes.cardType}
-              type={`certainty${Math.abs(quantity)}`}
-            />
-            {showExpiration && (
-              <div className={classes.expiresDisplay}>
-                <ProgressBar
-                  createdAt={new Date(updatedAt)}
-                  expirationMinutes={expirationMinutes}
-                  smallForMobile={true}
-                />
-              </div>
-            )}
-            <CardContent className={classes.cardContent}>
-              <div style={{display: 'flex', alignItems: 'center', paddingBottom: '1rem'}}>
-                <Gravatar email={email} name={name}/>
-                <Typography className={classes.voter} component="strong">
-                  {maxBudget > 0 && !maxBudgetUnit && intl.formatMessage({id: 'maxBudgetValue'},
-                    { x: maxBudget, name})}
-                  {maxBudget > 0 && maxBudgetUnit && intl.formatMessage({id: 'maxBudgetValueWithUnits'},
-                    { x: maxBudget, y: maxBudgetUnit, name})}
-                  {(!maxBudget > 0) && name}
-                </Typography>
-              </div>
-              {reason && <ReadOnlyQuillEditor value={reason.body} />}
-            </CardContent>
-          </Card>
+          <div className={myMessage && classes.highlighted}>
+            <Card
+              key={userId}
+              className={classes.card}
+              component="li"
+              id={voteId}
+            >
+              <CardType
+                className={classes.cardType}
+                type={`certainty${Math.abs(quantity)}`}
+              />
+              {showExpiration && (
+                <div className={classes.expiresDisplay}>
+                  <ProgressBar
+                    createdAt={new Date(updatedAt)}
+                    expirationMinutes={expirationMinutes}
+                    smallForMobile={true}
+                  />
+                </div>
+              )}
+              <CardContent className={classes.cardContent}>
+                <div style={{display: 'flex', alignItems: 'center', paddingBottom: '1rem'}}>
+                  <Gravatar email={email} name={name}/>
+                  <Typography className={classes.voter} component="strong">
+                    {maxBudget > 0 && !maxBudgetUnit && intl.formatMessage({id: 'maxBudgetValue'},
+                      { x: maxBudget, name})}
+                    {maxBudget > 0 && maxBudgetUnit && intl.formatMessage({id: 'maxBudgetValueWithUnits'},
+                      { x: maxBudget, y: maxBudgetUnit, name})}
+                    {(!maxBudget > 0) && name}
+                  </Typography>
+                </div>
+                {reason && <ReadOnlyQuillEditor value={reason.body} />}
+              </CardContent>
+            </Card>
+          </div>
         );
       })}
     </ol>

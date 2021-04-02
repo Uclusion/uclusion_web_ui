@@ -75,7 +75,7 @@ function WhatDoYouWantToDo (props) {
   const theme = useTheme();
   const classes = useStyles(theme);
   return (
-    <Card className={classes.myCard}>
+    <Card className={classes.myCard} elevation={3}>
       <Typography variant="h5">
         {intl.formatMessage({ id: 'SignupWizardTitle' })}
       </Typography>

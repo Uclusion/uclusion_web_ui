@@ -387,11 +387,7 @@ function CommentAdd (props) {
                 {intl.formatMessage({ id: 'cancel' })}
               </SpinningIconLabelButton>
             )}
-            <SpinningIconLabelButton
-              onClick={handleCancel}
-              doSpin={false}
-              icon={Clear}
-            >
+            <SpinningIconLabelButton onClick={handleCancel} doSpin={false} icon={Clear}>
               {intl.formatMessage({ id: commentCancelLabel })}
             </SpinningIconLabelButton>
             {!showIssueWarning && (
@@ -404,9 +400,9 @@ function CommentAdd (props) {
               </SpinningIconLabelButton>
             )}
             {showIssueWarning && (
-              <Button className={classNames(classes.button, classes.buttonPrimary)} onClick={toggleIssue}>
+              <SpinningIconLabelButton onClick={toggleIssue} icon={Add}>
                 {intl.formatMessage({ id: commentSaveLabel })}
-              </Button>
+              </SpinningIconLabelButton>
             )}
             {investible && type === REPORT_TYPE && (
               <FormControlLabel
@@ -430,17 +426,10 @@ function CommentAdd (props) {
                 issueWarningId={myWarningId}
                 /* slots */
                 actions={
-                  <SpinBlockingButton
-                    className={clsx(lockedDialogClasses.action, lockedDialogClasses.actionEdit)}
-                    disableFocusRipple
-                    marketId={marketId}
-                    onClick={handleSave}
-                    onSpinStop={handleSpinStop}
-                    disabled={_.isEmpty(body)}
-                    hasSpinChecker
-                  >
-                    <FormattedMessage id="issueProceed" />
-                  </SpinBlockingButton>
+                  <SpinningIconLabelButton onClick={handleSave} icon={Add}
+                                           disabled={_.isEmpty(body) || _.isEmpty(type)}>
+                    {intl.formatMessage({ id: "issueProceed" })}
+                  </SpinningIconLabelButton>
                 }
               />
             )}
@@ -470,15 +459,10 @@ function IssueDialog(props) {
       /* slots */
       actions={
         <React.Fragment>
-          {actions}
-          <Button
-            className={clsx(classes.action, classes.actionCancel)}
-            disableFocusRipple
-            onClick={onClose}
-            ref={autoFocusRef}
-          >
+          <SpinningIconLabelButton onClick={onClose} doSpin={false} icon={Clear} ref={autoFocusRef}>
             <FormattedMessage id="lockDialogCancel" />
-          </Button>
+          </SpinningIconLabelButton>
+          {actions}
         </React.Fragment>
       }
       content={<FormattedMessage id={issueWarningId} />}

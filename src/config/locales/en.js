@@ -399,7 +399,7 @@ const messages = defineMessages({
   issueReplyLabel: 'Reply',
   issueProceed: 'Proceed',
   // lock dialog
-  lockDialogCancel: 'cancel',
+  lockDialogCancel: 'Cancel',
   pageLockEditPage: 'edit page',
   lockDialogTitle: 'page locked',
   lockDialogContent: 'A user is currently editing this page, would you like to take over editing capabilities?',

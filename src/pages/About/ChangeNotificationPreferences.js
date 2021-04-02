@@ -129,7 +129,7 @@ function ChangeNotificationPreferences (props) {
       loading={!safeUser}
     >
       <div className={classes.container}>
-        <Card elevation={0}>
+        <Card>
           <SubSection
             title={intl.formatMessage({ id: 'changePreferencesHeader' })}
             padChildren

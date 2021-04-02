@@ -21,6 +21,9 @@ import ChangeToObserverButton from '../ChangeToObserverButton'
 import ChangeToParticipantButton from '../ChangeToParticipantButton'
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
+import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
+import { Clear, SettingsBackupRestore } from '@material-ui/icons'
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -35,6 +38,7 @@ function PlanningDialogEdit(props) {
   const { onSpinStop, onCancel, market, acceptedStage, verifiedStage } = props;
   const [marketStagesState, marketStagesDispatch] = useContext(MarketStagesContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const {
     id,
     name: initialMarketName,
@@ -81,16 +85,17 @@ function PlanningDialogEdit(props) {
     setShowInvestiblesAge(parseInt(value, 10));
   }
 
-  function updateShowInvestibles(retValue) {
+  function updateShowInvestibles() {
     return updateStage(id, verifiedStage.id, undefined, showInvestiblesAge).then((newStage) => {
       const marketStages = getStages(marketStagesState, id);
       const newStages = _.unionBy([newStage], marketStages, 'id');
       updateStagesForMarket(marketStagesDispatch, id, newStages);
-      return retValue;
+      setOperationRunning(false);
     });
   }
 
   function handleSave() {
+    setOperationRunning(true);
     const votesRequiredInt =
       votes_required != null ? parseInt(votes_required, 10) : null;
     const maxBudget = max_budget ? parseInt(max_budget, 10) : 0;
@@ -105,25 +110,24 @@ function PlanningDialogEdit(props) {
           undefined,
           ticket_sub_code
         ).then(market => {
-          const retValue = {
-            result: market,
-            spinChecker: () => Promise.resolve(true)
-          };
+          onSpinStop(market);
           if (allowedInvestibles !== acceptedStage.allowed_investibles) {
             return updateStage(id, acceptedStage.id, allowedInvestibles).then((newStage) => {
               const marketStages = getStages(marketStagesState, id);
               const newStages = _.unionBy([newStage], marketStages, 'id');
               updateStagesForMarket(marketStagesDispatch, id, newStages);
               if (showInvestiblesAge !== verifiedStage.days_visible) {
-                return updateShowInvestibles(retValue);
+                return updateShowInvestibles();
+              } else {
+                setOperationRunning(false);
               }
-              return retValue;
             });
           }
           if (showInvestiblesAge !== verifiedStage.days_visible) {
-            return updateShowInvestibles(retValue);
+            return updateShowInvestibles();
+          } else {
+            setOperationRunning(false);
           }
-          return retValue;
         });
   }
 
@@ -195,30 +199,13 @@ function PlanningDialogEdit(props) {
         </Grid>
       </CardContent>
       <CardActions className={myClasses.actions}>
-        <Button
-          className={classes.actionSecondary}
-          color="secondary"
-          onClick={onCancel}
-          variant="contained"
-        >
-          <FormattedMessage
-            id="marketAddCancelLabel"
-          />
-        </Button>
-        <SpinBlockingButton
-          className={classes.actionPrimary}
-          color="primary"
-          disabled={!(parseInt(investment_expiration, 10) > 0)}
-          marketId={id}
-          onClick={handleSave}
-          hasSpinChecker
-          onSpinStop={onSpinStop}
-          variant="contained"
-        >
-          <FormattedMessage
-            id="marketEditSaveLabel"
-          />
-        </SpinBlockingButton>
+        <SpinningIconLabelButton onClick={onCancel} doSpin={false} icon={Clear}>
+          {intl.formatMessage({ id: 'marketAddCancelLabel' })}
+        </SpinningIconLabelButton>
+        <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore}
+                                 disabled={!(parseInt(investment_expiration, 10) > 0)}>
+          {intl.formatMessage({ id: 'marketEditSaveLabel' })}
+        </SpinningIconLabelButton>
       </CardActions>
     </Card>
   );

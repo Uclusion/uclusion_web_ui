@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
-import { Button, Checkbox, Grid, Typography } from '@material-ui/core'
+import { Checkbox, Grid, Typography } from '@material-ui/core'
 import _ from 'lodash'
 import RaisedCard from '../../../components/Cards/RaisedCard'
 import { FormattedMessage, useIntl } from 'react-intl'
@@ -42,6 +42,8 @@ import MarketTodoMenu from './MarketTodoMenu'
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined'
 import { doRemoveEdit, doShowEdit } from './userUtils'
 import localforage from 'localforage'
+import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
+import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward'
 
 const myClasses = makeStyles(
   theme => {
@@ -480,14 +482,11 @@ function MarketTodos (props) {
           title={intl.formatMessage({ id: 'todoSection' })}
           helpTextId="todoSectionHelp"
           createButton={ isSingleTodoSelected || isInArchives || isTinyWindow() ? undefined :
-            (<Button
-              onClick={toggleShowSelectTodos}
-              className={classes.actionSecondary}
-              color="secondary"
-              variant="contained"
-            >
+            (
+            <SpinningIconLabelButton icon={ArrowUpwardIcon} onClick={toggleShowSelectTodos} doSpin={false}
+                                     whiteBackground>
               <FormattedMessage id={todosButtonMsgId} />
-            </Button>
+            </SpinningIconLabelButton>
             )}
           actionButton={
             (<ExpandableAction

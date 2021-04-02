@@ -114,8 +114,8 @@ function MarketTodoMenu(props) {
         addCommentToMarket(comment, commentState, commentDispatch);
         setOperationRunning(false);
       }).finally(() => {
-      openIdFunc(undefined);
       setOperationRunning(false);
+      openIdFunc(undefined);
     });
   }
 

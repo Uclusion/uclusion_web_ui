@@ -47,6 +47,8 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 import { assignedInStage } from '../../../utils/userFunctions'
 import { getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { nameFromDescription } from '../../../utils/stringFunctions'
+import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
+import { Clear, SettingsBackupRestore } from '@material-ui/icons'
 
 function PlanningInvestibleAdd(props) {
   const {
@@ -193,6 +195,7 @@ function PlanningInvestibleAdd(props) {
   }
 
   function handleSave() {
+    setOperationRunning(true);
     if (!isStoriesTourCompleted) {
       // If you are adding a story by yourself we don't want to force a story tour on you
       completeTour(tourDispatch, INVITE_STORIES_WORKSPACE_FIRST_VIEW);
@@ -243,10 +246,8 @@ function PlanningInvestibleAdd(props) {
       onSave(inv);
       const link = formInvestibleLink(marketId, investible.id);
       if (isAssignedToMe || !isAssigned) {
-        return {
-          result: link,
-          spinChecker: () => Promise.resolve(true),
-        };
+        setOperationRunning(false);
+        return onSpinComplete(link);
       }
       const updateInfo = {
         marketId,
@@ -266,10 +267,7 @@ function PlanningInvestibleAdd(props) {
           refreshMarketComments(commentsDispatch, marketId, [comment, ...comments]);
         }
         partialUpdateInvestment(marketPresencesDispatch, investmentResult, allowMultiVote);
-        return {
-          result: link,
-          spinChecker: () => Promise.resolve(true),
-        };
+        onSpinComplete(link);
       });
     });
   }
@@ -299,7 +297,7 @@ function PlanningInvestibleAdd(props) {
   return (
     <>
       <DismissableText textId='planningInvestibleAddHelp' />
-      <Card elevation={0} className={classes.overflowVisible}>
+      <Card className={classes.overflowVisible}>
         <CardType
           className={classes.cardType}
           label={`${intl.formatMessage({
@@ -360,30 +358,13 @@ function PlanningInvestibleAdd(props) {
           />
         )}
         <CardActions className={classes.actions}>
-            <Button
-              className={classes.actionSecondary}
-              color="secondary"
-              variant="contained"
-              onClick={handleCancel}
-            >
-              <FormattedMessage
-                id={"marketAddCancelLabel"}
-              />
-            </Button>
-            <SpinBlockingButton
-              onClick={handleSave}
-              hasSpinChecker
-              onSpinStop={onSpinComplete}
-              className={classes.actionPrimary}
-              color="primary"
-              disabled={!name && _.isEmpty(description)}
-              marketId={marketId}
-              variant="contained"
-            >
-              <FormattedMessage
-                id={"agilePlanFormSaveLabel"}
-              />
-            </SpinBlockingButton>
+          <SpinningIconLabelButton onClick={handleCancel} doSpin={false} icon={Clear}>
+            {intl.formatMessage({ id: 'marketAddCancelLabel' })}
+          </SpinningIconLabelButton>
+          <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore}
+                                   disabled={!name && _.isEmpty(description)}>
+            {intl.formatMessage({ id: 'agilePlanFormSaveLabel' })}
+          </SpinningIconLabelButton>
         </CardActions>
       </Card>
       {getAddedComments()}

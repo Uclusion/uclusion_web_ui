@@ -189,8 +189,8 @@ function DialogBodyEdit(props) {
     return updateMarket(id, calculatedName, tokensRemoved, updatedFilteredUploads, null,
       null, null, null, null)
       .then((market) => {
-        onSave(market);
         setOperationRunning(false);
+        onSave(market);
       });
   }
 

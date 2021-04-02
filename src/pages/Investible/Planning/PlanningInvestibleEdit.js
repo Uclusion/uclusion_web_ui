@@ -28,14 +28,16 @@ import {
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
+import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
+import { Clear, SettingsBackupRestore } from '@material-ui/icons'
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 
 export const usePlanInvestibleStyles = makeStyles(
   theme => ({
-    fieldset: {
-      border: "none",
-      margin: theme.spacing(1),
-      maxWidth: "400px"
-    },
+    actions: {
+      margin: theme.spacing(-3, 0, 0, 6),
+      paddingBottom: '2rem'
+    }
   }),
   { name: "PlanningInvestibleEdit" }
 );
@@ -45,8 +47,10 @@ function PlanningInvestibleEdit(props) {
     fullInvestible, onCancel, onSave, marketId, isAssign, isApprove, isReview
   } = props;
   const intl = useIntl();
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const classes = usePlanFormStyles();
   const lockedDialogClasses = useLockedDialogStyles();
+  const myClasses = usePlanInvestibleStyles();
   const myInvestible = fullInvestible.investible;
   const marketInfo = getMarketInfo(fullInvestible, marketId) || {};
   const { assigned: marketAssigned, required_approvers: requiredApprovers,
@@ -82,6 +86,7 @@ function PlanningInvestibleEdit(props) {
   };
 
   function handleSave() {
+    setOperationRunning(true);
     const updateInfo = {
       marketId,
       investibleId: myInvestible.id
@@ -126,10 +131,8 @@ function PlanningInvestibleEdit(props) {
               market_infos: newInfos
             };
           }
-          return {
-            result: { fullInvestible, assignmentChanged },
-            spinChecker: () => Promise.resolve(true),
-          };
+          setOperationRunning(false);
+          onSave({ fullInvestible, assignmentChanged });
         });
     }
   }
@@ -140,7 +143,7 @@ function PlanningInvestibleEdit(props) {
   const subtype = ASSIGN_TYPE;
   if (isReview || isApprove) {
     return (
-      <Card elevation={0} className={classes.overflowVisible}>
+      <Card className={classes.overflowVisible}>
         <CardType
           className={classes.cardType}
           label={intl.formatMessage({ id: operationLabel })}
@@ -159,37 +162,20 @@ function PlanningInvestibleEdit(props) {
           </div>
         </CardContent>
         <CardActions className={classes.actions}>
-          <Button
-            className={classes.actionSecondary}
-            color="secondary"
-            variant="contained"
-            onClick={onCancel}
-          >
-            <FormattedMessage
-              id={"marketAddCancelLabel"}
-            />
-          </Button>
-          <SpinBlockingButton
-            marketId={marketId}
-            variant="contained"
-            color="primary"
-            className={classes.actionPrimary}
-            onClick={handleSave}
-            disabled={_.isEmpty(_.xor(assignments, initialAssigned))}
-            onSpinStop={onSave}
-            hasSpinChecker
-          >
-            <FormattedMessage
-              id={"agilePlanFormSaveLabel"}
-            />
-          </SpinBlockingButton>
+          <SpinningIconLabelButton onClick={onCancel} doSpin={false} icon={Clear}>
+            {intl.formatMessage({ id: 'marketAddCancelLabel' })}
+          </SpinningIconLabelButton>
+          <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore}
+                                   disabled={_.isEmpty(_.xor(assignments, initialAssigned))}>
+            {intl.formatMessage({ id: 'agilePlanFormSaveLabel' })}
+          </SpinningIconLabelButton>
         </CardActions>
       </Card>
     );
   }
 
   return (
-    <Card elevation={0} className={classes.overflowVisible}>
+    <Card className={classes.overflowVisible}>
       <CardType
         className={classes.cardType}
         label={intl.formatMessage({ id: operationLabel })}
@@ -205,28 +191,14 @@ function PlanningInvestibleEdit(props) {
           />
         </div>
       </CardContent>
-      <CardActions className={classes.actions}>
-        <Button
-          className={classes.actionSecondary}
-          color="secondary"
-          variant="contained"
-          onClick={onCancel}
-        >
-          <FormattedMessage
-            id={"marketAddCancelLabel"}
-          />
-        </Button>
+      <CardActions className={myClasses.actions}>
+        <SpinningIconLabelButton onClick={onCancel} doSpin={false} icon={Clear}>
+          {intl.formatMessage({ id: 'marketAddCancelLabel' })}
+        </SpinningIconLabelButton>
         {hasVotes && (
-          <Button
-            className={classes.actionPrimary}
-            color="primary"
-            variant="contained"
-            onClick={handleOpen}
-          >
-            <FormattedMessage
-              id={"agilePlanFormSaveLabel"}
-            />
-          </Button>
+          <SpinningIconLabelButton onClick={handleOpen} icon={SettingsBackupRestore} disabled={!validForm}>
+            {intl.formatMessage({ id: 'agilePlanFormSaveLabel' })}
+          </SpinningIconLabelButton>
         )}
         {hasVotes && (
           <WarningDialog
@@ -253,20 +225,9 @@ function PlanningInvestibleEdit(props) {
           />
         )}
         {!hasVotes && (
-          <SpinBlockingButton
-            marketId={marketId}
-            variant="contained"
-            color="primary"
-            className={classes.actionPrimary}
-            onClick={handleSave}
-            disabled={!validForm}
-            onSpinStop={onSave}
-            hasSpinChecker
-          >
-            <FormattedMessage
-              id={"agilePlanFormSaveLabel"}
-            />
-          </SpinBlockingButton>
+          <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore} disabled={!validForm}>
+            {intl.formatMessage({ id: 'agilePlanFormSaveLabel' })}
+          </SpinningIconLabelButton>
         )}
       </CardActions>
     </Card>

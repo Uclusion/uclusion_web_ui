@@ -44,8 +44,8 @@ function DecisionDialogEdit(props) {
       return updateMarket(id, null, null, null, null,
         null, null, null, multiVote)
         .then((market) => {
-          onSpinStop(market);
           setOperationRunning(false);
+          onSpinStop(market);
         });
     }
   }

@@ -150,8 +150,8 @@ function InvestibleBodyEdit (props) {
     };
     return updateInvestible(updateInfo)
       .then((fullInvestible) => {
-        onSave(fullInvestible);
         setOperationRunning(false);
+        onSave(fullInvestible);
       });
   }
 

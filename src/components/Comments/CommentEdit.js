@@ -236,8 +236,8 @@ function CommentEdit(props) {
             messagesDispatch(removeMessage(message));
           }
         }
-        handleSpinStop();
         setOperationRunning(false);
+        handleSpinStop();
       })
   }
 

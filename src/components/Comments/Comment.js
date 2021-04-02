@@ -564,8 +564,8 @@ function Comment(props) {
       .then((comment) => {
         onCommentOpen(investiblesState, investibleId, marketStagesState, marketId, comment, investiblesDispatch,
           commentsState, commentsDispatch, versionsDispatch);
-        onDone();
         setOperationRunning(false);
+        onDone();
       });
   }
   function remove() {
@@ -573,8 +573,8 @@ function Comment(props) {
     return removeComment(marketId, id)
       .then(() => {
         removeComments(commentsDispatch, marketId, [id]);
-        onDone();
         setOperationRunning(false);
+        onDone();
       });
   }
   function resolve() {
@@ -582,8 +582,8 @@ function Comment(props) {
     return resolveComment(marketId, id)
       .then((comment) => {
         addCommentToMarket(comment, commentsState, commentsDispatch, versionsDispatch);
-        onDone();
         setOperationRunning(false);
+        onDone();
       });
   }
   function getHilightedIds(myReplies, highLightedIds, passedMessages) {

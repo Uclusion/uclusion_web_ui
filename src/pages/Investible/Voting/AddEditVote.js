@@ -176,8 +176,8 @@ function AddEditVote(props) {
     };
 
     return updateInvestment(updateInfo).then(result => {
-      onSaveSpinStop(result);
       setOperationRunning(false);
+      onSaveSpinStop(result);
     });
   }
 
@@ -207,8 +207,8 @@ function AddEditVote(props) {
   function onRemove() {
     setOperationRunning(true);
     return removeInvestment(marketId, investibleId).then(result => {
-      onSaveSpinStop(result);
       setOperationRunning(false);
+      onSaveSpinStop(result);
     });
   }
 

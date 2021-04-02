@@ -96,6 +96,7 @@ function Voting(props) {
               className={classes.card}
               component="li"
               id={voteId}
+              elevation={3}
             >
               <CardType
                 className={classes.cardType}

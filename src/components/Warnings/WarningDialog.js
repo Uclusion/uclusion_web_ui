@@ -1,15 +1,14 @@
 import React from 'react';
 import { Dialog } from '../Dialogs';
-import { Button } from '@material-ui/core';
-import clsx from 'clsx';
 import { FormattedMessage } from 'react-intl';
 import PropTypes from 'prop-types';
+import { Clear } from '@material-ui/icons'
+import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'
+import WarningIcon from '@material-ui/icons/Warning'
 
 function WarningDialog(props) {
-  const { actions, classes, open, onClose, issueWarningId, icon } = props;
-
+  const { actions, classes, open, onClose, issueWarningId } = props;
   const autoFocusRef = React.useRef(null);
-  const WarningIcon = React.cloneElement(icon, { className: classes.warningTitleIcon} );
 
   return (
     <Dialog
@@ -25,21 +24,16 @@ function WarningDialog(props) {
       /* slots */
       actions={
         <React.Fragment>
-          {actions}
-          <Button
-            className={clsx(classes.action, classes.actionCancel)}
-            disableFocusRipple
-            onClick={onClose}
-            ref={autoFocusRef}
-          >
+          <SpinningIconLabelButton onClick={onClose} doSpin={false} icon={Clear} ref={autoFocusRef}>
             <FormattedMessage id="lockDialogCancel" />
-          </Button>
+          </SpinningIconLabelButton>
+          {actions}
         </React.Fragment>
       }
       content={<FormattedMessage id={issueWarningId} />}
       title={
         <React.Fragment>
-          {WarningIcon}
+          <WarningIcon classname={classes.warningTitleIcon} />
           <FormattedMessage id="warning" />
         </React.Fragment>
       }

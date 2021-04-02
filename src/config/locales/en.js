@@ -498,7 +498,7 @@ const messages = defineMessages({
   homeAddNewExplanation: 'Create a new Workspace, Dialog, or Initiative',
   homeViewAbout: 'About',
   homeCreatedAt: 'Created on {dateString}',
-  archiveWarning: 'Archiving will unassign any active story and prevent further assignment. Deactivating permanently stops.',
+  archiveWarning: 'Archiving will unassign any active story and prevent further assignment. Deactivating stops the Workspace.',
   new: 'New',
   information: 'Information',
   message: 'Message',

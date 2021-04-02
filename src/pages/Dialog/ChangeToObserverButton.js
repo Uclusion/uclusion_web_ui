@@ -1,13 +1,9 @@
 import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
-import clsx from 'clsx'
 import { archiveMarket, changeUserToObserver } from '../../api/markets'
 import ArchiveIcon from '@material-ui/icons/Archive'
-
-import SpinningTooltipIconButton from '../../components/SpinBlocking/SpinningTooltipIconButton'
 import { changeObserverStatus, getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { EMPTY_SPIN_RESULT } from '../../constants/global'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { addMarketToStorage, getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 import { PLANNING_TYPE } from '../../constants/markets'
@@ -15,17 +11,19 @@ import { useLockedDialogStyles } from './DialogBodyEdit'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import TooltipIconButton from '../../components/Buttons/TooltipIconButton'
 import { FormattedMessage } from 'react-intl'
-import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton'
 import WarningDialog from '../../components/Warnings/WarningDialog'
 import { Dialog } from '../../components/Dialogs'
 import { ACTION_BUTTON_COLOR } from '../../components/Buttons/ButtonConstants'
 import { DiffContext } from '../../contexts/DiffContext/DiffContext'
+import SpinningIconLabelButton from '../../components/Buttons/SpinningIconLabelButton'
+import WarningIcon from '@material-ui/icons/Warning'
+import { NotificationsOff } from '@material-ui/icons'
 
 function ChangeToObserverButton(props) {
-  const { marketId, onClick } = props;
+  const { marketId } = props;
   const [mpState, mpDispatch] = useContext(MarketPresencesContext);
   const [marketState, marketsDispatch] = useContext(MarketsContext);
-  const [operationRunning] = useContext(OperationInProgressContext);
+  const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [open, setOpen] = React.useState(false);
   const market = getMarket(marketState, marketId) || {};
   const { market_type: marketType } = market;
@@ -53,6 +51,7 @@ function ChangeToObserverButton(props) {
   }
 
   function myOnClick(myIsDeactivate) {
+    setOperationRunning(true);
     const actionPromise = myIsDeactivate ? archiveMarket(marketId, marketType) : changeUserToObserver(marketId);
     return actionPromise.then((response) => {
         if (myIsDeactivate) {
@@ -60,7 +59,8 @@ function ChangeToObserverButton(props) {
         } else {
           changeObserverStatus(mpState, mpDispatch, marketId, true);
         }
-        return EMPTY_SPIN_RESULT;
+        setOperationRunning(false);
+        myOnClick();
       });
   }
   if (marketType !== PLANNING_TYPE) {
@@ -82,32 +82,18 @@ function ChangeToObserverButton(props) {
             /* slots */
             actions={
               <React.Fragment>
-                <SpinBlockingButton
-                  className={clsx(lockedDialogClasses.action, lockedDialogClasses.actionEdit)}
-                  disableFocusRipple
-                  marketId={marketId}
-                  onClick={myOnClickChooseDeactivate}
-                  hasSpinChecker
-                  onSpinStop={onClick}
-                >
-                  <FormattedMessage id="yesAndProceedDeactive" />
-                </SpinBlockingButton>
-                <SpinBlockingButton
-                  className={clsx(lockedDialogClasses.action, lockedDialogClasses.actionCancel)}
-                  disableFocusRipple
-                  marketId={marketId}
-                  onClick={myOnClickChooseNotDeactivate}
-                  hasSpinChecker
-                  onSpinStop={onClick}
-                >
+                <SpinningIconLabelButton icon={NotificationsOff} onClick={myOnClickChooseNotDeactivate}>
                   <FormattedMessage id="noAndProceedDeactivate" />
-                </SpinBlockingButton>
+                </SpinningIconLabelButton>
+                <SpinningIconLabelButton icon={ArchiveIcon} onClick={myOnClickChooseDeactivate}>
+                  <FormattedMessage id="yesAndProceedDeactive" />
+                </SpinningIconLabelButton>
               </React.Fragment>
             }
             content={<FormattedMessage id="deactivateDialogQuestion" />}
             title={
               <React.Fragment>
-                <ArchiveIcon htmlColor={ACTION_BUTTON_COLOR} />
+                <WarningIcon htmlColor={ACTION_BUTTON_COLOR} />
                 <FormattedMessage id="warningQuestion" />
               </React.Fragment>
             }
@@ -116,14 +102,9 @@ function ChangeToObserverButton(props) {
       );
     }
     return (
-      <SpinningTooltipIconButton
-        marketId={marketId}
-        onClick={myOnClickChooseNotDeactivate}
-        onSpinStop={onClick}
-        key="subscribe"
-        translationId="decisionDialogsBecomeObserver"
-        icon={<ArchiveIcon htmlColor={ACTION_BUTTON_COLOR} />}
-      />
+      <SpinningIconLabelButton icon={NotificationsOff} onClick={myOnClickChooseNotDeactivate}>
+        <FormattedMessage id="decisionDialogsBecomeObserver" />
+      </SpinningIconLabelButton>
     );
   }
 
@@ -135,31 +116,16 @@ function ChangeToObserverButton(props) {
         classes={lockedDialogClasses}
         open={open}
         onClose={handleClose}
-        icon={<ArchiveIcon htmlColor={ACTION_BUTTON_COLOR} />}
         issueWarningId="archiveWarning"
         /* slots */
         actions={
           <React.Fragment>
-            <SpinBlockingButton
-              className={clsx(lockedDialogClasses.action, lockedDialogClasses.actionEdit)}
-              disableFocusRipple
-              marketId={marketId}
-              onClick={myOnClickChooseNotDeactivate}
-              hasSpinChecker
-              onSpinStop={onClick}
-            >
+            <SpinningIconLabelButton icon={NotificationsOff} onClick={myOnClickChooseNotDeactivate}>
               <FormattedMessage id="noAndProceedDeactivate" />
-            </SpinBlockingButton>
-            <SpinBlockingButton
-              className={clsx(lockedDialogClasses.action, lockedDialogClasses.actionEdit)}
-              disableFocusRipple
-              marketId={marketId}
-              onClick={myOnClickChooseDeactivate}
-              hasSpinChecker
-              onSpinStop={onClick}
-            >
+            </SpinningIconLabelButton>
+            <SpinningIconLabelButton icon={ArchiveIcon} onClick={myOnClickChooseDeactivate}>
               <FormattedMessage id="yesAndProceedDeactive" />
-            </SpinBlockingButton>
+            </SpinningIconLabelButton>
           </React.Fragment>
         }
       />

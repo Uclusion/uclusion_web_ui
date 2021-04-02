@@ -1,7 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { FormattedMessage, useIntl } from 'react-intl';
-import classNames from 'clsx'
-import clsx from 'clsx'
 import _ from 'lodash'
 import localforage from 'localforage'
 import {
@@ -23,7 +21,6 @@ import {
   TODO_TYPE,
 } from '../../constants/comments'
 import { processTextAndFilesForSave } from '../../api/files'
-import SpinBlockingButton from '../SpinBlocking/SpinBlockingButton'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { addCommentToMarket } from '../../contexts/CommentsContext/commentsContextHelper'

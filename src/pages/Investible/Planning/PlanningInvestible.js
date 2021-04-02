@@ -916,7 +916,7 @@ function PlanningInvestible(props) {
               )}
               <MarketMetaData
                 stage={stage}
-                stageName={marketInfo.stage_name}
+                stageName={fullStage.name}
                 investibleId={investibleId}
                 market={market}
                 marketInvestible={marketInvestible}

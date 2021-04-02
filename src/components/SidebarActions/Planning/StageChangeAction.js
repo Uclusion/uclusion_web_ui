@@ -9,8 +9,7 @@ import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { EMPTY_SPIN_RESULT } from '../../../constants/global'
 import { makeStyles } from '@material-ui/styles'
 import { Dialog } from '../../Dialogs'
-import { Button, ListItemIcon, ListItemText, Tooltip } from '@material-ui/core'
-import clsx from 'clsx'
+import { ListItemIcon, ListItemText, Tooltip } from '@material-ui/core'
 import { useLockedDialogStyles } from '../../../pages/Dialog/DialogBodyEdit'
 import { resolveInvestibleComments } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
@@ -18,6 +17,7 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import SpinningIconLabelButton from '../../Buttons/SpinningIconLabelButton'
+import { Clear } from '@material-ui/icons'
 
 export const useStyles = makeStyles(() => {
   return {
@@ -156,14 +156,9 @@ function StageChangeAction(props) {
           onClose={() => setOpen(false)}
           /* slots */
           actions={
-            <Button
-              className={clsx(lockedDialogClasses.action, lockedDialogClasses.actionCancel)}
-              disableFocusRipple
-              onClick={() => setOpen(false)}
-              ref={autoFocusRef}
-            >
+            <SpinningIconLabelButton onClick={() => setOpen(false)} doSpin={false} icon={Clear} ref={autoFocusRef}>
               <FormattedMessage id="lockDialogCancel" />
-            </Button>
+            </SpinningIconLabelButton>
           }
           content={<FormattedMessage id={blockedOperationTranslationId} />}
           title={

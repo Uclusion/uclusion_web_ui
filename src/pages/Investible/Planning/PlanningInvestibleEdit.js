@@ -5,7 +5,6 @@ import PropTypes from 'prop-types'
 import { updateInvestible } from '../../../api/investibles'
 import { getMarketInfo } from '../../../utils/userFunctions'
 import AssignmentList from '../../Dialog/Planning/AssignmentList'
-import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton'
 import CardType, {
   ASSIGN_TYPE,
   STORY_TYPE,
@@ -13,9 +12,8 @@ import CardType, {
   QUESTION_TYPE,
   SUGGEST_CHANGE_TYPE
 } from '../../../components/CardType'
-import { FormattedMessage, useIntl } from 'react-intl'
+import { useIntl } from 'react-intl'
 import { usePlanFormStyles } from '../../../components/AgilePlan'
-import BlockIcon from '@material-ui/icons/Block'
 import WarningDialog from '../../../components/Warnings/WarningDialog'
 import { useLockedDialogStyles } from '../../Dialog/DialogBodyEdit'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
@@ -205,22 +203,12 @@ function PlanningInvestibleEdit(props) {
             classes={lockedDialogClasses}
             open={open}
             onClose={handleClose}
-            icon={<BlockIcon/>}
             issueWarningId="reassignWarning"
             /* slots */
             actions={
-              <SpinBlockingButton
-                marketId={marketId}
-                variant="contained"
-                color="primary"
-                className={classes.actionPrimary}
-                onClick={handleSave}
-                disabled={!validForm}
-                onSpinStop={onSave}
-                hasSpinChecker
-              >
-                <FormattedMessage id="issueProceed" />
-              </SpinBlockingButton>
+              <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore} disabled={!validForm}>
+                {intl.formatMessage({ id: 'issueProceed' })}
+              </SpinningIconLabelButton>
             }
           />
         )}

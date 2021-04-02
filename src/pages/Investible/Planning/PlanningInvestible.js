@@ -236,6 +236,8 @@ const useStyles = makeStyles(
       maxHeight: '1rem',
       [theme.breakpoints.down("xs")]: {
         paddingRight: 0,
+        paddingTop: 'unset',
+        maxHeight: 'unset',
         paddingBottom: '5px'
       }
     },
@@ -243,7 +245,7 @@ const useStyles = makeStyles(
       marginLeft: '10px',
       width: 90,
       [theme.breakpoints.down("xs")]: {
-        width: 'auto'
+        width: 'auto',
       }
     },
     fullWidthEditable: {
@@ -965,7 +967,7 @@ function PlanningInvestible(props) {
                     <AddIcon htmlColor={ACTION_BUTTON_COLOR}/>
                   </IconButton>
                 )}
-                {!newLabel && labelFocus && (
+                {!newLabel && labelFocus && !isTinyWindow() &&  (
                   <div className={classes.labelExplain} >
                     <Typography key="completeExplain" className={classes.explain}>
                       {intl.formatMessage({ id: 'typeOrChoose' })}

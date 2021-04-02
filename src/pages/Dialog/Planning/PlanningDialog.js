@@ -269,6 +269,7 @@ function PlanningDialog(props) {
           {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}
         </Typography>
       )}
+      <div style={{marginTop: '2rem'}} />
       {!isChannel && (
         <DismissableText textId='stageHelp' textId1='stageHelp1' textId2='stageHelp2' textId3='stageHelp3'
                          textId4='stageHelp4'/>

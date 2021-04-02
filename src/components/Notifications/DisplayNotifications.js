@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Card, List, ListItem, Popper, Typography } from '@material-ui/core';
+import { Card, List, ListItem, Menu, Typography } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles';
 import { useIntl } from 'react-intl';
 import NotificationMessageDisplay from './NotificationMessageDisplay';
@@ -216,13 +216,9 @@ function createMarketView (messages) {
 }
 
 function DisplayNotifications (props) {
-  const { open, setOpen, messages, titleId, level, anchorEl } = props;
+  const { open, setClosed, messages, titleId, level, anchorEl } = props;
   const intl = useIntl();
   const classes = useStyles();
-
-  function zeroResults () {
-    setOpen(false);
-  }
 
   const safeMessages = messages || [];
 
@@ -234,7 +230,7 @@ function DisplayNotifications (props) {
       <ListItem
         key={link}
       >
-        <NotificationMessageDisplay onLinkClick={zeroResults} message={item}/>
+        <NotificationMessageDisplay onLinkClick={setClosed} message={item}/>
       </ListItem>
     );
   }
@@ -294,12 +290,21 @@ function DisplayNotifications (props) {
   }
 
   return (
-    <Popper
+    <Menu
+      id="profile-menu"
       open={open}
-      id="search-results"
+      onClose={setClosed}
+      getContentAnchorEl={null}
+      anchorOrigin={{
+        vertical: 'bottom',
+        horizontal: 'left',
+      }}
+      transformOrigin={{
+        vertical: 'top',
+        horizontal: 'center',
+      }}
       anchorEl={anchorEl}
-      placement="bottom"
-      className={classes.popper}
+      disableRestoreFocus
     >
       <Card
         className={classes.cardContainer}
@@ -325,7 +330,7 @@ function DisplayNotifications (props) {
           </List>
         </div>
       </Card>
-    </Popper>
+    </Menu>
   );
 }
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import NotificationImportantIcon from '@material-ui/icons/NotificationImportant';
@@ -6,7 +6,6 @@ import WarningIcon from '@material-ui/icons/Warning';
 import HourglassFullIcon from '@material-ui/icons/HourglassFull';
 import NotesIcon from '@material-ui/icons/Notes';
 import { Fab, makeStyles } from '@material-ui/core';
-import clsx from 'clsx';
 import DisplayNotifications from './DisplayNotifications';
 import { BLUE_LEVEL, RED_LEVEL, YELLOW_LEVEL } from '../../constants/notifications';
 import Badge from '@material-ui/core/Badge'
@@ -56,13 +55,20 @@ function Notifications (props) {
   } = props;
 
   const [open, setOpen] = useState(false);
-  const [inside, setInside] = useState(false);
-  const [pegLeft, setPegLeft] = useState(false);
-  const [pegLeftTimer, setPegLeftTimer] = useState(undefined);
   const [anchorEl, setAnchorEl] = useState(null);
   const classes = useStyles();
 
-
+  const recordPositionToggle = (event) => {
+    if (anchorEl === null) {
+      setAnchorEl(event.currentTarget);
+      setOpen(true);
+      setActive(level);
+    } else {
+      setAnchorEl(null);
+      setOpen(false);
+      setActive(undefined);
+    }
+  };
 
   function getIcon () {
     switch(level) {
@@ -90,35 +96,6 @@ function Notifications (props) {
     }
   }
 
-  function onEnter(event) {
-    setAnchorEl(event.currentTarget);
-    setActive(level);
-    setOpen(true);
-    setInside(true);
-    if (pegLeftTimer) {
-      clearTimeout(pegLeftTimer);
-      setPegLeftTimer(undefined);
-    }
-    setPegLeft(false);
-  }
-
-  function onOut () {
-    if (!pegLeft) {
-      setInside(false);
-      setPegLeftTimer(setTimeout(() => {
-        setPegLeft(true);
-      }, 1000));
-    }
-  }
-
-  useEffect(() => {
-    if (pegLeft && !inside) {
-      setPegLeft(false);
-      setOpen(false);
-    }
-    return () => {};
-  }, [inside, pegLeft]);
-
   if (_.isEmpty(messages)) {
     return <React.Fragment/>;
   }
@@ -126,7 +103,7 @@ function Notifications (props) {
   const amOpenAndActive = open && (active === level);
 
   return (
-    <div key={level} onMouseOut={onOut} onMouseOver={onEnter}>
+    <div key={level} onClick={recordPositionToggle}>
       <Badge badgeContent={messages.length} color="primary">
       <Fab id={`notifications-fab${level}`} className={classes.fab}>
         {getIcon()}
@@ -137,7 +114,7 @@ function Notifications (props) {
           level={level}
           messages={messages}
           open={amOpenAndActive}
-          setOpen={setOpen}
+          setClosed={recordPositionToggle}
           anchorEl={anchorEl}
           titleId={getTitleId()}/>
       )}

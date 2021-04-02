@@ -789,7 +789,7 @@ function PlanningInvestible(props) {
       {!yourVote && !inArchives && canVote && !isAssigned && (
         <DismissableText textId='planningInvestibleVotingHelp' />
       )}
-      <Card id="storyMain">
+      <Card id="storyMain" elevation={3}>
         <CardType
           className={classes.cardType}
           createdAt={createdAt}

@@ -62,9 +62,6 @@ const useStyles = makeStyles((theme) => ({
     flex: '0 0 auto',
     height: '100%',
   },
-  navList: {
-    backgroundColor: 'white'
-  },
   navListIcon: {
     marginRight: 6,
     height: 16,
@@ -192,9 +189,8 @@ function Screen(props) {
       />
       {!_.isEmpty(navListItemTextArray) && !isTinyWindow() && (
         <div className={classes.listContainer}>
-          <Paper className={classes.paper}>
-            <List className={classes.navList}
-                  subheader={
+          <Paper className={classes.paper} elevation={3}>
+            <List subheader={
                     <Typography align="center" variant="h6" style={{paddingTop: '1rem'}} id="nested-list-subheader">
                       {navHeaderText}
                     </Typography>

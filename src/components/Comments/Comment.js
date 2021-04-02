@@ -665,7 +665,7 @@ function Comment(props) {
   const displayEditing = enableEditing && isEditable && !editOpenDefault;
   const inReviewStageId = (getInReviewStage(marketStagesState, marketId) || {}).id;
   return (
-    <Card className={getCommentHighlightStyle()}>
+    <Card className={getCommentHighlightStyle()} elevation={3}>
       <Box display="flex">
         {overrideLabel && (
           <CardType className={classes.commentType} type={commentType} resolved={resolved} label={overrideLabel} />

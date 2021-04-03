@@ -459,7 +459,6 @@ export const useInvestiblesByPersonStyles = makeStyles(
       smallGravatar: {
       },
       header: {
-        backgroundColor: theme.palette.grey["300"],
         padding: theme.spacing(1)
       },
       menuButton: {

@@ -32,6 +32,10 @@ const useStyles = makeStyles((theme) => ({
     padding: '30px',
     flexGrow: 1,
   },
+  card: {
+    marginLeft: '1rem',
+    paddingBottom: '1rem'
+  }
 }));
 
 function ProposedIdeas(props) {
@@ -80,9 +84,9 @@ function ProposedIdeas(props) {
           draggable={!operationRunning && isAdmin} onDragStart={onDragStart}
         >
           <RaisedCard
-            className="raisedcard"
-            elevation={1}
+            className={classes.card}
             onClick={() => navigate(history, formInvestibleLink(marketId, id))}
+            elevation={3}
           >
             <CardContent className={classes.noPadding}>
               <OptionCard

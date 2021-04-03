@@ -58,6 +58,10 @@ const useStyles = makeStyles(theme => ({
     color: '#3e3e3e',
     overflow: 'hidden',
   },
+  card: {
+    marginLeft: '1rem',
+    paddingBottom: '1rem'
+  }
 }));
 
 function CurrentVoting(props) {
@@ -120,8 +124,8 @@ function CurrentVoting(props) {
       <Grid item id={id} key={id} xs={12} sm={12} md={6} draggable={!operationRunning && isAdmin}
             onDragStart={onDragStart}>
         <RaisedCard
-          className="raisedcard"
-          elevation={1}
+          className={classes.card}
+          elevation={3}
           onClick={() => navigate(history, formInvestibleLink(marketId, id))}
         >
           <CardContent className={myMessage ? classes.noPaddingHighlighted : classes.noPadding}>

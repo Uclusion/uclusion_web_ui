@@ -9,7 +9,7 @@ import clsx from 'clsx'
 import _ from 'lodash'
 import { urlHelperGetName, } from '../../utils/marketIdPathFunctions'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
-import { addMarketToStorage, getMyUserForMarket } from '../../contexts/MarketsContext/marketsContextHelper'
+import { addMarketToStorage } from '../../contexts/MarketsContext/marketsContextHelper'
 import { PLANNING_TYPE } from '../../constants/markets'
 import { lockPlanningMarketForEdit, unlockPlanningMarketForEdit, updateMarket } from '../../api/markets'
 import { Dialog } from '../../components/Dialogs'
@@ -118,7 +118,8 @@ const useStyles = makeStyles(
 );
 
 function DialogBodyEdit(props) {
-  const { hidden, setBeingEdited, market, isEditableByUser, beingEdited } = props;
+  const { hidden, setBeingEdited, market, isEditableByUser, beingEdited, loaded, userId } = props;
+  const { description: storedDescription, name: storedName } = loaded || {};
   const intl = useIntl();
   const classes = useStyles();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -127,54 +128,24 @@ function DialogBodyEdit(props) {
   const [, diffDispatch] = useContext(DiffContext);
   const { id, name: initialName, description: initialDescription,
     market_type: marketType, locked_by: lockedBy } = market;
-  const [idLoaded, setIdLoaded] = useState(undefined);
-  const userId = getMyUserForMarket(marketsState, id) || {};
-  const loading = !userId || !marketType || idLoaded !== id;
+  const loading = !marketType;
   const [lockFailed, setLockFailed] = useState(false);
   const someoneElseEditing = !_.isEmpty(lockedBy) && (lockedBy !== userId);
   const [operationRunning] = useContext(OperationInProgressContext);
-  const [name, setName] = useState(initialName);
+  const [name, setName] = useState(loaded !== undefined ? storedName : initialName);
   const [uploadedFiles, setUploadedFiles] = useState([]);
-  const [description, setDescription] = useState(initialDescription);
-
-  useEffect(() => {
-    if (!hidden && idLoaded !== id) {
-      localforage.getItem(id).then((stateFromDisk) => {
-        const { description: storedDescription, name: storedName } = (stateFromDisk || {});
-        if (storedName) {
-          if (marketType !== PLANNING_TYPE) {
-            setBeingEdited(true);
-          }
-          setName(storedName);
-        }
-        if (storedDescription) {
-          setDescription(storedDescription);
-        }
-        setIdLoaded(id);
-      });
-    }
-    if (hidden && idLoaded) {
-      setIdLoaded(undefined);
-    }
-    return () => {
-      if (hidden) {
-        setLockFailed(false);
-      }
-    };
-  }, [hidden, id, idLoaded, setBeingEdited, marketType]);
+  const [description, setDescription] = useState(loaded !== undefined ? storedDescription : initialDescription);
   
   useEffect(() => {
     if (!hidden && beingEdited) {
       if (marketType === PLANNING_TYPE && !loading && _.isEmpty(lockedBy) && !lockFailed) {
         lockPlanningMarketForEdit(id)
-          .then((market) => addMarketToStorage(marketsDispatch, () => {}, market));
+          .then((market) => addMarketToStorage(marketsDispatch, () => {}, market))
+          .catch(() => setLockFailed(true));
       }
     }
     return () => {};
   }, [hidden, marketType, loading, lockFailed, id, marketsDispatch, lockedBy, beingEdited]);
-
-  const calculatedDescription = description === undefined ? initialDescription : description;
-  const calculatedName = name === undefined ? initialName : name;
 
   function handleSave() {
     setOperationRunning(true);
@@ -184,9 +155,9 @@ function DialogBodyEdit(props) {
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
-    } = processTextAndFilesForSave(newUploadedFiles, calculatedDescription);
+    } = processTextAndFilesForSave(newUploadedFiles, description);
     const updatedFilteredUploads = _.isEmpty(uploadedFiles) ? filteredUploads : null;
-    return updateMarket(id, calculatedName, tokensRemoved, updatedFilteredUploads, null,
+    return updateMarket(id, name, tokensRemoved, updatedFilteredUploads, null,
       null, null, null, null)
       .then((market) => {
         setOperationRunning(false);
@@ -195,11 +166,9 @@ function DialogBodyEdit(props) {
   }
 
   function onCancel() {
-    setName(undefined);
-    setDescription(undefined);
     setBeingEdited(false);
     if (marketType === PLANNING_TYPE) {
-      unlockPlanningMarketForEdit(id);
+      unlockPlanningMarketForEdit(id).then((market) => updateMarketInStorage(market));
     }
     return localforage.removeItem(id);
   }
@@ -214,8 +183,6 @@ function DialogBodyEdit(props) {
   }
 
   function onSave(market) {
-    setName(undefined);
-    setDescription(undefined);
     setBeingEdited(false);
     updateMarketInStorage(market);
     return localforage.removeItem(id);
@@ -294,13 +261,13 @@ function DialogBodyEdit(props) {
         {(!lockedBy || (lockedBy === userId)) && (
           <>
             <NameField onEditorChange={handleNameChange} onStorageChange={handleNameStorage}
-                       description={calculatedDescription}
-                       name={calculatedName} label="agilePlanFormTitleLabel" placeHolder="decisionTitlePlaceholder"
+                       description={description}
+                       name={name} label="agilePlanFormTitleLabel" placeHolder="decisionTitlePlaceholder"
                        id="decision-name" />
             <QuillEditor
               onChange={onEditorChange}
               onStoreChange={onStorageChange}
-              defaultValue={calculatedDescription}
+              defaultValue={description}
               marketId={id}
               onS3Upload={onS3Upload}
               setOperationInProgress={setOperationRunning}
@@ -349,6 +316,7 @@ function DialogBodyEdit(props) {
 DialogBodyEdit.propTypes = {
   hidden: PropTypes.bool.isRequired,
   market: PropTypes.object.isRequired,
+  userId: PropTypes.string.isRequired
 };
 
 export function LockedDialog(props) {

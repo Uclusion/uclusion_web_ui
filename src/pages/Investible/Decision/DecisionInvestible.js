@@ -41,7 +41,6 @@ import { useMetaDataStyles } from '../Planning/PlanningInvestible'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { attachFilesToInvestible, deleteAttachedFilesFromInvestible } from '../../../api/investibles'
 import { EMPTY_SPIN_RESULT } from '../../../constants/global'
-import InvestibleBodyEdit from '../InvestibleBodyEdit'
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { doSetEditWhenValid, isTinyWindow } from '../../../utils/windowUtils'
@@ -59,6 +58,7 @@ import ChangeSuggstionIcon from '@material-ui/icons/ChangeHistory'
 import { getVotesForInvestible } from '../../../utils/userFunctions'
 import { getFakeCommentsArray } from '../../../utils/stringFunctions'
 import { QuestionAnswer } from '@material-ui/icons'
+import BodyEdit from '../../BodyEdit'
 
 const useStyles = makeStyles((theme) => ({
   mobileColumn: {
@@ -371,9 +371,11 @@ function DecisionInvestible(props) {
               {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}
             </Typography>
           )}
-          <InvestibleBodyEdit hidden={hidden} marketId={marketId} investibleId={investibleId}
-                              setBeingEdited={mySetBeingEdited} beingEdited={myBeingEdited}
-                              isEditableByUser={isEditableByUser}/>
+          {marketId && investibleId && (
+            <BodyEdit hidden={hidden} marketId={marketId} investibleId={investibleId} loadId={investibleId}
+                      setBeingEdited={mySetBeingEdited} beingEdited={myBeingEdited}
+                      isEditableByUser={isEditableByUser}/>
+          )}
         </CardContent>
           </Grid>
           <Grid className={classes.borderLeft} item md={3} xs={12}>

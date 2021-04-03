@@ -44,7 +44,6 @@ import { attachFilesToMarket, deleteAttachedFilesFromMarket } from '../../../api
 import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import AttachedFilesList from '../../../components/Files/AttachedFilesList'
-import DialogBodyEdit from '../DialogBodyEdit'
 import { doSetEditWhenValid } from '../../../utils/windowUtils'
 import DecisionInvestibleAdd from './DecisionInvestibleAdd'
 import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
@@ -57,6 +56,7 @@ import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
 import QuestionIcon from '@material-ui/icons/ContactSupport'
 import { getFakeCommentsArray } from '../../../utils/stringFunctions'
 import { QuestionAnswer } from '@material-ui/icons'
+import BodyEdit from '../../BodyEdit'
 
 const useStyles = makeStyles(
   theme => ({
@@ -323,8 +323,10 @@ function DecisionDialog(props) {
                   {intl.formatMessage({ id: 'draft' })}
                 </Typography>
               )}
-              <DialogBodyEdit hidden={hidden} setBeingEdited={mySetBeingEdited} market={market}
-                              isEditableByUser={isEditableByUser} beingEdited={myBeingEdited} />
+              {marketId && (
+                <BodyEdit hidden={hidden} setBeingEdited={mySetBeingEdited} market={market} loadId={marketId}
+                          marketId={marketId} isEditableByUser={isEditableByUser} beingEdited={myBeingEdited} />
+              )}
             </CardContent>
           </Grid>
           <Grid className={classes.borderLeft} item xs={3}>

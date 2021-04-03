@@ -89,7 +89,6 @@ import Chip from '@material-ui/core/Chip'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import TextField from '@material-ui/core/TextField'
 import EventIcon from '@material-ui/icons/Event';
-import InvestibleBodyEdit from '../InvestibleBodyEdit'
 import DatePicker from 'react-datepicker'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { doSetEditWhenValid, isTinyWindow } from '../../../utils/windowUtils'
@@ -114,6 +113,7 @@ import { QuestionAnswer } from '@material-ui/icons'
 import GavelIcon from '@material-ui/icons/Gavel'
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
+import BodyEdit from '../../BodyEdit'
 
 const useStyles = makeStyles(
   theme => ({
@@ -869,9 +869,11 @@ function PlanningInvestible(props) {
                   {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}
                 </Typography>
               )}
-              <InvestibleBodyEdit hidden={hidden} marketId={marketId} investibleId={investibleId}
-                                  setBeingEdited={mySetBeingEdited} beingEdited={myBeingEdited}
-                                  isEditableByUser={isEditableByUser}/>
+              {marketId && investibleId && (
+                <BodyEdit hidden={hidden} marketId={marketId} investibleId={investibleId} loadId={investibleId}
+                          setBeingEdited={mySetBeingEdited} beingEdited={myBeingEdited}
+                          isEditableByUser={isEditableByUser}/>
+              )}
             </Grid>
             <Grid className={classes.borderLeft} item xs={2}>
               <div className={classes.editRow}>

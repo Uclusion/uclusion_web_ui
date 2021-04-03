@@ -46,7 +46,6 @@ import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsCont
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { EMPTY_SPIN_RESULT } from '../../../constants/global'
-import InvestibleBodyEdit from '../InvestibleBodyEdit'
 import { doSetEditWhenValid } from '../../../utils/windowUtils'
 import LinkMarket from '../../Dialog/LinkMarket'
 import { Assessment, QuestionAnswer } from '@material-ui/icons'
@@ -58,6 +57,7 @@ import ChangeSuggstionIcon from '@material-ui/icons/ChangeHistory'
 import ThumbUpIcon from '@material-ui/icons/ThumbUp'
 import ThumbDownIcon from '@material-ui/icons/ThumbDown'
 import { getFakeCommentsArray } from '../../../utils/stringFunctions'
+import BodyEdit from '../../BodyEdit'
 
 const useStyles = makeStyles(
   theme => ({
@@ -319,9 +319,11 @@ function InitiativeInvestible(props) {
                   {intl.formatMessage({ id: "draft" })}
                 </Typography>
               )}
-              <InvestibleBodyEdit hidden={hidden} marketId={marketId} investibleId={investibleId}
-                                  setBeingEdited={mySetBeingEdited} beingEdited={myBeingEdited}
-                                  isEditableByUser={isEditableByUser} />
+              {marketId && investibleId && (
+                <BodyEdit hidden={hidden} marketId={marketId} investibleId={investibleId} loadId={investibleId}
+                          setBeingEdited={mySetBeingEdited} beingEdited={myBeingEdited}
+                          isEditableByUser={isEditableByUser} />
+              )}
             </CardContent>
           </Grid>
           <Grid className={classes.borderLeft} item md={3} xs={12}>

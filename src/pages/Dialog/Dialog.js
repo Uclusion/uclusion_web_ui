@@ -127,6 +127,9 @@ function Dialog(props) {
         setMarketId(proposedMarketId);
       }
     }
+    if (hidden) {
+      setMarketId(undefined);
+    }
   }, [action, hasUser, hash, hidden, history, isInitialization, marketEntity, marketsDispatch, marketsState,
     presenceDispatch, setOperationRunning]);
 

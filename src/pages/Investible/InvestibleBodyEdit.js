@@ -4,16 +4,15 @@ import PropTypes from 'prop-types'
 import localforage from 'localforage'
 import { lockInvestibleForEdit, realeaseInvestibleEditLock, updateInvestible, } from '../../api/investibles'
 import { urlHelperGetName } from '../../utils/marketIdPathFunctions'
-import { getInvestible, refreshInvestibles, } from '../../contexts/InvestibesContext/investiblesContextHelper'
+import { refreshInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
-import { getMarket, getMyUserForMarket, } from '../../contexts/MarketsContext/marketsContextHelper'
+import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { DiffContext } from '../../contexts/DiffContext/DiffContext'
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton'
 import clsx from 'clsx'
 import { LockedDialog, useLockedDialogStyles } from '../Dialog/DialogBodyEdit'
-import { EMPTY_SPIN_RESULT } from '../../constants/global'
 import _ from 'lodash'
 import QuillEditor from '../../components/TextEditors/QuillEditor'
 import { CardActions, CircularProgress, Typography } from '@material-ui/core'
@@ -57,33 +56,31 @@ const useStyles = makeStyles(
   { name: "PlanningEdit" }
 );
 
-function InvestibleBodyEdit (props) {
-  const { hidden, marketId, investibleId, setBeingEdited, beingEdited, isEditableByUser } = props;
+function InvestibleBodyEdit(props) {
+  const { hidden, marketId, investibleId, setBeingEdited, beingEdited, isEditableByUser, loaded, userId,
+    fullInvestible } = props;
+  const { description: storedDescription, name: storedName } = loaded || {};
   const intl = useIntl();
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, diffDispatch] = useContext(DiffContext);
-  const inv = getInvestible(investiblesState, investibleId);
-  const fullInvestible = inv || { investible: { name: '' } };
   const marketInfo = getMarketInfo(fullInvestible, marketId) || {};
   const { assigned, stage: stageId } = marketInfo;
   const stage = getFullStage(marketStagesState, marketId, stageId)
   const [marketsState] = useContext(MarketsContext);
-  const userId = getMyUserForMarket(marketsState, marketId);
   const { investible: myInvestible } = fullInvestible;
   const { locked_by: lockedBy } = myInvestible;
-  const [idLoaded, setIdLoaded] = useState(undefined);
   const emptyMarket = { name: '' };
   const market = getMarket(marketsState, marketId) || emptyMarket;
   const { market_type: marketType } = market;
   const [lockFailed, setLockFailed] = useState(false);
-  const loading = !beingEdited || idLoaded !== investibleId || !market || !inv || !userId;
+  const loading = !beingEdited || !market;
   const someoneElseEditing = !_.isEmpty(lockedBy) && (lockedBy !== userId);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const { id, description: initialDescription, name: initialName } = myInvestible;
-  const [description, setDescription] = useState(undefined);
-  const [name, setName] = useState(undefined);
+  const [description, setDescription] = useState(loaded !== undefined ? storedDescription : initialDescription);
+  const [name, setName] = useState(loaded !== undefined ? storedName : initialName);
 
   function onLock (result) {
     if (result) {
@@ -93,26 +90,6 @@ function InvestibleBodyEdit (props) {
       setLockFailed(true);
     }
   }
-
-  useEffect(() => {
-    if (!hidden && idLoaded !== investibleId) {
-      localforage.getItem(investibleId).then((stateFromDisk) => {
-        const { description: storedDescription, name: storedName } = (stateFromDisk || {});
-        if (storedName || storedDescription) {
-          setBeingEdited(true);
-          setName(storedName || '');
-          setDescription(storedDescription || '');
-        }
-        // Set here to avoid danger of having some other investible name and description in state
-        setIdLoaded(investibleId);
-      });
-    }
-    return () => {
-      if (hidden) {
-        setLockFailed(false);
-      }
-    };
-  }, [hidden, investibleId, idLoaded, marketType, setBeingEdited]);
 
   const { editable_by_roles: editableByRoles, allows_assignment: allowsAssignment,
     allows_investment: allowsInvestment } = stage;
@@ -129,9 +106,6 @@ function InvestibleBodyEdit (props) {
   }, [diffDispatch, hidden, investibleId, investiblesDispatch, isEditable, loading, lockFailed, lockedBy,
     marketId]);
 
-  const calculatedDescription = description === undefined ? initialDescription : description;
-  const calculatedName = name === undefined ? initialName : name;
-
   function handleSave() {
     setOperationRunning(true);
     // uploaded files on edit is the union of the new uploaded files and the old uploaded files
@@ -140,10 +114,10 @@ function InvestibleBodyEdit (props) {
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
-    } = processTextAndFilesForSave(newUploadedFiles, calculatedDescription);
+    } = processTextAndFilesForSave(newUploadedFiles, description);
     const updateInfo = {
       uploadedFiles: filteredUploads,
-      name: calculatedName,
+      name: name,
       description: tokensRemoved,
       marketId,
       investibleId: id,
@@ -180,12 +154,10 @@ function InvestibleBodyEdit (props) {
   }
 
   function onCancel() {
-    setName(undefined);
-    setDescription(undefined);
     setBeingEdited(false);
     if (!_.isEmpty(lockedBy) && (lockedBy !== userId)) {
       // If its locked by someone else then skip all the below checks
-      return localforage.removeItem(investibleId).then(() => EMPTY_SPIN_RESULT);
+      return localforage.removeItem(investibleId);
     } else if (isEditable) {
         return localforage.removeItem(investibleId)
           .then(() => {
@@ -196,16 +168,13 @@ function InvestibleBodyEdit (props) {
           })
           .then((newInv) => {
             refreshInvestibles(investiblesDispatch, diffDispatch, [newInv]);
-            return EMPTY_SPIN_RESULT;
           });
     } else {
-      return localforage.removeItem(investibleId).then(() => EMPTY_SPIN_RESULT);
+      return localforage.removeItem(investibleId);
     }
   }
 
   function onSave (fullInvestible, stillEditing) {
-    setName(undefined);
-    setDescription(undefined);
     if (!stillEditing) {
       setBeingEdited(false);
     }
@@ -257,15 +226,15 @@ function InvestibleBodyEdit (props) {
         {(!lockedBy || (lockedBy === userId)) && (
           <>
             <NameField onEditorChange={handleNameChange} onStorageChange={handleNameStorage}
-                       description={calculatedDescription}
-                       name={calculatedName}/>
+                       description={description}
+                       name={name}/>
             <QuillEditor
               onS3Upload={handleFileUpload}
               marketId={marketId}
               onChange={onEditorChange}
               placeholder={intl.formatMessage({ id: 'investibleAddDescriptionDefault' })}
               onStoreChange={onStorageChange}
-              defaultValue={calculatedDescription}
+              defaultValue={description}
               setOperationInProgress={setOperationRunning}
               getUrlName={urlHelperGetName(marketsState, investiblesState)}
             />
@@ -282,7 +251,7 @@ function InvestibleBodyEdit (props) {
             {intl.formatMessage({ id: 'marketAddCancelLabel' })}
           </SpinningIconLabelButton>
           <SpinningIconLabelButton
-            disabled={!calculatedName}
+            disabled={!name}
             icon={SettingsBackupRestore}
             onClick={handleSave}
           >
@@ -310,8 +279,10 @@ function InvestibleBodyEdit (props) {
 InvestibleBodyEdit.propTypes = {
   hidden: PropTypes.bool,
   marketId: PropTypes.string.isRequired,
+  userId: PropTypes.string.isRequired,
   investibleId: PropTypes.string.isRequired,
   setBeingEdited: PropTypes.func.isRequired,
+  fullInvestible: PropTypes.object.isRequired
 };
 
 InvestibleBodyEdit.defaultProps = {

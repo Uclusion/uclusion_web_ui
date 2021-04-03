@@ -25,11 +25,11 @@ import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsCont
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { EMPTY_SPIN_RESULT } from '../../../constants/global'
-import DialogBodyEdit from '../DialogBodyEdit'
 import { doSetEditWhenValid } from '../../../utils/windowUtils'
 import { AccountContext } from '../../../contexts/AccountContext/AccountContext';
 import { canCreate } from '../../../contexts/AccountContext/accountContextHelper';
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
+import BodyEdit from '../../BodyEdit'
 
 const useStyles = makeStyles(theme => ({
   section: {
@@ -291,8 +291,10 @@ function Summary(props) {
                 {intl.formatMessage({ id: "inactive" })}
               </Typography>
             )}
-            <DialogBodyEdit hidden={hidden} setBeingEdited={mySetBeingEdited} market={market}
-                            isEditableByUser={isEditableByUser} beingEdited={myBeingEdited}/>
+            {id && (
+              <BodyEdit hidden={hidden} setBeingEdited={mySetBeingEdited} market={market} loadId={id} marketId={id}
+                        isEditableByUser={isEditableByUser} beingEdited={myBeingEdited}/>
+            )}
           </CardContent>
         </Grid>
         <Grid className={classes.borderLeft} item xs={2}>

@@ -231,8 +231,7 @@ function CommentAdd (props) {
   const [editorDefaultFunc, setEditorDefaultFunc] = useState(() => () => {});
 
   const [loadedId, setLoadedId] = useState(undefined);
-  const loadId = parentId ? `${type}_${parentId}` : investibleId ? `${marketId}_${investibleId}` :
-    type === TODO_TYPE ? `${type}_${marketId}` : `${marketId}`;
+  const loadId = parentId ? `${type}_${parentId}` : investibleId ? `${type}_${investibleId}` : `${type}_${marketId}`;
 
   const presences = getMarketPresences(marketPresencesState, marketId) || [];
   const myPresence = presences.find((presence) => presence.current_user) || {};

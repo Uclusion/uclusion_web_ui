@@ -287,7 +287,7 @@ function Header (props) {
               )}
               {!isTinyWindow() && (
                 <Tooltip title={<FormattedMessage id="help"/>}>
-                  <HelpOutlineIcon color="primary" style={{ cursor: 'pointer', marginLeft: '1rem' }}
+                  <HelpOutlineIcon style={{ cursor: 'pointer', marginLeft: '1rem', color: 'grey' }}
                                    onClick={() => openInNewTab(config.helpLink)}/>
                 </Tooltip>
               )}

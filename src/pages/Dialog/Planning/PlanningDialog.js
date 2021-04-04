@@ -405,8 +405,8 @@ function PlanningDialog(props) {
           {!_.isEmpty(furtherWorkInvestibles) && (<div style={{ paddingBottom: '15px' }}/>)}
           <SubSection
             type={SECTION_TYPE_WARNING}
-            titleIcon={<Chip label={`${furtherWorkInvestibles.length}`} size='small'
-                             className={classes.chipStyleYellow} />}
+            titleIcon={furtherWorkInvestibles.length > 0 && <Chip label={`${furtherWorkInvestibles.length}`}
+                                                                  size='small' className={classes.chipStyleYellow} />}
             title={intl.formatMessage({ id: 'notReadyToStartHeader' })}
             actionButton={
               <ExpandableAction

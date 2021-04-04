@@ -446,6 +446,13 @@ PlanningIdeas.defaultProps = {
 const useStageClasses = makeStyles(
   theme => {
     return {
+      fallbackRoot: {
+        fontSize: '.8em',
+        color: 'red',
+        margin: theme.spacing(1, 0),
+        padding: theme.spacing(1, 2),
+        overflowWrap: 'break-word'
+      },
       root: {
         border: `1px solid ${theme.palette.grey['400']}`,
         borderRadius: theme.spacing(1),
@@ -477,9 +484,6 @@ const useStageClasses = makeStyles(
         marginLeft: 0,
         overflowWrap: 'break-word',
         overflowX: 'hidden'
-      },
-      fallback: {
-        backgroundColor: theme.palette.grey['400']
       },
       list: {
         listStyle: 'none',
@@ -524,7 +528,7 @@ function Stage (props) {
     const style = fallbackOnClick ? { cursor: 'pointer' } : {};
     return (
       <div onClick={fallbackOnClick ? fallbackOnClick : () => {}} style={style}>
-        <dd className={clsx(classes.root, classes.fallback)}>
+        <dd className={classes.fallbackRoot}>
           {fallbackWarning}
         </dd>
       </div>
@@ -628,7 +632,7 @@ function VotingStage (props) {
     <Stage
       classes={classes}
       fallbackWarning={
-        activeMarket ?
+        activeMarket &&
           <React.Fragment>
             <FormattedMessage id="planningNoneInDialogWarning"/>
             <StageLink href={assignedLink} onClick={onClick}>
@@ -636,8 +640,6 @@ function VotingStage (props) {
                 id: 'createAssignment'
               })}
             </StageLink>
-          </React.Fragment> : <React.Fragment>
-            <FormattedMessage id="planningNoneInDialogWarning"/>
           </React.Fragment>
       }
       marketId={marketId}
@@ -658,7 +660,6 @@ function AcceptedStage (props) {
   const intl = useIntl();
   return (
     <Stage
-      fallbackWarning={<FormattedMessage id="planningNoneAcceptedWarning"/>}
       updatedText={intl.formatMessage({
         id: 'acceptedInvestiblesUpdatedAt'
       })}
@@ -673,9 +674,6 @@ function ReviewStage (props) {
 
   return (
     <Stage
-      fallbackWarning={intl.formatMessage({
-        id: 'planningNoneInReviewWarning'
-      })}
       updatedText={intl.formatMessage({
         id: 'reviewingInvestiblesUpdatedAt'
       })}
@@ -703,9 +701,6 @@ function VerifiedStage(props) {
   const limitInvestiblesAge = (stage || {}).days_visible;
   return (
     <Stage
-      fallbackWarning={intl.formatMessage({
-        id: 'planningNoneInVerifiedWarning'
-      })}
       updatedText={intl.formatMessage({
         id: 'verifiedInvestiblesUpdatedAt'
       })}

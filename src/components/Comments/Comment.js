@@ -690,7 +690,7 @@ function Comment(props) {
               `${intl.formatMessage({ id: 'lastUpdatedBy' })} ${updatedBy.name}.`}
             </Typography>
           )}
-          {displayEditing && isTinyWindow() && (
+          {displayEditing && isTinyWindow() && !editOpen && (
             <SpinningIconLabelButton
               onClick={toggleEdit}
               doSpin={false}
@@ -748,7 +748,7 @@ function Comment(props) {
             )}
           </Box>
         </CardContent>
-        {showActions && (
+        {showActions && !editOpen && (
             <CardActions>
               <div className={classes.actions}>
                 {investibleId && commentType === REPORT_TYPE && (
@@ -1106,29 +1106,31 @@ function Reply(props) {
           />
         )}
       </CardContent>
-      <CardActions className={highLightId.includes(comment.id) ? classes.cardActionsYellow : classes.cardActions}>
-        <Typography className={classes.timePosted} variant="body2">
-          <FormattedDate value={comment.created_at} />
-        </Typography>
-        {enableEditing && (
-          <Button
-            className={classes.action}
-            onClick={() => setReplyOpen(true)}
-            variant="text"
-          >
-            {intl.formatMessage({ id: "issueReplyLabel" })}
-          </Button>
-        )}
-        {enableEditing && isEditable && (
-          <Button
-            className={classes.action}
-            onClick={handleEditClick}
-            variant="text"
-          >
-            <FormattedMessage id="commentEditLabel" />
-          </Button>
-        )}
-      </CardActions>
+      {!editing && (
+        <CardActions className={highLightId.includes(comment.id) ? classes.cardActionsYellow : classes.cardActions}>
+          <Typography className={classes.timePosted} variant="body2">
+            <FormattedDate value={comment.created_at} />
+          </Typography>
+          {enableEditing && (
+            <Button
+              className={classes.action}
+              onClick={() => setReplyOpen(true)}
+              variant="text"
+            >
+              {intl.formatMessage({ id: "issueReplyLabel" })}
+            </Button>
+          )}
+          {enableEditing && isEditable && (
+            <Button
+              className={classes.action}
+              onClick={handleEditClick}
+              variant="text"
+            >
+              <FormattedMessage id="commentEditLabel" />
+            </Button>
+          )}
+        </CardActions>
+      )}
       <div className={classes.replyContainer}>
         <CommentAdd
           marketId={marketId}

@@ -74,8 +74,18 @@ const myClasses = makeStyles(
       outerBorder: {
         marginTop: '30px',
       },
-      chipStyle: {
+      chipStyleRed: {
         marginRight: '5px',
+        backgroundColor: '#E85757'
+      },
+      chipStyleYellow: {
+        marginRight: '5px',
+        color: 'black',
+        backgroundColor: '#e6e969'
+      },
+      chipStyleBlue: {
+        marginRight: '5px',
+        backgroundColor: '#2F80ED'
       },
       grow: {
         padding: '30px',
@@ -527,8 +537,8 @@ function MarketTodos (props) {
               type={SECTION_TYPE_SECONDARY_WARNING}
               id="immediateTodos"
               title={intl.formatMessage({ id: 'immediate' })}
-              titleIcon={<Chip label={`${redComments.length}`} color="primary" size='small'
-                               className={classes.chipStyle} />}
+              titleIcon={redComments.length > 0 && <Chip label={`${redComments.length}`} color="primary" size='small'
+                               className={classes.chipStyleRed} />}
               helpTextId="immediateSectionHelp"
               actionButton={ isInArchives ? null :
                 (<ExpandableAction
@@ -580,8 +590,8 @@ function MarketTodos (props) {
               type={SECTION_TYPE_WARNING}
               id="whenAbleTodos"
               title={intl.formatMessage({ id: 'able' })}
-              titleIcon={<Chip label={`${yellowComments.length}`} color="primary" size='small'
-                               className={classes.chipStyle} />}
+              titleIcon={yellowComments.length > 0 && <Chip label={`${yellowComments.length}`} size='small'
+                               className={classes.chipStyleYellow} /> }
               helpTextId="ableSectionHelp"
               actionButton={ isInArchives ? null :
                 (<ExpandableAction
@@ -633,8 +643,8 @@ function MarketTodos (props) {
               type={SECTION_TYPE_TERTIARY_WARNING}
               padChildren
               title={intl.formatMessage({ id: 'convenient' })}
-              titleIcon={<Chip label={`${blueComments.length}`} color="primary" size='small'
-                               className={classes.chipStyle} />}
+              titleIcon={blueComments.length > 0 && <Chip label={`${blueComments.length}`} color="primary" size='small'
+                               className={classes.chipStyleBlue} />}
               id="whenConvenientTodos"
               helpTextId="convenientSectionHelp"
               actionButton={ isInArchives ? null :

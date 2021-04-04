@@ -87,7 +87,13 @@ const myClasses = makeStyles(
     return {
       chipStyle: {
         marginRight: '5px',
-      }
+        backgroundColor: '#E85757'
+      },
+      chipStyleYellow: {
+        marginRight: '5px',
+        color: 'black',
+        backgroundColor: '#e6e969'
+      },
     };
   },
   { name: 'PlanningDialog' }
@@ -290,6 +296,8 @@ function PlanningDialog(props) {
         {!_.isEmpty(blockedInvestibles) && (
           <SubSection
             type={SECTION_TYPE_SECONDARY_WARNING}
+            titleIcon={blockedInvestibles.length > 0 && <Chip label={`${blockedInvestibles.length}`} color="primary" size='small'
+                             className={classes.chipStyle} />}
             title={intl.formatMessage({ id: 'blockedHeader' })}
             helpTextId="blockedSectionHelp"
             id="blocked"
@@ -311,6 +319,9 @@ function PlanningDialog(props) {
         {!_.isEmpty(requiresInputInvestibles) && (
           <SubSection
             type={SECTION_TYPE_SECONDARY_WARNING}
+            titleIcon={requiresInputInvestibles.length > 0 && <Chip label={`${requiresInputInvestibles.length}`}
+                                                                    color="primary" size='small'
+                                                                    className={classes.chipStyle} />}
             title={intl.formatMessage({ id: 'requiresInputHeader' })}
             helpTextId="requiresInputSectionHelp"
             id="requiresInput"
@@ -364,8 +375,9 @@ function PlanningDialog(props) {
           <div style={{paddingTop: '1rem'}} />
           <SubSection
             type={SECTION_TYPE_SECONDARY_WARNING}
-            titleIcon={<Chip label={`${furtherWorkReadyToStart.length}`} color="primary" size='small'
-                             className={classes.chipStyle} />}
+            titleIcon={furtherWorkReadyToStart.length && <Chip label={`${furtherWorkReadyToStart.length}`}
+                                                               color="primary" size='small'
+                                                               className={classes.chipStyle} />}
             title={intl.formatMessage({ id: 'readyToStartHeader' })}
             actionButton={
               <ExpandableAction
@@ -393,8 +405,8 @@ function PlanningDialog(props) {
           {!_.isEmpty(furtherWorkInvestibles) && (<div style={{ paddingBottom: '15px' }}/>)}
           <SubSection
             type={SECTION_TYPE_WARNING}
-            titleIcon={<Chip label={`${furtherWorkInvestibles.length}`} color="primary" size='small'
-                             className={classes.chipStyle} />}
+            titleIcon={<Chip label={`${furtherWorkInvestibles.length}`} size='small'
+                             className={classes.chipStyleYellow} />}
             title={intl.formatMessage({ id: 'notReadyToStartHeader' })}
             actionButton={
               <ExpandableAction

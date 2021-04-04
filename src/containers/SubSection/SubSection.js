@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme) => {
     secondarySubHeaderWarning: {
       boxShadow: 'none',
       background: theme.palette.grey['100'],
-      color: 'red',
+      color: 'black',
       borderRadius: '6px 6px 0 0'
     },
     subHeaderWarning: {

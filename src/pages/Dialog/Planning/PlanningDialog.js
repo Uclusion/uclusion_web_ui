@@ -375,7 +375,7 @@ function PlanningDialog(props) {
           <div style={{paddingTop: '1rem'}} />
           <SubSection
             type={SECTION_TYPE_SECONDARY_WARNING}
-            titleIcon={furtherWorkReadyToStart.length && <Chip label={`${furtherWorkReadyToStart.length}`}
+            titleIcon={furtherWorkReadyToStart.length > 0 && <Chip label={`${furtherWorkReadyToStart.length}`}
                                                                color="primary" size='small'
                                                                className={classes.chipStyle} />}
             title={intl.formatMessage({ id: 'readyToStartHeader' })}

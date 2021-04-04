@@ -532,10 +532,9 @@ function MarketTodos (props) {
               helpTextId="immediateSectionHelp"
               actionButton={ isInArchives ? null :
                 (<ExpandableAction
-                  icon={<AddIcon htmlColor="white"/>}
+                  icon={<AddIcon htmlColor="black"/>}
                   label={intl.formatMessage({ id: 'createRedExplanation' })}
                   openLabel={intl.formatMessage({ id: 'createTODO' })}
-                  useWhiteText
                   onClick={onCreateRed}
                   disabled={createRedCard}
                   tipPlacement="top-end"
@@ -640,10 +639,9 @@ function MarketTodos (props) {
               helpTextId="convenientSectionHelp"
               actionButton={ isInArchives ? null :
                 (<ExpandableAction
-                  icon={<AddIcon htmlColor="white"/>}
+                  icon={<AddIcon htmlColor="black"/>}
                   label={intl.formatMessage({ id: 'createBlueExplanation' })}
                   openLabel={intl.formatMessage({ id: 'createTODO' })}
-                  useWhiteText
                   onClick={onCreate}
                   disabled={createCard}
                   tipPlacement="top-end"

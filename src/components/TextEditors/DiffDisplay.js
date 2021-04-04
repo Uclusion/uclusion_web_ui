@@ -3,11 +3,13 @@ import PropTypes from 'prop-types';
 import { DiffContext } from '../../contexts/DiffContext/DiffContext';
 import { getDiff, markDiffViewed } from '../../contexts/DiffContext/diffContextHelper';
 import './DiffDisplay.css';
-import { Button, makeStyles } from '@material-ui/core';
-import { useIntl } from 'react-intl';
+import { makeStyles } from '@material-ui/core';
+import { FormattedMessage } from 'react-intl'
+import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'
+import { ExpandLess } from '@material-ui/icons'
 
 const useStyles = makeStyles(
-  theme => {
+  () => {
     return {
       diffContainer: {
         '& img' : {
@@ -30,8 +32,7 @@ const useStyles = makeStyles(
 function DiffDisplay(props) {
   const classes = useStyles();
   const ref = useRef(null);
-  const intl = useIntl();
-  const { id, showToggle, displayClass } = props;
+  const { id, showToggle } = props;
   const [diffState, diffDispatch] = useContext(DiffContext);
   const diff = getDiff(diffState, id);
 
@@ -46,9 +47,9 @@ function DiffDisplay(props) {
     };
   }, [ref, diff, id]);
 
-  function myOnHide() {
+  function myOnHide(event) {
     markDiffViewed(diffDispatch, id);
-    showToggle();
+    showToggle(event);
   }
 
   if (!diff) {
@@ -58,12 +59,10 @@ function DiffDisplay(props) {
   return (
     <div>
       <div ref={ref} className={classes.diffContainer}/>
-      <Button
-        className={displayClass}
-        onClick={myOnHide}
-      >
-        {intl.formatMessage({ id: 'diffDisplayDismissLabel' })}
-      </Button>
+      <div style={{marginTop: '1rem'}} />
+      <SpinningIconLabelButton icon={ExpandLess} onClick={myOnHide} doSpin={false}>
+        <FormattedMessage id="diffDisplayDismissLabel" />
+      </SpinningIconLabelButton>
     </div>
   );
 }

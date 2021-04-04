@@ -440,10 +440,9 @@ function Comment(props) {
             title={intl.formatMessage({ id: 'decisionDialogCurrentVotingLabel' })}
             actionButton={ inArchives ? null :
               (<ExpandableAction
-                icon={<AddIcon htmlColor="white"/>}
+                icon={<AddIcon htmlColor="black"/>}
                 label={intl.formatMessage({ id: 'createDialogApprovableExplanation' })}
                 openLabel={intl.formatMessage({ id: 'decisionDialogAddInvestibleLabel'})}
-                useWhiteText
                 onClick={toggleInlineInvestibleAdd}
                 disabled={commentCreatedBy !== userId}
                 tipPlacement="top-end"
@@ -465,10 +464,9 @@ function Comment(props) {
             title={intl.formatMessage({ id: 'decisionDialogProposedOptionsLabel' })}
             actionButton={ inArchives ? null :
               (<ExpandableAction
-                icon={<AddIcon htmlColor="white"/>}
+                icon={<AddIcon htmlColor="black"/>}
                 label={intl.formatMessage({ id: 'createDialogProposedExplanation' })}
                 openLabel={intl.formatMessage({ id: 'decisionDialogProposeInvestibleLabel'})}
-                useWhiteText
                 onClick={toggleInlineInvestibleAdd}
                 disabled={commentCreatedBy === userId}
                 tipPlacement="top-end"

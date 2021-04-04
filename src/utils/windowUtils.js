@@ -3,6 +3,7 @@ export function isTinyWindow(){
 }
 
 export function invalidEditEvent(event) {
+  console.debug(event);
   return event && event.target && event.target.localName === 'a';
 }
 

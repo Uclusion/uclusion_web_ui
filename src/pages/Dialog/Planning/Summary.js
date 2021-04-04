@@ -279,7 +279,7 @@ function Summary(props) {
       <CardType className={classes.type} type={AGILE_PLAN_TYPE} myBeingEdited={myBeingEdited} />
       <Grid container className={classes.mobileColumn}>
         <Grid item xs={10} className={!beingEdited && isEditableByUser() ? classes.fullWidthEditable : classes.fullWidth}
-              onClick={() => !beingEdited && mySetBeingEdited(true)}>
+              onClick={(event) => !beingEdited && mySetBeingEdited(true, event)}>
           <CardContent className={myBeingEdited ? classes.editContent : classes.content}>
             {isDraft && activeMarket && (
               <Typography className={classes.draft}>

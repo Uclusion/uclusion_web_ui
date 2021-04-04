@@ -40,7 +40,6 @@ const useStyles = makeStyles(() => ({
     height: '77px',
     margin: '3px',
     padding: '0 20px',
-    fontWeight: 'bold',
     color: '#3e3e3e',
     borderRight: '1px solid #eaeaea',
     overflow: 'hidden',

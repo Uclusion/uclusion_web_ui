@@ -7,48 +7,11 @@ import {
 } from '../../contexts/DiffContext/diffContextHelper'
 import DiffDisplay from '../TextEditors/DiffDisplay';
 import ReadOnlyQuillEditor from '../TextEditors/ReadOnlyQuillEditor';
-import { useIntl } from 'react-intl';
-import { Button, darken } from '@material-ui/core'
-import { makeStyles } from '@material-ui/styles'
+import { FormattedMessage } from 'react-intl'
 import { findMessageOfTypeAndId } from '../../utils/messageUtils'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
-
-const style = makeStyles(() => {
-    return {
-      containerYellow: {
-        boxShadow: "10px 5px 5px yellow",
-        borderRadius: '4px',
-        fontSize: '14px',
-        fontWeight: 'bold',
-        margin: 8,
-        textTransform: 'capitalize',
-        backgroundColor: '#2d9cdb',
-        color: '#fff',
-        '&:hover': {
-          backgroundColor: darken('#2d9cdb', 0.08)
-        },
-        '&:focus': {
-          backgroundColor: darken('#2d9cdb', 0.24)
-        },
-      },
-      containerNone: {
-        borderRadius: '4px',
-        fontSize: '14px',
-        fontWeight: 'bold',
-        margin: 8,
-        textTransform: 'capitalize',
-        backgroundColor: '#2d9cdb',
-        color: '#fff',
-        '&:hover': {
-          backgroundColor: darken('#2d9cdb', 0.08)
-        },
-        '&:focus': {
-          backgroundColor: darken('#2d9cdb', 0.24)
-        },
-      }
-    };
-  }
-);
+import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 
 function DescriptionOrDiff(props) {
   const {
@@ -58,16 +21,15 @@ function DescriptionOrDiff(props) {
     isEditable
   } = props;
 
-  const intl = useIntl();
-  const classes = style();
   const [diffState,diffDispatch] = useContext(DiffContext);
   const [showDiff, setShowDiff] = useState(false);
   const [messagesState] = useContext(NotificationsContext);
   const myMessage = findMessageOfTypeAndId(id, messagesState);
-  const highlightClass = myMessage ? classes.containerYellow : classes.containerNone;
   const diff = getDiff(diffState, id);
 
-  function toggleDiffShow() {
+  function toggleDiffShow(event) {
+    event.stopPropagation();
+    event.preventDefault();
     markContentViewed(diffDispatch, id, description);
     setShowDiff(!showDiff);
   }
@@ -77,7 +39,6 @@ function DescriptionOrDiff(props) {
       <DiffDisplay
         id={id}
         showToggle={toggleDiffShow}
-        displayClass={classes.containerNone}
       />
     );
   }
@@ -89,12 +50,9 @@ function DescriptionOrDiff(props) {
         isEditable={isEditable}
       />
       {myMessage && diff && (
-        <Button
-          onClick={toggleDiffShow}
-          className={highlightClass}
-        >
-          {intl.formatMessage({ id: 'diffDisplayShowLabel' })}
-        </Button>
+        <SpinningIconLabelButton icon={ExpandMoreIcon} onClick={toggleDiffShow} doSpin={false}>
+          <FormattedMessage id="diffDisplayShowLabel" />
+        </SpinningIconLabelButton>
       )}
     </div>
   );

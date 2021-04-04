@@ -424,10 +424,9 @@ function DecisionDialog(props) {
             title={intl.formatMessage({ id: 'decisionDialogCurrentVotingLabel' })}
             actionButton={ inArchives ? null :
               (<ExpandableAction
-                icon={<AddIcon htmlColor="white"/>}
+                icon={<AddIcon htmlColor="black"/>}
                 label={intl.formatMessage({ id: 'decisionDialogAddExplanationLabel' })}
                 openLabel={intl.formatMessage({ id: 'decisionDialogAddInvestibleLabel'})}
-                useWhiteText
                 onClick={toggleInvestibleAdd}
                 disabled={!isAdmin}
                 tipPlacement="top-end"
@@ -450,10 +449,9 @@ function DecisionDialog(props) {
             title={intl.formatMessage({ id: 'decisionDialogProposedOptionsLabel' })}
             actionButton={ inArchives ? null :
               (<ExpandableAction
-                icon={<AddIcon htmlColor="white"/>}
+                icon={<AddIcon htmlColor="black"/>}
                 label={intl.formatMessage({ id: 'decisionDialogProposeExplanationLabel' })}
                 openLabel={intl.formatMessage({ id: 'decisionDialogProposeInvestibleLabel'})}
-                useWhiteText
                 onClick={toggleInvestibleAdd}
                 disabled={isAdmin}
                 tipPlacement="top-end"

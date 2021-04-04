@@ -17,30 +17,30 @@ const useStyles = makeStyles((theme) => {
     childContainer: {
     },
     paddedChildContainer: {
-        padding: '1rem',
+      padding: '1rem',
     },
     secondarySubHeaderWarning: {
       boxShadow: 'none',
-      background: '#D54F22',
-      color: '#fff',
+      background: theme.palette.grey['100'],
+      color: 'red',
       borderRadius: '6px 6px 0 0'
     },
     subHeaderWarning: {
       boxShadow: 'none',
-      background: '#e6e969',
+      background: theme.palette.grey['100'],
       color: 'black',
       borderRadius: '6px 6px 0 0'
     },
     tertiarySubHeaderWarning: {
       boxShadow: 'none',
-      background: '#2F80ED',
-      color: '#fff',
+      background: theme.palette.grey['100'],
+      color: 'black',
       borderRadius: '6px 6px 0 0'
     },
     secondarySubHeader: {
       boxShadow: 'none',
-      background: '#3F6B72',
-      color: '#fff',
+      background: theme.palette.grey['100'],
+      color: 'black',
     },
     sectionSubHeader: {
       boxShadow: 'none',
@@ -51,6 +51,7 @@ const useStyles = makeStyles((theme) => {
     sectionSubHeaderBlack: {
       boxShadow: 'none',
       color: 'black',
+      background: theme.palette.grey['100'],
       borderRadius: '6px 6px 0 0'
     },
     grow: {

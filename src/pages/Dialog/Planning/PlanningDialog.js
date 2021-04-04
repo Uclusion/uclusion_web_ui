@@ -10,7 +10,7 @@ import { Grid, Typography } from '@material-ui/core'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import CardHeader from '@material-ui/core/CardHeader'
-import { makeStyles } from '@material-ui/core/styles'
+import { darken, makeStyles } from '@material-ui/core/styles'
 import Summary from './Summary'
 import PlanningIdeas from './PlanningIdeas'
 import Screen from '../../../containers/Screen/Screen'
@@ -80,6 +80,18 @@ import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
 import MenuBookIcon from '@material-ui/icons/MenuBook'
 import PlayForWorkIcon from '@material-ui/icons/PlayForWork'
 import { getFakeCommentsArray } from '../../../utils/stringFunctions'
+import Chip from '@material-ui/core/Chip'
+
+const myClasses = makeStyles(
+  () => {
+    return {
+      chipStyle: {
+        marginRight: '5px',
+      }
+    };
+  },
+  { name: 'PlanningDialog' }
+);
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -94,6 +106,7 @@ function PlanningDialog(props) {
     banner,
     searchResults
   } = props;
+  const classes = myClasses();
   const cognitoUser = useContext(CognitoUserContext);
   const [, tourDispatch] = useContext(TourContext);
   const [marketsState] = useContext(MarketsContext);
@@ -352,14 +365,15 @@ function PlanningDialog(props) {
           <div style={{paddingTop: '1rem'}} />
           <SubSection
             type={SECTION_TYPE_SECONDARY_WARNING}
+            titleIcon={<Chip label={`${furtherWorkReadyToStart.length}`} color="primary" size='small'
+                             className={classes.chipStyle} />}
             title={intl.formatMessage({ id: 'readyToStartHeader' })}
             actionButton={
               <ExpandableAction
-                icon={<AddIcon htmlColor="white"/>}
+                icon={<AddIcon htmlColor="black"/>}
                 label={intl.formatMessage({ id: 'createFurtherWorkExplanation' })}
                 openLabel={intl.formatMessage({ id: 'planningDialogAddInvestibleLabel'})}
                 onClick={onClickFurtherStart}
-                useWhiteText
                 disabled={!isAdmin}
                 tipPlacement="top-end"
               />
@@ -380,6 +394,8 @@ function PlanningDialog(props) {
           {!_.isEmpty(furtherWorkInvestibles) && (<div style={{ paddingBottom: '15px' }}/>)}
           <SubSection
             type={SECTION_TYPE_WARNING}
+            titleIcon={<Chip label={`${furtherWorkInvestibles.length}`} color="primary" size='small'
+                             className={classes.chipStyle} />}
             title={intl.formatMessage({ id: 'notReadyToStartHeader' })}
             actionButton={
               <ExpandableAction

@@ -96,7 +96,6 @@ import Gravatar from '../../../components/Avatars/Gravatar';
 import { getInvestibleVoters } from '../../../utils/votingUtils';
 import { getCommenterPresences, inVerifedSwimLane } from '../../Dialog/Planning/userUtils';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
-import PlaylistAddCheckIcon from '@material-ui/icons/PlaylistAddCheck';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { findMessageOfType } from '../../../utils/messageUtils'
 import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
@@ -114,6 +113,7 @@ import GavelIcon from '@material-ui/icons/Gavel'
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import BodyEdit from '../../BodyEdit'
+import AssignmentIcon from '@material-ui/icons/Assignment'
 
 const useStyles = makeStyles(
   theme => ({
@@ -418,7 +418,7 @@ function PlanningInvestible(props) {
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   const inMarketArchives = isInNotDoing || isInVerified;
   const breadCrumbTemplates = [
-    { name: marketName, link: formMarketLink(marketId), icon: <PlaylistAddCheckIcon/> }
+    { name: marketName, link: formMarketLink(marketId) }
   ];
   if (inMarketArchives && !inVerifedSwimLane(marketInvestible, investibles, inVerifiedStage, marketId)) {
     breadCrumbTemplates.push({
@@ -755,7 +755,7 @@ function PlanningInvestible(props) {
   const { id: todoId } = getFakeCommentsArray(todoSortedComments)[0];
   const filteredChildren = _.isEmpty(results) || _.isEmpty(children) ? children :
     children.filter((anId) => results.find((item) => item.id === anId));
-  const navigationMenu = {navHeaderText: intl.formatMessage({ id: 'story' }),
+  const navigationMenu = {navHeaderIcon: AssignmentIcon,
     navListItemTextArray: [createNavListItem(EditIcon,'description_label', 'storyMain'),
       displayVotingInput ? createNavListItem(HowToVoteIcon, 'pleaseVoteNav', 'pleaseVote') : {},
       createNavListItem(ThumbsUpDownIcon, 'approvals', 'approvals', _.size(invested)),

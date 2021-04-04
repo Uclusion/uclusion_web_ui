@@ -40,7 +40,7 @@ export const headerStyles = makeStyles((theme) => {
     },
 
     breadcrumbs: {
-      paddingTop: '1rem',
+      paddingTop: '1.25rem',
       flex: 3,
       '& > .MuiBreadcrumbs-ol': {
         flexWrap: 'nowrap',
@@ -194,7 +194,7 @@ function Header (props) {
             const { id, onClick, link, image, title, titleIcon } = crumb;
             const href = _.isEmpty(link) ? '#' : link;
             return (
-              <Link id={id} key={index} href={href} onClick={onClick} color="inherit" variant='h6'>
+              <Link id={id} key={index} href={href} onClick={onClick} color="inherit" variant='subtitle1'>
                 {image && (
                   <img
                     src={image}
@@ -206,7 +206,7 @@ function Header (props) {
               </Link>
             );
           })}
-          <Typography color="textPrimary" variant='h6'>
+          <Typography color="textPrimary" variant='subtitle1'>
             {generateTitleCrumb(createTitle(title, titleSize), titleIcon)}
           </Typography>
         </Breadcrumbs>

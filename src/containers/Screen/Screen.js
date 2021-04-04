@@ -13,7 +13,6 @@ import { createTitle, makeBreadCrumbs, navigate } from '../../utils/marketIdPath
 import LoadingDisplay from '../../components/LoadingDisplay';
 import List from '@material-ui/core/List'
 import { isTinyWindow } from '../../utils/windowUtils'
-import Typography from '@material-ui/core/Typography'
 import SearchBox from '../../components/Search/SearchBox'
 import clsx from 'clsx'
 import SearchResults from '../../components/Search/SearchResults'
@@ -165,7 +164,7 @@ function Screen(props) {
   if (_.isEmpty(breadCrumbs) && !isHome) {
     usedBreadCrumbs = makeBreadCrumbs(history);
   }
-  const { navHeaderText, navListItemTextArray, showSearchResults } = navigationOptions || {};
+  const { navHeaderIcon: NavHeaderIcon, navListItemTextArray, showSearchResults } = navigationOptions || {};
   const myContainerClass = navigationOptions && !isTinyWindow() ? classes.containerAllLeftPad : classes.containerAll;
   const contentClass = isTinyWindow() ? classes.contentMobile : showSearchResults && !_.isEmpty(results) ?
     classes.contentSearch : classes.content;
@@ -190,11 +189,8 @@ function Screen(props) {
       {!_.isEmpty(navListItemTextArray) && !isTinyWindow() && (
         <div className={classes.listContainer}>
           <Paper className={classes.paper} elevation={3}>
-            <List subheader={
-                    <Typography align="center" variant="h6" style={{paddingTop: '1rem'}} id="nested-list-subheader">
-                      {navHeaderText}
-                    </Typography>
-                  }
+            <List subheader={NavHeaderIcon && <div style={{marginLeft: '5rem', marginTop: '1rem' }}>
+              <NavHeaderIcon style={{ height: 32, width: 32 }} /></div>}
             >
               {navListItemTextArray.map((navItem) => {
                 const { text, target, num, icon: Icon, onClickFunc } = navItem;

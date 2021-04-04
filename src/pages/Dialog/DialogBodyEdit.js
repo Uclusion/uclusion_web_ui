@@ -45,7 +45,6 @@ export const useLockedDialogStyles = makeStyles(
       },
       titleDisplay: {
         fontSize: 32,
-        fontWeight: "bold",
         lineHeight: "42px",
         paddingBottom: "9px",
         [theme.breakpoints.down("xs")]: {
@@ -55,7 +54,6 @@ export const useLockedDialogStyles = makeStyles(
       titleEditable: {
         fontSize: 32,
         cursor: "url('/images/edit_cursor.svg') 0 24, pointer",
-        fontWeight: "bold",
         lineHeight: "42px",
         paddingBottom: "9px",
         [theme.breakpoints.down("xs")]: {

@@ -283,7 +283,7 @@ function DecisionDialog(props) {
   const { id: questionId } = getFakeCommentsArray(questions)[0];
   const blocked = openComments.filter((comment) => comment.comment_type === ISSUE_TYPE);
   const { id: blockedId } = getFakeCommentsArray(blocked)[0];
-  const navigationMenu = {navHeaderText: intl.formatMessage({ id: 'dialog' }),
+  const navigationMenu = {navHeaderIcon: GavelIcon,
     navListItemTextArray: [createNavListItem(EditIcon, 'description_label', 'dialogMain'),
       createNavListItem(AgilePlanIcon,'approvable', 'currentVoting', _.size(underConsideration),
         true),
@@ -296,7 +296,6 @@ function DecisionDialog(props) {
   return (
     <Screen
       title={marketName}
-      titleIcon={<GavelIcon/>}
       tabTitle={marketName}
       hidden={hidden}
       breadCrumbs={breadCrumbs}

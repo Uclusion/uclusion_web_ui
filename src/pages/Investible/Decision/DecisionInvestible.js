@@ -46,7 +46,6 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { doSetEditWhenValid, isTinyWindow } from '../../../utils/windowUtils'
 import EditMarketButton from '../../Dialog/EditMarketButton'
 import ShareStoryButton from '../Planning/ShareStoryButton'
-import GavelIcon from '@material-ui/icons/Gavel';
 import PlaylistAddCheckIcon from '@material-ui/icons/PlaylistAddCheck'
 import EditIcon from '@material-ui/icons/Edit'
 import HowToVoteIcon from '@material-ui/icons/HowToVote'
@@ -59,6 +58,7 @@ import { getVotesForInvestible } from '../../../utils/userFunctions'
 import { getFakeCommentsArray } from '../../../utils/stringFunctions'
 import { QuestionAnswer } from '@material-ui/icons'
 import BodyEdit from '../../BodyEdit'
+import StarRateIcon from '@material-ui/icons/StarRate'
 
 const useStyles = makeStyles((theme) => ({
   mobileColumn: {
@@ -205,7 +205,7 @@ function DecisionInvestible(props) {
     parent_comment_id: parentCommentId, parent_comment_market_id: parentCommentMarketId } = market;
   const isInline = !_.isEmpty(parentCommentId);
   const [commentsState] = useContext(CommentsContext);
-  let breadCrumbTemplates = [{ name: marketName, link: formMarketLink(marketId), id: 'marketCrumb', icon: <GavelIcon/>}];
+  let breadCrumbTemplates = [{ name: marketName, link: formMarketLink(marketId), id: 'marketCrumb'}];
   const [marketState] = useContext(MarketsContext);
   const [investiblesState] = useContext(InvestiblesContext);
   if (isInline) {
@@ -328,7 +328,7 @@ function DecisionInvestible(props) {
   const { id: questionId } = getFakeCommentsArray(questions)[0];
   const suggestions = sortedRoots.filter((comment) => comment.comment_type === SUGGEST_CHANGE_TYPE);
   const { id: suggestId } = getFakeCommentsArray(suggestions)[0];
-  const navigationMenu = {navHeaderText: intl.formatMessage({ id: inProposed ? 'proposedOption' : 'option' }),
+  const navigationMenu = {navHeaderIcon: StarRateIcon,
     navListItemTextArray: [createNavListItem(EditIcon,'description_label', 'optionMain'),
       displayVotingInput ? createNavListItem(HowToVoteIcon, 'pleaseVoteNav', 'pleaseVote') : {},
       createNavListItem(ThumbsUpDownIcon, 'approvals', 'approvals', _.size(invested)),

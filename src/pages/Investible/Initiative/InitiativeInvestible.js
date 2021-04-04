@@ -275,7 +275,7 @@ function InitiativeInvestible(props) {
   const { id: questionId } = getFakeCommentsArray(questions)[0];
   const suggestions = sortedRoots.filter((comment) => comment.comment_type === SUGGEST_CHANGE_TYPE);
   const { id: suggestId } = getFakeCommentsArray(suggestions)[0];
-  const navigationMenu = {navHeaderText: intl.formatMessage({ id: 'initiative' }),
+  const navigationMenu = {navHeaderIcon: Assessment,
     navListItemTextArray: [createNavListItem(EditIcon,'description_label', 'initiativeMain'),
       displayVoting ? createNavListItem(HowToVoteIcon, 'pleaseVoteNav', 'pleaseVote') : {},
       createNavListItem(ThumbUpIcon, 'for', 'for', _.size(positiveVoters)),
@@ -289,7 +289,6 @@ function InitiativeInvestible(props) {
     <Screen
       title={name}
       tabTitle={name}
-      titleIcon={<Assessment/>}
       breadCrumbs={breadCrumbs}
       hidden={hidden}
       navigationOptions={navigationMenu}

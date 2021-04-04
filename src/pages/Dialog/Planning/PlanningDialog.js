@@ -10,7 +10,7 @@ import { Grid, Typography } from '@material-ui/core'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import CardHeader from '@material-ui/core/CardHeader'
-import { darken, makeStyles } from '@material-ui/core/styles'
+import { makeStyles } from '@material-ui/core/styles'
 import Summary from './Summary'
 import PlanningIdeas from './PlanningIdeas'
 import Screen from '../../../containers/Screen/Screen'
@@ -241,7 +241,7 @@ function PlanningDialog(props) {
   const activeChildrenDialogs = marketInfoList || [];
   const inactiveChildrenDialogs = (children || []).filter((aMarketId) =>
     !activeChildrenDialogs.find((aMarket) => aMarket.id === aMarketId));
-  const navigationMenu = {navHeaderText: intl.formatMessage({ id: 'workspace' }),
+  const navigationMenu = {navHeaderIcon: PlaylistAddCheckIcon,
     navListItemTextArray: [createNavListItem(EditIcon, 'description_label', 'workspaceMain'),
       createNavListItem(BlockIcon,'planningBlockedStageLabel', 'blocked', _.size(blockedInvestibles)),
       createNavListItem(PlayForWorkIcon,'requiresInputStageLabel', 'requiresInput', _.size(requiresInputInvestibles)),
@@ -263,7 +263,6 @@ function PlanningDialog(props) {
       title={marketName}
       hidden={hidden}
       tabTitle={marketName}
-      titleIcon={<PlaylistAddCheckIcon/>}
       breadCrumbs={breadCrumbs}
       banner={banner}
       navigationOptions={navigationMenu}

@@ -25,7 +25,6 @@ import CardType, { VOTING_TYPE } from '../../components/CardType'
 import { usePlanFormStyles } from '../../components/AgilePlan'
 import DismissableText from '../../components/Notifications/DismissableText'
 import ManageUsers from './UserManagement/ManageUsers'
-import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions';
 
 function DialogManage (props) {
   const { hidden } = props;
@@ -72,8 +71,7 @@ function DialogManage (props) {
   const linkName = marketType === INITIATIVE_TYPE && !_.isEmpty(investibles)
     ? getInitiativeLinkName(investibles[0])
     : currentMarketName;
-  const breadCrumbTemplates = [{ name: linkName, link: formMarketLink(marketId), id: 'marketCrumb',
-    icon: getDialogTypeIcon(marketType) }];
+  const breadCrumbTemplates = [{ name: linkName, link: formMarketLink(marketId), id: 'marketCrumb'}];
   const myBreadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
   return (
     <Screen

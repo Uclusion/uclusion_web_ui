@@ -13,7 +13,6 @@ import DecisionDialogEdit from './Decision/DecisionDialogEdit'
 import { DiffContext } from '../../contexts/DiffContext/DiffContext'
 import { getAcceptedStage, getVerifiedStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
-import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions';
 
 function DialogEdit(props) {
   const { hidden } = props;
@@ -30,7 +29,7 @@ function DialogEdit(props) {
   const verifiedStage = getVerifiedStage(marketStagesState, marketId);
   const { market_type: marketType } = renderableMarket;
   const currentMarketName = (renderableMarket && renderableMarket.name) || '';
-  const breadCrumbTemplates = [{ name: currentMarketName, link: formMarketLink(marketId), icon: getDialogTypeIcon(marketType) }];
+  const breadCrumbTemplates = [{ name: currentMarketName, link: formMarketLink(marketId) }];
   const myBreadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
   const editVerbiage = intl.formatMessage({ id: 'configure' });
   const userId = getMyUserForMarket(marketsState, marketId) || {};

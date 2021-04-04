@@ -247,6 +247,11 @@ function PlanningDialog(props) {
         target: formMarketArchivesLink(marketId), num: _.isEmpty(searchResults) ? undefined :
           _.size(archiveInvestibles) + _.size(resolvedMarketComments) + _.size(inactiveChildrenDialogs)}
     ]};
+  const furtherWorkReadyToStartChip = furtherWorkReadyToStart.length > 0
+    && <Chip label={`${furtherWorkReadyToStart.length}`} color="primary" size='small' className={classes.chipStyle} />;
+  const furtherWorkNotReadyToStartChip = furtherWorkInvestibles.length > 0 &&
+    <Chip label={`${furtherWorkInvestibles.length}`} size='small' className={classes.chipStyleYellow} />;
+  const furtherWorkChips = !showFurther && (<div>{furtherWorkReadyToStartChip} {furtherWorkNotReadyToStartChip}</div>);
   return (
     <Screen
       title={marketName}
@@ -342,10 +347,10 @@ function PlanningDialog(props) {
         <SubSection
           type={SECTION_SUB_HEADER}
           isBlackText
-          bolder
           helpTextId="furtherSectionHelp"
           id="furtherWork"
           hideChildren={showFurther === false || (showFurther === undefined && !undefinedFurtherIsOpenDefault)}
+          titleIcon={furtherWorkChips}
           title={intl.formatMessage({ id: 'readyFurtherWorkHeader' })}
           actionButton={
             (<ExpandableAction
@@ -358,9 +363,7 @@ function PlanningDialog(props) {
           <div style={{paddingTop: '1rem'}} />
           <SubSection
             type={SECTION_TYPE_SECONDARY_WARNING}
-            titleIcon={furtherWorkReadyToStart.length > 0 && <Chip label={`${furtherWorkReadyToStart.length}`}
-                                                               color="primary" size='small'
-                                                               className={classes.chipStyle} />}
+            titleIcon={furtherWorkReadyToStartChip}
             title={intl.formatMessage({ id: 'readyToStartHeader' })}
             actionButton={
               <ExpandableAction
@@ -388,8 +391,7 @@ function PlanningDialog(props) {
           {!_.isEmpty(furtherWorkInvestibles) && (<div style={{ paddingBottom: '15px' }}/>)}
           <SubSection
             type={SECTION_TYPE_WARNING}
-            titleIcon={furtherWorkInvestibles.length > 0 && <Chip label={`${furtherWorkInvestibles.length}`}
-                                                                  size='small' className={classes.chipStyleYellow} />}
+            titleIcon={furtherWorkNotReadyToStartChip}
             title={intl.formatMessage({ id: 'notReadyToStartHeader' })}
             actionButton={
               <ExpandableAction

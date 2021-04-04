@@ -481,14 +481,20 @@ function MarketTodos (props) {
   }
   const isSingleTodoSelected = editRedCard || editYellowCard || editCard;
   const todosButtonMsgId = showSelectTodos ? 'todosCreateStory' : 'todosSelectForStory';
+  const immediateTodosChip = redComments.length > 0 && <Chip label={`${redComments.length}`} color="primary"
+                                                             size='small' className={classes.chipStyleRed} />;
+  const whenAbleTodosChip = yellowComments.length > 0 && <Chip label={`${yellowComments.length}`} size='small'
+                                                               className={classes.chipStyleYellow} />;
+  const whenConvenientTodosChip = blueComments.length > 0 && <Chip label={`${blueComments.length}`} color="primary"
+                                                                   size='small' className={classes.chipStyleBlue} />;
   return (
     <>
       <div className={classes.outerBorder} id="marketTodos">
         <SubSection
           type={SECTION_SUB_HEADER}
-          bolder
           isBlackText
           hideChildren={showTodos === false || (showTodos === undefined && !undefinedIsOpenDefault)}
+          titleIcon={!showTodos && (<div>{immediateTodosChip} {whenAbleTodosChip} {whenConvenientTodosChip}</div>)}
           title={intl.formatMessage({ id: 'todoSection' })}
           helpTextId="todoSectionHelp"
           createButton={ isSingleTodoSelected || isInArchives || isTinyWindow() ? undefined :
@@ -537,8 +543,7 @@ function MarketTodos (props) {
               type={SECTION_TYPE_SECONDARY_WARNING}
               id="immediateTodos"
               title={intl.formatMessage({ id: 'immediate' })}
-              titleIcon={redComments.length > 0 && <Chip label={`${redComments.length}`} color="primary" size='small'
-                               className={classes.chipStyleRed} />}
+              titleIcon={immediateTodosChip}
               helpTextId="immediateSectionHelp"
               actionButton={ isInArchives ? null :
                 (<ExpandableAction
@@ -590,8 +595,7 @@ function MarketTodos (props) {
               type={SECTION_TYPE_WARNING}
               id="whenAbleTodos"
               title={intl.formatMessage({ id: 'able' })}
-              titleIcon={yellowComments.length > 0 && <Chip label={`${yellowComments.length}`} size='small'
-                               className={classes.chipStyleYellow} /> }
+              titleIcon={whenAbleTodosChip}
               helpTextId="ableSectionHelp"
               actionButton={ isInArchives ? null :
                 (<ExpandableAction
@@ -643,8 +647,7 @@ function MarketTodos (props) {
               type={SECTION_TYPE_TERTIARY_WARNING}
               padChildren
               title={intl.formatMessage({ id: 'convenient' })}
-              titleIcon={blueComments.length > 0 && <Chip label={`${blueComments.length}`} color="primary" size='small'
-                               className={classes.chipStyleBlue} />}
+              titleIcon={whenConvenientTodosChip}
               id="whenConvenientTodos"
               helpTextId="convenientSectionHelp"
               actionButton={ isInArchives ? null :

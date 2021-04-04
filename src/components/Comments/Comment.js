@@ -748,7 +748,7 @@ function Comment(props) {
             )}
           </Box>
         </CardContent>
-        {showActions && !editOpen && (
+        {showActions && (!editOpen || (commentType === TODO_TYPE && !investibleId)) && (
             <CardActions>
               <div className={classes.actions}>
                 {investibleId && commentType === REPORT_TYPE && (

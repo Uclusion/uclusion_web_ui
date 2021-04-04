@@ -82,23 +82,6 @@ import PlayForWorkIcon from '@material-ui/icons/PlayForWork'
 import { getFakeCommentsArray } from '../../../utils/stringFunctions'
 import Chip from '@material-ui/core/Chip'
 
-const myClasses = makeStyles(
-  () => {
-    return {
-      chipStyle: {
-        marginRight: '5px',
-        backgroundColor: '#E85757'
-      },
-      chipStyleYellow: {
-        marginRight: '5px',
-        color: 'black',
-        backgroundColor: '#e6e969'
-      },
-    };
-  },
-  { name: 'PlanningDialog' }
-);
-
 function PlanningDialog(props) {
   const history = useHistory();
   const {
@@ -112,7 +95,7 @@ function PlanningDialog(props) {
     banner,
     searchResults
   } = props;
-  const classes = myClasses();
+  const classes = useInvestiblesByPersonStyles();
   const cognitoUser = useContext(CognitoUserContext);
   const [, tourDispatch] = useContext(TourContext);
   const [marketsState] = useContext(MarketsContext);
@@ -515,6 +498,15 @@ export const useInvestiblesByPersonStyles = makeStyles(
       },
       rightSpace: {
         paddingRight: theme.spacing(1),
+      },
+      chipStyle: {
+        marginRight: '5px',
+        backgroundColor: '#E85757'
+      },
+      chipStyleYellow: {
+        marginRight: '5px',
+        color: 'black',
+        backgroundColor: '#e6e969'
       }
     };
   },

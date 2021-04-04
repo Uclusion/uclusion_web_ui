@@ -41,6 +41,7 @@ import Gravatar from '../../../components/Avatars/Gravatar';
 import NotificationCountChips from '../NotificationCountChips'
 import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
 import AddIcon from '@material-ui/icons/Add'
+import Chip from '@material-ui/core/Chip'
 export const LocalPlanningDragContext = React.createContext([]);
 
 function InvestiblesByWorkspace (props) {
@@ -223,6 +224,9 @@ function InvestiblesByWorkspace (props) {
                 {!_.isEmpty(blockedInvestibles) && (
                   <SubSection
                     type={SECTION_TYPE_SECONDARY_WARNING}
+                    titleIcon={blockedInvestibles.length > 0 && <Chip label={`${blockedInvestibles.length}`}
+                                                                      color="primary" size='small'
+                                                                      className={classes.chipStyle} />}
                     title={intl.formatMessage({ id: 'blockedHeader' })}
                     helpTextId="blockedSectionHelp"
                   >
@@ -242,6 +246,9 @@ function InvestiblesByWorkspace (props) {
                 {!_.isEmpty(requiresInputInvestibles) && (
                   <SubSection
                     type={SECTION_TYPE_SECONDARY_WARNING}
+                    titleIcon={requiresInputInvestibles.length > 0 && <Chip label={`${requiresInputInvestibles.length}`}
+                                                                            color="primary" size='small'
+                                                                            className={classes.chipStyle} />}
                     title={intl.formatMessage({ id: 'requiresInputHeader' })}
                     helpTextId="requiresInputSectionHelp"
                   >

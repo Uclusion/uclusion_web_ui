@@ -18,7 +18,8 @@ const useVoteStyles = makeStyles(
       root: {
         listStyle: "none",
         margin: 0,
-        padding: 0
+        padding: 0,
+        paddingBottom: '1rem'
       },
       card: {
         position: "relative"
@@ -40,7 +41,7 @@ const useVoteStyles = makeStyles(
         fontWeight: "bold"
       },
       highlighted: {
-        boxShadow: "12px 5px 5px yellow"
+        boxShadow: "10px 5px 5px yellow"
       },
       expiresDisplay: {
         alignItems: "flex-end",

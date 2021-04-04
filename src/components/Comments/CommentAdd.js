@@ -231,13 +231,15 @@ function CommentAdd (props) {
   const [editorDefaultFunc, setEditorDefaultFunc] = useState(() => () => {});
 
   const [loadedId, setLoadedId] = useState(undefined);
-  const loadId = parentId ? `${type}_${parentId}` : investibleId ? `${type}_${investibleId}` : `${type}_${marketId}`;
+  const loadId = !type ? undefined : parentId ? `${type}_${parentId}` : investibleId ? `${type}_${investibleId}`
+    : `${type}_${marketId}`;
 
   const presences = getMarketPresences(marketPresencesState, marketId) || [];
   const myPresence = presences.find((presence) => presence.current_user) || {};
 
   useEffect(() => {
-    if (!hidden && loadedId !== loadId) {
+    if (!hidden && loadId && loadedId !== loadId) {
+      console.debug(`loading ${loadId}`);
       localforage.getItem(loadId).then((stateFromDisk) => {
         if (stateFromDisk) {
           setBody(stateFromDisk);
@@ -321,6 +323,7 @@ function CommentAdd (props) {
 
   function clearMe() {
     localforage.removeItem(loadId).then(() => {
+      console.debug(`clearing ${loadId}`);
       setBody('');
       editorClearFunc();
       setUploadedFiles([]);

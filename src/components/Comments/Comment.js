@@ -171,7 +171,6 @@ const useCommentStyles = makeStyles(
       },
       createdBy: {
         fontSize: '15px',
-        fontWeight: 'bold'
       },
       childWrapper: {
         // borderTop: '1px solid #DCDCDC',

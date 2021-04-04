@@ -34,7 +34,6 @@ const useStyles = makeStyles((theme) => {
     },
     avatarName: {
       fontSize: '15px',
-      fontWeight: 'bold',
       overflowWrap: 'break-word',
       cursor: 'pointer'
     }

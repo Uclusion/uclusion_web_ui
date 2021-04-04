@@ -282,7 +282,6 @@ const useStyles = makeStyles(
       },
       "& li": {
         display: "inline-flex",
-        fontWeight: "bold",
         marginLeft: theme.spacing(1)
       }
     },

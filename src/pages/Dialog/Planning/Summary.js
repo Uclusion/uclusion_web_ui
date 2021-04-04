@@ -148,7 +148,6 @@ const useStyles = makeStyles(theme => ({
     },
     "& li": {
       display: "inline-block",
-      fontWeight: "bold",
       marginLeft: theme.spacing(1)
     }
   },

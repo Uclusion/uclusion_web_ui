@@ -460,7 +460,7 @@ export const useInvestiblesByPersonStyles = makeStyles(
   theme => {
     return {
       root: {
-        margin: theme.spacing(1, 0)
+        margin: theme.spacing(1, 0, '3rem')
       },
       content: {
         padding: theme.spacing(0, 1),

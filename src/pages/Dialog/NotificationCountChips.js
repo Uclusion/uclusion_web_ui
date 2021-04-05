@@ -13,7 +13,13 @@ const useStyles = makeStyles(() => ({
   chipStyle: {
     marginLeft: '0.5rem',
     color: 'black',
-    backgroundColor: '#ffffff'
+    backgroundColor: '#ffffff',
+    paddingBottom: '0.3rem'
+  },
+  chipStyleNoMargin: {
+    color: 'black',
+    backgroundColor: '#ffffff',
+    paddingBottom: '0.3rem'
   },
   iconYellow: {
     color: '#e6e969'
@@ -46,7 +52,7 @@ function NotificationCountChips(props) {
         <Tooltip key={`tipdel${id}`}
                  title={intl.formatMessage({ id: 'yellowNotificationCountExplanation' })}>
           <Chip component="span" icon={<HourglassFullIcon className={classes.iconYellow}/>}
-                label={`${delayableNotifications}`} size='small' className={classes.chipStyle}/>
+                label={`${delayableNotifications}`} size='small' className={classes.chipStyleNoMargin}/>
         </Tooltip>
       )}
     </>

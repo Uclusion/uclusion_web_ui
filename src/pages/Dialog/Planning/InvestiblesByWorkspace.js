@@ -116,7 +116,7 @@ function InvestiblesByWorkspace (props) {
           onClick={handleClick}
         >
           <div className={classes.fontControl}>
-            {`${intl.formatMessage({ id: 'displaying' })} ${chosenPerson.name} ${chosenPerson.email}`}
+            {intl.formatMessage({ id: 'displaying' }, {x: chosenPerson.name, y: chosenPerson.email})}
           </div>
         </Button>
         <Menu
@@ -170,13 +170,13 @@ function InvestiblesByWorkspace (props) {
             return React.Fragment;
           }
           return (
-            <Card key={market.id} className={classes.root}>
+            <Card key={market.id} className={classes.root} elevation={3}>
               <CardHeader
                 className={classes.header}
                 id={`m${market.id}`}
                 title={
                   <div style={{alignItems: "center", display: "flex", flexDirection: 'row'}}>
-                    <Typography>
+                    <Typography variant='h6'>
                       <Link color="inherit" id={market.id} key={market.id} href={formMarketLink(market.id)}
                                  onClick={(e) => {
                                    e.preventDefault();

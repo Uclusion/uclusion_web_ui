@@ -254,7 +254,7 @@ const messages = defineMessages({
   inactive: 'Inactive',
 
   // Navigation menu
-  swimLanes: 'Active Stories',
+  swimLanes: 'Assigned Stories',
   commentAddBox: 'Add Comment',
   questions: 'Questions',
   suggestions: 'Suggestions',
@@ -782,7 +782,7 @@ const messages = defineMessages({
   decisionInvestibleVotingMultiHelp: 'Help decide by approving all options you like and adding any that are missing.',
   initiativeVotingHelp: 'Vote for or against this initiative and choose how certain you are of that vote.',
   personChooserLabel: 'View Other Person\'s Assignments',
-  displaying: 'Displaying {x} {y}',
+  displaying: 'Displaying for {x} {y}',
   clear: 'Clear',
 
   // add participants

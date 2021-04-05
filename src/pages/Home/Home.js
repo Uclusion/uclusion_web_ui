@@ -197,8 +197,8 @@ function Home(props) {
 
       <React.Fragment>
         <div className={classes.titleContainer}>
-          { getDialogTypeIcon(PLANNING_TYPE, false, "#333333") }
-          <Typography className={classes.title} variant="h6">Workspaces</Typography>
+          { <AgilePlanIcon htmlColor="#333333" /> }
+          <Typography className={classes.title} variant="h6">Assigned Stories</Typography>
         </div>
         <PlanningDialogs markets={planningDetails}/>
         <hr className={classes.spacer}/>

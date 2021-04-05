@@ -93,7 +93,7 @@ function ChangeToObserverButton(props) {
             content={<FormattedMessage id="deactivateDialogQuestion" />}
             title={
               <React.Fragment>
-                <WarningIcon htmlColor={ACTION_BUTTON_COLOR} />
+                <WarningIcon htmlColor="#F2C94C" />
                 <FormattedMessage id="warningQuestion" />
               </React.Fragment>
             }
@@ -110,8 +110,8 @@ function ChangeToObserverButton(props) {
 
   return (
     <>
-      <TooltipIconButton disabled={operationRunning} icon={<ArchiveIcon htmlColor={ACTION_BUTTON_COLOR} />} onClick={handleOpen}
-                         translationId="decisionDialogsBecomeObserver" />
+      <TooltipIconButton disabled={operationRunning} icon={<ArchiveIcon htmlColor={ACTION_BUTTON_COLOR} />}
+                         onClick={handleOpen} translationId="decisionDialogsBecomeObserver" />
       <WarningDialog
         classes={lockedDialogClasses}
         open={open}

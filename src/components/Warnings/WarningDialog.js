@@ -33,7 +33,7 @@ function WarningDialog(props) {
       content={<FormattedMessage id={issueWarningId} />}
       title={
         <React.Fragment>
-          <WarningIcon classname={classes.warningTitleIcon} />
+          <WarningIcon className={classes.warningTitleIcon} />
           <FormattedMessage id="warning" />
         </React.Fragment>
       }

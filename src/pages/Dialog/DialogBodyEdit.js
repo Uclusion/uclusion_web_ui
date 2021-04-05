@@ -29,10 +29,18 @@ import SpinningIconLabelButton from '../../components/Buttons/SpinningIconLabelB
 export const useLockedDialogStyles = makeStyles(
   (theme) => {
     return {
+      root: {
+        '& .MuiDialogTitle-root': {
+          flex: '0 0 auto',
+          margin: 0,
+          padding: '16px 24px 0px 24px'
+        },
+      },
       title: {
-        backgroundColor: "#F2C94C",
         fontWeight: 'bold',
         textTransform: "capitalize",
+        display: "flex",
+        justifyContent: "center",
         "& h2": {
           display: "flex",
           alignItems: "center"
@@ -62,6 +70,7 @@ export const useLockedDialogStyles = makeStyles(
       },
       warningTitleIcon: {
         marginRight: 8,
+        color: '#F2C94C',
       },
       content: {
         lineHeight: 1.75,
@@ -72,7 +81,6 @@ export const useLockedDialogStyles = makeStyles(
         textAlign: "center"
       },
       actions: {
-        backgroundColor: "#F2F2F2",
         flexBasis: "unset",
         justifyContent: "center"
       },

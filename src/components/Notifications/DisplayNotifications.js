@@ -30,7 +30,6 @@ const useStyles = makeStyles((theme) => {
       paddingLeft: 15,
       paddingRight: 15,
       paddingBottom: 10,
-      paddingTop: 10,
       overflowWrap: "break-word"
     },
     titleText: {
@@ -44,31 +43,16 @@ const useStyles = makeStyles((theme) => {
       marginBottom: theme.spacing(1),
     },
     criticalTitleBar: {
-      height: '3rem',
-      backgroundColor: '#E85757',
-      borderRadius: '3px 3px 0px 0px',
-      color: '#ffffff',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center'
+      marginTop: theme.spacing(1),
+      color: '#E85757'
     },
     delayableTitleBar: {
-      height: '3rem',
-      backgroundColor: '#e6e969',
-      borderRadius: '3px 3px 0px 0px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center'
+      marginTop: theme.spacing(1),
+      color: 'grey'
     },
     informationalTitleBar: {
-      height: '3rem',
-      backgroundColor: '#2D9CDB',
-      fontWeight: 'bold',
-      borderRadius: '3px 3px 0px 0px',
-      color: '#ffffff',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center'
+      marginTop: theme.spacing(1),
+      color: 'grey'
     },
     wrapNicely: {
       overflowWrap: 'break-word'
@@ -310,16 +294,9 @@ function DisplayNotifications (props) {
         className={classes.cardContainer}
         variant="outlined"
       >
-        <div
-          className={getTitleClass()}
-        >
-          <Typography
-            align="center"
-            className={classes.titleText}
-          >
-            {intl.formatMessage({ id: titleId })}
-          </Typography>
-        </div>
+        <Typography align="center" className={getTitleClass()} variant="h6">
+          {intl.formatMessage({ id: titleId })}
+        </Typography>
         <div
           className={classes.itemContainers}
         >

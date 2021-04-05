@@ -1,11 +1,11 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { Link } from '@material-ui/core';
+import { Link, makeStyles } from '@material-ui/core'
 import { navigate } from '../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import Typography from '@material-ui/core/Typography';
-import { BLUE_LEVEL, RED_LEVEL, UNREAD_TYPE, YELLOW_LEVEL } from '../../constants/notifications'
+import { BLUE_LEVEL, UNREAD_TYPE } from '../../constants/notifications'
 import Chip from '@material-ui/core/Chip';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import SpinningTooltipIconButton from '../SpinBlocking/SpinningTooltipIconButton';
@@ -13,14 +13,43 @@ import { deleteOrDehilightMessages, deleteSingleMessage } from '../../api/users'
 import { removeMessage } from '../../contexts/NotificationsContext/notificationsContextReducer';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import UsefulRelativeTime from '../TextFields/UseRelativeTime'
+import Badge from '@material-ui/core/Badge'
+
+const useStyles = makeStyles(
+  () => {
+    return {
+      chip: {
+        color: 'black',
+        marginLeft: '0.5rem',
+        marginRight: '0.25rem',
+        '& .MuiBadge-badge': {
+          border: '0.5px solid grey',
+          backgroundColor: '#fff',
+        },
+      },
+      padded: {
+        paddingTop: '1rem'
+      },
+      lessPadded: {
+        paddingTop: '0.5rem'
+      },
+      notBottomPaddedText: {
+        color: '#414141',
+        fontWeight: 'bold',
+        paddingLeft: '0.5rem',
+        paddingRight: '0.5rem',
+      },
+    };
+  });
 
 function NotificationMessageDisplay (props) {
   const {
     message,
     onLinkClick
   } = props;
+  const classes = useStyles();
   const {
-    link, level, name, text, lenDuplicates, dismissMessages,
+    link, name, text, lenDuplicates, dismissMessages,
     investible_name: investibleName,
     market_name: marketName,
     market_id: marketId,
@@ -29,8 +58,6 @@ function NotificationMessageDisplay (props) {
   } = message;
   const dismissable = (type && type.startsWith(UNREAD_TYPE))||(marketId && marketId.startsWith('slack'));
   const history = useHistory();
-  const color = level === RED_LEVEL ? '#ff9b9b' : level === YELLOW_LEVEL ? '#e8e9a9' : '#85bddb';
-  const fontColor = level === RED_LEVEL ? 'black' : level === YELLOW_LEVEL ? 'black' : 'white';
   const containerName = investibleName || marketName;
   const [, messagesDispatch] = useContext(NotificationsContext);
 
@@ -43,7 +70,7 @@ function NotificationMessageDisplay (props) {
   }
 
   const isOneDayAgo = Date.now() - Date.parse(updatedAt) > 1000*60*60*24;
-
+  const useName = name !== containerName && name !== text;
   return (
     <>
       <Link href={link} style={{ width: '100%' }} onClick={
@@ -54,46 +81,24 @@ function NotificationMessageDisplay (props) {
           onLinkClick();
         }
       }>
-        <>
-          {name !== containerName && name !== text && (
-            <div style={{borderRadius: '3px', border: '2px solid black'}}>
-              <Typography style={{ backgroundColor: color, color: fontColor, paddingLeft: '0.5rem'}}>
-                {name}
-                {lenDuplicates && (
-                  <Chip component="span" label={`${lenDuplicates}`} color="primary" size='small'
-                        style={{ marginLeft: '0.5rem', marginRight: '0.25rem' }}/>
-                )}
-                {isOneDayAgo && (
-                  <>
-                    <br />
-                    <UsefulRelativeTime value={ new Date(updatedAt)}/>
-                  </>
-                )}
-              </Typography>
-              <Typography style={{color: '#414141', fontWeight: 'bold', paddingLeft: '0.5rem',
-                paddingRight: '0.5rem'}}>
-                {text}
-              </Typography>
-            </div>
-          )}
-          {(name === containerName || name === text) && (
-            <Typography
-              style={{ backgroundColor: color, color: fontColor, paddingLeft: '0.5rem', borderRadius: '3px' }}>
+        <div style={{borderRadius: '3px', border: '1px solid grey'}}>
+          <Badge badgeContent={lenDuplicates} className={classes.chip}>
+            <Typography className={lenDuplicates ? classes.padded : classes.lessPadded}>
+              {useName ? name : text}
+            </Typography>
+          </Badge>
+          {useName && (
+            <Typography className={classes.notBottomPaddedText}>
               {text}
-              {lenDuplicates && (
-                <Chip component={'span'} label={`${lenDuplicates}`}
-                      color={level === BLUE_LEVEL ? 'secondary' : 'primary'} size='small'
-                      style={{ marginLeft: '0.5rem', marginRight: '0.25rem' }}/>
-              )}
-              {!lenDuplicates && (
-                <br />
-              )}
-              {isOneDayAgo && (
-                <UsefulRelativeTime value={ new Date(updatedAt)}/>
-              )}
             </Typography>
           )}
-        </>
+          {isOneDayAgo && (
+            <Typography style={{ paddingLeft: '0.5rem', color: 'black'}}>
+              <UsefulRelativeTime value={ new Date(updatedAt)}/>
+            </Typography>
+          )}
+          <div style={{paddingBottom: '0.5rem'}} />
+        </div>
       </Link>
       {dismissable && (
         <SpinningTooltipIconButton

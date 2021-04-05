@@ -633,14 +633,11 @@ function VotingStage (props) {
       classes={classes}
       fallbackWarning={
         activeMarket &&
-          <React.Fragment>
-            <FormattedMessage id="planningNoneInDialogWarning"/>
             <StageLink href={assignedLink} onClick={onClick}>
               {intl.formatMessage({
                 id: 'createAssignment'
               })}
             </StageLink>
-          </React.Fragment>
       }
       marketId={marketId}
       comments={comments}

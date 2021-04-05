@@ -5,8 +5,7 @@ import { Link, makeStyles } from '@material-ui/core'
 import { navigate } from '../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import Typography from '@material-ui/core/Typography';
-import { BLUE_LEVEL, UNREAD_TYPE } from '../../constants/notifications'
-import Chip from '@material-ui/core/Chip';
+import { UNREAD_TYPE } from '../../constants/notifications'
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import SpinningTooltipIconButton from '../SpinBlocking/SpinningTooltipIconButton';
 import { deleteOrDehilightMessages, deleteSingleMessage } from '../../api/users'

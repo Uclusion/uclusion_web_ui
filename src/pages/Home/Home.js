@@ -20,7 +20,6 @@ import {
   formMarketManageLink,
   navigate
 } from '../../utils/marketIdPathFunctions'
-import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions'
 import { getAndClearRedirect, getInvitationMarker, redirectToPath } from '../../utils/redirectUtils'
 import WizardSelector from '../../components/AddNew/WizardSelector'
 import UclusionTour from '../../components/Tours/UclusionTour';

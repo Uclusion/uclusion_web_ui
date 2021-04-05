@@ -699,7 +699,7 @@ function Comment(props) {
             </SpinningIconLabelButton>
           )}
           {commentType !== JUSTIFY_TYPE && commentType !== REPLY_TYPE && (
-            <div style={{marginRight: '1rem', marginTop: '0.5rem'}}>
+            <div style={{marginRight: '2rem', marginTop: '0.5rem'}}>
               <ShareStoryButton commentId={id} commentType={commentType} investibleId={investibleId} />
             </div>
           )}
@@ -828,31 +828,16 @@ function Comment(props) {
                     })}
                   </SpinningIconLabelButton>
                 )}
-                {enableEditing && (
-                  <React.Fragment>
-                    {((commentType !== REPORT_TYPE || createdStageId === inReviewStageId)
+                {enableEditing && ((commentType !== REPORT_TYPE || createdStageId === inReviewStageId)
                       || (mentions || []).includes(myPresence.id)) && (
-                      <SpinningIconLabelButton
-                        onClick={toggleReply}
-                        icon={ReplyIcon}
-                        doSpin={false}
-                      >
-                        {intl.formatMessage({ id: "commentReplyLabel" })}
-                      </SpinningIconLabelButton>
-                    )}
-                    {createdBy === userId && (
-                      <Button
-                        className={clsx(classes.action, classes.actionSecondary)}
-                        color="primary"
-                        disabled={operationRunning}
-                        onClick={toggleEdit}
-                        variant="contained"
-                      >
-                        {intl.formatMessage({ id: "commentEditLabel" })}
-                      </Button>
-                    )}
-                  </React.Fragment>
-                )}
+                    <SpinningIconLabelButton
+                      onClick={toggleReply}
+                      icon={ReplyIcon}
+                      doSpin={false}
+                    >
+                      {intl.formatMessage({ id: "commentReplyLabel" })}
+                    </SpinningIconLabelButton>
+                  )}
             </div>
             <div className={classes.actionsEnd}>
               {commentType === QUESTION_TYPE && !inArchives && inlineMarketId && !resolved && (

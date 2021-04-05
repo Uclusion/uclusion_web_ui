@@ -608,7 +608,7 @@ function InvestiblesByPerson(props) {
           id={`u${id}`}
           title={
           <div style={{alignItems: "center", display: "flex", flexDirection: 'row'}}>
-            <Typography>
+            <Typography variant="h6">
               {name}
               <NotificationCountChips id={id} criticalNotifications={criticalNotificationCount}
                                       delayableNotifications={delayableNotificationCount} />

@@ -327,7 +327,7 @@ function PlanningDialog(props) {
             />
           </SubSection>
         )}
-        <div id="swimLanes">
+        <div id="swimLanes" style={{paddingTop: '3rem'}}>
           <InvestiblesByPerson
             comments={comments}
             investibles={investibles}
@@ -602,7 +602,7 @@ function InvestiblesByPerson(props) {
     );
 
     return (
-      <Card id={`sl${id}`} key={id} className={classes.root}>
+      <Card id={`sl${id}`} key={id} className={classes.root} elevation={3}>
         <CardHeader
           className={classes.header}
           id={`u${id}`}

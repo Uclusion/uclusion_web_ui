@@ -13,7 +13,6 @@ import {
   Typography
 } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
-import clsx from 'clsx'
 import _ from 'lodash'
 import ReadOnlyQuillEditor from '../TextEditors/ReadOnlyQuillEditor'
 import CommentAdd from './CommentAdd'

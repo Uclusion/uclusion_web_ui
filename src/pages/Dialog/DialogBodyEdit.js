@@ -78,6 +78,7 @@ export const useLockedDialogStyles = makeStyles(
       },
       issueWarningContent: {
         lineHeight: 3,
+        minWidth: '35rem',
         textAlign: "center"
       },
       actions: {

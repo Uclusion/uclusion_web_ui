@@ -12,11 +12,9 @@ import { OperationInProgressContext } from '../../contexts/OperationInProgressCo
 import TooltipIconButton from '../../components/Buttons/TooltipIconButton'
 import { FormattedMessage } from 'react-intl'
 import WarningDialog from '../../components/Warnings/WarningDialog'
-import { Dialog } from '../../components/Dialogs'
 import { ACTION_BUTTON_COLOR } from '../../components/Buttons/ButtonConstants'
 import { DiffContext } from '../../contexts/DiffContext/DiffContext'
 import SpinningIconLabelButton from '../../components/Buttons/SpinningIconLabelButton'
-import WarningIcon from '@material-ui/icons/Warning'
 import { NotificationsOff } from '@material-ui/icons'
 
 function ChangeToObserverButton(props) {
@@ -31,7 +29,6 @@ function ChangeToObserverButton(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const presences = getMarketPresences(marketPresencesState, marketId) || [];
   const myPresence = presences.find((presence) => presence.current_user);
-  const autoFocusRef = React.useRef(null);
   const [, diffDispatch] = useContext(DiffContext);
 
   const handleOpen = () => {
@@ -67,34 +64,22 @@ function ChangeToObserverButton(props) {
     if (myPresence && myPresence.is_admin) {
       return (
         <>
-          <TooltipIconButton disabled={operationRunning} icon={<ArchiveIcon htmlColor={ACTION_BUTTON_COLOR} />} onClick={handleOpen}
-                             translationId="decisionDialogsBecomeObserver" />
-          <Dialog
-            autoFocusRef={autoFocusRef}
-            classes={{
-              root: lockedDialogClasses.root,
-              actions: lockedDialogClasses.actions,
-              content: lockedDialogClasses.issueWarningContent,
-              title: lockedDialogClasses.title
-            }}
+          <TooltipIconButton disabled={operationRunning} icon={<ArchiveIcon htmlColor={ACTION_BUTTON_COLOR} />}
+                             onClick={handleOpen} translationId="decisionDialogsBecomeObserver" />
+          <WarningDialog
+            classes={lockedDialogClasses}
             open={open}
-            onClose={() => setOpen(false)}
+            onClose={handleClose}
+            issueWarningId="deactivateDialogQuestion"
             /* slots */
             actions={
               <React.Fragment>
                 <SpinningIconLabelButton icon={NotificationsOff} onClick={myOnClickChooseNotDeactivate}>
                   <FormattedMessage id="noAndProceedDeactivate" />
                 </SpinningIconLabelButton>
-                <SpinningIconLabelButton icon={ArchiveIcon} onClick={myOnClickChooseDeactivate}>
+                <SpinningIconLabelButton icon={ArchiveIcon} onClick={myOnClickChooseDeactivate} noMargin>
                   <FormattedMessage id="yesAndProceedDeactive" />
                 </SpinningIconLabelButton>
-              </React.Fragment>
-            }
-            content={<FormattedMessage id="deactivateDialogQuestion" />}
-            title={
-              <React.Fragment>
-                <WarningIcon htmlColor="#F2C94C" />
-                <FormattedMessage id="warningQuestion" />
               </React.Fragment>
             }
           />
@@ -123,7 +108,7 @@ function ChangeToObserverButton(props) {
             <SpinningIconLabelButton icon={NotificationsOff} onClick={myOnClickChooseNotDeactivate}>
               <FormattedMessage id="noAndProceedDeactivate" />
             </SpinningIconLabelButton>
-            <SpinningIconLabelButton icon={ArchiveIcon} onClick={myOnClickChooseDeactivate}>
+            <SpinningIconLabelButton icon={ArchiveIcon} onClick={myOnClickChooseDeactivate} noMargin>
               <FormattedMessage id="yesAndProceedDeactive" />
             </SpinningIconLabelButton>
           </React.Fragment>

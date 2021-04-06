@@ -22,7 +22,7 @@ import {
 import MoveToCurrentVotingActionButton from './MoveToCurrentVotingActionButton'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import { getProposedOptionsStage, } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
-import { ACTIVE_STAGE } from '../../../constants/markets'
+import { ACTIVE_STAGE, PLANNING_TYPE } from '../../../constants/markets'
 import DeleteInvestibleActionButton from './DeleteInvestibleActionButton'
 import CardType, { OPTION, PROPOSED, VOTING_TYPE } from '../../../components/CardType'
 import DismissableText from '../../../components/Notifications/DismissableText'
@@ -202,7 +202,8 @@ function DecisionInvestible(props) {
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, diffDispatch] = useContext(DiffContext);
   const { name: marketName, id: marketId, market_stage: marketStage, allow_multi_vote: allowMultiVote,
-    parent_comment_id: parentCommentId, parent_comment_market_id: parentCommentMarketId } = market;
+    parent_comment_id: parentCommentId, parent_comment_market_id: parentCommentMarketId,
+    market_type: marketType } = market;
   const isInline = !_.isEmpty(parentCommentId);
   const [commentsState] = useContext(CommentsContext);
   let breadCrumbTemplates = [{ name: marketName, link: formMarketLink(marketId), id: 'marketCrumb'}];
@@ -268,7 +269,9 @@ function DecisionInvestible(props) {
             onClick={() => mySetBeingEdited(true)}
           />
       )}
-      <ShareStoryButton />
+      {marketType === PLANNING_TYPE && (
+        <ShareStoryButton />
+      )}
       {isAdmin && inProposed && (
           <MoveToCurrentVotingActionButton
             key="moveToCurrent"

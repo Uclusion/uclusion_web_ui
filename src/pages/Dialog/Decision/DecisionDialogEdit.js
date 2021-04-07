@@ -42,7 +42,7 @@ function DecisionDialogEdit(props) {
     if (allowMultiVote !== multiVote) {
       setOperationRunning(true);
       return updateMarket(id, null, null, null, null,
-        null, null, null, multiVote)
+        null, null, multiVote)
         .then((market) => {
           setOperationRunning(false);
           onSpinStop(market);

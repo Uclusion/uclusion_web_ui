@@ -44,8 +44,8 @@ export function deleteAttachedFilesFromMarket(marketId, files) {
     .catch((error) => toastErrorAndThrow(error, 'errorMarketRemoveAttachedFilesFailed'));
 }
 
-export function updateMarket(marketId, name, description, uploadedFiles, maxBudget,
-  investmentExpiration, votesRequired, allowMultiVote, ticketSubCode) {
+export function updateMarket(marketId, name=null, description=null, uploadedFiles=null, maxBudget=null,
+  investmentExpiration=null, votesRequired=null, allowMultiVote=null, ticketSubCode=null) {
   const updateOptions = {};
   if (name != null) {
     updateOptions.name = name;

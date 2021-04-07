@@ -99,13 +99,13 @@ function PlanningDialogEdit(props) {
     const maxBudget = max_budget ? parseInt(max_budget, 10) : 0;
     return updateMarket(
           id,
-          undefined,
-          undefined,
-          undefined,
+          null,
+          null,
+          null,
           maxBudget,
           parseInt(investment_expiration, 10),
           votesRequiredInt,
-          undefined,
+          null,
           ticket_sub_code
         ).then(market => {
           onSpinStop(market);

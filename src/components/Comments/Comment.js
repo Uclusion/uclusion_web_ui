@@ -356,7 +356,7 @@ function Comment(props) {
     setMultiVote(myMultiVote);
     if (myMultiVote !== originalAllowMultiVote) {
       return updateMarket(inlineMarketId, null, null, null, null,
-        null, null, null, myMultiVote)
+        null, null, myMultiVote)
         .then((market) => {
           addMarketToStorage(marketsDispatch, undefined, market);
         });

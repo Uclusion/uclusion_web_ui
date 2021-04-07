@@ -164,8 +164,7 @@ function DialogBodyEdit(props) {
       text: tokensRemoved,
     } = processTextAndFilesForSave(newUploadedFiles, description);
     const updatedFilteredUploads = _.isEmpty(uploadedFiles) ? filteredUploads : null;
-    return updateMarket(id, name, tokensRemoved, updatedFilteredUploads, null,
-      null, null, null, null)
+    return updateMarket(id, name, tokensRemoved, updatedFilteredUploads)
       .then((market) => {
         setOperationRunning(false);
         onSave(market);

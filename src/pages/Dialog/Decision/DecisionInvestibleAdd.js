@@ -120,7 +120,11 @@ function DecisionInvestibleAdd(props) {
       onSave(investible);
       return localforage.removeItem(itemKey);
     }).then(() => {
-      completionFunc();
+      if (typeof completionFunc === 'function') {
+        completionFunc();
+      } else {
+        onSpinComplete();
+      }
       setOperationRunning(false);
     });
   }

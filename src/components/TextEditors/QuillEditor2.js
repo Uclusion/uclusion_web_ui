@@ -24,6 +24,7 @@ import QuillS3ImageUploader from './QuillS3ImageUploader';
 import ImageResize from 'quill-image-resize-module-withfix';
 import QuillMention from 'quill-mention-uclusion';
 import CustomCodeBlock from './CustomCodeBlock';
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 
 
 // install our filtering paste module, and disable the uploader
@@ -106,11 +107,8 @@ function storeState (id, state) {
   setUclusionLocalStorageItem(id, state);
 }
 
-function getState (id) {
-  return getUclusionLocalStorageItem(id);
-}
 
-export function QuillEditor2 (props) {
+function QuillEditor2 (props) {
 
   const {
     id,
@@ -123,6 +121,7 @@ export function QuillEditor2 (props) {
     simple,
     participants,
     mentionsAllowed,
+    children,
   } = props;
 
   const containerRef = useRef();
@@ -151,7 +150,8 @@ export function QuillEditor2 (props) {
   registerListener(id, `${id}-control-plane`, (message) => {
     const {
       type,
-    } = message;
+      contents,
+    } = message.payload;
     switch (type) {
       case 'reset':
         return resetHandler();
@@ -361,10 +361,11 @@ export function QuillEditor2 (props) {
     }
     const editorOptions = generateEditorOptions();
     const editor = new Quill(boxRef.current, editorOptions);
+    addToolTips(editor.container.previousSibling);
     editor.getUrlName = getUrlName;
     disableToolbarTabs(containerRef.current);
     const debouncedOnChange = _.debounce((delta) => {
-      const contents = this.editor.root.innerHTML;
+      const contents = editor.root.innerHTML;
       if (editorEmpty(contents)) {
         onChange('', delta);
       } else {
@@ -388,7 +389,7 @@ export function QuillEditor2 (props) {
     if(!editor) {
       createEditor();
     }
-  }, [editor]);
+  });
 
   return (
     <div>
@@ -415,3 +416,5 @@ export function QuillEditor2 (props) {
     </div>
   );
 }
+
+export default QuillEditor2;

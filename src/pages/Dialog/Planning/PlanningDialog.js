@@ -54,7 +54,6 @@ import {
 } from '../../../contexts/TourContext/tourContextHelper';
 import { getMarketInfo, getVoteTotalsForUser, hasNotVoted } from '../../../utils/userFunctions'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
-import MarketLinks from '../MarketLinks'
 import MarketTodos from './MarketTodos'
 import Gravatar from '../../../components/Avatars/Gravatar';
 import { LocalPlanningDragContext } from './InvestiblesByWorkspace'
@@ -71,7 +70,6 @@ import { EXPANDED_CONTROL, ExpandedCommentContext } from '../../../contexts/Comm
 import WorkIcon from '@material-ui/icons/Work'
 import ListAltIcon from '@material-ui/icons/ListAlt'
 import EditIcon from '@material-ui/icons/Edit'
-import GavelIcon from '@material-ui/icons/Gavel'
 import BlockIcon from '@material-ui/icons/Block'
 import QuestionIcon from '@material-ui/icons/ContactSupport'
 import UpdateIcon from '@material-ui/icons/Update'
@@ -101,7 +99,7 @@ function PlanningDialog(props) {
   const [marketsState] = useContext(MarketsContext);
   const [expandedCommentState, expandedCommentDispatch] = useContext(ExpandedCommentContext);
   const intl = useIntl();
-  const { id: marketId, market_stage: marketStage, children } = market;
+  const { id: marketId, market_stage: marketStage } = market;
   const myExpandedState = expandedCommentState[`${marketId}_further`] || {};
   const { expanded: showFurther } = myExpandedState;
   const activeMarket = marketStage === ACTIVE_STAGE;
@@ -117,7 +115,6 @@ function PlanningDialog(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   // For security reasons you can't access source data while being dragged in case you are not the target website
   const [beingDraggedHack, setBeingDraggedHack] = useState({});
-  const [marketInfoList, setMarketInfoList] = useState(undefined);
   const [startTourNow, setStartTourNow] = useState(undefined);
   const presences = getMarketPresences(marketPresencesState, marketId);
   const acceptedStage = marketStages.find(stage => stage.assignee_enter_only) || {};
@@ -227,9 +224,6 @@ function PlanningDialog(props) {
   const { id: reportId } = getFakeCommentsArray(reports)[0];
   const todoComments = unResolvedMarketComments.filter((comment) => comment.comment_type === TODO_TYPE);
   const resolvedMarketComments = comments.filter(comment => !comment.investible_id && comment.resolved);
-  const activeChildrenDialogs = marketInfoList || [];
-  const inactiveChildrenDialogs = (children || []).filter((aMarketId) =>
-    !activeChildrenDialogs.find((aMarket) => aMarket.id === aMarketId));
   const navigationMenu = {navHeaderIcon: PlaylistAddCheckIcon,
     navListItemTextArray: [createNavListItem(EditIcon, 'description_label', 'workspaceMain'),
       createNavListItem(BlockIcon,'planningBlockedStageLabel', 'blocked', _.size(blockedInvestibles)),
@@ -244,7 +238,7 @@ function PlanningDialog(props) {
       createNavListItem(ChangeSuggstionIcon,'suggestions', `c${suggestId}`, _.size(suggestions)),
       {icon: MenuBookIcon, text: intl.formatMessage({ id: 'planningDialogViewArchivesLabel' }),
         target: formMarketArchivesLink(marketId), num: _.isEmpty(searchResults) ? undefined :
-          _.size(archiveInvestibles) + _.size(resolvedMarketComments) + _.size(inactiveChildrenDialogs)}
+          _.size(archiveInvestibles) + _.size(resolvedMarketComments)}
     ]};
   const furtherWorkReadyToStartChip = furtherWorkReadyToStart.length > 0
     && <Chip label={`${furtherWorkReadyToStart.length}`} color="primary" size='small' className={classes.chipStyle} />;

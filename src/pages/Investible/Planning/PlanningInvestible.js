@@ -13,7 +13,6 @@ import {
   Tooltip,
   Typography
 } from '@material-ui/core'
-import InsertLinkIcon from '@material-ui/icons/InsertLink'
 import { useHistory } from 'react-router'
 import { FormattedMessage, useIntl } from 'react-intl'
 import YourVoting from '../Voting/YourVoting'
@@ -61,7 +60,6 @@ import EditMarketButton from '../../Dialog/EditMarketButton'
 import MarketLinks from '../../Dialog/MarketLinks'
 import CardType from '../../../components/CardType'
 import clsx from 'clsx'
-import { DECISION_TYPE } from '../../../constants/markets'
 import DismissableText from '../../../components/Notifications/DismissableText'
 import PersonAddIcon from '@material-ui/icons/PersonAdd'
 import { EMPTY_SPIN_RESULT } from '../../../constants/global'
@@ -109,9 +107,6 @@ import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown'
 import HowToVoteIcon from '@material-ui/icons/HowToVote'
 import { getFakeCommentsArray } from '../../../utils/stringFunctions'
 import { QuestionAnswer } from '@material-ui/icons'
-import GavelIcon from '@material-ui/icons/Gavel'
-import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
-import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import BodyEdit from '../../BodyEdit'
 import AssignmentIcon from '@material-ui/icons/Assignment'
 
@@ -389,8 +384,6 @@ function PlanningInvestible(props) {
   }
   const [marketStagesState] = useContext(MarketStagesContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
-  const [searchResults] = useContext(SearchResultsContext);
-  const { results } = searchResults;
   const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
   const isInReview = inReviewStage && stage === inReviewStage.id;
   const inAcceptedStage = getAcceptedStage(marketStagesState, marketId) || {};
@@ -730,8 +723,6 @@ function PlanningInvestible(props) {
   const { id: reportId } = getFakeCommentsArray(reports)[0];
   const todoSortedComments = sortedRoots.filter((comment) => comment.comment_type === TODO_TYPE);
   const { id: todoId } = getFakeCommentsArray(todoSortedComments)[0];
-  const filteredChildren = _.isEmpty(results) || _.isEmpty(children) ? children :
-    children.filter((anId) => results.find((item) => item.id === anId));
   const navigationMenu = {navHeaderIcon: AssignmentIcon,
     navListItemTextArray: [createNavListItem(EditIcon,'description_label', 'storyMain'),
       displayVotingInput ? createNavListItem(HowToVoteIcon, 'pleaseVoteNav', 'pleaseVote') : {},

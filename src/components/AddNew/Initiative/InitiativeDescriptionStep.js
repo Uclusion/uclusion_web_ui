@@ -23,7 +23,6 @@ function InitiativeDescriptionStep (props) {
   const [investibleState] = useContext(InvestiblesContext);
 
   const editorName = 'initiativeDescriptionStep';
-
   const getUrlName = urlHelperGetName(marketState, investibleState);
   const editorSpec = {
     onChange: setEditorContents,
@@ -39,7 +38,7 @@ function InitiativeDescriptionStep (props) {
     updateFormData({
       initiativeDescription: editorContents,
     });
-    // the stateis in the form data, so we want to force the editor to reset
+    // the state is in the form data, so we want to force the editor to reset
     editorController(editorReset());
   }
 

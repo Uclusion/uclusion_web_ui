@@ -183,7 +183,7 @@ function CommentEdit(props) {
   const [investibleState, investibleDispatch] = useContext(InvestiblesContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const defaultDefaultFunc = (newDefault) => {};
-  const [editorDefaultFunc, setEditorDefaultFunc] = useState(() => defaultDefaultFunc);
+  const [editorDefaultFunc,   setEditorDefaultFunc] = useState(() => defaultDefaultFunc);
   const [loadedId, setLoadedId] = useState(undefined);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const presences = getMarketPresences(marketPresencesState, marketId);

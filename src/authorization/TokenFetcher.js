@@ -12,13 +12,12 @@ import { AllSequentialMap } from '../utils/PromiseUtils';
 
 class TokenFetcher {
 
-  constructor (tokenRefresher, ssoClient, tokenType, itemId, isObserver) {
+  constructor (tokenRefresher, ssoClient, tokenType, itemId) {
     this.ssoClient = ssoClient;
     this.tokenRefresher = tokenRefresher;
     this.tokenStorageManager = new TokenStorageManager();
     this.tokenType = tokenType;
     this.itemId = itemId;
-    this.isObserver = isObserver;
   }
 
   /**
@@ -51,17 +50,17 @@ class TokenFetcher {
 
   getRefreshedToken (itemId) {
     if (this.tokenType === TOKEN_TYPE_MARKET || this.tokenType === TOKEN_TYPE_ACCOUNT) {
-      return this.getIdentityBasedToken(this.isObserver, itemId);
+      return this.getIdentityBasedToken(itemId);
     }
     throw new Error('Can\'t refresh your token because I don\'t know how');
   }
 
-  getIdentityBasedToken (isObserver, itemId) {
+  getIdentityBasedToken (itemId) {
     return this.tokenRefresher.getIdentity()
       .then((identity) => {
         switch (this.tokenType) {
           case TOKEN_TYPE_MARKET:
-            return this.getMarketToken(identity, itemId, isObserver);
+            return this.getMarketToken(identity, itemId);
           case TOKEN_TYPE_ACCOUNT:
             return this.getAccountToken(identity, itemId);
           default:
@@ -70,14 +69,14 @@ class TokenFetcher {
       });
   }
 
-  getIdentityBasedTokenAndInfo (isObserver) {
+  getIdentityBasedTokenAndInfo (subscribeId) {
     return this.tokenRefresher.getIdentity()
       .then((identity) => {
         switch (this.tokenType) {
           case TOKEN_TYPE_MARKET:
-            return this.getMarketTokenAndLoginData(identity, this.itemId, isObserver);
+            return this.getMarketTokenAndLoginData(identity, this.itemId, subscribeId);
           case TOKEN_TYPE_MARKET_INVITE:
-            return this.getMarketTokenOnInvite(identity, this.itemId, isObserver);
+            return this.getMarketTokenOnInvite(identity, this.itemId, subscribeId);
           case TOKEN_TYPE_ACCOUNT:
             return this.getAccountToken(identity, this.itemId);
           default:
@@ -86,9 +85,8 @@ class TokenFetcher {
       });
   }
 
-  getMarketToken (identity, marketId, isObserver) {
-    // console.debug(`logging into market ${marketId} with cognito identity ${identity} and isObserver ${isObserver}`);
-    return this.getMarketTokenAndLoginData(identity, marketId, isObserver)
+  getMarketToken (identity, marketId, subscribeId) {
+    return this.getMarketTokenAndLoginData(identity, marketId, subscribeId)
       .then((loginData) => {
         const { uclusion_token } = loginData;
         return uclusion_token;
@@ -96,9 +94,8 @@ class TokenFetcher {
 
   }
 
-  getMarketTokenAndLoginData (identity, marketId, isObserver) {
-    // console.debug(`logging into market ${marketId} with cognito identity ${identity} and isObserver ${isObserver}`);
-    return this.ssoClient.marketCognitoLogin(identity, marketId, isObserver)
+  getMarketTokenAndLoginData (identity, marketId, subscribeId) {
+    return this.ssoClient.marketCognitoLogin(identity, marketId, subscribeId)
       .then((loginData) => {
         const { uclusion_token } = loginData;
         return this.tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, marketId, uclusion_token)
@@ -107,9 +104,8 @@ class TokenFetcher {
 
   }
 
-  getMarketTokenOnInvite (identity, marketToken, isObserver) {
-    // console.debug(`invite into market ${marketId} with cognito identity ${identity} and isObserver ${isObserver}`);
-    return this.ssoClient.marketInviteLogin(identity, marketToken, isObserver)
+  getMarketTokenOnInvite (identity, marketToken, subscribeId) {
+    return this.ssoClient.marketInviteLogin(identity, marketToken, subscribeId)
       .then((loginData) => {
         const { uclusion_token, market_id: marketId } = loginData;
         return this.tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, marketId, uclusion_token)

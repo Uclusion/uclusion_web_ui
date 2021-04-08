@@ -12,7 +12,6 @@ import _ from 'lodash';
 import ReactDOMServer from 'react-dom/server';
 import MentionListItem from './CustomUI/MentionListItem';
 import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../utils';
-import placeholder from 'lodash/fp/placeholder';
 import VideoDialog from './CustomUI/VideoDialog';
 import { embeddifyVideoLink } from './Utilities/VideoUtils';
 import LinkDialog from './CustomUI/LinkDialog';
@@ -94,17 +93,23 @@ function addToolTips (toolbar) {
  * @param placeHolder
  */
 function getInitialState (id, knownState, placeHolder) {
-  const storedState = getUclusionLocalStorageItem(id);
+  const storedState = getUclusionLocalStorageItem(`editor-${id}`);
   // might as well save it out, that way we keep the stored state up to date
   // with react
   if (knownState && knownState !== storedState) {
-    storeState(id, knownState);
+    storeState(`editor-${id}`, knownState);
   }
-  return knownState ?? storedState ?? placeholder;
+  if (knownState != null) {
+    return knownState;
+  }
+  if (storedState != null) {
+    return storedState
+  }
+  return placeHolder;
 }
 
 function storeState (id, state) {
-  setUclusionLocalStorageItem(id, state);
+  setUclusionLocalStorageItem(`editor-${id}`, state);
 }
 
 
@@ -137,17 +142,23 @@ function QuillEditor2 (props) {
   const boundsId = `editorBox-${id || marketId}`;
 
   const initialContents = getInitialState(id, value, placeholder);
+  const usingPlaceholder = placeholder === initialContents;
 
-  function resetHandler(){
-    editor.history.clear();
-    editor.setContents({insert: ''});
-    storeState(id, null);
+  function focusEditor(){
     if (!_.isEmpty(boxRef?.current?.children)) {
       boxRef.current.children[0].click();
     }
     editor.focus();
   }
-  registerListener(id, `${id}-control-plane`, (message) => {
+
+  function resetHandler(){
+    editor.history.clear();
+    editor.setContents({insert: ''});
+    storeState(id, null);
+    focusEditor();
+  }
+
+  registerListener(`editor-${id}-control-plane`, id, (message) => {
     const {
       type,
       contents,
@@ -156,13 +167,17 @@ function QuillEditor2 (props) {
       case 'reset':
         return resetHandler();
       case 'update': {
-        return onChange(message.contents);
+        return replaceEditorContents(contents);
       }
       default:
         // do nothing;
     }
   })
 
+  function replaceEditorContents(contents) {
+    editor.setContents({insert: contents});
+    storeState(id, contents);
+  }
   /**
    * The UI for videos is quite poor, so we need
    * to replace it with ours
@@ -347,16 +362,17 @@ function QuillEditor2 (props) {
   function onS3Upload (metadatas) {
     const newUploads = [...uploadedFiles, ...metadatas];
     setUploadedFiles(newUploads);
-    pushMessage(id, { type: 'uploads', newUploads });
+    pushMessage(`editor-${id}`, { type: 'uploads', newUploads });
   }
 
   function onChange (contents, delta) {
-    storeState(id, contents);
-    pushMessage(id, {type: 'update', contents, delta});
+    pushMessage(`editor-${id}`, {type: 'update', contents, delta});
   }
 
   function createEditor () {
-    if(boxRef.current) {
+    // we only set the contents if different from the placeholder
+    // otherwise the placeholder functionality of the editor won't work
+    if(boxRef.current && !usingPlaceholder) {
       boxRef.current.innerHTML = initialContents;
     }
     const editorOptions = generateEditorOptions();

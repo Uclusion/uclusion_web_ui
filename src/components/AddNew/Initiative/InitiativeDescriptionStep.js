@@ -10,8 +10,7 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
-import { pushMessage, registerListener } from '../../../utils/MessageBusUtils';
-import  QuillEditor2 from '../../TextEditors/QuillEditor2';
+import { editorReset, useEditor } from '../../TextEditors/quillHooks';
 
 function InitiativeDescriptionStep (props) {
   const { updateFormData, formData } = props;
@@ -23,26 +22,25 @@ function InitiativeDescriptionStep (props) {
   const [marketState] = useContext(MarketsContext);
   const [investibleState] = useContext(InvestiblesContext);
 
-  const editorId = 'initiativeDescriptionStep';
+  const editorName = 'initiativeDescriptionStep';
 
-  registerListener(editorId, editorId, (message) => {
-    const { type, newUploads, contents } = message.payload;
-    switch (type) {
-      case 'uploads':
-        return onS3Upload(newUploads);
-      case 'update':
-        return setEditorContents(contents);
-      default:
-        // do nothing;
-    }
-  });
+  const getUrlName = urlHelperGetName(marketState, investibleState);
+  const editorSpec = {
+    onChange: setEditorContents,
+    onUpload: onS3Upload,
+    getUrlName,
+    value: initiativeDescription,
+    placeholder: intl.formatMessage({ id: 'InitiativeWizardInitiativeDescriptionPlaceholder' })
+  };
+  const [Editor, editorController] = useEditor(editorName, editorSpec);
+
 
   function onStepChange () {
     updateFormData({
       initiativeDescription: editorContents,
     });
     // the stateis in the form data, so we want to force the editor to reset
-    pushMessage(`${editorId}-control-plane`, {type: 'reset'});
+    editorController(editorReset());
   }
 
   function onS3Upload (metadatas) {
@@ -54,7 +52,6 @@ function InitiativeDescriptionStep (props) {
   }
 
   const validForm = !_.isEmpty(editorContents);
-
   return (
     <WizardStepContainer
       {...props}
@@ -66,12 +63,7 @@ function InitiativeDescriptionStep (props) {
           Enter the description below. If voters don't understand they can ask Questions or make Suggestions if the idea
           needs tweaking.
         </Typography>
-        <QuillEditor2
-          id={editorId}
-          defaultValue={editorContents}
-          placeholder={intl.formatMessage({ id: 'InitiativeWizardInitiativeDescriptionPlaceholder' })}
-          getUrlName={urlHelperGetName(marketState, investibleState)}
-        />
+        {Editor}
         <div className={classes.borderBottom}/>
         <StepButtons {...props}
                      validForm={validForm}

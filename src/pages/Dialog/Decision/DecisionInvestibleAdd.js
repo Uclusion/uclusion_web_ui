@@ -2,8 +2,7 @@ import React, { useContext, useState, } from 'react'
 import PropTypes from 'prop-types'
 import { Card, CardActions, CardContent, TextField, } from '@material-ui/core'
 import localforage from 'localforage'
-import { addDecisionInvestible, addInvestibleToStage } from '../../../api/investibles'
-import QuillEditor from '../../../components/TextEditors/QuillEditor'
+import { addDecisionInvestible, addInvestibleToStage } from '../../../api/investibles';
 import { processTextAndFilesForSave } from '../../../api/files'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import { getStages } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
@@ -24,6 +23,7 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { usePlanFormStyles } from '../../../components/AgilePlan'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { Clear, SettingsBackupRestore } from '@material-ui/icons'
+import { editorReset, useEditor } from '../../../components/TextEditors/quillHooks';
 
 function DecisionInvestibleAdd(props) {
   const {
@@ -37,18 +37,14 @@ function DecisionInvestibleAdd(props) {
   } = props;
   const intl = useIntl();
   const classes = usePlanFormStyles();
-  const { description: storedDescription, name: storedName } = storedState;
+  const { name: storedName } = storedState;
   const [draftState, setDraftState] = useState(storedState);
   const [marketStagesState] = useContext(MarketStagesContext);
   const marketStages = getStages(marketStagesState, marketId) || [];
   const investmentAllowedStage = marketStages.find((stage) => stage.allows_investment) || {};
-  const emptyInvestible = { name: storedName || '', description: storedDescription };
+  const emptyInvestible = { name: storedName || ''};
   const [currentValues, setCurrentValues] = useState(emptyInvestible);
-  const defaultClearFunc = () => {};
-  //see https://stackoverflow.com/questions/55621212/is-it-possible-to-react-usestate-in-react for why we have a func
-  // that returns  func for editorClearFunc
-  const [editorClearFunc, setEditorClearFunc] = useState(() => defaultClearFunc);
-  const [description, setDescription] = useState(storedDescription);
+  const [description, setDescription] = useState();
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const { name } = currentValues;
@@ -57,6 +53,17 @@ function DecisionInvestibleAdd(props) {
   const [, diffDispatch] = useContext(DiffContext);
   const [investibleState] = useContext(InvestiblesContext);
   const [commentState, commentDispatch] = useContext(CommentsContext);
+
+  const editorName = `${marketId}-newInvestible`;
+  const editorSpec = {
+    onChange: onEditorChange,
+    marketId,
+    cssId: 'description',
+    onUpload: onS3Upload,
+    placeholder: intl.formatMessage({ id: 'investibleAddDescriptionDefault'}),
+    getUrlName: urlHelperGetName(marketState, investibleState),
+  };
+  const [Editor, editorController] = useEditor(editorName, editorSpec);
 
   const itemKey = `add_investible_${parentCommentId || marketId}`;
   function handleDraftState(newDraftState) {
@@ -72,15 +79,8 @@ function DecisionInvestibleAdd(props) {
     };
   }
 
-
   function onEditorChange(description) {
     setDescription(description);
-  }
-
-  function onStorageChange(description) {
-    localforage.getItem(itemKey).then((stateFromDisk) => {
-      handleDraftState({ ...stateFromDisk, description });
-    });
   }
 
   function onS3Upload(metadatas) {
@@ -118,6 +118,7 @@ function DecisionInvestibleAdd(props) {
       return addInvestibleToStage(addInfo);
     }).then((investible) => {
       onSave(investible);
+      editorController(editorReset());
       return localforage.removeItem(itemKey);
     }).then(() => {
       if (typeof completionFunc === 'function') {
@@ -157,6 +158,7 @@ function DecisionInvestibleAdd(props) {
     const promise = isAdmin ? addInvestibleToStage(addInfo) : addDecisionInvestible(addInfo);
     return promise.then((investible) => {
       onSave(investible);
+      editorController(editorReset());
       return localforage.removeItem(itemKey);
     }).then(() => {
       setOperationRunning(false);
@@ -172,9 +174,11 @@ function DecisionInvestibleAdd(props) {
     localforage.removeItem(itemKey)
       .finally(() => {
         setCurrentValues({ name: '' });
-        editorClearFunc();
+        editorController(editorReset());
       });
   }
+
+
 
   return (
     <Card className={classes.overflowVisible}>
@@ -190,20 +194,7 @@ function DecisionInvestibleAdd(props) {
           value={name}
           variant="filled"
         />
-        <QuillEditor
-          id="description"
-          marketId={marketId}
-          onChange={onEditorChange}
-          onStoreChange={onStorageChange}
-          placeholder={intl.formatMessage({ id: 'investibleAddDescriptionDefault' })}
-          onS3Upload={onS3Upload}
-          defaultValue={description}
-          setOperationInProgress={setOperationRunning}
-          setEditorClearFunc={(func) => {
-            setEditorClearFunc(func);
-          }}
-          getUrlName={urlHelperGetName(marketState, investibleState)}
-        />
+        {Editor}
       </CardContent>
       <CardActions className={classes.actions}>
         <SpinningIconLabelButton onClick={handleCancel} doSpin={false} icon={Clear}>

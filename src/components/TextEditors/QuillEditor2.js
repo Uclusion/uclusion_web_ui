@@ -117,6 +117,7 @@ function QuillEditor2 (props) {
 
   const {
     id,
+    cssId,
     value,
     getUrlName, // prefix to use in urls
     marketId,
@@ -414,7 +415,7 @@ function QuillEditor2 (props) {
       <div
         ref={containerRef}
         style={{ maxWidth: '100%', zIndex: '2', borderTop: '1px solid lightgrey' }}
-        id={id}
+        id={cssId}
       >
         <LoadingOverlay
           active={uploadInProgress}

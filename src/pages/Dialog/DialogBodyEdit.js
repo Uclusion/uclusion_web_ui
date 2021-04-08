@@ -148,6 +148,7 @@ function DialogBodyEdit(props) {
     onChange: onEditorChange,
     onUpload: onS3Upload,
     getUrlName,
+    marketId: id,
     value: initialDescription,
   }
   const [Editor, editorController] = useEditor(id, editorSpec);

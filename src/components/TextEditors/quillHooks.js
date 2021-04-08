@@ -19,6 +19,7 @@ export function useEditor (name, spec) {
 
   const {
     value,
+    marketId,
     onChange,
     onUpload,
     placeholder,
@@ -52,6 +53,7 @@ export function useEditor (name, spec) {
   const editor = (
     <QuillEditor2
       id={name}
+      marketId={marketId}
       value={value}
       placeholder={placeholder}
       getUrlName={getUrlName}

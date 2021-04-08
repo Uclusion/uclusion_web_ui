@@ -10,7 +10,7 @@ import {
   marketHasOnlyCurrentUser
 } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import DialogActions from '../../Home/DialogActions'
-import CardType, { AGILE_PLAN_TYPE, DECISION_TYPE } from '../../../components/CardType'
+import CardType, { AGILE_PLAN_TYPE } from '../../../components/CardType'
 import ParentSummary from '../ParentSummary'
 import { useMetaDataStyles } from '../../Investible/Planning/PlanningInvestible'
 import InsertLinkIcon from '@material-ui/icons/InsertLink'
@@ -28,7 +28,6 @@ import { EMPTY_SPIN_RESULT } from '../../../constants/global'
 import { doSetEditWhenValid } from '../../../utils/windowUtils'
 import { AccountContext } from '../../../contexts/AccountContext/AccountContext';
 import { canCreate } from '../../../contexts/AccountContext/accountContextHelper';
-import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import BodyEdit from '../../BodyEdit'
 
 const useStyles = makeStyles(theme => ({
@@ -240,39 +239,6 @@ function Summary(props) {
   }
   const myBeingEdited = beingEdited === id;
 
-  function getLinkedMarketActions () {
-    if (inArchives) {
-      return [];
-    }
-    if (creatEnabled) {
-      return [
-        <SpinningIconLabelButton
-          icon={InsertLinkIcon}
-          doSpin={false}
-          key="planningInvestibleDecision"
-          onClick={() => navigate(history, `/dialogAdd#type=${DECISION_TYPE}&id=${id}`)}
-        >
-          <FormattedMessage
-            id="planningInvestibleDecision"
-          />
-        </SpinningIconLabelButton>];
-    }
-    return [
-      [<ExpandableAction
-        id="upgrade"
-        key="upgrade"
-        icon={<InsertLinkIcon htmlColor={ACTION_BUTTON_COLOR}/>}
-        openLabel={intl.formatMessage({ id: 'upgradeNowDialog' })}
-        label={intl.formatMessage({ id: 'upgradeBannerText' })}
-        onClick={() =>
-          navigate(history, `/billing`)
-        }
-      />]
-    ];
-  }
-
-
-
   return (
     <Card className={classes.root} id="summary" elevation={3}>
       <CardType className={classes.type} type={AGILE_PLAN_TYPE} myBeingEdited={myBeingEdited} />
@@ -325,9 +291,21 @@ function Summary(props) {
             </div>
           </div>
           <ParentSummary market={market} hidden={hidden}/>
-          <div style={{paddingBottom: '1rem', paddingTop: '1rem'}}>
-            {getLinkedMarketActions()}
-          </div>
+          {!inArchives && !creatEnabled && (
+            <div style={{paddingTop: '1rem'}}>
+              <ExpandableAction
+                id="upgrade"
+                key="upgrade"
+                icon={<InsertLinkIcon htmlColor={ACTION_BUTTON_COLOR}/>}
+                openLabel={intl.formatMessage({ id: 'upgradeNowDialog' })}
+                label={intl.formatMessage({ id: 'upgradeBannerText' })}
+                onClick={() =>
+                  navigate(history, `/billing`)
+                }
+              />
+            </div>
+          )}
+          <div style={{paddingTop: '1rem'}} />
           <AttachedFilesList
             key="files"
             marketId={id}

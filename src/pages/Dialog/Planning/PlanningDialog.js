@@ -242,7 +242,6 @@ function PlanningDialog(props) {
       createNavListItem(QuestionIcon,'questions', `c${questionId}`, _.size(questions)),
       createNavListItem(UpdateIcon,'reports', `c${reportId}`, _.size(reports)),
       createNavListItem(ChangeSuggstionIcon,'suggestions', `c${suggestId}`, _.size(suggestions)),
-      createNavListItem(GavelIcon,'dialogs', 'dia0', _.size(activeChildrenDialogs)),
       {icon: MenuBookIcon, text: intl.formatMessage({ id: 'planningDialogViewArchivesLabel' }),
         target: formMarketArchivesLink(marketId), num: _.isEmpty(searchResults) ? undefined :
           _.size(archiveInvestibles) + _.size(resolvedMarketComments) + _.size(inactiveChildrenDialogs)}
@@ -433,7 +432,6 @@ function PlanningDialog(props) {
             <CommentBox comments={notTodoComments} marketId={marketId} allowedTypes={allowedCommentTypes} />
           </Grid>
       </Grid>
-      <MarketLinks links={children|| []} setMarketInfoList={setMarketInfoList} />
     </Screen>
   );
 }

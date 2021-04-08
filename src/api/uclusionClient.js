@@ -27,7 +27,7 @@ export const getMarketFromInvite = (marketToken, subscribeId) => {
   const ssoClient = client.constructSSOClient(config.api_configuration);
   return ssoClient.then((sso) => {
     const identitySource = new AmplifyIdentityTokenRefresher();
-    const tokenManager = new TokenFetcher(identitySource, sso, TOKEN_TYPE_MARKET_INVITE, marketToken, subscribeId);
+    const tokenManager = new TokenFetcher(identitySource, sso, TOKEN_TYPE_MARKET_INVITE, marketToken);
     return tokenManager.getIdentityBasedTokenAndInfo(subscribeId);
   });
 };
@@ -36,7 +36,7 @@ export const getMarketFromUrl = (marketId, subscribeId) => {
   const ssoClient = client.constructSSOClient(config.api_configuration);
   return ssoClient.then((sso) => {
     const identitySource = new AmplifyIdentityTokenRefresher();
-    const tokenManager = new TokenFetcher(identitySource, sso, TOKEN_TYPE_MARKET, marketId, true);
+    const tokenManager = new TokenFetcher(identitySource, sso, TOKEN_TYPE_MARKET, marketId);
     return tokenManager.getIdentityBasedTokenAndInfo(subscribeId);
   });
 };

@@ -495,28 +495,6 @@ function PlanningInvestible(props) {
     setClearMeHack(clearMeHack+clearMeHack);
   }
 
-  function getSidebarActions() {
-    if (inArchives) {
-      return [];
-    }
-    const sidebarActions = [];
-    if (!isInNotDoing) {
-      if (isAssigned) {
-        sidebarActions.push(<SpinningIconLabelButton
-          icon={InsertLinkIcon}
-          doSpin={false}
-          key="planningInvestibleDecision"
-          onClick={() => navigate(history, `/dialogAdd#type=${DECISION_TYPE}&investibleId=${investibleId}&id=${marketId}`)}
-        >
-          <FormattedMessage
-            id="planningInvestibleDecision"
-          />
-        </SpinningIconLabelButton>)
-      }
-    }
-    return sidebarActions;
-  }
-
   const enoughVotes = hasEnoughVotes(invested, votesRequired);
   const assignedInAcceptedStage = assigned.reduce((acc, userId) => {
     return acc.concat(assignedInStage(
@@ -764,8 +742,7 @@ function PlanningInvestible(props) {
       createNavListItem(UpdateIcon,'reports', `c${reportId}`, _.size(reports)),
       createNavListItem(ChangeSuggstionIcon,'suggestions', `c${suggestId}`, _.size(suggestions)),
       createNavListItem(ListAltIcon,'todoSection', `c${todoId}`, _.size(todoSortedComments)),
-      createNavListItem(QuestionAnswer,'closedComments', `c${closedId}`, _.size(sortedClosedRoots)),
-      createNavListItem(GavelIcon,'dialogs', 'dia0', _.size(filteredChildren)),
+      createNavListItem(QuestionAnswer,'closedComments', `c${closedId}`, _.size(sortedClosedRoots))
     ]};
   return (
     <Screen
@@ -924,7 +901,6 @@ function PlanningInvestible(props) {
                 isAdmin={isAdmin && !inArchives}
                 stageActions={getStageActions()}
                 expansionChanged={expansionChanged}
-                actions={getSidebarActions()}
                 anchorEl={anchorEl}
                 marketDaysEstimate={marketDaysEstimate}
                 setAnchorEl={setAnchorEl}
@@ -1189,7 +1165,6 @@ function MarketMetaData(props) {
     isAdmin,
     stageActions,
     expansionChanged,
-    actions,
     stage,
     stageName,
     anchorEl,
@@ -1303,9 +1278,7 @@ function MarketMetaData(props) {
           </div>
         </React.Fragment>
       )}
-      <div style={{paddingBottom: '1rem', paddingTop: '1rem'}}>
-        {actions}
-      </div>
+      <div style={{paddingTop: '1rem'}} />
       <AttachedFilesList
         marketId={market.id}
         onUpload={onAttachFiles}
@@ -1322,8 +1295,7 @@ MarketMetaData.propTypes = {
   marketInvestible: PropTypes.object.isRequired,
   isAdmin: PropTypes.bool.isRequired,
   stageActions: PropTypes.array,
-  expansionChanged: PropTypes.func.isRequired,
-  actions: PropTypes.arrayOf(PropTypes.element).isRequired,
+  expansionChanged: PropTypes.func.isRequired
 }
 
 function Assignments(props) {

@@ -41,7 +41,7 @@ function beginListening(dispatch, diffDispatch) {
     }
   });
   registerListener(LOAD_MARKET_CHANNEL, 'marketsLoadStart', (data) => {
-    const { payload: { event, marketToken, marketId } } = data;
+    const { payload: { event, marketToken, marketId, subscribeId } } = data;
     let loginPromise;
     switch (event) {
       case INVITE_MARKET_EVENT:
@@ -49,7 +49,7 @@ function beginListening(dispatch, diffDispatch) {
         break;
       case GUEST_MARKET_EVENT:
         // Login with market id to create guest capability if necessary
-        loginPromise = getMarketFromUrl(marketId);
+        loginPromise = getMarketFromUrl(marketId, subscribeId);
         break;
       default:
       // console.debug(`Ignoring identity event ${event}`);

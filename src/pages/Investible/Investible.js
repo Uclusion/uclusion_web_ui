@@ -1,6 +1,6 @@
 import React, { useContext, useEffect } from 'react'
 import PropTypes from 'prop-types'
-import { useHistory, useLocation } from 'react-router'
+import { useHistory, useLocation, useParams } from 'react-router'
 import _ from 'lodash'
 import Screen from '../../containers/Screen/Screen'
 import {
@@ -21,7 +21,6 @@ import DecisionInvestible from './Decision/DecisionInvestible'
 import PlanningInvestible from './Planning/PlanningInvestible'
 import { ACTIVE_STAGE, DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
 import InitiativeInvestible from './Initiative/InitiativeInvestible'
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
 import { pushMessage } from '../../utils/MessageBusUtils'
 import { GUEST_MARKET_EVENT, LOAD_MARKET_CHANNEL } from '../../contexts/MarketsContext/marketsContextMessages'
@@ -39,9 +38,10 @@ function Investible(props) {
   const location = useLocation();
   const { pathname } = location;
   const { marketId, investibleId } = decomposeMarketPath(pathname);
-  const [marketPresencesState, presenceDispatch] = useContext(MarketPresencesContext);
+  const { subscribeId } = useParams();
+  const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
-  const [marketsState, marketsDispatch] = useContext(MarketsContext);
+  const [marketsState] = useContext(MarketsContext);
   const realMarket = getMarket(marketsState, marketId);
   const market = realMarket || emptyMarket;
   const userId = getMyUserForMarket(marketsState, marketId) || '';
@@ -52,7 +52,6 @@ function Investible(props) {
   const investibleComments = comments.filter((comment) => comment.investible_id === investibleId);
   const commentsHash = createCommentsHash(investibleComments);
   const [investiblesState] = useContext(InvestiblesContext);
-  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const isInitialization = investiblesState.initializing || marketsState.initializing || marketPresencesState.initializing || commentsState.initializing;
   const investibles = getMarketInvestibles(investiblesState, marketId);
   const inv = getInvestible(investiblesState, investibleId);
@@ -73,11 +72,13 @@ function Investible(props) {
 
   useEffect(() => {
     const noMarketLoad = _.isEmpty(realMarket) && _.isEmpty(marketPresences);
-    if (!isInitialization && noMarketLoad && !hidden && marketId) {
-      pushMessage(LOAD_MARKET_CHANNEL, { event: GUEST_MARKET_EVENT, marketId });
+    if (!isInitialization && !hidden && marketId && subscribeId) {
+      pushMessage(LOAD_MARKET_CHANNEL, { event: GUEST_MARKET_EVENT, marketId, subscribeId });
+    } else if (!isInitialization && !hidden && marketId && noMarketLoad && investibleId) {
+      // Support copy and paste from the URL because we can without extra effort
+      pushMessage(LOAD_MARKET_CHANNEL, { event: GUEST_MARKET_EVENT, marketId, subscribeId: investibleId });
     }
-  }, [isInitialization, hidden, marketId, realMarket, marketPresences, setOperationRunning, marketsDispatch,
-    presenceDispatch, history]);
+  }, [hidden, investibleId, isInitialization, marketId, marketPresences, realMarket, subscribeId]);
 
   useEffect(() => {
     if (!hidden) {

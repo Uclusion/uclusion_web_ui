@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import _ from 'lodash'
-import { useHistory, useLocation } from 'react-router';
+import { useHistory, useLocation, useParams } from 'react-router'
 import PropTypes from 'prop-types'
 import { useIntl } from 'react-intl'
 import {
@@ -45,6 +45,7 @@ function Dialog(props) {
   const { pathname, hash } = location
   const myHashFragment = (hash && hash.length > 1) ? hash.substring(1, hash.length) : undefined
   const { marketId: marketEntity, action } = decomposeMarketPath(pathname);
+  const { subscribeId } = useParams();
   const [marketId, setMarketId] = useState(undefined);
   const [marketsState] = useContext(MarketsContext);
   const [investiblesState] = useContext(InvestiblesContext);
@@ -91,8 +92,10 @@ function Dialog(props) {
         proposedMarketId = marketEntity;
       }
       const loadedMarket = getMarket(marketsState, proposedMarketId);
-      // If we have the market no need to load
-      if (_.isEmpty(loadedMarket)) {
+      if (subscribeId) {
+        pushMessage(LOAD_MARKET_CHANNEL, { event: GUEST_MARKET_EVENT, marketId: proposedMarketId,
+          subscribeId });
+      } else if (_.isEmpty(loadedMarket)) {
         if (action === 'invite') {
           pushMessage(LOAD_MARKET_CHANNEL, { event: INVITE_MARKET_EVENT, marketToken: marketEntity });
         } else {
@@ -104,7 +107,7 @@ function Dialog(props) {
     if (hidden) {
       setMarketId(undefined);
     }
-  }, [action, hasUser, hidden, isInitialization, marketEntity, marketId, marketsState]);
+  }, [action, hasUser, hidden, isInitialization, marketEntity, marketId, marketsState, subscribeId]);
 
   useEffect(() => {
     if (!hidden && action === 'invite' && marketId && !_.isEmpty(marketStages) && marketType !== INITIATIVE_TYPE) {

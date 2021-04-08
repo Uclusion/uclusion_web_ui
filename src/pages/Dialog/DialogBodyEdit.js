@@ -17,7 +17,6 @@ import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { DiffContext } from '../../contexts/DiffContext/DiffContext'
 import { CardActions, CircularProgress, Typography } from '@material-ui/core'
-import QuillEditor from '../../components/TextEditors/QuillEditor'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { processTextAndFilesForSave } from '../../api/files'
 import NameField from '../../components/TextFields/NameField'
@@ -25,6 +24,7 @@ import { isTinyWindow } from '../../utils/windowUtils'
 import DescriptionOrDiff from '../../components/Descriptions/DescriptionOrDiff'
 import { Clear, SettingsBackupRestore } from '@material-ui/icons'
 import SpinningIconLabelButton from '../../components/Buttons/SpinningIconLabelButton'
+import { useEditor, editorReset } from '../../components/TextEditors/quillHooks';
 
 export const useLockedDialogStyles = makeStyles(
   (theme) => {
@@ -126,7 +126,7 @@ const useStyles = makeStyles(
 
 function DialogBodyEdit(props) {
   const { hidden, setBeingEdited, market, isEditableByUser, beingEdited, loaded, userId } = props;
-  const { description: storedDescription, name: storedName } = loaded || {};
+  const { name: storedName } = loaded || {};
   const intl = useIntl();
   const classes = useStyles();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -141,8 +141,17 @@ function DialogBodyEdit(props) {
   const [operationRunning] = useContext(OperationInProgressContext);
   const [name, setName] = useState(loaded !== undefined ? storedName : initialName);
   const [uploadedFiles, setUploadedFiles] = useState([]);
-  const [description, setDescription] = useState(loaded !== undefined ? storedDescription : initialDescription);
-  
+  const [description, setDescription] = useState(initialDescription);
+
+  const getUrlName = urlHelperGetName(marketsState, investiblesState);
+  const editorSpec = {
+    onChange: onEditorChange,
+    onUpload: onS3Upload,
+    getUrlName,
+    value: initialDescription,
+  }
+  const [Editor, editorController] = useEditor(id, editorSpec);
+
   useEffect(() => {
     if (!hidden && beingEdited) {
       if (marketType === PLANNING_TYPE && !loading && _.isEmpty(lockedBy) && !lockFailed) {
@@ -166,6 +175,8 @@ function DialogBodyEdit(props) {
     const updatedFilteredUploads = _.isEmpty(uploadedFiles) ? filteredUploads : null;
     return updateMarket(id, name, tokensRemoved, updatedFilteredUploads)
       .then((market) => {
+        //clear the editor because we want the storage back
+        editorController(editorReset());
         setOperationRunning(false);
         onSave(market);
       });
@@ -173,6 +184,7 @@ function DialogBodyEdit(props) {
 
   function onCancel() {
     setBeingEdited(false);
+    editorController(editorReset());
     if (marketType === PLANNING_TYPE) {
       unlockPlanningMarketForEdit(id).then((market) => updateMarketInStorage(market));
     }
@@ -234,9 +246,6 @@ function DialogBodyEdit(props) {
     setDescription(content);
   }
 
-  function onStorageChange(description) {
-    handleDraftState({ name, description });
-  }
 
   function onS3Upload(metadatas) {
     setUploadedFiles(metadatas);
@@ -270,15 +279,7 @@ function DialogBodyEdit(props) {
                        description={description}
                        name={name} label="agilePlanFormTitleLabel" placeHolder="decisionTitlePlaceholder"
                        id="decision-name" />
-            <QuillEditor
-              onChange={onEditorChange}
-              onStoreChange={onStorageChange}
-              defaultValue={description}
-              marketId={id}
-              onS3Upload={onS3Upload}
-              setOperationInProgress={setOperationRunning}
-              getUrlName={urlHelperGetName(marketsState, investiblesState)}
-            />
+            {Editor}
           </>
         )}
         {(lockedBy && (lockedBy !== userId)) && (

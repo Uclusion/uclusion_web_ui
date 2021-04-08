@@ -1,7 +1,6 @@
 import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
-import QuillEditor from '../../TextEditors/QuillEditor';
 
 import _ from 'lodash';
 import { useIntl } from 'react-intl';
@@ -11,6 +10,7 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
+import { editorReset, useEditor } from '../../TextEditors/quillHooks';
 
 function InitiativeDescriptionStep (props) {
   const { updateFormData, formData } = props;
@@ -22,14 +22,24 @@ function InitiativeDescriptionStep (props) {
   const [marketState] = useContext(MarketsContext);
   const [investibleState] = useContext(InvestiblesContext);
 
-  function onEditorChange (content) {
-    setEditorContents(content);
-  }
+  const editorName = 'initiativeDescriptionStep';
+  const getUrlName = urlHelperGetName(marketState, investibleState);
+  const editorSpec = {
+    onChange: setEditorContents,
+    onUpload: onS3Upload,
+    getUrlName,
+    value: initiativeDescription,
+    placeholder: intl.formatMessage({ id: 'InitiativeWizardInitiativeDescriptionPlaceholder' })
+  };
+  const [Editor, editorController] = useEditor(editorName, editorSpec);
+
 
   function onStepChange () {
     updateFormData({
       initiativeDescription: editorContents,
     });
+    // the state is in the form data, so we want to force the editor to reset
+    editorController(editorReset());
   }
 
   function onS3Upload (metadatas) {
@@ -41,7 +51,6 @@ function InitiativeDescriptionStep (props) {
   }
 
   const validForm = !_.isEmpty(editorContents);
-
   return (
     <WizardStepContainer
       {...props}
@@ -53,15 +62,8 @@ function InitiativeDescriptionStep (props) {
           Enter the description below. If voters don't understand they can ask Questions or make Suggestions if the idea
           needs tweaking.
         </Typography>
-        <QuillEditor
-          onChange={onEditorChange}
-          defaultValue={editorContents}
-          value={editorContents}
-          onS3Upload={onS3Upload}
-          placeholder={intl.formatMessage({ id: 'InitiativeWizardInitiativeDescriptionPlaceholder' })}
-          getUrlName={urlHelperGetName(marketState, investibleState)}
-        />
-        <div className={classes.borderBottom}></div>
+        {Editor}
+        <div className={classes.borderBottom}/>
         <StepButtons {...props}
                      validForm={validForm}
                      showSkip={true}

@@ -12,7 +12,7 @@ import {
 } from '../../utils/marketIdPathFunctions'
 import Screen from '../../containers/Screen/Screen'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
-import { addMarketToStorage, getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
+import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import DecisionDialog from './Decision/DecisionDialog'
@@ -22,18 +22,19 @@ import { getComment, getMarketComments } from '../../contexts/CommentsContext/co
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 import { getStages } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { addPresenceToMarket, getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { ACTIVE_STAGE, DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
-import { getMarketFromInvite, getMarketFromUrl } from '../../api/uclusionClient'
-import { createMarketListeners, pollForMarketLoad } from '../../api/versionedFetchUtils'
-import { toastError } from '../../utils/userMessage'
-import queryString from 'query-string'
 import jwt_decode from 'jwt-decode'
 import { userIsLoaded } from '../../contexts/AccountUserContext/accountUserContextHelper'
 import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import OnboardingBanner from '../../components/Banners/OnboardingBanner'
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
+import { pushMessage } from '../../utils/MessageBusUtils'
+import {
+  GUEST_MARKET_EVENT,
+  INVITE_MARKET_EVENT,
+  LOAD_MARKET_CHANNEL
+} from '../../contexts/MarketsContext/marketsContextMessages'
 
 function Dialog(props) {
   const { hidden } = props;
@@ -45,12 +46,11 @@ function Dialog(props) {
   const myHashFragment = (hash && hash.length > 1) ? hash.substring(1, hash.length) : undefined
   const { marketId: marketEntity, action } = decomposeMarketPath(pathname);
   const [marketId, setMarketId] = useState(undefined);
-  const [marketsState, marketsDispatch] = useContext(MarketsContext);
+  const [marketsState] = useContext(MarketsContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentsState] = useContext(CommentsContext);
-  const [marketPresencesState, presenceDispatch] = useContext(MarketPresencesContext);
-  const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [marketPresencesState] = useContext(MarketPresencesContext);
   const [searchResults] = useContext(SearchResultsContext);
   const { results } = searchResults;
   const allInvestibles = getMarketInvestibles(investiblesState, marketId) || [];
@@ -83,55 +83,28 @@ function Dialog(props) {
 
   useEffect(() => {
     if (!hidden && !isInitialization && hasUser) {
-      let loginPromise;
       let proposedMarketId;
       if (action === 'invite') {
-        const values = queryString.parse(hash);
-        const { is_obs: isObserver } = values;
-        const marketToken = marketEntity;
-        loginPromise = getMarketFromInvite(marketToken, isObserver === 'true');
-        const decodedToken = jwt_decode(marketToken);
-        proposedMarketId = decodedToken.market_id;
-        console.log(`Using invite for ${proposedMarketId}`);
+        const decoded = jwt_decode(marketEntity);
+        proposedMarketId = decoded.market_id;
       } else {
-        // Login with market id to create guest capability if necessary
-        loginPromise = getMarketFromUrl(marketEntity);
         proposedMarketId = marketEntity;
       }
       const loadedMarket = getMarket(marketsState, proposedMarketId);
-      // Check if followed an invite link for a market they already had
+      // If we have the market no need to load
       if (_.isEmpty(loadedMarket)) {
-        setOperationRunning(true);
-        loginPromise.then((result) => {
-          console.log('Quick adding market');
-          const { market, uclusion_token: tokenString, user } = result;
-          const { id } = market;
-          const decoded = jwt_decode(tokenString);
-          const { is_admin, role } = decoded;
-          const market_guest = role === 'MarketAnonymousUser';
-          addMarketToStorage(marketsDispatch, () => {}, market);
-          const presence = { ...user, is_admin, following: true, market_banned: false, market_guest };
-          addPresenceToMarket(presenceDispatch, id, presence);
-          createMarketListeners(id, setOperationRunning);
-          setMarketId(id);
-          return pollForMarketLoad(id);
-        }).catch((error) => {
-          console.error(error);
-          if (error.status === 400 || error.status === 404) {
-            history.push(`/${error.status}`);
-          } else {
-            toastError('errorMarketFetchFailed');
-          }
-        });
-      } else {
-        setMarketId(proposedMarketId);
+        if (action === 'invite') {
+          pushMessage(LOAD_MARKET_CHANNEL, { event: INVITE_MARKET_EVENT, marketToken: marketEntity });
+        } else {
+          pushMessage(LOAD_MARKET_CHANNEL, { event: GUEST_MARKET_EVENT, marketId: proposedMarketId });
+        }
       }
+      setMarketId(proposedMarketId);
     }
     if (hidden) {
       setMarketId(undefined);
     }
-  }, [action, hasUser, hash, hidden, history, isInitialization, marketEntity, marketsDispatch, marketsState,
-    presenceDispatch, setOperationRunning]);
+  }, [action, hasUser, hidden, isInitialization, marketEntity, marketId, marketsState]);
 
   useEffect(() => {
     if (!hidden && action === 'invite' && marketId && !_.isEmpty(marketStages) && marketType !== INITIATIVE_TYPE) {

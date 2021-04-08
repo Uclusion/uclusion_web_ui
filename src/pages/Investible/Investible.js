@@ -12,21 +12,19 @@ import {
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { getInvestible, getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
-import { addMarketToStorage, getMarket, getMyUserForMarket } from '../../contexts/MarketsContext/marketsContextHelper'
+import { getMarket, getMyUserForMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper'
-import { addPresenceToMarket, getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import DecisionInvestible from './Decision/DecisionInvestible'
 import PlanningInvestible from './Planning/PlanningInvestible'
 import { ACTIVE_STAGE, DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
 import InitiativeInvestible from './Initiative/InitiativeInvestible'
-import { getMarketFromUrl } from '../../api/uclusionClient'
-import { createMarketListeners, pollForMarketLoad } from '../../api/versionedFetchUtils'
-import { toastError } from '../../utils/userMessage'
-import jwt_decode from 'jwt-decode'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
+import { pushMessage } from '../../utils/MessageBusUtils'
+import { GUEST_MARKET_EVENT, LOAD_MARKET_CHANNEL } from '../../contexts/MarketsContext/marketsContextMessages'
 
 const emptyInvestible = { investible: { name: '', description: '' } };
 const emptyMarket = { name: '' };
@@ -76,29 +74,7 @@ function Investible(props) {
   useEffect(() => {
     const noMarketLoad = _.isEmpty(realMarket) && _.isEmpty(marketPresences);
     if (!isInitialization && noMarketLoad && !hidden && marketId) {
-      console.log(`Loading ${marketId} on no market`);
-      setOperationRunning(true);
-      // Login with market id to create guest capability
-      getMarketFromUrl(marketId).then((result) =>{
-        console.log('Quick adding market');
-        const { market, uclusion_token: tokenString, user } = result;
-        const { id } = market;
-        const decoded = jwt_decode(tokenString);
-        const { is_admin, role } = decoded;
-        const market_guest = role === 'MarketAnonymousUser';
-        addMarketToStorage(marketsDispatch, () => {}, market);
-        const presence = { ...user, is_admin, following: true, market_banned: false, market_guest };
-        addPresenceToMarket(presenceDispatch, id, presence);
-        createMarketListeners(id, setOperationRunning);
-        return pollForMarketLoad(id);
-      }).catch((error) => {
-        console.error(error);
-        if (error.status === 400 || error.status === 404) {
-          history.push(`/${error.status}`);
-        } else {
-          toastError('errorMarketFetchFailed');
-        }
-      });
+      pushMessage(LOAD_MARKET_CHANNEL, { event: GUEST_MARKET_EVENT, marketId });
     }
   }, [isInitialization, hidden, marketId, realMarket, marketPresences, setOperationRunning, marketsDispatch,
     presenceDispatch, history]);

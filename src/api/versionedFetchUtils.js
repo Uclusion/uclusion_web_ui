@@ -112,14 +112,14 @@ export function refreshGlobalVersion (refreshCalled) {
     });
 }
 
-export function createMarketListeners(id, setOperationRunning) {
+export function createMarketListeners(id) {
   registerListener(VERSIONS_HUB_CHANNEL, 'inviteListenerNewMarket', (data) => {
     const { payload: { event, marketId: messageMarketId } } = data;
     switch (event) {
       case  NEW_MARKET:
         if (messageMarketId === id) {
           removeListener(VERSIONS_HUB_CHANNEL, 'inviteListenerNewMarket');
-          setOperationRunning(false);
+          pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION });
         }
         break;
       default:
@@ -133,7 +133,7 @@ export function createMarketListeners(id, setOperationRunning) {
         // console.debug(`Markets context responding to updated market event ${event}`);
         if (marketDetails.id === id) {
           removeListener(PUSH_MARKETS_CHANNEL, 'marketPushInvite');
-          setOperationRunning(false);
+          pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION });
         }
         break;
       default:

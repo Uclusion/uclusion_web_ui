@@ -10,6 +10,9 @@ import {
   versionsUpdateMarketPresences
 } from './marketPresencesContextReducer'
 import { registerListener } from '../../utils/MessageBusUtils'
+import { addPresenceToMarket } from './marketPresencesHelper'
+
+export const ADD_PRESENCE = 'AddPresence';
 
 function beginListening(dispatch) {
   registerListener(REMOVED_MARKETS_CHANNEL, 'marketPresenceRemovedMarketStart', (data) => {
@@ -26,11 +29,14 @@ function beginListening(dispatch) {
     }
   });
   registerListener(PUSH_PRESENCE_CHANNEL, 'marketPresencePushStart', (data) => {
-    const { payload: { event, marketId, users } } = data;
+    const { payload: { event, marketId, users, presence } } = data;
 
     switch (event) {
       case VERSIONS_EVENT:
         dispatch(versionsUpdateMarketPresences(marketId, users));
+        break;
+      case ADD_PRESENCE:
+        addPresenceToMarket(dispatch, marketId, presence);
         break;
       default:
         // console.debug(`Ignoring push event ${event}`);

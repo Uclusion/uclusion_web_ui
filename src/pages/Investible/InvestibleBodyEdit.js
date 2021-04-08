@@ -90,7 +90,7 @@ function InvestibleBodyEdit(props) {
   }
 
   const { editable_by_roles: editableByRoles, allows_assignment: allowsAssignment,
-    allows_investment: allowsInvestment } = stage;
+    allows_investment: allowsInvestment } = stage || {};
   const isEditable = beingEdited && (_.size(editableByRoles) > 1 ||
     (marketType === PLANNING_TYPE && (_.size(assigned) > 1 || !allowsAssignment || allowsInvestment)));
 

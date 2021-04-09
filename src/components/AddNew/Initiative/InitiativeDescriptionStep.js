@@ -10,7 +10,7 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
-import { editorReset, useEditor } from '../../TextEditors/quillHooks';
+import { useEditor } from '../../TextEditors/quillHooks';
 
 function InitiativeDescriptionStep (props) {
   const { updateFormData, formData } = props;
@@ -28,18 +28,17 @@ function InitiativeDescriptionStep (props) {
     onChange: setEditorContents,
     onUpload: onS3Upload,
     getUrlName,
+    dontManageState: true,
     value: initiativeDescription,
     placeholder: intl.formatMessage({ id: 'InitiativeWizardInitiativeDescriptionPlaceholder' })
   };
-  const [Editor, editorController] = useEditor(editorName, editorSpec);
+  const [Editor] = useEditor(editorName, editorSpec);
 
 
   function onStepChange () {
     updateFormData({
       initiativeDescription: editorContents,
     });
-    // the state is in the form data, so we want to force the editor to reset
-    editorController(editorReset());
   }
 
   function onS3Upload (metadatas) {

@@ -5,7 +5,6 @@ import PropTypes from 'prop-types'
 import { Card, CardActions, CardContent, Checkbox, FormControlLabel, } from '@material-ui/core'
 import localforage from 'localforage'
 import { addPlanningInvestible } from '../../../api/investibles'
-import QuillEditor from '../../../components/TextEditors/QuillEditor'
 import { processTextAndFilesForSave } from '../../../api/files'
 import { formInvestibleLink, formMarketLink, urlHelperGetName } from '../../../utils/marketIdPathFunctions'
 import AssignmentList from './AssignmentList'
@@ -48,6 +47,7 @@ import { getMarketInvestibles } from '../../../contexts/InvestibesContext/invest
 import { nameFromDescription } from '../../../utils/stringFunctions'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { Clear, SettingsBackupRestore } from '@material-ui/icons'
+import { editorReset, useEditor } from '../../../components/TextEditors/quillHooks';
 
 function PlanningInvestibleAdd(props) {
   const {
@@ -57,14 +57,14 @@ function PlanningInvestibleAdd(props) {
   const intl = useIntl();
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
-  const { description: storedDescription, name: storedName, assignments: storedAssignments, storedUrlAssignee,
+  const { name: storedName, assignments: storedAssignments, storedUrlAssignee,
     completion_estimate: storedDaysEstimate } = storedState;
   const [draftState, setDraftState] = useState(storedState);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const emptyInvestible = { name: storedName };
   const [currentValues, setCurrentValues] = useState(emptyInvestible);
   const comments = getMarketComments(commentsState, marketId) || [];
-  const [description, setDescription] = useState(storedDescription);
+  const [description, setDescription] = useState();
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const location = useLocation();
   function getUrlAssignee() {
@@ -121,6 +121,18 @@ function PlanningInvestibleAdd(props) {
   const safeCompletedTours = _.isArray(completedTours)? completedTours : [];
   const acceptedStage = getAcceptedStage(marketStagesState, marketId) || {};
 
+  const editorName = `${marketId}-planning-inv-add`;
+  const editorSpec = {
+    marketId,
+    onChange: onEditorChange,
+    placeHolder: intl.formatMessage({ id: 'investibleAddDescriptionDefault' }),
+    onUpload: onS3Upload,
+    getUrlName: urlHelperGetName(marketState, investibleState),
+    value: description
+  }
+
+  const [Editor, editorController] = useEditor(editorName, editorSpec);
+
   const itemKey = `add_investible_${marketId}`;
   function handleDraftState(newDraftState) {
     setDraftState(newDraftState);
@@ -167,19 +179,14 @@ function PlanningInvestibleAdd(props) {
     setDescription(description);
   }
 
-  function onStorageChange(description) {
-    localforage.getItem(itemKey).then((stateFromDisk) => {
-      handleDraftState({ ...stateFromDisk, description });
-    });
-  }
-
   function onS3Upload(metadatas) {
     setUploadedFiles(metadatas);
   }
 
   function zeroCurrentValues() {
+    editorController(editorReset());
     setCurrentValues(emptyInvestible);
-    setDescription('');
+    setDescription(undefined);
   }
 
   function handleCancel() {
@@ -239,6 +246,7 @@ function PlanningInvestibleAdd(props) {
             return inv;
           });
       }
+      editorController(editorReset());
       return inv;
     }).then((inv) => {
       const { investible } = inv;
@@ -329,16 +337,7 @@ function PlanningInvestibleAdd(props) {
               )}
             </fieldset>
           </div>
-          <QuillEditor
-            marketId={marketId}
-            onChange={onEditorChange}
-            onStoreChange={onStorageChange}
-            placeholder={intl.formatMessage({ id: 'investibleAddDescriptionDefault' })}
-            onS3Upload={onS3Upload}
-            defaultValue={description}
-            setOperationInProgress={setOperationRunning}
-            getUrlName={urlHelperGetName(marketState, investibleState)}
-          />
+          {Editor}
           <NameField onEditorChange={handleNameChange} onStorageChange={handleNameStorage} description={description}
                      name={name} useCreateDefault />
         </CardContent>

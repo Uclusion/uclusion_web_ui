@@ -1033,8 +1033,8 @@ const messages = defineMessages({
   SignupWizardRequirementsWorkspace: 'Workspace to document project requirements or team topics',
   SignupWizardStoryWorkspace: 'Workspace to work with your team',
   SignupWizardFirstWorkspace: 'Create your first Workspace',
-  SignupWizardDialog: 'Dialog for a decision outside your team',
-  SignupWizardInitiative: 'Initiative to measure customer support for an idea',
+  SignupWizardDialog: 'Dialog for a decision without a workspace',
+  SignupWizardInitiative: 'Initiative to measure support for an idea without a workspace',
 
   //DialogWizard
   DialogWizardTitle: 'Your Dialog',

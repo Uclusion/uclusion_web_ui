@@ -123,6 +123,7 @@ function QuillEditor2 (props) {
     participants,
     mentionsAllowed,
     children,
+    dontManageState,
   } = props;
 
   const containerRef = useRef();
@@ -147,10 +148,17 @@ function QuillEditor2 (props) {
     editor.focus();
   }
 
+  function updateState(state) {
+    if (!dontManageState) {
+      storeState(id, state);
+    }
+  }
+
   function resetHandler(){
     editor.history.clear();
     editor.setContents({insert: ''});
-    storeState(id, null);
+    updateState(id, null);
+
     focusEditor();
   }
 
@@ -178,7 +186,7 @@ function QuillEditor2 (props) {
 
   function replaceEditorContents(contents) {
     editor.setContents({insert: contents});
-    storeState(id, contents);
+    updateState(id, contents);
   }
   /**
    * The UI for videos is quite poor, so we need
@@ -367,6 +375,7 @@ function QuillEditor2 (props) {
   }
 
   function onChange (contents, delta) {
+    updateState(id, contents);
     pushMessage(`editor-${id}`, {type: 'update', contents, delta});
   }
 

@@ -29,6 +29,7 @@ export function useEditor (name, spec) {
     simple,
     noToolbar,
     mentionsAllowed,
+    dontManageState,
   } = spec;
 
   const controlChannel = `editor-${name}-control-plane`;
@@ -67,6 +68,7 @@ export function useEditor (name, spec) {
       uploadDisabled={uploadDisabled}
       simple={simple}
       noToolbar={noToolbar}
+      dontManageState={dontManageState}
       />
   );
   return [editor, editorController];

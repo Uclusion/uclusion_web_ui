@@ -9,7 +9,7 @@ import { MarketsContext } from '../../../../contexts/MarketsContext/MarketsConte
 import { InvestiblesContext } from '../../../../contexts/InvestibesContext/InvestiblesContext';
 import WizardStepContainer from '../../WizardStepContainer';
 import { WizardStylesContext } from '../../WizardStylesContext';
-import { editorReset, useEditor } from '../../../TextEditors/quillHooks';
+import { useEditor } from '../../../TextEditors/quillHooks';
 
 function OptionDescriptionStep (props) {
   const { updateFormData, formData } = props;
@@ -32,7 +32,6 @@ function OptionDescriptionStep (props) {
   }
 
   function onFinish() {
-    editorController(editorReset());
     const newData = {
       optionDescription: editorContents,
     };
@@ -60,11 +59,12 @@ function OptionDescriptionStep (props) {
     onChange: onEditorChange,
     onUpload: onS3Upload,
     value:editorContents,
+    dontManageState: true,
     placeholder: intl.formatMessage({ id: 'AddOptionWizardOptionDescriptionPlaceHolder' }),
     getUrlName: urlHelperGetName(marketState, investibleState),
   };
 
-  const [Editor, editorController] = useEditor(editorName, editorSpec)
+  const [Editor] = useEditor(editorName, editorSpec)
 
   return (
     <WizardStepContainer

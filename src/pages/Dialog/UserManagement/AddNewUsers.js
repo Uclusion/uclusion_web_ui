@@ -45,7 +45,7 @@ function AddNewUsers (props) {
     setEmail1(value);
   }
 
-  const defaultChecked = extractUsersList(marketPresencesState, addToMarketId);
+  const defaultChecked = extractUsersList(marketPresencesState, addToMarketId, null, true);
   const [checked, setChecked] = useState(defaultChecked);
   const [searchValue, setSearchValue] = useState(undefined);
   const [filteredNames, setFilteredNames] = useState(undefined);

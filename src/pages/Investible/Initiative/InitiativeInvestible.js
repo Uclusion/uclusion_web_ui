@@ -334,7 +334,6 @@ function InitiativeInvestible(props) {
                 parentMarketId={parentMarketId}
                 parentInvestibleId={parentInvestibleId}
                 isFollowing={myPresence.following}
-                isGuest={myPresence.market_guest}
                 marketId={marketId}
                 initiativeId={investibleId}
                 mySetBeingEdited={mySetBeingEdited}

@@ -41,7 +41,6 @@ function DialogActions(props) {
     marketType,
     isAdmin,
     isFollowing,
-    isGuest,
     initiativeId,
     hideEdit,
     beingEdited,
@@ -79,12 +78,12 @@ function DialogActions(props) {
         );
       }
     }
-    if (marketStage === INACTIVE_STAGE && !isGuest) {
+    if (marketStage === INACTIVE_STAGE && isAdmin) {
       actions.push(
         <ActivateMarketButton key="activate-market" marketId={marketId} isFollowing={isFollowing}/>,
       );
     }
-    if (activeMarket && !isGuest && (hideEdit || marketType !== PLANNING_TYPE)) {
+    if (activeMarket && (hideEdit || marketType !== PLANNING_TYPE)) {
       if (isFollowing) {
         actions.push(
           <ChangeToObserverButton key="change-to-observer" marketId={marketId} />,
@@ -124,7 +123,6 @@ DialogActions.propTypes = {
   initiativeId: PropTypes.string,
   isAdmin: PropTypes.bool,
   isFollowing: PropTypes.bool,
-  isGuest: PropTypes.bool,
   beingEdited: PropTypes.string,
   mySetBeingEdited: PropTypes.func
 };
@@ -133,7 +131,6 @@ DialogActions.defaultProps = {
   isAdmin: false,
   isFollowing: true,
   initiativeId: '',
-  isGuest: false,
   beingEdited: undefined,
   mySetBeingEdited: () => {}
 };

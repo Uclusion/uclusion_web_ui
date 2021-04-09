@@ -103,7 +103,7 @@ function PlanningDialog(props) {
   const myExpandedState = expandedCommentState[`${marketId}_further`] || {};
   const { expanded: showFurther } = myExpandedState;
   const activeMarket = marketStage === ACTIVE_STAGE;
-  const inArchives = !activeMarket || (myPresence && (!myPresence.following || myPresence.market_guest));
+  const inArchives = !activeMarket || (myPresence && !myPresence.following);
   const isAdmin = myPresence.is_admin;
   const breadCrumbs = inArchives
       ? makeArchiveBreadCrumbs(history)

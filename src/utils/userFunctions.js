@@ -10,10 +10,10 @@ import _ from 'lodash'
 import config from '../config'
 import { getMarket } from '../contexts/MarketsContext/marketsContextHelper'
 
-export function extractUsersList (marketPresencesState, addToMarketId, workspaces, includeNotFollowing=true) {
+export function extractUsersList (marketPresencesState, addToMarketId, workspaces, includeAll=true) {
   // The account user is being stored with an undefined market ID and so need to avoid it
   const addToMarketPresencesRaw = addToMarketId ? getMarketPresences(marketPresencesState, addToMarketId) || [] : [];
-  const addToMarketPresences = addToMarketPresencesRaw.filter((presence) => !presence.market_guest);
+  const addToMarketPresences = addToMarketPresencesRaw.filter((presence) => !presence.market_guest || includeAll);
   const addToMarketPresencesHash = addToMarketPresences.reduce((acc, presence) => {
     const { external_id } = presence;
     return { ...acc, [external_id]: true };
@@ -30,13 +30,13 @@ export function extractUsersList (marketPresencesState, addToMarketId, workspace
         included = true;
       }
     })
-    if (included || includeNotFollowing) {
+    if (included || includeAll) {
       marketPresences.forEach((presence) => {
         const {
           id: user_id, name, account_id, external_id, email, market_banned: banned, current_user, following
         } = presence;
         if (!banned && !addToMarketPresencesHash[external_id] && !acc[user_id] && !macc[user_id]
-          && (includeNotFollowing || following)) {
+          && (includeAll || following)) {
           addToMarketPresencesHash[external_id] = true;
           macc[user_id] = {
             user_id, name, account_id, email, isChecked: false, external_id, current_user

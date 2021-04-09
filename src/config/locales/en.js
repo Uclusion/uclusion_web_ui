@@ -251,6 +251,7 @@ const messages = defineMessages({
   maxBudgetInputLabel: 'budget',
   maxBudgetInputHelperText: 'must be less than {x}',
   draft: 'Draft',
+  guest: 'Guest',
   inactive: 'Inactive',
 
   // Navigation menu

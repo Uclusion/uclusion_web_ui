@@ -353,6 +353,7 @@ function PlanningIdeas(props) {
           marketId={marketId}
           presenceId={presenceId}
           activeMarket={activeMarket}
+          isAdmin={myPresence.is_admin}
           marketPresences={marketPresences}
           comments={comments}
         />
@@ -612,7 +613,7 @@ const useVotingStageClasses = makeStyles(
 );
 
 function VotingStage (props) {
-  const { className, marketId, presenceId, activeMarket, comments, marketPresences, ...other } = props;
+  const { className, marketId, presenceId, activeMarket, isAdmin, comments, marketPresences, ...other } = props;
 
   const classes = useVotingStageClasses();
   const intl = useIntl();
@@ -632,7 +633,7 @@ function VotingStage (props) {
     <Stage
       classes={classes}
       fallbackWarning={
-        activeMarket &&
+        activeMarket && isAdmin &&
             <StageLink href={assignedLink} onClick={onClick}>
               {intl.formatMessage({
                 id: 'createAssignment'

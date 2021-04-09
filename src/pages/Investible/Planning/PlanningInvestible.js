@@ -706,7 +706,7 @@ function PlanningInvestible(props) {
   function createNavListItem(icon, textId, anchorId, howManyNum, alwaysShow) {
     return baseNavListItem(formInvestibleLink(marketId, investibleId), icon, textId, anchorId, howManyNum, alwaysShow);
   }
-  const displayVotingInput = isInVoting && !inArchives && isAdmin && canVote;
+  const displayVotingInput = isInVoting && !inArchives && canVote;
   const myBeingEdited = beingEdited === investibleId;
   const openComments = investmentReasonsRemoved.filter((comment) => !comment.resolved) || [];
   const closedComments = investmentReasonsRemoved.filter((comment) => comment.resolved) || [];
@@ -990,7 +990,7 @@ function PlanningInvestible(props) {
       <MarketLinks links={children || []} />
       <Grid container spacing={2}>
         <Grid item xs={12} style={{ marginTop: '15px' }}>
-          {!inArchives && isAdmin && !isInNotDoing && !isInVerified && (!isInVoting || !canVote || yourVote) && (
+          {!inArchives && !isInNotDoing && !isInVerified && (!isInVoting || !canVote || yourVote) && (
             <CommentAddBox
               allowedTypes={allowedCommentTypes}
               investible={investible}

@@ -2,8 +2,6 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types'
 import WhatDoYouWantToDo from './WhatDoYouWantToDo'
 import StoryWorkspaceWizard from './Workspace/StoryWorkspace/StoryWorkspaceWizard'
-import RequirementsWorkspaceWizard
-  from './Workspace/RequirementsWorkspace/RequirementsWorkspaceWizard'
 import DialogWizard from './Dialog/DialogWizard'
 import InitiativeWizard from './Initiative/InitiativeWizard'
 import { Clear } from '@material-ui/icons'
@@ -20,8 +18,6 @@ function WizardSelector(props) {
     switch (wizardToShow) {
       case 'storyWorkspace':
         return <StoryWorkspaceWizard onStartOver={onStartOver} onFinish={onFinish} isHome/>
-      case 'requirementsWorkspace':
-        return <RequirementsWorkspaceWizard onStartOver={onStartOver} onFinish={onFinish} isHome/>
       case 'dialog':
         return <DialogWizard onStartOver={onStartOver} onFinish={onFinish} isHome/>
       case 'initiative':

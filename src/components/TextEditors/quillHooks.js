@@ -24,6 +24,11 @@ export function useEditor (name, spec) {
     onUpload,
     placeholder,
     getUrlName,
+    uploadDisabled,
+    participants,
+    simple,
+    noToolbar,
+    mentionsAllowed,
   } = spec;
 
   const controlChannel = `editor-${name}-control-plane`;
@@ -57,6 +62,11 @@ export function useEditor (name, spec) {
       value={value}
       placeholder={placeholder}
       getUrlName={getUrlName}
+      participants={participants}
+      mentionsAllowed={mentionsAllowed}
+      uploadDisabled={uploadDisabled}
+      simple={simple}
+      noToolbar={noToolbar}
       />
   );
   return [editor, editorController];

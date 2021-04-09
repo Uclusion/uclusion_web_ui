@@ -1,7 +1,6 @@
 import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
-import QuillEditor from '../../../TextEditors/QuillEditor';
 import _ from 'lodash';
 import { useIntl } from 'react-intl';
 import StepButtons from '../../StepButtons';
@@ -10,6 +9,7 @@ import { MarketsContext } from '../../../../contexts/MarketsContext/MarketsConte
 import { InvestiblesContext } from '../../../../contexts/InvestibesContext/InvestiblesContext';
 import WizardStepContainer from '../../WizardStepContainer';
 import { WizardStylesContext } from '../../WizardStylesContext';
+import { editorReset, useEditor } from '../../../TextEditors/quillHooks';
 
 function OptionDescriptionStep (props) {
   const { updateFormData, formData } = props;
@@ -32,6 +32,7 @@ function OptionDescriptionStep (props) {
   }
 
   function onFinish() {
+    editorController(editorReset());
     const newData = {
       optionDescription: editorContents,
     };
@@ -54,6 +55,17 @@ function OptionDescriptionStep (props) {
     });
   }
 
+  const editorName = "dialogWizardAddOptionDescriptionStep"
+  const editorSpec = {
+    onChange: onEditorChange,
+    onUpload: onS3Upload,
+    value:editorContents,
+    placeholder: intl.formatMessage({ id: 'AddOptionWizardOptionDescriptionPlaceHolder' }),
+    getUrlName: urlHelperGetName(marketState, investibleState),
+  };
+
+  const [Editor, editorController] = useEditor(editorName, editorSpec)
+
   return (
     <WizardStepContainer
       {...props}
@@ -65,14 +77,7 @@ function OptionDescriptionStep (props) {
           description perfect
           since a collaborator can Ask a Question, make a Suggestion, or propose their own options.
         </Typography>
-        <QuillEditor
-          onChange={onEditorChange}
-          defaultValue={editorContents}
-          value={editorContents}
-          onS3Upload={onS3Upload}
-          placeholder={intl.formatMessage({ id: 'AddOptionWizardOptionDescriptionPlaceHolder' })}
-          getUrlName={urlHelperGetName(marketState, investibleState)}
-        />
+        {Editor}
         <div className={classes.borderBottom}/>
         <StepButtons
           {...props}

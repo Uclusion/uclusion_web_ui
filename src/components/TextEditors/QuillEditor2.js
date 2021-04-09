@@ -94,16 +94,11 @@ function addToolTips (toolbar) {
  */
 function getInitialState (id, knownState, placeHolder) {
   const storedState = getUclusionLocalStorageItem(`editor-${id}`);
-  // might as well save it out, that way we keep the stored state up to date
-  // with react
-  if (knownState && knownState !== storedState) {
-    storeState(`editor-${id}`, knownState);
+  if (storedState != null) {
+    return storedState
   }
   if (knownState != null) {
     return knownState;
-  }
-  if (storedState != null) {
-    return storedState
   }
   return placeHolder;
 }
@@ -159,17 +154,23 @@ function QuillEditor2 (props) {
     focusEditor();
   }
 
+  function setGetUrlName(getUrlName){
+    editor.getUrlName = getUrlName;
+  }
+
   registerListener(`editor-${id}-control-plane`, id, (message) => {
     const {
       type,
       contents,
+      getUrlName,
     } = message.payload;
     switch (type) {
       case 'reset':
         return resetHandler();
-      case 'update': {
+      case 'update':
         return replaceEditorContents(contents);
-      }
+      case 'setGetUrlName':
+        return setGetUrlName(getUrlName);
       default:
         // do nothing;
     }
@@ -206,7 +207,7 @@ function QuillEditor2 (props) {
         open={linkDialogOpen}
         onClose={() => setLinkDialogOpen(false)}
         onSave={(link) => {
-          console.error(link);
+        //  console.error(link);
           // if they haven't got anything selected, just get the current
           // position and insert the url as the text,
           // otherwise just format the current selection as a link
@@ -242,7 +243,6 @@ function QuillEditor2 (props) {
             setVideoDialogOpen(true);
           },
           'link': (value) => {
-            console.error(value);
             if (value) {
               setLinkDialogOpen(true);
             } else {
@@ -373,7 +373,7 @@ function QuillEditor2 (props) {
   function createEditor () {
     // we only set the contents if different from the placeholder
     // otherwise the placeholder functionality of the editor won't work
-    if(boxRef.current && !usingPlaceholder) {
+    if(boxRef.current && !usingPlaceholder && initialContents) {
       boxRef.current.innerHTML = initialContents;
     }
     const editorOptions = generateEditorOptions();

@@ -11,6 +11,7 @@ import { MarketsContext } from '../../../../contexts/MarketsContext/MarketsConte
 import { InvestiblesContext } from '../../../../contexts/InvestibesContext/InvestiblesContext'
 import WizardStepContainer from '../../WizardStepContainer';
 import { WizardStylesContext } from '../../WizardStylesContext';
+import { useEditor } from '../../../TextEditors/quillHooks';
 
 function CurrentStoryProgressStep (props) {
   const { updateFormData, formData} = props;
@@ -52,6 +53,16 @@ function CurrentStoryProgressStep (props) {
     });
   }
 
+  const editorName = 'CurrentStoryProgressStep-editor';
+  const editorSpec = {
+    onChange: onEditorChange,
+    simple: true,
+    value: editorContents,
+    placeholder: intl.formatMessage({ id: 'OnboardingWizardCurrentStoryProgressPlaceHolder'}),
+    dontManageState: true,
+  }
+
+  const [Editor] = useEditor(editorName, editorSpec);
 
   return (
     <WizardStepContainer
@@ -64,21 +75,14 @@ function CurrentStoryProgressStep (props) {
         telling everyone when you expect to be done and the current status. Fill in as much as you know or
         simply hit 'Skip'.
       </Typography>
-      <div className={classes.spacer}></div>
+      <div className={classes.spacer}/>
       <div className={classes.dateContainer}>
         <label className={classes.inputLabel}>{intl.formatMessage({ id: "daysEstimateMarketLabel" })}</label>
         <DaysEstimate showLabel={false} showHelper={false} onChange={onEstimateChange} value={currentStoryEstimate} createdAt={new Date()} />
       </div>
-      <div className={classes.borderBottom}></div>
-      <QuillEditor
-        placeholder={intl.formatMessage({ id: 'OnboardingWizardCurrentStoryProgressPlaceHolder'})}
-        defaultValue={editorContents}
-        value={editorContents}
-        simple
-        onChange={onEditorChange}
-        getUrlName={urlHelperGetName(marketState, investibleState)}
-      />
-      <div className={classes.borderBottom}></div>
+      <div className={classes.borderBottom}/>
+      {Editor}
+      <div className={classes.borderBottom}/>
       <StepButtons {...props} validForm={validForm}
                    onPrevious={onStepChange}
                    onNext={onStepChange}

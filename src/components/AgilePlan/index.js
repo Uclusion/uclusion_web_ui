@@ -1,5 +1,4 @@
 import * as React from 'react'
-import { useContext } from 'react'
 import Card from '@material-ui/core/Card'
 import CardActions from '@material-ui/core/CardActions'
 import CardContent from '@material-ui/core/CardContent'
@@ -12,16 +11,13 @@ import TextField from '@material-ui/core/TextField'
 import { useIntl } from 'react-intl'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import CardType, { AGILE_PLAN_TYPE } from '../../components/CardType'
-import QuillEditor from '../../components/TextEditors/QuillEditor'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { Typography } from '@material-ui/core'
 import clsx from 'clsx'
-import { urlHelperGetName } from '../../utils/marketIdPathFunctions'
-import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
-import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'
 import { Clear, SettingsBackupRestore } from '@material-ui/icons'
+import { useEditor } from '../TextEditors/quillHooks';
 
 export const usePlanFormStyles = makeStyles(
   theme => ({
@@ -314,16 +310,24 @@ export function Form(props) {
     onCancel,
     onSave,
     onS3Upload,
-    onStorageChange,
-    setOperationRunning,
     votesRequired,
     onVotesRequiredChange,
     createEnabled,
   } = props;
-  const [marketState] = useContext(MarketsContext);
-  const [investibleState] = useContext(InvestiblesContext);
   const [viewAdvanced, setViewAdvanced] = React.useState(false);
   const [validForm, setValidForm] = React.useState(true);
+
+  const editorName=`new-agileplan-editor`;
+  const editorSpec = {
+    onS3Upload: onS3Upload,
+    value: description,
+    onChange: onDescriptionChange,
+    placeholder: intl.formatMessage({ id: "descriptionEdit"}),
+    className: classes.fullWidth,
+  }
+
+  const [Editor] = useEditor(editorName, editorSpec);
+
   React.useEffect(() => {
     // Long form to prevent flicker
     if (
@@ -354,19 +358,7 @@ export function Form(props) {
           value={name}
           variant="filled"
         />
-        <QuillEditor
-          onS3Upload={onS3Upload}
-          marketId={marketId}
-          onChange={onDescriptionChange}
-          onStoreChange={onStorageChange}
-          placeholder={intl.formatMessage({
-            id: "descriptionEdit"
-          })}
-          defaultValue={description}
-          className={classes.fullWidth}
-          setOperationInProgress={setOperationRunning}
-          getUrlName={urlHelperGetName(marketState, investibleState)}
-        />
+        {Editor}
         <ExpansionPanel expanded={viewAdvanced}>
             <ExpansionPanelSummary
               onClick={() => {setViewAdvanced(!viewAdvanced)}}

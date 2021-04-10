@@ -3,20 +3,13 @@ import PropTypes from 'prop-types';
 import { TextField, Typography } from '@material-ui/core';
 import { useIntl } from 'react-intl';
 import _ from 'lodash';
-import {
-  urlHelperGetName
-} from '../../../../utils/marketIdPathFunctions';
 import StepButtons from '../../StepButtons';
-import QuillEditor from '../../../TextEditors/QuillEditor';
 import { WizardStylesContext } from '../../WizardStylesContext';
 import WizardStepContainer from '../../WizardStepContainer';
-import { MarketsContext } from '../../../../contexts/MarketsContext/MarketsContext';
-import { InvestiblesContext } from '../../../../contexts/InvestibesContext/InvestiblesContext';
+import { useEditor } from '../../../TextEditors/quillHooks';
 
 function NextStoryStep (props) {
   const { updateFormData, formData } = props;
-  const [marketState] = useContext(MarketsContext);
-  const [investibleState] = useContext(InvestiblesContext);
 
   const intl = useIntl();
   const classes = useContext(WizardStylesContext);
@@ -28,6 +21,17 @@ function NextStoryStep (props) {
   const [editorContents, setEditorContents] = useState(nextStoryDescription || '');
   const storyName = nextStoryName || '';
   const validForm = !_.isEmpty(nextStoryName);
+
+  const editorName = "NextStoryStep-editor";
+  const editorSpec = {
+    placeholder: intl.formatMessage({ id: 'OnboardingWizardNextStoryDescriptionPlaceHolder' }),
+    value: editorContents,
+    onUpload: onS3Upload,
+    onChange: onEditorChange,
+    dontManageState: true,
+  };
+
+  const [Editor] = useEditor(editorName, editorSpec);
 
   function onNameChange (event) {
     const { value } = event.target;
@@ -84,15 +88,8 @@ function NextStoryStep (props) {
           value={storyName}
           onChange={onNameChange}
         />
-        <QuillEditor
-          placeholder={intl.formatMessage({ id: 'OnboardingWizardNextStoryDescriptionPlaceHolder' })}
-          value={editorContents}
-          defaultValue={editorContents}
-          onS3Upload={onS3Upload}
-          onChange={onEditorChange}
-          getUrlName={urlHelperGetName(marketState, investibleState)}
-        />
-        <div className={classes.borderBottom}></div>
+        {Editor}
+        <div className={classes.borderBottom}/>
         <StepButtons
           {...props}
           validForm={validForm}

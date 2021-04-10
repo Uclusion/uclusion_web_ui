@@ -10,13 +10,12 @@ import { MarketsContext } from '../../../../contexts/MarketsContext/MarketsConte
 import { InvestiblesContext } from '../../../../contexts/InvestibesContext/InvestiblesContext';
 import { WizardStylesContext } from '../../WizardStylesContext';
 import WizardStepContainer from '../../WizardStepContainer';
+import { useEditor } from '../../../TextEditors/quillHooks';
 
 function CurrentStoryStep (props) {
   const { updateFormData, formData } = props;
   const intl = useIntl();
   const classes = useContext(WizardStylesContext);
-  const [marketState] = useContext(MarketsContext);
-  const [investibleState] = useContext(InvestiblesContext);
   const {
     currentStoryName,
     currentStoryDescription,
@@ -25,6 +24,17 @@ function CurrentStoryStep (props) {
   const [editorContents, setEditorContents] = useState(currentStoryDescription);
   const storyName = currentStoryName || '';
   const validForm = !_.isEmpty(currentStoryName);
+
+  const editorName = "CurrentStoryStep-editor";
+  const editorSpec = {
+    onUpload: onS3Upload,
+    onChange: onEditorChange,
+    dontManageState: true,
+    value: editorContents,
+    placeholder: intl.formatMessage({ id: 'OnboardingWizardCurrentStoryDescriptionPlaceHolder' }),
+  }
+
+  const [Editor] = useEditor(editorName, editorSpec);
 
   function onNameChange (event) {
     const { value } = event.target;
@@ -70,15 +80,8 @@ function CurrentStoryStep (props) {
           value={storyName}
           onChange={onNameChange}
         />
-        <QuillEditor
-          placeholder={intl.formatMessage({ id: 'OnboardingWizardCurrentStoryDescriptionPlaceHolder' })}
-          value={editorContents}
-          defaultValue={editorContents}
-          onS3Upload={onS3Upload}
-          onChange={onEditorChange}
-          getUrlName={urlHelperGetName(marketState, investibleState)}
-        />
-        <div className={classes.borderBottom}></div>
+        {Editor}
+        <div className={classes.borderBottom}/>
         <StepButtons {...props}
                      validForm={validForm}
                      onPrevious={onStepChange}

@@ -24,6 +24,7 @@ import ImageResize from 'quill-image-resize-module-withfix';
 import QuillMention from 'quill-mention-uclusion';
 import CustomCodeBlock from './CustomCodeBlock';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
+import PropTypes from 'prop-types';
 
 
 // install our filtering paste module, and disable the uploader
@@ -114,7 +115,6 @@ function QuillEditor2 (props) {
     id,
     cssId,
     value,
-    getUrlName, // prefix to use in urls
     marketId,
     placeholder,
     uploadDisabled,
@@ -145,7 +145,7 @@ function QuillEditor2 (props) {
     if (!_.isEmpty(boxRef?.current?.children)) {
       boxRef.current.children[0].click();
     }
-    editor.focus();
+    editor && editor.focus();
   }
 
   function updateState(state) {
@@ -155,30 +155,26 @@ function QuillEditor2 (props) {
   }
 
   function resetHandler(){
+    console.error(`resetting ${id}`);
+    storeState(id, null);
     editor.history.clear();
     editor.setContents({insert: ''});
-    updateState(id, null);
-
     focusEditor();
   }
 
-  function setGetUrlName(getUrlName){
-    editor.getUrlName = getUrlName;
-  }
 
   registerListener(`editor-${id}-control-plane`, id, (message) => {
     const {
       type,
-      contents,
-      getUrlName,
+      contents
     } = message.payload;
     switch (type) {
       case 'reset':
         return resetHandler();
       case 'update':
         return replaceEditorContents(contents);
-      case 'setGetUrlName':
-        return setGetUrlName(getUrlName);
+      case 'focus':
+        return focusEditor();
       default:
         // do nothing;
     }
@@ -388,7 +384,6 @@ function QuillEditor2 (props) {
     const editorOptions = generateEditorOptions();
     const editor = new Quill(boxRef.current, editorOptions);
     addToolTips(editor.container.previousSibling);
-    editor.getUrlName = getUrlName;
     disableToolbarTabs(containerRef.current);
     const debouncedOnChange = _.debounce((delta) => {
       const contents = editor.root.innerHTML;
@@ -442,5 +437,39 @@ function QuillEditor2 (props) {
     </div>
   );
 }
+
+QuillEditor2.propTypes = {
+  marketId: PropTypes.string,
+  onS3Upload: PropTypes.func,
+  value: PropTypes.string,
+  onChange: PropTypes.func,
+  onStoreChange: PropTypes.func,
+  placeholder: PropTypes.string,
+  uploadDisabled: PropTypes.bool,
+  noToolbar: PropTypes.bool,
+  setOperationInProgress: PropTypes.func,
+  getUrlName: PropTypes.func.isRequired,
+  intl: PropTypes.object.isRequired,
+  id: PropTypes.string,
+  simple: PropTypes.bool,
+  participants: PropTypes.arrayOf(PropTypes.object),
+  mentionsAllowed: PropTypes.bool,
+};
+
+QuillEditor2.defaultProps = {
+  onS3Upload: () => {
+  },
+  onChange: () => {
+  },
+  value: '',
+  placeholder: '',
+  marketId: undefined,
+  uploadDisabled: false,
+  noToolbar: false,
+  id: undefined,
+  simple: false,
+  participants: [],
+  mentionsAllowed: true,
+};
 
 export default QuillEditor2;

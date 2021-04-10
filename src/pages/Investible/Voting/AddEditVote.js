@@ -17,7 +17,6 @@ import {
   TextField
 } from '@material-ui/core'
 import { removeInvestment, updateInvestment } from '../../../api/marketInvestibles'
-import QuillEditor from '../../../components/TextEditors/QuillEditor'
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
@@ -32,12 +31,10 @@ import clsx from 'clsx'
 import { Dialog } from '../../../components/Dialogs'
 import WarningIcon from '@material-ui/icons/Warning'
 import { useLockedDialogStyles } from '../../Dialog/DialogBodyEdit'
-import { urlHelperGetName } from '../../../utils/marketIdPathFunctions'
-import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
-import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { Add, Delete, SettingsBackupRestore } from '@material-ui/icons'
+import { editorReset, useEditor } from '../../../components/TextEditors/quillHooks';
 
 const useStyles = makeStyles(
   theme => {
@@ -139,8 +136,6 @@ function AddEditVote(props) {
   const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [open, setOpen] = useState(false);
   const warnClearVotes = !allowMultiVote && hasVoted && _.isEmpty(investment);
-  const [marketState] = useContext(MarketsContext);
-  const [investibleState] = useContext(InvestiblesContext);
   const myHelperText = storyMaxBudget ?
     intl.formatMessage({ id: "maxBudgetInputHelperText" }, { x: storyMaxBudget + 1 }) : '';
   const units = getMarketUnits(marketPresencesState, marketId, intl);
@@ -151,6 +146,17 @@ function AddEditVote(props) {
   function toggleOpen() {
     setOpen(!open);
   }
+
+  const editorName = `${marketId}-{investibleId}-add-edit-vote-reason`;
+  const editorSpec = {
+    marketId,
+    placeholder: intl.formatMessage({ id: "yourReason" }),
+    value: body,
+    onChange: onEditorChange,
+    uploadDisabled: true,
+  };
+  const [Editor, editorController] = useEditor(editorName, editorSpec);
+
 
   const saveEnabled =
     addMode ||
@@ -176,6 +182,7 @@ function AddEditVote(props) {
     };
 
     return updateInvestment(updateInfo).then(result => {
+      editorController(editorReset());
       setOperationRunning(false);
       onSaveSpinStop(result);
     });
@@ -205,6 +212,7 @@ function AddEditVote(props) {
   }
 
   function onRemove() {
+    editorController(editorReset());
     setOperationRunning(true);
     return removeInvestment(marketId, investibleId).then(result => {
       setOperationRunning(false);
@@ -301,15 +309,7 @@ function AddEditVote(props) {
               </div>
             </>
           )}
-          <QuillEditor
-            marketId={marketId}
-            placeholder={intl.formatMessage({ id: "yourReason" })}
-            defaultValue={body}
-            onChange={onEditorChange}
-            uploadDisabled
-            setOperationInProgress={setOperationRunning}
-            getUrlName={urlHelperGetName(marketState, investibleState)}
-          />
+          {Editor}
         </CardContent>
         <CardActions className={classes.actions}>
           {multiplier && !addMode && (

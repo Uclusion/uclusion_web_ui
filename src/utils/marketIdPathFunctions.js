@@ -3,6 +3,8 @@ import { pushMessage } from './MessageBusUtils'
 import _ from 'lodash'
 import { getInvestible } from '../contexts/InvestibesContext/investiblesContextHelper'
 import { getMarket } from '../contexts/MarketsContext/marketsContextHelper'
+import { marketsContextHack } from '../contexts/MarketsContext/MarketsContext';
+import { investibleContextHack } from '../contexts/InvestibesContext/InvestiblesContext';
 
 export const VISIT_CHANNEL = 'VisitChannel';
 export const VIEW_EVENT = 'pageView';
@@ -145,8 +147,9 @@ export function formInviteLink(marketToken) {
   return url.toString();
 }
 
-export function urlHelperGetName(marketState, investibleState) {
-  return (url) => {
+export function getNameForUrl(url) {
+  const marketState = marketsContextHack;
+  const investibleState = investibleContextHack;
     const urlParts = new URL(url);
     if (urlParts.host === window.location.host && !urlParts.hash) {
       // Ignore hash related as they can go to comments, user in swimlane, vote etc. which are difficult to name
@@ -170,7 +173,6 @@ export function urlHelperGetName(marketState, investibleState) {
       }
     }
     return undefined;
-  }
 }
 
 export function openInNewTab(url) {

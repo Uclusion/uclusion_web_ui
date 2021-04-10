@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { FormattedMessage, useIntl } from 'react-intl'
 import {
   Button,
@@ -13,14 +13,11 @@ import {
   RadioGroup
 } from '@material-ui/core'
 import PropTypes from 'prop-types'
-import QuillEditor from '../TextEditors/QuillEditor'
 import { getMentionsFromText, updateComment } from '../../api/comments';
 import { processTextAndFilesForSave } from '../../api/files'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { ISSUE_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../constants/comments'
-import { urlHelperGetName } from '../../utils/marketIdPathFunctions'
-import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
@@ -36,15 +33,8 @@ import { removeMessage } from '../../contexts/NotificationsContext/notifications
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 import { Clear, Update } from '@material-ui/icons'
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'
+import { editorReset, useEditor } from '../TextEditors/quillHooks';
 
-/***
- * MASSIVE TODOS
- * 1) We need to move storage into local storage etc into the editor
- * 2) We need to convert to a functional style
- * 3) We need to pass in a react object of SIMPLE TYPES, that define all the params
- * the editor needs to start up, and rebuild the editor if those simple types change
- * (this could be the props object, but the use effects can get long
- */
 const useStyles = makeStyles((theme) => ({
   hidden: {
     display: 'none',
@@ -179,42 +169,28 @@ function CommentEdit(props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [type, setType] = useState(commentType);
-  const [marketState] = useContext(MarketsContext);
   const [investibleState, investibleDispatch] = useContext(InvestiblesContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
-  const defaultDefaultFunc = (newDefault) => {};
-  const [editorDefaultFunc,   setEditorDefaultFunc] = useState(() => defaultDefaultFunc);
-  const [loadedId, setLoadedId] = useState(undefined);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const presences = getMarketPresences(marketPresencesState, marketId);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, versionsDispatch] = useContext(VersionsContext);
 
-  useEffect(() => {
-    if (loadedId !== id) {
-      localforage.getItem(id).then((stateFromDisk) => {
-        if (stateFromDisk) {
-          setBody(stateFromDisk);
-          editorDefaultFunc(stateFromDisk);
-        } else {
-          setBody(initialBody);
-          editorDefaultFunc(initialBody);
-        }
-        setLoadedId(id);
-      }
+  const editorName = `${marketId}-${id}-comment-edit-editor`;
+  const editorSpec = {
+    value: body,
+    onChange: onEditorChange,
+    onUpload: onS3Upload,
+    participants: presences,
+    marketId,
+  }
 
-      );
-    }
-    return () => {};
-  }, [loadedId, id, editorDefaultFunc, initialBody]);
+  const [Editor, editorController] = useEditor(editorName, editorSpec);
 
   function onEditorChange(content) {
     setBody(content);
   }
 
-  function onStorageChange(value) {
-    localforage.setItem(id, value).then(() => {});
-  }
 
   function handleSave() {
     setOperationRunning(true);
@@ -228,6 +204,7 @@ function CommentEdit(props) {
     const myActualNotificationType = commentType === TODO_TYPE && !investibleId ? myNotificationType : undefined;
     return updateComment(marketId, id, tokensRemoved, updatedType, filteredUploads, mentions, myActualNotificationType)
       .then((comment) => {
+        editorController(editorReset());
         onCommentOpen(investibleState, investibleId, marketStagesState, marketId, comment, investibleDispatch,
           commentState, commentDispatch, versionsDispatch);
         if (commentType === REPORT_TYPE) {
@@ -300,20 +277,7 @@ function CommentEdit(props) {
               </RadioGroup>
             </FormControl>
           )}
-          <QuillEditor
-            defaultValue={initialBody}
-            marketId={marketId}
-            onChange={onEditorChange}
-            onS3Upload={onS3Upload}
-            setOperationInProgress={setOperationRunning}
-            getUrlName={urlHelperGetName(marketState, investibleState)}
-            onStoreChange={onStorageChange}
-            setEditorDefaultFunc={(func) => {
-              setEditorDefaultFunc(func);
-            }}
-            participants={presences}
-            editorStorageId={id}
-          />
+          {Editor}
         </CardContent>
         <CardActions className={classes.cardActions}>
           <SpinningIconLabelButton onClick={handleCancel} doSpin={false} icon={Clear}>

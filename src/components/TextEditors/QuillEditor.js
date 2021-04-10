@@ -389,12 +389,8 @@ class QuillEditor extends React.PureComponent {
   }
 
   createEditor () {
-    const {
-      getUrlName,
-    } = this.props;
     const editorOptions = this.generateEditorOptions();
     this.editor = new Quill(this.editorBox.current, editorOptions);
-    this.editor.getUrlName = getUrlName;
     addQuillLinkFixer();
     this.setupStoreAndChangeSyncing();
     this.disableToolbarTabs(this.editorContainer.current);

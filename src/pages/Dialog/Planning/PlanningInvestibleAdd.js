@@ -6,7 +6,7 @@ import { Card, CardActions, CardContent, Checkbox, FormControlLabel, } from '@ma
 import localforage from 'localforage'
 import { addPlanningInvestible } from '../../../api/investibles'
 import { processTextAndFilesForSave } from '../../../api/files'
-import { formInvestibleLink, formMarketLink, urlHelperGetName } from '../../../utils/marketIdPathFunctions'
+import { formInvestibleLink, formMarketLink } from '../../../utils/marketIdPathFunctions'
 import AssignmentList from './AssignmentList'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { useLocation } from 'react-router';
@@ -14,7 +14,6 @@ import queryString from 'query-string'
 import CardType, { STORY_TYPE, TODO_TYPE } from '../../../components/CardType'
 import { DaysEstimate } from '../../../components/AgilePlan'
 import DismissableText from '../../../components/Notifications/DismissableText'
-import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import AddInitialVote from '../../Investible/Voting/AddInitialVote'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
@@ -48,6 +47,7 @@ import { nameFromDescription } from '../../../utils/stringFunctions'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { Clear, SettingsBackupRestore } from '@material-ui/icons'
 import { editorReset, useEditor } from '../../../components/TextEditors/quillHooks';
+import { pushMessage } from '../../../utils/MessageBusUtils';
 
 function PlanningInvestibleAdd(props) {
   const {
@@ -99,7 +99,6 @@ function PlanningInvestibleAdd(props) {
   const [assignments, setAssignments] = useState(choosePreviouslyAssigned());
   const [daysEstimate, setDaysEstimate] = useState(storedDaysEstimate);
   const { name } = currentValues;
-  const [marketState] = useContext(MarketsContext);
   const [investibleState] = useContext(InvestiblesContext);
   const [presencesState] = useContext(MarketPresencesContext);
   const presences = getMarketPresences(presencesState, marketId) || [];
@@ -127,7 +126,6 @@ function PlanningInvestibleAdd(props) {
     onChange: onEditorChange,
     placeHolder: intl.formatMessage({ id: 'investibleAddDescriptionDefault' }),
     onUpload: onS3Upload,
-    getUrlName: urlHelperGetName(marketState, investibleState),
     value: description
   }
 
@@ -185,6 +183,7 @@ function PlanningInvestibleAdd(props) {
 
   function zeroCurrentValues() {
     editorController(editorReset());
+    clearInitialEditor();
     setCurrentValues(emptyInvestible);
     setDescription(undefined);
   }
@@ -200,6 +199,11 @@ function PlanningInvestibleAdd(props) {
     handleDraftState({ ...draftState, completion_estimate: value });
   }
 
+  function clearInitialEditor(){
+    const initialVoteChannel = `${marketId}-newInvestible-add-initial-vote-editor-control-plane`;
+    pushMessage(initialVoteChannel, editorReset());
+  }
+  
   function handleSave() {
     setOperationRunning(true);
     if (!isStoriesTourCompleted) {
@@ -247,6 +251,7 @@ function PlanningInvestibleAdd(props) {
           });
       }
       editorController(editorReset());
+      clearInitialEditor();
       return inv;
     }).then((inv) => {
       const { investible } = inv;
@@ -343,6 +348,7 @@ function PlanningInvestibleAdd(props) {
         </CardContent>
         {!isAssignedToMe && isAssigned && (
           <AddInitialVote
+            investibleId="newInvestible"
             marketId={marketId}
             storyMaxBudget={storyMaxBudget}
             onBudgetChange={onBudgetChange}

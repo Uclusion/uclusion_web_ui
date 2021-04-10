@@ -1,6 +1,7 @@
 import Quill from 'quill'
 import isUrl from 'is-url'
 import _ from 'lodash'
+import { getNameForUrl } from '../../utils/marketIdPathFunctions';
 
 const Clipboard = Quill.import('modules/clipboard');
 /**
@@ -39,7 +40,7 @@ class CustomQuillClipboard extends Clipboard {
     let filteredHtml = stripDangerousImageTags(html);
     let text = e.clipboardData.getData('text/plain');
     if(isUrl(text)){
-      const name = this.quill.getUrlName(text);
+      const name = getNameForUrl(text);
       if (_.isEmpty(filteredHtml) || !_.isEmpty(name)){
         const encoded = encodeURI(text);
         if (name) {

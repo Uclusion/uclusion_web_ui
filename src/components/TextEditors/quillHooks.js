@@ -15,9 +15,16 @@ export function editorUpdate (contents) {
   };
 }
 
+export function editorFocus () {
+  return {
+    type: 'focus'
+  };
+}
+
 export function useEditor (name, spec) {
 
   const {
+    cssId,
     value,
     marketId,
     onChange,
@@ -30,6 +37,8 @@ export function useEditor (name, spec) {
     noToolbar,
     mentionsAllowed,
     dontManageState,
+    className,
+    children
   } = spec;
 
   const controlChannel = `editor-${name}-control-plane`;
@@ -59,6 +68,8 @@ export function useEditor (name, spec) {
   const editor = (
     <QuillEditor2
       id={name}
+      cssId={cssId}
+      className={className}
       marketId={marketId}
       value={value}
       placeholder={placeholder}
@@ -69,7 +80,9 @@ export function useEditor (name, spec) {
       simple={simple}
       noToolbar={noToolbar}
       dontManageState={dontManageState}
-      />
+    >
+      {children}
+    </QuillEditor2>
   );
   return [editor, editorController];
 }

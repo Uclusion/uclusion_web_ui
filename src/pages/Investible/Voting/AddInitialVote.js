@@ -12,13 +12,10 @@ import {
   RadioGroup,
   TextField
 } from '@material-ui/core'
-import QuillEditor from '../../../components/TextEditors/QuillEditor'
-import { urlHelperGetName } from '../../../utils/marketIdPathFunctions'
-import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
-import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import { getMarketUnits } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { useEditor } from '../../../components/TextEditors/quillHooks';
 
 const useStyles = makeStyles(
   theme => {
@@ -88,6 +85,7 @@ const useStyles = makeStyles(
 function AddInitialVote(props) {
   const {
     marketId,
+    investibleId,
     storyMaxBudget,
     onEditorChange,
     onBudgetChange,
@@ -100,8 +98,6 @@ function AddInitialVote(props) {
   } = props;
   const intl = useIntl();
   const classes = useStyles();
-  const [marketState] = useContext(MarketsContext);
-  const [investibleState] = useContext(InvestiblesContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const myHelperText = storyMaxBudget ?
     intl.formatMessage({ id: "maxBudgetInputHelperText" }, { x: storyMaxBudget + 1 }) : '';
@@ -110,6 +106,18 @@ function AddInitialVote(props) {
     options: units,
     getOptionLabel: (option) => option,
   };
+
+  const editorName=`${marketId}-${investibleId}-add-initial-vote-editor`;
+  const editorSpec = {
+    marketId,
+    placeholder: intl.formatMessage({ id: "yourReason" }),
+    onChange: onEditorChange,
+    uploadDisabled: true,
+    value: body,
+  };
+
+  const [Editor] = useEditor(editorName, editorSpec);
+
   return (
     <Card>
       <CardContent className={classes.cardContent}>
@@ -174,14 +182,7 @@ function AddInitialVote(props) {
             onInputChange={onUnitChange}
           />
         </div>
-        <QuillEditor
-          marketId={marketId}
-          placeholder={intl.formatMessage({ id: "yourReason" })}
-          defaultValue={body}
-          onChange={onEditorChange}
-          uploadDisabled
-          getUrlName={urlHelperGetName(marketState, investibleState)}
-        />
+        {Editor}
       </CardContent>
     </Card>
   );

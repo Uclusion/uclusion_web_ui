@@ -10,6 +10,8 @@ import queryString from 'query-string'
 import { Form } from '../../components/AgilePlan'
 import { formMarketLink, formMarketManageLink } from '../../utils/marketIdPathFunctions'
 import DismissableText from '../../components/Notifications/DismissableText'
+import { pushMessage } from '../../utils/MessageBusUtils';
+import { editorReset } from '../../components/TextEditors/quillHooks';
 
 function PlanningAdd(props) {
 
@@ -65,12 +67,6 @@ function PlanningAdd(props) {
     setDescription(description);
   }
 
-  function onStorageChange(description) {
-    localforage.getItem(itemKey).then(stateFromDisk => {
-      handleDraftState({ ...stateFromDisk, description });
-    });
-  }
-
   function onInvestmentExpirationChange(event) {
     const { value } = event.target;
     const valueInt = value ? parseInt(value, 10) : null;
@@ -121,6 +117,8 @@ function PlanningAdd(props) {
       addInfo.votes_required = votesRequired;
     }
     return createPlanning(addInfo).then(result => {
+      const editorControlPlane = `new-agileplan-editor-control-plane`;
+      pushMessage(editorControlPlane, editorReset());
       onSave(result);
       const {
         market: { id: marketId }
@@ -145,7 +143,6 @@ function PlanningAdd(props) {
         onCancel={handleCancel}
         onSave={handleSave}
         onS3Upload={onS3Upload}
-        onStorageChange={onStorageChange}
         setOperationRunning={setOperationRunning}
         votesRequired={votesRequired}
         onVotesRequiredChange={onVotesRequiredEstimateChange}

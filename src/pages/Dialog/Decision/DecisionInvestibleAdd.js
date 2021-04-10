@@ -6,16 +6,12 @@ import { addDecisionInvestible, addInvestibleToStage } from '../../../api/invest
 import { processTextAndFilesForSave } from '../../../api/files'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import { getStages } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
-import {
-  urlHelperGetName,
-} from '../../../utils/marketIdPathFunctions'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { DECISION_TYPE } from '../../../constants/markets'
 import { useIntl } from 'react-intl'
 import { createDecision } from '../../../api/markets'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
-import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import { addMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { addCommentToMarket } from '../../../contexts/CommentsContext/commentsContextHelper'
@@ -49,9 +45,8 @@ function DecisionInvestibleAdd(props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const { name } = currentValues;
   const [, marketPresenceDispatch] = useContext(MarketPresencesContext);
-  const [marketState, marketDispatch] = useContext(MarketsContext);
+  const [, marketDispatch] = useContext(MarketsContext);
   const [, diffDispatch] = useContext(DiffContext);
-  const [investibleState] = useContext(InvestiblesContext);
   const [commentState, commentDispatch] = useContext(CommentsContext);
 
   const editorName = `${marketId}-newInvestible`;
@@ -61,7 +56,6 @@ function DecisionInvestibleAdd(props) {
     cssId: 'description',
     onUpload: onS3Upload,
     placeholder: intl.formatMessage({ id: 'investibleAddDescriptionDefault'}),
-    getUrlName: urlHelperGetName(marketState, investibleState),
   };
   const [Editor, editorController] = useEditor(editorName, editorSpec);
 

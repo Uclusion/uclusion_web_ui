@@ -1,13 +1,9 @@
 import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
-
 import _ from 'lodash';
 import { useIntl } from 'react-intl';
 import StepButtons from '../StepButtons';
-import { urlHelperGetName } from '../../../utils/marketIdPathFunctions';
-import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
-import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import { useEditor } from '../../TextEditors/quillHooks';
@@ -19,15 +15,11 @@ function InitiativeDescriptionStep (props) {
   const [editorContents, setEditorContents] = useState(initiativeDescription || '');
   const intl = useIntl();
   const classes = useContext(WizardStylesContext);
-  const [marketState] = useContext(MarketsContext);
-  const [investibleState] = useContext(InvestiblesContext);
 
   const editorName = 'initiativeDescriptionStep';
-  const getUrlName = urlHelperGetName(marketState, investibleState);
   const editorSpec = {
     onChange: setEditorContents,
     onUpload: onS3Upload,
-    getUrlName,
     dontManageState: true,
     value: initiativeDescription,
     placeholder: intl.formatMessage({ id: 'InitiativeWizardInitiativeDescriptionPlaceholder' })

@@ -3,7 +3,6 @@ import PropTypes from 'prop-types'
 import { useIntl } from 'react-intl'
 import { Card, CardActions, CardContent, Checkbox, TextField, Typography, } from '@material-ui/core'
 import localforage from 'localforage'
-import QuillEditor from '../../components/TextEditors/QuillEditor'
 import ExpirationSelector from '../../components/Expiration/ExpirationSelector'
 import { createDecision } from '../../api/markets'
 import { processTextAndFilesForSave } from '../../api/files'
@@ -11,10 +10,9 @@ import { DECISION_TYPE } from '../../constants/markets'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { useLocation } from 'react-router'
 import queryString from 'query-string'
-import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import CardType from '../../components/CardType'
 import { usePlanFormStyles } from '../../components/AgilePlan'
-import { formMarketManageLink, urlHelperGetName } from '../../utils/marketIdPathFunctions'
+import { formMarketManageLink } from '../../utils/marketIdPathFunctions'
 import DismissableText from '../../components/Notifications/DismissableText'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { getRequiredInputStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
@@ -24,6 +22,7 @@ import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketSt
 import SpinningIconLabelButton from '../../components/Buttons/SpinningIconLabelButton'
 import { Clear, SettingsBackupRestore } from '@material-ui/icons'
 import { usePlanInvestibleStyles } from '../Investible/Planning/PlanningInvestibleEdit'
+import { editorReset, useEditor } from '../../components/TextEditors/quillHooks';
 
 function DecisionAdd(props) {
   const intl = useIntl();
@@ -45,10 +44,21 @@ function DecisionAdd(props) {
   const [description, setDescription] = useState(storedDescription);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const { name, expiration_minutes } = currentValues;
-  const [marketState] = useContext(MarketsContext);
   const [investibleState, investibleDispatch] = useContext(InvestiblesContext);
   const [multiVote, setMultiVote] = useState(false);
   const [marketStagesState] = useContext(MarketStagesContext);
+
+  const editorName = 'DecisionAddDialogAdd-editor';
+  const editorSpec = {
+    cssId: 'description',
+    onUpload: onS3Upload,
+    onChange: onEditorChange,
+    placeholder: intl.formatMessage({ id: 'marketAddDescriptionDefault' }),
+    value: description,
+  }
+
+  const [Editor, editorController] = useEditor(editorName, editorSpec);
+
 
   function toggleMultiVote() {
     setMultiVote(!multiVote);
@@ -66,6 +76,7 @@ function DecisionAdd(props) {
   }, [name, expiration_minutes, validForm]);
 
   function handleCancel() {
+    editorController(editorReset());
     onSpinStop();
   }
 
@@ -93,11 +104,6 @@ function DecisionAdd(props) {
     setDescription(description);
   }
 
-  function onStorageChange(description) {
-    localforage.getItem(itemKey).then((stateFromDisk) => {
-      handleDraftState({ ...stateFromDisk, description });
-    });
-  }
 
   function handleSave() {
     setOperationRunning(true);
@@ -123,6 +129,7 @@ function DecisionAdd(props) {
     }
     return createDecision(addInfo)
       .then((result) => {
+        editorController(editorReset());
         const { market } = result;
         onSave(result);
         const { id: marketId } = market;
@@ -193,16 +200,7 @@ function DecisionAdd(props) {
             value={name}
             variant="filled"
           />
-          <QuillEditor
-            id="description"
-            onS3Upload={onS3Upload}
-            onChange={onEditorChange}
-            onStoreChange={onStorageChange}
-            placeholder={intl.formatMessage({ id: 'marketAddDescriptionDefault' })}
-            defaultValue={description}
-            setOperationInProgress={setOperationRunning}
-            getUrlName={urlHelperGetName(marketState, investibleState)}
-          />
+          {Editor}
         </CardContent>
         <CardActions className={myClasses.actions}>
           <SpinningIconLabelButton onClick={handleCancel} doSpin={false} icon={Clear}>

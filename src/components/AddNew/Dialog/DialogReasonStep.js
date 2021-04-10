@@ -4,9 +4,6 @@ import { Typography } from '@material-ui/core';
 import _ from 'lodash';
 import { useIntl } from 'react-intl';
 import StepButtons from '../StepButtons';
-import { urlHelperGetName } from '../../../utils/marketIdPathFunctions';
-import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
-import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import { useEditor } from '../../TextEditors/quillHooks';
@@ -17,8 +14,6 @@ function DialogReasonStep (props) {
   const [editorContents, setEditorContents] = useState(dialogReason || '');
   const intl = useIntl();
   const classes = useContext(WizardStylesContext);
-  const [marketState] = useContext(MarketsContext);
-  const [investibleState] = useContext(InvestiblesContext);
 
   function onEditorChange (content) {
     setEditorContents(content);
@@ -39,7 +34,6 @@ function DialogReasonStep (props) {
     onUpload: onS3Upload,
     value: editorContents,
     placeholder: intl.formatMessage({ id: 'DialogWizardReasonPlaceHolder' }),
-    getUrlName: urlHelperGetName(marketState, investibleState),
   }
 
   const [Editor] = useEditor(editorName, editorSpec);

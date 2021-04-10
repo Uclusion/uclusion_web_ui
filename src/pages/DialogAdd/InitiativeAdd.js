@@ -3,22 +3,20 @@ import PropTypes from 'prop-types'
 import { FormattedMessage, useIntl } from 'react-intl'
 import { Button, Card, CardActions, CardContent, TextField, Typography, } from '@material-ui/core'
 import localforage from 'localforage'
-import QuillEditor from '../../components/TextEditors/QuillEditor'
 import ExpirationSelector from '../../components/Expiration/ExpirationSelector'
 import { createInitiative } from '../../api/markets'
 import { processTextAndFilesForSave } from '../../api/files'
 import { INITIATIVE_TYPE } from '../../constants/markets'
 import { addDecisionInvestible } from '../../api/investibles'
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton'
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { DiffContext } from '../../contexts/DiffContext/DiffContext'
 import { addInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { usePlanFormStyles } from '../../components/AgilePlan'
 import CardType, { VOTING_TYPE } from '../../components/CardType'
-import { formMarketManageLink, urlHelperGetName } from '../../utils/marketIdPathFunctions'
+import { formMarketManageLink } from '../../utils/marketIdPathFunctions'
 import DismissableText from '../../components/Notifications/DismissableText'
-import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
+import { editorReset, useEditor } from '../../components/TextEditors/quillHooks';
 
 function InitiativeAdd(props) {
   const intl = useIntl();
@@ -28,7 +26,6 @@ function InitiativeAdd(props) {
   const { description: storedDescription, name: storedName, expiration_minutes: storedExpirationMinutes } = storedState;
   const [draftState, setDraftState] = useState(storedState);
   const classes = usePlanFormStyles();
-  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, invDispatch] = useContext(InvestiblesContext);
   const [, diffDispatch] = useContext(DiffContext);
   const emptyMarket = { name: storedName, description: storedDescription,
@@ -38,8 +35,16 @@ function InitiativeAdd(props) {
   const [description, setDescription] = useState(storedDescription);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const { name, expiration_minutes: expirationMinutes } = currentValues;
-  const [marketState] = useContext(MarketsContext);
-  const [investibleState] = useContext(InvestiblesContext);
+
+  const editorName = 'InitiativeAdd-editor';
+  const editorSpec = {
+    onUpload: onS3Upload,
+    onChange: onEditorChange,
+    placeholder: intl.formatMessage({ id: 'marketAddDescriptionDefault' }),
+    value: description,
+  };
+
+  const [Editor, editorController] = useEditor(editorName, editorSpec);
 
   useEffect(() => {
     // Long form to prevent flicker
@@ -53,6 +58,7 @@ function InitiativeAdd(props) {
   }, [name, description, expirationMinutes, validForm]);
 
   function handleCancel() {
+    editorController(editorReset());
     onSpinStop();
   }
 
@@ -80,11 +86,6 @@ function InitiativeAdd(props) {
     setDescription(description);
   }
 
-  function onStorageChange(description) {
-    localforage.getItem(itemKey).then((stateFromDisk) => {
-      handleDraftState({ ...stateFromDisk, description });
-    });
-  }
 
   function handleSave() {
     const {
@@ -99,6 +100,7 @@ function InitiativeAdd(props) {
     };
     return createInitiative(addInfo)
       .then((result) => {
+        editorController(editorReset());
         onSave(result);
         const { market: { id: marketId }} = result;
         const addInfo = {
@@ -150,15 +152,7 @@ function InitiativeAdd(props) {
             value={name}
             variant="filled"
           />
-          <QuillEditor
-            onS3Upload={onS3Upload}
-            onChange={onEditorChange}
-            onStoreChange={onStorageChange}
-            placeholder={intl.formatMessage({ id: 'marketAddDescriptionDefault' })}
-            defaultValue={description}
-            setOperationInProgress={setOperationRunning}
-            getUrlName={urlHelperGetName(marketState, investibleState)}
-          />
+          {Editor}
         </CardContent>
         <CardActions className={classes.actions}>
           <Button

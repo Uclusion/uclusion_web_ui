@@ -7,7 +7,6 @@ import { darken, makeStyles } from '@material-ui/core/styles'
 import LockedDialogTitleIcon from '@material-ui/icons/Lock'
 import clsx from 'clsx'
 import _ from 'lodash'
-import { urlHelperGetName, } from '../../utils/marketIdPathFunctions'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { addMarketToStorage } from '../../contexts/MarketsContext/marketsContextHelper'
 import { PLANNING_TYPE } from '../../constants/markets'
@@ -17,7 +16,6 @@ import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { DiffContext } from '../../contexts/DiffContext/DiffContext'
 import { CardActions, CircularProgress, Typography } from '@material-ui/core'
-import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { processTextAndFilesForSave } from '../../api/files'
 import NameField from '../../components/TextFields/NameField'
 import { isTinyWindow } from '../../utils/windowUtils'
@@ -130,8 +128,7 @@ function DialogBodyEdit(props) {
   const intl = useIntl();
   const classes = useStyles();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const [marketsState, marketsDispatch] = useContext(MarketsContext);
-  const [investiblesState] = useContext(InvestiblesContext);
+  const [marketsDispatch] = useContext(MarketsContext);
   const [, diffDispatch] = useContext(DiffContext);
   const { id, name: initialName, description: initialDescription,
     market_type: marketType, locked_by: lockedBy } = market;
@@ -143,11 +140,9 @@ function DialogBodyEdit(props) {
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [description, setDescription] = useState(initialDescription);
 
-  const getUrlName = urlHelperGetName(marketsState, investiblesState);
   const editorSpec = {
     onChange: onEditorChange,
     onUpload: onS3Upload,
-    getUrlName,
     marketId: id,
     value: initialDescription,
   }

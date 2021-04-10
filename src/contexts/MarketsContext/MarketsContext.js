@@ -22,6 +22,11 @@ function pushIndexItems(diskState) {
   pushMessage(SEARCH_INDEX_CHANNEL, indexMessage);
 }
 
+// normally this would be in context hacks directory but we can use this let to get the context out of the react tree
+// we don't use a provider, because we have one defined below
+let marketsContextHack;
+export { marketsContextHack };
+
 function MarketsProvider(props) {
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
   const [, diffDispatch] = useContext(DiffContext);
@@ -68,6 +73,7 @@ function MarketsProvider(props) {
     return () => {};
   }, []);
 
+  marketsContextHack = state;
   return (
     <MarketsContext.Provider value={[state, dispatch]}>
       {props.children}

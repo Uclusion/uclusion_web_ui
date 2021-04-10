@@ -37,6 +37,11 @@ function pushIndexItems(diskState) {
   pushMessage(TICKET_INDEX_CHANNEL, ticketCodeItems);
 }
 
+// normally this would be in context hacks directory but we can use this let to get the context out of the react tree
+// we don't use a provider, because we have one defined below
+let investibleContextHack;
+export { investibleContextHack };
+
 function InvestiblesProvider(props) {
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
   const [, diffDispatch] = useContext(DiffContext);
@@ -81,6 +86,7 @@ function InvestiblesProvider(props) {
     return () => {};
   }, []);
 
+  investibleContextHack = state;
   return (
     <InvestiblesContext.Provider value={[state, dispatch]}>
       {props.children}

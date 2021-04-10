@@ -3,7 +3,6 @@ import { FormattedMessage, useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
 import localforage from 'localforage'
 import { lockInvestibleForEdit, realeaseInvestibleEditLock, updateInvestible, } from '../../api/investibles'
-import { urlHelperGetName } from '../../utils/marketIdPathFunctions'
 import { refreshInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
@@ -14,7 +13,6 @@ import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton
 import clsx from 'clsx'
 import { LockedDialog, useLockedDialogStyles } from '../Dialog/DialogBodyEdit'
 import _ from 'lodash'
-import QuillEditor from '../../components/TextEditors/QuillEditor'
 import { CardActions, CircularProgress, Typography } from '@material-ui/core'
 import { processTextAndFilesForSave } from '../../api/files'
 import { makeStyles } from '@material-ui/core/styles'
@@ -27,6 +25,7 @@ import { isTinyWindow } from '../../utils/windowUtils'
 import DescriptionOrDiff from '../../components/Descriptions/DescriptionOrDiff'
 import { Clear, SettingsBackupRestore } from '@material-ui/icons'
 import SpinningIconLabelButton from '../../components/Buttons/SpinningIconLabelButton'
+import { editorReset, useEditor } from '../../components/TextEditors/quillHooks';
 
 const useStyles = makeStyles(
   theme => ({
@@ -59,7 +58,7 @@ function InvestibleBodyEdit(props) {
     fullInvestible } = props;
   const { description: storedDescription, name: storedName } = loaded || {};
   const intl = useIntl();
-  const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
+  const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, diffDispatch] = useContext(DiffContext);
   const marketInfo = getMarketInfo(fullInvestible, marketId) || {};
@@ -77,7 +76,7 @@ function InvestibleBodyEdit(props) {
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const { id, description: initialDescription, name: initialName } = myInvestible;
-  const [description, setDescription] = useState(loaded !== undefined ? storedDescription : initialDescription);
+  const [description, setDescription] = useState(storedDescription);
   const [name, setName] = useState(loaded !== undefined ? storedName : initialName);
 
   function onLock (result) {
@@ -104,6 +103,17 @@ function InvestibleBodyEdit(props) {
   }, [diffDispatch, hidden, investibleId, investiblesDispatch, isEditable, loading, lockFailed, lockedBy,
     marketId]);
 
+  const editorName = `${marketId}-${investibleId}-body-editor`;
+  const editorSpec = {
+    onUpload: handleFileUpload,
+    marketId,
+    onChange: onEditorChange,
+    placeholder: intl.formatMessage({ id: 'investibleAddDescriptionDefault' }),
+    value: description,
+  };
+
+  const [Editor, editorController] = useEditor(editorName, editorSpec);
+
   function handleSave() {
     setOperationRunning(true);
     // uploaded files on edit is the union of the new uploaded files and the old uploaded files
@@ -123,6 +133,7 @@ function InvestibleBodyEdit(props) {
     return updateInvestible(updateInfo)
       .then((fullInvestible) => {
         setOperationRunning(false);
+        editorController(editorReset());
         onSave(fullInvestible);
       });
   }
@@ -133,10 +144,6 @@ function InvestibleBodyEdit(props) {
 
   function onEditorChange(description) {
     setDescription(description);
-  }
-
-  function onStorageChange(description) {
-    handleDraftState({ name, description });
   }
 
   function handleFileUpload(metadatas) {
@@ -153,6 +160,7 @@ function InvestibleBodyEdit(props) {
 
   function onCancel() {
     setBeingEdited(false);
+    editorController(editorReset());
     if (!_.isEmpty(lockedBy) && (lockedBy !== userId)) {
       // If its locked by someone else then skip all the below checks
       return localforage.removeItem(investibleId);
@@ -226,16 +234,7 @@ function InvestibleBodyEdit(props) {
             <NameField onEditorChange={handleNameChange} onStorageChange={handleNameStorage}
                        description={description}
                        name={name}/>
-            <QuillEditor
-              onS3Upload={handleFileUpload}
-              marketId={marketId}
-              onChange={onEditorChange}
-              placeholder={intl.formatMessage({ id: 'investibleAddDescriptionDefault' })}
-              onStoreChange={onStorageChange}
-              defaultValue={description}
-              setOperationInProgress={setOperationRunning}
-              getUrlName={urlHelperGetName(marketsState, investiblesState)}
-            />
+            {Editor}
           </>
         )}
         {(lockedBy && (lockedBy !== userId)) && (

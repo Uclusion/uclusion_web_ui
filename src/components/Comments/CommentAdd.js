@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { FormattedMessage, useIntl } from 'react-intl';
 import _ from 'lodash'
-import localforage from 'localforage'
 import {
   Button, Checkbox,
   darken,
@@ -10,7 +9,6 @@ import {
   Paper,
 } from '@material-ui/core'
 import PropTypes from 'prop-types'
-import QuillEditor from '../TextEditors/QuillEditor'
 import { getMentionsFromText, saveComment } from '../../api/comments';
 import {
   ISSUE_TYPE,
@@ -35,8 +33,6 @@ import {
 import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
-import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
-import { urlHelperGetName } from '../../utils/marketIdPathFunctions'
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { changeInvestibleStageOnCommentChange } from '../../utils/commentFunctions'
@@ -45,6 +41,7 @@ import { removeMessage } from '../../contexts/NotificationsContext/notifications
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'
 import { Add, Clear, Delete } from '@material-ui/icons'
+import { editorFocus, editorReset, useEditor } from '../TextEditors/quillHooks';
 
 function getPlaceHolderLabelId (type, isStory, isInReview) {
   switch (type) {
@@ -202,7 +199,6 @@ function CommentAdd (props) {
   const [commentsState, commentDispatch] = useContext(CommentsContext);
   const [investibleState, investibleDispatch] = useContext(InvestiblesContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
-  const [marketState] = useContext(MarketsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [uploadedFiles, setUploadedFiles] = useState([]);
@@ -224,52 +220,12 @@ function CommentAdd (props) {
   const [placeHolderType, setPlaceHolderType] = useState(type);
   const [myNotificationType, setMyNotificationType] = useState(defaultNotificationType);
 
-  //see https://stackoverflow.com/questions/55621212/is-it-possible-to-react-usestate-in-react for why we have a func
-  // that returns  func for editor funcs stored in state
-  const [editorClearFunc, setEditorClearFunc] = useState(() => () => {});
-  const [editorFocusFunc, setEditorFocusFunc] = useState(() => () => {});
-  const [editorDefaultFunc, setEditorDefaultFunc] = useState(() => () => {});
-
-  const [loadedId, setLoadedId] = useState(undefined);
   const loadId = !type ? undefined : parentId ? `${type}_${parentId}` : investibleId ? `${type}_${investibleId}`
     : `${type}_${marketId}`;
 
   const presences = getMarketPresences(marketPresencesState, marketId) || [];
   const myPresence = presences.find((presence) => presence.current_user) || {};
 
-  useEffect(() => {
-    if (!hidden && loadId && loadedId !== loadId) {
-      console.debug(`loading ${loadId}`);
-      localforage.getItem(loadId).then((stateFromDisk) => {
-        if (stateFromDisk) {
-          setBody(stateFromDisk);
-          editorDefaultFunc(stateFromDisk);
-        } else {
-          setBody('');
-        }
-        setLoadedId(loadId);
-      });
-    }
-    return () => {};
-  }, [hidden, loadedId, loadId, editorDefaultFunc]);
-
-  useEffect(() => {
-    if (!hidden && firstOpen) {
-      editorFocusFunc();
-      setFirstOpen(false);
-    }
-    if (hidden && !firstOpen) {
-      setFirstOpen(true);
-    }
-    if (_.isEmpty(body) && type !== placeHolderType) {
-      if (_.isEmpty(placeHolderType)) {
-        editorFocusFunc();
-      }
-      setPlaceHolderType(type);
-      editorClearFunc(placeHolder);
-    }
-    return () => {};
-  }, [hidden, firstOpen, editorFocusFunc, body, type, placeHolderType, placeHolder, editorClearFunc]);
 
   function onEditorChange (content) {
     setBody(content);
@@ -302,6 +258,7 @@ function CommentAdd (props) {
     return saveComment(marketId, investibleId, parentId, tokensRemoved, apiType, filteredUploads, mentions,
       myNotificationType)
       .then((comment) => {
+        editorController(editorReset());
         setMyNotificationType(undefined);
         changeInvestibleStageOnCommentChange(investibleBlocks, investibleRequiresInput,
           blockingStage, requiresInputStage, info, market_infos, rootInvestible, investibleDispatch);
@@ -317,19 +274,12 @@ function CommentAdd (props) {
       });
   }
 
-  function onStorageChange(value) {
-    localforage.setItem(loadId, value).then(() => {});
-  }
-
-  function clearMe() {
-    localforage.removeItem(loadId).then(() => {
-      console.debug(`clearing ${loadId}`);
-      setBody('');
-      editorClearFunc();
-      setUploadedFiles([]);
-      setOpenIssue(false);
-      clearType();
-    });
+  function clearMe () {
+    setBody('');
+    editorController(editorReset());
+    setUploadedFiles([]);
+    setOpenIssue(false);
+    clearType();
   }
 
   function myOnDone() {
@@ -358,6 +308,96 @@ function CommentAdd (props) {
     (todoWarningId !== null && type === TODO_TYPE);
   const myWarningId = type === TODO_TYPE ? todoWarningId : issueWarningId;
   const lockedDialogClasses = useLockedDialogStyles();
+
+  const editorChildren = (
+    <>
+      {!isStory && onDone && (
+        <SpinningIconLabelButton onClick={myOnDone} doSpin={false} icon={Delete}>
+          {intl.formatMessage({ id: 'cancel' })}
+        </SpinningIconLabelButton>
+      )}
+      <SpinningIconLabelButton onClick={handleCancel} doSpin={false} icon={Clear}>
+        {intl.formatMessage({ id: commentCancelLabel })}
+      </SpinningIconLabelButton>
+      {!showIssueWarning && (
+        <SpinningIconLabelButton
+          onClick={handleSave}
+          icon={Add}
+          disabled={_.isEmpty(body) || _.isEmpty(type)}
+        >
+          {intl.formatMessage({ id: commentSaveLabel })}
+        </SpinningIconLabelButton>
+      )}
+      {showIssueWarning && (
+        <SpinningIconLabelButton onClick={toggleIssue} icon={Add}>
+          {intl.formatMessage({ id: commentSaveLabel })}
+        </SpinningIconLabelButton>
+      )}
+      {investible && type === REPORT_TYPE && (
+        <FormControlLabel
+          control={<Checkbox
+            id="notifyAll"
+            name="notifyAll"
+            checked={myNotificationType === 'YELLOW'}
+            onChange={handleNotifyAllChange}
+          />}
+          label={intl.formatMessage({ id: 'notifyAll' })}
+        />
+      )}
+      <Button className={classes.button}>
+        {intl.formatMessage({ id: 'edited' })}
+      </Button>
+      {myWarningId && (
+        <IssueDialog
+          classes={lockedDialogClasses}
+          open={!hidden && openIssue}
+          onClose={toggleIssue}
+          issueWarningId={myWarningId}
+          /* slots */
+          actions={
+            <SpinningIconLabelButton onClick={handleSave} icon={Add}
+                                     disabled={_.isEmpty(body) || _.isEmpty(type)}>
+              {intl.formatMessage({ id: 'issueProceed' })}
+            </SpinningIconLabelButton>
+          }
+        />
+      )}
+    </>
+  );
+
+
+  const editorName = `${loadId}-comment-add-editor`;
+  const editorSpec = {
+    value: body,
+    participants: presences,
+    marketId,
+    placeholder: placeHolder,
+    onChange: onEditorChange,
+    onUpload: onS3Upload,
+    mentionsAllowed,
+    children: editorChildren, // see below
+  }
+  const [Editor, editorController] = useEditor(editorName, editorSpec);
+
+
+  useEffect(() => {
+    if (!hidden && firstOpen) {
+      editorController(editorFocus());
+      setFirstOpen(false);
+    }
+    if (hidden && !firstOpen) {
+      setFirstOpen(true);
+    }
+    if (_.isEmpty(body) && type !== placeHolderType) {
+      if (_.isEmpty(placeHolderType)) {
+        editorController(editorFocus());
+      }
+      setPlaceHolderType(type);
+    }
+    return () => {};
+  }, [hidden, firstOpen, body, type, placeHolderType, placeHolder, editorController]);
+
+
   return (
     <>
       <Paper
@@ -366,73 +406,7 @@ function CommentAdd (props) {
         elevation={0}
       >
         <div className={classes.editor}>
-          <QuillEditor
-            participants={presences}
-            marketId={marketId}
-            placeholder={placeHolder}
-            defaultValue={body}
-            onChange={onEditorChange}
-            onS3Upload={onS3Upload}
-            onStoreChange={onStorageChange}
-            setOperationInProgress={setOperationRunning}
-            setEditorClearFunc={setEditorClearFunc}
-            setEditorFocusFunc={setEditorFocusFunc}
-            setEditorDefaultFunc={setEditorDefaultFunc}
-            mentionsAllowed={mentionsAllowed}
-            getUrlName={urlHelperGetName(marketState, investibleState)}
-          >
-            {!isStory && onDone && (
-              <SpinningIconLabelButton onClick={myOnDone} doSpin={false} icon={Delete}>
-                {intl.formatMessage({ id: 'cancel' })}
-              </SpinningIconLabelButton>
-            )}
-            <SpinningIconLabelButton onClick={handleCancel} doSpin={false} icon={Clear}>
-              {intl.formatMessage({ id: commentCancelLabel })}
-            </SpinningIconLabelButton>
-            {!showIssueWarning && (
-              <SpinningIconLabelButton
-                onClick={handleSave}
-                icon={Add}
-                disabled={_.isEmpty(body) || _.isEmpty(type)}
-              >
-                {intl.formatMessage({ id: commentSaveLabel })}
-              </SpinningIconLabelButton>
-            )}
-            {showIssueWarning && (
-              <SpinningIconLabelButton onClick={toggleIssue} icon={Add}>
-                {intl.formatMessage({ id: commentSaveLabel })}
-              </SpinningIconLabelButton>
-            )}
-            {investible && type === REPORT_TYPE && (
-              <FormControlLabel
-                control={<Checkbox
-                  id="notifyAll"
-                  name="notifyAll"
-                  checked={myNotificationType === 'YELLOW'}
-                  onChange={handleNotifyAllChange}
-                />}
-                label={intl.formatMessage({ id: "notifyAll" })}
-              />
-            )}
-            <Button className={classes.button}>
-              {intl.formatMessage({ id: 'edited' })}
-            </Button>
-            {myWarningId && (
-              <IssueDialog
-                classes={lockedDialogClasses}
-                open={!hidden && openIssue}
-                onClose={toggleIssue}
-                issueWarningId={myWarningId}
-                /* slots */
-                actions={
-                  <SpinningIconLabelButton onClick={handleSave} icon={Add}
-                                           disabled={_.isEmpty(body) || _.isEmpty(type)}>
-                    {intl.formatMessage({ id: "issueProceed" })}
-                  </SpinningIconLabelButton>
-                }
-              />
-            )}
-          </QuillEditor>
+          {Editor}
         </div>
       </Paper>
     </>

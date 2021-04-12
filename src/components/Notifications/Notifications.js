@@ -110,12 +110,14 @@ function Notifications (props) {
   const amOpenAndActive = open && (active === level);
 
   return (
-    <div key={level} onClick={recordPositionToggle}>
-      <Badge badgeContent={messages.length} className={classes.chip} overlap="circle">
-      <Fab id={`notifications-fab${level}`} className={classes.fab}>
-        {getIcon()}
-      </Fab>
-      </Badge>
+    <>
+      <div key={level} onClick={recordPositionToggle}>
+        <Badge badgeContent={messages.length} className={classes.chip} overlap="circle">
+        <Fab id={`notifications-fab${level}`} className={classes.fab}>
+          {getIcon()}
+        </Fab>
+        </Badge>
+      </div>
       {anchorEl && (
         <DisplayNotifications
           level={level}
@@ -125,7 +127,7 @@ function Notifications (props) {
           anchorEl={anchorEl}
           titleId={getTitleId()}/>
       )}
-    </div>
+    </>
   );
 }
 

@@ -44,6 +44,11 @@ const useStyles = makeStyles(
           height: '36px',
           minHeight: '36px'
         },
+      },
+      bellButton: {
+        marginLeft: '0.5em',
+        marginRight: '0.5em',
+        marginTop: '0.5rem'
       }
     };
   });
@@ -59,6 +64,7 @@ function Notifications (props) {
     active,
     setActive,
     messages,
+    id
   } = props;
 
   const [open, setOpen] = useState(false);
@@ -111,7 +117,7 @@ function Notifications (props) {
 
   return (
     <>
-      <div key={level} onClick={recordPositionToggle}>
+      <div id={id} key={level} onClick={recordPositionToggle} className={classes.bellButton}>
         <Badge badgeContent={messages.length} className={classes.chip} overlap="circle">
         <Fab id={`notifications-fab${level}`} className={classes.fab}>
           {getIcon()}
@@ -133,12 +139,14 @@ function Notifications (props) {
 
 Notifications.propTypes = {
   active: PropTypes.string,
+  id: PropTypes.string,
   setActive: PropTypes.func,
   messages: PropTypes.arrayOf(PropTypes.object),
 };
 
 Notifications.defaultProps = {
   active: null,
+  id: '',
   setActive: () => {},
   messages: [],
 };

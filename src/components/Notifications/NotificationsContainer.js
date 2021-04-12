@@ -2,24 +2,11 @@ import React, { useContext, useState } from 'react';
 import _ from 'lodash';
 import Notifications from './Notifications';
 import { BLUE_LEVEL, RED_LEVEL, YELLOW_LEVEL } from '../../constants/notifications';
-import { makeStyles } from '@material-ui/core/styles';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import { levelMessages } from '../../contexts/NotificationsContext/notificationsContextHelper';
 import { isTinyWindow } from '../../utils/windowUtils';
 
-const useStyles = makeStyles((theme) => {
-  return {
-    bellButton: {
-      marginLeft: '0.5em',
-      marginRight: '0.5em',
-      marginTop: '0.5rem'
-    }
-  };
-});
-
-function NotificationsContainer (props) {
-
-  const classes = useStyles();
+function NotificationsContainer () {
   const [activeLevel, setActiveLevel] = useState(null);
   const [messagesState] = useContext(NotificationsContext);
   const redMessages = levelMessages(messagesState, RED_LEVEL);
@@ -32,29 +19,27 @@ function NotificationsContainer (props) {
   return (
     <React.Fragment>
       {!_.isEmpty(redMessages) && (
-        <div className={classes.bellButton} id="redLevelNotification">
           <Notifications
+            id="redLevelNotification"
             level={RED_LEVEL}
             messages={redMessages}
             active={activeLevel}
             setActive={setActiveLevel}/>
-        </div>)}
+      )}
       {showYellowMessages && (
-        <div className={classes.bellButton}>
           <Notifications
             level={YELLOW_LEVEL}
             messages={yellowMessages}
             active={activeLevel}
             setActive={setActiveLevel}/>
-        </div>)}
+      )}
       {showBlueMessages && (
-        <div className={classes.bellButton}>
           <Notifications
             level={BLUE_LEVEL}
             messages={blueMessages}
             active={activeLevel}
             setActive={setActiveLevel}/>
-        </div>)}
+      )}
     </React.Fragment>
   );
 }

@@ -292,7 +292,7 @@ function DisplayNotifications (props) {
     >
       <Card
         className={classes.cardContainer}
-        variant="outlined"
+        elevation={0}
       >
         <Typography align="center" className={getTitleClass()} variant="h6">
           {intl.formatMessage({ id: titleId })}

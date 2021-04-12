@@ -147,7 +147,7 @@ function AddEditVote(props) {
     setOpen(!open);
   }
 
-  const editorName = `${marketId}-{investibleId}-add-edit-vote-reason`;
+  const editorName = `${marketId}-${investibleId}-add-edit-vote-reason`;
   const editorSpec = {
     marketId,
     placeholder: intl.formatMessage({ id: "yourReason" }),

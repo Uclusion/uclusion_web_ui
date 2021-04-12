@@ -299,18 +299,34 @@ function QuillEditor2 (props) {
     };
     const modules = { ...defaultModules };
     if (simple) {
-      modules.toolbar = this.simplifiedToolBar;
+      modules.toolbar.container = [
+        ['bold', 'italic', 'underline', 'strike'],
+        ['link', 'code-block'],
+        ['clean'],
+      ];
       modules.s3Upload = false;
       modules.imageResize = false;
     }
     if (uploadDisabled && !simple) {
-      modules.toolbar = this.uploadLessToolbar;
+      modules.toolbar.container = [
+        [{ font: [] }],
+        [{ header: [1, 2, false] }],
+        ['bold', 'italic', 'underline', 'strike', { script: 'sub' }, { script: 'super' }],
+        [{ color: [] }, { background: [] }],
+        [{ align: [] }],
+        [{ list: 'ordered' }, { list: 'bullet' }, { indent: '-1' }, { indent: '+1' }],
+        ['link', 'code-block'],
+        ['table'],
+        ['clean'],
+      ];
       modules.s3Upload = false;
       modules.imageResize = false;
     }
 
     if (isTinyWindow()) {
-      modules.toolbar = this.tinyToolBar;
+      modules.toolbar.container = [
+        ['bold', 'italic', 'link', 'image', 'video', 'clean'],
+      ];
     }
 
     if (noToolbar) {

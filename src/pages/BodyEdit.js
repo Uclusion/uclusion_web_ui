@@ -48,7 +48,7 @@ function BodyEdit(props) {
     return React.Fragment;
   }
   return (
-    <InvestibleBodyEdit loaded={loaded} userId={userId} fullInvestible={inv} {...props} />
+      <InvestibleBodyEdit loaded={loaded} userId={userId} fullInvestible={inv} {...props} />
   );
 }
 

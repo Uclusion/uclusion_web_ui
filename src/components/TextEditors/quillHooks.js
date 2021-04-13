@@ -39,7 +39,6 @@ export function useEditor (name, spec) {
     className,
     children
   } = spec;
-
   const controlChannel = `editor-${name}-control-plane`;
 
   registerListener(`editor-${name}`, `${name}-controller`, (message) => {

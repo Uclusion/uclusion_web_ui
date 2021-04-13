@@ -54,9 +54,8 @@ const useStyles = makeStyles(
 );
 
 function InvestibleBodyEdit(props) {
-  const { hidden, marketId, investibleId, setBeingEdited, beingEdited, isEditableByUser, loaded, userId,
+  const { hidden, marketId, investibleId, setBeingEdited, beingEdited, isEditableByUser, userId,
     fullInvestible } = props;
-  const { description: storedDescription, name: storedName } = loaded || {};
   const intl = useIntl();
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -76,8 +75,8 @@ function InvestibleBodyEdit(props) {
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const { id, description: initialDescription, name: initialName } = myInvestible;
-  const [description, setDescription] = useState(storedDescription);
-  const [name, setName] = useState(loaded !== undefined ? storedName : initialName);
+  const [description, setDescription] = useState(initialDescription);
+  const [name, setName] = useState(initialName);
 
   function onLock (result) {
     if (result) {
@@ -93,6 +92,7 @@ function InvestibleBodyEdit(props) {
   const isEditable = beingEdited && (_.size(editableByRoles) > 1 ||
     (marketType === PLANNING_TYPE && (_.size(assigned) > 1 || !allowsAssignment || allowsInvestment)));
 
+  // Lock the investible if appropriate-this is suspect.
   useEffect(() => {
     if (!hidden && !loading && !lockFailed && _.isEmpty(lockedBy) && isEditable) {
       lockInvestibleForEdit(marketId, investibleId)
@@ -102,7 +102,6 @@ function InvestibleBodyEdit(props) {
     return () => {};
   }, [diffDispatch, hidden, investibleId, investiblesDispatch, isEditable, loading, lockFailed, lockedBy,
     marketId]);
-
   const editorName = `${marketId}-${investibleId}-body-editor`;
   const editorSpec = {
     onUpload: handleFileUpload,

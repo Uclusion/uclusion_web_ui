@@ -107,8 +107,8 @@ import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown'
 import HowToVoteIcon from '@material-ui/icons/HowToVote'
 import { getFakeCommentsArray } from '../../../utils/stringFunctions'
 import { QuestionAnswer } from '@material-ui/icons'
-import BodyEdit from '../../BodyEdit'
 import AssignmentIcon from '@material-ui/icons/Assignment'
+import InvestibleBodyEdit from '../InvestibleBodyEdit';
 
 const useStyles = makeStyles(
   theme => ({
@@ -837,9 +837,13 @@ function PlanningInvestible(props) {
                 </Typography>
               )}
               {marketId && investibleId && (
-                <BodyEdit hidden={hidden} marketId={marketId} investibleId={investibleId} loadId={investibleId}
-                          setBeingEdited={mySetBeingEdited} beingEdited={myBeingEdited}
-                          isEditableByUser={isEditableByUser}/>
+                <InvestibleBodyEdit
+                  hidden={hidden}
+                  marketId={marketId}
+                  investibleId={investibleId}
+                  fullInvestible={marketInvestible}
+                  setBeingEdited={mySetBeingEdited} beingEdited={myBeingEdited}
+                  isEditableByUser={isEditableByUser}/>
               )}
             </Grid>
             <Grid className={classes.borderLeft} item xs={2}>

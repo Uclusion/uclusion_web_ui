@@ -137,7 +137,6 @@ function QuillEditor2 (props) {
   const theme = useTheme();
   const [, setOperationInProgress] = useContext(OperationInProgressContext);
   const boundsId = `editorBox-${id || marketId}`;
-
   const initialContents = getInitialState(id, value, placeholder);
   const usingPlaceholder = placeholder === initialContents;
 
@@ -156,8 +155,7 @@ function QuillEditor2 (props) {
 
   function resetHandler(){
     storeState(id, null);
-    editor.history.clear();
-    editor.setContents({insert: ''});
+    createEditor(); // recreate the editor, because we need to get brand new state
     focusEditor();
   }
 
@@ -393,6 +391,7 @@ function QuillEditor2 (props) {
   function createEditor () {
     // we only set the contents if different from the placeholder
     // otherwise the placeholder functionality of the editor won't work
+    console.log("recreting editor");
     if(boxRef.current && !usingPlaceholder && initialContents) {
       boxRef.current.innerHTML = initialContents;
     }
@@ -422,7 +421,7 @@ function QuillEditor2 (props) {
   };
 
   useEffect(() => {
-    if(!editor) {
+    if(!editor ) {
       createEditor();
     }
   });

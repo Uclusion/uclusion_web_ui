@@ -36,7 +36,7 @@ import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketSt
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { changeInvestibleStageOnCommentChange } from '../../utils/commentFunctions'
-import { findMessageOfType } from '../../utils/messageUtils'
+import { findMessageOfType, findMessageOfTypeAndId } from '../../utils/messageUtils'
 import { removeMessage } from '../../contexts/NotificationsContext/notificationsContextReducer'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'
@@ -265,6 +265,12 @@ function CommentAdd (props) {
         addCommentToMarket(comment, commentsState, commentDispatch);
         if (apiType === REPORT_TYPE) {
           const message = findMessageOfType('REPORT_REQUIRED', investibleId, messagesState);
+          if (message) {
+            messagesDispatch(removeMessage(message));
+          }
+        }
+        if (type === REPLY_TYPE) {
+          const message = findMessageOfTypeAndId(parentId, messagesState);
           if (message) {
             messagesDispatch(removeMessage(message));
           }

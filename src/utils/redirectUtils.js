@@ -39,7 +39,9 @@ export function getEmail() {
 
 export function getAndClearRedirect() {
   const redirect = getRedirect();
-  setLoginPersistentItem(REDIRECT_LOCAL_STORAGE_KEY, undefined);
+  if (redirect) {
+    setLoginPersistentItem(REDIRECT_LOCAL_STORAGE_KEY, undefined);
+  }
   return redirect;
 }
 

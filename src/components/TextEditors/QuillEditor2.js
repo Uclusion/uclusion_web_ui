@@ -464,8 +464,6 @@ QuillEditor2.propTypes = {
   uploadDisabled: PropTypes.bool,
   noToolbar: PropTypes.bool,
   setOperationInProgress: PropTypes.func,
-  getUrlName: PropTypes.func.isRequired,
-  intl: PropTypes.object.isRequired,
   id: PropTypes.string,
   simple: PropTypes.bool,
   participants: PropTypes.arrayOf(PropTypes.object),

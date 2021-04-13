@@ -494,7 +494,8 @@ function MarketTodos (props) {
           type={SECTION_SUB_HEADER}
           isBlackText
           hideChildren={showTodos === false || (showTodos === undefined && !undefinedIsOpenDefault)}
-          titleIcon={!showTodos && (<div>{immediateTodosChip} {whenAbleTodosChip} {whenConvenientTodosChip}</div>)}
+          titleIcon={!showTodos ? (<div>{immediateTodosChip} {whenAbleTodosChip} {whenConvenientTodosChip}</div>)
+            : undefined}
           title={intl.formatMessage({ id: 'todoSection' })}
           helpTextId="todoSectionHelp"
           createButton={ isSingleTodoSelected || isInArchives || isTinyWindow() ? undefined :
@@ -543,7 +544,7 @@ function MarketTodos (props) {
               type={SECTION_TYPE_SECONDARY_WARNING}
               id="immediateTodos"
               title={intl.formatMessage({ id: 'immediate' })}
-              titleIcon={immediateTodosChip}
+              titleIcon={immediateTodosChip === false ? undefined : immediateTodosChip}
               helpTextId="immediateSectionHelp"
               actionButton={ isInArchives ? null :
                 (<ExpandableAction
@@ -595,7 +596,7 @@ function MarketTodos (props) {
               type={SECTION_TYPE_WARNING}
               id="whenAbleTodos"
               title={intl.formatMessage({ id: 'able' })}
-              titleIcon={whenAbleTodosChip}
+              titleIcon={whenAbleTodosChip === false ? undefined : whenAbleTodosChip}
               helpTextId="ableSectionHelp"
               actionButton={ isInArchives ? null :
                 (<ExpandableAction
@@ -647,7 +648,7 @@ function MarketTodos (props) {
               type={SECTION_TYPE_TERTIARY_WARNING}
               padChildren
               title={intl.formatMessage({ id: 'convenient' })}
-              titleIcon={whenConvenientTodosChip}
+              titleIcon={whenConvenientTodosChip === false ? undefined : whenConvenientTodosChip}
               id="whenConvenientTodos"
               helpTextId="convenientSectionHelp"
               actionButton={ isInArchives ? null :

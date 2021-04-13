@@ -30,7 +30,6 @@ export function useEditor (name, spec) {
     onChange,
     onUpload,
     placeholder,
-    getUrlName,
     uploadDisabled,
     participants,
     simple,
@@ -73,7 +72,6 @@ export function useEditor (name, spec) {
       marketId={marketId}
       value={value}
       placeholder={placeholder}
-      getUrlName={getUrlName}
       participants={participants}
       mentionsAllowed={mentionsAllowed}
       uploadDisabled={uploadDisabled}

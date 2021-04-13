@@ -277,8 +277,8 @@ function PlanningDialog(props) {
         {!_.isEmpty(blockedInvestibles) && (
           <SubSection
             type={SECTION_TYPE_SECONDARY_WARNING}
-            titleIcon={blockedInvestibles.length > 0 && <Chip label={`${blockedInvestibles.length}`} color="primary" size='small'
-                             className={classes.chipStyle} />}
+            titleIcon={blockedInvestibles.length > 0 ? <Chip label={`${blockedInvestibles.length}`} color="primary" size='small'
+                             className={classes.chipStyle} /> : undefined}
             title={intl.formatMessage({ id: 'blockedHeader' })}
             helpTextId="blockedSectionHelp"
             id="blocked"
@@ -300,9 +300,9 @@ function PlanningDialog(props) {
         {!_.isEmpty(requiresInputInvestibles) && (
           <SubSection
             type={SECTION_TYPE_SECONDARY_WARNING}
-            titleIcon={requiresInputInvestibles.length > 0 && <Chip label={`${requiresInputInvestibles.length}`}
+            titleIcon={requiresInputInvestibles.length > 0 ? <Chip label={`${requiresInputInvestibles.length}`}
                                                                     color="primary" size='small'
-                                                                    className={classes.chipStyle} />}
+                                                                    className={classes.chipStyle} /> : undefined}
             title={intl.formatMessage({ id: 'requiresInputHeader' })}
             helpTextId="requiresInputSectionHelp"
             id="requiresInput"
@@ -343,7 +343,7 @@ function PlanningDialog(props) {
           helpTextId="furtherSectionHelp"
           id="furtherWork"
           hideChildren={showFurther === false || (showFurther === undefined && !undefinedFurtherIsOpenDefault)}
-          titleIcon={furtherWorkChips}
+          titleIcon={furtherWorkChips === false ? undefined : furtherWorkChips}
           title={intl.formatMessage({ id: 'readyFurtherWorkHeader' })}
           actionButton={
             (<ExpandableAction
@@ -356,7 +356,7 @@ function PlanningDialog(props) {
           <div style={{paddingTop: '1rem'}} />
           <SubSection
             type={SECTION_TYPE_SECONDARY_WARNING}
-            titleIcon={furtherWorkReadyToStartChip}
+            titleIcon={furtherWorkReadyToStartChip === false ? undefined : furtherWorkReadyToStartChip}
             title={intl.formatMessage({ id: 'readyToStartHeader' })}
             actionButton={
               <ExpandableAction
@@ -384,7 +384,7 @@ function PlanningDialog(props) {
           {!_.isEmpty(furtherWorkInvestibles) && (<div style={{ paddingBottom: '15px' }}/>)}
           <SubSection
             type={SECTION_TYPE_WARNING}
-            titleIcon={furtherWorkNotReadyToStartChip}
+            titleIcon={furtherWorkNotReadyToStartChip === false ? undefined : furtherWorkReadyToStartChip}
             title={intl.formatMessage({ id: 'notReadyToStartHeader' })}
             actionButton={
               <ExpandableAction

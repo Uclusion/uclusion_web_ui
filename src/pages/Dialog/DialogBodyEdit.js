@@ -12,7 +12,6 @@ import { addMarketToStorage } from '../../contexts/MarketsContext/marketsContext
 import { PLANNING_TYPE } from '../../constants/markets'
 import { lockPlanningMarketForEdit, unlockPlanningMarketForEdit, updateMarket } from '../../api/markets'
 import { Dialog } from '../../components/Dialogs'
-import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { DiffContext } from '../../contexts/DiffContext/DiffContext'
 import { CardActions, CircularProgress, Typography } from '@material-ui/core'
@@ -23,6 +22,7 @@ import DescriptionOrDiff from '../../components/Descriptions/DescriptionOrDiff'
 import { Clear, SettingsBackupRestore } from '@material-ui/icons'
 import SpinningIconLabelButton from '../../components/Buttons/SpinningIconLabelButton'
 import { useEditor, editorReset } from '../../components/TextEditors/quillHooks';
+import WarningIcon from '@material-ui/icons/Warning'
 
 export const useLockedDialogStyles = makeStyles(
   (theme) => {
@@ -128,14 +128,13 @@ function DialogBodyEdit(props) {
   const intl = useIntl();
   const classes = useStyles();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const [marketsDispatch] = useContext(MarketsContext);
+  const [,marketsDispatch] = useContext(MarketsContext);
   const [, diffDispatch] = useContext(DiffContext);
   const { id, name: initialName, description: initialDescription,
     market_type: marketType, locked_by: lockedBy } = market;
   const loading = !marketType;
   const [lockFailed, setLockFailed] = useState(false);
   const someoneElseEditing = !_.isEmpty(lockedBy) && (lockedBy !== userId);
-  const [operationRunning] = useContext(OperationInProgressContext);
   const [name, setName] = useState(loaded !== undefined ? storedName : initialName);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [description, setDescription] = useState(initialDescription);
@@ -182,7 +181,9 @@ function DialogBodyEdit(props) {
     setBeingEdited(false);
     editorController(editorReset());
     if (marketType === PLANNING_TYPE) {
-      unlockPlanningMarketForEdit(id).then((market) => updateMarketInStorage(market));
+      return localforage.removeItem(id)
+        .then(() => unlockPlanningMarketForEdit(id))
+        .then((market) => updateMarketInStorage(market));
     }
     return localforage.removeItem(id);
   }
@@ -193,7 +194,7 @@ function DialogBodyEdit(props) {
       updated_by: userId,
       updated_by_you: true,
     };
-    addMarketToStorage(marketsDispatch, diffDispatch, diffSafe);
+    addMarketToStorage(marketsDispatch, diffDispatch, diffSafe, false);
   }
 
   function onSave(market) {
@@ -203,25 +204,12 @@ function DialogBodyEdit(props) {
   }
   function myOnClick() {
     const breakLock = true;
+    setOperationRunning(true);
     return lockPlanningMarketForEdit(id, breakLock)
       .then((result) => {
-        return {
-          result,
-          spinChecker: () => Promise.resolve(true),
-        };
-      })
-      .catch(() => {
-        return {
-          result: false,
-          spinChecker: () => Promise.resolve(true),
-        };
-      });
-  }
-  function onLock(result) {
-    if (result) {
-      updateMarketInStorage(result);
-    }
-    setLockFailed(!result);
+        setOperationRunning(false);
+        updateMarketInStorage(result);
+      }).catch(() => setLockFailed(true));
   }
 
   const lockedDialogClasses = useLockedDialogStyles();
@@ -256,17 +244,9 @@ function DialogBodyEdit(props) {
           onClose={onCancel}
           /* slots */
           actions={
-            <SpinBlockingButton
-              className={clsx(lockedDialogClasses.action, lockedDialogClasses.actionEdit)}
-              disableFocusRipple
-              marketId={id}
-              onClick={myOnClick}
-              onSpinStop={onLock}
-              hasSpinChecker
-              disabled={operationRunning}
-            >
-              <FormattedMessage id="pageLockEditPage" />
-            </SpinBlockingButton>
+            <SpinningIconLabelButton onClick={myOnClick} icon={LockedDialogTitleIcon}>
+              {intl.formatMessage({ id: 'pageLockEditPage' })}
+            </SpinningIconLabelButton>
           }
         />
         {(!lockedBy || (lockedBy === userId)) && (
@@ -341,21 +321,16 @@ export function LockedDialog(props) {
       /* slots */
       actions={
         <React.Fragment>
-          {actions}
-          <Button
-            className={clsx(classes.action, classes.actionCancel)}
-            disableFocusRipple
-            onClick={onClose}
-            ref={autoFocusRef}
-          >
+          <SpinningIconLabelButton onClick={onClose} doSpin={false} icon={Clear} ref={autoFocusRef}>
             <FormattedMessage id="lockDialogCancel" />
-          </Button>
+          </SpinningIconLabelButton>
+          {actions}
         </React.Fragment>
       }
       content={<FormattedMessage id="lockDialogContent" />}
       title={
         <React.Fragment>
-          <LockedDialogTitleIcon className={classes.titleIcon} />
+          <WarningIcon className={classes.warningTitleIcon} />
           <FormattedMessage id="lockDialogTitle" />
         </React.Fragment>
       }

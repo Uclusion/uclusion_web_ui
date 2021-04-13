@@ -391,7 +391,6 @@ function QuillEditor2 (props) {
   function createEditor () {
     // we only set the contents if different from the placeholder
     // otherwise the placeholder functionality of the editor won't work
-    console.log("recreting editor");
     if(boxRef.current && !usingPlaceholder && initialContents) {
       boxRef.current.innerHTML = initialContents;
     }
@@ -415,8 +414,6 @@ function QuillEditor2 (props) {
   const editorStyle = {
     fontFamily: theme.typography.fontFamily,
     fontSize: theme.typography.fontSize,
-    maxHeight: '425px',
-    overflow: 'scroll',
     overflowX: 'hidden',
   };
 

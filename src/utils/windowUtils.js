@@ -17,7 +17,6 @@ export function doSetEditWhenValid(isEdit, isEditableByUser, setBeingEdited, id,
       return;
     }
     if (isEditableByUser()) {
-      window.scrollTo(0, 0);
       setBeingEdited(id);
     }
   } else {

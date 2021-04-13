@@ -82,7 +82,7 @@ function WebSocketProvider(props) {
     function myRefreshVersion(peg, amLeader) {
       if (amLeader) {
         refreshVersions().then(() => console.info(`Refreshed versions from ${peg}`));
-      } else if (amLeader !== undefined) {
+      } else if (amLeader !== undefined && !peg.includes('leaderChannel')) {
         console.info(`Not leader sending refresh from ${peg}`);
         const myChannel = new BroadcastChannel(LEADER_CHANNEL);
         myChannel.postMessage('refresh').then(() => myChannel.close());

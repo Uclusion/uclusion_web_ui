@@ -197,14 +197,16 @@ let presencesStoragePromiseChain = Promise.resolve(true);
 
 function reducer(state, action) {
   const newState = computeNewState(state, action);
-  const lfh = new LocalForageHelper(MARKET_PRESENCES_CONTEXT_NAMESPACE);
-  presencesStoragePromiseChain = presencesStoragePromiseChain.then(() =>lfh.setState(newState)).then(() => {
-    if (action.type !== INITIALIZE_STATE) {
-      const myChannel = new BroadcastChannel(PRESENCE_CHANNEL);
-      return myChannel.postMessage(broadcastId || 'presence').then(() => myChannel.close())
-        .then(() => console.info('Update presence context sent.'));
-    }
-  });
+  if (action.type !== INITIALIZE_STATE) {
+    const lfh = new LocalForageHelper(MARKET_PRESENCES_CONTEXT_NAMESPACE);
+    presencesStoragePromiseChain = presencesStoragePromiseChain.then(() => {
+        lfh.setState(newState).then(() => {
+          const myChannel = new BroadcastChannel(PRESENCE_CHANNEL);
+          return myChannel.postMessage(broadcastId || 'presence').then(() => myChannel.close())
+            .then(() => console.info('Update presence context sent.'));
+        });
+    });
+  }
   return newState;
 }
 

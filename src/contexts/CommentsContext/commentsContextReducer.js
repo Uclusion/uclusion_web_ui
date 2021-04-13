@@ -109,14 +109,16 @@ let commentsStoragePromiseChain = Promise.resolve(true);
 
 function reducer(state, action) {
   const newState = computeNewState(state, action);
-  const lfh = new LocalForageHelper(COMMENTS_CONTEXT_NAMESPACE);
-  commentsStoragePromiseChain = commentsStoragePromiseChain.then(() => lfh.setState(newState)).then(() => {
-    if (action.type !== INITIALIZE_STATE) {
-      const myChannel = new BroadcastChannel(COMMENTS_CHANNEL);
-      return myChannel.postMessage(broadcastId || 'comments').then(() => myChannel.close())
-        .then(() => console.info('Update comment context sent.'));
-    }
-  });
+  if (action.type !== INITIALIZE_STATE) {
+    const lfh = new LocalForageHelper(COMMENTS_CONTEXT_NAMESPACE);
+    commentsStoragePromiseChain = commentsStoragePromiseChain.then(() => {
+        lfh.setState(newState).then(() => {
+          const myChannel = new BroadcastChannel(COMMENTS_CHANNEL);
+          return myChannel.postMessage(broadcastId || 'comments').then(() => myChannel.close())
+            .then(() => console.info('Update comment context sent.'));
+        });
+    });
+  }
   return newState;
 }
 

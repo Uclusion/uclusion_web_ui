@@ -82,14 +82,16 @@ let marketsStoragePromiseChain = Promise.resolve(true);
 
 function reducer(state, action) {
   const newState = computeNewState(state, action);
-  const lfh = new LocalForageHelper(MARKET_CONTEXT_NAMESPACE);
-  marketsStoragePromiseChain = marketsStoragePromiseChain.then(() =>lfh.setState(newState)).then(() => {
-    if (action.type !== INITIALIZE_STATE) {
-      const myChannel = new BroadcastChannel(MARKETS_CHANNEL);
-      return myChannel.postMessage(broadcastId || 'markets').then(() => myChannel.close())
-        .then(() => console.info('Update market context sent.'));
-    }
-  });
+  if (action.type !== INITIALIZE_STATE) {
+    const lfh = new LocalForageHelper(MARKET_CONTEXT_NAMESPACE);
+    marketsStoragePromiseChain = marketsStoragePromiseChain.then(() => {
+        lfh.setState(newState).then(() => {
+          const myChannel = new BroadcastChannel(MARKETS_CHANNEL);
+          return myChannel.postMessage(broadcastId || 'markets').then(() => myChannel.close())
+            .then(() => console.info('Update market context sent.'));
+        });
+    });
+  }
   return newState;
 }
 

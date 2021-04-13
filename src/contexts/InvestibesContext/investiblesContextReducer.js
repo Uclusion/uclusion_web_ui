@@ -70,15 +70,17 @@ let investiblesStoragePromiseChain = Promise.resolve(true);
 
 function reducer(state, action) {
   const newState = computeNewState(state, action);
-
-  const lfh = new LocalForageHelper(INVESTIBLES_CONTEXT_NAMESPACE);
-  investiblesStoragePromiseChain = investiblesStoragePromiseChain.then(() =>lfh.setState(newState)).then(() => {
-    if (action.type !== INITIALIZE_STATE) {
-      const myChannel = new BroadcastChannel(INVESTIBLES_CHANNEL);
-      return myChannel.postMessage(broadcastId || 'investibles').then(() => myChannel.close())
-        .then(() => console.info('Update investible context sent.'));
-    }
-  });
+  if (action.type !== INITIALIZE_STATE) {
+    // Initialize state comes from the disk so do not write it back and risk wiping out another tab
+    const lfh = new LocalForageHelper(INVESTIBLES_CONTEXT_NAMESPACE);
+    investiblesStoragePromiseChain = investiblesStoragePromiseChain.then(() => {
+        lfh.setState(newState).then(() => {
+          const myChannel = new BroadcastChannel(INVESTIBLES_CHANNEL);
+          return myChannel.postMessage(broadcastId || 'investibles').then(() => myChannel.close())
+            .then(() => console.info('Update investibles context sent.'));
+        });
+    });
+  }
   return newState;
 }
 

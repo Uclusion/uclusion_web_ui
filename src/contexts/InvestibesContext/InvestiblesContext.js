@@ -51,13 +51,13 @@ function InvestiblesProvider(props) {
     const myChannel = new BroadcastChannel(INVESTIBLES_CHANNEL);
     myChannel.onmessage = (msg) => {
       if (msg !== broadcastId) {
-        console.info(`Reloading on investibles channel message ${msg} with ${broadcastId}`);
         const lfg = new LocalForageHelper(INVESTIBLES_CONTEXT_NAMESPACE);
         lfg.getState()
           .then((diskState) => {
             if (diskState) {
               pushIndexItems(diskState);
-              dispatch(initializeState({ ...diskState }));
+              console.info(`Reloading on investibles channel message ${msg} with ${broadcastId}`);
+              dispatch(initializeState(diskState));
             }
           });
       }

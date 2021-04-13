@@ -38,7 +38,7 @@ function CommentsProvider(props) {
           .then((diskState) => {
             if (diskState) {
               pushIndexItems(diskState);
-              dispatch(initializeState({ ...diskState }));
+              dispatch(initializeState(diskState));
             }
           });
       }

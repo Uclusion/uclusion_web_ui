@@ -11,6 +11,7 @@ function LeaderProvider(props) {
   const { children, authState } = props;
   const [state, dispatch] = useReducer((state, action) => {
     const { isLeader } = action;
+    console.info(`Setting leader to ${isLeader}`);
     return { isLeader };
   }, EMPTY_STATE);
   const [, setElector] = useState(undefined);
@@ -20,9 +21,11 @@ function LeaderProvider(props) {
     if (authState === 'signedIn') {
       const myChannel = new BroadcastChannel(LEADER_CHANNEL);
       // If you grab leader not signed in then you risk stalling out as no one gets data
-      const elector = createLeaderElection(myChannel);
+      const elector = createLeaderElection(myChannel, {
+        fallbackInterval: 5000, // optional configuration for how often will renegotiation for leader occur
+        responseTime: 5000, // optional configuration for how long will instances have to respond
+      });
       elector.applyOnce().then((isLeader) => {
-        console.info(`Setting leader to ${isLeader}`);
         // Could use broadcast ID to send message out to others to refresh out of login page
         // but its a bit risky as can somehow infinite refresh and corner of corner case anyway
         dispatch({ isLeader });

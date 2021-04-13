@@ -23,7 +23,7 @@ function MarketPresencesProvider(props) {
         lfg.getState()
           .then((diskState) => {
             if (diskState) {
-              dispatch(initializeState({ ...diskState }));
+              dispatch(initializeState(diskState));
             }
           });
       }

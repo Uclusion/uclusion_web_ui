@@ -119,87 +119,89 @@ function Identity (props) {
           email={email}
         />
       </Button>
-      <Menu
-        id="profile-menu"
-        open={menuOpen}
-        onClose={recordPositionToggle}
-        getContentAnchorEl={null}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'left',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'center',
-        }}
-        anchorEl={anchorEl}
-        disableRestoreFocus
-      >
-        <div className={classes.identityBlock}>
-          <Gravatar className={classes.largeAvatar} email={email}/>
-          <Typography>{chipLabel}</Typography>
-          <Typography>{email}</Typography>
-          <Link underline="hover"
-                href="https://www.gravatar.com"
-                className={classes.changeAvatar}
-                target="_blank"
-          >
-            {intl.formatMessage({ id: 'IdentityChangeAvatar' })}
-          </Link>
-        </div>
-        <Divider/>
-        <MenuItem
-          onClick={goTo('/support')}
+      {anchorEl && (
+        <Menu
+          id="profile-menu"
+          open={menuOpen}
+          onClose={recordPositionToggle}
+          getContentAnchorEl={null}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'left',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'center',
+          }}
+          anchorEl={anchorEl}
+          disableRestoreFocus
         >
-          <Typography className={classes.name}>
-            {intl.formatMessage({ id: 'support' })}
-          </Typography>
-        </MenuItem>
-        <MenuItem
-          onClick={goTo('/notificationPreferences')}
-        >
-          <Typography className={classes.name}>
-            {intl.formatMessage({ id: 'changePreferencesHeader' })}
-          </Typography>
-        </MenuItem>
-        {canChangeUserValues && (<MenuItem
-          onClick={goTo('/changePassword')}
-        >
-          <Typography className={classes.name}>
-            {intl.formatMessage({ id: 'changePasswordHeader' })}
-          </Typography>
-        </MenuItem>)}
-        {config.payments.enabled && (
+          <div className={classes.identityBlock}>
+            <Gravatar className={classes.largeAvatar} email={email}/>
+            <Typography>{chipLabel}</Typography>
+            <Typography>{email}</Typography>
+            <Link underline="hover"
+                  href="https://www.gravatar.com"
+                  className={classes.changeAvatar}
+                  target="_blank"
+            >
+              {intl.formatMessage({ id: 'IdentityChangeAvatar' })}
+            </Link>
+          </div>
+          <Divider/>
           <MenuItem
-            onClick={goTo('/billing')}
+            onClick={goTo('/support')}
           >
             <Typography className={classes.name}>
-              {intl.formatMessage({ id: 'billingMenuItem' })}
+              {intl.formatMessage({ id: 'support' })}
             </Typography>
           </MenuItem>
-        )}
-        <Divider/>
-        <div className={classes.signOut}>
-          <SignOut />
-        </div>
-        <Divider/>
-        <div className={classes.terms}>
-          {window.outerWidth <= 600 && (
-            <Tooltip title={<FormattedMessage id="help" />}>
-              <HelpOutlineIcon color="primary" style={{cursor: 'pointer', marginRight: '1rem'}}
-                               onClick={() => openInNewTab(config.helpLink)} />
-            </Tooltip>
-          )}
-          <Link
-            href={config.termsOfUseLink}
-            target="_blank"
-            className={classes.termsLink}
-            underline="hover"
+          <MenuItem
+            onClick={goTo('/notificationPreferences')}
           >
-            {intl.formatMessage({ id: 'IdentityTermsOfUse' })}
-          </Link>
-        </div>
-      </Menu>
+            <Typography className={classes.name}>
+              {intl.formatMessage({ id: 'changePreferencesHeader' })}
+            </Typography>
+          </MenuItem>
+          {canChangeUserValues && (<MenuItem
+            onClick={goTo('/changePassword')}
+          >
+            <Typography className={classes.name}>
+              {intl.formatMessage({ id: 'changePasswordHeader' })}
+            </Typography>
+          </MenuItem>)}
+          {config.payments.enabled && (
+            <MenuItem
+              onClick={goTo('/billing')}
+            >
+              <Typography className={classes.name}>
+                {intl.formatMessage({ id: 'billingMenuItem' })}
+              </Typography>
+            </MenuItem>
+          )}
+          <Divider/>
+          <div className={classes.signOut}>
+            <SignOut />
+          </div>
+          <Divider/>
+          <div className={classes.terms}>
+            {window.outerWidth <= 600 && (
+              <Tooltip title={<FormattedMessage id="help" />}>
+                <HelpOutlineIcon color="primary" style={{cursor: 'pointer', marginRight: '1rem'}}
+                                 onClick={() => openInNewTab(config.helpLink)} />
+              </Tooltip>
+            )}
+            <Link
+              href={config.termsOfUseLink}
+              target="_blank"
+              className={classes.termsLink}
+              underline="hover"
+            >
+              {intl.formatMessage({ id: 'IdentityTermsOfUse' })}
+            </Link>
+          </div>
+        </Menu>
+      )}
     </div>
   );
 }

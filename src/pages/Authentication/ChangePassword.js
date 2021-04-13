@@ -25,6 +25,13 @@ const styleClasses = makeStyles(
         boxShadow: "none"
       }
     },
+    container: {
+      padding: '2rem',
+      maxWidth: '30rem',
+      display: 'inline-block',
+      marginLeft: 'auto',
+      marginRight: 'auto',
+    },
     actionPrimary: {
       backgroundColor: "#2D9CDB",
       color: "white",
@@ -89,8 +96,9 @@ function ChangePassword(props) {
       loading={!breadCrumbs}
     >
       <Grid container spacing={3}>
+        <Grid item md={4} xs={12}/>
         <Grid item md={4} xs={12}>
-          <Card style={{padding: '2rem'}}>
+          <Card className={classes.container}>
             <Typography>
               {intl.formatMessage({ id: 'changePasswordHeader' })}
             </Typography>

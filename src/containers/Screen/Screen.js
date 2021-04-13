@@ -88,7 +88,7 @@ const useStyles = makeStyles((theme) => ({
     marginTop: '5rem',
     marginBottom: '-6rem'
   },
-  contentMobile: {},
+  contentNoStyle: {},
   content: {
     marginLeft: '15rem'
   },
@@ -166,8 +166,8 @@ function Screen(props) {
   }
   const { navHeaderIcon: NavHeaderIcon, navListItemTextArray, showSearchResults } = navigationOptions || {};
   const myContainerClass = navigationOptions && !isTinyWindow() ? classes.containerAllLeftPad : classes.containerAll;
-  const contentClass = isTinyWindow() ? classes.contentMobile : showSearchResults && !_.isEmpty(results) ?
-    classes.contentSearch : classes.content;
+  const contentClass = isTinyWindow() ? classes.contentNoStyle : showSearchResults && !_.isEmpty(results) ?
+    classes.contentSearch : navigationOptions ? classes.content : classes.contentNoStyle;
   return (
     <div className={classes.root} id="root">
       <Helmet defer={false}>

@@ -108,7 +108,8 @@ function Support(props) {
       breadCrumbs={breadCrumbs}
       loading={!externalId}
     >
-      <Grid container direction="column" spacing={3}>
+      <Grid container spacing={3}>
+        <Grid item md={3} xs={12} />
         <Grid item md={5} xs={12}>
           <Card style={{padding: '2rem'}}>
           <Typography style={{paddingBottom: '1rem'}}>

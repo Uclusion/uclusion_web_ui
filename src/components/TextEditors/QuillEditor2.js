@@ -155,7 +155,6 @@ function QuillEditor2 (props) {
   }
 
   function resetHandler(){
-    console.error(`resetting ${id}`);
     storeState(id, null);
     editor.history.clear();
     editor.setContents({insert: ''});

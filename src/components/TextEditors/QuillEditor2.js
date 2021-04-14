@@ -11,7 +11,7 @@ import { pushMessage, registerListener } from '../../utils/MessageBusUtils';
 import _ from 'lodash';
 import ReactDOMServer from 'react-dom/server';
 import MentionListItem from './CustomUI/MentionListItem';
-import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../utils';
+import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../localStorageUtils';
 import VideoDialog from './CustomUI/VideoDialog';
 import { embeddifyVideoLink } from './Utilities/VideoUtils';
 import LinkDialog from './CustomUI/LinkDialog';

@@ -50,6 +50,7 @@ function InvestibleEdit (props) {
   const isPlanning = market && market.market_type === PLANNING_TYPE;
   const loading = !market || !inv || !userId;
 
+
   function onCancel() {
     navigate(history, formInvestibleLink(marketId, investibleId));
   }

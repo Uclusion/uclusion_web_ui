@@ -22,7 +22,7 @@ import {
   clearUclusionLocalStorage,
   getUclusionLocalStorageItem,
   setUclusionLocalStorageItem
-} from '../../components/utils'
+} from '../../components/localStorageUtils'
 import _ from 'lodash'
 import { decomposeMarketPath } from '../../utils/marketIdPathFunctions'
 import queryString from 'query-string'

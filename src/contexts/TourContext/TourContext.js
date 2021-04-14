@@ -2,7 +2,7 @@ import React, { useEffect, useReducer } from 'react';
 import {
   getUclusionLocalStorageItem,
   setUclusionLocalStorageItem,
-} from '../../components/utils';
+} from '../../components/localStorageUtils';
 import { reducer } from './tourContextReducer';
 
 const EMPTY_CONTEXT = {

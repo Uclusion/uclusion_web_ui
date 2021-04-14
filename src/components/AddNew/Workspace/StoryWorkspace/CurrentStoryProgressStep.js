@@ -16,8 +16,6 @@ import { useEditor } from '../../../TextEditors/quillHooks';
 function CurrentStoryProgressStep (props) {
   const { updateFormData, formData} = props;
   const intl = useIntl();
-  const [marketState] = useContext(MarketsContext);
-  const [investibleState] = useContext(InvestiblesContext);
   const {
     currentStoryProgress,
     currentStoryEstimate,

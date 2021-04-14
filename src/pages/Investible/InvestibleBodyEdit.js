@@ -1,8 +1,7 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext } from 'react'
 import { FormattedMessage, useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
-import localforage from 'localforage'
-import { lockInvestibleForEdit, realeaseInvestibleEditLock, updateInvestible, } from '../../api/investibles'
+  import { lockInvestibleForEdit, realeaseInvestibleEditLock, updateInvestible, } from '../../api/investibles'
 import { refreshInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
@@ -16,11 +15,7 @@ import _ from 'lodash'
 import { CardActions, CircularProgress, Typography } from '@material-ui/core'
 import { processTextAndFilesForSave } from '../../api/files'
 import { makeStyles } from '@material-ui/core/styles'
-import { PLANNING_TYPE } from '../../constants/markets'
 import NameField from '../../components/TextFields/NameField'
-import { getMarketInfo } from '../../utils/userFunctions'
-import { getFullStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
-import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 import { isTinyWindow } from '../../utils/windowUtils'
 import DescriptionOrDiff from '../../components/Descriptions/DescriptionOrDiff'
 import { Clear, SettingsBackupRestore } from '@material-ui/icons'
@@ -54,59 +49,34 @@ const useStyles = makeStyles(
 );
 
 function InvestibleBodyEdit(props) {
-  const { hidden, marketId, investibleId, setBeingEdited, beingEdited, isEditableByUser, userId,
-    fullInvestible } = props;
+  const { hidden, marketId, investibleId, isEditableByUser, userId,
+    fullInvestible, pageState, pageStateUpdate, pageStateReset } = props;
+
+  const {
+    beingEdited,
+    uploadedFiles,
+    description,
+    name
+  } = pageState;
   const intl = useIntl();
   const [, investiblesDispatch] = useContext(InvestiblesContext);
-  const [marketStagesState] = useContext(MarketStagesContext);
   const [, diffDispatch] = useContext(DiffContext);
-  const marketInfo = getMarketInfo(fullInvestible, marketId) || {};
-  const { assigned, stage: stageId } = marketInfo;
-  const stage = getFullStage(marketStagesState, marketId, stageId)
   const [marketsState] = useContext(MarketsContext);
   const { investible: myInvestible } = fullInvestible;
   const { locked_by: lockedBy } = myInvestible;
   const emptyMarket = { name: '' };
   const market = getMarket(marketsState, marketId) || emptyMarket;
-  const { market_type: marketType } = market;
-  const [lockFailed, setLockFailed] = useState(false);
   const loading = !beingEdited || !market;
   const someoneElseEditing = !_.isEmpty(lockedBy) && (lockedBy !== userId);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
-  const [uploadedFiles, setUploadedFiles] = useState([]);
   const { id, description: initialDescription, name: initialName } = myInvestible;
-  const [description, setDescription] = useState(initialDescription);
-  const [name, setName] = useState(initialName);
 
-  function onLock (result) {
-    if (result) {
-      setLockFailed(false);
-      onSave(result , true);
-    } else {
-      setLockFailed(true);
-    }
-  }
-
-  const { editable_by_roles: editableByRoles, allows_assignment: allowsAssignment,
-    allows_investment: allowsInvestment } = stage || {};
-  const isEditable = beingEdited && (_.size(editableByRoles) > 1 ||
-    (marketType === PLANNING_TYPE && (_.size(assigned) > 1 || !allowsAssignment || allowsInvestment)));
-
-  // Lock the investible if appropriate-this is suspect.
-  useEffect(() => {
-    if (!hidden && !loading && !lockFailed && _.isEmpty(lockedBy) && isEditable) {
-      lockInvestibleForEdit(marketId, investibleId)
-        .then((newInv) => refreshInvestibles(investiblesDispatch, diffDispatch, [newInv]))
-        .catch(() => setLockFailed(true));
-    }
-    return () => {};
-  }, [diffDispatch, hidden, investibleId, investiblesDispatch, isEditable, loading, lockFailed, lockedBy,
-    marketId]);
   const editorName = `${marketId}-${investibleId}-body-editor`;
   const editorSpec = {
-    onUpload: handleFileUpload,
+    onUpload: (files) => pageStateUpdate({uploadedFiles: files}),
     marketId,
-    onChange: onEditorChange,
+    onChange: (contents) => pageStateUpdate({description: contents}),
+    dontManageState: true, // handled by the page
     placeholder: intl.formatMessage({ id: 'investibleAddDescriptionDefault' }),
     value: description,
   };
@@ -137,59 +107,37 @@ function InvestibleBodyEdit(props) {
       });
   }
 
-  function handleDraftState(newDraftState) {
-    localforage.setItem(myInvestible.id, newDraftState).then(() => {});
+  function setBeingEdited(beingEdited) {
+    pageStateUpdate({beingEdited})
   }
 
-  function onEditorChange(description) {
-    setDescription(description);
-  }
-
-  function handleFileUpload(metadatas) {
-    setUploadedFiles(metadatas);
-  }
-
-  function handleNameChange(value) {
-    setName(value);
-  }
-
-  function handleNameStorage(value) {
-    handleDraftState({ description, name: value });
-  }
-
-  function onCancel() {
-    setBeingEdited(false);
+  function onCancel () {
+    pageStateReset();
     editorController(editorReset());
-    if (!_.isEmpty(lockedBy) && (lockedBy !== userId)) {
-      // If its locked by someone else then skip all the below checks
-      return localforage.removeItem(investibleId);
-    } else if (isEditable) {
-        return localforage.removeItem(investibleId)
-          .then(() => {
-            if (!lockFailed) {
-              return realeaseInvestibleEditLock(marketId, investibleId);
-            }
-            return fullInvestible;
-          })
-          .then((newInv) => {
-            refreshInvestibles(investiblesDispatch, diffDispatch, [newInv]);
-          });
-    } else {
-      return localforage.removeItem(investibleId);
-    }
+    realeaseInvestibleEditLock(marketId, investibleId)
+      .then((newInv) => {
+        refreshInvestibles(investiblesDispatch, diffDispatch, [newInv]);
+      });
   }
 
   function onSave (fullInvestible, stillEditing) {
     if (!stillEditing) {
-      setBeingEdited(false);
+      pageStateReset();
     }
     if (fullInvestible) {
       refreshInvestibles(investiblesDispatch, diffDispatch, [fullInvestible]);
     }
-    return localforage.removeItem(investibleId);
   }
+
   const classes = useStyles();
   const lockedDialogClasses = useLockedDialogStyles();
+
+  function onLock (result) {
+    if (result) {
+      onSave(result, true);
+    }
+  }
+
 
   function takeoutLock () {
     const breakLock = true;
@@ -211,7 +159,7 @@ function InvestibleBodyEdit(props) {
       <>
         <LockedDialog
           classes={lockedDialogClasses}
-          open={!hidden && (someoneElseEditing || lockFailed)}
+          open={!hidden && (someoneElseEditing)}
           onClose={onCancel}
           /* slots */
           actions={
@@ -220,8 +168,8 @@ function InvestibleBodyEdit(props) {
               disableFocusRipple
               marketId={marketId}
               onClick={takeoutLock}
-              onSpinStop={onLock}
               hasSpinChecker
+              onSpinStop={onLock}
               disabled={operationRunning}
             >
               <FormattedMessage id="pageLockEditPage"/>
@@ -230,7 +178,7 @@ function InvestibleBodyEdit(props) {
         />
         {(!lockedBy || (lockedBy === userId)) && (
           <>
-            <NameField onEditorChange={handleNameChange} onStorageChange={handleNameStorage}
+            <NameField onEditorChange={(name) => pageStateUpdate({name})}
                        description={description}
                        name={name}/>
             {Editor}

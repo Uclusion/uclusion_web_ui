@@ -11,7 +11,7 @@
 import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import ModalMovie from './ModalMovie'
-import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../utils'
+import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../localStorageUtils'
 import { getUiPreferences } from '../../contexts/AccountUserContext/accountUserContextHelper'
 import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
 import { updateUiPreferences } from '../../api/account'

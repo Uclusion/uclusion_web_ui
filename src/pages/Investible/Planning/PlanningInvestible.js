@@ -78,9 +78,9 @@ import AttachedFilesList from '../../../components/Files/AttachedFilesList'
 import {
   attachFilesToInvestible,
   changeLabels,
-  deleteAttachedFilesFromInvestible,
+  deleteAttachedFilesFromInvestible, lockInvestibleForEdit,
   updateInvestible
-} from '../../../api/investibles'
+} from '../../../api/investibles';
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import ShareStoryButton from './ShareStoryButton'
 import Chip from '@material-ui/core/Chip'
@@ -109,6 +109,7 @@ import { getFakeCommentsArray } from '../../../utils/stringFunctions'
 import { QuestionAnswer } from '@material-ui/icons'
 import AssignmentIcon from '@material-ui/icons/Assignment'
 import InvestibleBodyEdit from '../InvestibleBodyEdit';
+import { usePageStateReducer } from '../../../components/PageState/pageStateHooks';
 
 const useStyles = makeStyles(
   theme => ({
@@ -372,6 +373,13 @@ function PlanningInvestible(props) {
   const { name, locked_by: lockedBy, created_at: createdAt, label_list: originalLabelList } = investible;
   const [labelList, setLabelList] = useState(originalLabelList);
   const [anchorEl, setAnchorEl] = React.useState(null);
+
+  const [pageState, updatePageState] = usePageStateReducer(investibleId);
+
+  const {
+      beingEdited,
+  } = pageState;
+
   let lockedByName;
   if (lockedBy) {
     const lockedByPresence = marketPresences.find(
@@ -406,7 +414,6 @@ function PlanningInvestible(props) {
   const isAssigned = assigned.includes(userId);
   const displayEdit = isAdmin && !inArchives && (isAssigned || isInNotDoing || isInVoting || isReadyFurtherWork || isRequiresInput);
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
-  const [beingEdited, setBeingEdited] = useState(lockedBy === myPresence.id && displayEdit ? investibleId : undefined);
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   const inMarketArchives = isInNotDoing || isInVerified;
   const breadCrumbTemplates = [
@@ -694,7 +701,13 @@ function PlanningInvestible(props) {
   }
 
   function mySetBeingEdited(isEdit, event) {
-    doSetEditWhenValid(isEdit, isEditableByUser, setBeingEdited, investibleId, event);
+    lockInvestibleForEdit(marketId, investibleId)
+      .then((newInv) => {
+        refreshInvestibles(investiblesDispatch, diffDispatch, [newInv])
+        doSetEditWhenValid(isEdit, isEditableByUser, (value) => updatePageState({beingEdited: value}), investibleId, event);
+      })
+      // TODO: on error should probably display an error
+      .catch(() => updatePageState({beingEdited: false}));
   }
   function toggleReviewers() {
     navigate(history, `${formInvestibleEditLink(market.id, marketInvestible.investible.id)}#review=true`);

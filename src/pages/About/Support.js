@@ -9,7 +9,7 @@ import config from '../../config'
 import { toastErrorAndThrow } from '../../utils/userMessage'
 import { getSSOInfo } from '../../api/sso'
 import { makeBreadCrumbs } from '../../utils/marketIdPathFunctions'
-import { clearUclusionLocalStorage } from '../../components/utils'
+import { clearUclusionLocalStorage } from '../../components/localStorageUtils'
 import OnboardingWorkspace from './OnboardingWorkspace'
 
 const useStyles = makeStyles((theme) => ({

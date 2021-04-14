@@ -334,61 +334,63 @@ function MarketTodos (props) {
       const { isChecked } = checked[id] || { isChecked: false };
       const showChip = replies.length > 0;
       return (
-        <Grid
-          id={`c${id}`}
-          key={`c${id}`}
-          item
-          md={3}
-          xs={12}
-          draggable={!operationRunning && !isInArchives}
-          onDragStart={(event) => onDragStart(event, notificationType)}
-          onDragEnd={onDragEnd}
-          className={classes.outlined}
-          onMouseOver={() => doShowEdit(id)} onMouseOut={() => doRemoveEdit(id)}
-        >
-          {showSelectTodos && (
-            <Checkbox
-              value={id}
-              checked={isChecked}
-              onChange={todoSelectedToggle(id)}
-            />
-          )}
+        <>
           {openMenuTodoId === id && anchorEl && (
             <MarketTodoMenu comment={comment} editViewFunc={setCardAndScroll}
                             openIdFunc={setOpenMenuTodoId} anchorEl={anchorEl} messages={messages} />
           )}
-          <RaisedCard elevation={0} onClick={(event) => {
-            if (isInArchives) {
-              setCardAndScroll(comment);
-            } else {
-              setOpenMenuCard(id, event);
-            }
-          }}>
-            <Grid container id={`drag${id}`} className={useHighlight ? classes.warnCard : classes.card}>
-              <Grid item xs={11} style={{pointerEvents: 'none'}}>
-                <div style={{display: 'flex'}}>
-                  <Typography style={{ fontSize: '.75rem', flex: 1 }}>
-                    Updated: {intl.formatDate(updated_at)}
-                  </Typography>
-                  {showChip && (
-                    <div style={{display: 'flex'}}>
-                      <Typography style={{ fontSize: '.75rem' }}>Comments:</Typography>
-                      <Chip label={`${replies.length}`} color="primary" size='small'
-                            style={{ marginLeft: '5px', marginRight: '15px'}} />
-                    </div>
-                  )}
-                </div>
+          <Grid
+            id={`c${id}`}
+            key={`c${id}`}
+            item
+            md={3}
+            xs={12}
+            draggable={!operationRunning && !isInArchives}
+            onDragStart={(event) => onDragStart(event, notificationType)}
+            onDragEnd={onDragEnd}
+            className={classes.outlined}
+            onMouseOver={() => doShowEdit(id)} onMouseOut={() => doRemoveEdit(id)}
+          >
+            {showSelectTodos && (
+              <Checkbox
+                value={id}
+                checked={isChecked}
+                onChange={todoSelectedToggle(id)}
+              />
+            )}
+            <RaisedCard elevation={0} onClick={(event) => {
+              if (isInArchives) {
+                setCardAndScroll(comment);
+              } else {
+                setOpenMenuCard(id, event);
+              }
+            }}>
+              <Grid container id={`drag${id}`} className={useHighlight ? classes.warnCard : classes.card}>
+                <Grid item xs={11} style={{pointerEvents: 'none'}}>
+                  <div style={{display: 'flex'}}>
+                    <Typography style={{ fontSize: '.75rem', flex: 1 }}>
+                      Updated: {intl.formatDate(updated_at)}
+                    </Typography>
+                    {showChip && (
+                      <div style={{display: 'flex'}}>
+                        <Typography style={{ fontSize: '.75rem' }}>Comments:</Typography>
+                        <Chip label={`${replies.length}`} color="primary" size='small'
+                              style={{ marginLeft: '5px', marginRight: '15px'}} />
+                      </div>
+                    )}
+                  </div>
+                </Grid>
+                <Grid id={`showEdit0${id}`} item xs={1} style={{pointerEvents: 'none', display: 'none'}}>
+                  <EditOutlinedIcon style={{maxHeight: '1.25rem'}} />
+                </Grid>
+                <Grid id={`showEdit1${showChip ? '' : id}`} item xs={12} style={{pointerEvents: 'none',
+                  paddingTop: `${showChip ? 0 : 0.5}rem`}}>
+                  <ReadOnlyQuillEditor value={body} />
+                </Grid>
               </Grid>
-              <Grid id={`showEdit0${id}`} item xs={1} style={{pointerEvents: 'none', display: 'none'}}>
-                <EditOutlinedIcon style={{maxHeight: '1.25rem'}} />
-              </Grid>
-              <Grid id={`showEdit1${showChip ? '' : id}`} item xs={12} style={{pointerEvents: 'none',
-                paddingTop: `${showChip ? 0 : 0.5}rem`}}>
-                <ReadOnlyQuillEditor value={body} />
-              </Grid>
-            </Grid>
-          </RaisedCard>
-        </Grid>
+            </RaisedCard>
+          </Grid>
+        </>
       );
     });
   }

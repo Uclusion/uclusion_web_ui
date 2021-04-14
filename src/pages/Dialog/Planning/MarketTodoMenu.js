@@ -1,7 +1,7 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext } from 'react'
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { List, ListItem, ListItemText, ListSubheader, Popper } from '@material-ui/core'
+import { List, ListItem, ListItemText, ListSubheader, Menu } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles';
 import { useIntl } from 'react-intl';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
@@ -47,29 +47,12 @@ function MarketTodoMenu(props) {
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
   const [, invDispatch] = useContext(InvestiblesContext);
-  const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const { market_id: marketId, id: commentId, notification_type: myNotificationType } = comment;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const assignablePresences = marketPresences.filter((presence) => !presence.market_banned && presence.following
     && !presence.market_guest) || [];
-
-  const [inside, setInside] = useState(false);
-  const [pegLeft, setPegLeft] = useState(false);
-  const [pegLeftTimer, setPegLeftTimer] = useState(undefined);
-
-  useEffect(() => {
-    function handleClick() {
-      setPegLeftTimer(setTimeout(() => {
-        setPegLeft(true);
-      }, 1000));
-    }
-    document.addEventListener("mousedown", handleClick);
-    return () => {
-      // Unbind the event listener on clean up
-      document.removeEventListener("mousedown", handleClick);
-    };
-  }, []);
 
   function renderAssignedEntry(presence) {
     const { name, email, id } = presence;
@@ -118,42 +101,22 @@ function MarketTodoMenu(props) {
     });
   }
 
-  function onEnter() {
-    setInside(true);
-    if (pegLeftTimer) {
-      clearTimeout(pegLeftTimer);
-      setPegLeftTimer(undefined);
-    }
-    setPegLeft(false);
+  function setClosed() {
+    openIdFunc(undefined);
   }
-
-  function onOut() {
-    if (!pegLeft) {
-      setInside(false);
-      setPegLeftTimer(setTimeout(() => {
-        setPegLeft(true);
-      }, 1000));
-    }
-  }
-
-  useEffect(() => {
-    if (pegLeft && !inside) {
-      setPegLeft(false);
-      openIdFunc(undefined);
-    }
-    return () => {};
-  }, [inside, openIdFunc, pegLeft]);
 
   return (
-    <Popper
-      open={!operationRunning}
+    <Menu
       id="todo-menu"
+      open={true}
+      onClose={setClosed}
+      getContentAnchorEl={null}
+      placement="right"
       anchorEl={anchorEl}
-      placement="top"
+      disableRestoreFocus
       className={classes.popper}
     >
       <List
-        onMouseOut={onOut} onMouseOver={onEnter}
         dense
         className={classes.scrollableList}
       >
@@ -185,7 +148,7 @@ function MarketTodoMenu(props) {
         </ListSubheader>
         {assignablePresences.map((entry) => renderAssignedEntry(entry))}
       </List>
-    </Popper>
+    </Menu>
   );
 }
 

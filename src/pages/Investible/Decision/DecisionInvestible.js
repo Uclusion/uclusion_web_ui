@@ -398,7 +398,7 @@ function DecisionInvestible(props) {
           </Grid>
         </Grid>
       </Card>
-      {!displayVotingInput && !inProposed && (
+      {!displayVotingInput && !inProposed && activeMarket && (
         <Typography>
           {intl.formatMessage({ id: votingBlockedMessage })}
         </Typography>

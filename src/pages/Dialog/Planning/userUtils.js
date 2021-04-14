@@ -127,13 +127,13 @@ export function doShowEdit(id) {
   }
 }
 
-export function doRemoveEdit(id, marketGuest) {
+export function doRemoveEdit(id, hasIcon) {
   const pencilIconHolder = document.getElementById(`showEdit0${id}`);
   const belowPencilHolder = document.getElementById(`showEdit1${id}`);
   if (pencilIconHolder) {
     pencilIconHolder.style.display = 'none';
   }
-  if (belowPencilHolder && !marketGuest) {
+  if (belowPencilHolder && !hasIcon) {
     belowPencilHolder.style.paddingTop = '0.5rem';
   }
 }

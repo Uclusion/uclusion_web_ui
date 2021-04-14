@@ -11,7 +11,7 @@ import clsx from 'clsx';
 import {
   checkInProgressWarning,
   checkReviewWarning,
-  checkVotingWarning,
+  countByType,
 } from './PlanningDialog';
 import { DaysEstimate } from '../../../components/AgilePlan';
 import {
@@ -356,6 +356,7 @@ function PlanningIdeas(props) {
           isAdmin={myPresence.is_admin}
           marketPresences={marketPresences}
           comments={comments}
+          votesRequired={votesRequired}
         />
       </div>
       <div id={`${acceptedStageId}_${presenceId}`} onDrop={onDropAccepted}
@@ -513,7 +514,8 @@ function Stage (props) {
     presenceId,
     limitInvestibles,
     limitInvestiblesAge,
-    overflowClass
+    overflowClass,
+    votesRequired
   } = props;
   const [, dragHack] = useContext(LocalPlanningDragContext);
   const stageInvestibles = getUserSwimlaneInvestibles(investibles, limitInvestibles, limitInvestiblesAge,
@@ -545,11 +547,10 @@ function Stage (props) {
   }
 
   const warnAcceptedSafe = warnAccepted || {};
-  const warnKeys = Object.keys(warnAcceptedSafe);
   const singleInvestible = (stageInvestibles || []).length === 1;
 
   return (
-    <dd className={singleInvestible && warnAcceptedSafe[warnKeys[stageInvestibles[0].investible.id]] ?
+    <dd className={singleInvestible && warnAcceptedSafe[stageInvestibles[0].investible.id] ?
       classes.rootWarnAccepted : singleInvestible ? classes.root : classes.regularAccepted}>
       <ul className={classes.list}>
         <Grid
@@ -565,7 +566,8 @@ function Stage (props) {
             <Grid key={investible.id} item xs={12} onDragStart={investibleOnDragStart} id={investible.id} draggable
                   className={!singleInvestible && warnAcceptedSafe[investible.id] ? classes.rootWarnAccepted
               : !singleInvestible ? classes.outlinedAccepted : classes.regularAccepted}
-                  onMouseOver={() => doShowEdit(investible.id)} onMouseOut={() => doRemoveEdit(investible.id)}
+                  onMouseOver={() => doShowEdit(investible.id)} onMouseOut={() => doRemoveEdit(investible.id,
+              isVoting || isReview)}
                   onClick={event => {
                     event.preventDefault();
                     navigate(history, formInvestibleLink(marketId, investible.id));
@@ -578,9 +580,12 @@ function Stage (props) {
                   marketId={marketId}
                   marketInfo={marketInfo}
                   updatedText={updatedText}
-                  showWarning={isReview ? checkReviewWarning(investible, comments) :
-                    isVoting ? checkReviewWarning(investible, comments, true) ||
-                      checkVotingWarning(investible.id, marketPresences) : false}
+                  isReview={isReview}
+                  isVoting={isVoting}
+                  votesRequired={votesRequired}
+                  numTodos={countByType(investible, comments, [TODO_TYPE])}
+                  showWarning={isReview || isVoting ? countByType(investible, comments,
+                    [QUESTION_TYPE, SUGGEST_CHANGE_TYPE]) > 0 : false}
                   showCompletion={showCompletion}
                 />
             </Grid>
@@ -613,7 +618,8 @@ const useVotingStageClasses = makeStyles(
 );
 
 function VotingStage (props) {
-  const { className, marketId, presenceId, activeMarket, isAdmin, comments, marketPresences, ...other } = props;
+  const { className, marketId, presenceId, activeMarket, isAdmin, comments, marketPresences, votesRequired, ...other }
+    = props;
 
   const classes = useVotingStageClasses();
   const intl = useIntl();
@@ -645,6 +651,7 @@ function VotingStage (props) {
       presenceId={presenceId}
       isVoting
       fallbackOnClick={onClick}
+      votesRequired={votesRequired}
       marketPresences={marketPresences}
       updatedText={intl.formatMessage({
         id: 'inDialogInvestiblesUpdatedAt'
@@ -688,7 +695,14 @@ const generalStageStyles = makeStyles(() => {
     },
     chipsClass: {
       display: 'flex',
-    }
+    },
+    chipStyleRed: {
+      backgroundColor: '#E85757'
+    },
+    chipStyleGreen: {
+      backgroundColor: 'white',
+      border: '0.5px solid grey'
+    },
   };
 });
 
@@ -719,9 +733,13 @@ function StageInvestible (props) {
     showWarning,
     showCompletion,
     comments,
-    marketPresences
+    marketPresences,
+    isVoting,
+    votesRequired,
+    isReview,
+    numTodos
   } = props;
-  const { completion_estimate: daysEstimate } = marketInfo;
+  const { completion_estimate: daysEstimate, assigned } = marketInfo;
   const { id, name, created_at: createdAt, label_list: labelList } = investible;
   const history = useHistory();
   const to = formInvestibleLink(marketId, id);
@@ -736,9 +754,17 @@ function StageInvestible (props) {
   const concated = [...votersForInvestible, ...commenterPresences];
   const hasDaysEstimate = showCompletion && daysEstimate;
   const collaboratorsForInvestible = _.uniqBy(concated, 'id');
+  const votersNotAssigned = votersForInvestible.filter((voter) => !_.includes(assigned, voter.id)) || [];
+  const votesRequiredDisplay = votesRequired > 0 ? votesRequired : 1;
+  const enoughVotes = votersNotAssigned.length >= votesRequiredDisplay;
+  const chip = isVoting ? <Chip label={`${votersNotAssigned.length}`} size='small'
+                                className={enoughVotes ? classes.chipStyleGreen : classes.chipStyleRed} />
+    : isReview ? <Chip label={`${numTodos}`} size='small' className={numTodos > 0 ?
+      classes.chipStyleRed : classes.chipStyleGreen} />
+      : undefined;
   return (
     <Grid container>
-      <Grid item xs={11}>
+      <Grid item xs={10}>
         <Typography variant="inherit">
           {updatedText}
           <FormattedDate value={safeChangeDate}/>
@@ -747,10 +773,15 @@ function StageInvestible (props) {
           <DaysEstimate readOnly value={daysEstimate} createdAt={createdAt}/>
         )}
       </Grid>
+      {chip && (
+        <Grid item xs={1}>
+          {chip}
+        </Grid>
+      )}
       <Grid id={`showEdit0${id}`} item xs={1} style={{pointerEvents: 'none', display: 'none'}}>
         <EditOutlinedIcon style={{maxHeight: '1.25rem'}} />
       </Grid>
-      <Grid id={`showEdit1${hasDaysEstimate ? '' : id}`} item xs={12} style={{paddingTop: '0.5rem'}}>
+      <Grid id={`showEdit1${hasDaysEstimate ? '' : id}`} item xs={12} style={{paddingTop: `${chip ? '0rem' : '0.5rem'}`}}>
         <StageLink
           href={to}
           id={id}

@@ -523,33 +523,16 @@ export function checkInProgressWarning(investibles, myPresence, messagesState) {
   return warnHash;
 }
 
-export function checkReviewWarning(investible, comments, excludeTodos) {
+export function countByType(investible, comments, commentTypes) {
   const { id } = investible;
   if (_.isEmpty(comments)) {
-    return false;
+    return 0;
   }
-  const openComments = comments.find((comment) => {
+  const openComments = comments.filter((comment) => {
     const { investible_id: investibleId, comment_type: commentType, resolved } = comment;
-    if (excludeTodos && commentType === TODO_TYPE) {
-      return false;
-    }
-    return !resolved && id === investibleId && commentType !== REPORT_TYPE && commentType !== REPLY_TYPE
-      && commentType !== JUSTIFY_TYPE;
+    return !resolved && id === investibleId && commentTypes.includes(commentType);
   });
-  return !_.isEmpty(openComments);
-}
-
-export function checkVotingWarning(investibleId, marketPresences) {
-  let count = 0;
-  marketPresences.forEach(presence => {
-    const userInvestments = getVoteTotalsForUser(presence);
-    Object.keys(userInvestments).forEach((investible_id) => {
-      if (investible_id === investibleId) {
-        count++;
-      }
-    });
-  });
-  return count < 1;
+  return _.size(openComments);
 }
 
 function InvestiblesByPerson(props) {

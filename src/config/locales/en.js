@@ -328,6 +328,7 @@ const messages = defineMessages({
   planningInvestibleToVotingLabel: 'Ready for Approval',
   planningInvestibleNextStageAcceptedLabel: 'Not Ready',
   planningInvestibleNextStageAcceptedFullLabel: 'Not Ready (Full)',
+  planningInvestibleNextStageLackVotesLabel: 'Not Ready (Unapproved)',
   planningInvestibleNextStageInReviewLabel: 'Ready for Feedback',
   planningInvestibleMoveToVerifiedLabel: 'Verified',
   planningInvestibleMoveToFurtherWorkLabel: 'Further Work',

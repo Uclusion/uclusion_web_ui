@@ -774,7 +774,7 @@ function StageInvestible (props) {
         )}
       </Grid>
       {chip && (
-        <Grid item xs={1}>
+        <Grid item xs={1} style={{paddingBottom: '0.2rem'}}>
           {chip}
         </Grid>
       )}

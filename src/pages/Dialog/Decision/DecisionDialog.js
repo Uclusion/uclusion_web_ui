@@ -226,7 +226,7 @@ function DecisionDialog(props) {
   }
 
   function toggleInvestibleAdd() {
-    updatePageState({investibleAddBeingEdited: !investibleAddBeingEdited});
+    updateInvestibleAddState({investibleAddBeingEdited: !investibleAddBeingEdited});
   }
 
   function isEditableByUser() {

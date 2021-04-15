@@ -610,7 +610,7 @@ const messages = defineMessages({
   collaboratorNotFollowing: 'This user has archived and will not receive notifications.',
 
   // DecisionIvestibleSave
-  decisionInvestibleSaveAddAnother: 'Save & add another',
+  decisionInvestibleSaveAddAnother: 'Save & Add Another',
 
   // DecisionInvestible
   decisionInvestibleYourVoting: 'Your Input',

@@ -74,7 +74,6 @@ import { NotificationsContext } from '../../contexts/NotificationsContext/Notifi
 import { findMessageForCommentId } from '../../utils/messageUtils'
 import GravatarAndName from '../Avatars/GravatarAndName';
 import { invalidEditEvent, isTinyWindow } from '../../utils/windowUtils'
-import localforage from 'localforage'
 import DecisionInvestibleAdd from '../../pages/Dialog/Decision/DecisionInvestibleAdd'
 import ExpandableAction from '../SidebarActions/Planning/ExpandableAction'
 import AddIcon from '@material-ui/icons/Add'
@@ -83,6 +82,7 @@ import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'
 import { Clear, Delete, Done, Edit, Eject, ExpandLess, ExpandMore, SettingsBackupRestore } from '@material-ui/icons'
 import ReplyIcon from '@material-ui/icons/Reply'
 import TooltipIconButton from '../Buttons/TooltipIconButton'
+import { usePageStateReducer } from '../PageState/pageStateHooks'
 
 const useCommentStyles = makeStyles(
   theme => {
@@ -333,7 +333,6 @@ function Comment(props) {
   const sortedReplies = _.sortBy(replies, "created_at");
   const [expandedCommentState, expandedCommentDispatch] = useContext(ExpandedCommentContext);
   const [replyOpen, setReplyOpen] = useState(false);
-  const [inlineInvestibleAdd, setInlineInvestibleAdd] = useState(false);
   const [editOpen, setEditOpen] = useState(editOpenDefault);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [, versionsDispatch] = useContext(VersionsContext);
@@ -344,11 +343,14 @@ function Comment(props) {
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const enableActions = !inArchives && !readOnly;
   const enableEditing = !inArchives && !resolved && !readOnly; //resolved comments or those in archive aren't editable
-  const [storedState, setStoredState] = useState(undefined);
-  const [idLoaded, setIdLoaded] = useState(undefined);
+  const [investibleAddState, updateInvestibleAddState, investibleAddStateReset] =
+    usePageStateReducer(`investibleAdd${id}`);
+  const {
+    investibleAddBeingEdited,
+  } = investibleAddState;
 
   function toggleInlineInvestibleAdd() {
-    setInlineInvestibleAdd(!inlineInvestibleAdd);
+    updateInvestibleAddState({investibleAddBeingEdited: !investibleAddBeingEdited});
   }
 
   function toggleMultiVote() {
@@ -631,18 +633,6 @@ function Comment(props) {
     return () => {};
   }, [expandedCommentDispatch, hash, highlighted, id, repliesExpanded]);
 
-  useEffect(() => {
-    if (inlineInvestibleAdd) {
-      localforage.getItem(`add_investible_${id}`).then((stateFromDisk) => {
-        setStoredState(stateFromDisk || {});
-        setIdLoaded(id);
-      });
-    }
-    if (!inlineInvestibleAdd) {
-      setIdLoaded(undefined);
-    }
-  }, [inlineInvestibleAdd, id]);
-
   const showActions = !replyOpen || replies.length > 0;
   function getCommentHighlightStyle() {
     if (myHighlightedLevel && isHighlighted) {
@@ -892,7 +882,7 @@ function Comment(props) {
             })}
           </LocalCommentsContext.Provider>
         </Box>
-        {inlineInvestibleAdd && idLoaded === id && (
+        {investibleAddBeingEdited && (
           <div style={{marginTop: '2rem'}}>
             <DecisionInvestibleAdd
               marketId={inlineMarketId}
@@ -900,12 +890,14 @@ function Comment(props) {
               onCancel={toggleInlineInvestibleAdd}
               onSpinComplete={toggleInlineInvestibleAdd}
               isAdmin={commentCreatedBy === userId}
-              storedState={storedState}
+              pageState={investibleAddState}
+              pageStateUpdate={updateInvestibleAddState}
+              pageStateReset={investibleAddStateReset}
               parentCommentId={inlineMarketId ? undefined: id}
             />
           </div>
         )}
-        {!inlineMarketId && inlineInvestibleAdd && (
+        {!inlineMarketId && investibleAddBeingEdited && (
           <div style={{marginTop: '2rem'}} />
         )}
         {repliesExpanded && getDecision(inlineMarketId)}

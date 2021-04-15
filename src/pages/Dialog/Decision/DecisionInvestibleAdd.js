@@ -98,6 +98,8 @@ function DecisionInvestibleAdd(props) {
       if (typeof completionFunc === 'function') {
         completionFunc();
       } else {
+        pageStateReset();
+        editorController(editorReset());
         onSpinComplete();
       }
       setOperationRunning(false);
@@ -139,6 +141,8 @@ function DecisionInvestibleAdd(props) {
       if (typeof completionFunc === 'function') {
         completionFunc();
       } else {
+        pageStateReset();
+        editorController(editorReset());
         onSpinComplete();
       }
     });
@@ -147,11 +151,12 @@ function DecisionInvestibleAdd(props) {
   function onSaveAddAnother() {
     pageStateReset();
     editorController(editorReset());
+    pageStateUpdate({investibleAddBeingEdited: true});
   }
 
   return (
     <Card className={classes.overflowVisible}>
-      <CardContent className={classes.cardContent}>
+      <CardContent>
         <TextField
           fullWidth
           id="decision-investible-name"
@@ -168,7 +173,7 @@ function DecisionInvestibleAdd(props) {
         />
         {Editor}
       </CardContent>
-      <CardActions className={classes.actions}>
+      <CardActions className={classes.actions} style={{marginLeft: '1rem', paddingBottom: '1rem'}}>
         <SpinningIconLabelButton onClick={handleCancel} doSpin={false} icon={Clear}>
           {intl.formatMessage({ id: 'marketAddCancelLabel' })}
         </SpinningIconLabelButton>

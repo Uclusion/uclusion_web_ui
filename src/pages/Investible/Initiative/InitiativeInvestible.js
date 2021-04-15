@@ -325,6 +325,7 @@ function InitiativeInvestible(props) {
               {marketId && userId && (
                 <InvestibleBodyEdit hidden={hidden} marketId={marketId} investibleId={investibleId}
                                     userId={userId}
+                                    pageState={pageState}
                                     pageStateUpdate={updatePageState}
                                     pageStateReset={pageStateReset}
                                     fullInvestible={fullInvestible}

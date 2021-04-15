@@ -3,21 +3,20 @@ export function isTinyWindow(){
 }
 
 export function invalidEditEvent(event) {
-  console.debug(event);
+  const selection = window.getSelection();
+  if (selection && selection.type === 'Range') {
+    return true;
+  }
   return event && event.target && event.target.localName === 'a';
 }
 
-export function doSetEditWhenValid(isEdit, isEditableByUser, setBeingEdited, id, event) {
+export function doSetEditWhenValid(isEdit, isEditableByUser, setBeingEdited, event) {
   if (isEdit) {
     if (invalidEditEvent(event)) {
       return;
     }
-    const selection = window.getSelection();
-    if (selection && selection.type === 'Range') {
-      return;
-    }
     if (isEditableByUser()) {
-      setBeingEdited(id);
+      setBeingEdited(true);
     }
   } else {
     setBeingEdited(undefined);

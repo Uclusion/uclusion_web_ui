@@ -45,7 +45,7 @@ export function genericPageReducer(state, action) {
 
 export function usePageStateReducer(pageId) {
   const { storageBackedReducer, storedValue } = generateLocalStorageBackedReducer(pageId, genericPageReducer);
-  const [state, dispatch] = useReducer(storageBackedReducer, storedValue);
+  const [state, dispatch] = useReducer(storageBackedReducer, storedValue || {});
   return [state, (values) => dispatch(updateValues(values)), () => dispatch(resetValues())];
 }
 

@@ -21,6 +21,7 @@ import DescriptionOrDiff from '../../components/Descriptions/DescriptionOrDiff'
 import { Clear, SettingsBackupRestore } from '@material-ui/icons'
 import SpinningIconLabelButton from '../../components/Buttons/SpinningIconLabelButton'
 import { editorReset, useEditor } from '../../components/TextEditors/quillHooks';
+import LockedDialogTitleIcon from '@material-ui/icons/Lock'
 
 const useStyles = makeStyles(
   theme => ({
@@ -56,7 +57,8 @@ function InvestibleBodyEdit(props) {
     beingEdited,
     uploadedFiles,
     description,
-    name
+    name,
+    beingLocked
   } = pageState;
   const intl = useIntl();
   const [, investiblesDispatch] = useContext(InvestiblesContext);
@@ -68,7 +70,7 @@ function InvestibleBodyEdit(props) {
   const market = getMarket(marketsState, marketId) || emptyMarket;
   const loading = !beingEdited || !market;
   const someoneElseEditing = !_.isEmpty(lockedBy) && (lockedBy !== userId);
-  const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const { id, description: initialDescription, name: initialName } = myInvestible;
 
   const editorName = `${marketId}-${investibleId}-body-editor`;
@@ -87,7 +89,8 @@ function InvestibleBodyEdit(props) {
     setOperationRunning(true);
     // uploaded files on edit is the union of the new uploaded files and the old uploaded files
     const oldInvestibleUploadedFiles = myInvestible.uploaded_files || [];
-    const newUploadedFiles = _.uniqBy([...uploadedFiles, ...oldInvestibleUploadedFiles], 'path');
+    const currentUploadedFiles = uploadedFiles || [];
+    const newUploadedFiles = _.uniqBy([...currentUploadedFiles, ...oldInvestibleUploadedFiles], 'path');
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
@@ -114,7 +117,7 @@ function InvestibleBodyEdit(props) {
   function onCancel () {
     pageStateReset();
     editorController(editorReset());
-    realeaseInvestibleEditLock(marketId, investibleId)
+    return realeaseInvestibleEditLock(marketId, investibleId)
       .then((newInv) => {
         refreshInvestibles(investiblesDispatch, diffDispatch, [newInv]);
       });
@@ -140,19 +143,25 @@ function InvestibleBodyEdit(props) {
 
 
   function takeoutLock () {
+    setOperationRunning(true);
     const breakLock = true;
     return lockInvestibleForEdit(marketId, investibleId, breakLock)
       .then((result) => {
-        return {
-          result,
-          spinChecker: () => Promise.resolve(true),
-        }
+        setOperationRunning(false);
+        return onLock(result);
       }).catch(() => {
-        return {
-          result: false,
-          spinChecker: () => Promise.resolve(true),
-        };
+        setOperationRunning(false);
+        pageStateReset();
+        editorController(editorReset());
       });
+  }
+  if (beingLocked) {
+    return (
+      <div align='center'>
+        <Typography>{intl.formatMessage({ id: "gettingLockMessage" })}</Typography>
+        <CircularProgress type="indeterminate"/>
+      </div>
+    );
   }
   if (!hidden && beingEdited && !loading) {
     return (
@@ -163,17 +172,14 @@ function InvestibleBodyEdit(props) {
           onClose={onCancel}
           /* slots */
           actions={
-            <SpinBlockingButton
-              className={clsx(lockedDialogClasses.action, lockedDialogClasses.actionEdit)}
-              disableFocusRipple
-              marketId={marketId}
+            <SpinningIconLabelButton
+              icon={LockedDialogTitleIcon}
               onClick={takeoutLock}
-              hasSpinChecker
-              onSpinStop={onLock}
-              disabled={operationRunning}
             >
-              <FormattedMessage id="pageLockEditPage"/>
-            </SpinBlockingButton>
+              <FormattedMessage
+                id="pageLockEditPage"
+              />
+            </SpinningIconLabelButton>
           }
         />
         {(!lockedBy || (lockedBy === userId)) && (
@@ -183,12 +189,6 @@ function InvestibleBodyEdit(props) {
                        name={name}/>
             {Editor}
           </>
-        )}
-        {(lockedBy && (lockedBy !== userId)) && (
-          <div align='center'>
-            <Typography>{intl.formatMessage({ id: "gettingLockMessage" })}</Typography>
-            <CircularProgress type="indeterminate"/>
-          </div>
         )}
         <CardActions className={classes.actions}>
           <SpinningIconLabelButton onClick={onCancel} doSpin={false} icon={Clear}>

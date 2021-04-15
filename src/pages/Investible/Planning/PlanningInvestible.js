@@ -89,7 +89,7 @@ import TextField from '@material-ui/core/TextField'
 import EventIcon from '@material-ui/icons/Event';
 import DatePicker from 'react-datepicker'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
-import { doSetEditWhenValid, isTinyWindow } from '../../../utils/windowUtils'
+import { doSetEditWhenValid, invalidEditEvent, isTinyWindow } from '../../../utils/windowUtils'
 import Gravatar from '../../../components/Avatars/Gravatar';
 import { getInvestibleVoters } from '../../../utils/votingUtils';
 import { getCommenterPresences, inVerifedSwimLane } from '../../Dialog/Planning/userUtils';
@@ -370,11 +370,11 @@ function PlanningInvestible(props) {
   const presencesFollowing = (marketPresences || []).filter((presence) => presence.following && !presence.market_banned) || [];
   const everyoneAssigned = !_.isEmpty(marketPresences) && assigned.length === presencesFollowing.length;
   const { investible } = marketInvestible;
-  const { name, locked_by: lockedBy, created_at: createdAt, label_list: originalLabelList } = investible;
+  const { name, description, locked_by: lockedBy, created_at: createdAt, label_list: originalLabelList } = investible;
   const [labelList, setLabelList] = useState(originalLabelList);
   const [anchorEl, setAnchorEl] = React.useState(null);
 
-  const [pageState, updatePageState] = usePageStateReducer(investibleId);
+  const [pageState, updatePageState, pageStateReset] = usePageStateReducer(investibleId);
 
   const {
       beingEdited,
@@ -701,13 +701,24 @@ function PlanningInvestible(props) {
   }
 
   function mySetBeingEdited(isEdit, event) {
-    lockInvestibleForEdit(marketId, investibleId)
+    if (!isEdit || lockedBy === userId || !_.isEmpty(lockedBy)) {
+      // Either don't lock or throw the modal up - both of which InvestibleBodyEdit can handle
+      return doSetEditWhenValid(isEdit, isEditableByUser,
+        (value) => updatePageState({beingEdited: value, name, description}), event);
+    }
+    if (!isEditableByUser() || invalidEditEvent(event)) {
+      return;
+    }
+    updatePageState({beingLocked: true});
+    setOperationRunning(true);
+    return lockInvestibleForEdit(marketId, investibleId)
       .then((newInv) => {
+        setOperationRunning(false);
         refreshInvestibles(investiblesDispatch, diffDispatch, [newInv])
-        doSetEditWhenValid(isEdit, isEditableByUser, (value) => updatePageState({beingEdited: value}), investibleId, event);
+        updatePageState({beingEdited: true, beingLocked: false, name, description});
       })
       // TODO: on error should probably display an error
-      .catch(() => updatePageState({beingEdited: false}));
+      .catch(() => updatePageState({beingLocked: false}));
   }
   function toggleReviewers() {
     navigate(history, `${formInvestibleEditLink(market.id, marketInvestible.investible.id)}#review=true`);
@@ -853,7 +864,11 @@ function PlanningInvestible(props) {
                 <InvestibleBodyEdit
                   hidden={hidden}
                   marketId={marketId}
+                  userId={userId}
                   investibleId={investibleId}
+                  pageState={pageState}
+                  pageStateUpdate={updatePageState}
+                  pageStateReset={pageStateReset}
                   fullInvestible={marketInvestible}
                   setBeingEdited={mySetBeingEdited} beingEdited={myBeingEdited}
                   isEditableByUser={isEditableByUser}/>

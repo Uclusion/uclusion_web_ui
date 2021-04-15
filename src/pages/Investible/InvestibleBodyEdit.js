@@ -48,7 +48,7 @@ const useStyles = makeStyles(
 );
 
 function InvestibleBodyEdit(props) {
-  const { hidden, marketId, investibleId, isEditableByUser, userId,
+  const { hidden, marketId, investibleId, isEditableByUser, userId, setBeingEdited,
     fullInvestible, pageState, pageStateUpdate, pageStateReset } = props;
 
   const {
@@ -106,10 +106,6 @@ function InvestibleBodyEdit(props) {
         editorController(editorReset());
         onSave(fullInvestible);
       });
-  }
-
-  function setBeingEdited(beingEdited) {
-    pageStateUpdate({beingEdited})
   }
 
   function onCancel () {

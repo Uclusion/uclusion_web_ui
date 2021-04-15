@@ -257,7 +257,7 @@ function DecisionInvestible(props) {
   }
 
   function mySetBeingEdited(isEdit, event) {
-    doSetEditWhenValid(isEdit, isEditableByUser,
+    return doSetEditWhenValid(isEdit, isEditableByUser,
       (value) => updatePageState({beingEdited: value, name, description}), event);
   }
 
@@ -371,24 +371,23 @@ function DecisionInvestible(props) {
         />
         <Grid container className={classes.mobileColumn}>
           <Grid item md={9} xs={12}>
-
-        <CardContent className={myBeingEdited ? classes.editCardContent : classes.votingCardContent}>
-          {lockedBy && yourPresence.id !== lockedBy && isEditableByUser() && (
-            <Typography>
-              {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}
-            </Typography>
-          )}
-          {marketId && investibleId && userId && (
-            <InvestibleBodyEdit hidden={hidden} marketId={marketId} investibleId={investibleId}
-                                pageState={pageState}
-                                userId={userId}
-                                pageStateUpdate={updatePageState}
-                                pageStateReset={pageStateReset}
-                                fullInvestible={fullInvestible}
-                      setBeingEdited={mySetBeingEdited} beingEdited={myBeingEdited}
-                      isEditableByUser={isEditableByUser}/>
-          )}
-        </CardContent>
+            <CardContent className={myBeingEdited ? classes.editCardContent : classes.votingCardContent}>
+              {lockedBy && yourPresence.id !== lockedBy && isEditableByUser() && (
+                <Typography>
+                  {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}
+                </Typography>
+              )}
+              {marketId && investibleId && userId && (
+                <InvestibleBodyEdit hidden={hidden} marketId={marketId} investibleId={investibleId}
+                                    pageState={pageState}
+                                    userId={userId}
+                                    pageStateUpdate={updatePageState}
+                                    pageStateReset={pageStateReset}
+                                    fullInvestible={fullInvestible}
+                          setBeingEdited={mySetBeingEdited} beingEdited={myBeingEdited}
+                          isEditableByUser={isEditableByUser}/>
+              )}
+            </CardContent>
           </Grid>
           <Grid className={classes.borderLeft} item md={3} xs={12}>
             <CardActions className={classes.actions}>

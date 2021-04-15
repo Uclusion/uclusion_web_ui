@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { useHistory } from 'react-router'
 import { FormattedMessage, useIntl } from 'react-intl'
@@ -57,7 +57,8 @@ import ChangeSuggstionIcon from '@material-ui/icons/ChangeHistory'
 import ThumbUpIcon from '@material-ui/icons/ThumbUp'
 import ThumbDownIcon from '@material-ui/icons/ThumbDown'
 import { getFakeCommentsArray } from '../../../utils/stringFunctions'
-import BodyEdit from '../../BodyEdit'
+import InvestibleBodyEdit from '../InvestibleBodyEdit'
+import { usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 
 const useStyles = makeStyles(
   theme => ({
@@ -188,8 +189,12 @@ function InitiativeInvestible(props) {
   const [, tourDispatch] = useContext(TourContext);
   const [, marketsDispatch] = useContext(MarketsContext);
   const [, diffDispatch] = useContext(DiffContext);
+  const [pageState, updatePageState, pageStateReset] = usePageStateReducer(investibleId);
+  const {
+    beingEdited,
+  } = pageState;
   const cognitoUser = useContext(CognitoUserContext) || {};
-  const { name } = investible;
+  const { name, description } = investible;
   const {
     id: marketId,
     market_stage: marketStage,
@@ -233,7 +238,6 @@ function InitiativeInvestible(props) {
   function isEditableByUser() {
     return isAdmin && !inArchives;
   }
-  const [beingEdited, setBeingEdited] = useState(undefined);
   function onAttachFile (metadatas) {
     return attachFilesToMarket(marketId, metadatas)
       .then((market) => {
@@ -250,7 +254,8 @@ function InitiativeInvestible(props) {
   }
 
   function mySetBeingEdited(isEdit, event) {
-    doSetEditWhenValid(isEdit, isEditableByUser, setBeingEdited, investibleId, event);
+    doSetEditWhenValid(isEdit, isEditableByUser,
+      (value) => updatePageState({beingEdited: value, name, description}), event);
   }
 
   useEffect(() => {
@@ -261,7 +266,6 @@ function InitiativeInvestible(props) {
     // we have no usable data;
     return <></>;
   }
-  const myBeingEdited = beingEdited === investibleId && isEditableByUser();
   function createNavListItem(icon, textId, anchorId, howManyNum, alwaysShow) {
     return baseNavListItem(formInvestibleLink(marketId, investibleId), icon, textId, anchorId, howManyNum, alwaysShow);
   }
@@ -308,19 +312,23 @@ function InitiativeInvestible(props) {
           className={classes.cardType}
           type={VOTING_TYPE}
           createdAt={createdAt}
-          myBeingEdited={myBeingEdited}
+          myBeingEdited={beingEdited}
         />
         <Grid container className={classes.mobileColumn}>
           <Grid item md={9} xs={12}>
-            <CardContent className={myBeingEdited ? classes.editContent : classes.content}>
+            <CardContent className={beingEdited ? classes.editContent : classes.content}>
               {isDraft && activeMarket && (
                 <Typography className={classes.draft}>
                   {intl.formatMessage({ id: "draft" })}
                 </Typography>
               )}
-              {marketId && investibleId && (
-                <BodyEdit hidden={hidden} marketId={marketId} investibleId={investibleId} loadId={investibleId}
-                          setBeingEdited={mySetBeingEdited} beingEdited={myBeingEdited}
+              {marketId && userId && (
+                <InvestibleBodyEdit hidden={hidden} marketId={marketId} investibleId={investibleId}
+                                    userId={userId}
+                                    pageStateUpdate={updatePageState}
+                                    pageStateReset={pageStateReset}
+                                    fullInvestible={fullInvestible}
+                          setBeingEdited={mySetBeingEdited} beingEdited={beingEdited}
                           isEditableByUser={isEditableByUser} />
               )}
             </CardContent>

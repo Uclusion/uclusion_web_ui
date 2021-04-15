@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import { FormattedMessage, useIntl } from 'react-intl'
 import { Card, CardActions, CardContent, Grid,Typography } from '@material-ui/core'
@@ -20,15 +20,18 @@ import ExpandableAction from '../../../components/SidebarActions/Planning/Expand
 import Collaborators from '../Collaborators'
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
 import AttachedFilesList from '../../../components/Files/AttachedFilesList'
-import { attachFilesToMarket, deleteAttachedFilesFromMarket } from '../../../api/markets'
+import { attachFilesToMarket, deleteAttachedFilesFromMarket, lockPlanningMarketForEdit } from '../../../api/markets'
 import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { EMPTY_SPIN_RESULT } from '../../../constants/global'
-import { doSetEditWhenValid } from '../../../utils/windowUtils'
+import { doSetEditWhenValid, invalidEditEvent } from '../../../utils/windowUtils'
 import { AccountContext } from '../../../contexts/AccountContext/AccountContext';
 import { canCreate } from '../../../contexts/AccountContext/accountContextHelper';
-import BodyEdit from '../../BodyEdit'
+import DialogBodyEdit from '../DialogBodyEdit'
+import { usePageStateReducer } from '../../../components/PageState/pageStateHooks'
+import _ from 'lodash'
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 
 const useStyles = makeStyles(theme => ({
   section: {
@@ -203,11 +206,18 @@ function Summary(props) {
     parent_investible_id: parentInvestibleId,
     attached_files: attachedFiles,
     locked_by: lockedBy,
+    name,
+    description
   } = market;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [accountState] = useContext(AccountContext);
   const [, marketsDispatch] = useContext(MarketsContext);
   const [, diffDispatch] = useContext(DiffContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [pageState, updatePageState, pageStateReset] = usePageStateReducer(id);
+  const {
+    beingEdited,
+  } = pageState;
   const marketPresences = getMarketPresences(marketPresencesState, id) || [];
   const isDraft = marketHasOnlyCurrentUser(marketPresencesState, id);
   const myPresence =
@@ -218,7 +228,7 @@ function Summary(props) {
   function isEditableByUser() {
     return isAdmin && !inArchives;
   }
-  const [beingEdited, setBeingEdited] = useState(lockedBy === myPresence.id && isEditableByUser() ? id : undefined);
+
   function onAttachFile(metadatas) {
     return attachFilesToMarket(id, metadatas)
       .then((market) => {
@@ -235,17 +245,31 @@ function Summary(props) {
   }
 
   function mySetBeingEdited(isEdit, event) {
-    doSetEditWhenValid(isEdit, isEditableByUser, setBeingEdited, id, event);
+    if (!isEdit || lockedBy === myPresence.id || !_.isEmpty(lockedBy)) {
+      // Either don't lock or throw the modal up - both of which InvestibleBodyEdit can handle
+      return doSetEditWhenValid(isEdit, isEditableByUser,
+        (value) => updatePageState({beingEdited: value, name, description}), event);
+    }
+    if (!isEditableByUser() || invalidEditEvent(event)) {
+      return;
+    }
+    updatePageState({beingLocked: true});
+    setOperationRunning(true);
+    return lockPlanningMarketForEdit(id)
+      .then((market) => {
+        setOperationRunning(false);
+        addMarketToStorage(marketsDispatch, () => {}, market);
+        updatePageState({beingEdited: true, beingLocked: false, name, description});
+      }).catch(() => updatePageState({beingLocked: false}));
   }
-  const myBeingEdited = beingEdited === id;
 
   return (
     <Card className={classes.root} id="summary" elevation={3}>
-      <CardType className={classes.type} type={AGILE_PLAN_TYPE} myBeingEdited={myBeingEdited} />
+      <CardType className={classes.type} type={AGILE_PLAN_TYPE} myBeingEdited={beingEdited} />
       <Grid container className={classes.mobileColumn}>
         <Grid item xs={10} className={!beingEdited && isEditableByUser() ? classes.fullWidthEditable : classes.fullWidth}
               onClick={(event) => !beingEdited && mySetBeingEdited(true, event)}>
-          <CardContent className={myBeingEdited ? classes.editContent : classes.content}>
+          <CardContent className={beingEdited ? classes.editContent : classes.content}>
             {isDraft && activeMarket && (
               <Typography className={classes.draft}>
                 {intl.formatMessage({ id: "draft" })}
@@ -256,9 +280,10 @@ function Summary(props) {
                 {intl.formatMessage({ id: "inactive" })}
               </Typography>
             )}
-            {id && (
-              <BodyEdit hidden={hidden} setBeingEdited={mySetBeingEdited} market={market} loadId={id} marketId={id}
-                        isEditableByUser={isEditableByUser} beingEdited={myBeingEdited}/>
+            {id && myPresence.id && (
+              <DialogBodyEdit hidden={hidden} setBeingEdited={mySetBeingEdited} market={market} marketId={id}
+                              pageState={pageState} pageStateUpdate={updatePageState} pageStateReset={pageStateReset}
+                              userId={myPresence.id} isEditableByUser={isEditableByUser} beingEdited={beingEdited}/>
             )}
           </CardContent>
         </Grid>

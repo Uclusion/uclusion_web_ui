@@ -731,7 +731,6 @@ function PlanningInvestible(props) {
     return baseNavListItem(formInvestibleLink(marketId, investibleId), icon, textId, anchorId, howManyNum, alwaysShow);
   }
   const displayVotingInput = isInVoting && !inArchives && canVote;
-  const myBeingEdited = beingEdited === investibleId;
   const openComments = investmentReasonsRemoved.filter((comment) => !comment.resolved) || [];
   const closedComments = investmentReasonsRemoved.filter((comment) => comment.resolved) || [];
   const sortedClosedRoots = getSortedRoots(closedComments);
@@ -784,9 +783,9 @@ function PlanningInvestible(props) {
         <CardType
           className={classes.cardType}
           createdAt={createdAt}
-          myBeingEdited={myBeingEdited}
+          myBeingEdited={beingEdited}
         />
-        <CardContent className={myBeingEdited ? classes.editCardContent : classes.votingCardContent}>
+        <CardContent className={beingEdited ? classes.editCardContent : classes.votingCardContent}>
           <Grid container className={classes.mobileColumn}>
             <Grid className={classes.borderRight} item xs={2}>
               <dl className={classes.rolesRoot}>
@@ -870,7 +869,7 @@ function PlanningInvestible(props) {
                   pageStateUpdate={updatePageState}
                   pageStateReset={pageStateReset}
                   fullInvestible={marketInvestible}
-                  setBeingEdited={mySetBeingEdited} beingEdited={myBeingEdited}
+                  setBeingEdited={mySetBeingEdited} beingEdited={beingEdited}
                   isEditableByUser={isEditableByUser}/>
               )}
             </Grid>

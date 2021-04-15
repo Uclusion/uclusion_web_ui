@@ -73,7 +73,7 @@ function InvestibleBodyEdit(props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const { id, description: initialDescription, name: initialName } = myInvestible;
 
-  const editorName = `${marketId}-${investibleId}-body-editor`;
+  const editorName = `${investibleId}-body-editor`;
   const editorSpec = {
     onUpload: (files) => pageStateUpdate({uploadedFiles: files}),
     marketId,

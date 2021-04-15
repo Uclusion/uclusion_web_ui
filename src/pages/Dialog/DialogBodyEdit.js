@@ -121,8 +121,15 @@ const useStyles = makeStyles(
 );
 
 function DialogBodyEdit(props) {
-  const { hidden, setBeingEdited, market, isEditableByUser, beingEdited, loaded, userId } = props;
-  const { name: storedName } = loaded || {};
+  const { hidden, setBeingEdited, market, isEditableByUser, userId, pageState, pageStateUpdate,
+    pageStateReset} = props;
+  const {
+    beingEdited,
+    uploadedFiles,
+    description,
+    name,
+    beingLocked
+  } = pageState;
   const intl = useIntl();
   const classes = useStyles();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -130,37 +137,25 @@ function DialogBodyEdit(props) {
   const [, diffDispatch] = useContext(DiffContext);
   const { id, name: initialName, description: initialDescription,
     market_type: marketType, locked_by: lockedBy } = market;
-  const loading = !marketType;
-  const [lockFailed, setLockFailed] = useState(false);
   const someoneElseEditing = !_.isEmpty(lockedBy) && (lockedBy !== userId);
-  const [name, setName] = useState(loaded !== undefined ? storedName : initialName);
-  const [uploadedFiles, setUploadedFiles] = useState([]);
-  const [description, setDescription] = useState(initialDescription);
 
+  const editorName = `${id}-body-editor`;
   const editorSpec = {
-    onChange: onEditorChange,
-    onUpload: onS3Upload,
+    onUpload: (files) => pageStateUpdate({uploadedFiles: files}),
     marketId: id,
-    value: initialDescription,
-  }
-  const [Editor, editorController] = useEditor(id, editorSpec);
+    onChange: (contents) => pageStateUpdate({description: contents}),
+    dontManageState: true, // handled by the page
+    value: description,
+  };
 
-  useEffect(() => {
-    if (!hidden && beingEdited) {
-      if (marketType === PLANNING_TYPE && !loading && _.isEmpty(lockedBy) && !lockFailed) {
-        lockPlanningMarketForEdit(id)
-          .then((market) => addMarketToStorage(marketsDispatch, () => {}, market))
-          .catch(() => setLockFailed(true));
-      }
-    }
-    return () => {};
-  }, [hidden, marketType, loading, lockFailed, id, marketsDispatch, lockedBy, beingEdited]);
+  const [Editor, editorController] = useEditor(editorName, editorSpec);
 
   function handleSave() {
     setOperationRunning(true);
     // the set of files for the market is all the old files, plus our new ones
     const oldMarketUploadedFiles = market.uploaded_files || [];
-    const newUploadedFiles = _.uniqBy([...uploadedFiles, ...oldMarketUploadedFiles], 'path');
+    const currentUploadedFiles = uploadedFiles || [];
+    const newUploadedFiles = _.uniqBy([...currentUploadedFiles, ...oldMarketUploadedFiles], 'path');
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
@@ -176,14 +171,11 @@ function DialogBodyEdit(props) {
   }
 
   function onCancel() {
-    setBeingEdited(false);
+    pageStateReset();
     editorController(editorReset());
     if (marketType === PLANNING_TYPE) {
-      return localforage.removeItem(id)
-        .then(() => unlockPlanningMarketForEdit(id))
-        .then((market) => updateMarketInStorage(market));
+      return unlockPlanningMarketForEdit(id).then((market) => updateMarketInStorage(market));
     }
-    return localforage.removeItem(id);
   }
 
   function updateMarketInStorage(market) {
@@ -207,30 +199,22 @@ function DialogBodyEdit(props) {
       .then((result) => {
         setOperationRunning(false);
         updateMarketInStorage(result);
-      }).catch(() => setLockFailed(true));
+      }).catch(() => {
+        setOperationRunning(false);
+        pageStateReset();
+        editorController(editorReset());
+      });
   }
 
   const lockedDialogClasses = useLockedDialogStyles();
 
-  function handleNameChange(value) {
-    setName(value);
-  }
-
-  function handleNameStorage(value) {
-    handleDraftState({ description, name: value });
-  }
-
-  function handleDraftState(newDraftState) {
-    localforage.setItem(id, newDraftState).then(() => {});
-  }
-
-  function onEditorChange(content) {
-    setDescription(content);
-  }
-
-
-  function onS3Upload(metadatas) {
-    setUploadedFiles(metadatas);
+  if (beingLocked) {
+    return (
+      <div align='center'>
+        <Typography>{intl.formatMessage({ id: "gettingLockMessage" })}</Typography>
+        <CircularProgress type="indeterminate"/>
+      </div>
+    );
   }
 
   if (!hidden && beingEdited) {
@@ -238,7 +222,7 @@ function DialogBodyEdit(props) {
       <>
         <LockedDialog
           classes={lockedDialogClasses}
-          open={!hidden && (someoneElseEditing || lockFailed)}
+          open={!hidden && someoneElseEditing}
           onClose={onCancel}
           /* slots */
           actions={
@@ -249,18 +233,12 @@ function DialogBodyEdit(props) {
         />
         {(!lockedBy || (lockedBy === userId)) && (
           <>
-            <NameField onEditorChange={handleNameChange} onStorageChange={handleNameStorage}
+            <NameField onEditorChange={(name) => pageStateUpdate({name})}
                        description={description}
                        name={name} label="agilePlanFormTitleLabel" placeHolder="decisionTitlePlaceholder"
                        id="decision-name" />
             {Editor}
           </>
-        )}
-        {(lockedBy && (lockedBy !== userId)) && (
-          <div align='center'>
-            <Typography>{intl.formatMessage({ id: "gettingLockMessage" })}</Typography>
-            <CircularProgress type="indeterminate"/>
-          </div>
         )}
         <CardActions className={classes.actions}>
           <SpinningIconLabelButton onClick={onCancel} doSpin={false} icon={Clear}>

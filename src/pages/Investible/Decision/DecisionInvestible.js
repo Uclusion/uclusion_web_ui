@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import { useHistory } from 'react-router'
@@ -57,8 +57,9 @@ import ChangeSuggstionIcon from '@material-ui/icons/ChangeHistory'
 import { getVotesForInvestible } from '../../../utils/userFunctions'
 import { getFakeCommentsArray } from '../../../utils/stringFunctions'
 import { QuestionAnswer } from '@material-ui/icons'
-import BodyEdit from '../../BodyEdit'
 import StarRateIcon from '@material-ui/icons/StarRate'
+import InvestibleBodyEdit from '../InvestibleBodyEdit'
+import { usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 
 const useStyles = makeStyles((theme) => ({
   mobileColumn: {
@@ -203,6 +204,10 @@ function DecisionInvestible(props) {
   const { name: marketName, id: marketId, market_stage: marketStage, allow_multi_vote: allowMultiVote,
     parent_comment_id: parentCommentId, parent_comment_market_id: parentCommentMarketId,
     market_type: marketType } = market;
+  const [pageState, updatePageState, pageStateReset] = usePageStateReducer(investibleId);
+  const {
+    beingEdited,
+  } = pageState;
   const isInline = !_.isEmpty(parentCommentId);
   const [commentsState] = useContext(CommentsContext);
   let breadCrumbTemplates = [{ name: marketName, link: formMarketLink(marketId), id: 'marketCrumb'}];
@@ -237,12 +242,11 @@ function DecisionInvestible(props) {
   const yourPresence = marketPresences.find((presence) => presence.current_user) || {};
   const yourVote = yourPresence.investments && yourPresence.investments.find((investment) => investment.investible_id === investibleId);
   const {
-    name, created_by: createdBy, locked_by: lockedBy, attached_files: attachedFiles,
+    name, description, created_by: createdBy, locked_by: lockedBy, attached_files: attachedFiles,
   } = investible;
   function isEditableByUser() {
     return !inArchives && (isAdmin || (inProposed && createdBy === userId));
   }
-  const [beingEdited, setBeingEdited] = useState(lockedBy === yourPresence.id && isEditableByUser() ? investibleId : undefined);
   let lockedByName
   if (lockedBy) {
     const lockedByPresence = marketPresences.find((presence) => presence.id === lockedBy)
@@ -253,7 +257,8 @@ function DecisionInvestible(props) {
   }
 
   function mySetBeingEdited(isEdit, event) {
-    doSetEditWhenValid(isEdit, isEditableByUser, setBeingEdited, investibleId, event);
+    doSetEditWhenValid(isEdit, isEditableByUser,
+      (value) => updatePageState({beingEdited: value, name, description}), event);
   }
 
   const allowedCommentTypes = [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE];
@@ -373,8 +378,13 @@ function DecisionInvestible(props) {
               {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}
             </Typography>
           )}
-          {marketId && investibleId && (
-            <BodyEdit hidden={hidden} marketId={marketId} investibleId={investibleId} loadId={investibleId}
+          {marketId && investibleId && userId && (
+            <InvestibleBodyEdit hidden={hidden} marketId={marketId} investibleId={investibleId}
+                                pageState={pageState}
+                                userId={userId}
+                                pageStateUpdate={updatePageState}
+                                pageStateReset={pageStateReset}
+                                fullInvestible={fullInvestible}
                       setBeingEdited={mySetBeingEdited} beingEdited={myBeingEdited}
                       isEditableByUser={isEditableByUser}/>
           )}

@@ -1,7 +1,6 @@
-import React, { useContext, useState, } from 'react'
+import React, { useContext, } from 'react'
 import PropTypes from 'prop-types'
 import { Card, CardActions, CardContent, TextField, } from '@material-ui/core'
-import localforage from 'localforage'
 import { addDecisionInvestible, addInvestibleToStage } from '../../../api/investibles';
 import { processTextAndFilesForSave } from '../../../api/files'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
@@ -27,23 +26,23 @@ function DecisionInvestibleAdd(props) {
     onCancel,
     isAdmin,
     onSave,
-    storedState,
     onSpinComplete,
-    parentCommentId
+    parentCommentId,
+    pageState,
+    pageStateUpdate,
+    pageStateReset
   } = props;
+  const {
+    uploadedFiles,
+    description,
+    name
+  } = pageState;
   const intl = useIntl();
   const classes = usePlanFormStyles();
-  const { name: storedName } = storedState;
-  const [draftState, setDraftState] = useState(storedState);
   const [marketStagesState] = useContext(MarketStagesContext);
   const marketStages = getStages(marketStagesState, marketId) || [];
   const investmentAllowedStage = marketStages.find((stage) => stage.allows_investment) || {};
-  const emptyInvestible = { name: storedName || ''};
-  const [currentValues, setCurrentValues] = useState(emptyInvestible);
-  const [description, setDescription] = useState();
-  const [uploadedFiles, setUploadedFiles] = useState([]);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const { name } = currentValues;
   const [, marketPresenceDispatch] = useContext(MarketPresencesContext);
   const [, marketDispatch] = useContext(MarketsContext);
   const [, diffDispatch] = useContext(DiffContext);
@@ -51,45 +50,27 @@ function DecisionInvestibleAdd(props) {
 
   const editorName = `${marketId}-newInvestible`;
   const editorSpec = {
-    onChange: onEditorChange,
+    onUpload: (files) => pageStateUpdate({uploadedFiles: files}),
     marketId,
     cssId: 'description',
-    onUpload: onS3Upload,
-    placeholder: intl.formatMessage({ id: 'investibleAddDescriptionDefault'}),
+    onChange: (contents) => pageStateUpdate({description: contents}),
+    dontManageState: true, // handled by the page
+    placeholder: intl.formatMessage({ id: 'investibleAddDescriptionDefault'})
   };
   const [Editor, editorController] = useEditor(editorName, editorSpec);
 
-  const itemKey = `add_investible_${parentCommentId || marketId}`;
-  function handleDraftState(newDraftState) {
-    setDraftState(newDraftState);
-    localforage.setItem(itemKey, newDraftState);
-  }
-  function handleChange(field) {
-    return (event) => {
-      const { value } = event.target;
-      const newValues = { ...currentValues, [field]: value };
-      setCurrentValues(newValues);
-      handleDraftState({ ...draftState, [field]: value });
-    };
-  }
-
-  function onEditorChange(description) {
-    setDescription(description);
-  }
-
-  function onS3Upload(metadatas) {
-    setUploadedFiles(metadatas);
-  }
-
   function handleCancel() {
-    localforage.removeItem(itemKey).then(() =>  onCancel());
+    pageStateReset();
+    editorController(editorReset());
+    onCancel();
   }
 
   function handleNewInlineSave(completionFunc) {
+    const currentUploadedFiles = uploadedFiles || [];
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
-    } = processTextAndFilesForSave(uploadedFiles, description);
+    } = processTextAndFilesForSave(currentUploadedFiles, description);
     const addDialogInfo = {
       name: 'NA',
       market_type: DECISION_TYPE,
@@ -113,7 +94,6 @@ function DecisionInvestibleAdd(props) {
     }).then((investible) => {
       onSave(investible);
       editorController(editorReset());
-      return localforage.removeItem(itemKey);
     }).then(() => {
       if (typeof completionFunc === 'function') {
         completionFunc();
@@ -137,10 +117,11 @@ function DecisionInvestibleAdd(props) {
     if (parentCommentId) {
       return handleNewInlineSave(completionFunc);
     }
+    const currentUploadedFiles = uploadedFiles || [];
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
-    } = processTextAndFilesForSave(uploadedFiles, description);
+    } = processTextAndFilesForSave(currentUploadedFiles, description);
     const processedDescription = tokensRemoved ? tokensRemoved : ' ';
     const addInfo = {
       marketId,
@@ -153,7 +134,6 @@ function DecisionInvestibleAdd(props) {
     return promise.then((investible) => {
       onSave(investible);
       editorController(editorReset());
-      return localforage.removeItem(itemKey);
     }).then(() => {
       setOperationRunning(false);
       if (typeof completionFunc === 'function') {
@@ -165,14 +145,9 @@ function DecisionInvestibleAdd(props) {
   }
 
   function onSaveAddAnother() {
-    localforage.removeItem(itemKey)
-      .finally(() => {
-        setCurrentValues({ name: '' });
-        editorController(editorReset());
-      });
+    pageStateReset();
+    editorController(editorReset());
   }
-
-
 
   return (
     <Card className={classes.overflowVisible}>
@@ -181,7 +156,10 @@ function DecisionInvestibleAdd(props) {
           fullWidth
           id="decision-investible-name"
           label={intl.formatMessage({ id: "agilePlanFormTitleLabel" })}
-          onChange={handleChange('name')}
+          onChange={(event) => {
+            const { value } = event.target;
+            pageStateUpdate({ name: value });
+          }}
           placeholder={intl.formatMessage({
             id: "optionTitlePlaceholder"
           })}
@@ -213,7 +191,6 @@ DecisionInvestibleAdd.propTypes = {
   onCancel: PropTypes.func,
   onSave: PropTypes.func,
   isAdmin: PropTypes.bool,
-  storedState: PropTypes.object.isRequired,
   hidden: PropTypes.bool,
   onSpinComplete: PropTypes.func,
   parentCommentId: PropTypes.string,

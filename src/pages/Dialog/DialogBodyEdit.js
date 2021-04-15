@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext } from 'react'
 import { FormattedMessage, useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
 import localforage from 'localforage'

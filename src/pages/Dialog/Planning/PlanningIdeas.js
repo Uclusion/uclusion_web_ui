@@ -10,7 +10,6 @@ import { formInvestibleLink, formMarketAddInvestibleLink, navigate } from '../..
 import clsx from 'clsx';
 import {
   checkInProgressWarning,
-  checkReviewWarning,
   countByType,
 } from './PlanningDialog';
 import { DaysEstimate } from '../../../components/AgilePlan';

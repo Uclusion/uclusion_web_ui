@@ -1,7 +1,7 @@
 /**
  * A component that renders a _decision_ dialog
  */
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { FormattedMessage, useIntl } from 'react-intl'
 import { useHistory } from 'react-router'
@@ -47,7 +47,6 @@ import AttachedFilesList from '../../../components/Files/AttachedFilesList'
 import { doSetEditWhenValid } from '../../../utils/windowUtils'
 import DecisionInvestibleAdd from './DecisionInvestibleAdd'
 import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
-import localforage from 'localforage'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import GavelIcon from '@material-ui/icons/Gavel';
 import EditIcon from '@material-ui/icons/Edit'
@@ -56,7 +55,8 @@ import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
 import QuestionIcon from '@material-ui/icons/ContactSupport'
 import { getFakeCommentsArray } from '../../../utils/stringFunctions'
 import { QuestionAnswer } from '@material-ui/icons'
-import BodyEdit from '../../BodyEdit'
+import DialogBodyEdit from '../DialogBodyEdit'
+import { usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 
 const useStyles = makeStyles(
   theme => ({
@@ -181,19 +181,10 @@ function DecisionDialog(props) {
   const [, marketsDispatch] = useContext(MarketsContext);
   const [, diffDispatch] = useContext(DiffContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
-  const [investibleAdd, setInvestibleAdd] = useState(false);
-  const [storedState, setStoredState] = useState(undefined);
-  const [idLoaded, setIdLoaded] = useState(undefined);
-  const underConsiderationStage = marketStages.find((stage) => stage.allows_investment);
-  const proposedStage = marketStages.find((stage) => !stage.allows_investment);
-  const history = useHistory();
-  const investibleComments = comments.filter((comment) => comment.investible_id);
-  const marketComments = comments.filter((comment) => !comment.investible_id);
-  const allowedCommentTypes = [QUESTION_TYPE, ISSUE_TYPE];
-  const user = useContext(CognitoUserContext) || {};
   const {
     id: marketId,
     name: marketName,
+    description,
     market_stage: marketStage,
     market_type: marketType,
     created_at: createdAt,
@@ -203,7 +194,22 @@ function DecisionDialog(props) {
     parent_market_id: parentMarketId,
     parent_investible_id: parentInvestibleId
   } = market;
-  const [beingEdited, setBeingEdited] = useState(undefined);
+  const [pageState, updatePageState, pageStateReset] = usePageStateReducer(marketId);
+  const {
+    beingEdited,
+  } = pageState;
+  const [investibleAddState, updateInvestibleAddState, investibleAddStateReset] =
+    usePageStateReducer(`investibleAdd${marketId}`);
+  const {
+    investibleAddBeingEdited,
+  } = investibleAddState;
+  const underConsiderationStage = marketStages.find((stage) => stage.allows_investment);
+  const proposedStage = marketStages.find((stage) => !stage.allows_investment);
+  const history = useHistory();
+  const investibleComments = comments.filter((comment) => comment.investible_id);
+  const marketComments = comments.filter((comment) => !comment.investible_id);
+  const allowedCommentTypes = [QUESTION_TYPE, ISSUE_TYPE];
+  const user = useContext(CognitoUserContext) || {};
   const activeMarket = marketStage === ACTIVE_STAGE;
   const inArchives = !activeMarket || (myPresence && !myPresence.following);
   const breadCrumbs = inArchives ? makeArchiveBreadCrumbs(history) : makeBreadCrumbs(history);
@@ -211,18 +217,6 @@ function DecisionDialog(props) {
   useEffect(() => {
     tourDispatch(startTour(INVITE_DIALOG_FIRST_VIEW));
   }, [tourDispatch]);
-
-  useEffect(() => {
-    if (investibleAdd) {
-      localforage.getItem(`add_investible_${marketId}`).then((stateFromDisk) => {
-        setStoredState(stateFromDisk || {});
-        setIdLoaded(marketId);
-      });
-    }
-    if (!investibleAdd) {
-      setIdLoaded(undefined);
-    }
-  }, [investibleAdd, marketId]);
 
   function onAttachFile(metadatas) {
     return attachFilesToMarket(marketId, metadatas)
@@ -232,7 +226,7 @@ function DecisionDialog(props) {
   }
 
   function toggleInvestibleAdd() {
-    setInvestibleAdd(!investibleAdd);
+    updatePageState({investibleAddBeingEdited: !investibleAddBeingEdited});
   }
 
   function isEditableByUser() {
@@ -241,7 +235,8 @@ function DecisionDialog(props) {
 
 
   function mySetBeingEdited(isEdit, event) {
-    doSetEditWhenValid(isEdit, isEditableByUser, setBeingEdited, marketId, event);
+    doSetEditWhenValid(isEdit, isEditableByUser,
+      (value) => updatePageState({beingEdited: value, name: marketName, description}), event);
   }
 
   function onDeleteFile(path) {
@@ -271,7 +266,6 @@ function DecisionDialog(props) {
   }
   const underConsideration = getInvestiblesForStage(underConsiderationStage);
   const proposed = getInvestiblesForStage(proposedStage);
-  const myBeingEdited = beingEdited === marketId && isEditableByUser();
   function createNavListItem(icon, textId, anchorId, howManyNum, alwaysShow) {
     return baseNavListItem(formMarketLink(marketId), icon, textId, anchorId, howManyNum, alwaysShow);
   }
@@ -312,19 +306,21 @@ function DecisionDialog(props) {
           className={classes.cardType}
           type={DECISION_TYPE}
           createdAt={createdAt}
-          myBeingEdited={myBeingEdited}
+          myBeingEdited={beingEdited}
         />
         <Grid id="dialogMain" container className={classes.mobileColumn}>
           <Grid item xs={9}>
-            <CardContent className={myBeingEdited ? classes.editContent : classes.content}>
+            <CardContent className={beingEdited ? classes.editContent : classes.content}>
               {isDraft && activeMarket && (
                 <Typography className={classes.draft}>
                   {intl.formatMessage({ id: 'draft' })}
                 </Typography>
               )}
-              {marketId && (
-                <BodyEdit hidden={hidden} setBeingEdited={mySetBeingEdited} market={market} loadId={marketId}
-                          marketId={marketId} isEditableByUser={isEditableByUser} beingEdited={myBeingEdited} />
+              {marketId && myPresence.id && (
+                <DialogBodyEdit hidden={hidden} setBeingEdited={mySetBeingEdited} market={market}
+                                pageState={pageState} pageStateUpdate={updatePageState} pageStateReset={pageStateReset}
+                                userId={myPresence.id} marketId={marketId} isEditableByUser={isEditableByUser}
+                                beingEdited={beingEdited} />
               )}
             </CardContent>
           </Grid>
@@ -404,7 +400,7 @@ function DecisionDialog(props) {
       </Card>
       <Grid container spacing={2}>
         <Grid item xs={12} style={{ marginTop: '2rem' }}>
-          {investibleAdd && idLoaded === marketId && (
+          {investibleAddBeingEdited && (
             <div style={{marginBottom: '2rem'}}>
               <DecisionInvestibleAdd
                 marketId={marketId}
@@ -412,7 +408,9 @@ function DecisionDialog(props) {
                 onCancel={toggleInvestibleAdd}
                 onSpinComplete={toggleInvestibleAdd}
                 isAdmin={isAdmin}
-                storedState={storedState}
+                pageState={investibleAddState}
+                pageStateUpdate={updateInvestibleAddState}
+                pageStateReset={investibleAddStateReset}
               />
             </div>
           )}

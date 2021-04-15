@@ -22,9 +22,7 @@ import {
   navigate
 } from '../../../utils/marketIdPathFunctions'
 import {
-  JUSTIFY_TYPE,
   QUESTION_TYPE,
-  REPLY_TYPE,
   REPORT_TYPE,
   SUGGEST_CHANGE_TYPE,
   TODO_TYPE
@@ -52,7 +50,7 @@ import { inviteStoriesWorkspaceSteps } from '../../../components/Tours/storyWork
 import {
   INVITE_STORIES_WORKSPACE_FIRST_VIEW, INVITED_USER_WORKSPACE
 } from '../../../contexts/TourContext/tourContextHelper';
-import { getMarketInfo, getVoteTotalsForUser, hasNotVoted } from '../../../utils/userFunctions'
+import { getMarketInfo, hasNotVoted } from '../../../utils/userFunctions'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import MarketTodos from './MarketTodos'
 import Gravatar from '../../../components/Avatars/Gravatar';

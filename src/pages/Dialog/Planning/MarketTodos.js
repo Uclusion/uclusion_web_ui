@@ -74,6 +74,10 @@ const myClasses = makeStyles(
       outerBorder: {
         marginTop: '30px',
       },
+      chipStyleWhite: {
+        backgroundColor: 'white',
+        border: '0.5px solid grey'
+      },
       chipStyleRed: {
         marginRight: '5px',
         backgroundColor: '#E85757'
@@ -374,7 +378,7 @@ function MarketTodos (props) {
                     {showChip && (
                       <div style={{display: 'flex'}}>
                         <Typography style={{ fontSize: '.75rem' }}>Comments:</Typography>
-                        <Chip label={`${replies.length}`} color="primary" size='small'
+                        <Chip label={`${replies.length}`} className={classes.chipStyleWhite} size='small'
                               style={{ marginLeft: '5px', marginRight: '15px'}} />
                       </div>
                     )}

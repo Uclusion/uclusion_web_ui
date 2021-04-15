@@ -1,4 +1,4 @@
-import { getLoginPersistentItem, setLoginPersistentItem } from '../components/utils';
+import { getLoginPersistentItem, setLoginPersistentItem } from '../components/localStorageUtils';
 
 const REDIRECT_LOCAL_STORAGE_KEY = 'redirection';
 const UTM_LOCAL_STORAGE_KEY = 'utm';

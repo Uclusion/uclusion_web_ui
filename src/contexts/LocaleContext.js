@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../components/utils'
+import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../components/localStorageUtils'
 
 const LocaleContext = React.createContext([{}, () => {}]);
 const LOCALE_CONTEXT_KEY = 'locale_context';

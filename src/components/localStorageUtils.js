@@ -70,3 +70,21 @@ export function getLoginPersistentItem(key){
 export function setLoginPersistentItem (key, value){
   setStorageItem(LOGIN_PERSISTENT, key, value);
 }
+
+/**
+ * Generated a reducer that backs all data with local storage.
+ * @param localStorageKey the key to store the data under
+ * @param reducer a reducer that outputs new states
+ * @returns a tuple containing
+ * the transformed reducer that backs all resultant states by the local storage,
+ * and any stored initial value for that reducer
+ */
+export function generateLocalStorageBackedReducer(localStorageKey, reducer) {
+  const storageBackedReducer = (state, action) => {
+    const newState = reducer(state, action)
+    setUclusionLocalStorageItem(localStorageKey, newState)
+    return newState
+  }
+  const storedValue = getUclusionLocalStorageItem(localStorageKey)
+  return { storageBackedReducer, storedValue }
+}

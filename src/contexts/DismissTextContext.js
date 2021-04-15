@@ -2,7 +2,7 @@ import React, { useReducer } from 'react';
 import {
   getUclusionLocalStorageItem,
   setUclusionLocalStorageItem
-} from '../components/utils'
+} from '../components/localStorageUtils'
 
 const DismissTextContext = React.createContext({});
 export const DISMISS = 'DISMISS';

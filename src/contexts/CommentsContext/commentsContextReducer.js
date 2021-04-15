@@ -3,7 +3,7 @@ import LocalForageHelper from '../../utils/LocalForageHelper'
 import { COMMENTS_CHANNEL, COMMENTS_CONTEXT_NAMESPACE } from './CommentsContext'
 import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
-import { removeInitializing } from '../../components/utils'
+import { removeInitializing } from '../../components/localStorageUtils'
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const REMOVE_MARKETS_COMMENT = 'REMOVE_MARKETS_COMMENT';

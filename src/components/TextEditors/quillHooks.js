@@ -8,10 +8,22 @@ export function editorReset () {
   };
 }
 
+/**
+ * Used by the editor to recieve an update, and to send to a listening reducer that an update has happened
+ * @param contents
+ * @returns {{contents, type: string}}
+ */
 export function editorUpdate (contents) {
   return {
     type: 'update',
     contents
+  };
+}
+
+export function editorUpload (metadatas) {
+  return {
+    type: 'upload',
+    metadatas,
   };
 }
 
@@ -37,7 +49,8 @@ export function useEditor (name, spec) {
     mentionsAllowed,
     dontManageState,
     className,
-    children
+    children,
+    reducerDispatch,
   } = spec;
   const controlChannel = `editor-${name}-control-plane`;
 
@@ -45,11 +58,17 @@ export function useEditor (name, spec) {
     const { type, newUploads, contents } = message.payload;
     switch (type) {
       case 'uploads':
+        if (reducerDispatch) {
+          reducerDispatch(editorUpload(newUploads));
+        }
         if (onUpload) {
           return onUpload(newUploads);
         }
         break;
       case 'update':
+        if (reducerDispatch) {
+          reducerDispatch(editorUpdate(contents));
+        }
         if (onChange) {
           return onChange(contents);
         }
@@ -58,6 +77,7 @@ export function useEditor (name, spec) {
       // do nothing;
     }
   });
+
 
   function editorController (message) {
     pushMessage(controlChannel, message);

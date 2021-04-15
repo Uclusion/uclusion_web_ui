@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import LocalForageHelper from '../../utils/LocalForageHelper'
 import { MARKET_STAGES_CONTEXT_NAMESPACE, STAGES_CHANNEL } from './MarketStagesContext'
-import { removeInitializing } from '../../components/utils'
+import { removeInitializing } from '../../components/localStorageUtils'
 import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
 

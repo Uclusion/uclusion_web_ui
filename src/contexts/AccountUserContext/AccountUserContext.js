@@ -1,5 +1,5 @@
 import React, { useEffect, useReducer } from 'react'
-import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../../components/utils'
+import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../../components/localStorageUtils'
 import { reducer, resetState } from './accountUserContextReducer'
 import { beginListening } from './accountUserContextMessages'
 import _ from 'lodash'

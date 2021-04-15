@@ -6,7 +6,7 @@ import {
 import _ from 'lodash'
 import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
-import { removeInitializing } from '../../components/utils'
+import { removeInitializing } from '../../components/localStorageUtils'
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const ADD_MARKET_PRESENCE = 'ADD_MARKET_PRESENCE';

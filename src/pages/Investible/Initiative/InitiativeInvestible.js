@@ -78,7 +78,6 @@ const useStyles = makeStyles(
       }
     },
     borderLeft: {
-      borderLeft: '1px solid #e0e0e0',
       padding: '0 2rem 2rem 2rem',
       marginBottom: '-5px',
       marginTop: '-30px',
@@ -307,7 +306,7 @@ function InitiativeInvestible(props) {
       {!isAdmin && !inArchives && (
         <DismissableText textId='initiativeVotingHelp'/>
       )}
-      <Card className={classes.root} id="initiativeMain">
+      <Card className={classes.root} id="initiativeMain" elevation={3}>
         <CardType
           className={classes.cardType}
           type={VOTING_TYPE}

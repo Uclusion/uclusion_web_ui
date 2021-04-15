@@ -348,6 +348,8 @@ const messages = defineMessages({
   planningVerifiedStageDescription: 'Stories that have been verified and for now are considered done.',
   planningReviewStageLabel: 'Ready for Feedback',
   planningReviewStageDescription: 'Ready for Feedback is for stories that can be partially reviewed. Stories with unresolved questions or suggestions have red titles.',
+  approvalsCountExplanation: 'Number of approvals',
+  todosCountExplanation: 'Number of open TODOs',
   planningVerifiedStageLabel: 'Verified',
   planningFurtherWorkStageLabel: 'Further Work',
   requiresInputStageLabel: 'Requires Input',

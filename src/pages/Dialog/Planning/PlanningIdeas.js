@@ -739,6 +739,16 @@ function StageInvestible (props) {
     isReview,
     numTodos
   } = props;
+  const intl = useIntl();
+
+  function getChip(labelNum, isGreen, toolTipId) {
+    return (
+      <Tooltip title={intl.formatMessage({ id: toolTipId })}>
+        <Chip label={`${labelNum}`} size='small' className={isGreen ? classes.chipStyleGreen : classes.chipStyleRed} />
+      </Tooltip>
+    );
+  }
+
   const { completion_estimate: daysEstimate, assigned } = marketInfo;
   const { id, name, created_at: createdAt, label_list: labelList } = investible;
   const history = useHistory();
@@ -757,11 +767,8 @@ function StageInvestible (props) {
   const votersNotAssigned = votersForInvestible.filter((voter) => !_.includes(assigned, voter.id)) || [];
   const votesRequiredDisplay = votesRequired > 0 ? votesRequired : 1;
   const enoughVotes = votersNotAssigned.length >= votesRequiredDisplay;
-  const chip = isVoting ? <Chip label={`${votersNotAssigned.length}`} size='small'
-                                className={enoughVotes ? classes.chipStyleGreen : classes.chipStyleRed} />
-    : isReview ? <Chip label={`${numTodos}`} size='small' className={numTodos > 0 ?
-      classes.chipStyleRed : classes.chipStyleGreen} />
-      : undefined;
+  const chip = isVoting ? getChip(votersNotAssigned.length, enoughVotes, 'approvalsCountExplanation')
+    : isReview ? getChip(numTodos, numTodos === 0, 'todosCountExplanation') : undefined;
   return (
     <Grid container>
       <Grid item xs={10}>

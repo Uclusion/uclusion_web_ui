@@ -696,7 +696,8 @@ const generalStageStyles = makeStyles(() => {
       display: 'flex',
     },
     chipStyleRed: {
-      backgroundColor: '#E85757'
+      backgroundColor: '#E85757',
+      color: 'white'
     },
     chipStyleGreen: {
       backgroundColor: 'white',

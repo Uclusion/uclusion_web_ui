@@ -20,6 +20,7 @@ import clsx from 'clsx'
 import CommentAdd from '../../components/Comments/CommentAdd'
 import { FormattedMessage } from 'react-intl'
 import { ISSUE_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../constants/comments'
+import { usePageStateReducer } from '../../components/PageState/pageStateHooks'
 
 export const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -147,15 +148,17 @@ function CommentAddBox(props) {
     isInReview,
     hidden
   } = props;
-  const [type, setType] = useState('');
+  const [commentAddState, updateCommentAddState, commentAddStateReset] =
+    usePageStateReducer(investible && investible.id ? `commentAdd${investible.id}`: `commentAdd${marketId}`);
+  const {
+    type,
+  } = commentAddState;
   const classes = useStyles();
   function onTypeChange(event) {
     const { value } = event.target;
-    setType(value);
+    updateCommentAddState({type: value});
   }
-  function clearType() {
-    setType('');
-  }
+
   function getMessageId(aCommentType) {
     if (!isInReview || aCommentType !== REPORT_TYPE) {
       return `${aCommentType.toLowerCase()}Present`;
@@ -171,7 +174,7 @@ function CommentAddBox(props) {
             aria-labelledby="comment-type-choice"
             className={classes.commentTypeGroup}
             onChange={onTypeChange}
-            value={type}
+            value={type ? type : ''}
             row
           >
             {allowedTypes.map((commentType) => {
@@ -208,7 +211,9 @@ function CommentAddBox(props) {
           <CommentAdd
             key="CommentAdd"
             type={type}
-            clearType={clearType}
+            commentAddState={commentAddState}
+            updateCommentAddState={updateCommentAddState}
+            commentAddStateReset={commentAddStateReset}
             investible={investible}
             marketId={marketId}
             issueWarningId={issueWarningId}
@@ -227,7 +232,6 @@ CommentAddBox.propTypes = {
   marketId: PropTypes.string.isRequired,
   issueWarningId: PropTypes.string,
   todoWarningId: PropTypes.string,
-  // eslint-disable-next-line react/forbid-prop-types
   investible: PropTypes.any,
   allowedTypes: PropTypes.arrayOf(PropTypes.string).isRequired,
   onSave: PropTypes.func,

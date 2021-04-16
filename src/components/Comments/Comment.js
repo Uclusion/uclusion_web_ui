@@ -332,7 +332,6 @@ function Comment(props) {
   const replies = comments.filter(comment => comment.reply_id === id);
   const sortedReplies = _.sortBy(replies, "created_at");
   const [expandedCommentState, expandedCommentDispatch] = useContext(ExpandedCommentContext);
-  const [replyOpen, setReplyOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(editOpenDefault);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [, versionsDispatch] = useContext(VersionsContext);
@@ -348,6 +347,10 @@ function Comment(props) {
   const {
     investibleAddBeingEdited,
   } = investibleAddState;
+  const [replyAddState, updateReplyAddState, replyAddStateReset] = usePageStateReducer(`replyAdd${id}`);
+  const {
+    replyBeingEdited,
+  } = replyAddState;
 
   function toggleInlineInvestibleAdd() {
     updateInvestibleAddState({investibleAddBeingEdited: !investibleAddBeingEdited});
@@ -391,7 +394,7 @@ function Comment(props) {
   }
 
   function toggleReply() {
-    setReplyOpen(!replyOpen);
+    updateReplyAddState({replyBeingEdited: !replyBeingEdited});
   }
 
   function toggleEdit() {
@@ -633,7 +636,7 @@ function Comment(props) {
     return () => {};
   }, [expandedCommentDispatch, hash, highlighted, id, repliesExpanded]);
 
-  const showActions = !replyOpen || replies.length > 0;
+  const showActions = !replyBeingEdited || replies.length > 0;
   function getCommentHighlightStyle() {
     if (myHighlightedLevel && isHighlighted) {
       if (myHighlightedLevel === "YELLOW" || myHighlightedLevel === "BLUE") {
@@ -859,11 +862,14 @@ function Comment(props) {
         )}
         <CommentAdd
           marketId={marketId}
-          hidden={!replyOpen}
+          hidden={!replyBeingEdited}
           parent={comment}
           onSave={toggleReply}
           onCancel={toggleReply}
           type={REPLY_TYPE}
+          commentAddState={replyAddState}
+          updateCommentAddState={updateReplyAddState}
+          commentAddStateReset={replyAddStateReset}
         />
         <Box marginTop={1} paddingX={1} className={classes.childWrapper}>
           <LocalCommentsContext.Provider value={{ comments, marketId }}>
@@ -1038,19 +1044,22 @@ function Reply(props) {
   const presences = usePresences(marketId);
   // TODO: these shouldn't be unknown?
   const commenter = useCommenter(comment, presences) || unknownPresence;
-
   const [marketsState] = useContext(MarketsContext);
   const userId = getMyUserForMarket(marketsState, marketId) || {};
   const isEditable = comment.created_by === userId;
-
   const classes = useReplyStyles();
-
+  const [replyAddState, updateReplyAddState, replyAddStateReset] = usePageStateReducer(`replyAdd${comment.id}`);
+  const {
+    replyBeingEdited,
+  } = replyAddState;
   const [editing, setEditing] = React.useState(false);
   function handleEditClick() {
     setEditing(true);
   }
 
-  const [replyOpen, setReplyOpen] = React.useState(false);
+  function setReplyOpen(isOpen) {
+    updateReplyAddState({replyBeingEdited: isOpen});
+  }
 
   const intl = useIntl();
   return (
@@ -1109,11 +1118,14 @@ function Reply(props) {
       <div className={classes.replyContainer}>
         <CommentAdd
           marketId={marketId}
-          hidden={!replyOpen}
+          hidden={!replyBeingEdited}
           parent={comment}
           onSave={() => setReplyOpen(false)}
           onCancel={() => setReplyOpen(false)}
           type={REPLY_TYPE}
+          commentAddState={replyAddState}
+          updateCommentAddState={updateReplyAddState}
+          commentAddStateReset={replyAddStateReset}
         />
       </div>
       {comment.children !== undefined && (

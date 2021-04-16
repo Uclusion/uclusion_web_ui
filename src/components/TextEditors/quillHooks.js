@@ -49,7 +49,6 @@ export function useEditor (name, spec) {
     mentionsAllowed,
     dontManageState,
     className,
-    children,
     reducerDispatch,
   } = spec;
   const controlChannel = `editor-${name}-control-plane`;
@@ -97,9 +96,7 @@ export function useEditor (name, spec) {
       simple={simple}
       noToolbar={noToolbar}
       dontManageState={dontManageState}
-    >
-      {children}
-    </QuillEditor2>
+    />
   );
   return [editor, editorController];
 }

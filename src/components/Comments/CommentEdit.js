@@ -176,7 +176,7 @@ function CommentEdit(props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, versionsDispatch] = useContext(VersionsContext);
 
-  const editorName = `${marketId}-${id}-comment-edit-editor`;
+  const editorName = `${id}-comment-edit-editor`;
   const editorSpec = {
     value: body,
     onChange: onEditorChange,
@@ -219,6 +219,7 @@ function CommentEdit(props) {
   }
 
   function handleSpinStop() {
+
     localforage.removeItem(id).then(() => onSave());
   }
 

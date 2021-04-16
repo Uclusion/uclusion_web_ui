@@ -187,10 +187,11 @@ const useStyles = makeStyles((theme) => ({
   }
 }), { name: 'CommentAdd' });
 
-function CommentAdd (props) {
+function CommentAdd(props) {
   const {
     marketId, onSave, onCancel, type, investible, parent, hidden, issueWarningId, todoWarningId, isStory,
-    defaultNotificationType, onDone, mentionsAllowed, commentAddState, updateCommentAddState, commentAddStateReset
+    defaultNotificationType, onDone, mentionsAllowed, commentAddState, updateCommentAddState, commentAddStateReset,
+    autoFocus=true
   } = props;
   const {
     uploadedFiles,
@@ -237,6 +238,14 @@ function CommentAdd (props) {
   }
   const [Editor, editorController] = useEditor(editorName, editorSpec);
 
+  useEffect(() => {
+    if (!hidden && autoFocus) {
+      editorController(editorFocus());
+    }
+    return () => {};
+  }, [autoFocus, editorController, hidden]);
+
+
   function clearMe () {
     // Reset doesn't work because value hasn't changed yet - I'm not clear on why this works
     editorController(editorUpdate (''));
@@ -249,8 +258,9 @@ function CommentAdd (props) {
     onDone();
   }
 
-  function handleCancel () {
-    clearMe();
+  function handleClear () {
+    // Reset doesn't work because value hasn't changed yet - I'm not clear on why this works
+    editorController(editorUpdate (''));
     onCancel();
   }
 
@@ -328,7 +338,7 @@ function CommentAdd (props) {
               {intl.formatMessage({ id: 'cancel' })}
             </SpinningIconLabelButton>
           )}
-          <SpinningIconLabelButton onClick={handleCancel} doSpin={false} icon={Clear}>
+          <SpinningIconLabelButton onClick={handleClear} doSpin={false} icon={Clear}>
             {intl.formatMessage({ id: commentCancelLabel })}
           </SpinningIconLabelButton>
           {!showIssueWarning && (

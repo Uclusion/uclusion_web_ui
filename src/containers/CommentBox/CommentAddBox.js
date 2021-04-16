@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
 import {
   Card,
@@ -214,6 +214,7 @@ function CommentAddBox(props) {
             commentAddState={commentAddState}
             updateCommentAddState={updateCommentAddState}
             commentAddStateReset={commentAddStateReset}
+            onCancel={() => commentAddStateReset()}
             investible={investible}
             marketId={marketId}
             issueWarningId={issueWarningId}
@@ -221,6 +222,7 @@ function CommentAddBox(props) {
             todoWarningId={todoWarningId}
             isStory={isStory}
             hidden={hidden}
+            autoFocus={false}
           />
         </div>
       </CardContent>

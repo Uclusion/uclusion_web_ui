@@ -44,6 +44,7 @@ import { doRemoveEdit, doShowEdit } from './userUtils'
 import localforage from 'localforage'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward'
+import { usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 
 const myClasses = makeStyles(
   theme => {
@@ -123,7 +124,6 @@ function MarketTodos (props) {
     comments,
     marketId,
     isInArchives,
-    hidden
   } = props
   const classes = myClasses();
   const intl = useIntl();
@@ -135,15 +135,6 @@ function MarketTodos (props) {
   const [messagesState] = useContext(NotificationsContext);
   const myExpandedState = expandedCommentState[marketId] || {};
   const { expanded: showTodos } = myExpandedState;
-  const [editCard, setEditCardComment] = useState(false);
-  const [cardLoadId, setCardLoadId] = useState(false);
-  const [createCard, setCreateCard] = useState(false);
-  const [editRedCard, setEditRedCardComment] = useState(false);
-  const [createRedCard, setCreateRedCard] = useState(false);
-  const [redLoadId, setRedLoadId] = useState(undefined);
-  const [createYellowCard, setCreateYellowCard] = useState(false);
-  const [editYellowCard, setEditYellowCardComment] = useState(false);
-  const [yellowLoadId, setYellowLoadId] = useState(false);
   const [showSelectTodos, setShowSelectTodos] = useState(false);
   const [checked, setChecked] = useState({});
   const todoComments = comments.filter(comment => comment.comment_type === TODO_TYPE) || [];
@@ -155,71 +146,69 @@ function MarketTodos (props) {
   const [openMenuTodoId, setOpenMenuTodoId] = useState(undefined);
   const [anchorEl, setAnchorEl] = useState(null);
   const undefinedIsOpenDefault = !_.isEmpty(todoComments);
+  const [commentAddRedState, updateCommentAddRedState, commentAddStateRedReset] =
+    usePageStateReducer(`commentAddRed${marketId}`);
+  const {
+    createRedCard,
+  } = commentAddRedState;
+  const [commentRedState, updateCommentRedState, commentStateRedReset] =
+    usePageStateReducer(`commentRed${marketId}`);
+  const {
+    cardEditing: editRedCardId,
+  } = commentRedState;
+  const [commentAddYellowState, updateCommentAddYellowState, commentAddStateYellowReset] =
+    usePageStateReducer(`commentAddYellow${marketId}`);
+  const {
+    createYellowCard,
+  } = commentAddYellowState;
+  const [commentYellowState, updateCommentYellowState, commentStateYellowReset] =
+    usePageStateReducer(`commentYellow${marketId}`);
+  const {
+    cardEditing: editYellowCardId,
+  } = commentYellowState;
+  const [commentAddBlueState, updateCommentAddBlueState, commentAddStateBlueReset] =
+    usePageStateReducer(`commentBlueAdd${marketId}`);
+  const {
+    createCard,
+  } = commentAddBlueState;
+  const [commentBlueState, updateCommentBlueState, commentStateBlueReset] =
+    usePageStateReducer(`commentBlue${marketId}`);
+  const {
+    cardEditing: editCardId,
+  } = commentBlueState;
+
+  function setOrRemoveCardOnReducer(aReducer, aReducerReset, comment) {
+    if (comment) {
+      aReducer({ cardEditing: comment.id });
+    } else {
+      aReducerReset();
+    }
+  }
 
   function setEditRedCard(comment) {
-    if (comment) {
-      localforage.setItem('redCardEditing', comment.id).then(() => {});
-    } else {
-      localforage.removeItem('redCardEditing').then(() => {});
-    }
-    setEditRedCardComment(comment);
+    setOrRemoveCardOnReducer(updateCommentRedState, commentStateRedReset, comment);
   }
-
-  useEffect(() => {
-    if (redLoadId) {
-      const toLoad = comments.find((comment) => comment.id === redLoadId);
-      setEditRedCardComment(toLoad);
-      setRedLoadId(undefined);
-    }
-    return () => {};
-  }, [comments, redLoadId]);
 
   function setEditYellowCard(comment) {
-    if (comment) {
-      localforage.setItem('yellowCardEditing', comment.id).then(() => {});
-    } else {
-      localforage.removeItem('yellowCardEditing').then(() => {});
-    }
-    setEditYellowCardComment(comment);
+    setOrRemoveCardOnReducer(updateCommentYellowState, commentStateYellowReset, comment);
   }
-
-  useEffect(() => {
-    if (yellowLoadId) {
-      const toLoad = comments.find((comment) => comment.id === yellowLoadId);
-      setEditYellowCardComment(toLoad);
-      setYellowLoadId(undefined);
-    }
-    return () => {};
-  }, [comments, yellowLoadId]);
 
   function setEditCard(comment) {
-    if (comment) {
-      localforage.setItem('cardEditing', comment.id).then(() => {});
-    } else {
-      localforage.removeItem('cardEditing').then(() => {});
-    }
-    setEditCardComment(comment);
+    setOrRemoveCardOnReducer(updateCommentBlueState, commentStateBlueReset, comment);
   }
 
   useEffect(() => {
-    if (cardLoadId) {
-      const toLoad = comments.find((comment) => comment.id === cardLoadId);
-      setEditCardComment(toLoad);
-      setCardLoadId(undefined);
+    function setEditRedCard(comment) {
+      setOrRemoveCardOnReducer(updateCommentRedState, commentStateRedReset, comment);
     }
-    return () => {};
-  }, [comments, cardLoadId]);
 
-  useEffect(() => {
-    if (!hidden && !isInArchives) {
-      localforage.getItem('redCardEditing').then((commentId) => setRedLoadId(commentId));
-      localforage.getItem('yellowCardEditing').then((commentId) => setYellowLoadId(commentId));
-      localforage.getItem('cardEditing').then((commentId) => setCardLoadId(commentId));
+    function setEditYellowCard(comment) {
+      setOrRemoveCardOnReducer(updateCommentYellowState, commentStateYellowReset, comment);
     }
-    return () => {};
-  }, [hidden, isInArchives]);
 
-  useEffect(() => {
+    function setEditCard(comment) {
+      setOrRemoveCardOnReducer(updateCommentBlueState, commentStateBlueReset, comment);
+    }
     if (hash) {
       const todoParents = comments.filter(comment => comment.comment_type === TODO_TYPE) || [];
       const todoCommentIds = [];
@@ -254,7 +243,8 @@ function MarketTodos (props) {
       }
     }
     return () => {};
-  }, [expandedCommentDispatch, hash, marketId, showTodos, comments]);
+  }, [commentStateBlueReset, commentStateRedReset, commentStateYellowReset, comments, expandedCommentDispatch,
+    hash, marketId, showTodos, updateCommentBlueState, updateCommentRedState, updateCommentYellowState]);
 
   function onDragStart(event, notificationType) {
     removeHeader();
@@ -271,13 +261,13 @@ function MarketTodos (props) {
     const { previousElementId, previousClass, id } = beingDraggedHack;
     if (id) {
       const commentId = id.substring(1);
-      if (editCard && editCard.id === commentId) {
+      if (editCardId === commentId) {
         setEditCard(undefined);
       }
-      if (editRedCard && editRedCard.id === commentId) {
+      if (editRedCardId === commentId) {
         setEditRedCard(undefined);
       }
-      if (editYellowCard && editYellowCard.id === commentId) {
+      if (editYellowCardId === commentId) {
         setEditYellowCard(undefined);
       }
       if (previousClass) {
@@ -435,18 +425,18 @@ function MarketTodos (props) {
   }
 
   function onCreateRed () {
-    setEditRedCard(false);
-    setCreateRedCard(!createRedCard);
+    setEditRedCard(undefined);
+    updateCommentAddRedState({ createRedCard: !createRedCard });
   }
 
   function onCreate () {
-    setEditCard(false);
-    setCreateCard(!createCard);
+    setEditCard(undefined);
+    updateCommentAddBlueState({ createCard: !createCard });
   }
 
   function onCreateYellow () {
-    setEditYellowCard(false);
-    setCreateYellowCard(!createYellowCard);
+    setEditYellowCard(undefined);
+    updateCommentAddYellowState({ createYellowCard: !createYellowCard });
   }
 
   function onDrop(event, notificationType) {
@@ -485,7 +475,7 @@ function MarketTodos (props) {
   function onDropAble(event) {
     onDrop(event, 'BLUE');
   }
-  const isSingleTodoSelected = editRedCard || editYellowCard || editCard;
+  const isSingleTodoSelected = editRedCardId || editYellowCardId || editCardId;
   const todosButtonMsgId = showSelectTodos ? 'todosCreateStory' : 'todosSelectForStory';
   const immediateTodosChip = redComments.length > 0 && <Chip label={`${redComments.length}`} color="primary"
                                                              size='small' className={classes.chipStyleRed} />;
@@ -520,24 +510,26 @@ function MarketTodos (props) {
             />)}
         >
           <div style={{paddingTop: '1rem'}}>
-            {createRedCard && (
-              <CommentAdd
-                key="CommentAddRed"
-                type={TODO_TYPE}
-                marketId={marketId}
-                mentionsAllowed={false}
-                onSave={onCreateRed}
-                onDone={onCreateRed}
-                defaultNotificationType="RED"
-                isStory={false}
-              />
-            )}
-            {editRedCard && (
-              <div id={`editc${editRedCard.id}`} style={{marginBottom: '2rem'}}>
+            <CommentAdd
+              key="CommentAddRed"
+              hidden={!createRedCard}
+              type={TODO_TYPE}
+              commentAddState={commentAddRedState}
+              updateCommentAddState={updateCommentAddRedState}
+              commentAddStateReset={commentAddStateRedReset}
+              marketId={marketId}
+              mentionsAllowed={false}
+              onSave={onCreateRed}
+              onDone={onCreateRed}
+              defaultNotificationType="RED"
+              isStory={false}
+            />
+            {editRedCardId && (
+              <div id={`editc${editRedCardId}`} style={{marginBottom: '2rem'}}>
                 <Comment
                   depth={0}
                   marketId={marketId}
-                  comment={editRedCard}
+                  comment={comments.find((comment) => comment.id === editRedCardId)}
                   onDone={() => setEditRedCard(undefined)}
                   comments={comments}
                   allowedTypes={[TODO_TYPE]}
@@ -572,24 +564,26 @@ function MarketTodos (props) {
               </Grid>
             </SubSection>
             {!_.isEmpty(redComments) && (<div style={{ paddingBottom: '15px' }}/>)}
-            {createYellowCard && (
-              <CommentAdd
-                key="CommentAddYellow"
-                type={TODO_TYPE}
-                marketId={marketId}
-                onSave={onCreateYellow}
-                onDone={onCreateYellow}
-                mentionsAllowed={false}
-                defaultNotificationType="YELLOW"
-                isStory={false}
-              />
-            )}
-            {editYellowCard && (
-              <div id={`editc${editYellowCard.id}`} style={{marginBottom: '2rem'}}>
+            <CommentAdd
+              key="CommentAddYellow"
+              hidden={!createYellowCard}
+              type={TODO_TYPE}
+              commentAddState={commentAddYellowState}
+              updateCommentAddState={updateCommentAddYellowState}
+              commentAddStateReset={commentAddStateYellowReset}
+              marketId={marketId}
+              onSave={onCreateYellow}
+              onDone={onCreateYellow}
+              mentionsAllowed={false}
+              defaultNotificationType="YELLOW"
+              isStory={false}
+            />
+            {editYellowCardId && (
+              <div id={`editc${editYellowCardId}`} style={{marginBottom: '2rem'}}>
                 <Comment
                   depth={0}
                   marketId={marketId}
-                  comment={editYellowCard}
+                  comment={comments.find((comment) => comment.id === editYellowCardId)}
                   onDone={() => setEditYellowCard(undefined)}
                   comments={comments}
                   allowedTypes={[TODO_TYPE]}
@@ -624,24 +618,26 @@ function MarketTodos (props) {
               </Grid>
             </SubSection>
             {!_.isEmpty(yellowComments) && (<div style={{ paddingBottom: '15px' }}/>)}
-            {createCard && (
-              <CommentAdd
-                key="CommentAddBlue"
-                type={TODO_TYPE}
-                marketId={marketId}
-                mentionsAllowed={false}
-                onDone={onCreate}
-                onSave={onCreate}
-                defaultNotificationType="BLUE"
-                isStory={false}
-              />
-            )}
-            {editCard && (
-              <div id={`editc${editCard.id}`} style={{marginBottom: '2rem'}}>
+            <CommentAdd
+              key="CommentAddBlue"
+              hidden={!createCard}
+              type={TODO_TYPE}
+              commentAddState={commentAddBlueState}
+              updateCommentAddState={updateCommentAddBlueState}
+              commentAddStateReset={commentAddStateBlueReset}
+              marketId={marketId}
+              mentionsAllowed={false}
+              onDone={onCreate}
+              onSave={onCreate}
+              defaultNotificationType="BLUE"
+              isStory={false}
+            />
+            {editCardId && (
+              <div id={`editc${editCardId}`} style={{marginBottom: '2rem'}}>
                 <Comment
                   depth={0}
                   marketId={marketId}
-                  comment={editCard}
+                  comment={comments.find((comment) => comment.id === editCardId)}
                   onDone={() => setEditCard(undefined)}
                   comments={comments}
                   allowedTypes={[TODO_TYPE]}

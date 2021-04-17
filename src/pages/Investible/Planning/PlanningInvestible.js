@@ -373,12 +373,28 @@ function PlanningInvestible(props) {
   const { name, description, locked_by: lockedBy, created_at: createdAt, label_list: originalLabelList } = investible;
   const [labelList, setLabelList] = useState(originalLabelList);
   const [anchorEl, setAnchorEl] = React.useState(null);
-
+  const [marketStagesState] = useContext(MarketStagesContext);
   const [pageState, updatePageState, pageStateReset] = usePageStateReducer(investibleId);
-
   const {
       beingEdited,
   } = pageState;
+
+  const [votingPageState, updateVotingPageState, votingPageStateReset] =
+    usePageStateReducer(`voting${investibleId}`);
+  const {
+    votingBeingEdited,
+  } = votingPageState;
+  const inCurrentVotingStage = getInCurrentVotingStage(
+    marketStagesState,
+    marketId
+  ) || {};
+  const isInVoting = inCurrentVotingStage && stage === inCurrentVotingStage.id;
+  const canVote = isInVoting && !inArchives;
+  const yourPresence = marketPresences.find((presence) => presence.current_user);
+  const yourVote = yourPresence && yourPresence.investments &&
+    yourPresence.investments.find((investment) => investment.investible_id === investibleId);
+  // If you have a vote already then do not display voting input unless hit edit on that vote
+  const displayVotingInput = isInVoting && !inArchives && canVote && (!yourVote || votingBeingEdited);
 
   let lockedByName;
   if (lockedBy) {
@@ -390,7 +406,7 @@ function PlanningInvestible(props) {
       lockedByName = name;
     }
   }
-  const [marketStagesState] = useContext(MarketStagesContext);
+
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
   const isInReview = inReviewStage && stage === inReviewStage.id;
@@ -404,11 +420,6 @@ function PlanningInvestible(props) {
   const isReadyFurtherWork = furtherWorkStage && stage === furtherWorkStage.id;
   const requiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
   const isRequiresInput = requiresInputStage && stage === requiresInputStage.id;
-  const inCurrentVotingStage = getInCurrentVotingStage(
-    marketStagesState,
-    marketId
-  ) || {};
-  const isInVoting = inCurrentVotingStage && stage === inCurrentVotingStage.id;
   const notDoingStage = getNotDoingStage(marketStagesState, marketId);
   const isInNotDoing = notDoingStage && stage === notDoingStage.id;
   const isAssigned = assigned.includes(userId);
@@ -632,10 +643,6 @@ function PlanningInvestible(props) {
     ];
   }
 
-  const canVote = isInVoting && !inArchives;
-  const yourPresence = marketPresences.find((presence) => presence.current_user);
-  const yourVote = yourPresence && yourPresence.investments &&
-    yourPresence.investments.find((investment) => investment.investible_id === investibleId);
   const todoWarning = isInVoting || isReadyFurtherWork || isInBlocked || isRequiresInput ? null : 'todoWarningPlanning';
   function toggleAssign() {
     navigate(history, `${formInvestibleEditLink(marketId, investibleId)}#assign=true`);
@@ -729,7 +736,6 @@ function PlanningInvestible(props) {
   function createNavListItem(icon, textId, anchorId, howManyNum, alwaysShow) {
     return baseNavListItem(formInvestibleLink(marketId, investibleId), icon, textId, anchorId, howManyNum, alwaysShow);
   }
-  const displayVotingInput = isInVoting && !inArchives && canVote;
   const openComments = investmentReasonsRemoved.filter((comment) => !comment.resolved) || [];
   const closedComments = investmentReasonsRemoved.filter((comment) => comment.resolved) || [];
   const sortedClosedRoots = getSortedRoots(closedComments);
@@ -989,6 +995,9 @@ function PlanningInvestible(props) {
             userId={userId}
             market={market}
             showBudget
+            votingPageState={votingPageState}
+            updateVotingPageState={updateVotingPageState}
+            votingPageStateReset={votingPageStateReset}
           />
           {!yourVote && (
             <>
@@ -1016,6 +1025,7 @@ function PlanningInvestible(props) {
         investmentReasons={investmentReasons}
         showExpiration={fullStage.has_expiration}
         expirationMinutes={market.investment_expiration * 1440}
+        setVotingBeingEdited={() => updateVotingPageState({votingBeingEdited: true})}
       />
       <MarketLinks links={children || []} />
       <Grid container spacing={2}>

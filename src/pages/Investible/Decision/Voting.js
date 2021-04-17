@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import { FormattedMessage, useIntl } from 'react-intl'
-import { Card, CardContent, Typography } from '@material-ui/core'
+import { Card, CardActions, CardContent, Typography } from '@material-ui/core'
 import ReadOnlyQuillEditor from '../../../components/TextEditors/ReadOnlyQuillEditor'
 import { makeStyles } from '@material-ui/styles'
 import CardType from '../../../components/CardType'
@@ -11,6 +11,7 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import { findMessageOfTypeAndId } from '../../../utils/messageUtils'
 import Gravatar from '../../../components/Avatars/Gravatar';
 import { getInvestibleVoters } from '../../../utils/votingUtils';
+import EditOutlinedIcon from '@material-ui/icons/EditOutlined'
 
 const useVoteStyles = makeStyles(
   theme => {
@@ -43,6 +44,14 @@ const useVoteStyles = makeStyles(
       highlighted: {
         boxShadow: "10px 5px 5px yellow"
       },
+      editVoteDisplay: {
+        alignItems: "flex-end",
+        display: "flex",
+        flexDirection: "column",
+        position: "absolute",
+        right: '4rem',
+        top: 0
+      },
       expiresDisplay: {
         alignItems: "flex-end",
         display: "flex",
@@ -61,11 +70,12 @@ const useVoteStyles = makeStyles(
  * @constructor
  */
 function Voting(props) {
-  const { marketPresences, investibleId, investmentReasons, showExpiration, expirationMinutes } = props;
+  const { marketPresences, investibleId, investmentReasons, showExpiration, expirationMinutes,
+    setVotingBeingEdited } = props;
   const [messagesState] = useContext(NotificationsContext);
   const classes = useVoteStyles();
   const intl = useIntl();
-
+  const yourPresence = marketPresences.find((presence) => presence.current_user);
 
   function getVoterReason(userId) {
     return investmentReasons.find(comment => comment.created_by === userId);
@@ -86,6 +96,7 @@ function Voting(props) {
     <ol className={classes.root}>
       {sortedVoters.map(voter => {
         const { name, email, id: userId, quantity, maxBudget, maxBudgetUnit, updatedAt } = voter;
+        const isYourVote = userId === yourPresence.id;
         const myMessage = findMessageOfTypeAndId(`${investibleId}_${userId}`, messagesState, 'VOTE');
         const reason = getVoterReason(userId);
         const voteId = `cv${userId}`;
@@ -103,6 +114,11 @@ function Voting(props) {
                 className={classes.cardType}
                 type={`certainty${Math.abs(quantity)}`}
               />
+              {isYourVote && (
+                <CardActions className={classes.editVoteDisplay}>
+                  <EditOutlinedIcon style={{maxHeight: '1.25rem', cursor: 'pointer'}} onClick={setVotingBeingEdited}/>
+                </CardActions>
+              )}
               {showExpiration && (
                 <div className={classes.expiresDisplay}>
                   <ProgressBar

@@ -240,10 +240,17 @@ function DecisionInvestible(props) {
   const inProposed = inProposedStage && marketInfo.stage === inProposedStage.id;
   const activeMarket = marketStage === ACTIVE_STAGE;
   const yourPresence = marketPresences.find((presence) => presence.current_user) || {};
-  const yourVote = yourPresence.investments && yourPresence.investments.find((investment) => investment.investible_id === investibleId);
+  const yourVote = yourPresence.investments
+    && yourPresence.investments.find((investment) => investment.investible_id === investibleId);
   const {
     name, description, created_by: createdBy, locked_by: lockedBy, attached_files: attachedFiles,
   } = investible;
+  const [votingPageState, updateVotingPageState, votingPageStateReset] =
+    usePageStateReducer(`voting${investibleId}`);
+  const {
+    votingBeingEdited,
+  } = votingPageState;
+
   function isEditableByUser() {
     return !inArchives && (isAdmin || (inProposed && createdBy === userId));
   }
@@ -318,8 +325,7 @@ function DecisionInvestible(props) {
     // we have no usable data;
     return <></>;
   }
-  const myBeingEdited = beingEdited === investibleId;
-  const displayVotingInput = !inProposed && !inArchives && !hasIssueOrMarketIssue;
+  const displayVotingInput = !inProposed && !inArchives && !hasIssueOrMarketIssue && (!yourVote || votingBeingEdited);
   function createNavListItem(icon, textId, anchorId, howManyNum, alwaysShow) {
     return baseNavListItem(formInvestibleLink(marketId, investibleId), icon, textId, anchorId, howManyNum, alwaysShow);
   }
@@ -367,11 +373,11 @@ function DecisionInvestible(props) {
           className={classes.cardType}
           type={VOTING_TYPE}
           subtype={inProposed ? PROPOSED : OPTION}
-          myBeingEdited={myBeingEdited}
+          myBeingEdited={beingEdited}
         />
         <Grid container className={classes.mobileColumn}>
           <Grid item md={9} xs={12}>
-            <CardContent className={myBeingEdited ? classes.editCardContent : classes.votingCardContent}>
+            <CardContent className={beingEdited ? classes.editCardContent : classes.votingCardContent}>
               {lockedBy && yourPresence.id !== lockedBy && isEditableByUser() && (
                 <Typography>
                   {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}
@@ -384,7 +390,7 @@ function DecisionInvestible(props) {
                                     pageStateUpdate={updatePageState}
                                     pageStateReset={pageStateReset}
                                     fullInvestible={fullInvestible}
-                          setBeingEdited={mySetBeingEdited} beingEdited={myBeingEdited}
+                          setBeingEdited={mySetBeingEdited} beingEdited={beingEdited}
                           isEditableByUser={isEditableByUser}/>
               )}
             </CardContent>
@@ -420,6 +426,9 @@ function DecisionInvestible(props) {
             comments={investmentReasons}
             userId={userId}
             market={market}
+            votingPageState={votingPageState}
+            updateVotingPageState={updateVotingPageState}
+            votingPageStateReset={votingPageStateReset}
           />
           {!yourVote && (
             <>
@@ -444,6 +453,7 @@ function DecisionInvestible(props) {
             investibleId={investibleId}
             marketPresences={marketPresences}
             investmentReasons={investmentReasons}
+            setVotingBeingEdited={() => updateVotingPageState({votingBeingEdited: true})}
           />
         </>
       )}

@@ -66,8 +66,6 @@ import { formMarketAddInvestibleLink, navigate } from '../../utils/marketIdPathF
 import { useHistory, useLocation } from 'react-router'
 import { createInitiative, updateMarket } from '../../api/markets'
 import { addDecisionInvestible } from '../../api/investibles'
-import YourVoting from '../../pages/Investible/Voting/YourVoting'
-import Voting from '../../pages/Investible/Decision/Voting'
 import ShareStoryButton from '../../pages/Investible/Planning/ShareStoryButton'
 import { onCommentOpen } from '../../utils/commentFunctions'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
@@ -83,6 +81,7 @@ import { Clear, Delete, Done, Edit, Eject, ExpandLess, ExpandMore, SettingsBacku
 import ReplyIcon from '@material-ui/icons/Reply'
 import TooltipIconButton from '../Buttons/TooltipIconButton'
 import { usePageStateReducer } from '../PageState/pageStateHooks'
+import InlineInitiativeBox from '../../containers/CommentBox/InlineInitiativeBox'
 
 const useCommentStyles = makeStyles(
   theme => {
@@ -491,63 +490,6 @@ function Comment(props) {
     );
   }
 
-  function getInitiative(anInlineMarket) {
-    const anInlineMarketPresences = getMarketPresences(marketPresencesState, anInlineMarket.id) || [];
-    const myInlinePresence = anInlineMarketPresences.find((presence) => presence.current_user);
-    const isAdmin = myInlinePresence && myInlinePresence.is_admin;
-    const inlineInvestibles = getMarketInvestibles(investiblesState, anInlineMarket.id) || [];
-    const [fullInlineInvestible] = inlineInvestibles;
-    const inlineInvestibleId = fullInlineInvestible ? fullInlineInvestible.investible.id : undefined;
-    const comments = getMarketComments(commentsState, anInlineMarket.id);
-    const investibleComments = comments.filter((comment) => comment.investible_id === inlineInvestibleId);
-    const investmentReasons = investibleComments.filter((comment) => comment.comment_type === JUSTIFY_TYPE);
-    const positiveVoters = anInlineMarketPresences.filter((presence) => {
-      const { investments } = presence
-      const negInvestment = (investments || []).find((investment) => {
-        const { quantity } = investment
-        return quantity > 0
-      })
-      return !_.isEmpty(negInvestment)
-    });
-    const negativeVoters = anInlineMarketPresences.filter((presence) => {
-      const { investments } = presence;
-      const negInvestment = (investments || []).find((investment) => {
-        const { quantity } = investment;
-        return quantity < 0;
-      });
-      return !_.isEmpty(negInvestment);
-    });
-    return (
-      <div style={{paddingLeft: '1rem', paddingRight: '1rem', paddingBottom: '0.5rem'}}>
-        {!isAdmin && (
-          <YourVoting
-            investibleId={inlineInvestibleId}
-            marketPresences={anInlineMarketPresences}
-            comments={investmentReasons}
-            userId={inlineUserId}
-            market={anInlineMarket}
-          />
-        )}
-        <h2>
-          <FormattedMessage id="initiativeVotingFor"/>
-        </h2>
-        <Voting
-          investibleId={inlineInvestibleId}
-          marketPresences={positiveVoters}
-          investmentReasons={investmentReasons}
-        />
-        <h2>
-          <FormattedMessage id="initiativeVotingAgainst" />
-        </h2>
-        <Voting
-          investibleId={inlineInvestibleId}
-          marketPresences={negativeVoters}
-          investmentReasons={investmentReasons}
-        />
-        </div>
-    );
-  }
-
   function getDecision(aMarketId) {
     const anInlineMarket = getMarket(marketsState, aMarketId);
     if (!anInlineMarket) {
@@ -558,7 +500,7 @@ function Comment(props) {
       return React.Fragment;
     }
     if (marketType === INITIATIVE_TYPE) {
-      return getInitiative(anInlineMarket);
+      return <InlineInitiativeBox anInlineMarket={anInlineMarket} inlineUserId={inlineUserId} />;
     }
     return getDialog(anInlineMarket);
   }

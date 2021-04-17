@@ -192,6 +192,11 @@ function InitiativeInvestible(props) {
   const {
     beingEdited,
   } = pageState;
+  const [votingPageState, updateVotingPageState, votingPageStateReset] =
+    usePageStateReducer(`voting${investibleId}`);
+  const {
+    votingBeingEdited,
+  } = votingPageState;
   const cognitoUser = useContext(CognitoUserContext) || {};
   const { name, description } = investible;
   const {
@@ -268,7 +273,7 @@ function InitiativeInvestible(props) {
   function createNavListItem(icon, textId, anchorId, howManyNum, alwaysShow) {
     return baseNavListItem(formInvestibleLink(marketId, investibleId), icon, textId, anchorId, howManyNum, alwaysShow);
   }
-  const displayVoting = !isAdmin && !inArchives;
+  const displayVoting = !isAdmin && !inArchives&& (!yourVote || votingBeingEdited);
   const openComments = investmentReasonsRemoved.filter((comment) => !comment.resolved) || [];
   const closedComments = investmentReasonsRemoved.filter((comment) => comment.resolved) || [];
   const sortedClosedRoots = getSortedRoots(closedComments);
@@ -420,6 +425,9 @@ function InitiativeInvestible(props) {
             comments={investmentReasons}
             userId={userId}
             market={market}
+            votingPageState={votingPageState}
+            updateVotingPageState={updateVotingPageState}
+            votingPageStateReset={votingPageStateReset}
           />
           {!yourVote && (
             <>
@@ -441,6 +449,7 @@ function InitiativeInvestible(props) {
         investibleId={investibleId}
         marketPresences={positiveVoters}
         investmentReasons={investmentReasons}
+        setVotingBeingEdited={() => updateVotingPageState({votingBeingEdited: true})}
       />
       <h2 id="against">
         <FormattedMessage id="initiativeVotingAgainst" />
@@ -449,6 +458,7 @@ function InitiativeInvestible(props) {
         investibleId={investibleId}
         marketPresences={negativeVoters}
         investmentReasons={investmentReasons}
+        setVotingBeingEdited={() => updateVotingPageState({votingBeingEdited: true})}
       />
       <MarketLinks links={children || []} />
       <Grid container spacing={2}>

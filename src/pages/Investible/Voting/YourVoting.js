@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
 import AddEditVote from './AddEditVote'
 import { FormattedMessage, useIntl } from 'react-intl'
@@ -17,7 +17,11 @@ function YourVoting(props) {
     market,
     userId,
     showBudget,
+    votingPageState, updateVotingPageState, votingPageStateReset
   } = props;
+  const {
+    storedType,
+  } = votingPageState;
   const intl = useIntl();
   const classes = useStyles();
   const { id: marketId, max_budget: storyMaxBudget, allow_multi_vote: allowMultiVote, market_type: marketType } = market;
@@ -28,7 +32,8 @@ function YourVoting(props) {
   const { quantity } = yourVote || {};
   const myQuantity = quantity ? quantity : 0;
   const yourReason = comments.find((comment) => comment.created_by === userId && comment.investible_id === investibleId);
-  const [type, setType] = useState(isInitiative && myQuantity === 0 ? undefined : myQuantity < 0 ? AGAINST : FOR);
+  const initialType = isInitiative && myQuantity === 0 ? undefined : myQuantity < 0 ? AGAINST : FOR;
+  const type = storedType || initialType;
   if (isInitiative || isDecision) {
     if (yourVote && yourVote.deleted) {
       yourVote = undefined;
@@ -39,7 +44,7 @@ function YourVoting(props) {
   }
   function onTypeChange(event) {
     const { value } = event.target;
-    setType(value);
+    updateVotingPageState({storedType: value});
   }
 
   return (
@@ -95,6 +100,9 @@ function YourVoting(props) {
         showBudget={showBudget}
         storyMaxBudget={storyMaxBudget}
         multiplier={ type === undefined ? undefined : type === FOR ? 1 : -1}
+        votingPageState={votingPageState}
+        updateVotingPageState={updateVotingPageState}
+        votingPageStateReset={votingPageStateReset}
       />
     </div>
   );

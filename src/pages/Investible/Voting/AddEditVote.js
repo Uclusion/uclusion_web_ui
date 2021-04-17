@@ -33,7 +33,7 @@ import WarningIcon from '@material-ui/icons/Warning'
 import { useLockedDialogStyles } from '../../Dialog/DialogBodyEdit'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
-import { Add, Delete, SettingsBackupRestore } from '@material-ui/icons'
+import { Add, Clear, Delete, SettingsBackupRestore } from '@material-ui/icons'
 import { editorReset, useEditor } from '../../../components/TextEditors/quillHooks';
 
 const useStyles = makeStyles(
@@ -119,18 +119,25 @@ function AddEditVote(props) {
     storyMaxBudget,
     hasVoted,
     allowMultiVote,
-    multiplier
+    multiplier,
+    votingPageState, updateVotingPageState, votingPageStateReset
   } = props;
+  const {
+    storedInvestment,
+    storedMaxBudget,
+    storedMaxBudgetUnit,
+    storedBody
+  } = votingPageState;
   const intl = useIntl();
   const classes = useStyles();
   const addMode = _.isEmpty(investment) || investment.deleted;
   const { quantity, max_budget: initialMaxBudget, max_budget_unit: initialMaxBudgetUnit } = investment;
   const initialInvestment = !quantity ? 50 : Math.abs(quantity);
-  const [newQuantity, setNewQuantity] = useState(initialInvestment);
-  const [maxBudget, setMaxBudget] = useState(initialMaxBudget || '');
-  const [maxBudgetUnit, setMaxBudgetUnit] = useState(initialMaxBudgetUnit || '');
+  const newQuantity = storedInvestment || initialInvestment;
+  const maxBudget = storedMaxBudget || initialMaxBudget || '';
+  const maxBudgetUnit = storedMaxBudgetUnit || initialMaxBudgetUnit || '';
   const { body, id: reasonId } = reason;
-  const [reasonText, setReasonText] = useState(body || '');
+  const reasonText = storedBody || body || '';
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
@@ -147,12 +154,13 @@ function AddEditVote(props) {
     setOpen(!open);
   }
 
-  const editorName = `${marketId}-${investibleId}-add-edit-vote-reason`;
+  const editorName = `${investibleId}-add-edit-vote-reason`;
   const editorSpec = {
     marketId,
+    dontManageState: true,
     placeholder: intl.formatMessage({ id: "yourReason" }),
     value: body,
-    onChange: onEditorChange,
+    onChange: (contents) => updateVotingPageState({storedBody: contents}),
     uploadDisabled: true,
   };
   const [Editor, editorController] = useEditor(editorName, editorSpec);
@@ -161,8 +169,9 @@ function AddEditVote(props) {
   const saveEnabled =
     addMode ||
     newQuantity !== initialInvestment ||
-    maxBudget !== initialMaxBudget ||
-    reasonText !== body || (quantity < 0 && multiplier > 0) || (quantity > 0 && multiplier < 0);
+    maxBudget !== (initialMaxBudget || '') || maxBudgetUnit !== (initialMaxBudgetUnit || '') ||
+    (reasonText || '') !== body
+    || (quantity < 0 && multiplier > 0) || (quantity > 0 && multiplier < 0);
 
   function mySave() {
     setOperationRunning(true);
@@ -208,6 +217,7 @@ function AddEditVote(props) {
     if (open) {
       toggleOpen();
     }
+    votingPageStateReset();
     onSave();
   }
 
@@ -220,23 +230,24 @@ function AddEditVote(props) {
     });
   }
 
+  function onCancel() {
+    votingPageStateReset();
+  }
+
   function onChange(event) {
     const { value } = event.target;
-    setNewQuantity(parseInt(value, 10));
+    updateVotingPageState({storedInvestment: parseInt(value, 10)});
   }
 
   function onBudgetChange(event) {
     const { value } = event.target;
-    setMaxBudget(parseInt(value, 10));
+    updateVotingPageState({storedMaxBudget: parseInt(value, 10)});
   }
 
   function onUnitChange(event, value) {
-    setMaxBudgetUnit(value);
+    updateVotingPageState({storedMaxBudgetUnit: value});
   }
 
-  function onEditorChange(body) {
-    setReasonText(body);
-  }
   const lockedDialogClasses = useLockedDialogStyles();
   const voteId = multiplier < 0 ? "saveReject" : "saveVote";
   const updateVoteId = multiplier < 0 ? "updateReject" : "updateVote";
@@ -312,6 +323,11 @@ function AddEditVote(props) {
           {Editor}
         </CardContent>
         <CardActions className={classes.actions}>
+          {hasVoted && (
+            <SpinningIconLabelButton onClick={onCancel} doSpin={false} icon={Clear}>
+              {intl.formatMessage({ id: 'cancel' })}
+            </SpinningIconLabelButton>
+          )}
           {multiplier && !addMode && (
             <SpinningIconLabelButton
               icon={Delete}
@@ -320,18 +336,19 @@ function AddEditVote(props) {
               {intl.formatMessage({ id: removeVoteId })}
             </SpinningIconLabelButton>
           )}
-          {multiplier && saveEnabled && !warnClearVotes && (
+          {multiplier && !warnClearVotes && (
             <SpinningIconLabelButton
               icon={addMode ? Add : SettingsBackupRestore}
               onClick={mySave}
+              disabled={!saveEnabled}
             >
               {addMode
                 ? intl.formatMessage({ id: voteId })
                 : intl.formatMessage({ id: updateVoteId })}
             </SpinningIconLabelButton>
           )}
-          {multiplier && saveEnabled && warnClearVotes && (
-            <Button onClick={toggleOpen} className={classes.primaryAction}>
+          {multiplier && warnClearVotes && (
+            <Button onClick={toggleOpen} className={classes.primaryAction} disabled={!saveEnabled}>
               {intl.formatMessage({ id: voteId })}
             </Button>
           )}
@@ -412,13 +429,11 @@ ClearVotesDialog.propTypes = {
 };
 
 AddEditVote.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types
   reason: PropTypes.object,
   showBudget: PropTypes.bool,
   storyMaxBudget: PropTypes.number,
   marketId: PropTypes.string.isRequired,
   investibleId: PropTypes.string.isRequired,
-  // eslint-disable-next-line react/forbid-prop-types
   investment: PropTypes.object,
   onSave: PropTypes.func,
   hasVoted: PropTypes.bool,

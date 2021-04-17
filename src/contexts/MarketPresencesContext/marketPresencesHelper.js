@@ -39,7 +39,6 @@ export function removeInvestibleInvestments(state, dispatch, marketId, investibl
         ...presence,
       };
       newPresence.investments = investments;
-      console.debug(newPresence);
       dispatch(addMarketPresence(marketId, newPresence));
     }
   });

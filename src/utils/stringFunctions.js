@@ -30,7 +30,6 @@ function extractName(foundSubstring) {
 }
 
 export function nameFromDescription(description) {
-  console.debug(description);
   const list = ["</p>", "</li>", "</td>", "</h>", ". "];
   let found = -1;
   let latestExtract = extractName(description);

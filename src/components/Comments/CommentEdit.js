@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { FormattedMessage, useIntl } from 'react-intl'
 import {
   Button,
@@ -24,7 +24,6 @@ import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/Ma
 import _ from 'lodash';
 import clsx from 'clsx'
 import { getIcon } from '../../containers/CommentBox/CommentAddBox'
-import localforage from 'localforage'
 import { onCommentOpen } from '../../utils/commentFunctions'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
@@ -33,7 +32,7 @@ import { removeMessage } from '../../contexts/NotificationsContext/notifications
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 import { Clear, Update } from '@material-ui/icons'
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'
-import { editorReset, useEditor } from '../TextEditors/quillHooks';
+import { editorFocus, editorReset, useEditor } from '../TextEditors/quillHooks'
 
 const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -158,13 +157,16 @@ const useStyles = makeStyles((theme) => ({
 
 function CommentEdit(props) {
   const {
-    marketId, onSave, onCancel, comment, allowedTypes, myNotificationType, isInReview
+    marketId, onSave, onCancel, comment, allowedTypes, myNotificationType, isInReview, editState, updateEditState,
+    editStateReset, hidden
   } = props;
+  const {
+    uploadedFiles,
+    body
+  } = editState;
   const intl = useIntl();
-  const { id, body: initialBody, uploaded_files: initialUploadedFiles, comment_type: commentType,
-    inline_market_id: inlineMarketId, investible_id: investibleId } = comment;
-  const [body, setBody] = useState(initialBody);
-  const [uploadedFiles, setUploadedFiles] = useState([]);
+  const { id, uploaded_files: initialUploadedFiles, comment_type: commentType, inline_market_id: inlineMarketId,
+    investible_id: investibleId, body: initialBody } = comment;
   const classes = useStyles();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentState, commentDispatch] = useContext(CommentsContext);
@@ -178,23 +180,26 @@ function CommentEdit(props) {
 
   const editorName = `${id}-comment-edit-editor`;
   const editorSpec = {
-    value: body,
-    onChange: onEditorChange,
-    onUpload: onS3Upload,
+    value: initialBody,
+    dontManageState: true,
+    onChange: (contents) => updateEditState({body: contents}),
+    onUpload: (files) => updateEditState({uploadedFiles: files}),
     participants: presences,
     marketId,
   }
-
   const [Editor, editorController] = useEditor(editorName, editorSpec);
 
-  function onEditorChange(content) {
-    setBody(content);
-  }
-
+  useEffect(() => {
+    if (!hidden) {
+      editorController(editorFocus());
+    }
+    return () => {};
+  }, [editorController, hidden]);
 
   function handleSave() {
     setOperationRunning(true);
-    const newUploadedFiles = _.uniqBy([...initialUploadedFiles, ...uploadedFiles], 'path');
+    const currentUploadedFiles = uploadedFiles || [];
+    const newUploadedFiles = _.uniqBy([...initialUploadedFiles, ...currentUploadedFiles], 'path');
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
@@ -219,16 +224,13 @@ function CommentEdit(props) {
   }
 
   function handleSpinStop() {
-
-    localforage.removeItem(id).then(() => onSave());
-  }
-
-  function onS3Upload(metadatas) {
-    setUploadedFiles(metadatas);
+    editStateReset();
+    onSave();
   }
 
   function handleCancel() {
-    localforage.removeItem(id).then(() => onCancel());
+    editStateReset();
+    onCancel();
   }
 
   function onTypeChange(event) {
@@ -238,7 +240,7 @@ function CommentEdit(props) {
 
   return (
     <div
-      className={classes.add}
+      className={hidden ? classes.hidden : classes.add}
     >
       <Card elevation={0} className={classes.visible} >
         <CardContent className={classes.cardContent}>
@@ -309,10 +311,8 @@ CommentEdit.propTypes = {
 
 CommentEdit.defaultProps = {
   allowedTypes: [],
-  onCancel: () => {
-  },
-  onSave: () => {
-  },
+  onCancel: () => {},
+  onSave: () => {},
 };
 
 export default CommentEdit;

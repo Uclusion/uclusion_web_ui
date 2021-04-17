@@ -332,7 +332,6 @@ function Comment(props) {
   const replies = comments.filter(comment => comment.reply_id === id);
   const sortedReplies = _.sortBy(replies, "created_at");
   const [expandedCommentState, expandedCommentDispatch] = useContext(ExpandedCommentContext);
-  const [editOpen, setEditOpen] = useState(editOpenDefault);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [, versionsDispatch] = useContext(VersionsContext);
   const [marketPresencesState, presenceDispatch] = useContext(MarketPresencesContext);
@@ -351,6 +350,11 @@ function Comment(props) {
   const {
     replyBeingEdited,
   } = replyAddState;
+  const [editState, updateEditState, editStateReset] = usePageStateReducer(`edit${id}`);
+  const {
+    beingEdited,
+  } = editState;
+  const editOpen = beingEdited || editOpenDefault;
 
   function toggleInlineInvestibleAdd() {
     updateInvestibleAddState({investibleAddBeingEdited: !investibleAddBeingEdited});
@@ -401,14 +405,14 @@ function Comment(props) {
     if (editOpen) {
       onDone();
     }
-    setEditOpen(!editOpen);
+    updateEditState({beingEdited: !editOpen});
   }
 
   function setBeingEdited(value, event) {
     if (isTinyWindow() || invalidEditEvent(event)) {
       return;
     }
-    setEditOpen(value);
+    updateEditState({beingEdited: value});
   }
 
   function getInlineInvestiblesForStage(stage, inlineInvestibles) {
@@ -721,17 +725,19 @@ function Comment(props) {
               <ReadOnlyQuillEditor value={comment.body} setBeingEdited={setBeingEdited}
                                    isEditable={!isTinyWindow() && displayEditing}/>
             )}
-            {editOpen && (
-              <CommentEdit
-                marketId={marketId}
-                comment={comment}
-                onSave={toggleEdit}
-                onCancel={toggleEdit}
-                allowedTypes={allowedTypes}
-                myNotificationType={myNotificationType}
-                isInReview={isInReview}
-              />
-            )}
+            <CommentEdit
+              marketId={marketId}
+              comment={comment}
+              hidden={!editOpen}
+              onSave={toggleEdit}
+              onCancel={toggleEdit}
+              allowedTypes={allowedTypes}
+              editState={editState}
+              updateEditState={updateEditState}
+              editStateReset={editStateReset}
+              myNotificationType={myNotificationType}
+              isInReview={isInReview}
+            />
             {noAuthor && !editOpen && (
               <SpinningIconLabelButton onClick={onDone} doSpin={false} icon={Clear}>
                 {intl.formatMessage({ id: 'cancel' })}
@@ -1039,10 +1045,8 @@ const unknownPresence = {
  */
 function Reply(props) {
   const { comment, highLightId, enableEditing, ...other } = props;
-
   const marketId = useMarketId();
   const presences = usePresences(marketId);
-  // TODO: these shouldn't be unknown?
   const commenter = useCommenter(comment, presences) || unknownPresence;
   const [marketsState] = useContext(MarketsContext);
   const userId = getMyUserForMarket(marketsState, marketId) || {};
@@ -1052,9 +1056,13 @@ function Reply(props) {
   const {
     replyBeingEdited,
   } = replyAddState;
-  const [editing, setEditing] = React.useState(false);
+  const [editState, updateEditState, editStateReset] = usePageStateReducer(`edit${comment.id}`);
+  const {
+    beingEdited,
+  } = editState;
+
   function handleEditClick() {
-    setEditing(true);
+    updateEditState({beingEdited: true});
   }
 
   function setReplyOpen(isOpen) {
@@ -1075,22 +1083,23 @@ function Reply(props) {
             value={comment.created_at}
           />
         </Typography>
-        {editing ? (
-          <CommentEdit
-            intl={intl}
-            marketId={marketId}
-            onSave={() => setEditing(false)}
-            onCancel={() => setEditing(false)}
-            comment={comment}
-          />
-        ) : (
+        <CommentEdit
+          intl={intl}
+          marketId={marketId}
+          hidden={!beingEdited}
+          editState={editState}
+          updateEditState={updateEditState}
+          editStateReset={editStateReset}
+          comment={comment}
+        />
+        {!beingEdited && (
           <ReadOnlyQuillEditor
             className={classes.editor}
             value={comment.body}
           />
         )}
       </CardContent>
-      {!editing && (
+      {!beingEdited && (
         <CardActions className={highLightId.includes(comment.id) ? classes.cardActionsYellow : classes.cardActions}>
           <Typography className={classes.timePosted} variant="body2">
             <FormattedDate value={comment.created_at} />

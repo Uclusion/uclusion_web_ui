@@ -653,7 +653,6 @@ function PlanningInvestible(props) {
     return undefined;
   }
   function handleDateChange(date) {
-    console.debug(date);
     if (!_.isEqual(date, daysEstimate)) {
       setDaysEstimate(date);
       toggleEdit();

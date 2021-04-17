@@ -239,6 +239,14 @@ function CommentAdd(props) {
   const [Editor, editorController] = useEditor(editorName, editorSpec);
 
   useEffect(() => {
+    // If didn't focus to begin with then focus when type is changed
+    if (type && !autoFocus) {
+      editorController(editorFocus());
+    }
+    return () => {};
+  }, [autoFocus, editorController, type]);
+
+  useEffect(() => {
     if (!hidden && autoFocus) {
       editorController(editorFocus());
     }

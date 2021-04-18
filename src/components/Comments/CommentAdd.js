@@ -196,6 +196,7 @@ function CommentAdd(props) {
   const {
     uploadedFiles,
     body,
+    notificationType
   } = commentAddState;
   const intl = useIntl();
   const [commentsState, commentDispatch] = useContext(CommentsContext);
@@ -217,7 +218,6 @@ function CommentAdd(props) {
   const placeHolderLabelId = getPlaceHolderLabelId(type, isStory, currentStageId === inReviewStage.id);
   const placeHolder = intl.formatMessage({ id: placeHolderLabelId });
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const [myNotificationType, setMyNotificationType] = useState(defaultNotificationType);
   const presences = getMarketPresences(marketPresencesState, marketId) || [];
   const myPresence = presences.find((presence) => presence.current_user) || {};
 
@@ -294,11 +294,10 @@ function CommentAdd(props) {
       && currentStageId !== requiresInputStage.id;
     const investibleBlocks = (investibleId && apiType === ISSUE_TYPE) && currentStageId !== blockingStage.id;
     return saveComment(marketId, investibleId, parentId, tokensRemoved, apiType, filteredUploads, mentions,
-      myNotificationType)
+      (notificationType || defaultNotificationType))
       .then((comment) => {
         commentAddStateReset();
         editorController(editorReset());
-        setMyNotificationType(undefined);
         changeInvestibleStageOnCommentChange(investibleBlocks, investibleRequiresInput,
           blockingStage, requiresInputStage, info, market_infos, rootInvestible, investibleDispatch);
         addCommentToMarket(comment, commentsState, commentDispatch);
@@ -321,7 +320,7 @@ function CommentAdd(props) {
 
   function handleNotifyAllChange(event) {
     const { target: { checked } } = event;
-    setMyNotificationType( checked ? 'YELLOW' : undefined);
+    updateCommentAddState({notificationType: checked ? 'YELLOW' : undefined});
   }
 
   const commentSaveLabel = parent ? 'commentAddSaveLabel' : 'commentReplySaveLabel';
@@ -367,7 +366,7 @@ function CommentAdd(props) {
               control={<Checkbox
                 id="notifyAll"
                 name="notifyAll"
-                checked={myNotificationType === 'YELLOW'}
+                checked={notificationType === 'YELLOW'}
                 onChange={handleNotifyAllChange}
               />}
               label={intl.formatMessage({ id: 'notifyAll' })}

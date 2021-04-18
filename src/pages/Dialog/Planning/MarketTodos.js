@@ -69,7 +69,9 @@ const myClasses = makeStyles(
       white: {
         backgroundColor: 'white',
         padding: 0,
-        margin: 0
+        margin: 0,
+        overflowY: 'auto',
+        maxHeight: '25rem'
       },
       outerBorder: {
         marginTop: '30px',

@@ -189,7 +189,7 @@ const useStyles = makeStyles((theme) => ({
 
 function CommentAdd(props) {
   const {
-    marketId, onSave, onCancel, type, investible, parent, hidden, issueWarningId, todoWarningId, isStory,
+    marketId, onSave, onCancel, type, investible, parent, hidden, issueWarningId, todoWarningId, isStory, nameKey,
     defaultNotificationType, onDone, mentionsAllowed, commentAddState, updateCommentAddState, commentAddStateReset,
     autoFocus=true
   } = props;
@@ -225,9 +225,8 @@ function CommentAdd(props) {
     setOpenIssue(!openIssue);
   }
 
-  const editorName = `${parentId ? parentId : investibleId ? investibleId : marketId}-comment-add-editor`;
+  const editorName = `${nameKey ? nameKey : ''}${parentId ? parentId : investibleId ? investibleId : marketId}-comment-add-editor`;
   const editorSpec = {
-    value: body,
     dontManageState: true,
     participants: presences,
     marketId,

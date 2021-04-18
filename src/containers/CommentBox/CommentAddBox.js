@@ -209,7 +209,6 @@ function CommentAddBox(props) {
         </FormControl>
         <div className={classes.addBox}>
           <CommentAdd
-            key="CommentAdd"
             type={type}
             commentAddState={commentAddState}
             updateCommentAddState={updateCommentAddState}

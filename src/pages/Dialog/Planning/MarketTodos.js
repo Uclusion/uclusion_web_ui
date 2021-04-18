@@ -514,7 +514,7 @@ function MarketTodos (props) {
         >
           <div style={{paddingTop: '1rem'}}>
             <CommentAdd
-              key="CommentAddRed"
+              nameKey="CommentAddRed"
               hidden={!createRedCard}
               type={TODO_TYPE}
               commentAddState={commentAddRedState}
@@ -568,7 +568,7 @@ function MarketTodos (props) {
             </SubSection>
             {!_.isEmpty(redComments) && (<div style={{ paddingBottom: '15px' }}/>)}
             <CommentAdd
-              key="CommentAddYellow"
+              nameKey="CommentAddYellow"
               hidden={!createYellowCard}
               type={TODO_TYPE}
               commentAddState={commentAddYellowState}
@@ -622,7 +622,7 @@ function MarketTodos (props) {
             </SubSection>
             {!_.isEmpty(yellowComments) && (<div style={{ paddingBottom: '15px' }}/>)}
             <CommentAdd
-              key="CommentAddBlue"
+              nameKey="CommentAddBlue"
               hidden={!createCard}
               type={TODO_TYPE}
               commentAddState={commentAddBlueState}

@@ -145,33 +145,34 @@ function MarketTodos (props) {
   const [openMenuTodoId, setOpenMenuTodoId] = useState(undefined);
   const [anchorEl, setAnchorEl] = useState(null);
   const undefinedIsOpenDefault = !_.isEmpty(todoComments);
+  const pageName = isInArchives ? 'archives' : '';
   const [commentAddRedState, updateCommentAddRedState, commentAddStateRedReset] =
-    usePageStateReducer(`commentAddRed${marketId}`);
+    usePageStateReducer(`commentAddRed${pageName}${marketId}`);
   const {
     createRedCard,
   } = commentAddRedState;
   const [commentRedState, updateCommentRedState, commentStateRedReset] =
-    usePageStateReducer(`commentRed${marketId}`);
+    usePageStateReducer(`commentRed${pageName}${marketId}`);
   const {
     cardEditing: editRedCardId,
   } = commentRedState;
   const [commentAddYellowState, updateCommentAddYellowState, commentAddStateYellowReset] =
-    usePageStateReducer(`commentAddYellow${marketId}`);
+    usePageStateReducer(`commentAddYellow${pageName}${marketId}`);
   const {
     createYellowCard,
   } = commentAddYellowState;
   const [commentYellowState, updateCommentYellowState, commentStateYellowReset] =
-    usePageStateReducer(`commentYellow${marketId}`);
+    usePageStateReducer(`commentYellow${pageName}${marketId}`);
   const {
     cardEditing: editYellowCardId,
   } = commentYellowState;
   const [commentAddBlueState, updateCommentAddBlueState, commentAddStateBlueReset] =
-    usePageStateReducer(`commentBlueAdd${marketId}`);
+    usePageStateReducer(`commentBlueAdd${pageName}${marketId}`);
   const {
     createCard,
   } = commentAddBlueState;
   const [commentBlueState, updateCommentBlueState, commentStateBlueReset] =
-    usePageStateReducer(`commentBlue${marketId}`);
+    usePageStateReducer(`commentBlue${pageName}${marketId}`);
   const {
     cardEditing: editCardId,
   } = commentBlueState;

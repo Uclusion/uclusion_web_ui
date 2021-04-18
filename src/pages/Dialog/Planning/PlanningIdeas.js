@@ -65,10 +65,6 @@ const usePlanningIdStyles = makeStyles(
           }
         }
       },
-      verifiedOverflow: {
-        overflowY: 'auto',
-        maxHeight: '25rem'
-      },
       stageLabel: {},
       containerEmpty: {},
       containerRed: {
@@ -421,7 +417,6 @@ function PlanningIdeas(props) {
           comments={comments}
           marketPresences={marketPresences}
           marketId={marketId}
-          overflowClass={classes.verifiedOverflow}
         />
       </div>
     </dl>
@@ -453,6 +448,10 @@ const useStageClasses = makeStyles(
         margin: theme.spacing(1, 0),
         padding: theme.spacing(1, 2),
         overflowWrap: 'break-word'
+      },
+      verifiedOverflow: {
+        overflowY: 'auto',
+        maxHeight: '25rem'
       },
       root: {
         border: `1px solid ${theme.palette.grey['400']}`,
@@ -513,7 +512,6 @@ function Stage (props) {
     presenceId,
     limitInvestibles,
     limitInvestiblesAge,
-    overflowClass,
     votesRequired
   } = props;
   const [, dragHack] = useContext(LocalPlanningDragContext);
@@ -553,7 +551,7 @@ function Stage (props) {
       classes.rootWarnAccepted : singleInvestible ? classes.root : classes.regularAccepted}>
       <ul className={classes.list}>
         <Grid
-          className={overflowClass}
+          className={classes.verifiedOverflow}
           container>
         {sortedInvestibles.map(inv => {
           const { investible, market_infos: marketInfos } = inv;

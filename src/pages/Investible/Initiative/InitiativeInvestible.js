@@ -273,7 +273,8 @@ function InitiativeInvestible(props) {
   function createNavListItem(icon, textId, anchorId, howManyNum, alwaysShow) {
     return baseNavListItem(formInvestibleLink(marketId, investibleId), icon, textId, anchorId, howManyNum, alwaysShow);
   }
-  const displayVoting = !isAdmin && !inArchives&& (!yourVote || votingBeingEdited);
+  const votingAllowed = !isAdmin && !inArchives;
+  const displayVoting = votingAllowed && (!yourVote || votingBeingEdited);
   const openComments = investmentReasonsRemoved.filter((comment) => !comment.resolved) || [];
   const closedComments = investmentReasonsRemoved.filter((comment) => comment.resolved) || [];
   const sortedClosedRoots = getSortedRoots(closedComments);
@@ -450,6 +451,7 @@ function InitiativeInvestible(props) {
         marketPresences={positiveVoters}
         investmentReasons={investmentReasons}
         setVotingBeingEdited={() => updateVotingPageState({votingBeingEdited: true})}
+        votingAllowed={votingAllowed}
       />
       <h2 id="against">
         <FormattedMessage id="initiativeVotingAgainst" />
@@ -459,6 +461,7 @@ function InitiativeInvestible(props) {
         marketPresences={negativeVoters}
         investmentReasons={investmentReasons}
         setVotingBeingEdited={() => updateVotingPageState({votingBeingEdited: true})}
+        votingAllowed={votingAllowed}
       />
       <MarketLinks links={children || []} />
       <Grid container spacing={2}>

@@ -495,12 +495,13 @@ function Comment(props) {
     if (!anInlineMarket) {
       return React.Fragment;
     }
-    const { parent_comment_id: parentCommentId, market_type: marketType } = anInlineMarket;
+    const { parent_comment_id: parentCommentId, market_stage: marketStage, market_type: marketType } = anInlineMarket;
     if (!parentCommentId) {
       return React.Fragment;
     }
     if (marketType === INITIATIVE_TYPE) {
-      return <InlineInitiativeBox anInlineMarket={anInlineMarket} inlineUserId={inlineUserId} />;
+      return <InlineInitiativeBox anInlineMarket={anInlineMarket} inlineUserId={inlineUserId}
+                                  inArchives={marketStage !== ACTIVE_STAGE || inArchives || resolved} />;
     }
     return getDialog(anInlineMarket);
   }

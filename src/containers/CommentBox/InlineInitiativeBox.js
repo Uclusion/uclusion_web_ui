@@ -15,7 +15,7 @@ import { usePageStateReducer } from '../../components/PageState/pageStateHooks'
 
 function InlineInitiativeBox(props) {
   const {
-    anInlineMarket, inlineUserId
+    anInlineMarket, inlineUserId, inArchives
   } = props;
   const [votingPageState, updateVotingPageState, votingPageStateReset] =
     usePageStateReducer(`voting${anInlineMarket.id}`);
@@ -76,6 +76,7 @@ function InlineInitiativeBox(props) {
         marketPresences={positiveVoters}
         investmentReasons={investmentReasons}
         setVotingBeingEdited={() => updateVotingPageState({votingBeingEdited: true})}
+        votingAllowed={!inArchives}
       />
       <h2>
         <FormattedMessage id="initiativeVotingAgainst" />
@@ -85,6 +86,7 @@ function InlineInitiativeBox(props) {
         marketPresences={negativeVoters}
         investmentReasons={investmentReasons}
         setVotingBeingEdited={() => updateVotingPageState({votingBeingEdited: true})}
+        votingAllowed={!inArchives}
       />
     </div>
   );

@@ -71,7 +71,7 @@ const useVoteStyles = makeStyles(
  */
 function Voting(props) {
   const { marketPresences, investibleId, investmentReasons, showExpiration, expirationMinutes,
-    setVotingBeingEdited } = props;
+    setVotingBeingEdited, votingAllowed } = props;
   const [messagesState] = useContext(NotificationsContext);
   const classes = useVoteStyles();
   const intl = useIntl();
@@ -114,7 +114,7 @@ function Voting(props) {
                 className={classes.cardType}
                 type={`certainty${Math.abs(quantity)}`}
               />
-              {isYourVote && (
+              {isYourVote && votingAllowed && (
                 <CardActions className={classes.editVoteDisplay}>
                   <EditOutlinedIcon style={{maxHeight: '1.25rem', cursor: 'pointer'}} onClick={setVotingBeingEdited}/>
                 </CardActions>

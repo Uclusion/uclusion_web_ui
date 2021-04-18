@@ -394,7 +394,8 @@ function PlanningInvestible(props) {
   const yourVote = yourPresence && yourPresence.investments &&
     yourPresence.investments.find((investment) => investment.investible_id === investibleId);
   // If you have a vote already then do not display voting input unless hit edit on that vote
-  const displayVotingInput = isInVoting && !inArchives && canVote && (!yourVote || votingBeingEdited);
+  const votingAllowed = isInVoting && !inArchives && canVote;
+  const displayVotingInput = votingAllowed && (!yourVote || votingBeingEdited);
 
   let lockedByName;
   if (lockedBy) {
@@ -1026,6 +1027,7 @@ function PlanningInvestible(props) {
         showExpiration={fullStage.has_expiration}
         expirationMinutes={market.investment_expiration * 1440}
         setVotingBeingEdited={() => updateVotingPageState({votingBeingEdited: true})}
+        votingAllowed={votingAllowed}
       />
       <MarketLinks links={children || []} />
       <Grid container spacing={2}>

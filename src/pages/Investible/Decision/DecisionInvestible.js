@@ -325,7 +325,8 @@ function DecisionInvestible(props) {
     // we have no usable data;
     return <></>;
   }
-  const displayVotingInput = !inProposed && !inArchives && !hasIssueOrMarketIssue && (!yourVote || votingBeingEdited);
+  const votingAllowed = !inProposed && !inArchives && !hasIssueOrMarketIssue;
+  const displayVotingInput = votingAllowed && (!yourVote || votingBeingEdited);
   function createNavListItem(icon, textId, anchorId, howManyNum, alwaysShow) {
     return baseNavListItem(formInvestibleLink(marketId, investibleId), icon, textId, anchorId, howManyNum, alwaysShow);
   }
@@ -413,7 +414,7 @@ function DecisionInvestible(props) {
           </Grid>
         </Grid>
       </Card>
-      {!displayVotingInput && !inProposed && activeMarket && (
+      {!votingAllowed && !inProposed && activeMarket && (
         <Typography>
           {intl.formatMessage({ id: votingBlockedMessage })}
         </Typography>
@@ -454,6 +455,7 @@ function DecisionInvestible(props) {
             marketPresences={marketPresences}
             investmentReasons={investmentReasons}
             setVotingBeingEdited={() => updateVotingPageState({votingBeingEdited: true})}
+            votingAllowed={votingAllowed}
           />
         </>
       )}

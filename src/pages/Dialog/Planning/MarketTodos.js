@@ -482,6 +482,9 @@ function MarketTodos (props) {
                                                                className={classes.chipStyleYellow} />;
   const whenConvenientTodosChip = blueComments.length > 0 && <Chip label={`${blueComments.length}`} color="primary"
                                                                    size='small' className={classes.chipStyleBlue} />;
+  const editRedCard = comments.find((comment) => comment.id === editRedCardId);
+  const editYellowCard = comments.find((comment) => comment.id === editYellowCardId);
+  const editCard = comments.find((comment) => comment.id === editCardId);
   return (
     <>
       <div className={classes.outerBorder} id="marketTodos">
@@ -523,12 +526,12 @@ function MarketTodos (props) {
               defaultNotificationType="RED"
               isStory={false}
             />
-            {editRedCardId && (
+            {editRedCard && (
               <div id={`editc${editRedCardId}`} style={{marginBottom: '2rem'}}>
                 <Comment
                   depth={0}
                   marketId={marketId}
-                  comment={comments.find((comment) => comment.id === editRedCardId)}
+                  comment={editRedCard}
                   onDone={() => setEditRedCard(undefined)}
                   comments={comments}
                   allowedTypes={[TODO_TYPE]}
@@ -577,12 +580,12 @@ function MarketTodos (props) {
               defaultNotificationType="YELLOW"
               isStory={false}
             />
-            {editYellowCardId && (
+            {editYellowCard && (
               <div id={`editc${editYellowCardId}`} style={{marginBottom: '2rem'}}>
                 <Comment
                   depth={0}
                   marketId={marketId}
-                  comment={comments.find((comment) => comment.id === editYellowCardId)}
+                  comment={editYellowCard}
                   onDone={() => setEditYellowCard(undefined)}
                   comments={comments}
                   allowedTypes={[TODO_TYPE]}
@@ -631,12 +634,12 @@ function MarketTodos (props) {
               defaultNotificationType="BLUE"
               isStory={false}
             />
-            {editCardId && (
+            {editCard && (
               <div id={`editc${editCardId}`} style={{marginBottom: '2rem'}}>
                 <Comment
                   depth={0}
                   marketId={marketId}
-                  comment={comments.find((comment) => comment.id === editCardId)}
+                  comment={editCard}
                   onDone={() => setEditCard(undefined)}
                   comments={comments}
                   allowedTypes={[TODO_TYPE]}

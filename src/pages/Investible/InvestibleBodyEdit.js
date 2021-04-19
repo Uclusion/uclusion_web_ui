@@ -24,7 +24,7 @@ import LockedDialogTitleIcon from '@material-ui/icons/Lock'
 const useStyles = makeStyles(
   theme => ({
     actions: {
-      margin: theme.spacing(9, 0, 0, 0)
+      margin: theme.spacing(0, 0, 0, 0)
     },
     title: {
       fontSize: 32,

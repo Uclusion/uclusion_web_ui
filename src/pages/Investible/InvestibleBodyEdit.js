@@ -139,10 +139,12 @@ function InvestibleBodyEdit(props) {
 
 
   function takeoutLock () {
+    pageStateUpdate({beingLocked: true});
     setOperationRunning(true);
     const breakLock = true;
     return lockInvestibleForEdit(marketId, investibleId, breakLock)
       .then((result) => {
+        pageStateUpdate({beingLocked: false});
         setOperationRunning(false);
         return onLock(result);
       }).catch(() => {

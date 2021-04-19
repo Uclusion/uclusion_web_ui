@@ -174,7 +174,11 @@ function DialogBodyEdit(props) {
     pageStateReset();
     editorController(editorReset());
     if (marketType === PLANNING_TYPE) {
-      return unlockPlanningMarketForEdit(id).then((market) => updateMarketInStorage(market));
+      setOperationRunning(true);
+      return unlockPlanningMarketForEdit(id).then((market) => {
+        setOperationRunning(false);
+        updateMarketInStorage(market);
+      });
     }
   }
 
@@ -193,10 +197,12 @@ function DialogBodyEdit(props) {
     return localforage.removeItem(id);
   }
   function myOnClick() {
+    pageStateUpdate({beingLocked: true});
     const breakLock = true;
     setOperationRunning(true);
     return lockPlanningMarketForEdit(id, breakLock)
       .then((result) => {
+        pageStateUpdate({beingLocked: false});
         setOperationRunning(false);
         updateMarketInStorage(result);
       }).catch(() => {
@@ -241,7 +247,7 @@ function DialogBodyEdit(props) {
           </>
         )}
         <CardActions className={classes.actions}>
-          <SpinningIconLabelButton onClick={onCancel} doSpin={false} icon={Clear}>
+          <SpinningIconLabelButton onClick={onCancel} doSpin={marketType === PLANNING_TYPE} icon={Clear}>
             {intl.formatMessage({ id: 'marketAddCancelLabel' })}
           </SpinningIconLabelButton>
           <SpinningIconLabelButton

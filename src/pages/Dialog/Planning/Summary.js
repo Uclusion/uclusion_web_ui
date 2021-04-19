@@ -20,7 +20,7 @@ import ExpandableAction from '../../../components/SidebarActions/Planning/Expand
 import Collaborators from '../Collaborators'
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
 import AttachedFilesList from '../../../components/Files/AttachedFilesList'
-import { attachFilesToMarket, deleteAttachedFilesFromMarket, lockPlanningMarketForEdit } from '../../../api/markets'
+import { attachFilesToMarket, deleteAttachedFilesFromMarket } from '../../../api/markets'
 import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
@@ -31,7 +31,8 @@ import { canCreate } from '../../../contexts/AccountContext/accountContextHelper
 import DialogBodyEdit from '../DialogBodyEdit'
 import { usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 import _ from 'lodash'
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { pushMessage } from '../../../utils/MessageBusUtils'
+import { LOCK_MARKET, LOCK_MARKET_CHANNEL } from '../../../contexts/MarketsContext/marketsContextMessages'
 
 const useStyles = makeStyles(theme => ({
   section: {
@@ -213,12 +214,21 @@ function Summary(props) {
   const [accountState] = useContext(AccountContext);
   const [, marketsDispatch] = useContext(MarketsContext);
   const [, diffDispatch] = useContext(DiffContext);
-  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [pageState, updatePageState, pageStateReset] = usePageStateReducer(id);
   const {
     beingEdited,
   } = pageState;
-  const marketPresences = getMarketPresences(marketPresencesState, id) || [];
+  const marketPresences = getMarketPresences(marketPresencesState, id) || []
+  let lockedByName;
+  if (lockedBy) {
+    const lockedByPresence = marketPresences.find(
+      presence => presence.id === lockedBy
+    );
+    if (lockedByPresence) {
+      const { name } = lockedByPresence;
+      lockedByName = name;
+    }
+  }
   const isDraft = marketHasOnlyCurrentUser(marketPresencesState, id);
   const myPresence =
     marketPresences.find(presence => presence.current_user) || {};
@@ -253,14 +263,8 @@ function Summary(props) {
     if (!isEditableByUser() || invalidEditEvent(event)) {
       return;
     }
-    updatePageState({beingLocked: true});
-    setOperationRunning(true);
-    return lockPlanningMarketForEdit(id)
-      .then((market) => {
-        setOperationRunning(false);
-        addMarketToStorage(marketsDispatch, () => {}, market);
-        updatePageState({beingEdited: true, beingLocked: false, name, description});
-      }).catch(() => updatePageState({beingLocked: false}));
+    updatePageState({beingEdited: true, name, description});
+    return pushMessage(LOCK_MARKET_CHANNEL, { event: LOCK_MARKET, marketId: id });
   }
 
   return (
@@ -270,6 +274,11 @@ function Summary(props) {
         <Grid item xs={10} className={!beingEdited && isEditableByUser() ? classes.fullWidthEditable : classes.fullWidth}
               onClick={(event) => !beingEdited && mySetBeingEdited(true, event)}>
           <CardContent className={beingEdited ? classes.editContent : classes.content}>
+            {lockedBy && myPresence.id !== lockedBy && isAdmin && !inArchives && (
+              <Typography>
+                {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}
+              </Typography>
+            )}
             {isDraft && activeMarket && (
               <Typography className={classes.draft}>
                 {intl.formatMessage({ id: "draft" })}

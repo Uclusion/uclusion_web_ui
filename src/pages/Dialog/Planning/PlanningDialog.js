@@ -83,7 +83,6 @@ function PlanningDialog(props) {
   const {
     market,
     investibles,
-    marketPresences,
     marketStages,
     comments,
     hidden,
@@ -109,7 +108,7 @@ function PlanningDialog(props) {
   const unResolvedMarketComments = comments.filter(comment => !comment.investible_id && !comment.resolved) || [];
   const notTodoComments = unResolvedMarketComments.filter(comment => comment.comment_type !== TODO_TYPE) || [];
   const allowedCommentTypes = [QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE];
-  const { name: marketName, locked_by: lockedBy, market_sub_type: marketSubType, created_by: marketCreatedBy } = market;
+  const { name: marketName, market_sub_type: marketSubType, created_by: marketCreatedBy } = market;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   // For security reasons you can't access source data while being dragged in case you are not the target website
   const [beingDraggedHack, setBeingDraggedHack] = useState({});
@@ -125,17 +124,6 @@ function PlanningDialog(props) {
   const assignablePresences = presences.filter((presence) => !presence.market_banned && presence.following
     && !presence.market_guest);
   const isChannel = _.isEmpty(investibles);
-
-  let lockedByName;
-  if (lockedBy) {
-    const lockedByPresence = marketPresences.find(
-      presence => presence.id === lockedBy
-    );
-    if (lockedByPresence) {
-      const { name } = lockedByPresence;
-      lockedByName = name;
-    }
-  }
 
   const furtherWorkStage = marketStages.find((stage) => (!stage.allows_assignment && !stage.close_comments_on_entrance)) || {};
   const requiresInputStage = marketStages.find((stage) => (!stage.allows_issues && stage.move_on_comment)) || {};
@@ -261,11 +249,6 @@ function PlanningDialog(props) {
       <div id="workspaceMain">
         <Summary market={market} hidden={hidden} activeMarket={activeMarket} inArchives={inArchives} />
       </div>
-      {lockedBy && myPresence.id !== lockedBy && isAdmin && !inArchives && (
-        <Typography>
-          {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}
-        </Typography>
-      )}
       <div style={{marginTop: '2rem'}} />
       {!isChannel && (
         <DismissableText textId='stageHelp' textId1='stageHelp1' textId2='stageHelp2' textId3='stageHelp3'

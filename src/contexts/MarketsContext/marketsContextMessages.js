@@ -11,11 +11,18 @@ import jwt_decode from 'jwt-decode'
 import { createMarketListeners, pollForMarketLoad } from '../../api/versionedFetchUtils'
 import { toastError } from '../../utils/userMessage'
 import { ADD_PRESENCE } from '../MarketPresencesContext/marketPresencesMessages'
-import { OPERATION_HUB_CHANNEL, START_OPERATION } from '../OperationInProgressContext/operationInProgressMessages'
+import {
+  OPERATION_HUB_CHANNEL,
+  START_OPERATION,
+  STOP_OPERATION
+} from '../OperationInProgressContext/operationInProgressMessages'
+import { lockPlanningMarketForEdit } from '../../api/markets'
 
 export const LOAD_MARKET_CHANNEL = 'LoadMarketChannel';
 export const INVITE_MARKET_EVENT = 'InviteMarketEvent';
 export const GUEST_MARKET_EVENT = 'GuestMarketEvent';
+export const LOCK_MARKET_CHANNEL = 'LockMarketChannel';
+export const LOCK_MARKET = 'LockMarket';
 
 function beginListening(dispatch, diffDispatch) {
   registerListener(REMOVED_MARKETS_CHANNEL, 'marketsRemovedMarketStart', (data) => {
@@ -39,6 +46,14 @@ function beginListening(dispatch, diffDispatch) {
       default:
         // console.debug(`Ignoring identity event ${event}`);
     }
+  });
+  registerListener(LOCK_MARKET_CHANNEL, 'marketsLockStart', (data) => {
+    const { payload: { marketId } } = data;
+    pushMessage(OPERATION_HUB_CHANNEL, { event: START_OPERATION });
+    lockPlanningMarketForEdit(marketId).then((market) => {
+      pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION });
+      addMarketToStorage(dispatch, diffDispatch, market);
+    });
   });
   registerListener(LOAD_MARKET_CHANNEL, 'marketsLoadStart', (data) => {
     const { payload: { event, marketToken, marketId, subscribeId } } = data;

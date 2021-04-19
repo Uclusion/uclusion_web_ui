@@ -653,7 +653,6 @@ function MarketTodos (props) {
             )}
             <SubSection
               type={SECTION_TYPE_TERTIARY_WARNING}
-              padChildren
               title={intl.formatMessage({ id: 'convenient' })}
               titleIcon={whenConvenientTodosChip === false ? undefined : whenConvenientTodosChip}
               id="whenConvenientTodos"

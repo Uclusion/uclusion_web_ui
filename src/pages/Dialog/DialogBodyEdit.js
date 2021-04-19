@@ -114,7 +114,7 @@ export const useLockedDialogStyles = makeStyles(
 const useStyles = makeStyles(
   theme => ({
     actions: {
-      margin: theme.spacing(9, 0, 0, 0)
+      margin: theme.spacing(0, 0, 0, 0)
     },
   }),
   { name: "DialogEdit" }

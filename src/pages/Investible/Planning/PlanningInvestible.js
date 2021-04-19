@@ -78,7 +78,7 @@ import AttachedFilesList from '../../../components/Files/AttachedFilesList'
 import {
   attachFilesToInvestible,
   changeLabels,
-  deleteAttachedFilesFromInvestible, lockInvestibleForEdit,
+  deleteAttachedFilesFromInvestible,
   updateInvestible
 } from '../../../api/investibles';
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
@@ -110,6 +110,11 @@ import { QuestionAnswer } from '@material-ui/icons'
 import AssignmentIcon from '@material-ui/icons/Assignment'
 import InvestibleBodyEdit from '../InvestibleBodyEdit';
 import { usePageStateReducer } from '../../../components/PageState/pageStateHooks';
+import { pushMessage } from '../../../utils/MessageBusUtils'
+import {
+  LOCK_INVESTIBLE,
+  LOCK_INVESTIBLE_CHANNEL
+} from '../../../contexts/InvestibesContext/investiblesContextMessages'
 
 const useStyles = makeStyles(
   theme => ({
@@ -716,16 +721,8 @@ function PlanningInvestible(props) {
     if (!isEditableByUser() || invalidEditEvent(event)) {
       return;
     }
-    updatePageState({beingLocked: true});
-    setOperationRunning(true);
-    return lockInvestibleForEdit(marketId, investibleId)
-      .then((newInv) => {
-        setOperationRunning(false);
-        refreshInvestibles(investiblesDispatch, diffDispatch, [newInv])
-        updatePageState({beingEdited: true, beingLocked: false, name, description});
-      })
-      // TODO: on error should probably display an error
-      .catch(() => updatePageState({beingLocked: false}));
+    updatePageState({beingEdited: true, name, description});
+    return pushMessage(LOCK_INVESTIBLE_CHANNEL, { event: LOCK_INVESTIBLE, marketId, investibleId });
   }
   function toggleReviewers() {
     navigate(history, `${formInvestibleEditLink(market.id, marketInvestible.investible.id)}#review=true`);

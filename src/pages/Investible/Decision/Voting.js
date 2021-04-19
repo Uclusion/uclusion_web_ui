@@ -84,7 +84,7 @@ function Voting(props) {
   const voters = getInvestibleVoters(marketPresences, investibleId);
   const sortedVoters = _.sortBy(voters, "quantity");
 
-  if (sortedVoters.length === 0) {
+  if (sortedVoters.length === 0 || !yourPresence) {
     return (
       <Typography>
         <FormattedMessage id="noVoters" />

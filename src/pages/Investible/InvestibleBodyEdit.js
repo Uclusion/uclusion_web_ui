@@ -111,8 +111,10 @@ function InvestibleBodyEdit(props) {
   function onCancel () {
     pageStateReset();
     editorController(editorReset());
+    setOperationRunning(true);
     return realeaseInvestibleEditLock(marketId, investibleId)
       .then((newInv) => {
+        setOperationRunning(false);
         refreshInvestibles(investiblesDispatch, diffDispatch, [newInv]);
       });
   }
@@ -185,7 +187,7 @@ function InvestibleBodyEdit(props) {
           </>
         )}
         <CardActions className={classes.actions}>
-          <SpinningIconLabelButton onClick={onCancel} doSpin={false} icon={Clear}>
+          <SpinningIconLabelButton onClick={onCancel} icon={Clear}>
             {intl.formatMessage({ id: 'marketAddCancelLabel' })}
           </SpinningIconLabelButton>
           <SpinningIconLabelButton

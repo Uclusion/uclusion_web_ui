@@ -1,6 +1,18 @@
 import { refreshInvestibles } from './investiblesContextHelper'
-import { PUSH_INVESTIBLES_CHANNEL, VERSIONS_EVENT, } from '../VersionsContext/versionsContextHelper'
-import { registerListener } from '../../utils/MessageBusUtils'
+import {
+  PUSH_INVESTIBLES_CHANNEL,
+  VERSIONS_EVENT,
+} from '../VersionsContext/versionsContextHelper'
+import { pushMessage, registerListener } from '../../utils/MessageBusUtils'
+import {
+  OPERATION_HUB_CHANNEL,
+  START_OPERATION,
+  STOP_OPERATION
+} from '../OperationInProgressContext/operationInProgressMessages'
+import { lockInvestibleForEdit } from '../../api/investibles'
+
+export const LOCK_INVESTIBLE_CHANNEL = 'LockInvestibleChannel';
+export const LOCK_INVESTIBLE = 'LockInvestible';
 
 function beginListening(dispatch, diffDispatch) {
   registerListener(PUSH_INVESTIBLES_CHANNEL, 'pushInvestibleStart', (data) => {
@@ -11,6 +23,14 @@ function beginListening(dispatch, diffDispatch) {
       default:
         // console.debug(`Ignoring push event ${event}`);
     }
+  });
+  registerListener(LOCK_INVESTIBLE_CHANNEL, 'investiblesLock', (data) => {
+    const { payload: { marketId, investibleId } } = data;
+    pushMessage(OPERATION_HUB_CHANNEL, { event: START_OPERATION });
+    lockInvestibleForEdit(marketId, investibleId).then((newInv) => {
+      pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION });
+      refreshInvestibles(dispatch, diffDispatch, [newInv]);
+    });
   });
 }
 

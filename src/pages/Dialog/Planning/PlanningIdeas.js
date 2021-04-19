@@ -4,7 +4,7 @@ import _ from 'lodash';
 import { useHistory } from 'react-router';
 import { Grid, Link, Tooltip, Typography } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles';
-import { red, yellow } from '@material-ui/core/colors';
+import { yellow } from '@material-ui/core/colors';
 import { FormattedDate, FormattedMessage, useIntl } from 'react-intl';
 import { formInvestibleLink, formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import clsx from 'clsx';
@@ -44,8 +44,6 @@ import { getInvestibleVoters } from '../../../utils/votingUtils';
 import { doRemoveEdit, doShowEdit, getCommenterPresences, getUserSwimlaneInvestibles, onDropTodo } from './userUtils'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
-
-const warningColor = red['400'];
 
 const usePlanningIdStyles = makeStyles(
   theme => {
@@ -601,24 +599,9 @@ Stage.propTypes = {
   fallbackOnClick: PropTypes.func
 };
 
-const useVotingStageClasses = makeStyles(
-  () => {
-    return {
-      root: {},
-      fallback: {
-        backgroundColor: warningColor,
-        color: 'white'
-      }
-    };
-  },
-  { name: 'VotingStage' }
-);
-
 function VotingStage (props) {
   const { className, marketId, presenceId, activeMarket, isAdmin, comments, marketPresences, votesRequired, ...other }
     = props;
-
-  const classes = useVotingStageClasses();
   const intl = useIntl();
 
   const history = useHistory();
@@ -634,7 +617,6 @@ function VotingStage (props) {
   return (
 
     <Stage
-      classes={classes}
       fallbackWarning={
         activeMarket && isAdmin &&
             <StageLink href={assignedLink} onClick={onClick}>

@@ -122,7 +122,6 @@ function QuillEditor2 (props) {
     simple,
     participants,
     mentionsAllowed,
-    children,
     dontManageState,
   } = props;
 

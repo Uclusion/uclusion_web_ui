@@ -79,7 +79,6 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: 'column',
     flex: '1 0 auto',
     zIndex: 8,
-    WebkitOverflowScrolling: 'touch',
     position: 'fixed',
     top: '7rem',
     minWidth: '13rem',

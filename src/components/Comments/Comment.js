@@ -602,7 +602,7 @@ function Comment(props) {
   const inReviewStageId = (getInReviewStage(marketStagesState, marketId) || {}).id;
   return (
     <div className={getCommentHighlightStyle()}>
-      <Card elevation={3}>
+      <Card elevation={3} style={{overflow: 'unset'}}>
         <Box display="flex">
           {overrideLabel && (
             <CardType className={classes.commentType} type={commentType} resolved={resolved} label={overrideLabel} />
@@ -956,11 +956,13 @@ const useReplyStyles = makeStyles(
         fontWeight: "bold"
       },
       container: {
-        marginBottom: '1.5rem'
+        marginBottom: '1.5rem',
+        overflow: 'unset'
       },
       containerYellow: {
         marginBottom: '1.5rem',
-        boxShadow: "10px 5px 5px yellow"
+        boxShadow: '10px 5px 5px yellow',
+        overflow: 'unset'
       },
       editor: {
         margin: "2px 0px",

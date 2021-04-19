@@ -442,9 +442,6 @@ function QuillEditor2 (props) {
         </LoadingOverlay>
       </div>
       {isTinyWindow() && <div style={{ height: '40px' }}>&nbsp;</div>}
-      <div style={{paddingTop: '1rem', paddingBottom: '1rem'}}>
-        {children}
-      </div>
     </div>
   );
 }

@@ -98,6 +98,7 @@ const useStyles = makeStyles((theme) => ({
     fontSize: '14px',
     fontWeight: 'bold',
     margin: 8,
+    marginBottom: 0,
     textTransform: 'capitalize',
   },
   buttonPrimary: {

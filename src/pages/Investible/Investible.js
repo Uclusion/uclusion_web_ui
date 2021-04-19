@@ -71,14 +71,11 @@ function Investible(props) {
     makeBreadCrumbs(history, breadCrumbTemplates);
 
   useEffect(() => {
-    const noMarketLoad = _.isEmpty(realMarket) && _.isEmpty(marketPresences);
     if (!isInitialization && !hidden && marketId && subscribeId) {
+      // Do not support copy and paste from regular URL because might cause performance issue
       pushMessage(LOAD_MARKET_CHANNEL, { event: GUEST_MARKET_EVENT, marketId, subscribeId });
-    } else if (!isInitialization && !hidden && marketId && noMarketLoad && investibleId) {
-      // Support copy and paste from the URL because we can without extra effort
-      pushMessage(LOAD_MARKET_CHANNEL, { event: GUEST_MARKET_EVENT, marketId, subscribeId: investibleId });
     }
-  }, [hidden, investibleId, isInitialization, marketId, marketPresences, realMarket, subscribeId]);
+  }, [hidden, isInitialization, marketId, subscribeId]);
 
   useEffect(() => {
     if (!hidden) {

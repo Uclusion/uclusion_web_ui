@@ -46,7 +46,7 @@ function Dialog(props) {
   const myHashFragment = (hash && hash.length > 1) ? hash.substring(1, hash.length) : undefined
   const { marketId: marketEntity, action } = decomposeMarketPath(pathname);
   const { subscribeId } = useParams();
-  const [marketId, setMarketId] = useState(undefined);
+  const [marketIdFromToken, setMarketIdFromToken] = useState(undefined);
   const [marketsState] = useContext(MarketsContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -54,6 +54,7 @@ function Dialog(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [searchResults] = useContext(SearchResultsContext);
   const { results } = searchResults;
+  const marketId = action === 'invite' ? marketIdFromToken : marketEntity;
   const allInvestibles = getMarketInvestibles(investiblesState, marketId) || [];
   const allComments = getMarketComments(commentsState, marketId) || [];
   const investibles = _.isEmpty(results) ? allInvestibles : allInvestibles.filter((inv) => {
@@ -88,26 +89,22 @@ function Dialog(props) {
       if (action === 'invite') {
         const decoded = jwt_decode(marketEntity);
         proposedMarketId = decoded.market_id;
+        setMarketIdFromToken(proposedMarketId);
       } else {
         proposedMarketId = marketEntity;
       }
       const loadedMarket = getMarket(marketsState, proposedMarketId);
+      // Ignore regular URL case because can cause performance problems to do things for that case
       if (subscribeId) {
-        pushMessage(LOAD_MARKET_CHANNEL, { event: GUEST_MARKET_EVENT, marketId: proposedMarketId,
-          subscribeId });
-      } else if (_.isEmpty(loadedMarket)) {
-        if (action === 'invite') {
-          pushMessage(LOAD_MARKET_CHANNEL, { event: INVITE_MARKET_EVENT, marketToken: marketEntity });
-        } else {
-          pushMessage(LOAD_MARKET_CHANNEL, { event: GUEST_MARKET_EVENT, marketId: proposedMarketId });
-        }
+        pushMessage(LOAD_MARKET_CHANNEL, { event: GUEST_MARKET_EVENT, marketId: marketEntity, subscribeId });
+      } else if (_.isEmpty(loadedMarket) && action === 'invite') {
+        pushMessage(LOAD_MARKET_CHANNEL, { event: INVITE_MARKET_EVENT, marketToken: marketEntity });
       }
-      setMarketId(proposedMarketId);
     }
     if (hidden) {
-      setMarketId(undefined);
+      setMarketIdFromToken(undefined);
     }
-  }, [action, hasUser, hidden, isInitialization, marketEntity, marketId, marketsState, subscribeId]);
+  }, [action, hasUser, hidden, isInitialization, marketEntity, marketsState, subscribeId]);
 
   useEffect(() => {
     if (!hidden && action === 'invite' && marketId && !_.isEmpty(marketStages) && marketType !== INITIATIVE_TYPE) {

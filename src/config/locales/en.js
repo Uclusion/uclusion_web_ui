@@ -993,7 +993,7 @@ const messages = defineMessages({
   OnboardingInviteDialog: 'Almost ready to go! Loading fully complete momentarily.',
   OnboardingWizardTitle: 'Welcome to Uclusion',
   OnboardingWizardSkipOnboarding: 'I\'ve used Uclusion before and want to go right to the app',
-  OnboardingWizardStartOver: 'Start over',
+  OnboardingWizardStartOver: 'Cancel',
   OnboardingWizardTrySomethingElse: 'I\'ve shared the link and want to try something else',
   OnboardingWizardGoBack: 'Go Back',
   OnboardingWizardContinue: 'Continue',

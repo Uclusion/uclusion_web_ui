@@ -37,7 +37,7 @@ function WorkspaceNameStep (props) {
         value={value}
         onChange={onNameChange}
       />
-      <div className={classes.borderBottom}></div>
+      <div className={classes.borderBottom} />
       <StepButtons {...props} showFinish={false} validForm={validForm}/>
     </div>
     </WizardStepContainer>

@@ -1,7 +1,19 @@
-import React from 'react';
+import React, { useContext, useState } from 'react'
 import PropTypes from 'prop-types';
-import { Button, Card, makeStyles, Typography, useTheme } from '@material-ui/core';
+import {
+  Button,
+  Card,
+  FormControl,
+  FormControlLabel,
+  makeStyles,
+  Radio,
+  RadioGroup,
+  Typography,
+  useTheme
+} from '@material-ui/core'
 import { useIntl } from 'react-intl';
+import { WizardStylesContext } from './WizardStylesContext'
+import SpinningButton from '../SpinBlocking/SpinningButton'
 
 const useStyles = makeStyles(
   theme => {
@@ -70,41 +82,47 @@ const useStyles = makeStyles(
 );
 
 function WhatDoYouWantToDo (props) {
-  const { setWizardToShow } = props;
+  const { setWizardToShow, onStartOver } = props;
   const intl = useIntl();
   const theme = useTheme();
   const classes = useStyles(theme);
+  const [wizard, setWizard] = useState('storyWorkspace');
+  const wizardClasses = useContext(WizardStylesContext);
+
+  function handleChange(event) {
+    setWizard(event.target.value);
+  }
+
   return (
     <Card className={classes.myCard} elevation={3}>
-      <Typography variant="h5">
+      <Typography variant="h5" style={{paddingBottom: '1rem'}}>
         {intl.formatMessage({ id: 'SignupWizardTitle' })}
       </Typography>
-      <div
-        className={classes.buttonContainer}
-      >
-        <div>
-        <Button
-          className={classes.buttonClassLarge}
-          onClick={() => setWizardToShow('storyWorkspace')}
+      <FormControl component="fieldset" className={classes.buttonContainer}>
+        <RadioGroup
+          aria-labelledby="comment-type-choice"
+          onChange={handleChange}
+          value={wizard}
         >
-          {intl.formatMessage({ id: 'SignupWizardStoryWorkspace' })}
-        </Button>
+          <FormControlLabel value="storyWorkspace" control={<Radio />}
+                            label={intl.formatMessage({ id: 'SignupWizardStoryWorkspace' })} />
+          <FormControlLabel value="dialog" control={<Radio />}
+                            label={intl.formatMessage({ id: 'SignupWizardDialog' })} />
+          <FormControlLabel value="initiative" control={<Radio />}
+                            label={intl.formatMessage({ id: 'SignupWizardInitiative' })} />
+        </RadioGroup>
+      </FormControl>
+      <div className={wizardClasses.borderBottom} />
+      <div className={wizardClasses.buttonContainer}>
+        <div>
+          <Button className={wizardClasses.actionStartOver}
+                  onClick={() => onStartOver()}>{intl.formatMessage({ id: 'OnboardingWizardStartOver' })}
+          </Button>
         </div>
-        <div>
-        <Button
-          className={classes.buttonClass}
-          onClick={() => setWizardToShow('dialog')}
-        >
-          {intl.formatMessage({ id: 'SignupWizardDialog' })}
-        </Button>
-        </div>
-        <div>
-        <Button
-          className={classes.buttonClass}
-          onClick={() => setWizardToShow('initiative')}
-        >
-          {intl.formatMessage({ id: 'SignupWizardInitiative' })}
-        </Button>
+        <div className={wizardClasses.actionContainer}>
+          <SpinningButton className={wizardClasses.actionPrimary} onClick={() => setWizardToShow(wizard)}>
+            {intl.formatMessage({ id: 'OnboardingWizardContinue' })}
+          </SpinningButton>
         </div>
       </div>
     </Card>

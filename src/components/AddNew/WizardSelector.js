@@ -4,15 +4,16 @@ import WhatDoYouWantToDo from './WhatDoYouWantToDo'
 import StoryWorkspaceWizard from './Workspace/StoryWorkspace/StoryWorkspaceWizard'
 import DialogWizard from './Dialog/DialogWizard'
 import InitiativeWizard from './Initiative/InitiativeWizard'
-import { Clear } from '@material-ui/icons'
-import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'
-import { useIntl } from 'react-intl'
+import { WizardStylesProvider } from './WizardStylesContext'
 
 function WizardSelector(props) {
-
   const { hidden, onFinish, onCancel } = props;
-  const intl = useIntl();
   const [wizardToShow, setWizardToShow] = useState(null);
+
+  function onStartOver() {
+    setWizardToShow(null);
+    onCancel();
+  }
 
   function getWizardToShow() {
     switch (wizardToShow) {
@@ -23,7 +24,9 @@ function WizardSelector(props) {
       case 'initiative':
         return <InitiativeWizard onStartOver={onStartOver} onFinish={onFinish} isHome/>
       default:
-        return <WhatDoYouWantToDo setWizardToShow={setWizardToShow}/>
+        return (<WizardStylesProvider>
+          <WhatDoYouWantToDo setWizardToShow={setWizardToShow} onStartOver={onStartOver}/>
+        </WizardStylesProvider>)
     }
   }
 
@@ -33,10 +36,6 @@ function WizardSelector(props) {
     }
   }, [hidden, setWizardToShow, wizardToShow]);
 
-  function onStartOver() {
-    setWizardToShow(null);
-  }
-
   if (hidden) {
     return <React.Fragment/>
   }
@@ -44,14 +43,7 @@ function WizardSelector(props) {
   const resolvedWizard = getWizardToShow();
   return (
     <div style={{display: 'flex', justifyContent: 'center', paddingBottom: '3rem', width: '100%'}}>
-      <div>
-        {resolvedWizard}
-      </div>
-      <div style={{maxHeight: '1rem', paddingLeft: '3rem'}}>
-        <SpinningIconLabelButton onClick={onCancel} doSpin={false} icon={Clear}>
-          {intl.formatMessage({ id: 'cancel' })}
-        </SpinningIconLabelButton>
-      </div>
+      {resolvedWizard}
     </div>
   );
 }

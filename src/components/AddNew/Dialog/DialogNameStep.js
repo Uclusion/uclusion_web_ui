@@ -31,7 +31,7 @@ function DialogNameStep (props) {
     >
       <div>
         <Typography className={classes.introText} variant="body2">
-          Great! We'll be creating a Uclusion Dialog so your team can choose among options or suggest new ones.
+          Great! We'll be creating a Uclusion Dialog to collaborate on options or suggest new ones.
         </Typography>
         <label className={classes.inputLabel}
                htmlFor="name">{intl.formatMessage({ id: 'DialogWizardDialogNamePlaceHolder' })}</label>
@@ -41,7 +41,7 @@ function DialogNameStep (props) {
           value={value}
           onChange={onNameChange}
         />
-        <div className={classes.borderBottom}></div>
+        <div className={classes.borderBottom} />
         <StepButtons {...props} validForm={validForm} showFinish={false}/>
       </div>
     </WizardStepContainer>

@@ -37,7 +37,7 @@ import { removeHeader, restoreHeader } from '../../../containers/Header'
 import { LocalPlanningDragContext } from './InvestiblesByWorkspace'
 import { findMessageForCommentId } from '../../../utils/messageUtils'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
-import { isTinyWindow } from '../../../utils/windowUtils'
+import { invalidEditEvent, isTinyWindow } from '../../../utils/windowUtils'
 import MarketTodoMenu from './MarketTodoMenu'
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined'
 import { doRemoveEdit, doShowEdit } from './userUtils'
@@ -355,6 +355,9 @@ function MarketTodos (props) {
               />
             )}
             <RaisedCard elevation={0} onClick={(event) => {
+              if (invalidEditEvent(event)) {
+                return;
+              }
               if (isInArchives) {
                 setCardAndScroll(comment);
               } else {
@@ -379,8 +382,8 @@ function MarketTodos (props) {
                 <Grid id={`showEdit0${id}`} item xs={1} style={{pointerEvents: 'none', display: 'none'}}>
                   <EditOutlinedIcon style={{maxHeight: '1.25rem'}} />
                 </Grid>
-                <Grid id={`showEdit1${showChip ? '' : id}`} item xs={12} style={{pointerEvents: 'none',
-                  paddingTop: `${showChip ? 0 : 0.5}rem`}}>
+                <Grid id={`showEdit1${showChip ? '' : id}`} item xs={12}
+                      style={{paddingTop: `${showChip ? 0 : 0.5}rem`}}>
                   <ReadOnlyQuillEditor value={body} />
                 </Grid>
               </Grid>

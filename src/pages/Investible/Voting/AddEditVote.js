@@ -131,7 +131,7 @@ function AddEditVote(props) {
   const intl = useIntl();
   const classes = useStyles();
   const addMode = _.isEmpty(investment) || investment.deleted;
-  const { quantity, max_budget: initialMaxBudget, max_budget_unit: initialMaxBudgetUnit } = investment;
+  const { quantity, max_budget: initialMaxBudget, max_budget_unit: initialMaxBudgetUnit } = investment || {};
   const initialInvestment = !quantity ? 50 : Math.abs(quantity);
   const newQuantity = storedInvestment || initialInvestment;
   const maxBudget = storedMaxBudget || initialMaxBudget || '';
@@ -323,7 +323,7 @@ function AddEditVote(props) {
           {Editor}
         </CardContent>
         <CardActions className={classes.actions}>
-          {hasVoted && (
+          {hasVoted && !investment.deleted && (
             <SpinningIconLabelButton onClick={onCancel} doSpin={false} icon={Clear}>
               {intl.formatMessage({ id: 'cancel' })}
             </SpinningIconLabelButton>

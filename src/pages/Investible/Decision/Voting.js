@@ -71,11 +71,10 @@ const useVoteStyles = makeStyles(
  */
 function Voting(props) {
   const { marketPresences, investibleId, investmentReasons, showExpiration, expirationMinutes,
-    setVotingBeingEdited, votingAllowed } = props;
+    setVotingBeingEdited, votingAllowed, yourPresence } = props;
   const [messagesState] = useContext(NotificationsContext);
   const classes = useVoteStyles();
   const intl = useIntl();
-  const yourPresence = marketPresences.find((presence) => presence.current_user);
 
   function getVoterReason(userId) {
     return investmentReasons.find(comment => comment.created_by === userId);

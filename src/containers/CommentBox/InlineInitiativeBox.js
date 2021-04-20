@@ -77,6 +77,7 @@ function InlineInitiativeBox(props) {
         investmentReasons={investmentReasons}
         setVotingBeingEdited={() => updateVotingPageState({votingBeingEdited: true})}
         votingAllowed={!inArchives}
+        yourPresence={myInlinePresence}
       />
       <h2>
         <FormattedMessage id="initiativeVotingAgainst" />
@@ -87,6 +88,7 @@ function InlineInitiativeBox(props) {
         investmentReasons={investmentReasons}
         setVotingBeingEdited={() => updateVotingPageState({votingBeingEdited: true})}
         votingAllowed={!inArchives}
+        yourPresence={myInlinePresence}
       />
     </div>
   );

@@ -452,6 +452,7 @@ function InitiativeInvestible(props) {
         investmentReasons={investmentReasons}
         setVotingBeingEdited={() => updateVotingPageState({votingBeingEdited: true})}
         votingAllowed={votingAllowed}
+        yourPresence={yourPresence}
       />
       <h2 id="against">
         <FormattedMessage id="initiativeVotingAgainst" />
@@ -462,6 +463,7 @@ function InitiativeInvestible(props) {
         investmentReasons={investmentReasons}
         setVotingBeingEdited={() => updateVotingPageState({votingBeingEdited: true})}
         votingAllowed={votingAllowed}
+        yourPresence={yourPresence}
       />
       <MarketLinks links={children || []} />
       <Grid container spacing={2}>

@@ -1025,6 +1025,7 @@ function PlanningInvestible(props) {
         expirationMinutes={market.investment_expiration * 1440}
         setVotingBeingEdited={() => updateVotingPageState({votingBeingEdited: true})}
         votingAllowed={votingAllowed}
+        yourPresence={yourPresence}
       />
       <MarketLinks links={children || []} />
       <Grid container spacing={2}>

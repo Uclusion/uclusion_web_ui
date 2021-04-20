@@ -456,6 +456,7 @@ function DecisionInvestible(props) {
             investmentReasons={investmentReasons}
             setVotingBeingEdited={() => updateVotingPageState({votingBeingEdited: true})}
             votingAllowed={votingAllowed}
+            yourPresence={yourPresence}
           />
         </>
       )}

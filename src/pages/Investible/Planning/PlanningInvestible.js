@@ -397,10 +397,9 @@ function PlanningInvestible(props) {
   const canVote = isInVoting && !inArchives;
   const yourPresence = marketPresences.find((presence) => presence.current_user);
   const yourVote = yourPresence && yourPresence.investments &&
-    yourPresence.investments.find((investment) => investment.investible_id === investibleId);
+    yourPresence.investments.find((investment) => investment.investible_id === investibleId && !investment.deleted);
   // If you have a vote already then do not display voting input unless hit edit on that vote
-  const votingAllowed = isInVoting && !inArchives && canVote;
-  const displayVotingInput = votingAllowed && (!yourVote || votingBeingEdited);
+  const displayVotingInput = canVote && (!yourVote || votingBeingEdited);
 
   let lockedByName;
   if (lockedBy) {
@@ -751,8 +750,9 @@ function PlanningInvestible(props) {
   const { id: todoId } = getFakeCommentsArray(todoSortedComments)[0];
   const navigationMenu = {navHeaderIcon: AssignmentIcon,
     navListItemTextArray: [createNavListItem(EditIcon,'description_label', 'storyMain'),
-      displayVotingInput ? createNavListItem(HowToVoteIcon, 'pleaseVoteNav', 'pleaseVote') : {},
+      !isAssigned && displayVotingInput ? createNavListItem(HowToVoteIcon, 'pleaseVoteNav', 'pleaseVote') : {},
       createNavListItem(ThumbsUpDownIcon, 'approvals', 'approvals', _.size(invested)),
+      isAssigned && displayVotingInput ? createNavListItem(HowToVoteIcon, 'pleaseVoteNav', 'pleaseVote') : {},
       inArchives ? {} : createNavListItem(AddIcon,'commentAddBox'),
       createNavListItem(BlockIcon,'blocking', `c${blockingId}`, _.size(blocking)),
       createNavListItem(QuestionIcon, 'questions', `c${questionId}`, _.size(questions)),
@@ -981,6 +981,23 @@ function PlanningInvestible(props) {
           </Grid>
         </CardContent>
       </Card>
+      {isAssigned && (
+        <>
+          <h2 id="approvals">
+            <FormattedMessage id="decisionInvestibleOthersVoting" />
+          </h2>
+          <Voting
+            investibleId={investibleId}
+            marketPresences={marketPresences}
+            investmentReasons={investmentReasons}
+            showExpiration={fullStage.has_expiration}
+            expirationMinutes={market.investment_expiration * 1440}
+            setVotingBeingEdited={() => updateVotingPageState({votingBeingEdited: true})}
+            votingAllowed={canVote}
+            yourPresence={yourPresence}
+          />
+        </>
+      )}
       {displayVotingInput && (
         <>
           {isAssigned && (
@@ -996,10 +1013,16 @@ function PlanningInvestible(props) {
             votingPageState={votingPageState}
             updateVotingPageState={updateVotingPageState}
             votingPageStateReset={votingPageStateReset}
+            isAssigned={isAssigned}
           />
           {!yourVote && (
             <>
-              <h2>{intl.formatMessage({ id: 'orStructuredComment' })}</h2>
+              {!isAssigned && (
+                <h2>{intl.formatMessage({ id: 'orStructuredComment' })}</h2>
+              )}
+              {isAssigned && (
+                <div style={{paddingTop: '2rem'}} />
+              )}
               <CommentAddBox
                 allowedTypes={allowedCommentTypes}
                 investible={investible}
@@ -1014,19 +1037,23 @@ function PlanningInvestible(props) {
           )}
         </>
           )}
-      <h2 id="approvals">
-        <FormattedMessage id="decisionInvestibleOthersVoting" />
-      </h2>
-      <Voting
-        investibleId={investibleId}
-        marketPresences={marketPresences}
-        investmentReasons={investmentReasons}
-        showExpiration={fullStage.has_expiration}
-        expirationMinutes={market.investment_expiration * 1440}
-        setVotingBeingEdited={() => updateVotingPageState({votingBeingEdited: true})}
-        votingAllowed={votingAllowed}
-        yourPresence={yourPresence}
-      />
+      {!isAssigned && (
+        <>
+          <h2 id="approvals">
+            <FormattedMessage id="decisionInvestibleOthersVoting" />
+          </h2>
+          <Voting
+            investibleId={investibleId}
+            marketPresences={marketPresences}
+            investmentReasons={investmentReasons}
+            showExpiration={fullStage.has_expiration}
+            expirationMinutes={market.investment_expiration * 1440}
+            setVotingBeingEdited={() => updateVotingPageState({votingBeingEdited: true})}
+            votingAllowed={canVote}
+            yourPresence={yourPresence}
+          />
+        </>
+      )}
       <MarketLinks links={children || []} />
       <Grid container spacing={2}>
         <Grid item xs={12} style={{ marginTop: '15px' }}>

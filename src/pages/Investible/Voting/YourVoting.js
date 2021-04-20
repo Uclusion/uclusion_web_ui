@@ -17,6 +17,7 @@ function YourVoting(props) {
     market,
     userId,
     showBudget,
+    isAssigned,
     votingPageState, updateVotingPageState, votingPageStateReset
   } = props;
   const {
@@ -49,11 +50,13 @@ function YourVoting(props) {
 
   return (
     <div  id="pleaseVote">
-      <h2>{yourVote ? isInitiative ? intl.formatMessage({ id: 'changeVoteInitiative' })
-        : yourVote.deleted ? intl.formatMessage({ id: 'voteDeletedStory' }) : intl.formatMessage({ id: 'changeVote' })
-        : isDecision ? allowMultiVote ? intl.formatMessage({ id: 'addMultiVote' })
-        : intl.formatMessage({ id: 'addAVote' }) : isInitiative ? intl.formatMessage({ id: 'pleaseVote' })
-        : intl.formatMessage({ id: 'pleaseVoteStory' }) }</h2>
+      {!isAssigned && (
+        <h2>{yourVote ? isInitiative ? intl.formatMessage({ id: 'changeVoteInitiative' })
+          : yourVote.deleted ? intl.formatMessage({ id: 'voteDeletedStory' }) : intl.formatMessage({ id: 'changeVote' })
+          : isDecision ? allowMultiVote ? intl.formatMessage({ id: 'addMultiVote' })
+          : intl.formatMessage({ id: 'addAVote' }) : isInitiative ? intl.formatMessage({ id: 'pleaseVote' })
+          : intl.formatMessage({ id: 'pleaseVoteStory' }) }</h2>
+      )}
       {isInitiative && (
         <Card elevation={0}>
           <CardContent>

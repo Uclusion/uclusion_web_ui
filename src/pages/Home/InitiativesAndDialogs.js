@@ -317,7 +317,7 @@ function InitiativesAndDialogs(props) {
 
   function getDialogItems() {
     const classes = dialogClasses;
-    return dialogs.map((market, index) => {
+    const unsortedResults = dialogs.map((market) => {
       const {
         id: marketId, name, created_at: createdAt, expiration_minutes: expirationMinutes, created_by: createdBy,
         market_type: marketType, market_stage: marketStage, updated_at: updatedAt, parent_market_id: parentMarketId,
@@ -356,13 +356,7 @@ function InitiativesAndDialogs(props) {
         const parentMarketDetails = getMarket(marketsState, parentMarketId) || {};
         parentName = parentMarketDetails.name;
       }
-      const item = <Grid
-        item
-        id={`dia${index}`}
-        key={marketId}
-        xs={12}
-        className={classes.lastChild}
-      >
+      const item =
         <RaisedCard className={classes.paper} elevation={3}>
           <Grid container >
             <div className={active ? classes.gridSliver : classes.mobileExpired}>
@@ -470,9 +464,24 @@ function InitiativesAndDialogs(props) {
               </Grid>
             </div>
           </Grid>
-        </RaisedCard>
-      </Grid>;
-      return {marketUpdatedAt, item};
+        </RaisedCard>;
+      return {marketUpdatedAt, item, marketId};
+    });
+
+    const sortedDialogItems = _.sortBy(unsortedResults, 'marketUpdatedAt').reverse();
+    return sortedDialogItems.map((fullItem, index) => {
+      const { item, marketId } = fullItem;
+      return (
+        <Grid
+          item
+          id={`dia${index}`}
+          key={marketId}
+          xs={12}
+          className={classes.lastChild}
+        >
+          {item}
+        </Grid>
+      );
     });
   }
 
@@ -482,7 +491,7 @@ function InitiativesAndDialogs(props) {
       const investibles = getMarketInvestibles(investiblesState, initiative.id);
       return !_.isEmpty(investibles);
     });
-    return realInitiatives.map((market, index) => {
+    const unsortedInitiatives = realInitiatives.map((market, index) => {
       const {
         id: marketId, created_at: createdAt, expiration_minutes: expirationMinutes, created_by: createdBy,
         market_type: marketType, market_stage: marketStage, updated_at: updatedAt, parent_market_id: parentMarketId,
@@ -521,14 +530,7 @@ function InitiativesAndDialogs(props) {
 
       const votesFor = voting.filter(vote => {return vote.y > 0 });
       const votesAgainst = voting.filter(vote => { return vote.y < 0});
-      const item = <Grid
-        item
-        id={`ini${index}`}
-        key={marketId}
-        xs={12}
-        className={classes.lastChild}
-
-      >
+      const item =
         <RaisedCard
           className={classes.paper}
           elevation={3}
@@ -626,17 +628,28 @@ function InitiativesAndDialogs(props) {
               </Grid>
             </div>
           </Grid>
-        </RaisedCard>
-      </Grid>;
+        </RaisedCard>;
 
-      return {marketUpdatedAt, item};
+      return {marketUpdatedAt, item, marketId};
+    });
+    const sortedInitiatives = _.sortBy(unsortedInitiatives, 'marketUpdatedAt').reverse();
+    return sortedInitiatives.map((fullItem, index) => {
+      const { item, marketId } = fullItem;
+      return (
+        <Grid
+          item
+          id={`ini${index}`}
+          key={marketId}
+          xs={12}
+          className={classes.lastChild}
+        >
+          {item}
+        </Grid>
+      );
     });
   }
 
-  const sortedDialogItems = _.sortBy(getDialogItems(), 'marketUpdatedAt').reverse();
-  const sortedInitiativeItems = _.sortBy(getInitiativeItems(), 'marketUpdatedAt').reverse();
-  const rawAllItems = sortedDialogItems.concat(sortedInitiativeItems);
-  const allItems = rawAllItems.map((anItem) => anItem.item);
+  const allItems = getDialogItems().concat(getInitiativeItems());
   return (
     <Grid container spacing={4}>
       {allItems}

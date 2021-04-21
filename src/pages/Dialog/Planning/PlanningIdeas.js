@@ -33,9 +33,6 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { getFullStage, getStages } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
-import {
-  resolveInvestibleComments
-} from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { removeHeader, restoreHeader } from '../../../containers/Header'
 import { LocalPlanningDragContext } from './InvestiblesByWorkspace';
@@ -44,6 +41,7 @@ import { getInvestibleVoters } from '../../../utils/votingUtils';
 import { doRemoveEdit, doShowEdit, getCommenterPresences, getUserSwimlaneInvestibles, onDropTodo } from './userUtils'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
+import { onInvestibleStageChange } from '../../../utils/investibleFunctions'
 
 const usePlanningIdStyles = makeStyles(
   theme => {
@@ -112,7 +110,7 @@ function PlanningIdeas(props) {
   const [, diffDispatch] = useContext(DiffContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = (marketPresences || []).find((presence) => presence.current_user) || {};
-  const [messagesState] = useContext(NotificationsContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const warnAccepted = checkInProgressWarning(investibles, myPresence, messagesState);
   const acceptedInvestibles = investibles.filter(investible => {
     const { market_infos: marketInfos } = investible;
@@ -150,11 +148,8 @@ function PlanningIdeas(props) {
       setOperationRunning(true);
       return stageChangeInvestible(moveInfo)
         .then((inv) => {
-          refreshInvestibles(invDispatch, diffDispatch, [inv]);
-          const targetStage = getFullStage(marketStagesState, marketId, targetStageId);
-          if (targetStage.close_comments_on_entrance) {
-            resolveInvestibleComments(investibleId, marketId, commentsState, commentsDispatch);
-          }
+          onInvestibleStageChange(targetStageId, inv, investibleId, marketId, commentsState, commentsDispatch,
+            invDispatch, diffDispatch, marketStagesState, messagesState, messagesDispatch);
         }).finally(() => {
           target.style.cursor = 'pointer';
           setOperationRunning(false);

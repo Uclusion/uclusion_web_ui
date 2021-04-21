@@ -3,7 +3,6 @@ import PropTypes from 'prop-types'
 import { FormattedMessage, useIntl } from 'react-intl'
 import SpinBlockingListAction from '../../../components/SpinBlocking/SpinBlockingListAction'
 import { stageChangeInvestible } from '../../../api/investibles'
-import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { EMPTY_SPIN_RESULT } from '../../../constants/global'
@@ -11,13 +10,13 @@ import { makeStyles } from '@material-ui/styles'
 import { Dialog } from '../../Dialogs'
 import { ListItemIcon, ListItemText, Tooltip } from '@material-ui/core'
 import { useLockedDialogStyles } from '../../../pages/Dialog/DialogBodyEdit'
-import { resolveInvestibleComments } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
-import { getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import SpinningIconLabelButton from '../../Buttons/SpinningIconLabelButton'
 import { Clear } from '@material-ui/icons'
+import { onInvestibleStageChange } from '../../../utils/investibleFunctions'
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 
 export const useStyles = makeStyles(() => {
   return {
@@ -86,6 +85,7 @@ function StageChangeAction(props) {
   const lockedDialogClasses = useLockedDialogStyles();
   const [open, setOpen] = React.useState(false);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
 
   const handleOpen = () => {
     setOpen(true);
@@ -106,11 +106,8 @@ function StageChangeAction(props) {
     };
     return stageChangeInvestible(moveInfo)
       .then((newInv) => {
-        refreshInvestibles(invDispatch, diffDispatch, [newInv]);
-        const targetStage = getFullStage(marketStagesState, marketId, targetStageId);
-        if (targetStage.close_comments_on_entrance) {
-          resolveInvestibleComments(investibleId, marketId, commentsState, commentsDispatch);
-        }
+        onInvestibleStageChange(targetStageId, newInv, investibleId, marketId, commentsState, commentsDispatch,
+          invDispatch, diffDispatch, marketStagesState, messagesState, messagesDispatch);
         if (standAlone) {
           setOperationRunning(false);
         } else {

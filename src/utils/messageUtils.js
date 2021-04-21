@@ -36,6 +36,12 @@ export function findMessagesForCommentId(commentId, state) {
   return safeMessages.filter((message) => message.comment_id === commentId);
 }
 
+export function findMessagesForInvestibleId(investibleId, state) {
+  const { messages } = (state || {});
+  const safeMessages = messages || [];
+  return safeMessages.filter((message) => message.investible_id === investibleId);
+}
+
 export function findMessageForCommentId(commentId, state) {
   const { messages } = (state || {});
   const safeMessages = messages || [];

@@ -48,6 +48,9 @@ import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLab
 import { Clear, SettingsBackupRestore } from '@material-ui/icons'
 import { editorReset, useEditor } from '../../../components/TextEditors/quillHooks';
 import { pushMessage } from '../../../utils/MessageBusUtils';
+import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
+import { findMessagesForCommentId } from '../../../utils/messageUtils'
 
 function PlanningInvestibleAdd(props) {
   const {
@@ -61,6 +64,7 @@ function PlanningInvestibleAdd(props) {
     completion_estimate: storedDaysEstimate } = storedState;
   const [draftState, setDraftState] = useState(storedState);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const emptyInvestible = { name: storedName };
   const [currentValues, setCurrentValues] = useState(emptyInvestible);
   const comments = getMarketComments(commentsState, marketId) || [];
@@ -245,6 +249,12 @@ function PlanningInvestibleAdd(props) {
         const { investible } = inv;
         return moveComments(marketId, investible.id, fromCommentIds)
           .then((movedComments) => {
+            fromCommentIds.forEach((commentId) => {
+              const commentMessages = findMessagesForCommentId(commentId, messagesState) || [];
+              commentMessages.forEach((message) => {
+                messagesDispatch(removeMessage(message));
+              });
+            });
             const comments = getMarketComments(commentsState, marketId);
             refreshMarketComments(commentsDispatch, marketId, [...movedComments, ...comments]);
             return inv;

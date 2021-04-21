@@ -30,6 +30,12 @@ export function filterMessagesToLevel(level, unsafeMessages){
   return messages.filter((message) => message.level === level) || [];
 }
 
+export function findMessagesForCommentId(commentId, state) {
+  const { messages } = (state || {});
+  const safeMessages = messages || [];
+  return safeMessages.filter((message) => message.comment_id === commentId);
+}
+
 export function findMessageForCommentId(commentId, state) {
   const { messages } = (state || {});
   const safeMessages = messages || [];

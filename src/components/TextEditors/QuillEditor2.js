@@ -25,6 +25,7 @@ import QuillMention from 'quill-mention-uclusion';
 import CustomCodeBlock from './CustomCodeBlock';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import PropTypes from 'prop-types';
+import { getNameForUrl } from '../../utils/marketIdPathFunctions'
 
 
 // install our filtering paste module, and disable the uploader
@@ -207,7 +208,7 @@ function QuillEditor2 (props) {
         open={linkDialogOpen}
         onClose={() => setLinkDialogOpen(false)}
         onSave={(link) => {
-        //  console.error(link);
+        console.debug(link);
           // if they haven't got anything selected, just get the current
           // position and insert the url as the text,
           // otherwise just format the current selection as a link
@@ -217,7 +218,8 @@ function QuillEditor2 (props) {
           if (selected.length === 0) {
             const index = selected ? selected.index : 0; // no position? do it at the front
             // if so, the selection is just the cursor position, so insert our new text there
-            editor.insertText(index, link, 'link', link, 'user');
+            const name = getNameForUrl(link);
+            editor.insertText(index, _.isEmpty(name) ? link : name, 'link', link, 'user');
             //refocus the editor because for some reason it moves to the top during insert
           } else {
             //  console.error('adding link' + link);

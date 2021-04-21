@@ -152,9 +152,9 @@ function QuillEditor2 (props) {
     }
   }
 
-  function resetHandler(){
-    storeState(id, null);
-    createEditor(); // recreate the editor, because we need to get brand new state
+  function resetHandler(contents){
+    updateState(null);
+    createEditor(contents); // recreate the editor, because we need to get brand new state
     focusEditor();
   }
 
@@ -166,7 +166,7 @@ function QuillEditor2 (props) {
     } = message.payload;
     switch (type) {
       case 'reset':
-        return resetHandler();
+        return resetHandler(contents);
       case 'update':
         return replaceEditorContents(contents);
       case 'focus':
@@ -387,11 +387,15 @@ function QuillEditor2 (props) {
     pushMessage(`editor-${id}`, {type: 'update', contents, delta});
   }
 
-  function createEditor () {
+  function createEditor (initializeContents) {
     // we only set the contents if different from the placeholder
     // otherwise the placeholder functionality of the editor won't work
-    if(boxRef.current && !usingPlaceholder && initialContents) {
-      boxRef.current.innerHTML = initialContents;
+    if(boxRef.current) {
+      if (initializeContents)  {
+        boxRef.current.innerHTML = initializeContents;
+      } else if (!usingPlaceholder && initialContents) {
+        boxRef.current.innerHTML = initialContents;
+      }
     }
     const editorOptions = generateEditorOptions();
     const editor = new Quill(boxRef.current, editorOptions);

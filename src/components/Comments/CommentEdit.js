@@ -180,7 +180,7 @@ function CommentEdit(props) {
 
   const editorName = `${id}-comment-edit-editor`;
   const editorSpec = {
-    value: initialBody,
+    value: body || initialBody,
     dontManageState: true,
     onChange: (contents) => updateEditState({body: contents}),
     onUpload: (files) => updateEditState({uploadedFiles: files}),
@@ -229,6 +229,7 @@ function CommentEdit(props) {
   }
 
   function handleCancel() {
+    editorController(editorReset(initialBody));
     editStateReset();
     onCancel();
   }

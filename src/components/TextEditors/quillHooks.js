@@ -2,9 +2,10 @@ import React from 'react';
 import { pushMessage, registerListener } from '../../utils/MessageBusUtils';
 import QuillEditor2 from './QuillEditor2';
 
-export function editorReset () {
+export function editorReset (contents) {
   return {
-    type: 'reset'
+    type: 'reset',
+    contents
   };
 }
 

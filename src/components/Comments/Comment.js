@@ -313,7 +313,7 @@ function Comment(props) {
   const classes = useCommentStyles();
   const { id, comment_type: commentType, investible_id: investibleId, inline_market_id: inlineMarketId,
   created_by: commentCreatedBy, resolved, notification_type: myNotificationType, creation_stage_id: createdStageId,
-  mentions } = comment;
+  mentions, body } = comment;
   const presences = usePresences(marketId);
   const createdBy = useCommenter(comment, presences) || unknownPresence;
   const updatedBy = useUpdatedBy(comment, presences) || unknownPresence;
@@ -411,7 +411,7 @@ function Comment(props) {
     if (isTinyWindow() || invalidEditEvent(event)) {
       return;
     }
-    updateEditState({beingEdited: value});
+    updateEditState({beingEdited: value, body});
   }
 
   function getInlineInvestiblesForStage(stage, inlineInvestibles) {
@@ -630,7 +630,7 @@ function Comment(props) {
           )}
           {displayEditing && isTinyWindow() && !editOpen && (
             <SpinningIconLabelButton
-              onClick={toggleEdit}
+              onClick={() => {updateEditState({beingEdited: true, body})}}
               doSpin={false}
               icon={Edit}
             >
@@ -673,7 +673,6 @@ function Comment(props) {
               comment={comment}
               hidden={!editOpen}
               onSave={toggleEdit}
-              onCancel={toggleEdit}
               allowedTypes={allowedTypes}
               editState={editState}
               updateEditState={updateEditState}

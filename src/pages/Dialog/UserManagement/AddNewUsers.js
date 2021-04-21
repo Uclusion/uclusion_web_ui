@@ -95,11 +95,11 @@ function AddNewUsers (props) {
     return (
       <ListItem
         key={id}
+        onClick={getCheckToggle(id)}
         className={ isChecked ? clsx( classes.unselected, classes.selected ) : classes.unselected }
       >
         <ListItemIcon>
           <Checkbox
-            onClick={getCheckToggle(id)}
             checked={isChecked}
           />
         </ListItemIcon>

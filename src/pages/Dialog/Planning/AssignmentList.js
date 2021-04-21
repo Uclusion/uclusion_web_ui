@@ -74,17 +74,15 @@ function AssignmentList(props) {
   }
 
   function getCheckToggle(id) {
-    return () => {
-      const newChecked = {
-        ...submitted,
-        [id]: !submitted[id],
-      };
-      if (submitted !== newChecked) {
-        setSubmitted(newChecked);
-        const checkedIds = Object.keys(newChecked).filter((key) => newChecked[key]);
-        onChange(checkedIds);
-      }
+    const newChecked = {
+      ...submitted,
+      [id]: !submitted[id],
     };
+    if (submitted !== newChecked) {
+      setSubmitted(newChecked);
+      const checkedIds = Object.keys(newChecked).filter((key) => newChecked[key]);
+      onChange(checkedIds);
+    }
   }
   function onSearchChange (event) {
     const { value } = event.target;
@@ -120,6 +118,11 @@ function AssignmentList(props) {
       <ListItem
         key={id}
         button
+        onClick={() => {
+          if (canBeAssigned) {
+            getCheckToggle(id);
+          }
+        }}
         className={ boxChecked ? clsx( formClasses.unselected, formClasses.selected ) : formClasses.unselected }
       >
         <ListItemIcon>
@@ -127,7 +130,6 @@ function AssignmentList(props) {
             value={!!boxChecked}
             disabled={!canBeAssigned}
             checked={!!boxChecked}
-            onClick={getCheckToggle(id)}
           />
         </ListItemIcon>
         <ListItemText

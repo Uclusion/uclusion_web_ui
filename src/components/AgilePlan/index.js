@@ -208,7 +208,8 @@ export const usePlanFormStyles = makeStyles(
       borderRadius: '6px',
       margin: '0 10px 0 5px',
       width: 'calc(100% - 15px)',
-      height: '4rem'
+      height: '4rem',
+      cursor: 'pointer'
     },
     flex: {
       display: 'flex',

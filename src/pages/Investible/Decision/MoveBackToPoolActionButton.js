@@ -9,15 +9,16 @@ import {
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { moveInvestibleBackToOptionPool } from '../../../api/investibles'
 import { Dialog } from '../../../components/Dialogs'
-import { Button } from '@material-ui/core'
-import clsx from 'clsx'
 import { useLockedDialogStyles } from '../../Dialog/DialogBodyEdit'
-import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton'
 import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
 import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
+import { Clear } from '@material-ui/icons'
+import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
+import WarningIcon from '@material-ui/icons/Warning'
 
 function MoveBackToPoolActionButton(props) {
   const { onClick, investibleId, marketId } = props;
@@ -26,6 +27,7 @@ function MoveBackToPoolActionButton(props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, diffDispatch] = useContext(DiffContext);
   const [, invDispatch] = useContext(InvestiblesContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const inCurrentVotingStage = getInCurrentVotingStage(marketStagesState, marketId);
   const proposedStage = getProposedOptionsStage(marketStagesState, marketId);
 
@@ -38,8 +40,10 @@ function MoveBackToPoolActionButton(props) {
         stage_id: proposedStage.id,
       },
     };
+    setOperationRunning(true);
     return moveInvestibleBackToOptionPool(moveInfo)
       .then((inv) => {
+        setOperationRunning(false);
         refreshInvestibles(invDispatch, diffDispatch, [inv]);
         onClick();
       });
@@ -68,15 +72,9 @@ function MoveBackToPoolActionButton(props) {
         issueWarningId="backToOptionPoolWarning"
         /* slots */
         actions={
-          <SpinBlockingButton
-            className={clsx(lockedDialogClasses.action, lockedDialogClasses.actionEdit)}
-            disableFocusRipple
-            marketId={marketId}
-            onClick={moveBack}
-            onSpinStop={onClick}
-          >
+          <SpinningIconLabelButton onClick={moveBack} icon={ArrowDownwardIcon}>
             <FormattedMessage id="issueProceed" />
-          </SpinBlockingButton>
+          </SpinningIconLabelButton>
         }
       />
     </div>
@@ -102,21 +100,16 @@ function RemoveOption(props) {
       /* slots */
       actions={
         <React.Fragment>
-          {actions}
-          <Button
-            className={clsx(classes.action, classes.actionCancel)}
-            disableFocusRipple
-            onClick={onClose}
-            ref={autoFocusRef}
-          >
+          <SpinningIconLabelButton onClick={onClose} icon={Clear} ref={autoFocusRef}>
             <FormattedMessage id="lockDialogCancel" />
-          </Button>
+          </SpinningIconLabelButton>
+          {actions}
         </React.Fragment>
       }
       content={<FormattedMessage id={issueWarningId} />}
       title={
         <React.Fragment>
-          <ArrowDownwardIcon className={classes.warningTitleIcon} />
+          <WarningIcon className={classes.warningTitleIcon} />
           <FormattedMessage id="warning" />
         </React.Fragment>
       }

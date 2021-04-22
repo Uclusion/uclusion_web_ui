@@ -673,6 +673,7 @@ function Comment(props) {
               comment={comment}
               hidden={!editOpen}
               onSave={toggleEdit}
+              onCancel={onDone}
               allowedTypes={allowedTypes}
               editState={editState}
               updateEditState={updateEditState}

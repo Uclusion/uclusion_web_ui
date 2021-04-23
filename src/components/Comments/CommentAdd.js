@@ -199,6 +199,7 @@ function CommentAdd(props) {
     body,
     notificationType
   } = commentAddState;
+
   const intl = useIntl();
   const [commentsState, commentDispatch] = useContext(CommentsContext);
   const [investibleState, investibleDispatch] = useContext(InvestiblesContext);
@@ -228,6 +229,7 @@ function CommentAdd(props) {
 
   const editorName = `${nameKey ? nameKey : ''}${parentId ? parentId : investibleId ? investibleId : marketId}-comment-add-editor`;
   const editorSpec = {
+    value: body,
     dontManageState: true,
     participants: presences,
     marketId,

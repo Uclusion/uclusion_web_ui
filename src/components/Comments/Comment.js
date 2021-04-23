@@ -408,7 +408,7 @@ function Comment(props) {
   }
 
   function setBeingEdited(value, event) {
-    if (isTinyWindow() || invalidEditEvent(event)) {
+    if (isTinyWindow() || invalidEditEvent(event, history)) {
       return;
     }
     updateEditState({beingEdited: value, body});

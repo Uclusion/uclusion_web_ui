@@ -355,7 +355,7 @@ function MarketTodos (props) {
               />
             )}
             <RaisedCard elevation={0} onClick={(event) => {
-              if (invalidEditEvent(event)) {
+              if (invalidEditEvent(event, history)) {
                 return;
               }
               if (isInArchives) {

@@ -715,9 +715,9 @@ function PlanningInvestible(props) {
     if (!isEdit || lockedBy === userId || !_.isEmpty(lockedBy)) {
       // Either don't lock or throw the modal up - both of which InvestibleBodyEdit can handle
       return doSetEditWhenValid(isEdit, isEditableByUser,
-        (value) => updatePageState({beingEdited: value, name, description}), event);
+        (value) => updatePageState({beingEdited: value, name, description}), event, history);
     }
-    if (!isEditableByUser() || invalidEditEvent(event)) {
+    if (!isEditableByUser() || invalidEditEvent(event, history)) {
       return;
     }
     updatePageState({beingEdited: true, name, description});

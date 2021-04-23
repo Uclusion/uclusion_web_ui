@@ -35,6 +35,7 @@ import Autocomplete from '@material-ui/lab/Autocomplete'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { Add, Clear, Delete, SettingsBackupRestore } from '@material-ui/icons'
 import { editorReset, useEditor } from '../../../components/TextEditors/quillHooks';
+import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
 
 const useStyles = makeStyles(
   theme => {
@@ -120,7 +121,8 @@ function AddEditVote(props) {
     hasVoted,
     allowMultiVote,
     multiplier,
-    votingPageState, updateVotingPageState, votingPageStateReset
+    votingPageState, updateVotingPageState, votingPageStateReset,
+    messagesDispatch, voteMessage
   } = props;
   const {
     storedInvestment,
@@ -214,6 +216,9 @@ function AddEditVote(props) {
       refreshMarketComments(commentsDispatch, marketId, [comment, ...comments]);
     }
     partialUpdateInvestment(marketPresencesDispatch, investmentResult, allowMultiVote);
+    if (voteMessage) {
+      messagesDispatch(removeMessage(voteMessage));
+    }
     if (open) {
       toggleOpen();
     }

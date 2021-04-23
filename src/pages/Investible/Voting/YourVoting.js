@@ -1,13 +1,31 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import AddEditVote from './AddEditVote'
 import { FormattedMessage, useIntl } from 'react-intl'
 import { DECISION_TYPE, INITIATIVE_TYPE } from '../../../constants/markets'
 import { Card, CardContent, FormControl, FormControlLabel, Radio, RadioGroup } from '@material-ui/core'
 import { useStyles } from '../../../containers/CommentBox/CommentAddBox'
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
+import { makeStyles } from '@material-ui/styles'
+import { NOT_FULLY_VOTED_TYPE } from '../../../constants/notifications'
+import { findMessageOfType } from '../../../utils/messageUtils'
 
 const FOR = "FOR";
 const AGAINST = "AGAINST";
+
+
+const useMyStyles = makeStyles(
+  () => {
+    return {
+      containerYellow: {
+        boxShadow: "10px 5px 5px yellow",
+        overflow: "visible",
+        marginBottom: "1.5rem"
+      },
+    }
+  },
+  { name: "Voting" }
+);
 
 function YourVoting(props) {
   const {
@@ -23,8 +41,11 @@ function YourVoting(props) {
   const {
     storedType,
   } = votingPageState;
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const voteMessage = findMessageOfType(NOT_FULLY_VOTED_TYPE, investibleId, messagesState);
   const intl = useIntl();
   const classes = useStyles();
+  const myClasses = useMyStyles();
   const { id: marketId, max_budget: storyMaxBudget, allow_multi_vote: allowMultiVote, market_type: marketType } = market;
   const isInitiative = marketType === INITIATIVE_TYPE;
   const isDecision = marketType === DECISION_TYPE;
@@ -49,7 +70,7 @@ function YourVoting(props) {
   }
 
   return (
-    <div  id="pleaseVote">
+    <div  id="pleaseVote" className={voteMessage && myClasses.containerYellow}>
       {!isAssigned && (
         <h2>{yourVote ? isInitiative ? intl.formatMessage({ id: 'changeVoteInitiative' })
           : yourVote.deleted ? intl.formatMessage({ id: 'voteDeletedStory' }) : intl.formatMessage({ id: 'changeVote' })
@@ -106,6 +127,8 @@ function YourVoting(props) {
         votingPageState={votingPageState}
         updateVotingPageState={updateVotingPageState}
         votingPageStateReset={votingPageStateReset}
+        messagesDispatch={messagesDispatch}
+        voteMessage={voteMessage}
       />
     </div>
   );

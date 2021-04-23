@@ -25,8 +25,7 @@ const style = makeStyles(() => {
 );
 
 function MoveToNextVisibleStageActionButton(props) {
-  const { marketId, currentStageId, disabled, enoughVotes, acceptedStageAvailable, hasTodos,
-    hasAssignedQuestions } = props;
+  const { marketId, currentStageId, disabled, acceptedStageAvailable, hasTodos, hasAssignedQuestions } = props;
   const classes = style();
   const [marketStagesState] = useContext(MarketStagesContext);
   const [operationRunning] = useContext(OperationInProgressContext);
@@ -43,8 +42,8 @@ function MoveToNextVisibleStageActionButton(props) {
   if (currentStageId === inVotingStage.id) {
     destinationStage = acceptedStage;
     destinationExplanation = 'planningInvestibleAcceptedExplanation';
-    destinationLabel = disabled ? enoughVotes ? 'planningInvestibleNextStageAcceptedFullLabel'
-      : 'planningInvestibleNextStageLackVotesLabel' : 'planningInvestibleNextStageAcceptedLabel';
+    destinationLabel = disabled ? 'planningInvestibleNextStageAcceptedFullLabel'
+      : 'planningInvestibleNextStageAcceptedLabel';
     if (!(disabled || operationRunning)) {
       highlightClass = classes.containerYellow;
     }
@@ -57,7 +56,7 @@ function MoveToNextVisibleStageActionButton(props) {
     destinationLabel = 'planningInvestibleMoveToVerifiedLabel';
     destinationExplanation = 'planningInvestibleVerifiedExplanation';
   } else if ((currentStageId === inBlockedStage.id)||(currentStageId === inRequiresInputStage.id)) {
-    if (enoughVotes && acceptedStageAvailable) {
+    if (acceptedStageAvailable) {
       destinationStage = acceptedStage;
       destinationExplanation = 'planningInvestibleAcceptedExplanation';
       destinationLabel = 'planningInvestibleNextStageAcceptedLabel';
@@ -95,7 +94,6 @@ MoveToNextVisibleStageActionButton.propTypes = {
   marketId: PropTypes.string.isRequired,
   currentStageId: PropTypes.string.isRequired,
   disabled: PropTypes.bool.isRequired,
-  enoughVotes: PropTypes.bool.isRequired,
   acceptedStageAvailable: PropTypes.bool.isRequired,
   hasTodos: PropTypes.bool.isRequired,
   hasAssignedQuestions: PropTypes.bool.isRequired

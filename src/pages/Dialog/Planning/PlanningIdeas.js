@@ -26,7 +26,7 @@ import {
 } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
-import { getMarketInfo, getVotesForInvestible } from '../../../utils/userFunctions';
+import { getMarketInfo } from '../../../utils/userFunctions';
 import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
@@ -221,10 +221,7 @@ function PlanningIdeas(props) {
       const { assigned } = marketInfo;
       if ((assigned || []).length === 1) {
         // Not supporting drag and drop to accepted for multiple assigned
-        const invested = getVotesForInvestible(marketPresences, investibleId);
-        const hasEnoughVotes = votesRequired ? (invested || []).length > votesRequired : true;
-        if (isAssignedInvestible(event, myPresence.id) && myPresence.id === presenceId && !acceptedFull &&
-          hasEnoughVotes) {
+        if (isAssignedInvestible(event, myPresence.id) && myPresence.id === presenceId && !acceptedFull) {
           stageChange(event, acceptedStageId);
         }
       }
@@ -271,9 +268,7 @@ function PlanningIdeas(props) {
     if (divId === acceptedStageId) {
       if ((assigned || []).length === 1) {
         // Not supporting drag and drop to accepted for multiple assigned
-        const invested = getVotesForInvestible(marketPresences, id);
-        const hasEnoughVotes = votesRequired ? (invested || []).length > votesRequired : true;
-        return draggerIsAssigned && myPresence.id === presenceId && !acceptedFull && hasEnoughVotes;
+        return draggerIsAssigned && myPresence.id === presenceId && !acceptedFull;
       }
     }
     if (divId === inReviewStageId) {

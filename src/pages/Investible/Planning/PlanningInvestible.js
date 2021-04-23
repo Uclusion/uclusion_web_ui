@@ -356,7 +356,7 @@ function PlanningInvestible(props) {
   const [showDatepicker, setShowDatepicker] = useState(false);
   const [clearMeHack, setClearMeHack] = useState('a');
   const [labelFocus, setLabelFocus] = useState(false);
-  const { name: marketName, id: marketId, votes_required: votesRequired } = market;
+  const { name: marketName, id: marketId } = market;
   const labels = getMarketLabels(investiblesState, marketId);
   const investmentReasonsRemoved = investibleComments.filter(comment => comment.comment_type !== JUSTIFY_TYPE) || [];
   const investmentReasons = investibleComments.filter(
@@ -372,8 +372,6 @@ function PlanningInvestible(props) {
     open_for_investment: openForInvestment } = marketInfo;
   const [daysEstimate, setDaysEstimate] = useState(marketDaysEstimate);
   const assigned = invAssigned || [];
-  const presencesFollowing = (marketPresences || []).filter((presence) => presence.following && !presence.market_banned) || [];
-  const everyoneAssigned = !_.isEmpty(marketPresences) && assigned.length === presencesFollowing.length;
   const { investible } = marketInvestible;
   const { name, description, locked_by: lockedBy, created_at: createdAt, label_list: originalLabelList } = investible;
   const [labelList, setLabelList] = useState(originalLabelList);
@@ -475,12 +473,6 @@ function PlanningInvestible(props) {
 
   const invested = getVotesForInvestible(marketPresences, investibleId);
 
-  function hasEnoughVotes(myInvested, myRequired) {
-    // if everyone is assigned, then we can't require any votes as nobody can vote
-    const required = everyoneAssigned? 0 : myRequired !== undefined ? myRequired : 1;
-    return _.size(myInvested) >= required;
-  }
-
   function changeLabelsAndQuickAdd(marketId, investibleId, newLabels) {
     return changeLabels(marketId, investibleId, newLabels).then((fullInvestible) =>{
       refreshInvestibles(investiblesDispatch, diffDispatch, [fullInvestible]);
@@ -511,7 +503,6 @@ function PlanningInvestible(props) {
     setClearMeHack(clearMeHack+clearMeHack);
   }
 
-  const enoughVotes = hasEnoughVotes(invested, votesRequired);
   const assignedInAcceptedStage = assigned.reduce((acc, userId) => {
     return acc.concat(assignedInStage(
       investibles,
@@ -591,7 +582,7 @@ function PlanningInvestible(props) {
           isOpen={changeStagesExpanded}
           full={acceptedFull}
           onSpinStop={() => setAnchorEl(null)}
-          disabled={!isAssigned || !_.isEmpty(blockingComments) || acceptedFull || !enoughVotes}
+          disabled={!isAssigned || !_.isEmpty(blockingComments) || acceptedFull}
           hasAssignedQuestions={!_.isEmpty(questionByAssignedComments)}
         />
       </MenuItem>,
@@ -769,11 +760,7 @@ function PlanningInvestible(props) {
       hidden={hidden}
       navigationOptions={navigationMenu}
     >
-      {!inArchives && isInVoting && isAssigned && enoughVotes && _.size(invested) > 0
-      && _.isEmpty(assignedInStage(investibles, userId, inAcceptedStage.id, marketId)) && (
-        <DismissableText textId='planningInvestibleEnoughVotesHelp' />
-      )}
-      {!inArchives && isInVoting && isAssigned && enoughVotes && acceptedFull && (
+      {!inArchives && isInVoting && isAssigned && acceptedFull && (
         <DismissableText textId='planningInvestibleAcceptedFullHelp' />
       )}
       {!inArchives && isInAccepted && isAssigned && (
@@ -934,7 +921,6 @@ function PlanningInvestible(props) {
                 blockingComments={blockingComments}
                 todoComments={todoComments}
                 isInVoting={isInVoting}
-                enoughVotes={enoughVotes}
                 acceptedFull={acceptedFull}
                 questionByAssignedComments={questionByAssignedComments}
               />
@@ -1232,7 +1218,6 @@ function MarketMetaData(props) {
     blockingComments,
     todoComments,
     isInVoting,
-    enoughVotes,
     acceptedFull,
     questionByAssignedComments
   } = props;
@@ -1308,8 +1293,7 @@ function MarketMetaData(props) {
                 investibleId={marketInvestible.investible.id}
                 marketId={market.id}
                 currentStageId={stage}
-                disabled={!_.isEmpty(blockingComments) || (isInVoting && (!isAssigned || !enoughVotes || acceptedFull))}
-                enoughVotes={enoughVotes}
+                disabled={!_.isEmpty(blockingComments) || (isInVoting && (!isAssigned || acceptedFull))}
                 acceptedStageAvailable={!acceptedFull}
                 hasTodos={!_.isEmpty(todoComments)}
                 hasAssignedQuestions={!_.isEmpty(questionByAssignedComments)}

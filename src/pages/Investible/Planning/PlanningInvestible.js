@@ -109,7 +109,7 @@ import { getFakeCommentsArray } from '../../../utils/stringFunctions'
 import { QuestionAnswer } from '@material-ui/icons'
 import AssignmentIcon from '@material-ui/icons/Assignment'
 import InvestibleBodyEdit from '../InvestibleBodyEdit';
-import { usePageStateReducer } from '../../../components/PageState/pageStateHooks';
+import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 import { pushMessage } from '../../../utils/MessageBusUtils'
 import {
   LOCK_INVESTIBLE,
@@ -377,13 +377,15 @@ function PlanningInvestible(props) {
   const [labelList, setLabelList] = useState(originalLabelList);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [marketStagesState] = useContext(MarketStagesContext);
-  const [pageState, updatePageState, pageStateReset] = usePageStateReducer(investibleId);
+  const [pageStateFull, pageDispatch] = usePageStateReducer('investible');
+  const [pageState, updatePageState, pageStateReset] = getPageReducerPage(pageStateFull, pageDispatch, investibleId);
   const {
-      beingEdited,
+    beingEdited,
   } = pageState;
 
+  const [votingPageStateFull, votingPageDispatch] = usePageStateReducer('voting');
   const [votingPageState, updateVotingPageState, votingPageStateReset] =
-    usePageStateReducer(`voting${investibleId}`);
+    getPageReducerPage(votingPageStateFull, votingPageDispatch, investibleId);
   const {
     votingBeingEdited,
   } = votingPageState;

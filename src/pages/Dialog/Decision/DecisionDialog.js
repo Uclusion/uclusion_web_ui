@@ -56,7 +56,7 @@ import QuestionIcon from '@material-ui/icons/ContactSupport'
 import { getFakeCommentsArray } from '../../../utils/stringFunctions'
 import { QuestionAnswer } from '@material-ui/icons'
 import DialogBodyEdit from '../DialogBodyEdit'
-import { usePageStateReducer } from '../../../components/PageState/pageStateHooks'
+import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 
 const useStyles = makeStyles(
   theme => ({
@@ -194,12 +194,14 @@ function DecisionDialog(props) {
     parent_market_id: parentMarketId,
     parent_investible_id: parentInvestibleId
   } = market;
-  const [pageState, updatePageState, pageStateReset] = usePageStateReducer(marketId);
+  const [pageStateFull, pageDispatch] = usePageStateReducer('market');
+  const [pageState, updatePageState, pageStateReset] = getPageReducerPage(pageStateFull, pageDispatch, marketId);
   const {
     beingEdited,
   } = pageState;
+  const [investibleAddStateFull, investibleAddDispatch] = usePageStateReducer('investibleAdd');
   const [investibleAddState, updateInvestibleAddState, investibleAddStateReset] =
-    usePageStateReducer(`investibleAdd${marketId}`);
+    getPageReducerPage(investibleAddStateFull, investibleAddDispatch, marketId);
   const {
     investibleAddBeingEdited,
   } = investibleAddState;

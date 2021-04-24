@@ -29,7 +29,7 @@ import { doSetEditWhenValid, invalidEditEvent } from '../../../utils/windowUtils
 import { AccountContext } from '../../../contexts/AccountContext/AccountContext';
 import { canCreate } from '../../../contexts/AccountContext/accountContextHelper';
 import DialogBodyEdit from '../DialogBodyEdit'
-import { usePageStateReducer } from '../../../components/PageState/pageStateHooks'
+import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 import _ from 'lodash'
 import { pushMessage } from '../../../utils/MessageBusUtils'
 import { LOCK_MARKET, LOCK_MARKET_CHANNEL } from '../../../contexts/MarketsContext/marketsContextMessages'
@@ -214,7 +214,8 @@ function Summary(props) {
   const [accountState] = useContext(AccountContext);
   const [, marketsDispatch] = useContext(MarketsContext);
   const [, diffDispatch] = useContext(DiffContext);
-  const [pageState, updatePageState, pageStateReset] = usePageStateReducer(id);
+  const [pageStateFull, pageDispatch] = usePageStateReducer('market');
+  const [pageState, updatePageState, pageStateReset] = getPageReducerPage(pageStateFull, pageDispatch, id);
   const {
     beingEdited,
   } = pageState;

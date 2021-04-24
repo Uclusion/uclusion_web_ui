@@ -80,7 +80,7 @@ import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'
 import { Clear, Delete, Done, Edit, Eject, ExpandLess, ExpandMore, SettingsBackupRestore } from '@material-ui/icons'
 import ReplyIcon from '@material-ui/icons/Reply'
 import TooltipIconButton from '../Buttons/TooltipIconButton'
-import { usePageStateReducer } from '../PageState/pageStateHooks'
+import { getPageReducerPage, usePageStateReducer } from '../PageState/pageStateHooks'
 import InlineInitiativeBox from '../../containers/CommentBox/InlineInitiativeBox'
 
 const useCommentStyles = makeStyles(
@@ -340,16 +340,20 @@ function Comment(props) {
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const enableActions = !inArchives && !readOnly;
   const enableEditing = !inArchives && !resolved && !readOnly; //resolved comments or those in archive aren't editable
+  const [investibleAddStateFull, investibleAddDispatch] = usePageStateReducer('commentInvestibleAdd');
   const [investibleAddState, updateInvestibleAddState, investibleAddStateReset] =
-    usePageStateReducer(`investibleAdd${id}`);
+    getPageReducerPage(investibleAddStateFull, investibleAddDispatch, id);
   const {
     investibleAddBeingEdited,
   } = investibleAddState;
-  const [replyAddState, updateReplyAddState, replyAddStateReset] = usePageStateReducer(`replyAdd${id}`);
+  const [replyAddStateFull, replyAddDispatch] = usePageStateReducer('replyAdd');
+  const [replyAddState, updateReplyAddState, replyAddStateReset] =
+    getPageReducerPage(replyAddStateFull, replyAddDispatch, id);
   const {
     replyBeingEdited,
   } = replyAddState;
-  const [editState, updateEditState, editStateReset] = usePageStateReducer(`edit${id}`);
+  const [editStateFull, editDispatch] = usePageStateReducer('commentEdit');
+  const [editState, updateEditState, editStateReset] = getPageReducerPage(editStateFull, editDispatch, id);
   const {
     beingEdited,
   } = editState;
@@ -997,11 +1001,14 @@ function Reply(props) {
   const userId = getMyUserForMarket(marketsState, marketId) || {};
   const isEditable = comment.created_by === userId;
   const classes = useReplyStyles();
-  const [replyAddState, updateReplyAddState, replyAddStateReset] = usePageStateReducer(`replyAdd${comment.id}`);
+  const [replyAddStateFull, replyAddDispatch] = usePageStateReducer('replyAdd');
+  const [replyAddState, updateReplyAddState, replyAddStateReset] =
+    getPageReducerPage(replyAddStateFull, replyAddDispatch, comment.id);
   const {
     replyBeingEdited,
   } = replyAddState;
-  const [editState, updateEditState, editStateReset] = usePageStateReducer(`edit${comment.id}`);
+  const [editStateFull, editDispatch] = usePageStateReducer('commentEdit');
+  const [editState, updateEditState, editStateReset] = getPageReducerPage(editStateFull, editDispatch, comment.id);
   const {
     beingEdited,
   } = editState;

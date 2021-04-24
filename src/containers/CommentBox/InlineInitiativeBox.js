@@ -11,14 +11,15 @@ import _ from 'lodash'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
-import { usePageStateReducer } from '../../components/PageState/pageStateHooks'
+import { getPageReducerPage, usePageStateReducer } from '../../components/PageState/pageStateHooks'
 
 function InlineInitiativeBox(props) {
   const {
     anInlineMarket, inlineUserId, inArchives
   } = props;
+  const [votingPageStateFull, votingPageDispatch] = usePageStateReducer('voting');
   const [votingPageState, updateVotingPageState, votingPageStateReset] =
-    usePageStateReducer(`voting${anInlineMarket.id}`);
+    getPageReducerPage(votingPageStateFull, votingPageDispatch, anInlineMarket.id);
   const {
     votingBeingEdited,
   } = votingPageState;

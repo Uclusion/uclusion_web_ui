@@ -59,7 +59,7 @@ import { getFakeCommentsArray } from '../../../utils/stringFunctions'
 import { QuestionAnswer } from '@material-ui/icons'
 import StarRateIcon from '@material-ui/icons/StarRate'
 import InvestibleBodyEdit from '../InvestibleBodyEdit'
-import { usePageStateReducer } from '../../../components/PageState/pageStateHooks'
+import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 
 const useStyles = makeStyles((theme) => ({
   mobileColumn: {
@@ -204,7 +204,8 @@ function DecisionInvestible(props) {
   const { name: marketName, id: marketId, market_stage: marketStage, allow_multi_vote: allowMultiVote,
     parent_comment_id: parentCommentId, parent_comment_market_id: parentCommentMarketId,
     market_type: marketType } = market;
-  const [pageState, updatePageState, pageStateReset] = usePageStateReducer(investibleId);
+  const [pageStateFull, pageDispatch] = usePageStateReducer('investible');
+  const [pageState, updatePageState, pageStateReset] = getPageReducerPage(pageStateFull, pageDispatch, investibleId);
   const {
     beingEdited,
   } = pageState;
@@ -245,8 +246,9 @@ function DecisionInvestible(props) {
   const {
     name, description, created_by: createdBy, locked_by: lockedBy, attached_files: attachedFiles,
   } = investible;
+  const [votingPageStateFull, votingPageDispatch] = usePageStateReducer('voting');
   const [votingPageState, updateVotingPageState, votingPageStateReset] =
-    usePageStateReducer(`voting${investibleId}`);
+    getPageReducerPage(votingPageStateFull, votingPageDispatch, investibleId);
   const {
     votingBeingEdited,
   } = votingPageState;

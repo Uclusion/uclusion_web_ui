@@ -43,7 +43,7 @@ import EditOutlinedIcon from '@material-ui/icons/EditOutlined'
 import { doRemoveEdit, doShowEdit } from './userUtils'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward'
-import { usePageStateReducer } from '../../../components/PageState/pageStateHooks'
+import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 
 const myClasses = makeStyles(
   theme => {
@@ -148,33 +148,43 @@ function MarketTodos (props) {
   const [anchorEl, setAnchorEl] = useState(null);
   const undefinedIsOpenDefault = !_.isEmpty(todoComments);
   const pageName = isInArchives ? 'archives' : '';
+  const [commentAddRedStateFull, commentAddRedDispatch] = usePageStateReducer(`commentAddRed${pageName}`);
   const [commentAddRedState, updateCommentAddRedState, commentAddStateRedReset] =
-    usePageStateReducer(`commentAddRed${pageName}${marketId}`);
+    getPageReducerPage(commentAddRedStateFull, commentAddRedDispatch, marketId);
   const {
     createRedCard,
   } = commentAddRedState;
+  const [commentRedStateFull, commentRedDispatch] = usePageStateReducer(`commentRed${pageName}`);
   const [commentRedState, updateCommentRedState, commentStateRedReset] =
-    usePageStateReducer(`commentRed${pageName}${marketId}`);
+    getPageReducerPage(commentRedStateFull, commentRedDispatch, marketId);
   const {
     cardEditing: editRedCardId,
   } = commentRedState;
+  const [commentAddYellowStateFull, commentAddYellowDispatch] =
+    usePageStateReducer(`commentAddYellow${pageName}`);
   const [commentAddYellowState, updateCommentAddYellowState, commentAddStateYellowReset] =
-    usePageStateReducer(`commentAddYellow${pageName}${marketId}`);
+    getPageReducerPage(commentAddYellowStateFull, commentAddYellowDispatch, marketId);
   const {
     createYellowCard,
   } = commentAddYellowState;
+  const [commentYellowStateFull, commentYellowDispatch] =
+    usePageStateReducer(`commentYellow${pageName}`);
   const [commentYellowState, updateCommentYellowState, commentStateYellowReset] =
-    usePageStateReducer(`commentYellow${pageName}${marketId}`);
+    getPageReducerPage(commentYellowStateFull, commentYellowDispatch, marketId);
   const {
     cardEditing: editYellowCardId,
   } = commentYellowState;
+  const [commentAddBlueStateFull, commentAddBlueDispatch] =
+    usePageStateReducer(`commentBlueAdd${pageName}`);
   const [commentAddBlueState, updateCommentAddBlueState, commentAddStateBlueReset] =
-    usePageStateReducer(`commentBlueAdd${pageName}${marketId}`);
+    getPageReducerPage(commentAddBlueStateFull, commentAddBlueDispatch, marketId);
   const {
     createCard,
   } = commentAddBlueState;
+  const [commentBlueStateFull, commentBlueDispatch] =
+    usePageStateReducer(`commentBlue${pageName}`);
   const [commentBlueState, updateCommentBlueState, commentStateBlueReset] =
-    usePageStateReducer(`commentBlue${pageName}${marketId}`);
+    getPageReducerPage(commentBlueStateFull, commentBlueDispatch, marketId);
   const {
     cardEditing: editCardId,
   } = commentBlueState;

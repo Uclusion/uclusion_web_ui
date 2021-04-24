@@ -58,7 +58,7 @@ import ThumbUpIcon from '@material-ui/icons/ThumbUp'
 import ThumbDownIcon from '@material-ui/icons/ThumbDown'
 import { getFakeCommentsArray } from '../../../utils/stringFunctions'
 import InvestibleBodyEdit from '../InvestibleBodyEdit'
-import { usePageStateReducer } from '../../../components/PageState/pageStateHooks'
+import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 
 const useStyles = makeStyles(
   theme => ({
@@ -188,12 +188,15 @@ function InitiativeInvestible(props) {
   const [, tourDispatch] = useContext(TourContext);
   const [, marketsDispatch] = useContext(MarketsContext);
   const [, diffDispatch] = useContext(DiffContext);
-  const [pageState, updatePageState, pageStateReset] = usePageStateReducer(investibleId);
+  const [pageStateFull, pageDispatch] = usePageStateReducer('investible');
+  const [pageState, updatePageState, pageStateReset] =
+    getPageReducerPage(pageStateFull, pageDispatch, investibleId);
   const {
     beingEdited,
   } = pageState;
+  const [votingPageStateFull, votingPageDispatch] = usePageStateReducer('voting');
   const [votingPageState, updateVotingPageState, votingPageStateReset] =
-    usePageStateReducer(`voting${investibleId}`);
+    getPageReducerPage(votingPageStateFull, votingPageDispatch, investibleId);
   const {
     votingBeingEdited,
   } = votingPageState;

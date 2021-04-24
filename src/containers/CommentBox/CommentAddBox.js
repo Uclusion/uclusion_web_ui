@@ -19,7 +19,7 @@ import clsx from 'clsx'
 import CommentAdd from '../../components/Comments/CommentAdd'
 import { FormattedMessage } from 'react-intl'
 import { ISSUE_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../constants/comments'
-import { usePageStateReducer } from '../../components/PageState/pageStateHooks'
+import { getPageReducerPage, usePageStateReducer } from '../../components/PageState/pageStateHooks'
 
 export const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -149,8 +149,9 @@ function CommentAddBox(props) {
     isInReview,
     hidden
   } = props;
+  const [commentAddStateFull, commentAddDispatch] = usePageStateReducer('commentAdd');
   const [commentAddState, updateCommentAddState, commentAddStateReset] =
-    usePageStateReducer(investible && investible.id ? `commentAdd${investible.id}`: `commentAdd${marketId}`);
+    getPageReducerPage(commentAddStateFull, commentAddDispatch, investible ? investible.id : marketId);
   const {
     type,
   } = commentAddState;

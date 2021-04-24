@@ -16,7 +16,7 @@ export function invalidEditEvent(event, history) {
     // Hacky but the url can be modified on storage so intercept here
     navigate(history, event.target.pathname);
   }
-  return isLink;
+  return isLink || !event;
 }
 
 export function doSetEditWhenValid(isEdit, isEditableByUser, setBeingEdited, event, history) {

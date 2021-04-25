@@ -167,7 +167,7 @@ const messages = defineMessages({
   ecpNextStoryName: 'Next steps with Uclusion',
   ecpUclusionStoryName: 'How Uclusion works',
   createFeatureRequest: 'Create feature request',
-  createOnboardingWorkspace: 'Get support help',
+  createOnboardingWorkspace: 'Get Support Help',
   // Loadable Image
   loadableImageAlt: 'User provided image',
 

@@ -281,7 +281,7 @@ function Signup(props) {
         const { email } = user;
         setRedirect(redirect);
         setEmail(email);
-        window.location.pathname ='/' ;
+        window.location.replace('/');
       } else {
         setPostSignUp(response);
         setCallActive(false);
@@ -567,7 +567,7 @@ function Signup(props) {
                     type="password"
                     variant="outlined"
                     autoComplete="new-password"
-                    error={repeat && password !== repeat}
+                    error={!!repeat && password !== repeat}
                     helperText={repeat !== password ? intl.formatMessage({ id: 'signupPasswordRepeatHelper' }) : ''}
                     InputProps={{
                       minLength: 6,

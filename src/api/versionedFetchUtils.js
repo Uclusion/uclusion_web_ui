@@ -350,7 +350,7 @@ function fetchMarketInvestibles (marketId, allInvestibles) {
   return fetchInvestibles(investibleIds, marketId)
     .then((investibles) => {
       const match = signatureMatcher(investibles, investiblesSignatures);
-      pushMessage(PUSH_INVESTIBLES_CHANNEL, { event: VERSIONS_EVENT, marketId, investibles });
+      pushMessage(PUSH_INVESTIBLES_CHANNEL, { event: VERSIONS_EVENT, investibles });
       if (!match.allMatched) {
         throw new MatchError('Investibles didn\'t match');
       }

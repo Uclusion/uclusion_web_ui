@@ -3,6 +3,9 @@ import { addInvestible, getInvestible } from '../contexts/InvestibesContext/inve
 import { getBlockedStage, getRequiredInputStage } from '../contexts/MarketStagesContext/marketStagesContextHelper'
 import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../constants/comments'
 import { addCommentToMarket } from '../contexts/CommentsContext/commentsContextHelper'
+import { pushMessage } from './MessageBusUtils'
+import { PUSH_INVESTIBLES_CHANNEL } from '../contexts/VersionsContext/versionsContextHelper'
+import { LOAD_EVENT } from '../contexts/InvestibesContext/investiblesContextMessages'
 
 export function scrollToCommentAddBox() {
   const box = document.getElementById('cabox');
@@ -47,8 +50,12 @@ export function changeInvestibleStageOnCommentChange(investibleBlocks, investibl
         investible: rootInvestible,
         market_infos: newInfos
       };
-      // no diff here, so no diff dispatch
-      addInvestible(investibleDispatch, ()=> {}, newInvestible);
+      if (investibleDispatch) {
+        // no diff here, so no diff dispatch
+        addInvestible(investibleDispatch, () => {}, newInvestible);
+      } else {
+        pushMessage(PUSH_INVESTIBLES_CHANNEL, { event: LOAD_EVENT, investibles: [newInvestible] });
+      }
     }
   }
 }

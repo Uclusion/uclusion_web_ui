@@ -13,6 +13,7 @@ import { lockInvestibleForEdit } from '../../api/investibles'
 
 export const LOCK_INVESTIBLE_CHANNEL = 'LockInvestibleChannel';
 export const LOCK_INVESTIBLE = 'LockInvestible';
+export const LOAD_EVENT = 'LoadEvent';
 
 function beginListening(dispatch, diffDispatch) {
   registerListener(PUSH_INVESTIBLES_CHANNEL, 'pushInvestibleStart', (data) => {
@@ -20,6 +21,8 @@ function beginListening(dispatch, diffDispatch) {
     switch (event) {
       case VERSIONS_EVENT:
         return refreshInvestibles(dispatch, diffDispatch, investibles, true);
+      case LOAD_EVENT:
+        return refreshInvestibles(dispatch, diffDispatch, investibles, false);
       default:
         // console.debug(`Ignoring push event ${event}`);
     }

@@ -6,7 +6,8 @@ import { fixupItemForStorage } from '../ContextUtils'
 import { pushMessage } from '../../utils/MessageBusUtils'
 import { INDEX_MARKET_TYPE, INDEX_UPDATE, SEARCH_INDEX_CHANNEL } from '../SearchIndexContext/searchIndexContextMessages'
 import { ACTIVE_STAGE } from '../../constants/markets'
-import { PUSH_STAGE_CHANNEL, VERSIONS_EVENT } from '../VersionsContext/versionsContextHelper'
+import { PUSH_PRESENCE_CHANNEL, PUSH_STAGE_CHANNEL, VERSIONS_EVENT } from '../VersionsContext/versionsContextHelper'
+import { ADD_PRESENCE } from '../MarketPresencesContext/marketPresencesMessages'
 
 export function getMarket(state, marketId) {
   const { marketDetails } = state;
@@ -67,7 +68,11 @@ export function addMarket(result, marketDispatch, diffDispatch, presenceDispatch
   const { id: marketId } = market;
   addMarketToStorage(marketDispatch, diffDispatch, market);
   pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, marketId, stages });
-  addPresenceToMarket(presenceDispatch, marketId, presence);
+  if (presenceDispatch) {
+    addPresenceToMarket(presenceDispatch, marketId, presence);
+  } else {
+    pushMessage(PUSH_PRESENCE_CHANNEL, { event: ADD_PRESENCE, marketId, presence });
+  }
 }
 
 /**

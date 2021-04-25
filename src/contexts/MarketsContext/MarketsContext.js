@@ -7,6 +7,13 @@ import { INDEX_MARKET_TYPE, INDEX_UPDATE, SEARCH_INDEX_CHANNEL } from '../Search
 import { pushMessage } from '../../utils/MessageBusUtils'
 import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
+import _ from 'lodash'
+import { getInvitationMarker } from '../../utils/redirectUtils'
+import { getChangedIds } from '../../api/summaries'
+import { createECPMarkets } from '../../pages/Invites/ECPMarketGenerator'
+import { SIGNUP_HOME } from '../TourContext/tourContextHelper'
+import { toastError } from '../../utils/userMessage'
+import { START_TOUR, TOUR_CHANNEL } from '../TourContext/tourContextMessages'
 
 const MARKET_CONTEXT_NAMESPACE = 'market_context';
 const EMPTY_STATE = {
@@ -68,6 +75,27 @@ function MarketsProvider(props) {
           dispatch(initializeState({
             marketDetails: [],
           }));
+          if (_.isEmpty(getInvitationMarker())) {
+            // Call the API before potential accidental duplicate demo market creation
+            getChangedIds(null).then((versions) => {
+              const {
+                foreground: foregroundList, background: backgroundList, banned: bannedList
+              } = versions;
+              // Do not create onboarding markets if they already have markets
+              if (_.isEmpty(foregroundList) && _.isEmpty(backgroundList) && _.isEmpty(bannedList)) {
+                //TODO make ECP work off of message bus other than the dispatch it has available from markets here
+                createECPMarkets(dispatch)
+                  .then(() => {
+                    console.log('Done creating');
+                    pushMessage(TOUR_CHANNEL, { event: START_TOUR, tour: SIGNUP_HOME });
+                  })
+                  .catch((error) => {
+                    console.error(error);
+                    toastError('errorMarketFetchFailed');
+                  });
+              }
+            });
+          }
         }
       });
     return () => {};

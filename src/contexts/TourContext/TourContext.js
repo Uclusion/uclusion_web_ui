@@ -4,6 +4,7 @@ import {
   setUclusionLocalStorageItem,
 } from '../../components/localStorageUtils';
 import { reducer } from './tourContextReducer';
+import beginListening from './tourContextMessages'
 
 const EMPTY_CONTEXT = {
   steps: [],
@@ -17,7 +18,13 @@ const TourContext = React.createContext(EMPTY_CONTEXT);
 function TourProvider(props) {
   const { children } = props;
   const defaultValue = getUclusionLocalStorageItem(TOUR_CONTEXT_KEY) || EMPTY_CONTEXT;
-  const [state, dispatch] = useReducer(reducer, defaultValue);
+  const [state, dispatch] = useReducer(reducer, defaultValue, undefined);
+
+  useEffect(() => {
+    beginListening(dispatch);
+    return () => {};
+  }, []);
+
   useEffect(() => {
     setUclusionLocalStorageItem(TOUR_CONTEXT_KEY, state);
   }, [state]);

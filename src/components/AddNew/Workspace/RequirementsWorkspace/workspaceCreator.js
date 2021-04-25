@@ -2,22 +2,20 @@ import { processTextAndFilesForSave } from '../../../../api/files';
 import { createPlanning } from '../../../../api/markets';
 import { addMarketToStorage } from '../../../../contexts/MarketsContext/marketsContextHelper';
 import { pushMessage } from '../../../../utils/MessageBusUtils';
-import { PUSH_STAGE_CHANNEL, VERSIONS_EVENT } from '../../../../contexts/VersionsContext/versionsContextHelper';
-import { addPresenceToMarket } from '../../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import {
+  PUSH_PRESENCE_CHANNEL,
+  PUSH_STAGE_CHANNEL,
+  VERSIONS_EVENT
+} from '../../../../contexts/VersionsContext/versionsContextHelper'
+import { ADD_PRESENCE } from '../../../../contexts/MarketPresencesContext/marketPresencesMessages'
 
-export function doCreateRequirementsWorkspace (dispatchers, formData, updateFormData) {
+export function doCreateRequirementsWorkspace (marketsDispatch, formData) {
   const {
     workspaceName,
     workspaceDescription,
     workspaceDescriptionUploadedFiles,
     marketSubType,
   } = formData;
-  const {
-    marketsDispatch,
-    diffDispatch,
-    presenceDispatch,
-
-  } = dispatchers;
   const processed = processTextAndFilesForSave(workspaceDescriptionUploadedFiles, workspaceDescription);
   const marketInfo = {
     name: workspaceName,
@@ -36,9 +34,9 @@ export function doCreateRequirementsWorkspace (dispatchers, formData, updateForm
         stages
       } = marketDetails;
       createdMarketId = market.id;
-      addMarketToStorage(marketsDispatch, diffDispatch, market);
+      addMarketToStorage(marketsDispatch, () => {}, market);
       pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, marketId: createdMarketId, stages });
-      addPresenceToMarket(presenceDispatch, createdMarketId, presence);
+      pushMessage(PUSH_PRESENCE_CHANNEL, { event: ADD_PRESENCE, marketId: createdMarketId, presence });
       return marketDetails;
     });
 }

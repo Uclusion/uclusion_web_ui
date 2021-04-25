@@ -36,7 +36,6 @@ const useStyles = makeStyles(theme => ({
 }));
 
 function VerifyEmail (props) {
-  const LOGIN = '/'
   const ALTERNATE_SIDEBAR_LOGO = 'Uclusion_Logo_White_Micro.png'
   const intl = useIntl()
   const classes = useStyles()
@@ -64,7 +63,7 @@ function VerifyEmail (props) {
         setRedirect(redirect)
       }
       console.log('redirecting to LOGIN')
-      window.location.pathname = LOGIN;
+      window.location.replace('/');
     }
 
     if (code && verificationState === 'READY_TO_PROCESS') {

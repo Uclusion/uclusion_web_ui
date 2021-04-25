@@ -153,6 +153,7 @@ function AddNewUsers (props) {
     });
     return addInvitees().then(() => {
       if (_.isEmpty(toAddClean)) {
+        setOperationRunning(false);
         return onSaveSpinStop();
       }
       return addParticipants(addToMarketId, toAddClean)

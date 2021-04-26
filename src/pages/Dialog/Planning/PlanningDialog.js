@@ -211,10 +211,13 @@ function PlanningDialog(props) {
     };
   }
 
-  function createNavListItem(icon, textId, anchorId, howManyNum, subSection, alwaysShow) {
+  function createNavListItem(icon, textId, anchorId, howManyNum, subSection, alwaysShow, isBold) {
     const nav = baseNavListItem(formMarketLink(marketId), icon, textId, anchorId, howManyNum, alwaysShow);
     if (subSection && nav.target) {
       nav['onClickFunc'] = getNavListItemOnClick(subSection, nav.target);
+    }
+    if (isBold) {
+      nav['isBold'] = true;
     }
     return nav;
   }
@@ -255,13 +258,13 @@ function PlanningDialog(props) {
 
   const navigationMenu = {navHeaderIcon: PlaylistAddCheckIcon,
     navListItemTextArray: [{text: intl.formatMessage({ id: 'planningDialogNavDetailsLabel' }),
-      subItems: detailsItems},
+      subItems: detailsItems, isBold: sectionOpen === 'workspaceMain'},
       {text: intl.formatMessage({ id: 'planningDialogNavStoriesLabel' }),
-        subItems: storiesItems},
+        subItems: storiesItems, isBold: sectionOpen === 'storiesSection'},
       createNavListItem(ListAltIcon,'todoSection', 'marketTodos', _.size(todoComments),
-        'marketTodos', !inArchives),
+        'marketTodos', !inArchives, sectionOpen === 'marketTodos'),
       {text: intl.formatMessage({ id: 'planningDialogNavDiscussionLabel' }),
-        subItems: discussionItems}
+        subItems: discussionItems, isBold: sectionOpen === 'discussionSection'}
     ]};
   const furtherWorkReadyToStartChip = furtherWorkReadyToStart.length > 0
     && <Chip label={`${furtherWorkReadyToStart.length}`} color="primary" size='small' className={classes.chipStyle} />;

@@ -113,7 +113,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function processRegularItem(classes, history, text, target, num, Icon, onClickFunc, isGrouped) {
+function processRegularItem(classes, history, text, target, num, Icon, onClickFunc, isGrouped, isBold) {
   if (!text) {
     return React.Fragment;
   }
@@ -141,7 +141,8 @@ function processRegularItem(classes, history, text, target, num, Icon, onClickFu
     >
       <Icon className={classes.navListIcon} />
       <span style={{width: "80%"}}>
-                      <ListItemText primary={text} />
+                      <ListItemText primary={text}
+                                    primaryTypographyProps={{className: isBold ? classes.navGroupHeader : undefined}} />
                     </span>
       {num !== undefined && (
         <span style={{width: "17%"}}><ListItemText primary={num} /></span>
@@ -238,23 +239,27 @@ function Screen(props) {
               <NavHeaderIcon style={{ height: 32, width: 32 }} /></div>}
             >
               {navListItemTextArray.map((navItem) => {
-                const { text, target, num, icon: Icon, onClickFunc, subItems } = navItem;
+                const { text, target, num, icon: Icon, onClickFunc, subItems, isBold } = navItem;
                 if (subItems) {
                   return (
                     <>
                       <ListItem key={text} style={{paddingBottom: 0}}>
-                        <ListItemText primary={text} primaryTypographyProps={{className: classes.navGroupHeader}} />
+                        <ListItemText primary={text}
+                                      primaryTypographyProps={{className: isBold ? classes.navGroupHeader : undefined}}
+                        />
                       </ListItem>
                       <div style={{paddingBottom: '0.5rem'}}>
                         {subItems.map((subItem) => {
                           const { text, target, num, icon: Icon, onClickFunc } = subItem;
-                          return processRegularItem(classes, history, text, target, num, Icon, onClickFunc, true);
+                          return processRegularItem(classes, history, text, target, num, Icon, onClickFunc,
+                            true);
                         })}
                       </div>
                     </>
                   );
                 }
-                return processRegularItem(classes, history, text, target, num, Icon, onClickFunc);
+                return processRegularItem(classes, history, text, target, num, Icon, onClickFunc, false,
+                  isBold);
               })}
             </List>
             <SearchBox/>

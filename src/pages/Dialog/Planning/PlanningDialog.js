@@ -112,6 +112,7 @@ function PlanningDialog(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   // For security reasons you can't access source data while being dragged in case you are not the target website
   const [beingDraggedHack, setBeingDraggedHack] = useState({});
+  const [sectionOpen, setSectionOpen] = useState('workspaceMain');
   const [startTourNow, setStartTourNow] = useState(undefined);
   const presences = getMarketPresences(marketPresencesState, marketId);
   const acceptedStage = marketStages.find(stage => stage.assignee_enter_only) || {};
@@ -198,8 +199,24 @@ function PlanningDialog(props) {
     const link = formMarketAddInvestibleLink(marketId);
     navigate(history, link);
   }
-  function createNavListItem(icon, textId, anchorId, howManyNum, alwaysShow) {
-    return baseNavListItem(formMarketLink(marketId), icon, textId, anchorId, howManyNum, alwaysShow);
+
+  function openSubSection(subSection) {
+    setSectionOpen(subSection);
+  }
+
+  function getNavListItemOnClick(subSection, target) {
+    return () => {
+      openSubSection(subSection);
+      navigate(history, target);
+    };
+  }
+
+  function createNavListItem(icon, textId, anchorId, howManyNum, subSection, alwaysShow) {
+    const nav = baseNavListItem(formMarketLink(marketId), icon, textId, anchorId, howManyNum, alwaysShow);
+    if (subSection && nav.target) {
+      nav['onClickFunc'] = getNavListItemOnClick(subSection, nav.target);
+    }
+    return nav;
   }
   const sortedRoots = getSortedRoots(notTodoComments);
   const questions = sortedRoots.filter((comment) => comment.comment_type === QUESTION_TYPE);
@@ -210,25 +227,39 @@ function PlanningDialog(props) {
   const { id: reportId } = getFakeCommentsArray(reports)[0];
   const todoComments = unResolvedMarketComments.filter((comment) => comment.comment_type === TODO_TYPE);
   const resolvedMarketComments = comments.filter(comment => !comment.investible_id && comment.resolved);
-  const detailsItems = [createNavListItem(EditIcon, 'description_label', 'workspaceMain'),
+
+  const detailsItems = [createNavListItem(EditIcon, 'description_label', 'workspaceMain',
+    undefined, 'workspaceMain'),
     {icon: MenuBookIcon, text: intl.formatMessage({ id: 'planningDialogViewArchivesLabel' }),
     target: formMarketArchivesLink(marketId), num: _.isEmpty(searchResults) ? undefined :
       _.size(archiveInvestibles) + _.size(resolvedMarketComments)}];
-  const discussionItems = [inArchives ? {} : createNavListItem(AddIcon,'commentAddBox'),
-    createNavListItem(QuestionIcon,'questions', `c${questionId}`, _.size(questions)),
-    createNavListItem(UpdateIcon,'reports', `c${reportId}`, _.size(reports)),
-    createNavListItem(ChangeSuggstionIcon,'suggestions', `c${suggestId}`, _.size(suggestions))];
-  const storiesItems = [createNavListItem(BlockIcon,'planningBlockedStageLabel', 'blocked', _.size(blockedInvestibles)),
-    createNavListItem(PlayForWorkIcon,'requiresInputStageLabel', 'requiresInput', _.size(requiresInputInvestibles)),
-    createNavListItem(AgilePlanIcon,'swimLanes', 'swimLanes', _.size(swimlaneInvestibles), true),
+
+  const discussionItems = [inArchives ? {} : createNavListItem(AddIcon,'commentAddBox',
+    undefined, undefined, 'discussionSection'),
+    createNavListItem(QuestionIcon,'questions', `c${questionId}`, _.size(questions),
+      'discussionSection'),
+    createNavListItem(UpdateIcon,'reports', `c${reportId}`, _.size(reports),
+      'discussionSection'),
+    createNavListItem(ChangeSuggstionIcon,'suggestions', `c${suggestId}`, _.size(suggestions),
+      'discussionSection')];
+
+  const storiesItems = [createNavListItem(BlockIcon,'planningBlockedStageLabel',
+    'blocked', _.size(blockedInvestibles), 'storiesSection'),
+    createNavListItem(PlayForWorkIcon,'requiresInputStageLabel', 'requiresInput',
+      _.size(requiresInputInvestibles), 'storiesSection'),
+    createNavListItem(AgilePlanIcon,'swimLanes', 'swimLanes', _.size(swimlaneInvestibles),
+      'storiesSection', true),
     createNavListItem(WorkIcon,'planningInvestibleMoveToFurtherWorkLabel', 'furtherWork',
-      _.size(furtherWorkReadyToStart) + _.size(furtherWorkInvestibles), !inArchives)];
+      _.size(furtherWorkReadyToStart) + _.size(furtherWorkInvestibles), 'storiesSection',
+      !inArchives)];
+
   const navigationMenu = {navHeaderIcon: PlaylistAddCheckIcon,
     navListItemTextArray: [{text: intl.formatMessage({ id: 'planningDialogNavDetailsLabel' }),
       subItems: detailsItems},
       {text: intl.formatMessage({ id: 'planningDialogNavStoriesLabel' }),
         subItems: storiesItems},
-      createNavListItem(ListAltIcon,'todoSection', 'marketTodos', _.size(todoComments), !inArchives),
+      createNavListItem(ListAltIcon,'todoSection', 'marketTodos', _.size(todoComments),
+        'marketTodos', !inArchives),
       {text: intl.formatMessage({ id: 'planningDialogNavDiscussionLabel' }),
         subItems: discussionItems}
     ]};
@@ -237,6 +268,7 @@ function PlanningDialog(props) {
   const furtherWorkNotReadyToStartChip = furtherWorkInvestibles.length > 0 &&
     <Chip label={`${furtherWorkInvestibles.length}`} size='small' className={classes.chipStyleYellow} />;
   const furtherWorkChips = !showFurther && (<div>{furtherWorkReadyToStartChip} {furtherWorkNotReadyToStartChip}</div>);
+  const hideFurtherWork = showFurther === false || (showFurther === undefined && !undefinedFurtherIsOpenDefault);
   return (
     <Screen
       title={marketName}
@@ -251,157 +283,161 @@ function PlanningDialog(props) {
         hidden={hidden}
         steps={tourSteps}
       />
-      <DismissableText textId='planningEditHelp' />
-      <div id="workspaceMain">
+      <div id="workspaceMain" style={{display: sectionOpen === 'workspaceMain' ? 'block' : 'none'}}>
+        <DismissableText textId='planningEditHelp' />
         <Summary market={market} hidden={hidden} activeMarket={activeMarket} inArchives={inArchives} />
       </div>
-      <div style={{marginTop: '2rem'}} />
-      {!isChannel && (
-        <DismissableText textId='stageHelp' textId1='stageHelp1' textId2='stageHelp2' textId3='stageHelp3'
-                         textId4='stageHelp4'/>
-      )}
       <LocalPlanningDragContext.Provider value={[beingDraggedHack, setBeingDraggedHack]}>
-        {!_.isEmpty(blockedInvestibles) && (
-          <SubSection
-            type={SECTION_TYPE_SECONDARY_WARNING}
-            titleIcon={blockedInvestibles.length > 0 ? <Chip label={`${blockedInvestibles.length}`} color="primary" size='small'
-                             className={classes.chipStyle} /> : undefined}
-            title={intl.formatMessage({ id: 'blockedHeader' })}
-            helpTextId="blockedSectionHelp"
-            id="blocked"
-          >
-            <ArchiveInvestbiles
-              elevation={0}
-              marketId={market.id}
-              presenceMap={getPresenceMap(marketPresencesState, market.id)}
-              investibles={blockedInvestibles}
-              presenceId={myPresence.id}
-              stage={inBlockingStage}
-              allowDragDrop
+        <div id="storiesSection"
+             style={{marginTop: '2rem', display: sectionOpen === 'storiesSection' ? 'block' : 'none'}}>
+          {!isChannel && (
+            <DismissableText textId='stageHelp' textId1='stageHelp1' textId2='stageHelp2' textId3='stageHelp3'
+                             textId4='stageHelp4'/>
+          )}
+          {!_.isEmpty(blockedInvestibles) && (
+            <SubSection
+              type={SECTION_TYPE_SECONDARY_WARNING}
+              titleIcon={blockedInvestibles.length > 0 ? <Chip label={`${blockedInvestibles.length}`} color="primary" size='small'
+                               className={classes.chipStyle} /> : undefined}
+              title={intl.formatMessage({ id: 'blockedHeader' })}
+              helpTextId="blockedSectionHelp"
+              id="blocked"
+            >
+              <ArchiveInvestbiles
+                elevation={0}
+                marketId={market.id}
+                presenceMap={getPresenceMap(marketPresencesState, market.id)}
+                investibles={blockedInvestibles}
+                presenceId={myPresence.id}
+                stage={inBlockingStage}
+                allowDragDrop
+                comments={comments}
+              />
+            </SubSection>
+          )}
+          {!_.isEmpty(blockedInvestibles) && !_.isEmpty(requiresInputInvestibles) &&
+          (<div style={{ paddingBottom: '15px' }}/>)}
+          {!_.isEmpty(requiresInputInvestibles) && (
+            <SubSection
+              type={SECTION_TYPE_SECONDARY_WARNING}
+              titleIcon={requiresInputInvestibles.length > 0 ? <Chip label={`${requiresInputInvestibles.length}`}
+                                                                      color="primary" size='small'
+                                                                      className={classes.chipStyle} /> : undefined}
+              title={intl.formatMessage({ id: 'requiresInputHeader' })}
+              helpTextId="requiresInputSectionHelp"
+              id="requiresInput"
+            >
+              <ArchiveInvestbiles
+                comments={comments}
+                elevation={0}
+                marketId={marketId}
+                presenceMap={presenceMap}
+                investibles={requiresInputInvestibles}
+                highlightMap={highlightMap}
+                stage={requiresInputStage}
+                presenceId={myPresence.id}
+                allowDragDrop
+              />
+            </SubSection>
+          )}
+          <div id="swimLanes" style={{paddingTop: '3rem'}}>
+            <InvestiblesByPerson
               comments={comments}
-            />
-          </SubSection>
-        )}
-        {!_.isEmpty(blockedInvestibles) && !_.isEmpty(requiresInputInvestibles) &&
-        (<div style={{ paddingBottom: '15px' }}/>)}
-        {!_.isEmpty(requiresInputInvestibles) && (
-          <SubSection
-            type={SECTION_TYPE_SECONDARY_WARNING}
-            titleIcon={requiresInputInvestibles.length > 0 ? <Chip label={`${requiresInputInvestibles.length}`}
-                                                                    color="primary" size='small'
-                                                                    className={classes.chipStyle} /> : undefined}
-            title={intl.formatMessage({ id: 'requiresInputHeader' })}
-            helpTextId="requiresInputSectionHelp"
-            id="requiresInput"
-          >
-            <ArchiveInvestbiles
-              comments={comments}
-              elevation={0}
+              investibles={investibles}
               marketId={marketId}
-              presenceMap={presenceMap}
-              investibles={requiresInputInvestibles}
-              highlightMap={highlightMap}
-              stage={requiresInputStage}
-              presenceId={myPresence.id}
-              allowDragDrop
+              marketPresences={assignablePresences}
+              visibleStages={visibleStageIds}
+              acceptedStage={acceptedStage}
+              inDialogStage={inDialogStage}
+              inBlockingStage={inBlockingStage}
+              inReviewStage={inReviewStage}
+              inVerifiedStage={inVerifiedStage}
+              requiresInputStage={requiresInputStage}
+              activeMarket={activeMarket}
+              isAdmin={isAdmin}
             />
+          </div>
+          <SubSection
+            type={SECTION_SUB_HEADER}
+            isBlackText
+            helpTextId="furtherSectionHelp"
+            id="furtherWork"
+            hideChildren={hideFurtherWork}
+            titleIcon={furtherWorkChips === false || !hideFurtherWork ? undefined : furtherWorkChips}
+            title={intl.formatMessage({ id: 'readyFurtherWorkHeader' })}
+            actionButton={
+              (<ExpandableAction
+                icon={showFurther ? <ExpandLess htmlColor="black"/> : <ExpandMoreIcon htmlColor="black"/>}
+                label={intl.formatMessage({ id: 'toggleFurtherExplanation' })}
+                onClick={toggleShowFurther}
+                tipPlacement="top-end"
+              />)}
+          >
+            <div style={{paddingTop: '1rem'}} />
+            <SubSection
+              type={SECTION_TYPE_SECONDARY_WARNING}
+              titleIcon={furtherWorkReadyToStartChip === false ? undefined : furtherWorkReadyToStartChip}
+              title={intl.formatMessage({ id: 'readyToStartHeader' })}
+              actionButton={
+                <ExpandableAction
+                  icon={<AddIcon htmlColor="black"/>}
+                  label={intl.formatMessage({ id: 'createFurtherWorkExplanation' })}
+                  openLabel={intl.formatMessage({ id: 'planningDialogAddInvestibleLabel'})}
+                  onClick={onClickFurtherStart}
+                  disabled={!isAdmin}
+                  tipPlacement="top-end"
+                />
+              }
+            >
+              <ArchiveInvestbiles
+                comments={comments}
+                elevation={0}
+                marketId={marketId}
+                presenceMap={presenceMap}
+                investibles={furtherWorkReadyToStart}
+                stage={furtherWorkStage}
+                presenceId={myPresence.id}
+                allowDragDrop
+                isReadyToStart
+              />
+            </SubSection>
+            {!_.isEmpty(furtherWorkInvestibles) && (<div style={{ paddingBottom: '15px' }}/>)}
+            <SubSection
+              type={SECTION_TYPE_WARNING}
+              titleIcon={furtherWorkNotReadyToStartChip === false ? undefined : furtherWorkNotReadyToStartChip}
+              title={intl.formatMessage({ id: 'notReadyToStartHeader' })}
+              actionButton={
+                <ExpandableAction
+                  icon={<AddIcon htmlColor="black"/>}
+                  label={intl.formatMessage({ id: 'createFurtherWorkExplanation' })}
+                  openLabel={intl.formatMessage({ id: 'planningDialogAddInvestibleLabel'})}
+                  onClick={onClickFurther}
+                  disabled={!isAdmin}
+                  tipPlacement="top-end"
+                />
+              }
+            >
+              <ArchiveInvestbiles
+                comments={comments}
+                elevation={0}
+                marketId={marketId}
+                presenceMap={presenceMap}
+                investibles={furtherWorkInvestibles}
+                stage={furtherWorkStage}
+                presenceId={myPresence.id}
+                allowDragDrop
+              />
+            </SubSection>
           </SubSection>
-        )}
-        <div id="swimLanes" style={{paddingTop: '3rem'}}>
-          <InvestiblesByPerson
-            comments={comments}
-            investibles={investibles}
-            marketId={marketId}
-            marketPresences={assignablePresences}
-            visibleStages={visibleStageIds}
-            acceptedStage={acceptedStage}
-            inDialogStage={inDialogStage}
-            inBlockingStage={inBlockingStage}
-            inReviewStage={inReviewStage}
-            inVerifiedStage={inVerifiedStage}
-            requiresInputStage={requiresInputStage}
-            activeMarket={activeMarket}
-            isAdmin={isAdmin}
-          />
+          {isChannel && (
+            <DismissableText textId='storyHelp' />
+          )}
         </div>
-        <SubSection
-          type={SECTION_SUB_HEADER}
-          isBlackText
-          helpTextId="furtherSectionHelp"
-          id="furtherWork"
-          hideChildren={showFurther === false || (showFurther === undefined && !undefinedFurtherIsOpenDefault)}
-          titleIcon={furtherWorkChips === false ? undefined : furtherWorkChips}
-          title={intl.formatMessage({ id: 'readyFurtherWorkHeader' })}
-          actionButton={
-            (<ExpandableAction
-              icon={showFurther ? <ExpandLess htmlColor="black"/> : <ExpandMoreIcon htmlColor="black"/>}
-              label={intl.formatMessage({ id: 'toggleFurtherExplanation' })}
-              onClick={toggleShowFurther}
-              tipPlacement="top-end"
-            />)}
-        >
-          <div style={{paddingTop: '1rem'}} />
-          <SubSection
-            type={SECTION_TYPE_SECONDARY_WARNING}
-            titleIcon={furtherWorkReadyToStartChip === false ? undefined : furtherWorkReadyToStartChip}
-            title={intl.formatMessage({ id: 'readyToStartHeader' })}
-            actionButton={
-              <ExpandableAction
-                icon={<AddIcon htmlColor="black"/>}
-                label={intl.formatMessage({ id: 'createFurtherWorkExplanation' })}
-                openLabel={intl.formatMessage({ id: 'planningDialogAddInvestibleLabel'})}
-                onClick={onClickFurtherStart}
-                disabled={!isAdmin}
-                tipPlacement="top-end"
-              />
-            }
-          >
-            <ArchiveInvestbiles
-              comments={comments}
-              elevation={0}
-              marketId={marketId}
-              presenceMap={presenceMap}
-              investibles={furtherWorkReadyToStart}
-              stage={furtherWorkStage}
-              presenceId={myPresence.id}
-              allowDragDrop
-              isReadyToStart
-            />
-          </SubSection>
-          {!_.isEmpty(furtherWorkInvestibles) && (<div style={{ paddingBottom: '15px' }}/>)}
-          <SubSection
-            type={SECTION_TYPE_WARNING}
-            titleIcon={furtherWorkNotReadyToStartChip === false ? undefined : furtherWorkReadyToStartChip}
-            title={intl.formatMessage({ id: 'notReadyToStartHeader' })}
-            actionButton={
-              <ExpandableAction
-                icon={<AddIcon htmlColor="black"/>}
-                label={intl.formatMessage({ id: 'createFurtherWorkExplanation' })}
-                openLabel={intl.formatMessage({ id: 'planningDialogAddInvestibleLabel'})}
-                onClick={onClickFurther}
-                disabled={!isAdmin}
-                tipPlacement="top-end"
-              />
-            }
-          >
-            <ArchiveInvestbiles
-              comments={comments}
-              elevation={0}
-              marketId={marketId}
-              presenceMap={presenceMap}
-              investibles={furtherWorkInvestibles}
-              stage={furtherWorkStage}
-              presenceId={myPresence.id}
-              allowDragDrop
-            />
-          </SubSection>
-        </SubSection>
-        {isChannel && (
-          <DismissableText textId='storyHelp' />
-        )}
-        <MarketTodos comments={unResolvedMarketComments} marketId={marketId} />
+        <MarketTodos comments={unResolvedMarketComments} marketId={marketId} sectionOpen={sectionOpen}
+                     setSectionOpen={setSectionOpen} />
       </LocalPlanningDragContext.Provider>
-      <Grid container spacing={2}>
+      <Grid container spacing={2} id="discussionSection"
+            style={{display: sectionOpen === 'discussionSection' ? 'block' : 'none'}}>
           <Grid item id="commentAddArea"  xs={12}>
             {!inArchives && (
               <CommentAddBox

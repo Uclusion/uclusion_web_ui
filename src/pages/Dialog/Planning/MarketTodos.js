@@ -19,8 +19,6 @@ import { REPLY_TYPE, TODO_TYPE } from '../../../constants/comments'
 import AddIcon from '@material-ui/icons/Add'
 import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
 import CommentAdd from '../../../components/Comments/CommentAdd'
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
-import { EXPANDED_CONTROL, ExpandedCommentContext } from '../../../contexts/CommentsContext/ExpandedCommentContext'
 import { updateComment } from '../../../api/comments'
 import { addCommentToMarket } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
@@ -31,7 +29,6 @@ import {
   formMarketLink,
   navigate
 } from '../../../utils/marketIdPathFunctions'
-import { ExpandLess } from '@material-ui/icons'
 import Chip from '@material-ui/core/Chip'
 import { removeHeader, restoreHeader } from '../../../containers/Header'
 import { LocalPlanningDragContext } from './InvestiblesByWorkspace'
@@ -75,6 +72,7 @@ const myClasses = makeStyles(
       },
       outerBorder: {
         marginTop: '30px',
+        marginBottom: '30px'
       },
       chipStyleWhite: {
         backgroundColor: 'white',
@@ -125,17 +123,15 @@ function MarketTodos (props) {
     comments,
     marketId,
     isInArchives,
+    sectionOpen, setSectionOpen
   } = props
   const classes = myClasses();
   const intl = useIntl();
   const history = useHistory();
-  const [expandedCommentState, expandedCommentDispatch] = useContext(ExpandedCommentContext);
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [beingDraggedHack, setBeingDraggedHack] = useContext(LocalPlanningDragContext);
   const [messagesState] = useContext(NotificationsContext);
-  const myExpandedState = expandedCommentState[marketId] || {};
-  const { expanded: showTodos } = myExpandedState;
   const [showSelectTodos, setShowSelectTodos] = useState(false);
   const [checked, setChecked] = useState({});
   const todoComments = comments.filter(comment => comment.comment_type === TODO_TYPE) || [];
@@ -146,7 +142,6 @@ function MarketTodos (props) {
   const { hash } = location;
   const [openMenuTodoId, setOpenMenuTodoId] = useState(undefined);
   const [anchorEl, setAnchorEl] = useState(null);
-  const undefinedIsOpenDefault = !_.isEmpty(todoComments);
   const pageName = isInArchives ? 'archives' : '';
   const [commentAddRedStateFull, commentAddRedDispatch] = usePageStateReducer(`commentAddRed${pageName}`);
   const [commentAddRedState, updateCommentAddRedState, commentAddStateRedReset] =
@@ -250,13 +245,13 @@ function MarketTodos (props) {
           setEditCard(rootComment);
         }
       }
-      if ((foundCommentId || hash.includes('Todos')) && !showTodos) {
-        expandedCommentDispatch({ type: EXPANDED_CONTROL, commentId: marketId, expanded: true });
+      if ((foundCommentId || hash.includes('Todos')) && sectionOpen !== 'marketTodos') {
+        setSectionOpen('marketTodos');
       }
     }
     return () => {};
-  }, [commentStateBlueReset, commentStateRedReset, commentStateYellowReset, comments, expandedCommentDispatch,
-    hash, marketId, showTodos, updateCommentBlueState, updateCommentRedState, updateCommentYellowState]);
+  }, [commentStateBlueReset, commentStateRedReset, commentStateYellowReset, comments, hash, marketId, sectionOpen,
+    setSectionOpen, updateCommentBlueState, updateCommentRedState, updateCommentYellowState]);
 
   function onDragStart(event, notificationType) {
     removeHeader();
@@ -404,21 +399,7 @@ function MarketTodos (props) {
     });
   }
 
-  function toggleShowTodos () {
-    const toggleValue = showTodos === undefined ? !undefinedIsOpenDefault : !showTodos;
-    if (!toggleValue) {
-      setEditRedCard(undefined);
-      setEditYellowCard(undefined);
-      setEditCard(undefined);
-      setShowSelectTodos(false);
-    }
-    expandedCommentDispatch({ type: EXPANDED_CONTROL, commentId: marketId, expanded: toggleValue });
-  }
-
   function toggleShowSelectTodos() {
-    if (!showTodos) {
-      toggleShowTodos();
-    }
     const currentShowSelect = showSelectTodos;
     setShowSelectTodos(!showSelectTodos);
     if (currentShowSelect && !_.isEmpty(checked)) {
@@ -502,198 +483,186 @@ function MarketTodos (props) {
   const editYellowCard = comments.find((comment) => comment.id === editYellowCardId);
   const editCard = comments.find((comment) => comment.id === editCardId);
   return (
-    <>
-      <div className={classes.outerBorder} id="marketTodos">
-        <SubSection
-          type={SECTION_SUB_HEADER}
-          isBlackText
-          hideChildren={showTodos === false || (showTodos === undefined && !undefinedIsOpenDefault)}
-          titleIcon={!showTodos ? (<div>{immediateTodosChip} {whenAbleTodosChip} {whenConvenientTodosChip}</div>)
-            : undefined}
-          title={intl.formatMessage({ id: 'todoSection' })}
-          helpTextId="todoSectionHelp"
-          createButton={ isSingleTodoSelected || isInArchives || isTinyWindow() ? undefined :
-            (
-            <SpinningIconLabelButton icon={ArrowUpwardIcon} onClick={toggleShowSelectTodos} doSpin={false}
-                                     whiteBackground>
-              <FormattedMessage id={todosButtonMsgId} />
-            </SpinningIconLabelButton>
-            )}
-          actionButton={
-            (<ExpandableAction
-              icon={showTodos ? <ExpandLess htmlColor="black"/> : <ExpandMoreIcon htmlColor="black"/>}
-              label={intl.formatMessage({ id: 'toggleTodosExplanation' })}
-              onClick={toggleShowTodos}
-              tipPlacement="top-end"
-            />)}
-        >
-          <div style={{paddingTop: '1rem'}}>
-            <CommentAdd
-              nameKey="CommentAddRed"
-              hidden={!createRedCard}
-              type={TODO_TYPE}
-              commentAddState={commentAddRedState}
-              updateCommentAddState={updateCommentAddRedState}
-              commentAddStateReset={commentAddStateRedReset}
-              marketId={marketId}
-              mentionsAllowed={false}
-              onSave={onCreateRed}
-              onDone={onCreateRed}
-              defaultNotificationType="RED"
-              isStory={false}
-            />
-            {editRedCard && (
-              <div id={`editc${editRedCardId}`} style={{marginBottom: '2rem'}}>
-                <Comment
-                  depth={0}
-                  marketId={marketId}
-                  comment={editRedCard}
-                  onDone={() => setEditRedCard(undefined)}
-                  comments={comments}
-                  allowedTypes={[TODO_TYPE]}
-                  editOpenDefault={!isInArchives}
-                  noAuthor
-                />
-              </div>
-            )}
-            <SubSection
-              type={SECTION_TYPE_SECONDARY_WARNING}
-              id="immediateTodos"
-              title={intl.formatMessage({ id: 'immediate' })}
-              titleIcon={immediateTodosChip === false ? undefined : immediateTodosChip}
-              helpTextId="immediateSectionHelp"
-              actionButton={ isInArchives ? null :
-                (<ExpandableAction
-                  icon={<AddIcon htmlColor="black"/>}
-                  label={intl.formatMessage({ id: 'createRedExplanation' })}
-                  openLabel={intl.formatMessage({ id: 'createTODO' })}
-                  onClick={onCreateRed}
-                  disabled={createRedCard}
-                  tipPlacement="top-end"
-                />)}
+    <div className={classes.outerBorder} id="marketTodos"
+         style={{display: sectionOpen === 'marketTodos' ? 'block' : 'none'}}>
+      <SubSection
+        type={SECTION_SUB_HEADER}
+        isBlackText
+        title={intl.formatMessage({ id: 'todoSection' })}
+        helpTextId="todoSectionHelp"
+        createButton={ isSingleTodoSelected || isInArchives || isTinyWindow() ? undefined :
+          (
+          <SpinningIconLabelButton icon={ArrowUpwardIcon} onClick={toggleShowSelectTodos} doSpin={false}
+                                   whiteBackground>
+            <FormattedMessage id={todosButtonMsgId} />
+          </SpinningIconLabelButton>
+          )}
+      >
+        <div style={{paddingTop: '1rem'}}>
+          <CommentAdd
+            nameKey="CommentAddRed"
+            hidden={!createRedCard}
+            type={TODO_TYPE}
+            commentAddState={commentAddRedState}
+            updateCommentAddState={updateCommentAddRedState}
+            commentAddStateReset={commentAddStateRedReset}
+            marketId={marketId}
+            mentionsAllowed={false}
+            onSave={onCreateRed}
+            onDone={onCreateRed}
+            defaultNotificationType="RED"
+            isStory={false}
+          />
+          {editRedCard && (
+            <div id={`editc${editRedCardId}`} style={{marginBottom: '2rem'}}>
+              <Comment
+                depth={0}
+                marketId={marketId}
+                comment={editRedCard}
+                onDone={() => setEditRedCard(undefined)}
+                comments={comments}
+                allowedTypes={[TODO_TYPE]}
+                editOpenDefault={!isInArchives}
+                noAuthor
+              />
+            </div>
+          )}
+          <SubSection
+            type={SECTION_TYPE_SECONDARY_WARNING}
+            id="immediateTodos"
+            title={intl.formatMessage({ id: 'immediate' })}
+            titleIcon={immediateTodosChip === false ? undefined : immediateTodosChip}
+            helpTextId="immediateSectionHelp"
+            actionButton={ isInArchives ? null :
+              (<ExpandableAction
+                icon={<AddIcon htmlColor="black"/>}
+                label={intl.formatMessage({ id: 'createRedExplanation' })}
+                openLabel={intl.formatMessage({ id: 'createTODO' })}
+                onClick={onCreateRed}
+                disabled={createRedCard}
+                tipPlacement="top-end"
+              />)}
+          >
+            <Grid
+              container
+              className={classes.white}
+              id="immediateSection" onDrop={onDropImmediate}
+              onDragOver={(event) => event.preventDefault()}
             >
-              <Grid
-                container
-                className={classes.white}
-                id="immediateSection" onDrop={onDropImmediate}
-                onDragOver={(event) => event.preventDefault()}
-              >
-                {getCards(redComments, marketId, history, intl, setEditRedCard)}
-              </Grid>
-            </SubSection>
-            {!_.isEmpty(redComments) && (<div style={{ paddingBottom: '15px' }}/>)}
-            <CommentAdd
-              nameKey="CommentAddYellow"
-              hidden={!createYellowCard}
-              type={TODO_TYPE}
-              commentAddState={commentAddYellowState}
-              updateCommentAddState={updateCommentAddYellowState}
-              commentAddStateReset={commentAddStateYellowReset}
-              marketId={marketId}
-              onSave={onCreateYellow}
-              onDone={onCreateYellow}
-              mentionsAllowed={false}
-              defaultNotificationType="YELLOW"
-              isStory={false}
-            />
-            {editYellowCard && (
-              <div id={`editc${editYellowCardId}`} style={{marginBottom: '2rem'}}>
-                <Comment
-                  depth={0}
-                  marketId={marketId}
-                  comment={editYellowCard}
-                  onDone={() => setEditYellowCard(undefined)}
-                  comments={comments}
-                  allowedTypes={[TODO_TYPE]}
-                  editOpenDefault={!isInArchives}
-                  noAuthor
-                />
-              </div>
-            )}
-            <SubSection
-              type={SECTION_TYPE_WARNING}
-              id="whenAbleTodos"
-              title={intl.formatMessage({ id: 'able' })}
-              titleIcon={whenAbleTodosChip === false ? undefined : whenAbleTodosChip}
-              helpTextId="ableSectionHelp"
-              actionButton={ isInArchives ? null :
-                (<ExpandableAction
-                  icon={<AddIcon htmlColor="black" />}
-                  label={intl.formatMessage({ id: 'createYellowExplanation' })}
-                  openLabel={intl.formatMessage({ id: 'createTODO' })}
-                  onClick={onCreateYellow}
-                  disabled={createYellowCard}
-                  tipPlacement="top-end"
-                />)}
+              {getCards(redComments, marketId, history, intl, setEditRedCard)}
+            </Grid>
+          </SubSection>
+          {!_.isEmpty(redComments) && (<div style={{ paddingBottom: '15px' }}/>)}
+          <CommentAdd
+            nameKey="CommentAddYellow"
+            hidden={!createYellowCard}
+            type={TODO_TYPE}
+            commentAddState={commentAddYellowState}
+            updateCommentAddState={updateCommentAddYellowState}
+            commentAddStateReset={commentAddStateYellowReset}
+            marketId={marketId}
+            onSave={onCreateYellow}
+            onDone={onCreateYellow}
+            mentionsAllowed={false}
+            defaultNotificationType="YELLOW"
+            isStory={false}
+          />
+          {editYellowCard && (
+            <div id={`editc${editYellowCardId}`} style={{marginBottom: '2rem'}}>
+              <Comment
+                depth={0}
+                marketId={marketId}
+                comment={editYellowCard}
+                onDone={() => setEditYellowCard(undefined)}
+                comments={comments}
+                allowedTypes={[TODO_TYPE]}
+                editOpenDefault={!isInArchives}
+                noAuthor
+              />
+            </div>
+          )}
+          <SubSection
+            type={SECTION_TYPE_WARNING}
+            id="whenAbleTodos"
+            title={intl.formatMessage({ id: 'able' })}
+            titleIcon={whenAbleTodosChip === false ? undefined : whenAbleTodosChip}
+            helpTextId="ableSectionHelp"
+            actionButton={ isInArchives ? null :
+              (<ExpandableAction
+                icon={<AddIcon htmlColor="black" />}
+                label={intl.formatMessage({ id: 'createYellowExplanation' })}
+                openLabel={intl.formatMessage({ id: 'createTODO' })}
+                onClick={onCreateYellow}
+                disabled={createYellowCard}
+                tipPlacement="top-end"
+              />)}
+          >
+            <Grid
+              container
+              className={classes.white}
+              id="convenientSection" onDrop={onDropConvenient}
+              onDragOver={(event) => event.preventDefault()}
             >
-              <Grid
-                container
-                className={classes.white}
-                id="convenientSection" onDrop={onDropConvenient}
-                onDragOver={(event) => event.preventDefault()}
-              >
-                {getCards(yellowComments, marketId, history, intl, setEditYellowCard)}
-              </Grid>
-            </SubSection>
-            {!_.isEmpty(yellowComments) && (<div style={{ paddingBottom: '15px' }}/>)}
-            <CommentAdd
-              nameKey="CommentAddBlue"
-              hidden={!createCard}
-              type={TODO_TYPE}
-              commentAddState={commentAddBlueState}
-              updateCommentAddState={updateCommentAddBlueState}
-              commentAddStateReset={commentAddStateBlueReset}
-              marketId={marketId}
-              mentionsAllowed={false}
-              onDone={onCreate}
-              onSave={onCreate}
-              defaultNotificationType="BLUE"
-              isStory={false}
-            />
-            {editCard && (
-              <div id={`editc${editCardId}`} style={{marginBottom: '2rem'}}>
-                <Comment
-                  depth={0}
-                  marketId={marketId}
-                  comment={editCard}
-                  onDone={() => setEditCard(undefined)}
-                  comments={comments}
-                  allowedTypes={[TODO_TYPE]}
-                  editOpenDefault={!isInArchives}
-                  noAuthor
-                />
-              </div>
-            )}
-            <SubSection
-              type={SECTION_TYPE_TERTIARY_WARNING}
-              title={intl.formatMessage({ id: 'convenient' })}
-              titleIcon={whenConvenientTodosChip === false ? undefined : whenConvenientTodosChip}
-              id="whenConvenientTodos"
-              helpTextId="convenientSectionHelp"
-              actionButton={ isInArchives ? null :
-                (<ExpandableAction
-                  icon={<AddIcon htmlColor="black"/>}
-                  label={intl.formatMessage({ id: 'createBlueExplanation' })}
-                  openLabel={intl.formatMessage({ id: 'createTODO' })}
-                  onClick={onCreate}
-                  disabled={createCard}
-                  tipPlacement="top-end"
-                />)}
+              {getCards(yellowComments, marketId, history, intl, setEditYellowCard)}
+            </Grid>
+          </SubSection>
+          {!_.isEmpty(yellowComments) && (<div style={{ paddingBottom: '15px' }}/>)}
+          <CommentAdd
+            nameKey="CommentAddBlue"
+            hidden={!createCard}
+            type={TODO_TYPE}
+            commentAddState={commentAddBlueState}
+            updateCommentAddState={updateCommentAddBlueState}
+            commentAddStateReset={commentAddStateBlueReset}
+            marketId={marketId}
+            mentionsAllowed={false}
+            onDone={onCreate}
+            onSave={onCreate}
+            defaultNotificationType="BLUE"
+            isStory={false}
+          />
+          {editCard && (
+            <div id={`editc${editCardId}`} style={{marginBottom: '2rem'}}>
+              <Comment
+                depth={0}
+                marketId={marketId}
+                comment={editCard}
+                onDone={() => setEditCard(undefined)}
+                comments={comments}
+                allowedTypes={[TODO_TYPE]}
+                editOpenDefault={!isInArchives}
+                noAuthor
+              />
+            </div>
+          )}
+          <SubSection
+            type={SECTION_TYPE_TERTIARY_WARNING}
+            title={intl.formatMessage({ id: 'convenient' })}
+            titleIcon={whenConvenientTodosChip === false ? undefined : whenConvenientTodosChip}
+            id="whenConvenientTodos"
+            helpTextId="convenientSectionHelp"
+            actionButton={ isInArchives ? null :
+              (<ExpandableAction
+                icon={<AddIcon htmlColor="black"/>}
+                label={intl.formatMessage({ id: 'createBlueExplanation' })}
+                openLabel={intl.formatMessage({ id: 'createTODO' })}
+                onClick={onCreate}
+                disabled={createCard}
+                tipPlacement="top-end"
+              />)}
+          >
+            <Grid
+              container
+              className={classes.white}
+              id="ableSection" onDrop={onDropAble}
+              onDragOver={(event) => event.preventDefault()}
             >
-              <Grid
-                container
-                className={classes.white}
-                id="ableSection" onDrop={onDropAble}
-                onDragOver={(event) => event.preventDefault()}
-              >
-                {getCards(blueComments, marketId, history, intl, setEditCard)}
-              </Grid>
-            </SubSection>
-          </div>
-        </SubSection>
-      </div>
-      <div style={{ marginTop: '30px' }}/>
-    </>
+              {getCards(blueComments, marketId, history, intl, setEditCard)}
+            </Grid>
+          </SubSection>
+        </div>
+      </SubSection>
+    </div>
   )
 }
 

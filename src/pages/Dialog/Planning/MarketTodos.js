@@ -41,6 +41,7 @@ import { doRemoveEdit, doShowEdit } from './userUtils'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward'
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
+import { getThreadIds } from '../../../utils/commentFunctions'
 
 const myClasses = makeStyles(
   theme => {
@@ -217,17 +218,9 @@ function MarketTodos (props) {
       setOrRemoveCardOnReducer(updateCommentBlueState, commentStateBlueReset, comment);
     }
     if (hash) {
-      const todoParents = comments.filter(comment => comment.comment_type === TODO_TYPE) || [];
-      const todoCommentIds = [];
-      todoParents.forEach((comment) => {
-        todoCommentIds.push(comment.id);
-        comments.forEach((treeCandidate) => {
-          const { root_comment_id: rootId } = treeCandidate;
-          if (comment.id === rootId) {
-            todoCommentIds.push(treeCandidate.id);
-          }
-        })
-      })
+      const todoParents = comments.filter(comment => comment.comment_type === TODO_TYPE &&
+        !comment.investible_id && !comment.resolved) || [];
+      const todoCommentIds = getThreadIds(todoParents, comments);
       const foundCommentId = todoCommentIds.find((anId) => hash.includes(anId));
       if (foundCommentId) {
         const foundComment = comments.find((comment) => comment.id === foundCommentId);

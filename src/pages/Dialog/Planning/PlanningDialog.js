@@ -2,7 +2,7 @@
  * A component that renders a _planning_ dialog
  */
 import React, { useContext, useEffect, useState } from 'react'
-import { useHistory } from 'react-router';
+import { useHistory, useLocation } from 'react-router'
 import { useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
@@ -77,6 +77,7 @@ import MenuBookIcon from '@material-ui/icons/MenuBook'
 import PlayForWorkIcon from '@material-ui/icons/PlayForWork'
 import { getFakeCommentsArray } from '../../../utils/stringFunctions'
 import Chip from '@material-ui/core/Chip'
+import { getThreadIds } from '../../../utils/commentFunctions'
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -90,6 +91,8 @@ function PlanningDialog(props) {
     banner,
     searchResults
   } = props;
+  const location = useLocation();
+  const { hash } = location;
   const classes = useInvestiblesByPersonStyles();
   const cognitoUser = useContext(CognitoUserContext);
   const [, tourDispatch] = useContext(TourContext);
@@ -174,6 +177,19 @@ function PlanningDialog(props) {
     const toggleValue = showFurther === undefined ? !undefinedFurtherIsOpenDefault : !showFurther;
     expandedCommentDispatch({ type: EXPANDED_CONTROL, commentId: `${marketId}_further`, expanded: toggleValue });
   }
+
+  useEffect(() => {
+    if (hash) {
+      const notTodoParents = comments.filter(comment =>
+        [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE].includes(comment.comment_type) &&
+        !comment.investible_id && !comment.resolved) || [];
+      const noTodoCommentIds = getThreadIds(notTodoParents, comments);
+      const foundCommentId =  noTodoCommentIds.find((anId) => hash.includes(anId));
+      if (foundCommentId) {
+        setSectionOpen('discussionSection');
+      }
+    }
+  }, [comments, hash]);
 
   useEffect(() => {
     if (startTourNow === true) {

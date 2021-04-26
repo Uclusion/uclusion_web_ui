@@ -17,7 +17,7 @@ function ScrollProvider(props) {
     function getElAndScroll(originalScrollTarget) {
       return (mutationsList, observer) => {
         const element = document.getElementById(originalScrollTarget);
-        if (element !== null) {
+        if (element !== null && window.getComputedStyle(element).display !== 'none') {
           if (observer) observer.disconnect()
           const headerOffset = document.getElementById('app-header').offsetHeight;
           const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;

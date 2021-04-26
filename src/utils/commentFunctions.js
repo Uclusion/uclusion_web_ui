@@ -33,6 +33,20 @@ export function onCommentOpen(investibleState, investibleId, marketStagesState, 
   addCommentToMarket(comment, commentsState, commentsDispatch, versionsDispatch)
 }
 
+export function getThreadIds(parents, comments) {
+  const commentIds = [];
+  parents.forEach((comment) => {
+    commentIds.push(comment.id);
+    comments.forEach((treeCandidate) => {
+      const { root_comment_id: rootId } = treeCandidate;
+      if (comment.id === rootId) {
+        commentIds.push(treeCandidate.id);
+      }
+    })
+  });
+  return commentIds;
+}
+
 export function changeInvestibleStageOnCommentChange(investibleBlocks, investibleRequiresInput,
   blockingStage, requiresInputStage, info, market_infos, rootInvestible, investibleDispatch) {
   if (investibleBlocks || investibleRequiresInput) {

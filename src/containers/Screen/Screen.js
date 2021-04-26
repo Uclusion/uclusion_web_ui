@@ -72,6 +72,14 @@ const useStyles = makeStyles((theme) => ({
       backgroundColor: '#e0e0e0'
     }
   },
+  navListItemGrouped: {
+    cursor: 'pointer',
+    '&:hover': {
+      backgroundColor: '#e0e0e0'
+    },
+    paddingBottom: 0,
+    paddingTop: 0
+  },
   paper: {
     // See https://github.com/mui-org/material-ui/blob/master/packages/material-ui/src/Drawer/Drawer.js
     overflowY: 'auto',
@@ -97,12 +105,50 @@ const useStyles = makeStyles((theme) => ({
   disabled: {
     color: theme.palette.text.disabled
   },
+  navGroupHeader: {
+    fontWeight: 'bold'
+  },
   elevated: {
     zIndex: 99,
   },
 }));
 
-//const isChrome = !!window.chrome && (!!window.chrome.webstore || !!window.chrome.runtime);
+function processRegularItem(classes, history, text, target, num, Icon, onClickFunc, isGrouped) {
+  if (!text) {
+    return React.Fragment;
+  }
+  if (!target && !onClickFunc) {
+    return (
+      <ListItem key={text} className={isGrouped ? classes.navListItemGrouped : classes.navListItem}>
+        <Icon className={clsx(classes.navListIcon, classes.disabled)} />
+        <ListItemText primary={text} primaryTypographyProps={{className: classes.disabled}} />
+      </ListItem>
+    );
+  }
+  return (
+    <ListItem key={text} className={isGrouped ? classes.navListItemGrouped : classes.navListItem}
+              onClick={
+                (event) => {
+                  event.stopPropagation();
+                  event.preventDefault();
+                  if (onClickFunc) {
+                    onClickFunc();
+                  } else {
+                    navigate(history, target);
+                  }
+                }
+              }
+    >
+      <Icon className={classes.navListIcon} />
+      <span style={{width: "80%"}}>
+                      <ListItemText primary={text} />
+                    </span>
+      {num !== undefined && (
+        <span style={{width: "17%"}}><ListItemText primary={num} /></span>
+      )}
+    </ListItem>
+  );
+}
 
 function Screen(props) {
   const classes = useStyles();
@@ -192,41 +238,23 @@ function Screen(props) {
               <NavHeaderIcon style={{ height: 32, width: 32 }} /></div>}
             >
               {navListItemTextArray.map((navItem) => {
-                const { text, target, num, icon: Icon, onClickFunc } = navItem;
-                if (!text) {
-                  return React.Fragment;
-                }
-                if (!target && !onClickFunc) {
+                const { text, target, num, icon: Icon, onClickFunc, subItems } = navItem;
+                if (subItems) {
                   return (
-                    <ListItem key={text}>
-                      <Icon className={clsx(classes.navListIcon, classes.disabled)} />
-                      <ListItemText primary={text} primaryTypographyProps={{className: classes.disabled}} />
-                    </ListItem>
+                    <>
+                      <ListItem key={text} style={{paddingBottom: 0}}>
+                        <ListItemText primary={text} primaryTypographyProps={{className: classes.navGroupHeader}} />
+                      </ListItem>
+                      <div style={{paddingBottom: '0.5rem'}}>
+                        {subItems.map((subItem) => {
+                          const { text, target, num, icon: Icon, onClickFunc } = subItem;
+                          return processRegularItem(classes, history, text, target, num, Icon, onClickFunc, true);
+                        })}
+                      </div>
+                    </>
                   );
                 }
-                return (
-                  <ListItem key={text} className={classes.navListItem}
-                            onClick={
-                              (event) => {
-                                event.stopPropagation();
-                                event.preventDefault();
-                                if (onClickFunc) {
-                                  onClickFunc();
-                                } else {
-                                  navigate(history, target);
-                                }
-                              }
-                            }
-                  >
-                    <Icon className={classes.navListIcon} />
-                    <span style={{width: "80%"}}>
-                      <ListItemText primary={text} />
-                    </span>
-                    {num !== undefined && (
-                      <span style={{width: "17%"}}><ListItemText primary={num} /></span>
-                    )}
-                  </ListItem>
-                );
+                return processRegularItem(classes, history, text, target, num, Icon, onClickFunc);
               })}
             </List>
             <SearchBox/>

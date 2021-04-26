@@ -524,6 +524,9 @@ const messages = defineMessages({
   decisionDialogsArchiveDialog: 'Deactivate',
 
   // Planning Dialog
+  planningDialogNavDetailsLabel: 'Details',
+  planningDialogNavStoriesLabel: 'Stories',
+  planningDialogNavDiscussionLabel: 'Discussion',
   planningDialogManageParticipantsLabel: 'Manage Collaborators',
   planningDialogSummaryLabel: 'Workspace Detail',
   planningDialogPeopleLabel: 'collaborator\'s stories',

@@ -210,21 +210,27 @@ function PlanningDialog(props) {
   const { id: reportId } = getFakeCommentsArray(reports)[0];
   const todoComments = unResolvedMarketComments.filter((comment) => comment.comment_type === TODO_TYPE);
   const resolvedMarketComments = comments.filter(comment => !comment.investible_id && comment.resolved);
+  const detailsItems = [createNavListItem(EditIcon, 'description_label', 'workspaceMain'),
+    {icon: MenuBookIcon, text: intl.formatMessage({ id: 'planningDialogViewArchivesLabel' }),
+    target: formMarketArchivesLink(marketId), num: _.isEmpty(searchResults) ? undefined :
+      _.size(archiveInvestibles) + _.size(resolvedMarketComments)}];
+  const discussionItems = [inArchives ? {} : createNavListItem(AddIcon,'commentAddBox'),
+    createNavListItem(QuestionIcon,'questions', `c${questionId}`, _.size(questions)),
+    createNavListItem(UpdateIcon,'reports', `c${reportId}`, _.size(reports)),
+    createNavListItem(ChangeSuggstionIcon,'suggestions', `c${suggestId}`, _.size(suggestions))];
+  const storiesItems = [createNavListItem(BlockIcon,'planningBlockedStageLabel', 'blocked', _.size(blockedInvestibles)),
+    createNavListItem(PlayForWorkIcon,'requiresInputStageLabel', 'requiresInput', _.size(requiresInputInvestibles)),
+    createNavListItem(AgilePlanIcon,'swimLanes', 'swimLanes', _.size(swimlaneInvestibles), true),
+    createNavListItem(WorkIcon,'planningInvestibleMoveToFurtherWorkLabel', 'furtherWork',
+      _.size(furtherWorkReadyToStart) + _.size(furtherWorkInvestibles), !inArchives)];
   const navigationMenu = {navHeaderIcon: PlaylistAddCheckIcon,
-    navListItemTextArray: [createNavListItem(EditIcon, 'description_label', 'workspaceMain'),
-      createNavListItem(BlockIcon,'planningBlockedStageLabel', 'blocked', _.size(blockedInvestibles)),
-      createNavListItem(PlayForWorkIcon,'requiresInputStageLabel', 'requiresInput', _.size(requiresInputInvestibles)),
-      createNavListItem(AgilePlanIcon,'swimLanes', 'swimLanes', _.size(swimlaneInvestibles), true),
-      createNavListItem(WorkIcon,'planningInvestibleMoveToFurtherWorkLabel', 'furtherWork',
-        _.size(furtherWorkReadyToStart) + _.size(furtherWorkInvestibles), !inArchives),
+    navListItemTextArray: [{text: intl.formatMessage({ id: 'planningDialogNavDetailsLabel' }),
+      subItems: detailsItems},
+      {text: intl.formatMessage({ id: 'planningDialogNavStoriesLabel' }),
+        subItems: storiesItems},
       createNavListItem(ListAltIcon,'todoSection', 'marketTodos', _.size(todoComments), !inArchives),
-      inArchives ? {} : createNavListItem(AddIcon,'commentAddBox'),
-      createNavListItem(QuestionIcon,'questions', `c${questionId}`, _.size(questions)),
-      createNavListItem(UpdateIcon,'reports', `c${reportId}`, _.size(reports)),
-      createNavListItem(ChangeSuggstionIcon,'suggestions', `c${suggestId}`, _.size(suggestions)),
-      {icon: MenuBookIcon, text: intl.formatMessage({ id: 'planningDialogViewArchivesLabel' }),
-        target: formMarketArchivesLink(marketId), num: _.isEmpty(searchResults) ? undefined :
-          _.size(archiveInvestibles) + _.size(resolvedMarketComments)}
+      {text: intl.formatMessage({ id: 'planningDialogNavDiscussionLabel' }),
+        subItems: discussionItems}
     ]};
   const furtherWorkReadyToStartChip = furtherWorkReadyToStart.length > 0
     && <Chip label={`${furtherWorkReadyToStart.length}`} color="primary" size='small' className={classes.chipStyle} />;

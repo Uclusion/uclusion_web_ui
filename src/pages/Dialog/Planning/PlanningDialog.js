@@ -109,7 +109,8 @@ function PlanningDialog(props) {
       ? makeArchiveBreadCrumbs(history)
       : makeBreadCrumbs(history);
   const unResolvedMarketComments = comments.filter(comment => !comment.investible_id && !comment.resolved) || [];
-  const notTodoComments = unResolvedMarketComments.filter(comment => comment.comment_type !== TODO_TYPE) || [];
+  const notTodoComments = unResolvedMarketComments.filter(comment =>
+    [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE].includes(comment.comment_type)) || [];
   const allowedCommentTypes = [QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE];
   const { name: marketName, market_sub_type: marketSubType, created_by: marketCreatedBy } = market;
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -117,7 +118,7 @@ function PlanningDialog(props) {
   const [beingDraggedHack, setBeingDraggedHack] = useState({});
   const [sectionOpen, setSectionOpen] = useState('workspaceMain');
   const [startTourNow, setStartTourNow] = useState(undefined);
-  const presences = getMarketPresences(marketPresencesState, marketId);
+  const presences = getMarketPresences(marketPresencesState, marketId) || [];
   const acceptedStage = marketStages.find(stage => stage.assignee_enter_only) || {};
   const inDialogStage = marketStages.find(stage => stage.allows_investment) || {};
   const inReviewStage = marketStages.find(stage => isInReviewStage(stage)) || {};
@@ -126,7 +127,7 @@ function PlanningDialog(props) {
   const visibleStages = marketStages.filter((stage) => stage.appears_in_context) || [];
   const visibleStageIds = visibleStages.map((stage) => stage.id);
   const assignablePresences = presences.filter((presence) => !presence.market_banned && presence.following
-    && !presence.market_guest);
+    && !presence.market_guest) || [];
   const isChannel = _.isEmpty(investibles);
 
   const furtherWorkStage = marketStages.find((stage) => (!stage.allows_assignment && !stage.close_comments_on_entrance)) || {};
@@ -180,16 +181,20 @@ function PlanningDialog(props) {
 
   useEffect(() => {
     if (hash) {
-      const notTodoParents = comments.filter(comment =>
-        [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE].includes(comment.comment_type) &&
-        !comment.investible_id && !comment.resolved) || [];
-      const noTodoCommentIds = getThreadIds(notTodoParents, comments);
-      const foundCommentId =  noTodoCommentIds.find((anId) => hash.includes(anId));
-      if (foundCommentId) {
-        setSectionOpen('discussionSection');
+      const linkPresence = assignablePresences.find((presence) => hash.includes(presence.id));
+      if (linkPresence) {
+        setSectionOpen('storiesSection');
+      } else if (hash.includes('workspaceMain')) {
+        setSectionOpen('workspaceMain');
+      } else {
+        const noTodoCommentIds = getThreadIds(notTodoComments, comments);
+        const foundCommentId = noTodoCommentIds.find((anId) => hash.includes(anId));
+        if (foundCommentId) {
+          setSectionOpen('discussionSection');
+        }
       }
     }
-  }, [comments, hash]);
+  }, [assignablePresences, comments, hash, notTodoComments]);
 
   useEffect(() => {
     if (startTourNow === true) {

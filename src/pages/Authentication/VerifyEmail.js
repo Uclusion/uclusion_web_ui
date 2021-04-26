@@ -58,11 +58,11 @@ function VerifyEmail (props) {
     function beginRedirecting (result) {
       console.log('Beginning redirect')
       const { redirect } = result
-      if (!_.isEmpty(redirect)) {
+      if (!_.isEmpty(redirect) && redirect !== '/') {
         console.log(`Setting redirect to ${redirect}`)
         setRedirect(redirect)
       }
-      console.log('redirecting to LOGIN')
+      console.log('sending to LOGIN')
       window.location.replace('/');
     }
 

@@ -279,7 +279,9 @@ function Signup(props) {
       const { response, user } = result;
       if (response === 'ACCOUNT_CREATED') {
         const { email } = user;
-        setRedirect(redirect);
+        if (redirect !== '/') {
+          setRedirect(redirect);
+        }
         setEmail(email);
         window.location.replace('/');
       } else {
@@ -459,7 +461,10 @@ function Signup(props) {
               }}
               align="center"
               onClick={() => {
-                setRedirect(getRedirect());
+                const aRedirect = getRedirect();
+                if (aRedirect !== '/') {
+                  setRedirect();
+                }
                 Auth.federatedSignIn({provider: 'GithubLogin'});
               }}>
               <div className={classes.textWrapper}>
@@ -470,7 +475,10 @@ function Signup(props) {
           {_.isEmpty(qryEmail) && (
             <div className={classes.googleButton} onClick={() => {
               // Must come back to this device so go ahead and set in local storage
-              setRedirect(getRedirect());
+              const aRedirect = getRedirect();
+              if (aRedirect !== '/') {
+                setRedirect();
+              }
               Auth.federatedSignIn({provider: 'Google'});
             }}>
               <img className={classes.googleImg} alt="Sign in with Google" src={`/images/btn_google_dark_normal_ios.svg`} />

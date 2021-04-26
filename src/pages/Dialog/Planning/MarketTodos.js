@@ -225,17 +225,16 @@ function MarketTodos (props) {
       if (foundCommentId) {
         const foundComment = comments.find((comment) => comment.id === foundCommentId);
         const { root_comment_id: rootId, comment_type: commentType } = foundComment;
-        let rootComment = foundComment;
         if (commentType === REPLY_TYPE) {
-          rootComment = comments.find((comment) => comment.id === rootId);
-        }
-        const { notification_type: notificationType } = rootComment;
-        if (notificationType === 'RED') {
-          setEditRedCard(rootComment);
-        } else if (notificationType === 'YELLOW') {
-          setEditYellowCard(rootComment);
-        } else {
-          setEditCard(rootComment);
+          const rootComment = comments.find((comment) => comment.id === rootId);
+          const { notification_type: notificationType } = rootComment;
+          if (notificationType === 'RED') {
+            setEditRedCard(rootComment);
+          } else if (notificationType === 'YELLOW') {
+            setEditYellowCard(rootComment);
+          } else {
+            setEditCard(rootComment);
+          }
         }
       }
       if ((foundCommentId || hash.includes('Todos')) && sectionOpen !== 'marketTodos') {

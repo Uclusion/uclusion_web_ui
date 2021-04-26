@@ -11,7 +11,7 @@ import _ from 'lodash'
 import { getInvitationMarker } from '../../utils/redirectUtils'
 import { getChangedIds } from '../../api/summaries'
 import { createECPMarkets } from '../../pages/Invites/ECPMarketGenerator'
-import { SIGNUP_HOME } from '../TourContext/tourContextHelper'
+import { INVITE_STORIES_WORKSPACE_FIRST_VIEW } from '../TourContext/tourContextHelper'
 import { toastError } from '../../utils/userMessage'
 import { START_TOUR, TOUR_CHANNEL } from '../TourContext/tourContextMessages'
 
@@ -42,7 +42,11 @@ function MarketsProvider(props) {
   useEffect(() => {
     const myChannel = new BroadcastChannel(MARKETS_CHANNEL);
     myChannel.onmessage = (msg) => {
-      if (msg !== broadcastId) {
+      if (typeof msg.includes === 'function' && msg.includes('dialog')) {
+        console.info(`Redirecting from market context to ${msg}`);
+        // Special for onboarding because the verify email tab might also be open
+        window.location.assign(msg);
+      } else if (msg !== broadcastId) {
         console.info(`Reloading on markets channel message ${msg} with ${broadcastId}`);
         const lfg = new LocalForageHelper(MARKET_CONTEXT_NAMESPACE);
         lfg.getState()
@@ -72,10 +76,12 @@ function MarketsProvider(props) {
           pushIndexItems(diskState);
           dispatch(initializeState(diskState));
         } else {
+          console.log('Beginning markets initialization');
           dispatch(initializeState({
             marketDetails: [],
           }));
           if (_.isEmpty(getInvitationMarker())) {
+            console.log('Checking for existing markets');
             // Call the API before potential accidental duplicate demo market creation
             getChangedIds(null).then((versions) => {
               const {
@@ -83,11 +89,13 @@ function MarketsProvider(props) {
               } = versions;
               // Do not create onboarding markets if they already have markets
               if (_.isEmpty(foregroundList) && _.isEmpty(backgroundList) && _.isEmpty(bannedList)) {
-                //TODO make ECP work off of message bus other than the dispatch it has available from markets here
-                createECPMarkets(dispatch)
-                  .then(() => {
+                console.log('Creating demonstration market');
+                return createECPMarkets(dispatch).then((createdId) => {
                     console.log('Done creating');
-                    pushMessage(TOUR_CHANNEL, { event: START_TOUR, tour: SIGNUP_HOME });
+                    pushMessage(TOUR_CHANNEL, { event: START_TOUR, tour: INVITE_STORIES_WORKSPACE_FIRST_VIEW });
+                    const myChannel = new BroadcastChannel(MARKETS_CHANNEL);
+                    return myChannel.postMessage(`/dialog/${createdId}`).then(() => myChannel.close())
+                      .then(() => console.info('Redirect market context sent.'));
                   })
                   .catch((error) => {
                     console.error(error);

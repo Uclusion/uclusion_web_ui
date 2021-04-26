@@ -3,21 +3,21 @@ export function inviteStoriesWorkspaceSteps () {
   return [
     {
       disableBeacon: true,
-      target: '#swimLanes',
-      placement: 'top',
-      content: 'Swimlanes use built-in stages and context based colors to show status at a glance.',
+      target: '#redLevelNotification',
+      placement: 'bottom',
+      content: 'These are critical notification tasks. When a notification task is complete it is cleared for everyone.',
     },
     {
       disableBeacon: true,
-      target: '#redLevelNotification',
-      placement: 'bottom',
-      content: 'Immediate TODOs are useful for development bugs. Complete this notification task to automatically clear it.',
+      target: '#navList',
+      placement: 'right',
+      content: 'Use the navigation sidebar to see the rest of this demonstration workspace.',
     },
     {
       disableBeacon: true,
       target: '#editMarketButtonPlan',
       placement: 'left',
-      content: 'When you are done with this demonstration Workspace your can send it to the archives from the configure screen or your home page.',
+      content: 'When you are done send this workspace to the archives from the configure screen or your home page.',
     }
   ];
 }

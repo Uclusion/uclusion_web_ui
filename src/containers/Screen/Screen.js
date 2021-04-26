@@ -234,7 +234,7 @@ function Screen(props) {
       />
       {!_.isEmpty(navListItemTextArray) && !isTinyWindow() && (
         <div className={classes.listContainer}>
-          <Paper className={classes.paper} elevation={3}>
+          <Paper className={classes.paper} elevation={3} id="navList">
             <List subheader={NavHeaderIcon && <div style={{marginLeft: '5rem', marginTop: '1rem' }}>
               <NavHeaderIcon style={{ height: 32, width: 32 }} /></div>}
             >

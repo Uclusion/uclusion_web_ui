@@ -42,8 +42,6 @@ import {
 import ArchiveInvestbiles from '../../DialogArchives/ArchiveInvestibles'
 import SubSection from '../../../containers/SubSection/SubSection'
 import { getInvestiblesInStage } from '../../../contexts/InvestibesContext/investiblesContextHelper'
-import { TourContext } from '../../../contexts/TourContext/TourContext'
-import { startTour } from '../../../contexts/TourContext/tourContextReducer'
 import { CognitoUserContext } from '../../../contexts/CognitoUserContext/CongitoUserContext'
 import UclusionTour from '../../../components/Tours/UclusionTour'
 import { inviteStoriesWorkspaceSteps } from '../../../components/Tours/storyWorkspace'
@@ -95,7 +93,6 @@ function PlanningDialog(props) {
   const { hash } = location;
   const classes = useInvestiblesByPersonStyles();
   const cognitoUser = useContext(CognitoUserContext);
-  const [, tourDispatch] = useContext(TourContext);
   const [marketsState] = useContext(MarketsContext);
   const [expandedCommentState, expandedCommentDispatch] = useContext(ExpandedCommentContext);
   const intl = useIntl();
@@ -112,12 +109,11 @@ function PlanningDialog(props) {
   const notTodoComments = unResolvedMarketComments.filter(comment =>
     [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE].includes(comment.comment_type)) || [];
   const allowedCommentTypes = [QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE];
-  const { name: marketName, market_sub_type: marketSubType, created_by: marketCreatedBy } = market;
+  const { name: marketName, created_by: marketCreatedBy } = market;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   // For security reasons you can't access source data while being dragged in case you are not the target website
   const [beingDraggedHack, setBeingDraggedHack] = useState({});
   const [sectionOpen, setSectionOpen] = useState('workspaceMain');
-  const [startTourNow, setStartTourNow] = useState(undefined);
   const presences = getMarketPresences(marketPresencesState, marketId) || [];
   const acceptedStage = marketStages.find(stage => stage.assignee_enter_only) || {};
   const inDialogStage = marketStages.find(stage => stage.allows_investment) || {};
@@ -171,8 +167,8 @@ function PlanningDialog(props) {
   const isMarketOwner = marketCreatedBy === myPresence.id;
 
   // if you're the creator we give you the first view , else you're an invited user
-  const tourName = isMarketOwner? INVITE_STORIES_WORKSPACE_FIRST_VIEW :  INVITED_USER_WORKSPACE;
-  const tourSteps = isMarketOwner? inviteStoriesWorkspaceSteps(cognitoUser) : workspaceInvitedUserSteps(myPresence);
+  const tourName = isMarketOwner ? INVITE_STORIES_WORKSPACE_FIRST_VIEW :  INVITED_USER_WORKSPACE;
+  const tourSteps = isMarketOwner ? inviteStoriesWorkspaceSteps(cognitoUser) : workspaceInvitedUserSteps(myPresence);
 
   function toggleShowFurther() {
     const toggleValue = showFurther === undefined ? !undefinedFurtherIsOpenDefault : !showFurther;
@@ -195,21 +191,6 @@ function PlanningDialog(props) {
       }
     }
   }, [assignablePresences, comments, hash, notTodoComments]);
-
-  useEffect(() => {
-    if (startTourNow === true) {
-      tourDispatch(startTour(tourName));
-    }
-  }, [startTourNow, tourDispatch, tourName]);
-
-  useEffect(() => {
-    function hasMarketTodo() {
-      return !_.isEmpty(unResolvedMarketComments.find(comment => comment.comment_type === TODO_TYPE));
-    }
-    if (startTourNow === undefined && !_.isEmpty(marketSubType) && !isChannel && hasMarketTodo()) {
-      setStartTourNow(true);
-    }
-  }, [marketSubType, isMarketOwner, unResolvedMarketComments, isChannel, startTourNow]);
 
   function onClickFurtherStart() {
     const link = formMarketAddInvestibleLink(marketId);

@@ -22,10 +22,6 @@ import {
 } from '../../utils/marketIdPathFunctions'
 import { getAndClearRedirect, redirectToPath } from '../../utils/redirectUtils'
 import WizardSelector from '../../components/AddNew/WizardSelector'
-import UclusionTour from '../../components/Tours/UclusionTour';
-import { SIGNUP_HOME } from '../../contexts/TourContext/tourContextHelper';
-import { signupHomeSteps } from '../../components/Tours/signupHome';
-import { CognitoUserContext } from '../../contexts/CognitoUserContext/CongitoUserContext';
 import InitiativesAndDialogs from './InitiativesAndDialogs'
 import { canCreate } from '../../contexts/AccountContext/accountContextHelper';
 import UpgradeBanner from '../../components/Banners/UpgradeBanner';
@@ -68,7 +64,6 @@ function Home(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const classes = useStyles();
   const [wizardActive, setWizardActive] = useState(false);
-  const user = useContext(CognitoUserContext) || {};
   const [versionsContext] = useContext(VersionsContext);
   const createEnabled = canCreate(accountState);
   const initializedGlobalVersion = hasInitializedGlobalVersion(versionsContext);
@@ -127,10 +122,6 @@ function Home(props) {
       loading={!initializedGlobalVersion}
       navigationOptions={banner ? [] : navigationMenu}
     >
-      <UclusionTour
-        name={SIGNUP_HOME}
-        steps={signupHomeSteps(user)}
-      />
       <WizardSelector
         hidden={!wizardActive}
         onFinish={onWizardFinish}

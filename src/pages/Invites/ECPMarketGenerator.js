@@ -161,7 +161,7 @@ function createProjectWorkspace (marketsDispatch) {
       addedMarkets.forEach((result) => addMarket(result, marketsDispatch, () => {}));
       pushMessage(PUSH_COMMENTS_CHANNEL, { event: COMMENT_LOAD_EVENT, marketId, comments: marketComments });
       pushMessage(PUSH_INVESTIBLES_CHANNEL, { event: LOAD_EVENT, investibles: marketInvestibles });
-      return Promise.resolve(true);
+      return marketId;
     });
   });
 }

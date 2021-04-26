@@ -19,7 +19,7 @@ function ScrollProvider(props) {
         const element = document.getElementById(originalScrollTarget);
         if (element !== null && window.getComputedStyle(element).display !== 'none') {
           if (observer) observer.disconnect()
-          const headerOffset = document.getElementById('app-header').offsetHeight;
+          const headerOffset = document.getElementById('app-header').offsetHeight + 20;
           const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
           const offsetPosition = elementPosition - headerOffset;
           window.scrollTo({

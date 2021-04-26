@@ -72,7 +72,6 @@ const myClasses = makeStyles(
         maxHeight: '25rem'
       },
       outerBorder: {
-        marginTop: '30px',
         marginBottom: '30px'
       },
       chipStyleWhite: {

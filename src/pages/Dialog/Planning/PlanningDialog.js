@@ -294,7 +294,7 @@ function PlanningDialog(props) {
       </div>
       <LocalPlanningDragContext.Provider value={[beingDraggedHack, setBeingDraggedHack]}>
         <div id="storiesSection"
-             style={{marginTop: '2rem', display: sectionOpen === 'storiesSection' ? 'block' : 'none'}}>
+             style={{display: sectionOpen === 'storiesSection' ? 'block' : 'none'}}>
           {!isChannel && (
             <DismissableText textId='stageHelp' textId1='stageHelp1' textId2='stageHelp2' textId3='stageHelp3'
                              textId4='stageHelp4'/>

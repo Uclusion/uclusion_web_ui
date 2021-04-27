@@ -128,7 +128,8 @@ function DialogBodyEdit(props) {
     uploadedFiles,
     description,
     name,
-    beingLocked
+    beingLocked,
+    showDiff
   } = pageState;
   const intl = useIntl();
   const classes = useStyles();
@@ -271,7 +272,7 @@ function DialogBodyEdit(props) {
                   onClick={() => !isTinyWindow() && setBeingEdited(true)}>
         {initialName}
       </Typography>
-      <DescriptionOrDiff id={id} description={initialDescription}
+      <DescriptionOrDiff id={id} description={initialDescription} showDiff={showDiff}
                          setBeingEdited={isTinyWindow() ? () => {} : setBeingEdited}
                          isEditable={isEditableByUser()}/>
     </>

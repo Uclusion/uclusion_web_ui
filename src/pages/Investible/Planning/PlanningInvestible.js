@@ -95,7 +95,7 @@ import { getInvestibleVoters } from '../../../utils/votingUtils';
 import { getCommenterPresences, inVerifedSwimLane } from '../../Dialog/Planning/userUtils';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
-import { findMessageOfType } from '../../../utils/messageUtils'
+import { findMessageOfType, findMessageOfTypeAndId } from '../../../utils/messageUtils'
 import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
 import QuestionIcon from '@material-ui/icons/ContactSupport'
 import UpdateIcon from '@material-ui/icons/Update'
@@ -106,7 +106,7 @@ import EditIcon from '@material-ui/icons/Edit'
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown'
 import HowToVoteIcon from '@material-ui/icons/HowToVote'
 import { getFakeCommentsArray } from '../../../utils/stringFunctions'
-import { QuestionAnswer } from '@material-ui/icons'
+import { ExpandLess, QuestionAnswer } from '@material-ui/icons'
 import AssignmentIcon from '@material-ui/icons/Assignment'
 import InvestibleBodyEdit from '../InvestibleBodyEdit';
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
@@ -115,6 +115,8 @@ import {
   LOCK_INVESTIBLE,
   LOCK_INVESTIBLE_CHANNEL
 } from '../../../contexts/InvestibesContext/investiblesContextMessages'
+import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
+import { getDiff, markDiffViewed } from '../../../contexts/DiffContext/diffContextHelper'
 
 const useStyles = makeStyles(
   theme => ({
@@ -925,6 +927,8 @@ function PlanningInvestible(props) {
                 isInVoting={isInVoting}
                 acceptedFull={acceptedFull}
                 questionByAssignedComments={questionByAssignedComments}
+                pageState={pageState}
+                updatePageState={updatePageState}
               />
             </Grid>
           </Grid>
@@ -1208,6 +1212,7 @@ function MarketMetaData(props) {
   const {
     market,
     marketInvestible,
+    investibleId,
     isAdmin,
     stageActions,
     expansionChanged,
@@ -1221,8 +1226,13 @@ function MarketMetaData(props) {
     todoComments,
     isInVoting,
     acceptedFull,
-    questionByAssignedComments
+    questionByAssignedComments,
+    pageState, updatePageState
   } = props;
+
+  const {
+    showDiff
+  } = pageState;
 
   let stageLabel;
   switch (stageName) {
@@ -1254,7 +1264,10 @@ function MarketMetaData(props) {
       stageLabel = 'changeStage'
   }
   const [, investiblesDispatch] = useContext(InvestiblesContext);
-  const [, diffDispatch] = useContext(DiffContext);
+  const [diffState, diffDispatch] = useContext(DiffContext);
+  const [messagesState] = useContext(NotificationsContext);
+  const myMessage = findMessageOfTypeAndId(investibleId, messagesState);
+  const diff = getDiff(diffState, investibleId);
   const classes = useMetaDataStyles();
   const attachedFiles = marketInvestible.investible && marketInvestible.investible.attached_files;
 
@@ -1269,7 +1282,7 @@ function MarketMetaData(props) {
   }
 
   function onDeleteFile(path) {
-    return deleteAttachedFilesFromInvestible(market.id, marketInvestible.investible.id, [path])
+    return deleteAttachedFilesFromInvestible(market.id, investibleId, [path])
       .then((investible) => {
         addInvestible(investiblesDispatch, diffDispatch, investible);
         return EMPTY_SPIN_RESULT;
@@ -1277,8 +1290,15 @@ function MarketMetaData(props) {
   }
 
   function onAttachFiles(metadatas) {
-    return attachFilesToInvestible(market.id, marketInvestible.investible.id, metadatas)
+    return attachFilesToInvestible(market.id, investibleId, metadatas)
       .then((investible) => addInvestible(investiblesDispatch, diffDispatch, investible));
+  }
+
+  function toggleDiffShow() {
+    if (showDiff) {
+      markDiffViewed(diffDispatch, investibleId);
+    }
+    updatePageState({showDiff: !showDiff});
   }
 
   return (
@@ -1292,7 +1312,7 @@ function MarketMetaData(props) {
           {!inArchives && isAssigned && (
               <MoveToNextVisibleStageActionButton
                 key="visible"
-                investibleId={marketInvestible.investible.id}
+                investibleId={investibleId}
                 marketId={market.id}
                 currentStageId={stage}
                 disabled={!_.isEmpty(blockingComments) || (isInVoting && (!isAssigned || acceptedFull))}
@@ -1321,6 +1341,15 @@ function MarketMetaData(props) {
             </Menu>
           </div>
         </React.Fragment>
+      )}
+      {myMessage && diff && (
+        <>
+          <div style={{paddingTop: '0.5rem'}} />
+          <SpinningIconLabelButton icon={showDiff ? ExpandLess : ExpandMoreIcon}
+                                   onClick={toggleDiffShow} doSpin={false}>
+            <FormattedMessage id={showDiff ? 'diffDisplayDismissLabel' : 'diffDisplayShowLabel'} />
+          </SpinningIconLabelButton>
+        </>
       )}
       <div style={{paddingTop: '1rem'}} />
       <AttachedFilesList

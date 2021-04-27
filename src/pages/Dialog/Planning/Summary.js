@@ -33,6 +33,12 @@ import { getPageReducerPage, usePageStateReducer } from '../../../components/Pag
 import _ from 'lodash'
 import { pushMessage } from '../../../utils/MessageBusUtils'
 import { LOCK_MARKET, LOCK_MARKET_CHANNEL } from '../../../contexts/MarketsContext/marketsContextMessages'
+import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import { findMessageOfTypeAndId } from '../../../utils/messageUtils'
+import { getDiff, markDiffViewed } from '../../../contexts/DiffContext/diffContextHelper'
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
+import { ExpandLess } from '@material-ui/icons'
 
 const useStyles = makeStyles(theme => ({
   section: {
@@ -213,11 +219,15 @@ function Summary(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [accountState] = useContext(AccountContext);
   const [, marketsDispatch] = useContext(MarketsContext);
-  const [, diffDispatch] = useContext(DiffContext);
+  const [diffState, diffDispatch] = useContext(DiffContext);
+  const [messagesState] = useContext(NotificationsContext);
+  const myMessage = findMessageOfTypeAndId(id, messagesState);
+  const diff = getDiff(diffState, id);
   const [pageStateFull, pageDispatch] = usePageStateReducer('market');
   const [pageState, updatePageState, pageStateReset] = getPageReducerPage(pageStateFull, pageDispatch, id);
   const {
     beingEdited,
+    showDiff
   } = pageState;
   const marketPresences = getMarketPresences(marketPresencesState, id) || []
   let lockedByName;
@@ -266,6 +276,13 @@ function Summary(props) {
     }
     updatePageState({beingEdited: true, name, description});
     return pushMessage(LOCK_MARKET_CHANNEL, { event: LOCK_MARKET, marketId: id });
+  }
+
+  function toggleDiffShow() {
+    if (showDiff) {
+      markDiffViewed(diffDispatch, id);
+    }
+    updatePageState({showDiff: !showDiff});
   }
 
   return (
@@ -338,6 +355,15 @@ function Summary(props) {
                 }
               />
             </div>
+          )}
+          {myMessage && diff && (
+            <>
+              <div style={{paddingTop: '0.5rem'}} />
+              <SpinningIconLabelButton icon={showDiff ? ExpandLess : ExpandMoreIcon}
+                                       onClick={toggleDiffShow} doSpin={false}>
+                <FormattedMessage id={showDiff ? 'diffDisplayDismissLabel' : 'diffDisplayShowLabel'} />
+              </SpinningIconLabelButton>
+            </>
           )}
           <div style={{paddingTop: '1rem'}} />
           <AttachedFilesList

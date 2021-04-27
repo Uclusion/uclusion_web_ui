@@ -56,7 +56,8 @@ function InvestibleBodyEdit(props) {
     uploadedFiles,
     description,
     name,
-    beingLocked
+    beingLocked,
+    showDiff
   } = pageState;
   const intl = useIntl();
   const [, investiblesDispatch] = useContext(InvestiblesContext);
@@ -211,7 +212,7 @@ function InvestibleBodyEdit(props) {
                   onClick={() => !isTinyWindow() && setBeingEdited(true)}>
         {initialName}
       </Typography>
-      <DescriptionOrDiff id={investibleId} description={initialDescription}
+      <DescriptionOrDiff id={investibleId} description={initialDescription} showDiff={showDiff}
                          setBeingEdited={isTinyWindow() ? () => {} : setBeingEdited}
                          isEditable={isEditableByUser()} />
     </>

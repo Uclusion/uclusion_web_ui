@@ -102,7 +102,7 @@ function DialogActions(props) {
         <EditMarketButton
           labelId="edit"
           marketId={marketId}
-          onClick={() => mySetBeingEdited(true)}
+          onClick={(event) => mySetBeingEdited(true, event)}
         />);
     }
     return actions;

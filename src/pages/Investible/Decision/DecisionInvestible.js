@@ -279,7 +279,7 @@ function DecisionInvestible(props) {
           <EditMarketButton
             labelId="edit"
             marketId={marketId}
-            onClick={() => mySetBeingEdited(true)}
+            onClick={(event) => mySetBeingEdited(true, event)}
           />
       )}
       {marketType === PLANNING_TYPE && (

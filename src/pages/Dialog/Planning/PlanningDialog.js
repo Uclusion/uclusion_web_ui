@@ -59,9 +59,6 @@ import AddIcon from '@material-ui/icons/Add'
 import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
 import PlaylistAddCheckIcon from '@material-ui/icons/PlaylistAddCheck';
 import { workspaceInvitedUserSteps } from '../../../components/Tours/InviteTours/workspaceInvitedUser';
-import { ExpandLess } from '@material-ui/icons'
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
-import { EXPANDED_CONTROL, ExpandedCommentContext } from '../../../contexts/CommentsContext/ExpandedCommentContext'
 import WorkIcon from '@material-ui/icons/Work'
 import ListAltIcon from '@material-ui/icons/ListAlt'
 import EditIcon from '@material-ui/icons/Edit'
@@ -92,11 +89,8 @@ function PlanningDialog(props) {
   const { hash } = location;
   const classes = useInvestiblesByPersonStyles();
   const [marketsState] = useContext(MarketsContext);
-  const [expandedCommentState, expandedCommentDispatch] = useContext(ExpandedCommentContext);
   const intl = useIntl();
   const { id: marketId, market_stage: marketStage } = market;
-  const myExpandedState = expandedCommentState[`${marketId}_further`] || {};
-  const { expanded: showFurther } = myExpandedState;
   const activeMarket = marketStage === ACTIVE_STAGE;
   const inArchives = !activeMarket || (myPresence && !myPresence.following);
   const isAdmin = myPresence.is_admin;
@@ -132,7 +126,6 @@ function PlanningDialog(props) {
     const { open_for_investment: openForInvestment } = marketInfo;
     return openForInvestment;
   });
-  const undefinedFurtherIsOpenDefault = !(_.isEmpty(furtherWorkInvestibles) && _.isEmpty(furtherWorkReadyToStart));
   const requiresInputInvestibles = getInvestiblesInStage(investibles, requiresInputStage.id);
   const blockedInvestibles = getInvestiblesInStage(investibles, inBlockingStage.id);
   const swimlaneInvestibles = investibles.filter((inv) => {
@@ -167,11 +160,6 @@ function PlanningDialog(props) {
   // if you're the creator we give you the first view , else you're an invited user
   const tourName = isMarketOwner ? INVITE_STORIES_WORKSPACE_FIRST_VIEW :  INVITED_USER_WORKSPACE;
   const tourSteps = isMarketOwner ? inviteStoriesWorkspaceSteps(myPresence) : workspaceInvitedUserSteps(myPresence);
-
-  function toggleShowFurther() {
-    const toggleValue = showFurther === undefined ? !undefinedFurtherIsOpenDefault : !showFurther;
-    expandedCommentDispatch({ type: EXPANDED_CONTROL, commentId: `${marketId}_further`, expanded: toggleValue });
-  }
 
   useEffect(() => {
     if (hash) {
@@ -267,11 +255,10 @@ function PlanningDialog(props) {
         subItems: discussionItems, isBold: sectionOpen === 'discussionSection'}
     ]};
   const furtherWorkReadyToStartChip = furtherWorkReadyToStart.length > 0
-    && <Chip label={`${furtherWorkReadyToStart.length}`} color="primary" size='small' className={classes.chipStyle} />;
+    && <Chip label={`${furtherWorkReadyToStart.length}`} color="primary" size='small'
+             className={classes.chipStyleYellow} />;
   const furtherWorkNotReadyToStartChip = furtherWorkInvestibles.length > 0 &&
-    <Chip label={`${furtherWorkInvestibles.length}`} size='small' className={classes.chipStyleYellow} />;
-  const furtherWorkChips = !showFurther && (<div>{furtherWorkReadyToStartChip} {furtherWorkNotReadyToStartChip}</div>);
-  const hideFurtherWork = showFurther === false || (showFurther === undefined && !undefinedFurtherIsOpenDefault);
+    <Chip label={`${furtherWorkInvestibles.length}`} size='small' className={classes.chipStyleBlue} />;
   return (
     <Screen
       title={marketName}
@@ -365,16 +352,7 @@ function PlanningDialog(props) {
             isBlackText
             helpTextId="furtherSectionHelp"
             id="furtherWork"
-            hideChildren={hideFurtherWork}
-            titleIcon={furtherWorkChips === false || !hideFurtherWork ? undefined : furtherWorkChips}
             title={intl.formatMessage({ id: 'readyFurtherWorkHeader' })}
-            actionButton={
-              (<ExpandableAction
-                icon={showFurther ? <ExpandLess htmlColor="black"/> : <ExpandMoreIcon htmlColor="black"/>}
-                label={intl.formatMessage({ id: 'toggleFurtherExplanation' })}
-                onClick={toggleShowFurther}
-                tipPlacement="top-end"
-              />)}
           >
             <div style={{paddingTop: '1rem'}} />
             <SubSection
@@ -527,7 +505,12 @@ export const useInvestiblesByPersonStyles = makeStyles(
         marginRight: '5px',
         color: 'black',
         backgroundColor: '#e6e969'
-      }
+      },
+      chipStyleBlue: {
+        marginRight: '5px',
+        color: 'white',
+        backgroundColor: '#2F80ED'
+      },
     };
   },
   { name: "InvestiblesByPerson" }

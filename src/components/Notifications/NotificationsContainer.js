@@ -28,6 +28,7 @@ function NotificationsContainer () {
       )}
       {showYellowMessages && (
           <Notifications
+            id="yellowLevelNotification"
             level={YELLOW_LEVEL}
             messages={yellowMessages}
             active={activeLevel}

@@ -35,6 +35,9 @@ import PlaylistAddCheckIcon from '@material-ui/icons/PlaylistAddCheck'
 import GavelIcon from '@material-ui/icons/Gavel'
 import PollIcon from '@material-ui/icons/Poll'
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
+import { INVITED_USER_WORKSPACE } from '../../contexts/TourContext/tourContextHelper'
+import { TourContext } from '../../contexts/TourContext/TourContext'
+import { startTour } from '../../contexts/TourContext/tourContextReducer'
 
 const useStyles = makeStyles(() => ({
     spacer: {
@@ -64,6 +67,7 @@ function Home(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const classes = useStyles();
   const [wizardActive, setWizardActive] = useState(false);
+  const [, tourDispatch] = useContext(TourContext);
   const [versionsContext] = useContext(VersionsContext);
   const createEnabled = canCreate(accountState);
   const initializedGlobalVersion = hasInitializedGlobalVersion(versionsContext);
@@ -74,6 +78,9 @@ function Home(props) {
   useEffect(() => {
     const redirect = getAndClearRedirect();
     if (!_.isEmpty(redirect) && redirect !== '/') {
+      // Since we are going somewhere go ahead and start the invite tour - if they have taken already its
+      // harmless and if they own the workspace they will get the demo tour which they have taken already
+      tourDispatch(startTour(INVITED_USER_WORKSPACE));
       console.log(`Redirecting you to ${redirect}`);
       redirectToPath(history, redirect);
     }

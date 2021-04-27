@@ -42,7 +42,6 @@ import {
 import ArchiveInvestbiles from '../../DialogArchives/ArchiveInvestibles'
 import SubSection from '../../../containers/SubSection/SubSection'
 import { getInvestiblesInStage } from '../../../contexts/InvestibesContext/investiblesContextHelper'
-import { CognitoUserContext } from '../../../contexts/CognitoUserContext/CongitoUserContext'
 import UclusionTour from '../../../components/Tours/UclusionTour'
 import { inviteStoriesWorkspaceSteps } from '../../../components/Tours/storyWorkspace'
 import {
@@ -92,7 +91,6 @@ function PlanningDialog(props) {
   const location = useLocation();
   const { hash } = location;
   const classes = useInvestiblesByPersonStyles();
-  const cognitoUser = useContext(CognitoUserContext);
   const [marketsState] = useContext(MarketsContext);
   const [expandedCommentState, expandedCommentDispatch] = useContext(ExpandedCommentContext);
   const intl = useIntl();
@@ -168,7 +166,7 @@ function PlanningDialog(props) {
 
   // if you're the creator we give you the first view , else you're an invited user
   const tourName = isMarketOwner ? INVITE_STORIES_WORKSPACE_FIRST_VIEW :  INVITED_USER_WORKSPACE;
-  const tourSteps = isMarketOwner ? inviteStoriesWorkspaceSteps(cognitoUser) : workspaceInvitedUserSteps(myPresence);
+  const tourSteps = isMarketOwner ? inviteStoriesWorkspaceSteps(myPresence) : workspaceInvitedUserSteps(myPresence);
 
   function toggleShowFurther() {
     const toggleValue = showFurther === undefined ? !undefinedFurtherIsOpenDefault : !showFurther;

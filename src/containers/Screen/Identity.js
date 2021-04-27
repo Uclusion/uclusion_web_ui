@@ -1,8 +1,7 @@
 import React, { useContext, useState } from 'react';
-import { Button, makeStyles, Menu, Tooltip, Typography } from '@material-ui/core'
+import { Button, ListItem, ListItemText, makeStyles, Menu, Tooltip, Typography } from '@material-ui/core'
 import SettingsIcon from '@material-ui/icons/Settings';
 import { useHistory } from 'react-router';
-import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
 import Link from '@material-ui/core/Link';
 import { FormattedMessage, useIntl } from 'react-intl'
@@ -13,6 +12,9 @@ import config from '../../config';
 import { isFederated } from '../../contexts/CognitoUserContext/cognitoUserContextHelper';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline'
 import Gravatar from '../../components/Avatars/Gravatar';
+import Grid from '@material-ui/core/Grid'
+import IconButton from '@material-ui/core/IconButton'
+import { ContactSupport, Face, Payment, PermIdentity, VpnKey } from '@material-ui/icons'
 
 const useStyles = makeStyles((theme) => ({
   name: {
@@ -32,9 +34,10 @@ const useStyles = makeStyles((theme) => ({
   identityBlock: {
     paddingBottom: theme.spacing(1),
     textAlign: 'center',
+    minWidth: '15rem'
   },
   changeAvatar: {
-    color: theme.palette.text.secondary,
+    color: 'black',
   },
   termsLink: {
     color: theme.palette.text.secondary,
@@ -57,10 +60,20 @@ const useStyles = makeStyles((theme) => ({
       }
     },
   },
+  chip: {
+    border: '0.5px solid grey',
+  },
+  listAction: {
+    paddingTop: 0,
+    paddingBottom: 0,
+    '&:hover': {
+      backgroundColor: '#e0e0e0'
+    },
+  },
   signOut: {
     textAlign: 'center',
     paddingTop: theme.spacing(2),
-    paddingBottom: theme.spacing(2),
+    paddingBottom: theme.spacing(1),
   },
   largeAvatar: {
     width: theme.spacing(8),
@@ -139,51 +152,54 @@ function Identity (props) {
           <div className={classes.identityBlock}>
             <Gravatar className={classes.largeAvatar} email={email}/>
             <Typography>{chipLabel}</Typography>
-            <Typography>{email}</Typography>
-            <Link underline="hover"
-                  href="https://www.gravatar.com"
+            <Typography style={{color: 'grey'}}>{email}</Typography>
+          </div>
+          <Grid container alignItems="center" style={{paddingBottom: '1rem'}}>
+            <Grid item xs={4} />
+            <Grid item xs={1} style={{marginRight: '10px'}}>
+              <Tooltip title={intl.formatMessage({ id: 'changePreferencesHeader' })}>
+                <IconButton onClick={goTo('/notificationPreferences')} size="small" className={classes.chip}>
+                  <PermIdentity style={{fontSize: 'medium'}} />
+                </IconButton>
+              </Tooltip>
+            </Grid>
+            <Grid item xs={1} style={{marginRight: '10px'}}>
+              <Tooltip title={intl.formatMessage({ id: 'changePasswordHeader' })}>
+                <IconButton onClick={goTo('/changePassword')} size="small" className={classes.chip}
+                            disabled={!canChangeUserValues}>
+                  <VpnKey style={{fontSize: 'medium'}} />
+                </IconButton>
+              </Tooltip>
+            </Grid>
+            <Grid item xs={1}>
+              <Tooltip title={intl.formatMessage({ id: 'billingMenuItem' })}>
+                <IconButton onClick={goTo('/billing')} size="small" className={classes.chip}>
+                  <Payment style={{fontSize: 'medium'}} />
+                </IconButton>
+              </Tooltip>
+            </Grid>
+            <Grid item xs={4} />
+          </Grid>
+          <ListItem className={classes.listAction}>
+            <Face style={{fontSize: 'medium', marginRight: 6}} />
+            <Link href="https://www.gravatar.com"
                   className={classes.changeAvatar}
                   target="_blank"
+                  underline="none"
             >
-              {intl.formatMessage({ id: 'IdentityChangeAvatar' })}
+              <ListItemText className={classes.name}
+                            primary={intl.formatMessage({ id: 'IdentityChangeAvatar' })} />
             </Link>
-          </div>
-          <Divider/>
-          <MenuItem
-            onClick={goTo('/support')}
-          >
-            <Typography className={classes.name}>
-              {intl.formatMessage({ id: 'support' })}
-            </Typography>
-          </MenuItem>
-          <MenuItem
-            onClick={goTo('/notificationPreferences')}
-          >
-            <Typography className={classes.name}>
-              {intl.formatMessage({ id: 'changePreferencesHeader' })}
-            </Typography>
-          </MenuItem>
-          {canChangeUserValues && (<MenuItem
-            onClick={goTo('/changePassword')}
-          >
-            <Typography className={classes.name}>
-              {intl.formatMessage({ id: 'changePasswordHeader' })}
-            </Typography>
-          </MenuItem>)}
-          {config.payments.enabled && (
-            <MenuItem
-              onClick={goTo('/billing')}
-            >
-              <Typography className={classes.name}>
-                {intl.formatMessage({ id: 'billingMenuItem' })}
-              </Typography>
-            </MenuItem>
-          )}
-          <Divider/>
+          </ListItem>
+          <ListItem className={classes.listAction} onClick={goTo('/support')}>
+            <ContactSupport style={{fontSize: 'medium', marginRight: 6}} />
+            <ListItemText className={classes.name}
+                          primary={intl.formatMessage({ id: 'support' })} />
+          </ListItem>
+          <Divider style={{marginTop: '1rem'}} />
           <div className={classes.signOut}>
             <SignOut />
           </div>
-          <Divider/>
           <div className={classes.terms}>
             {window.outerWidth <= 600 && (
               <Tooltip title={<FormattedMessage id="help" />}>

@@ -320,8 +320,7 @@ function PlanningDialog(props) {
               />
             </SubSection>
           )}
-          {!_.isEmpty(blockedInvestibles) && !_.isEmpty(requiresInputInvestibles) &&
-          (<div style={{ paddingBottom: '15px' }}/>)}
+          {!_.isEmpty(blockedInvestibles) && (<div style={{ paddingBottom: '2rem' }}/>)}
           {!_.isEmpty(requiresInputInvestibles) && (
             <SubSection
               type={SECTION_TYPE_SECONDARY_WARNING}
@@ -345,7 +344,8 @@ function PlanningDialog(props) {
               />
             </SubSection>
           )}
-          <div id="swimLanes" style={{paddingTop: '3rem'}}>
+          {!_.isEmpty(requiresInputInvestibles) && (<div style={{ paddingBottom: '2rem' }}/>)}
+          <div id="swimLanes">
             <InvestiblesByPerson
               comments={comments}
               investibles={investibles}
@@ -480,7 +480,7 @@ export const useInvestiblesByPersonStyles = makeStyles(
   theme => {
     return {
       root: {
-        margin: theme.spacing(1, 0, '3rem')
+        margin: theme.spacing(1, 0, '2rem')
       },
       content: {
         padding: theme.spacing(0, 1),

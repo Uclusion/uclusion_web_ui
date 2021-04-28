@@ -750,7 +750,7 @@ const messages = defineMessages({
 
   // Change Password
   errorChangePasswordFailed: 'Change password failed. Please try again.',
-  changePasswordHeader: 'Change your password',
+  changePasswordHeader: 'Change password',
   changePasswordNewLabel: 'New password',
   changePasswordRepeatLabel: 'Repeat new password',
   changePasswordOldLabel: 'Old password',
@@ -761,7 +761,7 @@ const messages = defineMessages({
   errorSignOutFailed: 'Sign out failed. Please try again.',
 
   // Change Preferences
-  changePreferencesHeader: 'Change your notification preferences',
+  changePreferencesHeader: 'Notification preferences',
   emailEnabledLabel: 'Send notifications via email',
   slackEnabledLabel: 'Send notifications via Slack',
   changePreferencesButton: 'Update Preferences',
@@ -798,10 +798,10 @@ const messages = defineMessages({
   spinVersionCheckError: 'There was an error. Please retry your operation.',
 
   // subscription page
-  BillingHomeTitle: 'Your Plan',
+  BillingHomeTitle: 'Billing Plan',
 
   //upgradeMenu
-  billingMenuItem: 'Your Plan',
+  billingMenuItem: 'Billing plan',
   billingFreeTier: 'You are currently on the Free plan.',
   billingStandardTier: 'You are currently on the Personal plan.',
   billingUnknownTier: 'You are on a custom plan.',

@@ -22,7 +22,7 @@ import {
   navigate
 } from '../../../utils/marketIdPathFunctions'
 import {
-  QUESTION_TYPE,
+  QUESTION_TYPE, REPLY_TYPE,
   REPORT_TYPE,
   SUGGEST_CHANGE_TYPE,
   TODO_TYPE
@@ -98,8 +98,9 @@ function PlanningDialog(props) {
       ? makeArchiveBreadCrumbs(history)
       : makeBreadCrumbs(history);
   const unResolvedMarketComments = comments.filter(comment => !comment.investible_id && !comment.resolved) || [];
+  // There is no link to a reply so including them should be okay
   const notTodoComments = unResolvedMarketComments.filter(comment =>
-    [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE].includes(comment.comment_type)) || [];
+    [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE, REPLY_TYPE].includes(comment.comment_type)) || [];
   const allowedCommentTypes = [QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE];
   const { name: marketName, created_by: marketCreatedBy } = market;
   const [marketPresencesState] = useContext(MarketPresencesContext);

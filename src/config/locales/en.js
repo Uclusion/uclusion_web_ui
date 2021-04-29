@@ -322,7 +322,7 @@ const messages = defineMessages({
   investibleAddToVotingLabel: 'Move to Approvable Options',
   investibleBackToOptionPoolLabel: 'Back to Proposed Options',
   investibleAddToVotingExplanation: 'Move to approvable option. Can be moved back to proposed later.',
-  investibleRemoveFromVotingExplanation: 'Remove current approval and move back to Proposed Option',
+  investibleRemoveFromVotingTitle: 'Move to Proposed Option',
   investibleDeleteLabel: 'Permanently Delete',
   investibleDeleteExplanationLabel: 'Permanently remove this option from the dialog',
   planningInvestibleToVotingLabel: 'Ready for Approval',

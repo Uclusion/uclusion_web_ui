@@ -7,38 +7,20 @@ import {
   getProposedOptionsStage,
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { moveInvestibleToCurrentVoting } from '../../../api/investibles'
-import SpinningTooltipIconButton from '../../../components/SpinBlocking/SpinningTooltipIconButton'
-import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
-import { makeStyles } from '@material-ui/styles'
-import { ListItemText } from '@material-ui/core'
-import { useIntl } from 'react-intl'
+import { ACTION_BUTTON_COLOR, HIGHLIGHTED_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
+import { FormattedMessage } from 'react-intl'
 import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
-
-const style = makeStyles(() => {
-    return {
-      containerRed: {
-        boxShadow: "10px 5px 5px red"
-      },
-      menuTitle: {
-        paddingLeft: 0,
-        paddingRight: 0,
-        marginRight: 0,
-        color: 'black',
-        fontWeight: 'bold',
-      },
-    };
-  }
-);
+import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 
 function MoveToCurrentVotingActionButton(props) {
-  const { onClick, investibleId, marketId } = props;
-  const intl = useIntl();
-  const classes = style();
+  const { onClick, investibleId, marketId, hasIssue } = props;
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, diffDispatch] = useContext(DiffContext);
   const [, invDispatch] = useContext(InvestiblesContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const inCurrentVotingStage = getInCurrentVotingStage(marketStagesState, marketId);
   const proposedStage = getProposedOptionsStage(marketStagesState, marketId);
 
@@ -51,26 +33,21 @@ function MoveToCurrentVotingActionButton(props) {
         stage_id: inCurrentVotingStage.id,
       },
     };
+    setOperationRunning(true);
     return moveInvestibleToCurrentVoting(moveInfo)
       .then((inv) => {
+        setOperationRunning(false);
         refreshInvestibles(invDispatch, diffDispatch, [inv]);
         onClick();
       });
   }
 
   return (
-    <div className={classes.containerRed}>
-      <SpinningTooltipIconButton
-        marketId={marketId}
-        icon={<ArrowUpwardIcon htmlColor={ACTION_BUTTON_COLOR} />}
-        translationId="investibleAddToVotingExplanation"
-        onClick={moveToProposed}
-      >
-        <ListItemText className={classes.menuTitle}>
-          {intl.formatMessage({ id: 'investibleAddToVotingLabel' })}
-        </ListItemText>
-      </SpinningTooltipIconButton>
-    </div>
+    <SpinningIconLabelButton icon={ArrowUpwardIcon}
+                             iconColor={hasIssue ? ACTION_BUTTON_COLOR : HIGHLIGHTED_BUTTON_COLOR}
+                             onClick={moveToProposed} noMargin>
+      <FormattedMessage id="investibleAddToVotingLabel" />
+    </SpinningIconLabelButton>
   );
 }
 

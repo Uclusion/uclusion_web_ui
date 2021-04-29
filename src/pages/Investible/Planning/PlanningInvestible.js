@@ -73,7 +73,7 @@ import AddIcon from '@material-ui/icons/Add'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import MoveToFurtherWorkActionButton from './MoveToFurtherWorkActionButton'
 import { DaysEstimate } from '../../../components/AgilePlan'
-import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
+import { ACTION_BUTTON_COLOR, HIGHLIGHTED_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
 import AttachedFilesList from '../../../components/Files/AttachedFilesList'
 import {
   attachFilesToInvestible,
@@ -930,6 +930,8 @@ function PlanningInvestible(props) {
                 questionByAssignedComments={questionByAssignedComments}
                 pageState={pageState}
                 updatePageState={updatePageState}
+                acceptedEmpty={assignedInAcceptedStage.length === 0}
+                invested={invested}
               />
             </Grid>
           </Grid>
@@ -1227,6 +1229,8 @@ function MarketMetaData(props) {
     todoComments,
     isInVoting,
     acceptedFull,
+    acceptedEmpty,
+    invested,
     questionByAssignedComments,
     pageState, updatePageState
   } = props;
@@ -1317,6 +1321,7 @@ function MarketMetaData(props) {
                 marketId={market.id}
                 currentStageId={stage}
                 disabled={!_.isEmpty(blockingComments) || (isInVoting && (!isAssigned || acceptedFull))}
+                iconColor={isInVoting && _.size(invested) > 0 && acceptedEmpty ? HIGHLIGHTED_BUTTON_COLOR : undefined}
                 acceptedStageAvailable={!acceptedFull}
                 hasTodos={!_.isEmpty(todoComments)}
                 hasAssignedQuestions={!_.isEmpty(questionByAssignedComments)}

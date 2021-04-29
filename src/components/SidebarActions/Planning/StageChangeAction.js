@@ -70,6 +70,7 @@ function StageChangeAction(props) {
     onSpinStop,
     isOpen,
     disabled,
+    iconColor,
     operationBlocked,
     blockedOperationTranslationId,
     standAlone,
@@ -169,7 +170,8 @@ function StageChangeAction(props) {
   }
   if (standAlone) {
     return (
-      <SpinningIconLabelButton icon={icon} onClick={moveToTarget} disabled={disabled} key={key} noMargin>
+      <SpinningIconLabelButton icon={icon} iconColor={iconColor} onClick={moveToTarget} disabled={disabled} key={key}
+                               noMargin>
         <FormattedMessage
           id={translationId}
         />

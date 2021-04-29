@@ -290,6 +290,7 @@ function DecisionInvestible(props) {
             key="moveToCurrent"
             investibleId={investibleId}
             marketId={marketId}
+            hasIssue={hasIssue}
           />
       )}
       {isAdmin && !inProposed && (

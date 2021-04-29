@@ -1,6 +1,6 @@
 import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
-import { FormattedMessage, useIntl } from 'react-intl'
+import { FormattedMessage } from 'react-intl'
 import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import {
@@ -10,8 +10,6 @@ import {
 import { moveInvestibleBackToOptionPool } from '../../../api/investibles'
 import { Dialog } from '../../../components/Dialogs'
 import { useLockedDialogStyles } from '../../Dialog/DialogBodyEdit'
-import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
-import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
 import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
@@ -22,7 +20,6 @@ import WarningIcon from '@material-ui/icons/Warning'
 
 function MoveBackToPoolActionButton(props) {
   const { onClick, investibleId, marketId } = props;
-  const intl = useIntl();
   const [open, setOpen] = React.useState(false);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, diffDispatch] = useContext(DiffContext);
@@ -60,11 +57,10 @@ function MoveBackToPoolActionButton(props) {
   const lockedDialogClasses = useLockedDialogStyles();
   return (
     <div>
-      <ExpandableAction
-        icon={<ArrowDownwardIcon htmlColor={ACTION_BUTTON_COLOR} />}
-        label={intl.formatMessage({ id: 'investibleRemoveFromVotingExplanation' })}
-        onClick={handleOpen}
-      />
+      <SpinningIconLabelButton icon={ArrowDownwardIcon} doSpin={false}
+                               onClick={handleOpen} noMargin>
+        <FormattedMessage id="investibleRemoveFromVotingTitle" />
+      </SpinningIconLabelButton>
       <RemoveOption
         classes={lockedDialogClasses}
         open={open}

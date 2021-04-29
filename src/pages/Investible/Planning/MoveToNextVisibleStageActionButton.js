@@ -11,31 +11,17 @@ import {
   getVerifiedStage,
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import StageChangeAction from '../../../components/SidebarActions/Planning/StageChangeAction'
-import { makeStyles } from '@material-ui/styles'
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
-
-const style = makeStyles(() => {
-    return {
-      containerYellow: {
-        boxShadow: "10px 5px 5px yellow"
-      },
-      containerNone: {},
-    };
-  }
-);
 
 function MoveToNextVisibleStageActionButton(props) {
-  const { marketId, currentStageId, disabled, acceptedStageAvailable, hasTodos, hasAssignedQuestions } = props;
-  const classes = style();
+  const { marketId, currentStageId, disabled, acceptedStageAvailable, hasTodos, hasAssignedQuestions,
+    iconColor } = props;
   const [marketStagesState] = useContext(MarketStagesContext);
-  const [operationRunning] = useContext(OperationInProgressContext);
   const acceptedStage = getAcceptedStage(marketStagesState, marketId) || {};
   const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
   const inVotingStage = getInCurrentVotingStage(marketStagesState, marketId) || {};
   const inBlockedStage = getBlockedStage(marketStagesState, marketId) || {};
   const inRequiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
   const verifiedStage = getVerifiedStage(marketStagesState, marketId) || {};
-  let highlightClass = classes.containerNone;
   let destinationStage;
   let destinationExplanation;
   let destinationLabel;
@@ -44,9 +30,6 @@ function MoveToNextVisibleStageActionButton(props) {
     destinationExplanation = 'planningInvestibleAcceptedExplanation';
     destinationLabel = disabled ? 'planningInvestibleNextStageAcceptedFullLabel'
       : 'planningInvestibleNextStageAcceptedLabel';
-    if (!(disabled || operationRunning)) {
-      highlightClass = classes.containerYellow;
-    }
   } else if (currentStageId === acceptedStage.id) {
     destinationStage = inReviewStage;
     destinationLabel = 'planningInvestibleNextStageInReviewLabel';
@@ -72,10 +55,11 @@ function MoveToNextVisibleStageActionButton(props) {
   }
   const blockedByTodos = hasTodos && destinationStage === verifiedStage;
   return (
-    <div className={highlightClass}>
+    <div>
       <StageChangeAction
         {...props}
         icon={ArrowUpwardIcon}
+        iconColor={iconColor}
         translationId={destinationLabel}
         explanationId={destinationExplanation}
         currentStageId={currentStageId}

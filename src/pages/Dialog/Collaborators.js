@@ -3,7 +3,7 @@ import React from 'react'
 import { formMarketManageLink, navigate } from '../../utils/marketIdPathFunctions'
 import PersonAddIcon from '@material-ui/icons/PersonAdd'
 import { FormattedMessage } from 'react-intl'
-import { ACTION_BUTTON_COLOR } from '../../components/Buttons/ButtonConstants'
+import { ACTION_BUTTON_COLOR, HIGHLIGHTED_BUTTON_COLOR } from '../../components/Buttons/ButtonConstants'
 import GravatarAndName from '../../components/Avatars/GravatarAndName';
 
 const useStyles = makeStyles( () => ({
@@ -14,10 +14,6 @@ const useStyles = makeStyles( () => ({
     normal: {
       fontSize: 14,
     },
-    containerRed: {
-      boxShadow: "10px 5px 5px red"
-    },
-    noStyle: {},
     assignmentFlexRow: {
       width: '100%',
       display: 'flex',
@@ -75,7 +71,7 @@ export function Collaborators(props) {
         </ul>
         <div className={classes.flex1}>
           {!authorDisplay && myPresence && myPresence.following && (
-            <div className={marketPresences.length < 2 ? classes.containerRed : classes.noStyle}>
+            <div>
               <Tooltip
                 title={intl.formatMessage({ id: 'dialogAddParticipantsLabel' })}
               >
@@ -83,7 +79,8 @@ export function Collaborators(props) {
                   id="adminManageCollaborators"
                   onClick={() => navigate(history, `${formMarketManageLink(marketId)}#participation=true`)}
                 >
-                  <PersonAddIcon htmlColor={ACTION_BUTTON_COLOR} />
+                  <PersonAddIcon
+                    htmlColor={marketPresences.length < 2 ? HIGHLIGHTED_BUTTON_COLOR : ACTION_BUTTON_COLOR} />
                 </IconButton>
               </Tooltip>
             </div>

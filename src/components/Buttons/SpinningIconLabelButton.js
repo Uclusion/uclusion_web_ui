@@ -50,6 +50,7 @@ function SpinningIconLabelButton(props) {
     icon: Icon,
     noMargin,
     whiteBackground,
+    iconColor='black',
     ...rest
   } = props;
   const [operationRunning] = useContext(OperationInProgressContext);
@@ -62,7 +63,7 @@ function SpinningIconLabelButton(props) {
       disabled={spinning || disabled}
       variant="outlined"
       size="small"
-      startIcon={spinning || disabled ? <Icon color='disabled' /> : <Icon htmlColor="black" />}
+      startIcon={spinning || disabled ? <Icon color='disabled' /> : <Icon htmlColor={iconColor} />}
       className={noMargin ? classes.buttonNoMargin: whiteBackground ? classes.buttonWhiteBackground : classes.button}
       {...rest}
     >

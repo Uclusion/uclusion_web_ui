@@ -1,7 +1,6 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react'
 import PropTypes from 'prop-types';
-import { FormattedMessage } from 'react-intl';
-import { DISMISS, DismissTextContext } from '../../contexts/DismissTextContext';
+import { FormattedMessage, useIntl } from 'react-intl'
 import IconButton from '@material-ui/core/IconButton';
 import LiveHelpTwoToneIcon from '@material-ui/icons/LiveHelpTwoTone';
 import CancelRoundedIcon from '@material-ui/icons/CancelRounded';
@@ -10,6 +9,7 @@ import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUse
 import { getUiPreferences, userIsLoaded } from '../../contexts/AccountUserContext/accountUserContextHelper'
 import { updateUiPreferences } from '../../api/account'
 import { accountUserRefresh } from '../../contexts/AccountUserContext/accountUserContextReducer'
+import { Checkbox, Typography } from '@material-ui/core'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -56,17 +56,16 @@ const useStyles = makeStyles(theme => ({
 
 function DismissableText(props) {
   const {
-    textId, textId1, textId2, textId3, textId4
+    textId, textId1, textId2, textId3, textId4, checkBoxFunc
   } = props;
   const classes = useStyles();
-  const [dismissState, dispatchDismissState] = useContext(DismissTextContext);
-  const [userState, userDispatch] = useContext(AccountUserContext)
+  const intl = useIntl();
+  const [checkBoxValue, setCheckBoxValue] = useState(false);
+  const [userState, userDispatch] = useContext(AccountUserContext);
   const hasUser = userIsLoaded(userState)
   const userPreferences = getUiPreferences(userState) || {};
   const previouslyDismissed = userPreferences.dismissedText || [];
-  const uiPrefCantShow = !hasUser || previouslyDismissed.includes(textId);
-
-  const cantShow = uiPrefCantShow || textId in dismissState;
+  const cantShow = !hasUser || previouslyDismissed.includes(textId);
 
   function storeDismissedInBackend() {
     const newDismissed = [...previouslyDismissed, textId];
@@ -74,20 +73,43 @@ function DismissableText(props) {
       ...userPreferences,
       dismissedText: newDismissed
     };
-    updateUiPreferences(newPreferences)
+    return updateUiPreferences(newPreferences)
       .then((result) => {
         const { user } = result;
         userDispatch(accountUserRefresh(user));
       });
   }
 
-  function dismiss() {
-    dispatchDismissState({ type: DISMISS, id: textId });
-    storeDismissedInBackend();
+  function controlShowAgainToggle() {
+    if (checkBoxValue) {
+      setCheckBoxValue(false);
+      checkBoxFunc(undefined);
+    } else {
+      setCheckBoxValue(true);
+      // https://medium.com/swlh/how-to-store-a-function-with-the-usestate-hook-in-react-8a88dd4eede1
+      checkBoxFunc(() => () => storeDismissedInBackend());
+    }
   }
 
   if (cantShow) {
     return React.Fragment;
+  }
+
+  if (checkBoxFunc) {
+    return (
+      <div style={{marginLeft: '1rem', marginRight: '0.5rem', paddingTop: '0.25rem'}}>
+        <Typography>
+          {intl.formatMessage({ id: 'doNotShowAgain' })}
+          <Checkbox
+            style={{maxHeight: '1rem'}}
+            id="showAgain"
+            name="showAgain"
+            checked={checkBoxValue}
+            onChange={controlShowAgainToggle}
+          />
+        </Typography>
+      </div>
+    )
   }
 
   return (
@@ -122,7 +144,7 @@ function DismissableText(props) {
       </dl>
       <dl className={classes.rightMost}>
         <dd className={classes.dismissText}>
-          <span role="button" onClick={dismiss} className={classes.pointer}>
+          <span role="button" onClick={storeDismissedInBackend} className={classes.pointer}>
             <FormattedMessage id="decisionDialogsDismissDialog" />
             <IconButton className={classes.hoverState} disableRipple>
               <CancelRoundedIcon />

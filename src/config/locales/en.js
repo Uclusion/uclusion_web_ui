@@ -767,6 +767,7 @@ const messages = defineMessages({
   changePreferencesButton: 'Update Preferences',
   slackDelayInputLabel: 'How many minutes between Slack notifications?',
   emailDelayInputLabel: 'How many hours between emails?',
+  doNotShowAgain: 'Do now show again',
 
   // your voting
   yourVotingVoteForThisPlanning: 'Approve this story',

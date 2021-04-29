@@ -42,6 +42,9 @@ import { NotificationsContext } from '../../contexts/NotificationsContext/Notifi
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'
 import { Add, Clear, Delete } from '@material-ui/icons'
 import { editorFocus, editorReset, editorUpdate, useEditor } from '../TextEditors/quillHooks'
+import { getUiPreferences } from '../../contexts/AccountUserContext/accountUserContextHelper'
+import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
+import DismissableText from '../Notifications/DismissableText'
 
 function getPlaceHolderLabelId (type, isStory, isInReview) {
   switch (type) {
@@ -207,6 +210,7 @@ function CommentAdd(props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [openIssue, setOpenIssue] = useState(false);
+  const [doNotShowAgain, setDoNotShowAgain] = useState(undefined);
   const classes = useStyles();
   const usedParent = parent || {};
   const { investible_id: parentInvestible, id: parentId } = usedParent;
@@ -220,6 +224,7 @@ function CommentAdd(props) {
   const placeHolderLabelId = getPlaceHolderLabelId(type, isStory, currentStageId === inReviewStage.id);
   const placeHolder = intl.formatMessage({ id: placeHolderLabelId });
   const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [userState] = useContext(AccountUserContext);
   const presences = getMarketPresences(marketPresencesState, marketId) || [];
   const myPresence = presences.find((presence) => presence.current_user) || {};
 
@@ -316,8 +321,15 @@ function CommentAdd(props) {
             messagesDispatch(removeMessage(message));
           }
         }
-        setOperationRunning(false);
-        handleSpinStop();
+        if (doNotShowAgain) {
+          return doNotShowAgain().then(() => {
+            setOperationRunning(false);
+            handleSpinStop();
+          });
+        } else {
+          setOperationRunning(false);
+          handleSpinStop();
+        }
       });
   }
 
@@ -328,9 +340,10 @@ function CommentAdd(props) {
 
   const commentSaveLabel = parent ? 'commentAddSaveLabel' : 'commentReplySaveLabel';
   const commentCancelLabel = parent ? 'commentReplyCancelLabel' : 'commentAddCancelLabel';
-  const showIssueWarning = (issueWarningId !== null && type === ISSUE_TYPE) ||
-    (todoWarningId !== null && type === TODO_TYPE);
-  const myWarningId = type === TODO_TYPE ? todoWarningId : issueWarningId;
+  const myWarningId = type === TODO_TYPE ? todoWarningId : type === ISSUE_TYPE ? issueWarningId : undefined;
+  const userPreferences = getUiPreferences(userState) || {};
+  const previouslyDismissed = userPreferences.dismissedText || [];
+  const showIssueWarning = myWarningId && !previouslyDismissed.includes(myWarningId);
   const lockedDialogClasses = useLockedDialogStyles();
 
   return (
@@ -384,6 +397,7 @@ function CommentAdd(props) {
               open={!hidden && openIssue}
               onClose={toggleIssue}
               issueWarningId={myWarningId}
+              checkBoxFunc={setDoNotShowAgain}
               /* slots */
               actions={
                 <SpinningIconLabelButton onClick={handleSave} icon={Add}
@@ -400,7 +414,7 @@ function CommentAdd(props) {
 }
 
 function IssueDialog(props) {
-  const { actions, classes, open, onClose, issueWarningId } = props;
+  const { actions, classes, open, onClose, issueWarningId, checkBoxFunc } = props;
 
   const autoFocusRef = React.useRef(null);
 
@@ -422,6 +436,7 @@ function IssueDialog(props) {
             <FormattedMessage id="lockDialogCancel" />
           </SpinningIconLabelButton>
           {actions}
+          <DismissableText textId={issueWarningId} checkBoxFunc={checkBoxFunc} />
         </React.Fragment>
       }
       content={<FormattedMessage id={issueWarningId} />}

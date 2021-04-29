@@ -101,13 +101,7 @@ function DialogManage (props) {
         )}
         {marketType !== PLANNING_TYPE && expires && isAdmin && active && (
           <>
-            <CardType
-              className={classes.cardType}
-              type={marketType === INITIATIVE_TYPE ? VOTING_TYPE : DECISION_TYPE}
-              label={
-                intl.formatMessage({ id: marketType === INITIATIVE_TYPE ? 'initiativeExtend' : 'dialogExtend' })
-              }
-            />
+            <CardType className={classes.cardType}/>
             <CardContent className={classes.cardContent}>
               <Typography>
                 {intl.formatMessage({ id: 'decisionDialogExtendDaysLabel' })}

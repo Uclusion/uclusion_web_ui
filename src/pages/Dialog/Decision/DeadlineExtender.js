@@ -1,14 +1,15 @@
 import React, { useContext, useState } from 'react'
 import PropTypes from 'prop-types';
-import { Button, CardActions } from '@material-ui/core'
+import { CardActions } from '@material-ui/core'
 import { FormattedMessage } from 'react-intl'
 import ExpirationSelector from '../../../components/Expiration/ExpirationSelector';
 import { manageMarket } from '../../../api/markets';
-import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
 import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
-import { usePlanFormStyles } from '../../../components/AgilePlan';
 import { makeStyles } from '@material-ui/core/styles'
+import { Clear, Snooze } from '@material-ui/icons'
+import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 
 const useStyles = makeStyles(
   theme => ({
@@ -25,8 +26,8 @@ function DeadlineExtender(props) {
     market, onCancel
   } = props;
   const [, marketsDispatch] = useContext(MarketsContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const { id: marketId, expiration_minutes: expirationMinutes } = market;
-  const classes = usePlanFormStyles();
   const myClasses = useStyles();
   const [extensionPeriod, setExtensionPeriod] = useState(1440);
 
@@ -37,11 +38,10 @@ function DeadlineExtender(props) {
 
   function mySave() {
     let newExpirationMinutes = expirationMinutes + extensionPeriod;
+    setOperationRunning(true);
     return manageMarket(marketId, newExpirationMinutes).then((market) => {
-      return {
-        result: market,
-        spinChecker: () => Promise.resolve(true),
-      };
+      setOperationRunning(false);
+      onSpinStop(market);
     });
   }
 
@@ -62,30 +62,12 @@ function DeadlineExtender(props) {
         onChange={selectorOnChange}
       />
       <CardActions className={myClasses.actions}>
-        <Button
-          onClick={myCancel}
-          className={classes.actionSecondary}
-          color="secondary"
-          variant="contained"
-        >
-          <FormattedMessage
-            id="marketAddCancelLabel"
-          />
-        </Button>
-        <SpinBlockingButton
-          id="save"
-          marketId={marketId}
-          variant="contained"
-          color="primary"
-          className={classes.actionPrimary}
-          onClick={mySave}
-          onSpinStop={onSpinStop}
-          hasSpinChecker
-        >
-          <FormattedMessage
-            id="agilePlanFormSaveLabel"
-          />
-        </SpinBlockingButton>
+        <SpinningIconLabelButton onClick={myCancel} doSpin={false} icon={Clear}>
+          <FormattedMessage id="marketAddCancelLabel"/>
+        </SpinningIconLabelButton>
+        <SpinningIconLabelButton onClick={mySave} icon={Snooze}>
+          <FormattedMessage id="decisionDialogsExtendDeadline"/>
+        </SpinningIconLabelButton>
       </CardActions>
     </>
   );

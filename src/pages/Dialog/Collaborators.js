@@ -1,9 +1,6 @@
-import { IconButton, makeStyles, Tooltip, Typography } from '@material-ui/core'
+import { makeStyles, Tooltip, Typography } from '@material-ui/core'
 import React from 'react'
-import { formMarketManageLink, navigate } from '../../utils/marketIdPathFunctions'
-import PersonAddIcon from '@material-ui/icons/PersonAdd'
 import { FormattedMessage } from 'react-intl'
-import { ACTION_BUTTON_COLOR, HIGHLIGHTED_BUTTON_COLOR } from '../../components/Buttons/ButtonConstants'
 import GravatarAndName from '../../components/Avatars/GravatarAndName';
 
 const useStyles = makeStyles( () => ({
@@ -31,18 +28,18 @@ const useStyles = makeStyles( () => ({
   { name: "Collaborators" }
 );
 export function Collaborators(props) {
-  const { marketPresences: unfilteredPresences, authorId, intl, authorDisplay, history, marketId } = props;
+  const { marketPresences: unfilteredPresences, authorId, authorDisplay } = props;
   const classes = useStyles();
   const marketPresences = unfilteredPresences.filter((presence) => (!presence.market_banned && !presence.market_guest));
   const author = marketPresences.find((presence) => presence.id === authorId);
-  const myPresence = marketPresences.find((presence) => presence.current_user);
+
   return (
     <span className={classes.assignmentFlexRow}>
       <ul>
         {authorDisplay && author && (
           <GravatarAndName key={author.id} name={author.name} email={author.email} typographyComponent="li"/>
         )}
-        {!authorDisplay && marketPresences.map(presence => {
+        {!authorDisplay && marketPresences.map((presence, index) => {
           const { id: presenceId, name, following, email } = presence;
           const myClassName = following ? classes.normal : classes.archived;
           if (presenceId === authorId) {
@@ -50,42 +47,31 @@ export function Collaborators(props) {
           }
           if (!following) {
             return (
-              <Tooltip key={`tip${presenceId}`}
-                       title={<FormattedMessage id="collaboratorNotFollowing"/>}>
-                <Typography key={presenceId} component="li" className={myClassName}>
-                  {name}
-                </Typography>
-              </Tooltip>
+              <>
+                {index > 0 && (<div style={{paddingTop: '0.5rem'}} />)}
+                <Tooltip key={`tip${presenceId}`}
+                         title={<FormattedMessage id="collaboratorNotFollowing"/>}>
+                  <Typography key={presenceId} component="li" className={myClassName}>
+                    {name}
+                  </Typography>
+                </Tooltip>
+              </>
             );
           }
           return (
-            <GravatarAndName
-              key={email}
-              email={email}
-              name={name}
-              typographyClassName={myClassName}
-              typographyComponent="li"
-            />
+            <>
+              {index > 0 && (<div style={{paddingTop: '0.5rem'}} />)}
+              <GravatarAndName
+                key={email}
+                email={email}
+                name={name}
+                typographyClassName={myClassName}
+                typographyComponent="li"
+              />
+            </>
           );
         })}
         </ul>
-        <div className={classes.flex1}>
-          {!authorDisplay && myPresence && myPresence.following && (
-            <div>
-              <Tooltip
-                title={intl.formatMessage({ id: 'dialogAddParticipantsLabel' })}
-              >
-                <IconButton
-                  id="adminManageCollaborators"
-                  onClick={() => navigate(history, `${formMarketManageLink(marketId)}#participation=true`)}
-                >
-                  <PersonAddIcon
-                    htmlColor={marketPresences.length < 2 ? HIGHLIGHTED_BUTTON_COLOR : ACTION_BUTTON_COLOR} />
-                </IconButton>
-              </Tooltip>
-            </div>
-          )}
-        </div>
     </span>
   );
 }

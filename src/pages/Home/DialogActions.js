@@ -15,10 +15,11 @@ import ChangeToParticipantButton from '../Dialog/ChangeToParticipantButton'
 import ShareStoryButton from '../Investible/Planning/ShareStoryButton'
 import ActivateMarketButton from '../Dialog/Planning/ActivateMarketButton'
 import SettingsIcon from '@material-ui/icons/Settings'
-import { ACTION_BUTTON_COLOR } from '../../components/Buttons/ButtonConstants'
+import { ACTION_BUTTON_COLOR, HIGHLIGHTED_BUTTON_COLOR } from '../../components/Buttons/ButtonConstants'
 import { isTinyWindow } from '../../utils/windowUtils'
 import AlarmAddIcon from '@material-ui/icons/AlarmAdd'
 import { useIntl } from 'react-intl'
+import PersonAddIcon from '@material-ui/icons/PersonAdd'
 
 const useStyles = makeStyles(() => {
   return {
@@ -41,6 +42,7 @@ function DialogActions(props) {
     marketId,
     marketStage,
     marketType,
+    marketPresences,
     isAdmin,
     isFollowing,
     initiativeId,
@@ -92,6 +94,17 @@ function DialogActions(props) {
                             icon={<SettingsIcon htmlColor={ACTION_BUTTON_COLOR} />}/>
         );
       }
+      actions.push(<Tooltip
+        title={intl.formatMessage({ id: 'dialogAddParticipantsLabel' })}
+      >
+        <IconButton
+          id="adminManageCollaborators"
+          onClick={() => navigate(history, `${formMarketManageLink(marketId)}#participation=true`)}
+        >
+          <PersonAddIcon
+            htmlColor={marketPresences.length < 2 ? HIGHLIGHTED_BUTTON_COLOR : ACTION_BUTTON_COLOR} />
+        </IconButton>
+      </Tooltip>)
     }
     if (marketStage === INACTIVE_STAGE && isAdmin) {
       actions.push(

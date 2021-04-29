@@ -319,6 +319,7 @@ function Summary(props) {
             <DialogActions
               isAdmin={isAdmin}
               isFollowing={myPresence.following}
+              marketPresences={marketPresences}
               marketStage={marketStage}
               marketType={marketType}
               parentMarketId={parentMarketId}

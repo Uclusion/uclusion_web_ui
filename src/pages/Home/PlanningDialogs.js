@@ -316,6 +316,7 @@ function PlanningDialogs(props) {
                         marketStage={marketStage}
                         marketId={marketId}
                         marketType={marketType}
+                        marketPresences={marketPresences}
                         parentMarketId={parentMarketId}
                         parentInvestibleId={parentInvestibleId}
                         isAdmin

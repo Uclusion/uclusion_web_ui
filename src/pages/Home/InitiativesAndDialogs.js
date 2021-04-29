@@ -453,6 +453,7 @@ function InitiativesAndDialogs(props) {
                         isFollowing={myPresence.following}
                         marketStage={marketStage}
                         marketType={marketType}
+                        marketPresences={marketPresences}
                         parentMarketId={parentMarketId}
                         parentInvestibleId={parentInvestibleId}
                         marketId={marketId}
@@ -618,6 +619,7 @@ function InitiativesAndDialogs(props) {
                       isFollowing={myPresence.following}
                       marketStage={marketStage}
                       marketType={marketType}
+                      marketPresences={marketPresences}
                       parentMarketId={parentMarketId}
                       parentInvestibleId={parentInvestibleId}
                       marketId={marketId}

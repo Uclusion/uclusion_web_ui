@@ -347,6 +347,7 @@ function InitiativeInvestible(props) {
                 isAdmin={isAdmin}
                 marketStage={marketStage}
                 marketType={marketType}
+                marketPresences={marketPresences}
                 parentMarketId={parentMarketId}
                 parentInvestibleId={parentInvestibleId}
                 isFollowing={myPresence.following}

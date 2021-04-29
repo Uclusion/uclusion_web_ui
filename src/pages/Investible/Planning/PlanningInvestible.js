@@ -1400,10 +1400,10 @@ function Assignments(props) {
             {intl.formatMessage({ id: 'reassignToMove' })}
           </Typography>
         )}
-        {sortedAssigned.map(presence => {
+        {sortedAssigned.map((presence, index) => {
           return (
             <div
-              style={{ display: 'flex', alignItems: 'center' }}
+              style={{ display: 'flex', alignItems: 'center', paddingTop: `${index > 0 ? '0.5rem' : 0}` }}
               key={`${presence.id}${toolTipId}`}
             >
               <Gravatar email={presence.email} name={presence.name}/>

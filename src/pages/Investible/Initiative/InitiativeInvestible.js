@@ -28,8 +28,6 @@ import DialogActions from '../../Home/DialogActions'
 import Collaborators from '../../Dialog/Collaborators'
 import CardActions from '@material-ui/core/CardActions'
 import DismissableText from '../../../components/Notifications/DismissableText'
-import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
-import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
 import { TourContext } from '../../../contexts/TourContext/TourContext'
 import { startTour } from '../../../contexts/TourContext/tourContextReducer'
 import UclusionTour from '../../../components/Tours/UclusionTour'
@@ -47,7 +45,6 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { EMPTY_SPIN_RESULT } from '../../../constants/global'
 import { doSetEditWhenValid } from '../../../utils/windowUtils'
-import LinkMarket from '../../Dialog/LinkMarket'
 import { Assessment, QuestionAnswer } from '@material-ui/icons'
 import EditIcon from '@material-ui/icons/Edit'
 import HowToVoteIcon from '@material-ui/icons/HowToVote'
@@ -59,6 +56,7 @@ import ThumbDownIcon from '@material-ui/icons/ThumbDown'
 import { getFakeCommentsArray } from '../../../utils/stringFunctions'
 import InvestibleBodyEdit from '../InvestibleBodyEdit'
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
+import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 
 const useStyles = makeStyles(
   theme => ({
@@ -402,14 +400,17 @@ function InitiativeInvestible(props) {
                   </div>
                 </>
               )}
-              <LinkMarket actions={!inArchives ? [<ExpandableAction
-                id="link"
-                key="link"
-                icon={<InsertLinkIcon htmlColor={ACTION_BUTTON_COLOR}/>}
-                label={intl.formatMessage({ id: 'childPlanExplanation' })}
-                openLabel={intl.formatMessage({ id: 'initiativePlanningParent' })}
-                onClick={() => navigate(history, `/dialogAdd#type=${PLANNING_TYPE}&investibleId=${investibleId}&id=${marketId}`)}
-              />] : []}/>
+              {!inArchives && (
+                <>
+                  <SpinningIconLabelButton
+                    id="link" key="link"
+                    onClick={() => navigate(history, `/dialogAdd#type=${PLANNING_TYPE}&investibleId=${investibleId}&id=${marketId}`)}
+                    doSpin={false} icon={InsertLinkIcon}>
+                    <FormattedMessage id="initiativePlanningParent"/>
+                  </SpinningIconLabelButton>
+                  <div style={{paddingTop: '1rem'}} />
+                </>
+              )}
               <AttachedFilesList
                 key="files"
                 marketId={marketId}

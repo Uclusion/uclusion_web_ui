@@ -192,7 +192,7 @@ export default function CardType(props) {
       {!label && (
         <Grid item xs={fullWidth ? 12 : 6} />
       )}
-      <Grid item xs={fullWidth ? false : 1}>
+      <Grid item xs={fullWidth ? false : 2}>
         {myBeingEdited && (
           <Typography className={classes.lastEdited} variant="body2">
             {intl.formatMessage({ id: 'edited' })}

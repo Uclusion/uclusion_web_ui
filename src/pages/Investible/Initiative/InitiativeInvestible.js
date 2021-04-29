@@ -321,7 +321,8 @@ function InitiativeInvestible(props) {
           myBeingEdited={beingEdited}
         />
         <Grid container className={classes.mobileColumn}>
-          <Grid item md={9} xs={12}>
+          <Grid item md={9} xs={12}
+                onClick={(event) => !beingEdited && mySetBeingEdited(true, event)}>
             <CardContent className={beingEdited ? classes.editContent : classes.content}>
               {isDraft && activeMarket && (
                 <Typography className={classes.draft}>
@@ -356,23 +357,11 @@ function InitiativeInvestible(props) {
               />
             </CardActions>
             <dl className={clsx(metaClasses.root, classes.flexCenter)}>
-              <div className={clsx(metaClasses.group, metaClasses.expiration)}>
-                <dd>
-                  {activeMarket ? (
-                    <ExpiresDisplay
-                      createdAt={createdAt}
-                      expirationMinutes={expirationMinutes}
-                      showEdit={isAdmin}
-                      history={history}
-                      marketId={marketId}
-                    />
-                  ) : (
-                    <ExpiredDisplay
-                      expiresDate={updatedAt}
-                    />
-                  )}
-                </dd>
-              </div>
+              {activeMarket ? (
+                  <ExpiresDisplay createdAt={createdAt} expirationMinutes={expirationMinutes} />
+                ) : (
+                  <ExpiredDisplay expiresDate={updatedAt} />
+              )}
               {marketPresences && (
                 <>
                   <div className={classes.assignmentContainer}>

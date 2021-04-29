@@ -144,8 +144,7 @@ export default function CardType(props) {
     subtype,
     label = type in labelIntlIds ? <FormattedMessage id={labelIntlIds[type]}/> : undefined,
     createdAt,
-    myBeingEdited,
-    fullWidth = false
+    myBeingEdited
   } = props;
   const classes = useCardTypeStyles({ type, resolved })
   const intl = useIntl()
@@ -182,7 +181,7 @@ export default function CardType(props) {
   return (
     <Grid container>
       {label && (
-        <Grid item xs={fullWidth ? 12 : 6}>
+        <Grid item xs={6}>
           <div className={clsx(classes.root, className)}>
             <IconComponent className={classes.icon}/>
             <span className={classes.label}>{label}</span>
@@ -190,24 +189,23 @@ export default function CardType(props) {
         </Grid>
       )}
       {!label && (
-        <Grid item xs={fullWidth ? 12 : 6} />
+        <Grid item xs={5} />
       )}
-      <Grid item xs={fullWidth ? false : 2}>
+      <Grid item xs={2}>
         {myBeingEdited && (
           <Typography className={classes.lastEdited} variant="body2">
             {intl.formatMessage({ id: 'edited' })}
           </Typography>
         )}
       </Grid>
-      <Grid item xs={fullWidth ? false : 2}>
+      <Grid item xs={2}>
         {createdAt && (
           <Typography className={classes.timeElapsed} variant="body2">
             {intl.formatMessage({ id: 'created' })} <UsefulRelativeTime value={createdAt}/>
           </Typography>
         )}
       </Grid>
-      <Grid item xs={fullWidth ? 3 : false}>
-      </Grid>
+      <Grid item xs={label ? 2 : 3} />
     </Grid>
   );
 }

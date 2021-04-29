@@ -90,7 +90,6 @@ function DialogManage (props) {
             <CardType
               className={classes.cardType}
               type={DECISION_TYPE}
-              label={intl.formatMessage({ id: 'dialogAddress' })}
             />
               <ManageUsers
                 market={renderableMarket}

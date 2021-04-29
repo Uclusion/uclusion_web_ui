@@ -22,7 +22,7 @@ import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
 import Screen from '../../../containers/Screen/Screen'
 import { ISSUE_TYPE, QUESTION_TYPE } from '../../../constants/comments'
 import { EMPTY_SPIN_RESULT, SECTION_TYPE_SECONDARY } from '../../../constants/global'
-import { ACTIVE_STAGE, DECISION_TYPE } from '../../../constants/markets'
+import { ACTIVE_STAGE } from '../../../constants/markets'
 import UclusionTour from '../../../components/Tours/UclusionTour'
 import CardType from '../../../components/CardType'
 import clsx from 'clsx'
@@ -79,7 +79,6 @@ const useStyles = makeStyles(
       color: "#E85757"
     },
     borderLeft: {
-      borderLeft: '1px solid #e0e0e0',
       padding: '0 2rem 2rem 2rem',
       marginBottom: '-5px',
       marginTop: '-30px',
@@ -102,13 +101,9 @@ const useStyles = makeStyles(
         justifyContent: 'center',
       },
     },
-    editContent: {
-      flexBasis: "100%",
-      padding: theme.spacing(4, 1, 4, 1)
-    },
     content: {
       flexBasis: "100%",
-      padding: theme.spacing(4)
+      padding: theme.spacing(0, 0, 0, 4)
     },
     assignments: {
       padding: 0,
@@ -307,13 +302,13 @@ function DecisionDialog(props) {
       <Card className={classes.root}>
         <CardType
           className={classes.cardType}
-          type={DECISION_TYPE}
           createdAt={createdAt}
           myBeingEdited={beingEdited}
         />
         <Grid id="dialogMain" container className={classes.mobileColumn}>
-          <Grid item xs={9}>
-            <CardContent className={beingEdited ? classes.editContent : classes.content}>
+          <Grid item xs={9}
+                onClick={(event) => !beingEdited && mySetBeingEdited(true, event)}>
+            <CardContent className={classes.content}>
               {isDraft && activeMarket && (
                 <Typography className={classes.draft}>
                   {intl.formatMessage({ id: 'draft' })}
@@ -342,23 +337,11 @@ function DecisionDialog(props) {
               />
             </CardActions>
             <dl className={clsx(metaClasses.root, classes.flexCenter)}>
-              <div className={clsx(metaClasses.group, metaClasses.expiration)}>
-                <dd>
-                  {activeMarket ? (
-                    <ExpiresDisplay
-                      createdAt={createdAt}
-                      expirationMinutes={expirationMinutes}
-                      showEdit={isAdmin}
-                      history={history}
-                      marketId={marketId}
-                    />
-                  ) : (
-                    <ExpiredDisplay
-                      expiresDate={updatedAt}
-                    />
-                  )}
-                </dd>
-              </div>
+              {activeMarket ? (
+                <ExpiresDisplay createdAt={createdAt} expirationMinutes={expirationMinutes} />
+              ) : (
+                <ExpiredDisplay expiresDate={updatedAt} />
+              )}
               {marketPresences && (
                 <>
                   <div className={classes.assignmentContainer}>

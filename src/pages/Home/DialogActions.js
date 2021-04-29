@@ -1,11 +1,11 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { ACTIVE_STAGE, DECISION_TYPE, INACTIVE_STAGE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
-import { makeStyles } from '@material-ui/core'
+import { IconButton, makeStyles, Tooltip } from '@material-ui/core'
 import {
   decomposeMarketPath,
   formInvestibleEditLink,
-  formMarketEditLink,
+  formMarketEditLink, formMarketManageLink,
   navigate
 } from '../../utils/marketIdPathFunctions'
 import { useHistory, useLocation } from 'react-router'
@@ -17,6 +17,8 @@ import ActivateMarketButton from '../Dialog/Planning/ActivateMarketButton'
 import SettingsIcon from '@material-ui/icons/Settings'
 import { ACTION_BUTTON_COLOR } from '../../components/Buttons/ButtonConstants'
 import { isTinyWindow } from '../../utils/windowUtils'
+import AlarmAddIcon from '@material-ui/icons/AlarmAdd'
+import { useIntl } from 'react-intl'
 
 const useStyles = makeStyles(() => {
   return {
@@ -49,7 +51,7 @@ function DialogActions(props) {
   const activeMarket = marketStage === ACTIVE_STAGE;
   const inArchives = !activeMarket || !isFollowing;
   const classes = useStyles();
-
+  const intl = useIntl();
 
   function getEditLabel(){
     switch (marketType) {
@@ -71,6 +73,19 @@ function DialogActions(props) {
       : formMarketEditLink(marketId);
     const editAction = () => navigate(history, editLink);
     if (isAdmin && !inArchives && !hideEdit) {
+      if (marketType !== PLANNING_TYPE) {
+        actions.push(
+          <Tooltip
+            title={intl.formatMessage({ id: 'dialogEditExpiresLabel' })}
+          >
+            <IconButton
+              id="adminEditExpiration"
+              onClick={() => navigate(history, `${formMarketManageLink(marketId)}#expires=true`)}
+            >
+              <AlarmAddIcon htmlColor={ACTION_BUTTON_COLOR} />
+            </IconButton>
+          </Tooltip>)
+      }
       if (marketType !== INITIATIVE_TYPE) {
         actions.push(
           <EditMarketButton key="edit" labelId={editLabel} marketId={marketId} onClick={editAction}

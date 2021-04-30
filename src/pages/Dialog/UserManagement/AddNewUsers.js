@@ -49,7 +49,7 @@ function AddNewUsers (props) {
   const [checked, setChecked] = useState(defaultChecked);
   const [searchValue, setSearchValue] = useState(undefined);
   const [filteredNames, setFilteredNames] = useState(undefined);
-  const participants = Object.keys(checked).map((key) => checked[key])
+  const participants = Object.keys(checked).map((key) => checked[key]) || [];
   const [emailsSent, setEmailsSent] = useState([])
   const anySelected = participants.find((participant) => participant.isChecked)
 
@@ -185,24 +185,26 @@ function AddNewUsers (props) {
         dense
         className={clsx(classes.scrollableList, classes.sharedForm, classes.paddingRight)}
       >
-        <ListItem className={classes.searchContainer} key="search">
-          <ListItemText >
-            <TextField
-              className={classes.search}
-              placeholder="Search in your organization"
-              onChange={onSearchChange}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position={'end'}>
-                    <IconButton>
-                      <SearchIcon/>
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </ListItemText>
-        </ListItem>
+        {_.size(participants) > 10 && (
+          <ListItem className={classes.searchContainer} key="search">
+            <ListItemText >
+              <TextField
+                className={classes.search}
+                placeholder="Search in your organization"
+                onChange={onSearchChange}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position={'end'}>
+                      <IconButton>
+                        <SearchIcon/>
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </ListItemText>
+          </ListItem>
+        )}
         <List
           dense
           id="addressBook"

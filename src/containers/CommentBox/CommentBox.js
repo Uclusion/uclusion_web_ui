@@ -27,12 +27,36 @@ export function getSortedRoots(comments) {
   if (_.isEmpty(comments)) {
     return [];
   }
-  const threadRoots = comments.filter(comment => !comment.reply_id);
+  const threadRoots = comments.filter(comment => !comment.reply_id) || [];
   const withRootUpdatedAt = threadRoots.map((root) => {
     return { ...root, rootUpdatedAt: findGreatestUpdatedAt([root], comments) };
   });
-  return _.orderBy(withRootUpdatedAt, ['resolved', 'comment_type', 'rootUpdatedAt'],
-    ['asc', 'asc', 'desc']);
+  const simpleOrdered = _.orderBy(withRootUpdatedAt, ['rootUpdatedAt'], ['desc']) || [];
+  const positions = {};
+  const typeLengths = {};
+  const fullOrdered = [];
+  let endBeforeResolved = 0;
+  // Keep types together but have the groups ordered by most recently updated type to last and resolved on the end
+  simpleOrdered.forEach((comment) => {
+    const { resolved, comment_type: commentType } = comment;
+    if (resolved) {
+      fullOrdered.push(comment);
+    } else {
+      if (positions[commentType] === undefined) {
+        positions[commentType] = endBeforeResolved;
+        typeLengths[commentType] = 0;
+      }
+      endBeforeResolved += 1;
+      fullOrdered.splice(positions[commentType] + typeLengths[commentType], 0, comment);
+      typeLengths[commentType] += 1;
+      //Bump all types which have higher positions by one
+      Object.keys(positions).forEach((aType) => {
+        if (positions[aType] > positions[commentType])
+          positions[aType] += 1;
+      });
+    }
+  });
+  return fullOrdered;
 }
 
 function CommentBox(props) {

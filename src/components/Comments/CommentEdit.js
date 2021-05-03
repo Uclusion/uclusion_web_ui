@@ -26,7 +26,6 @@ import clsx from 'clsx'
 import { getIcon } from '../../containers/CommentBox/CommentAddBox'
 import { onCommentOpen } from '../../utils/commentFunctions'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
-import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
 import { findMessageOfType } from '../../utils/messageUtils'
 import { removeMessage } from '../../contexts/NotificationsContext/notificationsContextReducer'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
@@ -176,7 +175,6 @@ function CommentEdit(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const presences = getMarketPresences(marketPresencesState, marketId);
   const [marketStagesState] = useContext(MarketStagesContext);
-  const [, versionsDispatch] = useContext(VersionsContext);
 
   const editorName = `${id}-comment-edit-editor`;
   const editorSpec = {
@@ -211,7 +209,7 @@ function CommentEdit(props) {
       .then((comment) => {
         editorController(editorReset());
         onCommentOpen(investibleState, investibleId, marketStagesState, marketId, comment, investibleDispatch,
-          commentState, commentDispatch, versionsDispatch);
+          commentState, commentDispatch);
         if (commentType === REPORT_TYPE) {
           const message = findMessageOfType('REPORT_REQUIRED', investibleId, messagesState);
           if (message) {

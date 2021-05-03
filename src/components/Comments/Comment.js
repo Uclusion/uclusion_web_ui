@@ -46,7 +46,6 @@ import {
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { ACTIVE_STAGE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
 import { red } from '@material-ui/core/colors'
-import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
 import { EXPANDED_CONTROL, ExpandedCommentContext } from '../../contexts/CommentsContext/ExpandedCommentContext'
 import UsefulRelativeTime from '../TextFields/UseRelativeTime'
 import {
@@ -332,7 +331,6 @@ function Comment(props) {
   const sortedReplies = _.sortBy(replies, "created_at");
   const [expandedCommentState, expandedCommentDispatch] = useContext(ExpandedCommentContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
-  const [, versionsDispatch] = useContext(VersionsContext);
   const [marketPresencesState, presenceDispatch] = useContext(MarketPresencesContext);
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -515,7 +513,7 @@ function Comment(props) {
     return reopenComment(marketId, id)
       .then((comment) => {
         onCommentOpen(investiblesState, investibleId, marketStagesState, marketId, comment, investiblesDispatch,
-          commentsState, commentsDispatch, versionsDispatch);
+          commentsState, commentsDispatch);
         setOperationRunning(false);
         onDone();
       });
@@ -533,7 +531,7 @@ function Comment(props) {
     setOperationRunning(true);
     return resolveComment(marketId, id)
       .then((comment) => {
-        addCommentToMarket(comment, commentsState, commentsDispatch, versionsDispatch);
+        addCommentToMarket(comment, commentsState, commentsDispatch);
         setOperationRunning(false);
         onDone();
       });

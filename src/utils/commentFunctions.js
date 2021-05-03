@@ -18,7 +18,7 @@ export function scrollToCommentAddBox() {
 }
 
 export function onCommentOpen(investibleState, investibleId, marketStagesState, marketId, comment, investibleDispatch,
-  commentsState, commentsDispatch, versionsDispatch) {
+  commentsState, commentsDispatch) {
   const inv = getInvestible(investibleState, investibleId) || {}
   const { market_infos, investible: rootInvestible } = inv
   const [info] = (market_infos || [])
@@ -33,7 +33,7 @@ export function onCommentOpen(investibleState, investibleId, marketStagesState, 
     && currentStageId !== blockingStage.id
   changeInvestibleStageOnCommentChange(investibleBlocks, investibleRequiresInput,
     blockingStage, requiresInputStage, info, market_infos, rootInvestible, investibleDispatch)
-  addCommentToMarket(comment, commentsState, commentsDispatch, versionsDispatch)
+  addCommentToMarket(comment, commentsState, commentsDispatch)
 }
 
 export function getThreadIds(parents, comments) {

@@ -10,6 +10,7 @@ const UPDATE_MESSAGES = 'UPDATE_MESSAGES';
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const REMOVE_MESSAGE = 'REMOVE_MESSAGE';
 const DEHIGHLIGHT_MESSAGE = 'DEHIGHLIGHT_MESSAGE';
+const ADD_MESSAGE = 'ADD_MESSAGE';
 
 /** Messages you can send the reducer */
 
@@ -23,6 +24,13 @@ export function updateMessages (messages) {
 export function removeMessage(message) {
   return {
     type: REMOVE_MESSAGE,
+    message
+  }
+}
+
+export function addMessage(message) {
+  return {
+    type: ADD_MESSAGE,
     message
   }
 }
@@ -105,6 +113,13 @@ function removeSingleMessage(state, action) {
   return storeMessagesInState(state, filteredMessages);
 }
 
+function addSingleMessage(state, action) {
+  const { message } = action;
+  const { messages } = state;
+  const newMessages = _.concat(messages || [], message);
+  return storeMessagesInState(state, newMessages);
+}
+
 function dehighlightSingleMessage(state, action) {
   const { message } = action;
   const { messages } = state;
@@ -130,6 +145,8 @@ function computeNewState (state, action) {
       return action.newState;
     case REMOVE_MESSAGE:
       return removeSingleMessage(state, action);
+    case ADD_MESSAGE:
+      return addSingleMessage(state, action);
     case DEHIGHLIGHT_MESSAGE:
       return dehighlightSingleMessage(state, action);
     default:

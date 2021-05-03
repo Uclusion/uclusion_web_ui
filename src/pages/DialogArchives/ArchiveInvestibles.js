@@ -30,6 +30,11 @@ import {
 } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { getInvestibleVoters } from '../../utils/votingUtils';
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined'
+import { notify, onInvestibleStageChange } from '../../utils/investibleFunctions'
+import { INVESTIBLE_SUBMITTED_TYPE, YELLOW_LEVEL } from '../../constants/notifications'
+import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
+import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 
 function getInvestibleOnClick(id, marketId, history) {
   const link = formInvestibleLink(marketId, id);
@@ -184,12 +189,14 @@ function ArchiveInvestbiles(props) {
   const intl = useIntl();
   const history = useHistory();
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
+  const [marketsState] = useContext(MarketsContext);
   const stageId = stage ? stage.id : undefined;
   const unResolvedMarketComments = comments.filter(comment => !comment.resolved) || [];
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [invState, invDispatch] = useContext(InvestiblesContext);
   const [beingDraggedHack, setBeingDraggedHack] = useContext(LocalPlanningDragContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
 
   function onDragEnd() {
@@ -215,7 +222,13 @@ function ArchiveInvestbiles(props) {
     };
     setOperationRunning(true);
     return updateInvestible(updateInfo).then((fullInvestible) => {
-      refreshInvestibles(invDispatch, () => {}, [fullInvestible]);
+      onInvestibleStageChange(stage, fullInvestible, investibleId, marketId, commentsState,
+        commentsDispatch, invDispatch, () => {}, undefined, messagesState,
+        messagesDispatch, [INVESTIBLE_SUBMITTED_TYPE]);
+      if (isReadyToStart) {
+        const market = getMarket(marketsState, marketId);
+        notify(presenceId, investibleId, INVESTIBLE_SUBMITTED_TYPE, YELLOW_LEVEL, invState, market, messagesDispatch);
+      }
       setOperationRunning(false);
     });
   }

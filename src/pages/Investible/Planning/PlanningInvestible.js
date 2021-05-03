@@ -117,6 +117,8 @@ import {
 } from '../../../contexts/InvestibesContext/investiblesContextMessages'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { getDiff, markDiffViewed } from '../../../contexts/DiffContext/diffContextHelper'
+import { notify, onInvestibleStageChange } from '../../../utils/investibleFunctions'
+import { INVESTIBLE_SUBMITTED_TYPE, YELLOW_LEVEL } from '../../../constants/notifications'
 
 const useStyles = makeStyles(
   theme => ({
@@ -701,7 +703,13 @@ function PlanningInvestible(props) {
     };
     setOperationRunning(true);
     return updateInvestible(updateInfo).then((fullInvestible) => {
-      refreshInvestibles(investiblesDispatch, () => {}, [fullInvestible]);
+      onInvestibleStageChange(stage, fullInvestible, investibleId, marketId, undefined,
+        undefined, investiblesDispatch, diffDispatch, marketStagesState, messagesState,
+        messagesDispatch, [INVESTIBLE_SUBMITTED_TYPE]);
+      if (isReadyToStart) {
+        notify(myPresence.id, investibleId, INVESTIBLE_SUBMITTED_TYPE, YELLOW_LEVEL, investiblesState, market,
+          messagesDispatch);
+      }
       setOperationRunning(false);
     });
   }

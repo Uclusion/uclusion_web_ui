@@ -15,6 +15,9 @@ import { doRemoveEdit, onDropTodo } from './userUtils'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import { deleteOrDehilightMessages } from '../../../api/users'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
+import { removeMessagesForCommentId } from '../../../utils/messageUtils'
+import { notifyImmediate } from '../../../utils/commentFunctions'
+import { RED_LEVEL } from '../../../constants/notifications'
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -41,16 +44,17 @@ const useStyles = makeStyles((theme) => {
 });
 
 function MarketTodoMenu(props) {
-  const { comment, editViewFunc, openIdFunc, anchorEl, messages } = props;
+  const { comment, editViewFunc, openIdFunc, anchorEl, messages, market } = props;
   const intl = useIntl();
   const classes = useStyles();
   const [commentState, commentDispatch] = useContext(CommentsContext);
-  const [, messagesDispatch] = useContext(NotificationsContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [, invDispatch] = useContext(InvestiblesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const { market_id: marketId, id: commentId, notification_type: myNotificationType } = comment;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+  const myPresence = marketPresences.find((presence) => presence.current_user) || {};
   const assignablePresences = marketPresences.filter((presence) => !presence.market_banned && presence.following
     && !presence.market_guest) || [];
 
@@ -90,10 +94,14 @@ function MarketTodoMenu(props) {
 
   function moveTodo(notificationType) {
     setOperationRunning(true);
+    removeMessagesForCommentId(commentId, messagesState, messagesDispatch);
     updateComment(marketId, commentId, undefined, undefined, undefined, undefined,
       notificationType)
       .then((comment) => {
         addCommentToMarket(comment, commentState, commentDispatch);
+        if (notificationType === RED_LEVEL) {
+          notifyImmediate(myPresence.id, comment, market, messagesDispatch);
+        }
         setOperationRunning(false);
       }).finally(() => {
       setOperationRunning(false);

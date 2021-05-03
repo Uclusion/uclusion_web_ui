@@ -416,7 +416,7 @@ function PlanningDialog(props) {
           )}
         </div>
         <MarketTodos comments={unResolvedMarketComments} marketId={marketId} sectionOpen={sectionOpen}
-                     setSectionOpen={setSectionOpen} />
+                     setSectionOpen={setSectionOpen} market={market} userId={myPresence.id} />
       </LocalPlanningDragContext.Provider>
       <Grid container spacing={2} id="discussionSection"
             style={{display: sectionOpen === 'discussionSection' ? 'block' : 'none'}}>

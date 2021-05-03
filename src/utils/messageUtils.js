@@ -1,4 +1,5 @@
 import { ISSUE_TYPE, RED_LEVEL} from '../constants/notifications'
+import { removeMessage } from '../contexts/NotificationsContext/notificationsContextReducer'
 
 export function messageComparator (a, b) {
   if (a.level === b.level) {
@@ -34,6 +35,13 @@ export function findMessagesForCommentId(commentId, state) {
   const { messages } = (state || {});
   const safeMessages = messages || [];
   return safeMessages.filter((message) => message.comment_id === commentId);
+}
+
+export function removeMessagesForCommentId(commentId, state, dispatch) {
+  const messages = findMessagesForCommentId(commentId, state) || [];
+  messages.forEach((message) => {
+    dispatch(removeMessage(message));
+  });
 }
 
 export function findMessagesForInvestibleId(investibleId, state) {

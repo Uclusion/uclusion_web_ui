@@ -32,7 +32,7 @@ import {
 import Chip from '@material-ui/core/Chip'
 import { removeHeader, restoreHeader } from '../../../containers/Header'
 import { LocalPlanningDragContext } from './InvestiblesByWorkspace'
-import { findMessageForCommentId } from '../../../utils/messageUtils'
+import { findMessageForCommentId, removeMessagesForCommentId } from '../../../utils/messageUtils'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { invalidEditEvent, isTinyWindow } from '../../../utils/windowUtils'
 import MarketTodoMenu from './MarketTodoMenu'
@@ -41,7 +41,7 @@ import { doRemoveEdit, doShowEdit } from './userUtils'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward'
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
-import { getThreadIds } from '../../../utils/commentFunctions'
+import { getThreadIds, notifyImmediate } from '../../../utils/commentFunctions'
 
 const myClasses = makeStyles(
   theme => {
@@ -121,7 +121,7 @@ const myClasses = makeStyles(
 function MarketTodos (props) {
   const {
     comments,
-    marketId,
+    marketId, market, userId,
     isInArchives,
     sectionOpen, setSectionOpen
   } = props
@@ -131,7 +131,7 @@ function MarketTodos (props) {
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [beingDraggedHack, setBeingDraggedHack] = useContext(LocalPlanningDragContext);
-  const [messagesState] = useContext(NotificationsContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [showSelectTodos, setShowSelectTodos] = useState(false);
   const [checked, setChecked] = useState({});
   const todoComments = comments.filter(comment => comment.comment_type === TODO_TYPE) || [];
@@ -328,7 +328,7 @@ function MarketTodos (props) {
       return (
         <>
           {openMenuTodoId === id && anchorEl && (
-            <MarketTodoMenu comment={comment} editViewFunc={setCardAndScroll}
+            <MarketTodoMenu comment={comment} editViewFunc={setCardAndScroll} market={market}
                             openIdFunc={setOpenMenuTodoId} anchorEl={anchorEl} messages={messages} />
           )}
           <Grid
@@ -411,8 +411,9 @@ function MarketTodos (props) {
     }
   }
 
-  function onCreateRed () {
+  function onCreateRed(comment) {
     setEditRedCard(undefined);
+    notifyImmediate(userId, comment, market, messagesDispatch);
     updateCommentAddRedState({ createRedCard: !createRedCard });
   }
 
@@ -438,13 +439,15 @@ function MarketTodos (props) {
       return;
     }
     setOperationRunning(true);
+    removeMessagesForCommentId(commentId, messagesState, messagesDispatch);
     const target = event.target;
     target.style.cursor = 'wait';
-    updateComment(marketId, commentId, undefined, undefined, undefined, undefined,
+    return updateComment(marketId, commentId, undefined, undefined, undefined, undefined,
       notificationType)
       .then((comment) => {
         addCommentToMarket(comment, commentState, commentDispatch);
         setOperationRunning(false);
+        return comment;
       }).finally(() => {
       target.style.cursor = 'pointer';
       setOperationRunning(false);
@@ -452,7 +455,7 @@ function MarketTodos (props) {
   }
 
   function onDropImmediate(event) {
-    onDrop(event, 'RED');
+    onDrop(event, 'RED').then((comment) => notifyImmediate(userId, comment, market, messagesDispatch));
   }
 
   function onDropConvenient(event) {

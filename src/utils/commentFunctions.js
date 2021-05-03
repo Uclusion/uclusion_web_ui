@@ -6,6 +6,9 @@ import { addCommentToMarket } from '../contexts/CommentsContext/commentsContextH
 import { pushMessage } from './MessageBusUtils'
 import { PUSH_INVESTIBLES_CHANNEL } from '../contexts/VersionsContext/versionsContextHelper'
 import { LOAD_EVENT } from '../contexts/InvestibesContext/investiblesContextMessages'
+import { formCommentLink, formMarketLink } from './marketIdPathFunctions'
+import { addMessage } from '../contexts/NotificationsContext/notificationsContextReducer'
+import { RED_LEVEL } from '../constants/notifications'
 
 export function scrollToCommentAddBox() {
   const box = document.getElementById('cabox');
@@ -72,4 +75,16 @@ export function changeInvestibleStageOnCommentChange(investibleBlocks, investibl
       }
     }
   }
+}
+
+export function notifyImmediate(userId, comment, market, messagesDispatch) {
+  const commentLink = formCommentLink(market.id, undefined, comment.id);
+  const marketLink = formMarketLink(market.id);
+  const notificationType = 'ISSUE';
+  messagesDispatch(addMessage({ market_id_user_id: `${market.id}_${userId}`,
+    type_object_id: `${notificationType}_${comment.id}`, type: notificationType, market_id: market.id,
+    comment_id: comment.id, user_id: userId, text: 'Please assign', level: RED_LEVEL,
+    is_highlighted: false, name: 'Immediate TODOs', link: commentLink, market_type: market.market_type,
+    link_type: 'MARKET_TODO', market_link: marketLink, market_name: market['name'],
+    link_multiple: `${marketLink}##immediateTodos` }));
 }

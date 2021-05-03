@@ -279,9 +279,9 @@ function CommentAdd(props) {
     onCancel();
   }
 
-  function handleSpinStop () {
+  function handleSpinStop (comment) {
     clearMe();
-    onSave();
+    onSave(comment);
   }
 
   function handleSave () {
@@ -324,11 +324,11 @@ function CommentAdd(props) {
         if (doNotShowAgain) {
           return doNotShowAgain().then(() => {
             setOperationRunning(false);
-            handleSpinStop();
+            handleSpinStop(comment);
           });
         } else {
           setOperationRunning(false);
-          handleSpinStop();
+          handleSpinStop(comment);
         }
       });
   }

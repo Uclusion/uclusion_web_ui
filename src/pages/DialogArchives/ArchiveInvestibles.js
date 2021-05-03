@@ -79,7 +79,7 @@ function getInvestibles(investibles, marketPresences, marketPresencesState, pres
     const { updated_at: invUpdatedAt } = inv.investible;
     const { updated_at: infoUpdatedAt } = aMarketInfo;
     const updatedAt = new Date(invUpdatedAt) > new Date(infoUpdatedAt) ? invUpdatedAt : infoUpdatedAt;
-    return { ...inv.investible, updatedAt };
+    return { ...inv.investible, updatedAt, enteredStageAt: Date.parse(aMarketInfo.last_stage_change_date) };
   });
   const sortedData = _.sortBy(investibleData, 'updatedAt', 'name').reverse();
   const infoMap = investibles.reduce((acc, inv) => {
@@ -93,7 +93,7 @@ function getInvestibles(investibles, marketPresences, marketPresencesState, pres
   }, {});
   const classes = myClasses();
   return sortedData.map((investible) => {
-    const { id, name, updatedAt } = investible;
+    const { id, name, enteredStageAt } = investible;
     const info = infoMap[id] || {};
     const { assigned } = info;
     const requiresInputComments = (unResolvedMarketComments || []).filter((comment) => {
@@ -147,7 +147,7 @@ function getInvestibles(investibles, marketPresences, marketPresencesState, pres
               <Grid container>
                 <Grid item xs={11}>
                   <Typography style={{fontSize: '.75rem', flex: 1}}>
-                    Updated: {intl.formatDate(updatedAt)}
+                    Entered stage {intl.formatDate(enteredStageAt)}
                   </Typography>
                 </Grid>
                 <Grid id={`showEdit0${id}`} item xs={1} style={{pointerEvents: 'none', display: 'none'}}>

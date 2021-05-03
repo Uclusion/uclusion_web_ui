@@ -84,9 +84,9 @@ function MarketTodoMenu(props) {
 
   function doMarkRead() {
     setOperationRunning(true);
-    deleteOrDehilightMessages(messages, messagesDispatch).then(() => setOperationRunning(false))
+    openIdFunc(undefined);
+    return deleteOrDehilightMessages(messages, messagesDispatch).then(() => setOperationRunning(false))
       .finally(() => {
-        openIdFunc(undefined);
         doRemoveEdit(commentId);
         setOperationRunning(false);
     });
@@ -94,9 +94,10 @@ function MarketTodoMenu(props) {
 
   function moveTodo(notificationType) {
     setOperationRunning(true);
+    openIdFunc(undefined);
     removeMessagesForCommentId(commentId, messagesState, messagesDispatch);
-    updateComment(marketId, commentId, undefined, undefined, undefined, undefined,
-      notificationType)
+    return updateComment(marketId, commentId, undefined, undefined, undefined,
+      undefined, notificationType)
       .then((comment) => {
         addCommentToMarket(comment, commentState, commentDispatch);
         if (notificationType === RED_LEVEL) {
@@ -105,7 +106,6 @@ function MarketTodoMenu(props) {
         setOperationRunning(false);
       }).finally(() => {
       setOperationRunning(false);
-      openIdFunc(undefined);
     });
   }
 

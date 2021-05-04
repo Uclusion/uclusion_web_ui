@@ -81,6 +81,10 @@ import ReplyIcon from '@material-ui/icons/Reply'
 import TooltipIconButton from '../Buttons/TooltipIconButton'
 import { getPageReducerPage, usePageStateReducer } from '../PageState/pageStateHooks'
 import InlineInitiativeBox from '../../containers/CommentBox/InlineInitiativeBox'
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import { getDiff, markDiffViewed } from '../../contexts/DiffContext/diffContextHelper'
+import { DiffContext } from '../../contexts/DiffContext/DiffContext'
+import DiffDisplay from '../TextEditors/DiffDisplay'
 
 const useCommentStyles = makeStyles(
   theme => {
@@ -336,6 +340,7 @@ function Comment(props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const [diffState, diffDispatch] = useContext(DiffContext);
   const enableActions = !inArchives && !readOnly;
   const enableEditing = !inArchives && !resolved && !readOnly; //resolved comments or those in archive aren't editable
   const [investibleAddStateFull, investibleAddDispatch] = usePageStateReducer('commentInvestibleAdd');
@@ -354,6 +359,7 @@ function Comment(props) {
   const [editState, updateEditState, editStateReset] = getPageReducerPage(editStateFull, editDispatch, id);
   const {
     beingEdited,
+    showDiff
   } = editState;
   const editOpen = beingEdited || editOpenDefault;
 
@@ -371,6 +377,13 @@ function Comment(props) {
           addMarketToStorage(marketsDispatch, undefined, market);
         });
     }
+  }
+
+  function toggleDiffShow() {
+    if (showDiff) {
+      markDiffViewed(diffDispatch, id);
+    }
+    updateEditState({showDiff: !showDiff});
   }
 
   function allowSuggestionVote() {
@@ -562,6 +575,7 @@ function Comment(props) {
   }
   const {highlighted, messages} = getHilightedIds(replies);
   const myMessage = findMessageForCommentId(id, messagesState);
+  const diff = getDiff(diffState, id);
   const myHighlightedState = myMessage || {};
   const myExpandedState = expandedCommentState[id] || {};
   const { level: myHighlightedLevel, is_highlighted: isHighlighted } = myHighlightedState;
@@ -598,7 +612,7 @@ function Comment(props) {
     }
     return classes.container;
   }
-
+  const displayingDiff = myMessage && showDiff && diff;
   const isEditable = comment.created_by === userId;
   const displayEditing = enableEditing && isEditable && !editOpenDefault;
   const inReviewStageId = (getInReviewStage(marketStagesState, marketId) || {}).id;
@@ -666,9 +680,12 @@ function Comment(props) {
               />
           )}
           <Box marginTop={1}>
-            {!editOpen && (
+            {!editOpen && !displayingDiff && (
               <ReadOnlyQuillEditor value={comment.body} setBeingEdited={setBeingEdited}
                                    isEditable={!isTinyWindow() && displayEditing}/>
+            )}
+            {!editOpen && displayingDiff && (
+              <DiffDisplay id={id} />
             )}
             <CommentEdit
               marketId={marketId}
@@ -806,6 +823,12 @@ function Comment(props) {
                   icon={Eject}
                 >
                   {intl.formatMessage({ id: "storyFromComment" })}
+                </SpinningIconLabelButton>
+              )}
+              {myMessage && diff && (
+                <SpinningIconLabelButton icon={showDiff ? ExpandLess : ExpandMoreIcon} onClick={toggleDiffShow}
+                                         doSpin={false}>
+                  <FormattedMessage id={showDiff ? 'diffDisplayDismissLabel' : 'diffDisplayShowLabel'} />
                 </SpinningIconLabelButton>
               )}
             </div>

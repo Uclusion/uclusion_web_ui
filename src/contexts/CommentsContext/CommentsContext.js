@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useState } from 'react'
+import React, { useContext, useEffect, useReducer, useState } from 'react'
 import _ from 'lodash'
 import reducer, { initializeState } from './commentsContextReducer'
 import LocalForageHelper from '../../utils/LocalForageHelper'
@@ -11,6 +11,7 @@ import {
 } from '../SearchIndexContext/searchIndexContextMessages'
 import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
+import { DiffContext } from '../DiffContext/DiffContext'
 
 const COMMENTS_CHANNEL = 'comments';
 const COMMENTS_CONTEXT_NAMESPACE = 'comments_context';
@@ -25,7 +26,8 @@ function pushIndexItems(diskState) {
 }
 
 function CommentsProvider(props) {
-  const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
+  const [state, dispatch] = useReducer(reducer, EMPTY_STATE, undefined);
+  const [, diffDispatch] = useContext(DiffContext);
   const [, setChannel] = useState(undefined);
 
   useEffect(() => {
@@ -48,6 +50,11 @@ function CommentsProvider(props) {
   }, []);
 
   useEffect(() => {
+    beginListening(dispatch, diffDispatch);
+    return () => {};
+  }, [diffDispatch]);
+
+  useEffect(() => {
     // load state from storage
     const lfg = new LocalForageHelper(COMMENTS_CONTEXT_NAMESPACE);
     lfg.getState()
@@ -59,7 +66,6 @@ function CommentsProvider(props) {
           dispatch(initializeState({}));
         }
       });
-    beginListening(dispatch);
     return () => {};
   }, []);
 

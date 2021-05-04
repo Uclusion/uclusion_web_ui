@@ -6,10 +6,11 @@ import {
 import { overwriteMarketComments, removeMarketsComments, updateCommentsFromVersions } from './commentsContextReducer'
 import { registerListener } from '../../utils/MessageBusUtils'
 import { fixupItemsForStorage } from '../ContextUtils'
+import { addContents } from '../DiffContext/diffContextReducer'
 
 export const COMMENT_LOAD_EVENT = 'LoadEvent';
 
-function beginListening(dispatch) {
+function beginListening(dispatch, diffDispatch) {
   registerListener(REMOVED_MARKETS_CHANNEL, 'commentsRemovedMarketStart', (data) => {
     const { payload: { event, message } } = data;
     switch (event) {
@@ -25,6 +26,11 @@ function beginListening(dispatch) {
     const fixedUp = fixupItemsForStorage(comments);
     switch (event) {
       case VERSIONS_EVENT:
+        const fixedUpForDiff = fixedUp.map((comment) => {
+          const { id, body: description, updated_by,  updated_by_you } = comment;
+          return { id, description, updated_by, updated_by_you };
+        });
+        diffDispatch(addContents(fixedUpForDiff));
         dispatch(updateCommentsFromVersions(marketId, fixedUp));
         break;
       case COMMENT_LOAD_EVENT:

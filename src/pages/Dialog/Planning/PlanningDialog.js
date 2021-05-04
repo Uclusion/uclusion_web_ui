@@ -72,6 +72,7 @@ import PlayForWorkIcon from '@material-ui/icons/PlayForWork'
 import { getFakeCommentsArray } from '../../../utils/stringFunctions'
 import Chip from '@material-ui/core/Chip'
 import { getThreadIds } from '../../../utils/commentFunctions'
+import { isTinyWindow } from '../../../utils/windowUtils'
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -274,13 +275,13 @@ function PlanningDialog(props) {
         hidden={hidden}
         steps={tourSteps}
       />
-      <div id="workspaceMain" style={{display: sectionOpen === 'workspaceMain' ? 'block' : 'none'}}>
+      <div id="workspaceMain" style={{display: sectionOpen === 'workspaceMain' || isTinyWindow() ? 'block' : 'none'}}>
         <DismissableText textId='planningEditHelp' />
         <Summary market={market} hidden={hidden} activeMarket={activeMarket} inArchives={inArchives} />
       </div>
       <LocalPlanningDragContext.Provider value={[beingDraggedHack, setBeingDraggedHack]}>
         <div id="storiesSection"
-             style={{display: sectionOpen === 'storiesSection' ? 'block' : 'none'}}>
+             style={{display: sectionOpen === 'storiesSection' || isTinyWindow() ? 'block' : 'none'}}>
           {!isChannel && (
             <DismissableText textId='stageHelp' textId1='stageHelp1' textId2='stageHelp2' textId3='stageHelp3'
                              textId4='stageHelp4'/>
@@ -419,7 +420,7 @@ function PlanningDialog(props) {
                      setSectionOpen={setSectionOpen} market={market} userId={myPresence.id} />
       </LocalPlanningDragContext.Provider>
       <Grid container spacing={2} id="discussionSection"
-            style={{display: sectionOpen === 'discussionSection' ? 'block' : 'none'}}>
+            style={{display: sectionOpen === 'discussionSection' || isTinyWindow() ? 'block' : 'none'}}>
           <Grid item id="commentAddArea"  xs={12}>
             {!inArchives && (
               <CommentAddBox

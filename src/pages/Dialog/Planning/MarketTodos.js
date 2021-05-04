@@ -478,7 +478,7 @@ function MarketTodos (props) {
   const editCard = comments.find((comment) => comment.id === editCardId);
   return (
     <div className={classes.outerBorder} id="marketTodos"
-         style={{display: sectionOpen === 'marketTodos' ? 'block' : 'none'}}>
+         style={{display: sectionOpen === 'marketTodos' || isTinyWindow() ? 'block' : 'none'}}>
       <SubSection
         type={SECTION_SUB_HEADER}
         isBlackText

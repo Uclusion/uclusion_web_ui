@@ -825,7 +825,7 @@ function Comment(props) {
                   {intl.formatMessage({ id: "storyFromComment" })}
                 </SpinningIconLabelButton>
               )}
-              {myMessage && diff && (
+              {myMessage && diff && !isTinyWindow() && (
                 <SpinningIconLabelButton icon={showDiff ? ExpandLess : ExpandMoreIcon} onClick={toggleDiffShow}
                                          doSpin={false}>
                   <FormattedMessage id={showDiff ? 'diffDisplayDismissLabel' : 'diffDisplayShowLabel'} />

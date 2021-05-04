@@ -413,7 +413,9 @@ function MarketTodos (props) {
 
   function onCreateRed(comment) {
     setEditRedCard(undefined);
-    notifyImmediate(userId, comment, market, messagesDispatch);
+    if (comment) {
+      notifyImmediate(userId, comment, market, messagesDispatch);
+    }
     updateCommentAddRedState({ createRedCard: !createRedCard });
   }
 

@@ -8,10 +8,14 @@ import { makeStyles } from '@material-ui/styles'
 import CardType from '../../../components/CardType'
 import ProgressBar from '../../../components/Expiration/ProgressBarExpiration'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
-import { findMessageOfTypeAndId } from '../../../utils/messageUtils'
+import { findMessageOfTypeAndId, findMessagesForInvestibleId } from '../../../utils/messageUtils'
 import Gravatar from '../../../components/Avatars/Gravatar';
 import { getInvestibleVoters } from '../../../utils/votingUtils';
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined'
+import { deleteOrDehilightMessages } from '../../../api/users'
+import { SettingsBackupRestore } from '@material-ui/icons'
+import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 
 const useVoteStyles = makeStyles(
   theme => {
@@ -72,9 +76,12 @@ const useVoteStyles = makeStyles(
 function Voting(props) {
   const { marketPresences, investibleId, investmentReasons, showExpiration, expirationMinutes,
     setVotingBeingEdited, votingAllowed, yourPresence } = props;
-  const [messagesState] = useContext(NotificationsContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const classes = useVoteStyles();
   const intl = useIntl();
+  const investibleMessages = findMessagesForInvestibleId(investibleId, messagesState) || [];
+  const voteMessages = investibleMessages.filter((message) => message.type_object_id.startsWith('UNREAD_VOTE'));
 
   function getVoterReason(userId) {
     return investmentReasons.find(comment => comment.created_by === userId);
@@ -92,59 +99,75 @@ function Voting(props) {
   }
 
   return (
-    <ol className={classes.root}>
-      {sortedVoters.map(voter => {
-        const { name, email, id: userId, quantity, maxBudget, maxBudgetUnit, updatedAt } = voter;
-        const isYourVote = userId === yourPresence.id;
-        const myMessage = findMessageOfTypeAndId(`${investibleId}_${userId}`, messagesState, 'VOTE');
-        const reason = getVoterReason(userId);
-        const voteId = `cv${userId}`;
+    <>
+      {!_.isEmpty(voteMessages) && (
+        <>
+          <SpinningIconLabelButton onClick={() => {
+            setOperationRunning(true);
+            deleteOrDehilightMessages(voteMessages, messagesDispatch).then(() => setOperationRunning(false))
+              .finally(() => {
+                setOperationRunning(false);
+              });
+          }} icon={SettingsBackupRestore}>
+            {intl.formatMessage({ id: 'removeVoteNotifications' })}
+          </SpinningIconLabelButton>
+          <div style={{paddingBottom: '1rem'}} />
+        </>
+      )}
+      <ol className={classes.root}>
+        {sortedVoters.map(voter => {
+          const { name, email, id: userId, quantity, maxBudget, maxBudgetUnit, updatedAt } = voter;
+          const isYourVote = userId === yourPresence.id;
+          const myMessage = findMessageOfTypeAndId(`${investibleId}_${userId}`, messagesState, 'VOTE');
+          const reason = getVoterReason(userId);
+          const voteId = `cv${userId}`;
 
-        return (
-          <div className={myMessage && classes.highlighted}>
-            <Card
-              key={userId}
-              className={classes.card}
-              component="li"
-              id={voteId}
-              elevation={3}
-            >
-              <CardType
-                className={classes.cardType}
-                type={`certainty${Math.abs(quantity)}`}
-              />
-              {isYourVote && votingAllowed && (
-                <CardActions className={classes.editVoteDisplay}>
-                  <EditOutlinedIcon style={{maxHeight: '1.25rem', cursor: 'pointer'}} onClick={setVotingBeingEdited}/>
-                </CardActions>
-              )}
-              {showExpiration && (
-                <div className={classes.expiresDisplay}>
-                  <ProgressBar
-                    createdAt={new Date(updatedAt)}
-                    expirationMinutes={expirationMinutes}
-                    smallForMobile={true}
-                  />
-                </div>
-              )}
-              <CardContent className={classes.cardContent}>
-                <div style={{display: 'flex', alignItems: 'center', paddingBottom: '1rem'}}>
-                  <Gravatar email={email} name={name}/>
-                  <Typography className={classes.voter} component="strong">
-                    {maxBudget > 0 && !maxBudgetUnit && intl.formatMessage({id: 'maxBudgetValue'},
-                      { x: maxBudget, name})}
-                    {maxBudget > 0 && maxBudgetUnit && intl.formatMessage({id: 'maxBudgetValueWithUnits'},
-                      { x: maxBudget, y: maxBudgetUnit, name})}
-                    {(!maxBudget > 0) && name}
-                  </Typography>
-                </div>
-                {reason && <ReadOnlyQuillEditor value={reason.body} />}
-              </CardContent>
-            </Card>
-          </div>
-        );
-      })}
-    </ol>
+          return (
+            <div className={myMessage && classes.highlighted}>
+              <Card
+                key={userId}
+                className={classes.card}
+                component="li"
+                id={voteId}
+                elevation={3}
+              >
+                <CardType
+                  className={classes.cardType}
+                  type={`certainty${Math.abs(quantity)}`}
+                />
+                {isYourVote && votingAllowed && (
+                  <CardActions className={classes.editVoteDisplay}>
+                    <EditOutlinedIcon style={{maxHeight: '1.25rem', cursor: 'pointer'}} onClick={setVotingBeingEdited}/>
+                  </CardActions>
+                )}
+                {showExpiration && (
+                  <div className={classes.expiresDisplay}>
+                    <ProgressBar
+                      createdAt={new Date(updatedAt)}
+                      expirationMinutes={expirationMinutes}
+                      smallForMobile={true}
+                    />
+                  </div>
+                )}
+                <CardContent className={classes.cardContent}>
+                  <div style={{display: 'flex', alignItems: 'center', paddingBottom: '1rem'}}>
+                    <Gravatar email={email} name={name}/>
+                    <Typography className={classes.voter} component="strong">
+                      {maxBudget > 0 && !maxBudgetUnit && intl.formatMessage({id: 'maxBudgetValue'},
+                        { x: maxBudget, name})}
+                      {maxBudget > 0 && maxBudgetUnit && intl.formatMessage({id: 'maxBudgetValueWithUnits'},
+                        { x: maxBudget, y: maxBudgetUnit, name})}
+                      {(!maxBudget > 0) && name}
+                    </Typography>
+                  </div>
+                  {reason && <ReadOnlyQuillEditor value={reason.body} />}
+                </CardContent>
+              </Card>
+            </div>
+          );
+        })}
+      </ol>
+    </>
   );
 }
 

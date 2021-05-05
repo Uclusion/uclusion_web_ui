@@ -71,6 +71,12 @@ const myClasses = makeStyles(
         overflowY: 'auto',
         maxHeight: '25rem'
       },
+      containerGreen: {
+        borderColor: 'green',
+        borderStyle: 'dashed',
+        borderWidth: '3px',
+        borderRadius: 6
+      },
       outerBorder: {
         marginBottom: '30px'
       },
@@ -429,6 +435,17 @@ function MarketTodos (props) {
     updateCommentAddYellowState({ createYellowCard: !createYellowCard });
   }
 
+  function setElementGreen(elementId) {
+    removeElementGreen();
+    document.getElementById(elementId).classList.add(classes.containerGreen);
+  }
+
+  function removeElementGreen() {
+    ['immediateSection', 'convenientSection', 'ableSection'].forEach((elementId) => {
+      document.getElementById(elementId).classList.remove(classes.containerGreen);
+    });
+  }
+
   function onDrop(event, notificationType) {
     const commentId = event.dataTransfer.getData('text');
     const currentStageId = event.dataTransfer.getData("stageId");
@@ -543,6 +560,8 @@ function MarketTodos (props) {
               container
               className={classes.white}
               id="immediateSection" onDrop={onDropImmediate}
+              onDragEnd={() => removeElementGreen()}
+              onDragEnter={() => setElementGreen('immediateSection')}
               onDragOver={(event) => event.preventDefault()}
             >
               {getCards(redComments, marketId, history, intl, setEditRedCard)}
@@ -597,6 +616,8 @@ function MarketTodos (props) {
               container
               className={classes.white}
               id="convenientSection" onDrop={onDropConvenient}
+              onDragEnd={() => removeElementGreen()}
+              onDragEnter={() => setElementGreen('convenientSection')}
               onDragOver={(event) => event.preventDefault()}
             >
               {getCards(yellowComments, marketId, history, intl, setEditYellowCard)}
@@ -651,6 +672,8 @@ function MarketTodos (props) {
               container
               className={classes.white}
               id="ableSection" onDrop={onDropAble}
+              onDragEnd={() => removeElementGreen()}
+              onDragEnter={() => setElementGreen('ableSection')}
               onDragOver={(event) => event.preventDefault()}
             >
               {getCards(blueComments, marketId, history, intl, setEditCard)}

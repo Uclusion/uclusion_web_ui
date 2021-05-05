@@ -62,6 +62,11 @@ const myClasses = makeStyles(
         overflowY: 'auto',
         maxHeight: '25rem'
       },
+      containerGreen: {
+        borderColor: 'green',
+        borderStyle: 'dashed',
+        borderWidth: '3px'
+      },
       containerEmpty: {},
       grow: {
         padding: '30px',
@@ -282,12 +287,27 @@ function ArchiveInvestbiles(props) {
         });
     }
   }
+  const elementId = allowDragDrop && !stage.move_on_comment ? isReadyToStart ? 'furtherReadyToStart'
+    : 'furtherNotReadyToStart' : undefined;
 
+  function setElementGreen() {
+    removeElementGreen();
+    document.getElementById(elementId).classList.add(classes.containerGreen);
+  }
+
+  function removeElementGreen() {
+    ['furtherReadyToStart', 'furtherNotReadyToStart'].forEach((elementId) => {
+      document.getElementById(elementId).classList.remove(classes.containerGreen);
+    });
+  }
   return (
     <Grid
       container
       className={classes.white}
       onDrop={onDrop}
+      id={elementId}
+      onDragEnd={removeElementGreen}
+      onDragEnter={setElementGreen}
       onDragOver={(event) => (stage && !stage.move_on_comment) && event.preventDefault()}
     >
       {_.isEmpty(investibles) && (

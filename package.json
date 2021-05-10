@@ -27,7 +27,7 @@
     "js-search": "^2.0.0",
     "jwt-decode": "^2.2.0",
     "localforage": "^1.7.3",
-    "lodash": "^4.17.19",
+    "lodash": "^4.17.21",
     "logrocket": "^1.0.10",
     "material-ui-popup-state": "^1.5.4",
     "moment": "^2.25.3",

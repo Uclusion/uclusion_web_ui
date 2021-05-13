@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { FormattedMessage, useIntl } from 'react-intl'
 import {
   Button,
@@ -31,7 +31,7 @@ import { removeMessage } from '../../contexts/NotificationsContext/notifications
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 import { Clear, Update } from '@material-ui/icons'
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'
-import { editorFocus, editorReset, useEditor } from '../TextEditors/quillHooks'
+import { editorReset, useEditor } from '../TextEditors/quillHooks'
 
 const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -186,13 +186,6 @@ function CommentEdit(props) {
     marketId,
   }
   const [Editor, editorController] = useEditor(editorName, editorSpec);
-
-  useEffect(() => {
-    if (!hidden) {
-      editorController(editorFocus());
-    }
-    return () => {};
-  }, [editorController, hidden]);
 
   function handleSave() {
     setOperationRunning(true);

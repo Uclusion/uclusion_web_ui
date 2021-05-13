@@ -45,6 +45,7 @@ import { editorFocus, editorReset, editorUpdate, useEditor } from '../TextEditor
 import { getUiPreferences } from '../../contexts/AccountUserContext/accountUserContextHelper'
 import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
 import DismissableText from '../Notifications/DismissableText'
+import { pushMessage } from '../../utils/MessageBusUtils'
 
 function getPlaceHolderLabelId (type, isStory, isInReview) {
   switch (type) {
@@ -248,17 +249,19 @@ function CommentAdd(props) {
   useEffect(() => {
     // If didn't focus to begin with then focus when type is changed
     if (type && !autoFocus) {
-      editorController(editorFocus());
+      // Can't use editorController here because the function is not invariant
+      pushMessage(`editor-${editorName}-control-plane`, editorFocus());
     }
     return () => {};
-  }, [autoFocus, editorController, type]);
+  }, [autoFocus, editorName, type]);
 
   useEffect(() => {
     if (!hidden && autoFocus) {
-      editorController(editorFocus());
+      // Can't use editorController here because the function is not invariant
+      pushMessage(`editor-${editorName}-control-plane`, editorFocus());
     }
     return () => {};
-  }, [autoFocus, editorController, hidden]);
+  }, [autoFocus, editorName, hidden]);
 
 
   function clearMe () {
@@ -459,7 +462,7 @@ IssueDialog.propTypes = {
 };
 
 CommentAdd.propTypes = {
-  type: PropTypes.string.isRequired,
+  type: PropTypes.string,
   marketId: PropTypes.string.isRequired,
   issueWarningId: PropTypes.string,
   todoWarningId: PropTypes.string,

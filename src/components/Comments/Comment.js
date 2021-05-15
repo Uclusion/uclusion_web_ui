@@ -68,7 +68,7 @@ import { addDecisionInvestible } from '../../api/investibles'
 import ShareStoryButton from '../../pages/Investible/Planning/ShareStoryButton'
 import { onCommentOpen } from '../../utils/commentFunctions'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
-import { findMessageForCommentId } from '../../utils/messageUtils'
+import { findMessageForCommentId, removeMessagesForCommentId } from '../../utils/messageUtils'
 import GravatarAndName from '../Avatars/GravatarAndName';
 import { invalidEditEvent, isTinyWindow } from '../../utils/windowUtils'
 import DecisionInvestibleAdd from '../../pages/Dialog/Decision/DecisionInvestibleAdd'
@@ -536,6 +536,7 @@ function Comment(props) {
     return removeComment(marketId, id)
       .then(() => {
         removeComments(commentsDispatch, marketId, [id]);
+        removeMessagesForCommentId(id, messagesState,messagesDispatch);
         setOperationRunning(false);
         onDone();
       });
@@ -545,6 +546,7 @@ function Comment(props) {
     return resolveComment(marketId, id)
       .then((comment) => {
         addCommentToMarket(comment, commentsState, commentsDispatch);
+        removeMessagesForCommentId(id, messagesState,messagesDispatch);
         setOperationRunning(false);
         onDone();
       });

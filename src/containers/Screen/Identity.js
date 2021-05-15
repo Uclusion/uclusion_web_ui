@@ -33,6 +33,8 @@ const useStyles = makeStyles((theme) => ({
   },
   identityBlock: {
     paddingBottom: theme.spacing(1),
+    paddingLeft: '1rem',
+    paddingRight: '1rem',
     textAlign: 'center',
     minWidth: '15rem'
   },
@@ -152,7 +154,7 @@ function Identity (props) {
           <div className={classes.identityBlock}>
             <Gravatar className={classes.largeAvatar} email={email}/>
             <Typography>{chipLabel}</Typography>
-            <Typography style={{color: 'grey'}}>{email}</Typography>
+            <Typography variant="caption" style={{color: 'grey'}}>{email}</Typography>
           </div>
           <Grid container alignItems="center" style={{paddingBottom: '1rem'}}>
             <Grid item xs={4} />

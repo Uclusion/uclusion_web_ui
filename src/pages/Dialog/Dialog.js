@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import _ from 'lodash'
-import { useHistory, useLocation, useParams } from 'react-router'
+import { useHistory, useLocation } from 'react-router'
 import PropTypes from 'prop-types'
 import { useIntl } from 'react-intl'
 import {
@@ -45,7 +45,8 @@ function Dialog(props) {
   const { pathname, hash } = location
   const myHashFragment = (hash && hash.length > 1) ? hash.substring(1, hash.length) : undefined
   const { marketId: marketEntity, action } = decomposeMarketPath(pathname);
-  const { subscribeId } = useParams();
+  const myParams = new URL(document.location).searchParams;
+  const subscribeId = myParams ? myParams.get('subscribeId') : undefined;
   const [marketIdFromToken, setMarketIdFromToken] = useState(undefined);
   const [marketsState] = useContext(MarketsContext);
   const [investiblesState] = useContext(InvestiblesContext);
@@ -96,7 +97,13 @@ function Dialog(props) {
       const loadedMarket = getMarket(marketsState, proposedMarketId);
       // Ignore regular URL case because can cause performance problems to do things for that case
       if (subscribeId) {
-        pushMessage(LOAD_MARKET_CHANNEL, { event: GUEST_MARKET_EVENT, marketId: marketEntity, subscribeId });
+        if (subscribeId !== marketEntity || _.isEmpty(loadedMarket)) {
+          pushMessage(LOAD_MARKET_CHANNEL, { event: GUEST_MARKET_EVENT, marketId: marketEntity, subscribeId });
+          if (subscribeId === marketEntity) {
+            // Comments will be handled by scroll context
+            window.history.replaceState(null, '', window.location.pathname);
+          }
+        }
       } else if (_.isEmpty(loadedMarket) && action === 'invite') {
         pushMessage(LOAD_MARKET_CHANNEL, { event: INVITE_MARKET_EVENT, marketToken: marketEntity });
       }

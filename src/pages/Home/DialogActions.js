@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import { ACTIVE_STAGE, DECISION_TYPE, INACTIVE_STAGE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
 import { IconButton, makeStyles, Tooltip } from '@material-ui/core'
@@ -20,6 +20,13 @@ import { isTinyWindow } from '../../utils/windowUtils'
 import AlarmAddIcon from '@material-ui/icons/AlarmAdd'
 import { useIntl } from 'react-intl'
 import PersonAddIcon from '@material-ui/icons/PersonAdd'
+import { NotInterested, TrackChanges } from '@material-ui/icons'
+import { getInCurrentVotingStage, getInReviewStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
+import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
+import { followStages, unFollowStages } from '../../api/markets'
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { changeMyPresence } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 
 const useStyles = makeStyles(() => {
   return {
@@ -54,6 +61,15 @@ function DialogActions(props) {
   const inArchives = !activeMarket || !isFollowing;
   const classes = useStyles();
   const intl = useIntl();
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [marketStagesState] = useContext(MarketStagesContext);
+  const [mpState, mpDispatch] = useContext(MarketPresencesContext);
+  const inVotingStage = getInCurrentVotingStage(marketStagesState, marketId) || {};
+  const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
+  const myPresence = marketPresences.find((presence) => presence.current_user) || {};
+  const { subscribed } = myPresence;
+  const isSubscribedToMarket = inVotingStage.id && (subscribed || []).includes(inVotingStage.id) && inReviewStage.id &&
+    (subscribed || []).includes(inReviewStage.id);
 
   function getEditLabel(){
     switch (marketType) {
@@ -66,6 +82,26 @@ function DialogActions(props) {
     }
   }
 
+  function subscribe() {
+    setOperationRunning(true);
+    return followStages(marketId, [inVotingStage.id, inReviewStage.id]).then((response) =>{
+      setOperationRunning(false);
+      const { subscribed } = response;
+      const newValues = { subscribed };
+      changeMyPresence(mpState, mpDispatch, marketId, newValues);
+    });
+  }
+
+  function unSubscribe() {
+    setOperationRunning(true);
+    return unFollowStages(marketId, [inVotingStage.id, inReviewStage.id]).then((response) =>{
+      setOperationRunning(false);
+      const { subscribed } = response;
+      const newValues = { subscribed };
+      changeMyPresence(mpState, mpDispatch, marketId, newValues);
+    });
+  }
+
 
   function getActions() {
     const actions = [];
@@ -74,37 +110,63 @@ function DialogActions(props) {
       ? formInvestibleEditLink(marketId, initiativeId)
       : formMarketEditLink(marketId);
     const editAction = () => navigate(history, editLink);
-    if (isAdmin && !inArchives && !hideEdit) {
-      if (marketType !== PLANNING_TYPE) {
-        actions.push(
-          <Tooltip
-            title={intl.formatMessage({ id: 'dialogEditExpiresLabel' })}
+    if (!inArchives && !hideEdit) {
+      if (isAdmin) {
+        if (marketType !== PLANNING_TYPE) {
+          actions.push(
+            <Tooltip
+              title={intl.formatMessage({ id: 'dialogEditExpiresLabel' })}
+            >
+              <IconButton
+                id="adminEditExpiration"
+                onClick={() => navigate(history, `${formMarketManageLink(marketId)}#expires=true`)}
+              >
+                <AlarmAddIcon htmlColor={ACTION_BUTTON_COLOR} />
+              </IconButton>
+            </Tooltip>)
+        }
+        if (marketType !== INITIATIVE_TYPE) {
+          actions.push(
+            <EditMarketButton key="edit" labelId={editLabel} marketId={marketId} onClick={editAction}
+                              icon={<SettingsIcon htmlColor={ACTION_BUTTON_COLOR} />}/>
+          );
+        }
+        actions.push(<Tooltip
+          title={intl.formatMessage({ id: 'dialogAddParticipantsLabel' })}
+        >
+          <IconButton
+            id="adminManageCollaborators"
+            onClick={() => navigate(history, `${formMarketManageLink(marketId)}#participation=true`)}
+          >
+            <PersonAddIcon
+              htmlColor={marketPresences.length < 2 ? HIGHLIGHTED_BUTTON_COLOR : ACTION_BUTTON_COLOR} />
+          </IconButton>
+        </Tooltip>)
+      } else if (marketType === PLANNING_TYPE) {
+        if (isSubscribedToMarket) {
+          actions.push(<Tooltip
+            title={intl.formatMessage({ id: 'planningMarketUnSubscribeExplanation' })}
           >
             <IconButton
-              id="adminEditExpiration"
-              onClick={() => navigate(history, `${formMarketManageLink(marketId)}#expires=true`)}
+              id="marketGuestUnSubscribe"
+              onClick={unSubscribe}
             >
-              <AlarmAddIcon htmlColor={ACTION_BUTTON_COLOR} />
+              <NotInterested htmlColor={ACTION_BUTTON_COLOR} />
             </IconButton>
           </Tooltip>)
+        } else {
+          actions.push(<Tooltip
+            title={intl.formatMessage({ id: 'planningMarketSubscribeExplanation' })}
+          >
+            <IconButton
+              id="marketGuestSubscribe"
+              onClick={subscribe}
+            >
+              <TrackChanges htmlColor={ACTION_BUTTON_COLOR} />
+            </IconButton>
+          </Tooltip>)
+        }
       }
-      if (marketType !== INITIATIVE_TYPE) {
-        actions.push(
-          <EditMarketButton key="edit" labelId={editLabel} marketId={marketId} onClick={editAction}
-                            icon={<SettingsIcon htmlColor={ACTION_BUTTON_COLOR} />}/>
-        );
-      }
-      actions.push(<Tooltip
-        title={intl.formatMessage({ id: 'dialogAddParticipantsLabel' })}
-      >
-        <IconButton
-          id="adminManageCollaborators"
-          onClick={() => navigate(history, `${formMarketManageLink(marketId)}#participation=true`)}
-        >
-          <PersonAddIcon
-            htmlColor={marketPresences.length < 2 ? HIGHLIGHTED_BUTTON_COLOR : ACTION_BUTTON_COLOR} />
-        </IconButton>
-      </Tooltip>)
     }
     if (marketStage === INACTIVE_STAGE && isAdmin) {
       actions.push(
@@ -123,7 +185,7 @@ function DialogActions(props) {
       }
     }
     if (action === 'dialog' && ((marketType === PLANNING_TYPE) || !activeMarket)) {
-      actions.push(<ShareStoryButton key="share-story"/>)
+      actions.push(<ShareStoryButton key="share-story" marketId={marketId}/>)
     }
     if (isTinyWindow() && !beingEdited) {
       actions.push(

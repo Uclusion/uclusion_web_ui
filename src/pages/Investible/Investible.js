@@ -1,6 +1,6 @@
 import React, { useContext, useEffect } from 'react'
 import PropTypes from 'prop-types'
-import { useHistory, useLocation, useParams } from 'react-router'
+import { useHistory, useLocation } from 'react-router'
 import _ from 'lodash'
 import Screen from '../../containers/Screen/Screen'
 import {
@@ -38,7 +38,8 @@ function Investible(props) {
   const location = useLocation();
   const { pathname } = location;
   const { marketId, investibleId } = decomposeMarketPath(pathname);
-  const { subscribeId } = useParams();
+  const myParams = new URL(document.location).searchParams;
+  const subscribeId = myParams ? myParams.get('subscribeId') : undefined;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const [marketsState] = useContext(MarketsContext);
@@ -74,8 +75,12 @@ function Investible(props) {
     if (!isInitialization && !hidden && marketId && subscribeId) {
       // Do not support copy and paste from regular URL because might cause performance issue
       pushMessage(LOAD_MARKET_CHANNEL, { event: GUEST_MARKET_EVENT, marketId, subscribeId });
+      if (subscribeId === investibleId) {
+        // Comments will be handled by scroll context
+        window.history.replaceState(null, '', window.location.pathname);
+      }
     }
-  }, [hidden, isInitialization, marketId, subscribeId]);
+  }, [hidden, investibleId, isInitialization, marketId, subscribeId]);
 
   useEffect(() => {
     if (!hidden) {

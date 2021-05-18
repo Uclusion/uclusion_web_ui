@@ -89,6 +89,17 @@ export function changeUserToObserver(marketId){
     .catch((error) => toastErrorAndThrow(error, 'errorChangeToObserverFailed'));
 }
 
+export function followStages(marketId, stageIds){
+  return getMarketClient(marketId)
+    .then((client) => client.markets.followStage(stageIds))
+    .catch((error) => toastErrorAndThrow(error, 'errorFollowStages'));
+}
+
+export function unFollowStages(marketId, stageIds){
+  return getMarketClient(marketId)
+    .then((client) => client.markets.followStage(stageIds, true))
+    .catch((error) => toastErrorAndThrow(error, 'errorUnFollowStages'));
+}
 
 export function createInitiative(marketInfo, messageKey = 'errorInitiativeAddFailed') {
   const myInfo = {

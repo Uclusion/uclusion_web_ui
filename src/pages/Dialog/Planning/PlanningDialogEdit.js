@@ -135,7 +135,7 @@ function PlanningDialogEdit(props) {
     <Card className={classes.overflowVisible}>
       <CardContent className={classes.cardContent}>
         <Grid container className={clsx(classes.fieldset, classes.flex, classes.justifySpace)}>
-          {isDraft && (
+          {!isDraft && (
             <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
               <ExistingUsers market={market} />
             </Grid>

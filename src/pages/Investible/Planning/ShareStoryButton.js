@@ -13,7 +13,8 @@ function ShareStoryButton(props) {
   const { commentId, commentType, investibleId, marketId } = props;
   const hashPart = commentId ? !investibleId && commentType === TODO_TYPE ? `#editc${commentId}` : `#c${commentId}`
     : undefined;
-  const paramsPart = commentId ? `?subscribeId=${commentId}` : investibleId ? `?subscribeId=${investibleId}` : '';
+  const paramsPart = commentId ? `?subscribeId=${commentId}` : investibleId ? `?subscribeId=${investibleId}`
+    : `?subscribeId=${marketId}`;
   const autoFocusRef = React.useRef(null);
   const lockedDialogClasses = useLockedDialogStyles();
   const [open, setOpen] = React.useState(false);

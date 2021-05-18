@@ -153,9 +153,9 @@ const messages = defineMessages({
   upgradeBannerText: 'You are on our Free plan and creation of new Dialogs, Initiatives and Workspaces is not available.',
 
   // Share story
-  shareButtonExplanation: 'Share a read only link',
+  shareButtonExplanation: 'Share a non-collaborator link.',
   shareButtonTitle: 'Share',
-  inviteLinkerStory: 'For non-collaborators this link will also grant read only access.',
+  inviteLinkerStory: 'This link grants read, approve and review rights for this workspace.',
   inviteLinkerTicketCode: 'Human friendly story identifier',
 
   // Support
@@ -529,7 +529,7 @@ const messages = defineMessages({
   planningDialogNavDetailsLabel: 'Details',
   planningDialogNavStoriesLabel: 'Stories',
   planningDialogNavDiscussionLabel: 'Discussion',
-  planningDialogManageParticipantsLabel: 'Manage Collaborators',
+  planningDialogManageParticipantsLabel: 'Manage collaborators',
   planningDialogSummaryLabel: 'Workspace Detail',
   planningDialogPeopleLabel: 'collaborator\'s stories',
   planningDialogDiscussionLabel: 'Discussion',
@@ -600,6 +600,8 @@ const messages = defineMessages({
   // Investibles in decision dialog display
   decisionDialogInvestiblesUpdatedAt: 'Last Updated:',
   dialogAddParticipantsLabel: 'Manage Collaborators',
+  planningMarketSubscribeExplanation: 'Subscribe to approvals and reviews',
+  planningMarketUnSubscribeExplanation: 'Unsubscribe from approvals and reviews',
   dialogRemoveParticipantsLabel: 'Remove Collaborators',
   storyAddParticipantsLabel: 'Change Assigned',
   storyApproversLabel: 'Change Required Approvers',
@@ -854,6 +856,8 @@ const messages = defineMessages({
   errorEditLockReleaseFailed: 'There was a problem releasing edit permission',
   errorSubmitToModeratorFailed: 'There was a problem submitting to the moderator',
   errorChangeToObserverFailed: 'There was a problem changing to approver',
+  errorFollowStages: 'There was an error subscribing to the workspace',
+  errorUnFollowStages: 'There was an error un-subscribing from the workspace',
   errorChangeToParticipantFailed: 'There was a problem changing to collaborator',
   errorMarketUpdateFailed: 'There was a problem editing the dialog',
   errorMarketExpirationExtendFailed: 'There was a problem extending the deadline',

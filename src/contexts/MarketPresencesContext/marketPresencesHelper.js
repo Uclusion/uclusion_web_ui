@@ -73,7 +73,7 @@ export function getPresenceMap(state, marketId) {
   }, {});
 }
 
-function changeMyPresence(state, dispatch, marketId, newValues) {
+export function changeMyPresence(state, dispatch, marketId, newValues) {
   const marketPresences = getMarketPresences(state, marketId);
   if (!marketPresences) {
     return;

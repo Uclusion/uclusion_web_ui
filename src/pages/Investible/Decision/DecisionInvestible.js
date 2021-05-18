@@ -22,7 +22,7 @@ import {
 import MoveToCurrentVotingActionButton from './MoveToCurrentVotingActionButton'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import { getProposedOptionsStage, } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
-import { ACTIVE_STAGE, PLANNING_TYPE } from '../../../constants/markets'
+import { ACTIVE_STAGE } from '../../../constants/markets'
 import DeleteInvestibleActionButton from './DeleteInvestibleActionButton'
 import CardType, { OPTION, PROPOSED, VOTING_TYPE } from '../../../components/CardType'
 import DismissableText from '../../../components/Notifications/DismissableText'
@@ -45,7 +45,6 @@ import { getMarketComments } from '../../../contexts/CommentsContext/commentsCon
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { doSetEditWhenValid, isTinyWindow } from '../../../utils/windowUtils'
 import EditMarketButton from '../../Dialog/EditMarketButton'
-import ShareStoryButton from '../Planning/ShareStoryButton'
 import PlaylistAddCheckIcon from '@material-ui/icons/PlaylistAddCheck'
 import EditIcon from '@material-ui/icons/Edit'
 import HowToVoteIcon from '@material-ui/icons/HowToVote'
@@ -202,8 +201,7 @@ function DecisionInvestible(props) {
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, diffDispatch] = useContext(DiffContext);
   const { name: marketName, id: marketId, market_stage: marketStage, allow_multi_vote: allowMultiVote,
-    parent_comment_id: parentCommentId, parent_comment_market_id: parentCommentMarketId,
-    market_type: marketType } = market;
+    parent_comment_id: parentCommentId, parent_comment_market_id: parentCommentMarketId } = market;
   const [pageStateFull, pageDispatch] = usePageStateReducer('investible');
   const [pageState, updatePageState, pageStateReset] = getPageReducerPage(pageStateFull, pageDispatch, investibleId);
   const {
@@ -281,9 +279,6 @@ function DecisionInvestible(props) {
             marketId={marketId}
             onClick={(event) => mySetBeingEdited(true, event)}
           />
-      )}
-      {marketType === PLANNING_TYPE && (
-        <ShareStoryButton />
       )}
       {isAdmin && inProposed && (
           <MoveToCurrentVotingActionButton

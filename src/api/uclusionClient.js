@@ -33,6 +33,7 @@ export const getMarketFromInvite = (marketToken, subscribeId) => {
 };
 
 export const getMarketFromUrl = (marketId, subscribeId) => {
+  console.info(`Attempting to load ${marketId} with ${subscribeId}`);
   const ssoClient = client.constructSSOClient(config.api_configuration);
   return ssoClient.then((sso) => {
     const identitySource = new AmplifyIdentityTokenRefresher();

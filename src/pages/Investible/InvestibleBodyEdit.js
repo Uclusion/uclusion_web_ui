@@ -20,6 +20,7 @@ import { Clear, SettingsBackupRestore } from '@material-ui/icons'
 import SpinningIconLabelButton from '../../components/Buttons/SpinningIconLabelButton'
 import { editorReset, useEditor } from '../../components/TextEditors/quillHooks';
 import LockedDialogTitleIcon from '@material-ui/icons/Lock'
+import { getQuillStoredState } from '../../components/TextEditors/QuillEditor2'
 
 const useStyles = makeStyles(
   theme => ({
@@ -57,7 +58,6 @@ function InvestibleBodyEdit(props) {
   const {
     beingEdited,
     uploadedFiles,
-    description,
     name,
     beingLocked,
     showDiff
@@ -76,13 +76,12 @@ function InvestibleBodyEdit(props) {
   const { id, description: initialDescription, name: initialName } = myInvestible;
 
   const editorName = `${investibleId}-body-editor`;
+  const useDescription = getQuillStoredState(editorName) || initialDescription;
   const editorSpec = {
     onUpload: (files) => pageStateUpdate({uploadedFiles: files}),
     marketId,
-    onChange: (contents) => pageStateUpdate({description: contents}),
-    dontManageState: true, // handled by the page
     placeholder: intl.formatMessage({ id: 'investibleAddDescriptionDefault' }),
-    value: description,
+    value: useDescription
   };
 
   const [Editor, editorController] = useEditor(editorName, editorSpec);
@@ -96,7 +95,7 @@ function InvestibleBodyEdit(props) {
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
-    } = processTextAndFilesForSave(newUploadedFiles, description);
+    } = processTextAndFilesForSave(newUploadedFiles, getQuillStoredState(editorName));
     const updateInfo = {
       uploadedFiles: filteredUploads,
       name: name,
@@ -140,7 +139,6 @@ function InvestibleBodyEdit(props) {
       onSave(result, true);
     }
   }
-
 
   function takeoutLock () {
     pageStateUpdate({beingLocked: true});
@@ -187,7 +185,7 @@ function InvestibleBodyEdit(props) {
         {(!lockedBy || (lockedBy === userId)) && (
           <>
             <NameField onEditorChange={(name) => pageStateUpdate({name})}
-                       description={description}
+                       description={useDescription}
                        name={name}/>
             {Editor}
           </>

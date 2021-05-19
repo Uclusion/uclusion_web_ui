@@ -109,6 +109,9 @@ function storeState (id, state) {
   setUclusionLocalStorageItem(`editor-${id}`, state);
 }
 
+export function getQuillStoredState(id) {
+  return getUclusionLocalStorageItem(`editor-${id}`);
+}
 
 function QuillEditor2 (props) {
 
@@ -123,7 +126,7 @@ function QuillEditor2 (props) {
     simple,
     participants,
     mentionsAllowed,
-    dontManageState,
+    dontManageState
   } = props;
 
   const containerRef = useRef();
@@ -147,14 +150,14 @@ function QuillEditor2 (props) {
     editor && editor.focus();
   }
 
-  function updateState(state) {
+  function updateState(key, state) {
     if (!dontManageState) {
-      storeState(id, state);
+      storeState(key, state);
     }
   }
 
   function resetHandler(contents){
-    updateState(null);
+    updateState(id, null);
     createEditor(contents); // recreate the editor, because we need to get brand new state
     focusEditor();
   }
@@ -453,9 +456,7 @@ function QuillEditor2 (props) {
 
 QuillEditor2.propTypes = {
   marketId: PropTypes.string,
-  onS3Upload: PropTypes.func,
   value: PropTypes.string,
-  onChange: PropTypes.func,
   onStoreChange: PropTypes.func,
   placeholder: PropTypes.string,
   uploadDisabled: PropTypes.bool,
@@ -465,16 +466,14 @@ QuillEditor2.propTypes = {
   simple: PropTypes.bool,
   participants: PropTypes.arrayOf(PropTypes.object),
   mentionsAllowed: PropTypes.bool,
+  dontManageState: PropTypes.bool
 };
 
 QuillEditor2.defaultProps = {
-  onS3Upload: () => {
-  },
-  onChange: () => {
-  },
   value: '',
   placeholder: '',
   marketId: undefined,
+  dontManageState: false,
   uploadDisabled: false,
   noToolbar: false,
   id: undefined,

@@ -377,7 +377,7 @@ function PlanningInvestible(props) {
   const [daysEstimate, setDaysEstimate] = useState(marketDaysEstimate);
   const assigned = invAssigned || [];
   const { investible } = marketInvestible;
-  const { name, description, locked_by: lockedBy, created_at: createdAt, label_list: originalLabelList } = investible;
+  const { name, locked_by: lockedBy, created_at: createdAt, label_list: originalLabelList } = investible;
   const [labelList, setLabelList] = useState(originalLabelList);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -718,12 +718,12 @@ function PlanningInvestible(props) {
     if (!isEdit || lockedBy === userId || !_.isEmpty(lockedBy)) {
       // Either don't lock or throw the modal up - both of which InvestibleBodyEdit can handle
       return doSetEditWhenValid(isEdit, isEditableByUser,
-        (value) => updatePageState({beingEdited: value, name, description}), event, history);
+        (value) => updatePageState({beingEdited: value, name}), event, history);
     }
     if (!isEditableByUser() || invalidEditEvent(event, history)) {
       return;
     }
-    updatePageState({beingEdited: true, name, description});
+    updatePageState({beingEdited: true, name});
     return pushMessage(LOCK_INVESTIBLE_CHANNEL, { event: LOCK_INVESTIBLE, marketId, investibleId });
   }
   function toggleReviewers() {
@@ -764,6 +764,9 @@ function PlanningInvestible(props) {
       createNavListItem(ListAltIcon,'todoSection', `c${todoId}`, _.size(todoSortedComments)),
       createNavListItem(QuestionAnswer,'closedComments', `c${closedId}`, _.size(sortedClosedRoots))
     ]};
+
+  console.debug('Re-rendering now');
+
   return (
     <Screen
       title={ticketCode ? `${ticketCode} ${name}` : name}

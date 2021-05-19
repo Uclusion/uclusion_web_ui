@@ -269,12 +269,12 @@ function Summary(props) {
     if (!isEdit || lockedBy === myPresence.id || !_.isEmpty(lockedBy)) {
       // Either don't lock or throw the modal up - both of which InvestibleBodyEdit can handle
       return doSetEditWhenValid(isEdit, isEditableByUser,
-        (value) => updatePageState({beingEdited: value, name, description}), event, history);
+        (value) => updatePageState({beingEdited: value, name}), event, history);
     }
     if (!isEditableByUser() || invalidEditEvent(event, history)) {
       return;
     }
-    updatePageState({beingEdited: true, name, description});
+    updatePageState({beingEdited: true, name});
     return pushMessage(LOCK_MARKET_CHANNEL, { event: LOCK_MARKET, marketId: id });
   }
 
@@ -384,8 +384,6 @@ function Summary(props) {
 
 Summary.propTypes = {
   market: PropTypes.object.isRequired,
-  investibleName: PropTypes.string,
-  investibleDescription: PropTypes.string,
   investibleId: PropTypes.string,
   hidden: PropTypes.bool.isRequired,
   activeMarket: PropTypes.bool.isRequired,
@@ -394,8 +392,6 @@ Summary.propTypes = {
 };
 
 Summary.defaultProps = {
-  investibleName: undefined,
-  investibleDescription: undefined,
   investibleId: undefined,
   unassigned: []
 };

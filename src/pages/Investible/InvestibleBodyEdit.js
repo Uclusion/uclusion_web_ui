@@ -107,7 +107,7 @@ function InvestibleBodyEdit(props) {
       .then((fullInvestible) => {
         setOperationRunning(false);
         editorController(editorReset());
-        onSave(fullInvestible);
+        return onSave(fullInvestible);
       });
   }
 

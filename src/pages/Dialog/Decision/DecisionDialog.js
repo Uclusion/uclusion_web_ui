@@ -233,7 +233,7 @@ function DecisionDialog(props) {
 
   function mySetBeingEdited(isEdit, event) {
     doSetEditWhenValid(isEdit, isEditableByUser,
-      (value) => updatePageState({beingEdited: value, name: marketName, description}), event,
+      (value) => updatePageState({beingEdited: value, name: marketName}), event,
       history);
   }
 

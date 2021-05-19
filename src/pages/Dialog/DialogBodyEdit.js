@@ -21,6 +21,7 @@ import { Clear, SettingsBackupRestore } from '@material-ui/icons'
 import SpinningIconLabelButton from '../../components/Buttons/SpinningIconLabelButton'
 import { useEditor, editorReset } from '../../components/TextEditors/quillHooks';
 import WarningIcon from '@material-ui/icons/Warning'
+import { getQuillStoredState } from '../../components/TextEditors/QuillEditor2'
 
 export const useLockedDialogStyles = makeStyles(
   (theme) => {
@@ -129,7 +130,6 @@ function DialogBodyEdit(props) {
   const {
     beingEdited,
     uploadedFiles,
-    description,
     name,
     beingLocked,
     showDiff
@@ -144,12 +144,11 @@ function DialogBodyEdit(props) {
   const someoneElseEditing = !_.isEmpty(lockedBy) && (lockedBy !== userId);
 
   const editorName = `${id}-body-editor`;
+  const useDescription = getQuillStoredState(editorName) || initialDescription;
   const editorSpec = {
     onUpload: (files) => pageStateUpdate({uploadedFiles: files}),
     marketId: id,
-    onChange: (contents) => pageStateUpdate({description: contents}),
-    dontManageState: true, // handled by the page
-    value: description,
+    value: useDescription,
   };
 
   const [Editor, editorController] = useEditor(editorName, editorSpec);
@@ -163,14 +162,14 @@ function DialogBodyEdit(props) {
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
-    } = processTextAndFilesForSave(newUploadedFiles, description);
+    } = processTextAndFilesForSave(newUploadedFiles, getQuillStoredState(editorName));
     const updatedFilteredUploads = _.isEmpty(uploadedFiles) ? filteredUploads : null;
     return updateMarket(id, name, tokensRemoved, updatedFilteredUploads)
       .then((market) => {
         //clear the editor because we want the storage back
         editorController(editorReset());
         setOperationRunning(false);
-        onSave(market);
+        return onSave(market);
       });
   }
 
@@ -244,7 +243,7 @@ function DialogBodyEdit(props) {
         {(!lockedBy || (lockedBy === userId)) && (
           <>
             <NameField onEditorChange={(name) => pageStateUpdate({name})}
-                       description={description}
+                       description={useDescription}
                        name={name} label="agilePlanFormTitleLabel" placeHolder="decisionTitlePlaceholder"
                        id="decision-name" />
             {Editor}

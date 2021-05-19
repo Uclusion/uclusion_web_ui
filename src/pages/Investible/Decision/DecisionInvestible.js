@@ -265,7 +265,7 @@ function DecisionInvestible(props) {
 
   function mySetBeingEdited(isEdit, event) {
     return doSetEditWhenValid(isEdit, isEditableByUser,
-      (value) => updatePageState({beingEdited: value, name, description}), event, history);
+      (value) => updatePageState({beingEdited: value, name}), event, history);
   }
 
   const allowedCommentTypes = [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE];

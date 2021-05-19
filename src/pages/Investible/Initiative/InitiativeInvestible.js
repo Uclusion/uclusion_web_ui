@@ -260,7 +260,7 @@ function InitiativeInvestible(props) {
 
   function mySetBeingEdited(isEdit, event) {
     doSetEditWhenValid(isEdit, isEditableByUser,
-      (value) => updatePageState({beingEdited: value, name, description}), event, history);
+      (value) => updatePageState({beingEdited: value, name}), event, history);
   }
 
   useEffect(() => {

@@ -765,8 +765,6 @@ function PlanningInvestible(props) {
       createNavListItem(QuestionAnswer,'closedComments', `c${closedId}`, _.size(sortedClosedRoots))
     ]};
 
-  console.debug('Re-rendering now');
-
   return (
     <Screen
       title={ticketCode ? `${ticketCode} ${name}` : name}

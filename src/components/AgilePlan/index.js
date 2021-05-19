@@ -18,6 +18,7 @@ import clsx from 'clsx'
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'
 import { Clear, SettingsBackupRestore } from '@material-ui/icons'
 import { useEditor } from '../TextEditors/quillHooks';
+import { getQuillStoredState } from '../TextEditors/QuillEditor2'
 
 export const usePlanFormStyles = makeStyles(
   theme => ({
@@ -299,8 +300,6 @@ export function Form(props) {
   const intl = useIntl();
 
   const {
-    description,
-    onDescriptionChange,
     investmentExpiration,
     onInvestmentExpirationChange,
     marketId,
@@ -314,15 +313,13 @@ export function Form(props) {
     votesRequired,
     onVotesRequiredChange,
     createEnabled,
+    editorName
   } = props;
   const [viewAdvanced, setViewAdvanced] = React.useState(false);
   const [validForm, setValidForm] = React.useState(true);
-
-  const editorName=`new-agileplan-editor`;
   const editorSpec = {
     onS3Upload: onS3Upload,
-    value: description,
-    onChange: onDescriptionChange,
+    value: getQuillStoredState(editorName),
     placeholder: intl.formatMessage({ id: "descriptionEdit"}),
     className: classes.fullWidth,
   }

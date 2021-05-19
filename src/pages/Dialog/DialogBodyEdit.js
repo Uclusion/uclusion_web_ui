@@ -243,7 +243,7 @@ function DialogBodyEdit(props) {
         {(!lockedBy || (lockedBy === userId)) && (
           <>
             <NameField onEditorChange={(name) => pageStateUpdate({name})}
-                       description={useDescription}
+                       descriptionFunc={() => getQuillStoredState(editorName)}
                        name={name} label="agilePlanFormTitleLabel" placeHolder="decisionTitlePlaceholder"
                        id="decision-name" />
             {Editor}

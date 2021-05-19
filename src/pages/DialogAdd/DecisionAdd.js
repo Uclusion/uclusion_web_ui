@@ -23,6 +23,7 @@ import SpinningIconLabelButton from '../../components/Buttons/SpinningIconLabelB
 import { Clear, SettingsBackupRestore } from '@material-ui/icons'
 import { usePlanInvestibleStyles } from '../Investible/Planning/PlanningInvestibleEdit'
 import { editorReset, useEditor } from '../../components/TextEditors/quillHooks';
+import { getQuillStoredState } from '../../components/TextEditors/QuillEditor2'
 
 function DecisionAdd(props) {
   const intl = useIntl();
@@ -33,7 +34,7 @@ function DecisionAdd(props) {
   const {
     onSpinStop, storedState, onSave, createEnabled
   } = props;
-  const { description: storedDescription, name: storedName, expiration_minutes: storedExpirationMinutes } = storedState;
+  const { name: storedName, expiration_minutes: storedExpirationMinutes } = storedState;
   const [draftState, setDraftState] = useState(storedState);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const classes = usePlanFormStyles();
@@ -41,7 +42,6 @@ function DecisionAdd(props) {
   const emptyMarket = { name: storedName, expiration_minutes: storedExpirationMinutes || 1440 };
   const [validForm, setValidForm] = useState(false);
   const [currentValues, setCurrentValues] = useState(emptyMarket);
-  const [description, setDescription] = useState(storedDescription);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const { name, expiration_minutes } = currentValues;
   const [investibleState, investibleDispatch] = useContext(InvestiblesContext);
@@ -52,9 +52,8 @@ function DecisionAdd(props) {
   const editorSpec = {
     cssId: 'description',
     onUpload: onS3Upload,
-    onChange: onEditorChange,
     placeholder: intl.formatMessage({ id: 'marketAddDescriptionDefault' }),
-    value: description,
+    value: getQuillStoredState(editorName),
   }
 
   const [Editor, editorController] = useEditor(editorName, editorSpec);
@@ -100,17 +99,12 @@ function DecisionAdd(props) {
     setUploadedFiles(metadatas);
   }
 
-  function onEditorChange(description) {
-    setDescription(description);
-  }
-
-
   function handleSave() {
     setOperationRunning(true);
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
-    } = processTextAndFilesForSave(uploadedFiles, description);
+    } = processTextAndFilesForSave(uploadedFiles, getQuillStoredState(editorName));
     const processedDescription = tokensRemoved ? tokensRemoved : ' ';
     const addInfo = {
       name,

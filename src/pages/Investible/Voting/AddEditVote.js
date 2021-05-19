@@ -36,6 +36,7 @@ import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLab
 import { Add, Clear, Delete, SettingsBackupRestore } from '@material-ui/icons'
 import { editorReset, useEditor } from '../../../components/TextEditors/quillHooks';
 import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
+import { getQuillStoredState } from '../../../components/TextEditors/QuillEditor2'
 
 const useStyles = makeStyles(
   theme => {
@@ -127,8 +128,7 @@ function AddEditVote(props) {
   const {
     storedInvestment,
     storedMaxBudget,
-    storedMaxBudgetUnit,
-    storedBody
+    storedMaxBudgetUnit
   } = votingPageState;
   const intl = useIntl();
   const classes = useStyles();
@@ -139,7 +139,6 @@ function AddEditVote(props) {
   const maxBudget = storedMaxBudget || initialMaxBudget || '';
   const maxBudgetUnit = storedMaxBudgetUnit || initialMaxBudgetUnit || '';
   const { body, id: reasonId } = reason;
-  const reasonText = storedBody || body || '';
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
@@ -159,24 +158,15 @@ function AddEditVote(props) {
   const editorName = `${investibleId}-add-edit-vote-reason`;
   const editorSpec = {
     marketId,
-    dontManageState: true,
     placeholder: intl.formatMessage({ id: "yourReason" }),
-    value: body,
-    onChange: (contents) => updateVotingPageState({storedBody: contents}),
+    value: getQuillStoredState(editorName),
     uploadDisabled: true,
   };
   const [Editor, editorController] = useEditor(editorName, editorSpec);
 
-
-  const saveEnabled =
-    addMode ||
-    newQuantity !== initialInvestment ||
-    maxBudget !== (initialMaxBudget || '') || maxBudgetUnit !== (initialMaxBudgetUnit || '') ||
-    (reasonText || '') !== body
-    || (quantity < 0 && multiplier > 0) || (quantity > 0 && multiplier < 0);
-
   function mySave() {
     setOperationRunning(true);
+    const reasonText = getQuillStoredState(editorName);
     const oldQuantity = addMode ? 0 : quantity;
     // dont include reason text if it's not changing, otherwise we'll update the reason comment
     const reasonNeedsUpdate = reasonText !== body && !(_.isEmpty(reasonText) && _.isEmpty(body));
@@ -345,7 +335,6 @@ function AddEditVote(props) {
             <SpinningIconLabelButton
               icon={addMode ? Add : SettingsBackupRestore}
               onClick={mySave}
-              disabled={!saveEnabled}
             >
               {addMode
                 ? intl.formatMessage({ id: voteId })
@@ -353,7 +342,7 @@ function AddEditVote(props) {
             </SpinningIconLabelButton>
           )}
           {multiplier && warnClearVotes && (
-            <Button onClick={toggleOpen} className={classes.primaryAction} disabled={!saveEnabled}>
+            <Button onClick={toggleOpen} className={classes.primaryAction}>
               {intl.formatMessage({ id: voteId })}
             </Button>
           )}

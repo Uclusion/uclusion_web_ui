@@ -214,7 +214,6 @@ function Summary(props) {
     attached_files: attachedFiles,
     locked_by: lockedBy,
     name,
-    description
   } = market;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [accountState] = useContext(AccountContext);

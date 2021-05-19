@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useState } from 'react'
 import PropTypes from 'prop-types'
 import { FormattedMessage, useIntl } from 'react-intl'
 import { Button, Card, CardActions, CardContent, TextField, Typography, } from '@material-ui/core'
@@ -17,45 +17,31 @@ import CardType, { VOTING_TYPE } from '../../components/CardType'
 import { formMarketManageLink } from '../../utils/marketIdPathFunctions'
 import DismissableText from '../../components/Notifications/DismissableText'
 import { editorReset, useEditor } from '../../components/TextEditors/quillHooks';
+import { getQuillStoredState } from '../../components/TextEditors/QuillEditor2'
 
 function InitiativeAdd(props) {
   const intl = useIntl();
   const {
     onSpinStop, onSave, storedState, createEnabled
   } = props;
-  const { description: storedDescription, name: storedName, expiration_minutes: storedExpirationMinutes } = storedState;
+  const { name: storedName, expiration_minutes: storedExpirationMinutes } = storedState;
   const [draftState, setDraftState] = useState(storedState);
   const classes = usePlanFormStyles();
   const [, invDispatch] = useContext(InvestiblesContext);
   const [, diffDispatch] = useContext(DiffContext);
-  const emptyMarket = { name: storedName, description: storedDescription,
-    expiration_minutes: storedExpirationMinutes || 1440 };
-  const [validForm, setValidForm] = useState(false);
+  const emptyMarket = { name: storedName, expiration_minutes: storedExpirationMinutes || 1440 };
   const [currentValues, setCurrentValues] = useState(emptyMarket);
-  const [description, setDescription] = useState(storedDescription);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const { name, expiration_minutes: expirationMinutes } = currentValues;
 
   const editorName = 'InitiativeAdd-editor';
   const editorSpec = {
     onUpload: onS3Upload,
-    onChange: onEditorChange,
     placeholder: intl.formatMessage({ id: 'marketAddDescriptionDefault' }),
-    value: description,
+    value: getQuillStoredState(editorName),
   };
 
   const [Editor, editorController] = useEditor(editorName, editorSpec);
-
-  useEffect(() => {
-    // Long form to prevent flicker
-    if (name && expirationMinutes > 0 && description && description.length > 0) {
-      if (!validForm) {
-        setValidForm(true);
-      }
-    } else if (validForm) {
-      setValidForm(false);
-    }
-  }, [name, description, expirationMinutes, validForm]);
 
   function handleCancel() {
     editorController(editorReset());
@@ -82,16 +68,11 @@ function InitiativeAdd(props) {
     setUploadedFiles(metadatas);
   }
 
-  function onEditorChange(description) {
-    setDescription(description);
-  }
-
-
   function handleSave() {
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
-    } = processTextAndFilesForSave(uploadedFiles, description);
+    } = processTextAndFilesForSave(uploadedFiles, getQuillStoredState(editorName));
     const addInfo = {
       name: 'NA',
       market_type: INITIATIVE_TYPE,
@@ -169,7 +150,7 @@ function InitiativeAdd(props) {
             variant="contained"
             color="primary"
             onClick={handleSave}
-            disabled={!createEnabled || !validForm}
+            disabled={!createEnabled || !name || expirationMinutes > 0}
             onSpinStop={onSpinStop}
             hasSpinChecker
             id="save"

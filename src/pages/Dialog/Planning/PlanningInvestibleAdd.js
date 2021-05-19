@@ -51,6 +51,7 @@ import { pushMessage } from '../../../utils/MessageBusUtils';
 import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { findMessagesForCommentId } from '../../../utils/messageUtils'
+import { getQuillStoredState } from '../../../components/TextEditors/QuillEditor2'
 
 function PlanningInvestibleAdd(props) {
   const {
@@ -68,7 +69,6 @@ function PlanningInvestibleAdd(props) {
   const emptyInvestible = { name: storedName };
   const [currentValues, setCurrentValues] = useState(emptyInvestible);
   const comments = getMarketComments(commentsState, marketId) || [];
-  const [description, setDescription] = useState();
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const location = useLocation();
   function getUrlAssignee() {
@@ -113,7 +113,6 @@ function PlanningInvestibleAdd(props) {
   const [maxBudget, setMaxBudget] = useState('');
   const [maxBudgetUnit, setMaxBudgetUnit] = useState('');
   const [skipApproval, setSkipApproval] = useState(false);
-  const [reason, setReason] = useState('');
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [tourState, tourDispatch] = useContext(TourContext);
   const isStoriesTourCompleted = isTourCompleted(tourState, INVITE_STORIES_WORKSPACE_FIRST_VIEW);
@@ -127,10 +126,9 @@ function PlanningInvestibleAdd(props) {
   const editorName = `${marketId}-planning-inv-add`;
   const editorSpec = {
     marketId,
-    onChange: onEditorChange,
     placeHolder: intl.formatMessage({ id: 'investibleAddDescriptionDefault' }),
     onUpload: onS3Upload,
-    value: description
+    value: getQuillStoredState(editorName)
   }
 
   const [Editor, editorController] = useEditor(editorName, editorSpec);
@@ -168,17 +166,9 @@ function PlanningInvestibleAdd(props) {
     setMaxBudgetUnit(value);
   }
 
-  function onReasonChange(body) {
-    setReason(body);
-  }
-
   function onAssignmentsChange(newAssignments) {
     setAssignments(newAssignments);
     handleDraftState({ ...draftState, assignments: newAssignments, storedUrlAssignee: getUrlAssignee() });
-  }
-
-  function onEditorChange(description) {
-    setDescription(description);
   }
 
   function onS3Upload(metadatas) {
@@ -189,7 +179,6 @@ function PlanningInvestibleAdd(props) {
     editorController(editorReset());
     clearInitialEditor();
     setCurrentValues(emptyInvestible);
-    setDescription(undefined);
   }
 
   function handleCancel() {
@@ -219,7 +208,7 @@ function PlanningInvestibleAdd(props) {
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
-    } = processTextAndFilesForSave(uploadedFiles, description);
+    } = processTextAndFilesForSave(uploadedFiles, getQuillStoredState(editorName));
     const processedDescription = tokensRemoved ? tokensRemoved : ' ';
     const addInfo = {
       marketId,
@@ -229,7 +218,7 @@ function PlanningInvestibleAdd(props) {
     if (name) {
       addInfo.name = name;
     } else {
-      addInfo.name = nameFromDescription(description);
+      addInfo.name = nameFromDescription(getQuillStoredState(editorName));
     }
     if (isAssigned) {
       addInfo.assignments = assignments;
@@ -271,6 +260,7 @@ function PlanningInvestibleAdd(props) {
         setOperationRunning(false);
         return onSpinComplete(link);
       }
+      const reason = getQuillStoredState(editorName);
       const updateInfo = {
         marketId,
         investibleId: investible.id,
@@ -353,7 +343,8 @@ function PlanningInvestibleAdd(props) {
             </fieldset>
           </div>
           {Editor}
-          <NameField onEditorChange={handleNameChange} onStorageChange={handleNameStorage} description={description}
+          <NameField onEditorChange={handleNameChange} onStorageChange={handleNameStorage}
+                     descriptionFunc={() => getQuillStoredState(editorName)}
                      name={name} useCreateDefault />
         </CardContent>
         {!isAssignedToMe && isAssigned && (
@@ -363,12 +354,10 @@ function PlanningInvestibleAdd(props) {
             storyMaxBudget={storyMaxBudget}
             onBudgetChange={onBudgetChange}
             onChange={onQuantityChange}
-            onEditorChange={onReasonChange}
             newQuantity={quantity}
             onUnitChange={onUnitChange}
             maxBudget={maxBudget}
             maxBudgetUnit={maxBudgetUnit}
-            body={reason}
           />
         )}
         <CardActions className={classes.actions}>
@@ -376,7 +365,7 @@ function PlanningInvestibleAdd(props) {
             {intl.formatMessage({ id: 'marketAddCancelLabel' })}
           </SpinningIconLabelButton>
           <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore}
-                                   disabled={!name && _.isEmpty(description)}>
+                                   disabled={!name}>
             {intl.formatMessage({ id: 'agilePlanFormSaveLabel' })}
           </SpinningIconLabelButton>
         </CardActions>

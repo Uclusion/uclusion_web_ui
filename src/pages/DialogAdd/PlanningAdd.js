@@ -12,6 +12,7 @@ import { formMarketLink, formMarketManageLink } from '../../utils/marketIdPathFu
 import DismissableText from '../../components/Notifications/DismissableText'
 import { pushMessage } from '../../utils/MessageBusUtils';
 import { editorReset } from '../../components/TextEditors/quillHooks';
+import { getQuillStoredState } from '../../components/TextEditors/QuillEditor2'
 
 function PlanningAdd(props) {
 
@@ -21,7 +22,6 @@ function PlanningAdd(props) {
   const { investibleId: parentInvestibleId, id: parentMarketId } = values;
   const { onSpinStop, storedState, onSave, createEnabled } = props;
   const {
-    description: storedDescription,
     name: storedName,
     max_budget: storedBudget,
     investment_expiration: storedExpiration,
@@ -31,7 +31,6 @@ function PlanningAdd(props) {
   const emptyPlan = { name: storedName };
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [currentValues, setCurrentValues] = useState(emptyPlan);
-  const [description, setDescription] = useState(storedDescription);
   const [investmentExpiration, setInvestmentExpiration] = useState(
     storedExpiration || 14
   );
@@ -63,10 +62,6 @@ function PlanningAdd(props) {
     setUploadedFiles(metadatas);
   }
 
-  function onEditorChange(description) {
-    setDescription(description);
-  }
-
   function onInvestmentExpirationChange(event) {
     const { value } = event.target;
     const valueInt = value ? parseInt(value, 10) : null;
@@ -88,12 +83,14 @@ function PlanningAdd(props) {
     handleDraftState({ ...draftState, votes_required: valueInt });
   }
 
+  const editorName=`new-agileplan-editor`;
+
   function handleSave() {
     setOperationRunning(true);
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved
-    } = processTextAndFilesForSave(uploadedFiles, description);
+    } = processTextAndFilesForSave(uploadedFiles, getQuillStoredState(editorName));
     const processedDescription = tokensRemoved ? tokensRemoved : ' ';
     const addInfo = {
       name,
@@ -132,8 +129,7 @@ function PlanningAdd(props) {
       <DismissableText textId={'planningAddHelp'} />
       <Form
         marketId=""
-        description={description}
-        onDescriptionChange={onEditorChange}
+        editorName={editorName}
         investmentExpiration={investmentExpiration}
         onInvestmentExpirationChange={onInvestmentExpirationChange}
         maxBudget={maxBudget}

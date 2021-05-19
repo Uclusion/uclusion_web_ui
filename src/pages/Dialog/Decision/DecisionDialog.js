@@ -179,7 +179,6 @@ function DecisionDialog(props) {
   const {
     id: marketId,
     name: marketName,
-    description,
     market_stage: marketStage,
     market_type: marketType,
     created_at: createdAt,

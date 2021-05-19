@@ -16,6 +16,7 @@ import Autocomplete from '@material-ui/lab/Autocomplete'
 import { getMarketUnits } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { useEditor } from '../../../components/TextEditors/quillHooks';
+import { getQuillStoredState } from '../../../components/TextEditors/QuillEditor2'
 
 const useStyles = makeStyles(
   theme => {
@@ -87,14 +88,12 @@ function AddInitialVote(props) {
     marketId,
     investibleId,
     storyMaxBudget,
-    onEditorChange,
     onBudgetChange,
     onChange,
     onUnitChange,
     newQuantity,
     maxBudget,
-    maxBudgetUnit,
-    body,
+    maxBudgetUnit
   } = props;
   const intl = useIntl();
   const classes = useStyles();
@@ -111,9 +110,8 @@ function AddInitialVote(props) {
   const editorSpec = {
     marketId,
     placeholder: intl.formatMessage({ id: "yourReason" }),
-    onChange: onEditorChange,
     uploadDisabled: true,
-    value: body,
+    value: getQuillStoredState(editorName)
   };
 
   const [Editor] = useEditor(editorName, editorSpec);

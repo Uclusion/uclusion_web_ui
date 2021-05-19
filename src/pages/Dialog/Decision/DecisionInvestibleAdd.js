@@ -19,6 +19,7 @@ import { usePlanFormStyles } from '../../../components/AgilePlan'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { Clear, SettingsBackupRestore } from '@material-ui/icons'
 import { editorReset, useEditor } from '../../../components/TextEditors/quillHooks';
+import { getQuillStoredState } from '../../../components/TextEditors/QuillEditor2'
 
 function DecisionInvestibleAdd(props) {
   const {
@@ -34,7 +35,6 @@ function DecisionInvestibleAdd(props) {
   } = props;
   const {
     uploadedFiles,
-    description,
     name
   } = pageState;
   const intl = useIntl();
@@ -53,8 +53,6 @@ function DecisionInvestibleAdd(props) {
     onUpload: (files) => pageStateUpdate({uploadedFiles: files}),
     marketId,
     cssId: 'description',
-    onChange: (contents) => pageStateUpdate({description: contents}),
-    dontManageState: true, // handled by the page
     placeholder: intl.formatMessage({ id: 'investibleAddDescriptionDefault'})
   };
   const [Editor, editorController] = useEditor(editorName, editorSpec);
@@ -70,7 +68,7 @@ function DecisionInvestibleAdd(props) {
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
-    } = processTextAndFilesForSave(currentUploadedFiles, description);
+    } = processTextAndFilesForSave(currentUploadedFiles, getQuillStoredState(editorName));
     const addDialogInfo = {
       name: 'NA',
       market_type: DECISION_TYPE,
@@ -123,7 +121,7 @@ function DecisionInvestibleAdd(props) {
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
-    } = processTextAndFilesForSave(currentUploadedFiles, description);
+    } = processTextAndFilesForSave(currentUploadedFiles, getQuillStoredState(editorName));
     const processedDescription = tokensRemoved ? tokensRemoved : ' ';
     const addInfo = {
       marketId,

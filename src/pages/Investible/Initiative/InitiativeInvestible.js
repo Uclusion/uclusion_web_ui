@@ -199,7 +199,7 @@ function InitiativeInvestible(props) {
     votingBeingEdited,
   } = votingPageState;
   const cognitoUser = useContext(CognitoUserContext) || {};
-  const { name, description } = investible;
+  const { name } = investible;
   const {
     id: marketId,
     market_stage: marketStage,

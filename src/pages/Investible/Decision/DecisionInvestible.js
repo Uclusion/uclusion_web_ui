@@ -242,7 +242,7 @@ function DecisionInvestible(props) {
   const yourVote = yourPresence.investments
     && yourPresence.investments.find((investment) => investment.investible_id === investibleId);
   const {
-    name, description, created_by: createdBy, locked_by: lockedBy, attached_files: attachedFiles,
+    name, created_by: createdBy, locked_by: lockedBy, attached_files: attachedFiles,
   } = investible;
   const [votingPageStateFull, votingPageDispatch] = usePageStateReducer('voting');
   const [votingPageState, updateVotingPageState, votingPageStateReset] =

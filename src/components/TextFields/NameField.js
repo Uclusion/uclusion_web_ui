@@ -7,12 +7,12 @@ import { nameFromDescription } from '../../utils/stringFunctions'
 function NameField(props) {
   const intl = useIntl();
   const {
-    onEditorChange, description, name, label, placeHolder, id, useCreateDefault
+    onEditorChange, descriptionFunc, name, label, placeHolder, id, useCreateDefault
   } = props;
 
   function createDefaultName() {
-    if (description && !name) {
-      const found = nameFromDescription(description);
+    if (descriptionFunc && !name) {
+      const found = nameFromDescription(descriptionFunc());
       if (found) {
         onEditorChange(found);
       }
@@ -59,7 +59,7 @@ function NameField(props) {
 
 NameField.propTypes = {
   onEditorChange: PropTypes.func.isRequired,
-  description: PropTypes.string,
+  descriptionFunc: PropTypes.func.isRequired,
   name: PropTypes.string,
   id: PropTypes.string,
   placeHolder: PropTypes.string,

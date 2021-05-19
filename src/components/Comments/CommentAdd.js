@@ -46,6 +46,7 @@ import { getUiPreferences } from '../../contexts/AccountUserContext/accountUserC
 import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
 import DismissableText from '../Notifications/DismissableText'
 import { pushMessage } from '../../utils/MessageBusUtils'
+import { getQuillStoredState } from '../TextEditors/QuillEditor2'
 
 function getPlaceHolderLabelId (type, isStory, isInReview) {
   switch (type) {
@@ -200,7 +201,6 @@ function CommentAdd(props) {
   } = props;
   const {
     uploadedFiles,
-    body,
     notificationType
   } = commentAddState;
 
@@ -234,13 +234,12 @@ function CommentAdd(props) {
   }
 
   const editorName = `${nameKey ? nameKey : ''}${parentId ? parentId : investibleId ? investibleId : marketId}-comment-add-editor`;
+  const useBody = getQuillStoredState(editorName);
   const editorSpec = {
-    value: body,
-    dontManageState: true,
+    value: useBody,
     participants: presences,
     marketId,
     placeholder: placeHolder,
-    onChange: (contents) => updateCommentAddState({body: contents}),
     onUpload: (files) => updateCommentAddState({uploadedFiles: files}),
     mentionsAllowed
   }
@@ -293,7 +292,7 @@ function CommentAdd(props) {
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
-    } = processTextAndFilesForSave(currentUploadedFiles, body);
+    } = processTextAndFilesForSave(currentUploadedFiles, getQuillStoredState(editorName));
     const mentions = getMentionsFromText(tokensRemoved);
     // the API does _not_ want you to send reply type, so suppress if our type is reply
     const apiType = (type === REPLY_TYPE) ? undefined : type;
@@ -371,7 +370,7 @@ function CommentAdd(props) {
             <SpinningIconLabelButton
               onClick={handleSave}
               icon={Add}
-              disabled={_.isEmpty(body) || _.isEmpty(type)}
+              disabled={_.isEmpty(type)}
             >
               {intl.formatMessage({ id: commentSaveLabel })}
             </SpinningIconLabelButton>
@@ -405,7 +404,7 @@ function CommentAdd(props) {
               /* slots */
               actions={
                 <SpinningIconLabelButton onClick={handleSave} icon={Add}
-                                         disabled={_.isEmpty(body) || _.isEmpty(type)}>
+                                         disabled={_.isEmpty(type)}>
                   {intl.formatMessage({ id: 'issueProceed' })}
                 </SpinningIconLabelButton>
               }

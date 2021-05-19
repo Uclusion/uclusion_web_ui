@@ -32,6 +32,7 @@ import { NotificationsContext } from '../../contexts/NotificationsContext/Notifi
 import { Clear, Update } from '@material-ui/icons'
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'
 import { editorReset, useEditor } from '../TextEditors/quillHooks'
+import { getQuillStoredState } from '../TextEditors/QuillEditor2'
 
 const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -160,8 +161,7 @@ function CommentEdit(props) {
     editStateReset, hidden
   } = props;
   const {
-    uploadedFiles,
-    body
+    uploadedFiles
   } = editState;
   const intl = useIntl();
   const { id, uploaded_files: initialUploadedFiles, comment_type: commentType, inline_market_id: inlineMarketId,
@@ -178,9 +178,7 @@ function CommentEdit(props) {
 
   const editorName = `${id}-comment-edit-editor`;
   const editorSpec = {
-    value: body || initialBody,
-    dontManageState: true,
-    onChange: (contents) => updateEditState({body: contents}),
+    value: getQuillStoredState(editorName) || initialBody,
     onUpload: (files) => updateEditState({uploadedFiles: files}),
     participants: presences,
     marketId,
@@ -194,7 +192,7 @@ function CommentEdit(props) {
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
-    } = processTextAndFilesForSave(newUploadedFiles, body);
+    } = processTextAndFilesForSave(newUploadedFiles, getQuillStoredState(editorName));
     const mentions = getMentionsFromText(tokensRemoved);
     const updatedType = type !== commentType ? type : undefined;
     const myActualNotificationType = commentType === TODO_TYPE && !investibleId ? myNotificationType : undefined;

@@ -1,9 +1,29 @@
 import { getLoginPersistentItem, setLoginPersistentItem } from '../components/localStorageUtils';
+import queryString from 'query-string'
 
 const REDIRECT_LOCAL_STORAGE_KEY = 'redirection';
 const UTM_LOCAL_STORAGE_KEY = 'utm';
 const EMAIL_LOCAL_STORAGE_KEY = 'email_storage';
 const INVITATION_MARKER_STORAGE_KEY = 'invitation_marker';
+
+export function redirectFromHistory(history) {
+  const { location } = history;
+  const { pathname, hash, search } = location;
+  const values = queryString.parse(search || '');
+  const { subscribeId } = values || {};
+  let redirect;
+  if (pathname !== '/') {
+    // we came here by some other link and need to log in
+    redirect = pathname;
+    if (subscribeId) {
+      redirect += `?subscribeId=${subscribeId}`;
+    }
+    if (hash) {
+      redirect += hash;
+    }
+  }
+  return redirect;
+}
 
 export function setRedirect(location) {
   setLoginPersistentItem(REDIRECT_LOCAL_STORAGE_KEY, location);

@@ -19,7 +19,7 @@ import SpinningButton from '../../components/SpinBlocking/SpinningButton'
 import PhoneField, { phoneChecker } from '../../components/TextFields/PhoneField'
 import { Helmet } from 'react-helmet'
 import { Auth } from 'aws-amplify'
-import { setEmail, setInvitationMarker, setRedirect, setUtm } from '../../utils/redirectUtils'
+import { redirectFromHistory, setEmail, setInvitationMarker, setRedirect, setUtm } from '../../utils/redirectUtils'
 import { GithubLoginButton } from 'react-social-login-buttons'
 import { toastError } from '../../utils/userMessage'
 import queryString from 'query-string'
@@ -231,16 +231,7 @@ function Signup(props) {
   }
 
   function getRedirect(){
-    const { location } = history;
-    const { pathname, hash } = location;
-    let redirect;
-    if (pathname !== '/') {
-      // we came here by some other link and need to log in
-      redirect = pathname;
-      if (hash) {
-        redirect += hash;
-      }
-    }
+    let redirect = redirectFromHistory(history);
     if (!redirect) {
       // If they did not come from a market link then we want them to create a workspace
       redirect = '/';
@@ -249,6 +240,7 @@ function Signup(props) {
       const slashCode = '/' + code;
       redirect = redirect.replace(slashCode, '');
     }
+    console.info(`Redirecting to ${redirect}`);
     return redirect;
   }
 

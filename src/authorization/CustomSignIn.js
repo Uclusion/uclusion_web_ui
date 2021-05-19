@@ -17,7 +17,7 @@ import { Visibility, VisibilityOff } from '@material-ui/icons'
 import { Auth } from 'aws-amplify'
 import { Helmet } from 'react-helmet'
 import { withRouter } from 'react-router';
-import { setRedirect } from '../utils/redirectUtils'
+import { redirectFromHistory, setRedirect } from '../utils/redirectUtils'
 
 const useStyles = (theme) => ({
   paper: {
@@ -114,17 +114,9 @@ class CustomSignIn extends SignIn {
 
   setLoginRedirect(){
     const { history } = this.props;
-    const { location } = history;
-    const { pathname, hash } = location;
-    let redirect;
-    if (pathname !== '/') {
-      // we came here by some other link and need to log in
-      redirect = pathname;
-      if (hash) {
-        redirect += hash;
-      }
-    }
+    const redirect = redirectFromHistory(history);
     if (redirect) {
+      console.info(`Redirecting to ${redirect}`);
       setRedirect(redirect);
     }
   }

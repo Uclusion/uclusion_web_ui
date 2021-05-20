@@ -13,6 +13,7 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import { createMyDialog } from './dialogCreator';
 import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepContainer from '../WizardStepContainer';
+import { editorReset } from '../../TextEditors/quillHooks'
 
 function AddOptionsStep (props) {
   const [, diffDispatch] = useContext(DiffContext);
@@ -75,8 +76,12 @@ function AddOptionsStep (props) {
       investiblesDispatch,
       presenceDispatch
     };
+    const { editorController } = formData;
     return createMyDialog(dispatchers, formData, updateFormData)
       .then((marketId) => {
+        if (editorController) {
+          editorController(editorReset());
+        }
         return ({ ...formData, marketId });
       });
   }

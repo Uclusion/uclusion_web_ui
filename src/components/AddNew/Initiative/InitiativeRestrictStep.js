@@ -36,7 +36,7 @@ function InitiativeRestrictStep (props) {
       marketsDispatch,
       presenceDispatch,
     };
-    return createMyInitiative(dispatchers, formData, updateFormData);
+    return createMyInitiative(dispatchers, formData);
   }
 
   function onNext() {

@@ -6,7 +6,7 @@ import { useIntl } from 'react-intl';
 import StepButtons from '../../StepButtons';
 import WizardStepContainer from '../../WizardStepContainer';
 import { WizardStylesContext } from '../../WizardStylesContext';
-import { useEditor } from '../../../TextEditors/quillHooks';
+import { editorReset, useEditor } from '../../../TextEditors/quillHooks'
 import { getQuillStoredState } from '../../../TextEditors/QuillEditor2'
 
 function OptionDescriptionStep (props) {
@@ -20,21 +20,6 @@ function OptionDescriptionStep (props) {
       optionDescription: getQuillStoredState(editorName),
     };
     updateFormData(newData);
-  }
-
-  function onFinish() {
-    const newData = {
-      optionDescription: getQuillStoredState(editorName),
-    };
-    updateFormData(newData);
-    // due to binding, when the parent on finish is called
-    // it might not have the form data at the time of the call.
-    // but finish on step buttons always passes along
-    // the return value of onNext if it's the last step
-    return ({
-      ...formData,
-      ...newData,
-    });
   }
 
   function onS3Upload (metadatas) {
@@ -51,7 +36,23 @@ function OptionDescriptionStep (props) {
     value: getQuillStoredState(editorName),
     placeholder: intl.formatMessage({ id: 'AddOptionWizardOptionDescriptionPlaceHolder' }),
   };
-  const [Editor] = useEditor(editorName, editorSpec)
+  const [Editor, editorController] = useEditor(editorName, editorSpec)
+
+  function onFinish() {
+    const newData = {
+      optionDescription: getQuillStoredState(editorName),
+    };
+    updateFormData(newData);
+    editorController(editorReset());
+    // due to binding, when the parent on finish is called
+    // it might not have the form data at the time of the call.
+    // but finish on step buttons always passes along
+    // the return value of onNext if it's the last step
+    return ({
+      ...formData,
+      ...newData,
+    });
+  }
 
   return (
     <WizardStepContainer

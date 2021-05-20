@@ -30,11 +30,12 @@ function DialogReasonStep (props) {
     placeholder: intl.formatMessage({ id: 'DialogWizardReasonPlaceHolder' }),
   }
 
-  const [Editor] = useEditor(editorName, editorSpec);
+  const [Editor, editorController] = useEditor(editorName, editorSpec);
 
   function onStepChange () {
     updateFormData({
       dialogReason: getQuillStoredState(editorName),
+      editorController
     });
   }
 

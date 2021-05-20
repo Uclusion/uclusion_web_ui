@@ -22,12 +22,13 @@ function InitiativeDescriptionStep (props) {
     value: getQuillStoredState(editorName),
     placeholder: intl.formatMessage({ id: 'InitiativeWizardInitiativeDescriptionPlaceholder' })
   };
-  const [Editor] = useEditor(editorName, editorSpec);
+  const [Editor, editorController] = useEditor(editorName, editorSpec);
 
 
   function onStepChange () {
     updateFormData({
-      initiativeDescription: getQuillStoredState(editorName)
+      initiativeDescription: getQuillStoredState(editorName),
+      editorController
     });
   }
 

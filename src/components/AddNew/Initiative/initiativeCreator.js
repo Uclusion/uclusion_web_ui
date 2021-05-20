@@ -6,8 +6,9 @@ import { addDecisionInvestible } from '../../../api/investibles'
 import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { processTextAndFilesForSave } from '../../../api/files'
 import { createInitiative } from '../../../api/markets'
+import { editorReset } from '../../TextEditors/quillHooks'
 
-export function createMyInitiative (dispatchers, formData, updateFormData) {
+export function createMyInitiative (dispatchers, formData) {
   let createdMarketId;
   const {
     diffDispatch,
@@ -35,7 +36,7 @@ export function createMyInitiative (dispatchers, formData, updateFormData) {
     uploadedFiles: filteredUploads,
     text: tokensRemoved,
   } = processTextAndFilesForSave(realUploadedFiles, initiativeDescription);
-
+  const { editorController } = formData;
   return createInitiative(marketInfo)
     .then((result) => {
       const {
@@ -56,6 +57,9 @@ export function createMyInitiative (dispatchers, formData, updateFormData) {
       addPresenceToMarket(presenceDispatch, createdMarketId, presence);
       return addDecisionInvestible(investibleInfo)
         .then((investible) => {
+          if (editorController) {
+            editorController(editorReset());
+          }
           addInvestible(investiblesDispatch, diffDispatch, investible);
           return createdMarketId;
         });

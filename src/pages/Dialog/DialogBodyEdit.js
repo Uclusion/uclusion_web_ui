@@ -251,7 +251,7 @@ function DialogBodyEdit(props) {
             <NameField onEmptyNotEmptyChange={emptyNotEmptyChange}
                        descriptionFunc={() => getQuillStoredState(editorName)}
                        name={initialName} label="agilePlanFormTitleLabel" placeHolder="decisionTitlePlaceholder"
-                       id="decision-name" />
+                       id={id} />
             {Editor}
           </>
         )}

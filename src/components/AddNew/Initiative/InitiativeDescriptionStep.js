@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
 import _ from 'lodash';
@@ -7,21 +7,19 @@ import StepButtons from '../StepButtons';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import { useEditor } from '../../TextEditors/quillHooks';
+import { getQuillStoredState } from '../../TextEditors/QuillEditor2'
 
 function InitiativeDescriptionStep (props) {
   const { updateFormData, formData } = props;
 
-  const { initiativeDescription, initiativeDescriptionUploadedFiles } = formData;
-  const [editorContents, setEditorContents] = useState(initiativeDescription || '');
+  const { initiativeDescriptionUploadedFiles } = formData;
   const intl = useIntl();
   const classes = useContext(WizardStylesContext);
 
   const editorName = 'initiativeDescriptionStep';
   const editorSpec = {
-    onChange: setEditorContents,
     onUpload: onS3Upload,
-    dontManageState: true,
-    value: initiativeDescription,
+    value: getQuillStoredState(editorName),
     placeholder: intl.formatMessage({ id: 'InitiativeWizardInitiativeDescriptionPlaceholder' })
   };
   const [Editor] = useEditor(editorName, editorSpec);
@@ -29,7 +27,7 @@ function InitiativeDescriptionStep (props) {
 
   function onStepChange () {
     updateFormData({
-      initiativeDescription: editorContents,
+      initiativeDescription: getQuillStoredState(editorName)
     });
   }
 
@@ -41,7 +39,6 @@ function InitiativeDescriptionStep (props) {
     });
   }
 
-  const validForm = !_.isEmpty(editorContents);
   return (
     <WizardStepContainer
       {...props}
@@ -56,7 +53,6 @@ function InitiativeDescriptionStep (props) {
         {Editor}
         <div className={classes.borderBottom}/>
         <StepButtons {...props}
-                     validForm={validForm}
                      showSkip={true}
                      showFinish={false}
                      onPrevious={onStepChange}

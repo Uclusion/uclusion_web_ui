@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
 import _ from 'lodash';
@@ -7,17 +7,13 @@ import StepButtons from '../StepButtons';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import { useEditor } from '../../TextEditors/quillHooks';
+import { getQuillStoredState } from '../../TextEditors/QuillEditor2'
 
 function DialogReasonStep (props) {
   const { updateFormData, formData } = props;
-  const { dialogReason, dialogReasonUploadedFiles } = formData;
-  const [editorContents, setEditorContents] = useState(dialogReason || '');
+  const { dialogReasonUploadedFiles } = formData;
   const intl = useIntl();
   const classes = useContext(WizardStylesContext);
-
-  function onEditorChange (content) {
-    setEditorContents(content);
-  }
 
   function onS3Upload (metadatas) {
     const oldUploadedFiles = dialogReasonUploadedFiles || [];
@@ -29,10 +25,8 @@ function DialogReasonStep (props) {
 
   const editorName = "DialogReasonStep-editor"
   const editorSpec = {
-    onChange: onEditorChange,
-    dontManageState: true,
     onUpload: onS3Upload,
-    value: editorContents,
+    value: getQuillStoredState(editorName),
     placeholder: intl.formatMessage({ id: 'DialogWizardReasonPlaceHolder' }),
   }
 
@@ -40,13 +34,9 @@ function DialogReasonStep (props) {
 
   function onStepChange () {
     updateFormData({
-      dialogReason: editorContents,
+      dialogReason: getQuillStoredState(editorName),
     });
   }
-
-
-
-  const validForm = !_.isEmpty(editorContents);
 
   return (
     <WizardStepContainer
@@ -58,9 +48,8 @@ function DialogReasonStep (props) {
           Provide a context for the Dialog by entering below.
         </Typography>
         {Editor}
-        <div className={classes.borderBottom}></div>
+        <div className={classes.borderBottom} />
         <StepButtons {...props}
-                     validForm={validForm}
                      showSkip={true}
                      showFinish={false}
                      onPrevious={onStepChange}

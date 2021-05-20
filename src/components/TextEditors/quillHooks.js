@@ -40,7 +40,6 @@ export function useEditor (name, spec) {
     cssId,
     value,
     marketId,
-    onChange,
     onUpload,
     placeholder,
     uploadDisabled,
@@ -48,29 +47,16 @@ export function useEditor (name, spec) {
     simple,
     noToolbar,
     mentionsAllowed,
-    dontManageState,
     className,
-    reducerDispatch,
   } = spec;
   const controlChannel = `editor-${name}-control-plane`;
 
   registerListener(`editor-${name}`, `${name}-controller`, (message) => {
-    const { type, newUploads, contents } = message.payload;
+    const { type, newUploads } = message.payload;
     switch (type) {
       case 'uploads':
-        if (reducerDispatch) {
-          reducerDispatch(editorUpload(newUploads));
-        }
         if (onUpload) {
           return onUpload(newUploads);
-        }
-        break;
-      case 'update':
-        if (reducerDispatch) {
-          reducerDispatch(editorUpdate(contents));
-        }
-        if (onChange) {
-          return onChange(contents);
         }
         break;
       default:
@@ -96,7 +82,6 @@ export function useEditor (name, spec) {
       uploadDisabled={uploadDisabled}
       simple={simple}
       noToolbar={noToolbar}
-      dontManageState={dontManageState}
     />
   );
   return [editor, editorController];

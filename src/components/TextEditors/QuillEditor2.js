@@ -125,8 +125,7 @@ function QuillEditor2 (props) {
     noToolbar,
     simple,
     participants,
-    mentionsAllowed,
-    dontManageState
+    mentionsAllowed
   } = props;
 
   const containerRef = useRef();
@@ -150,14 +149,8 @@ function QuillEditor2 (props) {
     editor && editor.focus();
   }
 
-  function updateState(key, state) {
-    if (!dontManageState) {
-      storeState(key, state);
-    }
-  }
-
   function resetHandler(contents){
-    updateState(id, null);
+    storeState(id, null);
     createEditor(contents); // recreate the editor, because we need to get brand new state
     focusEditor();
   }
@@ -182,7 +175,7 @@ function QuillEditor2 (props) {
 
   function replaceEditorContents(contents) {
     editor.setContents({insert: contents});
-    updateState(id, contents);
+    storeState(id, contents);
   }
   /**
    * The UI for videos is quite poor, so we need
@@ -387,11 +380,6 @@ function QuillEditor2 (props) {
     pushMessage(`editor-${id}`, { type: 'uploads', newUploads });
   }
 
-  function onChange (contents, delta) {
-    updateState(id, contents);
-    pushMessage(`editor-${id}`, {type: 'update', contents, delta});
-  }
-
   function createEditor (initializeContents) {
     // we only set the contents if different from the placeholder
     // otherwise the placeholder functionality of the editor won't work
@@ -409,9 +397,9 @@ function QuillEditor2 (props) {
     const debouncedOnChange = _.debounce((delta) => {
       const contents = editor.root.innerHTML;
       if (editorEmpty(contents)) {
-        onChange('', delta);
+        storeState(id, '');
       } else {
-        onChange(contents, delta);
+        storeState(id, contents);
       }
     }, 50);
     editor.on('text-change', debouncedOnChange)

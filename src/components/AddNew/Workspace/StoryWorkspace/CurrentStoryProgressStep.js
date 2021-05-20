@@ -1,33 +1,23 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import { Typography } from '@material-ui/core'
 import { useIntl } from 'react-intl'
 import _ from 'lodash'
 import StepButtons from '../../StepButtons'
-import QuillEditor from '../../../TextEditors/QuillEditor'
 import { DaysEstimate } from '../../../AgilePlan'
-import { urlHelperGetName } from '../../../../utils/marketIdPathFunctions'
-import { MarketsContext } from '../../../../contexts/MarketsContext/MarketsContext'
-import { InvestiblesContext } from '../../../../contexts/InvestibesContext/InvestiblesContext'
 import WizardStepContainer from '../../WizardStepContainer';
 import { WizardStylesContext } from '../../WizardStylesContext';
 import { useEditor } from '../../../TextEditors/quillHooks';
+import { getQuillStoredState } from '../../../TextEditors/QuillEditor2'
 
 function CurrentStoryProgressStep (props) {
   const { updateFormData, formData} = props;
   const intl = useIntl();
   const {
-    currentStoryProgress,
     currentStoryEstimate,
   } = formData;
   const classes = useContext(WizardStylesContext);
-  const [editorContents, setEditorContents] = useState(currentStoryProgress || '');
-
   const validForm = _.isNumber(currentStoryEstimate);
-
-  function onEditorChange(content) {
-    setEditorContents(content);
-  }
 
   function onEstimateChange(event) {
     const { value } = event.target;
@@ -39,27 +29,24 @@ function CurrentStoryProgressStep (props) {
 
   function onStepChange() {
     updateFormData({
-      currentStoryProgress: editorContents,
+      currentStoryProgress: getQuillStoredState(editorName),
       currentStoryProgressSkipped: false,
     });
   }
 
   function onSkip() {
     updateFormData({
-      currentStoryProgress: editorContents,
+      currentStoryProgress: getQuillStoredState(editorName),
       currentStoryProgressSkipped: true,
     });
   }
 
   const editorName = 'CurrentStoryProgressStep-editor';
   const editorSpec = {
-    onChange: onEditorChange,
     simple: true,
-    value: editorContents,
+    value: getQuillStoredState(editorName),
     placeholder: intl.formatMessage({ id: 'OnboardingWizardCurrentStoryProgressPlaceHolder'}),
-    dontManageState: true,
   }
-
   const [Editor] = useEditor(editorName, editorSpec);
 
   return (

@@ -7,6 +7,7 @@ import StepButtons from '../../StepButtons';
 import { WizardStylesContext } from '../../WizardStylesContext';
 import WizardStepContainer from '../../WizardStepContainer';
 import { useEditor } from '../../../TextEditors/quillHooks';
+import { getQuillStoredState } from '../../../TextEditors/QuillEditor2'
 
 function NextStoryStep (props) {
   const { updateFormData, formData } = props;
@@ -15,22 +16,18 @@ function NextStoryStep (props) {
   const classes = useContext(WizardStylesContext);
   const {
     nextStoryName,
-    nextStoryDescription,
     nextStoryUploadedFiles,
   } = formData;
-  const [editorContents, setEditorContents] = useState(nextStoryDescription || '');
+
   const storyName = nextStoryName || '';
   const validForm = !_.isEmpty(nextStoryName);
 
   const editorName = "NextStoryStep-editor";
   const editorSpec = {
     placeholder: intl.formatMessage({ id: 'OnboardingWizardNextStoryDescriptionPlaceHolder' }),
-    value: editorContents,
-    onUpload: onS3Upload,
-    onChange: onEditorChange,
-    dontManageState: true,
+    value: getQuillStoredState(editorName),
+    onUpload: onS3Upload
   };
-
   const [Editor] = useEditor(editorName, editorSpec);
 
   function onNameChange (event) {
@@ -38,10 +35,6 @@ function NextStoryStep (props) {
     updateFormData({
       nextStoryName: value
     });
-  }
-
-  function onEditorChange (content) {
-    setEditorContents(content);
   }
 
   function onS3Upload (metadatas) {
@@ -52,7 +45,7 @@ function NextStoryStep (props) {
 
   function updateState(nextStorySkipped) {
     const newValues = {
-      nextStoryDescription: editorContents,
+      nextStoryDescription: getQuillStoredState(editorName),
       nextStorySkipped,
     };
     updateFormData(newValues);

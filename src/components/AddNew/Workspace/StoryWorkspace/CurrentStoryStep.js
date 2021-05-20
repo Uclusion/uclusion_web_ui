@@ -1,16 +1,13 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { TextField, Typography } from '@material-ui/core';
 import { useIntl } from 'react-intl';
 import _ from 'lodash';
 import StepButtons from '../../StepButtons';
-import QuillEditor from '../../../TextEditors/QuillEditor';
-import { urlHelperGetName } from '../../../../utils/marketIdPathFunctions';
-import { MarketsContext } from '../../../../contexts/MarketsContext/MarketsContext';
-import { InvestiblesContext } from '../../../../contexts/InvestibesContext/InvestiblesContext';
 import { WizardStylesContext } from '../../WizardStylesContext';
 import WizardStepContainer from '../../WizardStepContainer';
 import { useEditor } from '../../../TextEditors/quillHooks';
+import { getQuillStoredState } from '../../../TextEditors/QuillEditor2'
 
 function CurrentStoryStep (props) {
   const { updateFormData, formData } = props;
@@ -18,22 +15,17 @@ function CurrentStoryStep (props) {
   const classes = useContext(WizardStylesContext);
   const {
     currentStoryName,
-    currentStoryDescription,
     currentStoryUploadedFiles,
   } = formData;
-  const [editorContents, setEditorContents] = useState(currentStoryDescription);
   const storyName = currentStoryName || '';
   const validForm = !_.isEmpty(currentStoryName);
 
   const editorName = "CurrentStoryStep-editor";
   const editorSpec = {
     onUpload: onS3Upload,
-    onChange: onEditorChange,
-    dontManageState: true,
-    value: editorContents,
+    value: getQuillStoredState(editorName),
     placeholder: intl.formatMessage({ id: 'OnboardingWizardCurrentStoryDescriptionPlaceHolder' }),
   }
-
   const [Editor] = useEditor(editorName, editorSpec);
 
   function onNameChange (event) {
@@ -41,10 +33,6 @@ function CurrentStoryStep (props) {
     updateFormData({
       currentStoryName: value
     });
-  }
-
-  function onEditorChange (content) {
-    setEditorContents(content);
   }
 
   function onS3Upload (metadatas) {
@@ -57,7 +45,7 @@ function CurrentStoryStep (props) {
 
   function onStepChange () {
     updateFormData({
-      currentStoryDescription: editorContents,
+      currentStoryDescription: getQuillStoredState(editorName),
     });
   }
 

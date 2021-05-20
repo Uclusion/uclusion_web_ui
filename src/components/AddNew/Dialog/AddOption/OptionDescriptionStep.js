@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
 import _ from 'lodash';
@@ -7,28 +7,24 @@ import StepButtons from '../../StepButtons';
 import WizardStepContainer from '../../WizardStepContainer';
 import { WizardStylesContext } from '../../WizardStylesContext';
 import { useEditor } from '../../../TextEditors/quillHooks';
+import { getQuillStoredState } from '../../../TextEditors/QuillEditor2'
 
 function OptionDescriptionStep (props) {
   const { updateFormData, formData } = props;
-  const { optionDescription, optionUploadedFiles } = formData;
-  const [editorContents, setEditorContents] = useState(optionDescription || '');
+  const { optionUploadedFiles } = formData;
   const intl = useIntl();
   const classes = useContext(WizardStylesContext);
 
-  function onEditorChange (content) {
-    setEditorContents(content);
-  }
-
   function onPrevious () {
     const newData = {
-      optionDescription: editorContents,
+      optionDescription: getQuillStoredState(editorName),
     };
     updateFormData(newData);
   }
 
   function onFinish() {
     const newData = {
-      optionDescription: editorContents,
+      optionDescription: getQuillStoredState(editorName),
     };
     updateFormData(newData);
     // due to binding, when the parent on finish is called
@@ -51,13 +47,10 @@ function OptionDescriptionStep (props) {
 
   const editorName = "dialogWizardAddOptionDescriptionStep"
   const editorSpec = {
-    onChange: onEditorChange,
     onUpload: onS3Upload,
-    value:editorContents,
-    dontManageState: true,
+    value: getQuillStoredState(editorName),
     placeholder: intl.formatMessage({ id: 'AddOptionWizardOptionDescriptionPlaceHolder' }),
   };
-
   const [Editor] = useEditor(editorName, editorSpec)
 
   return (

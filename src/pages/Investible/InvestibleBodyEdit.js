@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState } from 'react'
 import { FormattedMessage, useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
   import { lockInvestibleForEdit, realeaseInvestibleEditLock, updateInvestible, } from '../../api/investibles'
@@ -13,7 +13,7 @@ import _ from 'lodash'
 import { CardActions, CircularProgress, Typography } from '@material-ui/core'
 import { processTextAndFilesForSave } from '../../api/files'
 import { makeStyles } from '@material-ui/core/styles'
-import NameField from '../../components/TextFields/NameField'
+import NameField, { clearNameStoredState, getNameStoredState } from '../../components/TextFields/NameField'
 import { isTinyWindow } from '../../utils/windowUtils'
 import DescriptionOrDiff from '../../components/Descriptions/DescriptionOrDiff'
 import { Clear, SettingsBackupRestore } from '@material-ui/icons'
@@ -58,7 +58,6 @@ function InvestibleBodyEdit(props) {
   const {
     beingEdited,
     uploadedFiles,
-    name,
     beingLocked,
     showDiff
   } = pageState;
@@ -66,6 +65,7 @@ function InvestibleBodyEdit(props) {
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, diffDispatch] = useContext(DiffContext);
   const [marketsState] = useContext(MarketsContext);
+  const [isEmpty, setIsEmpty] = useState(false);
   const { investible: myInvestible } = fullInvestible;
   const { locked_by: lockedBy } = myInvestible;
   const emptyMarket = { name: '' };
@@ -92,10 +92,12 @@ function InvestibleBodyEdit(props) {
     const oldInvestibleUploadedFiles = myInvestible.uploaded_files || [];
     const currentUploadedFiles = uploadedFiles || [];
     const newUploadedFiles = _.uniqBy([...currentUploadedFiles, ...oldInvestibleUploadedFiles], 'path');
+    const description = getQuillStoredState(editorName) !== null ? getQuillStoredState(editorName) : initialDescription;
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
-    } = processTextAndFilesForSave(newUploadedFiles, getQuillStoredState(editorName));
+    } = processTextAndFilesForSave(newUploadedFiles, description);
+    const name = getNameStoredState(investibleId) || initialName;
     const updateInfo = {
       uploadedFiles: filteredUploads,
       name: name,
@@ -107,6 +109,7 @@ function InvestibleBodyEdit(props) {
       .then((fullInvestible) => {
         setOperationRunning(false);
         editorController(editorReset());
+        clearNameStoredState(investibleId);
         return onSave(fullInvestible);
       });
   }
@@ -138,6 +141,10 @@ function InvestibleBodyEdit(props) {
     if (result) {
       onSave(result, true);
     }
+  }
+
+  function emptyNotEmptyChange(value) {
+    setIsEmpty(value);
   }
 
   function takeoutLock () {
@@ -184,9 +191,8 @@ function InvestibleBodyEdit(props) {
         />
         {(!lockedBy || (lockedBy === userId)) && (
           <>
-            <NameField onEditorChange={(name) => pageStateUpdate({name})}
-                       descriptionFunc={() => getQuillStoredState(editorName)}
-                       name={name}/>
+            <NameField descriptionFunc={() => getQuillStoredState(editorName)} id={investibleId}
+                       name={initialName} onEmptyNotEmptyChange={emptyNotEmptyChange}/>
             {Editor}
           </>
         )}
@@ -195,7 +201,7 @@ function InvestibleBodyEdit(props) {
             {intl.formatMessage({ id: 'marketAddCancelLabel' })}
           </SpinningIconLabelButton>
           <SpinningIconLabelButton
-            disabled={!name}
+            disabled={isEmpty}
             icon={SettingsBackupRestore}
             onClick={handleSave}
           >

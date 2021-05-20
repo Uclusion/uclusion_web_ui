@@ -53,6 +53,7 @@ function DecisionInvestibleAdd(props) {
     onUpload: (files) => pageStateUpdate({uploadedFiles: files}),
     marketId,
     cssId: 'description',
+    value: getQuillStoredState(editorName),
     placeholder: intl.formatMessage({ id: 'investibleAddDescriptionDefault'})
   };
   const [Editor, editorController] = useEditor(editorName, editorSpec);

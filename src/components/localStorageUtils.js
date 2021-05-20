@@ -48,7 +48,7 @@ function setStorageItem(storageKey, key, value) {
   if (!data) {
     data = {};
   }
-  if (value) {
+  if (value !== undefined && value !== null) {
     if (!key) {
       throw new Error(`Undefined key for value ${value}`);
     }

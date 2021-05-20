@@ -3,7 +3,6 @@ import _ from 'lodash'
 import { useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
 import { Card, CardActions, CardContent, Checkbox, FormControlLabel, } from '@material-ui/core'
-import localforage from 'localforage'
 import { addPlanningInvestible } from '../../../api/investibles'
 import { processTextAndFilesForSave } from '../../../api/files'
 import { formInvestibleLink, formMarketLink } from '../../../utils/marketIdPathFunctions'
@@ -37,7 +36,7 @@ import {
 import { storeTourCompleteInBackend } from '../../../components/Tours/UclusionTour'
 import { getUiPreferences } from '../../../contexts/AccountUserContext/accountUserContextHelper'
 import { moveComments } from '../../../api/comments'
-import NameField from '../../../components/TextFields/NameField'
+import NameField, { clearNameStoredState, getNameStoredState } from '../../../components/TextFields/NameField'
 import Comment from '../../../components/Comments/Comment'
 import { getAcceptedStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
@@ -52,24 +51,18 @@ import { removeMessage } from '../../../contexts/NotificationsContext/notificati
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { findMessagesForCommentId } from '../../../utils/messageUtils'
 import { getQuillStoredState } from '../../../components/TextEditors/QuillEditor2'
+import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 
 function PlanningInvestibleAdd(props) {
   const {
-    marketId, classes, onCancel, onSave, storedState, onSpinComplete, createdAt, storyMaxBudget, allowMultiVote,
+    marketId, classes, onCancel, onSave, onSpinComplete, createdAt, storyMaxBudget, allowMultiVote,
     fromCommentIds, votesRequired
   } = props;
   const intl = useIntl();
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
-  const { name: storedName, assignments: storedAssignments, storedUrlAssignee,
-    completion_estimate: storedDaysEstimate } = storedState;
-  const [draftState, setDraftState] = useState(storedState);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
-  const emptyInvestible = { name: storedName };
-  const [currentValues, setCurrentValues] = useState(emptyInvestible);
-  const comments = getMarketComments(commentsState, marketId) || [];
-  const [uploadedFiles, setUploadedFiles] = useState([]);
   const location = useLocation();
   function getUrlAssignee() {
     const { hash } = location;
@@ -82,6 +75,9 @@ function PlanningInvestibleAdd(props) {
     }
     return undefined;
   }
+  const [assignments, setAssignments] = useState(getUrlAssignee());
+  const [isEmpty, setIsEmpty] = useState(!getNameStoredState(marketId));
+  const comments = getMarketComments(commentsState, marketId) || [];
   function getUrlOpenForInvestment() {
     const { hash } = location;
     if (!_.isEmpty(hash)) {
@@ -93,26 +89,11 @@ function PlanningInvestibleAdd(props) {
     }
     return undefined;
   }
-  function choosePreviouslyAssigned() {
-    const urlAssignee = getUrlAssignee();
-    if (storedAssignments && (!urlAssignee || storedUrlAssignee === urlAssignee)) {
-      return storedAssignments;
-    }
-    return urlAssignee;
-  }
-  const [assignments, setAssignments] = useState(choosePreviouslyAssigned());
-  const [daysEstimate, setDaysEstimate] = useState(storedDaysEstimate);
-  const { name } = currentValues;
+
   const [investibleState] = useContext(InvestiblesContext);
   const [presencesState] = useContext(MarketPresencesContext);
   const presences = getMarketPresences(presencesState, marketId) || [];
   const myPresence = presences.find((presence) => presence.current_user) || {};
-  const isAssignedToMe = (assignments || []).includes(myPresence.id);
-  const isAssigned = !_.isEmpty(assignments);
-  const [quantity, setQuantity] = useState(50);
-  const [maxBudget, setMaxBudget] = useState('');
-  const [maxBudgetUnit, setMaxBudgetUnit] = useState('');
-  const [skipApproval, setSkipApproval] = useState(false);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [tourState, tourDispatch] = useContext(TourContext);
   const isStoriesTourCompleted = isTourCompleted(tourState, INVITE_STORIES_WORKSPACE_FIRST_VIEW);
@@ -122,7 +103,26 @@ function PlanningInvestibleAdd(props) {
   const { completedTours } = tourPreferences;
   const safeCompletedTours = _.isArray(completedTours)? completedTours : [];
   const acceptedStage = getAcceptedStage(marketStagesState, marketId) || {};
-
+  const [investibleAddStateFull, investibleAddDispatch] = usePageStateReducer('investibleAdd');
+  const [investibleAddState, updateInvestibleAddState, investibleAddStateReset] =
+    getPageReducerPage(investibleAddStateFull, investibleAddDispatch, marketId,
+      {
+        quantity: 50,
+        maxBudget: '',
+        maxBudgetUnit: '',
+        skipApproval: false
+      });
+  const {
+    daysEstimate: storedDaysEstimate,
+    skipApproval,
+    maxBudget,
+    maxBudgetUnit,
+    quantity,
+    uploadedFiles
+  } = investibleAddState;
+  const isAssignedToMe = (assignments || []).includes(myPresence.id);
+  const isAssigned = !_.isEmpty(assignments);
+  const daysEstimate = storedDaysEstimate ? new Date(storedDaysEstimate) : undefined;
   const editorName = `${marketId}-planning-inv-add`;
   const editorSpec = {
     marketId,
@@ -130,55 +130,43 @@ function PlanningInvestibleAdd(props) {
     onUpload: onS3Upload,
     value: getQuillStoredState(editorName)
   }
-
   const [Editor, editorController] = useEditor(editorName, editorSpec);
 
-  const itemKey = `add_investible_${marketId}`;
-  function handleDraftState(newDraftState) {
-    setDraftState(newDraftState);
-    localforage.setItem(itemKey, newDraftState);
-  }
-
-  function handleNameStorage(value) {
-    handleDraftState({ ...draftState, name: value });
-  }
-
-  function handleNameChange(value) {
-    const newValues = { ...currentValues, name: value };
-    setCurrentValues(newValues);
+  function emptyNotEmptyChange(value) {
+    setIsEmpty(value);
   }
 
   function onQuantityChange(event) {
     const { value } = event.target;
-    setQuantity(parseInt(value, 10));
+    updateInvestibleAddState({quantity: parseInt(value, 10)});
   }
 
   function onBudgetChange(event) {
     const { value } = event.target;
     if (value) {
-      setMaxBudget(parseInt(value, 10));
+      updateInvestibleAddState({maxBudget: parseInt(value, 10)});
     } else {
-      setMaxBudget('');
+      updateInvestibleAddState({maxBudget: ''});
     }
   }
 
   function onUnitChange(event, value) {
-    setMaxBudgetUnit(value);
+    updateInvestibleAddState({maxBudgetUnit: value});
   }
 
   function onAssignmentsChange(newAssignments) {
     setAssignments(newAssignments);
-    handleDraftState({ ...draftState, assignments: newAssignments, storedUrlAssignee: getUrlAssignee() });
   }
 
   function onS3Upload(metadatas) {
-    setUploadedFiles(metadatas);
+    updateInvestibleAddState({uploadedFiles: metadatas})
   }
 
   function zeroCurrentValues() {
     editorController(editorReset());
     clearInitialEditor();
-    setCurrentValues(emptyInvestible);
+    investibleAddStateReset();
+    clearNameStoredState(marketId);
   }
 
   function handleCancel() {
@@ -186,10 +174,8 @@ function PlanningInvestibleAdd(props) {
     onCancel(formMarketLink(marketId));
   }
 
-  function onDaysEstimateChange(event) {
-    const { value } = event.target;
-    setDaysEstimate(value);
-    handleDraftState({ ...draftState, completion_estimate: value });
+  function onDaysEstimateChange(date) {
+    updateInvestibleAddState({daysEstimate: date});
   }
 
   function clearInitialEditor(){
@@ -215,6 +201,7 @@ function PlanningInvestibleAdd(props) {
       uploadedFiles: filteredUploads,
       description: processedDescription
     };
+    const name = getNameStoredState(marketId);
     if (name) {
       addInfo.name = name;
     } else {
@@ -249,8 +236,6 @@ function PlanningInvestibleAdd(props) {
             return inv;
           });
       }
-      editorController(editorReset());
-      clearInitialEditor();
       return inv;
     }).then((inv) => {
       const { investible } = inv;
@@ -258,6 +243,7 @@ function PlanningInvestibleAdd(props) {
       const link = formInvestibleLink(marketId, investible.id);
       if (isAssignedToMe || !isAssigned) {
         setOperationRunning(false);
+        zeroCurrentValues();
         return onSpinComplete(link);
       }
       const reason = getQuillStoredState(editorName);
@@ -279,7 +265,9 @@ function PlanningInvestibleAdd(props) {
           refreshMarketComments(commentsDispatch, marketId, [comment, ...comments]);
         }
         partialUpdateInvestment(marketPresencesDispatch, investmentResult, allowMultiVote);
-        onSpinComplete(link);
+        setOperationRunning(false);
+        zeroCurrentValues();
+        return onSpinComplete(link);
       });
     });
   }
@@ -322,7 +310,7 @@ function PlanningInvestibleAdd(props) {
             <AssignmentList
               marketId={marketId}
               onChange={onAssignmentsChange}
-              previouslyAssigned={choosePreviouslyAssigned()}
+              previouslyAssigned={getUrlAssignee()}
             />
             <fieldset className={classes.fieldset}>
               <legend>optional</legend>
@@ -334,7 +322,7 @@ function PlanningInvestibleAdd(props) {
                       value={skipApproval}
                       disabled={votesRequired > 1 || acceptedFull || !acceptedStage.id}
                       checked={skipApproval}
-                      onClick={() => setSkipApproval(!skipApproval)}
+                      onClick={() => updateInvestibleAddState({skipApproval: !skipApproval})}
                     />
                   }
                   label={intl.formatMessage({ id: 'skipApprovalExplanation' })}
@@ -343,9 +331,9 @@ function PlanningInvestibleAdd(props) {
             </fieldset>
           </div>
           {Editor}
-          <NameField onEditorChange={handleNameChange} onStorageChange={handleNameStorage}
+          <NameField onEmptyNotEmptyChange={emptyNotEmptyChange} id={marketId}
                      descriptionFunc={() => getQuillStoredState(editorName)}
-                     name={name} useCreateDefault />
+                     useCreateDefault />
         </CardContent>
         {!isAssignedToMe && isAssigned && (
           <AddInitialVote
@@ -365,7 +353,7 @@ function PlanningInvestibleAdd(props) {
             {intl.formatMessage({ id: 'marketAddCancelLabel' })}
           </SpinningIconLabelButton>
           <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore}
-                                   disabled={!name}>
+                                   disabled={isEmpty}>
             {intl.formatMessage({ id: 'agilePlanFormSaveLabel' })}
           </SpinningIconLabelButton>
         </CardActions>
@@ -382,7 +370,6 @@ PlanningInvestibleAdd.propTypes = {
   onSpinComplete: PropTypes.func,
   onSave: PropTypes.func,
   marketPresences: PropTypes.arrayOf(PropTypes.object).isRequired,
-  storedState: PropTypes.object.isRequired,
   storyMaxBudget: PropTypes.number,
   allowMultiVote: PropTypes.bool.isRequired
 };

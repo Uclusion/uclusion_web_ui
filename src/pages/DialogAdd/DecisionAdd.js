@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, } from 'react'
+import React, { useContext, useState, } from 'react'
 import PropTypes from 'prop-types'
 import { useIntl } from 'react-intl'
 import { Card, CardActions, CardContent, Checkbox, TextField, Typography, } from '@material-ui/core'
@@ -40,7 +40,6 @@ function DecisionAdd(props) {
   const classes = usePlanFormStyles();
   const myClasses = usePlanInvestibleStyles();
   const emptyMarket = { name: storedName, expiration_minutes: storedExpirationMinutes || 1440 };
-  const [validForm, setValidForm] = useState(false);
   const [currentValues, setCurrentValues] = useState(emptyMarket);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const { name, expiration_minutes } = currentValues;
@@ -62,17 +61,6 @@ function DecisionAdd(props) {
   function toggleMultiVote() {
     setMultiVote(!multiVote);
   }
-
-  useEffect(() => {
-    // Long form to prevent flicker
-    if (name && expiration_minutes > 0) {
-      if (!validForm) {
-        setValidForm(true);
-      }
-    } else if (validForm) {
-      setValidForm(false);
-    }
-  }, [name, expiration_minutes, validForm]);
 
   function handleCancel() {
     editorController(editorReset());
@@ -201,7 +189,7 @@ function DecisionAdd(props) {
             {intl.formatMessage({ id: 'marketAddCancelLabel' })}
           </SpinningIconLabelButton>
           <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore}
-                                   disabled={!createEnabled || !validForm}>
+                                   disabled={!createEnabled || !(name && expiration_minutes > 0)}>
             {intl.formatMessage({ id: 'agilePlanFormSaveLabel' })}
           </SpinningIconLabelButton>
         </CardActions>

@@ -189,7 +189,6 @@ function AddInitialVote(props) {
 AddInitialVote.propTypes = {
   storyMaxBudget: PropTypes.number,
   marketId: PropTypes.string.isRequired,
-  onEditorChange: PropTypes.func.isRequired,
   onBudgetChange: PropTypes.func.isRequired,
   onChange: PropTypes.func.isRequired,
   onUnitChange: PropTypes.func.isRequired,

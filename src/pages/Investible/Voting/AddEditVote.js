@@ -159,14 +159,14 @@ function AddEditVote(props) {
   const editorSpec = {
     marketId,
     placeholder: intl.formatMessage({ id: "yourReason" }),
-    value: getQuillStoredState(editorName),
+    value: getQuillStoredState(editorName) || body,
     uploadDisabled: true,
   };
   const [Editor, editorController] = useEditor(editorName, editorSpec);
 
   function mySave() {
     setOperationRunning(true);
-    const reasonText = getQuillStoredState(editorName);
+    const reasonText = getQuillStoredState(editorName) !== null ? getQuillStoredState(editorName) : body;
     const oldQuantity = addMode ? 0 : quantity;
     // dont include reason text if it's not changing, otherwise we'll update the reason comment
     const reasonNeedsUpdate = reasonText !== body && !(_.isEmpty(reasonText) && _.isEmpty(body));

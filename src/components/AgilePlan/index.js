@@ -496,9 +496,7 @@ export function DaysEstimate(props) {
   const intl = useIntl();
   
   function handleDateChange(date) {
-    if(typeof onChange === 'function'){
-      onChange({target: {value: date}});
-    }
+      onChange(date);
   }
 
   return (

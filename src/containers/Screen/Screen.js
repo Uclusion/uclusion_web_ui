@@ -281,7 +281,7 @@ function Screen(props) {
       )}
       <div className={contentClass}>
         {!reallyAmLoading && (
-          <Container className={myContainerClass} maxWidth="xl">
+          <Container className={myContainerClass} maxWidth={!_.isEmpty(navListItemTextArray) ? 'xl' : 'lg'}>
             {children}
           </Container>
         )}

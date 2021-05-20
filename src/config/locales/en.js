@@ -841,7 +841,7 @@ const messages = defineMessages({
   errorInvestibleDeleteFailed: 'There was a problem deleting.',
   errorPlanningInvestibleAddFailed: 'There was a problem adding the story',
   errorInvestibleStageChangeFailed: 'There was a problem accepting or archiving the story',
-  errorInvestibleUpdateFailed: 'There was a problem updating the option.',
+  errorInvestibleUpdateFailed: 'There was a problem updating.',
   errorCommentFetchFailed: 'There was a problem retrieving comments',
   errorUsersFetchFailed: 'There was a problem retrieving users',
   errorCommentSaveFailed: 'There was a problem saving your comment',

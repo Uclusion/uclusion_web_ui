@@ -1,8 +1,7 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext } from 'react'
 import { useHistory, useLocation } from 'react-router'
 import PropTypes from 'prop-types'
 import { useIntl } from 'react-intl'
-import localforage from 'localforage'
 import _ from 'lodash'
 import { decomposeMarketPath, formMarketLink, makeBreadCrumbs, navigate, } from '../../utils/marketIdPathFunctions'
 import Screen from '../../containers/Screen/Screen'
@@ -10,7 +9,6 @@ import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
-import { PLANNING_TYPE } from '../../constants/markets'
 import PlanningInvestibleAdd from './Planning/PlanningInvestibleAdd'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { DiffContext } from '../../contexts/DiffContext/DiffContext'
@@ -58,40 +56,20 @@ function InvestibleAdd(props) {
     breadCrumbTemplates = [{ name: currentMarketName, link: formMarketLink(marketId) }];
   }
   const myBreadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
-  const isPlanning = marketType === PLANNING_TYPE;
-  const titleKey = isPlanning ? 'newStory' : 'newOption';
-  const title = intl.formatMessage({ id: titleKey});
-  const [storedState, setStoredState] = useState(undefined);
-  const [idLoaded, setIdLoaded] = useState(undefined);
+  const title = intl.formatMessage({ id: 'newStory'});
 
   function onInvestibleSave(investible) {
     addInvestible(investiblesDispatch, diffDispatch, investible);
   }
 
-  const itemKey = `add_investible_${marketId}`;
   function onDone(destinationLink) {
     // console.log(`Called with link ${destinationLink}`);
-    localforage.removeItem(itemKey)
-      .finally(() => {
-        if (destinationLink) {
-          navigate(history, destinationLink);
-        }
-      });
+    if (destinationLink) {
+      navigate(history, destinationLink);
+    }
   }
 
-  useEffect(() => {
-    if (!hidden) {
-      localforage.getItem(itemKey).then((stateFromDisk) => {
-        setStoredState(stateFromDisk || {});
-        setIdLoaded(marketId);
-      });
-    }
-    if (hidden) {
-      setIdLoaded(undefined);
-    }
-  }, [hidden, marketId, itemKey]);
-
-  const loading = idLoaded !== marketId || !marketType;
+  const loading = !marketType;
   return (
     <Screen
       title={title}
@@ -100,22 +78,19 @@ function InvestibleAdd(props) {
       breadCrumbs={myBreadCrumbs}
       loading={loading}
     >
-      {isPlanning && idLoaded === marketId && (
-        <PlanningInvestibleAdd
-          marketId={marketId}
-          onCancel={onDone}
-          onSave={onInvestibleSave}
-          onSpinComplete={onDone}
-          marketPresences={marketPresences}
-          createdAt={createdAt}
-          fromCommentIds={fromCommentIds}
-          storedState={storedState}
-          classes={classes}
-          storyMaxBudget={storyMaxBudget}
-          allowMultiVote={allowMultiVote}
-          votesRequired={votesRequired}
-        />
-      )}
+      <PlanningInvestibleAdd
+        marketId={marketId}
+        onCancel={onDone}
+        onSave={onInvestibleSave}
+        onSpinComplete={onDone}
+        marketPresences={marketPresences}
+        createdAt={createdAt}
+        fromCommentIds={fromCommentIds}
+        classes={classes}
+        storyMaxBudget={storyMaxBudget}
+        allowMultiVote={allowMultiVote}
+        votesRequired={votesRequired}
+      />
     </Screen>
   );
 }

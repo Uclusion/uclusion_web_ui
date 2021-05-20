@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState } from 'react'
 import { FormattedMessage, useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
 import localforage from 'localforage'
@@ -14,7 +14,7 @@ import { OperationInProgressContext } from '../../contexts/OperationInProgressCo
 import { DiffContext } from '../../contexts/DiffContext/DiffContext'
 import { CardActions, CircularProgress, Typography } from '@material-ui/core'
 import { processTextAndFilesForSave } from '../../api/files'
-import NameField from '../../components/TextFields/NameField'
+import NameField, { getNameStoredState } from '../../components/TextFields/NameField'
 import { isTinyWindow } from '../../utils/windowUtils'
 import DescriptionOrDiff from '../../components/Descriptions/DescriptionOrDiff'
 import { Clear, SettingsBackupRestore } from '@material-ui/icons'
@@ -130,7 +130,6 @@ function DialogBodyEdit(props) {
   const {
     beingEdited,
     uploadedFiles,
-    name,
     beingLocked,
     showDiff
   } = pageState;
@@ -139,6 +138,7 @@ function DialogBodyEdit(props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [,marketsDispatch] = useContext(MarketsContext);
   const [, diffDispatch] = useContext(DiffContext);
+  const [isEmpty, setIsEmpty] = useState(false);
   const { id, name: initialName, description: initialDescription,
     market_type: marketType, locked_by: lockedBy } = market;
   const someoneElseEditing = !_.isEmpty(lockedBy) && (lockedBy !== userId);
@@ -159,11 +159,13 @@ function DialogBodyEdit(props) {
     const oldMarketUploadedFiles = market.uploaded_files || [];
     const currentUploadedFiles = uploadedFiles || [];
     const newUploadedFiles = _.uniqBy([...currentUploadedFiles, ...oldMarketUploadedFiles], 'path');
+    const description = getQuillStoredState(editorName) !== null ? getQuillStoredState(editorName) : initialDescription;
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
-    } = processTextAndFilesForSave(newUploadedFiles, getQuillStoredState(editorName));
+    } = processTextAndFilesForSave(newUploadedFiles, description);
     const updatedFilteredUploads = _.isEmpty(uploadedFiles) ? filteredUploads : null;
+    const name = getNameStoredState(id) || initialName;
     return updateMarket(id, name, tokensRemoved, updatedFilteredUploads)
       .then((market) => {
         //clear the editor because we want the storage back
@@ -183,6 +185,10 @@ function DialogBodyEdit(props) {
         updateMarketInStorage(market);
       });
     }
+  }
+
+  function emptyNotEmptyChange(value) {
+    setIsEmpty(value);
   }
 
   function updateMarketInStorage(market) {
@@ -242,9 +248,9 @@ function DialogBodyEdit(props) {
         />
         {(!lockedBy || (lockedBy === userId)) && (
           <>
-            <NameField onEditorChange={(name) => pageStateUpdate({name})}
+            <NameField onEmptyNotEmptyChange={emptyNotEmptyChange}
                        descriptionFunc={() => getQuillStoredState(editorName)}
-                       name={name} label="agilePlanFormTitleLabel" placeHolder="decisionTitlePlaceholder"
+                       name={initialName} label="agilePlanFormTitleLabel" placeHolder="decisionTitlePlaceholder"
                        id="decision-name" />
             {Editor}
           </>
@@ -256,6 +262,7 @@ function DialogBodyEdit(props) {
           <SpinningIconLabelButton
             icon={SettingsBackupRestore}
             onClick={handleSave}
+            disabled={isEmpty}
           >
             <FormattedMessage
               id="agilePlanFormSaveLabel"

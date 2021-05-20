@@ -3,25 +3,49 @@ import PropTypes from 'prop-types';
 import { TextField } from '@material-ui/core';
 import { useIntl } from 'react-intl';
 import { nameFromDescription } from '../../utils/stringFunctions'
+import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../localStorageUtils'
+
+export function getNameStoredState(id) {
+  return getUclusionLocalStorageItem(`name-editor-${id}`);
+}
+
+export function clearNameStoredState(id) {
+  setUclusionLocalStorageItem(`name-editor-${id}`, null);
+}
 
 function NameField(props) {
   const intl = useIntl();
   const {
-    onEditorChange, descriptionFunc, name, label, placeHolder, id, useCreateDefault
+    descriptionFunc, name, label, placeHolder, id, useCreateDefault, onEmptyNotEmptyChange
   } = props;
 
+  function storeState(state) {
+    setUclusionLocalStorageItem(`name-editor-${id}`, state);
+  }
+
   function createDefaultName() {
-    if (descriptionFunc && !name) {
-      const found = nameFromDescription(descriptionFunc());
+    const description = descriptionFunc();
+    if (description && !getNameStoredState(id)) {
+      const found = nameFromDescription(description);
       if (found) {
-        onEditorChange(found);
+        onEmptyNotEmptyChange();
+        storeState(found);
+        document.getElementById(id).value = found;
       }
     }
   }
 
   function handleChange(event) {
     const { value } = event.target;
-    onEditorChange(value);
+    if (!value) {
+      onEmptyNotEmptyChange(true);
+    } else if (value.length === 1) {
+      const valueBefore = getNameStoredState(id);
+      if (!valueBefore) {
+        onEmptyNotEmptyChange(false);
+      }
+    }
+    storeState(value);
   }
 
   return (
@@ -36,7 +60,7 @@ function NameField(props) {
           placeholder={intl.formatMessage({
             id: placeHolder
           })}
-          value={name}
+          defaultValue={getNameStoredState(id) || name}
           variant="filled"
         />
       )}
@@ -49,7 +73,7 @@ function NameField(props) {
           placeholder={intl.formatMessage({
             id: placeHolder
           })}
-          defaultValue={name}
+          defaultValue={getNameStoredState(id) || name}
           variant="filled"
         />
       )}
@@ -58,17 +82,15 @@ function NameField(props) {
 }
 
 NameField.propTypes = {
-  onEditorChange: PropTypes.func.isRequired,
   descriptionFunc: PropTypes.func.isRequired,
   name: PropTypes.string,
-  id: PropTypes.string,
+  id: PropTypes.string.isRequired,
   placeHolder: PropTypes.string,
   label: PropTypes.string,
   useCreateDefault: PropTypes.bool
 }
 
 NameField.defaultProps = {
-  id: "plan-investible-name",
   placeHolder: "storyTitlePlaceholder",
   label: "agilePlanFormTitleLabel",
   useCreateDefault: false

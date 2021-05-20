@@ -189,10 +189,11 @@ function CommentEdit(props) {
     setOperationRunning(true);
     const currentUploadedFiles = uploadedFiles || [];
     const newUploadedFiles = _.uniqBy([...initialUploadedFiles, ...currentUploadedFiles], 'path');
+    const body = getQuillStoredState(editorName) !== null ? getQuillStoredState(editorName) : initialBody;
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
-    } = processTextAndFilesForSave(newUploadedFiles, getQuillStoredState(editorName));
+    } = processTextAndFilesForSave(newUploadedFiles, body);
     const mentions = getMentionsFromText(tokensRemoved);
     const updatedType = type !== commentType ? type : undefined;
     const myActualNotificationType = commentType === TODO_TYPE && !investibleId ? myNotificationType : undefined;

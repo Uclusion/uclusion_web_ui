@@ -46,8 +46,11 @@ export function genericPageReducer(state, action) {
   }
 }
 
-export function getPageReducerPage(state, dispatch, id) {
-  return [state[id] || {},  (values) => dispatch(updateValues(values, id)), () => dispatch(resetValues(id))];
+export function getPageReducerPage(state, dispatch, id, defaultState={}) {
+  if (!state[id]) {
+    dispatch(updateValues(defaultState, id));
+  }
+  return [state[id] || defaultState,  (values) => dispatch(updateValues(values, id)), () => dispatch(resetValues(id))];
 }
 
 

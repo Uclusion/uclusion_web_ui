@@ -11,7 +11,6 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { useLocation } from 'react-router';
 import queryString from 'query-string'
 import CardType, { STORY_TYPE, TODO_TYPE } from '../../../components/CardType'
-import { DaysEstimate } from '../../../components/AgilePlan'
 import DismissableText from '../../../components/Notifications/DismissableText'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import AddInitialVote from '../../Investible/Voting/AddInitialVote'
@@ -55,8 +54,7 @@ import { getPageReducerPage, usePageStateReducer } from '../../../components/Pag
 
 function PlanningInvestibleAdd(props) {
   const {
-    marketId, classes, onCancel, onSave, onSpinComplete, createdAt, storyMaxBudget, allowMultiVote,
-    fromCommentIds, votesRequired
+    marketId, classes, onCancel, onSave, onSpinComplete, storyMaxBudget, allowMultiVote, fromCommentIds, votesRequired
   } = props;
   const intl = useIntl();
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
@@ -76,7 +74,8 @@ function PlanningInvestibleAdd(props) {
     return undefined;
   }
   const [assignments, setAssignments] = useState(getUrlAssignee());
-  const [isEmpty, setIsEmpty] = useState(!getNameStoredState(marketId));
+  const nameId = `investibleAdd${marketId}`;
+  const [isEmpty, setIsEmpty] = useState(!getNameStoredState(nameId));
   const comments = getMarketComments(commentsState, marketId) || [];
   function getUrlOpenForInvestment() {
     const { hash } = location;
@@ -113,7 +112,6 @@ function PlanningInvestibleAdd(props) {
         skipApproval: false
       });
   const {
-    daysEstimate: storedDaysEstimate,
     skipApproval,
     maxBudget,
     maxBudgetUnit,
@@ -122,7 +120,6 @@ function PlanningInvestibleAdd(props) {
   } = investibleAddState;
   const isAssignedToMe = (assignments || []).includes(myPresence.id);
   const isAssigned = !_.isEmpty(assignments);
-  const daysEstimate = storedDaysEstimate ? new Date(storedDaysEstimate) : undefined;
   const editorName = `${marketId}-planning-inv-add`;
   const editorSpec = {
     marketId,
@@ -166,16 +163,12 @@ function PlanningInvestibleAdd(props) {
     editorController(editorReset());
     clearInitialEditor();
     investibleAddStateReset();
-    clearNameStoredState(marketId);
+    clearNameStoredState(nameId);
   }
 
   function handleCancel() {
     zeroCurrentValues();
     onCancel(formMarketLink(marketId));
-  }
-
-  function onDaysEstimateChange(date) {
-    updateInvestibleAddState({daysEstimate: date});
   }
 
   function clearInitialEditor(){
@@ -200,7 +193,7 @@ function PlanningInvestibleAdd(props) {
       uploadedFiles: filteredUploads,
       description: processedDescription
     };
-    const name = getNameStoredState(marketId);
+    const name = getNameStoredState(nameId);
     if (name) {
       addInfo.name = name;
     } else {
@@ -208,9 +201,6 @@ function PlanningInvestibleAdd(props) {
     }
     if (isAssigned) {
       addInfo.assignments = assignments;
-    }
-    if (daysEstimate) {
-      addInfo.daysEstimate = daysEstimate;
     }
     if (skipApproval) {
       addInfo.stageId = acceptedStage.id;
@@ -312,8 +302,7 @@ function PlanningInvestibleAdd(props) {
               previouslyAssigned={getUrlAssignee()}
             />
             <fieldset className={classes.fieldset}>
-              <legend>optional</legend>
-              <DaysEstimate onChange={onDaysEstimateChange} value={daysEstimate} createdAt={createdAt} />
+              <legend>Optional</legend>
               {isAssignedToMe && assignments.length === 1 && (
                 <FormControlLabel
                   control={
@@ -330,7 +319,7 @@ function PlanningInvestibleAdd(props) {
             </fieldset>
           </div>
           {Editor}
-          <NameField onEmptyNotEmptyChange={emptyNotEmptyChange} id={marketId}
+          <NameField onEmptyNotEmptyChange={emptyNotEmptyChange} id={nameId}
                      descriptionFunc={() => getQuillStoredState(editorName)}
                      useCreateDefault />
         </CardContent>

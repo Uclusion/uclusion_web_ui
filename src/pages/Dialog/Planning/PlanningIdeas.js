@@ -746,7 +746,7 @@ function StageInvestible (props) {
           {updatedText}
           <FormattedDate value={safeChangeDate}/>
         </Typography>
-        {hasDaysEstimate && (
+        {hasDaysEstimate && !isVoting && (
           <DaysEstimate readOnly value={daysEstimate} createdAt={createdAt}/>
         )}
       </Grid>

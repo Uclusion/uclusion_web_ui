@@ -888,7 +888,7 @@ function PlanningInvestible(props) {
                     />
                   </div>
                 )}
-                {displayEdit && !inMarketArchives && (
+                {displayEdit && !inMarketArchives && !isInVoting && (
                   <div>
                     <EditMarketButton
                       labelId="changeCompletionDate"
@@ -915,7 +915,7 @@ function PlanningInvestible(props) {
                   <ShareStoryButton investibleId={investibleId} marketId={marketId} />
                 </div>
               </div>
-              {marketDaysEstimate && (
+              {marketDaysEstimate && !isInVoting && (
                 <DaysEstimate readOnly value={daysEstimate} />
               )}
               <MarketMetaData
@@ -928,7 +928,6 @@ function PlanningInvestible(props) {
                 stageActions={getStageActions()}
                 expansionChanged={expansionChanged}
                 anchorEl={anchorEl}
-                marketDaysEstimate={marketDaysEstimate}
                 setAnchorEl={setAnchorEl}
                 inArchives={inArchives}
                 isAssigned={isAssigned}

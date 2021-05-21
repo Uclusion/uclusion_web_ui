@@ -53,7 +53,7 @@ export function useEditor (name, spec) {
     mentionsAllowed,
     className,
   } = spec;
-  const controlChannel = `editor-${name}-control-plane`;
+  const controlChannel = getControlPlaneName(name);
 
   registerListener(`editor-${name}`, `${name}-controller`, (message) => {
     const { type, newUploads } = message.payload;

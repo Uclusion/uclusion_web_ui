@@ -40,7 +40,6 @@ function DecisionDialogEdit(props) {
 
   function handleSave() {
     if (allowMultiVote !== multiVote) {
-      setOperationRunning(true);
       return updateMarket(id, null, null, null, null,
         null, null, multiVote)
         .then((market) => {
@@ -78,7 +77,7 @@ function DecisionDialogEdit(props) {
         <SpinningIconLabelButton onClick={onCancel} doSpin={false} icon={Clear}>
           {intl.formatMessage({ id: 'marketAddCancelLabel' })}
         </SpinningIconLabelButton>
-        <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore}>
+        <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore} id="agilePlanFormSaveButton">
           {intl.formatMessage({ id: 'agilePlanFormSaveLabel' })}
         </SpinningIconLabelButton>
       </CardActions>

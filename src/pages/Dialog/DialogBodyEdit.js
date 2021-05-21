@@ -154,7 +154,6 @@ function DialogBodyEdit(props) {
   const [Editor, editorController] = useEditor(editorName, editorSpec);
 
   function handleSave() {
-    setOperationRunning(true);
     // the set of files for the market is all the old files, plus our new ones
     const oldMarketUploadedFiles = market.uploaded_files || [];
     const currentUploadedFiles = uploadedFiles || [];
@@ -179,7 +178,6 @@ function DialogBodyEdit(props) {
     pageStateReset();
     editorController(editorReset());
     if (marketType === PLANNING_TYPE) {
-      setOperationRunning(true);
       return unlockPlanningMarketForEdit(id).then((market) => {
         setOperationRunning(false);
         updateMarketInStorage(market);
@@ -208,7 +206,6 @@ function DialogBodyEdit(props) {
   function myOnClick() {
     pageStateUpdate({beingLocked: true});
     const breakLock = true;
-    setOperationRunning(true);
     return lockPlanningMarketForEdit(id, breakLock)
       .then((result) => {
         pageStateUpdate({beingLocked: false});
@@ -241,7 +238,7 @@ function DialogBodyEdit(props) {
           onClose={onCancel}
           /* slots */
           actions={
-            <SpinningIconLabelButton onClick={myOnClick} icon={LockedDialogTitleIcon}>
+            <SpinningIconLabelButton onClick={myOnClick} icon={LockedDialogTitleIcon} id="pageLockEditPageButton">
               {intl.formatMessage({ id: 'pageLockEditPage' })}
             </SpinningIconLabelButton>
           }
@@ -256,13 +253,15 @@ function DialogBodyEdit(props) {
           </>
         )}
         <CardActions className={classes.actions}>
-          <SpinningIconLabelButton onClick={onCancel} doSpin={marketType === PLANNING_TYPE} icon={Clear}>
+          <SpinningIconLabelButton onClick={onCancel} doSpin={marketType === PLANNING_TYPE} icon={Clear}
+                                   id="marketAddCancelButton">
             {intl.formatMessage({ id: 'marketAddCancelLabel' })}
           </SpinningIconLabelButton>
           <SpinningIconLabelButton
             icon={SettingsBackupRestore}
             onClick={handleSave}
             disabled={isEmpty}
+            id="agilePlanFormSaveButton"
           >
             <FormattedMessage
               id="agilePlanFormSaveLabel"

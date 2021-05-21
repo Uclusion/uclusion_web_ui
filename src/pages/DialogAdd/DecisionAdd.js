@@ -88,7 +88,6 @@ function DecisionAdd(props) {
   }
 
   function handleSave() {
-    setOperationRunning(true);
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
@@ -188,7 +187,7 @@ function DecisionAdd(props) {
           <SpinningIconLabelButton onClick={handleCancel} doSpin={false} icon={Clear}>
             {intl.formatMessage({ id: 'marketAddCancelLabel' })}
           </SpinningIconLabelButton>
-          <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore}
+          <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore} id="decisionAddButton"
                                    disabled={!createEnabled || !(name && expiration_minutes > 0)}>
             {intl.formatMessage({ id: 'agilePlanFormSaveLabel' })}
           </SpinningIconLabelButton>

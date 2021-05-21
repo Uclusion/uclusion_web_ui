@@ -106,7 +106,6 @@ function DecisionInvestibleAdd(props) {
   }
 
   function handleSaveAddAnother() {
-    setOperationRunning(true);
     if (parentCommentId) {
       return handleNewInlineSave(onSaveAddAnother);
     }
@@ -114,7 +113,6 @@ function DecisionInvestibleAdd(props) {
   }
 
   function handleSave(completionFunc) {
-    setOperationRunning(true);
     if (parentCommentId) {
       return handleNewInlineSave(completionFunc);
     }
@@ -177,11 +175,13 @@ function DecisionInvestibleAdd(props) {
           {intl.formatMessage({ id: 'marketAddCancelLabel' })}
         </SpinningIconLabelButton>
         <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore}
-                                 disabled={!name || (!parentCommentId && !investmentAllowedStage.id)}>
+                                 disabled={!name || (!parentCommentId && !investmentAllowedStage.id)}
+                                 id="decisionInvestibleSaveButton">
           {intl.formatMessage({ id: 'agilePlanFormSaveLabel' })}
         </SpinningIconLabelButton>
         <SpinningIconLabelButton onClick={handleSaveAddAnother} icon={SettingsBackupRestore}
-                                 disabled={!name || (!parentCommentId && !investmentAllowedStage.id)}>
+                                 disabled={!name || (!parentCommentId && !investmentAllowedStage.id)}
+                                 id="decisionInvestibleSaveAddAnotherButton">
           {intl.formatMessage({ id: 'decisionInvestibleSaveAddAnother' })}
         </SpinningIconLabelButton>
       </CardActions>

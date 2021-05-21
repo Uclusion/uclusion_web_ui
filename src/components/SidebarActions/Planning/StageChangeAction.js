@@ -94,9 +94,6 @@ function StageChangeAction(props) {
 
   function moveToTarget() {
     setOpen(false);
-    if (standAlone) {
-      setOperationRunning(true);
-    }
     const moveInfo = {
       marketId,
       investibleId,
@@ -117,11 +114,17 @@ function StageChangeAction(props) {
       });
   }
 
+  function moveToTargetFromList() {
+    setOperationRunning(true);
+    moveToTarget();
+  }
+
   if (operationBlocked) {
     return (
       <>
         {standAlone && (
-          <SpinningIconLabelButton icon={icon} onClick={handleOpen} disabled={disabled} key={key} noMargin>
+          <SpinningIconLabelButton icon={icon} onClick={handleOpen} disabled={disabled} key={key} noMargin
+                                   doSpin={false}>
             <FormattedMessage id={translationId} />
           </SpinningIconLabelButton>
         )}
@@ -171,7 +174,7 @@ function StageChangeAction(props) {
   if (standAlone) {
     return (
       <SpinningIconLabelButton icon={icon} iconColor={iconColor} onClick={moveToTarget} disabled={disabled} key={key}
-                               noMargin>
+                               noMargin id="stageChangeActionButton">
         <FormattedMessage
           id={translationId}
         />
@@ -187,7 +190,7 @@ function StageChangeAction(props) {
       onSpinStop={onSpinStop}
       label={intl.formatMessage({ id: explanationId })}
       openLabel={intl.formatMessage({ id: translationId })}
-      onClick={moveToTarget}
+      onClick={moveToTargetFromList}
       customClasses={classes}
       isOpen={isOpen}
       disabled={disabled}

@@ -522,7 +522,6 @@ function Comment(props) {
   }
 
   function reopen() {
-    setOperationRunning(true);
     return reopenComment(marketId, id)
       .then((comment) => {
         onCommentOpen(investiblesState, investibleId, marketStagesState, marketId, comment, investiblesDispatch,
@@ -542,7 +541,6 @@ function Comment(props) {
       });
   }
   function resolve() {
-    setOperationRunning(true);
     return resolveComment(marketId, id)
       .then((comment) => {
         addCommentToMarket(comment, commentsState, commentsDispatch);
@@ -770,12 +768,11 @@ function Comment(props) {
                 )}
                 {!isTinyWindow() && !_.isEmpty(messages) && (
                   <SpinningIconLabelButton onClick={() => {
-                    setOperationRunning(true);
                     deleteOrDehilightMessages(messages, messagesDispatch).then(() => setOperationRunning(false))
                       .finally(() => {
                         setOperationRunning(false);
                       });
-                  }} icon={SettingsBackupRestore}>
+                  }} icon={SettingsBackupRestore} id="markReadButton">
                     {intl.formatMessage({ id: 'markRead' })}
                   </SpinningIconLabelButton>
                 )}
@@ -784,6 +781,7 @@ function Comment(props) {
                   <SpinningIconLabelButton
                     onClick={resolved ? reopen : resolve}
                     icon={resolved ? SettingsBackupRestore : Done}
+                    id="commentResolveReopenButton"
                   >
                     {intl.formatMessage({
                       id: resolved ? "commentReopenLabel" : "commentResolveLabel"

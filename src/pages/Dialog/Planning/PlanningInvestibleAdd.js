@@ -184,7 +184,6 @@ function PlanningInvestibleAdd(props) {
   }
   
   function handleSave() {
-    setOperationRunning(true);
     if (!isStoriesTourCompleted) {
       // If you are adding a story by yourself we don't want to force a story tour on you
       completeTour(tourDispatch, INVITE_STORIES_WORKSPACE_FIRST_VIEW);
@@ -353,7 +352,7 @@ function PlanningInvestibleAdd(props) {
             {intl.formatMessage({ id: 'marketAddCancelLabel' })}
           </SpinningIconLabelButton>
           <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore}
-                                   disabled={isEmpty}>
+                                   disabled={isEmpty} id="planningInvestibleAddButton">
             {intl.formatMessage({ id: 'agilePlanFormSaveLabel' })}
           </SpinningIconLabelButton>
         </CardActions>

@@ -103,12 +103,11 @@ function Voting(props) {
       {!_.isEmpty(voteMessages) && (
         <>
           <SpinningIconLabelButton onClick={() => {
-            setOperationRunning(true);
             deleteOrDehilightMessages(voteMessages, messagesDispatch).then(() => setOperationRunning(false))
               .finally(() => {
                 setOperationRunning(false);
               });
-          }} icon={SettingsBackupRestore}>
+          }} icon={SettingsBackupRestore} id="removeVoteNotificationsButton">
             {intl.formatMessage({ id: 'removeVoteNotifications' })}
           </SpinningIconLabelButton>
           <div style={{paddingBottom: '1rem'}} />

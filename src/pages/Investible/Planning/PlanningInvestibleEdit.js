@@ -84,7 +84,6 @@ function PlanningInvestibleEdit(props) {
   };
 
   function handleSave() {
-    setOperationRunning(true);
     const updateInfo = {
       marketId,
       investibleId: myInvestible.id
@@ -164,6 +163,7 @@ function PlanningInvestibleEdit(props) {
             {intl.formatMessage({ id: 'marketAddCancelLabel' })}
           </SpinningIconLabelButton>
           <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore}
+                                   id="planningInvestibleAssignmentUpdateButton"
                                    disabled={_.isEmpty(_.xor(assignments, initialAssigned))}>
             {intl.formatMessage({ id: 'agilePlanFormSaveLabel' })}
           </SpinningIconLabelButton>
@@ -194,7 +194,8 @@ function PlanningInvestibleEdit(props) {
           {intl.formatMessage({ id: 'marketAddCancelLabel' })}
         </SpinningIconLabelButton>
         {hasVotes && (
-          <SpinningIconLabelButton onClick={handleOpen} icon={SettingsBackupRestore} disabled={!validForm}>
+          <SpinningIconLabelButton onClick={handleOpen} icon={SettingsBackupRestore} disabled={!validForm}
+                                   doSpin={false}>
             {intl.formatMessage({ id: 'agilePlanFormSaveLabel' })}
           </SpinningIconLabelButton>
         )}
@@ -206,14 +207,16 @@ function PlanningInvestibleEdit(props) {
             issueWarningId="reassignWarning"
             /* slots */
             actions={
-              <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore} disabled={!validForm}>
+              <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore} disabled={!validForm}
+                                       id="issueProceedAssignmentsButton">
                 {intl.formatMessage({ id: 'issueProceed' })}
               </SpinningIconLabelButton>
             }
           />
         )}
         {!hasVotes && (
-          <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore} disabled={!validForm}>
+          <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore} disabled={!validForm}
+                                   id="noIssueAssignmentsUpdateButton">
             {intl.formatMessage({ id: 'agilePlanFormSaveLabel' })}
           </SpinningIconLabelButton>
         )}

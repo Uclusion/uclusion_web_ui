@@ -186,7 +186,6 @@ function CommentEdit(props) {
   const [Editor, editorController] = useEditor(editorName, editorSpec);
 
   function handleSave() {
-    setOperationRunning(true);
     const currentUploadedFiles = uploadedFiles || [];
     const newUploadedFiles = _.uniqBy([...initialUploadedFiles, ...currentUploadedFiles], 'path');
     const body = getQuillStoredState(editorName) !== null ? getQuillStoredState(editorName) : initialBody;
@@ -280,6 +279,7 @@ function CommentEdit(props) {
           <SpinningIconLabelButton
             icon={Update}
             onClick={handleSave}
+            id="updateCommentButton"
           >
             {intl.formatMessage({ id: 'update' })}
           </SpinningIconLabelButton>

@@ -165,7 +165,6 @@ function AddEditVote(props) {
   const [Editor, editorController] = useEditor(editorName, editorSpec);
 
   function mySave() {
-    setOperationRunning(true);
     const reasonText = getQuillStoredState(editorName) !== null ? getQuillStoredState(editorName) : body;
     const oldQuantity = addMode ? 0 : quantity;
     // dont include reason text if it's not changing, otherwise we'll update the reason comment
@@ -218,7 +217,6 @@ function AddEditVote(props) {
 
   function onRemove() {
     editorController(editorReset());
-    setOperationRunning(true);
     return removeInvestment(marketId, investibleId).then(result => {
       setOperationRunning(false);
       onSaveSpinStop(result);
@@ -327,6 +325,7 @@ function AddEditVote(props) {
             <SpinningIconLabelButton
               icon={Delete}
               onClick={onRemove}
+              id="removeVoteButton"
             >
               {intl.formatMessage({ id: removeVoteId })}
             </SpinningIconLabelButton>
@@ -335,6 +334,7 @@ function AddEditVote(props) {
             <SpinningIconLabelButton
               icon={addMode ? Add : SettingsBackupRestore}
               onClick={mySave}
+              id="addOrUpdateVoteButton"
             >
               {addMode
                 ? intl.formatMessage({ id: voteId })

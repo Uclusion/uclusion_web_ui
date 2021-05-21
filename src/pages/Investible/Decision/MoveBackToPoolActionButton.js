@@ -37,7 +37,6 @@ function MoveBackToPoolActionButton(props) {
         stage_id: proposedStage.id,
       },
     };
-    setOperationRunning(true);
     return moveInvestibleBackToOptionPool(moveInfo)
       .then((inv) => {
         setOperationRunning(false);
@@ -68,7 +67,7 @@ function MoveBackToPoolActionButton(props) {
         issueWarningId="backToOptionPoolWarning"
         /* slots */
         actions={
-          <SpinningIconLabelButton onClick={moveBack} icon={ArrowDownwardIcon}>
+          <SpinningIconLabelButton onClick={moveBack} icon={ArrowDownwardIcon} id="moveBackToPoolButton">
             <FormattedMessage id="issueProceed" />
           </SpinningIconLabelButton>
         }
@@ -96,7 +95,7 @@ function RemoveOption(props) {
       /* slots */
       actions={
         <React.Fragment>
-          <SpinningIconLabelButton onClick={onClose} icon={Clear} ref={autoFocusRef}>
+          <SpinningIconLabelButton onClick={onClose} icon={Clear} ref={autoFocusRef} doSpin={false}>
             <FormattedMessage id="lockDialogCancel" />
           </SpinningIconLabelButton>
           {actions}

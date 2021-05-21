@@ -145,7 +145,6 @@ function AddNewUsers (props) {
     }
   }
   function handleSave () {
-    setOperationRunning(true);
     const toAdd = participants.filter((participant) => participant.isChecked) || [];
     const toAddClean = toAdd.map((participant) => {
       const { user_id, account_id } = participant;
@@ -183,7 +182,7 @@ function AddNewUsers (props) {
     <>
       <List
         dense
-        className={clsx(classes.scrollableList, classes.sharedForm, classes.paddingRight)}
+        className={clsx(classes.scrollableList, classes.sharedForm)}
       >
         {_.size(participants) > 10 && (
           <ListItem className={classes.searchContainer} key="search">
@@ -220,7 +219,7 @@ function AddNewUsers (props) {
           }
         </List>
       </List>
-      <div className={classes.spacer}></div>
+      <div className={classes.spacer} />
       <List
         dense
       >
@@ -288,7 +287,7 @@ function AddNewUsers (props) {
               <SpinningIconLabelButton onClick={handleCancel} doSpin={false} icon={Clear}>
                 {intl.formatMessage({ id: 'addressAddCancelLabel' })}
               </SpinningIconLabelButton>
-              <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore}
+              <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore} id="addressAddSaveButton"
                                        disabled={_.isEmpty(anySelected)&&_.isEmpty(email1)}>
                 {intl.formatMessage({ id: 'addressAddSaveLabel' })}
               </SpinningIconLabelButton>

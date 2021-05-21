@@ -87,7 +87,6 @@ function InvestibleBodyEdit(props) {
   const [Editor, editorController] = useEditor(editorName, editorSpec);
 
   function handleSave() {
-    setOperationRunning(true);
     // uploaded files on edit is the union of the new uploaded files and the old uploaded files
     const oldInvestibleUploadedFiles = myInvestible.uploaded_files || [];
     const currentUploadedFiles = uploadedFiles || [];
@@ -117,7 +116,6 @@ function InvestibleBodyEdit(props) {
   function onCancel () {
     pageStateReset();
     editorController(editorReset());
-    setOperationRunning(true);
     return realeaseInvestibleEditLock(marketId, investibleId)
       .then((newInv) => {
         setOperationRunning(false);
@@ -149,7 +147,6 @@ function InvestibleBodyEdit(props) {
 
   function takeoutLock () {
     pageStateUpdate({beingLocked: true});
-    setOperationRunning(true);
     const breakLock = true;
     return lockInvestibleForEdit(marketId, investibleId, breakLock)
       .then((result) => {
@@ -182,6 +179,7 @@ function InvestibleBodyEdit(props) {
             <SpinningIconLabelButton
               icon={LockedDialogTitleIcon}
               onClick={takeoutLock}
+              id="pageLockEditButton"
             >
               <FormattedMessage
                 id="pageLockEditPage"
@@ -197,13 +195,14 @@ function InvestibleBodyEdit(props) {
           </>
         )}
         <CardActions className={classes.actions}>
-          <SpinningIconLabelButton onClick={onCancel} icon={Clear}>
+          <SpinningIconLabelButton onClick={onCancel} icon={Clear} id="marketAddCancelButton">
             {intl.formatMessage({ id: 'marketAddCancelLabel' })}
           </SpinningIconLabelButton>
           <SpinningIconLabelButton
             disabled={isEmpty}
             icon={SettingsBackupRestore}
             onClick={handleSave}
+            id="investibleUpdateButton"
           >
             <FormattedMessage
               id="agilePlanFormSaveLabel"

@@ -38,7 +38,6 @@ function DeadlineExtender(props) {
 
   function mySave() {
     let newExpirationMinutes = expirationMinutes + extensionPeriod;
-    setOperationRunning(true);
     return manageMarket(marketId, newExpirationMinutes).then((market) => {
       setOperationRunning(false);
       onSpinStop(market);
@@ -65,7 +64,7 @@ function DeadlineExtender(props) {
         <SpinningIconLabelButton onClick={myCancel} doSpin={false} icon={Clear}>
           <FormattedMessage id="marketAddCancelLabel"/>
         </SpinningIconLabelButton>
-        <SpinningIconLabelButton onClick={mySave} icon={Snooze}>
+        <SpinningIconLabelButton onClick={mySave} icon={Snooze} id="decisionDialogsExtendDeadlineButton">
           <FormattedMessage id="decisionDialogsExtendDeadline"/>
         </SpinningIconLabelButton>
       </CardActions>

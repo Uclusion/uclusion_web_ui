@@ -287,7 +287,6 @@ function CommentAdd(props) {
   }
 
   function handleSave () {
-    setOperationRunning(true);
     const currentUploadedFiles = uploadedFiles || [];
     const {
       uploadedFiles: filteredUploads,
@@ -371,12 +370,13 @@ function CommentAdd(props) {
               onClick={handleSave}
               icon={Add}
               disabled={_.isEmpty(type)}
+              id="commentSaveButton"
             >
               {intl.formatMessage({ id: commentSaveLabel })}
             </SpinningIconLabelButton>
           )}
           {showIssueWarning && (
-            <SpinningIconLabelButton onClick={toggleIssue} icon={Add}>
+            <SpinningIconLabelButton onClick={toggleIssue} icon={Add} doSpin={false}>
               {intl.formatMessage({ id: commentSaveLabel })}
             </SpinningIconLabelButton>
           )}
@@ -403,7 +403,7 @@ function CommentAdd(props) {
               checkBoxFunc={setDoNotShowAgain}
               /* slots */
               actions={
-                <SpinningIconLabelButton onClick={handleSave} icon={Add}
+                <SpinningIconLabelButton onClick={handleSave} icon={Add} id="issueProceedButton"
                                          disabled={_.isEmpty(type)}>
                   {intl.formatMessage({ id: 'issueProceed' })}
                 </SpinningIconLabelButton>

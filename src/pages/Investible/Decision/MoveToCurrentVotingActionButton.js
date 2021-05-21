@@ -33,7 +33,6 @@ function MoveToCurrentVotingActionButton(props) {
         stage_id: inCurrentVotingStage.id,
       },
     };
-    setOperationRunning(true);
     return moveInvestibleToCurrentVoting(moveInfo)
       .then((inv) => {
         setOperationRunning(false);
@@ -45,7 +44,7 @@ function MoveToCurrentVotingActionButton(props) {
   return (
     <SpinningIconLabelButton icon={ArrowUpwardIcon}
                              iconColor={hasIssue ? ACTION_BUTTON_COLOR : HIGHLIGHTED_BUTTON_COLOR}
-                             onClick={moveToProposed} noMargin>
+                             onClick={moveToProposed} noMargin id="investibleAddToVotingButton">
       <FormattedMessage id="investibleAddToVotingLabel" />
     </SpinningIconLabelButton>
   );

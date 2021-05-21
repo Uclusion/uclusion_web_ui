@@ -33,7 +33,6 @@ function BanUserButton(props){
   }
 
   function onProceed() {
-    setOperationRunning(true);
     return banUser(marketId, userId)
       .then(() => {
         setOperationRunning(false);
@@ -55,7 +54,7 @@ function BanUserButton(props){
         issueWarningId="banUserWarning"
         /* slots */
         actions={
-          <SpinningIconLabelButton icon={BlockIcon} onClick={onProceed}>
+          <SpinningIconLabelButton icon={BlockIcon} onClick={onProceed} id="banUserProceedButton">
             <FormattedMessage id="issueProceed" />
           </SpinningIconLabelButton>
         }

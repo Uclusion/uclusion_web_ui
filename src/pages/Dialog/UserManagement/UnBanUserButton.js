@@ -34,7 +34,6 @@ function UnBanUserButton(props){
   }
 
   function onProceed() {
-    setOperationRunning(true);
     return unbanUser(marketId, userId)
       .then(() => {
         setOperationRunning(false);
@@ -56,7 +55,7 @@ function UnBanUserButton(props){
         issueWarningId="unbanUserWarning"
         /* slots */
         actions={
-          <SpinningIconLabelButton icon={Undo} onClick={onProceed}>
+          <SpinningIconLabelButton icon={Undo} onClick={onProceed} id="undoBanUserButton">
             <FormattedMessage id="issueProceed" />
           </SpinningIconLabelButton>
         }

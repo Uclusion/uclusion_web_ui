@@ -387,7 +387,7 @@ export function Form(props) {
         <SpinningIconLabelButton onClick={onCancel} doSpin={false} icon={Clear}>
           {intl.formatMessage({ id: isCreateForm ? "marketAddCancelLabel" : "marketAddCancelLabel" })}
         </SpinningIconLabelButton>
-        <SpinningIconLabelButton onClick={onSave} icon={SettingsBackupRestore}
+        <SpinningIconLabelButton onClick={onSave} icon={SettingsBackupRestore} id="agilePlanFormSaveButton"
                                  disabled={(isCreateForm && !createEnabled) || !validForm}>
           {intl.formatMessage({ id: isCreateForm ? "agilePlanFormSaveLabel" : "marketEditSaveLabel" })}
         </SpinningIconLabelButton>

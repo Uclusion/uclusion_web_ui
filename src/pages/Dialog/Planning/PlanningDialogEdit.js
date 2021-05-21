@@ -93,7 +93,6 @@ function PlanningDialogEdit(props) {
   }
 
   function handleSave() {
-    setOperationRunning(true);
     const votesRequiredInt =
       votes_required != null ? parseInt(votes_required, 10) : null;
     const maxBudget = max_budget ? parseInt(max_budget, 10) : 0;
@@ -200,7 +199,7 @@ function PlanningDialogEdit(props) {
         <SpinningIconLabelButton onClick={onCancel} doSpin={false} icon={Clear}>
           {intl.formatMessage({ id: 'marketAddCancelLabel' })}
         </SpinningIconLabelButton>
-        <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore}
+        <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore} id="planningDialogUpdateButton"
                                  disabled={!(parseInt(investment_expiration, 10) > 0)}>
           {intl.formatMessage({ id: 'marketEditSaveLabel' })}
         </SpinningIconLabelButton>

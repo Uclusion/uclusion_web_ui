@@ -48,7 +48,6 @@ function ChangeToObserverButton(props) {
   }
 
   function myOnClick(myIsDeactivate) {
-    setOperationRunning(true);
     const actionPromise = myIsDeactivate ? archiveMarket(marketId, marketType) : changeUserToObserver(marketId);
     return actionPromise.then((response) => {
         if (myIsDeactivate) {
@@ -57,9 +56,9 @@ function ChangeToObserverButton(props) {
           changeObserverStatus(mpState, mpDispatch, marketId, true);
         }
         setOperationRunning(false);
-        myOnClick();
       });
   }
+
   if (marketType !== PLANNING_TYPE) {
     if (myPresence && myPresence.is_admin) {
       return (
@@ -74,10 +73,12 @@ function ChangeToObserverButton(props) {
             /* slots */
             actions={
               <React.Fragment>
-                <SpinningIconLabelButton icon={NotificationsOff} onClick={myOnClickChooseNotDeactivate}>
+                <SpinningIconLabelButton icon={NotificationsOff} onClick={myOnClickChooseNotDeactivate}
+                                         id="noAndProceedDeactivateButton">
                   <FormattedMessage id="noAndProceedDeactivate" />
                 </SpinningIconLabelButton>
-                <SpinningIconLabelButton icon={ArchiveIcon} onClick={myOnClickChooseDeactivate} noMargin>
+                <SpinningIconLabelButton icon={ArchiveIcon} onClick={myOnClickChooseDeactivate} noMargin
+                                         id="yesAndProceedDeactiveButton">
                   <FormattedMessage id="yesAndProceedDeactive" />
                 </SpinningIconLabelButton>
               </React.Fragment>
@@ -87,7 +88,8 @@ function ChangeToObserverButton(props) {
       );
     }
     return (
-      <SpinningIconLabelButton icon={NotificationsOff} onClick={myOnClickChooseNotDeactivate}>
+      <SpinningIconLabelButton icon={NotificationsOff} onClick={myOnClickChooseNotDeactivate}
+                               id="decisionDialogsBecomeObserverButton">
         <FormattedMessage id="decisionDialogsBecomeObserver" />
       </SpinningIconLabelButton>
     );
@@ -105,10 +107,12 @@ function ChangeToObserverButton(props) {
         /* slots */
         actions={
           <React.Fragment>
-            <SpinningIconLabelButton icon={NotificationsOff} onClick={myOnClickChooseNotDeactivate}>
+            <SpinningIconLabelButton icon={NotificationsOff} onClick={myOnClickChooseNotDeactivate}
+                                     id="noAndProceedDeactivateButton">
               <FormattedMessage id="noAndProceedDeactivate" />
             </SpinningIconLabelButton>
-            <SpinningIconLabelButton icon={ArchiveIcon} onClick={myOnClickChooseDeactivate} noMargin>
+            <SpinningIconLabelButton icon={ArchiveIcon} onClick={myOnClickChooseDeactivate} noMargin
+                                     id="yesAndProceedDeactiveButton">
               <FormattedMessage id="yesAndProceedDeactive" />
             </SpinningIconLabelButton>
           </React.Fragment>

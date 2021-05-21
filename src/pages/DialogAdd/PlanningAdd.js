@@ -86,7 +86,6 @@ function PlanningAdd(props) {
   const editorName=`new-agileplan-editor`;
 
   function handleSave() {
-    setOperationRunning(true);
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved

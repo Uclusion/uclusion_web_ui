@@ -41,7 +41,7 @@ import { removeMessage } from '../../contexts/NotificationsContext/notifications
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'
 import { Add, Clear, Delete } from '@material-ui/icons'
-import { editorFocus, editorReset, editorUpdate, useEditor } from '../TextEditors/quillHooks'
+import { editorFocus, editorReset, editorUpdate, getControlPlaneName, useEditor } from '../TextEditors/quillHooks'
 import { getUiPreferences } from '../../contexts/AccountUserContext/accountUserContextHelper'
 import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
 import DismissableText from '../Notifications/DismissableText'
@@ -249,7 +249,7 @@ function CommentAdd(props) {
     // If didn't focus to begin with then focus when type is changed
     if (type && !autoFocus) {
       // Can't use editorController here because the function is not invariant
-      pushMessage(`editor-${editorName}-control-plane`, editorFocus());
+      pushMessage(getControlPlaneName(editorName), editorFocus());
     }
     return () => {};
   }, [autoFocus, editorName, type]);
@@ -257,7 +257,7 @@ function CommentAdd(props) {
   useEffect(() => {
     if (!hidden && autoFocus) {
       // Can't use editorController here because the function is not invariant
-      pushMessage(`editor-${editorName}-control-plane`, editorFocus());
+      pushMessage(getControlPlaneName(editorName), editorFocus());
     }
     return () => {};
   }, [autoFocus, editorName, hidden]);

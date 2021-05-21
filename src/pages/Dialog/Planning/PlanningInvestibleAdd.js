@@ -44,7 +44,7 @@ import { getMarketInvestibles } from '../../../contexts/InvestibesContext/invest
 import { nameFromDescription } from '../../../utils/stringFunctions'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { Clear, SettingsBackupRestore } from '@material-ui/icons'
-import { editorReset, useEditor } from '../../../components/TextEditors/quillHooks';
+import { editorReset, getControlPlaneName, useEditor } from '../../../components/TextEditors/quillHooks'
 import { pushMessage } from '../../../utils/MessageBusUtils';
 import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
@@ -171,9 +171,10 @@ function PlanningInvestibleAdd(props) {
     onCancel(formMarketLink(marketId));
   }
 
-  function clearInitialEditor(){
-    const initialVoteChannel = `${marketId}-newInvestible-add-initial-vote-editor-control-plane`;
-    pushMessage(initialVoteChannel, editorReset());
+  const initialVoteEditorName = `${marketId}-add-initial-vote`;
+
+  function clearInitialEditor() {
+    pushMessage(getControlPlaneName(initialVoteEditorName), editorReset());
   }
   
   function handleSave() {
@@ -325,7 +326,6 @@ function PlanningInvestibleAdd(props) {
         </CardContent>
         {!isAssignedToMe && isAssigned && (
           <AddInitialVote
-            investibleId="newInvestible"
             marketId={marketId}
             storyMaxBudget={storyMaxBudget}
             onBudgetChange={onBudgetChange}
@@ -334,6 +334,7 @@ function PlanningInvestibleAdd(props) {
             onUnitChange={onUnitChange}
             maxBudget={maxBudget}
             maxBudgetUnit={maxBudgetUnit}
+            editorName={initialVoteEditorName}
           />
         )}
         <CardActions className={classes.actions}>

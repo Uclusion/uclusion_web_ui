@@ -86,14 +86,14 @@ const useStyles = makeStyles(
 function AddInitialVote(props) {
   const {
     marketId,
-    investibleId,
     storyMaxBudget,
     onBudgetChange,
     onChange,
     onUnitChange,
     newQuantity,
     maxBudget,
-    maxBudgetUnit
+    maxBudgetUnit,
+    editorName
   } = props;
   const intl = useIntl();
   const classes = useStyles();
@@ -106,7 +106,6 @@ function AddInitialVote(props) {
     getOptionLabel: (option) => option,
   };
 
-  const editorName=`${marketId}-${investibleId}-add-initial-vote-editor`;
   const editorSpec = {
     marketId,
     placeholder: intl.formatMessage({ id: "yourReason" }),

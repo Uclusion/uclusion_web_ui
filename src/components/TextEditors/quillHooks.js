@@ -34,6 +34,10 @@ export function editorFocus () {
   };
 }
 
+export function getControlPlaneName(editorName) {
+  return `editor-${editorName}-control-plane`;
+}
+
 export function useEditor (name, spec) {
 
   const {

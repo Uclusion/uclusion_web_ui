@@ -67,13 +67,14 @@ function SpinningIconLabelButton(props) {
       className={noMargin ? classes.buttonNoMargin: whiteBackground ? classes.buttonWhiteBackground : classes.button}
       {...rest}
     >
+      {children}
       {spinning && (
         <CircularProgress
           size={theme.typography.fontSize}
           color="inherit"
+          style={{position: 'absolute', top: '50%', left: '50%', marginTop: -6, marginLeft: -12}}
         />
       )}
-      {!spinning && children}
     </Button>
   );
 }

@@ -6,7 +6,6 @@ import PropTypes from 'prop-types';
 import { CircularProgress, Button, useTheme } from '@material-ui/core';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { makeStyles } from '@material-ui/styles'
-import { set } from 'immutable'
 
 const useStyles = makeStyles(
   () => {

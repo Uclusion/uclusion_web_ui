@@ -45,7 +45,7 @@ function AssignmentList(props) {
   const intl = useIntl();
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const fullMarketPresences = getMarketPresences(marketPresencesState, marketId) || {};
-  const marketPresences = fullMarketPresences.filter((presence) => !presence.market_banned);
+  const marketPresences = fullMarketPresences.filter((presence) => !presence.market_banned && !presence.market_guest);
   const formClasses = usePlanFormStyles();
 
   function getDefaultChecked() {

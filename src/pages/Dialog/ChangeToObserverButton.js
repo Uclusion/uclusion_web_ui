@@ -16,12 +16,15 @@ import { ACTION_BUTTON_COLOR } from '../../components/Buttons/ButtonConstants'
 import { DiffContext } from '../../contexts/DiffContext/DiffContext'
 import SpinningIconLabelButton from '../../components/Buttons/SpinningIconLabelButton'
 import { NotificationsOff } from '@material-ui/icons'
+import { removeMessagesForMarket } from '../../utils/messageUtils'
+import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 
 function ChangeToObserverButton(props) {
   const { marketId } = props;
   const [mpState, mpDispatch] = useContext(MarketPresencesContext);
   const [marketState, marketsDispatch] = useContext(MarketsContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [open, setOpen] = React.useState(false);
   const market = getMarket(marketState, marketId) || {};
   const { market_type: marketType } = market;
@@ -55,6 +58,7 @@ function ChangeToObserverButton(props) {
         } else {
           changeObserverStatus(mpState, mpDispatch, marketId, true);
         }
+        removeMessagesForMarket(marketId, messagesState, messagesDispatch);
         setOperationRunning(false);
       });
   }

@@ -44,6 +44,19 @@ export function removeMessagesForCommentId(commentId, state, dispatch) {
   });
 }
 
+export function removeMessagesForMarket(marketId, state, dispatch) {
+  const messages = findMessagesForMarketId(marketId, state) || [];
+  messages.forEach((message) => {
+    dispatch(removeMessage(message));
+  });
+}
+
+export function findMessagesForMarketId(marketId, state) {
+  const { messages } = (state || {});
+  const safeMessages = messages || [];
+  return safeMessages.filter((message) => message.market_id === marketId);
+}
+
 export function findMessagesForInvestibleId(investibleId, state) {
   const { messages } = (state || {});
   const safeMessages = messages || [];

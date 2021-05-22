@@ -54,7 +54,7 @@ import { getPageReducerPage, usePageStateReducer } from '../../../components/Pag
 
 function PlanningInvestibleAdd(props) {
   const {
-    marketId, classes, onCancel, onSave, onSpinComplete, storyMaxBudget, allowMultiVote, fromCommentIds, votesRequired
+    marketId, classes, onCancel, onSave, onSpinComplete, storyMaxBudget, fromCommentIds, votesRequired
   } = props;
   const intl = useIntl();
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
@@ -254,7 +254,7 @@ function PlanningInvestibleAdd(props) {
           const comments = getMarketComments(commentsState, marketId);
           refreshMarketComments(commentsDispatch, marketId, [comment, ...comments]);
         }
-        partialUpdateInvestment(marketPresencesDispatch, investmentResult, allowMultiVote);
+        partialUpdateInvestment(marketPresencesDispatch, investmentResult, true);
         setOperationRunning(false);
         zeroCurrentValues();
         return onSpinComplete(link);
@@ -359,8 +359,7 @@ PlanningInvestibleAdd.propTypes = {
   onSpinComplete: PropTypes.func,
   onSave: PropTypes.func,
   marketPresences: PropTypes.arrayOf(PropTypes.object).isRequired,
-  storyMaxBudget: PropTypes.number,
-  allowMultiVote: PropTypes.bool.isRequired
+  storyMaxBudget: PropTypes.number
 };
 
 PlanningInvestibleAdd.defaultProps = {

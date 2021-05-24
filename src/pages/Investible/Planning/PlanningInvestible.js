@@ -104,7 +104,6 @@ import ChangeSuggstionIcon from '@material-ui/icons/ChangeHistory'
 import ListAltIcon from '@material-ui/icons/ListAlt'
 import EditIcon from '@material-ui/icons/Edit'
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown'
-import HowToVoteIcon from '@material-ui/icons/HowToVote'
 import { getFakeCommentsArray } from '../../../utils/stringFunctions'
 import { ExpandLess, QuestionAnswer } from '@material-ui/icons'
 import AssignmentIcon from '@material-ui/icons/Assignment'
@@ -390,9 +389,6 @@ function PlanningInvestible(props) {
   const [votingPageStateFull, votingPageDispatch] = usePageStateReducer('voting');
   const [votingPageState, updateVotingPageState, votingPageStateReset] =
     getPageReducerPage(votingPageStateFull, votingPageDispatch, investibleId);
-  const {
-    votingBeingEdited,
-  } = votingPageState;
   const inCurrentVotingStage = getInCurrentVotingStage(
     marketStagesState,
     marketId
@@ -402,8 +398,8 @@ function PlanningInvestible(props) {
   const yourPresence = marketPresences.find((presence) => presence.current_user);
   const yourVote = yourPresence && yourPresence.investments &&
     yourPresence.investments.find((investment) => investment.investible_id === investibleId && !investment.deleted);
-  // If you have a vote already then do not display voting input unless hit edit on that vote
-  const displayVotingInput = canVote && (!yourVote || votingBeingEdited);
+  // If you have a vote already then do not display voting input
+  const displayVotingInput = canVote && !yourVote;
 
   let lockedByName;
   if (lockedBy) {
@@ -753,9 +749,7 @@ function PlanningInvestible(props) {
   const { id: todoId } = getFakeCommentsArray(todoSortedComments)[0];
   const navigationMenu = {navHeaderIcon: AssignmentIcon,
     navListItemTextArray: [createNavListItem(EditIcon,'description_label', 'storyMain'),
-      !isAssigned && displayVotingInput ? createNavListItem(HowToVoteIcon, 'pleaseVoteNav', 'pleaseVote') : {},
-      createNavListItem(ThumbsUpDownIcon, 'approvals', 'approvals', _.size(invested)),
-      isAssigned && displayVotingInput ? createNavListItem(HowToVoteIcon, 'pleaseVoteNav', 'pleaseVote') : {},
+      createNavListItem(ThumbsUpDownIcon, 'approvals', 'approvals', _.size(invested), isInVoting),
       inArchives ? {} : createNavListItem(AddIcon,'commentAddBox'),
       createNavListItem(BlockIcon,'blocking', `c${blockingId}`, _.size(blocking)),
       createNavListItem(QuestionIcon, 'questions', `c${questionId}`, _.size(questions)),
@@ -984,23 +978,23 @@ function PlanningInvestible(props) {
           </Grid>
         </CardContent>
       </Card>
-      {isAssigned && (
-        <>
-          <h2 id="approvals">
-            <FormattedMessage id="decisionInvestibleOthersVoting" />
-          </h2>
-          <Voting
-            investibleId={investibleId}
-            marketPresences={marketPresences}
-            investmentReasons={investmentReasons}
-            showExpiration={fullStage.has_expiration}
-            expirationMinutes={market.investment_expiration * 1440}
-            setVotingBeingEdited={() => updateVotingPageState({votingBeingEdited: true})}
-            votingAllowed={canVote}
-            yourPresence={yourPresence}
-          />
-        </>
-      )}
+      <h2 id="approvals">
+        <FormattedMessage id="decisionInvestibleOthersVoting" />
+      </h2>
+      <Voting
+        investibleId={investibleId}
+        marketPresences={marketPresences}
+        investmentReasons={investmentReasons}
+        showExpiration={fullStage.has_expiration}
+        expirationMinutes={market.investment_expiration * 1440}
+        votingPageState={votingPageState}
+        updateVotingPageState={updateVotingPageState}
+        votingPageStateReset={votingPageStateReset}
+        votingAllowed={canVote}
+        yourPresence={yourPresence}
+        market={market}
+        isAssigned={isAssigned}
+      />
       {displayVotingInput && (
         <>
           {isAssigned && (
@@ -1018,45 +1012,24 @@ function PlanningInvestible(props) {
             votingPageStateReset={votingPageStateReset}
             isAssigned={isAssigned}
           />
-          {!yourVote && (
-            <>
-              {!isAssigned && (
-                <h2>{intl.formatMessage({ id: 'orStructuredComment' })}</h2>
-              )}
-              {isAssigned && (
-                <div style={{paddingTop: '2rem'}} />
-              )}
-              <CommentAddBox
-                allowedTypes={allowedCommentTypes}
-                investible={investible}
-                marketId={marketId}
-                issueWarningId={isReadyFurtherWork ? undefined : 'issueWarningPlanning'}
-                todoWarningId={todoWarning}
-                isInReview={isInReview}
-                hidden={hidden}
-                isStory
-              />
-            </>
+          {!isAssigned && (
+            <h3>{intl.formatMessage({ id: 'orStructuredComment' })}</h3>
           )}
-        </>
+          {isAssigned && (
+            <div style={{paddingTop: '2rem'}} />
           )}
-      {!isAssigned && (
-        <>
-          <h2 id="approvals">
-            <FormattedMessage id="decisionInvestibleOthersVoting" />
-          </h2>
-          <Voting
-            investibleId={investibleId}
-            marketPresences={marketPresences}
-            investmentReasons={investmentReasons}
-            showExpiration={fullStage.has_expiration}
-            expirationMinutes={market.investment_expiration * 1440}
-            setVotingBeingEdited={() => updateVotingPageState({votingBeingEdited: true})}
-            votingAllowed={canVote}
-            yourPresence={yourPresence}
+          <CommentAddBox
+            allowedTypes={allowedCommentTypes}
+            investible={investible}
+            marketId={marketId}
+            issueWarningId={isReadyFurtherWork ? undefined : 'issueWarningPlanning'}
+            todoWarningId={todoWarning}
+            isInReview={isInReview}
+            hidden={hidden}
+            isStory
           />
         </>
-      )}
+          )}
       <MarketLinks links={children || []} />
       <Grid container spacing={2}>
         <Grid item xs={12} style={{ marginTop: '15px' }}>

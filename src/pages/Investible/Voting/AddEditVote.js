@@ -10,7 +10,6 @@ import {
   darken,
   FormControl,
   FormControlLabel,
-  FormLabel,
   makeStyles,
   Radio,
   RadioGroup,
@@ -43,26 +42,22 @@ const useStyles = makeStyles(
     return {
       sideBySide: {
         display: 'flex',
-        paddingBottom: '5px',
+        paddingBottom: '1rem',
       },
       visible: {
         overflow: 'visible'
       },
       overTop: {
         display: 'flex',
-        paddingBottom: '3px',
+        paddingBottom: '0.5rem',
       },
       certainty: {},
       certaintyGroup: {
+        marginTop: theme.spacing(1),
         display: "flex",
         flexDirection: "row"
       },
-      certaintyLabel: {
-        marginBottom: theme.spacing(2),
-        textTransform: "capitalize"
-      },
       certaintyValue: {
-        backgroundColor: theme.palette.grey["300"],
         borderRadius: 6,
         paddingLeft: theme.spacing(1),
         margin: theme.spacing(0, 2, 2, 0)
@@ -74,7 +69,7 @@ const useStyles = makeStyles(
         margin: theme.spacing(2, 0)
       },
       maxBudget: {
-        display: "block"
+        display: "block",
       },
       maxBudgetUnit: {
         width: 230
@@ -250,12 +245,7 @@ function AddEditVote(props) {
       <Card className={classes.visible}>
         <CardContent>
           <FormControl className={classes.certainty}>
-            <FormLabel
-              className={classes.certaintyLabel}
-              id="add-vote-certainty"
-            >
-              <FormattedMessage id="certaintyQuestion" />
-            </FormLabel>
+            <FormattedMessage id="certaintyQuestion" />
             <RadioGroup
               aria-labelledby="add-vote-certainty"
               className={classes.certaintyGroup}
@@ -292,11 +282,12 @@ function AddEditVote(props) {
                   id="vote-max-budget"
                   label={intl.formatMessage({ id: "maxBudgetInputLabel" })}
                   type="number"
-                  variant="filled"
+                  variant="outlined"
                   onChange={onBudgetChange}
                   value={maxBudget}
                   error={storyMaxBudget > 0 && maxBudget > storyMaxBudget}
                   helperText={myHelperText}
+                  margin="dense"
                 />
                 <Autocomplete
                   {...defaultProps}
@@ -304,6 +295,7 @@ function AddEditVote(props) {
                   key="budgetUnit"
                   freeSolo
                   renderInput={(params) => <TextField {...params}
+                                                      margin="dense"
                                                       label={intl.formatMessage({ id: 'addUnit' })}
                                                       variant="outlined" />}
                   value={maxBudgetUnit}

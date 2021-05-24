@@ -20,9 +20,6 @@ function InlineInitiativeBox(props) {
   const [votingPageStateFull, votingPageDispatch] = usePageStateReducer('voting');
   const [votingPageState, updateVotingPageState, votingPageStateReset] =
     getPageReducerPage(votingPageStateFull, votingPageDispatch, anInlineMarket.id);
-  const {
-    votingBeingEdited,
-  } = votingPageState;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [commentsState] = useContext(CommentsContext);
@@ -57,7 +54,7 @@ function InlineInitiativeBox(props) {
 
   return (
     <div style={{paddingLeft: '1rem', paddingRight: '1rem', paddingBottom: '0.5rem'}}>
-      {!isAdmin && (votingBeingEdited || !yourVote) && (
+      {!isAdmin && !yourVote && (
         <YourVoting
           investibleId={inlineInvestibleId}
           marketPresences={anInlineMarketPresences}
@@ -76,7 +73,10 @@ function InlineInitiativeBox(props) {
         investibleId={inlineInvestibleId}
         marketPresences={positiveVoters}
         investmentReasons={investmentReasons}
-        setVotingBeingEdited={() => updateVotingPageState({votingBeingEdited: true})}
+        votingPageState={votingPageState}
+        updateVotingPageState={updateVotingPageState}
+        votingPageStateReset={votingPageStateReset}
+        market={anInlineMarket}
         votingAllowed={!inArchives}
         yourPresence={myInlinePresence}
       />
@@ -87,7 +87,10 @@ function InlineInitiativeBox(props) {
         investibleId={inlineInvestibleId}
         marketPresences={negativeVoters}
         investmentReasons={investmentReasons}
-        setVotingBeingEdited={() => updateVotingPageState({votingBeingEdited: true})}
+        votingPageState={votingPageState}
+        updateVotingPageState={updateVotingPageState}
+        votingPageStateReset={votingPageStateReset}
+        market={anInlineMarket}
         votingAllowed={!inArchives}
         yourPresence={myInlinePresence}
       />

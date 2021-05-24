@@ -72,11 +72,11 @@ function YourVoting(props) {
   return (
     <div  id="pleaseVote" className={voteMessage && myClasses.containerYellow}>
       {!isAssigned && (
-        <h2>{yourVote ? isInitiative ? intl.formatMessage({ id: 'changeVoteInitiative' })
+        <h3>{yourVote ? isInitiative ? intl.formatMessage({ id: 'changeVoteInitiative' })
           : yourVote.deleted ? intl.formatMessage({ id: 'voteDeletedStory' }) : intl.formatMessage({ id: 'changeVote' })
           : isDecision ? allowMultiVote ? intl.formatMessage({ id: 'addMultiVote' })
           : intl.formatMessage({ id: 'addAVote' }) : isInitiative ? intl.formatMessage({ id: 'pleaseVote' })
-          : intl.formatMessage({ id: 'pleaseVoteStory' }) }</h2>
+          : intl.formatMessage({ id: 'pleaseVoteStory' }) }</h3>
       )}
       {isInitiative && (
         <Card elevation={0}>

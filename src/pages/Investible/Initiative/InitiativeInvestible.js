@@ -195,9 +195,7 @@ function InitiativeInvestible(props) {
   const [votingPageStateFull, votingPageDispatch] = usePageStateReducer('voting');
   const [votingPageState, updateVotingPageState, votingPageStateReset] =
     getPageReducerPage(votingPageStateFull, votingPageDispatch, investibleId);
-  const {
-    votingBeingEdited,
-  } = votingPageState;
+
   const cognitoUser = useContext(CognitoUserContext) || {};
   const { name } = investible;
   const {
@@ -275,7 +273,7 @@ function InitiativeInvestible(props) {
     return baseNavListItem(formInvestibleLink(marketId, investibleId), icon, textId, anchorId, howManyNum, alwaysShow);
   }
   const votingAllowed = !isAdmin && !inArchives;
-  const displayVoting = votingAllowed && (!yourVote || votingBeingEdited);
+  const displayVoting = votingAllowed && !yourVote;
   const openComments = investmentReasonsRemoved.filter((comment) => !comment.resolved) || [];
   const closedComments = investmentReasonsRemoved.filter((comment) => comment.resolved) || [];
   const sortedClosedRoots = getSortedRoots(closedComments);
@@ -287,9 +285,8 @@ function InitiativeInvestible(props) {
   const { id: suggestId } = getFakeCommentsArray(suggestions)[0];
   const navigationMenu = {navHeaderIcon: Assessment,
     navListItemTextArray: [createNavListItem(EditIcon,'description_label', 'initiativeMain'),
-      displayVoting ? createNavListItem(HowToVoteIcon, 'pleaseVoteNav', 'pleaseVote') : {},
-      createNavListItem(ThumbUpIcon, 'for', 'for', _.size(positiveVoters)),
-      createNavListItem(ThumbDownIcon, 'against', 'against', _.size(negativeVoters)),
+      createNavListItem(ThumbUpIcon, 'for', 'for', _.size(positiveVoters), true),
+      createNavListItem(ThumbDownIcon, 'against', 'against', _.size(negativeVoters), true),
       inArchives ? {} : createNavListItem(AddIcon,'commentAddBox'),
       createNavListItem(QuestionIcon, 'questions', `c${questionId}`, _.size(questions)),
       createNavListItem(ChangeSuggstionIcon,'suggestions', `c${suggestId}`, _.size(suggestions)),
@@ -426,7 +423,7 @@ function InitiativeInvestible(props) {
           />
           {!yourVote && (
             <>
-              <h2>{intl.formatMessage({ id: 'orStructuredComment' })}</h2>
+              <h3>{intl.formatMessage({ id: 'orStructuredComment' })}</h3>
               <CommentAddBox
                 allowedTypes={allowedCommentTypes}
                 investible={investible}

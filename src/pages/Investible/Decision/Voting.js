@@ -16,6 +16,7 @@ import { deleteOrDehilightMessages } from '../../../api/users'
 import { SettingsBackupRestore } from '@material-ui/icons'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
+import YourVoting from '../Voting/YourVoting'
 
 const useVoteStyles = makeStyles(
   theme => {
@@ -74,14 +75,17 @@ const useVoteStyles = makeStyles(
  * @constructor
  */
 function Voting(props) {
-  const { marketPresences, investibleId, investmentReasons, showExpiration, expirationMinutes,
-    setVotingBeingEdited, votingAllowed, yourPresence } = props;
+  const { marketPresences, investibleId, investmentReasons, showExpiration, expirationMinutes, votingPageState,
+    updateVotingPageState, votingPageStateReset, votingAllowed, yourPresence, market, isAssigned } = props;
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const classes = useVoteStyles();
   const intl = useIntl();
   const investibleMessages = findMessagesForInvestibleId(investibleId, messagesState) || [];
   const voteMessages = investibleMessages.filter((message) => message.type_object_id.startsWith('UNREAD_VOTE'));
+  const {
+    votingBeingEdited,
+  } = votingPageState;
 
   function getVoterReason(userId) {
     return investmentReasons.find(comment => comment.created_by === userId);
@@ -121,6 +125,23 @@ function Voting(props) {
           const reason = getVoterReason(userId);
           const voteId = `cv${userId}`;
 
+          if (votingBeingEdited) {
+            return (
+              <YourVoting
+                investibleId={investibleId}
+                marketPresences={marketPresences}
+                comments={investmentReasons}
+                userId={userId}
+                market={market}
+                showBudget
+                votingPageState={votingPageState}
+                updateVotingPageState={updateVotingPageState}
+                votingPageStateReset={votingPageStateReset}
+                isAssigned={isAssigned}
+              />
+            )
+          }
+
           return (
             <div className={myMessage && classes.highlighted}>
               <Card
@@ -136,7 +157,8 @@ function Voting(props) {
                 />
                 {isYourVote && votingAllowed && (
                   <CardActions className={classes.editVoteDisplay}>
-                    <EditOutlinedIcon style={{maxHeight: '1.25rem', cursor: 'pointer'}} onClick={setVotingBeingEdited}/>
+                    <EditOutlinedIcon style={{maxHeight: '1.25rem', cursor: 'pointer'}}
+                                      onClick={() => updateVotingPageState({votingBeingEdited: true})}/>
                   </CardActions>
                 )}
                 {showExpiration && (

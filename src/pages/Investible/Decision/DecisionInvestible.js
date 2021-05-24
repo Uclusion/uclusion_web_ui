@@ -47,7 +47,6 @@ import { doSetEditWhenValid, isTinyWindow } from '../../../utils/windowUtils'
 import EditMarketButton from '../../Dialog/EditMarketButton'
 import PlaylistAddCheckIcon from '@material-ui/icons/PlaylistAddCheck'
 import EditIcon from '@material-ui/icons/Edit'
-import HowToVoteIcon from '@material-ui/icons/HowToVote'
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown'
 import AddIcon from '@material-ui/icons/Add'
 import BlockIcon from '@material-ui/icons/Block'
@@ -247,9 +246,6 @@ function DecisionInvestible(props) {
   const [votingPageStateFull, votingPageDispatch] = usePageStateReducer('voting');
   const [votingPageState, updateVotingPageState, votingPageStateReset] =
     getPageReducerPage(votingPageStateFull, votingPageDispatch, investibleId);
-  const {
-    votingBeingEdited,
-  } = votingPageState;
 
   function isEditableByUser() {
     return !inArchives && (isAdmin || (inProposed && createdBy === userId));
@@ -324,7 +320,7 @@ function DecisionInvestible(props) {
     return <></>;
   }
   const votingAllowed = !inProposed && !inArchives && !hasIssueOrMarketIssue;
-  const displayVotingInput = votingAllowed && (!yourVote || votingBeingEdited);
+  const displayVotingInput = votingAllowed && !yourVote;
   function createNavListItem(icon, textId, anchorId, howManyNum, alwaysShow) {
     return baseNavListItem(formInvestibleLink(marketId, investibleId), icon, textId, anchorId, howManyNum, alwaysShow);
   }
@@ -342,8 +338,7 @@ function DecisionInvestible(props) {
   const { id: suggestId } = getFakeCommentsArray(suggestions)[0];
   const navigationMenu = {navHeaderIcon: StarRateIcon,
     navListItemTextArray: [createNavListItem(EditIcon,'description_label', 'optionMain'),
-      displayVotingInput ? createNavListItem(HowToVoteIcon, 'pleaseVoteNav', 'pleaseVote') : {},
-      createNavListItem(ThumbsUpDownIcon, 'approvals', 'approvals', _.size(invested)),
+      createNavListItem(ThumbsUpDownIcon, 'approvals', 'approvals', _.size(invested), true),
       inArchives ? {} : createNavListItem(AddIcon,'commentAddBox'),
       createNavListItem(BlockIcon,'blocking', `c${blockingId}`, _.size(blocking)),
       createNavListItem(QuestionIcon, 'questions', `c${questionId}`, _.size(questions)),
@@ -431,7 +426,7 @@ function DecisionInvestible(props) {
           />
           {!yourVote && (
             <>
-              <h2>{intl.formatMessage({ id: 'orStructuredComment' })}</h2>
+              <h3>{intl.formatMessage({ id: 'orStructuredComment' })}</h3>
               <CommentAddBox
                 allowedTypes={allowedCommentTypes}
                 investible={investible}
@@ -452,7 +447,10 @@ function DecisionInvestible(props) {
             investibleId={investibleId}
             marketPresences={marketPresences}
             investmentReasons={investmentReasons}
-            setVotingBeingEdited={() => updateVotingPageState({votingBeingEdited: true})}
+            votingPageState={votingPageState}
+            updateVotingPageState={updateVotingPageState}
+            votingPageStateReset={votingPageStateReset}
+            market={market}
             votingAllowed={votingAllowed}
             yourPresence={yourPresence}
           />

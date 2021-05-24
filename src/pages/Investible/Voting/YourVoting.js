@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import AddEditVote from './AddEditVote'
 import { FormattedMessage, useIntl } from 'react-intl'
-import { DECISION_TYPE, INITIATIVE_TYPE } from '../../../constants/markets'
+import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../../constants/markets'
 import { Card, CardContent, FormControl, FormControlLabel, Radio, RadioGroup } from '@material-ui/core'
 import { useStyles } from '../../../containers/CommentBox/CommentAddBox'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
@@ -34,7 +34,6 @@ function YourVoting(props) {
     investibleId,
     market,
     userId,
-    showBudget,
     isAssigned,
     votingPageState, updateVotingPageState, votingPageStateReset
   } = props;
@@ -71,12 +70,13 @@ function YourVoting(props) {
 
   return (
     <div  id="pleaseVote" className={voteMessage && myClasses.containerYellow}>
-      {!isAssigned && (
-        <h3>{yourVote ? isInitiative ? intl.formatMessage({ id: 'changeVoteInitiative' })
-          : yourVote.deleted ? intl.formatMessage({ id: 'voteDeletedStory' }) : intl.formatMessage({ id: 'changeVote' })
-          : isDecision ? allowMultiVote ? intl.formatMessage({ id: 'addMultiVote' })
-          : intl.formatMessage({ id: 'addAVote' }) : isInitiative ? intl.formatMessage({ id: 'pleaseVote' })
-          : intl.formatMessage({ id: 'pleaseVoteStory' }) }</h3>
+      {yourVote && yourVote.deleted && (
+        <h3>{intl.formatMessage({ id: 'voteDeletedStory' })}</h3>
+      )}
+      {!yourVote && !isAssigned && (
+        <h3>{isDecision ? allowMultiVote ? intl.formatMessage({ id: 'addMultiVote' })
+            : intl.formatMessage({ id: 'addAVote' }) : isInitiative ? intl.formatMessage({ id: 'pleaseVote' })
+            : intl.formatMessage({ id: 'pleaseVoteStory' }) }</h3>
       )}
       {isInitiative && (
         <Card elevation={0}>
@@ -121,7 +121,7 @@ function YourVoting(props) {
         investment={yourVote}
         hasVoted={yourPresence && yourPresence.investments && yourPresence.investments.length > 0}
         allowMultiVote={allowMultiVote}
-        showBudget={showBudget}
+        showBudget={market.market_type === PLANNING_TYPE}
         storyMaxBudget={storyMaxBudget}
         multiplier={ type === undefined ? undefined : type === FOR ? 1 : -1}
         votingPageState={votingPageState}

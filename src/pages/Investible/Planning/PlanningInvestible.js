@@ -1005,7 +1005,6 @@ function PlanningInvestible(props) {
             comments={investmentReasons}
             userId={userId}
             market={market}
-            showBudget
             votingPageState={votingPageState}
             updateVotingPageState={updateVotingPageState}
             votingPageStateReset={votingPageStateReset}

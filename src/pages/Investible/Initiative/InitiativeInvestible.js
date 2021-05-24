@@ -440,7 +440,10 @@ function InitiativeInvestible(props) {
         investibleId={investibleId}
         marketPresences={positiveVoters}
         investmentReasons={investmentReasons}
-        setVotingBeingEdited={() => updateVotingPageState({votingBeingEdited: true})}
+        votingPageState={votingPageState}
+        updateVotingPageState={updateVotingPageState}
+        votingPageStateReset={votingPageStateReset}
+        market={market}
         votingAllowed={votingAllowed}
         yourPresence={yourPresence}
       />
@@ -451,7 +454,10 @@ function InitiativeInvestible(props) {
         investibleId={investibleId}
         marketPresences={negativeVoters}
         investmentReasons={investmentReasons}
-        setVotingBeingEdited={() => updateVotingPageState({votingBeingEdited: true})}
+        votingPageState={votingPageState}
+        updateVotingPageState={updateVotingPageState}
+        votingPageStateReset={votingPageStateReset}
+        market={market}
         votingAllowed={votingAllowed}
         yourPresence={yourPresence}
       />

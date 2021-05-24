@@ -81,7 +81,7 @@ function YourVoting(props) {
       {isInitiative && (
         <Card elevation={0}>
           <CardContent>
-            <FormControl component="fieldset" className={classes.commentType}>
+            <FormControl component="fieldset" className={classes.commentType} style={{paddingTop: 0}}>
               <RadioGroup
                 aria-labelledby="comment-type-choice"
                 className={classes.commentTypeGroup}

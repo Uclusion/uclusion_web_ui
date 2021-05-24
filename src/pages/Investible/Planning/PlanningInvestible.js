@@ -57,7 +57,6 @@ import MoveToNotDoingActionButton from './MoveToNotDoingActionButton'
 import MoveToAcceptedActionButton from './MoveToAcceptedActionButton'
 import MoveToInReviewActionButton from './MoveToInReviewActionButton'
 import EditMarketButton from '../../Dialog/EditMarketButton'
-import MarketLinks from '../../Dialog/MarketLinks'
 import CardType from '../../../components/CardType'
 import clsx from 'clsx'
 import DismissableText from '../../../components/Notifications/DismissableText'
@@ -370,7 +369,7 @@ function PlanningInvestible(props) {
   const concated = [...voters, ...investibleCommentorPresences];
   const investibleCollaborators = _.uniq((concated || []).map((presence) => presence.id));
   const marketInfo = getMarketInfo(marketInvestible, marketId) || {};
-  const { stage, assigned: invAssigned, children, completion_estimate: marketDaysEstimate,
+  const { stage, assigned: invAssigned, completion_estimate: marketDaysEstimate,
     required_approvers:  requiredApprovers, required_reviews: requiredReviewers, ticket_code: ticketCode,
     open_for_investment: openForInvestment } = marketInfo;
   const [daysEstimate, setDaysEstimate] = useState(marketDaysEstimate);
@@ -1029,8 +1028,7 @@ function PlanningInvestible(props) {
             isStory
           />
         </>
-          )}
-      <MarketLinks links={children || []} />
+      )}
       <Grid container spacing={2}>
         <Grid item xs={12} style={{ marginTop: '15px' }}>
           {!inArchives && !isInNotDoing && !isInVerified && (!isInVoting || !canVote || yourVote) && (
@@ -1052,7 +1050,6 @@ function PlanningInvestible(props) {
           />
         </Grid>
       </Grid>
-      <MarketLinks links={children || []} isArchive />
     </Screen>
   );
 }

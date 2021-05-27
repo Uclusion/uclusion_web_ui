@@ -951,6 +951,7 @@ function PlanningInvestible(props) {
                   freeSolo
                   renderInput={(params) => <TextField {...params}
                                                       label={intl.formatMessage({ id: 'addLabel' })}
+                                                      margin="dense"
                                                       variant="outlined" />}
                   style={{ width: 150, maxHeight: '1rem' }}
                   onFocus={labelInputFocus}

@@ -113,6 +113,7 @@ export function getMarketInfo(investible, marketId) {
 }
 
 export function onSignOut() {
+  console.info('Signing out');
   // See https://aws-amplify.github.io/docs/js/authentication
   return clearUclusionLocalStorage(false)
     .then(() => new TokenStorageManager().clearTokenStorage())

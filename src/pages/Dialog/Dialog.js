@@ -100,6 +100,7 @@ function Dialog(props) {
         if (subscribeId !== marketEntity || _.isEmpty(loadedMarket)) {
           pushMessage(LOAD_MARKET_CHANNEL, { event: GUEST_MARKET_EVENT, marketId: marketEntity, subscribeId });
           if (subscribeId === marketEntity) {
+            console.info('Replacing pathname for subcribed market entity');
             // Comments will be handled by scroll context
             window.history.replaceState(null, '', window.location.pathname);
           }
@@ -117,6 +118,7 @@ function Dialog(props) {
     if (!hidden && action === 'invite' && marketId && !_.isEmpty(marketStages) && marketType !== INITIATIVE_TYPE) {
       // Try to remove the market token from the URL to avoid book marking it or other weirdness
       // Potentially this fails since inside useEffect
+      console.info('Navigating to market');
       history.push(formMarketLink(marketId));
     }
     return () => {}
@@ -133,6 +135,7 @@ function Dialog(props) {
       const { investible } = baseInvestible;
       const { id } = investible;
       const link = formInvestibleLink(marketId, id);
+      console.info('Navigating to initiative');
       navigate(history, link, true);
     }
     if (!hidden) {
@@ -140,6 +143,7 @@ function Dialog(props) {
         const link = parentInvestibleId ? formInvestibleLink(parentMarketId, parentInvestibleId) :
           formMarketLink(parentMarketId);
         const fullLink = `${link}#c${parentCommentId}`;
+        console.info('Navigating to inline');
         navigate(history, fullLink, true);
       }
       else if (marketType === INITIATIVE_TYPE) {
@@ -155,10 +159,12 @@ function Dialog(props) {
           if (investibleId) {
             const link = formInvestibleLink(marketId, investibleId);
             const fullLink = `${link}#c${commentId}`;
+            console.info('Navigating to comment in story');
             navigate(history, fullLink, true);
           } else if (resolved) {
             const link = formMarketArchivesLink(marketId);
             const fullLink = myHashFragment.startsWith('c') ? `${link}#c${commentId}` : `${link}#editc${commentId}`;
+            console.info('Navigating to resolved comment');
             navigate(history, fullLink, true);
           }
         }

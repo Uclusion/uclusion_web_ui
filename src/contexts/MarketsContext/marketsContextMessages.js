@@ -72,14 +72,10 @@ function beginListening(dispatch, diffDispatch) {
     pushMessage(OPERATION_HUB_CHANNEL, { event: START_OPERATION });
     loginPromise.then((result) => {
       console.log('Quick adding market after load');
-      const { market, uclusion_token: tokenString, user } = result;
+      const { market, user } = result;
       const { id } = market;
-      const decoded = jwt_decode(tokenString);
-      const { is_admin, role } = decoded;
-      const market_guest = role === 'MarketAnonymousUser';
       addMarketToStorage(dispatch, () => {}, market);
-      const presence = { ...user, is_admin, following: true, market_banned: false, market_guest };
-      pushMessage(PUSH_PRESENCE_CHANNEL, { event: ADD_PRESENCE, marketId: id, presence });
+      pushMessage(PUSH_PRESENCE_CHANNEL, { event: ADD_PRESENCE, marketId: id, presence: user });
       createMarketListeners(id);
       return pollForMarketLoad(id);
     }).catch((error) => {

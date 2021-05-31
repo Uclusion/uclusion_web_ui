@@ -132,7 +132,8 @@ function AddEditVote(props) {
   const { quantity, max_budget: initialMaxBudget, max_budget_unit: initialMaxBudgetUnit } = investment || {};
   const initialInvestment = !quantity ? 50 : Math.abs(quantity);
   const newQuantity = storedInvestment || (useInitial === false ? 50 : initialInvestment);
-  const maxBudget = storedMaxBudget || (useInitial === false ? '' : (initialMaxBudget || ''));
+  const maxBudget = storedMaxBudget !== undefined ? storedMaxBudget :
+    (useInitial === false ? '' : (initialMaxBudget || ''));
   const maxBudgetUnit = storedMaxBudgetUnit || (useInitial === false ? '' : (initialMaxBudgetUnit || ''));
   const { body, id: reasonId } = reason;
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -235,7 +236,11 @@ function AddEditVote(props) {
 
   function onBudgetChange(event) {
     const { value } = event.target;
-    updateVotingPageState({storedMaxBudget: parseInt(value, 10)});
+    if (_.isEmpty(value)) {
+      updateVotingPageState({storedMaxBudget: ''});
+    } else {
+      updateVotingPageState({storedMaxBudget: parseInt(value, 10)});
+    }
   }
 
   function onUnitChange(event, value) {

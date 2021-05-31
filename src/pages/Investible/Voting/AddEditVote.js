@@ -123,16 +123,17 @@ function AddEditVote(props) {
   const {
     storedInvestment,
     storedMaxBudget,
-    storedMaxBudgetUnit
+    storedMaxBudgetUnit,
+    useInitial
   } = votingPageState;
   const intl = useIntl();
   const classes = useStyles();
   const addMode = _.isEmpty(investment) || investment.deleted;
   const { quantity, max_budget: initialMaxBudget, max_budget_unit: initialMaxBudgetUnit } = investment || {};
   const initialInvestment = !quantity ? 50 : Math.abs(quantity);
-  const newQuantity = storedInvestment || initialInvestment;
-  const maxBudget = storedMaxBudget || initialMaxBudget || '';
-  const maxBudgetUnit = storedMaxBudgetUnit || initialMaxBudgetUnit || '';
+  const newQuantity = storedInvestment || (useInitial === false ? 50 : initialInvestment);
+  const maxBudget = storedMaxBudget || (useInitial === false ? '' : (initialMaxBudget || ''));
+  const maxBudgetUnit = storedMaxBudgetUnit || (useInitial === false ? '' : (initialMaxBudgetUnit || ''));
   const { body, id: reasonId } = reason;
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
@@ -142,10 +143,12 @@ function AddEditVote(props) {
   const myHelperText = storyMaxBudget ?
     intl.formatMessage({ id: "maxBudgetInputHelperText" }, { x: storyMaxBudget + 1 }) : '';
   const units = getMarketUnits(marketPresencesState, marketId, intl);
+
   const defaultProps = {
     options: units,
     getOptionLabel: (option) => option,
   };
+
   function toggleOpen() {
     setOpen(!open);
   }
@@ -154,7 +157,7 @@ function AddEditVote(props) {
   const editorSpec = {
     marketId,
     placeholder: intl.formatMessage({ id: "yourReason" }),
-    value: getQuillStoredState(editorName) || body,
+    value: getQuillStoredState(editorName) || useInitial === false ? undefined : body,
     uploadDisabled: true,
   };
   const [Editor, editorController] = useEditor(editorName, editorSpec);
@@ -177,9 +180,8 @@ function AddEditVote(props) {
     };
 
     return updateInvestment(updateInfo).then(result => {
-      editorController(editorReset());
-      setOperationRunning(false);
       onSaveSpinStop(result);
+      setOperationRunning(false);
     });
   }
 
@@ -211,7 +213,6 @@ function AddEditVote(props) {
   }
 
   function onRemove() {
-    editorController(editorReset());
     return removeInvestment(marketId, investibleId).then(result => {
       setOperationRunning(false);
       onSaveSpinStop(result);
@@ -220,6 +221,11 @@ function AddEditVote(props) {
 
   function onCancel() {
     votingPageStateReset();
+    editorController(editorReset());
+    if ((investment || {}).deleted) {
+      // User decided to discard what was there before deleted
+      updateVotingPageState({useInitial: false});
+    }
   }
 
   function onChange(event) {
@@ -308,11 +314,9 @@ function AddEditVote(props) {
           {Editor}
         </CardContent>
         <CardActions className={classes.actions}>
-          {hasVoted && !investment.deleted && (
-            <SpinningIconLabelButton onClick={onCancel} doSpin={false} icon={Clear}>
-              {intl.formatMessage({ id: 'cancel' })}
-            </SpinningIconLabelButton>
-          )}
+          <SpinningIconLabelButton onClick={onCancel} doSpin={false} icon={Clear}>
+            {intl.formatMessage({ id: (!_.isEmpty(investment) && !investment.deleted) ? 'cancel' : 'clear' })}
+          </SpinningIconLabelButton>
           {multiplier && !addMode && (
             <SpinningIconLabelButton
               icon={Delete}

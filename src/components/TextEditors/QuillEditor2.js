@@ -140,7 +140,6 @@ function QuillEditor2 (props) {
   const [, setOperationInProgress] = useContext(OperationInProgressContext);
   const boundsId = `editorBox-${id || marketId}`;
   const initialContents = getInitialState(id, value, placeholder);
-  const usingPlaceholder = placeholder === initialContents;
 
   function focusEditor(){
     if (!_.isEmpty(boxRef?.current?.children)) {
@@ -384,9 +383,10 @@ function QuillEditor2 (props) {
     // we only set the contents if different from the placeholder
     // otherwise the placeholder functionality of the editor won't work
     if(boxRef.current) {
+      boxRef.current.innerHTML = '';
       if (initializeContents)  {
         boxRef.current.innerHTML = initializeContents;
-      } else if (!usingPlaceholder && initialContents) {
+      } else if (!(placeholder === initialContents) && initialContents) {
         boxRef.current.innerHTML = initialContents;
       }
     }

@@ -39,7 +39,7 @@ function NameField(props) {
     const { value } = event.target;
     if (!value) {
       onEmptyNotEmptyChange(true);
-    } else if (value.length === 1) {
+    } else {
       const valueBefore = getNameStoredState(id);
       if (!valueBefore) {
         onEmptyNotEmptyChange(false);

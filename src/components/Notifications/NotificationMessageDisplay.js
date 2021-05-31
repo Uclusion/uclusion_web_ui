@@ -70,13 +70,17 @@ function NotificationMessageDisplay (props) {
 
   const isOneDayAgo = Date.now() - Date.parse(updatedAt) > 1000*60*60*24;
   const useName = name !== containerName && name !== text;
+  let useLink = link;
+  if (type === 'NOT_FULLY_VOTED') {
+    useLink += '#approve'
+  }
   return (
     <>
-      <Link href={link} style={{ width: '100%' }} onClick={
+      <Link href={useLink} style={{ width: '100%' }} onClick={
         (event) => {
           event.stopPropagation();
           event.preventDefault();
-          navigate(history, link);
+          navigate(history, useLink);
           onLinkClick();
         }
       }>

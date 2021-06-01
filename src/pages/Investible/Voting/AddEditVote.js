@@ -164,7 +164,8 @@ function AddEditVote(props) {
   const [Editor, editorController] = useEditor(editorName, editorSpec);
 
   function mySave() {
-    const reasonText = getQuillStoredState(editorName) !== null ? getQuillStoredState(editorName) : body;
+    const reasonText = getQuillStoredState(editorName) !== null ? getQuillStoredState(editorName) :
+      useInitial === false ? undefined : body;
     const oldQuantity = addMode ? 0 : quantity;
     // dont include reason text if it's not changing, otherwise we'll update the reason comment
     const reasonNeedsUpdate = reasonText !== body && !(_.isEmpty(reasonText) && _.isEmpty(body));

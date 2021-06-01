@@ -75,30 +75,15 @@ export function removeMarketsPresence(marketIds) {
 
 function doPatchInvestment(state, action) {
   const { investmentPatch, allowMultiVote } = action;
-  const {
-    market_id,
-    quantity,
-    max_budget,
-    max_budget_unit,
-    user_id,
-    investible_id,
-  } = investmentPatch;
-  const oldMarketUsers = state[market_id] || [];
-  const oldPresence = oldMarketUsers.find((oldUser) => oldUser.id === user_id);
+  const oldMarketUsers = state[investmentPatch.market_id] || [];
+  const oldPresence = oldMarketUsers.find((oldUser) => oldUser.id === investmentPatch.user_id);
   if (_.isEmpty(oldPresence)) {
     // I don't even have a presence, I can't do anything
     return state;
   }
   const investments = oldPresence.investments || [];
-  const oldInvestment = investments.find((investment) => investment.investible_id === investible_id) || {};
-  const newInvestment = {
-    ...oldInvestment,
-    investible_id,
-    quantity,
-    max_budget,
-    max_budget_unit
-  };
-  const newInvestments = allowMultiVote ?  _.unionBy([newInvestment], investments, 'investible_id') : [newInvestment];
+  const newInvestments = allowMultiVote ?  _.unionBy([investmentPatch], investments, 'investible_id')
+    : [investmentPatch];
   const newPresence = {
     ...oldPresence,
     investments: newInvestments,
@@ -107,7 +92,7 @@ function doPatchInvestment(state, action) {
   const newMarketUsers = _.unionBy([newPresence], oldMarketUsers, 'id');
   return {
     ...state,
-    [market_id]: newMarketUsers,
+    [investmentPatch.market_id]: newMarketUsers,
   };
 }
 

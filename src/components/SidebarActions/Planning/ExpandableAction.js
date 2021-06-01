@@ -62,7 +62,7 @@ function ExpandableAction(props) {
         className={classes.menuItem}
         key={label}
         button
-        disabled={operationRunning || disabled}
+        disabled={operationRunning !== false || disabled}
         onClick={myOnClick}
       >
         {openLabel && (

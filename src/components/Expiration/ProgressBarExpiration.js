@@ -114,14 +114,15 @@ function ExpiresDisplayBar(props) {
 
   }
   const shouldDisplay = daysRemaining > 0 || hoursRemaining > 0 || minutesRemaining > 0;
-
   return (
     <div className={classes.countdownWrapper}>
       {shouldDisplay &&
         <Tooltip
         title={getDisplayText()}
         >
-          <LinearProgress variant="determinate" value={barValue} className={barValue > 50 ? clsx(classes.stillTime, smallForMobile ? classes.mobileSmall : '' ) : clsx(classes.runningOut, smallForMobile ? classes.mobileSmall : '') }></LinearProgress>
+          <LinearProgress variant="determinate" value={barValue}
+                          className={barValue > 50 ? clsx(classes.stillTime, smallForMobile ? classes.mobileSmall : '')
+                            : clsx(classes.runningOut, smallForMobile ? classes.mobileSmall : '')}/>
         </Tooltip>
       }
     </div>

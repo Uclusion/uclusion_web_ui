@@ -42,6 +42,9 @@ const useStyles = makeStyles((theme) => {
       marginTop: theme.spacing(1),
       marginBottom: theme.spacing(1),
     },
+    displayGroupHeader: {
+      fontWeight: 'bold'
+    },
     criticalTitleBar: {
       marginTop: theme.spacing(1),
       color: '#E85757'
@@ -246,7 +249,7 @@ function DisplayNotifications (props) {
           <List>
             <ListItem key={market.id} style={{paddingBottom: 0}}>
               <IconComponent style={{ marginRight: '6px', height: '16px', width: '16px' }}/>
-              <ListItemText primary={market.name} style={{ fontStyle: 'italic' }} />
+              <ListItemText primary={market.name} primaryTypographyProps={{ className: classes.displayGroupHeader }} />
             </ListItem>
             {market.items.map((item) => getItemResult(item))}
             {market.investibles.map((investible) => getInvestibleResult(investible, index))}

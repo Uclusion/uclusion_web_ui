@@ -1,7 +1,7 @@
 import React, { useContext, } from 'react'
 import PropTypes from 'prop-types'
 import { Card, CardActions, CardContent, TextField, } from '@material-ui/core'
-import { addDecisionInvestible, addInvestibleToStage } from '../../../api/investibles';
+import { addDecisionInvestible } from '../../../api/investibles';
 import { processTextAndFilesForSave } from '../../../api/files'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import { getStages } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
@@ -89,7 +89,7 @@ function DecisionInvestibleAdd(props) {
         name,
         stageId: allowsInvestment.id,
       };
-      return addInvestibleToStage(addInfo);
+      return addDecisionInvestible(addInfo);
     }).then((investible) => {
       onSave(investible);
       editorController(editorReset());
@@ -126,11 +126,12 @@ function DecisionInvestibleAdd(props) {
       marketId,
       uploadedFiles: filteredUploads,
       description: processedDescription,
-      name,
-      stageId: investmentAllowedStage.id, // ignored by addDecisionInvestible
+      name
     };
-    const promise = isAdmin ? addInvestibleToStage(addInfo) : addDecisionInvestible(addInfo);
-    return promise.then((investible) => {
+    if (isAdmin) {
+      addInfo.stageId = investmentAllowedStage.id;
+    }
+    return addDecisionInvestible(addInfo).then((investible) => {
       onSave(investible);
       editorController(editorReset());
     }).then(() => {

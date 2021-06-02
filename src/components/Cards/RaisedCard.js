@@ -8,15 +8,16 @@ const useStyles = makeStyles({
     display: 'flex',
     flexDirection: 'column'
   },
-  clickableCard: {
+  highlightedCard: {
     padding: '8px',
     display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'column',
+    boxShadow: '10px 5px 5px red'
   }
 })
 
 function RaisedCard(props) {
-  const { onClick, elevation, className } = props;
+  const { onClick, elevation, className, isHighlighted } = props;
   const elevated = elevation ? elevation : 0;
   const classes = useStyles(onClick);
   let isClickable = typeof onClick === 'function' ? true : false;
@@ -35,7 +36,7 @@ function RaisedCard(props) {
         elevation={elevated}
         p={0}
         style={{ height: '100%', cursor: isClickable ? 'pointer' : 'default'}}
-        className={isClickable ? classes.clickableCard : classes.card}
+        className={isHighlighted ? classes.highlightedCard : classes.card}
       >
         {props.children}
       </Card>

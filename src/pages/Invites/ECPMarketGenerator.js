@@ -1,7 +1,6 @@
 import { doCreateRequirementsWorkspace } from '../../components/AddNew/Workspace/RequirementsWorkspace/workspaceCreator';
 import {
   addDecisionInvestible,
-  addInvestibleToStage,
   addPlanningInvestible
 } from '../../api/investibles'
 import { saveComment } from '../../api/comments'
@@ -81,7 +80,7 @@ function addStoryThreeAndInlineDialog(marketId, userId, blockingStage, requiresI
         name: 'Questions with options',
         stageId: allowsInvestment.id,
       };
-      return addInvestibleToStage(addInfo).then((addedOption) => {
+      return addDecisionInvestible(addInfo).then((addedOption) => {
         marketInvestibles.push(addedOption);
         const addInfo = {
           marketId: market.id,

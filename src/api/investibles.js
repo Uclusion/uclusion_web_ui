@@ -106,12 +106,3 @@ export function deleteInvestible (marketId, investibleId) {
     .then((client) => client.investibles.delete(investibleId))
     .catch((error) => toastErrorAndThrow(error, 'errorInvestibleDeleteFailed'));
 }
-
-export function addInvestibleToStage(addInfo) {
-  const {
-    marketId,
-  } = addInfo;
-  return getMarketClient(marketId)
-    .then((client) => client.investibles.create(addInfo))
-      .catch((error) => toastErrorAndThrow(error, 'errorInvestibleAddFailed'));
-}

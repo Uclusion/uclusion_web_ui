@@ -31,13 +31,6 @@ const useStyles = makeStyles(theme => ({
       padding: 0
     }
   },
-  noPaddingHighlighted: {
-    padding: theme.spacing(0),
-    "&:last-child": {
-      padding: 0
-    },
-    boxShadow: "10px 5px 5px red"
-  },
   warnNoOptions: {
     backgroundColor: red["400"],
     display: 'grid',
@@ -127,8 +120,9 @@ function CurrentVoting(props) {
           className={classes.card}
           elevation={3}
           onClick={() => navigate(history, formInvestibleLink(marketId, id))}
+          isHighlighted={myMessage}
         >
-          <CardContent className={myMessage ? classes.noPaddingHighlighted : classes.noPadding}>
+          <CardContent className={classes.noPadding}>
             <VoteCard
               title={name}
               comments={investibleComments}

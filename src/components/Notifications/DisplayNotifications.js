@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Card, List, ListItem, Menu, Typography } from '@material-ui/core'
+import { Card, List, ListItem, ListItemText, Menu, Typography } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles';
 import { useIntl } from 'react-intl';
 import NotificationMessageDisplay from './NotificationMessageDisplay';
@@ -211,9 +211,7 @@ function DisplayNotifications (props) {
       link,
     } = item;
     return (
-      <ListItem
-        key={link}
-      >
+      <ListItem key={link} style={{paddingBottom: 0}}>
         <NotificationMessageDisplay onLinkClick={setClosed} message={item}/>
       </ListItem>
     );
@@ -225,15 +223,13 @@ function DisplayNotifications (props) {
       return React.Fragment;
     }
     return (
-      <React.Fragment key={`${index}${investible.name}`}>
-        <Typography style={{ paddingLeft: '1rem', fontStyle: 'italic' }}>
-          <IconComponent style={{ marginRight: '6px', height: '16px', width: '16px' }}/>
-          {investible.name}
-        </Typography>
-        <div style={{ paddingLeft: '1rem' }}>
-          {investible.items.map(investibleItem => getItemResult(investibleItem))}
-        </div>
-      </React.Fragment>
+      <>
+        <ListItem key={`${index}${investible.name}`} style={{paddingBottom: 0}}>
+            <IconComponent style={{ marginRight: '6px', height: '16px', width: '16px' }}/>
+            <ListItemText primary={investible.name} style={{ fontStyle: 'italic' }} />
+        </ListItem>
+        {investible.items.map(investibleItem => getItemResult(investibleItem))}
+      </>
     );
   }
 
@@ -247,14 +243,14 @@ function DisplayNotifications (props) {
           key={`${index}${level}`}
           className={classes.messageItem}
         >
-          <Typography style={{ paddingRight: '1rem', paddingLeft: '1rem', fontStyle: 'italic' }}>
-            <IconComponent style={{ marginRight: '6px', height: '16px', width: '16px' }}/>
-            {market.name}
-          </Typography>
-          <div style={{ paddingLeft: '1rem', paddingRight: '1rem' }}>
+          <List>
+            <ListItem key={market.id} style={{paddingBottom: 0}}>
+              <IconComponent style={{ marginRight: '6px', height: '16px', width: '16px' }}/>
+              <ListItemText primary={market.name} style={{ fontStyle: 'italic' }} />
+            </ListItem>
             {market.items.map((item) => getItemResult(item))}
             {market.investibles.map((investible) => getInvestibleResult(investible, index))}
-          </div>
+          </List>
         </Card>
       );
     });

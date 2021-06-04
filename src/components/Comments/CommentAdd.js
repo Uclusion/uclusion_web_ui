@@ -298,6 +298,7 @@ function CommentAdd(props) {
     // what about not doing state?
     const blockingStage = getBlockedStage(marketStagesState, marketId) || {};
     const requiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
+    const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
     const investibleRequiresInput = ((apiType === QUESTION_TYPE || apiType === SUGGEST_CHANGE_TYPE)
       && (assigned || []).includes(myPresence.id)) && currentStageId !== blockingStage.id
       && currentStageId !== requiresInputStage.id;
@@ -310,11 +311,16 @@ function CommentAdd(props) {
         changeInvestibleStageOnCommentChange(investibleBlocks, investibleRequiresInput,
           blockingStage, requiresInputStage, info, market_infos, rootInvestible, investibleDispatch);
         addCommentToMarket(comment, commentsState, commentDispatch);
-        if (apiType === REPORT_TYPE) {
+        if (apiType === REPORT_TYPE || (apiType === TODO_TYPE && inReviewStage.id === currentStageId)) {
           const message = findMessageOfType('REPORT_REQUIRED', investibleId, messagesState);
           if (message) {
             messagesDispatch(removeMessage(message));
           }
+        }
+        // Leaving a comment clears all READ level on the investible
+        const message = findMessageOfTypeAndId(investibleId, messagesState);
+        if (message) {
+          messagesDispatch(removeMessage(message));
         }
         if (type === REPLY_TYPE) {
           const message = findMessageOfTypeAndId(parentId, messagesState);

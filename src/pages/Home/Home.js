@@ -107,7 +107,7 @@ function Home(props) {
   const archiveMarkets = getHiddenMarketDetailsForUser(marketsState, marketPresencesState, results);
   const navigationMenu = {navHeaderText: intl.formatMessage({ id: 'home' }), showSearchResults: true,
     navListItemTextArray: [{icon: AddIcon, text: intl.formatMessage({ id: 'addNew' }),
-      onClickFunc: !wizardActive ? () => {
+      onClickFunc: createEnabled && !wizardActive ? () => {
       setWizardActive(true);
       window.scrollTo(0, 0);
     } : undefined},

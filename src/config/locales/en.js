@@ -703,7 +703,7 @@ const messages = defineMessages({
   createFurtherWorkExplanation: 'Create a new story that sends a notification demanding assignment.',
   requiresInputHeader: 'Requires Input',
   blockedHeader: 'Blocked',
-  requiresInputSectionHelp: 'These stories have open questions or Dialogs. If yellow your approval on options is missing.',
+  requiresInputSectionHelp: 'These stories have open questions or Dialogs. If yellow your approval on a question\'s options is missing.',
   blockedSectionHelp: 'A story will move to Blocked when a blocking issue is entered and cannot be moved out of Blocked until the issue is resolved.',
 
   // SignIn

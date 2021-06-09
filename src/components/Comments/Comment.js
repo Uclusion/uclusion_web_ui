@@ -661,7 +661,7 @@ function Comment(props) {
           {(myPresence.is_admin || isEditable) && enableActions && (commentType === REPORT_TYPE || resolved) && (
             <div style={{marginRight: '2rem', marginTop: '0.5rem'}}>
               <TooltipIconButton
-                disabled={operationRunning}
+                disabled={operationRunning !== false}
                 onClick={remove}
                 icon={<Delete />}
                 translationId="commentRemoveLabel"

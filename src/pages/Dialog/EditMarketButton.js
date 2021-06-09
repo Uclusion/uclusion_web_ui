@@ -17,7 +17,7 @@ function EditMarketButton(props) {
     <TooltipIconButton
       id={labelId}
       onClick={onClick}
-      disabled={operationRunning}
+      disabled={operationRunning !== false}
       key="exit"
       translationId={labelId}
       icon={icon ? icon : <EditIcon htmlColor={ACTION_BUTTON_COLOR} />}

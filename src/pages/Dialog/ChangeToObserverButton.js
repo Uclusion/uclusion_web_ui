@@ -67,7 +67,7 @@ function ChangeToObserverButton(props) {
     if (myPresence && myPresence.is_admin) {
       return (
         <>
-          <TooltipIconButton disabled={operationRunning} icon={<ArchiveIcon htmlColor={ACTION_BUTTON_COLOR} />}
+          <TooltipIconButton disabled={operationRunning !== false} icon={<ArchiveIcon htmlColor={ACTION_BUTTON_COLOR} />}
                              onClick={handleOpen} translationId="decisionDialogsBecomeObserver" />
           <WarningDialog
             classes={lockedDialogClasses}
@@ -101,7 +101,7 @@ function ChangeToObserverButton(props) {
 
   return (
     <>
-      <TooltipIconButton disabled={operationRunning} icon={<ArchiveIcon htmlColor={ACTION_BUTTON_COLOR} />}
+      <TooltipIconButton disabled={operationRunning !== false} icon={<ArchiveIcon htmlColor={ACTION_BUTTON_COLOR} />}
                          onClick={handleOpen} translationId="decisionDialogsBecomeObserver" />
       <WarningDialog
         classes={lockedDialogClasses}

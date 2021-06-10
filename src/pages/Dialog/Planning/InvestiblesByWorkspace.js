@@ -104,7 +104,7 @@ function InvestiblesByWorkspace (props) {
       </MenuItem>
     );
   }
-  console.debug(peopleChoices)
+
   return (
     <>
       {_.size(peopleChoices) > 0 && _.size(peopleChoices[0]) > 1 && (

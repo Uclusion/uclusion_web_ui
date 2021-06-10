@@ -104,28 +104,30 @@ function InvestiblesByWorkspace (props) {
       </MenuItem>
     );
   }
-
+  console.debug(peopleChoices)
   return (
     <>
-      <div className={classes.expansionControlHome}>
-        <Button
-          className={classes.menuButton}
-          endIcon={<ExpandMoreIcon style={{ marginRight: '16px' }} htmlColor={ACTION_BUTTON_COLOR}/>}
-          aria-controls="stages-content"
-          id="stages-header"
-          onClick={handleClick}
-        >
-          <div className={classes.fontControl}>
-            {intl.formatMessage({ id: 'displaying' }, {x: chosenPerson.name, y: chosenPerson.email})}
-          </div>
-        </Button>
-        <Menu
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={handleClose}>
-          {peopleChoices}
-        </Menu>
-      </div>
+      {_.size(peopleChoices) > 0 && _.size(peopleChoices[0]) > 1 && (
+        <div className={classes.expansionControlHome}>
+          <Button
+            className={classes.menuButton}
+            endIcon={<ExpandMoreIcon style={{ marginRight: '16px' }} htmlColor={ACTION_BUTTON_COLOR}/>}
+            aria-controls="stages-content"
+            id="stages-header"
+            onClick={handleClick}
+          >
+            <div className={classes.fontControl}>
+              {intl.formatMessage({ id: 'displaying' }, {x: chosenPerson.name, y: chosenPerson.email})}
+            </div>
+          </Button>
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={handleClose}>
+            {peopleChoices}
+          </Menu>
+        </div>
+      )}
       <LocalPlanningDragContext.Provider value={[beingDraggedHack, setBeingDraggedHack]}>
         {activeWorkspaces.map((market) => {
           function onClick(id) {

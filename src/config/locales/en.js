@@ -677,7 +677,6 @@ const messages = defineMessages({
   inviteLinkerDirectionsPlan: 'Share this link',
   inviteLinkerDirectionsInitiative: 'Share this link',
   inviteLinkerCopyToClipboard: 'Copy to clipboard',
-  participationHelp: 'Select someone in the list and Add is immediate. Otherwise share the link or have Uclusion send email for you.',
   slackIntegrationSuccessful: 'Slack was successfully integrated.',
   slackIntegrationPartial: 'Almost there! Now type /uclusion in any Slack channel to complete installation.',
 

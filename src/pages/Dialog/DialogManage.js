@@ -23,7 +23,6 @@ import { Card, CardContent, Typography } from '@material-ui/core'
 import DeadlineExtender from './Decision/DeadlineExtender'
 import CardType, { VOTING_TYPE } from '../../components/CardType'
 import { usePlanFormStyles } from '../../components/AgilePlan'
-import DismissableText from '../../components/Notifications/DismissableText'
 import ManageUsers from './UserManagement/ManageUsers'
 
 function DialogManage (props) {
@@ -81,9 +80,6 @@ function DialogManage (props) {
       breadCrumbs={myBreadCrumbs}
       loading={loading}
     >
-      {(participation || marketType === PLANNING_TYPE) && (
-        <DismissableText textId="participationHelp"/>
-      )}
       <Card>
         {participation && marketType === DECISION_TYPE && myPresence && (
           <div id="decisionAddressList">

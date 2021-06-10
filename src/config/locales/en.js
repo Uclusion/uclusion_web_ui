@@ -609,7 +609,6 @@ const messages = defineMessages({
   dialogEditExpiresLabel: 'Add Time',
   dialogExpiresLabel: 'Once the Dialog expires it is frozen for changes and cannot be re-activated.',
   searchParticipantsLabel: 'Search in Uclusion',
-  noCollaboratorsLabel: 'There are no existing collaborators to choose from. Invite some below.',
   searchParticipantsPlaceholder: 'Use commas to separate multiple email addresses',
   inviteParticipantsEmailLabel: 'Add by email addresses',
   collaboratorNotFollowing: 'This user has archived and will not receive notifications.',

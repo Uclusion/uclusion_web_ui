@@ -180,55 +180,55 @@ function AddNewUsers (props) {
 
   return (
     <>
+      {displayNames.length > 0 &&
+        <>
+          <List
+            dense
+            className={clsx(classes.scrollableList, classes.sharedForm)}
+          >
+            {_.size(participants) > 10 && (
+              <ListItem className={classes.searchContainer} key="search">
+                <ListItemText >
+                  <TextField
+                    className={classes.search}
+                    placeholder="Search in your organization"
+                    onChange={onSearchChange}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position={'end'}>
+                          <IconButton>
+                            <SearchIcon/>
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </ListItemText>
+              </ListItem>
+            )}
+            <List
+              dense
+              id="addressBook"
+              className={classes.scrollContainer}
+            >
+              {displayNames.map((entry) => renderParticipantEntry(entry))}
+            </List>
+          </List>
+          <div className={classes.spacer} />
+        </>
+      }
       <List
         dense
-        className={clsx(classes.scrollableList, classes.sharedForm)}
+        style={{maxWidth: '40rem', padding: '0'}}
       >
-        {_.size(participants) > 10 && (
-          <ListItem className={classes.searchContainer} key="search">
-            <ListItemText >
-              <TextField
-                className={classes.search}
-                placeholder="Search in your organization"
-                onChange={onSearchChange}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position={'end'}>
-                      <IconButton>
-                        <SearchIcon/>
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            </ListItemText>
+        {displayNames.length > 0 &&
+          <ListItem className={classes.listItem} style={{paddingTop: '0', paddingBottom: '1rem'}}>
+            <Typography className={classes.cardTitle} style={{padding: '0'}}>
+              {intl.formatMessage({ id: 'addParticipantsNewPerson' })}
+            </Typography>
           </ListItem>
-        )}
-        <List
-          dense
-          id="addressBook"
-          className={classes.scrollContainer}
-        >
-          {displayNames.length > 0 &&
-          displayNames.map((entry) => renderParticipantEntry(entry))
-          }
-          {displayNames.length < 1 &&
-          <ListItemText style={{ textAlign: 'center' }}>
-            {intl.formatMessage({ id: 'noCollaboratorsLabel' })}
-          </ListItemText>
-          }
-        </List>
-      </List>
-      <div className={classes.spacer} />
-      <List
-        dense
-      >
-        <ListItem className={classes.listItem}>
-          <Typography className={clsx(classes.cardTitle, classes.noPadding)}>
-            {intl.formatMessage({ id: 'addParticipantsNewPerson' })}
-          </Typography>
-        </ListItem>
-        <ListItem className={classes.listItem}>
+        }
+        <ListItem className={classes.listItem} style={{paddingBottom: '1.5rem'}}>
           <InviteLinker
             marketType={marketType}
             marketToken={marketToken}
@@ -237,7 +237,7 @@ function AddNewUsers (props) {
         {emailsSent.length > 0 && (
           <>
             <ListItem className={classes.listItem}>
-              <Typography className={clsx(classes.cardTitle, classes.noPadding)}>
+              <Typography className={classes.cardTitle} style={{padding: '0'}}>
                 {intl.formatMessage({ id: 'emailsSentLabel' })}
               </Typography>
             </ListItem>
@@ -267,7 +267,7 @@ function AddNewUsers (props) {
             key="emailInput"
           >
             <ListItemText>
-              <Typography style={{ marginBottom: 15 }}>
+              <Typography style={{ paddingBottom: '0.5rem' }}>
                 {intl.formatMessage({ id: 'inviteParticipantsEmailLabel' })}
               </Typography>
               <TextField
@@ -300,7 +300,6 @@ function AddNewUsers (props) {
 }
 
 AddNewUsers.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types
   market: PropTypes.object.isRequired,
   onSave: PropTypes.func,
 };

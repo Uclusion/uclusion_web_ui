@@ -88,7 +88,7 @@ function InviteLinker(props) {
       id="inviteLinker"
       className={hidden ? classes.hidden : classes.linkContainer}
     >
-      <Typography style={{width: '100%'}}>
+      <Typography style={{width: '100%', paddingBottom: '0.5rem'}}>
         { intl.formatMessage({ id: getDirectionsId() }) }
       </Typography>
       <InputBase

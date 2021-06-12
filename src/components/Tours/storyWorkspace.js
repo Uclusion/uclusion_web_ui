@@ -1,16 +1,6 @@
 
-export function inviteStoriesWorkspaceSteps (variables) {
-  const {
-    name
-  } = variables;
+export function inviteStoriesWorkspaceSteps () {
   return [
-    {
-      disableBeacon: true,
-      target: 'body',
-      placement: 'center',
-      title: `Welcome ${name}!`,
-      content: 'Workspaces are where your team collaborates to get things done.'
-    },
     {
       disableBeacon: true,
       target: '#redLevelNotification',

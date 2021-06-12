@@ -31,7 +31,7 @@ import { EMPTY_GLOBAL_VERSION, VERSIONS_CONTEXT_NAMESPACE } from '../contexts/Ve
 import { getHomeAccountUser } from './sso'
 import { checkInStorage } from './storageIntrospector'
 import { START_TOUR, TOUR_CHANNEL } from '../contexts/TourContext/tourContextMessages'
-import { INVITE_STORIES_WORKSPACE_FIRST_VIEW } from '../contexts/TourContext/tourContextHelper'
+import { INVITE_STORIES_WORKSPACE_FIRST_VIEW, SIGNUP_HOME } from '../contexts/TourContext/tourContextHelper'
 
 const MAX_RETRIES = 10;
 const MAX_CONCURRENT_API_CALLS = 5;
@@ -210,8 +210,9 @@ export function pollForFirstMarketLoad() {
                 // but if we were picky enough could check for its signatures also
                 console.log('First market load found correct signatures');
                 return doRefreshMarket(marketId, componentSignatures).then(() => {
-                  console.log('First market load starting tour');
+                  console.log('First market load starting tours');
                   pushMessage(TOUR_CHANNEL, { event: START_TOUR, tour: INVITE_STORIES_WORKSPACE_FIRST_VIEW });
+                  pushMessage(TOUR_CHANNEL, { event: START_TOUR, tour: SIGNUP_HOME });
                   return true;
                 });
               }

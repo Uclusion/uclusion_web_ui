@@ -125,8 +125,10 @@ function processRegularItem(classes, history, text, target, num, Icon, onClickFu
       </ListItem>
     );
   }
+  const textNoSpaces = text.split(" ").join("");
   return (
-    <ListItem key={text} className={isGrouped ? classes.navListItemGrouped : classes.navListItem}
+    <ListItem key={textNoSpaces} id={textNoSpaces}
+              className={isGrouped ? classes.navListItemGrouped : classes.navListItem}
               onClick={
                 (event) => {
                   event.stopPropagation();

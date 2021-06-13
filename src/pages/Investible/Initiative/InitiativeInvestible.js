@@ -408,7 +408,7 @@ function InitiativeInvestible(props) {
           </Grid>
         </Grid>
       </Card>
-      {displayVoting && (
+      {displayVoting && investibleId && (
         <>
           <YourVoting
             investibleId={investibleId}

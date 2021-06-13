@@ -412,7 +412,7 @@ function DecisionInvestible(props) {
           {intl.formatMessage({ id: votingBlockedMessage })}
         </Typography>
       )}
-      {displayVotingInput && (
+      {displayVotingInput && investibleId && (
         <>
           <YourVoting
             investibleId={investibleId}

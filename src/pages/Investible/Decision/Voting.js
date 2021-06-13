@@ -128,7 +128,7 @@ function Voting(props) {
           const myMessage = findMessageOfTypeAndId(`${investibleId}_${userId}`, messagesState, 'VOTE');
           const reason = getVoterReason(userId);
           const voteId = `cv${userId}`;
-          if (votingBeingEdited && isYourVote) {
+          if (votingBeingEdited && isYourVote && investibleId) {
             return (
               <>
                 <div className={index % 2 === 1 ? classes.cardPadded : undefined} />

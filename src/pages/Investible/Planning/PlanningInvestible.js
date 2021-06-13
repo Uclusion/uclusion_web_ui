@@ -995,7 +995,7 @@ function PlanningInvestible(props) {
         market={market}
         isAssigned={isAssigned}
       />
-      {displayVotingInput && (
+      {displayVotingInput && investibleId && (
         <>
           {isAssigned && (
             <DismissableText textId="planningInvestibleCantVote" />

@@ -54,7 +54,7 @@ function InlineInitiativeBox(props) {
 
   return (
     <div style={{paddingLeft: '1rem', paddingRight: '1rem', paddingBottom: '0.5rem'}}>
-      {!isAdmin && !yourVote && (
+      {!isAdmin && !yourVote && inlineInvestibleId && (
         <YourVoting
           investibleId={inlineInvestibleId}
           marketPresences={anInlineMarketPresences}

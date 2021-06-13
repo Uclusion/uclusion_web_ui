@@ -30,6 +30,10 @@ const useVoteStyles = makeStyles(
       card: {
         position: "relative"
       },
+      cardPadded: {
+        position: "relative",
+        marginTop: '1rem'
+      },
       cardContent: {
         flex: "0 1 100%",
         padding: 0,
@@ -118,27 +122,29 @@ function Voting(props) {
         </>
       )}
       <ol className={classes.root}>
-        {sortedVoters.map(voter => {
+        {sortedVoters.map((voter, index) => {
           const { name, email, id: userId, quantity, maxBudget, maxBudgetUnit, updatedAt } = voter;
           const isYourVote = userId === yourPresence.id;
           const myMessage = findMessageOfTypeAndId(`${investibleId}_${userId}`, messagesState, 'VOTE');
           const reason = getVoterReason(userId);
           const voteId = `cv${userId}`;
-
-          if (votingBeingEdited) {
+          if (votingBeingEdited && isYourVote) {
             return (
-              <YourVoting
-                investibleId={investibleId}
-                marketPresences={marketPresences}
-                comments={investmentReasons}
-                userId={userId}
-                market={market}
-                showBudget
-                votingPageState={votingPageState}
-                updateVotingPageState={updateVotingPageState}
-                votingPageStateReset={votingPageStateReset}
-                isAssigned={isAssigned}
-              />
+              <>
+                <div className={index % 2 === 1 ? classes.cardPadded : undefined} />
+                <YourVoting
+                  investibleId={investibleId}
+                  marketPresences={marketPresences}
+                  comments={investmentReasons}
+                  userId={userId}
+                  market={market}
+                  showBudget
+                  votingPageState={votingPageState}
+                  updateVotingPageState={updateVotingPageState}
+                  votingPageStateReset={votingPageStateReset}
+                  isAssigned={isAssigned}
+                />
+              </>
             )
           }
 
@@ -146,7 +152,7 @@ function Voting(props) {
             <div className={myMessage && classes.highlighted}>
               <Card
                 key={userId}
-                className={classes.card}
+                className={index % 2 === 1 ? classes.cardPadded : classes.card}
                 component="li"
                 id={voteId}
                 elevation={3}

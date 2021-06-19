@@ -200,6 +200,8 @@ export function pollForFirstMarketLoad() {
         console.info('Poll for first market');
         return getVersions(foregroundList)
           .then((marketSignatures) => {
+            let foundMarketId = null;
+            let foundComponentSignatures = null;
             (marketSignatures || []).forEach((marketSignature) => {
               const { market_id: marketId, signatures: componentSignatures } = marketSignature;
               const fetchSignatures = getFetchSignaturesForMarket(componentSignatures);
@@ -209,14 +211,18 @@ export function pollForFirstMarketLoad() {
                 // The inline market should have made it also since it was created before the last comment
                 // but if we were picky enough could check for its signatures also
                 console.log('First market load found correct signatures');
-                return doRefreshMarket(marketId, componentSignatures).then(() => {
-                  console.log('First market load starting tours');
-                  pushMessage(TOUR_CHANNEL, { event: START_TOUR, tour: INVITE_STORIES_WORKSPACE_FIRST_VIEW });
-                  pushMessage(TOUR_CHANNEL, { event: START_TOUR, tour: SIGNUP_HOME });
-                  return true;
-                });
+                foundMarketId = marketId;
+                foundComponentSignatures = componentSignatures;
               }
             });
+            if (foundMarketId) {
+              return doRefreshMarket(foundMarketId, foundComponentSignatures).then(() => {
+                console.log('First market load starting tours');
+                pushMessage(TOUR_CHANNEL, { event: START_TOUR, tour: INVITE_STORIES_WORKSPACE_FIRST_VIEW });
+                pushMessage(TOUR_CHANNEL, { event: START_TOUR, tour: SIGNUP_HOME });
+                return true;
+              });
+            }
             // The market hasn't had time to propagate so wait and try again in 2 seconds
             // not attempting to get the intermediate markets while signature wrong
             console.log('First market load did not find correct signatures');

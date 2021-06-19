@@ -7,7 +7,7 @@ import { removeMarketDetails } from './marketsContextReducer'
 import { pushMessage, registerListener } from '../../utils/MessageBusUtils'
 import { addMarketToStorage } from './marketsContextHelper'
 import { getMarketFromInvite, getMarketFromUrl } from '../../api/uclusionClient'
-import { createMarketListeners, pollForFirstMarketLoad, pollForMarketLoad } from '../../api/versionedFetchUtils'
+import { createMarketListeners, pollForMarketLoad } from '../../api/versionedFetchUtils'
 import { toastError } from '../../utils/userMessage'
 import { ADD_PRESENCE } from '../MarketPresencesContext/marketPresencesMessages'
 import {
@@ -82,7 +82,6 @@ function beginListening(dispatch, diffDispatch) {
       toastError('errorMarketFetchFailed');
     });
   });
-  pollForFirstMarketLoad();
 }
 
 export default beginListening;

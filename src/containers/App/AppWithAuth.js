@@ -27,6 +27,7 @@ import _ from 'lodash'
 import { decomposeMarketPath } from '../../utils/marketIdPathFunctions'
 import queryString from 'query-string'
 import { getAndClearEmail } from '../../utils/redirectUtils'
+import { pollForFirstMarketLoad } from '../../api/versionedFetchUtils'
 
 
 LogRocket.init(config.logRocketInstance)
@@ -79,6 +80,7 @@ function AppWithAuth() {
           new TokenStorageManager().clearTokenStorage().then(() => clearUclusionLocalStorage(true));
         }
         setUclusionLocalStorageItem('userName', username);
+        pollForFirstMarketLoad();
         break;
       default:
         // ignore

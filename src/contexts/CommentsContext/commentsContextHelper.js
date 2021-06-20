@@ -58,7 +58,7 @@ export function resolveInvestibleComments(investibleId, marketId, state, dispatc
 }
 
 export function addCommentToMarket(comment, state, dispatch) {
-  let updates = [comment];
+  const updates = [comment];
   const { reply_id: replyId, id, market_id: marketId } = comment;
   const comments = getMarketComments(state, marketId);
   if (!_.isEmpty(replyId)) {

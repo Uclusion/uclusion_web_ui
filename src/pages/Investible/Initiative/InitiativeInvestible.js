@@ -70,7 +70,7 @@ const useStyles = makeStyles(
       display: "inline-flex"
     },
     mobileColumn: {
-      [theme.breakpoints.down("xs")]: {
+      [theme.breakpoints.down("sm")]: {
         flexDirection: 'column'
       }
     },
@@ -78,7 +78,7 @@ const useStyles = makeStyles(
       padding: '0 2rem 2rem 2rem',
       marginBottom: '-5px',
       marginTop: '-30px',
-      [theme.breakpoints.down("xs")]: {
+      [theme.breakpoints.down("sm")]: {
         padding: '1rem 0',
         marginTop: '1rem',
         borderLeft: 'none',
@@ -137,7 +137,7 @@ const useStyles = makeStyles(
       textTransform: 'capitalize'
     },
     flexCenter: {
-      [theme.breakpoints.down("xs")]: {
+      [theme.breakpoints.down("sm")]: {
         alignItems: 'center',
         padding: '20px'
       }
@@ -147,7 +147,7 @@ const useStyles = makeStyles(
       justifyContent: 'center',
       display: "flex",
       marginTop: '20px',
-      [theme.breakpoints.down("xs")]: {
+      [theme.breakpoints.down("sm")]: {
         maxWidth: '100%',
         flexBasis: '100%',
         flexDirection: 'column'

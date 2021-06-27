@@ -51,7 +51,7 @@ export const useLockedDialogStyles = makeStyles(
         fontSize: 32,
         lineHeight: "42px",
         paddingBottom: "9px",
-        [theme.breakpoints.down("xs")]: {
+        [theme.breakpoints.down("sm")]: {
           fontSize: 25
         }
       },
@@ -60,7 +60,7 @@ export const useLockedDialogStyles = makeStyles(
         cursor: "url('/images/edit_cursor.svg') 0 24, pointer",
         lineHeight: "42px",
         paddingBottom: "9px",
-        [theme.breakpoints.down("xs")]: {
+        [theme.breakpoints.down("sm")]: {
           fontSize: 25
         }
       },

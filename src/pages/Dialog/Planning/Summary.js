@@ -88,7 +88,7 @@ const useStyles = makeStyles(theme => ({
   },
   actions: {
     justifyContent: 'flex-end',
-    [theme.breakpoints.down("xs")]: {
+    [theme.breakpoints.down("sm")]: {
       justifyContent: 'start'
     },
     '& > button': {
@@ -98,14 +98,14 @@ const useStyles = makeStyles(theme => ({
   editContent: {
     flexBasis: "100%",
     padding: theme.spacing(4, 1, 4, 1),
-    [theme.breakpoints.down("xs")]: {
+    [theme.breakpoints.down("sm")]: {
       padding: '15px'
     }
   },
   content: {
     flexBasis: "100%",
     padding: theme.spacing(2, 4, 4, 4),
-    [theme.breakpoints.down("xs")]: {
+    [theme.breakpoints.down("sm")]: {
       padding: '15px'
     }
   },
@@ -127,7 +127,7 @@ const useStyles = makeStyles(theme => ({
     display: "inline-flex"
   },
   mobileColumn: {
-    [theme.breakpoints.down("xs")]: {
+    [theme.breakpoints.down("sm")]: {
       flexDirection: 'column'
     }
   },
@@ -137,7 +137,7 @@ const useStyles = makeStyles(theme => ({
   borderLeft: {
     paddingRight: '2rem',
     paddingLeft: '1rem',
-    [theme.breakpoints.down("xs")]: {
+    [theme.breakpoints.down("sm")]: {
       paddingTop: '1rem',
       marginTop: '1rem',
       borderLeft: 'none',
@@ -171,14 +171,14 @@ const useStyles = makeStyles(theme => ({
     }
   },
   fullWidth: {
-    [theme.breakpoints.down("xs")]: {
+    [theme.breakpoints.down("sm")]: {
       maxWidth: '100%',
       flexBasis: '100%'
     }
   },
   fullWidthEditable: {
     cursor: "url('/images/edit_cursor.svg') 0 24, pointer",
-    [theme.breakpoints.down("xs")]: {
+    [theme.breakpoints.down("sm")]: {
       maxWidth: '100%',
       flexBasis: '100%'
     }
@@ -192,7 +192,7 @@ const useStyles = makeStyles(theme => ({
     justifyContent: 'center',
     display: "flex",
     marginTop: '20px',
-    [theme.breakpoints.down("xs")]: {
+    [theme.breakpoints.down("sm")]: {
       maxWidth: '100%',
       flexBasis: '100%',
       flexDirection: 'column'

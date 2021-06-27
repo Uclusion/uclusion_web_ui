@@ -139,7 +139,7 @@ const useStyles = makeStyles(
       fontSize: "15 !important",
       lineHeight: "175%",
       color: "#414141",
-      [theme.breakpoints.down("xs")]: {
+      [theme.breakpoints.down("sm")]: {
         fontSize: 13
       },
       "& > .ql-container": {
@@ -151,7 +151,7 @@ const useStyles = makeStyles(
     },
     mobileColumn: {
       overflowWrap: "break-word",
-      [theme.breakpoints.down("xs")]: {
+      [theme.breakpoints.down("sm")]: {
         flexDirection: 'column'
       }
     },
@@ -161,7 +161,7 @@ const useStyles = makeStyles(
       '& img': {
         margin: '.75rem 0',
       },
-      [theme.breakpoints.down("xs")]: {
+      [theme.breakpoints.down("sm")]: {
         margin: 0,
         padding: '15px'
       }
@@ -172,7 +172,7 @@ const useStyles = makeStyles(
       '& img': {
         margin: '.75rem 0',
       },
-      [theme.breakpoints.down("xs")]: {
+      [theme.breakpoints.down("sm")]: {
         margin: 0,
         padding: '15px'
       }
@@ -188,7 +188,7 @@ const useStyles = makeStyles(
       margin: 0,
     },
     borderRight: {
-      [theme.breakpoints.down("xs")]: {
+      [theme.breakpoints.down("sm")]: {
         padding: '1rem 0',
         marginTop: '1rem',
         borderRight: 'none',
@@ -201,7 +201,7 @@ const useStyles = makeStyles(
     borderLeft: {
       paddingLeft: '1rem',
       marginTop: '-1.5rem',
-      [theme.breakpoints.down("xs")]: {
+      [theme.breakpoints.down("sm")]: {
         padding: '1rem 0',
         marginTop: '1rem',
         borderLeft: 'none',
@@ -219,7 +219,7 @@ const useStyles = makeStyles(
     fullWidthCentered: {
       justifyContent: 'center',
       display: "flex",
-      [theme.breakpoints.down("xs")]: {
+      [theme.breakpoints.down("sm")]: {
         maxWidth: '100%',
         flexBasis: '100%',
         flexDirection: 'column'
@@ -228,7 +228,7 @@ const useStyles = makeStyles(
     autocompleteContainer: {
       display: 'flex',
       marginLeft: '30px',
-      [theme.breakpoints.down("xs")]: {
+      [theme.breakpoints.down("sm")]: {
         marginLeft: '0',
         flexDirection: 'column'
       }
@@ -237,7 +237,7 @@ const useStyles = makeStyles(
       paddingRight: '10px',
       paddingTop: '0.5rem',
       maxHeight: '1rem',
-      [theme.breakpoints.down("xs")]: {
+      [theme.breakpoints.down("sm")]: {
         paddingRight: 0,
         paddingTop: 'unset',
         maxHeight: 'unset',
@@ -247,7 +247,7 @@ const useStyles = makeStyles(
     labelExplain: {
       marginLeft: '10px',
       width: 90,
-      [theme.breakpoints.down("xs")]: {
+      [theme.breakpoints.down("sm")]: {
         width: 'auto',
       }
     },
@@ -255,7 +255,7 @@ const useStyles = makeStyles(
       paddingLeft: '2rem',
       paddingTop: '1rem',
       cursor: "url('/images/edit_cursor.svg') 0 24, pointer",
-      [theme.breakpoints.down("xs")]: {
+      [theme.breakpoints.down("sm")]: {
         maxWidth: '100%',
         flexBasis: '100%',
         borderLeft: 'none',
@@ -265,7 +265,7 @@ const useStyles = makeStyles(
     fullWidth: {
       paddingLeft: '2rem',
       paddingTop: '1rem',
-      [theme.breakpoints.down("xs")]: {
+      [theme.breakpoints.down("sm")]: {
         maxWidth: '100%',
         flexBasis: '100%',
         borderLeft: 'none',
@@ -320,7 +320,7 @@ const useStyles = makeStyles(
       "&:first-child": {
         marginLeft: 0
       },
-      [theme.breakpoints.down("xs")]: {
+      [theme.breakpoints.down("sm")]: {
         backgroundColor: '#fff',
       }
     },
@@ -1103,7 +1103,7 @@ export const useMetaDataStyles = makeStyles(
         "&:first-child": {
           marginLeft: 0
         },
-        [theme.breakpoints.down("xs")]: {
+        [theme.breakpoints.down("sm")]: {
           backgroundColor: '#fff',
         }
       },

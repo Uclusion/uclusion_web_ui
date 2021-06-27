@@ -33,7 +33,7 @@ const useStyles = makeStyles(
       fontSize: 32,
       lineHeight: "42px",
       paddingBottom: "9px",
-      [theme.breakpoints.down("xs")]: {
+      [theme.breakpoints.down("sm")]: {
         fontSize: 25
       }
     },
@@ -42,7 +42,7 @@ const useStyles = makeStyles(
       lineHeight: "42px",
       paddingBottom: "9px",
       cursor: "url('/images/edit_cursor.svg') 0 24, pointer",
-      [theme.breakpoints.down("xs")]: {
+      [theme.breakpoints.down("sm")]: {
         fontSize: 25
       }
     },

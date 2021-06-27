@@ -61,7 +61,7 @@ import { getPageReducerPage, usePageStateReducer } from '../../../components/Pag
 
 const useStyles = makeStyles((theme) => ({
   mobileColumn: {
-    [theme.breakpoints.down("xs")]: {
+    [theme.breakpoints.down("sm")]: {
       flexDirection: 'column'
     }
   },
@@ -93,7 +93,7 @@ const useStyles = makeStyles((theme) => ({
     padding: '2rem',
     marginBottom: '-42px',
     marginTop: '-42px',
-    [theme.breakpoints.down("xs")]: {
+    [theme.breakpoints.down("sm")]: {
       padding: '1rem 0',
       marginTop: '1rem',
       borderLeft: 'none',
@@ -107,7 +107,7 @@ const useStyles = makeStyles((theme) => ({
     fontSize: "15 !important",
     lineHeight: "175%",
     color: "#414141",
-    [theme.breakpoints.down("xs")]: {
+    [theme.breakpoints.down("sm")]: {
       fontSize: 13
     },
     "& > .ql-container": {
@@ -132,7 +132,7 @@ const useStyles = makeStyles((theme) => ({
     padding: 0
   },
   flexCenter: {
-    [theme.breakpoints.down("xs")]: {
+    [theme.breakpoints.down("sm")]: {
       alignItems: 'center',
       padding: '20px'
     }
@@ -142,7 +142,7 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'center',
     display: "flex",
     marginTop: '20px',
-    [theme.breakpoints.down("xs")]: {
+    [theme.breakpoints.down("sm")]: {
       maxWidth: '100%',
       flexBasis: '100%',
       flexDirection: 'column'

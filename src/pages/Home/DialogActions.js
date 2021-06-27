@@ -1,7 +1,7 @@
 import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import { ACTIVE_STAGE, DECISION_TYPE, INACTIVE_STAGE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
-import { IconButton, makeStyles, Tooltip } from '@material-ui/core'
+import { IconButton, makeStyles, Tooltip, useMediaQuery, useTheme } from '@material-ui/core'
 import {
   decomposeMarketPath,
   formInvestibleEditLink,
@@ -16,7 +16,6 @@ import ShareStoryButton from '../Investible/Planning/ShareStoryButton'
 import ActivateMarketButton from '../Dialog/Planning/ActivateMarketButton'
 import SettingsIcon from '@material-ui/icons/Settings'
 import { ACTION_BUTTON_COLOR, HIGHLIGHTED_BUTTON_COLOR } from '../../components/Buttons/ButtonConstants'
-import { isTinyWindow } from '../../utils/windowUtils'
 import AlarmAddIcon from '@material-ui/icons/AlarmAdd'
 import { useIntl } from 'react-intl'
 import PersonAddIcon from '@material-ui/icons/PersonAdd'
@@ -61,6 +60,8 @@ function DialogActions(props) {
   const inArchives = !activeMarket || !isFollowing;
   const classes = useStyles();
   const intl = useIntl();
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [mpState, mpDispatch] = useContext(MarketPresencesContext);
@@ -187,7 +188,7 @@ function DialogActions(props) {
     if (action === 'dialog' && ((marketType === PLANNING_TYPE) || !activeMarket)) {
       actions.push(<ShareStoryButton key="share-story" marketId={marketId}/>)
     }
-    if (isTinyWindow() && !beingEdited) {
+    if (mobileLayout && !beingEdited) {
       actions.push(
         <EditMarketButton
           labelId="edit"

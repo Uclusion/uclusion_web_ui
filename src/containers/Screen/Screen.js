@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import _ from 'lodash'
 import PropTypes from 'prop-types'
 import { Helmet } from 'react-helmet'
-import { Container, ListItem, ListItemText, Paper } from '@material-ui/core'
+import { Container, ListItem, ListItemText, Paper, useMediaQuery, useTheme } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import { useHistory } from 'react-router'
 import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
@@ -12,7 +12,6 @@ import { NotificationsContext } from '../../contexts/NotificationsContext/Notifi
 import { createTitle, makeBreadCrumbs, navigate } from '../../utils/marketIdPathFunctions'
 import LoadingDisplay from '../../components/LoadingDisplay';
 import List from '@material-ui/core/List'
-import { isTinyWindow } from '../../utils/windowUtils'
 import SearchBox from '../../components/Search/SearchBox'
 import clsx from 'clsx'
 import SearchResults from '../../components/Search/SearchResults'
@@ -155,6 +154,8 @@ function processRegularItem(classes, history, text, target, num, Icon, onClickFu
 
 function Screen(props) {
   const classes = useStyles();
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const [userState] = useContext(AccountUserContext);
   const [searchResults] = useContext(SearchResultsContext);
   const { results } = searchResults;
@@ -213,8 +214,8 @@ function Screen(props) {
     usedBreadCrumbs = makeBreadCrumbs(history);
   }
   const { navHeaderIcon: NavHeaderIcon, navListItemTextArray, showSearchResults } = navigationOptions || {};
-  const myContainerClass = navigationOptions && !isTinyWindow() ? classes.containerAllLeftPad : classes.containerAll;
-  const contentClass = isTinyWindow() ? classes.contentNoStyle : showSearchResults && !_.isEmpty(results) ?
+  const myContainerClass = navigationOptions && !mobileLayout ? classes.containerAllLeftPad : classes.containerAll;
+  const contentClass = mobileLayout ? classes.contentNoStyle : showSearchResults && !_.isEmpty(results) ?
     classes.contentSearch : navigationOptions ? classes.content : classes.contentNoStyle;
   return (
     <div className={classes.root} id="root">
@@ -234,7 +235,7 @@ function Screen(props) {
         hidden={reallyAmLoading}
         appEnabled={appEnabled}
       />
-      {!_.isEmpty(navListItemTextArray) && !isTinyWindow() && (
+      {!_.isEmpty(navListItemTextArray) && !mobileLayout && (
         <div className={classes.listContainer}>
           <Paper className={classes.paper} elevation={3} id="navList">
             <List subheader={NavHeaderIcon && <div style={{marginLeft: '5rem', marginTop: '1rem' }}>

@@ -10,11 +10,10 @@ import { OperationInProgressContext } from '../../contexts/OperationInProgressCo
 import { DiffContext } from '../../contexts/DiffContext/DiffContext'
 import { LockedDialog, useLockedDialogStyles } from '../Dialog/DialogBodyEdit'
 import _ from 'lodash'
-import { CardActions, CircularProgress, Typography } from '@material-ui/core'
+import { CardActions, CircularProgress, Typography, useMediaQuery, useTheme } from '@material-ui/core'
 import { processTextAndFilesForSave } from '../../api/files'
 import { makeStyles } from '@material-ui/core/styles'
 import NameField, { clearNameStoredState, getNameStoredState } from '../../components/TextFields/NameField'
-import { isTinyWindow } from '../../utils/windowUtils'
 import DescriptionOrDiff from '../../components/Descriptions/DescriptionOrDiff'
 import { Clear, SettingsBackupRestore } from '@material-ui/icons'
 import SpinningIconLabelButton from '../../components/Buttons/SpinningIconLabelButton'
@@ -62,6 +61,8 @@ function InvestibleBodyEdit(props) {
     showDiff
   } = pageState;
   const intl = useIntl();
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, diffDispatch] = useContext(DiffContext);
   const [marketsState] = useContext(MarketsContext);
@@ -215,11 +216,11 @@ function InvestibleBodyEdit(props) {
   return (
     <>
       <Typography className={isEditableByUser() ? classes.titleEditable : classes.title} variant="h3" component="h1"
-                  onClick={() => !isTinyWindow() && setBeingEdited(true)}>
+                  onClick={() => !mobileLayout && setBeingEdited(true)}>
         {initialName}
       </Typography>
       <DescriptionOrDiff id={investibleId} description={initialDescription} showDiff={showDiff}
-                         setBeingEdited={isTinyWindow() ? () => {} : setBeingEdited}
+                         setBeingEdited={mobileLayout ? () => {} : setBeingEdited}
                          isEditable={isEditableByUser()} />
     </>
   );

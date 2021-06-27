@@ -11,7 +11,7 @@ import {
   Menu,
   MenuItem,
   Tooltip,
-  Typography
+  Typography, useMediaQuery, useTheme
 } from '@material-ui/core'
 import { useHistory } from 'react-router'
 import { FormattedMessage, useIntl } from 'react-intl'
@@ -88,7 +88,7 @@ import TextField from '@material-ui/core/TextField'
 import EventIcon from '@material-ui/icons/Event';
 import DatePicker from 'react-datepicker'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
-import { doSetEditWhenValid, invalidEditEvent, isTinyWindow } from '../../../utils/windowUtils'
+import { doSetEditWhenValid, invalidEditEvent } from '../../../utils/windowUtils'
 import Gravatar from '../../../components/Avatars/Gravatar';
 import { getInvestibleVoters } from '../../../utils/votingUtils';
 import { getCommenterPresences, inVerifedSwimLane } from '../../Dialog/Planning/userUtils';
@@ -348,6 +348,8 @@ function PlanningInvestible(props) {
     inArchives,
     hidden
   } = props;
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const classes = useStyles();
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
@@ -872,7 +874,7 @@ function PlanningInvestible(props) {
             </Grid>
             <Grid className={classes.borderLeft} item xs={2}>
               <div className={classes.editRow}>
-                {isTinyWindow() && !inMarketArchives && isEditableByUser() && !beingEdited && (
+                {mobileLayout && !inMarketArchives && isEditableByUser() && !beingEdited && (
                   <div>
                     <EditMarketButton
                       labelId="edit"
@@ -966,7 +968,7 @@ function PlanningInvestible(props) {
                     <AddIcon htmlColor={ACTION_BUTTON_COLOR}/>
                   </IconButton>
                 )}
-                {!newLabel && labelFocus && !isTinyWindow() &&  (
+                {!newLabel && labelFocus && !mobileLayout &&  (
                   <div className={classes.labelExplain} >
                     <Typography key="completeExplain" className={classes.explain}>
                       {intl.formatMessage({ id: 'typeOrChoose' })}

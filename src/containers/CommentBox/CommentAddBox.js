@@ -7,7 +7,7 @@ import {
   makeStyles,
   Radio,
   RadioGroup,
-  Tooltip
+  Tooltip, useMediaQuery, useTheme
 } from '@material-ui/core'
 import EmojiObjectsIcon from '@material-ui/icons/EmojiObjects'
 import DescriptionIcon from '@material-ui/icons/Description'
@@ -148,6 +148,8 @@ function CommentAddBox(props) {
     isInReview,
     hidden
   } = props;
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const [commentAddStateFull, commentAddDispatch] = usePageStateReducer('commentAdd');
   const [commentAddState, updateCommentAddState, commentAddStateReset] =
     getPageReducerPage(commentAddStateFull, commentAddDispatch, investible ? investible.id : marketId);
@@ -198,7 +200,7 @@ function CommentAddBox(props) {
                   /* prevent clicking the label stealing focus */
                   onMouseDown={e => e.preventDefault()}
                   control={<Radio color="primary" />}
-                  label={window.outerWidth < 600 ? getIcon(commentType) : <FormattedMessage id={getMessageId(commentType)} />}
+                  label={mobileLayout ? getIcon(commentType) : <FormattedMessage id={getMessageId(commentType)} />}
                   labelPlacement="end"
                   value={commentType}
                 />

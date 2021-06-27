@@ -6,7 +6,7 @@ import { useHistory, useLocation } from 'react-router'
 import { useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
-import { Grid, Typography } from '@material-ui/core'
+import { Grid, Typography, useMediaQuery, useTheme } from '@material-ui/core'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import CardHeader from '@material-ui/core/CardHeader'
@@ -72,7 +72,6 @@ import PlayForWorkIcon from '@material-ui/icons/PlayForWork'
 import { getFakeCommentsArray } from '../../../utils/stringFunctions'
 import Chip from '@material-ui/core/Chip'
 import { getThreadIds } from '../../../utils/commentFunctions'
-import { isTinyWindow } from '../../../utils/windowUtils'
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -91,6 +90,8 @@ function PlanningDialog(props) {
   const classes = useInvestiblesByPersonStyles();
   const [marketsState] = useContext(MarketsContext);
   const intl = useIntl();
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const { id: marketId, market_stage: marketStage } = market;
   const activeMarket = marketStage === ACTIVE_STAGE;
   const inArchives = !activeMarket || (myPresence && !myPresence.following);
@@ -275,13 +276,13 @@ function PlanningDialog(props) {
         hidden={hidden}
         steps={tourSteps}
       />
-      <div id="workspaceMain" style={{display: sectionOpen === 'workspaceMain' || isTinyWindow() ? 'block' : 'none'}}>
+      <div id="workspaceMain" style={{display: sectionOpen === 'workspaceMain' || mobileLayout ? 'block' : 'none'}}>
         <DismissableText textId='planningEditHelp' />
         <Summary market={market} hidden={hidden} activeMarket={activeMarket} inArchives={inArchives} />
       </div>
       <LocalPlanningDragContext.Provider value={[beingDraggedHack, setBeingDraggedHack]}>
         <div id="storiesSection"
-             style={{display: sectionOpen === 'storiesSection' || isTinyWindow() ? 'block' : 'none'}}>
+             style={{display: sectionOpen === 'storiesSection' || mobileLayout ? 'block' : 'none'}}>
           {!isChannel && (
             <DismissableText textId='stageHelp' textId1='stageHelp1' textId2='stageHelp2' textId3='stageHelp3'
                              textId4='stageHelp4'/>
@@ -420,7 +421,7 @@ function PlanningDialog(props) {
                      setSectionOpen={setSectionOpen} market={market} userId={myPresence.id} />
       </LocalPlanningDragContext.Provider>
       <Grid container spacing={2} id="discussionSection"
-            style={{display: sectionOpen === 'discussionSection' || isTinyWindow() ? 'block' : 'none'}}>
+            style={{display: sectionOpen === 'discussionSection' || mobileLayout ? 'block' : 'none'}}>
           <Grid item id="commentAddArea"  xs={12}>
             {!inArchives && (
               <CommentAddBox

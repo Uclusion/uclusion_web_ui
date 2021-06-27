@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
-import { Checkbox, Grid, Typography } from '@material-ui/core'
+import { Checkbox, Grid, Typography, useMediaQuery, useTheme } from '@material-ui/core'
 import _ from 'lodash'
 import RaisedCard from '../../../components/Cards/RaisedCard'
 import { FormattedMessage, useIntl } from 'react-intl'
@@ -34,7 +34,7 @@ import { removeHeader, restoreHeader } from '../../../containers/Header'
 import { LocalPlanningDragContext } from './InvestiblesByWorkspace'
 import { findMessageForCommentId, removeMessagesForCommentId } from '../../../utils/messageUtils'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
-import { invalidEditEvent, isTinyWindow } from '../../../utils/windowUtils'
+import { invalidEditEvent } from '../../../utils/windowUtils'
 import MarketTodoMenu from './MarketTodoMenu'
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined'
 import { doRemoveEdit, doShowEdit } from './userUtils'
@@ -134,6 +134,8 @@ function MarketTodos (props) {
   const classes = myClasses();
   const intl = useIntl();
   const history = useHistory();
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [beingDraggedHack, setBeingDraggedHack] = useContext(LocalPlanningDragContext);
@@ -497,13 +499,13 @@ function MarketTodos (props) {
   const editCard = comments.find((comment) => comment.id === editCardId);
   return (
     <div className={classes.outerBorder} id="marketTodos"
-         style={{display: sectionOpen === 'marketTodos' || isTinyWindow() ? 'block' : 'none'}}>
+         style={{display: sectionOpen === 'marketTodos' || mobileLayout ? 'block' : 'none'}}>
       <SubSection
         type={SECTION_SUB_HEADER}
         isBlackText
         title={intl.formatMessage({ id: 'todoSection' })}
         helpTextId="todoSectionHelp"
-        createButton={ isSingleTodoSelected || isInArchives || isTinyWindow() ? undefined :
+        createButton={ isSingleTodoSelected || isInArchives || mobileLayout ? undefined :
           (
           <SpinningIconLabelButton icon={ArrowUpwardIcon} onClick={toggleShowSelectTodos} doSpin={false}
                                    whiteBackground>

@@ -5,8 +5,7 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import LoadingOverlay from 'react-loading-overlay';
 import { useIntl } from 'react-intl';
-import { useTheme } from '@material-ui/core';
-import { isTinyWindow } from '../../utils/windowUtils';
+import { useMediaQuery, useTheme } from '@material-ui/core'
 import { pushMessage, registerListener } from '../../utils/MessageBusUtils';
 import _ from 'lodash';
 import ReactDOMServer from 'react-dom/server';
@@ -137,6 +136,7 @@ function QuillEditor2 (props) {
   const [editor, setEditor] = useState(null);
   const intl = useIntl();
   const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const [, setOperationInProgress] = useContext(OperationInProgressContext);
   const boundsId = `editorBox-${id || marketId}`;
   const initialContents = getInitialState(id, value, placeholder);
@@ -316,7 +316,7 @@ function QuillEditor2 (props) {
       modules.imageResize = false;
     }
 
-    if (isTinyWindow()) {
+    if (mobileLayout) {
       modules.toolbar.container = [
         ['bold', 'italic', 'link', 'image', 'video', 'clean'],
       ];
@@ -437,7 +437,7 @@ function QuillEditor2 (props) {
           <div ref={boxRef} id={boundsId} style={editorStyle}/>
         </LoadingOverlay>
       </div>
-      {isTinyWindow() && <div style={{ height: '40px' }}>&nbsp;</div>}
+      {mobileLayout && <div style={{ height: '40px' }}>&nbsp;</div>}
     </div>
   );
 }

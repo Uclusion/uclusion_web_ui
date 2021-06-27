@@ -1,5 +1,15 @@
 import React, { useContext, useState } from 'react';
-import { Button, ListItem, ListItemText, makeStyles, Menu, Tooltip, Typography } from '@material-ui/core'
+import {
+  Button,
+  ListItem,
+  ListItemText,
+  makeStyles,
+  Menu,
+  Tooltip,
+  Typography,
+  useMediaQuery,
+  useTheme
+} from '@material-ui/core'
 import SettingsIcon from '@material-ui/icons/Settings';
 import { useHistory } from 'react-router';
 import Divider from '@material-ui/core/Divider';
@@ -94,6 +104,8 @@ const useStyles = makeStyles((theme) => ({
 
 function Identity (props) {
   const classes = useStyles();
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const user = useContext(CognitoUserContext);
   const canChangeUserValues = !isFederated(user);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -122,7 +134,7 @@ function Identity (props) {
   return (
     <div
       id="profileLink"
-      style={{ paddingLeft: window.outerWidth > 600 ? '2rem' : '0.5rem' }}
+      style={{ paddingLeft: !mobileLayout ? '2rem' : '0.5rem' }}
     >
       <Button
         onClick={recordPositionToggle}
@@ -203,7 +215,7 @@ function Identity (props) {
             <SignOut />
           </div>
           <div className={classes.terms}>
-            {window.outerWidth <= 600 && (
+            {mobileLayout && (
               <Tooltip title={<FormattedMessage id="help" />}>
                 <HelpOutlineIcon color="primary" style={{cursor: 'pointer', marginRight: '1rem'}}
                                  onClick={() => openInNewTab(config.helpLink)} />

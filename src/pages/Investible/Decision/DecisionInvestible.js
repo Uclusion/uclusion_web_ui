@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import _ from 'lodash'
 import { useHistory } from 'react-router'
 import { FormattedMessage, useIntl } from 'react-intl'
-import { Card, CardContent, Grid, Typography } from '@material-ui/core'
+import { Card, CardContent, Grid, Typography, useMediaQuery, useTheme } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import YourVoting from '../Voting/YourVoting'
 import Voting from './Voting'
@@ -43,7 +43,7 @@ import { attachFilesToInvestible, deleteAttachedFilesFromInvestible } from '../.
 import { EMPTY_SPIN_RESULT } from '../../../constants/global'
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
-import { doSetEditWhenValid, isTinyWindow } from '../../../utils/windowUtils'
+import { doSetEditWhenValid } from '../../../utils/windowUtils'
 import EditMarketButton from '../../Dialog/EditMarketButton'
 import PlaylistAddCheckIcon from '@material-ui/icons/PlaylistAddCheck'
 import EditIcon from '@material-ui/icons/Edit'
@@ -196,6 +196,8 @@ function DecisionInvestible(props) {
   const intl = useIntl();
   const history = useHistory();
   const classes = useStyles();
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const metaClasses = useMetaDataStyles();
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, diffDispatch] = useContext(DiffContext);
@@ -269,7 +271,7 @@ function DecisionInvestible(props) {
   function getActions() {
     return (
     <dl className={classes.upperRightCard}>
-      {isTinyWindow() && isEditableByUser() && !beingEdited && (
+      {mobileLayout && isEditableByUser() && !beingEdited && (
           <EditMarketButton
             labelId="edit"
             marketId={marketId}

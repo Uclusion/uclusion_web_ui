@@ -10,7 +10,7 @@ import {
   FormControlLabel,
   makeStyles,
   Radio,
-  RadioGroup
+  RadioGroup, useMediaQuery, useTheme
 } from '@material-ui/core'
 import PropTypes from 'prop-types'
 import { getMentionsFromText, updateComment } from '../../api/comments';
@@ -164,6 +164,8 @@ function CommentEdit(props) {
     uploadedFiles
   } = editState;
   const intl = useIntl();
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const { id, uploaded_files: initialUploadedFiles, comment_type: commentType, inline_market_id: inlineMarketId,
     investible_id: investibleId, body: initialBody } = comment;
   const classes = useStyles();
@@ -259,7 +261,7 @@ function CommentEdit(props) {
                       /* prevent clicking the label stealing focus */
                       onMouseDown={e => e.preventDefault()}
                       control={<Radio color="primary" />}
-                      label={window.outerWidth < 600 ? getIcon(commentType) :
+                      label={mobileLayout ? getIcon(commentType) :
                         <FormattedMessage id={isInReview && commentType === REPORT_TYPE ? 'reviewReportPresent'
                           : `${commentType.toLowerCase()}Present`} />}
                       labelPlacement="end"

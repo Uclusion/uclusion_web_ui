@@ -12,10 +12,9 @@ import { lockPlanningMarketForEdit, unlockPlanningMarketForEdit, updateMarket } 
 import { Dialog } from '../../components/Dialogs'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { DiffContext } from '../../contexts/DiffContext/DiffContext'
-import { CardActions, CircularProgress, Typography } from '@material-ui/core'
+import { CardActions, CircularProgress, Typography, useMediaQuery, useTheme } from '@material-ui/core'
 import { processTextAndFilesForSave } from '../../api/files'
 import NameField, { getNameStoredState } from '../../components/TextFields/NameField'
-import { isTinyWindow } from '../../utils/windowUtils'
 import DescriptionOrDiff from '../../components/Descriptions/DescriptionOrDiff'
 import { Clear, SettingsBackupRestore } from '@material-ui/icons'
 import SpinningIconLabelButton from '../../components/Buttons/SpinningIconLabelButton'
@@ -134,6 +133,8 @@ function DialogBodyEdit(props) {
     showDiff
   } = pageState;
   const intl = useIntl();
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const classes = useStyles();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [,marketsDispatch] = useContext(MarketsContext);
@@ -277,11 +278,11 @@ function DialogBodyEdit(props) {
       <Typography className={isEditableByUser() ? lockedDialogClasses.titleEditable :
         lockedDialogClasses.titleDisplay}
                   variant="h3" component="h1"
-                  onClick={() => !isTinyWindow() && setBeingEdited(true)}>
+                  onClick={() => !mobileLayout && setBeingEdited(true)}>
         {initialName}
       </Typography>
       <DescriptionOrDiff id={id} description={initialDescription} showDiff={showDiff}
-                         setBeingEdited={isTinyWindow() ? () => {} : setBeingEdited}
+                         setBeingEdited={mobileLayout ? () => {} : setBeingEdited}
                          isEditable={isEditableByUser()}/>
     </>
   );

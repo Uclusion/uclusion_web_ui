@@ -13,7 +13,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import CardType, { AGILE_PLAN_TYPE } from '../../components/CardType'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
-import { Typography } from '@material-ui/core'
+import { Typography, useMediaQuery, useTheme } from '@material-ui/core'
 import clsx from 'clsx'
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'
 import { Clear, SettingsBackupRestore } from '@material-ui/icons'
@@ -494,7 +494,9 @@ export function DaysEstimate(props) {
 
   const classes = usePlanFormStyles();
   const intl = useIntl();
-  
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
+
   function handleDateChange(date) {
       onChange(date);
   }
@@ -515,7 +517,7 @@ export function DaysEstimate(props) {
               placeholderText={intl.formatMessage({ id: "selectDate" })}
               selected={value}
               onChange={handleDateChange}
-              popperPlacement={window.outerWidth < 600 ? 'bottom' : 'right'}
+              popperPlacement={mobileLayout ? 'bottom' : 'right'}
               minDate={new Date()}
             />
           </span>

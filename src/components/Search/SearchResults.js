@@ -9,9 +9,8 @@ import {
 import CommentSearchResult from './CommentSearchResult';
 import InvestibleSearchResult from './InvestibleSearchResult';
 import MarketSearchResult from './MarketSearchResult';
-import { List, ListItem, Paper, Popper, Typography, useTheme } from '@material-ui/core';
+import { List, ListItem, Paper, Popper, Typography, useMediaQuery, useTheme } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles';
-import { isTinyWindow } from '../../utils/windowUtils';
 import { useIntl } from 'react-intl';
 import Button from '@material-ui/core/Button';
 
@@ -113,6 +112,7 @@ function SearchResults (props) {
   const { results, page, search } = searchResults;
   const intl = useIntl();
   const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const classes = searchStyles(theme);
   const [anchorEl, setAnchorEl] = useState(null);
 
@@ -149,7 +149,7 @@ function SearchResults (props) {
     });
   }
 
-  const afterOnClick = isTinyWindow() ? zeroResults : () => {};
+  const afterOnClick = mobileLayout ? zeroResults : () => {};
 
   function getSearchResult (item) {
     const { id, type, marketId } = item;

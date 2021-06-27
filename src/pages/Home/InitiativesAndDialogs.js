@@ -1,5 +1,5 @@
 import React, { useContext } from 'react'
-import { CardActions, CardContent, Grid, Link, Typography } from '@material-ui/core'
+import { CardActions, CardContent, Grid, Link, Typography, useMediaQuery, useTheme } from '@material-ui/core'
 import _ from 'lodash'
 import { useHistory } from 'react-router'
 import { makeStyles } from '@material-ui/styles'
@@ -245,6 +245,8 @@ function InitiativesAndDialogs(props) {
   const dialogClasses = dialogStyles();
   const initiativeClasses = initiativeStyles();
   const intl = useIntl();
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const { dialogs, initiatives, showParentOf } = props;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [commentsState] = useContext(CommentsContext);
@@ -266,7 +268,7 @@ function InitiativesAndDialogs(props) {
             style={{alignSelf: 'center', display: 'flex', justifyContent: 'flex-end', paddingRight: '1rem'}}
           >
             <GravatarGroup
-              max={window.outerWidth > 600 ? 4 : 2}
+              max={!mobileLayout ? 4 : 2}
               spacing="small"
               users={presences}
             />
@@ -415,11 +417,11 @@ function InitiativesAndDialogs(props) {
                           {intl.formatMessage({ id: 'draft' })}
                         </Typography>
                       )}
-                      <Typography variant={window.outerWidth > 600 ? 'h6' : 'body1'}>
+                      <Typography variant={!mobileLayout ? 'h6' : 'body1'}>
                         {name}
                       </Typography>
                     </div>
-                    {window.outerWidth > 600 ? getDialogTypeIcon(marketType, isSmall) : <span/>}
+                    {!mobileLayout ? getDialogTypeIcon(marketType, isSmall) : <span/>}
                     <Typography className={classes.byline}>
                       {intl.formatMessage({id: 'homeDialogLabel'},
                         {x: creator.name, y: intl.formatDate(marketUpdatedAt)})}
@@ -592,11 +594,11 @@ function InitiativesAndDialogs(props) {
                           {intl.formatMessage({ id: 'draft' })}
                         </Typography>
                       )}
-                      <Typography variant={window.outerWidth > 600 ? 'h6' : 'body1'}>
+                      <Typography variant={!mobileLayout ? 'h6' : 'body1'}>
                         {name}
                       </Typography>
                     </div>
-                    {window.outerWidth > 600 ? getDialogTypeIcon(marketType, isSmall) : <span/>}
+                    {!mobileLayout ? getDialogTypeIcon(marketType, isSmall) : <span/>}
                     <Typography className={classes.byline}>
                       {intl.formatMessage({id: 'homeInitiativeLabel'},
                         {x: creator.name, y: intl.formatDate(marketUpdatedAt)})}

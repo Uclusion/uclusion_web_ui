@@ -10,7 +10,7 @@ import {
   Checkbox,
   FormControlLabel,
   Grid,
-  Typography
+  Typography, useMediaQuery, useTheme
 } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import _ from 'lodash'
@@ -70,7 +70,7 @@ import { onCommentOpen } from '../../utils/commentFunctions'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 import { findMessageForCommentId, removeMessagesForCommentId } from '../../utils/messageUtils'
 import GravatarAndName from '../Avatars/GravatarAndName';
-import { invalidEditEvent, isTinyWindow } from '../../utils/windowUtils'
+import { invalidEditEvent } from '../../utils/windowUtils'
 import DecisionInvestibleAdd from '../../pages/Dialog/Decision/DecisionInvestibleAdd'
 import ExpandableAction from '../SidebarActions/Planning/ExpandableAction'
 import AddIcon from '@material-ui/icons/Add'
@@ -311,6 +311,8 @@ function Comment(props) {
   const history = useHistory();
   const location = useLocation();
   const { hash } = location;
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const intl = useIntl();
   const classes = useCommentStyles();
@@ -423,7 +425,7 @@ function Comment(props) {
   }
 
   function setBeingEdited(value, event) {
-    if (isTinyWindow() || invalidEditEvent(event, history)) {
+    if (mobileLayout || invalidEditEvent(event, history)) {
       return;
     }
     updateEditState({beingEdited: value, body});
@@ -644,7 +646,7 @@ function Comment(props) {
               `${intl.formatMessage({ id: 'lastUpdatedBy' })} ${updatedBy.name}.`}
             </Typography>
           )}
-          {displayEditing && isTinyWindow() && !editOpen && (
+          {displayEditing && mobileLayout && !editOpen && (
             <SpinningIconLabelButton
               onClick={() => {updateEditState({beingEdited: true, body})}}
               doSpin={false}
@@ -682,7 +684,7 @@ function Comment(props) {
           <Box marginTop={1}>
             {!editOpen && !displayingDiff && (
               <ReadOnlyQuillEditor value={comment.body} setBeingEdited={setBeingEdited}
-                                   isEditable={!isTinyWindow() && displayEditing}/>
+                                   isEditable={!mobileLayout && displayEditing}/>
             )}
             {!editOpen && displayingDiff && (
               <DiffDisplay id={id} />
@@ -749,7 +751,7 @@ function Comment(props) {
                     </Typography>
                   </div>
                 )}
-                {(replies.length > 0 || inlineMarketId) && (!isTinyWindow() || !inlineMarketId) && (
+                {(replies.length > 0 || inlineMarketId) && (!mobileLayout || !inlineMarketId) && (
                   <SpinningIconLabelButton
                     icon={repliesExpanded ? ExpandLess : ExpandMore}
                     doSpin={false}
@@ -766,7 +768,7 @@ function Comment(props) {
                     />
                   </SpinningIconLabelButton>
                 )}
-                {!isTinyWindow() && !_.isEmpty(messages) && (
+                {!mobileLayout && !_.isEmpty(messages) && (
                   <SpinningIconLabelButton onClick={() => {
                     deleteOrDehilightMessages(messages, messagesDispatch).then(() => setOperationRunning(false))
                       .finally(() => {
@@ -803,7 +805,7 @@ function Comment(props) {
               {commentType === QUESTION_TYPE && !inArchives && inlineMarketId && !resolved && (
                 <div style={{marginRight: '1rem', paddingTop: '0.5rem'}}>
                   <Typography style={{fontSize: 12}}>
-                    {intl.formatMessage({ id: isTinyWindow() ? 'allowMultiVoteQuestionMobile'
+                    {intl.formatMessage({ id: mobileLayout ? 'allowMultiVoteQuestionMobile'
                         : 'allowMultiVoteQuestion' })}
                     <Checkbox
                       style={{maxHeight: '1rem'}}
@@ -825,7 +827,7 @@ function Comment(props) {
                   {intl.formatMessage({ id: "storyFromComment" })}
                 </SpinningIconLabelButton>
               )}
-              {myMessage && diff && !isTinyWindow() && (
+              {myMessage && diff && !mobileLayout && (
                 <SpinningIconLabelButton icon={showDiff ? ExpandLess : ExpandMoreIcon} onClick={toggleDiffShow}
                                          doSpin={false}>
                   <FormattedMessage id={showDiff ? 'diffDisplayDismissLabel' : 'diffDisplayShowLabel'} />

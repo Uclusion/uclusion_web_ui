@@ -2,7 +2,17 @@ import React, { useContext, useEffect, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { AppBar, Breadcrumbs, Link, Paper, Toolbar, Tooltip, Typography, } from '@material-ui/core';
+import {
+  AppBar,
+  Breadcrumbs,
+  Link,
+  Paper,
+  Toolbar,
+  Tooltip,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles';
 import { createTitle, navigate, openInNewTab } from '../../utils/marketIdPathFunctions';
 import { OnlineStateContext } from '../../contexts/OnlineStateContext';
@@ -14,7 +24,6 @@ import { OperationInProgressContext } from '../../contexts/OperationInProgressCo
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import config from '../../config';
 import NotificationsContainer from '../../components/Notifications/NotificationsContainer';
-import { isTinyWindow } from '../../utils/windowUtils'
 
 export const headerStyles = makeStyles((theme) => {
   return {
@@ -128,6 +137,8 @@ const ALT_LOGO = '#F29100';
 function Header (props) {
   const classes = headerStyles();
   const intl = useIntl();
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const [online] = useContext(OnlineStateContext);
   const history = useHistory();
   const {
@@ -185,7 +196,7 @@ function Header (props) {
   }
 
   function generateBreadCrumbs () {
-    const titleSize = isTinyWindow() ? 25 : _.size(breadCrumbs) < 2 ? 100 : 50;
+    const titleSize = mobileLayout ? 25 : _.size(breadCrumbs) < 2 ? 100 : 50;
     // if we've been passed in breadcrumbs and are not hidden generate them
     if (breadCrumbs && !hidden) {
       return (
@@ -279,13 +290,13 @@ function Header (props) {
                 <NotificationsContainer/>
               </div>
               <div className={classes.padLeft} />
-              {isTinyWindow() && (
+              {mobileLayout && (
                 <>
                   <SearchBox/>
                   <SearchResults/>
                 </>
               )}
-              {!isTinyWindow() && (
+              {!mobileLayout && (
                 <Tooltip title={<FormattedMessage id="help"/>}>
                   <HelpOutlineIcon style={{ cursor: 'pointer', marginLeft: '1rem', color: 'grey' }} id="helpIcon"
                                    onClick={() => openInNewTab(config.helpLink)}/>

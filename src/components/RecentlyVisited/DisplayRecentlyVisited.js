@@ -5,8 +5,7 @@ import VotingVisitedResult from './VotingVisitedResult';
 import InvestibleSearchResult from '../Search/InvestibleSearchResult';
 import MarketSearchResult from '../Search/MarketSearchResult';
 import { searchStyles } from '../Search/SearchResults';
-import { ListItem, Paper, Popper, useTheme, List, Typography } from '@material-ui/core';
-import { isTinyWindow } from '../../utils/windowUtils';
+import { ListItem, Paper, Popper, useTheme, List, Typography, useMediaQuery } from '@material-ui/core'
 import { getCommentRoot } from '../../contexts/CommentsContext/commentsContextHelper';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
@@ -37,9 +36,9 @@ const useStyles = makeStyles(() => {
 function DisplayRecentlyVisited (props) {
 
   const { open, setOpen } = props;
-
   const intl = useIntl();
   const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const classes = useStyles(theme);
   const searchClasses = searchStyles(theme);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -59,7 +58,7 @@ function DisplayRecentlyVisited (props) {
     setOpen(false);
   }
 
-  const afterOnClick = isTinyWindow() ? zeroResults : () => {};
+  const afterOnClick = mobileLayout ? zeroResults : () => {};
 
   function getSearchResult (item) {
     const {

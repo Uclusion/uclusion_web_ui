@@ -4,9 +4,11 @@ import Notifications from './Notifications';
 import { BLUE_LEVEL, RED_LEVEL, YELLOW_LEVEL } from '../../constants/notifications';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import { levelMessages } from '../../contexts/NotificationsContext/notificationsContextHelper';
-import { isTinyWindow } from '../../utils/windowUtils';
+import { useMediaQuery, useTheme } from '@material-ui/core'
 
 function NotificationsContainer () {
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const [activeLevel, setActiveLevel] = useState(null);
   const [messagesState] = useContext(NotificationsContext);
   const redMessages = levelMessages(messagesState, RED_LEVEL);
@@ -14,8 +16,8 @@ function NotificationsContainer () {
   const blueMessages = levelMessages(messagesState, BLUE_LEVEL);
 
   // on small windows we only have room for one, so drop blue and yellow if we have red
-  const showYellowMessages = !_.isEmpty(yellowMessages) && (!isTinyWindow() || _.isEmpty(redMessages));
-  const showBlueMessages = !_.isEmpty(blueMessages) && (!isTinyWindow() || _.isEmpty(redMessages) || _.isEmpty(yellowMessages));
+  const showYellowMessages = !_.isEmpty(yellowMessages) && (!mobileLayout || _.isEmpty(redMessages));
+  const showBlueMessages = !_.isEmpty(blueMessages) && (!mobileLayout || _.isEmpty(redMessages) || _.isEmpty(yellowMessages));
   return (
     <React.Fragment>
       {!_.isEmpty(redMessages) && (

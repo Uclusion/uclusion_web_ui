@@ -1,5 +1,6 @@
 import { navigate } from './marketIdPathFunctions'
 
+//Only use if media query not available
 export function isTinyWindow(){
   return window.outerWidth < 600;
 }

@@ -1,5 +1,5 @@
 import React, { useContext } from 'react'
-import { CardActions, CardContent, Grid, Link, Tooltip, Typography } from '@material-ui/core'
+import { CardActions, CardContent, Grid, Link, Tooltip, Typography, useMediaQuery, useTheme } from '@material-ui/core'
 import _ from 'lodash'
 import { useHistory } from 'react-router'
 import { makeStyles } from '@material-ui/styles'
@@ -141,6 +141,8 @@ function PlanningDialogs(props) {
   const history = useHistory();
   const intl = useIntl();
   const classes = useStyles();
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const { markets, isArchives } = props;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [investibleState] = useContext(InvestiblesContext);
@@ -255,14 +257,14 @@ function PlanningDialogs(props) {
                 </Typography>
             </Link>
               }
-              <div className={window.outerWidth > 600 ? classes.innerContainer : classes.innerContainerMobile}
+              <div className={!mobileLayout ? classes.innerContainer : classes.innerContainerMobile}
                 onClick={(event) => {
                 event.preventDefault();
                 navigate(history, formMarketLink(marketId));}
                 }
               >
                 <Typography 
-                  variant={window.outerWidth > 600 ? 'h5' : 'h6'}
+                  variant={!mobileLayout ? 'h5' : 'h6'}
                 >
                     {name}
                 </Typography>

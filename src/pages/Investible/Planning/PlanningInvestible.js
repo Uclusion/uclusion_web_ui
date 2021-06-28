@@ -230,7 +230,8 @@ const useStyles = makeStyles(
       marginLeft: '30px',
       [theme.breakpoints.down("sm")]: {
         marginLeft: '0',
-        flexDirection: 'column'
+        flexDirection: 'column',
+        paddingBottom: '1rem'
       }
     },
     labelChip: {

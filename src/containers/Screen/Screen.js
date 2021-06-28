@@ -32,7 +32,7 @@ const useStyles = makeStyles((theme) => ({
     padding: '24px 20px 156px',
     marginTop: '80px',
     width: '100%',
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('md')]: {
       padding: '24px 12px 156px',
     },
   },
@@ -40,7 +40,7 @@ const useStyles = makeStyles((theme) => ({
     padding: '24px 20px 156px 25px',
     marginTop: '80px',
     width: '100%',
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('md')]: {
       padding: '24px 12px 156px',
     },
   },
@@ -48,7 +48,7 @@ const useStyles = makeStyles((theme) => ({
     padding: '24px 20px 156px 500px',
     marginTop: '80px',
     width: '100%',
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('md')]: {
       padding: '24px 12px 156px',
     },
   },
@@ -155,7 +155,7 @@ function processRegularItem(classes, history, text, target, num, Icon, onClickFu
 function Screen(props) {
   const classes = useStyles();
   const theme = useTheme();
-  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
   const [userState] = useContext(AccountUserContext);
   const [searchResults] = useContext(SearchResultsContext);
   const { results } = searchResults;

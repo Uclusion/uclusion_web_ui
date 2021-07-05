@@ -348,6 +348,7 @@ function PlanningDialog(props) {
               requiresInputStage={requiresInputStage}
               activeMarket={activeMarket}
               isAdmin={isAdmin}
+              mobileLayout={mobileLayout}
             />
           </div>
           <SubSection
@@ -561,7 +562,8 @@ function InvestiblesByPerson(props) {
     requiresInputStage,
     inVerifiedStage,
     activeMarket,
-    isAdmin
+    isAdmin,
+    mobileLayout
   } = props;
   const intl = useIntl();
   const history = useHistory();
@@ -597,8 +599,10 @@ function InvestiblesByPerson(props) {
           <div style={{alignItems: "center", display: "flex", flexDirection: 'row'}}>
             <Typography variant="h6">
               {name}
-              <NotificationCountChips id={id} criticalNotifications={criticalNotificationCount}
-                                      delayableNotifications={delayableNotificationCount} />
+              {!mobileLayout && (
+                <NotificationCountChips id={id} criticalNotifications={criticalNotificationCount}
+                                        delayableNotifications={delayableNotificationCount} />
+              )}
             </Typography>
             <div style={{flexGrow: 1}} />
             <ExpandableAction

@@ -25,7 +25,7 @@ import {
   getRequiredInputStage, getStages, getVerifiedStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
-import { Button, Menu, MenuItem, Typography } from '@material-ui/core'
+import { Button, Menu, MenuItem, Typography, useMediaQuery, useTheme } from '@material-ui/core'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants';
 import { useIntl } from 'react-intl';
@@ -50,6 +50,8 @@ function InvestiblesByWorkspace (props) {
   } = props;
   const intl = useIntl();
   const history = useHistory();
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const classes = useInvestiblesByPersonStyles();
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [investiblesState] = useContext(InvestiblesContext);
@@ -185,8 +187,10 @@ function InvestiblesByWorkspace (props) {
                                    navigate(history, formMarketLink(market.id));
                                  }
                                  }>{market.name}</Link>
-                      <NotificationCountChips id={market.id} criticalNotifications={criticalNotificationCount}
-                                              delayableNotifications={delayableNotificationCount} />
+                      {!mobileLayout && (
+                        <NotificationCountChips id={market.id} criticalNotifications={criticalNotificationCount}
+                                                delayableNotifications={delayableNotificationCount} />
+                      )}
                     </Typography>
                     <div style={{flexGrow: 1}} />
                     <ExpandableAction

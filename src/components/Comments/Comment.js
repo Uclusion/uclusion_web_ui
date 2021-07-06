@@ -465,7 +465,8 @@ function Comment(props) {
               (<ExpandableAction
                 icon={<AddIcon htmlColor="black"/>}
                 label={intl.formatMessage({ id: 'createDialogApprovableExplanation' })}
-                openLabel={intl.formatMessage({ id: 'decisionDialogAddInvestibleLabel'})}
+                openLabel={intl.formatMessage({ id: mobileLayout ? 'inlineAddLabelMobile' :
+                    'decisionDialogAddInvestibleLabel'})}
                 onClick={toggleInlineInvestibleAdd}
                 disabled={commentCreatedBy !== userId}
                 tipPlacement="top-end"
@@ -733,7 +734,7 @@ function Comment(props) {
                     doSpin={false}
                     icon={AddIcon}
                   >
-                    {intl.formatMessage({ id: "inlineAddLabel" })}
+                    {intl.formatMessage({ id: mobileLayout ? 'inlineAddLabelMobile' : 'inlineAddLabel' })}
                   </SpinningIconLabelButton>
                 )}
                 {commentType === SUGGEST_CHANGE_TYPE && !inArchives && !resolved && !inlineMarketId && marketType === PLANNING_TYPE && (
@@ -751,7 +752,7 @@ function Comment(props) {
                     </Typography>
                   </div>
                 )}
-                {(replies.length > 0 || inlineMarketId) && (!mobileLayout || !inlineMarketId) && (
+                {!mobileLayout && (replies.length > 0 || inlineMarketId) && (
                   <SpinningIconLabelButton
                     icon={repliesExpanded ? ExpandLess : ExpandMore}
                     doSpin={false}
@@ -818,7 +819,7 @@ function Comment(props) {
                   </Typography>
                 </div>
               )}
-              {!investibleId && !inArchives && enableActions && !resolved && marketType === PLANNING_TYPE && (
+              {!mobileLayout && !investibleId && !inArchives && enableActions && !resolved && marketType === PLANNING_TYPE && (
                 <SpinningIconLabelButton
                   onClick={() => navigate(history, `${formMarketAddInvestibleLink(marketId)}#fromCommentId=${id}`)}
                   doSpin={false}

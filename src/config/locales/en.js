@@ -556,6 +556,7 @@ const messages = defineMessages({
   planningInvestibleVotingHelp: 'Input how certain you are this story should be done or open an issue.',
   collaborators: 'Collaborators',
   inlineAddLabel: 'Add Option',
+  inlineAddLabelMobile: 'Option',
   createDialogApprovableExplanation: 'New approvable option',
   createDialogProposedExplanation: 'New proposed option',
   allowVoteSuggestion: 'Allow voting',

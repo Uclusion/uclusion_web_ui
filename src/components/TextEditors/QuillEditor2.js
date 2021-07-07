@@ -5,7 +5,7 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import LoadingOverlay from 'react-loading-overlay';
 import { useIntl } from 'react-intl';
-import { useMediaQuery, useTheme } from '@material-ui/core'
+import { useTheme } from '@material-ui/core'
 import { pushMessage, registerListener } from '../../utils/MessageBusUtils';
 import _ from 'lodash';
 import ReactDOMServer from 'react-dom/server';
@@ -25,6 +25,7 @@ import CustomCodeBlock from './CustomCodeBlock';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import PropTypes from 'prop-types';
 import { getNameForUrl } from '../../utils/marketIdPathFunctions'
+import { isTinyWindow } from '../../utils/windowUtils'
 
 
 // install our filtering paste module, and disable the uploader
@@ -136,7 +137,6 @@ function QuillEditor2 (props) {
   const [editor, setEditor] = useState(null);
   const intl = useIntl();
   const theme = useTheme();
-  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const [, setOperationInProgress] = useContext(OperationInProgressContext);
   const boundsId = `editorBox-${id || marketId}`;
   const initialContents = getInitialState(id, value, placeholder);
@@ -316,7 +316,8 @@ function QuillEditor2 (props) {
       modules.imageResize = false;
     }
 
-    if (mobileLayout) {
+    // Can't do media query here because editor will not re-create itself on change with current useEffect
+    if (isTinyWindow()) {
       modules.toolbar.container = [
         ['bold', 'italic', 'link', 'image', 'video', 'clean'],
       ];
@@ -437,7 +438,7 @@ function QuillEditor2 (props) {
           <div ref={boxRef} id={boundsId} style={editorStyle}/>
         </LoadingOverlay>
       </div>
-      {mobileLayout && <div style={{ height: '40px' }}>&nbsp;</div>}
+      {isTinyWindow() && <div style={{ height: '50px' }}>&nbsp;</div>}
     </div>
   );
 }

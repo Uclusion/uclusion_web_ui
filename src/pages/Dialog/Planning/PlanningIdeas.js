@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { useHistory } from 'react-router';
-import { Grid, Link, Tooltip, Typography } from '@material-ui/core'
+import { Grid, Link, Tooltip, Typography, useMediaQuery, useTheme } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles';
 import { yellow } from '@material-ui/core/colors';
 import { FormattedDate, FormattedMessage, useIntl } from 'react-intl';
@@ -502,6 +502,8 @@ function Stage (props) {
     limitInvestiblesAge,
     votesRequired
   } = props;
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const [, dragHack] = useContext(LocalPlanningDragContext);
   const stageInvestibles = getUserSwimlaneInvestibles(investibles, limitInvestibles, limitInvestiblesAge,
     marketId, id);
@@ -572,6 +574,7 @@ function Stage (props) {
                   showWarning={isReview || isVoting ? countByType(investible, comments,
                     [QUESTION_TYPE, SUGGEST_CHANGE_TYPE]) > 0 : false}
                   showCompletion={showCompletion}
+                  mobileLayout={mobileLayout}
                 />
             </Grid>
           );
@@ -694,7 +697,7 @@ function VerifiedStage(props) {
 }
 
 
-function StageInvestible (props) {
+function StageInvestible(props) {
   const {
     investible,
     marketId,
@@ -707,11 +710,15 @@ function StageInvestible (props) {
     isVoting,
     votesRequired,
     isReview,
-    numTodos
+    numTodos,
+    mobileLayout
   } = props;
   const intl = useIntl();
 
   function getChip(labelNum, isGreen, toolTipId) {
+    if (mobileLayout) {
+      return React.Fragment;
+    }
     return (
       <Tooltip title={intl.formatMessage({ id: toolTipId })}>
         <Chip label={`${labelNum}`} size='small' className={isGreen ? classes.chipStyleGreen : classes.chipStyleRed} />

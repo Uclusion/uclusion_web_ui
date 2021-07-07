@@ -285,9 +285,11 @@ function CommentEdit(props) {
           >
             {intl.formatMessage({ id: 'update' })}
           </SpinningIconLabelButton>
-          <Button className={classes.button}>
-            {intl.formatMessage({ id: 'edited' })}
-          </Button>
+          {!mobileLayout && (
+            <Button className={classes.button}>
+              {intl.formatMessage({ id: 'edited' })}
+            </Button>
+          )}
         </CardActions>
       </Card>
     </div>

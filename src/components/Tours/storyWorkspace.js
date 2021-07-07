@@ -1,5 +1,20 @@
+import { isTinyWindow } from '../../utils/windowUtils'
 
 export function inviteStoriesWorkspaceSteps () {
+  if (isTinyWindow()) {
+    return [{
+      disableBeacon: true,
+      target: '#redLevelNotification',
+      placement: 'bottom',
+      content: 'These are critical notification tasks. When a notification task is complete it is cleared for everyone.'
+    },
+    {
+      disableBeacon: true,
+      target: '#editMarketButtonPlan',
+      placement: 'left',
+      content: 'When you are done send this workspace to the archives from the configure screen or your home page.',
+    }];
+  }
   return [
     {
       disableBeacon: true,

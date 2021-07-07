@@ -6,10 +6,10 @@ export function signupHomeSteps(variables) {
     return [
       {
         disableBeacon: true,
-        placement: 'right',
-        target: '#AddNew',
+        target: '#root',
+        placement: 'center',
         title: `Welcome to Uclusion ${name}!`,
-        content: "Add new when you are ready to create your own Workspace, Initiative or Dialog."
+        content: "Mobile allows you quickly see updates and respond. For anything involved use desktop."
       },
       {
         disableBeacon: true,

@@ -32,7 +32,7 @@ export function onCommentOpen(investibleState, investibleId, marketStagesState, 
   const investibleBlocks = (investibleId && comment.comment_type === ISSUE_TYPE)
     && currentStageId !== blockingStage.id
   changeInvestibleStageOnCommentChange(investibleBlocks, investibleRequiresInput,
-    blockingStage, requiresInputStage, info, market_infos, rootInvestible, investibleDispatch)
+    blockingStage, requiresInputStage, info, market_infos, rootInvestible, investibleDispatch, comment)
   addCommentToMarket(comment, commentsState, commentsDispatch)
 }
 
@@ -51,7 +51,7 @@ export function getThreadIds(parents, comments) {
 }
 
 export function changeInvestibleStageOnCommentChange(investibleBlocks, investibleRequiresInput,
-  blockingStage, requiresInputStage, info, market_infos, rootInvestible, investibleDispatch) {
+  blockingStage, requiresInputStage, info, market_infos, rootInvestible, investibleDispatch, comment) {
   if (investibleBlocks || investibleRequiresInput) {
     const newStage = investibleBlocks ? blockingStage : requiresInputStage;
     if (newStage.id) {
@@ -60,7 +60,7 @@ export function changeInvestibleStageOnCommentChange(investibleBlocks, investibl
         stage: newStage.id,
         stage_name: newStage.name,
         open_for_investment: false,
-        last_stage_change_date: Date.now().toString(),
+        last_stage_change_date: comment.updated_at,
       };
       const newInfos = _.unionBy([newInfo], market_infos, 'id');
       const newInvestible = {

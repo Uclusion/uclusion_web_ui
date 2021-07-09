@@ -309,7 +309,7 @@ function CommentAdd(props) {
         commentAddStateReset();
         editorController(editorReset());
         changeInvestibleStageOnCommentChange(investibleBlocks, investibleRequiresInput,
-          blockingStage, requiresInputStage, info, market_infos, rootInvestible, investibleDispatch);
+          blockingStage, requiresInputStage, info, market_infos, rootInvestible, investibleDispatch, comment);
         addCommentToMarket(comment, commentsState, commentDispatch);
         if (apiType === REPORT_TYPE || (apiType === TODO_TYPE && inReviewStage.id === currentStageId)) {
           const message = findMessageOfType('REPORT_REQUIRED', investibleId, messagesState);

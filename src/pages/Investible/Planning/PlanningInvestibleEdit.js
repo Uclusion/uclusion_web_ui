@@ -120,7 +120,7 @@ function PlanningInvestibleEdit(props) {
               stage: newStage.id,
               stage_name: newStage.name,
               open_for_investment: newStage.allows_investment,
-              last_stage_change_date: Date.now().toString(),
+              last_stage_change_date: info.updated_at,
             };
             const newInfos = _.unionBy([newInfo], market_infos, 'id');
             fullInvestible = {

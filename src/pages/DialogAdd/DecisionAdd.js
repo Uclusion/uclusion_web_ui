@@ -128,7 +128,7 @@ function DecisionAdd(props) {
                   stage: requiresInputStage.id,
                   stage_name: requiresInputStage.name,
                   open_for_investment: false,
-                  last_stage_change_date: Date.now().toString(),
+                  last_stage_change_date: info.updated_at,
                 };
                 const newInfos = _.unionBy([newInfo], market_infos, 'id');
                 const newInvestible = {

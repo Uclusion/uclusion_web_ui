@@ -731,7 +731,6 @@ function StageInvestible(props) {
   const history = useHistory();
   const to = formInvestibleLink(marketId, id);
   const [marketPresencesState] = useContext(MarketPresencesContext);
-  const safeChangeDate = Date.parse(marketInfo.last_stage_change_date);
   const classes = generalStageStyles();
 
   const commentsForInvestible = comments.filter((comment) => comment.investible_id === id);
@@ -751,7 +750,7 @@ function StageInvestible(props) {
       <Grid item xs={10}>
         <Typography variant="inherit">
           {updatedText}
-          <FormattedDate value={safeChangeDate}/>
+          <FormattedDate value={marketInfo.last_stage_change_date}/>
         </Typography>
         {hasDaysEstimate && !isVoting && (
           <DaysEstimate readOnly value={daysEstimate} createdAt={createdAt}/>

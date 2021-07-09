@@ -42,6 +42,7 @@ import NotificationCountChips from '../NotificationCountChips'
 import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
 import AddIcon from '@material-ui/icons/Add'
 import Chip from '@material-ui/core/Chip'
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 export const LocalPlanningDragContext = React.createContext([]);
 
 function InvestiblesByWorkspace (props) {
@@ -58,6 +59,7 @@ function InvestiblesByWorkspace (props) {
   const [commentsState] = useContext(CommentsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [marketsState] = useContext(MarketsContext);
+  const [messagesState] = useContext(NotificationsContext);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [chosenPerson, setChosenPerson] = React.useState({ name: '', email: '', external_id: '' });
   // For security reasons you can't access source data while being dragged in case you are not the target website
@@ -161,7 +163,7 @@ function InvestiblesByWorkspace (props) {
             visibleStageIds,
           );
           const { criticalNotificationCount, delayableNotificationCount } = sumNotificationCounts(presence, comments,
-            marketPresencesState);
+            marketPresencesState, messagesState, market.id);
           const requiresInputInvestibles = getInvestiblesInStage(investibles, requiresInputStage.id) || [];
           const blockedInvestibles = getInvestiblesInStage(investibles, inBlockingStage.id) || [];
           const highlightMap = {};

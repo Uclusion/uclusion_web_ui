@@ -6,6 +6,8 @@ import { addPlanningInvestible } from '../../../api/investibles'
 import { moveComments } from '../../../api/comments'
 import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { RED_LEVEL, YELLOW_LEVEL } from '../../../constants/notifications'
+import { findMessagesForMarketId } from '../../../utils/messageUtils'
 
 /**
  * Returns the investibles in the market assigned to the user
@@ -138,9 +140,17 @@ export function doRemoveEdit(id, hasIcon) {
   }
 }
 
-export function sumNotificationCounts(presence, comments, marketPresencesState) {
+export function sumNotificationCounts(presence, comments, marketPresencesState, messagesState, marketId) {
   const { critical_notifications: criticalNotifications,
-    delayable_notifications: delayableNotifications, external_id: externalId } = presence;
+    delayable_notifications: delayableNotifications, external_id: externalId,
+    current_user: isCurrentUser } = presence;
+  if (isCurrentUser) {
+    const messages = findMessagesForMarketId(marketId, messagesState) || [];
+    // Special case current user because presence counts don't have quick add
+    const redMessages = messages.filter((message) => message.level === RED_LEVEL) || [];
+    const yellowMessages = messages.filter((message) => message.level === YELLOW_LEVEL) || [];
+    return { criticalNotificationCount: redMessages.length, delayableNotificationCount: yellowMessages.length };
+  }
   let criticalNotificationCount = criticalNotifications;
   let delayableNotificationCount = delayableNotifications;
   (comments || []).forEach((comment) => {

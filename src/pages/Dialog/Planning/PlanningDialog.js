@@ -72,6 +72,7 @@ import PlayForWorkIcon from '@material-ui/icons/PlayForWork'
 import { getFakeCommentsArray } from '../../../utils/stringFunctions'
 import Chip from '@material-ui/core/Chip'
 import { getThreadIds } from '../../../utils/commentFunctions'
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -568,6 +569,7 @@ function InvestiblesByPerson(props) {
   const intl = useIntl();
   const history = useHistory();
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [messagesState] = useContext(NotificationsContext);
   const classes = useInvestiblesByPersonStyles();
   const marketPresencesSortedAlmost = _.sortBy(marketPresences, 'name');
   const marketPresencesSorted = _.sortBy(marketPresencesSortedAlmost, function (presence) {
@@ -582,7 +584,7 @@ function InvestiblesByPerson(props) {
   return marketPresencesSorted.map(presence => {
     const { id, name, email } = presence;
     const { criticalNotificationCount, delayableNotificationCount } = sumNotificationCounts(presence, comments,
-      marketPresencesState);
+      marketPresencesState, messagesState, marketId);
     const myInvestibles = getUserInvestibles(
       id,
       marketId,

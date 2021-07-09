@@ -22,7 +22,7 @@ export function deleteSingleMessage(message) {
   return getMarketClient(marketId).then((client) => client.users.removeNotification(typeObjectId));
 }
 
-export function deleteOrDehilightMessages(messages, messagesDispatch) {
+export function deleteOrDehilightMessages(messages, messagesDispatch, doRemove=true) {
   const typeObjectIds = [];
   let useMarketId;
   messages.forEach((message) => {
@@ -35,7 +35,7 @@ export function deleteOrDehilightMessages(messages, messagesDispatch) {
       messagesDispatch(dehighlightMessage(message));
     }
   });
-  if (useMarketId) {
+  if (useMarketId && doRemove) {
     return getMarketClient(useMarketId).then((client) => client.users.removeNotifications(typeObjectIds));
   }
   return Promise.resolve(true);

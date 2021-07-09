@@ -702,6 +702,7 @@ function Comment(props) {
               editStateReset={editStateReset}
               myNotificationType={myNotificationType}
               isInReview={isInReview}
+              messages={messages}
             />
             {noAuthor && !editOpen && (
               <SpinningIconLabelButton onClick={onDone} doSpin={false} icon={Clear}>
@@ -861,6 +862,7 @@ function Comment(props) {
                   marketId={marketId}
                   highLightId={highlighted}
                   enableEditing={enableEditing}
+                  messages={messages}
                 />
               );
             })}
@@ -914,9 +916,10 @@ Comment.defaultProps = {
 };
 
 function InitialReply(props) {
-  const { comment, highLightId, enableEditing } = props;
+  const { comment, highLightId, enableEditing, messages } = props;
 
-  return <Reply id={`c${comment.id}`} comment={comment} highLightId={highLightId} enableEditing={enableEditing}/>;
+  return <Reply id={`c${comment.id}`} comment={comment} highLightId={highLightId} enableEditing={enableEditing}
+  messages={messages}/>;
 }
 
 const useReplyStyles = makeStyles(
@@ -1018,7 +1021,7 @@ const unknownPresence = {
  * @param {{comment: Comment}} props
  */
 function Reply(props) {
-  const { comment, highLightId, enableEditing, ...other } = props;
+  const { comment, highLightId, messages, enableEditing, ...other } = props;
   const marketId = useMarketId();
   const presences = usePresences(marketId);
   const commenter = useCommenter(comment, presences) || unknownPresence;
@@ -1068,6 +1071,7 @@ function Reply(props) {
           updateEditState={updateEditState}
           editStateReset={editStateReset}
           comment={comment}
+          messages={messages}
         />
         {!beingEdited && (
           <ReadOnlyQuillEditor
@@ -1150,7 +1154,7 @@ const useThreadedReplyStyles = makeStyles(
  * @param {{comments: Comment[], replies: string[]}} props
  */
 function ThreadedReplies(props) {
-  const { replies: replyIds, highLightId, enableEditing } = props;
+  const { replies: replyIds, highLightId, enableEditing, messages } = props;
   const comments = useComments();
 
   const classes = useThreadedReplyStyles();
@@ -1172,6 +1176,7 @@ function ThreadedReplies(props) {
               key={`threadc${reply.id}`}
               highLightId={highLightId}
               enableEditing={enableEditing}
+              messages={messages}
             />
           );
         }
@@ -1182,9 +1187,9 @@ function ThreadedReplies(props) {
 }
 
 function ThreadedReply(props) {
-  const { comment, highLightId, enableEditing } = props;
+  const { comment, highLightId, enableEditing, messages } = props;
   return <Reply key={`c${comment.id}`} id={`c${comment.id}`} className={props.className} comment={comment}
-                highLightId={highLightId} enableEditing={enableEditing} />;
+                highLightId={highLightId} enableEditing={enableEditing} messages={messages} />;
 }
 
 /**

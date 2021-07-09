@@ -33,6 +33,7 @@ import { Clear, Update } from '@material-ui/icons'
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'
 import { editorReset, useEditor } from '../TextEditors/quillHooks'
 import { getQuillStoredState } from '../TextEditors/QuillEditor2'
+import { deleteOrDehilightMessages } from '../../api/users'
 
 const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -158,7 +159,7 @@ const useStyles = makeStyles((theme) => ({
 function CommentEdit(props) {
   const {
     marketId, onSave, onCancel, comment, allowedTypes, myNotificationType, isInReview, editState, updateEditState,
-    editStateReset, hidden
+    editStateReset, hidden, messages
   } = props;
   const {
     uploadedFiles
@@ -203,6 +204,7 @@ function CommentEdit(props) {
         editorController(editorReset());
         onCommentOpen(investibleState, investibleId, marketStagesState, marketId, comment, investibleDispatch,
           commentState, commentDispatch);
+        deleteOrDehilightMessages(messages || [], messagesDispatch, false);
         if (commentType === REPORT_TYPE) {
           const message = findMessageOfType('REPORT_REQUIRED', investibleId, messagesState);
           if (message) {

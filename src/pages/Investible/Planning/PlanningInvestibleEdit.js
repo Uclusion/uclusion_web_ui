@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react'
 import { Card, CardActions, CardContent, } from '@material-ui/core'
 import _ from 'lodash'
 import PropTypes from 'prop-types'
-import { updateInvestible } from '../../../api/investibles'
+import { stageChangeInvestible, updateInvestible } from '../../../api/investibles'
 import { getMarketInfo } from '../../../utils/userFunctions'
 import AssignmentList from '../../Dialog/Planning/AssignmentList'
 import CardType, {
@@ -20,7 +20,7 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { makeStyles } from '@material-ui/core/styles'
 import {
-  getBlockedStage,
+  getBlockedStage, getFurtherWorkStage,
   getInCurrentVotingStage, getRequiredInputStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
@@ -29,6 +29,10 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { Clear, SettingsBackupRestore } from '@material-ui/icons'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { onInvestibleStageChange } from '../../../utils/investibleFunctions'
+import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 
 export const usePlanInvestibleStyles = makeStyles(
   theme => ({
@@ -59,7 +63,11 @@ function PlanningInvestibleEdit(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const [marketStagesState] = useContext(MarketStagesContext);
-  const [commentsState] = useContext(CommentsContext);
+  const [commentsState, commentsDispatch] = useContext(CommentsContext);
+  const [, diffDispatch] = useContext(DiffContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const [, invDispatch] = useContext(InvestiblesContext);
+
   const hasVotes = marketPresences.find(presence => {
     const { investments } = presence;
     if (_.isEmpty(investments)) {
@@ -74,7 +82,6 @@ function PlanningInvestibleEdit(props) {
     });
     return found;
   });
-  const validForm = Array.isArray(assignments) && assignments.length > 0;
 
   const handleOpen = () => {
     setOpen(true);
@@ -84,6 +91,25 @@ function PlanningInvestibleEdit(props) {
   };
 
   function handleSave() {
+    setOperationRunning(true);
+    if (isAssign && _.isEmpty(assignments)) {
+      const furtherWorkStage = getFurtherWorkStage(marketStagesState, marketId);
+      const moveInfo = {
+        marketId,
+        investibleId: myInvestible.id,
+        stageInfo: {
+          current_stage_id: marketInfo.stage,
+          stage_id: furtherWorkStage.id,
+        },
+      };
+      return stageChangeInvestible(moveInfo)
+        .then((newInv) => {
+          onInvestibleStageChange(furtherWorkStage.id, newInv, myInvestible.id, marketId, commentsState,
+            commentsDispatch, invDispatch, diffDispatch, marketStagesState, messagesState, messagesDispatch);
+          setOperationRunning(false);
+          onSave({ fullInvestible: newInv, assignmentChanged: true });
+        });
+    }
     const updateInfo = {
       marketId,
       investibleId: myInvestible.id
@@ -163,8 +189,7 @@ function PlanningInvestibleEdit(props) {
             {intl.formatMessage({ id: 'marketAddCancelLabel' })}
           </SpinningIconLabelButton>
           <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore}
-                                   id="planningInvestibleAssignmentUpdateButton"
-                                   disabled={_.isEmpty(_.xor(assignments, initialAssigned))}>
+                                   id="planningInvestibleAssignmentUpdateButton">
             {intl.formatMessage({ id: 'agilePlanFormSaveLabel' })}
           </SpinningIconLabelButton>
         </CardActions>
@@ -194,8 +219,7 @@ function PlanningInvestibleEdit(props) {
           {intl.formatMessage({ id: 'marketAddCancelLabel' })}
         </SpinningIconLabelButton>
         {hasVotes && (
-          <SpinningIconLabelButton onClick={handleOpen} icon={SettingsBackupRestore} disabled={!validForm}
-                                   doSpin={false}>
+          <SpinningIconLabelButton onClick={handleOpen} icon={SettingsBackupRestore} doSpin={false}>
             {intl.formatMessage({ id: 'agilePlanFormSaveLabel' })}
           </SpinningIconLabelButton>
         )}
@@ -207,7 +231,7 @@ function PlanningInvestibleEdit(props) {
             issueWarningId="reassignWarning"
             /* slots */
             actions={
-              <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore} disabled={!validForm}
+              <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore}
                                        id="issueProceedAssignmentsButton">
                 {intl.formatMessage({ id: 'issueProceed' })}
               </SpinningIconLabelButton>
@@ -215,7 +239,7 @@ function PlanningInvestibleEdit(props) {
           />
         )}
         {!hasVotes && (
-          <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore} disabled={!validForm}
+          <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore}
                                    id="noIssueAssignmentsUpdateButton">
             {intl.formatMessage({ id: 'agilePlanFormSaveLabel' })}
           </SpinningIconLabelButton>

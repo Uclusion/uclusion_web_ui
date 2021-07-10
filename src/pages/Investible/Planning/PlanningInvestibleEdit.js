@@ -190,6 +190,7 @@ function PlanningInvestibleEdit(props) {
             {intl.formatMessage({ id: 'marketAddCancelLabel' })}
           </SpinningIconLabelButton>
           <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore}
+                                   disabled={_.isEmpty(_.xor(assignments, initialAssigned))}
                                    id="planningInvestibleAssignmentUpdateButton">
             {intl.formatMessage({ id: 'agilePlanFormSaveLabel' })}
           </SpinningIconLabelButton>
@@ -220,7 +221,8 @@ function PlanningInvestibleEdit(props) {
           {intl.formatMessage({ id: 'marketAddCancelLabel' })}
         </SpinningIconLabelButton>
         {hasVotes && (
-          <SpinningIconLabelButton onClick={handleOpen} icon={SettingsBackupRestore} doSpin={false}>
+          <SpinningIconLabelButton onClick={handleOpen} icon={SettingsBackupRestore} doSpin={false}
+                                   disabled={_.isEmpty(_.xor(assignments, initialAssigned))}>
             {intl.formatMessage({ id: 'agilePlanFormSaveLabel' })}
           </SpinningIconLabelButton>
         )}
@@ -241,7 +243,8 @@ function PlanningInvestibleEdit(props) {
         )}
         {!hasVotes && (
           <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore}
-                                   id="noIssueAssignmentsUpdateButton">
+                                   id="noIssueAssignmentsUpdateButton"
+                                   disabled={_.isEmpty(_.xor(assignments, initialAssigned))}>
             {intl.formatMessage({ id: 'agilePlanFormSaveLabel' })}
           </SpinningIconLabelButton>
         )}

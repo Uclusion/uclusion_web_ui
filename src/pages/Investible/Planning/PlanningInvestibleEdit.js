@@ -91,8 +91,8 @@ function PlanningInvestibleEdit(props) {
   };
 
   function handleSave() {
-    setOperationRunning(true);
     if (isAssign && _.isEmpty(assignments)) {
+      setOperationRunning(true);
       const furtherWorkStage = getFurtherWorkStage(marketStagesState, marketId);
       const moveInfo = {
         marketId,
@@ -125,6 +125,7 @@ function PlanningInvestibleEdit(props) {
     }
     const assignmentChanged = !_.isEmpty(_.xor(assignments, initialAssigned));
     if (assignmentChanged) {
+      setOperationRunning(true);
       return updateInvestible(updateInfo)
         .then((investible) => {
           let fullInvestible = investible;

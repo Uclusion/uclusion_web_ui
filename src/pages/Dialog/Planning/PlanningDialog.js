@@ -165,6 +165,14 @@ function PlanningDialog(props) {
   const tourName = isMarketOwner ? INVITE_STORIES_WORKSPACE_FIRST_VIEW :  INVITED_USER_WORKSPACE;
   const tourSteps = isMarketOwner ? inviteStoriesWorkspaceSteps(myPresence) : workspaceInvitedUserSteps(myPresence);
 
+  function isSectionOpen(section) {
+    return sectionOpen === section || !_.isEmpty(searchResults) || mobileLayout;
+  }
+
+  function isSectionBold(section) {
+    return sectionOpen === section && _.isEmpty(searchResults);
+  }
+
   useEffect(() => {
     if (hash) {
       const linkPresence = assignablePresences.find((presence) => hash.includes(presence.id));
@@ -250,13 +258,13 @@ function PlanningDialog(props) {
 
   const navigationMenu = {navHeaderIcon: PlaylistAddCheckIcon,
     navListItemTextArray: [{text: intl.formatMessage({ id: 'planningDialogNavDetailsLabel' }),
-      subItems: detailsItems, isBold: sectionOpen === 'workspaceMain'},
+      subItems: detailsItems, isBold: isSectionBold('workspaceMain')},
       {text: intl.formatMessage({ id: 'planningDialogNavStoriesLabel' }),
-        subItems: storiesItems, isBold: sectionOpen === 'storiesSection'},
+        subItems: storiesItems, isBold: isSectionBold('storiesSection')},
       createNavListItem(ListAltIcon,'todoSection', 'marketTodos', _.size(todoComments),
-        'marketTodos', !inArchives, sectionOpen === 'marketTodos'),
+        'marketTodos', !inArchives, isSectionBold('marketTodos')),
       {text: intl.formatMessage({ id: 'planningDialogNavDiscussionLabel' }),
-        subItems: discussionItems, isBold: sectionOpen === 'discussionSection'}
+        subItems: discussionItems, isBold: isSectionBold('discussionSection')}
     ]};
   const furtherWorkReadyToStartChip = furtherWorkReadyToStart.length > 0
     && <Chip label={`${furtherWorkReadyToStart.length}`} color="primary" size='small'
@@ -277,13 +285,13 @@ function PlanningDialog(props) {
         hidden={hidden}
         steps={tourSteps}
       />
-      <div id="workspaceMain" style={{display: sectionOpen === 'workspaceMain' || mobileLayout ? 'block' : 'none'}}>
+      <div id="workspaceMain" style={{display: isSectionOpen('workspaceMain') ? 'block' : 'none'}}>
         <DismissableText textId='planningEditHelp' />
         <Summary market={market} hidden={hidden} activeMarket={activeMarket} inArchives={inArchives} />
       </div>
       <LocalPlanningDragContext.Provider value={[beingDraggedHack, setBeingDraggedHack]}>
         <div id="storiesSection"
-             style={{display: sectionOpen === 'storiesSection' || mobileLayout ? 'block' : 'none'}}>
+             style={{display: isSectionOpen('storiesSection') ? 'block' : 'none'}}>
           {!isChannel && (
             <DismissableText textId='stageHelp' textId1='stageHelp1' textId2='stageHelp2' textId3='stageHelp3'
                              textId4='stageHelp4'/>
@@ -291,8 +299,10 @@ function PlanningDialog(props) {
           {!_.isEmpty(blockedInvestibles) && (
             <SubSection
               type={SECTION_TYPE_SECONDARY_WARNING}
-              titleIcon={blockedInvestibles.length > 0 ? <Chip label={`${blockedInvestibles.length}`} color="primary" size='small'
-                               className={classes.chipStyle} /> : undefined}
+              titleIcon={blockedInvestibles.length > 0 ? <Chip label={`${blockedInvestibles.length}`}
+                                                               color="primary"
+                                                               size='small'
+                                                               className={classes.chipStyle} /> : undefined}
               title={intl.formatMessage({ id: 'blockedHeader' })}
               helpTextId="blockedSectionHelp"
               id="blocked"
@@ -419,11 +429,12 @@ function PlanningDialog(props) {
             <DismissableText textId='storyHelp' />
           )}
         </div>
-        <MarketTodos comments={unResolvedMarketComments} marketId={marketId} sectionOpen={sectionOpen}
+        <MarketTodos comments={unResolvedMarketComments} marketId={marketId}
+                     sectionOpen={isSectionOpen('marketTodos')}
                      setSectionOpen={setSectionOpen} market={market} userId={myPresence.id} />
       </LocalPlanningDragContext.Provider>
       <Grid container spacing={2} id="discussionSection"
-            style={{display: sectionOpen === 'discussionSection' || mobileLayout ? 'block' : 'none'}}>
+            style={{display: isSectionOpen('discussionSection') ? 'block' : 'none'}}>
           <Grid item id="commentAddArea"  xs={12}>
             {!inArchives && (
               <CommentAddBox

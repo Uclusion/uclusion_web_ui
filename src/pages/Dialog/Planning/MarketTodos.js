@@ -244,7 +244,7 @@ function MarketTodos (props) {
           }
         }
       }
-      if ((foundCommentId || hash.includes('Todos')) && sectionOpen !== 'marketTodos') {
+      if ((foundCommentId || hash.includes('Todos')) && !sectionOpen) {
         setSectionOpen('marketTodos');
       }
     }
@@ -499,7 +499,7 @@ function MarketTodos (props) {
   const editCard = comments.find((comment) => comment.id === editCardId);
   return (
     <div className={classes.outerBorder} id="marketTodos"
-         style={{display: sectionOpen === 'marketTodos' || mobileLayout ? 'block' : 'none'}}>
+         style={{display: sectionOpen ? 'block' : 'none'}}>
       <SubSection
         type={SECTION_SUB_HEADER}
         isBlackText

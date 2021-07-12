@@ -5,16 +5,19 @@ import _ from 'lodash'
 import SearchIcon from '@material-ui/icons/Search'
 import { useIntl } from 'react-intl'
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
-import { INDEX_COMMENT_TYPE } from '../../contexts/SearchIndexContext/searchIndexContextMessages'
-import { getCommentRoot } from '../../contexts/CommentsContext/commentsContextHelper'
+import {
+  INDEX_COMMENT_TYPE,
+  INDEX_INVESTIBLE_TYPE,
+} from '../../contexts/SearchIndexContext/searchIndexContextMessages'
+import { getComment, getCommentRoot } from '../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import CloseIcon from '@material-ui/icons/Close';
 import { TicketIndexContext } from '../../contexts/TicketContext/TicketIndexContext'
 import { getTicket } from '../../contexts/TicketContext/ticketIndexContextHelper'
 import { formInvestibleLink, navigate } from '../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
-
-const MAX_ALLOWABLE_RESULTS = 75;
+import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 
 function SearchBox () {
   const intl = useIntl();
@@ -23,38 +26,81 @@ function SearchBox () {
   const [searchResults, setSearchResults] = useContext(SearchResultsContext);
   const [ticketState] = useContext(TicketIndexContext);
   const [commentsState] = useContext(CommentsContext);
+  const [marketsState] = useContext(MarketsContext);
 
   function clearSearch () {
     setSearchResults({
       search: '',
       results: [],
-      resultsFound: 0,
+      parentResults: [],
     });
   }
 
-  function isEqualWithComment(a, b) {
-    if (a.type !== b.type) {
-      return false;
+  function getInvestibleParents(result) {
+    const parentResults = [];
+    const parentMarket = getMarket(marketsState, result.marketId);
+    const { parent_comment_id: inlineParentCommentId, parent_comment_market_id: parentMarketId } = parentMarket;
+    if (inlineParentCommentId) {
+      const comment = getComment(commentsState, parentMarketId, inlineParentCommentId);
+      if (!comment) {
+        // Parent comment was deleted
+        return parentResults;
+      }
+      // Need to push this market because it is not in the results
+      parentResults.push(parentMarketId);
+      parentResults.push(inlineParentCommentId);
+      if (comment.investible_id) {
+        parentResults.push(comment.investible_id);
+      }
     }
-    if (a.type === INDEX_COMMENT_TYPE) {
-      const commentRootA = getCommentRoot(commentsState, a.marketId, a.id);
-      const commentRootB = getCommentRoot(commentsState, b.marketId, b.id);
-      return _.isEqual(commentRootA, commentRootB);
+    return parentResults;
+  }
+
+  function getCommentParents(result) {
+    const parentResults = [];
+    const rootComment = getCommentRoot(commentsState, result.marketId, result.id);
+    if (!rootComment) {
+      // Somewhere on path to root a parent was deleted
+      return undefined;
     }
-    return a.id === b.id && a.marketId === b.marketId;
+    if (rootComment.id !== result.id) {
+      parentResults.push(rootComment.id);
+    }
+    if (rootComment.investible_id) {
+      parentResults.push(rootComment.investible_id);
+      parentResults.push(...getInvestibleParents({id: rootComment.investible_id, marketId: result.marketId}));
+    }
+    return parentResults;
+  }
+
+  function getParentResults(results) {
+    const parentResults = [];
+    const removed = [];
+    results.forEach((result) => {
+      if (result.type === INDEX_COMMENT_TYPE) {
+        const parents = getCommentParents(result);
+        if (!parents) {
+          removed.push(result);
+        } else {
+          parentResults.push(...parents);
+        }
+      } else if (result.type === INDEX_INVESTIBLE_TYPE) {
+        parentResults.push(...getInvestibleParents(result));
+      }
+    });
+    return {parentResults, removed};
   }
 
   function updateIndex(searchQuery){
     // query the index
-    const foundResults = index.search(searchQuery);
-    // cap the max results we'll consider at 100 for perf reasons
-    const limitedResults = _.take(foundResults, MAX_ALLOWABLE_RESULTS);
-    //dedup by id
-    const results = _.uniqWith(limitedResults, isEqualWithComment);
+    const rawResults = index.search(searchQuery) || [];
+    // parents in a different hash so they can appear on the page but not be counted as results
+    const {parentResults, removed} = getParentResults(rawResults);
+    const results = rawResults.filter((result) => !removed.find((item) => item.id === result.id));
     setSearchResults({
       search: searchQuery,
       results,
-      page: 0,
+      parentResults
     });
   }
 

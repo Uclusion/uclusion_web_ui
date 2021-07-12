@@ -21,8 +21,7 @@ const InvestiblesContext = React.createContext(EMPTY_STATE);
 
 function pushIndexItems(diskState) {
   const investibles = Object.values(diskState).filter((item) => item.investible) || [];
-  const indexItems = investibles.map((item) => item.investible);
-  const indexMessage = { event: INDEX_UPDATE, itemType: INDEX_INVESTIBLE_TYPE, items: indexItems };
+  const indexMessage = { event: INDEX_UPDATE, itemType: INDEX_INVESTIBLE_TYPE, items: investibles };
   pushMessage(SEARCH_INDEX_CHANNEL, indexMessage);
   const ticketCodeItems = []
   investibles.forEach((inv) => {

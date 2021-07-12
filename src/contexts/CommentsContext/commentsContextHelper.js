@@ -18,6 +18,9 @@ export function getCommentRoot(state, marketId, commentId) {
   if (_.isEmpty(comment)) {
     return undefined;
   }
+  if (comment.deleted) {
+    return undefined;
+  }
   //we're the root, return us
   if (_.isEmpty(comment.reply_id)) {
     return comment;

@@ -48,8 +48,7 @@ function Investible(props) {
   const userId = getMyUserForMarket(marketsState, marketId) || '';
   const [commentsState] = useContext(CommentsContext);
   const [searchResults] = useContext(SearchResultsContext);
-  const { results } = searchResults;
-  const comments = getMarketComments(commentsState, marketId, results);
+  const comments = getMarketComments(commentsState, marketId, searchResults);
   const investibleComments = comments.filter((comment) => comment.investible_id === investibleId);
   const commentsHash = createCommentsHash(investibleComments);
   const [investiblesState] = useContext(InvestiblesContext);

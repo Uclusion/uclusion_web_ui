@@ -58,7 +58,6 @@ function DialogArchives(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [commentsState] = useContext(CommentsContext);
   const [searchResults] = useContext(SearchResultsContext);
-  const { results } = searchResults;
   const [marketInfoList, setMarketInfoList] = useState(undefined);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || []
   const myPresence = marketPresences.find((presence) => presence.current_user);
@@ -66,10 +65,10 @@ function DialogArchives(props) {
   const renderableMarket = getMarket(marketsState, marketId) || {};
   const verifiedStage = getVerifiedStage(marketStagesState, marketId) || {};
   const notDoingStage = getNotDoingStage(marketStagesState, marketId) || {};
-  const marketInvestibles = getMarketInvestibles(investiblesState, marketId, results) || [];
+  const marketInvestibles = getMarketInvestibles(investiblesState, marketId, searchResults) || [];
   const verifiedInvestibles = getInvestiblesInStage(marketInvestibles, verifiedStage.id);
   const notDoingInvestibles = getInvestiblesInStage(marketInvestibles, notDoingStage.id);
-  const comments = getMarketComments(commentsState, marketId, results) || [];
+  const comments = getMarketComments(commentsState, marketId, searchResults) || [];
   const resolvedMarketComments = comments.filter(comment => !comment.investible_id && comment.resolved) || [];
   const notTodoComments = resolvedMarketComments.filter(comment => comment.comment_type !== TODO_TYPE);
   const todoComments = comments.filter(comment => {

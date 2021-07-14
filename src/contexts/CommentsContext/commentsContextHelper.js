@@ -29,14 +29,15 @@ export function getCommentRoot(state, marketId, commentId) {
   return getCommentRoot(state, marketId, comment.reply_id);
 }
 
-export function getMarketComments(state, marketId, results) {
+export function getMarketComments(state, marketId, searchResults={}) {
+  const { results, parentResults } = searchResults;
   const marketComments = state[marketId] || [];
   const notDeleted = marketComments.filter((comment) => !comment.deleted);
   if (_.isEmpty(results)) {
     return notDeleted;
   }
   return notDeleted.filter((comment) => {
-    return results.find((item) => item.id === comment.id);
+    return results.find((item) => item.id === comment.id) || parentResults.find((id) => id === comment.id);
   });
 }
 

@@ -35,7 +35,7 @@ function Archives(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [searchResults] = useContext(SearchResultsContext);
   const { results } = searchResults;
-  const hiddenMarkets = getHiddenMarketDetailsForUser(marketsState, marketPresencesState, results) || [];
+  const hiddenMarkets = getHiddenMarketDetailsForUser(marketsState, marketPresencesState, searchResults) || [];
   const planningDetails = hiddenMarkets.filter((market) => market.market_type === PLANNING_TYPE);
   const decisionDetails = _.sortBy(hiddenMarkets.filter((market) => market.market_type === DECISION_TYPE && !market.parent_comment_id), 'updated_at').reverse();
   const initiativeDetails = _.sortBy(hiddenMarkets.filter((market) => market.market_type === INITIATIVE_TYPE), 'updated_at').reverse();

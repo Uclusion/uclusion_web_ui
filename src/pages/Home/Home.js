@@ -65,7 +65,6 @@ function Home(props) {
   const history = useHistory();
   const intl = useIntl();
   const [searchResults] = useContext(SearchResultsContext);
-  const { results } = searchResults;
   const [marketsState] = useContext(MarketsContext);
   const [accountState] = useContext(AccountContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -91,7 +90,7 @@ function Home(props) {
     }
   })
 
-  const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState, results);
+  const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState, searchResults);
   const planningDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, PLANNING_TYPE);
   const decisionDetails = _.sortBy(getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState,
     DECISION_TYPE), 'created_at').reverse();
@@ -108,8 +107,8 @@ function Home(props) {
   function createNavListItem(icon, textId, anchorId, howManyNum, alwaysShow) {
     return baseNavListItem('/', icon, textId, anchorId, howManyNum, alwaysShow);
   }
-
-  const archiveMarkets = getHiddenMarketDetailsForUser(marketsState, marketPresencesState, results);
+  const { results } = searchResults;
+  const archiveMarkets = getHiddenMarketDetailsForUser(marketsState, marketPresencesState, searchResults);
   const navigationMenu = {navHeaderText: intl.formatMessage({ id: 'home' }), showSearchResults: true,
     navListItemTextArray: [{icon: AddIcon, text: intl.formatMessage({ id: 'addNew' }),
       onClickFunc: createEnabled && !wizardActive ? () => {

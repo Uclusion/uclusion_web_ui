@@ -54,16 +54,17 @@ function Dialog(props) {
   const [commentsState] = useContext(CommentsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [searchResults] = useContext(SearchResultsContext);
-  const { results } = searchResults;
+  const { results, parentResults } = searchResults;
   const marketId = action === 'invite' ? marketIdFromToken : marketEntity;
   const allInvestibles = getMarketInvestibles(investiblesState, marketId) || [];
   const allComments = getMarketComments(commentsState, marketId) || [];
   const investibles = _.isEmpty(results) ? allInvestibles : allInvestibles.filter((inv) => {
     const { investible } = inv;
-    return results.find((item) => item.id === investible.id);
+    return results.find((item) => item.id === investible.id)
+      || parentResults.find((parentId) => parentId === investible.id);
   });
   const comments = _.isEmpty(results) ? allComments : allComments.filter((comment) => {
-    return results.find((item) => item.id === comment.id);
+    return results.find((item) => item.id === comment.id) || parentResults.find((parentId) => parentId === comment.id);
   });
   const loadedMarket = getMarket(marketsState, marketId);
   const renderableMarket = loadedMarket || {};

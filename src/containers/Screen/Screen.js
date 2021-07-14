@@ -14,8 +14,6 @@ import LoadingDisplay from '../../components/LoadingDisplay';
 import List from '@material-ui/core/List'
 import SearchBox from '../../components/Search/SearchBox'
 import clsx from 'clsx'
-import SearchResults from '../../components/Search/SearchResults'
-import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
 
 const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -38,14 +36,6 @@ const useStyles = makeStyles((theme) => ({
   },
   containerAllLeftPad: {
     padding: '24px 20px 156px 25px',
-    marginTop: '80px',
-    width: '100%',
-    [theme.breakpoints.down('md')]: {
-      padding: '24px 12px 156px',
-    },
-  },
-  containerSearchResults: {
-    padding: '24px 20px 156px 500px',
     marginTop: '80px',
     width: '100%',
     [theme.breakpoints.down('md')]: {
@@ -157,8 +147,6 @@ function Screen(props) {
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
   const [userState] = useContext(AccountUserContext);
-  const [searchResults] = useContext(SearchResultsContext);
-  const { results } = searchResults;
   const { user: unsafeUser } = userState;
   const user = unsafeUser || {};
   const history = useHistory();
@@ -213,10 +201,10 @@ function Screen(props) {
   if (_.isEmpty(breadCrumbs) && !isHome) {
     usedBreadCrumbs = makeBreadCrumbs(history);
   }
-  const { navHeaderIcon: NavHeaderIcon, navListItemTextArray, showSearchResults } = navigationOptions || {};
+  const { navHeaderIcon: NavHeaderIcon, navListItemTextArray } = navigationOptions || {};
   const myContainerClass = navigationOptions && !mobileLayout ? classes.containerAllLeftPad : classes.containerAll;
-  const contentClass = mobileLayout ? classes.contentNoStyle : showSearchResults && !_.isEmpty(results) ?
-    classes.contentSearch : navigationOptions ? classes.content : classes.contentNoStyle;
+  const contentClass = mobileLayout ? classes.contentNoStyle :
+    navigationOptions ? classes.content : classes.contentNoStyle;
   return (
     <div className={classes.root} id="root">
       <Helmet defer={false}>
@@ -267,9 +255,6 @@ function Screen(props) {
             </List>
             <SearchBox/>
           </Paper>
-          {showSearchResults && (
-            <SearchResults placement="right"/>
-          )}
         </div>
       )}
       {banner && (

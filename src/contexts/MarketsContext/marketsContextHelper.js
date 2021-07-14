@@ -39,8 +39,9 @@ export function getMarketDetailsForType(state, marketPresencesState, marketType 
   return null;
 }
 
-export function getHiddenMarketDetailsForUser(state, marketPresenceState, results) {
+export function getHiddenMarketDetailsForUser(state, marketPresenceState, searchResults) {
   const { marketDetails } = state;
+  const { results, parentResults } = searchResults;
   if (marketDetails) {
     return marketDetails.filter((market) => {
       const { id, market_stage: marketStage } = market;
@@ -53,7 +54,7 @@ export function getHiddenMarketDetailsForUser(state, marketPresenceState, result
       if (_.isEmpty(results)) {
         return shown;
       }
-      return shown && results.find((item) => item.id === id);
+      return shown && (results.find((item) => item.id === id) || parentResults.find((parentId) => parentId === id));
     });
   }
   return [];
@@ -98,7 +99,8 @@ export function addMarketToStorage(dispatch, diffDispatch, marketDetails, fromNe
   }
 }
 
-export function getNotHiddenMarketDetailsForUser(state, marketPresencesState, results) {
+export function getNotHiddenMarketDetailsForUser(state, marketPresencesState, searchResults) {
+  const { results, parentResults } = searchResults;
   if (state.marketDetails) {
     const newMarketDetails = state.marketDetails.filter((market) => {
       const marketPresences = getMarketPresences(marketPresencesState, market.id) || [];
@@ -109,7 +111,8 @@ export function getNotHiddenMarketDetailsForUser(state, marketPresencesState, re
       if (_.isEmpty(results)) {
         return marketShown;
       }
-      return marketShown && results.find((item) => item.id === market.id);
+      return marketShown && (results.find((item) => item.id === market.id)
+        || parentResults.find((parentId) => parentId === market.id));
     });
     return { marketDetails: newMarketDetails };
   }

@@ -215,7 +215,6 @@ function Dialog(props) {
           marketPresences={marketPresences}
           myPresence={myPresence}
           banner={banner}
-          searchResults={results}
         />
       )}
     </>

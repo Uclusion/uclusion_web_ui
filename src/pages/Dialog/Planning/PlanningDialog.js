@@ -73,6 +73,7 @@ import { getFakeCommentsArray } from '../../../utils/stringFunctions'
 import Chip from '@material-ui/core/Chip'
 import { getThreadIds } from '../../../utils/commentFunctions'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
+import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -83,9 +84,10 @@ function PlanningDialog(props) {
     comments,
     hidden,
     myPresence,
-    banner,
-    searchResults
+    banner
   } = props;
+  const [searchResults] = useContext(SearchResultsContext);
+  const { results, parentResults } = searchResults;
   const location = useLocation();
   const { hash } = location;
   const classes = useInvestiblesByPersonStyles();
@@ -228,11 +230,18 @@ function PlanningDialog(props) {
   const { id: suggestId } = getFakeCommentsArray(suggestions)[0];
   const reports = sortedRoots.filter((comment) => comment.comment_type === REPORT_TYPE);
   const { id: reportId } = getFakeCommentsArray(reports)[0];
-  const todoComments = unResolvedMarketComments.filter((comment) => comment.comment_type === TODO_TYPE);
+  const todoComments = unResolvedMarketComments.filter((comment) => {
+    if (_.isEmpty(results)) {
+      return comment.comment_type === TODO_TYPE;
+    }
+    return comment.comment_type === TODO_TYPE && (results.find((item) => item.id === comment.id)
+      || parentResults.find((id) => id === comment.id));
+  });
   const resolvedMarketComments = comments.filter(comment => !comment.investible_id && comment.resolved);
-
+  console.debug(results);
   const detailsItems = [createNavListItem(EditIcon, 'description_label', 'workspaceMain',
-    undefined, 'workspaceMain'),
+    _.isEmpty(results) || results.find((result) => result.id === marketId) ? undefined : 0,
+    'workspaceMain'),
     {icon: MenuBookIcon, text: intl.formatMessage({ id: 'planningDialogViewArchivesLabel' }),
     target: formMarketArchivesLink(marketId), num: _.isEmpty(searchResults) ? undefined :
       _.size(archiveInvestibles) + _.size(resolvedMarketComments)}];
@@ -251,10 +260,10 @@ function PlanningDialog(props) {
     createNavListItem(PlayForWorkIcon,'requiresInputStageLabel', 'requiresInput',
       _.size(requiresInputInvestibles), 'storiesSection'),
     createNavListItem(AgilePlanIcon,'swimLanes', 'swimLanes', _.size(swimlaneInvestibles),
-      'storiesSection', true),
+      'storiesSection', _.isEmpty(results)),
     createNavListItem(WorkIcon,'planningInvestibleMoveToFurtherWorkLabel', 'furtherWork',
       _.size(furtherWorkReadyToStart) + _.size(furtherWorkInvestibles), 'storiesSection',
-      !inArchives)];
+      !inArchives && _.isEmpty(results))];
 
   const navigationMenu = {navHeaderIcon: PlaylistAddCheckIcon,
     navListItemTextArray: [{text: intl.formatMessage({ id: 'planningDialogNavDetailsLabel' }),
@@ -262,7 +271,7 @@ function PlanningDialog(props) {
       {text: intl.formatMessage({ id: 'planningDialogNavStoriesLabel' }),
         subItems: storiesItems, isBold: isSectionBold('storiesSection')},
       createNavListItem(ListAltIcon,'todoSection', 'marketTodos', _.size(todoComments),
-        'marketTodos', !inArchives, isSectionBold('marketTodos')),
+        'marketTodos', !inArchives && _.isEmpty(results), isSectionBold('marketTodos')),
       {text: intl.formatMessage({ id: 'planningDialogNavDiscussionLabel' }),
         subItems: discussionItems, isBold: isSectionBold('discussionSection')}
     ]};

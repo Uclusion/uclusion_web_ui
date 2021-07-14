@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useContext } from 'react'
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { Grid } from '@material-ui/core';
 import Comment from '../../components/Comments/Comment';
+import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
 
 function findGreatestUpdatedAt(roots, comments, rootUpdatedAt) {
   let myRootUpdatedAt = rootUpdatedAt;
@@ -23,9 +24,16 @@ function findGreatestUpdatedAt(roots, comments, rootUpdatedAt) {
   return myRootUpdatedAt;
 }
 
-export function getSortedRoots(comments) {
-  if (_.isEmpty(comments)) {
+export function getSortedRoots(allComments, searchResults) {
+  const { results, parentResults } = searchResults;
+  if (_.isEmpty(allComments)) {
     return [];
+  }
+  let comments = allComments;
+  if (!_.isEmpty(results)) {
+    comments = allComments.filter((comment) => {
+      return results.find((item) => item.id === comment.id) || parentResults.find((id) => id === comment.id);
+    });
   }
   const threadRoots = comments.filter(comment => !comment.reply_id) || [];
   const withRootUpdatedAt = threadRoots.map((root) => {
@@ -61,7 +69,8 @@ export function getSortedRoots(comments) {
 
 function CommentBox(props) {
   const { comments, marketId, allowedTypes } = props;
-  const sortedRoots = getSortedRoots(comments);
+  const [searchResults] = useContext(SearchResultsContext);
+  const sortedRoots = getSortedRoots(comments, searchResults);
 
   function getCommentCards() {
     return sortedRoots.map(comment => {

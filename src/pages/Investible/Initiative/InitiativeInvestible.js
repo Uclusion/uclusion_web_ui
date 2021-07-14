@@ -56,6 +56,7 @@ import { getFakeCommentsArray } from '../../../utils/stringFunctions'
 import InvestibleBodyEdit from '../InvestibleBodyEdit'
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
+import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
 
 const useStyles = makeStyles(
   theme => ({
@@ -185,6 +186,7 @@ function InitiativeInvestible(props) {
   const [, tourDispatch] = useContext(TourContext);
   const [, marketsDispatch] = useContext(MarketsContext);
   const [, diffDispatch] = useContext(DiffContext);
+  const [searchResults] = useContext(SearchResultsContext);
   const [pageStateFull, pageDispatch] = usePageStateReducer('investible');
   const [pageState, updatePageState, pageStateReset] =
     getPageReducerPage(pageStateFull, pageDispatch, investibleId);
@@ -275,9 +277,9 @@ function InitiativeInvestible(props) {
   const displayVoting = votingAllowed && !yourVote;
   const openComments = investmentReasonsRemoved.filter((comment) => !comment.resolved) || [];
   const closedComments = investmentReasonsRemoved.filter((comment) => comment.resolved) || [];
-  const sortedClosedRoots = getSortedRoots(closedComments);
+  const sortedClosedRoots = getSortedRoots(closedComments, searchResults);
   const { id: closedId } = getFakeCommentsArray(sortedClosedRoots)[0];
-  const sortedRoots = getSortedRoots(openComments);
+  const sortedRoots = getSortedRoots(openComments, searchResults);
   const questions = sortedRoots.filter((comment) => comment.comment_type === QUESTION_TYPE);
   const { id: questionId } = getFakeCommentsArray(questions)[0];
   const suggestions = sortedRoots.filter((comment) => comment.comment_type === SUGGEST_CHANGE_TYPE);

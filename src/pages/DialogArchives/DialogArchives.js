@@ -68,7 +68,7 @@ function DialogArchives(props) {
   const marketInvestibles = getMarketInvestibles(investiblesState, marketId, searchResults) || [];
   const verifiedInvestibles = getInvestiblesInStage(marketInvestibles, verifiedStage.id);
   const notDoingInvestibles = getInvestiblesInStage(marketInvestibles, notDoingStage.id);
-  const comments = getMarketComments(commentsState, marketId, searchResults) || [];
+  const comments = getMarketComments(commentsState, marketId) || [];
   const resolvedMarketComments = comments.filter(comment => !comment.investible_id && comment.resolved) || [];
   const notTodoComments = resolvedMarketComments.filter(comment => comment.comment_type !== TODO_TYPE);
   const todoComments = comments.filter(comment => {
@@ -122,7 +122,7 @@ function DialogArchives(props) {
     return baseNavListItem(formMarketArchivesLink(marketId), icon, textId, anchorId, howManyNum, alwaysShow);
   }
 
-  const sortedRoots = getSortedRoots(resolvedMarketComments);
+  const sortedRoots = getSortedRoots(resolvedMarketComments, searchResults);
   const questions = sortedRoots.filter((comment) => comment.comment_type === QUESTION_TYPE);
   const { id: questionId } = getFakeCommentsArray(questions)[0];
   const suggestions = sortedRoots.filter((comment) => comment.comment_type === SUGGEST_CHANGE_TYPE);

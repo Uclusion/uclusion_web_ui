@@ -57,6 +57,7 @@ import { getFakeCommentsArray } from '../../../utils/stringFunctions'
 import { QuestionAnswer } from '@material-ui/icons'
 import DialogBodyEdit from '../DialogBodyEdit'
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
+import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
 
 const useStyles = makeStyles(
   theme => ({
@@ -176,6 +177,7 @@ function DecisionDialog(props) {
   const [, marketsDispatch] = useContext(MarketsContext);
   const [, diffDispatch] = useContext(DiffContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
+  const [searchResults] = useContext(SearchResultsContext);
   const {
     id: marketId,
     name: marketName,
@@ -266,7 +268,7 @@ function DecisionDialog(props) {
   function createNavListItem(icon, textId, anchorId, howManyNum, alwaysShow) {
     return baseNavListItem(formMarketLink(marketId), icon, textId, anchorId, howManyNum, alwaysShow);
   }
-  const sortedRoots = getSortedRoots(marketComments);
+  const sortedRoots = getSortedRoots(marketComments, searchResults);
   const closedComments = sortedRoots.filter((comment) => comment.resolved) || [];
   const { id: closedId } = getFakeCommentsArray(closedComments)[0];
   const openComments = sortedRoots.filter((comment) => !comment.resolved) || [];

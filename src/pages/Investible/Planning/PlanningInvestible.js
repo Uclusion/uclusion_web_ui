@@ -117,6 +117,7 @@ import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLab
 import { getDiff, markDiffViewed } from '../../../contexts/DiffContext/diffContextHelper'
 import { notify, onInvestibleStageChange } from '../../../utils/investibleFunctions'
 import { INVESTIBLE_SUBMITTED_TYPE, YELLOW_LEVEL } from '../../../constants/notifications'
+import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
 
 const useStyles = makeStyles(
   theme => ({
@@ -356,6 +357,7 @@ function PlanningInvestible(props) {
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [, diffDispatch] = useContext(DiffContext);
+  const [searchResults] = useContext(SearchResultsContext);
   const [changeStagesExpanded, setChangeStagesExpanded] = useState(false);
   const [newLabel, setNewLabel] = useState(undefined);
   const [showDatepicker, setShowDatepicker] = useState(false);
@@ -736,9 +738,9 @@ function PlanningInvestible(props) {
   }
   const openComments = investmentReasonsRemoved.filter((comment) => !comment.resolved) || [];
   const closedComments = investmentReasonsRemoved.filter((comment) => comment.resolved) || [];
-  const sortedClosedRoots = getSortedRoots(closedComments);
+  const sortedClosedRoots = getSortedRoots(closedComments, searchResults);
   const { id: closedId } = getFakeCommentsArray(sortedClosedRoots)[0];
-  const sortedRoots = getSortedRoots(openComments);
+  const sortedRoots = getSortedRoots(openComments, searchResults);
   const blocking = sortedRoots.filter((comment) => comment.comment_type === ISSUE_TYPE);
   const { id: blockingId } = getFakeCommentsArray(blocking)[0];
   const questions = sortedRoots.filter((comment) => comment.comment_type === QUESTION_TYPE);

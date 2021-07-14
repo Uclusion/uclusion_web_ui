@@ -58,6 +58,7 @@ import { QuestionAnswer } from '@material-ui/icons'
 import StarRateIcon from '@material-ui/icons/StarRate'
 import InvestibleBodyEdit from '../InvestibleBodyEdit'
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
+import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
 
 const useStyles = makeStyles((theme) => ({
   mobileColumn: {
@@ -210,6 +211,7 @@ function DecisionInvestible(props) {
   } = pageState;
   const isInline = !_.isEmpty(parentCommentId);
   const [commentsState] = useContext(CommentsContext);
+  const [searchResults] = useContext(SearchResultsContext);
   let breadCrumbTemplates = [{ name: marketName, link: formMarketLink(marketId), id: 'marketCrumb'}];
   const [marketState] = useContext(MarketsContext);
   const [investiblesState] = useContext(InvestiblesContext);
@@ -329,9 +331,9 @@ function DecisionInvestible(props) {
   const invested = getVotesForInvestible(marketPresences, investibleId);
   const openComments = investmentReasonsRemoved.filter((comment) => !comment.resolved) || [];
   const closedComments = investmentReasonsRemoved.filter((comment) => comment.resolved) || [];
-  const sortedClosedRoots = getSortedRoots(closedComments);
+  const sortedClosedRoots = getSortedRoots(closedComments, searchResults);
   const { id: closedId } = getFakeCommentsArray(sortedClosedRoots)[0];
-  const sortedRoots = getSortedRoots(openComments);
+  const sortedRoots = getSortedRoots(openComments, searchResults);
   const blocking = sortedRoots.filter((comment) => comment.comment_type === ISSUE_TYPE);
   const { id: blockingId } = getFakeCommentsArray(blocking)[0];
   const questions = sortedRoots.filter((comment) => comment.comment_type === QUESTION_TYPE);

@@ -221,7 +221,7 @@ function PlanningDialog(props) {
     }
     return nav;
   }
-  const sortedRoots = getSortedRoots(notTodoComments);
+  const sortedRoots = getSortedRoots(notTodoComments, searchResults);
   const questions = sortedRoots.filter((comment) => comment.comment_type === QUESTION_TYPE);
   const { id: questionId } = getFakeCommentsArray(questions)[0];
   const suggestions = sortedRoots.filter((comment) => comment.comment_type === SUGGEST_CHANGE_TYPE);

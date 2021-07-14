@@ -38,7 +38,7 @@ function SearchBox () {
 
   function getInvestibleParents(result) {
     const parentResults = [];
-    const parentMarket = getMarket(marketsState, result.marketId);
+    const parentMarket = getMarket(marketsState, result.marketId) || {}; //Protect against corrupt or loading
     const { parent_comment_id: inlineParentCommentId, parent_comment_market_id: parentMarketId } = parentMarket;
     if (inlineParentCommentId) {
       const comment = getComment(commentsState, parentMarketId, inlineParentCommentId);

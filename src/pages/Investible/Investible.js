@@ -21,7 +21,6 @@ import DecisionInvestible from './Decision/DecisionInvestible'
 import PlanningInvestible from './Planning/PlanningInvestible'
 import { ACTIVE_STAGE, DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
 import InitiativeInvestible from './Initiative/InitiativeInvestible'
-import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
 import { pushMessage } from '../../utils/MessageBusUtils'
 import { GUEST_MARKET_EVENT, LOAD_MARKET_CHANNEL } from '../../contexts/MarketsContext/marketsContextMessages'
 

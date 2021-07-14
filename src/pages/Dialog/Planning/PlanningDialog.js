@@ -168,11 +168,11 @@ function PlanningDialog(props) {
   const tourSteps = isMarketOwner ? inviteStoriesWorkspaceSteps(myPresence) : workspaceInvitedUserSteps(myPresence);
 
   function isSectionOpen(section) {
-    return sectionOpen === section || !_.isEmpty(searchResults) || mobileLayout;
+    return sectionOpen === section || !_.isEmpty(search) || mobileLayout;
   }
 
   function isSectionBold(section) {
-    return sectionOpen === section && _.isEmpty(searchResults);
+    return sectionOpen === section && _.isEmpty(search);
   }
 
   useEffect(() => {
@@ -249,8 +249,8 @@ function PlanningDialog(props) {
     _.isEmpty(search) || results.find((result) => result.id === marketId) ? undefined : 0,
     'workspaceMain'),
     {icon: MenuBookIcon, text: intl.formatMessage({ id: 'planningDialogViewArchivesLabel' }),
-    target: _.isEmpty(searchResults) || archivedSize > 0 ? formMarketArchivesLink(marketId) : undefined,
-      num: _.isEmpty(searchResults) ? undefined : archivedSize}];
+    target: _.isEmpty(search) || archivedSize > 0 ? formMarketArchivesLink(marketId) : undefined,
+      num: _.isEmpty(search) ? undefined : archivedSize}];
 
   const discussionItems = [inArchives ? {} : createNavListItem(AddIcon,'commentAddBox',
     undefined, _.isEmpty(search) ? undefined : 0, 'discussionSection'),

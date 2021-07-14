@@ -358,6 +358,7 @@ function PlanningInvestible(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [, diffDispatch] = useContext(DiffContext);
   const [searchResults] = useContext(SearchResultsContext);
+  const { results, parentResults, search } = searchResults;
   const [changeStagesExpanded, setChangeStagesExpanded] = useState(false);
   const [newLabel, setNewLabel] = useState(undefined);
   const [showDatepicker, setShowDatepicker] = useState(false);
@@ -366,9 +367,13 @@ function PlanningInvestible(props) {
   const { name: marketName, id: marketId } = market;
   const labels = getMarketLabels(investiblesState, marketId);
   const investmentReasonsRemoved = investibleComments.filter(comment => comment.comment_type !== JUSTIFY_TYPE) || [];
-  const investmentReasons = investibleComments.filter(
-    comment => comment.comment_type === JUSTIFY_TYPE
-  );
+  const investmentReasons = investibleComments.filter((comment) => {
+    if (_.isEmpty(search)) {
+      return comment.comment_type === JUSTIFY_TYPE;
+    }
+    return comment.comment_type === JUSTIFY_TYPE && (results.find((item) => item.id === comment.id)
+      || parentResults.find((id) => id === comment.id));
+  });
   const investibleCommentorPresences = getCommenterPresences(marketPresences, investibleComments, marketPresencesState);
   const voters = getInvestibleVoters(marketPresences, investibleId);
   const concated = [...voters, ...investibleCommentorPresences];
@@ -403,7 +408,7 @@ function PlanningInvestible(props) {
   const yourVote = yourPresence && yourPresence.investments &&
     yourPresence.investments.find((investment) => investment.investible_id === investibleId && !investment.deleted);
   // If you have a vote already then do not display voting input
-  const displayVotingInput = canVote && !yourVote;
+  const displayVotingInput = canVote && !yourVote && _.isEmpty(search);
 
   let lockedByName;
   if (lockedBy) {
@@ -752,9 +757,12 @@ function PlanningInvestible(props) {
   const todoSortedComments = sortedRoots.filter((comment) => comment.comment_type === TODO_TYPE);
   const { id: todoId } = getFakeCommentsArray(todoSortedComments)[0];
   const navigationMenu = {navHeaderIcon: AssignmentIcon,
-    navListItemTextArray: [createNavListItem(EditIcon,'description_label', 'storyMain'),
-      createNavListItem(ThumbsUpDownIcon, 'approvals', 'approvals', _.size(invested), isInVoting),
-      inArchives ? {} : createNavListItem(AddIcon,'commentAddBox'),
+    navListItemTextArray: [createNavListItem(EditIcon,'description_label', 'storyMain',
+      _.isEmpty(search) || results.find((item) => item.id === investibleId) ? undefined : 0),
+      createNavListItem(ThumbsUpDownIcon, 'approvals', 'approvals',
+        _.isEmpty(search) ? _.size(invested) : _.size(investmentReasons),
+        _.isEmpty(search) ? isInVoting : false),
+      inArchives || !_.isEmpty(search) ? {} : createNavListItem(AddIcon,'commentAddBox'),
       createNavListItem(BlockIcon,'blocking', `c${blockingId}`, _.size(blocking)),
       createNavListItem(QuestionIcon, 'questions', `c${questionId}`, _.size(questions)),
       createNavListItem(UpdateIcon,'reports', `c${reportId}`, _.size(reports)),
@@ -1022,21 +1030,24 @@ function PlanningInvestible(props) {
           {isAssigned && (
             <div style={{paddingTop: '2rem'}} />
           )}
-          <CommentAddBox
-            allowedTypes={allowedCommentTypes}
-            investible={investible}
-            marketId={marketId}
-            issueWarningId={isReadyFurtherWork ? undefined : 'issueWarningPlanning'}
-            todoWarningId={todoWarning}
-            isInReview={isInReview}
-            hidden={hidden}
-            isStory
-          />
+          {_.isEmpty(search) && (
+            <CommentAddBox
+              allowedTypes={allowedCommentTypes}
+              investible={investible}
+              marketId={marketId}
+              issueWarningId={isReadyFurtherWork ? undefined : 'issueWarningPlanning'}
+              todoWarningId={todoWarning}
+              isInReview={isInReview}
+              hidden={hidden}
+              isStory
+            />
+          )}
         </>
       )}
       <Grid container spacing={2}>
         <Grid item xs={12} style={{ marginTop: '15px' }}>
-          {!inArchives && !isInNotDoing && !isInVerified && (!isInVoting || !canVote || yourVote) && (
+          {!inArchives && !isInNotDoing && !isInVerified && (!isInVoting || !canVote || yourVote) && _.isEmpty(search)
+          && (
             <CommentAddBox
               allowedTypes={allowedCommentTypes}
               investible={investible}

@@ -154,7 +154,7 @@ function PlanningDialogs(props) {
   const [investibleState] = useContext(InvestiblesContext);
   const [commentsState] = useContext(CommentsContext);
   const [searchResults] = useContext(SearchResultsContext);
-  const { results } = searchResults;
+  const { search } = searchResults;
 
   function getParticipantInfo(presences) {
 
@@ -188,7 +188,7 @@ function PlanningDialogs(props) {
       const { id: marketId, updated_at: updatedAt } = market;
       const comments = getMarketComments(commentsState, marketId) || [];
       let commentsToCount = comments.filter((comment) => !comment.resolved && !comment.investible_id);
-      if (!_.isEmpty(results)) {
+      if (!_.isEmpty(search)) {
         commentsToCount = getSortedRoots(comments, searchResults);
       }
       const investiblesToCount = getMarketInvestibles(investibleState, marketId, searchResults) || [];
@@ -295,7 +295,7 @@ function PlanningDialogs(props) {
                     <div className={classes.workspaceCommentsIcons}>
                       <div>
                         {suggestCount > 0 && (
-                          <Tooltip title={intl.formatMessage({ id: _.isEmpty(results) ? 'suggestCount' :
+                          <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? 'suggestCount' :
                               'suggestSearchCount' })}>
                             <Badge badgeContent={suggestCount}>
                               <EmojiObjectsIcon className={classes.chipItemSuggestion} />
@@ -303,7 +303,7 @@ function PlanningDialogs(props) {
                           </Tooltip>
                         )}
                         {todoCount > 0 && (
-                          <Tooltip title={intl.formatMessage({ id: _.isEmpty(results) ? 'todoCount' :
+                          <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? 'todoCount' :
                               'todoSearchCount' })}>
                             <Badge badgeContent={todoCount}>
                               <AssignmentIcon className={classes.chipItemTodo} />
@@ -313,7 +313,7 @@ function PlanningDialogs(props) {
                       </div>
                       <div>
                         {questionCount > 0 && (
-                          <Tooltip title={intl.formatMessage({ id: _.isEmpty(results) ? 'questionCount' :
+                          <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? 'questionCount' :
                               'questionSearchCount' })}>
                             <Badge badgeContent={questionCount}>
                               <HelpIcon className={classes.chipItemQuestion} />
@@ -321,7 +321,7 @@ function PlanningDialogs(props) {
                           </Tooltip>
                         )}
                         {issueCount > 0 && (
-                          <Tooltip title={intl.formatMessage({ id: _.isEmpty(results) ? 'issueCount' :
+                          <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? 'issueCount' :
                               'issueSearchCount' })}>
                             <Badge badgeContent={issueCount}>
                               <BlockIcon className={classes.chipItemIssue} />
@@ -330,7 +330,7 @@ function PlanningDialogs(props) {
                         )}
                       </div>
                     </div>
-                    {!_.isEmpty(results) && investiblesCount > 0 && (
+                    {!_.isEmpty(search) && investiblesCount > 0 && (
                       <div className={classes.workspaceCommentsIcons}>
                         <Tooltip title={intl.formatMessage({ id: "storyCount" })}>
                           <Badge badgeContent={investiblesCount}>
@@ -339,7 +339,7 @@ function PlanningDialogs(props) {
                         </Tooltip>
                       </div>
                     )}
-                    {_.isEmpty(results) && (
+                    {_.isEmpty(search) && (
                       <CardActions style={{display: 'inline-block', flex: 5}}>
                         <DialogActions
                           marketStage={marketStage}

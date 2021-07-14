@@ -107,7 +107,7 @@ function Home(props) {
   function createNavListItem(icon, textId, anchorId, howManyNum, alwaysShow) {
     return baseNavListItem('/', icon, textId, anchorId, howManyNum, alwaysShow);
   }
-  const { results } = searchResults;
+  const { search } = searchResults;
   const archiveMarkets = getHiddenMarketDetailsForUser(marketsState, marketPresencesState, searchResults);
   const navigationMenu = {navHeaderText: intl.formatMessage({ id: 'home' }), showSearchResults: true,
     navListItemTextArray: [{icon: AddIcon, text: intl.formatMessage({ id: 'addNew' }),
@@ -120,7 +120,7 @@ function Home(props) {
       createNavListItem(GavelIcon, 'dialogs', 'dia0', _.size(decisionDetails)),
       createNavListItem(PollIcon, 'initiatives', 'ini0', _.size(initiativeDetails)),
       {icon: MenuBookIcon, text: intl.formatMessage({ id: 'homeViewArchives' }),
-        target: '/archives', num: _.isEmpty(results) ? undefined : _.size(archiveMarkets)}
+        target: '/archives', num: _.isEmpty(search) ? undefined : _.size(archiveMarkets)}
     ]};
 
   return (
@@ -145,7 +145,7 @@ function Home(props) {
         <div className={classes.titleContainer}>
           { <AgilePlanIcon htmlColor="#333333" /> }
           <Typography className={classes.title} variant="h6">
-            {intl.formatMessage({ id: _.isEmpty(results) ? 'homeAssignments' : 'homeAssignmentsSearch' })}
+            {intl.formatMessage({ id: _.isEmpty(search) ? 'homeAssignments' : 'homeAssignmentsSearch' })}
           </Typography>
         </div>
         <PlanningDialogs markets={planningDetails}/>

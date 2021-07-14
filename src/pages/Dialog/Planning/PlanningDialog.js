@@ -87,7 +87,7 @@ function PlanningDialog(props) {
     banner
   } = props;
   const [searchResults] = useContext(SearchResultsContext);
-  const { results, parentResults } = searchResults;
+  const { results, parentResults, search } = searchResults;
   const location = useLocation();
   const { hash } = location;
   const classes = useInvestiblesByPersonStyles();
@@ -231,23 +231,29 @@ function PlanningDialog(props) {
   const reports = sortedRoots.filter((comment) => comment.comment_type === REPORT_TYPE);
   const { id: reportId } = getFakeCommentsArray(reports)[0];
   const todoComments = unResolvedMarketComments.filter((comment) => {
-    if (_.isEmpty(results)) {
+    if (_.isEmpty(search)) {
       return comment.comment_type === TODO_TYPE;
     }
     return comment.comment_type === TODO_TYPE && (results.find((item) => item.id === comment.id)
       || parentResults.find((id) => id === comment.id));
   });
-  const resolvedMarketComments = comments.filter(comment => !comment.investible_id && comment.resolved);
-  console.debug(results);
+  const resolvedMarketComments = comments.filter((comment) => {
+    if (_.isEmpty(search)) {
+      return !comment.investible_id && comment.resolved;
+    }
+    return !comment.investible_id && comment.resolved && (results.find((item) => item.id === comment.id)
+      || parentResults.find((id) => id === comment.id));
+  });
+  const archivedSize = _.size(archiveInvestibles) + _.size(resolvedMarketComments);
   const detailsItems = [createNavListItem(EditIcon, 'description_label', 'workspaceMain',
-    _.isEmpty(results) || results.find((result) => result.id === marketId) ? undefined : 0,
+    _.isEmpty(search) || results.find((result) => result.id === marketId) ? undefined : 0,
     'workspaceMain'),
     {icon: MenuBookIcon, text: intl.formatMessage({ id: 'planningDialogViewArchivesLabel' }),
-    target: formMarketArchivesLink(marketId), num: _.isEmpty(searchResults) ? undefined :
-      _.size(archiveInvestibles) + _.size(resolvedMarketComments)}];
+    target: _.isEmpty(searchResults) || archivedSize > 0 ? formMarketArchivesLink(marketId) : undefined,
+      num: _.isEmpty(searchResults) ? undefined : archivedSize}];
 
   const discussionItems = [inArchives ? {} : createNavListItem(AddIcon,'commentAddBox',
-    undefined, undefined, 'discussionSection'),
+    undefined, _.isEmpty(search) ? undefined : 0, 'discussionSection'),
     createNavListItem(QuestionIcon,'questions', `c${questionId}`, _.size(questions),
       'discussionSection'),
     createNavListItem(UpdateIcon,'reports', `c${reportId}`, _.size(reports),
@@ -260,10 +266,10 @@ function PlanningDialog(props) {
     createNavListItem(PlayForWorkIcon,'requiresInputStageLabel', 'requiresInput',
       _.size(requiresInputInvestibles), 'storiesSection'),
     createNavListItem(AgilePlanIcon,'swimLanes', 'swimLanes', _.size(swimlaneInvestibles),
-      'storiesSection', _.isEmpty(results)),
+      'storiesSection', _.isEmpty(search)),
     createNavListItem(WorkIcon,'planningInvestibleMoveToFurtherWorkLabel', 'furtherWork',
       _.size(furtherWorkReadyToStart) + _.size(furtherWorkInvestibles), 'storiesSection',
-      !inArchives && _.isEmpty(results))];
+      !inArchives && _.isEmpty(search))];
 
   const navigationMenu = {navHeaderIcon: PlaylistAddCheckIcon,
     navListItemTextArray: [{text: intl.formatMessage({ id: 'planningDialogNavDetailsLabel' }),
@@ -271,7 +277,7 @@ function PlanningDialog(props) {
       {text: intl.formatMessage({ id: 'planningDialogNavStoriesLabel' }),
         subItems: storiesItems, isBold: isSectionBold('storiesSection')},
       createNavListItem(ListAltIcon,'todoSection', 'marketTodos', _.size(todoComments),
-        'marketTodos', !inArchives && _.isEmpty(results), isSectionBold('marketTodos')),
+        'marketTodos', !inArchives && _.isEmpty(search), isSectionBold('marketTodos')),
       {text: intl.formatMessage({ id: 'planningDialogNavDiscussionLabel' }),
         subItems: discussionItems, isBold: isSectionBold('discussionSection')}
     ]};
@@ -445,7 +451,7 @@ function PlanningDialog(props) {
       <Grid container spacing={2} id="discussionSection"
             style={{display: isSectionOpen('discussionSection') ? 'block' : 'none'}}>
           <Grid item id="commentAddArea"  xs={12}>
-            {!inArchives && (
+            {!inArchives && _.isEmpty(search) && (
               <CommentAddBox
                 allowedTypes={allowedCommentTypes}
                 marketId={marketId}

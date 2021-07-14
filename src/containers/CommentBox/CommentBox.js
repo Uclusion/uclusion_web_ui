@@ -25,12 +25,12 @@ function findGreatestUpdatedAt(roots, comments, rootUpdatedAt) {
 }
 
 export function getSortedRoots(allComments, searchResults) {
-  const { results, parentResults } = searchResults;
+  const { results, parentResults, search } = searchResults;
   if (_.isEmpty(allComments)) {
     return [];
   }
   let comments = allComments;
-  if (!_.isEmpty(results)) {
+  if (!_.isEmpty(search)) {
     comments = allComments.filter((comment) => {
       return results.find((item) => item.id === comment.id) || parentResults.find((id) => id === comment.id);
     });

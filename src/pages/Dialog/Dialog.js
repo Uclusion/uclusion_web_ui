@@ -54,11 +54,11 @@ function Dialog(props) {
   const [commentsState] = useContext(CommentsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [searchResults] = useContext(SearchResultsContext);
-  const { results, parentResults } = searchResults;
+  const { results, parentResults, search } = searchResults;
   const marketId = action === 'invite' ? marketIdFromToken : marketEntity;
   const allInvestibles = getMarketInvestibles(investiblesState, marketId) || [];
   const comments = getMarketComments(commentsState, marketId) || [];
-  const investibles = _.isEmpty(results) ? allInvestibles : allInvestibles.filter((inv) => {
+  const investibles = _.isEmpty(search) ? allInvestibles : allInvestibles.filter((inv) => {
     const { investible } = inv;
     return results.find((item) => item.id === investible.id)
       || parentResults.find((parentId) => parentId === investible.id);

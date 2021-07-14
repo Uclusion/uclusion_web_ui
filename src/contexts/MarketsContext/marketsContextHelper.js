@@ -41,7 +41,7 @@ export function getMarketDetailsForType(state, marketPresencesState, marketType 
 
 export function getHiddenMarketDetailsForUser(state, marketPresenceState, searchResults) {
   const { marketDetails } = state;
-  const { results, parentResults } = searchResults;
+  const { results, parentResults, search } = searchResults;
   if (marketDetails) {
     return marketDetails.filter((market) => {
       const { id, market_stage: marketStage } = market;
@@ -51,7 +51,7 @@ export function getHiddenMarketDetailsForUser(state, marketPresenceState, search
         return false; // banned markets don't show up in the archives
       }
       const shown = marketStage !== ACTIVE_STAGE || !myPresence.following;
-      if (_.isEmpty(results)) {
+      if (_.isEmpty(search)) {
         return shown;
       }
       return shown && (results.find((item) => item.id === id) || parentResults.find((parentId) => parentId === id));
@@ -100,7 +100,7 @@ export function addMarketToStorage(dispatch, diffDispatch, marketDetails, fromNe
 }
 
 export function getNotHiddenMarketDetailsForUser(state, marketPresencesState, searchResults) {
-  const { results, parentResults } = searchResults;
+  const { results, parentResults, search } = searchResults;
   if (state.marketDetails) {
     const newMarketDetails = state.marketDetails.filter((market) => {
       const marketPresences = getMarketPresences(marketPresencesState, market.id) || [];
@@ -108,7 +108,7 @@ export function getNotHiddenMarketDetailsForUser(state, marketPresencesState, se
       const { following } = myPresence;
       const { market_stage: marketStage } = market;
       const marketShown = marketStage === ACTIVE_STAGE && following;
-      if (_.isEmpty(results)) {
+      if (_.isEmpty(search)) {
         return marketShown;
       }
       return marketShown && (results.find((item) => item.id === market.id)

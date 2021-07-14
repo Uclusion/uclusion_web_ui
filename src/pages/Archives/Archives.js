@@ -34,7 +34,7 @@ function Archives(props) {
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [searchResults] = useContext(SearchResultsContext);
-  const { results } = searchResults;
+  const { search } = searchResults;
   const hiddenMarkets = getHiddenMarketDetailsForUser(marketsState, marketPresencesState, searchResults) || [];
   const planningDetails = hiddenMarkets.filter((market) => market.market_type === PLANNING_TYPE);
   const decisionDetails = _.sortBy(hiddenMarkets.filter((market) => market.market_type === DECISION_TYPE && !market.parent_comment_id), 'updated_at').reverse();
@@ -59,7 +59,7 @@ function Archives(props) {
       breadCrumbs={breadCrumbs}
       navigationOptions={navigationMenu}
     >
-      { emptyArchives && _.isEmpty(results) && (
+      { emptyArchives && _.isEmpty(search) && (
         <ArchivesCheatSheet />
       )}
       {!emptyArchives && (

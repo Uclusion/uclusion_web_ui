@@ -42,6 +42,7 @@ import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLab
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward'
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 import { getThreadIds, notifyImmediate } from '../../../utils/commentFunctions'
+import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
 
 const myClasses = makeStyles(
   theme => {
@@ -140,9 +141,17 @@ function MarketTodos (props) {
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [beingDraggedHack, setBeingDraggedHack] = useContext(LocalPlanningDragContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const [searchResults] = useContext(SearchResultsContext);
+  const { results, parentResults, search } = searchResults;
   const [showSelectTodos, setShowSelectTodos] = useState(false);
   const [checked, setChecked] = useState({});
-  const todoComments = comments.filter(comment => comment.comment_type === TODO_TYPE) || [];
+  const todoComments = comments.filter(comment => {
+    if (_.isEmpty(search)) {
+      return comment.comment_type === TODO_TYPE;
+    }
+    return comment.comment_type === TODO_TYPE && (results.find((item) => item.id === comment.id)
+      || parentResults.find((id) => id === comment.id));
+  }) || [];
   const blueComments = todoComments.filter((comment) => comment.notification_type === 'BLUE');
   const yellowComments = todoComments.filter((comment) => comment.notification_type === 'YELLOW');
   const redComments = todoComments.filter((comment) => comment.notification_type === 'RED');

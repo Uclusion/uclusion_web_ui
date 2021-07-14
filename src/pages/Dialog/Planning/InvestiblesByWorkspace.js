@@ -43,6 +43,7 @@ import ExpandableAction from '../../../components/SidebarActions/Planning/Expand
 import AddIcon from '@material-ui/icons/Add'
 import Chip from '@material-ui/core/Chip'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
+import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
 export const LocalPlanningDragContext = React.createContext([]);
 
 function InvestiblesByWorkspace (props) {
@@ -60,6 +61,7 @@ function InvestiblesByWorkspace (props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const [marketsState] = useContext(MarketsContext);
   const [messagesState] = useContext(NotificationsContext);
+  const [searchResults] = useContext(SearchResultsContext);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [chosenPerson, setChosenPerson] = React.useState({ name: '', email: '', external_id: '' });
   // For security reasons you can't access source data while being dragged in case you are not the target website
@@ -146,7 +148,7 @@ function InvestiblesByWorkspace (props) {
           });
           const presence = myPresence || {};
           const comments = getMarketComments(commentsState, market.id);
-          const investibles = getMarketInvestibles(investiblesState, market.id);
+          const investibles = getMarketInvestibles(investiblesState, market.id, searchResults);
           const acceptedStage = getAcceptedStage(marketStagesState, market.id) || {};
           const inDialogStage = getInCurrentVotingStage(marketStagesState, market.id) || {};
           const inReviewStage = getInReviewStage(marketStagesState, market.id) || {};
@@ -161,6 +163,7 @@ function InvestiblesByWorkspace (props) {
             market.id,
             investibles,
             visibleStageIds,
+            searchResults
           );
           const { criticalNotificationCount, delayableNotificationCount } = sumNotificationCounts(presence, comments,
             marketPresencesState, messagesState, market.id);

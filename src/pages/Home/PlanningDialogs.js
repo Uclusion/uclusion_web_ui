@@ -90,6 +90,7 @@ const useStyles = makeStyles((theme) => ({
   bottomContainer: {
     display: 'flex',
     flex: 1,
+    marginTop: '1rem'
   },
   draftContainer: {
     height: '50px',
@@ -113,7 +114,6 @@ const useStyles = makeStyles((theme) => ({
   workspaceCommentsIcons: {
     display: 'flex',
     flexDirection: 'column',
-    marginTop: '0.5rem',
     '& > *': {
       marginBottom: theme.spacing(2),
     },
@@ -295,14 +295,16 @@ function PlanningDialogs(props) {
                     <div className={classes.workspaceCommentsIcons}>
                       <div>
                         {suggestCount > 0 && (
-                          <Tooltip title={intl.formatMessage({ id: "suggestCount" })}>
+                          <Tooltip title={intl.formatMessage({ id: _.isEmpty(results) ? 'suggestCount' :
+                              'suggestSearchCount' })}>
                             <Badge badgeContent={suggestCount}>
                               <EmojiObjectsIcon className={classes.chipItemSuggestion} />
                             </Badge>
                           </Tooltip>
                         )}
                         {todoCount > 0 && (
-                          <Tooltip title={intl.formatMessage({ id: "todoCount" })}>
+                          <Tooltip title={intl.formatMessage({ id: _.isEmpty(results) ? 'todoCount' :
+                              'todoSearchCount' })}>
                             <Badge badgeContent={todoCount}>
                               <AssignmentIcon className={classes.chipItemTodo} />
                             </Badge>
@@ -311,14 +313,16 @@ function PlanningDialogs(props) {
                       </div>
                       <div>
                         {questionCount > 0 && (
-                          <Tooltip title={intl.formatMessage({ id: "questionCount" })}>
+                          <Tooltip title={intl.formatMessage({ id: _.isEmpty(results) ? 'questionCount' :
+                              'questionSearchCount' })}>
                             <Badge badgeContent={questionCount}>
                               <HelpIcon className={classes.chipItemQuestion} />
                             </Badge>
                           </Tooltip>
                         )}
                         {issueCount > 0 && (
-                          <Tooltip title={intl.formatMessage({ id: "issueCount" })}>
+                          <Tooltip title={intl.formatMessage({ id: _.isEmpty(results) ? 'issueCount' :
+                              'issueSearchCount' })}>
                             <Badge badgeContent={issueCount}>
                               <BlockIcon className={classes.chipItemIssue} />
                             </Badge>

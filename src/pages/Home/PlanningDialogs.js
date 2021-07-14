@@ -32,6 +32,9 @@ import AssignmentIcon from '@material-ui/icons/Assignment'
 import GravatarGroup from '../../components/Avatars/GravatarGroup';
 import { doRemoveEdit, doShowEdit } from '../Dialog/Planning/userUtils'
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined'
+import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
+import { getSortedRoots } from '../../containers/CommentBox/CommentBox'
+import WorkIcon from '@material-ui/icons/Work'
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -135,6 +138,9 @@ const useStyles = makeStyles((theme) => ({
   chipItemTodo: {
     color: '#F29100',
   },
+  chipItemStory: {
+    color: 'black',
+  },
 }));
 
 function PlanningDialogs(props) {
@@ -147,7 +153,9 @@ function PlanningDialogs(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [investibleState] = useContext(InvestiblesContext);
   const [commentsState] = useContext(CommentsContext);
-  
+  const [searchResults] = useContext(SearchResultsContext);
+  const { results } = searchResults;
+
   function getParticipantInfo(presences) {
 
       return (
@@ -179,22 +187,27 @@ function PlanningDialogs(props) {
     const marketsWithUpdatedAt = markets.map((market) => {
       const { id: marketId, updated_at: updatedAt } = market;
       const comments = getMarketComments(commentsState, marketId) || [];
-      const marketLevelUnresolved = comments.filter((comment) => !comment.resolved && !comment.investible_id);
-      const issueCount = getCommentsCount(marketLevelUnresolved, ISSUE_TYPE);
-      const questionCount = getCommentsCount(marketLevelUnresolved, QUESTION_TYPE);
-      const suggestCount = getCommentsCount(marketLevelUnresolved, SUGGEST_CHANGE_TYPE);
-      const todoCount = getCommentsCount(marketLevelUnresolved, TODO_TYPE);
+      let commentsToCount = comments.filter((comment) => !comment.resolved && !comment.investible_id);
+      if (!_.isEmpty(results)) {
+        commentsToCount = getSortedRoots(comments, searchResults);
+      }
+      const investiblesToCount = getMarketInvestibles(investibleState, marketId, searchResults) || [];
+      const issueCount = getCommentsCount(commentsToCount, ISSUE_TYPE);
+      const questionCount = getCommentsCount(commentsToCount, QUESTION_TYPE);
+      const suggestCount = getCommentsCount(commentsToCount, SUGGEST_CHANGE_TYPE);
+      const todoCount = getCommentsCount(commentsToCount, TODO_TYPE);
       const investibles = getMarketInvestibles(investibleState, marketId) || [];
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
       const marketUpdatedAt = getMarketUpdatedAt(updatedAt, marketPresences, investibles, comments, marketId);
-      return { ...market, marketUpdatedAt, questionCount, issueCount, suggestCount, todoCount }
+      return { ...market, marketUpdatedAt, questionCount, issueCount, suggestCount, todoCount,
+        investiblesCount: investiblesToCount.length }
     });
     const sortedMarkets = _.sortBy(marketsWithUpdatedAt, 'marketUpdatedAt').reverse();
     return sortedMarkets.map((market, index) => {
       const {
         id: marketId, name, market_type: marketType, market_stage: marketStage,
         parent_market_id: parentMarketId, parent_investible_id: parentInvestibleId, marketUpdatedAt, questionCount,
-        issueCount, suggestCount, todoCount
+        issueCount, suggestCount, todoCount, investiblesCount
       } = market;
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
       const isDraft = marketHasOnlyCurrentUser(marketPresencesState, marketId);
@@ -313,19 +326,30 @@ function PlanningDialogs(props) {
                         )}
                       </div>
                     </div>
-                    <CardActions style={{display: 'inline-block', flex: 5}}>
-                      <DialogActions
-                        marketStage={marketStage}
-                        marketId={marketId}
-                        marketType={marketType}
-                        marketPresences={marketPresences}
-                        parentMarketId={parentMarketId}
-                        parentInvestibleId={parentInvestibleId}
-                        isAdmin
-                        isFollowing={myPresence.following}
-                        hideEdit={true}
-                      />
-                    </CardActions>
+                    {!_.isEmpty(results) && investiblesCount > 0 && (
+                      <div className={classes.workspaceCommentsIcons}>
+                        <Tooltip title={intl.formatMessage({ id: "storyCount" })}>
+                          <Badge badgeContent={investiblesCount}>
+                            <WorkIcon className={classes.chipItemStory} />
+                          </Badge>
+                        </Tooltip>
+                      </div>
+                    )}
+                    {_.isEmpty(results) && (
+                      <CardActions style={{display: 'inline-block', flex: 5}}>
+                        <DialogActions
+                          marketStage={marketStage}
+                          marketId={marketId}
+                          marketType={marketType}
+                          marketPresences={marketPresences}
+                          parentMarketId={parentMarketId}
+                          parentInvestibleId={parentInvestibleId}
+                          isAdmin
+                          isFollowing={myPresence.following}
+                          hideEdit={true}
+                        />
+                      </CardActions>
+                    )}
                   </span>
               </div>
             </CardContent>

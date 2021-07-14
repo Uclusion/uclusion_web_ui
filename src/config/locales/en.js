@@ -311,6 +311,8 @@ const messages = defineMessages({
   // Investible
   investibleEditLabel: 'Edit',
   investibleAssignLabel: 'Assign',
+  homeAssignments: 'Assigned Stories',
+  homeAssignmentsSearch: 'Matching Assigned Stories',
   investibleAssign: 'Story - Assignments',
   investibleReviewers: 'Story - Required Reviewers',
   investibleApprovers: 'Story - Required Approvers',
@@ -572,6 +574,7 @@ const messages = defineMessages({
   todoCount: 'Open TODOs',
   questionCount: 'Open questions',
   issueCount: 'Open blocking issues',
+  storyCount: 'Matching stories',
   planningMarketActivate: 'Activate Workspace',
   immediate: 'Immediate',
   immediateSectionHelp: 'These TODOs should be converted to stories and completed as soon as possible.',

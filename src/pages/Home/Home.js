@@ -144,7 +144,9 @@ function Home(props) {
       <React.Fragment>
         <div className={classes.titleContainer}>
           { <AgilePlanIcon htmlColor="#333333" /> }
-          <Typography className={classes.title} variant="h6">Assigned Stories</Typography>
+          <Typography className={classes.title} variant="h6">
+            {intl.formatMessage({ id: _.isEmpty(results) ? 'homeAssignments' : 'homeAssignmentsSearch' })}
+          </Typography>
         </div>
         <PlanningDialogs markets={planningDetails}/>
         <hr className={classes.spacer}/>

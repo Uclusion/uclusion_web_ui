@@ -42,6 +42,13 @@ import { SearchResultsContext } from '../../contexts/SearchResultsContext/Search
 import { INVITED_USER_WORKSPACE } from '../../contexts/TourContext/tourContextHelper'
 import { TourContext } from '../../contexts/TourContext/TourContext'
 import { startTour } from '../../contexts/TourContext/tourContextReducer'
+import InvestiblesByWorkspace from '../Dialog/Planning/InvestiblesByWorkspace'
+import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
+import { getStages } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
+import { getUserInvestibles } from '../Dialog/Planning/userUtils'
+import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
+import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 
 const useStyles = makeStyles(() => ({
     spacer: {
@@ -68,6 +75,8 @@ function Home(props) {
   const [marketsState] = useContext(MarketsContext);
   const [accountState] = useContext(AccountContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [marketStagesState] = useContext(MarketStagesContext);
+  const [investiblesState] = useContext(InvestiblesContext);
   const classes = useStyles();
   const [wizardActive, setWizardActive] = useState(false);
   const user = useContext(CognitoUserContext) || {};
@@ -78,6 +87,7 @@ function Home(props) {
   const banner = !initializedGlobalVersion ? undefined : _.isEmpty(getExistingMarkets(versionsContext)) ?
       <OnboardingBanner messageId='OnboardingCreatingCustomWorkspace' /> :
     createEnabled ? undefined : <UpgradeBanner/>;
+  const [chosenPerson, setChosenPerson] = React.useState({ name: '', email: '', external_id: '' });
 
   useEffect(() => {
     const redirect = getAndClearRedirect();
@@ -91,7 +101,7 @@ function Home(props) {
   })
 
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState, searchResults);
-  const planningDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, PLANNING_TYPE);
+  const planningDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, PLANNING_TYPE) || [];
   const decisionDetails = _.sortBy(getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState,
     DECISION_TYPE), 'created_at').reverse();
   const initiativeDetails = _.sortBy(getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState,
@@ -108,6 +118,27 @@ function Home(props) {
     return baseNavListItem('/', icon, textId, anchorId, howManyNum, alwaysShow);
   }
   const { search } = searchResults;
+  const workspacesData = planningDetails.map((market) => {
+    const marketPresences = getMarketPresences(marketPresencesState, market.id);
+    const myPresence = marketPresences && marketPresences.find((presence) => {
+      return presence.external_id === chosenPerson.external_id;
+    });
+    const presence = myPresence || {};
+    const investibles = getMarketInvestibles(investiblesState, market.id, searchResults);
+    const visibleStages = getStages(marketStagesState, market.id).filter((stage) => stage.appears_in_context)
+      || [];
+    const visibleStageIds = visibleStages.map((stage) => stage.id);
+    const myInvestibles = getUserInvestibles(
+      presence.id,
+      market.id,
+      investibles,
+      visibleStageIds,
+      searchResults
+    ) || [];
+    return { market, myInvestibles, presence };
+  });
+  const assignedSize = workspacesData.reduce((accumulator, currentValue) =>
+    accumulator + currentValue.myInvestibles.length, 0);
   const archiveMarkets = getHiddenMarketDetailsForUser(marketsState, marketPresencesState, searchResults);
   const navigationMenu = {navHeaderText: intl.formatMessage({ id: 'home' }), showSearchResults: true,
     navListItemTextArray: [{icon: AddIcon, text: intl.formatMessage({ id: 'addNew' }),
@@ -115,12 +146,13 @@ function Home(props) {
       setWizardActive(true);
       window.scrollTo(0, 0);
     } : undefined},
-      createNavListItem(AgilePlanIcon, 'swimLanes', 'swimLanes'),
+      createNavListItem(AgilePlanIcon, 'mySwimLanes', 'swimLanes', assignedSize),
       createNavListItem(PlaylistAddCheckIcon, 'planningMarkets', 'planningMarkets', _.size(planningDetails)),
       createNavListItem(GavelIcon, 'dialogs', 'dia0', _.size(decisionDetails)),
       createNavListItem(PollIcon, 'initiatives', 'ini0', _.size(initiativeDetails)),
       {icon: MenuBookIcon, text: intl.formatMessage({ id: 'homeViewArchives' }),
-        target: '/archives', num: _.isEmpty(search) ? undefined : _.size(archiveMarkets)}
+        target: _.isEmpty(search) || _.size(archiveMarkets) > 0 ? '/archives' : undefined,
+        num: _.isEmpty(search) || _.size(archiveMarkets) === 0 ? undefined : _.size(archiveMarkets)}
     ]};
 
   return (
@@ -145,9 +177,14 @@ function Home(props) {
         <div className={classes.titleContainer}>
           { <AgilePlanIcon htmlColor="#333333" /> }
           <Typography className={classes.title} variant="h6">
-            {intl.formatMessage({ id: _.isEmpty(search) ? 'homeAssignments' : 'homeAssignmentsSearch' })}
+            {intl.formatMessage({ id: 'homeAssignments' })}
           </Typography>
         </div>
+        <div id="swimLanes">
+          <InvestiblesByWorkspace workspaces={planningDetails} chosenPerson={chosenPerson}
+                                  setChosenPerson={setChosenPerson} workspacesData={workspacesData} />
+        </div>
+        <hr className={classes.spacer}/>
         <PlanningDialogs markets={planningDetails}/>
         <hr className={classes.spacer}/>
         <InitiativesAndDialogs dialogs={decisionDetails} initiatives={initiativeDetails}/>

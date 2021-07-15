@@ -5,7 +5,7 @@ import CardContent from '@material-ui/core/CardContent';
 import CardHeader from '@material-ui/core/CardHeader';
 import PlanningIdeas from './PlanningIdeas';
 import { useInvestiblesByPersonStyles } from './PlanningDialog'
-import { getUserInvestibles, sumNotificationCounts } from './userUtils'
+import { sumNotificationCounts } from './userUtils'
 import PropTypes from 'prop-types';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { getMarketPresences, getPresenceMap } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
@@ -22,7 +22,7 @@ import {
   getBlockedStage,
   getInCurrentVotingStage,
   getInReviewStage,
-  getRequiredInputStage, getStages, getVerifiedStage
+  getRequiredInputStage, getVerifiedStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { Button, Menu, MenuItem, Typography, useMediaQuery, useTheme } from '@material-ui/core'
@@ -48,7 +48,7 @@ export const LocalPlanningDragContext = React.createContext([]);
 
 function InvestiblesByWorkspace (props) {
   const {
-    workspaces
+    workspaces, setChosenPerson, chosenPerson, workspacesData
   } = props;
   const intl = useIntl();
   const history = useHistory();
@@ -63,11 +63,9 @@ function InvestiblesByWorkspace (props) {
   const [messagesState] = useContext(NotificationsContext);
   const [searchResults] = useContext(SearchResultsContext);
   const [anchorEl, setAnchorEl] = React.useState(null);
-  const [chosenPerson, setChosenPerson] = React.useState({ name: '', email: '', external_id: '' });
   // For security reasons you can't access source data while being dragged in case you are not the target website
   const [beingDraggedHack, setBeingDraggedHack] = useState({});
-  const activeWorkspaces = (workspaces || []).filter((market) => market.market_stage === ACTIVE_STAGE);
-  const people = Object.entries(extractUsersList(marketPresencesState, undefined, activeWorkspaces, false));
+  const people = Object.entries(extractUsersList(marketPresencesState, undefined, workspaces, false));
   const sortedPeople = _.sortBy(people, [function (o) {
     const {
       current_user: currentUser
@@ -80,7 +78,7 @@ function InvestiblesByWorkspace (props) {
       setChosenPerson(sortedPeople[0][1]);
     }
     return () => {};
-  }, [chosenPerson, sortedPeople]);
+  }, [chosenPerson, setChosenPerson, sortedPeople]);
 
   function handleClick (event) {
     setAnchorEl(event.currentTarget);
@@ -135,7 +133,8 @@ function InvestiblesByWorkspace (props) {
         </div>
       )}
       <LocalPlanningDragContext.Provider value={[beingDraggedHack, setBeingDraggedHack]}>
-        {activeWorkspaces.map((market) => {
+        {workspacesData.map((data) => {
+          const { market, presence, myInvestibles } = data;
           function onClick(id) {
             const link = formMarketAddInvestibleLink(market.id);
             navigate(history, `${link}#assignee=${id}`);
@@ -143,10 +142,6 @@ function InvestiblesByWorkspace (props) {
           const marketPresences = getMarketPresences(marketPresencesState, market.id);
           const assigningPresenceRaw = marketPresences && marketPresences.find((presence) => presence.current_user);
           const assigningPresence = assigningPresenceRaw || {};
-          const myPresence = marketPresences && marketPresences.find((presence) => {
-            return presence.external_id === chosenPerson.external_id;
-          });
-          const presence = myPresence || {};
           const comments = getMarketComments(commentsState, market.id);
           const investibles = getMarketInvestibles(investiblesState, market.id, searchResults);
           const acceptedStage = getAcceptedStage(marketStagesState, market.id) || {};
@@ -155,16 +150,6 @@ function InvestiblesByWorkspace (props) {
           const inBlockingStage = getBlockedStage(marketStagesState, market.id) || {};
           const inVerifiedStage = getVerifiedStage(marketStagesState, market.id) || {};
           const requiresInputStage = getRequiredInputStage(marketStagesState, market.id) || {};
-          const visibleStages = getStages(marketStagesState, market.id).filter((stage) => stage.appears_in_context)
-            || [];
-          const visibleStageIds = visibleStages.map((stage) => stage.id);
-          const myInvestibles = getUserInvestibles(
-            presence.id,
-            market.id,
-            investibles,
-            visibleStageIds,
-            searchResults
-          );
           const { criticalNotificationCount, delayableNotificationCount } = sumNotificationCounts(presence, comments,
             marketPresencesState, messagesState, market.id);
           const requiresInputInvestibles = getInvestiblesInStage(investibles, requiresInputStage.id) || [];

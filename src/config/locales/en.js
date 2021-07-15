@@ -257,6 +257,7 @@ const messages = defineMessages({
 
   // Navigation menu
   swimLanes: 'Assigned',
+  mySwimLanes: 'Stories',
   commentAddBox: 'Add Comment',
   questions: 'Questions',
   suggestions: 'Suggestions',
@@ -311,8 +312,7 @@ const messages = defineMessages({
   // Investible
   investibleEditLabel: 'Edit',
   investibleAssignLabel: 'Assign',
-  homeAssignments: 'Assigned Stories',
-  homeAssignmentsSearch: 'Matching',
+  homeAssignments: 'Stories Overview',
   investibleAssign: 'Story - Assignments',
   investibleReviewers: 'Story - Required Reviewers',
   investibleApprovers: 'Story - Required Approvers',

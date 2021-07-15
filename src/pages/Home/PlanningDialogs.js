@@ -22,7 +22,6 @@ import { getMarketComments } from '../../contexts/CommentsContext/commentsContex
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { getMarketUpdatedAt } from '../../utils/userFunctions'
 import { ACTIVE_STAGE } from '../../constants/markets'
-import InvestiblesByWorkspace from '../Dialog/Planning/InvestiblesByWorkspace'
 import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../constants/comments'
 import EmojiObjectsIcon from '@material-ui/icons/EmojiObjects'
 import Badge from '@material-ui/core/Badge'
@@ -149,7 +148,7 @@ function PlanningDialogs(props) {
   const classes = useStyles();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
-  const { markets, isArchives } = props;
+  const { markets } = props;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [investibleState] = useContext(InvestiblesContext);
   const [commentsState] = useContext(CommentsContext);
@@ -364,19 +363,9 @@ function PlanningDialogs(props) {
   }
 
   return (
-    <>
-      {!isArchives && (
-        <>
-          <div id="swimLanes">
-            <InvestiblesByWorkspace workspaces={markets} />
-          </div>
-          <hr className={classes.spacer}/>
-        </>
-      )}
-      <Grid container spacing={4} id="planningMarkets">
-        {getMarketItems()}
-      </Grid>
-    </>
+    <Grid container spacing={4} id="planningMarkets">
+      {getMarketItems()}
+    </Grid>
   );
 }
 

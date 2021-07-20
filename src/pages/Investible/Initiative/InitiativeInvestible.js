@@ -45,7 +45,7 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { EMPTY_SPIN_RESULT } from '../../../constants/global'
 import { doSetEditWhenValid } from '../../../utils/windowUtils'
-import { Assessment, ExpandLess, QuestionAnswer } from '@material-ui/icons'
+import { Assessment, ExpandLess, QuestionAnswer, SettingsBackupRestore } from '@material-ui/icons'
 import EditIcon from '@material-ui/icons/Edit'
 import AddIcon from '@material-ui/icons/Add'
 import QuestionIcon from '@material-ui/icons/ContactSupport'
@@ -61,6 +61,9 @@ import { findMessageOfTypeAndId } from '../../../utils/messageUtils'
 import { getDiff, markDiffViewed } from '../../../contexts/DiffContext/diffContextHelper'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import { deleteSingleMessage } from '../../../api/users'
+import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 
 const useStyles = makeStyles(
   theme => ({
@@ -190,7 +193,8 @@ function InitiativeInvestible(props) {
   const [, tourDispatch] = useContext(TourContext);
   const [, marketsDispatch] = useContext(MarketsContext);
   const [diffState, diffDispatch] = useContext(DiffContext);
-  const [messagesState] = useContext(NotificationsContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const myMessage = findMessageOfTypeAndId(investibleId, messagesState);
   const diff = getDiff(diffState, investibleId);
   const [searchResults] = useContext(SearchResultsContext);
@@ -413,6 +417,23 @@ function InitiativeInvestible(props) {
                     <FormattedMessage id="initiativePlanningParent"/>
                   </SpinningIconLabelButton>
                   <div style={{paddingTop: '0.5rem'}} />
+                </>
+              )}
+              {myMessage && (
+                <>
+                  <SpinningIconLabelButton icon={SettingsBackupRestore}
+                                           onClick={() => {
+                                             deleteSingleMessage(myMessage).then(() => {
+                                               messagesDispatch(removeMessage(myMessage));
+                                               setOperationRunning(false);
+                                             }).finally(() => {
+                                               setOperationRunning(false);
+                                             });
+                                           }}
+                                           doSpin={true}>
+                    <FormattedMessage id={'markDescriptionRead'} />
+                  </SpinningIconLabelButton>
+                  <div style={{paddingTop: '0.1rem'}} />
                 </>
               )}
               {myMessage && diff && (

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react'
 import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { useHistory } from 'react-router';
@@ -10,6 +10,8 @@ import {
 import Screen from '../../containers/Screen/Screen';
 import { getAccountClient } from '../../api/uclusionClient';
 import { toastError } from '../../utils/userMessage';
+import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
+import { accountUserRefresh } from '../../contexts/AccountUserContext/accountUserContextReducer'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -43,6 +45,7 @@ function SlackInvite(props) {
   const classes = useStyles();
   const { hash } = location;
   const [myLoading, setMyLoading] = useState(true);
+  const [, userDispatch] = useContext(AccountUserContext) || {};
 
   useEffect(() => {
     if (!hidden && hash) {
@@ -51,17 +54,17 @@ function SlackInvite(props) {
       if (nonce) {
         getAccountClient()
           .then((client) => client.users.register(nonce))
-          .then(() => setTimeout(() => {
-            navigate(history, '/');
-          }, 5000))
-          .catch((error) => {
+          .then((user) => {
+            userDispatch(accountUserRefresh(user));
+            return setTimeout(() => {navigate(history, '/notificationPreferences');}, 1000);
+          }).catch((error) => {
             setMyLoading(false);
             console.error(error);
             toastError('slack_register_failed');
           });
       }
     }
-  }, [hidden, hash, history]);
+  }, [hidden, hash, history, userDispatch]);
   const messageId = hash ? 'slackIntegrationSuccessful' : 'slackIntegrationPartial';
   return (
     <Screen

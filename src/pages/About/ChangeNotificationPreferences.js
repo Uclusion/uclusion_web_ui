@@ -27,6 +27,8 @@ import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUse
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
 import SubSection from '../../containers/SubSection/SubSection';
+import { accountUserRefresh } from '../../contexts/AccountUserContext/accountUserContextReducer'
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 
 const useStyles = makeStyles((theme) => ({
   name: {},
@@ -71,28 +73,35 @@ const useStyles = makeStyles((theme) => ({
 
 function ChangeNotificationPreferences (props) {
   const { hidden } = props;
-  const [userState] = useContext(AccountUserContext) || {};
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [userState, userDispatch] = useContext(AccountUserContext) || {};
   const { user } = userState;
   const safeUser = user || {};
-  const [emailEnabled, setEmailEnabled] = useState(safeUser.email_enabled);
-  const [slackEnabled, setSlackEnabled] = useState(safeUser.is_slack_addressable);
+  const [toggleEmailEnabled, setToggleEmailEnabled] = useState(false);
+  const [toggleSlackEnabled, setToggleSlackEnabled] = useState(false);
   const [slackDelay, setSlackDelay] = useState(safeUser.slack_delay);
-  const [emailDelay, setEmailDelay] = useState(safeUser.emailDelay);
+  const [emailDelay, setEmailDelay] = useState(safeUser.email_delay);
   const intl = useIntl();
   const classes = useStyles();
 
   function onSetPreferences () {
-    return updateUser({ emailEnabled, slackEnabled, slackDelay, emailDelay });
+    setOperationRunning(true);
+    const emailEnabled = toggleEmailEnabled ? !safeUser.email_enabled : safeUser.email_enabled;
+    const slackEnabled = toggleSlackEnabled ? !safeUser.slack_enabled : safeUser.slack_enabled;
+    return updateUser({ emailEnabled, slackEnabled, slackDelay, emailDelay }).then((ret) =>{
+      setOperationRunning(false);
+      userDispatch(accountUserRefresh(ret.user));
+      setToggleEmailEnabled(false);
+      setToggleSlackEnabled(false);
+    });
   }
 
   function handleToggleEmail () {
-    setEmailEnabled(!emailEnabled);
+    setToggleEmailEnabled(true);
   }
 
   function handleToggleSlack () {
-    if (safeUser && safeUser.is_slack_addressable) {
-      setSlackEnabled(!slackEnabled);
-    }
+      setToggleSlackEnabled(true);
   }
 
   function handleChangeSlackDelay (event) {
@@ -116,10 +125,11 @@ function ChangeNotificationPreferences (props) {
   }
 
   const emailDelayInHours = emailDelay === 0 ? 0 : Math.round(emailDelay / 60);
-  const advancedEnabled = slackEnabled || emailEnabled;
+  const advancedEnabled = safeUser.is_slack_addressable || safeUser.email_enabled;
   const history = useHistory();
   const breadCrumbs = makeBreadCrumbs(history, [], true);
-  const invalidForm = (emailEnabled && (emailDelay === undefined)) || (slackEnabled && (slackDelay === undefined));
+  const invalidForm = (safeUser.email_enabled && (emailDelay === undefined))
+    || (safeUser.is_slack_addressable && (slackDelay === undefined));
   return (
     <Screen
       title={intl.formatMessage({ id: 'changePreferencesHeader' })}
@@ -170,8 +180,8 @@ function ChangeNotificationPreferences (props) {
                   >
                     <ListItemIcon>
                       <Checkbox
-                        value={emailEnabled}
-                        checked={emailEnabled}
+                        value={toggleEmailEnabled ? !safeUser.email_enabled : safeUser.email_enabled}
+                        checked={toggleEmailEnabled ? !safeUser.email_enabled : safeUser.email_enabled}
                       />
                     </ListItemIcon>
                     <ListItemText
@@ -187,8 +197,8 @@ function ChangeNotificationPreferences (props) {
                   >
                     <ListItemIcon>
                       <Checkbox
-                        value={slackEnabled}
-                        checked={slackEnabled}
+                        value={toggleSlackEnabled ? !safeUser.slack_enabled : safeUser.slack_enabled}
+                        checked={toggleSlackEnabled ? !safeUser.slack_enabled : safeUser.slack_enabled}
                         disabled={!safeUser || !safeUser.is_slack_addressable}
                       />
                     </ListItemIcon>
@@ -214,7 +224,7 @@ function ChangeNotificationPreferences (props) {
                         alignItems="stretch"
                         style={{ padding: '1rem', paddingTop: '0' }}
                       >
-                        {emailEnabled && (
+                        {safeUser.email_enabled && (
                           <FormControl fullWidth={true} margin="normal" className={classes.formControl}>
                             <InputLabel htmlFor="emailDelay" shrink={true} className={classes.label}>
                               {intl.formatMessage({ id: 'emailDelayInputLabel' })}
@@ -224,12 +234,12 @@ function ChangeNotificationPreferences (props) {
                               type="number"
                               variant="outlined"
                               inputProps={{ min: 0 }}
-                              disabled={!emailEnabled}
+                              disabled={!safeUser.email_enabled}
                               onChange={handleChangeEmailDelay}
                               value={emailDelayInHours}
                             />
                           </FormControl>)}
-                        {slackEnabled && (
+                        {safeUser.is_slack_addressable && (
                           <FormControl fullWidth={true} margin="normal" className={classes.formControl}>
                             <InputLabel htmlFor="slackDelay" shrink={true} className={classes.label}>
                               {intl.formatMessage({ id: 'slackDelayInputLabel' })}
@@ -237,7 +247,7 @@ function ChangeNotificationPreferences (props) {
                             <TextField
                               id="slackDelay"
                               type="number"
-                              disabled={!slackEnabled}
+                              disabled={!safeUser.is_slack_addressable}
                               variant="outlined"
                               inputProps={{ min: 0 }}
                               onChange={handleChangeSlackDelay}

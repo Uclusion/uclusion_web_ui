@@ -13,12 +13,8 @@ import DialogActions from '../../Home/DialogActions'
 import CardType, { AGILE_PLAN_TYPE } from '../../../components/CardType'
 import ParentSummary from '../ParentSummary'
 import { useMetaDataStyles } from '../../Investible/Planning/PlanningInvestible'
-import InsertLinkIcon from '@material-ui/icons/InsertLink'
-import { navigate } from '../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
-import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
 import Collaborators from '../Collaborators'
-import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
 import AttachedFilesList from '../../../components/Files/AttachedFilesList'
 import { attachFilesToMarket, deleteAttachedFilesFromMarket } from '../../../api/markets'
 import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper'
@@ -26,8 +22,6 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { EMPTY_SPIN_RESULT } from '../../../constants/global'
 import { doSetEditWhenValid, invalidEditEvent } from '../../../utils/windowUtils'
-import { AccountContext } from '../../../contexts/AccountContext/AccountContext';
-import { canCreate } from '../../../contexts/AccountContext/accountContextHelper';
 import DialogBodyEdit from '../DialogBodyEdit'
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 import _ from 'lodash'
@@ -38,7 +32,10 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { findMessageOfTypeAndId } from '../../../utils/messageUtils'
 import { getDiff, markDiffViewed } from '../../../contexts/DiffContext/diffContextHelper'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
-import { ExpandLess } from '@material-ui/icons'
+import { ExpandLess, SettingsBackupRestore } from '@material-ui/icons'
+import { deleteSingleMessage } from '../../../api/users'
+import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 
 const useStyles = makeStyles(theme => ({
   section: {
@@ -215,11 +212,11 @@ function Summary(props) {
     locked_by: lockedBy,
     name,
   } = market;
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
-  const [accountState] = useContext(AccountContext);
   const [, marketsDispatch] = useContext(MarketsContext);
   const [diffState, diffDispatch] = useContext(DiffContext);
-  const [messagesState] = useContext(NotificationsContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const myMessage = findMessageOfTypeAndId(id, messagesState);
   const diff = getDiff(diffState, id);
   const [pageStateFull, pageDispatch] = usePageStateReducer('market');
@@ -244,7 +241,7 @@ function Summary(props) {
     marketPresences.find(presence => presence.current_user) || {};
   const metaClasses = useMetaDataStyles();
   const isAdmin = myPresence.is_admin;
-  const creatEnabled = canCreate(accountState);
+
   function isEditableByUser() {
     return isAdmin && !inArchives;
   }
@@ -342,19 +339,22 @@ function Summary(props) {
             </div>
           </div>
           <ParentSummary market={market} hidden={hidden}/>
-          {!inArchives && !creatEnabled && (
-            <div style={{paddingTop: '1rem'}}>
-              <ExpandableAction
-                id="upgrade"
-                key="upgrade"
-                icon={<InsertLinkIcon htmlColor={ACTION_BUTTON_COLOR}/>}
-                openLabel={intl.formatMessage({ id: 'upgradeNowDialog' })}
-                label={intl.formatMessage({ id: 'upgradeBannerText' })}
-                onClick={() =>
-                  navigate(history, `/billing`)
-                }
-              />
-            </div>
+          {myMessage && (
+            <>
+              <div style={{paddingTop: '0.5rem'}} />
+              <SpinningIconLabelButton icon={SettingsBackupRestore}
+                                       onClick={() => {
+                                         deleteSingleMessage(myMessage).then(() => {
+                                           messagesDispatch(removeMessage(myMessage));
+                                           setOperationRunning(false);
+                                         }).finally(() => {
+                                           setOperationRunning(false);
+                                         });
+                                       }}
+                                       doSpin={true}>
+                <FormattedMessage id={'markDescriptionRead'} />
+              </SpinningIconLabelButton>
+            </>
           )}
           {myMessage && diff && (
             <>

@@ -686,7 +686,7 @@ const messages = defineMessages({
   inviteLinkerDirectionsInitiative: 'Share this link',
   inviteLinkerCopyToClipboard: 'Copy to clipboard',
   slackIntegrationSuccessful: 'Slack was successfully integrated.',
-  slackIntegrationPartial: 'Almost there! Now type /uclusion in any Slack channel to complete installation.',
+  slackIntegrationPartial: 'Almost there! Now type /uclusion in any Slack channel and follow the link that is returned to complete installation.',
 
   // Assignment List
   assignmentListHeader: 'Assigned to (unassigned goes to Further Work)',

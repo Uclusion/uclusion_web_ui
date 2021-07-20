@@ -52,7 +52,7 @@ function SlackInvite(props) {
         getAccountClient()
           .then((client) => client.users.register(nonce))
           .then(() => setTimeout(() => {
-            navigate(history, '/');
+            navigate(history, '/notificationPreferences');
           }, 5000))
           .catch((error) => {
             setMyLoading(false);

@@ -54,10 +54,15 @@ import BlockIcon from '@material-ui/icons/Block'
 import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
 import QuestionIcon from '@material-ui/icons/ContactSupport'
 import { getFakeCommentsArray } from '../../../utils/stringFunctions'
-import { QuestionAnswer } from '@material-ui/icons'
+import { ExpandLess, QuestionAnswer } from '@material-ui/icons'
 import DialogBodyEdit from '../DialogBodyEdit'
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
+import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import { getDiff, markDiffViewed } from '../../../contexts/DiffContext/diffContextHelper'
+import { findMessageOfTypeAndId } from '../../../utils/messageUtils'
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 
 const useStyles = makeStyles(
   theme => ({
@@ -175,9 +180,10 @@ function DecisionDialog(props) {
   } = myPresence;
   const [, tourDispatch] = useContext(TourContext);
   const [, marketsDispatch] = useContext(MarketsContext);
-  const [, diffDispatch] = useContext(DiffContext);
+  const [diffState, diffDispatch] = useContext(DiffContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [searchResults] = useContext(SearchResultsContext);
+  const [messagesState] = useContext(NotificationsContext);
   const {
     id: marketId,
     name: marketName,
@@ -190,10 +196,13 @@ function DecisionDialog(props) {
     parent_market_id: parentMarketId,
     parent_investible_id: parentInvestibleId
   } = market;
+  const myMessage = findMessageOfTypeAndId(marketId, messagesState);
+  const diff = getDiff(diffState, marketId);
   const [pageStateFull, pageDispatch] = usePageStateReducer('market');
   const [pageState, updatePageState, pageStateReset] = getPageReducerPage(pageStateFull, pageDispatch, marketId);
   const {
     beingEdited,
+    showDiff
   } = pageState;
   const [investibleAddStateFull, investibleAddDispatch] = usePageStateReducer('investibleAdd');
   const [investibleAddState, updateInvestibleAddState, investibleAddStateReset] =
@@ -221,6 +230,13 @@ function DecisionDialog(props) {
       .then((market) => {
         addMarketToStorage(marketsDispatch, diffDispatch, market, false);
       })
+  }
+
+  function toggleDiffShow() {
+    if (showDiff) {
+      markDiffViewed(diffDispatch, marketId);
+    }
+    updatePageState({showDiff: !showDiff});
   }
 
   function toggleInvestibleAdd() {
@@ -373,6 +389,15 @@ function DecisionDialog(props) {
               )}
               <ParentSummary market={market} hidden={hidden}/>
             </dl>
+            {myMessage && diff && (
+              <>
+                <SpinningIconLabelButton icon={showDiff ? ExpandLess : ExpandMoreIcon}
+                                         onClick={toggleDiffShow} doSpin={false}>
+                  <FormattedMessage id={showDiff ? 'diffDisplayDismissLabel' : 'diffDisplayShowLabel'} />
+                </SpinningIconLabelButton>
+                <div style={{paddingTop: '0.5rem'}} />
+              </>
+            )}
             <dl className={metaClasses.root}>
               <AttachedFilesList
                 key="files"

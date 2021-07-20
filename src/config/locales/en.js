@@ -962,6 +962,7 @@ const messages = defineMessages({
   readyToStartCheckboxExplanation: 'Ready to Start',
   editTodo: 'Edit / View Thread',
   markRead: 'Mark Thread Read',
+  markDescriptionRead: 'Mark Read',
   moveTodoRed: 'Move to Immediate',
   moveTodoYellow: 'Move to When Able',
   moveTodoBlue: 'Move to When Convenient',

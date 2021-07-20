@@ -54,7 +54,7 @@ import BlockIcon from '@material-ui/icons/Block'
 import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
 import QuestionIcon from '@material-ui/icons/ContactSupport'
 import { getFakeCommentsArray } from '../../../utils/stringFunctions'
-import { ExpandLess, QuestionAnswer } from '@material-ui/icons'
+import { ExpandLess, QuestionAnswer, SettingsBackupRestore } from '@material-ui/icons'
 import DialogBodyEdit from '../DialogBodyEdit'
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
@@ -63,6 +63,9 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { getDiff, markDiffViewed } from '../../../contexts/DiffContext/diffContextHelper'
 import { findMessageOfTypeAndId } from '../../../utils/messageUtils'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
+import { deleteOrDehilightMessages, deleteSingleMessage } from '../../../api/users'
+import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 
 const useStyles = makeStyles(
   theme => ({
@@ -183,7 +186,8 @@ function DecisionDialog(props) {
   const [diffState, diffDispatch] = useContext(DiffContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [searchResults] = useContext(SearchResultsContext);
-  const [messagesState] = useContext(NotificationsContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const {
     id: marketId,
     name: marketName,
@@ -389,6 +393,23 @@ function DecisionDialog(props) {
               )}
               <ParentSummary market={market} hidden={hidden}/>
             </dl>
+            {myMessage && (
+              <>
+                <SpinningIconLabelButton icon={SettingsBackupRestore}
+                                         onClick={() => {
+                                           deleteSingleMessage(myMessage).then(() => {
+                                             messagesDispatch(removeMessage(myMessage));
+                                             setOperationRunning(false);
+                                           }).finally(() => {
+                                             setOperationRunning(false);
+                                           });
+                                         }}
+                                         doSpin={true}>
+                  <FormattedMessage id={'markDescriptionRead'} />
+                </SpinningIconLabelButton>
+                <div style={{paddingTop: '1rem'}} />
+              </>
+            )}
             {myMessage && diff && (
               <>
                 <SpinningIconLabelButton icon={showDiff ? ExpandLess : ExpandMoreIcon}

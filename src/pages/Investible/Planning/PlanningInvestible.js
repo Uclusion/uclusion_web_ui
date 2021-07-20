@@ -104,7 +104,7 @@ import ListAltIcon from '@material-ui/icons/ListAlt'
 import EditIcon from '@material-ui/icons/Edit'
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown'
 import { getFakeCommentsArray } from '../../../utils/stringFunctions'
-import { ExpandLess, QuestionAnswer } from '@material-ui/icons'
+import { ExpandLess, QuestionAnswer, SettingsBackupRestore } from '@material-ui/icons'
 import AssignmentIcon from '@material-ui/icons/Assignment'
 import InvestibleBodyEdit from '../InvestibleBodyEdit';
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
@@ -118,6 +118,7 @@ import { getDiff, markDiffViewed } from '../../../contexts/DiffContext/diffConte
 import { notify, onInvestibleStageChange } from '../../../utils/investibleFunctions'
 import { INVESTIBLE_SUBMITTED_TYPE, YELLOW_LEVEL } from '../../../constants/notifications'
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
+import { deleteSingleMessage } from '../../../api/users'
 
 const useStyles = makeStyles(
   theme => ({
@@ -1263,8 +1264,9 @@ function MarketMetaData(props) {
       stageLabel = 'changeStage'
   }
   const [, investiblesDispatch] = useContext(InvestiblesContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [diffState, diffDispatch] = useContext(DiffContext);
-  const [messagesState] = useContext(NotificationsContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const myMessage = findMessageOfTypeAndId(investibleId, messagesState);
   const diff = getDiff(diffState, investibleId);
   const classes = useMetaDataStyles();
@@ -1341,6 +1343,22 @@ function MarketMetaData(props) {
             </Menu>
           </div>
         </React.Fragment>
+      )}
+      {myMessage && (
+        <>
+          <SpinningIconLabelButton icon={SettingsBackupRestore}
+                                   onClick={() => {
+                                     deleteSingleMessage(myMessage).then(() => {
+                                       messagesDispatch(removeMessage(myMessage));
+                                       setOperationRunning(false);
+                                     }).finally(() => {
+                                       setOperationRunning(false);
+                                     });
+                                   }}
+                                   doSpin={true}>
+            <FormattedMessage id={'markDescriptionRead'} />
+          </SpinningIconLabelButton>
+        </>
       )}
       {myMessage && diff && (
         <>

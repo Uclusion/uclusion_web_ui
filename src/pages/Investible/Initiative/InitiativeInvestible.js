@@ -45,7 +45,7 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { EMPTY_SPIN_RESULT } from '../../../constants/global'
 import { doSetEditWhenValid } from '../../../utils/windowUtils'
-import { Assessment, QuestionAnswer } from '@material-ui/icons'
+import { Assessment, ExpandLess, QuestionAnswer } from '@material-ui/icons'
 import EditIcon from '@material-ui/icons/Edit'
 import AddIcon from '@material-ui/icons/Add'
 import QuestionIcon from '@material-ui/icons/ContactSupport'
@@ -57,6 +57,10 @@ import InvestibleBodyEdit from '../InvestibleBodyEdit'
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
+import { findMessageOfTypeAndId } from '../../../utils/messageUtils'
+import { getDiff, markDiffViewed } from '../../../contexts/DiffContext/diffContextHelper'
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 
 const useStyles = makeStyles(
   theme => ({
@@ -185,13 +189,17 @@ function InitiativeInvestible(props) {
   const { investible, market_infos: marketInfos } = fullInvestible;
   const [, tourDispatch] = useContext(TourContext);
   const [, marketsDispatch] = useContext(MarketsContext);
-  const [, diffDispatch] = useContext(DiffContext);
+  const [diffState, diffDispatch] = useContext(DiffContext);
+  const [messagesState] = useContext(NotificationsContext);
+  const myMessage = findMessageOfTypeAndId(investibleId, messagesState);
+  const diff = getDiff(diffState, investibleId);
   const [searchResults] = useContext(SearchResultsContext);
   const [pageStateFull, pageDispatch] = usePageStateReducer('investible');
   const [pageState, updatePageState, pageStateReset] =
     getPageReducerPage(pageStateFull, pageDispatch, investibleId);
   const {
     beingEdited,
+    showDiff
   } = pageState;
   const [votingPageStateFull, votingPageDispatch] = usePageStateReducer('voting');
   const [votingPageState, updateVotingPageState, votingPageStateReset] =
@@ -239,6 +247,14 @@ function InitiativeInvestible(props) {
   const yourPresence = marketPresences.find((presence) => presence.current_user)
   const yourVote = yourPresence && yourPresence.investments &&
     yourPresence.investments.find((investment) => investment.investible_id === investibleId)
+
+  function toggleDiffShow() {
+    if (showDiff) {
+      markDiffViewed(diffDispatch, investibleId);
+    }
+    updatePageState({showDiff: !showDiff});
+  }
+
   function isEditableByUser() {
     return isAdmin && !inArchives;
   }
@@ -388,7 +404,7 @@ function InitiativeInvestible(props) {
                   </div>
                 </>
               )}
-              {!inArchives && (
+              {!inArchives && isAdmin && (
                 <>
                   <SpinningIconLabelButton
                     id="link" key="link"
@@ -396,7 +412,16 @@ function InitiativeInvestible(props) {
                     doSpin={false} icon={InsertLinkIcon}>
                     <FormattedMessage id="initiativePlanningParent"/>
                   </SpinningIconLabelButton>
-                  <div style={{paddingTop: '1rem'}} />
+                  <div style={{paddingTop: '0.5rem'}} />
+                </>
+              )}
+              {myMessage && diff && (
+                <>
+                  <SpinningIconLabelButton icon={showDiff ? ExpandLess : ExpandMoreIcon}
+                                           onClick={toggleDiffShow} doSpin={false}>
+                    <FormattedMessage id={showDiff ? 'diffDisplayDismissLabel' : 'diffDisplayShowLabel'} />
+                  </SpinningIconLabelButton>
+                  <div style={{paddingTop: '0.5rem'}} />
                 </>
               )}
               <AttachedFilesList

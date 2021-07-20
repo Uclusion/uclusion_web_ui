@@ -54,11 +54,19 @@ import QuestionIcon from '@material-ui/icons/ContactSupport'
 import ChangeSuggstionIcon from '@material-ui/icons/ChangeHistory'
 import { getVotesForInvestible } from '../../../utils/userFunctions'
 import { getFakeCommentsArray } from '../../../utils/stringFunctions'
-import { QuestionAnswer } from '@material-ui/icons'
+import { ExpandLess, QuestionAnswer, SettingsBackupRestore } from '@material-ui/icons'
 import StarRateIcon from '@material-ui/icons/StarRate'
 import InvestibleBodyEdit from '../InvestibleBodyEdit'
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
+import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
+import { deleteSingleMessage } from '../../../api/users'
+import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { getDiff, markDiffViewed } from '../../../contexts/DiffContext/diffContextHelper'
+import { findMessageOfTypeAndId } from '../../../utils/messageUtils'
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 
 const useStyles = makeStyles((theme) => ({
   mobileColumn: {
@@ -200,14 +208,19 @@ function DecisionInvestible(props) {
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const metaClasses = useMetaDataStyles();
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
-  const [, diffDispatch] = useContext(DiffContext);
+  const [diffState, diffDispatch] = useContext(DiffContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const myMessage = findMessageOfTypeAndId(investibleId, messagesState);
+  const diff = getDiff(diffState, investibleId);
   const { name: marketName, id: marketId, market_stage: marketStage, allow_multi_vote: allowMultiVote,
     parent_comment_id: parentCommentId, parent_comment_market_id: parentCommentMarketId } = market;
   const [pageStateFull, pageDispatch] = usePageStateReducer('investible');
   const [pageState, updatePageState, pageStateReset] = getPageReducerPage(pageStateFull, pageDispatch, investibleId);
   const {
     beingEdited,
+    showDiff
   } = pageState;
   const isInline = !_.isEmpty(parentCommentId);
   const [commentsState] = useContext(CommentsContext);
@@ -261,6 +274,13 @@ function DecisionInvestible(props) {
       const { name } = lockedByPresence
       lockedByName = name
     }
+  }
+
+  function toggleDiffShow() {
+    if (showDiff) {
+      markDiffViewed(diffDispatch, investibleId);
+    }
+    updatePageState({showDiff: !showDiff});
   }
 
   function mySetBeingEdited(isEdit, event) {
@@ -399,6 +419,31 @@ function DecisionInvestible(props) {
                 getActions()
               )}
             </CardActions>
+            {myMessage && (
+              <>
+                <SpinningIconLabelButton icon={SettingsBackupRestore}
+                                         onClick={() => {
+                                           deleteSingleMessage(myMessage).then(() => {
+                                             messagesDispatch(removeMessage(myMessage));
+                                             setOperationRunning(false);
+                                           }).finally(() => {
+                                             setOperationRunning(false);
+                                           });
+                                         }}
+                                         doSpin={true}>
+                  <FormattedMessage id={'markDescriptionRead'} />
+                </SpinningIconLabelButton>
+              </>
+            )}
+            {myMessage && diff && (
+              <>
+                <div style={{paddingTop: '0.5rem'}} />
+                <SpinningIconLabelButton icon={showDiff ? ExpandLess : ExpandMoreIcon}
+                                         onClick={toggleDiffShow} doSpin={false}>
+                  <FormattedMessage id={showDiff ? 'diffDisplayDismissLabel' : 'diffDisplayShowLabel'} />
+                </SpinningIconLabelButton>
+              </>
+            )}
             <dl className={clsx(metaClasses.root, classes.flexCenter)}>
               <AttachedFilesList
                 key="files"

@@ -16,7 +16,7 @@ function NotificationsContainer () {
   const blueMessages = levelMessages(messagesState, BLUE_LEVEL);
 
   // on small windows we only have room for one, so drop blue and yellow if we have red
-  const showYellowMessages = !_.isEmpty(yellowMessages) && (!mobileLayout || _.isEmpty(redMessages));
+  const showYellowMessages = !_.isEmpty(yellowMessages);
   const showBlueMessages = !_.isEmpty(blueMessages) && (!mobileLayout || _.isEmpty(redMessages) || _.isEmpty(yellowMessages));
   return (
     <React.Fragment>

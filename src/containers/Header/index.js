@@ -17,8 +17,6 @@ import { makeStyles } from '@material-ui/styles';
 import { createTitle, navigate, openInNewTab } from '../../utils/marketIdPathFunctions';
 import { OnlineStateContext } from '../../contexts/OnlineStateContext';
 import Identity from '../Screen/Identity';
-import SearchBox from '../../components/Search/SearchBox';
-import SearchResults from '../../components/Search/SearchResults';
 import { useHistory } from 'react-router';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
@@ -290,12 +288,6 @@ function Header (props) {
                 <NotificationsContainer/>
               </div>
               <div className={classes.padLeft} />
-              {mobileLayout && (
-                <>
-                  <SearchBox/>
-                  <SearchResults/>
-                </>
-              )}
               {!mobileLayout && (
                 <Tooltip title={<FormattedMessage id="help"/>}>
                   <HelpOutlineIcon style={{ cursor: 'pointer', marginLeft: '1rem', color: 'grey' }} id="helpIcon"

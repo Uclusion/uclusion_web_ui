@@ -22,9 +22,6 @@ import {
 } from '../../utils/marketIdPathFunctions'
 import { getAndClearRedirect, redirectToPath } from '../../utils/redirectUtils'
 import WizardSelector from '../../components/AddNew/WizardSelector'
-import UclusionTour from '../../components/Tours/UclusionTour';
-import { SIGNUP_HOME } from '../../contexts/TourContext/tourContextHelper';
-import { signupHomeSteps } from '../../components/Tours/signupHome';
 import { CognitoUserContext } from '../../contexts/CognitoUserContext/CongitoUserContext';
 import InitiativesAndDialogs from './InitiativesAndDialogs'
 import { canCreate } from '../../contexts/AccountContext/accountContextHelper';
@@ -49,6 +46,7 @@ import { getStages } from '../../contexts/MarketStagesContext/marketStagesContex
 import { getUserInvestibles } from '../Dialog/Planning/userUtils'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
+import CreatedWorkspaceDialog from '../../components/Warnings/CreatedWorkspaceDialog'
 
 const useStyles = makeStyles(() => ({
     spacer: {
@@ -165,10 +163,9 @@ function Home(props) {
       loading={!initializedGlobalVersion}
       navigationOptions={banner ? [] : navigationMenu}
     >
-      <UclusionTour
-        name={SIGNUP_HOME}
-        steps={signupHomeSteps(user)}
-      />
+      {!_.isEmpty(user) && (
+        <CreatedWorkspaceDialog planningDetails={planningDetails} user={user} />
+      )}
       <WizardSelector
         hidden={!wizardActive}
         onFinish={onWizardFinish}

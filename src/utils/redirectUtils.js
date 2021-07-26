@@ -70,7 +70,3 @@ export function getAndClearEmail() {
   setLoginPersistentItem(EMAIL_LOCAL_STORAGE_KEY, undefined);
   return email;
 }
-
-export function redirectToPath(history, subPath) {
-  history.push(subPath);
-}

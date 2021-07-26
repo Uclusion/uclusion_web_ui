@@ -20,7 +20,7 @@ import {
   formMarketManageLink,
   navigate
 } from '../../utils/marketIdPathFunctions'
-import { getAndClearRedirect, redirectToPath } from '../../utils/redirectUtils'
+import { getAndClearRedirect } from '../../utils/redirectUtils'
 import WizardSelector from '../../components/AddNew/WizardSelector'
 import { CognitoUserContext } from '../../contexts/CognitoUserContext/CongitoUserContext';
 import InitiativesAndDialogs from './InitiativesAndDialogs'
@@ -86,11 +86,12 @@ function Home(props) {
 
   useEffect(() => {
     const redirect = getAndClearRedirect();
+    console.log(`Found redirect ${redirect}`);
     if (!_.isEmpty(redirect) && redirect !== '/') {
       // Go ahead and start the invite tour - if they have taken already it's harmless
       tourDispatch(startTour(INVITED_USER_WORKSPACE));
       console.log(`Redirecting you to ${redirect}`);
-      redirectToPath(history, redirect);
+      history.push(redirect);
     }
   })
 

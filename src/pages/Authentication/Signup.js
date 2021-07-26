@@ -455,7 +455,7 @@ function Signup(props) {
               onClick={() => {
                 const aRedirect = getRedirect();
                 if (aRedirect !== '/') {
-                  setRedirect();
+                  setRedirect(aRedirect);
                 }
                 Auth.federatedSignIn({provider: 'GithubLogin'});
               }}>
@@ -469,7 +469,7 @@ function Signup(props) {
               // Must come back to this device so go ahead and set in local storage
               const aRedirect = getRedirect();
               if (aRedirect !== '/') {
-                setRedirect();
+                setRedirect(aRedirect);
               }
               Auth.federatedSignIn({provider: 'Google'});
             }}>

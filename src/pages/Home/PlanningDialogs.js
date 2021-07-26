@@ -232,7 +232,11 @@ function PlanningDialogs(props) {
             className={classes.paper}
             elevation={3}
           >
-            <Grid container>
+            <Grid container style={{cursor: 'pointer'}}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    navigate(history, formMarketLink(marketId));}
+            }>
               <Grid item xs={10} style={{pointerEvents: 'none'}}>
                 <Typography className={classes.upperLeft}>
                   {intl.formatMessage({ id: updatedMessageId }, { x: intl.formatDate(marketUpdatedAt) })}

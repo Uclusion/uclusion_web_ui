@@ -23,7 +23,7 @@ import { INVITED_USER_WORKSPACE } from '../../../../contexts/TourContext/tourCon
  * @param intl
  */
 export function doCreateStoryWorkspace (dispatchers, formData, updateFormData, intl) {
-  const { meetingName } = formData;
+  const { meetingName, parentInvestibleId, parentMarketId } = formData;
   const {
     marketsDispatch,
     marketStagesDispatch,
@@ -31,7 +31,7 @@ export function doCreateStoryWorkspace (dispatchers, formData, updateFormData, i
     presenceDispatch,
     investiblesDispatch,
     commentsState,
-    commentsDispatch,
+    commentsDispatch
   } = dispatchers;
 
   const descriptionContent = `<p>${intl.formatMessage({ id: 'WorkspaceWizardWorkspaceDescription' }, { meetingName })}</p>`;
@@ -39,6 +39,13 @@ export function doCreateStoryWorkspace (dispatchers, formData, updateFormData, i
     name: meetingName,
     description: descriptionContent,
   };
+
+  if (parentInvestibleId) {
+    marketInfo.parent_investible_id = parentInvestibleId;
+  }
+  if (parentMarketId) {
+    marketInfo.parent_market_id = parentMarketId;
+  }
 
   if (formData.votesRequired > 0) {
     marketInfo.votes_required = formData.votesRequired;

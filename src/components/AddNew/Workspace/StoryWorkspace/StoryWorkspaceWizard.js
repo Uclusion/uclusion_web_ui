@@ -8,7 +8,7 @@ import SwimlanesOptionsStep from './SwimlanesOptionsStep'
 import ApprovalOptionsStep from './ApprovalOptionsStep'
 
 function StoryWorkspaceWizard(props) {
-  const { onStartOver, onFinish } = props;
+  const { onStartOver, onFinish, parentInvestibleId, parentMarketId } = props;
 
   return (
       <WizardStylesProvider>
@@ -16,7 +16,7 @@ function StoryWorkspaceWizard(props) {
                         onFinish={onFinish}
                         onStartOver={onStartOver}
         >
-          <WorkspaceNameStep />
+          <WorkspaceNameStep parentInvestibleId={parentInvestibleId} parentMarketId={parentMarketId} />
           <AdvancedOptionsStep />
           <SwimlanesOptionsStep />
           <ApprovalOptionsStep />

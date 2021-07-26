@@ -8,7 +8,7 @@ import WizardStepContainer from '../../WizardStepContainer';
 import { WizardStylesContext } from '../../WizardStylesContext';
 
 function WorkspaceNameStep (props) {
-  const { updateFormData, formData } = props;
+  const { updateFormData, formData, parentInvestibleId, parentMarketId } = props;
   const intl = useIntl();
   const value = formData.meetingName || '';
   const validForm = !_.isEmpty(value);
@@ -19,6 +19,16 @@ function WorkspaceNameStep (props) {
     updateFormData({
       meetingName: value
     });
+    if (parentInvestibleId) {
+      updateFormData({
+        parentInvestibleId
+      });
+    }
+    if (parentMarketId) {
+      updateFormData({
+        parentMarketId
+      });
+    }
   }
 
   return (

@@ -1,24 +1,11 @@
 import * as React from 'react'
-import Card from '@material-ui/core/Card'
-import CardActions from '@material-ui/core/CardActions'
-import CardContent from '@material-ui/core/CardContent'
-import Grid from '@material-ui/core/Grid'
-import ExpansionPanel from '@material-ui/core/ExpansionPanel'
-import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails'
-import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary'
 import { darken, makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
 import { useIntl } from 'react-intl'
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
-import CardType, { AGILE_PLAN_TYPE } from '../../components/CardType'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { Typography, useMediaQuery, useTheme } from '@material-ui/core'
 import clsx from 'clsx'
-import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'
-import { Clear, SettingsBackupRestore } from '@material-ui/icons'
-import { useEditor } from '../TextEditors/quillHooks';
-import { getQuillStoredState } from '../TextEditors/QuillEditor2'
 
 export const usePlanFormStyles = makeStyles(
   theme => ({
@@ -294,107 +281,6 @@ export const usePlanFormStyles = makeStyles(
   }),
   { name: "PlanningAdd" }
 );
-
-export function Form(props) {
-  const classes = usePlanFormStyles();
-  const intl = useIntl();
-
-  const {
-    investmentExpiration,
-    onInvestmentExpirationChange,
-    marketId,
-    maxBudget,
-    onMaxBudgetChange,
-    name,
-    onNameChange,
-    onCancel,
-    onSave,
-    onS3Upload,
-    votesRequired,
-    onVotesRequiredChange,
-    createEnabled,
-    editorName
-  } = props;
-  const [viewAdvanced, setViewAdvanced] = React.useState(false);
-  const [validForm, setValidForm] = React.useState(true);
-  const editorSpec = {
-    onS3Upload: onS3Upload,
-    value: getQuillStoredState(editorName),
-    placeholder: intl.formatMessage({ id: "descriptionEdit"}),
-    className: classes.fullWidth,
-  }
-
-  const [Editor] = useEditor(editorName, editorSpec);
-
-  React.useEffect(() => {
-    // Long form to prevent flicker
-    if (
-      name &&
-      parseInt(investmentExpiration, 10) > 0
-    ) {
-      if (!validForm) {
-        setValidForm(true);
-      }
-    } else if (validForm) {
-      setValidForm(false);
-    }
-  }, [name, validForm, investmentExpiration, maxBudget]);
-
-  const isCreateForm = marketId === "";
-  return (
-    <Card className={classes.overflowVisible}>
-      <CardType className={classes.cardType} type={AGILE_PLAN_TYPE} />
-      <CardContent className={classes.cardContent}>
-        <TextField
-          fullWidth
-          id="agile-plan-name"
-          label={intl.formatMessage({ id: "agilePlanFormTitleLabel" })}
-          onChange={onNameChange}
-          placeholder={intl.formatMessage({
-            id: "agilePlanFormTitlePlaceholder"
-          })}
-          value={name}
-          variant="filled"
-        />
-        {Editor}
-        <ExpansionPanel expanded={viewAdvanced}>
-            <ExpansionPanelSummary
-              onClick={() => {setViewAdvanced(!viewAdvanced)}}
-              expandIcon={<ExpandMoreIcon />}
-            >
-              <span className={classes.advancedLink}>{intl.formatMessage({ id: "advanced" })}</span>
-            </ExpansionPanelSummary>
-            <ExpansionPanelDetails className={classes.flexColumn}>
-              <legend className={classes.optional}>*{intl.formatMessage({ id: "optionalEdit" })}</legend>
-              <Grid container className={clsx(classes.fieldset, classes.flex, classes.justifySpace)}>
-                <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
-                  <MaxBudget onChange={onMaxBudgetChange} value={maxBudget} />
-                </Grid>
-                <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
-                  <VoteExpiration
-                    onChange={onInvestmentExpirationChange}
-                    value={investmentExpiration}
-                  />
-                </Grid>
-                <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
-                  <Votes onChange={onVotesRequiredChange} value={votesRequired} />
-                </Grid>
-              </Grid>
-            </ExpansionPanelDetails>
-        </ExpansionPanel>
-      </CardContent>
-      <CardActions className={classes.actions}>
-        <SpinningIconLabelButton onClick={onCancel} doSpin={false} icon={Clear}>
-          {intl.formatMessage({ id: isCreateForm ? "marketAddCancelLabel" : "marketAddCancelLabel" })}
-        </SpinningIconLabelButton>
-        <SpinningIconLabelButton onClick={onSave} icon={SettingsBackupRestore} id="agilePlanFormSaveButton"
-                                 disabled={(isCreateForm && !createEnabled) || !validForm}>
-          {intl.formatMessage({ id: isCreateForm ? "agilePlanFormSaveLabel" : "marketEditSaveLabel" })}
-        </SpinningIconLabelButton>
-      </CardActions>
-    </Card>
-  );
-}
 
 const useSuffixedInput = makeStyles(
   { input: { textAlign: "center", padding: '10px' } },

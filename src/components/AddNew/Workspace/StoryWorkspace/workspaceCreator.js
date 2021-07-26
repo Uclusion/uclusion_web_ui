@@ -11,6 +11,8 @@ import { saveComment } from '../../../../api/comments';
 import { REPORT_TYPE } from '../../../../constants/comments';
 import { addCommentToMarket } from '../../../../contexts/CommentsContext/commentsContextHelper';
 import { updateStagesForMarket } from '../../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { START_TOUR, TOUR_CHANNEL } from '../../../../contexts/TourContext/tourContextMessages'
+import { INVITED_USER_WORKSPACE } from '../../../../contexts/TourContext/tourContextHelper'
 
 /**
  * Creates the story workspace from the formdata and does all the magic to make the
@@ -65,6 +67,7 @@ export function doCreateStoryWorkspace (dispatchers, formData, updateFormData, i
       myUserId = presence.id;
       addMarketToStorage(marketsDispatch, diffDispatch, market);
       pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, marketId: createdMarketId, stages });
+      pushMessage(TOUR_CHANNEL, { event: START_TOUR, tour: INVITED_USER_WORKSPACE });
       addPresenceToMarket(presenceDispatch, createdMarketId, presence);
       inVotingStage = stages.find((stage) => stage.allows_investment);
       inProgressStage = stages.find((stage) => stage.assignee_enter_only);

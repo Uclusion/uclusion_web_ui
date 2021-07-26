@@ -131,6 +131,12 @@ export function createPlanning(marketInfo) {
     .catch((error) => toastErrorAndThrow(error, 'errorPlanningAddFailed'));
 }
 
+export function createOnboardingWorkspace() {
+  return getAccountClient()
+    .then((client) => client.markets.createMarketFromTemplate())
+    .catch((error) => toastErrorAndThrow(error, 'errorPlanningAddFailed'));
+}
+
 export function showMarket(marketId) {
   return getMarketClient(marketId)
     .then((client) => client.markets.unhide())

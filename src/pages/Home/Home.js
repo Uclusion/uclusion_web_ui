@@ -29,7 +29,6 @@ import UpgradeBanner from '../../components/Banners/UpgradeBanner';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
 import { getExistingMarkets, hasInitializedGlobalVersion } from '../../contexts/VersionsContext/versionsContextHelper'
 import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
-import OnboardingBanner from '../../components/Banners/OnboardingBanner'
 import AddIcon from '@material-ui/icons/Add'
 import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
 import PlaylistAddCheckIcon from '@material-ui/icons/PlaylistAddCheck'
@@ -46,7 +45,7 @@ import { getStages } from '../../contexts/MarketStagesContext/marketStagesContex
 import { getUserInvestibles } from '../Dialog/Planning/userUtils'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
-import CreatedWorkspaceDialog from '../../components/Warnings/CreatedWorkspaceDialog'
+import CreateWorkspaceDialog from '../../components/Warnings/CreateWorkspaceDialog'
 
 const useStyles = makeStyles(() => ({
     spacer: {
@@ -82,16 +81,13 @@ function Home(props) {
   const [versionsContext] = useContext(VersionsContext);
   const createEnabled = canCreate(accountState);
   const initializedGlobalVersion = hasInitializedGlobalVersion(versionsContext);
-  const banner = !initializedGlobalVersion ? undefined : _.isEmpty(getExistingMarkets(versionsContext)) ?
-      <OnboardingBanner messageId='OnboardingCreatingCustomWorkspace' /> :
-    createEnabled ? undefined : <UpgradeBanner/>;
+  const banner = !initializedGlobalVersion ? undefined : createEnabled ? undefined : <UpgradeBanner/>;
   const [chosenPerson, setChosenPerson] = React.useState({ name: '', email: '', external_id: '' });
 
   useEffect(() => {
     const redirect = getAndClearRedirect();
     if (!_.isEmpty(redirect) && redirect !== '/') {
-      // Since we are going somewhere go ahead and start the invite tour - if they have taken already its
-      // harmless and if they own the workspace they will get the demo tour which they have taken already
+      // Go ahead and start the invite tour - if they have taken already it's harmless
       tourDispatch(startTour(INVITED_USER_WORKSPACE));
       console.log(`Redirecting you to ${redirect}`);
       redirectToPath(history, redirect);
@@ -149,7 +145,7 @@ function Home(props) {
       createNavListItem(GavelIcon, 'dialogs', 'dia0', _.size(decisionDetails)),
       createNavListItem(PollIcon, 'initiatives', 'ini0', _.size(initiativeDetails)),
       {icon: MenuBookIcon, text: intl.formatMessage({ id: 'homeViewArchives' }),
-        target: _.isEmpty(search) || _.size(archiveMarkets) > 0 ? '/archives' : undefined,
+        target: _.size(archiveMarkets) > 0 ? '/archives' : undefined,
         num: _.isEmpty(search) || _.size(archiveMarkets) === 0 ? undefined : _.size(archiveMarkets)}
     ]};
 
@@ -163,29 +159,31 @@ function Home(props) {
       loading={!initializedGlobalVersion}
       navigationOptions={banner ? [] : navigationMenu}
     >
-      {!_.isEmpty(user) && (
-        <CreatedWorkspaceDialog planningDetails={planningDetails} user={user} />
+      {!_.isEmpty(user) && _.isEmpty(getExistingMarkets(versionsContext)) && (
+        <CreateWorkspaceDialog user={user} />
       )}
       <WizardSelector
         hidden={!wizardActive}
         onFinish={onWizardFinish}
         onCancel={() => setWizardActive(false)} />
-      <React.Fragment>
-        <div className={classes.titleContainer}>
-          { <AgilePlanIcon htmlColor="#333333" /> }
-          <Typography className={classes.title} variant="h6">
-            {intl.formatMessage({ id: 'homeAssignments' })}
-          </Typography>
-        </div>
-        <div id="swimLanes">
-          <InvestiblesByWorkspace workspaces={planningDetails} chosenPerson={chosenPerson}
-                                  setChosenPerson={setChosenPerson} workspacesData={workspacesData} />
-        </div>
-        <hr className={classes.spacer}/>
-        <PlanningDialogs markets={planningDetails}/>
-        <hr className={classes.spacer}/>
-        <InitiativesAndDialogs dialogs={decisionDetails} initiatives={initiativeDetails}/>
-      </React.Fragment>
+        {!_.isEmpty(getExistingMarkets(versionsContext)) && (
+          <React.Fragment>
+            <div className={classes.titleContainer}>
+              { <AgilePlanIcon htmlColor="#333333" /> }
+              <Typography className={classes.title} variant="h6">
+                {intl.formatMessage({ id: 'homeAssignments' })}
+              </Typography>
+            </div>
+            <div id="swimLanes">
+            <InvestiblesByWorkspace workspaces={planningDetails} chosenPerson={chosenPerson}
+            setChosenPerson={setChosenPerson} workspacesData={workspacesData} />
+            </div>
+            <hr className={classes.spacer}/>
+            <PlanningDialogs markets={planningDetails}/>
+            <hr className={classes.spacer}/>
+            <InitiativesAndDialogs dialogs={decisionDetails} initiatives={initiativeDetails}/>
+          </React.Fragment>
+        )}
     </Screen>
   );
 }

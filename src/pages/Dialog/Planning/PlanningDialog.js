@@ -107,7 +107,7 @@ function PlanningDialog(props) {
   const notTodoComments = unResolvedMarketComments.filter(comment =>
     [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE, REPLY_TYPE].includes(comment.comment_type)) || [];
   const allowedCommentTypes = [QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE];
-  const { name: marketName, created_by: marketCreatedBy } = market;
+  const { name: marketName } = market;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   // For security reasons you can't access source data while being dragged in case you are not the target website
   const [beingDraggedHack, setBeingDraggedHack] = useState({});
@@ -161,11 +161,6 @@ function PlanningDialog(props) {
     }
   });
   const presenceMap = getPresenceMap(marketPresencesState, marketId);
-  const isMarketOwner = marketCreatedBy === myPresence.id;
-
-  // if you're the creator we give you the first view , else you're an invited user
-  const tourName = isMarketOwner ? INVITE_STORIES_WORKSPACE_FIRST_VIEW :  INVITED_USER_WORKSPACE;
-  const tourSteps = isMarketOwner ? inviteStoriesWorkspaceSteps(myPresence) : workspaceInvitedUserSteps(myPresence);
 
   function isSectionOpen(section) {
     return sectionOpen === section || !_.isEmpty(search) || mobileLayout;
@@ -296,9 +291,14 @@ function PlanningDialog(props) {
       navigationOptions={navigationMenu}
     >
       <UclusionTour
-        name={tourName}
+        name={INVITE_STORIES_WORKSPACE_FIRST_VIEW}
         hidden={hidden}
-        steps={tourSteps}
+        steps={inviteStoriesWorkspaceSteps(myPresence, intl)}
+      />
+      <UclusionTour
+        name={INVITED_USER_WORKSPACE}
+        hidden={hidden}
+        steps={workspaceInvitedUserSteps(myPresence)}
       />
       <div id="workspaceMain" style={{display: isSectionOpen('workspaceMain') ? 'block' : 'none'}}>
         <DismissableText textId='planningEditHelp' />

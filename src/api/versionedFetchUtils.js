@@ -30,8 +30,6 @@ import LocalForageHelper from '../utils/LocalForageHelper'
 import { EMPTY_GLOBAL_VERSION, VERSIONS_CONTEXT_NAMESPACE } from '../contexts/VersionsContext/versionsContextReducer'
 import { getHomeAccountUser } from './sso'
 import { checkInStorage } from './storageIntrospector'
-import { START_TOUR, TOUR_CHANNEL } from '../contexts/TourContext/tourContextMessages'
-import { INVITE_STORIES_WORKSPACE_FIRST_VIEW, SIGNUP_HOME } from '../contexts/TourContext/tourContextHelper'
 
 const MAX_RETRIES = 10;
 const MAX_CONCURRENT_API_CALLS = 5;
@@ -171,69 +169,6 @@ export function pollForMarketLoad(id) {
     };
     startTimerChain(2000, MAX_RETRIES, execFunction);
   });
-}
-
-/**
- * add a listener to make sure the on boarding market is loaded
- */
-export function pollForFirstMarketLoad() {
-  const execFunction = () => {
-    return getChangedIds(null)
-      .then((versions) => {
-        const { foreground: foregroundList, background: backgroundList } = versions;
-        const numMarkets = _.size(foregroundList) + _.size(backgroundList);
-        if (numMarkets > 2) {
-          // More than onboarding creates available - this is not an onboarding so stop
-          console.log('First market load found more than 2 markets');
-          return true;
-        }
-        if (numMarkets === 0) {
-          // The market hasn't been created yet so wait and try again in 2 seconds
-          console.log('First market load found no markets');
-          return false;
-        }
-        if (_.size(foregroundList) === 0) {
-          // The onboarding market has been archived so stop
-          console.log('First market load found no active markets');
-          return true;
-        }
-        console.info('Poll for first market');
-        return getVersions(foregroundList)
-          .then((marketSignatures) => {
-            let foundMarketId = null;
-            let foundComponentSignatures = null;
-            (marketSignatures || []).forEach((marketSignature) => {
-              const { market_id: marketId, signatures: componentSignatures } = marketSignature;
-              const fetchSignatures = getFetchSignaturesForMarket(componentSignatures);
-              const { comments, investibles } = fetchSignatures;
-              if (_.size(comments) >= 3 && _.size(investibles) >= 5) {
-                // We've got our onboarding market so refresh it and stop timer chain
-                // The inline market should have made it also since it was created before the last comment
-                // but if we were picky enough could check for its signatures also
-                console.log('First market load found correct signatures');
-                foundMarketId = marketId;
-                foundComponentSignatures = componentSignatures;
-              }
-            });
-            if (foundMarketId) {
-              return doRefreshMarket(foundMarketId, foundComponentSignatures).then(() => {
-                console.log('First market load starting tours');
-                pushMessage(TOUR_CHANNEL, { event: START_TOUR, tour: INVITE_STORIES_WORKSPACE_FIRST_VIEW });
-                pushMessage(TOUR_CHANNEL, { event: START_TOUR, tour: SIGNUP_HOME });
-                return true;
-              });
-            }
-            // The market hasn't had time to propagate so wait and try again in 2 seconds
-            // not attempting to get the intermediate markets while signature wrong
-            console.log('First market load did not find correct signatures');
-            return false;
-          });
-      }).catch((error) => {
-        console.error(error.message);
-        return false;
-      });
-  };
-  startTimerChain(2000, MAX_RETRIES, execFunction);
 }
 
 /**

@@ -1,0 +1,99 @@
+import React, { useContext } from 'react'
+import { FormattedMessage, useIntl } from 'react-intl'
+import PropTypes from 'prop-types';
+import { Announcement, PlayArrow } from '@material-ui/icons'
+import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'
+import { INVITE_STORIES_WORKSPACE_FIRST_VIEW } from '../../contexts/TourContext/tourContextHelper'
+import { TourContext } from '../../contexts/TourContext/TourContext'
+import _ from 'lodash';
+import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions'
+import { useHistory } from 'react-router'
+import { makeStyles } from '@material-ui/core/styles'
+import Typography from '@material-ui/core/Typography'
+import { startTour } from '../../contexts/TourContext/tourContextReducer'
+import { Card, CardActions, CardContent } from '@material-ui/core'
+import { createOnboardingWorkspace } from '../../api/markets'
+import { updateStagesForMarket } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
+import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
+import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
+import { refreshInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
+import { DiffContext } from '../../contexts/DiffContext/DiffContext'
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { addPresenceToMarket } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { refreshMarketComments } from '../../contexts/CommentsContext/commentsContextHelper'
+import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
+
+const myStyles = makeStyles(
+  () => {
+    return {
+      root: {
+        maxWidth: '40rem',
+        padding: '2rem'
+      },
+      warningTitleIcon: {
+        marginRight: 8,
+        color: '#F2C94C',
+      },
+    };
+  },
+  { name: "LockedDialog" }
+);
+
+function CreateWorkspaceDialog(props) {
+  const { user } = props;
+  const history = useHistory();
+  const intl = useIntl();
+  const classes = myStyles();
+  const { name } = user;
+  const [, tourDispatch] = useContext(TourContext);
+  const [, marketStagesDispatch] = useContext(MarketStagesContext);
+  const [, investiblesDispatch] = useContext(InvestiblesContext);
+  const [, diffDispatch] = useContext(DiffContext);
+  const [, presenceDispatch] = useContext(MarketPresencesContext);
+  const [, commentsDispatch] = useContext(CommentsContext);
+
+  function onCreate() {
+    let marketId;
+    createOnboardingWorkspace().then((results) => {
+      results.forEach((marketResult) => {
+        const { market, stages, investibles, comments, users } = marketResult;
+        updateStagesForMarket(marketStagesDispatch, market.id, stages);
+        refreshInvestibles(investiblesDispatch, diffDispatch, investibles);
+        users.forEach((user) => addPresenceToMarket(presenceDispatch, market.id, user));
+        if (!_.isEmpty(comments)) {
+          refreshMarketComments(commentsDispatch, market.id, comments);
+        }
+        if (market.market_sub_type === 'REQUIREMENTS') {
+          marketId = market.id;
+        }
+      });
+      tourDispatch(startTour(INVITE_STORIES_WORKSPACE_FIRST_VIEW));
+      navigate(history, formMarketLink(marketId));
+    });
+  }
+
+  return (
+    <Card className={classes.root} elevation={3}>
+      <CardContent>
+        <Typography gutterBottom variant="h5" component="h2">
+          <Announcement className={classes.warningTitleIcon} />
+          {intl.formatMessage({ id: 'createWorkspaceGreeting' }, { name })}
+        </Typography>
+        <Typography component='p' style={{paddingTop: '2rem'}}>
+          {intl.formatMessage({ id: 'createdWorkspaceContent' })}
+        </Typography>
+      </CardContent>
+      <CardActions>
+        <SpinningIconLabelButton onClick={onCreate} icon={PlayArrow}>
+          <FormattedMessage id="createWorkspaceStart" />
+        </SpinningIconLabelButton>
+      </CardActions>
+    </Card>
+  );
+}
+
+CreateWorkspaceDialog.propTypes = {
+  user: PropTypes.object.isRequired,
+};
+
+export default CreateWorkspaceDialog;

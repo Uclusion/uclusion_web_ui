@@ -671,13 +671,17 @@ function InitiativesAndDialogs(props) {
 }
 
 InitiativesAndDialogs.propTypes = {
-  dialogs: PropTypes.arrayOf(PropTypes.object).isRequired,
-  initiatives: PropTypes.arrayOf(PropTypes.object).isRequired,
+  dialogs: PropTypes.arrayOf(PropTypes.object),
+  initiatives: PropTypes.arrayOf(PropTypes.object),
+  workspaces: PropTypes.arrayOf(PropTypes.object),
   showParentOf: PropTypes.bool
 };
 
 InitiativesAndDialogs.defaultProps = {
   showParentOf: true,
+  dialogs: [],
+  initiatives: [],
+  workspaces: []
 };
 
 export default InitiativesAndDialogs;

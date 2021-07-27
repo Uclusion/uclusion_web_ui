@@ -247,7 +247,7 @@ function InitiativesAndDialogs(props) {
   const intl = useIntl();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
-  const { dialogs, initiatives, showParentOf } = props;
+  const { dialogs, initiatives, workspaces, showParentOf } = props;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [commentsState] = useContext(CommentsContext);
   const [marketsState] = useContext(MarketsContext);
@@ -319,7 +319,8 @@ function InitiativesAndDialogs(props) {
 
   function getDialogItems() {
     const classes = dialogClasses;
-    const unsortedResults = dialogs.map((market) => {
+    const useDialogs = _.isEmpty(dialogs) ? workspaces : dialogs;
+    const unsortedResults = useDialogs.map((market) => {
       const {
         id: marketId, name, created_at: createdAt, expiration_minutes: expirationMinutes, created_by: createdBy,
         market_type: marketType, market_stage: marketStage, updated_at: updatedAt, parent_market_id: parentMarketId,
@@ -422,10 +423,18 @@ function InitiativesAndDialogs(props) {
                       </Typography>
                     </div>
                     {!mobileLayout ? getDialogTypeIcon(marketType, isSmall) : <span/>}
-                    <Typography className={classes.byline}>
-                      {intl.formatMessage({id: 'homeDialogLabel'},
-                        {x: creator.name, y: intl.formatDate(marketUpdatedAt)})}
-                    </Typography>
+                    {!_.isEmpty(dialogs) && (
+                      <Typography className={classes.byline}>
+                        {intl.formatMessage({id: 'homeDialogLabel'},
+                          {x: creator.name, y: intl.formatDate(marketUpdatedAt)})}
+                      </Typography>
+                    )}
+                    {_.isEmpty(dialogs) && (
+                      <Typography className={classes.byline}>
+                        {intl.formatMessage({id: 'initiativeWorkspaceLabel'},
+                          {x: intl.formatDate(marketUpdatedAt)})}
+                      </Typography>
+                    )}
                     {hasMarketIssue && (
                       <CardType className={classes.commentType} type={ISSUE_TYPE}/>
                     )}

@@ -108,7 +108,7 @@ function MarketLinks (props) {
 
   return (
     <div style={{ marginTop: '40px' }}>
-      <InitiativesAndDialogs dialogs={marketInfoList} initiatives={[]} showParentOf={false}/>
+      <InitiativesAndDialogs workspaces={marketInfoList} initiatives={[]} dialogs={[]} showParentOf={false}/>
     </div>
   )
 }

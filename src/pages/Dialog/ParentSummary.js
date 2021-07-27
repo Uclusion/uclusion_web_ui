@@ -8,7 +8,6 @@ import { formInvestibleLink, formMarketLink, navigate } from '../../utils/market
 import { useHistory } from 'react-router'
 import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
-import { useMetaDataStyles } from '../Investible/Planning/PlanningInvestible'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 import { ACTIVE_STAGE } from '../../constants/markets'
@@ -36,7 +35,6 @@ function ParentSummary(props) {
     market, hidden,
   } = props;
   const history = useHistory();
-  const metaClasses = useMetaDataStyles();
   const classes = useStyles();
   const {
     parent_market_id: parentMarketId,

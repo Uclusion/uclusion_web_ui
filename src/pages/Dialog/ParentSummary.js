@@ -8,7 +8,6 @@ import { formInvestibleLink, formMarketLink, navigate } from '../../utils/market
 import { useHistory } from 'react-router'
 import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
-import clsx from 'clsx'
 import { useMetaDataStyles } from '../Investible/Planning/PlanningInvestible'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
@@ -21,6 +20,15 @@ const useStyles = makeStyles((theme) => ({
     textDecoration: 'line-through',
   },
   activeMarket: {},
+  assignmentContainer: {
+    width: '100%',
+    textTransform: 'capitalize'
+  },
+  assignmentFlexRow: {
+    width: '100%',
+    display: 'flex',
+    alignItems: 'center'
+  },
 }))
 
 function ParentSummary(props) {
@@ -58,42 +66,36 @@ function ParentSummary(props) {
     const inv = getInvestible(investiblesState, parentInvestibleId) || {};
     const { investible } = inv;
     const { name: parentInvestibleName } = investible || {};
-    if (!parentMarketId) {
+    if (!parentMarketId || !myParentPresence) {
       return React.Fragment;
     }
     return (
-      <ul>
-        {myParentPresence && (
-          <Typography key={parentMarketId} component="li">
-            <Link
-              href={baseLink}
-              variant="inherit"
-              underline="always"
-              color="primary"
-              className={parentMarketStage === ACTIVE_STAGE ? classes.activeMarket : classes.inactiveMarket}
-              onClick={(event) => {
-                event.preventDefault()
-                navigate(history, baseLink)
-              }}
-            >
-              {parentInvestibleName || parentMarketName}
-            </Link>
-          </Typography>
-        )}
-      </ul>
+      <Typography key={parentMarketId}>
+        <Link
+          href={baseLink}
+          variant="inherit"
+          underline="always"
+          color="primary"
+          className={parentMarketStage === ACTIVE_STAGE ? classes.activeMarket : classes.inactiveMarket}
+          onClick={(event) => {
+            event.preventDefault()
+            navigate(history, baseLink)
+          }}
+        >
+          {parentInvestibleName || parentMarketName}
+        </Link>
+      </Typography>
     );
   }
   if (_.isEmpty(parentMarket)) {
     return <React.Fragment/>
   }
   return (
-    <div className={clsx(metaClasses.group, metaClasses.assignments)}>
-      <dt>
-        <FormattedMessage id="parentLinkSection" />
-      </dt>
-      <dd>
+    <div className={classes.assignmentContainer}>
+      <FormattedMessage id="parentLinkSection" />
+      <span className={classes.assignmentFlexRow}>
         {displayParentLink(parentMarketId, parentInvestibleId)}
-      </dd>
+      </span>
     </div>
   );
 }

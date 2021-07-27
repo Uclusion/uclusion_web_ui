@@ -365,7 +365,7 @@ function Summary(props) {
               </SpinningIconLabelButton>
             </>
           )}
-          <div style={{paddingTop: '1rem'}} />
+          <div style={{paddingTop: '0.1rem'}} />
           <AttachedFilesList
             key="files"
             marketId={id}

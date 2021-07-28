@@ -80,13 +80,18 @@ function CreateWorkspaceDialog(props) {
           {intl.formatMessage({ id: 'createWorkspaceGreeting' }, { name })}
         </Typography>
         <Typography component='p' style={{paddingTop: '2rem'}}>
-          {intl.formatMessage({ id: 'createdWorkspaceContent' })}
+          {intl.formatMessage({ id: 'createWorkspaceContent' })}
+          <b>{intl.formatMessage({id: 'createWorkspaceContentBold'})}</b>
         </Typography>
       </CardContent>
       <CardActions>
-        <SpinningIconLabelButton onClick={onCreate} icon={PlayArrow}>
-          <FormattedMessage id="createWorkspaceStart" />
-        </SpinningIconLabelButton>
+        <div style={{marginLeft: 'auto', marginRight: 'auto'}}>
+          <SpinningIconLabelButton onClick={onCreate} icon={PlayArrow} style={{padding: '0.75rem'}}>
+            <Typography component='h6'>
+              {intl.formatMessage({ id: 'createWorkspaceStart' })}
+            </Typography>
+          </SpinningIconLabelButton>
+        </div>
       </CardActions>
     </Card>
   );

@@ -214,7 +214,7 @@ function DisplayNotifications (props) {
       link,
     } = item;
     return (
-      <ListItem key={link} style={{paddingBottom: 0}}>
+      <ListItem key={link} style={{paddingBottom: '0.5rem'}}>
         <NotificationMessageDisplay onLinkClick={setClosed} message={item}/>
       </ListItem>
     );

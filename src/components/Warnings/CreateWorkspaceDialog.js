@@ -1,5 +1,5 @@
 import React, { useContext } from 'react'
-import { FormattedMessage, useIntl } from 'react-intl'
+import { useIntl } from 'react-intl'
 import PropTypes from 'prop-types';
 import { Announcement, PlayArrow } from '@material-ui/icons'
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'

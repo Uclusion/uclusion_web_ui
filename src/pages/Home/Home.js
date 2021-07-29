@@ -46,6 +46,7 @@ import { getUserInvestibles } from '../Dialog/Planning/userUtils'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import CreateWorkspaceDialog from '../../components/Warnings/CreateWorkspaceDialog'
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 
 const useStyles = makeStyles(() => ({
     spacer: {
@@ -74,14 +75,16 @@ function Home(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [investiblesState] = useContext(InvestiblesContext);
+  const [operationRunning] = useContext(OperationInProgressContext);
   const classes = useStyles();
   const [wizardActive, setWizardActive] = useState(false);
   const user = useContext(CognitoUserContext) || {};
   const [, tourDispatch] = useContext(TourContext);
   const [versionsContext] = useContext(VersionsContext);
   const createEnabled = canCreate(accountState);
-  const initializedGlobalVersion = hasInitializedGlobalVersion(versionsContext);
-  const banner = !initializedGlobalVersion ? undefined : createEnabled ? undefined : <UpgradeBanner/>;
+  //While fore ground loads there is no global version and operation is running
+  const loadingForeGroundMarkets = !hasInitializedGlobalVersion(versionsContext) && operationRunning;
+  const banner = loadingForeGroundMarkets ? undefined : createEnabled ? undefined : <UpgradeBanner/>;
   const [chosenPerson, setChosenPerson] = React.useState({ name: '', email: '', external_id: '' });
 
   useEffect(() => {
@@ -157,7 +160,7 @@ function Home(props) {
       hidden={hidden}
       isHome
       banner={banner}
-      loading={!initializedGlobalVersion}
+      loading={loadingForeGroundMarkets}
       navigationOptions={banner ? [] : navigationMenu}
     >
       {!_.isEmpty(user) && _.isEmpty(getExistingMarkets(versionsContext)) && (

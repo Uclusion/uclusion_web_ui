@@ -124,7 +124,7 @@ function processRegularItem(classes, history, text, target, num, Icon, onClickFu
                   if (onClickFunc) {
                     onClickFunc();
                   } else {
-                    navigate(history, target);
+                    navigate(history, target, false, true);
                   }
                 }
               }

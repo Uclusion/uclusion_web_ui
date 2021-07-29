@@ -39,7 +39,7 @@ export function preventDefaultAndProp(event) {
   event.preventDefault();
 }
 
-export function navigate(history, to, insideUseEffect) {
+export function navigate(history, to, insideUseEffect, doNotAddToHistory) {
   const {
     action: fromAction,
     marketId: fromMarketId,
@@ -55,7 +55,11 @@ export function navigate(history, to, insideUseEffect) {
         history.push(to);
       }, 0);
     } else {
-      history.push(to);
+      if (doNotAddToHistory) {
+        history.replace(to);
+      } else {
+        history.push(to);
+      }
     }
   } else {
     if (insideUseEffect) {

@@ -204,7 +204,7 @@ function PlanningDialog(props) {
   function getNavListItemOnClick(subSection, target) {
     return () => {
       openSubSection(subSection);
-      navigate(history, target);
+      navigate(history, target, false, true);
     };
   }
 

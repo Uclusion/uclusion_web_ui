@@ -84,7 +84,7 @@ function Home(props) {
   const createEnabled = canCreate(accountState);
   //While fore ground loads there is no global version and operation is running
   const loadingForeGroundMarkets = !hasInitializedGlobalVersion(versionsContext) && operationRunning;
-  const banner = loadingForeGroundMarkets ? undefined : createEnabled ? undefined : <UpgradeBanner/>;
+  const banner = loadingForeGroundMarkets || createEnabled ? undefined : <UpgradeBanner/>;
   const [chosenPerson, setChosenPerson] = React.useState({ name: '', email: '', external_id: '' });
 
   useEffect(() => {

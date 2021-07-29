@@ -72,7 +72,16 @@ function InvestiblesByWorkspace (props) {
     } = o[1];
     return currentUser;
   }]);
-  const peopleChoices = [sortedPeople.map((entry) => renderParticipantEntry(entry))];
+  const processed = {};
+  sortedPeople.forEach((entry) => {
+    const { name } = entry[1];
+    if (processed[name]) {
+      processed[name] += 1;
+    } else {
+      processed[name] = 1;
+    }
+  });
+  const peopleChoices = [sortedPeople.map((entry) => renderParticipantEntry(entry, processed))];
   useEffect(() => {
     if ((!chosenPerson || chosenPerson.external_id === '') && !_.isEmpty(sortedPeople)) {
       setChosenPerson(sortedPeople[0][1]);
@@ -88,11 +97,11 @@ function InvestiblesByWorkspace (props) {
     setAnchorEl(null);
   }
 
-  function renderParticipantEntry (presenceEntry) {
+  function renderParticipantEntry(presenceEntry, processed) {
     const {
       name, email, external_id: externalId
     } = presenceEntry[1];
-    const itemName = `${name} ${email}`;
+    const itemName = processed[name] > 1 ? `${name} ${email}` : name;
     return (
       <MenuItem key={externalId} onClick={() => {
         setChosenPerson(presenceEntry[1]);
@@ -112,16 +121,17 @@ function InvestiblesByWorkspace (props) {
   return (
     <>
       {_.size(peopleChoices) > 0 && _.size(peopleChoices[0]) > 1 && (
-        <div className={classes.expansionControlHome}>
+        <div>
           <Button
-            className={classes.menuButton}
-            endIcon={<ExpandMoreIcon style={{ marginRight: '16px' }} htmlColor={ACTION_BUTTON_COLOR}/>}
+            endIcon={<ExpandMoreIcon htmlColor={ACTION_BUTTON_COLOR}/>}
             aria-controls="stages-content"
             id="stages-header"
             onClick={handleClick}
           >
             <div className={classes.fontControl}>
-              {intl.formatMessage({ id: 'displaying' }, {x: chosenPerson.name, y: chosenPerson.email})}
+              {processed[chosenPerson.name] > 1 ?
+                intl.formatMessage({ id: 'displaying' }, {x: chosenPerson.name, y: chosenPerson.email})
+                : intl.formatMessage({id: 'displayingNoEmail'}, {x: chosenPerson.name})}
             </div>
           </Button>
           <Menu

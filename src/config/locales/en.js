@@ -804,6 +804,7 @@ const messages = defineMessages({
   initiativeVotingHelp: 'Vote for or against this initiative and choose how certain you are of that vote.',
   personChooserLabel: 'View Other Person\'s Assignments',
   displaying: 'Displaying for {x} {y}',
+  displayingNoEmail: 'Displaying for {x}',
   clear: 'Clear',
 
   // add participants

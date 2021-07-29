@@ -1,4 +1,4 @@
-import { navigate } from './marketIdPathFunctions'
+import { navigate, preventDefaultAndProp } from './marketIdPathFunctions'
 
 //Only use if media query not available
 export function isTinyWindow(){
@@ -12,8 +12,7 @@ export function invalidEditEvent(event, history) {
   }
   const isLink = event && event.target && event.target.localName === 'a';
   if (isLink && event.target.href && event.target.href.includes(window.location.host)) {
-    event.stopPropagation();
-    event.preventDefault();
+    preventDefaultAndProp(event);
     // Hacky but the url can be modified on storage so intercept here
     navigate(history, event.target.pathname);
   }

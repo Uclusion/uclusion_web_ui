@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { Link, makeStyles } from '@material-ui/core'
-import { navigate } from '../../utils/marketIdPathFunctions';
+import { navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router';
 import Typography from '@material-ui/core/Typography';
 import { UNREAD_TYPE } from '../../constants/notifications'
@@ -78,8 +78,7 @@ function NotificationMessageDisplay (props) {
     <>
       <Link href={useLink} style={{ width: '100%' }} onClick={
         (event) => {
-          event.stopPropagation();
-          event.preventDefault();
+          preventDefaultAndProp(event);
           navigate(history, useLink);
           onLinkClick();
         }

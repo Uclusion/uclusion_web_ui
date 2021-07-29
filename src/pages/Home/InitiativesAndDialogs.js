@@ -12,7 +12,7 @@ import {
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
-import { formInvestibleLink, formMarketLink, navigate } from '../../utils/marketIdPathFunctions'
+import { formInvestibleLink, formMarketLink, navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions'
 import RaisedCard from '../../components/Cards/RaisedCard'
 import ProgressBar from '../../components/Expiration/ProgressBarExpiration'
 import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions'
@@ -393,8 +393,7 @@ function InitiativesAndDialogs(props) {
                         color="primary"
                         onClick={
                           (event) => {
-                            event.stopPropagation();
-                            event.preventDefault();
+                            preventDefaultAndProp(event);
                             navigate(history, formMarketLink(parentMarketId));
                           }
                         }
@@ -407,7 +406,7 @@ function InitiativesAndDialogs(props) {
                     <div
                       className={classes.isLinked}
                       onClick={(event) => {
-                        event.preventDefault();
+                        preventDefaultAndProp(event);
                         navigate(history, isNotCollaborator ? `/invite/${marketToken}` :
                           formMarketLink(marketId));
                       }}>
@@ -579,8 +578,7 @@ function InitiativesAndDialogs(props) {
                       color="primary"
                       onClick={
                         (event) => {
-                          event.preventDefault();
-                          event.stopPropagation();
+                          preventDefaultAndProp(event);
                           navigate(history, formMarketLink(parentMarketId));
                         }
                       }
@@ -593,7 +591,7 @@ function InitiativesAndDialogs(props) {
                     <div
                       className={classes.isLinked}
                       onClick={(event) => {
-                        event.preventDefault();
+                        preventDefaultAndProp(event);
                         navigate(history, formInvestibleLink(marketId, investibleId));}}
                     >
                       {isDraft && (

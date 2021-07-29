@@ -6,7 +6,12 @@ import { Grid, Link, Tooltip, Typography, useMediaQuery, useTheme } from '@mater
 import { makeStyles } from '@material-ui/core/styles';
 import { yellow } from '@material-ui/core/colors';
 import { FormattedDate, FormattedMessage, useIntl } from 'react-intl';
-import { formInvestibleLink, formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
+import {
+  formInvestibleLink,
+  formMarketAddInvestibleLink,
+  navigate,
+  preventDefaultAndProp
+} from '../../../utils/marketIdPathFunctions'
 import clsx from 'clsx';
 import {
   checkInProgressWarning,
@@ -556,7 +561,7 @@ function Stage (props) {
                   onMouseOver={() => doShowEdit(investible.id)} onMouseOut={() => doRemoveEdit(investible.id,
               isVoting || isReview)}
                   onClick={event => {
-                    event.preventDefault();
+                    preventDefaultAndProp(event);
                     navigate(history, formInvestibleLink(marketId, investible.id));
                   }}
             >
@@ -603,6 +608,7 @@ function VotingStage (props) {
 
   function onClick (event) {
     // prevent browser navigation
+    event.stopPropagation();
     event.preventDefault();
     navigate(history, assignedLink);
   }
@@ -770,6 +776,7 @@ function StageInvestible(props) {
           id={id}
           draggable="false"
           onClick={event => {
+            event.stopPropagation();
             event.preventDefault();
             navigate(history, to);
           }}

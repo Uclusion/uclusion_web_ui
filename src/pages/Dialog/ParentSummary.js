@@ -4,7 +4,7 @@ import { FormattedMessage } from 'react-intl'
 import { Link, Typography, } from '@material-ui/core'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { getMarketPresences, } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
-import { formInvestibleLink, formMarketLink, navigate } from '../../utils/marketIdPathFunctions'
+import { formInvestibleLink, formMarketLink, navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
 import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
@@ -76,7 +76,7 @@ function ParentSummary(props) {
           color="primary"
           className={parentMarketStage === ACTIVE_STAGE ? classes.activeMarket : classes.inactiveMarket}
           onClick={(event) => {
-            event.preventDefault()
+            preventDefaultAndProp(event);
             navigate(history, baseLink)
           }}
         >

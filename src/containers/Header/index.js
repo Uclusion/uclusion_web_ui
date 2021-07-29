@@ -14,7 +14,7 @@ import {
   useTheme,
 } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles';
-import { createTitle, navigate, openInNewTab } from '../../utils/marketIdPathFunctions';
+import { createTitle, navigate, openInNewTab, preventDefaultAndProp } from '../../utils/marketIdPathFunctions'
 import { OnlineStateContext } from '../../contexts/OnlineStateContext';
 import Identity from '../Screen/Identity';
 import { useHistory } from 'react-router';
@@ -239,7 +239,7 @@ function Header (props) {
         <Toolbar className={classes.topBar}>
           <div className={classes.sidebarLogo}>
             <Link href="/" onClick={(event) => {
-              event.preventDefault();
+              preventDefaultAndProp(event);
               if (!logoLinkDisabled) {
                 navigate(history, '/');
               }

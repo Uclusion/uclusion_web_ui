@@ -34,7 +34,12 @@ import SubSection from '../../../containers/SubSection/SubSection';
 import { SECTION_TYPE_SECONDARY_WARNING } from '../../../constants/global';
 import ArchiveInvestbiles from '../../DialogArchives/ArchiveInvestibles';
 import Link from '@material-ui/core/Link';
-import { formMarketAddInvestibleLink, formMarketLink, navigate } from '../../../utils/marketIdPathFunctions'
+import {
+  formMarketAddInvestibleLink,
+  formMarketLink,
+  navigate,
+  preventDefaultAndProp
+} from '../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import Gravatar from '../../../components/Avatars/Gravatar';
@@ -183,7 +188,7 @@ function InvestiblesByWorkspace (props) {
                     <Typography variant='h6'>
                       <Link color="inherit" id={market.id} key={market.id} href={formMarketLink(market.id)}
                                  onClick={(e) => {
-                                   e.preventDefault();
+                                   preventDefaultAndProp(e);
                                    navigate(history, formMarketLink(market.id));
                                  }
                                  }>{market.name}</Link>

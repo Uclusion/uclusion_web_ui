@@ -10,7 +10,7 @@ import {
   marketHasOnlyCurrentUser
 } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { formInvestibleLink, formMarketLink, navigate } from '../../utils/marketIdPathFunctions'
+import { formInvestibleLink, formMarketLink, navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions'
 import RaisedCard from '../../components/Cards/RaisedCard'
 import {
   getInvestibleName,
@@ -234,7 +234,7 @@ function PlanningDialogs(props) {
           >
             <Grid container style={{cursor: 'pointer'}}
                   onClick={(event) => {
-                    event.preventDefault();
+                    preventDefaultAndProp(event);
                     navigate(history, formMarketLink(marketId));}
             }>
               <Grid item xs={10} style={{pointerEvents: 'none'}}>
@@ -263,7 +263,7 @@ function PlanningDialogs(props) {
                 color="primary"
                 onClick={
                   (event) => {
-                    event.preventDefault();
+                    preventDefaultAndProp(event);
                     navigate(history, formInvestibleLink(parentMarketId, parentInvestibleId));
                   }
                 }
@@ -275,8 +275,8 @@ function PlanningDialogs(props) {
               }
               <div className={!mobileLayout ? classes.innerContainer : classes.innerContainerMobile}
                 onClick={(event) => {
-                event.preventDefault();
-                navigate(history, formMarketLink(marketId));}
+                  preventDefaultAndProp(event);
+                  navigate(history, formMarketLink(marketId));}
                 }
               >
                 <Typography 

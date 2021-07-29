@@ -9,7 +9,7 @@ import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUse
 import Header from '../Header'
 import ActionBar from '../ActionBar'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
-import { createTitle, makeBreadCrumbs, navigate } from '../../utils/marketIdPathFunctions'
+import { createTitle, makeBreadCrumbs, navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions'
 import LoadingDisplay from '../../components/LoadingDisplay';
 import List from '@material-ui/core/List'
 import SearchBox from '../../components/Search/SearchBox'
@@ -120,8 +120,7 @@ function processRegularItem(classes, history, text, target, num, Icon, onClickFu
               className={isGrouped ? classes.navListItemGrouped : classes.navListItem}
               onClick={
                 (event) => {
-                  event.stopPropagation();
-                  event.preventDefault();
+                  preventDefaultAndProp(event);
                   if (onClickFunc) {
                     onClickFunc();
                   } else {

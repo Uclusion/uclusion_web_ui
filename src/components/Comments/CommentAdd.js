@@ -6,7 +6,7 @@ import {
   darken,
   FormControlLabel,
   makeStyles,
-  Paper,
+  Paper, useMediaQuery, useTheme,
 } from '@material-ui/core'
 import PropTypes from 'prop-types'
 import { getMentionsFromText, saveComment } from '../../api/comments';
@@ -226,6 +226,8 @@ function CommentAdd(props) {
   const placeHolder = intl.formatMessage({ id: placeHolderLabelId });
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [userState] = useContext(AccountUserContext);
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const presences = getMarketPresences(marketPresencesState, marketId) || [];
   const myPresence = presences.find((presence) => presence.current_user) || {};
 
@@ -351,7 +353,7 @@ function CommentAdd(props) {
     type === REPORT_TYPE && currentStageId !== inReviewStage.id ? 'addReportWarning' : undefined;
   const userPreferences = getUiPreferences(userState) || {};
   const previouslyDismissed = userPreferences.dismissedText || [];
-  const showIssueWarning = myWarningId && !previouslyDismissed.includes(myWarningId);
+  const showIssueWarning = myWarningId && !previouslyDismissed.includes(myWarningId) && !mobileLayout;
   const lockedDialogClasses = useLockedDialogStyles();
 
   return (

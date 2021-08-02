@@ -216,7 +216,7 @@ function InvestibleBodyEdit(props) {
   return (
     <>
       <Typography className={isEditableByUser() ? classes.titleEditable : classes.title} variant="h3" component="h1"
-                  onClick={() => !mobileLayout && setBeingEdited(true)}>
+                  onClick={(event) => !mobileLayout && setBeingEdited(true, event)}>
         {initialName}
       </Typography>
       <DescriptionOrDiff id={investibleId} description={initialDescription} showDiff={showDiff}

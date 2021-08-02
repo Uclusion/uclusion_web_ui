@@ -28,7 +28,12 @@ const myStyles = makeStyles(
     return {
       root: {
         maxWidth: '40rem',
-        padding: '2rem'
+        padding: '2rem',
+        marginLeft: 'auto',
+        marginRight: 'auto'
+      },
+      rootHidden: {
+        display: 'none'
       },
       warningTitleIcon: {
         marginRight: 8,
@@ -40,7 +45,7 @@ const myStyles = makeStyles(
 );
 
 function CreateWorkspaceDialog(props) {
-  const { user } = props;
+  const { user, hidden } = props;
   const history = useHistory();
   const intl = useIntl();
   const classes = myStyles();
@@ -54,7 +59,7 @@ function CreateWorkspaceDialog(props) {
 
   function onCreate() {
     let marketId;
-    createOnboardingWorkspace().then((results) => {
+    return createOnboardingWorkspace().then((results) => {
       results.forEach((marketResult) => {
         const { market, stages, investibles, comments, users } = marketResult;
         updateStagesForMarket(marketStagesDispatch, market.id, stages);
@@ -73,7 +78,7 @@ function CreateWorkspaceDialog(props) {
   }
 
   return (
-    <Card className={classes.root} elevation={3}>
+    <Card className={hidden ? classes.rootHidden : classes.root} elevation={3}>
       <CardContent>
         <Typography gutterBottom variant="h5" component="h2">
           <Announcement className={classes.warningTitleIcon} />

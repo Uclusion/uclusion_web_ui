@@ -164,7 +164,7 @@ function Home(props) {
       navigationOptions={banner ? [] : navigationMenu}
     >
       {!_.isEmpty(user) && _.isEmpty(getExistingMarkets(versionsContext)) && (
-        <CreateWorkspaceDialog user={user} />
+        <CreateWorkspaceDialog user={user} hidden={wizardActive} />
       )}
       <WizardSelector
         hidden={!wizardActive}

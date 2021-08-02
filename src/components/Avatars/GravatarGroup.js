@@ -20,10 +20,10 @@ function GravatarGroup(props) {
       className={className}
     >
       {users.map((user) => {
-        const { name, email} = user;
+        const { name, email, id } = user;
         return <Gravatar
           className={gravatarClassName}
-          key={email}
+          key={id}
           email={email}
           name={name}
         />

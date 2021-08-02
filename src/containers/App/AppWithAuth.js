@@ -5,7 +5,6 @@ import { IntlProvider } from 'react-intl'
 import { makeStyles } from '@material-ui/styles'
 import { useHistory } from 'react-router'
 import config from '../../config/config'
-import LogRocket from 'logrocket'
 import App from './App'
 import awsconfig from '../../config/amplify'
 import CustomSignIn from '../../authorization/CustomSignIn'
@@ -27,8 +26,6 @@ import _ from 'lodash'
 import { decomposeMarketPath } from '../../utils/marketIdPathFunctions'
 import queryString from 'query-string'
 import { getAndClearEmail } from '../../utils/redirectUtils'
-
-LogRocket.init(config.logRocketInstance)
 
 Amplify.configure(awsconfig);
 
@@ -106,7 +103,6 @@ function AppWithAuth() {
   };
 
   Auth.configure({ oauth });
-
 
   const authenticatorTheme = {
     toast: {

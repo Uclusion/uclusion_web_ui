@@ -30,7 +30,10 @@ const useStyles = makeStyles((theme) => {
       paddingLeft: 15,
       paddingRight: 15,
       paddingBottom: 10,
-      overflowWrap: "break-word"
+      overflowWrap: "break-word",
+      [theme.breakpoints.down('sm')]: {
+        maxWidth: '340px'
+      },
     },
     titleText: {
       fontWeight: 'bold',

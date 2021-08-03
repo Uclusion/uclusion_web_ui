@@ -35,14 +35,14 @@ export function workspaceInvitedUserSteps (variables) {
         disableBeacon: true,
         target: '#yellowLevelNotification',
         placement: 'bottom',
-        content: 'Critical, urgent and, informational notifications appear up here so you know what needs to be done when.',
+        content: 'Categorized notifications are automatically sent and appear here so you know what needs to be done when.',
       });
     }
     steps.push({
       disableBeacon: true,
       target: '#helpIcon',
       placement: 'bottom',
-      content: "Lastly, this takes you to the details of how Uclusion let's you do agile project management without all the meetings."
+      content: "Lastly, documentation on how Uclusion let's you do agile project management without all the meetings."
     });
     return steps;
 }

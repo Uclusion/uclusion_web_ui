@@ -380,6 +380,10 @@ function QuillEditor2 (props) {
     pushMessage(`editor-${id}`, { type: 'uploads', newUploads });
   }
 
+  function isWhitespace(ch) {
+    return (ch === ' ') || (ch === '\t') || (ch === '\n');
+  }
+
   function createEditor (initializeContents) {
     // we only set the contents if different from the placeholder
     // otherwise the placeholder functionality of the editor won't work
@@ -396,6 +400,31 @@ function QuillEditor2 (props) {
     addToolTips(editor.container.previousSibling);
     disableToolbarTabs(containerRef.current);
     const debouncedOnChange = _.debounce((delta) => {
+      // URL stuff from https://github.com/quilljs/quill/issues/109
+      const regex = /https?:\/\/[^\s]+$/;
+      if (delta.ops.length === 2 && delta.ops[0].retain && isWhitespace(delta.ops[1].insert)) {
+        const endRetain = delta.ops[0].retain;
+        const text = editor.getText().substr(0, endRetain);
+        const match = text.match(regex);
+
+        if (match !== null) {
+          const url = match[0];
+
+          const ops = [];
+          if(endRetain > url.length) {
+            ops.push({ retain: endRetain - url.length });
+          }
+
+          const retOps = ops.concat([
+            { delete: url.length },
+            { insert: url, attributes: { link: url } }
+          ]);
+
+          editor.updateContents({
+            ops: retOps
+          });
+        }
+      }
       const contents = editor.root.innerHTML;
       if (editorEmpty(contents)) {
         storeState(id, '');
@@ -403,7 +432,7 @@ function QuillEditor2 (props) {
         storeState(id, contents);
       }
     }, 50);
-    editor.on('text-change', debouncedOnChange)
+    editor.on('text-change', debouncedOnChange);
     setEditor(editor);
   }
 

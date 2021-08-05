@@ -1039,6 +1039,7 @@ function PlanningInvestible(props) {
               issueWarningId={isReadyFurtherWork ? undefined : 'issueWarningPlanning'}
               todoWarningId={todoWarning}
               isInReview={isInReview}
+              isAssignee={isAssigned}
               hidden={hidden}
               isStory
             />
@@ -1056,6 +1057,7 @@ function PlanningInvestible(props) {
               issueWarningId={isReadyFurtherWork ? undefined : 'issueWarningPlanning'}
               todoWarningId={todoWarning}
               isInReview={isInReview}
+              isAssignee={isAssigned}
               hidden={hidden}
               isStory
             />

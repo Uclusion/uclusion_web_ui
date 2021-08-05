@@ -146,6 +146,7 @@ function CommentAddBox(props) {
     todoWarningId,
     isStory,
     isInReview,
+    isAssignee,
     hidden
   } = props;
   const theme = useTheme();
@@ -163,7 +164,7 @@ function CommentAddBox(props) {
   }
 
   function getMessageId(aCommentType) {
-    if (!isInReview || aCommentType !== REPORT_TYPE) {
+    if (!isInReview || aCommentType !== REPORT_TYPE || isAssignee) {
       return `${aCommentType.toLowerCase()}Present`;
     }
     return "reviewReportPresent";

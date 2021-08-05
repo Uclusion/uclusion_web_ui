@@ -318,7 +318,7 @@ function Comment(props) {
   const classes = useCommentStyles();
   const { id, comment_type: commentType, investible_id: investibleId, inline_market_id: inlineMarketId,
   created_by: commentCreatedBy, resolved, notification_type: myNotificationType, creation_stage_id: createdStageId,
-  mentions, body } = comment;
+  mentions, body, creator_assigned: creatorAssigned } = comment;
   const presences = usePresences(marketId);
   const createdBy = useCommenter(comment, presences) || unknownPresence;
   const updatedBy = useUpdatedBy(comment, presences) || unknownPresence;
@@ -587,8 +587,10 @@ function Comment(props) {
   }
   const { expanded: myRepliesExpanded } = myExpandedState;
   const repliesExpanded = myRepliesExpanded === undefined ? !comment.resolved : myRepliesExpanded;
-  const isInReview = createdStageId === (getInReviewStage(marketStagesState, marketId) || {id: 'fake'}).id;
-  const overrideLabel = (marketType === PLANNING_TYPE && commentType === REPORT_TYPE && isInReview) ?
+  const inReviewStageId = (getInReviewStage(marketStagesState, marketId) || {}).id;
+  const createdInReview = createdStageId === inReviewStageId;
+  const overrideLabel = (marketType === PLANNING_TYPE && commentType === REPORT_TYPE
+    && createdInReview && !creatorAssigned) ?
     <FormattedMessage id="reviewReportPresent" /> : undefined;
 
   const displayUpdatedBy = updatedBy !== undefined && comment.updated_by !== comment.created_by;
@@ -618,7 +620,6 @@ function Comment(props) {
   const displayingDiff = myMessage && showDiff && diff;
   const isEditable = comment.created_by === userId;
   const displayEditing = enableEditing && isEditable && !editOpenDefault;
-  const inReviewStageId = (getInReviewStage(marketStagesState, marketId) || {}).id;
   return (
     <div className={getCommentHighlightStyle()}>
       <Card elevation={3} style={{overflow: 'unset'}}>
@@ -701,7 +702,7 @@ function Comment(props) {
               updateEditState={updateEditState}
               editStateReset={editStateReset}
               myNotificationType={myNotificationType}
-              isInReview={isInReview}
+              isInReview={createdInReview}
               messages={messages}
             />
             {noAuthor && !editOpen && (
@@ -792,7 +793,7 @@ function Comment(props) {
                     })}
                   </SpinningIconLabelButton>
                 )}
-                {enableEditing && ((commentType !== REPORT_TYPE || createdStageId === inReviewStageId)
+                {enableEditing && ((commentType !== REPORT_TYPE || overrideLabel)
                       || (mentions || []).includes(myPresence.id)) && (
                     <SpinningIconLabelButton
                       onClick={toggleReply}

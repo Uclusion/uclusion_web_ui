@@ -1031,7 +1031,7 @@ function PlanningInvestible(props) {
           {isAssigned && (
             <div style={{paddingTop: '2rem'}} />
           )}
-          {_.isEmpty(search) && (
+          {_.isEmpty(search) && marketId && !_.isEmpty(investible) && (
             <CommentAddBox
               allowedTypes={allowedCommentTypes}
               investible={investible}
@@ -1049,7 +1049,7 @@ function PlanningInvestible(props) {
       <Grid container spacing={2}>
         <Grid item xs={12} style={{ marginTop: '15px' }}>
           {!inArchives && !isInNotDoing && !isInVerified && (!isInVoting || !canVote || yourVote) && _.isEmpty(search)
-          && (
+          && marketId && !_.isEmpty(investible) && (
             <CommentAddBox
               allowedTypes={allowedCommentTypes}
               investible={investible}

@@ -61,7 +61,7 @@ const useStyles = makeStyles((theme) => ({
     fontSize: '.825rem',
     lineHeight: 2,
     marginTop: '12px',
-    marginRight: '90px'
+    alignItem: 'left',
   },
   cardContent: {
     display: 'flex',
@@ -88,16 +88,18 @@ const useStyles = makeStyles((theme) => ({
   },
   bottomContainer: {
     display: 'flex',
-    flex: 1,
-    marginTop: '1rem'
+    flexDirection: 'row',
+    marginTop: '1rem',
+    justifyContent: 'space-between',
   },
   draftContainer: {
     height: '50px',
+    width: 'fit-content',
+    alignItems: 'left',
   },
   participantContainer: {
     height: '50px',
-    display: 'flex',
-    width: '100%',
+    width: 'fit-content',
   },
   participantText: {
     fontSize: '.7rem'
@@ -110,15 +112,23 @@ const useStyles = makeStyles((theme) => ({
     borderStyle: 'solid',
     margin: '2rem 0'
   },
-  workspaceCommentsIcons: {
+  workspaceIconContainer: {
     display: 'flex',
-    flexDirection: 'column',
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  workspaceCommentsIcons: {
+    marginTop: '1.2rem',
     '& > *': {
       marginBottom: theme.spacing(2),
     },
     '& .MuiBadge-root': {
       marginRight: theme.spacing(2),
     },
+  },
+  archiveIconContainer: {
+
+    alignItem: 'right',
   },
   lessPadding: {
     '&.MuiGrid-item': {
@@ -295,8 +305,9 @@ function PlanningDialogs(props) {
                         </Typography>
                       </div>
                     )}
-                    <div className={classes.workspaceCommentsIcons}>
-                      <div>
+                  </span>
+                  <span className={classes.workspaceIconContainer}>
+                      <div className={classes.workspaceCommentsIcons}>
                         {suggestCount > 0 && (
                           <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? 'suggestCount' :
                               'suggestSearchCount' })}>
@@ -305,6 +316,8 @@ function PlanningDialogs(props) {
                             </Badge>
                           </Tooltip>
                         )}
+                      </div>
+                      <div className={classes.workspaceCommentsIcons}>
                         {todoCount > 0 && (
                           <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? 'todoCount' :
                               'todoSearchCount' })}>
@@ -313,8 +326,16 @@ function PlanningDialogs(props) {
                             </Badge>
                           </Tooltip>
                         )}
+                        {todoCount < 1 && (
+                            <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? 'todoCount' :
+                              'todoSearchCount' })}>
+                              <Badge badgeContent={todoCount}>
+                                <AssignmentIcon className={classes.chipItemTodo} style={{fill: 'gray'}} />
+                              </Badge>
+                            </Tooltip>
+                        )}
                       </div>
-                      <div>
+                      <div className={classes.workspaceCommentsIcons}>
                         {questionCount > 0 && (
                           <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? 'questionCount' :
                               'questionSearchCount' })}>
@@ -323,6 +344,16 @@ function PlanningDialogs(props) {
                             </Badge>
                           </Tooltip>
                         )}
+                        {questionCount < 1 && (
+                          <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? 'questionCount' :
+                              'questionSearchCount' })}>
+                            <Badge badgeContent={questionCount}>
+                              <HelpIcon className={classes.chipItemQuestion}  style={{fill: 'gray'}}/>
+                            </Badge>
+                          </Tooltip>
+                        )}
+                      </div>
+                      <div className={classes.workspaceCommentsIcons}>
                         {issueCount > 0 && (
                           <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? 'issueCount' :
                               'issueSearchCount' })}>
@@ -331,7 +362,14 @@ function PlanningDialogs(props) {
                             </Badge>
                           </Tooltip>
                         )}
-                      </div>
+                        {issueCount < 1 && (
+                          <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? 'issueCount' :
+                              'issueSearchCount' })}>
+                            <Badge badgeContent={issueCount}>
+                              <BlockIcon className={classes.chipItemIssue} style={{fill: 'gray'}}/>
+                            </Badge>
+                          </Tooltip>
+                        )}
                     </div>
                     {!_.isEmpty(search) && investiblesCount > 0 && (
                       <div className={classes.workspaceCommentsIcons}>
@@ -342,8 +380,19 @@ function PlanningDialogs(props) {
                         </Tooltip>
                       </div>
                     )}
+                    {!_.isEmpty(search) && investiblesCount < 1 && (
+                      <div className={classes.workspaceCommentsIcons}>
+                        <Tooltip title={intl.formatMessage({ id: "storyCount" })}>
+                          <Badge badgeContent={investiblesCount}>
+                            <WorkIcon className={classes.chipItemStory} style={{fill: 'gray'}}/>
+                          </Badge>
+                        </Tooltip>
+                      </div>
+                    )}
+                  </span>
+                  <span className={classes.archiveIconContainer}>
                     {_.isEmpty(search) && (
-                      <CardActions style={{display: 'inline-block', flex: 5}}>
+                      <CardActions style={{display: 'inline-block', flex: 5, marginTop: '0.3rem'}}>
                         <DialogActions
                           marketStage={marketStage}
                           marketId={marketId}

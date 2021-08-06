@@ -373,7 +373,7 @@ const messages = defineMessages({
   ticketSubCodeHelp1: 'Your story ids will look like U-{code}-0, U-{code}-1, U-{code}-2, etc.',
   maxBudgetHelp: 'Maximum budget allowed for a story. Used to prevent stories from being too large.',
   voteExpirationHelp: "How many days before approvals expire. Prevents very old approval from being used.",
-  reassignToMove: 'Re-assigning moves to the swimlanes.',
+  reassignToMove: 'Assigning moves to the swimlanes.',
   initiativePlanningParent: 'Add Workspace',
   marketLinksSection: 'links',
   attachedFilesSection: 'attach files',

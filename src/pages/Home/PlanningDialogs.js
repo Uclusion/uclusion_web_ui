@@ -62,7 +62,6 @@ const useStyles = makeStyles((theme) => ({
     lineHeight: 2,
     marginTop: '12px',
     alignItem: 'left',
-    //marginRight: '60px' // posibel improvement by flex box 
   },
   cardContent: {
     display: 'flex',

@@ -6,20 +6,20 @@ import { useIntl } from 'react-intl';
 
 const useStyles = makeStyles(() => {
   return {
-    white: {
-      color: '#ffffff',
+    black: {
+      color: '#000000',
     },
     select: {
-      color: '#ffffff',
+      color: '#000000',
       '&:before': {
-        borderColor: '#ffffff',
+        borderColor: '#000000',
       },
       '&:after': {
-        borderColor: '#ffffff',
+        borderColor: '#000000',
       },
     },
     icon: {
-      fill: '#ffffff',
+      fill: '#000000',
     },
   };
 });
@@ -53,7 +53,7 @@ function AssigneeFilterDropdown(props) {
 
   return (
     <FormControl>
-      <FormHelperText className={classes.white}>{intl.formatMessage({ id: 'assigneeFilterLabel' })}</FormHelperText>
+      <FormHelperText className={classes.black}>{intl.formatMessage({ id: 'assigneeFilterLabel' })}</FormHelperText>
       <Select
         value={value}
         displayEmpty

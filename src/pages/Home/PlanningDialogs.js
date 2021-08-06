@@ -113,6 +113,7 @@ const useStyles = makeStyles((theme) => ({
   workspaceCommentsIcons: {
     display: 'flex',
     flexDirection: 'column',
+    marginTop: '1.2rem',
     '& > *': {
       marginBottom: theme.spacing(2),
     },
@@ -343,7 +344,7 @@ function PlanningDialogs(props) {
                       </div>
                     )}
                     {_.isEmpty(search) && (
-                      <CardActions style={{display: 'inline-block', flex: 5}}>
+                      <CardActions style={{display: 'inline-block', flex: 5, marginTop: '0.3rem'}}>
                         <DialogActions
                           marketStage={marketStage}
                           marketId={marketId}

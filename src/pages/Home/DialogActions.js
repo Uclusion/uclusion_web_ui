@@ -33,7 +33,8 @@ const useStyles = makeStyles(() => {
       display: 'flex',
       flexDirection: 'row-reverse',
       '& > button': {
-        paddingRight: '15px'
+        paddingRight: '10px',
+        paddingLeft: '10px'
       }
     },
   };

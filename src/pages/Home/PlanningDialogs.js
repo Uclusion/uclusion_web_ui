@@ -326,6 +326,14 @@ function PlanningDialogs(props) {
                             </Badge>
                           </Tooltip>
                         )}
+                        {todoCount < 1 && (
+                            <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? 'todoCount' :
+                              'todoSearchCount' })}>
+                              <Badge badgeContent={todoCount}>
+                                <AssignmentIcon className={classes.chipItemTodo} style={{fill: 'gray'}} />
+                              </Badge>
+                            </Tooltip>
+                        )}
                       </div>
                       <div className={classes.workspaceCommentsIcons}>
                         {questionCount > 0 && (
@@ -333,6 +341,14 @@ function PlanningDialogs(props) {
                               'questionSearchCount' })}>
                             <Badge badgeContent={questionCount}>
                               <HelpIcon className={classes.chipItemQuestion} />
+                            </Badge>
+                          </Tooltip>
+                        )}
+                        {questionCount < 1 && (
+                          <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? 'questionCount' :
+                              'questionSearchCount' })}>
+                            <Badge badgeContent={questionCount}>
+                              <HelpIcon className={classes.chipItemQuestion}  style={{fill: 'gray'}}/>
                             </Badge>
                           </Tooltip>
                         )}
@@ -346,12 +362,29 @@ function PlanningDialogs(props) {
                             </Badge>
                           </Tooltip>
                         )}
+                        {issueCount < 1 && (
+                          <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? 'issueCount' :
+                              'issueSearchCount' })}>
+                            <Badge badgeContent={issueCount}>
+                              <BlockIcon className={classes.chipItemIssue} style={{fill: 'gray'}}/>
+                            </Badge>
+                          </Tooltip>
+                        )}
                     </div>
                     {!_.isEmpty(search) && investiblesCount > 0 && (
                       <div className={classes.workspaceCommentsIcons}>
                         <Tooltip title={intl.formatMessage({ id: "storyCount" })}>
                           <Badge badgeContent={investiblesCount}>
                             <WorkIcon className={classes.chipItemStory} />
+                          </Badge>
+                        </Tooltip>
+                      </div>
+                    )}
+                    {!_.isEmpty(search) && investiblesCount < 1 && (
+                      <div className={classes.workspaceCommentsIcons}>
+                        <Tooltip title={intl.formatMessage({ id: "storyCount" })}>
+                          <Badge badgeContent={investiblesCount}>
+                            <WorkIcon className={classes.chipItemStory} style={{fill: 'gray'}}/>
                           </Badge>
                         </Tooltip>
                       </div>

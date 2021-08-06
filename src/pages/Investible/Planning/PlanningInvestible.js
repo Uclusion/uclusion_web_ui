@@ -1031,7 +1031,7 @@ function PlanningInvestible(props) {
           {isAssigned && (
             <div style={{paddingTop: '2rem'}} />
           )}
-          {_.isEmpty(search) && marketId && !_.isEmpty(investible) && (
+          {_.isEmpty(search) && marketId && !_.isEmpty(investible) && !hidden && (
             <CommentAddBox
               allowedTypes={allowedCommentTypes}
               investible={investible}
@@ -1040,7 +1040,6 @@ function PlanningInvestible(props) {
               todoWarningId={todoWarning}
               isInReview={isInReview}
               isAssignee={isAssigned}
-              hidden={hidden}
               isStory
             />
           )}
@@ -1049,7 +1048,7 @@ function PlanningInvestible(props) {
       <Grid container spacing={2}>
         <Grid item xs={12} style={{ marginTop: '15px' }}>
           {!inArchives && !isInNotDoing && !isInVerified && (!isInVoting || !canVote || yourVote) && _.isEmpty(search)
-          && marketId && !_.isEmpty(investible) && (
+          && marketId && !_.isEmpty(investible) && !hidden && (
             <CommentAddBox
               allowedTypes={allowedCommentTypes}
               investible={investible}
@@ -1058,7 +1057,6 @@ function PlanningInvestible(props) {
               todoWarningId={todoWarning}
               isInReview={isInReview}
               isAssignee={isAssigned}
-              hidden={hidden}
               isStory
             />
           )}

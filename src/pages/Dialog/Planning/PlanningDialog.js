@@ -451,11 +451,10 @@ function PlanningDialog(props) {
       <Grid container spacing={2} id="discussionSection"
             style={{display: isSectionOpen('discussionSection') ? 'block' : 'none'}}>
           <Grid item id="commentAddArea"  xs={12}>
-            {!inArchives && _.isEmpty(search) && marketId && (
+            {!inArchives && _.isEmpty(search) && marketId && !hidden && (
               <CommentAddBox
                 allowedTypes={allowedCommentTypes}
                 marketId={marketId}
-                hidden={hidden}
               />
             )}
             <CommentBox comments={notTodoComments} marketId={marketId} allowedTypes={allowedCommentTypes} />

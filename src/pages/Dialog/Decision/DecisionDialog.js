@@ -495,12 +495,11 @@ function DecisionDialog(props) {
           </SubSection>
         </Grid>
         <Grid id="commentAddArea" item xs={12} style={{ marginTop: '71px' }}>
-          {!inArchives && marketId && (
+          {!inArchives && marketId && !hidden && (
             <CommentAddBox
               allowedTypes={allowedCommentTypes}
               marketId={marketId}
               issueWarningId="issueWarning"
-              hidden={hidden}
             />
           )}
           <CommentBox

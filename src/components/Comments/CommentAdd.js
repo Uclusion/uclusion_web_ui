@@ -195,7 +195,7 @@ const useStyles = makeStyles((theme) => ({
 
 function CommentAdd(props) {
   const {
-    marketId, onSave, onCancel, type, investible, parent, hidden, issueWarningId, todoWarningId, isStory, nameKey,
+    marketId, onSave, onCancel, type, investible, parent, issueWarningId, todoWarningId, isStory, nameKey,
     defaultNotificationType, onDone, mentionsAllowed, commentAddState, updateCommentAddState, commentAddStateReset,
     autoFocus=true
   } = props;
@@ -257,12 +257,12 @@ function CommentAdd(props) {
   }, [autoFocus, editorName, type]);
 
   useEffect(() => {
-    if (!hidden && autoFocus) {
+    if (autoFocus) {
       // Can't use editorController here because the function is not invariant
       pushMessage(getControlPlaneName(editorName), editorFocus());
     }
     return () => {};
-  }, [autoFocus, editorName, hidden]);
+  }, [autoFocus, editorName]);
 
 
   function clearMe () {
@@ -359,8 +359,8 @@ function CommentAdd(props) {
   return (
     <>
       <Paper
-        id={hidden ? '' : 'cabox'}
-        className={(hidden) ? classes.hidden : classes.add}
+        id={'cabox'}
+        className={classes.add}
         elevation={0}
       >
         <div className={classes.editor}>
@@ -405,7 +405,7 @@ function CommentAdd(props) {
           {myWarningId && (
             <IssueDialog
               classes={lockedDialogClasses}
-              open={!hidden && openIssue}
+              open={openIssue}
               onClose={toggleIssue}
               issueWarningId={myWarningId}
               checkBoxFunc={setDoNotShowAgain}
@@ -477,7 +477,6 @@ CommentAdd.propTypes = {
   investible: PropTypes.object,
   parent: PropTypes.object,
   onCancel: PropTypes.func,
-  hidden: PropTypes.bool,
   clearType: PropTypes.func,
   isStory: PropTypes.bool,
   defaultNotificationType: PropTypes.string,
@@ -492,7 +491,6 @@ CommentAdd.defaultProps = {
   onCancel: () => {},
   onSave: () => {},
   clearType: () => {},
-  hidden: false,
   isStory: false,
   mentionsAllowed: true,
 };

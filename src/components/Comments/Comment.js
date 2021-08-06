@@ -840,17 +840,18 @@ function Comment(props) {
             </div>
           </CardActions>
         )}
-        <CommentAdd
-          marketId={marketId}
-          hidden={!replyBeingEdited}
-          parent={comment}
-          onSave={toggleReply}
-          onCancel={toggleReply}
-          type={REPLY_TYPE}
-          commentAddState={replyAddState}
-          updateCommentAddState={updateReplyAddState}
-          commentAddStateReset={replyAddStateReset}
-        />
+        {replyBeingEdited && marketId && comment && (
+          <CommentAdd
+            marketId={marketId}
+            parent={comment}
+            onSave={toggleReply}
+            onCancel={toggleReply}
+            type={REPLY_TYPE}
+            commentAddState={replyAddState}
+            updateCommentAddState={updateReplyAddState}
+            commentAddStateReset={replyAddStateReset}
+          />
+        )}
         <Box marginTop={1} paddingX={1} className={classes.childWrapper}>
           <LocalCommentsContext.Provider value={{ comments, marketId }}>
             {repliesExpanded &&
@@ -1107,17 +1108,18 @@ function Reply(props) {
         </CardActions>
       )}
       <div className={classes.replyContainer}>
-        <CommentAdd
-          marketId={marketId}
-          hidden={!replyBeingEdited}
-          parent={comment}
-          onSave={() => setReplyOpen(false)}
-          onCancel={() => setReplyOpen(false)}
-          type={REPLY_TYPE}
-          commentAddState={replyAddState}
-          updateCommentAddState={updateReplyAddState}
-          commentAddStateReset={replyAddStateReset}
-        />
+        {replyBeingEdited && marketId && comment && (
+          <CommentAdd
+            marketId={marketId}
+            parent={comment}
+            onSave={() => setReplyOpen(false)}
+            onCancel={() => setReplyOpen(false)}
+            type={REPLY_TYPE}
+            commentAddState={replyAddState}
+            updateCommentAddState={updateReplyAddState}
+            commentAddStateReset={replyAddStateReset}
+          />
+        )}
       </div>
       {comment.children !== undefined && (
         <CardContent className={classes.cardContent}>

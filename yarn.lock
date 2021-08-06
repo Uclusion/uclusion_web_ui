@@ -11386,9 +11386,9 @@ quill-image-resize-module-withfix@^4.0.1:
     quill "^1.2.2"
     raw-loader "^0.5.1"
 
-"quill-mention-uclusion@git+ssh://git@github.com:Uclusion/quill-mention.git":
+"quill-mention-uclusion@https://github.com/Uclusion/quill-mention.git":
   version "3.0.0"
-  resolved "git+ssh://git@github.com:Uclusion/quill-mention.git#8ef6d5de8fb569e0e4e89e81098f6d988f2abfe1"
+  resolved "https://github.com/Uclusion/quill-mention.git#8ef6d5de8fb569e0e4e89e81098f6d988f2abfe1"
   dependencies:
     quill "^2.0.0-dev.4"
 

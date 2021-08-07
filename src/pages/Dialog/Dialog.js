@@ -76,11 +76,10 @@ function Dialog(props) {
   const marketStages = getStages(marketStagesState, marketId);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
-  const loading = !myPresence || !marketType || marketType === INITIATIVE_TYPE || (isInline && activeMarket);
+  const loading = isInitialization || !myPresence || !marketType || marketType === INITIATIVE_TYPE || (isInline && activeMarket);
   const [userState] = useContext(AccountUserContext);
   const hasUser = userIsLoaded(userState);
-  const banner = !isInitialization && !loading && _.isEmpty(marketStages) ?
-    <OnboardingBanner messageId='OnboardingInviteDialog' /> : undefined;
+  const banner = !loading && _.isEmpty(marketStages) ? <OnboardingBanner messageId='OnboardingInviteDialog' /> : undefined;
 
   useEffect(() => {
     if (!hidden && !isInitialization && hasUser) {

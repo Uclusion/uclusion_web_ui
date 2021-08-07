@@ -364,15 +364,19 @@ function PlanningDialogs(props) {
                         </Badge>
                       </Tooltip>
                     </div>
-                    {!_.isEmpty(search) && investiblesCount < 1 && (
-                      <div className={classes.workspaceCommentsIcons}>
-                        <Tooltip title={intl.formatMessage({ id: "storyCount" })}>
-                          <Badge badgeContent={investiblesCount} showZero>
-                            <WorkIcon className={classes.chipItemStory} />
-                          </Badge>
-                        </Tooltip>
-                      </div>
-                    )}
+                    <div className={classes.workspaceCommentsIcons}>
+                      <Tooltip className={classes.workspaceCommentsIcons}
+                        title={intl.formatMessage({ id: "storyCount" })}>
+                        <Badge badgeContent={investiblesCount} showZero>
+                          <WorkIcon 
+                            className={[
+                              classes.chipItemStory,
+                              investiblesCount === 0 && (classes.chipItemEmpty)
+                            ]} 
+                          />
+                        </Badge>
+                      </Tooltip>
+                    </div>
                   </span>
                   <span className={classes.archiveIconContainer}>
                     {_.isEmpty(search) && (

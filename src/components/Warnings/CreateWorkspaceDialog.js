@@ -22,6 +22,7 @@ import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/Ma
 import { addPresenceToMarket } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { refreshMarketComments } from '../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 
 const myStyles = makeStyles(
   () => {
@@ -56,6 +57,7 @@ function CreateWorkspaceDialog(props) {
   const [, diffDispatch] = useContext(DiffContext);
   const [, presenceDispatch] = useContext(MarketPresencesContext);
   const [, commentsDispatch] = useContext(CommentsContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
 
   function onCreate() {
     let marketId;
@@ -72,6 +74,7 @@ function CreateWorkspaceDialog(props) {
           marketId = market.id;
         }
       });
+      setOperationRunning(false);
       tourDispatch(startTour(INVITE_STORIES_WORKSPACE_FIRST_VIEW));
       navigate(history, formMarketLink(marketId));
     });
@@ -91,7 +94,8 @@ function CreateWorkspaceDialog(props) {
       </CardContent>
       <CardActions>
         <div style={{marginLeft: 'auto', marginRight: 'auto'}}>
-          <SpinningIconLabelButton onClick={onCreate} icon={PlayArrow} style={{padding: '0.75rem'}}>
+          <SpinningIconLabelButton onClick={onCreate} icon={PlayArrow} style={{padding: '0.75rem'}}
+                                   id="createTemplateWorkspaceButton">
             <Typography component='h6'>
               {intl.formatMessage({ id: 'createWorkspaceStart' })}
             </Typography>

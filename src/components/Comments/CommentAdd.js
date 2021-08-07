@@ -230,6 +230,11 @@ function CommentAdd(props) {
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const presences = getMarketPresences(marketPresencesState, marketId) || [];
   const myPresence = presences.find((presence) => presence.current_user) || {};
+  const blockingStage = getBlockedStage(marketStagesState, marketId) || {};
+  const requiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
+  const investibleRequiresInput = ((type === QUESTION_TYPE || type === SUGGEST_CHANGE_TYPE)
+      && (assigned || []).includes(myPresence.id)) && currentStageId !== blockingStage.id
+    && currentStageId !== requiresInputStage.id;
 
   function toggleIssue () {
     setOpenIssue(!openIssue);
@@ -298,12 +303,7 @@ function CommentAdd(props) {
     // the API does _not_ want you to send reply type, so suppress if our type is reply
     const apiType = (type === REPLY_TYPE) ? undefined : type;
     // what about not doing state?
-    const blockingStage = getBlockedStage(marketStagesState, marketId) || {};
-    const requiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
     const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
-    const investibleRequiresInput = ((apiType === QUESTION_TYPE || apiType === SUGGEST_CHANGE_TYPE)
-      && (assigned || []).includes(myPresence.id)) && currentStageId !== blockingStage.id
-      && currentStageId !== requiresInputStage.id;
     const investibleBlocks = (investibleId && apiType === ISSUE_TYPE) && currentStageId !== blockingStage.id;
     return saveComment(marketId, investibleId, parentId, tokensRemoved, apiType, filteredUploads, mentions,
       (notificationType || defaultNotificationType))
@@ -350,7 +350,8 @@ function CommentAdd(props) {
   const commentSaveLabel = parent ? 'commentAddSaveLabel' : 'commentReplySaveLabel';
   const commentCancelLabel = parent ? 'commentReplyCancelLabel' : 'commentAddCancelLabel';
   const myWarningId = type === TODO_TYPE ? todoWarningId : type === ISSUE_TYPE ? issueWarningId :
-    type === REPORT_TYPE && currentStageId !== inReviewStage.id ? 'addReportWarning' : undefined;
+    type === REPORT_TYPE && currentStageId !== inReviewStage.id ? 'addReportWarning' :
+      investibleRequiresInput ? 'requiresInputWarningPlanning' : undefined;
   const userPreferences = getUiPreferences(userState) || {};
   const previouslyDismissed = userPreferences.dismissedText || [];
   const showIssueWarning = myWarningId && !previouslyDismissed.includes(myWarningId) && !mobileLayout;

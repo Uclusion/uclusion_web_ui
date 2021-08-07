@@ -317,6 +317,14 @@ function PlanningDialogs(props) {
                             </Badge>
                           </Tooltip>
                         )}
+                        {suggestCount < 1 && (
+                          <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? 'suggestCount' :
+                              'suggestSearchCount' })}>
+                            <Badge badgeContent={suggestCount}>
+                              <EmojiObjectsIcon className={classes.chipItemSuggestion} style={{fill: 'gray'}}/>
+                            </Badge>
+                          </Tooltip>
+                        )}
                       </div>
                       <div className={classes.workspaceCommentsIcons}>
                         {todoCount > 0 && (

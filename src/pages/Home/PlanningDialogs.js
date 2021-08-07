@@ -339,7 +339,7 @@ function PlanningDialogs(props) {
                       </Tooltip>
                     </div>
                     <div className={classes.workspaceCommentsIcons}>
-                      <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? 'questionCount' :
+                      <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? 'questionCount' : 
                           'questionSearchCount' })}>
                         <Badge badgeContent={questionCount}>
                           <HelpIcon 
@@ -365,8 +365,8 @@ function PlanningDialogs(props) {
                       </Tooltip>
                     </div>
                     <div className={classes.workspaceCommentsIcons}>
-                      <Tooltip className={classes.workspaceCommentsIcons}
-                        title={intl.formatMessage({ id: "storyCount" })}>
+                      <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? "storyCount" :
+                        'storySearchCount' })}>
                         <Badge badgeContent={investiblesCount} showZero>
                           <WorkIcon 
                             className={[

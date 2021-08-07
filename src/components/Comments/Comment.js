@@ -662,7 +662,8 @@ function Comment(props) {
               <ShareStoryButton commentId={id} commentType={commentType} investibleId={investibleId} />
             </div>
           )}
-          {(myPresence.is_admin || isEditable) && enableActions && (commentType === REPORT_TYPE || resolved) && (
+          {(myPresence.is_admin || isEditable) && enableActions &&
+          (commentType === REPORT_TYPE || userId === commentCreatedBy || resolved) && (
             <div style={{marginRight: '2rem', marginTop: '0.5rem'}}>
               <TooltipIconButton
                 disabled={operationRunning !== false}

@@ -72,13 +72,14 @@ function Dialog(props) {
   const parentComment = inlineComments.find((comment) => comment.id === parentCommentId) || {};
   const parentInvestibleId = parentComment.investible_id;
   const activeMarket = marketStage === ACTIVE_STAGE;
-  const isInitialization = marketsState.initializing || investiblesState.initializing || marketPresencesState.initializing || marketStagesState.initializing;
+  const isInitialization = marketsState.initializing || investiblesState.initializing
+    || marketPresencesState.initializing || marketStagesState.initializing || commentsState.initializing;
   const marketStages = getStages(marketStagesState, marketId);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
-  const loading = isInitialization || !myPresence || !marketType || marketType === INITIATIVE_TYPE || (isInline && activeMarket);
   const [userState] = useContext(AccountUserContext);
   const hasUser = userIsLoaded(userState);
+  const loading = !hasUser || isInitialization || !myPresence || !marketType || marketType === INITIATIVE_TYPE || (isInline && activeMarket);
   const banner = !loading && _.isEmpty(marketStages) ? <OnboardingBanner messageId='OnboardingInviteDialog' /> : undefined;
 
   useEffect(() => {

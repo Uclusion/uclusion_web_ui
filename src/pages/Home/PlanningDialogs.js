@@ -100,7 +100,6 @@ const useStyles = makeStyles((theme) => ({
   participantContainer: {
     height: '50px',
     width: 'fit-content',
-    marginRight: 'auto'
   },
   participantText: {
     fontSize: '.7rem'
@@ -116,8 +115,8 @@ const useStyles = makeStyles((theme) => ({
   workspaceIconContainer: {
     display: 'flex',
     flexDirection: 'row',
-    alignItems: 'center',
-    marginLeft: 'auto'
+    justifyContent: 'space-between',
+    margin: 'auto',
   },
   workspaceCommentsIcons: {
     marginTop: '1.2rem',
@@ -129,7 +128,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   archiveIconContainer: {
-    marginLeft: 'auto'
+    flexWrap: 'nowrap',
   },
   lessPadding: {
     '&.MuiGrid-item': {
@@ -162,6 +161,7 @@ function PlanningDialogs(props) {
   const classes = useStyles();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
+  const largeLayout = useMediaQuery(theme.breakpoints.up('xl'));
   const { markets } = props;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [investibleState] = useContext(InvestiblesContext);
@@ -301,101 +301,172 @@ function PlanningDialogs(props) {
                 </Typography>
               </div>
               <div className={classes.bottomContainer}>
-                  <span className={classes.participantContainer}>
-                    {!isDraft && getParticipantInfo(sortedPresences, marketId)}
-                    {isDraft && (
-                      <div className={classes.draftContainer}>
-                        <Typography className={classes.draft}>
-                          {intl.formatMessage({ id: 'draft' })}
-                        </Typography>
-                      </div>
-                    )}
-                  </span>
+                <span className={classes.participantContainer}>
+                  {!isDraft && getParticipantInfo(sortedPresences, marketId)}
+                  {isDraft && (
+                    <div className={classes.draftContainer}>
+                      <Typography className={classes.draft}>
+                        {intl.formatMessage({ id: 'draft' })}
+                      </Typography>
+                    </div>
+                  )}
+                </span>
+                {largeLayout && (
                   <span className={classes.workspaceIconContainer}>
-                    <div className={classes.workspaceCommentsIcons}>
-                      <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? 'suggestCount' :
-                          'suggestSearchCount' })}>
-                        <Badge badgeContent={suggestCount} showZero>
-                          <EmojiObjectsIcon 
-                            className={[
-                              classes.chipItemSuggestion,
-                              suggestCount === 0 && (classes.chipItemEmpty)
-                            ]} 
-                          />
-                        </Badge>
-                      </Tooltip>
-                    </div>
-                    <div className={classes.workspaceCommentsIcons}>
-                      <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? 'todoCount' :
-                          'todoSearchCount' })}>
-                        <Badge badgeContent={todoCount} showZero>
-                          <AssignmentIcon 
-                            className={[
-                              classes.chipItemTodo, 
-                              todoCount === 0 && (classes.chipItemEmpty)
-                            ]}
-                          />
-                        </Badge>
-                      </Tooltip>
-                    </div>
-                    <div className={classes.workspaceCommentsIcons}>
-                      <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? 'questionCount' : 
-                          'questionSearchCount' })}>
-                        <Badge badgeContent={questionCount}>
-                          <HelpIcon 
-                            className={[
-                              classes.chipItemQuestion,
-                              questionCount === 0 && (classes.chipItemEmpty)
-                            ]} 
-                          />
-                        </Badge>
-                      </Tooltip>
-                    </div>
-                    <div className={classes.workspaceCommentsIcons}>
-                      <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? 'issueCount' :
-                          'issueSearchCount' })}>
-                        <Badge badgeContent={issueCount} showZero>
-                          <BlockIcon 
-                            className={[
-                              classes.chipItemIssue,
-                              issueCount === 0 && (classes.chipItemEmpty)
-                            ]} 
-                          />
-                        </Badge>
-                      </Tooltip>
-                    </div>
-                    <div className={classes.workspaceCommentsIcons}>
-                      <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? "storyCount" :
-                        'storySearchCount' })}>
-                        <Badge badgeContent={investiblesCount} showZero>
-                          <WorkIcon 
-                            className={[
-                              classes.chipItemStory,
-                              investiblesCount === 0 && (classes.chipItemEmpty)
-                            ]} 
-                          />
-                        </Badge>
-                      </Tooltip>
-                    </div>
-                  </span>
-                  <span className={classes.archiveIconContainer}>
-                    {_.isEmpty(search) && (
-                      <CardActions style={{display: 'inline-block', flex: 5, marginTop: '0.3rem'}}>
-                        <DialogActions
-                          marketStage={marketStage}
-                          marketId={marketId}
-                          marketType={marketType}
-                          marketPresences={marketPresences}
-                          parentMarketId={parentMarketId}
-                          parentInvestibleId={parentInvestibleId}
-                          isAdmin
-                          isFollowing={myPresence.following}
-                          hideEdit={true}
+                  <div className={classes.workspaceCommentsIcons}>
+                    <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? 'suggestCount' :
+                        'suggestSearchCount' })}>
+                      <Badge badgeContent={suggestCount} showZero>
+                        <EmojiObjectsIcon 
+                          className={[
+                            classes.chipItemSuggestion,
+                            suggestCount === 0 && (classes.chipItemEmpty)
+                          ]} 
                         />
-                      </CardActions>
-                    )}
-                  </span>
+                      </Badge>
+                    </Tooltip>
+                  </div>
+                  <div className={classes.workspaceCommentsIcons}>
+                    <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? 'todoCount' :
+                        'todoSearchCount' })}>
+                      <Badge badgeContent={todoCount} showZero>
+                        <AssignmentIcon 
+                          className={[
+                            classes.chipItemTodo, 
+                            todoCount === 0 && (classes.chipItemEmpty)
+                          ]}
+                        />
+                      </Badge>
+                    </Tooltip>
+                  </div>
+                  <div className={classes.workspaceCommentsIcons}>
+                    <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? 'questionCount' : 
+                        'questionSearchCount' })}>
+                      <Badge badgeContent={questionCount}>
+                        <HelpIcon 
+                          className={[
+                            classes.chipItemQuestion,
+                            questionCount === 0 && (classes.chipItemEmpty)
+                          ]} 
+                        />
+                      </Badge>
+                    </Tooltip>
+                  </div>
+                  <div className={classes.workspaceCommentsIcons}>
+                    <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? 'issueCount' :
+                        'issueSearchCount' })}>
+                      <Badge badgeContent={issueCount} showZero>
+                        <BlockIcon 
+                          className={[
+                            classes.chipItemIssue,
+                            issueCount === 0 && (classes.chipItemEmpty)
+                          ]} 
+                        />
+                      </Badge>
+                    </Tooltip>
+                  </div>
+                  <div className={classes.workspaceCommentsIcons}>
+                    <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? "storyCount" :
+                      'storySearchCount' })}>
+                      <Badge badgeContent={investiblesCount} showZero>
+                        <WorkIcon 
+                          className={[
+                            classes.chipItemStory,
+                            investiblesCount === 0 && (classes.chipItemEmpty)
+                          ]} 
+                        />
+                      </Badge>
+                    </Tooltip>
+                  </div>
+                </span>
+                )}
+                <span className={classes.archiveIconContainer}>
+                  {_.isEmpty(search) && (
+                    <CardActions style={{display: 'inline-block', flex: 5, marginTop: '0.5rem'}}>
+                      <DialogActions
+                        marketStage={marketStage}
+                        marketId={marketId}
+                        marketType={marketType}
+                        marketPresences={marketPresences}
+                        parentMarketId={parentMarketId}
+                        parentInvestibleId={parentInvestibleId}
+                        isAdmin
+                        isFollowing={myPresence.following}
+                        hideEdit={true}
+                      />
+                    </CardActions>
+                  )}
+                </span>
               </div>
+              {!largeLayout && (
+                <span className={classes.workspaceIconContainer}>
+                  <div className={classes.workspaceCommentsIcons}>
+                    <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? 'suggestCount' :
+                        'suggestSearchCount' })}>
+                      <Badge badgeContent={suggestCount} showZero>
+                        <EmojiObjectsIcon 
+                          className={[
+                            classes.chipItemSuggestion,
+                            suggestCount === 0 && (classes.chipItemEmpty)
+                          ]} 
+                        />
+                      </Badge>
+                    </Tooltip>
+                  </div>
+                  <div className={classes.workspaceCommentsIcons}>
+                    <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? 'todoCount' :
+                        'todoSearchCount' })}>
+                      <Badge badgeContent={todoCount} showZero>
+                        <AssignmentIcon 
+                          className={[
+                            classes.chipItemTodo, 
+                            todoCount === 0 && (classes.chipItemEmpty)
+                          ]}
+                        />
+                      </Badge>
+                    </Tooltip>
+                  </div>
+                  <div className={classes.workspaceCommentsIcons}>
+                    <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? 'questionCount' : 
+                        'questionSearchCount' })}>
+                      <Badge badgeContent={questionCount}>
+                        <HelpIcon 
+                          className={[
+                            classes.chipItemQuestion,
+                            questionCount === 0 && (classes.chipItemEmpty)
+                          ]} 
+                        />
+                      </Badge>
+                    </Tooltip>
+                  </div>
+                  <div className={classes.workspaceCommentsIcons}>
+                    <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? 'issueCount' :
+                        'issueSearchCount' })}>
+                      <Badge badgeContent={issueCount} showZero>
+                        <BlockIcon 
+                          className={[
+                            classes.chipItemIssue,
+                            issueCount === 0 && (classes.chipItemEmpty)
+                          ]} 
+                        />
+                      </Badge>
+                    </Tooltip>
+                  </div>
+                  <div className={classes.workspaceCommentsIcons}>
+                    <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? "storyCount" :
+                      'storySearchCount' })}>
+                      <Badge badgeContent={investiblesCount} showZero>
+                        <WorkIcon 
+                          className={[
+                            classes.chipItemStory,
+                            investiblesCount === 0 && (classes.chipItemEmpty)
+                          ]} 
+                        />
+                      </Badge>
+                    </Tooltip>
+                  </div>
+                </span>
+              )}
             </CardContent>
           </RaisedCard>
         </Grid>

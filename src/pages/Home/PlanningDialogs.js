@@ -89,17 +89,18 @@ const useStyles = makeStyles((theme) => ({
   bottomContainer: {
     display: 'flex',
     flexDirection: 'row',
+    flexWrap: 'wrap',
     marginTop: '1rem',
     justifyContent: 'space-between',
   },
   draftContainer: {
     height: '50px',
     width: 'fit-content',
-    alignItems: 'left',
   },
   participantContainer: {
     height: '50px',
     width: 'fit-content',
+    marginRight: 'auto'
   },
   participantText: {
     fontSize: '.7rem'
@@ -115,7 +116,8 @@ const useStyles = makeStyles((theme) => ({
   workspaceIconContainer: {
     display: 'flex',
     flexDirection: 'row',
-    alignItems: 'center'
+    alignItems: 'center',
+    marginLeft: 'auto'
   },
   workspaceCommentsIcons: {
     marginTop: '1.2rem',
@@ -127,8 +129,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   archiveIconContainer: {
-
-    alignItem: 'right',
+    marginLeft: 'auto'
   },
   lessPadding: {
     '&.MuiGrid-item': {

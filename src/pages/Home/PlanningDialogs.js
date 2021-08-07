@@ -229,6 +229,7 @@ function PlanningDialogs(props) {
         parentName = getInvestibleName(parentInvestibleId, investibleState);
       }
       const updatedMessageId = marketStage === ACTIVE_STAGE ? 'homeUpdated' : 'homeArchived';
+      console.log("workspace comment count ", suggestCount)
       return (
         <Grid
           item
@@ -320,7 +321,7 @@ function PlanningDialogs(props) {
                         {suggestCount < 1 && (
                           <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? 'suggestCount' :
                               'suggestSearchCount' })}>
-                            <Badge badgeContent={suggestCount}>
+                            <Badge badgeContent={suggestCount} showZero>
                               <EmojiObjectsIcon className={classes.chipItemSuggestion} style={{fill: 'gray'}}/>
                             </Badge>
                           </Tooltip>
@@ -338,13 +339,14 @@ function PlanningDialogs(props) {
                         {todoCount < 1 && (
                             <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? 'todoCount' :
                               'todoSearchCount' })}>
-                              <Badge badgeContent={todoCount}>
+                              <Badge badgeContent={todoCount} showZero>
                                 <AssignmentIcon className={classes.chipItemTodo} style={{fill: 'gray'}} />
                               </Badge>
                             </Tooltip>
                         )}
                       </div>
                       <div className={classes.workspaceCommentsIcons}>
+                        
                         {questionCount > 0 && (
                           <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? 'questionCount' :
                               'questionSearchCount' })}>
@@ -356,7 +358,7 @@ function PlanningDialogs(props) {
                         {questionCount < 1 && (
                           <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? 'questionCount' :
                               'questionSearchCount' })}>
-                            <Badge badgeContent={questionCount}>
+                            <Badge badgeContent={questionCount} showZero>
                               <HelpIcon className={classes.chipItemQuestion}  style={{fill: 'gray'}}/>
                             </Badge>
                           </Tooltip>
@@ -374,7 +376,7 @@ function PlanningDialogs(props) {
                         {issueCount < 1 && (
                           <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? 'issueCount' :
                               'issueSearchCount' })}>
-                            <Badge badgeContent={issueCount}>
+                            <Badge badgeContent={issueCount} showZero>
                               <BlockIcon className={classes.chipItemIssue} style={{fill: 'gray'}}/>
                             </Badge>
                           </Tooltip>
@@ -392,7 +394,7 @@ function PlanningDialogs(props) {
                     {!_.isEmpty(search) && investiblesCount < 1 && (
                       <div className={classes.workspaceCommentsIcons}>
                         <Tooltip title={intl.formatMessage({ id: "storyCount" })}>
-                          <Badge badgeContent={investiblesCount}>
+                          <Badge badgeContent={investiblesCount} showZero>
                             <WorkIcon className={classes.chipItemStory} style={{fill: 'gray'}}/>
                           </Badge>
                         </Tooltip>

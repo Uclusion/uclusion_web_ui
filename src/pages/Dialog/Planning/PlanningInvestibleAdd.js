@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react'
 import _ from 'lodash'
 import { useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
-import { Card, CardActions, CardContent, Checkbox, FormControlLabel, } from '@material-ui/core'
+import { Card, CardActions, CardContent, Checkbox, FormControlLabel, useMediaQuery, useTheme, } from '@material-ui/core'
 import { addPlanningInvestible } from '../../../api/investibles'
 import { processTextAndFilesForSave } from '../../../api/files'
 import { formInvestibleLink, formMarketLink } from '../../../utils/marketIdPathFunctions'
@@ -10,7 +10,7 @@ import AssignmentList from './AssignmentList'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { useLocation } from 'react-router';
 import queryString from 'query-string'
-import CardType, { STORY_TYPE, TODO_TYPE } from '../../../components/CardType'
+import CardType, { QUESTION_TYPE, STORY_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../components/CardType'
 import DismissableText from '../../../components/Notifications/DismissableText'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import AddInitialVote from '../../Investible/Voting/AddInitialVote'
@@ -42,16 +42,22 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import { findMessagesForCommentId } from '../../../utils/messageUtils'
 import { getQuillStoredState } from '../../../components/TextEditors/QuillEditor2'
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
+import WarningDialog from '../../../components/Warnings/WarningDialog'
+import { useLockedDialogStyles } from '../DialogBodyEdit'
 
 function PlanningInvestibleAdd(props) {
   const {
     marketId, classes, onCancel, onSave, onSpinComplete, storyMaxBudget, fromCommentIds, votesRequired
   } = props;
   const intl = useIntl();
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const [open, setOpen] = useState(false);
+  const lockedDialogClasses = useLockedDialogStyles();
   const location = useLocation();
   function getUrlAssignee() {
     const { hash } = location;
@@ -161,7 +167,7 @@ function PlanningInvestibleAdd(props) {
     pushMessage(getControlPlaneName(initialVoteEditorName), editorReset());
   }
   
-  function handleSave() {
+  function handleSave(resolveComments) {
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
@@ -191,7 +197,8 @@ function PlanningInvestibleAdd(props) {
     return addPlanningInvestible(addInfo).then((inv) => {
       if (fromCommentIds) {
         const { investible } = inv;
-        return moveComments(marketId, investible.id, fromCommentIds)
+        return moveComments(marketId, investible.id, fromCommentIds,
+          resolveComments ? [requiresInputId] : undefined)
           .then((movedComments) => {
             fromCommentIds.forEach((commentId) => {
               const commentMessages = findMessagesForCommentId(commentId, messagesState) || [];
@@ -240,6 +247,21 @@ function PlanningInvestibleAdd(props) {
     });
   }
 
+  function getRequiresInputId() {
+    // For now only supporting one since no UI to get more than one
+    let aRequireInputId = undefined;
+    (fromCommentIds || []).forEach((fromCommentId) => {
+      const fromComment = comments.find((comment) => comment.id === fromCommentId);
+      if ((assignments || []).includes(fromComment.created_by) && (fromComment.comment_type === QUESTION_TYPE
+        || fromComment.comment_type === SUGGEST_CHANGE_TYPE)) {
+        aRequireInputId = fromComment.id;
+      }
+    });
+    return aRequireInputId;
+  }
+
+  const requiresInputId = getRequiresInputId();
+
   function getAddedComments() {
     return (fromCommentIds || []).map((fromCommentId) => {
       const fromComment = comments.find((comment) => comment.id === fromCommentId);
@@ -257,6 +279,8 @@ function PlanningInvestibleAdd(props) {
       );
     });
   }
+
+  const requiresInput = requiresInputId && !mobileLayout;
 
   const assignedInAcceptedStage = assignedInStage(getMarketInvestibles(investibleState, marketId), myPresence.id,
     acceptedStage.id, marketId);
@@ -319,10 +343,39 @@ function PlanningInvestibleAdd(props) {
           <SpinningIconLabelButton onClick={handleCancel} doSpin={false} icon={Clear}>
             {intl.formatMessage({ id: 'marketAddCancelLabel' })}
           </SpinningIconLabelButton>
-          <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore}
-                                   disabled={isEmpty} id="planningInvestibleAddButton">
-            {intl.formatMessage({ id: 'agilePlanFormSaveLabel' })}
-          </SpinningIconLabelButton>
+          {requiresInput && (
+            <SpinningIconLabelButton onClick={() => setOpen(true)} icon={SettingsBackupRestore} doSpin={false}
+                                     disabled={isEmpty}>
+              {intl.formatMessage({ id: 'agilePlanFormSaveLabel' })}
+            </SpinningIconLabelButton>
+          )}
+          {requiresInput && (
+            <WarningDialog
+              classes={lockedDialogClasses}
+              open={open}
+              onClose={() => setOpen(false)}
+              issueWarningId="requiresInputWarning"
+              /* slots */
+              actions={
+                <>
+                  <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore}
+                                           id="requiresInputProceedButton">
+                    {intl.formatMessage({ id: 'proceedRequiresInput' })}
+                  </SpinningIconLabelButton>
+                  <SpinningIconLabelButton onClick={() => handleSave(true)} icon={SettingsBackupRestore}
+                                           id="requiresInputResolveButton">
+                    {intl.formatMessage({ id: 'resolveComment' })}
+                  </SpinningIconLabelButton>
+                </>
+              }
+            />
+          )}
+          {!requiresInput && (
+            <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore}
+                                     disabled={isEmpty} id="planningInvestibleAddButton">
+              {intl.formatMessage({ id: 'agilePlanFormSaveLabel' })}
+            </SpinningIconLabelButton>
+          )}
         </CardActions>
       </Card>
       {getAddedComments()}

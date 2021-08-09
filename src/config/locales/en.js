@@ -405,6 +405,9 @@ const messages = defineMessages({
   issueResolveLabel: 'Resolve',
   issueReplyLabel: 'Reply',
   issueProceed: 'Proceed',
+  requiresInputWarning: 'With these assignments, some comments require input.',
+  proceedRequiresInput: 'Requires Input Stage',
+  resolveComment: 'Resolve Comments',
   // lock dialog
   lockDialogCancel: 'Cancel',
   pageLockEditPage: 'Edit Page',

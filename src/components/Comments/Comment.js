@@ -741,8 +741,8 @@ function Comment(props) {
                 )}
                 {commentType === SUGGEST_CHANGE_TYPE && !inArchives && !resolved && !inlineMarketId && marketType === PLANNING_TYPE && (
                   <div style={{marginLeft: '1rem', marginRight: '0.5rem', paddingTop: '0.25rem'}}>
-                    <Typography>
-                      {intl.formatMessage({ id: 'allowVoteSuggestion' })}
+                    <Typography style={{ whiteSpace:'nowrap',}}>
+                      {intl.formatMessage({ id: mobileLayout ? 'allowVoteSuggestionMobile' : 'allowVoteSuggestion' })}
                       <Checkbox
                         style={{maxHeight: '1rem'}}
                         id="suggestionVote"

@@ -241,6 +241,7 @@ function CommentAdd(props) {
   }
 
   const editorName = `${nameKey ? nameKey : ''}${parentId ? parentId : investibleId ? investibleId : marketId}-comment-add-editor`;
+  const [currentEditorName, setCurrentEditorName] = useState(editorName);
   const useBody = getQuillStoredState(editorName);
   const editorSpec = {
     value: useBody,
@@ -251,6 +252,14 @@ function CommentAdd(props) {
     mentionsAllowed
   }
   const [Editor, editorController] = useEditor(editorName, editorSpec);
+
+  useEffect(() => {
+    if (currentEditorName !== editorName) {
+      pushMessage(getControlPlaneName(editorName), editorReset(getQuillStoredState(editorName)));
+      setCurrentEditorName(editorName);
+    }
+    return () => {};
+  }, [currentEditorName, editorName]);
 
   useEffect(() => {
     // If didn't focus to begin with then focus when type is changed

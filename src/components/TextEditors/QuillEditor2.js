@@ -134,6 +134,7 @@ function QuillEditor2 (props) {
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [videoDialogOpen, setVideoDialogOpen] = useState(false);
   const [linkDialogOpen, setLinkDialogOpen] = useState(false);
+  //TODO presumably this is a performance optimization but could get the same by handling dependencies better
   const [editor, setEditor] = useState(null);
   const intl = useIntl();
   const theme = useTheme();
@@ -243,6 +244,7 @@ function QuillEditor2 (props) {
             if (value) {
               setLinkDialogOpen(true);
             } else {
+              //TODO editor doesn't exist yet so how are we using it here?
               editor.format('link', false);
             }
           }
@@ -444,6 +446,8 @@ function QuillEditor2 (props) {
   };
 
   useEffect(() => {
+    //TODO this makes no sense since no dependencies will only run on creation
+    //TODO and editor.scrollingContainer.id !== boundsId happens if namespace changes - having to call reset from parent
     if(!editor ) {
       createEditor();
     }

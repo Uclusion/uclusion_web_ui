@@ -119,6 +119,8 @@ import { notify, onInvestibleStageChange } from '../../../utils/investibleFuncti
 import { INVESTIBLE_SUBMITTED_TYPE, YELLOW_LEVEL } from '../../../constants/notifications'
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
 import { deleteSingleMessage } from '../../../api/users'
+import WarningDialog from '../../../components/Warnings/WarningDialog'
+import { useLockedDialogStyles } from '../../Dialog/DialogBodyEdit'
 
 const useStyles = makeStyles(
   theme => ({
@@ -351,6 +353,8 @@ function PlanningInvestible(props) {
     inArchives,
     hidden
   } = props;
+  const lockedDialogClasses = useLockedDialogStyles();
+  const [open, setOpen] = useState(false);
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const classes = useStyles();
@@ -823,11 +827,33 @@ function PlanningInvestible(props) {
                           value={openForInvestment}
                           disabled={operationRunning || !isAdmin}
                           checked={openForInvestment}
-                          onClick={() => setReadyToStart(!openForInvestment)}
+                          onClick={() => {
+                            if (!openForInvestment && openComments && !mobileLayout) {
+                              setOpen(true);
+                            } else {
+                              setReadyToStart(!openForInvestment);
+                            }
+                          }}
                         />
                       }
                       label={intl.formatMessage({ id: 'readyToStartCheckboxExplanation' })}
                     />
+                    {!openForInvestment && !mobileLayout && (
+                      <WarningDialog
+                        classes={lockedDialogClasses}
+                        open={open}
+                        onClose={() => setOpen(false)}
+                        issueWarningId="unresolvedReadyToStartWarning"
+                        /* slots */
+                        actions={
+                          <SpinningIconLabelButton onClick={() => setReadyToStart(true)}
+                                                   icon={SettingsBackupRestore}
+                                                   id="issueProceedReadyToStartButton">
+                            {intl.formatMessage({ id: 'issueProceed' })}
+                          </SpinningIconLabelButton>
+                        }
+                      />
+                    )}
                   </div>
                 )}
                 {!_.isEmpty(investibleCollaborators) && (

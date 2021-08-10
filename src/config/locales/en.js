@@ -334,6 +334,7 @@ const messages = defineMessages({
   planningInvestibleNextStageInReviewLabel: 'Ready for Feedback',
   planningInvestibleMoveToVerifiedLabel: 'Verified',
   planningInvestibleMoveToFurtherWorkLabel: 'Further Work',
+  unresolvedReadyToStartWarning: 'There are unresolved comments. Do you want to make Ready to Start anyway?',
   planningInvestibleMoveToNotDoingLabel: 'Not Doing',
   planningInvestibleAcceptedExplanation: 'Move to Not Ready For Feedback when you have approval and are ready to start',
   planningInvestibleInReviewExplanation: 'Move to Ready for Feedback as early as possible for feedback',

@@ -533,6 +533,7 @@ function PlanningInvestible(props) {
   const todoComments = investibleComments.filter(
     comment => comment.comment_type === TODO_TYPE && !comment.resolved
   );
+  const numProgressReport = investibleComments.filter(comment => comment.comment_type === REPORT_TYPE)||[];
   const questionByAssignedComments = investibleComments.filter(
     comment => comment.comment_type === QUESTION_TYPE && !comment.resolved && assigned.includes(comment.created_by)
   );
@@ -1067,6 +1068,7 @@ function PlanningInvestible(props) {
               isInReview={isInReview}
               isAssignee={isAssigned}
               isStory
+              numProgressReport={numProgressReport.length}
             />
           )}
         </>
@@ -1084,6 +1086,7 @@ function PlanningInvestible(props) {
               isInReview={isInReview}
               isAssignee={isAssigned}
               isStory
+              numProgressReport={numProgressReport.length}
             />
           )}
           <CommentBox

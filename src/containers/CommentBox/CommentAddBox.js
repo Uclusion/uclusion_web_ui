@@ -146,7 +146,8 @@ function CommentAddBox(props) {
     todoWarningId,
     isStory,
     isInReview,
-    isAssignee
+    isAssignee,
+    numProgressReport
   } = props;
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
@@ -222,6 +223,8 @@ function CommentAddBox(props) {
           todoWarningId={todoWarningId}
           isStory={isStory}
           autoFocus={false}
+          isAssigned={isAssignee}
+          numProgressReport={numProgressReport}
         />
       </div>
     </Card>

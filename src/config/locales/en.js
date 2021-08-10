@@ -433,6 +433,7 @@ const messages = defineMessages({
   todoWarningPlanning: 'Opening a TODO prevents moving to Verified stage until resolved.',
   requiresInputWarningPlanning: 'Opening this comment will move the story to Requires Input.',
   addReportWarning: 'Opening a new progress report resolves all older progress reports',
+  addReportInReadyForApprovalWarning: "If this story is started then consider moving to 'Not Ready for Feedback' stage.",
 
   // CommentBox
   commentIconRaiseIssueLabel: 'Raise Issue',

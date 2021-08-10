@@ -26,7 +26,7 @@ import { Dialog } from '../Dialogs'
 import WarningIcon from '@material-ui/icons/Warning'
 import { useLockedDialogStyles } from '../../pages/Dialog/DialogBodyEdit'
 import {
-  getBlockedStage,
+  getBlockedStage, getInCurrentVotingStage,
   getInReviewStage,
   getRequiredInputStage
 } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
@@ -197,7 +197,7 @@ function CommentAdd(props) {
   const {
     marketId, onSave, onCancel, type, investible, parent, issueWarningId, todoWarningId, isStory, nameKey,
     defaultNotificationType, onDone, mentionsAllowed, commentAddState, updateCommentAddState, commentAddStateReset,
-    autoFocus=true
+    isAssigned, numProgressReport, autoFocus=true
   } = props;
   const {
     uploadedFiles,
@@ -222,6 +222,7 @@ function CommentAdd(props) {
   const [info] = (market_infos || []);
   const { assigned, stage: currentStageId } = (info || {});
   const inReviewStage = getInReviewStage(marketStagesState, marketId) || {id: 'fake'};
+  const readyForApprovalStage = getInCurrentVotingStage(marketStagesState, marketId) || {};
   const placeHolderLabelId = getPlaceHolderLabelId(type, isStory, currentStageId === inReviewStage.id);
   const placeHolder = intl.formatMessage({ id: placeHolderLabelId });
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -356,11 +357,22 @@ function CommentAdd(props) {
     updateCommentAddState({notificationType: checked ? 'YELLOW' : undefined});
   }
 
+  function getReportWarningId() {
+    if (isAssigned) {
+      if (numProgressReport > 0) {
+        return 'addReportWarning';
+      }
+      if (currentStageId === readyForApprovalStage.id) {
+        return 'addReportInReadyForApprovalWarning';
+      }
+    }
+    return undefined;
+  }
+
   const commentSaveLabel = parent ? 'commentAddSaveLabel' : 'commentReplySaveLabel';
   const commentCancelLabel = parent ? 'commentReplyCancelLabel' : 'commentAddCancelLabel';
   const myWarningId = type === TODO_TYPE ? todoWarningId : type === ISSUE_TYPE ? issueWarningId :
-    type === REPORT_TYPE && currentStageId !== inReviewStage.id ? 'addReportWarning' :
-      investibleRequiresInput ? 'requiresInputWarningPlanning' : undefined;
+    type === REPORT_TYPE ? getReportWarningId() : investibleRequiresInput ? 'requiresInputWarningPlanning' : undefined;
   const userPreferences = getUiPreferences(userState) || {};
   const previouslyDismissed = userPreferences.dismissedText || [];
   const showIssueWarning = myWarningId && !previouslyDismissed.includes(myWarningId) && !mobileLayout;

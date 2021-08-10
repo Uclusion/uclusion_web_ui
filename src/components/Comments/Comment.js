@@ -863,7 +863,6 @@ function Comment(props) {
                   key={childId}
                   comment={child}
                   marketId={marketId}
-                  highLightId={highlighted}
                   enableEditing={enableEditing}
                   messages={messages}
                 />
@@ -919,9 +918,9 @@ Comment.defaultProps = {
 };
 
 function InitialReply(props) {
-  const { comment, highLightId, enableEditing, messages } = props;
+  const { comment, enableEditing, messages } = props;
 
-  return <Reply id={`c${comment.id}`} comment={comment} highLightId={highLightId} enableEditing={enableEditing}
+  return <Reply id={`c${comment.id}`} comment={comment} enableEditing={enableEditing}
   messages={messages}/>;
 }
 
@@ -969,6 +968,11 @@ const useReplyStyles = makeStyles(
         boxShadow: "10px 5px 5px yellow",
         padding: 0
       },
+      cardActionsRed: {
+        marginLeft: theme.spacing(3),
+        boxShadow: "10px 5px 5px red",
+        padding: 0
+      },
       commenter: {
         color: "#7E7E7E",
         display: "inline-block",
@@ -999,6 +1003,11 @@ const useReplyStyles = makeStyles(
         boxShadow: '10px 5px 5px yellow',
         overflow: 'unset'
       },
+      containerRed: {
+        marginBottom: '1.5rem',
+        boxShadow: '10px 5px 5px red',
+        overflow: 'unset'
+      },
       editor: {
         margin: "2px 0px",
         "& .ql-editor": {
@@ -1024,11 +1033,13 @@ const unknownPresence = {
  * @param {{comment: Comment}} props
  */
 function Reply(props) {
-  const { comment, highLightId, messages, enableEditing, ...other } = props;
+  const { comment, messages, enableEditing, ...other } = props;
   const marketId = useMarketId();
   const presences = usePresences(marketId);
   const commenter = useCommenter(comment, presences) || unknownPresence;
   const [marketsState] = useContext(MarketsContext);
+  const [messagesState] = useContext(NotificationsContext);
+  const myMessage = findMessageForCommentId(comment.id, messagesState) || {};
   const userId = getMyUserForMarket(marketsState, marketId) || {};
   const isEditable = comment.created_by === userId;
   const classes = useReplyStyles();
@@ -1051,10 +1062,11 @@ function Reply(props) {
   function setReplyOpen(isOpen) {
     updateReplyAddState({replyBeingEdited: isOpen});
   }
-
+  const { level: myHighlightedLevel, is_highlighted: isHighlighted } = myMessage;
   const intl = useIntl();
   return (
-    <Card className={highLightId.includes(comment.id) ? classes.containerYellow : classes.container}
+    <Card className={!(myHighlightedLevel && isHighlighted) ? classes.container : myMessage.level === 'RED'
+      ? classes.containerRed : classes.containerYellow}
       {...other}
     >
       <CardContent className={classes.cardContent}>
@@ -1084,7 +1096,8 @@ function Reply(props) {
         )}
       </CardContent>
       {!beingEdited && (
-        <CardActions className={highLightId.includes(comment.id) ? classes.cardActionsYellow : classes.cardActions}>
+        <CardActions className={!(myHighlightedLevel && isHighlighted) ? classes.cardActions : myMessage.level === 'RED'
+          ? classes.containerActionsRed : classes.cardActionsYellow}>
           <Typography className={classes.timePosted} variant="body2">
             <FormattedDate value={comment.created_at} />
           </Typography>
@@ -1126,7 +1139,6 @@ function Reply(props) {
         <CardContent className={classes.cardContent}>
           <ThreadedReplies
             replies={comment.children}
-            highLightId={highLightId}
             enableEditing={enableEditing}
           />
         </CardContent>
@@ -1158,7 +1170,7 @@ const useThreadedReplyStyles = makeStyles(
  * @param {{comments: Comment[], replies: string[]}} props
  */
 function ThreadedReplies(props) {
-  const { replies: replyIds, highLightId, enableEditing, messages } = props;
+  const { replies: replyIds, enableEditing, messages } = props;
   const comments = useComments();
 
   const classes = useThreadedReplyStyles();
@@ -1178,7 +1190,6 @@ function ThreadedReplies(props) {
               className={classes.visible}
               comment={reply}
               key={`threadc${reply.id}`}
-              highLightId={highLightId}
               enableEditing={enableEditing}
               messages={messages}
             />
@@ -1191,9 +1202,9 @@ function ThreadedReplies(props) {
 }
 
 function ThreadedReply(props) {
-  const { comment, highLightId, enableEditing, messages } = props;
+  const { comment, enableEditing, messages } = props;
   return <Reply key={`c${comment.id}`} id={`c${comment.id}`} className={props.className} comment={comment}
-                highLightId={highLightId} enableEditing={enableEditing} messages={messages} />;
+                enableEditing={enableEditing} messages={messages} />;
 }
 
 /**

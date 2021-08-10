@@ -94,7 +94,7 @@ function PlanningDialog(props) {
   const [marketsState] = useContext(MarketsContext);
   const intl = useIntl();
   const theme = useTheme();
-  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
   const { id: marketId, market_stage: marketStage } = market;
   const activeMarket = marketStage === ACTIVE_STAGE;
   const inArchives = !activeMarket || (myPresence && !myPresence.following);

@@ -19,6 +19,7 @@ import { useIntl } from 'react-intl'
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { usePlanFormStyles } from '../../../components/AgilePlan'
+import Typography from '@material-ui/core/Typography'
 
 const useStyles = makeStyles((theme) => ({
   name: {
@@ -38,7 +39,8 @@ function AssignmentList(props) {
     onChange,
     previouslyAssigned,
     cannotBeAssigned,
-    listHeader
+    listHeader,
+    requiresInput
   } = props;
 
   const classes = useStyles();
@@ -191,8 +193,13 @@ function AssignmentList(props) {
         >
       {displayNames.map((entry) => renderParticipantEntry(entry))}
       </List>
+      {requiresInput && (
+        <Typography color='error' style={{paddingLeft: '1rem'}}>
+          {intl.formatMessage({ id: 'requiresInputListHeader' })}
+        </Typography>
+      )}
       <ListSubheader>
-          {intl.formatMessage({ id: listHeader })}
+        {intl.formatMessage({ id: listHeader })}
       </ListSubheader>
       <List
         dense
@@ -210,6 +217,7 @@ AssignmentList.propTypes = {
   previouslyAssigned: PropTypes.arrayOf(PropTypes.string),
   cannotBeAssigned: PropTypes.arrayOf(PropTypes.string),
   onChange: PropTypes.func,
+  requiresInput: PropTypes.bool
 };
 
 AssignmentList.defaultProps = {
@@ -217,7 +225,8 @@ AssignmentList.defaultProps = {
   onChange: () => {
   },
   previouslyAssigned: [],
-  cannotBeAssigned: []
+  cannotBeAssigned: [],
+  requiresInput: false
 };
 
 export default AssignmentList;

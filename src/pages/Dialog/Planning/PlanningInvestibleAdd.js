@@ -252,8 +252,8 @@ function PlanningInvestibleAdd(props) {
     let aRequireInputId = undefined;
     (fromCommentIds || []).forEach((fromCommentId) => {
       const fromComment = comments.find((comment) => comment.id === fromCommentId);
-      if ((assignments || []).includes(fromComment.created_by) && (fromComment.comment_type === QUESTION_TYPE
-        || fromComment.comment_type === SUGGEST_CHANGE_TYPE)) {
+      if (!fromComment.resolved && (assignments || []).includes(fromComment.created_by)
+        && (fromComment.comment_type === QUESTION_TYPE || fromComment.comment_type === SUGGEST_CHANGE_TYPE)) {
         aRequireInputId = fromComment.id;
       }
     });

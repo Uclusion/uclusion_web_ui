@@ -67,6 +67,10 @@ function PlanningInvestibleEdit(props) {
   const [, diffDispatch] = useContext(DiffContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [, invDispatch] = useContext(InvestiblesContext);
+  const comments = getMarketComments(commentsState, marketId);
+  // Changing assignment moves to in voting, blocked or requires input
+  const unresolvedComments = comments.filter(comment => comment.investible_id === myInvestible.id &&
+    !comment.resolved);
 
   const hasVotes = marketPresences.find(presence => {
     const { investments } = presence;
@@ -89,6 +93,17 @@ function PlanningInvestibleEdit(props) {
   const handleClose = () => {
     setOpen(false);
   };
+
+  function isRequiresInput() {
+    let isInputRequired = false;
+    (unresolvedComments || []).forEach((fromComment) => {
+      if ((assignments || []).includes(fromComment.created_by)
+        && (fromComment.comment_type === QUESTION_TYPE || fromComment.comment_type === SUGGEST_CHANGE_TYPE)) {
+        isInputRequired = true;
+      }
+    });
+    return isInputRequired;
+  }
 
   function handleSave() {
     if (isAssign && _.isEmpty(assignments)) {
@@ -130,10 +145,6 @@ function PlanningInvestibleEdit(props) {
         .then((investible) => {
           let fullInvestible = investible;
           if (isAssign) {
-            const comments = getMarketComments(commentsState, marketId);
-            // Changing assignment moves to in voting, blocked or requires input
-            const unresolvedComments = comments.filter(comment => comment.investible_id === myInvestible.id &&
-              !comment.resolved);
             const blockingComments = unresolvedComments.filter(comment => comment.comment_type === ISSUE_TYPE);
             const requiresInputComments = unresolvedComments.filter(comment => (comment.comment_type === QUESTION_TYPE ||
               comment.comment_type === SUGGEST_CHANGE_TYPE) && assignments.includes(comment.created_by));
@@ -213,6 +224,7 @@ function PlanningInvestibleEdit(props) {
             marketId={marketId}
             previouslyAssigned={initialAssigned}
             onChange={handleAssignmentChange}
+            requiresInput={isRequiresInput()}
           />
         </div>
       </CardContent>

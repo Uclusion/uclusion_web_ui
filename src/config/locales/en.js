@@ -699,6 +699,7 @@ const messages = defineMessages({
 
   // Assignment List
   assignmentListHeader: 'Assigned to (unassigned goes to Further Work)',
+  requiresInputListHeader: 'Warning: unless you resolve some comments the current assignment will move the story to Requires Input.',
   reviewListHeader: 'Required reviewers',
   approveListHeader: 'Required approvers',
   // Address List

@@ -100,7 +100,7 @@ function processDuplicates(page) {
           link = linkMultiple;
         }
         const item = { ...first, link, lenDuplicates };
-        if (type === 'UNREAD_VOTE') {
+        if (type === 'UNREAD_VOTE' || (type === 'UNREAD' && linkType === 'MARKET_TODO')) {
           item.dismissMessages = duplicates;
         }
         items.push(item);

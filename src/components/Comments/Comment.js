@@ -778,7 +778,7 @@ function Comment(props) {
                       .finally(() => {
                         setOperationRunning(false);
                       });
-                  }} icon={SettingsBackupRestore} id="markReadButton">
+                  }} icon={SettingsBackupRestore} id={`markReadButton${id}`}>
                     {intl.formatMessage({ id: 'markRead' })}
                   </SpinningIconLabelButton>
                 )}
@@ -787,7 +787,7 @@ function Comment(props) {
                   <SpinningIconLabelButton
                     onClick={resolved ? reopen : resolve}
                     icon={resolved ? SettingsBackupRestore : Done}
-                    id="commentResolveReopenButton"
+                    id={`commentResolveReopenButton${id}`}
                   >
                     {intl.formatMessage({
                       id: resolved ? "commentReopenLabel" : "commentResolveLabel"

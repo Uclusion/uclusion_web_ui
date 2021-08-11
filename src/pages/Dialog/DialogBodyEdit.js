@@ -12,7 +12,7 @@ import { lockPlanningMarketForEdit, unlockPlanningMarketForEdit, updateMarket } 
 import { Dialog } from '../../components/Dialogs'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { DiffContext } from '../../contexts/DiffContext/DiffContext'
-import { CardActions, CircularProgress, Typography, useMediaQuery, useTheme } from '@material-ui/core'
+import { CardActions, CircularProgress, Typography } from '@material-ui/core'
 import { processTextAndFilesForSave } from '../../api/files'
 import NameField, { getNameStoredState } from '../../components/TextFields/NameField'
 import DescriptionOrDiff from '../../components/Descriptions/DescriptionOrDiff'

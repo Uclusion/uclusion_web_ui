@@ -133,8 +133,6 @@ function DialogBodyEdit(props) {
     showDiff
   } = pageState;
   const intl = useIntl();
-  const theme = useTheme();
-  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const classes = useStyles();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [,marketsDispatch] = useContext(MarketsContext);
@@ -277,13 +275,10 @@ function DialogBodyEdit(props) {
     <>
       <Typography className={isEditableByUser() ? lockedDialogClasses.titleEditable :
         lockedDialogClasses.titleDisplay}
-                  variant="h3" component="h1"
-                  onClick={() => !mobileLayout && setBeingEdited(true)}>
+                  variant="h3" component="h1">
         {initialName}
       </Typography>
-      <DescriptionOrDiff id={id} description={initialDescription} showDiff={showDiff}
-                         setBeingEdited={mobileLayout ? () => {} : setBeingEdited}
-                         isEditable={isEditableByUser()}/>
+      <DescriptionOrDiff id={id} description={initialDescription} showDiff={showDiff} />
     </>
   );
 }

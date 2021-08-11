@@ -214,15 +214,12 @@ function InvestibleBodyEdit(props) {
     );
   }
   return (
-    <>
-      <Typography className={isEditableByUser() ? classes.titleEditable : classes.title} variant="h3" component="h1"
-                  onClick={(event) => !mobileLayout && setBeingEdited(true, event)}>
+    <div onClick={(event) => !mobileLayout && setBeingEdited(true, event)}>
+      <Typography className={isEditableByUser() ? classes.titleEditable : classes.title} variant="h3" component="h1">
         {initialName}
       </Typography>
-      <DescriptionOrDiff id={investibleId} description={initialDescription} showDiff={showDiff}
-                         setBeingEdited={mobileLayout ? () => {} : setBeingEdited}
-                         isEditable={isEditableByUser()} />
-    </>
+      <DescriptionOrDiff id={investibleId} description={initialDescription} showDiff={showDiff} />
+    </div>
   );
 }
 

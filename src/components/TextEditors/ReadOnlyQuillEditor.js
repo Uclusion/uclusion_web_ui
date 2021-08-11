@@ -1,13 +1,11 @@
-import React, { useRef, useEffect } from "react";
+import React from "react";
 import PropTypes from "prop-types";
-import Quill from "quill";
 import { makeStyles } from "@material-ui/core";
 import clsx from "clsx";
 import 'quill/dist/quill.snow.css';
 import 'quill-table-ui/dist/index.css';
 import './editorStyles.css';
-import QuillMention from 'quill-mention-uclusion';
-Quill.register('modules/mention', QuillMention);
+import QuillEditor2 from './QuillEditor2'
 
 const useStyles = makeStyles(
   theme => {
@@ -28,61 +26,37 @@ const useStyles = makeStyles(
         }
       },
       notEditable: {},
-      heading: {
-        "& .ql-container.ql-snow": {
-          fontSize: 20,
-          fontWeight: "bold"
-        }
-      }
     };
   },
   { name: "ReadOnlyQuillEditor" }
 );
 
 function ReadOnlyQuillEditor(props) {
-  const { className, heading, value, setBeingEdited, isEditable } = props;
-  const box = useRef(null);
-
-  const classes = useStyles(props);
-
-  const quillOptions = {
-    modules: {
-      toolbar: false
-    },
-    readOnly: true,
-    theme: "snow"
-  };
-
-  useEffect(() => {
-    if (box.current !== null) {
-      box.current.innerHTML = value;
-      new Quill(box.current, quillOptions);
-    }
-    return () => {};
-  }, [box, value, quillOptions]);
+  const { value, setBeingEdited, isEditable } = props;
+  const classes = useStyles();
 
   return (
-    <div className={clsx(classes.root, heading && classes.heading, className)}
+    <div className={clsx(classes.root, isEditable ? classes.editable : classes.notEditable)}
          onClick={(event) => {
            if (isEditable) {
              setBeingEdited(true, event);
            }
          }}>
-      <div ref={box} className={isEditable ? classes.editable : classes.notEditable} />
+      <QuillEditor2
+        value={value}
+        noToolbar
+      />
     </div>
   );
 }
 
 ReadOnlyQuillEditor.propTypes = {
-  editorClassName: PropTypes.string,
   value: PropTypes.string,
-  heading: PropTypes.bool,
   setBeingEdited: PropTypes.func,
   isEditable: PropTypes.bool,
 };
 
 ReadOnlyQuillEditor.defaultProps = {
-  heading: false,
   value: '',
   setBeingEdited: () => {},
   isEditable: false

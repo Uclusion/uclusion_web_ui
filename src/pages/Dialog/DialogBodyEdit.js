@@ -12,7 +12,7 @@ import { lockPlanningMarketForEdit, unlockPlanningMarketForEdit, updateMarket } 
 import { Dialog } from '../../components/Dialogs'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { DiffContext } from '../../contexts/DiffContext/DiffContext'
-import { CardActions, CircularProgress, Typography, useMediaQuery, useTheme } from '@material-ui/core'
+import { CardActions, CircularProgress, Typography } from '@material-ui/core'
 import { processTextAndFilesForSave } from '../../api/files'
 import NameField, { getNameStoredState } from '../../components/TextFields/NameField'
 import DescriptionOrDiff from '../../components/Descriptions/DescriptionOrDiff'
@@ -133,8 +133,6 @@ function DialogBodyEdit(props) {
     showDiff
   } = pageState;
   const intl = useIntl();
-  const theme = useTheme();
-  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const classes = useStyles();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [,marketsDispatch] = useContext(MarketsContext);
@@ -277,13 +275,10 @@ function DialogBodyEdit(props) {
     <>
       <Typography className={isEditableByUser() ? lockedDialogClasses.titleEditable :
         lockedDialogClasses.titleDisplay}
-                  variant="h3" component="h1"
-                  onClick={() => !mobileLayout && setBeingEdited(true)}>
+                  variant="h3" component="h1">
         {initialName}
       </Typography>
-      <DescriptionOrDiff id={id} description={initialDescription} showDiff={showDiff}
-                         setBeingEdited={mobileLayout ? () => {} : setBeingEdited}
-                         isEditable={isEditableByUser()}/>
+      <DescriptionOrDiff id={id} description={initialDescription} showDiff={showDiff} />
     </>
   );
 }

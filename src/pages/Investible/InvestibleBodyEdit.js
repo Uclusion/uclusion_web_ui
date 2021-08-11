@@ -29,6 +29,10 @@ const useStyles = makeStyles(
         marginTop: '5rem',
       },
     },
+    containerEditable: {
+      cursor: "url('/images/edit_cursor.svg') 0 24, pointer"
+    },
+    container: {},
     title: {
       fontSize: 32,
       lineHeight: "42px",
@@ -36,16 +40,7 @@ const useStyles = makeStyles(
       [theme.breakpoints.down("sm")]: {
         fontSize: 25
       }
-    },
-    titleEditable: {
-      fontSize: 32,
-      lineHeight: "42px",
-      paddingBottom: "9px",
-      cursor: "url('/images/edit_cursor.svg') 0 24, pointer",
-      [theme.breakpoints.down("sm")]: {
-        fontSize: 25
-      }
-    },
+    }
   }),
   { name: "PlanningEdit" }
 );
@@ -214,15 +209,13 @@ function InvestibleBodyEdit(props) {
     );
   }
   return (
-    <>
-      <Typography className={isEditableByUser() ? classes.titleEditable : classes.title} variant="h3" component="h1"
-                  onClick={(event) => !mobileLayout && setBeingEdited(true, event)}>
+    <div onClick={(event) => !mobileLayout && setBeingEdited(true, event)}
+         className={isEditableByUser() ? classes.containerEditable : classes.container}>
+      <Typography className={classes.title} variant="h3" component="h1">
         {initialName}
       </Typography>
-      <DescriptionOrDiff id={investibleId} description={initialDescription} showDiff={showDiff}
-                         setBeingEdited={mobileLayout ? () => {} : setBeingEdited}
-                         isEditable={isEditableByUser()} />
-    </>
+      <DescriptionOrDiff id={investibleId} description={initialDescription} showDiff={showDiff} />
+    </div>
   );
 }
 

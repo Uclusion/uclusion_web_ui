@@ -5,7 +5,7 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import LoadingOverlay from 'react-loading-overlay';
 import { useIntl } from 'react-intl';
-import { useTheme } from '@material-ui/core'
+import { makeStyles, useTheme } from '@material-ui/core'
 import { pushMessage, registerListener } from '../../utils/MessageBusUtils';
 import _ from 'lodash';
 import ReactDOMServer from 'react-dom/server';
@@ -97,7 +97,7 @@ function addToolTips (toolbar) {
 function getInitialState (id, knownState, placeHolder) {
   const storedState = getUclusionLocalStorageItem(`editor-${id}`);
   if (storedState != null) {
-    return storedState
+    return storedState;
   }
   if (knownState != null) {
     return knownState;
@@ -113,6 +113,25 @@ export function getQuillStoredState(id) {
   return getUclusionLocalStorageItem(`editor-${id}`);
 }
 
+const useStyles = makeStyles(
+  theme => {
+    return {
+      root: {
+        "& .ql-container.ql-snow": {
+          fontFamily: theme.typography.fontFamily,
+          fontSize: 15,
+          border: 0
+        },
+        "& .ql-editor": {
+          paddingLeft: 0
+        },
+      },
+      nothing: {}
+    };
+  },
+  { name: "ReadOnlyQuillEditor" }
+);
+
 function QuillEditor2 (props) {
 
   const {
@@ -127,13 +146,14 @@ function QuillEditor2 (props) {
     participants,
     mentionsAllowed
   } = props;
-
+  const classes = useStyles();
   const containerRef = useRef();
   const boxRef = useRef();
   const [uploadInProgress, setUploadInProgress] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [videoDialogOpen, setVideoDialogOpen] = useState(false);
   const [linkDialogOpen, setLinkDialogOpen] = useState(false);
+  //TODO presumably this is a performance optimization but could get the same by handling dependencies better
   const [editor, setEditor] = useState(null);
   const intl = useIntl();
   const theme = useTheme();
@@ -232,6 +252,15 @@ function QuillEditor2 (props) {
    * @returns the quill options for the editor
    * */
   function generateEditorOptions () {
+    if (noToolbar) {
+      return {
+        modules: {
+          toolbar: false
+        },
+        readOnly: true,
+        theme: "snow"
+      };
+    }
     // CSS id of the container from which scroll and bounds checks operate
     const defaultModules = {
       toolbar: {
@@ -243,6 +272,7 @@ function QuillEditor2 (props) {
             if (value) {
               setLinkDialogOpen(true);
             } else {
+              //TODO editor doesn't exist yet so how are we using it here?
               editor.format('link', false);
             }
           }
@@ -323,10 +353,6 @@ function QuillEditor2 (props) {
       ];
     }
 
-    if (noToolbar) {
-      modules.toolbar = false;
-    }
-
     if (!_.isEmpty(participants) && mentionsAllowed) {
       /* Note, due to lifecycles if they edit a comment begin creating a mention
         and hit save before selecting one (or clicking off to not do so), then
@@ -397,8 +423,10 @@ function QuillEditor2 (props) {
     }
     const editorOptions = generateEditorOptions();
     const editor = new Quill(boxRef.current, editorOptions);
-    addToolTips(editor.container.previousSibling);
-    disableToolbarTabs(containerRef.current);
+    if (!noToolbar) {
+      addToolTips(editor.container.previousSibling);
+      disableToolbarTabs(containerRef.current);
+    }
     const debouncedOnChange = _.debounce((delta) => {
       // URL stuff from https://github.com/quilljs/quill/issues/109
       const regex = /https?:\/\/[^\s]+$/;
@@ -443,7 +471,27 @@ function QuillEditor2 (props) {
     overflowX: 'hidden',
   };
 
+  const containerStyle = {
+    maxWidth: '100%',
+    zIndex: '2',
+    borderTop: '1px solid lightgrey'
+  }
+
+  const containerReadOnlyStyle = {
+    maxWidth: '100%',
+    zIndex: '2'
+  };
+
   useEffect(() => {
+    // Without this read only won't update
+    if (boxRef.current && noToolbar) {
+      boxRef.current.innerHTML = value;
+    }
+  }, [value, noToolbar]);
+
+  useEffect(() => {
+    //TODO this makes no sense since no dependencies will only run on creation
+    //TODO and editor.scrollingContainer.id !== boundsId happens if namespace changes - having to call reset from parent
     if(!editor ) {
       createEditor();
     }
@@ -455,17 +503,23 @@ function QuillEditor2 (props) {
       {createLinkUi()}
       <div
         ref={containerRef}
-        style={{ maxWidth: '100%', zIndex: '2', borderTop: '1px solid lightgrey' }}
+        className={noToolbar ? classes.root : classes.nothing}
+        style={noToolbar ? containerReadOnlyStyle: containerStyle}
         id={cssId}
       >
-        <LoadingOverlay
-          active={uploadInProgress}
-          spinner
-          className="editor-wrapper"
-          text={intl.formatMessage({ id: 'quillEditorUploadInProgress' })}
-        >
+        {noToolbar && (
           <div ref={boxRef} id={boundsId} style={editorStyle}/>
-        </LoadingOverlay>
+        )}
+        {!noToolbar && (
+          <LoadingOverlay
+            active={uploadInProgress}
+            spinner
+            className="editor-wrapper"
+            text={intl.formatMessage({ id: 'quillEditorUploadInProgress' })}
+          >
+            <div ref={boxRef} id={boundsId} style={editorStyle}/>
+          </LoadingOverlay>
+        )}
       </div>
       {isTinyWindow() && <div style={{ height: '50px' }}>&nbsp;</div>}
     </div>

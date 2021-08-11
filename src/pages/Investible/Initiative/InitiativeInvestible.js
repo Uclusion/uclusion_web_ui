@@ -470,14 +470,13 @@ function InitiativeInvestible(props) {
             updateVotingPageState={updateVotingPageState}
             votingPageStateReset={votingPageStateReset}
           />
-          {!yourVote && (
+          {!yourVote && marketId && !_.isEmpty(investible) && !hidden && (
             <>
               <h3>{intl.formatMessage({ id: 'orStructuredComment' })}</h3>
               <CommentAddBox
                 allowedTypes={allowedCommentTypes}
                 investible={investible}
                 marketId={marketId}
-                hidden={hidden}
               />
             </>
           )}
@@ -514,12 +513,11 @@ function InitiativeInvestible(props) {
       <MarketLinks links={children || []} />
       <Grid container spacing={2}>
         <Grid item xs={12} style={{ marginTop: '71px' }} id="commentAddArea">
-          {!inArchives && !isAdmin && yourVote && (
+          {!inArchives && !isAdmin && yourVote && marketId && !_.isEmpty(investible) && !hidden && (
             <CommentAddBox
               allowedTypes={allowedCommentTypes}
               investible={investible}
               marketId={marketId}
-              hidden={hidden}
             />
           )}
           <CommentBox comments={investmentReasonsRemoved} marketId={marketId} allowedTypes={allowedCommentTypes} />

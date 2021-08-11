@@ -147,7 +147,7 @@ function CommentAddBox(props) {
     isStory,
     isInReview,
     isAssignee,
-    hidden
+    numProgressReport
   } = props;
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
@@ -222,8 +222,9 @@ function CommentAddBox(props) {
           issueWarningId={issueWarningId}
           todoWarningId={todoWarningId}
           isStory={isStory}
-          hidden={hidden}
           autoFocus={false}
+          isAssigned={isAssignee}
+          numProgressReport={numProgressReport}
         />
       </div>
     </Card>
@@ -236,16 +237,14 @@ CommentAddBox.propTypes = {
   todoWarningId: PropTypes.string,
   investible: PropTypes.any,
   allowedTypes: PropTypes.arrayOf(PropTypes.string).isRequired,
-  isStory: PropTypes.bool,
-  hidden: PropTypes.bool
+  isStory: PropTypes.bool
 };
 
 CommentAddBox.defaultProps = {
   investible: undefined,
   issueWarningId: null,
   todoWarningId: null,
-  isStory: false,
-  hidden: false
+  isStory: false
 };
 
 export default CommentAddBox;

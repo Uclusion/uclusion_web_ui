@@ -94,7 +94,7 @@ function PlanningDialog(props) {
   const [marketsState] = useContext(MarketsContext);
   const intl = useIntl();
   const theme = useTheme();
-  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
   const { id: marketId, market_stage: marketStage } = market;
   const activeMarket = marketStage === ACTIVE_STAGE;
   const inArchives = !activeMarket || (myPresence && !myPresence.following);
@@ -451,11 +451,10 @@ function PlanningDialog(props) {
       <Grid container spacing={2} id="discussionSection"
             style={{display: isSectionOpen('discussionSection') ? 'block' : 'none'}}>
           <Grid item id="commentAddArea"  xs={12}>
-            {!inArchives && _.isEmpty(search) && (
+            {!inArchives && _.isEmpty(search) && marketId && !hidden && (
               <CommentAddBox
                 allowedTypes={allowedCommentTypes}
                 marketId={marketId}
-                hidden={hidden}
               />
             )}
             <CommentBox comments={notTodoComments} marketId={marketId} allowedTypes={allowedCommentTypes} />

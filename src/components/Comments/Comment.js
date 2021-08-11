@@ -662,7 +662,8 @@ function Comment(props) {
               <ShareStoryButton commentId={id} commentType={commentType} investibleId={investibleId} />
             </div>
           )}
-          {(myPresence.is_admin || isEditable) && enableActions && (commentType === REPORT_TYPE || resolved) && (
+          {(myPresence.is_admin || isEditable) && enableActions &&
+          (commentType === REPORT_TYPE || userId === commentCreatedBy || resolved) && (
             <div style={{marginRight: '2rem', marginTop: '0.5rem'}}>
               <TooltipIconButton
                 disabled={operationRunning !== false}
@@ -777,7 +778,7 @@ function Comment(props) {
                       .finally(() => {
                         setOperationRunning(false);
                       });
-                  }} icon={SettingsBackupRestore} id="markReadButton">
+                  }} icon={SettingsBackupRestore} id={`markReadButton${id}`}>
                     {intl.formatMessage({ id: 'markRead' })}
                   </SpinningIconLabelButton>
                 )}
@@ -786,7 +787,7 @@ function Comment(props) {
                   <SpinningIconLabelButton
                     onClick={resolved ? reopen : resolve}
                     icon={resolved ? SettingsBackupRestore : Done}
-                    id="commentResolveReopenButton"
+                    id={`commentResolveReopenButton${id}`}
                   >
                     {intl.formatMessage({
                       id: resolved ? "commentReopenLabel" : "commentResolveLabel"
@@ -840,17 +841,18 @@ function Comment(props) {
             </div>
           </CardActions>
         )}
-        <CommentAdd
-          marketId={marketId}
-          hidden={!replyBeingEdited}
-          parent={comment}
-          onSave={toggleReply}
-          onCancel={toggleReply}
-          type={REPLY_TYPE}
-          commentAddState={replyAddState}
-          updateCommentAddState={updateReplyAddState}
-          commentAddStateReset={replyAddStateReset}
-        />
+        {replyBeingEdited && marketId && comment && (
+          <CommentAdd
+            marketId={marketId}
+            parent={comment}
+            onSave={toggleReply}
+            onCancel={toggleReply}
+            type={REPLY_TYPE}
+            commentAddState={replyAddState}
+            updateCommentAddState={updateReplyAddState}
+            commentAddStateReset={replyAddStateReset}
+          />
+        )}
         <Box marginTop={1} paddingX={1} className={classes.childWrapper}>
           <LocalCommentsContext.Provider value={{ comments, marketId }}>
             {repliesExpanded &&
@@ -861,7 +863,6 @@ function Comment(props) {
                   key={childId}
                   comment={child}
                   marketId={marketId}
-                  highLightId={highlighted}
                   enableEditing={enableEditing}
                   messages={messages}
                 />
@@ -917,9 +918,9 @@ Comment.defaultProps = {
 };
 
 function InitialReply(props) {
-  const { comment, highLightId, enableEditing, messages } = props;
+  const { comment, enableEditing, messages } = props;
 
-  return <Reply id={`c${comment.id}`} comment={comment} highLightId={highLightId} enableEditing={enableEditing}
+  return <Reply id={`c${comment.id}`} comment={comment} enableEditing={enableEditing}
   messages={messages}/>;
 }
 
@@ -967,6 +968,11 @@ const useReplyStyles = makeStyles(
         boxShadow: "10px 5px 5px yellow",
         padding: 0
       },
+      cardActionsRed: {
+        marginLeft: theme.spacing(3),
+        boxShadow: "10px 5px 5px red",
+        padding: 0
+      },
       commenter: {
         color: "#7E7E7E",
         display: "inline-block",
@@ -997,6 +1003,11 @@ const useReplyStyles = makeStyles(
         boxShadow: '10px 5px 5px yellow',
         overflow: 'unset'
       },
+      containerRed: {
+        marginBottom: '1.5rem',
+        boxShadow: '10px 5px 5px red',
+        overflow: 'unset'
+      },
       editor: {
         margin: "2px 0px",
         "& .ql-editor": {
@@ -1022,11 +1033,13 @@ const unknownPresence = {
  * @param {{comment: Comment}} props
  */
 function Reply(props) {
-  const { comment, highLightId, messages, enableEditing, ...other } = props;
+  const { comment, messages, enableEditing, ...other } = props;
   const marketId = useMarketId();
   const presences = usePresences(marketId);
   const commenter = useCommenter(comment, presences) || unknownPresence;
   const [marketsState] = useContext(MarketsContext);
+  const [messagesState] = useContext(NotificationsContext);
+  const myMessage = findMessageForCommentId(comment.id, messagesState) || {};
   const userId = getMyUserForMarket(marketsState, marketId) || {};
   const isEditable = comment.created_by === userId;
   const classes = useReplyStyles();
@@ -1049,10 +1062,11 @@ function Reply(props) {
   function setReplyOpen(isOpen) {
     updateReplyAddState({replyBeingEdited: isOpen});
   }
-
+  const { level: myHighlightedLevel, is_highlighted: isHighlighted } = myMessage;
   const intl = useIntl();
   return (
-    <Card className={highLightId.includes(comment.id) ? classes.containerYellow : classes.container}
+    <Card className={!(myHighlightedLevel && isHighlighted) ? classes.container : myMessage.level === 'RED'
+      ? classes.containerRed : classes.containerYellow}
       {...other}
     >
       <CardContent className={classes.cardContent}>
@@ -1082,7 +1096,8 @@ function Reply(props) {
         )}
       </CardContent>
       {!beingEdited && (
-        <CardActions className={highLightId.includes(comment.id) ? classes.cardActionsYellow : classes.cardActions}>
+        <CardActions className={!(myHighlightedLevel && isHighlighted) ? classes.cardActions : myMessage.level === 'RED'
+          ? classes.containerActionsRed : classes.cardActionsYellow}>
           <Typography className={classes.timePosted} variant="body2">
             <FormattedDate value={comment.created_at} />
           </Typography>
@@ -1107,23 +1122,23 @@ function Reply(props) {
         </CardActions>
       )}
       <div className={classes.replyContainer}>
-        <CommentAdd
-          marketId={marketId}
-          hidden={!replyBeingEdited}
-          parent={comment}
-          onSave={() => setReplyOpen(false)}
-          onCancel={() => setReplyOpen(false)}
-          type={REPLY_TYPE}
-          commentAddState={replyAddState}
-          updateCommentAddState={updateReplyAddState}
-          commentAddStateReset={replyAddStateReset}
-        />
+        {replyBeingEdited && marketId && comment && (
+          <CommentAdd
+            marketId={marketId}
+            parent={comment}
+            onSave={() => setReplyOpen(false)}
+            onCancel={() => setReplyOpen(false)}
+            type={REPLY_TYPE}
+            commentAddState={replyAddState}
+            updateCommentAddState={updateReplyAddState}
+            commentAddStateReset={replyAddStateReset}
+          />
+        )}
       </div>
       {comment.children !== undefined && (
         <CardContent className={classes.cardContent}>
           <ThreadedReplies
             replies={comment.children}
-            highLightId={highLightId}
             enableEditing={enableEditing}
           />
         </CardContent>
@@ -1155,7 +1170,7 @@ const useThreadedReplyStyles = makeStyles(
  * @param {{comments: Comment[], replies: string[]}} props
  */
 function ThreadedReplies(props) {
-  const { replies: replyIds, highLightId, enableEditing, messages } = props;
+  const { replies: replyIds, enableEditing, messages } = props;
   const comments = useComments();
 
   const classes = useThreadedReplyStyles();
@@ -1175,7 +1190,6 @@ function ThreadedReplies(props) {
               className={classes.visible}
               comment={reply}
               key={`threadc${reply.id}`}
-              highLightId={highLightId}
               enableEditing={enableEditing}
               messages={messages}
             />
@@ -1188,9 +1202,9 @@ function ThreadedReplies(props) {
 }
 
 function ThreadedReply(props) {
-  const { comment, highLightId, enableEditing, messages } = props;
+  const { comment, enableEditing, messages } = props;
   return <Reply key={`c${comment.id}`} id={`c${comment.id}`} className={props.className} comment={comment}
-                highLightId={highLightId} enableEditing={enableEditing} messages={messages} />;
+                enableEditing={enableEditing} messages={messages} />;
 }
 
 /**

@@ -26,7 +26,7 @@ import { Dialog } from '../Dialogs'
 import WarningIcon from '@material-ui/icons/Warning'
 import { useLockedDialogStyles } from '../../pages/Dialog/DialogBodyEdit'
 import {
-  getBlockedStage,
+  getBlockedStage, getInCurrentVotingStage,
   getInReviewStage,
   getRequiredInputStage
 } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
@@ -195,9 +195,9 @@ const useStyles = makeStyles((theme) => ({
 
 function CommentAdd(props) {
   const {
-    marketId, onSave, onCancel, type, investible, parent, hidden, issueWarningId, todoWarningId, isStory, nameKey,
+    marketId, onSave, onCancel, type, investible, parent, issueWarningId, todoWarningId, isStory, nameKey,
     defaultNotificationType, onDone, mentionsAllowed, commentAddState, updateCommentAddState, commentAddStateReset,
-    autoFocus=true
+    isAssigned, numProgressReport, autoFocus=true
   } = props;
   const {
     uploadedFiles,
@@ -222,6 +222,7 @@ function CommentAdd(props) {
   const [info] = (market_infos || []);
   const { assigned, stage: currentStageId } = (info || {});
   const inReviewStage = getInReviewStage(marketStagesState, marketId) || {id: 'fake'};
+  const readyForApprovalStage = getInCurrentVotingStage(marketStagesState, marketId) || {};
   const placeHolderLabelId = getPlaceHolderLabelId(type, isStory, currentStageId === inReviewStage.id);
   const placeHolder = intl.formatMessage({ id: placeHolderLabelId });
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -230,12 +231,18 @@ function CommentAdd(props) {
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const presences = getMarketPresences(marketPresencesState, marketId) || [];
   const myPresence = presences.find((presence) => presence.current_user) || {};
+  const blockingStage = getBlockedStage(marketStagesState, marketId) || {};
+  const requiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
+  const investibleRequiresInput = ((type === QUESTION_TYPE || type === SUGGEST_CHANGE_TYPE)
+      && (assigned || []).includes(myPresence.id)) && currentStageId !== blockingStage.id
+    && currentStageId !== requiresInputStage.id;
 
   function toggleIssue () {
     setOpenIssue(!openIssue);
   }
 
   const editorName = `${nameKey ? nameKey : ''}${parentId ? parentId : investibleId ? investibleId : marketId}-comment-add-editor`;
+  const [currentEditorName, setCurrentEditorName] = useState(editorName);
   const useBody = getQuillStoredState(editorName);
   const editorSpec = {
     value: useBody,
@@ -248,6 +255,14 @@ function CommentAdd(props) {
   const [Editor, editorController] = useEditor(editorName, editorSpec);
 
   useEffect(() => {
+    if (currentEditorName !== editorName) {
+      pushMessage(getControlPlaneName(editorName), editorReset(getQuillStoredState(editorName)));
+      setCurrentEditorName(editorName);
+    }
+    return () => {};
+  }, [currentEditorName, editorName]);
+
+  useEffect(() => {
     // If didn't focus to begin with then focus when type is changed
     if (type && !autoFocus) {
       // Can't use editorController here because the function is not invariant
@@ -257,12 +272,12 @@ function CommentAdd(props) {
   }, [autoFocus, editorName, type]);
 
   useEffect(() => {
-    if (!hidden && autoFocus) {
+    if (autoFocus) {
       // Can't use editorController here because the function is not invariant
       pushMessage(getControlPlaneName(editorName), editorFocus());
     }
     return () => {};
-  }, [autoFocus, editorName, hidden]);
+  }, [autoFocus, editorName]);
 
 
   function clearMe () {
@@ -298,12 +313,7 @@ function CommentAdd(props) {
     // the API does _not_ want you to send reply type, so suppress if our type is reply
     const apiType = (type === REPLY_TYPE) ? undefined : type;
     // what about not doing state?
-    const blockingStage = getBlockedStage(marketStagesState, marketId) || {};
-    const requiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
     const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
-    const investibleRequiresInput = ((apiType === QUESTION_TYPE || apiType === SUGGEST_CHANGE_TYPE)
-      && (assigned || []).includes(myPresence.id)) && currentStageId !== blockingStage.id
-      && currentStageId !== requiresInputStage.id;
     const investibleBlocks = (investibleId && apiType === ISSUE_TYPE) && currentStageId !== blockingStage.id;
     return saveComment(marketId, investibleId, parentId, tokensRemoved, apiType, filteredUploads, mentions,
       (notificationType || defaultNotificationType))
@@ -347,10 +357,22 @@ function CommentAdd(props) {
     updateCommentAddState({notificationType: checked ? 'YELLOW' : undefined});
   }
 
+  function getReportWarningId() {
+    if (isAssigned) {
+      if (numProgressReport > 0) {
+        return 'addReportWarning';
+      }
+      if (currentStageId === readyForApprovalStage.id) {
+        return 'addReportInReadyForApprovalWarning';
+      }
+    }
+    return undefined;
+  }
+
   const commentSaveLabel = parent ? 'commentAddSaveLabel' : 'commentReplySaveLabel';
   const commentCancelLabel = parent ? 'commentReplyCancelLabel' : 'commentAddCancelLabel';
   const myWarningId = type === TODO_TYPE ? todoWarningId : type === ISSUE_TYPE ? issueWarningId :
-    type === REPORT_TYPE && currentStageId !== inReviewStage.id ? 'addReportWarning' : undefined;
+    type === REPORT_TYPE ? getReportWarningId() : investibleRequiresInput ? 'requiresInputWarningPlanning' : undefined;
   const userPreferences = getUiPreferences(userState) || {};
   const previouslyDismissed = userPreferences.dismissedText || [];
   const showIssueWarning = myWarningId && !previouslyDismissed.includes(myWarningId) && !mobileLayout;
@@ -359,8 +381,8 @@ function CommentAdd(props) {
   return (
     <>
       <Paper
-        id={hidden ? '' : 'cabox'}
-        className={(hidden) ? classes.hidden : classes.add}
+        id={'cabox'}
+        className={classes.add}
         elevation={0}
       >
         <div className={classes.editor}>
@@ -405,7 +427,7 @@ function CommentAdd(props) {
           {myWarningId && (
             <IssueDialog
               classes={lockedDialogClasses}
-              open={!hidden && openIssue}
+              open={openIssue}
               onClose={toggleIssue}
               issueWarningId={myWarningId}
               checkBoxFunc={setDoNotShowAgain}
@@ -477,7 +499,6 @@ CommentAdd.propTypes = {
   investible: PropTypes.object,
   parent: PropTypes.object,
   onCancel: PropTypes.func,
-  hidden: PropTypes.bool,
   clearType: PropTypes.func,
   isStory: PropTypes.bool,
   defaultNotificationType: PropTypes.string,
@@ -492,7 +513,6 @@ CommentAdd.defaultProps = {
   onCancel: () => {},
   onSave: () => {},
   clearType: () => {},
-  hidden: false,
   isStory: false,
   mentionsAllowed: true,
 };

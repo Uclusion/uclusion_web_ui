@@ -119,6 +119,8 @@ import { notify, onInvestibleStageChange } from '../../../utils/investibleFuncti
 import { INVESTIBLE_SUBMITTED_TYPE, YELLOW_LEVEL } from '../../../constants/notifications'
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
 import { deleteSingleMessage } from '../../../api/users'
+import WarningDialog from '../../../components/Warnings/WarningDialog'
+import { useLockedDialogStyles } from '../../Dialog/DialogBodyEdit'
 
 const useStyles = makeStyles(
   theme => ({
@@ -351,6 +353,8 @@ function PlanningInvestible(props) {
     inArchives,
     hidden
   } = props;
+  const lockedDialogClasses = useLockedDialogStyles();
+  const [open, setOpen] = useState(false);
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const classes = useStyles();
@@ -529,6 +533,7 @@ function PlanningInvestible(props) {
   const todoComments = investibleComments.filter(
     comment => comment.comment_type === TODO_TYPE && !comment.resolved
   );
+  const numProgressReport = investibleComments.filter(comment => comment.comment_type === REPORT_TYPE)||[];
   const questionByAssignedComments = investibleComments.filter(
     comment => comment.comment_type === QUESTION_TYPE && !comment.resolved && assigned.includes(comment.created_by)
   );
@@ -823,11 +828,33 @@ function PlanningInvestible(props) {
                           value={openForInvestment}
                           disabled={operationRunning || !isAdmin}
                           checked={openForInvestment}
-                          onClick={() => setReadyToStart(!openForInvestment)}
+                          onClick={() => {
+                            if (!openForInvestment && openComments && !mobileLayout) {
+                              setOpen(true);
+                            } else {
+                              setReadyToStart(!openForInvestment);
+                            }
+                          }}
                         />
                       }
                       label={intl.formatMessage({ id: 'readyToStartCheckboxExplanation' })}
                     />
+                    {!openForInvestment && !mobileLayout && (
+                      <WarningDialog
+                        classes={lockedDialogClasses}
+                        open={open}
+                        onClose={() => setOpen(false)}
+                        issueWarningId="unresolvedReadyToStartWarning"
+                        /* slots */
+                        actions={
+                          <SpinningIconLabelButton onClick={() => setReadyToStart(true)}
+                                                   icon={SettingsBackupRestore}
+                                                   id="issueProceedReadyToStartButton">
+                            {intl.formatMessage({ id: 'issueProceed' })}
+                          </SpinningIconLabelButton>
+                        }
+                      />
+                    )}
                   </div>
                 )}
                 {!_.isEmpty(investibleCollaborators) && (
@@ -1031,7 +1058,7 @@ function PlanningInvestible(props) {
           {isAssigned && (
             <div style={{paddingTop: '2rem'}} />
           )}
-          {_.isEmpty(search) && (
+          {_.isEmpty(search) && marketId && !_.isEmpty(investible) && !hidden && (
             <CommentAddBox
               allowedTypes={allowedCommentTypes}
               investible={investible}
@@ -1040,8 +1067,8 @@ function PlanningInvestible(props) {
               todoWarningId={todoWarning}
               isInReview={isInReview}
               isAssignee={isAssigned}
-              hidden={hidden}
               isStory
+              numProgressReport={numProgressReport.length}
             />
           )}
         </>
@@ -1049,7 +1076,7 @@ function PlanningInvestible(props) {
       <Grid container spacing={2}>
         <Grid item xs={12} style={{ marginTop: '15px' }}>
           {!inArchives && !isInNotDoing && !isInVerified && (!isInVoting || !canVote || yourVote) && _.isEmpty(search)
-          && (
+          && marketId && !_.isEmpty(investible) && !hidden && (
             <CommentAddBox
               allowedTypes={allowedCommentTypes}
               investible={investible}
@@ -1058,8 +1085,8 @@ function PlanningInvestible(props) {
               todoWarningId={todoWarning}
               isInReview={isInReview}
               isAssignee={isAssigned}
-              hidden={hidden}
               isStory
+              numProgressReport={numProgressReport.length}
             />
           )}
           <CommentBox

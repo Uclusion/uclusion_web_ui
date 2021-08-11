@@ -20,7 +20,7 @@ import { InvestiblesContext } from '../../contexts/InvestibesContext/Investibles
 import DialogActions from './DialogActions'
 import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
-import { getMarketUpdatedAt } from '../../utils/userFunctions'
+import { getMarketInfo, getMarketUpdatedAt } from '../../utils/userFunctions'
 import { ACTIVE_STAGE } from '../../constants/markets'
 import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../constants/comments'
 import EmojiObjectsIcon from '@material-ui/icons/EmojiObjects'
@@ -34,6 +34,8 @@ import EditOutlinedIcon from '@material-ui/icons/EditOutlined'
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
 import { getSortedRoots } from '../../containers/CommentBox/CommentBox'
 import WorkIcon from '@material-ui/icons/Work'
+import { getStages } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
+import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -166,6 +168,7 @@ function PlanningDialogs(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [investibleState] = useContext(InvestiblesContext);
   const [commentsState] = useContext(CommentsContext);
+  const [marketStagesState] = useContext(MarketStagesContext);
   const [searchResults] = useContext(SearchResultsContext);
   const { search } = searchResults;
 
@@ -196,6 +199,17 @@ function PlanningDialogs(props) {
     return comments.filter((comment) => comment.comment_type === commentType).length;
   }
 
+  function getActiveInvestibles(investibles, marketId) {
+    const marketStages = getStages(marketStagesState, marketId);
+    return investibles.filter((investible) => {
+      const marketInfo = getMarketInfo(investible, marketId) || {};
+      const { stage: currentStageId } = marketInfo;
+      const stage = marketStages.find((fullStage) => fullStage.id === currentStageId);
+      return !stage.appears_in_market_summary && stage.allows_assignment
+        && (stage.appears_in_context || stage.move_on_comment);
+    });
+  }
+
   function getMarketItems() {
     const marketsWithUpdatedAt = markets.map((market) => {
       const { id: marketId, updated_at: updatedAt } = market;
@@ -204,7 +218,9 @@ function PlanningDialogs(props) {
       if (!_.isEmpty(search)) {
         commentsToCount = getSortedRoots(comments, searchResults);
       }
-      const investiblesToCount = getMarketInvestibles(investibleState, marketId, searchResults) || [];
+      const investiblesToCountRaw = getMarketInvestibles(investibleState, marketId, searchResults) || [];
+      const investiblesToCount = !_.isEmpty(search) ? investiblesToCountRaw :
+        getActiveInvestibles(investiblesToCountRaw, marketId);
       const issueCount = getCommentsCount(commentsToCount, ISSUE_TYPE);
       const questionCount = getCommentsCount(commentsToCount, QUESTION_TYPE);
       const suggestCount = getCommentsCount(commentsToCount, SUGGEST_CHANGE_TYPE);
@@ -232,7 +248,6 @@ function PlanningDialogs(props) {
         parentName = getInvestibleName(parentInvestibleId, investibleState);
       }
       const updatedMessageId = marketStage === ACTIVE_STAGE ? 'homeUpdated' : 'homeArchived';
-      console.log("workspace comment count ", suggestCount)
       return (
         <Grid
           item
@@ -366,7 +381,7 @@ function PlanningDialogs(props) {
                     </Tooltip>
                   </div>
                   <div className={classes.workspaceCommentsIcons}>
-                    <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? "storyCount" :
+                    <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? 'storyCount' :
                       'storySearchCount' })}>
                       <Badge badgeContent={investiblesCount} showZero>
                         <WorkIcon 

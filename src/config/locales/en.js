@@ -334,6 +334,7 @@ const messages = defineMessages({
   planningInvestibleNextStageInReviewLabel: 'Ready for Feedback',
   planningInvestibleMoveToVerifiedLabel: 'Verified',
   planningInvestibleMoveToFurtherWorkLabel: 'Further Work',
+  unresolvedReadyToStartWarning: 'There are unresolved comments. Do you want to make Ready to Start anyway?',
   planningInvestibleMoveToNotDoingLabel: 'Not Doing',
   planningInvestibleAcceptedExplanation: 'Move to Not Ready For Feedback when you have approval and are ready to start',
   planningInvestibleInReviewExplanation: 'Move to Ready for Feedback as early as possible for feedback',
@@ -373,7 +374,7 @@ const messages = defineMessages({
   ticketSubCodeHelp1: 'Your story ids will look like U-{code}-0, U-{code}-1, U-{code}-2, etc.',
   maxBudgetHelp: 'Maximum budget allowed for a story. Used to prevent stories from being too large.',
   voteExpirationHelp: "How many days before approvals expire. Prevents very old approval from being used.",
-  reassignToMove: 'Re-assigning moves to the swimlanes.',
+  reassignToMove: 'Assigning moves to the swimlanes.',
   initiativePlanningParent: 'Add Workspace',
   marketLinksSection: 'links',
   attachedFilesSection: 'attach files',
@@ -405,6 +406,9 @@ const messages = defineMessages({
   issueResolveLabel: 'Resolve',
   issueReplyLabel: 'Reply',
   issueProceed: 'Proceed',
+  requiresInputWarning: 'With these assignments, some comments require input.',
+  proceedRequiresInput: 'Requires Input Stage',
+  resolveComment: 'Resolve Comments',
   // lock dialog
   lockDialogCancel: 'Cancel',
   pageLockEditPage: 'Edit Page',
@@ -427,7 +431,9 @@ const messages = defineMessages({
   issueWarningInvestible: 'Opening an issue will halt voting on this option.',
   issueWarningPlanning: 'Opening an issue moves this story to blocked and stops new approval.',
   todoWarningPlanning: 'Opening a TODO prevents moving to Verified stage until resolved.',
+  requiresInputWarningPlanning: 'Opening this comment will move the story to Requires Input.',
   addReportWarning: 'Opening a new progress report resolves all older progress reports',
+  addReportInReadyForApprovalWarning: "If this story is started then consider moving to 'Not Ready for Feedback' stage.",
 
   // CommentBox
   commentIconRaiseIssueLabel: 'Raise Issue',
@@ -584,7 +590,8 @@ const messages = defineMessages({
   todoSearchCount: 'Matching TODOs',
   questionSearchCount: 'Matching questions',
   issueSearchCount: 'Matching issues',
-  storyCount: 'Matching stories',
+  storyCount: 'Active stories',
+  storySearchCount: 'Matching stories',
   planningMarketActivate: 'Activate Workspace',
   immediate: 'Immediate',
   immediateSectionHelp: 'These TODOs should be converted to stories and completed as soon as possible.',
@@ -696,6 +703,7 @@ const messages = defineMessages({
 
   // Assignment List
   assignmentListHeader: 'Assigned to (unassigned goes to Further Work)',
+  requiresInputListHeader: 'Warning: unless you resolve some comments the current assignment will move the story to Requires Input.',
   reviewListHeader: 'Required reviewers',
   approveListHeader: 'Required approvers',
   // Address List

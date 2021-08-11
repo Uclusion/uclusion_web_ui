@@ -1,16 +1,14 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import DiffDisplay from '../TextEditors/DiffDisplay';
-import ReadOnlyQuillEditor from '../TextEditors/ReadOnlyQuillEditor';
 import { findMessageOfTypeAndId } from '../../utils/messageUtils'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
+import QuillEditor2 from '../TextEditors/QuillEditor2'
 
 function DescriptionOrDiff(props) {
   const {
     id,
     description,
-    setBeingEdited,
-    isEditable,
     showDiff
   } = props;
 
@@ -26,10 +24,9 @@ function DescriptionOrDiff(props) {
   }
   return (
     <div>
-      <ReadOnlyQuillEditor
+      <QuillEditor2
         value={description}
-        setBeingEdited={setBeingEdited}
-        isEditable={isEditable}
+        noToolbar
       />
     </div>
   );
@@ -37,7 +34,8 @@ function DescriptionOrDiff(props) {
 
 DescriptionOrDiff.propTypes = {
   id: PropTypes.string.isRequired,
-  description: PropTypes.string
+  description: PropTypes.string,
+  showDiff: PropTypes.bool
 };
 
 export default DescriptionOrDiff;

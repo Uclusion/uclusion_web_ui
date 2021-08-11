@@ -27,7 +27,11 @@ import InitiativesAndDialogs from './InitiativesAndDialogs'
 import { canCreate } from '../../contexts/AccountContext/accountContextHelper';
 import UpgradeBanner from '../../components/Banners/UpgradeBanner';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
-import { getExistingMarkets, hasInitializedGlobalVersion } from '../../contexts/VersionsContext/versionsContextHelper'
+import {
+  getExistingMarkets,
+  getGlobalVersion,
+  hasInitializedGlobalVersion
+} from '../../contexts/VersionsContext/versionsContextHelper'
 import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
 import AddIcon from '@material-ui/icons/Add'
 import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
@@ -47,6 +51,7 @@ import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketSt
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import CreateWorkspaceDialog from '../../components/Warnings/CreateWorkspaceDialog'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { EMPTY_GLOBAL_VERSION } from '../../contexts/VersionsContext/versionsContextReducer'
 
 const useStyles = makeStyles(() => ({
     spacer: {
@@ -89,7 +94,6 @@ function Home(props) {
 
   useEffect(() => {
     const redirect = getAndClearRedirect();
-    console.log(`Found redirect ${redirect}`);
     if (!_.isEmpty(redirect) && redirect !== '/') {
       // Go ahead and start the invite tour - if they have taken already it's harmless
       tourDispatch(startTour(INVITED_USER_WORKSPACE));
@@ -163,7 +167,8 @@ function Home(props) {
       loading={loadingForeGroundMarkets}
       navigationOptions={banner ? [] : navigationMenu}
     >
-      {!_.isEmpty(user) && _.isEmpty(getExistingMarkets(versionsContext)) && (
+      {!_.isEmpty(user) && _.isEmpty(getExistingMarkets(versionsContext))
+      && getGlobalVersion(versionsContext) !== EMPTY_GLOBAL_VERSION && (
         <CreateWorkspaceDialog user={user} hidden={wizardActive} />
       )}
       <WizardSelector

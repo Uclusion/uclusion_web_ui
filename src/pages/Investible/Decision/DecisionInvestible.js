@@ -473,7 +473,7 @@ function DecisionInvestible(props) {
             updateVotingPageState={updateVotingPageState}
             votingPageStateReset={votingPageStateReset}
           />
-          {!yourVote && (
+          {!yourVote && marketId && !_.isEmpty(investible) && !hidden && (
             <>
               <h3>{intl.formatMessage({ id: 'orStructuredComment' })}</h3>
               <CommentAddBox
@@ -481,7 +481,6 @@ function DecisionInvestible(props) {
                 investible={investible}
                 marketId={marketId}
                 issueWarningId="issueWarningInvestible"
-                hidden={hidden}
               />
             </>
           )}
@@ -507,13 +506,12 @@ function DecisionInvestible(props) {
       )}
       <Grid container spacing={2}>
         <Grid item xs={12} style={{ marginTop: '71px' }}>
-          {!inArchives && (inProposed || yourVote) && (
+          {!inArchives && (inProposed || yourVote) && marketId && !_.isEmpty(investible) && !hidden && (
             <CommentAddBox
               allowedTypes={allowedCommentTypes}
               investible={investible}
               marketId={marketId}
               issueWarningId="issueWarningInvestible"
-              hidden={hidden}
             />
           )}
           <CommentBox comments={investmentReasonsRemoved} marketId={marketId} allowedTypes={allowedCommentTypes} />

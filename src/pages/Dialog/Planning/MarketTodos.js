@@ -523,20 +523,21 @@ function MarketTodos (props) {
           )}
       >
         <div style={{paddingTop: '1rem'}}>
-          <CommentAdd
-            nameKey="CommentAddRed"
-            hidden={!createRedCard}
-            type={TODO_TYPE}
-            commentAddState={commentAddRedState}
-            updateCommentAddState={updateCommentAddRedState}
-            commentAddStateReset={commentAddStateRedReset}
-            marketId={marketId}
-            mentionsAllowed={false}
-            onSave={onCreateRed}
-            onDone={onCreateRed}
-            defaultNotificationType="RED"
-            isStory={false}
-          />
+          {createRedCard && marketId && (
+            <CommentAdd
+              nameKey="CommentAddRed"
+              type={TODO_TYPE}
+              commentAddState={commentAddRedState}
+              updateCommentAddState={updateCommentAddRedState}
+              commentAddStateReset={commentAddStateRedReset}
+              marketId={marketId}
+              mentionsAllowed={false}
+              onSave={onCreateRed}
+              onDone={onCreateRed}
+              defaultNotificationType="RED"
+              isStory={false}
+            />
+          )}
           {editRedCard && (
             <div id={`editc${editRedCardId}`} style={{marginBottom: '2rem'}}>
               <Comment
@@ -579,20 +580,21 @@ function MarketTodos (props) {
             </Grid>
           </SubSection>
           {!_.isEmpty(redComments) && (<div style={{ paddingBottom: '15px' }}/>)}
-          <CommentAdd
-            nameKey="CommentAddYellow"
-            hidden={!createYellowCard}
-            type={TODO_TYPE}
-            commentAddState={commentAddYellowState}
-            updateCommentAddState={updateCommentAddYellowState}
-            commentAddStateReset={commentAddStateYellowReset}
-            marketId={marketId}
-            onSave={onCreateYellow}
-            onDone={onCreateYellow}
-            mentionsAllowed={false}
-            defaultNotificationType="YELLOW"
-            isStory={false}
-          />
+          {createYellowCard && marketId && (
+            <CommentAdd
+              nameKey="CommentAddYellow"
+              type={TODO_TYPE}
+              commentAddState={commentAddYellowState}
+              updateCommentAddState={updateCommentAddYellowState}
+              commentAddStateReset={commentAddStateYellowReset}
+              marketId={marketId}
+              onSave={onCreateYellow}
+              onDone={onCreateYellow}
+              mentionsAllowed={false}
+              defaultNotificationType="YELLOW"
+              isStory={false}
+            />
+          )}
           {editYellowCard && (
             <div id={`editc${editYellowCardId}`} style={{marginBottom: '2rem'}}>
               <Comment
@@ -635,20 +637,21 @@ function MarketTodos (props) {
             </Grid>
           </SubSection>
           {!_.isEmpty(yellowComments) && (<div style={{ paddingBottom: '15px' }}/>)}
-          <CommentAdd
-            nameKey="CommentAddBlue"
-            hidden={!createCard}
-            type={TODO_TYPE}
-            commentAddState={commentAddBlueState}
-            updateCommentAddState={updateCommentAddBlueState}
-            commentAddStateReset={commentAddStateBlueReset}
-            marketId={marketId}
-            mentionsAllowed={false}
-            onDone={onCreate}
-            onSave={onCreate}
-            defaultNotificationType="BLUE"
-            isStory={false}
-          />
+          {createCard && marketId && (
+            <CommentAdd
+              nameKey="CommentAddBlue"
+              type={TODO_TYPE}
+              commentAddState={commentAddBlueState}
+              updateCommentAddState={updateCommentAddBlueState}
+              commentAddStateReset={commentAddStateBlueReset}
+              marketId={marketId}
+              mentionsAllowed={false}
+              onDone={onCreate}
+              onSave={onCreate}
+              defaultNotificationType="BLUE"
+              isStory={false}
+            />
+          )}
           {editCard && (
             <div id={`editc${editCardId}`} style={{marginBottom: '2rem'}}>
               <Comment

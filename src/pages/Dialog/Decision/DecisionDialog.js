@@ -79,6 +79,10 @@ const useStyles = makeStyles(
     cardType: {
       display: "inline-flex"
     },
+    cursorRegular: {},
+    cursorEditable: {
+      cursor: "url('/images/edit_cursor.svg') 0 24, pointer",
+    },
     mobileColumn: {
       [theme.breakpoints.down("sm")]: {
         flexDirection: 'column'
@@ -328,6 +332,7 @@ function DecisionDialog(props) {
         />
         <Grid id="dialogMain" container className={classes.mobileColumn}>
           <Grid item xs={9}
+                className={!beingEdited && isEditableByUser() ? classes.cursorEditable : classes.cursorRegular}
                 onClick={(event) => !beingEdited && mySetBeingEdited(true, event)}>
             <CardContent className={classes.content}>
               {isDraft && activeMarket && (

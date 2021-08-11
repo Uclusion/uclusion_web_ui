@@ -97,7 +97,7 @@ function addToolTips (toolbar) {
 function getInitialState (id, knownState, placeHolder) {
   const storedState = getUclusionLocalStorageItem(`editor-${id}`);
   if (storedState != null) {
-    return storedState
+    return storedState;
   }
   if (knownState != null) {
     return knownState;
@@ -481,6 +481,13 @@ function QuillEditor2 (props) {
     maxWidth: '100%',
     zIndex: '2'
   };
+
+  useEffect(() => {
+    // Without this read only won't update
+    if (boxRef.current && noToolbar) {
+      boxRef.current.innerHTML = value;
+    }
+  }, [value, noToolbar]);
 
   useEffect(() => {
     //TODO this makes no sense since no dependencies will only run on creation

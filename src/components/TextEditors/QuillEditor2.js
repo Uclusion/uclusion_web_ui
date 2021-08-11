@@ -484,10 +484,11 @@ function QuillEditor2 (props) {
 
   useEffect(() => {
     // Without this read only won't update
-    if (boxRef.current && noToolbar) {
-      boxRef.current.innerHTML = value;
+    if (editor && noToolbar) {
+      editor.root.innerHTML = '';
+      editor.clipboard.dangerouslyPasteHTML(0, value);
     }
-  }, [value, noToolbar]);
+  }, [editor, value, noToolbar]);
 
   useEffect(() => {
     //TODO this makes no sense since no dependencies will only run on creation

@@ -189,7 +189,7 @@ function DialogActions(props) {
     if (action === 'dialog' && ((marketType === PLANNING_TYPE) || !activeMarket)) {
       actions.push(<ShareStoryButton key="share-story" marketId={marketId}/>)
     }
-    if (mobileLayout && !beingEdited) {
+    if (!hideEdit && mobileLayout && !beingEdited) {
       actions.push(
         <EditMarketButton
           labelId="edit"

@@ -622,19 +622,21 @@ function InitiativesAndDialogs(props) {
                 </Grid>
                 <Grid item xs={5} md={4} style={{display: 'flex'}}>
                   {getParticipantInfo(sortedPresences, classes)}
-                  <CardActions style={{display: 'inline-block', flex: 5, alignSelf: 'center'}}>
-                    <DialogActions
-                      isAdmin={myPresence.is_admin}
-                      isFollowing={myPresence.following}
-                      marketStage={marketStage}
-                      marketType={marketType}
-                      marketPresences={marketPresences}
-                      parentMarketId={parentMarketId}
-                      parentInvestibleId={parentInvestibleId}
-                      marketId={marketId}
-                      hideEdit={true}
-                    />
-                  </CardActions>
+                  {!mobileLayout && ( 
+                    <CardActions style={{display: 'inline-block', flex: 5, alignSelf: 'center'}}>
+                      <DialogActions
+                        isAdmin={myPresence.is_admin}
+                        isFollowing={myPresence.following}
+                        marketStage={marketStage}
+                        marketType={marketType}
+                        marketPresences={marketPresences}
+                        parentMarketId={parentMarketId}
+                        parentInvestibleId={parentInvestibleId}
+                        marketId={marketId}
+                        hideEdit={true}
+                      />
+                    </CardActions>
+                  )}
                 </Grid>
               </Grid>
             </div>

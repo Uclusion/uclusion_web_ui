@@ -94,7 +94,6 @@ function Home(props) {
 
   useEffect(() => {
     const redirect = getAndClearRedirect();
-    console.log(`Found redirect ${redirect}`);
     if (!_.isEmpty(redirect) && redirect !== '/') {
       // Go ahead and start the invite tour - if they have taken already it's harmless
       tourDispatch(startTour(INVITED_USER_WORKSPACE));

@@ -23,6 +23,7 @@ import { addPresenceToMarket } from '../../contexts/MarketPresencesContext/marke
 import { refreshMarketComments } from '../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
+import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../authorization/TokenStorageManager'
 
 const myStyles = makeStyles(
   () => {
@@ -62,8 +63,10 @@ function CreateWorkspaceDialog(props) {
   function onCreate() {
     let marketId;
     return createOnboardingWorkspace().then((results) => {
+      let promiseChain = Promise.resolve(true);
+      const tokenStorageManager = new TokenStorageManager();
       results.forEach((marketResult) => {
-        const { market, stages, investibles, comments, users } = marketResult;
+        const { market, stages, investibles, comments, users, token } = marketResult;
         updateStagesForMarket(marketStagesDispatch, market.id, stages);
         refreshInvestibles(investiblesDispatch, diffDispatch, investibles);
         users.forEach((user) => addPresenceToMarket(presenceDispatch, market.id, user));
@@ -73,10 +76,11 @@ function CreateWorkspaceDialog(props) {
         if (market.market_sub_type === 'REQUIREMENTS') {
           marketId = market.id;
         }
+        promiseChain = promiseChain.then(() => tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, market.id, token));
       });
       setOperationRunning(false);
       tourDispatch(startTour(INVITE_STORIES_WORKSPACE_FIRST_VIEW));
-      navigate(history, formMarketLink(marketId));
+      return promiseChain.then(() => navigate(history, formMarketLink(marketId)));
     });
   }
 

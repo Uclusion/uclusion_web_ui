@@ -20,6 +20,7 @@ import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLab
 import { Clear, SettingsBackupRestore } from '@material-ui/icons'
 import { editorReset, useEditor } from '../../../components/TextEditors/quillHooks';
 import { getQuillStoredState } from '../../../components/TextEditors/QuillEditor2'
+import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../../authorization/TokenStorageManager'
 
 function DecisionInvestibleAdd(props) {
   const {
@@ -78,7 +79,7 @@ function DecisionInvestibleAdd(props) {
     };
     return createDecision(addDialogInfo).then((result) => {
       addMarket(result, marketDispatch, diffDispatch, marketPresenceDispatch);
-      const { market, stages, parent } = result;
+      const { market, stages, parent, token } = result;
       addCommentToMarket(parent, commentState, commentDispatch);
       const allowsInvestment = stages.find((stage) => stage.allows_investment);
       const processedDescription = tokensRemoved ? tokensRemoved : ' ';
@@ -89,16 +90,16 @@ function DecisionInvestibleAdd(props) {
         name,
         stageId: allowsInvestment.id,
       };
-      return addDecisionInvestible(addInfo);
+      const tokenStorageManager = new TokenStorageManager();
+      return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, market.id, token)
+        .then(() => addDecisionInvestible(addInfo));
     }).then((investible) => {
       onSave(investible);
       editorController(editorReset());
-    }).then(() => {
       if (typeof completionFunc === 'function') {
         completionFunc();
       } else {
         pageStateReset();
-        editorController(editorReset());
         onSpinComplete();
       }
       setOperationRunning(false);

@@ -7,6 +7,7 @@ import { addInvestible } from '../../../contexts/InvestibesContext/investiblesCo
 import { processTextAndFilesForSave } from '../../../api/files'
 import { createInitiative } from '../../../api/markets'
 import { editorReset } from '../../TextEditors/quillHooks'
+import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../../authorization/TokenStorageManager'
 
 export function createMyInitiative (dispatchers, formData) {
   let createdMarketId;
@@ -42,7 +43,8 @@ export function createMyInitiative (dispatchers, formData) {
       const {
         market,
         presence,
-        stages
+        stages,
+        token
       } = result;
       createdMarketId = market.id;
       const investibleDescription = tokensRemoved ? tokensRemoved : ' ';
@@ -55,13 +57,14 @@ export function createMyInitiative (dispatchers, formData) {
       addMarketToStorage(marketsDispatch, diffDispatch, market);
       pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, createdMarketId, stages });
       addPresenceToMarket(presenceDispatch, createdMarketId, presence);
+      const tokenStorageManager = new TokenStorageManager();
       return addDecisionInvestible(investibleInfo)
         .then((investible) => {
           if (editorController) {
             editorController(editorReset());
           }
           addInvestible(investiblesDispatch, diffDispatch, investible);
-          return createdMarketId;
+          return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, createdMarketId, token).then(() => createdMarketId);
         });
     });
 }

@@ -13,6 +13,7 @@ import { addCommentToMarket } from '../../../../contexts/CommentsContext/comment
 import { updateStagesForMarket } from '../../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { START_TOUR, TOUR_CHANNEL } from '../../../../contexts/TourContext/tourContextMessages'
 import { INVITED_USER_WORKSPACE } from '../../../../contexts/TourContext/tourContextHelper'
+import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../../../authorization/TokenStorageManager'
 
 /**
  * Creates the story workspace from the formdata and does all the magic to make the
@@ -69,6 +70,7 @@ export function doCreateStoryWorkspace (dispatchers, formData, updateFormData, i
         market,
         presence,
         stages,
+        token
       } = marketDetails;
       createdMarketId = market.id;
       myUserId = presence.id;
@@ -79,6 +81,7 @@ export function doCreateStoryWorkspace (dispatchers, formData, updateFormData, i
       inVotingStage = stages.find((stage) => stage.allows_investment);
       inProgressStage = stages.find((stage) => stage.assignee_enter_only);
       const verifiedStage = stages.find((stage) => stage.appears_in_market_summary);
+      const tokenStorageManager = new TokenStorageManager();
       // setup the allowed stories in the in progress stage if the option is set
       if (formData.allowedInvestibles > 0) {
         return updateStage(createdMarketId, inProgressStage.id, formData.allowedInvestibles)
@@ -91,10 +94,10 @@ export function doCreateStoryWorkspace (dispatchers, formData, updateFormData, i
                 .then((newStage) => {
                   const newerStages = _.unionBy([newStage], newStages, 'id');
                   updateStagesForMarket(marketStagesDispatch, createdMarketId, newerStages);
-                  return Promise.resolve(true);
+                  return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, createdMarketId, token);
                 })
             }
-            return Promise.resolve(true);
+            return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, createdMarketId, token);
           })
       }
       if (formData.showInvestiblesAge > 0) {
@@ -102,10 +105,10 @@ export function doCreateStoryWorkspace (dispatchers, formData, updateFormData, i
           .then((newStage) => {
             const newStages = _.unionBy([newStage], stages, 'id');
             updateStagesForMarket(marketStagesDispatch, createdMarketId, newStages);
-            return Promise.resolve(true);
+            return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, createdMarketId, token);
           })
       }
-      return Promise.resolve(false);
+      return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, createdMarketId, token);
     })
     .then(() => {
       //currently don't use the return value, but success is good enough here.

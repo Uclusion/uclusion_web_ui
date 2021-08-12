@@ -7,6 +7,7 @@ import { AllSequentialMap } from '../../../utils/PromiseUtils'
 import { processTextAndFilesForSave } from '../../../api/files'
 import { addDecisionInvestible } from '../../../api/investibles'
 import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
+import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../../authorization/TokenStorageManager'
 
 export function createMyDialog (dispatchers, formData, updateFormData) {
   const {
@@ -45,14 +46,16 @@ export function createMyDialog (dispatchers, formData, updateFormData) {
         market,
         presence,
         stages,
+        token
       } = marketDetails;
       createdMarketId = market.id;
       addMarketToStorage(marketsDispatch, diffDispatch, market);
       pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, createdMarketId, stages });
       addPresenceToMarket(presenceDispatch, createdMarketId, presence);
       inVotingStage = stages.find((stage) => stage.allows_investment);
+      const tokenStorageManager = new TokenStorageManager();
       if (addOptionsSkipped) {
-        return Promise.resolve(true);
+        return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, createdMarketId, token);
       }
       return AllSequentialMap(dialogOptions, (option) => {
         const {
@@ -75,6 +78,7 @@ export function createMyDialog (dispatchers, formData, updateFormData) {
         }
         return addDecisionInvestible(addInfo).then((investible) => {
             addInvestible(investiblesDispatch, diffDispatch, investible);
+            return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, createdMarketId, token);
           });
       });
     })

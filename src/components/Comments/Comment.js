@@ -85,6 +85,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { getDiff, markDiffViewed } from '../../contexts/DiffContext/diffContextHelper'
 import { DiffContext } from '../../contexts/DiffContext/DiffContext'
 import DiffDisplay from '../TextEditors/DiffDisplay'
+import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../authorization/TokenStorageManager'
 
 const useCommentStyles = makeStyles(
   theme => {
@@ -399,7 +400,7 @@ function Comment(props) {
     return createInitiative(addInfo)
       .then((result) => {
         addMarket(result, marketsDispatch, () => {}, presenceDispatch);
-        const { market: { id: inlineMarketId }, parent } = result;
+        const { market: { id: inlineMarketId }, parent, token } = result;
         addCommentToMarket(parent, commentState, commentDispatch);
         const addInfo = {
           marketId: inlineMarketId,
@@ -409,6 +410,8 @@ function Comment(props) {
         return addDecisionInvestible(addInfo).then((investible) => {
           addInvestible(investiblesDispatch, () => {}, investible);
           setOperationRunning(false);
+          const tokenStorageManager = new TokenStorageManager();
+          return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, inlineMarketId, token);
         });
       });
   }

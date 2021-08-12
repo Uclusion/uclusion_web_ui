@@ -41,7 +41,7 @@ function Investible(props) {
   const subscribeId = myParams ? myParams.get('subscribeId') : undefined;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
-  const [marketsState, tokensHash] = useContext(MarketsContext);
+  const [marketsState, ,tokensHash] = useContext(MarketsContext);
   const realMarket = getMarket(marketsState, marketId);
   const market = realMarket || emptyMarket;
   const userId = getMyUserForMarket(marketsState, marketId) || '';

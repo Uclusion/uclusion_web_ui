@@ -12,7 +12,7 @@ import {
 } from '../../utils/marketIdPathFunctions'
 import Screen from '../../containers/Screen/Screen'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
-import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
+import { getMarket, marketTokenLoaded } from '../../contexts/MarketsContext/marketsContextHelper'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import DecisionDialog from './Decision/DecisionDialog'
@@ -79,7 +79,8 @@ function Dialog(props) {
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
   const [userState] = useContext(AccountUserContext);
   const hasUser = userIsLoaded(userState);
-  const loading = !hasUser || isInitialization || !myPresence || !marketType || marketType === INITIATIVE_TYPE || (isInline && activeMarket);
+  const loading = !hasUser || isInitialization || !myPresence || !marketType || marketType === INITIATIVE_TYPE
+    || (isInline && activeMarket) || !marketTokenLoaded(marketId);
   const banner = !loading && _.isEmpty(marketStages) ? <OnboardingBanner messageId='OnboardingInviteDialog' /> : undefined;
 
   useEffect(() => {

@@ -12,7 +12,7 @@ import {
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { getInvestible, getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
-import { getMarket, getMyUserForMarket } from '../../contexts/MarketsContext/marketsContextHelper'
+import { getMarket, getMyUserForMarket, marketTokenLoaded } from '../../contexts/MarketsContext/marketsContextHelper'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper'
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
@@ -58,7 +58,8 @@ function Investible(props) {
   const { name } = investible;
   const breadCrumbTemplates = [{ name: market.name, link: formMarketLink(marketId), id: 'marketCrumb' }];
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
-  const loading = !investibleId || _.isEmpty(inv) || _.isEmpty(myPresence) || !userId || _.isEmpty(realMarket);
+  const loading = !investibleId || _.isEmpty(inv) || _.isEmpty(myPresence) || !userId || _.isEmpty(realMarket)
+    || !marketTokenLoaded(marketId);
   const isDecision = market && market.market_type === DECISION_TYPE;
   const isPlanning = market && market.market_type === PLANNING_TYPE;
   const { market_stage: marketStage, parent_comment_id: parentCommentId, market_type: type } = market;

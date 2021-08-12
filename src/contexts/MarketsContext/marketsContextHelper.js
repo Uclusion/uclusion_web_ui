@@ -8,11 +8,16 @@ import { INDEX_MARKET_TYPE, INDEX_UPDATE, SEARCH_INDEX_CHANNEL } from '../Search
 import { ACTIVE_STAGE } from '../../constants/markets'
 import { PUSH_PRESENCE_CHANNEL, PUSH_STAGE_CHANNEL, VERSIONS_EVENT } from '../VersionsContext/versionsContextHelper'
 import { ADD_PRESENCE } from '../MarketPresencesContext/marketPresencesMessages'
+import { tokensHashHack } from './MarketsContext'
 
 export function getMarket(state, marketId) {
   const { marketDetails } = state;
   const usedDetails = marketDetails || [];
   return usedDetails.find((market) => market.id === marketId);
+}
+
+export function marketTokenLoaded(marketId) {
+  return tokensHashHack && tokensHashHack[marketId];
 }
 
 export function getMyUserForMarket(state, marketId) {

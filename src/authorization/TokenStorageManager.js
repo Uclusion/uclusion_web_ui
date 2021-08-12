@@ -3,6 +3,8 @@ import _ from 'lodash';
 import { getTokenSecondsRemaining } from './tokenUtils';
 import localforage from 'localforage';
 import { AllSequentialMap } from '../utils/PromiseUtils';
+import { pushMessage } from '../utils/MessageBusUtils'
+import { LOAD_EVENT, LOAD_TOKENS_CHANNEL } from '../contexts/MarketsContext/marketsContextMessages'
 
 export const TOKEN_STORAGE_KEYSPACE = 'TOKEN_STORAGE_MANAGER';
 export const TOKEN_TYPE_MARKET = 'MARKET';
@@ -67,6 +69,7 @@ class TokenStorageManager {
    * @param token the token we want to store.
    */
   storeToken (tokenType, itemId, token) {
+    pushMessage(LOAD_TOKENS_CHANNEL, { event: LOAD_EVENT });
     return new LocalForageHelper(this.getKeyNamespace(tokenType, itemId), TOKEN_STORAGE_KEYSPACE)
       .setState(token);
   }

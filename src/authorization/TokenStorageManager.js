@@ -69,9 +69,9 @@ class TokenStorageManager {
    * @param token the token we want to store.
    */
   storeToken (tokenType, itemId, token) {
-    pushMessage(LOAD_TOKENS_CHANNEL, { event: LOAD_EVENT });
-    return new LocalForageHelper(this.getKeyNamespace(tokenType, itemId), TOKEN_STORAGE_KEYSPACE)
-      .setState(token);
+    const key = this.getKeyNamespace(tokenType, itemId);
+    pushMessage(LOAD_TOKENS_CHANNEL, { event: LOAD_EVENT, key, token });
+    return new LocalForageHelper(key, TOKEN_STORAGE_KEYSPACE).setState(token);
   }
 
   /**

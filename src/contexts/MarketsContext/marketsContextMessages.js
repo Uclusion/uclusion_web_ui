@@ -29,10 +29,11 @@ export const LOAD_EVENT = 'LoadEvent'
 
 function beginListening(dispatch, diffDispatch, setTokensHash) {
   registerListener(LOAD_TOKENS_CHANNEL, 'loadTokensStart', (data) => {
-    const { payload: { event } } = data;
+    const { payload: { event, key, token } } = data;
     switch (event) {
       case LOAD_EVENT:
-        const localTokenHash = {};
+        const localTokenHash = {[key]: token};
+        //Try avoid dropping keys by adding the new one to what's on disk
         const store = localforage.createInstance({ storeName: TOKEN_STORAGE_KEYSPACE });
         store.iterate((value, key) => {
           localTokenHash[key] = value;

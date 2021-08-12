@@ -107,16 +107,20 @@ function getInitialState (id, knownState, placeHolder) {
 }
 
 function storeState (id, state) {
-  //Remove tokens here that were added in ImageBlot Quill format
-  const regexp = /img src\s*=\s*"(.+?)"/g;
-  const newStr = state.replace(regexp, (match, p1) => {
-    const url = new URL(p1);
-    const params = new URLSearchParams(url.search);
-    params.delete('authorization');
-    url.search = params.toString();
-    return `img src="${url.toString()}"`;
-  });
-  setUclusionLocalStorageItem(`editor-${id}`, newStr);
+  if (_.isEmpty(state)) {
+    setUclusionLocalStorageItem(`editor-${id}`, state);
+  } else {
+    //Remove tokens here that were added in ImageBlot Quill format
+    const regexp = /img src\s*=\s*"(.+?)"/g;
+    const newStr = state.replace(regexp, (match, p1) => {
+      const url = new URL(p1);
+      const params = new URLSearchParams(url.search);
+      params.delete('authorization');
+      url.search = params.toString();
+      return `img src="${url.toString()}"`;
+    });
+    setUclusionLocalStorageItem(`editor-${id}`, newStr);
+  }
 }
 
 export function getQuillStoredState(id) {

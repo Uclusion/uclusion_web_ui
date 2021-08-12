@@ -221,7 +221,7 @@ function PlanningInvestibleAdd(props) {
         zeroCurrentValues();
         return onSpinComplete(link);
       }
-      const reason = getQuillStoredState(editorName);
+      const reason = getQuillStoredState(initialVoteEditorName);
       const updateInfo = {
         marketId,
         investibleId: investible.id,

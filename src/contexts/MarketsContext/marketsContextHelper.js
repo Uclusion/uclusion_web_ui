@@ -17,7 +17,7 @@ export function getMarket(state, marketId) {
 }
 
 export function marketTokenLoaded(marketId) {
-  return tokensHashHack && tokensHashHack[marketId];
+  return tokensHashHack && tokensHashHack[`MARKET_${marketId}`];
 }
 
 export function getMyUserForMarket(state, marketId) {

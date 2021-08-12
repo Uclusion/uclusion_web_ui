@@ -8,7 +8,10 @@ import TokenStorageManager, {
   TOKEN_TYPE_MARKET,
   TOKEN_TYPE_MARKET_INVITE
 } from './TokenStorageManager'
+import _ from 'lodash'
 import { AllSequentialMap } from '../utils/PromiseUtils';
+import { pushMessage } from '../utils/MessageBusUtils'
+import { LOAD_TOKENS_CHANNEL, LOAD_EVENT } from '../contexts/MarketsContext/marketsContextMessages'
 
 class TokenFetcher {
 
@@ -44,7 +47,12 @@ class TokenFetcher {
     return this.tokenStorageManager.getExpiringTokens(this.tokenType, windowHours)
     .then((expiring) => {
       //console.error(expiring);
-      return AllSequentialMap(expiring, (itemId) => this.getRefreshedToken(itemId), false);
+      return AllSequentialMap(expiring, (itemId) => this.getRefreshedToken(itemId), false)
+        .then(() => {
+          if (!_.isEmpty(expiring)) {
+            pushMessage(LOAD_TOKENS_CHANNEL, { event: LOAD_EVENT });
+          }
+        });
     });
   }
 

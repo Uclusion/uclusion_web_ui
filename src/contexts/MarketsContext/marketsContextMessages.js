@@ -16,14 +16,32 @@ import {
   STOP_OPERATION
 } from '../OperationInProgressContext/operationInProgressMessages'
 import { lockPlanningMarketForEdit } from '../../api/markets'
+import localforage from 'localforage'
+import { TOKEN_STORAGE_KEYSPACE } from '../../authorization/TokenStorageManager'
 
 export const LOAD_MARKET_CHANNEL = 'LoadMarketChannel';
 export const INVITE_MARKET_EVENT = 'InviteMarketEvent';
 export const GUEST_MARKET_EVENT = 'GuestMarketEvent';
 export const LOCK_MARKET_CHANNEL = 'LockMarketChannel';
 export const LOCK_MARKET = 'LockMarket';
+export const LOAD_TOKENS_CHANNEL = 'LoadTokensChannel';
+export const LOAD_EVENT = 'LoadEvent'
 
-function beginListening(dispatch, diffDispatch) {
+function beginListening(dispatch, diffDispatch, setTokensHash) {
+  registerListener(LOAD_TOKENS_CHANNEL, 'loadTokensStart', (data) => {
+    const { payload: { event } } = data;
+    switch (event) {
+      case LOAD_EVENT:
+        const localTokenHash = {};
+        const store = localforage.createInstance({ storeName: TOKEN_STORAGE_KEYSPACE });
+        store.iterate((value, key) => {
+          localTokenHash[key] = value;
+        }).then(() => setTokensHash(localTokenHash));
+        break;
+      default:
+      // console.debug(`Ignoring identity event ${event}`);
+    }
+  });
   registerListener(REMOVED_MARKETS_CHANNEL, 'marketsRemovedMarketStart', (data) => {
     const { payload: { event, message } } = data;
     switch (event) {

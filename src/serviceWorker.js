@@ -22,7 +22,7 @@ const isLocalhost = Boolean(
 
 export function register(config) {
 
-    window.addEventListener('load', () => {
+    /*window.addEventListener('load', () => {
       const swUrl = `/image-url-rewriter-service-worker.js`;
 
       if (isLocalhost) {
@@ -33,7 +33,7 @@ export function register(config) {
         // Is not localhost. Just register service worker
         registerValidSW(swUrl, config);
       }
-    });
+    });*/
 }
 
 function registerValidSW(swUrl, config) {

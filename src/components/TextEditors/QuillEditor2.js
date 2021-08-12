@@ -26,12 +26,13 @@ import { OperationInProgressContext } from '../../contexts/OperationInProgressCo
 import PropTypes from 'prop-types';
 import { getNameForUrl } from '../../utils/marketIdPathFunctions'
 import { isTinyWindow } from '../../utils/windowUtils'
+import ImageBlot from './ImageBlot'
 
 
 // install our filtering paste module, and disable the uploader
 Quill.register('modules/clipboard', CustomQuillClipboard, true);
 Quill.register('modules/uploader', NoOpUploader, true);
-
+Quill.register(ImageBlot);
 Quill.register('modules/tableUI', QuillTableUI);
 Quill.register('modules/s3Upload', QuillS3ImageUploader);
 Quill.register('modules/imageResize', ImageResize);
@@ -106,7 +107,16 @@ function getInitialState (id, knownState, placeHolder) {
 }
 
 function storeState (id, state) {
-  setUclusionLocalStorageItem(`editor-${id}`, state);
+  //Remove tokens here that were added in ImageBlot Quill format
+  const regexp = /img src\s*=\s*"(.+?)"/g;
+  const newStr = state.replace(regexp, (match, p1) => {
+    const url = new URL(p1);
+    const params = new URLSearchParams(url.search);
+    params.delete('authorization');
+    url.search = params.toString();
+    return `img src="${url.toString()}"`;
+  });
+  setUclusionLocalStorageItem(`editor-${id}`, newStr);
 }
 
 export function getQuillStoredState(id) {

@@ -86,7 +86,7 @@ function MarketsProvider(props) {
   tokensHashHack = tokensHash;
   marketsContextHack = state;
   return (
-    <MarketsContext.Provider value={[state, dispatch]}>
+    <MarketsContext.Provider value={[state, dispatch, tokensHash]}>
       {props.children}
     </MarketsContext.Provider>
   );

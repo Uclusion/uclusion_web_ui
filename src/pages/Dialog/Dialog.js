@@ -48,7 +48,7 @@ function Dialog(props) {
   const myParams = new URL(document.location).searchParams;
   const subscribeId = myParams ? myParams.get('subscribeId') : undefined;
   const [marketIdFromToken, setMarketIdFromToken] = useState(undefined);
-  const [marketsState] = useContext(MarketsContext);
+  const [marketsState, , tokensHash] = useContext(MarketsContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentsState] = useContext(CommentsContext);
@@ -80,7 +80,7 @@ function Dialog(props) {
   const [userState] = useContext(AccountUserContext);
   const hasUser = userIsLoaded(userState);
   const loading = !hasUser || isInitialization || !myPresence || !marketType || marketType === INITIATIVE_TYPE
-    || (isInline && activeMarket) || !marketTokenLoaded(marketId);
+    || (isInline && activeMarket) || !marketTokenLoaded(marketId, tokensHash);
   const banner = !loading && _.isEmpty(marketStages) ? <OnboardingBanner messageId='OnboardingInviteDialog' /> : undefined;
 
   useEffect(() => {

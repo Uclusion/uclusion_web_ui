@@ -27,7 +27,7 @@ function pushIndexItems(diskState) {
 // normally this would be in context hacks directory but we can use this let to get the context out of the react tree
 // we don't use a provider, because we have one defined below
 let marketsContextHack;
-let tokensHashHack; //Load here so no access without this being loaded first - very small race with channel listener
+let tokensHashHack; //Load here so no access without being loaded first - but page also has guards for invite etc.
 export { marketsContextHack, tokensHashHack };
 
 function MarketsProvider(props) {

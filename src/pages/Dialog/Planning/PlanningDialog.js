@@ -184,10 +184,14 @@ function PlanningDialog(props) {
     if (hash) {
       const linkPresence = assignablePresences.find((presence) => hash.includes(presence.id));
       if (linkPresence) {
-        updatePageState({sectionOpen: 'storiesSection'});
+        if (sectionOpen !== 'storiesSection') {
+          updatePageState({sectionOpen: 'storiesSection'});
+        }
       } else if (hash.includes('workspaceMain')) {
-        updatePageState({sectionOpen: 'workspaceMain'});
-      } else {
+        if (sectionOpen !== 'workspaceMain') {
+          updatePageState({sectionOpen: 'workspaceMain'});
+        }
+      } else if (sectionOpen !== 'discussionSection') {
         const noTodoCommentIds = getThreadIds(notTodoComments, comments);
         const foundCommentId = noTodoCommentIds.find((anId) => hash.includes(anId));
         if (foundCommentId) {
@@ -195,7 +199,7 @@ function PlanningDialog(props) {
         }
       }
     }
-  }, [assignablePresences, comments, hash, notTodoComments, updatePageState]);
+  }, [assignablePresences, comments, hash, notTodoComments, sectionOpen, updatePageState]);
 
   function onClickFurtherStart() {
     const link = formMarketAddInvestibleLink(marketId);

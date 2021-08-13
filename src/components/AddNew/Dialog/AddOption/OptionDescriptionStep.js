@@ -73,6 +73,7 @@ function OptionDescriptionStep (props) {
           onPrevious={onPrevious}
           onNext={onFinish}
           showFinish={false}
+          spinOnClick={false}
         />
       </div>
     </WizardStepContainer>

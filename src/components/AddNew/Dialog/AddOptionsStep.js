@@ -14,12 +14,14 @@ import { createMyDialog } from './dialogCreator';
 import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepContainer from '../WizardStepContainer';
 import { editorReset } from '../../TextEditors/quillHooks'
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 
 function AddOptionsStep (props) {
   const [, diffDispatch] = useContext(DiffContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, marketsDispatch] = useContext(MarketsContext);
   const [, presenceDispatch] = useContext(MarketPresencesContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
 
   const {
     formData,
@@ -82,6 +84,7 @@ function AddOptionsStep (props) {
         if (editorController) {
           editorController(editorReset());
         }
+        setOperationRunning(false);
         return ({ ...formData, marketId });
       });
   }

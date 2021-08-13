@@ -120,7 +120,8 @@ function WhatDoYouWantToDo (props) {
           </Button>
         </div>
         <div className={wizardClasses.actionContainer}>
-          <SpinningButton className={wizardClasses.actionPrimary} onClick={() => setWizardToShow(wizard)}>
+          <SpinningButton doSpin={false} className={wizardClasses.actionPrimary}
+                          onClick={() => setWizardToShow(wizard)}>
             {intl.formatMessage({ id: 'OnboardingWizardContinue' })}
           </SpinningButton>
         </div>

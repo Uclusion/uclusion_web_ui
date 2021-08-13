@@ -6,6 +6,7 @@ import { AccountContext } from '../../contexts/AccountContext/AccountContext';
 import { updateAccount } from '../../contexts/AccountContext/accountContextHelper';
 import SpinningButton from '../../components/SpinBlocking/SpinningButton';
 import { makeStyles, useTheme } from '@material-ui/styles';
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -35,8 +36,8 @@ function PromoCodeInput(props) {
   const [activePromo, setActivePromo] = useState({});
   const [promoBoxValue, setPromoBoxValue] = useState('');
   const [, accountDispatch] = useContext(AccountContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const { valid, code, reused } = activePromo;
-  const [spinning, setSpinning] = useState(false);
   const theme = useTheme();
   const classes = useStyles(theme);
 
@@ -47,20 +48,19 @@ function PromoCodeInput(props) {
 
   function validatePromo() {
     const trimmed = promoBoxValue.trim();
-    setSpinning(true);
     validatePromoCode(trimmed)
       .then((promoCheckResult) => {
         if (!promoCheckResult.valid) {
           // set the active promo to the invalid one so that we know it's not going to work
-          setActivePromo(promoCheckResult);
-          setSpinning(false);
+          setActivePromo(promoCheckResult)
+          setOperationRunning(false);
         }else{
           return applyPromoCode(trimmed)
             .then((account) => {
               setActivePromo(promoCheckResult);
               // quick add the account to show the new billing info;
               updateAccount(accountDispatch, account)
-              setSpinning(false);
+              setOperationRunning(false);
             })
             .catch((error) => {
               const { status } = error;
@@ -68,7 +68,7 @@ function PromoCodeInput(props) {
                 // let the UI know we've reused the code
                 setActivePromo({valid: false, code: trimmed, reused: true});
               }
-              setSpinning(false);
+              setOperationRunning(false);
             });
         }
       });
@@ -87,7 +87,7 @@ function PromoCodeInput(props) {
       <SpinningButton
         className={classes.applyPromoButton}
         disabled={_.isEmpty(promoBoxValue)}
-        spinning={spinning}
+        id="applyPromoButton"
         onClick={validatePromo}
       >
         Apply Promo Code

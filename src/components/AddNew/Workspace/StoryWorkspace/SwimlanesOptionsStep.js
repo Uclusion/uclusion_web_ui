@@ -17,6 +17,7 @@ import AllowedInProgress from '../../../../pages/Dialog/Planning/AllowedInProgre
 import { MarketStagesContext } from '../../../../contexts/MarketStagesContext/MarketStagesContext';
 import ShowInVerifiedStageAge from '../../../../pages/Dialog/Planning/ShowInVerifiedStageAge'
 import { useOptionsStyles } from './AdvancedOptionsStep'
+import { OperationInProgressContext } from '../../../../contexts/OperationInProgressContext/OperationInProgressContext'
 
 
 function SwimlanesOptionsStep (props) {
@@ -29,6 +30,7 @@ function SwimlanesOptionsStep (props) {
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, presenceDispatch] = useContext(MarketPresencesContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
 
   function createMarket (formData) {
     const dispatchers = {
@@ -42,6 +44,7 @@ function SwimlanesOptionsStep (props) {
     };
     return doCreateStoryWorkspace(dispatchers, formData, updateFormData, intl)
       .then((marketId) => {
+        setOperationRunning(false);
         return ({ ...formData, marketId });
       });
   }

@@ -1,9 +1,10 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@material-ui/core';
 import { useIntl } from 'react-intl';
 import SpinningButton from '../SpinBlocking/SpinningButton';
 import { WizardStylesContext } from './WizardStylesContext';
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 
 function StepButtons (props) {
   const {
@@ -30,26 +31,21 @@ function StepButtons (props) {
   } = props;
   const intl = useIntl();
   const classes = useContext(WizardStylesContext);
+  const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const lastStep = currentStep === totalSteps - 1; //zero indexed
-  const [spinning, setSpinning] = useState(false);
 
   function myPrevious () {
-    if (spinOnClick) {
-      setSpinning(true);
-    }
     onPrevious();
     previousStep();
   }
 
   async function nextState (nextFunction) {
-    if (spinOnClick) {
-      setSpinning(true);
-    }
     const nextReturn = nextFunction();
     const resolved = await Promise.resolve(nextReturn);
     if (lastStep) {
       return finish(resolved);
     }else{
+      setOperationRunning(false);
       nextStep();
     }
     return resolved;
@@ -64,9 +60,6 @@ function StepButtons (props) {
   }
 
   async function myFinish() {
-    if (spinOnClick) {
-      setSpinning(true);
-    }
     const resolved = await Promise.resolve(onFinish());
     return finish(resolved);
   }
@@ -78,27 +71,35 @@ function StepButtons (props) {
     <div className={classes.buttonContainer}>
       {showStartOver && (
         <div className={classes.startOverContainer}>
-          <Button disabled={spinning} className={startOverClass}
-                  onClick={startOver}>{intl.formatMessage({ id: startOverLabel })}</Button>
+          <Button disabled={operationRunning} className={startOverClass} onClick={startOver}>
+            {intl.formatMessage({ id: startOverLabel })}
+          </Button>
         </div>
       )}
 
       <div className={classes.actionContainer}>
         {(currentStep > 0) && showGoBack && (
-          <SpinningButton spinning={spinning} className={classes.actionSecondary}
-                          onClick={myPrevious}>{intl.formatMessage({ id: 'OnboardingWizardGoBack' })}</SpinningButton>
+          <SpinningButton className={classes.actionSecondary} doSpin={false} onClick={myPrevious}>
+            {intl.formatMessage({ id: 'OnboardingWizardGoBack' })}
+          </SpinningButton>
         )}
         {showSkip && (
-          <SpinningButton spinning={spinning} className={classes.actionSkip} variant="outlined"
-                          onClick={mySkip}>{intl.formatMessage({ id: 'OnboardingWizardSkip' })}</SpinningButton>
+          <SpinningButton id="OnboardingWizardSkip" className={classes.actionSkip} variant="outlined"
+                          doSpin={spinOnClick} onClick={mySkip}>
+            {intl.formatMessage({ id: 'OnboardingWizardSkip' })}
+          </SpinningButton>
         )}
         {showNext && (
-          <SpinningButton spinning={spinning} className={classes.actionPrimary} disabled={!validForm}
-                          onClick={myNext}>{intl.formatMessage({ id: nextLabel })}</SpinningButton>
+          <SpinningButton id="OnboardingWizardNext" className={classes.actionPrimary} disabled={!validForm}
+                          onClick={myNext} doSpin={spinOnClick}>
+            {intl.formatMessage({ id: nextLabel })}
+          </SpinningButton>
         )}
         {showFinish && (
-          <SpinningButton spinning={spinning} className={classes.actionPrimary} disabled={!validForm}
-                          onClick={myFinish}>{intl.formatMessage({ id: finishLabel })}</SpinningButton>
+          <SpinningButton id="OnboardingWizardFinish" className={classes.actionPrimary} disabled={!validForm}
+                          onClick={myFinish} doSpin={spinOnClick}>
+            {intl.formatMessage({ id: finishLabel })}
+          </SpinningButton>
         )}
       </div>
     </div>

@@ -74,6 +74,7 @@ import Chip from '@material-ui/core/Chip'
 import { getThreadIds } from '../../../utils/commentFunctions'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
+import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -111,7 +112,15 @@ function PlanningDialog(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   // For security reasons you can't access source data while being dragged in case you are not the target website
   const [beingDraggedHack, setBeingDraggedHack] = useState({});
-  const [sectionOpen, setSectionOpen] = useState('workspaceMain');
+  const [pageStateFull, pageDispatch] = usePageStateReducer('market');
+  const [pageState, updatePageState, pageStateReset] = getPageReducerPage(pageStateFull, pageDispatch, marketId,
+    {sectionOpen: 'workspaceMain'});
+  const {
+    sectionOpen
+  } = pageState;
+  function setSectionOpen(section) {
+    updatePageState({sectionOpen: section});
+  }
   const presences = getMarketPresences(marketPresencesState, marketId) || [];
   const acceptedStage = marketStages.find(stage => stage.assignee_enter_only) || {};
   const inDialogStage = marketStages.find(stage => stage.allows_investment) || {};
@@ -163,29 +172,30 @@ function PlanningDialog(props) {
   const presenceMap = getPresenceMap(marketPresencesState, marketId);
 
   function isSectionOpen(section) {
-    return sectionOpen === section || !_.isEmpty(search) || mobileLayout;
+    return sectionOpen === section || !_.isEmpty(search) || mobileLayout ||
+      (!sectionOpen && section === 'workspaceMain');
   }
 
   function isSectionBold(section) {
-    return sectionOpen === section && _.isEmpty(search);
+    return (sectionOpen === section || (!sectionOpen && section === 'workspaceMain')) && _.isEmpty(search);
   }
 
   useEffect(() => {
     if (hash) {
       const linkPresence = assignablePresences.find((presence) => hash.includes(presence.id));
       if (linkPresence) {
-        setSectionOpen('storiesSection');
+        updatePageState({sectionOpen: 'storiesSection'});
       } else if (hash.includes('workspaceMain')) {
-        setSectionOpen('workspaceMain');
+        updatePageState({sectionOpen: 'workspaceMain'});
       } else {
         const noTodoCommentIds = getThreadIds(notTodoComments, comments);
         const foundCommentId = noTodoCommentIds.find((anId) => hash.includes(anId));
         if (foundCommentId) {
-          setSectionOpen('discussionSection');
+          updatePageState({sectionOpen: 'discussionSection'});
         }
       }
     }
-  }, [assignablePresences, comments, hash, notTodoComments]);
+  }, [assignablePresences, comments, hash, notTodoComments, updatePageState]);
 
   function onClickFurtherStart() {
     const link = formMarketAddInvestibleLink(marketId);
@@ -302,7 +312,8 @@ function PlanningDialog(props) {
       />
       <div id="workspaceMain" style={{display: isSectionOpen('workspaceMain') ? 'block' : 'none'}}>
         <DismissableText textId='planningEditHelp' />
-        <Summary market={market} hidden={hidden} activeMarket={activeMarket} inArchives={inArchives} />
+        <Summary market={market} hidden={hidden} activeMarket={activeMarket} inArchives={inArchives}
+                 pageState={pageState} updatePageState={updatePageState} pageStateReset={pageStateReset} />
       </div>
       <LocalPlanningDragContext.Provider value={[beingDraggedHack, setBeingDraggedHack]}>
         <div id="storiesSection"

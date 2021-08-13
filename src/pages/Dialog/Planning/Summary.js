@@ -23,7 +23,6 @@ import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { EMPTY_SPIN_RESULT } from '../../../constants/global'
 import { doSetEditWhenValid, invalidEditEvent } from '../../../utils/windowUtils'
 import DialogBodyEdit from '../DialogBodyEdit'
-import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 import _ from 'lodash'
 import { pushMessage } from '../../../utils/MessageBusUtils'
 import { LOCK_MARKET, LOCK_MARKET_CHANNEL } from '../../../contexts/MarketsContext/marketsContextMessages'
@@ -198,7 +197,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 function Summary(props) {
-  const { market, investibleId, hidden, activeMarket, inArchives } = props;
+  const { market, investibleId, hidden, activeMarket, inArchives, pageState, updatePageState, pageStateReset } = props;
   const history = useHistory();
   const intl = useIntl();
   const classes = useStyles();
@@ -219,8 +218,6 @@ function Summary(props) {
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const myMessage = findMessageOfTypeAndId(id, messagesState);
   const diff = getDiff(diffState, id);
-  const [pageStateFull, pageDispatch] = usePageStateReducer('market');
-  const [pageState, updatePageState, pageStateReset] = getPageReducerPage(pageStateFull, pageDispatch, id);
   const {
     beingEdited,
     showDiff

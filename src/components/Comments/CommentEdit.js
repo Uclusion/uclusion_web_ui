@@ -36,10 +36,6 @@ import { getQuillStoredState } from '../TextEditors/QuillEditor2'
 import { deleteOrDehilightMessages } from '../../api/users'
 
 const useStyles = makeStyles((theme) => ({
-  hidden: {
-    display: 'none',
-  },
-  add: {},
   visible: {
     overflow: 'visible'
   },
@@ -159,7 +155,7 @@ const useStyles = makeStyles((theme) => ({
 function CommentEdit(props) {
   const {
     marketId, onSave, onCancel, comment, allowedTypes, myNotificationType, isInReview, editState, updateEditState,
-    editStateReset, hidden, messages
+    editStateReset, messages
   } = props;
   const {
     uploadedFiles
@@ -233,68 +229,64 @@ function CommentEdit(props) {
   }
 
   return (
-    <div
-      className={hidden ? classes.hidden : classes.add}
-    >
-      <Card elevation={0} className={classes.visible} >
-        <CardContent className={classes.cardContent}>
-          {allowedTypes.length > 1 && !inlineMarketId && (
-            <FormControl component="fieldset" className={classes.commentType}>
-              <RadioGroup
-                aria-labelledby="comment-type-choice"
-                className={classes.commentTypeGroup}
-                onChange={onTypeChange}
-                value={type}
-                row
-              >
-                {allowedTypes.map((commentType) => {
-                  return (
-                    <FormControlLabel
-                      key={commentType}
-                      className={clsx(
-                        commentType === ISSUE_TYPE
-                          ? `${classes.chipItem} ${classes.chipItemIssue}`
-                          : commentType === QUESTION_TYPE ? `${classes.chipItem} ${classes.chipItemQuestion}`
-                          : commentType === SUGGEST_CHANGE_TYPE ? `${classes.chipItem} ${classes.chipItemSuggestion}`
-                            : commentType === TODO_TYPE ? `${classes.chipItem} ${classes.chipItemTodo}`
-                              : `${classes.chipItem} ${classes.chipItemReport}`,
-                        type === commentType ? classes.selected : classes.unselected
-                      )}
-                      /* prevent clicking the label stealing focus */
-                      onMouseDown={e => e.preventDefault()}
-                      control={<Radio color="primary" />}
-                      label={mobileLayout ? getIcon(commentType) :
-                        <FormattedMessage id={isInReview && commentType === REPORT_TYPE ? 'reviewReportPresent'
-                          : `${commentType.toLowerCase()}Present`} />}
-                      labelPlacement="end"
-                      value={commentType}
-                    />
-                  );
-                })}
-              </RadioGroup>
-            </FormControl>
-          )}
-          {Editor}
-        </CardContent>
-        <CardActions className={classes.cardActions}>
-          <SpinningIconLabelButton onClick={handleCancel} doSpin={false} icon={Clear}>
-            {intl.formatMessage({ id: 'cancel' })}
-          </SpinningIconLabelButton>
-          <SpinningIconLabelButton
-            icon={Update}
-            onClick={handleSave}
-            id="updateCommentButton"
-          >
-            {intl.formatMessage({ id: 'update' })}
-          </SpinningIconLabelButton>
-          {!mobileLayout && (
-            <Button className={classes.button}>
-              {intl.formatMessage({ id: 'edited' })}
-            </Button>
-          )}
-        </CardActions>
-      </Card>
-    </div>
+    <Card elevation={0} className={classes.visible} >
+      <CardContent className={classes.cardContent}>
+        {allowedTypes.length > 1 && !inlineMarketId && (
+          <FormControl component="fieldset" className={classes.commentType}>
+            <RadioGroup
+              aria-labelledby="comment-type-choice"
+              className={classes.commentTypeGroup}
+              onChange={onTypeChange}
+              value={type}
+              row
+            >
+              {allowedTypes.map((commentType) => {
+                return (
+                  <FormControlLabel
+                    key={commentType}
+                    className={clsx(
+                      commentType === ISSUE_TYPE
+                        ? `${classes.chipItem} ${classes.chipItemIssue}`
+                        : commentType === QUESTION_TYPE ? `${classes.chipItem} ${classes.chipItemQuestion}`
+                        : commentType === SUGGEST_CHANGE_TYPE ? `${classes.chipItem} ${classes.chipItemSuggestion}`
+                          : commentType === TODO_TYPE ? `${classes.chipItem} ${classes.chipItemTodo}`
+                            : `${classes.chipItem} ${classes.chipItemReport}`,
+                      type === commentType ? classes.selected : classes.unselected
+                    )}
+                    /* prevent clicking the label stealing focus */
+                    onMouseDown={e => e.preventDefault()}
+                    control={<Radio color="primary" />}
+                    label={mobileLayout ? getIcon(commentType) :
+                      <FormattedMessage id={isInReview && commentType === REPORT_TYPE ? 'reviewReportPresent'
+                        : `${commentType.toLowerCase()}Present`} />}
+                    labelPlacement="end"
+                    value={commentType}
+                  />
+                );
+              })}
+            </RadioGroup>
+          </FormControl>
+        )}
+        {Editor}
+      </CardContent>
+      <CardActions className={classes.cardActions}>
+        <SpinningIconLabelButton onClick={handleCancel} doSpin={false} icon={Clear}>
+          {intl.formatMessage({ id: 'cancel' })}
+        </SpinningIconLabelButton>
+        <SpinningIconLabelButton
+          icon={Update}
+          onClick={handleSave}
+          id="updateCommentButton"
+        >
+          {intl.formatMessage({ id: 'update' })}
+        </SpinningIconLabelButton>
+        {!mobileLayout && (
+          <Button className={classes.button}>
+            {intl.formatMessage({ id: 'edited' })}
+          </Button>
+        )}
+      </CardActions>
+    </Card>
   );
 }
 

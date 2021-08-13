@@ -699,20 +699,21 @@ function Comment(props) {
             {!editOpen && displayingDiff && (
               <DiffDisplay id={id} />
             )}
-            <CommentEdit
-              marketId={marketId}
-              comment={comment}
-              hidden={!editOpen}
-              onSave={toggleEdit}
-              onCancel={onDone}
-              allowedTypes={allowedTypes}
-              editState={editState}
-              updateEditState={updateEditState}
-              editStateReset={editStateReset}
-              myNotificationType={myNotificationType}
-              isInReview={createdInReview}
-              messages={messages}
-            />
+            {editOpen && (
+              <CommentEdit
+                marketId={marketId}
+                comment={comment}
+                onSave={toggleEdit}
+                onCancel={onDone}
+                allowedTypes={allowedTypes}
+                editState={editState}
+                updateEditState={updateEditState}
+                editStateReset={editStateReset}
+                myNotificationType={myNotificationType}
+                isInReview={createdInReview}
+                messages={messages}
+              />
+            )}
             {noAuthor && !editOpen && (
               <SpinningIconLabelButton onClick={onDone} doSpin={false} icon={Clear}>
                 {intl.formatMessage({ id: 'cancel' })}
@@ -1085,16 +1086,17 @@ function Reply(props) {
             value={comment.created_at}
           />
         </Typography>
-        <CommentEdit
-          intl={intl}
-          marketId={marketId}
-          hidden={!beingEdited}
-          editState={editState}
-          updateEditState={updateEditState}
-          editStateReset={editStateReset}
-          comment={comment}
-          messages={messages}
-        />
+        {beingEdited && (
+          <CommentEdit
+            intl={intl}
+            marketId={marketId}
+            editState={editState}
+            updateEditState={updateEditState}
+            editStateReset={editStateReset}
+            comment={comment}
+            messages={messages}
+          />
+        )}
         {!beingEdited && (
           <ReadOnlyQuillEditor
             className={classes.editor}

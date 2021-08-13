@@ -175,41 +175,44 @@ function QuillEditor2 (props) {
   const boundsId = `editorBox-${id || marketId}`;
   const initialContents = getInitialState(id, value, placeholder);
 
-  function focusEditor(){
+  function focusEditor(editor){
     if (!_.isEmpty(boxRef?.current?.children)) {
       boxRef.current.children[0].click();
     }
-    editor && editor.focus();
+    editor.focus();
   }
 
   function resetHandler(contents){
     storeState(id, null);
     createEditor(contents); // recreate the editor, because we need to get brand new state
-    focusEditor();
   }
 
-
-  registerListener(`editor-${id}-control-plane`, id, (message) => {
-    const {
-      type,
-      contents
-    } = message.payload;
-    switch (type) {
-      case 'reset':
-        return resetHandler(contents);
-      case 'update':
-        return replaceEditorContents(contents);
-      case 'focus':
-        return focusEditor();
-      default:
-        // do nothing;
-    }
-  })
-
-  function replaceEditorContents(contents) {
+  function replaceEditorContents(contents, editor) {
     editor.setContents({insert: contents});
     storeState(id, contents);
   }
+
+  function beginListening(editor) {
+    registerListener(`editor-${id}-control-plane`, id, (message) => {
+      const {
+        type,
+        contents
+      } = message.payload;
+
+      switch (type) {
+        case 'reset':
+          //console.debug(`resetting with contents ${contents}`);
+          return resetHandler(contents);
+        case 'update':
+          return replaceEditorContents(contents, editor);
+        case 'focus':
+          return focusEditor(editor);
+        default:
+        // do nothing;
+      }
+    })
+  }
+
   /**
    * The UI for videos is quite poor, so we need
    * to replace it with ours
@@ -237,7 +240,6 @@ function QuillEditor2 (props) {
         open={linkDialogOpen}
         onClose={() => setLinkDialogOpen(false)}
         onSave={(link) => {
-        console.debug(link);
           // if they haven't got anything selected, just get the current
           // position and insert the url as the text,
           // otherwise just format the current selection as a link
@@ -476,6 +478,7 @@ function QuillEditor2 (props) {
     }, 50);
     editor.on('text-change', debouncedOnChange);
     setEditor(editor);
+    beginListening(editor);
   }
 
   // bridge our fonts in from the theme;

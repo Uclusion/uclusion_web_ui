@@ -471,17 +471,10 @@ function PlanningInvestible(props) {
     );
     return _.isEmpty(assignedInputComments) && !isInVerified && !isInNotDoing;
   }
-  const allowedCommentTypes = canGetInput() ? [QUESTION_TYPE, SUGGEST_CHANGE_TYPE] : [];
-  if (isAssigned) {
-    allowedCommentTypes.push(REPORT_TYPE);
-    allowedCommentTypes.push(TODO_TYPE);
-  }
-  if (!isAssigned) {
-    allowedCommentTypes.push(TODO_TYPE);
-    if (isInReview) {
-      // Reviewers or QE may need to open progress reports
-      allowedCommentTypes.push(REPORT_TYPE);
-    }
+  const allowedCommentTypes =  [TODO_TYPE, REPORT_TYPE];
+  if (canGetInput()) {
+    allowedCommentTypes.push(QUESTION_TYPE);
+    allowedCommentTypes.push(SUGGEST_CHANGE_TYPE);
   }
   if (canOpenBlocking()) {
     allowedCommentTypes.push(ISSUE_TYPE);

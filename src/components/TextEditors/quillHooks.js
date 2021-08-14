@@ -9,6 +9,14 @@ export function editorReset (contents) {
   };
 }
 
+export function editorRecreate(newId, contents) {
+  return {
+    type: 'recreate',
+    newId,
+    contents
+  };
+}
+
 /**
  * Used by the editor to recieve an update, and to send to a listening reducer that an update has happened
  * @param contents

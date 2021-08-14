@@ -27,6 +27,7 @@ import PropTypes from 'prop-types';
 import { getNameForUrl } from '../../utils/marketIdPathFunctions'
 import { isTinyWindow } from '../../utils/windowUtils'
 import ImageBlot from './ImageBlot'
+import { editorRecreate, editorReset, getControlPlaneName } from './quillHooks'
 
 
 // install our filtering paste module, and disable the uploader
@@ -169,6 +170,7 @@ function QuillEditor2 (props) {
   const [linkDialogOpen, setLinkDialogOpen] = useState(false);
   //TODO presumably this is a performance optimization but could get the same by handling dependencies better
   const [editor, setEditor] = useState(null);
+  const [currentId, setCurrentId] = useState(id);
   const intl = useIntl();
   const theme = useTheme();
   const [, setOperationInProgress] = useContext(OperationInProgressContext);
@@ -183,8 +185,10 @@ function QuillEditor2 (props) {
   }
 
   function resetHandler(contents){
-    storeState(id, null);
-    createEditor(contents); // recreate the editor, because we need to get brand new state
+    if (id) {
+      storeState(id, null);
+      createEditor(id, contents); // recreate the editor, because we need to get brand new state
+    }
   }
 
   function replaceEditorContents(contents, editor) {
@@ -192,16 +196,17 @@ function QuillEditor2 (props) {
     storeState(id, contents);
   }
 
-  function beginListening(editor) {
-    registerListener(`editor-${id}-control-plane`, id, (message) => {
+  function beginListening(editor, listenId) {
+    registerListener(`editor-${listenId}-control-plane`, id, (message) => {
       const {
         type,
-        contents
+        contents,
+        newId
       } = message.payload;
-
       switch (type) {
+        case 'recreate':
+          return createEditor(newId, contents);
         case 'reset':
-          //console.debug(`resetting with contents ${contents}`);
           return resetHandler(contents);
         case 'update':
           return replaceEditorContents(contents, editor);
@@ -426,12 +431,12 @@ function QuillEditor2 (props) {
     return (ch === ' ') || (ch === '\t') || (ch === '\n');
   }
 
-  function createEditor (initializeContents) {
+  function createEditor (editorId, initializeContents) {
     // we only set the contents if different from the placeholder
     // otherwise the placeholder functionality of the editor won't work
     if(boxRef.current) {
       boxRef.current.innerHTML = '';
-      if (initializeContents)  {
+      if (initializeContents !== undefined)  {
         boxRef.current.innerHTML = initializeContents;
       } else if (!(placeholder === initialContents) && initialContents) {
         boxRef.current.innerHTML = initialContents;
@@ -471,14 +476,15 @@ function QuillEditor2 (props) {
       }
       const contents = editor.root.innerHTML;
       if (editorEmpty(contents)) {
-        storeState(id, '');
+        storeState(editorId, '');
       } else {
-        storeState(id, contents);
+        storeState(editorId, contents);
       }
     }, 50);
     editor.on('text-change', debouncedOnChange);
     setEditor(editor);
-    beginListening(editor);
+    setCurrentId(editorId);
+    beginListening(editor, editorId);
   }
 
   // bridge our fonts in from the theme;
@@ -500,6 +506,14 @@ function QuillEditor2 (props) {
   };
 
   useEffect(() => {
+    if (id && currentId !== id) {
+      //If id changes have to reset
+      pushMessage(getControlPlaneName(currentId), editorRecreate(id, getQuillStoredState(id)));
+    }
+    return () => {};
+  }, [currentId, id]);
+
+  useEffect(() => {
     // Without this read only won't update
     if (editor && noToolbar) {
       editor.root.innerHTML = '';
@@ -510,8 +524,8 @@ function QuillEditor2 (props) {
   useEffect(() => {
     //TODO this makes no sense since no dependencies will only run on creation
     //TODO and editor.scrollingContainer.id !== boundsId happens if namespace changes - having to call reset from parent
-    if(!editor ) {
-      createEditor();
+    if(!editor && (id || noToolbar)) {
+      createEditor(id);
     }
   });
 

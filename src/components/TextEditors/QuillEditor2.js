@@ -27,7 +27,7 @@ import PropTypes from 'prop-types';
 import { getNameForUrl } from '../../utils/marketIdPathFunctions'
 import { isTinyWindow } from '../../utils/windowUtils'
 import ImageBlot from './ImageBlot'
-import { editorRecreate, editorReset, getControlPlaneName } from './quillHooks'
+import { editorRecreate, getControlPlaneName } from './quillHooks'
 
 
 // install our filtering paste module, and disable the uploader

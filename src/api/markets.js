@@ -137,17 +137,6 @@ export function createOnboardingWorkspace() {
     .catch((error) => toastErrorAndThrow(error, 'errorPlanningAddFailed'));
 }
 
-export function showMarket(marketId) {
-  return getMarketClient(marketId)
-    .then((client) => client.markets.unhide())
-    .catch((error) => toastErrorAndThrow(error, 'errorMarketShowFailed'))
-}
-export function hideMarket(marketId) {
-  return getMarketClient(marketId)
-    .then((client) => client.markets.hide())
-    .catch((error) => toastErrorAndThrow(error, 'errorMarketHideFailed'));
-}
-
 export function archiveMarket(marketId, marketType) {
   const marketStage = marketType === PLANNING_TYPE ? INACTIVE_STAGE : 'Cancelled';
   const updateOptions = { market_stage: marketStage };

@@ -14,7 +14,6 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 import _ from 'lodash'
 import ShowInVerifiedStageAge from './ShowInVerifiedStageAge'
 import { makeStyles, TextField, Typography } from '@material-ui/core'
-import ExistingUsers from '../UserManagement/ExistingUsers'
 import ChangeToObserverButton from '../ChangeToObserverButton'
 import ChangeToParticipantButton from '../ChangeToParticipantButton'
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
@@ -22,6 +21,7 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { Clear, SettingsBackupRestore } from '@material-ui/icons'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
+import ManageExistingUsers from '../UserManagement/ManageExistingUsers'
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -135,11 +135,11 @@ function PlanningDialogEdit(props) {
       <CardContent className={classes.cardContent}>
         <Grid container className={clsx(classes.fieldset, classes.flex, classes.justifySpace)}>
           {!isDraft && (
-            <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
-              <ExistingUsers market={market} />
+            <Grid item md={6} xs={12} className={classes.fieldsetContainer}>
+              <ManageExistingUsers market={market} />
             </Grid>
           )}
-          <Grid item md={isDraft ? 12 : 5} xs={12} className={classes.fieldsetContainer}>
+          <Grid item md={isDraft ? 12 : 4} xs={12} className={classes.fieldsetContainer}>
             <Typography variant="h6">
               Archive or Restore Workspace
             </Typography>

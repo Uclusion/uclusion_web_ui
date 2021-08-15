@@ -186,7 +186,7 @@ function DialogActions(props) {
         );
       }
     }
-    if (action === 'dialog' && ((marketType === PLANNING_TYPE) || !activeMarket)) {
+    if (action === 'dialog' && marketType !== PLANNING_TYPE && !activeMarket) {
       actions.push(<ShareStoryButton key="share-story" marketId={marketId}/>)
     }
     if (!hideEdit && mobileLayout && !beingEdited) {

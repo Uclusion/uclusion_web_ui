@@ -14,6 +14,18 @@ export function banUser(marketId, userId) {
     .catch((error) => toastErrorAndThrow(error, 'errorBanUserFailed'));
 }
 
+export function unGuestUser(marketId, userId) {
+  return getMarketClient(marketId)
+    .then((client) => client.users.changeGuest(userId, false))
+    .catch((error) => toastErrorAndThrow(error, 'errorGuestUserFailed'));
+}
+
+export function guestUser(marketId, userId) {
+  return getMarketClient(marketId)
+    .then((client) => client.users.changeGuest(userId, true))
+    .catch((error) => toastErrorAndThrow(error, 'errorGuestUserFailed'));
+}
+
 export function deleteSingleMessage(message) {
   const { market_id: marketId, type_object_id: typeObjectId } = message;
   if (marketId === 'slack_reminder') {

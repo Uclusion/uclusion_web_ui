@@ -186,7 +186,8 @@ function CommentEdit(props) {
 
   function handleSave() {
     const currentUploadedFiles = uploadedFiles || [];
-    const newUploadedFiles = _.uniqBy([...initialUploadedFiles, ...currentUploadedFiles], 'path');
+    const existingUploadedFiles = initialUploadedFiles || [];
+    const newUploadedFiles = _.uniqBy([...existingUploadedFiles, ...currentUploadedFiles], 'path');
     const body = getQuillStoredState(editorName) !== null ? getQuillStoredState(editorName) : initialBody;
     const {
       uploadedFiles: filteredUploads,

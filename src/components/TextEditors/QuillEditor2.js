@@ -107,6 +107,9 @@ function getInitialState (id, knownState, placeHolder) {
   return placeHolder;
 }
 
+const OUR_CLOUDFRONT_FILE_PATTERN = /https:\/\/\w+.cloudfront.net\/(\w{8}(-\w{4}){3}-\w{12})\/\w{8}(-\w{4}){3}-\w{12}.*/i;
+const OUR_CND_DOMAIN_ENDING = 'imagecdn.uclusion.com';
+
 function storeState (id, state) {
   if (_.isEmpty(state)) {
     setUclusionLocalStorageItem(`editor-${id}`, state);
@@ -114,6 +117,11 @@ function storeState (id, state) {
     //Remove tokens here that were added in ImageBlot Quill format
     const regexp = /img src\s*=\s*"(.+?)"/g;
     const newStr = state.replace(regexp, (match, p1) => {
+      const cloudfrontMatch = p1.match(OUR_CLOUDFRONT_FILE_PATTERN);
+      const cdnMatch = p1.includes(OUR_CND_DOMAIN_ENDING);
+      if (!cloudfrontMatch && !cdnMatch) {
+        return `img src="${p1}"`;
+      }
       const url = new URL(p1);
       const params = new URLSearchParams(url.search);
       params.delete('authorization');

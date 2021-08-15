@@ -704,6 +704,10 @@ const messages = defineMessages({
   requiresInputListHeader: 'Warning: unless you resolve some comments the current assignment will move the story to Requires Input.',
   reviewListHeader: 'Required reviewers',
   approveListHeader: 'Required approvers',
+  cannotUnassignExplanation: 'Collaborators assigned stories cannot be unchecked.',
+  removeExplanation: 'Remove takes away all access to this Workspace',
+  guestExplanation: 'Not assignable means the collaborator will not show in the swimlanes.',
+
   // Address List
   addressListHeader: 'Addressed to',
   todoAddressListHeader: 'Assign to',

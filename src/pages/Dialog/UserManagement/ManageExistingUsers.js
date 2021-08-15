@@ -11,7 +11,7 @@ import {
   ListItem,
   ListItemAvatar,
   ListItemText,
-  ListItemSecondaryAction, Checkbox, ListItemIcon
+  ListItemSecondaryAction, Checkbox, ListItemIcon, Tooltip
 } from '@material-ui/core'
 import BanUserButton from './BanUserButton';
 import UnBanUserButton from './UnBanUserButton';
@@ -21,6 +21,13 @@ import Typography from '@material-ui/core/Typography'
 import { useIntl } from 'react-intl'
 import { guestUser, unGuestUser } from '../../../api/users'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
+import {
+  getAcceptedStage, getBlockedStage,
+  getInCurrentVotingStage, getInReviewStage, getRequiredInputStage, getVerifiedStage
+} from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -47,6 +54,20 @@ function ManageExistingUsers (props) {
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const yourPresence = marketPresences.find((presence) => presence.current_user) || {};
   const { is_admin: isAdmin } = yourPresence;
+  const [marketStagesState] = useContext(MarketStagesContext);
+  const acceptedStage = getAcceptedStage(marketStagesState, marketId) || {};
+  const inDialogStage = getInCurrentVotingStage(marketStagesState, marketId) || {};
+  const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
+  const inBlockingStage = getBlockedStage(marketStagesState, marketId) || {};
+  const requiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
+  const [investiblesState] = useContext(InvestiblesContext);
+  const investibles = getMarketInvestibles(investiblesState, marketId);
+  const assignedInvestibles = investibles.filter((investible) => {
+    const { market_infos: marketInfos } = investible;
+    const marketInfo = marketInfos.find(info => info.market_id === marketId) || {};
+    return [acceptedStage.id, inDialogStage.id, inReviewStage.id, requiresInputStage.id,
+      inBlockingStage.id].includes(marketInfo.stage);
+  }) || [];
 
   function assignableChanged(guestPromise) {
     setOperationRunning(true);
@@ -62,6 +83,11 @@ function ManageExistingUsers (props) {
   function getUsers () {
     return marketPresences.map((presence) => {
       const { name, email, id, market_banned: banned, market_guest: guest } = presence;
+      const hasStories = !_.isEmpty(assignedInvestibles.find((investible) => {
+        const { market_infos: marketInfos } = investible;
+        const marketInfo = marketInfos.find(info => info.market_id === marketId) || {};
+        return marketInfo.assigned && marketInfo.assigned.includes(id);
+      }));
       return (
         <ListItem
           key={id}
@@ -79,16 +105,20 @@ function ManageExistingUsers (props) {
             {name}
           </ListItemText>
           <ListItemIcon style={{paddingRight: '15%'}}>
-            <Checkbox
-              onChange={() => {
-                if (guest) {
-                  return assignableChanged(unGuestUser(marketId, id));
-                }
-                return assignableChanged(guestUser(marketId, id));
-              }}
-              checked={!guest}
-              disabled={banned || operationRunning}
-            />
+            <Tooltip
+              title={intl.formatMessage({ id: 'guestExplanation' })}
+            >
+              <Checkbox
+                onChange={() => {
+                  if (guest) {
+                    return assignableChanged(unGuestUser(marketId, id));
+                  }
+                  return assignableChanged(guestUser(marketId, id));
+                }}
+                checked={!guest}
+                disabled={banned || operationRunning || hasStories}
+              />
+            </Tooltip>
           </ListItemIcon>
           <ListItemSecondaryAction>
             {!banned && (
@@ -120,8 +150,12 @@ function ManageExistingUsers (props) {
       </Typography>
     }>
       <ListItem key='header'><ListItemText />
-        <ListItemIcon style={{paddingRight: '7%'}}>Assignable</ListItemIcon>
-        <ListItemIcon>Remove</ListItemIcon>
+        <Tooltip title={intl.formatMessage({ id: 'cannotUnassignExplanation' })}>
+          <ListItemIcon style={{paddingRight: '7%'}}>Assignable</ListItemIcon>
+        </Tooltip>
+        <Tooltip title={intl.formatMessage({ id: 'removeExplanation' })}>
+          <ListItemIcon>Remove</ListItemIcon>
+        </Tooltip>
       </ListItem>
       {getUsers()}
     </List>

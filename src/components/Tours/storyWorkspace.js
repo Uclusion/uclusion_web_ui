@@ -1,12 +1,6 @@
 
 export function inviteStoriesWorkspaceSteps(intl) {
-  const steps = [
-  {
-    disableBeacon: true,
-    target: '#workspaceMain',
-    placement: 'top',
-    content: 'Everything you and your team need to get started with a process for real change.',
-  }];
+  const steps = [];
   if (document.getElementById('navList')) {
     steps.push({
       disableBeacon: true,

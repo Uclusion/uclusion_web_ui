@@ -25,7 +25,7 @@ import { getMarketInvestibles } from '../../../contexts/InvestibesContext/invest
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import {
   getAcceptedStage, getBlockedStage,
-  getInCurrentVotingStage, getInReviewStage, getRequiredInputStage, getVerifiedStage
+  getInCurrentVotingStage, getInReviewStage, getRequiredInputStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 

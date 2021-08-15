@@ -78,9 +78,11 @@ function CreateWorkspaceDialog(props) {
         }
         promiseChain = promiseChain.then(() => tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, market.id, token));
       });
-      setOperationRunning(false);
       tourDispatch(startTour(INVITE_STORIES_WORKSPACE_FIRST_VIEW));
-      return promiseChain.then(() => navigate(history, formMarketLink(marketId)));
+      return promiseChain.then(() => {
+        setOperationRunning(false);
+        navigate(history, formMarketLink(marketId));
+      });
     });
   }
 

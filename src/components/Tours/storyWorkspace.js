@@ -1,7 +1,7 @@
 
-export function inviteStoriesWorkspaceSteps(intl) {
+export function inviteStoriesWorkspaceSteps(intl, mobileLayout) {
   const steps = [];
-  if (document.getElementById('navList')) {
+  if (!mobileLayout) {
     steps.push({
       disableBeacon: true,
       target: `#${intl.formatMessage({ id: 'swimLanes' })}`,
@@ -15,20 +15,6 @@ export function inviteStoriesWorkspaceSteps(intl) {
       content: 'This Suggestion for using Uclusion is waiting for you to add your team so they can vote.',
     });
   }
-  if (document.getElementById('yellowLevelNotification')) {
-    steps.push({
-      disableBeacon: true,
-      target: '#yellowLevelNotification',
-      placement: 'bottom',
-      content: 'Categorized notifications are automatically sent and appear here so you know what needs to be done when.',
-    });
-  }
-  steps.push({
-    disableBeacon: true,
-    target: '#helpIcon',
-    placement: 'bottom',
-    content: "Documentation on how Uclusion let's you do agile project management without all the meetings."
-  });
   steps.push({
     disableBeacon: true,
     target: '#adminManageCollaborators',

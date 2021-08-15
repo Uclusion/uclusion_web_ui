@@ -307,7 +307,7 @@ function PlanningDialog(props) {
       <UclusionTour
         name={INVITE_STORIES_WORKSPACE_FIRST_VIEW}
         hidden={hidden}
-        steps={inviteStoriesWorkspaceSteps(intl)}
+        steps={inviteStoriesWorkspaceSteps(intl, mobileLayout)}
       />
       <UclusionTour
         name={INVITED_USER_WORKSPACE}

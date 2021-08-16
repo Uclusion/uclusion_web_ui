@@ -10,7 +10,7 @@ import {
   isTourRunning,
   setCurrentStep
 } from '../../contexts/TourContext/tourContextHelper'
-import ReactJoyride from 'react-joyride'
+import ReactJoyride, { ACTIONS } from 'react-joyride'
 import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
 import { updateUiPreferences } from '../../api/account'
 import { accountUserRefresh } from '../../contexts/AccountUserContext/accountUserContextReducer'
@@ -57,19 +57,20 @@ function UclusionTour(props) {
       index,
       type,
       step,
+      action
     } = state;
     if (!isCompleted) {
-      if (status === 'finished') {
+      if (status === 'finished' || action === ACTIONS.CLOSE) {
         // the've finished, register complete
         // console.log(`Tour ${name} is complete`);
-        completeTour(tourDispatch, name);
+        completeTour(tourDispatch, name)
         storeTourCompleteInBackend(name, safeCompletedTours, tourPreferences, userPreferences,
-          userDispatch);
+          userDispatch)
       }
       if (type === 'step:after') {
-        setCurrentStep(tourDispatch, name, index + 1);
+        setCurrentStep(tourDispatch, name, index + 1)
         if (step && step.onClose) {
-          step.onClose();
+          step.onClose()
         }
       }
     }
@@ -78,9 +79,6 @@ function UclusionTour(props) {
   const defaultLocale = { back: 'Back', close: 'Close', last: 'Close', next: 'Next', skip: 'Skip' };
 
   const ourStyles = {
-    buttonClose: {
-      display: 'none'
-    },
     buttonNext: {
       backgroundColor: '#2D9CDB',
       color: 'white',
@@ -119,6 +117,7 @@ function UclusionTour(props) {
       styles={ourStyles}
       run={runTour}
       stepIndex={currentStep}
+      showProgress={true}
       locale={defaultLocale}
       {...rest}
       callback={tourCallback}

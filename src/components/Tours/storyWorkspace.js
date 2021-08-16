@@ -1,3 +1,4 @@
+import React from 'react'
 
 export function inviteStoriesWorkspaceSteps(intl, mobileLayout) {
   const steps = [];
@@ -6,13 +7,19 @@ export function inviteStoriesWorkspaceSteps(intl, mobileLayout) {
       disableBeacon: true,
       target: `#${intl.formatMessage({ id: 'swimLanes' })}`,
       placement: 'right',
-      content: 'The first story beyond failed retros is already assigned to you.',
+      title: 'The First Story',
+      content: (
+        <div>
+          The first story beyond failed retros is <i>already</i> assigned to you.
+        </div>
+      )
     });
     steps.push({
       disableBeacon: true,
       target: `#${intl.formatMessage({ id: 'suggestions' })}`,
       placement: 'right',
-      content: 'This Suggestion for using Uclusion is waiting for you to add your team so they can vote.',
+      title: 'Suggestion for Reclaiming Retros',
+      content: 'Once you add your team they can vote on using Uclusion.',
     });
   }
   steps.push({

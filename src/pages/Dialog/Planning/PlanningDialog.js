@@ -257,9 +257,11 @@ function PlanningDialog(props) {
   const detailsItems = [createNavListItem(EditIcon, 'description_label', 'workspaceMain',
     _.isEmpty(search) || results.find((result) => result.id === marketId) ? undefined : 0,
     'workspaceMain'),
-    {icon: MenuBookIcon, text: intl.formatMessage({ id: 'planningDialogViewArchivesLabel' }),
-    target: _.isEmpty(search) || archivedSize > 0 ? formMarketArchivesLink(marketId) : undefined,
-      num: _.isEmpty(search) ? undefined : archivedSize}];
+    {
+      icon: MenuBookIcon, text: intl.formatMessage({ id: 'planningDialogViewArchivesLabel' }),
+      target: archivedSize > 0 ? formMarketArchivesLink(marketId) : undefined,
+      num: _.isEmpty(search) ? undefined : archivedSize
+    }];
 
   const discussionItems = [inArchives ? {} : createNavListItem(AddIcon,'commentAddBox',
     undefined, _.isEmpty(search) ? undefined : 0, 'discussionSection'),

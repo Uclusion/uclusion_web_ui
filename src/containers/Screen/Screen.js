@@ -72,6 +72,7 @@ const useStyles = makeStyles((theme) => ({
   paper: {
     // See https://github.com/mui-org/material-ui/blob/master/packages/material-ui/src/Drawer/Drawer.js
     overflowY: 'auto',
+    maxHeight: '80%',
     display: 'flex',
     flexDirection: 'column',
     flex: '1 0 auto',

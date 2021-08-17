@@ -102,17 +102,17 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function processRegularItem(classes, history, text, target, num, Icon, onClickFunc, isGrouped, isBold) {
+function processRegularItem (classes, history, text, target, num, Icon, onClickFunc, isGrouped, isBold, newPage) {
   if (!text) {
-    return React.Fragment;
+    return React.Fragment
   }
   if (!target && !onClickFunc) {
     return (
       <ListItem key={text} className={isGrouped ? classes.navListItemGrouped : classes.navListItem}>
-        <Icon className={clsx(classes.navListIcon, classes.disabled)} />
-        <ListItemText primary={text} primaryTypographyProps={{className: classes.disabled}} />
+        <Icon className={clsx(classes.navListIcon, classes.disabled)}/>
+        <ListItemText primary={text} primaryTypographyProps={{ className: classes.disabled }}/>
       </ListItem>
-    );
+    )
   }
   const textNoSpaces = text.split(" ").join("");
   return (
@@ -124,7 +124,7 @@ function processRegularItem(classes, history, text, target, num, Icon, onClickFu
                   if (onClickFunc) {
                     onClickFunc();
                   } else {
-                    navigate(history, target, false, true);
+                    navigate(history, target, false, !newPage)
                   }
                 }
               }
@@ -229,7 +229,7 @@ function Screen(props) {
               <NavHeaderIcon style={{ height: 32, width: 32 }} /></div>}
             >
               {navListItemTextArray.map((navItem) => {
-                const { text, target, num, icon: Icon, onClickFunc, subItems, isBold } = navItem;
+                const { text, target, num, icon: Icon, onClickFunc, subItems, isBold, newPage } = navItem
                 if (subItems) {
                   return (
                     <>
@@ -240,16 +240,16 @@ function Screen(props) {
                       </ListItem>
                       <div style={{paddingBottom: '0.5rem'}}>
                         {subItems.map((subItem) => {
-                          const { text, target, num, icon: Icon, onClickFunc } = subItem;
+                          const { text, target, num, icon: Icon, onClickFunc, newPage } = subItem
                           return processRegularItem(classes, history, text, target, num, Icon, onClickFunc,
-                            true);
+                            true, false, newPage)
                         })}
                       </div>
                     </>
                   );
                 }
                 return processRegularItem(classes, history, text, target, num, Icon, onClickFunc, false,
-                  isBold);
+                  isBold, newPage)
               })}
             </List>
             <SearchBox/>

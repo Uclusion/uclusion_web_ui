@@ -152,9 +152,11 @@ function Home(props) {
       createNavListItem(PlaylistAddCheckIcon, 'planningMarkets', 'planningMarkets', _.size(planningDetails)),
       createNavListItem(GavelIcon, 'dialogs', 'dia0', _.size(decisionDetails)),
       createNavListItem(PollIcon, 'initiatives', 'ini0', _.size(initiativeDetails)),
-      {icon: MenuBookIcon, text: intl.formatMessage({ id: 'homeViewArchives' }),
+      {
+        icon: MenuBookIcon, text: intl.formatMessage({ id: 'homeViewArchives' }),
         target: _.size(archiveMarkets) > 0 ? '/archives' : undefined,
-        num: _.isEmpty(search) || _.size(archiveMarkets) === 0 ? undefined : _.size(archiveMarkets)}
+        num: _.isEmpty(search) || _.size(archiveMarkets) === 0 ? undefined : _.size(archiveMarkets), newPage: true
+      }
     ]};
 
   return (

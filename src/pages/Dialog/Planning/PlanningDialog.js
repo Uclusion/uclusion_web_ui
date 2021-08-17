@@ -260,7 +260,7 @@ function PlanningDialog(props) {
     {
       icon: MenuBookIcon, text: intl.formatMessage({ id: 'planningDialogViewArchivesLabel' }),
       target: archivedSize > 0 ? formMarketArchivesLink(marketId) : undefined,
-      num: _.isEmpty(search) ? undefined : archivedSize
+      num: _.isEmpty(search) ? undefined : archivedSize, newPage: true
     }];
 
   const discussionItems = [inArchives ? {} : createNavListItem(AddIcon,'commentAddBox',

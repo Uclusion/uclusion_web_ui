@@ -305,20 +305,19 @@ function PlanningInvestibleAdd(props) {
               previouslyAssigned={getUrlAssignee()}
             />
             <fieldset className={classes.fieldset}>
-              <legend>Optional</legend>
-              {isAssignedToMe && assignments.length === 1 && (
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      value={skipApproval}
-                      disabled={votesRequired > 1 || acceptedFull || !acceptedStage.id}
-                      checked={skipApproval}
-                      onClick={() => updateInvestibleAddState({skipApproval: !skipApproval})}
-                    />
-                  }
-                  label={intl.formatMessage({ id: 'skipApprovalExplanation' })}
-                />
-              )}
+              <legend>{intl.formatMessage({ id: 'agilePlanFormFieldsetLabelOptional' })}</legend>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    value={skipApproval}
+                    disabled={votesRequired > 1 || acceptedFull || !acceptedStage.id ||
+                    !(isAssignedToMe && assignments.length === 1)}
+                    checked={skipApproval}
+                    onClick={() => updateInvestibleAddState({ skipApproval: !skipApproval })}
+                  />
+                }
+                label={intl.formatMessage({ id: 'skipApprovalExplanation' })}
+              />
             </fieldset>
           </div>
           {Editor}

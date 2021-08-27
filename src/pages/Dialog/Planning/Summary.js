@@ -1,7 +1,7 @@
 import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import { FormattedMessage, useIntl } from 'react-intl'
-import { Card, CardActions, CardContent, Grid,Typography } from '@material-ui/core'
+import { Card, CardActions, CardContent, Grid, Typography, useMediaQuery, useTheme } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import clsx from 'clsx'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
@@ -35,15 +35,17 @@ import { ExpandLess, SettingsBackupRestore } from '@material-ui/icons'
 import { deleteSingleMessage } from '../../../api/users'
 import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
+import MenuBookIcon from '@material-ui/icons/MenuBook'
+import { formMarketArchivesLink, navigate } from '../../../utils/marketIdPathFunctions'
 
 const useStyles = makeStyles(theme => ({
   section: {
-    alignItems: "flex-start",
-    display: "flex",
-    width: "50%"
+    alignItems: 'flex-start',
+    display: 'flex',
+    width: '50%'
   },
   collaborators: {
-    backgroundColor: theme.palette.grey["300"],
+    backgroundColor: theme.palette.grey['300'],
     borderRadius: 6,
     display: "flex",
     flexDirection: "column",
@@ -197,10 +199,12 @@ const useStyles = makeStyles(theme => ({
 }));
 
 function Summary(props) {
-  const { market, investibleId, hidden, activeMarket, inArchives, pageState, updatePageState, pageStateReset } = props;
-  const history = useHistory();
-  const intl = useIntl();
-  const classes = useStyles();
+  const { market, investibleId, hidden, activeMarket, inArchives, pageState, updatePageState, pageStateReset } = props
+  const history = useHistory()
+  const intl = useIntl()
+  const classes = useStyles()
+  const theme = useTheme()
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('md'))
   const {
     id,
     market_stage: marketStage,
@@ -210,7 +214,7 @@ function Summary(props) {
     attached_files: attachedFiles,
     locked_by: lockedBy,
     name,
-  } = market;
+  } = market
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [, marketsDispatch] = useContext(MarketsContext);
@@ -349,28 +353,30 @@ function Summary(props) {
                                          });
                                        }}
                                        doSpin={true}>
-                <FormattedMessage id={'markDescriptionRead'} />
+                <FormattedMessage id={mobileLayout ? 'markReadMobile' : 'markDescriptionRead'}/>
               </SpinningIconLabelButton>
             </>
           )}
           {myMessage && diff && (
-            <>
-              <div style={{paddingTop: '0.5rem'}} />
-              <SpinningIconLabelButton icon={showDiff ? ExpandLess : ExpandMoreIcon}
-                                       onClick={toggleDiffShow} doSpin={false}>
-                <FormattedMessage id={showDiff ? 'diffDisplayDismissLabel' : 'diffDisplayShowLabel'} />
-              </SpinningIconLabelButton>
-            </>
+            <SpinningIconLabelButton icon={showDiff ? ExpandLess : ExpandMoreIcon}
+                                     onClick={toggleDiffShow} doSpin={false}>
+              <FormattedMessage id={showDiff ? 'diffDisplayDismissLabel' : 'diffDisplayShowLabel'}/>
+            </SpinningIconLabelButton>
           )}
-          <div style={{paddingTop: '0.1rem'}} />
+          <div style={{ paddingTop: '1rem' }}></div>
           <AttachedFilesList
             key="files"
             marketId={id}
             isAdmin={myPresence.is_admin}
             onDeleteClick={onDeleteFile}
             attachedFiles={attachedFiles}
-            onUpload={onAttachFile} />
-
+            onUpload={onAttachFile}/>
+          {mobileLayout && (
+            <SpinningIconLabelButton icon={MenuBookIcon}
+                                     onClick={() => navigate(history, formMarketArchivesLink(id))} doSpin={false}>
+              <FormattedMessage id={'planningDialogViewArchivesLabel'}/>
+            </SpinningIconLabelButton>
+          )}
         </dl>
         </Grid>
       </Grid>

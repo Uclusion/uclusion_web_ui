@@ -187,7 +187,8 @@ function Home(props) {
             </div>
             <div id="swimLanes">
             <InvestiblesByWorkspace workspaces={planningDetails} chosenPerson={chosenPerson}
-            setChosenPerson={setChosenPerson} workspacesData={workspacesData} />
+                                    showAddNew={createEnabled && !wizardActive} setChosenPerson={setChosenPerson}
+                                    workspacesData={workspacesData} setWizardActive={setWizardActive}/>
             </div>
             <hr className={classes.spacer}/>
             <PlanningDialogs markets={planningDetails}/>

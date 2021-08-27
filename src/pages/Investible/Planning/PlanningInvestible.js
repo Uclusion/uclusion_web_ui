@@ -303,6 +303,7 @@ const useStyles = makeStyles(
     },
     assignmentFlexRow: {
       width: '100%',
+      maxWidth: '20rem',
       display: 'flex',
       padding: '8px'
     },

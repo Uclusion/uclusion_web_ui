@@ -35,7 +35,7 @@ import { SECTION_TYPE_SECONDARY_WARNING } from '../../../constants/global';
 import ArchiveInvestbiles from '../../DialogArchives/ArchiveInvestibles';
 import Link from '@material-ui/core/Link';
 import {
-  formMarketAddInvestibleLink, formMarketArchivesLink,
+  formMarketAddInvestibleLink,
   formMarketLink,
   navigate,
   preventDefaultAndProp
@@ -50,6 +50,7 @@ import Chip from '@material-ui/core/Chip'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
+import MenuBookIcon from '@material-ui/icons/MenuBook'
 export const LocalPlanningDragContext = React.createContext([]);
 
 function InvestiblesByWorkspace (props) {
@@ -147,6 +148,13 @@ function InvestiblesByWorkspace (props) {
             onClose={handleClose}>
             {peopleChoices}
           </Menu>
+
+          {midLayout && (
+            <SpinningIconLabelButton icon={MenuBookIcon} onClick={() => navigate(history, '/archives')}
+                                     doSpin={false}>
+              <FormattedMessage id={'homeViewArchives'}/>
+            </SpinningIconLabelButton>
+          )}
 
           {showAddNew && midLayout && (
             <SpinningIconLabelButton icon={AddIcon} onClick={() => setWizardActive(true)} doSpin={false}>

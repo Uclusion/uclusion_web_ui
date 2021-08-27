@@ -133,9 +133,9 @@ const useStyles = makeStyles(theme => ({
     color: "#E85757"
   },
   borderLeft: {
-    paddingRight: '2rem',
+    paddingRight: '1rem',
     paddingLeft: '1rem',
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down('sm')]: {
       paddingTop: '1rem',
       marginTop: '1rem',
       borderLeft: 'none',
@@ -143,6 +143,9 @@ const useStyles = makeStyles(theme => ({
       flexGrow: 'unset',
       maxWidth: 'unset',
       flexBasis: 'auto'
+    },
+    [theme.breakpoints.down('md')]: {
+      paddingRight: 0
     }
   },
   assignments: {

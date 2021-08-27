@@ -19,7 +19,6 @@ export function withSpinLock(Component) {
       children,
       disabled,
       hasSpinChecker,
-      spanChildren,
       ...rest
     } = props;
 
@@ -124,16 +123,13 @@ export function withSpinLock(Component) {
         onClick={myOnClick}
         {...rest}
       >
+        {children}
         {spinning && (
           <CircularProgress
             size={theme.typography.fontSize}
             color="inherit"
+            style={{ position: 'absolute', top: '50%', left: '50%', marginTop: -6, marginLeft: -12 }}
           />
-        )}
-        {!spanChildren && !spinning && children}
-        {/* keep the children in layout to avoid vertical layout shifts */}
-        {spanChildren && (
-          <span style={{ visibility: spinning ? 'hidden' : 'visible'  }}>{children}</span>
         )}
       </Component>
     );
@@ -147,8 +143,7 @@ export function withSpinLock(Component) {
     marketId: PropTypes.string.isRequired,
     disabled: PropTypes.bool,
     // are we giving you a spin checker, so don't wait for messages
-    hasSpinChecker: PropTypes.bool,
-    spanChildren: PropTypes.bool,
+    hasSpinChecker: PropTypes.bool
   };
   Spinning.defaultProps = {
     onSpinStart: () => {
@@ -161,7 +156,6 @@ export function withSpinLock(Component) {
     },
     disabled: false,
     hasSpinChecker: false,
-    spanChildren: true,
   };
   return Spinning;
 }

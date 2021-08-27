@@ -61,7 +61,6 @@ function SpinBlockingListAction(props) {
       onSpinStop={onSpinStop}
       className={classes.menuItem}
       hasSpinChecker={hasSpinChecker}
-      spanChildren={false}
       disabled={disabled}
     >
       <Tooltip title={label}>

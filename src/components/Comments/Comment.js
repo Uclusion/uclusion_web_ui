@@ -468,12 +468,14 @@ function Comment(props) {
             id="currentVoting"
             type={SECTION_TYPE_SECONDARY}
             title={intl.formatMessage({ id: 'decisionDialogCurrentVotingLabel' })}
-            actionButton={ inArchives ? null :
+            actionButton={!enableEditing ? null :
               (<ExpandableAction
                 icon={<AddIcon htmlColor="black"/>}
                 label={intl.formatMessage({ id: 'createDialogApprovableExplanation' })}
-                openLabel={intl.formatMessage({ id: mobileLayout ? 'inlineAddLabelMobile' :
-                    'decisionDialogAddInvestibleLabel'})}
+                openLabel={intl.formatMessage({
+                  id: mobileLayout ? 'inlineAddLabelMobile' :
+                    'decisionDialogAddInvestibleLabel'
+                })}
                 onClick={toggleInlineInvestibleAdd}
                 disabled={commentCreatedBy !== userId}
                 tipPlacement="top-end"

@@ -728,17 +728,17 @@ function Comment(props) {
                   <div style={{marginLeft: '1rem', paddingTop: '0.5rem'}}>
                     <FormControlLabel
                       control={<Checkbox
-                        style={{maxHeight: '1rem'}}
+                        style={{ maxHeight: '1rem' }}
                         id="notifyAll"
                         name="notifyAll"
                         checked={myNotificationType === 'YELLOW'}
                         disabled={true}
                       />}
-                      label={intl.formatMessage({ id: "notifyAll" })}
+                      label={intl.formatMessage({ id: 'notifyAll' })}
                     />
                   </div>
                 )}
-                {commentType === QUESTION_TYPE && !inArchives && !inlineMarketId && marketType === PLANNING_TYPE && (
+                {commentType === QUESTION_TYPE && enableEditing && !inlineMarketId && marketType === PLANNING_TYPE && (
                   <SpinningIconLabelButton
                     disabled={commentCreatedBy !== userId}
                     onClick={toggleInlineInvestibleAdd}

@@ -30,7 +30,7 @@ import { AccountContext } from '../../contexts/AccountContext/AccountContext';
 import {
   getExistingMarkets,
   getGlobalVersion,
-  hasInitializedGlobalVersion
+  hasInitializedGlobalVersion, hasLoadedGlobalVersion
 } from '../../contexts/VersionsContext/versionsContextHelper'
 import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
 import AddIcon from '@material-ui/icons/Add'
@@ -169,18 +169,18 @@ function Home(props) {
       loading={loadingForeGroundMarkets}
       navigationOptions={banner ? [] : navigationMenu}
     >
-      {!_.isEmpty(user) && _.isEmpty(getExistingMarkets(versionsContext))
-      && getGlobalVersion(versionsContext) !== EMPTY_GLOBAL_VERSION && (
-        <CreateWorkspaceDialog user={user} hidden={wizardActive} />
+      {!_.isEmpty(user) && _.isEmpty(getExistingMarkets(versionsContext)) && hasLoadedGlobalVersion(versionsContext)
+      && (
+        <CreateWorkspaceDialog user={user} hidden={wizardActive}/>
       )}
       <WizardSelector
         hidden={!wizardActive}
         onFinish={onWizardFinish}
-        onCancel={() => setWizardActive(false)} />
-        {!_.isEmpty(getExistingMarkets(versionsContext)) && (
-          <React.Fragment>
-            <div className={classes.titleContainer}>
-              { <AgilePlanIcon htmlColor="#333333" /> }
+        onCancel={() => setWizardActive(false)}/>
+      {!_.isEmpty(getExistingMarkets(versionsContext)) && (
+        <React.Fragment>
+          <div className={classes.titleContainer}>
+            {<AgilePlanIcon htmlColor="#333333"/>}
               <Typography className={classes.title} variant="h6">
                 {intl.formatMessage({ id: 'homeAssignments' })}
               </Typography>

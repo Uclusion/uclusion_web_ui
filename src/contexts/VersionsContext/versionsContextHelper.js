@@ -19,21 +19,26 @@ export const VERSIONS_EVENT = 'version_push';
 export const BANNED_LIST = 'banned_list';
 
 export function getGlobalVersion (state) {
-  return state.globalVersion;
+  return state.globalVersion
 }
 
 // The user has to exist so if this function returns false the initial sync is still in progress
-export function hasInitializedGlobalVersion(state) {
-  const globalVersion = getGlobalVersion(state || {});
-  return globalVersion && globalVersion !== EMPTY_GLOBAL_VERSION && globalVersion !== INITIALIZATION_GLOBAL_VERSION;
+export function hasInitializedGlobalVersion (state) {
+  const globalVersion = getGlobalVersion(state || {})
+  return globalVersion && globalVersion !== EMPTY_GLOBAL_VERSION && globalVersion !== INITIALIZATION_GLOBAL_VERSION
+}
+
+export function hasLoadedGlobalVersion (state) {
+  const globalVersion = getGlobalVersion(state || {})
+  return globalVersion && globalVersion !== EMPTY_GLOBAL_VERSION
 }
 
 export function getExistingMarkets (state) {
-  return state.existingMarkets || [];
+  return state.existingMarkets || []
 }
 
 export function refreshVersions (refreshCalled) {
-  return refreshGlobalVersion(refreshCalled);
+  return refreshGlobalVersion(refreshCalled)
 }
 
 export function refreshNotifications () {

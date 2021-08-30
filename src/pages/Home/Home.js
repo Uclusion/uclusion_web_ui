@@ -29,7 +29,6 @@ import UpgradeBanner from '../../components/Banners/UpgradeBanner';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
 import {
   getExistingMarkets,
-  getGlobalVersion,
   hasInitializedGlobalVersion, hasLoadedGlobalVersion
 } from '../../contexts/VersionsContext/versionsContextHelper'
 import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
@@ -51,7 +50,6 @@ import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketSt
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import CreateWorkspaceDialog from '../../components/Warnings/CreateWorkspaceDialog'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
-import { EMPTY_GLOBAL_VERSION } from '../../contexts/VersionsContext/versionsContextReducer'
 
 const useStyles = makeStyles(() => ({
     spacer: {

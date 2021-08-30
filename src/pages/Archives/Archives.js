@@ -37,9 +37,9 @@ function Archives(props) {
   const { search } = searchResults;
   const hiddenMarkets = getHiddenMarketDetailsForUser(marketsState, marketPresencesState, searchResults) || [];
   const planningDetails = hiddenMarkets.filter((market) => market.market_type === PLANNING_TYPE);
-  const decisionDetails = _.sortBy(hiddenMarkets.filter((market) => market.market_type === DECISION_TYPE && !market.parent_comment_id), 'updated_at').reverse();
-  const initiativeDetails = _.sortBy(hiddenMarkets.filter((market) => market.market_type === INITIATIVE_TYPE), 'updated_at').reverse();
-  const emptyArchives = _.isEmpty(planningDetails) && _.isEmpty(decisionDetails) && _.isEmpty(initiativeDetails);
+  const decisionDetails = _.sortBy(hiddenMarkets.filter((market) => market.market_type === DECISION_TYPE && !market.parent_comment_id), 'updated_at').reverse()
+  const initiativeDetails = _.sortBy(hiddenMarkets.filter((market) => market.market_type === INITIATIVE_TYPE && !market.parent_comment_id), 'updated_at').reverse()
+  const emptyArchives = _.isEmpty(planningDetails) && _.isEmpty(decisionDetails) && _.isEmpty(initiativeDetails)
 
   const breadCrumbs = makeBreadCrumbs(history, [], true);
   function createNavListItem(icon, textId, anchorId, howManyNum, alwaysShow) {

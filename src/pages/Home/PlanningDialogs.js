@@ -205,8 +205,8 @@ function PlanningDialogs(props) {
       const marketInfo = getMarketInfo(investible, marketId) || {};
       const { stage: currentStageId } = marketInfo;
       const stage = marketStages.find((fullStage) => fullStage.id === currentStageId);
-      return !stage.appears_in_market_summary && stage.allows_assignment
-        && (stage.appears_in_context || stage.move_on_comment);
+      return stage && !stage.appears_in_market_summary && stage.allows_assignment
+        && (stage.appears_in_context || stage.move_on_comment)
     });
   }
 

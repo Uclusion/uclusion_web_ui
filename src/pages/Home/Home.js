@@ -119,23 +119,24 @@ function Home(props) {
   }
   const { search } = searchResults;
   const workspacesData = planningDetails.map((market) => {
-    const marketPresences = getMarketPresences(marketPresencesState, market.id);
+    const marketPresences = getMarketPresences(marketPresencesState, market.id)
     const myPresence = marketPresences && marketPresences.find((presence) => {
-      return presence.external_id === chosenPerson.external_id;
-    });
-    const presence = myPresence || {};
-    const investibles = getMarketInvestibles(investiblesState, market.id, searchResults);
-    const visibleStages = getStages(marketStagesState, market.id).filter((stage) => stage.appears_in_context)
-      || [];
-    const visibleStageIds = visibleStages.map((stage) => stage.id);
+      return presence.external_id === chosenPerson.external_id
+    })
+    const presence = myPresence || {}
+    const investibles = getMarketInvestibles(investiblesState, market.id, searchResults)
+    const visibleStages = getStages(marketStagesState, market.id).filter((stage) => stage.appears_in_context &&
+        (!_.isEmpty(search) || !stage.appears_in_market_summary))
+      || []
+    const visibleStageIds = visibleStages.map((stage) => stage.id)
     const myInvestibles = getUserInvestibles(
       presence.id,
       market.id,
       investibles,
       visibleStageIds,
       searchResults
-    ) || [];
-    return { market, myInvestibles, presence };
+    ) || []
+    return { market, myInvestibles, presence }
   });
   const assignedSize = workspacesData.reduce((accumulator, currentValue) =>
     accumulator + currentValue.myInvestibles.length, 0);

@@ -1,4 +1,3 @@
-import _ from 'lodash'
 import LocalForageHelper from '../../utils/LocalForageHelper'
 import { MARKET_CONTEXT_NAMESPACE, MARKETS_CHANNEL } from './MarketsContext'
 import { BroadcastChannel } from 'broadcast-channel'

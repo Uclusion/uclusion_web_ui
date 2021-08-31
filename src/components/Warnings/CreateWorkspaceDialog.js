@@ -24,6 +24,8 @@ import { refreshMarketComments } from '../../contexts/CommentsContext/commentsCo
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../authorization/TokenStorageManager'
+import { addMarketToStorage } from '../../contexts/MarketsContext/marketsContextHelper'
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 
 const myStyles = makeStyles(
   () => {
@@ -55,8 +57,9 @@ function CreateWorkspaceDialog(props) {
   const [, tourDispatch] = useContext(TourContext);
   const [, marketStagesDispatch] = useContext(MarketStagesContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
-  const [, diffDispatch] = useContext(DiffContext);
-  const [, presenceDispatch] = useContext(MarketPresencesContext);
+  const [, diffDispatch] = useContext(DiffContext)
+  const [, marketsDispatch] = useContext(MarketsContext)
+  const [, presenceDispatch] = useContext(MarketPresencesContext)
   const [, commentsDispatch] = useContext(CommentsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
 
@@ -67,7 +70,8 @@ function CreateWorkspaceDialog(props) {
       const tokenStorageManager = new TokenStorageManager();
       results.forEach((marketResult) => {
         const { market, stages, investibles, comments, users, token } = marketResult;
-        updateStagesForMarket(marketStagesDispatch, market.id, stages);
+        addMarketToStorage(marketsDispatch, () => {}, market)
+        updateStagesForMarket(marketStagesDispatch, market.id, stages)
         refreshInvestibles(investiblesDispatch, diffDispatch, investibles);
         users.forEach((user) => addPresenceToMarket(presenceDispatch, market.id, user));
         if (!_.isEmpty(comments)) {

@@ -10,6 +10,13 @@ import PropTypes from 'prop-types'
 import { getRandomSupportUser } from '../../utils/userFunctions'
 import { doCreateRequirementsWorkspace } from '../../components/AddNew/Workspace/RequirementsWorkspace/workspaceCreator'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
+import { updateStagesForMarket } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
+import { createOnboardingWorkspace } from '../../api/markets'
+import { addPresenceToMarket } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
+import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../authorization/TokenStorageManager'
+import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { addMarketToStorage } from '../../contexts/MarketsContext/marketsContextHelper'
 
 const useStyles = makeStyles((theme) => ({
   name: {},
@@ -17,9 +24,9 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.text.disabled,
   },
   action: {
-    boxShadow: "none",
-    padding: "4px 16px",
-    textTransform: "none",
+    boxShadow: 'none',
+    padding: '4px 16px',
+    textTransform: 'none',
     "&:hover": {
       boxShadow: "none"
     }
@@ -34,36 +41,39 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function OnboardingWorkspace(props) {
-  const { user } = props;
-  const { name } = user;
-  const history = useHistory();
-  const intl = useIntl();
-  const classes = useStyles();
-  const [, marketsDispatch] = useContext(MarketsContext);
+  const { user } = props
+  const { name } = user
+  const history = useHistory()
+  const intl = useIntl()
+  const classes = useStyles()
+  const [, marketsDispatch] = useContext(MarketsContext)
+  const [, presenceDispatch] = useContext(MarketPresencesContext)
+  const [, marketStagesDispatch] = useContext(MarketStagesContext)
 
-  function onDone(marketLink) {
-    navigate(history, marketLink);
+  function onDone (marketLink) {
+    navigate(history, marketLink)
   }
 
-  function handleSave() {
-    return doCreateRequirementsWorkspace(marketsDispatch, {
-      workspaceName: intl.formatMessage({ id: 'onboardingWorkspace' }, { x: name }),
-      workspaceDescription: '<h2>Thanks for reaching out!</h2><p/><p>If you have any questions, suggestions or issues please don\'t hesitate to open them below and we will get back to you as soon as possible.</p>'})
-      .then((marketDetails) => {
-        const {
-          market
-        } = marketDetails;
-        const marketId = market.id;
-        const link = formMarketLink(marketId);
-        const supportUser = getRandomSupportUser();
-        return addParticipants(marketId, [{
-          user_id: supportUser.user_id,
-          account_id: supportUser.account_id,
-          is_observer: false,
-        }]).then(() => ({
+  function handleSave () {
+    const tokenStorageManager = new TokenStorageManager()
+    return createOnboardingWorkspace(intl.formatMessage({ id: 'onboardingWorkspace' }, { x: name }))
+      .then((marketResults) => {
+        const { market, stages, users, token } = marketResults[0]
+        addMarketToStorage(marketsDispatch, () => {}, market)
+        updateStagesForMarket(marketStagesDispatch, market.id, stages)
+        users.forEach((user) => addPresenceToMarket(presenceDispatch, market.id, user))
+        const link = formMarketLink(market.id)
+        const supportUser = getRandomSupportUser()
+        return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, market.id, token)
+          .then(() => addParticipants(market.id, [{
+            external_id: supportUser.external_id,
+            account_id: supportUser.account_id,
+            is_observer: false
+          }]))
+          .then(() => ({
             result: link,
             spinChecker: () => Promise.resolve(true),
-          }));
+          }))
       });
   }
 

@@ -16,15 +16,3 @@ export function getUiPreferences(state) {
   }
   return uiPrefs;
 }
-
-export function isNewUser(state) {
-  const { user } = state;
-  if (_.isEmpty(user)) {
-    return undefined;
-  }
-  const { is_new: isNew } = user;
-  if (isNew === undefined) {
-    return undefined;
-  }
-  return isNew;
-}

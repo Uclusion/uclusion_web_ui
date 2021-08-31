@@ -4,6 +4,7 @@ import { COMMENTS_CHANNEL, COMMENTS_CONTEXT_NAMESPACE } from './CommentsContext'
 import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
 import { removeInitializing } from '../../components/localStorageUtils'
+import { addByIdAndVersion } from '../ContextUtils'
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const REMOVE_MARKETS_COMMENT = 'REMOVE_MARKETS_COMMENT';
@@ -58,8 +59,8 @@ function doAddMarketComments(state, action, isQuickAdd) {
   const transformedComments = isQuickAdd ? comments.map((comment) => {
     return { ...comment, fromQuickAdd: true }
   }) : comments;
-  const oldComments = state[marketId] || [];
-  const newComments = _.unionBy(transformedComments, oldComments, 'id');
+  const oldComments = state[marketId] || []
+  const newComments = addByIdAndVersion(transformedComments, oldComments)
   return {
     ...removeInitializing(state, isQuickAdd),
     [marketId]: newComments,

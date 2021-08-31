@@ -4,6 +4,7 @@ import { MARKET_CONTEXT_NAMESPACE, MARKETS_CHANNEL } from './MarketsContext'
 import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
 import { removeInitializing } from '../../components/localStorageUtils'
+import { addByIdAndVersion } from '../ContextUtils'
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const UPDATE_MARKET_DETAILS = 'UPDATE_MARKET_DETAILS';
@@ -44,8 +45,8 @@ export function removeMarketDetails(marketIds) {
 function doUpdateMarketDetails(state, action, isQuickAdd) {
   const { marketDetail } = action;
   const { marketDetails: oldMarketDetails } = state;
-  const transformedMarketDetails = isQuickAdd ? [{ ...marketDetail, fromQuickAdd: true }] : [marketDetail];
-  const newDetails = _.unionBy(transformedMarketDetails, oldMarketDetails, 'id');
+  const transformedMarketDetails = isQuickAdd ? [{ ...marketDetail, fromQuickAdd: true }] : [marketDetail]
+  const newDetails = addByIdAndVersion(transformedMarketDetails, oldMarketDetails)
   return {
     ...removeInitializing(state, isQuickAdd),
     marketDetails: newDetails,

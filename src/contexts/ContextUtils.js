@@ -1,41 +1,41 @@
 import _ from 'lodash';
 
-function getOutdatedObjectIds(currentList, oldList) {
-  // if we don't have market details we're starting from empty, so everything is needed
+function addByIdAndVersion (addList, oldList, iteratee = (item) => item.id,
+  comparator = (item1, item2) => item1.version >= item2.version) {
+  // Cannot allow quick add to clobber something of greater version
   if (_.isEmpty(oldList)) {
-    return currentList.map((item) => item.id);
+    return addList
   }
-  const outOfDate = [];
-  const oldListMap = _.keyBy(oldList, 'id');
-  currentList.forEach((item) => {
-    const { id } = item;
-    const oldItem = oldListMap[id];
-    if (!oldItem || (item.version > oldItem.version)) {
-      outOfDate.push(id);
+  if (_.isEmpty(addList)) {
+    return oldList
+  }
+  const newAddList = []
+  const oldListMap = _.keyBy(oldList, iteratee)
+  addList.forEach((item) => {
+    const oldItem = oldListMap[iteratee(item)]
+    if (!oldItem || comparator(item, oldItem)) {
+      newAddList.push(item)
     }
-  });
-  return outOfDate;
+  })
+  return _.unionBy(newAddList, oldList, iteratee)
 }
 
 function removeDeletedObjects(newObjectList, oldObjects) {
   if (_.isEmpty(oldObjects)) {
-    return oldObjects; // nothing to do
+    return oldObjects // nothing to do
   }
-  const existingObjects = oldObjects.filter((object) => {
-    const found = newObjectList.find((item) => item.id === object.id);
-    return found;
-  });
-  return existingObjects;
+  return oldObjects.filter((object) => {
+    return newObjectList.find((item) => item.id === object.id)
+  })
 }
 
 function convertDates(item) {
   const { created_at, updated_at } = item;
-  const newItem = {
+  return {
     ...item,
     created_at: new Date(created_at),
     updated_at: new Date(updated_at),
-  };
-  return newItem;
+  }
 }
 
 
@@ -46,8 +46,7 @@ function convertDates(item) {
  * @param item
  */
 function fixupItemForStorage(item) {
-  const dateConverted = convertDates(item);
-  return dateConverted;
+  return convertDates(item)
 }
 
 
@@ -60,5 +59,5 @@ function fixupItemsForStorage(items) {
 }
 
 export {
-  getOutdatedObjectIds, removeDeletedObjects, fixupItemsForStorage, fixupItemForStorage, convertDates,
-};
+  addByIdAndVersion, removeDeletedObjects, fixupItemsForStorage, fixupItemForStorage, convertDates,
+}

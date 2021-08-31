@@ -95,9 +95,9 @@ function PlanningDialog(props) {
   const [marketsState] = useContext(MarketsContext);
   const intl = useIntl();
   const theme = useTheme();
-  const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
-  const { id: marketId, market_stage: marketStage } = market;
-  const activeMarket = marketStage === ACTIVE_STAGE;
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('md'))
+  const { id: marketId, market_stage: marketStage, market_sub_type: marketSubType, created_by: createdBy } = market
+  const activeMarket = marketStage === ACTIVE_STAGE
   const inArchives = !activeMarket || (myPresence && !myPresence.following);
   const isAdmin = myPresence.is_admin;
   const breadCrumbs = inArchives
@@ -306,26 +306,30 @@ function PlanningDialog(props) {
       banner={banner}
       navigationOptions={navigationMenu}
     >
-      <UclusionTour
-        name={INVITE_STORIES_WORKSPACE_FIRST_VIEW}
-        hidden={hidden}
-        steps={inviteStoriesWorkspaceSteps(intl, mobileLayout)}
-      />
-      <UclusionTour
-        name={INVITED_USER_WORKSPACE}
-        hidden={hidden}
-        steps={workspaceInvitedUserSteps(myPresence)}
-      />
-      <div id="workspaceMain" style={{display: isSectionOpen('workspaceMain') ? 'block' : 'none'}}>
-        <DismissableText textId='planningEditHelp' />
+      {marketSubType === 'REQUIREMENTS' && (
+        <UclusionTour
+          name={INVITE_STORIES_WORKSPACE_FIRST_VIEW}
+          hidden={hidden}
+          steps={inviteStoriesWorkspaceSteps(intl, mobileLayout)}
+        />
+      )}
+      {createdBy !== myPresence.id && (
+        <UclusionTour
+          name={INVITED_USER_WORKSPACE}
+          hidden={hidden}
+          steps={workspaceInvitedUserSteps(myPresence)}
+        />
+      )}
+      <div id="workspaceMain" style={{ display: isSectionOpen('workspaceMain') ? 'block' : 'none' }}>
+        <DismissableText textId="planningEditHelp"/>
         <Summary market={market} hidden={hidden} activeMarket={activeMarket} inArchives={inArchives}
-                 pageState={pageState} updatePageState={updatePageState} pageStateReset={pageStateReset} />
+                 pageState={pageState} updatePageState={updatePageState} pageStateReset={pageStateReset}/>
       </div>
       <LocalPlanningDragContext.Provider value={[beingDraggedHack, setBeingDraggedHack]}>
         <div id="storiesSection"
-             style={{display: isSectionOpen('storiesSection') ? 'block' : 'none'}}>
+             style={{ display: isSectionOpen('storiesSection') ? 'block' : 'none' }}>
           {!isChannel && (
-            <DismissableText textId='stageHelp' textId1='stageHelp1' textId2='stageHelp2' textId3='stageHelp3'
+            <DismissableText textId="stageHelp" textId1="stageHelp1" textId2="stageHelp2" textId3="stageHelp3"
                              textId4='stageHelp4'/>
           )}
           {!_.isEmpty(blockedInvestibles) && (

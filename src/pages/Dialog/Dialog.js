@@ -204,7 +204,7 @@ function Dialog(props) {
           banner={banner}
         />
       )}
-      {marketType === PLANNING_TYPE && (
+      {marketType === PLANNING_TYPE && myPresence && (
         <PlanningDialog
           hidden={hidden}
           addInvestibleMode={addInvestibleMode}

@@ -305,13 +305,12 @@ const useStyles = makeStyles(
       width: '100%',
       maxWidth: '20rem',
       display: 'flex',
-      padding: '8px'
+      paddingTop: '0.5rem'
     },
     rolesRoot: {
       alignItems: "flex-start",
       display: "flex",
       flexDirection: 'column',
-      width: '100%',
       '& > div': {
         borderRadius: '6px',
         marginBottom: '1rem'
@@ -799,9 +798,9 @@ function PlanningInvestible(props) {
             <Grid className={classes.borderRight} item xs={2}>
               <dl className={classes.rolesRoot}>
                 {market.id && marketInvestible.investible && (
-                  <div className={classes.assignmentContainer}>
-                    <FormattedMessage id="planningInvestibleAssignments" />
-                    <div className={clsx(classes.group, classes.assignments)}>
+                  <div className={clsx(classes.group, classes.assignments)}>
+                    <div className={classes.assignmentContainer}>
+                      <b><FormattedMessage id="planningInvestibleAssignments"/></b>
                       <Assignments
                         classes={classes}
                         marketPresences={marketPresences}
@@ -852,9 +851,9 @@ function PlanningInvestible(props) {
                   </div>
                 )}
                 {!_.isEmpty(investibleCollaborators) && (
-                  <div className={classes.assignmentContainer}>
-                    <FormattedMessage id="collaborators" />
-                    <div className={clsx(classes.group, classes.assignments)}>
+                  <div className={clsx(classes.group, classes.assignments)}>
+                    <div className={classes.assignmentContainer}>
+                      <b><FormattedMessage id="collaborators"/></b>
                       <Assignments
                         classes={classes}
                         marketPresences={marketPresences}
@@ -867,9 +866,9 @@ function PlanningInvestible(props) {
                   </div>
                 )}
                 {market.id && marketInvestible.investible && (isInVoting || isInReview) && (
-                  <div className={classes.assignmentContainer}>
-                    <FormattedMessage id={isInVoting ? 'requiredApprovers': 'requiredReviewers'} />
-                    <div className={clsx(classes.group, classes.assignments)}>
+                  <div className={clsx(classes.group, classes.assignments)}>
+                    <div className={classes.assignmentContainer}>
+                      <b><FormattedMessage id={isInVoting ? 'requiredApprovers' : 'requiredReviewers'}/></b>
                       <Assignments
                         classes={classes}
                         marketPresences={marketPresences}
@@ -1428,7 +1427,7 @@ function Assignments(props) {
   // sort all removed last, then by name
   const sortedAssigned = _.sortBy(presences, [((presence) => presence.id? 0 : 1), (presence) => presence.name]);
   return (
-    <span className={classes.assignmentFlexRow}>
+    <div className={classes.assignmentFlexRow}>
       <ul>
         {_.isEmpty(sortedAssigned) && showMoveMessage && (
           <Typography key="unassigned" component="li">
@@ -1438,7 +1437,10 @@ function Assignments(props) {
         {sortedAssigned.map((presence, index) => {
           return (
             <div
-              style={{ display: 'flex', alignItems: 'center', paddingTop: `${index > 0 ? '0.5rem' : 0}` }}
+              style={{
+                display: 'flex', alignItems: 'center', paddingRight: '0.5rem',
+                paddingTop: `${index > 0 ? '0.5rem' : 0}`
+              }}
               key={`${presence.id}${toolTipId}`}
             >
               <Gravatar email={presence.email} name={presence.name}/>
@@ -1465,7 +1467,7 @@ function Assignments(props) {
           </div>
         )}
       </div>
-    </span>
+    </div>
   );
 }
 

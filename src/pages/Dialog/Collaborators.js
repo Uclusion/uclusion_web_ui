@@ -14,7 +14,9 @@ const useStyles = makeStyles( () => ({
     assignmentFlexRow: {
       width: '100%',
       display: 'flex',
-      alignItems: 'center'
+      alignItems: 'center',
+      paddingTop: '0.5rem',
+      paddingRight: '0.5rem'
     },
     flex1: {
       flex: 1

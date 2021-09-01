@@ -330,26 +330,26 @@ function Summary(props) {
               beingEdited={beingEdited}
             />
           </CardActions>
-        <dl className={metaClasses.root}>
-          <div className={classes.assignmentContainer}>
-            <FormattedMessage id="dialogParticipants" />
-              <div className={clsx(classes.group, classes.assignments)}>
-              <Collaborators
-                marketPresences={marketPresences}
-                intl={intl}
-                marketId={id}
-                history={history}
-              />
+          <dl className={metaClasses.root}>
+            <div className={clsx(classes.group, classes.assignments)}>
+              <div className={classes.assignmentContainer}>
+                <b><FormattedMessage id="dialogParticipants"/></b>
+                <Collaborators
+                  marketPresences={marketPresences}
+                  intl={intl}
+                  marketId={id}
+                  history={history}
+                />
+              </div>
             </div>
-          </div>
-          <ParentSummary market={market} hidden={hidden}/>
-          {myMessage && (
-            <>
-              <div style={{paddingTop: '0.5rem'}} />
-              <SpinningIconLabelButton icon={SettingsBackupRestore}
-                                       onClick={() => {
-                                         deleteSingleMessage(myMessage).then(() => {
-                                           messagesDispatch(removeMessage(myMessage));
+            <ParentSummary market={market} hidden={hidden}/>
+            {myMessage && (
+              <>
+                <div style={{ paddingTop: '0.5rem' }}/>
+                <SpinningIconLabelButton icon={SettingsBackupRestore}
+                                         onClick={() => {
+                                           deleteSingleMessage(myMessage).then(() => {
+                                             messagesDispatch(removeMessage(myMessage))
                                            setOperationRunning(false);
                                          }).finally(() => {
                                            setOperationRunning(false);

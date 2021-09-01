@@ -30,14 +30,17 @@ const useStyles = makeStyles(
       },
     },
     containerEditable: {
-      cursor: "url('/images/edit_cursor.svg') 0 24, pointer"
+      cursor: 'url(\'/images/edit_cursor.svg\') 0 24, pointer',
+      paddingLeft: '1.5rem'
     },
-    container: {},
+    container: {
+      paddingLeft: '1.5rem'
+    },
     title: {
       fontSize: 32,
-      lineHeight: "42px",
-      paddingBottom: "9px",
-      [theme.breakpoints.down("sm")]: {
+      lineHeight: '42px',
+      paddingBottom: '9px',
+      [theme.breakpoints.down('sm')]: {
         fontSize: 25
       }
     }

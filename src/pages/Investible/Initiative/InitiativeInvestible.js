@@ -385,9 +385,9 @@ function InitiativeInvestible(props) {
               )}
               {marketPresences && (
                 <>
-                  <div className={classes.assignmentContainer}>
-                    <FormattedMessage id="author" />
-                    <div className={clsx(classes.group, classes.assignments)}>
+                  <div className={clsx(classes.group, classes.assignments)}>
+                    <div className={classes.assignmentContainer}>
+                      <b><FormattedMessage id="author"/></b>
                       <Collaborators
                         marketPresences={marketPresences}
                         authorId={createdBy}
@@ -396,9 +396,9 @@ function InitiativeInvestible(props) {
                       />
                     </div>
                   </div>
-                  <div className={classes.assignmentContainer}>
-                    <FormattedMessage id="dialogParticipants" />
-                    <div className={clsx(classes.group, classes.assignments)}>
+                  <div className={clsx(classes.group, classes.assignments)}>
+                    <div className={classes.assignmentContainer}>
+                      <b><FormattedMessage id="dialogParticipants"/></b>
                       <Collaborators
                         marketPresences={marketPresences}
                         authorId={createdBy}

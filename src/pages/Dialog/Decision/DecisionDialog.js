@@ -128,7 +128,6 @@ const useStyles = makeStyles(
       },
       "& li": {
         display: "inline-block",
-        fontWeight: "bold",
         marginLeft: theme.spacing(1)
       }
     },
@@ -371,9 +370,9 @@ function DecisionDialog(props) {
               )}
               {marketPresences && (
                 <>
-                  <div className={classes.assignmentContainer}>
-                    <FormattedMessage id="author" />
-                    <div className={clsx(classes.group, classes.assignments)}>
+                  <div className={clsx(classes.group, classes.assignments)}>
+                    <div className={classes.assignmentContainer}>
+                      <b><FormattedMessage id="author"/></b>
                       <Collaborators
                         marketPresences={marketPresences}
                         authorId={createdBy}
@@ -382,9 +381,9 @@ function DecisionDialog(props) {
                       />
                     </div>
                   </div>
-                  <div className={classes.assignmentContainer}>
-                    <FormattedMessage id="dialogParticipants" />
-                    <div className={clsx(classes.group, classes.assignments)}>
+                  <div className={clsx(classes.group, classes.assignments)}>
+                    <div className={classes.assignmentContainer}>
+                      <b><FormattedMessage id="dialogParticipants"/></b>
                       <Collaborators
                         marketPresences={marketPresences}
                         authorId={createdBy}

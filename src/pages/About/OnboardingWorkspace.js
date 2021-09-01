@@ -67,7 +67,7 @@ function OnboardingWorkspace(props) {
           .then(() => addParticipants(market.id, [{
             external_id: supportUser.external_id,
             account_id: supportUser.account_id,
-            is_observer: false
+            is_guest: false
           }]))
           .then(() => ({
             result: link,

@@ -148,7 +148,7 @@ function AddNewUsers (props) {
     const toAdd = participants.filter((participant) => participant.isChecked) || [];
     const toAddClean = toAdd.map((participant) => {
       const { external_id, account_id } = participant
-      return { external_id, account_id }
+      return { external_id, account_id, is_guest: false }
     });
     return addInvitees().then(() => {
       if (_.isEmpty(toAddClean)) {

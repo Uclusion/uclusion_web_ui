@@ -453,8 +453,10 @@ function QuillEditor2 (props) {
     const editorOptions = generateEditorOptions();
     const editor = new Quill(boxRef.current, editorOptions);
     if (!noToolbar) {
-      addToolTips(editor.container.previousSibling);
-      disableToolbarTabs(containerRef.current);
+      if (editor.container) {
+        addToolTips(editor.container.previousSibling)
+      }
+      disableToolbarTabs(containerRef.current)
     }
     const debouncedOnChange = _.debounce((delta) => {
       // URL stuff from https://github.com/quilljs/quill/issues/109

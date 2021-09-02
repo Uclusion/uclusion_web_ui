@@ -115,17 +115,17 @@ function DialogActions(props) {
     if (!inArchives && !hideEdit) {
       if (isAdmin) {
         if (marketType !== PLANNING_TYPE) {
-          actions.push(
-            <Tooltip
-              title={intl.formatMessage({ id: 'dialogEditExpiresLabel' })}
+          actions.push(<Tooltip
+            key="adminEditExpiration"
+            title={intl.formatMessage({ id: 'dialogEditExpiresLabel' })}
+          >
+            <IconButton
+              id="adminEditExpiration"
+              onClick={() => navigate(history, `${formMarketManageLink(marketId)}#expires=true`)}
             >
-              <IconButton
-                id="adminEditExpiration"
-                onClick={() => navigate(history, `${formMarketManageLink(marketId)}#expires=true`)}
-              >
-                <AlarmAddIcon htmlColor={ACTION_BUTTON_COLOR} />
-              </IconButton>
-            </Tooltip>)
+              <AlarmAddIcon htmlColor={ACTION_BUTTON_COLOR}/>
+            </IconButton>
+          </Tooltip>)
         }
         if (marketType !== INITIATIVE_TYPE) {
           actions.push(
@@ -134,6 +134,7 @@ function DialogActions(props) {
           );
         }
         actions.push(<Tooltip
+          key="adminManageCollaborators"
           title={intl.formatMessage({ id: 'dialogAddParticipantsLabel' })}
         >
           <IconButton
@@ -147,6 +148,7 @@ function DialogActions(props) {
       } else if (marketType === PLANNING_TYPE) {
         if (isSubscribedToMarket) {
           actions.push(<Tooltip
+            key="marketGuestUnSubscribe"
             title={intl.formatMessage({ id: 'planningMarketUnSubscribeExplanation' })}
           >
             <IconButton
@@ -158,6 +160,7 @@ function DialogActions(props) {
           </Tooltip>)
         } else {
           actions.push(<Tooltip
+            key="marketGuestSubscribe"
             title={intl.formatMessage({ id: 'planningMarketSubscribeExplanation' })}
           >
             <IconButton

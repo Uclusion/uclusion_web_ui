@@ -103,27 +103,29 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function processRegularItem (classes, history, text, target, num, Icon, onClickFunc, isGrouped, isBold, newPage) {
+function processRegularItem (classes, history, text, target, num, Icon, onClickFunc, isGrouped, isBold, newPage,
+  index) {
   if (!text) {
     return React.Fragment
   }
+  const textNoSpaces = text.split(' ').join('')
   if (!target && !onClickFunc) {
     return (
-      <ListItem key={text} className={isGrouped ? classes.navListItemGrouped : classes.navListItem}>
+      <ListItem key={`noOnClick${index}${textNoSpaces}`}
+                className={isGrouped ? classes.navListItemGrouped : classes.navListItem}>
         <Icon className={clsx(classes.navListIcon, classes.disabled)}/>
         <ListItemText primary={text} primaryTypographyProps={{ className: classes.disabled }}/>
       </ListItem>
     )
   }
-  const textNoSpaces = text.split(" ").join("");
   return (
-    <ListItem key={textNoSpaces} id={textNoSpaces}
+    <ListItem key={`${index}${textNoSpaces}`} id={textNoSpaces}
               className={isGrouped ? classes.navListItemGrouped : classes.navListItem}
               onClick={
                 (event) => {
-                  preventDefaultAndProp(event);
+                  preventDefaultAndProp(event)
                   if (onClickFunc) {
-                    onClickFunc();
+                    onClickFunc()
                   } else {
                     navigate(history, target, false, !newPage)
                   }
@@ -229,28 +231,28 @@ function Screen(props) {
             <List subheader={NavHeaderIcon && <div style={{marginLeft: '5rem', marginTop: '1rem' }}>
               <NavHeaderIcon style={{ height: 32, width: 32 }} /></div>}
             >
-              {navListItemTextArray.map((navItem) => {
+              {navListItemTextArray.map((navItem, topIndex) => {
                 const { text, target, num, icon: Icon, onClickFunc, subItems, isBold, newPage } = navItem
                 if (subItems) {
                   return (
-                    <>
-                      <ListItem key={text} style={{paddingBottom: 0}}>
+                    <div key={`top${topIndex}${text}${title}`}>
+                      <ListItem key={`topListItem${topIndex}${text}${title}`} style={{ paddingBottom: 0 }}>
                         <ListItemText primary={text}
-                                      primaryTypographyProps={{className: isBold ? classes.navGroupHeader : undefined}}
+                                      primaryTypographyProps={{ className: isBold ? classes.navGroupHeader : undefined }}
                         />
                       </ListItem>
-                      <div style={{paddingBottom: '0.5rem'}}>
-                        {subItems.map((subItem) => {
+                      <div style={{ paddingBottom: '0.5rem' }}>
+                        {subItems.map((subItem, index) => {
                           const { text, target, num, icon: Icon, onClickFunc, newPage } = subItem
                           return processRegularItem(classes, history, text, target, num, Icon, onClickFunc,
-                            true, false, newPage)
+                            true, false, newPage, index)
                         })}
                       </div>
-                    </>
+                    </div>
                   );
                 }
                 return processRegularItem(classes, history, text, target, num, Icon, onClickFunc, false,
-                  isBold, newPage)
+                  isBold, newPage, topIndex)
               })}
             </List>
             <SearchBox/>

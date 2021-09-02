@@ -49,20 +49,20 @@ export function Collaborators(props) {
           }
           if (!following) {
             return (
-              <>
-                {index > 0 && (<div style={{paddingTop: '0.5rem'}} />)}
+              <div key={index}>
+                {index > 0 && (<div style={{ paddingTop: '0.5rem' }}/>)}
                 <Tooltip key={`tip${presenceId}`}
                          title={<FormattedMessage id="collaboratorNotFollowing"/>}>
                   <Typography key={presenceId} component="li" className={myClassName}>
                     {name}
                   </Typography>
                 </Tooltip>
-              </>
+              </div>
             );
           }
           return (
-            <>
-              {index > 0 && (<div style={{paddingTop: '0.5rem'}} />)}
+            <div key={index}>
+              {index > 0 && (<div style={{ paddingTop: '0.5rem' }}/>)}
               <GravatarAndName
                 key={email}
                 email={email}
@@ -70,7 +70,7 @@ export function Collaborators(props) {
                 typographyClassName={myClassName}
                 typographyComponent="li"
               />
-            </>
+            </div>
           );
         })}
         </ul>

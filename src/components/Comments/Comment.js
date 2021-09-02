@@ -632,98 +632,99 @@ function Comment(props) {
   return (
     <div className={getCommentHighlightStyle()}>
       <Card elevation={3} style={{overflow: 'unset'}}>
-        <Box display="flex">
-          {overrideLabel && (
-            <CardType className={classes.commentType} type={commentType} resolved={resolved} label={overrideLabel} />
-          )}
-          {!overrideLabel && (
-            <CardType className={classes.commentType} type={commentType} resolved={resolved} />
-          )}
-          {commentType !== JUSTIFY_TYPE && commentType !== REPLY_TYPE && (
-            <Typography className={classes.timeElapsed} variant="body2">
-              Created <UsefulRelativeTime value={comment.created_at}/>
-              {noAuthor &&
-              `${intl.formatMessage({ id: 'lastUpdatedBy' })} ${createdBy.name}`}.
-              {comment.created_at < comment.updated_at && !resolved && (
-                <> Updated <UsefulRelativeTime value={comment.updated_at}/></>
-              )}
-              {resolved && (
-                <> Resolved <UsefulRelativeTime value={comment.updated_at}/></>
-              )}
-              {comment.created_at < comment.updated_at && !displayUpdatedBy && (
-                <>.</>
-              )}
-              {displayUpdatedBy &&
-              `${intl.formatMessage({ id: 'lastUpdatedBy' })} ${updatedBy.name}.`}
-            </Typography>
-          )}
-          {displayEditing && mobileLayout && !editOpen && (
-            <SpinningIconLabelButton
-              onClick={() => {updateEditState({beingEdited: true, body})}}
-              doSpin={false}
-              icon={Edit}
-            >
-              <FormattedMessage id="edit" />
-            </SpinningIconLabelButton>
-          )}
-          {commentType !== JUSTIFY_TYPE && commentType !== REPLY_TYPE && (
-            <div style={{marginRight: '2rem', marginTop: '0.5rem'}}>
-              <ShareStoryButton commentId={id} commentType={commentType} investibleId={investibleId} />
-            </div>
-          )}
-          {(myPresence.is_admin || isEditable) && enableActions &&
-          (commentType === REPORT_TYPE || userId === commentCreatedBy || resolved) && (
-            <div style={{marginRight: '2rem', marginTop: '0.5rem'}}>
-              <TooltipIconButton
-                disabled={operationRunning !== false}
-                onClick={remove}
-                icon={<Delete />}
-                translationId="commentRemoveLabel"
-              />
-            </div>
-          )}
-        </Box>
-        <CardContent className={classes.cardContent}>
-          {!noAuthor && (
-            <GravatarAndName
-              key={userId}
-              email={createdBy.email}
-              name={createdBy.name}
-              typographyVariant="caption"
-              typographyClassName={classes.createdBy}
-              />
-          )}
-          <Box marginTop={1}>
-            {!editOpen && !displayingDiff && (
-              <ReadOnlyQuillEditor value={comment.body} setBeingEdited={setBeingEdited}
-                                   isEditable={!mobileLayout && displayEditing}/>
+        <>
+          <Box display="flex">
+            {overrideLabel && (
+              <CardType className={classes.commentType} type={commentType} resolved={resolved} label={overrideLabel} />
             )}
-            {!editOpen && displayingDiff && (
-              <DiffDisplay id={id} />
+            {!overrideLabel && (
+              <CardType className={classes.commentType} type={commentType} resolved={resolved} />
             )}
-            {editOpen && (
-              <CommentEdit
-                marketId={marketId}
-                comment={comment}
-                onSave={toggleEdit}
-                onCancel={onDone}
-                allowedTypes={allowedTypes}
-                editState={editState}
-                updateEditState={updateEditState}
-                editStateReset={editStateReset}
-                myNotificationType={myNotificationType}
-                isInReview={createdInReview}
-                messages={messages}
-              />
+            {commentType !== JUSTIFY_TYPE && commentType !== REPLY_TYPE && (
+              <Typography className={classes.timeElapsed} variant="body2">
+                Created <UsefulRelativeTime value={comment.created_at}/>
+                {noAuthor &&
+                `${intl.formatMessage({ id: 'lastUpdatedBy' })} ${createdBy.name}`}.
+                {comment.created_at < comment.updated_at && !resolved && (
+                  <> Updated <UsefulRelativeTime value={comment.updated_at}/></>
+                )}
+                {resolved && (
+                  <> Resolved <UsefulRelativeTime value={comment.updated_at}/></>
+                )}
+                {comment.created_at < comment.updated_at && !displayUpdatedBy && (
+                  <>.</>
+                )}
+                {displayUpdatedBy &&
+                `${intl.formatMessage({ id: 'lastUpdatedBy' })} ${updatedBy.name}.`}
+              </Typography>
             )}
-            {noAuthor && !editOpen && (
-              <SpinningIconLabelButton onClick={onDone} doSpin={false} icon={Clear}>
-                {intl.formatMessage({ id: 'cancel' })}
+            {displayEditing && mobileLayout && !editOpen && (
+              <SpinningIconLabelButton
+                onClick={() => {updateEditState({beingEdited: true, body})}}
+                doSpin={false}
+                icon={Edit}
+              >
+                <FormattedMessage id="edit" />
               </SpinningIconLabelButton>
             )}
+            {commentType !== JUSTIFY_TYPE && commentType !== REPLY_TYPE && (
+              <div style={{marginRight: '2rem', marginTop: '0.5rem'}}>
+                <ShareStoryButton commentId={id} commentType={commentType} investibleId={investibleId} />
+              </div>
+            )}
+            {(myPresence.is_admin || isEditable) && enableActions &&
+            (commentType === REPORT_TYPE || userId === commentCreatedBy || resolved) && (
+              <div style={{marginRight: '2rem', marginTop: '0.5rem'}}>
+                <TooltipIconButton
+                  disabled={operationRunning !== false}
+                  onClick={remove}
+                  icon={<Delete />}
+                  translationId="commentRemoveLabel"
+                />
+              </div>
+            )}
           </Box>
-        </CardContent>
-        {showActions && (!editOpen || (commentType === TODO_TYPE && !investibleId)) && (
+          <CardContent className={classes.cardContent}>
+            {!noAuthor && (
+              <GravatarAndName
+                key={userId}
+                email={createdBy.email}
+                name={createdBy.name}
+                typographyVariant="caption"
+                typographyClassName={classes.createdBy}
+              />
+            )}
+            <Box marginTop={1}>
+              {!editOpen && !displayingDiff && (
+                <ReadOnlyQuillEditor value={comment.body} setBeingEdited={setBeingEdited}
+                                     isEditable={!mobileLayout && displayEditing}/>
+              )}
+              {!editOpen && displayingDiff && (
+                <DiffDisplay id={id} />
+              )}
+              {editOpen && (
+                <CommentEdit
+                  marketId={marketId}
+                  comment={comment}
+                  onSave={toggleEdit}
+                  onCancel={onDone}
+                  allowedTypes={allowedTypes}
+                  editState={editState}
+                  updateEditState={updateEditState}
+                  editStateReset={editStateReset}
+                  myNotificationType={myNotificationType}
+                  isInReview={createdInReview}
+                  messages={messages}
+                />
+              )}
+              {noAuthor && !editOpen && (
+                <SpinningIconLabelButton onClick={onDone} doSpin={false} icon={Clear}>
+                  {intl.formatMessage({ id: 'cancel' })}
+                </SpinningIconLabelButton>
+              )}
+            </Box>
+          </CardContent>
+          {showActions && (!editOpen || (commentType === TODO_TYPE && !investibleId)) && (
             <CardActions>
               <div className={classes.actions}>
                 {investibleId && commentType === REPORT_TYPE && (
@@ -805,100 +806,101 @@ function Comment(props) {
                   </SpinningIconLabelButton>
                 )}
                 {enableEditing && ((commentType !== REPORT_TYPE || overrideLabel)
-                      || (mentions || []).includes(myPresence.id)) && (
-                    <SpinningIconLabelButton
-                      onClick={toggleReply}
-                      icon={ReplyIcon}
-                      doSpin={false}
-                    >
-                      {intl.formatMessage({ id: "commentReplyLabel" })}
-                    </SpinningIconLabelButton>
-                  )}
-            </div>
-            <div className={classes.actionsEnd}>
-              {commentType === QUESTION_TYPE && !inArchives && inlineMarketId && !resolved && (
-                <div style={{marginRight: '1rem', paddingTop: '0.5rem'}}>
-                  <Typography style={{fontSize: 12}}>
-                    {intl.formatMessage({ id: mobileLayout ? 'allowMultiVoteQuestionMobile'
-                        : 'allowMultiVoteQuestion' })}
-                    <Checkbox
-                      style={{maxHeight: '1rem'}}
-                      id="multiVote"
-                      name="multiVote"
-                      checked={multiVote}
-                      onChange={toggleMultiVote}
-                      disabled={inlineCreatedBy !== inlineUserId}
-                    />
-                  </Typography>
-                </div>
-              )}
-              {!mobileLayout && (!investibleId || commentType === TODO_TYPE) && !inArchives && enableActions
-              && !resolved && marketType === PLANNING_TYPE && (
-                <SpinningIconLabelButton
-                  onClick={() => navigate(history, `${formMarketAddInvestibleLink(marketId)}#fromCommentId=${id}`)}
-                  doSpin={false}
-                  icon={Eject}
-                >
-                  {intl.formatMessage({ id: "storyFromComment" })}
-                </SpinningIconLabelButton>
-              )}
-              {myMessage && diff && !mobileLayout && (
-                <SpinningIconLabelButton icon={showDiff ? ExpandLess : ExpandMoreIcon} onClick={toggleDiffShow}
-                                         doSpin={false}>
-                  <FormattedMessage id={showDiff ? 'diffDisplayDismissLabel' : 'diffDisplayShowLabel'} />
-                </SpinningIconLabelButton>
-              )}
-            </div>
-          </CardActions>
-        )}
-        {replyBeingEdited && marketId && comment && (
-          <CommentAdd
-            marketId={marketId}
-            parent={comment}
-            onSave={toggleReply}
-            onCancel={toggleReply}
-            type={REPLY_TYPE}
-            commentAddState={replyAddState}
-            updateCommentAddState={updateReplyAddState}
-            commentAddStateReset={replyAddStateReset}
-          />
-        )}
-        <Box marginTop={1} paddingX={1} className={classes.childWrapper}>
-          <LocalCommentsContext.Provider value={{ comments, marketId }}>
-            {repliesExpanded &&
-            sortedReplies.map(child => {
-              const { id: childId } = child;
-              return (
-                <InitialReply
-                  key={childId}
-                  comment={child}
-                  marketId={marketId}
-                  enableEditing={enableEditing}
-                  messages={messages}
-                />
-              );
-            })}
-          </LocalCommentsContext.Provider>
-        </Box>
-        {investibleAddBeingEdited && (
-          <div style={{marginTop: '2rem'}}>
-            <DecisionInvestibleAdd
-              marketId={inlineMarketId}
-              onSave={(investible) => addInvestible(investiblesDispatch, () => {}, investible)}
-              onCancel={toggleInlineInvestibleAdd}
-              onSpinComplete={toggleInlineInvestibleAdd}
-              isAdmin={commentCreatedBy === userId}
-              pageState={investibleAddState}
-              pageStateUpdate={updateInvestibleAddState}
-              pageStateReset={investibleAddStateReset}
-              parentCommentId={inlineMarketId ? undefined: id}
+                  || (mentions || []).includes(myPresence.id)) && (
+                  <SpinningIconLabelButton
+                    onClick={toggleReply}
+                    icon={ReplyIcon}
+                    doSpin={false}
+                  >
+                    {intl.formatMessage({ id: "commentReplyLabel" })}
+                  </SpinningIconLabelButton>
+                )}
+              </div>
+              <div className={classes.actionsEnd}>
+                {commentType === QUESTION_TYPE && !inArchives && inlineMarketId && !resolved && (
+                  <div style={{marginRight: '1rem', paddingTop: '0.5rem'}}>
+                    <Typography style={{fontSize: 12}}>
+                      {intl.formatMessage({ id: mobileLayout ? 'allowMultiVoteQuestionMobile'
+                          : 'allowMultiVoteQuestion' })}
+                      <Checkbox
+                        style={{maxHeight: '1rem'}}
+                        id="multiVote"
+                        name="multiVote"
+                        checked={multiVote}
+                        onChange={toggleMultiVote}
+                        disabled={inlineCreatedBy !== inlineUserId}
+                      />
+                    </Typography>
+                  </div>
+                )}
+                {!mobileLayout && (!investibleId || commentType === TODO_TYPE) && !inArchives && enableActions
+                && !resolved && marketType === PLANNING_TYPE && (
+                  <SpinningIconLabelButton
+                    onClick={() => navigate(history, `${formMarketAddInvestibleLink(marketId)}#fromCommentId=${id}`)}
+                    doSpin={false}
+                    icon={Eject}
+                  >
+                    {intl.formatMessage({ id: "storyFromComment" })}
+                  </SpinningIconLabelButton>
+                )}
+                {myMessage && diff && !mobileLayout && (
+                  <SpinningIconLabelButton icon={showDiff ? ExpandLess : ExpandMoreIcon} onClick={toggleDiffShow}
+                                           doSpin={false}>
+                    <FormattedMessage id={showDiff ? 'diffDisplayDismissLabel' : 'diffDisplayShowLabel'} />
+                  </SpinningIconLabelButton>
+                )}
+              </div>
+            </CardActions>
+          )}
+          {replyBeingEdited && marketId && comment && (
+            <CommentAdd
+              marketId={marketId}
+              parent={comment}
+              onSave={toggleReply}
+              onCancel={toggleReply}
+              type={REPLY_TYPE}
+              commentAddState={replyAddState}
+              updateCommentAddState={updateReplyAddState}
+              commentAddStateReset={replyAddStateReset}
             />
-          </div>
-        )}
-        {!inlineMarketId && investibleAddBeingEdited && (
-          <div style={{marginTop: '2rem'}} />
-        )}
-        {repliesExpanded && getDecision(inlineMarketId)}
+          )}
+          <Box marginTop={1} paddingX={1} className={classes.childWrapper}>
+            <LocalCommentsContext.Provider value={{ comments, marketId }}>
+              {repliesExpanded &&
+              sortedReplies.map(child => {
+                const { id: childId } = child;
+                return (
+                  <InitialReply
+                    key={childId}
+                    comment={child}
+                    marketId={marketId}
+                    enableEditing={enableEditing}
+                    messages={messages}
+                  />
+                );
+              })}
+            </LocalCommentsContext.Provider>
+          </Box>
+          {investibleAddBeingEdited && (
+            <div style={{marginTop: '2rem'}}>
+              <DecisionInvestibleAdd
+                marketId={inlineMarketId}
+                onSave={(investible) => addInvestible(investiblesDispatch, () => {}, investible)}
+                onCancel={toggleInlineInvestibleAdd}
+                onSpinComplete={toggleInlineInvestibleAdd}
+                isAdmin={commentCreatedBy === userId}
+                pageState={investibleAddState}
+                pageStateUpdate={updateInvestibleAddState}
+                pageStateReset={investibleAddStateReset}
+                parentCommentId={inlineMarketId ? undefined: id}
+              />
+            </div>
+          )}
+          {!inlineMarketId && investibleAddBeingEdited && (
+            <div style={{marginTop: '2rem'}} />
+          )}
+          {repliesExpanded && getDecision(inlineMarketId)}
+        </>
       </Card>
     </div>
   );
@@ -1043,8 +1045,8 @@ const unknownPresence = {
  * @param {{comment: Comment}} props
  */
 function Reply(props) {
-  const { comment, messages, enableEditing, ...other } = props;
-  const marketId = useMarketId();
+  const { comment, messages, enableEditing } = props
+  const marketId = useMarketId()
   const presences = usePresences(marketId);
   const commenter = useCommenter(comment, presences) || unknownPresence;
   const [marketsState] = useContext(MarketsContext);
@@ -1077,7 +1079,6 @@ function Reply(props) {
   return (
     <Card className={!(myHighlightedLevel && isHighlighted) ? classes.container : myMessage.level === 'RED'
       ? classes.containerRed : classes.containerYellow}
-      {...other}
     >
       <CardContent className={classes.cardContent}>
         <Typography className={classes.commenter} variant="body2">

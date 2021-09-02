@@ -29,7 +29,7 @@ import { isTinyWindow } from '../../utils/windowUtils'
 import ImageBlot from './ImageBlot'
 import { editorRecreate, getControlPlaneName } from './quillHooks'
 
-
+Quill.debug('error')
 // install our filtering paste module, and disable the uploader
 Quill.register('modules/clipboard', CustomQuillClipboard, true);
 Quill.register('modules/uploader', NoOpUploader, true);

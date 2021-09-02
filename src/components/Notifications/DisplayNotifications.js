@@ -212,29 +212,30 @@ function DisplayNotifications (props) {
 
   const safeMessages = messages || [];
 
-  function getItemResult (item) {
+  function getItemResult (item, index) {
     const {
       link,
-    } = item;
+    } = item
     return (
-      <ListItem key={link} style={{paddingBottom: '0.5rem'}}>
+      <ListItem key={`${index}${link}`} style={{ paddingBottom: '0.5rem' }}>
         <NotificationMessageDisplay onLinkClick={setClosed} message={item}/>
       </ListItem>
-    );
+    )
   }
 
   function getInvestibleResult (investible, index) {
-    const IconComponent = investible.typeIcon;
+    const IconComponent = investible.typeIcon
     if (!investible.name) {
-      return React.Fragment;
+      return React.Fragment
     }
     return (
       <>
-        <ListItem key={`${index}${investible.name}`} style={{paddingBottom: 0}}>
-            <IconComponent style={{ marginRight: '6px', height: '16px', width: '16px' }}/>
-            <ListItemText primary={investible.name} style={{ fontStyle: 'italic' }} />
+        <ListItem key={`${index}${investible.name}`} style={{ paddingBottom: 0 }}>
+          <IconComponent style={{ marginRight: '6px', height: '16px', width: '16px' }}/>
+          <ListItemText primary={investible.name} style={{ fontStyle: 'italic' }}/>
         </ListItem>
-        {investible.items.map(investibleItem => getItemResult(investibleItem))}
+        {investible.items.map((investibleItem, itemIndex) =>
+          getItemResult(investibleItem, `${index}${itemIndex}`))}
       </>
     );
   }
@@ -250,12 +251,13 @@ function DisplayNotifications (props) {
           className={classes.messageItem}
         >
           <List>
-            <ListItem key={market.id} style={{paddingBottom: 0}}>
+            <ListItem key={market.id} style={{ paddingBottom: 0 }}>
               <IconComponent style={{ marginRight: '6px', height: '16px', width: '16px' }}/>
-              <ListItemText primary={market.name} primaryTypographyProps={{ className: classes.displayGroupHeader }} />
+              <ListItemText primary={market.name} primaryTypographyProps={{ className: classes.displayGroupHeader }}/>
             </ListItem>
-            {market.items.map((item) => getItemResult(item))}
-            {market.investibles.map((investible) => getInvestibleResult(investible, index))}
+            {market.items.map((item, itemIndex) => getItemResult(item, `${index}${itemIndex}`))}
+            {market.investibles.map((investible, investibleIndex) =>
+              getInvestibleResult(investible, `${index}${investibleIndex}`))}
           </List>
         </Card>
       );

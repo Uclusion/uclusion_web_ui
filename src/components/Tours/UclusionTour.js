@@ -16,17 +16,20 @@ import { updateUiPreferences } from '../../api/account'
 import { accountUserRefresh } from '../../contexts/AccountUserContext/accountUserContextReducer'
 import { getUiPreferences, userIsLoaded } from '../../contexts/AccountUserContext/accountUserContextHelper'
 
-export function storeTourCompleteInBackend(tourName, safeCompletedTours, tourPreferences, userPreferences,
-  userDispatch){
-  const newCompleted = [...safeCompletedTours, ...getTourFamily(tourName)];
+export function storeTourCompleteInBackend (tourName, userState, userDispatch) {
+  const userPreferences = getUiPreferences(userState) || {}
+  const tourPreferences = userPreferences.tours || {}
+  const { completedTours } = tourPreferences
+  const safeCompletedTours = _.isArray(completedTours) ? completedTours : []
+  const newCompleted = [...safeCompletedTours, ...getTourFamily(tourName)]
   const newTourPreferences = {
     ...tourPreferences,
     completedTours: newCompleted,
-  };
+  }
   const newPrefs = {
     ...userPreferences,
     tours: newTourPreferences,
-  };
+  }
   updateUiPreferences(newPrefs)
     .then((result) => {
       const { user } = result;
@@ -44,12 +47,8 @@ function UclusionTour(props) {
 
   const [tourState, tourDispatch] = useContext(TourContext);
   const [userState, userDispatch] = useContext(AccountUserContext)
-  const isCompleted = isTourCompleted(tourState, name);
+  const isCompleted = isTourCompleted(tourState, name)
   const hasUser = userIsLoaded(userState)
-  const userPreferences = getUiPreferences(userState) || {};
-  const tourPreferences = userPreferences.tours || {};
-  const { completedTours } = tourPreferences;
-  const safeCompletedTours = _.isArray(completedTours)? completedTours : [];
 
   function tourCallback(state) {
     const {
@@ -64,8 +63,7 @@ function UclusionTour(props) {
         // the've finished, register complete
         // console.log(`Tour ${name} is complete`);
         completeTour(tourDispatch, name)
-        storeTourCompleteInBackend(name, safeCompletedTours, tourPreferences, userPreferences,
-          userDispatch)
+        storeTourCompleteInBackend(name, userState, userDispatch)
       }
       if (type === 'step:after') {
         setCurrentStep(tourDispatch, name, index + 1)
@@ -100,13 +98,17 @@ function UclusionTour(props) {
   const [runTour, setRunTour] = useState(false);
 
   useEffect(() => {
-    const uiPrefCantRun = !hasUser || safeCompletedTours.includes(name);
-    const tourActive = isTourRunning(tourState, name);
-    const iCanRun = !hidden && shouldRun && tourActive && !isCompleted && !uiPrefCantRun;
-    setRunTour(iCanRun);
+    const userPreferences = getUiPreferences(userState) || {}
+    const tourPreferences = userPreferences.tours || {}
+    const { completedTours } = tourPreferences
+    const safeCompletedTours = _.isArray(completedTours) ? completedTours : []
+    const uiPrefCantRun = !hasUser || safeCompletedTours.includes(name)
+    const tourActive = isTourRunning(tourState, name)
+    const iCanRun = !hidden && shouldRun && tourActive && !isCompleted && !uiPrefCantRun
+    setRunTour(iCanRun)
     return () => {
-    };
-  }, [hasUser, safeCompletedTours, hidden, tourState, shouldRun, isCompleted, name]);
+    }
+  }, [hasUser, userState, hidden, tourState, shouldRun, isCompleted, name]);
   if (!runTour) {
     return <React.Fragment/>;
   }

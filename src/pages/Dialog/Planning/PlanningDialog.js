@@ -182,24 +182,31 @@ function PlanningDialog(props) {
 
   useEffect(() => {
     if (hash) {
-      const linkPresence = assignablePresences.find((presence) => hash.includes(presence.id));
+      const presences = getMarketPresences(marketPresencesState, marketId) || []
+      const assignablePresences = presences.filter((presence) => !presence.market_banned && presence.following
+        && !presence.market_guest) || []
+      const linkPresence = assignablePresences.find((presence) => hash.includes(presence.id))
       if (linkPresence) {
         if (sectionOpen !== 'storiesSection') {
-          updatePageState({sectionOpen: 'storiesSection'});
+          updatePageState({ sectionOpen: 'storiesSection' })
         }
       } else if (hash.includes('workspaceMain')) {
         if (sectionOpen !== 'workspaceMain') {
-          updatePageState({sectionOpen: 'workspaceMain'});
+          updatePageState({ sectionOpen: 'workspaceMain' })
         }
       } else if (sectionOpen !== 'discussionSection') {
-        const noTodoCommentIds = getThreadIds(notTodoComments, comments);
-        const foundCommentId = noTodoCommentIds.find((anId) => hash.includes(anId));
+        const unResolvedMarketComments = comments.filter(comment => !comment.investible_id && !comment.resolved) || []
+        // There is no link to a reply so including them should be okay
+        const notTodoComments = unResolvedMarketComments.filter(comment =>
+          [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE, REPLY_TYPE].includes(comment.comment_type)) || []
+        const noTodoCommentIds = getThreadIds(notTodoComments, comments)
+        const foundCommentId = noTodoCommentIds.find((anId) => hash.includes(anId))
         if (foundCommentId) {
-          updatePageState({sectionOpen: 'discussionSection'});
+          updatePageState({ sectionOpen: 'discussionSection' })
         }
       }
     }
-  }, [assignablePresences, comments, hash, notTodoComments, sectionOpen, updatePageState]);
+  }, [marketId, marketPresencesState, comments, hash, sectionOpen, updatePageState]);
 
   function onClickFurtherStart() {
     const link = formMarketAddInvestibleLink(marketId);

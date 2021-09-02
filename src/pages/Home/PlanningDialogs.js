@@ -332,11 +332,8 @@ function PlanningDialogs(props) {
                     <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? 'suggestCount' :
                         'suggestSearchCount' })}>
                       <Badge badgeContent={suggestCount} showZero>
-                        <EmojiObjectsIcon 
-                          className={[
-                            classes.chipItemSuggestion,
-                            suggestCount === 0 && (classes.chipItemEmpty)
-                          ]} 
+                        <EmojiObjectsIcon
+                          className={suggestCount === 0 ? classes.chipItemEmpty : classes.chipItemSuggestion}
                         />
                       </Badge>
                     </Tooltip>
@@ -345,11 +342,8 @@ function PlanningDialogs(props) {
                     <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? 'todoCount' :
                         'todoSearchCount' })}>
                       <Badge badgeContent={todoCount} showZero>
-                        <AssignmentIcon 
-                          className={[
-                            classes.chipItemTodo, 
-                            todoCount === 0 && (classes.chipItemEmpty)
-                          ]}
+                        <AssignmentIcon
+                          className={todoCount === 0 ? classes.chipItemEmpty : classes.chipItemTodo}
                         />
                       </Badge>
                     </Tooltip>
@@ -358,11 +352,8 @@ function PlanningDialogs(props) {
                     <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? 'questionCount' : 
                         'questionSearchCount' })}>
                       <Badge badgeContent={questionCount}>
-                        <HelpIcon 
-                          className={[
-                            classes.chipItemQuestion,
-                            questionCount === 0 && (classes.chipItemEmpty)
-                          ]} 
+                        <HelpIcon
+                          className={questionCount === 0 ? classes.chipItemEmpty : classes.chipItemQuestion}
                         />
                       </Badge>
                     </Tooltip>
@@ -371,11 +362,8 @@ function PlanningDialogs(props) {
                     <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? 'issueCount' :
                         'issueSearchCount' })}>
                       <Badge badgeContent={issueCount} showZero>
-                        <BlockIcon 
-                          className={[
-                            classes.chipItemIssue,
-                            issueCount === 0 && (classes.chipItemEmpty)
-                          ]} 
+                        <BlockIcon
+                          className={issueCount === 0 ? classes.chipItemEmpty : classes.chipItemIssue}
                         />
                       </Badge>
                     </Tooltip>
@@ -384,11 +372,8 @@ function PlanningDialogs(props) {
                     <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? 'storyCount' :
                       'storySearchCount' })}>
                       <Badge badgeContent={investiblesCount} showZero>
-                        <WorkIcon 
-                          className={[
-                            classes.chipItemStory,
-                            investiblesCount === 0 && (classes.chipItemEmpty)
-                          ]} 
+                        <WorkIcon
+                          className={investiblesCount === 0 ? classes.chipItemEmpty : classes.chipItemStory}
                         />
                       </Badge>
                     </Tooltip>
@@ -419,11 +404,8 @@ function PlanningDialogs(props) {
                     <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? 'suggestCount' :
                         'suggestSearchCount' })}>
                       <Badge badgeContent={suggestCount} showZero>
-                        <EmojiObjectsIcon 
-                          className={[
-                            classes.chipItemSuggestion,
-                            suggestCount === 0 && (classes.chipItemEmpty)
-                          ]} 
+                        <EmojiObjectsIcon
+                          className={suggestCount === 0 ? classes.chipItemEmpty : classes.chipItemSuggestion}
                         />
                       </Badge>
                     </Tooltip>
@@ -432,11 +414,8 @@ function PlanningDialogs(props) {
                     <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? 'todoCount' :
                         'todoSearchCount' })}>
                       <Badge badgeContent={todoCount} showZero>
-                        <AssignmentIcon 
-                          className={[
-                            classes.chipItemTodo, 
-                            todoCount === 0 && (classes.chipItemEmpty)
-                          ]}
+                        <AssignmentIcon
+                          className={todoCount === 0 ? classes.chipItemEmpty : classes.chipItemTodo}
                         />
                       </Badge>
                     </Tooltip>
@@ -445,11 +424,8 @@ function PlanningDialogs(props) {
                     <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? 'questionCount' : 
                         'questionSearchCount' })}>
                       <Badge badgeContent={questionCount}>
-                        <HelpIcon 
-                          className={[
-                            classes.chipItemQuestion,
-                            questionCount === 0 && (classes.chipItemEmpty)
-                          ]} 
+                        <HelpIcon
+                          className={questionCount === 0 ? classes.chipItemEmpty : classes.chipItemQuestion}
                         />
                       </Badge>
                     </Tooltip>
@@ -458,11 +434,8 @@ function PlanningDialogs(props) {
                     <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? 'issueCount' :
                         'issueSearchCount' })}>
                       <Badge badgeContent={issueCount} showZero>
-                        <BlockIcon 
-                          className={[
-                            classes.chipItemIssue,
-                            issueCount === 0 && (classes.chipItemEmpty)
-                          ]} 
+                        <BlockIcon
+                          className={issueCount === 0 ? classes.chipItemEmpty : classes.chipItemIssue}
                         />
                       </Badge>
                     </Tooltip>
@@ -471,11 +444,8 @@ function PlanningDialogs(props) {
                     <Tooltip title={intl.formatMessage({ id: _.isEmpty(search) ? "storyCount" :
                       'storySearchCount' })}>
                       <Badge badgeContent={investiblesCount} showZero>
-                        <WorkIcon 
-                          className={[
-                            classes.chipItemStory,
-                            investiblesCount === 0 && (classes.chipItemEmpty)
-                          ]} 
+                        <WorkIcon
+                          className={investiblesCount === 0 ? classes.chipItemEmpty : classes.chipItemStory}
                         />
                       </Badge>
                     </Tooltip>

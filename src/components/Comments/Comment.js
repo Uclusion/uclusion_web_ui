@@ -761,7 +761,7 @@ function Comment(props) {
                         name="suggestionVote"
                         checked={!_.isEmpty(inlineMarketId)}
                         onChange={allowSuggestionVote}
-                        disabled={operationRunning || commentCreatedBy !== userId}
+                        disabled={operationRunning !== false || commentCreatedBy !== userId}
                       />
                     </Typography>
                   </div>
@@ -828,7 +828,7 @@ function Comment(props) {
                         name="multiVote"
                         checked={multiVote}
                         onChange={toggleMultiVote}
-                        disabled={inlineCreatedBy !== inlineUserId}
+                        disabled={operationRunning !== false || inlineCreatedBy !== inlineUserId}
                       />
                     </Typography>
                   </div>

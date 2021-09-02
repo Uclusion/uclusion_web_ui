@@ -25,18 +25,14 @@ export default function Dialog(props) {
   const descriptionId = `dialog-description-${uniqueId}`;
 
   React.useEffect(() => {
-    if (open === true) {
-      const { current: autoFocus } = autoFocusRef;
-      if (autoFocus === null) {
+    const { current: autoFocus } = autoFocusRef || {}
+    if (open === true && autoFocus !== null) {
+      if (typeof autoFocus.focus !== 'function') {
         console.warn(
-          "Dialog: Expected a node at the given `autoFocusRef` but found null"
-        );
-      } else if (typeof autoFocus.focus !== "function") {
-        console.warn(
-          "Dialog: The instance at autoFocusRef must implement .focus()"
-        );
+          'Dialog: The instance at autoFocusRef must implement .focus()'
+        )
       } else {
-        autoFocus.focus();
+        autoFocus.focus()
       }
     }
   }, [autoFocusRef, open]);

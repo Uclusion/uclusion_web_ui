@@ -315,16 +315,17 @@ function MarketTodos (props) {
     }
   }
 
-  function getCards (commentsGetting, marketId, history, intl, setCard) {
-    function setCardAndScroll(comment) {
-      setCard(comment);
+  function getCards (commentsGetting, marketId, history, intl, setCard, sectionId) {
+    function setCardAndScroll (comment) {
+      setCard(comment)
       navigate(history,
-        `${isInArchives ? formMarketArchivesLink(marketId) : formMarketLink(marketId)}#editc${comment.id}`);
+        `${isInArchives ? formMarketArchivesLink(marketId) : formMarketLink(marketId)}#editc${comment.id}`)
     }
+
     if (_.isEmpty(commentsGetting)) {
-      return <div className={classes.grow} />
+      return <div className={classes.grow} key={`${sectionId}empty`}/>
     }
-    const sortedData = _.sortBy(commentsGetting, 'updated_at').reverse();
+    const sortedData = _.sortBy(commentsGetting, 'updated_at').reverse()
     return sortedData.map((comment) => {
       const { id, body, updated_at, notification_type: notificationType } = comment;
       const replies = comments.filter(comment => comment.root_comment_id === id) || [];
@@ -343,10 +344,10 @@ function MarketTodos (props) {
       const { isChecked } = checked[id] || { isChecked: false };
       const showChip = replies.length > 0;
       return (
-        <>
+        <React.Fragment key={`${id}top`}>
           {openMenuTodoId === id && anchorEl && (
             <MarketTodoMenu comment={comment} editViewFunc={setCardAndScroll} market={market}
-                            openIdFunc={setOpenMenuTodoId} anchorEl={anchorEl} messages={messages} />
+                            openIdFunc={setOpenMenuTodoId} anchorEl={anchorEl} messages={messages}/>
           )}
           <Grid
             id={`c${id}`}
@@ -369,40 +370,42 @@ function MarketTodos (props) {
             )}
             <RaisedCard elevation={0} onClick={(event) => {
               if (invalidEditEvent(event, history)) {
-                return;
+                return
               }
               if (isInArchives) {
-                setCardAndScroll(comment);
+                setCardAndScroll(comment)
               } else {
-                setOpenMenuCard(id, event);
+                setOpenMenuCard(id, event)
               }
             }}>
-              <Grid container id={`drag${id}`} className={useHighlight ? classes.warnCard : classes.card}>
-                <Grid item xs={11} style={{pointerEvents: 'none'}}>
-                  <div style={{display: 'flex'}}>
+              <Grid container id={`drag${id}`} key={`drag${id}`}
+                    className={useHighlight ? classes.warnCard : classes.card}>
+                <Grid item xs={11} style={{ pointerEvents: 'none' }} key={`wComment${id}`}>
+                  <div style={{ display: 'flex' }}>
                     <Typography style={{ fontSize: '.75rem', flex: 1 }}>
                       Updated: {intl.formatDate(updated_at)}
                     </Typography>
                     {showChip && (
-                      <div style={{display: 'flex', paddingBottom: '0.4rem'}}>
+                      <div style={{ display: 'flex', paddingBottom: '0.4rem' }}>
                         <Typography style={{ fontSize: '.75rem' }}>Comments:</Typography>
-                        <Chip label={`${replies.length}`} className={classes.chipStyleWhite} size='small'
-                              style={{ marginLeft: '5px', marginRight: '15px'}} />
+                        <Chip label={`${replies.length}`} className={classes.chipStyleWhite} size="small"
+                              style={{ marginLeft: '5px', marginRight: '15px' }}/>
                       </div>
                     )}
                   </div>
                 </Grid>
-                <Grid id={`showEdit0${id}`} item xs={1} style={{pointerEvents: 'none', display: 'none'}}>
-                  <EditOutlinedIcon style={{maxHeight: '1.25rem'}} />
+                <Grid id={`showEdit0${id}`} key={`showEdit0${id}`} item xs={1}
+                      style={{ pointerEvents: 'none', display: 'none' }}>
+                  <EditOutlinedIcon style={{ maxHeight: '1.25rem' }}/>
                 </Grid>
-                <Grid id={`showEdit1${showChip ? '' : id}`} item xs={12}
-                      style={{paddingTop: `${showChip ? 0 : 0.5}rem`}}>
-                  <ReadOnlyQuillEditor value={body} />
+                <Grid id={`showEdit1${showChip ? '' : id}`} key={`showEdit1${id}`} item xs={12}
+                      style={{ paddingTop: `${showChip ? 0 : 0.5}rem` }}>
+                  <ReadOnlyQuillEditor value={body}/>
                 </Grid>
               </Grid>
             </RaisedCard>
           </Grid>
-        </>
+        </React.Fragment>
       );
     });
   }
@@ -571,12 +574,12 @@ function MarketTodos (props) {
             <Grid
               container
               className={classes.white}
-              id="immediateSection" onDrop={onDropImmediate}
+              id="immediateSection" key="immediateSection" onDrop={onDropImmediate}
               onDragEnd={() => removeElementGreen()}
               onDragEnter={() => setElementGreen('immediateSection')}
               onDragOver={(event) => event.preventDefault()}
             >
-              {getCards(redComments, marketId, history, intl, setEditRedCard)}
+              {getCards(redComments, marketId, history, intl, setEditRedCard, 'immediateSection')}
             </Grid>
           </SubSection>
           {!_.isEmpty(redComments) && (<div style={{ paddingBottom: '15px' }}/>)}
@@ -628,12 +631,12 @@ function MarketTodos (props) {
             <Grid
               container
               className={classes.white}
-              id="convenientSection" onDrop={onDropConvenient}
+              id="convenientSection" key="convenientSection" onDrop={onDropConvenient}
               onDragEnd={() => removeElementGreen()}
               onDragEnter={() => setElementGreen('convenientSection')}
               onDragOver={(event) => event.preventDefault()}
             >
-              {getCards(yellowComments, marketId, history, intl, setEditYellowCard)}
+              {getCards(yellowComments, marketId, history, intl, setEditYellowCard, 'convenientSection')}
             </Grid>
           </SubSection>
           {!_.isEmpty(yellowComments) && (<div style={{ paddingBottom: '15px' }}/>)}
@@ -685,12 +688,12 @@ function MarketTodos (props) {
             <Grid
               container
               className={classes.white}
-              id="ableSection" onDrop={onDropAble}
+              id="ableSection" key="ableSection" onDrop={onDropAble}
               onDragEnd={() => removeElementGreen()}
               onDragEnter={() => setElementGreen('ableSection')}
               onDragOver={(event) => event.preventDefault()}
             >
-              {getCards(blueComments, marketId, history, intl, setEditCard)}
+              {getCards(blueComments, marketId, history, intl, setEditCard, 'ableSection')}
             </Grid>
           </SubSection>
         </div>

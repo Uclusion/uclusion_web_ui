@@ -213,9 +213,8 @@ function DisplayNotifications (props) {
   const safeMessages = messages || [];
 
   function getItemResult (item, index) {
-    const {
-      link,
-    } = item
+    const { link } = item
+
     return (
       <ListItem key={`${index}${link}`} style={{ paddingBottom: '0.5rem' }}>
         <NotificationMessageDisplay onLinkClick={setClosed} message={item}/>
@@ -228,16 +227,18 @@ function DisplayNotifications (props) {
     if (!investible.name) {
       return React.Fragment
     }
+    const listItemKey = !_.isEmpty(investible.linkMultipleHash) ?
+      Object.values(investible.linkMultipleHash)[0].link_multiple : investible.name
     return (
-      <>
-        <ListItem key={`${index}${investible.name}`} style={{ paddingBottom: 0 }}>
+      <React.Fragment key={`investible${index}${listItemKey}`}>
+        <ListItem key={`${index}${listItemKey}`} style={{ paddingBottom: 0 }}>
           <IconComponent style={{ marginRight: '6px', height: '16px', width: '16px' }}/>
           <ListItemText primary={investible.name} style={{ fontStyle: 'italic' }}/>
         </ListItem>
         {investible.items.map((investibleItem, itemIndex) =>
-          getItemResult(investibleItem, `${index}${itemIndex}`))}
-      </>
-    );
+          getItemResult(investibleItem, `${index}${itemIndex}${listItemKey}`))}
+      </React.Fragment>
+    )
   }
 
   function getMessageResults (toDisplay) {
@@ -247,7 +248,7 @@ function DisplayNotifications (props) {
       return (
         <Card
           raised
-          key={`${index}${level}`}
+          key={`${index}${level}${market.id}`}
           className={classes.messageItem}
         >
           <List>
@@ -255,9 +256,9 @@ function DisplayNotifications (props) {
               <IconComponent style={{ marginRight: '6px', height: '16px', width: '16px' }}/>
               <ListItemText primary={market.name} primaryTypographyProps={{ className: classes.displayGroupHeader }}/>
             </ListItem>
-            {market.items.map((item, itemIndex) => getItemResult(item, `${index}${itemIndex}`))}
+            {market.items.map((item, itemIndex) => getItemResult(item, `${index}${itemIndex}${level}`))}
             {market.investibles.map((investible, investibleIndex) =>
-              getInvestibleResult(investible, `${index}${investibleIndex}`))}
+              getInvestibleResult(investible, `${index}${investibleIndex}${level}`))}
           </List>
         </Card>
       );

@@ -52,7 +52,9 @@ const useStyles = makeStyles(theme => ({
     overflow: 'hidden',
   },
   card: {
-    marginLeft: '1rem',
+    marginLeft: '0.5rem',
+    marginTop: '0.5rem',
+    marginRight: '0.5rem',
     paddingBottom: '1rem'
   }
 }));

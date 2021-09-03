@@ -1,8 +1,8 @@
 import React from 'react';
 import { useIntl } from 'react-intl';
-import PropTypes from 'prop-types';
-import { Grid } from '@material-ui/core';
-import { makeStyles } from '@material-ui/styles';
+import PropTypes from 'prop-types'
+import { Grid, useMediaQuery, useTheme } from '@material-ui/core'
+import { makeStyles } from '@material-ui/styles'
 import useFitText from 'use-fit-text';
 import CustomChip from '../CustomChip';
 import Chart from './Chart';
@@ -10,7 +10,7 @@ import { ISSUE_TYPE } from '../../constants/comments';
 import { getCommentTypeIcon } from '../../utils/iconFunctions';
 import GravatarGroup from '../Avatars/GravatarGroup';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   container: {
     display: 'grid',
     gridTemplateColumns: 'calc(100% - 260px) 130px 132px',
@@ -18,6 +18,9 @@ const useStyles = makeStyles(() => ({
     height: '97px',
     padding: '10px 0',
     background: 'white',
+    [theme.breakpoints.down('sm')]: {
+      gridTemplateColumns: 'unset',
+    },
   },
   gravatarContainer: {
     display: 'flex',
@@ -66,17 +69,19 @@ const useStyles = makeStyles(() => ({
 }));
 
 function VoteCard (props) {
-  const { title, comments, votes } = props;
-  const filteredComments = comments.filter((comment) => !comment.resolved && getCommentTypeIcon(comment.comment_type));
+  const { title, comments, votes } = props
+  const theme = useTheme()
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'))
+  const filteredComments = comments.filter((comment) => !comment.resolved && getCommentTypeIcon(comment.comment_type))
   filteredComments.sort(function (a, b) {
     if (a.comment_type === b.comment_type) {
-      return 0;
+      return 0
     }
     if (a.comment_type === ISSUE_TYPE) {
-      return -1;
+      return -1
     }
     if (b.comment_type === ISSUE_TYPE) {
-      return -1;
+      return -1
     }
     return 0;
   });
@@ -95,14 +100,14 @@ function VoteCard (props) {
       >
         {title}
       </div>
-      {issuesComment && (
+      {!mobileLayout && issuesComment && (
         <Grid className={classes.iconGrid} container spacing={1}>
           <Grid item key="issue">
             <CustomChip type={issuesComment.comment_type}/>
           </Grid>
         </Grid>
       )}
-      {!issuesComment && (
+      {!mobileLayout && !issuesComment && (
         <div className={classes.chartContent}>
           <Chart data={votes}/>
           <span className={classes.chartValue}>
@@ -110,7 +115,7 @@ function VoteCard (props) {
           </span>
         </div>
       )}
-      {votes && (
+      {!mobileLayout && votes && (
         <div
           className={classes.gravatarContainer}
         >
@@ -119,7 +124,8 @@ function VoteCard (props) {
             users={votes}
             max={3}
             gravatarClassName={classes.smallGravatar}/>
-        </div>)}
+        </div>
+      )}
     </div>
   );
 }

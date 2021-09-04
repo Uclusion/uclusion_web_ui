@@ -440,14 +440,12 @@ function InitiativesAndDialogs(props) {
                   </CardContent>
                 </Grid>
                 <Grid item xs={6} md={2} container className={classes.chartContainer}>
-                  {sortedVotesArray && sortedVotesArray.length > 0 &&
                   <div className={classes.chartContent}>
                     <Chart data={chartData} />
                     <span className={classes.chartValue}>
                           {intl.formatMessage({ id: 'numVoting' }, { x: chartData.length })}
                     </span>
                   </div>
-                  }
                 </Grid>
                 {isNotCollaborator && (
                   <Typography className={classes.byline}>
@@ -455,21 +453,23 @@ function InitiativesAndDialogs(props) {
                   </Typography>
                 )}
                 {!_.isEmpty(myPresence) && (
-                  <Grid item md={4} xs={5} style={{display: 'flex'}}>
+                  <Grid item md={4} xs={5} style={{ display: 'flex' }}>
                     {getParticipantInfo(sortedPresences, classes)}
-                    <CardActions style={{display: 'inline-block', flex: 5, alignSelf: 'center'}}>
-                      <DialogActions
-                        isAdmin={myPresence.is_admin}
-                        isFollowing={myPresence.following}
-                        marketStage={marketStage}
-                        marketType={marketType}
-                        marketPresences={marketPresences}
-                        parentMarketId={parentMarketId}
-                        parentInvestibleId={parentInvestibleId}
-                        marketId={marketId}
-                        hideEdit={true}
-                      />
-                    </CardActions>
+                    {!mobileLayout && (
+                      <CardActions style={{ display: 'inline-block', flex: 5, alignSelf: 'center' }}>
+                        <DialogActions
+                          isAdmin={myPresence.is_admin}
+                          isFollowing={myPresence.following}
+                          marketStage={marketStage}
+                          marketType={marketType}
+                          marketPresences={marketPresences}
+                          parentMarketId={parentMarketId}
+                          parentInvestibleId={parentInvestibleId}
+                          marketId={marketId}
+                          hideEdit={true}
+                        />
+                      </CardActions>
+                    )}
                   </Grid>
                 )}
               </Grid>

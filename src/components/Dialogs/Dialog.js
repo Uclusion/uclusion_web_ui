@@ -1,4 +1,5 @@
-import React from "react";
+import _ from 'lodash'
+import React from 'react'
 import PropTypes from "prop-types";
 import MuiDialog from "@material-ui/core/Dialog";
 import DialogTitle from "@material-ui/core/DialogTitle";
@@ -26,7 +27,7 @@ export default function Dialog(props) {
 
   React.useEffect(() => {
     const { current: autoFocus } = autoFocusRef || {}
-    if (open === true && autoFocus !== null) {
+    if (open === true && !_.isEmpty(autoFocus)) {
       if (typeof autoFocus.focus !== 'function') {
         console.warn(
           'Dialog: The instance at autoFocusRef must implement .focus()'

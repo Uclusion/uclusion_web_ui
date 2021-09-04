@@ -441,7 +441,7 @@ function CommentAdd(props) {
 function IssueDialog(props) {
   const { actions, classes, open, onClose, issueWarningId, checkBoxFunc } = props;
 
-  const autoFocusRef = React.useRef()
+  const autoFocusRef = React.useRef(null)
 
   return (
     <Dialog

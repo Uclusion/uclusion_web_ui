@@ -722,9 +722,6 @@ function StageInvestible(props) {
   const intl = useIntl();
 
   function getChip(labelNum, isGreen, toolTipId) {
-    if (mobileLayout) {
-      return React.Fragment;
-    }
     return (
       <Tooltip title={intl.formatMessage({ id: toolTipId })}>
         <Chip label={`${labelNum}`} size='small' className={isGreen ? classes.chipStyleGreen : classes.chipStyleRed} />
@@ -762,8 +759,8 @@ function StageInvestible(props) {
           <DaysEstimate readOnly value={daysEstimate} createdAt={createdAt}/>
         )}
       </Grid>
-      {chip && (
-        <Grid item xs={1} style={{paddingBottom: '0.2rem'}}>
+      {chip && !mobileLayout && (
+        <Grid item xs={1} style={{ paddingBottom: '0.2rem' }}>
           {chip}
         </Grid>
       )}

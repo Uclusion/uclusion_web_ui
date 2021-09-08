@@ -387,7 +387,6 @@ function PlanningInvestible(props) {
   const { stage, assigned: invAssigned, completion_estimate: marketDaysEstimate,
     required_approvers:  requiredApprovers, required_reviews: requiredReviewers, ticket_code: ticketCode,
     open_for_investment: openForInvestment } = marketInfo;
-  const [daysEstimate, setDaysEstimate] = useState(marketDaysEstimate);
   const assigned = invAssigned || [];
   const { investible } = marketInvestible;
   const { name, locked_by: lockedBy, created_at: createdAt, label_list: originalLabelList } = investible;
@@ -656,18 +655,18 @@ function PlanningInvestible(props) {
   function toggleEdit() {
     setShowDatepicker(!showDatepicker);
   }
+  const daysEstimate = marketDaysEstimate ? Date.parse(marketDaysEstimate) : undefined
   function getStartDate() {
-    if (daysEstimate && createdAt) {
-      const nowDate = new Date();
+    if (marketDaysEstimate && createdAt) {
+      const nowDate = new Date()
       if (daysEstimate > nowDate) {
-        return daysEstimate;
+        return daysEstimate
       }
     }
     return undefined;
   }
   function handleDateChange(date) {
     if (!_.isEqual(date, daysEstimate)) {
-      setDaysEstimate(date);
       toggleEdit();
       const updateInfo = {
         marketId,

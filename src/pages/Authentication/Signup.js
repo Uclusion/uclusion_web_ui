@@ -615,6 +615,7 @@ function Signup(props) {
                 variant="contained"
                 className={classes.submit}
                 type="submit"
+                id="signupButton"
                 disabled={formInvalid}
               >
                 {intl.formatMessage({ id: 'signupSignupLabel' })}

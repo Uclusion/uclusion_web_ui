@@ -34,6 +34,7 @@ function SpinningButton(props) {
     <Button
       disabled={spinningDisabled || disabled}
       onClick={myOnClick}
+      id={id}
       {...rest}
     >
       {children}

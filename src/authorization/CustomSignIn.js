@@ -241,6 +241,7 @@ class CustomSignIn extends SignIn {
             fullWidth
             variant="contained"
             className={classes.submit}
+            id="signinButton"
           >
             {intl.formatMessage({ id: 'signInSignIn'})}
           </SpinningButton>

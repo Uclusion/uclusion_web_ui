@@ -465,15 +465,16 @@ function Signup(props) {
             </GithubLoginButton>
           )}
           {_.isEmpty(qryEmail) && (
-            <div className={classes.googleButton} onClick={() => {
+            <div className={classes.googleButton} id="googleSignupDiv" onClick={() => {
               // Must come back to this device so go ahead and set in local storage
-              const aRedirect = getRedirect();
+              const aRedirect = getRedirect()
               if (aRedirect !== '/') {
-                setRedirect(aRedirect);
+                setRedirect(aRedirect)
               }
-              Auth.federatedSignIn({provider: 'Google'});
+              Auth.federatedSignIn({ provider: 'Google' })
             }}>
-              <img className={classes.googleImg} alt="Sign in with Google" src={`/images/btn_google_dark_normal_ios.svg`} />
+              <img className={classes.googleImg} alt="Sign in with Google"
+                   src={`/images/btn_google_dark_normal_ios.svg`}/>
               <div className={classes.googleTextWrapper}>
                 <div className={classes.googleText}> {intl.formatMessage({ id: 'signupGoogleSignup' })}</div>
               </div>

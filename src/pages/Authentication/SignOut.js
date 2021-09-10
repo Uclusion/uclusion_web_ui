@@ -32,6 +32,7 @@ function SignOut(props) {
       onClick={myOnSignOut}
       className={classes.action}
       disableRipple
+      id="signoutButton"
     >
       {intl.formatMessage({ id: 'signOutButton' })}
     </Button>

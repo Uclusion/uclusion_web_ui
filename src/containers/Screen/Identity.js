@@ -140,6 +140,7 @@ function Identity (props) {
         onClick={recordPositionToggle}
         endIcon={<SettingsIcon htmlColor="#bdbdbd"/>}
         className={classes.buttonClass}
+        id="identityButton"
       >
         <Gravatar
           key={chipLabel}

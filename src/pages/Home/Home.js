@@ -125,10 +125,13 @@ function Home(props) {
     })
     const presence = myPresence || {}
     const investibles = getMarketInvestibles(investiblesState, market.id, searchResults)
-    const visibleStages = getStages(marketStagesState, market.id).filter((stage) => stage.appears_in_context &&
+    const visibleStages = getStages(marketStagesState, market.id).filter((stage) => stage.appears_in_context)
+      || []
+    const visibleCountedStages = getStages(marketStagesState, market.id).filter((stage) => stage.appears_in_context &&
         (!_.isEmpty(search) || !stage.appears_in_market_summary))
       || []
     const visibleStageIds = visibleStages.map((stage) => stage.id)
+    const visibleCountedStageIds = visibleCountedStages.map((stage) => stage.id)
     const myInvestibles = getUserInvestibles(
       presence.id,
       market.id,
@@ -136,11 +139,18 @@ function Home(props) {
       visibleStageIds,
       searchResults
     ) || []
-    return { market, myInvestibles, presence }
+    const myCountedInvestibles = getUserInvestibles(
+      presence.id,
+      market.id,
+      investibles,
+      visibleCountedStageIds,
+      searchResults
+    ) || []
+    return { market, myInvestibles, myCountedInvestibles, presence }
   });
   const assignedSize = workspacesData.reduce((accumulator, currentValue) =>
-    accumulator + currentValue.myInvestibles.length, 0);
-  const archiveMarkets = getHiddenMarketDetailsForUser(marketsState, marketPresencesState, searchResults);
+    accumulator + currentValue.myCountedInvestibles.length, 0)
+  const archiveMarkets = getHiddenMarketDetailsForUser(marketsState, marketPresencesState, searchResults)
   const navigationMenu = {navHeaderText: intl.formatMessage({ id: 'home' }), showSearchResults: true,
     navListItemTextArray: [{icon: AddIcon, text: intl.formatMessage({ id: 'addNew' }),
       onClickFunc: createEnabled && !wizardActive ? () => {

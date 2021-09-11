@@ -553,7 +553,7 @@ function PlanningInvestible(props) {
           marketId={marketId}
           currentStageId={stage}
           full={acceptedFull}
-          disabled={inAcceptedStage || !isAssigned || !_.isEmpty(blockingComments) || acceptedFull || notAssigned}
+          disabled={isInAccepted || !isAssigned || !_.isEmpty(blockingComments) || acceptedFull || notAssigned}
           hasAssignedQuestions={!_.isEmpty(questionByAssignedComments)}
         />
       </MenuItem>,

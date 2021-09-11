@@ -329,9 +329,11 @@ const messages = defineMessages({
   investibleDeleteLabel: 'Permanently Delete',
   investibleDeleteExplanationLabel: 'Permanently remove this option from the dialog',
   planningInvestibleToVotingLabel: 'Ready for Approval',
+  planningMobileToVotingLabel: 'Approval',
   planningInvestibleNextStageAcceptedLabel: 'Not Ready',
   planningInvestibleNextStageAcceptedFullLabel: 'Not Ready (Full)',
   planningInvestibleNextStageInReviewLabel: 'Ready for Feedback',
+  planningInvestibleMobileInReviewLabel: 'Feedback',
   planningInvestibleMoveToVerifiedLabel: 'Verified',
   planningInvestibleMoveToFurtherWorkLabel: 'Further Work',
   unresolvedReadyToStartWarning: 'There are unresolved comments. Do you want to make Ready to Start anyway?',
@@ -358,6 +360,7 @@ const messages = defineMessages({
   requiresInputStageLabel: 'Requires Input',
   planningNotDoingStageLabel: 'Not Doing',
   planningBlockedStageLabel: 'Blocked',
+  allowedStagesDropdownLabel: 'Stage',
   planningInvestibleAssignments: 'assigned',
   requiredApprovers: 'required approvers',
   requiredReviewers: 'required reviewers',
@@ -479,7 +482,7 @@ const messages = defineMessages({
   // stages
   marketStageFollowTooltip: 'Subscribe',
   marketStageUnFollowTooltip: 'Unsubscribe',
-  changeStage: 'Change stage',
+  quickChangeStage: 'Next stage',
 
   // markets
   signupInvite: 'invites you to collaborate on',

@@ -1,7 +1,7 @@
 import { withSpinLock } from './SpinBlockingHOC'
 import React from 'react'
 import PropTypes from 'prop-types'
-import { ListItem, ListItemIcon, ListItemText, Tooltip, } from '@material-ui/core'
+import { ListItem, ListItemIcon, ListItemText, Tooltip, useMediaQuery, useTheme, } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 
 const useStyles = makeStyles(() => {
@@ -43,12 +43,13 @@ function SpinBlockingListAction(props) {
     onSpinStop,
     hasSpinChecker,
     customClasses,
-    isOpen,
     disabled,
   } = props;
-  const myClasses = useStyles();
-  const classes = customClasses || myClasses;
-  const SpinningListItem = withSpinLock(ListItem);
+  const theme = useTheme()
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('md'))
+  const myClasses = useStyles()
+  const classes = customClasses || myClasses
+  const SpinningListItem = withSpinLock(ListItem)
 
   return (
     <SpinningListItem
@@ -63,18 +64,18 @@ function SpinBlockingListAction(props) {
       hasSpinChecker={hasSpinChecker}
       disabled={disabled}
     >
-      <Tooltip title={label}>
-        <ListItemIcon className={classes.menuIcon}>
-          {icon}
-        </ListItemIcon>
-      </Tooltip>
-      {(isOpen !== undefined ? isOpen : true) && (
+      {!mobileLayout && (
         <Tooltip title={label}>
-          <ListItemText className={classes.menuTitle}>
-            {openLabel}
-          </ListItemText>
+          <ListItemIcon className={classes.menuIcon}>
+            {icon}
+          </ListItemIcon>
         </Tooltip>
       )}
+      <Tooltip title={label}>
+        <ListItemText className={classes.menuTitle}>
+          {openLabel}
+        </ListItemText>
+      </Tooltip>
     </SpinningListItem>
   );
 }
@@ -90,7 +91,6 @@ SpinBlockingListAction.propTypes = {
   onSpinStop: PropTypes.func,
   id: PropTypes.string,
   customClasses: PropTypes.object,
-  isOpen: PropTypes.bool,
   disabled: PropTypes.bool,
 };
 
@@ -99,7 +99,6 @@ SpinBlockingListAction.defaultProps = {
   onSpinStop: () => {},
   hasSpinChecker: false,
   id: undefined,
-  isOpen: undefined,
   disabled: false,
 };
 

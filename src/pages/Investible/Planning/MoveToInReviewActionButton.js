@@ -5,23 +5,26 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 import { getInReviewStage, } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import StageChangeAction from '../../../components/SidebarActions/Planning/StageChangeAction'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { useMediaQuery, useTheme } from '@material-ui/core'
 
 function MoveToInReviewActionButton(props) {
-  const { marketId, disabled, hasAssignedQuestions } = props;
-  const [marketStagesState] = useContext(MarketStagesContext);
-  const inReviewStage = getInReviewStage(marketStagesState, marketId);
-  const [operationRunning] = useContext(OperationInProgressContext);
+  const { marketId, disabled, hasAssignedQuestions } = props
+  const [marketStagesState] = useContext(MarketStagesContext)
+  const inReviewStage = getInReviewStage(marketStagesState, marketId)
+  const [operationRunning] = useContext(OperationInProgressContext)
+  const theme = useTheme()
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('md'))
 
   if (!inReviewStage) {
-    return React.Fragment;
+    return React.Fragment
   }
 
   return (
     <StageChangeAction
       {...props}
-      icon={hasAssignedQuestions ? <RateReviewIcon color="disabled" /> : <RateReviewIcon />}
+      icon={hasAssignedQuestions ? <RateReviewIcon color="disabled"/> : <RateReviewIcon/>}
       targetStageId={inReviewStage.id}
-      translationId="planningInvestibleNextStageInReviewLabel"
+      translationId={mobileLayout ? 'planningInvestibleMobileInReviewLabel' : 'planningInvestibleNextStageInReviewLabel'}
       explanationId="planningInvestibleInReviewExplanation"
       disabled={operationRunning || disabled}
       operationBlocked={hasAssignedQuestions}

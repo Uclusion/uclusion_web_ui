@@ -67,7 +67,6 @@ function MoveToNextVisibleStageActionButton(props) {
         operationBlocked={blockedByTodos || hasAssignedQuestions}
         blockedOperationTranslationId={blockedByTodos ? 'mustRemoveTodosExplanation' : 'mustResolveAssignedQuestions'}
         disabled={disabled}
-        isOpen={true}
         standAlone
       />
     </div>

@@ -4,15 +4,17 @@ import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import { getInCurrentVotingStage, } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import StageChangeAction from '../../../components/SidebarActions/Planning/StageChangeAction'
+import { useMediaQuery, useTheme } from '@material-ui/core'
 
 function MoveToVotingActionButton(props) {
-  const { marketId, disabled, hasAssignedQuestions } = props;
-
-  const [marketStagesState] = useContext(MarketStagesContext);
-  const votingStage = getInCurrentVotingStage(marketStagesState, marketId);
+  const { marketId, disabled, hasAssignedQuestions } = props
+  const theme = useTheme()
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('md'))
+  const [marketStagesState] = useContext(MarketStagesContext)
+  const votingStage = getInCurrentVotingStage(marketStagesState, marketId)
 
   if (!votingStage) {
-    return React.Fragment;
+    return React.Fragment
   }
 
   return (
@@ -20,7 +22,7 @@ function MoveToVotingActionButton(props) {
       {...props}
       icon={hasAssignedQuestions ? <ThumbsUpDownIcon color="disabled" /> : <ThumbsUpDownIcon />}
       targetStageId={votingStage.id}
-      translationId="planningInvestibleToVotingLabel"
+      translationId={mobileLayout ? 'planningMobileToVotingLabel' : 'planningInvestibleToVotingLabel'}
       explanationId="planningInvestibleVotingExplanation"
       operationBlocked={hasAssignedQuestions}
       blockedOperationTranslationId="mustResolveAssignedQuestions"

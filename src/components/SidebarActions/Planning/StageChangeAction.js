@@ -8,7 +8,7 @@ import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { EMPTY_SPIN_RESULT } from '../../../constants/global'
 import { makeStyles } from '@material-ui/styles'
 import { Dialog } from '../../Dialogs'
-import { ListItemIcon, ListItemText, Tooltip } from '@material-ui/core'
+import { ListItemIcon, ListItemText, Tooltip, useMediaQuery, useTheme } from '@material-ui/core'
 import { useLockedDialogStyles } from '../../../pages/Dialog/DialogBodyEdit'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
@@ -68,7 +68,6 @@ function StageChangeAction(props) {
     translationId,
     explanationId,
     onSpinStop,
-    isOpen,
     disabled,
     iconColor,
     operationBlocked,
@@ -76,17 +75,19 @@ function StageChangeAction(props) {
     standAlone,
     key
   } = props;
-  const classes = useStyles();
-  const intl = useIntl();
-  const [, invDispatch] = useContext(InvestiblesContext);
-  const [commentsState, commentsDispatch] = useContext(CommentsContext);
-  const [marketStagesState] = useContext(MarketStagesContext);
-  const [, diffDispatch] = useContext(DiffContext);
-  const autoFocusRef = React.useRef(null);
-  const lockedDialogClasses = useLockedDialogStyles();
-  const [open, setOpen] = React.useState(false);
-  const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const classes = useStyles()
+  const intl = useIntl()
+  const theme = useTheme()
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('md'))
+  const [, invDispatch] = useContext(InvestiblesContext)
+  const [commentsState, commentsDispatch] = useContext(CommentsContext)
+  const [marketStagesState] = useContext(MarketStagesContext)
+  const [, diffDispatch] = useContext(DiffContext)
+  const autoFocusRef = React.useRef(null)
+  const lockedDialogClasses = useLockedDialogStyles()
+  const [open, setOpen] = React.useState(false)
+  const [, setOperationRunning] = useContext(OperationInProgressContext)
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext)
 
   const handleOpen = () => {
     setOpen(true);
@@ -123,25 +124,25 @@ function StageChangeAction(props) {
     return (
       <>
         {standAlone && (
-          <SpinningIconLabelButton icon={icon} onClick={handleOpen} disabled={disabled} key={key} noMargin
-                                   doSpin={false}>
-            <FormattedMessage id={translationId} />
+          <SpinningIconLabelButton icon={icon} onClick={handleOpen} disabled={disabled} key={key}
+                                   style={{ padding: '0.5rem' }} doSpin={false}>
+            <FormattedMessage id={translationId}/>
           </SpinningIconLabelButton>
         )}
         {!standAlone && (
           <>
-            <Tooltip title={intl.formatMessage({ id: explanationId })}>
-              <ListItemIcon className={classes.menuIcon} onClick={handleOpen}>
-                {icon}
-              </ListItemIcon>
-            </Tooltip>
-            {(isOpen !== undefined ? isOpen : true) && (
+            {!mobileLayout && (
               <Tooltip title={intl.formatMessage({ id: explanationId })}>
-                <ListItemText className={classes.menuTitleDisabled} onClick={handleOpen}>
-                  {intl.formatMessage({ id: translationId })}
-                </ListItemText>
+                <ListItemIcon className={classes.menuIcon} onClick={handleOpen}>
+                  {icon}
+                </ListItemIcon>
               </Tooltip>
             )}
+            <Tooltip title={intl.formatMessage({ id: explanationId })}>
+              <ListItemText className={classes.menuTitleDisabled} onClick={handleOpen}>
+                {intl.formatMessage({ id: translationId })}
+              </ListItemText>
+            </Tooltip>
           </>
         )}
         <br />
@@ -174,7 +175,7 @@ function StageChangeAction(props) {
   if (standAlone) {
     return (
       <SpinningIconLabelButton icon={icon} iconColor={iconColor} onClick={moveToTarget} disabled={disabled} key={key}
-                               noMargin id="stageChangeActionButton">
+                               id="stageChangeActionButton" style={{ padding: '0.5rem' }}>
         <FormattedMessage
           id={translationId}
         />
@@ -192,7 +193,6 @@ function StageChangeAction(props) {
       openLabel={intl.formatMessage({ id: translationId })}
       onClick={moveToTargetFromList}
       customClasses={classes}
-      isOpen={isOpen}
       disabled={disabled}
     />
   );
@@ -207,7 +207,6 @@ StageChangeAction.propTypes = {
   marketId: PropTypes.string.isRequired,
   currentStageId: PropTypes.string.isRequired,
   targetStageId: PropTypes.string.isRequired,
-  isOpen: PropTypes.bool,
   disabled: PropTypes.bool.isRequired,
   operationBlocked: PropTypes.bool,
   blockedOperationTranslationId: PropTypes.string,
@@ -218,7 +217,6 @@ StageChangeAction.defaultProps = {
   onSpinStop: () => {},
   operationBlocked: false,
   blockedOperationTranslationId: '',
-  isOpen: true,
   standAlone: false
 };
 export default StageChangeAction;

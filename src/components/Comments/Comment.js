@@ -68,8 +68,12 @@ import { addDecisionInvestible } from '../../api/investibles'
 import ShareStoryButton from '../../pages/Investible/Planning/ShareStoryButton'
 import { onCommentOpen } from '../../utils/commentFunctions'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
-import { findMessageForCommentId, removeMessagesForCommentId } from '../../utils/messageUtils'
-import GravatarAndName from '../Avatars/GravatarAndName';
+import {
+  findMessageForCommentId,
+  findMessagesForInvestibleId,
+  removeMessagesForCommentId
+} from '../../utils/messageUtils'
+import GravatarAndName from '../Avatars/GravatarAndName'
 import { invalidEditEvent } from '../../utils/windowUtils'
 import DecisionInvestibleAdd from '../../pages/Dialog/Decision/DecisionInvestibleAdd'
 import ExpandableAction from '../SidebarActions/Planning/ExpandableAction'
@@ -86,6 +90,8 @@ import { getDiff, markDiffViewed } from '../../contexts/DiffContext/diffContextH
 import { DiffContext } from '../../contexts/DiffContext/DiffContext'
 import DiffDisplay from '../TextEditors/DiffDisplay'
 import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../authorization/TokenStorageManager'
+import { NOT_FULLY_VOTED_TYPE, REPORT_REQUIRED } from '../../constants/notifications'
+import { removeMessage } from '../../contexts/NotificationsContext/notificationsContextReducer'
 
 const useCommentStyles = makeStyles(
   theme => {
@@ -95,7 +101,7 @@ const useCommentStyles = makeStyles(
         marginBottom: 18
       },
       content: {
-        marginTop: "12px",
+        marginTop: '12px',
         fontSize: 15,
         lineHeight: "175%"
       },
@@ -555,10 +561,26 @@ function Comment(props) {
   function resolve() {
     return resolveComment(marketId, id)
       .then((comment) => {
-        addCommentToMarket(comment, commentsState, commentsDispatch);
-        removeMessagesForCommentId(id, messagesState,messagesDispatch);
-        setOperationRunning(false);
-        onDone();
+        addCommentToMarket(comment, commentsState, commentsDispatch)
+        removeMessagesForCommentId(id, messagesState, messagesDispatch)
+        if (inlineMarketId) {
+          const inlineInvestibles = getMarketInvestibles(investiblesState, inlineMarketId) || []
+          const anInlineMarketInvestibleComments = getMarketComments(commentsState, inlineMarketId) || []
+          inlineInvestibles.forEach((inv) => {
+            const messages = findMessagesForInvestibleId(inv.investible.id, messagesState) || []
+            messages.forEach((message) => {
+              messagesDispatch(removeMessage(message))
+            })
+          })
+          anInlineMarketInvestibleComments.forEach((comment) => {
+            const messages = findMessageForCommentId(comment.id, messagesState) || []
+            messages.forEach((message) => {
+              messagesDispatch(removeMessage(message))
+            })
+          })
+        }
+        setOperationRunning(false)
+        onDone()
       });
   }
   function getHilightedIds(myReplies, highLightedIds, passedMessages) {

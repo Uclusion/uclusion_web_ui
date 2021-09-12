@@ -90,7 +90,6 @@ import { getDiff, markDiffViewed } from '../../contexts/DiffContext/diffContextH
 import { DiffContext } from '../../contexts/DiffContext/DiffContext'
 import DiffDisplay from '../TextEditors/DiffDisplay'
 import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../authorization/TokenStorageManager'
-import { NOT_FULLY_VOTED_TYPE, REPORT_REQUIRED } from '../../constants/notifications'
 import { removeMessage } from '../../contexts/NotificationsContext/notificationsContextReducer'
 
 const useCommentStyles = makeStyles(

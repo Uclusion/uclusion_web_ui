@@ -166,8 +166,11 @@ function Home(props) {
         target: _.size(archiveMarkets) > 0 ? '/archives' : undefined,
         num: _.isEmpty(search) || _.size(archiveMarkets) === 0 ? undefined : _.size(archiveMarkets), newPage: true
       }
-    ]};
-
+    ]
+  };
+  const noActiveMarkets = _.isEmpty(planningDetails) && _.isEmpty(decisionDetails) && _.isEmpty(initiativeDetails)
+  const showCreateTemplate = !_.isEmpty(user) && _.isEmpty(getExistingMarkets(versionsContext))
+    && hasLoadedGlobalVersion(versionsContext)
   return (
     <Screen
       title={intl.formatMessage({ 'id': 'homeBreadCrumb' })}
@@ -178,23 +181,22 @@ function Home(props) {
       loading={loadingForeGroundMarkets}
       navigationOptions={banner ? [] : navigationMenu}
     >
-      {!_.isEmpty(user) && _.isEmpty(getExistingMarkets(versionsContext)) && hasLoadedGlobalVersion(versionsContext)
-      && (
+      {showCreateTemplate && (
         <CreateWorkspaceDialog user={user} hidden={wizardActive}/>
       )}
       <WizardSelector
-        hidden={!wizardActive}
+        hidden={!wizardActive && !(noActiveMarkets && !showCreateTemplate)}
         onFinish={onWizardFinish}
         onCancel={() => setWizardActive(false)}/>
-      {!_.isEmpty(getExistingMarkets(versionsContext)) && (
+      {!noActiveMarkets && (
         <React.Fragment>
           <div className={classes.titleContainer}>
             {<AgilePlanIcon htmlColor="#333333"/>}
-              <Typography className={classes.title} variant="h6">
-                {intl.formatMessage({ id: 'homeAssignments' })}
-              </Typography>
-            </div>
-            <div id="swimLanes">
+            <Typography className={classes.title} variant="h6">
+              {intl.formatMessage({ id: 'homeAssignments' })}
+            </Typography>
+          </div>
+          <div id="swimLanes">
             <InvestiblesByWorkspace workspaces={planningDetails} chosenPerson={chosenPerson}
                                     showAddNew={createEnabled && !wizardActive} setChosenPerson={setChosenPerson}
                                     workspacesData={workspacesData} setWizardActive={setWizardActive}/>

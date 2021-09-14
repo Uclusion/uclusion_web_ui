@@ -21,7 +21,11 @@ import {
 import { processTextAndFilesForSave } from '../../api/files'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
-import { addCommentToMarket } from '../../contexts/CommentsContext/commentsContextHelper'
+import {
+  addCommentToMarket,
+  getMarketComments,
+  refreshMarketComments
+} from '../../contexts/CommentsContext/commentsContextHelper'
 import { Dialog } from '../Dialogs'
 import WarningIcon from '@material-ui/icons/Warning'
 import { useLockedDialogStyles } from '../../pages/Dialog/DialogBodyEdit'
@@ -223,26 +227,26 @@ function CommentAdd(props) {
   const { assigned, stage: currentStageId } = (info || {});
   const inReviewStage = getInReviewStage(marketStagesState, marketId) || {id: 'fake'};
   const readyForApprovalStage = getInCurrentVotingStage(marketStagesState, marketId) || {};
-  const placeHolderLabelId = getPlaceHolderLabelId(type, isStory, currentStageId === inReviewStage.id);
-  const placeHolder = intl.formatMessage({ id: placeHolderLabelId });
-  const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const [userState] = useContext(AccountUserContext);
-  const theme = useTheme();
-  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
-  const presences = getMarketPresences(marketPresencesState, marketId) || [];
-  const myPresence = presences.find((presence) => presence.current_user) || {};
-  const blockingStage = getBlockedStage(marketStagesState, marketId) || {};
-  const requiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
-  const investibleRequiresInput = ((type === QUESTION_TYPE || type === SUGGEST_CHANGE_TYPE)
-      && (assigned || []).includes(myPresence.id)) && currentStageId !== blockingStage.id
-    && currentStageId !== requiresInputStage.id;
+  const placeHolderLabelId = getPlaceHolderLabelId(type, isStory, currentStageId === inReviewStage.id)
+  const placeHolder = intl.formatMessage({ id: placeHolderLabelId })
+  const [, setOperationRunning] = useContext(OperationInProgressContext)
+  const [userState] = useContext(AccountUserContext)
+  const theme = useTheme()
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'))
+  const presences = getMarketPresences(marketPresencesState, marketId) || []
+  const myPresence = presences.find((presence) => presence.current_user) || {}
+  const blockingStage = getBlockedStage(marketStagesState, marketId) || {}
+  const requiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {}
+  const creatorIsAssigned = (assigned || []).includes(myPresence.id)
+  const investibleRequiresInput = (type === QUESTION_TYPE || type === SUGGEST_CHANGE_TYPE) && creatorIsAssigned
+    && currentStageId !== blockingStage.id && currentStageId !== requiresInputStage.id
 
   function toggleIssue () {
-    setOpenIssue(!openIssue);
+    setOpenIssue(!openIssue)
   }
 
-  const editorName = `${nameKey ? nameKey : ''}${parentId ? parentId : investibleId ? investibleId : marketId}-comment-add-editor`;
-  const useBody = getQuillStoredState(editorName);
+  const editorName = `${nameKey ? nameKey : ''}${parentId ? parentId : investibleId ? investibleId : marketId}-comment-add-editor`
+  const useBody = getQuillStoredState(editorName)
   //console.debug(`use body is ${useBody} for ${editorName}`);
   const editorSpec = {
     value: useBody,
@@ -286,24 +290,44 @@ function CommentAdd(props) {
 
   function handleClear () {
     // Reset doesn't work because value hasn't changed yet - I'm not clear on why this works
-    editorController(editorUpdate (''));
-    onCancel();
+    editorController(editorUpdate(''))
+    onCancel()
   }
 
   function handleSpinStop (comment) {
-    clearMe();
-    onSave(comment);
+    clearMe()
+    onSave(comment)
+  }
+
+  function quickResolveOlderReports (currentComment) {
+    const marketComments = getMarketComments(commentsState, marketId) || []
+    let comments = marketComments.filter(comment => comment.comment_type === REPORT_TYPE && !comment.resolved &&
+      comment.creator_assigned && comment.id !== currentComment.id) || []
+    if (investibleId) {
+      comments = comments.filter(comment => comment.investible_id === investibleId) || []
+    } else {
+      comments = comments.filter(comment => !comment.investible_id) || []
+    }
+    const updatedComments = comments.map((comment) => {
+      return {
+        ...comment,
+        resolved: true,
+        updated_at: currentComment.updated_at,
+        updated_by: currentComment.updated_by
+      }
+    })
+    refreshMarketComments(commentDispatch, marketId, updatedComments)
   }
 
   function handleSave () {
-    const currentUploadedFiles = uploadedFiles || [];
+    const currentUploadedFiles = uploadedFiles || []
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
-    } = processTextAndFilesForSave(currentUploadedFiles, getQuillStoredState(editorName));
-    const mentions = getMentionsFromText(tokensRemoved);
+    } = processTextAndFilesForSave(currentUploadedFiles, getQuillStoredState(editorName))
+    const mentions = getMentionsFromText(tokensRemoved)
     // the API does _not_ want you to send reply type, so suppress if our type is reply
-    const apiType = (type === REPLY_TYPE) ? undefined : type;
+    const apiType = (type === REPLY_TYPE) ? undefined : type
     // what about not doing state?
     const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
     const investibleBlocks = (investibleId && apiType === ISSUE_TYPE) && currentStageId !== blockingStage.id;
@@ -316,9 +340,12 @@ function CommentAdd(props) {
           blockingStage, requiresInputStage, info, market_infos, rootInvestible, investibleDispatch, comment);
         addCommentToMarket(comment, commentsState, commentDispatch);
         if (apiType === REPORT_TYPE || (apiType === TODO_TYPE && inReviewStage.id === currentStageId)) {
-          const message = findMessageOfType('REPORT_REQUIRED', investibleId, messagesState);
+          const message = findMessageOfType('REPORT_REQUIRED', investibleId, messagesState)
           if (message) {
-            messagesDispatch(removeMessage(message));
+            messagesDispatch(removeMessage(message))
+          }
+          if (apiType === REPORT_TYPE && (creatorIsAssigned || !investibleId)) {
+            quickResolveOlderReports(comment)
           }
         }
         // Leaving a comment clears all READ level on the investible

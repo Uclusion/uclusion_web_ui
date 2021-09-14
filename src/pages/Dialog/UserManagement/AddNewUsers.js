@@ -244,7 +244,7 @@ function AddNewUsers (props) {
             <ListItem>
               <List
                 dense
-                id="addressBook"
+                id="emailsSentList"
               >
                 {emailsSent.map((entry) => {
                   return (

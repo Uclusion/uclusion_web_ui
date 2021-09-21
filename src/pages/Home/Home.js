@@ -76,27 +76,28 @@ function Home(props) {
   const [marketsState] = useContext(MarketsContext);
   const [accountState] = useContext(AccountContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
-  const [marketStagesState] = useContext(MarketStagesContext);
-  const [investiblesState] = useContext(InvestiblesContext);
-  const [operationRunning] = useContext(OperationInProgressContext);
-  const classes = useStyles();
-  const [wizardActive, setWizardActive] = useState(false);
-  const user = useContext(CognitoUserContext) || {};
-  const [, tourDispatch] = useContext(TourContext);
-  const [versionsContext] = useContext(VersionsContext);
-  const createEnabled = canCreate(accountState);
+  const [marketStagesState] = useContext(MarketStagesContext)
+  const [investiblesState] = useContext(InvestiblesContext)
+  const [operationRunning] = useContext(OperationInProgressContext)
+  const classes = useStyles()
+  const [wizardActive, setWizardActive] = useState(false)
+  const user = useContext(CognitoUserContext) || {}
+  const [, tourDispatch] = useContext(TourContext)
+  const [versionsContext] = useContext(VersionsContext)
+  const createEnabled = canCreate(accountState)
   //While fore ground loads there is no global version and operation is running
-  const loadingForeGroundMarkets = !hasInitializedGlobalVersion(versionsContext) && operationRunning;
-  const banner = loadingForeGroundMarkets || createEnabled ? undefined : <UpgradeBanner/>;
-  const [chosenPerson, setChosenPerson] = React.useState({ name: '', email: '', external_id: '' });
+  const loadingForeGroundMarkets = !hasLoadedGlobalVersion(versionsContext) || marketsState.initializing ||
+    (!hasInitializedGlobalVersion(versionsContext) && operationRunning)
+  const banner = loadingForeGroundMarkets || createEnabled ? undefined : <UpgradeBanner/>
+  const [chosenPerson, setChosenPerson] = React.useState({ name: '', email: '', external_id: '' })
 
   useEffect(() => {
-    const redirect = getAndClearRedirect();
+    const redirect = getAndClearRedirect()
     if (!_.isEmpty(redirect) && redirect !== '/') {
       // Go ahead and start the invite tour - if they have taken already it's harmless
-      tourDispatch(startTour(INVITED_USER_WORKSPACE));
-      console.log(`Redirecting you to ${redirect}`);
-      history.push(redirect);
+      tourDispatch(startTour(INVITED_USER_WORKSPACE))
+      console.log(`Redirecting you to ${redirect}`)
+      history.push(redirect)
     }
   })
 
@@ -170,7 +171,6 @@ function Home(props) {
   };
   const noActiveMarkets = _.isEmpty(planningDetails) && _.isEmpty(decisionDetails) && _.isEmpty(initiativeDetails)
   const showCreateTemplate = !_.isEmpty(user) && _.isEmpty(getExistingMarkets(versionsContext))
-    && hasLoadedGlobalVersion(versionsContext)
   return (
     <Screen
       title={intl.formatMessage({ 'id': 'homeBreadCrumb' })}

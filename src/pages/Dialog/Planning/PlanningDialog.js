@@ -313,7 +313,7 @@ function PlanningDialog(props) {
       banner={banner}
       navigationOptions={navigationMenu}
     >
-      {marketSubType === 'REQUIREMENTS' && (
+      {marketSubType === 'REQUIREMENTS' && !mobileLayout && (
         <UclusionTour
           name={INVITE_STORIES_WORKSPACE_FIRST_VIEW}
           hidden={hidden}

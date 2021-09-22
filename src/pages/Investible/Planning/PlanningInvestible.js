@@ -535,6 +535,7 @@ function PlanningInvestible(props) {
     const notAssigned = isReadyFurtherWork || isInNotDoing
     const menuItems = [
       <MenuItem
+        key={(getInCurrentVotingStage(marketStagesState, marketId) || {}).id}
         value={(getInCurrentVotingStage(marketStagesState, marketId) || {}).id}
       >
         <MoveToVotingActionButton
@@ -546,6 +547,7 @@ function PlanningInvestible(props) {
         />
       </MenuItem>,
       <MenuItem
+        key={(getAcceptedStage(marketStagesState, marketId) || {}).id}
         value={(getAcceptedStage(marketStagesState, marketId) || {}).id}
         >
         <MoveToAcceptedActionButton
@@ -558,6 +560,7 @@ function PlanningInvestible(props) {
         />
       </MenuItem>,
       <MenuItem
+        key={(getInReviewStage(marketStagesState, marketId) || {}).id}
         value={(getInReviewStage(marketStagesState, marketId) || {}).id}
         >
         <MoveToInReviewActionButton
@@ -569,6 +572,7 @@ function PlanningInvestible(props) {
         />
       </MenuItem>,
       <MenuItem
+        key={(getFurtherWorkStage(marketStagesState, marketId) || {}).id}
         value={(getFurtherWorkStage(marketStagesState, marketId) || {}).id}
         >
         <MoveToFurtherWorkActionButton
@@ -579,6 +583,7 @@ function PlanningInvestible(props) {
         />
       </MenuItem>,
       <MenuItem
+        key={(getVerifiedStage(marketStagesState, marketId) || {}).id}
         value={(getVerifiedStage(marketStagesState, marketId) || {}).id}
         >
         <MoveToVerifiedActionButton
@@ -590,6 +595,7 @@ function PlanningInvestible(props) {
         />
       </MenuItem>,
       <MenuItem
+        key={(getNotDoingStage(marketStagesState, marketId) || {}).id}
         value={(getNotDoingStage(marketStagesState, marketId) || {}).id}
       >
         <MoveToNotDoingActionButton
@@ -602,14 +608,14 @@ function PlanningInvestible(props) {
     ];
     if (isInBlocked) {
       menuItems.unshift(
-        <MenuItem value={inBlockedStage.id}>
+        <MenuItem value={inBlockedStage.id} key={inBlockedStage.id}>
           <FormattedMessage id="planningBlockedStageLabel"/>
         </MenuItem>
       )
     }
     if (isRequiresInput) {
       menuItems.unshift(
-        <MenuItem value={requiresInputStage.id}>
+        <MenuItem value={requiresInputStage.id} key={requiresInputStage.id}>
           <FormattedMessage id="requiresInputHeader"/>
         </MenuItem>
       )

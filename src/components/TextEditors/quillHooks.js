@@ -9,12 +9,13 @@ export function editorReset (contents) {
   };
 }
 
-export function editorRecreate(newId, contents) {
+export function editorRecreate (newId, contents, myLayout) {
   return {
     type: 'recreate',
     newId,
-    contents
-  };
+    contents,
+    myLayout
+  }
 }
 
 /**

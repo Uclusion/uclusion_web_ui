@@ -4,9 +4,9 @@
 
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import LoadingOverlay from 'react-loading-overlay';
-import { useIntl } from 'react-intl';
-import { makeStyles, useTheme } from '@material-ui/core'
-import { pushMessage, registerListener } from '../../utils/MessageBusUtils';
+import { useIntl } from 'react-intl'
+import { makeStyles, useMediaQuery, useTheme } from '@material-ui/core'
+import { pushMessage, registerListener } from '../../utils/MessageBusUtils'
 import _ from 'lodash';
 import ReactDOMServer from 'react-dom/server';
 import MentionListItem from './CustomUI/MentionListItem';
@@ -25,7 +25,6 @@ import CustomCodeBlock from './CustomCodeBlock';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import PropTypes from 'prop-types';
 import { getNameForUrl } from '../../utils/marketIdPathFunctions'
-import { isTinyWindow } from '../../utils/windowUtils'
 import ImageBlot from './ImageBlot'
 import { editorRecreate, getControlPlaneName } from './quillHooks'
 
@@ -43,24 +42,32 @@ Quill.register(CustomCodeBlock, true);
 // static helper funcs
 
 function editorEmpty (contents) {
-  return (contents.length === 0 || contents === '<p></p>' || contents === '<p><br></p>');
+  return (contents.length === 0 || contents === '<p></p>' || contents === '<p><br></p>')
 }
 
 function disableToolbarTabs (editorNode) {
-  const toolbarButtons = editorNode.querySelectorAll('.ql-toolbar *');
+  const toolbarButtons = editorNode.querySelectorAll('.ql-toolbar *')
   toolbarButtons.forEach((button) => {
-    button.tabIndex = -1;
-  });
+    button.tabIndex = -1
+  })
+}
+
+function removeToolbarTabs (editorNode) {
+  const toolbarButtons = editorNode.querySelectorAll('.ql-toolbar *')
+  toolbarButtons.forEach((button) => {
+    button.style.display = 'none'
+    button.parentElement.style.display = 'none'
+  })
 }
 
 function setTooltip (toolbar, selector, title, title2) {
-  const selected = title2 ? toolbar.querySelectorAll(selector) : toolbar.querySelector(selector);
+  const selected = title2 ? toolbar.querySelectorAll(selector) : toolbar.querySelector(selector)
   if (selected) {
     if (title2) {
-      selected[0] && selected[0].setAttribute('title', title);
-      selected[1] && selected[1].setAttribute('title', title2);
+      selected[0] && selected[0].setAttribute('title', title)
+      selected[1] && selected[1].setAttribute('title', title2)
     } else {
-      selected.setAttribute('title', title);
+      selected.setAttribute('title', title)
     }
   }
 }
@@ -174,25 +181,28 @@ function QuillEditor2 (props) {
   const boxRef = useRef();
   const [uploadInProgress, setUploadInProgress] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState([]);
-  const [videoDialogOpen, setVideoDialogOpen] = useState(false);
-  const [linkDialogOpen, setLinkDialogOpen] = useState(false);
+  const [videoDialogOpen, setVideoDialogOpen] = useState(false)
+  const [linkDialogOpen, setLinkDialogOpen] = useState(false)
   //TODO presumably this is a performance optimization but could get the same by handling dependencies better
-  const [editor, setEditor] = useState(null);
-  const [currentId, setCurrentId] = useState(id);
-  const intl = useIntl();
-  const theme = useTheme();
-  const [, setOperationInProgress] = useContext(OperationInProgressContext);
-  const boundsId = `editorBox-${id || marketId}`;
-  const initialContents = getInitialState(id, value, placeholder);
+  const [editor, setEditor] = useState(null)
+  const [currentId, setCurrentId] = useState(id)
+  const intl = useIntl()
+  const theme = useTheme()
+  const [, setOperationInProgress] = useContext(OperationInProgressContext)
+  const boundsId = `editorBox-${id || marketId}`
+  const initialContents = getInitialState(id, value, placeholder)
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('md'))
+  const smallMobileLayout = useMediaQuery(theme.breakpoints.down('sm'))
+  const [currentLayout, setCurrentLayout] = useState(mobileLayout)
 
-  function focusEditor(editor){
+  function focusEditor (editor) {
     if (!_.isEmpty(boxRef?.current?.children)) {
-      boxRef.current.children[0].click();
+      boxRef.current.children[0].click()
     }
-    editor.focus();
+    editor.focus()
   }
 
-  function resetHandler(contents){
+  function resetHandler (contents) {
     if (id) {
       storeState(id, null);
       createEditor(id, contents); // recreate the editor, because we need to get brand new state
@@ -209,11 +219,12 @@ function QuillEditor2 (props) {
       const {
         type,
         contents,
-        newId
+        newId,
+        myLayout
       } = message.payload;
       switch (type) {
         case 'recreate':
-          return createEditor(newId, contents);
+          return createEditor(newId, contents, myLayout)
         case 'reset':
           return resetHandler(contents);
         case 'update':
@@ -274,21 +285,20 @@ function QuillEditor2 (props) {
     );
   }
 
-
   /**
    * Takes our properties and generates a quill options object
    * that configures the editor to what the properties imply.
    * @returns the quill options for the editor
    * */
-  function generateEditorOptions () {
+  function generateEditorOptions (layout) {
     if (noToolbar) {
       return {
         modules: {
           toolbar: false
         },
         readOnly: true,
-        theme: "snow"
-      };
+        theme: 'snow'
+      }
     }
     // CSS id of the container from which scroll and bounds checks operate
     const defaultModules = {
@@ -375,11 +385,10 @@ function QuillEditor2 (props) {
       modules.imageResize = false;
     }
 
-    // Can't do media query here because editor will not re-create itself on change with current useEffect
-    if (isTinyWindow()) {
+    if (layout) {
       modules.toolbar.container = [
         ['bold', 'italic', 'link', 'image', 'video', 'clean'],
-      ];
+      ]
     }
 
     if (!_.isEmpty(participants) && mentionsAllowed) {
@@ -430,28 +439,32 @@ function QuillEditor2 (props) {
   }
 
   function onS3Upload (metadatas) {
-    const newUploads = [...uploadedFiles, ...metadatas];
-    setUploadedFiles(newUploads);
-    pushMessage(`editor-${id}`, { type: 'uploads', newUploads });
+    const newUploads = [...uploadedFiles, ...metadatas]
+    setUploadedFiles(newUploads)
+    pushMessage(`editor-${id}`, { type: 'uploads', newUploads })
   }
 
-  function isWhitespace(ch) {
-    return (ch === ' ') || (ch === '\t') || (ch === '\n');
+  function isWhitespace (ch) {
+    return (ch === ' ') || (ch === '\t') || (ch === '\n')
   }
 
-  function createEditor (editorId, initializeContents) {
+  function createEditor (editorId, initializeContents, myLayout) {
+    const layout = myLayout || mobileLayout
     // we only set the contents if different from the placeholder
     // otherwise the placeholder functionality of the editor won't work
-    if(boxRef.current) {
-      boxRef.current.innerHTML = '';
-      if (initializeContents !== undefined)  {
-        boxRef.current.innerHTML = initializeContents;
+    if (boxRef.current) {
+      boxRef.current.innerHTML = ''
+      if (initializeContents !== undefined) {
+        boxRef.current.innerHTML = initializeContents
       } else if (!(placeholder === initialContents) && initialContents) {
-        boxRef.current.innerHTML = initialContents;
+        boxRef.current.innerHTML = initialContents
       }
     }
-    const editorOptions = generateEditorOptions();
-    const editor = new Quill(boxRef.current, editorOptions);
+
+    //Removing old toolbar in case changes
+    removeToolbarTabs(containerRef.current)
+    const editorOptions = generateEditorOptions(layout)
+    const editor = new Quill(boxRef.current, editorOptions)
     if (!noToolbar) {
       if (editor.container) {
         addToolTips(editor.container.previousSibling)
@@ -460,7 +473,7 @@ function QuillEditor2 (props) {
     }
     const debouncedOnChange = _.debounce((delta) => {
       // URL stuff from https://github.com/quilljs/quill/issues/109
-      const regex = /https?:\/\/[^\s]+$/;
+      const regex = /https?:\/\/[^\s]+$/
       if (delta.ops.length === 2 && delta.ops[0].retain && isWhitespace(delta.ops[1].insert)) {
         const endRetain = delta.ops[0].retain;
         const text = editor.getText().substr(0, endRetain);
@@ -493,8 +506,9 @@ function QuillEditor2 (props) {
     }, 50);
     editor.on('text-change', debouncedOnChange);
     setEditor(editor);
-    setCurrentId(editorId);
-    beginListening(editor, editorId);
+    setCurrentId(editorId)
+    setCurrentLayout(layout)
+    beginListening(editor, editorId)
   }
 
   // bridge our fonts in from the theme;
@@ -513,15 +527,23 @@ function QuillEditor2 (props) {
   const containerReadOnlyStyle = {
     maxWidth: '100%',
     zIndex: '2'
-  };
+  }
+
+  useEffect(() => {
+    if (currentId && mobileLayout !== currentLayout) {
+      pushMessage(getControlPlaneName(currentId), editorRecreate(currentId, getQuillStoredState(currentId),
+        mobileLayout))
+    }
+    return () => {}
+  }, [currentId, mobileLayout, currentLayout])
 
   useEffect(() => {
     if (id && currentId !== id) {
       //If id changes have to reset
-      pushMessage(getControlPlaneName(currentId), editorRecreate(id, getQuillStoredState(id)));
+      pushMessage(getControlPlaneName(currentId), editorRecreate(id, getQuillStoredState(id)))
     }
-    return () => {};
-  }, [currentId, id]);
+    return () => {}
+  }, [currentId, id])
 
   useEffect(() => {
     // Without this read only won't update
@@ -563,7 +585,7 @@ function QuillEditor2 (props) {
           </LoadingOverlay>
         )}
       </div>
-      {isTinyWindow() && <div style={{ height: '50px' }}>&nbsp;</div>}
+      {smallMobileLayout && <div style={{ height: '50px' }}>&nbsp;</div>}
     </div>
   );
 }

@@ -147,16 +147,23 @@ const useStyles = makeStyles(
   theme => {
     return {
       root: {
-        "& .ql-container.ql-snow": {
+        '& .ql-container.ql-snow': {
           fontFamily: theme.typography.fontFamily,
           fontSize: 15,
           border: 0
         },
-        "& .ql-editor": {
+        '& .ql-editor': {
           paddingLeft: 0
         },
       },
-      nothing: {}
+      nothing: {},
+      bottomSpacer: {
+        display: 'none',
+        [theme.breakpoints.between(0, 601)]: {
+          display: 'block',
+          height: '50px'
+        }
+      }
     };
   },
   { name: "ReadOnlyQuillEditor" }
@@ -192,7 +199,6 @@ function QuillEditor2 (props) {
   const boundsId = `editorBox-${id || marketId}`
   const initialContents = getInitialState(id, value, placeholder)
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'))
-  const smallMobileLayout = useMediaQuery(theme.breakpoints.down('sm'))
   const [currentLayout, setCurrentLayout] = useState(mobileLayout)
 
   function focusEditor (editor) {
@@ -585,7 +591,7 @@ function QuillEditor2 (props) {
           </LoadingOverlay>
         )}
       </div>
-      {smallMobileLayout && <div style={{ height: '50px' }}>&nbsp;</div>}
+      <div className={classes.bottomSpacer}>&nbsp;</div>
     </div>
   );
 }

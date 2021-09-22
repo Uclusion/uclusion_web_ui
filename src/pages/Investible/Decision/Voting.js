@@ -130,8 +130,8 @@ function Voting(props) {
           const voteId = `cv${userId}`;
           if (votingBeingEdited && isYourVote && investibleId) {
             return (
-              <>
-                <div className={index % 2 === 1 ? classes.cardPadded : undefined} />
+              <React.Fragment key={index}>
+                <div className={index % 2 === 1 ? classes.cardPadded : undefined}/>
                 <YourVoting
                   investibleId={investibleId}
                   marketPresences={marketPresences}
@@ -144,12 +144,12 @@ function Voting(props) {
                   votingPageStateReset={votingPageStateReset}
                   isAssigned={isAssigned}
                 />
-              </>
+              </React.Fragment>
             )
           }
 
           return (
-            <div className={myMessage && classes.highlighted}>
+            <div className={myMessage && classes.highlighted} key={index}>
               <Card
                 key={userId}
                 className={index % 2 === 1 ? classes.cardPadded : classes.card}

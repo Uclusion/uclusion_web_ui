@@ -516,7 +516,7 @@ const messages = defineMessages({
   homeViewAbout: 'About',
   homeCreatedAt: 'Created on {dateString}',
   archiveWarning: 'Archiving will unassign any active story and prevent further assignment. Deactivating stops the Workspace.',
-  createWorkspaceGreeting: '{name} reclaim your retro',
+  createWorkspaceGreeting: '{name} reclaim your meetings',
   createWorkspaceContent: 'Put the continuous in continuous improvement by letting Uclusion',
   createWorkspaceContentBold: ' create a Workspace for you.',
   createWorkspaceStart: 'Let\'s go!',

@@ -10,7 +10,7 @@ export function inviteStoriesWorkspaceSteps(intl, mobileLayout) {
       title: 'The First Story',
       content: (
         <div>
-          The first story beyond failed retros is <i>already</i> assigned to you.
+          The first story beyond failed meetings is <i>already</i> assigned to you.
         </div>
       )
     });
@@ -26,7 +26,7 @@ export function inviteStoriesWorkspaceSteps(intl, mobileLayout) {
     disableBeacon: true,
     target: '#adminManageCollaborators',
     placement: 'bottom',
-    content: 'Click here to invite your team and avoid another useless retro!',
+    content: 'Click here to invite your team and reclaim your process!',
   })
   return steps;
 }

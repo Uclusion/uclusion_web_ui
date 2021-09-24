@@ -516,8 +516,8 @@ const messages = defineMessages({
   homeCreatedAt: 'Created on {dateString}',
   archiveWarning: 'Archiving will unassign any active story and prevent further assignment. Deactivating stops the Workspace.',
   createWorkspaceGreeting: '{name} reclaim your meetings',
-  createWorkspaceContent: 'Put the continuous in continuous improvement by letting Uclusion',
-  createWorkspaceContentBold: ' create a Workspace for you.',
+  createWorkspaceContent: 'Put the continuous in continuous improvement by letting Uclusion create a Workspace for you from template.',
+  createWorkspaceContentNew: 'Or use the Add New on this page to create your own from scratch.',
   createWorkspaceStart: 'Let\'s go!',
   new: 'New',
   information: 'Information',
@@ -525,7 +525,6 @@ const messages = defineMessages({
   // Archives
   archivesTitle: 'Archive',
   helpVideos: 'Watch help videos in YouTube',
-
 
   // Decision Dialogs
   decisionDialogsStartedBy: 'Started By: {name}',

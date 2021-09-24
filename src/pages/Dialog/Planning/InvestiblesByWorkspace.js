@@ -55,7 +55,7 @@ export const LocalPlanningDragContext = React.createContext([]);
 
 function InvestiblesByWorkspace (props) {
   const {
-    workspaces, setChosenPerson, chosenPerson, workspacesData, setWizardActive, showAddNew
+    workspaces, setChosenPerson, chosenPerson, workspacesData, setWizardActive, showAddNew, showArchives
   } = props;
   const intl = useIntl();
   const history = useHistory();
@@ -128,8 +128,8 @@ function InvestiblesByWorkspace (props) {
 
   return (
     <>
-      {_.size(peopleChoices) > 0 && _.size(peopleChoices[0]) > 1 && (
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+        {_.size(peopleChoices) > 0 && _.size(peopleChoices[0]) > 1 && (
           <Button
             endIcon={<ExpandMoreIcon htmlColor={ACTION_BUTTON_COLOR}/>}
             aria-controls="stages-content"
@@ -142,37 +142,39 @@ function InvestiblesByWorkspace (props) {
                 : intl.formatMessage({ id: 'displayingNoEmail' }, { x: chosenPerson.name })}
             </div>
           </Button>
-          <Menu
-            anchorEl={anchorEl}
-            open={Boolean(anchorEl)}
-            onClose={handleClose}>
-            {peopleChoices}
-          </Menu>
+        )}
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={handleClose}>
+          {peopleChoices}
+        </Menu>
 
-          {midLayout && (
-            <SpinningIconLabelButton icon={MenuBookIcon} onClick={() => navigate(history, '/archives')}
-                                     doSpin={false}>
-              <FormattedMessage id={'homeViewArchives'}/>
-            </SpinningIconLabelButton>
-          )}
+        {showArchives && midLayout && (
+          <SpinningIconLabelButton icon={MenuBookIcon} onClick={() => navigate(history, '/archives')}
+                                   doSpin={false}>
+            <FormattedMessage id={'homeViewArchives'}/>
+          </SpinningIconLabelButton>
+        )}
 
-          {showAddNew && midLayout && (
-            <SpinningIconLabelButton icon={AddIcon} onClick={() => setWizardActive(true)} doSpin={false}>
-              <FormattedMessage id={'addNew'}/>
-            </SpinningIconLabelButton>
-          )}
-        </div>
-      )}
+        {showAddNew && midLayout && (
+          <SpinningIconLabelButton icon={AddIcon} onClick={() => setWizardActive(true)} doSpin={false}>
+            <FormattedMessage id={'addNew'}/>
+          </SpinningIconLabelButton>
+        )}
+      </div>
       <LocalPlanningDragContext.Provider value={[beingDraggedHack, setBeingDraggedHack]}>
         {workspacesData.map((data) => {
-          const { market, presence, myInvestibles } = data;
-          function onClick(id) {
-            const link = formMarketAddInvestibleLink(market.id);
-            navigate(history, `${link}#assignee=${id}`);
+          const { market, presence, myInvestibles } = data
+
+          function onClick (id) {
+            const link = formMarketAddInvestibleLink(market.id)
+            navigate(history, `${link}#assignee=${id}`)
           }
-          const marketPresences = getMarketPresences(marketPresencesState, market.id);
-          const assigningPresenceRaw = marketPresences && marketPresences.find((presence) => presence.current_user);
-          const assigningPresence = assigningPresenceRaw || {};
+
+          const marketPresences = getMarketPresences(marketPresencesState, market.id)
+          const assigningPresenceRaw = marketPresences && marketPresences.find((presence) => presence.current_user)
+          const assigningPresence = assigningPresenceRaw || {}
           const comments = getMarketComments(commentsState, market.id);
           const investibles = getMarketInvestibles(investiblesState, market.id, searchResults);
           const acceptedStage = getAcceptedStage(marketStagesState, market.id) || {};

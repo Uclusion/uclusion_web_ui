@@ -34,7 +34,8 @@ const myStyles = makeStyles(
         maxWidth: '40rem',
         padding: '2rem',
         marginLeft: 'auto',
-        marginRight: 'auto'
+        marginRight: 'auto',
+        marginBottom: '2rem'
       },
       rootHidden: {
         display: 'none'
@@ -99,19 +100,23 @@ function CreateWorkspaceDialog(props) {
         </Typography>
         <Typography component='p' style={{paddingTop: '2rem'}}>
           {intl.formatMessage({ id: 'createWorkspaceContent' })}
-          <b>{intl.formatMessage({id: 'createWorkspaceContentBold'})}</b>
         </Typography>
       </CardContent>
       <CardActions>
-        <div style={{marginLeft: 'auto', marginRight: 'auto'}}>
-          <SpinningIconLabelButton onClick={onCreate} icon={PlayArrow} style={{padding: '0.75rem'}}
+        <div style={{ marginLeft: 'auto', marginRight: 'auto' }}>
+          <SpinningIconLabelButton onClick={onCreate} icon={PlayArrow} style={{ padding: '0.75rem' }}
                                    id="createTemplateWorkspaceButton">
-            <Typography component='h6'>
+            <Typography component="h6">
               {intl.formatMessage({ id: 'createWorkspaceStart' })}
             </Typography>
           </SpinningIconLabelButton>
         </div>
       </CardActions>
+      <CardContent>
+        <Typography component="p" style={{ paddingTop: '1rem' }}>
+          {intl.formatMessage({ id: 'createWorkspaceContentNew' })}
+        </Typography>
+      </CardContent>
     </Card>
   );
 }

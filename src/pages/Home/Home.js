@@ -189,24 +189,27 @@ function Home(props) {
         onFinish={onWizardFinish}
         onCancel={() => setWizardActive(false)}/>
       {!noActiveMarkets && (
+        <div className={classes.titleContainer}>
+          {<AgilePlanIcon htmlColor="#333333"/>}
+          <Typography className={classes.title} variant="h6">
+            {intl.formatMessage({ id: 'homeAssignments' })}
+          </Typography>
+        </div>
+      )}
+      <div id="swimLanes">
+        <InvestiblesByWorkspace workspaces={planningDetails} chosenPerson={chosenPerson}
+                                showAddNew={createEnabled && !wizardActive} showArchives={_.size(archiveMarkets) > 0}
+                                setChosenPerson={setChosenPerson} workspacesData={workspacesData}
+                                setWizardActive={setWizardActive}/>
+      </div>
+      {!noActiveMarkets && (
         <React.Fragment>
-          <div className={classes.titleContainer}>
-            {<AgilePlanIcon htmlColor="#333333"/>}
-            <Typography className={classes.title} variant="h6">
-              {intl.formatMessage({ id: 'homeAssignments' })}
-            </Typography>
-          </div>
-          <div id="swimLanes">
-            <InvestiblesByWorkspace workspaces={planningDetails} chosenPerson={chosenPerson}
-                                    showAddNew={createEnabled && !wizardActive} setChosenPerson={setChosenPerson}
-                                    workspacesData={workspacesData} setWizardActive={setWizardActive}/>
-            </div>
-            <hr className={classes.spacer}/>
-            <PlanningDialogs markets={planningDetails}/>
-            <hr className={classes.spacer}/>
-            <InitiativesAndDialogs dialogs={decisionDetails} initiatives={initiativeDetails}/>
-          </React.Fragment>
-        )}
+          <hr className={classes.spacer}/>
+          <PlanningDialogs markets={planningDetails}/>
+          <hr className={classes.spacer}/>
+          <InitiativesAndDialogs dialogs={decisionDetails} initiatives={initiativeDetails}/>
+        </React.Fragment>
+      )}
     </Screen>
   );
 }

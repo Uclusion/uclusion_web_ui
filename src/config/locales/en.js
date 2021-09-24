@@ -9,7 +9,6 @@ const messages = defineMessages({
   warning_404_description: 'We are sorry but the page you are looking for does not exist.',
   warning_404_categories: 'No categories configured for this market.',
   warning: 'Warning',
-  warningQuestion: 'Important Choice',
   blockedNotice: 'Operation Blocked',
   slack_register_failed: 'Slack registration failure.',
   settings: 'Settings',

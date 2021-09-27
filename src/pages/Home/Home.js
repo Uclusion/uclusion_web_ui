@@ -35,6 +35,7 @@ import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
 import AddIcon from '@material-ui/icons/Add'
 import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
 import PlaylistAddCheckIcon from '@material-ui/icons/PlaylistAddCheck'
+import HomeIcon from '@material-ui/icons/Home'
 import GavelIcon from '@material-ui/icons/Gavel'
 import PollIcon from '@material-ui/icons/Poll'
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
@@ -152,12 +153,15 @@ function Home(props) {
   const assignedSize = workspacesData.reduce((accumulator, currentValue) =>
     accumulator + currentValue.myCountedInvestibles.length, 0)
   const archiveMarkets = getHiddenMarketDetailsForUser(marketsState, marketPresencesState, searchResults)
-  const navigationMenu = {navHeaderText: intl.formatMessage({ id: 'home' }), showSearchResults: true,
-    navListItemTextArray: [{icon: AddIcon, text: intl.formatMessage({ id: 'addNew' }),
+  const navigationMenu = {
+    navHeaderIcon: HomeIcon, navTooltip: 'homeNavTooltip', showSearchResults: true,
+    navListItemTextArray: [{
+      icon: AddIcon, text: intl.formatMessage({ id: 'addNew' }),
       onClickFunc: createEnabled && !wizardActive ? () => {
-      setWizardActive(true);
-      window.scrollTo(0, 0);
-    } : undefined},
+        setWizardActive(true)
+        window.scrollTo(0, 0)
+      } : undefined
+    },
       createNavListItem(AgilePlanIcon, 'mySwimLanes', 'swimLanes', assignedSize),
       createNavListItem(PlaylistAddCheckIcon, 'planningMarkets', 'planningMarkets', _.size(planningDetails)),
       createNavListItem(GavelIcon, 'dialogs', 'dia0', _.size(decisionDetails)),

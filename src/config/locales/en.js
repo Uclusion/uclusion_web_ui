@@ -268,7 +268,6 @@ const messages = defineMessages({
   pleaseVoteNav: 'Change Approval',
   dialogs: 'Dialogs',
   home: 'Home',
-  archives: 'Archive',
   addNew: 'Add New',
   initiatives: 'Initiatives',
   planningMarkets: 'Workspaces',
@@ -281,7 +280,6 @@ const messages = defineMessages({
   for: 'For',
   against: 'Against',
   closedComments: 'Resolved',
-  workspaceArchive: 'Archive',
 
   // Address list
   addressAddCancelLabel: 'Close',
@@ -343,6 +341,7 @@ const messages = defineMessages({
   planningInvestibleVerifiedExplanation: 'Move to Verified when you no longer anticipate further work on the story',
   planningInvestibleFurtherWorkExplanation: 'Move to this stage when a handoff to another assignee is expected for this story',
   planningInvestibleVotingExplanation: 'Move to voting allows certainty and estimates to be re-collected',
+  planningInvestibleNavTooltip: 'Story navigation panel.',
   planningVotingStageLabel: 'Ready for Approval',
   planningVotingStageDescription: 'Approvals collected while in Ready for Approval will expire if the story is not started. Stories with unresolved questions or suggestions have red titles.',
   planningAcceptedStageLabel: 'Not Ready For Feedback',
@@ -514,6 +513,7 @@ const messages = defineMessages({
   homeAddNewExplanation: 'Create a new Workspace, Dialog, or Initiative',
   homeViewAbout: 'About',
   homeCreatedAt: 'Created on {dateString}',
+  homeNavTooltip: 'Home page navigation panel.',
   archiveWarning: 'Archiving will unassign any active story and prevent further assignment. Deactivating stops the Workspace.',
   createWorkspaceGreeting: '{name} reclaim your meetings',
   createWorkspaceContent: 'Put the continuous in continuous improvement by letting Uclusion create a Workspace for you from template.',
@@ -525,6 +525,7 @@ const messages = defineMessages({
   // Archives
   archivesTitle: 'Archive',
   helpVideos: 'Watch help videos in YouTube',
+  archiveNavTooltip: 'Archive navigation panel.',
 
   // Decision Dialogs
   decisionDialogsStartedBy: 'Started By: {name}',
@@ -538,6 +539,7 @@ const messages = defineMessages({
   decisionDialogsBecomeParticipant: 'Activate notifications and move from archive',
   decisionDialogsInviteParticipant: 'Invite Participant',
   decisionDialogsArchiveDialog: 'Deactivate',
+  decisionNavTooltip: 'Dialog navigation panel.',
 
   // Planning Dialog
   planningDialogNavDetailsLabel: 'Details',
@@ -568,6 +570,8 @@ const messages = defineMessages({
   planningEditHelp: 'Workspace descriptions communicate requirements well with notifications and a difference display of the change.',
   planningInvestibleAcceptedHelp: 'For help create a question and add options to it.',
   planningInvestibleVotingHelp: 'Input how certain you are this story should be done or open an issue.',
+  planningNavTooltip: 'Workspace navigation panel.',
+  dialogArchiveNavTooltip: 'Workspace archive navigation panel.',
   collaborators: 'Collaborators',
   inlineAddLabel: 'Add Option',
   inlineAddLabelMobile: 'Option',
@@ -646,6 +650,7 @@ const messages = defineMessages({
   decisionInvestibleVotingBlockedMarket: 'Voting suspended until the open issue on this dialog is resolved',
   decisionInvestibleVotingBlockedInvestible: 'Voting suspended until the open issue on this option is resolved',
   decisionInvestibleProposedHelp: 'You can move this option to be approved by using the highlighted up arrow.',
+  decisionInvestibleNavTooltip: 'Option navigation panel.',
 
   // InitiativeInvestible
   initiativeInvestibleVotingBlocked: 'Voting is blocked because there is an open issue',
@@ -663,6 +668,7 @@ const messages = defineMessages({
   initiativeVotingFor: 'For',
   initiativeVotingAgainst: 'Against',
   initiativeAddHelp: 'Create an initiative to quickly gather opinions on your next potential project.',
+  initiativeNavTooltip: 'Initiative navigation panel.',
 
   // About
   sidebarNavAbout: 'About',
@@ -815,7 +821,7 @@ const messages = defineMessages({
   decisionInvestibleVotingMultiHelp: 'Help decide by approving all options you like and adding any that are missing.',
   initiativeVotingHelp: 'Vote for or against this initiative and choose how certain you are of that vote.',
   personChooserLabel: 'View Other Person\'s Assignments',
-  displaying: 'Displaying for {x} {y}',
+  displaying: 'Displaying stories for {x} {y}',
   displayingNoEmail: 'Displaying for {x}',
   clear: 'Clear',
 

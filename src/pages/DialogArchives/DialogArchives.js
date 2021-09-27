@@ -41,6 +41,7 @@ import ChangeSuggstionIcon from '@material-ui/icons/ChangeHistory'
 import GavelIcon from '@material-ui/icons/Gavel'
 import { getFakeCommentsArray } from '../../utils/stringFunctions'
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
+import MenuBookIcon from '@material-ui/icons/MenuBook'
 
 function DialogArchives(props) {
   const { hidden } = props;
@@ -129,18 +130,20 @@ function DialogArchives(props) {
   const { id: suggestId } = getFakeCommentsArray(suggestions)[0];
   const reports = sortedRoots.filter((comment) => comment.comment_type === REPORT_TYPE);
   const { id: reportId } = getFakeCommentsArray(reports)[0];
-  const inactiveChildrenDialogs = marketInfoList || [];
-  const navigationMenu = {navHeaderText: intl.formatMessage({ id: 'workspaceArchive' }),
+  const inactiveChildrenDialogs = marketInfoList || []
+  const navigationMenu = {
+    navHeaderIcon: MenuBookIcon, navTooltip: 'dialogArchiveNavTooltip',
     navListItemTextArray: [
-      createNavListItem(AgilePlanIcon,'planningVerifiedStageLabel', 'verified',
+      createNavListItem(AgilePlanIcon, 'planningVerifiedStageLabel', 'verified',
         _.size(verifiedInvestibles)),
-      createNavListItem(WorkIcon,'planningNotDoingStageLabel', 'notDoing', _.size(notDoingInvestibles)),
-      createNavListItem(ListAltIcon,'todoSection', 'marketTodos', _.size(todoComments)),
-      createNavListItem(QuestionIcon,'questions', `c${questionId}`, _.size(questions)),
-      createNavListItem(UpdateIcon,'reports', `c${reportId}`, _.size(reports)),
-      createNavListItem(ChangeSuggstionIcon,'suggestions', `c${suggestId}`, _.size(suggestions)),
-      createNavListItem(GavelIcon,'dialogs', 'dia0', _.size(inactiveChildrenDialogs))
-    ]};
+      createNavListItem(WorkIcon, 'planningNotDoingStageLabel', 'notDoing', _.size(notDoingInvestibles)),
+      createNavListItem(ListAltIcon, 'todoSection', 'marketTodos', _.size(todoComments)),
+      createNavListItem(QuestionIcon, 'questions', `c${questionId}`, _.size(questions)),
+      createNavListItem(UpdateIcon, 'reports', `c${reportId}`, _.size(reports)),
+      createNavListItem(ChangeSuggstionIcon, 'suggestions', `c${suggestId}`, _.size(suggestions)),
+      createNavListItem(GavelIcon, 'dialogs', 'dia0', _.size(inactiveChildrenDialogs))
+    ]
+  }
 
   return (
     <Screen

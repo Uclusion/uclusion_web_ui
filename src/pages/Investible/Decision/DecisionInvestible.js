@@ -359,16 +359,18 @@ function DecisionInvestible(props) {
   const questions = sortedRoots.filter((comment) => comment.comment_type === QUESTION_TYPE);
   const { id: questionId } = getFakeCommentsArray(questions)[0];
   const suggestions = sortedRoots.filter((comment) => comment.comment_type === SUGGEST_CHANGE_TYPE);
-  const { id: suggestId } = getFakeCommentsArray(suggestions)[0];
-  const navigationMenu = {navHeaderIcon: StarRateIcon,
-    navListItemTextArray: [createNavListItem(EditIcon,'description_label', 'optionMain'),
+  const { id: suggestId } = getFakeCommentsArray(suggestions)[0]
+  const navigationMenu = {
+    navHeaderIcon: StarRateIcon, navTooltip: 'decisionInvestibleNavTooltip',
+    navListItemTextArray: [createNavListItem(EditIcon, 'description_label', 'optionMain'),
       createNavListItem(ThumbsUpDownIcon, 'approvals', 'approvals', _.size(invested), true),
-      inArchives ? {} : createNavListItem(AddIcon,'commentAddBox'),
-      createNavListItem(BlockIcon,'blocking', `c${blockingId}`, _.size(blocking)),
+      inArchives ? {} : createNavListItem(AddIcon, 'commentAddBox'),
+      createNavListItem(BlockIcon, 'blocking', `c${blockingId}`, _.size(blocking)),
       createNavListItem(QuestionIcon, 'questions', `c${questionId}`, _.size(questions)),
-      createNavListItem(ChangeSuggstionIcon,'suggestions', `c${suggestId}`, _.size(suggestions)),
-      createNavListItem(QuestionAnswer,'closedComments', `c${closedId}`, _.size(sortedClosedRoots))
-    ]};
+      createNavListItem(ChangeSuggstionIcon, 'suggestions', `c${suggestId}`, _.size(suggestions)),
+      createNavListItem(QuestionAnswer, 'closedComments', `c${closedId}`, _.size(sortedClosedRoots))
+    ]
+  }
   return (
     <Screen
       title={name}

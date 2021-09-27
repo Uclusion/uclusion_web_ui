@@ -724,18 +724,19 @@ function PlanningInvestible(props) {
   const reports = sortedRoots.filter((comment) => comment.comment_type === REPORT_TYPE);
   const { id: reportId } = getFakeCommentsArray(reports)[0];
   const todoSortedComments = sortedRoots.filter((comment) => comment.comment_type === TODO_TYPE);
-  const { id: todoId } = getFakeCommentsArray(todoSortedComments)[0];
-  const navigationMenu = {navHeaderIcon: AssignmentIcon,
-    navListItemTextArray: [createNavListItem(EditIcon,'description_label', 'storyMain',
+  const { id: todoId } = getFakeCommentsArray(todoSortedComments)[0]
+  const navigationMenu = {
+    navHeaderIcon: AssignmentIcon, navTooltip: 'planningInvestibleNavTooltip',
+    navListItemTextArray: [createNavListItem(EditIcon, 'description_label', 'storyMain',
       _.isEmpty(search) || results.find((item) => item.id === investibleId) ? undefined : 0),
       createNavListItem(ThumbsUpDownIcon, 'approvals', 'approvals',
         _.isEmpty(search) ? _.size(invested) : _.size(investmentReasons),
         _.isEmpty(search) ? isInVoting : false),
-      inArchives || !_.isEmpty(search) ? {} : createNavListItem(AddIcon,'commentAddBox'),
-      createNavListItem(BlockIcon,'blocking', `c${blockingId}`, _.size(blocking)),
+      inArchives || !_.isEmpty(search) ? {} : createNavListItem(AddIcon, 'commentAddBox'),
+      createNavListItem(BlockIcon, 'blocking', `c${blockingId}`, _.size(blocking)),
       createNavListItem(QuestionIcon, 'questions', `c${questionId}`, _.size(questions)),
-      createNavListItem(UpdateIcon,'reports', `c${reportId}`, _.size(reports)),
-      createNavListItem(ChangeSuggstionIcon,'suggestions', `c${suggestId}`, _.size(suggestions)),
+      createNavListItem(UpdateIcon, 'reports', `c${reportId}`, _.size(reports)),
+      createNavListItem(ChangeSuggstionIcon, 'suggestions', `c${suggestId}`, _.size(suggestions)),
       createNavListItem(ListAltIcon,'todoSection', `c${todoId}`, _.size(todoSortedComments)),
       createNavListItem(QuestionAnswer,'closedComments', `c${closedId}`, _.size(sortedClosedRoots))
     ]};

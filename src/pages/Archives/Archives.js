@@ -17,6 +17,7 @@ import PlaylistAddCheckIcon from '@material-ui/icons/PlaylistAddCheck'
 import GavelIcon from '@material-ui/icons/Gavel'
 import PollIcon from '@material-ui/icons/Poll'
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
+import MenuBookIcon from '@material-ui/icons/MenuBook'
 
 const useStyles = makeStyles((theme) => ({
   spacer: {
@@ -45,12 +46,15 @@ function Archives(props) {
   function createNavListItem(icon, textId, anchorId, howManyNum, alwaysShow) {
     return baseNavListItem('/archives', icon, textId, anchorId, howManyNum, alwaysShow);
   }
-  const navigationMenu = {navHeaderText: intl.formatMessage({ id: 'archives' }),
+
+  const navigationMenu = {
+    navHeaderIcon: MenuBookIcon, navTooltip: 'archiveNavTooltip',
     navListItemTextArray: [createNavListItem(PlaylistAddCheckIcon, 'planningMarkets', 'planningMarkets',
       _.size(planningDetails)),
       createNavListItem(GavelIcon, 'dialogs', 'dia0', _.size(decisionDetails)),
       createNavListItem(PollIcon, 'initiatives', 'ini0', _.size(initiativeDetails)),
-    ]};
+    ]
+  }
   return (
     <Screen
       title={intl.formatMessage({ id: 'archivesTitle' })}

@@ -298,17 +298,19 @@ function DecisionDialog(props) {
   const questions = openComments.filter((comment) => comment.comment_type === QUESTION_TYPE);
   const { id: questionId } = getFakeCommentsArray(questions)[0];
   const blocked = openComments.filter((comment) => comment.comment_type === ISSUE_TYPE);
-  const { id: blockedId } = getFakeCommentsArray(blocked)[0];
-  const navigationMenu = {navHeaderIcon: GavelIcon,
+  const { id: blockedId } = getFakeCommentsArray(blocked)[0]
+  const navigationMenu = {
+    navHeaderIcon: GavelIcon, navTooltip: 'decisionNavTooltip',
     navListItemTextArray: [createNavListItem(EditIcon, 'description_label', 'dialogMain'),
-      createNavListItem(AgilePlanIcon,'approvable', 'currentVoting', _.size(underConsideration),
+      createNavListItem(AgilePlanIcon, 'approvable', 'currentVoting', _.size(underConsideration),
         true),
-      createNavListItem(AgilePlanIcon,'proposed', 'proposed', _.size(proposed), true),
-      inArchives ? {} : createNavListItem(AddIcon,'commentAddBox'),
-      createNavListItem(BlockIcon,'planningBlockedStageLabel', `c${blockedId}`, _.size(blocked)),
-      createNavListItem(QuestionIcon,'questions', `c${questionId}`, _.size(questions)),
-      createNavListItem(QuestionAnswer,'closedComments', `c${closedId}`, _.size(closedComments))
-    ]};
+      createNavListItem(AgilePlanIcon, 'proposed', 'proposed', _.size(proposed), true),
+      inArchives ? {} : createNavListItem(AddIcon, 'commentAddBox'),
+      createNavListItem(BlockIcon, 'planningBlockedStageLabel', `c${blockedId}`, _.size(blocked)),
+      createNavListItem(QuestionIcon, 'questions', `c${questionId}`, _.size(questions)),
+      createNavListItem(QuestionAnswer, 'closedComments', `c${closedId}`, _.size(closedComments))
+    ]
+  }
   return (
     <Screen
       title={marketName}

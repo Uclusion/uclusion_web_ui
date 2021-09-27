@@ -289,16 +289,24 @@ function PlanningDialog(props) {
       _.size(furtherWorkReadyToStart) + _.size(furtherWorkInvestibles), 'storiesSection',
       !inArchives && _.isEmpty(search))];
 
-  const navigationMenu = {navHeaderIcon: PlaylistAddCheckIcon,
-    navListItemTextArray: [{text: intl.formatMessage({ id: 'planningDialogNavDetailsLabel' }),
-      subItems: detailsItems, isBold: isSectionBold('workspaceMain')},
-      {text: intl.formatMessage({ id: 'planningDialogNavStoriesLabel' }),
-        subItems: storiesItems, isBold: isSectionBold('storiesSection')},
-      createNavListItem(ListAltIcon,'todoSection', 'marketTodos', _.size(todoComments),
+  const navigationMenu = {
+    navHeaderIcon: PlaylistAddCheckIcon, navTooltip: 'planningNavTooltip',
+    navListItemTextArray: [{
+      text: intl.formatMessage({ id: 'planningDialogNavDetailsLabel' }),
+      subItems: detailsItems, isBold: isSectionBold('workspaceMain')
+    },
+      {
+        text: intl.formatMessage({ id: 'planningDialogNavStoriesLabel' }),
+        subItems: storiesItems, isBold: isSectionBold('storiesSection')
+      },
+      createNavListItem(ListAltIcon, 'todoSection', 'marketTodos', _.size(todoComments),
         'marketTodos', !inArchives && _.isEmpty(search), isSectionBold('marketTodos')),
-      {text: intl.formatMessage({ id: 'planningDialogNavDiscussionLabel' }),
-        subItems: discussionItems, isBold: isSectionBold('discussionSection')}
-    ]};
+      {
+        text: intl.formatMessage({ id: 'planningDialogNavDiscussionLabel' }),
+        subItems: discussionItems, isBold: isSectionBold('discussionSection')
+      }
+    ]
+  }
   const furtherWorkReadyToStartChip = furtherWorkReadyToStart.length > 0
     && <Chip label={`${furtherWorkReadyToStart.length}`} color="primary" size='small'
              className={classes.chipStyleYellow} />;

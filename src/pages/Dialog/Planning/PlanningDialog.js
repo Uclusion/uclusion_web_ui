@@ -343,9 +343,9 @@ function PlanningDialog(props) {
       <LocalPlanningDragContext.Provider value={[beingDraggedHack, setBeingDraggedHack]}>
         <div id="storiesSection"
              style={{ display: isSectionOpen('storiesSection') ? 'block' : 'none' }}>
+          <DismissableText textId="storyHelp"/>
           {!isChannel && (
-            <DismissableText textId="stageHelp" textId1="stageHelp1" textId2="stageHelp2" textId3="stageHelp3"
-                             textId4='stageHelp4'/>
+            <DismissableText textId="stageHelp"/>
           )}
           {!_.isEmpty(blockedInvestibles) && (
             <SubSection
@@ -476,25 +476,23 @@ function PlanningDialog(props) {
               />
             </SubSection>
           </SubSection>
-          {isChannel && (
-            <DismissableText textId='storyHelp' />
-          )}
         </div>
         <MarketTodos comments={unResolvedMarketComments} marketId={marketId}
                      sectionOpen={isSectionOpen('marketTodos')}
-                     setSectionOpen={setSectionOpen} market={market} userId={myPresence.id} />
+                     setSectionOpen={setSectionOpen} market={market} userId={myPresence.id}/>
       </LocalPlanningDragContext.Provider>
       <Grid container spacing={2} id="discussionSection"
-            style={{display: isSectionOpen('discussionSection') ? 'block' : 'none'}}>
-          <Grid item id="commentAddArea"  xs={12}>
-            {!inArchives && _.isEmpty(search) && marketId && !hidden && (
-              <CommentAddBox
-                allowedTypes={allowedCommentTypes}
-                marketId={marketId}
-              />
-            )}
-            <CommentBox comments={notTodoComments} marketId={marketId} allowedTypes={allowedCommentTypes} />
-          </Grid>
+            style={{ display: isSectionOpen('discussionSection') ? 'block' : 'none' }}>
+        <DismissableText textId="workspaceCommentHelp"/>
+        <Grid item id="commentAddArea" xs={12}>
+          {!inArchives && _.isEmpty(search) && marketId && !hidden && (
+            <CommentAddBox
+              allowedTypes={allowedCommentTypes}
+              marketId={marketId}
+            />
+          )}
+          <CommentBox comments={notTodoComments} marketId={marketId} allowedTypes={allowedCommentTypes}/>
+        </Grid>
       </Grid>
     </Screen>
   );

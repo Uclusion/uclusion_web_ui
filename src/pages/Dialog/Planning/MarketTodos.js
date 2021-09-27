@@ -43,6 +43,7 @@ import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward'
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 import { getThreadIds, notifyImmediate } from '../../../utils/commentFunctions'
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
+import DismissableText from '../../../components/Notifications/DismissableText'
 
 const myClasses = makeStyles(
   theme => {
@@ -512,16 +513,17 @@ function MarketTodos (props) {
   return (
     <div className={classes.outerBorder} id="marketTodos"
          style={{display: sectionOpen ? 'block' : 'none'}}>
+      <DismissableText textId="todosHelp"/>
       <SubSection
         type={SECTION_SUB_HEADER}
         isBlackText
         title={intl.formatMessage({ id: 'todoSection' })}
         helpTextId="todoSectionHelp"
-        createButton={ isSingleTodoSelected || isInArchives || mobileLayout ? undefined :
+        createButton={isSingleTodoSelected || isInArchives || mobileLayout ? undefined :
           (
-          <SpinningIconLabelButton icon={ArrowUpwardIcon} onClick={toggleShowSelectTodos} doSpin={false}
-                                   whiteBackground>
-            <FormattedMessage id={todosButtonMsgId} />
+            <SpinningIconLabelButton icon={ArrowUpwardIcon} onClick={toggleShowSelectTodos} doSpin={false}
+                                     whiteBackground>
+              <FormattedMessage id={todosButtonMsgId}/>
           </SpinningIconLabelButton>
           )}
       >

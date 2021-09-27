@@ -66,6 +66,7 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import { deleteSingleMessage } from '../../../api/users'
 import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
+import DismissableText from '../../../components/Notifications/DismissableText'
 
 const useStyles = makeStyles(
   theme => ({
@@ -325,6 +326,7 @@ function DecisionDialog(props) {
         name={INVITE_DIALOG_FIRST_VIEW}
         steps={inviteDialogSteps(user)}
       />
+      <DismissableText textId="dialogHelp"/>
       <Card className={classes.root}>
         <CardType
           className={classes.cardType}

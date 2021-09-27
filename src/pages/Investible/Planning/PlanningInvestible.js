@@ -749,6 +749,7 @@ function PlanningInvestible(props) {
       hidden={hidden}
       navigationOptions={navigationMenu}
     >
+      <DismissableText textId="storyInsideHelp"/>
       {!inArchives && isInVoting && isAssigned && acceptedFull && (
         <DismissableText textId='planningInvestibleAcceptedFullHelp' />
       )}

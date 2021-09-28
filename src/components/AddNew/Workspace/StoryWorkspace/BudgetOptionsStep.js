@@ -19,16 +19,16 @@ import Autocomplete from '@material-ui/lab/Autocomplete'
 import { getMarketUnits } from '../../../../contexts/MarketPresencesContext/marketPresencesHelper'
 
 function BudgetOptionsStep (props) {
-  const { updateFormData, formData } = props
-  const intl = useIntl()
-  const classes = useContext(WizardStylesContext)
-  const [, marketsDispatch] = useContext(MarketsContext)
-  const [, marketStagesDispatch] = useContext(MarketStagesContext)
-  const [, diffDispatch] = useContext(DiffContext)
-  const [, investiblesDispatch] = useContext(InvestiblesContext)
-  const [, presenceDispatch] = useContext(MarketPresencesContext)
-  const [commentsState, commentsDispatch] = useContext(CommentsContext)
-  const [, setOperationRunning] = useContext(OperationInProgressContext)
+  const { updateFormData, formData } = props;
+  const intl = useIntl();
+  const classes = useContext(WizardStylesContext);
+  const [, marketsDispatch] = useContext(MarketsContext);
+  const [, marketStagesDispatch] = useContext(MarketStagesContext);
+  const [, diffDispatch] = useContext(DiffContext);
+  const [, investiblesDispatch] = useContext(InvestiblesContext);
+  const [, presenceDispatch] = useContext(MarketPresencesContext);
+  const [commentsState, commentsDispatch] = useContext(CommentsContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
 
   function createMarket (formData) {
     const dispatchers = {
@@ -39,16 +39,16 @@ function BudgetOptionsStep (props) {
       presenceDispatch,
       commentsDispatch,
       commentsState,
-    }
+    };
     return doCreateStoryWorkspace(dispatchers, formData, updateFormData, intl)
       .then((marketId) => {
-        setOperationRunning(false)
-        return ({ ...formData, marketId })
+        setOperationRunning(false);
+        return ({ ...formData, marketId });
       })
   }
 
   function onFinish () {
-    return createMarket({ ...formData })
+    return createMarket({ ...formData });
   }
 
   function onRestrictedChange (event) {
@@ -58,24 +58,23 @@ function BudgetOptionsStep (props) {
     })
   }
 
-  function onUnitChange (event) {
-    const { value } = event.target
+  function onUnitChange (event, value) {
     updateFormData({
       budgetUnit: value,
-    })
+    });
   }
 
-  const optionsClasses = useOptionsStyles()
+  const optionsClasses = useOptionsStyles();
 
   const {
     isBudgetAvailable,
     budgetUnit
-  } = formData
+  } = formData;
 
   const defaultProps = {
     options: getMarketUnits(intl),
     getOptionLabel: (option) => option,
-  }
+  };
 
   return (
     <WizardStepContainer

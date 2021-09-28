@@ -49,8 +49,8 @@ function PlanningDialogEdit(props) {
   const classes = usePlanFormStyles();
   const myClasses = useStyles();
   const [allowedInvestibles, setAllowedInvestibles] = useState(acceptedStage.allowed_investibles);
-  const [showInvestiblesAge, setShowInvestiblesAge] = useState(verifiedStage.days_visible)
-  const [mutableMarket, setMutableMarket] = useState(market)
+  const [showInvestiblesAge, setShowInvestiblesAge] = useState(verifiedStage.days_visible);
+  const [mutableMarket, setMutableMarket] = useState(market);
   const {
     use_budget,
     budget_unit,
@@ -58,17 +58,21 @@ function PlanningDialogEdit(props) {
     votes_required,
     assigned_can_approve,
     ticket_sub_code
-  } = mutableMarket
+  } = mutableMarket;
 
   function handleChange(name) {
     return event => {
-      const { value } = event.target
-      let useValue = value
-      if (name === 'use_budget') {
-        useValue = value === 'true'
+      const { value } = event.target;
+      let useValue = value;
+      if (name === 'use_budget' || name === 'assigned_can_approve') {
+        useValue = value === 'true';
       }
-      setMutableMarket({ ...mutableMarket, [name]: useValue })
+      setMutableMarket({ ...mutableMarket, [name]: useValue });
     };
+  }
+
+  function onUnitChange(event, value) {
+    setMutableMarket({ ...mutableMarket, budget_unit: value });
   }
 
   function onAllowedInvestiblesChange(event) {
@@ -113,25 +117,25 @@ function PlanningDialogEdit(props) {
           const newStages = _.unionBy([newStage], marketStages, 'id')
           updateStagesForMarket(marketStagesDispatch, id, newStages)
           if (showInvestiblesAge !== verifiedStage.days_visible) {
-            return updateShowInvestibles()
+            return updateShowInvestibles();
           } else {
-            setOperationRunning(false)
-              }
-            });
+            setOperationRunning(false);
+          }
+        });
       }
       if (showInvestiblesAge !== verifiedStage.days_visible) {
-        return updateShowInvestibles()
+        return updateShowInvestibles();
       } else {
-        setOperationRunning(false)
+        setOperationRunning(false);
       }
     });
   }
 
-  const isDraft = _.size(marketPresences) < 2
+  const isDraft = _.size(marketPresences) < 2;
   const defaultProps = {
     options: getMarketUnits(intl),
     getOptionLabel: (option) => option,
-  }
+  };
 
   return (
     <Card className={classes.overflowVisible}>
@@ -205,7 +209,7 @@ function PlanningDialogEdit(props) {
               value={budget_unit}
               disabled={!use_budget}
               className={myClasses.maxBudgetUnit}
-              onInputChange={handleChange('budget_unit')}
+              onInputChange={onUnitChange}
             />
             <Typography>
               {intl.formatMessage({ id: 'budgetUnitDropdownHelp' })}
@@ -238,7 +242,7 @@ function PlanningDialogEdit(props) {
           {intl.formatMessage({ id: 'marketAddCancelLabel' })}
         </SpinningIconLabelButton>
         <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore} id="planningDialogUpdateButton"
-                                 disabled={!(parseInt(investment_expiration, 10) > 0)}>
+                                 disabled={!(parseInt(investment_expiration, 10) > 0) || (use_budget && !budget_unit)}>
           {intl.formatMessage({ id: 'marketEditSaveLabel' })}
         </SpinningIconLabelButton>
       </CardActions>

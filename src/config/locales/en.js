@@ -138,7 +138,7 @@ const messages = defineMessages({
   typeOrChoose: 'Type and hit enter or choose from dropdown',
   addLabel: 'Add label',
   addUnit: 'Budget Unit',
-  budgetUnitDropdownHelp: 'If budgets are allowed then this unit will be used.',
+  budgetUnitDropdownHelp: 'If budgets allowed, this field is their unit and must be filled.',
   created: 'Created ',
   edited: 'Saving locally',
   hours: 'hours',

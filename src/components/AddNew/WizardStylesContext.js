@@ -251,7 +251,10 @@ export const wizardStyles = makeStyles(
       },
       ReqWorkspaceWizardCreatingworkspaceStepLabel: {
         maxWidth: '500px'
-      }
+      },
+      maxBudgetUnit: {
+        width: 230
+      },
     };
   }
 );

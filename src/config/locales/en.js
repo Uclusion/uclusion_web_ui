@@ -137,7 +137,8 @@ const messages = defineMessages({
   close: 'Close',
   typeOrChoose: 'Type and hit enter or choose from dropdown',
   addLabel: 'Add label',
-  addUnit: 'unit',
+  addUnit: 'Budget Unit',
+  budgetUnitDropdownHelp: 'If budgets are allowed then this unit will be used.',
   created: 'Created ',
   edited: 'Saving locally',
   hours: 'hours',
@@ -208,7 +209,7 @@ const messages = defineMessages({
   agilePlanFormDaysEstimateLabel: 'Days estimate',
   agilePlanFormDaysEstimatePlaceholder: 'Very rough number of days to complete',
   agilePlanFormInvestmentExpirationLabel: 'Approval Expiration (in days)',
-  agilePlanFormMaxMaxBudgetInputLabel: 'Optionally enter a budget number for this story and then enter your own unit or choose from the drop down.',
+  agilePlanFormMaxMaxBudgetInputLabel: 'Optionally enter a budget number for this story.',
   agilePlanFormSaveLabel: 'Save',
 
   // Market Nav
@@ -1070,6 +1071,10 @@ const messages = defineMessages({
   WorkspaceWizardCreatingWorkspaceStepLabel: 'Workspace Creation',
   WorkspaceWizardWorkspaceDescription: 'Requirements and potential feature ideas for "{meetingName}" go here.',
   WorkspaceWizardTakeMeToWorkspace: 'I\'ve shared the link, take me to my Workspace',
+  ApprovalRestrictNo: 'Allow assignees to approve their own story.',
+  ApprovalRestrictYes: 'Do not allow approval by an assignee.',
+  BudgetRestrictNo: 'Allow approvers to suggest a budget.',
+  BudgetRestrictYes: 'Do not allow approvers to suggest a budget.',
 
   //SignupWizard
   SignupWizardTitle: 'What do you want to create?',

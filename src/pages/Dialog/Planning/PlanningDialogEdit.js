@@ -13,21 +13,25 @@ import { getStages, updateStagesForMarket } from '../../../contexts/MarketStages
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import _ from 'lodash'
 import ShowInVerifiedStageAge from './ShowInVerifiedStageAge'
-import { makeStyles, TextField, Typography } from '@material-ui/core'
+import { FormControlLabel, makeStyles, Radio, RadioGroup, TextField, Typography } from '@material-ui/core'
 import ChangeToObserverButton from '../ChangeToObserverButton'
 import ChangeToParticipantButton from '../ChangeToParticipantButton'
-import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { getMarketPresences, getMarketUnits } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { Clear, SettingsBackupRestore } from '@material-ui/icons'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import ManageExistingUsers from '../UserManagement/ManageExistingUsers'
+import Autocomplete from '@material-ui/lab/Autocomplete'
 
 const useStyles = makeStyles((theme) => {
   return {
     actions: {
       margin: theme.spacing(-3, 0, 0, 6),
       paddingBottom: '2rem'
+    },
+    maxBudgetUnit: {
+      backgroundColor: '#ecf0f1',
     }
   };
 });
@@ -36,40 +40,34 @@ function PlanningDialogEdit(props) {
   const { onSpinStop, onCancel, market, acceptedStage, verifiedStage } = props;
   const [marketStagesState, marketStagesDispatch] = useContext(MarketStagesContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
-  const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const {
-    id,
-    name: initialMarketName,
-    max_budget: initialBudget,
-    investment_expiration: initialExpiration,
-    votes_required: initialVotesRequired
-  } = market;
-  const marketPresences = getMarketPresences(marketPresencesState, id);
+  const [, setOperationRunning] = useContext(OperationInProgressContext)
+  const { id } = market
+  const marketPresences = getMarketPresences(marketPresencesState, id)
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
   const following = myPresence ? myPresence.following : false;
   const intl = useIntl();
   const classes = usePlanFormStyles();
   const myClasses = useStyles();
   const [allowedInvestibles, setAllowedInvestibles] = useState(acceptedStage.allowed_investibles);
-  const [showInvestiblesAge, setShowInvestiblesAge] = useState(verifiedStage.days_visible);
-  const [mutableMarket, setMutableMarket] = useState({
-    ...market,
-    name: initialMarketName,
-    max_budget: initialBudget,
-    investment_expiration: initialExpiration,
-    votes_required: initialVotesRequired
-  });
+  const [showInvestiblesAge, setShowInvestiblesAge] = useState(verifiedStage.days_visible)
+  const [mutableMarket, setMutableMarket] = useState(market)
   const {
-    max_budget,
+    use_budget,
+    budget_unit,
     investment_expiration,
     votes_required,
+    assigned_can_approve,
     ticket_sub_code
-  } = mutableMarket;
+  } = mutableMarket
 
   function handleChange(name) {
     return event => {
-      const { value } = event.target;
-      setMutableMarket({ ...mutableMarket, [name]: value });
+      const { value } = event.target
+      let useValue = value
+      if (name === 'use_budget') {
+        useValue = value === 'true'
+      }
+      setMutableMarket({ ...mutableMarket, [name]: useValue })
     };
   }
 
@@ -95,40 +93,45 @@ function PlanningDialogEdit(props) {
   function handleSave() {
     const votesRequiredInt =
       votes_required != null ? parseInt(votes_required, 10) : null;
-    const maxBudget = max_budget ? parseInt(max_budget, 10) : 0;
     return updateMarket(
-          id,
-          null,
-          null,
-          null,
-          maxBudget,
-          parseInt(investment_expiration, 10),
-          votesRequiredInt,
-          null,
-          ticket_sub_code
-        ).then(market => {
-          onSpinStop(market);
-          if (allowedInvestibles !== acceptedStage.allowed_investibles) {
-            return updateStage(id, acceptedStage.id, allowedInvestibles).then((newStage) => {
-              const marketStages = getStages(marketStagesState, id);
-              const newStages = _.unionBy([newStage], marketStages, 'id');
-              updateStagesForMarket(marketStagesDispatch, id, newStages);
-              if (showInvestiblesAge !== verifiedStage.days_visible) {
-                return updateShowInvestibles();
-              } else {
-                setOperationRunning(false);
+      id,
+      null,
+      null,
+      null,
+      use_budget,
+      parseInt(investment_expiration, 10),
+      votesRequiredInt,
+      null,
+      ticket_sub_code,
+      assigned_can_approve,
+      budget_unit
+    ).then(market => {
+      onSpinStop(market)
+      if (allowedInvestibles !== acceptedStage.allowed_investibles) {
+        return updateStage(id, acceptedStage.id, allowedInvestibles).then((newStage) => {
+          const marketStages = getStages(marketStagesState, id)
+          const newStages = _.unionBy([newStage], marketStages, 'id')
+          updateStagesForMarket(marketStagesDispatch, id, newStages)
+          if (showInvestiblesAge !== verifiedStage.days_visible) {
+            return updateShowInvestibles()
+          } else {
+            setOperationRunning(false)
               }
             });
-          }
-          if (showInvestiblesAge !== verifiedStage.days_visible) {
-            return updateShowInvestibles();
-          } else {
-            setOperationRunning(false);
-          }
-        });
+      }
+      if (showInvestiblesAge !== verifiedStage.days_visible) {
+        return updateShowInvestibles()
+      } else {
+        setOperationRunning(false)
+      }
+    });
   }
 
-  const isDraft = _.size(marketPresences) < 2;
+  const isDraft = _.size(marketPresences) < 2
+  const defaultProps = {
+    options: getMarketUnits(intl),
+    getOptionLabel: (option) => option,
+  }
 
   return (
     <Card className={classes.overflowVisible}>
@@ -136,7 +139,7 @@ function PlanningDialogEdit(props) {
         <Grid container className={clsx(classes.fieldset, classes.flex, classes.justifySpace)}>
           {!isDraft && (
             <Grid item md={6} xs={12} className={classes.fieldsetContainer}>
-              <ManageExistingUsers market={market} />
+              <ManageExistingUsers market={market}/>
             </Grid>
           )}
           <Grid item md={isDraft ? 12 : 4} xs={12} className={classes.fieldsetContainer}>
@@ -175,22 +178,57 @@ function PlanningDialogEdit(props) {
           </Grid>
           <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
             <VoteExpiration
-              onChange={handleChange("investment_expiration")}
+              onChange={handleChange('investment_expiration')}
               value={investment_expiration}
             />
           </Grid>
           <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
-            <Votes onChange={handleChange("votes_required")} value={votes_required} />
+            <Votes onChange={handleChange('votes_required')} value={votes_required}/>
+          </Grid>
+          <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
+            <RadioGroup value={use_budget === true ? 'true' : 'false'} onChange={handleChange('use_budget')}>
+              <FormControlLabel value={'false'} control={<Radio/>}
+                                label={intl.formatMessage({ id: 'BudgetRestrictYes' })}/>
+              <FormControlLabel value={'true'} control={<Radio/>}
+                                label={intl.formatMessage({ id: 'BudgetRestrictNo' })}/>
+            </RadioGroup>
+          </Grid>
+          <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
+            <Autocomplete
+              {...defaultProps}
+              id="addBudgetUnit"
+              key="budgetUnit"
+              freeSolo
+              renderInput={(params) => <TextField {...params}
+                                                  margin="dense"
+                                                  label={intl.formatMessage({ id: 'addUnit' })}/>}
+              value={budget_unit}
+              disabled={!use_budget}
+              className={myClasses.maxBudgetUnit}
+              onInputChange={handleChange('budget_unit')}
+            />
+            <Typography>
+              {intl.formatMessage({ id: 'budgetUnitDropdownHelp' })}
+            </Typography>
+          </Grid>
+          <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
+            <RadioGroup value={assigned_can_approve === true ? 'true' : 'false'}
+                        onChange={handleChange('assigned_can_approve')}>
+              <FormControlLabel value={'false'} control={<Radio/>}
+                                label={intl.formatMessage({ id: 'ApprovalRestrictYes' })}/>
+              <FormControlLabel value={'true'} control={<Radio/>}
+                                label={intl.formatMessage({ id: 'ApprovalRestrictNo' })}/>
+            </RadioGroup>
           </Grid>
           <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
             <TextField
               id="name"
               className={classes.input}
               value={ticket_sub_code}
-              onChange={handleChange("ticket_sub_code")}
+              onChange={handleChange('ticket_sub_code')}
             />
             <Typography>
-              {intl.formatMessage({ id: "ticketSubCodeHelp" })}
+              {intl.formatMessage({ id: 'ticketSubCodeHelp' })}
             </Typography>
           </Grid>
         </Grid>

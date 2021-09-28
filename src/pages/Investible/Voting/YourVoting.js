@@ -44,9 +44,9 @@ function YourVoting(props) {
   const voteMessage = findMessageOfType(NOT_FULLY_VOTED_TYPE, investibleId, messagesState);
   const intl = useIntl();
   const classes = useStyles();
-  const myClasses = useMyStyles();
-  const { id: marketId, max_budget: storyMaxBudget, allow_multi_vote: allowMultiVote, market_type: marketType } = market;
-  const isInitiative = marketType === INITIATIVE_TYPE;
+  const myClasses = useMyStyles()
+  const { id: marketId, allow_multi_vote: allowMultiVote, market_type: marketType } = market
+  const isInitiative = marketType === INITIATIVE_TYPE
   const isDecision = marketType === DECISION_TYPE;
   let yourPresence = marketPresences.find((presence) => presence.current_user);
   let yourVote = yourPresence && yourPresence.investments && yourPresence.investments.find((investment) => investment.investible_id === investibleId);
@@ -121,9 +121,9 @@ function YourVoting(props) {
         investment={yourVote}
         hasVoted={yourPresence && yourPresence.investments && yourPresence.investments.length > 0}
         allowMultiVote={allowMultiVote}
-        showBudget={market.market_type === PLANNING_TYPE}
-        storyMaxBudget={storyMaxBudget}
-        multiplier={ type === undefined ? undefined : type === FOR ? 1 : -1}
+        showBudget={market.use_budget}
+        marketBudgetUnit={market.budget_unit}
+        multiplier={type === undefined ? undefined : type === FOR ? 1 : -1}
         votingPageState={votingPageState}
         updateVotingPageState={updateVotingPageState}
         votingPageStateReset={votingPageStateReset}

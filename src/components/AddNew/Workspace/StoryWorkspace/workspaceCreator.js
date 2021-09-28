@@ -49,20 +49,29 @@ export function doCreateStoryWorkspace (dispatchers, formData, updateFormData, i
   }
 
   if (formData.votesRequired > 0) {
-    marketInfo.votes_required = formData.votesRequired;
+    marketInfo.votes_required = formData.votesRequired
   }
   if (formData.investmentExpiration > 0) {
-    marketInfo.investment_expiration = formData.investmentExpiration;
+    marketInfo.investment_expiration = formData.investmentExpiration
   }
   if (!_.isEmpty(formData.ticketSubCode)) {
-    marketInfo.ticket_sub_code = formData.ticketSubCode;
+    marketInfo.ticket_sub_code = formData.ticketSubCode
+  }
+  if (formData.assignedCanApprove === 'true') {
+    marketInfo.assigned_can_approve = true
+  }
+  if (formData.isBudgetAvailable === 'true') {
+    marketInfo.use_budget = true
+  }
+  if (!_.isEmpty(formData.budgetUnit)) {
+    marketInfo.budget_unit = formData.budgetUnit
   }
 
-  let createdMarketId;
-  let investibleId;
-  let inProgressStage;
-  let inVotingStage;
-  let myUserId;
+  let createdMarketId
+  let investibleId
+  let inProgressStage
+  let inVotingStage
+  let myUserId
 
   return createPlanning(marketInfo)
     .then((marketDetails) => {

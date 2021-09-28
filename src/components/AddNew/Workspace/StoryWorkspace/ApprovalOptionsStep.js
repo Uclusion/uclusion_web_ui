@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
-import PropTypes from 'prop-types';
-import { Typography, Card } from '@material-ui/core'
-import { useIntl } from 'react-intl';
+import PropTypes from 'prop-types'
+import { Typography, Card, FormControlLabel, Radio, RadioGroup } from '@material-ui/core'
+import { useIntl } from 'react-intl'
 import StepButtons from '../../StepButtons';
 import { DiffContext } from '../../../../contexts/DiffContext/DiffContext';
 import { MarketsContext } from '../../../../contexts/MarketsContext/MarketsContext';
@@ -52,20 +52,28 @@ function ApprovalOptionsStep (props) {
 
   function handleChange (name) {
     return (event) => {
-      const { value } = event.target;
-      const parsed = parseInt(value, 10);
+      const { value } = event.target
+      const parsed = parseInt(value, 10)
       updateFormData({
         [name]: Number.isNaN(parsed) ? '' : parsed,
-      });
-    };
+      })
+    }
   }
 
-  const optionsClasses = useOptionsStyles();
+  function onRestrictedChange (event) {
+    const { value } = event.target
+    updateFormData({
+      assignedCanApprove: value,
+    })
+  }
+
+  const optionsClasses = useOptionsStyles()
 
   const {
     investmentExpiration,
     votesRequired,
-  } = formData;
+    assignedCanApprove
+  } = formData
 
   return (
     <WizardStepContainer
@@ -74,8 +82,8 @@ function ApprovalOptionsStep (props) {
       <div>
         <Typography className={classes.title} variant="h5">Approval Configuration</Typography>
         <Typography variant="body1" className={optionsClasses.helper}>
-          Approvals are part of Uclusion built-in workflows. You can control how many approvals a story requires and
-          how long they last.
+          Approvals are part of Uclusion built-in workflows. You can control how many approvals a story requires,
+          how long they last and whether assigned can approve.
         </Typography>
         <Card className={optionsClasses.cardStyle}>
           <Grid container spacing={2} direction="column">
@@ -96,13 +104,24 @@ function ApprovalOptionsStep (props) {
             >
               <Votes onChange={handleChange('votesRequired')} value={votesRequired}/>
             </Grid>
+            <Grid
+              item
+              xs={12}
+              className={optionsClasses.item}
+            >
+              <RadioGroup value={assignedCanApprove || 'false'} onChange={onRestrictedChange}>
+                <FormControlLabel value={'false'} control={<Radio/>}
+                                  label={intl.formatMessage({ id: 'ApprovalRestrictYes' })}/>
+                <FormControlLabel value={'true'} control={<Radio/>}
+                                  label={intl.formatMessage({ id: 'ApprovalRestrictNo' })}/>
+              </RadioGroup>
+            </Grid>
           </Grid>
         </Card>
         <div className={classes.borderBottom}/>
         <StepButtons
           {...props}
-          onNext={onFinish}
-          showFinish={false}
+          onFinish={onFinish}
         />
       </div>
     </WizardStepContainer>

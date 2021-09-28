@@ -6,6 +6,7 @@ import FormdataWizard from 'react-formdata-wizard';
 import AdvancedOptionsStep from './AdvancedOptionsStep';
 import SwimlanesOptionsStep from './SwimlanesOptionsStep'
 import ApprovalOptionsStep from './ApprovalOptionsStep'
+import BudgetOptionsStep from './BudgetOptionsStep'
 
 function StoryWorkspaceWizard(props) {
   const { onStartOver, onFinish, parentInvestibleId, parentMarketId } = props;
@@ -19,7 +20,8 @@ function StoryWorkspaceWizard(props) {
           <WorkspaceNameStep parentInvestibleId={parentInvestibleId} parentMarketId={parentMarketId} />
           <AdvancedOptionsStep />
           <SwimlanesOptionsStep />
-          <ApprovalOptionsStep />
+          <ApprovalOptionsStep/>
+          <BudgetOptionsStep/>
         </FormdataWizard>
       </WizardStylesProvider>
   );

@@ -44,36 +44,43 @@ export function deleteAttachedFilesFromMarket(marketId, files) {
     .catch((error) => toastErrorAndThrow(error, 'errorMarketRemoveAttachedFilesFailed'));
 }
 
-export function updateMarket(marketId, name=null, description=null, uploadedFiles=null, maxBudget=null,
-  investmentExpiration=null, votesRequired=null, allowMultiVote=null, ticketSubCode=null) {
-  const updateOptions = {};
+export function updateMarket (marketId, name = null, description = null, uploadedFiles = null, useBudget = null,
+  investmentExpiration = null, votesRequired = null, allowMultiVote = null, ticketSubCode = null,
+  assignedCanApprove = null, budgetUnit = null) {
+  const updateOptions = {}
   if (name != null) {
-    updateOptions.name = name;
+    updateOptions.name = name
   }
   if (description != null) {
-    updateOptions.description = description;
+    updateOptions.description = description
   }
   if (uploadedFiles != null) {
-    updateOptions.uploaded_files = uploadedFiles;
+    updateOptions.uploaded_files = uploadedFiles
   }
-  if (maxBudget != null) {
-    updateOptions.max_budget = maxBudget;
+  if (useBudget != null) {
+    updateOptions.use_budget = useBudget
   }
   if (investmentExpiration != null) {
-    updateOptions.investment_expiration = investmentExpiration;
+    updateOptions.investment_expiration = investmentExpiration
   }
   if (votesRequired != null) {
-    updateOptions.votes_required = votesRequired;
+    updateOptions.votes_required = votesRequired
   }
   if (allowMultiVote !== null) {
-    updateOptions.allow_multi_vote = allowMultiVote;
+    updateOptions.allow_multi_vote = allowMultiVote
+  }
+  if (assignedCanApprove !== null) {
+    updateOptions.assigned_can_approve = assignedCanApprove
+  }
+  if (budgetUnit !== null) {
+    updateOptions.budget_unit = budgetUnit
   }
   if (ticketSubCode !== null) {
-    updateOptions.ticket_sub_code = ticketSubCode;
+    updateOptions.ticket_sub_code = ticketSubCode
   }
   return getMarketClient(marketId)
     .then((client) => client.markets.updateMarket(updateOptions))
-    .catch((error) => toastErrorAndThrow(error, 'errorMarketUpdateFailed'));
+    .catch((error) => toastErrorAndThrow(error, 'errorMarketUpdateFailed'))
 }
 
 

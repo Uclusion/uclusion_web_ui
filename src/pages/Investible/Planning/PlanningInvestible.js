@@ -396,22 +396,23 @@ function PlanningInvestible(props) {
     beingEdited,
   } = pageState;
 
-  const [votingPageStateFull, votingPageDispatch] = usePageStateReducer('voting');
+  const [votingPageStateFull, votingPageDispatch] = usePageStateReducer('voting')
   const [votingPageState, updateVotingPageState, votingPageStateReset] =
-    getPageReducerPage(votingPageStateFull, votingPageDispatch, investibleId);
+    getPageReducerPage(votingPageStateFull, votingPageDispatch, investibleId)
   const inCurrentVotingStage = getInCurrentVotingStage(
     marketStagesState,
     marketId
-  ) || {};
-  const isInVoting = inCurrentVotingStage && stage === inCurrentVotingStage.id;
-  const canVote = isInVoting && !inArchives;
-  const yourPresence = marketPresences.find((presence) => presence.current_user);
+  ) || {}
+  const isInVoting = inCurrentVotingStage && stage === inCurrentVotingStage.id
+  const isAssigned = assigned.includes(userId)
+  const canVote = isInVoting && !inArchives && (!isAssigned || market.assigned_can_approve)
+  const yourPresence = marketPresences.find((presence) => presence.current_user)
   const yourVote = yourPresence && yourPresence.investments &&
-    yourPresence.investments.find((investment) => investment.investible_id === investibleId && !investment.deleted);
+    yourPresence.investments.find((investment) => investment.investible_id === investibleId && !investment.deleted)
   // If you have a vote already then do not display voting input
-  const displayVotingInput = canVote && !yourVote && _.isEmpty(search);
+  const displayVotingInput = canVote && !yourVote && _.isEmpty(search)
 
-  let lockedByName;
+  let lockedByName
   if (lockedBy) {
     const lockedByPresence = marketPresences.find(
       presence => presence.id === lockedBy
@@ -437,7 +438,6 @@ function PlanningInvestible(props) {
   const isRequiresInput = requiresInputStage && stage === requiresInputStage.id;
   const notDoingStage = getNotDoingStage(marketStagesState, marketId);
   const isInNotDoing = notDoingStage && stage === notDoingStage.id;
-  const isAssigned = assigned.includes(userId);
   const displayEdit = isAdmin && !inArchives && (isAssigned || isInNotDoing || isInVoting || isReadyFurtherWork || isRequiresInput);
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};

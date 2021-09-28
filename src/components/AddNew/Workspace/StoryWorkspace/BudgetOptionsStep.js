@@ -17,6 +17,7 @@ import { useOptionsStyles } from './AdvancedOptionsStep'
 import { OperationInProgressContext } from '../../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import { getMarketUnits } from '../../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import _ from 'lodash'
 
 function BudgetOptionsStep (props) {
   const { updateFormData, formData } = props;
@@ -103,7 +104,6 @@ function BudgetOptionsStep (props) {
             <Grid
               item
               xs={12}
-              className={optionsClasses.item}
             >
               <Autocomplete
                 {...defaultProps}
@@ -112,18 +112,21 @@ function BudgetOptionsStep (props) {
                 freeSolo
                 renderInput={(params) => <TextField {...params}
                                                     margin="dense"
-                                                    label={intl.formatMessage({ id: 'addUnit' })}
-                                                    variant="outlined"/>}
+                                                    label={intl.formatMessage({ id: 'addUnit' })}/>}
                 value={budgetUnit}
                 className={classes.maxBudgetUnit}
                 onInputChange={onUnitChange}
               />
+              <Typography>
+                {intl.formatMessage({ id: 'budgetUnitDropdownHelp' })}
+              </Typography>
             </Grid>
           </Grid>
         </Card>
         <div className={classes.borderBottom}/>
         <StepButtons
           {...props}
+          validForm={isBudgetAvailable !== 'true' || !_.isEmpty(budgetUnit)}
           onNext={onFinish}
           showFinish={false}
         />

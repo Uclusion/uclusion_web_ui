@@ -253,7 +253,7 @@ export const wizardStyles = makeStyles(
         maxWidth: '500px'
       },
       maxBudgetUnit: {
-        width: 230
+        backgroundColor: '#ecf0f1'
       },
     };
   }

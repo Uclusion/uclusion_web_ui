@@ -242,7 +242,15 @@ function CommentAdd(props) {
     && currentStageId !== blockingStage.id && currentStageId !== requiresInputStage.id
 
   function toggleIssue () {
-    setOpenIssue(!openIssue)
+    if (openIssue === false) {
+      if (_.isEmpty(getQuillStoredState(editorName))) {
+        setOpenIssue('noCommentBody')
+      } else {
+        setOpenIssue(myWarningId)
+      }
+    } else {
+      setOpenIssue(false)
+    }
   }
 
   const editorName = `${nameKey ? nameKey : ''}${parentId ? parentId : investibleId ? investibleId : marketId}-comment-add-editor`
@@ -301,10 +309,10 @@ function CommentAdd(props) {
 
   function quickResolveOlderReports (currentComment) {
     const marketComments = getMarketComments(commentsState, marketId) || []
-    let comments = marketComments.filter(comment => comment.comment_type === REPORT_TYPE && !comment.resolved &&
-      comment.creator_assigned && comment.id !== currentComment.id) || []
+    let comments = marketComments.filter(comment => comment.comment_type === REPORT_TYPE && !comment.resolved
+      && comment.id !== currentComment.id) || []
     if (investibleId) {
-      comments = comments.filter(comment => comment.investible_id === investibleId) || []
+      comments = comments.filter(comment => comment.investible_id === investibleId && comment.creator_assigned) || []
     } else {
       comments = comments.filter(comment => !comment.investible_id) || []
     }
@@ -321,16 +329,22 @@ function CommentAdd(props) {
 
   function handleSave () {
     const currentUploadedFiles = uploadedFiles || []
+    const myBodyNow = getQuillStoredState(editorName)
+    if (_.isEmpty(myBodyNow)) {
+      setOperationRunning(false)
+      setOpenIssue('noCommentBody')
+      return
+    }
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
-    } = processTextAndFilesForSave(currentUploadedFiles, getQuillStoredState(editorName))
+    } = processTextAndFilesForSave(currentUploadedFiles, myBodyNow)
     const mentions = getMentionsFromText(tokensRemoved)
     // the API does _not_ want you to send reply type, so suppress if our type is reply
     const apiType = (type === REPLY_TYPE) ? undefined : type
     // what about not doing state?
-    const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
-    const investibleBlocks = (investibleId && apiType === ISSUE_TYPE) && currentStageId !== blockingStage.id;
+    const inReviewStage = getInReviewStage(marketStagesState, marketId) || {}
+    const investibleBlocks = (investibleId && apiType === ISSUE_TYPE) && currentStageId !== blockingStage.id
     return saveComment(marketId, investibleId, parentId, tokensRemoved, apiType, filteredUploads, mentions,
       (notificationType || defaultNotificationType))
       .then((comment) => {
@@ -379,10 +393,14 @@ function CommentAdd(props) {
   function getReportWarningId() {
     if (isAssigned) {
       if (numProgressReport > 0) {
-        return 'addReportWarning';
+        return 'addReportWarning'
       }
       if (currentStageId === readyForApprovalStage.id) {
-        return 'addReportInReadyForApprovalWarning';
+        return 'addReportInReadyForApprovalWarning'
+      }
+    } else {
+      if (numProgressReport > 0) {
+        return 'addReportWarning'
       }
     }
     return undefined;
@@ -443,19 +461,21 @@ function CommentAdd(props) {
           <Button className={classes.button}>
             {intl.formatMessage({ id: 'edited' })}
           </Button>
-          {myWarningId && (
+          {openIssue !== false && (
             <IssueDialog
               classes={lockedDialogClasses}
-              open={openIssue}
+              open={openIssue !== false}
               onClose={toggleIssue}
-              issueWarningId={myWarningId}
+              issueWarningId={openIssue}
+              showDismiss={openIssue !== 'noCommentBody'}
               checkBoxFunc={setDoNotShowAgain}
               /* slots */
               actions={
-                <SpinningIconLabelButton onClick={handleSave} icon={Add} id="issueProceedButton"
-                                         disabled={_.isEmpty(type)}>
-                  {intl.formatMessage({ id: 'issueProceed' })}
-                </SpinningIconLabelButton>
+                (openIssue !== 'noCommentBody') ?
+                  <SpinningIconLabelButton onClick={handleSave} icon={Add} id="issueProceedButton"
+                                           disabled={_.isEmpty(type)}>
+                    {intl.formatMessage({ id: 'issueProceed' })}
+                  </SpinningIconLabelButton> : undefined
               }
             />
           )}
@@ -466,7 +486,7 @@ function CommentAdd(props) {
 }
 
 function IssueDialog(props) {
-  const { actions, classes, open, onClose, issueWarningId, checkBoxFunc } = props;
+  const { actions, classes, open, onClose, issueWarningId, checkBoxFunc, showDismiss } = props
 
   const autoFocusRef = React.useRef(null)
 
@@ -485,10 +505,12 @@ function IssueDialog(props) {
       actions={
         <React.Fragment>
           <SpinningIconLabelButton onClick={onClose} doSpin={false} icon={Clear} ref={autoFocusRef}>
-            <FormattedMessage id="lockDialogCancel" />
+            <FormattedMessage id="lockDialogCancel"/>
           </SpinningIconLabelButton>
           {actions}
-          <DismissableText textId={issueWarningId} checkBoxFunc={checkBoxFunc} />
+          {showDismiss && (
+            <DismissableText textId={issueWarningId} checkBoxFunc={checkBoxFunc}/>
+          )}
         </React.Fragment>
       }
       content={<FormattedMessage id={issueWarningId} />}

@@ -15,7 +15,6 @@ export function doCreateRequirementsWorkspace (marketsDispatch, formData) {
     workspaceName,
     workspaceDescription,
     workspaceDescriptionUploadedFiles,
-    marketSubType,
   } = formData;
   const processed = processTextAndFilesForSave(workspaceDescriptionUploadedFiles, workspaceDescription);
   const marketInfo = {
@@ -23,9 +22,6 @@ export function doCreateRequirementsWorkspace (marketsDispatch, formData) {
     description: processed.text,
     uploaded_files: processed.uploadedFiles,
   };
-  if (marketSubType) {
-    marketInfo.market_sub_type = marketSubType;
-  }
   let createdMarketId;
   return createPlanning(marketInfo)
     .then((marketDetails) => {

@@ -43,10 +43,7 @@ import ArchiveInvestbiles from '../../DialogArchives/ArchiveInvestibles'
 import SubSection from '../../../containers/SubSection/SubSection'
 import { getInvestiblesInStage } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import UclusionTour from '../../../components/Tours/UclusionTour'
-import { inviteStoriesWorkspaceSteps } from '../../../components/Tours/storyWorkspace'
-import {
-  INVITE_STORIES_WORKSPACE_FIRST_VIEW, INVITED_USER_WORKSPACE
-} from '../../../contexts/TourContext/tourContextHelper';
+import { INVITED_USER_WORKSPACE } from '../../../contexts/TourContext/tourContextHelper';
 import { getMarketInfo, hasNotVoted } from '../../../utils/userFunctions'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import MarketTodos from './MarketTodos'
@@ -321,13 +318,6 @@ function PlanningDialog(props) {
       banner={banner}
       navigationOptions={navigationMenu}
     >
-      {marketSubType === 'REQUIREMENTS' && !mobileLayout && (
-        <UclusionTour
-          name={INVITE_STORIES_WORKSPACE_FIRST_VIEW}
-          hidden={hidden}
-          steps={inviteStoriesWorkspaceSteps(intl, mobileLayout)}
-        />
-      )}
       {createdBy !== myPresence.id && (
         <UclusionTour
           name={INVITED_USER_WORKSPACE}

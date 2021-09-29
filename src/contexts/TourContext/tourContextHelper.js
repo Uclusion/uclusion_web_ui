@@ -2,8 +2,6 @@ import { markTourCompleted, setTourCurrentStep } from './tourContextReducer'
 import _ from 'lodash'
 
 export const INVITE_DIALOG_FIRST_VIEW = 'invite_dialog_first_view';
-// Currently INVITE_STORIES_WORKSPACE_FIRST_VIEW is the tour of the Uclusion created onboarding Workspace
-export const INVITE_STORIES_WORKSPACE_FIRST_VIEW = 'invite_stories_workspace_first_view';
 export const INVITE_REQ_WORKSPACE_FIRST_VIEW = 'invite_req_workspace_first_view';
 // Currently INVITED_USER_WORKSPACE is any time someone is new in a unknown workspace - whether creator or not
 // invited to the onboarding Workspace also goes here since it may have been customized
@@ -18,9 +16,7 @@ export function getTourFamily(tourName) {
       return [INVITE_DIALOG_FIRST_VIEW];
     case INVITE_REQ_WORKSPACE_FIRST_VIEW:
     case INVITED_USER_WORKSPACE:
-      return [INVITE_STORIES_WORKSPACE_FIRST_VIEW, INVITE_REQ_WORKSPACE_FIRST_VIEW, SIGNUP_HOME, INVITED_USER_WORKSPACE];
-    case INVITE_STORIES_WORKSPACE_FIRST_VIEW:
-      return [INVITE_STORIES_WORKSPACE_FIRST_VIEW, INVITE_REQ_WORKSPACE_FIRST_VIEW, SIGNUP_HOME, INVITED_USER_WORKSPACE];
+      return [INVITE_REQ_WORKSPACE_FIRST_VIEW, SIGNUP_HOME, INVITED_USER_WORKSPACE];
     case ADMIN_INITIATIVE_FIRST_VIEW:
       return [ADMIN_INITIATIVE_FIRST_VIEW, INVITE_INITIATIVE_FIRST_VIEW];
     case INVITE_INITIATIVE_FIRST_VIEW:

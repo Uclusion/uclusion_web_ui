@@ -82,7 +82,7 @@ const useStyles = makeStyles(
 );
 
 function WhatDoYouWantToDo (props) {
-  const { setWizardToShow, onStartOver } = props;
+  const { setWizardToShow, onStartOver, showCancel } = props;
   const intl = useIntl();
   const theme = useTheme();
   const classes = useStyles(theme);
@@ -114,11 +114,13 @@ function WhatDoYouWantToDo (props) {
       </FormControl>
       <div className={wizardClasses.borderBottom} />
       <div className={wizardClasses.buttonContainer}>
-        <div>
-          <Button className={wizardClasses.actionStartOver}
-                  onClick={() => onStartOver()}>{intl.formatMessage({ id: 'OnboardingWizardStartOver' })}
-          </Button>
-        </div>
+        {showCancel && (
+          <div>
+            <Button className={wizardClasses.actionStartOver}
+                    onClick={() => onStartOver()}>{intl.formatMessage({ id: 'OnboardingWizardStartOver' })}
+            </Button>
+          </div>
+        )}
         <div className={wizardClasses.actionContainer}>
           <SpinningButton doSpin={false} className={wizardClasses.actionPrimary}
                           onClick={() => setWizardToShow(wizard)}>

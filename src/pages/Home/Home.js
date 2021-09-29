@@ -22,13 +22,11 @@ import {
 } from '../../utils/marketIdPathFunctions'
 import { getAndClearRedirect } from '../../utils/redirectUtils'
 import WizardSelector from '../../components/AddNew/WizardSelector'
-import { CognitoUserContext } from '../../contexts/CognitoUserContext/CongitoUserContext';
 import InitiativesAndDialogs from './InitiativesAndDialogs'
 import { canCreate } from '../../contexts/AccountContext/accountContextHelper';
 import UpgradeBanner from '../../components/Banners/UpgradeBanner';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
 import {
-  getExistingMarkets,
   hasInitializedGlobalVersion, hasLoadedGlobalVersion
 } from '../../contexts/VersionsContext/versionsContextHelper'
 import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
@@ -49,7 +47,6 @@ import { getStages } from '../../contexts/MarketStagesContext/marketStagesContex
 import { getUserInvestibles } from '../Dialog/Planning/userUtils'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
-import CreateWorkspaceDialog from '../../components/Warnings/CreateWorkspaceDialog'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 
 const useStyles = makeStyles(() => ({
@@ -82,7 +79,6 @@ function Home(props) {
   const [operationRunning] = useContext(OperationInProgressContext)
   const classes = useStyles()
   const [wizardActive, setWizardActive] = useState(false)
-  const user = useContext(CognitoUserContext) || {}
   const [, tourDispatch] = useContext(TourContext)
   const [versionsContext] = useContext(VersionsContext)
   const createEnabled = canCreate(accountState)
@@ -173,8 +169,12 @@ function Home(props) {
       }
     ]
   };
-  const noActiveMarkets = _.isEmpty(planningDetails) && _.isEmpty(decisionDetails) && _.isEmpty(initiativeDetails)
-  const showCreateTemplate = !_.isEmpty(user) && _.isEmpty(getExistingMarkets(versionsContext))
+  const noActiveNonSupportMarkets = _.isEmpty(planningDetails) && _.isEmpty(decisionDetails)
+    && _.isEmpty(initiativeDetails.filter((initiative) => {
+      const { market_sub_type: marketSubType } = initiative;
+      return marketSubType !== 'REQUIREMENTS';
+    }));
+
   return (
     <Screen
       title={intl.formatMessage({ 'id': 'homeBreadCrumb' })}
@@ -185,14 +185,12 @@ function Home(props) {
       loading={loadingForeGroundMarkets}
       navigationOptions={banner ? [] : navigationMenu}
     >
-      {showCreateTemplate && (
-        <CreateWorkspaceDialog user={user} hidden={wizardActive}/>
-      )}
       <WizardSelector
-        hidden={!wizardActive && !(noActiveMarkets && !showCreateTemplate)}
+        hidden={!wizardActive && !noActiveNonSupportMarkets}
         onFinish={onWizardFinish}
+        showCancel={!noActiveNonSupportMarkets}
         onCancel={() => setWizardActive(false)}/>
-      {!noActiveMarkets && (
+      {!_.isEmpty(planningDetails) && (
         <div className={classes.titleContainer}>
           {<AgilePlanIcon htmlColor="#333333"/>}
           <Typography className={classes.title} variant="h6">
@@ -206,10 +204,14 @@ function Home(props) {
                                 setChosenPerson={setChosenPerson} workspacesData={workspacesData}
                                 setWizardActive={setWizardActive}/>
       </div>
-      {!noActiveMarkets && (
+      {!_.isEmpty(planningDetails) && (
         <React.Fragment>
           <hr className={classes.spacer}/>
           <PlanningDialogs markets={planningDetails}/>
+        </React.Fragment>
+      )}
+      {!(_.isEmpty(decisionDetails) && _.isEmpty(initiativeDetails)) && (
+        <React.Fragment>
           <hr className={classes.spacer}/>
           <InitiativesAndDialogs dialogs={decisionDetails} initiatives={initiativeDetails}/>
         </React.Fragment>

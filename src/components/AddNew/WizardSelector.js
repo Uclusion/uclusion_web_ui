@@ -7,7 +7,7 @@ import InitiativeWizard from './Initiative/InitiativeWizard'
 import { WizardStylesProvider } from './WizardStylesContext'
 
 function WizardSelector(props) {
-  const { hidden, onFinish, onCancel } = props;
+  const { hidden, onFinish, onCancel, showCancel } = props;
   const [wizardToShow, setWizardToShow] = useState(null);
 
   function onStartOver() {
@@ -25,7 +25,7 @@ function WizardSelector(props) {
         return <InitiativeWizard onStartOver={onStartOver} onFinish={onFinish} isHome/>
       default:
         return (<WizardStylesProvider>
-          <WhatDoYouWantToDo setWizardToShow={setWizardToShow} onStartOver={onStartOver}/>
+          <WhatDoYouWantToDo setWizardToShow={setWizardToShow} onStartOver={onStartOver} showCancel={showCancel}/>
         </WizardStylesProvider>)
     }
   }

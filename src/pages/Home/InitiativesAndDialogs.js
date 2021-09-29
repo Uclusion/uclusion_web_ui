@@ -498,11 +498,7 @@ function InitiativesAndDialogs(props) {
 
   function getInitiativeItems() {
     const classes = initiativeClasses;
-    const realInitiatives = initiatives.filter((initiative) => {
-      const investibles = getMarketInvestibles(investiblesState, initiative.id);
-      return !_.isEmpty(investibles);
-    });
-    const unsortedInitiatives = realInitiatives.map((market, index) => {
+    const unsortedInitiatives = initiatives.map((market, index) => {
       const {
         id: marketId, created_at: createdAt, expiration_minutes: expirationMinutes, created_by: createdBy,
         market_type: marketType, market_stage: marketStage, updated_at: updatedAt, parent_market_id: parentMarketId,

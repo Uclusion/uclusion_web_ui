@@ -191,7 +191,7 @@ function Home(props) {
         onFinish={onWizardFinish}
         showCancel={!noActiveNonSupportMarkets}
         onCancel={() => setWizardActive(false)}/>
-      {!_.isEmpty(planningDetails) && (
+      {assignedSize > 0 && (
         <div className={classes.titleContainer}>
           {<AgilePlanIcon htmlColor="#333333"/>}
           <Typography className={classes.title} variant="h6">
@@ -207,7 +207,9 @@ function Home(props) {
       </div>
       {!_.isEmpty(planningDetails) && (
         <React.Fragment>
-          <hr className={classes.spacer}/>
+          {(assignedSize > 0 || wizardActive) && (
+            <hr className={classes.spacer}/>
+          )}
           <PlanningDialogs markets={planningDetails}/>
         </React.Fragment>
       )}

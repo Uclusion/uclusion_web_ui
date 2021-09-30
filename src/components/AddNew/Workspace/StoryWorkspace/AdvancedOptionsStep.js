@@ -9,6 +9,14 @@ import WizardStepContainer from '../../WizardStepContainer';
 import Grid from '@material-ui/core/Grid';
 import { usePlanFormStyles } from '../../../AgilePlan'
 import { makeStyles } from '@material-ui/styles';
+import { MarketsContext } from '../../../../contexts/MarketsContext/MarketsContext'
+import { MarketStagesContext } from '../../../../contexts/MarketStagesContext/MarketStagesContext'
+import { DiffContext } from '../../../../contexts/DiffContext/DiffContext'
+import { InvestiblesContext } from '../../../../contexts/InvestibesContext/InvestiblesContext'
+import { MarketPresencesContext } from '../../../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { CommentsContext } from '../../../../contexts/CommentsContext/CommentsContext'
+import { OperationInProgressContext } from '../../../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { doCreateStoryWorkspace } from './workspaceCreator'
 
 export const useOptionsStyles = makeStyles(theme => {
   return {
@@ -34,6 +42,34 @@ function AdvancedOptionsStep (props) {
   const { updateFormData, formData } = props;
   const intl = useIntl();
   const classes = useContext(WizardStylesContext);
+  const [, marketsDispatch] = useContext(MarketsContext);
+  const [, marketStagesDispatch] = useContext(MarketStagesContext);
+  const [, diffDispatch] = useContext(DiffContext);
+  const [, investiblesDispatch] = useContext(InvestiblesContext);
+  const [, presenceDispatch] = useContext(MarketPresencesContext);
+  const [commentsState, commentsDispatch] = useContext(CommentsContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
+
+  function createMarket (formData) {
+    const dispatchers = {
+      marketStagesDispatch,
+      diffDispatch,
+      investiblesDispatch,
+      marketsDispatch,
+      presenceDispatch,
+      commentsDispatch,
+      commentsState,
+    };
+    return doCreateStoryWorkspace(dispatchers, formData, updateFormData, intl)
+      .then((marketId) => {
+        setOperationRunning(false);
+        return ({ ...formData, marketId });
+      })
+  }
+
+  function onFinish () {
+    return createMarket({ ...formData });
+  }
 
   function onTicketSubCodeChange(event) {
     const { value } = event.target;
@@ -61,8 +97,8 @@ function AdvancedOptionsStep (props) {
       titleId="OnboardingWizardAdvancedOptionsStepLabel"
     >
       <div>
-        <Typography variant="body1" className={optionsClasses.helper}>
-          We've set up good defaults for you and any of these options can be changed later.
+        <Typography>
+          {intl.formatMessage({ id: "ticketSubCodeHelp" })}
         </Typography>
         <Card className={optionsClasses.cardStyle}>
           <Grid container spacing={2} direction="column">
@@ -78,10 +114,6 @@ function AdvancedOptionsStep (props) {
                 onChange={onTicketSubCodeChange}
                 placeholder="Workspace short code"
               />
-              <Typography>
-                {intl.formatMessage({ id: "ticketSubCodeHelp" })}
-              </Typography>
-              <br />
               {ticketSubCode && (<Typography>
                 {intl.formatMessage({ id: "ticketSubCodeHelp1" }, {code: ticketSubCode})}
               </Typography>)}
@@ -93,7 +125,7 @@ function AdvancedOptionsStep (props) {
           {...props}
           validForm={!_.isEmpty(ticketSubCode)}
           showSkip
-          showFinish={false}
+          onFinish={onFinish}
           onSkip={onSkip}
         />
       </div>

@@ -2,6 +2,8 @@ import React, { useEffect, useReducer, useState } from 'react'
 import { BroadcastChannel, createLeaderElection } from 'broadcast-channel'
 import LocalForageHelper from '../../utils/LocalForageHelper'
 import { VERSIONS_CONTEXT_NAMESPACE } from '../VersionsContext/versionsContextReducer'
+import { pushMessage } from '../../utils/MessageBusUtils'
+import { OPERATION_HUB_CHANNEL, STOP_OPERATION } from '../OperationInProgressContext/operationInProgressMessages'
 
 const EMPTY_STATE = {
   leader: undefined,
@@ -39,6 +41,8 @@ function LeaderProvider(props) {
         // but its a bit risky as can somehow infinite refresh and corner of corner case anyway
         dispatch({ isLeader });
         if (!isLeader) {
+          // First turn off in progress for the versions sync since leader does that
+          pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION });
           return elector.awaitLeadership().then(() => dispatch({isLeader: true}));
         }
         return isLeader;

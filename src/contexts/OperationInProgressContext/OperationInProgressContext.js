@@ -5,7 +5,8 @@ const OperationInProgressContext = React.createContext(false);
 
 function OperationInProgressProvider (props) {
   const { children } = props;
-  const [state, setState] = useState(false);
+  // Default operation in progress to true for the versions fetch
+  const [state, setState] = useState(true);
 
   useEffect(() => {
     beginListening(setState);

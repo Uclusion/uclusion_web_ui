@@ -22,10 +22,8 @@ import { MARKET_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../contexts/WebSocke
 import { GLOBAL_VERSION_UPDATE, NEW_MARKET, } from '../contexts/VersionsContext/versionsContextMessages'
 import {
   OPERATION_HUB_CHANNEL,
-  START_OPERATION,
   STOP_OPERATION
 } from '../contexts/OperationInProgressContext/operationInProgressMessages'
-import config from '../config'
 import LocalForageHelper from '../utils/LocalForageHelper'
 import { EMPTY_GLOBAL_VERSION, VERSIONS_CONTEXT_NAMESPACE } from '../contexts/VersionsContext/versionsContextReducer'
 import { getHomeAccountUser } from './sso'
@@ -225,11 +223,6 @@ export function updateMarkets (marketIds, existingMarkets, maxConcurrentCount) {
  */
 export function doVersionRefresh (currentHeldVersion, existingMarkets) {
   let newGlobalVersion = currentHeldVersion;
-  const globalLockEnabled = config.globalLockEnabled === 'true' || !currentHeldVersion
-    || currentHeldVersion === 'INITIALIZATION';
-  if (globalLockEnabled) {
-    pushMessage(OPERATION_HUB_CHANNEL, { event: START_OPERATION });
-  }
   const callWithVersion = currentHeldVersion === 'INITIALIZATION' ? null : currentHeldVersion;
   return getChangedIds(callWithVersion)
     .then((versions) => {

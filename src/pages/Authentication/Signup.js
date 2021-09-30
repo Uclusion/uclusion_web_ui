@@ -618,6 +618,7 @@ function Signup(props) {
                 type="submit"
                 id="signupButton"
                 disabled={formInvalid}
+                doSpin={false}
               >
                 {intl.formatMessage({ id: 'signupSignupLabel' })}
               </SpinningButton>

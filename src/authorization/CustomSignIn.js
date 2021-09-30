@@ -242,6 +242,7 @@ class CustomSignIn extends SignIn {
             variant="contained"
             className={classes.submit}
             id="signinButton"
+            doSpin={false}
           >
             {intl.formatMessage({ id: 'signInSignIn'})}
           </SpinningButton>

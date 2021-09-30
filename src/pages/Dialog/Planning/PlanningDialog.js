@@ -93,7 +93,7 @@ function PlanningDialog(props) {
   const intl = useIntl();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'))
-  const { id: marketId, market_stage: marketStage, created_by: createdBy } = market
+  const { id: marketId, market_stage: marketStage } = market
   const activeMarket = marketStage === ACTIVE_STAGE
   const inArchives = !activeMarket || (myPresence && !myPresence.following);
   const isAdmin = myPresence.is_admin;

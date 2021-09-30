@@ -148,12 +148,18 @@ function Home(props) {
   });
   const assignedSize = workspacesData.reduce((accumulator, currentValue) =>
     accumulator + currentValue.myCountedInvestibles.length, 0)
-  const archiveMarkets = getHiddenMarketDetailsForUser(marketsState, marketPresencesState, searchResults)
+  const archiveMarkets = getHiddenMarketDetailsForUser(marketsState, marketPresencesState, searchResults);
+  const noActiveNonSupportMarkets = _.isEmpty(planningDetails) && _.isEmpty(decisionDetails)
+    && _.isEmpty(initiativeDetails.filter((initiative) => {
+      const { market_sub_type: marketSubType } = initiative;
+      return marketSubType !== 'REQUIREMENTS';
+    }));
+  const showAddNew = createEnabled && !wizardActive && !noActiveNonSupportMarkets;
   const navigationMenu = {
     navHeaderIcon: HomeIcon, navTooltip: 'homeNavTooltip', showSearchResults: true,
     navListItemTextArray: [{
       icon: AddIcon, text: intl.formatMessage({ id: 'addNew' }),
-      onClickFunc: createEnabled && !wizardActive ? () => {
+      onClickFunc: showAddNew ? () => {
         setWizardActive(true)
         window.scrollTo(0, 0)
       } : undefined
@@ -169,11 +175,6 @@ function Home(props) {
       }
     ]
   };
-  const noActiveNonSupportMarkets = _.isEmpty(planningDetails) && _.isEmpty(decisionDetails)
-    && _.isEmpty(initiativeDetails.filter((initiative) => {
-      const { market_sub_type: marketSubType } = initiative;
-      return marketSubType !== 'REQUIREMENTS';
-    }));
 
   return (
     <Screen
@@ -200,7 +201,7 @@ function Home(props) {
       )}
       <div id="swimLanes">
         <InvestiblesByWorkspace workspaces={planningDetails} chosenPerson={chosenPerson}
-                                showAddNew={createEnabled && !wizardActive} showArchives={_.size(archiveMarkets) > 0}
+                                showAddNew={showAddNew} showArchives={_.size(archiveMarkets) > 0}
                                 setChosenPerson={setChosenPerson} workspacesData={workspacesData}
                                 setWizardActive={setWizardActive}/>
       </div>

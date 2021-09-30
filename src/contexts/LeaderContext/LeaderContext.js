@@ -1,5 +1,7 @@
 import React, { useEffect, useReducer, useState } from 'react'
 import { BroadcastChannel, createLeaderElection } from 'broadcast-channel'
+import LocalForageHelper from '../../utils/LocalForageHelper'
+import { VERSIONS_CONTEXT_NAMESPACE } from '../VersionsContext/versionsContextReducer'
 
 const EMPTY_STATE = {
   leader: undefined,
@@ -19,6 +21,13 @@ function LeaderProvider(props) {
   useEffect(() => {
     console.info(`Processing leader with authState ${authState}`);
     if (authState === 'signedIn') {
+      const lfg = new LocalForageHelper(VERSIONS_CONTEXT_NAMESPACE);
+      lfg.getState().then((diskState) => {
+          if (!diskState) {
+            // If there is no disk then I must be the first tab opened and we can't wait for election results
+            dispatch({isLeader: true});
+          }
+      });
       const myChannel = new BroadcastChannel(LEADER_CHANNEL);
       // If you grab leader not signed in then you risk stalling out as no one gets data
       const elector = createLeaderElection(myChannel, {

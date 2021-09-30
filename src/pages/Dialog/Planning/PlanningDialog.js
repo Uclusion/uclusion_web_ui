@@ -318,13 +318,11 @@ function PlanningDialog(props) {
       banner={banner}
       navigationOptions={navigationMenu}
     >
-      {createdBy !== myPresence.id && (
-        <UclusionTour
-          name={INVITED_USER_WORKSPACE}
-          hidden={hidden}
-          steps={workspaceInvitedUserSteps(myPresence)}
-        />
-      )}
+      <UclusionTour
+        name={INVITED_USER_WORKSPACE}
+        hidden={hidden}
+        steps={workspaceInvitedUserSteps(myPresence)}
+      />
       <div id="workspaceMain" style={{ display: isSectionOpen('workspaceMain') ? 'block' : 'none' }}>
         <DismissableText textId="planningEditHelp"/>
         <Summary market={market} hidden={hidden} activeMarket={activeMarket} inArchives={inArchives}

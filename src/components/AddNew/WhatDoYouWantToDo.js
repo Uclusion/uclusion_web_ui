@@ -123,7 +123,7 @@ function WhatDoYouWantToDo (props) {
         )}
         <div className={wizardClasses.actionContainer}>
           <SpinningButton doSpin={false} className={wizardClasses.actionPrimary}
-                          onClick={() => setWizardToShow(wizard)}>
+                          onClick={() => setWizardToShow(wizard)} id='OnboardingWizardContinue'>
             {intl.formatMessage({ id: 'OnboardingWizardContinue' })}
           </SpinningButton>
         </div>

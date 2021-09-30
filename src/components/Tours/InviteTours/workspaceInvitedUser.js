@@ -12,12 +12,6 @@ export function workspaceInvitedUserSteps (variables) {
     },
     {
       disableBeacon: true,
-      target: '#workspaceMain',
-      placement: 'top',
-      content: 'Edit the workspace description to list requirements and links and we will notify everyone what changed.',
-    },
-    {
-      disableBeacon: true,
       target: '#adminManageCollaborators',
       placement: 'bottom',
       content: 'Click here to invite others by magic link or let us send emails for you.',

@@ -284,7 +284,7 @@ function AddNewUsers (props) {
           </ListItem>
           <ListItem id="emailButtons" key="emailButtons" className={clsx(classes.rightAlign, classes.listItem)}>
             <CardActions className={classes.actions}>
-              <SpinningIconLabelButton onClick={handleCancel} doSpin={false} icon={Clear}>
+              <SpinningIconLabelButton onClick={handleCancel} doSpin={false} icon={Clear} id='addressAddCancel'>
                 {intl.formatMessage({ id: 'addressAddCancelLabel' })}
               </SpinningIconLabelButton>
               <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore} id="addressAddSaveButton"

@@ -97,10 +97,9 @@ function AddInitialVote(props) {
   } = props;
   const intl = useIntl();
   const classes = useStyles();
-  const [marketPresencesState] = useContext(MarketPresencesContext);
   const myHelperText = storyMaxBudget ?
     intl.formatMessage({ id: "maxBudgetInputHelperText" }, { x: storyMaxBudget + 1 }) : '';
-  const units = getMarketUnits(marketPresencesState, marketId, intl);
+  const units = getMarketUnits(intl);
   const defaultProps = {
     options: units,
     getOptionLabel: (option) => option,

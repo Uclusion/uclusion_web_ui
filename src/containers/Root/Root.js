@@ -79,7 +79,10 @@ function Root() {
   }
 
   function hideMarket() {
-    return (action !== 'dialog' && action !== 'invite') || (!marketId) || (!!marketId && !!investibleId);
+    if (action === 'invite') {
+      return false;
+    }
+    return (action !== 'dialog') || (!marketId) || (!!marketId && !!investibleId);
   }
 
   function hideInvestible() {

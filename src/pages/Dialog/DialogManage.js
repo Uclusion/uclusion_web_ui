@@ -89,7 +89,6 @@ function DialogManage (props) {
             />
               <ManageUsers
                 market={renderableMarket}
-                onAddNewUsers={onActionDone}
                 onCancel={onActionDone}
               />
           </div>

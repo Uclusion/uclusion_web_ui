@@ -11,7 +11,6 @@ import { useIntl } from 'react-intl'
 function ManageUsers (props) {
   const {
     market,
-    onAddNewUsers,
     onCancel
   } = props;
   const classes = usePlanFormStyles();
@@ -20,10 +19,7 @@ function ManageUsers (props) {
   return (
     <>
       <CardContent className={clsx(classes.cardContent, classes.nestedCard)} style={{paddingBottom: '1rem'}}>
-        <AddNewUsers
-          market={market}
-          onSave={onAddNewUsers}
-        />
+        <AddNewUsers market={market} />
       </CardContent>
       <CardActions className={classes.cardActions}>
         <SpinningIconLabelButton onClick={onCancel} doSpin={false} icon={Clear} id='addressAddCancel'>

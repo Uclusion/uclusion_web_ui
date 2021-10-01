@@ -89,7 +89,7 @@ function InvestibleAdd(props) {
           fromCommentIds={fromCommentIds}
           classes={classes}
           maxBudgetUnit={budgetUnit}
-          useBudget={useBudget}
+          useBudget={useBudget ? useBudget : false}
           votesRequired={votesRequired}
         />
       )}

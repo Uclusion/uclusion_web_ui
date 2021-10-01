@@ -3,7 +3,6 @@ import PropTypes from 'prop-types'
 import _ from 'lodash'
 import { useIntl } from 'react-intl'
 import {
-  CardActions,
   Checkbox,
   IconButton,
   InputAdornment,
@@ -12,8 +11,8 @@ import {
   ListItemIcon,
   ListItemText,
   TextField,
-  Typography,
-} from '@material-ui/core';
+  Typography, useMediaQuery, useTheme,
+} from '@material-ui/core'
 import SearchIcon from '@material-ui/icons/Search'
 import clsx from 'clsx'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
@@ -24,17 +23,16 @@ import { addMarketPresences } from '../../../contexts/MarketPresencesContext/mar
 import { extractUsersList } from '../../../utils/userFunctions'
 import Gravatar from '../../../components/Avatars/Gravatar';
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
-import { SettingsBackupRestore } from '@material-ui/icons'
+import { Email, SettingsBackupRestore } from '@material-ui/icons'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 
 function AddNewUsers (props) {
-  const {
-    market,
-    onSave,
-  } = props;
+  const { market } = props;
   const { id: addToMarketId, market_type: marketType, invite_capability: marketToken } = market;
   const classes = usePlanFormStyles();
   const intl = useIntl();
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [email1, setEmail1] = useState(undefined);
@@ -49,8 +47,8 @@ function AddNewUsers (props) {
   const [searchValue, setSearchValue] = useState(undefined);
   const [filteredNames, setFilteredNames] = useState(undefined);
   const participants = Object.keys(checked).map((key) => checked[key]) || [];
-  const [emailsSent, setEmailsSent] = useState([])
-  const anySelected = participants.find((participant) => participant.isChecked)
+  const [emailsSent, setEmailsSent] = useState([]);
+  const anySelected = participants.find((participant) => participant.isChecked);
 
   useEffect(() => {
     if (!searchValue) {
@@ -136,23 +134,25 @@ function AddNewUsers (props) {
     });
   }
 
-  function handleSave () {
+  function handleSaveEmails() {
+    return addInvitees().then(() => {
+      setOperationRunning(false);
+      return onSaveSpinStop();
+    });
+  }
+
+  function handleSaveParticipants() {
     const toAdd = participants.filter((participant) => participant.isChecked) || [];
     const toAddClean = toAdd.map((participant) => {
       const { external_id, account_id } = participant
       return { external_id, account_id, is_guest: false }
     });
-    return addInvitees().then(() => {
-      if (_.isEmpty(toAddClean)) {
+    return addParticipants(addToMarketId, toAddClean)
+      .then((result) => {
+        setChecked(participants.filter((participant) => !participant.isChecked) || []);
         setOperationRunning(false);
-        return onSaveSpinStop();
-      }
-      return addParticipants(addToMarketId, toAddClean)
-        .then((result) => {
-          setOperationRunning(false);
-          onSaveSpinStop(result);
-        });
-    });
+        onSaveSpinStop(result);
+      });
   }
 
   function onSearchChange (event) {
@@ -165,11 +165,9 @@ function AddNewUsers (props) {
       return;
     }
     marketPresencesDispatch(addMarketPresences(addToMarketId, result));
-    onSave();
   }
 
   const displayNames = filteredNames || Object.entries(checked) || [];
-
   return (
     <>
       {displayNames.length > 0 &&
@@ -178,26 +176,32 @@ function AddNewUsers (props) {
             dense
             className={clsx(classes.scrollableList, classes.sharedForm)}
           >
-            {_.size(participants) > 10 && (
-              <ListItem className={classes.searchContainer} key="search">
-                <ListItemText >
-                  <TextField
-                    className={classes.search}
-                    placeholder="Search in your organization"
-                    onChange={onSearchChange}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position={'end'}>
-                          <IconButton>
-                            <SearchIcon/>
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                </ListItemText>
-              </ListItem>
-            )}
+            <ListItem className={classes.searchContainer} key="search">
+              <SpinningIconLabelButton onClick={handleSaveParticipants} icon={SettingsBackupRestore}
+                                       id="participantAddButton"
+                                       disabled={_.isEmpty(anySelected)}>
+                {intl.formatMessage({ id: mobileLayout ? 'addExistingCollaboratorMobile' :
+                    'addExistingCollaborator' })}
+              </SpinningIconLabelButton>
+              {_.size(participants) > 10 && (
+                  <ListItemText >
+                    <TextField
+                      className={classes.search}
+                      placeholder="Search in your organization"
+                      onChange={onSearchChange}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position={'end'}>
+                            <IconButton>
+                              <SearchIcon/>
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                  </ListItemText>
+              )}
+            </ListItem>
             <List
               dense
               id="addressBook"
@@ -275,12 +279,10 @@ function AddNewUsers (props) {
             </ListItemText>
           </ListItem>
           <ListItem id="emailButtons" key="emailButtons" className={clsx(classes.rightAlign, classes.listItem)}>
-            <CardActions className={classes.actions}>
-              <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore} id="addressAddSaveButton"
-                                       disabled={_.isEmpty(anySelected)&&_.isEmpty(email1)}>
-                {intl.formatMessage({ id: 'addressAddSaveLabel' })}
-              </SpinningIconLabelButton>
-            </CardActions>
+            <SpinningIconLabelButton onClick={handleSaveEmails} icon={Email} id="addressAddSaveButton"
+                                     disabled={_.isEmpty(email1)}>
+              {intl.formatMessage({ id: 'addressAddSaveLabel' })}
+            </SpinningIconLabelButton>
           </ListItem>
         </form>
       </List>

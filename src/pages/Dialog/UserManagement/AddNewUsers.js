@@ -24,14 +24,13 @@ import { addMarketPresences } from '../../../contexts/MarketPresencesContext/mar
 import { extractUsersList } from '../../../utils/userFunctions'
 import Gravatar from '../../../components/Avatars/Gravatar';
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
-import { Clear, SettingsBackupRestore } from '@material-ui/icons'
+import { SettingsBackupRestore } from '@material-ui/icons'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 
 function AddNewUsers (props) {
   const {
     market,
     onSave,
-    onCancel
   } = props;
   const { id: addToMarketId, market_type: marketType, invite_capability: marketToken } = market;
   const classes = usePlanFormStyles();
@@ -136,14 +135,7 @@ function AddNewUsers (props) {
       setEmail1('');
     });
   }
-  function handleCancel () {
-    participants.map((participant) => {return participant.isChecked = false});
-    setEmail1(undefined);
 
-    if(typeof onCancel === 'function' ){
-      onCancel();
-    }
-  }
   function handleSave () {
     const toAdd = participants.filter((participant) => participant.isChecked) || [];
     const toAddClean = toAdd.map((participant) => {
@@ -284,9 +276,6 @@ function AddNewUsers (props) {
           </ListItem>
           <ListItem id="emailButtons" key="emailButtons" className={clsx(classes.rightAlign, classes.listItem)}>
             <CardActions className={classes.actions}>
-              <SpinningIconLabelButton onClick={handleCancel} doSpin={false} icon={Clear} id='addressAddCancel'>
-                {intl.formatMessage({ id: 'addressAddCancelLabel' })}
-              </SpinningIconLabelButton>
               <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore} id="addressAddSaveButton"
                                        disabled={_.isEmpty(anySelected)&&_.isEmpty(email1)}>
                 {intl.formatMessage({ id: 'addressAddSaveLabel' })}

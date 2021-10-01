@@ -133,18 +133,6 @@ function DialogActions(props) {
                               icon={<SettingsIcon htmlColor={ACTION_BUTTON_COLOR} />}/>
           );
         }
-        actions.push(<Tooltip
-          key="adminManageCollaborators"
-          title={intl.formatMessage({ id: 'dialogAddParticipantsLabel' })}
-        >
-          <IconButton
-            id="adminManageCollaborators"
-            onClick={() => navigate(history, `${formMarketManageLink(marketId)}#participation=true`)}
-          >
-            <PersonAddIcon
-              htmlColor={marketPresences.length < 2 ? HIGHLIGHTED_BUTTON_COLOR : ACTION_BUTTON_COLOR} />
-          </IconButton>
-        </Tooltip>)
       } else if (marketType === PLANNING_TYPE) {
         if (isSubscribedToMarket) {
           actions.push(<Tooltip
@@ -191,6 +179,20 @@ function DialogActions(props) {
     }
     if (action === 'dialog' && marketType !== PLANNING_TYPE && !activeMarket) {
       actions.push(<ShareStoryButton key="share-story" marketId={marketId}/>)
+    }
+    if (!hideEdit) {
+      actions.push(<Tooltip
+        key="adminManageCollaborators"
+        title={intl.formatMessage({ id: 'dialogAddParticipantsLabel' })}
+      >
+        <IconButton
+          id="adminManageCollaborators"
+          onClick={() => navigate(history, `${formMarketManageLink(marketId)}#participation=true`)}
+        >
+          <PersonAddIcon
+            htmlColor={marketPresences.length < 2 ? HIGHLIGHTED_BUTTON_COLOR : ACTION_BUTTON_COLOR}/>
+        </IconButton>
+      </Tooltip>)
     }
     if (!hideEdit && mobileLayout && !beingEdited) {
       actions.push(

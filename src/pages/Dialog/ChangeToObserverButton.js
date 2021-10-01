@@ -50,6 +50,11 @@ function ChangeToObserverButton(props) {
     return myOnClick(false);
   }
 
+  function myOnClickChangetoObserver() {
+    setOperationRunning(true);
+    return myOnClick(false);
+  }
+
   function myOnClick(myIsDeactivate) {
     const actionPromise = myIsDeactivate ? archiveMarket(marketId, marketType) : changeUserToObserver(marketId);
     return actionPromise.then((response) => {
@@ -92,10 +97,8 @@ function ChangeToObserverButton(props) {
       );
     }
     return (
-      <SpinningIconLabelButton icon={NotificationsOff} onClick={myOnClickChooseNotDeactivate}
-                               id="decisionDialogsBecomeObserverButton">
-        <FormattedMessage id="decisionDialogsBecomeObserver" />
-      </SpinningIconLabelButton>
+      <TooltipIconButton disabled={operationRunning !== false} icon={<NotificationsOff htmlColor={ACTION_BUTTON_COLOR} />}
+                         onClick={myOnClickChangetoObserver} translationId="decisionDialogsBecomeObserver" />
     );
   }
 

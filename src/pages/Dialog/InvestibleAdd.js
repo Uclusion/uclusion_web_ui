@@ -37,7 +37,8 @@ function InvestibleAdd(props) {
   const classes = usePlanFormStyles();
   const renderableMarket = getMarket(marketsState, marketId) || {};
   const { market_type: marketType, created_at: createdAt, parent_comment_id: inlineParentCommentId,
-    parent_comment_market_id: parentMarketId, max_budget: storyMaxBudget, votes_required: votesRequired
+    parent_comment_market_id: parentMarketId, budget_unit: budgetUnit, use_budget: useBudget,
+    votes_required: votesRequired
   } = renderableMarket;
   const [commentsState] = useContext(CommentsContext);
   const comments = getMarketComments(commentsState, parentMarketId || marketId) || [];
@@ -87,7 +88,8 @@ function InvestibleAdd(props) {
           createdAt={createdAt}
           fromCommentIds={fromCommentIds}
           classes={classes}
-          storyMaxBudget={storyMaxBudget}
+          maxBudgetUnit={budgetUnit}
+          useBudget={useBudget}
           votesRequired={votesRequired}
         />
       )}

@@ -47,7 +47,7 @@ import { useLockedDialogStyles } from '../DialogBodyEdit'
 
 function PlanningInvestibleAdd(props) {
   const {
-    marketId, classes, onCancel, onSave, onSpinComplete, storyMaxBudget, fromCommentIds, votesRequired
+    marketId, classes, onCancel, onSave, onSpinComplete, fromCommentIds, votesRequired, maxBudgetUnit, useBudget
   } = props;
   const intl = useIntl();
   const theme = useTheme();
@@ -97,14 +97,12 @@ function PlanningInvestibleAdd(props) {
     getPageReducerPage(investibleAddStateFull, investibleAddDispatch, marketId,
       {
         quantity: 50,
-        maxBudget: '',
         maxBudgetUnit: '',
         skipApproval: false
       });
   const {
     skipApproval,
     maxBudget,
-    maxBudgetUnit,
     quantity,
     uploadedFiles
   } = investibleAddState;
@@ -135,10 +133,6 @@ function PlanningInvestibleAdd(props) {
     } else {
       updateInvestibleAddState({maxBudget: ''});
     }
-  }
-
-  function onUnitChange(event, value) {
-    updateInvestibleAddState({maxBudgetUnit: value});
   }
 
   function onAssignmentsChange(newAssignments) {
@@ -328,11 +322,10 @@ function PlanningInvestibleAdd(props) {
         {!isAssignedToMe && isAssigned && (
           <AddInitialVote
             marketId={marketId}
-            storyMaxBudget={storyMaxBudget}
             onBudgetChange={onBudgetChange}
             onChange={onQuantityChange}
             newQuantity={quantity}
-            onUnitChange={onUnitChange}
+            showBudget={useBudget}
             maxBudget={maxBudget}
             maxBudgetUnit={maxBudgetUnit}
             editorName={initialVoteEditorName}
@@ -385,11 +378,11 @@ function PlanningInvestibleAdd(props) {
 PlanningInvestibleAdd.propTypes = {
   classes: PropTypes.object.isRequired,
   marketId: PropTypes.string.isRequired,
+  useBudget: PropTypes.bool.isRequired,
   onCancel: PropTypes.func,
   onSpinComplete: PropTypes.func,
   onSave: PropTypes.func,
   marketPresences: PropTypes.arrayOf(PropTypes.object).isRequired,
-  storyMaxBudget: PropTypes.number
 };
 
 PlanningInvestibleAdd.defaultProps = {

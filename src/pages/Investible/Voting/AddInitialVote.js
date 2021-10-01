@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
 import { FormattedMessage, useIntl } from 'react-intl'
 import {
@@ -12,11 +12,9 @@ import {
   RadioGroup,
   TextField
 } from '@material-ui/core'
-import Autocomplete from '@material-ui/lab/Autocomplete'
-import { getMarketUnits } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
-import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { useEditor } from '../../../components/TextEditors/quillHooks';
 import { getQuillStoredState } from '../../../components/TextEditors/QuillEditor2'
+import InputAdornment from '@material-ui/core/InputAdornment'
 
 const useStyles = makeStyles(
   theme => {
@@ -86,10 +84,9 @@ const useStyles = makeStyles(
 function AddInitialVote(props) {
   const {
     marketId,
-    storyMaxBudget,
     onBudgetChange,
     onChange,
-    onUnitChange,
+    showBudget,
     newQuantity,
     maxBudget,
     maxBudgetUnit,
@@ -97,13 +94,6 @@ function AddInitialVote(props) {
   } = props;
   const intl = useIntl();
   const classes = useStyles();
-  const myHelperText = storyMaxBudget ?
-    intl.formatMessage({ id: "maxBudgetInputHelperText" }, { x: storyMaxBudget + 1 }) : '';
-  const units = getMarketUnits(intl);
-  const defaultProps = {
-    options: units,
-    getOptionLabel: (option) => option,
-  };
 
   const editorSpec = {
     marketId,
@@ -150,34 +140,31 @@ function AddInitialVote(props) {
             })}
           </RadioGroup>
         </FormControl>
-        <div className={classes.overTop}>
-          <FormattedMessage id="agilePlanFormMaxMaxBudgetInputLabel" />
-        </div>
-        <div className={classes.sideBySide}>
-          <TextField
-            className={classes.maxBudget}
-            id="vote-max-budget"
-            label={intl.formatMessage({ id: "maxBudgetInputLabel" })}
-            type="number"
-            variant="filled"
-            onChange={onBudgetChange}
-            value={maxBudget}
-            error={storyMaxBudget > 0 && maxBudget > storyMaxBudget}
-            helperText={myHelperText}
-          />
-          <Autocomplete
-            {...defaultProps}
-            id="addBudgetUnit"
-            key="budgetUnit"
-            freeSolo
-            renderInput={(params) => <TextField {...params}
-                                                label={intl.formatMessage({ id: 'addUnit' })}
-                                                variant="outlined" />}
-            value={maxBudgetUnit}
-            className={classes.maxBudgetUnit}
-            onInputChange={onUnitChange}
-          />
-        </div>
+        {showBudget && (
+          <>
+            <div className={classes.overTop}>
+              <FormattedMessage id="agilePlanFormMaxMaxBudgetInputLabel" />
+            </div>
+            <div className={classes.sideBySide}>
+              <TextField
+                className={classes.maxBudget}
+                id="vote-max-budget"
+                label={intl.formatMessage({ id: 'maxBudgetInputLabel' })}
+                type="number"
+                variant="outlined"
+                onChange={onBudgetChange}
+                value={maxBudget}
+                margin="dense"
+                InputProps={{
+                  endAdornment:
+                    <InputAdornment position="end">
+                      {maxBudgetUnit}
+                    </InputAdornment>,
+                }}
+              />
+            </div>
+          </>
+        )}
         {Editor}
       </CardContent>
     </Card>
@@ -185,11 +172,10 @@ function AddInitialVote(props) {
 }
 
 AddInitialVote.propTypes = {
-  storyMaxBudget: PropTypes.number,
+  showBudget: PropTypes.bool.isRequired,
   marketId: PropTypes.string.isRequired,
   onBudgetChange: PropTypes.func.isRequired,
   onChange: PropTypes.func.isRequired,
-  onUnitChange: PropTypes.func.isRequired,
   newQuantity: PropTypes.number,
   maxBudget: PropTypes.any,
   maxBudgetUnit: PropTypes.any,

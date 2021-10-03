@@ -10,7 +10,6 @@ import PropTypes from 'prop-types';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { getMarketPresences, getPresenceMap } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
-import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { ACTIVE_STAGE } from '../../../constants/markets';
 import {

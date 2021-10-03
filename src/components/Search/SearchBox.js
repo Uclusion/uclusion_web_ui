@@ -143,6 +143,7 @@ function SearchBox () {
         placeholder={intl.formatMessage({ id: 'searchBoxPlaceholder' })}
         variant="outlined"
         size="small"
+        defaultValue={searchResults.search}
         InputProps={{
           startAdornment: (
             <InputAdornment position="start">

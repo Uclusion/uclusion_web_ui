@@ -115,7 +115,7 @@ export function getNotHiddenMarketDetailsForUser(state, marketPresencesState, se
       if (_.isEmpty(search)) {
         return marketShown;
       }
-      return marketShown && (results.find((item) => item.id === market.id)
+      return marketShown && (results.find((item) => (item.id === market.id)||(item.marketId === market.id))
         || parentResults.find((parentId) => parentId === market.id));
     });
     return { marketDetails: newMarketDetails };

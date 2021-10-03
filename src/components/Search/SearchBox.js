@@ -27,14 +27,7 @@ function SearchBox () {
   const [ticketState] = useContext(TicketIndexContext);
   const [commentsState] = useContext(CommentsContext);
   const [marketsState] = useContext(MarketsContext);
-
-  function clearSearch () {
-    setSearchResults({
-      search: '',
-      results: [],
-      parentResults: [],
-    });
-  }
+  const inputRef = React.useRef(null);
 
   function getInvestibleParents(result) {
     const parentResults = [];
@@ -104,6 +97,8 @@ function SearchBox () {
     });
   }
 
+  let timeout;
+
   function onSearchChange (event) {
     const { value } = event.target;
     const ticket = getTicket(ticketState, value);
@@ -111,8 +106,25 @@ function SearchBox () {
       const { marketId, investibleId } = ticket;
       navigate(history, formInvestibleLink(marketId, investibleId));
     } else {
-      updateIndex(value);
+      if (timeout) {
+        clearTimeout(timeout);
+      }
+      timeout = setTimeout(function () {
+        updateIndex(value);
+      }, 2000);
     }
+  }
+
+  function clearSearch() {
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+    inputRef.current.value = '';
+    setSearchResults({
+      search: '',
+      results: [],
+      parentResults: [],
+    });
   }
 
   return (
@@ -120,7 +132,14 @@ function SearchBox () {
       <TextField
         style={{backgroundColor: "white", maxWidth: "13rem"}}
         onChange={onSearchChange}
-        value={searchResults.search}
+        onKeyPress={(ev) => {
+          if (ev.key === 'Enter') {
+            // Do code here
+            updateIndex(ev.target.value);
+            ev.preventDefault();
+          }
+        }}
+        inputRef={inputRef}
         placeholder={intl.formatMessage({ id: 'searchBoxPlaceholder' })}
         variant="outlined"
         size="small"

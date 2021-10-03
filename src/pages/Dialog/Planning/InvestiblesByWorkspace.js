@@ -12,10 +12,6 @@ import { getMarketPresences, getPresenceMap } from '../../../contexts/MarketPres
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
-import {
-  getInvestiblesInStage,
-  getMarketInvestibles
-} from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { ACTIVE_STAGE } from '../../../constants/markets';
 import {
   getAcceptedStage,
@@ -48,7 +44,6 @@ import ExpandableAction from '../../../components/SidebarActions/Planning/Expand
 import AddIcon from '@material-ui/icons/Add'
 import Chip from '@material-ui/core/Chip'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
-import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import MenuBookIcon from '@material-ui/icons/MenuBook'
 export const LocalPlanningDragContext = React.createContext([]);
@@ -64,12 +59,10 @@ function InvestiblesByWorkspace (props) {
   const midLayout = useMediaQuery(theme.breakpoints.down('md'))
   const classes = useInvestiblesByPersonStyles()
   const [marketPresencesState] = useContext(MarketPresencesContext);
-  const [investiblesState] = useContext(InvestiblesContext);
   const [commentsState] = useContext(CommentsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [marketsState] = useContext(MarketsContext);
   const [messagesState] = useContext(NotificationsContext);
-  const [searchResults] = useContext(SearchResultsContext);
   const [anchorEl, setAnchorEl] = React.useState(null);
   // For security reasons you can't access source data while being dragged in case you are not the target website
   const [beingDraggedHack, setBeingDraggedHack] = useState({});
@@ -165,7 +158,7 @@ function InvestiblesByWorkspace (props) {
       </div>
       <LocalPlanningDragContext.Provider value={[beingDraggedHack, setBeingDraggedHack]}>
         {workspacesData.map((data) => {
-          const { market, presence, myInvestibles } = data
+          const { market, presence, myInvestibles, requiresInputInvestibles, blockedInvestibles } = data
 
           function onClick (id) {
             const link = formMarketAddInvestibleLink(market.id)
@@ -176,7 +169,7 @@ function InvestiblesByWorkspace (props) {
           const assigningPresenceRaw = marketPresences && marketPresences.find((presence) => presence.current_user)
           const assigningPresence = assigningPresenceRaw || {}
           const comments = getMarketComments(commentsState, market.id);
-          const investibles = getMarketInvestibles(investiblesState, market.id, searchResults);
+
           const acceptedStage = getAcceptedStage(marketStagesState, market.id) || {};
           const inDialogStage = getInCurrentVotingStage(marketStagesState, market.id) || {};
           const inReviewStage = getInReviewStage(marketStagesState, market.id) || {};
@@ -185,8 +178,6 @@ function InvestiblesByWorkspace (props) {
           const requiresInputStage = getRequiredInputStage(marketStagesState, market.id) || {};
           const { criticalNotificationCount, delayableNotificationCount } = sumNotificationCounts(presence, comments,
             marketPresencesState, messagesState, market.id);
-          const requiresInputInvestibles = getInvestiblesInStage(investibles, requiresInputStage.id) || [];
-          const blockedInvestibles = getInvestiblesInStage(investibles, inBlockingStage.id) || [];
           const highlightMap = {};
           requiresInputInvestibles.forEach((investible) => {
             if (hasNotVoted(investible, marketPresencesState, marketsState, comments, market.id, chosenPerson.external_id)) {

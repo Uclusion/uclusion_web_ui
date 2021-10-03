@@ -42,8 +42,12 @@ import { TourContext } from '../../contexts/TourContext/TourContext'
 import { startTour } from '../../contexts/TourContext/tourContextReducer'
 import InvestiblesByWorkspace from '../Dialog/Planning/InvestiblesByWorkspace'
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
-import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
-import { getStages } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
+import { getInvestiblesInStage, getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
+import {
+  getBlockedStage,
+  getRequiredInputStage,
+  getStages
+} from '../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { getUserInvestibles } from '../Dialog/Planning/userUtils'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
@@ -122,7 +126,11 @@ function Home(props) {
       return presence.external_id === chosenPerson.external_id
     })
     const presence = myPresence || {}
-    const investibles = getMarketInvestibles(investiblesState, market.id, searchResults)
+    const investibles = getMarketInvestibles(investiblesState, market.id, searchResults);
+    const requiresInputStage = getRequiredInputStage(marketStagesState, market.id) || {};
+    const requiresInputInvestibles = getInvestiblesInStage(investibles, requiresInputStage.id) || [];
+    const inBlockingStage = getBlockedStage(marketStagesState, market.id) || {};
+    const blockedInvestibles = getInvestiblesInStage(investibles, inBlockingStage.id) || [];
     const visibleStages = getStages(marketStagesState, market.id).filter((stage) => stage.appears_in_context)
       || []
     const visibleCountedStages = getStages(marketStagesState, market.id).filter((stage) => stage.appears_in_context &&
@@ -144,10 +152,11 @@ function Home(props) {
       visibleCountedStageIds,
       searchResults
     ) || []
-    return { market, myInvestibles, myCountedInvestibles, presence }
+    return { market, myInvestibles, myCountedInvestibles, presence, requiresInputInvestibles, blockedInvestibles }
   });
   const assignedSize = workspacesData.reduce((accumulator, currentValue) =>
-    accumulator + currentValue.myCountedInvestibles.length, 0)
+    accumulator + currentValue.myCountedInvestibles.length + currentValue.blockedInvestibles.length +
+    currentValue.requiresInputInvestibles.length, 0)
   const archiveMarkets = getHiddenMarketDetailsForUser(marketsState, marketPresencesState, searchResults);
   const noActiveNonSupportMarkets = _.isEmpty(planningDetails) && _.isEmpty(decisionDetails)
     && _.isEmpty(initiativeDetails.filter((initiative) => {
@@ -164,7 +173,8 @@ function Home(props) {
         window.scrollTo(0, 0)
       } : undefined
     },
-      createNavListItem(AgilePlanIcon, 'mySwimLanes', 'swimLanes', assignedSize),
+      createNavListItem(AgilePlanIcon, _.isEmpty(search) ? 'mySwimLanes' : 'mySearchSwimLanes',
+        'swimLanes', assignedSize),
       createNavListItem(PlaylistAddCheckIcon, 'planningMarkets', 'planningMarkets', _.size(planningDetails)),
       createNavListItem(GavelIcon, 'dialogs', 'dia0', _.size(decisionDetails)),
       createNavListItem(PollIcon, 'initiatives', 'ini0', _.size(initiativeDetails)),

@@ -257,7 +257,8 @@ const messages = defineMessages({
 
   // Navigation menu
   swimLanes: 'Assigned',
-  mySwimLanes: 'Stories',
+  mySearchSwimLanes: 'Stories',
+  mySwimLanes: 'Active Stories',
   commentAddBox: 'Add Comment',
   questions: 'Questions',
   suggestions: 'Suggestions',

@@ -368,6 +368,7 @@ const messages = defineMessages({
   planningInvestibleDecision: 'Add Dialog',
   planningInvestibleCantVote: 'Approval is optional if you\'re assigned',
   planningEstimatedCompletion: 'Estimated completion',
+  estimatedCompletionToday: 'Due',
   planningInvestibleDescription: '- Description',
   mustRemoveTodosExplanation: 'Cannot change to this stage with open TODOs',
   mustResolveAssignedQuestions: 'Cannot change to this stage with unresolved questions from an assignee',

@@ -6,6 +6,8 @@ import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { Typography, useMediaQuery, useTheme } from '@material-ui/core'
 import clsx from 'clsx'
+import { isToday } from '../../utils/timerUtils'
+import UsefulRelativeTime from '../TextFields/UseRelativeTime'
 
 export const usePlanFormStyles = makeStyles(
   theme => ({
@@ -384,43 +386,53 @@ export function Votes(props) {
 
 export function DaysEstimate(props) {
   const { readOnly, value, onChange, showLabel = true, showHelper = true } = props;
-
   const classes = usePlanFormStyles();
   const intl = useIntl();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
-
   function handleDateChange(date) {
       onChange(date);
   }
 
-  return (
-      readOnly ? (
+  if (readOnly) {
+    const dueDate = new Date(value);
+    if (isToday(dueDate)) {
+      return (
         <Typography className={classes.daysEstimation}>
-          {intl.formatMessage({ id: 'planningEstimatedCompletion' })} {intl.formatDate(value)}
+          {intl.formatMessage({ id: 'estimatedCompletionToday' })} <UsefulRelativeTime value={dueDate}/>
         </Typography>
-      ) : (
-        <React.Fragment>
-          <span className={clsx("MuiFormControl-root","MuiTextField-root",classes.datePickerContainer, classes.input)}>
-            {showLabel &&
-              <label className={clsx("MuiInputLabel-shrink", "MuiInputLabel-FormControl", "MuiFormLabel-root")}>{intl.formatMessage({ id: "daysEstimateMarketLabel" })}</label>
-            }
-            <DatePicker
-              className={clsx("MuiInputBase-root", classes.input, classes.datePicker)}
-              placeholderText={intl.formatMessage({ id: "selectDate" })}
-              selected={value}
-              onChange={handleDateChange}
-              popperPlacement={mobileLayout ? 'bottom' : 'right'}
-              minDate={new Date()}
-            />
-          </span>
-          {showHelper &&
-            <Typography>
-              {intl.formatMessage({ id: "daysEstimateHelp" })}
-            </Typography>
-          }
-        </React.Fragment>
-      )
+      );
+    }
+    return (
+      <Typography className={classes.daysEstimation}>
+        {intl.formatMessage({ id: 'planningEstimatedCompletion' })} {intl.formatDate(value)}
+      </Typography>
+    );
+  }
+
+  return (
+    <React.Fragment>
+      <span className={clsx("MuiFormControl-root","MuiTextField-root",classes.datePickerContainer, classes.input)}>
+        {showLabel &&
+          <label className={clsx("MuiInputLabel-shrink", "MuiInputLabel-FormControl", "MuiFormLabel-root")}>
+            {intl.formatMessage({ id: "daysEstimateMarketLabel" })}
+          </label>
+        }
+        <DatePicker
+          className={clsx("MuiInputBase-root", classes.input, classes.datePicker)}
+          placeholderText={intl.formatMessage({ id: "selectDate" })}
+          selected={value}
+          onChange={handleDateChange}
+          popperPlacement={mobileLayout ? 'bottom' : 'right'}
+          minDate={new Date()}
+        />
+      </span>
+      {showHelper &&
+        <Typography>
+          {intl.formatMessage({ id: "daysEstimateHelp" })}
+        </Typography>
+      }
+    </React.Fragment>
   );
 }
 

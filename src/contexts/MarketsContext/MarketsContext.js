@@ -41,14 +41,20 @@ function MarketsProvider(props) {
     myChannel.onmessage = (msg) => {
       if (msg !== broadcastId) {
         console.info(`Reloading on markets channel message ${msg} with ${broadcastId}`);
-        const lfg = new LocalForageHelper(MARKET_CONTEXT_NAMESPACE);
-        lfg.getState()
-          .then((diskState) => {
+        const store = localforage.createInstance({ storeName: TOKEN_STORAGE_KEYSPACE });
+        const localTokenHash = {};
+        store.iterate((value, key) => {
+          localTokenHash[key] = value;
+        }).then(() => {
+          setTokensHash(localTokenHash);
+          const lfg = new LocalForageHelper(MARKET_CONTEXT_NAMESPACE);
+          return lfg.getState().then((diskState) => {
             if (diskState) {
               pushIndexItems(diskState);
               dispatch(initializeState(diskState));
             }
           });
+        });
       }
     }
     setChannel(myChannel);

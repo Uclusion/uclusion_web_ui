@@ -23,7 +23,7 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 import { Button, Menu, MenuItem, Typography, useMediaQuery, useTheme } from '@material-ui/core'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
-import { FormattedMessage, useIntl } from 'react-intl'
+import { useIntl } from 'react-intl'
 import { extractUsersList, hasNotVoted } from '../../../utils/userFunctions'
 import SubSection from '../../../containers/SubSection/SubSection';
 import { SECTION_TYPE_SECONDARY_WARNING } from '../../../constants/global';
@@ -43,19 +43,16 @@ import ExpandableAction from '../../../components/SidebarActions/Planning/Expand
 import AddIcon from '@material-ui/icons/Add'
 import Chip from '@material-ui/core/Chip'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
-import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
-import MenuBookIcon from '@material-ui/icons/MenuBook'
 export const LocalPlanningDragContext = React.createContext([]);
 
 function InvestiblesByWorkspace (props) {
   const {
-    workspaces, setChosenPerson, chosenPerson, workspacesData, setWizardActive, showAddNew, showArchives
+    workspaces, setChosenPerson, chosenPerson, workspacesData
   } = props;
   const intl = useIntl();
   const history = useHistory();
   const theme = useTheme();
-  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'))
-  const midLayout = useMediaQuery(theme.breakpoints.down('md'))
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const classes = useInvestiblesByPersonStyles()
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [commentsState] = useContext(CommentsContext);
@@ -141,19 +138,6 @@ function InvestiblesByWorkspace (props) {
           onClose={handleClose}>
           {peopleChoices}
         </Menu>
-
-        {showArchives && midLayout && (
-          <SpinningIconLabelButton icon={MenuBookIcon} onClick={() => navigate(history, '/archives')}
-                                   doSpin={false}>
-            <FormattedMessage id={'homeViewArchives'}/>
-          </SpinningIconLabelButton>
-        )}
-
-        {showAddNew && midLayout && (
-          <SpinningIconLabelButton icon={AddIcon} onClick={() => setWizardActive(true)} doSpin={false}>
-            <FormattedMessage id={'addNew'}/>
-          </SpinningIconLabelButton>
-        )}
       </div>
       <LocalPlanningDragContext.Provider value={[beingDraggedHack, setBeingDraggedHack]}>
         {workspacesData.map((data) => {

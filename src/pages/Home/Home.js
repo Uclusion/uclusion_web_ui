@@ -3,8 +3,8 @@ import { useHistory } from 'react-router';
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import MenuBookIcon from '@material-ui/icons/MenuBook'
-import { makeStyles, Typography } from '@material-ui/core'
-import { useIntl } from 'react-intl'
+import { makeStyles, Typography, useMediaQuery, useTheme } from '@material-ui/core'
+import { FormattedMessage, useIntl } from 'react-intl'
 import Screen from '../../containers/Screen/Screen'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import {
@@ -52,6 +52,7 @@ import { getUserInvestibles } from '../Dialog/Planning/userUtils'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
+import SpinningIconLabelButton from '../../components/Buttons/SpinningIconLabelButton'
 
 const useStyles = makeStyles(() => ({
     spacer: {
@@ -74,6 +75,8 @@ function Home(props) {
   const { hidden } = props;
   const history = useHistory();
   const intl = useIntl();
+  const theme = useTheme();
+  const midLayout = useMediaQuery(theme.breakpoints.down('md'));
   const [searchResults] = useContext(SearchResultsContext);
   const [marketsState] = useContext(MarketsContext);
   const [accountState] = useContext(AccountContext);
@@ -201,6 +204,21 @@ function Home(props) {
         onFinish={onWizardFinish}
         showCancel={!noActiveNonSupportMarkets}
         onCancel={() => setWizardActive(false)}/>
+      {(_.size(archiveMarkets) > 0 || showAddNew) && (
+        <div style={{ display: 'flex', marginBottom: '2rem' }}>
+          {_.size(archiveMarkets) > 0 && midLayout && (
+            <SpinningIconLabelButton icon={MenuBookIcon} onClick={() => navigate(history, '/archives')}
+                                     doSpin={false}>
+              <FormattedMessage id={'homeViewArchives'}/>
+            </SpinningIconLabelButton>
+          )}
+          {showAddNew && midLayout && (
+            <SpinningIconLabelButton icon={AddIcon} onClick={() => setWizardActive(true)} doSpin={false}>
+              <FormattedMessage id={'addNew'}/>
+            </SpinningIconLabelButton>
+          )}
+        </div>
+      )}
       {assignedSize > 0 && (
         <div className={classes.titleContainer}>
           {<AgilePlanIcon htmlColor="#333333"/>}
@@ -211,9 +229,7 @@ function Home(props) {
       )}
       <div id="swimLanes">
         <InvestiblesByWorkspace workspaces={planningDetails} chosenPerson={chosenPerson}
-                                showAddNew={showAddNew} showArchives={_.size(archiveMarkets) > 0}
-                                setChosenPerson={setChosenPerson} workspacesData={workspacesData}
-                                setWizardActive={setWizardActive}/>
+                                setChosenPerson={setChosenPerson} workspacesData={workspacesData} />
       </div>
       {!_.isEmpty(planningDetails) && (
         <React.Fragment>

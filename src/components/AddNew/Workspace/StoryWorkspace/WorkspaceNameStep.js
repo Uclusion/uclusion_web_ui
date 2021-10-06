@@ -14,6 +14,7 @@ import { MarketPresencesContext } from '../../../../contexts/MarketPresencesCont
 import { CommentsContext } from '../../../../contexts/CommentsContext/CommentsContext'
 import { OperationInProgressContext } from '../../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { doCreateStoryWorkspace } from './workspaceCreator'
+import { formMarketLink } from '../../../../utils/marketIdPathFunctions'
 
 function WorkspaceNameStep (props) {
   const { updateFormData, formData, parentInvestibleId, parentMarketId } = props;
@@ -42,7 +43,7 @@ function WorkspaceNameStep (props) {
     return doCreateStoryWorkspace(dispatchers, formData, updateFormData, intl)
       .then((marketId) => {
         setOperationRunning(false);
-        return ({ ...formData, marketId });
+        return ({ ...formData, link: formMarketLink(marketId) });
       })
   }
 

@@ -506,6 +506,10 @@ function InitiativesAndDialogs(props) {
       } = market;
       const investibles = getMarketInvestibles(investiblesState, marketId);
       const baseInvestible = investibles[0];
+      if (!baseInvestible) {
+        console.warn(`Missing investible for market id ${marketId}`);
+        return React.Fragment;
+      }
       const { investible } = baseInvestible;
       const { name, id: investibleId } = investible;
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
@@ -533,7 +537,7 @@ function InitiativesAndDialogs(props) {
         'name'
       ).reverse();
       const voting = [];
-      sortedVotesArray.map((sortedVote) => sortedVote.investments.map((investment) => voting.push(investment)));
+      sortedVotesArray.forEach((sortedVote) => sortedVote.investments.forEach((investment) => voting.push(investment)));
 
       const votesFor = voting.filter(vote => {return vote.y > 0 });
       const votesAgainst = voting.filter(vote => { return vote.y < 0});

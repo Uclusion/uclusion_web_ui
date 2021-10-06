@@ -232,11 +232,6 @@ export function formMarketEditLink(marketId) {
   return formatMarketLinkWithPrefix('marketEdit', marketId);
 }
 
-export function formMarketManageLink(marketId, participations) {
-  const manageLink = formatMarketLinkWithPrefix('marketManage', marketId);
-  return participations? manageLink + '#participation=true' : manageLink;
-}
-
 export function formMarketAddInvestibleLink(marketId) {
   return formatMarketLinkWithPrefix('investibleAdd', marketId);
 }

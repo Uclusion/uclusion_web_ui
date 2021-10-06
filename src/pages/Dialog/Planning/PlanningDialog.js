@@ -32,7 +32,11 @@ import CommentBox, { getSortedRoots } from '../../../containers/CommentBox/Comme
 import { ACTIVE_STAGE } from '../../../constants/markets'
 import { getUserInvestibles, sumNotificationCounts } from './userUtils'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { getMarketPresences, getPresenceMap } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import {
+  getMarketPresences,
+  getPresenceMap,
+  marketHasOnlyCurrentUser
+} from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import DismissableText from '../../../components/Notifications/DismissableText'
 import {
   SECTION_SUB_HEADER,
@@ -72,6 +76,7 @@ import { getThreadIds } from '../../../utils/commentFunctions'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
+import DialogManage from '../DialogManage'
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -110,10 +115,12 @@ function PlanningDialog(props) {
   // For security reasons you can't access source data while being dragged in case you are not the target website
   const [beingDraggedHack, setBeingDraggedHack] = useState({});
   const [pageStateFull, pageDispatch] = usePageStateReducer('market');
+  const isDraft = marketHasOnlyCurrentUser(marketPresencesState, marketId);
   const [pageState, updatePageState, pageStateReset] = getPageReducerPage(pageStateFull, pageDispatch, marketId,
-    {sectionOpen: 'workspaceMain'});
+    {sectionOpen: 'workspaceMain', collaboratorsOpen: isDraft });
   const {
-    sectionOpen
+    sectionOpen,
+    collaboratorsOpen
   } = pageState;
   function setSectionOpen(section) {
     updatePageState({sectionOpen: section});
@@ -324,9 +331,13 @@ function PlanningDialog(props) {
         steps={workspaceInvitedUserSteps(myPresence)}
       />
       <div id="workspaceMain" style={{ display: isSectionOpen('workspaceMain') ? 'block' : 'none' }}>
+        {collaboratorsOpen && (
+          <DialogManage marketId={marketId} onClose={() => updatePageState({collaboratorsOpen: false})}/>
+        )}
         <DismissableText textId="planningEditHelp"/>
         <Summary market={market} hidden={hidden} activeMarket={activeMarket} inArchives={inArchives}
-                 pageState={pageState} updatePageState={updatePageState} pageStateReset={pageStateReset}/>
+                 pageState={pageState} updatePageState={updatePageState} pageStateReset={pageStateReset}
+                 isDraft={isDraft}/>
       </div>
       <LocalPlanningDragContext.Provider value={[beingDraggedHack, setBeingDraggedHack]}>
         <div id="storiesSection"

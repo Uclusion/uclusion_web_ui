@@ -18,6 +18,7 @@ import { OperationInProgressContext } from '../../../../contexts/OperationInProg
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import { getMarketUnits } from '../../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import _ from 'lodash'
+import { formMarketLink } from '../../../../utils/marketIdPathFunctions'
 
 function BudgetOptionsStep (props) {
   const { updateFormData, formData } = props;
@@ -44,7 +45,7 @@ function BudgetOptionsStep (props) {
     return doCreateStoryWorkspace(dispatchers, formData, updateFormData, intl)
       .then((marketId) => {
         setOperationRunning(false);
-        return ({ ...formData, marketId });
+        return ({ ...formData, link: formMarketLink(marketId) });
       })
   }
 

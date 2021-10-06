@@ -5,10 +5,7 @@ import { Card, CardActions, CardContent, Grid, Typography, useMediaQuery, useThe
 import { makeStyles } from '@material-ui/styles'
 import clsx from 'clsx'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
-import {
-  getMarketPresences,
-  marketHasOnlyCurrentUser
-} from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import DialogActions from '../../Home/DialogActions'
 import CardType, { AGILE_PLAN_TYPE } from '../../../components/CardType'
 import ParentSummary from '../ParentSummary'
@@ -202,7 +199,8 @@ const useStyles = makeStyles(theme => ({
 }));
 
 function Summary(props) {
-  const { market, investibleId, hidden, activeMarket, inArchives, pageState, updatePageState, pageStateReset } = props
+  const { market, investibleId, hidden, activeMarket, inArchives, pageState,
+    updatePageState, pageStateReset, isDraft } = props
   const history = useHistory()
   const intl = useIntl()
   const classes = useStyles()
@@ -240,7 +238,6 @@ function Summary(props) {
       lockedByName = name;
     }
   }
-  const isDraft = marketHasOnlyCurrentUser(marketPresencesState, id);
   const myPresence =
     marketPresences.find(presence => presence.current_user) || {};
   const metaClasses = useMetaDataStyles();
@@ -328,6 +325,7 @@ function Summary(props) {
               initiativeId={investibleId}
               mySetBeingEdited={mySetBeingEdited}
               beingEdited={beingEdited}
+              updatePageState={updatePageState}
             />
           </CardActions>
           <dl className={metaClasses.root}>

@@ -65,6 +65,7 @@ import { deleteSingleMessage } from '../../../api/users'
 import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import PlaylistAddCheckIcon from '@material-ui/icons/PlaylistAddCheck'
+import DialogManage from '../../Dialog/DialogManage'
 
 const useStyles = makeStyles(
   theme => ({
@@ -201,10 +202,13 @@ function InitiativeInvestible(props) {
   const [searchResults] = useContext(SearchResultsContext);
   const [pageStateFull, pageDispatch] = usePageStateReducer('investible');
   const [pageState, updatePageState, pageStateReset] =
-    getPageReducerPage(pageStateFull, pageDispatch, investibleId);
+    getPageReducerPage(pageStateFull, pageDispatch, investibleId,
+      { collaboratorsOpen: isDraft, changeExpires: false });
   const {
     beingEdited,
-    showDiff
+    showDiff,
+    collaboratorsOpen,
+    changeExpires
   } = pageState;
   const [votingPageStateFull, votingPageDispatch] = usePageStateReducer('voting');
   const [votingPageState, updateVotingPageState, votingPageStateReset] =
@@ -332,6 +336,12 @@ function InitiativeInvestible(props) {
         continuous
         hideBackButton
       />
+      {collaboratorsOpen && (
+        <DialogManage marketId={marketId} onClose={() => updatePageState({collaboratorsOpen: false})}/>
+      )}
+      {changeExpires && (
+        <DialogManage marketId={marketId} expires={true} onClose={() => updatePageState({changeExpires: false})}/>
+      )}
       {!isAdmin && !inArchives && (
         <DismissableText textId='initiativeVotingHelp'/>
       )}
@@ -377,6 +387,7 @@ function InitiativeInvestible(props) {
                 initiativeId={investibleId}
                 mySetBeingEdited={mySetBeingEdited}
                 beingEdited={beingEdited}
+                updatePageState={updatePageState}
               />
             </CardActions>
             <dl className={clsx(metaClasses.root, classes.flexCenter)}>

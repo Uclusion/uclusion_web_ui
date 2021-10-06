@@ -21,8 +21,9 @@ function ManageUsers (props) {
       <CardContent className={clsx(classes.cardContent, classes.nestedCard)} style={{paddingBottom: '1rem'}}>
         <AddNewUsers market={market} />
       </CardContent>
-      <CardActions className={classes.cardActions}>
-        <SpinningIconLabelButton onClick={onCancel} doSpin={false} icon={Clear} id='addressAddCancel'>
+      <CardActions style={{display: 'flex'}}>
+        <SpinningIconLabelButton onClick={onCancel} doSpin={false} icon={Clear} id='addressAddCancel'
+        style={{marginLeft: 'auto', marginRight: 'auto'}}>
           {intl.formatMessage({ id: 'addressAddCancelLabel' })}
         </SpinningIconLabelButton>
       </CardActions>

@@ -64,7 +64,9 @@ export function createMyInitiative (dispatchers, formData) {
             editorController(editorReset());
           }
           addInvestible(investiblesDispatch, diffDispatch, investible);
-          return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, createdMarketId, token).then(() => createdMarketId);
+          return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, createdMarketId, token).then(() => {
+            return {marketId: createdMarketId, investibleId: investible.investible.id};
+          });
         });
     });
 }

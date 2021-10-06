@@ -17,6 +17,7 @@ import { MarketPresencesContext } from '../../../../contexts/MarketPresencesCont
 import { CommentsContext } from '../../../../contexts/CommentsContext/CommentsContext'
 import { OperationInProgressContext } from '../../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { doCreateStoryWorkspace } from './workspaceCreator'
+import { formMarketLink } from '../../../../utils/marketIdPathFunctions'
 
 export const useOptionsStyles = makeStyles(theme => {
   return {
@@ -63,7 +64,7 @@ function AdvancedOptionsStep (props) {
     return doCreateStoryWorkspace(dispatchers, formData, updateFormData, intl)
       .then((marketId) => {
         setOperationRunning(false);
-        return ({ ...formData, marketId });
+        return ({ ...formData, link: formMarketLink(marketId) });
       })
   }
 

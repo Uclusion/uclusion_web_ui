@@ -67,6 +67,7 @@ import { deleteSingleMessage } from '../../../api/users'
 import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import DismissableText from '../../../components/Notifications/DismissableText'
+import DialogManage from '../DialogManage'
 
 const useStyles = makeStyles(
   theme => ({
@@ -207,10 +208,13 @@ function DecisionDialog(props) {
   const myMessage = findMessageOfTypeAndId(marketId, messagesState);
   const diff = getDiff(diffState, marketId);
   const [pageStateFull, pageDispatch] = usePageStateReducer('market');
-  const [pageState, updatePageState, pageStateReset] = getPageReducerPage(pageStateFull, pageDispatch, marketId);
+  const [pageState, updatePageState, pageStateReset] = getPageReducerPage(pageStateFull, pageDispatch, marketId,
+    { collaboratorsOpen: isDraft, changeExpires: false });
   const {
     beingEdited,
-    showDiff
+    showDiff,
+    collaboratorsOpen,
+    changeExpires
   } = pageState;
   const [investibleAddStateFull, investibleAddDispatch] = usePageStateReducer('investibleAdd');
   const [investibleAddState, updateInvestibleAddState, investibleAddStateReset] =
@@ -326,6 +330,12 @@ function DecisionDialog(props) {
         name={INVITE_DIALOG_FIRST_VIEW}
         steps={inviteDialogSteps(user)}
       />
+      {collaboratorsOpen && (
+        <DialogManage marketId={marketId} onClose={() => updatePageState({collaboratorsOpen: false})}/>
+      )}
+      {changeExpires && (
+        <DialogManage marketId={marketId} expires={true} onClose={() => updatePageState({changeExpires: false})}/>
+      )}
       <DismissableText textId="dialogHelp"/>
       <Card className={classes.root}>
         <CardType
@@ -364,6 +374,7 @@ function DecisionDialog(props) {
                 marketId={marketId}
                 mySetBeingEdited={mySetBeingEdited}
                 beingEdited={beingEdited}
+                updatePageState={updatePageState}
               />
             </CardActions>
             <dl className={clsx(metaClasses.root, classes.flexCenter)}>

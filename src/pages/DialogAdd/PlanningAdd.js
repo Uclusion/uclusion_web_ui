@@ -1,7 +1,7 @@
 import React from 'react'
 import { useHistory, useLocation } from 'react-router'
 import queryString from 'query-string'
-import { formMarketManageLink, navigate } from '../../utils/marketIdPathFunctions'
+import { navigate } from '../../utils/marketIdPathFunctions'
 import DismissableText from '../../components/Notifications/DismissableText'
 import StoryWorkspaceWizard from '../../components/AddNew/Workspace/StoryWorkspace/StoryWorkspaceWizard'
 
@@ -13,8 +13,7 @@ function PlanningAdd() {
   const { investibleId: parentInvestibleId, id: parentMarketId } = values;
 
   function onFinish(formData) {
-    const { marketId } = formData;
-    const link = formMarketManageLink(marketId, true);
+    const { link } = formData;
     navigate(history, link);
   }
   return (

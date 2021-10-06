@@ -17,7 +17,6 @@ import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE, } from '../../constants/
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import {
   baseNavListItem,
-  formMarketManageLink,
   navigate
 } from '../../utils/marketIdPathFunctions'
 import { getAndClearRedirect } from '../../utils/redirectUtils'
@@ -113,9 +112,8 @@ function Home(props) {
     INITIATIVE_TYPE), 'created_at').reverse();
 
   function onWizardFinish (formData) {
-    const { marketId } = formData;
+    const { link } = formData;
     setWizardActive(false);
-    const link = formMarketManageLink(marketId, true);
     navigate(history, link);
   }
 

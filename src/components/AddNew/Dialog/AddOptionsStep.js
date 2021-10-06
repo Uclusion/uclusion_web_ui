@@ -15,6 +15,7 @@ import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepContainer from '../WizardStepContainer';
 import { editorReset } from '../../TextEditors/quillHooks'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { formMarketLink } from '../../../utils/marketIdPathFunctions'
 
 function AddOptionsStep (props) {
   const [, diffDispatch] = useContext(DiffContext);
@@ -85,7 +86,7 @@ function AddOptionsStep (props) {
           editorController(editorReset());
         }
         setOperationRunning(false);
-        return ({ ...formData, marketId });
+        return ({ ...formData, link: formMarketLink(marketId) });
       });
   }
 

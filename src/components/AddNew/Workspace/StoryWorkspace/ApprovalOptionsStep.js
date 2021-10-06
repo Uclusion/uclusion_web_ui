@@ -16,6 +16,7 @@ import { VoteExpiration, Votes } from '../../../AgilePlan'
 import { MarketStagesContext } from '../../../../contexts/MarketStagesContext/MarketStagesContext';
 import { useOptionsStyles } from './AdvancedOptionsStep'
 import { OperationInProgressContext } from '../../../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { formMarketLink } from '../../../../utils/marketIdPathFunctions'
 
 function ApprovalOptionsStep (props) {
   const { updateFormData, formData } = props;
@@ -42,7 +43,7 @@ function ApprovalOptionsStep (props) {
     return doCreateStoryWorkspace(dispatchers, formData, updateFormData, intl)
       .then((marketId) => {
         setOperationRunning(false);
-        return ({ ...formData, marketId });
+        return ({ ...formData, link: formMarketLink(marketId) });
       });
   }
 

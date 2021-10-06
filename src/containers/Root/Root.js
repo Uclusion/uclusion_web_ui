@@ -17,7 +17,6 @@ import InvestibleEdit from '../../pages/Investible/InvestibleEdit'
 import InvestibleAdd from '../../pages/Dialog/InvestibleAdd'
 import DialogAdd from '../../pages/DialogAdd/DialogAdd'
 import DialogEdit from '../../pages/Dialog/DialogEdit'
-import DialogManage from '../../pages/Dialog/DialogManage'
 import SlackInvite from '../../pages/Invites/SlackInvite'
 import ChangePassword from '../../pages/Authentication/ChangePassword'
 import ChangeNotificationPreferences from '../../pages/About/ChangeNotificationPreferences'
@@ -101,10 +100,6 @@ function Root() {
     return (action !== 'marketEdit') || !marketId;
   }
 
-  function hideDialogManage() {
-    return (action !== 'marketManage') || !marketId;
-  }
-
   function hideDialogArchives() {
     return (action !== 'dialogArchives');
   }
@@ -123,8 +118,8 @@ function Root() {
 
   const hidePNF = !(hideMarket() && hideSupport() && hideHome() && hideInvestible()
     && hideDialogArchives() && hideArchvies() && hideInvestibleEdit() && hideInvestibleAdd()
-    && hideAddMarket() && hideDialogEdit() && hideDialogManage() && hideSlackInvite() && hideChangePassword()
-    && hideChangeNotification() && hideBillingHome());
+    && hideAddMarket() && hideDialogEdit() && hideSlackInvite() && hideChangePassword() && hideChangeNotification()
+    && hideBillingHome());
 
   useEffect(() => {
     function pegView(isEntry) {
@@ -194,7 +189,6 @@ function Root() {
             <InvestibleAdd hidden={hideInvestibleAdd()}/>
             <DialogAdd hidden={hideAddMarket()}/>
             <DialogEdit hidden={hideDialogEdit()}/>
-            <DialogManage hidden={hideDialogManage()}/>
             <SlackInvite hidden={hideSlackInvite()}/>
             <ChangePassword hidden={hideChangePassword()}/>
             <ChangeNotificationPreferences hidden={hideChangeNotification()}/>

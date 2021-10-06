@@ -18,6 +18,7 @@ import { MarketStagesContext } from '../../../../contexts/MarketStagesContext/Ma
 import ShowInVerifiedStageAge from '../../../../pages/Dialog/Planning/ShowInVerifiedStageAge'
 import { useOptionsStyles } from './AdvancedOptionsStep'
 import { OperationInProgressContext } from '../../../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { formMarketLink } from '../../../../utils/marketIdPathFunctions'
 
 
 function SwimlanesOptionsStep (props) {
@@ -45,7 +46,7 @@ function SwimlanesOptionsStep (props) {
     return doCreateStoryWorkspace(dispatchers, formData, updateFormData, intl)
       .then((marketId) => {
         setOperationRunning(false);
-        return ({ ...formData, marketId });
+        return ({ ...formData, link: formMarketLink(marketId) });
       });
   }
 

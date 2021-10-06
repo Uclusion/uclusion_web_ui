@@ -5,7 +5,7 @@ import { IconButton, makeStyles, Tooltip, useMediaQuery, useTheme } from '@mater
 import {
   decomposeMarketPath,
   formInvestibleEditLink,
-  formMarketEditLink, formMarketManageLink,
+  formMarketEditLink,
   navigate
 } from '../../utils/marketIdPathFunctions'
 import { useHistory, useLocation } from 'react-router'
@@ -55,7 +55,8 @@ function DialogActions(props) {
     initiativeId,
     hideEdit,
     beingEdited,
-    mySetBeingEdited
+    mySetBeingEdited,
+    updatePageState
   } = props;
   const activeMarket = marketStage === ACTIVE_STAGE;
   const inArchives = !activeMarket || !isFollowing;
@@ -121,7 +122,7 @@ function DialogActions(props) {
           >
             <IconButton
               id="adminEditExpiration"
-              onClick={() => navigate(history, `${formMarketManageLink(marketId)}#expires=true`)}
+              onClick={() => updatePageState({changeExpires: true})}
             >
               <AlarmAddIcon htmlColor={ACTION_BUTTON_COLOR}/>
             </IconButton>
@@ -187,7 +188,7 @@ function DialogActions(props) {
       >
         <IconButton
           id="adminManageCollaborators"
-          onClick={() => navigate(history, `${formMarketManageLink(marketId)}#participation=true`)}
+          onClick={() => updatePageState({collaboratorsOpen: true})}
         >
           <PersonAddIcon
             htmlColor={marketPresences.length < 2 ? HIGHLIGHTED_BUTTON_COLOR : ACTION_BUTTON_COLOR}/>
@@ -221,7 +222,8 @@ DialogActions.propTypes = {
   isAdmin: PropTypes.bool,
   isFollowing: PropTypes.bool,
   beingEdited: PropTypes.string,
-  mySetBeingEdited: PropTypes.func
+  mySetBeingEdited: PropTypes.func,
+  updatePageState: PropTypes.func
 };
 
 DialogActions.defaultProps = {
@@ -229,7 +231,8 @@ DialogActions.defaultProps = {
   isFollowing: true,
   initiativeId: '',
   beingEdited: undefined,
-  mySetBeingEdited: () => {}
+  mySetBeingEdited: () => {},
+  updatePageState: () => {}
 };
 
 export default DialogActions;

@@ -6,7 +6,7 @@ import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { Typography, useMediaQuery, useTheme } from '@material-ui/core'
 import clsx from 'clsx'
-import { isToday } from '../../utils/timerUtils'
+import { isInPast } from '../../utils/timerUtils'
 import UsefulRelativeTime from '../TextFields/UseRelativeTime'
 
 export const usePlanFormStyles = makeStyles(
@@ -396,7 +396,7 @@ export function DaysEstimate(props) {
 
   if (readOnly) {
     const dueDate = new Date(value);
-    if (isToday(dueDate)) {
+    if (isInPast(dueDate)) {
       return (
         <Typography className={classes.daysEstimation}>
           {intl.formatMessage({ id: 'estimatedCompletionToday' })} <UsefulRelativeTime value={dueDate}/>

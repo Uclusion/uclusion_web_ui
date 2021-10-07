@@ -32,7 +32,7 @@ function DialogManage(props) {
 
   if (expires) {
     return (
-      <Card>
+      <Card style={{marginBottom: '1rem'}}>
         <CardType className={classes.cardType}/>
         <CardContent className={classes.cardContent}>
           <Typography>
@@ -48,7 +48,7 @@ function DialogManage(props) {
   }
 
   return (
-    <Card>
+    <Card style={{marginBottom: '1rem'}}>
       <Typography className={classes.cardTitle}>
         {intl.formatMessage({ id: 'initiativeAddress' })}
       </Typography>

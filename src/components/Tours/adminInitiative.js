@@ -1,13 +1,11 @@
 
-export function adminInitiativeSteps(variables) {
-  const { name } = variables;
+export function adminInitiativeSteps() {
   return [
     {
       disableBeacon: true,
-      target: '#initiativeMain',
-      placement: 'center',
-      title: `Welcome ${name}!`,
-      content: 'Uclusion Initiatives let your collaborators vote for or against your proposal.',
+      target: '#emailInput',
+      placement: 'bottom',
+      content: 'Add collaborators here to let us send emails for you.',
     },
     {
       disableBeacon: true,
@@ -15,13 +13,6 @@ export function adminInitiativeSteps(variables) {
       placement: 'left',
       content: 'You can extend the deadline by clicking on the clock.',
     },
-    {
-      disableBeacon: true,
-      placement: 'left',
-      target: '#adminManageCollaborators',
-      content: 'This initiative is all ready to go, so send it to your team by adding collaborators here.',
-    },
-
   ]
 }
 

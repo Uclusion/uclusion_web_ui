@@ -98,7 +98,7 @@ function PlanningDialog(props) {
   const intl = useIntl();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'))
-  const { id: marketId, market_stage: marketStage } = market
+  const { id: marketId, market_stage: marketStage, created_by: createdBy } = market
   const activeMarket = marketStage === ACTIVE_STAGE
   const inArchives = !activeMarket || (myPresence && !myPresence.following);
   const isAdmin = myPresence.is_admin;
@@ -328,7 +328,7 @@ function PlanningDialog(props) {
       <UclusionTour
         name={INVITED_USER_WORKSPACE}
         hidden={hidden}
-        steps={workspaceInvitedUserSteps(myPresence)}
+        steps={workspaceInvitedUserSteps({name: myPresence.name, isCreator: createdBy === myPresence.id})}
       />
       <div id="workspaceMain" style={{ display: isSectionOpen('workspaceMain') ? 'block' : 'none' }}>
         {collaboratorsOpen && (

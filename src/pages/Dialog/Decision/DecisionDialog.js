@@ -328,7 +328,7 @@ function DecisionDialog(props) {
       <UclusionTour
         hidden={hidden}
         name={INVITE_DIALOG_FIRST_VIEW}
-        steps={inviteDialogSteps(user)}
+        steps={inviteDialogSteps({name: user.name, isCreator: createdBy === myPresence.id})}
       />
       {collaboratorsOpen && (
         <DialogManage marketId={marketId} onClose={() => updatePageState({collaboratorsOpen: false})}/>

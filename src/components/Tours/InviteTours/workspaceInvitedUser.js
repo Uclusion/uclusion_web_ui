@@ -1,21 +1,26 @@
 
 export function workspaceInvitedUserSteps (variables) {
   const {
-    name
+    name,
+    isCreator
   } = variables;
-    const steps = [{
-      disableBeacon: true,
-      target: 'body',
-      placement: 'center',
-      title: `Welcome ${name}!`,
-      content: 'Workspaces are where your team collaborates to get things done without meetings.'
-    },
-    {
-      disableBeacon: true,
-      target: '#adminManageCollaborators',
-      placement: 'bottom',
-      content: 'Click here to invite others by magic link or let us send emails for you.',
-    }];
+    const steps = [];
+    if (isCreator) {
+      steps.push({
+        disableBeacon: true,
+        target: '#emailInput',
+        placement: 'bottom',
+        content: 'Add collaborators here to let us send emails for you.',
+      });
+    } else {
+      steps.push({
+        disableBeacon: true,
+        target: 'body',
+        placement: 'center',
+        title: `Welcome ${name}!`,
+        content: 'Workspaces are where your team collaborates to get things done without meetings.'
+      });
+    }
     if (document.getElementById('navList')) {
       steps.push({
         disableBeacon: true,

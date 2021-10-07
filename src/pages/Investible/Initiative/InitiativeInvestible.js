@@ -201,21 +201,6 @@ function InitiativeInvestible(props) {
   const diff = getDiff(diffState, investibleId);
   const [searchResults] = useContext(SearchResultsContext);
   const [pageStateFull, pageDispatch] = usePageStateReducer('investible');
-  const [pageState, updatePageState, pageStateReset] =
-    getPageReducerPage(pageStateFull, pageDispatch, investibleId,
-      { collaboratorsOpen: isDraft, changeExpires: false });
-  const {
-    beingEdited,
-    showDiff,
-    collaboratorsOpen,
-    changeExpires
-  } = pageState;
-  const [votingPageStateFull, votingPageDispatch] = usePageStateReducer('voting');
-  const [votingPageState, updateVotingPageState, votingPageStateReset] =
-    getPageReducerPage(votingPageStateFull, votingPageDispatch, investibleId);
-
-  const cognitoUser = useContext(CognitoUserContext) || {};
-  const { name } = investible;
   const {
     id: marketId,
     market_stage: marketStage,
@@ -228,6 +213,21 @@ function InitiativeInvestible(props) {
     parent_investible_id: parentInvestibleId,
     attached_files: attachedFiles,
   } = market;
+  const [pageState, updatePageState, pageStateReset] =
+    getPageReducerPage(pageStateFull, pageDispatch, investibleId,
+      { collaboratorsOpen: isDraft && myPresence.id === createdBy, changeExpires: false });
+  const {
+    beingEdited,
+    showDiff,
+    collaboratorsOpen,
+    changeExpires
+  } = pageState;
+  const [votingPageStateFull, votingPageDispatch] = usePageStateReducer('voting');
+  const [votingPageState, updateVotingPageState, votingPageStateReset] =
+    getPageReducerPage(votingPageStateFull, votingPageDispatch, investibleId);
+
+  const cognitoUser = useContext(CognitoUserContext) || {};
+  const { name } = investible;
   const safeMarketInfos = marketInfos || [];
   const thisMarketInfo = safeMarketInfos.find((info) => info.market_id === marketId);
   const { children } = thisMarketInfo || {};

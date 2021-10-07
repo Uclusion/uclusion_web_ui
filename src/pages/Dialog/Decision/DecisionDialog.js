@@ -209,7 +209,7 @@ function DecisionDialog(props) {
   const diff = getDiff(diffState, marketId);
   const [pageStateFull, pageDispatch] = usePageStateReducer('market');
   const [pageState, updatePageState, pageStateReset] = getPageReducerPage(pageStateFull, pageDispatch, marketId,
-    { collaboratorsOpen: isDraft, changeExpires: false });
+    { collaboratorsOpen: isDraft && myPresence.id === createdBy, changeExpires: false });
   const {
     beingEdited,
     showDiff,

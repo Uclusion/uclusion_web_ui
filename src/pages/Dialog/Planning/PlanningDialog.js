@@ -97,9 +97,9 @@ function PlanningDialog(props) {
   const [marketsState] = useContext(MarketsContext);
   const intl = useIntl();
   const theme = useTheme();
-  const mobileLayout = useMediaQuery(theme.breakpoints.down('md'))
-  const { id: marketId, market_stage: marketStage, created_by: createdBy } = market
-  const activeMarket = marketStage === ACTIVE_STAGE
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
+  const { name: marketName, id: marketId, market_stage: marketStage, created_by: createdBy } = market;
+  const activeMarket = marketStage === ACTIVE_STAGE;
   const inArchives = !activeMarket || (myPresence && !myPresence.following);
   const isAdmin = myPresence.is_admin;
   const breadCrumbs = inArchives
@@ -110,14 +110,13 @@ function PlanningDialog(props) {
   const notTodoComments = unResolvedMarketComments.filter(comment =>
     [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE, REPLY_TYPE].includes(comment.comment_type)) || [];
   const allowedCommentTypes = [QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE];
-  const { name: marketName } = market;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   // For security reasons you can't access source data while being dragged in case you are not the target website
   const [beingDraggedHack, setBeingDraggedHack] = useState({});
   const [pageStateFull, pageDispatch] = usePageStateReducer('market');
   const isDraft = marketHasOnlyCurrentUser(marketPresencesState, marketId);
   const [pageState, updatePageState, pageStateReset] = getPageReducerPage(pageStateFull, pageDispatch, marketId,
-    {sectionOpen: 'workspaceMain', collaboratorsOpen: isDraft });
+    {sectionOpen: 'workspaceMain', collaboratorsOpen: isDraft && myPresence.id === createdBy });
   const {
     sectionOpen,
     collaboratorsOpen

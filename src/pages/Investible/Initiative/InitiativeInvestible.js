@@ -386,7 +386,7 @@ function InitiativeInvestible(props) {
                 marketId={marketId}
                 initiativeId={investibleId}
                 mySetBeingEdited={mySetBeingEdited}
-                beingEdited={beingEdited}
+                pageState={pageState}
                 updatePageState={updatePageState}
               />
             </CardActions>

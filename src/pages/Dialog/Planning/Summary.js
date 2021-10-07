@@ -324,7 +324,7 @@ function Summary(props) {
               marketId={id}
               initiativeId={investibleId}
               mySetBeingEdited={mySetBeingEdited}
-              beingEdited={beingEdited}
+              pageState={pageState}
               updatePageState={updatePageState}
             />
           </CardActions>

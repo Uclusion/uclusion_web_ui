@@ -373,8 +373,8 @@ function DecisionDialog(props) {
                 parentInvestibleId={parentInvestibleId}
                 marketId={marketId}
                 mySetBeingEdited={mySetBeingEdited}
-                beingEdited={beingEdited}
                 updatePageState={updatePageState}
+                pageState={pageState}
               />
             </CardActions>
             <dl className={clsx(metaClasses.root, classes.flexCenter)}>

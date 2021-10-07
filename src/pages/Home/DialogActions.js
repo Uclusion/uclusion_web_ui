@@ -54,10 +54,15 @@ function DialogActions(props) {
     isFollowing,
     initiativeId,
     hideEdit,
-    beingEdited,
     mySetBeingEdited,
-    updatePageState
+    updatePageState,
+    pageState
   } = props;
+  const {
+    beingEdited,
+    collaboratorsOpen,
+    changeExpires
+  } = pageState;
   const activeMarket = marketStage === ACTIVE_STAGE;
   const inArchives = !activeMarket || !isFollowing;
   const classes = useStyles();
@@ -123,6 +128,7 @@ function DialogActions(props) {
             <IconButton
               id="adminEditExpiration"
               onClick={() => updatePageState({changeExpires: true})}
+              disabled={changeExpires}
             >
               <AlarmAddIcon htmlColor={ACTION_BUTTON_COLOR}/>
             </IconButton>
@@ -189,6 +195,7 @@ function DialogActions(props) {
         <IconButton
           id="adminManageCollaborators"
           onClick={() => updatePageState({collaboratorsOpen: true})}
+          disabled={collaboratorsOpen}
         >
           <PersonAddIcon
             htmlColor={marketPresences.length < 2 ? HIGHLIGHTED_BUTTON_COLOR : ACTION_BUTTON_COLOR}/>
@@ -221,9 +228,9 @@ DialogActions.propTypes = {
   initiativeId: PropTypes.string,
   isAdmin: PropTypes.bool,
   isFollowing: PropTypes.bool,
-  beingEdited: PropTypes.string,
   mySetBeingEdited: PropTypes.func,
-  updatePageState: PropTypes.func
+  updatePageState: PropTypes.func,
+  pageState: PropTypes.object
 };
 
 DialogActions.defaultProps = {
@@ -231,6 +238,7 @@ DialogActions.defaultProps = {
   isFollowing: true,
   initiativeId: '',
   beingEdited: undefined,
+  pageState: {},
   mySetBeingEdited: () => {},
   updatePageState: () => {}
 };

@@ -42,12 +42,12 @@ export function Collaborators(props) {
           <GravatarAndName key={author.id} name={author.name} email={author.email} typographyComponent="li"/>
         )}
         {!authorDisplay && marketPresences.map((presence, index) => {
-          const { id: presenceId, name, following, email } = presence;
+          const { id: presenceId, name, following, email, placeholder_type: placeholderType } = presence;
           const myClassName = following ? classes.normal : classes.archived;
           if (presenceId === authorId) {
             return <React.Fragment key={presenceId}/>;
           }
-          if (!following) {
+          if (!following || placeholderType === 'PLACE_HOLDER') {
             return (
               <div key={index}>
                 {index > 0 && (<div style={{ paddingTop: '0.5rem' }}/>)}

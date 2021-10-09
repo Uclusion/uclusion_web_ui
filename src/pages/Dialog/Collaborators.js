@@ -2,11 +2,12 @@ import { makeStyles, Tooltip, Typography } from '@material-ui/core'
 import React from 'react'
 import { FormattedMessage } from 'react-intl'
 import GravatarAndName from '../../components/Avatars/GravatarAndName';
+import { PLACEHOLDER } from '../../constants/global'
 
 const useStyles = makeStyles( () => ({
     archived: {
       color: '#ffC000',
-      fontSize: 14,
+      fontSize: 12,
     },
     normal: {
       fontSize: 14,
@@ -42,12 +43,14 @@ export function Collaborators(props) {
           <GravatarAndName key={author.id} name={author.name} email={author.email} typographyComponent="li"/>
         )}
         {!authorDisplay && marketPresences.map((presence, index) => {
-          const { id: presenceId, name, following, email, placeholder_type: placeholderType } = presence;
-          const myClassName = following ? classes.normal : classes.archived;
+          const { id: presenceId, following, email, placeholder_type: placeholderType } = presence;
+          const showAsArchived = !following || placeholderType === PLACEHOLDER;
+          const myClassName = showAsArchived ? classes.archived : classes.normal;
+          const name = (presence.name || '').replace('@', ' ');
           if (presenceId === authorId) {
             return <React.Fragment key={presenceId}/>;
           }
-          if (!following || placeholderType === 'PLACE_HOLDER') {
+          if (showAsArchived) {
             return (
               <div key={index}>
                 {index > 0 && (<div style={{ paddingTop: '0.5rem' }}/>)}

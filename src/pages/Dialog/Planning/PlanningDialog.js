@@ -39,6 +39,7 @@ import {
 } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import DismissableText from '../../../components/Notifications/DismissableText'
 import {
+  PLACEHOLDER,
   SECTION_SUB_HEADER,
   SECTION_TYPE_SECONDARY_WARNING,
   SECTION_TYPE_WARNING
@@ -77,6 +78,7 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 import DialogManage from '../DialogManage'
+import { useMetaDataStyles } from '../../Investible/Planning/PlanningInvestible'
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -619,6 +621,7 @@ function InvestiblesByPerson(props) {
   } = props;
   const intl = useIntl();
   const history = useHistory();
+  const metaClasses = useMetaDataStyles();
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [messagesState] = useContext(NotificationsContext);
   const classes = useInvestiblesByPersonStyles();
@@ -633,7 +636,9 @@ function InvestiblesByPerson(props) {
   }
 
   return marketPresencesSorted.map(presence => {
-    const { id, name, email } = presence;
+    const { id, email, placeholder_type: placeholderType } = presence;
+    const name = (presence.name || '').replace('@', ' ');
+    const showAsPlaceholder = placeholderType === PLACEHOLDER;
     const { criticalNotificationCount, delayableNotificationCount } = sumNotificationCounts(presence, comments,
       marketPresencesState, messagesState, marketId);
     const myInvestibles = getUserInvestibles(
@@ -642,7 +647,7 @@ function InvestiblesByPerson(props) {
       investibles,
       visibleStages,
     );
-
+    const myClassName = showAsPlaceholder ? metaClasses.archivedColor : metaClasses.normalColor;
     return (
       <Card id={`sl${id}`} key={id} className={classes.root} elevation={3}>
         <CardHeader
@@ -650,7 +655,7 @@ function InvestiblesByPerson(props) {
           id={`u${id}`}
           title={
           <div style={{alignItems: "center", display: "flex", flexDirection: 'row'}}>
-            <Typography variant="h6">
+            <Typography variant="h6" className={myClassName}>
               {name}
               {!mobileLayout && (
                 <NotificationCountChips id={id} criticalNotifications={criticalNotificationCount}
@@ -667,7 +672,8 @@ function InvestiblesByPerson(props) {
               tipPlacement="top-end"
             />
           </div>}
-          avatar={<Gravatar className={classes.smallGravatar} email={email} name={name}/>}
+          avatar={showAsPlaceholder ? undefined : <Gravatar className={classes.smallGravatar} email={email}
+                                                            name={name}/>}
           titleTypographyProps={{ variant: "subtitle2" }}
         />
         <CardContent className={classes.content}>

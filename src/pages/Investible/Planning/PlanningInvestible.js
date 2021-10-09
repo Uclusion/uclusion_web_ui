@@ -59,7 +59,7 @@ import CardType from '../../../components/CardType'
 import clsx from 'clsx'
 import DismissableText from '../../../components/Notifications/DismissableText'
 import PersonAddIcon from '@material-ui/icons/PersonAdd'
-import { EMPTY_SPIN_RESULT } from '../../../constants/global'
+import { EMPTY_SPIN_RESULT, PLACEHOLDER } from '../../../constants/global'
 import {
   addInvestible,
   getMarketLabels,
@@ -1100,6 +1100,18 @@ export const useMetaDataStyles = makeStyles(
       flexRow: {
         flexDirection: 'row'
       },
+      archivedColor: {
+        color: '#ffC000',
+      },
+      normalColor: {
+      },
+      archived: {
+        color: '#ffC000',
+        fontSize: 12,
+      },
+      normal: {
+        fontSize: 14,
+      },
       group: {
         backgroundColor: '#ecf0f1',
         borderRadius: 6,
@@ -1330,6 +1342,7 @@ MarketMetaData.propTypes = {
 function Assignments(props) {
   const { marketPresences, isAdmin, toggleAssign, classes, assigned, showMoveMessage, toolTipId } = props;
   const intl = useIntl();
+  const metaClasses = useMetaDataStyles();
   const myPresence = marketPresences.find((presence) => presence.current_user);
   const isFollowing = myPresence && myPresence.following;
   const safeAssigned = assigned || [];
@@ -1351,6 +1364,9 @@ function Assignments(props) {
           </Typography>
         )}
         {sortedAssigned.map((presence, index) => {
+          const showAsPlaceholder = presence.placeholder_type === PLACEHOLDER;
+          const myClassName = showAsPlaceholder ? metaClasses.archived : metaClasses.normal;
+          const name = (presence.name || '').replace('@', ' ');
           return (
             <div
               style={{
@@ -1359,9 +1375,11 @@ function Assignments(props) {
               }}
               key={`${presence.id}${toolTipId}`}
             >
-              <Gravatar email={presence.email} name={presence.name}/>
-              <Typography component="li">
-                {presence.name}
+              {!showAsPlaceholder && (
+                <Gravatar email={presence.email} name={presence.name}/>
+              )}
+              <Typography component="li" className={myClassName}>
+                {name}
               </Typography>
             </div>
           );

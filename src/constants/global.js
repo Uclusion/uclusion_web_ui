@@ -7,6 +7,8 @@ export const SECTION_SUB_HEADER = 'section'
 export const CHART_WIDTH = 70
 export const CHART_HEIGHT = 45
 
+export const PLACEHOLDER = 'PLACE_HOLDER';
+
 export const EMPTY_SPIN_RESULT = {
   result: true,
   spinChecker: () => Promise.resolve(true),

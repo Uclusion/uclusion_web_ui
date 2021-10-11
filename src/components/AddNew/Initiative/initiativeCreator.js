@@ -2,7 +2,6 @@ import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsCont
 import { pushMessage } from '../../../utils/MessageBusUtils'
 import { PUSH_STAGE_CHANNEL, VERSIONS_EVENT } from '../../../contexts/VersionsContext/versionsContextHelper'
 import { addPresenceToMarket } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
-import { addDecisionInvestible } from '../../../api/investibles'
 import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { processTextAndFilesForSave } from '../../../api/files'
 import { createInitiative } from '../../../api/markets'
@@ -24,19 +23,21 @@ export function createMyInitiative (dispatchers, formData) {
     initiativeExpiration,
     isRestricted
   } = formData;
-  const marketInfo = {
-    name: 'NA',
-    description: 'NA',
-    expiration_minutes: initiativeExpiration,
-  };
-  if (isRestricted === 'true') {
-    marketInfo.is_restricted = true;
-  }
   const realUploadedFiles = initiativeDescriptionUploadedFiles || [];
   const {
     uploadedFiles: filteredUploads,
     text: tokensRemoved,
   } = processTextAndFilesForSave(realUploadedFiles, initiativeDescription);
+  const investibleDescription = tokensRemoved ? tokensRemoved : ' ';
+  const marketInfo = {
+    expiration_minutes: initiativeExpiration,
+    uploadedFiles: filteredUploads,
+    description: investibleDescription,
+    name: initiativeName,
+  };
+  if (isRestricted === 'true') {
+    marketInfo.is_restricted = true;
+  }
   const { editorController } = formData;
   return createInitiative(marketInfo)
     .then((result) => {
@@ -44,29 +45,20 @@ export function createMyInitiative (dispatchers, formData) {
         market,
         presence,
         stages,
-        token
+        token,
+        investible
       } = result;
       createdMarketId = market.id;
-      const investibleDescription = tokensRemoved ? tokensRemoved : ' ';
-      const investibleInfo = {
-        marketId: createdMarketId,
-        uploadedFiles: filteredUploads,
-        description: investibleDescription,
-        name: initiativeName,
-      };
       addMarketToStorage(marketsDispatch, diffDispatch, market);
       pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, createdMarketId, stages });
       addPresenceToMarket(presenceDispatch, createdMarketId, presence);
       const tokenStorageManager = new TokenStorageManager();
-      return addDecisionInvestible(investibleInfo)
-        .then((investible) => {
-          if (editorController) {
-            editorController(editorReset());
-          }
-          addInvestible(investiblesDispatch, diffDispatch, investible);
-          return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, createdMarketId, token).then(() => {
-            return {marketId: createdMarketId, investibleId: investible.investible.id};
-          });
-        });
+      if (editorController) {
+        editorController(editorReset());
+      }
+      addInvestible(investiblesDispatch, diffDispatch, investible);
+      return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, createdMarketId, token).then(() => {
+        return {marketId: createdMarketId, investibleId: investible.investible.id};
+      });
     });
 }

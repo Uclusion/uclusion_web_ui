@@ -64,7 +64,6 @@ import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketSt
 import { formMarketAddInvestibleLink, navigate } from '../../utils/marketIdPathFunctions'
 import { useHistory, useLocation } from 'react-router'
 import { createInitiative, updateMarket } from '../../api/markets'
-import { addDecisionInvestible } from '../../api/investibles'
 import ShareStoryButton from '../../pages/Investible/Planning/ShareStoryButton'
 import { onCommentOpen } from '../../utils/commentFunctions'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
@@ -405,19 +404,12 @@ function Comment(props) {
     return createInitiative(addInfo)
       .then((result) => {
         addMarket(result, marketsDispatch, () => {}, presenceDispatch);
-        const { market: { id: inlineMarketId }, parent, token } = result;
+        const { market: { id: inlineMarketId }, parent, token, investible } = result;
         addCommentToMarket(parent, commentState, commentDispatch);
-        const addInfo = {
-          marketId: inlineMarketId,
-          description: 'NA',
-          name: 'NA',
-        };
-        return addDecisionInvestible(addInfo).then((investible) => {
-          addInvestible(investiblesDispatch, () => {}, investible);
-          setOperationRunning(false);
-          const tokenStorageManager = new TokenStorageManager();
-          return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, inlineMarketId, token);
-        });
+        addInvestible(investiblesDispatch, () => {}, investible);
+        setOperationRunning(false);
+        const tokenStorageManager = new TokenStorageManager();
+        return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, inlineMarketId, token);
       });
   }
 

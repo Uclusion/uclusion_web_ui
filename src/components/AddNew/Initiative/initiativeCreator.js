@@ -31,7 +31,7 @@ export function createMyInitiative (dispatchers, formData) {
   const investibleDescription = tokensRemoved ? tokensRemoved : ' ';
   const marketInfo = {
     expiration_minutes: initiativeExpiration,
-    uploadedFiles: filteredUploads,
+    uploaded_files: filteredUploads,
     description: investibleDescription,
     name: initiativeName,
   };

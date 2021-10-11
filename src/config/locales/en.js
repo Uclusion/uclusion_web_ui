@@ -1084,10 +1084,10 @@ const messages = defineMessages({
   SignupWizardWelcome: 'Welcome to Uclusion!',
   SignupWizardQuestion: 'What do you want to do?',
   SignupWizardRequirementsWorkspace: 'Workspace to document project requirements or team topics',
-  SignupWizardStoryWorkspace: 'Workspace to work with your team',
+  SignupWizardStoryWorkspace: 'Workspace to work with your team.',
   SignupWizardFirstWorkspace: 'Create your first Workspace',
-  SignupWizardDialog: 'Dialog for a decision without a workspace',
-  SignupWizardInitiative: 'Initiative to measure support for an idea without a workspace',
+  SignupWizardDialog: 'Dialog for brainstorming options outside your team.',
+  SignupWizardInitiative: 'Initiative to measure support for a single option outside your team.',
 
   //DialogWizard
   DialogWizardTitle: 'Your Dialog',

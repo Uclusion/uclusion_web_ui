@@ -9,8 +9,19 @@ import ApprovalOptionsStep from './ApprovalOptionsStep'
 import BudgetOptionsStep from './BudgetOptionsStep'
 
 function StoryWorkspaceWizard(props) {
-  const { onStartOver, onFinish, parentInvestibleId, parentMarketId } = props;
-
+  const { onStartOver, onFinish, parentInvestibleId, parentMarketId, showCancel } = props;
+  if (!showCancel) {
+    return (
+      <WizardStylesProvider>
+        <FormdataWizard name="story_workspace_wizard"
+                        onFinish={onFinish}
+                        onStartOver={onStartOver}
+        >
+          <WorkspaceNameStep parentInvestibleId={parentInvestibleId} parentMarketId={parentMarketId} isNew={true} />
+        </FormdataWizard>
+      </WizardStylesProvider>
+    );
+  }
   return (
       <WizardStylesProvider>
         <FormdataWizard name="story_workspace_wizard"
@@ -30,11 +41,13 @@ function StoryWorkspaceWizard(props) {
 StoryWorkspaceWizard.propTypes = {
   onStartOver: PropTypes.func,
   onFinish: PropTypes.func,
+  showCancel: PropTypes.bool
 };
 
 StoryWorkspaceWizard.defaultProps = {
   onStartOver: () => {},
   onFinish: () => {},
+  showCancel: true
 }
 
 export default StoryWorkspaceWizard;

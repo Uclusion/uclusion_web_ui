@@ -16,6 +16,10 @@ function WizardSelector(props) {
   }
 
   function getWizardToShow() {
+    if (!showCancel) {
+      // This is onboarding and they have nothing so force Workspace creation
+      return <StoryWorkspaceWizard onStartOver={onStartOver} onFinish={onFinish} isHome showCancel={false}/>
+    }
     switch (wizardToShow) {
       case 'storyWorkspace':
         return <StoryWorkspaceWizard onStartOver={onStartOver} onFinish={onFinish} isHome/>

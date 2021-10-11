@@ -17,7 +17,7 @@ import { doCreateStoryWorkspace } from './workspaceCreator'
 import { formMarketLink } from '../../../../utils/marketIdPathFunctions'
 
 function WorkspaceNameStep (props) {
-  const { updateFormData, formData, parentInvestibleId, parentMarketId } = props;
+  const { updateFormData, formData, parentInvestibleId, parentMarketId, isNew } = props;
   const intl = useIntl();
   const value = formData.meetingName || '';
   const validForm = !_.isEmpty(value);
@@ -73,10 +73,18 @@ function WorkspaceNameStep (props) {
       {...props}
     >
     <div>
-      <Typography className={classes.introText} variant="body2">
-        Great! You just need a name to start a Workspace. After that you can finish immediately or
-        look through other options. All of this configuration can be changed at any time.
-      </Typography>
+      {isNew && (
+        <Typography className={classes.introText} variant="body2">
+          Since you are new let's create a Workspace with a name you choose and the default configuration options. All
+          the config can be changed later.
+        </Typography>
+      )}
+      {!isNew && (
+        <Typography className={classes.introText} variant="body2">
+          Great! You just need a name to start a Workspace. After that you can finish immediately or
+          look through other options. All of this configuration can be changed at any time.
+        </Typography>
+      )}
       <label className={classes.inputLabel} htmlFor="name">{intl.formatMessage({ id: 'WorkspaceWizardMeetingPlaceHolder' })}</label>
       <TextField
         id="workspaceName"
@@ -85,7 +93,13 @@ function WorkspaceNameStep (props) {
         onChange={onNameChange}
       />
       <div className={classes.borderBottom} />
-      <StepButtons {...props} validForm={validForm} onFinish={onFinish} />
+      {isNew && (
+        <StepButtons {...props} validForm={validForm} onFinish={onFinish} onNext={onFinish}
+                     showFinish={false} showStartOver={false}/>
+      )}
+      {!isNew && (
+        <StepButtons {...props} validForm={validForm} onFinish={onFinish} />
+      )}
     </div>
     </WizardStepContainer>
   );
@@ -94,11 +108,13 @@ function WorkspaceNameStep (props) {
 WorkspaceNameStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object,
+  isNew: PropTypes.bool
 };
 
 WorkspaceNameStep.defaultProps = {
   updateFormData: () => {},
   formData: {},
+  isNew: false
 };
 
 export default WorkspaceNameStep;

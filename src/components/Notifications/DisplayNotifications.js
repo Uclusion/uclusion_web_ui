@@ -247,7 +247,6 @@ function DisplayNotifications (props) {
       const IconComponent = market.typeIcon;
       return (
         <Card
-          raised
           key={`${index}${level}${market.id}`}
           className={classes.messageItem}
         >

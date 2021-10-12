@@ -993,6 +993,7 @@ const messages = defineMessages({
   editTodo: 'Edit / View Thread',
   markRead: 'Mark Thread Read',
   markDescriptionRead: 'Mark Description Read',
+  markStoryRead: 'Mark Story Read',
   markReadMobile: 'Mark Read',
   moveTodoRed: 'Move to Immediate',
   moveTodoYellow: 'Move to When Able',

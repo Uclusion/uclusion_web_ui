@@ -1307,7 +1307,7 @@ function MarketMetaData(props) {
                                      });
                                    }}
                                    doSpin={true}>
-            <FormattedMessage id={'markDescriptionRead'} />
+            <FormattedMessage id={'markStoryRead'} />
           </SpinningIconLabelButton>
         </>
       )}

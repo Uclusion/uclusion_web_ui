@@ -129,8 +129,9 @@ function AddNewUsers (props) {
     if (_.isEmpty(participants)) {
       return Promise.resolve(true);
     }
-    return inviteParticipants(addToMarketId, participants).then(() => {
+    return inviteParticipants(addToMarketId, participants).then((result) => {
       setEmail1('');
+      onSaveSpinStop(result);
     });
   }
 

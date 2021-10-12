@@ -15,6 +15,8 @@ import { onSignOut } from '../utils/userFunctions'
 import { LEADER_CHANNEL, LeaderContext } from './LeaderContext/LeaderContext'
 import { BroadcastChannel } from 'broadcast-channel'
 import { VIEW_EVENT, VISIT_CHANNEL } from '../utils/marketIdPathFunctions'
+import LocalForageHelper from '../utils/LocalForageHelper'
+import { VERSIONS_CONTEXT_NAMESPACE } from './VersionsContext/versionsContextReducer'
 
 export const AUTH_HUB_CHANNEL = 'auth'; // this is case sensitive.
 export const VERSIONS_HUB_CHANNEL = 'VersionsChannel';
@@ -77,6 +79,16 @@ function WebSocketProvider(props) {
     }
     return {};
   }, {});
+
+  useEffect(() => {
+    const lfg = new LocalForageHelper(VERSIONS_CONTEXT_NAMESPACE);
+    lfg.getState().then((diskState) => {
+      if (!diskState) {
+        // If there is no versions on disk then I must be the first tab and too slow to wait for election results
+        refreshVersions().then(() => console.info('Refreshed versions for empty disk'));
+      }
+    });
+  },[]);
 
   useEffect(() => {
     function myRefreshVersion(peg, amLeader) {

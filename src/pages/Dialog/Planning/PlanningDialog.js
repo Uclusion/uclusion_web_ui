@@ -192,7 +192,12 @@ function PlanningDialog(props) {
         && !presence.market_guest) || []
       const linkPresence = assignablePresences.find((presence) => hash.includes(presence.id))
       if (linkPresence) {
-        if (sectionOpen !== 'storiesSection') {
+        if (hash.startsWith('#cv')) {
+          if (sectionOpen !== 'discussionSection') {
+            updatePageState({ sectionOpen: 'discussionSection' });
+          }
+        }
+        else if (sectionOpen !== 'storiesSection') {
           updatePageState({ sectionOpen: 'storiesSection' })
         }
       } else if (hash.includes('workspaceMain')) {
@@ -207,7 +212,7 @@ function PlanningDialog(props) {
         const noTodoCommentIds = getThreadIds(notTodoComments, comments)
         const foundCommentId = noTodoCommentIds.find((anId) => hash.includes(anId))
         if (foundCommentId) {
-          updatePageState({ sectionOpen: 'discussionSection' })
+          updatePageState({ sectionOpen: 'discussionSection' });
         }
       }
     }

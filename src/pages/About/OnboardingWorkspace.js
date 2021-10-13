@@ -41,7 +41,7 @@ const useStyles = makeStyles((theme) => ({
 
 function OnboardingWorkspace(props) {
   const { user } = props
-  const { name } = user
+  const { name } = (user || {});
   const history = useHistory()
   const intl = useIntl()
   const classes = useStyles()
@@ -83,6 +83,7 @@ function OnboardingWorkspace(props) {
         variant="contained"
         color="primary"
         onClick={handleSave}
+        disabled={!user}
         hasSpinChecker
         onSpinStop={onDone}
         fullWidth={true}

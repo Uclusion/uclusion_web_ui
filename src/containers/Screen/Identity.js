@@ -195,18 +195,18 @@ function Identity (props) {
             </Grid>
             <Grid item xs={4} />
           </Grid>
-          <ListItem className={classes.listAction}>
-            <Face style={{fontSize: 'medium', marginRight: 6}} />
-            <Link href="https://www.gravatar.com"
-                  className={classes.changeAvatar}
-                  target="_blank"
-                  underline="none"
-            >
+          <Link href="https://www.gravatar.com"
+                className={classes.changeAvatar}
+                target="_blank"
+                underline="none"
+          >
+            <ListItem className={classes.listAction}>
+              <Face style={{fontSize: 'medium', marginRight: 6}} />
               <ListItemText className={classes.name}
                             primary={intl.formatMessage({ id: 'IdentityChangeAvatar' })} />
-            </Link>
-          </ListItem>
-          <ListItem className={classes.listAction} onClick={goTo('/support')}>
+            </ListItem>
+          </Link>
+          <ListItem className={classes.listAction} onClick={goTo('/support')} style={{cursor: 'pointer'}}>
             <ContactSupport style={{fontSize: 'medium', marginRight: 6}} />
             <ListItemText className={classes.name}
                           primary={intl.formatMessage({ id: 'support' })} />

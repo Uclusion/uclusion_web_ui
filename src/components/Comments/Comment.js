@@ -608,7 +608,9 @@ function Comment(props) {
     messages.push(myMessage);
   }
   const { expanded: myRepliesExpanded } = myExpandedState;
-  const repliesExpanded = myRepliesExpanded === undefined ? !comment.resolved : myRepliesExpanded;
+  // If I resolved a comment then I am done with it and so hide the thread
+  const repliesExpanded = myRepliesExpanded === undefined ? resolved ? myPresence !== updatedBy  : true
+    : myRepliesExpanded;
   const inReviewStageId = (getInReviewStage(marketStagesState, marketId) || {}).id;
   const createdInReview = createdStageId === inReviewStageId;
   const overrideLabel = (marketType === PLANNING_TYPE && commentType === REPORT_TYPE

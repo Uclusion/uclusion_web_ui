@@ -11,6 +11,9 @@ import Grid from '@material-ui/core/Grid'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { Clear, SettingsBackupRestore } from '@material-ui/icons'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper'
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
+import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -23,13 +26,15 @@ const useStyles = makeStyles((theme) => {
 
 function DecisionDialogEdit(props) {
   const {
-    onSpinStop,
+    userId,
     onCancel,
     market,
   } = props;
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const { id, allow_multi_vote: allowMultiVote } = market;
   const intl = useIntl();
+  const [, marketsDispatch] = useContext(MarketsContext);
+  const [, diffDispatch] = useContext(DiffContext);
   const classes = usePlanFormStyles();
   const [multiVote, setMultiVote] = useState(allowMultiVote);
   const myClasses = useStyles();
@@ -43,8 +48,13 @@ function DecisionDialogEdit(props) {
       return updateMarket(id, null, null, null, null,
         null, null, multiVote)
         .then((market) => {
+          const diffSafe = {
+            ...market,
+            updated_by: userId,
+            updated_by_you: true,
+          };
+          addMarketToStorage(marketsDispatch, diffDispatch, diffSafe);
           setOperationRunning(false);
-          onSpinStop(market);
         });
     }
   }

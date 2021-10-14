@@ -16,7 +16,6 @@ import { OnlineStateContext } from '../../contexts/OnlineStateContext'
 import InvestibleEdit from '../../pages/Investible/InvestibleEdit'
 import InvestibleAdd from '../../pages/Dialog/InvestibleAdd'
 import DialogAdd from '../../pages/DialogAdd/DialogAdd'
-import DialogEdit from '../../pages/Dialog/DialogEdit'
 import SlackInvite from '../../pages/Invites/SlackInvite'
 import ChangePassword from '../../pages/Authentication/ChangePassword'
 import ChangeNotificationPreferences from '../../pages/About/ChangeNotificationPreferences'
@@ -96,10 +95,6 @@ function Root() {
     return (action !== 'investibleAdd') || !marketId;
   }
 
-  function hideDialogEdit() {
-    return (action !== 'marketEdit') || !marketId;
-  }
-
   function hideDialogArchives() {
     return (action !== 'dialogArchives');
   }
@@ -118,8 +113,7 @@ function Root() {
 
   const hidePNF = !(hideMarket() && hideSupport() && hideHome() && hideInvestible()
     && hideDialogArchives() && hideArchvies() && hideInvestibleEdit() && hideInvestibleAdd()
-    && hideAddMarket() && hideDialogEdit() && hideSlackInvite() && hideChangePassword() && hideChangeNotification()
-    && hideBillingHome());
+    && hideAddMarket() && hideSlackInvite() && hideChangePassword() && hideChangeNotification() && hideBillingHome());
 
   useEffect(() => {
     function pegView(isEntry) {
@@ -188,7 +182,6 @@ function Root() {
             <DialogArchives hidden={hideDialogArchives()}/>
             <InvestibleAdd hidden={hideInvestibleAdd()}/>
             <DialogAdd hidden={hideAddMarket()}/>
-            <DialogEdit hidden={hideDialogEdit()}/>
             <SlackInvite hidden={hideSlackInvite()}/>
             <ChangePassword hidden={hideChangePassword()}/>
             <ChangeNotificationPreferences hidden={hideChangeNotification()}/>

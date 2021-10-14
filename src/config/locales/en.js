@@ -560,7 +560,7 @@ const messages = defineMessages({
   planningDialogAddInvestibleExplanation: 'Create a story and collaborate on what to do',
   planningDialogManageParticipantsExplanation: 'Add collaborators to this workspace',
   planningDialogViewArchivesExplanation: 'See archived Dialogs, comments and stories in Verified and Not Doing',
-  planningDialogViewArchivesLabel: 'View Archive',
+  planningDialogViewArchivesLabel: 'Archive',
   planningNoneAcceptedWarning: 'No Not Ready For Feedback story',
   planningNoneInDialogWarning: 'No Ready for Approval story',
   planningNoneInReviewWarning: 'No Ready for Feedback story',

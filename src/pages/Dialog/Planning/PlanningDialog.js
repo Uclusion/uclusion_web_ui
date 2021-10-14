@@ -16,7 +16,7 @@ import PlanningIdeas from './PlanningIdeas'
 import Screen from '../../../containers/Screen/Screen'
 import {
   baseNavListItem,
-  formMarketAddInvestibleLink, formMarketArchivesLink, formMarketLink,
+  formMarketAddInvestibleLink, formMarketArchivesLink, formMarketEditLink, formMarketLink,
   makeArchiveBreadCrumbs,
   makeBreadCrumbs,
   navigate
@@ -79,6 +79,8 @@ import { SearchResultsContext } from '../../../contexts/SearchResultsContext/Sea
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 import DialogManage from '../DialogManage'
 import { useMetaDataStyles } from '../../Investible/Planning/PlanningInvestible'
+import SettingsIcon from '@material-ui/icons/Settings'
+import PlanningDialogEdit from './PlanningDialogEdit'
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -271,14 +273,6 @@ function PlanningDialog(props) {
       || parentResults.find((id) => id === comment.id));
   });
   const archivedSize = _.size(archiveInvestibles) + _.size(resolvedMarketComments);
-  const detailsItems = [createNavListItem(EditIcon, 'description_label', 'workspaceMain',
-    _.isEmpty(search) || results.find((result) => result.id === marketId) ? undefined : 0,
-    'workspaceMain'),
-    {
-      icon: MenuBookIcon, text: intl.formatMessage({ id: 'planningDialogViewArchivesLabel' }),
-      target: archivedSize > 0 ? formMarketArchivesLink(marketId) : undefined,
-      num: _.isEmpty(search) ? undefined : archivedSize, newPage: true
-    }];
 
   const discussionItems = [inArchives ? {} : createNavListItem(AddIcon,'commentAddBox',
     undefined, _.isEmpty(search) ? undefined : 0, 'discussionSection'),
@@ -301,10 +295,10 @@ function PlanningDialog(props) {
 
   const navigationMenu = {
     navHeaderIcon: PlaylistAddCheckIcon, navTooltip: 'planningNavTooltip',
-    navListItemTextArray: [{
-      text: intl.formatMessage({ id: 'planningDialogNavDetailsLabel' }),
-      subItems: detailsItems, isBold: isSectionBold('workspaceMain')
-    },
+    navListItemTextArray: [
+      createNavListItem(EditIcon, 'planningDialogNavDetailsLabel', 'workspaceMain',
+      _.isEmpty(search) || results.find((result) => result.id === marketId) ? undefined : 0,
+      'workspaceMain'),
       {
         text: intl.formatMessage({ id: 'planningDialogNavStoriesLabel' }),
         subItems: storiesItems, isBold: isSectionBold('storiesSection')
@@ -314,7 +308,14 @@ function PlanningDialog(props) {
       {
         text: intl.formatMessage({ id: 'planningDialogNavDiscussionLabel' }),
         subItems: discussionItems, isBold: isSectionBold('discussionSection')
-      }
+      },
+      {
+        icon: MenuBookIcon, text: intl.formatMessage({ id: 'planningDialogViewArchivesLabel' }),
+        target: archivedSize > 0 ? formMarketArchivesLink(marketId) : undefined,
+        num: _.isEmpty(search) ? undefined : archivedSize, newPage: true
+      },
+      createNavListItem(SettingsIcon, 'settings', 'settingsSection',
+        undefined, 'settingsSection')
     ]
   }
   const furtherWorkReadyToStartChip = furtherWorkReadyToStart.length > 0
@@ -322,6 +323,7 @@ function PlanningDialog(props) {
              className={classes.chipStyleYellow} />;
   const furtherWorkNotReadyToStartChip = furtherWorkInvestibles.length > 0 &&
     <Chip label={`${furtherWorkInvestibles.length}`} size='small' className={classes.chipStyleBlue} />;
+
   return (
     <Screen
       title={marketName}
@@ -499,6 +501,18 @@ function PlanningDialog(props) {
           )}
           <CommentBox comments={notTodoComments} marketId={marketId} allowedTypes={allowedCommentTypes}/>
         </Grid>
+      </Grid>
+      <Grid container spacing={2} id="settingsSection">
+        {!hidden && !_.isEmpty(acceptedStage) && !_.isEmpty(inVerifiedStage) &&
+          isSectionOpen('settingsSection') && !mobileLayout && (
+          <PlanningDialogEdit
+            market={market}
+            userId={myPresence.id}
+            onCancel={() => openSubSection('workspaceMain')}
+            acceptedStage={acceptedStage}
+            verifiedStage={inVerifiedStage}
+          />
+        )}
       </Grid>
     </Screen>
   );

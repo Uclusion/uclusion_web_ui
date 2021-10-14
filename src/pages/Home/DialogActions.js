@@ -1,20 +1,16 @@
 import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
-import { ACTIVE_STAGE, DECISION_TYPE, INACTIVE_STAGE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
+import { ACTIVE_STAGE, INACTIVE_STAGE, PLANNING_TYPE } from '../../constants/markets'
 import { IconButton, makeStyles, Tooltip, useMediaQuery, useTheme } from '@material-ui/core'
 import {
   decomposeMarketPath,
-  formInvestibleEditLink,
-  formMarketEditLink,
-  navigate
 } from '../../utils/marketIdPathFunctions'
-import { useHistory, useLocation } from 'react-router'
+import { useLocation } from 'react-router'
 import EditMarketButton from '../Dialog/EditMarketButton'
 import ChangeToObserverButton from '../Dialog/ChangeToObserverButton'
 import ChangeToParticipantButton from '../Dialog/ChangeToParticipantButton'
 import ShareStoryButton from '../Investible/Planning/ShareStoryButton'
 import ActivateMarketButton from '../Dialog/Planning/ActivateMarketButton'
-import SettingsIcon from '@material-ui/icons/Settings'
 import { ACTION_BUTTON_COLOR, HIGHLIGHTED_BUTTON_COLOR } from '../../components/Buttons/ButtonConstants'
 import AlarmAddIcon from '@material-ui/icons/AlarmAdd'
 import { useIntl } from 'react-intl'
@@ -41,7 +37,6 @@ const useStyles = makeStyles(() => {
 });
 
 function DialogActions(props) {
-  const history = useHistory();
   const location = useLocation();
   const { pathname } = location;
   const { action } = decomposeMarketPath(pathname);
@@ -52,7 +47,6 @@ function DialogActions(props) {
     marketPresences,
     isAdmin,
     isFollowing,
-    initiativeId,
     hideEdit,
     mySetBeingEdited,
     updatePageState,
@@ -79,17 +73,6 @@ function DialogActions(props) {
   const isSubscribedToMarket = inVotingStage.id && (subscribed || []).includes(inVotingStage.id) && inReviewStage.id &&
     (subscribed || []).includes(inReviewStage.id);
 
-  function getEditLabel(){
-    switch (marketType) {
-      case PLANNING_TYPE:
-        return 'editMarketButtonPlan';
-      case DECISION_TYPE:
-        return 'editMarketButtonDecision';
-      default:
-        return 'editMarketButtonDecision';
-    }
-  }
-
   function subscribe() {
     setOperationRunning(true);
     return followStages(marketId, [inVotingStage.id, inReviewStage.id]).then((response) =>{
@@ -113,11 +96,6 @@ function DialogActions(props) {
 
   function getActions() {
     const actions = [];
-    const editLabel = getEditLabel();
-    const editLink = marketType === INITIATIVE_TYPE
-      ? formInvestibleEditLink(marketId, initiativeId)
-      : formMarketEditLink(marketId);
-    const editAction = () => navigate(history, editLink);
     if (!inArchives && !hideEdit) {
       if (isAdmin) {
         if (marketType !== PLANNING_TYPE) {
@@ -133,12 +111,6 @@ function DialogActions(props) {
               <AlarmAddIcon htmlColor={ACTION_BUTTON_COLOR}/>
             </IconButton>
           </Tooltip>)
-        }
-        if (marketType !== INITIATIVE_TYPE) {
-          actions.push(
-            <EditMarketButton key="edit" labelId={editLabel} marketId={marketId} onClick={editAction}
-                              icon={<SettingsIcon htmlColor={ACTION_BUTTON_COLOR} />}/>
-          );
         }
       } else if (marketType === PLANNING_TYPE) {
         if (isSubscribedToMarket) {
@@ -187,7 +159,7 @@ function DialogActions(props) {
     if (action === 'dialog' && marketType !== PLANNING_TYPE && !activeMarket) {
       actions.push(<ShareStoryButton key="share-story" marketId={marketId}/>)
     }
-    if (!hideEdit) {
+    if (!hideEdit && !mobileLayout) {
       actions.push(<Tooltip
         key="adminManageCollaborators"
         title={intl.formatMessage({ id: 'dialogAddParticipantsLabel' })}

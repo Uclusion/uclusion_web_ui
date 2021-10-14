@@ -5,14 +5,14 @@ import React, { useContext, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { FormattedMessage, useIntl } from 'react-intl'
 import { useHistory } from 'react-router'
-import { Card, CardContent, Grid, makeStyles, Typography } from '@material-ui/core'
+import { Card, CardContent, Grid, makeStyles, Typography, useMediaQuery, useTheme } from '@material-ui/core'
 import _ from 'lodash'
 import AddIcon from '@material-ui/icons/Add'
 import {
   baseNavListItem,
   formMarketLink,
   makeArchiveBreadCrumbs,
-  makeBreadCrumbs,
+  makeBreadCrumbs, navigate,
 } from '../../../utils/marketIdPathFunctions'
 import ProposedIdeas from './ProposedIdeas'
 import SubSection from '../../../containers/SubSection/SubSection'
@@ -68,6 +68,9 @@ import { removeMessage } from '../../../contexts/NotificationsContext/notificati
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import DismissableText from '../../../components/Notifications/DismissableText'
 import DialogManage from '../DialogManage'
+import SettingsIcon from '@material-ui/icons/Settings'
+import PlanningDialogEdit from '../Planning/PlanningDialogEdit'
+import DecisionDialogEdit from './DecisionDialogEdit'
 
 const useStyles = makeStyles(
   theme => ({
@@ -182,6 +185,8 @@ function DecisionDialog(props) {
   const classes = useStyles();
   const metaClasses = useMetaDataStyles();
   const intl = useIntl();
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
   const isDraft = !_.isEmpty(myPresence) && marketPresences.length === 1;
   const {
     is_admin: isAdmin,
@@ -209,11 +214,13 @@ function DecisionDialog(props) {
   const diff = getDiff(diffState, marketId);
   const [pageStateFull, pageDispatch] = usePageStateReducer('market');
   const [pageState, updatePageState, pageStateReset] = getPageReducerPage(pageStateFull, pageDispatch, marketId,
-    { collaboratorsOpen: isDraft && myPresence.id === createdBy, changeExpires: false });
+    { collaboratorsOpen: isDraft && myPresence.id === createdBy, changeExpires: false,
+      settingsOpen: false });
   const {
     beingEdited,
     showDiff,
     collaboratorsOpen,
+    settingsOpen,
     changeExpires
   } = pageState;
   const [investibleAddStateFull, investibleAddDispatch] = usePageStateReducer('investibleAdd');
@@ -293,8 +300,12 @@ function DecisionDialog(props) {
   }
   const underConsideration = getInvestiblesForStage(underConsiderationStage);
   const proposed = getInvestiblesForStage(proposedStage);
-  function createNavListItem(icon, textId, anchorId, howManyNum, alwaysShow) {
-    return baseNavListItem(formMarketLink(marketId), icon, textId, anchorId, howManyNum, alwaysShow);
+  function createNavListItem(icon, textId, anchorId, howManyNum, alwaysShow, onClickFunc) {
+    const baseNav = baseNavListItem(formMarketLink(marketId), icon, textId, anchorId, howManyNum, alwaysShow);
+    if (onClickFunc) {
+      baseNav['onClickFunc'] = onClickFunc;
+    }
+    return baseNav;
   }
   const sortedRoots = getSortedRoots(marketComments, searchResults);
   const closedComments = sortedRoots.filter((comment) => comment.resolved) || [];
@@ -304,17 +315,23 @@ function DecisionDialog(props) {
   const { id: questionId } = getFakeCommentsArray(questions)[0];
   const blocked = openComments.filter((comment) => comment.comment_type === ISSUE_TYPE);
   const { id: blockedId } = getFakeCommentsArray(blocked)[0]
+  const navListItemTextArray = [createNavListItem(EditIcon, 'description_label', 'dialogMain'),
+    createNavListItem(AgilePlanIcon, 'approvable', 'currentVoting', _.size(underConsideration),
+      true),
+    createNavListItem(AgilePlanIcon, 'proposed', 'proposed', _.size(proposed), true),
+    inArchives ? {} : createNavListItem(AddIcon, 'commentAddBox'),
+    createNavListItem(BlockIcon, 'planningBlockedStageLabel', `c${blockedId}`, _.size(blocked)),
+    createNavListItem(QuestionIcon, 'questions', `c${questionId}`, _.size(questions)),
+    createNavListItem(QuestionAnswer, 'closedComments', `c${closedId}`, _.size(closedComments))]
+  if (isAdmin) {
+    navListItemTextArray.push(createNavListItem(SettingsIcon, 'settings', 'settingsSection',
+      undefined, true, () => {
+        updatePageState({ settingsOpen: true });
+        navigate(history, `${formMarketLink(marketId)}#settingsSection`, false, true);
+      }));
+  }
   const navigationMenu = {
-    navHeaderIcon: GavelIcon, navTooltip: 'decisionNavTooltip',
-    navListItemTextArray: [createNavListItem(EditIcon, 'description_label', 'dialogMain'),
-      createNavListItem(AgilePlanIcon, 'approvable', 'currentVoting', _.size(underConsideration),
-        true),
-      createNavListItem(AgilePlanIcon, 'proposed', 'proposed', _.size(proposed), true),
-      inArchives ? {} : createNavListItem(AddIcon, 'commentAddBox'),
-      createNavListItem(BlockIcon, 'planningBlockedStageLabel', `c${blockedId}`, _.size(blocked)),
-      createNavListItem(QuestionIcon, 'questions', `c${questionId}`, _.size(questions)),
-      createNavListItem(QuestionAnswer, 'closedComments', `c${closedId}`, _.size(closedComments))
-    ]
+    navHeaderIcon: GavelIcon, navTooltip: 'decisionNavTooltip', navListItemTextArray
   }
   return (
     <Screen
@@ -330,6 +347,15 @@ function DecisionDialog(props) {
         name={INVITE_DIALOG_FIRST_VIEW}
         steps={inviteDialogSteps({name: user.name, isCreator: createdBy === myPresence.id})}
       />
+      <div id="settingsSection">
+        {!hidden && settingsOpen && !mobileLayout && (
+          <DecisionDialogEdit
+            userId={myPresence.id}
+            market={market}
+            onCancel={() => updatePageState({settingsOpen: false})}
+          />
+        )}
+      </div>
       {collaboratorsOpen && (
         <DialogManage marketId={marketId} onClose={() => updatePageState({collaboratorsOpen: false})}/>
       )}

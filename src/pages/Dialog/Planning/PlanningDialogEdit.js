@@ -23,6 +23,9 @@ import { Clear, SettingsBackupRestore } from '@material-ui/icons'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import ManageExistingUsers from '../UserManagement/ManageExistingUsers'
 import Autocomplete from '@material-ui/lab/Autocomplete'
+import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper'
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
+import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -37,10 +40,12 @@ const useStyles = makeStyles((theme) => {
 });
 
 function PlanningDialogEdit(props) {
-  const { onSpinStop, onCancel, market, acceptedStage, verifiedStage } = props;
+  const { onCancel, market, acceptedStage, verifiedStage, userId } = props;
   const [marketStagesState, marketStagesDispatch] = useContext(MarketStagesContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
-  const [, setOperationRunning] = useContext(OperationInProgressContext)
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [, marketsDispatch] = useContext(MarketsContext);
+  const [, diffDispatch] = useContext(DiffContext);
   const { id } = market
   const marketPresences = getMarketPresences(marketPresencesState, id)
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
@@ -94,6 +99,15 @@ function PlanningDialogEdit(props) {
     });
   }
 
+  function onSaveSettings(savedMarket) {
+    const diffSafe = {
+      ...savedMarket,
+      updated_by: userId,
+      updated_by_you: true,
+    };
+    addMarketToStorage(marketsDispatch, diffDispatch, diffSafe);
+  }
+
   function handleSave() {
     const votesRequiredInt =
       votes_required != null ? parseInt(votes_required, 10) : null;
@@ -110,7 +124,7 @@ function PlanningDialogEdit(props) {
       assigned_can_approve,
       budget_unit
     ).then(market => {
-      onSpinStop(market)
+      onSaveSettings(market)
       if (allowedInvestibles !== acceptedStage.allowed_investibles) {
         return updateStage(id, acceptedStage.id, allowedInvestibles).then((newStage) => {
           const marketStages = getStages(marketStagesState, id)

@@ -437,7 +437,7 @@ const useStageClasses = makeStyles(
     return {
       fallbackRoot: {
         fontSize: '.8em',
-        color: 'red',
+        color: '#F29100',
         margin: theme.spacing(1, 0),
         padding: theme.spacing(1, 2),
         overflowWrap: 'break-word'

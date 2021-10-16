@@ -313,7 +313,7 @@ function PlanningDialog(props) {
       _.isEmpty(search) || results.find((result) => result.id === marketId) ? undefined : 0,
       'workspaceMain'),
       createNavListItem(AddIcon, 'addStoryLabel', 'addStorySection',
-        undefined, 'addStorySection'),
+        undefined, 'addStorySection', true, isSectionBold('addStorySection')),
       {
         text: intl.formatMessage({ id: 'planningDialogNavStoriesLabel' }),
         subItems: storiesItems, isBold: isSectionBold('storiesSection')
@@ -330,7 +330,7 @@ function PlanningDialog(props) {
         num: _.isEmpty(search) ? undefined : archivedSize, newPage: true
       },
       createNavListItem(SettingsIcon, 'settings', 'settingsSection',
-        undefined, 'settingsSection')
+        undefined, 'settingsSection', true, isSectionBold('settingsSection'))
     ]
   }
   const furtherWorkReadyToStartChip = furtherWorkReadyToStart.length > 0

@@ -290,15 +290,21 @@ function PlanningDialog(props) {
     createNavListItem(ChangeSuggstionIcon,'suggestions', `c${suggestId}`, _.size(suggestions),
       'discussionSection')];
 
-  const storiesItems = [createNavListItem(BlockIcon,'planningBlockedStageLabel',
-    'blocked', _.size(blockedInvestibles), 'storiesSection'),
-    createNavListItem(PlayForWorkIcon,'requiresInputStageLabel', 'requiresInput',
-      _.size(requiresInputInvestibles), 'storiesSection'),
-    createNavListItem(AgilePlanIcon,'swimLanes', 'swimLanes', _.size(swimlaneInvestibles),
-      'storiesSection', _.isEmpty(search)),
+  const storiesItems = [createNavListItem(AgilePlanIcon,'swimLanes', 'swimLanes',
+    _.size(swimlaneInvestibles), 'storiesSection', _.isEmpty(search)),
     createNavListItem(WorkIcon,'planningInvestibleMoveToFurtherWorkLabel', 'furtherWork',
       _.size(furtherWorkReadyToStart) + _.size(furtherWorkInvestibles), 'storiesSection',
       !inArchives && _.isEmpty(search))];
+
+  if (_.size(requiresInputInvestibles) > 0) {
+    storiesItems.unshift(createNavListItem(PlayForWorkIcon,'requiresInputStageLabel', 'requiresInput',
+      _.size(requiresInputInvestibles), 'storiesSection'));
+  }
+
+  if (_.size(blockedInvestibles) > 0) {
+    storiesItems.unshift(createNavListItem(BlockIcon,'planningBlockedStageLabel',
+      'blocked', _.size(blockedInvestibles), 'storiesSection'));
+  }
 
   const navigationMenu = {
     navHeaderIcon: PlaylistAddCheckIcon, navTooltip: 'planningNavTooltip',

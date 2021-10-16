@@ -375,7 +375,7 @@ function PlanningDialog(props) {
                  isDraft={isDraft}/>
       </div>
       <div id="addStorySection">
-        {!hidden && marketId && isSectionOpen('addStorySection') && (
+        {!hidden && marketId && isSectionOpen('addStorySection') && !mobileLayout && (
           <PlanningInvestibleAdd
             marketId={marketId}
             onCancel={() => openSubSection('storiesSection')}

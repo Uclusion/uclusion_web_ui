@@ -87,13 +87,15 @@ NameField.propTypes = {
   id: PropTypes.string.isRequired,
   placeHolder: PropTypes.string,
   label: PropTypes.string,
-  useCreateDefault: PropTypes.bool
+  useCreateDefault: PropTypes.bool,
+  onEmptyNotEmptyChange: PropTypes.func
 }
 
 NameField.defaultProps = {
   placeHolder: "storyTitlePlaceholder",
   label: "agilePlanFormTitleLabel",
-  useCreateDefault: false
+  useCreateDefault: false,
+  onEmptyNotEmptyChange: () => {}
 }
 
 export default NameField;

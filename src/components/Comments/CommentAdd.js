@@ -51,6 +51,7 @@ import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUse
 import DismissableText from '../Notifications/DismissableText'
 import { pushMessage } from '../../utils/MessageBusUtils'
 import { getQuillStoredState } from '../TextEditors/QuillEditor2'
+import IssueDialog from '../Warnings/IssueDialog'
 
 function getPlaceHolderLabelId (type, isStory, isInReview) {
   switch (type) {
@@ -484,52 +485,6 @@ function CommentAdd(props) {
     </>
   );
 }
-
-function IssueDialog(props) {
-  const { actions, classes, open, onClose, issueWarningId, checkBoxFunc, showDismiss } = props
-
-  const autoFocusRef = React.useRef(null)
-
-  return (
-    <Dialog
-      autoFocusRef={autoFocusRef}
-      classes={{
-        root: classes.root,
-        actions: classes.actions,
-        content: classes.issueWarningContent,
-        title: classes.title
-      }}
-      open={open}
-      onClose={onClose}
-      /* slots */
-      actions={
-        <React.Fragment>
-          <SpinningIconLabelButton onClick={onClose} doSpin={false} icon={Clear} ref={autoFocusRef}>
-            <FormattedMessage id="lockDialogCancel"/>
-          </SpinningIconLabelButton>
-          {actions}
-          {showDismiss && (
-            <DismissableText textId={issueWarningId} checkBoxFunc={checkBoxFunc}/>
-          )}
-        </React.Fragment>
-      }
-      content={<FormattedMessage id={issueWarningId} />}
-      title={
-        <React.Fragment>
-          <WarningIcon className={classes.warningTitleIcon} />
-          <FormattedMessage id="warning" />
-        </React.Fragment>
-      }
-    />
-  );
-}
-
-IssueDialog.propTypes = {
-  actions: PropTypes.node.isRequired,
-  onClose: PropTypes.func.isRequired,
-  open: PropTypes.bool.isRequired,
-  issueWarningId: PropTypes.string.isRequired,
-};
 
 CommentAdd.propTypes = {
   type: PropTypes.string,

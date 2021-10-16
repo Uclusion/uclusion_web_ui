@@ -44,6 +44,7 @@ import { getQuillStoredState } from '../../../components/TextEditors/QuillEditor
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 import WarningDialog from '../../../components/Warnings/WarningDialog'
 import { useLockedDialogStyles } from '../DialogBodyEdit'
+import IssueDialog from '../../../components/Warnings/IssueDialog'
 
 function PlanningInvestibleAdd(props) {
   const {
@@ -72,7 +73,7 @@ function PlanningInvestibleAdd(props) {
   }
   const [assignments, setAssignments] = useState(getUrlAssignee());
   const nameId = `investibleAdd${marketId}`;
-  const [isEmpty, setIsEmpty] = useState(!getNameStoredState(nameId));
+  const [openIssue, setOpenIssue] = useState(false);
   const comments = getMarketComments(commentsState, marketId) || [];
   function getUrlOpenForInvestment() {
     const { hash } = location;
@@ -116,10 +117,6 @@ function PlanningInvestibleAdd(props) {
     value: getQuillStoredState(editorName)
   }
   const [Editor, editorController] = useEditor(editorName, editorSpec);
-
-  function emptyNotEmptyChange(value) {
-    setIsEmpty(value);
-  }
 
   function onQuantityChange(event) {
     const { value } = event.target;
@@ -177,6 +174,11 @@ function PlanningInvestibleAdd(props) {
       addInfo.name = name;
     } else {
       addInfo.name = nameFromDescription(getQuillStoredState(editorName));
+    }
+    if (_.isEmpty(addInfo.name)) {
+      setOperationRunning(false);
+      setOpenIssue('noName');
+      return;
     }
     if (isAssigned) {
       addInfo.assignments = assignments;
@@ -314,10 +316,9 @@ function PlanningInvestibleAdd(props) {
               />
             </fieldset>
           </div>
-          {Editor}
-          <NameField onEmptyNotEmptyChange={emptyNotEmptyChange} id={nameId}
-                     descriptionFunc={() => getQuillStoredState(editorName)}
+          <NameField id={nameId} descriptionFunc={() => getQuillStoredState(editorName)}
                      useCreateDefault />
+          {Editor}
         </CardContent>
         {!isAssignedToMe && isAssigned && (
           <AddInitialVote
@@ -336,8 +337,7 @@ function PlanningInvestibleAdd(props) {
             {intl.formatMessage({ id: 'marketAddCancelLabel' })}
           </SpinningIconLabelButton>
           {requiresInput && (
-            <SpinningIconLabelButton onClick={() => setOpen(true)} icon={SettingsBackupRestore} doSpin={false}
-                                     disabled={isEmpty}>
+            <SpinningIconLabelButton onClick={() => setOpen(true)} icon={SettingsBackupRestore} doSpin={false}>
               {intl.formatMessage({ id: 'agilePlanFormSaveLabel' })}
             </SpinningIconLabelButton>
           )}
@@ -362,9 +362,17 @@ function PlanningInvestibleAdd(props) {
               }
             />
           )}
+          {openIssue !== false && (
+            <IssueDialog
+              classes={lockedDialogClasses}
+              open={openIssue !== false}
+              onClose={() => setOpenIssue(false)}
+              issueWarningId={openIssue}
+              showDismiss={false}
+            />
+          )}
           {!requiresInput && (
-            <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore}
-                                     disabled={isEmpty} id="planningInvestibleAddButton">
+            <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore} id="planningInvestibleAddButton">
               {intl.formatMessage({ id: 'agilePlanFormSaveLabel' })}
             </SpinningIconLabelButton>
           )}

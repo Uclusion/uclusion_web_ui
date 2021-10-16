@@ -16,7 +16,7 @@ import PlanningIdeas from './PlanningIdeas'
 import Screen from '../../../containers/Screen/Screen'
 import {
   baseNavListItem,
-  formMarketAddInvestibleLink, formMarketArchivesLink, formMarketEditLink, formMarketLink,
+  formMarketAddInvestibleLink, formMarketArchivesLink, formMarketLink,
   makeArchiveBreadCrumbs,
   makeBreadCrumbs,
   navigate
@@ -46,7 +46,7 @@ import {
 } from '../../../constants/global'
 import ArchiveInvestbiles from '../../DialogArchives/ArchiveInvestibles'
 import SubSection from '../../../containers/SubSection/SubSection'
-import { getInvestiblesInStage } from '../../../contexts/InvestibesContext/investiblesContextHelper'
+import { addInvestible, getInvestiblesInStage } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import UclusionTour from '../../../components/Tours/UclusionTour'
 import { INVITED_USER_WORKSPACE } from '../../../contexts/TourContext/tourContextHelper';
 import { getMarketInfo, hasNotVoted } from '../../../utils/userFunctions'
@@ -81,6 +81,10 @@ import DialogManage from '../DialogManage'
 import { useMetaDataStyles } from '../../Investible/Planning/PlanningInvestible'
 import SettingsIcon from '@material-ui/icons/Settings'
 import PlanningDialogEdit from './PlanningDialogEdit'
+import PlanningInvestibleAdd from './PlanningInvestibleAdd'
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
+import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
+import { usePlanFormStyles } from '../../../components/AgilePlan'
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -102,7 +106,8 @@ function PlanningDialog(props) {
   const intl = useIntl();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
-  const { name: marketName, id: marketId, market_stage: marketStage, created_by: createdBy } = market;
+  const { name: marketName, id: marketId, market_stage: marketStage, created_by: createdBy, created_at: createdAt,
+    budget_unit: budgetUnit, use_budget: useBudget, votes_required: votesRequired} = market;
   const activeMarket = marketStage === ACTIVE_STAGE;
   const inArchives = !activeMarket || (myPresence && !myPresence.following);
   const isAdmin = myPresence.is_admin;
@@ -115,6 +120,8 @@ function PlanningDialog(props) {
     [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE, REPLY_TYPE].includes(comment.comment_type)) || [];
   const allowedCommentTypes = [QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE];
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [, investiblesDispatch] = useContext(InvestiblesContext);
+  const [, diffDispatch] = useContext(DiffContext);
   // For security reasons you can't access source data while being dragged in case you are not the target website
   const [beingDraggedHack, setBeingDraggedHack] = useState({});
   const [pageStateFull, pageDispatch] = usePageStateReducer('market');
@@ -275,7 +282,7 @@ function PlanningDialog(props) {
   const archivedSize = _.size(archiveInvestibles) + _.size(resolvedMarketComments);
 
   const discussionItems = [inArchives ? {} : createNavListItem(AddIcon,'commentAddBox',
-    undefined, _.isEmpty(search) ? undefined : 0, 'discussionSection'),
+    undefined, undefined, 'discussionSection'),
     createNavListItem(QuestionIcon,'questions', `c${questionId}`, _.size(questions),
       'discussionSection'),
     createNavListItem(UpdateIcon,'reports', `c${reportId}`, _.size(reports),
@@ -299,6 +306,8 @@ function PlanningDialog(props) {
       createNavListItem(EditIcon, 'planningDialogNavDetailsLabel', 'workspaceMain',
       _.isEmpty(search) || results.find((result) => result.id === marketId) ? undefined : 0,
       'workspaceMain'),
+      createNavListItem(AddIcon, 'addStoryLabel', 'addStorySection',
+        undefined, 'addStorySection'),
       {
         text: intl.formatMessage({ id: 'planningDialogNavStoriesLabel' }),
         subItems: storiesItems, isBold: isSectionBold('storiesSection')
@@ -324,6 +333,18 @@ function PlanningDialog(props) {
   const furtherWorkNotReadyToStartChip = furtherWorkInvestibles.length > 0 &&
     <Chip label={`${furtherWorkInvestibles.length}`} size='small' className={classes.chipStyleBlue} />;
 
+  const planningInvestibleAddClasses = usePlanFormStyles();
+  const marketPresences = getMarketPresences(marketPresencesState, marketId);
+  function onInvestibleSave(investible) {
+    addInvestible(investiblesDispatch, diffDispatch, investible);
+  }
+
+  function onDone(destinationLink) {
+    if (destinationLink) {
+      navigate(history, destinationLink);
+    }
+  }
+
   return (
     <Screen
       title={marketName}
@@ -346,6 +367,22 @@ function PlanningDialog(props) {
         <Summary market={market} hidden={hidden} activeMarket={activeMarket} inArchives={inArchives}
                  pageState={pageState} updatePageState={updatePageState} pageStateReset={pageStateReset}
                  isDraft={isDraft}/>
+      </div>
+      <div id="addStorySection">
+        {!hidden && marketId && isSectionOpen('addStorySection') && (
+          <PlanningInvestibleAdd
+            marketId={marketId}
+            onCancel={() => openSubSection('storiesSection')}
+            onSave={onInvestibleSave}
+            onSpinComplete={onDone}
+            marketPresences={marketPresences}
+            createdAt={createdAt}
+            classes={planningInvestibleAddClasses}
+            maxBudgetUnit={budgetUnit}
+            useBudget={useBudget ? useBudget : false}
+            votesRequired={votesRequired}
+          />
+        )}
       </div>
       <LocalPlanningDragContext.Provider value={[beingDraggedHack, setBeingDraggedHack]}>
         <div id="storiesSection"

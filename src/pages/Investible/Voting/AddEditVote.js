@@ -36,6 +36,7 @@ import { editorReset, useEditor } from '../../../components/TextEditors/quillHoo
 import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
 import { getQuillStoredState } from '../../../components/TextEditors/QuillEditor2'
 import InputAdornment from '@material-ui/core/InputAdornment'
+import IssueDialog from '../../../components/Warnings/IssueDialog'
 
 const useStyles = makeStyles(
   theme => {
@@ -126,16 +127,17 @@ function AddEditVote(props) {
   const classes = useStyles();
   const addMode = _.isEmpty(investment) || investment.deleted;
   const { quantity, max_budget: initialMaxBudget, max_budget_unit: initialMaxBudgetUnit } = investment || {};
-  const initialInvestment = !quantity ? 50 : Math.abs(quantity);
-  const newQuantity = storedInvestment || (useInitial === false ? 50 : initialInvestment);
+  const initialInvestment = !quantity ? undefined : Math.abs(quantity);
+  const newQuantity = storedInvestment || (useInitial === false ? undefined : initialInvestment);
   const maxBudget = storedMaxBudget !== undefined ? storedMaxBudget :
-    (useInitial === false ? '' : (initialMaxBudget || ''))
-  const maxBudgetUnit = initialMaxBudgetUnit || marketBudgetUnit
-  const { body, id: reasonId } = reason
+    (useInitial === false ? '' : (initialMaxBudget || ''));
+  const maxBudgetUnit = initialMaxBudgetUnit || marketBudgetUnit;
+  const { body, id: reasonId } = reason;
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const [commentsState, commentsDispatch] = useContext(CommentsContext)
-  const [, marketPresencesDispatch] = useContext(MarketPresencesContext)
-  const [open, setOpen] = useState(false)
+  const [commentsState, commentsDispatch] = useContext(CommentsContext);
+  const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
+  const [open, setOpen] = useState(false);
+  const [openIssue, setOpenIssue] = useState(false);
   const warnClearVotes = !allowMultiVote && hasVoted && _.isEmpty(investment);
 
   function toggleOpen() {
@@ -152,6 +154,11 @@ function AddEditVote(props) {
   const [Editor, editorController] = useEditor(editorName, editorSpec);
 
   function mySave() {
+    if (newQuantity === undefined) {
+      setOperationRunning(false);
+      setOpenIssue('noVoteQuantity');
+      return;
+    }
     const reasonText = getQuillStoredState(editorName) !== null ? getQuillStoredState(editorName) :
       useInitial === false ? undefined : body;
     const oldQuantity = addMode ? 0 : quantity;
@@ -246,7 +253,7 @@ function AddEditVote(props) {
               aria-labelledby="add-vote-certainty"
               className={classes.certaintyGroup}
               onChange={onChange}
-              value={newQuantity}
+              value={newQuantity || 0}
             >
               {[5, 25, 50, 75, 100].map(certainty => {
                 return (
@@ -347,6 +354,15 @@ function AddEditVote(props) {
           </SpinBlockingButton>
         }
       />
+      {openIssue !== false && (
+        <IssueDialog
+          classes={lockedDialogClasses}
+          open={openIssue !== false}
+          onClose={() => setOpenIssue(false)}
+          issueWarningId={openIssue}
+          showDismiss={false}
+        />
+      )}
     </React.Fragment>
   );
 }

@@ -72,7 +72,6 @@ function PlanningInvestibleAdd(props) {
   const [investibleAddState, updateInvestibleAddState, investibleAddStateReset] =
     getPageReducerPage(investibleAddStateFull, investibleAddDispatch, marketId,
       {
-        quantity: 50,
         maxBudgetUnit: '',
         skipApproval: false
       });
@@ -153,6 +152,11 @@ function PlanningInvestibleAdd(props) {
     if (_.isEmpty(addInfo.name)) {
       setOperationRunning(false);
       setOpenIssue('noName');
+      return;
+    }
+    if (!isAssignedToMe && isAssigned && quantity === undefined) {
+      setOperationRunning(false);
+      setOpenIssue('noQuantity');
       return;
     }
     if (isAssigned) {
@@ -269,31 +273,29 @@ function PlanningInvestibleAdd(props) {
           type={STORY_TYPE}
         />
         <CardContent>
-          <div className={!storyAssignee && _.isEmpty(furtherWorkType) ? classes.cardContent : undefined}>
-            {!storyAssignee && _.isEmpty(furtherWorkType) && (
+          {!storyAssignee && _.isEmpty(furtherWorkType) && (
+            <div className={classes.cardContent}>
               <AssignmentList
                 marketId={marketId}
                 onChange={onAssignmentsChange}
               />
-            )}
-            {_.isEmpty(furtherWorkType) && (
               <fieldset className={classes.fieldset}>
-                <legend>{intl.formatMessage({ id: 'agilePlanFormFieldsetLabelOptional' })}</legend>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      value={skipApproval}
-                      disabled={votesRequired > 1 || acceptedFull || !acceptedStage.id ||
-                      !(isAssignedToMe && assignments.length === 1)}
-                      checked={skipApproval}
-                      onClick={() => updateInvestibleAddState({ skipApproval: !skipApproval })}
-                    />
-                  }
-                  label={intl.formatMessage({ id: 'skipApprovalExplanation' })}
-                />
+              <legend>{intl.formatMessage({ id: 'agilePlanFormFieldsetLabelOptional' })}</legend>
+              <FormControlLabel
+              control={
+              <Checkbox
+              value={skipApproval}
+              disabled={votesRequired > 1 || acceptedFull || !acceptedStage.id ||
+              !(isAssignedToMe && assignments.length === 1)}
+              checked={skipApproval}
+              onClick={() => updateInvestibleAddState({ skipApproval: !skipApproval })}
+              />
+            }
+              label={intl.formatMessage({ id: 'skipApprovalExplanation' })}
+              />
               </fieldset>
-            )}
-          </div>
+            </div>
+          )}
           <NameField id={nameId} descriptionFunc={() => getQuillStoredState(editorName)}
                      useCreateDefault />
           {Editor}

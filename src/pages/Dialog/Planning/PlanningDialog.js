@@ -310,7 +310,7 @@ function PlanningDialog(props) {
     navListItemTextArray: [
       createNavListItem(EditIcon, 'planningDialogNavDetailsLabel', 'workspaceMain',
       _.isEmpty(search) || results.find((result) => result.id === marketId) ? undefined : 0,
-      'workspaceMain'),
+      'workspaceMain', true, isSectionBold('workspaceMain')),
       createNavListItem(AddIcon, 'addStoryLabel', 'addStorySection',
         undefined, 'addStorySection', true, isSectionBold('addStorySection')),
       {

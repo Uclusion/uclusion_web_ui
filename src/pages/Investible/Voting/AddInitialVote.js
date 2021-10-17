@@ -119,7 +119,7 @@ function AddInitialVote(props) {
             aria-labelledby="add-vote-certainty"
             className={classes.certaintyGroup}
             onChange={onChange}
-            value={newQuantity}
+            value={newQuantity || 0}
           >
             {[5, 25, 50, 75, 100].map(certainty => {
               return (

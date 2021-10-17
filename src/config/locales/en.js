@@ -576,6 +576,7 @@ const messages = defineMessages({
   planningInvestibleAcceptedHelp: 'For help create a question and add options to it.',
   planningInvestibleVotingHelp: 'Input how certain you are this story should be done or open an issue.',
   noName: 'Must create a name or text description for this story.',
+  noQuantity: 'Must provide your certainty for this story.',
   planningNavTooltip: 'Workspace navigation panel.',
   dialogArchiveNavTooltip: 'Workspace archive navigation panel.',
   collaborators: 'Collaborators',

@@ -37,7 +37,6 @@ function AssignmentList(props) {
   const {
     marketId,
     onChange,
-    previouslyAssigned,
     cannotBeAssigned,
     listHeader,
     requiresInput
@@ -51,12 +50,6 @@ function AssignmentList(props) {
   const formClasses = usePlanFormStyles();
 
   function getDefaultChecked() {
-    if (!_.isEmpty(previouslyAssigned)) {
-      return previouslyAssigned.reduce((acc, id) => ({
-        ...acc,
-        [id]: true,
-      }), {});
-    }
     return {};
   }
 
@@ -113,15 +106,13 @@ function AssignmentList(props) {
   }
   function renderParticipantEntry(presenceEntry) {
     const { name, assignable, id } = presenceEntry;
-    const alreadyAssigned = previouslyAssigned.includes(id);
-    const canBeAssigned = alreadyAssigned || assignable;
     const boxChecked = submitted[id];
     return (
       <ListItem
         key={id}
         button
         onClick={() => {
-          if (canBeAssigned) {
+          if (assignable) {
             getCheckToggle(id);
           }
         }}
@@ -130,12 +121,12 @@ function AssignmentList(props) {
         <ListItemIcon>
           <Checkbox
             value={!!boxChecked}
-            disabled={!canBeAssigned}
+            disabled={!assignable}
             checked={!!boxChecked}
           />
         </ListItemIcon>
         <ListItemText
-          className={canBeAssigned ? classes.name : classes.disabled}
+          className={assignable ? classes.name : classes.disabled}
         >
           {name}
         </ListItemText>

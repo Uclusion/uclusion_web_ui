@@ -458,9 +458,10 @@ function PlanningDialog(props) {
               inReviewStage={inReviewStage}
               inVerifiedStage={inVerifiedStage}
               requiresInputStage={requiresInputStage}
-              activeMarket={activeMarket}
+              market={market}
               isAdmin={isAdmin}
               mobileLayout={mobileLayout}
+              pageState={pageState} updatePageState={updatePageState}
             />
           </div>
           <SubSection
@@ -677,24 +678,30 @@ function InvestiblesByPerson(props) {
     inReviewStage,
     requiresInputStage,
     inVerifiedStage,
-    activeMarket,
+    market,
     isAdmin,
-    mobileLayout
+    mobileLayout,
+    pageState, updatePageState
   } = props;
   const intl = useIntl();
-  const history = useHistory();
   const metaClasses = useMetaDataStyles();
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [messagesState] = useContext(NotificationsContext);
   const classes = useInvestiblesByPersonStyles();
+  const planningInvestibleAddClasses = usePlanFormStyles();
+  const { storyAssignee } = pageState;
+  const { market_stage: marketStage, created_at: createdAt, budget_unit: budgetUnit, use_budget: useBudget,
+    votes_required: votesRequired} = market;
+  const activeMarket = marketStage === ACTIVE_STAGE;
   const marketPresencesSortedAlmost = _.sortBy(marketPresences, 'name');
   const marketPresencesSorted = _.sortBy(marketPresencesSortedAlmost, function (presence) {
     return !presence.current_user;
   });
+  const [, investiblesDispatch] = useContext(InvestiblesContext);
+  const [, diffDispatch] = useContext(DiffContext);
 
   function onClick(id) {
-    const link = formMarketAddInvestibleLink(marketId);
-    navigate(history, `${link}#assignee=${id}`);
+    updatePageState({storyAssignee: id});
   }
 
   return marketPresencesSorted.map(presence => {
@@ -709,58 +716,78 @@ function InvestiblesByPerson(props) {
       investibles,
       visibleStages,
     );
+    function onInvestibleSave(investible) {
+      addInvestible(investiblesDispatch, diffDispatch, investible);
+    }
     const myClassName = showAsPlaceholder ? metaClasses.archivedColor : metaClasses.normalColor;
     return (
-      <Card id={`sl${id}`} key={id} className={classes.root} elevation={3}>
-        <CardHeader
-          className={classes.header}
-          id={`u${id}`}
-          title={
-          <div style={{alignItems: "center", display: "flex", flexDirection: 'row'}}>
-            <Typography variant="h6" className={myClassName}>
-              {name}
-              {!mobileLayout && (
-                <NotificationCountChips id={id} criticalNotifications={criticalNotificationCount}
-                                        delayableNotifications={delayableNotificationCount} />
-              )}
-            </Typography>
-            <div style={{flexGrow: 1}} />
-            <ExpandableAction
-              icon={<AddIcon htmlColor="black"/>}
-              label={intl.formatMessage({ id: 'createAssignmentExplanation' })}
-              openLabel={intl.formatMessage({ id: 'createAssignment'})}
-              onClick={() => onClick(id)}
-              disabled={!isAdmin}
-              tipPlacement="top-end"
-            />
-          </div>}
-          avatar={showAsPlaceholder ? undefined : <Gravatar className={classes.smallGravatar} email={email}
-                                                            name={name}/>}
-          titleTypographyProps={{ variant: "subtitle2" }}
-        />
-        <CardContent className={classes.content}>
-          {marketId &&
-            acceptedStage &&
-            inDialogStage &&
-            inReviewStage &&
-            inVerifiedStage &&
-            inBlockingStage && (
-              <PlanningIdeas
-                investibles={myInvestibles}
-                marketId={marketId}
-                acceptedStage={acceptedStage}
-                inDialogStageId={inDialogStage.id}
-                inReviewStageId={inReviewStage.id}
-                inBlockingStageId={inBlockingStage.id}
-                inRequiresInputStageId={requiresInputStage.id}
-                inVerifiedStageId={inVerifiedStage.id}
-                activeMarket={activeMarket}
-                comments={comments}
-                presenceId={presence.id}
+      <>
+        {storyAssignee === id && (
+          <PlanningInvestibleAdd
+            marketId={marketId}
+            onCancel={() => updatePageState({storyAssignee: undefined})}
+            onSave={onInvestibleSave}
+            onSpinComplete={() => updatePageState({storyAssignee: undefined})}
+            marketPresences={marketPresences}
+            createdAt={createdAt}
+            classes={planningInvestibleAddClasses}
+            maxBudgetUnit={budgetUnit}
+            useBudget={useBudget ? useBudget : false}
+            votesRequired={votesRequired}
+            storyAssignee={storyAssignee}
+          />
+        )}
+        <Card id={`sl${id}`} key={id} className={classes.root} elevation={3}>
+          <CardHeader
+            className={classes.header}
+            id={`u${id}`}
+            title={
+            <div style={{alignItems: "center", display: "flex", flexDirection: 'row'}}>
+              <Typography variant="h6" className={myClassName}>
+                {name}
+                {!mobileLayout && (
+                  <NotificationCountChips id={id} criticalNotifications={criticalNotificationCount}
+                                          delayableNotifications={delayableNotificationCount} />
+                )}
+              </Typography>
+              <div style={{flexGrow: 1}} />
+              <ExpandableAction
+                icon={<AddIcon htmlColor="black"/>}
+                label={intl.formatMessage({ id: 'createAssignmentExplanation' })}
+                openLabel={intl.formatMessage({ id: 'createAssignment'})}
+                onClick={() => onClick(id)}
+                disabled={!isAdmin}
+                tipPlacement="top-end"
               />
-            )}
-        </CardContent>
-      </Card>
+            </div>}
+            avatar={showAsPlaceholder ? undefined : <Gravatar className={classes.smallGravatar} email={email}
+                                                              name={name}/>}
+            titleTypographyProps={{ variant: "subtitle2" }}
+          />
+          <CardContent className={classes.content}>
+            {marketId &&
+              acceptedStage &&
+              inDialogStage &&
+              inReviewStage &&
+              inVerifiedStage &&
+              inBlockingStage && (
+                <PlanningIdeas
+                  investibles={myInvestibles}
+                  marketId={marketId}
+                  acceptedStage={acceptedStage}
+                  inDialogStageId={inDialogStage.id}
+                  inReviewStageId={inReviewStage.id}
+                  inBlockingStageId={inBlockingStage.id}
+                  inRequiresInputStageId={requiresInputStage.id}
+                  inVerifiedStageId={inVerifiedStage.id}
+                  activeMarket={activeMarket}
+                  comments={comments}
+                  presenceId={presence.id}
+                />
+              )}
+          </CardContent>
+        </Card>
+      </>
     );
   });
 }

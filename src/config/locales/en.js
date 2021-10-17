@@ -665,7 +665,7 @@ const messages = defineMessages({
   initiativeInvestibleYourVoting: 'Your Input',
   initiativeInvestibleOthersVoting: 'Options',
   initiativeInvestibleDescription: 'Initiative - Description',
-  investibleDescription: 'Story - Description',
+  investibleDescription: 'Story - Add',
   dialogDescription: 'Dialog - Description',
   dialogAddress: 'Add collaborators',
   planAddress: 'Add collaborators',

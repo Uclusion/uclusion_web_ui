@@ -48,7 +48,8 @@ import IssueDialog from '../../../components/Warnings/IssueDialog'
 
 function PlanningInvestibleAdd(props) {
   const {
-    marketId, classes, onCancel, onSave, onSpinComplete, fromCommentIds, votesRequired, maxBudgetUnit, useBudget
+    marketId, classes, onCancel, onSave, onSpinComplete, fromCommentIds, votesRequired, maxBudgetUnit, useBudget,
+    storyAssignee
   } = props;
   const intl = useIntl();
   const theme = useTheme();
@@ -60,18 +61,7 @@ function PlanningInvestibleAdd(props) {
   const [open, setOpen] = useState(false);
   const lockedDialogClasses = useLockedDialogStyles();
   const location = useLocation();
-  function getUrlAssignee() {
-    const { hash } = location;
-    if (!_.isEmpty(hash)) {
-      const values = queryString.parse(hash);
-      const { assignee } = values;
-      if (assignee) {
-        return [assignee];
-      }
-    }
-    return undefined;
-  }
-  const [assignments, setAssignments] = useState(getUrlAssignee());
+  const [assignments, setAssignments] = useState(undefined);
   const nameId = `investibleAdd${marketId}`;
   const [openIssue, setOpenIssue] = useState(false);
   const comments = getMarketComments(commentsState, marketId) || [];
@@ -181,7 +171,7 @@ function PlanningInvestibleAdd(props) {
       return;
     }
     if (isAssigned) {
-      addInfo.assignments = assignments;
+      addInfo.assignments = assignments || [storyAssignee];
     }
     if (skipApproval) {
       addInfo.stageId = acceptedStage.id;
@@ -295,11 +285,12 @@ function PlanningInvestibleAdd(props) {
         />
         <CardContent>
           <div className={classes.cardContent}>
-            <AssignmentList
-              marketId={marketId}
-              onChange={onAssignmentsChange}
-              previouslyAssigned={getUrlAssignee()}
-            />
+            {!storyAssignee && (
+              <AssignmentList
+                marketId={marketId}
+                onChange={onAssignmentsChange}
+              />
+            )}
             <fieldset className={classes.fieldset}>
               <legend>{intl.formatMessage({ id: 'agilePlanFormFieldsetLabelOptional' })}</legend>
               <FormControlLabel

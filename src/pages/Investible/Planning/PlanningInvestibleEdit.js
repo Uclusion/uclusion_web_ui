@@ -196,7 +196,7 @@ function PlanningInvestibleEdit(props) {
             />
           </div>
         </CardContent>
-        <CardActions className={classes.actions}>
+        <CardActions className={myClasses.actions}>
           <SpinningIconLabelButton onClick={onCancel} doSpin={false} icon={Clear}>
             {intl.formatMessage({ id: 'marketAddCancelLabel' })}
           </SpinningIconLabelButton>

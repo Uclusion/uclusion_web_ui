@@ -197,11 +197,6 @@ export function formCommentLink(marketId, investibleId, commentId){
   return formMarketLink(marketId) + commentPart;
 }
 
-
-export function formInvestibleEditLink(marketId, investibleId){
-  return formInvestibleLinkWithPrefix('investibleEdit', marketId, investibleId)
-}
-
 export function formInvestibleLinkWithPrefix(preFix, marketId, investibleId) {
   return `/${preFix}/${marketId}/${investibleId}`;
 }

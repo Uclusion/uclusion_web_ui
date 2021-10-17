@@ -26,12 +26,11 @@ import {
 } from '../../../constants/comments'
 import {
   baseNavListItem,
-  formInvestibleEditLink, formInvestibleLink,
+  formInvestibleLink,
   formMarketArchivesLink,
   formMarketLink,
   makeArchiveBreadCrumbs,
   makeBreadCrumbs,
-  navigate
 } from '../../../utils/marketIdPathFunctions'
 import Screen from '../../../containers/Screen/Screen'
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
@@ -120,6 +119,8 @@ import { deleteSingleMessage } from '../../../api/users'
 import WarningDialog from '../../../components/Warnings/WarningDialog'
 import { useLockedDialogStyles } from '../../Dialog/DialogBodyEdit'
 import InputLabel from '@material-ui/core/InputLabel'
+import PlanningInvestibleEdit from './PlanningInvestibleEdit'
+import { removeInvestibleInvestments } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 
 const useStyles = makeStyles(
   theme => ({
@@ -359,7 +360,7 @@ function PlanningInvestible(props) {
   const classes = useStyles();
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
-  const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, diffDispatch] = useContext(DiffContext);
   const [searchResults] = useContext(SearchResultsContext);
   const { results, parentResults, search } = searchResults;
@@ -394,6 +395,7 @@ function PlanningInvestible(props) {
   const [pageState, updatePageState, pageStateReset] = getPageReducerPage(pageStateFull, pageDispatch, investibleId);
   const {
     beingEdited,
+    editCollaborators
   } = pageState;
 
   const [votingPageStateFull, votingPageDispatch] = usePageStateReducer('voting')
@@ -625,7 +627,7 @@ function PlanningInvestible(props) {
 
   const todoWarning = isInVoting || isReadyFurtherWork || isInBlocked || isRequiresInput ? null : 'todoWarningPlanning';
   function toggleAssign() {
-    navigate(history, `${formInvestibleEditLink(marketId, investibleId)}#assign=true`);
+    updatePageState({editCollaborators: 'assign'});
   }
   function toggleEdit() {
     setShowDatepicker(!showDatepicker);
@@ -701,11 +703,11 @@ function PlanningInvestible(props) {
     return pushMessage(LOCK_INVESTIBLE_CHANNEL, { event: LOCK_INVESTIBLE, marketId, investibleId });
   }
   function toggleReviewers() {
-    navigate(history, `${formInvestibleEditLink(market.id, marketInvestible.investible.id)}#review=true`);
+    updatePageState({editCollaborators: 'review'});
   }
 
   function toggleApprovers() {
-    navigate(history, `${formInvestibleEditLink(market.id, marketInvestible.investible.id)}#approve=true`);
+    updatePageState({editCollaborators: 'approve'});
   }
   function createNavListItem(icon, textId, anchorId, howManyNum, alwaysShow) {
     return baseNavListItem(formInvestibleLink(marketId, investibleId), icon, textId, anchorId, howManyNum, alwaysShow);
@@ -741,6 +743,19 @@ function PlanningInvestible(props) {
       createNavListItem(QuestionAnswer,'closedComments', `c${closedId}`, _.size(sortedClosedRoots))
     ]};
 
+
+  function onSaveAssignments (result) {
+    // the edit ony contains the investible data and assignments, not the full market infos
+    if (result) {
+      const { fullInvestible, assignmentChanged } = result;
+      refreshInvestibles(investiblesDispatch, diffDispatch, [fullInvestible]);
+      if (assignmentChanged) {
+        removeInvestibleInvestments(marketPresencesState, marketPresencesDispatch, marketId, investibleId);
+      }
+    }
+    updatePageState({editCollaborators: false});
+  }
+
   return (
     <Screen
       title={ticketCode ? `${ticketCode} ${name}` : name}
@@ -758,6 +773,19 @@ function PlanningInvestible(props) {
       )}
       {!yourVote && !inArchives && canVote && !isAssigned && (
         <DismissableText textId='planningInvestibleVotingHelp' />
+      )}
+      {!hidden && editCollaborators && (
+        <PlanningInvestibleEdit
+          fullInvestible={marketInvestible}
+          marketId={marketId}
+          marketPresences={marketPresences}
+          onSave={onSaveAssignments}
+          onCancel={() => updatePageState({editCollaborators: false})}
+          isAdmin={isAdmin}
+          isAssign={editCollaborators === 'assign'}
+          isReview={editCollaborators === 'review'}
+          isApprove={editCollaborators === 'approve'}
+        />
       )}
       <Card id="storyMain" elevation={3}>
         <CardType

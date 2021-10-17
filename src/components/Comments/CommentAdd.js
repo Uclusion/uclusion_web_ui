@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { FormattedMessage, useIntl } from 'react-intl';
+import { useIntl } from 'react-intl';
 import _ from 'lodash'
 import {
   Button, Checkbox,
@@ -26,8 +26,6 @@ import {
   getMarketComments,
   refreshMarketComments
 } from '../../contexts/CommentsContext/commentsContextHelper'
-import { Dialog } from '../Dialogs'
-import WarningIcon from '@material-ui/icons/Warning'
 import { useLockedDialogStyles } from '../../pages/Dialog/DialogBodyEdit'
 import {
   getBlockedStage, getInCurrentVotingStage,
@@ -48,7 +46,6 @@ import { Add, Clear, Delete } from '@material-ui/icons'
 import { editorFocus, editorReset, editorUpdate, getControlPlaneName, useEditor } from '../TextEditors/quillHooks'
 import { getUiPreferences } from '../../contexts/AccountUserContext/accountUserContextHelper'
 import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
-import DismissableText from '../Notifications/DismissableText'
 import { pushMessage } from '../../utils/MessageBusUtils'
 import { getQuillStoredState } from '../TextEditors/QuillEditor2'
 import IssueDialog from '../Warnings/IssueDialog'

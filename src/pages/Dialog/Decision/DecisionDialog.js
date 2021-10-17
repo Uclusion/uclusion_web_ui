@@ -69,7 +69,6 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import DismissableText from '../../../components/Notifications/DismissableText'
 import DialogManage from '../DialogManage'
 import SettingsIcon from '@material-ui/icons/Settings'
-import PlanningDialogEdit from '../Planning/PlanningDialogEdit'
 import DecisionDialogEdit from './DecisionDialogEdit'
 
 const useStyles = makeStyles(

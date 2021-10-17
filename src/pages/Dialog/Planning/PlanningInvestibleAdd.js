@@ -8,8 +8,6 @@ import { processTextAndFilesForSave } from '../../../api/files'
 import { formInvestibleLink, formMarketLink } from '../../../utils/marketIdPathFunctions'
 import AssignmentList from './AssignmentList'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
-import { useLocation } from 'react-router';
-import queryString from 'query-string'
 import CardType, { QUESTION_TYPE, STORY_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../components/CardType'
 import DismissableText from '../../../components/Notifications/DismissableText'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
@@ -49,7 +47,7 @@ import IssueDialog from '../../../components/Warnings/IssueDialog'
 function PlanningInvestibleAdd(props) {
   const {
     marketId, classes, onCancel, onSave, onSpinComplete, fromCommentIds, votesRequired, maxBudgetUnit, useBudget,
-    storyAssignee
+    storyAssignee, furtherWorkType
   } = props;
   const intl = useIntl();
   const theme = useTheme();
@@ -60,23 +58,10 @@ function PlanningInvestibleAdd(props) {
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [open, setOpen] = useState(false);
   const lockedDialogClasses = useLockedDialogStyles();
-  const location = useLocation();
   const [assignments, setAssignments] = useState(undefined);
   const nameId = `investibleAdd${marketId}`;
   const [openIssue, setOpenIssue] = useState(false);
   const comments = getMarketComments(commentsState, marketId) || [];
-  function getUrlOpenForInvestment() {
-    const { hash } = location;
-    if (!_.isEmpty(hash)) {
-      const values = queryString.parse(hash);
-      const { start } = values;
-      if (start) {
-        return true;
-      }
-    }
-    return undefined;
-  }
-
   const [investibleState] = useContext(InvestiblesContext);
   const [presencesState] = useContext(MarketPresencesContext);
   const presences = getMarketPresences(presencesState, marketId) || [];
@@ -98,7 +83,7 @@ function PlanningInvestibleAdd(props) {
     uploadedFiles
   } = investibleAddState;
   const isAssignedToMe = (assignments || []).includes(myPresence.id);
-  const isAssigned = !_.isEmpty(assignments);
+  const isAssigned = !_.isEmpty(assignments) || storyAssignee;
   const editorName = `${marketId}-planning-inv-add`;
   const editorSpec = {
     marketId,
@@ -176,7 +161,7 @@ function PlanningInvestibleAdd(props) {
     if (skipApproval) {
       addInfo.stageId = acceptedStage.id;
     }
-    const openForInvestment = getUrlOpenForInvestment();
+    const openForInvestment = furtherWorkType === 'readyToStart';
     if (openForInvestment) {
       addInfo.openForInvestment = true;
     }
@@ -284,28 +269,30 @@ function PlanningInvestibleAdd(props) {
           type={STORY_TYPE}
         />
         <CardContent>
-          <div className={classes.cardContent}>
-            {!storyAssignee && (
+          <div className={!storyAssignee && _.isEmpty(furtherWorkType) ? classes.cardContent : undefined}>
+            {!storyAssignee && _.isEmpty(furtherWorkType) && (
               <AssignmentList
                 marketId={marketId}
                 onChange={onAssignmentsChange}
               />
             )}
-            <fieldset className={classes.fieldset}>
-              <legend>{intl.formatMessage({ id: 'agilePlanFormFieldsetLabelOptional' })}</legend>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    value={skipApproval}
-                    disabled={votesRequired > 1 || acceptedFull || !acceptedStage.id ||
-                    !(isAssignedToMe && assignments.length === 1)}
-                    checked={skipApproval}
-                    onClick={() => updateInvestibleAddState({ skipApproval: !skipApproval })}
-                  />
-                }
-                label={intl.formatMessage({ id: 'skipApprovalExplanation' })}
-              />
-            </fieldset>
+            {_.isEmpty(furtherWorkType) && (
+              <fieldset className={classes.fieldset}>
+                <legend>{intl.formatMessage({ id: 'agilePlanFormFieldsetLabelOptional' })}</legend>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      value={skipApproval}
+                      disabled={votesRequired > 1 || acceptedFull || !acceptedStage.id ||
+                      !(isAssignedToMe && assignments.length === 1)}
+                      checked={skipApproval}
+                      onClick={() => updateInvestibleAddState({ skipApproval: !skipApproval })}
+                    />
+                  }
+                  label={intl.formatMessage({ id: 'skipApprovalExplanation' })}
+                />
+              </fieldset>
+            )}
           </div>
           <NameField id={nameId} descriptionFunc={() => getQuillStoredState(editorName)}
                      useCreateDefault />

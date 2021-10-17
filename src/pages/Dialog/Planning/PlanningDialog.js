@@ -16,7 +16,7 @@ import PlanningIdeas from './PlanningIdeas'
 import Screen from '../../../containers/Screen/Screen'
 import {
   baseNavListItem,
-  formMarketAddInvestibleLink, formMarketArchivesLink, formMarketLink,
+  formMarketArchivesLink, formMarketLink,
   makeArchiveBreadCrumbs,
   makeBreadCrumbs,
   navigate
@@ -130,7 +130,8 @@ function PlanningDialog(props) {
     {sectionOpen: 'workspaceMain', collaboratorsOpen: isDraft && myPresence.id === createdBy });
   const {
     sectionOpen,
-    collaboratorsOpen
+    collaboratorsOpen,
+    furtherWorkType
   } = pageState;
   function setSectionOpen(section) {
     updatePageState({sectionOpen: section});
@@ -228,13 +229,11 @@ function PlanningDialog(props) {
   }, [marketId, marketPresencesState, comments, hash, sectionOpen, updatePageState]);
 
   function onClickFurtherStart() {
-    const link = formMarketAddInvestibleLink(marketId);
-    navigate(history, `${link}#start=true`);
+    updatePageState({furtherWorkType: 'readyToStart'});
   }
 
   function onClickFurther() {
-    const link = formMarketAddInvestibleLink(marketId);
-    navigate(history, link);
+    updatePageState({furtherWorkType: 'notReadyToStart'});
   }
 
   function openSubSection(subSection) {
@@ -471,6 +470,24 @@ function PlanningDialog(props) {
             id="furtherWork"
             title={intl.formatMessage({ id: 'readyFurtherWorkHeader' })}
           >
+            {furtherWorkType === 'readyToStart' && (
+              <PlanningInvestibleAdd
+                marketId={marketId}
+                onCancel={() => updatePageState({furtherWorkType: undefined})}
+                onSave={onInvestibleSave}
+                onSpinComplete={(destinationLink) => {
+                  updatePageState({furtherWorkType: undefined});
+                  onDone(destinationLink);
+                }}
+                marketPresences={marketPresences}
+                createdAt={createdAt}
+                classes={planningInvestibleAddClasses}
+                maxBudgetUnit={budgetUnit}
+                useBudget={useBudget ? useBudget : false}
+                votesRequired={votesRequired}
+                furtherWorkType={furtherWorkType}
+              />
+            )}
             <div style={{paddingTop: '1rem'}} />
             <SubSection
               type={SECTION_TYPE_SECONDARY_WARNING}
@@ -500,6 +517,24 @@ function PlanningDialog(props) {
               />
             </SubSection>
             {!_.isEmpty(furtherWorkInvestibles) && (<div style={{ paddingBottom: '15px' }}/>)}
+            {furtherWorkType === 'notReadyToStart' && (
+              <PlanningInvestibleAdd
+                marketId={marketId}
+                onCancel={() => updatePageState({furtherWorkType: undefined})}
+                onSave={onInvestibleSave}
+                onSpinComplete={(destinationLink) => {
+                  updatePageState({furtherWorkType: undefined});
+                  onDone(destinationLink);
+                }}
+                marketPresences={marketPresences}
+                createdAt={createdAt}
+                classes={planningInvestibleAddClasses}
+                maxBudgetUnit={budgetUnit}
+                useBudget={useBudget ? useBudget : false}
+                votesRequired={votesRequired}
+                furtherWorkType={furtherWorkType}
+              />
+            )}
             <SubSection
               type={SECTION_TYPE_WARNING}
               titleIcon={furtherWorkNotReadyToStartChip === false ? undefined : furtherWorkNotReadyToStartChip}
@@ -684,6 +719,7 @@ function InvestiblesByPerson(props) {
     pageState, updatePageState
   } = props;
   const intl = useIntl();
+  const history = useHistory();
   const metaClasses = useMetaDataStyles();
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [messagesState] = useContext(NotificationsContext);
@@ -719,6 +755,11 @@ function InvestiblesByPerson(props) {
     function onInvestibleSave(investible) {
       addInvestible(investiblesDispatch, diffDispatch, investible);
     }
+    function onDone(destinationLink) {
+      if (destinationLink) {
+        navigate(history, destinationLink);
+      }
+    }
     const myClassName = showAsPlaceholder ? metaClasses.archivedColor : metaClasses.normalColor;
     return (
       <>
@@ -727,7 +768,10 @@ function InvestiblesByPerson(props) {
             marketId={marketId}
             onCancel={() => updatePageState({storyAssignee: undefined})}
             onSave={onInvestibleSave}
-            onSpinComplete={() => updatePageState({storyAssignee: undefined})}
+            onSpinComplete={(destinationLink) => {
+              updatePageState({storyAssignee: undefined});
+              onDone(destinationLink);
+            }}
             marketPresences={marketPresences}
             createdAt={createdAt}
             classes={planningInvestibleAddClasses}

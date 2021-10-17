@@ -345,6 +345,7 @@ function PlanningDialog(props) {
   }
 
   function onDone(destinationLink) {
+    openSubSection('storiesSection');
     if (destinationLink) {
       navigate(history, destinationLink);
     }

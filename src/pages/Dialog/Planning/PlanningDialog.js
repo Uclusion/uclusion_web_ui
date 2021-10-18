@@ -586,7 +586,6 @@ function PlanningDialog(props) {
         <h2>
           <FormattedMessage id="planningDialogNavDiscussionLabel" />
         </h2>
-        <DismissableText textId="workspaceCommentHelp"/>
         <Grid item id="commentAddArea" xs={12}>
           {!inArchives && _.isEmpty(search) && marketId && !hidden && (
             <CommentAddBox
@@ -595,6 +594,7 @@ function PlanningDialog(props) {
               numProgressReport={_.size(reports)}
             />
           )}
+          <DismissableText textId="workspaceCommentHelp"/>
           <CommentBox comments={notTodoComments} marketId={marketId} allowedTypes={allowedCommentTypes}/>
         </Grid>
       </Grid>

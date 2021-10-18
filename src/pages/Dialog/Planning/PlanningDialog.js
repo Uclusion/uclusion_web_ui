@@ -3,7 +3,7 @@
  */
 import React, { useContext, useEffect, useState } from 'react'
 import { useHistory, useLocation } from 'react-router'
-import { useIntl } from 'react-intl'
+import { FormattedMessage, useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import { Grid, Typography, useMediaQuery, useTheme } from '@material-ui/core'
@@ -315,13 +315,17 @@ function PlanningDialog(props) {
         undefined, 'addStorySection', true, isSectionBold('addStorySection')),
       {
         text: intl.formatMessage({ id: 'planningDialogNavStoriesLabel' }),
-        subItems: storiesItems, isBold: isSectionBold('storiesSection')
+        subItems: storiesItems, isBold: isSectionBold('storiesSection'),
+        onClickFunc: getNavListItemOnClick('storiesSection',
+          `${formMarketLink(marketId)}#storiesSection`)
       },
       createNavListItem(ListAltIcon, 'todoSection', 'marketTodos', _.size(todoComments),
         'marketTodos', !inArchives && _.isEmpty(search), isSectionBold('marketTodos')),
       {
         text: intl.formatMessage({ id: 'planningDialogNavDiscussionLabel' }),
-        subItems: discussionItems, isBold: isSectionBold('discussionSection')
+        subItems: discussionItems, isBold: isSectionBold('discussionSection'),
+        onClickFunc: getNavListItemOnClick('discussionSection',
+          `${formMarketLink(marketId)}#discussionSection`)
       },
       {
         icon: MenuBookIcon, text: intl.formatMessage({ id: 'planningDialogViewArchivesLabel' }),
@@ -393,6 +397,9 @@ function PlanningDialog(props) {
       <LocalPlanningDragContext.Provider value={[beingDraggedHack, setBeingDraggedHack]}>
         <div id="storiesSection"
              style={{ display: isSectionOpen('storiesSection') ? 'block' : 'none' }}>
+          <h2>
+            <FormattedMessage id="planningDialogNavStoriesLabel" />
+          </h2>
           <DismissableText textId="storyHelp"/>
           {!isChannel && (
             <DismissableText textId="stageHelp"/>
@@ -570,6 +577,9 @@ function PlanningDialog(props) {
       </LocalPlanningDragContext.Provider>
       <Grid container spacing={2} id="discussionSection"
             style={{ display: isSectionOpen('discussionSection') ? 'block' : 'none' }}>
+        <h2>
+          <FormattedMessage id="planningDialogNavDiscussionLabel" />
+        </h2>
         <DismissableText textId="workspaceCommentHelp"/>
         <Grid item id="commentAddArea" xs={12}>
           {!inArchives && _.isEmpty(search) && marketId && !hidden && (

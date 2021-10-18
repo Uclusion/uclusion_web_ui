@@ -241,7 +241,8 @@ function Screen(props) {
                 if (subItems) {
                   return (
                     <div key={`top${topIndex}${text}${title}`}>
-                      <ListItem key={`topListItem${topIndex}${text}${title}`} style={{ paddingBottom: 0 }}>
+                      <ListItem key={`topListItem${topIndex}${text}${title}`} onClick={onClickFunc}
+                                style={{ paddingBottom: 0, cursor: 'pointer' }}>
                         <ListItemText primary={text}
                                       primaryTypographyProps={{ className: isBold ? classes.navGroupHeader : undefined }}
                         />

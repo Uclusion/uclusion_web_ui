@@ -452,7 +452,13 @@ function PlanningDialog(props) {
             </SubSection>
           )}
           {!_.isEmpty(requiresInputInvestibles) && (<div style={{ paddingBottom: '2rem' }}/>)}
-          <div id="swimLanes">
+          <SubSection
+            type={SECTION_SUB_HEADER}
+            isBlackText
+            helpTextId="swimLanesHelp"
+            id="swimLanes"
+            title={intl.formatMessage({ id: 'swimLanes' })}
+          >
             <InvestiblesByPerson
               comments={comments}
               investibles={investibles}
@@ -470,7 +476,7 @@ function PlanningDialog(props) {
               mobileLayout={mobileLayout}
               pageState={pageState} updatePageState={updatePageState}
             />
-          </div>
+          </SubSection>
           <SubSection
             type={SECTION_SUB_HEADER}
             isBlackText

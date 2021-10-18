@@ -612,6 +612,7 @@ const messages = defineMessages({
   convenientSectionHelp: 'These TODOs are a priority if there are no immediate ones.',
   ableSectionHelp: 'These TODOs may or may not be a priority.',
   storyFromComment: 'Move to Story',
+  swimLanesHelp: 'These are stories that are assigned and not requiring input or blocked.',
 
   // Decision Dialog
   decisionDialogSummaryLabel: 'Background Information',

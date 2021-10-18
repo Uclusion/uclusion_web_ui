@@ -318,7 +318,7 @@ const messages = defineMessages({
   investibleReviewers: 'Story - Required Reviewers',
   investibleApprovers: 'Story - Required Approvers',
   createAssignment: 'Assign Story',
-  createAssignmentExplanation: 'Assign new story to this person. Can add other assignees also.',
+  createAssignmentExplanation: 'Assign new story to this person.',
   investibleAssignForVotingLabel: 'Assign & Move Voting',
   investibleAddHeader: 'Add Investible',
   investibleEditStageHelper: 'Select to change stage',

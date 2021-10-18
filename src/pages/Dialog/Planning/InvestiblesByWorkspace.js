@@ -8,7 +8,7 @@ import { useInvestiblesByPersonStyles } from './PlanningDialog'
 import { sumNotificationCounts } from './userUtils'
 import PropTypes from 'prop-types';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { getMarketPresences, getPresenceMap } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { getPresenceMap } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { ACTIVE_STAGE } from '../../../constants/markets';
@@ -30,7 +30,6 @@ import { SECTION_TYPE_SECONDARY_WARNING } from '../../../constants/global';
 import ArchiveInvestbiles from '../../DialogArchives/ArchiveInvestibles';
 import Link from '@material-ui/core/Link';
 import {
-  formMarketAddInvestibleLink,
   formMarketLink,
   navigate,
   preventDefaultAndProp
@@ -39,8 +38,6 @@ import { useHistory } from 'react-router';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import Gravatar from '../../../components/Avatars/Gravatar';
 import NotificationCountChips from '../NotificationCountChips'
-import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
-import AddIcon from '@material-ui/icons/Add'
 import Chip from '@material-ui/core/Chip'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 export const LocalPlanningDragContext = React.createContext([]);
@@ -141,16 +138,7 @@ function InvestiblesByWorkspace (props) {
       </div>
       <LocalPlanningDragContext.Provider value={[beingDraggedHack, setBeingDraggedHack]}>
         {workspacesData.map((data) => {
-          const { market, presence, myInvestibles, requiresInputInvestibles, blockedInvestibles } = data
-
-          function onClick (id) {
-            const link = formMarketAddInvestibleLink(market.id)
-            navigate(history, `${link}#assignee=${id}`)
-          }
-
-          const marketPresences = getMarketPresences(marketPresencesState, market.id)
-          const assigningPresenceRaw = marketPresences && marketPresences.find((presence) => presence.current_user)
-          const assigningPresence = assigningPresenceRaw || {}
+          const { market, presence, myInvestibles, requiresInputInvestibles, blockedInvestibles } = data;
           const comments = getMarketComments(commentsState, market.id);
 
           const acceptedStage = getAcceptedStage(marketStagesState, market.id) || {};
@@ -190,14 +178,6 @@ function InvestiblesByWorkspace (props) {
                       )}
                     </Typography>
                     <div style={{flexGrow: 1}} />
-                    <ExpandableAction
-                      icon={<AddIcon htmlColor="black"/>}
-                      label={intl.formatMessage({ id: 'createAssignmentExplanation' })}
-                      openLabel={intl.formatMessage({ id: 'createAssignment'})}
-                      onClick={() => onClick(presence.id)}
-                      disabled={!assigningPresence.is_admin}
-                      tipPlacement="top-end"
-                    />
                   </div>
                 }
                 titleTypographyProps={{ variant: 'subtitle2' }}

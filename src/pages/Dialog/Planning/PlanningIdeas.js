@@ -616,14 +616,6 @@ function VotingStage (props) {
   return (
 
     <Stage
-      fallbackWarning={
-        activeMarket && isAdmin &&
-            <StageLink href={assignedLink} onClick={onClick}>
-              {intl.formatMessage({
-                id: 'createAssignment'
-              })}
-            </StageLink>
-      }
       marketId={marketId}
       comments={comments}
       presenceId={presenceId}

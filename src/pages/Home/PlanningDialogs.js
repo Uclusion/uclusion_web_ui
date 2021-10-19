@@ -36,6 +36,7 @@ import { getSortedRoots } from '../../containers/CommentBox/CommentBox'
 import WorkIcon from '@material-ui/icons/Work'
 import { getStages } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
+import PlaylistAddCheckIcon from '@material-ui/icons/PlaylistAddCheck'
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -155,6 +156,15 @@ const useStyles = makeStyles((theme) => ({
   chipItemEmpty: {
     color: 'gray',
   },
+  titleContainer: {
+    width: 'auto',
+    display: 'flex',
+    alignItems: 'center',
+    marginBottom: '1rem'
+  },
+  title: {
+    marginLeft: '1rem'
+  }
 }));
 
 function PlanningDialogs(props) {
@@ -460,9 +470,17 @@ function PlanningDialogs(props) {
   }
 
   return (
-    <Grid container spacing={4} id="planningMarkets">
-      {getMarketItems()}
-    </Grid>
+    <>
+      <div className={classes.titleContainer} id="planningMarkets">
+        {<PlaylistAddCheckIcon htmlColor="#333333"/>}
+        <Typography className={classes.title} variant="h6">
+          {intl.formatMessage({ id: 'homePlanningDialogs' })}
+        </Typography>
+      </div>
+      <Grid container spacing={4}>
+        {getMarketItems()}
+      </Grid>
+    </>
   );
 }
 

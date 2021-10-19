@@ -146,6 +146,7 @@ const messages = defineMessages({
   points: 'points',
   currency: 'dollars',
   update: 'Update',
+  homePlanningDialogs: 'My Workspaces',
 
   // Upgrade
   upgradeNow: 'Upgrade Now',
@@ -313,7 +314,7 @@ const messages = defineMessages({
   // Investible
   investibleEditLabel: 'Edit',
   investibleAssignLabel: 'Assign',
-  homeAssignments: 'Stories Overview',
+  homeAssignments: 'Stories by Workspace',
   investibleAssign: 'Story - Assignments',
   investibleReviewers: 'Story - Required Reviewers',
   investibleApprovers: 'Story - Required Approvers',

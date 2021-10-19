@@ -69,7 +69,8 @@ const useStyles = makeStyles(() => ({
       marginLeft: '1rem'
     }
   })
-)
+);
+
 function Home(props) {
   const { hidden } = props;
   const history = useHistory();
@@ -218,17 +219,15 @@ function Home(props) {
         </div>
       )}
       {assignedSize > 0 && (
-        <div className={classes.titleContainer}>
+        <div className={classes.titleContainer} id="swimLanes">
           {<AgilePlanIcon htmlColor="#333333"/>}
           <Typography className={classes.title} variant="h6">
             {intl.formatMessage({ id: 'homeAssignments' })}
           </Typography>
         </div>
       )}
-      <div id="swimLanes">
-        <InvestiblesByWorkspace workspaces={planningDetails} chosenPerson={chosenPerson}
-                                setChosenPerson={setChosenPerson} workspacesData={workspacesData} />
-      </div>
+      <InvestiblesByWorkspace workspaces={planningDetails} chosenPerson={chosenPerson}
+                              setChosenPerson={setChosenPerson} workspacesData={workspacesData} />
       {!_.isEmpty(planningDetails) && (
         <React.Fragment>
           {(assignedSize > 0 || wizardActive) && (

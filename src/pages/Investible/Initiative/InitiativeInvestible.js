@@ -310,7 +310,7 @@ function InitiativeInvestible(props) {
   const suggestions = sortedRoots.filter((comment) => comment.comment_type === SUGGEST_CHANGE_TYPE);
   const { id: suggestId } = getFakeCommentsArray(suggestions)[0]
   const navigationMenu = {
-    navHeaderIcon: Assessment, navTooltip: 'initiativeNavTooltip',
+    navHeaderIcon: Assessment, navToolLink: 'https://documentation.uclusion.com/initiatives-and-dialogs/initiatives',
     navListItemTextArray: [createNavListItem(EditIcon, 'description_label', 'initiativeMain'),
       createNavListItem(ThumbUpIcon, 'for', 'for', _.size(positiveVoters), true),
       createNavListItem(ThumbDownIcon, 'against', 'against', _.size(negativeVoters), true),

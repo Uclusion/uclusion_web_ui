@@ -306,7 +306,7 @@ function PlanningDialog(props) {
   }
 
   const navigationMenu = {
-    navHeaderIcon: PlaylistAddCheckIcon, navTooltip: 'planningNavTooltip',
+    navHeaderIcon: PlaylistAddCheckIcon, navToolLink: 'https://documentation.uclusion.com/workspaces/#workspace-navigation',
     navListItemTextArray: [
       createNavListItem(EditIcon, 'planningDialogNavDetailsLabel', 'workspaceMain',
       _.isEmpty(search) || results.find((result) => result.id === marketId) ? undefined : 0,
@@ -376,7 +376,8 @@ function PlanningDialog(props) {
         <DismissableText textId="planningEditHelp" text={
           <div>
             This is a <Link href="https://documentation.uclusion.com/workspaces" target="_blank">Workspace
-            </Link> and it hold's everything about an agile project. When this description changes everyone is notified.
+            </Link> and it hold's everything about an agile project. Click the left navigation panel icon to learn
+            more about the panel.
           </div>
         }/>
         <Summary market={market} hidden={hidden} activeMarket={activeMarket} inArchives={inArchives}

@@ -330,7 +330,8 @@ function DecisionDialog(props) {
       }));
   }
   const navigationMenu = {
-    navHeaderIcon: GavelIcon, navTooltip: 'decisionNavTooltip', navListItemTextArray
+    navHeaderIcon: GavelIcon, navToolLink: 'https://documentation.uclusion.com/initiatives-and-dialogs/dialogs',
+    navListItemTextArray
   }
   return (
     <Screen

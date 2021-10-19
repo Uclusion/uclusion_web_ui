@@ -346,7 +346,6 @@ const messages = defineMessages({
   planningInvestibleVerifiedExplanation: 'Move to Verified when you no longer anticipate further work on the story',
   planningInvestibleFurtherWorkExplanation: 'Move to this stage when a handoff to another assignee is expected for this story',
   planningInvestibleVotingExplanation: 'Move to voting allows certainty and estimates to be re-collected',
-  planningInvestibleNavTooltip: 'Story navigation panel.',
   planningVotingStageLabel: 'Ready for Approval',
   planningVotingStageDescription: 'This stage notifies collaborators to approve starting this story. Stories with unresolved questions or suggestions have red titles.',
   planningAcceptedStageLabel: 'Not Ready For Feedback',
@@ -513,7 +512,6 @@ const messages = defineMessages({
   homeAddNewExplanation: 'Create a new Workspace, Dialog, or Initiative',
   homeViewAbout: 'About',
   homeCreatedAt: 'Created on {dateString}',
-  homeNavTooltip: 'Home page navigation panel.',
   archiveWarning: 'Archiving will unassign any active story and prevent further assignment. Deactivating stops the Workspace.',
   createWorkspaceGreeting: '{name} reclaim your meetings',
   createWorkspaceContent: 'Put the continuous in continuous improvement by letting Uclusion create a Workspace for you from template.',
@@ -525,7 +523,6 @@ const messages = defineMessages({
   // Archives
   archivesTitle: 'Archive',
   helpVideos: 'Watch help videos in YouTube',
-  archiveNavTooltip: 'Archive navigation panel.',
 
   // Decision Dialogs
   decisionDialogsStartedBy: 'Started By: {name}',
@@ -539,7 +536,6 @@ const messages = defineMessages({
   decisionDialogsBecomeParticipant: 'Activate notifications and move from archive',
   decisionDialogsInviteParticipant: 'Invite Participant',
   decisionDialogsArchiveDialog: 'Deactivate',
-  decisionNavTooltip: 'Dialog navigation panel.',
 
   // Planning Dialog
   planningDialogNavDetailsLabel: 'Details',
@@ -567,8 +563,6 @@ const messages = defineMessages({
   noName: 'Must create a name or text description for this story.',
   noQuantity: 'Must provide your certainty for this story.',
   noVoteQuantity: 'Must provide your certainty.',
-  planningNavTooltip: 'Workspace navigation panel.',
-  dialogArchiveNavTooltip: 'Workspace archive navigation panel.',
   collaborators: 'Collaborators',
   inlineAddLabel: 'Add Option',
   inlineAddLabelMobile: 'Option',
@@ -648,7 +642,6 @@ const messages = defineMessages({
   decisionInvestibleDiscussion: 'Discussion',
   decisionInvestibleVotingBlockedMarket: 'Voting suspended until the open issue on this dialog is resolved',
   decisionInvestibleVotingBlockedInvestible: 'Voting suspended until the open issue on this option is resolved',
-  decisionInvestibleNavTooltip: 'Option navigation panel.',
 
   // InitiativeInvestible
   initiativeInvestibleVotingBlocked: 'Voting is blocked because there is an open issue',
@@ -666,7 +659,6 @@ const messages = defineMessages({
   initiativeVotingFor: 'For',
   initiativeVotingAgainst: 'Against',
   initiativeAddHelp: 'Create an initiative to quickly gather opinions on your next potential project.',
-  initiativeNavTooltip: 'Initiative navigation panel.',
 
   // About
   sidebarNavAbout: 'About',

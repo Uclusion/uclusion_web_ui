@@ -48,7 +48,7 @@ function Archives(props) {
   }
 
   const navigationMenu = {
-    navHeaderIcon: MenuBookIcon, navTooltip: 'archiveNavTooltip',
+    navHeaderIcon: MenuBookIcon, navToolLink: 'https://documentation.uclusion.com/overview',
     navListItemTextArray: [createNavListItem(PlaylistAddCheckIcon, 'planningMarkets', 'planningMarkets',
       _.size(planningDetails)),
       createNavListItem(GavelIcon, 'dialogs', 'dia0', _.size(decisionDetails)),

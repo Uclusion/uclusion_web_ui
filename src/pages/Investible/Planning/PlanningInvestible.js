@@ -728,7 +728,7 @@ function PlanningInvestible(props) {
   const todoSortedComments = sortedRoots.filter((comment) => comment.comment_type === TODO_TYPE);
   const { id: todoId } = getFakeCommentsArray(todoSortedComments)[0]
   const navigationMenu = {
-    navHeaderIcon: AssignmentIcon, navTooltip: 'planningInvestibleNavTooltip',
+    navHeaderIcon: AssignmentIcon, navToolLink: 'https://documentation.uclusion.com/workspaces/stories',
     navListItemTextArray: [createNavListItem(EditIcon, 'description_label', 'storyMain',
       _.isEmpty(search) || results.find((item) => item.id === investibleId) ? undefined : 0),
       createNavListItem(ThumbsUpDownIcon, 'approvals', 'approvals',

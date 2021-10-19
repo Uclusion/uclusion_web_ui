@@ -132,7 +132,7 @@ function DialogArchives(props) {
   const { id: reportId } = getFakeCommentsArray(reports)[0];
   const inactiveChildrenDialogs = marketInfoList || []
   const navigationMenu = {
-    navHeaderIcon: MenuBookIcon, navTooltip: 'dialogArchiveNavTooltip',
+    navHeaderIcon: MenuBookIcon, navToolLink: 'https://documentation.uclusion.com/initiatives-and-dialogs/dialogs',
     navListItemTextArray: [
       createNavListItem(AgilePlanIcon, 'planningVerifiedStageLabel', 'verified',
         _.size(verifiedInvestibles)),

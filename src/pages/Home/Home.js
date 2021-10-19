@@ -167,7 +167,7 @@ function Home(props) {
     }));
   const showAddNew = createEnabled && !wizardActive && !noActiveNonSupportMarkets;
   const navigationMenu = {
-    navHeaderIcon: HomeIcon, navTooltip: 'homeNavTooltip', showSearchResults: true,
+    navHeaderIcon: HomeIcon, navToolLink: 'https://documentation.uclusion.com/overview', showSearchResults: true,
     navListItemTextArray: [{
       icon: AddIcon, text: intl.formatMessage({ id: 'addNew' }),
       onClickFunc: showAddNew ? () => {

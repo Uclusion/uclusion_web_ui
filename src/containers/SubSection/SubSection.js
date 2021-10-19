@@ -141,7 +141,7 @@ function SubSection (props) {
           </div>
         </Toolbar>
       </AppBar>
-      <div className={children && !hideChildren ? classes.toolbar : classes.hide}>
+      <div className={children && !hideChildren ? classes.toolbar : classes.hide} id={`${id}Children`}>
         <Card className={padChildren ? classes.paddedChildContainer : classes.childContainer}>
           {children}
         </Card>

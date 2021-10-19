@@ -81,7 +81,7 @@ function PlanningInvestibleAdd(props) {
     quantity,
     uploadedFiles
   } = investibleAddState;
-  const isAssignedToMe = (assignments || []).includes(myPresence.id);
+  const isAssignedToMe = (assignments || storyAssignee ? [storyAssignee] : []).includes(myPresence.id);
   const isAssigned = !_.isEmpty(assignments) || storyAssignee;
   const editorName = `${marketId}-planning-inv-add`;
   const editorSpec = {
@@ -273,26 +273,27 @@ function PlanningInvestibleAdd(props) {
           type={STORY_TYPE}
         />
         <CardContent>
-          {!storyAssignee && _.isEmpty(furtherWorkType) && (
+          {(!storyAssignee || isAssignedToMe) && _.isEmpty(furtherWorkType) && (
             <div className={classes.cardContent}>
-              <AssignmentList
-                marketId={marketId}
-                onChange={onAssignmentsChange}
-              />
+              {!storyAssignee && _.isEmpty(furtherWorkType) && (
+                <AssignmentList
+                  marketId={marketId}
+                  onChange={onAssignmentsChange}
+                />
+              )}
               <fieldset className={classes.fieldset}>
-              <legend>{intl.formatMessage({ id: 'agilePlanFormFieldsetLabelOptional' })}</legend>
-              <FormControlLabel
-              control={
-              <Checkbox
-              value={skipApproval}
-              disabled={votesRequired > 1 || acceptedFull || !acceptedStage.id ||
-              !(isAssignedToMe && assignments.length === 1)}
-              checked={skipApproval}
-              onClick={() => updateInvestibleAddState({ skipApproval: !skipApproval })}
-              />
-            }
-              label={intl.formatMessage({ id: 'skipApprovalExplanation' })}
-              />
+                <legend>{intl.formatMessage({ id: 'agilePlanFormFieldsetLabelOptional' })}</legend>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      value={skipApproval}
+                      disabled={votesRequired > 1 || acceptedFull || !acceptedStage.id || !isAssignedToMe}
+                      checked={skipApproval}
+                      onClick={() => updateInvestibleAddState({ skipApproval: !skipApproval })}
+                    />
+                  }
+                  label={intl.formatMessage({ id: 'skipApprovalExplanation' })}
+                />
               </fieldset>
             </div>
           )}

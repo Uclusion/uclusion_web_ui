@@ -375,8 +375,8 @@ function PlanningDialog(props) {
         )}
         <DismissableText textId="planningEditHelp" text={
           <div>
-            This is a <Link href="https://documentation.uclusion.com/workspaces" target="_blank">Workspace
-            </Link> and it hold's everything about an agile project. Click the left navigation panel icon to learn
+            This is a <Link href="https://documentation.uclusion.com/workspaces" target="_blank">Workspace</Link> and
+            it hold's everything about an agile project. Click the left navigation panel icon to learn
             more about the panel.
           </div>
         }/>
@@ -408,22 +408,18 @@ function PlanningDialog(props) {
           </h2>
           <DismissableText textId="storyHelp" text={
             <div>
-              <Link href="https://documentation.uclusion.com/workspaces/stories" target="_blank">Stories</Link>
-              are work items like cards or tickets in other systems. These
-              <Link href="https://documentation.uclusion.com/workspaces/swimlanes" target="_blank">swimlanes</Link>
-              go beyond Kanban boards to display status.
+              <Link href="https://documentation.uclusion.com/workspaces/stories" target="_blank">Stories</Link> are work
+              items like cards or tickets in other systems.
+              These <Link href="https://documentation.uclusion.com/workspaces/swimlanes" target="_blank">swimlanes</Link> go
+              beyond Kanban boards to display status.
             </div>
           }/>
           {!isChannel && (
             <DismissableText textId="stageHelp" text={
               <div>
-                Click the name of a
-                <Link href="https://documentation.uclusion.com/workspaces/stories/stages"
-                      target="_blank">stage</Link>, like
-                <Link href="https://documentation.uclusion.com/workspaces/stories/stages/#ready-for-approval"
-                                                           target="_blank">Ready for Approval</Link>, in the
-                <Link href="https://documentation.uclusion.com/workspaces/swimlanes" target="_blank">swimlane</Link>
-                to see more information about it.
+                Click the name of a <Link href="https://documentation.uclusion.com/workspaces/stories/stages" target="_blank">stage</Link>,
+                like <Link href="https://documentation.uclusion.com/workspaces/stories/stages/#ready-for-approval" target="_blank">Ready for Approval</Link>,
+                in the <Link href="https://documentation.uclusion.com/workspaces/swimlanes" target="_blank">swimlane</Link> to see more information about it.
               </div>
             }/>
           )}
@@ -619,9 +615,8 @@ function PlanningDialog(props) {
           )}
           <DismissableText textId="workspaceCommentHelp" text={
             <div>
-              <Link href="https://documentation.uclusion.com/overview/decisions"
-                    target="_blank">Workspace comments</Link> are used to answer questions, make suggestions or
-              explain progress for the whole project.
+              <Link href="https://documentation.uclusion.com/overview/decisions" target="_blank">Workspace comments</Link> are
+              used to answer questions, make suggestions or explain progress for the whole project.
             </div>
           }/>
           <CommentBox comments={notTodoComments} marketId={marketId} allowedTypes={allowedCommentTypes}/>

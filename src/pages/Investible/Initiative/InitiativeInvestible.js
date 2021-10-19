@@ -345,9 +345,9 @@ function InitiativeInvestible(props) {
       {!isAdmin && !inArchives && (
         <DismissableText textId='initiativeVotingHelp' text={
           <div>
-            Vote for or against this <Link href="https://documentation.uclusion.com/initiatives-and-dialogs/initiatives"
-                                           target="_blank">Initiative</Link>
-            and choose how certain you are of that vote.
+            Vote for or against
+            this <Link href="https://documentation.uclusion.com/initiatives-and-dialogs/initiatives" target="_blank">Initiative</Link> and
+            choose how certain you are of that vote.
           </div>
         }/>
       )}

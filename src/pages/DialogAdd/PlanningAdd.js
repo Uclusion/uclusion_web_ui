@@ -21,8 +21,8 @@ function PlanningAdd() {
     <>
       <DismissableText textId={'planningAddHelp'} text={
         <div>
-          A <Link href="https://documentation.uclusion.com/workspaces" target="_blank">Workspace
-        </Link> is for all stories, questions, issues, requirements and decisions about a project or topic.
+          A <Link href="https://documentation.uclusion.com/workspaces" target="_blank">Workspace</Link> is for all
+          stories, questions, issues, requirements and decisions about a project or topic.
         </div>
       } />
       <StoryWorkspaceWizard parentInvestibleId={parentInvestibleId} parentMarketId={parentMarketId}

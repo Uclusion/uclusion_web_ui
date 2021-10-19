@@ -364,8 +364,8 @@ function DecisionDialog(props) {
       )}
       <DismissableText textId="dialogHelp" text={
         <div>
-          <Link href="https://documentation.uclusion.com/initiatives-and-dialogs/dialogs" target="_blank">Dialogs
-          </Link> are an interactive way to get questions answered.
+          <Link href="https://documentation.uclusion.com/initiatives-and-dialogs/dialogs" target="_blank">Dialogs</Link> are
+          an interactive way to get questions answered.
         </div>
       }/>
       <Card className={classes.root}>

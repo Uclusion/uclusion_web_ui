@@ -1,5 +1,5 @@
 import React from 'react';
-import { AppBar, Card, makeStyles, Toolbar, Tooltip, Typography, } from '@material-ui/core'
+import { AppBar, Card, Link, makeStyles, Toolbar, Tooltip, Typography, } from '@material-ui/core'
 import PropTypes from 'prop-types';
 import {
   SECTION_SUB_HEADER,
@@ -7,7 +7,7 @@ import {
   SECTION_TYPE_SECONDARY_WARNING,
   SECTION_TYPE_TERTIARY_WARNING
 } from '../../constants/global';
-import { useIntl } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl'
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -96,7 +96,7 @@ function SubSection (props) {
     type,
     titleIcon,
     id,
-    helpTextId,
+    helpLink,
     bolder,
     hideChildren,
     padChildren,
@@ -119,16 +119,14 @@ function SubSection (props) {
       >
         <Toolbar variant="dense">
           {titleIcon}
-          {helpTextId && (
-            <Tooltip
-              title={intl.formatMessage({ id: helpTextId })}
-            >
+          {helpLink && (
+            <Link href={helpLink} target="_blank" variant='body1' style={{lineHeight: 0, color: '#2D9CDB'}}>
               <Typography className={bolder ? classes.headerTitleBolder : classes.headerTitle}>
                 {title}
               </Typography>
-            </Tooltip>
+            </Link>
           )}
-          {!helpTextId && (
+          {!helpLink && (
             <Typography className={classes.headerTitle}>
               {title}
             </Typography>

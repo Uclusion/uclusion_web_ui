@@ -417,7 +417,7 @@ function PlanningDialog(props) {
           {!isChannel && (
             <DismissableText textId="stageHelp" text={
               <div>
-                Hover over the name of a
+                Click the name of a
                 <Link href="https://documentation.uclusion.com/workspaces/stories/stages"
                       target="_blank">stage</Link>, like
                 <Link href="https://documentation.uclusion.com/workspaces/stories/stages/#ready-for-approval"
@@ -435,7 +435,7 @@ function PlanningDialog(props) {
                                                                size='small'
                                                                className={classes.chipStyle} /> : undefined}
               title={intl.formatMessage({ id: 'blockedHeader' })}
-              helpTextId="blockedSectionHelp"
+              helpLink='https://documentation.uclusion.com/workspaces/stories/stages/#blocked'
               id="blocked"
             >
               <ArchiveInvestbiles
@@ -458,7 +458,7 @@ function PlanningDialog(props) {
                                                                       color="primary" size='small'
                                                                       className={classes.chipStyle} /> : undefined}
               title={intl.formatMessage({ id: 'requiresInputHeader' })}
-              helpTextId="requiresInputSectionHelp"
+              helpLink='https://documentation.uclusion.com/workspaces/stories/stages/#requires-input'
               id="requiresInput"
             >
               <ArchiveInvestbiles
@@ -478,7 +478,7 @@ function PlanningDialog(props) {
           <SubSection
             type={SECTION_SUB_HEADER}
             isBlackText
-            helpTextId="swimLanesHelp"
+            helpLink='https://documentation.uclusion.com/workspaces/swimlanes'
             id="swimLanes"
             title={intl.formatMessage({ id: 'swimLanes' })}
           >
@@ -503,7 +503,7 @@ function PlanningDialog(props) {
           <SubSection
             type={SECTION_SUB_HEADER}
             isBlackText
-            helpTextId="furtherSectionHelp"
+            helpLink='https://documentation.uclusion.com/workspaces/stories/stages/#further-work'
             id="furtherWork"
             title={intl.formatMessage({ id: 'readyFurtherWorkHeader' })}
           >

@@ -211,7 +211,7 @@ function InvestiblesByWorkspace (props) {
                                                                       color="primary" size='small'
                                                                       className={classes.chipStyle} />}
                     title={intl.formatMessage({ id: 'blockedHeader' })}
-                    helpTextId="blockedSectionHelp"
+                    helpLink='https://documentation.uclusion.com/workspaces/stories/stages/#blocked'
                   >
                     <ArchiveInvestbiles
                       elevation={0}
@@ -233,7 +233,7 @@ function InvestiblesByWorkspace (props) {
                                                                             color="primary" size='small'
                                                                             className={classes.chipStyle} />}
                     title={intl.formatMessage({ id: 'requiresInputHeader' })}
-                    helpTextId="requiresInputSectionHelp"
+                    helpLink='https://documentation.uclusion.com/workspaces/stories/stages/#requires-input'
                   >
                     <ArchiveInvestbiles
                       elevation={0}

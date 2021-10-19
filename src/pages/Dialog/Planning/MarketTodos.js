@@ -523,7 +523,7 @@ function MarketTodos (props) {
         type={SECTION_SUB_HEADER}
         isBlackText
         title={intl.formatMessage({ id: 'todoSection' })}
-        helpTextId="todoSectionHelp"
+        helpLink='https://documentation.uclusion.com/workspaces/todos'
         createButton={isSingleTodoSelected || isInArchives || mobileLayout ? undefined :
           (
             <SpinningIconLabelButton icon={ArrowUpwardIcon} onClick={toggleShowSelectTodos} doSpin={false}
@@ -567,7 +567,6 @@ function MarketTodos (props) {
             id="immediateTodos"
             title={intl.formatMessage({ id: 'immediate' })}
             titleIcon={immediateTodosChip === false ? undefined : immediateTodosChip}
-            helpTextId="immediateSectionHelp"
             actionButton={ isInArchives ? null :
               (<ExpandableAction
                 icon={<AddIcon htmlColor="black"/>}
@@ -624,7 +623,6 @@ function MarketTodos (props) {
             id="whenAbleTodos"
             title={intl.formatMessage({ id: 'able' })}
             titleIcon={whenAbleTodosChip === false ? undefined : whenAbleTodosChip}
-            helpTextId="ableSectionHelp"
             actionButton={ isInArchives ? null :
               (<ExpandableAction
                 icon={<AddIcon htmlColor="black" />}
@@ -681,7 +679,6 @@ function MarketTodos (props) {
             title={intl.formatMessage({ id: 'convenient' })}
             titleIcon={whenConvenientTodosChip === false ? undefined : whenConvenientTodosChip}
             id="whenConvenientTodos"
-            helpTextId="convenientSectionHelp"
             actionButton={ isInArchives ? null :
               (<ExpandableAction
                 icon={<AddIcon htmlColor="black"/>}

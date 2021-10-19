@@ -327,13 +327,10 @@ function PlanningIdeas(props) {
            onDragOver={onDragOverProcess}
            onDragEnter={(event) => onDragEnterStage(event, inDialogStageId, presenceId)}
            onDragEnd={onDragEndStage}>
-        <Tooltip
-          title={intl.formatMessage({ id: 'planningVotingStageDescription' })}
-        >
-          <dt className={classes.stageLabel}>
+        <Link href="https://documentation.uclusion.com/workspaces/stories/stages/#ready-for-approval" target="_blank"
+              variant='body1' style={{lineHeight: 0, color: '#2D9CDB'}}>
             <FormattedMessage id="planningVotingStageLabel"/>
-          </dt>
-        </Tooltip>
+        </Link>
         <VotingStage
           className={classes.stage}
           id={inDialogStageId}
@@ -351,13 +348,11 @@ function PlanningIdeas(props) {
            onDragOver={onDragOverProcess}
            onDragEnter={(event) => onDragEnterStage(event, acceptedStageId, presenceId)}
            onDragEnd={onDragEndStage}>
-        <Tooltip
-          title={intl.formatMessage({ id: 'planningAcceptedStageDescription' })}
-        >
-          <dt className={classes.stageLabel}>
-            <FormattedMessage id={acceptedStageLabel}/>
-          </dt>
-        </Tooltip>
+        <Link href="https://documentation.uclusion.com/workspaces/stories/stages/#not-ready-for-feedback"
+              target="_blank"
+              variant='body1' style={{lineHeight: 0, color: '#2D9CDB'}}>
+          <FormattedMessage id={acceptedStageLabel}/>
+        </Link>
         <AcceptedStage
           className={classes.stage}
           id={acceptedStageId}
@@ -373,13 +368,10 @@ function PlanningIdeas(props) {
            onDragOver={onDragOverProcess}
            onDragEnter={(event) => onDragEnterStage(event, inReviewStageId, presenceId)}
            onDragEnd={onDragEndStage}>
-        <Tooltip
-          title={intl.formatMessage({ id: 'planningReviewStageDescription' })}
-        >
-          <dt className={classes.stageLabel}>
-            <FormattedMessage id="planningReviewStageLabel"/>
-          </dt>
-        </Tooltip>
+        <Link href="https://documentation.uclusion.com/workspaces/stories/stages/#ready-for-feedback" target="_blank"
+              variant='body1' style={{lineHeight: 0, color: '#2D9CDB'}}>
+          <FormattedMessage id="planningReviewStageLabel"/>
+        </Link>
         <ReviewStage
           className={classes.stage}
           id={inReviewStageId}
@@ -394,13 +386,10 @@ function PlanningIdeas(props) {
            onDragOver={onDragOverProcess}
            onDragEnter={(event) => onDragEnterStage(event, inVerifiedStageId, presenceId)}
            onDragEnd={onDragEndStage}>
-        <Tooltip
-          title={intl.formatMessage({ id: 'planningVerifiedStageDescription' })}
-        >
-          <dt className={classes.stageLabel}>
-            <FormattedMessage id="verifiedBlockedStageLabel"/>
-          </dt>
-        </Tooltip>
+        <Link href="https://documentation.uclusion.com/workspaces/stories/stages/#verified-and-not-doing" target="_blank"
+              variant='body1' style={{lineHeight: 0, color: '#2D9CDB'}}>
+          <FormattedMessage id="verifiedBlockedStageLabel"/>
+        </Link>
         <VerifiedStage
           className={classes.stage}
           id={inVerifiedStageId}

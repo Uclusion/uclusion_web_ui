@@ -368,7 +368,6 @@ const messages = defineMessages({
   requiredApprovers: 'required approvers',
   requiredReviewers: 'required reviewers',
   planningInvestibleDecision: 'Add Dialog',
-  planningInvestibleCantVote: 'Approval is optional if you\'re assigned',
   planningEstimatedCompletion: 'Estimated completion',
   estimatedCompletionToday: 'Due',
   planningInvestibleDescription: '- Description',
@@ -402,11 +401,6 @@ const messages = defineMessages({
   newStory: 'New Story',
   newOption: 'New Option',
   noVoters: 'None',
-  storyHelp: 'Stories are work items like cards or tickets in other systems. These swim lanes go beyond Kanban boards to display status.',
-  storyInsideHelp: 'A Uclusion story is a work item plus a communication platform for discussion of the story.',
-  stageHelp: 'Hover over the name of a stage, like Ready for Approval, in the swim lane to see more information about it.',
-  todosHelp: 'Bugs go in workspace TODOs so notifications based on severity can be sent.',
-  workspaceCommentHelp: 'Workspace comments are used to answer questions, make suggestions or explain progress for the whole project.',
   reassignWarning: 'Re-assigning will remove all approval.',
   // Issues
   issueResolveLabel: 'Resolve',
@@ -570,12 +564,6 @@ const messages = defineMessages({
   reviewingInvestiblesUpdatedAt: 'Entered stage ',
   inDialogInvestiblesUpdatedAt: 'Entered stage ',
   verifiedInvestiblesUpdatedAt: 'Entered stage ',
-  planningAddHelp: 'A workspace is your place for all stories, questions, issues, requirements and decisions about a project or topic.',
-  planningInvestibleAddHelp: 'Stories allow collaboration on what should be done, by whom, how and status at a glance without a meeting.',
-  planningInvestibleAcceptedFullHelp: 'Up arrow not visible because of \'Not Ready For Feedback\' limit.',
-  planningEditHelp: 'This is a Workspace and it hold\'s everything about an agile project. When this description changes everyone is notified.',
-  planningInvestibleAcceptedHelp: 'For help create a question and add options to it.',
-  planningInvestibleVotingHelp: 'Input how certain you are this story should be done or open an issue.',
   noName: 'Must create a name or text description for this story.',
   noQuantity: 'Must provide your certainty for this story.',
   noVoteQuantity: 'Must provide your certainty.',
@@ -648,7 +636,6 @@ const messages = defineMessages({
   searchParticipantsPlaceholder: 'Use commas to separate multiple email addresses',
   inviteParticipantsEmailLabel: 'Add by email addresses',
   collaboratorNotFollowing: 'This user has archived and will not receive notifications.',
-  dialogHelp: 'Dialogs are an interactive way to get questions answered.',
 
   // DecisionIvestibleSave
   decisionInvestibleSaveAddAnother: 'Save & Add Another',
@@ -661,7 +648,6 @@ const messages = defineMessages({
   decisionInvestibleDiscussion: 'Discussion',
   decisionInvestibleVotingBlockedMarket: 'Voting suspended until the open issue on this dialog is resolved',
   decisionInvestibleVotingBlockedInvestible: 'Voting suspended until the open issue on this option is resolved',
-  decisionInvestibleProposedHelp: 'You can move this option to be approved by using the highlighted up arrow.',
   decisionInvestibleNavTooltip: 'Option navigation panel.',
 
   // InitiativeInvestible
@@ -829,9 +815,6 @@ const messages = defineMessages({
   voteDeletedStory: 'Your approval was deleted or expired. Save or modify to approve again.',
   changeVote: 'Change approval',
   changeVoteInitiative: 'Change vote',
-  decisionInvestibleVotingSingleHelp: 'Help decide by approving the best option or adding your own option.',
-  decisionInvestibleVotingMultiHelp: 'Help decide by approving all options you like and adding any that are missing.',
-  initiativeVotingHelp: 'Vote for or against this Initiative and choose how certain you are of that vote.',
   personChooserLabel: 'View Other Person\'s Assignments',
   displaying: 'Displaying stories for {x} {y}',
   displayingNoEmail: 'Displaying stories for {x}',

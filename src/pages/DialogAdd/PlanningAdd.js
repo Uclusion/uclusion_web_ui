@@ -4,6 +4,7 @@ import queryString from 'query-string'
 import { navigate } from '../../utils/marketIdPathFunctions'
 import DismissableText from '../../components/Notifications/DismissableText'
 import StoryWorkspaceWizard from '../../components/AddNew/Workspace/StoryWorkspace/StoryWorkspaceWizard'
+import { Link } from '@material-ui/core'
 
 function PlanningAdd() {
   const history = useHistory();
@@ -18,7 +19,12 @@ function PlanningAdd() {
   }
   return (
     <>
-      <DismissableText textId={'planningAddHelp'} />
+      <DismissableText textId={'planningAddHelp'} text={
+        <div>
+          A <Link href="https://documentation.uclusion.com/workspaces" target="_blank">Workspace
+        </Link> is for all stories, questions, issues, requirements and decisions about a project or topic.
+        </div>
+      } />
       <StoryWorkspaceWizard parentInvestibleId={parentInvestibleId} parentMarketId={parentMarketId}
                             onFinish={onFinish} />
     </>

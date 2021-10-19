@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
-import { Checkbox, Grid, Typography, useMediaQuery, useTheme } from '@material-ui/core'
+import { Checkbox, Grid, Typography, useMediaQuery, useTheme, Link } from '@material-ui/core'
 import _ from 'lodash'
 import RaisedCard from '../../../components/Cards/RaisedCard'
 import { FormattedMessage, useIntl } from 'react-intl'
@@ -513,7 +513,12 @@ function MarketTodos (props) {
   return (
     <div className={classes.outerBorder} id="marketTodos"
          style={{display: sectionOpen ? 'block' : 'none'}}>
-      <DismissableText textId="todosHelp"/>
+      <DismissableText textId="todosHelp" text={
+        <div>
+          Bugs go in <Link href="https://documentation.uclusion.com/workspaces/todos" target="_blank">
+          Workspace Todos</Link> so notifications based on severity can be sent.
+        </div>
+      }/>
       <SubSection
         type={SECTION_SUB_HEADER}
         isBlackText

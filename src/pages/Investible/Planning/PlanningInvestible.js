@@ -5,7 +5,7 @@ import {
   Card,
   CardContent, Checkbox, FormControl, FormControlLabel,
   Grid,
-  IconButton,
+  IconButton, Link,
   makeStyles,
   MenuItem, Select,
   Tooltip,
@@ -764,15 +764,41 @@ function PlanningInvestible(props) {
       hidden={hidden}
       navigationOptions={navigationMenu}
     >
-      <DismissableText textId="storyInsideHelp"/>
+      <DismissableText textId="storyInsideHelp" text={
+        <div>
+          A Uclusion <Link href="https://documentation.uclusion.com/workspaces/stories" target="_blank">story</Link>
+          is a work item plus a communication platform for discussion of the story.
+        </div>
+      }/>
       {!inArchives && isInVoting && isAssigned && acceptedFull && (
-        <DismissableText textId='planningInvestibleAcceptedFullHelp' />
+        <DismissableText textId='planningInvestibleAcceptedFullHelp' text={
+          <div>
+            Up arrow not visible because of
+            <Link href="https://documentation.uclusion.com/workspaces/stories/stages/#not-ready-for-feedback"
+                  target="_blank">
+              Not Ready For Feedback</Link> limit.
+          </div>
+        }/>
       )}
       {!inArchives && isInAccepted && isAssigned && (
-        <DismissableText textId='planningInvestibleAcceptedHelp' />
+        <DismissableText textId='planningInvestibleAcceptedHelp' text={
+          <div>
+            For help create a
+            <Link href="https://documentation.uclusion.com/structured-comments/#questions" target="_blank">question
+            </Link> and add options to it.
+          </div>
+        } />
       )}
       {!yourVote && !inArchives && canVote && !isAssigned && (
-        <DismissableText textId='planningInvestibleVotingHelp' />
+        <DismissableText textId='planningInvestibleVotingHelp' text={
+          <div>
+            Input how
+            <Link href="https://documentation.uclusion.com/overview/planning/#certainty" target="_blank">
+              certain</Link> you are this story should be done or open a
+            <Link href="https://documentation.uclusion.com/structured-comments/#blocking-issues" target="_blank">
+              blocking issue</Link>.
+          </div>
+        } />
       )}
       {!hidden && editCollaborators && (
         <PlanningInvestibleEdit
@@ -1029,7 +1055,13 @@ function PlanningInvestible(props) {
       {displayVotingInput && investibleId && (
         <>
           {isAssigned && (
-            <DismissableText textId="planningInvestibleCantVote" />
+            <DismissableText textId="planningInvestibleCantVote" text={
+              <div>
+                <Link href="https://documentation.uclusion.com/workspaces/stories/stages/#ready-for-approval"
+                      target="_blank">
+                  Approval</Link> is optional if you're assigned.
+              </div>
+            } />
           )}
           <YourVoting
             investibleId={investibleId}

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { useHistory } from 'react-router'
 import { FormattedMessage, useIntl } from 'react-intl'
 import _ from 'lodash'
-import { Card, CardContent, Grid, makeStyles, Typography } from '@material-ui/core'
+import { Card, CardContent, Grid, Link, makeStyles, Typography } from '@material-ui/core'
 import YourVoting from '../Voting/YourVoting'
 import Voting from '../Decision/Voting'
 import CommentBox, { getSortedRoots } from '../../../containers/CommentBox/CommentBox'
@@ -343,7 +343,13 @@ function InitiativeInvestible(props) {
         <DialogManage marketId={marketId} expires={true} onClose={() => updatePageState({changeExpires: false})}/>
       )}
       {!isAdmin && !inArchives && (
-        <DismissableText textId='initiativeVotingHelp'/>
+        <DismissableText textId='initiativeVotingHelp' text={
+          <div>
+            Vote for or against this <Link href="https://documentation.uclusion.com/initiatives-and-dialogs/initiatives"
+                                           target="_blank">Initiative</Link>
+            and choose how certain you are of that vote.
+          </div>
+        }/>
       )}
       <Card className={classes.root} id="initiativeMain" elevation={3}>
         <CardType

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import _ from 'lodash'
 import { useHistory } from 'react-router'
 import { FormattedMessage, useIntl } from 'react-intl'
-import { Card, CardContent, Grid, Typography, useMediaQuery, useTheme } from '@material-ui/core'
+import { Card, CardContent, Grid, Link, Typography, useMediaQuery, useTheme } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import YourVoting from '../Voting/YourVoting'
 import Voting from './Voting'
@@ -380,13 +380,28 @@ function DecisionInvestible(props) {
       navigationOptions={navigationMenu}
     >
       {activeMarket && !inProposed && !allowMultiVote && (
-        <DismissableText textId='decisionInvestibleVotingSingleHelp' />
+        <DismissableText textId='decisionInvestibleVotingSingleHelp' text={
+          <div>
+            Help <Link href="https://documentation.uclusion.com/initiatives-and-dialogs/dialogs" target="_blank">decide
+          </Link> by approving the best option or adding your own option.
+          </div>
+        } />
       )}
       {activeMarket && !inProposed && allowMultiVote && (
-        <DismissableText textId='decisionInvestibleVotingMultiHelp' />
+        <DismissableText textId='decisionInvestibleVotingMultiHelp' text={
+          <div>
+            Help <Link href="https://documentation.uclusion.com/initiatives-and-dialogs/dialogs" target="_blank">decide
+          </Link> by approving all options you like and adding any that are missing.
+          </div>
+        } />
       )}
       {activeMarket && inProposed && isAdmin && (
-        <DismissableText textId='decisionInvestibleProposedHelp' />
+        <DismissableText textId='decisionInvestibleProposedHelp' text={
+          <div>
+            You can <Link href="https://documentation.uclusion.com/initiatives-and-dialogs/dialogs/#promoting-an-option"
+                          target="_blank">move this option to be approved</Link> by using the highlighted up arrow.
+          </div>
+        } />
       )}
       <Card className={classes.root} id="optionMain">
         <CardType

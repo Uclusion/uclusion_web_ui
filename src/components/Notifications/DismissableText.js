@@ -56,7 +56,7 @@ const useStyles = makeStyles(theme => ({
 
 function DismissableText(props) {
   const {
-    textId, textId1, textId2, textId3, textId4, checkBoxFunc
+    text, checkBoxFunc, textId
   } = props;
   const classes = useStyles();
   const intl = useIntl();
@@ -116,31 +116,7 @@ function DismissableText(props) {
     <dl className={classes.root} >
       <dl className={classes.leftMost}>
         <LiveHelpTwoToneIcon color="inherit" fontSize="small" className={classes.help}/>
-        <FormattedMessage id={textId} />
-        {textId1 && (
-          <>
-            <br/>
-            <FormattedMessage id={textId1} />
-          </>
-        )}
-        {textId2 && (
-          <>
-            <br/>
-            <FormattedMessage id={textId2} />
-          </>
-        )}
-        {textId3 && (
-          <>
-            <br/>
-            <FormattedMessage id={textId3} />
-          </>
-        )}
-        {textId4 && (
-          <>
-            <br/>
-            <FormattedMessage id={textId4} />
-          </>
-        )}
+        {text}
       </dl>
       <dl className={classes.rightMost}>
         <dd className={classes.dismissText}>
@@ -158,6 +134,8 @@ function DismissableText(props) {
 
 DismissableText.propTypes = {
   textId: PropTypes.string.isRequired,
+  text: PropTypes.element,
+  checkBoxFunc: PropTypes.func
 };
 
 export default DismissableText;

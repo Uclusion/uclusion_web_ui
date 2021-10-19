@@ -6,7 +6,7 @@ import { useHistory, useLocation } from 'react-router'
 import { FormattedMessage, useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
-import { Grid, Typography, useMediaQuery, useTheme } from '@material-ui/core'
+import { Grid, Typography, useMediaQuery, useTheme, Link } from '@material-ui/core'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import CardHeader from '@material-ui/core/CardHeader'
@@ -373,7 +373,12 @@ function PlanningDialog(props) {
         {collaboratorsOpen && (
           <DialogManage marketId={marketId} onClose={() => updatePageState({collaboratorsOpen: false})}/>
         )}
-        <DismissableText textId="planningEditHelp"/>
+        <DismissableText textId="planningEditHelp" text={
+          <div>
+            This is a <Link href="https://documentation.uclusion.com/workspaces" target="_blank">Workspace
+            </Link> and it hold's everything about an agile project. When this description changes everyone is notified.
+          </div>
+        }/>
         <Summary market={market} hidden={hidden} activeMarket={activeMarket} inArchives={inArchives}
                  pageState={pageState} updatePageState={updatePageState} pageStateReset={pageStateReset}
                  isDraft={isDraft}/>
@@ -400,9 +405,26 @@ function PlanningDialog(props) {
           <h2>
             <FormattedMessage id="planningDialogNavStoriesLabel" />
           </h2>
-          <DismissableText textId="storyHelp"/>
+          <DismissableText textId="storyHelp" text={
+            <div>
+              <Link href="https://documentation.uclusion.com/workspaces/stories" target="_blank">Stories</Link>
+              are work items like cards or tickets in other systems. These
+              <Link href="https://documentation.uclusion.com/workspaces/swimlanes" target="_blank">swimlanes</Link>
+              go beyond Kanban boards to display status.
+            </div>
+          }/>
           {!isChannel && (
-            <DismissableText textId="stageHelp"/>
+            <DismissableText textId="stageHelp" text={
+              <div>
+                Hover over the name of a
+                <Link href="https://documentation.uclusion.com/workspaces/stories/stages"
+                      target="_blank">stage</Link>, like
+                <Link href="https://documentation.uclusion.com/workspaces/stories/stages/#ready-for-approval"
+                                                           target="_blank">Ready for Approval</Link>, in the
+                <Link href="https://documentation.uclusion.com/workspaces/swimlanes" target="_blank">swimlane</Link>
+                to see more information about it.
+              </div>
+            }/>
           )}
           {!_.isEmpty(blockedInvestibles) && (
             <SubSection
@@ -594,7 +616,13 @@ function PlanningDialog(props) {
               numProgressReport={_.size(reports)}
             />
           )}
-          <DismissableText textId="workspaceCommentHelp"/>
+          <DismissableText textId="workspaceCommentHelp" text={
+            <div>
+              <Link href="https://documentation.uclusion.com/overview/decisions"
+                    target="_blank">Workspace comments</Link> are used to answer questions, make suggestions or
+              explain progress for the whole project.
+            </div>
+          }/>
           <CommentBox comments={notTodoComments} marketId={marketId} allowedTypes={allowedCommentTypes}/>
         </Grid>
       </Grid>

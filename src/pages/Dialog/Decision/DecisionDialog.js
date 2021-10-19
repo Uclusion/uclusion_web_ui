@@ -5,7 +5,7 @@ import React, { useContext, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { FormattedMessage, useIntl } from 'react-intl'
 import { useHistory } from 'react-router'
-import { Card, CardContent, Grid, makeStyles, Typography, useMediaQuery, useTheme } from '@material-ui/core'
+import { Card, CardContent, Grid, makeStyles, Typography, useMediaQuery, useTheme, Link } from '@material-ui/core'
 import _ from 'lodash'
 import AddIcon from '@material-ui/icons/Add'
 import {
@@ -361,7 +361,12 @@ function DecisionDialog(props) {
       {changeExpires && (
         <DialogManage marketId={marketId} expires={true} onClose={() => updatePageState({changeExpires: false})}/>
       )}
-      <DismissableText textId="dialogHelp"/>
+      <DismissableText textId="dialogHelp" text={
+        <div>
+          <Link href="https://documentation.uclusion.com/initiatives-and-dialogs/dialogs" target="_blank">Dialogs
+          </Link> are an interactive way to get questions answered.
+        </div>
+      }/>
       <Card className={classes.root}>
         <CardType
           className={classes.cardType}

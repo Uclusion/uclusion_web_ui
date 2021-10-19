@@ -2,7 +2,8 @@ import React, { useContext, useState } from 'react'
 import _ from 'lodash'
 import { useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
-import { Card, CardActions, CardContent, Checkbox, FormControlLabel, useMediaQuery, useTheme, } from '@material-ui/core'
+import { Card, CardActions, CardContent, Checkbox, FormControlLabel, useMediaQuery, useTheme, Link }
+  from '@material-ui/core'
 import { addPlanningInvestible } from '../../../api/investibles'
 import { processTextAndFilesForSave } from '../../../api/files'
 import { formInvestibleLink, formMarketLink } from '../../../utils/marketIdPathFunctions'
@@ -263,7 +264,14 @@ function PlanningInvestibleAdd(props) {
 
   return (
     <>
-      <DismissableText textId='planningInvestibleAddHelp' />
+      <DismissableText textId='planningInvestibleAddHelp' text={
+        <div>
+          <Link href="https://documentation.uclusion.com/workspaces/stories" target="_blank">Stories</Link>
+          allow collaboration on what should be done, by whom, how and
+          <Link href="https://documentation.uclusion.com/overview/status" target="_blank">status at a glance</Link>
+          without a meeting.
+        </div>
+      }/>
       <Card className={classes.overflowVisible}>
         <CardType
           className={classes.cardType}

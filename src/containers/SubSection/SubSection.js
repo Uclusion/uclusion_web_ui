@@ -7,7 +7,6 @@ import {
   SECTION_TYPE_SECONDARY_WARNING,
   SECTION_TYPE_TERTIARY_WARNING
 } from '../../constants/global';
-import { useIntl } from 'react-intl'
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -102,7 +101,6 @@ function SubSection (props) {
     padChildren,
     isBlackText
   } = props;
-  const intl = useIntl();
   const classes = useStyles();
 
   return (

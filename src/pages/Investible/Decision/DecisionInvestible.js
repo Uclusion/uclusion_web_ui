@@ -361,7 +361,7 @@ function DecisionInvestible(props) {
   const suggestions = sortedRoots.filter((comment) => comment.comment_type === SUGGEST_CHANGE_TYPE);
   const { id: suggestId } = getFakeCommentsArray(suggestions)[0]
   const navigationMenu = {
-    navHeaderIcon: StarRateIcon, navToolLink: 'https://documentation.uclusion.com/initiatives-and-dialogs/dialogs',
+    navHeaderIcon: StarRateIcon, navToolLink: 'https://documentation.uclusion.com/structured-comments/#questions',
     navListItemTextArray: [createNavListItem(EditIcon, 'description_label', 'optionMain'),
       createNavListItem(ThumbsUpDownIcon, 'approvals', 'approvals', _.size(invested), true),
       inArchives ? {} : createNavListItem(AddIcon, 'commentAddBox'),

@@ -1,5 +1,5 @@
 import React from 'react';
-import { AppBar, Card, Link, makeStyles, Toolbar, Tooltip, Typography, } from '@material-ui/core'
+import { AppBar, Card, Link, makeStyles, Toolbar, Typography, } from '@material-ui/core'
 import PropTypes from 'prop-types';
 import {
   SECTION_SUB_HEADER,
@@ -7,7 +7,7 @@ import {
   SECTION_TYPE_SECONDARY_WARNING,
   SECTION_TYPE_TERTIARY_WARNING
 } from '../../constants/global';
-import { FormattedMessage, useIntl } from 'react-intl'
+import { useIntl } from 'react-intl'
 
 const useStyles = makeStyles((theme) => {
   return {

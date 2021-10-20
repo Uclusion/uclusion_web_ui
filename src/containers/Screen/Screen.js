@@ -14,7 +14,6 @@ import LoadingDisplay from '../../components/LoadingDisplay';
 import List from '@material-ui/core/List'
 import SearchBox from '../../components/Search/SearchBox'
 import clsx from 'clsx'
-import { useIntl } from 'react-intl'
 
 const useStyles = makeStyles((theme) => ({
   hidden: {

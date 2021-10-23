@@ -82,7 +82,7 @@ function PlanningInvestibleAdd(props) {
     quantity,
     uploadedFiles
   } = investibleAddState;
-  const isAssignedToMe = (assignments || storyAssignee ? [storyAssignee] : []).includes(myPresence.id);
+  const isAssignedToMe = (assignments || (storyAssignee ? [storyAssignee] : [])).includes(myPresence.id);
   const isAssigned = !_.isEmpty(assignments) || storyAssignee;
   const editorName = `${marketId}-planning-inv-add`;
   const editorSpec = {

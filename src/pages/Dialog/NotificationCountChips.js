@@ -5,8 +5,8 @@ import {
 } from '@material-ui/core'
 import { useIntl } from 'react-intl'
 import Chip from '@material-ui/core/Chip'
-import WarningIcon from '@material-ui/icons/Warning'
-import HourglassFullIcon from '@material-ui/icons/HourglassFull'
+import { AssignmentInd, RateReview } from '@material-ui/icons'
+import Approval from '../../components/CustomChip/Approval'
 
 
 const useStyles = makeStyles(() => ({
@@ -21,38 +21,42 @@ const useStyles = makeStyles(() => ({
     backgroundColor: '#ffffff',
     paddingBottom: '0.3rem'
   },
-  iconYellow: {
-    color: '#e6e969'
+  iconTodo: {
+    color: '#F29100'
   },
-  iconRed: {
-    color: '#E85757'
-  }
 }));
 
 function NotificationCountChips(props) {
   const {
     id,
-    criticalNotifications,
-    delayableNotifications
+    presence
   } = props;
-
+  const { mentioned_notifications: mentions, approve_notifications: approvals,
+    review_notifications: reviews } = presence;
   const classes = useStyles();
   const intl = useIntl();
 
   return (
     <>
-      {criticalNotifications > 0 && (
-        <Tooltip key={`tipcrit${id}`}
-                 title={intl.formatMessage({ id: 'redNotificationCountExplanation' })}>
-          <Chip component="span" icon={<WarningIcon className={classes.iconRed}/>} label={`${criticalNotifications}`}
+      {mentions && mentions.length > 0 && (
+        <Tooltip key={`tipmention${id}`}
+                 title={intl.formatMessage({ id: 'mentionsExplanation' })}>
+          <Chip component="span" icon={<AssignmentInd className={classes.iconTodo}/>} label={`${mentions.length}`}
                 size='small' className={classes.chipStyle}/>
         </Tooltip>
       )}
-      {delayableNotifications > 0 && (
-        <Tooltip key={`tipdel${id}`}
-                 title={intl.formatMessage({ id: 'yellowNotificationCountExplanation' })}>
-          <Chip component="span" icon={<HourglassFullIcon className={classes.iconYellow}/>}
-                label={`${delayableNotifications}`} size='small' className={classes.chipStyleNoMargin}/>
+      {approvals && approvals.length > 0 && (
+        <Tooltip key={`tipapprov${id}`}
+                 title={intl.formatMessage({ id: 'approvalExplanation' })}>
+          <Chip component="span" icon={<Approval className={classes.iconTodo}/>}
+                label={`${approvals.length}`} size='small' className={classes.chipStyle}/>
+        </Tooltip>
+      )}
+      {reviews && reviews.length > 0 && (
+        <Tooltip key={`tipreview${id}`}
+                 title={intl.formatMessage({ id: 'reviewExplanation' })}>
+          <Chip component="span" icon={<RateReview className={classes.iconTodo}/>}
+                label={`${reviews.length}`} size='small' className={classes.chipStyleNoMargin}/>
         </Tooltip>
       )}
     </>
@@ -61,13 +65,7 @@ function NotificationCountChips(props) {
 
 NotificationCountChips.propTypes = {
   id: PropTypes.string.isRequired,
-  criticalNotifications: PropTypes.number,
-  delayableNotifications: PropTypes.number,
-};
-
-NotificationCountChips.defaultProps = {
-  criticalNotifications: 0,
-  delayableNotifications: 0,
+  presence: PropTypes.object.isRequired
 };
 
 export default NotificationCountChips;

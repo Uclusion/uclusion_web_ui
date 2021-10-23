@@ -469,8 +469,8 @@ const messages = defineMessages({
   criticalTasks: 'Critical Tasks',
   urgentTasks: 'Delayable Tasks',
   informational: 'Informational',
-  redNotificationCountExplanation: 'Critical notification count',
-  yellowNotificationCountExplanation: 'Delayable notification count',
+  mentionsExplanation: 'Count of outstanding mentions',
+  approvalExplanation: 'Count of outstanding required approvals',
 
   // stages
   marketStageFollowTooltip: 'Subscribe',

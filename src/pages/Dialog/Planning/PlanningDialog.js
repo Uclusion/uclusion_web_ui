@@ -30,7 +30,7 @@ import {
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
 import CommentBox, { getSortedRoots } from '../../../containers/CommentBox/CommentBox'
 import { ACTIVE_STAGE } from '../../../constants/markets'
-import { getUserInvestibles, sumNotificationCounts } from './userUtils'
+import { getUserInvestibles } from './userUtils'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import {
   getMarketPresences,
@@ -74,7 +74,6 @@ import PlayForWorkIcon from '@material-ui/icons/PlayForWork'
 import { getFakeCommentsArray } from '../../../utils/stringFunctions'
 import Chip from '@material-ui/core/Chip'
 import { getThreadIds } from '../../../utils/commentFunctions'
-import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 import DialogManage from '../DialogManage'
@@ -762,8 +761,6 @@ function InvestiblesByPerson(props) {
   const intl = useIntl();
   const history = useHistory();
   const metaClasses = useMetaDataStyles();
-  const [marketPresencesState] = useContext(MarketPresencesContext);
-  const [messagesState] = useContext(NotificationsContext);
   const classes = useInvestiblesByPersonStyles();
   const planningInvestibleAddClasses = usePlanFormStyles();
   const { storyAssignee } = pageState;
@@ -785,8 +782,6 @@ function InvestiblesByPerson(props) {
     const { id, email, placeholder_type: placeholderType } = presence;
     const name = (presence.name || '').replace('@', ' ');
     const showAsPlaceholder = placeholderType === PLACEHOLDER;
-    const { criticalNotificationCount, delayableNotificationCount } = sumNotificationCounts(presence, comments,
-      marketPresencesState, messagesState, marketId);
     const myInvestibles = getUserInvestibles(
       id,
       marketId,
@@ -831,8 +826,7 @@ function InvestiblesByPerson(props) {
               <Typography variant="h6" className={myClassName}>
                 {name}
                 {!mobileLayout && (
-                  <NotificationCountChips id={id} criticalNotifications={criticalNotificationCount}
-                                          delayableNotifications={delayableNotificationCount} />
+                  <NotificationCountChips id={id} presence={presence || {}} />
                 )}
               </Typography>
               <div style={{flexGrow: 1}} />

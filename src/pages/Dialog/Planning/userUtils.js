@@ -6,8 +6,6 @@ import { addPlanningInvestible } from '../../../api/investibles'
 import { moveComments } from '../../../api/comments'
 import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
-import { RED_LEVEL, YELLOW_LEVEL } from '../../../constants/notifications'
-import { findMessagesForMarketId } from '../../../utils/messageUtils'
 
 /**
  * Returns the investibles in the market assigned to the user
@@ -138,41 +136,6 @@ export function doRemoveEdit(id, hasIcon) {
   if (belowPencilHolder && !hasIcon) {
     belowPencilHolder.style.paddingTop = '0.5rem';
   }
-}
-
-export function sumNotificationCounts(presence, comments, marketPresencesState, messagesState, marketId) {
-  const { critical_notifications: criticalNotifications,
-    delayable_notifications: delayableNotifications, external_id: externalId,
-    current_user: isCurrentUser } = presence;
-  if (isCurrentUser) {
-    const messages = findMessagesForMarketId(marketId, messagesState) || [];
-    // Special case current user because presence counts don't have quick add
-    const redMessages = messages.filter((message) => message.level === RED_LEVEL) || [];
-    const yellowMessages = messages.filter((message) => message.level === YELLOW_LEVEL) || [];
-    return { criticalNotificationCount: redMessages.length, delayableNotificationCount: yellowMessages.length };
-  }
-  let criticalNotificationCount = criticalNotifications;
-  let delayableNotificationCount = delayableNotifications;
-  (comments || []).forEach((comment) => {
-    const { inline_market_id: inlineMarketId, resolved } = comment;
-    if (inlineMarketId && !resolved) {
-      const inlineMarketPresences = getMarketPresences(marketPresencesState, inlineMarketId);
-      const myInlinePresence = inlineMarketPresences && inlineMarketPresences.find((presence) => {
-        return presence.external_id === externalId;
-      });
-      if (myInlinePresence) {
-        const { critical_notifications: inlineCriticalNotifications,
-          delayable_notifications: inlineDelayableNotifications } = myInlinePresence;
-        if (inlineCriticalNotifications) {
-          criticalNotificationCount += inlineCriticalNotifications;
-        }
-        if (inlineDelayableNotifications) {
-          delayableNotificationCount += inlineDelayableNotifications;
-        }
-      }
-    }
-  });
-  return { criticalNotificationCount, delayableNotificationCount };
 }
 
 export function onDropTodo(commentId, commentsState, marketId, setOperationRunning, intl, commentsDispatch, invDispatch,

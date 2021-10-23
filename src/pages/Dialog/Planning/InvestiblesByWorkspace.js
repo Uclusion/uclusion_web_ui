@@ -5,7 +5,6 @@ import CardContent from '@material-ui/core/CardContent';
 import CardHeader from '@material-ui/core/CardHeader';
 import PlanningIdeas from './PlanningIdeas';
 import { useInvestiblesByPersonStyles } from './PlanningDialog'
-import { sumNotificationCounts } from './userUtils'
 import PropTypes from 'prop-types';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { getPresenceMap } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
@@ -39,7 +38,6 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import Gravatar from '../../../components/Avatars/Gravatar';
 import NotificationCountChips from '../NotificationCountChips'
 import Chip from '@material-ui/core/Chip'
-import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 export const LocalPlanningDragContext = React.createContext([]);
 
 function InvestiblesByWorkspace (props) {
@@ -55,7 +53,6 @@ function InvestiblesByWorkspace (props) {
   const [commentsState] = useContext(CommentsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [marketsState] = useContext(MarketsContext);
-  const [messagesState] = useContext(NotificationsContext);
   const [anchorEl, setAnchorEl] = React.useState(null);
   // For security reasons you can't access source data while being dragged in case you are not the target website
   const [beingDraggedHack, setBeingDraggedHack] = useState({});
@@ -147,8 +144,6 @@ function InvestiblesByWorkspace (props) {
           const inBlockingStage = getBlockedStage(marketStagesState, market.id) || {};
           const inVerifiedStage = getVerifiedStage(marketStagesState, market.id) || {};
           const requiresInputStage = getRequiredInputStage(marketStagesState, market.id) || {};
-          const { criticalNotificationCount, delayableNotificationCount } = sumNotificationCounts(presence, comments,
-            marketPresencesState, messagesState, market.id);
           const highlightMap = {};
           requiresInputInvestibles.forEach((investible) => {
             if (hasNotVoted(investible, marketPresencesState, marketsState, comments, market.id, chosenPerson.external_id)) {
@@ -173,8 +168,7 @@ function InvestiblesByWorkspace (props) {
                                  }
                                  }>{market.name}</Link>
                       {!mobileLayout && (
-                        <NotificationCountChips id={market.id} criticalNotifications={criticalNotificationCount}
-                                                delayableNotifications={delayableNotificationCount} />
+                        <NotificationCountChips id={market.id} presence={presence || {}} />
                       )}
                     </Typography>
                     <div style={{flexGrow: 1}} />

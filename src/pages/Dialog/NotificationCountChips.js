@@ -16,11 +16,6 @@ const useStyles = makeStyles(() => ({
     backgroundColor: '#ffffff',
     paddingBottom: '0.3rem'
   },
-  chipStyleNoMargin: {
-    color: 'black',
-    backgroundColor: '#ffffff',
-    paddingBottom: '0.3rem'
-  },
   iconTodo: {
     color: '#F29100'
   },
@@ -37,7 +32,7 @@ function NotificationCountChips(props) {
   const intl = useIntl();
 
   return (
-    <div style={{paddingLeft: '2rem'}}>
+    <>
       {mentions && mentions.length > 0 && (
         <Tooltip key={`tipmention${id}`}
                  title={intl.formatMessage({ id: 'mentionsExplanation' })}>
@@ -56,10 +51,10 @@ function NotificationCountChips(props) {
         <Tooltip key={`tipreview${id}`}
                  title={intl.formatMessage({ id: 'reviewExplanation' })}>
           <Chip component="span" icon={<RateReview className={classes.iconTodo}/>}
-                label={`${reviews.length}`} size='small' className={classes.chipStyleNoMargin}/>
+                label={`${reviews.length}`} size='small' className={classes.chipStyle}/>
         </Tooltip>
       )}
-    </div>
+    </>
   );
 }
 

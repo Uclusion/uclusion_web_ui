@@ -7,6 +7,7 @@ import {
   SECTION_TYPE_SECONDARY_WARNING,
   SECTION_TYPE_TERTIARY_WARNING
 } from '../../constants/global';
+import { Info } from '@material-ui/icons'
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -118,11 +119,14 @@ function SubSection (props) {
         <Toolbar variant="dense">
           {titleIcon}
           {helpLink && (
-            <Link href={helpLink} target="_blank" variant='body1' style={{lineHeight: 0, color: '#2D9CDB'}}>
+            <>
               <Typography className={bolder ? classes.headerTitleBolder : classes.headerTitle}>
                 {title}
               </Typography>
-            </Link>
+              <Link href={helpLink} target="_blank">
+                <Info style={{height: '1.1rem'}} />
+              </Link>
+            </>
           )}
           {!helpLink && (
             <Typography className={classes.headerTitle}>

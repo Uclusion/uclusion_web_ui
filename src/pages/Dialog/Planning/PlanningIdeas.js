@@ -47,6 +47,7 @@ import { doRemoveEdit, doShowEdit, getCommenterPresences, getUserSwimlaneInvesti
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions'
+import { Info } from '@material-ui/icons'
 
 const usePlanningIdStyles = makeStyles(
   theme => {
@@ -327,9 +328,9 @@ function PlanningIdeas(props) {
            onDragOver={onDragOverProcess}
            onDragEnter={(event) => onDragEnterStage(event, inDialogStageId, presenceId)}
            onDragEnd={onDragEndStage}>
-        <Link href="https://documentation.uclusion.com/workspaces/stories/stages/#ready-for-approval" target="_blank"
-              variant='body1' style={{lineHeight: 0, color: '#2D9CDB'}}>
-            <FormattedMessage id="planningVotingStageLabel"/>
+        <FormattedMessage id="planningVotingStageLabel" />
+        <Link href="https://documentation.uclusion.com/workspaces/stories/stages/#ready-for-approval" target="_blank">
+            <Info style={{height: '1.1rem'}} />
         </Link>
         <VotingStage
           className={classes.stage}
@@ -348,10 +349,10 @@ function PlanningIdeas(props) {
            onDragOver={onDragOverProcess}
            onDragEnter={(event) => onDragEnterStage(event, acceptedStageId, presenceId)}
            onDragEnd={onDragEndStage}>
+        <FormattedMessage id={acceptedStageLabel}/>
         <Link href="https://documentation.uclusion.com/workspaces/stories/stages/#not-ready-for-feedback"
-              target="_blank"
-              variant='body1' style={{lineHeight: 0, color: '#2D9CDB'}}>
-          <FormattedMessage id={acceptedStageLabel}/>
+              target="_blank">
+          <Info style={{height: '1.1rem'}} />
         </Link>
         <AcceptedStage
           className={classes.stage}
@@ -368,9 +369,9 @@ function PlanningIdeas(props) {
            onDragOver={onDragOverProcess}
            onDragEnter={(event) => onDragEnterStage(event, inReviewStageId, presenceId)}
            onDragEnd={onDragEndStage}>
-        <Link href="https://documentation.uclusion.com/workspaces/stories/stages/#ready-for-feedback" target="_blank"
-              variant='body1' style={{lineHeight: 0, color: '#2D9CDB'}}>
-          <FormattedMessage id="planningReviewStageLabel"/>
+        <FormattedMessage id="planningReviewStageLabel"/>
+        <Link href="https://documentation.uclusion.com/workspaces/stories/stages/#ready-for-feedback" target="_blank">
+          <Info style={{height: '1.1rem'}} />
         </Link>
         <ReviewStage
           className={classes.stage}
@@ -386,9 +387,10 @@ function PlanningIdeas(props) {
            onDragOver={onDragOverProcess}
            onDragEnter={(event) => onDragEnterStage(event, inVerifiedStageId, presenceId)}
            onDragEnd={onDragEndStage}>
-        <Link href="https://documentation.uclusion.com/workspaces/stories/stages/#verified-and-not-doing" target="_blank"
-              variant='body1' style={{lineHeight: 0, color: '#2D9CDB'}}>
-          <FormattedMessage id="verifiedBlockedStageLabel"/>
+        <FormattedMessage id="verifiedBlockedStageLabel"/>
+        <Link href="https://documentation.uclusion.com/workspaces/stories/stages/#verified-and-not-doing"
+              target="_blank">
+          <Info style={{height: '1.1rem'}} />
         </Link>
         <VerifiedStage
           className={classes.stage}

@@ -37,7 +37,7 @@ function NotificationCountChips(props) {
   const intl = useIntl();
 
   return (
-    <>
+    <div style={{paddingLeft: '2rem'}}>
       {mentions && mentions.length > 0 && (
         <Tooltip key={`tipmention${id}`}
                  title={intl.formatMessage({ id: 'mentionsExplanation' })}>
@@ -59,7 +59,7 @@ function NotificationCountChips(props) {
                 label={`${reviews.length}`} size='small' className={classes.chipStyleNoMargin}/>
         </Tooltip>
       )}
-    </>
+    </div>
   );
 }
 

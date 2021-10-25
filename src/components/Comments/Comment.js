@@ -322,8 +322,8 @@ function Comment(props) {
   const intl = useIntl();
   const classes = useCommentStyles();
   const { id, comment_type: commentType, investible_id: investibleId, inline_market_id: inlineMarketId,
-  created_by: commentCreatedBy, resolved, notification_type: myNotificationType, creation_stage_id: createdStageId,
-  mentions, body, creator_assigned: creatorAssigned } = comment;
+    resolved, notification_type: myNotificationType, creation_stage_id: createdStageId,
+    mentions, body, creator_assigned: creatorAssigned } = comment;
   const presences = usePresences(marketId);
   const createdBy = useCommenter(comment, presences) || unknownPresence;
   const updatedBy = useUpdatedBy(comment, presences) || unknownPresence;
@@ -334,7 +334,6 @@ function Comment(props) {
   const [multiVote, setMultiVote] = useState(originalAllowMultiVote);
   const market = getMarket(marketsState, marketId) || {};
   const { market_stage: marketStage, market_type: marketType } = market;
-  const userId = getMyUserForMarket(marketsState, marketId) || {};
   const activeMarket = marketStage === ACTIVE_STAGE;
   const myPresence = presences.find((presence) => presence.current_user) || {};
   const inArchives = !activeMarket || !myPresence.following;
@@ -369,6 +368,20 @@ function Comment(props) {
     showDiff
   } = editState;
   const editOpen = beingEdited || editOpenDefault;
+  const myExpandedState = expandedCommentState[id] || {};
+  const { expanded: myRepliesExpanded } = myExpandedState;
+  // If I resolved a comment then I am done with it and so hide the thread
+  const repliesExpanded = myRepliesExpanded === undefined ? (resolved ? myPresence !== updatedBy : true)
+    : myRepliesExpanded;
+
+  useEffect(() => {
+    if (!repliesExpanded && hash && !_.isEmpty(replies)) {
+      if (replies.find((reply) => hash.includes(reply.id))) {
+        expandedCommentDispatch({ type: EXPANDED_CONTROL, commentId: id, expanded: true });
+      }
+    }
+    return () => {};
+  }, [expandedCommentDispatch, hash, replies, id, repliesExpanded]);
 
   function toggleInlineInvestibleAdd() {
     updateInvestibleAddState({investibleAddBeingEdited: !investibleAddBeingEdited});
@@ -446,6 +459,8 @@ function Comment(props) {
     return [];
   }
 
+  const isEditable = comment.created_by === myPresence.id;
+
   function getDialog(anInlineMarket) {
     const inlineInvestibles = getMarketInvestibles(investiblesState, anInlineMarket.id) || [];
     const anInlineMarketInvestibleComments = getMarketComments(commentsState, anInlineMarket.id) || [];
@@ -474,7 +489,7 @@ function Comment(props) {
                     'decisionDialogAddInvestibleLabel'
                 })}
                 onClick={toggleInlineInvestibleAdd}
-                disabled={commentCreatedBy !== userId}
+                disabled={!isEditable}
                 tipPlacement="top-end"
               />)}
           >
@@ -484,7 +499,7 @@ function Comment(props) {
               marketId={anInlineMarket.id}
               comments={anInlineMarketInvestibleComments}
               inArchives={inArchives}
-              isAdmin={commentCreatedBy === userId}
+              isAdmin={isEditable}
             />
           </SubSection>
         </Grid>
@@ -498,7 +513,7 @@ function Comment(props) {
                 label={intl.formatMessage({ id: 'createDialogProposedExplanation' })}
                 openLabel={intl.formatMessage({ id: 'decisionDialogProposeInvestibleLabel'})}
                 onClick={toggleInlineInvestibleAdd}
-                disabled={commentCreatedBy === userId}
+                disabled={isEditable}
                 tipPlacement="top-end"
               />)}
           >
@@ -506,7 +521,7 @@ function Comment(props) {
               investibles={proposed}
               marketId={anInlineMarket.id}
               comments={anInlineMarketInvestibleComments}
-              isAdmin={commentCreatedBy === userId}
+              isAdmin={isEditable}
             />
           </SubSection>
         </Grid>
@@ -604,15 +619,10 @@ function Comment(props) {
   const myMessage = findMessageForCommentId(id, messagesState);
   const diff = getDiff(diffState, id);
   const myHighlightedState = myMessage || {};
-  const myExpandedState = expandedCommentState[id] || {};
   const { level: myHighlightedLevel, is_highlighted: isHighlighted } = myHighlightedState;
   if (isHighlighted) {
     messages.push(myMessage);
   }
-  const { expanded: myRepliesExpanded } = myExpandedState;
-  // If I resolved a comment then I am done with it and so hide the thread
-  const repliesExpanded = myRepliesExpanded === undefined ? resolved ? myPresence !== updatedBy  : true
-    : myRepliesExpanded;
   const inReviewStageId = (getInReviewStage(marketStagesState, marketId) || {}).id;
   const createdInReview = createdStageId === inReviewStageId;
   const overrideLabel = (marketType === PLANNING_TYPE && commentType === REPORT_TYPE
@@ -620,16 +630,6 @@ function Comment(props) {
     <FormattedMessage id="reviewReportPresent" /> : undefined;
 
   const displayUpdatedBy = updatedBy !== undefined && comment.updated_by !== comment.created_by;
-
-  useEffect(() => {
-    if (!repliesExpanded && hash && !_.isEmpty(highlighted)) {
-      if (highlighted.find((anId) => hash.includes(anId))) {
-        expandedCommentDispatch({ type: EXPANDED_CONTROL, commentId: id, expanded: true });
-      }
-    }
-    return () => {};
-  }, [expandedCommentDispatch, hash, highlighted, id, repliesExpanded]);
-
   const showActions = !replyBeingEdited || replies.length > 0;
   function getCommentHighlightStyle() {
     if (myHighlightedLevel && isHighlighted) {
@@ -644,7 +644,6 @@ function Comment(props) {
     return classes.container;
   }
   const displayingDiff = myMessage && showDiff && diff;
-  const isEditable = comment.created_by === userId;
   const displayEditing = enableEditing && isEditable && !editOpenDefault;
   return (
     <div className={getCommentHighlightStyle()}>
@@ -690,7 +689,7 @@ function Comment(props) {
               </div>
             )}
             {(myPresence.is_admin || isEditable) && enableActions &&
-            (commentType === REPORT_TYPE || userId === commentCreatedBy || resolved) && (
+            (commentType === REPORT_TYPE || isEditable || resolved) && (
               <div style={{marginRight: '2rem', marginTop: '0.5rem'}}>
                 <TooltipIconButton
                   disabled={operationRunning !== false}
@@ -704,7 +703,7 @@ function Comment(props) {
           <CardContent className={classes.cardContent}>
             {!noAuthor && (
               <GravatarAndName
-                key={userId}
+                key={myPresence.id}
                 email={createdBy.email}
                 name={createdBy.name}
                 typographyVariant="caption"
@@ -760,7 +759,7 @@ function Comment(props) {
                 )}
                 {commentType === QUESTION_TYPE && enableEditing && !inlineMarketId && marketType === PLANNING_TYPE && (
                   <SpinningIconLabelButton
-                    disabled={commentCreatedBy !== userId}
+                    disabled={!isEditable}
                     onClick={toggleInlineInvestibleAdd}
                     doSpin={false}
                     icon={AddIcon}
@@ -778,7 +777,7 @@ function Comment(props) {
                         name="suggestionVote"
                         checked={!_.isEmpty(inlineMarketId)}
                         onChange={allowSuggestionVote}
-                        disabled={operationRunning !== false || commentCreatedBy !== userId}
+                        disabled={operationRunning !== false || !isEditable}
                       />
                     </Typography>
                   </div>
@@ -810,8 +809,8 @@ function Comment(props) {
                     {intl.formatMessage({ id: 'markRead' })}
                   </SpinningIconLabelButton>
                 )}
-                {enableActions && commentType !== REPORT_TYPE && (!resolved || userId === commentCreatedBy
-                  || commentType === TODO_TYPE || commentType === ISSUE_TYPE) && (
+                {enableActions && commentType !== REPORT_TYPE && (!resolved || isEditable
+                  || myPresence === updatedBy || [TODO_TYPE, ISSUE_TYPE].includes(commentType)) && (
                   <SpinningIconLabelButton
                     onClick={resolved ? reopen : resolve}
                     icon={resolved ? SettingsBackupRestore : Done}
@@ -905,7 +904,7 @@ function Comment(props) {
                 onSave={(investible) => addInvestible(investiblesDispatch, () => {}, investible)}
                 onCancel={toggleInlineInvestibleAdd}
                 onSpinComplete={toggleInlineInvestibleAdd}
-                isAdmin={commentCreatedBy === userId}
+                isAdmin={isEditable}
                 pageState={investibleAddState}
                 pageStateUpdate={updateInvestibleAddState}
                 pageStateReset={investibleAddStateReset}

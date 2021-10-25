@@ -12,15 +12,6 @@ export function beginListening(setState) {
 
   registerListener(OPERATION_HUB_CHANNEL, 'opListener', (data) => {
     const { payload: { event }} = data;
-    switch (event) {
-      case START_OPERATION:
-        setState(true);
-        break;
-      case STOP_OPERATION:
-        setState(false);
-        break;
-      default:
-        // console.debug(`Operation in progres Ignoring event ${event}`);
-    }
+    setState(event);
   });
 }

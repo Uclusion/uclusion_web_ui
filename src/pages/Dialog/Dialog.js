@@ -93,9 +93,9 @@ function Dialog(props) {
       } else {
         proposedMarketId = marketEntity;
       }
-      const loadedMarket = getMarket(marketsState, proposedMarketId);
       // Ignore regular URL case because can cause performance problems to do things for that case
       if (subscribeId) {
+        const loadedMarket = getMarket(marketsState, proposedMarketId);
         if (subscribeId !== marketEntity || _.isEmpty(loadedMarket)) {
           pushMessage(LOAD_MARKET_CHANNEL, { event: GUEST_MARKET_EVENT, marketId: marketEntity, subscribeId });
           if (subscribeId === marketEntity) {
@@ -104,8 +104,11 @@ function Dialog(props) {
             window.history.replaceState(null, '', window.location.pathname);
           }
         }
-      } else if (_.isEmpty(loadedMarket) && action === 'invite') {
-        pushMessage(LOAD_MARKET_CHANNEL, { event: INVITE_MARKET_EVENT, marketToken: marketEntity });
+      } else if (action === 'invite') {
+        const loadedMarket = getMarket(marketsState, proposedMarketId);
+        if (_.isEmpty(loadedMarket)) {
+          pushMessage(LOAD_MARKET_CHANNEL, { event: INVITE_MARKET_EVENT, marketToken: marketEntity });
+        }
       }
     }
     if (hidden) {

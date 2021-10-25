@@ -15,7 +15,6 @@ import { DiffContext } from '../../../../contexts/DiffContext/DiffContext'
 import { InvestiblesContext } from '../../../../contexts/InvestibesContext/InvestiblesContext'
 import { MarketPresencesContext } from '../../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { CommentsContext } from '../../../../contexts/CommentsContext/CommentsContext'
-import { OperationInProgressContext } from '../../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { doCreateStoryWorkspace } from './workspaceCreator'
 import { formMarketLink } from '../../../../utils/marketIdPathFunctions'
 
@@ -49,7 +48,6 @@ function AdvancedOptionsStep (props) {
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, presenceDispatch] = useContext(MarketPresencesContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
-  const [, setOperationRunning] = useContext(OperationInProgressContext);
 
   function createMarket (formData) {
     const dispatchers = {
@@ -63,7 +61,6 @@ function AdvancedOptionsStep (props) {
     };
     return doCreateStoryWorkspace(dispatchers, formData, updateFormData, intl)
       .then((marketId) => {
-        setOperationRunning(false);
         return ({ ...formData, link: formMarketLink(marketId) });
       })
   }

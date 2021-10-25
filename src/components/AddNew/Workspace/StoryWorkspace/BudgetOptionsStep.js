@@ -14,7 +14,6 @@ import WizardStepContainer from '../../WizardStepContainer'
 import Grid from '@material-ui/core/Grid'
 import { MarketStagesContext } from '../../../../contexts/MarketStagesContext/MarketStagesContext'
 import { useOptionsStyles } from './AdvancedOptionsStep'
-import { OperationInProgressContext } from '../../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import { getMarketUnits } from '../../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import _ from 'lodash'
@@ -30,7 +29,6 @@ function BudgetOptionsStep (props) {
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, presenceDispatch] = useContext(MarketPresencesContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
-  const [, setOperationRunning] = useContext(OperationInProgressContext);
 
   function createMarket (formData) {
     const dispatchers = {
@@ -44,7 +42,6 @@ function BudgetOptionsStep (props) {
     };
     return doCreateStoryWorkspace(dispatchers, formData, updateFormData, intl)
       .then((marketId) => {
-        setOperationRunning(false);
         return ({ ...formData, link: formMarketLink(marketId) });
       })
   }

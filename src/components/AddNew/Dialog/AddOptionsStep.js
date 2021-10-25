@@ -14,7 +14,6 @@ import { createMyDialog } from './dialogCreator';
 import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepContainer from '../WizardStepContainer';
 import { editorReset } from '../../TextEditors/quillHooks'
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { formMarketLink } from '../../../utils/marketIdPathFunctions'
 
 function AddOptionsStep (props) {
@@ -22,7 +21,6 @@ function AddOptionsStep (props) {
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, marketsDispatch] = useContext(MarketsContext);
   const [, presenceDispatch] = useContext(MarketPresencesContext);
-  const [, setOperationRunning] = useContext(OperationInProgressContext);
 
   const {
     formData,
@@ -85,7 +83,6 @@ function AddOptionsStep (props) {
         if (editorController) {
           editorController(editorReset());
         }
-        setOperationRunning(false);
         return ({ ...formData, link: formMarketLink(marketId) });
       });
   }

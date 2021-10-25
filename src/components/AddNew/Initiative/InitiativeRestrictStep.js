@@ -10,7 +10,6 @@ import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { formInvestibleLink } from '../../../utils/marketIdPathFunctions'
 
 function InitiativeRestrictStep (props) {
@@ -19,7 +18,6 @@ function InitiativeRestrictStep (props) {
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, marketsDispatch] = useContext(MarketsContext);
   const [, presenceDispatch] = useContext(MarketPresencesContext);
-  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const intl = useIntl();
   const classes = useContext(WizardStylesContext);
   const value = formData.isRestricted || "false";
@@ -50,7 +48,6 @@ function InitiativeRestrictStep (props) {
     return doCreateInitiative({...formData, ...newValues})
       .then((data) => {
         const { marketId, investibleId } = data;
-        setOperationRunning(false);
         return ({ ...formData, link: formInvestibleLink(marketId, investibleId) });
       });
   }

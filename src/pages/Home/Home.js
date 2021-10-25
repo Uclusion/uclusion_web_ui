@@ -83,7 +83,7 @@ function Home(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [marketStagesState] = useContext(MarketStagesContext)
   const [investiblesState] = useContext(InvestiblesContext)
-  const [operationRunning] = useContext(OperationInProgressContext)
+  const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const classes = useStyles()
   const [wizardActive, setWizardActive] = useState(false)
   const [, tourDispatch] = useContext(TourContext)
@@ -115,6 +115,7 @@ function Home(props) {
   function onWizardFinish (formData) {
     const { link } = formData;
     setWizardActive(false);
+    setOperationRunning(false);
     navigate(history, link);
   }
 

@@ -430,6 +430,7 @@ const messages = defineMessages({
   addReportWarning: 'Opening a new progress report resolves all older progress reports',
   addReportInReadyForApprovalWarning: 'If this story is started then consider moving to \'Not Ready for Feedback\' stage.',
   noCommentBody: 'Please create a message for this comment.',
+  noType: 'Please choose a type for this comment.',
 
   // CommentBox
   commentIconRaiseIssueLabel: 'Raise Issue',

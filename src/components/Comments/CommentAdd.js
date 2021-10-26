@@ -328,10 +328,10 @@ function CommentAdd(props) {
   function handleSave () {
     const currentUploadedFiles = uploadedFiles || []
     const myBodyNow = getQuillStoredState(editorName)
-    if (_.isEmpty(myBodyNow)) {
-      setOperationRunning(false)
-      setOpenIssue('noCommentBody')
-      return
+    if (_.isEmpty(myBodyNow) || _.isEmpty(type)) {
+      setOperationRunning(false);
+      setOpenIssue(_.isEmpty(type) ? 'noType' : 'noCommentBody');
+      return;
     }
     const {
       uploadedFiles: filteredUploads,
@@ -434,7 +434,6 @@ function CommentAdd(props) {
             <SpinningIconLabelButton
               onClick={handleSave}
               icon={Add}
-              disabled={_.isEmpty(type)}
               id="commentSaveButton"
             >
               {intl.formatMessage({ id: commentSaveLabel })}
@@ -465,11 +464,11 @@ function CommentAdd(props) {
               open={openIssue !== false}
               onClose={toggleIssue}
               issueWarningId={openIssue}
-              showDismiss={openIssue !== 'noCommentBody'}
+              showDismiss={!['noCommentBody', 'noType'].includes(openIssue)}
               checkBoxFunc={setDoNotShowAgain}
               /* slots */
               actions={
-                (openIssue !== 'noCommentBody') ?
+                (!['noCommentBody', 'noType'].includes(openIssue)) ?
                   <SpinningIconLabelButton onClick={handleSave} icon={Add} id="issueProceedButton"
                                            disabled={_.isEmpty(type)}>
                     {intl.formatMessage({ id: 'issueProceed' })}

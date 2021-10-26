@@ -37,6 +37,7 @@ function AssignmentList(props) {
   const {
     marketId,
     onChange,
+    previouslyAssigned,
     cannotBeAssigned,
     listHeader,
     requiresInput
@@ -50,6 +51,12 @@ function AssignmentList(props) {
   const formClasses = usePlanFormStyles();
 
   function getDefaultChecked() {
+    if (!_.isEmpty(previouslyAssigned)) {
+      return previouslyAssigned.reduce((acc, id) => ({
+        ...acc,
+        [id]: true,
+      }), {});
+    }
     return {};
   }
 

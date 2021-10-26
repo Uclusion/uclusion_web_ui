@@ -21,6 +21,7 @@ import SpinningIconLabelButton from '../../components/Buttons/SpinningIconLabelB
 import { useEditor, editorReset } from '../../components/TextEditors/quillHooks';
 import WarningIcon from '@material-ui/icons/Warning'
 import { getQuillStoredState } from '../../components/TextEditors/QuillEditor2'
+import IssueDialog from '../../components/Warnings/IssueDialog'
 
 export const useLockedDialogStyles = makeStyles(
   (theme) => {
@@ -137,7 +138,7 @@ function DialogBodyEdit(props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [,marketsDispatch] = useContext(MarketsContext);
   const [, diffDispatch] = useContext(DiffContext);
-  const [isEmpty, setIsEmpty] = useState(false);
+  const [openIssue, setOpenIssue] = useState(false);
   const { id, name: initialName, description: initialDescription,
     market_type: marketType, locked_by: lockedBy } = market;
   const someoneElseEditing = !_.isEmpty(lockedBy) && (lockedBy !== userId);
@@ -153,6 +154,12 @@ function DialogBodyEdit(props) {
   const [Editor, editorController] = useEditor(editorName, editorSpec);
 
   function handleSave() {
+    const name = getNameStoredState(id);
+    if (_.isEmpty(name)) {
+      setOperationRunning(false);
+      setOpenIssue('nameRequired');
+      return;
+    }
     // the set of files for the market is all the old files, plus our new ones
     const oldMarketUploadedFiles = market.uploaded_files || [];
     const currentUploadedFiles = uploadedFiles || [];
@@ -163,7 +170,6 @@ function DialogBodyEdit(props) {
       text: tokensRemoved,
     } = processTextAndFilesForSave(newUploadedFiles, description);
     const updatedFilteredUploads = _.isEmpty(uploadedFiles) ? filteredUploads : null;
-    const name = getNameStoredState(id) || initialName;
     return updateMarket(id, name, tokensRemoved, updatedFilteredUploads)
       .then((market) => {
         //clear the editor because we want the storage back
@@ -182,10 +188,6 @@ function DialogBodyEdit(props) {
         updateMarketInStorage(market);
       });
     }
-  }
-
-  function emptyNotEmptyChange(value) {
-    setIsEmpty(value);
   }
 
   function updateMarketInStorage(market) {
@@ -231,6 +233,15 @@ function DialogBodyEdit(props) {
   if (!hidden && beingEdited) {
     return (
       <>
+        {openIssue !== false && (
+          <IssueDialog
+            classes={lockedDialogClasses}
+            open={openIssue !== false}
+            onClose={() => setOpenIssue(false)}
+            issueWarningId={openIssue}
+            showDismiss={false}
+          />
+        )}
         <LockedDialog
           classes={lockedDialogClasses}
           open={!hidden && someoneElseEditing}
@@ -244,10 +255,8 @@ function DialogBodyEdit(props) {
         />
         {(!lockedBy || (lockedBy === userId)) && (
           <>
-            <NameField onEmptyNotEmptyChange={emptyNotEmptyChange}
-                       descriptionFunc={() => getQuillStoredState(editorName)}
-                       name={initialName} label="agilePlanFormTitleLabel" placeHolder="decisionTitlePlaceholder"
-                       id={id} />
+            <NameField descriptionFunc={() => getQuillStoredState(editorName)}
+                       label="agilePlanFormTitleLabel" placeHolder="decisionTitlePlaceholder" id={id} />
             {Editor}
           </>
         )}
@@ -259,7 +268,6 @@ function DialogBodyEdit(props) {
           <SpinningIconLabelButton
             icon={SettingsBackupRestore}
             onClick={handleSave}
-            disabled={isEmpty}
             id="agilePlanFormSaveButton"
           >
             <FormattedMessage

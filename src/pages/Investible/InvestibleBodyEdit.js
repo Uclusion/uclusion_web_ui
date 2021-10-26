@@ -20,6 +20,7 @@ import SpinningIconLabelButton from '../../components/Buttons/SpinningIconLabelB
 import { editorReset, useEditor } from '../../components/TextEditors/quillHooks';
 import LockedDialogTitleIcon from '@material-ui/icons/Lock'
 import { getQuillStoredState } from '../../components/TextEditors/QuillEditor2'
+import IssueDialog from '../../components/Warnings/IssueDialog'
 
 const useStyles = makeStyles(
   theme => ({
@@ -64,7 +65,6 @@ function InvestibleBodyEdit(props) {
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, diffDispatch] = useContext(DiffContext);
   const [marketsState] = useContext(MarketsContext);
-  const [isEmpty, setIsEmpty] = useState(false);
   const { investible: myInvestible } = fullInvestible;
   const { locked_by: lockedBy } = myInvestible;
   const emptyMarket = { name: '' };
@@ -72,6 +72,7 @@ function InvestibleBodyEdit(props) {
   const loading = !beingEdited || !market;
   const someoneElseEditing = !_.isEmpty(lockedBy) && (lockedBy !== userId);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [openIssue, setOpenIssue] = useState(false);
   const { id, description: initialDescription, name: initialName } = myInvestible;
 
   const editorName = `${investibleId}-body-editor`;
@@ -86,6 +87,12 @@ function InvestibleBodyEdit(props) {
   const [Editor, editorController] = useEditor(editorName, editorSpec);
 
   function handleSave() {
+    const name = getNameStoredState(investibleId);
+    if (_.isEmpty(name)) {
+      setOperationRunning(false);
+      setOpenIssue('nameRequired');
+      return;
+    }
     // uploaded files on edit is the union of the new uploaded files and the old uploaded files
     const oldInvestibleUploadedFiles = myInvestible.uploaded_files || [];
     const currentUploadedFiles = uploadedFiles || [];
@@ -95,10 +102,9 @@ function InvestibleBodyEdit(props) {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
     } = processTextAndFilesForSave(newUploadedFiles, description);
-    const name = getNameStoredState(investibleId) || initialName;
     const updateInfo = {
       uploadedFiles: filteredUploads,
-      name: name,
+      name,
       description: tokensRemoved,
       marketId,
       investibleId: id,
@@ -140,10 +146,6 @@ function InvestibleBodyEdit(props) {
     }
   }
 
-  function emptyNotEmptyChange(value) {
-    setIsEmpty(value);
-  }
-
   function takeoutLock () {
     pageStateUpdate({beingLocked: true});
     const breakLock = true;
@@ -169,6 +171,15 @@ function InvestibleBodyEdit(props) {
   if (!hidden && beingEdited && !loading) {
     return (
       <>
+        {openIssue !== false && (
+          <IssueDialog
+            classes={lockedDialogClasses}
+            open={openIssue !== false}
+            onClose={() => setOpenIssue(false)}
+            issueWarningId={openIssue}
+            showDismiss={false}
+          />
+        )}
         <LockedDialog
           classes={lockedDialogClasses}
           open={!hidden && (someoneElseEditing)}
@@ -188,8 +199,7 @@ function InvestibleBodyEdit(props) {
         />
         {(!lockedBy || (lockedBy === userId)) && (
           <>
-            <NameField descriptionFunc={() => getQuillStoredState(editorName)} id={investibleId}
-                       name={initialName} onEmptyNotEmptyChange={emptyNotEmptyChange}/>
+            <NameField descriptionFunc={() => getQuillStoredState(editorName)} id={investibleId} />
             {Editor}
           </>
         )}
@@ -198,7 +208,6 @@ function InvestibleBodyEdit(props) {
             {intl.formatMessage({ id: 'marketAddCancelLabel' })}
           </SpinningIconLabelButton>
           <SpinningIconLabelButton
-            disabled={isEmpty}
             icon={SettingsBackupRestore}
             onClick={handleSave}
             id="investibleUpdateButton"

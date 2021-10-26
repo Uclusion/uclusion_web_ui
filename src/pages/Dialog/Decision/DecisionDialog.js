@@ -70,6 +70,7 @@ import DismissableText from '../../../components/Notifications/DismissableText'
 import DialogManage from '../DialogManage'
 import SettingsIcon from '@material-ui/icons/Settings'
 import DecisionDialogEdit from './DecisionDialogEdit'
+import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils'
 
 const useStyles = makeStyles(
   theme => ({
@@ -268,8 +269,10 @@ function DecisionDialog(props) {
 
   function mySetBeingEdited(isEdit, event) {
     doSetEditWhenValid(isEdit, isEditableByUser,
-      (value) => updatePageState({beingEdited: value, name: marketName}), event,
-      history);
+      (value) => {
+        updatePageState({beingEdited: value});
+        setUclusionLocalStorageItem(`name-editor-${marketId}`, marketName);
+      }, event, history);
   }
 
   function onDeleteFile(path) {

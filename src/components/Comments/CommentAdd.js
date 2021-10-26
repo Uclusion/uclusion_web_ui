@@ -469,8 +469,7 @@ function CommentAdd(props) {
               /* slots */
               actions={
                 (!['noCommentBody', 'noType'].includes(openIssue)) ?
-                  <SpinningIconLabelButton onClick={handleSave} icon={Add} id="issueProceedButton"
-                                           disabled={_.isEmpty(type)}>
+                  <SpinningIconLabelButton onClick={handleSave} icon={Add} id="issueProceedButton">
                     {intl.formatMessage({ id: 'issueProceed' })}
                   </SpinningIconLabelButton> : undefined
               }

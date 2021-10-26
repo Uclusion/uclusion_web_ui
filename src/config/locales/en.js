@@ -559,6 +559,7 @@ const messages = defineMessages({
   inDialogInvestiblesUpdatedAt: 'Entered stage ',
   verifiedInvestiblesUpdatedAt: 'Entered stage ',
   noName: 'Must create a name or text description for this story.',
+  nameRequired: 'Name is a required field.',
   noQuantity: 'Must provide your certainty for this story.',
   noVoteQuantity: 'Must provide your certainty.',
   collaborators: 'Collaborators',

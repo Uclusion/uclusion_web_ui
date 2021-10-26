@@ -34,6 +34,7 @@ import { removeMessage } from '../../../contexts/NotificationsContext/notificati
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import MenuBookIcon from '@material-ui/icons/MenuBook'
 import { formMarketArchivesLink, navigate } from '../../../utils/marketIdPathFunctions'
+import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils'
 
 const useStyles = makeStyles(theme => ({
   section: {
@@ -266,12 +267,16 @@ function Summary(props) {
     if (!isEdit || lockedBy === myPresence.id || !_.isEmpty(lockedBy)) {
       // Either don't lock or throw the modal up - both of which InvestibleBodyEdit can handle
       return doSetEditWhenValid(isEdit, isEditableByUser,
-        (value) => updatePageState({beingEdited: value, name}), event, history);
+        (value) => {
+          updatePageState({beingEdited: value});
+          setUclusionLocalStorageItem(`name-editor-${id}`, name);
+        }, event, history);
     }
     if (!isEditableByUser() || invalidEditEvent(event, history)) {
       return;
     }
-    updatePageState({beingEdited: true, name});
+    updatePageState({beingEdited: true});
+    setUclusionLocalStorageItem(`name-editor-${id}`, name);
     return pushMessage(LOCK_MARKET_CHANNEL, { event: LOCK_MARKET, marketId: id });
   }
 

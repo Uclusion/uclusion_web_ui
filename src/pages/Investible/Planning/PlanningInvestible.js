@@ -121,6 +121,7 @@ import { useLockedDialogStyles } from '../../Dialog/DialogBodyEdit'
 import InputLabel from '@material-ui/core/InputLabel'
 import PlanningInvestibleEdit from './PlanningInvestibleEdit'
 import { removeInvestibleInvestments } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils'
 
 const useStyles = makeStyles(
   theme => ({
@@ -694,12 +695,16 @@ function PlanningInvestible(props) {
     if (!isEdit || lockedBy === userId || !_.isEmpty(lockedBy)) {
       // Either don't lock or throw the modal up - both of which InvestibleBodyEdit can handle
       return doSetEditWhenValid(isEdit, isEditableByUser,
-        (value) => updatePageState({beingEdited: value, name}), event, history);
+        (value) => {
+          updatePageState({beingEdited: value});
+          setUclusionLocalStorageItem(`name-editor-${investibleId}`, name);
+        }, event, history);
     }
     if (!isEditableByUser() || invalidEditEvent(event, history)) {
       return;
     }
-    updatePageState({beingEdited: true, name});
+    updatePageState({beingEdited: true});
+    setUclusionLocalStorageItem(`name-editor-${investibleId}`, name);
     return pushMessage(LOCK_INVESTIBLE_CHANNEL, { event: LOCK_INVESTIBLE, marketId, investibleId });
   }
   function toggleReviewers() {

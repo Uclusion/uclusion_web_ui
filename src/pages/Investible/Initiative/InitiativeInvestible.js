@@ -66,6 +66,7 @@ import { removeMessage } from '../../../contexts/NotificationsContext/notificati
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import PlaylistAddCheckIcon from '@material-ui/icons/PlaylistAddCheck'
 import DialogManage from '../../Dialog/DialogManage'
+import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils'
 
 const useStyles = makeStyles(
   theme => ({
@@ -284,7 +285,10 @@ function InitiativeInvestible(props) {
 
   function mySetBeingEdited(isEdit, event) {
     doSetEditWhenValid(isEdit, isEditableByUser,
-      (value) => updatePageState({beingEdited: value, name}), event, history);
+      (value) => {
+        updatePageState({beingEdited: value});
+        setUclusionLocalStorageItem(`name-editor-${investibleId}`, name);
+      }, event, history);
   }
 
   useEffect(() => {

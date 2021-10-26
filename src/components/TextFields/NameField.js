@@ -16,7 +16,7 @@ export function clearNameStoredState(id) {
 function NameField(props) {
   const intl = useIntl();
   const {
-    descriptionFunc, name, label, placeHolder, id, useCreateDefault, onEmptyNotEmptyChange
+    descriptionFunc, label, placeHolder, id, useCreateDefault
   } = props;
 
   function storeState(state) {
@@ -28,7 +28,6 @@ function NameField(props) {
     if (description && !getNameStoredState(id)) {
       const found = nameFromDescription(description);
       if (found) {
-        onEmptyNotEmptyChange();
         storeState(found);
         document.getElementById(id).value = found;
       }
@@ -37,14 +36,6 @@ function NameField(props) {
 
   function handleChange(event) {
     const { value } = event.target;
-    if (!value) {
-      onEmptyNotEmptyChange(true);
-    } else {
-      const valueBefore = getNameStoredState(id);
-      if (!valueBefore) {
-        onEmptyNotEmptyChange(false);
-      }
-    }
     storeState(value);
   }
 
@@ -60,7 +51,7 @@ function NameField(props) {
           placeholder={intl.formatMessage({
             id: placeHolder
           })}
-          defaultValue={getNameStoredState(id) || name}
+          defaultValue={getNameStoredState(id)}
           variant="filled"
         />
       )}
@@ -73,7 +64,7 @@ function NameField(props) {
           placeholder={intl.formatMessage({
             id: placeHolder
           })}
-          defaultValue={getNameStoredState(id) || name}
+          defaultValue={getNameStoredState(id)}
           variant="filled"
         />
       )}
@@ -83,19 +74,16 @@ function NameField(props) {
 
 NameField.propTypes = {
   descriptionFunc: PropTypes.func.isRequired,
-  name: PropTypes.string,
   id: PropTypes.string.isRequired,
   placeHolder: PropTypes.string,
   label: PropTypes.string,
-  useCreateDefault: PropTypes.bool,
-  onEmptyNotEmptyChange: PropTypes.func
+  useCreateDefault: PropTypes.bool
 }
 
 NameField.defaultProps = {
   placeHolder: "storyTitlePlaceholder",
   label: "agilePlanFormTitleLabel",
-  useCreateDefault: false,
-  onEmptyNotEmptyChange: () => {}
+  useCreateDefault: false
 }
 
 export default NameField;

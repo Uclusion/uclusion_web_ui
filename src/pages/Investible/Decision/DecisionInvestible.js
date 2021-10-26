@@ -67,6 +67,7 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { getDiff, markDiffViewed } from '../../../contexts/DiffContext/diffContextHelper'
 import { findMessageOfTypeAndId } from '../../../utils/messageUtils'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
+import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils'
 
 const useStyles = makeStyles((theme) => ({
   mobileColumn: {
@@ -285,7 +286,10 @@ function DecisionInvestible(props) {
 
   function mySetBeingEdited(isEdit, event) {
     return doSetEditWhenValid(isEdit, isEditableByUser,
-      (value) => updatePageState({beingEdited: value, name}), event, history);
+      (value) => {
+        updatePageState({beingEdited: value});
+        setUclusionLocalStorageItem(`name-editor-${investibleId}`, name);
+      }, event, history);
   }
 
   const allowedCommentTypes = [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE];

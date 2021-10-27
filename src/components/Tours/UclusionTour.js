@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext } from 'react'
 import _ from 'lodash'
 import PropTypes from 'prop-types'
 import { TourContext } from '../../contexts/TourContext/TourContext'
@@ -14,7 +14,7 @@ import ReactJoyride, { ACTIONS } from 'react-joyride'
 import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
 import { updateUiPreferences } from '../../api/account'
 import { accountUserRefresh } from '../../contexts/AccountUserContext/accountUserContextReducer'
-import { getUiPreferences, userIsLoaded } from '../../contexts/AccountUserContext/accountUserContextHelper'
+import { getUiPreferences } from '../../contexts/AccountUserContext/accountUserContextHelper'
 
 export function storeTourCompleteInBackend (tourName, userState, userDispatch) {
   const userPreferences = getUiPreferences(userState) || {}
@@ -40,15 +40,22 @@ export function storeTourCompleteInBackend (tourName, userState, userDispatch) {
 function UclusionTour(props) {
   const {
     name,
-    shouldRun,
     hidden,
+    autoStart,
     ...rest
   } = props;
 
   const [tourState, tourDispatch] = useContext(TourContext);
-  const [userState, userDispatch] = useContext(AccountUserContext)
-  const isCompleted = isTourCompleted(tourState, name)
-  const hasUser = userIsLoaded(userState)
+  const [userState, userDispatch] = useContext(AccountUserContext);
+  const isCompleted = isTourCompleted(tourState, name);
+  const userPreferences = getUiPreferences(userState);
+  const tourPreferences = (userPreferences || {}).tours || {};
+  const { completedTours } = tourPreferences;
+  const safeCompletedTours = _.isArray(completedTours) ? completedTours : [];
+  const uiPrefCantRun = userPreferences === undefined || safeCompletedTours.includes(name);
+  const tourActive = autoStart || isTourRunning(tourState, name);
+  const runTour = !hidden && tourActive && !isCompleted && !uiPrefCantRun;
+  const currentStep = getCurrentStep(tourState, name);
 
   function tourCallback(state) {
     const {
@@ -94,23 +101,10 @@ function UclusionTour(props) {
     },
   };
 
-  const currentStep = getCurrentStep(tourState, name);
-  const [runTour, setRunTour] = useState(false);
-
-  useEffect(() => {
-    const userPreferences = getUiPreferences(userState) || {}
-    const tourPreferences = userPreferences.tours || {}
-    const { completedTours } = tourPreferences
-    const safeCompletedTours = _.isArray(completedTours) ? completedTours : []
-    const uiPrefCantRun = !hasUser || safeCompletedTours.includes(name)
-    const tourActive = isTourRunning(tourState, name)
-    const iCanRun = !hidden && shouldRun && tourActive && !isCompleted && !uiPrefCantRun
-    setRunTour(iCanRun)
-    return () => {
-    }
-  }, [hasUser, userState, hidden, tourState, shouldRun, isCompleted, name]);
   if (!runTour) {
     return <React.Fragment/>;
+  } else {
+    console.info(`Starting tour for ${name}`);
   }
 
 
@@ -133,17 +127,17 @@ function UclusionTour(props) {
 
 UclusionTour.propTypes = {
   name: PropTypes.string.isRequired,
-  shouldRun: PropTypes.bool,
   hidden: PropTypes.bool,
   continuous: PropTypes.bool,
   hideBackButton: PropTypes.bool,
+  autoStart: PropTypes.bool,
 };
 
 UclusionTour.defaultProps = {
-  shouldRun: true,
   hidden: false,
   hideBackButton: true,
   continuous: true,
+  autoStart: false
 };
 
 export default UclusionTour;

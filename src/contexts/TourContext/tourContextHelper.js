@@ -6,6 +6,8 @@ export const INVITE_REQ_WORKSPACE_FIRST_VIEW = 'invite_req_workspace_first_view'
 // Currently INVITED_USER_WORKSPACE is any time someone is new in a unknown workspace - whether creator or not
 // invited to the onboarding Workspace also goes here since it may have been customized
 export const INVITED_USER_WORKSPACE = 'invited_user_workspace';
+export const BLOCKED_STORY_TOUR = 'blocked_story_tour';
+export const REQUIRES_INPUT_STORY_TOUR = 'requires_input_story_tour';
 export const ADMIN_INITIATIVE_FIRST_VIEW = 'admin_initiative_first_view';
 export const INVITE_INITIATIVE_FIRST_VIEW = 'invite_initiative_first_view';
 export const SIGNUP_HOME = 'signup_home';

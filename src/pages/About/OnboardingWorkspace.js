@@ -99,7 +99,7 @@ function OnboardingWorkspace(props) {
 }
 
 OnboardingWorkspace.propTypes = {
-  user: PropTypes.object.isRequired,
+  user: PropTypes.object,
 };
 
 export default OnboardingWorkspace;

@@ -10,9 +10,9 @@ export function getUiPreferences(state) {
   if (_.isEmpty(user)) {
     return undefined;
   }
-  const { ui_preferences: uiPrefs} = user;
+  const { ui_preferences: uiPrefs } = user;
   if (!uiPrefs) {
-    return undefined;
+    return {};
   }
   return uiPrefs;
 }

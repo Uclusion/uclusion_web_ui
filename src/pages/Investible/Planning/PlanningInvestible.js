@@ -122,6 +122,13 @@ import InputLabel from '@material-ui/core/InputLabel'
 import PlanningInvestibleEdit from './PlanningInvestibleEdit'
 import { removeInvestibleInvestments } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils'
+import {
+  BLOCKED_STORY_TOUR,
+  REQUIRES_INPUT_STORY_TOUR
+} from '../../../contexts/TourContext/tourContextHelper'
+import UclusionTour from '../../../components/Tours/UclusionTour'
+import { blockedStorySteps } from '../../../components/Tours/blockedStory'
+import { requiresInputStorySteps } from '../../../components/Tours/requiresInputStory'
 
 const useStyles = makeStyles(
   theme => ({
@@ -769,6 +776,18 @@ function PlanningInvestible(props) {
       hidden={hidden}
       navigationOptions={navigationMenu}
     >
+      <UclusionTour
+        name={BLOCKED_STORY_TOUR}
+        hidden={hidden || !isInBlocked}
+        autoStart={true}
+        steps={blockedStorySteps({isAssigned})}
+      />
+      <UclusionTour
+        name={REQUIRES_INPUT_STORY_TOUR}
+        hidden={hidden || !isRequiresInput}
+        autoStart={true}
+        steps={requiresInputStorySteps({isAssigned})}
+      />
       <DismissableText textId="storyInsideHelp" text={
         <div>
           A Uclusion <Link href="https://documentation.uclusion.com/workspaces/stories" target="_blank">story</Link> is

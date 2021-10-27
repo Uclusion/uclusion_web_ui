@@ -1,4 +1,5 @@
-import React, { useContext, } from 'react'
+import React, { useContext, useState, } from 'react'
+import _ from 'lodash'
 import PropTypes from 'prop-types'
 import { Card, CardActions, CardContent, TextField, } from '@material-ui/core'
 import { addDecisionInvestible } from '../../../api/investibles';
@@ -21,6 +22,8 @@ import { Clear, SettingsBackupRestore } from '@material-ui/icons'
 import { editorReset, useEditor } from '../../../components/TextEditors/quillHooks';
 import { getQuillStoredState } from '../../../components/TextEditors/QuillEditor2'
 import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../../authorization/TokenStorageManager'
+import IssueDialog from '../../../components/Warnings/IssueDialog'
+import { useLockedDialogStyles } from '../DialogBodyEdit'
 
 function DecisionInvestibleAdd(props) {
   const {
@@ -40,6 +43,7 @@ function DecisionInvestibleAdd(props) {
   } = pageState;
   const intl = useIntl();
   const classes = usePlanFormStyles();
+  const lockedDialogClasses = useLockedDialogStyles();
   const [marketStagesState] = useContext(MarketStagesContext);
   const marketStages = getStages(marketStagesState, marketId) || [];
   const investmentAllowedStage = marketStages.find((stage) => stage.allows_investment) || {};
@@ -48,6 +52,7 @@ function DecisionInvestibleAdd(props) {
   const [, marketDispatch] = useContext(MarketsContext);
   const [, diffDispatch] = useContext(DiffContext);
   const [commentState, commentDispatch] = useContext(CommentsContext);
+  const [openIssue, setOpenIssue] = useState(false);
 
   const editorName = `${marketId}-newInvestible`;
   const editorSpec = {
@@ -107,6 +112,11 @@ function DecisionInvestibleAdd(props) {
   }
 
   function handleSaveAddAnother() {
+    if (_.isEmpty(name)) {
+      setOperationRunning(false);
+      setOpenIssue('nameRequired');
+      return;
+    }
     if (parentCommentId) {
       return handleNewInlineSave(onSaveAddAnother);
     }
@@ -114,6 +124,11 @@ function DecisionInvestibleAdd(props) {
   }
 
   function handleSave(completionFunc) {
+    if (_.isEmpty(name)) {
+      setOperationRunning(false);
+      setOpenIssue('nameRequired');
+      return;
+    }
     if (parentCommentId) {
       return handleNewInlineSave(completionFunc);
     }
@@ -154,41 +169,51 @@ function DecisionInvestibleAdd(props) {
   }
 
   return (
-    <Card className={classes.overflowVisible}>
-      <CardContent>
-        <TextField
-          fullWidth
-          id="decision-investible-name"
-          label={intl.formatMessage({ id: "agilePlanFormTitleLabel" })}
-          onChange={(event) => {
-            const { value } = event.target;
-            pageStateUpdate({ name: value });
-          }}
-          placeholder={intl.formatMessage({
-            id: "optionTitlePlaceholder"
-          })}
-          value={name}
-          variant="filled"
+    <>
+      {openIssue !== false && (
+        <IssueDialog
+          classes={lockedDialogClasses}
+          open={openIssue !== false}
+          onClose={() => setOpenIssue(false)}
+          issueWarningId={openIssue}
+          showDismiss={false}
         />
-        {Editor}
-      </CardContent>
-      <CardActions className={classes.actions} style={{marginLeft: '1rem', paddingBottom: '1rem'}}>
-        <SpinningIconLabelButton onClick={handleCancel} doSpin={false} icon={Clear}>
-          {intl.formatMessage({ id: 'marketAddCancelLabel' })}
-        </SpinningIconLabelButton>
-        <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore}
-                                 disabled={!name || (!parentCommentId && !investmentAllowedStage.id)}
-                                 id="decisionInvestibleSaveButton">
-          {intl.formatMessage({ id: 'agilePlanFormSaveLabel' })}
-        </SpinningIconLabelButton>
-        <SpinningIconLabelButton onClick={handleSaveAddAnother} icon={SettingsBackupRestore}
-                                 disabled={!name || (!parentCommentId && !investmentAllowedStage.id)}
-                                 id="decisionInvestibleSaveAddAnotherButton">
-          {intl.formatMessage({ id: 'decisionInvestibleSaveAddAnother' })}
-        </SpinningIconLabelButton>
-      </CardActions>
-    </Card>
-
+      )}
+      <Card className={classes.overflowVisible}>
+        <CardContent>
+          <TextField
+            fullWidth
+            id="decision-investible-name"
+            label={intl.formatMessage({ id: "agilePlanFormTitleLabel" })}
+            onChange={(event) => {
+              const { value } = event.target;
+              pageStateUpdate({ name: value });
+            }}
+            placeholder={intl.formatMessage({
+              id: "optionTitlePlaceholder"
+            })}
+            value={name}
+            variant="filled"
+          />
+          {Editor}
+        </CardContent>
+        <CardActions className={classes.actions} style={{marginLeft: '1rem', paddingBottom: '1rem'}}>
+          <SpinningIconLabelButton onClick={handleCancel} doSpin={false} icon={Clear}>
+            {intl.formatMessage({ id: 'marketAddCancelLabel' })}
+          </SpinningIconLabelButton>
+          <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore}
+                                   disabled={!parentCommentId && !investmentAllowedStage.id}
+                                   id="decisionInvestibleSaveButton">
+            {intl.formatMessage({ id: 'agilePlanFormSaveLabel' })}
+          </SpinningIconLabelButton>
+          <SpinningIconLabelButton onClick={handleSaveAddAnother} icon={SettingsBackupRestore}
+                                   disabled={!parentCommentId && !investmentAllowedStage.id}
+                                   id="decisionInvestibleSaveAddAnotherButton">
+            {intl.formatMessage({ id: 'decisionInvestibleSaveAddAnother' })}
+          </SpinningIconLabelButton>
+        </CardActions>
+      </Card>
+    </>
   );
 }
 

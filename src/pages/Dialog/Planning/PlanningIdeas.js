@@ -14,9 +14,10 @@ import {
 } from '../../../utils/marketIdPathFunctions'
 import clsx from 'clsx';
 import {
-  checkInProgressWarning,
+  checkInApprovalWarning,
+  checkInProgressWarning, checkInReviewWarning,
   countByType,
-} from './PlanningDialog';
+} from './PlanningDialog'
 import { DaysEstimate } from '../../../components/AgilePlan';
 import {
   getMarketPresences,
@@ -343,6 +344,7 @@ function PlanningIdeas(props) {
           marketPresences={marketPresences}
           comments={comments}
           votesRequired={votesRequired}
+          warnAccepted={checkInApprovalWarning(investibles, myPresence, messagesState)}
         />
       </div>
       <div id={`${acceptedStageId}_${presenceId}`} onDrop={onDropAccepted}
@@ -381,6 +383,7 @@ function PlanningIdeas(props) {
           presenceId={presenceId}
           comments={comments}
           marketPresences={marketPresences}
+          warnAccepted={checkInReviewWarning(investibles, myPresence, messagesState)}
         />
       </div>
       <div id={`${inVerifiedStageId}_${presenceId}`} onDrop={onDropVerified}

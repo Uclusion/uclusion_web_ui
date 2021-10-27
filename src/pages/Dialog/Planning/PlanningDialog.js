@@ -712,7 +712,7 @@ export const useInvestiblesByPersonStyles = makeStyles(
   { name: "InvestiblesByPerson" }
 );
 
-export function checkInProgressWarning(investibles, myPresence, messagesState) {
+function checkInvestibleWarning(investibles, myPresence, warningFunction) {
   const warnHash = {};
   if (!myPresence.id) {
     return warnHash;
@@ -720,12 +720,27 @@ export function checkInProgressWarning(investibles, myPresence, messagesState) {
   investibles.forEach((fullInvestible) => {
     const { investible } = fullInvestible;
     const { id } = investible;
-    if (findMessageOfTypeAndId(id, messagesState, 'REPORT')
-      || findMessageOfType('REPORT_REQUIRED', id, messagesState)) {
+    if (warningFunction(id)) {
       warnHash[id] = true;
     }
   });
   return warnHash;
+}
+
+export function checkInProgressWarning(investibles, myPresence, messagesState) {
+  return checkInvestibleWarning(investibles, myPresence,
+    (id) => findMessageOfTypeAndId(id, messagesState, 'REPORT')
+      || findMessageOfType('REPORT_REQUIRED', id, messagesState));
+}
+
+export function checkInApprovalWarning(investibles, myPresence, messagesState) {
+  return checkInvestibleWarning(investibles, myPresence,
+    (id) => findMessageOfType('NOT_FULLY_VOTED', id, messagesState));
+}
+
+export function checkInReviewWarning(investibles, myPresence, messagesState) {
+  return checkInvestibleWarning(investibles, myPresence,
+    (id) => findMessageOfType('REPORT_REQUIRED', id, messagesState));
 }
 
 export function countByType(investible, comments, commentTypes) {

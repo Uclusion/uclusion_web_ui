@@ -81,12 +81,24 @@ const useCardTypeStyles = makeStyles(theme => ({
           [AGILE_PLAN_TYPE]: "#9B51E0"
         }[type],
         borderBottomRightRadius: 8,
-        color:
-          ["certainty25", "certainty50", "certainty75", "certainty100"].indexOf(
-            type
-          ) === -1
-            ? "white"
-            : "black",
+        color: {
+            [ISSUE_TYPE]: 'white',
+            [QUESTION_TYPE]: 'white',
+            [SUGGEST_CHANGE_TYPE]: resolved ? 'white' : 'black',
+            [TODO_TYPE]: 'white',
+            [REPORT_TYPE]: 'white',
+            [VOTING_TYPE]: 'white',
+            [JUSTIFY_TYPE]: 'white',
+            [STORY_TYPE]: 'white',
+            [GENERIC_STORY_TYPE]: 'white',
+            [DECISION_TYPE]: 'white',
+            certainty5: 'white',
+            certainty25: 'black',
+            certainty50: 'black',
+            certainty75: 'black',
+            certainty100: 'black',
+            [AGILE_PLAN_TYPE]: 'white'
+          }[type],
         padding: `4px 8px`
       };
     },

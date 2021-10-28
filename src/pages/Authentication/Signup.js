@@ -359,7 +359,7 @@ function Signup(props) {
     );
   }
 
-
+  const noEmailInput = _.isEmpty(qryEmail) && _.isEmpty(email) && _.isEmpty(name);
   const phoneValid = _.isEmpty(phone) || phoneChecker.test(phone);
   const formInvalid = !phoneValid || !terms || _.isEmpty(name) || (_.isEmpty(email) && _.isEmpty(code)) || _.isEmpty(password) || _.isEmpty(repeat) || password !== repeat || password.length < 6;
   return (
@@ -439,7 +439,7 @@ function Signup(props) {
             </span>
             }
           </div>
-          {_.isEmpty(qryEmail) && (
+          {noEmailInput && (
             <GithubLoginButton
               style={{
                 lineHeight: '46px',
@@ -464,7 +464,7 @@ function Signup(props) {
               </div>
             </GithubLoginButton>
           )}
-          {_.isEmpty(qryEmail) && (
+          {noEmailInput && (
             <div className={classes.googleButton} id="googleSignupDiv" onClick={() => {
               // Must come back to this device so go ahead and set in local storage
               const aRedirect = getRedirect()
@@ -480,7 +480,7 @@ function Signup(props) {
               </div>
             </div>
           )}
-          {_.isEmpty(qryEmail) && (
+          {noEmailInput && (
             <div className={classes.spacerText}>
               <span className={classes.hr}>
                 <hr className={classes.inlineHr} />

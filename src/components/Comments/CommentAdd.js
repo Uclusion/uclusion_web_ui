@@ -394,7 +394,7 @@ function CommentAdd(props) {
 
   function getReportWarningId() {
     if (isAssigned) {
-      if (numProgressReport > 0) {
+      if (numProgressReport > 0 && creatorIsAssigned) {
         return 'addReportWarning'
       }
       if (currentStageId === readyForApprovalStage.id) {

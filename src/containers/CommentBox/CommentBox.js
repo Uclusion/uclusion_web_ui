@@ -92,7 +92,7 @@ function CommentBox(props) {
   }
 
   return (
-    <Grid id="commentBox" container spacing={1}>
+    <Grid id="commentBox" container spacing={1} style={{paddingBottom: '45vh'}}>
       {getCommentCards()}
     </Grid>
   );

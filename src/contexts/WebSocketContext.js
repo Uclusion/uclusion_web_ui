@@ -17,6 +17,7 @@ import { BroadcastChannel } from 'broadcast-channel'
 import { VIEW_EVENT, VISIT_CHANNEL } from '../utils/marketIdPathFunctions'
 import LocalForageHelper from '../utils/LocalForageHelper'
 import { VERSIONS_CONTEXT_NAMESPACE } from './VersionsContext/versionsContextReducer'
+import { refreshOrMessage } from './LeaderContext/leaderContextReducer'
 
 export const AUTH_HUB_CHANNEL = 'auth'; // this is case sensitive.
 export const VERSIONS_HUB_CHANNEL = 'VersionsChannel';
@@ -62,10 +63,8 @@ export function notifyNewApplicationVersion(currentVersion, cacheClearVersion) {
 
 function WebSocketProvider(props) {
   const { children, config } = props;
-  const [leaderState] = useContext(LeaderContext);
-  const { isLeader } = leaderState;
+  const [, leaderDispatch] = useContext(LeaderContext);
   const [state, setState] = useState();
-  const [pegRefresh, setPegRefresh] = useState();
   const [, setSocketListener] = useState();
   const [, connectionCheckTimerDispatch] = useReducer((state, action) => {
     const { timer } = state;
@@ -91,20 +90,6 @@ function WebSocketProvider(props) {
   },[]);
 
   useEffect(() => {
-    function myRefreshVersion(peg, amLeader) {
-      if (amLeader) {
-        refreshVersions().then(() => console.info(`Refreshed versions from ${peg}`));
-      } else if (amLeader !== undefined && !peg.includes('leaderChannel')) {
-        console.info(`Not leader sending refresh from ${peg}`);
-        const myChannel = new BroadcastChannel(LEADER_CHANNEL);
-        myChannel.postMessage('refresh').then(() => myChannel.close());
-      }
-    }
-    myRefreshVersion(pegRefresh, isLeader);
-    return () => {};
-  }, [pegRefresh, isLeader]);
-
-  useEffect(() => {
     function createWebSocket() {
       console.info('Creating new websocket');
       const { webSockets } = config;
@@ -117,7 +102,7 @@ function WebSocketProvider(props) {
         if (msg === 'refresh') {
           //Each context is setup to tell the other tabs to reload from the memory namespace
           //so refresh versions just needs to run as normal and changes will propagate
-          setPegRefresh(`leaderChannel${Date.now()}`);
+          leaderDispatch(refreshOrMessage(`leaderChannel${Date.now()}`));
         }
       }
       // we also want to always be subscribed to new app versions
@@ -130,33 +115,33 @@ function WebSocketProvider(props) {
       });
 
       newSocket.registerHandler('market', () => {
-        setPegRefresh(`market${Date.now()}`);
+        leaderDispatch(refreshOrMessage(`market${Date.now()}`));
       });
       newSocket.registerHandler('investible', () => {
-        setPegRefresh(`investible${Date.now()}`);
+        leaderDispatch(refreshOrMessage(`investible${Date.now()}`));
       });
       newSocket.registerHandler('market_investible', () => {
-        setPegRefresh(`marketInvestible${Date.now()}`);
+        leaderDispatch(refreshOrMessage(`marketInvestible${Date.now()}`));
       });
       newSocket.registerHandler('comment', () => {
-        setPegRefresh(`comment${Date.now()}`);
+        leaderDispatch(refreshOrMessage(`comment${Date.now()}`));
       });
       newSocket.registerHandler('stage', () => {
-        setPegRefresh(`stage${Date.now()}`);
+        leaderDispatch(refreshOrMessage(`stage${Date.now()}`));
       });
       newSocket.registerHandler('market_capability', () => {
-        setPegRefresh(`marketCapability${Date.now()}`);
+        leaderDispatch(refreshOrMessage(`marketCapability${Date.now()}`));
       });
       newSocket.registerHandler('investment', () => {
-        setPegRefresh(`investment${Date.now()}`);
+        leaderDispatch(refreshOrMessage(`investment${Date.now()}`));
       });
       // Go ahead and get the latest when bring up a new socket since you may not have been listening
-      setPegRefresh(`initialized${Date.now()}`);
+      leaderDispatch(refreshOrMessage(`initialized${Date.now()}`));
       refreshNotifications();
 
       newSocket.registerHandler('notification', () => {
         // Try to be up to date before we push the notification out (which might need new data)
-        setPegRefresh(`notification${Date.now()}`);
+        leaderDispatch(refreshOrMessage(`notification${Date.now()}`));
         refreshNotifications();
       });
 
@@ -178,7 +163,7 @@ function WebSocketProvider(props) {
                 const { isEntry } = message;
                 if (isEntry && (Date.now() - newSocket.getSocketLastSentTime()) > 30000) {
                   // Otherwise if we miss a push out of luck until tab is closed
-                  setPegRefresh(`visit${Date.now()}`);
+                  leaderDispatch(refreshOrMessage(`visit${Date.now()}`));
                   refreshNotifications();
                   if (newSocket.getSocketState() === WebSocket.OPEN) {
                     const actionString = JSON.stringify({ action: 'ping' });
@@ -202,7 +187,7 @@ function WebSocketProvider(props) {
     }
     initialize();
     return () => {};
-  }, [config]);
+  }, [config, leaderDispatch]);
 
   registerListener(AUTH_HUB_CHANNEL, 'webSocketsAuth', (data) => {
     const { payload: { event } } = data;

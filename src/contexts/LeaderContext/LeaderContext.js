@@ -2,6 +2,7 @@ import React, { useEffect, useReducer, useState } from 'react'
 import { BroadcastChannel, createLeaderElection } from 'broadcast-channel'
 import { pushMessage } from '../../utils/MessageBusUtils'
 import { OPERATION_HUB_CHANNEL, STOP_OPERATION } from '../OperationInProgressContext/operationInProgressMessages'
+import reducer, { updateLeader } from './leaderContextReducer'
 
 const EMPTY_STATE = {
   leader: undefined,
@@ -11,11 +12,7 @@ const LeaderContext = React.createContext(EMPTY_STATE);
 
 function LeaderProvider(props) {
   const { children, authState } = props;
-  const [state, dispatch] = useReducer((state, action) => {
-    const { isLeader } = action;
-    console.info(`Setting leader to ${isLeader}`);
-    return { isLeader };
-  }, EMPTY_STATE);
+  const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
   const [, setElector] = useState(undefined);
 
   useEffect(() => {
@@ -30,11 +27,11 @@ function LeaderProvider(props) {
       elector.applyOnce().then((isLeader) => {
         // Could use broadcast ID to send message out to others to refresh out of login page
         // but its a bit risky as can somehow infinite refresh and corner of corner case anyway
-        dispatch({ isLeader });
+        dispatch(updateLeader(isLeader));
         if (!isLeader) {
           // First turn off in progress for the versions sync since leader does that
           pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION });
-          return elector.awaitLeadership().then(() => dispatch({isLeader: true}));
+          return elector.awaitLeadership().then(() => dispatch(updateLeader(true)));
         }
         return isLeader;
       });
@@ -44,7 +41,7 @@ function LeaderProvider(props) {
   }, [authState]);
 
   return (
-    <LeaderContext.Provider value={[state]}>
+    <LeaderContext.Provider value={[state, dispatch]}>
       {children}
     </LeaderContext.Provider>
   );

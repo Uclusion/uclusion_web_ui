@@ -395,10 +395,12 @@ function MarketTodos (props) {
                     )}
                   </div>
                 </Grid>
-                <Grid id={`showEdit0${id}`} key={`showEdit0${id}`} item xs={1}
-                      style={{ pointerEvents: 'none', display: 'none' }}>
-                  <EditOutlinedIcon style={{ maxHeight: '1.25rem' }}/>
-                </Grid>
+                {!mobileLayout && (
+                  <Grid id={`showEdit0${id}`} key={`showEdit0${id}`} item xs={1}
+                        style={{ pointerEvents: 'none', display: 'none' }}>
+                    <EditOutlinedIcon style={{ maxHeight: '1.25rem' }}/>
+                  </Grid>
+                )}
                 <Grid id={`showEdit1${showChip ? '' : id}`} key={`showEdit1${id}`} item xs={12}
                       style={{ paddingTop: `${showChip ? 0 : 0.5}rem` }}>
                   <ReadOnlyQuillEditor value={body}/>

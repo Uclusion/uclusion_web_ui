@@ -22,6 +22,12 @@ const defaultThemeDefinition = {
       default: '#ffffff'
     }
   },
+  props: {
+    // Change the default options of useMediaQuery
+    MuiUseMediaQuery: {
+      noSsr: true
+    },
+  },
 };
 
 

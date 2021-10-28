@@ -53,15 +53,20 @@ export function getThreadIds(parents, comments) {
 export function changeInvestibleStageOnCommentChange(investibleBlocks, investibleRequiresInput,
   blockingStage, requiresInputStage, info, market_infos, rootInvestible, investibleDispatch, comment) {
   if (investibleBlocks || investibleRequiresInput) {
+    const [info] = (market_infos || []);
+    const { assigned } = (info || {});
     const newStage = investibleBlocks ? blockingStage : requiresInputStage;
-    if (newStage.id) {
+    if (newStage.id || _.isEmpty(assigned)) {
+      // If in further work just remove ready to start
       const newInfo = {
         ...info,
-        stage: newStage.id,
-        stage_name: newStage.name,
         open_for_investment: false,
         last_stage_change_date: comment.updated_at,
       };
+      if (!_.isEmpty(assigned)) {
+        newInfo.stage = newStage.id;
+        newInfo.stage_name = newStage.name;
+      }
       const newInfos = _.unionBy([newInfo], market_infos, 'id');
       const newInvestible = {
         investible: rootInvestible,

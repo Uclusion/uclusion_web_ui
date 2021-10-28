@@ -51,7 +51,7 @@ function ScrollProvider(props) {
             myObserver.disconnect()
           }, 10000)
         }
-      }, 2);
+      }, 1000);
     }
 
     if (hashFragment) {

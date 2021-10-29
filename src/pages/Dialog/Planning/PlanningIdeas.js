@@ -103,6 +103,8 @@ function PlanningIdeas(props) {
     comments
   } = props;
   const intl = useIntl();
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const acceptedStageId = acceptedStage.id;
   const classes = usePlanningIdStyles();
   const archiveClasses = myArchiveClasses();
@@ -335,9 +337,11 @@ function PlanningIdeas(props) {
            onDragEnter={(event) => onDragEnterStage(event, inDialogStageId, presenceId)}
            onDragEnd={onDragEndStage}>
         <FormattedMessage id="planningVotingStageLabel" />
-        <Link href="https://documentation.uclusion.com/workspaces/stories/stages/#ready-for-approval" target="_blank">
+        {!mobileLayout && (
+          <Link href="https://documentation.uclusion.com/workspaces/stories/stages/#ready-for-approval" target="_blank">
             <Info style={{height: '1.1rem'}} />
-        </Link>
+          </Link>
+        )}
         <VotingStage
           className={classes.stage}
           id={inDialogStageId}
@@ -357,10 +361,12 @@ function PlanningIdeas(props) {
            onDragEnter={(event) => onDragEnterStage(event, acceptedStageId, presenceId)}
            onDragEnd={onDragEndStage}>
         <FormattedMessage id={acceptedStageLabel}/>
-        <Link href="https://documentation.uclusion.com/workspaces/stories/stages/#not-ready-for-feedback"
-              target="_blank">
-          <Info style={{height: '1.1rem'}} />
-        </Link>
+        {!mobileLayout && (
+          <Link href="https://documentation.uclusion.com/workspaces/stories/stages/#not-ready-for-feedback"
+                target="_blank">
+            <Info style={{height: '1.1rem'}} />
+          </Link>
+        )}
         <AcceptedStage
           className={classes.stage}
           id={acceptedStageId}
@@ -377,9 +383,11 @@ function PlanningIdeas(props) {
            onDragEnter={(event) => onDragEnterStage(event, inReviewStageId, presenceId)}
            onDragEnd={onDragEndStage}>
         <FormattedMessage id="planningReviewStageLabel"/>
-        <Link href="https://documentation.uclusion.com/workspaces/stories/stages/#ready-for-feedback" target="_blank">
-          <Info style={{height: '1.1rem'}} />
-        </Link>
+        {!mobileLayout && (
+          <Link href="https://documentation.uclusion.com/workspaces/stories/stages/#ready-for-feedback" target="_blank">
+            <Info style={{height: '1.1rem'}} />
+          </Link>
+        )}
         <ReviewStage
           className={classes.stage}
           id={inReviewStageId}
@@ -396,10 +404,12 @@ function PlanningIdeas(props) {
            onDragEnter={(event) => onDragEnterStage(event, inVerifiedStageId, presenceId)}
            onDragEnd={onDragEndStage}>
         <FormattedMessage id="verifiedBlockedStageLabel"/>
-        <Link href="https://documentation.uclusion.com/workspaces/stories/stages/#verified-and-not-doing"
-              target="_blank">
-          <Info style={{height: '1.1rem'}} />
-        </Link>
+        {!mobileLayout && (
+          <Link href="https://documentation.uclusion.com/workspaces/stories/stages/#verified-and-not-doing"
+                target="_blank">
+            <Info style={{height: '1.1rem'}} />
+          </Link>
+        )}
         <VerifiedStage
           className={classes.stage}
           id={inVerifiedStageId}

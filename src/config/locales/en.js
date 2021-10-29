@@ -613,7 +613,7 @@ const messages = defineMessages({
   proceedActivate: 'Activate Workspace',
   // Investibles in decision dialog display
   decisionDialogInvestiblesUpdatedAt: 'Last Updated:',
-  dialogAddParticipantsLabel: 'Manage Collaborators',
+  dialogAddParticipantsLabel: 'Add Collaborators',
   planningMarketSubscribeExplanation: 'Subscribe to approvals and reviews',
   planningMarketUnSubscribeExplanation: 'Unsubscribe from approvals and reviews',
   storyAddParticipantsLabel: 'Change Assigned',

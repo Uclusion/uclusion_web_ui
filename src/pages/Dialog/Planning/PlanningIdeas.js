@@ -49,6 +49,7 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions'
 import { Info } from '@material-ui/icons'
+import { myArchiveClasses } from '../../DialogArchives/ArchiveInvestibles'
 
 const usePlanningIdStyles = makeStyles(
   theme => {
@@ -104,6 +105,7 @@ function PlanningIdeas(props) {
   const intl = useIntl();
   const acceptedStageId = acceptedStage.id;
   const classes = usePlanningIdStyles();
+  const archiveClasses = myArchiveClasses();
   const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [marketsState] = useContext(MarketsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -316,6 +318,9 @@ function PlanningIdeas(props) {
       document.getElementById(previousElementId).className = classes.containerEmpty;
       setBeingDraggedHack({});
     }
+    ['furtherReadyToStart', 'furtherNotReadyToStart'].forEach((elementId) => {
+      document.getElementById(elementId).classList.remove(archiveClasses.containerGreen);
+    });
   }
 
   function onDragOverProcess(event) {

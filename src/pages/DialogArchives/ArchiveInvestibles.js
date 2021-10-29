@@ -41,7 +41,7 @@ function getInvestibleOnClick(id, marketId, history) {
   navigate(history, link);
 }
 
-const myClasses = makeStyles(
+export const myArchiveClasses = makeStyles(
   theme => {
     return {
       warn: {
@@ -78,7 +78,7 @@ const myClasses = makeStyles(
 );
 
 function getInvestibles(investibles, marketPresences, marketPresencesState, presenceMap, marketId, comments, history, intl, elevation, highlightMap,
-  allowDragDrop, onDragEnd, unResolvedMarketComments, presenceId, stage, setBeingDraggedHack) {
+  allowDragDrop, onDragEnd, unResolvedMarketComments, presenceId, stage, setBeingDraggedHack, classes) {
   const investibleData = investibles.map((inv) => {
     const aMarketInfo = getMarketInfo(inv, marketId);
     const { updated_at: invUpdatedAt } = inv.investible;
@@ -96,7 +96,7 @@ function getInvestibles(investibles, marketPresences, marketPresencesState, pres
       [id]: myInfo,
     };
   }, {});
-  const classes = myClasses();
+
   return sortedData.map((investible) => {
     const { id, name, enteredStageAt } = investible;
     const info = infoMap[id] || {};
@@ -190,7 +190,7 @@ function ArchiveInvestbiles(props) {
     stage,
     presenceId
   } = props;
-  const classes = myClasses();
+  const classes = myArchiveClasses();
   const intl = useIntl();
   const history = useHistory();
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
@@ -314,7 +314,7 @@ function ArchiveInvestbiles(props) {
         <div className={classes.grow} />
       )}
       {getInvestibles(investibles, marketPresences, marketPresencesState, presenceMap, marketId, comments, history, intl, elevation, highlightMap, allowDragDrop,
-      onDragEnd, unResolvedMarketComments, presenceId, stage, setBeingDraggedHack)}
+      onDragEnd, unResolvedMarketComments, presenceId, stage, setBeingDraggedHack, classes)}
     </Grid>
   );
 }

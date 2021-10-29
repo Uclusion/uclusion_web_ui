@@ -23,7 +23,7 @@ import { Button, Menu, MenuItem, Typography, useMediaQuery, useTheme } from '@ma
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
 import { useIntl } from 'react-intl'
-import { extractUsersList, hasNotVoted } from '../../../utils/userFunctions'
+import { extractUsersList, getMarketInfo, hasNotVoted } from '../../../utils/userFunctions'
 import SubSection from '../../../containers/SubSection/SubSection';
 import { SECTION_TYPE_SECONDARY_WARNING } from '../../../constants/global';
 import ArchiveInvestbiles from '../../DialogArchives/ArchiveInvestibles';
@@ -150,7 +150,12 @@ function InvestiblesByWorkspace (props) {
               highlightMap[investible.investible.id] = true;
             }
           });
-          if (_.isEmpty(myInvestibles) && _.isEmpty(requiresInputInvestibles) && _.isEmpty(blockedInvestibles)) {
+          const myNotVerifiedInvestibles = (myInvestibles || []).filter((investible) => {
+            const marketInfo = getMarketInfo(investible, market.id);
+            const { stage } = marketInfo;
+            return [acceptedStage.id, inDialogStage.id, inReviewStage.id].includes(stage);
+          });
+          if (_.isEmpty(myNotVerifiedInvestibles) && _.isEmpty(requiresInputInvestibles) && _.isEmpty(blockedInvestibles)) {
             return React.Fragment;
           }
           return (

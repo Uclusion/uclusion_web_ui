@@ -7,6 +7,7 @@ import _ from 'lodash'
 import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
 import { removeInitializing } from '../../components/localStorageUtils'
+import { addByIdAndVersion } from '../ContextUtils'
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const ADD_MARKET_PRESENCE = 'ADD_MARKET_PRESENCE';
@@ -123,9 +124,12 @@ function doAddMarketPresences(state, action) {
 
 function doUpdateMarketPresences(state, action) {
   const { marketId, users } = action;
+  const oldUsers = state[marketId] || [];
+  // Avoid clobbering presences that were quick added
+  const newUsers = addByIdAndVersion(users, oldUsers);
   return {
     ...removeInitializing(state, false),
-    [marketId]: users,
+    [marketId]: newUsers,
   };
 }
 

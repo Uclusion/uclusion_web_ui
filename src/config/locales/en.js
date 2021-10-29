@@ -314,7 +314,7 @@ const messages = defineMessages({
   // Investible
   investibleEditLabel: 'Edit',
   investibleAssignLabel: 'Assign',
-  homeAssignments: 'Stories by Workspace',
+  homeAssignments: 'My Stories',
   investibleAssign: 'Story - Assignments',
   investibleReviewers: 'Story - Required Reviewers',
   investibleApprovers: 'Story - Required Approvers',
@@ -520,7 +520,7 @@ const messages = defineMessages({
   message: 'Message',
   // Archives
   archivesTitle: 'Archive',
-  helpVideos: 'Watch help videos in YouTube',
+  showOthers: 'Show other\'s stories',
 
   // Decision Dialogs
   decisionDialogsStartedBy: 'Started By: {name}',

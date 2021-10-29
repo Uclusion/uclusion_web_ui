@@ -3,7 +3,7 @@ import { useHistory } from 'react-router';
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import MenuBookIcon from '@material-ui/icons/MenuBook'
-import { makeStyles, Typography, useMediaQuery, useTheme } from '@material-ui/core'
+import { Checkbox, FormControlLabel, makeStyles, Typography, useMediaQuery, useTheme } from '@material-ui/core'
 import { FormattedMessage, useIntl } from 'react-intl'
 import Screen from '../../containers/Screen/Screen'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
@@ -52,6 +52,7 @@ import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketSt
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import SpinningIconLabelButton from '../../components/Buttons/SpinningIconLabelButton'
+import { getPageReducerPage, usePageStateReducer } from '../../components/PageState/pageStateHooks'
 
 const useStyles = makeStyles(() => ({
     spacer: {
@@ -93,7 +94,13 @@ function Home(props) {
   const loadingForeGroundMarkets = !hasLoadedGlobalVersion(versionsContext) || marketsState.initializing ||
     (!hasInitializedGlobalVersion(versionsContext) && operationRunning)
   const banner = loadingForeGroundMarkets || createEnabled ? undefined : <UpgradeBanner/>
-  const [chosenPerson, setChosenPerson] = React.useState({ name: '', email: '', external_id: '' })
+  const [pageStateFull, pageDispatch] = usePageStateReducer('home');
+  const [pageState, updatePageState, pageStateReset] = getPageReducerPage(pageStateFull, pageDispatch, 'config',
+    {chosenPerson: { name: '', email: '', external_id: '' }});
+  const {
+    chosenPerson,
+    displayOthers
+  } = pageState;
 
   useEffect(() => {
     const redirect = getAndClearRedirect()
@@ -225,10 +232,28 @@ function Home(props) {
           <Typography className={classes.title} variant="h6">
             {intl.formatMessage({ id: 'homeAssignments' })}
           </Typography>
+          <div style={{flexGrow: 1}}/>
+          <FormControlLabel
+            control={
+              <Checkbox
+                value={displayOthers === undefined ? false : displayOthers}
+                disabled={operationRunning}
+                checked={displayOthers === undefined ? false : displayOthers}
+                onClick={() => {
+                  if (displayOthers) {
+                    pageStateReset();
+                  } else {
+                    updatePageState({displayOthers: true});
+                  }
+                }}
+              />
+            }
+            label={intl.formatMessage({ id: 'showOthers' })}
+          />
         </div>
       )}
-      <InvestiblesByWorkspace workspaces={planningDetails} chosenPerson={chosenPerson}
-                              setChosenPerson={setChosenPerson} workspacesData={workspacesData} />
+      <InvestiblesByWorkspace workspaces={planningDetails} pageState={pageState} updatePageState={updatePageState}
+                              workspacesData={workspacesData} />
       {!_.isEmpty(planningDetails) && (
         <React.Fragment>
           {(assignedSize > 0 || wizardActive) && (

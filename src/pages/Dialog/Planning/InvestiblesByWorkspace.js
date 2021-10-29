@@ -42,7 +42,7 @@ export const LocalPlanningDragContext = React.createContext([]);
 
 function InvestiblesByWorkspace (props) {
   const {
-    workspaces, setChosenPerson, chosenPerson, workspacesData
+    workspaces, pageState, updatePageState, workspacesData
   } = props;
   const intl = useIntl();
   const history = useHistory();
@@ -56,6 +56,10 @@ function InvestiblesByWorkspace (props) {
   const [anchorEl, setAnchorEl] = React.useState(null);
   // For security reasons you can't access source data while being dragged in case you are not the target website
   const [beingDraggedHack, setBeingDraggedHack] = useState({});
+  const {
+    chosenPerson,
+    displayOthers
+  } = pageState;
   const people = Object.entries(extractUsersList(marketPresencesState, undefined, workspaces, false));
   const sortedPeople = _.sortBy(people, [function (o) {
     const {
@@ -75,10 +79,10 @@ function InvestiblesByWorkspace (props) {
   const peopleChoices = [sortedPeople.map((entry) => renderParticipantEntry(entry, processed))];
   useEffect(() => {
     if ((!chosenPerson || chosenPerson.external_id === '') && !_.isEmpty(sortedPeople)) {
-      setChosenPerson(sortedPeople[0][1]);
+      updatePageState({chosenPerson: sortedPeople[0][1]});
     }
     return () => {};
-  }, [chosenPerson, setChosenPerson, sortedPeople]);
+  }, [chosenPerson, updatePageState, sortedPeople]);
 
   function handleClick (event) {
     setAnchorEl(event.currentTarget);
@@ -95,7 +99,7 @@ function InvestiblesByWorkspace (props) {
     const itemName = processed[name] > 1 ? `${name} ${email}` : name;
     return (
       <MenuItem key={externalId} onClick={() => {
-        setChosenPerson(presenceEntry[1]);
+        updatePageState({chosenPerson: presenceEntry[1]});
         handleClose();
       }}>
         <div className={classes.rightSpace}>
@@ -112,7 +116,7 @@ function InvestiblesByWorkspace (props) {
   return (
     <>
       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-        {_.size(peopleChoices) > 0 && _.size(peopleChoices[0]) > 1 && (
+        {displayOthers && (
           <Button
             endIcon={<ExpandMoreIcon htmlColor={ACTION_BUTTON_COLOR}/>}
             aria-controls="stages-content"

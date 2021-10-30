@@ -111,7 +111,7 @@ function processRegularItem (classes, history, text, target, num, Icon, onClickF
   const textNoSpaces = text.split(' ').join('')
   if (!target && !onClickFunc) {
     return (
-      <ListItem key={`noOnClick${index}${textNoSpaces}`}
+      <ListItem key={`noOnClick${index}${textNoSpaces}`} style={{cursor: 'unset'}}
                 className={isGrouped ? classes.navListItemGrouped : classes.navListItem}>
         <Icon className={clsx(classes.navListIcon, classes.disabled)}/>
         <ListItemText primary={text} primaryTypographyProps={{ className: classes.disabled }}/>

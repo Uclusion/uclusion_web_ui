@@ -114,13 +114,15 @@ function createMarketView (messages) {
   const marketsHash = {};
   messages.forEach((message) => {
     const {
-      market_link: marketLink,
+      market_link: marketLinkWithHash,
       market_type: marketType,
       market_name: marketName,
       investible_name: investibleName,
       investible_link: investibleLink,
       link_multiple: linkMultiple
     } = message;
+    const urlParts = new URL(window.location.origin + marketLinkWithHash);
+    const marketLink = urlParts.pathname;
     if (!marketsHash[marketLink]) {
       if (marketType === 'slack' || marketType === 'upgrade') {
         const name = marketType === 'slack' ? 'Notification preferences' : 'Upgrade';
@@ -168,6 +170,7 @@ function createMarketView (messages) {
       }
     }
   });
+  console.debug(marketsHash);
   markets.forEach((market) => {
     processDuplicates(market);
     market.items = _.orderBy(market.items, [function (o) {

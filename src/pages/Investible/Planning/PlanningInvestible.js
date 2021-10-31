@@ -724,6 +724,8 @@ function PlanningInvestible(props) {
   function createNavListItem(icon, textId, anchorId, howManyNum, alwaysShow) {
     return baseNavListItem(formInvestibleLink(marketId, investibleId), icon, textId, anchorId, howManyNum, alwaysShow);
   }
+  const displayDescription = _.isEmpty(search) || results.find((item) => item.id === investibleId);
+  const displayApprovalsBySearch = _.isEmpty(search) ? _.size(invested) : _.size(investmentReasons);
   const openComments = investmentReasonsRemoved.filter((comment) => !comment.resolved) || [];
   const closedComments = investmentReasonsRemoved.filter((comment) => comment.resolved) || [];
   const sortedClosedRoots = getSortedRoots(closedComments, searchResults);
@@ -742,10 +744,9 @@ function PlanningInvestible(props) {
   const navigationMenu = {
     navHeaderIcon: AssignmentIcon, navToolLink: 'https://documentation.uclusion.com/workspaces/stories',
     navListItemTextArray: [createNavListItem(EditIcon, 'description_label', 'storyMain',
-      _.isEmpty(search) || results.find((item) => item.id === investibleId) ? undefined : 0),
+      displayDescription ? undefined : 0),
       createNavListItem(ThumbsUpDownIcon, 'approvals', 'approvals',
-        _.isEmpty(search) ? _.size(invested) : _.size(investmentReasons),
-        _.isEmpty(search) ? isInVoting : false),
+        displayApprovalsBySearch, _.isEmpty(search) ? isInVoting : false),
       inArchives || !_.isEmpty(search) ? {} : createNavListItem(AddIcon, 'commentAddBox'),
       createNavListItem(BlockIcon, 'blocking', `c${blockingId}`, _.size(blocking)),
       createNavListItem(QuestionIcon, 'questions', `c${questionId}`, _.size(questions)),
@@ -833,7 +834,7 @@ function PlanningInvestible(props) {
           isApprove={editCollaborators === 'approve'}
         />
       )}
-      <Card id="storyMain" elevation={3}>
+      <Card id="storyMain" elevation={3} style={{display: displayDescription ? 'block' : 'none'}}>
         <CardType
           className={classes.cardType}
           createdAt={createdAt}
@@ -1055,23 +1056,27 @@ function PlanningInvestible(props) {
           </Grid>
         </CardContent>
       </Card>
-      <h2 id="approvals">
-        <FormattedMessage id="decisionInvestibleOthersVoting" />
-      </h2>
-      <Voting
-        investibleId={investibleId}
-        marketPresences={marketPresences}
-        investmentReasons={investmentReasons}
-        showExpiration={fullStage.has_expiration}
-        expirationMinutes={market.investment_expiration * 1440}
-        votingPageState={votingPageState}
-        updateVotingPageState={updateVotingPageState}
-        votingPageStateReset={votingPageStateReset}
-        votingAllowed={canVote}
-        yourPresence={yourPresence}
-        market={market}
-        isAssigned={isAssigned}
-      />
+      {(_.isEmpty(search) || displayApprovalsBySearch > 0) && (
+        <>
+          <h2 id="approvals">
+            <FormattedMessage id="decisionInvestibleOthersVoting" />
+          </h2>
+          <Voting
+            investibleId={investibleId}
+            marketPresences={marketPresences}
+            investmentReasons={investmentReasons}
+            showExpiration={fullStage.has_expiration}
+            expirationMinutes={market.investment_expiration * 1440}
+            votingPageState={votingPageState}
+            updateVotingPageState={updateVotingPageState}
+            votingPageStateReset={votingPageStateReset}
+            votingAllowed={canVote}
+            yourPresence={yourPresence}
+            market={market}
+            isAssigned={isAssigned}
+          />
+        </>
+      )}
       {displayVotingInput && investibleId && (
         <>
           {isAssigned && (

@@ -23,7 +23,7 @@ function GravatarGroup(props) {
         const { name, email, id } = user;
         return <Gravatar
           className={gravatarClassName}
-          key={id}
+          key={`grav${id}`}
           email={email}
           name={name}
         />

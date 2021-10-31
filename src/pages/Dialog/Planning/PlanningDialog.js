@@ -813,7 +813,7 @@ function InvestiblesByPerson(props) {
     }
     const myClassName = showAsPlaceholder ? metaClasses.archivedColor : metaClasses.normalColor;
     return (
-      <>
+      <React.Fragment key={`fragsl${id}`}>
         {storyAssignee === id && (
           <PlanningInvestibleAdd
             marketId={marketId}
@@ -881,7 +881,7 @@ function InvestiblesByPerson(props) {
               )}
           </CardContent>
         </Card>
-      </>
+      </React.Fragment>
     );
   });
 }

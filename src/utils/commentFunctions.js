@@ -91,5 +91,5 @@ export function notifyImmediate(userId, comment, market, messagesDispatch) {
     comment_id: comment.id, user_id: userId, text: 'Please assign', level: RED_LEVEL,
     is_highlighted: false, name: 'Immediate TODOs', link: commentLink, market_type: market.market_type,
     link_type: 'MARKET_TODO', market_link: marketLink, market_name: market['name'],
-    link_multiple: `${marketLink}##immediateTodos` }));
+    link_multiple: `${marketLink}#immediateTodos` }));
 }

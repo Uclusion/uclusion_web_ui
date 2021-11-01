@@ -1,7 +1,11 @@
 import { createPlanning, updateStage } from '../../../../api/markets';
 import { addMarketToStorage } from '../../../../contexts/MarketsContext/marketsContextHelper';
 import { pushMessage } from '../../../../utils/MessageBusUtils';
-import { PUSH_STAGE_CHANNEL, VERSIONS_EVENT } from '../../../../contexts/VersionsContext/versionsContextHelper';
+import {
+  NOTIFICATIONS_HUB_CHANNEL,
+  PUSH_STAGE_CHANNEL,
+  VERSIONS_EVENT
+} from '../../../../contexts/VersionsContext/versionsContextHelper'
 import { addPresenceToMarket } from '../../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import _ from 'lodash';
 import { processTextAndFilesForSave } from '../../../../api/files';
@@ -14,6 +18,7 @@ import { updateStagesForMarket } from '../../../../contexts/MarketStagesContext/
 import { START_TOUR, TOUR_CHANNEL } from '../../../../contexts/TourContext/tourContextMessages'
 import { INVITED_USER_WORKSPACE } from '../../../../contexts/TourContext/tourContextHelper'
 import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../../../authorization/TokenStorageManager'
+import { ADD_EVENT } from '../../../../contexts/NotificationsContext/notificationsContextMessages'
 
 /**
  * Creates the story workspace from the formdata and does all the magic to make the
@@ -79,6 +84,7 @@ export function doCreateStoryWorkspace (dispatchers, formData, updateFormData, i
         market,
         presence,
         stages,
+        notification,
         token
       } = marketDetails;
       createdMarketId = market.id;
@@ -86,6 +92,7 @@ export function doCreateStoryWorkspace (dispatchers, formData, updateFormData, i
       addMarketToStorage(marketsDispatch, diffDispatch, market);
       pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, marketId: createdMarketId, stages });
       pushMessage(TOUR_CHANNEL, { event: START_TOUR, tour: INVITED_USER_WORKSPACE });
+      pushMessage(NOTIFICATIONS_HUB_CHANNEL, { event: ADD_EVENT, message: notification });
       addPresenceToMarket(presenceDispatch, createdMarketId, presence);
       inVotingStage = stages.find((stage) => stage.allows_investment);
       inProgressStage = stages.find((stage) => stage.assignee_enter_only);

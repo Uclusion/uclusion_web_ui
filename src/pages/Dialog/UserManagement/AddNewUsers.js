@@ -25,6 +25,9 @@ import Gravatar from '../../../components/Avatars/Gravatar';
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { Email, SettingsBackupRestore } from '@material-ui/icons'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { findMessageOfType } from '../../../utils/messageUtils'
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
+import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
 
 function AddNewUsers (props) {
   const { market } = props;
@@ -34,6 +37,7 @@ function AddNewUsers (props) {
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [email1, setEmail1] = useState(undefined);
 
@@ -138,7 +142,6 @@ function AddNewUsers (props) {
   function handleSaveEmails() {
     return addInvitees().then(() => {
       setOperationRunning(false);
-      return onSaveSpinStop();
     });
   }
 
@@ -166,6 +169,10 @@ function AddNewUsers (props) {
       return;
     }
     marketPresencesDispatch(addMarketPresences(addToMarketId, result));
+    const message = findMessageOfType('DRAFT', addToMarketId, messagesState);
+    if (message) {
+      messagesDispatch(removeMessage(message));
+    }
   }
 
   const displayNames = filteredNames || Object.entries(checked) || [];

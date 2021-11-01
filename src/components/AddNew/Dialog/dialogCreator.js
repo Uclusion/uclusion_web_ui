@@ -1,13 +1,18 @@
 import { createDecision } from '../../../api/markets'
 import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { pushMessage } from '../../../utils/MessageBusUtils'
-import { PUSH_STAGE_CHANNEL, VERSIONS_EVENT } from '../../../contexts/VersionsContext/versionsContextHelper'
+import {
+  NOTIFICATIONS_HUB_CHANNEL,
+  PUSH_STAGE_CHANNEL,
+  VERSIONS_EVENT
+} from '../../../contexts/VersionsContext/versionsContextHelper'
 import { addPresenceToMarket } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { AllSequentialMap } from '../../../utils/PromiseUtils'
 import { processTextAndFilesForSave } from '../../../api/files'
 import { addDecisionInvestible } from '../../../api/investibles'
 import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../../authorization/TokenStorageManager'
+import { ADD_EVENT } from '../../../contexts/NotificationsContext/notificationsContextMessages'
 
 export function createMyDialog (dispatchers, formData, updateFormData) {
   const {
@@ -46,11 +51,13 @@ export function createMyDialog (dispatchers, formData, updateFormData) {
         market,
         presence,
         stages,
+        notification,
         token
       } = marketDetails;
       createdMarketId = market.id;
       addMarketToStorage(marketsDispatch, diffDispatch, market);
       pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, createdMarketId, stages });
+      pushMessage(NOTIFICATIONS_HUB_CHANNEL, { event: ADD_EVENT, message: notification });
       addPresenceToMarket(presenceDispatch, createdMarketId, presence);
       inVotingStage = stages.find((stage) => stage.allows_investment);
       const tokenStorageManager = new TokenStorageManager();

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react'
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import NotificationImportantIcon from '@material-ui/icons/NotificationImportant';
@@ -9,6 +9,10 @@ import { Fab, makeStyles } from '@material-ui/core';
 import DisplayNotifications from './DisplayNotifications';
 import { BLUE_LEVEL, RED_LEVEL, YELLOW_LEVEL } from '../../constants/notifications';
 import Badge from '@material-ui/core/Badge'
+import { getUiPreferences } from '../../contexts/AccountUserContext/accountUserContextHelper'
+import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
+import { updateUiPreferences } from '../../api/account'
+import { accountUserRefresh } from '../../contexts/AccountUserContext/accountUserContextReducer'
 
 const useStyles = makeStyles(
   theme => {
@@ -67,18 +71,43 @@ function Notifications (props) {
     id
   } = props;
 
-  const [open, setOpen] = useState(false);
+  const [lastReadWhenOpened, setLastReadWhenOpened] = useState(undefined);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [userState, userDispatch] = useContext(AccountUserContext);
   const classes = useStyles();
+  const userPreferences = getUiPreferences(userState) || {};
+  const { levelInfo } = userPreferences;
+  const levelInfoSafe = levelInfo || {};
+  const { lastReadTime } = levelInfoSafe[level] || {};
+  const lastRead = lastReadTime ? new Date(lastReadTime) : undefined;
+  const newMessages = (messages || []).filter((item) => {
+    const { updated_at: updatedAtTime } = item;
+    const updatedAt = new Date(updatedAtTime);
+    return lastRead === undefined || updatedAt > lastRead;
+  }) || [];
+
+  function storeLastReadForLevelInBackend() {
+    const newLastRead = Date.now();
+    const newPreferences = {
+      ...userPreferences,
+      levelInfo: { ...levelInfoSafe, [level]: { lastReadTime: newLastRead }}
+    };
+    return updateUiPreferences(newPreferences)
+      .then((result) => {
+        const { user } = result;
+        userDispatch(accountUserRefresh(user));
+      });
+  }
 
   const recordPositionToggle = (event) => {
     if (anchorEl === null) {
       setAnchorEl(event.currentTarget);
-      setOpen(true);
+      setLastReadWhenOpened(lastRead);
       setActive(level);
+      return storeLastReadForLevelInBackend();
     } else {
       setAnchorEl(null);
-      setOpen(false);
+      setLastReadWhenOpened(undefined);
       setActive(undefined);
     }
   };
@@ -113,12 +142,10 @@ function Notifications (props) {
     return <React.Fragment/>;
   }
 
-  const amOpenAndActive = open && (active === level);
-
   return (
     <>
       <div id={id} key={level} onClick={recordPositionToggle} className={classes.bellButton}>
-        <Badge badgeContent={messages.length} className={classes.chip} overlap="circle">
+        <Badge badgeContent={newMessages.length} className={classes.chip} overlap="circle">
         <Fab id={`notifications-fab${level}`} className={classes.fab}>
           {getIcon()}
         </Fab>
@@ -128,7 +155,8 @@ function Notifications (props) {
         <DisplayNotifications
           level={level}
           messages={messages}
-          open={amOpenAndActive}
+          open={active === level}
+          lastRead={lastReadWhenOpened}
           setClosed={recordPositionToggle}
           anchorEl={anchorEl}
           titleId={getTitleId()}/>

@@ -29,6 +29,14 @@ const useStyles = makeStyles(
       padded: {
         paddingTop: '1rem'
       },
+      newNotification: {
+        borderRadius: '3px',
+        border: '1px solid #F29100'
+      },
+      oldNotification: {
+        borderRadius: '3px',
+        border: '1px solid grey'
+      },
       lessPadded: {
         paddingTop: '0.5rem'
       },
@@ -44,7 +52,8 @@ const useStyles = makeStyles(
 function NotificationMessageDisplay (props) {
   const {
     message,
-    onLinkClick
+    onLinkClick,
+    lastRead
   } = props;
   const classes = useStyles();
   const {
@@ -67,7 +76,7 @@ function NotificationMessageDisplay (props) {
     return deleteSingleMessage(message)
       .then(() => messagesDispatch(removeMessage(message)));
   }
-
+  const updatedAtDate = new Date(updatedAt);
   const isOneDayAgo = Date.now() - Date.parse(updatedAt) > 1000*60*60*24;
   const useName = name !== containerName && name !== text;
   let useLink = link;
@@ -83,7 +92,8 @@ function NotificationMessageDisplay (props) {
           onLinkClick();
         }
       }>
-        <div style={{borderRadius: '3px', border: '1px solid grey'}}>
+        <div className={(lastRead === undefined || updatedAtDate > lastRead) ? classes.newNotification :
+          classes.oldNotification}>
           <Badge badgeContent={lenDuplicates} className={classes.chip}>
             <Typography className={lenDuplicates ? classes.padded : classes.lessPadded}>
               {useName ? name : text}

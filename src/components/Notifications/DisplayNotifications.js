@@ -170,7 +170,7 @@ function createMarketView (messages) {
       }
     }
   });
-  console.debug(marketsHash);
+
   markets.forEach((market) => {
     processDuplicates(market);
     market.items = _.orderBy(market.items, [function (o) {
@@ -209,7 +209,7 @@ function createMarketView (messages) {
 }
 
 function DisplayNotifications (props) {
-  const { open, setClosed, messages, titleId, level, anchorEl } = props;
+  const { open, setClosed, messages, titleId, level, anchorEl, lastRead } = props;
   const intl = useIntl();
   const classes = useStyles();
 
@@ -220,7 +220,7 @@ function DisplayNotifications (props) {
 
     return (
       <ListItem key={`${index}${link}`} style={{ paddingBottom: '0.5rem' }}>
-        <NotificationMessageDisplay onLinkClick={setClosed} message={item}/>
+        <NotificationMessageDisplay onLinkClick={setClosed} message={item} lastRead={lastRead}/>
       </ListItem>
     )
   }

@@ -84,6 +84,7 @@ import PlanningInvestibleAdd from './PlanningInvestibleAdd'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { usePlanFormStyles } from '../../../components/AgilePlan'
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -119,12 +120,13 @@ function PlanningDialog(props) {
     [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE, REPLY_TYPE].includes(comment.comment_type)) || [];
   const allowedCommentTypes = [QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE];
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [messagesState] = useContext(NotificationsContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, diffDispatch] = useContext(DiffContext);
   // For security reasons you can't access source data while being dragged in case you are not the target website
   const [beingDraggedHack, setBeingDraggedHack] = useState({});
   const [pageStateFull, pageDispatch] = usePageStateReducer('market');
-  const isDraft = marketHasOnlyCurrentUser(marketPresencesState, marketId);
+  const isDraft = marketHasOnlyCurrentUser(messagesState, marketId);
   const [pageState, updatePageState, pageStateReset] = getPageReducerPage(pageStateFull, pageDispatch, marketId,
     {sectionOpen: 'workspaceMain', collaboratorsOpen: isDraft && myPresence.id === createdBy });
   const {
@@ -375,8 +377,7 @@ function PlanningDialog(props) {
         <DismissableText textId="planningEditHelp" text={
           <div>
             This is a <Link href="https://documentation.uclusion.com/workspaces" target="_blank">Workspace</Link> and
-            it hold's everything about an agile project. Click the left navigation panel icon to learn
-            more about the panel.
+            it hold's everything about an agile project.
           </div>
         }/>
         <Summary market={market} hidden={hidden} activeMarket={activeMarket} inArchives={inArchives}

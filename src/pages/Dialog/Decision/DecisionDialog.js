@@ -71,6 +71,7 @@ import DialogManage from '../DialogManage'
 import SettingsIcon from '@material-ui/icons/Settings'
 import DecisionDialogEdit from './DecisionDialogEdit'
 import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils'
+import { marketHasOnlyCurrentUser } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 
 const useStyles = makeStyles(
   theme => ({
@@ -187,7 +188,6 @@ function DecisionDialog(props) {
   const intl = useIntl();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
-  const isDraft = !_.isEmpty(myPresence) && marketPresences.length === 1;
   const {
     is_admin: isAdmin,
   } = myPresence;
@@ -210,6 +210,7 @@ function DecisionDialog(props) {
     parent_market_id: parentMarketId,
     parent_investible_id: parentInvestibleId
   } = market;
+  const isDraft = marketHasOnlyCurrentUser(messagesState, marketId);
   const myMessage = findMessageOfTypeAndId(marketId, messagesState);
   const diff = getDiff(diffState, marketId);
   const [pageStateFull, pageDispatch] = usePageStateReducer('market');

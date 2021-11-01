@@ -34,6 +34,7 @@ import ThumbUpIcon from '@material-ui/icons/ThumbUp'
 import clsx from 'clsx'
 import ThumbDownIcon from '@material-ui/icons/ThumbDown'
 import GravatarGroup from '../../components/Avatars/GravatarGroup';
+import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 
 const dialogStyles = makeStyles((theme) => ({
   paper: {
@@ -249,6 +250,7 @@ function InitiativesAndDialogs(props) {
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const { dialogs, initiatives, workspaces, showParentOf } = props;
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [messagesState] = useContext(NotificationsContext);
   const [commentsState] = useContext(CommentsContext);
   const [marketsState] = useContext(MarketsContext);
   const [investibleState] = useContext(InvestiblesContext);
@@ -328,7 +330,7 @@ function InitiativesAndDialogs(props) {
       } = market;
       
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
-      const isDraft = marketHasOnlyCurrentUser(marketPresencesState, marketId);
+      const isDraft = marketHasOnlyCurrentUser(messagesState, marketId);
       const myPresence = marketPresences.find((presence) => presence.current_user) || {};
       const isAdmin = myPresence && myPresence.is_admin;
       const marketPresencesFollowing = marketPresences.filter((presence) => presence.following && !presence.market_banned);
@@ -513,7 +515,7 @@ function InitiativesAndDialogs(props) {
       const { investible } = baseInvestible;
       const { name, id: investibleId } = investible;
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
-      const isDraft = marketHasOnlyCurrentUser(marketPresencesState, marketId);
+      const isDraft = marketHasOnlyCurrentUser(messagesState, marketId);
       const marketPresencesFollowing = marketPresences.filter((presence) => presence.following && !presence.market_banned);
       const myPresence = marketPresences.find((presence) => presence.current_user) || {};
       const isAdmin = myPresence && myPresence.is_admin;

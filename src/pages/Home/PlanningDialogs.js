@@ -37,6 +37,7 @@ import WorkIcon from '@material-ui/icons/Work'
 import { getStages } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 import PlaylistAddCheckIcon from '@material-ui/icons/PlaylistAddCheck'
+import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -176,6 +177,7 @@ function PlanningDialogs(props) {
   const largeLayout = useMediaQuery(theme.breakpoints.up('xl'));
   const { markets } = props;
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [messagesState] = useContext(NotificationsContext);
   const [investibleState] = useContext(InvestiblesContext);
   const [commentsState] = useContext(CommentsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -249,7 +251,7 @@ function PlanningDialogs(props) {
         issueCount, suggestCount, todoCount, investiblesCount
       } = market;
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
-      const isDraft = marketHasOnlyCurrentUser(marketPresencesState, marketId);
+      const isDraft = marketHasOnlyCurrentUser(messagesState, marketId);
       const myPresence = marketPresences.find((presence) => presence.current_user) || {};
       const marketPresencesFollowing = marketPresences.filter((presence) => presence.following && !presence.market_banned);
       const sortedPresences = _.sortBy(marketPresencesFollowing, 'name');

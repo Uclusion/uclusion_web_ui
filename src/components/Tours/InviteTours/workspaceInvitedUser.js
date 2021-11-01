@@ -1,3 +1,4 @@
+import Typography from '@material-ui/core/Typography'
 
 export function workspaceInvitedUserSteps (variables) {
   const {
@@ -8,9 +9,15 @@ export function workspaceInvitedUserSteps (variables) {
     if (isCreator) {
       steps.push({
         disableBeacon: true,
-        target: '#emailInput',
+        target: '#redLevelNotification',
         placement: 'bottom',
-        content: 'Add collaborators here to let us send emails for you.',
+        content: (
+          <Typography style={{textAlign: 'left'}} variant="body2">
+            Actions in Uclusion generate notifications that tell everyone what to do.
+            <br/><br/>
+            You now have a notification to add collaborators to this Workspace that will remain until you do.
+          </Typography>
+        ),
       });
     } else {
       steps.push({
@@ -26,10 +33,10 @@ export function workspaceInvitedUserSteps (variables) {
         disableBeacon: true,
         target: '#navList',
         placement: 'right',
-        content: 'The navigation sidebar is a command center for the Workspace.',
+        content: 'The navigation sidebar is a command center for the Workspace. Click its blue icon to learn more.',
       });
     }
-    if (document.getElementById('yellowLevelNotification')) {
+    if (!isCreator && document.getElementById('yellowLevelNotification')) {
       steps.push({
         disableBeacon: true,
         target: '#yellowLevelNotification',
@@ -37,11 +44,5 @@ export function workspaceInvitedUserSteps (variables) {
         content: 'Categorized notifications are automatically sent and appear here so you know what needs to be done when.',
       });
     }
-    steps.push({
-      disableBeacon: true,
-      target: '#helpIcon',
-      placement: 'bottom',
-      content: "Lastly, documentation on how Uclusion let's you do agile project management without all the meetings."
-    });
     return steps;
 }

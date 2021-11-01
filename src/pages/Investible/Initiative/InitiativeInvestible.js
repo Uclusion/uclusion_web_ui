@@ -67,6 +67,7 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import PlaylistAddCheckIcon from '@material-ui/icons/PlaylistAddCheck'
 import DialogManage from '../../Dialog/DialogManage'
 import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils'
+import { marketHasOnlyCurrentUser } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 
 const useStyles = makeStyles(
   theme => ({
@@ -186,7 +187,6 @@ function InitiativeInvestible(props) {
     hidden,
   } = props;
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
-  const isDraft = !_.isEmpty(myPresence) && marketPresences.length === 1;
   const intl = useIntl();
   const history = useHistory();
   const classes = useStyles();
@@ -214,6 +214,7 @@ function InitiativeInvestible(props) {
     parent_investible_id: parentInvestibleId,
     attached_files: attachedFiles,
   } = market;
+  const isDraft = marketHasOnlyCurrentUser(messagesState, marketId);
   const [pageState, updatePageState, pageStateReset] =
     getPageReducerPage(pageStateFull, pageDispatch, investibleId,
       { collaboratorsOpen: isDraft && myPresence.id === createdBy, changeExpires: false });

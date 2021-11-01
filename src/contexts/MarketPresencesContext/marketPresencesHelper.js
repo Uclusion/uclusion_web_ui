@@ -1,4 +1,6 @@
 import { addMarketPresence, patchInvestment } from './marketPresencesContextReducer'
+import { findMessageOfType } from '../../utils/messageUtils'
+import _ from 'lodash'
 
 export function addPresenceToMarket(dispatch, marketId, presence) {
   dispatch(addMarketPresence(marketId, presence));
@@ -100,13 +102,6 @@ export function partialUpdateInvestment(dispatch, investmentPatch, allowMultiVot
   dispatch(patchInvestment(investmentPatch, allowMultiVote))
 }
 
-export function marketHasOnlyCurrentUser(state, marketId){
-  const presences = getMarketPresences(state, marketId);
-  if (!presences) {
-    return false;
-  }
-  const filtered = presences.filter((presence) => !presence.market_banned);
-  // if you can get the market presences, you're guaranteed that there's at least one, and it contains you
-  // hence if you have more than one, then you have somebody else.
-  return filtered.length === 1;
+export function marketHasOnlyCurrentUser(messagesState, marketId){
+  return !_.isEmpty(findMessageOfType('DRAFT', marketId, messagesState));
 }

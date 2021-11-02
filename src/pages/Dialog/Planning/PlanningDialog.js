@@ -147,7 +147,6 @@ function PlanningDialog(props) {
   const visibleStageIds = visibleStages.map((stage) => stage.id);
   const assignablePresences = presences.filter((presence) => !presence.market_banned && presence.following
     && !presence.market_guest) || [];
-  const isChannel = _.isEmpty(investibles);
 
   const furtherWorkStage = marketStages.find((stage) => (!stage.allows_assignment && !stage.close_comments_on_entrance)) || {};
   const requiresInputStage = marketStages.find((stage) => (!stage.allows_issues && stage.move_on_comment)) || {};

@@ -7,7 +7,7 @@ const defaultThemeDefinition = {
   },
   palette: {
     primary: {
-      main: '#8ab5c2',
+      main: '#2F80ED',
       light: '#bbe7f5',
       dark: '#5b8592',
       contrastText: '#ffffff',

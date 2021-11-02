@@ -406,23 +406,13 @@ function PlanningDialog(props) {
           <h2>
             <FormattedMessage id="planningDialogNavStoriesLabel" />
           </h2>
-          <DismissableText textId="storyHelp" text={
+          <DismissableText textId="notificationHelp" text={
             <div>
-              <Link href="https://documentation.uclusion.com/workspaces/stories" target="_blank">Stories</Link> are work
-              items like cards or tickets in other systems.
-              These <Link href="https://documentation.uclusion.com/workspaces/swimlanes" target="_blank">swimlanes</Link> go
-              beyond Kanban boards to display status.
+              Uclusion will generate all <Link href="https://documentation.uclusion.com/notifications" target="_blank">notifications</Link> necessary
+              to keep the status in these <Link href="https://documentation.uclusion.com/workspaces/swimlanes" target="_blank">swimlanes</Link> up to date.
+              So everyone already has a reminder to do what is necessary.
             </div>
           }/>
-          {!isChannel && (
-            <DismissableText textId="stageHelp" text={
-              <div>
-                Click the name of a <Link href="https://documentation.uclusion.com/workspaces/stories/stages" target="_blank">stage</Link>,
-                like <Link href="https://documentation.uclusion.com/workspaces/stories/stages/#ready-for-approval" target="_blank">Ready for Approval</Link>,
-                in the <Link href="https://documentation.uclusion.com/workspaces/swimlanes" target="_blank">swimlane</Link> to see more information about it.
-              </div>
-            }/>
-          )}
           {!_.isEmpty(blockedInvestibles) && (
             <SubSection
               type={SECTION_TYPE_SECONDARY_WARNING}

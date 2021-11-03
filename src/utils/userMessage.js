@@ -4,6 +4,7 @@
 import { toast } from 'react-toastify'
 import { intl } from '../components/ContextHacks/IntlGlobalProvider'
 import { setOperationInProgress } from '../components/ContextHacks/OperationInProgressGlobalProvider'
+import { refreshVersions } from '../contexts/VersionsContext/versionsContextHelper'
 
 export const DEBUG = 'debug';
 export const INFO = 'info';
@@ -61,12 +62,20 @@ export function errorAndThrow(error, messageKey) {
  * @param messageKey the id in the translation bundles to display
  */
 export function toastErrorAndThrow(error, messageKey) {
-  sendIntlMessage(ERROR, messageKey);
-  console.error(error);
   if (setOperationInProgress) {
     setOperationInProgress(false);
   }
-  throw error;
+  if (error && error.status === 208) {
+    console.info('Api gateway duplicate 208 received');
+    return refreshVersions().then(() => {
+      console.warn(error);
+      throw error;
+    });
+  } else {
+    sendIntlMessage(ERROR, messageKey);
+    console.error(error);
+    throw error;
+  }
 }
 
 /**

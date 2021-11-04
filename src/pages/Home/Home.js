@@ -30,7 +30,6 @@ import {
 import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
 import AddIcon from '@material-ui/icons/Add'
 import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
-import PlaylistAddCheckIcon from '@material-ui/icons/PlaylistAddCheck'
 import HomeIcon from '@material-ui/icons/Home'
 import GavelIcon from '@material-ui/icons/Gavel'
 import PollIcon from '@material-ui/icons/Poll'
@@ -56,6 +55,7 @@ import StoryWorkspaceWizard from '../../components/AddNew/Workspace/StoryWorkspa
 import DialogWizard from '../../components/AddNew/Dialog/DialogWizard'
 import InitiativeWizard from '../../components/AddNew/Initiative/InitiativeWizard'
 import WizardSelector from '../../components/AddNew/WizardSelector'
+import AssignmentIcon from '@material-ui/icons/Assignment'
 
 function Home(props) {
   const { hidden } = props;
@@ -186,8 +186,8 @@ function Home(props) {
   const navigationMenu = {
     navHeaderIcon: HomeIcon, navToolLink: 'https://documentation.uclusion.com/overview', showSearchResults: true,
     navListItemTextArray: [
-      createNavListItem(AgilePlanIcon, 'homeAssignments', 'storiesSection', assignedSize),
-      createNavListItem(PlaylistAddCheckIcon, 'planningMarkets', 'planningMarkets', _.size(planningDetails)),
+      createNavListItem(AssignmentIcon, 'homeAssignments', 'storiesSection', assignedSize),
+      createNavListItem(AgilePlanIcon, 'planningMarkets', 'planningMarkets', _.size(planningDetails)),
       createNavListItem(GavelIcon, 'dialogs', 'dialogs', _.size(decisionDetails)),
       createNavListItem(PollIcon, 'initiatives', 'initiatives', _.size(initiativeDetails))
     ]

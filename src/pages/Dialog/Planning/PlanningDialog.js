@@ -59,7 +59,6 @@ import { findMessageOfType, findMessageOfTypeAndId } from '../../../utils/messag
 import NotificationCountChips from '../NotificationCountChips'
 import AddIcon from '@material-ui/icons/Add'
 import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
-import PlaylistAddCheckIcon from '@material-ui/icons/PlaylistAddCheck';
 import { workspaceInvitedUserSteps } from '../../../components/Tours/InviteTours/workspaceInvitedUser';
 import WorkIcon from '@material-ui/icons/Work'
 import ListAltIcon from '@material-ui/icons/ListAlt'
@@ -306,7 +305,7 @@ function PlanningDialog(props) {
   }
 
   const navigationMenu = {
-    navHeaderIcon: PlaylistAddCheckIcon, navToolLink: 'https://documentation.uclusion.com/workspaces/#workspace-navigation',
+    navHeaderIcon: AgilePlanIcon, navToolLink: 'https://documentation.uclusion.com/workspaces/#workspace-navigation',
     navListItemTextArray: [
       createNavListItem(EditIcon, 'planningDialogNavDetailsLabel', 'workspaceMain',
       _.isEmpty(search) || results.find((result) => result.id === marketId) ? undefined : 0,

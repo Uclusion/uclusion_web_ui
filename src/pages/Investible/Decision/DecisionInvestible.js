@@ -45,7 +45,6 @@ import { getMarketComments } from '../../../contexts/CommentsContext/commentsCon
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { doSetEditWhenValid } from '../../../utils/windowUtils'
 import EditMarketButton from '../../Dialog/EditMarketButton'
-import PlaylistAddCheckIcon from '@material-ui/icons/PlaylistAddCheck'
 import EditIcon from '@material-ui/icons/Edit'
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown'
 import AddIcon from '@material-ui/icons/Add'
@@ -68,6 +67,7 @@ import { getDiff, markDiffViewed } from '../../../contexts/DiffContext/diffConte
 import { findMessageOfTypeAndId } from '../../../utils/messageUtils'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils'
+import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
 
 const useStyles = makeStyles((theme) => ({
   mobileColumn: {
@@ -168,7 +168,7 @@ export function getInlineBreadCrumbs (marketState, parentMarketId, parentInvesti
     // Better would be to peg loading a level up since above can resolve with wrong
     const { name: inlineParentMarketName } = inlineParentMarket
     breadCrumbTemplates = [{ name: inlineParentMarketName, link: formMarketLink(parentMarketId), id: 'marketCrumb',
-      icon: <PlaylistAddCheckIcon/> }]
+      icon: <AgilePlanIcon/> }]
   }
   if (parentInvestibleId) {
     breadCrumbTemplates.push({

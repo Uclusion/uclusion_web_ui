@@ -64,10 +64,10 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { deleteSingleMessage } from '../../../api/users'
 import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
-import PlaylistAddCheckIcon from '@material-ui/icons/PlaylistAddCheck'
 import DialogManage from '../../Dialog/DialogManage'
 import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils'
 import { marketHasOnlyCurrentUser } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
 
 const useStyles = makeStyles(
   theme => ({
@@ -323,7 +323,7 @@ function InitiativeInvestible(props) {
       createNavListItem(QuestionIcon, 'questions', `c${questionId}`, _.size(questions)),
       createNavListItem(ChangeSuggstionIcon, 'suggestions', `c${suggestId}`, _.size(suggestions)),
       createNavListItem(QuestionAnswer, 'closedComments', `c${closedId}`, _.size(sortedClosedRoots)),
-      createNavListItem(PlaylistAddCheckIcon, 'planningMarkets', 'dia0', _.size(children))
+      createNavListItem(AgilePlanIcon, 'planningMarkets', 'dia0', _.size(children))
     ]
   }
   return (

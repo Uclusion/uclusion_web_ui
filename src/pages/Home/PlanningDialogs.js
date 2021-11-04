@@ -36,8 +36,8 @@ import { getSortedRoots } from '../../containers/CommentBox/CommentBox'
 import WorkIcon from '@material-ui/icons/Work'
 import { getStages } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
-import PlaylistAddCheckIcon from '@material-ui/icons/PlaylistAddCheck'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
+import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -475,7 +475,7 @@ function PlanningDialogs(props) {
     <div id="planningMarkets"
          style={{ display: isSectionOpen('planningMarkets') ? 'block' : 'none', paddingBottom: '3rem' }}>
       <div className={classes.titleContainer}>
-        {<PlaylistAddCheckIcon htmlColor="#333333"/>}
+        {<AgilePlanIcon htmlColor="#333333"/>}
         <Typography className={classes.title} variant="h6">
           {intl.formatMessage({ id: 'homePlanningDialogs' })}
         </Typography>

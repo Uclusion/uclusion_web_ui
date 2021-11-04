@@ -47,8 +47,8 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import Gravatar from '../../../components/Avatars/Gravatar';
 import NotificationCountChips from '../NotificationCountChips'
 import Chip from '@material-ui/core/Chip'
-import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
+import AssignmentIcon from '@material-ui/icons/Assignment'
 export const LocalPlanningDragContext = React.createContext([]);
 
 
@@ -150,7 +150,7 @@ function InvestiblesByWorkspace (props) {
          style={{ display: isSectionOpen('storiesSection') ? 'block' : 'none', paddingBottom: '3rem' }}>
       {assignedSize > 0 && (
         <div className={myClasses.titleContainer} id="swimLanes">
-          {<AgilePlanIcon htmlColor="#333333"/>}
+          {<AssignmentIcon htmlColor="#333333"/>}
           <Typography className={myClasses.title} variant="h6">
             {intl.formatMessage({ id: 'homeAssignments' })}
           </Typography>

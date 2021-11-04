@@ -13,11 +13,11 @@ import { baseNavListItem, makeBreadCrumbs } from '../../utils/marketIdPathFuncti
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import ArchivesCheatSheet from './ArchivesCheatSheet'
 import InitiativesAndDialogs from '../Home/InitiativesAndDialogs'
-import PlaylistAddCheckIcon from '@material-ui/icons/PlaylistAddCheck'
 import GavelIcon from '@material-ui/icons/Gavel'
 import PollIcon from '@material-ui/icons/Poll'
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
 import MenuBookIcon from '@material-ui/icons/MenuBook'
+import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
 
 const useStyles = makeStyles((theme) => ({
   spacer: {
@@ -49,7 +49,7 @@ function Archives(props) {
 
   const navigationMenu = {
     navHeaderIcon: MenuBookIcon, navToolLink: 'https://documentation.uclusion.com/overview',
-    navListItemTextArray: [createNavListItem(PlaylistAddCheckIcon, 'planningMarkets', 'planningMarkets',
+    navListItemTextArray: [createNavListItem(AgilePlanIcon, 'planningMarkets', 'planningMarkets',
       _.size(planningDetails)),
       createNavListItem(GavelIcon, 'dialogs', 'dia0', _.size(decisionDetails)),
       createNavListItem(PollIcon, 'initiatives', 'ini0', _.size(initiativeDetails)),

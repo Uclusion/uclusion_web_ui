@@ -146,7 +146,7 @@ const messages = defineMessages({
   points: 'points',
   currency: 'dollars',
   update: 'Update',
-  homePlanningDialogs: 'My Workspaces',
+  homePlanningDialogs: 'Workspaces',
 
   // Upgrade
   upgradeNow: 'Upgrade Now',
@@ -259,8 +259,6 @@ const messages = defineMessages({
 
   // Navigation menu
   swimLanes: 'Assigned',
-  mySearchSwimLanes: 'Stories',
-  mySwimLanes: 'Active Stories',
   commentAddBox: 'Add Comment',
   questions: 'Questions',
   suggestions: 'Suggestions',
@@ -314,7 +312,7 @@ const messages = defineMessages({
   // Investible
   investibleEditLabel: 'Edit',
   investibleAssignLabel: 'Assign',
-  homeAssignments: 'My Stories',
+  homeAssignments: 'Stories',
   investibleAssign: 'Story - Assignments',
   investibleReviewers: 'Story - Required Reviewers',
   investibleApprovers: 'Story - Required Approvers',

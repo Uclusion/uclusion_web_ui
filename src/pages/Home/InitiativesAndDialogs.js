@@ -35,6 +35,8 @@ import clsx from 'clsx'
 import ThumbDownIcon from '@material-ui/icons/ThumbDown'
 import GravatarGroup from '../../components/Avatars/GravatarGroup';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
+import GavelIcon from '@material-ui/icons/Gavel'
+import PollIcon from '@material-ui/icons/Poll'
 
 const dialogStyles = makeStyles((theme) => ({
   paper: {
@@ -238,7 +240,13 @@ const initiativeStyles = makeStyles((theme) => ({
     flexGrow: 0,
     maxWidth: '100%',
     flexBasis: '100%',
-  }
+  },
+  titleContainer: {
+    width: 'auto',
+    display: 'flex',
+    alignItems: 'center',
+    marginBottom: '1rem'
+  },
 }));
 
 function InitiativesAndDialogs(props) {
@@ -248,7 +256,7 @@ function InitiativesAndDialogs(props) {
   const intl = useIntl();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
-  const { dialogs, initiatives, workspaces, showParentOf } = props;
+  const { dialogs, initiatives, workspaces, showParentOf, isSectionOpen } = props;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [messagesState] = useContext(NotificationsContext);
   const [commentsState] = useContext(CommentsContext);
@@ -664,11 +672,33 @@ function InitiativesAndDialogs(props) {
     });
   }
 
-  const allItems = getDialogItems().concat(getInitiativeItems());
   return (
-    <Grid container spacing={4}>
-      {allItems}
-    </Grid>
+    <>
+      <div id="dialogs"
+           style={{ display: isSectionOpen('dialogs') ? 'block' : 'none', paddingBottom: '3rem' }}>
+        <div className={initiativeClasses.titleContainer}>
+          {<GavelIcon htmlColor="#333333"/>}
+          <Typography style={{marginLeft: '1rem'}} variant="h6">
+            {intl.formatMessage({ id: 'dialogs' })}
+          </Typography>
+        </div>
+        <Grid container spacing={4}>
+          {getDialogItems()}
+        </Grid>
+      </div>
+      <div id="initiatives"
+           style={{ display: isSectionOpen('initiatives') ? 'block' : 'none' }}>
+        <div className={initiativeClasses.titleContainer}>
+          {<PollIcon htmlColor="#333333"/>}
+          <Typography style={{marginLeft: '1rem'}} variant="h6">
+            {intl.formatMessage({ id: 'initiatives' })}
+          </Typography>
+        </div>
+        <Grid container spacing={4}>
+          {getInitiativeItems()}
+        </Grid>
+      </div>
+    </>
   );
 }
 

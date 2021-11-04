@@ -3,7 +3,7 @@ import { useHistory } from 'react-router';
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import MenuBookIcon from '@material-ui/icons/MenuBook'
-import { Checkbox, FormControlLabel, makeStyles, Typography, useMediaQuery, useTheme } from '@material-ui/core'
+import { useMediaQuery, useTheme } from '@material-ui/core'
 import { FormattedMessage, useIntl } from 'react-intl'
 import Screen from '../../containers/Screen/Screen'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
@@ -20,7 +20,6 @@ import {
   navigate
 } from '../../utils/marketIdPathFunctions'
 import { getAndClearRedirect } from '../../utils/redirectUtils'
-import WizardSelector from '../../components/AddNew/WizardSelector'
 import InitiativesAndDialogs from './InitiativesAndDialogs'
 import { canCreate } from '../../contexts/AccountContext/accountContextHelper';
 import UpgradeBanner from '../../components/Banners/UpgradeBanner';
@@ -53,24 +52,10 @@ import { InvestiblesContext } from '../../contexts/InvestibesContext/Investibles
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import SpinningIconLabelButton from '../../components/Buttons/SpinningIconLabelButton'
 import { getPageReducerPage, usePageStateReducer } from '../../components/PageState/pageStateHooks'
-
-const useStyles = makeStyles(() => ({
-    spacer: {
-      borderColor: '#ccc',
-      borderStyle: 'solid',
-      margin: '2rem 0'
-    },
-    titleContainer: {
-      width: 'auto',
-      display: 'flex',
-      alignItems: 'center',
-      marginBottom: '1rem'
-    },
-    title: {
-      marginLeft: '1rem'
-    }
-  })
-);
+import StoryWorkspaceWizard from '../../components/AddNew/Workspace/StoryWorkspace/StoryWorkspaceWizard'
+import DialogWizard from '../../components/AddNew/Dialog/DialogWizard'
+import InitiativeWizard from '../../components/AddNew/Initiative/InitiativeWizard'
+import WizardSelector from '../../components/AddNew/WizardSelector'
 
 function Home(props) {
   const { hidden } = props;
@@ -85,21 +70,20 @@ function Home(props) {
   const [marketStagesState] = useContext(MarketStagesContext)
   const [investiblesState] = useContext(InvestiblesContext)
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
-  const classes = useStyles()
-  const [wizardActive, setWizardActive] = useState(false)
-  const [, tourDispatch] = useContext(TourContext)
-  const [versionsContext] = useContext(VersionsContext)
-  const createEnabled = canCreate(accountState)
+  const [wizardActive, setWizardActive] = useState(false);
+  const [, tourDispatch] = useContext(TourContext);
+  const [versionsContext] = useContext(VersionsContext);
+  const createEnabled = canCreate(accountState);
   //While fore ground loads there is no global version and operation is running
   const loadingForeGroundMarkets = !hasLoadedGlobalVersion(versionsContext) || marketsState.initializing ||
-    (!hasInitializedGlobalVersion(versionsContext) && operationRunning)
+    (!hasInitializedGlobalVersion(versionsContext) && operationRunning);
   const banner = loadingForeGroundMarkets || createEnabled ? undefined : <UpgradeBanner/>
   const [pageStateFull, pageDispatch] = usePageStateReducer('home');
   const [pageState, updatePageState, pageStateReset] = getPageReducerPage(pageStateFull, pageDispatch, 'config',
     {chosenPerson: { name: '', email: '', external_id: '' }});
   const {
     chosenPerson,
-    displayOthers
+    sectionOpen
   } = pageState;
 
   useEffect(() => {
@@ -126,10 +110,40 @@ function Home(props) {
     navigate(history, link);
   }
 
-  function createNavListItem(icon, textId, anchorId, howManyNum, alwaysShow) {
-    return baseNavListItem('/', icon, textId, anchorId, howManyNum, alwaysShow);
-  }
   const { search } = searchResults;
+  const noActiveNonSupportMarkets = _.isEmpty(planningDetails) && _.isEmpty(decisionDetails)
+    && _.isEmpty(initiativeDetails.filter((initiative) => {
+      const { market_sub_type: marketSubType } = initiative;
+      return marketSubType !== 'REQUIREMENTS';
+    }));
+  const defaultSection = noActiveNonSupportMarkets ? 'planningMarkets' : 'storiesSection';
+
+  function isSectionOpen(section) {
+    return sectionOpen === section || !_.isEmpty(search) || midLayout || (!sectionOpen && section === defaultSection);
+  }
+
+  function getNavListItemOnClick(subSection, target) {
+    return () => {
+      updatePageState({sectionOpen: subSection});
+      window.scrollTo(0, 0);
+    };
+  }
+
+  function isSectionBold(section) {
+    return (sectionOpen === section || (!sectionOpen && section === defaultSection)) && _.isEmpty(search);
+  }
+
+  function createNavListItem(icon, textId, anchorId, howManyNum) {
+    const nav = baseNavListItem('/', icon, textId, anchorId, howManyNum, true);
+    if (nav.target) {
+      nav['onClickFunc'] = getNavListItemOnClick(anchorId, nav.target);
+    }
+    if (isSectionBold(anchorId)) {
+      nav['isBold'] = true;
+    }
+    return nav;
+  }
+
   const workspacesData = planningDetails.map((market) => {
     const marketPresences = getMarketPresences(marketPresencesState, market.id)
     const myPresence = marketPresences && marketPresences.find((presence) => {
@@ -168,31 +182,14 @@ function Home(props) {
     accumulator + currentValue.myCountedInvestibles.length + currentValue.blockedInvestibles.length +
     currentValue.requiresInputInvestibles.length, 0)
   const archiveMarkets = getHiddenMarketDetailsForUser(marketsState, marketPresencesState, searchResults);
-  const noActiveNonSupportMarkets = _.isEmpty(planningDetails) && _.isEmpty(decisionDetails)
-    && _.isEmpty(initiativeDetails.filter((initiative) => {
-      const { market_sub_type: marketSubType } = initiative;
-      return marketSubType !== 'REQUIREMENTS';
-    }));
-  const showAddNew = createEnabled && !wizardActive && !noActiveNonSupportMarkets;
+
   const navigationMenu = {
     navHeaderIcon: HomeIcon, navToolLink: 'https://documentation.uclusion.com/overview', showSearchResults: true,
-    navListItemTextArray: [{
-      icon: AddIcon, text: intl.formatMessage({ id: 'addNew' }),
-      onClickFunc: showAddNew ? () => {
-        setWizardActive(true)
-        window.scrollTo(0, 0)
-      } : undefined
-    },
-      createNavListItem(AgilePlanIcon, _.isEmpty(search) ? 'mySwimLanes' : 'mySearchSwimLanes',
-        'swimLanes', assignedSize),
+    navListItemTextArray: [
+      createNavListItem(AgilePlanIcon, 'homeAssignments', 'storiesSection', assignedSize),
       createNavListItem(PlaylistAddCheckIcon, 'planningMarkets', 'planningMarkets', _.size(planningDetails)),
-      createNavListItem(GavelIcon, 'dialogs', 'dia0', _.size(decisionDetails)),
-      createNavListItem(PollIcon, 'initiatives', 'ini0', _.size(initiativeDetails)),
-      {
-        icon: MenuBookIcon, text: intl.formatMessage({ id: 'homeViewArchives' }),
-        target: _.size(archiveMarkets) > 0 ? '/archives' : undefined,
-        num: _.isEmpty(search) || _.size(archiveMarkets) === 0 ? undefined : _.size(archiveMarkets), newPage: true
-      }
+      createNavListItem(GavelIcon, 'dialogs', 'dialogs', _.size(decisionDetails)),
+      createNavListItem(PollIcon, 'initiatives', 'initiatives', _.size(initiativeDetails))
     ]
   };
 
@@ -206,67 +203,48 @@ function Home(props) {
       loading={loadingForeGroundMarkets}
       navigationOptions={banner ? [] : navigationMenu}
     >
-      <WizardSelector
-        hidden={!wizardActive && !noActiveNonSupportMarkets}
-        onFinish={onWizardFinish}
-        showCancel={!noActiveNonSupportMarkets}
-        onCancel={() => setWizardActive(false)}/>
-      {(_.size(archiveMarkets) > 0 || showAddNew) && (
+      {midLayout && (
+        <WizardSelector
+          hidden={!wizardActive && !noActiveNonSupportMarkets}
+          onFinish={onWizardFinish}
+          showCancel={!noActiveNonSupportMarkets}
+          onCancel={() => setWizardActive(false)}/>
+      )}
+      {(wizardActive || noActiveNonSupportMarkets) && !midLayout && isSectionOpen('planningMarkets') && (
+        <StoryWorkspaceWizard onStartOver={() => setWizardActive(false)}
+                              onFinish={onWizardFinish} isHome showCancel={!noActiveNonSupportMarkets}/>
+      )}
+      {wizardActive && isSectionOpen('dialogs') && !midLayout && (
+        <DialogWizard onStartOver={() => setWizardActive(false)} onFinish={onWizardFinish} isHome />
+      )}
+      {wizardActive && isSectionOpen('initiatives') && !midLayout && (
+        <InitiativeWizard onStartOver={() => setWizardActive(false)} onFinish={onWizardFinish} isHome />
+      )}
+      {(midLayout || !isSectionOpen('storiesSection')) && !wizardActive && (
         <div style={{ display: 'flex', marginBottom: '2rem' }}>
-          {_.size(archiveMarkets) > 0 && midLayout && (
+          {createEnabled && (
+            <SpinningIconLabelButton icon={AddIcon} onClick={() => setWizardActive(true)} doSpin={false}>
+              <FormattedMessage id={'addNew'}/>
+            </SpinningIconLabelButton>
+          )}
+          {_.size(archiveMarkets) > 0 && (
             <SpinningIconLabelButton icon={MenuBookIcon} onClick={() => navigate(history, '/archives')}
                                      doSpin={false}>
               <FormattedMessage id={'homeViewArchives'}/>
             </SpinningIconLabelButton>
           )}
-          {showAddNew && midLayout && (
-            <SpinningIconLabelButton icon={AddIcon} onClick={() => setWizardActive(true)} doSpin={false}>
-              <FormattedMessage id={'addNew'}/>
-            </SpinningIconLabelButton>
-          )}
         </div>
       )}
-      {assignedSize > 0 && (
-        <div className={classes.titleContainer} id="swimLanes">
-          {<AgilePlanIcon htmlColor="#333333"/>}
-          <Typography className={classes.title} variant="h6">
-            {intl.formatMessage({ id: 'homeAssignments' })}
-          </Typography>
-          <div style={{flexGrow: 1}}/>
-          <FormControlLabel
-            control={
-              <Checkbox
-                value={displayOthers === undefined ? false : displayOthers}
-                disabled={operationRunning}
-                checked={displayOthers === undefined ? false : displayOthers}
-                onClick={() => {
-                  if (displayOthers) {
-                    pageStateReset();
-                  } else {
-                    updatePageState({displayOthers: true});
-                  }
-                }}
-              />
-            }
-            label={intl.formatMessage({ id: 'showOthers' })}
-          />
-        </div>
+      {!wizardActive && (
+        <InvestiblesByWorkspace workspaces={planningDetails} pageState={pageState} updatePageState={updatePageState}
+                                workspacesData={workspacesData} assignedSize={assignedSize}
+                                pageStateReset={pageStateReset} isSectionOpen={isSectionOpen} />
       )}
-      <InvestiblesByWorkspace workspaces={planningDetails} pageState={pageState} updatePageState={updatePageState}
-                              workspacesData={workspacesData} />
-      {!_.isEmpty(planningDetails) && (
-        <React.Fragment>
-          {(assignedSize > 0 || wizardActive) && (
-            <hr className={classes.spacer}/>
-          )}
-          <PlanningDialogs markets={planningDetails}/>
-        </React.Fragment>
+      {!_.isEmpty(planningDetails) && !wizardActive && (
+        <PlanningDialogs markets={planningDetails} isSectionOpen={isSectionOpen} />
       )}
-      {!(_.isEmpty(decisionDetails) && _.isEmpty(initiativeDetails)) && (
-        <React.Fragment>
-          <hr className={classes.spacer}/>
-          <InitiativesAndDialogs dialogs={decisionDetails} initiatives={initiativeDetails}/>
-        </React.Fragment>
+      {!(_.isEmpty(decisionDetails) && _.isEmpty(initiativeDetails)) && !wizardActive && (
+        <InitiativesAndDialogs dialogs={decisionDetails} initiatives={initiativeDetails} isSectionOpen={isSectionOpen}/>
       )}
     </Screen>
   );

@@ -19,7 +19,16 @@ import {
   getRequiredInputStage, getVerifiedStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
-import { Button, Menu, MenuItem, Typography, useMediaQuery, useTheme } from '@material-ui/core'
+import {
+  Button,
+  Checkbox,
+  FormControlLabel, makeStyles,
+  Menu,
+  MenuItem,
+  Typography,
+  useMediaQuery,
+  useTheme
+} from '@material-ui/core'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
 import { useIntl } from 'react-intl'
@@ -38,21 +47,44 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import Gravatar from '../../../components/Avatars/Gravatar';
 import NotificationCountChips from '../NotificationCountChips'
 import Chip from '@material-ui/core/Chip'
+import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 export const LocalPlanningDragContext = React.createContext([]);
+
+
+const useStyles = makeStyles(() => ({
+    spacer: {
+      borderColor: '#ccc',
+      borderStyle: 'solid',
+      margin: '2rem 0'
+    },
+    titleContainer: {
+      width: 'auto',
+      display: 'flex',
+      alignItems: 'center',
+      marginBottom: '1rem'
+    },
+    title: {
+      marginLeft: '1rem'
+    }
+  })
+);
 
 function InvestiblesByWorkspace (props) {
   const {
-    workspaces, pageState, updatePageState, workspacesData
+    workspaces, pageState, updatePageState, workspacesData, assignedSize, pageStateReset, isSectionOpen
   } = props;
   const intl = useIntl();
   const history = useHistory();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
-  const classes = useInvestiblesByPersonStyles()
+  const classes = useInvestiblesByPersonStyles();
+  const myClasses = useStyles();
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [commentsState] = useContext(CommentsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [marketsState] = useContext(MarketsContext);
+  const [operationRunning] = useContext(OperationInProgressContext);
   const [anchorEl, setAnchorEl] = React.useState(null);
   // For security reasons you can't access source data while being dragged in case you are not the target website
   const [beingDraggedHack, setBeingDraggedHack] = useState({});
@@ -114,7 +146,34 @@ function InvestiblesByWorkspace (props) {
   }
 
   return (
-    <>
+    <div id="storiesSection"
+         style={{ display: isSectionOpen('storiesSection') ? 'block' : 'none', paddingBottom: '3rem' }}>
+      {assignedSize > 0 && (
+        <div className={myClasses.titleContainer} id="swimLanes">
+          {<AgilePlanIcon htmlColor="#333333"/>}
+          <Typography className={myClasses.title} variant="h6">
+            {intl.formatMessage({ id: 'homeAssignments' })}
+          </Typography>
+          <div style={{flexGrow: 1}}/>
+          <FormControlLabel
+            control={
+              <Checkbox
+                value={displayOthers === undefined ? false : displayOthers}
+                disabled={operationRunning}
+                checked={displayOthers === undefined ? false : displayOthers}
+                onClick={() => {
+                  if (displayOthers) {
+                    pageStateReset();
+                  } else {
+                    updatePageState({displayOthers: true});
+                  }
+                }}
+              />
+            }
+            label={intl.formatMessage({ id: 'showOthers' })}
+          />
+        </div>
+      )}
       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
         {displayOthers && (
           <Button
@@ -256,7 +315,7 @@ function InvestiblesByWorkspace (props) {
           );
         })}
       </LocalPlanningDragContext.Provider>
-    </>
+    </div>
   );
 }
 

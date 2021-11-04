@@ -175,7 +175,7 @@ function PlanningDialogs(props) {
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const largeLayout = useMediaQuery(theme.breakpoints.up('xl'));
-  const { markets } = props;
+  const { markets, isSectionOpen } = props;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [messagesState] = useContext(NotificationsContext);
   const [investibleState] = useContext(InvestiblesContext);
@@ -472,8 +472,9 @@ function PlanningDialogs(props) {
   }
 
   return (
-    <>
-      <div className={classes.titleContainer} id="planningMarkets">
+    <div id="planningMarkets"
+         style={{ display: isSectionOpen('planningMarkets') ? 'block' : 'none', paddingBottom: '3rem' }}>
+      <div className={classes.titleContainer}>
         {<PlaylistAddCheckIcon htmlColor="#333333"/>}
         <Typography className={classes.title} variant="h6">
           {intl.formatMessage({ id: 'homePlanningDialogs' })}
@@ -482,7 +483,7 @@ function PlanningDialogs(props) {
       <Grid container spacing={4}>
         {getMarketItems()}
       </Grid>
-    </>
+    </div>
   );
 }
 

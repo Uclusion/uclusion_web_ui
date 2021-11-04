@@ -14,6 +14,7 @@ import LoadingDisplay from '../../components/LoadingDisplay';
 import List from '@material-ui/core/List'
 import SearchBox from '../../components/Search/SearchBox'
 import clsx from 'clsx'
+import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
 
 const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -104,7 +105,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function processRegularItem (classes, history, text, target, num, Icon, onClickFunc, isGrouped, isBold, newPage,
-  index) {
+  index, search) {
   if (!text) {
     return React.Fragment
   }
@@ -137,7 +138,7 @@ function processRegularItem (classes, history, text, target, num, Icon, onClickF
                       <ListItemText primary={text}
                                     primaryTypographyProps={{className: isBold ? classes.navGroupHeader : undefined}} />
                     </span>
-      {num !== undefined && (
+      {num !== undefined && !_.isEmpty(search) && (
         <span style={{width: "17%"}}><ListItemText primary={num} /></span>
       )}
     </ListItem>
@@ -153,6 +154,8 @@ function Screen(props) {
   const user = unsafeUser || {};
   const history = useHistory();
   const [messagesState] = useContext(NotificationsContext);
+  const [searchResults] = useContext(SearchResultsContext);
+  const { search } = searchResults;
 
   const {
     breadCrumbs,
@@ -248,14 +251,14 @@ function Screen(props) {
                         {subItems.map((subItem, index) => {
                           const { text, target, num, icon: Icon, onClickFunc, newPage } = subItem
                           return processRegularItem(classes, history, text, target, num, Icon, onClickFunc,
-                            true, false, newPage, index)
+                            true, false, newPage, index, search)
                         })}
                       </div>
                     </div>
                   );
                 }
                 return processRegularItem(classes, history, text, target, num, Icon, onClickFunc, false,
-                  isBold, newPage, topIndex)
+                  isBold, newPage, topIndex, search)
               })}
             </List>
             <SearchBox/>

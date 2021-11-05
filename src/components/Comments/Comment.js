@@ -68,7 +68,7 @@ import ShareStoryButton from '../../pages/Investible/Planning/ShareStoryButton'
 import { onCommentOpen } from '../../utils/commentFunctions'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 import {
-  findMessageForCommentId,
+  findMessageForCommentId, findMessagesForCommentId,
   findMessagesForInvestibleId,
   removeMessagesForCommentId
 } from '../../utils/messageUtils'
@@ -569,26 +569,26 @@ function Comment(props) {
   function resolve() {
     return resolveComment(marketId, id)
       .then((comment) => {
-        addCommentToMarket(comment, commentsState, commentsDispatch)
-        removeMessagesForCommentId(id, messagesState, messagesDispatch)
+        addCommentToMarket(comment, commentsState, commentsDispatch);
+        removeMessagesForCommentId(id, messagesState, messagesDispatch);
         if (inlineMarketId) {
-          const inlineInvestibles = getMarketInvestibles(investiblesState, inlineMarketId) || []
-          const anInlineMarketInvestibleComments = getMarketComments(commentsState, inlineMarketId) || []
+          const inlineInvestibles = getMarketInvestibles(investiblesState, inlineMarketId) || [];
+          const anInlineMarketInvestibleComments = getMarketComments(commentsState, inlineMarketId) || [];
           inlineInvestibles.forEach((inv) => {
-            const messages = findMessagesForInvestibleId(inv.investible.id, messagesState) || []
+            const messages = findMessagesForInvestibleId(inv.investible.id, messagesState) || [];
             messages.forEach((message) => {
-              messagesDispatch(removeMessage(message))
+              messagesDispatch(removeMessage(message));
             })
           })
           anInlineMarketInvestibleComments.forEach((comment) => {
-            const messages = findMessageForCommentId(comment.id, messagesState) || []
+            const messages = findMessagesForCommentId(comment.id, messagesState) || [];
             messages.forEach((message) => {
-              messagesDispatch(removeMessage(message))
+              messagesDispatch(removeMessage(message));
             })
           })
         }
-        setOperationRunning(false)
-        onDone()
+        setOperationRunning(false);
+        onDone();
       });
   }
   function getHilightedIds(myReplies, highLightedIds, passedMessages) {

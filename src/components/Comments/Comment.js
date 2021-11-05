@@ -1107,7 +1107,7 @@ function Reply(props) {
       </CardContent>
       {!beingEdited && (
         <CardActions className={!(myHighlightedLevel && isHighlighted) ? classes.cardActions : myMessage.level === 'RED'
-          ? classes.containerActionsRed : classes.cardActionsYellow}>
+          ? classes.cardActionsRed : classes.cardActionsYellow}>
           <Typography className={classes.timePosted} variant="body2">
             <FormattedDate value={comment.created_at} />
           </Typography>

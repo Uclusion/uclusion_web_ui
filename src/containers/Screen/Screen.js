@@ -97,7 +97,8 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.text.disabled
   },
   navGroupHeader: {
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    textDecoration: 'underline'
   },
   elevated: {
     zIndex: 99,
@@ -242,7 +243,7 @@ function Screen(props) {
                                       primaryTypographyProps={{ className: isBold ? classes.navGroupHeader : undefined }}
                         />
                       </ListItem>
-                      <div style={{ paddingBottom: '0.5rem' }}>
+                      <div style={{ paddingBottom: '0.5rem', backgroundColor: '#F5F5F5' }}>
                         {subItems.map((subItem, index) => {
                           const { text, target, num, icon: Icon, onClickFunc, newPage } = subItem
                           return processRegularItem(classes, history, text, target, num, Icon, onClickFunc,

@@ -192,7 +192,7 @@ function Home(props) {
       createNavListItem(PollIcon, 'initiatives', 'initiatives', _.size(initiativeDetails))
     ]
   };
-
+  const wizardTrulyActive = wizardActive || noActiveNonSupportMarkets;
   return (
     <Screen
       title={intl.formatMessage({ 'id': 'homeBreadCrumb' })}
@@ -210,7 +210,7 @@ function Home(props) {
           showCancel={!noActiveNonSupportMarkets}
           onCancel={() => setWizardActive(false)}/>
       )}
-      {(wizardActive || noActiveNonSupportMarkets) && !midLayout && isSectionOpen('planningMarkets') && (
+      {wizardTrulyActive && !midLayout && isSectionOpen('planningMarkets') && (
         <StoryWorkspaceWizard onStartOver={() => setWizardActive(false)}
                               onFinish={onWizardFinish} isHome showCancel={!noActiveNonSupportMarkets}/>
       )}
@@ -220,7 +220,7 @@ function Home(props) {
       {wizardActive && isSectionOpen('initiatives') && !midLayout && (
         <InitiativeWizard onStartOver={() => setWizardActive(false)} onFinish={onWizardFinish} isHome />
       )}
-      {(midLayout || !isSectionOpen('storiesSection')) && !wizardActive && (
+      {(midLayout || !isSectionOpen('storiesSection')) && !wizardTrulyActive && (
         <div style={{ display: 'flex', marginBottom: '2rem' }}>
           {createEnabled && (
             <SpinningIconLabelButton icon={AddIcon} onClick={() => setWizardActive(true)} doSpin={false}>

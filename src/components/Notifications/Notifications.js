@@ -81,7 +81,10 @@ function Notifications (props) {
   const { lastReadTime } = levelInfoSafe[level] || {};
   const lastRead = lastReadTime ? new Date(lastReadTime) : undefined;
   const newMessages = (messages || []).filter((item) => {
-    const { updated_at: updatedAtTime } = item;
+    const { updated_at: updatedAtTime, is_highlighted: isHighlighted} = item;
+    if (!isHighlighted) {
+      return false;
+    }
     const updatedAt = new Date(updatedAtTime);
     return lastRead === undefined || updatedAt > lastRead;
   }) || [];

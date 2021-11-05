@@ -10,7 +10,7 @@ export function requiresInputStorySteps(variables) {
       disableBeacon: true,
       placement: 'center',
       target: 'body',
-      title: `Welcome to Requires Input!`,
+      title: 'Welcome to story help!',
       content: (
         <Typography style={{textAlign: 'left'}} variant="body2">
           This story will stay in Requires Input until you or someone else assigned moves it.
@@ -24,7 +24,7 @@ export function requiresInputStorySteps(variables) {
       disableBeacon: true,
       placement: 'center',
       target: 'body',
-      title: `Welcome to Requires Input!`,
+      title: 'Welcome to Requires Input!',
       content: (
         <Typography style={{textAlign: 'left'}} variant="body2">
           Please help resolve the open assignee questions and suggestions in this story.

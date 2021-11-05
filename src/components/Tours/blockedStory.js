@@ -10,7 +10,7 @@ export function blockedStorySteps(variables) {
         disableBeacon: true,
         placement: 'center',
         target: 'body',
-        title: `Welcome to Blocked!`,
+        title: 'About story blocking',
         content: (
           <Typography style={{textAlign: 'left'}} variant="body2">
             This story will stay in Blocked until you or someone else assigned moves it.
@@ -24,7 +24,7 @@ export function blockedStorySteps(variables) {
         disableBeacon: true,
         placement: 'center',
         target: 'body',
-        title: `Welcome to Blocked!`,
+        title: 'Welcome to unblocking!',
         content: (
           <Typography style={{textAlign: 'left'}} variant="body2">
             Please help resolve Blocking Issues in this story.

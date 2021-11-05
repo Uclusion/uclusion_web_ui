@@ -45,6 +45,7 @@ import { getThreadIds, notifyImmediate } from '../../../utils/commentFunctions'
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
 import DismissableText from '../../../components/Notifications/DismissableText'
 import { deleteOrDehilightMessages } from '../../../api/users'
+import { SettingsBackupRestore } from '@material-ui/icons'
 
 const myClasses = makeStyles(
   theme => {
@@ -536,7 +537,7 @@ function MarketTodos (props) {
           )}
         actionButton={mobileLayout ? undefined :
           (
-            <SpinningIconLabelButton icon={ArrowUpwardIcon} onClick={() => {
+            <SpinningIconLabelButton icon={SettingsBackupRestore} onClick={() => {
               const allMessages = [];
               todoComments.forEach((comment) => {
                 const replies = comments.filter(comment => comment.root_comment_id === comment.id) || [];

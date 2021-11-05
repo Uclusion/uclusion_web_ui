@@ -84,6 +84,7 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { usePlanFormStyles } from '../../../components/AgilePlan'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
+import AssignmentIcon from '@material-ui/icons/Assignment'
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -288,7 +289,7 @@ function PlanningDialog(props) {
     createNavListItem(ChangeSuggstionIcon,'suggestions', `c${suggestId}`, _.size(suggestions),
       'discussionSection')];
 
-  const storiesItems = [createNavListItem(AgilePlanIcon,'swimLanes', 'swimLanes',
+  const storiesItems = [createNavListItem(AssignmentIcon,'swimLanes', 'swimLanes',
     _.size(swimlaneInvestibles), 'storiesSection', _.isEmpty(search)),
     createNavListItem(WorkIcon,'planningInvestibleMoveToFurtherWorkLabel', 'furtherWork',
       _.size(furtherWorkReadyToStart) + _.size(furtherWorkInvestibles), 'storiesSection',

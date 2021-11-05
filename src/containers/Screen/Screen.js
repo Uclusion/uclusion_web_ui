@@ -236,14 +236,15 @@ function Screen(props) {
                 const { text, target, num, icon: Icon, onClickFunc, subItems, isBold, newPage } = navItem
                 if (subItems) {
                   return (
-                    <div key={`top${topIndex}${text}${title}`}>
+                    <div key={`top${topIndex}${text}${title}`}
+                         style={{ paddingBottom: '0.5rem', backgroundColor: '#F5F5F5' }}>
                       <ListItem key={`topListItem${topIndex}${text}${title}`} onClick={onClickFunc}
                                 style={{ paddingBottom: 0, cursor: 'pointer' }}>
                         <ListItemText primary={text}
                                       primaryTypographyProps={{ className: isBold ? classes.navGroupHeader : undefined }}
                         />
                       </ListItem>
-                      <div style={{ paddingBottom: '0.5rem', backgroundColor: '#F5F5F5' }}>
+                      <div>
                         {subItems.map((subItem, index) => {
                           const { text, target, num, icon: Icon, onClickFunc, newPage } = subItem
                           return processRegularItem(classes, history, text, target, num, Icon, onClickFunc,

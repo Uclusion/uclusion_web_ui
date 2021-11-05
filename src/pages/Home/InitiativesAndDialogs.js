@@ -706,14 +706,16 @@ InitiativesAndDialogs.propTypes = {
   dialogs: PropTypes.arrayOf(PropTypes.object),
   initiatives: PropTypes.arrayOf(PropTypes.object),
   workspaces: PropTypes.arrayOf(PropTypes.object),
-  showParentOf: PropTypes.bool
+  showParentOf: PropTypes.bool,
+  isSectionOpen: PropTypes.func,
 };
 
 InitiativesAndDialogs.defaultProps = {
   showParentOf: true,
   dialogs: [],
   initiatives: [],
-  workspaces: []
+  workspaces: [],
+  isSectionOpen: () => true
 };
 
 export default InitiativesAndDialogs;

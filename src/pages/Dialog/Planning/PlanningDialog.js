@@ -368,6 +368,12 @@ function PlanningDialog(props) {
         steps={workspaceInvitedUserSteps({name: myPresence.name, isCreator: createdBy === myPresence.id})}
       />
       <div id="workspaceMain" style={{ display: isSectionOpen('workspaceMain') ? 'block' : 'none' }}>
+        <div className={classes.titleContainer}>
+          {<EditIcon htmlColor="#333333"/>}
+          <Typography className={classes.title} variant="h6">
+            {intl.formatMessage({ id: 'planningDialogNavDetailsLabel' })}
+          </Typography>
+        </div>
         {collaboratorsOpen && (
           <DialogManage marketId={marketId} onClose={() => updatePageState({collaboratorsOpen: false})}/>
         )}
@@ -612,13 +618,21 @@ function PlanningDialog(props) {
       <Grid container spacing={2} id="settingsSection">
         {!hidden && !_.isEmpty(acceptedStage) && !_.isEmpty(inVerifiedStage) &&
           isSectionOpen('settingsSection') && !mobileLayout && (
-          <PlanningDialogEdit
-            market={market}
-            userId={myPresence.id}
-            onCancel={() => openSubSection('workspaceMain')}
-            acceptedStage={acceptedStage}
-            verifiedStage={inVerifiedStage}
-          />
+            <>
+              <div className={classes.titleContainer}>
+                {<SettingsIcon htmlColor="#333333"/>}
+                <Typography className={classes.title} variant="h6">
+                  {intl.formatMessage({ id: 'settings' })}
+                </Typography>
+              </div>
+              <PlanningDialogEdit
+                market={market}
+                userId={myPresence.id}
+                onCancel={() => openSubSection('workspaceMain')}
+                acceptedStage={acceptedStage}
+                verifiedStage={inVerifiedStage}
+              />
+            </>
         )}
       </Grid>
     </Screen>
@@ -695,6 +709,15 @@ export const useInvestiblesByPersonStyles = makeStyles(
         color: 'white',
         backgroundColor: '#2F80ED'
       },
+      titleContainer: {
+        width: 'auto',
+        display: 'flex',
+        alignItems: 'center',
+        marginBottom: '1rem'
+      },
+      title: {
+        marginLeft: '1rem'
+      }
     };
   },
   { name: "InvestiblesByPerson" }

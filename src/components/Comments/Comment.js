@@ -1044,6 +1044,9 @@ const unknownPresence = {
  */
 function Reply(props) {
   const { comment, messages, enableEditing } = props
+  const history = useHistory();
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const marketId = useMarketId()
   const presences = usePresences(marketId);
   const commenter = useCommenter(comment, presences) || unknownPresence;
@@ -1067,6 +1070,13 @@ function Reply(props) {
 
   function handleEditClick() {
     updateEditState({beingEdited: true});
+  }
+
+  function setBeingEdited(value, event) {
+    if (mobileLayout || invalidEditEvent(event, history)) {
+      return;
+    }
+    handleEditClick();
   }
 
   function setReplyOpen(isOpen) {
@@ -1102,6 +1112,8 @@ function Reply(props) {
           <ReadOnlyQuillEditor
             className={classes.editor}
             value={comment.body}
+            setBeingEdited={setBeingEdited}
+            isEditable={!mobileLayout && enableEditing && isEditable}
           />
         )}
       </CardContent>
@@ -1120,7 +1132,7 @@ function Reply(props) {
               {intl.formatMessage({ id: "issueReplyLabel" })}
             </Button>
           )}
-          {enableEditing && isEditable && (
+          {enableEditing && isEditable && mobileLayout && (
             <Button
               className={classes.action}
               onClick={handleEditClick}

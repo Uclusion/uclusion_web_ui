@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { FormattedDate, FormattedMessage, useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
 import {
@@ -62,7 +62,7 @@ import {
 } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 import { formMarketAddInvestibleLink, navigate } from '../../utils/marketIdPathFunctions'
-import { useHistory, useLocation } from 'react-router'
+import { useHistory } from 'react-router'
 import { createInitiative, updateMarket } from '../../api/markets'
 import ShareStoryButton from '../../pages/Investible/Planning/ShareStoryButton'
 import { onCommentOpen } from '../../utils/commentFunctions'
@@ -314,8 +314,6 @@ function useMarketId() {
 function Comment(props) {
   const { comment, marketId, comments, allowedTypes, noAuthor, onDone,  readOnly } = props;
   const history = useHistory();
-  const location = useLocation();
-  const { hash } = location;
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
@@ -372,15 +370,6 @@ function Comment(props) {
   // If I resolved a comment then I am done with it and so hide the thread
   const repliesExpanded = noAuthor ? true : (myRepliesExpanded === undefined ?
     (resolved ? myPresence !== updatedBy : true) : myRepliesExpanded);
-
-  useEffect(() => {
-    if (!repliesExpanded && hash && !_.isEmpty(replies)) {
-      if (replies.find((reply) => hash.includes(reply.id))) {
-        expandedCommentDispatch({ type: EXPANDED_CONTROL, commentId: id, expanded: true });
-      }
-    }
-    return () => {};
-  }, [expandedCommentDispatch, hash, replies, id, repliesExpanded]);
 
   function toggleInlineInvestibleAdd() {
     updateInvestibleAddState({investibleAddBeingEdited: !investibleAddBeingEdited});

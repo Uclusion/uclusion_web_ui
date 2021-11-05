@@ -590,7 +590,6 @@ function MarketTodos (props) {
                 onDone={() => setEditRedCard(undefined)}
                 comments={comments}
                 allowedTypes={[TODO_TYPE]}
-                editOpenDefault={!isInArchives}
                 noAuthor
               />
             </div>
@@ -646,7 +645,6 @@ function MarketTodos (props) {
                 onDone={() => setEditYellowCard(undefined)}
                 comments={comments}
                 allowedTypes={[TODO_TYPE]}
-                editOpenDefault={!isInArchives}
                 noAuthor
               />
             </div>
@@ -702,7 +700,6 @@ function MarketTodos (props) {
                 onDone={() => setEditCard(undefined)}
                 comments={comments}
                 allowedTypes={[TODO_TYPE]}
-                editOpenDefault={!isInArchives}
                 noAuthor
               />
             </div>

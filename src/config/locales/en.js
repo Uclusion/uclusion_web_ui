@@ -961,7 +961,7 @@ const messages = defineMessages({
   toggleTodosExplanation: 'Click to open or close TODO section',
   toggleFurtherExplanation: 'Click to open or close Further Work section',
   readyToStartCheckboxExplanation: 'Ready to Start',
-  editTodo: 'Edit / View Thread',
+  editTodo: 'View',
   markRead: 'Mark Comment Read',
   markDescriptionRead: 'Mark Description Read',
   markStoryRead: 'Mark Story Read',

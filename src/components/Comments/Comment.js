@@ -312,7 +312,7 @@ function useMarketId() {
  * @param {{comment: Comment, comments: Comment[]}} props
  */
 function Comment(props) {
-  const { comment, marketId, comments, allowedTypes, editOpenDefault, noAuthor, onDone,  readOnly } = props;
+  const { comment, marketId, comments, allowedTypes, noAuthor, onDone,  readOnly } = props;
   const history = useHistory();
   const location = useLocation();
   const { hash } = location;
@@ -367,12 +367,11 @@ function Comment(props) {
     beingEdited,
     showDiff
   } = editState;
-  const editOpen = beingEdited || editOpenDefault;
   const myExpandedState = expandedCommentState[id] || {};
   const { expanded: myRepliesExpanded } = myExpandedState;
   // If I resolved a comment then I am done with it and so hide the thread
-  const repliesExpanded = myRepliesExpanded === undefined ? (resolved ? myPresence !== updatedBy : true)
-    : myRepliesExpanded;
+  const repliesExpanded = noAuthor ? true : (myRepliesExpanded === undefined ?
+    (resolved ? myPresence !== updatedBy : true) : myRepliesExpanded);
 
   useEffect(() => {
     if (!repliesExpanded && hash && !_.isEmpty(replies)) {
@@ -431,10 +430,7 @@ function Comment(props) {
   }
 
   function toggleEdit() {
-    if (editOpen) {
-      onDone();
-    }
-    updateEditState({beingEdited: !editOpen});
+    updateEditState({beingEdited: !beingEdited});
   }
 
   function setBeingEdited(value, event) {
@@ -644,7 +640,7 @@ function Comment(props) {
     return classes.container;
   }
   const displayingDiff = myMessage && showDiff && diff;
-  const displayEditing = enableEditing && isEditable && !editOpenDefault;
+  const displayEditing = enableEditing && isEditable;
   return (
     <div className={getCommentHighlightStyle()}>
       <Card elevation={3} style={{overflow: 'unset'}}>
@@ -674,7 +670,7 @@ function Comment(props) {
                 `${intl.formatMessage({ id: 'lastUpdatedBy' })} ${updatedBy.name}.`}
               </Typography>
             )}
-            {displayEditing && mobileLayout && !editOpen && (
+            {displayEditing && mobileLayout && !beingEdited && (
               <SpinningIconLabelButton
                 onClick={() => {updateEditState({beingEdited: true, body})}}
                 doSpin={false}
@@ -711,19 +707,18 @@ function Comment(props) {
               />
             )}
             <Box marginTop={1}>
-              {!editOpen && !displayingDiff && (
+              {!beingEdited && !displayingDiff && (
                 <ReadOnlyQuillEditor value={comment.body} setBeingEdited={setBeingEdited}
                                      isEditable={!mobileLayout && displayEditing}/>
               )}
-              {!editOpen && displayingDiff && (
+              {!beingEdited && displayingDiff && (
                 <DiffDisplay id={id} />
               )}
-              {editOpen && (
+              {beingEdited && (
                 <CommentEdit
                   marketId={marketId}
                   comment={comment}
                   onSave={toggleEdit}
-                  onCancel={onDone}
                   allowedTypes={allowedTypes}
                   editState={editState}
                   updateEditState={updateEditState}
@@ -733,14 +728,9 @@ function Comment(props) {
                   messages={messages}
                 />
               )}
-              {noAuthor && !editOpen && (
-                <SpinningIconLabelButton onClick={onDone} doSpin={false} icon={Clear}>
-                  {intl.formatMessage({ id: 'cancel' })}
-                </SpinningIconLabelButton>
-              )}
             </Box>
           </CardContent>
-          {showActions && (!editOpen || (commentType === TODO_TYPE && !investibleId)) && (
+          {showActions && !beingEdited && (
             <CardActions>
               <div className={classes.actions}>
                 {investibleId && commentType === REPORT_TYPE && (
@@ -782,7 +772,7 @@ function Comment(props) {
                     </Typography>
                   </div>
                 )}
-                {!mobileLayout && (replies.length > 0 || inlineMarketId) && (
+                {!mobileLayout && !noAuthor && (replies.length > 0 || inlineMarketId) && (
                   <SpinningIconLabelButton
                     icon={repliesExpanded ? ExpandLess : ExpandMore}
                     doSpin={false}
@@ -797,6 +787,11 @@ function Comment(props) {
                           : "commentViewThreadLabel"
                       }
                     />
+                  </SpinningIconLabelButton>
+                )}
+                {noAuthor && (
+                  <SpinningIconLabelButton onClick={onDone} doSpin={false} icon={Clear}>
+                    {intl.formatMessage({ id: 'done' })}
                   </SpinningIconLabelButton>
                 )}
                 {!mobileLayout && !_.isEmpty(messages) && (
@@ -925,7 +920,6 @@ function Comment(props) {
 Comment.propTypes = {
   allowedTypes: PropTypes.arrayOf(PropTypes.string).isRequired,
   comment: PropTypes.object.isRequired,
-  editOpenDefault: PropTypes.bool,
   noAuthor: PropTypes.bool,
   readOnly: PropTypes.bool,
   onDone: PropTypes.func,
@@ -939,7 +933,6 @@ Comment.propTypes = {
 };
 
 Comment.defaultProps = {
-  editOpenDefault: false,
   noAuthor: false,
   readOnly: false,
   onDone: () => {}

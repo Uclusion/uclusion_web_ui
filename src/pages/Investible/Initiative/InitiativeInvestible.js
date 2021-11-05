@@ -45,7 +45,7 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { EMPTY_SPIN_RESULT } from '../../../constants/global'
 import { doSetEditWhenValid } from '../../../utils/windowUtils'
-import { Assessment, ExpandLess, QuestionAnswer, SettingsBackupRestore } from '@material-ui/icons'
+import { ExpandLess, QuestionAnswer, SettingsBackupRestore } from '@material-ui/icons'
 import EditIcon from '@material-ui/icons/Edit'
 import AddIcon from '@material-ui/icons/Add'
 import QuestionIcon from '@material-ui/icons/ContactSupport'
@@ -315,7 +315,6 @@ function InitiativeInvestible(props) {
   const suggestions = sortedRoots.filter((comment) => comment.comment_type === SUGGEST_CHANGE_TYPE);
   const { id: suggestId } = getFakeCommentsArray(suggestions)[0]
   const navigationMenu = {
-    navHeaderIcon: Assessment, navToolLink: 'https://documentation.uclusion.com/initiatives-and-dialogs/initiatives',
     navListItemTextArray: [createNavListItem(EditIcon, 'description_label', 'initiativeMain'),
       createNavListItem(ThumbUpIcon, 'for', 'for', _.size(positiveVoters), true),
       createNavListItem(ThumbDownIcon, 'against', 'against', _.size(negativeVoters), true),

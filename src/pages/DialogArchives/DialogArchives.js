@@ -40,7 +40,6 @@ import ChangeSuggstionIcon from '@material-ui/icons/ChangeHistory'
 import GavelIcon from '@material-ui/icons/Gavel'
 import { getFakeCommentsArray } from '../../utils/stringFunctions'
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
-import MenuBookIcon from '@material-ui/icons/MenuBook'
 
 function DialogArchives(props) {
   const { hidden } = props;
@@ -131,7 +130,6 @@ function DialogArchives(props) {
   const { id: reportId } = getFakeCommentsArray(reports)[0];
   const inactiveChildrenDialogs = marketInfoList || []
   const navigationMenu = {
-    navHeaderIcon: MenuBookIcon, navToolLink: 'https://documentation.uclusion.com/initiatives-and-dialogs/dialogs',
     navListItemTextArray: [
       createNavListItem(AgilePlanIcon, 'planningVerifiedStageLabel', 'verified',
         _.size(verifiedInvestibles)),

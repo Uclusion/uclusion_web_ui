@@ -16,7 +16,6 @@ import InitiativesAndDialogs from '../Home/InitiativesAndDialogs'
 import GavelIcon from '@material-ui/icons/Gavel'
 import PollIcon from '@material-ui/icons/Poll'
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
-import MenuBookIcon from '@material-ui/icons/MenuBook'
 import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
 
 const useStyles = makeStyles((theme) => ({
@@ -48,7 +47,6 @@ function Archives(props) {
   }
 
   const navigationMenu = {
-    navHeaderIcon: MenuBookIcon, navToolLink: 'https://documentation.uclusion.com/overview',
     navListItemTextArray: [createNavListItem(AgilePlanIcon, 'planningMarkets', 'planningMarkets',
       _.size(planningDetails)),
       createNavListItem(GavelIcon, 'dialogs', 'dia0', _.size(decisionDetails)),

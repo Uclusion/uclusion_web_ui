@@ -54,7 +54,6 @@ import ChangeSuggstionIcon from '@material-ui/icons/ChangeHistory'
 import { getVotesForInvestible } from '../../../utils/userFunctions'
 import { getFakeCommentsArray } from '../../../utils/stringFunctions'
 import { ExpandLess, QuestionAnswer, SettingsBackupRestore } from '@material-ui/icons'
-import StarRateIcon from '@material-ui/icons/StarRate'
 import InvestibleBodyEdit from '../InvestibleBodyEdit'
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
@@ -365,7 +364,6 @@ function DecisionInvestible(props) {
   const suggestions = sortedRoots.filter((comment) => comment.comment_type === SUGGEST_CHANGE_TYPE);
   const { id: suggestId } = getFakeCommentsArray(suggestions)[0]
   const navigationMenu = {
-    navHeaderIcon: StarRateIcon, navToolLink: 'https://documentation.uclusion.com/structured-comments/#questions',
     navListItemTextArray: [createNavListItem(EditIcon, 'description_label', 'optionMain'),
       createNavListItem(ThumbsUpDownIcon, 'approvals', 'approvals', _.size(invested), true),
       inArchives ? {} : createNavListItem(AddIcon, 'commentAddBox'),

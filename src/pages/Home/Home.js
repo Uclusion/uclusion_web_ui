@@ -30,7 +30,6 @@ import {
 import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
 import AddIcon from '@material-ui/icons/Add'
 import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
-import HomeIcon from '@material-ui/icons/Home'
 import GavelIcon from '@material-ui/icons/Gavel'
 import PollIcon from '@material-ui/icons/Poll'
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
@@ -184,7 +183,6 @@ function Home(props) {
   const archiveMarkets = getHiddenMarketDetailsForUser(marketsState, marketPresencesState, searchResults);
 
   const navigationMenu = {
-    navHeaderIcon: HomeIcon, navToolLink: 'https://documentation.uclusion.com/overview', showSearchResults: true,
     navListItemTextArray: [
       createNavListItem(AssignmentIcon, 'homeAssignments', 'storiesSection', assignedSize),
       createNavListItem(AgilePlanIcon, 'planningMarkets', 'planningMarkets', _.size(planningDetails)),

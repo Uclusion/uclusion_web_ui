@@ -102,7 +102,6 @@ import EditIcon from '@material-ui/icons/Edit'
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown'
 import { getFakeCommentsArray } from '../../../utils/stringFunctions'
 import { ExpandLess, QuestionAnswer, SettingsBackupRestore } from '@material-ui/icons'
-import AssignmentIcon from '@material-ui/icons/Assignment'
 import InvestibleBodyEdit from '../InvestibleBodyEdit';
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 import { pushMessage } from '../../../utils/MessageBusUtils'
@@ -742,7 +741,6 @@ function PlanningInvestible(props) {
   const todoSortedComments = sortedRoots.filter((comment) => comment.comment_type === TODO_TYPE);
   const { id: todoId } = getFakeCommentsArray(todoSortedComments)[0]
   const navigationMenu = {
-    navHeaderIcon: AssignmentIcon, navToolLink: 'https://documentation.uclusion.com/workspaces/stories',
     navListItemTextArray: [createNavListItem(EditIcon, 'description_label', 'storyMain',
       displayDescription ? undefined : 0),
       createNavListItem(ThumbsUpDownIcon, 'approvals', 'approvals',

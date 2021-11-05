@@ -67,7 +67,6 @@ import BlockIcon from '@material-ui/icons/Block'
 import QuestionIcon from '@material-ui/icons/ContactSupport'
 import UpdateIcon from '@material-ui/icons/Update'
 import ChangeSuggstionIcon from '@material-ui/icons/ChangeHistory'
-import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
 import MenuBookIcon from '@material-ui/icons/MenuBook'
 import PlayForWorkIcon from '@material-ui/icons/PlayForWork'
 import { getFakeCommentsArray } from '../../../utils/stringFunctions'
@@ -306,7 +305,6 @@ function PlanningDialog(props) {
   }
 
   const navigationMenu = {
-    navHeaderIcon: AgilePlanIcon, navToolLink: 'https://documentation.uclusion.com/workspaces/#workspace-navigation',
     navListItemTextArray: [
       createNavListItem(EditIcon, 'planningDialogNavDetailsLabel', 'workspaceMain',
       _.isEmpty(search) || results.find((result) => result.id === marketId) ? undefined : 0,

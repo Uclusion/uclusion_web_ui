@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import _ from 'lodash'
 import PropTypes from 'prop-types'
 import { Helmet } from 'react-helmet'
-import { Container, ListItem, ListItemText, Paper, Link, useMediaQuery, useTheme } from '@material-ui/core'
+import { Container, ListItem, ListItemText, Paper, useMediaQuery, useTheme } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import { useHistory } from 'react-router'
 import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
@@ -205,7 +205,7 @@ function Screen(props) {
   if (_.isEmpty(breadCrumbs) && !isHome) {
     usedBreadCrumbs = makeBreadCrumbs(history);
   }
-  const { navHeaderIcon: NavHeaderIcon, navToolLink, navListItemTextArray } = navigationOptions || {}
+  const { navListItemTextArray } = navigationOptions || {}
   const myContainerClass = navigationOptions && !mobileLayout ? classes.containerAllLeftPad : classes.containerAll
   const contentClass = mobileLayout ? classes.contentNoStyle :
     navigationOptions ? classes.content : classes.contentNoStyle;
@@ -230,12 +230,7 @@ function Screen(props) {
       {!_.isEmpty(navListItemTextArray) && !mobileLayout && (
         <div className={classes.listContainer}>
           <Paper className={classes.paper} elevation={3} id="navList">
-            <List subheader={<Link href={navToolLink} target='_blank'>
-              <div style={{ marginLeft: '5rem', marginTop: '1rem' }}>
-                <NavHeaderIcon style={{ height: 32, width: 32 }}/>
-              </div>
-            </Link>}
-            >
+            <List>
               {navListItemTextArray.map((navItem, topIndex) => {
                 const { text, target, num, icon: Icon, onClickFunc, subItems, isBold, newPage } = navItem
                 if (subItems) {

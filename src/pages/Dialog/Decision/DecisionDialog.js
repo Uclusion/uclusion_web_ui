@@ -48,7 +48,6 @@ import { doSetEditWhenValid } from '../../../utils/windowUtils'
 import DecisionInvestibleAdd from './DecisionInvestibleAdd'
 import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
-import GavelIcon from '@material-ui/icons/Gavel';
 import EditIcon from '@material-ui/icons/Edit'
 import BlockIcon from '@material-ui/icons/Block'
 import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
@@ -334,7 +333,6 @@ function DecisionDialog(props) {
       }));
   }
   const navigationMenu = {
-    navHeaderIcon: GavelIcon, navToolLink: 'https://documentation.uclusion.com/initiatives-and-dialogs/dialogs',
     navListItemTextArray
   }
   return (

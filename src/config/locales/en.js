@@ -232,7 +232,7 @@ const messages = defineMessages({
   daysEstimateLabel: 'effort estimate',
 
   // CurrentVoting
-  removeVoteNotifications: 'Mark All Read',
+  removeNotifications: 'Mark All Read',
   numVoting: '{x} approvals',
   certainty100: 'Very Certain',
   certainty75: 'Certain',

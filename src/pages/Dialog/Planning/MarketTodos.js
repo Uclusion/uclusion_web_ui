@@ -44,6 +44,7 @@ import { getPageReducerPage, usePageStateReducer } from '../../../components/Pag
 import { getThreadIds, notifyImmediate } from '../../../utils/commentFunctions'
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
 import DismissableText from '../../../components/Notifications/DismissableText'
+import { deleteOrDehilightMessages } from '../../../api/users'
 
 const myClasses = makeStyles(
   theme => {
@@ -532,6 +533,35 @@ function MarketTodos (props) {
                                      whiteBackground>
               <FormattedMessage id={todosButtonMsgId}/>
           </SpinningIconLabelButton>
+          )}
+        actionButton={mobileLayout ? undefined :
+          (
+            <SpinningIconLabelButton icon={ArrowUpwardIcon} onClick={() => {
+              const allMessages = [];
+              todoComments.forEach((comment) => {
+                const replies = comments.filter(comment => comment.root_comment_id === comment.id) || [];
+                const myMessage = findMessageForCommentId(comment.id, messagesState);
+                if (myMessage) {
+                  allMessages.push(myMessage);
+                }
+                replies.forEach((reply) => {
+                  const aMessage = findMessageForCommentId(reply.id, messagesState);
+                  if (aMessage) {
+                    allMessages.push(aMessage);
+                  }
+                })
+              })
+              if (_.isEmpty(allMessages)) {
+                setOperationRunning(false);
+                return;
+              }
+              return deleteOrDehilightMessages(allMessages, messagesDispatch).then(() => setOperationRunning(false))
+                .finally(() => {
+                  setOperationRunning(false);
+                });
+            }} whiteBackground id="removeTodosNotificationsButton">
+              <FormattedMessage id='removeNotifications'/>
+            </SpinningIconLabelButton>
           )}
       >
         <div style={{paddingTop: '1rem'}}>

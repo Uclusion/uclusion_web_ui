@@ -116,7 +116,7 @@ function Voting(props) {
                 setOperationRunning(false);
               });
           }} icon={SettingsBackupRestore} id="removeVoteNotificationsButton">
-            {intl.formatMessage({ id: 'removeVoteNotifications' })}
+            {intl.formatMessage({ id: 'removeNotifications' })}
           </SpinningIconLabelButton>
           <div style={{paddingBottom: '1rem'}} />
         </>

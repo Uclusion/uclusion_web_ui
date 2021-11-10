@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from 'react'
 import cx from "clsx";
 import styled from "styled-components";
 import { Box, IconButton } from "@material-ui/core";
@@ -8,6 +8,10 @@ import { useSizedIconButtonStyles } from "@mui-treasury/styles/iconButton/sized"
 import { useRowGutterStyles } from "@mui-treasury/styles/gutter/row";
 import PropTypes from 'prop-types'
 import { preventDefaultAndProp } from '../../../utils/marketIdPathFunctions'
+import { DeleteForever } from '@material-ui/icons'
+import { getMarketClient } from '../../../api/uclusionClient'
+import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 
 const Div = styled("div")`
   height: 40px;
@@ -51,7 +55,7 @@ const TextB = styled(Text)`
 `;
 
 const Title = styled(Text)`
-  flex-basis: 200px;
+  flex-basis: 215px;
   flex-shrink: 0;
   flex-grow: 0;
   & > *:not(:first-child) {
@@ -82,16 +86,29 @@ function WorkListItem(props) {
   const {
     read,
     priorityIcon = (<div />),
+    isDeletable,
     market = '',
     investible = '',
     comment = '',
     title = (<div />),
     description = "Please read",
+    message,
     date,
   } = props;
+  const [, messagesDispatch] = useContext(NotificationsContext);
   const actionStyles = useSizedIconButtonStyles({ childSize: 20, padding: 10 });
   const gutterStyles = useRowGutterStyles({ size: -10, before: -8 });
   const [checked, setChecked] = React.useState(false);
+  let fullText = market;
+  if (investible) {
+    fullText += ` / ${investible}`;
+  }
+  if (comment) {
+    fullText += ` / ${comment}`;
+  }
+  if (description) {
+    fullText += ` - ${description}`;
+  }
   return (
     <Div
       className={cx(read && 'MailListItem-read')}
@@ -112,10 +129,19 @@ function WorkListItem(props) {
         >
           { priorityIcon }
         </StyledIconButton>
+        <StyledIconButton
+          classes={actionStyles}
+        >
+          { isDeletable ? <DeleteForever onClick={(event) => {
+            preventDefaultAndProp(event);
+            const { market_id: marketId, type_object_id: typeObjectId } = message;
+            messagesDispatch(removeMessage(message));
+            return getMarketClient(marketId).then((client) => client.users.removeNotifications([typeObjectId]));
+          }} /> : <div /> }
+        </StyledIconButton>
       </Box>
-      {read ? (<Text>{market} / {investible} / {comment}</Text>) : (<TextB>{market} / {investible} / {comment}</TextB>)}
       {read ? (<Title>{title}</Title>) : (<TitleB>{title}</TitleB>)}
-      {read ? (<Text>{description}</Text>) : (<TextB>{description}</TextB>)}
+      {read ? (<Text>{fullText}</Text>) : (<TextB>{fullText}</TextB>)}
       {read ? (<DateLabel>{date}</DateLabel>) : (<DateLabelB>{date}</DateLabelB>)}
     </Div>
   );

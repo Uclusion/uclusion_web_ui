@@ -16,7 +16,9 @@ import { PLANNING_TYPE } from '../../../constants/markets'
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
-import _ from 'lodash'
+import { nameFromDescription } from '../../../utils/stringFunctions'
+import { getCommentRoot } from '../../../contexts/CommentsContext/commentsContextHelper'
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 
 const SectionTitle = styled("div")`
   width: auto;
@@ -78,6 +80,7 @@ function Inbox(props) {
   const [messagesState] = useContext(NotificationsContext);
   const [investibleState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
+  const [commentState] = useContext(CommentsContext);
   const { messages: messagesUnsafe } = messagesState;
   const messages = messagesUnsafe || [];
 
@@ -88,7 +91,6 @@ function Inbox(props) {
     const title = getTitle(marketType, linkType, name, marketId, investibleId, investibleState, marketStagesState,
       intl);
     const titleSize = mobileLayout ? 25 : (!investible && !commentId ? 100 : 50);
-    // TODO create commment name
     const item = {
       title,
       description: text,
@@ -99,6 +101,15 @@ function Inbox(props) {
       isDeletable: typeObjectId.startsWith('UNREAD'),
       date: intl.formatDate(updatedAt),
       message
+    }
+    if (commentId) {
+      const rootComment = getCommentRoot(commentState, marketId, commentId);
+      if (rootComment) {
+        const comment = nameFromDescription(rootComment.body);
+        if (comment) {
+          item.comment = comment;
+        }
+      }
     }
     return <Link href={link} style={{ width: '100%' }} onClick={
       (event) => {

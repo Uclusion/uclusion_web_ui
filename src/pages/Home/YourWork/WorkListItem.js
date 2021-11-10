@@ -7,6 +7,7 @@ import CheckBoxOutlineBlank from "@material-ui/icons/CheckBoxOutlineBlank";
 import { useSizedIconButtonStyles } from "@mui-treasury/styles/iconButton/sized";
 import { useRowGutterStyles } from "@mui-treasury/styles/gutter/row";
 import PropTypes from 'prop-types'
+import { preventDefaultAndProp } from '../../../utils/marketIdPathFunctions'
 
 const Div = styled("div")`
   height: 40px;
@@ -99,7 +100,10 @@ function WorkListItem(props) {
         <StyledIconButton
           className={cx(checked && "MailListItem-checked")}
           classes={actionStyles}
-          onClick={() => setChecked(!checked)}
+          onClick={(event) => {
+            preventDefaultAndProp(event);
+            setChecked(!checked);
+          }}
         >
           {checked ? <Checkbox /> : <CheckBoxOutlineBlank />}
         </StyledIconButton>

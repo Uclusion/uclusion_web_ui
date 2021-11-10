@@ -10,8 +10,6 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import HourglassFullIcon from '@material-ui/icons/HourglassFull'
 import NotesIcon from '@material-ui/icons/Notes'
 import { navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions'
-import { dehighlightMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
-import { getMarketClient } from '../../../api/uclusionClient'
 import { useHistory } from 'react-router'
 
 const SectionTitle = styled("div")`
@@ -38,13 +36,13 @@ function Inbox(props) {
   const { isSectionOpen } = props;
   const intl = useIntl();
   const history = useHistory();
-  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const [messagesState] = useContext(NotificationsContext);
   const { messages: messagesUnsafe } = messagesState;
   const messages = messagesUnsafe || [];
 
   const rows = messages.map((message, i) => {
     const { level, market_name: market, investible_name: investible, updated_at: updatedAt,
-      is_highlighted: isHighlighted, name, text, link, market_id: marketId, type_object_id: typeObjectId} = message;
+      is_highlighted: isHighlighted, name, text, link } = message;
     const item = {
       title: name,
       description: text,
@@ -56,15 +54,9 @@ function Inbox(props) {
     return <Link href={link} style={{ width: '100%' }} onClick={
       (event) => {
         preventDefaultAndProp(event);
-        if (isHighlighted && marketId) {
-          messagesDispatch(dehighlightMessage(message));
-          // TODO need API to just dehighlight
-          return getMarketClient(marketId).then((client) => client.users.removeNotifications([typeObjectId]))
-            .then(() => navigate(history, link));
-        }
         navigate(history, link);
       }
-    }><WorkListItem key={i} {...item} /></Link>
+    }><WorkListItem key={i} {...item} /></Link>;
   })
 
   return (

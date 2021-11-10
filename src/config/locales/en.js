@@ -259,6 +259,7 @@ const messages = defineMessages({
 
   // Navigation menu
   swimLanes: 'Swimlanes',
+  inbox: 'Inbox',
   commentAddBox: 'Add Comment',
   questions: 'Questions',
   suggestions: 'Suggestions',

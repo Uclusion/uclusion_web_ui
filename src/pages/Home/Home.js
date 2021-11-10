@@ -36,7 +36,6 @@ import { SearchResultsContext } from '../../contexts/SearchResultsContext/Search
 import { INVITED_USER_WORKSPACE } from '../../contexts/TourContext/tourContextHelper'
 import { TourContext } from '../../contexts/TourContext/TourContext'
 import { startTour } from '../../contexts/TourContext/tourContextReducer'
-import InvestiblesByWorkspace from '../Dialog/Planning/InvestiblesByWorkspace'
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { getInvestiblesInStage, getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import {
@@ -54,7 +53,8 @@ import StoryWorkspaceWizard from '../../components/AddNew/Workspace/StoryWorkspa
 import DialogWizard from '../../components/AddNew/Dialog/DialogWizard'
 import InitiativeWizard from '../../components/AddNew/Initiative/InitiativeWizard'
 import WizardSelector from '../../components/AddNew/WizardSelector'
-import AssignmentIcon from '@material-ui/icons/Assignment'
+import Inbox from './YourWork/Inbox'
+import { MoveToInbox } from '@material-ui/icons'
 
 function Home(props) {
   const { hidden } = props;
@@ -115,7 +115,7 @@ function Home(props) {
       const { market_sub_type: marketSubType } = initiative;
       return marketSubType !== 'REQUIREMENTS';
     }));
-  const defaultSection = noActiveNonSupportMarkets ? 'planningMarkets' : 'storiesSection';
+  const defaultSection = noActiveNonSupportMarkets ? 'planningMarkets' : 'inbox';
 
   function isSectionOpen(section) {
     return sectionOpen === section || !_.isEmpty(search) || midLayout || (!sectionOpen && section === defaultSection);
@@ -184,7 +184,7 @@ function Home(props) {
 
   const navigationMenu = {
     navListItemTextArray: [
-      createNavListItem(AssignmentIcon, 'homeAssignments', 'storiesSection', assignedSize),
+      createNavListItem(MoveToInbox, 'inbox', 'inbox', assignedSize),
       createNavListItem(AgilePlanIcon, 'planningMarkets', 'planningMarkets', _.size(planningDetails)),
       createNavListItem(GavelIcon, 'dialogs', 'dialogs', _.size(decisionDetails)),
       createNavListItem(PollIcon, 'initiatives', 'initiatives', _.size(initiativeDetails))
@@ -218,7 +218,7 @@ function Home(props) {
       {wizardActive && isSectionOpen('initiatives') && !midLayout && (
         <InitiativeWizard onStartOver={() => setWizardActive(false)} onFinish={onWizardFinish} isHome />
       )}
-      {(midLayout || !isSectionOpen('storiesSection')) && !wizardTrulyActive && (
+      {(midLayout || !isSectionOpen('inbox')) && !wizardTrulyActive && (
         <div style={{ display: 'flex', marginBottom: '2rem' }}>
           {createEnabled && (
             <SpinningIconLabelButton icon={AddIcon} onClick={() => setWizardActive(true)} doSpin={false}>
@@ -234,7 +234,7 @@ function Home(props) {
         </div>
       )}
       {!wizardActive && (
-        <InvestiblesByWorkspace workspaces={planningDetails} pageState={pageState} updatePageState={updatePageState}
+        <Inbox workspaces={planningDetails} pageState={pageState} updatePageState={updatePageState}
                                 workspacesData={workspacesData} assignedSize={assignedSize}
                                 pageStateReset={pageStateReset} isSectionOpen={isSectionOpen} />
       )}

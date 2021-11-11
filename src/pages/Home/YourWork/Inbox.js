@@ -1,10 +1,10 @@
 import WorkListItem from './WorkListItem'
-import { Fab, Menu, Typography, useMediaQuery, useTheme } from '@material-ui/core'
-import React, { useContext, useState } from 'react'
+import { Checkbox, Fab, Menu, Typography, useMediaQuery, useTheme } from '@material-ui/core'
+import React, { useContext, useEffect, useState } from 'react'
 import styled from "styled-components";
 import { useIntl } from 'react-intl'
 import { Link } from '@material-ui/core'
-import { MoveToInbox } from '@material-ui/icons'
+import { MoveToInbox, SettingsBackupRestore } from '@material-ui/icons'
 import WarningIcon from '@material-ui/icons/Warning'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import HourglassFullIcon from '@material-ui/icons/HourglassFull'
@@ -22,6 +22,12 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import _ from 'lodash'
 import Badge from '@material-ui/core/Badge'
 import { makeStyles } from '@material-ui/styles'
+import { deleteOrDehilightMessages } from '../../../api/users'
+import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
+import ArchiveIcon from '@material-ui/icons/Archive'
+import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
+import TooltipIconButton from '../../../components/Buttons/TooltipIconButton'
 
 const SectionTitle = styled("div")`
   width: auto;
@@ -112,11 +118,26 @@ function Inbox(props) {
   const intl = useIntl();
   const history = useHistory();
   const [anchorEl, setAnchorEl] = useState(null);
-  const [messagesState] = useContext(NotificationsContext);
+  const [checkAll, setCheckAll] = useState(false);
+  const [determinate, setDeterminate] = useState({});
+  const [indeterminate, setIndeterminate] = useState(false);
+  const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [investibleState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentState] = useContext(CommentsContext);
   const { messages: messagesUnsafe } = messagesState;
+
+  useEffect(() => {
+    let myIndeterminate = false;
+    Object.keys(determinate).forEach((key) => {
+      if (determinate[key] !== checkAll) {
+        myIndeterminate = true;
+      }
+    });
+    setIndeterminate(myIndeterminate);
+  }, [checkAll, determinate])
+
   let messages;
   let unreadCount = 0;
   if (isJarDisplay) {
@@ -143,7 +164,7 @@ function Inbox(props) {
     messagesOrdered =  _.orderBy(messages, ['updated_at'], ['desc']) || [];
   }
 
-  const rows = messagesOrdered.map((message, i) => {
+  const rows = messagesOrdered.map((message) => {
     const { level, market_name: market, investible_name: investible, updated_at: updatedAt, investible_id: investibleId,
       is_highlighted: isHighlighted, name, text, link, type_object_id: typeObjectId, market_id: marketId,
       comment_id: commentId, market_type: marketType, link_type: linkType } = message;
@@ -175,7 +196,8 @@ function Inbox(props) {
         preventDefaultAndProp(event);
         navigate(history, link);
       }
-    }><WorkListItem key={i} isJarDisplay={isJarDisplay} {...item} /></Link>;
+    }><WorkListItem key={typeObjectId} id={typeObjectId} isJarDisplay={isJarDisplay} checkedDefault={checkAll}
+                    setDeterminate={setDeterminate} determinate={determinate} {...item} /></Link>;
   })
 
   if (isJarDisplay) {
@@ -226,6 +248,41 @@ function Inbox(props) {
           {intl.formatMessage({ id: 'inbox' })}
         </Typography>
       </SectionTitle>
+      <div style={{display: 'flex'}}>
+        <Checkbox
+          checked={checkAll}
+          indeterminate={indeterminate}
+          onChange={() => {
+            setIndeterminate(false);
+            setDeterminate({});
+            setCheckAll(!checkAll);
+          }}
+        />
+        <TooltipIconButton disabled={operationRunning !== false || (!checkAll && _.isEmpty(determinate))}
+                           icon={<ArchiveIcon htmlColor={ACTION_BUTTON_COLOR} />}
+                           onClick={() => {
+                             let toProcess = messages.filter((message) => message.is_highlighted);
+                             if (checkAll) {
+                               if (!_.isEmpty(determinate)) {
+                                 const keys = Object.keys(determinate);
+                                 toProcess = messages.filter((message) => !keys.includes(message.type_object_id));
+                               }
+                             } else {
+                               const keys = Object.keys(determinate);
+                               toProcess = messages.filter((message) => keys.includes(message.type_object_id));
+                             }
+                             return deleteOrDehilightMessages(toProcess, messagesDispatch)
+                               .then(() => {
+                                 setIndeterminate(false);
+                                 setDeterminate({});
+                                 setCheckAll(false);
+                                 setOperationRunning(false);
+                               })
+                               .finally(() => {
+                                 setOperationRunning(false);
+                               });
+                           }} translationId="inboxArchive" />
+      </div>
       { rows }
     </div>
   );

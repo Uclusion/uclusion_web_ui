@@ -519,6 +519,7 @@ const messages = defineMessages({
   message: 'Message',
   // Archives
   archivesTitle: 'Archive',
+  inboxArchive: 'Mark read or delete selected',
   showOthers: 'Show other\'s stories',
 
   // Decision Dialogs

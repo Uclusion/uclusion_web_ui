@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useEffect } from 'react'
 import cx from "clsx";
 import styled from "styled-components";
 import { Box, IconButton } from "@material-ui/core";
@@ -95,12 +95,21 @@ function WorkListItem(props) {
     description = "Please read",
     message,
     date,
-    isJarDisplay
+    isJarDisplay,
+    checkedDefault = false,
+    setDeterminate,
+    determinate,
+    id
   } = props;
   const [, messagesDispatch] = useContext(NotificationsContext);
   const actionStyles = useSizedIconButtonStyles({ childSize: 20, padding: 10 });
   const gutterStyles = useRowGutterStyles({ size: -10, before: -8 });
-  const [checked, setChecked] = React.useState(false);
+  const [checked, setChecked] = React.useState(checkedDefault);
+
+  useEffect(() => {
+    setChecked(checkedDefault);
+  }, [checkedDefault])
+
   let fullText = market;
   if (investible) {
     fullText += ` / ${investible}`;
@@ -122,10 +131,11 @@ function WorkListItem(props) {
             classes={actionStyles}
             onClick={(event) => {
               preventDefaultAndProp(event);
+              setDeterminate({...determinate, [id]: !checked});
               setChecked(!checked);
             }}
           >
-            {read ? <div /> : (checked ? <Checkbox /> : <CheckBoxOutlineBlank />)}
+            {read ? <div /> : (checked ? <Checkbox color="secondary" /> : <CheckBoxOutlineBlank />)}
           </StyledIconButton>
         )}
         <StyledIconButton

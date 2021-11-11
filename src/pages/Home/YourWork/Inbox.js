@@ -19,6 +19,7 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 import { nameFromDescription } from '../../../utils/stringFunctions'
 import { getCommentRoot } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
+import _ from 'lodash'
 
 const SectionTitle = styled("div")`
   width: auto;
@@ -82,9 +83,10 @@ function Inbox(props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentState] = useContext(CommentsContext);
   const { messages: messagesUnsafe } = messagesState;
-  const messages = messagesUnsafe || [];
+  const messages = (messagesUnsafe || []).filter((message) => message.type !== 'UNREAD_REPORT');
+  const messagesOrderd = _.orderBy(messages, ['updated_at'], ['desc']) || [];
 
-  const rows = messages.map((message, i) => {
+  const rows = messagesOrderd.map((message, i) => {
     const { level, market_name: market, investible_name: investible, updated_at: updatedAt, investible_id: investibleId,
       is_highlighted: isHighlighted, name, text, link, type_object_id: typeObjectId, market_id: marketId,
       comment_id: commentId, market_type: marketType, link_type: linkType } = message;
@@ -97,7 +99,7 @@ function Inbox(props) {
       priorityIcon: getPriorityIcon(level),
       market: createTitle(market, titleSize),
       investible: createTitle(investible, titleSize),
-      read: isHighlighted,
+      read: !isHighlighted,
       isDeletable: typeObjectId.startsWith('UNREAD'),
       date: intl.formatDate(updatedAt),
       message

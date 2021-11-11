@@ -10,8 +10,9 @@ import PropTypes from 'prop-types'
 import { preventDefaultAndProp } from '../../../utils/marketIdPathFunctions'
 import { DeleteForever } from '@material-ui/icons'
 import { getMarketClient } from '../../../api/uclusionClient'
-import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
+import { dehighlightMessage, removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
+import ArchiveIcon from '@material-ui/icons/Archive'
 
 const Div = styled("div")`
   height: 40px;
@@ -94,6 +95,7 @@ function WorkListItem(props) {
     description = "Please read",
     message,
     date,
+    isJarDisplay
   } = props;
   const [, messagesDispatch] = useContext(NotificationsContext);
   const actionStyles = useSizedIconButtonStyles({ childSize: 20, padding: 10 });
@@ -114,18 +116,21 @@ function WorkListItem(props) {
       className={cx(read && 'MailListItem-read')}
     >
       <Box flexShrink={0} className={gutterStyles.parent}>
+        {!isJarDisplay && (
+          <StyledIconButton
+            className={cx(checked && "MailListItem-checked")}
+            classes={actionStyles}
+            onClick={(event) => {
+              preventDefaultAndProp(event);
+              setChecked(!checked);
+            }}
+          >
+            {checked ? <Checkbox /> : <CheckBoxOutlineBlank />}
+          </StyledIconButton>
+        )}
         <StyledIconButton
-          className={cx(checked && "MailListItem-checked")}
           classes={actionStyles}
-          onClick={(event) => {
-            preventDefaultAndProp(event);
-            setChecked(!checked);
-          }}
-        >
-          {checked ? <Checkbox /> : <CheckBoxOutlineBlank />}
-        </StyledIconButton>
-        <StyledIconButton
-          classes={actionStyles}
+          style={{marginLeft: isJarDisplay ? '0.25rem' : undefined}}
         >
           { priorityIcon }
         </StyledIconButton>
@@ -137,12 +142,17 @@ function WorkListItem(props) {
             const { market_id: marketId, type_object_id: typeObjectId } = message;
             messagesDispatch(removeMessage(message));
             return getMarketClient(marketId).then((client) => client.users.removeNotifications([typeObjectId]));
-          }} /> : <div /> }
+          }} /> : (read ? <div /> : <ArchiveIcon onClick={(event) => {
+            preventDefaultAndProp(event);
+            const { market_id: marketId, type_object_id: typeObjectId } = message;
+            messagesDispatch(dehighlightMessage(message));
+            return getMarketClient(marketId).then((client) => client.users.removeNotifications([typeObjectId]));
+          }} />) }
         </StyledIconButton>
       </Box>
       {read ? (<Title>{title}</Title>) : (<TitleB>{title}</TitleB>)}
       {read ? (<Text>{fullText}</Text>) : (<TextB>{fullText}</TextB>)}
-      {read ? (<DateLabel>{date}</DateLabel>) : (<DateLabelB>{date}</DateLabelB>)}
+      {isJarDisplay ? React.Fragment : (read ? (<DateLabel>{date}</DateLabel>) : (<DateLabelB>{date}</DateLabelB>))}
     </Div>
   );
 }

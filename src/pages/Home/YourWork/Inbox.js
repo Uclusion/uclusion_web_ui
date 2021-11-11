@@ -1,6 +1,6 @@
 import WorkListItem from './WorkListItem'
-import { Typography, useMediaQuery, useTheme } from '@material-ui/core'
-import React, { useContext } from 'react'
+import { Fab, Menu, Typography, useMediaQuery, useTheme } from '@material-ui/core'
+import React, { useContext, useState } from 'react'
 import styled from "styled-components";
 import { useIntl } from 'react-intl'
 import { Link } from '@material-ui/core'
@@ -20,6 +20,8 @@ import { nameFromDescription } from '../../../utils/stringFunctions'
 import { getCommentRoot } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import _ from 'lodash'
+import Badge from '@material-ui/core/Badge'
+import { makeStyles } from '@material-ui/styles'
 
 const SectionTitle = styled("div")`
   width: auto;
@@ -72,19 +74,74 @@ function getTitle(marketType, linkType, name, marketId, investibleId, investible
   return name;
 }
 
+const useStyles = makeStyles(
+  theme => {
+    return {
+      chip: {
+        color: 'black',
+        '& .MuiBadge-badge': {
+          border: '0.5px solid grey',
+          backgroundColor: '#fff',
+        },
+      },
+      fab: {
+        backgroundColor: '#fff',
+        borderRadius: '50%',
+        width: '48px',
+        height: '48px',
+        minHeight: '48px',
+        [theme.breakpoints.down('sm')]: {
+          width: '36px',
+          height: '36px',
+          minHeight: '36px'
+        },
+      },
+      bellButton: {
+        marginLeft: '0.5em',
+        marginRight: '0.5em',
+        marginTop: '0.5rem'
+      }
+    };
+});
+
 function Inbox(props) {
-  const { isSectionOpen } = props;
+  const { isSectionOpen, isJarDisplay = false } = props;
+  const classes = useStyles();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const intl = useIntl();
   const history = useHistory();
+  const [anchorEl, setAnchorEl] = useState(null);
   const [messagesState] = useContext(NotificationsContext);
   const [investibleState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentState] = useContext(CommentsContext);
   const { messages: messagesUnsafe } = messagesState;
-  const messages = (messagesUnsafe || []).filter((message) => message.type !== 'UNREAD_REPORT');
-  const messagesOrdered = _.orderBy(messages, ['updated_at'], ['desc']) || [];
+  let messages;
+  let unreadCount = 0;
+  if (isJarDisplay) {
+    messages = (messagesUnsafe || []).filter((message) => message.type !== 'UNREAD_REPORT' && message.is_highlighted);
+    unreadCount = messages.length;
+  }
+  if (_.isEmpty(messages)) {
+    messages = (messagesUnsafe || []).filter((message) => message.type !== 'UNREAD_REPORT');
+  }
+
+  let messagesOrdered;
+  if (isJarDisplay) {
+    messagesOrdered = _.orderBy(messages, [(message) => {
+      const { level } = message;
+      switch (level) {
+        case 'RED':
+          return 2;
+        case 'YELLOW':
+          return 1;
+        default:
+          return 0;
+      }}, (message) => message.updated_at], ['desc', 'desc'] ) || [];
+  } else {
+    messagesOrdered =  _.orderBy(messages, ['updated_at'], ['desc']) || [];
+  }
 
   const rows = messagesOrdered.map((message, i) => {
     const { level, market_name: market, investible_name: investible, updated_at: updatedAt, investible_id: investibleId,
@@ -118,11 +175,49 @@ function Inbox(props) {
         preventDefaultAndProp(event);
         navigate(history, link);
       }
-    }><WorkListItem key={i} {...item} /></Link>;
+    }><WorkListItem key={i} isJarDisplay={isJarDisplay} {...item} /></Link>;
   })
 
+  if (isJarDisplay) {
+    if (_.isEmpty(messages)) {
+      return React.Fragment;
+    }
+    return (
+      <>
+        <div id='inboxNotification' key='inbox'
+             onClick={(event) => setAnchorEl(event.currentTarget)}
+             className={classes.bellButton}>
+          <Badge badgeContent={unreadCount} className={classes.chip} overlap="circle">
+            <Fab id='notifications-fabInbox' className={classes.fab}>
+              <MoveToInbox htmlColor="#333333" />
+            </Fab>
+          </Badge>
+        </div>
+        <Menu
+          id="profile-menu"
+          open={anchorEl !== null}
+          onClose={() => setAnchorEl(null)}
+          getContentAnchorEl={null}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'left',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'center',
+          }}
+          anchorEl={anchorEl}
+          disableRestoreFocus
+        >
+          { rows }
+        </Menu>
+      </>
+    );
+  }
+
   return (
-    <div id="inbox" style={{ display: isSectionOpen('inbox') ? 'block' : 'none', paddingBottom: '3rem' }}>
+    <div id="inbox" style={{ display: isSectionOpen('inbox') ? 'block' : 'none',
+      paddingBottom: '3rem' }}>
       <SectionTitle>
         {<MoveToInbox htmlColor="#333333"/>}
         <Typography style={{marginLeft: '1rem'}} variant="h6">

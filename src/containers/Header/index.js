@@ -21,7 +21,7 @@ import { useHistory } from 'react-router';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import config from '../../config';
-import NotificationsContainer from '../../components/Notifications/NotificationsContainer';
+import Inbox from '../../pages/Home/YourWork/Inbox'
 
 export const headerStyles = makeStyles((theme) => {
   return {
@@ -285,7 +285,7 @@ function Header (props) {
             <React.Fragment>
               <div className={classes.grow}/>
               <div className={classes.notification} id="notifications">
-                <NotificationsContainer/>
+                <Inbox isJarDisplay />
               </div>
               <div className={classes.padLeft} />
               {!mobileLayout && (

@@ -84,9 +84,9 @@ function Inbox(props) {
   const [commentState] = useContext(CommentsContext);
   const { messages: messagesUnsafe } = messagesState;
   const messages = (messagesUnsafe || []).filter((message) => message.type !== 'UNREAD_REPORT');
-  const messagesOrderd = _.orderBy(messages, ['updated_at'], ['desc']) || [];
+  const messagesOrdered = _.orderBy(messages, ['updated_at'], ['desc']) || [];
 
-  const rows = messagesOrderd.map((message, i) => {
+  const rows = messagesOrdered.map((message, i) => {
     const { level, market_name: market, investible_name: investible, updated_at: updatedAt, investible_id: investibleId,
       is_highlighted: isHighlighted, name, text, link, type_object_id: typeObjectId, market_id: marketId,
       comment_id: commentId, market_type: marketType, link_type: linkType } = message;

@@ -182,6 +182,7 @@ function Inbox(props) {
     if (_.isEmpty(messages)) {
       return React.Fragment;
     }
+    const first = messagesOrdered[0];
     return (
       <>
         <div id='inboxNotification' key='inbox'
@@ -189,7 +190,8 @@ function Inbox(props) {
              className={classes.bellButton}>
           <Badge badgeContent={unreadCount} className={classes.chip} overlap="circle">
             <Fab id='notifications-fabInbox' className={classes.fab}>
-              <MoveToInbox htmlColor="#333333" />
+              <MoveToInbox
+                htmlColor={ first.level === 'RED' ? '#E85757' : (first.level === 'YELLOW' ? '#e6e969' : '#2D9CDB')} />
             </Fab>
           </Badge>
         </div>

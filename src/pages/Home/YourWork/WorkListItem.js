@@ -13,6 +13,7 @@ import { getMarketClient } from '../../../api/uclusionClient'
 import { dehighlightMessage, removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import ArchiveIcon from '@material-ui/icons/Archive'
+import _ from 'lodash'
 
 const Div = styled("div")`
   height: 40px;
@@ -131,7 +132,12 @@ function WorkListItem(props) {
             classes={actionStyles}
             onClick={(event) => {
               preventDefaultAndProp(event);
-              setDeterminate({...determinate, [id]: !checked});
+              // We need to record when you unset when check all is on or set when check all is off
+              if (checked === checkedDefault) {
+                setDeterminate({...determinate, [id]: true});
+              } else {
+                setDeterminate(_.omit(determinate, id));
+              }
               setChecked(!checked);
             }}
           >

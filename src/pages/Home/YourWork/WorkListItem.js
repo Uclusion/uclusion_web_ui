@@ -125,17 +125,12 @@ function WorkListItem(props) {
               setChecked(!checked);
             }}
           >
-            {checked ? <Checkbox /> : <CheckBoxOutlineBlank />}
+            {read ? <div /> : (checked ? <Checkbox /> : <CheckBoxOutlineBlank />)}
           </StyledIconButton>
         )}
         <StyledIconButton
           classes={actionStyles}
           style={{marginLeft: isJarDisplay ? '0.25rem' : undefined}}
-        >
-          { priorityIcon }
-        </StyledIconButton>
-        <StyledIconButton
-          classes={actionStyles}
         >
           { isDeletable ? <DeleteForever onClick={(event) => {
             preventDefaultAndProp(event);
@@ -148,6 +143,11 @@ function WorkListItem(props) {
             messagesDispatch(dehighlightMessage(message));
             return getMarketClient(marketId).then((client) => client.users.removeNotifications([typeObjectId]));
           }} />) }
+        </StyledIconButton>
+        <StyledIconButton
+          classes={actionStyles}
+        >
+          { priorityIcon }
         </StyledIconButton>
       </Box>
       {read ? (<Title>{title}</Title>) : (<TitleB>{title}</TitleB>)}

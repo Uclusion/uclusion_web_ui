@@ -462,8 +462,6 @@ const messages = defineMessages({
   noticeNewApplicationVersion: 'A new version of the application is available! It will load when you close this message.',
   noticeVersionForceLogout: 'This version of the application requires signout which will happen when you close this message.',
   notificationsHelp: 'Click goes to - {x}',
-  recentNotificationsHelp: 'Recently Visited',
-  notificationsRecent: 'Recently Visited',
   notifications: 'Notifications',
 
   criticalTasks: 'Critical Tasks',

@@ -50,47 +50,22 @@ export function initializeState (newState) {
 }
 
 /**
- * Data structure for storing messages is
- * state : {
- *   messages: [] // array containing all messages
- * }
- */
-
-function refreshRecentMessages(state) {
-  const { recent } = state;
-  const date = new Date();
-  const threeDaysAgo = date.setDate(date.getDate() - 3);
-  const recentFiltered = (recent || []).filter((item) => item.removedAt > threeDaysAgo);
-  return {
-    ...state,
-    recent: recentFiltered,
-  };
-}
-
-/**
  * Stores messages in the state.
  * @param state
  * @param messagesToStore
  * @returns {*}
  */
 function storeMessagesInState(state, messagesToStore) {
-  const { initializing, recent } = state;
+  const { initializing } = state;
   if (initializing) {
     return {
       messages: messagesToStore,
-      recent
     };
   }
-  const { messages: previousMessages } = state;
-  const removed = _.differenceBy(previousMessages || [], messagesToStore || [], 'link');
-  (removed || []).forEach((item) => item.removedAt = new Date());
-  const newState = {
+  return {
     ...state,
-    messages: messagesToStore,
-    recent: _.unionBy(removed || [], recent || [], 'link')
+    messages: messagesToStore
   };
-  // Take this opportunity to clear old messages from the recent list
-  return refreshRecentMessages(newState);
 }
 
 /**

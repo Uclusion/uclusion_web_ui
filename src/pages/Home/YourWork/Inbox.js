@@ -169,7 +169,7 @@ function Inbox(props) {
       comment_id: commentId, market_type: marketType, link_type: linkType } = message;
     const title = getTitle(marketType, linkType, name, marketId, investibleId, investibleState, marketStagesState,
       intl);
-    const titleSize = mobileLayout ? 25 : (!investible && !commentId ? 50 : 30);
+    const titleSize = mobileLayout ? 10 : (!investible && !commentId ? 50 : 30);
     const item = {
       title,
       description: text,
@@ -231,7 +231,7 @@ function Inbox(props) {
           }}
           anchorEl={anchorEl}
           disableRestoreFocus
-          style={{maxWidth: '50%'}}
+          style={{maxWidth: mobileLayout ? undefined : '50%'}}
         >
           <div style={{minWidth: '50%'}}>
             { rows }

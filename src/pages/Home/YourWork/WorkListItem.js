@@ -1,7 +1,7 @@
 import React, { useContext, useEffect } from 'react'
 import cx from "clsx";
 import styled from "styled-components";
-import { Box, IconButton } from "@material-ui/core";
+import { Box, IconButton, useMediaQuery, useTheme } from '@material-ui/core'
 import Checkbox from "@material-ui/icons/CheckBox";
 import CheckBoxOutlineBlank from "@material-ui/icons/CheckBoxOutlineBlank";
 import { useSizedIconButtonStyles } from "@mui-treasury/styles/iconButton/sized";
@@ -102,6 +102,8 @@ function WorkListItem(props) {
     determinate,
     id
   } = props;
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const [, messagesDispatch] = useContext(NotificationsContext);
   const actionStyles = useSizedIconButtonStyles({ childSize: 20, padding: 10 });
   const gutterStyles = useRowGutterStyles({ size: -10, before: -8 });
@@ -118,7 +120,7 @@ function WorkListItem(props) {
   if (comment) {
     fullText += ` / ${comment}`;
   }
-  if (description && title !== description) {
+  if (description && (mobileLayout || title !== description)) {
     fullText += ` - ${description}`;
   }
   return (
@@ -144,31 +146,35 @@ function WorkListItem(props) {
             {read ? <div /> : (checked ? <Checkbox color="secondary" /> : <CheckBoxOutlineBlank />)}
           </StyledIconButton>
         )}
-        <StyledIconButton
-          classes={actionStyles}
-          style={{marginLeft: isJarDisplay ? '0.25rem' : undefined}}
-        >
-          { isDeletable ? <DeleteForever onClick={(event) => {
-            preventDefaultAndProp(event);
-            const { market_id: marketId, type_object_id: typeObjectId } = message;
-            messagesDispatch(removeMessage(message));
-            return getMarketClient(marketId).then((client) => client.users.removeNotifications([typeObjectId]));
-          }} /> : (read ? <div /> : <ArchiveIcon onClick={(event) => {
-            preventDefaultAndProp(event);
-            const { market_id: marketId, type_object_id: typeObjectId } = message;
-            messagesDispatch(dehighlightMessage(message));
-            return getMarketClient(marketId).then((client) => client.users.removeNotifications([typeObjectId]));
-          }} />) }
-        </StyledIconButton>
-        <StyledIconButton
-          classes={actionStyles}
-        >
-          { priorityIcon }
-        </StyledIconButton>
+        {!mobileLayout && (
+          <StyledIconButton
+            classes={actionStyles}
+            style={{marginLeft: isJarDisplay ? '0.25rem' : undefined}}
+          >
+            { isDeletable ? <DeleteForever onClick={(event) => {
+              preventDefaultAndProp(event);
+              const { market_id: marketId, type_object_id: typeObjectId } = message;
+              messagesDispatch(removeMessage(message));
+              return getMarketClient(marketId).then((client) => client.users.removeNotifications([typeObjectId]));
+            }} /> : (read ? <div /> : <ArchiveIcon onClick={(event) => {
+              preventDefaultAndProp(event);
+              const { market_id: marketId, type_object_id: typeObjectId } = message;
+              messagesDispatch(dehighlightMessage(message));
+              return getMarketClient(marketId).then((client) => client.users.removeNotifications([typeObjectId]));
+            }} />) }
+          </StyledIconButton>
+        )}
+        {!mobileLayout && (
+          <StyledIconButton
+            classes={actionStyles}
+          >
+            { priorityIcon }
+          </StyledIconButton>
+        )}
       </Box>
-      {read ? (<Title>{title}</Title>) : (<TitleB>{title}</TitleB>)}
+      {mobileLayout ? React.Fragment : (read ? (<Title>{title}</Title>) : (<TitleB>{title}</TitleB>))}
       {read ? (<Text>{fullText}</Text>) : (<TextB>{fullText}</TextB>)}
-      {isJarDisplay ? React.Fragment : (read ? (<DateLabel>{date}</DateLabel>) : (<DateLabelB>{date}</DateLabelB>))}
+      {isJarDisplay || mobileLayout ? React.Fragment : (read ? (<DateLabel>{date}</DateLabel>) : (<DateLabelB>{date}</DateLabelB>))}
     </Div>
   );
 }

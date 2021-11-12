@@ -1,6 +1,7 @@
 import { getAccountClient, getMarketClient } from './uclusionClient'
 import { toastErrorAndThrow } from '../utils/userMessage'
 import { dehighlightMessage, removeMessage } from '../contexts/NotificationsContext/notificationsContextReducer'
+import _ from 'lodash'
 
 export function unbanUser(marketId, userId) {
   return getMarketClient(marketId)
@@ -35,11 +36,16 @@ export function deleteSingleMessage(message) {
 }
 
 export function deleteOrDehilightMessages(messages, messagesDispatch, doRemove=true) {
-  const typeObjectIds = [];
-  let useMarketId;
+  const useMarketIds = {};
   messages.forEach((message) => {
     const { market_id: marketId, type_object_id: typeObjectId } = message;
-    useMarketId = marketId;
+    let typeObjectIds;
+    if (useMarketIds[marketId]){
+      typeObjectIds = useMarketIds[marketId];
+    } else {
+      typeObjectIds = [];
+      useMarketIds[marketId] = typeObjectIds;
+    }
     typeObjectIds.push(typeObjectId);
     if (typeObjectId.startsWith('UNREAD')) {
       messagesDispatch(removeMessage(message));
@@ -47,10 +53,14 @@ export function deleteOrDehilightMessages(messages, messagesDispatch, doRemove=t
       messagesDispatch(dehighlightMessage(message));
     }
   });
-  if (useMarketId && doRemove) {
-    return getMarketClient(useMarketId).then((client) => client.users.removeNotifications(typeObjectIds));
+  let promiseChain = Promise.resolve(true);
+  if (!_.isEmpty(useMarketIds) && doRemove) {
+    Object.keys(useMarketIds).forEach((key) => {
+      promiseChain = promiseChain.then(() => getMarketClient(key)
+        .then((client) => client.users.removeNotifications(useMarketIds[key])));
+    });
   }
-  return Promise.resolve(true);
+  return promiseChain;
 }
 
 export function applyPromoCode(promoCode) {

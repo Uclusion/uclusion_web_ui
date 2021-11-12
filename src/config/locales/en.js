@@ -259,6 +259,7 @@ const messages = defineMessages({
 
   // Navigation menu
   swimLanes: 'Swimlanes',
+  inbox: 'Inbox',
   commentAddBox: 'Add Comment',
   questions: 'Questions',
   suggestions: 'Suggestions',
@@ -518,6 +519,7 @@ const messages = defineMessages({
   message: 'Message',
   // Archives
   archivesTitle: 'Archive',
+  inboxArchive: 'Mark read or delete selected',
   showOthers: 'Show other\'s stories',
 
   // Decision Dialogs

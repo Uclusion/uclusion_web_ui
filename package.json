@@ -11,6 +11,8 @@
     "@material-ui/icons": "^4.9.1",
     "@material-ui/lab": "^4.0.0-alpha.57",
     "@material-ui/styles": "^4.9.14",
+    "@mui-treasury/styles": "^1.13.1",
+    "styled-components": "^5.3.3",
     "@stripe/react-stripe-js": "^1.6.0",
     "@stripe/stripe-js": "^1.19.1",
     "a2hs": "^1.1.3",

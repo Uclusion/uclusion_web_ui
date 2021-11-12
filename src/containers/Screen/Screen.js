@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import _ from 'lodash'
 import PropTypes from 'prop-types'
 import { Helmet } from 'react-helmet'
@@ -157,6 +157,7 @@ function Screen(props) {
   const [messagesState] = useContext(NotificationsContext);
   const [searchResults] = useContext(SearchResultsContext);
   const { search } = searchResults;
+  const [prePendWarning, setPrePendWarning] = useState('');
 
   const {
     breadCrumbs,
@@ -173,30 +174,37 @@ function Screen(props) {
     banner,
     navigationOptions
   } = props;
-  let prePendWarning = '';
-  if (!_.isEmpty(messagesState)) {
-    const { messages } = messagesState;
-    let hasYellow = false;
-    const dupeHash = {};
-    if (!_.isEmpty(messages)) {
-      messages.forEach((message) => {
-        const { level, link_multiple: linkMultiple } = message;
-        if (level === 'RED') {
-          if (!linkMultiple) {
-            prePendWarning += '!';
-          } else if (!(linkMultiple in dupeHash)) {
-            dupeHash[linkMultiple] = message;
-            prePendWarning += '!';
+
+  useEffect(() => {
+    if (!_.isEmpty(messagesState)) {
+      let calcPrePend = '';
+      const { messages } = messagesState;
+      let hasYellow = false;
+      const dupeHash = {};
+      if (!_.isEmpty(messages)) {
+        messages.forEach((message) => {
+          const { level, link_multiple: linkMultiple, is_highlighted: isHighlighted } = message;
+          if (isHighlighted) {
+            if (level === 'RED') {
+              if (!linkMultiple) {
+                calcPrePend += '!';
+              } else if (!(linkMultiple in dupeHash)) {
+                dupeHash[linkMultiple] = message;
+                calcPrePend += '!';
+              }
+            } else if (level === 'YELLOW') {
+              hasYellow = true;
+            }
           }
-        } else if (level === 'YELLOW') {
-          hasYellow = true;
-        }
-      });
+        });
+      }
+      if (calcPrePend.length === 0 && hasYellow) {
+        calcPrePend = '*';
+      }
+      setPrePendWarning(calcPrePend);
     }
-    if (prePendWarning.length === 0 && hasYellow) {
-      prePendWarning = '*';
-    }
-  }
+  }, [messagesState]);
+
   const reallyAmLoading = !hidden && appEnabled && (loading || _.isEmpty(user));
 
   if (hidden) {

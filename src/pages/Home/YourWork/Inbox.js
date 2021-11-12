@@ -76,6 +76,12 @@ function getTitle(marketType, linkType, name, marketId, investibleId, investible
     const stage = getFullStage(marketStagesState, marketId, currentStageId) || {};
     return convertStageName(stage.name, intl);
   }
+  if (marketType === 'slack') {
+    return 'Preferences';
+  }
+  if (marketType === 'upgrade') {
+    return 'Billing';
+  }
   return name;
 }
 
@@ -166,7 +172,7 @@ function Inbox(props) {
   const rows = messagesOrdered.map((message) => {
     const { level, market_name: market, investible_name: investible, updated_at: updatedAt, investible_id: investibleId,
       is_highlighted: isHighlighted, name, text, link, type_object_id: typeObjectId, market_id: marketId,
-      comment_id: commentId, market_type: marketType, link_type: linkType } = message;
+      comment_id: commentId, market_type: marketType, link_type: linkType, type: messageType } = message;
     const title = getTitle(marketType, linkType, name, marketId, investibleId, investibleState, marketStagesState,
       intl);
     const titleSize = mobileLayout ? 10 : (!investible && !commentId ? 50 : 30);
@@ -174,7 +180,7 @@ function Inbox(props) {
       title,
       description: text,
       priorityIcon: getPriorityIcon(level),
-      market: createTitle(market, titleSize),
+      market: messageType === 'USER_POKED' ? undefined : createTitle(market, titleSize),
       investible: createTitle(investible, titleSize),
       read: !isHighlighted,
       isDeletable: typeObjectId.startsWith('UNREAD'),
@@ -231,7 +237,7 @@ function Inbox(props) {
           }}
           anchorEl={anchorEl}
           disableRestoreFocus
-          style={{maxWidth: mobileLayout ? undefined : '50%', minWidth: '70%'}}
+          style={{maxWidth: mobileLayout ? undefined : '50%'}}
         >
           { rows }
         </Menu>

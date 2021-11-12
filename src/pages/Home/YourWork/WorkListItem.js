@@ -121,7 +121,11 @@ function WorkListItem(props) {
     fullText += ` / ${comment}`;
   }
   if (description && (mobileLayout || title !== description)) {
-    fullText += ` - ${description}`;
+    if (_.isEmpty(fullText)) {
+      fullText = description;
+    } else {
+      fullText += ` - ${description}`;
+    }
   }
   return (
     <Div

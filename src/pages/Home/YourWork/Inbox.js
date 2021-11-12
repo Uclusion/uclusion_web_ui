@@ -231,11 +231,9 @@ function Inbox(props) {
           }}
           anchorEl={anchorEl}
           disableRestoreFocus
-          style={{maxWidth: mobileLayout ? undefined : '50%'}}
+          style={{maxWidth: mobileLayout ? undefined : '50%', minWidth: '70%'}}
         >
-          <div style={{minWidth: '50%'}}>
-            { rows }
-          </div>
+          { rows }
         </Menu>
       </>
     );

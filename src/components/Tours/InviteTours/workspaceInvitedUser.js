@@ -9,7 +9,7 @@ export function workspaceInvitedUserSteps (variables) {
     if (isCreator) {
       steps.push({
         disableBeacon: true,
-        target: '#redLevelNotification',
+        target: '#inboxNotification',
         placement: 'bottom',
         content: (
           <Typography style={{textAlign: 'left'}} variant="body2">
@@ -36,10 +36,10 @@ export function workspaceInvitedUserSteps (variables) {
         content: 'The navigation sidebar is a command center for the Workspace. Click its blue icon to learn more.',
       });
     }
-    if (!isCreator && document.getElementById('yellowLevelNotification')) {
+    if (!isCreator && document.getElementById('inboxNotification')) {
       steps.push({
         disableBeacon: true,
-        target: '#yellowLevelNotification',
+        target: '#inboxNotification',
         placement: 'bottom',
         content: 'Categorized notifications are automatically sent and appear here so you know what needs to be done when.',
       });

@@ -201,6 +201,7 @@ function Inbox(props) {
     return <Link href={link} style={{ width: '100%' }} onClick={
       (event) => {
         preventDefaultAndProp(event);
+        setAnchorEl(null);
         navigate(history, link);
       }
     }><WorkListItem key={typeObjectId} id={typeObjectId} isJarDisplay={isJarDisplay} checkedDefault={checkAll}

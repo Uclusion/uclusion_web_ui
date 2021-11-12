@@ -118,7 +118,7 @@ function WorkListItem(props) {
   if (comment) {
     fullText += ` / ${comment}`;
   }
-  if (description) {
+  if (description && title !== description) {
     fullText += ` - ${description}`;
   }
   return (
@@ -181,7 +181,7 @@ WorkListItem.propTypes = {
   comment: PropTypes.node,
   title: PropTypes.node,
   description: PropTypes.node,
-  date: PropTypes.object
+  date: PropTypes.string
 };
 
 export default WorkListItem;

@@ -169,7 +169,7 @@ function Inbox(props) {
       comment_id: commentId, market_type: marketType, link_type: linkType } = message;
     const title = getTitle(marketType, linkType, name, marketId, investibleId, investibleState, marketStagesState,
       intl);
-    const titleSize = mobileLayout ? 25 : (!investible && !commentId ? 100 : 50);
+    const titleSize = mobileLayout ? 25 : (!investible && !commentId ? 50 : 30);
     const item = {
       title,
       description: text,
@@ -186,7 +186,7 @@ function Inbox(props) {
       if (rootComment) {
         const comment = nameFromDescription(rootComment.body);
         if (comment) {
-          item.comment = comment;
+          item.comment = createTitle(comment, titleSize);
         }
       }
     }
@@ -231,8 +231,11 @@ function Inbox(props) {
           }}
           anchorEl={anchorEl}
           disableRestoreFocus
+          style={{maxWidth: '50%'}}
         >
-          { rows }
+          <div style={{minWidth: '50%'}}>
+            { rows }
+          </div>
         </Menu>
       </>
     );

@@ -172,7 +172,8 @@ function Inbox(props) {
   const rows = messagesOrdered.map((message) => {
     const { level, market_name: market, investible_name: investible, updated_at: updatedAt, investible_id: investibleId,
       is_highlighted: isHighlighted, name, text, link, type_object_id: typeObjectId, market_id: marketId,
-      comment_id: commentId, market_type: marketType, link_type: linkType, type: messageType } = message;
+      comment_id: commentId, market_type: marketType, link_type: linkType, type: messageType,
+      comment_market_id: commentMarketId } = message;
     const title = getTitle(marketType, linkType, name, marketId, investibleId, investibleState, marketStagesState,
       intl);
     const titleSize = mobileLayout ? 10 : (!investible && !commentId ? 50 : 30);
@@ -188,7 +189,8 @@ function Inbox(props) {
       message
     }
     if (commentId) {
-      const rootComment = getCommentRoot(commentState, marketId, commentId);
+      let useMarketId = commentMarketId ? commentMarketId : marketId;
+      const rootComment = getCommentRoot(commentState, useMarketId, commentId);
       if (rootComment) {
         const comment = nameFromDescription(rootComment.body);
         if (comment) {

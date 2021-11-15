@@ -490,10 +490,12 @@ function PlanningDialogs(props) {
 PlanningDialogs.propTypes = {
   markets: PropTypes.arrayOf(PropTypes.object).isRequired,
   isArchives: PropTypes.bool,
+  isSectionOpen: PropTypes.func
 };
 
 PlanningDialogs.defaultProps = {
   isArchives: false,
+  isSectionOpen: () => true
 };
 
 export default PlanningDialogs;

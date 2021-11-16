@@ -31,7 +31,7 @@ import {
 } from '../../../utils/marketIdPathFunctions'
 import Chip from '@material-ui/core/Chip'
 import { removeHeader, restoreHeader } from '../../../containers/Header'
-import { LocalPlanningDragContext } from './InvestiblesByWorkspace'
+import { LocalPlanningDragContext } from './PlanningDialog'
 import { findMessageForCommentId, removeMessagesForCommentId } from '../../../utils/messageUtils'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { invalidEditEvent } from '../../../utils/windowUtils'

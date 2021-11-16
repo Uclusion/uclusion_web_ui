@@ -14,7 +14,7 @@ import { stageChangeInvestible, updateInvestible } from '../../api/investibles'
 import { getInvestible, refreshInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
-import { LocalPlanningDragContext } from '../Dialog/Planning/InvestiblesByWorkspace'
+import { LocalPlanningDragContext } from '../Dialog/Planning/PlanningDialog'
 import {
   isBlockedStage, isFurtherWorkStage,
   isRequiredInputStage

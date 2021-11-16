@@ -63,7 +63,6 @@ import { getMarketInfo, hasNotVoted } from '../../../utils/userFunctions'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import MarketTodos from './MarketTodos'
 import Gravatar from '../../../components/Avatars/Gravatar';
-import { LocalPlanningDragContext } from './InvestiblesByWorkspace'
 import { isInReviewStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { findMessageOfType, findMessageOfTypeAndId } from '../../../utils/messageUtils'
 import NotificationCountChips from '../NotificationCountChips'
@@ -99,6 +98,8 @@ import {
   getNotHiddenMarketDetailsForUser
 } from '../../../contexts/MarketsContext/marketsContextHelper'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
+
+export const LocalPlanningDragContext = React.createContext([]);
 
 function PlanningDialog(props) {
   const history = useHistory();

@@ -41,7 +41,6 @@ import { getFullStage, getStages } from '../../../contexts/MarketStagesContext/m
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { removeHeader, restoreHeader } from '../../../containers/Header'
-import { LocalPlanningDragContext } from './InvestiblesByWorkspace';
 import GravatarGroup from '../../../components/Avatars/GravatarGroup';
 import { getInvestibleVoters } from '../../../utils/votingUtils';
 import { doRemoveEdit, doShowEdit, getCommenterPresences, getUserSwimlaneInvestibles, onDropTodo } from './userUtils'

@@ -16,7 +16,7 @@ import clsx from 'clsx';
 import {
   checkInApprovalWarning,
   checkInProgressWarning, checkInReviewWarning,
-  countByType,
+  countByType, LocalPlanningDragContext,
 } from './PlanningDialog'
 import { DaysEstimate } from '../../../components/AgilePlan';
 import {

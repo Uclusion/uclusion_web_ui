@@ -337,7 +337,7 @@ function PlanningDialog(props) {
         {planningDetails.map((aMarket) => {
           return (
             <MenuItem value={aMarket.id}>
-              {createTitle(aMarket.name, 110)}
+              {createTitle(aMarket.name, 20)}
             </MenuItem>
             );
         })}

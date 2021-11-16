@@ -35,6 +35,15 @@ import {
   INVITE_MARKET_EVENT,
   LOAD_MARKET_CHANNEL
 } from '../../contexts/MarketsContext/marketsContextMessages'
+import UpgradeBanner from '../../components/Banners/UpgradeBanner'
+import { canCreate } from '../../contexts/AccountContext/accountContextHelper'
+import {
+  hasInitializedGlobalVersion,
+  hasLoadedGlobalVersion
+} from '../../contexts/VersionsContext/versionsContextHelper'
+import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { AccountContext } from '../../contexts/AccountContext/AccountContext'
 
 function Dialog(props) {
   const { hidden } = props;
@@ -78,10 +87,18 @@ function Dialog(props) {
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
   const [userState] = useContext(AccountUserContext);
+  const [versionsContext] = useContext(VersionsContext);
+  const [operationRunning] = useContext(OperationInProgressContext);
+  const [accountState] = useContext(AccountContext);
   const hasUser = userIsLoaded(userState);
   const loading = !hasUser || isInitialization || !myPresence || !marketType || marketType === INITIATIVE_TYPE
     || (isInline && activeMarket) || !marketTokenLoaded(marketId, tokensHash);
-  const banner = !loading && _.isEmpty(marketStages) ? <OnboardingBanner messageId='OnboardingInviteDialog' /> : undefined;
+  const createEnabled = canCreate(accountState);
+  //While fore ground loads there is no global version and operation is running
+  const loadingForeGroundMarkets = !hasLoadedGlobalVersion(versionsContext) || marketsState.initializing ||
+    (!hasInitializedGlobalVersion(versionsContext) && operationRunning);
+  const banner = !loading && _.isEmpty(marketStages) ? <OnboardingBanner messageId='OnboardingInviteDialog' /> :
+    (loadingForeGroundMarkets || createEnabled ? undefined : <UpgradeBanner/>);
 
   useEffect(() => {
     if (!hidden && !isInitialization && hasUser) {

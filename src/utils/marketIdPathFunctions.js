@@ -5,6 +5,7 @@ import { getInvestible } from '../contexts/InvestibesContext/investiblesContextH
 import { getMarket } from '../contexts/MarketsContext/marketsContextHelper'
 import { marketsContextHack } from '../contexts/MarketsContext/MarketsContext';
 import { investibleContextHack } from '../contexts/InvestibesContext/InvestiblesContext';
+import { setRedirect } from './redirectUtils'
 
 export const VISIT_CHANNEL = 'VisitChannel';
 export const VIEW_EVENT = 'pageView';
@@ -45,9 +46,12 @@ export function navigate(history, to, insideUseEffect, doNotAddToHistory) {
     marketId: fromMarketId,
     investibleId: fromInvestibleId,
   } = decomposeMarketPath(history.location.pathname);
-  console.info(`Navigating to ${to}`);
   broadcastView(fromMarketId, fromInvestibleId, false, fromAction);
   if (to) {
+    if (!doNotAddToHistory) {
+      console.info(`Recording last as ${to}`);
+      setRedirect(to);
+    }
     if (insideUseEffect) {
       // Without the set timeout the use effect can be re-run before the push is complete
       // though not clear why that run wouldn't run it again.
@@ -82,18 +86,10 @@ export function navigate(history, to, insideUseEffect, doNotAddToHistory) {
 /**
  *
  * @param history
- * @param marketType
  * @param crumbs A list objects of the type { name, link }
- * @param includeHome if Home Should be prepended to the list
  */
-export function makeBreadCrumbs(history, crumbs = [], includeHome = true) {
-  const homeName = intl.formatMessage({ id: 'homeBreadCrumb' });
-  const homeCrumb = [];
-  if (includeHome) {
-    homeCrumb.push({ name: homeName, link: '/', id:'homeCrumb'});
-  }
-  const myCrumbs = homeCrumb.concat(crumbs);
-  const breadCrumbs = myCrumbs.map((crumb) => {
+export function makeBreadCrumbs(history, crumbs = []) {
+  return crumbs.map((crumb) => {
     const { name, link, image, id, onClick, icon } = crumb;
     const usedOnClick = onClick || ((event) => {
       event.preventDefault();
@@ -108,7 +104,6 @@ export function makeBreadCrumbs(history, crumbs = [], includeHome = true) {
       onClick: usedOnClick,
     };
   });
-  return breadCrumbs;
 }
 
 /**

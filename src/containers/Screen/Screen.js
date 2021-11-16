@@ -121,7 +121,7 @@ function processRegularItem (classes, history, text, target, num, Icon, onClickF
     )
   }
   return (
-    <ListItem key={`${index}${textNoSpaces}`} id={textNoSpaces}
+    <ListItem key={`${index}${textNoSpaces}`} id={textNoSpaces} selected={isBold}
               className={isGrouped ? classes.navListItemGrouped : classes.navListItem}
               onClick={
                 (event) => {
@@ -170,7 +170,6 @@ function Screen(props) {
     tabTitle,
     toolbarButtons,
     appEnabled,
-    isHome,
     banner,
     navigationOptions
   } = props;
@@ -211,10 +210,10 @@ function Screen(props) {
     return <React.Fragment/>
   }
   let usedBreadCrumbs = breadCrumbs;
-  if (_.isEmpty(breadCrumbs) && !isHome) {
+  if (_.isEmpty(breadCrumbs)) {
     usedBreadCrumbs = makeBreadCrumbs(history);
   }
-  const { navListItemTextArray } = navigationOptions || {}
+  const { navListItemTextArray, navMenu } = navigationOptions || {}
   const myContainerClass = navigationOptions && !mobileLayout ? classes.containerAllLeftPad : classes.containerAll
   const contentClass = mobileLayout ? classes.contentNoStyle :
     navigationOptions ? classes.content : classes.contentNoStyle;
@@ -239,9 +238,10 @@ function Screen(props) {
       {!_.isEmpty(navListItemTextArray) && !mobileLayout && (
         <div className={classes.listContainer}>
           <Paper className={classes.paper} elevation={3} id="navList">
+            {navMenu}
             <List>
               {navListItemTextArray.map((navItem, topIndex) => {
-                const { text, target, num, icon: Icon, onClickFunc, subItems, isBold, newPage } = navItem
+                const { text, target, num, icon: Icon, onClickFunc, subItems, isBold, newPage } = navItem;
                 if (subItems) {
                   return (
                     <div key={`top${topIndex}${text}${title}`}
@@ -303,24 +303,23 @@ Screen.propTypes = {
   loading: PropTypes.bool,
   title: PropTypes.any,
   titleIcon: PropTypes.any,
-  children: PropTypes.any.isRequired,
+  children: PropTypes.any,
   sidebarActions: PropTypes.arrayOf(PropTypes.object),
-  tabTitle: PropTypes.string.isRequired,
+  tabTitle: PropTypes.string,
   appEnabled: PropTypes.bool,
-  isHome: PropTypes.bool,
   banner: PropTypes.node,
 };
 
 Screen.defaultProps = {
   breadCrumbs: [],
   title: '',
+  tabTitle: '',
   titleIcon: undefined,
   hidden: false,
   loading: false,
   toolbarButtons: [],
   sidebarActions: [],
   appEnabled: true,
-  isHome: false,
   banner: undefined,
 };
 

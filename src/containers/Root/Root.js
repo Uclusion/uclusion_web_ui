@@ -21,7 +21,7 @@ import ChangeNotificationPreferences from '../../pages/About/ChangeNotificationP
 import BillingHome from '../../pages/Payments/BillingHome'
 import { refreshNotifications, refreshVersions } from '../../contexts/VersionsContext/versionsContextHelper'
 import { registerMarketTokenListeners } from '../../authorization/tokenUtils';
-import { getUtm } from '../../utils/redirectUtils'
+import Wizard from '../../pages/Home/Wizard'
 
 const useStyles = makeStyles({
   body: {
@@ -53,10 +53,13 @@ function Root() {
   const { marketId, investibleId, action } = decomposeMarketPath(pathname);
   const [, setOperationsLocked] = useContext(OperationInProgressContext);
   const [, setOnline] = useContext(OnlineStateContext);
-  const utm = getUtm();
 
   function hideHome() {
     return !pathname || pathname !== '/';
+  }
+
+  function hideWizard() {
+    return action !== 'wizard';
   }
 
   function hideSupport() {
@@ -106,7 +109,7 @@ function Root() {
     return action !== 'billing';
   }
 
-  const hidePNF = !(hideMarket() && hideSupport() && hideHome() && hideInvestible()
+  const hidePNF = !(hideMarket() && hideSupport() && hideHome() && hideInvestible() && hideWizard()
     && hideDialogArchives() && hideArchvies() && hideInvestibleAdd() && hideAddMarket() && hideSlackInvite()
     && hideChangePassword() && hideChangeNotification() && hideBillingHome());
 
@@ -161,13 +164,17 @@ function Root() {
     }
   },  [history, setOnline, setOperationsLocked, location]);
 
+  // Home is different - no content to prepare and we don't want its useEffects even around when not hidden
   return (
     <div>
       <CssBaseline/>
       <div className={classes.body}>
         <div className={classes.root}>
           <div className={classes.content}>
-            <Home hidden={hideHome()} utm={utm}/>
+            {!hideHome() && (
+              <Home />
+            )}
+            <Wizard hidden={hideWizard()} />
             <Market hidden={hideMarket()}/>
             <Support hidden={hideSupport()}/>
             <BillingHome hidden={hideBillingHome()}/>

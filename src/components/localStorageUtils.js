@@ -50,6 +50,7 @@ function setStorageItem(storageKey, key, value) {
   }
   if (value !== undefined && value !== null) {
     if (!key) {
+      console.error(`Error for ${storageKey} and ${value}`);
       throw new Error(`Undefined key for value ${value}`);
     }
     data[key] = value;

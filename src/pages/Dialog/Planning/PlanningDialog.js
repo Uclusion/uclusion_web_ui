@@ -6,7 +6,17 @@ import { useHistory, useLocation } from 'react-router'
 import { FormattedMessage, useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
-import { Grid, Typography, useMediaQuery, useTheme, Link } from '@material-ui/core'
+import {
+  Grid,
+  Typography,
+  useMediaQuery,
+  useTheme,
+  Link,
+  MenuItem,
+  Select,
+  InputLabel,
+  FormControl
+} from '@material-ui/core'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import CardHeader from '@material-ui/core/CardHeader'
@@ -15,7 +25,7 @@ import Summary from './Summary'
 import PlanningIdeas from './PlanningIdeas'
 import Screen from '../../../containers/Screen/Screen'
 import {
-  baseNavListItem,
+  baseNavListItem, createTitle,
   formMarketArchivesLink, formMarketLink,
   makeArchiveBreadCrumbs,
   makeBreadCrumbs,
@@ -29,7 +39,7 @@ import {
 } from '../../../constants/comments'
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
 import CommentBox, { getSortedRoots } from '../../../containers/CommentBox/CommentBox'
-import { ACTIVE_STAGE } from '../../../constants/markets'
+import { ACTIVE_STAGE, PLANNING_TYPE } from '../../../constants/markets'
 import { getUserInvestibles } from './userUtils'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import {
@@ -84,6 +94,11 @@ import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { usePlanFormStyles } from '../../../components/AgilePlan'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import AssignmentIcon from '@material-ui/icons/Assignment'
+import {
+  getMarketDetailsForType,
+  getNotHiddenMarketDetailsForUser
+} from '../../../contexts/MarketsContext/marketsContextHelper'
+import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -303,8 +318,35 @@ function PlanningDialog(props) {
     storiesItems.unshift(createNavListItem(BlockIcon,'planningBlockedStageLabel',
       'blocked', _.size(blockedInvestibles), 'storiesSection'));
   }
+  const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState, searchResults);
+  const planningDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, PLANNING_TYPE) || [];
 
   const navigationMenu = {
+    navMenu: (<FormControl variant="filled" sx={{ m: 1, minWidth: 120 }} style={{border: '1px solid #ced4da'}}>
+      <InputLabel id="workspaceNav">Workspace</InputLabel>
+      <Select
+        labelId="workspaceSelectLabel"
+        id="workspaceSelect"
+        value={marketId}
+        onChange={(event) => {
+          const { value } = event.target;
+          navigate(history, formMarketLink(value));
+        }}
+      >
+        {planningDetails.map((aMarket) => {
+          return (
+            <MenuItem value={aMarket.id}>
+              {createTitle(aMarket.name, 110)}
+            </MenuItem>
+            );
+        })}
+        <MenuItem value="">
+          <SpinningIconLabelButton icon={AddIcon} onClick={() => {}} doSpin={false}>
+            <FormattedMessage id={'addNew'}/>
+          </SpinningIconLabelButton>
+        </MenuItem>
+      </Select>
+    </FormControl>),
     navListItemTextArray: [
       createNavListItem(EditIcon, 'planningDialogNavDetailsLabel', 'workspaceMain',
       _.isEmpty(search) || results.find((result) => result.id === marketId) ? undefined : 0,
@@ -360,7 +402,7 @@ function PlanningDialog(props) {
       tabTitle={marketName}
       breadCrumbs={breadCrumbs}
       banner={banner}
-      navigationOptions={navigationMenu}
+      navigationOptions={banner ? [] : navigationMenu}
     >
       <UclusionTour
         name={INVITED_USER_WORKSPACE}

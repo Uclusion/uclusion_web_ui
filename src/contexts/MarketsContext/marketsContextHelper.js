@@ -103,7 +103,7 @@ export function addMarketToStorage(dispatch, diffDispatch, marketDetails, fromNe
   }
 }
 
-export function getNotHiddenMarketDetailsForUser(state, marketPresencesState, searchResults) {
+export function getNotHiddenMarketDetailsForUser(state, marketPresencesState, searchResults={}) {
   const { results, parentResults, search } = searchResults;
   if (state.marketDetails) {
     const newMarketDetails = state.marketDetails.filter((market) => {

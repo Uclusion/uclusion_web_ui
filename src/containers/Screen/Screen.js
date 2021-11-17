@@ -106,7 +106,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function processRegularItem (classes, history, text, target, num, Icon, onClickFunc, isGrouped, isBold, newPage,
-  index, search) {
+  index, search, showSearch) {
   if (!text) {
     return React.Fragment
   }
@@ -135,7 +135,7 @@ function processRegularItem (classes, history, text, target, num, Icon, onClickF
               }
     >
       <Icon className={classes.navListIcon} />
-      <span style={{width: "80%"}}>
+      <span style={{width: showSearch ? '80%' : '100%'}}>
                       <ListItemText primary={text}
                                     primaryTypographyProps={{className: isBold ? classes.navGroupHeader : undefined}} />
                     </span>
@@ -213,7 +213,7 @@ function Screen(props) {
   if (_.isEmpty(breadCrumbs)) {
     usedBreadCrumbs = makeBreadCrumbs(history);
   }
-  const { navListItemTextArray, navMenu } = navigationOptions || {}
+  const { navListItemTextArray, navMenu, showSearch = true } = navigationOptions || {}
   const myContainerClass = navigationOptions && !mobileLayout ? classes.containerAllLeftPad : classes.containerAll
   const contentClass = mobileLayout ? classes.contentNoStyle :
     navigationOptions ? classes.content : classes.contentNoStyle;
@@ -237,7 +237,8 @@ function Screen(props) {
       />
       {!_.isEmpty(navListItemTextArray) && !mobileLayout && (
         <div className={classes.listContainer}>
-          <Paper className={classes.paper} elevation={3} id="navList">
+          <Paper className={classes.paper} style={{minWidth: showSearch ? undefined : '10rem'}} elevation={3}
+                 id="navList">
             {navMenu}
             <List>
               {navListItemTextArray.map((navItem, topIndex) => {
@@ -256,17 +257,19 @@ function Screen(props) {
                         {subItems.map((subItem, index) => {
                           const { text, target, num, icon: Icon, onClickFunc, newPage } = subItem
                           return processRegularItem(classes, history, text, target, num, Icon, onClickFunc,
-                            true, false, newPage, index, search)
+                            true, false, newPage, index, search, showSearch)
                         })}
                       </div>
                     </div>
                   );
                 }
                 return processRegularItem(classes, history, text, target, num, Icon, onClickFunc, false,
-                  isBold, newPage, topIndex, search)
+                  isBold, newPage, topIndex, search, showSearch)
               })}
             </List>
-            <SearchBox/>
+            {showSearch && (
+              <SearchBox/>
+            )}
           </Paper>
         </div>
       )}

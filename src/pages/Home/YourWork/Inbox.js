@@ -1,8 +1,8 @@
 import WorkListItem from './WorkListItem'
-import { Checkbox, Fab, Menu, Typography, useMediaQuery, useTheme } from '@material-ui/core'
+import { Card, CardActions, Checkbox, Fab, Menu, Typography, useMediaQuery, useTheme } from '@material-ui/core'
 import React, { useContext, useEffect, useState } from 'react'
 import styled from "styled-components";
-import { useIntl } from 'react-intl'
+import { FormattedMessage, useIntl } from 'react-intl'
 import { Link } from '@material-ui/core'
 import { MoveToInbox } from '@material-ui/icons'
 import WarningIcon from '@material-ui/icons/Warning'
@@ -116,7 +116,7 @@ const useStyles = makeStyles(
 });
 
 function Inbox(props) {
-  const { isSectionOpen, isJarDisplay = false } = props;
+  const { isJarDisplay = false } = props;
   const classes = useStyles();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
@@ -243,16 +243,27 @@ function Inbox(props) {
           style={{maxWidth: mobileLayout ? undefined : '50%'}}
         >
           <div style={{minWidth: '50vw'}}>
-            { rows }
+            { _.slice(rows, 0, 10) }
           </div>
+          <Card>
+            <CardActions style={{display: 'flex', justifyContent: 'center'}}>
+              <Link href={'/inbox'} onClick={
+                (event) => {
+                  preventDefaultAndProp(event);
+                  navigate(history, '/inbox');
+                }
+              }><FormattedMessage
+                id="seeFullInbox"
+              /> </Link>
+            </CardActions>
+          </Card>
         </Menu>
       </>
     );
   }
 
   return (
-    <div id="inbox" style={{ display: isSectionOpen('inbox') ? 'block' : 'none',
-      paddingBottom: '3rem' }}>
+    <div id="inbox">
       <SectionTitle>
         {<MoveToInbox htmlColor="#333333"/>}
         <Typography style={{marginLeft: '1rem'}} variant="h6">

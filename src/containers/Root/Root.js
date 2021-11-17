@@ -22,6 +22,7 @@ import BillingHome from '../../pages/Payments/BillingHome'
 import { refreshNotifications, refreshVersions } from '../../contexts/VersionsContext/versionsContextHelper'
 import { registerMarketTokenListeners } from '../../authorization/tokenUtils';
 import Wizard from '../../pages/Home/Wizard'
+import InboxFull from '../../pages/Home/YourWork/InboxFull'
 
 const useStyles = makeStyles({
   body: {
@@ -56,6 +57,10 @@ function Root() {
   console.debug(`action is ${action}`);
   function hideHome() {
     return !pathname || pathname !== '/';
+  }
+
+  function hideInbox() {
+    return action !== 'inbox';
   }
 
   function hideWizard() {
@@ -109,7 +114,7 @@ function Root() {
     return action !== 'billing';
   }
 
-  const hidePNF = !(hideMarket() && hideSupport() && hideHome() && hideInvestible() && hideWizard()
+  const hidePNF = !(hideMarket() && hideSupport() && hideHome() && hideInvestible() && hideWizard() && hideInbox()
     && hideDialogArchives() && hideArchvies() && hideInvestibleAdd() && hideAddMarket() && hideSlackInvite()
     && hideChangePassword() && hideChangeNotification() && hideBillingHome());
 
@@ -175,6 +180,7 @@ function Root() {
               <Home />
             )}
             <Wizard hidden={hideWizard()} />
+            <InboxFull hidden={hideInbox()} />
             <Market hidden={hideMarket()}/>
             <Support hidden={hideSupport()}/>
             <BillingHome hidden={hideBillingHome()}/>

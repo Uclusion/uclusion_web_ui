@@ -60,12 +60,12 @@ function SpinningIconLabelButton(props) {
   const theme = useTheme();
   const spinningDisabled = doSpin && operationRunning !== false;
   const spinning = operationRunning === id;
-  function myOnClick() {
+  function myOnClick(event) {
     if (onClick) {
       if (doSpin) {
         setOperationRunning(id);
       }
-      onClick();
+      onClick(event);
     }
   }
   return (

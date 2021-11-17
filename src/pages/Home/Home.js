@@ -52,8 +52,8 @@ function Home() {
           const { foreground: foregroundList } = versions;
           if (_.isEmpty(foregroundList)) {
             console.log('Redirecting you to create workspace');
-            // Use navigate to record new redirect
-            navigate(history,  '/wizard#planning');
+            // Don't want new redirect since they could create a market somewhere else
+            history.push('/wizard#type=planning&onboarding=true');
           }
         });
     }

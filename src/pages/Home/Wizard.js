@@ -1,7 +1,6 @@
 import React, { useContext } from 'react'
-import { useHistory } from 'react-router';
+import { useHistory, useLocation } from 'react-router'
 import PropTypes from 'prop-types'
-import { useMediaQuery, useTheme } from '@material-ui/core'
 import { useIntl } from 'react-intl'
 import Screen from '../../containers/Screen/Screen'
 import {
@@ -11,45 +10,39 @@ import { OperationInProgressContext } from '../../contexts/OperationInProgressCo
 import StoryWorkspaceWizard from '../../components/AddNew/Workspace/StoryWorkspace/StoryWorkspaceWizard'
 import DialogWizard from '../../components/AddNew/Dialog/DialogWizard'
 import InitiativeWizard from '../../components/AddNew/Initiative/InitiativeWizard'
-import WizardSelector from '../../components/AddNew/WizardSelector'
+import queryString from 'query-string'
 
 function Wizard(props) {
   const { hidden } = props;
   const history = useHistory();
+  const location = useLocation();
+  const { hash } = location;
+  const values = queryString.parse(hash);
+  const { type: createType, onboarding } = values;
   const intl = useIntl();
-  const theme = useTheme();
-  const midLayout = useMediaQuery(theme.breakpoints.down('md'));
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const wizardActive = true;
 
   function onWizardFinish (formData) {
     const { link } = formData;
     setOperationRunning(false);
     navigate(history, link);
   }
-  const noActiveNonSupportMarkets = false;
+
   return (
     <Screen
       title={intl.formatMessage({ 'id': 'wizardBreadCrumb' })}
       tabTitle={intl.formatMessage({ id: 'wizardBreadCrumb' })}
       hidden={hidden}
     >
-      {midLayout && (
-        <WizardSelector
-          hidden={!wizardActive}
-          onFinish={onWizardFinish}
-          showCancel={!noActiveNonSupportMarkets}
-          onCancel={() => {}}/>
+      {createType === 'planning' && (
+        <StoryWorkspaceWizard onFinish={onWizardFinish} showCancel={!onboarding}
+                              onStartOver={() => history.push('/')}/>
       )}
-      {!midLayout && (
-        <StoryWorkspaceWizard onStartOver={() => {}}
-                              onFinish={onWizardFinish} isHome showCancel={!noActiveNonSupportMarkets}/>
+      {createType === 'dialog' && (
+        <DialogWizard onFinish={onWizardFinish} onStartOver={() => history.push('/')} />
       )}
-      {wizardActive && !midLayout && (
-        <DialogWizard onStartOver={() => {}} onFinish={onWizardFinish} isHome />
-      )}
-      {wizardActive && !midLayout && (
-        <InitiativeWizard onStartOver={() => {}} onFinish={onWizardFinish} isHome />
+      {createType === 'initiative' && (
+        <InitiativeWizard onFinish={onWizardFinish} onStartOver={() => history.push('/')} />
       )}
     </Screen>
   );

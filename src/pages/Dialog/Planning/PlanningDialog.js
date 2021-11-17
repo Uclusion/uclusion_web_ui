@@ -29,7 +29,7 @@ import {
   formMarketArchivesLink, formMarketLink,
   makeArchiveBreadCrumbs,
   makeBreadCrumbs,
-  navigate
+  navigate, preventDefaultAndProp
 } from '../../../utils/marketIdPathFunctions'
 import {
   QUESTION_TYPE, REPLY_TYPE,
@@ -319,12 +319,15 @@ function PlanningDialog(props) {
     storiesItems.unshift(createNavListItem(BlockIcon,'planningBlockedStageLabel',
       'blocked', _.size(blockedInvestibles), 'storiesSection'));
   }
-  const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState, searchResults);
+  const myNotHiddenMarketsState = inArchives ? marketsState :
+    getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   const planningDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, PLANNING_TYPE) || [];
 
   const navigationMenu = {
     navMenu: (<FormControl variant="filled" sx={{ m: 1, minWidth: 120 }} style={{border: '1px solid #ced4da'}}>
-      <InputLabel id="workspaceNav">Workspace</InputLabel>
+      <InputLabel id="workspaceNav">
+        {intl.formatMessage({id: 'MarketSearchResultWorkspace'})}
+      </InputLabel>
       <Select
         labelId="workspaceSelectLabel"
         id="workspaceSelect"
@@ -342,7 +345,10 @@ function PlanningDialog(props) {
             );
         })}
         <MenuItem value="">
-          <SpinningIconLabelButton icon={AddIcon} onClick={() => {}} doSpin={false}>
+          <SpinningIconLabelButton icon={AddIcon} onClick={(event) => {
+            preventDefaultAndProp(event);
+            history.push('/wizard#type=planning');
+          }} doSpin={false}>
             <FormattedMessage id={'addNew'}/>
           </SpinningIconLabelButton>
         </MenuItem>

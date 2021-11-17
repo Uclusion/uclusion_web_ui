@@ -2,7 +2,7 @@ import React, { useContext, useEffect } from 'react'
 import { useHistory } from 'react-router';
 import _ from 'lodash'
 import Screen from '../../containers/Screen/Screen'
-import { getAndClearRedirect, getRedirect } from '../../utils/redirectUtils'
+import { getRedirect } from '../../utils/redirectUtils'
 import { INVITED_USER_WORKSPACE } from '../../contexts/TourContext/tourContextHelper'
 import { TourContext } from '../../contexts/TourContext/TourContext'
 import { startTour } from '../../contexts/TourContext/tourContextReducer'
@@ -25,7 +25,7 @@ function Home() {
   const planningDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, PLANNING_TYPE);
 
   useEffect(() => {
-    const redirect = getAndClearRedirect()
+    const redirect = getRedirect()
     if (!_.isEmpty(redirect) && redirect !== '/') {
       // Go ahead and start the invite tour - if they have taken already it's harmless
       tourDispatch(startTour(INVITED_USER_WORKSPACE));

@@ -28,15 +28,13 @@ export function workspaceInvitedUserSteps (variables) {
         content: 'Workspaces are where your team collaborates to get things done without meetings.'
       });
     }
-    if (document.getElementById('navList')) {
-      steps.push({
-        disableBeacon: true,
-        target: '#navList',
-        placement: 'right',
-        content: 'The navigation sidebar is a command center for the Workspace. Click its blue icon to learn more.',
-      });
-    }
-    if (!isCreator && document.getElementById('inboxNotification')) {
+    steps.push({
+      disableBeacon: true,
+      target: '#workspaceSelect',
+      placement: 'right',
+      content: 'Use this dropdown to switch between Workspaces or create a new one.',
+    });
+    if (!isCreator) {
       steps.push({
         disableBeacon: true,
         target: '#inboxNotification',

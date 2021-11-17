@@ -413,7 +413,7 @@ function PlanningDialog(props) {
     >
       <UclusionTour
         name={INVITED_USER_WORKSPACE}
-        hidden={hidden}
+        hidden={hidden || mobileLayout}
         steps={workspaceInvitedUserSteps({name: myPresence.name, isCreator: createdBy === myPresence.id})}
       />
       <div id="workspaceMain" style={{ display: isSectionOpen('workspaceMain') ? 'block' : 'none' }}>

@@ -54,7 +54,7 @@ function Root() {
   const { marketId, investibleId, action } = decomposeMarketPath(pathname);
   const [, setOperationsLocked] = useContext(OperationInProgressContext);
   const [, setOnline] = useContext(OnlineStateContext);
-  console.debug(`action is ${action}`);
+
   function hideHome() {
     return !pathname || pathname !== '/';
   }

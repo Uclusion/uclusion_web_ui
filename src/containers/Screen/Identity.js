@@ -127,7 +127,7 @@ function Identity (props) {
   function goTo (to) {
     return () => {
       setAnchorEl(null);
-      navigate(history, to);
+      history.push(to);
     };
   }
 

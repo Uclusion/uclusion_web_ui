@@ -22,12 +22,11 @@ function InboxFull(props) {
       {
         icon: MenuBookIcon, text: intl.formatMessage({ id: 'planningDialogViewArchivesLabel' }),
         target: (_.size(marketsState.marketDetails) - _.size(myNotHiddenMarketsState.marketDetails) > 0) ? '/archives'
-          : undefined,
-        newPage: true
+          : undefined
       },
       {
         icon: SettingsIcon, text: intl.formatMessage({ id: 'settings' }),
-        target: '/notificationPreferences', newPage: true
+        target: '/notificationPreferences'
       },
     ]};
   return (

@@ -14,7 +14,7 @@ import {
   useTheme,
 } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles';
-import { createTitle, navigate, openInNewTab, preventDefaultAndProp } from '../../utils/marketIdPathFunctions'
+import { createTitle, openInNewTab, preventDefaultAndProp } from '../../utils/marketIdPathFunctions'
 import { OnlineStateContext } from '../../contexts/OnlineStateContext';
 import Identity from '../Screen/Identity';
 import { useHistory } from 'react-router';
@@ -22,6 +22,7 @@ import { OperationInProgressContext } from '../../contexts/OperationInProgressCo
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import config from '../../config';
 import Inbox from '../../pages/Home/YourWork/Inbox'
+import Outbox from '../../pages/Home/YourWork/Outbox'
 
 export const headerStyles = makeStyles((theme) => {
   return {
@@ -140,7 +141,7 @@ function Header (props) {
   const [online] = useContext(OnlineStateContext);
   const history = useHistory();
   const {
-    breadCrumbs, toolbarButtons, appEnabled, hidden, title, logoLinkDisabled, hideTools, titleIcon
+    breadCrumbs, toolbarButtons, appEnabled, hidden, title, hideTools, titleIcon
   } = props;
 
   const [operationRunning] = useContext(OperationInProgressContext);
@@ -240,9 +241,7 @@ function Header (props) {
           <div className={classes.sidebarLogo}>
             <Link href="/" onClick={(event) => {
               preventDefaultAndProp(event);
-              if (!logoLinkDisabled) {
-                navigate(history, '/');
-              }
+              history.push('/');
             }} color="inherit">
               <svg style={{ width: '120px', verticalAlign: 'middle', transition: 'all 125ms linear' }}
                    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600">
@@ -286,6 +285,7 @@ function Header (props) {
               <div className={classes.grow}/>
               <div className={classes.notification} id="notifications">
                 <Inbox isJarDisplay />
+                <Outbox isJarDisplay />
               </div>
               <div className={classes.padLeft} />
               {!mobileLayout && (
@@ -311,7 +311,6 @@ Header.propTypes = {
   titleIcon: PropTypes.any,
   hidden: PropTypes.bool,
   appEnabled: PropTypes.bool.isRequired,
-  logoLinkDisabled: PropTypes.bool,
   hideTools: PropTypes.bool,
 };
 
@@ -321,7 +320,6 @@ Header.defaultProps = {
   title: '',
   titleIcon: undefined,
   hidden: false,
-  logoLinkDisabled: false,
   hideTools: false,
 };
 

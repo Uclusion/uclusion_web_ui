@@ -209,10 +209,7 @@ function Inbox(props) {
   })
 
   if (isJarDisplay) {
-    if (_.isEmpty(messages)) {
-      return React.Fragment;
-    }
-    const first = messagesOrdered[0];
+    const first = _.isEmpty(messages) ? undefined : messagesOrdered[0];
     return (
       <>
         <div id='inboxNotification' key='inbox'
@@ -221,7 +218,8 @@ function Inbox(props) {
           <Badge badgeContent={unreadCount} className={classes.chip} overlap="circle">
             <Fab id='notifications-fabInbox' className={classes.fab}>
               <MoveToInbox
-                htmlColor={ first.level === 'RED' ? '#E85757' : (first.level === 'YELLOW' ? '#e6e969' : '#2D9CDB')} />
+                htmlColor={ _.isEmpty(first) ? '#8f8f8f' :
+                  (first.level === 'RED' ? '#E85757' : (first.level === 'YELLOW' ? '#e6e969' : '#2D9CDB'))} />
             </Fab>
           </Badge>
         </div>
@@ -242,9 +240,11 @@ function Inbox(props) {
           disableRestoreFocus
           style={{maxWidth: mobileLayout ? undefined : '50%'}}
         >
-          <div style={{minWidth: '50vw'}}>
-            { _.slice(rows, 0, 10) }
-          </div>
+          {!_.isEmpty(first) && (
+            <div style={{minWidth: '50vw'}}>
+              { _.slice(rows, 0, 10) }
+            </div>
+          )}
           <Card>
             <CardActions style={{display: 'flex', justifyContent: 'center'}}>
               <Link href={'/inbox'} onClick={

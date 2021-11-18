@@ -2,7 +2,7 @@ import Typography from '@material-ui/core/Typography'
 
 export function requiresInputStorySteps(variables) {
   const {
-    isAssigned
+    isAssigned, mobileLayout
   } = variables;
     const steps = [];
   if (isAssigned) {
@@ -19,12 +19,24 @@ export function requiresInputStorySteps(variables) {
         </Typography>
       ),
     });
+    if (!mobileLayout) {
+      steps.push({
+        disableBeacon: true,
+        target: '#outboxNotification',
+        placement: 'bottom',
+        content: (
+          <Typography style={{textAlign: 'left'}} variant="body2">
+            Your pending question is tracked here.
+          </Typography>
+        ),
+      });
+    }
   } else {
     steps.push({
       disableBeacon: true,
       placement: 'center',
       target: 'body',
-      title: 'Welcome to Requires Input!',
+      title: 'About Requires Input',
       content: (
         <Typography style={{textAlign: 'left'}} variant="body2">
           Please help resolve the open assignee questions and suggestions in this story.

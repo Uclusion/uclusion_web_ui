@@ -785,7 +785,7 @@ function PlanningInvestible(props) {
         name={REQUIRES_INPUT_STORY_TOUR}
         hidden={hidden || !isRequiresInput}
         autoStart={true}
-        steps={requiresInputStorySteps({isAssigned})}
+        steps={requiresInputStorySteps({isAssigned, mobileLayout})}
       />
       <DismissableText textId="storyInsideHelp" text={
         <div>

@@ -167,21 +167,21 @@ function Outbox(props) {
     });
     questions.forEach((comment) => {
       const message = getMessageForComment(comment, market, 'cardTypeLabelQuestion',
-        <QuestionIcon style={{fontSize: 24, color: '#8f8f8f',}}/>, intl, investibleState);
+        <QuestionIcon style={{fontSize: 24, color: '#8f8f8f',}}/>, intl, investibleState, marketStagesState);
       if (message) {
         messages.push(message);
       }
     });
     issues.forEach((comment) => {
       const message = getMessageForComment(comment, market, 'cardTypeLabelIssue',
-        <IssueIcon style={{fontSize: 24, color: '#8f8f8f',}}/>, intl, investibleState);
+        <IssueIcon style={{fontSize: 24, color: '#8f8f8f',}}/>, intl, investibleState, marketStagesState);
       if (message) {
         messages.push(message);
       }
     });
     suggestions.forEach((comment) => {
       const message = getMessageForComment(comment, market, 'cardTypeLabelSuggestedChange',
-        <ChangeSuggstionIcon style={{fontSize: 24, color: '#8f8f8f',}}/>, intl, investibleState);
+        <ChangeSuggstionIcon style={{fontSize: 24, color: '#8f8f8f',}}/>, intl, investibleState, marketStagesState);
       if (message) {
         messages.push(message);
       }

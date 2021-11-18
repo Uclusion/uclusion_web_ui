@@ -45,6 +45,8 @@ import { getMarketPresences } from '../../../contexts/MarketPresencesContext/mar
 import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments'
 import ChangeSuggstionIcon from '@material-ui/icons/ChangeHistory'
 import IssueIcon from '@material-ui/icons/ReportProblem'
+import { getInvestibleVoters } from '../../../utils/votingUtils'
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 
 const SectionTitle = styled("div")`
   width: auto;
@@ -87,7 +89,7 @@ function getMessageForComment(comment, market, labelId, Icon, intl, investibleSt
     }
     const furtherWork = getFurtherWorkStage(marketStagesState, market.id);
     if (market_infos.find((info) => info.stage === furtherWork.id)) {
-      message.inFurtherWork = true;
+      message.inActive = true;
     }
     message.investible = investible.investible.name;
   }
@@ -137,6 +139,9 @@ function Outbox(props) {
   const [commentState] = useContext(CommentsContext);
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const { messages: messagesUnsafe } = messagesState;
+  const inboxMessages = messagesUnsafe || [];
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   const planningDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, PLANNING_TYPE);
 
@@ -164,12 +169,32 @@ function Outbox(props) {
   workspacesData.forEach((workspacesData) => {
     const { market, inReviewInvestibles, inVotingInvestibles, questions, issues, suggestions } = workspacesData;
     inReviewInvestibles.forEach((investible) => {
-      messages.push(getMessageForInvestible(investible, market, 'planningInvestibleNextStageInReviewLabel',
-        <RateReviewIcon style={{fontSize: 24, color: '#8f8f8f',}}/>, intl));
+      const outboxMessage = getMessageForInvestible(investible, market, 'planningInvestibleNextStageInReviewLabel',
+        <RateReviewIcon style={{fontSize: 24, color: '#8f8f8f',}}/>, intl);
+      const mySubmitted = inboxMessages.find((message) => {
+        const { investible_id: msgInvestibleId, type: messageType } = message;
+        return msgInvestibleId === investible.investible.id && messageType === 'INVESTIBLE_SUBMITTED';
+      });
+      if (mySubmitted) {
+        // If message to finish Todos then no one owes you anything but you haven't moved out of in review either
+        outboxMessage.inActive = true;
+      }
+      messages.push(outboxMessage);
     });
     inVotingInvestibles.forEach((investible) => {
-      messages.push(getMessageForInvestible(investible, market, 'planningInvestibleToVotingLabel',
-        <ThumbsUpDownIcon style={{fontSize: 24, color: '#8f8f8f',}}/>, intl));
+      const message = getMessageForInvestible(investible, market, 'planningInvestibleToVotingLabel',
+        <ThumbsUpDownIcon style={{fontSize: 24, color: '#8f8f8f',}}/>, intl);
+      const { votes_required: votesRequired } = market;
+      const marketPresences = getMarketPresences(marketPresencesState, market.id) || [];
+      const votersForInvestible = getInvestibleVoters(marketPresences, investible.investible.id);
+      const { market_infos: marketInfos } = investible;
+      const marketInfo = marketInfos.find(info => info.market_id === market.id);
+      const votersNotAssigned = votersForInvestible.filter((voter) => !_.includes(marketInfo.assigned, voter.id)) || [];
+      const votesRequiredDisplay = votesRequired > 0 ? votesRequired : 1;
+      if (votersNotAssigned.length >= votesRequiredDisplay) {
+        message.inActive = true;
+      }
+      messages.push(message);
     });
     questions.forEach((comment) => {
       const message = getMessageForComment(comment, market, 'cardTypeLabelQuestion',
@@ -203,18 +228,18 @@ function Outbox(props) {
   //TODO need person column that is avatar plus initials and when required people or mentions need to create multiple
   // items if more than one
 
-  const filteredForJar = messages.filter((message) => !message.inFurtherWork);
+  const filteredForJar = messages.filter((message) => !message.inActive);
   const messagesFilteredForJar = isJarDisplay && !_.isEmpty(filteredForJar) ? filteredForJar : messages;
   const messagesOrdered = _.orderBy(messagesFilteredForJar, ['updatedAt'], ['asc']);
 
   const rows = messagesOrdered.map((message) => {
-    const { id, market, investible, updatedAt, link, title, icon, comment, inFurtherWork } = message;
+    const { id, market, investible, updatedAt, link, title, icon, comment, inActive } = message;
     const titleSize = mobileLayout ? 30 : 100;
     const item = {
       title,
       icon,
       market:createTitle(market, titleSize),
-      read: inFurtherWork,
+      read: !!inActive,
       isDeletable: false,
       description: '',
       date: intl.formatDate(updatedAt)

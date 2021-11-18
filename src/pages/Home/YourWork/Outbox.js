@@ -174,11 +174,8 @@ function Outbox(props) {
     });
   })
 
-  //Algorithm - loop through planning details and for each pull out comments and stories that need and add to list
-  // of comments and stories lists, then use above to get dialogDetails and initiativeDetails and thrown them onto lists
-  // then convert all of these into item space, then order by date were date for each was calculated by last overall
-  // activity - see how do for workspaces already. Finally map the ordered items to WorkListItems
-
+  //TODO open dialogs and initiatives
+  //TODO last activity
   // Stories - last activity is across votes and comments
   // Comments - last activity is across all descendents if regular and across descendents and the market if not
   // Markets - use already written last activity code
@@ -186,8 +183,10 @@ function Outbox(props) {
   //TODO need person column that is avatar plus initials and when required people or mentions need to create multiple
   // items if more than one
 
-  const rows = messages.map((message) => {
-    const { id, market, investible, updated_at: updatedAt, link, title, icon, comment } = message;
+  const messagesOrdered = _.orderBy(messages, ['updatedAt'], ['asc']);
+
+  const rows = messagesOrdered.map((message) => {
+    const { id, market, investible, updatedAt, link, title, icon, comment } = message;
     const titleSize = mobileLayout ? 30 : 100;
     const item = {
       title,

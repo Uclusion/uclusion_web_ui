@@ -87,7 +87,7 @@ const DateLabelB = styled(DateLabel)`
 function WorkListItem(props) {
   const {
     read,
-    priorityIcon = (<div />),
+    icon = (<div />),
     isDeletable,
     market = '',
     investible = '',
@@ -97,6 +97,7 @@ function WorkListItem(props) {
     message,
     date,
     isJarDisplay,
+    useSelect = true,
     checkedDefault = false,
     setDeterminate,
     determinate,
@@ -132,7 +133,7 @@ function WorkListItem(props) {
       className={cx(read && 'MailListItem-read')}
     >
       <Box flexShrink={0} className={gutterStyles.parent}>
-        {!isJarDisplay && (
+        {!isJarDisplay && useSelect && (
           <StyledIconButton
             className={cx(checked && "MailListItem-checked")}
             classes={actionStyles}
@@ -150,7 +151,7 @@ function WorkListItem(props) {
             {read ? <div /> : (checked ? <Checkbox color="secondary" /> : <CheckBoxOutlineBlank />)}
           </StyledIconButton>
         )}
-        {!mobileLayout && (
+        {!mobileLayout && useSelect && (
           <StyledIconButton
             classes={actionStyles}
             style={{marginLeft: isJarDisplay ? '0.25rem' : undefined}}
@@ -171,8 +172,9 @@ function WorkListItem(props) {
         {!mobileLayout && (
           <StyledIconButton
             classes={actionStyles}
+            style={{marginLeft: !useSelect ? '0.25rem' : undefined}}
           >
-            { priorityIcon }
+            { icon }
           </StyledIconButton>
         )}
       </Box>
@@ -185,7 +187,7 @@ function WorkListItem(props) {
 
 WorkListItem.propTypes = {
   read: PropTypes.bool,
-  priorityIcon: PropTypes.node,
+  icon: PropTypes.node,
   market: PropTypes.node,
   investible: PropTypes.node,
   comment: PropTypes.node,

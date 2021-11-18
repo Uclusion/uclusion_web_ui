@@ -23,6 +23,7 @@ import { refreshNotifications, refreshVersions } from '../../contexts/VersionsCo
 import { registerMarketTokenListeners } from '../../authorization/tokenUtils';
 import Wizard from '../../pages/Home/Wizard'
 import InboxFull from '../../pages/Home/YourWork/InboxFull'
+import OutboxFull from '../../pages/Home/YourWork/OutboxFull'
 
 const useStyles = makeStyles({
   body: {
@@ -61,6 +62,10 @@ function Root() {
 
   function hideInbox() {
     return action !== 'inbox';
+  }
+
+  function hideOutbox() {
+    return action !== 'outbox';
   }
 
   function hideWizard() {
@@ -116,7 +121,7 @@ function Root() {
 
   const hidePNF = !(hideMarket() && hideSupport() && hideHome() && hideInvestible() && hideWizard() && hideInbox()
     && hideDialogArchives() && hideArchvies() && hideInvestibleAdd() && hideAddMarket() && hideSlackInvite()
-    && hideChangePassword() && hideChangeNotification() && hideBillingHome());
+    && hideChangePassword() && hideChangeNotification() && hideBillingHome() && hideOutbox());
 
   useEffect(() => {
     function pegView(isEntry) {
@@ -181,6 +186,7 @@ function Root() {
             )}
             <Wizard hidden={hideWizard()} />
             <InboxFull hidden={hideInbox()} />
+            <OutboxFull hidden={hideOutbox()} />
             <Market hidden={hideMarket()}/>
             <Support hidden={hideSupport()}/>
             <BillingHome hidden={hideBillingHome()}/>

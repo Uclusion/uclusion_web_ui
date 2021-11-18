@@ -259,7 +259,9 @@ const messages = defineMessages({
   // Navigation menu
   swimLanes: 'Swimlanes',
   inbox: 'Inbox',
+  outbox: 'Pending',
   seeFullInbox: 'SEE FULL',
+  seeFullOutbox: 'SEE FULL',
   commentAddBox: 'Add Comment',
   questions: 'Questions',
   suggestions: 'Suggestions',
@@ -451,9 +453,9 @@ const messages = defineMessages({
   notifyAll: 'Notify all',
 
   // card types
-  cardTypeLabelIssue: 'blocking issue',
-  cardTypeLabelQuestion: 'question',
-  cardTypeLabelSuggestedChange: 'suggestion',
+  cardTypeLabelIssue: 'Blocking Issue',
+  cardTypeLabelQuestion: 'Question',
+  cardTypeLabelSuggestedChange: 'Suggestion',
   cardTypeLabelTodo: 'todo',
   cardTypeLabelProgressReport: 'progress report',
   cardTypeAgilePlan: 'workspace - description',

@@ -31,7 +31,7 @@ function DialogNameStep (props) {
     >
       <div>
         <Typography className={classes.introText} variant="body2">
-          Great! We'll be creating a Uclusion Dialog to collaborate on options or suggest new ones.
+          We'll be creating a Uclusion Dialog to collaborate outside a Workspace on options.
         </Typography>
         <label className={classes.inputLabel}
                htmlFor="name">{intl.formatMessage({ id: 'DialogWizardDialogNamePlaceHolder' })}</label>

@@ -30,7 +30,8 @@ function InitiativeNameStep (props) {
     >
       <div>
         <Typography className={classes.introText} variant="body2">
-          Great! We'll be creating a Uclusion Initiative that allows people you invite to vote for or against your idea.
+          We'll be creating a Uclusion Initiative that allows people outside a Workspace to vote for or against
+          your idea.
         </Typography>
         <label className={classes.inputLabel}
                htmlFor="name">{intl.formatMessage({ id: 'InitiativeWizardInitiativeNamePlaceholder' })}</label>

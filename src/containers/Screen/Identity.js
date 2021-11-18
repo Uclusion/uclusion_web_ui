@@ -15,7 +15,7 @@ import { useHistory } from 'react-router';
 import Divider from '@material-ui/core/Divider';
 import Link from '@material-ui/core/Link';
 import { FormattedMessage, useIntl } from 'react-intl'
-import { navigate, openInNewTab } from '../../utils/marketIdPathFunctions'
+import { openInNewTab } from '../../utils/marketIdPathFunctions'
 import SignOut from '../../pages/Authentication/SignOut';
 import { CognitoUserContext } from '../../contexts/CognitoUserContext/CongitoUserContext';
 import config from '../../config';

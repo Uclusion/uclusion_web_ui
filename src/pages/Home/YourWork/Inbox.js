@@ -180,7 +180,7 @@ function Inbox(props) {
     const item = {
       title,
       description: text,
-      priorityIcon: getPriorityIcon(level),
+      icon: getPriorityIcon(level),
       market: messageType === 'USER_POKED' ? undefined : createTitle(market, titleSize),
       investible: createTitle(investible, titleSize),
       read: !isHighlighted,

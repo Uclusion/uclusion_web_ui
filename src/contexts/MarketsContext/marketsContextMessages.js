@@ -1,5 +1,5 @@
 import {
-  PUSH_MARKETS_CHANNEL, PUSH_PRESENCE_CHANNEL,
+  PUSH_MARKETS_CHANNEL, PUSH_PRESENCE_CHANNEL, PUSH_STAGE_CHANNEL,
   REMOVED_MARKETS_CHANNEL,
   VERSIONS_EVENT,
 } from '../VersionsContext/versionsContextHelper'
@@ -17,7 +17,7 @@ import {
 } from '../OperationInProgressContext/operationInProgressMessages'
 import { lockPlanningMarketForEdit } from '../../api/markets'
 import localforage from 'localforage'
-import { TOKEN_STORAGE_KEYSPACE } from '../../authorization/TokenStorageManager'
+import TokenStorageManager, { TOKEN_STORAGE_KEYSPACE, TOKEN_TYPE_MARKET } from '../../authorization/TokenStorageManager'
 
 export const LOAD_MARKET_CHANNEL = 'LoadMarketChannel';
 export const INVITE_MARKET_EVENT = 'InviteMarketEvent';
@@ -90,12 +90,14 @@ function beginListening(dispatch, diffDispatch, setTokensHash) {
     pushMessage(OPERATION_HUB_CHANNEL, { event: START_OPERATION });
     loginPromise.then((result) => {
       console.log('Quick adding market after load');
-      const { market, user } = result;
+      const { market, user, stages, uclusion_token: token } = result;
       const { id } = market;
       addMarketToStorage(dispatch, () => {}, market);
       pushMessage(PUSH_PRESENCE_CHANNEL, { event: ADD_PRESENCE, marketId: id, presence: user });
+      pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, marketId, stages });
       createMarketListeners(id);
-      return pollForMarketLoad(id);
+      const tokenStorageManager = new TokenStorageManager();
+      return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, id, token).then(() => pollForMarketLoad(id));
     }).catch((error) => {
       console.error(error);
       toastError('errorMarketFetchFailed');

@@ -130,6 +130,7 @@ function WorkListItem(props) {
   }
   return (
     <Div
+      style={{maxWidth: isJarDisplay ? '47vw' : undefined}}
       className={cx(read && 'MailListItem-read')}
     >
       <Box flexShrink={0} className={gutterStyles.parent}>
@@ -178,7 +179,9 @@ function WorkListItem(props) {
           </StyledIconButton>
         )}
       </Box>
-      {mobileLayout ? React.Fragment : (read ? (<Title>{title}</Title>) : (<TitleB>{title}</TitleB>))}
+      {mobileLayout ? React.Fragment : (read ?
+        (<Title style={{flexBasis: useSelect ? undefined : '160px'}}>{title}</Title>) :
+        (<TitleB style={{flexBasis: useSelect ? undefined : '160px'}}>{title}</TitleB>))}
       {read ? (<Text>{fullText}</Text>) : (<TextB>{fullText}</TextB>)}
       {isJarDisplay || mobileLayout ? React.Fragment : (read ? (<DateLabel>{date}</DateLabel>) : (<DateLabelB>{date}</DateLabelB>))}
     </Div>

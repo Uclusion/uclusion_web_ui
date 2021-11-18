@@ -94,7 +94,7 @@ function beginListening(dispatch, diffDispatch, setTokensHash) {
       const { id } = market;
       addMarketToStorage(dispatch, () => {}, market);
       pushMessage(PUSH_PRESENCE_CHANNEL, { event: ADD_PRESENCE, marketId: id, presence: user });
-      pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, marketId, stages });
+      pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, marketId: id, stages });
       createMarketListeners(id);
       const tokenStorageManager = new TokenStorageManager();
       return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, id, token);

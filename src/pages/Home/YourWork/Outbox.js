@@ -21,7 +21,7 @@ import {
 } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import {
   getInCurrentVotingStage,
-  getInReviewStage
+  getInReviewStage, getNotDoingStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import { nameFromDescription } from '../../../utils/stringFunctions'
@@ -65,7 +65,7 @@ function getMessageForInvestible(investible, market, labelId, Icon, intl) {
   };
 }
 
-function getMessageForComment(comment, market, labelId, Icon, intl, investibleState) {
+function getMessageForComment(comment, market, labelId, Icon, intl, investibleState, marketStagesState) {
   const commentId = comment.id;
   const message = {
     id: commentId,
@@ -78,6 +78,11 @@ function getMessageForComment(comment, market, labelId, Icon, intl, investibleSt
   };
   if (comment.investible_id) {
     const investible = getInvestible(investibleState, comment.investible_id);
+    const notDoingStage = getNotDoingStage(marketStagesState, market.id);
+    const { market_infos } = investible;
+    if (market_infos.find((info) => info.stage === notDoingStage.id)) {
+      return null;
+    }
     message.investible = investible.investible.name;
   }
   return message;
@@ -161,16 +166,25 @@ function Outbox(props) {
         <ThumbsUpDownIcon style={{fontSize: 24, color: '#8f8f8f',}}/>, intl));
     });
     questions.forEach((comment) => {
-      messages.push(getMessageForComment(comment, market, 'cardTypeLabelQuestion',
-        <QuestionIcon style={{fontSize: 24, color: '#8f8f8f',}}/>, intl, investibleState));
+      const message = getMessageForComment(comment, market, 'cardTypeLabelQuestion',
+        <QuestionIcon style={{fontSize: 24, color: '#8f8f8f',}}/>, intl, investibleState);
+      if (message) {
+        messages.push(message);
+      }
     });
     issues.forEach((comment) => {
-      messages.push(getMessageForComment(comment, market, 'cardTypeLabelIssue',
-        <IssueIcon style={{fontSize: 24, color: '#8f8f8f',}}/>, intl, investibleState));
+      const message = getMessageForComment(comment, market, 'cardTypeLabelIssue',
+        <IssueIcon style={{fontSize: 24, color: '#8f8f8f',}}/>, intl, investibleState);
+      if (message) {
+        messages.push(message);
+      }
     });
     suggestions.forEach((comment) => {
-      messages.push(getMessageForComment(comment, market, 'cardTypeLabelSuggestedChange',
-        <ChangeSuggstionIcon style={{fontSize: 24, color: '#8f8f8f',}}/>, intl, investibleState));
+      const message = getMessageForComment(comment, market, 'cardTypeLabelSuggestedChange',
+        <ChangeSuggstionIcon style={{fontSize: 24, color: '#8f8f8f',}}/>, intl, investibleState);
+      if (message) {
+        messages.push(message);
+      }
     });
   })
 

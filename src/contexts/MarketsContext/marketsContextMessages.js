@@ -7,7 +7,7 @@ import { removeMarketDetails } from './marketsContextReducer'
 import { pushMessage, registerListener } from '../../utils/MessageBusUtils'
 import { addMarketToStorage } from './marketsContextHelper'
 import { getMarketFromInvite, getMarketFromUrl } from '../../api/uclusionClient'
-import { createMarketListeners, pollForMarketLoad } from '../../api/versionedFetchUtils'
+import { createMarketListeners } from '../../api/versionedFetchUtils'
 import { toastError } from '../../utils/userMessage'
 import { ADD_PRESENCE } from '../MarketPresencesContext/marketPresencesMessages'
 import {
@@ -97,7 +97,7 @@ function beginListening(dispatch, diffDispatch, setTokensHash) {
       pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, marketId, stages });
       createMarketListeners(id);
       const tokenStorageManager = new TokenStorageManager();
-      return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, id, token).then(() => pollForMarketLoad(id));
+      return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, id, token);
     }).catch((error) => {
       console.error(error);
       toastError('errorMarketFetchFailed');

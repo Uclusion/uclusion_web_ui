@@ -22,7 +22,7 @@ function beginListening(dispatch) {
     const { payload: { event, marketId, stages } } = data;
     switch (event) {
       case VERSIONS_EVENT:
-        // console.debug(`Stages context responding to updated market event ${event}`);
+        console.log('Adding stages on versions event');
         dispatch(updateMarketStagesFromNetwork(marketId, stages));
         break;
       default:

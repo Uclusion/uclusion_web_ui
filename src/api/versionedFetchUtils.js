@@ -141,35 +141,6 @@ export function createMarketListeners(id) {
 }
 
 /**
- * add a listener to all places a market can show up, then kick off global version to make sure it gets filled
- * @param id
- */
-export function pollForMarketLoad(id) {
-  return new Promise((resolve, reject) => {
-    const execFunction = () => {
-      return getChangedIds(null)
-        .then((versions) => {
-          const { foreground: foregroundList, background: backgroundList } = versions;
-          if (_.includes(foregroundList, id) || _.includes(backgroundList, id)) {
-            // Update the current market, but with one thread.
-            console.info(`Poll for market updating market id ${id}`);
-            return updateMarkets([id], [], 1).then(() => {
-              resolve(true);
-              return Promise.resolve(true);
-            });
-          }
-          // The market invite hasn't had time to propagate so wait and try again in 2 seconds
-          return false;
-        }).catch((error) => {
-          console.error(error.message);
-          reject(error);
-        });
-    };
-    startTimerChain(2000, MAX_RETRIES, execFunction);
-  });
-}
-
-/**
  * Updates all the accounts from the passed in signatures
  * @param accountId the account ID we need to sync
  * @param maxConcurrencyCount the maximum number of api calls to make at once

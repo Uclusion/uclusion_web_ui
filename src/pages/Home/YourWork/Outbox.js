@@ -203,7 +203,8 @@ function Outbox(props) {
   //TODO need person column that is avatar plus initials and when required people or mentions need to create multiple
   // items if more than one
 
-  const messagesFilteredForJar = isJarDisplay ? messages.filter((message) => !message.inFurtherWork) : messages;
+  const filteredForJar = messages.filter((message) => !message.inFurtherWork);
+  const messagesFilteredForJar = isJarDisplay && !_.isEmpty(filteredForJar) ? filteredForJar : messages;
   const messagesOrdered = _.orderBy(messagesFilteredForJar, ['updatedAt'], ['asc']);
 
   const rows = messagesOrdered.map((message) => {
@@ -243,7 +244,7 @@ function Outbox(props) {
         <div id='outboxNotification' key='outbox'
              onClick={(event) => setAnchorEl(event.currentTarget)}
              className={classes.bellButton}>
-          <Badge badgeContent={messagesFilteredForJar.length} className={classes.chip} overlap="circle">
+          <Badge badgeContent={filteredForJar.length} className={classes.chip} overlap="circle">
             <Fab id='notifications-fabInbox' className={classes.fab}>
               <OutboxIcon htmlColor='#8f8f8f' />
             </Fab>

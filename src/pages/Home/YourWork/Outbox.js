@@ -20,6 +20,7 @@ import {
   getMarketInvestibles
 } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import {
+  getFurtherWorkStage,
   getInCurrentVotingStage,
   getInReviewStage, getNotDoingStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
@@ -74,7 +75,8 @@ function getMessageForComment(comment, market, labelId, Icon, intl, investibleSt
     comment: comment.body,
     title: intl.formatMessage({ id: labelId }),
     updatedAt: comment.updated_at,
-    link: formCommentLink(market.id, comment.investible_id, commentId)
+    link: formCommentLink(market.id, comment.investible_id, commentId),
+    inFurtherWork: false
   };
   if (comment.investible_id) {
     const investible = getInvestible(investibleState, comment.investible_id);
@@ -82,6 +84,10 @@ function getMessageForComment(comment, market, labelId, Icon, intl, investibleSt
     const { market_infos } = investible;
     if (market_infos.find((info) => info.stage === notDoingStage.id)) {
       return null;
+    }
+    const furtherWork = getFurtherWorkStage(marketStagesState, market.id);
+    if (market_infos.find((info) => info.stage === furtherWork.id)) {
+      message.inFurtherWork = true;
     }
     message.investible = investible.investible.name;
   }
@@ -197,16 +203,17 @@ function Outbox(props) {
   //TODO need person column that is avatar plus initials and when required people or mentions need to create multiple
   // items if more than one
 
-  const messagesOrdered = _.orderBy(messages, ['updatedAt'], ['asc']);
+  const messagesFilteredForJar = isJarDisplay ? messages.filter((message) => !message.inFurtherWork) : messages;
+  const messagesOrdered = _.orderBy(messagesFilteredForJar, ['updatedAt'], ['asc']);
 
   const rows = messagesOrdered.map((message) => {
-    const { id, market, investible, updatedAt, link, title, icon, comment } = message;
+    const { id, market, investible, updatedAt, link, title, icon, comment, inFurtherWork } = message;
     const titleSize = mobileLayout ? 30 : 100;
     const item = {
       title,
       icon,
       market:createTitle(market, titleSize),
-      read: false,
+      read: inFurtherWork,
       isDeletable: false,
       description: '',
       date: intl.formatDate(updatedAt)
@@ -230,13 +237,13 @@ function Outbox(props) {
   })
 
   if (isJarDisplay) {
-    const first = _.isEmpty(messages) ? undefined : messages[0];
+    const first = _.isEmpty(messagesFilteredForJar) ? undefined : messagesFilteredForJar[0];
     return (
       <>
         <div id='outboxNotification' key='outbox'
              onClick={(event) => setAnchorEl(event.currentTarget)}
              className={classes.bellButton}>
-          <Badge badgeContent={messages.length} className={classes.chip} overlap="circle">
+          <Badge badgeContent={messagesFilteredForJar.length} className={classes.chip} overlap="circle">
             <Fab id='notifications-fabInbox' className={classes.fab}>
               <OutboxIcon htmlColor='#8f8f8f' />
             </Fab>

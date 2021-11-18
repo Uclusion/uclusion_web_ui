@@ -76,9 +76,6 @@ function getTitle(marketType, linkType, name, marketId, investibleId, investible
     const stage = getFullStage(marketStagesState, marketId, currentStageId) || {};
     return convertStageName(stage.name, intl);
   }
-  if (marketType === 'slack') {
-    return 'Preferences';
-  }
   if (marketType === 'upgrade') {
     return 'Billing';
   }

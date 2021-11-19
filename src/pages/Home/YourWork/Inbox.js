@@ -166,7 +166,7 @@ function Inbox(props) {
   } else {
     messagesOrdered =  _.orderBy(messages, ['updated_at'], ['desc']) || [];
   }
-
+  let containsUnread = false;
   const rows = messagesOrdered.map((message) => {
     const { level, market_name: market, investible_name: investible, updated_at: updatedAt, investible_id: investibleId,
       is_highlighted: isHighlighted, name, text, link, type_object_id: typeObjectId, market_id: marketId,
@@ -185,6 +185,9 @@ function Inbox(props) {
       isDeletable: typeObjectId.startsWith('UNREAD'),
       date: intl.formatDate(updatedAt),
       message
+    }
+    if (isHighlighted) {
+      containsUnread = true;
     }
     if (commentId) {
       let useMarketId = commentMarketId ? commentMarketId : marketId;
@@ -273,6 +276,7 @@ function Inbox(props) {
         <Checkbox
           checked={checkAll}
           indeterminate={indeterminate}
+          disabled={!containsUnread}
           onChange={() => {
             setIndeterminate(false);
             setDeterminate({});

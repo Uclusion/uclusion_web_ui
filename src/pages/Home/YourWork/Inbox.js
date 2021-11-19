@@ -141,13 +141,14 @@ function Inbox(props) {
   }, [checkAll, determinate])
 
   let messages;
+  let messagesFull = (messagesUnsafe || []).filter((message) => message.type !== 'UNREAD_REPORT');
   let unreadCount = 0;
   if (isJarDisplay) {
-    messages = (messagesUnsafe || []).filter((message) => message.type !== 'UNREAD_REPORT' && message.is_highlighted);
+    messages = messagesFull.filter((message) => message.is_highlighted);
     unreadCount = messages.length;
   }
   if (_.isEmpty(messages)) {
-    messages = (messagesUnsafe || []).filter((message) => message.type !== 'UNREAD_REPORT');
+    messages = messagesFull;
   }
 
   let messagesOrdered;
@@ -207,6 +208,7 @@ function Inbox(props) {
 
   if (isJarDisplay) {
     const first = _.isEmpty(messages) ? undefined : messagesOrdered[0];
+    const seeMoreId = _.size(rows) > Math.min(10, _.size(messagesFull)) ? 'seeFullInbox' : 'seeInbox';
     return (
       <>
         <div id='inboxNotification' key='inbox'
@@ -243,14 +245,14 @@ function Inbox(props) {
             </div>
           )}
           <Card>
-            <CardActions style={{display: 'flex', justifyContent: 'center'}}>
+            <CardActions style={{display: 'flex', justifyContent: 'center', minWidth: '30vw'}}>
               <Link href={'/inbox'} onClick={
                 (event) => {
                   preventDefaultAndProp(event);
                   navigate(history, '/inbox');
                 }
               }><FormattedMessage
-                id="seeFullInbox"
+                id={seeMoreId}
               /> </Link>
             </CardActions>
           </Card>

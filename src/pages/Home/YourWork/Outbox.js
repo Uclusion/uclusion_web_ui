@@ -367,6 +367,7 @@ function Outbox(props) {
   })
 
   if (isJarDisplay) {
+    const seeMoreId = _.size(rows) > Math.min(10, _.size(messages)) ? 'seeFullOutbox' : 'seeOutbox';
     const first = _.isEmpty(messagesFilteredForJar) ? undefined : messagesFilteredForJar[0];
     return (
       <>
@@ -402,14 +403,14 @@ function Outbox(props) {
             </div>
           )}
           <Card>
-            <CardActions style={{display: 'flex', justifyContent: 'center'}}>
+            <CardActions style={{display: 'flex', justifyContent: 'center', minWidth: '30vw'}}>
               <Link href={'/outbox'} onClick={
                 (event) => {
                   preventDefaultAndProp(event);
                   navigate(history, '/outbox');
                 }
               }><FormattedMessage
-                id="seeFullOutbox"
+                id={seeMoreId}
               /> </Link>
             </CardActions>
           </Card>

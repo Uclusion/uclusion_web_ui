@@ -262,6 +262,8 @@ const messages = defineMessages({
   outbox: 'Pending',
   seeFullInbox: 'SEE FULL',
   seeFullOutbox: 'SEE FULL',
+  seeInbox: 'View Inbox',
+  seeOutbox: 'View Pending',
   commentAddBox: 'Add Comment',
   questions: 'Questions',
   suggestions: 'Suggestions',

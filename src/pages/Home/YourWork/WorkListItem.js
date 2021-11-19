@@ -1,7 +1,7 @@
 import React, { useContext, useEffect } from 'react'
 import cx from "clsx";
 import styled from "styled-components";
-import { Box, IconButton, useMediaQuery, useTheme } from '@material-ui/core'
+import { Box, IconButton, makeStyles, useMediaQuery, useTheme } from '@material-ui/core'
 import Checkbox from "@material-ui/icons/CheckBox";
 import CheckBoxOutlineBlank from "@material-ui/icons/CheckBoxOutlineBlank";
 import { useSizedIconButtonStyles } from "@mui-treasury/styles/iconButton/sized";
@@ -14,6 +14,7 @@ import { dehighlightMessage, removeMessage } from '../../../contexts/Notificatio
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import ArchiveIcon from '@material-ui/icons/Archive'
 import _ from 'lodash'
+import GravatarGroup from '../../../components/Avatars/GravatarGroup'
 
 const Div = styled("div")`
   height: 40px;
@@ -84,6 +85,14 @@ const DateLabelB = styled(DateLabel)`
   font-weight: bold;
 `;
 
+const useStyles = makeStyles(() => {
+  return {
+    gravatarStyle: {
+      paddingRight: '1rem',
+    },
+  };
+});
+
 function WorkListItem(props) {
   const {
     read,
@@ -93,6 +102,7 @@ function WorkListItem(props) {
     investible = '',
     comment = '',
     title = (<div />),
+    people,
     description = "Please read",
     message,
     date,
@@ -103,6 +113,7 @@ function WorkListItem(props) {
     determinate,
     id
   } = props;
+  const classes = useStyles();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const [, messagesDispatch] = useContext(NotificationsContext);
@@ -182,6 +193,7 @@ function WorkListItem(props) {
       {mobileLayout ? React.Fragment : (read ?
         (<Title style={{flexBasis: useSelect ? undefined : '160px'}}>{title}</Title>) :
         (<TitleB style={{flexBasis: useSelect ? undefined : '160px'}}>{title}</TitleB>))}
+      {isJarDisplay || mobileLayout || !people ? React.Fragment : <GravatarGroup users={people} className={classes.gravatarStyle}/> }
       {read ? (<Text>{fullText}</Text>) : (<TextB>{fullText}</TextB>)}
       {isJarDisplay || mobileLayout ? React.Fragment : (read ? (<DateLabel>{date}</DateLabel>) : (<DateLabelB>{date}</DateLabelB>))}
     </Div>

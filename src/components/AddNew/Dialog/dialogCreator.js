@@ -13,6 +13,7 @@ import { addDecisionInvestible } from '../../../api/investibles'
 import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../../authorization/TokenStorageManager'
 import { ADD_EVENT } from '../../../contexts/NotificationsContext/notificationsContextMessages'
+import _ from 'lodash'
 
 export function createMyDialog (dispatchers, formData, updateFormData) {
   const {
@@ -30,7 +31,7 @@ export function createMyDialog (dispatchers, formData, updateFormData) {
     addOptionsSkipped,
     allowMultipleVotes,
   } = formData;
-  const marketDescription = dialogReason === undefined ? ' ' : dialogReason;
+  const marketDescription = _.isEmpty(dialogReason) ? ' ' : dialogReason;
   const safeReasonUploadedFiles = dialogReasonUploadedFiles || [];
   const processed = processTextAndFilesForSave(safeReasonUploadedFiles, marketDescription);
   const marketInfo = {

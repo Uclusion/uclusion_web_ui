@@ -8,13 +8,13 @@ import OutboxIcon from '../../../components/CustomChip/Outbox'
 import {
   createTitle,
   formCommentLink,
-  formInvestibleLink,
+  formInvestibleLink, formMarketLink,
   navigate,
   preventDefaultAndProp
 } from '../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
-import { PLANNING_TYPE } from '../../../constants/markets'
+import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../../constants/markets'
 import {
   getInvestible,
   getMarketInvestibles
@@ -37,7 +37,7 @@ import QuestionIcon from '@material-ui/icons/ContactSupport'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import {
-  getMarketDetailsForType,
+  getMarketDetailsForType, getMyUserForMarket,
   getNotHiddenMarketDetailsForUser
 } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { getUserInvestibles } from '../../Dialog/Planning/userUtils'
@@ -48,6 +48,8 @@ import IssueIcon from '@material-ui/icons/ReportProblem'
 import { getInvestibleVoters } from '../../../utils/votingUtils'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { getMarketInfo } from '../../../utils/userFunctions'
+import VotingIcon from '@material-ui/icons/Assessment'
+import GavelIcon from '@material-ui/icons/Gavel'
 
 const SectionTitle = styled("div")`
   width: auto;
@@ -116,6 +118,25 @@ function getMessageForComment(comment, market, labelId, Icon, intl, investibleSt
   return message;
 }
 
+function processMessageForDialogOrInitiative(message, market, marketPresencesState) {
+  const debtors = [];
+  const marketPresences = getMarketPresences(marketPresencesState, market.id) || [];
+  marketPresences.forEach((presence) => {
+    const { following, market_banned: banned, investments, current_user: isCurrentUser } = presence;
+    if (following && !banned && !isCurrentUser) {
+      const investment = (investments || []).find((investment) => !investment.deleted);
+      if (!investment) {
+        debtors.push(presence);
+      }
+    }
+  });
+  if (_.isEmpty(debtors)) {
+    message.inActive = true;
+  } else {
+    message.debtors = debtors;
+  }
+}
+
 const useStyles = makeStyles(
   theme => {
     return {
@@ -164,6 +185,8 @@ function Outbox(props) {
   const inboxMessages = messagesUnsafe || [];
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   const planningDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, PLANNING_TYPE);
+  const initiativeDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, INITIATIVE_TYPE);
+  const dialogDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, DECISION_TYPE);
 
   const workspacesData = planningDetails.map((market) => {
     const marketPresences = getMarketPresences(marketPresencesState, market.id) || [];
@@ -186,6 +209,34 @@ function Outbox(props) {
   });
 
   const messages = [];
+  initiativeDetails.forEach((market) => {
+    if (market.created_by === getMyUserForMarket(marketsState, market.id)) {
+      const investibles = getMarketInvestibles(investibleState, market.id) || [];
+      if (investibles.length > 0) {
+        const investible = investibles[0];
+        const message = getMessageForInvestible(investible, market, 'MarketSearchResultInitiative',
+          <VotingIcon style={{ fontSize: 24, color: '#8f8f8f', }}/>, intl);
+        processMessageForDialogOrInitiative(message, market, marketPresencesState);
+        messages.push(message);
+      }
+    }
+  });
+
+  dialogDetails.forEach((market) => {
+    if (market.created_by === getMyUserForMarket(marketsState, market.id)) {
+      const message = {
+        id: market.id,
+        market: market.name,
+        icon: <GavelIcon style={{ fontSize: 24, color: '#8f8f8f', }}/>,
+        title: intl.formatMessage({ id: 'MarketSearchResultDialog' }),
+        updatedAt: market.updated_at,
+        link: formMarketLink(market.id)
+      };
+      processMessageForDialogOrInitiative(message, market, marketPresencesState);
+      messages.push(message);
+    }
+  });
+
   workspacesData.forEach((workspacesData) => {
     const { market, comments, inReviewInvestibles, inVotingInvestibles, questions, issues, suggestions }
       = workspacesData;
@@ -279,12 +330,6 @@ function Outbox(props) {
       }
     });
   })
-
-  //TODO open dialogs and initiatives
-  //TODO last activity
-  // Stories - last activity is across votes and comments
-  // Comments - last activity is across all descendents if regular and across descendents and the market if not
-  // Markets - use already written last activity code
 
   const filteredForJar = messages.filter((message) => !message.inActive);
   const messagesFilteredForJar = isJarDisplay && !_.isEmpty(filteredForJar) ? filteredForJar : messages;

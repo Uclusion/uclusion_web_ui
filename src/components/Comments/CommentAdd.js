@@ -37,7 +37,7 @@ import { InvestiblesContext } from '../../contexts/InvestibesContext/Investibles
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { changeInvestibleStageOnCommentChange } from '../../utils/commentFunctions'
+import { allowVotingForSuggestion, changeInvestibleStageOnCommentChange } from '../../utils/commentFunctions'
 import { findMessageOfType, findMessageOfTypeAndId } from '../../utils/messageUtils'
 import { dehighlightMessage, removeMessage } from '../../contexts/NotificationsContext/notificationsContextReducer'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
@@ -49,6 +49,7 @@ import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUse
 import { pushMessage } from '../../utils/MessageBusUtils'
 import { getQuillStoredState } from '../TextEditors/QuillEditor2'
 import IssueDialog from '../Warnings/IssueDialog'
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 
 function getPlaceHolderLabelId (type, isStory, isInReview) {
   switch (type) {
@@ -211,7 +212,8 @@ function CommentAdd(props) {
   const [investibleState, investibleDispatch] = useContext(InvestiblesContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
-  const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [marketPresencesState, presenceDispatch] = useContext(MarketPresencesContext);
+  const [, marketsDispatch] = useContext(MarketsContext);
   const [openIssue, setOpenIssue] = useState(false);
   const [doNotShowAgain, setDoNotShowAgain] = useState(undefined);
   const classes = useStyles();
@@ -374,6 +376,20 @@ function CommentAdd(props) {
           if (issueMessage) {
             messagesDispatch(dehighlightMessage(issueMessage));
           }
+        }
+        if ((investibleRequiresInput || !investibleId) && comment.comment_type === SUGGEST_CHANGE_TYPE) {
+          return allowVotingForSuggestion(comment.id, setOperationRunning, marketsDispatch, presenceDispatch,
+            commentsState, commentDispatch, investibleDispatch).then(() => {
+            if (doNotShowAgain) {
+              return doNotShowAgain().then(() => {
+                setOperationRunning(false);
+                handleSpinStop(comment);
+              });
+            } else {
+              setOperationRunning(false);
+              handleSpinStop(comment);
+            }
+          });
         }
         if (doNotShowAgain) {
           return doNotShowAgain().then(() => {

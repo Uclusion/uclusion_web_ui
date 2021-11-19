@@ -31,7 +31,6 @@ import { getMarketPresences } from '../../contexts/MarketPresencesContext/market
 import CommentEdit from './CommentEdit'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import {
-  addMarket,
   addMarketToStorage,
   getMarket,
   getMyUserForMarket
@@ -63,9 +62,9 @@ import {
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 import { formMarketAddInvestibleLink, navigate } from '../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
-import { createInitiative, updateMarket } from '../../api/markets'
+import { updateMarket } from '../../api/markets'
 import ShareStoryButton from '../../pages/Investible/Planning/ShareStoryButton'
-import { onCommentOpen } from '../../utils/commentFunctions'
+import { allowVotingForSuggestion, onCommentOpen } from '../../utils/commentFunctions'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 import {
   findMessageForCommentId, findMessagesForCommentId,
@@ -88,7 +87,6 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { getDiff, markDiffViewed } from '../../contexts/DiffContext/diffContextHelper'
 import { DiffContext } from '../../contexts/DiffContext/DiffContext'
 import DiffDisplay from '../TextEditors/DiffDisplay'
-import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../authorization/TokenStorageManager'
 import { removeMessage } from '../../contexts/NotificationsContext/notificationsContextReducer'
 
 const useCommentStyles = makeStyles(
@@ -396,22 +394,8 @@ function Comment(props) {
 
   function allowSuggestionVote() {
     setOperationRunning(true);
-    const addInfo = {
-      name: 'NA',
-      market_type: INITIATIVE_TYPE,
-      description: 'NA',
-      parent_comment_id: id,
-    };
-    return createInitiative(addInfo)
-      .then((result) => {
-        addMarket(result, marketsDispatch, () => {}, presenceDispatch);
-        const { market: { id: inlineMarketId }, parent, token, investible } = result;
-        addCommentToMarket(parent, commentState, commentDispatch);
-        addInvestible(investiblesDispatch, () => {}, investible);
-        setOperationRunning(false);
-        const tokenStorageManager = new TokenStorageManager();
-        return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, inlineMarketId, token);
-      });
+    return allowVotingForSuggestion(id, setOperationRunning, marketsDispatch, presenceDispatch,
+      commentState, commentDispatch, investiblesDispatch);
   }
 
   function toggleReply() {

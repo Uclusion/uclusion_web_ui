@@ -9,6 +9,10 @@ import { LOAD_EVENT } from '../contexts/InvestibesContext/investiblesContextMess
 import { formCommentLink, formMarketLink } from './marketIdPathFunctions'
 import { addMessage } from '../contexts/NotificationsContext/notificationsContextReducer'
 import { RED_LEVEL } from '../constants/notifications'
+import { INITIATIVE_TYPE } from '../constants/markets'
+import { createInitiative } from '../api/markets'
+import { addMarket } from '../contexts/MarketsContext/marketsContextHelper'
+import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../authorization/TokenStorageManager'
 
 export function scrollToCommentAddBox() {
   const box = document.getElementById('cabox');
@@ -80,6 +84,26 @@ export function changeInvestibleStageOnCommentChange(investibleBlocks, investibl
       }
     }
   }
+}
+
+export function allowVotingForSuggestion(commentId, setOperationRunning, marketsDispatch, presenceDispatch,
+  commentState, commentDispatch, investiblesDispatch) {
+  const addInfo = {
+    name: 'NA',
+    market_type: INITIATIVE_TYPE,
+    description: 'NA',
+    parent_comment_id: commentId,
+  };
+  return createInitiative(addInfo)
+    .then((result) => {
+      addMarket(result, marketsDispatch, () => {}, presenceDispatch);
+      const { market: { id: inlineMarketId }, parent, token, investible } = result;
+      addCommentToMarket(parent, commentState, commentDispatch);
+      addInvestible(investiblesDispatch, () => {}, investible);
+      setOperationRunning(false);
+      const tokenStorageManager = new TokenStorageManager();
+      return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, inlineMarketId, token);
+    });
 }
 
 export function notifyImmediate(userId, comment, market, messagesDispatch) {

@@ -4,6 +4,7 @@ import PropTypes from 'prop-types'
 import * as moment from 'moment'
 import { useIntl } from 'react-intl'
 import { Tooltip } from '@material-ui/core'
+import ExpiredDisplay from './ExpiredDisplay'
 
 const ONE_MINUTE = 60000;
 const THIRTY_MINUTES = 1800000;
@@ -159,6 +160,9 @@ function ExpiresDisplay(props) {
               {getDisplayText()}
           </div>
         </Tooltip>
+      )}
+      {!shouldDisplay && (
+        <ExpiredDisplay expiresDate={new Date()} />
       )}
     </>
   );

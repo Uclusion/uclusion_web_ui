@@ -45,7 +45,7 @@ import { getThreadIds, notifyImmediate } from '../../../utils/commentFunctions'
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
 import DismissableText from '../../../components/Notifications/DismissableText'
 import { deleteOrDehilightMessages } from '../../../api/users'
-import { SettingsBackupRestore } from '@material-ui/icons'
+import { Clear, SettingsBackupRestore } from '@material-ui/icons'
 
 const myClasses = makeStyles(
   theme => {
@@ -535,7 +535,14 @@ function MarketTodos (props) {
               <FormattedMessage id={todosButtonMsgId}/>
           </SpinningIconLabelButton>
           )}
-        actionButton={mobileLayout ? undefined :
+        actionButton={showSelectTodos ? <SpinningIconLabelButton icon={Clear}
+                                                                 onClick={() => {
+                                                                   setChecked({});
+                                                                   setShowSelectTodos(false);
+                                                                 }} doSpin={false}
+                                                                 whiteBackground>
+          <FormattedMessage id="cancel"/>
+        </SpinningIconLabelButton> : (mobileLayout ? undefined :
           (
             <SpinningIconLabelButton icon={SettingsBackupRestore} onClick={() => {
               const allMessages = [];
@@ -563,7 +570,7 @@ function MarketTodos (props) {
             }} whiteBackground id="removeTodosNotificationsButton">
               <FormattedMessage id='removeNotifications'/>
             </SpinningIconLabelButton>
-          )}
+          ))}
       >
         <div style={{paddingTop: '1rem'}}>
           {createRedCard && marketId && (

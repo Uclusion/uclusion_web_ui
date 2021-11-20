@@ -503,7 +503,7 @@ function MarketTodos (props) {
   function onDropAble(event) {
     onDrop(event, 'BLUE');
   }
-  const isSingleTodoSelected = editRedCardId || editYellowCardId || editCardId;
+
   const todosButtonMsgId = showSelectTodos ? 'todosCreateStory' : 'todosSelectForStory';
   const immediateTodosChip = redComments.length > 0 && <Chip label={`${redComments.length}`} color="primary"
                                                              size='small' className={classes.chipStyleRed} />;
@@ -528,7 +528,7 @@ function MarketTodos (props) {
         isBlackText
         title={intl.formatMessage({ id: 'todoSection' })}
         helpLink='https://documentation.uclusion.com/workspaces/todos'
-        createButton={isSingleTodoSelected || isInArchives || mobileLayout ? undefined :
+        createButton={isInArchives || mobileLayout ? undefined :
           (
             <SpinningIconLabelButton icon={ArrowUpwardIcon} onClick={toggleShowSelectTodos} doSpin={false}
                                      whiteBackground>

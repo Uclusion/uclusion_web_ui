@@ -367,7 +367,7 @@ function Outbox(props) {
   })
 
   if (isJarDisplay) {
-    const seeMoreId = _.size(rows) > Math.min(10, _.size(messages)) ? 'seeFullOutbox' : 'seeOutbox';
+    const seeMoreId = (_.size(messages) > 10 || _.size(messages) > _.size(rows)) ? 'seeFullOutbox' : 'seeOutbox';
     const first = _.isEmpty(messagesFilteredForJar) ? undefined : messagesFilteredForJar[0];
     return (
       <>

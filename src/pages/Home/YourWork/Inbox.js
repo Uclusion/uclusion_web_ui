@@ -211,7 +211,7 @@ function Inbox(props) {
 
   if (isJarDisplay) {
     const first = _.isEmpty(messages) ? undefined : messagesOrdered[0];
-    const seeMoreId = _.size(rows) > Math.min(10, _.size(messagesFull)) ? 'seeFullInbox' : 'seeInbox';
+    const seeMoreId = (_.size(messagesFull) > _.size(rows) || _.size(messagesFull) > 10) ? 'seeFullInbox' : 'seeInbox';
     return (
       <>
         <div id='inboxNotification' key='inbox'

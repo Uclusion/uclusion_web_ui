@@ -2,6 +2,7 @@ import { getLoginPersistentItem, setLoginPersistentItem } from '../components/lo
 import queryString from 'query-string'
 
 const REDIRECT_LOCAL_STORAGE_KEY = 'redirection';
+const WORKSPACE_LOCAL_STORAGE_KEY = 'current_workspace';
 const UTM_LOCAL_STORAGE_KEY = 'utm';
 const EMAIL_LOCAL_STORAGE_KEY = 'email_storage';
 const INVITATION_MARKER_STORAGE_KEY = 'invitation_marker';
@@ -29,6 +30,10 @@ export function setRedirect(location) {
   setLoginPersistentItem(REDIRECT_LOCAL_STORAGE_KEY, location);
 }
 
+export function setCurrentWorkspace(location) {
+  setLoginPersistentItem(WORKSPACE_LOCAL_STORAGE_KEY, location);
+}
+
 export function setInvitationMarker() {
   setLoginPersistentItem(INVITATION_MARKER_STORAGE_KEY, 'invited');
 }
@@ -43,6 +48,10 @@ export function setEmail(email) {
 
 export function getRedirect() {
   return getLoginPersistentItem(REDIRECT_LOCAL_STORAGE_KEY);
+}
+
+export function getCurrentWorkspace() {
+  return getLoginPersistentItem(WORKSPACE_LOCAL_STORAGE_KEY);
 }
 
 export function getUtm() {

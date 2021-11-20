@@ -171,7 +171,8 @@ function Screen(props) {
     toolbarButtons,
     appEnabled,
     banner,
-    navigationOptions
+    navigationOptions,
+    isWorkspace
   } = props;
 
   useEffect(() => {
@@ -234,6 +235,7 @@ function Screen(props) {
         toolbarButtons={toolbarButtons}
         hidden={reallyAmLoading}
         appEnabled={appEnabled}
+        isWorkspace={isWorkspace}
       />
       {!_.isEmpty(navListItemTextArray) && !mobileLayout && (
         <div className={classes.listContainer}>
@@ -311,6 +313,7 @@ Screen.propTypes = {
   tabTitle: PropTypes.string,
   appEnabled: PropTypes.bool,
   banner: PropTypes.node,
+  isWorkspace: PropTypes.bool
 };
 
 Screen.defaultProps = {
@@ -324,6 +327,7 @@ Screen.defaultProps = {
   sidebarActions: [],
   appEnabled: true,
   banner: undefined,
+  isWorkspace: false
 };
 
 export default Screen;

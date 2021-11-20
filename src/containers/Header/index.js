@@ -14,7 +14,13 @@ import {
   useTheme,
 } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles';
-import { createTitle, openInNewTab, preventDefaultAndProp } from '../../utils/marketIdPathFunctions'
+import {
+  createTitle,
+  formMarketLink,
+  navigate,
+  openInNewTab,
+  preventDefaultAndProp
+} from '../../utils/marketIdPathFunctions'
 import { OnlineStateContext } from '../../contexts/OnlineStateContext';
 import Identity from '../Screen/Identity';
 import { useHistory } from 'react-router';
@@ -23,6 +29,8 @@ import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import config from '../../config';
 import Inbox from '../../pages/Home/YourWork/Inbox'
 import Outbox from '../../pages/Home/YourWork/Outbox'
+import { ChevronLeft } from '@material-ui/icons'
+import { getCurrentWorkspace } from '../../utils/redirectUtils'
 
 export const headerStyles = makeStyles((theme) => {
   return {
@@ -141,7 +149,7 @@ function Header (props) {
   const [online] = useContext(OnlineStateContext);
   const history = useHistory();
   const {
-    breadCrumbs, toolbarButtons, appEnabled, hidden, title, hideTools, titleIcon
+    breadCrumbs, toolbarButtons, appEnabled, hidden, title, hideTools, titleIcon, isWorkspace
   } = props;
 
   const [operationRunning] = useContext(OperationInProgressContext);
@@ -229,7 +237,7 @@ function Header (props) {
       </div>
     );
   }
-
+  const lastWorkspaceLink = getCurrentWorkspace() ? formMarketLink(getCurrentWorkspace()) : '/';
   return (
     <div id="app-header-control">
       <AppBar
@@ -238,6 +246,14 @@ function Header (props) {
         className={classes.appBar}
       >
         <Toolbar className={classes.topBar}>
+          {!isWorkspace && (
+            <Link href={lastWorkspaceLink} onClick={(event) => {
+              preventDefaultAndProp(event);
+              navigate(history, lastWorkspaceLink);
+            }} color="inherit">
+              <ChevronLeft htmlColor="black" style={{marginLeft: '1rem'}} />
+            </Link>
+          )}
           <div className={classes.sidebarLogo}>
             <Link href="/" onClick={(event) => {
               preventDefaultAndProp(event);

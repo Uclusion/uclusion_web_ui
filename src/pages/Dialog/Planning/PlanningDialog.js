@@ -98,6 +98,7 @@ import {
   getNotHiddenMarketDetailsForUser
 } from '../../../contexts/MarketsContext/marketsContextHelper'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
+import { setCurrentWorkspace } from '../../../utils/redirectUtils'
 
 export const LocalPlanningDragContext = React.createContext([]);
 
@@ -334,6 +335,7 @@ function PlanningDialog(props) {
         value={marketId}
         onChange={(event) => {
           const { value } = event.target;
+          setCurrentWorkspace(value);
           navigate(history, formMarketLink(value));
         }}
       >
@@ -409,6 +411,7 @@ function PlanningDialog(props) {
       tabTitle={marketName}
       breadCrumbs={breadCrumbs}
       banner={banner}
+      isWorkspace
       navigationOptions={banner ? [] : navigationMenu}
     >
       <UclusionTour

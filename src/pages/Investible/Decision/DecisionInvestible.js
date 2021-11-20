@@ -380,6 +380,7 @@ function DecisionInvestible(props) {
       breadCrumbs={breadCrumbs}
       hidden={hidden}
       navigationOptions={navigationMenu}
+      isWorkspace={isInline}
     >
       {activeMarket && !inProposed && !allowMultiVote && (
         <DismissableText textId='decisionInvestibleVotingSingleHelp' text={

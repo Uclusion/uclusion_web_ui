@@ -132,8 +132,12 @@ function PlanningInvestibleAdd(props) {
   function clearInitialEditor() {
     pushMessage(getControlPlaneName(initialVoteEditorName), editorReset());
   }
+
+  function handleSave() {
+    return handleSaveImpl(false);
+  }
   
-  function handleSave(resolveComments) {
+  function handleSaveImpl(resolveComments) {
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
@@ -174,7 +178,7 @@ function PlanningInvestibleAdd(props) {
       if (fromCommentIds) {
         const { investible } = inv;
         return moveComments(marketId, investible.id, fromCommentIds,
-          resolveComments ? [requiresInputId] : undefined)
+          resolveComments && requiresInputId ? [requiresInputId] : undefined)
           .then((movedComments) => {
             fromCommentIds.forEach((commentId) => {
               const commentMessages = findMessagesForCommentId(commentId, messagesState) || [];
@@ -343,7 +347,7 @@ function PlanningInvestibleAdd(props) {
                                            id="requiresInputProceedButton">
                     {intl.formatMessage({ id: 'proceedRequiresInput' })}
                   </SpinningIconLabelButton>
-                  <SpinningIconLabelButton onClick={() => handleSave(true)} icon={SettingsBackupRestore}
+                  <SpinningIconLabelButton onClick={() => handleSaveImpl(true)} icon={SettingsBackupRestore}
                                            id="requiresInputResolveButton">
                     {intl.formatMessage({ id: 'resolveComment' })}
                   </SpinningIconLabelButton>

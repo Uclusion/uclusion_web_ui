@@ -357,13 +357,13 @@ function Outbox(props) {
         item.comment = createTitle(commentName, titleSize);
       }
     }
-    return <Link href={link} style={{ width: '100%' }} onClick={
+    return <Link href={link} style={{ width: '100%' }} key={`linkOutboxRow${id}`} onClick={
       (event) => {
         preventDefaultAndProp(event);
         setAnchorEl(null);
         navigate(history, link);
       }
-    }><WorkListItem key={id} id={id} isJarDisplay={isJarDisplay} useSelect={false} {...item} /></Link>;
+    }><WorkListItem key={`outboxRow${id}`} id={id} isJarDisplay={isJarDisplay} useSelect={false} {...item} /></Link>;
   })
 
   if (isJarDisplay) {
@@ -398,11 +398,11 @@ function Outbox(props) {
           style={{maxWidth: mobileLayout ? undefined : '50%'}}
         >
           {!_.isEmpty(first) && (
-            <div style={{minWidth: '50vw'}}>
+            <div style={{minWidth: '50vw'}} key="outboxRows">
               { _.slice(rows, 0, 10) }
             </div>
           )}
-          <Card>
+          <Card key="outboxSeeMore">
             <CardActions style={{display: 'flex', justifyContent: 'center', minWidth: '30vw'}}>
               <Link href={'/outbox'} onClick={
                 (event) => {

@@ -199,7 +199,7 @@ function Inbox(props) {
         }
       }
     }
-    return <Link href={link} style={{ width: '100%' }} onClick={
+    return <Link href={link} style={{ width: '100%' }} key={`link${typeObjectId}`} onClick={
       (event) => {
         preventDefaultAndProp(event);
         setAnchorEl(null);
@@ -213,7 +213,7 @@ function Inbox(props) {
     const first = _.isEmpty(messages) ? undefined : messagesOrdered[0];
     const seeMoreId = (_.size(messagesFull) > _.size(rows) || _.size(messagesFull) > 10) ? 'seeFullInbox' : 'seeInbox';
     return (
-      <>
+      <React.Fragment key="inboxKey">
         <div id='inboxNotification' key='inbox'
              onClick={(event) => setAnchorEl(event.currentTarget)}
              className={classes.bellButton}>
@@ -227,6 +227,7 @@ function Inbox(props) {
         </div>
         <Menu
           id="profile-menu"
+          key="inboxMenu"
           open={anchorEl !== null}
           onClose={() => setAnchorEl(null)}
           getContentAnchorEl={null}
@@ -243,11 +244,11 @@ function Inbox(props) {
           style={{maxWidth: mobileLayout ? undefined : '50%'}}
         >
           {!_.isEmpty(first) && (
-            <div style={{minWidth: '50vw'}}>
+            <div style={{minWidth: '50vw'}} key="inboxRows" id="inboxRows">
               { _.slice(rows, 0, 10) }
             </div>
           )}
-          <Card>
+          <Card key="inboxSeeMore" id="inboxSeeMore">
             <CardActions style={{display: 'flex', justifyContent: 'center', minWidth: '30vw'}}>
               <Link href={'/inbox'} onClick={
                 (event) => {
@@ -260,7 +261,7 @@ function Inbox(props) {
             </CardActions>
           </Card>
         </Menu>
-      </>
+      </React.Fragment>
     );
   }
 

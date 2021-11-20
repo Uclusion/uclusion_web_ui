@@ -139,8 +139,21 @@ function WorkListItem(props) {
       fullText += ` - ${description}`;
     }
   }
+  const deleteActionButtonOnclick = (event) => {
+    preventDefaultAndProp(event);
+    const { market_id: marketId, type_object_id: typeObjectId } = message;
+    messagesDispatch(removeMessage(message));
+    return getMarketClient(marketId).then((client) => client.users.removeNotifications([typeObjectId]));
+  };
+  const archiveActionButtonOnclick = (event) => {
+    preventDefaultAndProp(event);
+    const { market_id: marketId, type_object_id: typeObjectId } = message;
+    messagesDispatch(dehighlightMessage(message));
+    return getMarketClient(marketId).then((client) => client.users.removeNotifications([typeObjectId]));
+  };
   return (
     <Div
+      key={`workListItem${id}`}
       style={{maxWidth: isJarDisplay ? '47vw' : undefined}}
       className={cx(read && 'MailListItem-read')}
     >
@@ -167,18 +180,9 @@ function WorkListItem(props) {
           <StyledIconButton
             classes={actionStyles}
             style={{marginLeft: isJarDisplay ? '0.25rem' : undefined}}
+            onClick={isDeletable ? deleteActionButtonOnclick : (read ? undefined : archiveActionButtonOnclick)}
           >
-            { isDeletable ? <DeleteForever onClick={(event) => {
-              preventDefaultAndProp(event);
-              const { market_id: marketId, type_object_id: typeObjectId } = message;
-              messagesDispatch(removeMessage(message));
-              return getMarketClient(marketId).then((client) => client.users.removeNotifications([typeObjectId]));
-            }} /> : (read ? <div /> : <ArchiveIcon onClick={(event) => {
-              preventDefaultAndProp(event);
-              const { market_id: marketId, type_object_id: typeObjectId } = message;
-              messagesDispatch(dehighlightMessage(message));
-              return getMarketClient(marketId).then((client) => client.users.removeNotifications([typeObjectId]));
-            }} />) }
+            { isDeletable ? <DeleteForever /> : (read ? <div /> : <ArchiveIcon />) }
           </StyledIconButton>
         )}
         {!mobileLayout && (

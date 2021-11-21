@@ -331,10 +331,9 @@ function Outbox(props) {
     });
   })
 
-  const filteredForJar = messages.filter((message) => !message.inActive);
-  const messagesFilteredForJar = isJarDisplay && !_.isEmpty(filteredForJar) ? filteredForJar : messages;
-  const messagesOrdered = _.orderBy(messagesFilteredForJar, ['updatedAt'], ['asc']);
-
+  const messagesOrdered = isJarDisplay ? _.orderBy(messages, ['inActive', 'updatedAt'], ['desc', 'asc'])
+    : _.orderBy(messages, ['updatedAt'], ['asc']);
+  const filteredForJarCount = messages.filter((message) => !message.inActive);
   const rows = messagesOrdered.map((message) => {
     const { id, market, investible, updatedAt, link, title, icon, comment, inActive, debtors } = message;
     const titleSize = mobileLayout ? 30 : 100;
@@ -372,11 +371,11 @@ function Outbox(props) {
   const jarClick = mobileLayout ? goFullOutboxClick : (event) => setAnchorEl(event.currentTarget);
   if (isJarDisplay) {
     const seeMoreId = (_.size(messages) > 10 || _.size(messages) > _.size(rows)) ? 'seeFullOutbox' : 'seeOutbox';
-    const first = _.isEmpty(messagesFilteredForJar) ? undefined : messagesFilteredForJar[0];
+    const first = _.isEmpty(messages) ? undefined : messagesOrdered[0];
     return (
       <>
         <div id='outboxNotification' key='outbox' onClick={jarClick} className={classes.bellButton}>
-          <Badge badgeContent={filteredForJar.length} className={classes.chip} overlap="circular">
+          <Badge badgeContent={filteredForJarCount.length} className={classes.chip} overlap="circular">
             <Fab id='notifications-fabInbox' className={classes.fab}>
               <OutboxIcon htmlColor='#8f8f8f' />
             </Fab>

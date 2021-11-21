@@ -140,31 +140,30 @@ function Inbox(props) {
     setIndeterminate(myIndeterminate);
   }, [checkAll, determinate])
 
-  let messages;
   let messagesFull = (messagesUnsafe || []).filter((message) => message.type !== 'UNREAD_REPORT');
   let unreadCount = 0;
   if (isJarDisplay) {
-    messages = messagesFull.filter((message) => message.is_highlighted);
+    const messages = messagesFull.filter((message) => message.is_highlighted);
     unreadCount = messages.length;
-  }
-  if (_.isEmpty(messages)) {
-    messages = messagesFull;
   }
 
   let messagesOrdered;
   if (isJarDisplay) {
-    messagesOrdered = _.orderBy(messages, [(message) => {
-      const { level } = message;
+    messagesOrdered = _.orderBy(messagesFull, [(message) => {
+      const { level, is_highlighted: isHighlighted } = message;
+      if (!isHighlighted) {
+        return 0;
+      }
       switch (level) {
         case 'RED':
-          return 2;
+          return 3;
         case 'YELLOW':
-          return 1;
+          return 2;
         default:
-          return 0;
+          return 1;
       }}, (message) => message.updated_at], ['desc', 'desc'] ) || [];
   } else {
-    messagesOrdered =  _.orderBy(messages, ['updated_at'], ['desc']) || [];
+    messagesOrdered =  _.orderBy(messagesFull, ['updated_at'], ['desc']) || [];
   }
   let containsUnread = false;
   const rows = messagesOrdered.map((message) => {
@@ -214,7 +213,7 @@ function Inbox(props) {
   };
   const jarClick = mobileLayout ? goFullInboxClick : (event) => setAnchorEl(event.currentTarget);
   if (isJarDisplay) {
-    const first = _.isEmpty(messages) ? undefined : messagesOrdered[0];
+    const first = _.isEmpty(messagesFull) ? undefined : messagesOrdered[0];
     const seeMoreId = (_.size(messagesFull) > _.size(rows) || _.size(messagesFull) > 10) ? 'seeFullInbox' : 'seeInbox';
     return (
       <React.Fragment key="inboxKey">
@@ -284,15 +283,15 @@ function Inbox(props) {
         <TooltipIconButton disabled={operationRunning !== false || (!checkAll && _.isEmpty(determinate))}
                            icon={<ArchiveIcon htmlColor={ACTION_BUTTON_COLOR} />}
                            onClick={() => {
-                             let toProcess = messages.filter((message) => message.is_highlighted);
+                             let toProcess = messagesFull.filter((message) => message.is_highlighted);
                              if (checkAll) {
                                if (!_.isEmpty(determinate)) {
                                  const keys = Object.keys(determinate);
-                                 toProcess = messages.filter((message) => !keys.includes(message.type_object_id));
+                                 toProcess = messagesFull.filter((message) => !keys.includes(message.type_object_id));
                                }
                              } else {
                                const keys = Object.keys(determinate);
-                               toProcess = messages.filter((message) => keys.includes(message.type_object_id));
+                               toProcess = messagesFull.filter((message) => keys.includes(message.type_object_id));
                              }
                              return deleteOrDehilightMessages(toProcess, messagesDispatch)
                                .then(() => {

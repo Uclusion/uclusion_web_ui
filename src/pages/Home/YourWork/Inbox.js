@@ -152,15 +152,22 @@ function Inbox(props) {
     messagesOrdered = _.orderBy(messagesFull, [(message) => {
       const { level, is_highlighted: isHighlighted } = message;
       if (!isHighlighted) {
-        return 0;
+        switch (level) {
+          case 'RED':
+            return 3;
+          case 'YELLOW':
+            return 2;
+          default:
+            return 1;
+        }
       }
       switch (level) {
         case 'RED':
-          return 3;
+          return 6;
         case 'YELLOW':
-          return 2;
+          return 5;
         default:
-          return 1;
+          return 4;
       }}, (message) => message.updated_at], ['desc', 'desc'] ) || [];
   } else {
     messagesOrdered =  _.orderBy(messagesFull, ['updated_at'], ['desc']) || [];

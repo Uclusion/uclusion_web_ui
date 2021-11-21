@@ -1,4 +1,4 @@
-import { createMuiTheme, responsiveFontSizes } from '@material-ui/core/styles';
+import { createTheme, responsiveFontSizes } from '@material-ui/core/styles';
 
 const defaultThemeDefinition = {
   typography: {
@@ -31,9 +31,9 @@ const defaultThemeDefinition = {
 };
 
 
-const defaultTheme = responsiveFontSizes(createMuiTheme(defaultThemeDefinition));
+const defaultTheme = responsiveFontSizes(createTheme(defaultThemeDefinition));
 
-const sidebarTheme = responsiveFontSizes(createMuiTheme({
+const sidebarTheme = responsiveFontSizes(createTheme({
   palette: {
     type: 'dark',
     ...defaultThemeDefinition.palette,

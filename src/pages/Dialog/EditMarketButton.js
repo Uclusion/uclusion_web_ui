@@ -11,6 +11,7 @@ function EditMarketButton(props) {
     onClick,
     labelId,
     icon,
+    marketId
   } = props;
 
   return (
@@ -18,7 +19,7 @@ function EditMarketButton(props) {
       id={labelId}
       onClick={onClick}
       disabled={operationRunning !== false}
-      key="exit"
+      key={`exit${marketId}`}
       translationId={labelId}
       icon={icon ? icon : <EditIcon htmlColor={ACTION_BUTTON_COLOR} />}
     />

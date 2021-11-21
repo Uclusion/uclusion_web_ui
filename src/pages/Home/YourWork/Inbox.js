@@ -208,16 +208,18 @@ function Inbox(props) {
     }><WorkListItem key={typeObjectId} id={typeObjectId} isJarDisplay={isJarDisplay} checkedDefault={checkAll}
                     setDeterminate={setDeterminate} determinate={determinate} {...item} /></Link>;
   })
-
+  const goFullInboxClick = (event) => {
+    preventDefaultAndProp(event);
+    navigate(history, '/inbox');
+  };
+  const jarClick = mobileLayout ? goFullInboxClick : (event) => setAnchorEl(event.currentTarget);
   if (isJarDisplay) {
     const first = _.isEmpty(messages) ? undefined : messagesOrdered[0];
     const seeMoreId = (_.size(messagesFull) > _.size(rows) || _.size(messagesFull) > 10) ? 'seeFullInbox' : 'seeInbox';
     return (
       <React.Fragment key="inboxKey">
-        <div id='inboxNotification' key='inbox'
-             onClick={(event) => setAnchorEl(event.currentTarget)}
-             className={classes.bellButton}>
-          <Badge badgeContent={unreadCount} className={classes.chip} overlap="circle">
+        <div id='inboxNotification' key='inbox' onClick={jarClick} className={classes.bellButton}>
+          <Badge badgeContent={unreadCount} className={classes.chip} overlap="circular">
             <Fab id='notifications-fabInbox' className={classes.fab}>
               <MoveToInbox
                 htmlColor={ _.isEmpty(first) ? '#8f8f8f' :
@@ -250,12 +252,7 @@ function Inbox(props) {
           )}
           <Card key="inboxSeeMore" id="inboxSeeMore">
             <CardActions style={{display: 'flex', justifyContent: 'center', minWidth: '30vw'}}>
-              <Link href={'/inbox'} onClick={
-                (event) => {
-                  preventDefaultAndProp(event);
-                  navigate(history, '/inbox');
-                }
-              }><FormattedMessage
+              <Link href={'/inbox'} onClick={goFullInboxClick}><FormattedMessage
                 id={seeMoreId}
               /> </Link>
             </CardActions>

@@ -218,6 +218,41 @@ function Screen(props) {
   const myContainerClass = navigationOptions && !mobileLayout ? classes.containerAllLeftPad : classes.containerAll
   const contentClass = mobileLayout ? classes.contentNoStyle :
     navigationOptions ? classes.content : classes.contentNoStyle;
+  const sideNavigationContents = _.isEmpty(navListItemTextArray) ? undefined : (
+    <>
+      {navMenu}
+      <List>
+        {navListItemTextArray.map((navItem, topIndex) => {
+          const { text, target, num, icon: Icon, onClickFunc, subItems, isBold, newPage } = navItem;
+          if (subItems) {
+            return (
+              <div key={`top${topIndex}${text}${title}`}
+                   style={{ paddingBottom: '0.5rem', backgroundColor: '#F5F5F5' }}>
+                <ListItem key={`topListItem${topIndex}${text}${title}`} onClick={onClickFunc}
+                          style={{ paddingBottom: 0, cursor: 'pointer' }}>
+                  <ListItemText primary={text}
+                                primaryTypographyProps={{ className: isBold ? classes.navGroupHeader : undefined }}
+                  />
+                </ListItem>
+                <div>
+                  {subItems.map((subItem, index) => {
+                    const { text, target, num, icon: Icon, onClickFunc, newPage } = subItem
+                    return processRegularItem(classes, history, text, target, num, Icon, onClickFunc,
+                      true, false, newPage, index, search, showSearch)
+                  })}
+                </div>
+              </div>
+            );
+          }
+          return processRegularItem(classes, history, text, target, num, Icon, onClickFunc, false,
+            isBold, newPage, topIndex, search, showSearch)
+        })}
+      </List>
+      {showSearch && (
+        <SearchBox/>
+      )}
+    </>
+  );
   return (
     <div className={classes.root} id="root">
       <Helmet defer={false}>
@@ -236,42 +271,13 @@ function Screen(props) {
         hidden={reallyAmLoading}
         appEnabled={appEnabled}
         isWorkspace={isWorkspace}
+        navMenu={sideNavigationContents}
       />
       {!_.isEmpty(navListItemTextArray) && !mobileLayout && (
         <div className={classes.listContainer}>
           <Paper className={classes.paper} style={{minWidth: showSearch ? undefined : '10rem'}} elevation={3}
                  id="navList">
-            {navMenu}
-            <List>
-              {navListItemTextArray.map((navItem, topIndex) => {
-                const { text, target, num, icon: Icon, onClickFunc, subItems, isBold, newPage } = navItem;
-                if (subItems) {
-                  return (
-                    <div key={`top${topIndex}${text}${title}`}
-                         style={{ paddingBottom: '0.5rem', backgroundColor: '#F5F5F5' }}>
-                      <ListItem key={`topListItem${topIndex}${text}${title}`} onClick={onClickFunc}
-                                style={{ paddingBottom: 0, cursor: 'pointer' }}>
-                        <ListItemText primary={text}
-                                      primaryTypographyProps={{ className: isBold ? classes.navGroupHeader : undefined }}
-                        />
-                      </ListItem>
-                      <div>
-                        {subItems.map((subItem, index) => {
-                          const { text, target, num, icon: Icon, onClickFunc, newPage } = subItem
-                          return processRegularItem(classes, history, text, target, num, Icon, onClickFunc,
-                            true, false, newPage, index, search, showSearch)
-                        })}
-                      </div>
-                    </div>
-                  );
-                }
-                return processRegularItem(classes, history, text, target, num, Icon, onClickFunc, false,
-                  isBold, newPage, topIndex, search, showSearch)
-              })}
-            </List>
-            {showSearch && (
-              <SearchBox/>
-            )}
+            {sideNavigationContents}
           </Paper>
         </div>
       )}

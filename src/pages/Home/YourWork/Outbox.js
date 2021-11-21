@@ -365,16 +365,18 @@ function Outbox(props) {
       }
     }><WorkListItem key={`outboxRow${id}`} id={id} isJarDisplay={isJarDisplay} useSelect={false} {...item} /></Link>;
   })
-
+  const goFullOutboxClick = (event) => {
+    preventDefaultAndProp(event);
+    navigate(history, '/outbox');
+  };
+  const jarClick = mobileLayout ? goFullOutboxClick : (event) => setAnchorEl(event.currentTarget);
   if (isJarDisplay) {
     const seeMoreId = (_.size(messages) > 10 || _.size(messages) > _.size(rows)) ? 'seeFullOutbox' : 'seeOutbox';
     const first = _.isEmpty(messagesFilteredForJar) ? undefined : messagesFilteredForJar[0];
     return (
       <>
-        <div id='outboxNotification' key='outbox'
-             onClick={(event) => setAnchorEl(event.currentTarget)}
-             className={classes.bellButton}>
-          <Badge badgeContent={filteredForJar.length} className={classes.chip} overlap="circle">
+        <div id='outboxNotification' key='outbox' onClick={jarClick} className={classes.bellButton}>
+          <Badge badgeContent={filteredForJar.length} className={classes.chip} overlap="circular">
             <Fab id='notifications-fabInbox' className={classes.fab}>
               <OutboxIcon htmlColor='#8f8f8f' />
             </Fab>
@@ -404,12 +406,7 @@ function Outbox(props) {
           )}
           <Card key="outboxSeeMore">
             <CardActions style={{display: 'flex', justifyContent: 'center', minWidth: '30vw'}}>
-              <Link href={'/outbox'} onClick={
-                (event) => {
-                  preventDefaultAndProp(event);
-                  navigate(history, '/outbox');
-                }
-              }><FormattedMessage
+              <Link href={'/outbox'} onClick={goFullOutboxClick}><FormattedMessage
                 id={seeMoreId}
               /> </Link>
             </CardActions>

@@ -178,6 +178,7 @@ function DialogActions(props) {
       actions.push(
         <EditMarketButton
           labelId="edit"
+          key="dialogActionsEditMarket"
           marketId={marketId}
           onClick={(event) => mySetBeingEdited(true, event)}
         />);
@@ -186,7 +187,7 @@ function DialogActions(props) {
   }
 
   return (
-    <div className={classes.buttonHolder}>
+    <div className={classes.buttonHolder} key="dialogActionsKey">
       {getActions()}
     </div>
   );

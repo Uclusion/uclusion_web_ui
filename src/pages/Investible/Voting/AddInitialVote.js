@@ -2,8 +2,6 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { FormattedMessage, useIntl } from 'react-intl'
 import {
-  Card,
-  CardContent,
   FormControl,
   FormControlLabel,
   FormLabel,
@@ -30,29 +28,6 @@ const useStyles = makeStyles(
         width: 230
       },
       certainty: {},
-      cardContent: {
-        padding: theme.spacing(6),
-        paddingTop: theme.spacing(3),
-        "& > *": {
-          "flex-grow": 1,
-          margin: theme.spacing(1, 0),
-          "&:first-child": {
-            marginTop: 0
-          },
-          "&:last-child": {
-            marginBottom: 0
-          }
-        },
-        '& > ul': {
-          flex: 4,
-          [theme.breakpoints.down('sm')]: {
-            flex: 12,
-          },
-        },
-        [theme.breakpoints.down('sm')]: {
-          padding: '16px',
-        },
-      },
       certaintyGroup: {
         display: "flex",
         flexDirection: "row"
@@ -105,8 +80,7 @@ function AddInitialVote(props) {
   const [Editor] = useEditor(editorName, editorSpec);
 
   return (
-    <Card>
-      <CardContent className={classes.cardContent}>
+    <div style={{paddingLeft: '1rem', paddingBottom: '0.5rem'}}>
         <h2>{ intl.formatMessage({ id: 'pleaseVoteStory' }) }</h2>
         <FormControl className={classes.certainty}>
           <FormLabel
@@ -166,8 +140,7 @@ function AddInitialVote(props) {
           </>
         )}
         {Editor}
-      </CardContent>
-    </Card>
+    </div>
   );
 }
 

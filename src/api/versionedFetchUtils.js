@@ -110,36 +110,6 @@ export function refreshGlobalVersion (refreshCalled) {
     });
 }
 
-export function createMarketListeners(id) {
-  registerListener(VERSIONS_HUB_CHANNEL, 'inviteListenerNewMarket', (data) => {
-    const { payload: { event, marketId: messageMarketId } } = data;
-    switch (event) {
-      case  NEW_MARKET:
-        if (messageMarketId === id) {
-          removeListener(VERSIONS_HUB_CHANNEL, 'inviteListenerNewMarket');
-          pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION });
-        }
-        break;
-      default:
-      //console.debug(`Ignoring event`);
-    }
-  });
-  registerListener(PUSH_MARKETS_CHANNEL, 'marketPushInvite', (data) => {
-    const { payload: { event, marketDetails } } = data;
-    switch (event) {
-      case VERSIONS_EVENT:
-        // console.debug(`Markets context responding to updated market event ${event}`);
-        if (marketDetails.id === id) {
-          removeListener(PUSH_MARKETS_CHANNEL, 'marketPushInvite');
-          pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION });
-        }
-        break;
-      default:
-      // console.debug(`Ignoring identity event ${event}`);
-    }
-  });
-}
-
 /**
  * Updates all the accounts from the passed in signatures
  * @param accountId the account ID we need to sync

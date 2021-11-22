@@ -1,4 +1,5 @@
 import {
+  PUSH_INVESTIBLES_CHANNEL,
   PUSH_MARKETS_CHANNEL, PUSH_PRESENCE_CHANNEL, PUSH_STAGE_CHANNEL,
   REMOVED_MARKETS_CHANNEL,
   VERSIONS_EVENT,
@@ -90,12 +91,14 @@ function beginListening(dispatch, diffDispatch, setTokensHash) {
     pushMessage(OPERATION_HUB_CHANNEL, { event: START_OPERATION });
     loginPromise.then((result) => {
       console.log('Quick adding market after load');
-      const { market, user, stages, uclusion_token: token } = result;
+      const { market, user, stages, uclusion_token: token, investible } = result;
       const { id } = market;
       addMarketToStorage(dispatch, () => {}, market);
       pushMessage(PUSH_PRESENCE_CHANNEL, { event: ADD_PRESENCE, marketId: id, presence: user });
       pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, marketId: id, stages });
-      createMarketListeners(id);
+      if (investible) {
+        pushMessage(PUSH_INVESTIBLES_CHANNEL, { event: LOAD_EVENT, investibles: [investible] });
+      }
       const tokenStorageManager = new TokenStorageManager();
       return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, id, token);
     }).catch((error) => {

@@ -145,18 +145,25 @@ function Dialog(props) {
 
   useEffect(() => {
     function getInitiativeInvestible(baseInvestible) {
+      const { investible } = baseInvestible;
+      const { id } = investible;
       const {
         investibleId: onInvestibleId,
       } = decomposeMarketPath(location.pathname);
-      if (onInvestibleId) {
+      if (onInvestibleId === id) {
         return;
       }
-      const { investible } = baseInvestible;
-      const { id } = investible;
       const link = formInvestibleLink(marketId, id);
       console.info('Navigating to initiative');
       navigate(history, link, true);
     }
+    console.debug(`marketType is ${marketType} and inline ${isInline} and empty investibles ${_.isEmpty(investibles)}`);
+    if (!hidden && marketType === INITIATIVE_TYPE && !isInline && !_.isEmpty(investibles)) {
+      getInitiativeInvestible(investibles[0]);
+    }
+  }, [hidden, history, investibles, isInline, location.pathname, marketId, marketType])
+
+  useEffect(() => {
     if (!hidden) {
       if (isInline) {
         const link = parentInvestibleId ? formInvestibleLink(parentMarketId, parentInvestibleId) :
@@ -164,11 +171,6 @@ function Dialog(props) {
         const fullLink = `${link}#c${parentCommentId}`;
         console.info('Navigating to inline');
         navigate(history, fullLink, true);
-      }
-      else if (marketType === INITIATIVE_TYPE) {
-        if (Array.isArray(investibles) && investibles.length > 0) {
-          getInitiativeInvestible(investibles[0])
-        }
       } else if (marketType === PLANNING_TYPE && myHashFragment) {
         if (!myHashFragment.startsWith('cv') && (myHashFragment.startsWith('c')||myHashFragment.startsWith('editc'))) {
           const commentId = myHashFragment.startsWith('c') ? myHashFragment.substr(1)

@@ -69,15 +69,10 @@ import NotificationCountChips from '../NotificationCountChips'
 import AddIcon from '@material-ui/icons/Add'
 import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
 import { workspaceInvitedUserSteps } from '../../../components/Tours/InviteTours/workspaceInvitedUser';
-import WorkIcon from '@material-ui/icons/Work'
 import ListAltIcon from '@material-ui/icons/ListAlt'
 import EditIcon from '@material-ui/icons/Edit'
-import BlockIcon from '@material-ui/icons/Block'
 import QuestionIcon from '@material-ui/icons/ContactSupport'
-import UpdateIcon from '@material-ui/icons/Update'
-import ChangeSuggstionIcon from '@material-ui/icons/ChangeHistory'
 import MenuBookIcon from '@material-ui/icons/MenuBook'
-import PlayForWorkIcon from '@material-ui/icons/PlayForWork'
 import { getFakeCommentsArray } from '../../../utils/stringFunctions'
 import Chip from '@material-ui/core/Chip'
 import { getThreadIds } from '../../../utils/commentFunctions'
@@ -256,18 +251,10 @@ function PlanningDialog(props) {
     setSectionOpen(subSection);
   }
 
-  function getNavListItemOnClick(subSection, target) {
-    return () => {
-      openSubSection(subSection);
-      navigate(history, target, false, true);
-    };
-  }
-
-  function createNavListItem(icon, textId, anchorId, howManyNum, subSection, alwaysShow, isBold) {
+  function createNavListItem(icon, textId, anchorId, howManyNum, alwaysShow, isBold) {
     const nav = baseNavListItem(formMarketLink(marketId), icon, textId, anchorId, howManyNum, alwaysShow);
-    if (subSection && nav.target) {
-      nav['onClickFunc'] = getNavListItemOnClick(subSection, nav.target);
-    }
+    nav['onClickFunc'] = mobileLayout ? () => navigate(history, nav.target, false, true) :
+      () => openSubSection(anchorId);
     if (isBold) {
       nav['isBold'] = true;
     }
@@ -275,11 +262,8 @@ function PlanningDialog(props) {
   }
   const sortedRoots = getSortedRoots(notTodoComments, searchResults);
   const questions = sortedRoots.filter((comment) => comment.comment_type === QUESTION_TYPE);
-  const { id: questionId } = getFakeCommentsArray(questions)[0];
   const suggestions = sortedRoots.filter((comment) => comment.comment_type === SUGGEST_CHANGE_TYPE);
-  const { id: suggestId } = getFakeCommentsArray(suggestions)[0];
   const reports = sortedRoots.filter((comment) => comment.comment_type === REPORT_TYPE);
-  const { id: reportId } = getFakeCommentsArray(reports)[0];
   const todoComments = unResolvedMarketComments.filter((comment) => {
     if (_.isEmpty(search)) {
       return comment.comment_type === TODO_TYPE;
@@ -296,30 +280,6 @@ function PlanningDialog(props) {
   });
   const archivedSize = _.size(archiveInvestibles) + _.size(resolvedMarketComments);
 
-  const discussionItems = [inArchives ? {} : createNavListItem(AddIcon,'commentAddBox',
-    undefined, undefined, 'discussionSection'),
-    createNavListItem(QuestionIcon,'questions', `c${questionId}`, _.size(questions),
-      'discussionSection'),
-    createNavListItem(UpdateIcon,'reports', `c${reportId}`, _.size(reports),
-      'discussionSection'),
-    createNavListItem(ChangeSuggstionIcon,'suggestions', `c${suggestId}`, _.size(suggestions),
-      'discussionSection')];
-
-  const storiesItems = [createNavListItem(AssignmentIcon,'swimLanes', 'swimLanes',
-    _.size(swimlaneInvestibles), 'storiesSection', _.isEmpty(search)),
-    createNavListItem(WorkIcon,'planningInvestibleMoveToFurtherWorkLabel', 'furtherWork',
-      _.size(furtherWorkReadyToStart) + _.size(furtherWorkInvestibles), 'storiesSection',
-      !inArchives && _.isEmpty(search))];
-
-  if (_.size(requiresInputInvestibles) > 0) {
-    storiesItems.unshift(createNavListItem(PlayForWorkIcon,'requiresInputStageLabel', 'requiresInput',
-      _.size(requiresInputInvestibles), 'storiesSection'));
-  }
-
-  if (_.size(blockedInvestibles) > 0) {
-    storiesItems.unshift(createNavListItem(BlockIcon,'planningBlockedStageLabel',
-      'blocked', _.size(blockedInvestibles), 'storiesSection'));
-  }
   const myNotHiddenMarketsState = inArchives ? marketsState :
     getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   const planningDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, PLANNING_TYPE) || [];
@@ -358,31 +318,26 @@ function PlanningDialog(props) {
     </FormControl>),
     navListItemTextArray: [
       createNavListItem(EditIcon, 'planningDialogNavDetailsLabel', 'workspaceMain',
-      _.isEmpty(search) || results.find((result) => result.id === marketId) ? undefined : 0,
-      'workspaceMain', true, isSectionBold('workspaceMain')),
+      _.isEmpty(search) ? undefined : (results.find((result) => result.id === marketId) ? 1 : 0),
+       true, isSectionBold('workspaceMain')),
       createNavListItem(AddIcon, 'addStoryLabel', 'addStorySection',
-        undefined, 'addStorySection', true, isSectionBold('addStorySection')),
-      {
-        text: intl.formatMessage({ id: 'planningDialogNavStoriesLabel' }),
-        subItems: storiesItems, isBold: isSectionBold('storiesSection'),
-        onClickFunc: getNavListItemOnClick('storiesSection',
-          `${formMarketLink(marketId)}#storiesSection`)
-      },
+        undefined, true, isSectionBold('addStorySection')),
+      createNavListItem(AssignmentIcon, 'planningDialogNavStoriesLabel', 'storiesSection',
+        _.size(requiresInputInvestibles) + _.size(blockedInvestibles) + _.size(swimlaneInvestibles)
+        + _.size(furtherWorkReadyToStart) + _.size(furtherWorkInvestibles),
+        true, isSectionBold('storiesSection')),
       createNavListItem(ListAltIcon, 'todoSection', 'marketTodos', _.size(todoComments),
-        'marketTodos', !inArchives && _.isEmpty(search), isSectionBold('marketTodos')),
-      {
-        text: intl.formatMessage({ id: 'planningDialogNavDiscussionLabel' }),
-        subItems: discussionItems, isBold: isSectionBold('discussionSection'),
-        onClickFunc: getNavListItemOnClick('discussionSection',
-          `${formMarketLink(marketId)}#discussionSection`)
-      },
+        !inArchives && _.isEmpty(search), isSectionBold('marketTodos')),
+      createNavListItem(QuestionIcon, 'planningDialogNavDiscussionLabel', 'discussionSection',
+        _.size(questions) + _.size(suggestions) + _.size(reports),
+        true, isSectionBold('discussionSection')),
       {
         icon: MenuBookIcon, text: intl.formatMessage({ id: 'planningDialogViewArchivesLabel' }),
         target: archivedSize > 0 ? formMarketArchivesLink(marketId) : undefined,
         num: _.isEmpty(search) ? undefined : archivedSize, newPage: true
       },
       createNavListItem(SettingsIcon, 'settings', 'settingsSection',
-        undefined, 'settingsSection', true, isSectionBold('settingsSection'))
+        undefined, true, isSectionBold('settingsSection'))
     ]
   }
   const furtherWorkReadyToStartChip = furtherWorkReadyToStart.length > 0

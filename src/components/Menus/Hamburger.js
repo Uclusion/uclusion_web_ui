@@ -48,8 +48,6 @@ export default function Hamburger(props) {
             open={open}
             //function that is called when the drawer should close
             onClose={toggleDrawer(false)}
-            //function that is called when the drawer should open
-            onOpen={toggleDrawer(true)}
           >
             {/* The inside of the drawer */}
             <Box sx={{

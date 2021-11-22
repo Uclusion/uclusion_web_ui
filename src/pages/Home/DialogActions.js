@@ -54,7 +54,6 @@ function DialogActions(props) {
   } = props;
   const {
     beingEdited,
-    collaboratorsOpen,
     changeExpires
   } = pageState;
   const activeMarket = marketStage === ACTIVE_STAGE;

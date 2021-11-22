@@ -10,7 +10,7 @@ import { makeStyles } from "@material-ui/core/styles";
 const useDialogStyles = makeStyles(
   {
     root: {},
-    actions: {},
+    actions: {paddingBottom: '1.25rem'},
     content: {},
     title: {}
   },

@@ -62,40 +62,6 @@ export function assignedInStage(investibles, userId, stageId, marketId) {
   });
 }
 
-export function hasNotVoted(investible, marketPresencesState, marketsState, comments, marketId, externalId) {
-  const { market_infos } = investible;
-  const myInfo = market_infos.find((info) => info.market_id === marketId);
-  const { children } = myInfo;
-  const marketsToCheck = [].concat(children || []);
-  const commentsSafe = comments || [];
-  commentsSafe.forEach((comment) => {
-    const { investible_id: myInvestibleId, inline_market_id: inlineMarketId, resolved } = comment;
-    if (investible.investible.id === myInvestibleId && inlineMarketId && !resolved) {
-      marketsToCheck.push(inlineMarketId);
-    }
-  })
-  const marketsFound = marketsToCheck.filter((inlineMarketId) => {
-    const market = getMarket(marketsState, inlineMarketId) || {};
-    const { market_type: marketType, market_stage: marketStage } = market;
-    if (marketStage !== ACTIVE_STAGE) {
-      return false;
-    }
-    const inlineMarketPresences = getMarketPresences(marketPresencesState, inlineMarketId);
-    const myInlinePresence = inlineMarketPresences && inlineMarketPresences.find((presence) => {
-      return presence.external_id === externalId;
-    });
-    const isAdmin = myInlinePresence && myInlinePresence.is_admin;
-    if (marketType === INITIATIVE_TYPE && isAdmin) {
-      // Initiative admins do not vote
-      return false;
-    }
-    const investments = myInlinePresence ? myInlinePresence.investments : [];
-    const investmentsFiltered = (investments || []).filter((investment) => !investment.deleted);
-    return _.isEmpty(investmentsFiltered);
-  });
-  return !_.isEmpty(marketsFound);
-}
-
 export function getRandomSupportUser() {
   const supportUsers = config.support_users;
   return _.sample(supportUsers);

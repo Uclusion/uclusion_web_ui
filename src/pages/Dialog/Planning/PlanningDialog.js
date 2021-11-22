@@ -59,7 +59,7 @@ import SubSection from '../../../containers/SubSection/SubSection'
 import { addInvestible, getInvestiblesInStage } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import UclusionTour from '../../../components/Tours/UclusionTour'
 import { INVITED_USER_WORKSPACE } from '../../../contexts/TourContext/tourContextHelper';
-import { getMarketInfo, hasNotVoted } from '../../../utils/userFunctions'
+import { getMarketInfo } from '../../../utils/userFunctions'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import MarketTodos from './MarketTodos'
 import Gravatar from '../../../components/Avatars/Gravatar';
@@ -190,8 +190,17 @@ function PlanningDialog(props) {
   });
   const highlightMap = {};
   requiresInputInvestibles.forEach((investible) => {
-    if (hasNotVoted(investible, marketPresencesState, marketsState, comments, marketId, myPresence.external_id)) {
-      highlightMap[investible.investible.id] = true;
+    const investibleId = investible.investible.id;
+    const { messages } = (messagesState || {});
+    const safeMessages = messages || [];
+    const message = safeMessages.find((message) => {
+      return ((message.investible_link && message.investible_link.includes(investibleId))
+          || message.investible_id === investibleId) &&
+        ['INLINE_STORY_INVESTIBLE', 'INLINE_STORY_COMMENT'].includes(message.link_type);
+    });
+    if (message) {
+      const { is_highlighted: isHighlighted } = message;
+      highlightMap[investibleId] = isHighlighted;
     }
   });
   const presenceMap = getPresenceMap(marketPresencesState, marketId);

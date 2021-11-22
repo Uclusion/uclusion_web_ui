@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import { pushMessage, registerListener, removeListener } from '../utils/MessageBusUtils'
+import { pushMessage } from '../utils/MessageBusUtils'
 import { getChangedIds, getVersions } from './summaries'
 import { getMarketDetails, getMarketStages, getMarketUsers } from './markets'
 import { getFetchSignaturesForAccount, getFetchSignaturesForMarket, signatureMatcher, } from './versionSignatureUtils'

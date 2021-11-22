@@ -8,7 +8,6 @@ import { removeMarketDetails } from './marketsContextReducer'
 import { pushMessage, registerListener } from '../../utils/MessageBusUtils'
 import { addMarketToStorage } from './marketsContextHelper'
 import { getMarketFromInvite, getMarketFromUrl } from '../../api/uclusionClient'
-import { createMarketListeners } from '../../api/versionedFetchUtils'
 import { toastError } from '../../utils/userMessage'
 import { ADD_PRESENCE } from '../MarketPresencesContext/marketPresencesMessages'
 import {

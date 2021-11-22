@@ -726,6 +726,8 @@ function PlanningInvestible(props) {
   const displayDescription = _.isEmpty(search) || results.find((item) => item.id === investibleId);
   const displayApprovalsBySearch = _.isEmpty(search) ? _.size(invested) : _.size(investmentReasons);
   const openComments = investmentReasonsRemoved.filter((comment) => !comment.resolved) || [];
+  const openProblemComments = openComments.filter((comment) =>
+    [QUESTION_TYPE, ISSUE_TYPE, SUGGEST_CHANGE_TYPE].includes(comment.comment_type));
   const closedComments = investmentReasonsRemoved.filter((comment) => comment.resolved) || [];
   const sortedClosedRoots = getSortedRoots(closedComments, searchResults);
   const { id: closedId } = getFakeCommentsArray(sortedClosedRoots)[0];
@@ -868,7 +870,7 @@ function PlanningInvestible(props) {
                           disabled={operationRunning || !isAdmin}
                           checked={openForInvestment}
                           onClick={() => {
-                            if (!openForInvestment && openComments && !mobileLayout) {
+                            if (!openForInvestment && !_.isEmpty(openProblemComments) && !mobileLayout) {
                               setOpen(true);
                             } else {
                               setReadyToStart(!openForInvestment);

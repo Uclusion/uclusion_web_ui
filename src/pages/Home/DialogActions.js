@@ -167,7 +167,6 @@ function DialogActions(props) {
         <IconButton
           id="adminManageCollaborators"
           onClick={() => updatePageState({collaboratorsOpen: true})}
-          disabled={collaboratorsOpen}
         >
           <PersonAddIcon
             htmlColor={marketPresences.length < 2 ? HIGHLIGHTED_BUTTON_COLOR : ACTION_BUTTON_COLOR}/>

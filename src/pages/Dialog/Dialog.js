@@ -157,7 +157,6 @@ function Dialog(props) {
       console.info('Navigating to initiative');
       navigate(history, link, true);
     }
-    console.debug(`marketType is ${marketType} and inline ${isInline} and empty investibles ${_.isEmpty(investibles)}`);
     if (!hidden && marketType === INITIATIVE_TYPE && !isInline && !_.isEmpty(investibles)) {
       getInitiativeInvestible(investibles[0]);
     }

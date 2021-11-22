@@ -26,7 +26,7 @@ function DialogManage(props) {
   const myRealPresence = myPresence || {};
   const { is_admin: isAdmin} = myRealPresence;
 
-  if (!isAdmin || !active) {
+  if ((!isAdmin && expires) || !active) {
     return React.Fragment;
   }
 

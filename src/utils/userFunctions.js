@@ -1,14 +1,13 @@
 import { VerticalBarSeries, XYPlot } from 'react-vis'
 import React from 'react'
 import { Card, Grid, Typography } from '@material-ui/core'
-import { ACTIVE_STAGE, INITIATIVE_TYPE } from '../constants/markets'
+import { INITIATIVE_TYPE } from '../constants/markets'
 import { clearUclusionLocalStorage } from '../components/localStorageUtils'
 import TokenStorageManager from '../authorization/TokenStorageManager'
 import { Auth } from 'aws-amplify'
 import { getMarketPresences } from '../contexts/MarketPresencesContext/marketPresencesHelper'
 import _ from 'lodash'
 import config from '../config'
-import { getMarket } from '../contexts/MarketsContext/marketsContextHelper'
 
 export function extractUsersList (marketPresencesState, addToMarketId, workspaces, includeAll=true) {
   // The account user is being stored with an undefined market ID and so need to avoid it

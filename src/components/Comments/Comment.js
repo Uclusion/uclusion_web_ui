@@ -990,16 +990,21 @@ const useReplyStyles = makeStyles(
       },
       container: {
         marginBottom: '1.5rem',
+        marginRight: '0.25rem',
         overflow: 'unset'
       },
       containerYellow: {
         marginBottom: '1.5rem',
         boxShadow: '10px 5px 5px yellow',
+        marginRight: '0.25rem',
+        paddingRight: '0.5rem',
         overflow: 'unset'
       },
       containerRed: {
         marginBottom: '1.5rem',
         boxShadow: '10px 5px 5px red',
+        marginRight: '0.25rem',
+        paddingRight: '0.5rem',
         overflow: 'unset'
       },
       editor: {

@@ -256,7 +256,8 @@ function DialogBodyEdit(props) {
         {(!lockedBy || (lockedBy === userId)) && (
           <>
             <NameField descriptionFunc={() => getQuillStoredState(editorName)}
-                       label="agilePlanFormTitleLabel" placeHolder="decisionTitlePlaceholder" id={id} />
+                       label="agilePlanFormTitleLabel" placeHolder="decisionTitlePlaceholder" id={id}
+                       useCreateDefault />
             {Editor}
           </>
         )}

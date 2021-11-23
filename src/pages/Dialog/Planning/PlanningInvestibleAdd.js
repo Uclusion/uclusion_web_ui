@@ -265,7 +265,7 @@ function PlanningInvestibleAdd(props) {
   const assignedInAcceptedStage = assignedInStage(getMarketInvestibles(investibleState, marketId), myPresence.id,
     acceptedStage.id, marketId);
   const acceptedFull = acceptedStage.allowed_investibles > 0 && assignedInAcceptedStage.length >= acceptedStage.allowed_investibles;
-
+  const cardId = `card${nameId}`;
   return (
     <>
       <DismissableText textId='planningInvestibleAddHelp' text={
@@ -276,7 +276,7 @@ function PlanningInvestibleAdd(props) {
           a meeting.
         </div>
       }/>
-      <Card className={classes.overflowVisible}>
+      <Card className={classes.overflowVisible} id={cardId}>
         <CardType
           className={classes.cardType}
           label={`${intl.formatMessage({
@@ -310,7 +310,7 @@ function PlanningInvestibleAdd(props) {
             </div>
           )}
           <NameField id={nameId} descriptionFunc={() => getQuillStoredState(editorName)}
-                     useCreateDefault />
+                     useCreateDefault scrollId={cardId} />
           {Editor}
         </CardContent>
         {!isAssignedToMe && isAssigned && (

@@ -4,6 +4,7 @@ import { TextField } from '@material-ui/core';
 import { useIntl } from 'react-intl';
 import { nameFromDescription } from '../../utils/stringFunctions'
 import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../localStorageUtils'
+import { scrollToElement } from '../../contexts/ScrollContext'
 
 export function getNameStoredState(id) {
   return getUclusionLocalStorageItem(`name-editor-${id}`);
@@ -16,7 +17,7 @@ export function clearNameStoredState(id) {
 function NameField(props) {
   const intl = useIntl();
   const {
-    descriptionFunc, label, placeHolder, id, useCreateDefault
+    descriptionFunc, label, placeHolder, id, useCreateDefault, scrollId
   } = props;
 
   function storeState(state) {
@@ -24,12 +25,14 @@ function NameField(props) {
   }
 
   function createDefaultName() {
+    const element = document.getElementById(scrollId || id);
+    scrollToElement(element);
     const description = descriptionFunc();
     if (description && !getNameStoredState(id)) {
       const found = nameFromDescription(description);
       if (found) {
         storeState(found);
-        document.getElementById(id).value = found;
+        element.value = found;
       }
     }
   }
@@ -44,6 +47,7 @@ function NameField(props) {
       {useCreateDefault && (
         <TextField
           onFocus={createDefaultName}
+          autoFocus
           fullWidth
           id={id}
           label={intl.formatMessage({ id: label })}

@@ -1,7 +1,7 @@
 import React, { useContext, useState, } from 'react'
 import _ from 'lodash'
 import PropTypes from 'prop-types'
-import { Card, CardActions, CardContent, TextField, } from '@material-ui/core'
+import { Card, CardActions, CardContent, } from '@material-ui/core'
 import { addDecisionInvestible } from '../../../api/investibles';
 import { processTextAndFilesForSave } from '../../../api/files'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
@@ -24,6 +24,8 @@ import { getQuillStoredState } from '../../../components/TextEditors/QuillEditor
 import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../../authorization/TokenStorageManager'
 import IssueDialog from '../../../components/Warnings/IssueDialog'
 import { useLockedDialogStyles } from '../DialogBodyEdit'
+import NameField, { clearNameStoredState, getNameStoredState } from '../../../components/TextFields/NameField'
+import { nameFromDescription } from '../../../utils/stringFunctions'
 
 function DecisionInvestibleAdd(props) {
   const {
@@ -39,8 +41,8 @@ function DecisionInvestibleAdd(props) {
   } = props;
   const {
     uploadedFiles,
-    name
   } = pageState;
+  const nameId = `investibleAdd${marketId}`;
   const intl = useIntl();
   const classes = usePlanFormStyles();
   const lockedDialogClasses = useLockedDialogStyles();
@@ -67,6 +69,7 @@ function DecisionInvestibleAdd(props) {
   function handleCancel() {
     pageStateReset();
     editorController(editorReset());
+    clearNameStoredState(nameId);
     onCancel();
   }
 
@@ -92,9 +95,19 @@ function DecisionInvestibleAdd(props) {
         marketId: market.id,
         uploadedFiles: filteredUploads,
         description: processedDescription,
-        name,
         stageId: allowsInvestment.id,
       };
+      const name = getNameStoredState(nameId);
+      if (name) {
+        addInfo.name = name;
+      } else {
+        addInfo.name = nameFromDescription(getQuillStoredState(editorName));
+      }
+      if (_.isEmpty(addInfo.name)) {
+        setOperationRunning(false);
+        setOpenIssue('nameRequired');
+        return;
+      }
       const tokenStorageManager = new TokenStorageManager();
       return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, market.id, token)
         .then(() => addDecisionInvestible(addInfo));
@@ -112,11 +125,6 @@ function DecisionInvestibleAdd(props) {
   }
 
   function handleSaveAddAnother() {
-    if (_.isEmpty(name)) {
-      setOperationRunning(false);
-      setOpenIssue('nameRequired');
-      return;
-    }
     if (parentCommentId) {
       return handleNewInlineSave(onSaveAddAnother);
     }
@@ -124,11 +132,6 @@ function DecisionInvestibleAdd(props) {
   }
 
   function handleSave(completionFunc) {
-    if (_.isEmpty(name)) {
-      setOperationRunning(false);
-      setOpenIssue('nameRequired');
-      return;
-    }
     if (parentCommentId) {
       return handleNewInlineSave(completionFunc);
     }
@@ -142,8 +145,18 @@ function DecisionInvestibleAdd(props) {
       marketId,
       uploadedFiles: filteredUploads,
       description: processedDescription,
-      name
     };
+    const name = getNameStoredState(nameId);
+    if (name) {
+      addInfo.name = name;
+    } else {
+      addInfo.name = nameFromDescription(getQuillStoredState(editorName));
+    }
+    if (_.isEmpty(addInfo.name)) {
+      setOperationRunning(false);
+      setOpenIssue('nameRequired');
+      return;
+    }
     if (isAdmin) {
       addInfo.stageId = investmentAllowedStage.id;
     }
@@ -181,20 +194,8 @@ function DecisionInvestibleAdd(props) {
       )}
       <Card className={classes.overflowVisible}>
         <CardContent>
-          <TextField
-            fullWidth
-            id="decision-investible-name"
-            label={intl.formatMessage({ id: "agilePlanFormTitleLabel" })}
-            onChange={(event) => {
-              const { value } = event.target;
-              pageStateUpdate({ name: value });
-            }}
-            placeholder={intl.formatMessage({
-              id: "optionTitlePlaceholder"
-            })}
-            value={name}
-            variant="filled"
-          />
+          <NameField id={nameId} descriptionFunc={() => getQuillStoredState(editorName)}
+                     useCreateDefault placeHolder='optionTitlePlaceholder' />
           {Editor}
         </CardContent>
         <CardActions className={classes.actions} style={{marginLeft: '1rem', paddingBottom: '1rem'}}>

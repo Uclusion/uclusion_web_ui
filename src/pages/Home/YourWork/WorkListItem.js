@@ -194,12 +194,12 @@ function WorkListItem(props) {
           </StyledIconButton>
         )}
       </Box>
-      {mobileLayout ? React.Fragment : (read ?
+      {isJarDisplay || mobileLayout ? React.Fragment : (read ?
         (<Title style={{flexBasis: useSelect ? undefined : '160px'}}>{title}</Title>) :
         (<TitleB style={{flexBasis: useSelect ? undefined : '160px'}}>{title}</TitleB>))}
-      {isJarDisplay || mobileLayout || !people ? React.Fragment : <GravatarGroup users={people} className={classes.gravatarStyle}/> }
+      {mobileLayout || !people ? React.Fragment : <GravatarGroup users={people} className={classes.gravatarStyle}/> }
       {read ? (<Text>{fullText}</Text>) : (<TextB>{fullText}</TextB>)}
-      {isJarDisplay || mobileLayout ? React.Fragment : (read ? (<DateLabel>{date}</DateLabel>) : (<DateLabelB>{date}</DateLabelB>))}
+      {mobileLayout ? React.Fragment : (read ? (<DateLabel>{date}</DateLabel>) : (<DateLabelB>{date}</DateLabelB>))}
     </Div>
   );
 }

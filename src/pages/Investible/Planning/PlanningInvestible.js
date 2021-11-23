@@ -128,6 +128,7 @@ import {
 import UclusionTour from '../../../components/Tours/UclusionTour'
 import { blockedStorySteps } from '../../../components/Tours/blockedStory'
 import { requiresInputStorySteps } from '../../../components/Tours/requiresInputStory'
+import { getTomorrow } from '../../../utils/timerUtils'
 
 const useStyles = makeStyles(
   theme => ({
@@ -978,7 +979,7 @@ function PlanningInvestible(props) {
                           selected={getStartDate()}
                           onChange={handleDateChange}
                           popperPlacement="top"
-                          minDate={new Date()}
+                          minDate={getTomorrow()}
                           inline
                           onClickOutside={toggleEdit}
                         />

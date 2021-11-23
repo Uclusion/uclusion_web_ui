@@ -124,7 +124,8 @@ function doAddMarketPresences(state, action) {
 
 function doUpdateMarketPresences(state, action) {
   const { marketId, users } = action;
-  const oldUsers = state[marketId] || [];
+  const oldUsersRaw = state[marketId] || [];
+  const oldUsers = oldUsersRaw.filter((user) => user.fromQuickAdd);
   // Avoid clobbering presences that were quick added
   const newUsers = addByIdAndVersion(users, oldUsers);
   return {

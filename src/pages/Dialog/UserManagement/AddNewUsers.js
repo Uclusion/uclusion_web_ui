@@ -126,7 +126,7 @@ function AddNewUsers (props) {
       const emailSentTemp = []
       emails.forEach((email) => {
         const emailTrimmed = email.trim();
-        participants.push({ emailTrimmed })
+        participants.push({ email: emailTrimmed })
         emailSentTemp.push(emailTrimmed)
       })
       setEmailsSent(emailsSent.concat(emailSentTemp))

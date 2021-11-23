@@ -34,10 +34,10 @@ import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 
-export const usePlanInvestibleStyles = makeStyles(
+const usePlanInvestibleStyles = makeStyles(
   theme => ({
     actions: {
-      margin: theme.spacing(-3, 0, 0, 6),
+      margin: theme.spacing(-4, 0, 0, 7),
       paddingBottom: '2rem'
     }
   }),

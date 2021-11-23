@@ -44,6 +44,42 @@ export const useStyles = makeStyles((theme) => ({
       display: 'block'
     }
   },
+  chipItemBlack: {
+    color: '#fff',
+    borderRadius: '8px',
+    '& .MuiChip-label': {
+      fontSize: 12,
+    },
+    '& .MuiFormControlLabel-label': {
+      paddingRight: '5px',
+      fontWeight: 'bold',
+      textTransform: 'capitalize',
+      [theme.breakpoints.down('sm')]: {
+        height: '100%',
+        verticalAlign: 'middle',
+        display: 'inline-block',
+        '& .MuiSvgIcon-root': {
+          display: 'block'
+        }
+      },
+    },
+    '& .MuiChip-avatar': {
+      width: '16px',
+      height: '14px',
+      color: '#fff',
+    },
+    '& .MuiRadio-colorPrimary.Mui-checked':{
+      '&.Mui-checked': {
+        color: 'black'
+      }
+    },
+    paddingRight: theme.spacing(1),
+    paddingLeft: theme.spacing(1),
+    margin: theme.spacing(0, 0, 0, 4),
+    [theme.breakpoints.down('sm')]: {
+      margin: '10px'
+    },
+  },
   chipItem: {
     color: '#fff',
     borderRadius: '8px',
@@ -192,7 +228,7 @@ function CommentAddBox(props) {
                     commentType === ISSUE_TYPE
                       ? `${classes.chipItem} ${classes.chipItemIssue}`
                       : commentType === QUESTION_TYPE ? `${classes.chipItem} ${classes.chipItemQuestion}`
-                      : commentType === SUGGEST_CHANGE_TYPE ? `${classes.chipItem} ${classes.chipItemSuggestion}`
+                      : commentType === SUGGEST_CHANGE_TYPE ? `${classes.chipItemBlack} ${classes.chipItemSuggestion}`
                         : commentType === TODO_TYPE ? `${classes.chipItem} ${classes.chipItemTodo}`
                           : `${classes.chipItem} ${classes.chipItemReport}`,
                     type === commentType ? classes.selected : classes.unselected

@@ -4,7 +4,6 @@ import React, { useContext, useState } from 'react'
 import styled from "styled-components";
 import { FormattedMessage, useIntl } from 'react-intl'
 import { Link } from '@material-ui/core'
-import OutboxIcon from '../../../components/CustomChip/Outbox'
 import {
   createTitle,
   formCommentLink,
@@ -50,6 +49,7 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import { getMarketInfo } from '../../../utils/userFunctions'
 import VotingIcon from '@material-ui/icons/Assessment'
 import GavelIcon from '@material-ui/icons/Gavel'
+import { AlarmOn } from '@material-ui/icons'
 
 const SectionTitle = styled("div")`
   width: auto;
@@ -377,7 +377,7 @@ function Outbox(props) {
         <div id='outboxNotification' key='outbox' onClick={jarClick} className={classes.bellButton}>
           <Badge badgeContent={filteredForJarCount.length} className={classes.chip} overlap="circular">
             <Fab id='notifications-fabInbox' className={classes.fab}>
-              <OutboxIcon htmlColor='#8f8f8f' />
+              <AlarmOn htmlColor='black' />
             </Fab>
           </Badge>
         </div>
@@ -418,7 +418,7 @@ function Outbox(props) {
   return (
     <div id="inbox">
       <SectionTitle>
-        {<OutboxIcon htmlColor="#333333"/>}
+        {<AlarmOn htmlColor='black' />}
         <Typography style={{marginLeft: '1rem'}} variant="h6">
           {intl.formatMessage({ id: 'outbox' })}
         </Typography>

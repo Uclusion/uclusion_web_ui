@@ -817,8 +817,8 @@ function Comment(props) {
                     </Typography>
                   </div>
                 )}
-                {!mobileLayout && (!investibleId || commentType === TODO_TYPE) && !inArchives && enableActions
-                && !resolved && marketType === PLANNING_TYPE && (
+                {!mobileLayout && [TODO_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(commentType) && !inArchives
+                && enableActions && (!resolved || commentType !== TODO_TYPE) && marketType === PLANNING_TYPE && (
                   <SpinningIconLabelButton
                     onClick={() => navigate(history, `${formMarketAddInvestibleLink(marketId)}#fromCommentId=${id}`)}
                     doSpin={false}

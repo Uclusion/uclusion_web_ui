@@ -303,7 +303,6 @@ function PlanningDialog(props) {
         value={marketId}
         onChange={(event) => {
           const { value } = event.target;
-          setCurrentWorkspace(value);
           navigate(history, formMarketLink(value));
         }}
       >

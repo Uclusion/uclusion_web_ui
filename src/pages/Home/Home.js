@@ -39,7 +39,6 @@ function Home() {
     if ((_.isEmpty(redirect) || redirect === '/')&&(!_.isEmpty(planningDetails))) {
       const { id } = planningDetails[0];
       console.log(`Redirecting you to workspace ${id}`);
-      setCurrentWorkspace(id);
       // Use navigate to record new redirect
       navigate(history,  formMarketLink(id));
     }

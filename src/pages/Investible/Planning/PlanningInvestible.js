@@ -564,7 +564,7 @@ function PlanningInvestible(props) {
           investibleId={investibleId}
           marketId={marketId}
           currentStageId={stage}
-          full={acceptedFull}
+          full={isInAccepted ? false : acceptedFull}
           disabled={isInAccepted || !isAssigned || !_.isEmpty(blockingComments) || acceptedFull || notAssigned}
           hasAssignedQuestions={!_.isEmpty(questionByAssignedComments)}
         />

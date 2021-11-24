@@ -564,6 +564,7 @@ const messages = defineMessages({
   nameRequired: 'Name is a required field.',
   noQuantity: 'Must provide your certainty for this story.',
   noVoteQuantity: 'Must provide your certainty.',
+  noMultiplier: 'Must vote for or against.',
   collaborators: 'Collaborators',
   inlineAddLabel: 'Add Option',
   inlineAddLabelMobile: 'Option',

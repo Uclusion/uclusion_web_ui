@@ -154,9 +154,9 @@ function AddEditVote(props) {
   const [Editor, editorController] = useEditor(editorName, editorSpec);
 
   function mySave() {
-    if (newQuantity === undefined) {
+    if (newQuantity === undefined || multiplier === undefined) {
       setOperationRunning(false);
-      setOpenIssue('noVoteQuantity');
+      setOpenIssue(multiplier === undefined ? 'noMultiplier' : 'noVoteQuantity');
       return;
     }
     const reasonText = getQuillStoredState(editorName) !== null ? getQuillStoredState(editorName) :
@@ -314,7 +314,7 @@ function AddEditVote(props) {
               {intl.formatMessage({ id: removeVoteId })}
             </SpinningIconLabelButton>
           )}
-          {multiplier && !warnClearVotes && (
+          {!warnClearVotes && (
             <SpinningIconLabelButton
               icon={addMode ? Add : SettingsBackupRestore}
               onClick={mySave}
@@ -325,7 +325,7 @@ function AddEditVote(props) {
                 : intl.formatMessage({ id: updateVoteId })}
             </SpinningIconLabelButton>
           )}
-          {multiplier && warnClearVotes && (
+          {warnClearVotes && (
             <Button onClick={toggleOpen} className={classes.primaryAction}>
               {intl.formatMessage({ id: voteId })}
             </Button>

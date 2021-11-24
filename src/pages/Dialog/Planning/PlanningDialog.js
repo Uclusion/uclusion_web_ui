@@ -92,7 +92,6 @@ import {
   getNotHiddenMarketDetailsForUser
 } from '../../../contexts/MarketsContext/marketsContextHelper'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
-import { setCurrentWorkspace } from '../../../utils/redirectUtils'
 
 export const LocalPlanningDragContext = React.createContext([]);
 

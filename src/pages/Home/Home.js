@@ -2,7 +2,7 @@ import React, { useContext, useEffect } from 'react'
 import { useHistory } from 'react-router';
 import _ from 'lodash'
 import Screen from '../../containers/Screen/Screen'
-import { getRedirect, setCurrentWorkspace } from '../../utils/redirectUtils'
+import { getRedirect } from '../../utils/redirectUtils'
 import { INVITED_USER_WORKSPACE } from '../../contexts/TourContext/tourContextHelper'
 import { TourContext } from '../../contexts/TourContext/TourContext'
 import { startTour } from '../../contexts/TourContext/tourContextReducer'

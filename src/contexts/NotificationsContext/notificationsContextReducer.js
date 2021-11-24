@@ -1,6 +1,5 @@
 import LocalForageHelper from '../../utils/LocalForageHelper'
 import _ from 'lodash'
-import { getMassagedMessages } from '../../utils/messageUtils'
 import { NOTIFICATIONS_CHANNEL } from './NotificationsContext'
 import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
@@ -10,6 +9,7 @@ const UPDATE_MESSAGES = 'UPDATE_MESSAGES';
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const REMOVE_MESSAGE = 'REMOVE_MESSAGE';
 const DEHIGHLIGHT_MESSAGE = 'DEHIGHLIGHT_MESSAGE';
+const LEVEL_MESSAGE = 'LEVEL_MESSAGE';
 const ADD_MESSAGE = 'ADD_MESSAGE';
 
 /** Messages you can send the reducer */
@@ -32,6 +32,14 @@ export function addMessage(message) {
   return {
     type: ADD_MESSAGE,
     message
+  }
+}
+
+export function changeLevelMessage(message, level) {
+  return {
+    type: LEVEL_MESSAGE,
+    message,
+    level
   }
 }
 
@@ -76,8 +84,7 @@ function storeMessagesInState(state, messagesToStore) {
  */
 function doUpdateMessages (state, action) {
   const { messages } = action;
-  const massagedMessages = getMassagedMessages(messages);
-  return storeMessagesInState(state, massagedMessages);
+  return storeMessagesInState(state, messages);
 }
 
 function removeSingleMessage(state, action) {
@@ -95,21 +102,31 @@ function addSingleMessage(state, action) {
   return storeMessagesInState(state, newMessages);
 }
 
-function dehighlightSingleMessage(state, action) {
-  const { message } = action;
+function modifySingleMessage(state, message, modifyFunc) {
   const { messages } = state;
   const oldMessage = (messages || []).find((oldMessage) => oldMessage.market_id_user_id === message.market_id_user_id
     && oldMessage.type_object_id === message.type_object_id);
   if (oldMessage) {
-    const newMessage = {
-      ...oldMessage,
-      is_highlighted: false,
-    };
+    const newMessage = modifyFunc(oldMessage);
     // type_object_id sufficient to do the union because user id is the same and object id unique even without market id
     const newMessages = _.unionBy([newMessage], messages, 'type_object_id');
     return storeMessagesInState(state, newMessages);
   }
   return state;
+}
+
+function changeLevelSingleMessage(state, action) {
+  const { message, level } = action;
+  return modifySingleMessage(state, message, (message) => {
+    return { ...message, level };
+  });
+}
+
+function dehighlightSingleMessage(state, action) {
+  const { message } = action;
+  return modifySingleMessage(state, message, (message) => {
+    return { ...message, is_highlighted: false};
+  });
 }
 
 function computeNewState (state, action) {
@@ -124,6 +141,8 @@ function computeNewState (state, action) {
       return addSingleMessage(state, action);
     case DEHIGHLIGHT_MESSAGE:
       return dehighlightSingleMessage(state, action);
+    case LEVEL_MESSAGE:
+      return changeLevelSingleMessage(state, action);
     default:
       return state;
   }

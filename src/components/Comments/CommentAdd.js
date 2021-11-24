@@ -39,7 +39,11 @@ import { getMarketPresences } from '../../contexts/MarketPresencesContext/market
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { allowVotingForSuggestion, changeInvestibleStageOnCommentChange } from '../../utils/commentFunctions'
 import { findMessageOfType, findMessageOfTypeAndId } from '../../utils/messageUtils'
-import { dehighlightMessage, removeMessage } from '../../contexts/NotificationsContext/notificationsContextReducer'
+import {
+  changeLevelMessage,
+  dehighlightMessage,
+  removeMessage
+} from '../../contexts/NotificationsContext/notificationsContextReducer'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'
 import { Add, Clear, Delete } from '@material-ui/icons'
@@ -374,6 +378,7 @@ function CommentAdd(props) {
           }
           const issueMessage = findMessageOfType('ISSUE', parentId, messagesState)
           if (issueMessage) {
+            messagesDispatch(changeLevelMessage(issueMessage, 'BLUE'));
             messagesDispatch(dehighlightMessage(issueMessage));
           }
         }

@@ -4,7 +4,7 @@ import {
   REMOVED_MARKETS_CHANNEL,
   VERSIONS_EVENT,
 } from '../VersionsContext/versionsContextHelper'
-import { removeMarketDetails } from './marketsContextReducer'
+import { marketChange, removeMarketDetails } from './marketsContextReducer'
 import { pushMessage, registerListener } from '../../utils/MessageBusUtils'
 import { addMarketToStorage } from './marketsContextHelper'
 import { getMarketFromInvite, getMarketFromUrl } from '../../api/uclusionClient'
@@ -18,6 +18,7 @@ import {
 import { lockPlanningMarketForEdit } from '../../api/markets'
 import localforage from 'localforage'
 import TokenStorageManager, { TOKEN_STORAGE_KEYSPACE, TOKEN_TYPE_MARKET } from '../../authorization/TokenStorageManager'
+import { VIEW_EVENT, VISIT_CHANNEL } from '../../utils/marketIdPathFunctions'
 
 export const LOAD_MARKET_CHANNEL = 'LoadMarketChannel';
 export const INVITE_MARKET_EVENT = 'InviteMarketEvent';
@@ -72,6 +73,18 @@ function beginListening(dispatch, diffDispatch, setTokensHash) {
       pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION });
       addMarketToStorage(dispatch, diffDispatch, market);
     });
+  });
+  registerListener(VISIT_CHANNEL, 'marketTrackCurrent', (data) => {
+    const { payload: { event, message } } = data;
+    switch (event) {
+      case VIEW_EVENT:
+        const { marketId, isEntry } = message;
+        if (isEntry) {
+          dispatch(marketChange(marketId));
+        }
+        break;
+      default:
+    }
   });
   registerListener(LOAD_MARKET_CHANNEL, 'marketsLoadStart', (data) => {
     const { payload: { event, marketToken, marketId, subscribeId } } = data;

@@ -5,7 +5,7 @@ import { getInvestible } from '../contexts/InvestibesContext/investiblesContextH
 import { getMarket } from '../contexts/MarketsContext/marketsContextHelper'
 import { marketsContextHack } from '../contexts/MarketsContext/MarketsContext';
 import { investibleContextHack } from '../contexts/InvestibesContext/InvestiblesContext';
-import { setCurrentWorkspace, setRedirect } from './redirectUtils'
+import { setRedirect } from './redirectUtils'
 
 export const VISIT_CHANNEL = 'VisitChannel';
 export const VIEW_EVENT = 'pageView';
@@ -26,9 +26,6 @@ export function decomposeMarketPath(path) {
 
 export function broadcastView(marketId, investibleId, isEntry, action) {
   const message = { marketId, investibleId, isEntry, action };
-  if (isEntry && marketId) {
-    setCurrentWorkspace(marketId);
-  }
   pushMessage(
     VISIT_CHANNEL,
     {

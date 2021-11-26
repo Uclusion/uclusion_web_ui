@@ -208,10 +208,7 @@ const useCommentStyles = makeStyles(
       timeElapsed: {
         whiteSpace: 'nowrap',
         paddingRight: '50px',
-        paddingTop: '5px',
-        [theme.breakpoints.down('sm')]: {
-          display: 'none'
-        },
+        paddingTop: '5px'
       },
       todoLabelType: {
         [theme.breakpoints.down('sm')]: {
@@ -626,33 +623,40 @@ function Comment(props) {
               <CardType className={classes.commentType} type={commentType} resolved={resolved} />
             )}
             {commentType !== JUSTIFY_TYPE && commentType !== REPLY_TYPE && (
-              <Typography className={classes.timeElapsed} variant="body2">
-                Created <UsefulRelativeTime value={comment.created_at}/>
-                {noAuthor &&
-                `${intl.formatMessage({ id: 'lastUpdatedBy' })} ${createdBy.name}`}.
-                {comment.created_at < comment.updated_at && !resolved && (
-                  <> Updated <UsefulRelativeTime value={comment.updated_at}/></>
+              <>
+                {mobileLayout && (
+                  <Typography className={classes.timeElapsed} variant="body2">
+                    {intl.formatDate(comment.updated_at)}
+                  </Typography>
                 )}
-                {resolved && (
-                  <> Resolved <UsefulRelativeTime value={comment.updated_at}/></>
+                {!mobileLayout && (
+                  <Typography className={classes.timeElapsed} variant="body2">
+                    Created <UsefulRelativeTime value={comment.created_at}/>
+                    {noAuthor &&
+                    `${intl.formatMessage({ id: 'lastUpdatedBy' })} ${createdBy.name}`}.
+                    {comment.created_at < comment.updated_at && !resolved && (
+                      <> Updated <UsefulRelativeTime value={comment.updated_at}/></>
+                    )}
+                    {resolved && (
+                      <> Resolved <UsefulRelativeTime value={comment.updated_at}/></>
+                    )}
+                    {comment.created_at < comment.updated_at && !displayUpdatedBy && (
+                      <>.</>
+                    )}
+                    {displayUpdatedBy &&
+                    `${intl.formatMessage({ id: 'lastUpdatedBy' })} ${updatedBy.name}.`}
+                  </Typography>
                 )}
-                {comment.created_at < comment.updated_at && !displayUpdatedBy && (
-                  <>.</>
-                )}
-                {displayUpdatedBy &&
-                `${intl.formatMessage({ id: 'lastUpdatedBy' })} ${updatedBy.name}.`}
-              </Typography>
+              </>
             )}
             {displayEditing && mobileLayout && !beingEdited && (
-              <SpinningIconLabelButton
+              <TooltipIconButton
                 onClick={() => {updateEditState({beingEdited: true, body})}}
-                doSpin={false}
-                icon={Edit}
-              >
-                <FormattedMessage id="edit" />
-              </SpinningIconLabelButton>
+                icon={<Edit />}
+                translationId="edit"
+              />
             )}
-            {commentType !== JUSTIFY_TYPE && commentType !== REPLY_TYPE && (
+            {!mobileLayout && commentType !== JUSTIFY_TYPE && commentType !== REPLY_TYPE && (
               <div style={{marginRight: '2rem', marginTop: '0.5rem'}}>
                 <ShareStoryButton commentId={id} commentType={commentType} investibleId={investibleId} />
               </div>

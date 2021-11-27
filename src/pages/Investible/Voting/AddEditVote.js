@@ -37,6 +37,7 @@ import { removeMessage } from '../../../contexts/NotificationsContext/notificati
 import { getQuillStoredState } from '../../../components/TextEditors/QuillEditor2'
 import InputAdornment from '@material-ui/core/InputAdornment'
 import IssueDialog from '../../../components/Warnings/IssueDialog'
+import { processTextAndFilesForSave } from '../../../api/files'
 
 const useStyles = makeStyles(
   theme => {
@@ -121,7 +122,8 @@ function AddEditVote(props) {
   const {
     storedInvestment,
     storedMaxBudget,
-    useInitial
+    useInitial,
+    uploadedFiles,
   } = votingPageState;
   const intl = useIntl();
   const classes = useStyles();
@@ -149,21 +151,38 @@ function AddEditVote(props) {
     marketId,
     placeholder: intl.formatMessage({ id: "yourReason" }),
     value: getQuillStoredState(editorName) || useInitial === false ? undefined : body,
-    uploadDisabled: true,
+    onUpload: (files) => updateVotingPageState({uploadedFiles: files})
   };
   const [Editor, editorController] = useEditor(editorName, editorSpec);
 
   function mySave() {
+    return mySaveWarnOptional(true);
+  }
+
+  function mySaveWarnOptional(doWarn) {
     if (newQuantity === undefined || multiplier === undefined) {
       setOperationRunning(false);
       setOpenIssue(multiplier === undefined ? 'noMultiplier' : 'noVoteQuantity');
       return;
     }
-    const reasonText = getQuillStoredState(editorName) !== null ? getQuillStoredState(editorName) :
-      useInitial === false ? undefined : body;
+    const currentUploadedFiles = uploadedFiles || [];
+    const myBodyNow = getQuillStoredState(editorName);
+    const {
+      uploadedFiles: filteredUploads,
+      text: tokensRemoved,
+    } = processTextAndFilesForSave(currentUploadedFiles, myBodyNow);
+    const reasonText =  tokensRemoved !== null ? tokensRemoved : useInitial === false ? undefined : body;
     const oldQuantity = addMode ? 0 : quantity;
     // dont include reason text if it's not changing, otherwise we'll update the reason comment
     const reasonNeedsUpdate = reasonText !== body && !(_.isEmpty(reasonText) && _.isEmpty(body));
+    const hasQuestions = (reasonText && reasonText.indexOf('?') > 0);
+    if (doWarn && reasonNeedsUpdate && (hasQuestions || !_.isEmpty(filteredUploads))) {
+      setOperationRunning(false);
+      const warningId = (hasQuestions && !_.isEmpty(filteredUploads)) ? 'noQuestionUploads' :
+        (hasQuestions ? 'noQuestions' : 'noUploads');
+      setOpenIssue(warningId);
+      return;
+    }
     const updateInfo = {
       marketId,
       investibleId,
@@ -173,7 +192,8 @@ function AddEditVote(props) {
       currentReasonId: reasonId,
       reasonNeedsUpdate,
       maxBudget,
-      maxBudgetUnit
+      maxBudgetUnit,
+      uploadedFiles: filteredUploads
     };
 
     return updateInvestment(updateInfo).then(result => {
@@ -361,6 +381,13 @@ function AddEditVote(props) {
           onClose={() => setOpenIssue(false)}
           issueWarningId={openIssue}
           showDismiss={false}
+          actions={
+            (['noQuestionUploads', 'noQuestions', 'noUploads'].includes(openIssue)) ?
+              <SpinningIconLabelButton onClick={() => mySaveWarnOptional(false)} icon={Add}
+                                       id="issueProceedButton">
+                {intl.formatMessage({ id: 'issueProceed' })}
+              </SpinningIconLabelButton> : undefined
+          }
         />
       )}
     </React.Fragment>

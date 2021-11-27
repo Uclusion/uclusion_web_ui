@@ -49,7 +49,8 @@ export function updateInvestment(updateInfo) {
     newMentions,
     reasonNeedsUpdate,
     maxBudget,
-    maxBudgetUnit
+    maxBudgetUnit,
+    uploadedFiles
   } = updateInfo;
   let globalClient;
   return getMarketClient(marketId)
@@ -63,7 +64,7 @@ export function updateInvestment(updateInfo) {
                 return { commentAction: 'DELETED', comment: { id: undefined } }
               });
           }
-          return client.investibles.updateComment(currentReasonId, newReasonText, false, [])
+          return client.investibles.updateComment(currentReasonId, newReasonText, false, uploadedFiles)
             .then((comment) => {
               return {
                 commentAction: 'UPDATED',
@@ -72,7 +73,7 @@ export function updateInvestment(updateInfo) {
             });
         }
         return client.investibles.createComment(investibleId, newReasonText,
-          undefined, JUSTIFY_TYPE, [], newMentions)
+          undefined, JUSTIFY_TYPE, uploadedFiles, newMentions)
           .then((comment) => {
             return {
               commentAction: 'CREATED',

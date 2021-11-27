@@ -33,7 +33,7 @@ import { assignedInStage } from '../../../utils/userFunctions'
 import { getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { nameFromDescription } from '../../../utils/stringFunctions'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
-import { Clear, SettingsBackupRestore } from '@material-ui/icons'
+import { Add, Clear, SettingsBackupRestore } from '@material-ui/icons'
 import { editorReset, getControlPlaneName, useEditor } from '../../../components/TextEditors/quillHooks'
 import { pushMessage } from '../../../utils/MessageBusUtils';
 import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
@@ -80,7 +80,8 @@ function PlanningInvestibleAdd(props) {
     skipApproval,
     maxBudget,
     quantity,
-    uploadedFiles
+    uploadedFiles,
+    voteUploadedFiles
   } = investibleAddState;
   const isAssignedToMe = (assignments || (storyAssignee ? [storyAssignee] : [])).includes(myPresence.id);
   const isAssigned = !_.isEmpty(assignments) || storyAssignee;
@@ -137,7 +138,7 @@ function PlanningInvestibleAdd(props) {
     return handleSaveImpl(false);
   }
   
-  function handleSaveImpl(resolveComments) {
+  function handleSaveImpl(resolveComments, doWarn = true) {
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
@@ -157,6 +158,20 @@ function PlanningInvestibleAdd(props) {
     if (_.isEmpty(addInfo.name)) {
       setOperationRunning(false);
       setOpenIssue('noName');
+      return;
+    }
+    const currentVoteUploadedFiles = voteUploadedFiles || [];
+    const reason = getQuillStoredState(initialVoteEditorName);
+    const hasQuestions = (reason && reason.indexOf('?') > 0);
+    const {
+      uploadedFiles: filteredVoteUploads,
+      text: reasonTokensRemoved,
+    } = processTextAndFilesForSave(currentVoteUploadedFiles, reason);
+    if (doWarn && (hasQuestions || !_.isEmpty(filteredVoteUploads))) {
+      setOperationRunning(false);
+      const warningId = (hasQuestions && !_.isEmpty(filteredVoteUploads)) ? 'noQuestionUploads' :
+        (hasQuestions ? 'noQuestions' : 'noUploads');
+      setOpenIssue(warningId);
       return;
     }
     if (!isAssignedToMe && isAssigned && quantity === undefined) {
@@ -201,16 +216,16 @@ function PlanningInvestibleAdd(props) {
         zeroCurrentValues();
         return onSpinComplete(link);
       }
-      const reason = getQuillStoredState(initialVoteEditorName);
       const updateInfo = {
         marketId,
         investibleId: investible.id,
         newQuantity: quantity,
         currentQuantity: 0,
-        newReasonText: reason,
+        newReasonText: reasonTokensRemoved,
         reasonNeedsUpdate: !_.isEmpty(reason),
         maxBudget,
-        maxBudgetUnit
+        maxBudgetUnit,
+        uploadedFiles: filteredVoteUploads
       };
       return updateInvestment(updateInfo).then(result => {
         const { commentResult, investmentResult } = result;
@@ -322,6 +337,7 @@ function PlanningInvestibleAdd(props) {
             showBudget={useBudget}
             maxBudget={maxBudget}
             maxBudgetUnit={maxBudgetUnit}
+            onUpload={(files) => updateInvestibleAddState({uploadedFiles: files})}
             editorName={initialVoteEditorName}
           />
         )}
@@ -362,6 +378,13 @@ function PlanningInvestibleAdd(props) {
               onClose={() => setOpenIssue(false)}
               issueWarningId={openIssue}
               showDismiss={false}
+              actions={
+                (['noQuestionUploads', 'noQuestions', 'noUploads'].includes(openIssue)) ?
+                  <SpinningIconLabelButton onClick={() => handleSaveImpl(false, false)} icon={Add}
+                                           id="issueProceedButton">
+                    {intl.formatMessage({ id: 'issueProceed' })}
+                  </SpinningIconLabelButton> : undefined
+              }
             />
           )}
           {!requiresInput && (

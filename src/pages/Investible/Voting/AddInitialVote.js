@@ -60,6 +60,7 @@ function AddInitialVote(props) {
   const {
     marketId,
     onBudgetChange,
+    onUpload,
     onChange,
     showBudget,
     newQuantity,
@@ -73,8 +74,8 @@ function AddInitialVote(props) {
   const editorSpec = {
     marketId,
     placeholder: intl.formatMessage({ id: "yourReason" }),
-    uploadDisabled: true,
-    value: getQuillStoredState(editorName)
+    value: getQuillStoredState(editorName),
+    onUpload
   };
 
   const [Editor] = useEditor(editorName, editorSpec);

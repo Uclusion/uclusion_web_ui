@@ -452,6 +452,7 @@ function PlanningInvestible(props) {
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   const inMarketArchives = isInNotDoing || isInVerified;
+  const reportMessage = findMessageOfType('REPORT_REQUIRED', investibleId, messagesState);
   const breadCrumbTemplates = [
     { name: marketName, link: formMarketLink(marketId) }
   ];
@@ -661,9 +662,8 @@ function PlanningInvestible(props) {
       setOperationRunning(true);
       return updateInvestible(updateInfo).then((fullInvestible) => {
         refreshInvestibles(investiblesDispatch, diffDispatch, [fullInvestible]);
-        const message = findMessageOfType('REPORT_REQUIRED', investibleId, messagesState);
-        if (message) {
-          messagesDispatch(removeMessage(message));
+        if (reportMessage) {
+          messagesDispatch(removeMessage(reportMessage));
         }
         setOperationRunning(false);
       });
@@ -964,13 +964,13 @@ function PlanningInvestible(props) {
                     />
                   </div>
                 )}
-                {displayEdit && !inMarketArchives && !isInVoting && !_.isEmpty(assigned) && (
+                {displayEdit && isInAccepted && (
                   <div>
                     <EditMarketButton
                       labelId="changeCompletionDate"
                       marketId={marketId}
                       onClick={toggleEdit}
-                      icon={<EventIcon htmlColor={ACTION_BUTTON_COLOR} />}
+                      icon={<EventIcon htmlColor={reportMessage ? HIGHLIGHTED_BUTTON_COLOR : ACTION_BUTTON_COLOR} />}
                     />
                     {showDatepicker && (
                       <div className={classes.datePicker}>
@@ -991,7 +991,7 @@ function PlanningInvestible(props) {
                   <ShareStoryButton investibleId={investibleId} marketId={marketId} />
                 </div>
               </div>
-              {marketDaysEstimate && !isInVoting && !_.isEmpty(assigned) && (
+              {marketDaysEstimate && isInAccepted && (
                 <DaysEstimate readOnly value={daysEstimate} />
               )}
               <MarketMetaData

@@ -327,7 +327,7 @@ function PlanningDialog(props) {
       _.isEmpty(search) ? undefined : (results.find((result) => result.id === marketId) ? 1 : 0),
        true, isSectionBold('workspaceMain')),
       createNavListItem(AddIcon, 'addStoryLabel', 'addStorySection',
-        undefined, true, isSectionBold('addStorySection')),
+        undefined, false, isSectionBold('addStorySection')),
       createNavListItem(AssignmentIcon, 'planningDialogNavStoriesLabel', 'storiesSection',
         _.size(requiresInputInvestibles) + _.size(blockedInvestibles) + _.size(swimlaneInvestibles)
         + _.size(furtherWorkReadyToStart) + _.size(furtherWorkInvestibles),
@@ -343,7 +343,7 @@ function PlanningDialog(props) {
         num: _.isEmpty(search) ? undefined : archivedSize, newPage: true
       },
       createNavListItem(SettingsIcon, 'settings', 'settingsSection',
-        undefined, true, isSectionBold('settingsSection'))
+        undefined, false, isSectionBold('settingsSection'))
     ]
   }
   const furtherWorkReadyToStartChip = furtherWorkReadyToStart.length > 0
@@ -396,12 +396,14 @@ function PlanningDialog(props) {
             it hold's everything about an agile project.
           </div>
         }/>
-        <Summary market={market} hidden={hidden} activeMarket={activeMarket} inArchives={inArchives}
-                 pageState={pageState} updatePageState={updatePageState} pageStateReset={pageStateReset}
-                 isDraft={isDraft}/>
+        {(_.isEmpty(search) || results.find((item) => item.id === marketId)) && (
+          <Summary market={market} hidden={hidden} activeMarket={activeMarket} inArchives={inArchives}
+                   pageState={pageState} updatePageState={updatePageState} pageStateReset={pageStateReset}
+                   isDraft={isDraft}/>
+        )}
       </div>
       <div id="addStorySection">
-        {!hidden && marketId && isSectionOpen('addStorySection') && !mobileLayout && (
+        {!hidden && marketId && isSectionOpen('addStorySection') && _.isEmpty(search) && !mobileLayout && (
           <PlanningInvestibleAdd
             marketId={marketId}
             onCancel={() => openSubSection('storiesSection')}
@@ -630,7 +632,7 @@ function PlanningDialog(props) {
       </Grid>
       <Grid container spacing={2} id="settingsSection">
         {!hidden && !_.isEmpty(acceptedStage) && !_.isEmpty(inVerifiedStage) &&
-          isSectionOpen('settingsSection') && !mobileLayout && (
+          isSectionOpen('settingsSection') && _.isEmpty(search) && !mobileLayout && (
             <>
               <div className={classes.titleContainer}>
                 {<SettingsIcon htmlColor="#333333"/>}

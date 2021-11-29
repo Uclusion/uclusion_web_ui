@@ -210,7 +210,8 @@ function PlanningDialog(props) {
   }
 
   function isSectionBold(section) {
-    return (sectionOpen === section || (!sectionOpen && section === 'workspaceMain')) && _.isEmpty(search);
+    return (sectionOpen === section || (!sectionOpen && section === 'workspaceMain')) && _.isEmpty(search) &&
+      !mobileLayout;
   }
 
   useEffect(() => {
@@ -290,7 +291,35 @@ function PlanningDialog(props) {
   const myNotHiddenMarketsState = inArchives ? marketsState :
     getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   const planningDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, PLANNING_TYPE) || [];
-
+  const navListItemTextArrayBeg = [
+    createNavListItem(EditIcon, 'planningDialogNavDetailsLabel', 'workspaceMain',
+      _.isEmpty(search) ? undefined : (results.find((result) => result.id === marketId) ? 1 : 0),
+      true, isSectionBold('workspaceMain'))
+  ];
+  if (!mobileLayout) {
+    navListItemTextArrayBeg.push(createNavListItem(AddIcon, 'addStoryLabel', 'addStorySection',
+      undefined, false, isSectionBold('addStorySection')));
+  }
+  const navListItemTextArray = navListItemTextArrayBeg.concat([
+    createNavListItem(AssignmentIcon, 'planningDialogNavStoriesLabel', 'storiesSection',
+      _.size(requiresInputInvestibles) + _.size(blockedInvestibles) + _.size(swimlaneInvestibles)
+      + _.size(furtherWorkReadyToStart) + _.size(furtherWorkInvestibles),
+      true, isSectionBold('storiesSection')),
+    createNavListItem(ListAltIcon, 'todoSection', 'marketTodos', _.size(todoComments),
+      !inArchives && _.isEmpty(search), isSectionBold('marketTodos')),
+    createNavListItem(QuestionIcon, 'planningDialogNavDiscussionLabel', 'discussionSection',
+      _.size(questions) + _.size(suggestions) + _.size(reports),
+      true, isSectionBold('discussionSection')),
+    {
+      icon: MenuBookIcon, text: intl.formatMessage({ id: 'planningDialogViewArchivesLabel' }),
+      target: archivedSize > 0 ? formMarketArchivesLink(marketId) : undefined,
+      num: _.isEmpty(search) ? undefined : archivedSize, newPage: true
+    }
+  ]);
+  if (!mobileLayout) {
+    navListItemTextArray.push(createNavListItem(SettingsIcon, 'settings', 'settingsSection',
+      undefined, false, isSectionBold('settingsSection')));
+  }
   const navigationMenu = {
     navMenu: (<FormControl variant="filled" sx={{ m: 1, minWidth: 120 }} style={{border: '1px solid #ced4da'}}>
       <InputLabel id="workspaceNav">
@@ -322,29 +351,7 @@ function PlanningDialog(props) {
         </MenuItem>
       </Select>
     </FormControl>),
-    navListItemTextArray: [
-      createNavListItem(EditIcon, 'planningDialogNavDetailsLabel', 'workspaceMain',
-      _.isEmpty(search) ? undefined : (results.find((result) => result.id === marketId) ? 1 : 0),
-       true, isSectionBold('workspaceMain')),
-      createNavListItem(AddIcon, 'addStoryLabel', 'addStorySection',
-        undefined, false, isSectionBold('addStorySection')),
-      createNavListItem(AssignmentIcon, 'planningDialogNavStoriesLabel', 'storiesSection',
-        _.size(requiresInputInvestibles) + _.size(blockedInvestibles) + _.size(swimlaneInvestibles)
-        + _.size(furtherWorkReadyToStart) + _.size(furtherWorkInvestibles),
-        true, isSectionBold('storiesSection')),
-      createNavListItem(ListAltIcon, 'todoSection', 'marketTodos', _.size(todoComments),
-        !inArchives && _.isEmpty(search), isSectionBold('marketTodos')),
-      createNavListItem(QuestionIcon, 'planningDialogNavDiscussionLabel', 'discussionSection',
-        _.size(questions) + _.size(suggestions) + _.size(reports),
-        true, isSectionBold('discussionSection')),
-      {
-        icon: MenuBookIcon, text: intl.formatMessage({ id: 'planningDialogViewArchivesLabel' }),
-        target: archivedSize > 0 ? formMarketArchivesLink(marketId) : undefined,
-        num: _.isEmpty(search) ? undefined : archivedSize, newPage: true
-      },
-      createNavListItem(SettingsIcon, 'settings', 'settingsSection',
-        undefined, false, isSectionBold('settingsSection'))
-    ]
+    navListItemTextArray
   }
   const furtherWorkReadyToStartChip = furtherWorkReadyToStart.length > 0
     && <Chip label={`${furtherWorkReadyToStart.length}`} color="primary" size='small'

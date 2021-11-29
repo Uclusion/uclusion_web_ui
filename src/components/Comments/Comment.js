@@ -310,7 +310,7 @@ function Comment(props) {
   const { comment, marketId, comments, allowedTypes, noAuthor, onDone,  readOnly } = props;
   const history = useHistory();
   const theme = useTheme();
-  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const intl = useIntl();
   const classes = useCommentStyles();

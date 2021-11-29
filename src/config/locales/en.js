@@ -970,7 +970,7 @@ const messages = defineMessages({
   toggleFurtherExplanation: 'Click to open or close Further Work section',
   readyToStartCheckboxExplanation: 'Ready to Start',
   editTodo: 'View',
-  markRead: 'Mark Comment Read',
+  markRead: 'Mark Read',
   markDescriptionRead: 'Mark Description Read',
   markStoryRead: 'Mark Story Read',
   markReadMobile: 'Mark Read',

@@ -23,10 +23,14 @@ export function getTourFamily(tourName) {
       return [ADMIN_INITIATIVE_FIRST_VIEW, INVITE_INITIATIVE_FIRST_VIEW];
     case INVITE_INITIATIVE_FIRST_VIEW:
       return [INVITE_INITIATIVE_FIRST_VIEW];
+    case BLOCKED_STORY_TOUR:
+      return [BLOCKED_STORY_TOUR];
+    case REQUIRES_INPUT_STORY_TOUR:
+      return [REQUIRES_INPUT_STORY_TOUR];
     case SIGNUP_HOME:
       return [SIGNUP_HOME];
     default:
-      return [];
+      return [tourName];
   }
 }
 

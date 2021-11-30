@@ -114,6 +114,7 @@ function DecisionInvestibleAdd(props) {
     }).then((investible) => {
       onSave(investible);
       editorController(editorReset());
+      clearNameStoredState(nameId);
       if (typeof completionFunc === 'function') {
         completionFunc();
       } else {
@@ -163,6 +164,7 @@ function DecisionInvestibleAdd(props) {
     return addDecisionInvestible(addInfo).then((investible) => {
       onSave(investible);
       editorController(editorReset());
+      clearNameStoredState(nameId);
     }).then(() => {
       setOperationRunning(false);
       if (typeof completionFunc === 'function') {

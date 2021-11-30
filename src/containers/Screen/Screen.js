@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme) => ({
   },
   containerAll: {
     padding: '24px 20px 156px',
-    marginTop: '80px',
+    marginTop: '65px',
     width: '100%',
     [theme.breakpoints.down('md')]: {
       padding: '24px 12px 156px',
@@ -37,7 +37,7 @@ const useStyles = makeStyles((theme) => ({
   },
   containerAllLeftPad: {
     padding: '24px 20px 156px 25px',
-    marginTop: '80px',
+    marginTop: '65px',
     width: '100%',
     [theme.breakpoints.down('md')]: {
       padding: '24px 12px 156px',
@@ -172,7 +172,8 @@ function Screen(props) {
     appEnabled,
     banner,
     navigationOptions,
-    isWorkspace
+    isWorkspace,
+    isModal
   } = props;
 
   useEffect(() => {
@@ -272,6 +273,7 @@ function Screen(props) {
         appEnabled={appEnabled}
         isWorkspace={isWorkspace}
         navMenu={sideNavigationContents}
+        hideTools={isModal}
       />
       {!_.isEmpty(navListItemTextArray) && !mobileLayout && (
         <div className={classes.listContainer}>

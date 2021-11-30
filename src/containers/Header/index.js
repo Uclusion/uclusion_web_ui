@@ -251,7 +251,11 @@ function Header (props) {
           {!isWorkspace && (
             <Link href={lastWorkspaceLink} onClick={(event) => {
               preventDefaultAndProp(event);
-              navigate(history, lastWorkspaceLink);
+              if (hideTools && history.length > 1) {
+                history.goBack();
+              } else {
+                navigate(history, lastWorkspaceLink);
+              }
             }} color="inherit">
               <ChevronLeft htmlColor="black" style={{marginLeft: '1rem'}} />
             </Link>
@@ -289,7 +293,7 @@ function Header (props) {
                 </svg>
               </Link>
             )}
-            {!hideTools && generateBreadCrumbs()}
+            {generateBreadCrumbs()}
           </div>
           {!hideTools && toolbarButtons}
           {!online && (

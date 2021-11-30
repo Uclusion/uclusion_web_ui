@@ -106,7 +106,6 @@ function WorkListItem(props) {
     description = "Please read",
     message,
     date,
-    isJarDisplay,
     useSelect = true,
     checkedDefault = false,
     setDeterminate,
@@ -154,11 +153,10 @@ function WorkListItem(props) {
   return (
     <Div
       key={`workListItem${id}`}
-      style={{maxWidth: isJarDisplay ? '47vw' : undefined}}
       className={cx(read && 'MailListItem-read')}
     >
       <Box flexShrink={0} className={gutterStyles.parent}>
-        {!isJarDisplay && useSelect && (
+        {useSelect && (
           <StyledIconButton
             className={cx(checked && "MailListItem-checked")}
             classes={actionStyles}
@@ -179,7 +177,6 @@ function WorkListItem(props) {
         {!mobileLayout && useSelect && (
           <StyledIconButton
             classes={actionStyles}
-            style={{marginLeft: isJarDisplay ? '0.25rem' : undefined}}
             onClick={isDeletable ? deleteActionButtonOnclick : (read ? undefined : archiveActionButtonOnclick)}
           >
             { isDeletable ? <DeleteForever /> : (read ? <div /> : <ArchiveIcon />) }
@@ -194,7 +191,7 @@ function WorkListItem(props) {
           </StyledIconButton>
         )}
       </Box>
-      {isJarDisplay || mobileLayout ? React.Fragment : (read ?
+      {mobileLayout ? React.Fragment : (read ?
         (<Title style={{flexBasis: useSelect ? undefined : '160px'}}>{title}</Title>) :
         (<TitleB style={{flexBasis: useSelect ? undefined : '160px'}}>{title}</TitleB>))}
       {mobileLayout || !people ? React.Fragment : <GravatarGroup users={people} className={classes.gravatarStyle}/> }

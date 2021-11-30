@@ -1,8 +1,7 @@
 import WorkListItem from './WorkListItem'
-import { Card, CardActions, Fab, Menu, Typography, useMediaQuery, useTheme } from '@material-ui/core'
-import React, { useContext, useState } from 'react'
-import styled from "styled-components";
-import { FormattedMessage, useIntl } from 'react-intl'
+import { Fab, useMediaQuery, useTheme } from '@material-ui/core'
+import React, { useContext } from 'react'
+import { useIntl } from 'react-intl'
 import { Link } from '@material-ui/core'
 import {
   createTitle,
@@ -50,13 +49,6 @@ import { getMarketInfo } from '../../../utils/userFunctions'
 import VotingIcon from '@material-ui/icons/Assessment'
 import GavelIcon from '@material-ui/icons/Gavel'
 import { AlarmOn } from '@material-ui/icons'
-
-const SectionTitle = styled("div")`
-  width: auto;
-  display: flex;
-  align-items: center;
-  margin-bottom: 1rem;
-`;
 
 function getMessageForInvestible(investible, market, labelId, Icon, intl) {
   const investibleId = investible.investible.id;
@@ -174,7 +166,6 @@ function Outbox(props) {
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const intl = useIntl();
   const history = useHistory();
-  const [anchorEl, setAnchorEl] = useState(null);
   const [investibleState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentState] = useContext(CommentsContext);
@@ -334,6 +325,22 @@ function Outbox(props) {
   const messagesOrdered = isJarDisplay ? _.orderBy(messages, ['inActive', 'updatedAt'], ['desc', 'asc'])
     : _.orderBy(messages, ['updatedAt'], ['asc']);
   const filteredForJarCount = messages.filter((message) => !message.inActive);
+  const goFullOutboxClick = (event) => {
+    preventDefaultAndProp(event);
+    navigate(history, '/outbox');
+  };
+  if (isJarDisplay) {
+    return (
+      <div id='outboxNotification' key='outbox' onClick={goFullOutboxClick} className={classes.bellButton}>
+        <Badge badgeContent={filteredForJarCount.length} className={classes.chip} overlap="circular">
+          <Fab id='notifications-fabInbox' className={classes.fab}>
+            <AlarmOn htmlColor='black' />
+          </Fab>
+        </Badge>
+      </div>
+    );
+  }
+
   const rows = messagesOrdered.map((message) => {
     const { id, market, investible, updatedAt, link, title, icon, comment, inActive, debtors } = message;
     const titleSize = mobileLayout ? 30 : 100;
@@ -359,70 +366,13 @@ function Outbox(props) {
     return <Link href={link} style={{ width: '100%' }} key={`linkOutboxRow${id}`} onClick={
       (event) => {
         preventDefaultAndProp(event);
-        setAnchorEl(null);
         navigate(history, link);
       }
-    }><WorkListItem key={`outboxRow${id}`} id={id} isJarDisplay={isJarDisplay} useSelect={false} {...item} /></Link>;
-  })
-  const goFullOutboxClick = (event) => {
-    preventDefaultAndProp(event);
-    navigate(history, '/outbox');
-  };
-  const jarClick = mobileLayout ? goFullOutboxClick : (event) => setAnchorEl(event.currentTarget);
-  if (isJarDisplay) {
-    const seeMoreId = (_.size(messages) > 10 || _.size(messages) > _.size(rows)) ? 'seeFullOutbox' : 'seeOutbox';
-    const first = _.isEmpty(messages) ? undefined : messagesOrdered[0];
-    return (
-      <>
-        <div id='outboxNotification' key='outbox' onClick={jarClick} className={classes.bellButton}>
-          <Badge badgeContent={filteredForJarCount.length} className={classes.chip} overlap="circular">
-            <Fab id='notifications-fabInbox' className={classes.fab}>
-              <AlarmOn htmlColor='black' />
-            </Fab>
-          </Badge>
-        </div>
-        <Menu
-          id="profile-menu"
-          open={anchorEl !== null}
-          onClose={() => setAnchorEl(null)}
-          getContentAnchorEl={null}
-          anchorOrigin={{
-            vertical: 'bottom',
-            horizontal: 'left',
-          }}
-          transformOrigin={{
-            vertical: 'top',
-            horizontal: 'center',
-          }}
-          anchorEl={anchorEl}
-          disableRestoreFocus
-          style={{maxWidth: mobileLayout ? undefined : '50%'}}
-        >
-          {!_.isEmpty(first) && (
-            <div style={{minWidth: '50vw'}} key="outboxRows">
-              { _.slice(rows, 0, 10) }
-            </div>
-          )}
-          <Card key="outboxSeeMore">
-            <CardActions style={{display: 'flex', justifyContent: 'center', minWidth: '30vw'}}>
-              <Link href={'/outbox'} onClick={goFullOutboxClick}><FormattedMessage
-                id={seeMoreId}
-              /> </Link>
-            </CardActions>
-          </Card>
-        </Menu>
-      </>
-    );
-  }
+    }><WorkListItem key={`outboxRow${id}`} id={id} useSelect={false} {...item} /></Link>;
+  });
 
   return (
     <div id="inbox">
-      <SectionTitle>
-        {<AlarmOn htmlColor='black' />}
-        <Typography style={{marginLeft: '1rem'}} variant="h6">
-          {intl.formatMessage({ id: 'outbox' })}
-        </Typography>
-      </SectionTitle>
       { rows }
     </div>
   );

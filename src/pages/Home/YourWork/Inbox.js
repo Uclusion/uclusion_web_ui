@@ -1,8 +1,7 @@
 import WorkListItem from './WorkListItem'
-import { Card, CardActions, Checkbox, Fab, Menu, Typography, useMediaQuery, useTheme } from '@material-ui/core'
+import { Checkbox, Fab, useMediaQuery, useTheme } from '@material-ui/core'
 import React, { useContext, useEffect, useState } from 'react'
-import styled from "styled-components";
-import { FormattedMessage, useIntl } from 'react-intl'
+import { useIntl } from 'react-intl'
 import { Link } from '@material-ui/core'
 import { MoveToInbox } from '@material-ui/icons'
 import WarningIcon from '@material-ui/icons/Warning'
@@ -27,13 +26,6 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import ArchiveIcon from '@material-ui/icons/Archive'
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
 import TooltipIconButton from '../../../components/Buttons/TooltipIconButton'
-
-const SectionTitle = styled("div")`
-  width: auto;
-  display: flex;
-  align-items: center;
-  margin-bottom: 1rem;
-`;
 
 function getPriorityIcon(level) {
   switch (level) {
@@ -119,7 +111,6 @@ function Inbox(props) {
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const intl = useIntl();
   const history = useHistory();
-  const [anchorEl, setAnchorEl] = useState(null);
   const [checkAll, setCheckAll] = useState(false);
   const [determinate, setDeterminate] = useState({});
   const [indeterminate, setIndeterminate] = useState(false);
@@ -147,31 +138,26 @@ function Inbox(props) {
     unreadCount = messages.length;
   }
 
-  let messagesOrdered;
+  const messagesOrdered =  _.orderBy(messagesFull, ['updated_at'], ['desc']) || [];
+  const goFullInboxClick = (event) => {
+    preventDefaultAndProp(event);
+    navigate(history, '/inbox');
+  };
   if (isJarDisplay) {
-    messagesOrdered = _.orderBy(messagesFull, [(message) => {
-      const { level, is_highlighted: isHighlighted } = message;
-      if (!isHighlighted) {
-        switch (level) {
-          case 'RED':
-            return 3;
-          case 'YELLOW':
-            return 2;
-          default:
-            return 1;
-        }
-      }
-      switch (level) {
-        case 'RED':
-          return 6;
-        case 'YELLOW':
-          return 5;
-        default:
-          return 4;
-      }}, (message) => message.updated_at], ['desc', 'desc'] ) || [];
-  } else {
-    messagesOrdered =  _.orderBy(messagesFull, ['updated_at'], ['desc']) || [];
+    const first = _.isEmpty(messagesFull) ? undefined : messagesOrdered[0];
+    return (
+      <div id='inboxNotification' key='inbox' onClick={goFullInboxClick} className={classes.bellButton}>
+        <Badge badgeContent={unreadCount} className={classes.chip} overlap="circular">
+          <Fab id='notifications-fabInbox' className={classes.fab}>
+            <MoveToInbox
+              htmlColor={ _.isEmpty(first) ? '#8f8f8f' :
+                (first.level === 'RED' ? '#E85757' : (first.level === 'YELLOW' ? '#e6e969' : '#2D9CDB'))} />
+          </Fab>
+        </Badge>
+      </div>
+    );
   }
+
   let containsUnread = false;
   const rows = messagesOrdered.map((message) => {
     const { level, market_name: market, investible_name: investible, updated_at: updatedAt, investible_id: investibleId,
@@ -208,74 +194,14 @@ function Inbox(props) {
     return <Link href={link} style={{ width: '100%' }} key={`link${typeObjectId}`} onClick={
       (event) => {
         preventDefaultAndProp(event);
-        setAnchorEl(null);
         navigate(history, link);
       }
-    }><WorkListItem key={typeObjectId} id={typeObjectId} isJarDisplay={isJarDisplay} checkedDefault={checkAll}
+    }><WorkListItem key={typeObjectId} id={typeObjectId} checkedDefault={checkAll}
                     setDeterminate={setDeterminate} determinate={determinate} {...item} /></Link>;
-  })
-  const goFullInboxClick = (event) => {
-    preventDefaultAndProp(event);
-    navigate(history, '/inbox');
-  };
-  const jarClick = mobileLayout ? goFullInboxClick : (event) => setAnchorEl(event.currentTarget);
-  if (isJarDisplay) {
-    const first = _.isEmpty(messagesFull) ? undefined : messagesOrdered[0];
-    const seeMoreId = (_.size(messagesFull) > _.size(rows) || _.size(messagesFull) > 10) ? 'seeFullInbox' : 'seeInbox';
-    return (
-      <React.Fragment key="inboxKey">
-        <div id='inboxNotification' key='inbox' onClick={jarClick} className={classes.bellButton}>
-          <Badge badgeContent={unreadCount} className={classes.chip} overlap="circular">
-            <Fab id='notifications-fabInbox' className={classes.fab}>
-              <MoveToInbox
-                htmlColor={ _.isEmpty(first) ? '#8f8f8f' :
-                  (first.level === 'RED' ? '#E85757' : (first.level === 'YELLOW' ? '#e6e969' : '#2D9CDB'))} />
-            </Fab>
-          </Badge>
-        </div>
-        <Menu
-          id="profile-menu"
-          key="inboxMenu"
-          open={anchorEl !== null}
-          onClose={() => setAnchorEl(null)}
-          getContentAnchorEl={null}
-          anchorOrigin={{
-            vertical: 'bottom',
-            horizontal: 'left',
-          }}
-          transformOrigin={{
-            vertical: 'top',
-            horizontal: 'center',
-          }}
-          anchorEl={anchorEl}
-          disableRestoreFocus
-          style={{maxWidth: mobileLayout ? undefined : '50%'}}
-        >
-          {!_.isEmpty(first) && (
-            <div style={{minWidth: '50vw'}} key="inboxRows" id="inboxRows">
-              { _.slice(rows, 0, 10) }
-            </div>
-          )}
-          <Card key="inboxSeeMore" id="inboxSeeMore">
-            <CardActions style={{display: 'flex', justifyContent: 'center', minWidth: '30vw'}}>
-              <Link href={'/inbox'} onClick={goFullInboxClick}><FormattedMessage
-                id={seeMoreId}
-              /> </Link>
-            </CardActions>
-          </Card>
-        </Menu>
-      </React.Fragment>
-    );
-  }
+  });
 
   return (
     <div id="inbox">
-      <SectionTitle>
-        {<MoveToInbox htmlColor="#333333"/>}
-        <Typography style={{marginLeft: '1rem'}} variant="h6">
-          {intl.formatMessage({ id: 'inbox' })}
-        </Typography>
-      </SectionTitle>
       <div style={{display: 'flex'}}>
         <Checkbox
           checked={checkAll}

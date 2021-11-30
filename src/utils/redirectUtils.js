@@ -30,6 +30,10 @@ export function setRedirect(location) {
   setLoginPersistentItem(REDIRECT_LOCAL_STORAGE_KEY, location);
 }
 
+export function clearRedirect() {
+  setLoginPersistentItem(REDIRECT_LOCAL_STORAGE_KEY, undefined);
+}
+
 export function setCurrentWorkspace(location) {
   setLoginPersistentItem(WORKSPACE_LOCAL_STORAGE_KEY, location);
 }

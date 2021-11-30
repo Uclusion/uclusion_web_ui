@@ -30,7 +30,7 @@ import config from '../../config';
 import Inbox from '../../pages/Home/YourWork/Inbox'
 import Outbox from '../../pages/Home/YourWork/Outbox'
 import { ChevronLeft } from '@material-ui/icons'
-import { getCurrentWorkspace } from '../../utils/redirectUtils'
+import { clearRedirect, getCurrentWorkspace } from '../../utils/redirectUtils'
 import Hamburger from '../../components/Menus/Hamburger'
 
 export const headerStyles = makeStyles((theme) => {
@@ -252,6 +252,8 @@ function Header (props) {
             <Link href={lastWorkspaceLink} onClick={(event) => {
               preventDefaultAndProp(event);
               if (hideTools && history.length > 1) {
+                //Make sure home page does not bounce us back to this page
+                clearRedirect();
                 history.goBack();
               } else {
                 navigate(history, lastWorkspaceLink);

@@ -36,7 +36,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   containerAllLeftPad: {
-    padding: '24px 20px 156px 25px',
+    padding: '24px 20px 156px 7px',
     marginTop: '65px',
     width: '100%',
     [theme.breakpoints.down('md')]: {
@@ -87,6 +87,9 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: '-6rem'
   },
   contentNoStyle: {},
+  lessContent: {
+    marginLeft: '11rem'
+  },
   content: {
     marginLeft: '15rem'
   },
@@ -218,7 +221,7 @@ function Screen(props) {
   const { navListItemTextArray, navMenu, showSearch = true } = navigationOptions || {}
   const myContainerClass = navigationOptions && !mobileLayout ? classes.containerAllLeftPad : classes.containerAll
   const contentClass = mobileLayout ? classes.contentNoStyle :
-    navigationOptions ? classes.content : classes.contentNoStyle;
+    navigationOptions ? (isModal ? classes.lessContent : classes.content) : classes.contentNoStyle;
   const sideNavigationContents = _.isEmpty(navListItemTextArray) ? undefined : (
     <>
       {navMenu}

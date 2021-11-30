@@ -204,7 +204,8 @@ function Header (props) {
   }
 
   function generateBreadCrumbs () {
-    const titleSize = mobileLayout ? 25 : _.size(breadCrumbs) < 2 ? 100 : 50;
+    const titleSizeMultiplier = _.size(breadCrumbs) < 1 ? 2 : 1;
+    const titleSize = (window.innerWidth / 25)*titleSizeMultiplier;
     // if we've been passed in breadcrumbs and are not hidden generate them
     if (breadCrumbs && !hidden) {
       return (

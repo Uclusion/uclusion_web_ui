@@ -10,10 +10,10 @@ export function blockedStorySteps(variables) {
         disableBeacon: true,
         placement: 'center',
         target: 'body',
-        title: 'About story blocking',
+        title: 'About task blocking',
         content: (
           <Typography style={{textAlign: 'left'}} variant="body2">
-            This story will stay in Blocked until you or someone else assigned moves it.
+            This task will stay in Blocked until you or someone else assigned moves it.
             <br/><br/>
             Moving it requires all blocking issues be resolved first.
           </Typography>

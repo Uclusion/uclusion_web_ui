@@ -179,7 +179,6 @@ function Dialog(props) {
           if (investibleId) {
             const link = formInvestibleLink(marketId, investibleId);
             const fullLink = `${link}#c${commentId}`;
-            console.info('Navigating to comment in story');
             navigate(history, fullLink, true);
           } else if (resolved) {
             const link = formMarketArchivesLink(marketId);

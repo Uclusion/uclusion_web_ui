@@ -321,7 +321,7 @@ const messages = defineMessages({
   investibleAssign: 'Task - Assignments',
   investibleReviewers: 'Task - Required Reviewers',
   investibleApprovers: 'Task - Required Approvers',
-  createAssignment: 'Assign Task',
+  createAssignment: 'Assign',
   createAssignmentExplanation: 'Assign new task to this person.',
   investibleAssignForVotingLabel: 'Assign & Move Voting',
   investibleAddHeader: 'Add Investible',
@@ -500,7 +500,7 @@ const messages = defineMessages({
   homeSubsectionDecision: 'Dialogs',
   homeAddDecision: 'Create Dialog',
   homeAddPlanning: 'Create Workspace',
-  homeAddPlanningExplanation: 'Create a workspace when you want to discuss a project or assign stories',
+  homeAddPlanningExplanation: 'Create a workspace when you want to discuss a project or assign tasks',
   homeAddDecisionExplanation: 'Create a dialog when you want to brainstorm solution alternatives',
   homeAddInitiativeExplanation: 'Create an initiative to measure support for an idea',
   homeViewArchivesExplanation: 'Archive is where dismissed items go',
@@ -522,7 +522,6 @@ const messages = defineMessages({
   // Archives
   archivesTitle: 'Archive',
   inboxArchive: 'Mark read or delete selected',
-  showOthers: 'Show other\'s stories',
 
   // Decision Dialogs
   decisionDialogsStartedBy: 'Started By: {name}',
@@ -539,18 +538,17 @@ const messages = defineMessages({
 
   // Planning Dialog
   planningDialogNavDetailsLabel: 'Details',
-  planningDialogNavStoriesLabel: 'Stories',
+  planningDialogNavStoriesLabel: 'Tasks',
   planningDialogNavDiscussionLabel: 'Discussion',
   planningDialogManageParticipantsLabel: 'Manage collaborators',
   planningDialogSummaryLabel: 'Workspace Detail',
-  planningDialogPeopleLabel: 'collaborator\'s stories',
   planningDialogDiscussionLabel: 'Discussion',
   planningDialogAddInvestibleLabel: 'Create Task',
   todosSelectForStory: 'Select TODOs for Task',
   todosCreateStory: 'Create Task from TODOs',
   planningDialogAddInvestibleExplanation: 'Create a task and collaborate on what to do',
   planningDialogManageParticipantsExplanation: 'Add collaborators to this workspace',
-  planningDialogViewArchivesExplanation: 'See archived Dialogs, comments and stories in Verified and Not Doing',
+  planningDialogViewArchivesExplanation: 'See archived Dialogs, comments and tasks in Verified and Not Doing',
   planningDialogViewArchivesLabel: 'Archive',
   planningNoneAcceptedWarning: 'No Not Ready For Feedback task',
   planningNoneInDialogWarning: 'No Ready for Approval task',
@@ -593,7 +591,7 @@ const messages = defineMessages({
   questionSearchCount: 'Matching questions',
   issueSearchCount: 'Matching issues',
   storyCount: 'Active tasks',
-  storySearchCount: 'Matching stories',
+  storySearchCount: 'Matching tasks',
   planningMarketActivate: 'Activate Workspace',
   immediate: 'Immediate',
   storyFromComment: 'Move to Task',
@@ -702,7 +700,7 @@ const messages = defineMessages({
   requiresInputListHeader: 'Warning: unless you resolve some comments the current assignment will move the task to Requires Input.',
   reviewListHeader: 'Required reviewers',
   approveListHeader: 'Required approvers',
-  cannotUnassignExplanation: 'Collaborators assigned stories cannot be unchecked.',
+  cannotUnassignExplanation: 'Collaborators assigned tasks cannot be unchecked.',
   removeExplanation: 'Remove takes away all access to this Workspace',
   guestExplanation: 'Not assignable means the collaborator will not show in the swimlanes.',
 
@@ -806,8 +804,6 @@ const messages = defineMessages({
   changeVote: 'Change approval',
   changeVoteInitiative: 'Change vote',
   personChooserLabel: 'View Other Person\'s Assignments',
-  displaying: 'Displaying stories for {x} {y}',
-  displayingNoEmail: 'Displaying stories for {x}',
   clear: 'Clear',
 
   // add participants
@@ -900,7 +896,7 @@ const messages = defineMessages({
   errorClearFailed: 'There was a problem clearing your data. Please try again',
   errorGetIdFailed: 'There was a problem displaying your identification.',
   errorUpdateUserFailed: 'There was a problem updating your profile. Please try again.',
-  errorUpdateStageFailed: 'There was a problem updating allowed stories. Please try again.',
+  errorUpdateStageFailed: 'There was a problem updating allowed tasks. Please try again.',
   errorMarketFetchFailed: 'There was an error processing your invite. Please try again.',
   errorBanUserFailed: 'There was a problem removing the collaborator. Please try again.',
   errorGuestUserFailed: 'There was a problem changing the collaborator. Please try again.',
@@ -921,18 +917,18 @@ const messages = defineMessages({
 
   //assigneeFilterDropdown
   assigneeFilterDropdownAll: 'Everyone',
-  assigneeFilterLabel: 'Show stories for:',
+  assigneeFilterLabel: 'Show tasks for:',
 
   //allowed investibles dropdown
-  allowedInvestiblesDropdownHelp: 'Number of stories to allow in \'Not Ready For Feedback\' per person',
-  allowedInvestiblesDropdownLabel: 'Maximum stories not ready for feedback',
+  allowedInvestiblesDropdownHelp: 'Number of tasks to allow in \'Not Ready For Feedback\' per person',
+  allowedInvestiblesDropdownLabel: 'Maximum tasks not ready for feedback',
   allowedInvestiblesUnlimitedValue: 'Unlimited',
 
   //show investibles dropdown
-  showInvestiblesDropdownHelp: 'Number of stories to allow in \'Verified\' swimlane per person',
-  showInvestiblesDropdownAgeHelp: 'Maximum age of stories shown in \'Verified\' swimlanes',
-  showInvestiblesDropdownLabel: 'Maximum verified stories shown in swim lane',
-  showInvestiblesDropdownAgeLabel: 'Maximum age in days to show verified stories',
+  showInvestiblesDropdownHelp: 'Number of tasks to allow in \'Verified\' swimlane per person',
+  showInvestiblesDropdownAgeHelp: 'Maximum age of tasks shown in \'Verified\' swimlanes',
+  showInvestiblesDropdownLabel: 'Maximum verified tasks shown in swim lane',
+  showInvestiblesDropdownAgeLabel: 'Maximum age in days to show verified tasks',
   showInvestiblesUnlimitedValue: 'Unlimited',
 
   // warnings

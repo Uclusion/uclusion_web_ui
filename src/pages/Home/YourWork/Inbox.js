@@ -1,5 +1,5 @@
 import WorkListItem from './WorkListItem'
-import { Checkbox, Fab, useMediaQuery, useTheme } from '@material-ui/core'
+import { Checkbox, Fab } from '@material-ui/core'
 import React, { useContext, useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
 import { Link } from '@material-ui/core'
@@ -8,13 +8,8 @@ import WarningIcon from '@material-ui/icons/Warning'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import HourglassFullIcon from '@material-ui/icons/HourglassFull'
 import NotesIcon from '@material-ui/icons/Notes'
-import { createTitle, navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions'
+import { navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
-import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
-import { PLANNING_TYPE } from '../../../constants/markets'
-import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
-import { getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
-import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import { nameFromDescription } from '../../../utils/stringFunctions'
 import { getCommentRoot } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
@@ -26,6 +21,7 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import ArchiveIcon from '@material-ui/icons/Archive'
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
 import TooltipIconButton from '../../../components/Buttons/TooltipIconButton'
+import { messageText } from '../../../utils/messageUtils'
 
 function getPriorityIcon(level) {
   switch (level) {
@@ -38,40 +34,6 @@ function getPriorityIcon(level) {
     default:
       return undefined;
   }
-}
-
-function convertStageName(name, intl) {
-  switch (name) {
-    case 'In Dialog':
-      return intl.formatMessage({ id: 'planningInvestibleToVotingLabel' });
-    case 'In Review':
-      return intl.formatMessage({ id: 'planningInvestibleNextStageInReviewLabel' });
-    case 'Accepted':
-      return intl.formatMessage({ id: 'planningAcceptedStageLabel' });
-    case 'Blocked':
-      return intl.formatMessage({ id: 'planningBlockedStageLabel' });
-    case 'Requires Input':
-      return intl.formatMessage({ id: 'requiresInputStageLabel' });
-    case 'Further Work':
-      return intl.formatMessage({ id: 'readyFurtherWorkHeader' });
-    default:
-      return name;
-  }
-}
-
-function getTitle(marketType, linkType, name, marketId, investibleId, investibleState, marketStagesState, intl) {
-  if (linkType === 'INVESTIBLE' && marketType === PLANNING_TYPE) {
-    const inv = getInvestible(investibleState, investibleId) || {};
-    const { market_infos } = inv;
-    const [info] = (market_infos || []);
-    const { stage: currentStageId } = (info || {});
-    const stage = getFullStage(marketStagesState, marketId, currentStageId) || {};
-    return convertStageName(stage.name, intl);
-  }
-  if (marketType === 'upgrade') {
-    return 'Billing';
-  }
-  return name;
 }
 
 const useStyles = makeStyles(
@@ -107,8 +69,6 @@ const useStyles = makeStyles(
 function Inbox(props) {
   const { isJarDisplay = false } = props;
   const classes = useStyles();
-  const theme = useTheme();
-  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const intl = useIntl();
   const history = useHistory();
   const [checkAll, setCheckAll] = useState(false);
@@ -116,8 +76,6 @@ function Inbox(props) {
   const [indeterminate, setIndeterminate] = useState(false);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
-  const [investibleState] = useContext(InvestiblesContext);
-  const [marketStagesState] = useContext(MarketStagesContext);
   const [commentState] = useContext(CommentsContext);
   const { messages: messagesUnsafe } = messagesState;
 
@@ -160,19 +118,15 @@ function Inbox(props) {
 
   let containsUnread = false;
   const rows = messagesOrdered.map((message) => {
-    const { level, market_name: market, investible_name: investible, updated_at: updatedAt, investible_id: investibleId,
-      is_highlighted: isHighlighted, name, text, link, type_object_id: typeObjectId, market_id: marketId,
-      comment_id: commentId, market_type: marketType, link_type: linkType, type: messageType,
-      comment_market_id: commentMarketId } = message;
-    const title = getTitle(marketType, linkType, name, marketId, investibleId, investibleState, marketStagesState,
-      intl);
-    const titleSize = mobileLayout ? 10 : (!investible && !commentId ? 50 : 30);
+    const { level, investible_name: investible, updated_at: updatedAt,
+      is_highlighted: isHighlighted, text, link, type_object_id: typeObjectId, market_id: marketId,
+      comment_id: commentId, comment_market_id: commentMarketId } = message;
+    const title = messageText(message, intl);
     const item = {
       title,
       description: text,
       icon: getPriorityIcon(level),
-      market: messageType === 'USER_POKED' ? undefined : createTitle(market, titleSize),
-      investible: createTitle(investible, titleSize),
+      investible,
       read: !isHighlighted,
       isDeletable: typeObjectId.startsWith('UNREAD'),
       date: intl.formatDate(updatedAt),
@@ -187,7 +141,7 @@ function Inbox(props) {
       if (rootComment) {
         const comment = nameFromDescription(rootComment.body);
         if (comment) {
-          item.comment = createTitle(comment, titleSize);
+          item.comment = comment;
         }
       }
     }

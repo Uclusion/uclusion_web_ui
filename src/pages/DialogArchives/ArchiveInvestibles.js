@@ -31,7 +31,7 @@ import {
 import { getInvestibleVoters } from '../../utils/votingUtils';
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined'
 import { notify, onInvestibleStageChange } from '../../utils/investibleFunctions'
-import { INVESTIBLE_SUBMITTED_TYPE, YELLOW_LEVEL } from '../../constants/notifications'
+import { UNASSIGNED_TYPE, YELLOW_LEVEL } from '../../constants/notifications'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
@@ -229,10 +229,10 @@ function ArchiveInvestbiles(props) {
     return updateInvestible(updateInfo).then((fullInvestible) => {
       onInvestibleStageChange(stage, fullInvestible, investibleId, marketId, commentsState,
         commentsDispatch, invDispatch, () => {}, undefined, messagesState,
-        messagesDispatch, [INVESTIBLE_SUBMITTED_TYPE]);
+        messagesDispatch, [UNASSIGNED_TYPE]);
       if (isReadyToStart) {
         const market = getMarket(marketsState, marketId);
-        notify(presenceId, investibleId, INVESTIBLE_SUBMITTED_TYPE, YELLOW_LEVEL, invState, market, messagesDispatch);
+        notify(presenceId, investibleId, UNASSIGNED_TYPE, YELLOW_LEVEL, invState, market, messagesDispatch);
       }
       setOperationRunning(false);
     });

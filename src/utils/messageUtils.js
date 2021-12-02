@@ -1,23 +1,84 @@
-import { ISSUE_TYPE, RED_LEVEL} from '../constants/notifications'
 import { removeMessage } from '../contexts/NotificationsContext/notificationsContextReducer'
+import { DECISION_TYPE, INITIATIVE_TYPE } from '../constants/markets'
 
-export function messageComparator (a, b) {
-  if (a.level === b.level) {
-    if (a.aType === b.aType || a.level !== RED_LEVEL) {
-      return 0;
-    }
-    if (a.aType === ISSUE_TYPE) {
-      return -1;
-    }
-    if (b.aType === ISSUE_TYPE) {
-      return 1;
-    }
-    return 0;
+export function messageText(message, intl) {
+  const { link_type: linkType, market_type: marketType } = message;
+  switch(message.type) {
+    case 'ASSIGNED_UNREVIEWABLE':
+      return intl.formatMessage({ id: 'unfinished' });
+    case 'UNASSIGNED':
+      if (linkType === 'MARKET_COMMENT') {
+        return intl.formatMessage({ id: 'assignTodo' });
+      }
+      return intl.formatMessage({ id: 'assignTask' });
+    case 'UNREAD_LABEL':
+      return intl.formatMessage({ id: 'unreadLabel' });
+    case 'UNREAD_ATTACHMENT':
+      return intl.formatMessage({ id: 'unreadAttachment' });
+    case 'UNREAD_NAME':
+      return intl.formatMessage({ id: 'unreadName' });
+    case 'UNREAD_DESCRIPTION':
+      return intl.formatMessage({ id: 'unreadDescription' });
+    case 'UNREAD_ESTIMATE':
+      return intl.formatMessage({ id: 'unreadEstimate' });
+    case 'UNREAD_ASSIGNMENT':
+      return intl.formatMessage({ id: 'unreadAssignment' });
+    case 'UNREAD_OPTION':
+      return intl.formatMessage({ id: 'unreadOption' });
+    case 'ISSUE':
+      return intl.formatMessage({ id: 'issue' });
+    case 'INVESTIBLE_SUBMITTED':
+      return intl.formatMessage({ id: 'unPromotedOption' });
+    case 'UNREAD_COLLABORATION':
+      if (marketType === DECISION_TYPE) {
+        return intl.formatMessage({ id: 'dialogClosing' });
+      }
+      return intl.formatMessage({ id: 'initiativeClosing' });
+    case 'UNREAD_CLOSED':
+      return intl.formatMessage({ id: 'workspaceClosed' });
+    case 'NOT_FULLY_VOTED':
+      if (marketType === DECISION_TYPE) {
+        return intl.formatMessage({ id: 'pleaseChoose' });
+      }
+      if (marketType === INITIATIVE_TYPE) {
+        return intl.formatMessage({ id: 'pleaseVote' });
+      }
+      return intl.formatMessage({ id: 'pleaseApprove' });
+    case 'NEW_TODO':
+      return intl.formatMessage({ id: 'resolveTodo' });
+    case 'UNREAD_PIPELINE':
+      return intl.formatMessage({ id: 'noPipeline' });
+    case 'ISSUE_RESOLVED':
+      return intl.formatMessage({ id: 'changeStage' });
+    case 'REMOVED':
+      return intl.formatMessage({ id: 'removed' });
+    case 'UNREMOVED':
+      return intl.formatMessage({ id: 'unRemoved' });
+    case 'UNREAD_REVIEWABLE':
+    case 'REVIEW_REQUIRED':
+      return intl.formatMessage({ id: 'pleaseReview' });
+    case 'REPORT_REQUIRED':
+      return intl.formatMessage({ id: 'updateStatus' });
+    case 'UNREAD_REPORT':
+      return intl.formatMessage({ id: 'missingProgress' });
+    case 'DRAFT':
+      return intl.formatMessage({ id: 'addCollaborators' });
+    case 'USER_POKED':
+      return intl.formatMessage({ id: 'pleaseUpgrade' });
+    case 'UNREAD_REPLY':
+      return intl.formatMessage({ id: 'unreadReply' });
+    case 'UNREAD_RESOLVED':
+      return intl.formatMessage({ id: 'unreadResolved' });
+    case 'UNREAD_COMMENT':
+      return intl.formatMessage({ id: 'unreadComment' });
+    case 'UNREAD_VOTE':
+      if (marketType === INITIATIVE_TYPE) {
+        return intl.formatMessage({ id: 'unreadVote' });
+      }
+      return intl.formatMessage({ id: 'unreadApproval' });
+    default:
+      return message.text;
   }
-  if (a.level === RED_LEVEL) {
-    return -1;
-  }
-  return 1;
 }
 
 /**

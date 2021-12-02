@@ -112,7 +112,7 @@ import {
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { getDiff, markDiffViewed } from '../../../contexts/DiffContext/diffContextHelper'
 import { notify, onInvestibleStageChange } from '../../../utils/investibleFunctions'
-import { INVESTIBLE_SUBMITTED_TYPE, YELLOW_LEVEL } from '../../../constants/notifications'
+import { UNASSIGNED_TYPE, YELLOW_LEVEL } from '../../../constants/notifications'
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
 import { deleteOrDehilightMessages } from '../../../api/users'
 import WarningDialog from '../../../components/Warnings/WarningDialog'
@@ -689,10 +689,9 @@ function PlanningInvestible(props) {
     return updateInvestible(updateInfo).then((fullInvestible) => {
       onInvestibleStageChange(stage, fullInvestible, investibleId, marketId, undefined,
         undefined, investiblesDispatch, diffDispatch, marketStagesState, messagesState,
-        messagesDispatch, [INVESTIBLE_SUBMITTED_TYPE]);
+        messagesDispatch, [UNASSIGNED_TYPE]);
       if (isReadyToStart) {
-        notify(myPresence.id, investibleId, INVESTIBLE_SUBMITTED_TYPE, YELLOW_LEVEL, investiblesState, market,
-          messagesDispatch);
+        notify(myPresence.id, investibleId, UNASSIGNED_TYPE, YELLOW_LEVEL, investiblesState, market, messagesDispatch);
       }
       setOperationRunning(false);
     });

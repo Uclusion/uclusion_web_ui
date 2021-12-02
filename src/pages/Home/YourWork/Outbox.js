@@ -1,10 +1,9 @@
 import WorkListItem from './WorkListItem'
-import { Fab, useMediaQuery, useTheme } from '@material-ui/core'
+import { Fab } from '@material-ui/core'
 import React, { useContext } from 'react'
 import { useIntl } from 'react-intl'
 import { Link } from '@material-ui/core'
 import {
-  createTitle,
   formCommentLink,
   formInvestibleLink, formMarketLink,
   navigate,
@@ -162,8 +161,6 @@ const useStyles = makeStyles(
 function Outbox(props) {
   const { isJarDisplay = false } = props;
   const classes = useStyles();
-  const theme = useTheme();
-  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const intl = useIntl();
   const history = useHistory();
   const [investibleState] = useContext(InvestiblesContext);
@@ -342,25 +339,22 @@ function Outbox(props) {
   }
 
   const rows = messagesOrdered.map((message) => {
-    const { id, market, investible, updatedAt, link, title, icon, comment, inActive, debtors } = message;
-    const titleSize = mobileLayout ? 30 : 100;
+    const { id, investible, updatedAt, link, title, icon, comment, inActive, debtors } = message;
     const item = {
       title,
       icon,
-      market:createTitle(market, titleSize),
       read: !!inActive,
       isDeletable: false,
-      description: '',
       people: debtors,
       date: intl.formatDate(updatedAt)
     }
     if (investible) {
-      item.investible = createTitle(investible, titleSize);
+      item.investible = investible;
     }
     if (comment) {
       const commentName = nameFromDescription(comment);
       if (commentName) {
-        item.comment = createTitle(commentName, titleSize);
+        item.comment = commentName;
       }
     }
     return <Link href={link} style={{ width: '100%' }} key={`linkOutboxRow${id}`} onClick={

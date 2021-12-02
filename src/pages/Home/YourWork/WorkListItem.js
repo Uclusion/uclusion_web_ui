@@ -98,12 +98,10 @@ function WorkListItem(props) {
     read,
     icon = (<div />),
     isDeletable,
-    market = '',
     investible = '',
     comment = '',
     title = (<div />),
     people,
-    description = "Please read",
     message,
     date,
     useSelect = true,
@@ -124,19 +122,11 @@ function WorkListItem(props) {
     setChecked(checkedDefault);
   }, [checkedDefault])
 
-  let fullText = market;
-  if (investible) {
-    fullText += ` / ${investible}`;
-  }
-  if (comment) {
+  let fullText = investible;
+  if (fullText && comment) {
     fullText += ` / ${comment}`;
-  }
-  if (description && (mobileLayout || title !== description)) {
-    if (_.isEmpty(fullText)) {
-      fullText = description;
-    } else {
-      fullText += ` - ${description}`;
-    }
+  } else if (comment) {
+    fullText = comment;
   }
   const deleteActionButtonOnclick = (event) => {
     preventDefaultAndProp(event);

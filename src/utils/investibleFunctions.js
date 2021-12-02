@@ -38,8 +38,8 @@ export function notify(userId, investibleId, notificationType, notificationLevel
   const marketLink = formMarketLink(market.id);
   messagesDispatch(addMessage({ market_id_user_id: `${market.id}_${userId}`,
     type_object_id: `${notificationType}_${investibleId}`, type: notificationType, market_id: market.id,
-    investible_id: investibleId, user_id: userId, text: 'Please help assign', level: notificationLevel,
-    name: 'New or updated task', link: investibleLink, market_type: market.market_type, link_type: 'INVESTIBLE',
+    investible_id: investibleId, user_id: userId, level: notificationLevel, link: investibleLink,
+    market_type: market.market_type, link_type: 'INVESTIBLE',
     market_link: marketLink, market_name: market['name'], link_multiple: marketLink, investible_name: investibleName,
     investible_link: investibleLink }));
 }

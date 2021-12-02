@@ -99,6 +99,7 @@ function WorkListItem(props) {
     icon = (<div />),
     isDeletable,
     investible = '',
+    market= '',
     comment = '',
     title = (<div />),
     people,
@@ -122,7 +123,7 @@ function WorkListItem(props) {
     setChecked(checkedDefault);
   }, [checkedDefault])
 
-  let fullText = investible;
+  let fullText = investible || market;
   if (fullText && comment) {
     fullText += ` / ${comment}`;
   } else if (comment) {

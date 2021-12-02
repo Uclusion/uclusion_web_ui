@@ -118,7 +118,7 @@ function Inbox(props) {
 
   let containsUnread = false;
   const rows = messagesOrdered.map((message) => {
-    const { level, investible_name: investible, updated_at: updatedAt,
+    const { level, investible_name: investible, updated_at: updatedAt, market_name: market,
       is_highlighted: isHighlighted, text, link, type_object_id: typeObjectId, market_id: marketId,
       comment_id: commentId, comment_market_id: commentMarketId } = message;
     const title = messageText(message, intl);
@@ -126,6 +126,7 @@ function Inbox(props) {
       title,
       description: text,
       icon: getPriorityIcon(level),
+      market,
       investible,
       read: !isHighlighted,
       isDeletable: typeObjectId.startsWith('UNREAD'),

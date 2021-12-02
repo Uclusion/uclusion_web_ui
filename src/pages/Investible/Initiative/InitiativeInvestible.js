@@ -61,8 +61,7 @@ import { findMessageOfTypeAndId } from '../../../utils/messageUtils'
 import { getDiff, markDiffViewed } from '../../../contexts/DiffContext/diffContextHelper'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
-import { deleteSingleMessage } from '../../../api/users'
-import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
+import { deleteOrDehilightMessages } from '../../../api/users'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import DialogManage from '../../Dialog/DialogManage'
 import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils'
@@ -197,8 +196,9 @@ function InitiativeInvestible(props) {
   const [, marketsDispatch] = useContext(MarketsContext);
   const [diffState, diffDispatch] = useContext(DiffContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
-  const myMessage = findMessageOfTypeAndId(investibleId, messagesState);
+  const [messagesState] = useContext(NotificationsContext);
+  const myMessageDescription = findMessageOfTypeAndId(investibleId, messagesState, 'DESCRIPTION');
+  const myMessageName = findMessageOfTypeAndId(investibleId, messagesState, 'NAME');
   const diff = getDiff(diffState, investibleId);
   const [searchResults] = useContext(SearchResultsContext);
   const [pageStateFull, pageDispatch] = usePageStateReducer('investible');
@@ -444,12 +444,18 @@ function InitiativeInvestible(props) {
                   <div style={{paddingTop: '0.5rem'}} />
                 </>
               )}
-              {myMessage && (
+              {(myMessageDescription || myMessageName) && (
                 <>
                   <SpinningIconLabelButton icon={SettingsBackupRestore}
                                            onClick={() => {
-                                             deleteSingleMessage(myMessage).then(() => {
-                                               messagesDispatch(removeMessage(myMessage));
+                                             const messages = [];
+                                             if (myMessageDescription) {
+                                               messages.push(myMessageDescription);
+                                             }
+                                             if (myMessageName) {
+                                               messages.push(myMessageName);
+                                             }
+                                             deleteOrDehilightMessages(messages).then(() => {
                                                setOperationRunning(false);
                                              }).finally(() => {
                                                setOperationRunning(false);
@@ -461,7 +467,7 @@ function InitiativeInvestible(props) {
                   <div style={{paddingTop: '0.1rem'}} />
                 </>
               )}
-              {myMessage && diff && (
+              {myMessageDescription && diff && (
                 <>
                   <SpinningIconLabelButton icon={showDiff ? ExpandLess : ExpandMoreIcon}
                                            onClick={toggleDiffShow} doSpin={false}>

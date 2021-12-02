@@ -114,7 +114,7 @@ import { getDiff, markDiffViewed } from '../../../contexts/DiffContext/diffConte
 import { notify, onInvestibleStageChange } from '../../../utils/investibleFunctions'
 import { INVESTIBLE_SUBMITTED_TYPE, YELLOW_LEVEL } from '../../../constants/notifications'
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
-import { deleteSingleMessage } from '../../../api/users'
+import { deleteOrDehilightMessages } from '../../../api/users'
 import WarningDialog from '../../../components/Warnings/WarningDialog'
 import { useLockedDialogStyles } from '../../Dialog/DialogBodyEdit'
 import InputLabel from '@material-ui/core/InputLabel'
@@ -1322,8 +1322,9 @@ function MarketMetaData(props) {
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [diffState, diffDispatch] = useContext(DiffContext);
-  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
-  const myMessage = findMessageOfTypeAndId(investibleId, messagesState);
+  const [messagesState] = useContext(NotificationsContext);
+  const myMessageDescription = findMessageOfTypeAndId(investibleId, messagesState, 'DESCRIPTION');
+  const myMessageName = findMessageOfTypeAndId(investibleId, messagesState, 'NAME');
   const diff = getDiff(diffState, investibleId);
   const classes = useMetaDataStyles();
   const attachedFiles = marketInvestible.investible && marketInvestible.investible.attached_files;
@@ -1381,12 +1382,18 @@ function MarketMetaData(props) {
           )}
         </React.Fragment>
       )}
-      {myMessage && (
+      {(myMessageDescription || myMessageName) && (
         <>
           <SpinningIconLabelButton icon={SettingsBackupRestore}
                                    onClick={() => {
-                                     deleteSingleMessage(myMessage).then(() => {
-                                       messagesDispatch(removeMessage(myMessage));
+                                     const messages = [];
+                                     if (myMessageDescription) {
+                                       messages.push(myMessageDescription);
+                                     }
+                                     if (myMessageName) {
+                                       messages.push(myMessageName);
+                                     }
+                                     deleteOrDehilightMessages(messages).then(() => {
                                        setOperationRunning(false);
                                      }).finally(() => {
                                        setOperationRunning(false);
@@ -1397,7 +1404,7 @@ function MarketMetaData(props) {
           </SpinningIconLabelButton>
         </>
       )}
-      {myMessage && diff && (
+      {myMessageDescription && diff && (
         <>
           <div style={{paddingTop: '0.5rem'}} />
           <SpinningIconLabelButton icon={showDiff ? ExpandLess : ExpandMoreIcon}

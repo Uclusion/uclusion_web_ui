@@ -29,8 +29,7 @@ import { findMessageOfTypeAndId } from '../../../utils/messageUtils'
 import { getDiff, markDiffViewed } from '../../../contexts/DiffContext/diffContextHelper'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { ExpandLess, SettingsBackupRestore } from '@material-ui/icons'
-import { deleteSingleMessage } from '../../../api/users'
-import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
+import { deleteOrDehilightMessages } from '../../../api/users'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import MenuBookIcon from '@material-ui/icons/MenuBook'
 import { formMarketArchivesLink, navigate } from '../../../utils/marketIdPathFunctions'
@@ -221,8 +220,9 @@ function Summary(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [, marketsDispatch] = useContext(MarketsContext);
   const [diffState, diffDispatch] = useContext(DiffContext);
-  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
-  const myMessage = findMessageOfTypeAndId(id, messagesState);
+  const [messagesState] = useContext(NotificationsContext);
+  const myMessageDescription = findMessageOfTypeAndId(id, messagesState, 'DESCRIPTION')
+  const myMessageName = findMessageOfTypeAndId(id, messagesState, 'NAME');
   const diff = getDiff(diffState, id);
   const {
     beingEdited,
@@ -346,24 +346,30 @@ function Summary(props) {
               </div>
             </div>
             <ParentSummary market={market} hidden={hidden}/>
-            {myMessage && (
+            {(myMessageDescription || myMessageName) && (
               <>
                 <div style={{ paddingTop: '0.5rem' }}/>
                 <SpinningIconLabelButton icon={SettingsBackupRestore}
                                          onClick={() => {
-                                           deleteSingleMessage(myMessage).then(() => {
-                                             messagesDispatch(removeMessage(myMessage))
+                                           const messages = [];
+                                           if (myMessageDescription) {
+                                             messages.push(myMessageDescription);
+                                           }
+                                           if (myMessageName) {
+                                             messages.push(myMessageName);
+                                           }
+                                           deleteOrDehilightMessages(messages).then(() => {
                                            setOperationRunning(false);
-                                         }).finally(() => {
-                                           setOperationRunning(false);
-                                         });
+                                           }).finally(() => {
+                                            setOperationRunning(false);
+                                           });
                                        }}
                                        doSpin={true}>
                 <FormattedMessage id={mobileLayout ? 'markReadMobile' : 'markDescriptionRead'}/>
               </SpinningIconLabelButton>
             </>
           )}
-          {myMessage && diff && (
+          {myMessageDescription && diff && (
             <SpinningIconLabelButton icon={showDiff ? ExpandLess : ExpandMoreIcon}
                                      onClick={toggleDiffShow} doSpin={false}>
               <FormattedMessage id={showDiff ? 'diffDisplayDismissLabel' : 'diffDisplayShowLabel'}/>

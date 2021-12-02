@@ -13,7 +13,7 @@ function DescriptionOrDiff(props) {
   } = props;
 
   const [messagesState] = useContext(NotificationsContext);
-  const myMessage = findMessageOfTypeAndId(id, messagesState);
+  const myMessage = findMessageOfTypeAndId(id, messagesState, 'DESCRIPTION');
 
   if (myMessage && showDiff) {
     return (

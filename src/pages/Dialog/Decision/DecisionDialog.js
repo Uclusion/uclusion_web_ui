@@ -62,8 +62,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { getDiff, markDiffViewed } from '../../../contexts/DiffContext/diffContextHelper'
 import { findMessageOfTypeAndId } from '../../../utils/messageUtils'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
-import { deleteSingleMessage } from '../../../api/users'
-import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
+import { deleteOrDehilightMessages } from '../../../api/users'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import DismissableText from '../../../components/Notifications/DismissableText'
 import DialogManage from '../DialogManage'
@@ -195,7 +194,7 @@ function DecisionDialog(props) {
   const [diffState, diffDispatch] = useContext(DiffContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [searchResults] = useContext(SearchResultsContext);
-  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const [messagesState] = useContext(NotificationsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const {
     id: marketId,
@@ -210,7 +209,8 @@ function DecisionDialog(props) {
     parent_investible_id: parentInvestibleId
   } = market;
   const isDraft = marketHasOnlyCurrentUser(messagesState, marketId);
-  const myMessage = findMessageOfTypeAndId(marketId, messagesState);
+  const myMessageDescription = findMessageOfTypeAndId(marketId, messagesState, 'DESCRIPTION');
+  const myMessageName = findMessageOfTypeAndId(marketId, messagesState, 'NAME');
   const diff = getDiff(diffState, marketId);
   const [pageStateFull, pageDispatch] = usePageStateReducer('market');
   const [pageState, updatePageState, pageStateReset] = getPageReducerPage(pageStateFull, pageDispatch, marketId,
@@ -445,12 +445,18 @@ function DecisionDialog(props) {
               )}
               <ParentSummary market={market} hidden={hidden}/>
             </dl>
-            {myMessage && (
+            {(myMessageDescription || myMessageName) && (
               <>
                 <SpinningIconLabelButton icon={SettingsBackupRestore}
                                          onClick={() => {
-                                           deleteSingleMessage(myMessage).then(() => {
-                                             messagesDispatch(removeMessage(myMessage));
+                                           const messages = [];
+                                           if (myMessageDescription) {
+                                             messages.push(myMessageDescription);
+                                           }
+                                           if (myMessageName) {
+                                             messages.push(myMessageName);
+                                           }
+                                           deleteOrDehilightMessages(messages).then(() => {
                                              setOperationRunning(false);
                                            }).finally(() => {
                                              setOperationRunning(false);
@@ -462,7 +468,7 @@ function DecisionDialog(props) {
                 <div style={{paddingTop: '1rem'}} />
               </>
             )}
-            {myMessage && diff && (
+            {myMessageDescription && diff && (
               <>
                 <SpinningIconLabelButton icon={showDiff ? ExpandLess : ExpandMoreIcon}
                                          onClick={toggleDiffShow} doSpin={false}>

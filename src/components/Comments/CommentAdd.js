@@ -38,7 +38,7 @@ import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketSt
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { allowVotingForSuggestion, changeInvestibleStageOnCommentChange } from '../../utils/commentFunctions'
-import { findMessageOfType, findMessageOfTypeAndId } from '../../utils/messageUtils'
+import { findMessageOfType, findMessageOfTypeAndId, findMessagesForInvestibleId } from '../../utils/messageUtils'
 import {
   changeLevelMessage,
   dehighlightMessage,
@@ -367,12 +367,16 @@ function CommentAdd(props) {
           }
         }
         // Leaving a comment clears all READ level on the investible
-        const message = findMessageOfTypeAndId(investibleId, messagesState);
-        if (message) {
-          messagesDispatch(removeMessage(message));
+        const messages = findMessagesForInvestibleId(investibleId, messagesState);
+        if (_.isEmpty(messages)) {
+          messages.forEach((message) => {
+            if (message.type.startsWith('UNREAD')) {
+              messagesDispatch(removeMessage(message));
+            }
+          });
         }
         if (type === REPLY_TYPE) {
-          const message = findMessageOfTypeAndId(parentId, messagesState);
+          const message = findMessageOfTypeAndId(parentId, messagesState, 'COMMENT');
           if (message) {
             messagesDispatch(removeMessage(message));
           }

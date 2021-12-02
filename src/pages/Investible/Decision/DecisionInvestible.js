@@ -58,8 +58,7 @@ import InvestibleBodyEdit from '../InvestibleBodyEdit'
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
-import { deleteSingleMessage } from '../../../api/users'
-import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
+import { deleteOrDehilightMessages } from '../../../api/users'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { getDiff, markDiffViewed } from '../../../contexts/DiffContext/diffContextHelper'
@@ -211,8 +210,9 @@ function DecisionInvestible(props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [diffState, diffDispatch] = useContext(DiffContext);
-  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
-  const myMessage = findMessageOfTypeAndId(investibleId, messagesState);
+  const [messagesState] = useContext(NotificationsContext);
+  const myMessageDescription = findMessageOfTypeAndId(investibleId, messagesState, 'DESCRIPTION');
+  const myMessageName = findMessageOfTypeAndId(investibleId, messagesState, 'NAME');
   const diff = getDiff(diffState, investibleId);
   const { name: marketName, id: marketId, market_stage: marketStage, allow_multi_vote: allowMultiVote,
     parent_comment_id: parentCommentId, parent_comment_market_id: parentCommentMarketId } = market;
@@ -439,12 +439,18 @@ function DecisionInvestible(props) {
                 getActions()
               )}
             </CardActions>
-            {myMessage && (
+            {(myMessageDescription || myMessageName) && (
               <>
                 <SpinningIconLabelButton icon={SettingsBackupRestore}
                                          onClick={() => {
-                                           deleteSingleMessage(myMessage).then(() => {
-                                             messagesDispatch(removeMessage(myMessage));
+                                           const messages = [];
+                                           if (myMessageDescription) {
+                                             messages.push(myMessageDescription);
+                                           }
+                                           if (myMessageName) {
+                                             messages.push(myMessageName);
+                                           }
+                                           deleteOrDehilightMessages(messages).then(() => {
                                              setOperationRunning(false);
                                            }).finally(() => {
                                              setOperationRunning(false);
@@ -455,7 +461,7 @@ function DecisionInvestible(props) {
                 </SpinningIconLabelButton>
               </>
             )}
-            {myMessage && diff && (
+            {myMessageDescription && diff && (
               <>
                 <div style={{paddingTop: '0.5rem'}} />
                 <SpinningIconLabelButton icon={showDiff ? ExpandLess : ExpandMoreIcon}

@@ -11,7 +11,7 @@ import RaisedCard from '../../../components/Cards/RaisedCard'
 import { getVoteTotalsForUser } from '../../../utils/userFunctions'
 import VoteCard from '../../../components/Cards/VoteCard'
 import useFitText from 'use-fit-text'
-import { findMessageOfTypeAndId } from '../../../utils/messageUtils'
+import { findMessagesForInvestibleId } from '../../../utils/messageUtils'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { moveInvestibleToCurrentVoting } from '../../../api/investibles'
 import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
@@ -114,7 +114,7 @@ function CurrentVoting(props) {
     const investibleComments = comments.filter(
       comment => comment.investible_id === id && !comment.parent_id
     );
-    const myMessage = findMessageOfTypeAndId(id, messagesState);
+    const myMessage = _.isEmpty(findMessagesForInvestibleId(id, messagesState));
     return (
       <Grid item id={id} key={id} xs={12} sm={12} md={6} draggable={!operationRunning && isAdmin}
             onDragStart={onDragStart}>

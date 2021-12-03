@@ -22,12 +22,12 @@ export function addExpansionPanel(item, commentState) {
   const { type: messageType, market_id: marketId, comment_id: commentId, comment_market_id: commentMarketId,
     link_type: linkType } = message;
 
-  if ((messageType in ['UNREAD_REPLY', 'NEW_TODO', 'UNREAD_COMMENT', 'UNREAD_RESOLVED', 'ISSUE']) ||
-    (messageType in ['UNREAD_OPTION', 'UNREAD_VOTE', 'NOT_FULLY_VOTED']
-      && linkType in ['INLINE_STORY_COMMENT', 'INLINE_STORY_VOTE', 'INLINE_WORKSPACE_COMMENT',
-        'INLINE_WORKSPACE_VOTE']) ||
+  if ((['UNREAD_REPLY', 'NEW_TODO', 'UNREAD_COMMENT', 'UNREAD_RESOLVED', 'ISSUE'].includes(messageType)) ||
+    (['UNREAD_OPTION', 'UNREAD_VOTE', 'NOT_FULLY_VOTED', 'INVESTIBLE_SUBMITTED'].includes(messageType)
+      && ['INLINE_STORY_COMMENT', 'INLINE_STORY_VOTE', 'INLINE_WORKSPACE_COMMENT',
+        'INLINE_WORKSPACE_VOTE'].includes(linkType)) ||
     (messageType === 'UNASSIGNED' && linkType === 'MARKET_TODO')) {
-    const useMarketId = commentMarketId ? commentMarketId : marketId;
+    const useMarketId = commentMarketId || marketId;
     const rootComment = getCommentRoot(commentState, useMarketId, commentId);
     const comments = messageType === 'UNREAD_REPLY' ? [] : getMarketComments(commentState, useMarketId);
     if (messageType === 'UNREAD_REPLY') {

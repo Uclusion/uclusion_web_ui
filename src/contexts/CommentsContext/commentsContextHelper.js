@@ -44,10 +44,13 @@ export function removeComments(dispatch, marketId, comments) {
   dispatch(removeCommentsFromMarket(marketId, comments));
 }
 
-export function resolveInvestibleComments(investibleId, marketId, state, dispatch) {
+export function getUnresolvedInvestibleComments(investibleId, marketId, state) {
   const comments = getMarketComments(state, marketId);
-  const unresolvedComments = comments.filter(comment => comment.investible_id === investibleId &&
-    !comment.resolved) || [];
+  return comments.filter(comment => comment.investible_id === investibleId && !comment.resolved) || [];
+}
+
+export function resolveInvestibleComments(investibleId, marketId, state, dispatch) {
+  const unresolvedComments = getUnresolvedInvestibleComments(investibleId, marketId, state);
   const resolvedComments = unresolvedComments.map((comment) => {
     return { resolved: true, ...comment };
   });

@@ -114,7 +114,7 @@ function CurrentVoting(props) {
     const investibleComments = comments.filter(
       comment => comment.investible_id === id && !comment.parent_id
     );
-    const myMessage = _.isEmpty(findMessagesForInvestibleId(id, messagesState));
+    const myMessage = !_.isEmpty(findMessagesForInvestibleId(id, messagesState));
     return (
       <Grid item id={id} key={id} xs={12} sm={12} md={6} draggable={!operationRunning && isAdmin}
             onDragStart={onDragStart}>

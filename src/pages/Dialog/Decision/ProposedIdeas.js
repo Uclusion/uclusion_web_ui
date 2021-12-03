@@ -17,6 +17,8 @@ import {
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
+import { findMessagesForInvestibleId } from '../../../utils/messageUtils'
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 
 const useStyles = makeStyles((theme) => ({
   textData: {
@@ -44,6 +46,7 @@ function ProposedIdeas(props) {
   const history = useHistory();
   const classes = useStyles();
   const { investibles, marketId, isAdmin } = props;
+  const [messagesState] = useContext(NotificationsContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, diffDispatch] = useContext(DiffContext);
@@ -77,6 +80,7 @@ function ProposedIdeas(props) {
     return investibles.map((inv) => {
       const { investible } = inv;
       const { id, name } = investible;
+      const myMessage = !_.isEmpty(findMessagesForInvestibleId(id, messagesState));
       return (
         <Grid
           item
@@ -89,6 +93,7 @@ function ProposedIdeas(props) {
             className={classes.card}
             onClick={() => navigate(history, formInvestibleLink(marketId, id))}
             elevation={3}
+            isHighlighted={myMessage}
           >
             <CardContent className={classes.noPadding}>
               <OptionCard

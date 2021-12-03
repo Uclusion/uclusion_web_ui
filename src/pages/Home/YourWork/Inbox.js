@@ -22,6 +22,7 @@ import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants
 import TooltipIconButton from '../../../components/Buttons/TooltipIconButton'
 import { messageText } from '../../../utils/messageUtils'
 import { addExpansionPanel } from './InboxExpansionPanel'
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 
 function getPriorityIcon(level) {
   switch (level) {
@@ -77,6 +78,7 @@ function Inbox(props) {
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [commentState] = useContext(CommentsContext);
+  const [marketState] = useContext(MarketsContext);
   const { messages: messagesUnsafe } = messagesState;
 
   useEffect(() => {
@@ -140,6 +142,19 @@ function Inbox(props) {
     );
   }
 
+  const dupeHash = {};
+  // Filter out duplicates by hashing on {type}_{link_multiple}
+  messagesOrdered = messagesOrdered.filter((message) => {
+    const { link_multiple: linkMultiple, type: aType } = message;
+    if (linkMultiple) {
+      const myHash = `${aType}_${linkMultiple}`;
+      if (dupeHash[myHash]) {
+        return false;
+      }
+      dupeHash[myHash] = true;
+    }
+    return true;
+  });
   let containsUnread = false;
   const rows = messagesOrdered.map((message) => {
     const { level, investible_name: investible, updated_at: updatedAt, market_name: market,
@@ -170,7 +185,7 @@ function Inbox(props) {
         }
       }
     }
-    addExpansionPanel(item, commentState);
+    addExpansionPanel(item, commentState, marketState);
     return <WorkListItem key={typeObjectId} id={typeObjectId} checkedDefault={checkAll}
                     setDeterminate={setDeterminate} determinate={determinate} {...item} />;
   });

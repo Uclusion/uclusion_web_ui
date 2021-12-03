@@ -22,6 +22,7 @@ import ArchiveIcon from '@material-ui/icons/Archive'
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
 import TooltipIconButton from '../../../components/Buttons/TooltipIconButton'
 import { messageText } from '../../../utils/messageUtils'
+import { addExpansionPanel } from './InboxExpansionPanel'
 
 function getPriorityIcon(level) {
   switch (level) {
@@ -146,6 +147,7 @@ function Inbox(props) {
         }
       }
     }
+    addExpansionPanel(item, commentState);
     return <Link href={link} style={{ width: '100%' }} key={`link${typeObjectId}`} onClick={
       (event) => {
         preventDefaultAndProp(event);

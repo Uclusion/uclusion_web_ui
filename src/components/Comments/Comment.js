@@ -1190,8 +1190,13 @@ function ThreadedReplies(props) {
 
   const classes = useThreadedReplyStyles();
 
-  const replies = (replyIds || []).map(replyId => {
-    return comments.find(comment => comment.id === replyId);
+  const replies = [];
+  (replyIds || []).forEach((replyId) => {
+    const aReply = comments.find(comment => comment.id === replyId);
+    // If on Inbox might not be displaying all so don't freak if not found
+    if (aReply) {
+      replies.push(aReply);
+    }
   });
 
   const sortedReplies = _.sortBy(replies, "created_at");

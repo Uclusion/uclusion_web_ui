@@ -176,7 +176,8 @@ function Screen(props) {
     banner,
     navigationOptions,
     isWorkspace,
-    isModal
+    isInbox,
+    isPending
   } = props;
 
   useEffect(() => {
@@ -221,7 +222,7 @@ function Screen(props) {
   const { navListItemTextArray, navMenu, showSearch = true } = navigationOptions || {}
   const myContainerClass = navigationOptions && !mobileLayout ? classes.containerAllLeftPad : classes.containerAll
   const contentClass = mobileLayout ? classes.contentNoStyle :
-    navigationOptions ? (isModal ? classes.lessContent : classes.content) : classes.contentNoStyle;
+    navigationOptions ? ((isInbox || isPending) ? classes.lessContent : classes.content) : classes.contentNoStyle;
   const sideNavigationContents = _.isEmpty(navListItemTextArray) ? undefined : (
     <>
       {navMenu}
@@ -276,7 +277,8 @@ function Screen(props) {
         appEnabled={appEnabled}
         isWorkspace={isWorkspace}
         navMenu={sideNavigationContents}
-        hideTools={isModal}
+        isInbox={isInbox}
+        isPending={isPending}
       />
       {!_.isEmpty(navListItemTextArray) && !mobileLayout && (
         <div className={classes.listContainer}>

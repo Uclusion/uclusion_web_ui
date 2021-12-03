@@ -26,7 +26,7 @@ function OutboxFull(props) {
       tabTitle={intl.formatMessage({id: 'outbox'})}
       hidden={hidden}
       navigationOptions={navigationMenu}
-      isModal
+      isPending
     >
       <Outbox />
     </Screen>

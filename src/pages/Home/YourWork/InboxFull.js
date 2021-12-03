@@ -40,7 +40,7 @@ function InboxFull(props) {
       tabTitle={intl.formatMessage({id: 'inbox'})}
       hidden={hidden}
       navigationOptions={navigationMenu}
-      isModal
+      isInbox
     >
       <DismissableText textId={'settingsHelp'} text={
         <div>

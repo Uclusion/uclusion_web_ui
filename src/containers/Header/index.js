@@ -150,7 +150,8 @@ function Header (props) {
   const [online] = useContext(OnlineStateContext);
   const history = useHistory();
   const {
-    breadCrumbs, toolbarButtons, appEnabled, hidden, title, hideTools, titleIcon, isWorkspace, navMenu
+    breadCrumbs, toolbarButtons, appEnabled, hidden, title, hideTools, titleIcon, isWorkspace, navMenu,
+    isInbox, isPending
   } = props;
 
   const [operationRunning] = useContext(OperationInProgressContext);
@@ -308,13 +309,16 @@ function Header (props) {
             </div>
           )}
 
-          {!hideTools &&
-          (
+          {!hideTools && (
             <React.Fragment>
               <div className={classes.grow}/>
               <div className={classes.notification} id="notifications">
-                <Inbox isJarDisplay />
-                <Outbox isJarDisplay />
+                {!isInbox && (
+                  <Inbox isJarDisplay />
+                )}
+                {!isPending && (
+                  <Outbox isJarDisplay />
+                )}
               </div>
               <div className={classes.padLeft} />
               {!mobileLayout && (

@@ -529,6 +529,8 @@ const messages = defineMessages({
 
   // Investible detail
   investibleDetailClose: 'Close',
+  chooseDate: 'Change estimated completion date',
+  orProgressReport: 'or go to the task to create or update a progress report.',
 
   // Home
   homeSubsectionPlanning: 'Workspaces',

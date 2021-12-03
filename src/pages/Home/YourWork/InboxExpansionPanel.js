@@ -8,6 +8,7 @@ import {
 } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { REPORT_TYPE } from '../../../constants/comments'
+import InvestibleStatus from './InvestibleStatus'
 
 export function addExpansionPanel(item, commentState, marketState) {
   const { message } = item;
@@ -44,6 +45,14 @@ export function addExpansionPanel(item, commentState, marketState) {
         comment={rootComment}
         comments={getMarketComments(commentState, useMarketId)}
         allowedTypes={[]}
+      />;
+    }
+  } else if (messageType === 'REPORT_REQUIRED') {
+    if (!_.isEmpty(investibleId)) {
+      item.expansionPanel = <InvestibleStatus
+        investibleId={investibleId}
+        message={message}
+        marketId={marketId}
       />;
     }
   }

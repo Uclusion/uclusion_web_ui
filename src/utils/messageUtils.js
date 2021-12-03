@@ -7,7 +7,7 @@ export function messageText(message, intl) {
     case 'ASSIGNED_UNREVIEWABLE':
       return intl.formatMessage({ id: 'unfinished' });
     case 'UNASSIGNED':
-      if (linkType === 'MARKET_COMMENT') {
+      if (linkType === 'MARKET_TODO') {
         return intl.formatMessage({ id: 'assignTodo' });
       }
       return intl.formatMessage({ id: 'assignTask' });

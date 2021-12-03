@@ -97,7 +97,31 @@ function Inbox(props) {
     unreadCount = messages.length;
   }
 
-  const messagesOrdered =  _.orderBy(messagesFull, ['updated_at'], ['desc']) || [];
+  let messagesOrdered;
+  if (isJarDisplay) {
+    messagesOrdered = _.orderBy(messagesFull, [(message) => {
+      const { level, is_highlighted: isHighlighted } = message;
+      if (!isHighlighted) {
+        switch (level) {
+          case 'RED':
+            return 3;
+          case 'YELLOW':
+            return 2;
+          default:
+            return 1;
+        }
+      }
+      switch (level) {
+        case 'RED':
+          return 6;
+        case 'YELLOW':
+          return 5;
+        default:
+          return 4;
+      }}], ['desc'] ) || [];
+  } else {
+    messagesOrdered =  _.orderBy(messagesFull, ['updated_at'], ['desc']) || [];
+  }
   const goFullInboxClick = (event) => {
     preventDefaultAndProp(event);
     navigate(history, '/inbox');

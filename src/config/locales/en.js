@@ -306,7 +306,7 @@ const messages = defineMessages({
   workspaceClosed: 'Workspace archived',
   pleaseChoose: 'Please choose',
   pleaseVote: 'Please vote',
-  pleaseApprove: 'PLease approve',
+  pleaseApprove: 'Please approve',
   resolveTodo: 'Please resolve Todo',
   noPipeline: 'Missing ready for approval',
   changeStage: 'Please change stage',

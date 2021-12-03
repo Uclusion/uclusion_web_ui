@@ -2,7 +2,6 @@ import WorkListItem from './WorkListItem'
 import { Fab } from '@material-ui/core'
 import React, { useContext } from 'react'
 import { useIntl } from 'react-intl'
-import { Link } from '@material-ui/core'
 import {
   formCommentLink,
   formInvestibleLink, formMarketLink,
@@ -339,14 +338,15 @@ function Outbox(props) {
   }
 
   const rows = messagesOrdered.map((message) => {
-    const { id, investible, updatedAt, link, title, icon, comment, inActive, debtors } = message;
+    const { id, investible, updatedAt, title, icon, comment, inActive, debtors } = message;
     const item = {
       title,
       icon,
       read: !!inActive,
       isDeletable: false,
       people: debtors,
-      date: intl.formatDate(updatedAt)
+      date: intl.formatDate(updatedAt),
+      message
     }
     if (investible) {
       item.investible = investible;
@@ -357,12 +357,7 @@ function Outbox(props) {
         item.comment = commentName;
       }
     }
-    return <Link href={link} style={{ width: '100%' }} key={`linkOutboxRow${id}`} onClick={
-      (event) => {
-        preventDefaultAndProp(event);
-        navigate(history, link);
-      }
-    }><WorkListItem key={`outboxRow${id}`} id={id} useSelect={false} {...item} /></Link>;
+    return <WorkListItem key={`outboxRow${id}`} id={id} useSelect={false} {...item} />;
   });
 
   return (

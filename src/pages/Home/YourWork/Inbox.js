@@ -2,7 +2,6 @@ import WorkListItem from './WorkListItem'
 import { Checkbox, Fab } from '@material-ui/core'
 import React, { useContext, useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
-import { Link } from '@material-ui/core'
 import { MoveToInbox } from '@material-ui/icons'
 import WarningIcon from '@material-ui/icons/Warning'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
@@ -144,7 +143,7 @@ function Inbox(props) {
   let containsUnread = false;
   const rows = messagesOrdered.map((message) => {
     const { level, investible_name: investible, updated_at: updatedAt, market_name: market,
-      is_highlighted: isHighlighted, text, link, type_object_id: typeObjectId, market_id: marketId,
+      is_highlighted: isHighlighted, text, type_object_id: typeObjectId, market_id: marketId,
       comment_id: commentId, comment_market_id: commentMarketId } = message;
     const title = messageText(message, intl);
     const item = {
@@ -172,13 +171,8 @@ function Inbox(props) {
       }
     }
     addExpansionPanel(item, commentState);
-    return <Link href={link} style={{ width: '100%' }} key={`link${typeObjectId}`} onClick={
-      (event) => {
-        preventDefaultAndProp(event);
-        navigate(history, link);
-      }
-    }><WorkListItem key={typeObjectId} id={typeObjectId} checkedDefault={checkAll}
-                    setDeterminate={setDeterminate} determinate={determinate} {...item} /></Link>;
+    return <WorkListItem key={typeObjectId} id={typeObjectId} checkedDefault={checkAll}
+                    setDeterminate={setDeterminate} determinate={determinate} {...item} />;
   });
 
   return (

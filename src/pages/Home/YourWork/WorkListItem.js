@@ -7,7 +7,7 @@ import CheckBoxOutlineBlank from "@material-ui/icons/CheckBoxOutlineBlank";
 import { useSizedIconButtonStyles } from "@mui-treasury/styles/iconButton/sized";
 import { useRowGutterStyles } from "@mui-treasury/styles/gutter/row";
 import PropTypes from 'prop-types'
-import { preventDefaultAndProp } from '../../../utils/marketIdPathFunctions'
+import { navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions'
 import { DeleteForever, ExpandLess } from '@material-ui/icons'
 import { getMarketClient } from '../../../api/uclusionClient'
 import { dehighlightMessage, removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
@@ -16,7 +16,9 @@ import ArchiveIcon from '@material-ui/icons/Archive'
 import _ from 'lodash'
 import GravatarGroup from '../../../components/Avatars/GravatarGroup'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import { Link } from '@material-ui/core'
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
+import { useHistory } from 'react-router'
 
 const Div = styled("div")`
   height: 40px;
@@ -120,6 +122,7 @@ function WorkListItem(props) {
   const {
     expansionOpen
   } = workListItemState;
+  const history = useHistory();
   const classes = useStyles();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
@@ -127,6 +130,7 @@ function WorkListItem(props) {
   const actionStyles = useSizedIconButtonStyles({ childSize: 20, padding: 10 });
   const gutterStyles = useRowGutterStyles({ size: -10, before: -8 });
   const [checked, setChecked] = React.useState(checkedDefault);
+  const { market_id: marketId, type_object_id: typeObjectId, link } = message;
 
   useEffect(() => {
     setChecked(checkedDefault);
@@ -141,77 +145,82 @@ function WorkListItem(props) {
   const deleteActionButtonOnclick = (event) => {
     preventDefaultAndProp(event);
     workListItemReset();
-    const { market_id: marketId, type_object_id: typeObjectId } = message;
     messagesDispatch(removeMessage(message));
     return getMarketClient(marketId).then((client) => client.users.removeNotifications([typeObjectId]));
   };
   const archiveActionButtonOnclick = (event) => {
     preventDefaultAndProp(event);
-    const { market_id: marketId, type_object_id: typeObjectId } = message;
     messagesDispatch(dehighlightMessage(message));
     return getMarketClient(marketId).then((client) => client.users.removeNotifications([typeObjectId]));
   };
   return (
     <React.Fragment key={`panelDiv${id}`}>
-      <Div
-        key={`workListItem${id}`}
-        className={cx(read && 'MailListItem-read')}
-      >
-        <Box flexShrink={0} className={gutterStyles.parent}>
-          {useSelect && (
-            <StyledIconButton
-              className={cx(checked && "MailListItem-checked")}
-              classes={actionStyles}
-              onClick={(event) => {
-                preventDefaultAndProp(event);
-                // We need to record when you unset when check all is on or set when check all is off
-                if (checked === checkedDefault) {
-                  setDeterminate({...determinate, [id]: true});
-                } else {
-                  setDeterminate(_.omit(determinate, id));
-                }
-                setChecked(!checked);
-              }}
-            >
-              {read ? <div /> : (checked ? <Checkbox color="secondary" /> : <CheckBoxOutlineBlank />)}
-            </StyledIconButton>
-          )}
-          {!mobileLayout && useSelect && (
-            <StyledIconButton
-              classes={actionStyles}
-              onClick={isDeletable ? deleteActionButtonOnclick : (read ? undefined : archiveActionButtonOnclick)}
-            >
-              { isDeletable ? <DeleteForever /> : (read ? <div /> : <ArchiveIcon />) }
-            </StyledIconButton>
-          )}
-          {!mobileLayout && (
-            <StyledIconButton
-              classes={actionStyles}
-              style={{marginLeft: !useSelect ? '0.25rem' : undefined}}
-              onClick={(event) => {
-                preventDefaultAndProp(event);
-                updateWorkListItemState({expansionOpen: !expansionOpen});
-              }}
-            >
-              { expansionPanel ? (expansionOpen !== false ? <ExpandLess /> : <ExpandMoreIcon />) : <div /> }
-            </StyledIconButton>
-          )}
-          {!mobileLayout && (
-            <StyledIconButton
-              classes={actionStyles}
-              style={{marginLeft: !useSelect ? '0.25rem' : undefined}}
-            >
-              { icon }
-            </StyledIconButton>
-          )}
-        </Box>
-        {mobileLayout ? React.Fragment : (read ?
-          (<Title style={{flexBasis: useSelect ? undefined : '160px'}}>{title}</Title>) :
-          (<TitleB style={{flexBasis: useSelect ? undefined : '160px'}}>{title}</TitleB>))}
-        {mobileLayout || !people ? React.Fragment : <GravatarGroup users={people} className={classes.gravatarStyle}/> }
-        {read ? (<Text>{fullText}</Text>) : (<TextB>{fullText}</TextB>)}
-        {mobileLayout ? React.Fragment : (read ? (<DateLabel>{date}</DateLabel>) : (<DateLabelB>{date}</DateLabelB>))}
-      </Div>
+      <Link href={link} style={{ width: '100%' }} key={`link${id}`} onClick={
+        (event) => {
+          preventDefaultAndProp(event);
+          navigate(history, link);
+        }
+      }>
+        <Div
+          key={`workListItem${id}`}
+          className={cx(read && 'MailListItem-read')}
+        >
+          <Box flexShrink={0} className={gutterStyles.parent}>
+            {useSelect && (
+              <StyledIconButton
+                className={cx(checked && "MailListItem-checked")}
+                classes={actionStyles}
+                onClick={(event) => {
+                  preventDefaultAndProp(event);
+                  // We need to record when you unset when check all is on or set when check all is off
+                  if (checked === checkedDefault) {
+                    setDeterminate({...determinate, [id]: true});
+                  } else {
+                    setDeterminate(_.omit(determinate, id));
+                  }
+                  setChecked(!checked);
+                }}
+              >
+                {read ? <div /> : (checked ? <Checkbox color="secondary" /> : <CheckBoxOutlineBlank />)}
+              </StyledIconButton>
+            )}
+            {!mobileLayout && useSelect && (
+              <StyledIconButton
+                classes={actionStyles}
+                onClick={isDeletable ? deleteActionButtonOnclick : (read ? undefined : archiveActionButtonOnclick)}
+              >
+                { isDeletable ? <DeleteForever /> : (read ? <div /> : <ArchiveIcon />) }
+              </StyledIconButton>
+            )}
+            {!mobileLayout && (
+              <StyledIconButton
+                classes={actionStyles}
+                style={{marginLeft: !useSelect ? '0.25rem' : undefined}}
+                onClick={(event) => {
+                  preventDefaultAndProp(event);
+                  updateWorkListItemState({expansionOpen: !expansionOpen});
+                }}
+              >
+                { expansionPanel ? (expansionOpen !== false ? <ExpandLess /> : <ExpandMoreIcon />) : <div /> }
+              </StyledIconButton>
+            )}
+            {!mobileLayout && (
+              <StyledIconButton
+                classes={actionStyles}
+                style={{marginLeft: !useSelect ? '0.25rem' : undefined}}
+              >
+                { icon }
+              </StyledIconButton>
+            )}
+          </Box>
+          {mobileLayout ? React.Fragment : (read ?
+            (<Title style={{flexBasis: useSelect ? undefined : '160px'}}>{title}</Title>) :
+            (<TitleB style={{flexBasis: useSelect ? undefined : '160px'}}>{title}</TitleB>))}
+          {mobileLayout || !people ? React.Fragment : <GravatarGroup users={people} className={classes.gravatarStyle}/> }
+          {read ? (<Text>{fullText}</Text>) : (<TextB>{fullText}</TextB>)}
+          {mobileLayout ? React.Fragment : (read ? (<DateLabel>{date}</DateLabel>) : (<DateLabelB>{date}</DateLabelB>))}
+        </Div>
+      </Link>
       {!mobileLayout && (
         <div style={{display: expansionOpen !== false ? 'block' : 'none'}}>
           {expansionPanel ? expansionPanel : <React.Fragment />}

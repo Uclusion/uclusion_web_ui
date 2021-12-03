@@ -30,7 +30,8 @@ export function addExpansionPanel(item, commentState, marketState) {
     }
     if (!useCommentId && investibleId) {
       const investibleComments = getUnresolvedInvestibleComments(investibleId, marketId, commentState);
-      const report = investibleComments.find((comment) => comment.comment_type === REPORT_TYPE) || {};
+      const report = investibleComments.find((comment) => comment.comment_type === REPORT_TYPE
+        && comment.creator_assigned) || {};
       useCommentId = report.id;
     }
     const rootComment = getCommentRoot(commentState, useMarketId, useCommentId);

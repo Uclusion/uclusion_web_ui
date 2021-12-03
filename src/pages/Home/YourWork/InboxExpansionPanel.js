@@ -1,7 +1,7 @@
 import Comment from '../../../components/Comments/Comment'
 import React from 'react'
 import _ from 'lodash'
-import { getComment, getCommentRoot } from '../../../contexts/CommentsContext/commentsContextHelper'
+import { getComment, getCommentRoot, getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper'
 
 function getCommentPartialThread(state, marketId, commentId, comments) {
   const comment = getComment(state, marketId, commentId);
@@ -21,12 +21,14 @@ export function addExpansionPanel(item, commentState) {
   const { message } = item;
   const { type: messageType, market_id: marketId, comment_id: commentId, comment_market_id: commentMarketId } = message;
 
-  if (messageType === 'UNREAD_REPLY') {
+  if (messageType in ['UNREAD_REPLY', 'NEW_TODO']) {
     const useMarketId = commentMarketId ? commentMarketId : marketId;
     const rootComment = getCommentRoot(commentState, useMarketId, commentId);
-    const comments = [];
-    getCommentPartialThread(commentState, marketId, commentId, comments);
-    if (!_.isEmpty(rootComment) && !_.isEmpty(comments)) {
+    const comments = messageType === 'NEW_TODO' ? getMarketComments(commentState, useMarketId) : [];
+    if (messageType === 'UNREAD_REPLY') {
+      getCommentPartialThread(commentState, marketId, commentId, comments);
+    }
+    if (!_.isEmpty(rootComment)) {
       item.expansionPanel = <Comment
         depth={0}
         marketId={useMarketId}

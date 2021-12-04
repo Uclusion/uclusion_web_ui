@@ -201,7 +201,8 @@ function Outbox(props) {
     const questions = myUnresolvedRoots.filter((comment) => comment.comment_type === QUESTION_TYPE) || [];
     const issues = myUnresolvedRoots.filter((comment) => comment.comment_type === ISSUE_TYPE) || [];
     const suggestions = myUnresolvedRoots.filter((comment) => comment.comment_type === SUGGEST_CHANGE_TYPE) || [];
-    return { market, comments, inReviewInvestibles, inVotingInvestibles, questions, issues, suggestions };
+    const reports = myUnresolvedRoots.filter((comment) => comment.comment_type === REPORT_TYPE) || [];
+    return { market, comments, inReviewInvestibles, inVotingInvestibles, questions, issues, suggestions, reports };
   });
 
   const messages = [];
@@ -234,13 +235,24 @@ function Outbox(props) {
   });
 
   workspacesData.forEach((workspacesData) => {
-    const { market, comments, inReviewInvestibles, inVotingInvestibles, questions, issues, suggestions }
+    const { market, comments, inReviewInvestibles, inVotingInvestibles, questions, issues, suggestions, reports }
       = workspacesData;
     const marketPresences = getMarketPresences(marketPresencesState, market.id) || [];
     inReviewInvestibles.forEach((investible) => {
       const investibleId = investible.investible.id;
       const outboxMessage = getMessageForInvestible(investible, market, 'planningInvestibleNextStageInReviewLabel',
         <RateReviewIcon style={{fontSize: 24, color: '#8f8f8f',}}/>, intl);
+      const report = reports.find((comment) => comment.investible_id === investibleId && comment.creator_assigned);
+      if (report) {
+        outboxMessage.expansionPanel = <Comment
+          depth={0}
+          marketId={market.id}
+          comment={report}
+          comments={comments}
+          defaultShowDiff
+          allowedTypes={[]}
+        />;
+      }
       const mySubmitted = inboxMessages.find((message) => {
         const { investible_id: msgInvestibleId, type: messageType } = message;
         return msgInvestibleId === investibleId && messageType === 'INVESTIBLE_SUBMITTED';

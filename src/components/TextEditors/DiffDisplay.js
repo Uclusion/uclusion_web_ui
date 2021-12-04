@@ -4,14 +4,14 @@ import { DiffContext } from '../../contexts/DiffContext/DiffContext';
 import { getDiff } from '../../contexts/DiffContext/diffContextHelper';
 import './DiffDisplay.css';
 import { makeStyles } from '@material-ui/core';
+import { convertImageSrc } from './ImageBlot'
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
+import _ from 'lodash'
 
 const useStyles = makeStyles(
   () => {
     return {
       diffContainer: {
-        '& img' : {
-          width: '100%'
-        },
         '& p': {
           width: '100%'
         },
@@ -31,17 +31,21 @@ function DiffDisplay(props) {
   const ref = useRef(null);
   const { id } = props;
   const [diffState] = useContext(DiffContext);
-  const diff = getDiff(diffState, id);
+  const [marketsState, , tokensHash] = useContext(MarketsContext);
+  const diff = marketsState.initializing || _.isEmpty(tokensHash) ? undefined : getDiff(diffState, id);
 
   useEffect(() => {
     if (ref.current !== null) {
       if (diff) {
-        ref.current.innerHTML = diff;
+        ref.current.innerHTML = diff.replace(/<img [^>]*src=['"]([^'"]+)[^>]*>/gi, function (match, capture) {
+          const newSrc = convertImageSrc(capture) || capture;
+          return `<img src="${newSrc}">`;
+        });
       }
     }
     return () => {
     };
-  }, [ref, diff, id]);
+  }, [ref, diff, id, tokensHash]);
 
   if (!diff) {
     return React.Fragment;

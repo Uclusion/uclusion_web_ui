@@ -48,7 +48,7 @@ export function addExpansionPanel(item, commentState, marketState, investiblesSt
         marketId={useMarketId}
         comment={rootComment}
         comments={getMarketComments(commentState, useMarketId)}
-        alwaysShowDiff
+        defaultShowDiff
         allowedTypes={[]}
       />;
     }

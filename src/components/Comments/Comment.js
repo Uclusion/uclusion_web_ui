@@ -307,7 +307,7 @@ function useMarketId() {
  * @param {{comment: Comment, comments: Comment[]}} props
  */
 function Comment(props) {
-  const { comment, marketId, comments, allowedTypes, noAuthor, onDone,  readOnly, alwaysShowDiff } = props;
+  const { comment, marketId, comments, allowedTypes, noAuthor, onDone,  readOnly, defaultShowDiff } = props;
   const history = useHistory();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
@@ -360,7 +360,7 @@ function Comment(props) {
     beingEdited,
     showDiff: storedShowDiff
   } = editState;
-  const showDiff = storedShowDiff || alwaysShowDiff;
+  const showDiff = storedShowDiff || (storedShowDiff === undefined && defaultShowDiff);
   const myExpandedState = expandedCommentState[id] || {};
   const { expanded: myRepliesExpanded } = myExpandedState;
   // If I resolved a comment then I am done with it and so hide the thread

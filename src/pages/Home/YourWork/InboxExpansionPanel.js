@@ -9,8 +9,13 @@ import {
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { REPORT_TYPE } from '../../../constants/comments'
 import InvestibleStatus from './InvestibleStatus'
+import { Typography } from '@material-ui/core'
+import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff'
+import RaisedCard from '../../../components/Cards/RaisedCard'
+import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
+import { getDiff } from '../../../contexts/DiffContext/diffContextHelper'
 
-export function addExpansionPanel(item, commentState, marketState) {
+export function addExpansionPanel(item, commentState, marketState, investiblesState, diffState) {
   const { message } = item;
   const { type: messageType, market_id: marketId, comment_id: commentId, comment_market_id: commentMarketId,
     link_type: linkType, investible_id: investibleId } = message;
@@ -44,6 +49,7 @@ export function addExpansionPanel(item, commentState, marketState) {
         marketId={useMarketId}
         comment={rootComment}
         comments={getMarketComments(commentState, useMarketId)}
+        alwaysShowDiff
         allowedTypes={[]}
       />;
     }
@@ -54,6 +60,35 @@ export function addExpansionPanel(item, commentState, marketState) {
         message={message}
         marketId={marketId}
       />;
+    }
+  } else if (messageType === 'UNREAD_DESCRIPTION') {
+    if (!_.isEmpty(investibleId)) {
+      const diff = getDiff(diffState, investibleId);
+      if (diff) {
+        const fullInvestible = getInvestible(investiblesState, investibleId) || {};
+        const { investible: myInvestible } = fullInvestible;
+        const { description } = myInvestible || {};
+        item.expansionPanel = (
+          <RaisedCard elevation={3}>
+            <div style={{padding: '1.25rem'}}>
+              <DescriptionOrDiff id={investibleId} description={description} showDiff={true}/>
+            </div>
+          </RaisedCard>
+        );
+      }
+    } else {
+      const diff = getDiff(diffState, marketId);
+      if (diff) {
+        const market = getMarket(marketState, marketId) || {};
+        const { description } = market;
+        item.expansionPanel = (
+          <RaisedCard elevation={3}>
+            <div style={{padding: '1.25rem'}}>
+              <DescriptionOrDiff id={marketId} description={description} showDiff={true}/>
+            </div>
+          </RaisedCard>
+        );
+      }
     }
   }
 }

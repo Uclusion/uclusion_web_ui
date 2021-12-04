@@ -23,6 +23,8 @@ import TooltipIconButton from '../../../components/Buttons/TooltipIconButton'
 import { messageText } from '../../../utils/messageUtils'
 import { addExpansionPanel } from './InboxExpansionPanel'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
+import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 
 function getPriorityIcon(level) {
   switch (level) {
@@ -79,6 +81,8 @@ function Inbox(props) {
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [commentState] = useContext(CommentsContext);
   const [marketState] = useContext(MarketsContext);
+  const [investiblesState] = useContext(InvestiblesContext);
+  const [diffState] = useContext(DiffContext);
   const { messages: messagesUnsafe } = messagesState;
 
   useEffect(() => {
@@ -185,7 +189,7 @@ function Inbox(props) {
         }
       }
     }
-    addExpansionPanel(item, commentState, marketState);
+    addExpansionPanel(item, commentState, marketState, investiblesState, diffState);
     return <WorkListItem key={typeObjectId} id={typeObjectId} checkedDefault={checkAll}
                     setDeterminate={setDeterminate} determinate={determinate} {...item} />;
   });

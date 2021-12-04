@@ -1,7 +1,7 @@
 import WorkListItem from './WorkListItem'
 import { Fab } from '@material-ui/core'
 import React, { useContext } from 'react'
-import { useIntl } from 'react-intl'
+import { FormattedMessage, useIntl } from 'react-intl'
 import {
   formCommentLink,
   formInvestibleLink, formMarketLink,
@@ -38,7 +38,14 @@ import {
 } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { getUserInvestibles } from '../../Dialog/Planning/userUtils'
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
-import { ISSUE_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments'
+import {
+  ISSUE_TYPE,
+  JUSTIFY_TYPE,
+  QUESTION_TYPE,
+  REPORT_TYPE,
+  SUGGEST_CHANGE_TYPE,
+  TODO_TYPE
+} from '../../../constants/comments'
 import ChangeSuggstionIcon from '@material-ui/icons/ChangeHistory'
 import IssueIcon from '@material-ui/icons/ReportProblem'
 import { getInvestibleVoters } from '../../../utils/votingUtils'
@@ -48,6 +55,9 @@ import VotingIcon from '@material-ui/icons/Assessment'
 import GavelIcon from '@material-ui/icons/Gavel'
 import { AlarmOn } from '@material-ui/icons'
 import Comment from '../../../components/Comments/Comment'
+import Voting from '../../Investible/Decision/Voting'
+import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
+import RaisedCard from '../../../components/Cards/RaisedCard'
 
 function getMessageForInvestible(investible, market, labelId, Icon, intl) {
   const investibleId = investible.investible.id;
@@ -183,6 +193,7 @@ function Outbox(props) {
   const planningDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, PLANNING_TYPE);
   const initiativeDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, INITIATIVE_TYPE);
   const dialogDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, DECISION_TYPE);
+  const [votingPageStateFull, votingPageDispatch] = usePageStateReducer('voting');
 
   const workspacesData = planningDetails.map((market) => {
     const marketPresences = getMarketPresences(marketPresencesState, market.id) || [];
@@ -202,7 +213,9 @@ function Outbox(props) {
     const issues = myUnresolvedRoots.filter((comment) => comment.comment_type === ISSUE_TYPE) || [];
     const suggestions = myUnresolvedRoots.filter((comment) => comment.comment_type === SUGGEST_CHANGE_TYPE) || [];
     const reports = myUnresolvedRoots.filter((comment) => comment.comment_type === REPORT_TYPE) || [];
-    return { market, comments, inReviewInvestibles, inVotingInvestibles, questions, issues, suggestions, reports };
+    const reasons = myUnresolvedRoots.filter((comment) => comment.comment_type === JUSTIFY_TYPE) || [];
+    return { market, comments, inReviewInvestibles, inVotingInvestibles, questions, issues, suggestions, reports,
+    reasons, inVotingStage, myPresence};
   });
 
   const messages = [];
@@ -235,8 +248,8 @@ function Outbox(props) {
   });
 
   workspacesData.forEach((workspacesData) => {
-    const { market, comments, inReviewInvestibles, inVotingInvestibles, questions, issues, suggestions, reports }
-      = workspacesData;
+    const { market, comments, inReviewInvestibles, inVotingInvestibles, questions, issues, suggestions, reports,
+    reasons, inVotingStage, myPresence } = workspacesData;
     const marketPresences = getMarketPresences(marketPresencesState, market.id) || [];
     inReviewInvestibles.forEach((investible) => {
       const investibleId = investible.investible.id;
@@ -284,6 +297,8 @@ function Outbox(props) {
     });
     inVotingInvestibles.forEach((investible) => {
       const investibleId = investible.investible.id;
+      const [votingPageState, updateVotingPageState, votingPageStateReset] =
+        getPageReducerPage(votingPageStateFull, votingPageDispatch, investibleId);
       const message = getMessageForInvestible(investible, market, 'planningInvestibleToVotingLabel',
         <ThumbsUpDownIcon style={{fontSize: 24, color: '#8f8f8f',}}/>, intl);
       const { votes_required: votesRequired } = market;
@@ -294,6 +309,27 @@ function Outbox(props) {
       if (votersNotAssigned.length >= votesRequiredDisplay) {
         message.inActive = true;
       }
+      message.expansionPanel = <RaisedCard elevation={3}>
+        <div style={{paddingLeft: '1.25rem', paddingBottom: '1.25rem'}}>
+          <h2 id="approvals" style={{paddingTop: 0}}>
+            <FormattedMessage id="decisionInvestibleOthersVoting" />
+          </h2>
+          <Voting
+            investibleId={investibleId}
+            marketPresences={marketPresences}
+            investmentReasons={reasons}
+            showExpiration={inVotingStage.has_expiration}
+            expirationMinutes={market.investment_expiration * 1440}
+            votingPageState={votingPageState}
+            updateVotingPageState={updateVotingPageState}
+            votingPageStateReset={votingPageStateReset}
+            votingAllowed={market.assigned_can_approve}
+            yourPresence={myPresence}
+            market={market}
+            isAssigned
+          />
+        </div>
+      </RaisedCard>
       if (!_.isEmpty(marketInfo.required_approvers)) {
         //add required approvers that have not voted or commented
         const debtors = [];

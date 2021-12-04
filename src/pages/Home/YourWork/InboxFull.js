@@ -13,6 +13,7 @@ import { Link } from '@material-ui/core'
 import DismissableText from '../../../components/Notifications/DismissableText'
 import { preventDefaultAndProp } from '../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
+import AddIcon from '@material-ui/icons/Add'
 
 function InboxFull(props) {
   const { hidden } = props;
@@ -24,6 +25,14 @@ function InboxFull(props) {
   const navigationMenu = {
     showSearch: false,
     navListItemTextArray: [
+      {
+        icon: AddIcon, text: intl.formatMessage({ id: 'homeAddInitiative' }),
+        target: '/wizard#type=initiative'
+      },
+      {
+        icon: AddIcon, text: intl.formatMessage({ id: 'homeAddDecision' }),
+        target: '/wizard#type=dialog'
+      },
       {
         icon: MenuBookIcon, text: intl.formatMessage({ id: 'planningDialogViewArchivesLabel' }),
         target: (_.size(marketsState.marketDetails) - _.size(myNotHiddenMarketsState.marketDetails) > 0) ? '/archives'

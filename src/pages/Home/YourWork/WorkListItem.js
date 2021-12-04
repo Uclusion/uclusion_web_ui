@@ -192,22 +192,18 @@ function WorkListItem(props) {
                 { isDeletable ? <DeleteForever /> : (read ? <div /> : <ArchiveIcon />) }
               </StyledIconButton>
             )}
-            {!mobileLayout && (
+            <StyledIconButton
+              classes={actionStyles}
+              onClick={(event) => {
+                preventDefaultAndProp(event);
+                updateWorkListItemState({expansionOpen: !expansionOpen});
+              }}
+            >
+              { expansionPanel ? (expansionOpen !== false ? <ExpandLess /> : <ExpandMoreIcon />) : <div /> }
+            </StyledIconButton>
+            {(!useSelect || !mobileLayout) && (
               <StyledIconButton
                 classes={actionStyles}
-                style={{marginLeft: !useSelect ? '0.25rem' : undefined}}
-                onClick={(event) => {
-                  preventDefaultAndProp(event);
-                  updateWorkListItemState({expansionOpen: !expansionOpen});
-                }}
-              >
-                { expansionPanel ? (expansionOpen !== false ? <ExpandLess /> : <ExpandMoreIcon />) : <div /> }
-              </StyledIconButton>
-            )}
-            {!mobileLayout && (
-              <StyledIconButton
-                classes={actionStyles}
-                style={{marginLeft: !useSelect ? '0.25rem' : undefined}}
               >
                 { icon }
               </StyledIconButton>
@@ -221,11 +217,9 @@ function WorkListItem(props) {
           {mobileLayout ? React.Fragment : (read ? (<DateLabel>{date}</DateLabel>) : (<DateLabelB>{date}</DateLabelB>))}
         </Div>
       </Link>
-      {!mobileLayout && (
-        <div style={{display: expansionOpen !== false ? 'block' : 'none'}}>
-          {expansionPanel ? expansionPanel : <React.Fragment />}
-        </div>
-      )}
+      <div style={{display: expansionOpen !== false ? 'block' : 'none'}}>
+        {expansionPanel ? expansionPanel : <React.Fragment />}
+      </div>
     </React.Fragment>
   );
 }

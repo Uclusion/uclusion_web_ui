@@ -47,6 +47,7 @@ import { getMarketInfo } from '../../../utils/userFunctions'
 import VotingIcon from '@material-ui/icons/Assessment'
 import GavelIcon from '@material-ui/icons/Gavel'
 import { AlarmOn } from '@material-ui/icons'
+import Comment from '../../../components/Comments/Comment'
 
 function getMessageForInvestible(investible, market, labelId, Icon, intl) {
   const investibleId = investible.investible.id;
@@ -74,6 +75,14 @@ function getMessageForComment(comment, market, labelId, Icon, intl, investibleSt
     link: formCommentLink(market.id, comment.investible_id, commentId),
     inFurtherWork: false
   };
+  message.expansionPanel = <Comment
+    depth={0}
+    marketId={market.id}
+    comment={comment}
+    comments={comments}
+    defaultShowDiff
+    allowedTypes={[]}
+  />;
   if (comment.investible_id) {
     const investible = getInvestible(investibleState, comment.investible_id);
     const notDoingStage = getNotDoingStage(marketStagesState, market.id) || {};
@@ -338,7 +347,7 @@ function Outbox(props) {
   }
 
   const rows = messagesOrdered.map((message) => {
-    const { id, investible, updatedAt, title, icon, comment, inActive, debtors } = message;
+    const { id, investible, updatedAt, title, icon, comment, inActive, debtors, expansionPanel } = message;
     const item = {
       title,
       icon,
@@ -346,6 +355,7 @@ function Outbox(props) {
       isDeletable: false,
       people: debtors,
       date: intl.formatDate(updatedAt),
+      expansionPanel,
       message
     }
     if (investible) {

@@ -87,6 +87,11 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: '-6rem'
   },
   contentNoStyle: {},
+  pending: {
+    maxWidth: '85%',
+    marginLeft: 'auto',
+    marginRight: 'auto'
+  },
   lessContent: {
     marginLeft: '12rem'
   },
@@ -221,8 +226,8 @@ function Screen(props) {
   }
   const { navListItemTextArray, navMenu, showSearch = true } = navigationOptions || {}
   const myContainerClass = navigationOptions && !mobileLayout ? classes.containerAllLeftPad : classes.containerAll
-  const contentClass = mobileLayout || isPending ? classes.contentNoStyle :
-    navigationOptions ? (isInbox ? classes.lessContent : classes.content) : classes.contentNoStyle;
+  const contentClass = mobileLayout ? classes.contentNoStyle : (isPending ? classes.pending :
+    navigationOptions ? (isInbox ? classes.lessContent : classes.content) : classes.contentNoStyle);
   const sideNavigationContents = _.isEmpty(navListItemTextArray) ? undefined : (
     <>
       {navMenu}
@@ -301,7 +306,7 @@ function Screen(props) {
       <div className={contentClass}>
         {!reallyAmLoading && (
           <Container className={myContainerClass}
-                     maxWidth={!_.isEmpty(navListItemTextArray) || isPending ? 'xl' : 'lg'}>
+                     maxWidth={isPending ? false : (!_.isEmpty(navListItemTextArray) ? 'xl' : 'lg')}>
             {children}
           </Container>
         )}

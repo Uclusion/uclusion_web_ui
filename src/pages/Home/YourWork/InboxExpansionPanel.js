@@ -9,7 +9,6 @@ import {
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { REPORT_TYPE } from '../../../constants/comments'
 import InvestibleStatus from './InvestibleStatus'
-import { Typography } from '@material-ui/core'
 import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff'
 import RaisedCard from '../../../components/Cards/RaisedCard'
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'

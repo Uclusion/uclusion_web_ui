@@ -252,7 +252,7 @@ function Header (props) {
           {!isWorkspace && (
             <Link href={lastWorkspaceLink} onClick={(event) => {
               preventDefaultAndProp(event);
-              if (hideTools && history.length > 1) {
+              if ((isPending || isInbox) && history.length > 1) {
                 //Make sure home page does not bounce us back to this page
                 clearRedirect();
                 history.goBack();

@@ -49,7 +49,7 @@ const Text = styled("div")`
   -webkit-font-smoothing: antialiased;
   font-size: 14px;
   color: #5f6368;
-  min-width: 0;
+  min-width: 15vw;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -196,7 +196,7 @@ function WorkListItem(props) {
               classes={actionStyles}
               onClick={(event) => {
                 preventDefaultAndProp(event);
-                updateWorkListItemState({expansionOpen: !expansionOpen});
+                updateWorkListItemState({expansionOpen: expansionOpen === false});
               }}
             >
               { expansionPanel ? (expansionOpen !== false ? <ExpandLess /> : <ExpandMoreIcon />) : <div /> }
@@ -209,9 +209,7 @@ function WorkListItem(props) {
               </StyledIconButton>
             )}
           </Box>
-          {mobileLayout ? React.Fragment : (read ?
-            (<Title style={{flexBasis: useSelect ? undefined : '160px'}}>{title}</Title>) :
-            (<TitleB style={{flexBasis: useSelect ? undefined : '160px'}}>{title}</TitleB>))}
+          {mobileLayout ? React.Fragment : (read ? (<Title>{title}</Title>) : (<TitleB>{title}</TitleB>))}
           {mobileLayout || !people ? React.Fragment : <GravatarGroup users={people} className={classes.gravatarStyle}/> }
           {read ? (<Text>{fullText}</Text>) : (<TextB>{fullText}</TextB>)}
           {mobileLayout ? React.Fragment : (read ? (<DateLabel>{date}</DateLabel>) : (<DateLabelB>{date}</DateLabelB>))}

@@ -12,7 +12,7 @@ const useStyles = makeStyles({
     padding: '8px',
     display: 'flex',
     flexDirection: 'column',
-    boxShadow: '10px 5px 5px red'
+    boxShadow: '4px 4px 4px red'
   }
 })
 

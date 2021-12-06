@@ -186,12 +186,12 @@ const useCommentStyles = makeStyles(
         marginRight: "20px"
       },
       containerRed: {
-        boxShadow: "10px 5px 5px red",
+        boxShadow: "4px 4px 4px red",
         overflow: "visible",
         marginBottom: "1.5rem"
       },
       containerYellow: {
-        boxShadow: "10px 5px 5px yellow",
+        boxShadow: "4px 4px 4px yellow",
         overflow: "visible",
         marginBottom: "1.5rem"
       },
@@ -613,8 +613,8 @@ function Comment(props) {
   const displayingDiff = myMessage && showDiff && diff;
   const displayEditing = enableEditing && isEditable;
   return (
-    <div className={getCommentHighlightStyle()}>
-      <Card elevation={3} style={{overflow: 'unset'}}>
+    <div>
+      <Card elevation={3} style={{overflow: 'unset'}} className={getCommentHighlightStyle()}>
         <>
           <Box display="flex">
             {overrideLabel && (
@@ -841,56 +841,56 @@ function Comment(props) {
               </div>
             </CardActions>
           )}
-          {replyBeingEdited && marketId && comment && (
-            <CommentAdd
-              marketId={marketId}
-              parent={comment}
-              onSave={toggleReply}
-              onCancel={toggleReply}
-              type={REPLY_TYPE}
-              commentAddState={replyAddState}
-              updateCommentAddState={updateReplyAddState}
-              commentAddStateReset={replyAddStateReset}
-            />
-          )}
-          <Box marginTop={1} paddingX={1} className={classes.childWrapper}>
-            <LocalCommentsContext.Provider value={{ comments, marketId }}>
-              {repliesExpanded &&
-              sortedReplies.map(child => {
-                const { id: childId } = child;
-                return (
-                  <InitialReply
-                    key={childId}
-                    comment={child}
-                    marketId={marketId}
-                    enableEditing={enableEditing}
-                    messages={messages}
-                  />
-                );
-              })}
-            </LocalCommentsContext.Provider>
-          </Box>
-          {investibleAddBeingEdited && (
-            <div style={{marginTop: '2rem'}}>
-              <DecisionInvestibleAdd
-                marketId={inlineMarketId}
-                onSave={(investible) => addInvestible(investiblesDispatch, () => {}, investible)}
-                onCancel={toggleInlineInvestibleAdd}
-                onSpinComplete={toggleInlineInvestibleAdd}
-                isAdmin={isEditable}
-                pageState={investibleAddState}
-                pageStateUpdate={updateInvestibleAddState}
-                pageStateReset={investibleAddStateReset}
-                parentCommentId={inlineMarketId ? undefined: id}
-              />
-            </div>
-          )}
-          {!inlineMarketId && investibleAddBeingEdited && (
-            <div style={{marginTop: '2rem'}} />
-          )}
-          {repliesExpanded && getDecision(inlineMarketId)}
         </>
       </Card>
+      {replyBeingEdited && marketId && comment && (
+        <CommentAdd
+          marketId={marketId}
+          parent={comment}
+          onSave={toggleReply}
+          onCancel={toggleReply}
+          type={REPLY_TYPE}
+          commentAddState={replyAddState}
+          updateCommentAddState={updateReplyAddState}
+          commentAddStateReset={replyAddStateReset}
+        />
+      )}
+      <Box marginTop={1} paddingX={1} className={classes.childWrapper}>
+        <LocalCommentsContext.Provider value={{ comments, marketId }}>
+          {repliesExpanded &&
+            sortedReplies.map(child => {
+              const { id: childId } = child;
+              return (
+                <InitialReply
+                  key={childId}
+                  comment={child}
+                  marketId={marketId}
+                  enableEditing={enableEditing}
+                  messages={messages}
+                />
+              );
+            })}
+        </LocalCommentsContext.Provider>
+      </Box>
+      {investibleAddBeingEdited && (
+        <div style={{marginTop: '2rem'}}>
+          <DecisionInvestibleAdd
+            marketId={inlineMarketId}
+            onSave={(investible) => addInvestible(investiblesDispatch, () => {}, investible)}
+            onCancel={toggleInlineInvestibleAdd}
+            onSpinComplete={toggleInlineInvestibleAdd}
+            isAdmin={isEditable}
+            pageState={investibleAddState}
+            pageStateUpdate={updateInvestibleAddState}
+            pageStateReset={investibleAddStateReset}
+            parentCommentId={inlineMarketId ? undefined: id}
+          />
+        </div>
+      )}
+      {!inlineMarketId && investibleAddBeingEdited && (
+        <div style={{marginTop: '2rem'}} />
+      )}
+      {repliesExpanded && getDecision(inlineMarketId)}
     </div>
   );
 }
@@ -952,11 +952,7 @@ const useReplyStyles = makeStyles(
       cardContent: {
         // 25px in Figma
         marginLeft: theme.spacing(3),
-        padding: 0,
-        paddingTop: 8,
-        "&:last-child": {
-          paddingBottom: 8
-        }
+        padding: 0
       },
       cardActions: {
         marginLeft: theme.spacing(3),
@@ -964,12 +960,12 @@ const useReplyStyles = makeStyles(
       },
       cardActionsYellow: {
         marginLeft: theme.spacing(3),
-        boxShadow: "10px 5px 5px yellow",
+        boxShadow: "4px 4px 4px yellow",
         padding: 0
       },
       cardActionsRed: {
         marginLeft: theme.spacing(3),
-        boxShadow: "10px 5px 5px red",
+        boxShadow: "4px 4px 4px red",
         padding: 0
       },
       commenter: {
@@ -1000,14 +996,14 @@ const useReplyStyles = makeStyles(
       },
       containerYellow: {
         marginBottom: '1.5rem',
-        boxShadow: '10px 5px 5px yellow',
+        boxShadow: '4px 4px 4px yellow',
         marginRight: '0.25rem',
         paddingRight: '0.5rem',
         overflow: 'unset'
       },
       containerRed: {
         marginBottom: '1.5rem',
-        boxShadow: '10px 5px 5px red',
+        boxShadow: '4px 4px 4px red',
         marginRight: '0.25rem',
         paddingRight: '0.5rem',
         overflow: 'unset'
@@ -1079,64 +1075,65 @@ function Reply(props) {
   const { level: myHighlightedLevel, is_highlighted: isHighlighted } = myMessage;
   const intl = useIntl();
   return (
-    <Card className={!(myHighlightedLevel && isHighlighted) ? classes.container : myMessage.level === 'RED'
-      ? classes.containerRed : classes.containerYellow}
-    >
-      <CardContent className={classes.cardContent}>
-        <Typography className={classes.commenter} variant="body2">
-          {commenter.name}
-        </Typography>
-        <Typography className={classes.timeElapsed} variant="body2">
-          <UsefulRelativeTime
-            value={comment.created_at}
-          />
-        </Typography>
-        {beingEdited && (
-          <CommentEdit
-            intl={intl}
-            marketId={marketId}
-            editState={editState}
-            updateEditState={updateEditState}
-            editStateReset={editStateReset}
-            comment={comment}
-            messages={messages}
-          />
-        )}
-        {!beingEdited && (
-          <ReadOnlyQuillEditor
-            className={classes.editor}
-            value={comment.body}
-            setBeingEdited={setBeingEdited}
-            isEditable={!mobileLayout && enableEditing && isEditable}
-          />
-        )}
-      </CardContent>
-      {!beingEdited && (
-        <CardActions className={!(myHighlightedLevel && isHighlighted) ? classes.cardActions : myMessage.level === 'RED'
-          ? classes.cardActionsRed : classes.cardActionsYellow}>
-          <Typography className={classes.timePosted} variant="body2">
-            <FormattedDate value={comment.created_at} />
+    <div>
+      <Card className={!(myHighlightedLevel && isHighlighted) ? classes.container : myMessage.level === 'RED'
+        ? classes.containerRed : classes.containerYellow}
+      >
+        <CardContent className={classes.cardContent}>
+          <Typography className={classes.commenter} variant="body2">
+            {commenter.name}
           </Typography>
-          {enableEditing && (
-            <Button
-              className={classes.action}
-              onClick={() => setReplyOpen(true)}
-              variant="text"
-            >
-              {intl.formatMessage({ id: "issueReplyLabel" })}
-            </Button>
+          <Typography className={classes.timeElapsed} variant="body2">
+            <UsefulRelativeTime
+              value={comment.created_at}
+            />
+          </Typography>
+          {beingEdited && (
+            <CommentEdit
+              intl={intl}
+              marketId={marketId}
+              editState={editState}
+              updateEditState={updateEditState}
+              editStateReset={editStateReset}
+              comment={comment}
+              messages={messages}
+            />
           )}
-          {enableEditing && isEditable && mobileLayout && (
-            <Button
-              className={classes.action}
-              onClick={handleEditClick}
-              variant="text"
-            >
-              <FormattedMessage id="commentEditLabel" />
-            </Button>
+          {!beingEdited && (
+            <ReadOnlyQuillEditor
+              className={classes.editor}
+              value={comment.body}
+              setBeingEdited={setBeingEdited}
+              isEditable={!mobileLayout && enableEditing && isEditable}
+            />
           )}
-        </CardActions>
-      )}
+        </CardContent>
+        {!beingEdited && (
+          <CardActions className={classes.cardActions}>
+            <Typography className={classes.timePosted} variant="body2">
+              <FormattedDate value={comment.created_at} />
+            </Typography>
+            {enableEditing && (
+              <Button
+                className={classes.action}
+                onClick={() => setReplyOpen(true)}
+                variant="text"
+              >
+                {intl.formatMessage({ id: "issueReplyLabel" })}
+              </Button>
+            )}
+            {enableEditing && isEditable && mobileLayout && (
+              <Button
+                className={classes.action}
+                onClick={handleEditClick}
+                variant="text"
+              >
+                <FormattedMessage id="commentEditLabel" />
+              </Button>
+            )}
+          </CardActions>
+        )}
+      </Card>
       <div className={classes.replyContainer}>
         {replyBeingEdited && marketId && comment && (
           <CommentAdd
@@ -1152,14 +1149,14 @@ function Reply(props) {
         )}
       </div>
       {comment.children !== undefined && (
-        <CardContent className={classes.cardContent}>
+        <div className={classes.cardContent}>
           <ThreadedReplies
             replies={comment.children}
             enableEditing={enableEditing}
           />
-        </CardContent>
+        </div>
       )}
-    </Card>
+    </div>
   );
 }
 Reply.propTypes = {

@@ -18,7 +18,7 @@ const useMyStyles = makeStyles(
   () => {
     return {
       containerYellow: {
-        boxShadow: "10px 5px 5px yellow",
+        boxShadow: "4px 4px 4px yellow",
         overflow: "visible",
         marginBottom: "1.5rem"
       },

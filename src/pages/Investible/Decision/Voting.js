@@ -51,7 +51,7 @@ const useVoteStyles = makeStyles(
         fontWeight: "bold"
       },
       highlighted: {
-        boxShadow: "10px 5px 5px yellow"
+        boxShadow: "4px 4px 4px yellow"
       },
       editVoteDisplay: {
         alignItems: "flex-end",

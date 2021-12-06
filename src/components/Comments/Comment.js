@@ -33,7 +33,7 @@ import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import {
   addMarketToStorage,
   getMarket,
-  getMyUserForMarket
+  getMyUserForMarket, marketTokenLoaded
 } from '../../contexts/MarketsContext/marketsContextHelper'
 import CardType from '../CardType'
 import { SECTION_TYPE_SECONDARY } from '../../constants/global'
@@ -320,7 +320,7 @@ function Comment(props) {
   const presences = usePresences(marketId);
   const createdBy = useCommenter(comment, presences) || unknownPresence;
   const updatedBy = useUpdatedBy(comment, presences) || unknownPresence;
-  const [marketsState, marketsDispatch] = useContext(MarketsContext);
+  const [marketsState, marketsDispatch, tokensHash] = useContext(MarketsContext);
   const inlineMarket = getMarket(marketsState, inlineMarketId) || {};
   const inlineUserId = getMyUserForMarket(marketsState, inlineMarketId) || {};
   const { allow_multi_vote: originalAllowMultiVote, created_by: inlineCreatedBy } = inlineMarket;
@@ -612,6 +612,9 @@ function Comment(props) {
   }
   const displayingDiff = myMessage && showDiff && diff;
   const displayEditing = enableEditing && isEditable;
+  if (!marketTokenLoaded(marketId, tokensHash)) {
+    return React.Fragment;
+  }
   return (
     <div>
       <Card elevation={3} style={{overflow: 'unset'}} className={getCommentHighlightStyle()}>

@@ -105,6 +105,48 @@ function InvestibleAdd(props) {
     }
   }
 
+  const navigationMenu = !marketId ? {
+    navMenu:(
+      <FormControl variant="filled" sx={{ m: 1, minWidth: 120 }} style={{border: '1px solid #ced4da'}}>
+        <InputLabel id="workspaceNav">
+          {intl.formatMessage({id: 'MarketSearchResultWorkspace'})}
+        </InputLabel>
+        <Select
+          labelId="workspaceSelectLabel"
+          id="workspaceSelect"
+          value={chosenMarketId || firstMarketId}
+          onChange={(event) => {
+            const { value } = event.target;
+            const market = getMarket(marketsState, value);
+            setChosenMarketId(market.id);
+            setChosenMarket(<PlanningInvestibleAdd
+              marketId={market.id}
+              onCancel={() => {
+                navigate(history, '/inbox');
+              }}
+              onSave={onInvestibleSave}
+              onSpinComplete={onDone}
+              marketPresences={getMarketPresences(marketPresencesState, market.id)}
+              createdAt={market.created_at}
+              classes={classes}
+              maxBudgetUnit={market.budget_unit}
+              useBudget={market.use_budget ? market.use_budget : false}
+              votesRequired={market.votes_required}
+            />);
+          }}
+        >
+          {planningDetails.map((aMarket) => {
+            return (
+              <MenuItem value={aMarket.id} key={`menu${aMarket.id}`}>
+                {createTitle(aMarket.name, 200)}
+              </MenuItem>
+            );
+          })}
+        </Select>
+      </FormControl>
+    ), showSearch: false
+  } : undefined;
+
   return (
     <Screen
       title={title}
@@ -112,46 +154,8 @@ function InvestibleAdd(props) {
       tabTitle={title}
       breadCrumbs={myBreadCrumbs}
       loading={(marketId && !marketType)||(!marketId && _.isEmpty(planningDetails))}
+      navigationOptions={navigationMenu}
     >
-      {!marketId && (
-        <FormControl variant="filled" sx={{ m: 1, minWidth: 120 }} style={{border: '1px solid #ced4da'}}>
-          <InputLabel id="workspaceNav">
-            {intl.formatMessage({id: 'MarketSearchResultWorkspace'})}
-          </InputLabel>
-          <Select
-            labelId="workspaceSelectLabel"
-            id="workspaceSelect"
-            value={chosenMarketId || firstMarketId}
-            onChange={(event) => {
-              const { value } = event.target;
-              const market = getMarket(marketsState, value);
-              setChosenMarketId(market.id);
-              setChosenMarket(<PlanningInvestibleAdd
-                marketId={market.id}
-                onCancel={() => {
-                  navigate(history, '/inbox');
-                }}
-                onSave={onInvestibleSave}
-                onSpinComplete={onDone}
-                marketPresences={getMarketPresences(marketPresencesState, market.id)}
-                createdAt={market.created_at}
-                classes={classes}
-                maxBudgetUnit={market.budget_unit}
-                useBudget={market.use_budget ? market.use_budget : false}
-                votesRequired={market.votes_required}
-              />);
-            }}
-          >
-            {planningDetails.map((aMarket) => {
-              return (
-                <MenuItem value={aMarket.id} key={`menu${aMarket.id}`}>
-                  {createTitle(aMarket.name, 200)}
-                </MenuItem>
-              );
-            })}
-          </Select>
-        </FormControl>
-      )}
       {marketId && firstMarket}
       {!marketId && (chosenMarket || firstMarket)}
     </Screen>

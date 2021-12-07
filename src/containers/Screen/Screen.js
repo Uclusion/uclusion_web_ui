@@ -228,36 +228,39 @@ function Screen(props) {
   const myContainerClass = navigationOptions && !mobileLayout ? classes.containerAllLeftPad : classes.containerAll
   const contentClass = mobileLayout ? classes.contentNoStyle : (isPending ? classes.pending :
     navigationOptions ? (isInbox ? classes.lessContent : classes.content) : classes.contentNoStyle);
-  const sideNavigationContents = _.isEmpty(navListItemTextArray) ? undefined : (
+  const hasMenu = !_.isEmpty(navListItemTextArray) || !_.isEmpty(navMenu);
+  const sideNavigationContents = !hasMenu ? undefined : (
     <>
       {navMenu}
-      <List>
-        {navListItemTextArray.map((navItem, topIndex) => {
-          const { text, target, num, icon: Icon, onClickFunc, subItems, isBold, newPage } = navItem;
-          if (subItems) {
-            return (
-              <div key={`top${topIndex}${text}${title}`}
-                   style={{ paddingBottom: '0.5rem', backgroundColor: '#F5F5F5' }}>
-                <ListItem key={`topListItem${topIndex}${text}${title}`} onClick={onClickFunc}
-                          style={{ paddingBottom: 0, cursor: 'pointer' }}>
-                  <ListItemText primary={text}
-                                primaryTypographyProps={{ className: isBold ? classes.navGroupHeader : undefined }}
-                  />
-                </ListItem>
-                <div>
-                  {subItems.map((subItem, index) => {
-                    const { text, target, num, icon: Icon, onClickFunc, newPage } = subItem
-                    return processRegularItem(classes, history, text, target, num, Icon, onClickFunc,
-                      true, false, newPage, index, search, showSearch)
-                  })}
+      {!_.isEmpty(navListItemTextArray) && (
+        <List>
+          {navListItemTextArray.map((navItem, topIndex) => {
+            const { text, target, num, icon: Icon, onClickFunc, subItems, isBold, newPage } = navItem;
+            if (subItems) {
+              return (
+                <div key={`top${topIndex}${text}${title}`}
+                     style={{ paddingBottom: '0.5rem', backgroundColor: '#F5F5F5' }}>
+                  <ListItem key={`topListItem${topIndex}${text}${title}`} onClick={onClickFunc}
+                            style={{ paddingBottom: 0, cursor: 'pointer' }}>
+                    <ListItemText primary={text}
+                                  primaryTypographyProps={{ className: isBold ? classes.navGroupHeader : undefined }}
+                    />
+                  </ListItem>
+                  <div>
+                    {subItems.map((subItem, index) => {
+                      const { text, target, num, icon: Icon, onClickFunc, newPage } = subItem
+                      return processRegularItem(classes, history, text, target, num, Icon, onClickFunc,
+                        true, false, newPage, index, search, showSearch)
+                    })}
+                  </div>
                 </div>
-              </div>
-            );
-          }
-          return processRegularItem(classes, history, text, target, num, Icon, onClickFunc, false,
-            isBold, newPage, topIndex, search, showSearch)
-        })}
-      </List>
+              );
+            }
+            return processRegularItem(classes, history, text, target, num, Icon, onClickFunc, false,
+              isBold, newPage, topIndex, search, showSearch)
+          })}
+        </List>
+      )}
       {showSearch && (
         <SearchBox/>
       )}
@@ -285,7 +288,7 @@ function Screen(props) {
         isInbox={isInbox}
         isPending={isPending}
       />
-      {!_.isEmpty(navListItemTextArray) && !mobileLayout && (
+      {hasMenu && !mobileLayout && (
         <div className={classes.listContainer}>
           <Paper className={classes.paper} style={{minWidth: showSearch ? undefined : '10rem'}} elevation={3}
                  id="navList">

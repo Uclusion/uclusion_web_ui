@@ -182,6 +182,7 @@ function Screen(props) {
     navigationOptions,
     isWorkspace,
     isInbox,
+    noLeftPadding,
     isPending
   } = props;
 
@@ -226,7 +227,7 @@ function Screen(props) {
   }
   const { navListItemTextArray, navMenu, showSearch = true } = navigationOptions || {}
   const myContainerClass = navigationOptions && !mobileLayout ? classes.containerAllLeftPad : classes.containerAll
-  const contentClass = mobileLayout ? classes.contentNoStyle : (isPending ? classes.pending :
+  const contentClass = noLeftPadding || mobileLayout ? classes.contentNoStyle : (isPending ? classes.pending :
     navigationOptions ? (isInbox ? classes.lessContent : classes.content) : classes.contentNoStyle);
   const hasMenu = !_.isEmpty(navListItemTextArray) || !_.isEmpty(navMenu);
   const sideNavigationContents = !hasMenu ? undefined : (

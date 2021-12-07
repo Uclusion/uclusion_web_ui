@@ -105,7 +105,7 @@ function InvestibleAdd(props) {
     }
   }
 
-  const navigationMenu = !marketId ? {
+  const navigationMenu = (!marketId && firstMarketId) ? {
     navMenu:(
       <FormControl variant="filled" sx={{ m: 1, minWidth: 120 }} style={{border: '1px solid #ced4da'}}>
         <InputLabel id="workspaceNav">
@@ -138,7 +138,7 @@ function InvestibleAdd(props) {
           {planningDetails.map((aMarket) => {
             return (
               <MenuItem value={aMarket.id} key={`menu${aMarket.id}`}>
-                {createTitle(aMarket.name, 200)}
+                {createTitle(aMarket.name, 20)}
               </MenuItem>
             );
           })}
@@ -155,6 +155,7 @@ function InvestibleAdd(props) {
       breadCrumbs={myBreadCrumbs}
       loading={(marketId && !marketType)||(!marketId && _.isEmpty(planningDetails))}
       navigationOptions={navigationMenu}
+      noLeftPadding={!marketId}
     >
       {marketId && firstMarket}
       {!marketId && (chosenMarket || firstMarket)}

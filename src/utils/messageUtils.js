@@ -1,5 +1,6 @@
 import { removeMessage } from '../contexts/NotificationsContext/notificationsContextReducer'
 import { DECISION_TYPE, INITIATIVE_TYPE } from '../constants/markets'
+import { removeWorkListItem } from '../pages/Home/YourWork/WorkListItem'
 
 export function messageText(message, intl) {
   const { link_type: linkType, market_type: marketType } = message;
@@ -98,10 +99,10 @@ export function findMessagesForCommentId(commentId, state) {
   return safeMessages.filter((message) => message.comment_id === commentId);
 }
 
-export function removeMessagesForCommentId(commentId, state, dispatch) {
+export function removeMessagesForCommentId(commentId, state, dispatch, removeClass) {
   const messages = findMessagesForCommentId(commentId, state) || [];
   messages.forEach((message) => {
-    dispatch(removeMessage(message));
+    removeWorkListItem(message, removeClass, dispatch);
   });
 }
 

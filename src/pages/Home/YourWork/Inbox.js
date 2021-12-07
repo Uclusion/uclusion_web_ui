@@ -180,7 +180,7 @@ function Inbox(props) {
       containsUnread = true;
     }
     if (commentId) {
-      let useMarketId = commentMarketId ? commentMarketId : marketId;
+      let useMarketId = commentMarketId || marketId;
       const rootComment = getCommentRoot(commentState, useMarketId, commentId);
       if (rootComment) {
         const comment = nameFromDescription(rootComment.body);

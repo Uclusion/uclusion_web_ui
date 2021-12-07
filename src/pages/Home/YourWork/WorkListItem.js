@@ -89,13 +89,30 @@ const DateLabelB = styled(DateLabel)`
   font-weight: bold;
 `;
 
-const useStyles = makeStyles(() => {
+export const workListStyles = makeStyles(() => {
   return {
     gravatarStyle: {
       paddingRight: '1rem',
     },
+    removed: {
+      transform: 'translateX(100vw)',
+      transitionDuration: '2s'
+    }
   };
 });
+
+export function removeWorkListItem(message, removeClass, messagesDispatch) {
+  const { type_object_id: typeObjectId } = message;
+  const item = document.getElementById(`workListItem${typeObjectId}`);
+  if (item) {
+    item.addEventListener("transitionend",() => {
+      messagesDispatch(removeMessage(message));
+    });
+    item.classList.add(removeClass);
+  } else {
+    messagesDispatch(removeMessage(message));
+  }
+}
 
 function WorkListItem(props) {
   const {
@@ -123,7 +140,7 @@ function WorkListItem(props) {
     expansionOpen
   } = workListItemState;
   const history = useHistory();
-  const classes = useStyles();
+  const classes = workListStyles();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const [, messagesDispatch] = useContext(NotificationsContext);
@@ -145,7 +162,7 @@ function WorkListItem(props) {
   const deleteActionButtonOnclick = (event) => {
     preventDefaultAndProp(event);
     workListItemReset();
-    messagesDispatch(removeMessage(message));
+    removeWorkListItem(message, classes.removed, messagesDispatch);
     return getMarketClient(marketId).then((client) => client.users.removeNotifications([typeObjectId]));
   };
   const archiveActionButtonOnclick = (event) => {
@@ -154,17 +171,14 @@ function WorkListItem(props) {
     return getMarketClient(marketId).then((client) => client.users.removeNotifications([typeObjectId]));
   };
   return (
-    <React.Fragment key={`panelDiv${id}`}>
+    <div key={`workListItem${id}`} id={`workListItem${id}`}>
       <Link href={link} style={{ width: '100%' }} key={`link${id}`} onClick={
         (event) => {
           preventDefaultAndProp(event);
           navigate(history, link);
         }
       }>
-        <Div
-          key={`workListItem${id}`}
-          className={cx(read && 'MailListItem-read')}
-        >
+        <Div className={cx(read && 'MailListItem-read')}>
           <Box flexShrink={0} className={gutterStyles.parent}>
             {useSelect && (
               <StyledIconButton
@@ -218,7 +232,7 @@ function WorkListItem(props) {
       <div style={{display: expansionOpen !== false ? 'block' : 'none'}}>
         {expansionPanel ? expansionPanel : <React.Fragment />}
       </div>
-    </React.Fragment>
+    </div>
   );
 }
 

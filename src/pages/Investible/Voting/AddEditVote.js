@@ -33,11 +33,11 @@ import { useLockedDialogStyles } from '../../Dialog/DialogBodyEdit'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { Add, Clear, Delete, SettingsBackupRestore } from '@material-ui/icons'
 import { editorReset, useEditor } from '../../../components/TextEditors/quillHooks';
-import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
 import { getQuillStoredState } from '../../../components/TextEditors/QuillEditor2'
 import InputAdornment from '@material-ui/core/InputAdornment'
 import IssueDialog from '../../../components/Warnings/IssueDialog'
 import { processTextAndFilesForSave } from '../../../api/files'
+import { removeWorkListItem, workListStyles } from '../../Home/YourWork/WorkListItem'
 
 const useStyles = makeStyles(
   theme => {
@@ -127,6 +127,7 @@ function AddEditVote(props) {
   } = votingPageState;
   const intl = useIntl();
   const classes = useStyles();
+  const workItemClasses = workListStyles();
   const addMode = _.isEmpty(investment) || investment.deleted;
   const { quantity, max_budget: initialMaxBudget, max_budget_unit: initialMaxBudgetUnit } = investment || {};
   const initialInvestment = !quantity ? undefined : Math.abs(quantity);
@@ -220,7 +221,7 @@ function AddEditVote(props) {
     }
     partialUpdateInvestment(marketPresencesDispatch, investmentResult, allowMultiVote);
     if (voteMessage) {
-      messagesDispatch(removeMessage(voteMessage));
+      removeWorkListItem(voteMessage, workItemClasses.removed, messagesDispatch);
     }
     if (open) {
       toggleOpen();

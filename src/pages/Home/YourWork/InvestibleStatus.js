@@ -6,16 +6,17 @@ import { useIntl } from 'react-intl'
 import _ from 'lodash'
 import { updateInvestible } from '../../../api/investibles'
 import { getInvestible, refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
-import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
 import { getMarketInfo } from '../../../utils/userFunctions'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { removeWorkListItem, workListStyles } from './WorkListItem'
 
 function InvestibleStatus(props) {
   const { marketId, investibleId, message } = props;
   const intl = useIntl();
+  const workItemClasses = workListStyles();
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
   const [, diffDispatch] = useContext(DiffContext);
@@ -43,7 +44,7 @@ function InvestibleStatus(props) {
       return updateInvestible(updateInfo).then((fullInvestible) => {
         refreshInvestibles(investiblesDispatch, diffDispatch, [fullInvestible]);
         if (message) {
-          messagesDispatch(removeMessage(message));
+          removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
         }
         setOperationRunning(false);
       });

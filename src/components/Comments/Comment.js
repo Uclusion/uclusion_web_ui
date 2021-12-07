@@ -88,6 +88,7 @@ import { getDiff, markDiffViewed } from '../../contexts/DiffContext/diffContextH
 import { DiffContext } from '../../contexts/DiffContext/DiffContext'
 import DiffDisplay from '../TextEditors/DiffDisplay'
 import { removeMessage } from '../../contexts/NotificationsContext/notificationsContextReducer'
+import { workListStyles } from '../../pages/Home/YourWork/WorkListItem'
 
 const useCommentStyles = makeStyles(
   theme => {
@@ -314,6 +315,7 @@ function Comment(props) {
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const intl = useIntl();
   const classes = useCommentStyles();
+  const workItemClasses = workListStyles();
   const { id, comment_type: commentType, investible_id: investibleId, inline_market_id: inlineMarketId,
     resolved, notification_type: myNotificationType, creation_stage_id: createdStageId,
     mentions, body, creator_assigned: creatorAssigned } = comment;
@@ -518,7 +520,7 @@ function Comment(props) {
         onCommentOpen(investiblesState, investibleId, marketStagesState, marketId, comment, investiblesDispatch,
           commentsState, commentsDispatch);
         // The only message that will be there is the one telling you the comment was resolved
-        removeMessagesForCommentId(id, messagesState,messagesDispatch);
+        removeMessagesForCommentId(id, messagesState,messagesDispatch, workItemClasses.removed);
         setOperationRunning(false);
         onDone();
       });
@@ -528,7 +530,7 @@ function Comment(props) {
     return removeComment(marketId, id)
       .then(() => {
         removeComments(commentsDispatch, marketId, [id]);
-        removeMessagesForCommentId(id, messagesState,messagesDispatch);
+        removeMessagesForCommentId(id, messagesState,messagesDispatch, workItemClasses.removed);
         setOperationRunning(false);
         onDone();
       });
@@ -537,7 +539,7 @@ function Comment(props) {
     return resolveComment(marketId, id)
       .then((comment) => {
         addCommentToMarket(comment, commentsState, commentsDispatch);
-        removeMessagesForCommentId(id, messagesState, messagesDispatch);
+        removeMessagesForCommentId(id, messagesState, messagesDispatch, workItemClasses.removed);
         if (inlineMarketId) {
           const inlineInvestibles = getMarketInvestibles(investiblesState, inlineMarketId) || [];
           const anInlineMarketInvestibleComments = getMarketComments(commentsState, inlineMarketId) || [];

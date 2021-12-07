@@ -41,8 +41,7 @@ import { allowVotingForSuggestion, changeInvestibleStageOnCommentChange } from '
 import { findMessageOfType, findMessageOfTypeAndId, findMessagesForInvestibleId } from '../../utils/messageUtils'
 import {
   changeLevelMessage,
-  dehighlightMessage,
-  removeMessage
+  dehighlightMessage
 } from '../../contexts/NotificationsContext/notificationsContextReducer'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'
@@ -54,6 +53,7 @@ import { pushMessage } from '../../utils/MessageBusUtils'
 import { getQuillStoredState } from '../TextEditors/QuillEditor2'
 import IssueDialog from '../Warnings/IssueDialog'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
+import { removeWorkListItem, workListStyles } from '../../pages/Home/YourWork/WorkListItem'
 
 function getPlaceHolderLabelId (type, isStory, isInReview) {
   switch (type) {
@@ -212,6 +212,7 @@ function CommentAdd(props) {
   } = commentAddState;
 
   const intl = useIntl();
+  const workItemClasses = workListStyles();
   const [commentsState, commentDispatch] = useContext(CommentsContext);
   const [investibleState, investibleDispatch] = useContext(InvestiblesContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
@@ -360,7 +361,7 @@ function CommentAdd(props) {
         if (apiType === REPORT_TYPE || (apiType === TODO_TYPE && inReviewStage.id === currentStageId)) {
           const message = findMessageOfType('REPORT_REQUIRED', investibleId, messagesState)
           if (message) {
-            messagesDispatch(removeMessage(message))
+            removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
           }
           if (apiType === REPORT_TYPE && (creatorIsAssigned || !investibleId)) {
             quickResolveOlderReports(comment)
@@ -371,14 +372,14 @@ function CommentAdd(props) {
         if (_.isEmpty(messages)) {
           messages.forEach((message) => {
             if (message.type.startsWith('UNREAD')) {
-              messagesDispatch(removeMessage(message));
+              removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
             }
           });
         }
         if (type === REPLY_TYPE) {
           const message = findMessageOfTypeAndId(parentId, messagesState, 'COMMENT');
           if (message) {
-            messagesDispatch(removeMessage(message));
+            removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
           }
           const issueMessage = findMessageOfType('ISSUE', parentId, messagesState)
           if (issueMessage) {

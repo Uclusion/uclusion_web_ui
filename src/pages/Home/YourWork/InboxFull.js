@@ -14,6 +14,7 @@ import DismissableText from '../../../components/Notifications/DismissableText'
 import { preventDefaultAndProp } from '../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
 import AddIcon from '@material-ui/icons/Add'
+import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../../constants/markets'
 
 function InboxFull(props) {
   const { hidden } = props;
@@ -26,12 +27,24 @@ function InboxFull(props) {
     showSearch: false,
     navListItemTextArray: [
       {
+        icon: AddIcon, text: intl.formatMessage({ id: 'todoPresent' }),
+        target: `/wizard#type=${PLANNING_TYPE.toLowerCase()}`
+      },
+      {
+        icon: AddIcon, text: intl.formatMessage({ id: 'story' }),
+        target: '/investibleAdd'
+      },
+      {
+        icon: AddIcon, text: intl.formatMessage({ id: 'homeAddPlanning' }),
+        target: `/wizard#type=${PLANNING_TYPE.toLowerCase()}`
+      },
+      {
         icon: AddIcon, text: intl.formatMessage({ id: 'homeAddInitiative' }),
-        target: '/wizard#type=initiative'
+        target: `/wizard#type=${INITIATIVE_TYPE.toLowerCase()}`
       },
       {
         icon: AddIcon, text: intl.formatMessage({ id: 'homeAddDecision' }),
-        target: '/wizard#type=dialog'
+        target: `/wizard#type=${DECISION_TYPE.toLowerCase()}`
       },
       {
         icon: MenuBookIcon, text: intl.formatMessage({ id: 'planningDialogViewArchivesLabel' }),

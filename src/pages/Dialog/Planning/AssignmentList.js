@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import clsx from 'clsx'
@@ -16,8 +16,6 @@ import {
 } from '@material-ui/core'
 import SearchIcon from '@material-ui/icons/Search'
 import { useIntl } from 'react-intl'
-import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
-import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { usePlanFormStyles } from '../../../components/AgilePlan'
 import Typography from '@material-ui/core/Typography'
 
@@ -35,7 +33,7 @@ const useStyles = makeStyles((theme) => ({
 
 function AssignmentList(props) {
   const {
-    marketId,
+    fullMarketPresences,
     onChange,
     previouslyAssigned,
     cannotBeAssigned,
@@ -45,8 +43,6 @@ function AssignmentList(props) {
 
   const classes = useStyles();
   const intl = useIntl();
-  const [marketPresencesState] = useContext(MarketPresencesContext);
-  const fullMarketPresences = getMarketPresences(marketPresencesState, marketId) || {};
   const marketPresences = fullMarketPresences.filter((presence) => !presence.market_banned && !presence.market_guest);
   const formClasses = usePlanFormStyles();
 
@@ -60,11 +56,6 @@ function AssignmentList(props) {
     return {};
   }
 
-  const participantEntries = getSortedPresenceWithAssignable();
-  const [participants, ] = useState(participantEntries)
-  const [filteredNames, setFilteredNames] = useState(undefined);
-  const [submitted, setSubmitted] = useState(getDefaultChecked());
-
   function getSortedPresenceWithAssignable() {
     const sortedParticipants = _.sortBy(marketPresences, 'name');
     return sortedParticipants.map((presence) => {
@@ -74,6 +65,10 @@ function AssignmentList(props) {
       };
     });
   }
+
+  const participants = getSortedPresenceWithAssignable();
+  const [filteredNames, setFilteredNames] = useState(undefined);
+  const [submitted, setSubmitted] = useState(getDefaultChecked());
 
   function getCheckToggle(id) {
     const newChecked = {
@@ -184,6 +179,7 @@ function AssignmentList(props) {
           </ListItemText>
         </ListItem>
       )}
+
       <List
           dense
           id="addressBook"
@@ -210,7 +206,7 @@ function AssignmentList(props) {
 }
 
 AssignmentList.propTypes = {
-  marketId: PropTypes.string.isRequired,
+  fullMarketPresences: PropTypes.arrayOf(PropTypes.object),
   listHeader: PropTypes.string,
   previouslyAssigned: PropTypes.arrayOf(PropTypes.string),
   cannotBeAssigned: PropTypes.arrayOf(PropTypes.string),

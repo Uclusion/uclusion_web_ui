@@ -100,7 +100,7 @@ function Root() {
   }
 
   function hideInvestibleAdd() {
-    return (action !== 'investibleAdd') || !marketId;
+    return (action !== 'investibleAdd');
   }
 
   function hideDialogArchives() {

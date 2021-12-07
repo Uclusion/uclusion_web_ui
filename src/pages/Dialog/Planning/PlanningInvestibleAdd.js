@@ -302,9 +302,9 @@ function PlanningInvestibleAdd(props) {
         <CardContent>
           {(!storyAssignee || isAssignedToMe) && _.isEmpty(furtherWorkType) && (
             <div className={classes.cardContent}>
-              {!storyAssignee && _.isEmpty(furtherWorkType) && (
+              {!storyAssignee && _.isEmpty(furtherWorkType) && !_.isEmpty(presences) && (
                 <AssignmentList
-                  marketId={marketId}
+                  fullMarketPresences={presences}
                   onChange={onAssignmentsChange}
                 />
               )}

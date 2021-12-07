@@ -188,7 +188,7 @@ function PlanningInvestibleEdit(props) {
         <CardContent>
           <div className={classes.cardContent}>
             <AssignmentList
-              marketId={marketId}
+              fullMarketPresences={marketPresences}
               previouslyAssigned={initialAssigned}
               cannotBeAssigned={marketAssigned}
               onChange={handleAssignmentChange}
@@ -221,7 +221,7 @@ function PlanningInvestibleEdit(props) {
       <CardContent>
         <div className={classes.cardContent}>
           <AssignmentList
-            marketId={marketId}
+            fullMarketPresences={marketPresences}
             previouslyAssigned={initialAssigned}
             onChange={handleAssignmentChange}
             requiresInput={isRequiresInput()}

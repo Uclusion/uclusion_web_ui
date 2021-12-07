@@ -1,12 +1,22 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState } from 'react'
 import { useHistory, useLocation } from 'react-router'
 import PropTypes from 'prop-types'
 import { useIntl } from 'react-intl'
 import _ from 'lodash'
-import { decomposeMarketPath, formMarketLink, makeBreadCrumbs, navigate, } from '../../utils/marketIdPathFunctions'
+import {
+  createTitle,
+  decomposeMarketPath,
+  formMarketLink,
+  makeBreadCrumbs,
+  navigate,
+} from '../../utils/marketIdPathFunctions'
 import Screen from '../../containers/Screen/Screen'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
-import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
+import {
+  getMarket,
+  getMarketDetailsForType,
+  getNotHiddenMarketDetailsForUser
+} from '../../contexts/MarketsContext/marketsContextHelper'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import PlanningInvestibleAdd from './Planning/PlanningInvestibleAdd'
@@ -18,6 +28,8 @@ import queryString from 'query-string'
 import { getInlineBreadCrumbs } from '../Investible/Decision/DecisionInvestible'
 import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
+import { FormControl, InputLabel, MenuItem, Select } from '@material-ui/core'
+import { PLANNING_TYPE } from '../../constants/markets'
 
 function InvestibleAdd(props) {
   const { hidden } = props;
@@ -29,13 +41,18 @@ function InvestibleAdd(props) {
   const { parentCommentId, fromCommentId } = values;
   const fromCommentIds = _.isArray(fromCommentId) ? fromCommentId : fromCommentId ? [fromCommentId] : undefined;
   const { marketId } = decomposeMarketPath(pathname);
+  const [chosenMarketId, setChosenMarketId] = useState(undefined);
+  const [chosenMarket, setChosenMarket] = useState(undefined);
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   // we're going to talk directly to the contexts instead of pushing messages for speed reasons
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [, diffDispatch] = useContext(DiffContext);
   const classes = usePlanFormStyles();
-  const renderableMarket = getMarket(marketsState, marketId) || {};
+  const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
+  const planningDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, PLANNING_TYPE) || [];
+  const firstMarketId = _.isEmpty(planningDetails) ? undefined : planningDetails[0].id;
+  const renderableMarket = getMarket(marketsState, marketId || chosenMarketId || firstMarketId) || {};
   const { market_type: marketType, created_at: createdAt, parent_comment_id: inlineParentCommentId,
     parent_comment_market_id: parentMarketId, budget_unit: budgetUnit, use_budget: useBudget,
     votes_required: votesRequired
@@ -45,7 +62,6 @@ function InvestibleAdd(props) {
   const parentComment = comments.find((comment) => comment.id === (parentCommentId || inlineParentCommentId)) || {};
   const parentInvestibleId = parentComment.investible_id;
   const currentMarketName = (renderableMarket && renderableMarket.name) || '';
-  const marketPresences = getMarketPresences(marketPresencesState, marketId);
   let breadCrumbTemplates;
   if (parentCommentId) {
     // The inline market will be created along with the option
@@ -53,10 +69,30 @@ function InvestibleAdd(props) {
   } else if (inlineParentCommentId) {
     breadCrumbTemplates = getInlineBreadCrumbs(marketsState, parentMarketId, parentInvestibleId, investiblesState);
   } else {
-    breadCrumbTemplates = [{ name: currentMarketName, link: formMarketLink(marketId) }];
+    breadCrumbTemplates = [{ name: currentMarketName,
+      link: formMarketLink(marketId || chosenMarketId || firstMarketId) }];
   }
   const myBreadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
   const title = intl.formatMessage({ id: 'newStory'});
+  const firstMarket = (marketId || firstMarketId) ? <PlanningInvestibleAdd
+      marketId={marketId || firstMarketId}
+      onCancel={(link) => {
+        if (marketId) {
+          onDone(link);
+        } else {
+          navigate(history, '/inbox');
+        }
+      }}
+      onSave={onInvestibleSave}
+      onSpinComplete={onDone}
+      marketPresences={getMarketPresences(marketPresencesState, marketId || firstMarketId)}
+      createdAt={createdAt}
+      classes={classes}
+      fromCommentIds={fromCommentIds}
+      maxBudgetUnit={budgetUnit}
+      useBudget={useBudget ? useBudget : false}
+      votesRequired={votesRequired}
+    /> : undefined;
 
   function onInvestibleSave(investible) {
     addInvestible(investiblesDispatch, diffDispatch, investible);
@@ -69,33 +105,55 @@ function InvestibleAdd(props) {
     }
   }
 
-  const loading = !marketType;
   return (
     <Screen
       title={title}
       hidden={hidden}
       tabTitle={title}
       breadCrumbs={myBreadCrumbs}
-      loading={loading}
+      loading={(marketId && !marketType)||(!marketId && _.isEmpty(planningDetails))}
     >
-      {marketId && (
-        <PlanningInvestibleAdd
-          marketId={marketId}
-          onCancel={onDone}
-          onSave={onInvestibleSave}
-          onSpinComplete={onDone}
-          marketPresences={marketPresences}
-          createdAt={createdAt}
-          fromCommentIds={fromCommentIds}
-          classes={classes}
-          maxBudgetUnit={budgetUnit}
-          useBudget={useBudget ? useBudget : false}
-          votesRequired={votesRequired}
-        />
-      )}
       {!marketId && (
-        <div />
+        <FormControl variant="filled" sx={{ m: 1, minWidth: 120 }} style={{border: '1px solid #ced4da'}}>
+          <InputLabel id="workspaceNav">
+            {intl.formatMessage({id: 'MarketSearchResultWorkspace'})}
+          </InputLabel>
+          <Select
+            labelId="workspaceSelectLabel"
+            id="workspaceSelect"
+            value={chosenMarketId || firstMarketId}
+            onChange={(event) => {
+              const { value } = event.target;
+              const market = getMarket(marketsState, value);
+              setChosenMarketId(market.id);
+              setChosenMarket(<PlanningInvestibleAdd
+                marketId={market.id}
+                onCancel={() => {
+                  navigate(history, '/inbox');
+                }}
+                onSave={onInvestibleSave}
+                onSpinComplete={onDone}
+                marketPresences={getMarketPresences(marketPresencesState, market.id)}
+                createdAt={market.created_at}
+                classes={classes}
+                maxBudgetUnit={market.budget_unit}
+                useBudget={market.use_budget ? market.use_budget : false}
+                votesRequired={market.votes_required}
+              />);
+            }}
+          >
+            {planningDetails.map((aMarket) => {
+              return (
+                <MenuItem value={aMarket.id} key={`menu${aMarket.id}`}>
+                  {createTitle(aMarket.name, 200)}
+                </MenuItem>
+              );
+            })}
+          </Select>
+        </FormControl>
       )}
+      {marketId && firstMarket}
+      {!marketId && (chosenMarket || firstMarket)}
     </Screen>
   );
 }

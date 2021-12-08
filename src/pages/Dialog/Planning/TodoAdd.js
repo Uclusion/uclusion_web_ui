@@ -21,7 +21,7 @@ import {
   Card,
   FormControl,
   FormControlLabel,
-  InputLabel,
+  InputLabel, Link,
   MenuItem,
   Radio,
   RadioGroup,
@@ -37,6 +37,7 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import clsx from 'clsx'
 import { useStyles } from '../../../containers/CommentBox/CommentAddBox'
+import DismissableText from '../../../components/Notifications/DismissableText'
 
 function TodoAdd(props) {
   const { hidden } = props;
@@ -116,6 +117,12 @@ function TodoAdd(props) {
       noLeftPadding
       isWorkspace
     >
+      <DismissableText textId='todoAddHelp' text={
+        <div>
+          <Link href="https://documentation.uclusion.com/workspaces/todos/" target="_blank">Workspace TODOs</Link> are
+          useful when you need to get something small assigned.
+        </div>
+      }/>
       <Card id="commentAddBox" style={{marginBottom: '2rem', overflow: 'unset', marginTop: '3rem'}} elevation={3}>
         <FormControl component="fieldset" className={classes.commentType}>
           <RadioGroup

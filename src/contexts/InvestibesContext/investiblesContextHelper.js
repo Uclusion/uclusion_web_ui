@@ -71,6 +71,18 @@ export function addInvestible(dispatch, diffDispatch, inv) {
 }
 
 export function refreshInvestibles(dispatch, diffDispatch, investibles, fromNetwork) {
+  if (_.isEmpty(investibles)) {
+    return;
+  }
+  let malformed = false;
+  investibles.forEach((inv) => {
+    if (_.isEmpty(inv) || _.isEmpty(inv.investible)) {
+      malformed = true;
+    }
+  });
+  if (malformed) {
+    return;
+  }
   pushMessage(SEARCH_INDEX_CHANNEL, { event: INDEX_UPDATE, itemType: INDEX_INVESTIBLE_TYPE, items: investibles});
   const fixed = investibles.map((item) => {
     const { investible, market_infos, updated_by_you } = item;

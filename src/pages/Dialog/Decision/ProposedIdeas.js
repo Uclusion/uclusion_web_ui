@@ -19,6 +19,7 @@ import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import { findMessagesForInvestibleId } from '../../../utils/messageUtils'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
+import { myArchiveClasses } from '../../DialogArchives/ArchiveInvestibles'
 
 const useStyles = makeStyles((theme) => ({
   textData: {
@@ -45,6 +46,7 @@ const useStyles = makeStyles((theme) => ({
 function ProposedIdeas(props) {
   const history = useHistory();
   const classes = useStyles();
+  const outlineStyles = myArchiveClasses();
   const { investibles, marketId, isAdmin } = props;
   const [messagesState] = useContext(NotificationsContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
@@ -105,8 +107,21 @@ function ProposedIdeas(props) {
     });
   }
 
+  function setElementGreen() {
+    console.debug('Got here green');
+    removeElementGreen();
+    document.getElementById(`proposed${marketId}`).classList.add(outlineStyles.containerGreen);
+  }
+
+  function removeElementGreen() {
+    [`proposed${marketId}`, `current${marketId}`].forEach((elementId) => {
+      document.getElementById(elementId).classList.remove(outlineStyles.containerGreen);
+    });
+  }
+
   return (
-    <Grid container spacing={1} onDragOver={(event) => event.preventDefault()}
+    <Grid container className={outlineStyles.white} spacing={1} id={`proposed${marketId}`} onDragEnd={removeElementGreen} onDragEnter={setElementGreen}
+          onDragOver={(event) => event.preventDefault()}
           onDrop={onDropProposed}>
       {getInvestibles()}
       {_.isEmpty(investibles) && (

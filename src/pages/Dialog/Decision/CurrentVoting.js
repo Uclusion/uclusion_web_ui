@@ -23,6 +23,7 @@ import {
   getProposedOptionsStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
+import { myArchiveClasses } from '../../DialogArchives/ArchiveInvestibles'
 
 const useStyles = makeStyles(theme => ({
   noPadding: {
@@ -62,6 +63,7 @@ const useStyles = makeStyles(theme => ({
 function CurrentVoting(props) {
   const history = useHistory();
   const classes = useStyles();
+  const outlineStyles = myArchiveClasses();
   const intl = useIntl();
   const { marketPresences, investibles, marketId, comments, isAdmin } = props;
   const strippedInvestibles = investibles.map(inv => inv.investible);
@@ -163,9 +165,22 @@ function CurrentVoting(props) {
     'name'
   ).reverse();
   const { fontSize, ref } = useFitText({ maxFontSize: 200 });
+
+  function setElementGreen() {
+    removeElementGreen();
+    document.getElementById(`current${marketId}`).classList.add(outlineStyles.containerGreen);
+  }
+
+  function removeElementGreen() {
+    [`proposed${marketId}`, `current${marketId}`].forEach((elementId) => {
+      document.getElementById(elementId).classList.remove(outlineStyles.containerGreen);
+    });
+  }
+
   return (
-    <Grid container spacing={1} onDragOver={(event) => event.preventDefault()}
-          onDrop={onDropApprovable}>
+    <Grid container spacing={1} id={`current${marketId}`} className={outlineStyles.white}
+          onDragEnd={removeElementGreen} onDragEnter={setElementGreen}
+          onDragOver={(event) => event.preventDefault()} onDrop={onDropApprovable}>
       {!_.isEmpty(sortedTalliesArray) && sortedTalliesArray.map((item) => getItemVote(item))}
       {_.isEmpty(sortedTalliesArray) && (
         <Grid item key="noneWarning">

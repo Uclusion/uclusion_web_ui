@@ -16,7 +16,6 @@ import {
 import { makeStyles } from '@material-ui/styles';
 import {
   createTitle,
-  formMarketLink,
   navigate,
   openInNewTab,
   preventDefaultAndProp
@@ -30,7 +29,7 @@ import config from '../../config';
 import Inbox from '../../pages/Home/YourWork/Inbox'
 import Outbox from '../../pages/Home/YourWork/Outbox'
 import { ChevronLeft } from '@material-ui/icons'
-import { clearRedirect, getCurrentWorkspace } from '../../utils/redirectUtils'
+import { clearRedirect, getLastWorkspaceLink, getRedirect } from '../../utils/redirectUtils'
 import Hamburger from '../../components/Menus/Hamburger'
 
 export const headerStyles = makeStyles((theme) => {
@@ -240,7 +239,13 @@ function Header (props) {
       </div>
     );
   }
-  const lastWorkspaceLink = getCurrentWorkspace() ? formMarketLink(getCurrentWorkspace()) : '/';
+  const lastWorkspaceLink = getLastWorkspaceLink();
+  const lastStoredLink = getRedirect();
+  const chevronLink = isPending || isInbox ? lastWorkspaceLink : lastStoredLink || lastWorkspaceLink;
+  if (!chevronLink) {
+    // We have nowhere to go but / so make sure it doesn't send us back to Inbox or Pending
+    clearRedirect();
+  }
   return (
     <div id="app-header-control">
       <AppBar
@@ -250,15 +255,9 @@ function Header (props) {
       >
         <Toolbar className={classes.topBar}>
           {!isWorkspace && (
-            <Link href={lastWorkspaceLink} onClick={(event) => {
+            <Link href={chevronLink || '/'} onClick={(event) => {
               preventDefaultAndProp(event);
-              if ((isPending || isInbox) && history.length > 1) {
-                //Make sure home page does not bounce us back to this page
-                clearRedirect();
-                history.goBack();
-              } else {
-                navigate(history, lastWorkspaceLink);
-              }
+              navigate(history, chevronLink || '/');
             }} color="inherit">
               <ChevronLeft htmlColor="black" style={{marginLeft: '1rem'}} />
             </Link>

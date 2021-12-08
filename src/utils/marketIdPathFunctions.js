@@ -24,8 +24,8 @@ export function decomposeMarketPath(path) {
   return { action, marketId, investibleId };
 }
 
-export function broadcastView(marketId, investibleId, isEntry, action) {
-  const message = { marketId, investibleId, isEntry, action };
+export function broadcastView(marketId, investibleId, isEntry, action, to) {
+  const message = { marketId, investibleId, isEntry, action, to };
   pushMessage(
     VISIT_CHANNEL,
     {
@@ -79,7 +79,7 @@ export function navigate(history, to, insideUseEffect, doNotAddToHistory) {
     marketId: toMarketId,
     investibleId: toInvestibleId,
   } = decomposeMarketPath(history.location.pathname);
-  broadcastView(toMarketId, toInvestibleId, true, toAction);
+  broadcastView(toMarketId, toInvestibleId, true, toAction, to);
 }
 
 

@@ -6,7 +6,7 @@ import { removeInitializing } from '../../components/localStorageUtils'
 import { addByIdAndVersion } from '../ContextUtils'
 import { getMarket } from './marketsContextHelper'
 import { ACTIVE_STAGE, PLANNING_TYPE } from '../../constants/markets'
-import { setCurrentWorkspace } from '../../utils/redirectUtils'
+import { setCurrentWorkspace, setLastWorkspaceLink } from '../../utils/redirectUtils'
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const UPDATE_MARKET_DETAILS = 'UPDATE_MARKET_DETAILS';
@@ -36,10 +36,11 @@ export function versionsUpdateDetails(marketDetail) {
   };
 }
 
-export function marketChange(marketId) {
+export function marketChange(marketId, to) {
   return {
     type: MARKET_CHANGE,
-    marketId
+    marketId,
+    to
   }
 }
 
@@ -51,11 +52,12 @@ export function removeMarketDetails(marketIds) {
 }
 
 function changeMarketOnNavigate(state, action) {
-  const { marketId } = action;
+  const { marketId, to } = action;
   const market = getMarket(state, marketId) || {};
   const { market_stage: marketStage, market_type: marketType } = market;
   if (marketStage === ACTIVE_STAGE && marketType === PLANNING_TYPE) {
     setCurrentWorkspace(marketId);
+    setLastWorkspaceLink(to);
   }
   return state;
 }

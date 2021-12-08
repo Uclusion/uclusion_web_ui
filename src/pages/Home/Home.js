@@ -2,7 +2,7 @@ import React, { useContext, useEffect } from 'react'
 import { useHistory } from 'react-router';
 import _ from 'lodash'
 import Screen from '../../containers/Screen/Screen'
-import { getRedirect } from '../../utils/redirectUtils'
+import { getLastWorkspaceLink, getRedirect } from '../../utils/redirectUtils'
 import { INVITED_USER_WORKSPACE } from '../../contexts/TourContext/tourContextHelper'
 import { TourContext } from '../../contexts/TourContext/TourContext'
 import { startTour } from '../../contexts/TourContext/tourContextReducer'
@@ -25,24 +25,14 @@ function Home() {
   const planningDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, PLANNING_TYPE);
 
   useEffect(() => {
-    const redirect = getRedirect()
+    const redirect = getRedirect();
     if (!_.isEmpty(redirect) && redirect !== '/') {
       // Go ahead and start the invite tour - if they have taken already it's harmless
       tourDispatch(startTour(INVITED_USER_WORKSPACE));
       console.log(`Redirecting you to ${redirect}`);
       history.push(redirect);
     }
-  })
-
-  useEffect(() => {
-    const redirect = getRedirect()
-    if ((_.isEmpty(redirect) || redirect === '/')&&(!_.isEmpty(planningDetails))) {
-      const { id } = planningDetails[0];
-      console.log(`Redirecting you to workspace ${id}`);
-      // Use navigate to record new redirect
-      navigate(history,  formMarketLink(id));
-    }
-  }, [history, planningDetails])
+  });
 
   useEffect(() => {
     const redirect = getRedirect();
@@ -54,10 +44,23 @@ function Home() {
             console.log('Redirecting you to create workspace');
             // Don't want new redirect since they could create a market somewhere else
             history.push('/wizard#type=planning&onboarding=true');
+          } else {
+            // There is no redirect stored and the user already has an active Workspace
+            const lastWorkspaceLink = getLastWorkspaceLink();
+            if (lastWorkspaceLink) {
+              console.log('Redirecting to Inbox');
+              navigate(history, '/inbox');
+            } else {
+              // Don't go to the Inbox because the chevron there won't work to get them off the Inbox
+              const id = foregroundList[0];
+              console.log(`Redirecting you to workspace ${id}`);
+              // Use navigate to record new redirect
+              navigate(history,  formMarketLink(id));
+            }
           }
         });
     }
-  }, [history, planningDetails])
+  }, [history, planningDetails]);
 
   return (
     <Screen

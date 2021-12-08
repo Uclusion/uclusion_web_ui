@@ -78,9 +78,9 @@ function beginListening(dispatch, diffDispatch, setTokensHash) {
     const { payload: { event, message } } = data;
     switch (event) {
       case VIEW_EVENT:
-        const { marketId, isEntry } = message;
-        if (isEntry && marketId) {
-          dispatch(marketChange(marketId));
+        const { marketId, isEntry, to } = message;
+        if (isEntry && marketId && to) {
+          dispatch(marketChange(marketId, to));
         }
         break;
       default:

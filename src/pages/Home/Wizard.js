@@ -36,13 +36,13 @@ function Wizard(props) {
     >
       {createType === 'planning' && (
         <StoryWorkspaceWizard onFinish={onWizardFinish} showCancel={!onboarding}
-                              onStartOver={() => history.push('/')}/>
+                              onStartOver={() => navigate(history, '/inbox')}/>
       )}
       {createType === 'dialog' && (
-        <DialogWizard onFinish={onWizardFinish} onStartOver={() => history.push('/')} />
+        <DialogWizard onFinish={onWizardFinish} onStartOver={() => navigate(history, '/inbox')} />
       )}
       {createType === 'initiative' && (
-        <InitiativeWizard onFinish={onWizardFinish} onStartOver={() => history.push('/')} />
+        <InitiativeWizard onFinish={onWizardFinish} onStartOver={() => navigate(history, '/inbox')} />
       )}
     </Screen>
   );

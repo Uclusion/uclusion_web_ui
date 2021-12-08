@@ -198,7 +198,7 @@ function Inbox(props) {
   return (
     <div id="inbox">
       <div style={{display: 'flex'}}>
-        <Checkbox
+        <Checkbox style={{padding: 0}}
           checked={checkAll}
           indeterminate={indeterminate}
           disabled={!containsUnread}
@@ -208,30 +208,32 @@ function Inbox(props) {
             setCheckAll(!checkAll);
           }}
         />
-        <TooltipIconButton disabled={operationRunning !== false || (!checkAll && _.isEmpty(determinate))}
-                           icon={<ArchiveIcon htmlColor={ACTION_BUTTON_COLOR} />}
-                           onClick={() => {
-                             let toProcess = messagesFull.filter((message) => message.is_highlighted);
-                             if (checkAll) {
-                               if (!_.isEmpty(determinate)) {
+        {(checkAll || !_.isEmpty(determinate)) && (
+          <TooltipIconButton disabled={operationRunning !== false}
+                             icon={<ArchiveIcon htmlColor={ACTION_BUTTON_COLOR} />}
+                             onClick={() => {
+                               let toProcess = messagesFull.filter((message) => message.is_highlighted);
+                               if (checkAll) {
+                                 if (!_.isEmpty(determinate)) {
+                                   const keys = Object.keys(determinate);
+                                   toProcess = messagesFull.filter((message) => !keys.includes(message.type_object_id));
+                                 }
+                               } else {
                                  const keys = Object.keys(determinate);
-                                 toProcess = messagesFull.filter((message) => !keys.includes(message.type_object_id));
+                                 toProcess = messagesFull.filter((message) => keys.includes(message.type_object_id));
                                }
-                             } else {
-                               const keys = Object.keys(determinate);
-                               toProcess = messagesFull.filter((message) => keys.includes(message.type_object_id));
-                             }
-                             return deleteOrDehilightMessages(toProcess, messagesDispatch, workItemClasses.removed)
-                               .then(() => {
-                                 setIndeterminate(false);
-                                 setDeterminate({});
-                                 setCheckAll(false);
-                                 setOperationRunning(false);
-                               })
-                               .finally(() => {
-                                 setOperationRunning(false);
-                               });
-                           }} translationId="inboxArchive" />
+                               return deleteOrDehilightMessages(toProcess, messagesDispatch, workItemClasses.removed)
+                                 .then(() => {
+                                   setIndeterminate(false);
+                                   setDeterminate({});
+                                   setCheckAll(false);
+                                   setOperationRunning(false);
+                                 })
+                                 .finally(() => {
+                                   setOperationRunning(false);
+                                 });
+                             }} translationId="inboxArchive" />
+        )}
       </div>
       { rows }
     </div>

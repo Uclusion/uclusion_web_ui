@@ -30,6 +30,7 @@ import { getMarketComments } from '../../contexts/CommentsContext/commentsContex
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { FormControl, InputLabel, MenuItem, Select } from '@material-ui/core'
 import { PLANNING_TYPE } from '../../constants/markets'
+import { getFirstWorkspace } from '../../utils/redirectUtils'
 
 function InvestibleAdd(props) {
   const { hidden } = props;
@@ -51,7 +52,7 @@ function InvestibleAdd(props) {
   const classes = usePlanFormStyles();
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   const planningDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, PLANNING_TYPE) || [];
-  const firstMarketId = _.isEmpty(planningDetails) ? undefined : planningDetails[0].id;
+  const firstMarketId = _.isEmpty(planningDetails) ? undefined : getFirstWorkspace(planningDetails);
   const renderableMarket = getMarket(marketsState, marketId || chosenMarketId || firstMarketId) || {};
   const { market_type: marketType, created_at: createdAt, parent_comment_id: inlineParentCommentId,
     parent_comment_market_id: parentMarketId, budget_unit: budgetUnit, use_budget: useBudget,

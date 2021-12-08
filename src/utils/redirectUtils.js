@@ -27,6 +27,14 @@ export function redirectFromHistory(history) {
   return redirect;
 }
 
+export function getFirstWorkspace(planningDetails) {
+  const lastActive = getCurrentWorkspace();
+  if (planningDetails.find((workspace) => workspace.id === lastActive)) {
+    return lastActive;
+  }
+  return planningDetails[0].id;
+}
+
 export function getLastWorkspaceLink() {
   return getLoginPersistentItem(LAST_WORKSPACE_LINK_LOCAL_STORAGE_KEY);
 }

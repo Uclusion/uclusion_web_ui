@@ -38,6 +38,7 @@ import { getMarketPresences } from '../../../contexts/MarketPresencesContext/mar
 import clsx from 'clsx'
 import { useStyles } from '../../../containers/CommentBox/CommentAddBox'
 import DismissableText from '../../../components/Notifications/DismissableText'
+import { getFirstWorkspace } from '../../../utils/redirectUtils'
 
 function TodoAdd(props) {
   const { hidden } = props;
@@ -50,7 +51,7 @@ function TodoAdd(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   const planningDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, PLANNING_TYPE) || [];
-  const firstMarketId = _.isEmpty(planningDetails) ? undefined : planningDetails[0].id;
+  const firstMarketId = _.isEmpty(planningDetails) ? undefined : getFirstWorkspace(planningDetails);
   const marketPresences = getMarketPresences(marketPresencesState, chosenMarketId || firstMarketId) || [];
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
   const [commentAddStateFull, commentAddDispatch] = usePageStateReducer('commentAddTop');

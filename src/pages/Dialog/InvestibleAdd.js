@@ -156,6 +156,7 @@ function InvestibleAdd(props) {
       loading={(marketId && !marketType)||(!marketId && _.isEmpty(planningDetails))}
       navigationOptions={navigationMenu}
       noLeftPadding={!marketId}
+      isWorkspace
     >
       {marketId && firstMarket}
       {!marketId && (chosenMarket || firstMarket)}

@@ -114,6 +114,7 @@ function TodoAdd(props) {
       loading={_.isEmpty(firstMarketId)}
       navigationOptions={navigationMenu}
       noLeftPadding
+      isWorkspace
     >
       <Card id="commentAddBox" style={{marginBottom: '2rem', overflow: 'unset', marginTop: '3rem'}} elevation={3}>
         <FormControl component="fieldset" className={classes.commentType}>

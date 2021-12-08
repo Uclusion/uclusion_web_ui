@@ -1,5 +1,6 @@
 import { getLoginPersistentItem, setLoginPersistentItem } from '../components/localStorageUtils';
 import queryString from 'query-string'
+import _ from 'lodash'
 
 const REDIRECT_LOCAL_STORAGE_KEY = 'redirection';
 const LAST_WORKSPACE_LINK_LOCAL_STORAGE_KEY = 'last_workspace_link';
@@ -28,6 +29,9 @@ export function redirectFromHistory(history) {
 }
 
 export function getFirstWorkspace(planningDetails) {
+  if (_.isEmpty(planningDetails)) {
+    return undefined;
+  }
   const lastActive = getCurrentWorkspace();
   if (planningDetails.find((workspace) => workspace.id === lastActive)) {
     return lastActive;

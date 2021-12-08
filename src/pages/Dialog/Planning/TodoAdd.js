@@ -51,7 +51,7 @@ function TodoAdd(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   const planningDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, PLANNING_TYPE) || [];
-  const firstMarketId = _.isEmpty(planningDetails) ? undefined : getFirstWorkspace(planningDetails);
+  const firstMarketId = getFirstWorkspace(planningDetails);
   const marketPresences = getMarketPresences(marketPresencesState, chosenMarketId || firstMarketId) || [];
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
   const [commentAddStateFull, commentAddDispatch] = usePageStateReducer('commentAddTop');

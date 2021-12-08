@@ -20,6 +20,11 @@ import { Link } from '@material-ui/core'
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 import { useHistory } from 'react-router'
 
+const Item = styled("div")`
+  margin-top: 16px;
+  margin-bottom: 16px;
+`
+
 const Div = styled("div")`
   height: 40px;
   display: flex;
@@ -47,7 +52,7 @@ const StyledIconButton = styled(IconButton)`
 
 const Text = styled("div")`
   -webkit-font-smoothing: antialiased;
-  font-size: 14px;
+  font-size: 22px;
   color: #5f6368;
   min-width: 15vw;
   white-space: nowrap;
@@ -62,7 +67,7 @@ const TextB = styled(Text)`
 `;
 
 const Title = styled(Text)`
-  flex-basis: 215px;
+  flex-basis: 300px;
   flex-shrink: 0;
   flex-grow: 0;
   & > *:not(:first-child) {
@@ -171,7 +176,7 @@ function WorkListItem(props) {
     return getMarketClient(marketId).then((client) => client.users.removeNotifications([typeObjectId]));
   };
   return (
-    <div key={`workListItem${id}`} id={`workListItem${id}`}>
+    <Item key={`workListItem${id}`} id={`workListItem${id}`}>
       <Link href={link} style={{ width: '100%' }} key={`link${id}`} onClick={
         (event) => {
           preventDefaultAndProp(event);
@@ -232,7 +237,7 @@ function WorkListItem(props) {
       <div style={{display: expansionOpen !== false ? 'block' : 'none'}}>
         {expansionPanel ? expansionPanel : <React.Fragment />}
       </div>
-    </div>
+    </Item>
   );
 }
 

@@ -24,6 +24,7 @@ import { registerMarketTokenListeners } from '../../authorization/tokenUtils';
 import Wizard from '../../pages/Home/Wizard'
 import InboxFull from '../../pages/Home/YourWork/InboxFull'
 import OutboxFull from '../../pages/Home/YourWork/OutboxFull'
+import TodoAdd from '../../pages/Dialog/Planning/TodoAdd'
 
 const useStyles = makeStyles({
   body: {
@@ -103,6 +104,10 @@ function Root() {
     return (action !== 'investibleAdd');
   }
 
+  function hideTodoAdd() {
+    return (action !== 'todoAdd');
+  }
+
   function hideDialogArchives() {
     return (action !== 'dialogArchives');
   }
@@ -121,7 +126,7 @@ function Root() {
 
   const hidePNF = !(hideMarket() && hideSupport() && hideHome() && hideInvestible() && hideWizard() && hideInbox()
     && hideDialogArchives() && hideArchvies() && hideInvestibleAdd() && hideAddMarket() && hideSlackInvite()
-    && hideChangePassword() && hideChangeNotification() && hideBillingHome() && hideOutbox());
+    && hideChangePassword() && hideChangeNotification() && hideBillingHome() && hideOutbox() && hideTodoAdd());
 
   useEffect(() => {
     function pegView(isEntry) {
@@ -194,6 +199,7 @@ function Root() {
             <Archives hidden={hideArchvies()}/>
             <DialogArchives hidden={hideDialogArchives()}/>
             <InvestibleAdd hidden={hideInvestibleAdd()}/>
+            <TodoAdd hidden={hideTodoAdd()} />
             <DialogAdd hidden={hideAddMarket()}/>
             <SlackInvite hidden={hideSlackInvite()}/>
             <ChangePassword hidden={hideChangePassword()}/>

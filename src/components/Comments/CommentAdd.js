@@ -204,7 +204,7 @@ function CommentAdd(props) {
   const {
     marketId, onSave, onCancel, type, investible, parent, issueWarningId, todoWarningId, isStory, nameKey,
     defaultNotificationType, onDone, mentionsAllowed, commentAddState, updateCommentAddState, commentAddStateReset,
-    isAssigned, numProgressReport, autoFocus=true
+    isAssigned, numProgressReport, autoFocus=true, isStandAlone
   } = props;
   const {
     uploadedFiles,
@@ -340,6 +340,11 @@ function CommentAdd(props) {
       setOpenIssue(_.isEmpty(type) ? 'noType' : 'noCommentBody');
       return;
     }
+    if (isStandAlone && _.isEmpty(notificationType)) {
+      setOperationRunning(false);
+      setOpenIssue('noNotificationType');
+      return;
+    }
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
@@ -453,13 +458,15 @@ function CommentAdd(props) {
         <div className={classes.editor}>
           {Editor}
           {!isStory && onDone && (
-            <SpinningIconLabelButton onClick={myOnDone} doSpin={false} icon={Delete}>
+            <SpinningIconLabelButton onClick={myOnDone} doSpin={false} icon={isStandAlone ? Clear : Delete}>
               {intl.formatMessage({ id: 'cancel' })}
             </SpinningIconLabelButton>
           )}
-          <SpinningIconLabelButton onClick={handleClear} doSpin={false} icon={Clear}>
-            {intl.formatMessage({ id: commentCancelLabel })}
-          </SpinningIconLabelButton>
+          {!isStandAlone && (
+            <SpinningIconLabelButton onClick={handleClear} doSpin={false} icon={Clear}>
+              {intl.formatMessage({ id: commentCancelLabel })}
+            </SpinningIconLabelButton>
+          )}
           {!showIssueWarning && (
             <SpinningIconLabelButton
               onClick={handleSave}
@@ -494,11 +501,11 @@ function CommentAdd(props) {
               open={openIssue !== false}
               onClose={toggleIssue}
               issueWarningId={openIssue}
-              showDismiss={!['noCommentBody', 'noType'].includes(openIssue)}
+              showDismiss={!['noCommentBody', 'noType', 'noNotificationType'].includes(openIssue)}
               checkBoxFunc={setDoNotShowAgain}
               /* slots */
               actions={
-                (!['noCommentBody', 'noType'].includes(openIssue)) ?
+                (!['noCommentBody', 'noType', 'noNotificationType'].includes(openIssue)) ?
                   <SpinningIconLabelButton onClick={handleSave} icon={Add} id="issueProceedButton">
                     {intl.formatMessage({ id: 'issueProceed' })}
                   </SpinningIconLabelButton> : undefined

@@ -432,6 +432,7 @@ const messages = defineMessages({
   lockFailedWarning: 'Failed to acquire lock. Retry?',
   breakLock: 'Break Lock',
   newStory: 'New Task',
+  newTODO: 'New TODO',
   newOption: 'New Option',
   noVoters: 'None',
   reassignWarning: 'Re-assigning will remove all approval.',
@@ -468,6 +469,7 @@ const messages = defineMessages({
   addReportWarning: 'Opening a new progress report resolves all older progress reports',
   addReportInReadyForApprovalWarning: 'If this task is started then consider moving to \'Not Ready for Feedback\' stage.',
   noCommentBody: 'Please create a message for this comment.',
+  noNotificationType: 'Please choose a priority for this comment.',
   noType: 'Please choose a type for this comment.',
 
   // CommentBox

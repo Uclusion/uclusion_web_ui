@@ -28,7 +28,7 @@ function InboxFull(props) {
     navListItemTextArray: [
       {
         icon: AddIcon, text: intl.formatMessage({ id: 'todoPresent' }),
-        target: `/wizard#type=${PLANNING_TYPE.toLowerCase()}`
+        target: `/todoAdd`
       },
       {
         icon: AddIcon, text: intl.formatMessage({ id: 'story' }),

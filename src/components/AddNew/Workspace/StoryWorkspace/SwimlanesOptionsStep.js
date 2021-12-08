@@ -75,7 +75,7 @@ function SwimlanesOptionsStep (props) {
       <div>
         <Typography className={classes.title} variant="h5">Swimlane Configuration</Typography>
         <Typography variant="body1" className={optionsClasses.helper}>
-          Limiting the number of stories a person can have in 'Not Ready For Feedback' stage helps avoid status meetings.
+          Limiting the number of tasks a person can have in 'Not Ready For Feedback' stage helps avoid status meetings.
           The Verified stories that show in the swimlanes are a convenience - you can always see all stories by looking in
           "Archives".
         </Typography>

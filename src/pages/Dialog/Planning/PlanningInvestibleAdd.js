@@ -285,10 +285,9 @@ function PlanningInvestibleAdd(props) {
     <>
       <DismissableText textId='planningInvestibleAddHelp' text={
         <div>
-          <Link href="https://documentation.uclusion.com/workspaces/stories" target="_blank">Stories</Link> allow
+          <Link href="https://documentation.uclusion.com/workspaces/stories" target="_blank">Tasks</Link> allow
           collaboration on what should be done, by whom, how
-          and <Link href="https://documentation.uclusion.com/overview/status" target="_blank">status at a glance</Link> without
-          a meeting.
+          and <Link href="https://documentation.uclusion.com/overview/status" target="_blank">status at a glance</Link>.
         </div>
       }/>
       <Card className={classes.overflowVisible} id={cardId}>

@@ -46,6 +46,7 @@ import { SearchResultsContext } from '../../../contexts/SearchResultsContext/Sea
 import DismissableText from '../../../components/Notifications/DismissableText'
 import { deleteOrDehilightMessages } from '../../../api/users'
 import { Clear, SettingsBackupRestore } from '@material-ui/icons'
+import { workListStyles } from '../../Home/YourWork/WorkListItem'
 
 const myClasses = makeStyles(
   theme => {
@@ -140,6 +141,7 @@ function MarketTodos (props) {
   const history = useHistory();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
+  const workItemClasses = workListStyles();
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [beingDraggedHack, setBeingDraggedHack] = useContext(LocalPlanningDragContext);
@@ -563,7 +565,8 @@ function MarketTodos (props) {
                 setOperationRunning(false);
                 return;
               }
-              return deleteOrDehilightMessages(allMessages, messagesDispatch).then(() => setOperationRunning(false))
+              return deleteOrDehilightMessages(allMessages, messagesDispatch, workItemClasses.removed)
+                .then(() => setOperationRunning(false))
                 .finally(() => {
                   setOperationRunning(false);
                 });

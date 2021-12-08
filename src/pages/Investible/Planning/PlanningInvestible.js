@@ -129,6 +129,7 @@ import UclusionTour from '../../../components/Tours/UclusionTour'
 import { blockedStorySteps } from '../../../components/Tours/blockedStory'
 import { requiresInputStorySteps } from '../../../components/Tours/requiresInputStory'
 import { getTomorrow } from '../../../utils/timerUtils'
+import { workListStyles } from '../../Home/YourWork/WorkListItem'
 
 const useStyles = makeStyles(
   theme => ({
@@ -1321,7 +1322,8 @@ function MarketMetaData(props) {
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [diffState, diffDispatch] = useContext(DiffContext);
-  const [messagesState] = useContext(NotificationsContext);
+  const workItemClasses = workListStyles();
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const myMessageDescription = findMessageOfTypeAndId(investibleId, messagesState, 'DESCRIPTION');
   const myMessageName = findMessageOfTypeAndId(investibleId, messagesState, 'NAME');
   const diff = getDiff(diffState, investibleId);
@@ -1392,7 +1394,8 @@ function MarketMetaData(props) {
                                      if (myMessageName) {
                                        messages.push(myMessageName);
                                      }
-                                     deleteOrDehilightMessages(messages).then(() => {
+                                     deleteOrDehilightMessages(messages, messagesDispatch,
+                                       workItemClasses.removed).then(() => {
                                        setOperationRunning(false);
                                      }).finally(() => {
                                        setOperationRunning(false);

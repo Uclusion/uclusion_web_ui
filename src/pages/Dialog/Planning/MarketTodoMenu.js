@@ -18,6 +18,7 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import { removeMessagesForCommentId } from '../../../utils/messageUtils'
 import { notifyImmediate } from '../../../utils/commentFunctions'
 import { RED_LEVEL } from '../../../constants/notifications'
+import { workListStyles } from '../../Home/YourWork/WorkListItem'
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -47,6 +48,7 @@ function MarketTodoMenu(props) {
   const { comment, editViewFunc, openIdFunc, anchorEl, messages, market } = props;
   const intl = useIntl();
   const classes = useStyles();
+  const workItemClasses = workListStyles();
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [, invDispatch] = useContext(InvestiblesContext);
@@ -85,7 +87,8 @@ function MarketTodoMenu(props) {
   function doMarkRead() {
     setOperationRunning(true);
     openIdFunc(undefined);
-    return deleteOrDehilightMessages(messages, messagesDispatch).then(() => setOperationRunning(false))
+    return deleteOrDehilightMessages(messages, messagesDispatch, workItemClasses.removed)
+      .then(() => setOperationRunning(false))
       .finally(() => {
         doRemoveEdit(commentId);
         setOperationRunning(false);

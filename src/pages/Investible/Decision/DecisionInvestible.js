@@ -66,6 +66,7 @@ import { findMessageOfTypeAndId } from '../../../utils/messageUtils'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils'
 import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
+import { workListStyles } from '../../Home/YourWork/WorkListItem'
 
 const useStyles = makeStyles((theme) => ({
   mobileColumn: {
@@ -205,12 +206,13 @@ function DecisionInvestible(props) {
   const history = useHistory();
   const classes = useStyles();
   const theme = useTheme();
+  const workItemClasses = workListStyles();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const metaClasses = useMetaDataStyles();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [diffState, diffDispatch] = useContext(DiffContext);
-  const [messagesState] = useContext(NotificationsContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const myMessageDescription = findMessageOfTypeAndId(investibleId, messagesState, 'DESCRIPTION');
   const myMessageName = findMessageOfTypeAndId(investibleId, messagesState, 'NAME');
   const diff = getDiff(diffState, investibleId);
@@ -450,7 +452,8 @@ function DecisionInvestible(props) {
                                            if (myMessageName) {
                                              messages.push(myMessageName);
                                            }
-                                           deleteOrDehilightMessages(messages).then(() => {
+                                           deleteOrDehilightMessages(messages, messagesDispatch,
+                                             workItemClasses.removed).then(() => {
                                              setOperationRunning(false);
                                            }).finally(() => {
                                              setOperationRunning(false);

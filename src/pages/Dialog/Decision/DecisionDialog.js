@@ -70,6 +70,7 @@ import SettingsIcon from '@material-ui/icons/Settings'
 import DecisionDialogEdit from './DecisionDialogEdit'
 import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils'
 import { marketHasOnlyCurrentUser } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { workListStyles } from '../../Home/YourWork/WorkListItem'
 
 const useStyles = makeStyles(
   theme => ({
@@ -189,12 +190,13 @@ function DecisionDialog(props) {
   const {
     is_admin: isAdmin,
   } = myPresence;
+  const workItemClasses = workListStyles();
   const [, tourDispatch] = useContext(TourContext);
   const [, marketsDispatch] = useContext(MarketsContext);
   const [diffState, diffDispatch] = useContext(DiffContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [searchResults] = useContext(SearchResultsContext);
-  const [messagesState] = useContext(NotificationsContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const {
     id: marketId,
@@ -456,7 +458,8 @@ function DecisionDialog(props) {
                                            if (myMessageName) {
                                              messages.push(myMessageName);
                                            }
-                                           deleteOrDehilightMessages(messages).then(() => {
+                                           deleteOrDehilightMessages(messages, messagesDispatch,
+                                             workItemClasses.removed).then(() => {
                                              setOperationRunning(false);
                                            }).finally(() => {
                                              setOperationRunning(false);

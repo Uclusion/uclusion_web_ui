@@ -17,6 +17,7 @@ import { SettingsBackupRestore } from '@material-ui/icons'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import YourVoting from '../Voting/YourVoting'
+import { workListStyles } from '../../Home/YourWork/WorkListItem'
 
 const useVoteStyles = makeStyles(
   theme => {
@@ -81,6 +82,7 @@ const useVoteStyles = makeStyles(
 function Voting(props) {
   const { marketPresences, investibleId, investmentReasons, showExpiration, expirationMinutes, votingPageState,
     updateVotingPageState, votingPageStateReset, votingAllowed, yourPresence, market, isAssigned } = props;
+  const workItemClasses = workListStyles();
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const classes = useVoteStyles();
@@ -111,7 +113,8 @@ function Voting(props) {
       {!_.isEmpty(voteMessages) && (
         <>
           <SpinningIconLabelButton onClick={() => {
-            deleteOrDehilightMessages(voteMessages, messagesDispatch).then(() => setOperationRunning(false))
+            deleteOrDehilightMessages(voteMessages, messagesDispatch, workItemClasses.removed)
+              .then(() => setOperationRunning(false))
               .finally(() => {
                 setOperationRunning(false);
               });

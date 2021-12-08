@@ -1,4 +1,4 @@
-import WorkListItem from './WorkListItem'
+import WorkListItem, { workListStyles } from './WorkListItem'
 import { Checkbox, Fab } from '@material-ui/core'
 import React, { useContext, useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
@@ -74,6 +74,7 @@ function Inbox(props) {
   const classes = useStyles();
   const intl = useIntl();
   const history = useHistory();
+  const workItemClasses = workListStyles();
   const [checkAll, setCheckAll] = useState(false);
   const [determinate, setDeterminate] = useState({});
   const [indeterminate, setIndeterminate] = useState(false);
@@ -220,7 +221,7 @@ function Inbox(props) {
                                const keys = Object.keys(determinate);
                                toProcess = messagesFull.filter((message) => keys.includes(message.type_object_id));
                              }
-                             return deleteOrDehilightMessages(toProcess, messagesDispatch)
+                             return deleteOrDehilightMessages(toProcess, messagesDispatch, workItemClasses.removed)
                                .then(() => {
                                  setIndeterminate(false);
                                  setDeterminate({});

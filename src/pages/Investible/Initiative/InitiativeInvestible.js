@@ -67,6 +67,7 @@ import DialogManage from '../../Dialog/DialogManage'
 import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils'
 import { marketHasOnlyCurrentUser } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
+import { workListStyles } from '../../Home/YourWork/WorkListItem'
 
 const useStyles = makeStyles(
   theme => ({
@@ -196,7 +197,8 @@ function InitiativeInvestible(props) {
   const [, marketsDispatch] = useContext(MarketsContext);
   const [diffState, diffDispatch] = useContext(DiffContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const [messagesState] = useContext(NotificationsContext);
+  const workItemClasses = workListStyles();
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const myMessageDescription = findMessageOfTypeAndId(investibleId, messagesState, 'DESCRIPTION');
   const myMessageName = findMessageOfTypeAndId(investibleId, messagesState, 'NAME');
   const diff = getDiff(diffState, investibleId);
@@ -455,7 +457,8 @@ function InitiativeInvestible(props) {
                                              if (myMessageName) {
                                                messages.push(myMessageName);
                                              }
-                                             deleteOrDehilightMessages(messages).then(() => {
+                                             deleteOrDehilightMessages(messages, messagesDispatch,
+                                               workItemClasses.removed).then(() => {
                                                setOperationRunning(false);
                                              }).finally(() => {
                                                setOperationRunning(false);

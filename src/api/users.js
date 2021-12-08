@@ -1,7 +1,8 @@
 import { getAccountClient, getMarketClient } from './uclusionClient'
 import { toastErrorAndThrow } from '../utils/userMessage'
-import { dehighlightMessage, removeMessage } from '../contexts/NotificationsContext/notificationsContextReducer'
+import { dehighlightMessage } from '../contexts/NotificationsContext/notificationsContextReducer'
 import _ from 'lodash'
+import { removeWorkListItem } from '../pages/Home/YourWork/WorkListItem'
 
 export function unbanUser(marketId, userId) {
   return getMarketClient(marketId)
@@ -35,7 +36,7 @@ export function deleteSingleMessage(message) {
   return getMarketClient(marketId).then((client) => client.users.removeNotification(typeObjectId));
 }
 
-export function deleteOrDehilightMessages(messages, messagesDispatch, doRemove=true) {
+export function deleteOrDehilightMessages(messages, messagesDispatch, removeClass, doRemove=true) {
   const useMarketIds = {};
   messages.forEach((message) => {
     const { market_id: marketId, type_object_id: typeObjectId } = message;
@@ -48,7 +49,7 @@ export function deleteOrDehilightMessages(messages, messagesDispatch, doRemove=t
     }
     typeObjectIds.push(typeObjectId);
     if (typeObjectId.startsWith('UNREAD')) {
-      messagesDispatch(removeMessage(message));
+      removeWorkListItem(message, removeClass, messagesDispatch);
     } else {
       messagesDispatch(dehighlightMessage(message));
     }

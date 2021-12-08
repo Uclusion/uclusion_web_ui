@@ -34,6 +34,7 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import MenuBookIcon from '@material-ui/icons/MenuBook'
 import { formMarketArchivesLink, navigate } from '../../../utils/marketIdPathFunctions'
 import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils'
+import { workListStyles } from '../../Home/YourWork/WorkListItem'
 
 const useStyles = makeStyles(theme => ({
   section: {
@@ -215,12 +216,13 @@ function Summary(props) {
     attached_files: attachedFiles,
     locked_by: lockedBy,
     name,
-  } = market
+  } = market;
+  const workItemClasses = workListStyles();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [, marketsDispatch] = useContext(MarketsContext);
   const [diffState, diffDispatch] = useContext(DiffContext);
-  const [messagesState] = useContext(NotificationsContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const myMessageDescription = findMessageOfTypeAndId(id, messagesState, 'DESCRIPTION')
   const myMessageName = findMessageOfTypeAndId(id, messagesState, 'NAME');
   const diff = getDiff(diffState, id);
@@ -358,7 +360,8 @@ function Summary(props) {
                                            if (myMessageName) {
                                              messages.push(myMessageName);
                                            }
-                                           deleteOrDehilightMessages(messages).then(() => {
+                                           deleteOrDehilightMessages(messages, messagesDispatch,
+                                             workItemClasses.removed).then(() => {
                                            setOperationRunning(false);
                                            }).finally(() => {
                                             setOperationRunning(false);

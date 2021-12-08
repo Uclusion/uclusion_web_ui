@@ -34,6 +34,7 @@ import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'
 import { editorReset, useEditor } from '../TextEditors/quillHooks'
 import { getQuillStoredState } from '../TextEditors/QuillEditor2'
 import { deleteOrDehilightMessages } from '../../api/users'
+import { workListStyles } from '../../pages/Home/YourWork/WorkListItem'
 
 const useStyles = makeStyles((theme) => ({
   visible: {
@@ -163,6 +164,7 @@ function CommentEdit(props) {
   const intl = useIntl();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
+  const workItemClasses = workListStyles();
   const { id, uploaded_files: initialUploadedFiles, comment_type: commentType, inline_market_id: inlineMarketId,
     investible_id: investibleId, body: initialBody } = comment;
   const classes = useStyles();
@@ -201,7 +203,7 @@ function CommentEdit(props) {
         editorController(editorReset());
         onCommentOpen(investibleState, investibleId, marketStagesState, marketId, comment, investibleDispatch,
           commentState, commentDispatch);
-        deleteOrDehilightMessages(messages || [], messagesDispatch, false);
+        deleteOrDehilightMessages(messages || [], messagesDispatch, workItemClasses.removed, false);
         if (commentType === REPORT_TYPE) {
           const message = findMessageOfType('REPORT_REQUIRED', investibleId, messagesState);
           if (message) {

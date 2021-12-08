@@ -779,7 +779,8 @@ function Comment(props) {
                 )}
                 {!mobileLayout && !_.isEmpty(messages) && (
                   <SpinningIconLabelButton onClick={() => {
-                    deleteOrDehilightMessages(messages, messagesDispatch).then(() => setOperationRunning(false))
+                    deleteOrDehilightMessages(messages, messagesDispatch, workItemClasses.removed)
+                      .then(() => setOperationRunning(false))
                       .finally(() => {
                         setOperationRunning(false);
                       });

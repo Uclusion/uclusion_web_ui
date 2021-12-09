@@ -584,7 +584,6 @@ function MarketTodos (props) {
               updateCommentAddState={updateCommentAddRedState}
               commentAddStateReset={commentAddStateRedReset}
               marketId={marketId}
-              mentionsAllowed={false}
               onSave={onCreateRed}
               onDone={onCreateRed}
               defaultNotificationType="RED"
@@ -642,7 +641,6 @@ function MarketTodos (props) {
               marketId={marketId}
               onSave={onCreateYellow}
               onDone={onCreateYellow}
-              mentionsAllowed={false}
               defaultNotificationType="YELLOW"
               isStory={false}
             />
@@ -696,7 +694,6 @@ function MarketTodos (props) {
               updateCommentAddState={updateCommentAddBlueState}
               commentAddStateReset={commentAddStateBlueReset}
               marketId={marketId}
-              mentionsAllowed={false}
               onDone={onCreate}
               onSave={onCreate}
               defaultNotificationType="BLUE"

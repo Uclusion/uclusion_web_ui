@@ -149,6 +149,7 @@ function DialogArchives(props) {
       tabTitle={intl.formatMessage({ id: 'dialogArchivesLabel' })}
       breadCrumbs={breadCrumbs}
       navigationOptions={navigationMenu}
+      isWorkspace
     >
       <SubSection
         type={SECTION_TYPE_SECONDARY}

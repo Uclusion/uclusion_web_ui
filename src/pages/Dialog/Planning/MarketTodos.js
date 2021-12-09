@@ -601,6 +601,7 @@ function MarketTodos (props) {
                 comments={comments}
                 allowedTypes={[TODO_TYPE]}
                 noAuthor
+                showDone
               />
             </div>
           )}
@@ -656,6 +657,7 @@ function MarketTodos (props) {
                 comments={comments}
                 allowedTypes={[TODO_TYPE]}
                 noAuthor
+                showDone
               />
             </div>
           )}
@@ -711,6 +713,7 @@ function MarketTodos (props) {
                 comments={comments}
                 allowedTypes={[TODO_TYPE]}
                 noAuthor
+                showDone
               />
             </div>
           )}

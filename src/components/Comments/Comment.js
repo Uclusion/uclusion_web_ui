@@ -308,7 +308,7 @@ function useMarketId() {
  * @param {{comment: Comment, comments: Comment[]}} props
  */
 function Comment(props) {
-  const { comment, marketId, comments, allowedTypes, noAuthor, onDone,  readOnly, defaultShowDiff } = props;
+  const { comment, marketId, comments, allowedTypes, noAuthor, onDone,  readOnly, defaultShowDiff, showDone } = props;
   const history = useHistory();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
@@ -775,7 +775,7 @@ function Comment(props) {
                     />
                   </SpinningIconLabelButton>
                 )}
-                {noAuthor && (
+                {showDone && (
                   <SpinningIconLabelButton onClick={onDone} doSpin={false} icon={Clear}>
                     {intl.formatMessage({ id: 'done' })}
                   </SpinningIconLabelButton>

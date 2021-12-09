@@ -59,14 +59,16 @@ function NoIcon() {
 }
 
 const useCardTypeStyles = makeStyles(theme => ({
-    root: ({ type, resolved }) => {
+    root: ({ type, resolved, color }) => {
       const grey = '#BDC3C7';
+      const useColor = color === 'RED' ? '#E85757' :
+        (color === 'YELLOW' ? '#e6e969' : (color === 'BLUE' ? '#2F80ED' : undefined));
       return {
         backgroundColor: {
           [ISSUE_TYPE]: resolved ? grey : '#E85757',
           [QUESTION_TYPE]: resolved ? grey : '#2F80ED',
           [SUGGEST_CHANGE_TYPE]: resolved ? grey : '#e6e969',
-          [TODO_TYPE]: resolved ? grey : '#F29100',
+          [TODO_TYPE]: color ? useColor : (resolved ? grey : '#F29100'),
           [REPORT_TYPE]: resolved? grey : '#73B76C',
           [VOTING_TYPE]: '#9B51E0',
           [JUSTIFY_TYPE]: '#9B51E0',
@@ -85,7 +87,7 @@ const useCardTypeStyles = makeStyles(theme => ({
             [ISSUE_TYPE]: 'white',
             [QUESTION_TYPE]: 'white',
             [SUGGEST_CHANGE_TYPE]: resolved ? 'white' : 'black',
-            [TODO_TYPE]: 'white',
+            [TODO_TYPE]: useColor === '#e6e969' ? 'black' : 'white',
             [REPORT_TYPE]: 'white',
             [VOTING_TYPE]: 'white',
             [JUSTIFY_TYPE]: 'white',
@@ -156,9 +158,10 @@ export default function CardType(props) {
     subtype,
     label = type in labelIntlIds ? <FormattedMessage id={labelIntlIds[type]}/> : undefined,
     createdAt,
-    myBeingEdited
+    myBeingEdited,
+    color
   } = props;
-  const classes = useCardTypeStyles({ type, resolved })
+  const classes = useCardTypeStyles({ type, resolved, color })
   const intl = useIntl()
   const IconComponent = {
     [ISSUE_TYPE]: IssueIcon,

@@ -594,9 +594,11 @@ function Comment(props) {
   }
   const inReviewStageId = (getInReviewStage(marketStagesState, marketId) || {}).id;
   const createdInReview = createdStageId === inReviewStageId;
+  const isMarketTodo = marketType === PLANNING_TYPE && commentType === TODO_TYPE && !investibleId;
   const overrideLabel = (marketType === PLANNING_TYPE && commentType === REPORT_TYPE
-    && createdInReview && !creatorAssigned) ?
-    <FormattedMessage id="reviewReportPresent" /> : undefined;
+    && createdInReview && !creatorAssigned) ? <FormattedMessage id="reviewReportPresent" /> :
+    (isMarketTodo ? <FormattedMessage id={`notificationLabel${myNotificationType}`} /> : undefined);
+  const color = isMarketTodo ? myNotificationType : undefined;
 
   const displayUpdatedBy = updatedBy !== undefined && comment.updated_by !== comment.created_by;
   const showActions = !replyBeingEdited || replies.length > 0;
@@ -623,7 +625,8 @@ function Comment(props) {
         <>
           <Box display="flex">
             {overrideLabel && (
-              <CardType className={classes.commentType} type={commentType} resolved={resolved} label={overrideLabel} />
+              <CardType className={classes.commentType} type={commentType} resolved={resolved}
+                        label={overrideLabel} color={color} />
             )}
             {!overrideLabel && (
               <CardType className={classes.commentType} type={commentType} resolved={resolved} />

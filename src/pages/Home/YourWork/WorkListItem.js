@@ -231,7 +231,7 @@ function WorkListItem(props) {
           {mobileLayout ? React.Fragment : (read ? (<Title>{title}</Title>) : (<TitleB>{title}</TitleB>))}
           {mobileLayout || !people ? React.Fragment : <GravatarGroup users={people} className={classes.gravatarStyle}/> }
           {read ? (<Text>{fullText}</Text>) : (<TextB>{fullText}</TextB>)}
-          {mobileLayout ? React.Fragment : (read ? (<DateLabel>{date}</DateLabel>) : (<DateLabelB>{date}</DateLabelB>))}
+          {mobileLayout || !date ? React.Fragment : (read ? (<DateLabel>{date}</DateLabel>) : (<DateLabelB>{date}</DateLabelB>))}
         </Div>
       </Link>
       <div style={{display: expansionOpen !== false ? 'block' : 'none'}}>
@@ -248,7 +248,6 @@ WorkListItem.propTypes = {
   investible: PropTypes.node,
   comment: PropTypes.node,
   title: PropTypes.node,
-  description: PropTypes.node,
   date: PropTypes.string
 };
 

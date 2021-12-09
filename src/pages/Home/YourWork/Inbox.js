@@ -2,7 +2,7 @@ import WorkListItem, { workListStyles } from './WorkListItem'
 import { Checkbox, Fab } from '@material-ui/core'
 import React, { useContext, useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
-import { MoveToInbox } from '@material-ui/icons'
+import { MoveToInbox, Weekend } from '@material-ui/icons'
 import WarningIcon from '@material-ui/icons/Warning'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import HourglassFullIcon from '@material-ui/icons/HourglassFull'
@@ -161,14 +161,13 @@ function Inbox(props) {
     return true;
   });
   let containsUnread = false;
-  const rows = messagesOrdered.map((message) => {
+  let rows = messagesOrdered.map((message) => {
     const { level, investible_name: investible, updated_at: updatedAt, market_name: market,
-      is_highlighted: isHighlighted, text, type_object_id: typeObjectId, market_id: marketId,
-      comment_id: commentId, comment_market_id: commentMarketId } = message;
+      is_highlighted: isHighlighted, type_object_id: typeObjectId, market_id: marketId, comment_id: commentId,
+      comment_market_id: commentMarketId } = message;
     const title = messageText(message, intl);
     const item = {
       title,
-      description: text,
       icon: getPriorityIcon(level),
       market,
       investible,
@@ -195,6 +194,17 @@ function Inbox(props) {
                     setDeterminate={setDeterminate} determinate={determinate} {...item} />;
   });
 
+  if (_.isEmpty(rows)) {
+    const item = {
+      title: intl.formatMessage({ id: 'enjoy' }),
+      market: intl.formatMessage({ id: 'noNew' }),
+      icon: <Weekend style={{fontSize: 24, color: '#2D9CDB',}}/>,
+      read: false,
+      isDeletable: false,
+      message: {link: '/outbox'}
+    };
+    rows = [<WorkListItem key='empty' id='empty' useSelect={false} {...item} />];
+  }
   return (
     <div id="inbox">
       <div style={{display: 'flex'}}>

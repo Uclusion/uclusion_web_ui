@@ -322,6 +322,9 @@ const messages = defineMessages({
   unreadComment: 'View comment',
   unreadVote: 'New vote',
   unreadApproval: 'New approval',
+  noNew: 'No notifications.',
+  noPending: 'Nothing pending.',
+  enjoy: 'Enjoy your day',
 
   // Address list
   addressAddCancelLabel: 'Close',

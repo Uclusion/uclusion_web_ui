@@ -53,7 +53,7 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import { getMarketInfo } from '../../../utils/userFunctions'
 import VotingIcon from '@material-ui/icons/Assessment'
 import GavelIcon from '@material-ui/icons/Gavel'
-import { AlarmOn } from '@material-ui/icons'
+import { AlarmOn, Weekend } from '@material-ui/icons'
 import Comment from '../../../components/Comments/Comment'
 import Voting from '../../Investible/Decision/Voting'
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
@@ -394,7 +394,7 @@ function Outbox(props) {
     );
   }
 
-  const rows = messagesOrdered.map((message) => {
+  let rows = messagesOrdered.map((message) => {
     const { id, investible, updatedAt, title, icon, comment, inActive, debtors, expansionPanel } = message;
     const item = {
       title,
@@ -417,6 +417,18 @@ function Outbox(props) {
     }
     return <WorkListItem key={`outboxRow${id}`} id={id} useSelect={false} {...item} />;
   });
+
+  if (_.isEmpty(rows)) {
+    const item = {
+      title: intl.formatMessage({ id: 'enjoy' }),
+      market: intl.formatMessage({ id: 'noPending' }),
+      icon: <Weekend style={{fontSize: 24, color: '#2D9CDB',}}/>,
+      read: false,
+      isDeletable: false,
+      message: {link: '/inbox'}
+    };
+    rows = [<WorkListItem key='empty' id='empty' useSelect={false} {...item} />];
+  }
 
   return (
     <div id="inbox">

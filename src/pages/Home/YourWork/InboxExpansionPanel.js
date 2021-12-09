@@ -7,17 +7,18 @@ import {
   getUnresolvedInvestibleComments
 } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
-import { REPORT_TYPE } from '../../../constants/comments'
+import { REPORT_TYPE, TODO_TYPE } from '../../../constants/comments'
 import InvestibleStatus from './InvestibleStatus'
 import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff'
 import RaisedCard from '../../../components/Cards/RaisedCard'
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { getDiff } from '../../../contexts/DiffContext/diffContextHelper'
+import { PLANNING_TYPE } from '../../../constants/markets'
 
 export function addExpansionPanel(item, commentState, marketState, investiblesState, diffState) {
   const { message } = item;
   const { type: messageType, market_id: marketId, comment_id: commentId, comment_market_id: commentMarketId,
-    link_type: linkType, investible_id: investibleId } = message;
+    link_type: linkType, investible_id: investibleId, market_type: marketType } = message;
 
   if ((['UNREAD_REPLY', 'NEW_TODO', 'UNREAD_COMMENT', 'UNREAD_RESOLVED', 'ISSUE', 'UNREAD_REVIEWABLE',
       'REVIEW_REQUIRED'].includes(messageType)) ||
@@ -43,6 +44,7 @@ export function addExpansionPanel(item, commentState, marketState, investiblesSt
     // Note passing all comments down instead of just related to the unread because otherwise confusing and also
     // have case of more than one reply being de-duped
     if (!_.isEmpty(rootComment)) {
+      const { comment_type: commentType, investible_id: investibleId } = rootComment;
       item.expansionPanel = <Comment
         depth={0}
         marketId={useMarketId}
@@ -50,6 +52,7 @@ export function addExpansionPanel(item, commentState, marketState, investiblesSt
         comments={getMarketComments(commentState, useMarketId)}
         defaultShowDiff
         allowedTypes={[]}
+        noAuthor={marketType === PLANNING_TYPE && commentType === TODO_TYPE && !investibleId}
       />;
     }
   } else if (messageType === 'REPORT_REQUIRED') {

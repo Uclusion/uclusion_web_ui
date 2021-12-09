@@ -428,7 +428,8 @@ function Comment(props) {
     return [];
   }
 
-  const isEditable = comment.created_by === myPresence.id;
+  const isMarketTodo = marketType === PLANNING_TYPE && commentType === TODO_TYPE && !investibleId;
+  const isEditable = comment.created_by === myPresence.id || isMarketTodo;
 
   function getDialog(anInlineMarket) {
     const inlineInvestibles = getMarketInvestibles(investiblesState, anInlineMarket.id) || [];
@@ -594,7 +595,6 @@ function Comment(props) {
   }
   const inReviewStageId = (getInReviewStage(marketStagesState, marketId) || {}).id;
   const createdInReview = createdStageId === inReviewStageId;
-  const isMarketTodo = marketType === PLANNING_TYPE && commentType === TODO_TYPE && !investibleId;
   const overrideLabel = (marketType === PLANNING_TYPE && commentType === REPORT_TYPE
     && createdInReview && !creatorAssigned) ? <FormattedMessage id="reviewReportPresent" /> :
     (isMarketTodo ? <FormattedMessage id={`notificationLabel${myNotificationType}`} /> : undefined);

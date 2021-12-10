@@ -52,7 +52,7 @@ const StyledIconButton = styled(IconButton)`
 
 const Text = styled("div")`
   -webkit-font-smoothing: antialiased;
-  font-size: 22px;
+  font-size: 20px;
   color: #5f6368;
   min-width: 15vw;
   white-space: nowrap;
@@ -67,7 +67,7 @@ const TextB = styled(Text)`
 `;
 
 const Title = styled(Text)`
-  flex-basis: 300px;
+  flex-basis: 280px;
   flex-shrink: 0;
   flex-grow: 0;
   & > *:not(:first-child) {
@@ -149,7 +149,7 @@ function WorkListItem(props) {
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const [, messagesDispatch] = useContext(NotificationsContext);
-  const actionStyles = useSizedIconButtonStyles({ childSize: 20, padding: 10 });
+  const actionStyles = useSizedIconButtonStyles({ childSize: 22, padding: 10 });
   const gutterStyles = useRowGutterStyles({ size: -10, before: -8 });
   const [checked, setChecked] = React.useState(checkedDefault);
   const { market_id: marketId, type_object_id: typeObjectId, link } = message;

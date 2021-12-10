@@ -21,8 +21,7 @@ import { getPageReducerPage, usePageStateReducer } from '../../../components/Pag
 import { useHistory } from 'react-router'
 
 const Item = styled("div")`
-  margin-top: 16px;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 `
 
 const Div = styled("div")`
@@ -52,13 +51,16 @@ const StyledIconButton = styled(IconButton)`
 
 const Text = styled("div")`
   -webkit-font-smoothing: antialiased;
-  font-size: 20px;
+  font-size: 18px;
   color: #5f6368;
   min-width: 15vw;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   flex-grow: 1;
+  @media (max-width: 768px) {
+    font-size: 14px;
+  }
 `;
 
 const TextB = styled(Text)`
@@ -82,7 +84,7 @@ const TitleB = styled(Title)`
 `;
 
 const DateLabel = styled(Text)`
-  font-size: 12px;
+  font-size: 14px;
   flex-basis: 100px;
   flex-shrink: 0;
   padding-right: 16px;

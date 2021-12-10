@@ -101,7 +101,8 @@ const useCardTypeStyles = makeStyles(theme => ({
             certainty100: 'black',
             [AGILE_PLAN_TYPE]: 'white'
           }[type],
-        padding: `4px 8px`
+        padding: `4px 8px`,
+        whiteSpace: 'nowrap'
       };
     },
     icon: {

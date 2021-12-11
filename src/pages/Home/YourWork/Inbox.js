@@ -205,6 +205,8 @@ function Inbox(props) {
     };
     rows = [<WorkListItem key='empty' id='empty' useSelect={false} {...item} />];
   }
+  const notificationsText = _.size(rows) !== 1 ? intl.formatMessage({ id: 'notifications' }) :
+    intl.formatMessage({ id: 'notification' });
   return (
     <div id="inbox">
       <div style={{display: 'flex', paddingBottom: '0.5rem'}}>
@@ -246,7 +248,7 @@ function Inbox(props) {
         )}
         <div style={{flexGrow: 1}}/>
         <Box fontSize={14} color="text.secondary">
-          {_.size(rows)} {intl.formatMessage({ id: 'notifications' })}
+          {_.size(rows)} {notificationsText}
         </Box>
       </div>
       { rows }

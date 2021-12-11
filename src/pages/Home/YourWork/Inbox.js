@@ -1,5 +1,5 @@
 import WorkListItem, { workListStyles } from './WorkListItem'
-import { Checkbox, Fab } from '@material-ui/core'
+import { Box, Checkbox, Fab } from '@material-ui/core'
 import React, { useContext, useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
 import { MoveToInbox, Weekend } from '@material-ui/icons'
@@ -244,6 +244,10 @@ function Inbox(props) {
                                  });
                              }} translationId="inboxArchive" />
         )}
+        <div style={{flexGrow: 1}}/>
+        <Box fontSize={14} color="text.secondary">
+          {_.size(rows)} {intl.formatMessage({ id: 'notifications' })}
+        </Box>
       </div>
       { rows }
     </div>

@@ -207,7 +207,7 @@ function Inbox(props) {
   }
   return (
     <div id="inbox">
-      <div style={{display: 'flex'}}>
+      <div style={{display: 'flex', paddingBottom: '0.5rem'}}>
         <Checkbox style={{padding: 0}}
           checked={checkAll}
           indeterminate={indeterminate}

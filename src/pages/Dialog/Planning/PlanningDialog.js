@@ -257,6 +257,7 @@ function PlanningDialog(props) {
 
   function openSubSection(subSection) {
     setSectionOpen(subSection);
+    window.scrollTo(0, 0);
   }
 
   function createNavListItem(icon, textId, anchorId, howManyNum, alwaysShow, isBold) {

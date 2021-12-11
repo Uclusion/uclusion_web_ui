@@ -205,7 +205,7 @@ function CommentAdd(props) {
   const {
     marketId, onSave, onCancel, type, investible, parent, issueWarningId, todoWarningId, isStory, nameKey,
     defaultNotificationType, onDone, mentionsAllowed, commentAddState, updateCommentAddState, commentAddStateReset,
-    isAssigned, numProgressReport, autoFocus=true, isStandAlone, threadMessages
+    numProgressReport, autoFocus=true, isStandAlone, threadMessages
   } = props;
   const {
     uploadedFiles,
@@ -428,7 +428,7 @@ function CommentAdd(props) {
   }
 
   function getReportWarningId() {
-    if (isAssigned) {
+    if (!_.isEmpty(assigned)) {
       if (numProgressReport > 0 && creatorIsAssigned) {
         return 'addReportWarning'
       }

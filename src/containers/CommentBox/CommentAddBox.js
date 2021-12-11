@@ -259,7 +259,6 @@ function CommentAddBox(props) {
           todoWarningId={todoWarningId}
           isStory={isStory}
           autoFocus={false}
-          isAssigned={isAssignee}
           numProgressReport={numProgressReport}
         />
       </div>

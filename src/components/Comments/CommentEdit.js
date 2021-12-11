@@ -4,7 +4,7 @@ import {
   Button,
   Card,
   CardActions,
-  CardContent,
+  CardContent, Checkbox,
   darken,
   FormControl,
   FormControlLabel,
@@ -159,7 +159,8 @@ function CommentEdit(props) {
     editStateReset, messages
   } = props;
   const {
-    uploadedFiles
+    uploadedFiles,
+    notificationType
   } = editState;
   const intl = useIntl();
   const theme = useTheme();
@@ -197,7 +198,8 @@ function CommentEdit(props) {
     } = processTextAndFilesForSave(newUploadedFiles, body);
     const mentions = getMentionsFromText(tokensRemoved);
     const updatedType = type !== commentType ? type : undefined;
-    const myActualNotificationType = commentType === TODO_TYPE && !investibleId ? myNotificationType : undefined;
+    const myActualNotificationType = commentType === TODO_TYPE && !investibleId ? myNotificationType :
+      (commentType === REPORT_TYPE ? notificationType : undefined);
     return updateComment(marketId, id, tokensRemoved, updatedType, filteredUploads, mentions, myActualNotificationType)
       .then((comment) => {
         editorController(editorReset());
@@ -229,6 +231,11 @@ function CommentEdit(props) {
   function onTypeChange(event) {
     const { value } = event.target;
     setType(value);
+  }
+
+  function handleNotifyAllChange(event) {
+    const { target: { checked } } = event;
+    updateEditState({notificationType: checked ? 'YELLOW' : undefined});
   }
 
   return (
@@ -283,6 +290,17 @@ function CommentEdit(props) {
         >
           {intl.formatMessage({ id: 'update' })}
         </SpinningIconLabelButton>
+        {investibleId && type === REPORT_TYPE && (
+          <FormControlLabel
+            control={<Checkbox
+              id="notifyAll"
+              name="notifyAll"
+              checked={notificationType === 'YELLOW'}
+              onChange={handleNotifyAllChange}
+            />}
+            label={intl.formatMessage({ id: 'notifyAll' })}
+          />
+        )}
         {!mobileLayout && (
           <Button className={classes.button}>
             {intl.formatMessage({ id: 'edited' })}

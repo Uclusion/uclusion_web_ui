@@ -14,8 +14,15 @@ import RaisedCard from '../../../components/Cards/RaisedCard'
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { getDiff } from '../../../contexts/DiffContext/diffContextHelper'
 import { PLANNING_TYPE } from '../../../constants/markets'
+import clsx from 'clsx'
+import { FormattedMessage } from 'react-intl'
+import { Assignments, getCollaborators } from '../../Investible/Planning/PlanningInvestible'
+import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { getMarketInfo } from '../../../utils/userFunctions'
+import { DaysEstimate } from '../../../components/AgilePlan'
 
-export function addExpansionPanel(item, commentState, marketState, investiblesState, diffState) {
+export function addExpansionPanel(item, commentState, marketState, investiblesState, diffState, planningClasses,
+  marketPresencesState, mobileLayout) {
   const { message } = item;
   const { type: messageType, market_id: marketId, comment_id: commentId, comment_market_id: commentMarketId,
     link_type: linkType, investible_id: investibleId, market_type: marketType } = message;
@@ -92,5 +99,54 @@ export function addExpansionPanel(item, commentState, marketState, investiblesSt
         );
       }
     }
+  } else if (messageType === 'ASSIGNED_UNREVIEWABLE') {
+    const marketPresences = getMarketPresences(marketPresencesState, marketId);
+    const investibleComments = getUnresolvedInvestibleComments(investibleId, marketId, commentState);
+    const investibleCollaborators = getCollaborators(marketPresences, investibleComments, marketPresencesState,
+      investibleId);
+    const inv = getInvestible(investiblesState, investibleId);
+    const marketInfo = getMarketInfo(inv, marketId) || {};
+    const { assigned: invAssigned, completion_estimate: marketDaysEstimate } = marketInfo;
+    const assigned = invAssigned || [];
+    item.expansionPanel = (
+      <RaisedCard elevation={3}>
+        <div style={{display: mobileLayout ? 'block' : 'flex', padding: '1rem'}}>
+          <div className={clsx(planningClasses.group, planningClasses.assignments)}
+               style={{maxWidth: '15rem', marginRight: '1rem'}}>
+            <div style={{textTransform: 'capitalize'}}>
+              <b><FormattedMessage id="planningInvestibleAssignments"/></b>
+              <Assignments
+                classes={planningClasses}
+                marketPresences={marketPresences}
+                assigned={assigned}
+                isAdmin={false}
+                toggleAssign={() => {}}
+                toolTipId="storyAddParticipantsLabel"
+                showMoveMessage
+              />
+            </div>
+          </div>
+          <div className={clsx(planningClasses.group, planningClasses.assignments)}
+               style={{maxWidth: '15rem', marginRight: '1rem'}}>
+            <div style={{textTransform: 'capitalize'}}>
+              <b><FormattedMessage id="collaborators"/></b>
+              <Assignments
+                classes={planningClasses}
+                marketPresences={marketPresences}
+                assigned={investibleCollaborators}
+                isAdmin={false}
+                toggleAssign={() => {}}
+                toolTipId="collaborators"
+              />
+            </div>
+          </div>
+          {marketDaysEstimate && (
+            <div style={{marginTop: mobileLayout? '1rem' : '2rem'}}>
+              <DaysEstimate readOnly value={marketDaysEstimate} />
+            </div>
+          )}
+        </div>
+      </RaisedCard>
+    );
   }
 }

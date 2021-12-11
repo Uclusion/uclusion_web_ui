@@ -1,5 +1,5 @@
 import WorkListItem, { workListStyles } from './WorkListItem'
-import { Box, Checkbox, Fab } from '@material-ui/core'
+import { Box, Checkbox, Fab, useMediaQuery, useTheme } from '@material-ui/core'
 import React, { useContext, useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
 import { MoveToInbox, Weekend } from '@material-ui/icons'
@@ -25,6 +25,8 @@ import { addExpansionPanel } from './InboxExpansionPanel'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
+import { usePlanningInvestibleStyles } from '../../Investible/Planning/PlanningInvestible'
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 
 function getPriorityIcon(level) {
   switch (level) {
@@ -75,6 +77,7 @@ function Inbox(props) {
   const intl = useIntl();
   const history = useHistory();
   const workItemClasses = workListStyles();
+  const planningClasses = usePlanningInvestibleStyles();
   const [checkAll, setCheckAll] = useState(false);
   const [determinate, setDeterminate] = useState({});
   const [indeterminate, setIndeterminate] = useState(false);
@@ -84,6 +87,9 @@ function Inbox(props) {
   const [marketState] = useContext(MarketsContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [diffState] = useContext(DiffContext);
+  const [marketPresencesState] = useContext(MarketPresencesContext);
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const { messages: messagesUnsafe } = messagesState;
 
   useEffect(() => {
@@ -189,7 +195,8 @@ function Inbox(props) {
         }
       }
     }
-    addExpansionPanel(item, commentState, marketState, investiblesState, diffState);
+    addExpansionPanel(item, commentState, marketState, investiblesState, diffState, planningClasses,
+      marketPresencesState, mobileLayout);
     return <WorkListItem key={typeObjectId} id={typeObjectId} checkedDefault={checkAll}
                     setDeterminate={setDeterminate} determinate={determinate} {...item} />;
   });

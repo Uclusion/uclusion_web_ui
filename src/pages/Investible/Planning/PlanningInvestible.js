@@ -131,7 +131,7 @@ import { requiresInputStorySteps } from '../../../components/Tours/requiresInput
 import { getTomorrow } from '../../../utils/timerUtils'
 import { workListStyles } from '../../Home/YourWork/WorkListItem'
 
-const useStyles = makeStyles(
+export const usePlanningInvestibleStyles = makeStyles(
   theme => ({
     root: {
       alignItems: "flex-start",
@@ -342,6 +342,13 @@ const useStyles = makeStyles(
   { name: "PlanningInvestible" }
 );
 
+export function getCollaborators(marketPresences, investibleComments, marketPresencesState, investibleId) {
+  const investibleCommentorPresences = getCommenterPresences(marketPresences, investibleComments, marketPresencesState);
+  const voters = getInvestibleVoters(marketPresences, investibleId);
+  const concated = [...voters, ...investibleCommentorPresences];
+  return _.uniq((concated || []).map((presence) => presence.id));
+}
+
 /**
  * A page that represents what the investible looks like for a DECISION Dialog
  * @param props
@@ -366,7 +373,7 @@ function PlanningInvestible(props) {
   const [open, setOpen] = useState(false);
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
-  const classes = useStyles();
+  const classes = usePlanningInvestibleStyles();
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
@@ -387,10 +394,8 @@ function PlanningInvestible(props) {
     return comment.comment_type === JUSTIFY_TYPE && (results.find((item) => item.id === comment.id)
       || parentResults.find((id) => id === comment.id));
   });
-  const investibleCommentorPresences = getCommenterPresences(marketPresences, investibleComments, marketPresencesState);
-  const voters = getInvestibleVoters(marketPresences, investibleId);
-  const concated = [...voters, ...investibleCommentorPresences];
-  const investibleCollaborators = _.uniq((concated || []).map((presence) => presence.id));
+  const investibleCollaborators = getCollaborators(marketPresences, investibleComments, marketPresencesState,
+    investibleId);
   const marketInfo = getMarketInfo(marketInvestible, marketId) || {};
   const { stage, assigned: invAssigned, completion_estimate: marketDaysEstimate,
     required_approvers:  requiredApprovers, required_reviews: requiredReviewers, ticket_code: ticketCode,
@@ -1434,7 +1439,7 @@ MarketMetaData.propTypes = {
   stageActions: PropTypes.array,
 }
 
-function Assignments(props) {
+export function Assignments(props) {
   const { marketPresences, isAdmin, toggleAssign, classes, assigned, showMoveMessage, toolTipId } = props;
   const intl = useIntl();
   const metaClasses = useMetaDataStyles();

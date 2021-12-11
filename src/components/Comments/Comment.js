@@ -862,6 +862,7 @@ function Comment(props) {
           commentAddState={replyAddState}
           updateCommentAddState={updateReplyAddState}
           commentAddStateReset={replyAddStateReset}
+          threadMessages={messages}
         />
       )}
       <Box marginTop={1} paddingX={1} className={classes.childWrapper}>

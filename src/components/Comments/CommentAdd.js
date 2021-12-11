@@ -54,6 +54,7 @@ import { getQuillStoredState } from '../TextEditors/QuillEditor2'
 import IssueDialog from '../Warnings/IssueDialog'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { removeWorkListItem, workListStyles } from '../../pages/Home/YourWork/WorkListItem'
+import { deleteOrDehilightMessages } from '../../api/users'
 
 function getPlaceHolderLabelId (type, isStory, isInReview) {
   switch (type) {
@@ -204,7 +205,7 @@ function CommentAdd(props) {
   const {
     marketId, onSave, onCancel, type, investible, parent, issueWarningId, todoWarningId, isStory, nameKey,
     defaultNotificationType, onDone, mentionsAllowed, commentAddState, updateCommentAddState, commentAddStateReset,
-    isAssigned, numProgressReport, autoFocus=true, isStandAlone
+    isAssigned, numProgressReport, autoFocus=true, isStandAlone, threadMessages
   } = props;
   const {
     uploadedFiles,
@@ -372,6 +373,9 @@ function CommentAdd(props) {
             quickResolveOlderReports(comment)
           }
         }
+        // The whole thread will be marked read so quick it
+        deleteOrDehilightMessages(threadMessages || [], messagesDispatch, workItemClasses.removed,
+          false);
         // Leaving a comment clears all READ level on the investible
         const messages = findMessagesForInvestibleId(investibleId, messagesState);
         if (_.isEmpty(messages)) {

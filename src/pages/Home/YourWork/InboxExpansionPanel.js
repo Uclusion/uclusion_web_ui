@@ -7,7 +7,7 @@ import {
   getUnresolvedInvestibleComments
 } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
-import { REPORT_TYPE, TODO_TYPE } from '../../../constants/comments'
+import { JUSTIFY_TYPE, REPORT_TYPE, TODO_TYPE } from '../../../constants/comments'
 import InvestibleStatus from './InvestibleStatus'
 import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff'
 import RaisedCard from '../../../components/Cards/RaisedCard'
@@ -20,9 +20,11 @@ import { Assignments, getCollaborators } from '../../Investible/Planning/Plannin
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { getMarketInfo } from '../../../utils/userFunctions'
 import { DaysEstimate } from '../../../components/AgilePlan'
+import Voting from '../../Investible/Decision/Voting'
+import { getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 
 export function addExpansionPanel(item, commentState, marketState, investiblesState, diffState, planningClasses,
-  marketPresencesState, mobileLayout) {
+  marketPresencesState, marketStagesState, marketsState, mobileLayout) {
   const { message } = item;
   const { type: messageType, market_id: marketId, comment_id: commentId, comment_market_id: commentMarketId,
     link_type: linkType, investible_id: investibleId, market_type: marketType } = message;
@@ -163,6 +165,39 @@ export function addExpansionPanel(item, commentState, marketState, investiblesSt
             </div>
           )}
         </div>
+      </RaisedCard>
+    );
+  } else if (messageType === 'UNREAD_VOTE' && marketType === PLANNING_TYPE && investibleId) {
+    const marketPresences = getMarketPresences(marketPresencesState, marketId);
+    const yourPresence = marketPresences.find((presence) => presence.current_user);
+    const investibleComments = getUnresolvedInvestibleComments(investibleId, marketId, commentState);
+    const investmentReasons = investibleComments.filter((comment) => {
+        return comment.comment_type === JUSTIFY_TYPE;
+    });
+    const inv = getInvestible(investiblesState, investibleId);
+    const marketInfo = getMarketInfo(inv, marketId) || {};
+    const { stage } = marketInfo;
+    const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
+    const market = getMarket(marketsState, marketId) || {};
+    item.expansionPanel = (
+      <RaisedCard elevation={3}>
+        <h2 id="approvals">
+          <FormattedMessage id="decisionInvestibleOthersVoting" />
+        </h2>
+        <Voting
+          investibleId={investibleId}
+          marketPresences={marketPresences}
+          investmentReasons={investmentReasons}
+          showExpiration={fullStage.has_expiration}
+          expirationMinutes={market.investment_expiration * 1440}
+          votingPageState={{}}
+          updateVotingPageState={() => {}}
+          votingPageStateReset={() => {}}
+          votingAllowed={false}
+          yourPresence={yourPresence}
+          market={market}
+          isAssigned={true}
+        />
       </RaisedCard>
     );
   }

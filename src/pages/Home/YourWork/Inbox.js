@@ -27,6 +27,7 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { usePlanningInvestibleStyles } from '../../Investible/Planning/PlanningInvestible'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 
 function getPriorityIcon(level) {
   switch (level) {
@@ -88,6 +89,8 @@ function Inbox(props) {
   const [investiblesState] = useContext(InvestiblesContext);
   const [diffState] = useContext(DiffContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [marketStagesState] = useContext(MarketStagesContext);
+  const [marketsState] = useContext(MarketsContext);
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const { messages: messagesUnsafe } = messagesState;
@@ -196,7 +199,7 @@ function Inbox(props) {
       }
     }
     addExpansionPanel(item, commentState, marketState, investiblesState, diffState, planningClasses,
-      marketPresencesState, mobileLayout);
+      marketPresencesState, marketStagesState, marketsState, mobileLayout);
     return <WorkListItem key={typeObjectId} id={typeObjectId} checkedDefault={checkAll}
                     setDeterminate={setDeterminate} determinate={determinate} {...item} />;
   });

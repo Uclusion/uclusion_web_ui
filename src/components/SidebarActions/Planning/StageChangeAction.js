@@ -115,11 +115,6 @@ function StageChangeAction(props) {
       });
   }
 
-  function moveToTargetFromList() {
-    setOperationRunning(true);
-    moveToTarget();
-  }
-
   if (operationBlocked) {
     return (
       <>
@@ -191,7 +186,7 @@ function StageChangeAction(props) {
       onSpinStop={onSpinStop}
       label={intl.formatMessage({ id: explanationId })}
       openLabel={intl.formatMessage({ id: translationId })}
-      onClick={moveToTargetFromList}
+      onClick={moveToTarget}
       customClasses={classes}
       disabled={disabled}
     />

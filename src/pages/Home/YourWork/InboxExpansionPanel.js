@@ -99,14 +99,15 @@ export function addExpansionPanel(item, commentState, marketState, investiblesSt
         );
       }
     }
-  } else if (messageType === 'ASSIGNED_UNREVIEWABLE') {
+  } else if (['NOT_FULLY_VOTED', 'ASSIGNED_UNREVIEWABLE'].includes(messageType)) {
     const marketPresences = getMarketPresences(marketPresencesState, marketId);
     const investibleComments = getUnresolvedInvestibleComments(investibleId, marketId, commentState);
     const investibleCollaborators = getCollaborators(marketPresences, investibleComments, marketPresencesState,
       investibleId);
     const inv = getInvestible(investiblesState, investibleId);
     const marketInfo = getMarketInfo(inv, marketId) || {};
-    const { assigned: invAssigned, completion_estimate: marketDaysEstimate } = marketInfo;
+    const { assigned: invAssigned, completion_estimate: marketDaysEstimate, required_approvers:  requiredApprovers
+    } = marketInfo;
     const assigned = invAssigned || [];
     item.expansionPanel = (
       <RaisedCard elevation={3}>
@@ -140,7 +141,23 @@ export function addExpansionPanel(item, commentState, marketState, investiblesSt
               />
             </div>
           </div>
-          {marketDaysEstimate && (
+          {requiredApprovers && messageType === 'NOT_FULLY_VOTED' && (
+            <div className={clsx(planningClasses.group, planningClasses.assignments)}
+                 style={{maxWidth: '15rem', marginRight: '1rem'}}>
+              <div style={{textTransform: 'capitalize'}}>
+                <b><FormattedMessage id={'requiredApprovers'}/></b>
+                <Assignments
+                  classes={planningClasses}
+                  marketPresences={marketPresences}
+                  assigned={requiredApprovers}
+                  isAdmin={false}
+                  toggleAssign={() => {}}
+                  toolTipId={'storyApproversLabel'}
+                />
+              </div>
+            </div>
+          )}
+          {marketDaysEstimate && messageType === 'ASSIGNED_UNREVIEWABLE' && (
             <div style={{marginTop: mobileLayout? '1rem' : '2rem'}}>
               <DaysEstimate readOnly value={marketDaysEstimate} isInbox />
             </div>

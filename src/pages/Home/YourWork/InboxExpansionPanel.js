@@ -129,21 +129,23 @@ export function addExpansionPanel(item, commentState, marketState, investiblesSt
               />
             </div>
           </div>
-          <div className={clsx(planningClasses.group, planningClasses.assignments)}
-               style={{maxWidth: '15rem', marginRight: '1rem'}}>
-            <div style={{textTransform: 'capitalize'}}>
-              <b><FormattedMessage id="collaborators"/></b>
-              <Assignments
-                classes={planningClasses}
-                marketPresences={marketPresences}
-                assigned={investibleCollaborators}
-                isAdmin={false}
-                toggleAssign={() => {}}
-                toolTipId="collaborators"
-              />
+          {_.isEmpty(investibleCollaborators) && (
+            <div className={clsx(planningClasses.group, planningClasses.assignments)}
+                 style={{maxWidth: '15rem', marginRight: '1rem'}}>
+              <div style={{textTransform: 'capitalize'}}>
+                <b><FormattedMessage id="collaborators"/></b>
+                <Assignments
+                  classes={planningClasses}
+                  marketPresences={marketPresences}
+                  assigned={investibleCollaborators}
+                  isAdmin={false}
+                  toggleAssign={() => {}}
+                  toolTipId="collaborators"
+                />
+              </div>
             </div>
-          </div>
-          {requiredApprovers && messageType === 'NOT_FULLY_VOTED' && (
+          )}
+          {!_.isEmpty(requiredApprovers) && messageType === 'NOT_FULLY_VOTED' && (
             <div className={clsx(planningClasses.group, planningClasses.assignments)}
                  style={{maxWidth: '15rem', marginRight: '1rem'}}>
               <div style={{textTransform: 'capitalize'}}>

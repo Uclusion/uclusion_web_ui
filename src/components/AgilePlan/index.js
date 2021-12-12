@@ -67,6 +67,10 @@ export const usePlanFormStyles = makeStyles(
       fontWeight:'700',
       fontSize: '.7rem'
     },
+    daysEstimationLarge: {
+      fontWeight:'700',
+      fontSize: '14px'
+    },
     fieldset: {
       border: "none",
       display: "inline-block",
@@ -385,7 +389,7 @@ export function Votes(props) {
 }
 
 export function DaysEstimate(props) {
-  const { readOnly, value, onChange, showLabel = true, showHelper = true } = props;
+  const { readOnly, value, onChange, showLabel = true, showHelper = true, isInbox } = props;
   const classes = usePlanFormStyles();
   const intl = useIntl();
   const theme = useTheme();
@@ -398,13 +402,13 @@ export function DaysEstimate(props) {
     const dueDate = new Date(value);
     if (isInPast(dueDate)) {
       return (
-        <Typography className={classes.daysEstimation}>
+        <Typography className={isInbox ? classes.daysEstimationLarge : classes.daysEstimation}>
           {intl.formatMessage({ id: 'estimatedCompletionToday' })} <UsefulRelativeTime value={dueDate}/>
         </Typography>
       );
     }
     return (
-      <Typography className={classes.daysEstimation}>
+      <Typography className={isInbox ? classes.daysEstimationLarge : classes.daysEstimation}>
         {intl.formatMessage({ id: 'planningEstimatedCompletion' })} {intl.formatDate(value)}
       </Typography>
     );

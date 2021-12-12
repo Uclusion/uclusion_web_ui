@@ -142,7 +142,7 @@ export function addExpansionPanel(item, commentState, marketState, investiblesSt
           </div>
           {marketDaysEstimate && (
             <div style={{marginTop: mobileLayout? '1rem' : '2rem'}}>
-              <DaysEstimate readOnly value={marketDaysEstimate} />
+              <DaysEstimate readOnly value={marketDaysEstimate} isInbox />
             </div>
           )}
         </div>

@@ -78,7 +78,7 @@ function WorkspaceNameStep (props) {
       )}
       {!isNew && (
         <Typography className={classes.introText} variant="body2">
-          You just need a name to start a Workspace. After that you can finish immediately or
+          Workspaces control task visibility. After entering a name you can finish immediately or
           look through other options. All of this configuration can be changed at any time.
         </Typography>
       )}

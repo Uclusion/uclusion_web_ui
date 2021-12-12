@@ -11,6 +11,8 @@ import StoryWorkspaceWizard from '../../components/AddNew/Workspace/StoryWorkspa
 import DialogWizard from '../../components/AddNew/Dialog/DialogWizard'
 import InitiativeWizard from '../../components/AddNew/Initiative/InitiativeWizard'
 import queryString from 'query-string'
+import { DECISION_TYPE } from '../../components/CardType'
+import { INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
 
 function Wizard(props) {
   const { hidden } = props;
@@ -34,14 +36,14 @@ function Wizard(props) {
       tabTitle={intl.formatMessage({ id: 'wizardBreadCrumb' })}
       hidden={hidden}
     >
-      {createType === 'planning' && (
+      {createType === `${PLANNING_TYPE.toLowerCase()}` && (
         <StoryWorkspaceWizard onFinish={onWizardFinish} showCancel={!onboarding}
                               onStartOver={() => navigate(history, '/inbox')}/>
       )}
-      {createType === 'dialog' && (
+      {createType === `${DECISION_TYPE.toLowerCase()}` && (
         <DialogWizard onFinish={onWizardFinish} onStartOver={() => navigate(history, '/inbox')} />
       )}
-      {createType === 'initiative' && (
+      {createType === `${INITIATIVE_TYPE.toLowerCase()}` && (
         <InitiativeWizard onFinish={onWizardFinish} onStartOver={() => navigate(history, '/inbox')} />
       )}
     </Screen>

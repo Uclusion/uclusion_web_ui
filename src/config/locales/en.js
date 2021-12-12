@@ -1086,7 +1086,7 @@ const messages = defineMessages({
 
   //StoryWorkspaceWizard
   WorkspaceWizardTitle: 'Your Workspace',
-  WorkspaceWizardMeetingPlaceHolder: 'Your Workspace Name',
+  WorkspaceWizardMeetingPlaceHolder: 'Your workspace name',
   WorkspaceWizardMeetingStepLabel: 'Your Workspace',
   WorkspaceWizardCreatingWorkspaceStepLabel: 'Workspace Creation',
   WorkspaceWizardWorkspaceDescription: 'Requirements and potential feature ideas for "{meetingName}" go here.',

@@ -215,6 +215,7 @@ function WorkListItem(props) {
             )}
             <StyledIconButton
               classes={actionStyles}
+              style={{marginLeft: useSelect ? undefined : '0.5rem'}}
               onClick={(event) => {
                 preventDefaultAndProp(event);
                 updateWorkListItemState({expansionOpen: expansionOpen === false});
@@ -237,7 +238,8 @@ function WorkListItem(props) {
           {mobileLayout || !date ? React.Fragment : (read ? (<DateLabel>{date}</DateLabel>) : (<DateLabelB>{date}</DateLabelB>))}
         </Div>
       </Link>
-      <div style={{display: expansionOpen !== false ? 'block' : 'none'}}>
+      <div style={{visibility: expansionOpen !== false ? 'visible' : 'hidden',
+        height: expansionOpen !== false ? undefined : 0}}>
         {expansionPanel ? expansionPanel : <React.Fragment />}
       </div>
     </Item>

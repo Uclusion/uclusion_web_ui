@@ -129,7 +129,7 @@ export function addExpansionPanel(item, commentState, marketState, investiblesSt
               />
             </div>
           </div>
-          {_.isEmpty(investibleCollaborators) && (
+          {!_.isEmpty(investibleCollaborators) && (
             <div className={clsx(planningClasses.group, planningClasses.assignments)}
                  style={{maxWidth: '15rem', marginRight: '1rem'}}>
               <div style={{textTransform: 'capitalize'}}>

@@ -194,6 +194,7 @@ function Outbox(props) {
   const initiativeDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, INITIATIVE_TYPE);
   const dialogDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, DECISION_TYPE);
   const [votingPageStateFull, votingPageDispatch] = usePageStateReducer('voting');
+  const [workListItemFull, workListItemDispatch] = usePageStateReducer('outboxListItem');
 
   const workspacesData = planningDetails.map((market) => {
     const marketPresences = getMarketPresences(marketPresencesState, market.id) || [];
@@ -415,7 +416,8 @@ function Outbox(props) {
         item.comment = commentName;
       }
     }
-    return <WorkListItem key={`outboxRow${id}`} id={id} useSelect={false} {...item} />;
+    return <WorkListItem key={`outboxRow${id}`} id={id} useSelect={false}
+                         workListItemFull={workListItemFull} workListItemDispatch={workListItemDispatch} {...item} />;
   });
 
   if (_.isEmpty(rows)) {
@@ -427,7 +429,8 @@ function Outbox(props) {
       isDeletable: false,
       message: {link: '/inbox'}
     };
-    rows = [<WorkListItem key='empty' id='empty' useSelect={false} {...item} />];
+    rows = [<WorkListItem key='emptyOutbox' id='emptyOutbox' workListItemFull={workListItemFull}
+                          workListItemDispatch={workListItemDispatch} useSelect={false} {...item} />];
   }
 
   return (

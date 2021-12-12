@@ -17,7 +17,7 @@ import _ from 'lodash'
 import GravatarGroup from '../../../components/Avatars/GravatarGroup'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { Link } from '@material-ui/core'
-import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
+import { getPageReducerPage } from '../../../components/PageState/pageStateHooks'
 import { useHistory } from 'react-router'
 
 const Item = styled("div")`
@@ -138,9 +138,9 @@ function WorkListItem(props) {
     setDeterminate,
     determinate,
     id,
-    expansionPanel
+    expansionPanel,
+    workListItemFull, workListItemDispatch
   } = props;
-  const [workListItemFull, workListItemDispatch] = usePageStateReducer('workListItem');
   const [workListItemState, updateWorkListItemState, workListItemReset] =
     getPageReducerPage(workListItemFull, workListItemDispatch, id);
   const {
@@ -218,7 +218,8 @@ function WorkListItem(props) {
               style={{marginLeft: useSelect ? undefined : '0.5rem'}}
               onClick={(event) => {
                 preventDefaultAndProp(event);
-                updateWorkListItemState({expansionOpen: expansionOpen === false});
+                const isVisible = expansionOpen !== false;
+                updateWorkListItemState({expansionOpen: !isVisible});
               }}
             >
               { expansionPanel ? (expansionOpen !== false ? <ExpandLess /> : <ExpandMoreIcon />) : <div /> }
@@ -247,6 +248,7 @@ function WorkListItem(props) {
 }
 
 WorkListItem.propTypes = {
+  id: PropTypes.string.isRequired,
   read: PropTypes.bool,
   icon: PropTypes.node,
   market: PropTypes.node,

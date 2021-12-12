@@ -28,6 +28,7 @@ import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { usePlanningInvestibleStyles } from '../../Investible/Planning/PlanningInvestible'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
+import { usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 
 function getPriorityIcon(level) {
   switch (level) {
@@ -93,6 +94,7 @@ function Inbox(props) {
   const [marketsState] = useContext(MarketsContext);
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
+  const [workListItemFull, workListItemDispatch] = usePageStateReducer('inboxListItem');
   const { messages: messagesUnsafe } = messagesState;
 
   useEffect(() => {
@@ -201,7 +203,8 @@ function Inbox(props) {
     addExpansionPanel(item, commentState, marketState, investiblesState, diffState, planningClasses,
       marketPresencesState, marketStagesState, marketsState, mobileLayout);
     return <WorkListItem key={typeObjectId} id={typeObjectId} checkedDefault={checkAll}
-                    setDeterminate={setDeterminate} determinate={determinate} {...item} />;
+                         workListItemFull={workListItemFull} workListItemDispatch={workListItemDispatch}
+                         setDeterminate={setDeterminate} determinate={determinate} {...item} />;
   });
 
   if (_.isEmpty(rows)) {
@@ -213,7 +216,8 @@ function Inbox(props) {
       isDeletable: false,
       message: {link: '/outbox'}
     };
-    rows = [<WorkListItem key='empty' id='empty' useSelect={false} {...item} />];
+    rows = [<WorkListItem key='emptyInbox' id='emptyInbox' workListItemFull={workListItemFull}
+                          workListItemDispatch={workListItemDispatch} useSelect={false} {...item} />];
   }
   const notificationsText = _.size(rows) !== 1 ? intl.formatMessage({ id: 'notifications' }) :
     intl.formatMessage({ id: 'notification' });

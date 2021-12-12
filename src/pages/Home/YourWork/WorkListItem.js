@@ -224,6 +224,7 @@ function WorkListItem(props) {
             </StyledIconButton>
             {(!useSelect || !mobileLayout) && (
               <StyledIconButton
+                disabled
                 classes={actionStyles}
               >
                 { icon }

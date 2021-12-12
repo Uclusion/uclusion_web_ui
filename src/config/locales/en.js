@@ -405,6 +405,7 @@ const messages = defineMessages({
   requiredReviewers: 'required reviewers',
   planningInvestibleDecision: 'Add Dialog',
   planningEstimatedCompletion: 'Estimated completion',
+  missingEstimatedCompletion: 'No estimated completion',
   estimatedCompletionToday: 'Due',
   planningInvestibleDescription: '- Description',
   mustRemoveTodosExplanation: 'Cannot change to this stage with open TODOs',

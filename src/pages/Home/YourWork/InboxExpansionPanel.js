@@ -161,7 +161,7 @@ export function addExpansionPanel(item, commentState, marketState, investiblesSt
               </div>
             </div>
           )}
-          {marketDaysEstimate && messageType === 'ASSIGNED_UNREVIEWABLE' && (
+          {messageType === 'ASSIGNED_UNREVIEWABLE' && (
             <div style={{marginTop: mobileLayout? '1rem' : '2rem'}}>
               <DaysEstimate readOnly value={marketDaysEstimate} isInbox />
             </div>

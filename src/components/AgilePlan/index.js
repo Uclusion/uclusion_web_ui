@@ -8,6 +8,7 @@ import { Typography, useMediaQuery, useTheme } from '@material-ui/core'
 import clsx from 'clsx'
 import { isInPast } from '../../utils/timerUtils'
 import UsefulRelativeTime from '../TextFields/UseRelativeTime'
+import _ from 'lodash'
 
 export const usePlanFormStyles = makeStyles(
   theme => ({
@@ -397,18 +398,25 @@ export function DaysEstimate(props) {
   function handleDateChange(date) {
       onChange(date);
   }
-
+  const myClassName = isInbox ? classes.daysEstimationLarge : classes.daysEstimation;
   if (readOnly) {
     const dueDate = new Date(value);
     if (isInPast(dueDate)) {
       return (
-        <Typography className={isInbox ? classes.daysEstimationLarge : classes.daysEstimation}>
+        <Typography className={myClassName}>
           {intl.formatMessage({ id: 'estimatedCompletionToday' })} <UsefulRelativeTime value={dueDate}/>
         </Typography>
       );
     }
+    if (_.isEmpty(value)) {
+      return (
+        <Typography className={myClassName}>
+          {intl.formatMessage({ id: 'missingEstimatedCompletion' })}
+        </Typography>
+      );
+    }
     return (
-      <Typography className={isInbox ? classes.daysEstimationLarge : classes.daysEstimation}>
+      <Typography className={myClassName}>
         {intl.formatMessage({ id: 'planningEstimatedCompletion' })} {intl.formatDate(value)}
       </Typography>
     );

@@ -157,21 +157,23 @@ function TodoAdd(props) {
             })}
           </RadioGroup>
         </FormControl>
-        <div className={classes.addBox}>
-          <CommentAdd
-            nameKey="CommentAddTop"
-            type={TODO_TYPE}
-            defaultNotificationType={notificationType}
-            commentAddState={commentAddState}
-            updateCommentAddState={updateCommentAddState}
-            commentAddStateReset={commentAddStateReset}
-            marketId={chosenMarketId || firstMarketId}
-            mentionsAllowed={false}
-            onSave={onCreate}
-            onDone={onCreate}
-            isStandAlone
-            isStory={false} />
-        </div>
+        {!_.isEmpty(chosenMarketId || firstMarketId) && (
+          <div className={classes.addBox}>
+            <CommentAdd
+              nameKey="CommentAddTop"
+              type={TODO_TYPE}
+              defaultNotificationType={notificationType}
+              commentAddState={commentAddState}
+              updateCommentAddState={updateCommentAddState}
+              commentAddStateReset={commentAddStateReset}
+              marketId={chosenMarketId || firstMarketId}
+              mentionsAllowed={false}
+              onSave={onCreate}
+              onDone={onCreate}
+              isStandAlone
+              isStory={false} />
+          </div>
+        )}
       </Card>
     </Screen>
   );

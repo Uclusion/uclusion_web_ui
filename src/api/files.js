@@ -29,12 +29,12 @@ export function uploadFileToS3 (marketId, file) {
       return fetch(url, fetchParams)
         .then((response) => {
           if(!response.ok) {
+            console.error(response);
             throw new Error("Upload failed");
           }
           return metadata;
         }); // just want to give back the successful metadata
-    })
-    .catch((error) => {
+    }).catch((error) => {
       toastErrorAndThrow(error, 'errorFileUploadFailed');
     });
 }

@@ -30,7 +30,7 @@ export function uploadFileToS3 (marketId, file) {
         .then((response) => {
           if(!response.ok) {
             console.error(response);
-            throw new Error("Upload failed");
+            throw response;
           }
           return metadata;
         }); // just want to give back the successful metadata

@@ -26,7 +26,7 @@ function MoveToInReviewActionButton(props) {
       targetStageId={inReviewStage.id}
       translationId={mobileLayout ? 'planningInvestibleMobileInReviewLabel' : 'planningInvestibleNextStageInReviewLabel'}
       explanationId="planningInvestibleInReviewExplanation"
-      disabled={operationRunning || disabled}
+      disabled={operationRunning !== false || disabled}
       operationBlocked={hasAssignedQuestions}
       blockedOperationTranslationId="mustResolveAssignedQuestions"
     />

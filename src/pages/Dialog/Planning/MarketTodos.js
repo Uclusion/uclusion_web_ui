@@ -245,17 +245,15 @@ function MarketTodos (props) {
       const foundCommentId = todoCommentIds.find((anId) => hash.includes(anId));
       if (foundCommentId) {
         const foundComment = comments.find((comment) => comment.id === foundCommentId);
-        const { root_comment_id: rootId, comment_type: commentType } = foundComment;
-        if (commentType === REPLY_TYPE) {
-          const rootComment = comments.find((comment) => comment.id === rootId);
-          const { notification_type: notificationType } = rootComment;
-          if (notificationType === 'RED') {
-            setEditRedCard(rootComment);
-          } else if (notificationType === 'YELLOW') {
-            setEditYellowCard(rootComment);
-          } else {
-            setEditCard(rootComment);
-          }
+        const { root_comment_id: rootId } = foundComment;
+        const rootComment = !rootId ? foundComment : comments.find((comment) => comment.id === rootId);
+        const { notification_type: notificationType } = rootComment;
+        if (notificationType === 'RED') {
+          setEditRedCard(rootComment);
+        } else if (notificationType === 'YELLOW') {
+          setEditYellowCard(rootComment);
+        } else {
+          setEditCard(rootComment);
         }
       }
       if ((foundCommentId || hash.includes('Todos')) && !sectionOpen) {

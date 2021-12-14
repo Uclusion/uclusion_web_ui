@@ -15,7 +15,7 @@ import {
 import SubSection from '../../../containers/SubSection/SubSection'
 import ReadOnlyQuillEditor from '../../../components/TextEditors/ReadOnlyQuillEditor'
 import Comment from '../../../components/Comments/Comment'
-import { REPLY_TYPE, TODO_TYPE } from '../../../constants/comments'
+import { TODO_TYPE } from '../../../constants/comments'
 import AddIcon from '@material-ui/icons/Add'
 import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
 import CommentAdd from '../../../components/Comments/CommentAdd'

@@ -11,9 +11,9 @@ import { JUSTIFY_TYPE, REPORT_TYPE, TODO_TYPE } from '../../../constants/comment
 import InvestibleStatus from './InvestibleStatus'
 import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff'
 import RaisedCard from '../../../components/Cards/RaisedCard'
-import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
+import { getInvestible, getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { getDiff } from '../../../contexts/DiffContext/diffContextHelper'
-import { PLANNING_TYPE } from '../../../constants/markets'
+import { ACTIVE_STAGE, DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../../constants/markets'
 import clsx from 'clsx'
 import { FormattedMessage } from 'react-intl'
 import { Assignments, getCollaborators } from '../../Investible/Planning/PlanningInvestible'
@@ -21,7 +21,11 @@ import { getMarketPresences } from '../../../contexts/MarketPresencesContext/mar
 import { getMarketInfo } from '../../../utils/userFunctions'
 import { DaysEstimate } from '../../../components/AgilePlan'
 import Voting from '../../Investible/Decision/Voting'
-import { getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
+import { getFullStage, getStages } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
+import Collaborators from '../../Dialog/Collaborators'
+import ExpiresDisplay from '../../../components/Expiration/ExpiresDisplay'
+import DecisionVoting from '../../Dialog/Decision/DecisionVoting'
+import { getInvestiblesForStage } from '../../Dialog/Decision/DecisionDialog'
 
 export function addExpansionPanel(item, commentState, marketState, investiblesState, diffState, planningClasses,
   marketPresencesState, marketStagesState, marketsState, mobileLayout) {
@@ -102,6 +106,7 @@ export function addExpansionPanel(item, commentState, marketState, investiblesSt
       }
     }
   } else if (['NOT_FULLY_VOTED', 'ASSIGNED_UNREVIEWABLE'].includes(messageType)) {
+    const market = getMarket(marketsState, marketId) || {};
     const marketPresences = getMarketPresences(marketPresencesState, marketId);
     const investibleComments = getUnresolvedInvestibleComments(investibleId, marketId, commentState);
     const investibleCollaborators = getCollaborators(marketPresences, investibleComments, marketPresencesState,
@@ -111,25 +116,65 @@ export function addExpansionPanel(item, commentState, marketState, investiblesSt
     const { assigned: invAssigned, completion_estimate: marketDaysEstimate, required_approvers:  requiredApprovers
     } = marketInfo;
     const assigned = invAssigned || [];
+    const myPresence = marketPresences.find((presence) => presence.current_user) || {};
+    const { is_admin: isAdmin } = myPresence;
+    const inArchives = market.market_stage !== ACTIVE_STAGE || (myPresence && !myPresence.following);
+    const marketStages = getStages(marketStagesState, marketId);
+    const underConsiderationStage = marketStages.find((stage) => stage.allows_investment);
+    const proposedStage = marketStages.find((stage) => !stage.allows_investment);
+    const investibles = getMarketInvestibles(investiblesState, marketId) || [];
+    const underConsideration = getInvestiblesForStage(underConsiderationStage, investibles);
+    const proposed = getInvestiblesForStage(proposedStage, investibles);
     item.expansionPanel = (
       <RaisedCard elevation={3}>
         <div style={{display: mobileLayout ? 'block' : 'flex', padding: '1rem'}}>
-          <div className={clsx(planningClasses.group, planningClasses.assignments)}
-               style={{maxWidth: '15rem', marginRight: '1rem'}}>
-            <div style={{textTransform: 'capitalize'}}>
-              <b><FormattedMessage id="planningInvestibleAssignments"/></b>
-              <Assignments
-                classes={planningClasses}
-                marketPresences={marketPresences}
-                assigned={assigned}
-                isAdmin={false}
-                toggleAssign={() => {}}
-                toolTipId="storyAddParticipantsLabel"
-                showMoveMessage
-              />
-            </div>
-          </div>
-          {!_.isEmpty(investibleCollaborators) && (
+          {!_.isEmpty(assigned) && (
+              <div className={clsx(planningClasses.group, planningClasses.assignments)}
+                   style={{maxWidth: '15rem', marginRight: '1rem'}}>
+                <div style={{textTransform: 'capitalize'}}>
+                  <b><FormattedMessage id="planningInvestibleAssignments"/></b>
+                  <Assignments
+                    classes={planningClasses}
+                    marketPresences={marketPresences}
+                    assigned={assigned}
+                    isAdmin={false}
+                    toggleAssign={() => {}}
+                    toolTipId="storyAddParticipantsLabel"
+                    showMoveMessage
+                  />
+                </div>
+              </div>
+          )}
+          {[DECISION_TYPE, INITIATIVE_TYPE].includes(marketType) && (
+            <>
+              <div className={clsx(planningClasses.group, planningClasses.assignments)}
+                   style={{maxWidth: '15rem', marginRight: '1rem'}}>
+                <div style={{textTransform: 'capitalize'}}>
+                  <b><FormattedMessage id="author"/></b>
+                  <Collaborators
+                    marketPresences={marketPresences}
+                    authorId={market.created_by}
+                    authorDisplay
+                  />
+                </div>
+              </div>
+              <div className={clsx(planningClasses.group, planningClasses.assignments)}
+                style={{maxWidth: '15rem', marginRight: '1rem'}}>
+                <div style={{textTransform: 'capitalize'}}>
+                    <b><FormattedMessage id="dialogParticipants"/></b>
+                    <Collaborators
+                      marketPresences={marketPresences}
+                      authorId={market.created_by}
+                      marketId={marketId}
+                    />
+                </div>
+              </div>
+              {!_.isEmpty(market) && (
+                <ExpiresDisplay createdAt={market.created_at} expirationMinutes={market.expiration_minutes} />
+              )}
+            </>
+          )}
+          {marketType === PLANNING_TYPE && !_.isEmpty(investibleCollaborators) && (
             <div className={clsx(planningClasses.group, planningClasses.assignments)}
                  style={{maxWidth: '15rem', marginRight: '1rem'}}>
               <div style={{textTransform: 'capitalize'}}>
@@ -167,6 +212,11 @@ export function addExpansionPanel(item, commentState, marketState, investiblesSt
             </div>
           )}
         </div>
+        {marketType === DECISION_TYPE && (
+          <DecisionVoting comments={getMarketComments(commentState, marketId)} marketId={marketId} isAdmin={isAdmin}
+                          proposed={proposed} marketPresences={marketPresences} inArchives={inArchives}
+                          underConsideration={underConsideration} />
+        )}
       </RaisedCard>
     );
   } else if (messageType === 'UNREAD_VOTE' && marketType === PLANNING_TYPE && investibleId) {

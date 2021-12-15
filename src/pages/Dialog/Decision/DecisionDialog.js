@@ -14,14 +14,11 @@ import {
   makeArchiveBreadCrumbs,
   makeBreadCrumbs, navigate,
 } from '../../../utils/marketIdPathFunctions'
-import ProposedIdeas from './ProposedIdeas'
-import SubSection from '../../../containers/SubSection/SubSection'
-import CurrentVoting from './CurrentVoting'
 import CommentBox, { getSortedRoots } from '../../../containers/CommentBox/CommentBox'
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
 import Screen from '../../../containers/Screen/Screen'
 import { ISSUE_TYPE, QUESTION_TYPE } from '../../../constants/comments'
-import { EMPTY_SPIN_RESULT, SECTION_TYPE_SECONDARY } from '../../../constants/global'
+import { EMPTY_SPIN_RESULT } from '../../../constants/global'
 import { ACTIVE_STAGE } from '../../../constants/markets'
 import UclusionTour from '../../../components/Tours/UclusionTour'
 import CardType from '../../../components/CardType'
@@ -33,7 +30,6 @@ import Collaborators from '../Collaborators'
 import DialogActions from '../../Home/DialogActions'
 import ParentSummary from '../ParentSummary'
 import CardActions from '@material-ui/core/CardActions'
-import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { inviteDialogSteps } from '../../../components/Tours/dialog'
 import { CognitoUserContext } from '../../../contexts/CognitoUserContext/CongitoUserContext'
@@ -45,9 +41,6 @@ import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsCont
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import AttachedFilesList from '../../../components/Files/AttachedFilesList'
 import { doSetEditWhenValid } from '../../../utils/windowUtils'
-import DecisionInvestibleAdd from './DecisionInvestibleAdd'
-import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
-import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import EditIcon from '@material-ui/icons/Edit'
 import BlockIcon from '@material-ui/icons/Block'
 import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
@@ -71,6 +64,7 @@ import DecisionDialogEdit from './DecisionDialogEdit'
 import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils'
 import { marketHasOnlyCurrentUser } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { workListStyles } from '../../Home/YourWork/WorkListItem'
+import DecisionVoting from './DecisionVoting'
 
 const useStyles = makeStyles(
   theme => ({
@@ -171,6 +165,24 @@ const useStyles = makeStyles(
   { name: "DecisionDialog" }
 );
 
+export function getInvestiblesForStage(stage, investibles) {
+  if (stage) {
+    return investibles.reduce((acc, inv) => {
+      const { market_infos: marketInfos } = inv;
+      for (let x = 0; x < marketInfos.length; x += 1) {
+        if (marketInfos[x].stage === stage.id) {
+          // filter out "deleted" investibles
+          if (!marketInfos[x].deleted) {
+            return [...acc, inv];
+          }
+        }
+      }
+      return acc;
+    }, []);
+  }
+  return [];
+}
+
 function DecisionDialog(props) {
   const {
     market,
@@ -194,7 +206,6 @@ function DecisionDialog(props) {
   const [, tourDispatch] = useContext(TourContext);
   const [, marketsDispatch] = useContext(MarketsContext);
   const [diffState, diffDispatch] = useContext(DiffContext);
-  const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [searchResults] = useContext(SearchResultsContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -225,16 +236,9 @@ function DecisionDialog(props) {
     settingsOpen,
     changeExpires
   } = pageState;
-  const [investibleAddStateFull, investibleAddDispatch] = usePageStateReducer('investibleAdd');
-  const [investibleAddState, updateInvestibleAddState, investibleAddStateReset] =
-    getPageReducerPage(investibleAddStateFull, investibleAddDispatch, marketId);
-  const {
-    investibleAddBeingEdited,
-  } = investibleAddState;
   const underConsiderationStage = marketStages.find((stage) => stage.allows_investment);
   const proposedStage = marketStages.find((stage) => !stage.allows_investment);
   const history = useHistory();
-  const investibleComments = comments.filter((comment) => comment.investible_id);
   const marketComments = comments.filter((comment) => !comment.investible_id);
   const allowedCommentTypes = [QUESTION_TYPE, ISSUE_TYPE];
   const user = useContext(CognitoUserContext) || {};
@@ -260,10 +264,6 @@ function DecisionDialog(props) {
     updatePageState({showDiff: !showDiff});
   }
 
-  function toggleInvestibleAdd() {
-    updateInvestibleAddState({investibleAddBeingEdited: !investibleAddBeingEdited});
-  }
-
   function isEditableByUser() {
     return isAdmin && !inArchives;
   }
@@ -285,25 +285,8 @@ function DecisionDialog(props) {
       })
   }
 
-  function getInvestiblesForStage(stage) {
-    if (stage) {
-      return investibles.reduce((acc, inv) => {
-        const { market_infos: marketInfos } = inv;
-        for (let x = 0; x < marketInfos.length; x += 1) {
-          if (marketInfos[x].stage === stage.id) {
-            // filter out "deleted" investibles
-            if (!marketInfos[x].deleted) {
-              return [...acc, inv];
-            }
-          }
-        }
-        return acc;
-      }, []);
-    }
-    return [];
-  }
-  const underConsideration = getInvestiblesForStage(underConsiderationStage);
-  const proposed = getInvestiblesForStage(proposedStage);
+  const underConsideration = getInvestiblesForStage(underConsiderationStage, investibles);
+  const proposed = getInvestiblesForStage(proposedStage, investibles);
   function createNavListItem(icon, textId, anchorId, howManyNum, alwaysShow, onClickFunc) {
     const baseNav = baseNavListItem(formMarketLink(marketId), icon, textId, anchorId, howManyNum, alwaysShow);
     if (onClickFunc) {
@@ -399,7 +382,7 @@ function DecisionDialog(props) {
           <Grid className={classes.borderLeft} item xs={3}>
             <CardActions className={classes.actions}>
               <DialogActions
-                isAdmin={myPresence.is_admin}
+                isAdmin={isAdmin}
                 isFollowing={myPresence.following}
                 marketStage={marketStage}
                 marketType={marketType}
@@ -494,67 +477,9 @@ function DecisionDialog(props) {
         </Grid>
       </Card>
       <Grid container spacing={2}>
-        <Grid item xs={12} style={{ marginTop: '2rem' }}>
-          {investibleAddBeingEdited && (
-            <div style={{marginBottom: '2rem'}}>
-              <DecisionInvestibleAdd
-                marketId={marketId}
-                onSave={(investible) => addInvestible(investiblesDispatch, () => {}, investible)}
-                onCancel={toggleInvestibleAdd}
-                onSpinComplete={toggleInvestibleAdd}
-                isAdmin={isAdmin}
-                pageState={investibleAddState}
-                pageStateUpdate={updateInvestibleAddState}
-                pageStateReset={investibleAddStateReset}
-              />
-            </div>
-          )}
-          <SubSection
-            id="currentVoting"
-            type={SECTION_TYPE_SECONDARY}
-            title={intl.formatMessage({ id: 'decisionDialogCurrentVotingLabel' })}
-            actionButton={ inArchives ? null :
-              (<ExpandableAction
-                icon={<AddIcon htmlColor="black"/>}
-                label={intl.formatMessage({ id: 'decisionDialogAddExplanationLabel' })}
-                openLabel={intl.formatMessage({ id: 'decisionDialogAddInvestibleLabel'})}
-                onClick={toggleInvestibleAdd}
-                disabled={!isAdmin}
-                tipPlacement="top-end"
-              />)}
-          >
-            <CurrentVoting
-              marketPresences={marketPresences}
-              investibles={underConsideration}
-              marketId={marketId}
-              comments={investibleComments}
-              inArchives={inArchives}
-              isAdmin={isAdmin}
-            />
-          </SubSection>
-        </Grid>
-        <Grid item xs={12} style={{ marginTop: '1.5rem' }}>
-          <SubSection
-            id="proposed"
-            type={SECTION_TYPE_SECONDARY}
-            title={intl.formatMessage({ id: 'decisionDialogProposedOptionsLabel' })}
-            actionButton={ inArchives ? null :
-              (<ExpandableAction
-                icon={<AddIcon htmlColor="black"/>}
-                label={intl.formatMessage({ id: 'decisionDialogProposeExplanationLabel' })}
-                openLabel={intl.formatMessage({ id: 'decisionDialogProposeInvestibleLabel'})}
-                onClick={toggleInvestibleAdd}
-                disabled={isAdmin}
-                tipPlacement="top-end"
-              />)}
-          >
-            <ProposedIdeas
-              investibles={proposed}
-              marketId={marketId}
-              isAdmin={isAdmin}
-            />
-          </SubSection>
-        </Grid>
+        <DecisionVoting comments={comments} marketId={marketId} isAdmin={isAdmin} proposed={proposed}
+                        marketPresences={marketPresences} inArchives={inArchives}
+                        underConsideration={underConsideration} />
         <Grid id="commentAddArea" item xs={12} style={{ marginTop: '71px' }}>
           {!inArchives && marketId && !hidden && (
             <CommentAddBox

@@ -182,7 +182,7 @@ function WorkListItem(props) {
       <Link href={link} style={{ width: '100%' }} key={`link${id}`} onClick={
         (event) => {
           preventDefaultAndProp(event);
-          navigate(history, link);
+          navigate(history, link, false, true);
         }
       }>
         <Div className={cx(read && 'MailListItem-read')}>

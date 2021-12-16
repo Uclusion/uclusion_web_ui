@@ -243,26 +243,29 @@ function MarketTodos (props) {
         !comment.investible_id && !comment.resolved) || [];
       const todoCommentIds = getThreadIds(todoParents, comments);
       const foundCommentId = todoCommentIds.find((anId) => hash.includes(anId));
-      if (foundCommentId) {
-        const foundComment = comments.find((comment) => comment.id === foundCommentId);
-        const { root_comment_id: rootId } = foundComment;
-        const rootComment = !rootId ? foundComment : comments.find((comment) => comment.id === rootId);
-        const { notification_type: notificationType } = rootComment;
-        if (notificationType === 'RED') {
-          setEditRedCard(rootComment);
-        } else if (notificationType === 'YELLOW') {
-          setEditYellowCard(rootComment);
-        } else {
-          setEditCard(rootComment);
+      if (editRedCardId !== foundCommentId && editYellowCardId !== foundCommentId && editCardId !== foundCommentId ) {
+        if (foundCommentId) {
+          const foundComment = comments.find((comment) => comment.id === foundCommentId);
+          const { root_comment_id: rootId } = foundComment;
+          const rootComment = !rootId ? foundComment : comments.find((comment) => comment.id === rootId);
+          const { notification_type: notificationType } = rootComment;
+          if (notificationType === 'RED') {
+            setEditRedCard(rootComment);
+          } else if (notificationType === 'YELLOW') {
+            setEditYellowCard(rootComment);
+          } else {
+            setEditCard(rootComment);
+          }
         }
-      }
-      if ((foundCommentId || hash.includes('Todos')) && !sectionOpen) {
-        setSectionOpen('marketTodos');
+        if ((foundCommentId || hash.includes('Todos')) && !sectionOpen) {
+          setSectionOpen('marketTodos');
+        }
       }
     }
     return () => {};
-  }, [commentStateBlueReset, commentStateRedReset, commentStateYellowReset, comments, hash, marketId, sectionOpen,
-    setSectionOpen, updateCommentBlueState, updateCommentRedState, updateCommentYellowState]);
+  }, [commentStateBlueReset, commentStateRedReset, commentStateYellowReset, comments, editCardId, editRedCardId,
+    editYellowCardId, hash, marketId, sectionOpen, setSectionOpen, updateCommentBlueState, updateCommentRedState,
+    updateCommentYellowState]);
 
   function onDragStart(event, notificationType) {
     removeHeader();

@@ -60,7 +60,7 @@ function DeadlineExtender(props) {
         value={extensionPeriod}
         onChange={selectorOnChange}
       />
-      <CardActions className={myClasses.actions}>
+      <CardActions style={{paddingTop: '1rem'}}>
         <SpinningIconLabelButton onClick={myCancel} doSpin={false} icon={Clear}>
           <FormattedMessage id="marketAddCancelLabel"/>
         </SpinningIconLabelButton>

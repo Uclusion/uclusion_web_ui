@@ -31,17 +31,27 @@ function DialogManage(props) {
   }
 
   if (expires) {
+    const expiresContent = <>
+      <Typography>
+        {intl.formatMessage({ id: 'decisionDialogExtendDaysLabel' })}
+      </Typography>
+      <DeadlineExtender
+        market={renderableMarket}
+        onCancel={onClose}
+      />
+    </>;
+    if (isInbox) {
+      return (
+        <div style={{paddingTop: '1rem'}}>
+          {expiresContent}
+        </div>
+      );
+    }
     return (
       <Card style={{marginBottom: '1rem'}}>
         <CardType className={classes.cardType}/>
         <CardContent className={classes.cardContent}>
-          <Typography>
-            {intl.formatMessage({ id: 'decisionDialogExtendDaysLabel' })}
-          </Typography>
-          <DeadlineExtender
-            market={renderableMarket}
-            onCancel={onClose}
-          />
+          {expiresContent}
         </CardContent>
       </Card>
     );

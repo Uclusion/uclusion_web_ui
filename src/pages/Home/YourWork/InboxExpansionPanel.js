@@ -27,6 +27,7 @@ import ExpiresDisplay from '../../../components/Expiration/ExpiresDisplay'
 import DecisionVoting from '../../Dialog/Decision/DecisionVoting'
 import { getInvestiblesForStage } from '../../Dialog/Decision/DecisionDialog'
 import DialogManage from '../../Dialog/DialogManage'
+import { Card } from '@material-ui/core'
 
 export function addExpansionPanel(item, commentState, marketState, investiblesState, diffState, planningClasses,
   marketPresencesState, marketStagesState, marketsState, mobileLayout) {
@@ -256,6 +257,16 @@ export function addExpansionPanel(item, commentState, marketState, investiblesSt
   } else if (messageType === 'DRAFT') {
     item.expansionPanel = (
       <DialogManage marketId={marketId} onClose={() => {}} isInbox />
+    );
+  } else if (messageType === 'UNREAD_COLLABORATION') {
+    const market = getMarket(marketsState, marketId) || {};
+    item.expansionPanel = (
+      <Card style={{paddingLeft: '2rem', paddingRight: '2rem', paddingTop: '1rem', paddingBottom: '1rem'}}>
+        {!_.isEmpty(market) && (
+          <ExpiresDisplay createdAt={market.created_at} expirationMinutes={market.expiration_minutes} />
+        )}
+        <DialogManage marketId={marketId} expires={true} onClose={() => {}} isInbox />
+      </Card>
     );
   }
 }

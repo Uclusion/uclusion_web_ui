@@ -26,6 +26,7 @@ import Collaborators from '../../Dialog/Collaborators'
 import ExpiresDisplay from '../../../components/Expiration/ExpiresDisplay'
 import DecisionVoting from '../../Dialog/Decision/DecisionVoting'
 import { getInvestiblesForStage } from '../../Dialog/Decision/DecisionDialog'
+import DialogManage from '../../Dialog/DialogManage'
 
 export function addExpansionPanel(item, commentState, marketState, investiblesState, diffState, planningClasses,
   marketPresencesState, marketStagesState, marketsState, mobileLayout) {
@@ -251,6 +252,10 @@ export function addExpansionPanel(item, commentState, marketState, investiblesSt
           isAssigned={true}
         />
       </RaisedCard>
+    );
+  } else if (messageType === 'DRAFT') {
+    item.expansionPanel = (
+      <DialogManage marketId={marketId} onClose={() => {}} isInbox />
     );
   }
 }

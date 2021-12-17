@@ -13,7 +13,7 @@ import { usePlanFormStyles } from '../../components/AgilePlan'
 import ManageUsers from './UserManagement/ManageUsers'
 
 function DialogManage(props) {
-  const { marketId, expires, onClose } = props;
+  const { marketId, expires, onClose, isInbox } = props;
   const intl = useIntl();
   const classes = usePlanFormStyles();
   const [marketsState] = useContext(MarketsContext);
@@ -49,9 +49,11 @@ function DialogManage(props) {
 
   return (
     <Card style={{marginBottom: '1rem'}}>
-      <Typography className={classes.cardTitle}>
-        {intl.formatMessage({ id: 'initiativeAddress' })}
-      </Typography>
+      {!isInbox && (
+        <Typography className={classes.cardTitle}>
+          {intl.formatMessage({ id: 'initiativeAddress' })}
+        </Typography>
+      )}
       <ManageUsers
         market={renderableMarket}
         onCancel={onClose}

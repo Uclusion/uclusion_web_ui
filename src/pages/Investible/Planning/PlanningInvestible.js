@@ -647,10 +647,11 @@ function PlanningInvestible(props) {
   function toggleEdit() {
     setShowDatepicker(!showDatepicker);
   }
-  const daysEstimate = marketDaysEstimate ? Date.parse(marketDaysEstimate) : undefined
+
   function getStartDate() {
     if (marketDaysEstimate && createdAt) {
-      const nowDate = new Date()
+      const nowDate = new Date();
+      const daysEstimate = Date.parse(marketDaysEstimate);
       if (daysEstimate > nowDate) {
         return daysEstimate
       }
@@ -658,6 +659,7 @@ function PlanningInvestible(props) {
     return undefined;
   }
   function handleDateChange(date) {
+    const daysEstimate = marketDaysEstimate ? Date.parse(marketDaysEstimate) : undefined;
     if (!_.isEqual(date, daysEstimate)) {
       toggleEdit();
       const updateInfo = {
@@ -997,7 +999,7 @@ function PlanningInvestible(props) {
                 </div>
               </div>
               {marketDaysEstimate && isInAccepted && (
-                <DaysEstimate readOnly value={daysEstimate} />
+                <DaysEstimate readOnly value={marketDaysEstimate} />
               )}
               <MarketMetaData
                 stage={stage}

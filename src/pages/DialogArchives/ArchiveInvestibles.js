@@ -84,7 +84,7 @@ function getInvestibles(investibles, marketPresences, marketPresencesState, pres
     const { updated_at: invUpdatedAt } = inv.investible;
     const { updated_at: infoUpdatedAt } = aMarketInfo;
     const updatedAt = new Date(invUpdatedAt) > new Date(infoUpdatedAt) ? invUpdatedAt : infoUpdatedAt;
-    return { ...inv.investible, updatedAt, enteredStageAt: Date.parse(aMarketInfo.last_stage_change_date) };
+    return { ...inv.investible, updatedAt, enteredStageAt: new Date(aMarketInfo.last_stage_change_date) };
   });
   const sortedData = _.sortBy(investibleData, 'updatedAt', 'name').reverse();
   const infoMap = investibles.reduce((acc, inv) => {

@@ -651,7 +651,7 @@ function PlanningInvestible(props) {
   function getStartDate() {
     if (marketDaysEstimate && createdAt) {
       const nowDate = new Date();
-      const daysEstimate = Date.parse(marketDaysEstimate);
+      const daysEstimate = new Date(marketDaysEstimate);
       if (daysEstimate > nowDate) {
         return daysEstimate
       }
@@ -659,7 +659,7 @@ function PlanningInvestible(props) {
     return undefined;
   }
   function handleDateChange(date) {
-    const daysEstimate = marketDaysEstimate ? Date.parse(marketDaysEstimate) : undefined;
+    const daysEstimate = marketDaysEstimate ? new Date(marketDaysEstimate) : undefined;
     if (!_.isEqual(date, daysEstimate)) {
       toggleEdit();
       const updateInfo = {

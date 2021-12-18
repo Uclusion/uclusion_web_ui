@@ -6,20 +6,9 @@ import ExpirationSelector from '../../../components/Expiration/ExpirationSelecto
 import { manageMarket } from '../../../api/markets';
 import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
-import { makeStyles } from '@material-ui/core/styles'
 import { Clear, Snooze } from '@material-ui/icons'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
-
-const useStyles = makeStyles(
-  theme => ({
-    actions: {
-      margin: theme.spacing(1, 0, 0, 0),
-      paddingTop: theme.spacing(5),
-    },
-  }),
-  { name: "Extender" }
-);
 
 function DeadlineExtender(props) {
   const {
@@ -28,7 +17,6 @@ function DeadlineExtender(props) {
   const [, marketsDispatch] = useContext(MarketsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const { id: marketId, expiration_minutes: expirationMinutes } = market;
-  const myClasses = useStyles();
   const [extensionPeriod, setExtensionPeriod] = useState(1440);
 
   function selectorOnChange(event) {

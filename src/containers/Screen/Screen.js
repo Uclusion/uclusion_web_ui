@@ -165,7 +165,7 @@ function Screen(props) {
   const [messagesState] = useContext(NotificationsContext);
   const [searchResults] = useContext(SearchResultsContext);
   const { search } = searchResults;
-  const [prePendWarning, setPrePendWarning] = useState('');
+  const [pendWarning, setPendWarning] = useState('');
 
   const {
     breadCrumbs,
@@ -188,7 +188,7 @@ function Screen(props) {
 
   useEffect(() => {
     if (!_.isEmpty(messagesState)) {
-      let calcPrePend = '';
+      let calcPend = 0;
       const { messages } = messagesState;
       let hasYellow = false;
       const dupeHash = {};
@@ -198,10 +198,10 @@ function Screen(props) {
           if (isHighlighted) {
             if (level === 'RED') {
               if (!linkMultiple) {
-                calcPrePend += '!';
-              } else if (!(linkMultiple in dupeHash)) {
+                calcPend += 1;
+              } else if (!dupeHash[linkMultiple]) {
                 dupeHash[linkMultiple] = message;
-                calcPrePend += '!';
+                calcPend += 1;
               }
             } else if (level === 'YELLOW') {
               hasYellow = true;
@@ -209,10 +209,13 @@ function Screen(props) {
           }
         });
       }
-      if (calcPrePend.length === 0 && hasYellow) {
-        calcPrePend = '*';
+      if (calcPend === 0) {
+        if (hasYellow) {
+          setPendWarning('*');
+        }
+      } else {
+        setPendWarning(`(${calcPend})`)
       }
-      setPrePendWarning(calcPrePend);
     }
   }, [messagesState]);
 
@@ -271,7 +274,7 @@ function Screen(props) {
     <div className={classes.root} id="root">
       <Helmet defer={false}>
         <title>
-          {`${prePendWarning}Uclusion | ${createTitle(
+          {`Uclusion${pendWarning} | ${createTitle(
             tabTitle,
             11,
           )}`}

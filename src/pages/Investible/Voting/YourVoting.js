@@ -9,6 +9,7 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import { makeStyles } from '@material-ui/styles'
 import { NOT_FULLY_VOTED_TYPE } from '../../../constants/notifications'
 import { findMessageOfType } from '../../../utils/messageUtils'
+import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 
 const FOR = "FOR";
 const AGAINST = "AGAINST";
@@ -37,9 +38,12 @@ function YourVoting(props) {
     isAssigned,
     votingPageState, updateVotingPageState, votingPageStateReset
   } = props;
+  const [votingPageStateFull, votingPageDispatch] = usePageStateReducer('voting');
+  const [myVotingPageState, myUpdateVotingPageState, myVotingPageStateReset] =
+    getPageReducerPage(votingPageStateFull, votingPageDispatch, investibleId);
   const {
     storedType,
-  } = votingPageState;
+  } = votingPageState || myVotingPageState;
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const voteMessage = findMessageOfType(NOT_FULLY_VOTED_TYPE, investibleId, messagesState);
   const intl = useIntl();
@@ -65,7 +69,11 @@ function YourVoting(props) {
   }
   function onTypeChange(event) {
     const { value } = event.target;
-    updateVotingPageState({storedType: value});
+    if (updateVotingPageState) {
+      updateVotingPageState({storedType: value});
+    } else {
+      myUpdateVotingPageState({storedType: value});
+    }
   }
 
   return (
@@ -124,9 +132,9 @@ function YourVoting(props) {
         showBudget={market.use_budget}
         marketBudgetUnit={market.budget_unit}
         multiplier={type === undefined ? undefined : type === FOR ? 1 : -1}
-        votingPageState={votingPageState}
-        updateVotingPageState={updateVotingPageState}
-        votingPageStateReset={votingPageStateReset}
+        votingPageState={votingPageState || myVotingPageState}
+        updateVotingPageState={updateVotingPageState || myUpdateVotingPageState}
+        votingPageStateReset={votingPageStateReset || myVotingPageStateReset}
         messagesDispatch={messagesDispatch}
         voteMessage={voteMessage}
       />

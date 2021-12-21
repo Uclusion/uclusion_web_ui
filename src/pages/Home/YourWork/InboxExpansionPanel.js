@@ -6,7 +6,7 @@ import {
   getMarketComments,
   getUnresolvedInvestibleComments
 } from '../../../contexts/CommentsContext/commentsContextHelper'
-import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
+import { getMarket, getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { JUSTIFY_TYPE, REPORT_TYPE, TODO_TYPE } from '../../../constants/comments'
 import InvestibleStatus from './InvestibleStatus'
 import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff'
@@ -28,6 +28,8 @@ import DecisionVoting from '../../Dialog/Decision/DecisionVoting'
 import { getInvestiblesForStage } from '../../Dialog/Decision/DecisionDialog'
 import DialogManage from '../../Dialog/DialogManage'
 import { Card } from '@material-ui/core'
+import InitiativeVoting from '../../Investible/Initiative/InitiativeVoting'
+import YourVoting from '../../Investible/Voting/YourVoting'
 
 export function addExpansionPanel(item, commentState, marketState, investiblesState, diffState, planningClasses,
   marketPresencesState, marketStagesState, marketsState, mobileLayout) {
@@ -218,6 +220,20 @@ export function addExpansionPanel(item, commentState, marketState, investiblesSt
           <DecisionVoting comments={getMarketComments(commentState, marketId)} marketId={marketId} isAdmin={isAdmin}
                           proposed={proposed} marketPresences={marketPresences} inArchives={inArchives}
                           underConsideration={underConsideration} />
+        )}
+        {marketType === INITIATIVE_TYPE && (
+          <div style={{marginLeft: '2rem', marginBottom: '1rem'}}>
+            <YourVoting
+              investibleId={investibleId}
+              marketPresences={marketPresences}
+              comments={investibleComments.filter((comment) => comment.comment_type === JUSTIFY_TYPE)}
+              userId={getMyUserForMarket(marketsState, marketId) || ''}
+              market={market}
+            />
+            <InitiativeVoting investibleId={investibleId} marketPresences={marketPresences}
+                              investibleComments={investibleComments} market={market} isAdmin={isAdmin}
+                              inArchives={inArchives} />
+          </div>
         )}
       </RaisedCard>
     );

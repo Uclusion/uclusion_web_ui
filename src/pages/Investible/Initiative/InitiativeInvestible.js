@@ -5,7 +5,6 @@ import { FormattedMessage, useIntl } from 'react-intl'
 import _ from 'lodash'
 import { Card, CardContent, Grid, Link, makeStyles, Typography } from '@material-ui/core'
 import YourVoting from '../Voting/YourVoting'
-import Voting from '../Decision/Voting'
 import CommentBox, { getSortedRoots } from '../../../containers/CommentBox/CommentBox'
 import { JUSTIFY_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, } from '../../../constants/comments'
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
@@ -68,6 +67,7 @@ import { setUclusionLocalStorageItem } from '../../../components/localStorageUti
 import { marketHasOnlyCurrentUser } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
 import { workListStyles } from '../../Home/YourWork/WorkListItem'
+import InitiativeVoting from './InitiativeVoting'
 
 const useStyles = makeStyles(
   theme => ({
@@ -514,34 +514,9 @@ function InitiativeInvestible(props) {
           )}
         </>
       )}
-      <h2 id="for">
-        <FormattedMessage id="initiativeVotingFor"/>
-      </h2>
-      <Voting
-        investibleId={investibleId}
-        marketPresences={positiveVoters}
-        investmentReasons={investmentReasons}
-        votingPageState={votingPageState}
-        updateVotingPageState={updateVotingPageState}
-        votingPageStateReset={votingPageStateReset}
-        market={market}
-        votingAllowed={votingAllowed}
-        yourPresence={yourPresence}
-      />
-      <h2 id="against">
-        <FormattedMessage id="initiativeVotingAgainst" />
-      </h2>
-      <Voting
-        investibleId={investibleId}
-        marketPresences={negativeVoters}
-        investmentReasons={investmentReasons}
-        votingPageState={votingPageState}
-        updateVotingPageState={updateVotingPageState}
-        votingPageStateReset={votingPageStateReset}
-        market={market}
-        votingAllowed={votingAllowed}
-        yourPresence={yourPresence}
-      />
+      <InitiativeVoting investibleId={investibleId} marketPresences={marketPresences}
+                        investibleComments={investibleComments} market={market} isAdmin={isAdmin}
+                        inArchives={inArchives} />
       <MarketLinks links={children || []} />
       <Grid container spacing={2}>
         <Grid item xs={12} style={{ marginTop: '71px' }} id="commentAddArea">

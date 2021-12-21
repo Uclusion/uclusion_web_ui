@@ -155,6 +155,7 @@ function WorkListItem(props) {
   const gutterStyles = useRowGutterStyles({ size: -10, before: -8 });
   const [checked, setChecked] = React.useState(checkedDefault);
   const { market_id: marketId, type_object_id: typeObjectId, link } = message;
+  const useExpansionOpen = expansionOpen === undefined ? !read : expansionOpen;
 
   useEffect(() => {
     setChecked(checkedDefault);
@@ -218,11 +219,10 @@ function WorkListItem(props) {
               style={{marginLeft: useSelect ? undefined : '0.5rem'}}
               onClick={(event) => {
                 preventDefaultAndProp(event);
-                const isVisible = expansionOpen !== false;
-                updateWorkListItemState({expansionOpen: !isVisible});
+                updateWorkListItemState({expansionOpen: !useExpansionOpen});
               }}
             >
-              { expansionPanel ? (expansionOpen !== false ? <ExpandLess /> : <ExpandMoreIcon />) : <div /> }
+              { expansionPanel ? (useExpansionOpen ? <ExpandLess /> : <ExpandMoreIcon />) : <div /> }
             </StyledIconButton>
             {(!useSelect || !mobileLayout) && (
               <StyledIconButton
@@ -239,9 +239,8 @@ function WorkListItem(props) {
           {mobileLayout || !date ? React.Fragment : (read ? (<DateLabel>{date}</DateLabel>) : (<DateLabelB>{date}</DateLabelB>))}
         </Div>
       </Link>
-      <div style={{visibility: expansionOpen !== false ? 'visible' : 'hidden',
-        height: expansionOpen !== false ? undefined : 0}}>
-        {expansionPanel ? expansionPanel : <React.Fragment />}
+      <div style={{visibility: useExpansionOpen ? 'visible' : 'hidden', height: useExpansionOpen ? undefined : 0}}>
+        {expansionPanel || <React.Fragment />}
       </div>
     </Item>
   );

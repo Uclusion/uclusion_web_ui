@@ -150,7 +150,7 @@ const messages = defineMessages({
   // Upgrade
   upgradeNow: 'Upgrade Now',
   upgradeNowDialog: 'Upgrade to Add Dialog',
-  upgradeBannerText: 'You are on our Free plan and creation of new Dialogs, Initiatives and Workspaces is not available.',
+  upgradeBannerText: 'Your free plan has expired and some functionality is not available.',
 
   // Share story
   shareButtonExplanation: 'Share a non-collaborator link.',

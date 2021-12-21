@@ -87,7 +87,7 @@ function Inbox(props) {
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [commentState] = useContext(CommentsContext);
   const [marketState] = useContext(MarketsContext);
-  const [investiblesState] = useContext(InvestiblesContext);
+  const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [diffState] = useContext(DiffContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -200,8 +200,9 @@ function Inbox(props) {
         }
       }
     }
-    addExpansionPanel(item, commentState, marketState, investiblesState, diffState, planningClasses,
-      marketPresencesState, marketStagesState, marketsState, mobileLayout);
+    addExpansionPanel({item, commentState, marketState, investiblesState, investiblesDispatch, diffState,
+      planningClasses, marketPresencesState, marketStagesState, marketsState, mobileLayout, messagesState,
+      messagesDispatch, operationRunning, setOperationRunning, intl});
     return <WorkListItem key={typeObjectId} id={typeObjectId} checkedDefault={checkAll}
                          workListItemFull={workListItemFull} workListItemDispatch={workListItemDispatch}
                          setDeterminate={setDeterminate} determinate={determinate} {...item} />;

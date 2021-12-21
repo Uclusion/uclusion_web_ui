@@ -27,12 +27,17 @@ import ExpiresDisplay from '../../../components/Expiration/ExpiresDisplay'
 import DecisionVoting from '../../Dialog/Decision/DecisionVoting'
 import { getInvestiblesForStage } from '../../Dialog/Decision/DecisionDialog'
 import DialogManage from '../../Dialog/DialogManage'
-import { Card } from '@material-ui/core'
+import { Card, Checkbox, FormControlLabel } from '@material-ui/core'
 import InitiativeVoting from '../../Investible/Initiative/InitiativeVoting'
 import YourVoting from '../../Investible/Voting/YourVoting'
+import { updateInvestible } from '../../../api/investibles'
+import { notify, onInvestibleStageChange } from '../../../utils/investibleFunctions'
+import { UNASSIGNED_TYPE, YELLOW_LEVEL } from '../../../constants/notifications'
 
-export function addExpansionPanel(item, commentState, marketState, investiblesState, diffState, planningClasses,
-  marketPresencesState, marketStagesState, marketsState, mobileLayout) {
+export function addExpansionPanel(props) {
+  const {item, commentState, marketState, investiblesState, investiblesDispatch, diffState,
+    planningClasses, marketPresencesState, marketStagesState, marketsState, mobileLayout, messagesState,
+    messagesDispatch, operationRunning, setOperationRunning, intl} = props;
   const { message } = item;
   const { type: messageType, market_id: marketId, comment_id: commentId, comment_market_id: commentMarketId,
     link_type: linkType, investible_id: investibleId, market_type: marketType } = message;
@@ -80,25 +85,58 @@ export function addExpansionPanel(item, commentState, marketState, investiblesSt
         marketId={marketId}
       />;
     }
-  } else if (messageType === 'UNREAD_DESCRIPTION') {
+  } else if (['UNREAD_DESCRIPTION', UNASSIGNED_TYPE].includes(messageType)) {
+    const market = getMarket(marketState, marketId) || {};
     if (!_.isEmpty(investibleId)) {
       const diff = getDiff(diffState, investibleId);
-      if (diff) {
-        const fullInvestible = getInvestible(investiblesState, investibleId) || {};
-        const { investible: myInvestible } = fullInvestible;
-        const { description } = myInvestible || {};
-        item.expansionPanel = (
-          <RaisedCard elevation={3}>
-            <div style={{padding: '1.25rem'}}>
-              <DescriptionOrDiff id={investibleId} description={description} showDiff={true}/>
+      const fullInvestible = getInvestible(investiblesState, investibleId) || {};
+      const { investible: myInvestible } = fullInvestible;
+      const { description } = myInvestible || {};
+      const marketInfo = getMarketInfo(fullInvestible, marketId) || {};
+      const { stage, assigned, open_for_investment: openForInvestment } = marketInfo;
+      const marketPresences = getMarketPresences(marketPresencesState, marketId);
+      const myPresence = marketPresences.find((presence) => presence.current_user) || {};
+      const isAdmin = myPresence && myPresence.is_admin;
+      item.expansionPanel = (
+        <RaisedCard elevation={3}>
+          <div style={{paddingLeft: '1.25rem', paddingTop: '0.75rem', paddingRight: '1rem', paddingBottom: '0.5rem'}}>
+            {openForInvestment && _.isEmpty(assigned) && (
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    value={openForInvestment}
+                    disabled={operationRunning || !isAdmin}
+                    checked={openForInvestment}
+                    onClick={() => {
+                      const updateInfo = {
+                        marketId,
+                        investibleId,
+                        openForInvestment: true,
+                      };
+                      setOperationRunning(true);
+                      return updateInvestible(updateInfo).then((fullInvestible) => {
+                        onInvestibleStageChange(stage, fullInvestible, investibleId, marketId, undefined,
+                          undefined, investiblesDispatch, () => {}, marketStagesState,
+                          messagesState, messagesDispatch, [UNASSIGNED_TYPE]);
+                        notify(myPresence.id, investibleId, UNASSIGNED_TYPE, YELLOW_LEVEL, investiblesState, market,
+                          messagesDispatch);
+                        setOperationRunning(false);
+                      });
+                    }}
+                  />
+                }
+                label={intl.formatMessage({ id: 'readyToStartCheckboxExplanation' })}
+              />
+            )}
+            <div style={{paddingTop: '0.5rem'}}>
+              <DescriptionOrDiff id={investibleId} description={description} showDiff={diff !== undefined}/>
             </div>
-          </RaisedCard>
-        );
-      }
+          </div>
+        </RaisedCard>
+      );
     } else {
       const diff = getDiff(diffState, marketId);
       if (diff) {
-        const market = getMarket(marketState, marketId) || {};
         const { description } = market;
         item.expansionPanel = (
           <RaisedCard elevation={3}>

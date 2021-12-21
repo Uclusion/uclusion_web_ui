@@ -5,6 +5,9 @@ export function updateStagesForMarket(dispatch, marketId, newStages){
 }
 
 export function getStages(state, marketId) {
+  if (!state) {
+    return [];
+  }
   return state[marketId] || [];
 }
 

@@ -40,6 +40,7 @@ import ChangeSuggstionIcon from '@material-ui/icons/ChangeHistory'
 import GavelIcon from '@material-ui/icons/Gavel'
 import { getFakeCommentsArray } from '../../utils/stringFunctions'
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
+import { getMarketInfo } from '../../utils/userFunctions'
 
 function DialogArchives(props) {
   const { hidden } = props;
@@ -65,8 +66,8 @@ function DialogArchives(props) {
   const verifiedStage = getVerifiedStage(marketStagesState, marketId) || {};
   const notDoingStage = getNotDoingStage(marketStagesState, marketId) || {};
   const marketInvestibles = getMarketInvestibles(investiblesState, marketId, searchResults) || [];
-  const verifiedInvestibles = getInvestiblesInStage(marketInvestibles, verifiedStage.id);
-  const notDoingInvestibles = getInvestiblesInStage(marketInvestibles, notDoingStage.id);
+  const verifiedInvestibles = getInvestiblesInStage(marketInvestibles, verifiedStage.id, marketId);
+  const notDoingInvestibles = getInvestiblesInStage(marketInvestibles, notDoingStage.id, marketId);
   const comments = getMarketComments(commentsState, marketId) || [];
   const resolvedMarketComments = comments.filter(comment => !comment.investible_id && comment.resolved) || [];
   const notTodoComments = resolvedMarketComments.filter(comment => comment.comment_type !== TODO_TYPE);
@@ -82,9 +83,8 @@ function DialogArchives(props) {
     if (_.isEmpty(assigneeFilter)) {
       return true;
     }
-    const { market_infos } = inv;
-    const myInfo = market_infos.find((element) => element.market_id === marketId);
-    return myInfo && myInfo.assigned.includes(assigneeFilter);
+    const myInfo = getMarketInfo(inv, marketId);
+    return myInfo && myInfo.assigned && myInfo.assigned.includes(assigneeFilter);
   });
 
   const { name, market_stage: marketStage, children } = renderableMarket;

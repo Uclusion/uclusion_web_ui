@@ -9,20 +9,19 @@ import {
   SEARCH_INDEX_CHANNEL
 } from '../SearchIndexContext/searchIndexContextMessages'
 import { TICKET_INDEX_CHANNEL } from '../TicketContext/ticketIndexContextMessages'
+import { getMarketInfo } from '../../utils/userFunctions'
 
 export function getMarketInvestibles(state, marketId, searchResults={}) {
   const { results, parentResults, search } = searchResults;
   const values = Object.values(state);
   return values.filter((inv) => {
-    const { market_infos, investible } = inv;
+    const { investible } = inv;
+    const marketInfo = getMarketInfo(inv, marketId);
     if (!_.isEmpty(search) && !(results.find((item) => item.id === investible.id) ||
       parentResults.find((id) => id === investible.id))) {
       return false;
     }
-    if (!market_infos) {
-      return false;
-    }
-    return market_infos.find((info) => info.market_id === marketId);
+    return !_.isEmpty(marketInfo);
   });
 }
 
@@ -50,13 +49,10 @@ export function getInvestibleName(investibleId, investibleState) {
   return name;
 }
 
-export function getInvestiblesInStage(investibles, stageId) {
+export function getInvestiblesInStage(investibles, stageId, marketId) {
   return investibles.filter((inv) => {
-    const { market_infos } = inv;
-    if (!market_infos) {
-      return false;
-    }
-    return market_infos.find((info) => info.stage === stageId);
+    const marketInfo = getMarketInfo(inv, marketId) || {};
+    return marketInfo.stage === stageId;
   });
 }
 

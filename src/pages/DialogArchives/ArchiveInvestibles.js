@@ -88,8 +88,8 @@ function getInvestibles(investibles, marketPresences, marketPresencesState, pres
   });
   const sortedData = _.sortBy(investibleData, 'updatedAt', 'name').reverse();
   const infoMap = investibles.reduce((acc, inv) => {
-    const { investible, market_infos } = inv;
-    const myInfo = market_infos.find((info) => info.market_id === marketId);
+    const { investible } = inv;
+    const myInfo = getMarketInfo(inv, marketId) || {};
     const { id } = investible;
     return {
       ...acc,

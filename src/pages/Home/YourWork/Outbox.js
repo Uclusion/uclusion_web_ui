@@ -96,12 +96,12 @@ function getMessageForComment(comment, market, labelId, Icon, intl, investibleSt
   if (comment.investible_id) {
     const investible = getInvestible(investibleState, comment.investible_id);
     const notDoingStage = getNotDoingStage(marketStagesState, market.id) || {};
-    const { market_infos } = investible;
-    if (market_infos.find((info) => info.stage === notDoingStage.id)) {
+    const marketInfo = getMarketInfo(investible, market.id) || {};
+    if (marketInfo.stage === notDoingStage.id) {
       return null;
     }
     const furtherWork = getFurtherWorkStage(marketStagesState, market.id) || {};
-    if (market_infos.find((info) => info.stage === furtherWork.id)) {
+    if (marketInfo.stage === furtherWork.id) {
       message.inActive = true;
     }
     message.investible = investible.investible.name;

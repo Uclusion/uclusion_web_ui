@@ -159,33 +159,23 @@ function PlanningDialog(props) {
 
   const furtherWorkStage = marketStages.find((stage) => (!stage.allows_assignment && !stage.close_comments_on_entrance)) || {};
   const requiresInputStage = marketStages.find((stage) => (!stage.allows_issues && stage.move_on_comment)) || {};
-  const furtherWorkInvestibles = getInvestiblesInStage(investibles, furtherWorkStage.id) || [];
+  const furtherWorkInvestibles = getInvestiblesInStage(investibles, furtherWorkStage.id, marketId) || [];
   const furtherWorkReadyToStart = _.remove(furtherWorkInvestibles, (investible) => {
     const marketInfo = getMarketInfo(investible, marketId);
     const { open_for_investment: openForInvestment } = marketInfo;
     return openForInvestment;
   });
-  const requiresInputInvestibles = getInvestiblesInStage(investibles, requiresInputStage.id);
-  const blockedInvestibles = getInvestiblesInStage(investibles, inBlockingStage.id);
+  const requiresInputInvestibles = getInvestiblesInStage(investibles, requiresInputStage.id, marketId);
+  const blockedInvestibles = getInvestiblesInStage(investibles, inBlockingStage.id, marketId);
   const swimlaneInvestibles = investibles.filter((inv) => {
-    const { market_infos } = inv;
-    if (!market_infos) {
-      return false;
-    }
-    return market_infos.find((info) => {
-      const stage = marketStages.find((stage) => stage.id === info.stage);
-      return stage && stage.appears_in_context && !stage.appears_in_market_summary;
-    });
+    const marketInfo = getMarketInfo(inv, marketId) || {};
+    const stage = marketStages.find((stage) => stage.id === marketInfo.stage);
+    return stage && stage.appears_in_context && !stage.appears_in_market_summary;
   });
   const archiveInvestibles = investibles.filter((inv) => {
-    const { market_infos } = inv;
-    if (!market_infos) {
-      return false;
-    }
-    return market_infos.find((info) => {
-      const stage = marketStages.find((stage) => stage.id === info.stage);
-      return stage && stage.close_comments_on_entrance;
-    });
+    const marketInfo = getMarketInfo(inv, marketId) || {};
+    const stage = marketStages.find((stage) => stage.id === marketInfo.stage);
+    return stage && stage.close_comments_on_entrance;
   });
   const highlightMap = {};
   requiresInputInvestibles.forEach((investible) => {

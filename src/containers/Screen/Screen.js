@@ -190,31 +190,22 @@ function Screen(props) {
     if (!_.isEmpty(messagesState)) {
       let calcPend = 0;
       const { messages } = messagesState;
-      let hasYellow = false;
       const dupeHash = {};
       if (!_.isEmpty(messages)) {
         messages.forEach((message) => {
-          const { level, link_multiple: linkMultiple, is_highlighted: isHighlighted } = message;
+          const { link_multiple: linkMultiple, is_highlighted: isHighlighted } = message;
           if (isHighlighted) {
-            if (level === 'RED') {
-              if (!linkMultiple) {
-                calcPend += 1;
-              } else if (!dupeHash[linkMultiple]) {
-                dupeHash[linkMultiple] = message;
-                calcPend += 1;
-              }
-            } else if (level === 'YELLOW') {
-              hasYellow = true;
+            if (!linkMultiple) {
+              calcPend += 1;
+            } else if (!dupeHash[linkMultiple]) {
+              dupeHash[linkMultiple] = message;
+              calcPend += 1;
             }
           }
         });
       }
-      if (calcPend === 0) {
-        if (hasYellow) {
-          setPendWarning('*');
-        }
-      } else {
-        setPendWarning(`(${calcPend})`)
+      if (calcPend > 0) {
+        setPendWarning(`(${calcPend})`);
       }
     }
   }, [messagesState]);

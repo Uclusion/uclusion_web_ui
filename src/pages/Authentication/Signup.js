@@ -17,7 +17,6 @@ import ApiBlockingButton from '../../components/SpinBlocking/ApiBlockingButton'
 import config from '../../config'
 import SpinningButton from '../../components/SpinBlocking/SpinningButton'
 import PhoneField, { phoneChecker } from '../../components/TextFields/PhoneField'
-import { Helmet } from 'react-helmet'
 import { Auth } from 'aws-amplify'
 import { redirectFromHistory, setEmail, setInvitationMarker, setRedirect, setUtm } from '../../utils/redirectUtils'
 import { GithubLoginButton } from 'react-social-login-buttons'
@@ -364,10 +363,6 @@ function Signup(props) {
   const formInvalid = !phoneValid || !terms || _.isEmpty(name) || (_.isEmpty(email) && _.isEmpty(code)) || _.isEmpty(password) || _.isEmpty(repeat) || password !== repeat || password.length < 6;
   return (
     <Container component="main" maxWidth="xs">
-      <Helmet>
-        <meta name="google-signin-client_id" content="YOUR_CLIENT_ID.apps.googleusercontent.com"></meta>
-        <script src="https://apis.google.com/js/platform.js"></script>
-      </Helmet>
       <CssBaseline/>
       <dl className={clsx(myMarket ? classes.stack : classes.root)} >
 

@@ -12943,7 +12943,7 @@ react-formdata-wizard@^0.0.2:
   resolved "https://registry.yarnpkg.com/react-formdata-wizard/-/react-formdata-wizard-0.0.2.tgz#481aa1e5ca09215fbc29ec942472b6b79048703b"
   integrity sha512-nrrln6FcK1dzXWzU1yWy0S81Uo+aQ5zLHqEH78kuxIFdCxuIQ/d9KIoTrLR6svPFfC3rWpMYwQIyN9G2vuJeOQ==
 
-react-helmet@^6.0.0:
+react-helmet@^6.1.0:
   version "6.1.0"
   resolved "https://registry.yarnpkg.com/react-helmet/-/react-helmet-6.1.0.tgz#a750d5165cb13cf213e44747502652e794468726"
   integrity sha512-4uMzEY9nlDlgxr61NL3XbKRy1hEkXmKNXhjbAIOVw5vcFrsdYbH2FEwcNyWvWinl103nXgzYNlns9ca+8kFiWw==

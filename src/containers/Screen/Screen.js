@@ -1,7 +1,6 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect } from 'react'
 import _ from 'lodash'
 import PropTypes from 'prop-types'
-import { Helmet } from 'react-helmet'
 import { Container, ListItem, ListItemText, Paper, useMediaQuery, useTheme } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import { useHistory } from 'react-router'
@@ -165,7 +164,6 @@ function Screen(props) {
   const [messagesState] = useContext(NotificationsContext);
   const [searchResults] = useContext(SearchResultsContext);
   const { search } = searchResults;
-  const [pendWarning, setPendWarning] = useState('');
 
   const {
     breadCrumbs,
@@ -187,28 +185,34 @@ function Screen(props) {
   } = props;
 
   useEffect(() => {
-    if (!_.isEmpty(messagesState)) {
-      let calcPend = 0;
-      const { messages } = messagesState;
-      const dupeHash = {};
-      if (!_.isEmpty(messages)) {
-        messages.forEach((message) => {
-          const { link_multiple: linkMultiple, is_highlighted: isHighlighted } = message;
-          if (isHighlighted) {
-            if (!linkMultiple) {
-              calcPend += 1;
-            } else if (!dupeHash[linkMultiple]) {
-              dupeHash[linkMultiple] = message;
-              calcPend += 1;
+    if (!hidden && !_.isEmpty(tabTitle)) {
+      if (!_.isEmpty(messagesState)) {
+        let calcPend = 0;
+        const { messages } = messagesState;
+        const dupeHash = {};
+        if (!_.isEmpty(messages)) {
+          messages.forEach((message) => {
+            const { link_multiple: linkMultiple, is_highlighted: isHighlighted } = message;
+            if (isHighlighted) {
+              if (!linkMultiple) {
+                calcPend += 1;
+              } else if (!dupeHash[linkMultiple]) {
+                dupeHash[linkMultiple] = message;
+                calcPend += 1;
+              }
             }
-          }
-        });
-      }
-      if (calcPend > 0) {
-        setPendWarning(`(${calcPend})`);
+          });
+        }
+        if (calcPend > 0) {
+          document.title = `Uclusion(${calcPend}) | ${createTitle(tabTitle, 11,)}`;
+        } else {
+          document.title = `Uclusion | ${createTitle(tabTitle, 11,)}`;
+        }
+      } else {
+        document.title = `Uclusion | ${createTitle(tabTitle, 11,)}`;
       }
     }
-  }, [messagesState]);
+  }, [hidden, messagesState, tabTitle]);
 
   const reallyAmLoading = !hidden && appEnabled && (loading || _.isEmpty(user));
 
@@ -263,14 +267,6 @@ function Screen(props) {
   );
   return (
     <div className={classes.root} id="root">
-      <Helmet defer={false}>
-        <title>
-          {`Uclusion${pendWarning} | ${createTitle(
-            tabTitle,
-            11,
-          )}`}
-        </title>
-      </Helmet>
       <Header
         title={title}
         titleIcon={titleIcon}
@@ -336,7 +332,6 @@ Screen.propTypes = {
 Screen.defaultProps = {
   breadCrumbs: [],
   title: '',
-  tabTitle: '',
   titleIcon: undefined,
   hidden: false,
   loading: false,

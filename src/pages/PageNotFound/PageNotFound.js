@@ -25,7 +25,6 @@ function PageNotFound(props) {
   return (
     <Screen
       hidden={hidden}
-      tabTitle={intl.formatMessage({ id: 'warning_404_message' })}
       loading={false}
     >
       <Paper className={classes.container}>

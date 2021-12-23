@@ -182,8 +182,16 @@ function WorkListItem(props) {
     <Item key={`workListItem${id}`} id={`workListItem${id}`}>
       <Link href={link} style={{ width: '100%' }} key={`link${id}`} onClick={
         (event) => {
-          preventDefaultAndProp(event);
-          navigate(history, link, false, true);
+          if (isDeletable) {
+            return deleteActionButtonOnclick(event)
+              .then(() => navigate(history, link, false, true));
+          } else if (read) {
+            preventDefaultAndProp(event);
+            navigate(history, link, false, true);
+          } else {
+            return archiveActionButtonOnclick(event)
+              .then(() => navigate(history, link, false, true));
+          }
         }
       }>
         <Div className={cx(read && 'MailListItem-read')}>

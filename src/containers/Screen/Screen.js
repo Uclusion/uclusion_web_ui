@@ -14,6 +14,7 @@ import List from '@material-ui/core/List'
 import SearchBox from '../../components/Search/SearchBox'
 import clsx from 'clsx'
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
+import { getInboxCount } from '../../contexts/NotificationsContext/notificationsContextHelper'
 
 const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -186,28 +187,9 @@ function Screen(props) {
 
   useEffect(() => {
     if (!hidden && !_.isEmpty(tabTitle)) {
-      if (!_.isEmpty(messagesState)) {
-        let calcPend = 0;
-        const { messages } = messagesState;
-        const dupeHash = {};
-        if (!_.isEmpty(messages)) {
-          messages.forEach((message) => {
-            const { link_multiple: linkMultiple, is_highlighted: isHighlighted } = message;
-            if (isHighlighted) {
-              if (!linkMultiple) {
-                calcPend += 1;
-              } else if (!dupeHash[linkMultiple]) {
-                dupeHash[linkMultiple] = message;
-                calcPend += 1;
-              }
-            }
-          });
-        }
-        if (calcPend > 0) {
-          document.title = `Uclusion(${calcPend}) | ${createTitle(tabTitle, 11,)}`;
-        } else {
-          document.title = `Uclusion | ${createTitle(tabTitle, 11,)}`;
-        }
+      const calcPend = getInboxCount(messagesState);
+      if (calcPend > 0) {
+        document.title = `Uclusion(${calcPend}) | ${createTitle(tabTitle, 11,)}`;
       } else {
         document.title = `Uclusion | ${createTitle(tabTitle, 11,)}`;
       }

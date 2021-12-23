@@ -29,6 +29,7 @@ import { usePlanningInvestibleStyles } from '../../Investible/Planning/PlanningI
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import { usePageStateReducer } from '../../../components/PageState/pageStateHooks'
+import { getInboxCount } from '../../../contexts/NotificationsContext/notificationsContextHelper'
 
 function getPriorityIcon(level) {
   switch (level) {
@@ -108,12 +109,6 @@ function Inbox(props) {
   }, [checkAll, determinate])
 
   let messagesFull = (messagesUnsafe || []).filter((message) => message.type !== 'UNREAD_REPORT');
-  let unreadCount = 0;
-  if (isJarDisplay) {
-    const messages = messagesFull.filter((message) => message.is_highlighted);
-    unreadCount = messages.length;
-  }
-
   let messagesOrdered;
   if (isJarDisplay) {
     messagesOrdered = _.orderBy(messagesFull, [(message) => {
@@ -144,6 +139,7 @@ function Inbox(props) {
     navigate(history, '/inbox');
   };
   if (isJarDisplay) {
+    const unreadCount = getInboxCount(messagesState);
     const first = _.isEmpty(messagesFull) ? undefined : messagesOrdered[0];
     return (
       <div id='inboxNotification' key='inbox' onClick={goFullInboxClick} className={classes.bellButton}>
@@ -161,9 +157,9 @@ function Inbox(props) {
   const dupeHash = {};
   // Filter out duplicates by hashing on {type}_{link_multiple}
   messagesOrdered = messagesOrdered.filter((message) => {
-    const { link_multiple: linkMultiple, type: aType } = message;
+    const { link_multiple: linkMultiple, type: aType, is_highlighted: isHighlighted } = message;
     if (linkMultiple) {
-      const myHash = `${aType}_${linkMultiple}`;
+      const myHash = `${aType}_${linkMultiple}_${isHighlighted}`;
       if (dupeHash[myHash]) {
         return false;
       }

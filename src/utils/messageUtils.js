@@ -82,17 +82,6 @@ export function messageText(message, intl) {
   }
 }
 
-/**
- * Gets all messages of the given level. If no messages of that level are found
- * returns []
- * @param level
- * @param unsafeMessages
- */
-export function filterMessagesToLevel(level, unsafeMessages){
-  const messages = unsafeMessages || [];
-  return messages.filter((message) => message.level === level) || [];
-}
-
 export function findMessagesForCommentId(commentId, state) {
   const { messages } = (state || {});
   const safeMessages = messages || [];

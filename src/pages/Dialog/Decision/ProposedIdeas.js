@@ -133,9 +133,13 @@ function ProposedIdeas(props) {
 }
 
 ProposedIdeas.propTypes = {
-  isAdmin: PropTypes.bool.isRequired,
+  isAdmin: PropTypes.bool,
   investibles: PropTypes.arrayOf(PropTypes.object).isRequired,
   marketId: PropTypes.string.isRequired,
 };
+
+ProposedIdeas.defaultProps = {
+  isAdmin: false
+}
 
 export default ProposedIdeas;

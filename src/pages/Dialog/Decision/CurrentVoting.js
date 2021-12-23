@@ -206,7 +206,7 @@ function CurrentVoting(props) {
 }
 
 CurrentVoting.propTypes = {
-  isAdmin: PropTypes.bool.isRequired,
+  isAdmin: PropTypes.bool,
   investibles: PropTypes.arrayOf(PropTypes.object),
   marketPresences: PropTypes.arrayOf(PropTypes.object),
   marketId: PropTypes.string.isRequired,
@@ -215,6 +215,7 @@ CurrentVoting.propTypes = {
 };
 
 CurrentVoting.defaultProps = {
+  isAdmin: false,
   investibles: [],
   marketPresences: [],
   comments: []

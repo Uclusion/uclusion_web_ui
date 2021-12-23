@@ -3,7 +3,6 @@ import PropTypes from 'prop-types'
 import _ from 'lodash'
 import { FormattedMessage, useIntl } from 'react-intl'
 import {
-  Button,
   Card,
   CardActions,
   CardContent,
@@ -16,7 +15,6 @@ import {
   TextField
 } from '@material-ui/core'
 import { removeInvestment, updateInvestment } from '../../../api/marketInvestibles'
-import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import {
@@ -26,7 +24,6 @@ import {
 } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { partialUpdateInvestment } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
-import clsx from 'clsx'
 import { Dialog } from '../../../components/Dialogs'
 import WarningIcon from '@material-ui/icons/Warning'
 import { useLockedDialogStyles } from '../../Dialog/DialogBodyEdit'
@@ -347,9 +344,9 @@ function AddEditVote(props) {
             </SpinningIconLabelButton>
           )}
           {warnClearVotes && (
-            <Button onClick={toggleOpen} className={classes.primaryAction}>
+            <SpinningIconLabelButton icon={Add} onClick={toggleOpen} doSpin={false}>
               {intl.formatMessage({ id: voteId })}
-            </Button>
+            </SpinningIconLabelButton>
           )}
         </CardActions>
       </Card>
@@ -360,19 +357,9 @@ function AddEditVote(props) {
         issueWarningId="clearVotes"
         /* slots */
         actions={
-          <SpinBlockingButton
-            className={clsx(
-              lockedDialogClasses.action,
-              lockedDialogClasses.actionEdit
-            )}
-            disableFocusRipple
-            marketId={marketId}
-            onClick={mySave}
-            hasSpinChecker
-            onSpinStop={onSaveSpinStop}
-          >
-            <FormattedMessage id="issueProceed" />
-          </SpinBlockingButton>
+          <SpinningIconLabelButton onClick={mySave} icon={Add} id="issueProceedButton">
+            {intl.formatMessage({ id: 'issueProceed' })}
+          </SpinningIconLabelButton>
         }
       />
       {openIssue !== false && (
@@ -414,15 +401,10 @@ function ClearVotesDialog(props) {
       /* slots */
       actions={
         <React.Fragment>
+          <SpinningIconLabelButton onClick={onClose} doSpin={false} icon={Clear} ref={autoFocusRef}>
+            <FormattedMessage id="lockDialogCancel"/>
+          </SpinningIconLabelButton>
           {actions}
-          <Button
-            className={clsx(classes.action, classes.actionCancel)}
-            disableFocusRipple
-            onClick={onClose}
-            ref={autoFocusRef}
-          >
-            <FormattedMessage id="lockDialogCancel" />
-          </Button>
         </React.Fragment>
       }
       content={<FormattedMessage id={issueWarningId} />}

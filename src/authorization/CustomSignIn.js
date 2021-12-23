@@ -15,7 +15,6 @@ import InputAdornment from '@material-ui/core/InputAdornment'
 import IconButton from '@material-ui/core/IconButton'
 import { Visibility, VisibilityOff } from '@material-ui/icons'
 import { Auth } from 'aws-amplify'
-import { Helmet } from 'react-helmet'
 import { withRouter } from 'react-router';
 import { redirectFromHistory, setRedirect } from '../utils/redirectUtils'
 
@@ -142,10 +141,6 @@ class CustomSignIn extends SignIn {
 
     return (
       <Container component="main" maxWidth="xs">
-        <Helmet>
-            <meta name="google-signin-client_id" content="YOUR_CLIENT_ID.apps.googleusercontent.com"></meta>
-            <script src="https://apis.google.com/js/platform.js"></script>
-          </Helmet>
         <CssBaseline />
         <div className={classes.paper}>
           <Avatar className={classes.avatar}>

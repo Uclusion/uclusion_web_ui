@@ -241,9 +241,9 @@ function WorkListItem(props) {
               </StyledIconButton>
             )}
           </Box>
-          {mobileLayout ? React.Fragment : (read ? (<Title>{title}</Title>) : (<TitleB>{title}</TitleB>))}
+          {read ? (<Title>{title}</Title>) : (<TitleB>{title}</TitleB>)}
           {mobileLayout || !people ? React.Fragment : <GravatarGroup users={people} className={classes.gravatarStyle}/> }
-          {read ? (<Text>{fullText}</Text>) : (<TextB>{fullText}</TextB>)}
+          {mobileLayout ? React.Fragment : (read ? (<Text>{fullText}</Text>) : (<TextB>{fullText}</TextB>))}
           {mobileLayout || !date ? React.Fragment : (read ? (<DateLabel>{date}</DateLabel>) : (<DateLabelB>{date}</DateLabelB>))}
         </Div>
       </Link>

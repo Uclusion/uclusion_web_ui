@@ -1155,6 +1155,7 @@ function Reply(props) {
             commentAddState={replyAddState}
             updateCommentAddState={updateReplyAddState}
             commentAddStateReset={replyAddStateReset}
+            threadMessages={messages}
           />
         )}
       </div>

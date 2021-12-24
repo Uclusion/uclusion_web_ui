@@ -36,9 +36,8 @@ import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLab
 import { Add, Clear, SettingsBackupRestore } from '@material-ui/icons'
 import { editorReset, getControlPlaneName, useEditor } from '../../../components/TextEditors/quillHooks'
 import { pushMessage } from '../../../utils/MessageBusUtils';
-import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
-import { findMessagesForCommentId } from '../../../utils/messageUtils'
+import { removeMessagesForCommentId } from '../../../utils/messageUtils'
 import { getQuillStoredState } from '../../../components/TextEditors/QuillEditor2'
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 import WarningDialog from '../../../components/Warnings/WarningDialog'
@@ -196,10 +195,7 @@ function PlanningInvestibleAdd(props) {
           resolveComments && requiresInputId ? [requiresInputId] : undefined)
           .then((movedComments) => {
             fromCommentIds.forEach((commentId) => {
-              const commentMessages = findMessagesForCommentId(commentId, messagesState) || [];
-              commentMessages.forEach((message) => {
-                messagesDispatch(removeMessage(message));
-              });
+              removeMessagesForCommentId(commentId, messagesState, messagesDispatch);
             });
             const comments = getMarketComments(commentsState, marketId);
             refreshMarketComments(commentsDispatch, marketId, [...movedComments, ...comments]);

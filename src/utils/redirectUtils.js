@@ -7,7 +7,6 @@ const LAST_WORKSPACE_LINK_LOCAL_STORAGE_KEY = 'last_workspace_link';
 const WORKSPACE_LOCAL_STORAGE_KEY = 'current_workspace';
 const UTM_LOCAL_STORAGE_KEY = 'utm';
 const EMAIL_LOCAL_STORAGE_KEY = 'email_storage';
-const INVITATION_MARKER_STORAGE_KEY = 'invitation_marker';
 
 export function redirectFromHistory(history) {
   const { location } = history;
@@ -59,10 +58,6 @@ export function setCurrentWorkspace(location) {
   setLoginPersistentItem(WORKSPACE_LOCAL_STORAGE_KEY, location);
 }
 
-export function setInvitationMarker() {
-  setLoginPersistentItem(INVITATION_MARKER_STORAGE_KEY, 'invited');
-}
-
 export function setUtm(utm) {
   setLoginPersistentItem(UTM_LOCAL_STORAGE_KEY, utm);
 }
@@ -81,10 +76,6 @@ export function getCurrentWorkspace() {
 
 export function getUtm() {
   return getLoginPersistentItem(UTM_LOCAL_STORAGE_KEY);
-}
-
-export function getInvitationMarker() {
-  return getLoginPersistentItem(INVITATION_MARKER_STORAGE_KEY);
 }
 
 export function getEmail() {

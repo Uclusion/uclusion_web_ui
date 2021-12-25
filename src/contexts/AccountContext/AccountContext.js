@@ -6,6 +6,7 @@ import { getAccount } from '../../api/sso'
 import { updateAccount, updateBilling, updateInvoices } from './accountContextHelper'
 import { getInvoices, getPaymentInfo } from '../../api/users'
 import _ from 'lodash'
+import { isSignedOut } from '../../utils/userFunctions'
 
 const EMPTY_STATE = { account: {}, billingInfo: {}, initializing: true };
 const AccountContext = React.createContext(EMPTY_STATE);
@@ -27,23 +28,25 @@ function AccountProvider (props) {
   }, [state]);
 
   useEffect(() => {
-    beginListening(dispatch);
-    getAccount()
-      .then((loginInfo) => {
-        const { account } = loginInfo
-        updateAccount(dispatch, account);
-        const { billing_customer_id: customerId } = account;
-        if (!_.isEmpty(customerId)) {
-          return getPaymentInfo()
-            .then((paymentInfo) => {
-              updateBilling(dispatch, paymentInfo);
-              return getInvoices();
-            })
-            .then((invoices) => {
-              updateInvoices(dispatch, invoices);
-            });
-        }
-      });
+    if (!isSignedOut()) {
+      beginListening(dispatch);
+      getAccount()
+        .then((loginInfo) => {
+          const { account } = loginInfo
+          updateAccount(dispatch, account);
+          const { billing_customer_id: customerId } = account;
+          if (!_.isEmpty(customerId)) {
+            return getPaymentInfo()
+              .then((paymentInfo) => {
+                updateBilling(dispatch, paymentInfo);
+                return getInvoices();
+              })
+              .then((invoices) => {
+                updateInvoices(dispatch, invoices);
+              });
+          }
+        });
+    }
   }, []);
 
   return (

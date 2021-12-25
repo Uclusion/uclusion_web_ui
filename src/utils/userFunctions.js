@@ -2,12 +2,16 @@ import { VerticalBarSeries, XYPlot } from 'react-vis'
 import React from 'react'
 import { Card, Grid, Typography } from '@material-ui/core'
 import { INITIATIVE_TYPE } from '../constants/markets'
-import { clearUclusionLocalStorage } from '../components/localStorageUtils'
+import {
+  clearUclusionLocalStorage, getLoginPersistentItem, setLoginPersistentItem,
+} from '../components/localStorageUtils'
 import TokenStorageManager from '../authorization/TokenStorageManager'
 import { Auth } from 'aws-amplify'
 import { getMarketPresences } from '../contexts/MarketPresencesContext/marketPresencesHelper'
 import _ from 'lodash'
 import config from '../config'
+
+const LOGOUT_MARKER_KEY = 'logout_marker';
 
 export function extractUsersList (marketPresencesState, addToMarketId, workspaces, includeAll=true) {
   // The account user is being stored with an undefined market ID and so need to avoid it
@@ -77,8 +81,18 @@ export function getMarketInfo(investible, marketId) {
   return investible.market_infos.find((info) => info.market_id === marketId);
 }
 
+export function isSignedOut() {
+  return !_.isEmpty(getLoginPersistentItem(LOGOUT_MARKER_KEY));
+}
+
+export function clearSignedOut() {
+  setLoginPersistentItem(LOGOUT_MARKER_KEY, '');
+  window.location.reload();
+}
+
 export function onSignOut() {
   console.info('Signing out');
+  setLoginPersistentItem(LOGOUT_MARKER_KEY, 'logged_out');
   // See https://aws-amplify.github.io/docs/js/authentication
   return clearUclusionLocalStorage(false)
     .then(() => new TokenStorageManager().clearTokenStorage())

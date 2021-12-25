@@ -11,7 +11,7 @@ import { registerListener } from '../utils/MessageBusUtils'
 import { refreshNotifications, refreshVersions } from './VersionsContext/versionsContextHelper'
 import { getLoginPersistentItem, setLoginPersistentItem } from '../components/localStorageUtils'
 import { getNotifications } from '../api/summaries'
-import { onSignOut } from '../utils/userFunctions'
+import { isSignedOut, onSignOut } from '../utils/userFunctions'
 import { LEADER_CHANNEL, LeaderContext } from './LeaderContext/LeaderContext'
 import { BroadcastChannel } from 'broadcast-channel'
 import { VIEW_EVENT, VISIT_CHANNEL } from '../utils/marketIdPathFunctions'
@@ -185,7 +185,9 @@ function WebSocketProvider(props) {
           setSocketListener(myListener);
         });
     }
-    initialize();
+    if (!isSignedOut()) {
+      initialize();
+    }
     return () => {};
   }, [config, leaderDispatch]);
 

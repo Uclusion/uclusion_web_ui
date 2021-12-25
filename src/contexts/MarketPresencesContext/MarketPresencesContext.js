@@ -4,6 +4,8 @@ import reducer, { initializeState } from './marketPresencesContextReducer'
 import LocalForageHelper from '../../utils/LocalForageHelper'
 import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
+import { isSignedOut } from '../../utils/userFunctions'
+import { clearUclusionLocalStorage } from '../../components/localStorageUtils'
 
 const PRESENCE_CHANNEL = 'presence';
 const MARKET_PRESENCES_CONTEXT_NAMESPACE = 'market_presences';
@@ -15,34 +17,40 @@ function MarketPresencesProvider(props) {
   const [, setChannel] = useState(undefined);
 
   useEffect(() => {
-    const myChannel = new BroadcastChannel(PRESENCE_CHANNEL);
-    myChannel.onmessage = (msg) => {
-      if (msg !== broadcastId) {
-        console.info(`Reloading on presence channel message ${msg} with ${broadcastId}`);
-        const lfg = new LocalForageHelper(MARKET_PRESENCES_CONTEXT_NAMESPACE);
-        lfg.getState()
-          .then((diskState) => {
-            if (diskState) {
-              dispatch(initializeState(diskState));
-            }
-          });
+    if (!isSignedOut()) {
+      const myChannel = new BroadcastChannel(PRESENCE_CHANNEL);
+      myChannel.onmessage = (msg) => {
+        if (msg !== broadcastId) {
+          console.info(`Reloading on presence channel message ${msg} with ${broadcastId}`);
+          const lfg = new LocalForageHelper(MARKET_PRESENCES_CONTEXT_NAMESPACE);
+          lfg.getState()
+            .then((diskState) => {
+              if (diskState) {
+                dispatch(initializeState(diskState));
+              }
+            });
+        }
       }
+      setChannel(myChannel);
     }
-    setChannel(myChannel);
     return () => {};
   }, []);
 
   useEffect(() => {
-    const lfh = new LocalForageHelper(MARKET_PRESENCES_CONTEXT_NAMESPACE);
-    lfh.getState()
-      .then((diskState) => {
-        if (diskState) {
-          dispatch(initializeState(diskState));
-        } else {
-          dispatch(initializeState({}));
-        }
-      });
-    beginListening(dispatch);
+    if (!isSignedOut()) {
+      const lfh = new LocalForageHelper(MARKET_PRESENCES_CONTEXT_NAMESPACE);
+      lfh.getState()
+        .then((diskState) => {
+          if (diskState) {
+            dispatch(initializeState(diskState));
+          } else {
+            dispatch(initializeState({}));
+          }
+        });
+      beginListening(dispatch);
+    } else {
+      clearUclusionLocalStorage(false);
+    }
     return () => {};
   }, []);
 

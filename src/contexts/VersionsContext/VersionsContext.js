@@ -7,6 +7,8 @@ import reducer, {
 } from './versionsContextReducer'
 import beginListening from './versionsContextMessages'
 import LocalForageHelper from '../../utils/LocalForageHelper'
+import { isSignedOut } from '../../utils/userFunctions'
+import { clearUclusionLocalStorage } from '../../components/localStorageUtils'
 
 const VersionsContext = React.createContext(EMPTY_STATE);
 
@@ -16,17 +18,21 @@ function VersionsProvider(props) {
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
 
   useEffect(() => {
-    // console.debug('Versions context listening');
-    beginListening(dispatch);
-    // load state from storage
-    const lfg = new LocalForageHelper(VERSIONS_CONTEXT_NAMESPACE);
-    lfg.getState()
-      .then((diskState) => {
-        // Note: My stored empty state has the version set to INITIALIZATION
-        // which lets the global version refresh know to turn on the global spin lock
-        const myDiskState = diskState || MY_STORED_EMPTY_STATE;
-        dispatch(initializeVersionsAction(myDiskState));
-      });
+    if (!isSignedOut()) {
+      // console.debug('Versions context listening');
+      beginListening(dispatch);
+      // load state from storage
+      const lfg = new LocalForageHelper(VERSIONS_CONTEXT_NAMESPACE);
+      lfg.getState()
+        .then((diskState) => {
+          // Note: My stored empty state has the version set to INITIALIZATION
+          // which lets the global version refresh know to turn on the global spin lock
+          const myDiskState = diskState || MY_STORED_EMPTY_STATE;
+          dispatch(initializeVersionsAction(myDiskState));
+        });
+    } else {
+      clearUclusionLocalStorage(false);
+    }
     return () => {};
   }, []);
 

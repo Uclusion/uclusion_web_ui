@@ -17,6 +17,7 @@ import { Visibility, VisibilityOff } from '@material-ui/icons'
 import { Auth } from 'aws-amplify'
 import { withRouter } from 'react-router';
 import { redirectFromHistory, setRedirect } from '../utils/redirectUtils'
+import { clearSignedOut, isSignedOut } from '../utils/userFunctions'
 
 const useStyles = (theme) => ({
   paper: {
@@ -120,6 +121,9 @@ class CustomSignIn extends SignIn {
     }
   }
   constructor(props) {
+    if (isSignedOut()) {
+      clearSignedOut();
+    }
     super(props);
     const { defaultEmail } = props;
     this._validAuthStates = ['signIn', 'signedOut', 'signedUp'];

@@ -1,10 +1,12 @@
 import React, { useEffect, useReducer } from 'react';
 import {
+  clearUclusionLocalStorage,
   getUclusionLocalStorageItem,
   setUclusionLocalStorageItem,
-} from '../../components/localStorageUtils';
+} from '../../components/localStorageUtils'
 import { reducer } from './tourContextReducer';
 import beginListening from './tourContextMessages'
+import { isSignedOut } from '../../utils/userFunctions'
 
 const EMPTY_CONTEXT = {
   steps: [],
@@ -21,12 +23,18 @@ function TourProvider(props) {
   const [state, dispatch] = useReducer(reducer, defaultValue, undefined);
 
   useEffect(() => {
-    beginListening(dispatch);
+    if (!isSignedOut()) {
+      beginListening(dispatch);
+    }
     return () => {};
   }, []);
 
   useEffect(() => {
-    setUclusionLocalStorageItem(TOUR_CONTEXT_KEY, state);
+    if (!isSignedOut()) {
+      setUclusionLocalStorageItem(TOUR_CONTEXT_KEY, state);
+    } else {
+      clearUclusionLocalStorage(false);
+    }
   }, [state]);
 
   return (

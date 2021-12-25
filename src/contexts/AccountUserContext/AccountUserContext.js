@@ -1,8 +1,13 @@
 import React, { useEffect, useReducer } from 'react'
-import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../../components/localStorageUtils'
+import {
+  clearUclusionLocalStorage,
+  getUclusionLocalStorageItem,
+  setUclusionLocalStorageItem
+} from '../../components/localStorageUtils'
 import { reducer, resetState } from './accountUserContextReducer'
 import { beginListening } from './accountUserContextMessages'
 import _ from 'lodash'
+import { isSignedOut } from '../../utils/userFunctions'
 
 export const EMPTY_STATE = {};
 const AccountUserContext = React.createContext(EMPTY_STATE);
@@ -20,15 +25,21 @@ function AccountUserProvider (props) {
   const [state, dispatch] = useReducer(reducer, defaultValue);
 
   useEffect(() => {
-    beginListening(dispatch);
+    if (!isSignedOut()) {
+      beginListening(dispatch);
+    } else {
+      clearUclusionLocalStorage(false);
+    }
     return () => {}
   }, []);
 
   useEffect(() => {
-    setUclusionLocalStorageItem(ACCOUNT_USER_CONTEXT_KEY, state);
-    // We do not call the API here because the account might not be created yet (async)
-    if (!_.isEmpty(state) && authState !== 'signedIn') {
-      dispatch(resetState());
+    if (!isSignedOut()) {
+      setUclusionLocalStorageItem(ACCOUNT_USER_CONTEXT_KEY, state);
+      // We do not call the API here because the account might not be created yet (async)
+      if (!_.isEmpty(state) && authState !== 'signedIn') {
+        dispatch(resetState());
+      }
     }
     return () => {
     }

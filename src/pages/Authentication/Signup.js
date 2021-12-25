@@ -18,12 +18,13 @@ import config from '../../config'
 import SpinningButton from '../../components/SpinBlocking/SpinningButton'
 import PhoneField, { phoneChecker } from '../../components/TextFields/PhoneField'
 import { Auth } from 'aws-amplify'
-import { redirectFromHistory, setEmail, setInvitationMarker, setRedirect, setUtm } from '../../utils/redirectUtils'
+import { redirectFromHistory, setEmail, setRedirect, setUtm } from '../../utils/redirectUtils'
 import { GithubLoginButton } from 'react-social-login-buttons'
 import { toastError } from '../../utils/userMessage'
 import queryString from 'query-string'
 import Gravatar from '../../components/Avatars/Gravatar'
 import CardContent from '@material-ui/core/CardContent'
+import { clearSignedOut, isSignedOut } from '../../utils/userFunctions'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -182,8 +183,10 @@ function Signup(props) {
   const LOGO_COLOR = '#3F6B72';
 
   useEffect(() => {
+    if (isSignedOut()) {
+      clearSignedOut();
+    }
     if (marketToken) {
-      setInvitationMarker();
       console.info('Loading info');
       getMarketInfoForToken(marketToken)
         .then((market) => {

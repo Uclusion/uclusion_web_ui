@@ -1,5 +1,4 @@
 import React, { useContext } from 'react'
-import RaisedCard from '../../../components/Cards/RaisedCard'
 import { getTomorrow } from '../../../utils/timerUtils'
 import DatePicker from 'react-datepicker'
 import { useIntl } from 'react-intl'
@@ -51,21 +50,19 @@ function InvestibleStatus(props) {
     }
   }
   return (
-    <RaisedCard elevation={3}>
-      <div style={{paddingLeft: '3rem'}}>
-        <h3>{intl.formatMessage({ id: 'chooseDate' })}</h3>
-        <DatePicker
-          placeholderText={intl.formatMessage({ id: "selectDate" })}
-          selected={getStartDate()}
-          onChange={handleDateChange}
-          disabled={operationRunning}
-          popperPlacement="top"
-          minDate={getTomorrow()}
-          inline
-        />
-        <h3>{intl.formatMessage({ id: 'orProgressReport' })}</h3>
-      </div>
-    </RaisedCard>
+    <div style={{paddingLeft: '3rem'}}>
+      <h3>{intl.formatMessage({ id: 'chooseDate' })}</h3>
+      <DatePicker
+        placeholderText={intl.formatMessage({ id: "selectDate" })}
+        selected={getStartDate()}
+        onChange={handleDateChange}
+        disabled={operationRunning}
+        popperPlacement="top"
+        minDate={getTomorrow()}
+        inline
+      />
+      <h3>{intl.formatMessage({ id: 'orProgressReport' })}</h3>
+    </div>
   );
 }
 

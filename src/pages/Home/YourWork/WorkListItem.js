@@ -19,9 +19,10 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { Link } from '@material-ui/core'
 import { getPageReducerPage } from '../../../components/PageState/pageStateHooks'
 import { useHistory } from 'react-router'
+import RaisedCard from '../../../components/Cards/RaisedCard'
 
 const Item = styled("div")`
-  margin-bottom: 8px;
+  margin-bottom: 20px;
 `
 
 const Div = styled("div")`
@@ -180,76 +181,78 @@ function WorkListItem(props) {
   };
   return (
     <Item key={`workListItem${id}`} id={`workListItem${id}`}>
-      <Link href={link} style={{ width: '100%' }} key={`link${id}`} onClick={
-        (event) => {
-          if (isDeletable) {
-            return deleteActionButtonOnclick(event)
-              .then(() => navigate(history, link, false, true));
-          } else if (read) {
-            preventDefaultAndProp(event);
-            navigate(history, link, false, true);
-          } else {
-            return archiveActionButtonOnclick(event)
-              .then(() => navigate(history, link, false, true));
+      <RaisedCard elevation={3} noPadding>
+        <Link href={link} style={{ width: '100%' }} key={`link${id}`} onClick={
+          (event) => {
+            if (isDeletable) {
+              return deleteActionButtonOnclick(event)
+                .then(() => navigate(history, link, false, true));
+            } else if (read) {
+              preventDefaultAndProp(event);
+              navigate(history, link, false, true);
+            } else {
+              return archiveActionButtonOnclick(event)
+                .then(() => navigate(history, link, false, true));
+            }
           }
-        }
-      }>
-        <Div className={cx(read && 'MailListItem-read')}>
-          <Box flexShrink={0} className={gutterStyles.parent}>
-            {useSelect && (
+        }>
+          <Div className={cx(read && 'MailListItem-read')}>
+            <Box flexShrink={0} className={gutterStyles.parent}>
+              {useSelect && (
+                <StyledIconButton
+                  className={cx(checked && "MailListItem-checked")}
+                  classes={actionStyles}
+                  onClick={(event) => {
+                    preventDefaultAndProp(event);
+                    // We need to record when you unset when check all is on or set when check all is off
+                    if (checked === checkedDefault) {
+                      setDeterminate({...determinate, [id]: true});
+                    } else {
+                      setDeterminate(_.omit(determinate, id));
+                    }
+                    setChecked(!checked);
+                  }}
+                >
+                  {read ? <div /> : (checked ? <Checkbox color="secondary" /> : <CheckBoxOutlineBlank />)}
+                </StyledIconButton>
+              )}
+              {!mobileLayout && useSelect && (
+                <StyledIconButton
+                  classes={actionStyles}
+                  onClick={isDeletable ? deleteActionButtonOnclick : (read ? undefined : archiveActionButtonOnclick)}
+                >
+                  { isDeletable ? <DeleteForever /> : (read ? <div /> : <ArchiveIcon />) }
+                </StyledIconButton>
+              )}
               <StyledIconButton
-                className={cx(checked && "MailListItem-checked")}
                 classes={actionStyles}
+                style={{marginLeft: useSelect ? undefined : '0.5rem'}}
                 onClick={(event) => {
                   preventDefaultAndProp(event);
-                  // We need to record when you unset when check all is on or set when check all is off
-                  if (checked === checkedDefault) {
-                    setDeterminate({...determinate, [id]: true});
-                  } else {
-                    setDeterminate(_.omit(determinate, id));
-                  }
-                  setChecked(!checked);
+                  updateWorkListItemState({expansionOpen: !useExpansionOpen});
                 }}
               >
-                {read ? <div /> : (checked ? <Checkbox color="secondary" /> : <CheckBoxOutlineBlank />)}
+                { expansionPanel ? (useExpansionOpen ? <ExpandLess /> : <ExpandMoreIcon />) : <div /> }
               </StyledIconButton>
-            )}
-            {!mobileLayout && useSelect && (
-              <StyledIconButton
-                classes={actionStyles}
-                onClick={isDeletable ? deleteActionButtonOnclick : (read ? undefined : archiveActionButtonOnclick)}
-              >
-                { isDeletable ? <DeleteForever /> : (read ? <div /> : <ArchiveIcon />) }
-              </StyledIconButton>
-            )}
-            <StyledIconButton
-              classes={actionStyles}
-              style={{marginLeft: useSelect ? undefined : '0.5rem'}}
-              onClick={(event) => {
-                preventDefaultAndProp(event);
-                updateWorkListItemState({expansionOpen: !useExpansionOpen});
-              }}
-            >
-              { expansionPanel ? (useExpansionOpen ? <ExpandLess /> : <ExpandMoreIcon />) : <div /> }
-            </StyledIconButton>
-            {(!useSelect || !mobileLayout) && (
-              <StyledIconButton
-                disabled
-                classes={actionStyles}
-              >
-                { icon }
-              </StyledIconButton>
-            )}
-          </Box>
-          {read ? (<Title>{title}</Title>) : (<TitleB>{title}</TitleB>)}
-          {mobileLayout || !people ? React.Fragment : <GravatarGroup users={people} className={classes.gravatarStyle}/> }
-          {mobileLayout ? React.Fragment : (read ? (<Text>{fullText}</Text>) : (<TextB>{fullText}</TextB>))}
-          {mobileLayout || !date ? React.Fragment : (read ? (<DateLabel>{date}</DateLabel>) : (<DateLabelB>{date}</DateLabelB>))}
-        </Div>
-      </Link>
-      <div style={{visibility: useExpansionOpen ? 'visible' : 'hidden', height: useExpansionOpen ? undefined : 0}}>
-        {expansionPanel || <React.Fragment />}
-      </div>
+              {(!useSelect || !mobileLayout) && (
+                <StyledIconButton
+                  disabled
+                  classes={actionStyles}
+                >
+                  { icon }
+                </StyledIconButton>
+              )}
+            </Box>
+            {read ? (<Title>{title}</Title>) : (<TitleB>{title}</TitleB>)}
+            {mobileLayout || !people ? React.Fragment : <GravatarGroup users={people} className={classes.gravatarStyle}/> }
+            {mobileLayout ? React.Fragment : (read ? (<Text>{fullText}</Text>) : (<TextB>{fullText}</TextB>))}
+            {mobileLayout || !date ? React.Fragment : (read ? (<DateLabel>{date}</DateLabel>) : (<DateLabelB>{date}</DateLabelB>))}
+          </Div>
+        </Link>
+        <div style={{visibility: useExpansionOpen ? 'visible' : 'hidden', height: useExpansionOpen ? undefined : 0}}>
+          {expansionPanel || <React.Fragment />}
+        </div>
+      </RaisedCard>
     </Item>
   );
 }

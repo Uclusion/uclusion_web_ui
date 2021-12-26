@@ -10,6 +10,7 @@ import { Auth } from 'aws-amplify'
 import { getMarketPresences } from '../contexts/MarketPresencesContext/marketPresencesHelper'
 import _ from 'lodash'
 import config from '../config'
+import { clearRedirect } from './redirectUtils'
 
 const LOGOUT_MARKER_KEY = 'logout_marker';
 
@@ -92,6 +93,9 @@ export function clearSignedOut() {
 
 export function onSignOut() {
   console.info('Signing out');
+  clearRedirect();
+  // Remove URL in case they log back in as someone else
+  window.history.replaceState({}, "Reset", "/");
   setLoginPersistentItem(LOGOUT_MARKER_KEY, 'logged_out');
   // See https://aws-amplify.github.io/docs/js/authentication
   return clearUclusionLocalStorage(false)

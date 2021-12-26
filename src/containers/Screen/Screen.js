@@ -189,9 +189,9 @@ function Screen(props) {
     if (!hidden && !_.isEmpty(tabTitle)) {
       const calcPend = getInboxCount(messagesState);
       if (calcPend > 0) {
-        document.title = `Uclusion(${calcPend}) | ${createTitle(tabTitle, 11,)}`;
+        document.title = `(${calcPend}) ${tabTitle}`;
       } else {
-        document.title = `Uclusion | ${createTitle(tabTitle, 11,)}`;
+        document.title = `${tabTitle}`;
       }
     }
   }, [hidden, messagesState, tabTitle]);

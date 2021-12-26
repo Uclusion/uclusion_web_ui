@@ -32,7 +32,7 @@ import {
 } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
-import { getMarketInfo } from '../../../utils/userFunctions';
+import { assignedInStage, getMarketInfo } from '../../../utils/userFunctions'
 import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
@@ -90,6 +90,7 @@ const usePlanningIdStyles = makeStyles(
 function PlanningIdeas(props) {
   const {
     investibles,
+    allInvestibles,
     marketId,
     acceptedStage,
     inDialogStageId,
@@ -229,11 +230,18 @@ function PlanningIdeas(props) {
       const investible = getInvestible(invState, investibleId);
       const marketInfo = getMarketInfo(investible, marketId);
       const { assigned } = marketInfo;
-      if ((assigned || []).length === 1) {
-        // Not supporting drag and drop to accepted for multiple assigned
-        if (isAssignedInvestible(event, myPresence.id) && myPresence.id === presenceId && !acceptedFull) {
-          stageChange(event, acceptedStageId);
-        }
+      const assignedInAcceptedStage = assigned.reduce((acc, userId) => {
+        return acc.concat(assignedInStage(
+          allInvestibles,
+          userId,
+          acceptedStageId,
+          marketId
+        ));
+      }, []);
+      const ourAcceptedFull = acceptedStage.allowed_investibles > 0 &&
+        assignedInAcceptedStage.length >= acceptedStage.allowed_investibles;
+      if (isAssignedInvestible(event, myPresence.id) && myPresence.id === presenceId && !ourAcceptedFull) {
+        stageChange(event, acceptedStageId);
       }
     }
   }
@@ -276,10 +284,17 @@ function PlanningIdeas(props) {
       return true;
     }
     if (divId === acceptedStageId) {
-      if ((assigned || []).length === 1) {
-        // Not supporting drag and drop to accepted for multiple assigned
-        return draggerIsAssigned && myPresence.id === presenceId && !acceptedFull;
-      }
+      const assignedInAcceptedStage = assigned.reduce((acc, userId) => {
+        return acc.concat(assignedInStage(
+          allInvestibles,
+          userId,
+          acceptedStageId,
+          marketId
+        ));
+      }, []);
+      const ourAcceptedFull = acceptedStage.allowed_investibles > 0 &&
+        assignedInAcceptedStage.length >= acceptedStage.allowed_investibles;
+      return draggerIsAssigned && myPresence.id === presenceId && !ourAcceptedFull;
     }
     if (divId === inReviewStageId) {
       return swimLaneIsAssigned;

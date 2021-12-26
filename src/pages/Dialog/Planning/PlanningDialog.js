@@ -891,6 +891,7 @@ function InvestiblesByPerson(props) {
               inBlockingStage && (
                 <PlanningIdeas
                   investibles={myInvestibles}
+                  allInvestibles={investibles}
                   marketId={marketId}
                   acceptedStage={acceptedStage}
                   inDialogStageId={inDialogStage.id}

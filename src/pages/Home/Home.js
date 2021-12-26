@@ -41,9 +41,8 @@ function Home() {
       getChangedIds(null).then((versions) => {
           const { foreground: foregroundList } = versions;
           if (_.isEmpty(foregroundList)) {
-            console.log('Redirecting you to create workspace');
-            // Don't want new redirect since they could create a market somewhere else
-            history.push('/wizard#type=planning&onboarding=true');
+            console.log('Redirecting for onboarding');
+            history.push('/inbox');
           } else {
             // There is no redirect stored and the user already has an active Workspace
             const lastWorkspaceLink = getLastWorkspaceLink();

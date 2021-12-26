@@ -51,11 +51,11 @@ function InboxFull(props) {
     navListItemTextArray: [
       {
         icon: AddIcon, text: intl.formatMessage({ id: 'todoPresent' }),
-        target: `/todoAdd`
+        target: _.size(myNotHiddenMarketsState.marketDetails) > 0 ? `/todoAdd` : undefined
       },
       {
         icon: AddIcon, text: intl.formatMessage({ id: 'story' }),
-        target: '/investibleAdd'
+        target: _.size(myNotHiddenMarketsState.marketDetails) > 0 ? '/investibleAdd' : undefined
       },
       {
         icon: AddIcon, text: intl.formatMessage({ id: 'homeAddPlanning' }),

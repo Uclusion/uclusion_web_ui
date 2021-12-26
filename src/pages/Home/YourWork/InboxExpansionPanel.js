@@ -66,7 +66,7 @@ export function addExpansionPanel(props) {
     // have case of more than one reply being de-duped
     if (!_.isEmpty(rootComment)) {
       const { comment_type: commentType, investible_id: investibleId } = rootComment;
-      item.expansionPanel = <div style={{padding: '1rem'}}>
+      item.expansionPanel = <div style={{paddingLeft: '1rem', paddingRight: '1rem', paddingTop: '0.5rem'}}>
         <Comment
           depth={0}
           marketId={useMarketId}

@@ -312,12 +312,8 @@ function Header (props) {
             <React.Fragment>
               <div className={classes.grow}/>
               <div className={classes.notification} id="notifications">
-                {!isInbox && (
-                  <Inbox isJarDisplay />
-                )}
-                {!isPending && (
-                  <Outbox isJarDisplay />
-                )}
+                <Inbox isJarDisplay isDisabled={isInbox} />
+                <Outbox isJarDisplay isDisabled={isPending} />
               </div>
               <div className={classes.padLeft} />
               {!mobileLayout && (

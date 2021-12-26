@@ -75,7 +75,7 @@ const useStyles = makeStyles(
 });
 
 function Inbox(props) {
-  const { isJarDisplay = false } = props;
+  const { isJarDisplay = false, isDisabled = false } = props;
   const classes = useStyles();
   const intl = useIntl();
   const history = useHistory();
@@ -144,7 +144,7 @@ function Inbox(props) {
     return (
       <div id='inboxNotification' key='inbox' onClick={goFullInboxClick} className={classes.bellButton}>
         <Badge badgeContent={unreadCount} className={classes.chip} overlap="circular">
-          <Fab id='notifications-fabInbox' className={classes.fab}>
+          <Fab id='notifications-fabInbox' className={classes.fab} disabled={isDisabled}>
             <MoveToInbox
               htmlColor={ _.isEmpty(first) ? '#8f8f8f' :
                 (first.level === 'RED' ? '#E85757' : (first.level === 'YELLOW' ? '#e6e969' : '#2D9CDB'))} />

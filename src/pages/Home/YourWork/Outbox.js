@@ -177,7 +177,7 @@ const useStyles = makeStyles(
 });
 
 function Outbox(props) {
-  const { isJarDisplay = false } = props;
+  const { isJarDisplay = false, isDisabled = false } = props;
   const classes = useStyles();
   const intl = useIntl();
   const history = useHistory();
@@ -387,7 +387,7 @@ function Outbox(props) {
     return (
       <div id='outboxNotification' key='outbox' onClick={goFullOutboxClick} className={classes.bellButton}>
         <Badge badgeContent={filteredForJarCount.length} className={classes.chip} overlap="circular">
-          <Fab id='notifications-fabInbox' className={classes.fab}>
+          <Fab id='notifications-fabInbox' className={classes.fab} disabled={isDisabled}>
             <AlarmOn htmlColor='black' />
           </Fab>
         </Badge>

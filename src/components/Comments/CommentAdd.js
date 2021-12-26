@@ -429,11 +429,13 @@ function CommentAdd(props) {
 
   function getReportWarningId() {
     if (!_.isEmpty(assigned)) {
-      if (numProgressReport > 0 && creatorIsAssigned) {
-        return 'addReportWarning'
-      }
-      if (currentStageId === readyForApprovalStage.id) {
-        return 'addReportInReadyForApprovalWarning'
+      if (creatorIsAssigned) {
+        if (numProgressReport > 0) {
+          return 'addReportWarning'
+        }
+        if (currentStageId === readyForApprovalStage.id) {
+          return 'addReportInReadyForApprovalWarning'
+        }
       }
     } else {
       if (numProgressReport > 0) {

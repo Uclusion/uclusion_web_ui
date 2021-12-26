@@ -52,7 +52,7 @@ export function getUnresolvedInvestibleComments(investibleId, marketId, state) {
 export function resolveInvestibleComments(investibleId, marketId, state, dispatch) {
   const unresolvedComments = getUnresolvedInvestibleComments(investibleId, marketId, state);
   const resolvedComments = unresolvedComments.map((comment) => {
-    return { resolved: true, ...comment };
+    return { ...comment, resolved: true };
   });
   refreshMarketComments(dispatch, marketId, resolvedComments);
 }

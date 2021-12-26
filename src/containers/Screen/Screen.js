@@ -8,7 +8,7 @@ import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUse
 import Header from '../Header'
 import ActionBar from '../ActionBar'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
-import { createTitle, makeBreadCrumbs, navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions'
+import { makeBreadCrumbs, navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions'
 import LoadingDisplay from '../../components/LoadingDisplay';
 import List from '@material-ui/core/List'
 import SearchBox from '../../components/Search/SearchBox'

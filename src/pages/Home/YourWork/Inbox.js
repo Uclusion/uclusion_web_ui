@@ -112,25 +112,17 @@ function Inbox(props) {
   let messagesOrdered;
   if (isJarDisplay) {
     messagesOrdered = _.orderBy(messagesFull, [(message) => {
-      const { level, is_highlighted: isHighlighted } = message;
-      if (!isHighlighted) {
-        switch (level) {
-          case 'RED':
-            return 3;
-          case 'YELLOW':
-            return 2;
-          default:
-            return 1;
-        }
-      }
+      const { level } = message;
+      // Ignore read or not because not relevant to the priority of the inbox
       switch (level) {
         case 'RED':
-          return 6;
+          return 3;
         case 'YELLOW':
-          return 5;
+          return 2;
         default:
-          return 4;
-      }}], ['desc'] ) || [];
+          return 1;
+      }
+      }], ['desc'] ) || [];
   } else {
     messagesOrdered =  _.orderBy(messagesFull, ['updated_at'], ['desc']) || [];
   }

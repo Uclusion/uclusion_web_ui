@@ -92,9 +92,6 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: 'auto',
     marginRight: 'auto'
   },
-  lessContent: {
-    marginLeft: '12rem'
-  },
   content: {
     marginLeft: '15rem'
   },
@@ -179,9 +176,7 @@ function Screen(props) {
     appEnabled,
     banner,
     navigationOptions,
-    isWorkspace,
     isInbox,
-    noLeftPadding,
     isPending
   } = props;
 
@@ -208,7 +203,7 @@ function Screen(props) {
   const { navListItemTextArray, navMenu, showSearch = true } = navigationOptions || {}
   const myContainerClass = navigationOptions && !mobileLayout ? classes.containerAllLeftPad : classes.containerAll
   const contentClass = mobileLayout ? classes.contentNoStyle : (isPending ? classes.pending :
-    navigationOptions ? (noLeftPadding || isInbox ? classes.lessContent : classes.content) : classes.contentNoStyle);
+    navigationOptions ? classes.content : classes.contentNoStyle);
   const hasMenu = !_.isEmpty(navListItemTextArray) || !_.isEmpty(navMenu);
   const sideNavigationContents = !hasMenu ? undefined : (
     <>
@@ -256,7 +251,6 @@ function Screen(props) {
         toolbarButtons={toolbarButtons}
         hidden={reallyAmLoading}
         appEnabled={appEnabled}
-        isWorkspace={isWorkspace}
         navMenu={sideNavigationContents}
         isInbox={isInbox}
         isPending={isPending}
@@ -307,8 +301,7 @@ Screen.propTypes = {
   sidebarActions: PropTypes.arrayOf(PropTypes.object),
   tabTitle: PropTypes.string,
   appEnabled: PropTypes.bool,
-  banner: PropTypes.node,
-  isWorkspace: PropTypes.bool
+  banner: PropTypes.node
 };
 
 Screen.defaultProps = {
@@ -320,8 +313,7 @@ Screen.defaultProps = {
   toolbarButtons: [],
   sidebarActions: [],
   appEnabled: true,
-  banner: undefined,
-  isWorkspace: false
+  banner: undefined
 };
 
 export default Screen;

@@ -4,15 +4,11 @@ import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
 import { removeInitializing } from '../../components/localStorageUtils'
 import { addByIdAndVersion } from '../ContextUtils'
-import { getMarket } from './marketsContextHelper'
-import { ACTIVE_STAGE, PLANNING_TYPE } from '../../constants/markets'
-import { setCurrentWorkspace, setLastWorkspaceLink } from '../../utils/redirectUtils'
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const UPDATE_MARKET_DETAILS = 'UPDATE_MARKET_DETAILS';
 const REMOVE_MARKET_DETAILS = 'REMOVE_MARKET_DETAILS';
 const UPDATE_FROM_VERSIONS = 'UPDATE_FROM_VERSIONS';
-const MARKET_CHANGE = 'MARKET_CHANGE';
 
 /* Possible messages to the reducer */
 export function initializeState(newState) {
@@ -36,30 +32,11 @@ export function versionsUpdateDetails(marketDetail) {
   };
 }
 
-export function marketChange(marketId, to) {
-  return {
-    type: MARKET_CHANGE,
-    marketId,
-    to
-  }
-}
-
 export function removeMarketDetails(marketIds) {
   return {
     type: REMOVE_MARKET_DETAILS,
     marketIds,
   };
-}
-
-function changeMarketOnNavigate(state, action) {
-  const { marketId, to } = action;
-  const market = getMarket(state, marketId) || {};
-  const { market_stage: marketStage, market_type: marketType } = market;
-  if (marketStage === ACTIVE_STAGE && marketType === PLANNING_TYPE) {
-    setCurrentWorkspace(marketId);
-    setLastWorkspaceLink(to);
-  }
-  return state;
 }
 
 /* Functions that mutate state */
@@ -96,8 +73,6 @@ function computeNewState(state, action) {
       return removeStoredMarkets(state, action);
     case INITIALIZE_STATE:
       return action.newState;
-    case MARKET_CHANGE:
-      return changeMarketOnNavigate(state, action);
     default:
       return state;
   }

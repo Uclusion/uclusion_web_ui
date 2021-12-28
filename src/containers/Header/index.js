@@ -16,7 +16,6 @@ import {
 import { makeStyles } from '@material-ui/styles';
 import {
   createTitle,
-  navigate,
   openInNewTab,
   preventDefaultAndProp
 } from '../../utils/marketIdPathFunctions'
@@ -28,8 +27,6 @@ import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import config from '../../config';
 import Inbox from '../../pages/Home/YourWork/Inbox'
 import Outbox from '../../pages/Home/YourWork/Outbox'
-import { ChevronLeft } from '@material-ui/icons'
-import { clearRedirect, getLastWorkspaceLink, getRedirect } from '../../utils/redirectUtils'
 import Hamburger from '../../components/Menus/Hamburger'
 
 export const headerStyles = makeStyles((theme) => {
@@ -149,7 +146,7 @@ function Header (props) {
   const [online] = useContext(OnlineStateContext);
   const history = useHistory();
   const {
-    breadCrumbs, toolbarButtons, appEnabled, hidden, title, hideTools, titleIcon, isWorkspace, navMenu,
+    breadCrumbs, toolbarButtons, appEnabled, hidden, title, hideTools, titleIcon, navMenu,
     isInbox, isPending
   } = props;
 
@@ -239,13 +236,7 @@ function Header (props) {
       </div>
     );
   }
-  const lastWorkspaceLink = getLastWorkspaceLink();
-  const lastStoredLink = getRedirect();
-  const chevronLink = isPending || isInbox ? lastWorkspaceLink : lastStoredLink || lastWorkspaceLink;
-  if (!chevronLink) {
-    // We have nowhere to go but / so make sure it doesn't send us back to Inbox or Pending
-    clearRedirect();
-  }
+
   return (
     <div id="app-header-control">
       <AppBar
@@ -254,14 +245,6 @@ function Header (props) {
         className={classes.appBar}
       >
         <Toolbar className={classes.topBar}>
-          {!isWorkspace && (
-            <Link href={chevronLink || '/'} onClick={(event) => {
-              preventDefaultAndProp(event);
-              navigate(history, chevronLink || '/');
-            }} color="inherit">
-              <ChevronLeft htmlColor="black" style={{marginLeft: '1rem'}} />
-            </Link>
-          )}
           <div className={classes.sidebarLogo}>
             {mobileLayout && (
               <Hamburger navMenu={navMenu} />

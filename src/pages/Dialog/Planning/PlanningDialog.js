@@ -370,7 +370,6 @@ function PlanningDialog(props) {
       tabTitle={marketName}
       breadCrumbs={breadCrumbs}
       banner={banner}
-      isWorkspace
       navigationOptions={banner ? [] : navigationMenu}
     >
       <UclusionTour

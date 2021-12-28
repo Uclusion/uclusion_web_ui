@@ -3,7 +3,6 @@ import queryString from 'query-string'
 import _ from 'lodash'
 
 const REDIRECT_LOCAL_STORAGE_KEY = 'redirection';
-const LAST_WORKSPACE_LINK_LOCAL_STORAGE_KEY = 'last_workspace_link';
 const WORKSPACE_LOCAL_STORAGE_KEY = 'current_workspace';
 const UTM_LOCAL_STORAGE_KEY = 'utm';
 const EMAIL_LOCAL_STORAGE_KEY = 'email_storage';
@@ -36,14 +35,6 @@ export function getFirstWorkspace(planningDetails) {
     return lastActive;
   }
   return planningDetails[0].id;
-}
-
-export function getLastWorkspaceLink() {
-  return getLoginPersistentItem(LAST_WORKSPACE_LINK_LOCAL_STORAGE_KEY);
-}
-
-export function setLastWorkspaceLink(location) {
-  setLoginPersistentItem(LAST_WORKSPACE_LINK_LOCAL_STORAGE_KEY, location);
 }
 
 export function setRedirect(location) {

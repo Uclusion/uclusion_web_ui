@@ -24,7 +24,6 @@ import { registerMarketTokenListeners } from '../../authorization/tokenUtils';
 import Wizard from '../../pages/Home/Wizard'
 import InboxFull from '../../pages/Home/YourWork/InboxFull'
 import OutboxFull from '../../pages/Home/YourWork/OutboxFull'
-import TodoAdd from '../../pages/Dialog/Planning/TodoAdd'
 
 const useStyles = makeStyles({
   body: {
@@ -199,7 +198,6 @@ function Root() {
             <Archives hidden={hideArchvies()}/>
             <DialogArchives hidden={hideDialogArchives()}/>
             <InvestibleAdd hidden={hideInvestibleAdd()}/>
-            <TodoAdd hidden={hideTodoAdd()} />
             <DialogAdd hidden={hideAddMarket()}/>
             <SlackInvite hidden={hideSlackInvite()}/>
             <ChangePassword hidden={hideChangePassword()}/>

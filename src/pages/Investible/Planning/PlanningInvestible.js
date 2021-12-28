@@ -784,7 +784,6 @@ function PlanningInvestible(props) {
       breadCrumbs={breadCrumbs}
       hidden={hidden}
       navigationOptions={navigationMenu}
-      isWorkspace={!mobileLayout}
     >
       <UclusionTour
         name={BLOCKED_STORY_TOUR}

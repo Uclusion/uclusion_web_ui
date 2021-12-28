@@ -14,10 +14,11 @@ import _ from 'lodash'
 import SettingsIcon from '@material-ui/icons/Settings'
 import { Link } from '@material-ui/core'
 import DismissableText from '../../../components/Notifications/DismissableText'
-import { preventDefaultAndProp } from '../../../utils/marketIdPathFunctions'
+import { createTitle, formMarketLink, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
 import AddIcon from '@material-ui/icons/Add'
-import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../../constants/markets'
+import { PLANNING_TYPE } from '../../../constants/markets'
+import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
 
 function InboxFull(props) {
   const { hidden } = props;
@@ -50,24 +51,8 @@ function InboxFull(props) {
     showSearch: false,
     navListItemTextArray: [
       {
-        icon: AddIcon, text: intl.formatMessage({ id: 'todoPresent' }),
-        target: _.size(myNotHiddenMarketsState.marketDetails) > 0 ? `/todoAdd` : undefined
-      },
-      {
-        icon: AddIcon, text: intl.formatMessage({ id: 'story' }),
-        target: _.size(myNotHiddenMarketsState.marketDetails) > 0 ? '/investibleAdd' : undefined
-      },
-      {
         icon: AddIcon, text: intl.formatMessage({ id: 'homeAddPlanning' }),
         target: `/wizard#type=${PLANNING_TYPE.toLowerCase()}`
-      },
-      {
-        icon: AddIcon, text: intl.formatMessage({ id: 'homeAddInitiative' }),
-        target: `/wizard#type=${INITIATIVE_TYPE.toLowerCase()}`
-      },
-      {
-        icon: AddIcon, text: intl.formatMessage({ id: 'homeAddDecision' }),
-        target: `/wizard#type=${DECISION_TYPE.toLowerCase()}`
       },
       {
         icon: MenuBookIcon, text: intl.formatMessage({ id: 'planningDialogViewArchivesLabel' }),
@@ -79,6 +64,15 @@ function InboxFull(props) {
         target: '/notificationPreferences'
       },
     ]};
+  if (myNotHiddenMarketsState.marketDetails) {
+    const filtered = myNotHiddenMarketsState.marketDetails.filter((market) => market.market_type === PLANNING_TYPE);
+    const sorted = _.sortBy(filtered, 'name');
+    const items = sorted.map((market) => {
+      return {icon: AgilePlanIcon, text: createTitle(market.name, 20),
+        target: formMarketLink(market.id)};
+    });
+    navigationMenu.navListItemTextArray.unshift(...items);
+  }
   return (
     <Screen
       title={intl.formatMessage({id: 'inbox'})}

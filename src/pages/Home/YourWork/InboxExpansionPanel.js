@@ -6,13 +6,13 @@ import {
   getMarketComments,
   getUnresolvedInvestibleComments
 } from '../../../contexts/CommentsContext/commentsContextHelper'
-import { getMarket, getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
+import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { JUSTIFY_TYPE, REPORT_TYPE, TODO_TYPE } from '../../../constants/comments'
 import InvestibleStatus from './InvestibleStatus'
 import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff'
-import { getInvestible, getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
+import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { getDiff } from '../../../contexts/DiffContext/diffContextHelper'
-import { ACTIVE_STAGE, DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../../constants/markets'
+import { PLANNING_TYPE } from '../../../constants/markets'
 import clsx from 'clsx'
 import { FormattedMessage } from 'react-intl'
 import { Assignments, getCollaborators } from '../../Investible/Planning/PlanningInvestible'
@@ -20,15 +20,10 @@ import { getMarketPresences } from '../../../contexts/MarketPresencesContext/mar
 import { getMarketInfo } from '../../../utils/userFunctions'
 import { DaysEstimate } from '../../../components/AgilePlan'
 import Voting from '../../Investible/Decision/Voting'
-import { getFullStage, getStages } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
-import Collaborators from '../../Dialog/Collaborators'
+import { getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import ExpiresDisplay from '../../../components/Expiration/ExpiresDisplay'
-import DecisionVoting from '../../Dialog/Decision/DecisionVoting'
-import { getInvestiblesForStage } from '../../Dialog/Decision/DecisionDialog'
 import DialogManage from '../../Dialog/DialogManage'
 import { Checkbox, FormControlLabel } from '@material-ui/core'
-import InitiativeVoting from '../../Investible/Initiative/InitiativeVoting'
-import YourVoting from '../../Investible/Voting/YourVoting'
 import { updateInvestible } from '../../../api/investibles'
 import { notify, onInvestibleStageChange } from '../../../utils/investibleFunctions'
 import { UNASSIGNED_TYPE, YELLOW_LEVEL } from '../../../constants/notifications'
@@ -145,7 +140,6 @@ export function addExpansionPanel(props) {
       }
     }
   } else if (['NOT_FULLY_VOTED', 'ASSIGNED_UNREVIEWABLE'].includes(messageType)) {
-    const market = getMarket(marketsState, marketId) || {};
     const marketPresences = getMarketPresences(marketPresencesState, marketId);
     const investibleComments = getUnresolvedInvestibleComments(investibleId, marketId, commentState);
     const investibleCollaborators = getCollaborators(marketPresences, investibleComments, marketPresencesState,
@@ -155,15 +149,6 @@ export function addExpansionPanel(props) {
     const { assigned: invAssigned, completion_estimate: marketDaysEstimate, required_approvers:  requiredApprovers
     } = marketInfo;
     const assigned = invAssigned || [];
-    const myPresence = marketPresences.find((presence) => presence.current_user) || {};
-    const { is_admin: isAdmin } = myPresence;
-    const inArchives = market.market_stage !== ACTIVE_STAGE || (myPresence && !myPresence.following);
-    const marketStages = getStages(marketStagesState, marketId);
-    const underConsiderationStage = marketStages.find((stage) => stage.allows_investment);
-    const proposedStage = marketStages.find((stage) => !stage.allows_investment);
-    const investibles = getMarketInvestibles(investiblesState, marketId) || [];
-    const underConsideration = getInvestiblesForStage(underConsiderationStage, investibles);
-    const proposed = getInvestiblesForStage(proposedStage, investibles);
     item.expansionPanel = (
       <div style={{padding: '1rem'}}>
         <div style={{display: mobileLayout ? 'block' : 'flex'}}>
@@ -183,35 +168,6 @@ export function addExpansionPanel(props) {
                   />
                 </div>
               </div>
-          )}
-          {[DECISION_TYPE, INITIATIVE_TYPE].includes(marketType) && (
-            <>
-              <div className={clsx(planningClasses.group, planningClasses.assignments)}
-                   style={{maxWidth: '15rem', marginRight: '1rem'}}>
-                <div style={{textTransform: 'capitalize'}}>
-                  <b><FormattedMessage id="author"/></b>
-                  <Collaborators
-                    marketPresences={marketPresences}
-                    authorId={market.created_by}
-                    authorDisplay
-                  />
-                </div>
-              </div>
-              <div className={clsx(planningClasses.group, planningClasses.assignments)}
-                style={{maxWidth: '15rem', marginRight: '1rem'}}>
-                <div style={{textTransform: 'capitalize'}}>
-                    <b><FormattedMessage id="dialogParticipants"/></b>
-                    <Collaborators
-                      marketPresences={marketPresences}
-                      authorId={market.created_by}
-                      marketId={marketId}
-                    />
-                </div>
-              </div>
-              {!_.isEmpty(market) && (
-                <ExpiresDisplay createdAt={market.created_at} expirationMinutes={market.expiration_minutes} />
-              )}
-            </>
           )}
           {marketType === PLANNING_TYPE && !_.isEmpty(investibleCollaborators) && (
             <div className={clsx(planningClasses.group, planningClasses.assignments)}
@@ -251,25 +207,6 @@ export function addExpansionPanel(props) {
             </div>
           )}
         </div>
-        {marketType === DECISION_TYPE && (
-          <DecisionVoting comments={getMarketComments(commentState, marketId)} marketId={marketId} isAdmin={isAdmin}
-                          proposed={proposed} marketPresences={marketPresences} inArchives={inArchives}
-                          underConsideration={underConsideration} />
-        )}
-        {marketType === INITIATIVE_TYPE && (
-          <>
-            <YourVoting
-              investibleId={investibleId}
-              marketPresences={marketPresences}
-              comments={investibleComments.filter((comment) => comment.comment_type === JUSTIFY_TYPE)}
-              userId={getMyUserForMarket(marketsState, marketId) || ''}
-              market={market}
-            />
-            <InitiativeVoting investibleId={investibleId} marketPresences={marketPresences}
-                              investibleComments={investibleComments} market={market} isAdmin={isAdmin}
-                              inArchives={inArchives} />
-          </>
-        )}
       </div>
     );
   } else if (messageType === 'UNREAD_VOTE' && marketType === PLANNING_TYPE && investibleId) {

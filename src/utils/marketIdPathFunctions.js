@@ -5,7 +5,6 @@ import { getInvestible } from '../contexts/InvestibesContext/investiblesContextH
 import { getMarket } from '../contexts/MarketsContext/marketsContextHelper'
 import { marketsContextHack } from '../contexts/MarketsContext/MarketsContext';
 import { investibleContextHack } from '../contexts/InvestibesContext/InvestiblesContext';
-import { setRedirect } from './redirectUtils'
 
 export const VISIT_CHANNEL = 'VisitChannel';
 export const VIEW_EVENT = 'pageView';
@@ -48,10 +47,6 @@ export function navigate(history, to, insideUseEffect, doNotAddToHistory) {
   } = decomposeMarketPath(history.location.pathname);
   broadcastView(fromMarketId, fromInvestibleId, false, fromAction);
   if (to) {
-    if (!doNotAddToHistory) {
-      console.info(`Recording last as ${to}`);
-      setRedirect(to);
-    }
     if (insideUseEffect) {
       // Without the set timeout the use effect can be re-run before the push is complete
       // though not clear why that run wouldn't run it again.

@@ -215,7 +215,8 @@ export const usePlanningInvestibleStyles = makeStyles(
       paddingLeft: '1rem',
       marginTop: '-1.5rem',
       [theme.breakpoints.down("sm")]: {
-        padding: '1rem 0',
+        paddingLeft: 'unset',
+        paddingRight: 0,
         marginTop: '1rem',
         borderLeft: 'none',
         flexGrow: 'unset',
@@ -272,6 +273,7 @@ export const usePlanningInvestibleStyles = makeStyles(
       [theme.breakpoints.down("sm")]: {
         maxWidth: '100%',
         flexBasis: '100%',
+        paddingLeft: 'unset',
         borderLeft: 'none',
         marginLeft: 'unset'
       }
@@ -282,6 +284,7 @@ export const usePlanningInvestibleStyles = makeStyles(
       [theme.breakpoints.down("sm")]: {
         maxWidth: '100%',
         flexBasis: '100%',
+        paddingLeft: 'unset',
         borderLeft: 'none',
         marginLeft: 'unset'
       }

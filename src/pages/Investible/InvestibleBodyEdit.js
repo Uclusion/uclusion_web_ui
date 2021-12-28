@@ -32,10 +32,16 @@ const useStyles = makeStyles(
     },
     containerEditable: {
       cursor: 'url(\'/images/edit_cursor.svg\') 0 24, pointer',
-      paddingLeft: '1.5rem'
+      paddingLeft: '1.5rem',
+      [theme.breakpoints.down("sm")]: {
+        paddingLeft: 'unset',
+      }
     },
     container: {
-      paddingLeft: '1.5rem'
+      paddingLeft: '1.5rem',
+      [theme.breakpoints.down("sm")]: {
+        paddingLeft: 'unset',
+      }
     },
     title: {
       fontSize: 32,

@@ -76,6 +76,9 @@ const Title = styled(Text)`
   & > *:not(:first-child) {
     font-size: 12px;
     margin-left: 4px;
+  };
+  @media (max-width: 768px) {
+    flex-basis: 100px;
   }
 `;
 
@@ -245,8 +248,8 @@ function WorkListItem(props) {
             </Box>
             {read ? (<Title>{title}</Title>) : (<TitleB>{title}</TitleB>)}
             {mobileLayout || !people ? React.Fragment : <GravatarGroup users={people} className={classes.gravatarStyle}/> }
-            {mobileLayout ? React.Fragment : (read ? (<Text>{fullText}</Text>) : (<TextB>{fullText}</TextB>))}
-            {mobileLayout || !date ? React.Fragment : (read ? (<DateLabel>{date}</DateLabel>) : (<DateLabelB>{date}</DateLabelB>))}
+            {read ? (<Text>{fullText}</Text>) : (<TextB>{fullText}</TextB>)}
+            {mobileLayout ||!date ? React.Fragment : (read ? (<DateLabel>{date}</DateLabel>) : (<DateLabelB>{date}</DateLabelB>))}
           </Div>
         </Link>
         <div style={{visibility: useExpansionOpen ? 'visible' : 'hidden', height: useExpansionOpen ? undefined : 0}}>

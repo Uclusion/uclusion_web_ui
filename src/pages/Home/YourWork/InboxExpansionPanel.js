@@ -250,7 +250,7 @@ export function addExpansionPanel(props) {
     const market = getMarket(marketsState, marketId) || {};
     item.expansionPanel = (
       <div style={{paddingLeft: '2rem', paddingRight: '2rem', paddingTop: '1rem', paddingBottom: '1rem'}}>
-        {!_.isEmpty(market) && (
+        {market.created_at && (
           <ExpiresDisplay createdAt={market.created_at} expirationMinutes={market.expiration_minutes} />
         )}
         <DialogManage marketId={marketId} expires={true} onClose={() => {}} isInbox />

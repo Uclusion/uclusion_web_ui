@@ -25,7 +25,7 @@ import {
   TODO_TYPE
 } from '../../../constants/comments'
 import {
-  baseNavListItem,
+  baseNavListItem, createTitle,
   formInvestibleLink,
   formMarketArchivesLink,
   formMarketLink,
@@ -130,6 +130,7 @@ import { blockedStorySteps } from '../../../components/Tours/blockedStory'
 import { requiresInputStorySteps } from '../../../components/Tours/requiresInputStory'
 import { getTomorrow } from '../../../utils/timerUtils'
 import { workListStyles } from '../../Home/YourWork/WorkListItem'
+import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
 
 export const usePlanningInvestibleStyles = makeStyles(
   theme => ({
@@ -754,7 +755,9 @@ function PlanningInvestible(props) {
   const todoSortedComments = sortedRoots.filter((comment) => comment.comment_type === TODO_TYPE);
   const { id: todoId } = getFakeCommentsArray(todoSortedComments)[0]
   const navigationMenu = {
-    navListItemTextArray: [createNavListItem(EditIcon, 'description_label', 'storyMain',
+    navListItemTextArray: [
+      {icon: AgilePlanIcon, text: createTitle(marketName, 20), target: formMarketLink(marketId)},
+      createNavListItem(EditIcon, 'description_label', 'storyMain',
       displayDescription ? undefined : 0),
       createNavListItem(ThumbsUpDownIcon, 'approvals', 'approvals',
         displayApprovalsBySearch, _.isEmpty(search) ? isInVoting : false),

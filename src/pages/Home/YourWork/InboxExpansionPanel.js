@@ -59,7 +59,8 @@ export function addExpansionPanel(props) {
     const rootComment = getCommentRoot(commentState, useMarketId, useCommentId);
     // Note passing all comments down instead of just related to the unread because otherwise confusing and also
     // have case of more than one reply being de-duped
-    if (!_.isEmpty(rootComment)) {
+    // Note - checking resolved here because can be race condition with message removal and comment resolution
+    if (!_.isEmpty(rootComment) && (messageType === 'UNREAD_RESOLVED' || !rootComment.resolved)) {
       const { comment_type: commentType, investible_id: investibleId } = rootComment;
       item.expansionPanel = <div style={{paddingLeft: '1rem', paddingRight: '1rem', paddingTop: '0.5rem'}}>
         <Comment

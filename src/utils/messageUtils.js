@@ -47,8 +47,6 @@ export function messageText(message, intl) {
       return intl.formatMessage({ id: 'pleaseApprove' });
     case 'NEW_TODO':
       return intl.formatMessage({ id: 'resolveTodo' });
-    case 'UNREAD_PIPELINE':
-      return intl.formatMessage({ id: 'noPipeline' });
     case 'ISSUE_RESOLVED':
       return intl.formatMessage({ id: 'changeStage' });
     case 'REMOVED':

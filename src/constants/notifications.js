@@ -1,6 +1,5 @@
 export const NOT_FULLY_VOTED_TYPE = 'NOT_FULLY_VOTED';
 export const REPORT_REQUIRED = 'REPORT_REQUIRED';
-export const NO_PIPELINE_TYPE = 'NO_PIPELINE';
 export const UNREAD_TYPE = 'UNREAD';
 export const ISSUE_TYPE = 'ISSUE';
 export const DIALOG_CLOSING_TYPE = 'DIALOG_CLOSING';

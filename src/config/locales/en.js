@@ -308,7 +308,6 @@ const messages = defineMessages({
   pleaseVote: 'Please vote',
   pleaseApprove: 'Please approve',
   resolveTodo: 'Unresolved Todo',
-  noPipeline: 'Missing ready for approval',
   changeStage: 'Please change stage',
   removed: 'Removed from Workspace',
   unRemoved: 'Added to Workspace',

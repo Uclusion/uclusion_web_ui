@@ -46,28 +46,36 @@ function editorEmpty (contents) {
 }
 
 function disableToolbarTabs (editorNode) {
-  const toolbarButtons = editorNode.querySelectorAll('.ql-toolbar *')
-  toolbarButtons.forEach((button) => {
-    button.tabIndex = -1
-  })
+  if (editorNode && editorNode.querySelectorAll) {
+    const toolbarButtons = editorNode.querySelectorAll('.ql-toolbar *')
+    toolbarButtons.forEach((button) => {
+      button.tabIndex = -1
+    });
+  }
 }
 
 function removeToolbarTabs (editorNode) {
-  const toolbarButtons = editorNode.querySelectorAll('.ql-toolbar *')
-  toolbarButtons.forEach((button) => {
-    button.style.display = 'none'
-    button.parentElement.style.display = 'none'
-  })
+  if (editorNode && editorNode.querySelectorAll) {
+    const toolbarButtons = editorNode.querySelectorAll('.ql-toolbar *')
+    toolbarButtons.forEach((button) => {
+      button.style.display = 'none'
+      button.parentElement.style.display = 'none'
+    });
+  }
 }
 
 function setTooltip (toolbar, selector, title, title2) {
-  const selected = title2 ? toolbar.querySelectorAll(selector) : toolbar.querySelector(selector)
-  if (selected) {
-    if (title2) {
-      selected[0] && selected[0].setAttribute('title', title)
-      selected[1] && selected[1].setAttribute('title', title2)
-    } else {
-      selected.setAttribute('title', title)
+  if (toolbar) {
+    if ((title2 && toolbar.querySelectorAll) || (!title2 && toolbar.querySelector)) {
+      const selected = title2 ? toolbar.querySelectorAll(selector) : toolbar.querySelector(selector)
+      if (selected) {
+        if (title2) {
+          selected[0] && selected[0].setAttribute('title', title)
+          selected[1] && selected[1].setAttribute('title', title2)
+        } else {
+          selected.setAttribute('title', title)
+        }
+      }
     }
   }
 }

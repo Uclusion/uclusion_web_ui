@@ -102,7 +102,9 @@ function getMessageForComment(comment, market, labelId, Icon, intl, investibleSt
     if (marketInfo.stage === furtherWork.id) {
       message.inActive = true;
     }
-    message.investible = investible.investible.name;
+    if (investible && investible.investible && investible.investible.name) {
+      message.investible = investible.investible.name;
+    }
   }
   if (!_.isEmpty(comment.mentions)) {
     // add mentioned with no reply in the thread - could extend to inline activity but parent is still unresolved

@@ -51,6 +51,8 @@ function disableToolbarTabs (editorNode) {
     toolbarButtons.forEach((button) => {
       button.tabIndex = -1
     });
+  } else {
+    console.warn(editorNode);
   }
 }
 
@@ -61,6 +63,8 @@ function removeToolbarTabs (editorNode) {
       button.style.display = 'none'
       button.parentElement.style.display = 'none'
     });
+  } else {
+    console.warn(editorNode);
   }
 }
 
@@ -76,6 +80,8 @@ function setTooltip (toolbar, selector, title, title2) {
           selected.setAttribute('title', title)
         }
       }
+    } else {
+      console.warn(toolbar);
     }
   }
 }

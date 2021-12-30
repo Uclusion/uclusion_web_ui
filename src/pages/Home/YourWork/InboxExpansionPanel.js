@@ -6,8 +6,15 @@ import {
   getMarketComments,
   getUnresolvedInvestibleComments
 } from '../../../contexts/CommentsContext/commentsContextHelper'
-import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
-import { JUSTIFY_TYPE, REPORT_TYPE, TODO_TYPE } from '../../../constants/comments'
+import { getMarket, getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
+import {
+  ISSUE_TYPE,
+  JUSTIFY_TYPE,
+  QUESTION_TYPE,
+  REPORT_TYPE,
+  SUGGEST_CHANGE_TYPE,
+  TODO_TYPE
+} from '../../../constants/comments'
 import InvestibleStatus from './InvestibleStatus'
 import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff'
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
@@ -21,12 +28,14 @@ import { getMarketInfo } from '../../../utils/userFunctions'
 import { DaysEstimate } from '../../../components/AgilePlan'
 import Voting from '../../Investible/Decision/Voting'
 import { getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
-import ExpiresDisplay from '../../../components/Expiration/ExpiresDisplay'
 import DialogManage from '../../Dialog/DialogManage'
 import { Checkbox, FormControlLabel } from '@material-ui/core'
 import { updateInvestible } from '../../../api/investibles'
 import { notify, onInvestibleStageChange } from '../../../utils/investibleFunctions'
 import { UNASSIGNED_TYPE, YELLOW_LEVEL } from '../../../constants/notifications'
+import CommentBox from '../../../containers/CommentBox/CommentBox'
+import YourVoting from '../../Investible/Voting/YourVoting'
+import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
 
 export function addExpansionPanel(props) {
   const {item, commentState, marketState, investiblesState, investiblesDispatch, diffState,
@@ -141,15 +150,23 @@ export function addExpansionPanel(props) {
       }
     }
   } else if (['NOT_FULLY_VOTED', 'ASSIGNED_UNREVIEWABLE'].includes(messageType)) {
+    const market = getMarket(marketsState, marketId) || {};
+    const userId = getMyUserForMarket(marketsState, marketId) || '';
     const marketPresences = getMarketPresences(marketPresencesState, marketId);
     const investibleComments = getUnresolvedInvestibleComments(investibleId, marketId, commentState);
+    const investmentReasonsRemoved = investibleComments.filter(comment => comment.comment_type !== JUSTIFY_TYPE) || [];
+    const investmentReasons = investibleComments.filter(comment => comment.comment_type === JUSTIFY_TYPE) || [];
     const investibleCollaborators = getCollaborators(marketPresences, investibleComments, marketPresencesState,
       investibleId);
-    const inv = getInvestible(investiblesState, investibleId);
+    const inv = getInvestible(investiblesState, investibleId) || {};
+    const { investible: myInvestible } = inv;
+    const { description } = myInvestible || {};
     const marketInfo = getMarketInfo(inv, marketId) || {};
     const { assigned: invAssigned, completion_estimate: marketDaysEstimate, required_approvers:  requiredApprovers
     } = marketInfo;
     const assigned = invAssigned || [];
+    const allowedTypes = messageType === 'ASSIGNED_UNREVIEWABLE' ? [TODO_TYPE, REPORT_TYPE] :
+      [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE];
     item.expansionPanel = (
       <div style={{padding: '1rem'}}>
         <div style={{display: mobileLayout ? 'block' : 'flex'}}>
@@ -197,7 +214,7 @@ export function addExpansionPanel(props) {
                   assigned={requiredApprovers}
                   isAdmin={false}
                   toggleAssign={() => {}}
-                  toolTipId={'storyApproversLabel'}
+                  toolTipId="storyApproversLabel"
                 />
               </div>
             </div>
@@ -207,6 +224,44 @@ export function addExpansionPanel(props) {
               <DaysEstimate readOnly value={marketDaysEstimate} isInbox />
             </div>
           )}
+        </div>
+        <div style={{paddingTop: '1rem'}}>
+          <DescriptionOrDiff id={investibleId} description={description} showDiff={false}/>
+        </div>
+        {messageType === 'NOT_FULLY_VOTED' && (
+          <>
+            <YourVoting
+              investibleId={investibleId}
+              marketPresences={marketPresences}
+              comments={investmentReasons}
+              userId={userId}
+              market={market}
+              isAssigned={false}
+            />
+            <h3>{intl.formatMessage({ id: 'orStructuredComment' })}</h3>
+          </>
+        )}
+        {marketId && !_.isEmpty(myInvestible) && (
+          <>
+            <div style={{paddingTop: '0.5rem'}} />
+            <CommentAddBox
+              allowedTypes={allowedTypes}
+              investible={myInvestible}
+              marketId={marketId}
+              issueWarningId={'issueWarningPlanning'}
+              isInReview={messageType === 'ASSIGNED_UNREVIEWABLE'}
+              isAssignee={false}
+              isStory
+            />
+          </>
+        )}
+        <div style={{paddingTop: '1rem', overflowY: 'auto', maxHeight: '25rem'}}>
+          <CommentBox
+            comments={investmentReasonsRemoved}
+            marketId={marketId}
+            allowedTypes={[]}
+            isInbox
+          />
         </div>
       </div>
     );
@@ -246,16 +301,6 @@ export function addExpansionPanel(props) {
   } else if (messageType === 'DRAFT') {
     item.expansionPanel = (
       <DialogManage marketId={marketId} onClose={() => {}} isInbox />
-    );
-  } else if (messageType === 'UNREAD_COLLABORATION') {
-    const market = getMarket(marketsState, marketId) || {};
-    item.expansionPanel = (
-      <div style={{paddingLeft: '2rem', paddingRight: '2rem', paddingTop: '1rem', paddingBottom: '1rem'}}>
-        {market.created_at && (
-          <ExpiresDisplay createdAt={market.created_at} expirationMinutes={market.expiration_minutes} />
-        )}
-        <DialogManage marketId={marketId} expires={true} onClose={() => {}} isInbox />
-      </div>
     );
   }
 }

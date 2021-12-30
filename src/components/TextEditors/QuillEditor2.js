@@ -41,7 +41,7 @@ Quill.register(CustomCodeBlock, true);
 
 // static helper funcs
 
-function editorEmpty (contents) {
+export function editorEmpty (contents) {
   return (contents.length === 0 || contents === '<p></p>' || contents === '<p><br></p>')
 }
 

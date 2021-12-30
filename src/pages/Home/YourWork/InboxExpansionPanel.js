@@ -38,6 +38,7 @@ import YourVoting from '../../Investible/Voting/YourVoting'
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
 import PlanningInvestibleEdit from '../../Investible/Planning/PlanningInvestibleEdit'
 import { removeWorkListItem } from './WorkListItem'
+import { editorEmpty } from '../../../components/TextEditors/QuillEditor2'
 
 export function addExpansionPanel(props) {
   const {item, commentState, marketState, investiblesState, investiblesDispatch, diffState,
@@ -153,7 +154,7 @@ export function addExpansionPanel(props) {
               />
             </>
           )}
-          {!_.isEmpty(description) && (
+          {!_.isEmpty(description) && !editorEmpty(description) && (
             <div style={{paddingTop: '0.5rem'}}>
               <DescriptionOrDiff id={investibleId} description={description} showDiff={diff !== undefined}/>
             </div>
@@ -247,7 +248,7 @@ export function addExpansionPanel(props) {
             </div>
           )}
         </div>
-        {!_.isEmpty(description) && (
+        {!_.isEmpty(description) && !editorEmpty(description) && (
           <div style={{paddingTop: '1rem'}}>
             <DescriptionOrDiff id={investibleId} description={description} showDiff={false}/>
           </div>

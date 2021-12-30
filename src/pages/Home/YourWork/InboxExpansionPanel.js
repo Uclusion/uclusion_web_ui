@@ -17,7 +17,7 @@ import {
 } from '../../../constants/comments'
 import InvestibleStatus from './InvestibleStatus'
 import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff'
-import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
+import { getInvestible, refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { getDiff } from '../../../contexts/DiffContext/diffContextHelper'
 import { PLANNING_TYPE } from '../../../constants/markets'
 import clsx from 'clsx'
@@ -36,11 +36,13 @@ import { UNASSIGNED_TYPE, YELLOW_LEVEL } from '../../../constants/notifications'
 import CommentBox from '../../../containers/CommentBox/CommentBox'
 import YourVoting from '../../Investible/Voting/YourVoting'
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
+import PlanningInvestibleEdit from '../../Investible/Planning/PlanningInvestibleEdit'
+import { removeWorkListItem } from './WorkListItem'
 
 export function addExpansionPanel(props) {
   const {item, commentState, marketState, investiblesState, investiblesDispatch, diffState,
     planningClasses, marketPresencesState, marketStagesState, marketsState, mobileLayout, messagesState,
-    messagesDispatch, operationRunning, setOperationRunning, intl} = props;
+    messagesDispatch, operationRunning, setOperationRunning, intl, workItemClasses} = props;
   const { message } = item;
   const { type: messageType, market_id: marketId, comment_id: commentId, comment_market_id: commentMarketId,
     link_type: linkType, investible_id: investibleId, market_type: marketType } = message;
@@ -106,32 +108,50 @@ export function addExpansionPanel(props) {
       item.expansionPanel = (
         <div style={{paddingLeft: '1.25rem', paddingTop: '0.75rem', paddingRight: '1rem', paddingBottom: '0.5rem'}}>
           {openForInvestment && _.isEmpty(assigned) && (
-            <FormControlLabel
-              control={
-                <Checkbox
-                  value={openForInvestment}
-                  disabled={operationRunning || !isAdmin}
-                  checked={openForInvestment}
-                  onClick={() => {
-                    const updateInfo = {
-                      marketId,
-                      investibleId,
-                      openForInvestment: true,
-                    };
-                    setOperationRunning(true);
-                    return updateInvestible(updateInfo).then((fullInvestible) => {
-                      onInvestibleStageChange(stage, fullInvestible, investibleId, marketId, undefined,
-                        undefined, investiblesDispatch, () => {}, marketStagesState,
-                        messagesState, messagesDispatch, [UNASSIGNED_TYPE]);
-                      notify(myPresence.id, investibleId, UNASSIGNED_TYPE, YELLOW_LEVEL, investiblesState, market,
-                        messagesDispatch);
-                      setOperationRunning(false);
-                    });
-                  }}
-                />
-              }
-              label={intl.formatMessage({ id: 'readyToStartCheckboxExplanation' })}
-            />
+            <>
+              <PlanningInvestibleEdit
+                fullInvestible={fullInvestible}
+                marketId={marketId}
+                marketPresences={marketPresences}
+                onSave={(result) => {
+                  const { fullInvestible } = result;
+                  refreshInvestibles(investiblesDispatch, () => {}, [fullInvestible]);
+                  removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
+                }}
+                isAdmin={isAdmin}
+                isAssign={true}
+                isReview={false}
+                isApprove={false}
+                isInbox
+              />
+              <div style={{paddingTop: '1.25rem'}} />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    value={openForInvestment}
+                    disabled={operationRunning || !isAdmin}
+                    checked={openForInvestment}
+                    onClick={() => {
+                      const updateInfo = {
+                        marketId,
+                        investibleId,
+                        openForInvestment: true,
+                      };
+                      setOperationRunning(true);
+                      return updateInvestible(updateInfo).then((fullInvestible) => {
+                        onInvestibleStageChange(stage, fullInvestible, investibleId, marketId, undefined,
+                          undefined, investiblesDispatch, () => {}, marketStagesState,
+                          messagesState, messagesDispatch, [UNASSIGNED_TYPE]);
+                        notify(myPresence.id, investibleId, UNASSIGNED_TYPE, YELLOW_LEVEL, investiblesState, market,
+                          messagesDispatch);
+                        setOperationRunning(false);
+                      });
+                    }}
+                  />
+                }
+                label={intl.formatMessage({ id: 'readyToStartCheckboxExplanation' })}
+              />
+            </>
           )}
           <div style={{paddingTop: '0.5rem'}}>
             <DescriptionOrDiff id={investibleId} description={description} showDiff={diff !== undefined}/>

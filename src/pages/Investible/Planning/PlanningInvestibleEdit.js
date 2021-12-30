@@ -37,8 +37,8 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 const usePlanInvestibleStyles = makeStyles(
   theme => ({
     actions: {
-      margin: theme.spacing(-4, 0, 0, 7),
-      paddingBottom: '2rem'
+      margin: theme.spacing(-4, 0, 0, 1.5),
+      paddingBottom: '1rem'
     }
   }),
   { name: "PlanningInvestibleEdit" }
@@ -46,7 +46,7 @@ const usePlanInvestibleStyles = makeStyles(
 
 function PlanningInvestibleEdit(props) {
   const {
-    fullInvestible, onCancel, onSave, marketId, isAssign, isApprove, isReview
+    fullInvestible, onCancel, onSave, marketId, isAssign, isApprove, isReview, isInbox
   } = props;
   const intl = useIntl();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -219,7 +219,7 @@ function PlanningInvestibleEdit(props) {
         subtype={subtype}
       />
       <CardContent>
-        <div className={classes.cardContent}>
+        <div className={classes.cardContent} style={{paddingBottom: '1.25rem', paddingLeft: 0, paddingTop: 0}}>
           <AssignmentList
             fullMarketPresences={marketPresences}
             previouslyAssigned={initialAssigned}
@@ -229,9 +229,11 @@ function PlanningInvestibleEdit(props) {
         </div>
       </CardContent>
       <CardActions className={myClasses.actions}>
-        <SpinningIconLabelButton onClick={onCancel} doSpin={false} icon={Clear}>
-          {intl.formatMessage({ id: 'marketAddCancelLabel' })}
-        </SpinningIconLabelButton>
+        {!isInbox && (
+          <SpinningIconLabelButton onClick={onCancel} doSpin={false} icon={Clear}>
+            {intl.formatMessage({ id: 'marketAddCancelLabel' })}
+          </SpinningIconLabelButton>
+        )}
         {hasVotes && (
           <SpinningIconLabelButton onClick={handleOpen} icon={SettingsBackupRestore} doSpin={false}
                                    disabled={_.isEmpty(_.xor(assignments, initialAssigned))}>

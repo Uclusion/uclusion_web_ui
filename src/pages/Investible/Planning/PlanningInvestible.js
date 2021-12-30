@@ -91,7 +91,7 @@ import { getInvestibleVoters } from '../../../utils/votingUtils';
 import { getCommenterPresences, inVerifedSwimLane } from '../../Dialog/Planning/userUtils';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
-import { findMessageOfType, findMessageOfTypeAndId } from '../../../utils/messageUtils'
+import { findMessageOfType, findMessageOfTypeAndId, findMessagesForInvestibleId } from '../../../utils/messageUtils'
 import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
 import QuestionIcon from '@material-ui/icons/ContactSupport'
 import UpdateIcon from '@material-ui/icons/Update'
@@ -777,6 +777,10 @@ function PlanningInvestible(props) {
       const { fullInvestible, assignmentChanged } = result;
       refreshInvestibles(investiblesDispatch, diffDispatch, [fullInvestible]);
       if (assignmentChanged) {
+        const messages = findMessagesForInvestibleId(investibleId, messagesState) || [];
+        messages.forEach((message) => {
+          messagesDispatch(removeMessage(message));
+        });
         removeInvestibleInvestments(marketPresencesState, marketPresencesDispatch, marketId, investibleId);
       }
     }
@@ -836,17 +840,20 @@ function PlanningInvestible(props) {
         } />
       )}
       {!hidden && editCollaborators && (
-        <PlanningInvestibleEdit
-          fullInvestible={marketInvestible}
-          marketId={marketId}
-          marketPresences={marketPresences}
-          onSave={onSaveAssignments}
-          onCancel={() => updatePageState({editCollaborators: false})}
-          isAdmin={isAdmin}
-          isAssign={editCollaborators === 'assign'}
-          isReview={editCollaborators === 'review'}
-          isApprove={editCollaborators === 'approve'}
-        />
+        <>
+          <PlanningInvestibleEdit
+            fullInvestible={marketInvestible}
+            marketId={marketId}
+            marketPresences={marketPresences}
+            onSave={onSaveAssignments}
+            onCancel={() => updatePageState({editCollaborators: false})}
+            isAdmin={isAdmin}
+            isAssign={editCollaborators === 'assign'}
+            isReview={editCollaborators === 'review'}
+            isApprove={editCollaborators === 'approve'}
+          />
+          <div style={{marginTop: '1rem'}} />
+        </>
       )}
       <Card id="storyMain" elevation={3} style={{display: displayDescription ? 'block' : 'none'}}>
         <CardType

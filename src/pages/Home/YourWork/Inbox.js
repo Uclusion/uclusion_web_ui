@@ -190,7 +190,7 @@ function Inbox(props) {
     }
     addExpansionPanel({item, commentState, marketState, investiblesState, investiblesDispatch, diffState,
       planningClasses, marketPresencesState, marketStagesState, marketsState, mobileLayout, messagesState,
-      messagesDispatch, operationRunning, setOperationRunning, intl});
+      messagesDispatch, operationRunning, setOperationRunning, intl, workItemClasses});
     return <WorkListItem key={typeObjectId} id={typeObjectId} checkedDefault={checkAll}
                          workListItemFull={workListItemFull} workListItemDispatch={workListItemDispatch}
                          setDeterminate={setDeterminate} determinate={determinate} {...item} />;

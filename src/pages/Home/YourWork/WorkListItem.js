@@ -189,13 +189,13 @@ function WorkListItem(props) {
           (event) => {
             if (isDeletable) {
               return deleteActionButtonOnclick(event)
-                .then(() => navigate(history, link, false, true));
+                .then(() => navigate(history, link));
             } else if (read) {
               preventDefaultAndProp(event);
-              navigate(history, link, false, true);
+              navigate(history, link);
             } else {
               return archiveActionButtonOnclick(event)
-                .then(() => navigate(history, link, false, true));
+                .then(() => navigate(history, link));
             }
           }
         }>

@@ -153,9 +153,11 @@ export function addExpansionPanel(props) {
               />
             </>
           )}
-          <div style={{paddingTop: '0.5rem'}}>
-            <DescriptionOrDiff id={investibleId} description={description} showDiff={diff !== undefined}/>
-          </div>
+          {!_.isEmpty(description) && (
+            <div style={{paddingTop: '0.5rem'}}>
+              <DescriptionOrDiff id={investibleId} description={description} showDiff={diff !== undefined}/>
+            </div>
+          )}
         </div>
       );
     } else {
@@ -245,9 +247,11 @@ export function addExpansionPanel(props) {
             </div>
           )}
         </div>
-        <div style={{paddingTop: '1rem'}}>
-          <DescriptionOrDiff id={investibleId} description={description} showDiff={false}/>
-        </div>
+        {!_.isEmpty(description) && (
+          <div style={{paddingTop: '1rem'}}>
+            <DescriptionOrDiff id={investibleId} description={description} showDiff={false}/>
+          </div>
+        )}
         {messageType === 'NOT_FULLY_VOTED' && (
           <>
             <YourVoting

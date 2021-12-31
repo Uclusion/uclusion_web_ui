@@ -28,14 +28,6 @@ export function guestUser(marketId, userId) {
     .catch((error) => toastErrorAndThrow(error, 'errorGuestUserFailed'));
 }
 
-export function deleteSingleMessage(message) {
-  const { market_id: marketId, type_object_id: typeObjectId } = message;
-  if (marketId === 'slack_reminder') {
-    return getAccountClient().then((client) => client.users.removeNotification(typeObjectId));
-  }
-  return getMarketClient(marketId).then((client) => client.users.removeNotification(typeObjectId));
-}
-
 export function deleteOrDehilightMessages(messages, messagesDispatch, removeClass, doRemove=true) {
   const useMarketIds = {};
   messages.forEach((message) => {

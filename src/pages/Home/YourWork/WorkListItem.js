@@ -20,6 +20,12 @@ import { Link } from '@material-ui/core'
 import { getPageReducerPage } from '../../../components/PageState/pageStateHooks'
 import { useHistory } from 'react-router'
 import RaisedCard from '../../../components/Cards/RaisedCard'
+import { pushMessage } from '../../../utils/MessageBusUtils'
+import { LOCK_MARKET, LOCK_MARKET_CHANNEL } from '../../../contexts/MarketsContext/marketsContextMessages'
+import {
+  DELETE_EVENT,
+  DELETE_NOTIFICATIONS_CHANNEL
+} from '../../../contexts/NotificationsContext/notificationsContextMessages'
 
 const Item = styled("div")`
   margin-bottom: 20px;
@@ -188,14 +194,15 @@ function WorkListItem(props) {
         <Link href={link} style={{ width: '100%' }} key={`link${id}`} onClick={
           (event) => {
             if (isDeletable) {
-              return deleteActionButtonOnclick(event)
-                .then(() => navigate(history, link));
+              pushMessage(DELETE_NOTIFICATIONS_CHANNEL, { event: DELETE_EVENT, marketId, message });
+              return navigate(history, link);
             } else if (read) {
               preventDefaultAndProp(event);
               navigate(history, link);
             } else {
-              return archiveActionButtonOnclick(event)
-                .then(() => navigate(history, link));
+              pushMessage(DELETE_NOTIFICATIONS_CHANNEL, { event: DELETE_EVENT, marketId, message });
+              messagesDispatch(dehighlightMessage(message));
+              return navigate(history, link);
             }
           }
         }>

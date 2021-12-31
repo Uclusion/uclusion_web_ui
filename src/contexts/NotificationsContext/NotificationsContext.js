@@ -21,7 +21,6 @@ function NotificationsProvider(props) {
   const { children } = props;
   const [, setChannel] = useState(undefined);
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
-  const history = useHistory();
 
   useEffect(() => {
     if (!isSignedOut()) {
@@ -46,10 +45,10 @@ function NotificationsProvider(props) {
   useEffect(() => {
     if (!isSignedOut()) {
       console.info('Beginning listening in notifications provider');
-      beginListening(dispatch, history);
+      beginListening(dispatch);
     }
     return () => {};
-  }, [history]);
+  }, []);
 
   useEffect(() => {
     if (!isSignedOut()) {

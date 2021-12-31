@@ -189,7 +189,7 @@ export function addExpansionPanel(props) {
       required_reviews: requiredReviewers } = marketInfo;
     const assigned = invAssigned || [];
     const isInVoting = messageType === 'NOT_FULLY_VOTED';
-    const allowedTypes = messageType === 'ASSIGNED_UNREVIEWABLE' ? [TODO_TYPE, REPORT_TYPE] :
+    const allowedTypes = messageType === 'ASSIGNED_UNREVIEWABLE' ? [TODO_TYPE] :
       [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE];
     item.expansionPanel = (
       <div style={{padding: '1rem'}}>
@@ -276,8 +276,8 @@ export function addExpansionPanel(props) {
               investible={myInvestible}
               marketId={marketId}
               issueWarningId={'issueWarningPlanning'}
-              isInReview={messageType === 'ASSIGNED_UNREVIEWABLE'}
-              isAssignee={false}
+              isInReview={false}
+              isAssignee={messageType === 'ASSIGNED_UNREVIEWABLE'}
               isStory
             />
           </>

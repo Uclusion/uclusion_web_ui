@@ -44,6 +44,11 @@ export function removeComments(dispatch, marketId, comments) {
   dispatch(removeCommentsFromMarket(marketId, comments));
 }
 
+export function getInvestibleComments(investibleId, marketId, state) {
+  const comments = getMarketComments(state, marketId);
+  return comments.filter(comment => comment.investible_id === investibleId) || [];
+}
+
 export function getUnresolvedInvestibleComments(investibleId, marketId, state) {
   const comments = getMarketComments(state, marketId);
   return comments.filter(comment => comment.investible_id === investibleId && !comment.resolved) || [];

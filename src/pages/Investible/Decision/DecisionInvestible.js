@@ -7,18 +7,9 @@ import { Card, CardContent, Grid, Link, Typography, useMediaQuery, useTheme } fr
 import { makeStyles } from '@material-ui/styles'
 import YourVoting from '../Voting/YourVoting'
 import Voting from './Voting'
-import CommentBox, { getSortedRoots } from '../../../containers/CommentBox/CommentBox'
+import CommentBox from '../../../containers/CommentBox/CommentBox'
 import { ISSUE_TYPE, JUSTIFY_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, } from '../../../constants/comments'
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
-import Screen from '../../../containers/Screen/Screen'
-import {
-  baseNavListItem,
-  formCommentLink,
-  formInvestibleLink,
-  formMarketLink,
-  makeArchiveBreadCrumbs,
-  makeBreadCrumbs
-} from '../../../utils/marketIdPathFunctions'
 import MoveToCurrentVotingActionButton from './MoveToCurrentVotingActionButton'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import { getProposedOptionsStage, } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
@@ -27,13 +18,8 @@ import DeleteInvestibleActionButton from './DeleteInvestibleActionButton'
 import CardType, { OPTION, PROPOSED, VOTING_TYPE } from '../../../components/CardType'
 import DismissableText from '../../../components/Notifications/DismissableText'
 import MoveBackToPoolActionButton from './MoveBackToPoolActionButton'
-import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
-import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
-import {
-  addInvestible,
-  getInvestibleName
-} from '../../../contexts/InvestibesContext/investiblesContextHelper'
+import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import CardActions from '@material-ui/core/CardActions'
 import clsx from 'clsx'
 import AttachedFilesList from '../../../components/Files/AttachedFilesList'
@@ -41,22 +27,11 @@ import { useMetaDataStyles } from '../Planning/PlanningInvestible'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { attachFilesToInvestible, deleteAttachedFilesFromInvestible } from '../../../api/investibles'
 import { EMPTY_SPIN_RESULT } from '../../../constants/global'
-import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper'
-import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { doSetEditWhenValid } from '../../../utils/windowUtils'
 import EditMarketButton from '../../Dialog/EditMarketButton'
-import EditIcon from '@material-ui/icons/Edit'
-import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown'
-import AddIcon from '@material-ui/icons/Add'
-import BlockIcon from '@material-ui/icons/Block'
-import QuestionIcon from '@material-ui/icons/ContactSupport'
-import ChangeSuggstionIcon from '@material-ui/icons/ChangeHistory'
-import { getVotesForInvestible } from '../../../utils/userFunctions'
-import { getFakeCommentsArray } from '../../../utils/stringFunctions'
-import { ExpandLess, QuestionAnswer, SettingsBackupRestore } from '@material-ui/icons'
+import { ExpandLess, SettingsBackupRestore } from '@material-ui/icons'
 import InvestibleBodyEdit from '../InvestibleBodyEdit'
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
-import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { deleteOrDehilightMessages } from '../../../api/users'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
@@ -65,7 +40,6 @@ import { getDiff, markDiffViewed } from '../../../contexts/DiffContext/diffConte
 import { findMessageOfTypeAndId } from '../../../utils/messageUtils'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils'
-import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
 import { workListStyles } from '../../Home/YourWork/WorkListItem'
 
 const useStyles = makeStyles((theme) => ({
@@ -159,31 +133,6 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export function getInlineBreadCrumbs (marketState, parentMarketId, parentInvestibleId, investiblesState,
-  parentCommentId) {
-  const inlineParentMarket = getMarket(marketState, parentMarketId);
-  let breadCrumbTemplates = [];
-  if (inlineParentMarket) {
-    // Better would be to peg loading a level up since above can resolve with wrong
-    const { name: inlineParentMarketName } = inlineParentMarket
-    breadCrumbTemplates = [{ name: inlineParentMarketName, link: formMarketLink(parentMarketId), id: 'marketCrumb',
-      icon: <AgilePlanIcon/> }]
-  }
-  if (parentInvestibleId) {
-    breadCrumbTemplates.push({
-      name: getInvestibleName(parentInvestibleId, investiblesState),
-      link: formInvestibleLink(parentMarketId, parentInvestibleId), id: 'marketCrumb'
-    })
-  }
-  if (parentCommentId) {
-    breadCrumbTemplates.push({
-      name: 'Question',
-      link: formCommentLink(parentMarketId, parentInvestibleId, parentCommentId), id: 'marketCrumb'
-    })
-  }
-  return breadCrumbTemplates
-}
-
 /**
  * A page that represents what the investible looks like for a DECISION Dialog
  * @param props
@@ -216,29 +165,13 @@ function DecisionInvestible(props) {
   const myMessageDescription = findMessageOfTypeAndId(investibleId, messagesState, 'DESCRIPTION');
   const myMessageName = findMessageOfTypeAndId(investibleId, messagesState, 'NAME');
   const diff = getDiff(diffState, investibleId);
-  const { name: marketName, id: marketId, market_stage: marketStage, allow_multi_vote: allowMultiVote,
-    parent_comment_id: parentCommentId, parent_comment_market_id: parentCommentMarketId } = market;
+  const { id: marketId, market_stage: marketStage, allow_multi_vote: allowMultiVote } = market;
   const [pageStateFull, pageDispatch] = usePageStateReducer('investible');
   const [pageState, updatePageState, pageStateReset] = getPageReducerPage(pageStateFull, pageDispatch, investibleId);
   const {
     beingEdited,
     showDiff
   } = pageState;
-  const isInline = !_.isEmpty(parentCommentId);
-  const [commentsState] = useContext(CommentsContext);
-  const [searchResults] = useContext(SearchResultsContext);
-  let breadCrumbTemplates = [{ name: marketName, link: formMarketLink(marketId), id: 'marketCrumb'}];
-  const [marketState] = useContext(MarketsContext);
-  const [investiblesState] = useContext(InvestiblesContext);
-  if (isInline) {
-    const comments = getMarketComments(commentsState, parentCommentMarketId) || [];
-    const parentComment = comments.find((comment) => comment.id === parentCommentId) || {};
-    breadCrumbTemplates = getInlineBreadCrumbs(marketState, parentCommentMarketId, parentComment.investible_id,
-      investiblesState, parentComment.id);
-  }
-  const breadCrumbs = inArchives
-    ? makeArchiveBreadCrumbs(history, breadCrumbTemplates)
-    : makeBreadCrumbs(history, breadCrumbTemplates);
   const investmentReasonsRemoved = investibleComments.filter((comment) => comment.comment_type !== JUSTIFY_TYPE) || [];
   const investmentReasons = investibleComments.filter((comment) => comment.comment_type === JUSTIFY_TYPE);
   const myIssues = investibleComments.filter((comment) => comment.comment_type === ISSUE_TYPE && !comment.resolved);
@@ -344,45 +277,11 @@ function DecisionInvestible(props) {
       .then((investible) => addInvestible(investiblesDispatch, diffDispatch, investible));
   }
 
-  if (!investibleId) {
-    // we have no usable data;
-    return <></>;
-  }
   const votingAllowed = !inProposed && !inArchives && !hasIssueOrMarketIssue;
   const displayVotingInput = votingAllowed && !yourVote;
-  function createNavListItem(icon, textId, anchorId, howManyNum, alwaysShow) {
-    return baseNavListItem(formInvestibleLink(marketId, investibleId), icon, textId, anchorId, howManyNum, alwaysShow);
-  }
-  const invested = getVotesForInvestible(marketPresences, investibleId);
-  const openComments = investmentReasonsRemoved.filter((comment) => !comment.resolved) || [];
-  const closedComments = investmentReasonsRemoved.filter((comment) => comment.resolved) || [];
-  const sortedClosedRoots = getSortedRoots(closedComments, searchResults);
-  const { id: closedId } = getFakeCommentsArray(sortedClosedRoots)[0];
-  const sortedRoots = getSortedRoots(openComments, searchResults);
-  const blocking = sortedRoots.filter((comment) => comment.comment_type === ISSUE_TYPE);
-  const { id: blockingId } = getFakeCommentsArray(blocking)[0];
-  const questions = sortedRoots.filter((comment) => comment.comment_type === QUESTION_TYPE);
-  const { id: questionId } = getFakeCommentsArray(questions)[0];
-  const suggestions = sortedRoots.filter((comment) => comment.comment_type === SUGGEST_CHANGE_TYPE);
-  const { id: suggestId } = getFakeCommentsArray(suggestions)[0]
-  const navigationMenu = {
-    navListItemTextArray: [createNavListItem(EditIcon, 'description_label', 'optionMain'),
-      createNavListItem(ThumbsUpDownIcon, 'approvals', 'approvals', _.size(invested), true),
-      inArchives ? {} : createNavListItem(AddIcon, 'commentAddBox'),
-      createNavListItem(BlockIcon, 'blocking', `c${blockingId}`, _.size(blocking)),
-      createNavListItem(QuestionIcon, 'questions', `c${questionId}`, _.size(questions)),
-      createNavListItem(ChangeSuggstionIcon, 'suggestions', `c${suggestId}`, _.size(suggestions)),
-      createNavListItem(QuestionAnswer, 'closedComments', `c${closedId}`, _.size(sortedClosedRoots))
-    ]
-  }
+
   return (
-    <Screen
-      title={name}
-      tabTitle={name}
-      breadCrumbs={breadCrumbs}
-      hidden={hidden}
-      navigationOptions={navigationMenu}
-    >
+    <div style={{marginLeft: mobileLayout ? undefined : '2rem', marginRight: mobileLayout ? undefined : '2rem'}}>
       {activeMarket && !inProposed && !allowMultiVote && (
         <DismissableText textId='decisionInvestibleVotingSingleHelp' text={
           <div>
@@ -533,7 +432,7 @@ function DecisionInvestible(props) {
         </>
       )}
       <Grid container spacing={2}>
-        <Grid item xs={12} style={{ marginTop: '71px' }}>
+        <Grid item xs={12} style={{ marginTop: '2rem' }}>
           {!inArchives && (inProposed || yourVote) && marketId && !_.isEmpty(investible) && !hidden && (
             <CommentAddBox
               allowedTypes={allowedCommentTypes}
@@ -542,10 +441,11 @@ function DecisionInvestible(props) {
               issueWarningId="issueWarningInvestible"
             />
           )}
-          <CommentBox comments={investmentReasonsRemoved} marketId={marketId} allowedTypes={allowedCommentTypes} />
+          <CommentBox comments={investmentReasonsRemoved} marketId={marketId} allowedTypes={allowedCommentTypes}
+                      isInbox />
         </Grid>
       </Grid>
-    </Screen>
+    </div>
   );
 }
 

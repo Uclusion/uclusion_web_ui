@@ -14,7 +14,6 @@ import Archives from '../../pages/Archives/Archives'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { OnlineStateContext } from '../../contexts/OnlineStateContext'
 import InvestibleAdd from '../../pages/Dialog/InvestibleAdd'
-import DialogAdd from '../../pages/DialogAdd/DialogAdd'
 import SlackInvite from '../../pages/Invites/SlackInvite'
 import ChangePassword from '../../pages/Authentication/ChangePassword'
 import ChangeNotificationPreferences from '../../pages/About/ChangeNotificationPreferences'
@@ -84,10 +83,6 @@ function Root() {
     return action !== 'notificationPreferences';
   }
 
-  function hideAddMarket() {
-    return action !== 'dialogAdd';
-  }
-
   function hideMarket() {
     if (action === 'invite') {
       return false;
@@ -124,7 +119,7 @@ function Root() {
   }
 
   const hidePNF = !(hideMarket() && hideSupport() && hideHome() && hideInvestible() && hideWizard() && hideInbox()
-    && hideDialogArchives() && hideArchvies() && hideInvestibleAdd() && hideAddMarket() && hideSlackInvite()
+    && hideDialogArchives() && hideArchvies() && hideInvestibleAdd() && hideSlackInvite()
     && hideChangePassword() && hideChangeNotification() && hideBillingHome() && hideOutbox() && hideTodoAdd());
 
   useEffect(() => {
@@ -198,7 +193,6 @@ function Root() {
             <Archives hidden={hideArchvies()}/>
             <DialogArchives hidden={hideDialogArchives()}/>
             <InvestibleAdd hidden={hideInvestibleAdd()}/>
-            <DialogAdd hidden={hideAddMarket()}/>
             <SlackInvite hidden={hideSlackInvite()}/>
             <ChangePassword hidden={hideChangePassword()}/>
             <ChangeNotificationPreferences hidden={hideChangeNotification()}/>

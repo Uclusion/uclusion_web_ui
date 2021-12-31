@@ -349,6 +349,8 @@ export const usePlanningInvestibleStyles = makeStyles(
 export function getCollaborators(marketPresences, investibleComments, marketPresencesState, investibleId) {
   const investibleCommentorPresences = getCommenterPresences(marketPresences, investibleComments, marketPresencesState);
   const voters = getInvestibleVoters(marketPresences, investibleId);
+  console.debug(investibleId);
+  console.debug(voters);
   const concated = [...voters, ...investibleCommentorPresences];
   return _.uniq((concated || []).map((presence) => presence.id));
 }

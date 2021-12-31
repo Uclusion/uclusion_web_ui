@@ -2,7 +2,7 @@ import Comment from '../../../components/Comments/Comment'
 import React from 'react'
 import _ from 'lodash'
 import {
-  getCommentRoot,
+  getCommentRoot, getInvestibleComments,
   getMarketComments,
   getUnresolvedInvestibleComments
 } from '../../../contexts/CommentsContext/commentsContextHelper'
@@ -176,7 +176,7 @@ export function addExpansionPanel(props) {
     const market = getMarket(marketsState, marketId) || {};
     const userId = getMyUserForMarket(marketsState, marketId) || '';
     const marketPresences = getMarketPresences(marketPresencesState, marketId);
-    const investibleComments = getUnresolvedInvestibleComments(investibleId, marketId, commentState);
+    const investibleComments = getInvestibleComments(investibleId, marketId, commentState);
     const investmentReasonsRemoved = investibleComments.filter(comment => comment.comment_type !== JUSTIFY_TYPE) || [];
     const investmentReasons = investibleComments.filter(comment => comment.comment_type === JUSTIFY_TYPE) || [];
     const investibleCollaborators = getCollaborators(marketPresences, investibleComments, marketPresencesState,
@@ -185,9 +185,10 @@ export function addExpansionPanel(props) {
     const { investible: myInvestible } = inv;
     const { description } = myInvestible || {};
     const marketInfo = getMarketInfo(inv, marketId) || {};
-    const { assigned: invAssigned, completion_estimate: marketDaysEstimate, required_approvers:  requiredApprovers
-    } = marketInfo;
+    const { assigned: invAssigned, completion_estimate: marketDaysEstimate, required_approvers:  requiredApprovers,
+      required_reviews: requiredReviewers } = marketInfo;
     const assigned = invAssigned || [];
+    const isInVoting = messageType === 'NOT_FULLY_VOTED';
     const allowedTypes = messageType === 'ASSIGNED_UNREVIEWABLE' ? [TODO_TYPE, REPORT_TYPE] :
       [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE];
     item.expansionPanel = (
@@ -195,7 +196,7 @@ export function addExpansionPanel(props) {
         <div style={{display: mobileLayout ? 'block' : 'flex'}}>
           {!_.isEmpty(assigned) && (
               <div className={clsx(planningClasses.group, planningClasses.assignments)}
-                   style={{maxWidth: '15rem', marginRight: '1rem'}}>
+                   style={{maxWidth: '15rem', marginRight: '1rem', overflowY: 'auto', maxHeight: '8rem'}}>
                 <div style={{textTransform: 'capitalize'}}>
                   <b><FormattedMessage id="planningInvestibleAssignments"/></b>
                   <Assignments
@@ -212,7 +213,7 @@ export function addExpansionPanel(props) {
           )}
           {marketType === PLANNING_TYPE && !_.isEmpty(investibleCollaborators) && (
             <div className={clsx(planningClasses.group, planningClasses.assignments)}
-                 style={{maxWidth: '15rem', marginRight: '1rem'}}>
+                 style={{maxWidth: '15rem', marginRight: '1rem', overflowY: 'auto', maxHeight: '8rem'}}>
               <div style={{textTransform: 'capitalize'}}>
                 <b><FormattedMessage id="collaborators"/></b>
                 <Assignments
@@ -226,18 +227,19 @@ export function addExpansionPanel(props) {
               </div>
             </div>
           )}
-          {!_.isEmpty(requiredApprovers) && messageType === 'NOT_FULLY_VOTED' && (
+          {((!_.isEmpty(requiredApprovers) && messageType === 'NOT_FULLY_VOTED')||
+            (!_.isEmpty(requiredReviewers) && messageType === 'ASSIGNED_UNREVIEWABLE')) && (
             <div className={clsx(planningClasses.group, planningClasses.assignments)}
-                 style={{maxWidth: '15rem', marginRight: '1rem'}}>
+                 style={{maxWidth: '15rem', marginRight: '1rem', overflowY: 'auto', maxHeight: '8rem'}}>
               <div style={{textTransform: 'capitalize'}}>
-                <b><FormattedMessage id={'requiredApprovers'}/></b>
+                <b><FormattedMessage id={isInVoting ? 'requiredApprovers' : 'requiredReviewers'}/></b>
                 <Assignments
                   classes={planningClasses}
                   marketPresences={marketPresences}
-                  assigned={requiredApprovers}
+                  assigned={isInVoting ? requiredApprovers : requiredReviewers}
                   isAdmin={false}
                   toggleAssign={() => {}}
-                  toolTipId="storyApproversLabel"
+                  toolTipId={isInVoting ? 'storyApproversLabel' : 'storyReviewersLabel'}
                 />
               </div>
             </div>

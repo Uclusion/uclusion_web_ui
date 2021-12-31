@@ -4,10 +4,10 @@ import { useHistory, useLocation } from 'react-router'
 import _ from 'lodash'
 import Screen from '../../containers/Screen/Screen'
 import {
-  decomposeMarketPath, formInvestibleLink,
+  decomposeMarketPath,
   formMarketLink,
   makeArchiveBreadCrumbs,
-  makeBreadCrumbs, navigate,
+  makeBreadCrumbs,
 } from '../../utils/marketIdPathFunctions'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { getInvestible, getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
@@ -17,10 +17,8 @@ import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper'
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
-import DecisionInvestible from './Decision/DecisionInvestible'
 import PlanningInvestible from './Planning/PlanningInvestible'
-import { ACTIVE_STAGE, DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
-import InitiativeInvestible from './Initiative/InitiativeInvestible'
+import { ACTIVE_STAGE } from '../../constants/markets'
 import { pushMessage } from '../../utils/MessageBusUtils'
 import { GUEST_MARKET_EVENT, LOAD_MARKET_CHANNEL } from '../../contexts/MarketsContext/marketsContextMessages'
 
@@ -60,9 +58,7 @@ function Investible(props) {
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
   const loading = !investibleId || _.isEmpty(inv) || _.isEmpty(myPresence) || !userId || _.isEmpty(realMarket)
     || !marketTokenLoaded(marketId, tokensHash);
-  const isDecision = market && market.market_type === DECISION_TYPE;
-  const isPlanning = market && market.market_type === PLANNING_TYPE;
-  const { market_stage: marketStage, parent_comment_id: parentCommentId, market_type: type } = market;
+  const { market_stage: marketStage } = market;
   const isAdmin = myPresence && myPresence.is_admin;
   const inArchives = marketStage !== ACTIVE_STAGE || (myPresence && !myPresence.following);
   const breadCrumbs = inArchives ?
@@ -80,27 +76,7 @@ function Investible(props) {
     }
   }, [hidden, investibleId, isInitialization, marketId, subscribeId]);
 
-  useEffect(() => {
-    if (!hidden) {
-      const currentMarket = getMarket(marketsState, marketId);
-      if (currentMarket) {
-        const {market_type: type, parent_comment_market_id: parentMarketId,
-          parent_comment_id: parentCommentId} = currentMarket;
-        if (parentCommentId && type === INITIATIVE_TYPE) {
-          // If land on an inline Initiative then redirect to comment
-          const inlineComments = getMarketComments(commentsState, parentMarketId) || [];
-          const parentComment = inlineComments.find((comment) => comment.id === parentCommentId) || {};
-          const link = parentComment.investible_id ? formInvestibleLink(parentMarketId, parentComment.investible_id) :
-            formMarketLink(parentMarketId);
-          const fullLink = `${link}#c${parentCommentId}`;
-          navigate(history, fullLink, true);
-        }
-      }
-    }
-    return () => {};
-  }, [hidden, marketId, history, commentsState, marketsState]);
-
-  if (loading || (parentCommentId && type === INITIATIVE_TYPE)) {
+  if (loading) {
     return (
       <Screen
         title={name}
@@ -114,50 +90,18 @@ function Investible(props) {
     );
   }
 
-  if (isDecision) {
-    return (
-      <DecisionInvestible
-        userId={userId}
-        investibleId={investibleId}
-        market={market}
-        fullInvestible={usedInv}
-        comments={comments}
-        marketPresences={marketPresences}
-        investibleComments={investibleComments}
-        isAdmin={isAdmin}
-        inArchives={inArchives}
-        hidden={hidden}
-      />
-    );
-  }
-
-  if (isPlanning) {
-    return (
-      <PlanningInvestible
-        userId={userId}
-        investibleId={investibleId}
-        market={market}
-        marketInvestible={inv}
-        investibles={investibles}
-        commentsHash={commentsHash}
-        marketPresences={marketPresences}
-        investibleComments={investibleComments}
-        inArchives={inArchives}
-        isAdmin={isAdmin}
-        hidden={hidden}
-      />
-    );
-  }
   return (
-    <InitiativeInvestible
+    <PlanningInvestible
       userId={userId}
       investibleId={investibleId}
       market={market}
-      fullInvestible={usedInv}
+      marketInvestible={inv}
+      investibles={investibles}
+      commentsHash={commentsHash}
       marketPresences={marketPresences}
       investibleComments={investibleComments}
-      isAdmin={isAdmin}
       inArchives={inArchives}
+      isAdmin={isAdmin}
       hidden={hidden}
     />
   );

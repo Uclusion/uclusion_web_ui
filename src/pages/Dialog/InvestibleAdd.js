@@ -22,9 +22,6 @@ import { DiffContext } from '../../contexts/DiffContext/DiffContext'
 import { addInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { usePlanFormStyles } from '../../components/AgilePlan'
 import queryString from 'query-string'
-import { getInlineBreadCrumbs } from '../Investible/Decision/DecisionInvestible'
-import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper'
-import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 
 function InvestibleAdd(props) {
   const { hidden } = props;
@@ -33,35 +30,21 @@ function InvestibleAdd(props) {
   const location = useLocation();
   const { pathname, hash } = location;
   const values = queryString.parse(hash || '') || {};
-  const { parentCommentId, fromCommentId } = values;
+  const { fromCommentId } = values;
   const fromCommentIds = _.isArray(fromCommentId) ? fromCommentId : fromCommentId ? [fromCommentId] : undefined;
   const { marketId } = decomposeMarketPath(pathname);
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   // we're going to talk directly to the contexts instead of pushing messages for speed reasons
-  const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
+  const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, diffDispatch] = useContext(DiffContext);
   const classes = usePlanFormStyles();
   const renderableMarket = getMarket(marketsState, marketId) || {};
-  const { market_type: marketType, created_at: createdAt, parent_comment_id: inlineParentCommentId,
-    parent_comment_market_id: parentMarketId, budget_unit: budgetUnit, use_budget: useBudget,
+  const { market_type: marketType, created_at: createdAt, budget_unit: budgetUnit, use_budget: useBudget,
     votes_required: votesRequired
   } = renderableMarket;
-  const [commentsState] = useContext(CommentsContext);
-  const comments = getMarketComments(commentsState, parentMarketId || marketId) || [];
-  const parentComment = comments.find((comment) => comment.id === (parentCommentId || inlineParentCommentId)) || {};
-  const parentInvestibleId = parentComment.investible_id;
   const currentMarketName = (renderableMarket && renderableMarket.name) || '';
-  let breadCrumbTemplates;
-  if (parentCommentId) {
-    // The inline market will be created along with the option
-    breadCrumbTemplates = getInlineBreadCrumbs(marketsState, marketId, parentInvestibleId, investiblesState);
-  } else if (inlineParentCommentId) {
-    breadCrumbTemplates = getInlineBreadCrumbs(marketsState, parentMarketId, parentInvestibleId, investiblesState);
-  } else {
-    breadCrumbTemplates = [{ name: currentMarketName,
-      link: formMarketLink(marketId) }];
-  }
+  const breadCrumbTemplates = [{ name: currentMarketName, link: formMarketLink(marketId) }];
   const myBreadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
   const title = intl.formatMessage({ id: 'newStory'});
 

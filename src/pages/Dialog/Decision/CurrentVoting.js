@@ -1,16 +1,13 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState } from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import { CardContent, Grid } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import { red } from '@material-ui/core/colors'
 import { useIntl } from 'react-intl'
-import { useHistory } from 'react-router'
-import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions'
 import RaisedCard from '../../../components/Cards/RaisedCard'
 import { getVoteTotalsForUser } from '../../../utils/userFunctions'
 import VoteCard from '../../../components/Cards/VoteCard'
-import useFitText from 'use-fit-text'
 import { findMessagesForInvestibleId } from '../../../utils/messageUtils'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { moveInvestibleToCurrentVoting } from '../../../api/investibles'
@@ -24,6 +21,11 @@ import {
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import { myArchiveClasses } from '../../DialogArchives/ArchiveInvestibles'
+import DecisionInvestible from '../../Investible/Decision/DecisionInvestible'
+import { getMarket, getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
+import { Clear } from '@material-ui/icons'
+import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 
 const useStyles = makeStyles(theme => ({
   noPadding: {
@@ -61,11 +63,12 @@ const useStyles = makeStyles(theme => ({
 }));
 
 function CurrentVoting(props) {
-  const history = useHistory();
   const classes = useStyles();
   const outlineStyles = myArchiveClasses();
   const intl = useIntl();
-  const { marketPresences, investibles, marketId, comments, isAdmin } = props;
+  const [selectedInvestibleId, setSelectedInvestibleId] = useState(undefined);
+  const [marketsState] = useContext(MarketsContext);
+  const { marketPresences, investibles, marketId, comments, isAdmin, inArchives } = props;
   const strippedInvestibles = investibles.map(inv => inv.investible);
   const [messagesState] = useContext(NotificationsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -123,7 +126,7 @@ function CurrentVoting(props) {
         <RaisedCard
           className={classes.card}
           elevation={3}
-          onClick={() => navigate(history, formInvestibleLink(marketId, id))}
+          onClick={() => setSelectedInvestibleId(id)}
           isHighlighted={myMessage}
         >
           <CardContent className={classes.noPadding}>
@@ -164,7 +167,6 @@ function CurrentVoting(props) {
     'numSupporters',
     'name'
   ).reverse();
-  const { fontSize, ref } = useFitText({ maxFontSize: 200 });
 
   function setElementGreen() {
     removeElementGreen();
@@ -176,32 +178,36 @@ function CurrentVoting(props) {
       document.getElementById(elementId).classList.remove(outlineStyles.containerGreen);
     });
   }
-
+  const market = getMarket(marketsState, marketId);
   return (
-    <Grid container spacing={1} id={`current${marketId}`} className={outlineStyles.white}
-          onDragEnd={removeElementGreen} onDragEnter={setElementGreen}
-          onDragOver={(event) => event.preventDefault()} onDrop={onDropApprovable}>
-      {!_.isEmpty(sortedTalliesArray) && sortedTalliesArray.map((item) => getItemVote(item))}
-      {_.isEmpty(sortedTalliesArray) && (
-        <Grid item key="noneWarning">
-          <RaisedCard
-            className="raisedcard"
-          >
-            <CardContent className={classes.warnNoOptions}>
-              <div
-                ref={ref}
-                style={{
-                  fontSize,
-                }}
-                className={classes.title}
-              >
-                {intl.formatMessage({ id: 'decisionDialogNoInvestiblesWarning' })}
-              </div>
-            </CardContent>
-          </RaisedCard>
-        </Grid>
+    <>
+      <Grid container spacing={1} id={`current${marketId}`} className={outlineStyles.white}
+            onDragEnd={removeElementGreen} onDragEnter={setElementGreen}
+            onDragOver={(event) => event.preventDefault()} onDrop={onDropApprovable}>
+        {(sortedTalliesArray || []).map((item) => getItemVote(item))}
+      </Grid>
+      {selectedInvestibleId && !_.isEmpty(market) && (
+        <>
+          <div style={{marginBottom: '0.5rem', marginLeft: '2rem'}}>
+            <SpinningIconLabelButton onClick={() => setSelectedInvestibleId(undefined)} doSpin={false}
+                                     icon={Clear}>
+              {intl.formatMessage({ id: 'marketAddCancelLabel' })}
+            </SpinningIconLabelButton>
+          </div>
+          <DecisionInvestible
+            userId={getMyUserForMarket(marketsState, marketId) || ''}
+            investibleId={selectedInvestibleId}
+            market={market}
+            fullInvestible={investibles.find((inv) => inv.investible.id === selectedInvestibleId)}
+            comments={comments}
+            marketPresences={marketPresences}
+            investibleComments={comments.filter((comment) => comment.investible_id === selectedInvestibleId)}
+            isAdmin={isAdmin}
+            inArchives={inArchives}
+          />
+        </>
       )}
-    </Grid>
+    </>
   );
 }
 

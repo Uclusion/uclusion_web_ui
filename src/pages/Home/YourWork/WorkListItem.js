@@ -192,17 +192,15 @@ function WorkListItem(props) {
       <RaisedCard elevation={3} noPadding>
         <Link href={link} style={{ width: '100%' }} key={`link${id}`} onClick={
           (event) => {
+            preventDefaultAndProp(event);
             if (isDeletable) {
               pushMessage(DELETE_NOTIFICATIONS_CHANNEL, { event: DELETE_EVENT, marketId, message });
-              return navigate(history, link);
-            } else if (read) {
-              preventDefaultAndProp(event);
-              navigate(history, link);
-            } else {
+              messagesDispatch(removeMessage(message));
+            } else if (!read && useSelect) {
               pushMessage(DELETE_NOTIFICATIONS_CHANNEL, { event: DELETE_EVENT, marketId, message });
               messagesDispatch(dehighlightMessage(message));
-              return navigate(history, link);
             }
+            return navigate(history, link);
           }
         }>
           <Div className={cx(read && 'MailListItem-read')}>

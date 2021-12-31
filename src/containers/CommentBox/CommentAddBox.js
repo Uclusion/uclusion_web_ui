@@ -20,6 +20,7 @@ import CommentAdd from '../../components/Comments/CommentAdd'
 import { FormattedMessage } from 'react-intl'
 import { ISSUE_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../constants/comments'
 import { getPageReducerPage, usePageStateReducer } from '../../components/PageState/pageStateHooks'
+import _ from 'lodash'
 
 export const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -193,6 +194,7 @@ function CommentAddBox(props) {
   const {
     type,
   } = commentAddState;
+  const useType = type || _.size(allowedTypes) === 1 ? allowedTypes[0] : undefined;
   const classes = useStyles();
   function onTypeChange(event) {
     const { value } = event.target;
@@ -207,13 +209,13 @@ function CommentAddBox(props) {
   }
   return (
     <Card id="commentAddBox" style={{marginBottom: '2rem', overflow: 'unset'}} elevation={3}>
-      <FormControl component="fieldset" className={type === TODO_TYPE && !investible ? classes.hidden :
+      <FormControl component="fieldset" className={useType === TODO_TYPE && !investible ? classes.hidden :
         classes.commentType}>
         <RadioGroup
           aria-labelledby="comment-type-choice"
           className={classes.commentTypeGroup}
           onChange={onTypeChange}
-          value={type ? type : ''}
+          value={useType || ''}
           row
         >
           {allowedTypes.map((commentType) => {
@@ -231,7 +233,7 @@ function CommentAddBox(props) {
                       : commentType === SUGGEST_CHANGE_TYPE ? `${classes.chipItemBlack} ${classes.chipItemSuggestion}`
                         : commentType === TODO_TYPE ? `${classes.chipItem} ${classes.chipItemTodo}`
                           : `${classes.chipItem} ${classes.chipItemReport}`,
-                    type === commentType ? classes.selected : classes.unselected
+                    useType === commentType ? classes.selected : classes.unselected
                   )
                   }
                   /* prevent clicking the label stealing focus */
@@ -248,7 +250,7 @@ function CommentAddBox(props) {
       </FormControl>
       <div className={classes.addBox}>
         <CommentAdd
-          type={type}
+          type={useType}
           commentAddState={commentAddState}
           updateCommentAddState={updateCommentAddState}
           commentAddStateReset={commentAddStateReset}

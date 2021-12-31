@@ -488,10 +488,12 @@ function Comment(props) {
               />)}
           >
             <ProposedIdeas
+              marketPresences={anInlineMarketPresences}
               investibles={proposed}
               marketId={anInlineMarket.id}
               comments={anInlineMarketInvestibleComments}
               isAdmin={isEditable}
+              inArchives={inArchives}
             />
           </SubSection>
         </Grid>

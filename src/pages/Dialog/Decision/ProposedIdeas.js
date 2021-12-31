@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState } from 'react'
 import PropTypes from 'prop-types'
 import { useHistory } from 'react-router'
 import _ from 'lodash'
@@ -20,6 +20,12 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import { findMessagesForInvestibleId } from '../../../utils/messageUtils'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { myArchiveClasses } from '../../DialogArchives/ArchiveInvestibles'
+import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
+import { Clear } from '@material-ui/icons'
+import DecisionInvestible from '../../Investible/Decision/DecisionInvestible'
+import { getMarket, getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
+import { useIntl } from 'react-intl'
 
 const useStyles = makeStyles((theme) => ({
   textData: {
@@ -45,9 +51,12 @@ const useStyles = makeStyles((theme) => ({
 
 function ProposedIdeas(props) {
   const history = useHistory();
+  const intl = useIntl();
   const classes = useStyles();
   const outlineStyles = myArchiveClasses();
-  const { investibles, marketId, isAdmin } = props;
+  const { investibles, marketId, isAdmin, comments, inArchives, marketPresences } = props;
+  const [selectedInvestibleId, setSelectedInvestibleId] = useState(undefined);
+  const [marketsState] = useContext(MarketsContext);
   const [messagesState] = useContext(NotificationsContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -93,7 +102,7 @@ function ProposedIdeas(props) {
         >
           <RaisedCard
             className={classes.card}
-            onClick={() => navigate(history, formInvestibleLink(marketId, id))}
+            onClick={() => setSelectedInvestibleId(id)}
             elevation={3}
             isHighlighted={myMessage}
           >
@@ -118,16 +127,39 @@ function ProposedIdeas(props) {
       document.getElementById(elementId).classList.remove(outlineStyles.containerGreen);
     });
   }
-
+  const market = getMarket(marketsState, marketId);
   return (
-    <Grid container className={outlineStyles.white} spacing={1} id={`proposed${marketId}`} onDragEnd={removeElementGreen} onDragEnter={setElementGreen}
-          onDragOver={(event) => event.preventDefault()}
-          onDrop={onDropProposed}>
-      {getInvestibles()}
-      {_.isEmpty(investibles) && (
-        <div className={classes.grow} />
+    <>
+      <Grid container className={outlineStyles.white} spacing={1} id={`proposed${marketId}`} onDragEnd={removeElementGreen} onDragEnter={setElementGreen}
+            onDragOver={(event) => event.preventDefault()}
+            onDrop={onDropProposed}>
+        {getInvestibles()}
+        {_.isEmpty(investibles) && (
+          <div className={classes.grow} />
+        )}
+      </Grid>
+      {selectedInvestibleId && !_.isEmpty(market) && (
+        <>
+          <div style={{marginBottom: '0.5rem', marginLeft: '2rem'}}>
+            <SpinningIconLabelButton onClick={() => setSelectedInvestibleId(undefined)} doSpin={false}
+                                     icon={Clear}>
+              {intl.formatMessage({ id: 'marketAddCancelLabel' })}
+            </SpinningIconLabelButton>
+          </div>
+          <DecisionInvestible
+            userId={getMyUserForMarket(marketsState, marketId) || ''}
+            investibleId={selectedInvestibleId}
+            market={market}
+            fullInvestible={investibles.find((inv) => inv.investible.id === selectedInvestibleId)}
+            comments={comments}
+            marketPresences={marketPresences}
+            investibleComments={comments.filter((comment) => comment.investible_id === selectedInvestibleId)}
+            isAdmin={isAdmin}
+            inArchives={inArchives}
+          />
+        </>
       )}
-    </Grid>
+    </>
   );
 
 }

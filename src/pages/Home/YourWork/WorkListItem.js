@@ -21,7 +21,6 @@ import { getPageReducerPage } from '../../../components/PageState/pageStateHooks
 import { useHistory } from 'react-router'
 import RaisedCard from '../../../components/Cards/RaisedCard'
 import { pushMessage } from '../../../utils/MessageBusUtils'
-import { LOCK_MARKET, LOCK_MARKET_CHANNEL } from '../../../contexts/MarketsContext/marketsContextMessages'
 import {
   DELETE_EVENT,
   DELETE_NOTIFICATIONS_CHANNEL

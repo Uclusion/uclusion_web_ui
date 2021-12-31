@@ -1,10 +1,8 @@
 import React, { useContext, useState } from 'react'
 import PropTypes from 'prop-types'
-import { useHistory } from 'react-router'
 import _ from 'lodash'
 import { CardContent, Grid } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
-import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions'
 import RaisedCard from '../../../components/Cards/RaisedCard'
 import OptionCard from '../../../components/Cards/OptionCard'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
@@ -50,7 +48,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function ProposedIdeas(props) {
-  const history = useHistory();
   const intl = useIntl();
   const classes = useStyles();
   const outlineStyles = myArchiveClasses();

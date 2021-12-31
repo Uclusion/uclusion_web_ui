@@ -1,5 +1,4 @@
 import React, { useEffect, useReducer, useState } from 'react'
-import { useHistory } from 'react-router'
 import reducer, { initializeState, NOTIFICATIONS_CONTEXT_NAMESPACE, } from './notificationsContextReducer'
 
 import beginListening from './notificationsContextMessages'

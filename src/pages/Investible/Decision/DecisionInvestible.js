@@ -277,7 +277,7 @@ function DecisionInvestible(props) {
       .then((investible) => addInvestible(investiblesDispatch, diffDispatch, investible));
   }
 
-  const votingAllowed = !inProposed && !inArchives && !hasIssueOrMarketIssue;
+  const votingAllowed = !inProposed && !inArchives && !hasIssueOrMarketIssue && activeMarket;
   const displayVotingInput = votingAllowed && !yourVote;
 
   return (

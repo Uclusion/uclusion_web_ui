@@ -2,7 +2,7 @@ import WorkListItem, { workListStyles } from './WorkListItem'
 import { Box, Checkbox, Fab, useMediaQuery, useTheme } from '@material-ui/core'
 import React, { useContext, useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
-import { MoveToInbox, Weekend } from '@material-ui/icons'
+import { ExpandLess, MoveToInbox, Weekend } from '@material-ui/icons'
 import WarningIcon from '@material-ui/icons/Warning'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import HourglassFullIcon from '@material-ui/icons/HourglassFull'
@@ -30,6 +30,7 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import { usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 import { getInboxCount } from '../../../contexts/NotificationsContext/notificationsContextHelper'
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 
 function getPriorityIcon(level) {
   switch (level) {
@@ -82,6 +83,7 @@ function Inbox(props) {
   const workItemClasses = workListStyles();
   const planningClasses = usePlanningInvestibleStyles();
   const [checkAll, setCheckAll] = useState(false);
+  const [expandAll, setExpandAll] = useState(undefined);
   const [determinate, setDeterminate] = useState({});
   const [indeterminate, setIndeterminate] = useState(false);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
@@ -191,7 +193,7 @@ function Inbox(props) {
     addExpansionPanel({item, commentState, marketState, investiblesState, investiblesDispatch, diffState,
       planningClasses, marketPresencesState, marketStagesState, marketsState, mobileLayout, messagesState,
       messagesDispatch, operationRunning, setOperationRunning, intl, workItemClasses});
-    return <WorkListItem key={typeObjectId} id={typeObjectId} checkedDefault={checkAll}
+    return <WorkListItem key={typeObjectId} id={typeObjectId} checkedDefault={checkAll} expansionOpenDefault={expandAll}
                          workListItemFull={workListItemFull} workListItemDispatch={workListItemDispatch}
                          setDeterminate={setDeterminate} determinate={determinate} {...item} />;
   });
@@ -249,6 +251,10 @@ function Inbox(props) {
                                  });
                              }} translationId="inboxArchive" />
         )}
+        <TooltipIconButton icon={<ExpandLess style={{marginLeft: '0.25rem'}} htmlColor={ACTION_BUTTON_COLOR} />}
+                           onClick={() => setExpandAll(false)} translationId="inboxCollapseAll" />
+        <TooltipIconButton icon={<ExpandMoreIcon style={{marginLeft: '0.25rem'}} htmlColor={ACTION_BUTTON_COLOR} />}
+                           onClick={() => setExpandAll(true)} translationId="inboxExpandAll" />
         <div style={{flexGrow: 1}}/>
         <Box fontSize={14} color="text.secondary">
           {_.size(rows)} {notificationsText}

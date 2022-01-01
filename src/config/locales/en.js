@@ -565,6 +565,8 @@ const messages = defineMessages({
   // Archives
   archivesTitle: 'Archive',
   inboxArchive: 'Mark read or delete selected',
+  inboxCollapseAll: 'Collapse All',
+  inboxExpandAll: 'Expand All',
 
   // Decision Dialogs
   decisionDialogsStartedBy: 'Started By: {name}',

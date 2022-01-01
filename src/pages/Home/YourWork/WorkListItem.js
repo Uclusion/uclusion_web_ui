@@ -148,7 +148,8 @@ function WorkListItem(props) {
     determinate,
     id,
     expansionPanel,
-    workListItemFull, workListItemDispatch
+    workListItemFull, workListItemDispatch,
+    expansionOpenDefault
   } = props;
   const [workListItemState, updateWorkListItemState, workListItemReset] =
     getPageReducerPage(workListItemFull, workListItemDispatch, id);
@@ -163,12 +164,20 @@ function WorkListItem(props) {
   const actionStyles = useSizedIconButtonStyles({ childSize: 22, padding: 10 });
   const gutterStyles = useRowGutterStyles({ size: -10, before: -8 });
   const [checked, setChecked] = React.useState(checkedDefault);
+  const [expandedByGlobal, setExpandedByGlobal] = React.useState(undefined);
   const { market_id: marketId, type_object_id: typeObjectId, link } = message;
-  const useExpansionOpen = expansionOpen === undefined ? !read : expansionOpen;
+  const useExpansionOpen = expandedByGlobal !== undefined ? expandedByGlobal :
+    (expansionOpen === undefined ? !read : expansionOpen);
 
   useEffect(() => {
     setChecked(checkedDefault);
   }, [checkedDefault])
+
+  useEffect(() => {
+    if (expansionOpenDefault !== undefined) {
+      setExpandedByGlobal(expansionOpenDefault);
+    }
+  }, [expansionOpenDefault])
 
   let fullText = investible || market;
   if (fullText && comment) {
@@ -237,6 +246,7 @@ function WorkListItem(props) {
                 onClick={(event) => {
                   preventDefaultAndProp(event);
                   updateWorkListItemState({expansionOpen: !useExpansionOpen});
+                  setExpandedByGlobal(undefined);
                 }}
               >
                 { expansionPanel ? (useExpansionOpen ? <ExpandLess /> : <ExpandMoreIcon />) : <div /> }

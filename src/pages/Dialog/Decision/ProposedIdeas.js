@@ -114,7 +114,6 @@ function ProposedIdeas(props) {
   }
 
   function setElementGreen() {
-    console.debug('Got here green');
     removeElementGreen();
     document.getElementById(`proposed${marketId}`).classList.add(outlineStyles.containerGreen);
   }

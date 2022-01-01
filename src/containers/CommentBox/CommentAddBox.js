@@ -194,7 +194,7 @@ function CommentAddBox(props) {
   const {
     type,
   } = commentAddState;
-  const useType = type || _.size(allowedTypes) === 1 ? allowedTypes[0] : undefined;
+  const useType = type || (_.size(allowedTypes) === 1 ? allowedTypes[0] : undefined);
   const classes = useStyles();
   function onTypeChange(event) {
     const { value } = event.target;

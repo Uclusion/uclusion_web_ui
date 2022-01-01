@@ -67,19 +67,21 @@ function InvestibleAdd(props) {
       breadCrumbs={myBreadCrumbs}
       loading={!marketType}
     >
-      <PlanningInvestibleAdd
-        marketId={marketId}
-        onCancel={onDone}
-        onSave={onInvestibleSave}
-        onSpinComplete={onDone}
-        marketPresences={getMarketPresences(marketPresencesState, marketId)}
-        createdAt={createdAt}
-        classes={classes}
-        fromCommentIds={fromCommentIds}
-        maxBudgetUnit={budgetUnit}
-        useBudget={useBudget ? useBudget : false}
-        votesRequired={votesRequired}
-      />
+      {hidden ? <div /> :
+        <PlanningInvestibleAdd
+          marketId={marketId}
+          onCancel={onDone}
+          onSave={onInvestibleSave}
+          onSpinComplete={onDone}
+          marketPresences={getMarketPresences(marketPresencesState, marketId)}
+          createdAt={createdAt}
+          classes={classes}
+          fromCommentIds={fromCommentIds}
+          maxBudgetUnit={budgetUnit}
+          useBudget={useBudget ? useBudget : false}
+          votesRequired={votesRequired}
+        />
+      }
     </Screen>
   );
 }

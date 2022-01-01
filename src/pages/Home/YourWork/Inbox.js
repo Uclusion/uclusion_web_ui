@@ -166,7 +166,7 @@ function Inbox(props) {
     const { level, investible_name: investible, updated_at: updatedAt, market_name: market,
       is_highlighted: isHighlighted, type_object_id: typeObjectId, market_id: marketId, comment_id: commentId,
       comment_market_id: commentMarketId } = message;
-    const title = messageText(message, intl);
+    const title = messageText(message, mobileLayout, intl);
     const item = {
       title,
       icon: getPriorityIcon(level),

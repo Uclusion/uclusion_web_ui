@@ -2,79 +2,77 @@ import { removeMessage } from '../contexts/NotificationsContext/notificationsCon
 import { DECISION_TYPE, INITIATIVE_TYPE } from '../constants/markets'
 import { removeWorkListItem } from '../pages/Home/YourWork/WorkListItem'
 
-export function messageText(message, intl) {
+function getMessageTextForId(rawId, isMobile, intl) {
+  const id = isMobile ? `${rawId}Mobile` : rawId;
+  return intl.formatMessage({ id });
+}
+
+export function messageText(message, isMobile, intl) {
   const { link_type: linkType, market_type: marketType } = message;
   switch(message.type) {
     case 'ASSIGNED_UNREVIEWABLE':
-      return intl.formatMessage({ id: 'unfinished' });
+      return getMessageTextForId('unfinished', isMobile, intl);
     case 'UNASSIGNED':
       if (linkType === 'MARKET_TODO') {
-        return intl.formatMessage({ id: 'assignTodo' });
+        return getMessageTextForId('assignTodo', isMobile, intl);
       }
-      return intl.formatMessage({ id: 'assignTask' });
+      return getMessageTextForId('assignTask', isMobile, intl);
     case 'UNREAD_LABEL':
-      return intl.formatMessage({ id: 'unreadLabel' });
+      return getMessageTextForId('unreadLabel', isMobile, intl);
     case 'UNREAD_ATTACHMENT':
-      return intl.formatMessage({ id: 'unreadAttachment' });
+      return getMessageTextForId('unreadAttachment', isMobile, intl);
     case 'UNREAD_NAME':
-      return intl.formatMessage({ id: 'unreadName' });
+      return getMessageTextForId('unreadName', isMobile, intl);
     case 'UNREAD_DESCRIPTION':
-      return intl.formatMessage({ id: 'unreadDescription' });
+      return getMessageTextForId('unreadDescription', isMobile, intl);
     case 'UNREAD_ESTIMATE':
-      return intl.formatMessage({ id: 'unreadEstimate' });
+      return getMessageTextForId('unreadEstimate', isMobile, intl);
     case 'UNREAD_ASSIGNMENT':
-      return intl.formatMessage({ id: 'unreadAssignment' });
+      return getMessageTextForId('unreadAssignment', isMobile, intl);
     case 'UNREAD_OPTION':
-      return intl.formatMessage({ id: 'unreadOption' });
+      return getMessageTextForId('unreadOption', isMobile, intl);
     case 'ISSUE':
-      return intl.formatMessage({ id: 'issue' });
+      return getMessageTextForId('issue', isMobile, intl);
     case 'INVESTIBLE_SUBMITTED':
-      return intl.formatMessage({ id: 'unPromotedOption' });
-    case 'UNREAD_COLLABORATION':
-      if (marketType === DECISION_TYPE) {
-        return intl.formatMessage({ id: 'dialogClosing' });
-      }
-      return intl.formatMessage({ id: 'initiativeClosing' });
+      return getMessageTextForId('unPromotedOption', isMobile, intl);
     case 'UNREAD_CLOSED':
-      return intl.formatMessage({ id: 'workspaceClosed' });
+      return getMessageTextForId('workspaceClosed', isMobile, intl);
     case 'NOT_FULLY_VOTED':
       if (marketType === DECISION_TYPE) {
-        return intl.formatMessage({ id: 'pleaseChoose' });
+        return getMessageTextForId('pleaseChoose', isMobile, intl);
       }
       if (marketType === INITIATIVE_TYPE) {
-        return intl.formatMessage({ id: 'pleaseVote' });
+        return getMessageTextForId('pleaseVote', isMobile, intl);
       }
-      return intl.formatMessage({ id: 'pleaseApprove' });
+      return getMessageTextForId('pleaseApprove', isMobile, intl);
     case 'NEW_TODO':
-      return intl.formatMessage({ id: 'resolveTodo' });
+      return getMessageTextForId('resolveTodo', isMobile, intl);
     case 'ISSUE_RESOLVED':
-      return intl.formatMessage({ id: 'changeStage' });
+      return getMessageTextForId('changeStage', isMobile, intl);
     case 'REMOVED':
-      return intl.formatMessage({ id: 'removed' });
+      return getMessageTextForId('removed', isMobile, intl);
     case 'UNREMOVED':
-      return intl.formatMessage({ id: 'unRemoved' });
+      return getMessageTextForId('unRemoved', isMobile, intl);
     case 'UNREAD_REVIEWABLE':
     case 'REVIEW_REQUIRED':
-      return intl.formatMessage({ id: 'pleaseReview' });
+      return getMessageTextForId('pleaseReview', isMobile, intl);
     case 'REPORT_REQUIRED':
-      return intl.formatMessage({ id: 'updateStatus' });
-    case 'UNREAD_REPORT':
-      return intl.formatMessage({ id: 'missingProgress' });
+      return getMessageTextForId('updateStatus', isMobile, intl);
     case 'DRAFT':
-      return intl.formatMessage({ id: 'addCollaborators' });
+      return getMessageTextForId('addCollaborators', isMobile, intl);
     case 'USER_POKED':
-      return intl.formatMessage({ id: 'pleaseUpgrade' });
+      return getMessageTextForId('pleaseUpgrade', isMobile, intl);
     case 'UNREAD_REPLY':
-      return intl.formatMessage({ id: 'unreadReply' });
+      return getMessageTextForId('unreadReply', isMobile, intl);
     case 'UNREAD_RESOLVED':
-      return intl.formatMessage({ id: 'unreadResolved' });
+      return getMessageTextForId('unreadResolved', isMobile, intl);
     case 'UNREAD_COMMENT':
-      return intl.formatMessage({ id: 'unreadComment' });
+      return getMessageTextForId('unreadComment', isMobile, intl);
     case 'UNREAD_VOTE':
       if (marketType === INITIATIVE_TYPE) {
-        return intl.formatMessage({ id: 'unreadVote' });
+        return getMessageTextForId('unreadVote', isMobile, intl);
       }
-      return intl.formatMessage({ id: 'unreadApproval' });
+      return getMessageTextForId('unreadApproval', isMobile, intl);
     default:
       return message.text;
   }

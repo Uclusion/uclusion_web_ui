@@ -207,7 +207,7 @@ function CommentAddBox(props) {
     return "reviewReportPresent";
   }
   return (
-    <div id="commentAddBox" style={{marginBottom: '2rem', overflow: 'unset'}}>
+    <div id="commentAddBox">
       <FormControl component="fieldset" className={useType === TODO_TYPE && !investible ? classes.hidden :
         classes.commentType}>
         <RadioGroup

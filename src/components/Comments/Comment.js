@@ -189,23 +189,17 @@ const useCommentStyles = makeStyles(
       containerRed: {
         boxShadow: "0px 3px 3px -2px rgba(0,0,0,0.2),0px 3px 4px 0px rgba(0,0,0,0.14),0px 1px 8px 0px red",
         overflow: "visible",
-        marginBottom: "1.5rem"
+        marginTop: "1.5rem"
       },
       containerYellow: {
         boxShadow: "0px 3px 3px -2px rgba(0,0,0,0.2),0px 3px 4px 0px rgba(0,0,0,0.14),0px 1px 8px 0px yellow",
         overflow: "visible",
-        marginBottom: "1.5rem"
+        marginTop: "1.5rem"
       },
       container: {
         overflow: "visible",
-        marginBottom: "1.5rem"
+        marginTop: "1.5rem"
       },
-      inlineBorder: {
-        border: '1px solid black',
-        borderRadius: '0 6px 6px 6px',
-        marginBottom: '1.5rem'
-      },
-      inlineBorderNone: {},
       timeElapsed: {
         whiteSpace: 'nowrap',
         paddingRight: '50px',

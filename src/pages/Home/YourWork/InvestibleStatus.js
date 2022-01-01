@@ -11,6 +11,11 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { removeWorkListItem, workListStyles } from './WorkListItem'
+import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
+import { REPORT_TYPE } from '../../../constants/comments'
+import CommentBox from '../../../containers/CommentBox/CommentBox'
+import { getInvestibleComments } from '../../../contexts/CommentsContext/commentsContextHelper'
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 
 function InvestibleStatus(props) {
   const { marketId, investibleId, message } = props;
@@ -20,9 +25,13 @@ function InvestibleStatus(props) {
   const [, messagesDispatch] = useContext(NotificationsContext);
   const [, diffDispatch] = useContext(DiffContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
-  const marketInvestible = getInvestible(investiblesState, investibleId);
+  const [commentState] = useContext(CommentsContext);
+  const marketInvestible = getInvestible(investiblesState, investibleId) || {};
   const marketInfo = getMarketInfo(marketInvestible, marketId) || {};
   const { completion_estimate: daysEstimate } = marketInfo;
+  const investibleComments = getInvestibleComments(investibleId, marketId, commentState);
+  const progressReports = investibleComments.filter((comment) => comment.comment_type === REPORT_TYPE &&
+    !comment.resolved);
   function getStartDate() {
     if (daysEstimate) {
       const nowDate = new Date();
@@ -61,7 +70,31 @@ function InvestibleStatus(props) {
         minDate={getTomorrow()}
         inline
       />
-      <h3>{intl.formatMessage({ id: 'orProgressReport' })}</h3>
+      <h3>
+        {intl.formatMessage({ id: progressReports.length > 0 ? 'orProgressReport' : 'orProgressReportOnly' })}
+      </h3>
+      {marketId && !_.isEmpty(marketInvestible.investible) && (
+        <CommentAddBox
+          allowedTypes={[REPORT_TYPE]}
+          investible={marketInvestible.investible}
+          marketId={marketId}
+          issueWarningId={'issueWarningPlanning'}
+          isInReview={false}
+          isAssignee={true}
+          isStory
+          numProgressReport={progressReports.length}
+        />
+      )}
+      {progressReports.length > 0 && (
+        <div style={{paddingTop: '1rem', overflowY: 'auto', maxHeight: '25rem'}}>
+          <CommentBox
+            comments={progressReports}
+            marketId={marketId}
+            allowedTypes={[]}
+            isInbox
+          />
+        </div>
+      )}
     </div>
   );
 }

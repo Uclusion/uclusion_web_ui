@@ -39,6 +39,8 @@ import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
 import PlanningInvestibleEdit from '../../Investible/Planning/PlanningInvestibleEdit'
 import { removeWorkListItem } from './WorkListItem'
 import { editorEmpty } from '../../../components/TextEditors/QuillEditor2'
+import InputLabel from '@material-ui/core/InputLabel'
+import MoveToNextVisibleStageActionButton from '../../Investible/Planning/MoveToNextVisibleStageActionButton'
 
 export function addExpansionPanel(props) {
   const {item, commentState, marketState, investiblesState, investiblesDispatch, diffState,
@@ -48,8 +50,7 @@ export function addExpansionPanel(props) {
   const { type: messageType, market_id: marketId, comment_id: commentId, comment_market_id: commentMarketId,
     link_type: linkType, investible_id: investibleId, market_type: marketType } = message;
 
-  if ((['UNREAD_REPLY', 'NEW_TODO', 'UNREAD_COMMENT', 'UNREAD_RESOLVED', 'ISSUE', 'UNREAD_REVIEWABLE',
-      'REVIEW_REQUIRED'].includes(messageType)) ||
+  if ((['UNREAD_REPLY', 'NEW_TODO', 'UNREAD_COMMENT', 'UNREAD_RESOLVED', 'ISSUE'].includes(messageType)) ||
     (['UNREAD_OPTION', 'UNREAD_VOTE', 'NOT_FULLY_VOTED', 'INVESTIBLE_SUBMITTED'].includes(messageType)
       && linkType.startsWith('INLINE')) || (messageType === 'UNASSIGNED' && linkType === 'MARKET_TODO')) {
     let useMarketId = commentMarketId || marketId;
@@ -61,12 +62,6 @@ export function addExpansionPanel(props) {
         useMarketId = parentMarketId;
         useCommentId = inlineParentCommentId;
       }
-    }
-    if (!useCommentId && investibleId) {
-      const investibleComments = getUnresolvedInvestibleComments(investibleId, marketId, commentState);
-      const report = investibleComments.find((comment) => comment.comment_type === REPORT_TYPE
-        && comment.creator_assigned) || {};
-      useCommentId = report.id;
     }
     const rootComment = getCommentRoot(commentState, useMarketId, useCommentId);
     // Note passing all comments down instead of just related to the unread because otherwise confusing and also
@@ -172,7 +167,8 @@ export function addExpansionPanel(props) {
         );
       }
     }
-  } else if (['NOT_FULLY_VOTED', 'ASSIGNED_UNREVIEWABLE'].includes(messageType)) {
+  } else if (['NOT_FULLY_VOTED', 'ASSIGNED_UNREVIEWABLE','UNREAD_REVIEWABLE',
+    'REVIEW_REQUIRED'].includes(messageType)) {
     const market = getMarket(marketsState, marketId) || {};
     const userId = getMyUserForMarket(marketsState, marketId) || '';
     const marketPresences = getMarketPresences(marketPresencesState, marketId);
@@ -185,12 +181,13 @@ export function addExpansionPanel(props) {
     const { investible: myInvestible } = inv;
     const { description } = myInvestible || {};
     const marketInfo = getMarketInfo(inv, marketId) || {};
-    const { assigned: invAssigned, completion_estimate: marketDaysEstimate, required_approvers:  requiredApprovers,
+    const { stage, assigned: invAssigned, completion_estimate: marketDaysEstimate, required_approvers:  requiredApprovers,
       required_reviews: requiredReviewers } = marketInfo;
     const assigned = invAssigned || [];
     const isInVoting = messageType === 'NOT_FULLY_VOTED';
+    const isReview = ['UNREAD_REVIEWABLE', 'REVIEW_REQUIRED'].includes(messageType);
     const allowedTypes = messageType === 'ASSIGNED_UNREVIEWABLE' ? [TODO_TYPE] :
-      [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE];
+      (isReview ? [REPORT_TYPE] : [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE]);
     item.expansionPanel = (
       <div style={{padding: '1rem'}}>
         <div style={{display: mobileLayout ? 'block' : 'flex'}}>
@@ -228,7 +225,7 @@ export function addExpansionPanel(props) {
             </div>
           )}
           {((!_.isEmpty(requiredApprovers) && messageType === 'NOT_FULLY_VOTED')||
-            (!_.isEmpty(requiredReviewers) && messageType === 'ASSIGNED_UNREVIEWABLE')) && (
+            (!_.isEmpty(requiredReviewers) && isReview)) && (
             <div className={clsx(planningClasses.group, planningClasses.assignments)}
                  style={{maxWidth: '15rem', marginRight: '1rem', overflowY: 'auto', maxHeight: '8rem'}}>
               <div style={{textTransform: 'capitalize'}}>
@@ -245,8 +242,24 @@ export function addExpansionPanel(props) {
             </div>
           )}
           {messageType === 'ASSIGNED_UNREVIEWABLE' && (
-            <div style={{marginTop: mobileLayout? '1rem' : '2rem'}}>
+            <div style={{marginTop: mobileLayout ? '1rem' : '1.5rem'}}>
               <DaysEstimate readOnly value={marketDaysEstimate} isInbox />
+            </div>
+          )}
+          {messageType === 'ASSIGNED_UNREVIEWABLE' && (
+            <div style={{marginTop: mobileLayout ? '1rem' : '1.5rem', marginLeft: mobileLayout ? undefined : '2rem'}}>
+              <InputLabel id="next-allowed-stages-label" style={{ marginBottom: '0.25rem' }}>
+                {intl.formatMessage({ id: 'quickChangeStage' })}</InputLabel>
+              <MoveToNextVisibleStageActionButton
+                key="visible"
+                investibleId={investibleId}
+                marketId={market.id}
+                currentStageId={stage}
+                disabled={false}
+                acceptedStageAvailable={true}
+                hasTodos={false}
+                hasAssignedQuestions={false}
+              />
             </div>
           )}
         </div>
@@ -268,28 +281,30 @@ export function addExpansionPanel(props) {
             <h3>{intl.formatMessage({ id: 'orStructuredComment' })}</h3>
           </>
         )}
-        {marketId && !_.isEmpty(myInvestible) && (
-          <>
-            <div style={{paddingTop: '0.5rem'}} />
-            <CommentAddBox
-              allowedTypes={allowedTypes}
-              investible={myInvestible}
-              marketId={marketId}
-              issueWarningId={'issueWarningPlanning'}
-              isInReview={false}
-              isAssignee={messageType === 'ASSIGNED_UNREVIEWABLE'}
-              isStory
-            />
-          </>
+        {messageType !== 'NOT_FULLY_VOTED' && (
+          <div style={{paddingTop: '0.5rem'}} />
         )}
-        <div style={{paddingTop: '1rem', overflowY: 'auto', maxHeight: '25rem'}}>
-          <CommentBox
-            comments={investmentReasonsRemoved}
+        {marketId && !_.isEmpty(myInvestible) && (
+          <CommentAddBox
+            allowedTypes={allowedTypes}
+            investible={myInvestible}
             marketId={marketId}
-            allowedTypes={[]}
-            isInbox
+            issueWarningId={'issueWarningPlanning'}
+            isInReview={isReview}
+            isAssignee={messageType === 'ASSIGNED_UNREVIEWABLE'}
+            isStory
           />
-        </div>
+        )}
+        {!_.isEmpty(investmentReasonsRemoved) && (
+          <div style={{paddingTop: '1rem', overflowY: 'auto', maxHeight: '25rem'}}>
+            <CommentBox
+              comments={investmentReasonsRemoved}
+              marketId={marketId}
+              allowedTypes={[]}
+              isInbox
+            />
+          </div>
+        )}
       </div>
     );
   } else if (messageType === 'UNREAD_VOTE' && marketType === PLANNING_TYPE && investibleId) {

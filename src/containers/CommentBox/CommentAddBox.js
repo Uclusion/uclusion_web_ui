@@ -1,7 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import {
-  Card,
   FormControl,
   FormControlLabel,
   makeStyles,
@@ -208,7 +207,7 @@ function CommentAddBox(props) {
     return "reviewReportPresent";
   }
   return (
-    <Card id="commentAddBox" style={{marginBottom: '2rem', overflow: 'unset'}} elevation={3}>
+    <div id="commentAddBox" style={{marginBottom: '2rem', overflow: 'unset'}}>
       <FormControl component="fieldset" className={useType === TODO_TYPE && !investible ? classes.hidden :
         classes.commentType}>
         <RadioGroup
@@ -264,7 +263,7 @@ function CommentAddBox(props) {
           numProgressReport={numProgressReport}
         />
       </div>
-    </Card>
+    </div>
   );
 }
 

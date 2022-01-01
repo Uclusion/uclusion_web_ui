@@ -167,8 +167,8 @@ export function addExpansionPanel(props) {
         );
       }
     }
-  } else if (['NOT_FULLY_VOTED', 'ASSIGNED_UNREVIEWABLE','UNREAD_REVIEWABLE',
-    'REVIEW_REQUIRED'].includes(messageType)) {
+  } else if (['NOT_FULLY_VOTED', 'ASSIGNED_UNREVIEWABLE','UNREAD_REVIEWABLE', 'REVIEW_REQUIRED',
+    'ISSUE_RESOLVED'].includes(messageType)) {
     const market = getMarket(marketsState, marketId) || {};
     const userId = getMyUserForMarket(marketsState, marketId) || '';
     const marketPresences = getMarketPresences(marketPresencesState, marketId);
@@ -246,7 +246,7 @@ export function addExpansionPanel(props) {
               <DaysEstimate readOnly value={marketDaysEstimate} isInbox />
             </div>
           )}
-          {messageType === 'ASSIGNED_UNREVIEWABLE' && (
+          {['ASSIGNED_UNREVIEWABLE', 'ISSUE_RESOLVED'].includes(messageType) && (
             <div style={{marginTop: mobileLayout ? '1rem' : '1.5rem', marginLeft: mobileLayout ? undefined : '2rem'}}>
               <InputLabel id="next-allowed-stages-label" style={{ marginBottom: '0.25rem' }}>
                 {intl.formatMessage({ id: 'quickChangeStage' })}</InputLabel>
@@ -281,22 +281,24 @@ export function addExpansionPanel(props) {
             <h3>{intl.formatMessage({ id: 'orStructuredComment' })}</h3>
           </>
         )}
-        {messageType !== 'NOT_FULLY_VOTED' && (
-          <div style={{paddingTop: '0.5rem'}} />
-        )}
-        {marketId && !_.isEmpty(myInvestible) && (
-          <CommentAddBox
-            allowedTypes={allowedTypes}
-            investible={myInvestible}
-            marketId={marketId}
-            issueWarningId={'issueWarningPlanning'}
-            isInReview={isReview}
-            isAssignee={messageType === 'ASSIGNED_UNREVIEWABLE'}
-            isStory
-          />
+        {marketId && !_.isEmpty(myInvestible) && messageType !== 'ISSUE_RESOLVED' && (
+          <>
+            {messageType !== 'NOT_FULLY_VOTED' && (
+              <div style={{paddingTop: '0.5rem'}} />
+            )}
+            <CommentAddBox
+              allowedTypes={allowedTypes}
+              investible={myInvestible}
+              marketId={marketId}
+              issueWarningId={'issueWarningPlanning'}
+              isInReview={isReview}
+              isAssignee={messageType === 'ASSIGNED_UNREVIEWABLE'}
+              isStory
+            />
+          </>
         )}
         {!_.isEmpty(investmentReasonsRemoved) && (
-          <div style={{paddingTop: '1rem', overflowY: 'auto', maxHeight: '25rem'}}>
+          <div style={{paddingTop: '0.5rem', overflowY: 'auto', maxHeight: '25rem'}}>
             <CommentBox
               comments={investmentReasonsRemoved}
               marketId={marketId}

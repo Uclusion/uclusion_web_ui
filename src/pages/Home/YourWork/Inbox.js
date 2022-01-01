@@ -215,16 +215,18 @@ function Inbox(props) {
   return (
     <div id="inbox">
       <div style={{display: 'flex', paddingBottom: '0.5rem'}}>
-        <Checkbox style={{padding: 0}}
-          checked={checkAll}
-          indeterminate={indeterminate}
-          disabled={!containsUnread}
-          onChange={() => {
-            setIndeterminate(false);
-            setDeterminate({});
-            setCheckAll(!checkAll);
-          }}
-        />
+        {!mobileLayout && (
+          <Checkbox style={{padding: 0}}
+                    checked={checkAll}
+                    indeterminate={indeterminate}
+                    disabled={!containsUnread}
+                    onChange={() => {
+                      setIndeterminate(false);
+                      setDeterminate({});
+                      setCheckAll(!checkAll);
+                    }}
+          />
+        )}
         {(checkAll || !_.isEmpty(determinate)) && (
           <TooltipIconButton disabled={operationRunning !== false}
                              icon={<ArchiveIcon htmlColor={ACTION_BUTTON_COLOR} />}

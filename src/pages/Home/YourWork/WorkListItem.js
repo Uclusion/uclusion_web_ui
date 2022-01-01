@@ -214,7 +214,7 @@ function WorkListItem(props) {
         }>
           <Div className={cx(read && 'MailListItem-read')}>
             <Box flexShrink={0} className={gutterStyles.parent}>
-              {useSelect && (
+              {!mobileLayout && useSelect && (
                 <StyledIconButton
                   className={cx(checked && "MailListItem-checked")}
                   classes={actionStyles}
@@ -232,7 +232,7 @@ function WorkListItem(props) {
                   {read ? <div /> : (checked ? <Checkbox color="secondary" /> : <CheckBoxOutlineBlank />)}
                 </StyledIconButton>
               )}
-              {!mobileLayout && useSelect && (
+              {useSelect && (
                 <StyledIconButton
                   classes={actionStyles}
                   onClick={isDeletable ? deleteActionButtonOnclick : (read ? undefined : archiveActionButtonOnclick)}

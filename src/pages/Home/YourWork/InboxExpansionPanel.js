@@ -17,17 +17,21 @@ import {
 } from '../../../constants/comments'
 import InvestibleStatus from './InvestibleStatus'
 import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff'
-import { getInvestible, refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
+import {
+  getInvestible,
+  getMarketInvestibles,
+  refreshInvestibles
+} from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { getDiff } from '../../../contexts/DiffContext/diffContextHelper'
 import { PLANNING_TYPE } from '../../../constants/markets'
 import clsx from 'clsx'
 import { FormattedMessage } from 'react-intl'
 import { Assignments, getCollaborators } from '../../Investible/Planning/PlanningInvestible'
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
-import { getMarketInfo } from '../../../utils/userFunctions'
+import { assignedInStage, getMarketInfo } from '../../../utils/userFunctions'
 import { DaysEstimate } from '../../../components/AgilePlan'
 import Voting from '../../Investible/Decision/Voting'
-import { getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
+import { getAcceptedStage, getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import DialogManage from '../../Dialog/DialogManage'
 import { Checkbox, FormControlLabel } from '@material-ui/core'
 import { updateInvestible } from '../../../api/investibles'
@@ -168,10 +172,11 @@ export function addExpansionPanel(props) {
       }
     }
   } else if (['NOT_FULLY_VOTED', 'ASSIGNED_UNREVIEWABLE','UNREAD_REVIEWABLE', 'REVIEW_REQUIRED',
-    'ISSUE_RESOLVED'].includes(messageType)) {
+    'ISSUE_RESOLVED', 'UNREAD_ASSIGNMENT'].includes(messageType)) {
     const market = getMarket(marketsState, marketId) || {};
     const userId = getMyUserForMarket(marketsState, marketId) || '';
     const marketPresences = getMarketPresences(marketPresencesState, marketId);
+    const yourPresence = marketPresences.find((presence) => presence.current_user);
     const investibleComments = getInvestibleComments(investibleId, marketId, commentState);
     const investmentReasonsRemoved = investibleComments.filter(comment => comment.comment_type !== JUSTIFY_TYPE) || [];
     const investmentReasons = investibleComments.filter(comment => comment.comment_type === JUSTIFY_TYPE) || [];
@@ -183,11 +188,24 @@ export function addExpansionPanel(props) {
     const marketInfo = getMarketInfo(inv, marketId) || {};
     const { stage, assigned: invAssigned, completion_estimate: marketDaysEstimate, required_approvers:  requiredApprovers,
       required_reviews: requiredReviewers } = marketInfo;
+    const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
     const assigned = invAssigned || [];
     const isInVoting = messageType === 'NOT_FULLY_VOTED';
     const isReview = ['UNREAD_REVIEWABLE', 'REVIEW_REQUIRED'].includes(messageType);
     const allowedTypes = messageType === 'ASSIGNED_UNREVIEWABLE' ? [TODO_TYPE] :
       (isReview ? [REPORT_TYPE] : [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE]);
+    const inAcceptedStage = getAcceptedStage(marketStagesState, marketId) || {};
+    const investibles = getMarketInvestibles(investiblesState, marketId);
+    const assignedInAcceptedStage = assigned.reduce((acc, userId) => {
+      return acc.concat(assignedInStage(
+        investibles,
+        userId,
+        inAcceptedStage.id,
+        marketId
+      ));
+    }, []);
+    const acceptedFull = inAcceptedStage.allowed_investibles > 0
+      && assignedInAcceptedStage.length >= inAcceptedStage.allowed_investibles;
     item.expansionPanel = (
       <div style={{padding: '1rem'}}>
         <div style={{display: mobileLayout ? 'block' : 'flex'}}>
@@ -224,7 +242,7 @@ export function addExpansionPanel(props) {
               </div>
             </div>
           )}
-          {((!_.isEmpty(requiredApprovers) && messageType === 'NOT_FULLY_VOTED')||
+          {((!_.isEmpty(requiredApprovers) && ['NOT_FULLY_VOTED', 'UNREAD_ASSIGNMENT'].includes(messageType))||
             (!_.isEmpty(requiredReviewers) && isReview)) && (
             <div className={clsx(planningClasses.group, planningClasses.assignments)}
                  style={{maxWidth: '15rem', marginRight: '1rem', overflowY: 'auto', maxHeight: '8rem'}}>
@@ -246,8 +264,8 @@ export function addExpansionPanel(props) {
               <DaysEstimate readOnly value={marketDaysEstimate} isInbox />
             </div>
           )}
-          {['ASSIGNED_UNREVIEWABLE', 'ISSUE_RESOLVED'].includes(messageType) && (
-            <div style={{marginTop: mobileLayout ? '1rem' : '1.5rem', marginLeft: mobileLayout ? undefined : '2rem'}}>
+          {['ASSIGNED_UNREVIEWABLE', 'ISSUE_RESOLVED', 'UNREAD_ASSIGNMENT'].includes(messageType) && (
+            <div style={{marginTop: mobileLayout ? '1rem' : undefined, marginLeft: mobileLayout ? undefined : '2rem'}}>
               <InputLabel id="next-allowed-stages-label" style={{ marginBottom: '0.25rem' }}>
                 {intl.formatMessage({ id: 'quickChangeStage' })}</InputLabel>
               <MoveToNextVisibleStageActionButton
@@ -256,7 +274,7 @@ export function addExpansionPanel(props) {
                 marketId={market.id}
                 currentStageId={stage}
                 disabled={false}
-                acceptedStageAvailable={true}
+                acceptedStageAvailable={!acceptedFull}
                 hasTodos={false}
                 hasAssignedQuestions={false}
               />
@@ -266,6 +284,27 @@ export function addExpansionPanel(props) {
         {!_.isEmpty(description) && !editorEmpty(description) && (
           <div style={{paddingTop: '1rem'}}>
             <DescriptionOrDiff id={investibleId} description={description} showDiff={false}/>
+          </div>
+        )}
+        {messageType === 'UNREAD_ASSIGNMENT' && (
+          <div style={{paddingLeft: '1rem', paddingRight: '1rem'}}>
+            <h2 id="approvals">
+              <FormattedMessage id="decisionInvestibleOthersVoting" />
+            </h2>
+            <Voting
+              investibleId={investibleId}
+              marketPresences={marketPresences}
+              investmentReasons={investmentReasons}
+              showExpiration={fullStage.has_expiration}
+              expirationMinutes={market.investment_expiration * 1440}
+              votingPageState={{}}
+              updateVotingPageState={() => {}}
+              votingPageStateReset={() => {}}
+              votingAllowed={false}
+              yourPresence={yourPresence}
+              market={market}
+              isAssigned={true}
+            />
           </div>
         )}
         {messageType === 'NOT_FULLY_VOTED' && (
@@ -292,7 +331,7 @@ export function addExpansionPanel(props) {
               marketId={marketId}
               issueWarningId={'issueWarningPlanning'}
               isInReview={isReview}
-              isAssignee={messageType === 'ASSIGNED_UNREVIEWABLE'}
+              isAssignee={['ASSIGNED_UNREVIEWABLE', 'UNREAD_ASSIGNMENT'].includes(messageType)}
               isStory
             />
           </>

@@ -35,7 +35,7 @@ import {
   getMarket,
   getMyUserForMarket, marketTokenLoaded
 } from '../../contexts/MarketsContext/marketsContextHelper'
-import CardType from '../CardType'
+import CardType, { DECISION_TYPE } from '../CardType'
 import { SECTION_TYPE_SECONDARY } from '../../constants/global'
 import {
   addCommentToMarket,
@@ -661,7 +661,7 @@ function Comment(props) {
                 translationId="edit"
               />
             )}
-            {!mobileLayout && commentType !== JUSTIFY_TYPE && commentType !== REPLY_TYPE && (
+            {!mobileLayout && ![JUSTIFY_TYPE, REPLY_TYPE].includes(commentType) && marketType !== DECISION_TYPE && (
               <div style={{marginRight: '2rem', marginTop: '0.5rem'}}>
                 <ShareStoryButton commentId={id} commentType={commentType} investibleId={investibleId} />
               </div>

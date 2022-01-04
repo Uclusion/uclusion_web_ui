@@ -1,10 +1,9 @@
 import React, { useContext, useState } from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
-import { CardContent, Grid } from '@material-ui/core'
+import { CardContent, Grid, IconButton } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import { red } from '@material-ui/core/colors'
-import { useIntl } from 'react-intl'
 import RaisedCard from '../../../components/Cards/RaisedCard'
 import { getVoteTotalsForUser } from '../../../utils/userFunctions'
 import VoteCard from '../../../components/Cards/VoteCard'
@@ -25,7 +24,7 @@ import DecisionInvestible from '../../Investible/Decision/DecisionInvestible'
 import { getMarket, getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { Clear } from '@material-ui/icons'
-import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
+import CardHeader from '@material-ui/core/CardHeader'
 
 const useStyles = makeStyles(theme => ({
   noPadding: {
@@ -65,7 +64,6 @@ const useStyles = makeStyles(theme => ({
 function CurrentVoting(props) {
   const classes = useStyles();
   const outlineStyles = myArchiveClasses();
-  const intl = useIntl();
   const [selectedInvestibleId, setSelectedInvestibleId] = useState(undefined);
   const [marketsState] = useContext(MarketsContext);
   const { marketPresences, investibles, marketId, comments, isAdmin, inArchives } = props;
@@ -126,10 +124,16 @@ function CurrentVoting(props) {
         <RaisedCard
           className={classes.card}
           elevation={3}
-          onClick={() => setSelectedInvestibleId(id)}
+          onClick={() => selectedInvestibleId === id ? setSelectedInvestibleId(undefined) :
+            setSelectedInvestibleId(id)}
           isHighlighted={myMessage}
         >
-          <CardContent className={classes.noPadding}>
+          <CardHeader
+            style={{padding: 0, display: selectedInvestibleId === id ? 'flex' : 'none'}}
+            action={<IconButton style={{padding: 0}}><Clear /></IconButton>}
+          />
+          <CardContent className={classes.noPadding}
+                       style={{marginTop: selectedInvestibleId === id ? '-1.2rem' : undefined}}>
             <VoteCard
               title={name}
               comments={investibleComments}
@@ -187,25 +191,17 @@ function CurrentVoting(props) {
         {(sortedTalliesArray || []).map((item) => getItemVote(item))}
       </Grid>
       {selectedInvestibleId && !_.isEmpty(market) && (
-        <>
-          <div style={{marginBottom: '0.5rem', marginLeft: '2rem'}}>
-            <SpinningIconLabelButton onClick={() => setSelectedInvestibleId(undefined)} doSpin={false}
-                                     icon={Clear}>
-              {intl.formatMessage({ id: 'marketAddCancelLabel' })}
-            </SpinningIconLabelButton>
-          </div>
-          <DecisionInvestible
-            userId={getMyUserForMarket(marketsState, marketId) || ''}
-            investibleId={selectedInvestibleId}
-            market={market}
-            fullInvestible={investibles.find((inv) => inv.investible.id === selectedInvestibleId)}
-            comments={comments}
-            marketPresences={marketPresences}
-            investibleComments={comments.filter((comment) => comment.investible_id === selectedInvestibleId)}
-            isAdmin={isAdmin}
-            inArchives={inArchives}
-          />
-        </>
+        <DecisionInvestible
+          userId={getMyUserForMarket(marketsState, marketId) || ''}
+          investibleId={selectedInvestibleId}
+          market={market}
+          fullInvestible={investibles.find((inv) => inv.investible.id === selectedInvestibleId)}
+          comments={comments}
+          marketPresences={marketPresences}
+          investibleComments={comments.filter((comment) => comment.investible_id === selectedInvestibleId)}
+          isAdmin={isAdmin}
+          inArchives={inArchives}
+        />
       )}
     </>
   );

@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
-import { CardContent, Grid } from '@material-ui/core'
+import { CardContent, Grid, IconButton } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import RaisedCard from '../../../components/Cards/RaisedCard'
 import OptionCard from '../../../components/Cards/OptionCard'
@@ -18,12 +18,11 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import { findMessagesForInvestibleId } from '../../../utils/messageUtils'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { myArchiveClasses } from '../../DialogArchives/ArchiveInvestibles'
-import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { Clear } from '@material-ui/icons'
 import DecisionInvestible from '../../Investible/Decision/DecisionInvestible'
 import { getMarket, getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
-import { useIntl } from 'react-intl'
+import CardHeader from '@material-ui/core/CardHeader'
 
 const useStyles = makeStyles((theme) => ({
   textData: {
@@ -48,7 +47,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function ProposedIdeas(props) {
-  const intl = useIntl();
   const classes = useStyles();
   const outlineStyles = myArchiveClasses();
   const { investibles, marketId, isAdmin, comments, inArchives, marketPresences } = props;
@@ -99,11 +97,17 @@ function ProposedIdeas(props) {
         >
           <RaisedCard
             className={classes.card}
-            onClick={() => setSelectedInvestibleId(id)}
+            onClick={() => selectedInvestibleId === id ? setSelectedInvestibleId(undefined) :
+              setSelectedInvestibleId(id)}
             elevation={3}
             isHighlighted={myMessage}
           >
-            <CardContent className={classes.noPadding}>
+            <CardHeader
+              style={{padding: 0, display: selectedInvestibleId === id ? 'flex' : 'none'}}
+              action={<IconButton style={{padding: 0}}><Clear /></IconButton>}
+            />
+            <CardContent className={classes.noPadding}
+                         style={{marginTop: selectedInvestibleId === id ? '-1.2rem' : undefined}}>
               <OptionCard
                 title={name} />
             </CardContent>
@@ -135,25 +139,17 @@ function ProposedIdeas(props) {
         )}
       </Grid>
       {selectedInvestibleId && !_.isEmpty(market) && (
-        <>
-          <div style={{marginBottom: '0.5rem', marginLeft: '2rem'}}>
-            <SpinningIconLabelButton onClick={() => setSelectedInvestibleId(undefined)} doSpin={false}
-                                     icon={Clear}>
-              {intl.formatMessage({ id: 'marketAddCancelLabel' })}
-            </SpinningIconLabelButton>
-          </div>
-          <DecisionInvestible
-            userId={getMyUserForMarket(marketsState, marketId) || ''}
-            investibleId={selectedInvestibleId}
-            market={market}
-            fullInvestible={investibles.find((inv) => inv.investible.id === selectedInvestibleId)}
-            comments={comments}
-            marketPresences={marketPresences}
-            investibleComments={comments.filter((comment) => comment.investible_id === selectedInvestibleId)}
-            isAdmin={isAdmin}
-            inArchives={inArchives}
-          />
-        </>
+        <DecisionInvestible
+          userId={getMyUserForMarket(marketsState, marketId) || ''}
+          investibleId={selectedInvestibleId}
+          market={market}
+          fullInvestible={investibles.find((inv) => inv.investible.id === selectedInvestibleId)}
+          comments={comments}
+          marketPresences={marketPresences}
+          investibleComments={comments.filter((comment) => comment.investible_id === selectedInvestibleId)}
+          isAdmin={isAdmin}
+          inArchives={inArchives}
+        />
       )}
     </>
   );

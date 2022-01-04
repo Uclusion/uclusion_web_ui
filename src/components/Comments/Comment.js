@@ -1160,6 +1160,7 @@ function Reply(props) {
           <ThreadedReplies
             replies={comment.children}
             enableEditing={enableEditing}
+            messages={messages}
           />
         </div>
       )}

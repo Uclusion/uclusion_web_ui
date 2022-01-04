@@ -36,7 +36,6 @@ function AssignmentList(props) {
     fullMarketPresences,
     onChange,
     previouslyAssigned,
-    cannotBeAssigned,
     listHeader,
     requiresInput
   } = props;
@@ -61,7 +60,7 @@ function AssignmentList(props) {
     return sortedParticipants.map((presence) => {
       return {
         ...presence,
-        assignable: (presence.following && !cannotBeAssigned.includes(presence.id)),
+        assignable: presence.following,
       };
     });
   }

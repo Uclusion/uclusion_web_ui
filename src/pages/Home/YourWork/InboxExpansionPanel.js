@@ -59,13 +59,12 @@ export function addExpansionPanel(props) {
       && linkType.startsWith('INLINE')) || (messageType === 'UNASSIGNED' && linkType === 'MARKET_TODO')) {
     let useMarketId = commentMarketId || marketId;
     let useCommentId = commentId;
-    if (!useCommentId) {
-      const market = getMarket(marketState, marketId) || {};
-      const { parent_comment_id: inlineParentCommentId, parent_comment_market_id: parentMarketId } = market;
-      if (inlineParentCommentId) {
-        useMarketId = parentMarketId;
-        useCommentId = inlineParentCommentId;
-      }
+    const market = getMarket(marketState, marketId) || {};
+    const { parent_comment_id: inlineParentCommentId, parent_comment_market_id: parentMarketId } = market;
+    if (inlineParentCommentId) {
+      // If there is a top level question always display it instead of lower level comments
+      useMarketId = parentMarketId;
+      useCommentId = inlineParentCommentId;
     }
     const rootComment = getCommentRoot(commentState, useMarketId, useCommentId);
     // Note passing all comments down instead of just related to the unread because otherwise confusing and also

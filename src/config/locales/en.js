@@ -773,7 +773,7 @@ const messages = defineMessages({
   approveListHeader: 'Required approvers',
   cannotUnassignExplanation: 'Collaborators assigned tasks cannot be unchecked.',
   removeExplanation: 'Remove takes away all access to this Workspace',
-  guestExplanation: 'Not assignable means the collaborator will not show in the swimlanes.',
+  mutedExplanation: 'Muted channel',
 
   // Address List
   addressListHeader: 'Addressed to',

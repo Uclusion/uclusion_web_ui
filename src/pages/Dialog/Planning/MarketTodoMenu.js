@@ -57,8 +57,7 @@ function MarketTodoMenu(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
-  const assignablePresences = marketPresences.filter((presence) => !presence.market_banned && presence.following
-    && !presence.market_guest) || [];
+  const assignablePresences = marketPresences.filter((presence) => !presence.market_banned && presence.following) || [];
 
   function renderAssignedEntry(presence) {
     const { name, email, id } = presence;

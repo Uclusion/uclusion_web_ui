@@ -81,7 +81,7 @@ function beginListening(dispatch, diffDispatch, setTokensHash) {
         loginPromise = getMarketFromInvite(marketToken);
         break;
       case GUEST_MARKET_EVENT:
-        // Login with market id to create guest capability if necessary
+        // Login with market id to create subscribed capability if necessary
         loginPromise = getMarketFromUrl(marketId, subscribeId);
         break;
       default:

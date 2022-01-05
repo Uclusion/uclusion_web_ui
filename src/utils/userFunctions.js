@@ -16,8 +16,7 @@ const LOGOUT_MARKER_KEY = 'logout_marker';
 
 export function extractUsersList (marketPresencesState, addToMarketId, workspaces, includeAll=true) {
   // The account user is being stored with an undefined market ID and so need to avoid it
-  const addToMarketPresencesRaw = addToMarketId ? getMarketPresences(marketPresencesState, addToMarketId) || [] : [];
-  const addToMarketPresences = addToMarketPresencesRaw.filter((presence) => !presence.market_guest || includeAll);
+  const addToMarketPresences = addToMarketId ? getMarketPresences(marketPresencesState, addToMarketId) || [] : [];
   const addToMarketPresencesHash = addToMarketPresences.reduce((acc, presence) => {
     const { external_id } = presence;
     return { ...acc, [external_id]: true };

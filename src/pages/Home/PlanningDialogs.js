@@ -268,7 +268,7 @@ function PlanningDialogs(props) {
           md={4}
           xs={12}
           className={classes.lessPadding}
-          onMouseOver={() => doShowEdit(marketId)} onMouseOut={() => doRemoveEdit(marketId, myPresence.market_guest)}
+          onMouseOver={() => doShowEdit(marketId)} onMouseOut={() => doRemoveEdit(marketId, false)}
         >
           <RaisedCard
             className={classes.paper}
@@ -284,19 +284,11 @@ function PlanningDialogs(props) {
                   {intl.formatMessage({ id: updatedMessageId }, { x: intl.formatDate(marketUpdatedAt) })}
                 </Typography>
               </Grid>
-              <Grid item xs={1}>
-                {myPresence.market_guest && (
-                  <Typography className={classes.guest}>
-                    {intl.formatMessage({ id: 'guest' })}
-                  </Typography>
-                )}
-              </Grid>
               <Grid id={`showEdit0${marketId}`} item xs={1} style={{pointerEvents: 'none', display: 'none'}}>
                 <EditOutlinedIcon style={{maxHeight: '1.25rem'}} />
               </Grid>
             </Grid>
-            <CardContent id={`showEdit1${marketId}`} className={classes.cardContent}
-                         style={{paddingTop: `${myPresence.market_guest ? '0' : '0.5rem'}`}}>
+            <CardContent id={`showEdit1${marketId}`} className={classes.cardContent} style={{paddingTop: '0.5rem'}}>
             {parentMarketId &&
               <Link
                 href={formInvestibleLink(parentMarketId, parentInvestibleId)}

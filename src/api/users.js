@@ -16,18 +16,6 @@ export function banUser(marketId, userId) {
     .catch((error) => toastErrorAndThrow(error, 'errorBanUserFailed'));
 }
 
-export function unGuestUser(marketId, userId) {
-  return getMarketClient(marketId)
-    .then((client) => client.users.changeGuest(userId, false))
-    .catch((error) => toastErrorAndThrow(error, 'errorGuestUserFailed'));
-}
-
-export function guestUser(marketId, userId) {
-  return getMarketClient(marketId)
-    .then((client) => client.users.changeGuest(userId, true))
-    .catch((error) => toastErrorAndThrow(error, 'errorGuestUserFailed'));
-}
-
 export function deleteOrDehilightMessages(messages, messagesDispatch, removeClass, doRemove=true) {
   const useMarketIds = {};
   messages.forEach((message) => {

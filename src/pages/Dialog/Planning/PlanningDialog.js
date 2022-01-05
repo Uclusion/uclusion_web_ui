@@ -154,8 +154,7 @@ function PlanningDialog(props) {
   const inVerifiedStage = marketStages.find(stage => stage.appears_in_market_summary) || {};
   const visibleStages = marketStages.filter((stage) => stage.appears_in_context) || [];
   const visibleStageIds = visibleStages.map((stage) => stage.id);
-  const assignablePresences = presences.filter((presence) => !presence.market_banned && presence.following
-    && !presence.market_guest) || [];
+  const assignablePresences = presences.filter((presence) => !presence.market_banned && presence.following) || [];
 
   const furtherWorkStage = marketStages.find((stage) => (!stage.allows_assignment && !stage.close_comments_on_entrance)) || {};
   const requiresInputStage = marketStages.find((stage) => (!stage.allows_issues && stage.move_on_comment)) || {};
@@ -207,8 +206,7 @@ function PlanningDialog(props) {
   useEffect(() => {
     if (hash) {
       const presences = getMarketPresences(marketPresencesState, marketId) || []
-      const assignablePresences = presences.filter((presence) => !presence.market_banned && presence.following
-        && !presence.market_guest) || []
+      const assignablePresences = presences.filter((presence) => !presence.market_banned && presence.following) || []
       const linkPresence = assignablePresences.find((presence) => hash.includes(presence.id))
       if (linkPresence) {
         if (hash.startsWith('#cv')) {

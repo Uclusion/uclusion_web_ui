@@ -66,8 +66,7 @@ function OnboardingWorkspace(props) {
         return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, market.id, token)
           .then(() => addParticipants(market.id, [{
             external_id: supportUser.external_id,
-            account_id: supportUser.account_id,
-            is_guest: false
+            account_id: supportUser.account_id
           }]))
           .then(() => ({
             result: link,

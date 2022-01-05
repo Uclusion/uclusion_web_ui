@@ -42,7 +42,7 @@ function AssignmentList(props) {
 
   const classes = useStyles();
   const intl = useIntl();
-  const marketPresences = fullMarketPresences.filter((presence) => !presence.market_banned && !presence.market_guest);
+  const marketPresences = fullMarketPresences.filter((presence) => !presence.market_banned);
   const formClasses = usePlanFormStyles();
 
   function getDefaultChecked() {

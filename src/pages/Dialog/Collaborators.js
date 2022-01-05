@@ -33,7 +33,7 @@ const useStyles = makeStyles( () => ({
 export function Collaborators(props) {
   const { marketPresences: unfilteredPresences, authorId, authorDisplay } = props;
   const classes = useStyles();
-  const marketPresences = unfilteredPresences.filter((presence) => (!presence.market_banned && !presence.market_guest));
+  const marketPresences = unfilteredPresences.filter((presence) => !presence.market_banned);
   const author = marketPresences.find((presence) => presence.id === authorId);
 
   return (

@@ -19,12 +19,9 @@ import { useIntl } from 'react-intl'
 import { usePlanFormStyles } from '../../../components/AgilePlan'
 import Typography from '@material-ui/core/Typography'
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   name: {
     width: '50%',
-  },
-  disabled: {
-    color: theme.palette.text.disabled,
   },
   scrollContainerHeight: {
     height: '230px'
@@ -56,13 +53,7 @@ function AssignmentList(props) {
   }
 
   function getSortedPresenceWithAssignable() {
-    const sortedParticipants = _.sortBy(marketPresences, 'name');
-    return sortedParticipants.map((presence) => {
-      return {
-        ...presence,
-        assignable: presence.following,
-      };
-    });
+    return _.sortBy(marketPresences, 'name');
   }
 
   const participants = getSortedPresenceWithAssignable();
@@ -106,28 +97,23 @@ function AssignmentList(props) {
     }
   }
   function renderParticipantEntry(presenceEntry) {
-    const { name, assignable, id } = presenceEntry;
+    const { name, id } = presenceEntry;
     const boxChecked = submitted[id];
     return (
       <ListItem
         key={id}
         button
-        onClick={() => {
-          if (assignable) {
-            getCheckToggle(id);
-          }
-        }}
+        onClick={() => getCheckToggle(id)}
         className={ boxChecked ? clsx( formClasses.unselected, formClasses.selected ) : formClasses.unselected }
       >
         <ListItemIcon>
           <Checkbox
             value={!!boxChecked}
-            disabled={!assignable}
             checked={!!boxChecked}
           />
         </ListItemIcon>
         <ListItemText
-          className={assignable ? classes.name : classes.disabled}
+          className={classes.name}
         >
           {name}
         </ListItemText>
@@ -156,7 +142,7 @@ function AssignmentList(props) {
   return (
     <List
       dense
-      className={clsx(formClasses.scrollableList, formClasses.sharedForm, formClasses.paddingRight)}
+      className={clsx(formClasses.scrollableList, formClasses.sharedForm)}
     >
       {participants && participants.length > 10 && (
         <ListItem className={formClasses.searchContainer} key="search">

@@ -40,7 +40,7 @@ import {
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
 import CommentBox, { getSortedRoots } from '../../../containers/CommentBox/CommentBox'
 import { ACTIVE_STAGE, PLANNING_TYPE } from '../../../constants/markets'
-import { getUserInvestibles } from './userUtils'
+import { getUserInvestibles, getUserSwimlaneInvestiblesHash } from './userUtils'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import {
   getMarketPresences,
@@ -146,16 +146,12 @@ function PlanningDialog(props) {
   function setSectionOpen(section) {
     updatePageState({sectionOpen: section});
   }
-  const presences = getMarketPresences(marketPresencesState, marketId) || [];
   const acceptedStage = marketStages.find(stage => stage.assignee_enter_only) || {};
   const inDialogStage = marketStages.find(stage => stage.allows_investment) || {};
   const inReviewStage = marketStages.find(stage => isInReviewStage(stage)) || {};
   const inBlockingStage = marketStages.find(stage => stage.move_on_comment && stage.allows_issues) || {};
   const inVerifiedStage = marketStages.find(stage => stage.appears_in_market_summary) || {};
   const visibleStages = marketStages.filter((stage) => stage.appears_in_context) || [];
-  const visibleStageIds = visibleStages.map((stage) => stage.id);
-  const assignablePresences = presences.filter((presence) => !presence.market_banned && presence.following) || [];
-
   const furtherWorkStage = marketStages.find((stage) => (!stage.allows_assignment && !stage.close_comments_on_entrance)) || {};
   const requiresInputStage = marketStages.find((stage) => (!stage.allows_issues && stage.move_on_comment)) || {};
   const furtherWorkInvestibles = getInvestiblesInStage(investibles, furtherWorkStage.id, marketId) || [];
@@ -473,8 +469,7 @@ function PlanningDialog(props) {
               comments={comments}
               investibles={investibles}
               marketId={marketId}
-              marketPresences={assignablePresences}
-              visibleStages={visibleStageIds}
+              visibleStages={visibleStages}
               acceptedStage={acceptedStage}
               inDialogStage={inDialogStage}
               inBlockingStage={inBlockingStage}
@@ -769,7 +764,6 @@ function InvestiblesByPerson(props) {
     comments,
     investibles,
     marketId,
-    marketPresences,
     visibleStages,
     acceptedStage,
     inDialogStage,
@@ -791,7 +785,9 @@ function InvestiblesByPerson(props) {
   const { market_stage: marketStage, created_at: createdAt, budget_unit: budgetUnit, use_budget: useBudget,
     votes_required: votesRequired} = market;
   const activeMarket = marketStage === ACTIVE_STAGE;
-  const marketPresencesSortedAlmost = _.sortBy(marketPresences, 'name');
+  const [marketPresencesState] = useContext(MarketPresencesContext);
+  const presences = getMarketPresences(marketPresencesState, marketId) || [];
+  const marketPresencesSortedAlmost = _.sortBy(presences, 'name');
   const marketPresencesSorted = _.sortBy(marketPresencesSortedAlmost, function (presence) {
     return !presence.current_user;
   });
@@ -812,6 +808,9 @@ function InvestiblesByPerson(props) {
       investibles,
       visibleStages,
     );
+
+    const myInvestiblesStageHash = getUserSwimlaneInvestiblesHash(myInvestibles, visibleStages, marketId);
+
     function onInvestibleSave(investible) {
       addInvestible(investiblesDispatch, diffDispatch, investible);
     }
@@ -821,6 +820,9 @@ function InvestiblesByPerson(props) {
       }
     }
     const myClassName = showAsPlaceholder ? metaClasses.archivedColor : metaClasses.normalColor;
+    if (_.isEmpty(myInvestiblesStageHash)) {
+      return <React.Fragment />
+    }
     return (
       <React.Fragment key={`fragsl${id}`}>
         {storyAssignee === id && (
@@ -832,7 +834,6 @@ function InvestiblesByPerson(props) {
               updatePageState({storyAssignee: undefined});
               onDone(destinationLink);
             }}
-            marketPresences={marketPresences}
             createdAt={createdAt}
             classes={planningInvestibleAddClasses}
             maxBudgetUnit={budgetUnit}
@@ -875,7 +876,7 @@ function InvestiblesByPerson(props) {
               inVerifiedStage &&
               inBlockingStage && (
                 <PlanningIdeas
-                  investibles={myInvestibles}
+                  myInvestiblesStageHash={myInvestiblesStageHash}
                   allInvestibles={investibles}
                   marketId={marketId}
                   acceptedStage={acceptedStage}

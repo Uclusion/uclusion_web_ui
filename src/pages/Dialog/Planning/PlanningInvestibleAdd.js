@@ -400,8 +400,7 @@ PlanningInvestibleAdd.propTypes = {
   useBudget: PropTypes.bool.isRequired,
   onCancel: PropTypes.func,
   onSpinComplete: PropTypes.func,
-  onSave: PropTypes.func,
-  marketPresences: PropTypes.arrayOf(PropTypes.object).isRequired,
+  onSave: PropTypes.func
 };
 
 PlanningInvestibleAdd.defaultProps = {

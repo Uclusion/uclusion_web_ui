@@ -43,7 +43,7 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { removeHeader, restoreHeader } from '../../../containers/Header'
 import GravatarGroup from '../../../components/Avatars/GravatarGroup';
 import { getInvestibleVoters } from '../../../utils/votingUtils';
-import { doRemoveEdit, doShowEdit, getCommenterPresences, getUserSwimlaneInvestibles, onDropTodo } from './userUtils'
+import { doRemoveEdit, doShowEdit, getCommenterPresences, onDropTodo } from './userUtils'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions'
@@ -89,7 +89,7 @@ const usePlanningIdStyles = makeStyles(
 
 function PlanningIdeas(props) {
   const {
-    investibles,
+    myInvestiblesStageHash,
     allInvestibles,
     marketId,
     acceptedStage,
@@ -122,12 +122,7 @@ function PlanningIdeas(props) {
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = (marketPresences || []).find((presence) => presence.current_user) || {};
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
-  const warnAccepted = checkInProgressWarning(investibles, myPresence, messagesState);
-  const acceptedInvestibles = investibles.filter(investible => {
-    const { market_infos: marketInfos } = investible;
-    const marketInfo = marketInfos.find(info => info.market_id === marketId);
-    return marketInfo !== undefined && marketInfo.stage === acceptedStageId;
-  }) || [];
+  const acceptedInvestibles = myInvestiblesStageHash[acceptedStageId] || [];
   const acceptedFull = acceptedStage.allowed_investibles > 0
     && acceptedInvestibles.length >= acceptedStage.allowed_investibles;
   const acceptedStageLabel = acceptedFull ? 'planningAcceptedStageFullLabel' : 'planningAcceptedStageLabel';
@@ -359,15 +354,14 @@ function PlanningIdeas(props) {
         <VotingStage
           className={classes.stage}
           id={inDialogStageId}
-          investibles={investibles}
+          investibles={myInvestiblesStageHash[inDialogStageId] || []}
           marketId={marketId}
           presenceId={presenceId}
           activeMarket={activeMarket}
-          isAdmin={myPresence.is_admin}
           marketPresences={marketPresences}
           comments={comments}
           votesRequired={votesRequired}
-          warnAccepted={checkInApprovalWarning(investibles, myPresence, messagesState)}
+          myPresence={myPresence}
         />
       </div>
       <div id={`${acceptedStageId}_${presenceId}`} onDrop={onDropAccepted}
@@ -384,12 +378,12 @@ function PlanningIdeas(props) {
         <AcceptedStage
           className={classes.stage}
           id={acceptedStageId}
-          investibles={investibles}
+          investibles={myInvestiblesStageHash[acceptedStageId] || []}
           marketId={marketId}
           presenceId={presenceId}
+          myPresence={myPresence}
           marketPresences={marketPresences}
           comments={comments}
-          warnAccepted={warnAccepted}
         />
       </div>
       <div id={`${inReviewStageId}_${presenceId}`} onDrop={onDropReview}
@@ -405,12 +399,12 @@ function PlanningIdeas(props) {
         <ReviewStage
           className={classes.stage}
           id={inReviewStageId}
-          investibles={investibles}
+          investibles={myInvestiblesStageHash[inVerifiedStageId] || []}
           marketId={marketId}
+          myPresence={myPresence}
           presenceId={presenceId}
           comments={comments}
           marketPresences={marketPresences}
-          warnAccepted={checkInReviewWarning(investibles, myPresence, messagesState)}
         />
       </div>
       <div id={`${inVerifiedStageId}_${presenceId}`} onDrop={onDropVerified}
@@ -427,8 +421,7 @@ function PlanningIdeas(props) {
         <VerifiedStage
           className={classes.stage}
           id={inVerifiedStageId}
-          investibles={investibles}
-          stage={getFullStage(marketStagesState, marketId, inVerifiedStageId)}
+          investibles={myInvestiblesStageHash[inVerifiedStageId] || []}
           presenceId={presenceId}
           comments={comments}
           marketPresences={marketPresences}
@@ -526,23 +519,19 @@ function Stage (props) {
     showCompletion,
     marketPresences,
     presenceId,
-    limitInvestibles,
-    limitInvestiblesAge,
     votesRequired
   } = props;
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const [, dragHack] = useContext(LocalPlanningDragContext);
-  const stageInvestibles = getUserSwimlaneInvestibles(investibles, limitInvestibles, limitInvestiblesAge,
-    marketId, id);
-  const sortedInvestibles = stageInvestibles.sort(function(a, b) {
+  const sortedInvestibles = investibles.sort(function(a, b) {
     const aMarketInfo = getMarketInfo(a, marketId);
     const bMarketInfo = getMarketInfo(b, marketId);
     return new Date(bMarketInfo.updated_at) - new Date(aMarketInfo.updated_at);
   });
   const classes = useStageClasses(props);
   const history = useHistory();
-  if (fallbackWarning !== undefined && stageInvestibles.length === 0) {
+  if (fallbackWarning !== undefined && investibles.length === 0) {
     const style = fallbackOnClick ? { cursor: 'pointer' } : {};
     return (
       <div onClick={fallbackOnClick ? fallbackOnClick : () => {}} style={style}>
@@ -562,10 +551,10 @@ function Stage (props) {
   }
 
   const warnAcceptedSafe = warnAccepted || {};
-  const singleInvestible = (stageInvestibles || []).length === 1;
+  const singleInvestible = investibles.length === 1;
 
   return (
-    <dd className={singleInvestible && warnAcceptedSafe[stageInvestibles[0].investible.id] ?
+    <dd className={singleInvestible && warnAcceptedSafe[investibles[0].investible.id] ?
       classes.rootWarnAccepted : singleInvestible ? classes.root : classes.regularAccepted}>
       <ul className={classes.list}>
         <Grid
@@ -621,43 +610,38 @@ Stage.propTypes = {
 };
 
 function VotingStage (props) {
-  const { className, marketId, presenceId, activeMarket, isAdmin, comments, marketPresences, votesRequired, ...other }
-    = props;
   const intl = useIntl();
-
+  const [messagesState] = useContext(NotificationsContext);
+  const { marketId, presenceId, investibles, myPresence } = props;
   const history = useHistory();
   const link = formMarketAddInvestibleLink(marketId);
   const assignedLink = link + `#assignee=${presenceId}`;
 
   function onClick (event) {
-    // prevent browser navigation
-    event.stopPropagation();
-    event.preventDefault();
+    preventDefaultAndProp(event);
     navigate(history, assignedLink);
   }
 
   return (
-
     <Stage
-      marketId={marketId}
-      comments={comments}
-      presenceId={presenceId}
       isVoting
       fallbackOnClick={onClick}
-      votesRequired={votesRequired}
-      marketPresences={marketPresences}
       updatedText={intl.formatMessage({
         id: 'inDialogInvestiblesUpdatedAt'
       })}
-      {...other}
+      warnAccepted={checkInApprovalWarning(investibles, myPresence, messagesState)}
+      {...props}
     />
   );
 }
 
 function AcceptedStage (props) {
   const intl = useIntl();
+  const [messagesState] = useContext(NotificationsContext);
+  const { investibles, myPresence } = props;
   return (
     <Stage
+      warnAccepted={checkInProgressWarning(investibles, myPresence, messagesState)}
       updatedText={intl.formatMessage({
         id: 'acceptedInvestiblesUpdatedAt'
       })}
@@ -669,13 +653,15 @@ function AcceptedStage (props) {
 
 function ReviewStage (props) {
   const intl = useIntl();
-
+  const [messagesState] = useContext(NotificationsContext);
+  const { investibles, myPresence } = props;
   return (
     <Stage
       updatedText={intl.formatMessage({
         id: 'reviewingInvestiblesUpdatedAt'
       })}
       isReview
+      warnAccepted={checkInReviewWarning(investibles, myPresence, messagesState)}
       {...props}
     />
   );
@@ -702,16 +688,11 @@ const generalStageStyles = makeStyles(() => {
 
 function VerifiedStage(props) {
   const intl = useIntl();
-  const { stage } = props;
-  const limitInvestibles = (stage || {}).allowed_investibles;
-  const limitInvestiblesAge = (stage || {}).days_visible;
   return (
     <Stage
       updatedText={intl.formatMessage({
         id: 'verifiedInvestiblesUpdatedAt'
       })}
-      limitInvestibles={limitInvestibles}
-      limitInvestiblesAge={limitInvestiblesAge}
       {...props}
     />
   );
@@ -810,7 +791,7 @@ function StageInvestible(props) {
   );
 }
 
-const useStageLinkStyles = makeStyles(theme => {
+const useStageLinkStyles = makeStyles(() => {
   return {
     root: {
       color: 'inherit',

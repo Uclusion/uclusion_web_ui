@@ -205,19 +205,7 @@ function PlanningDialog(props) {
 
   useEffect(() => {
     if (hash) {
-      const presences = getMarketPresences(marketPresencesState, marketId) || []
-      const assignablePresences = presences.filter((presence) => !presence.market_banned && presence.following) || []
-      const linkPresence = assignablePresences.find((presence) => hash.includes(presence.id))
-      if (linkPresence) {
-        if (hash.startsWith('#cv')) {
-          if (sectionOpen !== 'discussionSection') {
-            updatePageState({ sectionOpen: 'discussionSection' });
-          }
-        }
-        else if (sectionOpen !== 'storiesSection') {
-          updatePageState({ sectionOpen: 'storiesSection' })
-        }
-      } else if (hash.includes('workspaceMain')) {
+      if (hash.includes('workspaceMain')) {
         if (sectionOpen !== 'workspaceMain') {
           updatePageState({ sectionOpen: 'workspaceMain' })
         }
@@ -233,7 +221,7 @@ function PlanningDialog(props) {
         }
       }
     }
-  }, [marketId, marketPresencesState, comments, hash, sectionOpen, updatePageState]);
+  }, [marketId, comments, hash, sectionOpen, updatePageState]);
 
   function onClickFurtherStart() {
     updatePageState({furtherWorkType: 'readyToStart'});

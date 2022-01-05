@@ -774,6 +774,7 @@ const messages = defineMessages({
   cannotUnassignExplanation: 'Collaborators assigned tasks cannot be unchecked.',
   removeExplanation: 'Remove takes away all access to this Workspace',
   mutedExplanation: 'Muted channel',
+  muteAction: 'Mute channel',
 
   // Address List
   addressListHeader: 'Addressed to',

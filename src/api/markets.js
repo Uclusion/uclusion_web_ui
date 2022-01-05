@@ -144,9 +144,8 @@ export function createOnboardingWorkspace (name) {
     .catch((error) => toastErrorAndThrow(error, 'errorPlanningAddFailed'))
 }
 
-export function archiveMarket(marketId, marketType) {
-  const marketStage = marketType === PLANNING_TYPE ? INACTIVE_STAGE : 'Cancelled';
-  const updateOptions = { market_stage: marketStage };
+export function archiveMarket(marketId) {
+  const updateOptions = { market_stage: INACTIVE_STAGE };
   return getMarketClient(marketId)
     .then((client) => client.markets.updateMarket(updateOptions))
     .catch((error) => toastErrorAndThrow(error, 'errorMarketArchiveFailed'));

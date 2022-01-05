@@ -7,8 +7,6 @@ import {
 } from '../../utils/marketIdPathFunctions'
 import { useLocation } from 'react-router'
 import EditMarketButton from '../Dialog/EditMarketButton'
-import ChangeToObserverButton from '../Dialog/ChangeToObserverButton'
-import ChangeToParticipantButton from '../Dialog/ChangeToParticipantButton'
 import ShareStoryButton from '../Investible/Planning/ShareStoryButton'
 import ActivateMarketButton from '../Dialog/Planning/ActivateMarketButton'
 import { ACTION_BUTTON_COLOR, HIGHLIGHTED_BUTTON_COLOR } from '../../components/Buttons/ButtonConstants'
@@ -143,17 +141,6 @@ function DialogActions(props) {
       actions.push(
         <ActivateMarketButton key="activate-market" marketId={marketId} isFollowing={isFollowing}/>,
       );
-    }
-    if (activeMarket && (hideEdit || marketType !== PLANNING_TYPE)) {
-      if (isFollowing) {
-        actions.push(
-          <ChangeToObserverButton key="change-to-observer" marketId={marketId} />,
-        );
-      } else {
-        actions.push(
-          <ChangeToParticipantButton key="change-to-participant" marketId={marketId}/>,
-        );
-      }
     }
     if (action === 'dialog' && marketType !== PLANNING_TYPE && !activeMarket) {
       actions.push(<ShareStoryButton key="share-story" marketId={marketId}/>)

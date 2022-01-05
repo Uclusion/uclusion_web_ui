@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react'
 import PropTypes from 'prop-types'
 import { useIntl } from 'react-intl'
-import { updateMarket, updateStage } from '../../../api/markets'
+import { archiveMarket, changeUserToObserver, updateMarket, updateStage } from '../../../api/markets'
 import CardContent from '@material-ui/core/CardContent'
 import Grid from '@material-ui/core/Grid'
 import clsx from 'clsx'
@@ -13,10 +13,12 @@ import { getStages, updateStagesForMarket } from '../../../contexts/MarketStages
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import _ from 'lodash'
 import ShowInVerifiedStageAge from './ShowInVerifiedStageAge'
-import { FormControlLabel, makeStyles, Radio, RadioGroup, TextField, Typography } from '@material-ui/core'
-import ChangeToObserverButton from '../ChangeToObserverButton'
-import ChangeToParticipantButton from '../ChangeToParticipantButton'
-import { getMarketPresences, getMarketUnits } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { Checkbox, FormControlLabel, makeStyles, Radio, RadioGroup, TextField, Typography } from '@material-ui/core'
+import {
+  changeObserverStatus,
+  getMarketPresences,
+  getMarketUnits
+} from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { Clear, SettingsBackupRestore } from '@material-ui/icons'
@@ -26,6 +28,8 @@ import Autocomplete from '@material-ui/lab/Autocomplete'
 import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
+import { removeMessagesForMarket } from '../../../utils/messageUtils'
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -43,9 +47,11 @@ function PlanningDialogEdit(props) {
   const { onCancel, market, acceptedStage, verifiedStage, userId } = props;
   const [marketStagesState, marketStagesDispatch] = useContext(MarketStagesContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
-  const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [, marketsDispatch] = useContext(MarketsContext);
   const [, diffDispatch] = useContext(DiffContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const [mpState, mpDispatch] = useContext(MarketPresencesContext);
   const { id } = market
   const marketPresences = getMarketPresences(marketPresencesState, id)
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
@@ -151,6 +157,20 @@ function PlanningDialogEdit(props) {
     getOptionLabel: (option) => option,
   };
 
+  function myOnMuteCheckbox(myIsDeactivate) {
+    setOperationRunning(true);
+    const actionPromise = myIsDeactivate ? archiveMarket(id) : changeUserToObserver(id);
+    return actionPromise.then((response) => {
+      if (myIsDeactivate) {
+        addMarketToStorage(marketsDispatch, diffDispatch, response);
+      } else {
+        changeObserverStatus(mpState, mpDispatch, id, true);
+      }
+      removeMessagesForMarket(id, messagesState, messagesDispatch);
+      setOperationRunning(false);
+    });
+  }
+
   return (
     <Card className={classes.overflowVisible}>
       <CardContent className={classes.cardContent}>
@@ -161,18 +181,20 @@ function PlanningDialogEdit(props) {
             </Grid>
           )}
           <Grid item md={isDraft ? 12 : 4} xs={12} className={classes.fieldsetContainer}>
-            <Typography variant="h6">
-              Archive or Restore Workspace
-            </Typography>
             <Typography variant="body2" style={{marginBottom: "0.5rem"}}>
-              Archiving prevents notifications and moves the workspace from the home page to the archives.
+              Muting prevents notifications unless you are mentioned, assigned or a required approver or reviewer.
             </Typography>
-            {following && (
-              <ChangeToObserverButton key="change-to-observer" marketId={id} />
-            )}
-            {!following && (
-              <ChangeToParticipantButton key="change-to-participant" marketId={id}/>
-            )}
+            <FormControlLabel
+              control={
+                <Checkbox
+                  value={!following}
+                  disabled={operationRunning}
+                  checked={!following}
+                  onClick={() => myOnMuteCheckbox(following)}
+                />
+              }
+              label={intl.formatMessage({ id: 'muteAction' })}
+            />
           </Grid>
         </Grid>
         <Grid container className={clsx(classes.fieldset, classes.flex, classes.justifySpace)}

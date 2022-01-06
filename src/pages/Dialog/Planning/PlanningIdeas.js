@@ -399,7 +399,7 @@ function PlanningIdeas(props) {
         <ReviewStage
           className={classes.stage}
           id={inReviewStageId}
-          investibles={myInvestiblesStageHash[inVerifiedStageId] || []}
+          investibles={myInvestiblesStageHash[inReviewStageId] || []}
           marketId={marketId}
           myPresence={myPresence}
           presenceId={presenceId}

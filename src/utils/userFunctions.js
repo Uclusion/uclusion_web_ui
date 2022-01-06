@@ -14,7 +14,7 @@ import { clearRedirect } from './redirectUtils'
 
 const LOGOUT_MARKER_KEY = 'logout_marker';
 
-export function extractUsersList (marketPresencesState, addToMarketId, workspaces, includeAll=true) {
+export function extractUsersList (marketPresencesState, addToMarketId) {
   // The account user is being stored with an undefined market ID and so need to avoid it
   const addToMarketPresences = addToMarketId ? getMarketPresences(marketPresencesState, addToMarketId) || [] : [];
   const addToMarketPresencesHash = addToMarketPresences.reduce((acc, presence) => {
@@ -27,26 +27,17 @@ export function extractUsersList (marketPresencesState, addToMarketId, workspace
       return acc;
     }
     const macc = {};
-    let included = false;
-    (workspaces || []).forEach((workspace) => {
-      if (marketId === workspace.id) {
-        included = true;
+    marketPresences.forEach((presence) => {
+      const {
+        id: user_id, name, account_id, external_id, email, market_banned: banned, current_user
+      } = presence;
+      if (!banned && !addToMarketPresencesHash[external_id] && !acc[user_id] && !macc[user_id]) {
+        addToMarketPresencesHash[external_id] = true;
+        macc[user_id] = {
+          user_id, name, account_id, email, isChecked: false, external_id, current_user
+        };
       }
-    })
-    if (included || includeAll) {
-      marketPresences.forEach((presence) => {
-        const {
-          id: user_id, name, account_id, external_id, email, market_banned: banned, current_user, following
-        } = presence;
-        if (!banned && !addToMarketPresencesHash[external_id] && !acc[user_id] && !macc[user_id]
-          && (includeAll || following)) {
-          addToMarketPresencesHash[external_id] = true;
-          macc[user_id] = {
-            user_id, name, account_id, email, isChecked: false, external_id, current_user
-          };
-        }
-      });
-    }
+    });
     return { ...acc, ...macc };
   }, {});
 }

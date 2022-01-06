@@ -46,20 +46,18 @@ function AddNewUsers (props) {
     setEmail1(value);
   }
 
-  const defaultChecked = extractUsersList(marketPresencesState, addToMarketId, null, true);
-  const [checked, setChecked] = useState(defaultChecked);
+  const participants = Object.entries(extractUsersList(marketPresencesState, addToMarketId));
+  const [checked, setChecked] = useState([]);
   const [searchValue, setSearchValue] = useState(undefined);
   const [filteredNames, setFilteredNames] = useState(undefined);
-  const participants = Object.keys(checked).map((key) => checked[key]) || [];
   const [emailsSent, setEmailsSent] = useState([]);
-  const anySelected = participants.find((participant) => participant.isChecked);
 
   useEffect(() => {
     if (!searchValue) {
       setFilteredNames(undefined);
-    } else if (checked) {
+    } else if (participants) {
       const searchValueLower = searchValue.toLowerCase();
-      const filteredEntries = Object.entries(checked).filter((entry) => {
+      const filteredEntries = participants.filter((entry) => {
         const { name } = entry[1];
         const nameLower = name.toLowerCase();
         let index = 0;
@@ -75,24 +73,27 @@ function AddNewUsers (props) {
       });
       setFilteredNames(filteredEntries);
     }
-  }, [searchValue, checked]);
+  }, [searchValue, participants]);
 
   function getCheckToggle (id) {
     return () => {
-      const userDetail = checked[id];
-      const { isChecked } = userDetail;
-      const newChecked = {
-        ...checked,
-        [id]: { ...userDetail, isChecked: !isChecked },
-      };
-      setChecked(newChecked);
+      const found = checked.find((item) => item.id === id);
+      if (!found) {
+        const userDetail = participants.find((participant) => participant.id === id);
+        if (userDetail) {
+          setChecked(checked.concat([userDetail]));
+        }
+      } else {
+        setChecked((_.remove(checked, found)))
+      }
     };
   }
 
   function renderParticipantEntry (presenceEntry) {
     const {
-      user_id: id, name, isChecked, email,
-    } = presenceEntry[1];
+      user_id: id, name, email,
+    } = presenceEntry;
+    const isChecked = !_.isEmpty(_.find(checked, presenceEntry));
     return (
       <ListItem
         key={id}
@@ -120,13 +121,13 @@ function AddNewUsers (props) {
   }
 
   function addInvitees() {
-    const participants = [];
+    const added = [];
     if (email1) {
       const emails = email1.split(',')
       const emailSentTemp = []
       emails.forEach((email) => {
         const emailTrimmed = email.trim();
-        participants.push({ email: emailTrimmed })
+        added.push({ email: emailTrimmed })
         emailSentTemp.push(emailTrimmed)
       })
       setEmailsSent(emailsSent.concat(emailSentTemp))
@@ -134,7 +135,7 @@ function AddNewUsers (props) {
     if (_.isEmpty(participants)) {
       return Promise.resolve(true);
     }
-    return inviteParticipants(addToMarketId, participants).then((result) => {
+    return inviteParticipants(addToMarketId, added).then((result) => {
       setEmail1('');
       onSaveSpinStop(result);
     });
@@ -147,14 +148,12 @@ function AddNewUsers (props) {
   }
 
   function handleSaveParticipants() {
-    const toAdd = participants.filter((participant) => participant.isChecked) || [];
-    const toAddClean = toAdd.map((participant) => {
+    const toAddClean = checked.map((participant) => {
       const { external_id, account_id } = participant
       return { external_id, account_id, is_guest: false }
     });
     return addParticipants(addToMarketId, toAddClean)
       .then((result) => {
-        setChecked(participants.filter((participant) => !participant.isChecked) || []);
         setOperationRunning(false);
         onSaveSpinStop(result);
       });
@@ -176,7 +175,7 @@ function AddNewUsers (props) {
     }
   }
 
-  const displayNames = filteredNames || Object.entries(checked) || [];
+  const displayNames = filteredNames || participants || [];
   return (
     <>
       {displayNames.length > 0 &&
@@ -188,7 +187,7 @@ function AddNewUsers (props) {
             <ListItem className={classes.searchContainer} key="search">
               <SpinningIconLabelButton onClick={handleSaveParticipants} icon={SettingsBackupRestore}
                                        id="participantAddButton"
-                                       disabled={_.isEmpty(anySelected)}>
+                                       disabled={_.isEmpty(checked)}>
                 {intl.formatMessage({ id: mobileLayout ? 'addExistingCollaboratorMobile' :
                     'addExistingCollaborator' })}
               </SpinningIconLabelButton>

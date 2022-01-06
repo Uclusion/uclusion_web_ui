@@ -27,7 +27,6 @@ import Screen from '../../../containers/Screen/Screen'
 import {
   baseNavListItem, createTitle,
   formMarketArchivesLink, formMarketLink,
-  makeArchiveBreadCrumbs,
   makeBreadCrumbs,
   navigate, preventDefaultAndProp
 } from '../../../utils/marketIdPathFunctions'
@@ -120,9 +119,7 @@ function PlanningDialog(props) {
   const activeMarket = marketStage === ACTIVE_STAGE;
   const inArchives = !activeMarket || (myPresence && !myPresence.following);
   const isAdmin = myPresence.is_admin;
-  const breadCrumbs = inArchives
-      ? makeArchiveBreadCrumbs(history)
-      : makeBreadCrumbs(history);
+  const breadCrumbs = makeBreadCrumbs(history);
   const unResolvedMarketComments = comments.filter(comment => !comment.investible_id && !comment.resolved) || [];
   // There is no link to a reply so including them should be okay
   const notTodoComments = unResolvedMarketComments.filter(comment =>

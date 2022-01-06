@@ -182,10 +182,10 @@ function Outbox(props) {
     // Not filtering by whether in Inbox or not because users should deal with Inbox before worry about Outbox
     const inReviewStage = getInReviewStage(marketStagesState, market.id) || {};
     const inReviewInvestibles = getUserInvestibles(myPresence.id, market.id, investibles,
-      [inReviewStage.id]) || [];
+      [inReviewStage]) || [];
     const inVotingStage = getInCurrentVotingStage(marketStagesState, market.id) || {};
     const inVotingInvestibles = getUserInvestibles(myPresence.id, market.id, investibles,
-      [inVotingStage.id]) || [];
+      [inVotingStage]) || [];
     const comments = getMarketComments(commentState, market.id);
     const myUnresolvedRoots = comments.filter((comment) => !comment.resolved &&
       comment.created_by === myPresence.id && !comment.reply_id);

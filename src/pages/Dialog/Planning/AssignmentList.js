@@ -99,7 +99,7 @@ function AssignmentList(props) {
   function renderParticipantEntry(presenceEntry) {
     const { name, id, email } = presenceEntry;
     const boxChecked = submitted[id];
-    const emailSafe = email.replace('@', '');
+    const emailSafe = email.replace('@', '').replace('.', '');
     // Using id email for Cypress tests
     return (
       <ListItem

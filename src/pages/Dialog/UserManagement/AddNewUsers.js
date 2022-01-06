@@ -131,7 +131,7 @@ function AddNewUsers (props) {
         emailSentTemp.push(emailTrimmed)
       })
     }
-    if (_.isEmpty(participants)) {
+    if (_.isEmpty(added)) {
       return Promise.resolve(true);
     }
     return inviteParticipants(addToMarketId, added).then((result) => {

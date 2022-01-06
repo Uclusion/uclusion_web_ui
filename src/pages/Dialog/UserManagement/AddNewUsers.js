@@ -122,15 +122,14 @@ function AddNewUsers (props) {
 
   function addInvitees() {
     const added = [];
+    const emailSentTemp = [];
     if (email1) {
-      const emails = email1.split(',')
-      const emailSentTemp = []
+      const emails = email1.split(',');
       emails.forEach((email) => {
         const emailTrimmed = email.trim();
         added.push({ email: emailTrimmed })
         emailSentTemp.push(emailTrimmed)
       })
-      setEmailsSent(emailsSent.concat(emailSentTemp))
     }
     if (_.isEmpty(participants)) {
       return Promise.resolve(true);
@@ -138,6 +137,7 @@ function AddNewUsers (props) {
     return inviteParticipants(addToMarketId, added).then((result) => {
       setEmail1('');
       onSaveSpinStop(result);
+      setEmailsSent(emailsSent.concat(emailSentTemp));
     });
   }
 

@@ -34,7 +34,7 @@ export function extractUsersList (marketPresencesState, addToMarketId) {
       if (!banned && !addToMarketPresencesHash[external_id] && !acc[user_id] && !macc[user_id]) {
         addToMarketPresencesHash[external_id] = true;
         macc[user_id] = {
-          user_id, name, account_id, email, isChecked: false, external_id, current_user
+          user_id, name, account_id, email, external_id, current_user
         };
       }
     });

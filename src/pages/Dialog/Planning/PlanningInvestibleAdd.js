@@ -63,10 +63,9 @@ function PlanningInvestibleAdd(props) {
   const [openIssue, setOpenIssue] = useState(false);
   const comments = getMarketComments(commentsState, marketId) || [];
   const [investibleState] = useContext(InvestiblesContext);
-  const [presencesState] = useContext(MarketPresencesContext);
+  const [presencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const presences = getMarketPresences(presencesState, marketId) || [];
   const myPresence = presences.find((presence) => presence.current_user) || {};
-  const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const acceptedStage = getAcceptedStage(marketStagesState, marketId) || {};
   const [investibleAddStateFull, investibleAddDispatch] = usePageStateReducer('investibleAdd');
   const [investibleAddState, updateInvestibleAddState, investibleAddStateReset] =

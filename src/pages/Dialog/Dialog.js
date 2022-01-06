@@ -15,7 +15,6 @@ import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { getMarket, marketTokenLoaded } from '../../contexts/MarketsContext/marketsContextHelper'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
-import DecisionDialog from './Decision/DecisionDialog'
 import PlanningDialog from './Planning/PlanningDialog'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { getComment, getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper'
@@ -23,7 +22,7 @@ import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketSt
 import { getStages } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
-import { ACTIVE_STAGE, DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
+import { ACTIVE_STAGE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
 import jwt_decode from 'jwt-decode'
 import { userIsLoaded } from '../../contexts/AccountUserContext/accountUserContextHelper'
 import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
@@ -144,25 +143,6 @@ function Dialog(props) {
   }, [hidden, action, history, marketId, marketStages, marketType]);
 
   useEffect(() => {
-    function getInitiativeInvestible(baseInvestible) {
-      const { investible } = baseInvestible;
-      const { id } = investible;
-      const {
-        investibleId: onInvestibleId,
-      } = decomposeMarketPath(location.pathname);
-      if (onInvestibleId === id) {
-        return;
-      }
-      const link = formInvestibleLink(marketId, id);
-      console.info('Navigating to initiative');
-      navigate(history, link, true);
-    }
-    if (!hidden && marketType === INITIATIVE_TYPE && !isInline && !_.isEmpty(investibles)) {
-      getInitiativeInvestible(investibles[0]);
-    }
-  }, [hidden, history, investibles, isInline, location.pathname, marketId, marketType])
-
-  useEffect(() => {
     if (!hidden) {
       if (isInline) {
         const link = parentInvestibleId ? formInvestibleLink(parentMarketId, parentInvestibleId) :
@@ -208,36 +188,18 @@ function Dialog(props) {
   }
 
   return (
-    <>
-      {marketType === DECISION_TYPE && myPresence && (
-        <DecisionDialog
-          hidden={hidden}
-          addInvestibleMode={addInvestibleMode}
-          setAddInvestibleMode={setAddInvestibleMode}
-          market={renderableMarket}
-          investibles={investibles}
-          comments={comments}
-          marketStages={marketStages}
-          marketPresences={marketPresences}
-          myPresence={myPresence}
-          banner={banner}
-        />
-      )}
-      {marketType === PLANNING_TYPE && myPresence && (
-        <PlanningDialog
-          hidden={hidden}
-          addInvestibleMode={addInvestibleMode}
-          setAddInvestibleMode={setAddInvestibleMode}
-          market={renderableMarket}
-          investibles={investibles}
-          comments={comments}
-          marketStages={marketStages}
-          marketPresences={marketPresences}
-          myPresence={myPresence}
-          banner={banner}
-        />
-      )}
-    </>
+    <PlanningDialog
+      hidden={hidden}
+      addInvestibleMode={addInvestibleMode}
+      setAddInvestibleMode={setAddInvestibleMode}
+      market={renderableMarket}
+      investibles={investibles}
+      comments={comments}
+      marketStages={marketStages}
+      marketPresences={marketPresences}
+      myPresence={myPresence}
+      banner={banner}
+    />
   );
 }
 

@@ -2,11 +2,11 @@ import { useIntl } from 'react-intl'
 import Screen from '../../../containers/Screen/Screen'
 import PropTypes from 'prop-types'
 import Inbox from './Inbox'
-import MenuBookIcon from '@material-ui/icons/MenuBook'
-import React, { useContext } from 'react'
+import React, { useContext, useState } from 'react'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import {
+  getHiddenMarketDetailsForUser,
   getNotHiddenMarketDetailsForUser,
   marketTokenLoaded
 } from '../../../contexts/MarketsContext/marketsContextHelper'
@@ -24,9 +24,12 @@ function InboxFull(props) {
   const { hidden } = props;
   const intl = useIntl();
   const history = useHistory();
+  const [showAll, setShowAll] = useState(false);
   const [marketsState, , tokensHash] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
+  const hiddenMarketsRaw = getHiddenMarketDetailsForUser(marketsState, marketPresencesState) || [];
+  const hiddenMarkets = hiddenMarketsRaw.filter((market) => market.market_type === PLANNING_TYPE);
   let loading = marketsState.initializing;
   if (!loading && myNotHiddenMarketsState.marketDetails) {
     myNotHiddenMarketsState.marketDetails.forEach((market) => {
@@ -55,11 +58,6 @@ function InboxFull(props) {
         target: `/wizard#type=${PLANNING_TYPE.toLowerCase()}`
       },
       {
-        icon: MenuBookIcon, text: intl.formatMessage({ id: 'planningDialogViewArchivesLabel' }),
-        target: (_.size(marketsState.marketDetails) - _.size(myNotHiddenMarketsState.marketDetails) > 0) ? '/archives'
-          : undefined
-      },
-      {
         icon: SettingsIcon, text: intl.formatMessage({ id: 'settings' }),
         target: '/notificationPreferences'
       },
@@ -72,6 +70,28 @@ function InboxFull(props) {
         target: formMarketLink(market.id)};
     });
     navigationMenu.navListItemTextArray.unshift(...items);
+  }
+  if (!_.isEmpty(hiddenMarkets)) {
+    if (showAll) {
+      const sorted = _.sortBy(hiddenMarkets, 'name');
+      const items = sorted.map((market) => {
+        return {
+          icon: AgilePlanIcon, text: createTitle(market.name, 20),
+          isGreyed: true,
+          target: formMarketLink(market.id)
+        };
+      });
+      navigationMenu.navListItemTextArray.push({
+        text: intl.formatMessage({ id: 'removeArchive' }),
+        onClickFunc: () => setShowAll(false)
+      });
+      navigationMenu.navListItemTextArray = navigationMenu.navListItemTextArray.concat(items);
+    } else {
+      navigationMenu.navListItemTextArray.push({
+        text: intl.formatMessage({ id: 'seeArchives' }),
+        onClickFunc: () => setShowAll(true)
+      });
+    }
   }
   return (
     <Screen

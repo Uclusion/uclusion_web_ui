@@ -43,7 +43,7 @@ export function getMarketDetailsForType(state, marketPresencesState, marketType 
   return null;
 }
 
-export function getHiddenMarketDetailsForUser(state, marketPresenceState, searchResults) {
+export function getHiddenMarketDetailsForUser(state, marketPresenceState, searchResults = {}) {
   const { marketDetails } = state;
   const { results, parentResults, search } = searchResults;
   if (marketDetails) {

@@ -621,6 +621,8 @@ const messages = defineMessages({
   planningDialogManageParticipantsExplanation: 'Add collaborators to this workspace',
   planningDialogViewArchivesExplanation: 'See archived Dialogs, comments and tasks in Verified and Not Doing',
   planningDialogViewArchivesLabel: 'Archive',
+  seeArchives: 'See muted',
+  removeArchive: 'See less',
   planningNoneAcceptedWarning: 'No Not Ready For Feedback task',
   planningNoneInDialogWarning: 'No Ready for Approval task',
   planningNoneInReviewWarning: 'No Ready for Feedback task',

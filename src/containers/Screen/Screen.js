@@ -105,13 +105,17 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: 'bold',
     textDecoration: 'underline'
   },
+  navGroupGreyed: {
+    color: theme.palette.text.disabled,
+    textDecoration: 'underline'
+  },
   elevated: {
     zIndex: 99,
   },
 }));
 
 function processRegularItem (classes, history, text, target, num, Icon, onClickFunc, isGrouped, isBold, newPage,
-  index, search, showSearch) {
+  index, search, showSearch, isGreyed) {
   if (!text) {
     return React.Fragment
   }
@@ -120,7 +124,9 @@ function processRegularItem (classes, history, text, target, num, Icon, onClickF
     return (
       <ListItem key={`noOnClick${index}${textNoSpaces}`} style={{cursor: 'unset'}}
                 className={isGrouped ? classes.navListItemGrouped : classes.navListItem}>
-        <Icon className={clsx(classes.navListIcon, classes.disabled)}/>
+        {Icon && (
+          <Icon className={clsx(classes.navListIcon, classes.disabled)}/>
+        )}
         <ListItemText primary={text} primaryTypographyProps={{ className: classes.disabled }}/>
       </ListItem>
     )
@@ -139,10 +145,13 @@ function processRegularItem (classes, history, text, target, num, Icon, onClickF
                 }
               }
     >
-      <Icon className={classes.navListIcon} />
+      {Icon && (
+        <Icon className={classes.navListIcon} />
+      )}
       <span style={{width: showSearch ? '80%' : '100%'}}>
                       <ListItemText primary={text}
-                                    primaryTypographyProps={{className: isBold ? classes.navGroupHeader : undefined}} />
+                                    primaryTypographyProps={{className: isBold ? classes.navGroupHeader :
+                                        (isGreyed ? classes.navGroupGreyed : undefined)}} />
                     </span>
       {num !== undefined && !_.isEmpty(search) && (
         <span style={{width: "17%"}}><ListItemText primary={num} /></span>
@@ -211,7 +220,7 @@ function Screen(props) {
       {!_.isEmpty(navListItemTextArray) && (
         <List>
           {navListItemTextArray.map((navItem, topIndex) => {
-            const { text, target, num, icon: Icon, onClickFunc, subItems, isBold, newPage } = navItem;
+            const { text, target, num, icon: Icon, onClickFunc, subItems, isBold, newPage, isGreyed } = navItem;
             if (subItems) {
               return (
                 <div key={`top${topIndex}${text}${title}`}
@@ -226,14 +235,14 @@ function Screen(props) {
                     {subItems.map((subItem, index) => {
                       const { text, target, num, icon: Icon, onClickFunc, newPage } = subItem
                       return processRegularItem(classes, history, text, target, num, Icon, onClickFunc,
-                        true, false, newPage, index, search, showSearch)
+                        true, false, newPage, index, search, showSearch, isGreyed)
                     })}
                   </div>
                 </div>
               );
             }
             return processRegularItem(classes, history, text, target, num, Icon, onClickFunc, false,
-              isBold, newPage, topIndex, search, showSearch)
+              isBold, newPage, topIndex, search, showSearch, isGreyed)
           })}
         </List>
       )}

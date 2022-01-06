@@ -10,7 +10,6 @@ import { broadcastView, decomposeMarketPath, } from '../../utils/marketIdPathFun
 import Home from '../../pages/Home/Home'
 import Investible from '../../pages/Investible/Investible'
 import DialogArchives from '../../pages/DialogArchives/DialogArchives'
-import Archives from '../../pages/Archives/Archives'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { OnlineStateContext } from '../../contexts/OnlineStateContext'
 import InvestibleAdd from '../../pages/Dialog/InvestibleAdd'
@@ -106,10 +105,6 @@ function Root() {
     return (action !== 'dialogArchives');
   }
 
-  function hideArchvies() {
-    return (action !== 'archives');
-  }
-
   function hideSlackInvite() {
     return action !== 'slack';
   }
@@ -119,8 +114,8 @@ function Root() {
   }
 
   const hidePNF = !(hideMarket() && hideSupport() && hideHome() && hideInvestible() && hideWizard() && hideInbox()
-    && hideDialogArchives() && hideArchvies() && hideInvestibleAdd() && hideSlackInvite()
-    && hideChangePassword() && hideChangeNotification() && hideBillingHome() && hideOutbox() && hideTodoAdd());
+    && hideDialogArchives() && hideInvestibleAdd() && hideSlackInvite() && hideChangePassword()
+    && hideChangeNotification() && hideBillingHome() && hideOutbox() && hideTodoAdd());
 
   useEffect(() => {
     function pegView(isEntry) {
@@ -190,7 +185,6 @@ function Root() {
             <Support hidden={hideSupport()}/>
             <BillingHome hidden={hideBillingHome()}/>
             <Investible hidden={hideInvestible()}/>
-            <Archives hidden={hideArchvies()}/>
             <DialogArchives hidden={hideDialogArchives()}/>
             <InvestibleAdd hidden={hideInvestibleAdd()}/>
             <SlackInvite hidden={hideSlackInvite()}/>

@@ -46,7 +46,7 @@ function AddNewUsers (props) {
     setEmail1(value);
   }
 
-  const participants = Object.entries(extractUsersList(marketPresencesState, addToMarketId));
+  const participants = Object.values(extractUsersList(marketPresencesState, addToMarketId));
   const [checked, setChecked] = useState([]);
   const [searchValue, setSearchValue] = useState(undefined);
   const [filteredNames, setFilteredNames] = useState(undefined);
@@ -58,7 +58,7 @@ function AddNewUsers (props) {
     } else if (participants) {
       const searchValueLower = searchValue.toLowerCase();
       const filteredEntries = participants.filter((entry) => {
-        const { name } = entry[1];
+        const { name } = entry;
         const nameLower = name.toLowerCase();
         let index = 0;
         // eslint-disable-next-line no-restricted-syntax
@@ -77,14 +77,14 @@ function AddNewUsers (props) {
 
   function getCheckToggle (id) {
     return () => {
-      const found = checked.find((item) => item.id === id);
+      const found = checked.find((item) => item.user_id === id);
       if (!found) {
-        const userDetail = participants.find((participant) => participant.id === id);
+        const userDetail = participants.find((participant) => participant.user_id === id);
         if (userDetail) {
           setChecked(checked.concat([userDetail]));
         }
       } else {
-        setChecked((_.remove(checked, found)))
+        setChecked(checked.filter((item) => item.user_id !== id));
       }
     };
   }
@@ -93,7 +93,7 @@ function AddNewUsers (props) {
     const {
       user_id: id, name, email,
     } = presenceEntry;
-    const isChecked = !_.isEmpty(_.find(checked, presenceEntry));
+    const isChecked = !_.isEmpty(checked.find((item) => item.user_id === id));
     return (
       <ListItem
         key={id}
@@ -150,7 +150,7 @@ function AddNewUsers (props) {
   function handleSaveParticipants() {
     const toAddClean = checked.map((participant) => {
       const { external_id, account_id } = participant
-      return { external_id, account_id, is_guest: false }
+      return { external_id, account_id }
     });
     return addParticipants(addToMarketId, toAddClean)
       .then((result) => {

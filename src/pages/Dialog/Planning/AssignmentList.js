@@ -99,11 +99,12 @@ function AssignmentList(props) {
   function renderParticipantEntry(presenceEntry) {
     const { name, id, email } = presenceEntry;
     const boxChecked = submitted[id];
+    const emailSafe = email.replace('@', '');
     // Using id email for Cypress tests
     return (
       <ListItem
         key={id}
-        id={email}
+        id={emailSafe}
         button
         onClick={() => getCheckToggle(id)}
         className={ boxChecked ? clsx( formClasses.unselected, formClasses.selected ) : formClasses.unselected }

@@ -42,9 +42,8 @@ function getSwimlaneInvestiblesForStage(userInvestibles, stage, marketId) {
     stageInvestibles = _.slice(sortedInvestibles, 0, limitInvestibles);
   }
   if (limitInvestiblesAge > 0 && stageInvestibles) {
-    stageInvestibles.filter((investible) => {
-      const { market_infos: aMarketInfos } = investible;
-      const aMarketInfo = aMarketInfos.find(info => info.market_id === marketId);
+    stageInvestibles = stageInvestibles.filter((investible) => {
+      const aMarketInfo = getMarketInfo(investible, marketId);
       return Date.now() - new Date(aMarketInfo.updated_at).getTime() < limitInvestiblesAge*24*60*60*1000;
     });
   }

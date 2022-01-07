@@ -996,19 +996,19 @@ const useReplyStyles = makeStyles(
         fontWeight: "bold"
       },
       container: {
-        marginBottom: '1.5rem',
+        marginTop: '1.5rem',
         marginRight: '0.25rem',
         overflow: 'unset'
       },
       containerYellow: {
-        marginBottom: '1.5rem',
+        marginTop: '1.5rem',
         boxShadow: "0px 3px 3px -2px rgba(0,0,0,0.2),0px 3px 4px 0px rgba(0,0,0,0.14),0px 1px 8px 0px yellow",
         marginRight: '0.25rem',
         paddingRight: '0.5rem',
         overflow: 'unset'
       },
       containerRed: {
-        marginBottom: '1.5rem',
+        marginTop: '1.5rem',
         boxShadow: "0px 3px 3px -2px rgba(0,0,0,0.2),0px 3px 4px 0px rgba(0,0,0,0.14),0px 1px 8px 0px red",
         marginRight: '0.25rem',
         paddingRight: '0.5rem',

@@ -99,7 +99,7 @@ const useStyles = makeStyles((theme) => ({
     display: 'none',
   },
   add: {
-    marginBottom: 16,
+    marginTop: 16,
     padding: theme.spacing(0, 2)
   },
   editor: {

@@ -773,7 +773,7 @@ function InvestiblesByPerson(props) {
     }
     const myClassName = showAsPlaceholder ? metaClasses.archivedColor : metaClasses.normalColor;
     const { mentioned_notifications: mentions, approve_notifications: approvals, review_notifications: reviews }
-      = presence;
+      = presence || {};
     if (_.isEmpty(myInvestiblesStageHash) && _.isEmpty(mentions) && _.isEmpty(approvals) && _.isEmpty(reviews)) {
       return <React.Fragment />
     }

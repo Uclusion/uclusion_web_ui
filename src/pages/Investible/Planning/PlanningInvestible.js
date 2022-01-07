@@ -101,7 +101,7 @@ import ListAltIcon from '@material-ui/icons/ListAlt'
 import EditIcon from '@material-ui/icons/Edit'
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown'
 import { getFakeCommentsArray } from '../../../utils/stringFunctions'
-import { ExpandLess, QuestionAnswer, SettingsBackupRestore } from '@material-ui/icons'
+import { ExpandLess, Inbox, QuestionAnswer, SettingsBackupRestore } from '@material-ui/icons'
 import InvestibleBodyEdit from '../InvestibleBodyEdit';
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 import { pushMessage } from '../../../utils/MessageBusUtils'
@@ -756,6 +756,7 @@ function PlanningInvestible(props) {
   const { id: todoId } = getFakeCommentsArray(todoSortedComments)[0]
   const navigationMenu = {
     navListItemTextArray: [
+      {icon: Inbox, text: intl.formatMessage({ id: 'inbox' }), target: '/inbox', newPage: true},
       {icon: AgilePlanIcon, text: createTitle(marketName, 20), target: formMarketLink(marketId)},
       createNavListItem(EditIcon, 'description_label', 'storyMain',
       displayDescription ? undefined : 0),
@@ -786,7 +787,7 @@ function PlanningInvestible(props) {
     }
     updatePageState({editCollaborators: false});
   }
-
+  const voters = getInvestibleVoters(marketPresences, investibleId);
   return (
     <Screen
       title={ticketCode ? `${ticketCode} ${name}` : name}
@@ -1077,7 +1078,7 @@ function PlanningInvestible(props) {
           </Grid>
         </CardContent>
       </Card>
-      {(_.isEmpty(search) || displayApprovalsBySearch > 0) && (
+      {(_.isEmpty(search) || displayApprovalsBySearch > 0) && !_.isEmpty(voters) && (
         <>
           <h2 id="approvals">
             <FormattedMessage id="decisionInvestibleOthersVoting" />

@@ -22,7 +22,6 @@ import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketSt
 import { getStages } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
-import { ACTIVE_STAGE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
 import jwt_decode from 'jwt-decode'
 import { userIsLoaded } from '../../contexts/AccountUserContext/accountUserContextHelper'
 import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
@@ -73,13 +72,7 @@ function Dialog(props) {
   });
   const loadedMarket = getMarket(marketsState, marketId);
   const renderableMarket = loadedMarket || {};
-  const { market_type: marketType, parent_comment_market_id: parentMarketId, parent_comment_id: parentCommentId,
-    market_stage: marketStage } = renderableMarket || '';
-  const isInline = !_.isEmpty(parentCommentId);
-  const inlineComments = getMarketComments(commentsState, parentMarketId || marketId) || [];
-  const parentComment = inlineComments.find((comment) => comment.id === parentCommentId) || {};
-  const parentInvestibleId = parentComment.investible_id;
-  const activeMarket = marketStage === ACTIVE_STAGE;
+  const { market_type: marketType } = renderableMarket || '';
   const isInitialization = marketsState.initializing || investiblesState.initializing
     || marketPresencesState.initializing || marketStagesState.initializing || commentsState.initializing;
   const marketStages = getStages(marketStagesState, marketId);
@@ -90,8 +83,8 @@ function Dialog(props) {
   const [operationRunning] = useContext(OperationInProgressContext);
   const [accountState] = useContext(AccountContext);
   const hasUser = userIsLoaded(userState);
-  const loading = !hasUser || isInitialization || !myPresence || !marketType || marketType === INITIATIVE_TYPE
-    || (isInline && activeMarket) || !marketTokenLoaded(marketId, tokensHash);
+  const loading = !hasUser || isInitialization || !myPresence || !marketType ||
+    !marketTokenLoaded(marketId, tokensHash);
   const createEnabled = canCreate(accountState);
   //While fore ground loads there is no global version and operation is running
   const loadingForeGroundMarkets = !hasLoadedGlobalVersion(versionsContext) || marketsState.initializing ||
@@ -133,7 +126,7 @@ function Dialog(props) {
   }, [action, hasUser, hidden, isInitialization, marketEntity, marketsState, subscribeId]);
 
   useEffect(() => {
-    if (!hidden && action === 'invite' && marketId && !_.isEmpty(marketStages) && marketType !== INITIATIVE_TYPE) {
+    if (!hidden && action === 'invite' && marketId && !_.isEmpty(marketStages)) {
       // Try to remove the market token from the URL to avoid book marking it or other weirdness
       // Potentially this fails since inside useEffect
       console.info('Navigating to market');
@@ -143,37 +136,28 @@ function Dialog(props) {
   }, [hidden, action, history, marketId, marketStages, marketType]);
 
   useEffect(() => {
-    if (!hidden) {
-      if (isInline) {
-        const link = parentInvestibleId ? formInvestibleLink(parentMarketId, parentInvestibleId) :
-          formMarketLink(parentMarketId);
-        const fullLink = `${link}#c${parentCommentId}`;
-        console.info('Navigating to inline');
-        navigate(history, fullLink, true);
-      } else if (marketType === PLANNING_TYPE && myHashFragment) {
-        if (!myHashFragment.startsWith('cv') && (myHashFragment.startsWith('c')||myHashFragment.startsWith('editc'))) {
-          const commentId = myHashFragment.startsWith('c') ? myHashFragment.substr(1)
-            : myHashFragment.substr(5);
-          const comment = getComment(commentsState, marketId, commentId) || {}
-          const { resolved, investible_id: investibleId } = comment;
-          if (investibleId) {
-            const link = formInvestibleLink(marketId, investibleId);
-            const fullLink = `${link}#c${commentId}`;
-            navigate(history, fullLink, true);
-          } else if (resolved) {
-            const link = formMarketArchivesLink(marketId);
-            const fullLink = myHashFragment.startsWith('c') ? `${link}#c${commentId}` : `${link}#editc${commentId}`;
-            console.info('Navigating to resolved comment');
-            navigate(history, fullLink, true);
-          }
+    if (!hidden && myHashFragment) {
+      if (!myHashFragment.startsWith('cv') && (myHashFragment.startsWith('c')||myHashFragment.startsWith('editc'))) {
+        const commentId = myHashFragment.startsWith('c') ? myHashFragment.substr(1)
+          : myHashFragment.substr(5);
+        const comment = getComment(commentsState, marketId, commentId) || {}
+        const { resolved, investible_id: investibleId } = comment;
+        if (investibleId) {
+          const link = formInvestibleLink(marketId, investibleId);
+          const fullLink = `${link}#c${commentId}`;
+          navigate(history, fullLink, true);
+        } else if (resolved) {
+          const link = formMarketArchivesLink(marketId);
+          const fullLink = myHashFragment.startsWith('c') ? `${link}#c${commentId}` : `${link}#editc${commentId}`;
+          console.info('Navigating to resolved comment');
+          navigate(history, fullLink, true);
         }
       }
     }
 
     return () => {
     }
-  }, [hidden, marketType, investibles, marketId, history, location, marketStages, marketPresences, isInline,
-    parentMarketId, parentInvestibleId, parentCommentId, myHashFragment, commentsState]);
+  }, [commentsState, hidden, history, marketId, myHashFragment]);
 
   if (loading) {
     return (

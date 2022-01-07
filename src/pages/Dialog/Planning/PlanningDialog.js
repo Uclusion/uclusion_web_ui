@@ -11,11 +11,7 @@ import {
   Typography,
   useMediaQuery,
   useTheme,
-  Link,
-  MenuItem,
-  Select,
-  InputLabel,
-  FormControl
+  Link
 } from '@material-ui/core'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
@@ -25,10 +21,10 @@ import Summary from './Summary'
 import PlanningIdeas from './PlanningIdeas'
 import Screen from '../../../containers/Screen/Screen'
 import {
-  baseNavListItem, createTitle,
+  baseNavListItem,
   formMarketArchivesLink, formMarketLink,
   makeBreadCrumbs,
-  navigate, preventDefaultAndProp
+  navigate
 } from '../../../utils/marketIdPathFunctions'
 import {
   QUESTION_TYPE, REPLY_TYPE,
@@ -38,7 +34,7 @@ import {
 } from '../../../constants/comments'
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
 import CommentBox, { getSortedRoots } from '../../../containers/CommentBox/CommentBox'
-import { ACTIVE_STAGE, PLANNING_TYPE } from '../../../constants/markets'
+import { ACTIVE_STAGE } from '../../../constants/markets'
 import { getUserInvestibles, getUserSwimlaneInvestiblesHash } from './userUtils'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import {
@@ -59,7 +55,6 @@ import { addInvestible, getInvestiblesInStage } from '../../../contexts/Investib
 import UclusionTour from '../../../components/Tours/UclusionTour'
 import { INVITED_USER_WORKSPACE } from '../../../contexts/TourContext/tourContextHelper';
 import { getMarketInfo } from '../../../utils/userFunctions'
-import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import MarketTodos from './MarketTodos'
 import Gravatar from '../../../components/Avatars/Gravatar';
 import { isInReviewStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
@@ -86,11 +81,7 @@ import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { usePlanFormStyles } from '../../../components/AgilePlan'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import AssignmentIcon from '@material-ui/icons/Assignment'
-import {
-  getMarketDetailsForType,
-  getNotHiddenMarketDetailsForUser
-} from '../../../contexts/MarketsContext/marketsContextHelper'
-import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
+import { Inbox } from '@material-ui/icons'
 
 export const LocalPlanningDragContext = React.createContext([]);
 
@@ -110,7 +101,6 @@ function PlanningDialog(props) {
   const location = useLocation();
   const { hash } = location;
   const classes = useInvestiblesByPersonStyles();
-  const [marketsState] = useContext(MarketsContext);
   const intl = useIntl();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
@@ -257,11 +247,8 @@ function PlanningDialog(props) {
       || parentResults.find((id) => id === comment.id));
   });
   const archivedSize = _.size(archiveInvestibles) + _.size(resolvedMarketComments);
-
-  const myNotHiddenMarketsState = inArchives ? marketsState :
-    getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
-  const planningDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, PLANNING_TYPE) || [];
   const navListItemTextArrayBeg = [
+    {icon: Inbox, text: intl.formatMessage({ id: 'inbox' }), target: '/inbox', newPage: true},
     createNavListItem(EditIcon, 'planningDialogNavDetailsLabel', 'workspaceMain',
       _.isEmpty(search) ? undefined : (results.find((result) => result.id === marketId) ? 1 : 0),
       true, isSectionBold('workspaceMain'))
@@ -290,39 +277,7 @@ function PlanningDialog(props) {
     navListItemTextArray.push(createNavListItem(SettingsIcon, 'settings', 'settingsSection',
       undefined, false, isSectionBold('settingsSection')));
   }
-  const navigationMenu = {
-    navMenu: (<FormControl variant="filled" sx={{ m: 1, minWidth: 120 }} style={{border: '1px solid #ced4da'}}>
-      <InputLabel id="workspaceNav">
-        {intl.formatMessage({id: 'MarketSearchResultWorkspace'})}
-      </InputLabel>
-      <Select
-        labelId="workspaceSelectLabel"
-        id="workspaceSelect"
-        value={marketId}
-        onChange={(event) => {
-          const { value } = event.target;
-          navigate(history, formMarketLink(value));
-        }}
-      >
-        {planningDetails.map((aMarket) => {
-          return (
-            <MenuItem value={aMarket.id} key={`menu${aMarket.id}`}>
-              {createTitle(aMarket.name, 20)}
-            </MenuItem>
-            );
-        })}
-        <MenuItem value="">
-          <SpinningIconLabelButton icon={AddIcon} onClick={(event) => {
-            preventDefaultAndProp(event);
-            history.push('/wizard#type=planning');
-          }} doSpin={false}>
-            <FormattedMessage id={'addNew'}/>
-          </SpinningIconLabelButton>
-        </MenuItem>
-      </Select>
-    </FormControl>),
-    navListItemTextArray
-  }
+  const navigationMenu = { navListItemTextArray }
   const furtherWorkReadyToStartChip = furtherWorkReadyToStart.length > 0
     && <Chip label={`${furtherWorkReadyToStart.length}`} color="primary" size='small'
              className={classes.chipStyleYellow} />;

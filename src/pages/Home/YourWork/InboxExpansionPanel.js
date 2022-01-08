@@ -57,7 +57,7 @@ export function addExpansionPanel(props) {
   if (isMultiple) {
     item.expansionPanel = ( <LinkMultiplePanel linkMultiple={linkMultiple} marketId={commentMarketId || marketId}
                                                commentId={commentId} /> );
-  } else if ((['UNREAD_REPLY', 'NEW_TODO', 'UNREAD_COMMENT', 'UNREAD_RESOLVED', 'ISSUE'].includes(messageType)) ||
+  } else if ((['UNREAD_REPLY', 'UNREAD_COMMENT', 'UNREAD_RESOLVED', 'ISSUE'].includes(messageType)) ||
     (['UNREAD_OPTION', 'UNREAD_VOTE', 'NOT_FULLY_VOTED', 'INVESTIBLE_SUBMITTED'].includes(messageType)
       && linkType.startsWith('INLINE')) || (messageType === 'UNASSIGNED' && linkType === 'MARKET_TODO')) {
     item.expansionPanel = ( <CommentPanel marketId={commentMarketId || marketId} commentId={commentId}
@@ -149,13 +149,14 @@ export function addExpansionPanel(props) {
       }
     }
   } else if (['NOT_FULLY_VOTED', 'ASSIGNED_UNREVIEWABLE','UNREAD_REVIEWABLE', 'REVIEW_REQUIRED',
-    'ISSUE_RESOLVED', 'UNREAD_ASSIGNMENT'].includes(messageType)) {
+    'ISSUE_RESOLVED', 'UNREAD_ASSIGNMENT', 'NEW_TODO'].includes(messageType)) {
     const market = getMarket(marketsState, marketId) || {};
     const userId = getMyUserForMarket(marketsState, marketId) || '';
     const marketPresences = getMarketPresences(marketPresencesState, marketId);
     const yourPresence = marketPresences.find((presence) => presence.current_user);
     const investibleComments = getInvestibleComments(investibleId, marketId, commentState);
     const investmentReasonsRemoved = investibleComments.filter(comment => comment.comment_type !== JUSTIFY_TYPE) || [];
+    const todoComments = investibleComments.filter(comment => comment.comment_type === TODO_TYPE) || [];
     const investmentReasons = investibleComments.filter(comment => comment.comment_type === JUSTIFY_TYPE) || [];
     const investibleCollaborators = getCollaborators(marketPresences, investibleComments, marketPresencesState,
       investibleId);
@@ -297,7 +298,7 @@ export function addExpansionPanel(props) {
             <h3>{intl.formatMessage({ id: 'orStructuredComment' })}</h3>
           </>
         )}
-        {marketId && !_.isEmpty(myInvestible) && messageType !== 'ISSUE_RESOLVED' && (
+        {marketId && !_.isEmpty(myInvestible) && !['NEW_TODO', 'ISSUE_RESOLVED'].includes(messageType) && (
           <>
             {messageType !== 'NOT_FULLY_VOTED' && (
               <div style={{paddingTop: '0.5rem'}} />
@@ -313,10 +314,10 @@ export function addExpansionPanel(props) {
             />
           </>
         )}
-        {!_.isEmpty(investmentReasonsRemoved) && (
+        {(!_.isEmpty(investmentReasonsRemoved) || ('NEW_TODO' === messageType && !_.isEmpty(todoComments))) && (
           <div style={{paddingTop: '0.5rem', overflowY: 'auto', maxHeight: '25rem'}}>
             <CommentBox
-              comments={investmentReasonsRemoved}
+              comments={'NEW_TODO' === messageType ? todoComments : investmentReasonsRemoved}
               marketId={marketId}
               allowedTypes={[]}
               isInbox

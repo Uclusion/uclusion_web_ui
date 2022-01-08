@@ -15,7 +15,7 @@ export function workspaceInvitedUserSteps (variables) {
           <Typography style={{textAlign: 'left'}} variant="body2">
             Actions in Uclusion generate notifications that tell everyone what to do.
             <br/><br/>
-            You now have a notification to add collaborators to this Channel that will remain until you do.
+            You now have a notification to add collaborators to this channel that will remain until you do.
           </Typography>
         ),
       });

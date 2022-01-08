@@ -72,13 +72,13 @@ function WorkspaceNameStep (props) {
     <div>
       {isNew && (
         <Typography className={classes.introText} variant="body2">
-          Since you are new let's create a Workspace with a name you choose and the default configuration options. All
+          Since you are new let's create a channel with a name you choose and the default configuration options. All
           the config can be changed later.
         </Typography>
       )}
       {!isNew && (
         <Typography className={classes.introText} variant="body2">
-          Workspaces control task visibility. After entering a name you can finish immediately or
+          Channels control task visibility. After entering a name you can finish immediately or
           look through other options. All of this configuration can be changed at any time.
         </Typography>
       )}

@@ -8,11 +8,8 @@ import {
 } from '../../utils/marketIdPathFunctions'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import StoryWorkspaceWizard from '../../components/AddNew/Workspace/StoryWorkspace/StoryWorkspaceWizard'
-import DialogWizard from '../../components/AddNew/Dialog/DialogWizard'
-import InitiativeWizard from '../../components/AddNew/Initiative/InitiativeWizard'
 import queryString from 'query-string'
-import { DECISION_TYPE } from '../../components/CardType'
-import { INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
+import { PLANNING_TYPE } from '../../constants/markets'
 
 function Wizard(props) {
   const { hidden } = props;
@@ -39,12 +36,6 @@ function Wizard(props) {
       {createType === `${PLANNING_TYPE.toLowerCase()}` && (
         <StoryWorkspaceWizard onFinish={onWizardFinish} showCancel={!onboarding}
                               onStartOver={() => navigate(history, '/inbox')}/>
-      )}
-      {createType === `${DECISION_TYPE.toLowerCase()}` && (
-        <DialogWizard onFinish={onWizardFinish} onStartOver={() => navigate(history, '/inbox')} />
-      )}
-      {createType === `${INITIATIVE_TYPE.toLowerCase()}` && (
-        <InitiativeWizard onFinish={onWizardFinish} onStartOver={() => navigate(history, '/inbox')} />
       )}
     </Screen>
   );

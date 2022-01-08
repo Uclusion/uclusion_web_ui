@@ -1,9 +1,7 @@
-import Comment from '../../../components/Comments/Comment'
 import React from 'react'
 import _ from 'lodash'
 import {
-  getCommentRoot, getInvestibleComments,
-  getMarketComments,
+  getInvestibleComments,
   getUnresolvedInvestibleComments
 } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { getMarket, getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
@@ -45,45 +43,25 @@ import { removeWorkListItem } from './WorkListItem'
 import { editorEmpty } from '../../../components/TextEditors/QuillEditor2'
 import InputLabel from '@material-ui/core/InputLabel'
 import MoveToNextVisibleStageActionButton from '../../Investible/Planning/MoveToNextVisibleStageActionButton'
+import LinkMultiplePanel from './LinkMultiplePanel'
+import CommentPanel from './CommentPanel'
 
 export function addExpansionPanel(props) {
   const {item, commentState, marketState, investiblesState, investiblesDispatch, diffState,
     planningClasses, marketPresencesState, marketStagesState, marketsState, mobileLayout, messagesState,
-    messagesDispatch, operationRunning, setOperationRunning, intl, workItemClasses} = props;
+    messagesDispatch, operationRunning, setOperationRunning, intl, workItemClasses, isMultiple} = props;
   const { message } = item;
   const { type: messageType, market_id: marketId, comment_id: commentId, comment_market_id: commentMarketId,
-    link_type: linkType, investible_id: investibleId, market_type: marketType } = message;
+    link_type: linkType, investible_id: investibleId, market_type: marketType, link_multiple: linkMultiple } = message;
 
-  if ((['UNREAD_REPLY', 'NEW_TODO', 'UNREAD_COMMENT', 'UNREAD_RESOLVED', 'ISSUE'].includes(messageType)) ||
+  if (isMultiple) {
+    item.expansionPanel = ( <LinkMultiplePanel linkMultiple={linkMultiple} marketId={commentMarketId || marketId}
+                                               commentId={commentId} /> );
+  } else if ((['UNREAD_REPLY', 'NEW_TODO', 'UNREAD_COMMENT', 'UNREAD_RESOLVED', 'ISSUE'].includes(messageType)) ||
     (['UNREAD_OPTION', 'UNREAD_VOTE', 'NOT_FULLY_VOTED', 'INVESTIBLE_SUBMITTED'].includes(messageType)
       && linkType.startsWith('INLINE')) || (messageType === 'UNASSIGNED' && linkType === 'MARKET_TODO')) {
-    let useMarketId = commentMarketId || marketId;
-    let useCommentId = commentId;
-    const market = getMarket(marketState, marketId) || {};
-    const { parent_comment_id: inlineParentCommentId, parent_comment_market_id: parentMarketId } = market;
-    if (inlineParentCommentId) {
-      // If there is a top level question always display it instead of lower level comments
-      useMarketId = parentMarketId;
-      useCommentId = inlineParentCommentId;
-    }
-    const rootComment = getCommentRoot(commentState, useMarketId, useCommentId);
-    // Note passing all comments down instead of just related to the unread because otherwise confusing and also
-    // have case of more than one reply being de-duped
-    // Note - checking resolved here because can be race condition with message removal and comment resolution
-    if (!_.isEmpty(rootComment) && (messageType === 'UNREAD_RESOLVED' || !rootComment.resolved)) {
-      const { comment_type: commentType, investible_id: investibleId } = rootComment;
-      item.expansionPanel = <div style={{paddingLeft: '1rem', paddingRight: '1rem', paddingTop: '0.5rem'}}>
-        <Comment
-          depth={0}
-          marketId={useMarketId}
-          comment={rootComment}
-          comments={getMarketComments(commentState, useMarketId)}
-          defaultShowDiff
-          allowedTypes={[]}
-          noAuthor={marketType === PLANNING_TYPE && commentType === TODO_TYPE && !investibleId}
-        />
-      </div>;
-    }
+    item.expansionPanel = ( <CommentPanel marketId={commentMarketId || marketId} commentId={commentId}
+                                          marketType={marketType} messageType={messageType}/> );
   } else if (messageType === 'REPORT_REQUIRED') {
     if (!_.isEmpty(investibleId)) {
       item.expansionPanel = <InvestibleStatus

@@ -151,13 +151,13 @@ function Inbox(props) {
   const dupeHash = {};
   // Filter out duplicates by hashing on {type}_{link_multiple}
   messagesOrdered = messagesOrdered.filter((message) => {
-    const { link_multiple: linkMultiple, type: aType, is_highlighted: isHighlighted } = message;
+    const { link_multiple: linkMultiple } = message;
     if (linkMultiple) {
-      const myHash = `${aType}_${linkMultiple}_${isHighlighted}`;
-      if (dupeHash[myHash]) {
+      if (dupeHash[linkMultiple]) {
+        dupeHash[linkMultiple] += 1;
         return false;
       }
-      dupeHash[myHash] = true;
+      dupeHash[linkMultiple] = 1;
     }
     return true;
   });
@@ -165,22 +165,25 @@ function Inbox(props) {
   let rows = messagesOrdered.map((message) => {
     const { level, investible_name: investible, updated_at: updatedAt, market_name: market,
       is_highlighted: isHighlighted, type_object_id: typeObjectId, market_id: marketId, comment_id: commentId,
-      comment_market_id: commentMarketId } = message;
-    const title = messageText(message, mobileLayout, intl);
+      comment_market_id: commentMarketId, link_multiple: linkMultiple, link_type: linkType } = message;
+    const isMultiple = dupeHash[linkMultiple] > 1;
+    const title = isMultiple ?
+      intl.formatMessage({ id: 'multipleNotifications' }, { x: dupeHash[linkMultiple] })
+      : messageText(message, mobileLayout, intl);
     const item = {
       title,
       icon: getPriorityIcon(level),
       market,
       investible,
       read: !isHighlighted,
-      isDeletable: typeObjectId.startsWith('UNREAD'),
+      isDeletable: typeObjectId.startsWith('UNREAD') && !isMultiple,
       date: intl.formatDate(updatedAt),
       message
     }
     if (isHighlighted) {
       containsUnread = true;
     }
-    if (commentId) {
+    if (commentId && (!isMultiple || linkType !== 'NEW_TODO')) {
       let useMarketId = commentMarketId || marketId;
       const rootComment = getCommentRoot(commentState, useMarketId, commentId);
       if (rootComment) {
@@ -192,10 +195,10 @@ function Inbox(props) {
     }
     addExpansionPanel({item, commentState, marketState, investiblesState, investiblesDispatch, diffState,
       planningClasses, marketPresencesState, marketStagesState, marketsState, mobileLayout, messagesState,
-      messagesDispatch, operationRunning, setOperationRunning, intl, workItemClasses});
+      messagesDispatch, operationRunning, setOperationRunning, intl, workItemClasses, isMultiple});
     return <WorkListItem key={typeObjectId} id={typeObjectId} checkedDefault={checkAll} expansionOpenDefault={expandAll}
                          workListItemFull={workListItemFull} workListItemDispatch={workListItemDispatch}
-                         setDeterminate={setDeterminate} determinate={determinate} {...item} />;
+                         setDeterminate={setDeterminate} determinate={determinate} isMultiple={isMultiple} {...item} />;
   });
 
   if (_.isEmpty(rows)) {

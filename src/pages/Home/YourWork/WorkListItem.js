@@ -149,7 +149,8 @@ function WorkListItem(props) {
     id,
     expansionPanel,
     workListItemFull, workListItemDispatch,
-    expansionOpenDefault
+    expansionOpenDefault,
+    isMultiple
   } = props;
   const [workListItemState, updateWorkListItemState, workListItemReset] =
     getPageReducerPage(workListItemFull, workListItemDispatch, id);
@@ -165,7 +166,7 @@ function WorkListItem(props) {
   const gutterStyles = useRowGutterStyles({ size: -10, before: -8 });
   const [checked, setChecked] = React.useState(checkedDefault);
   const [expandedByGlobal, setExpandedByGlobal] = React.useState(undefined);
-  const { market_id: marketId, type_object_id: typeObjectId, link } = message;
+  const { market_id: marketId, type_object_id: typeObjectId, link, link_multiple: linkMultiple } = message;
   const useExpansionOpen = expandedByGlobal !== undefined ? expandedByGlobal :
     (expansionOpen === undefined ? !read : expansionOpen);
 
@@ -196,10 +197,11 @@ function WorkListItem(props) {
     messagesDispatch(dehighlightMessage(message));
     return getMarketClient(marketId).then((client) => client.users.removeNotifications([typeObjectId]));
   };
+  const useLink = isMultiple ? linkMultiple : link;
   return (
     <Item key={`workListItem${id}`} id={`workListItem${id}`}>
       <RaisedCard elevation={3} noPadding>
-        <Link href={link} style={{ width: '100%' }} key={`link${id}`} onClick={
+        <Link href={useLink} style={{ width: '100%' }} key={`link${id}`} onClick={
           (event) => {
             preventDefaultAndProp(event);
             if (isDeletable) {
@@ -209,7 +211,7 @@ function WorkListItem(props) {
               pushMessage(DELETE_NOTIFICATIONS_CHANNEL, { event: DELETE_EVENT, marketId, message });
               messagesDispatch(dehighlightMessage(message));
             }
-            return navigate(history, link);
+            return navigate(history, useLink);
           }
         }>
           <Div className={cx(read && 'MailListItem-read')}>

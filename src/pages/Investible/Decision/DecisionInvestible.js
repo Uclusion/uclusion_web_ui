@@ -281,7 +281,8 @@ function DecisionInvestible(props) {
   const displayVotingInput = votingAllowed && !yourVote;
 
   return (
-    <div style={{marginLeft: mobileLayout ? undefined : '2rem', marginRight: mobileLayout ? undefined : '2rem'}}>
+    <div style={{marginLeft: mobileLayout ? undefined : '2rem', marginRight: mobileLayout ? undefined : '2rem',
+      marginBottom: '1rem'}}>
       {activeMarket && !inProposed && !allowMultiVote && (
         <DismissableText textId='decisionInvestibleVotingSingleHelp' text={
           <div>

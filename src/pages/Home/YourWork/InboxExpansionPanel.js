@@ -359,7 +359,7 @@ export function addExpansionPanel(props) {
         />
       </div>
     );
-  } else if (messageType === 'DRAFT') {
+  } else if (messageType === 'UNREAD_DRAFT') {
     item.expansionPanel = (
       <DialogManage marketId={marketId} onClose={() => {}} isInbox />
     );

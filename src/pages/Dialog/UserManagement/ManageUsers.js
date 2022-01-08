@@ -11,7 +11,8 @@ import { useIntl } from 'react-intl'
 function ManageUsers (props) {
   const {
     market,
-    onCancel
+    onCancel,
+    isInbox
   } = props;
   const classes = usePlanFormStyles();
   const intl = useIntl();
@@ -21,12 +22,14 @@ function ManageUsers (props) {
       <CardContent className={clsx(classes.cardContent, classes.nestedCard)} style={{paddingBottom: '1rem'}}>
         <AddNewUsers market={market} />
       </CardContent>
-      <CardActions style={{display: 'flex'}}>
-        <SpinningIconLabelButton onClick={onCancel} doSpin={false} icon={Clear} id='addressAddCancel'
-        style={{marginLeft: 'auto', marginRight: 'auto'}}>
-          {intl.formatMessage({ id: 'addressAddCancelLabel' })}
-        </SpinningIconLabelButton>
-      </CardActions>
+      {!isInbox && (
+        <CardActions style={{display: 'flex'}}>
+          <SpinningIconLabelButton onClick={onCancel} doSpin={false} icon={Clear} id='addressAddCancel'
+                                   style={{marginLeft: 'auto', marginRight: 'auto'}}>
+            {intl.formatMessage({ id: 'addressAddCancelLabel' })}
+          </SpinningIconLabelButton>
+        </CardActions>
+      )}
     </>
   );
 }

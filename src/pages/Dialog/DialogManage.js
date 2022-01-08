@@ -57,13 +57,21 @@ function DialogManage(props) {
     );
   }
 
+  if (isInbox) {
+    return (
+      <ManageUsers
+        market={renderableMarket}
+        onCancel={onClose}
+        isInbox={isInbox}
+      />
+    );
+  }
+
   return (
     <Card style={{marginBottom: '1rem'}}>
-      {!isInbox && (
-        <Typography className={classes.cardTitle}>
-          {intl.formatMessage({ id: 'initiativeAddress' })}
-        </Typography>
-      )}
+      <Typography className={classes.cardTitle}>
+        {intl.formatMessage({ id: 'initiativeAddress' })}
+      </Typography>
       <ManageUsers
         market={renderableMarket}
         onCancel={onClose}

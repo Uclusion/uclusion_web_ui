@@ -58,7 +58,7 @@ export function messageText(message, isMobile, intl) {
       return getMessageTextForId('pleaseReview', isMobile, intl);
     case 'REPORT_REQUIRED':
       return getMessageTextForId('updateStatus', isMobile, intl);
-    case 'DRAFT':
+    case 'UNREAD_DRAFT':
       return getMessageTextForId('addCollaborators', isMobile, intl);
     case 'USER_POKED':
       return getMessageTextForId('pleaseUpgrade', isMobile, intl);

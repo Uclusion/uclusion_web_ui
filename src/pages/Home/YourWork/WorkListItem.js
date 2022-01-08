@@ -268,7 +268,8 @@ function WorkListItem(props) {
             {mobileLayout ||!date ? React.Fragment : (read ? (<DateLabel>{date}</DateLabel>) : (<DateLabelB>{date}</DateLabelB>))}
           </Div>
         </Link>
-        <div style={{visibility: useExpansionOpen ? 'visible' : 'hidden', height: useExpansionOpen ? undefined : 0}}>
+        <div style={{overflowY: 'auto', maxHeight: '50rem',
+          visibility: useExpansionOpen ? 'visible' : 'hidden', height: useExpansionOpen ? undefined : 0}}>
           {expansionPanel || <React.Fragment />}
         </div>
       </RaisedCard>

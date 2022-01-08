@@ -86,7 +86,7 @@ function InvestibleStatus(props) {
         />
       )}
       {progressReports.length > 0 && (
-        <div style={{paddingTop: '1rem', overflowY: 'auto', maxHeight: '25rem'}}>
+        <div style={{paddingTop: '1rem'}}>
           <CommentBox
             comments={progressReports}
             marketId={marketId}

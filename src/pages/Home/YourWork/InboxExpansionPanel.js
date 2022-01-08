@@ -315,7 +315,7 @@ export function addExpansionPanel(props) {
           </>
         )}
         {(!_.isEmpty(investmentReasonsRemoved) || ('NEW_TODO' === messageType && !_.isEmpty(todoComments))) && (
-          <div style={{paddingTop: '0.5rem', overflowY: 'auto', maxHeight: '25rem'}}>
+          <div style={{paddingTop: '0.5rem'}}>
             <CommentBox
               comments={'NEW_TODO' === messageType ? todoComments : investmentReasonsRemoved}
               marketId={marketId}

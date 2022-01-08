@@ -165,7 +165,7 @@ function Inbox(props) {
   let rows = messagesOrdered.map((message) => {
     const { level, investible_name: investible, updated_at: updatedAt, market_name: market,
       is_highlighted: isHighlighted, type_object_id: typeObjectId, market_id: marketId, comment_id: commentId,
-      comment_market_id: commentMarketId, link_multiple: linkMultiple, link_type: linkType } = message;
+      comment_market_id: commentMarketId, link_multiple: linkMultiple } = message;
     const isMultiple = dupeHash[linkMultiple] > 1;
     const title = isMultiple ?
       intl.formatMessage({ id: 'multipleNotifications' }, { x: dupeHash[linkMultiple] })
@@ -183,7 +183,7 @@ function Inbox(props) {
     if (isHighlighted) {
       containsUnread = true;
     }
-    if (commentId && (!isMultiple || linkType !== 'NEW_TODO')) {
+    if (commentId) {
       let useMarketId = commentMarketId || marketId;
       const rootComment = getCommentRoot(commentState, useMarketId, commentId);
       if (rootComment) {

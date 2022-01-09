@@ -41,7 +41,6 @@ import { findMessageOfTypeAndId } from '../../../utils/messageUtils'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils'
 import { workListStyles } from '../../Home/YourWork/WorkListItem'
-import UsefulRelativeTime from '../../../components/TextFields/UseRelativeTime'
 
 const useStyles = makeStyles((theme) => ({
   mobileColumn: {

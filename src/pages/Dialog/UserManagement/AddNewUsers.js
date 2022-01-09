@@ -169,7 +169,7 @@ function AddNewUsers (props) {
       return;
     }
     marketPresencesDispatch(addMarketPresences(addToMarketId, result));
-    const message = findMessageOfType('DRAFT', addToMarketId, messagesState);
+    const message = findMessageOfType('UNREAD_DRAFT', addToMarketId, messagesState);
     if (message) {
       messagesDispatch(removeMessage(message));
     }

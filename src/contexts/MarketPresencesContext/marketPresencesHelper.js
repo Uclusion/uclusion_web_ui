@@ -103,5 +103,5 @@ export function partialUpdateInvestment(dispatch, investmentPatch, allowMultiVot
 }
 
 export function marketHasOnlyCurrentUser(messagesState, marketId){
-  return !_.isEmpty(findMessageOfType('DRAFT', marketId, messagesState));
+  return !_.isEmpty(findMessageOfType('UNREAD_DRAFT', marketId, messagesState));
 }

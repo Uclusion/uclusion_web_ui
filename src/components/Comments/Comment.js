@@ -433,10 +433,6 @@ function Comment(props) {
     const underConsideration = getInlineInvestiblesForStage(underConsiderationStage, inlineInvestibles);
     const proposedStage = getProposedOptionsStage(marketStagesState, anInlineMarket.id);
     const proposed = getInlineInvestiblesForStage(proposedStage, inlineInvestibles);
-    if (_.isEmpty(inlineInvestibles)) {
-      //Inline only created when an option is and no delete - this prevents showing no option in red while loading
-      return React.Fragment;
-    }
     return (
       <>
         <Grid item xs={12} style={{marginTop: '1rem'}}>

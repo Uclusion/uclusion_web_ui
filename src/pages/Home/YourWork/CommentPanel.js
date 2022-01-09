@@ -1,18 +1,16 @@
 import React, { useContext } from 'react'
-import { useIntl } from 'react-intl'
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { getCommentRoot, getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper'
 import _ from 'lodash'
 import Comment from '../../../components/Comments/Comment'
 import { PLANNING_TYPE } from '../../../constants/markets'
 import { TODO_TYPE } from '../../../constants/comments'
-import Screen from '../../../containers/Screen/Screen'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
+import LoadingDisplay from '../../../components/LoadingDisplay'
 
 function CommentPanel(props) {
   const { commentId, marketId, marketType, messageType } = props;
-  const intl = useIntl();
   const [marketState] = useContext(MarketsContext);
   const [commentState] = useContext(CommentsContext);
   let useMarketId = marketId;
@@ -45,13 +43,7 @@ function CommentPanel(props) {
     );
   } else {
     return (
-      <Screen
-        hidden={false}
-        loading={true}
-        title={intl.formatMessage({ id: 'loadingMessage' })}
-      >
-        <div />
-      </Screen>
+      <LoadingDisplay showMessage messageId="loadingMessage" noMargin />
     );
   }
 }

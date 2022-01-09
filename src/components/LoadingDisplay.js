@@ -16,6 +16,11 @@ const useStyles = makeStyles(() => {
       overflow: 'hidden',
       marginTop: 'calc(50vh - 60px)'
     },
+    loadingContainerNoMargin: {
+      justifyContent: 'center',
+      display: 'flex',
+      overflow: 'hidden'
+    },
     loadingColor: {
       fill: '#3f6b72'
     }
@@ -24,7 +29,7 @@ const useStyles = makeStyles(() => {
 
 function LoadingDisplay (props) {
 
-  const { size, messageId, showMessage } = props;
+  const { size, messageId, showMessage, noMargin } = props;
   const classes = useStyles();
   const intl = useIntl();
   const message = intl.formatMessage({ id: messageId });
@@ -33,7 +38,7 @@ function LoadingDisplay (props) {
     <Grid
       container
       direction="column">
-      <Grid id="spinner" item className={classes.loadingContainer}>
+      <Grid id="spinner" item className={noMargin ? classes.loadingContainerNoMargin : classes.loadingContainer}>
         <div align='center'>
           {showMessage && (<Typography>{message}</Typography>)}
           <CircularProgress className={classes.loadingColor} size={size} type="indeterminate"/>

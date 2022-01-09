@@ -1,7 +1,13 @@
 import React, { useContext, useState } from 'react'
 import PropTypes from 'prop-types'
 import { useIntl } from 'react-intl'
-import { archiveMarket, changeUserToObserver, updateMarket, updateStage } from '../../../api/markets'
+import {
+  archiveMarket,
+  changeUserToObserver,
+  changeUserToParticipant,
+  updateMarket,
+  updateStage
+} from '../../../api/markets'
 import CardContent from '@material-ui/core/CardContent'
 import Grid from '@material-ui/core/Grid'
 import clsx from 'clsx'
@@ -159,14 +165,12 @@ function PlanningDialogEdit(props) {
 
   function myOnMuteCheckbox(myIsDeactivate) {
     setOperationRunning(true);
-    const actionPromise = myIsDeactivate ? archiveMarket(id) : changeUserToObserver(id);
+    const actionPromise = myIsDeactivate ? changeUserToObserver(id) : changeUserToParticipant(id);
     return actionPromise.then((response) => {
+      changeObserverStatus(mpState, mpDispatch, id, myIsDeactivate);
       if (myIsDeactivate) {
-        addMarketToStorage(marketsDispatch, diffDispatch, response);
-      } else {
-        changeObserverStatus(mpState, mpDispatch, id, true);
+        removeMessagesForMarket(id, messagesState, messagesDispatch);
       }
-      removeMessagesForMarket(id, messagesState, messagesDispatch);
       setOperationRunning(false);
     });
   }

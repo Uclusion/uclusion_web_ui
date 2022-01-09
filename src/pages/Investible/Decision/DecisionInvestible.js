@@ -41,6 +41,7 @@ import { findMessageOfTypeAndId } from '../../../utils/messageUtils'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils'
 import { workListStyles } from '../../Home/YourWork/WorkListItem'
+import UsefulRelativeTime from '../../../components/TextFields/UseRelativeTime'
 
 const useStyles = makeStyles((theme) => ({
   mobileColumn: {
@@ -195,6 +196,7 @@ function DecisionInvestible(props) {
   const {
     name, created_by: createdBy, locked_by: lockedBy, attached_files: attachedFiles,
   } = investible;
+  const optionCreatedBy = marketPresences.find(presence => presence.id === createdBy) || {};
   const [votingPageStateFull, votingPageDispatch] = usePageStateReducer('voting');
   const [votingPageState, updateVotingPageState, votingPageStateReset] =
     getPageReducerPage(votingPageStateFull, votingPageDispatch, investibleId);
@@ -373,6 +375,9 @@ function DecisionInvestible(props) {
               </>
             )}
             <dl className={clsx(metaClasses.root, classes.flexCenter)}>
+              <Typography variant="body2" style={{paddingBottom: '1rem'}}>
+                {intl.formatMessage({ id: 'created_by' })} {optionCreatedBy.name}.
+              </Typography>
               <AttachedFilesList
                 key="files"
                 marketId={marketId}

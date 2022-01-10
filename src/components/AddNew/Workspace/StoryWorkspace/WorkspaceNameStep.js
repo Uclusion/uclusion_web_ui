@@ -78,7 +78,7 @@ function WorkspaceNameStep (props) {
       )}
       {!isNew && (
         <Typography className={classes.introText} variant="body2">
-          Channels control task visibility. After entering a name you can finish immediately or
+          Channels control communication visibility. After entering a name you can finish immediately or
           look through other options. All of this configuration can be changed at any time.
         </Typography>
       )}

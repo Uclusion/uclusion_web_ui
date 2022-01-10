@@ -10,7 +10,7 @@ export function requiresInputStorySteps(variables) {
       disableBeacon: true,
       placement: 'center',
       target: 'body',
-      title: 'Welcome to task help!',
+      title: 'Welcome to job help!',
       content: (
         <Typography style={{textAlign: 'left'}} variant="body2">
           This story will stay in Requires Input until you or someone else assigned moves it.

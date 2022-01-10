@@ -31,6 +31,9 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 import { usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 import { getInboxCount } from '../../../contexts/NotificationsContext/notificationsContextHelper'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import { DECISION_TYPE } from '../../../constants/markets'
+import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
+import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 
 function getPriorityIcon(level) {
   switch (level) {
@@ -110,7 +113,20 @@ function Inbox(props) {
     setIndeterminate(myIndeterminate);
   }, [checkAll, determinate])
 
-  let messagesFull = (messagesUnsafe || []).filter((message) => message.type !== 'UNREAD_REPORT');
+  let messagesFull = (messagesUnsafe || []).filter((message) => {
+    if (message.type === 'UNREAD_REPORT') {
+      return false;
+    }
+    if (message.type === 'NOT_FULLY_VOTED' && message.market_type === DECISION_TYPE) {
+      // Display the need to vote in pending or else too confusing and disappears too quickly after vote
+      // Also its your question so if you don't want to vote no pressure
+      const market = getMarket(marketState, message.market_id) || {};
+      const anInlineMarketPresences = getMarketPresences(marketPresencesState, message.market_id) || [];
+      const yourPresence = anInlineMarketPresences.find((presence) => presence.current_user) || {};
+      return market.created_by !== yourPresence.id;
+    }
+    return true;
+  });
   let messagesOrdered;
   if (isJarDisplay) {
     messagesOrdered = _.orderBy(messagesFull, [(message) => {

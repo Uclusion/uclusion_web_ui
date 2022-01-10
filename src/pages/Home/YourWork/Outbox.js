@@ -83,14 +83,17 @@ function getMessageForComment(comment, market, labelId, Icon, intl, investibleSt
     link: formCommentLink(market.id, comment.investible_id, commentId),
     inFurtherWork: false
   };
-  message.expansionPanel = <Comment
-    depth={0}
-    marketId={market.id}
-    comment={comment}
-    comments={comments}
-    defaultShowDiff
-    allowedTypes={[]}
-  />;
+  message.expansionPanel =
+    <div style={{paddingLeft: '1rem', paddingRight: '1rem', paddingBottom: '1rem'}}>
+      <Comment
+        depth={0}
+        marketId={market.id}
+        comment={comment}
+        comments={comments}
+        defaultShowDiff
+        allowedTypes={[]}
+      />
+    </div>;
   if (comment.investible_id) {
     const investible = getInvestible(investibleState, comment.investible_id);
     const notDoingStage = getNotDoingStage(marketStagesState, market.id) || {};

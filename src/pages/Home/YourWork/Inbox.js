@@ -31,9 +31,6 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 import { usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 import { getInboxCount, isInInbox } from '../../../contexts/NotificationsContext/notificationsContextHelper'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
-import { DECISION_TYPE } from '../../../constants/markets'
-import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
-import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 
 function getPriorityIcon(level) {
   switch (level) {

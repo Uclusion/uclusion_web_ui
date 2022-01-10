@@ -202,7 +202,7 @@ function Screen(props) {
         document.title = `${tabTitle}`;
       }
     }
-  }, [hidden, messagesState, tabTitle]);
+  }, [hidden, marketPresencesState, marketState, messagesState, tabTitle]);
 
   const reallyAmLoading = !hidden && appEnabled && (loading || _.isEmpty(user));
 

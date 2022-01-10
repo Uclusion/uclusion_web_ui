@@ -213,14 +213,15 @@ function Outbox(props) {
         <RateReviewIcon style={{fontSize: 24, color: '#8f8f8f',}}/>, intl);
       const report = reports.find((comment) => comment.investible_id === investibleId && comment.creator_assigned);
       if (report) {
-        outboxMessage.expansionPanel = <Comment
-          depth={0}
-          marketId={market.id}
-          comment={report}
-          comments={comments}
-          defaultShowDiff
-          allowedTypes={[]}
-        />;
+        outboxMessage.expansionPanel = <div style={{paddingLeft: '1rem', paddingRight: '1rem', paddingBottom: '1rem'}}>
+          <Comment
+            depth={0}
+            marketId={market.id}
+            comment={report}
+            comments={comments}
+            defaultShowDiff
+            allowedTypes={[]}
+          /></div>;
       }
       const mySubmitted = inboxMessages.find((message) => {
         const { investible_id: msgInvestibleId, type: messageType } = message;

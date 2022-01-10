@@ -15,6 +15,8 @@ import SearchBox from '../../components/Search/SearchBox'
 import clsx from 'clsx'
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
 import { getInboxCount } from '../../contexts/NotificationsContext/notificationsContextHelper'
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 
 const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -170,6 +172,8 @@ function Screen(props) {
   const history = useHistory();
   const [messagesState] = useContext(NotificationsContext);
   const [searchResults] = useContext(SearchResultsContext);
+  const [marketState] = useContext(MarketsContext);
+  const [marketPresencesState] = useContext(MarketPresencesContext);
   const { search } = searchResults;
 
   const {
@@ -191,7 +195,7 @@ function Screen(props) {
 
   useEffect(() => {
     if (!hidden && !_.isEmpty(tabTitle)) {
-      const calcPend = getInboxCount(messagesState);
+      const calcPend = getInboxCount(messagesState, marketState, marketPresencesState);
       if (calcPend > 0) {
         document.title = `(${calcPend}) ${tabTitle}`;
       } else {

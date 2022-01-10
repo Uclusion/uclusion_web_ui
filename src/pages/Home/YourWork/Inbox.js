@@ -29,7 +29,7 @@ import { usePlanningInvestibleStyles } from '../../Investible/Planning/PlanningI
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import { usePageStateReducer } from '../../../components/PageState/pageStateHooks'
-import { getInboxCount } from '../../../contexts/NotificationsContext/notificationsContextHelper'
+import { getInboxCount, isInInbox } from '../../../contexts/NotificationsContext/notificationsContextHelper'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { DECISION_TYPE } from '../../../constants/markets'
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
@@ -114,18 +114,7 @@ function Inbox(props) {
   }, [checkAll, determinate])
 
   let messagesFull = (messagesUnsafe || []).filter((message) => {
-    if (message.type === 'UNREAD_REPORT') {
-      return false;
-    }
-    if (message.type === 'NOT_FULLY_VOTED' && message.market_type === DECISION_TYPE) {
-      // Display the need to vote in pending or else too confusing and disappears too quickly after vote
-      // Also its your question so if you don't want to vote no pressure
-      const market = getMarket(marketState, message.market_id) || {};
-      const anInlineMarketPresences = getMarketPresences(marketPresencesState, message.market_id) || [];
-      const yourPresence = anInlineMarketPresences.find((presence) => presence.current_user) || {};
-      return market.created_by !== yourPresence.id;
-    }
-    return true;
+    return isInInbox(message, marketState, marketPresencesState);
   });
   let messagesOrdered;
   if (isJarDisplay) {
@@ -149,7 +138,7 @@ function Inbox(props) {
     navigate(history, '/inbox');
   };
   if (isJarDisplay) {
-    const unreadCount = getInboxCount(messagesState);
+    const unreadCount = getInboxCount(messagesState, marketState, marketPresencesState);
     const first = _.isEmpty(messagesFull) ? undefined : messagesOrdered[0];
     return (
       <div id='inboxNotification' key='inbox' onClick={goFullInboxClick} className={classes.bellButton}>

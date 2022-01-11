@@ -323,8 +323,8 @@ function PlanningDialog(props) {
         )}
         <DismissableText textId="planningEditHelp" text={
           <div>
-            This is a <Link href="https://documentation.uclusion.com/workspaces" target="_blank">Workspace</Link> and
-            it hold's everything about an agile project.
+            This is a <Link href="https://documentation.uclusion.com/workspaces" target="_blank">channel</Link> for
+            truly asynchronous communication with context.
           </div>
         }/>
         {(_.isEmpty(search) || results.find((item) => item.id === marketId)) && (
@@ -359,7 +359,6 @@ function PlanningDialog(props) {
             <div>
               Uclusion will generate all <Link href="https://documentation.uclusion.com/notifications" target="_blank">notifications</Link> necessary
               to keep the status in these <Link href="https://documentation.uclusion.com/workspaces/swimlanes" target="_blank">swimlanes</Link> up to date.
-              So everyone already has a reminder to do what is necessary.
             </div>
           }/>
           {!_.isEmpty(blockedInvestibles) && (
@@ -553,8 +552,8 @@ function PlanningDialog(props) {
           )}
           <DismissableText textId="workspaceCommentHelp" text={
             <div>
-              <Link href="https://documentation.uclusion.com/overview/decisions" target="_blank">Workspace comments</Link> are
-              used to answer questions, make suggestions or explain progress for the whole project.
+              <Link href="https://documentation.uclusion.com/overview/decisions" target="_blank">Channel comments</Link> are
+              used to answer questions, make suggestions or explain progress outside of jobs.
             </div>
           }/>
           <CommentBox comments={notTodoComments} marketId={marketId} allowedTypes={allowedCommentTypes}/>

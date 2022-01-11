@@ -522,7 +522,7 @@ function MarketTodos (props) {
          style={{display: sectionOpen ? 'block' : 'none'}}>
       <DismissableText textId="todosHelp" text={
         <div>
-          Bugs go in <Link href="https://documentation.uclusion.com/workspaces/todos" target="_blank">Workspace Todos</Link> so
+          Bugs go in <Link href="https://documentation.uclusion.com/workspaces/todos" target="_blank">todos</Link> so
           notifications based on severity can be sent.
         </div>
       }/>

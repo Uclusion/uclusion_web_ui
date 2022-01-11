@@ -811,7 +811,7 @@ function PlanningInvestible(props) {
       <DismissableText textId="storyInsideHelp" text={
         <div>
           A Uclusion <Link href="https://documentation.uclusion.com/workspaces/tasks" target="_blank">job</Link> is
-          a work item plus a communication platform for discussion of the job.
+          a work item plus a communication platform for its discussion.
         </div>
       }/>
       {!inArchives && isInVoting && isAssigned && acceptedFull && (

@@ -76,14 +76,13 @@ const useStyles = makeStyles(
 });
 
 function Inbox(props) {
-  const { isJarDisplay = false, isDisabled = false } = props;
+  const { isJarDisplay = false, isDisabled = false, expandAll, setExpandAll } = props;
   const classes = useStyles();
   const intl = useIntl();
   const history = useHistory();
   const workItemClasses = workListStyles();
   const planningClasses = usePlanningInvestibleStyles();
   const [checkAll, setCheckAll] = useState(false);
-  const [expandAll, setExpandAll] = useState(undefined);
   const [determinate, setDeterminate] = useState({});
   const [indeterminate, setIndeterminate] = useState(false);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);

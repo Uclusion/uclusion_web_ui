@@ -25,6 +25,7 @@ function InboxFull(props) {
   const intl = useIntl();
   const history = useHistory();
   const [showAll, setShowAll] = useState(false);
+  const [expandAll, setExpandAll] = useState(undefined);
   const [marketsState, , tokensHash] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
@@ -110,7 +111,7 @@ function InboxFull(props) {
           or try our Slack integration.
         </div>
       } />
-      <Inbox />
+      <Inbox expandAll={expandAll} setExpandAll={setExpandAll} />
     </Screen>
   );
 }

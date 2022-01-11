@@ -161,11 +161,6 @@ const messages = defineMessages({
   supportInfoText: 'For bugs (but not feature requests) enter in <a>Uclusion issues</a> or send an email to <b>support</b> which includes the version and user ID above.',
   supportFeatureInfoText: 'For feature requests and general help use this button to create a channel with Uclusion support as a collaborator.',
   featureRequest: 'Feature Request',
-  onboardingWorkspace: 'Support help for {x}',
-  ecpWorkspace: '{x} and Uclusion',
-  ecpToolsStoryName: 'Tell us about your process',
-  ecpNextStoryName: 'Next steps with Uclusion',
-  ecpUclusionStoryName: 'How Uclusion works',
   createFeatureRequest: 'Create feature request',
   createOnboardingWorkspace: 'Get Support Help',
   // Loadable Image
@@ -177,19 +172,12 @@ const messages = defineMessages({
   loadingMarket: 'Processing Invite',
   loadingSlack: 'Slack Integration',
 
-  // ExpirationSelector
-  expirationSelectorOneDay: '1 day',
-  expirationSelectorXDays: '{x} days',
-  delayExpiration: 'Delay Expiration',
-
   // Market Add
   marketAddTitleDefault: 'Add a name...',
   marketAddTitleLabel: 'Name',
   marketAddDescriptionDefault: 'Add a description...',
   marketAddCancelLabel: 'Cancel',
   marketAddSaveLabel: 'Save',
-  decisionAddExpirationLabel: 'Dialog ends after {x} day(s)',
-  initiativeAddExpirationLabel: 'Initiative ends after {x} day(s)',
   investmentExpirationInputLabel: 'Number of days before an approval expires',
   maxMaxBudgetInputLabel: 'maximum job budget',
   daysEstimateInputLabel: 'Very rough number of days to complete',
@@ -349,6 +337,7 @@ const messages = defineMessages({
   noNew: 'No notifications.',
   noPending: 'Nothing pending.',
   enjoy: 'Enjoy your day',
+  nameChange: 'Job name changed to "{x}"',
 
   // Address list
   addressAddCancelLabel: 'Close',

@@ -120,6 +120,22 @@ function AttachedFilesList(props) {
 
   const hasFiles = !_.isEmpty(attachedFiles);
 
+  if (!isAdmin) {
+    return (
+      <Paper className={classes.container} id="summary">
+        <div className={classes.capitalize}>
+          <div className={clsx(metaClasses.group, metaClasses.assignments, metaClasses.linkContainer,
+            metaClasses.scrollContainer)}>
+            {hasFiles && (
+              <List className={classes.sidebarContent}>
+                {displayLinksList(attachedFiles)}
+              </List>)}
+          </div>
+        </div>
+      </Paper>
+    );
+  }
+
   return (
     <LoadingOverlay
       active={uploadInProgress}
@@ -130,15 +146,17 @@ function AttachedFilesList(props) {
     <Paper className={classes.container} id="summary">
       <div className={classes.capitalize}>
         <FormattedMessage id="attachedFilesSection"/>
-        <div
-          className={clsx(metaClasses.group, metaClasses.assignments, metaClasses.linkContainer, metaClasses.scrollContainer)}>
+        <div className={clsx(metaClasses.group, metaClasses.assignments, metaClasses.linkContainer,
+          metaClasses.scrollContainer)}>
 
             {!hasFiles && (
-              <FileUploader marketId={marketId} onUpload={onUpload} setUploadInProgress={setUploadInProgress}/>
+              <FileUploader marketId={marketId} onUpload={onUpload} setUploadInProgress={setUploadInProgress}
+                            readOnly={!isAdmin}/>
             )}
             {hasFiles && (
             <List className={classes.sidebarContent}>
-              <FileUploader key="uploader" marketId={marketId} onUpload={onUpload} setUploadInProgress={setUploadInProgress}/>
+              <FileUploader key="uploader" marketId={marketId} onUpload={onUpload} readOnly={!isAdmin}
+                            setUploadInProgress={setUploadInProgress}/>
               {displayLinksList(attachedFiles)}
             </List>)}
 

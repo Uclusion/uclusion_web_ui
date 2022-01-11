@@ -35,6 +35,11 @@ import YourVoting from '../../Investible/Voting/YourVoting'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
+import { Typography } from '@material-ui/core'
+import { getDiff } from '../../../contexts/DiffContext/diffContextHelper'
+import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
+import AttachedFilesList from '../../../components/Files/AttachedFilesList'
+import Chip from '@material-ui/core/Chip'
 
 function InboxInvestible(props) {
   const { marketId, marketType, planningClasses, messageTypes, investibleId, mobileLayout } = props;
@@ -44,7 +49,7 @@ function InboxInvestible(props) {
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentState] = useContext(CommentsContext);
-
+  const [diffState] = useContext(DiffContext);
   const market = getMarket(marketsState, marketId) || {};
   const userId = getMyUserForMarket(marketsState, marketId) || '';
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
@@ -57,7 +62,7 @@ function InboxInvestible(props) {
     investibleId);
   const inv = getInvestible(investiblesState, investibleId) || {};
   const { investible: myInvestible } = inv;
-  const { description } = myInvestible || {};
+  const { name, description, label_list: labelList, attached_files: attachedFiles } = myInvestible || {};
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { stage, assigned: invAssigned, completion_estimate: marketDaysEstimate, required_approvers:  requiredApprovers,
     required_reviews: requiredReviewers } = marketInfo;
@@ -79,6 +84,7 @@ function InboxInvestible(props) {
   }, []);
   const acceptedFull = inAcceptedStage.allowed_investibles > 0
     && assignedInAcceptedStage.length >= inAcceptedStage.allowed_investibles;
+  const diff = getDiff(diffState, investibleId);
   return (
     <div style={{padding: '1rem'}}>
       <div style={{display: mobileLayout ? 'block' : 'flex'}}>
@@ -158,7 +164,31 @@ function InboxInvestible(props) {
       </div>
       {!_.isEmpty(description) && !editorEmpty(description) && (
         <div style={{paddingTop: '1rem'}}>
-          <DescriptionOrDiff id={investibleId} description={description} showDiff={false}/>
+          <DescriptionOrDiff id={investibleId} description={description}
+                             showDiff={diff !== undefined && messageTypes.includes('UNREAD_DESCRIPTION')}/>
+        </div>
+      )}
+      {messageTypes.includes('UNREAD_NAME') && (
+        <Typography variant="h6" style={{paddingTop: '1rem'}}>
+          {intl.formatMessage({ id: 'nameChange' }, { x: name })}
+        </Typography>
+      )}
+      {messageTypes.includes('UNREAD_ATTACHMENT') && (
+        <div style={{paddingTop: '1rem', width: 'fit-content'}}>
+          <AttachedFilesList
+            marketId={market.id}
+            isAdmin={false}
+            attachedFiles={attachedFiles}
+          />
+        </div>
+      )}
+      {messageTypes.includes('UNREAD_LABEL') && (
+        <div style={{display: 'flex', paddingBottom: '0.5rem'}}>
+          {labelList && labelList.map((label) =>
+            <div key={label} className={planningClasses.labelChip}>
+              <Chip label={label} color="primary" />
+            </div>
+          )}
         </div>
       )}
       {messageTypes.includes('UNREAD_ASSIGNMENT') && (
@@ -198,9 +228,7 @@ function InboxInvestible(props) {
       {marketId && !_.isEmpty(myInvestible) &&
         _.isEmpty(_.intersection(['NEW_TODO', 'ISSUE_RESOLVED'], messageTypes)) && (
         <>
-          {!messageTypes.includes('NOT_FULLY_VOTED') && (
-            <div style={{paddingTop: '0.5rem'}} />
-          )}
+          <div style={{paddingTop: '1rem'}} />
           <CommentAddBox
             allowedTypes={allowedTypes}
             investible={myInvestible}

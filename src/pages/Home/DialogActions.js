@@ -1,6 +1,6 @@
 import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
-import { ACTIVE_STAGE, INACTIVE_STAGE, PLANNING_TYPE } from '../../constants/markets'
+import { ACTIVE_STAGE, PLANNING_TYPE } from '../../constants/markets'
 import { IconButton, makeStyles, Tooltip, useMediaQuery, useTheme } from '@material-ui/core'
 import {
   decomposeMarketPath,
@@ -8,7 +8,6 @@ import {
 import { useLocation } from 'react-router'
 import EditMarketButton from '../Dialog/EditMarketButton'
 import ShareStoryButton from '../Investible/Planning/ShareStoryButton'
-import ActivateMarketButton from '../Dialog/Planning/ActivateMarketButton'
 import { ACTION_BUTTON_COLOR, HIGHLIGHTED_BUTTON_COLOR } from '../../components/Buttons/ButtonConstants'
 import AlarmAddIcon from '@material-ui/icons/AlarmAdd'
 import { useIntl } from 'react-intl'
@@ -136,11 +135,6 @@ function DialogActions(props) {
           </Tooltip>)
         }
       }
-    }
-    if (marketStage === INACTIVE_STAGE && isAdmin) {
-      actions.push(
-        <ActivateMarketButton key="activate-market" marketId={marketId} isFollowing={isFollowing}/>,
-      );
     }
     if (action === 'dialog' && marketType !== PLANNING_TYPE && !activeMarket) {
       actions.push(<ShareStoryButton key="share-story" marketId={marketId}/>)

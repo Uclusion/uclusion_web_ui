@@ -1,7 +1,7 @@
 import { getAccountClient, getMarketClient } from './uclusionClient'
 import { fixupItemForStorage } from '../contexts/ContextUtils'
 import { errorAndThrow, toastErrorAndThrow } from '../utils/userMessage'
-import { INITIATIVE_TYPE, PLANNING_TYPE, DECISION_TYPE, ACTIVE_STAGE, INACTIVE_STAGE } from '../constants/markets'
+import { INITIATIVE_TYPE, PLANNING_TYPE, DECISION_TYPE } from '../constants/markets'
 
 function fixupMarketForStorage(market) {
   const itemFixed = fixupItemForStorage(market);
@@ -142,20 +142,6 @@ export function createOnboardingWorkspace (name) {
   return getAccountClient()
     .then((client) => client.markets.createMarketFromTemplate(name))
     .catch((error) => toastErrorAndThrow(error, 'errorPlanningAddFailed'))
-}
-
-export function archiveMarket(marketId) {
-  const updateOptions = { market_stage: INACTIVE_STAGE };
-  return getMarketClient(marketId)
-    .then((client) => client.markets.updateMarket(updateOptions))
-    .catch((error) => toastErrorAndThrow(error, 'errorMarketArchiveFailed'));
-}
-
-export function activateMarket(marketId) {
-  const updateOptions = { market_stage: ACTIVE_STAGE };
-  return getMarketClient(marketId)
-    .then((client) => client.markets.updateMarket(updateOptions))
-    .catch((error) => toastErrorAndThrow(error, 'errorMarketActivateFailed'));
 }
 
 export function updateStage(marketId, stageId, allowedInvestibles, daysVisible) {

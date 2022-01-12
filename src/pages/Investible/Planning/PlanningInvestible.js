@@ -818,7 +818,7 @@ function PlanningInvestible(props) {
         <DismissableText textId='planningInvestibleAcceptedFullHelp' text={
           <div>
             Up arrow not visible because
-            of <Link href="https://documentation.uclusion.com/workspaces/stories/stages/#not-ready-for-feedback" target="_blank">Not Ready For Feedback</Link> limit.
+            of <Link href="https://documentation.uclusion.com/workspaces/stories/stages/#not-ready-for-feedback" target="_blank">Started</Link> stage limit.
           </div>
         }/>
       )}

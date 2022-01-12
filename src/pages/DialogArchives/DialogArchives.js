@@ -111,7 +111,7 @@ function DialogArchives(props) {
         hidden={hidden}
         tabTitle={intl.formatMessage({ id: 'dialogArchivesLabel' })}
       >
-        Not Ready
+        Loading
       </Screen>
     );
   }

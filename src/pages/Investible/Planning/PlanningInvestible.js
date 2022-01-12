@@ -767,7 +767,7 @@ function PlanningInvestible(props) {
       createNavListItem(QuestionIcon, 'questions', `c${questionId}`, _.size(questions)),
       createNavListItem(UpdateIcon, 'reports', `c${reportId}`, _.size(reports)),
       createNavListItem(ChangeSuggstionIcon, 'suggestions', `c${suggestId}`, _.size(suggestions)),
-      createNavListItem(ListAltIcon,'todoSection', `c${todoId}`, _.size(todoSortedComments)),
+      createNavListItem(ListAltIcon,'taskSection', `c${todoId}`, _.size(todoSortedComments)),
       createNavListItem(QuestionAnswer,'closedComments', `c${closedId}`, _.size(sortedClosedRoots))
     ]};
 

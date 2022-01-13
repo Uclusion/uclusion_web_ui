@@ -70,8 +70,9 @@ function InboxInvestible(props) {
   const assigned = invAssigned || [];
   const isInVoting = messageTypes.includes('NOT_FULLY_VOTED');
   const isReview = !_.isEmpty(_.intersection(['UNREAD_REVIEWABLE', 'REVIEW_REQUIRED'], messageTypes));
-  const allowedTypes = messageTypes.includes('ASSIGNED_UNREVIEWABLE') ? [TODO_TYPE] :
-    (isReview ? [REPORT_TYPE] : [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE]);
+  const allowedTypes = messageTypes.includes('ASSIGNED_UNREVIEWABLE') || isReview ?
+    [TODO_TYPE, REPORT_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE] :
+    [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE];
   const inAcceptedStage = getAcceptedStage(marketStagesState, marketId) || {};
   const investibles = getMarketInvestibles(investiblesState, marketId);
   const assignedInAcceptedStage = assigned.reduce((acc, userId) => {

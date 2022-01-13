@@ -169,12 +169,13 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets) {
     .then((versions) => {
       const {
         global_version, foreground: foregroundList, account: accountId, background: backgroundList,
-        banned: bannedList
+        banned: bannedList, inline: inlineList
       } = versions;
     //  const marketSignatures = newSignatures.filter((signature) => signature.market_id);
     ///  const accountSignatures = newSignatures.filter((signature) => signature.account_id);
       // if the market signatures don't have the required signatures, just abort, this version has stale data
-      if ((_.isEmpty(foregroundList) && _.isEmpty(backgroundList) && _.isEmpty(accountId)) || _.isEmpty(global_version)) {
+      if ((_.isEmpty(foregroundList) && _.isEmpty(backgroundList) && _.isEmpty(accountId) && _.isEmpty(inlineList))
+        || _.isEmpty(global_version)) {
         pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION });
         return currentHeldVersion;
       }
@@ -182,10 +183,12 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets) {
       if (!_.isEmpty(bannedList)) {
         pushMessage(REMOVED_MARKETS_CHANNEL, { event: BANNED_LIST, bannedList });
       }
-      // split the market stuff into foreground and background
+      // split the market stuff into inline, foreground and background where inline must come first
+      // to avoid seeing incomplete comments
       newGlobalVersion = global_version;
-     const marketPromises = updateMarkets(foregroundList, existingMarkets, MAX_CONCURRENT_API_CALLS)
-        .then(() => {
+     const marketPromises = updateMarkets(inlineList, existingMarkets, MAX_CONCURRENT_API_CALLS)
+       .then(() => updateMarkets(foregroundList, existingMarkets, MAX_CONCURRENT_API_CALLS))
+       .then(() => {
           pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION });
           return updateMarkets(backgroundList, existingMarkets, MAX_CONCURRENT_ARCHIVE_API_CALLS)
             .then(() => {

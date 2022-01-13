@@ -24,10 +24,7 @@ const useStyles = makeStyles(() => {
         width: '30px',
         height: '30px',
       },
-    },
-    menuTitle: {
-      color: 'white',
-    },
+    }
   };
 });
 
@@ -38,6 +35,7 @@ function SpinBlockingListAction(props) {
     icon,
     label,
     openLabel,
+    highlighted,
     onClick,
     onSpinStart,
     onSpinStop,
@@ -72,9 +70,7 @@ function SpinBlockingListAction(props) {
         </Tooltip>
       )}
       <Tooltip title={label}>
-        <ListItemText className={classes.menuTitle}>
-          {openLabel}
-        </ListItemText>
+        <ListItemText primaryTypographyProps={{ color: highlighted ? 'error' : undefined }} primary={openLabel} />
       </Tooltip>
     </SpinningListItem>
   );

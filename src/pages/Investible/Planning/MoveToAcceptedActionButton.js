@@ -21,6 +21,7 @@ function MoveToAcceptedActionButton(props) {
       icon={hasAssignedQuestions ? <PlayForWorkIcon color="disabled" /> : <PlayForWorkIcon /> }
       targetStageId={acceptedStage.id}
       translationId={translationId}
+      highlighted={full}
       operationBlocked={hasAssignedQuestions}
       blockedOperationTranslationId="mustResolveAssignedQuestions"
       explanationId="planningInvestibleAcceptedExplanation"

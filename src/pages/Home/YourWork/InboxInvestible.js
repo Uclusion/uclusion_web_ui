@@ -156,9 +156,9 @@ function InboxInvestible(props) {
               marketId={market.id}
               currentStageId={stage}
               disabled={false}
-              acceptedStageAvailable={!acceptedFull}
               hasTodos={false}
               hasAssignedQuestions={false}
+              highlighted={acceptedFull}
             />
           </div>
         )}

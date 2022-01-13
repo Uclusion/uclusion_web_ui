@@ -6,6 +6,7 @@ import { addPlanningInvestible } from '../../../api/investibles'
 import { moveComments } from '../../../api/comments'
 import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { isAcceptedStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 
 /**
  * Returns the investibles in the market assigned to the user
@@ -27,7 +28,7 @@ export function getUserInvestibles(userId, marketId, investibles, visibleStages=
 
 function getSwimlaneInvestiblesForStage(userInvestibles, stage, marketId) {
   const stageId = stage.id;
-  const limitInvestibles = (stage || {}).allowed_investibles;
+  const limitInvestibles = !isAcceptedStage(stage) ? (stage || {}).allowed_investibles : undefined;
   const limitInvestiblesAge = (stage || {}).days_visible;
   let stageInvestibles = userInvestibles.filter((investible) => {
     const marketInfo = getMarketInfo(investible, marketId) || {};

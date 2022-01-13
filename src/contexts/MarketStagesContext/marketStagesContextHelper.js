@@ -21,9 +21,13 @@ export function getProposedOptionsStage(state, marketId) {
   return marketStages.find((stage) => !stage.allows_investment);
 }
 
+export function isAcceptedStage(stage) {
+  return stage.assignee_enter_only;
+}
+
 export function getAcceptedStage(state, marketId) {
   const marketStages = getStages(state, marketId);
-  return marketStages.find((stage) => stage.assignee_enter_only);
+  return marketStages.find((stage) => isAcceptedStage(stage));
 }
 
 export function isInReviewStage(stage) {

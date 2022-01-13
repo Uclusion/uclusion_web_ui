@@ -576,7 +576,7 @@ function PlanningInvestible(props) {
           marketId={marketId}
           currentStageId={stage}
           full={isInAccepted ? false : acceptedFull}
-          disabled={isInAccepted || !isAssigned || !_.isEmpty(blockingComments) || acceptedFull || notAssigned}
+          disabled={isInAccepted || !isAssigned || !_.isEmpty(blockingComments) || notAssigned}
           hasAssignedQuestions={!_.isEmpty(questionByAssignedComments)}
         />
       </MenuItem>,
@@ -1393,11 +1393,10 @@ function MarketMetaData(props) {
                 investibleId={investibleId}
                 marketId={market.id}
                 currentStageId={stage}
-                disabled={!_.isEmpty(blockingComments) || (isInVoting && (!isAssigned || acceptedFull))}
+                disabled={!_.isEmpty(blockingComments) || !_.isEmpty(questionByAssignedComments) || (isInVoting && !isAssigned)}
                 iconColor={isInVoting && _.size(invested) > 0 && acceptedEmpty ? HIGHLIGHTED_BUTTON_COLOR : undefined}
-                acceptedStageAvailable={!acceptedFull}
                 hasTodos={!_.isEmpty(todoComments)}
-                hasAssignedQuestions={!_.isEmpty(questionByAssignedComments)}
+                highlighted={acceptedFull}
               />
             </>
           )}

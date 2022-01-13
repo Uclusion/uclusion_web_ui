@@ -32,7 +32,7 @@ import {
 } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
-import { assignedInStage, getMarketInfo } from '../../../utils/userFunctions'
+import { getMarketInfo } from '../../../utils/userFunctions'
 import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
@@ -49,6 +49,7 @@ import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions'
 import { Info } from '@material-ui/icons'
 import { myArchiveClasses } from '../../DialogArchives/ArchiveInvestibles'
+import { HIGHLIGHTED_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
 
 const usePlanningIdStyles = makeStyles(
   theme => {
@@ -90,7 +91,6 @@ const usePlanningIdStyles = makeStyles(
 function PlanningIdeas(props) {
   const {
     myInvestiblesStageHash,
-    allInvestibles,
     marketId,
     acceptedStage,
     inDialogStageId,
@@ -125,7 +125,10 @@ function PlanningIdeas(props) {
   const acceptedInvestibles = myInvestiblesStageHash[acceptedStageId] || [];
   const acceptedFull = acceptedStage.allowed_investibles > 0
     && acceptedInvestibles.length >= acceptedStage.allowed_investibles;
-  const acceptedStageLabel = acceptedFull ? 'planningAcceptedStageFullLabel' : 'planningAcceptedStageLabel';
+  const acceptedOverFull = acceptedStage.allowed_investibles > 0
+    && acceptedInvestibles.length > acceptedStage.allowed_investibles;
+  const acceptedStageLabel = acceptedOverFull ? 'stageOverFullLabel' :
+    (acceptedFull ? 'planningAcceptedStageFullLabel' : 'planningAcceptedStageLabel');
 
   function isBlockedByTodo(investibleId, currentStageId, targetStageId) {
     const investibleComments = comments.filter((comment) => comment.investible_id === investibleId) || [];
@@ -219,23 +222,9 @@ function PlanningIdeas(props) {
   }
 
   function onDropAccepted (event) {
-    const investibleId = event.dataTransfer.getData('text');
     const currentStageId = event.dataTransfer.getData('stageId');
     if (checkStageMatching(currentStageId)) {
-      const investible = getInvestible(invState, investibleId);
-      const marketInfo = getMarketInfo(investible, marketId);
-      const { assigned } = marketInfo;
-      const assignedInAcceptedStage = assigned.reduce((acc, userId) => {
-        return acc.concat(assignedInStage(
-          allInvestibles,
-          userId,
-          acceptedStageId,
-          marketId
-        ));
-      }, []);
-      const ourAcceptedFull = acceptedStage.allowed_investibles > 0 &&
-        assignedInAcceptedStage.length >= acceptedStage.allowed_investibles;
-      if (isAssignedInvestible(event, myPresence.id) && myPresence.id === presenceId && !ourAcceptedFull) {
+      if (isAssignedInvestible(event, myPresence.id) && myPresence.id === presenceId) {
         stageChange(event, acceptedStageId);
       }
     }
@@ -260,7 +249,7 @@ function PlanningIdeas(props) {
   function isEligableDrop(divId) {
     const { id, stageId } = beingDraggedHack;
     if (!stageId) {
-      // This is a TODO being dragged
+      // This is a TO-DO being dragged
       return divId === inDialogStageId;
     }
     if (!checkStageMatching(stageId)) {
@@ -279,17 +268,7 @@ function PlanningIdeas(props) {
       return true;
     }
     if (divId === acceptedStageId) {
-      const assignedInAcceptedStage = assigned.reduce((acc, userId) => {
-        return acc.concat(assignedInStage(
-          allInvestibles,
-          userId,
-          acceptedStageId,
-          marketId
-        ));
-      }, []);
-      const ourAcceptedFull = acceptedStage.allowed_investibles > 0 &&
-        assignedInAcceptedStage.length >= acceptedStage.allowed_investibles;
-      return draggerIsAssigned && myPresence.id === presenceId && !ourAcceptedFull;
+      return draggerIsAssigned && myPresence.id === presenceId;
     }
     if (divId === inReviewStageId) {
       return swimLaneIsAssigned;
@@ -368,13 +347,15 @@ function PlanningIdeas(props) {
            onDragOver={onDragOverProcess}
            onDragEnter={(event) => onDragEnterStage(event, acceptedStageId, presenceId)}
            onDragEnd={onDragEndStage}>
-        <FormattedMessage id={acceptedStageLabel}/>
-        {!mobileLayout && (
-          <Link href="https://documentation.uclusion.com/workspaces/stories/stages/#not-ready-for-feedback"
-                target="_blank">
-            <Info style={{height: '1.1rem'}} />
-          </Link>
-        )}
+        <div style={{color: acceptedOverFull ? HIGHLIGHTED_BUTTON_COLOR : undefined}}>
+          <FormattedMessage id={acceptedStageLabel} />
+          {!mobileLayout && (
+            <Link href="https://documentation.uclusion.com/workspaces/stories/stages/#not-ready-for-feedback"
+                  target="_blank">
+              <Info style={{height: '1.1rem'}} />
+            </Link>
+          )}
+        </div>
         <AcceptedStage
           className={classes.stage}
           id={acceptedStageId}

@@ -4,23 +4,18 @@ import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import {
   getAcceptedStage,
-  getBlockedStage,
   getInCurrentVotingStage,
   getInReviewStage,
-  getRequiredInputStage,
   getVerifiedStage,
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import StageChangeAction from '../../../components/SidebarActions/Planning/StageChangeAction'
 
 function MoveToNextVisibleStageActionButton(props) {
-  const { marketId, currentStageId, disabled, acceptedStageAvailable, hasTodos, hasAssignedQuestions,
-    iconColor } = props;
+  const { marketId, currentStageId, disabled, highlighted, hasTodos, iconColor } = props;
   const [marketStagesState] = useContext(MarketStagesContext);
   const acceptedStage = getAcceptedStage(marketStagesState, marketId) || {};
   const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
   const inVotingStage = getInCurrentVotingStage(marketStagesState, marketId) || {};
-  const inBlockedStage = getBlockedStage(marketStagesState, marketId) || {};
-  const inRequiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
   const verifiedStage = getVerifiedStage(marketStagesState, marketId) || {};
   let destinationStage;
   let destinationExplanation;
@@ -28,7 +23,7 @@ function MoveToNextVisibleStageActionButton(props) {
   if (currentStageId === inVotingStage.id) {
     destinationStage = acceptedStage;
     destinationExplanation = 'planningInvestibleAcceptedExplanation';
-    destinationLabel = disabled ? 'planningInvestibleNextStageAcceptedFullLabel'
+    destinationLabel = highlighted ? 'planningInvestibleNextStageAcceptedFullLabel'
       : 'planningInvestibleNextStageAcceptedLabel';
   } else if (currentStageId === acceptedStage.id) {
     destinationStage = inReviewStage;
@@ -38,16 +33,6 @@ function MoveToNextVisibleStageActionButton(props) {
     destinationStage = verifiedStage;
     destinationLabel = 'planningInvestibleMoveToVerifiedLabel';
     destinationExplanation = 'planningInvestibleVerifiedExplanation';
-  } else if ((currentStageId === inBlockedStage.id)||(currentStageId === inRequiresInputStage.id)) {
-    if (acceptedStageAvailable) {
-      destinationStage = acceptedStage;
-      destinationExplanation = 'planningInvestibleAcceptedExplanation';
-      destinationLabel = 'planningInvestibleNextStageAcceptedLabel';
-    } else {
-      destinationStage = inVotingStage;
-      destinationLabel = 'planningInvestibleToVotingLabel';
-      destinationExplanation = 'planningInvestibleVotingExplanation';
-    }
   }
 
   if (!destinationStage) {
@@ -64,8 +49,9 @@ function MoveToNextVisibleStageActionButton(props) {
         explanationId={destinationExplanation}
         currentStageId={currentStageId}
         targetStageId={destinationStage.id}
-        operationBlocked={blockedByTodos || hasAssignedQuestions}
-        blockedOperationTranslationId={blockedByTodos ? 'mustRemoveTodosExplanation' : 'mustResolveAssignedQuestions'}
+        operationBlocked={blockedByTodos}
+        highlighted={highlighted}
+        blockedOperationTranslationId='mustRemoveTodosExplanation'
         disabled={disabled}
         standAlone
       />
@@ -77,9 +63,7 @@ MoveToNextVisibleStageActionButton.propTypes = {
   marketId: PropTypes.string.isRequired,
   currentStageId: PropTypes.string.isRequired,
   disabled: PropTypes.bool.isRequired,
-  acceptedStageAvailable: PropTypes.bool.isRequired,
-  hasTodos: PropTypes.bool.isRequired,
-  hasAssignedQuestions: PropTypes.bool.isRequired
+  hasTodos: PropTypes.bool.isRequired
 };
 
 export default MoveToNextVisibleStageActionButton;

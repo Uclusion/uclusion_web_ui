@@ -17,6 +17,7 @@ import SpinningIconLabelButton from '../../Buttons/SpinningIconLabelButton'
 import { Clear } from '@material-ui/icons'
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
+import { HIGHLIGHTED_BUTTON_COLOR } from '../../Buttons/ButtonConstants'
 
 export const useStyles = makeStyles(() => {
   return {
@@ -67,6 +68,7 @@ function StageChangeAction(props) {
     icon,
     translationId,
     explanationId,
+    highlighted,
     onSpinStop,
     disabled,
     iconColor,
@@ -171,9 +173,9 @@ function StageChangeAction(props) {
     return (
       <SpinningIconLabelButton icon={icon} iconColor={iconColor} onClick={moveToTarget} disabled={disabled} key={key}
                                id="stageChangeActionButton" style={{ padding: '0.5rem' }}>
-        <FormattedMessage
-          id={translationId}
-        />
+        <div style={{color: highlighted ? HIGHLIGHTED_BUTTON_COLOR : undefined}}>
+          <FormattedMessage id={translationId}/>
+        </div>
       </SpinningIconLabelButton>
     );
   }
@@ -183,6 +185,7 @@ function StageChangeAction(props) {
       marketId={marketId}
       icon={icon}
       hasSpinChecker
+      highlighted={highlighted}
       onSpinStop={onSpinStop}
       label={intl.formatMessage({ id: explanationId })}
       openLabel={intl.formatMessage({ id: translationId })}

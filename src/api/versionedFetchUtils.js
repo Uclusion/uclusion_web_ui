@@ -134,6 +134,9 @@ function updateAccountFromSignatures (accountId, maxConcurrencyCount = 1) {
  * @returns {Promise<*>}
  */
 export function updateMarkets (marketIds, existingMarkets, maxConcurrentCount) {
+  if (_.isEmpty(marketIds)) {
+    return Promise.resolve(true);
+  }
   return getVersions(marketIds)
     .then((marketSignatures) => {
       //console.error(marketSignatures);

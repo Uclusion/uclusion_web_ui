@@ -731,6 +731,7 @@ function Comment(props) {
                     onClick={toggleInlineInvestibleAdd}
                     doSpin={false}
                     icon={AddIcon}
+                    id={`inlineAdd${id}`}
                   >
                     {intl.formatMessage({ id: mobileLayout ? 'inlineAddLabelMobile' : 'inlineAddLabel' })}
                   </SpinningIconLabelButton>

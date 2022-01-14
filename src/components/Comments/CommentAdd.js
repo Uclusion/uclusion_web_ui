@@ -395,7 +395,7 @@ function CommentAdd(props) {
             messagesDispatch(dehighlightMessage(issueMessage));
           }
         }
-        if ((investibleRequiresInput || !investibleId) && comment.comment_type === SUGGEST_CHANGE_TYPE) {
+        if ((creatorIsAssigned || !investibleId) && comment.comment_type === SUGGEST_CHANGE_TYPE) {
           return allowVotingForSuggestion(comment.id, setOperationRunning, marketsDispatch, presenceDispatch,
             commentsState, commentDispatch, investibleDispatch).then(() => {
             if (doNotShowAgain) {

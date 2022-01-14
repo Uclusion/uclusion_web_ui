@@ -609,7 +609,7 @@ function Comment(props) {
     && createdInReview && !creatorAssigned) ? <FormattedMessage id="reviewReportPresent" /> :
     (isMarketTodo ? <FormattedMessage id={`notificationLabel${myNotificationType}`} /> : undefined);
   const color = isMarketTodo ? myNotificationType : undefined;
-
+  const shouldInline = inlineMarketId || ((creatorAssigned || !investibleId) && commentType === SUGGEST_CHANGE_TYPE);
   const displayUpdatedBy = updatedBy !== undefined && comment.updated_by !== comment.created_by;
   const showActions = !replyBeingEdited || replies.length > 0;
   function getCommentHighlightStyle() {
@@ -754,7 +754,8 @@ function Comment(props) {
                     {intl.formatMessage({ id: mobileLayout ? 'inlineAddLabelMobile' : 'inlineAddLabel' })}
                   </SpinningIconLabelButton>
                 )}
-                {commentType === SUGGEST_CHANGE_TYPE && !inArchives && !resolved && !inlineMarketId && marketType === PLANNING_TYPE && (
+                {commentType === SUGGEST_CHANGE_TYPE && !inArchives && !resolved && !shouldInline
+                  && marketType === PLANNING_TYPE && (
                   <div style={{marginLeft: '1rem', marginRight: '0.5rem', paddingTop: '0.25rem'}}>
                     <Typography style={{ whiteSpace:'nowrap',}}>
                       {intl.formatMessage({ id: mobileLayout ? 'allowVoteSuggestionMobile' : 'allowVoteSuggestion' })}

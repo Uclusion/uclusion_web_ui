@@ -488,7 +488,10 @@ function PlanningInvestible(props) {
     );
     return _.isEmpty(assignedInputComments) && !isInVerified && !isInNotDoing;
   }
-  const allowedCommentTypes =  [TODO_TYPE, REPORT_TYPE];
+  const allowedCommentTypes =  [TODO_TYPE];
+  if (!isInVoting && !isReadyFurtherWork) {
+    allowedCommentTypes.push(REPORT_TYPE);
+  }
   if (canGetInput()) {
     allowedCommentTypes.push(QUESTION_TYPE);
     allowedCommentTypes.push(SUGGEST_CHANGE_TYPE);

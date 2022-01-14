@@ -1030,7 +1030,6 @@ function PlanningInvestible(props) {
                 blockingComments={blockingComments}
                 todoComments={todoComments}
                 isInVoting={isInVoting}
-                isInAccepted={isInAccepted}
                 acceptedFull={acceptedFull}
                 questionByAssignedComments={questionByAssignedComments}
                 pageState={pageState}
@@ -1332,7 +1331,6 @@ function MarketMetaData(props) {
     blockingComments,
     todoComments,
     isInVoting,
-    isInAccepted,
     acceptedFull,
     acceptedEmpty,
     invested,
@@ -1401,7 +1399,7 @@ function MarketMetaData(props) {
                 disabled={!_.isEmpty(blockingComments) || !_.isEmpty(questionByAssignedComments) || (isInVoting && !isAssigned)}
                 iconColor={isInVoting && _.size(invested) > 0 && acceptedEmpty ? HIGHLIGHTED_BUTTON_COLOR : undefined}
                 hasTodos={!_.isEmpty(todoComments)}
-                highlighted={acceptedFull && isInAccepted}
+                highlighted={acceptedFull && isInVoting}
               />
             </>
           )}

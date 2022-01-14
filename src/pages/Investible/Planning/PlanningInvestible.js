@@ -403,7 +403,7 @@ function PlanningInvestible(props) {
   const marketInfo = getMarketInfo(marketInvestible, marketId) || {};
   const { stage, assigned: invAssigned, completion_estimate: marketDaysEstimate,
     required_approvers:  requiredApprovers, required_reviews: requiredReviewers, ticket_code: ticketCode,
-    open_for_investment: openForInvestment } = marketInfo;
+    open_for_investment: openForInvestment, former_stage_id: formerStageId } = marketInfo;
   const assigned = invAssigned || [];
   const { investible } = marketInvestible;
   const { name, locked_by: lockedBy, created_at: createdAt, label_list: originalLabelList } = investible;
@@ -1164,6 +1164,10 @@ function PlanningInvestible(props) {
             comments={investmentReasonsRemoved}
             marketId={marketId}
             allowedTypes={allowedCommentTypes}
+            isRequiresInput={isRequiresInput}
+            isInBlocking={isInBlocked}
+            assigned={assigned}
+            formerStageId={formerStageId}
           />
         </Grid>
       </Grid>

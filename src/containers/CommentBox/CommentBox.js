@@ -4,6 +4,7 @@ import _ from 'lodash';
 import { Grid } from '@material-ui/core';
 import Comment from '../../components/Comments/Comment';
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
+import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../constants/comments'
 
 function findGreatestUpdatedAt(roots, comments, rootUpdatedAt) {
   let myRootUpdatedAt = rootUpdatedAt;
@@ -68,9 +69,15 @@ export function getSortedRoots(allComments, searchResults) {
 }
 
 function CommentBox(props) {
-  const { comments, marketId, allowedTypes, isInbox } = props;
+  const { comments, marketId, allowedTypes, isInbox, isRequiresInput, isInBlocking, assigned, formerStageId } = props;
   const [searchResults] = useContext(SearchResultsContext);
   const sortedRoots = getSortedRoots(comments, searchResults);
+  const resolvedStageId = (isRequiresInput && _.size(comments.filter(
+    comment => (comment.comment_type === QUESTION_TYPE || comment.comment_type === SUGGEST_CHANGE_TYPE)
+      && !comment.resolved && assigned.includes(comment.created_by)
+  )) === 1) || (isInBlocking && _.size(comments.filter(
+    comment => comment.comment_type === ISSUE_TYPE && !comment.resolved
+  )) === 1) ? formerStageId : undefined;
 
   function getCommentCards() {
     return sortedRoots.map(comment => {
@@ -79,6 +86,7 @@ function CommentBox(props) {
         <Grid item key={id} xs={12}>
           <div id={`c${id}`} style={{paddingBottom: '1.25rem'}}>
             <Comment
+              resolvedStageId={resolvedStageId}
               depth={0}
               marketId={marketId}
               comment={comment}

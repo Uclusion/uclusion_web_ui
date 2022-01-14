@@ -48,7 +48,7 @@ import { red } from '@material-ui/core/colors'
 import { EXPANDED_CONTROL, ExpandedCommentContext } from '../../contexts/CommentsContext/ExpandedCommentContext'
 import UsefulRelativeTime from '../TextFields/UseRelativeTime'
 import {
-  addInvestible,
+  addInvestible, getInvestible,
   getMarketInvestibles
 } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import SubSection from '../../containers/SubSection/SubSection'
@@ -89,6 +89,7 @@ import { DiffContext } from '../../contexts/DiffContext/DiffContext'
 import DiffDisplay from '../TextEditors/DiffDisplay'
 import { removeMessage } from '../../contexts/NotificationsContext/notificationsContextReducer'
 import { workListStyles } from '../../pages/Home/YourWork/WorkListItem'
+import { getMarketInfo } from '../../utils/userFunctions'
 
 const useCommentStyles = makeStyles(
   theme => {
@@ -302,7 +303,8 @@ function useMarketId() {
  * @param {{comment: Comment, comments: Comment[]}} props
  */
 function Comment(props) {
-  const { comment, marketId, comments, allowedTypes, noAuthor, onDone,  readOnly, defaultShowDiff, showDone } = props;
+  const { comment, marketId, comments, allowedTypes, noAuthor, onDone,  readOnly, defaultShowDiff, showDone,
+    resolvedStageId } = props;
   const history = useHistory();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
@@ -528,6 +530,7 @@ function Comment(props) {
         onDone();
       });
   }
+
   function resolve() {
     return resolveComment(marketId, id)
       .then((comment) => {
@@ -548,6 +551,21 @@ function Comment(props) {
               messagesDispatch(removeMessage(message));
             })
           })
+        }
+        if (resolvedStageId) {
+          const investible = getInvestible(investiblesState, investibleId);
+          const marketInfo = getMarketInfo(investible, marketId);
+          const newInfo = {
+            ...marketInfo,
+            stage: resolvedStageId,
+            last_stage_change_date: comment.updated_at,
+          };
+          const newInfos = _.unionBy([newInfo], investible.market_infos, 'id');
+          const newInvestible = {
+            investible: investible.investible,
+            market_infos: newInfos
+          };
+          addInvestible(investiblesDispatch, () => {}, newInvestible);
         }
         setOperationRunning(false);
         onDone();

@@ -422,11 +422,6 @@ function CommentAdd(props) {
       });
   }
 
-  function handleNotifyAllChange(event) {
-    const { target: { checked } } = event;
-    updateCommentAddState({notificationType: checked ? 'YELLOW' : undefined});
-  }
-
   function getReportWarningId() {
     if (!_.isEmpty(assigned)) {
       if (creatorIsAssigned) {
@@ -486,17 +481,6 @@ function CommentAdd(props) {
             <SpinningIconLabelButton onClick={toggleIssue} icon={Add} doSpin={false}>
               {intl.formatMessage({ id: commentSaveLabel })}
             </SpinningIconLabelButton>
-          )}
-          {investible && type === REPORT_TYPE && (
-            <FormControlLabel
-              control={<Checkbox
-                id="notifyAll"
-                name="notifyAll"
-                checked={notificationType === 'YELLOW'}
-                onChange={handleNotifyAllChange}
-              />}
-              label={intl.formatMessage({ id: 'notifyAll' })}
-            />
           )}
           <Button className={classes.button}>
             {intl.formatMessage({ id: 'edited' })}

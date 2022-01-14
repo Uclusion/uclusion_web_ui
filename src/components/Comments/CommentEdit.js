@@ -233,11 +233,6 @@ function CommentEdit(props) {
     setType(value);
   }
 
-  function handleNotifyAllChange(event) {
-    const { target: { checked } } = event;
-    updateEditState({notificationType: checked ? 'YELLOW' : undefined});
-  }
-
   return (
     <Card elevation={0} className={classes.visible} >
       <CardContent className={classes.cardContent}>
@@ -290,17 +285,6 @@ function CommentEdit(props) {
         >
           {intl.formatMessage({ id: 'update' })}
         </SpinningIconLabelButton>
-        {investibleId && type === REPORT_TYPE && (
-          <FormControlLabel
-            control={<Checkbox
-              id="notifyAll"
-              name="notifyAll"
-              checked={notificationType === 'YELLOW'}
-              onChange={handleNotifyAllChange}
-            />}
-            label={intl.formatMessage({ id: 'notifyAll' })}
-          />
-        )}
         {!mobileLayout && (
           <Button className={classes.button}>
             {intl.formatMessage({ id: 'edited' })}

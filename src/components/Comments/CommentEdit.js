@@ -4,7 +4,7 @@ import {
   Button,
   Card,
   CardActions,
-  CardContent, Checkbox,
+  CardContent,
   darken,
   FormControl,
   FormControlLabel,

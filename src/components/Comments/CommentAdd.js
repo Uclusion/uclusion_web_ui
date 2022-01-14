@@ -2,9 +2,8 @@ import React, { useContext, useEffect, useState } from 'react'
 import { useIntl } from 'react-intl';
 import _ from 'lodash'
 import {
-  Button, Checkbox,
+  Button,
   darken,
-  FormControlLabel,
   makeStyles,
   Paper, useMediaQuery, useTheme,
 } from '@material-ui/core'

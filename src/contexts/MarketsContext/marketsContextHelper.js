@@ -28,7 +28,7 @@ export function getMyUserForMarket(state, marketId) {
   return undefined;
 }
 
-export function getMarketDetailsForType(state, marketPresencesState, marketType = 'DECISION') {
+export function getMarketDetailsForType(state, marketPresencesState, marketType = 'DECISION', allowInline=false) {
   if (state.marketDetails) {
     return state.marketDetails.filter((market) => {
       const { id } = market;
@@ -37,7 +37,7 @@ export function getMarketDetailsForType(state, marketPresencesState, marketType 
       if (myPresence.market_banned) {
         return false;
       }
-      return market.market_type === marketType && !market.parent_comment_id;
+      return market.market_type === marketType && (allowInline || !market.parent_comment_id);
     });
   }
   return null;

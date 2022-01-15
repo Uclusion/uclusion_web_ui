@@ -10,7 +10,7 @@ import {
 } from '../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
-import { PLANNING_TYPE } from '../../../constants/markets'
+import { DECISION_TYPE, PLANNING_TYPE } from '../../../constants/markets'
 import {
   getInvestible,
   getMarketInvestibles
@@ -175,6 +175,7 @@ function Outbox(props) {
   const inboxMessages = messagesUnsafe || [];
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   const planningDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, PLANNING_TYPE);
+  const decisionDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, DECISION_TYPE, true);
   const [votingPageStateFull, votingPageDispatch] = usePageStateReducer('voting');
   const [workListItemFull, workListItemDispatch] = usePageStateReducer('outboxListItem');
 
@@ -202,6 +203,41 @@ function Outbox(props) {
   });
 
   const messages = [];
+
+  decisionDetails.forEach((market) => {
+    const marketPresences = getMarketPresences(marketPresencesState, market.id) || [];
+    const myPresence = marketPresences.find((presence) => presence.current_user) || {};
+    const comments = getMarketComments(commentState, market.id);
+    const myUnresolvedRoots = comments.filter((comment) => !comment.resolved &&
+      comment.created_by === myPresence.id && !comment.reply_id);
+    const questions = myUnresolvedRoots.filter((comment) => comment.comment_type === QUESTION_TYPE) || [];
+    const issues = myUnresolvedRoots.filter((comment) => comment.comment_type === ISSUE_TYPE) || [];
+    const suggestions = myUnresolvedRoots.filter((comment) => comment.comment_type === SUGGEST_CHANGE_TYPE) || [];
+    questions.forEach((comment) => {
+      const message = getMessageForComment(comment, market, 'cardTypeLabelQuestion',
+        <QuestionIcon style={{fontSize: 24, color: '#8f8f8f',}}/>, intl, investibleState, marketStagesState,
+        comments, marketPresences);
+      if (message) {
+        messages.push(message);
+      }
+    });
+    issues.forEach((comment) => {
+      const message = getMessageForComment(comment, market, 'cardTypeLabelIssue',
+        <IssueIcon style={{fontSize: 24, color: '#8f8f8f',}}/>, intl, investibleState, marketStagesState,
+        comments, marketPresences);
+      if (message) {
+        messages.push(message);
+      }
+    });
+    suggestions.forEach((comment) => {
+      const message = getMessageForComment(comment, market, 'cardTypeLabelSuggestedChange',
+        <ChangeSuggstionIcon style={{fontSize: 24, color: '#8f8f8f',}}/>, intl, investibleState, marketStagesState,
+        comments, marketPresences);
+      if (message) {
+        messages.push(message);
+      }
+    });
+  });
 
   workspacesData.forEach((workspacesData) => {
     const { market, comments, inReviewInvestibles, inVotingInvestibles, questions, issues, suggestions, reports,
@@ -330,7 +366,7 @@ function Outbox(props) {
         messages.push(message);
       }
     });
-  })
+  });
 
   const messagesOrdered = isJarDisplay ? _.orderBy(messages, ['inActive', 'updatedAt'], ['desc', 'asc'])
     : _.orderBy(messages, ['updatedAt'], ['asc']);

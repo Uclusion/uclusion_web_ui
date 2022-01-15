@@ -35,7 +35,7 @@ import HowToVoteIcon from '@material-ui/icons/HowToVote'
 import UpdateIcon from '@material-ui/icons/Update'
 import RemoveFromQueueIcon from '@material-ui/icons/RemoveFromQueue';
 import UsefulRelativeTime from './TextFields/UseRelativeTime'
-import { Grid, Typography } from '@material-ui/core'
+import { Grid, Typography, useMediaQuery, useTheme } from '@material-ui/core'
 
 export { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE, DECISION_TYPE }
 export const VOTING_TYPE = 'VOTING'
@@ -116,6 +116,9 @@ const useCardTypeStyles = makeStyles(theme => ({
       lineHeight: 1,
       textTransform: 'capitalize'
     },
+    labelGrid: {
+      display: 'flex',
+    },
     lastEdited: {
       paddingTop: '5px',
       fontWeight: 900,
@@ -154,6 +157,7 @@ const labelIntlIds = {
 export default function CardType(props) {
   const {
     className,
+    gravatar,
     type,
     resolved,
     subtype,
@@ -162,8 +166,10 @@ export default function CardType(props) {
     myBeingEdited,
     color
   } = props;
-  const classes = useCardTypeStyles({ type, resolved, color })
-  const intl = useIntl()
+  const classes = useCardTypeStyles({ type, resolved, color });
+  const intl = useIntl();
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const IconComponent = {
     [ISSUE_TYPE]: IssueIcon,
     [QUESTION_TYPE]: QuestionIcon,
@@ -197,11 +203,12 @@ export default function CardType(props) {
   return (
     <Grid container>
       {label && (
-        <Grid item xs={6}>
-          <div className={clsx(classes.root, className)}>
+        <Grid item xs={6} className={classes.labelGrid}>
+          <div className={clsx(classes.root, className)} style={{marginRight: mobileLayout ? '0.25rem' : '1rem'}}>
             <IconComponent className={classes.icon}/>
             <span className={classes.label}>{label}</span>
           </div>
+          {!mobileLayout && gravatar}
         </Grid>
       )}
       {!label && (

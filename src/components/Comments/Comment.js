@@ -175,6 +175,10 @@ const useCommentStyles = makeStyles(
         alignSelf: "start",
         display: "inline-flex"
       },
+      smallGravatar: {
+        width: '30px',
+        height: '30px',
+      },
       createdBy: {
         fontSize: '15px',
       },
@@ -636,10 +640,24 @@ function Comment(props) {
           <Box display="flex">
             {overrideLabel && (
               <CardType className={classes.commentType} type={commentType} resolved={resolved}
-                        label={overrideLabel} color={color} />
+                        label={overrideLabel} color={color}
+                        gravatar={noAuthor ? undefined :
+                          <GravatarAndName key={myPresence.id} email={createdBy.email}
+                                           name={createdBy.name} typographyVariant="caption"
+                                           typographyClassName={classes.createdBy}
+                                           avatarClassName={classes.smallGravatar}
+                          />}
+              />
             )}
             {!overrideLabel && (
-              <CardType className={classes.commentType} type={commentType} resolved={resolved} />
+              <CardType className={classes.commentType} type={commentType} resolved={resolved}
+                        gravatar={noAuthor ? undefined :
+                          <GravatarAndName key={myPresence.id} email={createdBy.email}
+                                           name={createdBy.name} typographyVariant="caption"
+                                           typographyClassName={classes.createdBy}
+                                           avatarClassName={classes.smallGravatar}
+                          />}
+              />
             )}
             {commentType !== JUSTIFY_TYPE && commentType !== REPLY_TYPE && (
               <>
@@ -671,7 +689,7 @@ function Comment(props) {
             {displayEditing && mobileLayout && !beingEdited && (
               <TooltipIconButton
                 onClick={() => {updateEditState({beingEdited: true, body})}}
-                icon={<Edit />}
+                icon={<Edit fontSize='small' />}
                 translationId="edit"
               />
             )}
@@ -686,20 +704,22 @@ function Comment(props) {
                 <TooltipIconButton
                   disabled={operationRunning !== false}
                   onClick={remove}
-                  icon={<Delete />}
+                  icon={<Delete fontSize={mobileLayout ? 'small' : undefined} />}
+                  size={mobileLayout ? 'small' : undefined}
                   translationId="commentRemoveLabel"
                 />
               </div>
             )}
           </Box>
           <CardContent className={classes.cardContent}>
-            {!noAuthor && (
+            {!noAuthor && mobileLayout && (
               <GravatarAndName
                 key={myPresence.id}
                 email={createdBy.email}
                 name={createdBy.name}
                 typographyVariant="caption"
                 typographyClassName={classes.createdBy}
+                avatarClassName={classes.smallGravatar}
               />
             )}
             <Box marginTop={1}>

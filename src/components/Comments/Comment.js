@@ -749,20 +749,6 @@ function Comment(props) {
           {showActions && !beingEdited && (
             <CardActions>
               <div className={classes.actions}>
-                {investibleId && commentType === REPORT_TYPE && (
-                  <div style={{marginLeft: '1rem', paddingTop: '0.5rem'}}>
-                    <FormControlLabel
-                      control={<Checkbox
-                        style={{ maxHeight: '1rem' }}
-                        id="notifyAll"
-                        name="notifyAll"
-                        checked={myNotificationType === 'YELLOW'}
-                        disabled={true}
-                      />}
-                      label={intl.formatMessage({ id: 'notifyAll' })}
-                    />
-                  </div>
-                )}
                 {commentType === QUESTION_TYPE && enableEditing && !inlineMarketId && marketType === PLANNING_TYPE && (
                   <SpinningIconLabelButton
                     disabled={!isEditable}

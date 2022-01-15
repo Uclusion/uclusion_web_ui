@@ -158,7 +158,7 @@ function InboxInvestible(props) {
               disabled={false}
               hasTodos={false}
               hasAssignedQuestions={false}
-              highlighted={acceptedFull}
+              highlighted={acceptedFull && isInVoting}
             />
           </div>
         )}

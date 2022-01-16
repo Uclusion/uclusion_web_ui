@@ -8,7 +8,6 @@ import {
   CardActions,
   CardContent,
   Checkbox,
-  FormControlLabel,
   Grid,
   Typography, useMediaQuery, useTheme
 } from '@material-ui/core'

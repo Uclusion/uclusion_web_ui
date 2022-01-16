@@ -306,8 +306,8 @@ function useMarketId() {
  * @param {{comment: Comment, comments: Comment[]}} props
  */
 function Comment(props) {
-  const { comment, marketId, comments, allowedTypes, noAuthor, onDone,  readOnly, defaultShowDiff, showDone,
-    resolvedStageId } = props;
+  const { comment, marketId, comments, allowedTypes, noAuthor, onDone, defaultShowDiff, showDone, resolvedStageId }
+    = props;
   const history = useHistory();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
@@ -330,7 +330,7 @@ function Comment(props) {
   const { market_stage: marketStage, market_type: marketType } = market;
   const activeMarket = marketStage === ACTIVE_STAGE;
   const myPresence = presences.find((presence) => presence.current_user) || {};
-  const inArchives = !activeMarket || !myPresence.following;
+  const inArchives = !activeMarket;
   const replies = comments.filter(comment => comment.reply_id === id);
   const sortedReplies = _.sortBy(replies, "created_at");
   const [expandedCommentState, expandedCommentDispatch] = useContext(ExpandedCommentContext);
@@ -341,8 +341,8 @@ function Comment(props) {
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [diffState, diffDispatch] = useContext(DiffContext);
-  const enableActions = !inArchives && !readOnly;
-  const enableEditing = !inArchives && !resolved && !readOnly; //resolved comments or those in archive aren't editable
+  const enableActions = !inArchives;
+  const enableEditing = !inArchives && !resolved; //resolved comments or those in archive aren't editable
   const [investibleAddStateFull, investibleAddDispatch] = usePageStateReducer('commentInvestibleAdd');
   const [investibleAddState, updateInvestibleAddState, investibleAddStateReset] =
     getPageReducerPage(investibleAddStateFull, investibleAddDispatch, id);

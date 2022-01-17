@@ -83,6 +83,8 @@ const useStyles = makeStyles((theme) => ({
     position: 'fixed',
     top: '7rem',
     minWidth: '13rem',
+    maxWidth: '13rem',
+    textOverflow: 'ellipsis'
   },
   actionContainer: {
     marginTop: '5rem',
@@ -270,7 +272,7 @@ function Screen(props) {
       />
       {hasMenu && !mobileLayout && (
         <div className={classes.listContainer}>
-          <Paper className={classes.paper} style={{minWidth: showSearch ? undefined : '10rem'}} elevation={3}
+          <Paper className={classes.paper} elevation={3}
                  id="navList">
             {sideNavigationContents}
           </Paper>

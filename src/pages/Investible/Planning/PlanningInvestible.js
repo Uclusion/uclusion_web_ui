@@ -25,7 +25,7 @@ import {
   TODO_TYPE
 } from '../../../constants/comments'
 import {
-  baseNavListItem, createTitle,
+  baseNavListItem,
   formInvestibleLink,
   formMarketArchivesLink,
   formMarketLink,
@@ -760,7 +760,7 @@ function PlanningInvestible(props) {
   const navigationMenu = {
     navListItemTextArray: [
       {icon: Inbox, text: intl.formatMessage({ id: 'inbox' }), target: '/inbox', newPage: true},
-      {icon: AgilePlanIcon, text: createTitle(marketName, 20), target: formMarketLink(marketId)},
+      {icon: AgilePlanIcon, text: marketName, target: formMarketLink(marketId)},
       createNavListItem(EditIcon, 'description_label', 'storyMain',
       displayDescription ? undefined : 0),
       createNavListItem(ThumbsUpDownIcon, 'approvals', 'approvals',

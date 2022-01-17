@@ -14,7 +14,7 @@ import _ from 'lodash'
 import SettingsIcon from '@material-ui/icons/Settings'
 import { Link } from '@material-ui/core'
 import DismissableText from '../../../components/Notifications/DismissableText'
-import { createTitle, formMarketLink, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions'
+import { formMarketLink, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
 import AddIcon from '@material-ui/icons/Add'
 import { PLANNING_TYPE } from '../../../constants/markets'
@@ -67,7 +67,7 @@ function InboxFull(props) {
     const filtered = myNotHiddenMarketsState.marketDetails.filter((market) => market.market_type === PLANNING_TYPE);
     const sorted = _.sortBy(filtered, 'name');
     const items = sorted.map((market) => {
-      return {icon: AgilePlanIcon, text: createTitle(market.name, 20),
+      return {icon: AgilePlanIcon, text: market.name,
         target: formMarketLink(market.id)};
     });
     navigationMenu.navListItemTextArray.unshift(...items);
@@ -77,7 +77,7 @@ function InboxFull(props) {
       const sorted = _.sortBy(hiddenMarkets, 'name');
       const items = sorted.map((market) => {
         return {
-          icon: AgilePlanIcon, text: createTitle(market.name, 20),
+          icon: AgilePlanIcon, text: market.name,
           isGreyed: true,
           target: formMarketLink(market.id)
         };

@@ -9,10 +9,9 @@ import CardType from '../../../components/CardType'
 import ProgressBar from '../../../components/Expiration/ProgressBarExpiration'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { findMessageOfTypeAndId, findMessagesForInvestibleId } from '../../../utils/messageUtils'
-import Gravatar from '../../../components/Avatars/Gravatar';
 import { getInvestibleVoters } from '../../../utils/votingUtils';
 import { deleteOrDehilightMessages } from '../../../api/users'
-import { SettingsBackupRestore } from '@material-ui/icons'
+import { Edit, SettingsBackupRestore } from '@material-ui/icons'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import YourVoting from '../Voting/YourVoting'
@@ -21,7 +20,7 @@ import { invalidEditEvent } from '../../../utils/windowUtils'
 import { useHistory } from 'react-router'
 import clsx from 'clsx'
 import GravatarAndName from '../../../components/Avatars/GravatarAndName'
-import EditOutlinedIcon from '@material-ui/icons/EditOutlined'
+import TooltipIconButton from '../../../components/Buttons/TooltipIconButton'
 
 const useVoteStyles = makeStyles(
   theme => {
@@ -204,8 +203,11 @@ function Voting(props) {
                 />
                 {isEditable && mobileLayout && (
                   <CardActions className={classes.editVoteDisplay}>
-                    <EditOutlinedIcon style={{maxHeight: '1.25rem', cursor: 'pointer'}}
-                                      onClick={() => updateVotingPageState({votingBeingEdited: true})}/>
+                    <TooltipIconButton
+                      onClick={() => updateVotingPageState({votingBeingEdited: true})}
+                      icon={<Edit fontSize='small' />}
+                      translationId="edit"
+                    />
                   </CardActions>
                 )}
                 {showExpiration && (

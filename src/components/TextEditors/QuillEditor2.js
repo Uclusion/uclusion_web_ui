@@ -605,7 +605,9 @@ function QuillEditor2 (props) {
           </LoadingOverlay>
         )}
       </div>
-      <div className={classes.bottomSpacer}>&nbsp;</div>
+      {!noToolbar && (
+        <div className={classes.bottomSpacer}>&nbsp;</div>
+      )}
     </div>
   );
 }

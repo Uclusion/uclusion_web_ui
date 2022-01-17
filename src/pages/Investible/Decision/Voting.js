@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import { FormattedMessage, useIntl } from 'react-intl'
-import { Card, CardContent, Typography } from '@material-ui/core'
+import { Card, CardActions, CardContent, Typography, useMediaQuery, useTheme } from '@material-ui/core'
 import ReadOnlyQuillEditor from '../../../components/TextEditors/ReadOnlyQuillEditor'
 import { makeStyles } from '@material-ui/styles'
 import CardType from '../../../components/CardType'
@@ -21,6 +21,7 @@ import { invalidEditEvent } from '../../../utils/windowUtils'
 import { useHistory } from 'react-router'
 import clsx from 'clsx'
 import GravatarAndName from '../../../components/Avatars/GravatarAndName'
+import EditOutlinedIcon from '@material-ui/icons/EditOutlined'
 
 const useVoteStyles = makeStyles(
   theme => {
@@ -100,6 +101,8 @@ function Voting(props) {
     updateVotingPageState, votingPageStateReset, votingAllowed, yourPresence, market, isAssigned } = props;
   const history = useHistory()
   const workItemClasses = workListStyles();
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const classes = useVoteStyles();
@@ -199,6 +202,12 @@ function Voting(props) {
                                      avatarClassName={classes.smallGravatar}
                             />}
                 />
+                {isEditable && mobileLayout && (
+                  <CardActions className={classes.editVoteDisplay}>
+                    <EditOutlinedIcon style={{maxHeight: '1.25rem', cursor: 'pointer'}}
+                                      onClick={() => updateVotingPageState({votingBeingEdited: true})}/>
+                  </CardActions>
+                )}
                 {showExpiration && (
                   <div className={classes.expiresDisplay}>
                     <ProgressBar

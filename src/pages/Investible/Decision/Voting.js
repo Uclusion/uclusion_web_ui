@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import { FormattedMessage, useIntl } from 'react-intl'
-import { Card, CardActions, CardContent, Typography } from '@material-ui/core'
+import { Card, CardContent, Typography } from '@material-ui/core'
 import ReadOnlyQuillEditor from '../../../components/TextEditors/ReadOnlyQuillEditor'
 import { makeStyles } from '@material-ui/styles'
 import CardType from '../../../components/CardType'
@@ -11,13 +11,16 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import { findMessageOfTypeAndId, findMessagesForInvestibleId } from '../../../utils/messageUtils'
 import Gravatar from '../../../components/Avatars/Gravatar';
 import { getInvestibleVoters } from '../../../utils/votingUtils';
-import EditOutlinedIcon from '@material-ui/icons/EditOutlined'
 import { deleteOrDehilightMessages } from '../../../api/users'
 import { SettingsBackupRestore } from '@material-ui/icons'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import YourVoting from '../Voting/YourVoting'
 import { workListStyles } from '../../Home/YourWork/WorkListItem'
+import { invalidEditEvent } from '../../../utils/windowUtils'
+import { useHistory } from 'react-router'
+import clsx from 'clsx'
+import GravatarAndName from '../../../components/Avatars/GravatarAndName'
 
 const useVoteStyles = makeStyles(
   theme => {
@@ -29,7 +32,7 @@ const useVoteStyles = makeStyles(
         paddingBottom: '1rem'
       },
       card: {
-        position: "relative"
+        position: "relative",
       },
       cardPadded: {
         position: "relative",
@@ -69,6 +72,19 @@ const useVoteStyles = makeStyles(
         position: "absolute",
         right: 0,
       },
+      editable: {
+        "& > *": {
+          cursor: "url('/images/edit_cursor.svg') 0 24, pointer"
+        }
+      },
+      notEditable: {},
+      smallGravatar: {
+        width: '30px',
+        height: '30px',
+      },
+      createdBy: {
+        fontSize: '15px',
+      }
     };
   },
   { name: "Vote" }
@@ -82,6 +98,7 @@ const useVoteStyles = makeStyles(
 function Voting(props) {
   const { marketPresences, investibleId, investmentReasons, showExpiration, expirationMinutes, votingPageState,
     updateVotingPageState, votingPageStateReset, votingAllowed, yourPresence, market, isAssigned } = props;
+  const history = useHistory()
   const workItemClasses = workListStyles();
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -90,7 +107,7 @@ function Voting(props) {
   const investibleMessages = findMessagesForInvestibleId(investibleId, messagesState) || [];
   const voteMessages = investibleMessages.filter((message) => message.type_object_id.startsWith('UNREAD_VOTE'));
   const {
-    votingBeingEdited,
+    votingBeingEdited
   } = votingPageState;
 
   function getVoterReason(userId) {
@@ -99,7 +116,6 @@ function Voting(props) {
 
   const voters = getInvestibleVoters(marketPresences, investibleId);
   const sortedVoters = _.sortBy(voters, "quantity");
-
   if (sortedVoters.length === 0 || !yourPresence) {
     return (
       <Typography>
@@ -151,25 +167,38 @@ function Voting(props) {
             )
           }
 
+          function setBeingEdited(value, event) {
+            if (!invalidEditEvent(event, history)) {
+              updateVotingPageState({ votingBeingEdited: value });
+            }
+          }
+          const isEditable = isYourVote && votingAllowed;
+          const hasContent = maxBudget > 0 || reason;
           return (
             <div className={myMessage && classes.highlighted} key={index}>
               <Card
                 key={userId}
-                className={index % 2 === 1 ? classes.cardPadded : classes.card}
+                className={clsx(index % 2 === 1 ? classes.cardPadded : classes.card,
+                  isEditable ? classes.editable : classes.notEditable)}
                 component="li"
                 id={voteId}
                 elevation={3}
+                style={{paddingBottom: hasContent ? undefined : '1rem'}}
+                onClick={(event) => {
+                  if (isEditable) {
+                    setBeingEdited(true, event);
+                  }
+                }}
               >
                 <CardType
                   className={classes.cardType}
                   type={`certainty${Math.abs(quantity)}`}
+                  gravatar={<GravatarAndName email={email}
+                                     name={name} typographyVariant="caption"
+                                     typographyClassName={classes.createdBy}
+                                     avatarClassName={classes.smallGravatar}
+                            />}
                 />
-                {isYourVote && votingAllowed && (
-                  <CardActions className={classes.editVoteDisplay}>
-                    <EditOutlinedIcon style={{maxHeight: '1.25rem', cursor: 'pointer'}}
-                                      onClick={() => updateVotingPageState({votingBeingEdited: true})}/>
-                  </CardActions>
-                )}
                 {showExpiration && (
                   <div className={classes.expiresDisplay}>
                     <ProgressBar
@@ -179,19 +208,24 @@ function Voting(props) {
                     />
                   </div>
                 )}
-                <CardContent className={classes.cardContent}>
-                  <div style={{display: 'flex', alignItems: 'center', paddingBottom: '1rem'}}>
-                    <Gravatar email={email} name={name}/>
-                    <Typography className={classes.voter} component="strong">
-                      {maxBudget > 0 && !maxBudgetUnit && intl.formatMessage({id: 'maxBudgetValue'},
-                        { x: maxBudget, name})}
-                      {maxBudget > 0 && maxBudgetUnit && intl.formatMessage({id: 'maxBudgetValueWithUnits'},
-                        { x: maxBudget, y: maxBudgetUnit, name})}
-                      {(!maxBudget > 0) && name}
-                    </Typography>
-                  </div>
-                  {reason && <ReadOnlyQuillEditor value={reason.body} />}
-                </CardContent>
+                {hasContent && (
+                  <CardContent className={classes.cardContent}>
+                    {maxBudget > 0 && (
+                      <div style={{display: 'flex', alignItems: 'center', paddingBottom: '1rem'}}>
+                        <Typography className={classes.voter} component="strong">
+                          {!maxBudgetUnit && intl.formatMessage({id: 'maxBudgetValue'},
+                            { x: maxBudget})}
+                          {maxBudgetUnit && intl.formatMessage({id: 'maxBudgetValueWithUnits'},
+                            { x: maxBudget, y: maxBudgetUnit})}
+                        </Typography>
+                      </div>
+                    )}
+                    {reason &&
+                      <ReadOnlyQuillEditor value={reason.body} isEditable={isEditable}
+                                           setBeingEdited={(event) => setBeingEdited(true, event)}
+                      />}
+                  </CardContent>
+                )}
               </Card>
             </div>
           );

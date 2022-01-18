@@ -211,7 +211,7 @@ function CommentAddBox(props) {
     <div id="commentAddBox">
       {!isInReview && useType === REPORT_TYPE && (
         <DismissableText textId="reportTypeCommentHelp"
-                         text={"Change stage to 'Ready for Feedback' if you need this progress reviewed."}/>
+                         text={<div>Change stage to 'Ready for Feedback' if you need this progress reviewed.</div>}/>
       )}
       <FormControl component="fieldset" className={useType === TODO_TYPE && !investible ? classes.hidden :
         classes.commentType}>

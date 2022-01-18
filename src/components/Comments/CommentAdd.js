@@ -37,7 +37,7 @@ import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketSt
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { allowVotingForSuggestion, changeInvestibleStageOnCommentChange } from '../../utils/commentFunctions'
-import { findMessageOfType, findMessageOfTypeAndId, findMessagesForInvestibleId } from '../../utils/messageUtils'
+import { findMessageOfType, findMessageOfTypeAndId } from '../../utils/messageUtils'
 import {
   changeLevelMessage,
   dehighlightMessage

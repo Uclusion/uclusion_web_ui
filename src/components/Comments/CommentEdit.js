@@ -205,7 +205,8 @@ function CommentEdit(props) {
         editorController(editorReset());
         onCommentOpen(investibleState, investibleId, marketStagesState, marketId, comment, investibleDispatch,
           commentState, commentDispatch);
-        deleteOrDehilightMessages(messages || [], messagesDispatch, workItemClasses.removed, false);
+        deleteOrDehilightMessages(messages || [], messagesDispatch, workItemClasses.removed, false,
+          true);
         if (commentType === REPORT_TYPE) {
           const message = findMessageOfType('REPORT_REQUIRED', investibleId, messagesState);
           if (message) {

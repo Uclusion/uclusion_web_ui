@@ -16,7 +16,8 @@ export function banUser(marketId, userId) {
     .catch((error) => toastErrorAndThrow(error, 'errorBanUserFailed'));
 }
 
-export function deleteOrDehilightMessages(messages, messagesDispatch, removeClass, doRemove=true) {
+export function deleteOrDehilightMessages(messages, messagesDispatch, removeClass, doRemove=true,
+  highlightOnly=false) {
   const useMarketIds = {};
   messages.forEach((message) => {
     const { market_id: marketId, type_object_id: typeObjectId } = message;
@@ -28,7 +29,7 @@ export function deleteOrDehilightMessages(messages, messagesDispatch, removeClas
       useMarketIds[marketId] = typeObjectIds;
     }
     typeObjectIds.push(typeObjectId);
-    if (typeObjectId.startsWith('UNREAD')) {
+    if (!highlightOnly && typeObjectId.startsWith('UNREAD')) {
       removeWorkListItem(message, removeClass, messagesDispatch);
     } else {
       messagesDispatch(dehighlightMessage(message));

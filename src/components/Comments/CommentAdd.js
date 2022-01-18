@@ -374,16 +374,7 @@ function CommentAdd(props) {
         }
         // The whole thread will be marked read so quick it
         deleteOrDehilightMessages(threadMessages || [], messagesDispatch, workItemClasses.removed,
-          false);
-        // Leaving a comment clears all READ level on the investible
-        const messages = findMessagesForInvestibleId(investibleId, messagesState);
-        if (_.isEmpty(messages)) {
-          messages.forEach((message) => {
-            if (message.type.startsWith('UNREAD')) {
-              removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
-            }
-          });
-        }
+          false, true);
         if (type === REPLY_TYPE) {
           const message = findMessageOfTypeAndId(parentId, messagesState, 'COMMENT');
           if (message) {

@@ -22,7 +22,8 @@ function LinkMultiplePanel(props) {
       });
     })) {
     return (
-      <CommentPanel marketId={marketId} commentId={commentId} />
+      <CommentPanel marketId={marketId} commentId={commentId} planningClasses={planningClasses}
+                    mobileLayout={mobileLayout} />
     );
   }
   else if (!_.isEmpty(_.intersection(['NOT_FULLY_VOTED', 'ASSIGNED_UNREVIEWABLE', 'UNREAD_REVIEWABLE',

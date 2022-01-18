@@ -338,6 +338,7 @@ const messages = defineMessages({
   noPending: 'Nothing pending.',
   enjoy: 'Enjoy your day',
   nameChange: 'Job name changed to "{x}"',
+  investibleInboxHeader: '{x} / {y}',
 
   // Address list
   addressAddCancelLabel: 'Close',

@@ -47,7 +47,8 @@ export function addExpansionPanel(props) {
     (['UNREAD_OPTION', 'UNREAD_VOTE', 'NOT_FULLY_VOTED', 'INVESTIBLE_SUBMITTED'].includes(messageType)
       && linkType.startsWith('INLINE')) || (messageType === 'UNASSIGNED' && linkType === 'MARKET_TODO')) {
     item.expansionPanel = ( <CommentPanel marketId={commentMarketId || marketId} commentId={commentId}
-                                          marketType={marketType} messageType={messageType}/> );
+                                          marketType={marketType} messageType={messageType}
+                                          planningClasses={planningClasses} mobileLayout={mobileLayout} /> );
   } else if (messageType === 'REPORT_REQUIRED') {
     if (!_.isEmpty(investibleId)) {
       item.expansionPanel = <InvestibleStatus

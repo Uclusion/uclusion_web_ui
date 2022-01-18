@@ -8,9 +8,11 @@ import { TODO_TYPE } from '../../../constants/comments'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import LoadingDisplay from '../../../components/LoadingDisplay'
+import InboxInvestible from './InboxInvestible'
+import { Typography } from '@material-ui/core'
 
 function CommentPanel(props) {
-  const { commentId, marketId, marketType, messageType } = props;
+  const { commentId, marketId, marketType, messageType, planningClasses, mobileLayout } = props;
   const [marketState] = useContext(MarketsContext);
   const [commentState] = useContext(CommentsContext);
   let useMarketId = marketId;
@@ -29,17 +31,31 @@ function CommentPanel(props) {
   if (!_.isEmpty(rootComment) && (messageType === 'UNREAD_RESOLVED' || !rootComment.resolved)) {
     const { comment_type: commentType, investible_id: investibleId } = rootComment;
     return (
-      <div style={{paddingLeft: '1rem', paddingRight: '1rem', paddingBottom: '0.5rem'}}>
-        <Comment
-          depth={0}
-          marketId={useMarketId}
-          comment={rootComment}
-          comments={getMarketComments(commentState, useMarketId)}
-          defaultShowDiff
-          allowedTypes={[]}
-          noAuthor={marketType === PLANNING_TYPE && commentType === TODO_TYPE && !investibleId}
-        />
-      </div>
+      <>
+        {investibleId && (
+          <div style={{overflowY: 'auto', maxHeight: '15rem'}}>
+            <InboxInvestible marketId={marketId} investibleId={investibleId}
+                             planningClasses={planningClasses} marketType={marketType}
+                             mobileLayout={mobileLayout} />
+          </div>
+        )}
+        {!investibleId && (
+          <Typography variant="h6" style={{paddingTop: '1rem', paddingLeft: '1rem', paddingRight: '1rem'}}>
+            {market.name}
+          </Typography>
+        )}
+        <div style={{paddingLeft: '1rem', paddingRight: '1rem', paddingBottom: '0.5rem'}}>
+          <Comment
+            depth={0}
+            marketId={useMarketId}
+            comment={rootComment}
+            comments={getMarketComments(commentState, useMarketId)}
+            defaultShowDiff
+            allowedTypes={[]}
+            noAuthor={marketType === PLANNING_TYPE && commentType === TODO_TYPE && !investibleId}
+          />
+        </div>
+      </>
     );
   } else {
     return (

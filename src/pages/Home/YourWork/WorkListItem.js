@@ -180,12 +180,7 @@ function WorkListItem(props) {
     }
   }, [expansionOpenDefault])
 
-  let fullText = investible || market;
-  if (fullText && comment) {
-    fullText += ` / ${comment}`;
-  } else if (comment) {
-    fullText = comment;
-  }
+  const fullText = comment || investible || market;
   const deleteActionButtonOnclick = (event) => {
     preventDefaultAndProp(event);
     workListItemReset();

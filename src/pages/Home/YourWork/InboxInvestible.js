@@ -40,6 +40,7 @@ import { getDiff } from '../../../contexts/DiffContext/diffContextHelper'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import AttachedFilesList from '../../../components/Files/AttachedFilesList'
 import Chip from '@material-ui/core/Chip'
+import PropTypes from 'prop-types'
 
 function InboxInvestible(props) {
   const { marketId, marketType, planningClasses, messageTypes, investibleId, mobileLayout } = props;
@@ -87,9 +88,10 @@ function InboxInvestible(props) {
     && assignedInAcceptedStage.length >= inAcceptedStage.allowed_investibles;
   const diff = getDiff(diffState, investibleId);
   return (
-    <div style={{padding: '1rem'}}>
+    <div style={{paddingTop: '1rem', paddingRight: '1rem', paddingLeft: '1rem',
+      paddingBottom: !_.isEmpty(messageTypes) ? '1rem' : undefined}}>
       <div style={{display: mobileLayout ? 'block' : 'flex'}}>
-        {!_.isEmpty(assigned) && (
+        {!_.isEmpty(messageTypes) && !_.isEmpty(assigned) && (
           <div className={clsx(planningClasses.group, planningClasses.assignments)}
                style={{maxWidth: '15rem', marginRight: '1rem', overflowY: 'auto', maxHeight: '8rem'}}>
             <div style={{textTransform: 'capitalize'}}>
@@ -106,7 +108,7 @@ function InboxInvestible(props) {
             </div>
           </div>
         )}
-        {marketType === PLANNING_TYPE && !_.isEmpty(investibleCollaborators) && (
+        {!_.isEmpty(messageTypes) && marketType === PLANNING_TYPE && !_.isEmpty(investibleCollaborators) && (
           <div className={clsx(planningClasses.group, planningClasses.assignments)}
                style={{maxWidth: '15rem', marginRight: '1rem', overflowY: 'auto', maxHeight: '8rem'}}>
             <div style={{textTransform: 'capitalize'}}>
@@ -163,6 +165,11 @@ function InboxInvestible(props) {
           </div>
         )}
       </div>
+      {_.isEmpty(messageTypes) && (
+        <Typography variant="h6">
+          {intl.formatMessage({ id: 'investibleInboxHeader' }, { x: market.name, y: name })}
+        </Typography>
+      )}
       {!_.isEmpty(description) && !editorEmpty(description) && (
         <div style={{paddingTop: '1rem'}}>
           <DescriptionOrDiff id={investibleId} description={description}
@@ -226,7 +233,7 @@ function InboxInvestible(props) {
           <h3>{intl.formatMessage({ id: 'orStructuredComment' })}</h3>
         </>
       )}
-      {marketId && !_.isEmpty(myInvestible) &&
+      {!_.isEmpty(messageTypes) && marketId && !_.isEmpty(myInvestible) &&
         _.isEmpty(_.intersection(['NEW_TODO', 'ISSUE_RESOLVED'], messageTypes)) && (
         <>
           <div style={{paddingTop: '1rem'}} />
@@ -241,7 +248,8 @@ function InboxInvestible(props) {
           />
         </>
       )}
-      {(!_.isEmpty(investmentReasonsRemoved) || (messageTypes.includes('NEW_TODO') && !_.isEmpty(todoComments))) && (
+      {!_.isEmpty(messageTypes) &&
+        (!_.isEmpty(investmentReasonsRemoved) || (messageTypes.includes('NEW_TODO') && !_.isEmpty(todoComments))) && (
         <div style={{paddingTop: '0.5rem'}}>
           <CommentBox
             comments={messageTypes.includes('NEW_TODO') ? todoComments : investmentReasonsRemoved}
@@ -254,5 +262,14 @@ function InboxInvestible(props) {
     </div>
   );
 }
+
+InboxInvestible.propTypes = {
+  messageTypes: PropTypes.arrayOf(PropTypes.object),
+  marketId: PropTypes.string.isRequired,
+};
+
+InboxInvestible.defaultProps = {
+  messageTypes: [],
+};
 
 export default InboxInvestible;

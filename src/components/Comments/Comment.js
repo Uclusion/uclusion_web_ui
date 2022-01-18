@@ -89,6 +89,7 @@ import DiffDisplay from '../TextEditors/DiffDisplay'
 import { removeMessage } from '../../contexts/NotificationsContext/notificationsContextReducer'
 import { workListStyles } from '../../pages/Home/YourWork/WorkListItem'
 import { getMarketInfo } from '../../utils/userFunctions'
+import LoadingDisplay from '../LoadingDisplay'
 
 const useCommentStyles = makeStyles(
   theme => {
@@ -629,8 +630,12 @@ function Comment(props) {
   }
   const displayingDiff = myMessage && showDiff && diff;
   const displayEditing = enableEditing && isEditable;
-  if (!marketTokenLoaded(marketId, tokensHash)) {
-    return React.Fragment;
+  if (!marketTokenLoaded(marketId, tokensHash) || (inlineMarketId && _.isEmpty(inlineMarket))) {
+    return (
+      <div className={classes.container}>
+        <LoadingDisplay showMessage messageId="loadingMessage" noMargin />
+      </div>
+    );
   }
   return (
     <div>

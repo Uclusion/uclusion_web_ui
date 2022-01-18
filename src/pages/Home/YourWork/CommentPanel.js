@@ -10,6 +10,7 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import LoadingDisplay from '../../../components/LoadingDisplay'
 import InboxInvestible from './InboxInvestible'
 import { Typography } from '@material-ui/core'
+import PropTypes from 'prop-types'
 
 function CommentPanel(props) {
   const { commentId, marketId, marketType, messageType, planningClasses, mobileLayout } = props;
@@ -63,5 +64,14 @@ function CommentPanel(props) {
     );
   }
 }
+
+CommentPanel.propTypes = {
+  messageType: PropTypes.string,
+  marketId: PropTypes.string.isRequired,
+};
+
+CommentPanel.defaultProps = {
+  messageType: '',
+};
 
 export default CommentPanel;

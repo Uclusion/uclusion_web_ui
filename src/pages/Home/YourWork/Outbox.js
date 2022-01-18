@@ -1,5 +1,5 @@
 import WorkListItem from './WorkListItem'
-import { Fab } from '@material-ui/core'
+import { Fab, useMediaQuery, useTheme } from '@material-ui/core'
 import React, { useContext } from 'react'
 import { FormattedMessage, useIntl } from 'react-intl'
 import {
@@ -56,6 +56,8 @@ import Comment from '../../../components/Comments/Comment'
 import Voting from '../../Investible/Decision/Voting'
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 import RaisedCard from '../../../components/Cards/RaisedCard'
+import CommentPanel from './CommentPanel'
+import { usePlanningInvestibleStyles } from '../../Investible/Planning/PlanningInvestible'
 
 function getMessageForInvestible(investible, market, labelId, Icon, intl) {
   const investibleId = investible.investible.id;
@@ -71,7 +73,7 @@ function getMessageForInvestible(investible, market, labelId, Icon, intl) {
 }
 
 function getMessageForComment(comment, market, labelId, Icon, intl, investibleState, marketStagesState,
-  comments, marketPresences) {
+  comments, marketPresences, planningClasses, mobileLayout) {
   const commentId = comment.id;
   const message = {
     id: commentId,
@@ -84,16 +86,8 @@ function getMessageForComment(comment, market, labelId, Icon, intl, investibleSt
     inFurtherWork: false
   };
   message.expansionPanel =
-    <div style={{paddingLeft: '1rem', paddingRight: '1rem', paddingBottom: '1rem'}}>
-      <Comment
-        depth={0}
-        marketId={market.id}
-        comment={comment}
-        comments={comments}
-        defaultShowDiff
-        allowedTypes={[]}
-      />
-    </div>;
+    <CommentPanel marketId={market.id} commentId={commentId} marketType={market.market_type}
+                  planningClasses={planningClasses} mobileLayout={mobileLayout} />;
   if (comment.investible_id) {
     const investible = getInvestible(investibleState, comment.investible_id);
     const notDoingStage = getNotDoingStage(marketStagesState, market.id) || {};
@@ -165,6 +159,9 @@ function Outbox(props) {
   const classes = useStyles();
   const intl = useIntl();
   const history = useHistory();
+  const planningClasses = usePlanningInvestibleStyles();
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const [investibleState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentState] = useContext(CommentsContext);
@@ -216,7 +213,7 @@ function Outbox(props) {
     questions.forEach((comment) => {
       const message = getMessageForComment(comment, market, 'cardTypeLabelQuestion',
         <QuestionIcon style={{fontSize: 24, color: '#8f8f8f',}}/>, intl, investibleState, marketStagesState,
-        comments, marketPresences);
+        comments, marketPresences, planningClasses, mobileLayout);
       if (message) {
         messages.push(message);
       }
@@ -224,7 +221,7 @@ function Outbox(props) {
     issues.forEach((comment) => {
       const message = getMessageForComment(comment, market, 'cardTypeLabelIssue',
         <IssueIcon style={{fontSize: 24, color: '#8f8f8f',}}/>, intl, investibleState, marketStagesState,
-        comments, marketPresences);
+        comments, marketPresences, planningClasses, mobileLayout);
       if (message) {
         messages.push(message);
       }
@@ -232,7 +229,7 @@ function Outbox(props) {
     suggestions.forEach((comment) => {
       const message = getMessageForComment(comment, market, 'cardTypeLabelSuggestedChange',
         <ChangeSuggstionIcon style={{fontSize: 24, color: '#8f8f8f',}}/>, intl, investibleState, marketStagesState,
-        comments, marketPresences);
+        comments, marketPresences, planningClasses, mobileLayout);
       if (message) {
         messages.push(message);
       }
@@ -345,7 +342,7 @@ function Outbox(props) {
     questions.forEach((comment) => {
       const message = getMessageForComment(comment, market, 'cardTypeLabelQuestion',
         <QuestionIcon style={{fontSize: 24, color: '#8f8f8f',}}/>, intl, investibleState, marketStagesState,
-        comments, marketPresences);
+        comments, marketPresences, planningClasses, mobileLayout);
       if (message) {
         messages.push(message);
       }
@@ -353,7 +350,7 @@ function Outbox(props) {
     issues.forEach((comment) => {
       const message = getMessageForComment(comment, market, 'cardTypeLabelIssue',
         <IssueIcon style={{fontSize: 24, color: '#8f8f8f',}}/>, intl, investibleState, marketStagesState,
-        comments, marketPresences);
+        comments, marketPresences, planningClasses, mobileLayout);
       if (message) {
         messages.push(message);
       }
@@ -361,7 +358,7 @@ function Outbox(props) {
     suggestions.forEach((comment) => {
       const message = getMessageForComment(comment, market, 'cardTypeLabelSuggestedChange',
         <ChangeSuggstionIcon style={{fontSize: 24, color: '#8f8f8f',}}/>, intl, investibleState, marketStagesState,
-        comments, marketPresences);
+        comments, marketPresences, planningClasses, mobileLayout);
       if (message) {
         messages.push(message);
       }

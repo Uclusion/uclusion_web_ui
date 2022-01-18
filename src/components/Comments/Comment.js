@@ -633,7 +633,7 @@ function Comment(props) {
   if (!marketTokenLoaded(marketId, tokensHash) || (inlineMarketId && _.isEmpty(inlineMarket))) {
     return (
       <div className={classes.container}>
-        <LoadingDisplay showMessage messageId="loadingMessage" noMargin />
+        <LoadingDisplay showMessage messageId="commentLoadingMessage" noMargin />
       </div>
     );
   }

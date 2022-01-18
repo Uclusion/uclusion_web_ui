@@ -168,9 +168,10 @@ const messages = defineMessages({
 
   archiveInlineTitle: 'Dialog',
   gettingLockMessage: 'Obtaining lock',
-  loadingMessage: 'Page Loading',
-  loadingMarket: 'Processing Invite',
-  loadingSlack: 'Slack Integration',
+  loadingMessage: 'Page loading',
+  commentLoadingMessage: 'Comment loading',
+  loadingMarket: 'Processing invite',
+  loadingSlack: 'Slack integration',
 
   // Market Add
   marketAddTitleDefault: 'Add a name...',

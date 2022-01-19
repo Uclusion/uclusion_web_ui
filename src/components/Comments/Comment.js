@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { FormattedDate, FormattedMessage, useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
 import {
@@ -90,6 +90,8 @@ import { removeMessage } from '../../contexts/NotificationsContext/notifications
 import { workListStyles } from '../../pages/Home/YourWork/WorkListItem'
 import { getMarketInfo } from '../../utils/userFunctions'
 import LoadingDisplay from '../LoadingDisplay'
+import { pushMessage } from '../../utils/MessageBusUtils'
+import { GUEST_MARKET_EVENT, LOAD_MARKET_CHANNEL } from '../../contexts/MarketsContext/marketsContextMessages'
 
 const useCommentStyles = makeStyles(
   theme => {
@@ -368,6 +370,16 @@ function Comment(props) {
   // If I resolved a comment then I am done with it and so hide the thread
   const repliesExpanded = noAuthor ? true : (myRepliesExpanded === undefined ?
     (resolved ? myPresence !== updatedBy : true) : myRepliesExpanded);
+
+  useEffect(() => {
+    if (inlineMarketId && !marketsState.initializing) {
+      const inlineMarketLoaded = getMarket(marketsState, inlineMarketId);
+      if (_.isEmpty(inlineMarketLoaded)) {
+        // Eventual consistency means there is a chance we were not invited to this inline market
+        pushMessage(LOAD_MARKET_CHANNEL, { event: GUEST_MARKET_EVENT, marketId: inlineMarketId });
+      }
+    }
+  }, [marketsState, inlineMarketId]);
 
   function toggleInlineInvestibleAdd() {
     updateInvestibleAddState({investibleAddBeingEdited: !investibleAddBeingEdited});

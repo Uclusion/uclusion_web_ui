@@ -288,7 +288,7 @@ function AddNewUsers (props) {
           </ListItem>
           <ListItem id="emailButtons" key="emailButtons" className={clsx(classes.rightAlign, classes.listItem)}>
             <SpinningIconLabelButton onClick={handleSaveEmails} icon={Email} id="addressAddSaveButton"
-                                     disabled={_.isEmpty(email1)}>
+                                     disabled={_.isEmpty(email1)} allowOtherOperations={true}>
               {intl.formatMessage({ id: 'addressAddSaveLabel' })}
             </SpinningIconLabelButton>
           </ListItem>

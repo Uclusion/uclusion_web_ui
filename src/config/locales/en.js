@@ -219,7 +219,7 @@ const messages = defineMessages({
   daysEstimateLabel: 'effort estimate',
 
   // CurrentVoting
-  removeNotifications: 'Mark All Read',
+  removeNotifications: 'Mark all read',
   numVoting: '{x} approvals',
   certainty100: 'Very Certain',
   certainty75: 'Certain',
@@ -967,10 +967,10 @@ const messages = defineMessages({
   todoSection: 'Todos',
   readyToStartCheckboxExplanation: 'Ready to Start',
   editTodo: 'View',
-  markRead: 'Mark Read',
-  markDescriptionRead: 'Mark Description Read',
-  markStoryRead: 'Mark Job Read',
-  markReadMobile: 'Mark Read',
+  markRead: 'Mark read',
+  markDescriptionRead: 'Mark description read',
+  markStoryRead: 'Mark job read',
+  markReadMobile: 'Mark read',
   moveTodoRed: 'Move to Immediate',
   moveTodoYellow: 'Move to When Able',
   moveTodoBlue: 'Move to When Convenient',

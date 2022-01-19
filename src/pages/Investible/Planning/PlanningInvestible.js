@@ -1421,7 +1421,7 @@ function MarketMetaData(props) {
                                        messages.push(myMessageName);
                                      }
                                      deleteOrDehilightMessages(messages, messagesDispatch,
-                                       workItemClasses.removed).then(() => {
+                                       workItemClasses.removed, true, true).then(() => {
                                        setOperationRunning(false);
                                      }).finally(() => {
                                        setOperationRunning(false);

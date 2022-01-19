@@ -86,7 +86,8 @@ function MarketTodoMenu(props) {
   function doMarkRead() {
     setOperationRunning(true);
     openIdFunc(undefined);
-    return deleteOrDehilightMessages(messages, messagesDispatch, workItemClasses.removed)
+    return deleteOrDehilightMessages(messages, messagesDispatch, workItemClasses.removed,
+      true, true)
       .then(() => setOperationRunning(false))
       .finally(() => {
         doRemoveEdit(commentId);

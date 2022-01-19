@@ -39,7 +39,12 @@ export function deleteOrDehilightMessages(messages, messagesDispatch, removeClas
   if (!_.isEmpty(useMarketIds) && doRemove) {
     Object.keys(useMarketIds).forEach((key) => {
       promiseChain = promiseChain.then(() => getMarketClient(key)
-        .then((client) => client.users.removeNotifications(useMarketIds[key])));
+        .then((client) => {
+          if (highlightOnly) {
+            return client.users.dehighlightNotifications(useMarketIds[key]);
+          }
+          return client.users.removeNotifications(useMarketIds[key]);
+        }));
     });
   }
   return promiseChain;

@@ -566,7 +566,8 @@ function MarketTodos (props) {
                 setOperationRunning(false);
                 return;
               }
-              return deleteOrDehilightMessages(allMessages, messagesDispatch, workItemClasses.removed)
+              return deleteOrDehilightMessages(allMessages, messagesDispatch, workItemClasses.removed,
+                true, true)
                 .then(() => setOperationRunning(false))
                 .finally(() => {
                   setOperationRunning(false);

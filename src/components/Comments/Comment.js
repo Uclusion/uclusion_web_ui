@@ -816,7 +816,11 @@ function Comment(props) {
                 )}
                 {!mobileLayout && !_.isEmpty(messages) && (
                   <SpinningIconLabelButton onClick={() => {
-                    deleteOrDehilightMessages(messages, messagesDispatch, workItemClasses.removed)
+                    // We don't want the inbox row disappearing when marking "read"
+                    // but can delete the others if there is a persistent
+                    const hasPersistent = myMessage && !myMessage.type_object_id.startsWith('UNREAD');
+                    deleteOrDehilightMessages(messages, messagesDispatch, workItemClasses.removed,
+                      true, !hasPersistent)
                       .then(() => setOperationRunning(false))
                       .finally(() => {
                         setOperationRunning(false);

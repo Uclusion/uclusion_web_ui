@@ -131,7 +131,8 @@ function Voting(props) {
       {!_.isEmpty(voteMessages) && (
         <>
           <SpinningIconLabelButton onClick={() => {
-            deleteOrDehilightMessages(voteMessages, messagesDispatch, workItemClasses.removed)
+            deleteOrDehilightMessages(voteMessages, messagesDispatch, workItemClasses.removed,
+              true, true)
               .then(() => setOperationRunning(false))
               .finally(() => {
                 setOperationRunning(false);

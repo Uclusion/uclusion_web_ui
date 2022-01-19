@@ -22,7 +22,7 @@ export function getTokenSecondsRemaining (tokenString) {
 }
 // the minimum time between runs of the register market token listener in milies
 const TOKEN_LISTENER_MIN_RUN_INTERVAL_MILLIS = 180000; // 30 mins
-let lastMarketTokenCheckTime = null;
+const lastMarketTokenCheck = {};
 
 export function registerMarketTokenListeners () {
   const myListener = (data) => {
@@ -32,10 +32,11 @@ export function registerMarketTokenListeners () {
     const { payload: { event, message } } = data;
     switch (event) {
       case VIEW_EVENT: {
-        const shouldRun = !lastMarketTokenCheckTime || ((Date.now() - lastMarketTokenCheckTime) >= TOKEN_LISTENER_MIN_RUN_INTERVAL_MILLIS);
+        const lastRun = lastMarketTokenCheck.time
+        const shouldRun = !lastRun || ((Date.now() - lastRun) >= TOKEN_LISTENER_MIN_RUN_INTERVAL_MILLIS);
         const { isEntry } = message;
         if (isEntry && shouldRun) {
-          lastMarketTokenCheckTime = Date.now();
+          lastMarketTokenCheck.time = Date.now();
           return getTokenFetcher(TOKEN_TYPE_MARKET)
             .then((fetcher) => {
               // refresh any token expiring within 72 hours.

@@ -2,7 +2,7 @@
  * Web socket context provider must appear within the markets context, since it needs to
  * properly update it
  */
-import React, { useContext, useEffect, useReducer, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import WebSocketRunner from '../components/BackgroundProcesses/WebSocketRunner'
 import config from '../config'
@@ -14,7 +14,6 @@ import { getNotifications } from '../api/summaries'
 import { isSignedOut, onSignOut } from '../utils/userFunctions'
 import { LEADER_CHANNEL, LeaderContext } from './LeaderContext/LeaderContext'
 import { BroadcastChannel } from 'broadcast-channel'
-import { VIEW_EVENT, VISIT_CHANNEL } from '../utils/marketIdPathFunctions'
 import LocalForageHelper from '../utils/LocalForageHelper'
 import { VERSIONS_CONTEXT_NAMESPACE } from './VersionsContext/versionsContextReducer'
 import { refreshOrMessage } from './LeaderContext/leaderContextReducer'
@@ -61,23 +60,70 @@ export function notifyNewApplicationVersion(currentVersion, cacheClearVersion) {
   }
 }
 
+function createWebSocket(config, leaderDispatch, setState) {
+  console.info('Creating new websocket');
+  const { webSockets } = config;
+  const sockConfig = { wsUrl: webSockets.wsUrl, reconnectInterval: webSockets.reconnectInterval };
+  const newSocket = new WebSocketRunner(sockConfig);
+  // this will incidentally subscribe to the identity
+  newSocket.connect();
+  const myChannel = new BroadcastChannel(LEADER_CHANNEL);
+  myChannel.onmessage = (msg) => {
+    if (msg === 'refresh') {
+      //Each context is setup to tell the other tabs to reload from the memory namespace
+      //so refresh versions just needs to run as normal and changes will propagate
+      leaderDispatch(refreshOrMessage(`leaderChannel${Date.now()}`));
+    }
+  }
+  // we also want to always be subscribed to new app versions
+  newSocket.registerHandler('UI_UPDATE_REQUIRED', () => {
+    getNotifications();
+  });
+
+  newSocket.registerHandler('pong', () => {
+    pongTracker.hasPong = true;
+  });
+
+  newSocket.registerHandler('market', () => {
+    leaderDispatch(refreshOrMessage(`market${Date.now()}`));
+  });
+  newSocket.registerHandler('investible', () => {
+    leaderDispatch(refreshOrMessage(`investible${Date.now()}`));
+  });
+  newSocket.registerHandler('market_investible', () => {
+    leaderDispatch(refreshOrMessage(`marketInvestible${Date.now()}`));
+  });
+  newSocket.registerHandler('comment', () => {
+    leaderDispatch(refreshOrMessage(`comment${Date.now()}`));
+  });
+  newSocket.registerHandler('stage', () => {
+    leaderDispatch(refreshOrMessage(`stage${Date.now()}`));
+  });
+  newSocket.registerHandler('market_capability', () => {
+    leaderDispatch(refreshOrMessage(`marketCapability${Date.now()}`));
+  });
+  newSocket.registerHandler('investment', () => {
+    leaderDispatch(refreshOrMessage(`investment${Date.now()}`));
+  });
+  // Go ahead and get the latest when bring up a new socket since you may not have been listening
+  leaderDispatch(refreshOrMessage(`initialized${Date.now()}`));
+  refreshNotifications();
+
+  newSocket.registerHandler('notification', () => {
+    // Try to be up to date before we push the notification out (which might need new data)
+    leaderDispatch(refreshOrMessage(`notification${Date.now()}`));
+    refreshNotifications();
+  });
+
+  setState(newSocket);
+}
+
+const pongTracker = {};
+
 function WebSocketProvider(props) {
   const { children, config } = props;
   const [, leaderDispatch] = useContext(LeaderContext);
   const [state, setState] = useState();
-  const [, setSocketListener] = useState();
-  const [, connectionCheckTimerDispatch] = useReducer((state, action) => {
-    const { timer } = state;
-    if (timer) {
-      // console.debug('Clearing socket pong timer');
-      clearTimeout(timer);
-    }
-    const { pongTimer } = action;
-    if (pongTimer) {
-      return { timer: pongTimer };
-    }
-    return {};
-  }, {});
 
   useEffect(() => {
     const lfg = new LocalForageHelper(VERSIONS_CONTEXT_NAMESPACE);
@@ -90,103 +136,33 @@ function WebSocketProvider(props) {
   },[]);
 
   useEffect(() => {
-    function createWebSocket() {
-      console.info('Creating new websocket');
-      const { webSockets } = config;
-      const sockConfig = { wsUrl: webSockets.wsUrl, reconnectInterval: webSockets.reconnectInterval };
-      const newSocket = new WebSocketRunner(sockConfig);
-      // this will incidentally subscribe to the identity
-      newSocket.connect();
-      const myChannel = new BroadcastChannel(LEADER_CHANNEL);
-      myChannel.onmessage = (msg) => {
-        if (msg === 'refresh') {
-          //Each context is setup to tell the other tabs to reload from the memory namespace
-          //so refresh versions just needs to run as normal and changes will propagate
-          leaderDispatch(refreshOrMessage(`leaderChannel${Date.now()}`));
+    const interval = setInterval((tracker, socket, refresh, myCreateSocket) => {
+      const mySignedOut = isSignedOut();
+      if (socket && tracker.hasPong && !mySignedOut) {
+        tracker.hasPong = false;
+        const actionString = JSON.stringify({ action: 'ping' });
+        socket.send(actionString);
+      } else {
+        if (socket) {
+          socket.terminate();
+        }
+        if (!isSignedOut()) {
+          myCreateSocket();
         }
       }
-      // we also want to always be subscribed to new app versions
-      newSocket.registerHandler('UI_UPDATE_REQUIRED', () => {
-        getNotifications();
-      });
-
-      newSocket.registerHandler('pong', () => {
-        connectionCheckTimerDispatch({});
-      });
-
-      newSocket.registerHandler('market', () => {
-        leaderDispatch(refreshOrMessage(`market${Date.now()}`));
-      });
-      newSocket.registerHandler('investible', () => {
-        leaderDispatch(refreshOrMessage(`investible${Date.now()}`));
-      });
-      newSocket.registerHandler('market_investible', () => {
-        leaderDispatch(refreshOrMessage(`marketInvestible${Date.now()}`));
-      });
-      newSocket.registerHandler('comment', () => {
-        leaderDispatch(refreshOrMessage(`comment${Date.now()}`));
-      });
-      newSocket.registerHandler('stage', () => {
-        leaderDispatch(refreshOrMessage(`stage${Date.now()}`));
-      });
-      newSocket.registerHandler('market_capability', () => {
-        leaderDispatch(refreshOrMessage(`marketCapability${Date.now()}`));
-      });
-      newSocket.registerHandler('investment', () => {
-        leaderDispatch(refreshOrMessage(`investment${Date.now()}`));
-      });
-      // Go ahead and get the latest when bring up a new socket since you may not have been listening
-      leaderDispatch(refreshOrMessage(`initialized${Date.now()}`));
+      if (!mySignedOut) {
+        refresh();
+      }
+    }, 30000, pongTracker, state, () => {
       refreshNotifications();
+      leaderDispatch(refreshOrMessage(`visit${Date.now()}`));
+    }, () => createWebSocket(config, leaderDispatch, setState));
+    return () => clearInterval(interval);
+  }, [config, leaderDispatch, state]);
 
-      newSocket.registerHandler('notification', () => {
-        // Try to be up to date before we push the notification out (which might need new data)
-        leaderDispatch(refreshOrMessage(`notification${Date.now()}`));
-        refreshNotifications();
-      });
-
-      // we need to subscribe to our identity, but that requires reworking subscribe
-      // newSocket.subscribe
-      return newSocket;
-    }
-    function initialize() {
-      Promise.resolve(createWebSocket())
-        .then((newSocket) => {
-          setState(newSocket);
-          const myListener = (data) => {
-            if (!data) {
-              return;
-            }
-            const { payload: { event, message } } = data;
-            switch (event) {
-              case VIEW_EVENT: {
-                const { isEntry } = message;
-                if (isEntry && (Date.now() - newSocket.getSocketLastSentTime()) > 30000) {
-                  // Otherwise if we miss a push out of luck until tab is closed
-                  leaderDispatch(refreshOrMessage(`visit${Date.now()}`));
-                  refreshNotifications();
-                  if (newSocket.getSocketState() === WebSocket.OPEN) {
-                    const actionString = JSON.stringify({ action: 'ping' });
-                    newSocket.send(actionString);
-                    const pongTimer = setTimeout((socket, setSocket) => {
-                      socket.terminate();
-                      setSocket(undefined);
-                    }, 5000, newSocket, setState);
-                    connectionCheckTimerDispatch({ pongTimer });
-                  }
-                }
-                break;
-              }
-              default:
-              // console.debug(`Ignoring event ${event}`);
-            }
-          };
-          registerListener(VISIT_CHANNEL, 'webSocketPongTimer', myListener);
-          setSocketListener(myListener);
-        });
-    }
+  useEffect(() => {
     if (!isSignedOut()) {
-      initialize();
+      createWebSocket(config, leaderDispatch, setState);
     }
     return () => {};
   }, [config, leaderDispatch]);
@@ -202,8 +178,8 @@ function WebSocketProvider(props) {
       case 'signIn':
         if (state) {
           state.terminate();
-          setState(undefined);
         }
+        createWebSocket(config, leaderDispatch, setState);
         break;
       default:
     }

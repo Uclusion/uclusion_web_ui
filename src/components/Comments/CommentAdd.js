@@ -378,7 +378,7 @@ function CommentAdd(props) {
         if (type === REPLY_TYPE) {
           const message = findMessageOfTypeAndId(parentId, messagesState, 'COMMENT');
           if (message) {
-            removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
+            messagesDispatch(dehighlightMessage(message));
           }
           const issueMessage = findMessageOfType('ISSUE', parentId, messagesState)
           if (issueMessage) {

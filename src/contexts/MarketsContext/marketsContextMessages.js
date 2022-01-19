@@ -18,6 +18,7 @@ import {
 import { lockPlanningMarketForEdit } from '../../api/markets'
 import localforage from 'localforage'
 import TokenStorageManager, { TOKEN_STORAGE_KEYSPACE, TOKEN_TYPE_MARKET } from '../../authorization/TokenStorageManager'
+import { updateMarkets } from '../../api/versionedFetchUtils'
 
 export const LOAD_MARKET_CHANNEL = 'LoadMarketChannel';
 export const INVITE_MARKET_EVENT = 'InviteMarketEvent';
@@ -99,7 +100,10 @@ function beginListening(dispatch, diffDispatch, setTokensHash) {
         pushMessage(PUSH_INVESTIBLES_CHANNEL, { event: LOAD_EVENT, investibles: [investible] });
       }
       const tokenStorageManager = new TokenStorageManager();
-      return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, id, token);
+      return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, id, token).then(() => {
+        // We know the market we just logged into is dirty so skip normal call to check it first
+        return updateMarkets([id], undefined, 1);
+      });
     }).catch((error) => {
       console.error(error);
       toastError('errorMarketFetchFailed');

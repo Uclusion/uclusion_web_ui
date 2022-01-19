@@ -374,7 +374,7 @@ function CommentAdd(props) {
         }
         // The whole thread will be marked read so quick it
         deleteOrDehilightMessages(threadMessages || [], messagesDispatch, workItemClasses.removed,
-          false, true);
+          true, true);
         if (type === REPLY_TYPE) {
           const message = findMessageOfTypeAndId(parentId, messagesState, 'COMMENT');
           if (message) {

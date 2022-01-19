@@ -139,10 +139,10 @@ function Root() {
         // console.debug('Focus listener');
         pegView(true);
       });
-      window.addEventListener('blur', () => {
-        // console.debug('Blur listener');
-        pegView(false);
-      });
+      // window.addEventListener('blur', () => {
+      //   console.debug('Blur listener');
+      //   pegView(false);
+      // });
       window.addEventListener('online', () => {
         // console.debug('Back Online listener');
         setOnline(true);
@@ -154,10 +154,10 @@ function Root() {
         setOnline(false);
         pegView(false);
       });
-      window.addEventListener('popstate', () => {
-        // console.debug('Popstate');
-        pegView(true);
-      });
+      // window.addEventListener('popstate', () => {
+      //   console.debug('Popstate');
+      //   pegView(true);
+      // });
       document.addEventListener('visibilitychange', () => {
         // console.debug('Visibility change listener');
         const isEntry = document.visibilityState === 'visible';

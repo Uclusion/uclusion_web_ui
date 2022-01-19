@@ -168,7 +168,7 @@ function WorkListItem(props) {
   const [expandedByGlobal, setExpandedByGlobal] = React.useState(undefined);
   const { market_id: marketId, type_object_id: typeObjectId, link, link_multiple: linkMultiple } = message;
   const useExpansionOpen = expandedByGlobal !== undefined ? expandedByGlobal :
-    (expansionOpen === undefined ? !read : expansionOpen);
+    (expansionOpen === undefined ? false : expansionOpen);
 
   useEffect(() => {
     setChecked(checkedDefault);

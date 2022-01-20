@@ -84,13 +84,19 @@ function InboxFull(props) {
       });
       navigationMenu.navListItemTextArray.push({
         text: intl.formatMessage({ id: 'removeArchive' }),
-        onClickFunc: () => setShowAll(false)
+        onClickFunc: (event) => {
+          preventDefaultAndProp(event);
+          setShowAll(false);
+        }
       });
       navigationMenu.navListItemTextArray = navigationMenu.navListItemTextArray.concat(items);
     } else {
       navigationMenu.navListItemTextArray.push({
         text: intl.formatMessage({ id: 'seeArchives' }),
-        onClickFunc: () => setShowAll(true)
+        onClickFunc: (event) => {
+          preventDefaultAndProp(event);
+          setShowAll(true);
+        }
       });
     }
   }

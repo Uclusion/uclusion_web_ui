@@ -9,8 +9,7 @@ import { useRowGutterStyles } from "@mui-treasury/styles/gutter/row";
 import PropTypes from 'prop-types'
 import { navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions'
 import { DeleteForever, ExpandLess } from '@material-ui/icons'
-import { getMarketClient } from '../../../api/uclusionClient'
-import { dehighlightMessage, removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
+import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import ArchiveIcon from '@material-ui/icons/Archive'
 import _ from 'lodash'
@@ -20,6 +19,7 @@ import { Link } from '@material-ui/core'
 import { getPageReducerPage } from '../../../components/PageState/pageStateHooks'
 import { useHistory } from 'react-router'
 import RaisedCard from '../../../components/Cards/RaisedCard'
+import { deleteOrDehilightMessages } from '../../../api/users'
 
 const Item = styled("div")`
   margin-bottom: 20px;
@@ -162,7 +162,7 @@ function WorkListItem(props) {
   const gutterStyles = useRowGutterStyles({ size: -10, before: -8 });
   const [checked, setChecked] = React.useState(checkedDefault);
   const [expandedByGlobal, setExpandedByGlobal] = React.useState(undefined);
-  const { market_id: marketId, type_object_id: typeObjectId, link, link_multiple: linkMultiple } = message;
+  const { link, link_multiple: linkMultiple } = message;
   const useExpansionOpen = expandedByGlobal !== undefined ? expandedByGlobal :
     (expansionOpen === undefined ? false : expansionOpen);
 
@@ -178,40 +178,14 @@ function WorkListItem(props) {
 
   const fullText = comment || investible || market;
 
-  function getTypeObjectIds() {
-    let typeObjectIds;
-    if (isMultiple) {
-      typeObjectIds = [];
-      multiMessages.forEach((message) => typeObjectIds.push(message.type_object_id));
-    } else {
-      typeObjectIds = [typeObjectId];
-    }
-    return typeObjectIds;
-  }
-
-  function removeNotifications() {
-    return getMarketClient(marketId).then((client) => client.users.removeNotifications(getTypeObjectIds()));
-  }
   const deleteActionButtonOnclick = (event) => {
     preventDefaultAndProp(event);
-    return removeNotifications().then(() => {
-      workListItemReset();
-      if (isMultiple) {
-        multiMessages.forEach((message) => removeWorkListItem(message, classes.removed, messagesDispatch));
-      } else {
-        removeWorkListItem(message, classes.removed, messagesDispatch);
-      }
-    });
+    return deleteOrDehilightMessages(isMultiple ? multiMessages : [message], messagesDispatch, classes.removed)
+      .then(() => workListItemReset());
   };
   const archiveActionButtonOnclick = (event) => {
     preventDefaultAndProp(event);
-    return removeNotifications().then(() => {
-      if (isMultiple) {
-        multiMessages.forEach((message) => messagesDispatch(dehighlightMessage(message)));
-      } else {
-        messagesDispatch(dehighlightMessage(message));
-      }
-    });
+    return deleteOrDehilightMessages(isMultiple ? multiMessages : [message], messagesDispatch, classes.removed);
   };
   const useLink = isMultiple ? linkMultiple : link;
   return (

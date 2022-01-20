@@ -1,8 +1,6 @@
 import React from 'react'
 import _ from 'lodash'
-import { getUnresolvedInvestibleComments } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
-import { JUSTIFY_TYPE } from '../../../constants/comments'
 import InvestibleStatus from './InvestibleStatus'
 import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff'
 import {
@@ -10,12 +8,8 @@ import {
   refreshInvestibles
 } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { getDiff } from '../../../contexts/DiffContext/diffContextHelper'
-import { PLANNING_TYPE } from '../../../constants/markets'
-import { FormattedMessage } from 'react-intl'
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { getMarketInfo } from '../../../utils/userFunctions'
-import Voting from '../../Investible/Decision/Voting'
-import { getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import DialogManage from '../../Dialog/DialogManage'
 import { Checkbox, FormControlLabel, Typography } from '@material-ui/core'
 import { updateInvestible } from '../../../api/investibles'
@@ -32,8 +26,8 @@ import AttachedFilesList from '../../../components/Files/AttachedFilesList'
 import Chip from '@material-ui/core/Chip'
 
 export function addExpansionPanel(props) {
-  const {item, commentState, marketState, investiblesState, investiblesDispatch, diffState,
-    planningClasses, marketPresencesState, marketStagesState, marketsState, mobileLayout, messagesState,
+  const {item, marketState, investiblesState, investiblesDispatch, diffState,
+    planningClasses, marketPresencesState, marketStagesState, mobileLayout, messagesState,
     messagesDispatch, operationRunning, setOperationRunning, intl, workItemClasses, isMultiple} = props;
   const { message } = item;
   const { type: messageType, market_id: marketId, comment_id: commentId, comment_market_id: commentMarketId,
@@ -165,43 +159,10 @@ export function addExpansionPanel(props) {
       }
     }
   } else if (['NOT_FULLY_VOTED', 'ASSIGNED_UNREVIEWABLE','UNREAD_REVIEWABLE', 'REVIEW_REQUIRED',
-    'ISSUE_RESOLVED', 'UNREAD_ASSIGNMENT', 'NEW_TODO'].includes(messageType)) {
+    'ISSUE_RESOLVED', 'UNREAD_ASSIGNMENT', 'NEW_TODO', 'UNREAD_VOTE'].includes(messageType)) {
     item.expansionPanel = <InboxInvestible marketId={marketId} investibleId={investibleId} messageTypes={[messageType]}
                                            planningClasses={planningClasses} marketType={marketType}
                                            mobileLayout={mobileLayout} />;
-  } else if (messageType === 'UNREAD_VOTE' && marketType === PLANNING_TYPE && investibleId) {
-    const marketPresences = getMarketPresences(marketPresencesState, marketId);
-    const yourPresence = marketPresences.find((presence) => presence.current_user);
-    const investibleComments = getUnresolvedInvestibleComments(investibleId, marketId, commentState);
-    const investmentReasons = investibleComments.filter((comment) => {
-        return comment.comment_type === JUSTIFY_TYPE;
-    });
-    const inv = getInvestible(investiblesState, investibleId);
-    const marketInfo = getMarketInfo(inv, marketId) || {};
-    const { stage } = marketInfo;
-    const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
-    const market = getMarket(marketsState, marketId) || {};
-    item.expansionPanel = (
-      <div style={{paddingLeft: '1rem', paddingRight: '1rem'}}>
-        <h2 id="approvals">
-          <FormattedMessage id="decisionInvestibleOthersVoting" />
-        </h2>
-        <Voting
-          investibleId={investibleId}
-          marketPresences={marketPresences}
-          investmentReasons={investmentReasons}
-          showExpiration={fullStage.has_expiration}
-          expirationMinutes={market.investment_expiration * 1440}
-          votingPageState={{}}
-          updateVotingPageState={() => {}}
-          votingPageStateReset={() => {}}
-          votingAllowed={false}
-          yourPresence={yourPresence}
-          market={market}
-          isAssigned={true}
-        />
-      </div>
-    );
   } else if (messageType === 'UNREAD_DRAFT') {
     item.expansionPanel = (
       <DialogManage marketId={marketId} onClose={() => {}} isInbox />

@@ -204,7 +204,7 @@ function InboxInvestible(props) {
           )}
         </div>
       )}
-      {messageTypes.includes('UNREAD_ASSIGNMENT') && (
+      {!_.isEmpty(_.intersection(['UNREAD_ASSIGNMENT', 'UNREAD_VOTE'], messageTypes)) && (
         <div style={{paddingLeft: '1rem', paddingRight: '1rem'}}>
           <h2 id="approvals">
             <FormattedMessage id="decisionInvestibleOthersVoting" />
@@ -239,7 +239,7 @@ function InboxInvestible(props) {
         </>
       )}
       {!_.isEmpty(messageTypes) && marketId && !_.isEmpty(myInvestible) &&
-        _.isEmpty(_.intersection(['NEW_TODO', 'ISSUE_RESOLVED'], messageTypes)) && (
+        _.isEmpty(_.intersection(['NEW_TODO', 'ISSUE_RESOLVED', 'UNREAD_VOTE'], messageTypes)) && (
         <>
           <div style={{paddingTop: '1rem'}} />
           <CommentAddBox

@@ -21,7 +21,7 @@ export function getTokenSecondsRemaining (tokenString) {
   return (exp - currentTimeSeconds);
 }
 // the minimum time between runs of the register market token listener in milies
-const TOKEN_LISTENER_MIN_RUN_INTERVAL_MILLIS = 180000; // 30 mins
+const TOKEN_LISTENER_MIN_RUN_INTERVAL_MILLIS = 1800000; // 30 mins
 const lastMarketTokenCheck = {};
 
 export function registerMarketTokenListeners () {

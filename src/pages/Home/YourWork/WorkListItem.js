@@ -194,14 +194,24 @@ function WorkListItem(props) {
   }
   const deleteActionButtonOnclick = (event) => {
     preventDefaultAndProp(event);
-    workListItemReset();
-    removeWorkListItem(message, classes.removed, messagesDispatch);
-    return removeNotifications();
+    return removeNotifications().then(() => {
+      workListItemReset();
+      if (isMultiple) {
+        multiMessages.forEach((message) => removeWorkListItem(message, classes.removed, messagesDispatch));
+      } else {
+        removeWorkListItem(message, classes.removed, messagesDispatch);
+      }
+    });
   };
   const archiveActionButtonOnclick = (event) => {
     preventDefaultAndProp(event);
-    messagesDispatch(dehighlightMessage(message));
-    return removeNotifications();
+    return removeNotifications().then(() => {
+      if (isMultiple) {
+        multiMessages.forEach((message) => messagesDispatch(dehighlightMessage(message)));
+      } else {
+        messagesDispatch(dehighlightMessage(message));
+      }
+    });
   };
   const useLink = isMultiple ? linkMultiple : link;
   return (

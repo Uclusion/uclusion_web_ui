@@ -93,7 +93,7 @@ function Dialog(props) {
     (loadingForeGroundMarkets || createEnabled ? undefined : <UpgradeBanner/>);
 
   useEffect(() => {
-    if (!hidden && !isInitialization && hasUser) {
+    if (!hidden && !isInitialization && hasUser && marketEntity) {
       let proposedMarketId;
       if (action === 'invite') {
         const decoded = jwt_decode(marketEntity);

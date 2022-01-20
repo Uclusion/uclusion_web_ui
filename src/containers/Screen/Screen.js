@@ -139,8 +139,7 @@ function processRegularItem (classes, history, text, target, num, Icon, onClickF
     <ListItem key={`${index}${textNoSpaces}`} id={textNoSpaces} selected={isBold}
               className={isGrouped ? classes.navListItemGrouped : classes.navListItem}
               onClick={
-                (event) => {
-                  preventDefaultAndProp(event)
+                () => {
                   if (onClickFunc) {
                     onClickFunc()
                   } else {

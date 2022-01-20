@@ -219,9 +219,10 @@ function PlanningDialog(props) {
     window.scrollTo(0, 0);
   }
 
-  function createNavListItem(icon, textId, anchorId, howManyNum, alwaysShow, isBold) {
+  function createNavListItem(icon, textId, anchorId, howManyNum, alwaysShow, isBold, isSearch) {
     const nav = baseNavListItem(formMarketLink(marketId), icon, textId, anchorId, howManyNum, alwaysShow);
-    nav['onClickFunc'] = mobileLayout ? () => navigate(history, nav.target, false, true) :
+    nav['onClickFunc'] = mobileLayout || isSearch ? () => navigate(history, nav.target,
+        false, true) :
       () => openSubSection(anchorId);
     if (isBold) {
       nav['isBold'] = true;
@@ -251,22 +252,22 @@ function PlanningDialog(props) {
     {icon: Inbox, text: intl.formatMessage({ id: 'inbox' }), target: '/inbox', newPage: true},
     createNavListItem(EditIcon, 'planningDialogNavDetailsLabel', 'workspaceMain',
       _.isEmpty(search) ? undefined : (results.find((result) => result.id === marketId) ? 1 : 0),
-      true, isSectionBold('workspaceMain'))
+      true, isSectionBold('workspaceMain'), !_.isEmpty(search))
   ];
   if (!mobileLayout) {
     navListItemTextArrayBeg.push(createNavListItem(AddIcon, 'addStoryLabel', 'addStorySection',
-      undefined, false, isSectionBold('addStorySection')));
+      undefined, false, isSectionBold('addStorySection'), !_.isEmpty(search)));
   }
   const navListItemTextArray = navListItemTextArrayBeg.concat([
     createNavListItem(AssignmentIcon, 'planningDialogNavStoriesLabel', 'storiesSection',
       _.size(requiresInputInvestibles) + _.size(blockedInvestibles) + _.size(swimlaneInvestibles)
       + _.size(furtherWorkReadyToStart) + _.size(furtherWorkInvestibles),
-      true, isSectionBold('storiesSection')),
+      true, isSectionBold('storiesSection'), !_.isEmpty(search)),
     createNavListItem(ListAltIcon, 'todoSection', 'marketTodos', _.size(todoComments),
-      !inArchives && _.isEmpty(search), isSectionBold('marketTodos')),
+      !inArchives && _.isEmpty(search), isSectionBold('marketTodos'), !_.isEmpty(search)),
     createNavListItem(QuestionIcon, 'planningDialogNavDiscussionLabel', 'discussionSection',
       _.size(questions) + _.size(suggestions) + _.size(reports),
-      true, isSectionBold('discussionSection')),
+      true, isSectionBold('discussionSection'), !_.isEmpty(search)),
     {
       icon: MenuBookIcon, text: intl.formatMessage({ id: 'planningDialogViewArchivesLabel' }),
       target: archivedSize > 0 ? formMarketArchivesLink(marketId) : undefined,
@@ -275,7 +276,7 @@ function PlanningDialog(props) {
   ]);
   if (!mobileLayout) {
     navListItemTextArray.push(createNavListItem(SettingsIcon, 'settings', 'settingsSection',
-      undefined, false, isSectionBold('settingsSection')));
+      undefined, false, isSectionBold('settingsSection'), !_.isEmpty(search)));
   }
   const navigationMenu = { navListItemTextArray }
   const furtherWorkReadyToStartChip = furtherWorkReadyToStart.length > 0

@@ -142,7 +142,8 @@ function Inbox(props) {
           <Fab id='notifications-fabInbox' className={classes.fab} disabled={isDisabled}>
             <MoveToInbox
               htmlColor={ _.isEmpty(first) ? '#8f8f8f' :
-                (first.level === 'RED' ? '#E85757' : (first.level === 'YELLOW' ? '#e6e969' : '#2D9CDB'))} />
+                (first.level === 'RED' ? '#E85757' : (first.level === 'YELLOW' ? (isDisabled ? '#ffff00' :'#FCEC69')
+                  : '#2D9CDB'))} />
           </Fab>
         </Badge>
       </div>

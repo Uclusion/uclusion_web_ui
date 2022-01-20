@@ -164,6 +164,11 @@ function InboxInvestible(props) {
             />
           </div>
         )}
+        {!_.isEmpty(messageTypes) && (
+          <Typography variant="body1" style={{marginTop: mobileLayout ? '1rem' : '1.5rem'}}>
+            {market.name}
+          </Typography>
+        )}
       </div>
       {_.isEmpty(messageTypes) && (
         <Typography variant="h6">

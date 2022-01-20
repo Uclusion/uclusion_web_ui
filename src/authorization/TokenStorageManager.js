@@ -95,6 +95,7 @@ class TokenStorageManager {
    * @param windowHours number of hours that all tokens that expire within that many hours will be refreshed
    */
   getExpiringTokens (tokenType, windowHours) {
+    console.info(`Finding expired for ${tokenType} and hours ${windowHours}`);
     const windowSeconds = windowHours * 3600;
     const store = localforage.createInstance({ storeName: TOKEN_STORAGE_KEYSPACE });
     return store.keys()

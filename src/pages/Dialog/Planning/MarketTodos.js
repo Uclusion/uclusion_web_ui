@@ -353,7 +353,7 @@ function MarketTodos (props) {
         <React.Fragment key={`${id}top`}>
           {openMenuTodoId === id && anchorEl && (
             <MarketTodoMenu comment={comment} editViewFunc={setCardAndScroll} market={market}
-                            openIdFunc={setOpenMenuTodoId} anchorEl={anchorEl} messages={messages}/>
+                            openIdFunc={setOpenMenuTodoId} anchorEl={anchorEl} />
           )}
           <Grid
             id={`c${id}`}
@@ -567,7 +567,7 @@ function MarketTodos (props) {
                 return;
               }
               return deleteOrDehilightMessages(allMessages, messagesDispatch, workItemClasses.removed,
-                true, true)
+                true)
                 .then(() => setOperationRunning(false))
                 .finally(() => {
                   setOperationRunning(false);

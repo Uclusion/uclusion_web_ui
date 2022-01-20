@@ -8,14 +8,10 @@ import { makeStyles } from '@material-ui/styles'
 import CardType from '../../../components/CardType'
 import ProgressBar from '../../../components/Expiration/ProgressBarExpiration'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
-import { findMessageOfTypeAndId, findMessagesForInvestibleId } from '../../../utils/messageUtils'
+import { findMessageOfTypeAndId } from '../../../utils/messageUtils'
 import { getInvestibleVoters } from '../../../utils/votingUtils';
-import { deleteOrDehilightMessages } from '../../../api/users'
-import { Edit, SettingsBackupRestore } from '@material-ui/icons'
-import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { Edit } from '@material-ui/icons'
 import YourVoting from '../Voting/YourVoting'
-import { workListStyles } from '../../Home/YourWork/WorkListItem'
 import { invalidEditEvent } from '../../../utils/windowUtils'
 import { useHistory } from 'react-router'
 import clsx from 'clsx'
@@ -98,16 +94,12 @@ const useVoteStyles = makeStyles(
 function Voting(props) {
   const { marketPresences, investibleId, investmentReasons, showExpiration, expirationMinutes, votingPageState,
     updateVotingPageState, votingPageStateReset, votingAllowed, yourPresence, market, isAssigned } = props;
-  const history = useHistory()
-  const workItemClasses = workListStyles();
+  const history = useHistory();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
-  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
-  const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [messagesState] = useContext(NotificationsContext);
   const classes = useVoteStyles();
   const intl = useIntl();
-  const investibleMessages = findMessagesForInvestibleId(investibleId, messagesState) || [];
-  const voteMessages = investibleMessages.filter((message) => message.type_object_id.startsWith('UNREAD_VOTE'));
   const {
     votingBeingEdited
   } = votingPageState;
@@ -127,23 +119,7 @@ function Voting(props) {
   }
 
   return (
-    <>
-      {!_.isEmpty(voteMessages) && (
-        <>
-          <SpinningIconLabelButton onClick={() => {
-            deleteOrDehilightMessages(voteMessages, messagesDispatch, workItemClasses.removed,
-              true, true)
-              .then(() => setOperationRunning(false))
-              .finally(() => {
-                setOperationRunning(false);
-              });
-          }} icon={SettingsBackupRestore} id="removeVoteNotificationsButton">
-            {intl.formatMessage({ id: 'removeNotifications' })}
-          </SpinningIconLabelButton>
-          <div style={{paddingBottom: '1rem'}} />
-        </>
-      )}
-      <ol className={classes.root}>
+    <ol className={classes.root}>
         {sortedVoters.map((voter, index) => {
           const { name, email, id: userId, quantity, maxBudget, maxBudgetUnit, updatedAt } = voter;
           const isYourVote = userId === yourPresence.id;
@@ -243,7 +219,6 @@ function Voting(props) {
           );
         })}
       </ol>
-    </>
   );
 }
 

@@ -8,7 +8,6 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import DialogActions from '../../Home/DialogActions'
 import CardType, { AGILE_PLAN_TYPE } from '../../../components/CardType'
-import ParentSummary from '../ParentSummary'
 import { useMetaDataStyles } from '../../Investible/Planning/PlanningInvestible'
 import { useHistory } from 'react-router'
 import Collaborators from '../Collaborators'
@@ -28,13 +27,10 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { findMessageOfTypeAndId } from '../../../utils/messageUtils'
 import { getDiff, markDiffViewed } from '../../../contexts/DiffContext/diffContextHelper'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
-import { ExpandLess, SettingsBackupRestore } from '@material-ui/icons'
-import { deleteOrDehilightMessages } from '../../../api/users'
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { ExpandLess } from '@material-ui/icons'
 import MenuBookIcon from '@material-ui/icons/MenuBook'
 import { formMarketArchivesLink, navigate } from '../../../utils/marketIdPathFunctions'
 import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils'
-import { workListStyles } from '../../Home/YourWork/WorkListItem'
 
 const useStyles = makeStyles(theme => ({
   section: {
@@ -217,14 +213,11 @@ function Summary(props) {
     locked_by: lockedBy,
     name,
   } = market;
-  const workItemClasses = workListStyles();
-  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [, marketsDispatch] = useContext(MarketsContext);
   const [diffState, diffDispatch] = useContext(DiffContext);
-  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const [messagesState] = useContext(NotificationsContext);
   const myMessageDescription = findMessageOfTypeAndId(id, messagesState, 'DESCRIPTION')
-  const myMessageName = findMessageOfTypeAndId(id, messagesState, 'NAME');
   const diff = getDiff(diffState, id);
   const {
     beingEdited,
@@ -347,31 +340,6 @@ function Summary(props) {
                 />
               </div>
             </div>
-            <ParentSummary market={market} hidden={hidden}/>
-            {(myMessageDescription || myMessageName) && (
-              <>
-                <div style={{ paddingTop: '0.5rem' }}/>
-                <SpinningIconLabelButton icon={SettingsBackupRestore}
-                                         onClick={() => {
-                                           const messages = [];
-                                           if (myMessageDescription) {
-                                             messages.push(myMessageDescription);
-                                           }
-                                           if (myMessageName) {
-                                             messages.push(myMessageName);
-                                           }
-                                           deleteOrDehilightMessages(messages, messagesDispatch,
-                                             workItemClasses.removed, true, true).then(() => {
-                                           setOperationRunning(false);
-                                           }).finally(() => {
-                                            setOperationRunning(false);
-                                           });
-                                       }}
-                                       doSpin={true}>
-                <FormattedMessage id={mobileLayout ? 'markReadMobile' : 'markDescriptionRead'}/>
-              </SpinningIconLabelButton>
-            </>
-          )}
           {myMessageDescription && diff && (
             <SpinningIconLabelButton icon={showDiff ? ExpandLess : ExpandMoreIcon}
                                      onClick={toggleDiffShow} doSpin={false}>

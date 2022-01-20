@@ -156,10 +156,10 @@ function Inbox(props) {
     const { link_multiple: linkMultiple } = message;
     if (linkMultiple) {
       if (dupeHash[linkMultiple]) {
-        dupeHash[linkMultiple] += 1;
+        dupeHash[linkMultiple].push(message);
         return false;
       }
-      dupeHash[linkMultiple] = 1;
+      dupeHash[linkMultiple] = [message];
     }
     return true;
   });
@@ -168,9 +168,11 @@ function Inbox(props) {
     const { level, investible_name: investible, updated_at: updatedAt, market_name: market,
       is_highlighted: isHighlighted, type_object_id: typeObjectId, market_id: marketId, comment_id: commentId,
       comment_market_id: commentMarketId, link_multiple: linkMultiple } = message;
-    const isMultiple = dupeHash[linkMultiple] > 1;
+    const isMultiple = _.size(dupeHash[linkMultiple]) > 1;
+    const hasPersistent = (dupeHash[linkMultiple] || []).find((message) =>
+      !message.type_object_id.startsWith('UNREAD'));
     const title = isMultiple ?
-      intl.formatMessage({ id: 'multipleNotifications' }, { x: dupeHash[linkMultiple] })
+      intl.formatMessage({ id: 'multipleNotifications' }, { x: _.size(dupeHash[linkMultiple]) })
       : messageText(message, mobileLayout, intl);
     const item = {
       title,
@@ -178,7 +180,7 @@ function Inbox(props) {
       market,
       investible,
       read: !isHighlighted,
-      isDeletable: typeObjectId.startsWith('UNREAD') && !isMultiple,
+      isDeletable: typeObjectId.startsWith('UNREAD') && (!isMultiple || !hasPersistent),
       date: intl.formatDate(updatedAt),
       message
     }
@@ -200,6 +202,7 @@ function Inbox(props) {
       messagesDispatch, operationRunning, setOperationRunning, intl, workItemClasses, isMultiple});
     return <WorkListItem key={typeObjectId} id={typeObjectId} checkedDefault={checkAll} expansionOpenDefault={expandAll}
                          workListItemFull={workListItemFull} workListItemDispatch={workListItemDispatch}
+                         multiMessages={dupeHash[linkMultiple]}
                          setDeterminate={setDeterminate} determinate={determinate} isMultiple={isMultiple} {...item} />;
   });
 

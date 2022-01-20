@@ -1,6 +1,5 @@
 import React, { useContext } from 'react'
 import PropTypes from 'prop-types';
-import _ from 'lodash';
 import { List, ListItem, ListItemText, ListSubheader, Menu } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles';
 import { useIntl } from 'react-intl';
@@ -13,12 +12,10 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { doRemoveEdit, onDropTodo } from './userUtils'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
-import { deleteOrDehilightMessages } from '../../../api/users'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { removeMessagesForCommentId } from '../../../utils/messageUtils'
 import { notifyImmediate } from '../../../utils/commentFunctions'
 import { RED_LEVEL } from '../../../constants/notifications'
-import { workListStyles } from '../../Home/YourWork/WorkListItem'
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -45,10 +42,9 @@ const useStyles = makeStyles((theme) => {
 });
 
 function MarketTodoMenu(props) {
-  const { comment, editViewFunc, openIdFunc, anchorEl, messages, market } = props;
+  const { comment, editViewFunc, openIdFunc, anchorEl, market } = props;
   const intl = useIntl();
   const classes = useStyles();
-  const workItemClasses = workListStyles();
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [, invDispatch] = useContext(InvestiblesContext);
@@ -81,18 +77,6 @@ function MarketTodoMenu(props) {
     editViewFunc(comment);
     openIdFunc(undefined);
     doRemoveEdit(commentId);
-  }
-
-  function doMarkRead() {
-    setOperationRunning(true);
-    openIdFunc(undefined);
-    return deleteOrDehilightMessages(messages, messagesDispatch, workItemClasses.removed,
-      true, true)
-      .then(() => setOperationRunning(false))
-      .finally(() => {
-        doRemoveEdit(commentId);
-        setOperationRunning(false);
-    });
   }
 
   function moveTodo(notificationType) {
@@ -134,11 +118,6 @@ function MarketTodoMenu(props) {
         <ListItem button onClick={doEdit}>
           <ListItemText primary={intl.formatMessage({ id: 'editTodo' })} />
         </ListItem>
-        {!_.isEmpty(messages) && (
-          <ListItem button onClick={doMarkRead}>
-            <ListItemText primary={intl.formatMessage({ id: 'markRead' })} />
-          </ListItem>
-        )}
         {myNotificationType !== 'RED' && (
           <ListItem onClick={() => moveTodo('RED')} button >
             <ListItemText primary={intl.formatMessage({ id: 'moveTodoRed' })} />

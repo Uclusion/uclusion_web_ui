@@ -5,7 +5,8 @@ import { getMarketClient } from '../../api/uclusionClient'
 
 export const ADD_EVENT = 'add_event';
 export const DELETE_EVENT = 'delete_event';
-export const DELETE_NOTIFICATIONS_CHANNEL = 'delete_notifications';
+export const DEHIGHLIGHT_EVENT = 'delete_event';
+export const MODIFY_NOTIFICATIONS_CHANNEL = 'delete_notifications';
 
 function beginListening(dispatch) {
   registerListener(NOTIFICATIONS_HUB_CHANNEL, 'notificationsStart', (data) => {
@@ -23,14 +24,17 @@ function beginListening(dispatch) {
         // console.debug(`Ignoring push event ${event}`);
     }
   });
-  registerListener(DELETE_NOTIFICATIONS_CHANNEL, 'notificationsDelete', (data) => {
+  registerListener(MODIFY_NOTIFICATIONS_CHANNEL, 'notificationsDelete', (data) => {
     const { payload: { event, message } } = data;
-    const { market_id: marketId, type_object_id: typeObjectId } = message;
+    const { market_id: marketId, typeObjectIds } = message;
     // // console.debug(`Notifications context responding to push event ${event}`);
 
     switch (event) {
       case DELETE_EVENT:
-        getMarketClient(marketId).then((client) => client.users.removeNotifications([typeObjectId]));
+        getMarketClient(marketId).then((client) => client.users.removeNotifications(typeObjectIds));
+        break;
+      case DEHIGHLIGHT_EVENT:
+        getMarketClient(marketId).then((client) => client.users.dehighlightNotifications(typeObjectIds));
         break;
       default:
       // console.debug(`Ignoring push event ${event}`);

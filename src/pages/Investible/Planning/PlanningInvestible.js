@@ -114,7 +114,6 @@ import { getDiff, markDiffViewed } from '../../../contexts/DiffContext/diffConte
 import { notify, onInvestibleStageChange } from '../../../utils/investibleFunctions'
 import { UNASSIGNED_TYPE, YELLOW_LEVEL } from '../../../constants/notifications'
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
-import { deleteOrDehilightMessages } from '../../../api/users'
 import WarningDialog from '../../../components/Warnings/WarningDialog'
 import { useLockedDialogStyles } from '../../Dialog/DialogBodyEdit'
 import InputLabel from '@material-ui/core/InputLabel'
@@ -129,7 +128,6 @@ import UclusionTour from '../../../components/Tours/UclusionTour'
 import { blockedStorySteps } from '../../../components/Tours/blockedStory'
 import { requiresInputStorySteps } from '../../../components/Tours/requiresInputStory'
 import { getTomorrow } from '../../../utils/timerUtils'
-import { workListStyles } from '../../Home/YourWork/WorkListItem'
 import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
 
 export const usePlanningInvestibleStyles = makeStyles(
@@ -1347,12 +1345,9 @@ function MarketMetaData(props) {
   } = pageState
 
   const [, investiblesDispatch] = useContext(InvestiblesContext);
-  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [diffState, diffDispatch] = useContext(DiffContext);
-  const workItemClasses = workListStyles();
-  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const [messagesState] = useContext(NotificationsContext);
   const myMessageDescription = findMessageOfTypeAndId(investibleId, messagesState, 'DESCRIPTION');
-  const myMessageName = findMessageOfTypeAndId(investibleId, messagesState, 'NAME');
   const diff = getDiff(diffState, investibleId);
   const classes = useMetaDataStyles();
   const attachedFiles = marketInvestible.investible && marketInvestible.investible.attached_files;
@@ -1408,29 +1403,6 @@ function MarketMetaData(props) {
             </>
           )}
         </React.Fragment>
-      )}
-      {(myMessageDescription || myMessageName) && (
-        <>
-          <SpinningIconLabelButton icon={SettingsBackupRestore}
-                                   onClick={() => {
-                                     const messages = [];
-                                     if (myMessageDescription) {
-                                       messages.push(myMessageDescription);
-                                     }
-                                     if (myMessageName) {
-                                       messages.push(myMessageName);
-                                     }
-                                     deleteOrDehilightMessages(messages, messagesDispatch,
-                                       workItemClasses.removed, true, true).then(() => {
-                                       setOperationRunning(false);
-                                     }).finally(() => {
-                                       setOperationRunning(false);
-                                     });
-                                   }}
-                                   doSpin={true}>
-            <FormattedMessage id={'markStoryRead'} />
-          </SpinningIconLabelButton>
-        </>
       )}
       {myMessageDescription && diff && (
         <>

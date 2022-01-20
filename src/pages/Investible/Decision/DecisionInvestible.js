@@ -29,18 +29,15 @@ import { attachFilesToInvestible, deleteAttachedFilesFromInvestible } from '../.
 import { EMPTY_SPIN_RESULT } from '../../../constants/global'
 import { doSetEditWhenValid } from '../../../utils/windowUtils'
 import EditMarketButton from '../../Dialog/EditMarketButton'
-import { ExpandLess, SettingsBackupRestore } from '@material-ui/icons'
+import { ExpandLess } from '@material-ui/icons'
 import InvestibleBodyEdit from '../InvestibleBodyEdit'
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
-import { deleteOrDehilightMessages } from '../../../api/users'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { getDiff, markDiffViewed } from '../../../contexts/DiffContext/diffContextHelper'
 import { findMessageOfTypeAndId } from '../../../utils/messageUtils'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils'
-import { workListStyles } from '../../Home/YourWork/WorkListItem'
 
 const useStyles = makeStyles((theme) => ({
   mobileColumn: {
@@ -155,15 +152,12 @@ function DecisionInvestible(props) {
   const history = useHistory();
   const classes = useStyles();
   const theme = useTheme();
-  const workItemClasses = workListStyles();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const metaClasses = useMetaDataStyles();
-  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [diffState, diffDispatch] = useContext(DiffContext);
-  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const [messagesState] = useContext(NotificationsContext);
   const myMessageDescription = findMessageOfTypeAndId(investibleId, messagesState, 'DESCRIPTION');
-  const myMessageName = findMessageOfTypeAndId(investibleId, messagesState, 'NAME');
   const diff = getDiff(diffState, investibleId);
   const { id: marketId, market_stage: marketStage, allow_multi_vote: allowMultiVote } = market;
   const [pageStateFull, pageDispatch] = usePageStateReducer('investible');
@@ -340,30 +334,7 @@ function DecisionInvestible(props) {
               {activeMarket && (
                 getActions()
               )}
-            </CardActions>
-            {(myMessageDescription || myMessageName) && (
-              <>
-                <SpinningIconLabelButton icon={SettingsBackupRestore}
-                                         onClick={() => {
-                                           const messages = [];
-                                           if (myMessageDescription) {
-                                             messages.push(myMessageDescription);
-                                           }
-                                           if (myMessageName) {
-                                             messages.push(myMessageName);
-                                           }
-                                           deleteOrDehilightMessages(messages, messagesDispatch,
-                                             workItemClasses.removed, true, true).then(() => {
-                                             setOperationRunning(false);
-                                           }).finally(() => {
-                                             setOperationRunning(false);
-                                           });
-                                         }}
-                                         doSpin={true}>
-                  <FormattedMessage id={'markDescriptionRead'} />
-                </SpinningIconLabelButton>
-              </>
-            )}
+            </CardActions>}
             {myMessageDescription && diff && (
               <>
                 <div style={{paddingTop: '0.5rem'}} />

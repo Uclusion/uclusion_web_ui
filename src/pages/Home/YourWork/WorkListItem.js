@@ -20,11 +20,6 @@ import { Link } from '@material-ui/core'
 import { getPageReducerPage } from '../../../components/PageState/pageStateHooks'
 import { useHistory } from 'react-router'
 import RaisedCard from '../../../components/Cards/RaisedCard'
-import { pushMessage } from '../../../utils/MessageBusUtils'
-import {
-  DELETE_EVENT,
-  DELETE_NOTIFICATIONS_CHANNEL
-} from '../../../contexts/NotificationsContext/notificationsContextMessages'
 
 const Item = styled("div")`
   margin-bottom: 20px;
@@ -150,7 +145,8 @@ function WorkListItem(props) {
     expansionPanel,
     workListItemFull, workListItemDispatch,
     expansionOpenDefault,
-    isMultiple
+    isMultiple,
+    multiMessages
   } = props;
   const [workListItemState, updateWorkListItemState, workListItemReset] =
     getPageReducerPage(workListItemFull, workListItemDispatch, id);
@@ -181,16 +177,31 @@ function WorkListItem(props) {
   }, [expansionOpenDefault])
 
   const fullText = comment || investible || market;
+
+  function getTypeObjectIds() {
+    let typeObjectIds;
+    if (isMultiple) {
+      typeObjectIds = [];
+      multiMessages.forEach((message) => typeObjectIds.push(message.type_object_id));
+    } else {
+      typeObjectIds = [typeObjectId];
+    }
+    return typeObjectIds;
+  }
+
+  function removeNotifications() {
+    return getMarketClient(marketId).then((client) => client.users.removeNotifications(getTypeObjectIds()));
+  }
   const deleteActionButtonOnclick = (event) => {
     preventDefaultAndProp(event);
     workListItemReset();
     removeWorkListItem(message, classes.removed, messagesDispatch);
-    return getMarketClient(marketId).then((client) => client.users.removeNotifications([typeObjectId]));
+    return removeNotifications();
   };
   const archiveActionButtonOnclick = (event) => {
     preventDefaultAndProp(event);
     messagesDispatch(dehighlightMessage(message));
-    return getMarketClient(marketId).then((client) => client.users.removeNotifications([typeObjectId]));
+    return removeNotifications();
   };
   const useLink = isMultiple ? linkMultiple : link;
   return (
@@ -199,10 +210,6 @@ function WorkListItem(props) {
         <Link href={useLink} style={{ width: '100%' }} key={`link${id}`} onClick={
           (event) => {
             preventDefaultAndProp(event);
-            if (!read && useSelect) {
-              pushMessage(DELETE_NOTIFICATIONS_CHANNEL, { event: DELETE_EVENT, marketId, message });
-              messagesDispatch(dehighlightMessage(message));
-            }
             return navigate(history, useLink);
           }
         }>

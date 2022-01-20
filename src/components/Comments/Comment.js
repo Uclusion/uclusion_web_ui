@@ -75,7 +75,6 @@ import { invalidEditEvent } from '../../utils/windowUtils'
 import DecisionInvestibleAdd from '../../pages/Dialog/Decision/DecisionInvestibleAdd'
 import ExpandableAction from '../SidebarActions/Planning/ExpandableAction'
 import AddIcon from '@material-ui/icons/Add'
-import { deleteOrDehilightMessages } from '../../api/users'
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'
 import { Clear, Delete, Done, Edit, Eject, ExpandLess, ExpandMore, SettingsBackupRestore } from '@material-ui/icons'
 import ReplyIcon from '@material-ui/icons/Reply'
@@ -812,21 +811,6 @@ function Comment(props) {
                 {showDone && (
                   <SpinningIconLabelButton onClick={onDone} doSpin={false} icon={Clear}>
                     {intl.formatMessage({ id: 'done' })}
-                  </SpinningIconLabelButton>
-                )}
-                {!mobileLayout && !_.isEmpty(messages) && (
-                  <SpinningIconLabelButton onClick={() => {
-                    // We don't want the inbox row disappearing when marking "read"
-                    // but can delete the others if there is a persistent
-                    const hasPersistent = myMessage && !myMessage.type_object_id.startsWith('UNREAD');
-                    deleteOrDehilightMessages(messages, messagesDispatch, workItemClasses.removed,
-                      true, !hasPersistent)
-                      .then(() => setOperationRunning(false))
-                      .finally(() => {
-                        setOperationRunning(false);
-                      });
-                  }} icon={SettingsBackupRestore} id={`markReadButton${id}`}>
-                    {intl.formatMessage({ id: 'markRead' })}
                   </SpinningIconLabelButton>
                 )}
                 {enableActions && commentType !== REPORT_TYPE && (!resolved || isEditable

@@ -78,13 +78,15 @@ function AssignmentList(props) {
   }
 
   function addAssignment() {
-    const id = selectedPresence.id;
-    const newChecked = {
-      ...submitted,
-      [id]: true,
-    };
-    changeAssignments(newChecked);
-    setClearMeHack(clearMeHack+clearMeHack);
+    if (selectedPresence) {
+      const id = selectedPresence.id;
+      const newChecked = {
+        ...submitted,
+        [id]: true,
+      };
+      changeAssignments(newChecked);
+      setClearMeHack(clearMeHack + clearMeHack);
+    }
   }
 
   function renderAssignedEntry(presenceEntry) {
@@ -107,6 +109,7 @@ function AssignmentList(props) {
       </ListItem>
     );
   }
+
   const checked = participants.filter((presence) => submitted[presence.id]);
   const unChecked = participants.filter((presence) => !submitted[presence.id]);
   const defaultProps = {
@@ -121,6 +124,7 @@ function AssignmentList(props) {
           {...defaultProps}
           key={clearMeHack}
           id="addAssignment"
+          autoHighlight
           renderInput={(params) => <TextField {...params}
                                               label={intl.formatMessage({ id: 'searchAssignments' })}
                                               margin="dense"

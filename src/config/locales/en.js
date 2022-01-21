@@ -698,14 +698,16 @@ const messages = defineMessages({
   slackIntegrationPartial: 'Almost there! Now type /uclusion in any Slack channel and follow the link that is returned to complete installation.',
 
   // Assignment List
-  assignmentListHeader: 'Assigned to (unassigned goes to Further Work)',
+  assignmentListHeader: 'Assigned to (X to remove)',
+  emptyAssignmentHeader: 'Unassigned goes to Further Work',
   requiresInputListHeader: 'Warning: unless you resolve some comments the current assignment will move the job to Requires Input.',
-  reviewListHeader: 'Required reviewers',
-  approveListHeader: 'Required approvers',
+  reviewListHeader: 'Required reviewers (X to remove)',
+  approveListHeader: 'Required approvers (X to remove)',
   cannotUnassignExplanation: 'Collaborators assigned jobs cannot be unchecked.',
   removeExplanation: 'Remove takes away all access to this channel',
   mutedExplanation: 'Muted channel',
   muteAction: 'Mute channel',
+  searchAssignments: 'Search in your organization',
 
   // Address List
   addressListHeader: 'Addressed to',

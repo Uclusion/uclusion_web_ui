@@ -300,9 +300,10 @@ function PlanningInvestibleAdd(props) {
                 <AssignmentList
                   fullMarketPresences={presences}
                   onChange={onAssignmentsChange}
+                  emptyListHeader='emptyAssignmentHeader'
                 />
               )}
-              <fieldset className={classes.fieldset}>
+              <div>
                 <legend>{intl.formatMessage({ id: 'agilePlanFormFieldsetLabelOptional' })}</legend>
                 <FormControlLabel
                   control={
@@ -315,7 +316,7 @@ function PlanningInvestibleAdd(props) {
                   }
                   label={intl.formatMessage({ id: 'skipApprovalExplanation' })}
                 />
-              </fieldset>
+              </div>
             </div>
           )}
           <NameField id={nameId} descriptionFunc={() => getQuillStoredState(editorName)}

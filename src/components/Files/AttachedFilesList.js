@@ -101,7 +101,7 @@ function AttachedFilesList(props) {
               </Link>
           </ListItemText>
           {isAdmin && (
-            <ListItemSecondaryAction className={classes.deleteButton}>
+            <ListItemSecondaryAction>
               <SpinningTooltipIconButton
                 marketId={marketId}
                 translationId="delete"

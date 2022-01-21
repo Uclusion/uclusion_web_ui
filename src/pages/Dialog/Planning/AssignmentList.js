@@ -1,27 +1,27 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
-import clsx from 'clsx'
 import {
-  Checkbox,
   IconButton,
-  InputAdornment,
   List,
-  ListItem,
-  ListItemIcon,
+  ListItem, ListItemIcon,
   ListItemText,
   ListSubheader,
   makeStyles,
   TextField
 } from '@material-ui/core'
-import SearchIcon from '@material-ui/icons/Search'
 import { useIntl } from 'react-intl'
-import { usePlanFormStyles } from '../../../components/AgilePlan'
 import Typography from '@material-ui/core/Typography'
+import Autocomplete from '@material-ui/lab/Autocomplete'
+import AddIcon from '@material-ui/icons/Add'
+import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
+import { Clear } from '@material-ui/icons'
 
 const useStyles = makeStyles(() => ({
   name: {
     width: '50%',
+    padding: 0,
+    margin: 0
   },
   scrollContainerHeight: {
     height: '230px'
@@ -34,13 +34,13 @@ function AssignmentList(props) {
     onChange,
     previouslyAssigned,
     listHeader,
+    emptyListHeader,
     requiresInput
   } = props;
 
   const classes = useStyles();
   const intl = useIntl();
   const marketPresences = fullMarketPresences.filter((presence) => !presence.market_banned);
-  const formClasses = usePlanFormStyles();
 
   function getDefaultChecked() {
     if (!_.isEmpty(previouslyAssigned)) {
@@ -57,63 +57,46 @@ function AssignmentList(props) {
   }
 
   const participants = getSortedPresenceWithAssignable();
-  const [filteredNames, setFilteredNames] = useState(undefined);
+  const [selectedPresence, setSelectedPresence] = useState(undefined);
   const [submitted, setSubmitted] = useState(getDefaultChecked());
 
-  function getCheckToggle(id) {
-    const newChecked = {
-      ...submitted,
-      [id]: !submitted[id],
-    };
+
+  function changeAssignments(newChecked) {
     if (submitted !== newChecked) {
       setSubmitted(newChecked);
       const checkedIds = Object.keys(newChecked).filter((key) => newChecked[key]);
       onChange(checkedIds);
     }
   }
-  function onSearchChange (event) {
-    const { value } = event.target;
-    if (_.isEmpty(value)) {
-      setFilteredNames(undefined);
-    } else if (participants) {
-      const searchValueLower = value.toLowerCase();
-      const filteredEntries = participants.filter((entry) => {
-        const { name } = entry;
-        const nameLower = name.toLowerCase();
-        let index = 0;
-        // eslint-disable-next-line no-restricted-syntax
-        for (const c of searchValueLower) {
-          const foundIndex = _.indexOf(nameLower, c, index);
-          if (foundIndex < 0) {
-            return false;
-          }
-          index = foundIndex;
-        }
-        return true;
-      });
-      if(filteredNames === undefined || filteredEntries.length !== filteredNames.length){
-        setFilteredNames(filteredEntries);
-      }
-    }
+
+  function removeAssignment(id) {
+    const newChecked = {
+      ...submitted,
+      [id]: false,
+    };
+    changeAssignments(newChecked);
   }
-  function renderParticipantEntry(presenceEntry) {
-    const { name, id, email } = presenceEntry;
-    const boxChecked = submitted[id];
-    const emailSafe = email.replace('@', '').replace('.', '');
-    // Using id email for Cypress tests
+
+  function addAssignment() {
+    const id = selectedPresence.id;
+    const newChecked = {
+      ...submitted,
+      [id]: true,
+    };
+    changeAssignments(newChecked);
+  }
+
+  function renderAssignedEntry(presenceEntry) {
+    const { name, id } = presenceEntry;
+    if (!submitted[id]) {
+      return React.Fragment;
+    }
     return (
-      <ListItem
-        key={id}
-        id={emailSafe}
-        button
-        onClick={() => getCheckToggle(id)}
-        className={ boxChecked ? clsx( formClasses.unselected, formClasses.selected ) : formClasses.unselected }
-      >
-        <ListItemIcon>
-          <Checkbox
-            value={!!boxChecked}
-            checked={!!boxChecked}
-          />
+      <ListItem key={`assigned${id}`} style={{padding: 0, margin: 0}}>
+        <ListItemIcon onClick={() => removeAssignment(id)}>
+          <IconButton style={{padding: 0, margin: 0}}>
+            <Clear />
+          </IconButton>
         </ListItemIcon>
         <ListItemText
           className={classes.name}
@@ -123,79 +106,61 @@ function AssignmentList(props) {
       </ListItem>
     );
   }
-
-  function renderAssignedEntry(presenceEntry) {
-    const { name, id } = presenceEntry;
-    if (!submitted[id]) {
-      return React.Fragment;
-    }
-    return (
-      <ListItem key={`assigned${id}`}>
-        <ListItemText
-          className={classes.name}
-        >
-          {name}
-        </ListItemText>
-      </ListItem>
-    );
-  }
-
-  const displayNames = filteredNames || participants || [];
+  const submittedKeys = Object.keys(submitted);
+  const defaultProps = {
+    options: participants.filter((presence) => !submittedKeys.includes(presence.id)),
+    getOptionLabel: (option) => option.name,
+  };
 
   return (
-    <List
-      dense
-      className={clsx(formClasses.scrollableList, formClasses.sharedForm)}
-    >
-      {participants && participants.length > 10 && (
-        <ListItem className={formClasses.searchContainer} key="search">
-          <ListItemText >
-            <TextField
-              className={formClasses.search}
-              placeholder="Search in your organization"
-              onChange={onSearchChange}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position={'end'}>
-                    <IconButton>
-                      <SearchIcon/>
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </ListItemText>
-        </ListItem>
-      )}
-
-      <List
-          dense
-          id="addressBook"
-          className={clsx(formClasses.scrollContainer, classes.scrollContainerHeight)}
+    <div>
+      <div style={{display: 'flex'}}>
+        <Autocomplete
+          {...defaultProps}
+          id="addLabel"
+          renderInput={(params) => <TextField {...params}
+                                              label={intl.formatMessage({ id: 'searchAssignments' })}
+                                              margin="dense"
+                                              variant="outlined" />}
+          style={{ width: 300, maxHeight: '1rem' }}
+          onChange={(event, value) => setSelectedPresence(value)}
+        />
+        <IconButton
+          onClick={addAssignment}
         >
-      {displayNames.map((entry) => renderParticipantEntry(entry))}
-      </List>
+          <AddIcon htmlColor={ACTION_BUTTON_COLOR}/>
+        </IconButton>
+      </div>
       {requiresInput && (
-        <Typography color='error' style={{paddingLeft: '1rem'}}>
+        <Typography color='error'>
           {intl.formatMessage({ id: 'requiresInputListHeader' })}
         </Typography>
       )}
-      <ListSubheader>
-        {intl.formatMessage({ id: listHeader })}
-      </ListSubheader>
-      <List
-        dense
-        id="addressBook"
-      >
-        {participants.map((entry) => renderAssignedEntry(entry))}
-      </List>
-    </List>
+      {!_.isEmpty(submitted) && (
+        <List
+          dense
+          id="addressBook"
+          style={{padding: 0, margin: 0}}
+        >
+          <ListSubheader style={{padding: 0, margin: 0}}>
+            {intl.formatMessage({ id: listHeader })}
+          </ListSubheader>
+          {participants.map((entry) => renderAssignedEntry(entry))}
+        </List>
+      )}
+      {_.isEmpty(submitted) && emptyListHeader && (
+        <div style={{paddingTop: '1rem'}}>
+          {intl.formatMessage({ id: emptyListHeader })}
+        </div>
+      )}
+    </div>
   );
 }
 
 AssignmentList.propTypes = {
   fullMarketPresences: PropTypes.arrayOf(PropTypes.object),
   listHeader: PropTypes.string,
+  emptyListHeader: PropTypes.string,
   previouslyAssigned: PropTypes.arrayOf(PropTypes.string),
   cannotBeAssigned: PropTypes.arrayOf(PropTypes.string),
   onChange: PropTypes.func,
@@ -204,6 +169,7 @@ AssignmentList.propTypes = {
 
 AssignmentList.defaultProps = {
   listHeader: 'assignmentListHeader',
+  emptyListHeader: undefined,
   onChange: () => {
   },
   previouslyAssigned: [],

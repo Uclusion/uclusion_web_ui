@@ -334,7 +334,7 @@ function DecisionInvestible(props) {
               {activeMarket && (
                 getActions()
               )}
-            </CardActions>}
+            </CardActions>
             {myMessageDescription && diff && (
               <>
                 <div style={{paddingTop: '0.5rem'}} />

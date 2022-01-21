@@ -91,6 +91,7 @@ import { getMarketInfo } from '../../utils/userFunctions'
 import LoadingDisplay from '../LoadingDisplay'
 import { pushMessage } from '../../utils/MessageBusUtils'
 import { GUEST_MARKET_EVENT, LOAD_MARKET_CHANNEL } from '../../contexts/MarketsContext/marketsContextMessages'
+import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
 
 const useCommentStyles = makeStyles(
   theme => {
@@ -343,6 +344,7 @@ function Comment(props) {
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [diffState, diffDispatch] = useContext(DiffContext);
+  const [searchResults] = useContext(SearchResultsContext);
   const enableActions = !inArchives;
   const enableEditing = !inArchives && !resolved; //resolved comments or those in archive aren't editable
   const [investibleAddStateFull, investibleAddDispatch] = usePageStateReducer('commentInvestibleAdd');
@@ -443,7 +445,7 @@ function Comment(props) {
   const isEditable = comment.created_by === myPresence.id || isMarketTodo;
 
   function getDialog(anInlineMarket) {
-    const inlineInvestibles = getMarketInvestibles(investiblesState, anInlineMarket.id) || [];
+    const inlineInvestibles = getMarketInvestibles(investiblesState, anInlineMarket.id, searchResults) || [];
     const anInlineMarketInvestibleComments = getMarketComments(commentsState, anInlineMarket.id) || [];
     const anInlineMarketPresences = getMarketPresences(marketPresencesState, anInlineMarket.id) || [];
     const underConsiderationStage = getInCurrentVotingStage(marketStagesState, anInlineMarket.id);

@@ -127,7 +127,6 @@ function PlanningDialog(props) {
     {sectionOpen: 'workspaceMain', collaboratorsOpen: isDraft && myPresence.id === createdBy });
   const {
     sectionOpen,
-    collaboratorsOpen,
     furtherWorkType
   } = pageState;
   function setSectionOpen(section) {
@@ -175,9 +174,11 @@ function PlanningDialog(props) {
     }
   });
   const presenceMap = getPresenceMap(marketPresencesState, marketId);
-
+  const singleSections = ['addCollaboratorSection', 'addStorySection'];
   function isSectionOpen(section) {
-    return sectionOpen === section || !_.isEmpty(search) || mobileLayout ||
+    return sectionOpen === section ||
+      ((!_.isEmpty(search) || mobileLayout) &&
+        (!singleSections.includes(section) && !singleSections.includes(sectionOpen))) ||
       (!sectionOpen && section === 'workspaceMain');
   }
 
@@ -214,16 +215,22 @@ function PlanningDialog(props) {
     updatePageState({furtherWorkType: 'notReadyToStart'});
   }
 
-  function openSubSection(subSection) {
+  function openSubSection(subSection, doScroll=true) {
     setSectionOpen(subSection);
-    window.scrollTo(0, 0);
+    if (doScroll) {
+      window.scrollTo(0, 0);
+    }
   }
 
   function createNavListItem(icon, textId, anchorId, howManyNum, alwaysShow, isBold, isSearch) {
     const nav = baseNavListItem(formMarketLink(marketId), icon, textId, anchorId, howManyNum, alwaysShow);
-    nav['onClickFunc'] = mobileLayout || isSearch ? () => navigate(history, nav.target,
-        false, true) :
-      () => openSubSection(anchorId);
+    nav['onClickFunc'] = () => {
+      const isScrolling = (mobileLayout || isSearch) && !singleSections.includes(anchorId);
+      openSubSection(anchorId, !isScrolling);
+      if (isScrolling) {
+        navigate(history, nav.target, false)
+      }
+    };
     if (isBold) {
       nav['isBold'] = true;
     }
@@ -252,12 +259,12 @@ function PlanningDialog(props) {
     {icon: Inbox, text: intl.formatMessage({ id: 'inbox' }), target: '/inbox', newPage: true},
     createNavListItem(EditIcon, 'planningDialogNavDetailsLabel', 'workspaceMain',
       _.isEmpty(search) ? undefined : (results.find((result) => result.id === marketId) ? 1 : 0),
-      true, isSectionBold('workspaceMain'), !_.isEmpty(search))
+      true, isSectionBold('workspaceMain'), !_.isEmpty(search)),
+    createNavListItem(AddIcon, 'dialogAddParticipantsLabel', 'addCollaboratorSection',
+      undefined, false, isSectionBold('addCollaboratorSection'), !_.isEmpty(search)),
+    createNavListItem(AddIcon, 'addStoryLabel', 'addStorySection',
+      undefined, false, isSectionBold('addStorySection'), !_.isEmpty(search))
   ];
-  if (!mobileLayout) {
-    navListItemTextArrayBeg.push(createNavListItem(AddIcon, 'addStoryLabel', 'addStorySection',
-      undefined, false, isSectionBold('addStorySection'), !_.isEmpty(search)));
-  }
   const navListItemTextArray = navListItemTextArrayBeg.concat([
     createNavListItem(AssignmentIcon, 'planningDialogNavStoriesLabel', 'storiesSection',
       _.size(requiresInputInvestibles) + _.size(blockedInvestibles) + _.size(swimlaneInvestibles)
@@ -313,29 +320,22 @@ function PlanningDialog(props) {
         steps={workspaceInvitedUserSteps({name: myPresence.name, isCreator: createdBy === myPresence.id})}
       />
       <div id="workspaceMain" style={{ display: isSectionOpen('workspaceMain') ? 'block' : 'none' }}>
-        <div className={classes.titleContainer}>
-          {<EditIcon htmlColor="#333333"/>}
-          <Typography className={classes.title} variant="h6">
-            {intl.formatMessage({ id: 'planningDialogNavDetailsLabel' })}
-          </Typography>
-        </div>
-        {collaboratorsOpen && (
-          <DialogManage marketId={marketId} onClose={() => updatePageState({collaboratorsOpen: false})}/>
-        )}
-        <DismissableText textId="planningEditHelp" text={
-          <div>
-            This is a <Link href="https://documentation.uclusion.com/workspaces" target="_blank">channel</Link> for
-            truly asynchronous communication with context.
-          </div>
-        }/>
+        <h2>
+          <FormattedMessage id="planningDialogNavDetailsLabel" />
+        </h2>
         {(_.isEmpty(search) || results.find((item) => item.id === marketId)) && (
           <Summary market={market} hidden={hidden} activeMarket={activeMarket} inArchives={inArchives}
                    pageState={pageState} updatePageState={updatePageState} pageStateReset={pageStateReset}
                    isDraft={isDraft}/>
         )}
       </div>
+      <div id="addCollaboratorSection">
+        {!hidden && marketId && isSectionOpen('addCollaboratorSection') && _.isEmpty(search) && (
+          <DialogManage marketId={marketId} />
+        )}
+      </div>
       <div id="addStorySection">
-        {!hidden && marketId && isSectionOpen('addStorySection') && _.isEmpty(search) && !mobileLayout && (
+        {!hidden && marketId && isSectionOpen('addStorySection') && _.isEmpty(search) && (
           <PlanningInvestibleAdd
             marketId={marketId}
             onCancel={() => openSubSection('storiesSection')}
@@ -564,12 +564,9 @@ function PlanningDialog(props) {
         {!hidden && !_.isEmpty(acceptedStage) && !_.isEmpty(inVerifiedStage) &&
           isSectionOpen('settingsSection') && _.isEmpty(search) && !mobileLayout && (
             <>
-              <div className={classes.titleContainer}>
-                {<SettingsIcon htmlColor="#333333"/>}
-                <Typography className={classes.title} variant="h6">
-                  {intl.formatMessage({ id: 'settings' })}
-                </Typography>
-              </div>
+              <h2>
+                <FormattedMessage id="settings" />
+              </h2>
               <PlanningDialogEdit
                 market={market}
                 userId={myPresence.id}

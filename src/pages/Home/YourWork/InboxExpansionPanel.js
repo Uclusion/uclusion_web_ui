@@ -165,7 +165,7 @@ export function addExpansionPanel(props) {
                                            mobileLayout={mobileLayout} />;
   } else if (messageType === 'UNREAD_DRAFT') {
     item.expansionPanel = (
-      <DialogManage marketId={marketId} onClose={() => {}} isInbox />
+      <DialogManage marketId={marketId} isInbox />
     );
   }
 }

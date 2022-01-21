@@ -6,14 +6,13 @@ import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 import { ACTIVE_STAGE } from '../../constants/markets'
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { Card, CardContent, Typography } from '@material-ui/core'
-import DeadlineExtender from './Decision/DeadlineExtender'
-import CardType from '../../components/CardType'
+import { Card, Link, Typography } from '@material-ui/core'
 import { usePlanFormStyles } from '../../components/AgilePlan'
 import ManageUsers from './UserManagement/ManageUsers'
+import DismissableText from '../../components/Notifications/DismissableText'
 
 function DialogManage(props) {
-  const { marketId, expires, onClose, isInbox } = props;
+  const { marketId, isInbox } = props;
   const intl = useIntl();
   const classes = usePlanFormStyles();
   const [marketsState] = useContext(MarketsContext);
@@ -26,68 +25,38 @@ function DialogManage(props) {
   const myRealPresence = myPresence || {};
   const { is_admin: isAdmin} = myRealPresence;
 
-  if ((!isAdmin && expires) || !active) {
+  if (!isAdmin || !active) {
     return React.Fragment;
-  }
-
-  if (expires) {
-    const expiresContent = <>
-      <Typography>
-        {intl.formatMessage({ id: 'decisionDialogExtendDaysLabel' })}
-      </Typography>
-      <DeadlineExtender
-        market={renderableMarket}
-        onCancel={onClose}
-      />
-    </>;
-    if (isInbox) {
-      return (
-        <div style={{paddingTop: '1rem'}}>
-          {expiresContent}
-        </div>
-      );
-    }
-    return (
-      <Card style={{marginBottom: '1rem'}}>
-        <CardType className={classes.cardType}/>
-        <CardContent className={classes.cardContent}>
-          {expiresContent}
-        </CardContent>
-      </Card>
-    );
   }
 
   if (isInbox) {
     return (
       <ManageUsers
         market={renderableMarket}
-        onCancel={onClose}
-        isInbox={isInbox}
       />
     );
   }
 
   return (
     <Card style={{marginBottom: '1rem'}}>
+      <DismissableText textId="planningEditHelp" text={
+        <div>
+          This is a <Link href="https://documentation.uclusion.com/workspaces" target="_blank">channel</Link> for
+          truly asynchronous communication with context.
+        </div>
+      }/>
       <Typography className={classes.cardTitle}>
         {intl.formatMessage({ id: 'initiativeAddress' })}
       </Typography>
       <ManageUsers
         market={renderableMarket}
-        onCancel={onClose}
       />
     </Card>
   );
 }
 
 DialogManage.propTypes = {
-  expires: PropTypes.bool,
-  marketId: PropTypes.string.isRequired,
-  onClose: PropTypes.func.isRequired
-};
-
-DialogManage.defaultProps = {
-  expires: false
+  marketId: PropTypes.string.isRequired
 };
 
 export default DialogManage;

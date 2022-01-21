@@ -24,6 +24,7 @@ export const MARKET_MESSAGE_EVENT = 'market_web_push';
 export const NOTIFICATION_MESSAGE_EVENT = 'notification_web_push';
 export const SOCKET_OPEN_EVENT = 'web_socket_opened';
 
+const pongTracker = {failureCount: 0};
 
 const WebSocketContext = React.createContext([
   {}, () => {
@@ -67,6 +68,7 @@ function sendPing(socket) {
 
 function createWebSocket(config, leaderDispatch, setState) {
   console.info('Creating new websocket');
+  pongTracker.failureCount = 0;
   const { webSockets } = config;
   const sockConfig = { wsUrl: webSockets.wsUrl, reconnectInterval: webSockets.reconnectInterval };
   const newSocket = new WebSocketRunner(sockConfig);
@@ -86,7 +88,7 @@ function createWebSocket(config, leaderDispatch, setState) {
   });
 
   newSocket.registerHandler('pong', () => {
-    pongTracker.hasPong = true;
+    pongTracker.failureCount = 0;
   });
 
   newSocket.registerHandler('market', () => {
@@ -124,8 +126,6 @@ function createWebSocket(config, leaderDispatch, setState) {
   setState(newSocket);
 }
 
-const pongTracker = {};
-
 function WebSocketProvider(props) {
   const { children, config } = props;
   const [, leaderDispatch] = useContext(LeaderContext);
@@ -144,17 +144,20 @@ function WebSocketProvider(props) {
   useEffect(() => {
     const interval = setInterval((tracker, socket, refresh, myCreateSocket) => {
       const mySignedOut = isSignedOut();
-      if (socket && tracker.hasPong && !mySignedOut) {
-        tracker.hasPong = false;
-        sendPing(socket)
+      const pingFailed = pongTracker.failureCount > 3;
+      if (socket && !pingFailed && !mySignedOut) {
+        sendPing(socket);
       } else {
-        if (socket) {
-          console.info('Terminating socket');
-          socket.terminate();
-        }
-        if (!mySignedOut) {
-          console.info('Recreating socket');
-          myCreateSocket();
+        pongTracker.failureCount += 1;
+        if (pingFailed || !socket) {
+          if (socket) {
+            console.info('Terminating socket');
+            socket.terminate();
+          }
+          if (!mySignedOut) {
+            console.info(`Recreating socket with fail count ${pongTracker.failureCount}`);
+            myCreateSocket();
+          }
         }
       }
       if (!mySignedOut) {

@@ -51,7 +51,6 @@ import { getInvestibleVoters } from '../../../utils/votingUtils'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { getMarketInfo } from '../../../utils/userFunctions'
 import { AlarmOn, Weekend } from '@material-ui/icons'
-import Comment from '../../../components/Comments/Comment'
 import { usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 import CommentPanel from './CommentPanel'
 import { usePlanningInvestibleStyles } from '../../Investible/Planning/PlanningInvestible'
@@ -190,8 +189,7 @@ function Outbox(props) {
     const questions = myUnresolvedRoots.filter((comment) => comment.comment_type === QUESTION_TYPE) || [];
     const issues = myUnresolvedRoots.filter((comment) => comment.comment_type === ISSUE_TYPE) || [];
     const suggestions = myUnresolvedRoots.filter((comment) => comment.comment_type === SUGGEST_CHANGE_TYPE) || [];
-    const reports = myUnresolvedRoots.filter((comment) => comment.comment_type === REPORT_TYPE) || [];
-    return { market, comments, inReviewInvestibles, inVotingInvestibles, questions, issues, suggestions, reports};
+    return { market, comments, inReviewInvestibles, inVotingInvestibles, questions, issues, suggestions};
   });
 
   const messages = [];
@@ -232,25 +230,17 @@ function Outbox(props) {
   });
 
   workspacesData.forEach((workspacesData) => {
-    const { market, comments, inReviewInvestibles, inVotingInvestibles, questions, issues, suggestions,
-      reports } = workspacesData;
+    const { market, comments, inReviewInvestibles, inVotingInvestibles, questions, issues,
+      suggestions } = workspacesData;
     const marketPresences = getMarketPresences(marketPresencesState, market.id) || [];
     inReviewInvestibles.forEach((investible) => {
       const investibleId = investible.investible.id;
       const outboxMessage = getMessageForInvestible(investible, market, 'planningInvestibleNextStageInReviewLabel',
         <RateReviewIcon style={{fontSize: 24, color: '#8f8f8f',}}/>, intl);
-      const report = reports.find((comment) => comment.investible_id === investibleId && comment.creator_assigned);
-      if (report) {
-        outboxMessage.expansionPanel = <div style={{paddingLeft: '1rem', paddingRight: '1rem', paddingBottom: '1rem'}}>
-          <Comment
-            depth={0}
-            marketId={market.id}
-            comment={report}
-            comments={comments}
-            defaultShowDiff
-            allowedTypes={[]}
-          /></div>;
-      }
+      outboxMessage.expansionPanel = <InboxInvestible marketId={market.id} investibleId={investibleId}
+                                                messageTypes={['UNREAD_REVIEWABLE']}
+                                                planningClasses={planningClasses} marketType={PLANNING_TYPE}
+                                                mobileLayout={mobileLayout} isOutbox />
       const mySubmitted = inboxMessages.find((message) => {
         const { investible_id: msgInvestibleId, type: messageType } = message;
         return msgInvestibleId === investibleId && messageType === 'INVESTIBLE_SUBMITTED';

@@ -43,7 +43,7 @@ import Chip from '@material-ui/core/Chip'
 import PropTypes from 'prop-types'
 
 function InboxInvestible(props) {
-  const { marketId, marketType, planningClasses, messageTypes, investibleId, mobileLayout } = props;
+  const { marketId, marketType, planningClasses, messageTypes, investibleId, mobileLayout, isOutbox } = props;
   const intl = useIntl();
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -238,7 +238,7 @@ function InboxInvestible(props) {
           <h3>{intl.formatMessage({ id: 'orStructuredComment' })}</h3>
         </>
       )}
-      {!_.isEmpty(messageTypes) && marketId && !_.isEmpty(myInvestible) &&
+      {!_.isEmpty(messageTypes) && marketId && !_.isEmpty(myInvestible) && !isOutbox &&
         _.isEmpty(_.intersection(['NEW_TODO', 'ISSUE_RESOLVED', 'UNREAD_VOTE'], messageTypes)) && (
         <>
           <div style={{paddingTop: '1rem'}} />
@@ -271,10 +271,12 @@ function InboxInvestible(props) {
 InboxInvestible.propTypes = {
   messageTypes: PropTypes.arrayOf(PropTypes.object),
   marketId: PropTypes.string.isRequired,
+  isOutbox: PropTypes.bool
 };
 
 InboxInvestible.defaultProps = {
   messageTypes: [],
+  isOutbox: false
 };
 
 export default InboxInvestible;

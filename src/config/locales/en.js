@@ -707,7 +707,7 @@ const messages = defineMessages({
   removeExplanation: 'Remove takes away all access to this channel',
   mutedExplanation: 'Muted channel',
   muteAction: 'Mute channel',
-  searchAssignments: 'Search in your organization',
+  searchAssignments: 'Assign',
 
   // Address List
   addressListHeader: 'Addressed to',

@@ -37,7 +37,7 @@ function AssignmentList(props) {
     emptyListHeader,
     requiresInput
   } = props;
-
+  const [clearMeHack, setClearMeHack] = useState('a');
   const classes = useStyles();
   const intl = useIntl();
   const marketPresences = fullMarketPresences.filter((presence) => !presence.market_banned);
@@ -84,6 +84,7 @@ function AssignmentList(props) {
       [id]: true,
     };
     changeAssignments(newChecked);
+    setClearMeHack(clearMeHack+clearMeHack);
   }
 
   function renderAssignedEntry(presenceEntry) {
@@ -106,9 +107,10 @@ function AssignmentList(props) {
       </ListItem>
     );
   }
-  const submittedKeys = Object.keys(submitted);
+  const checked = participants.filter((presence) => submitted[presence.id]);
+  const unChecked = participants.filter((presence) => !submitted[presence.id]);
   const defaultProps = {
-    options: participants.filter((presence) => !submittedKeys.includes(presence.id)),
+    options: unChecked,
     getOptionLabel: (option) => option.name,
   };
 
@@ -117,6 +119,7 @@ function AssignmentList(props) {
       <div style={{display: 'flex'}}>
         <Autocomplete
           {...defaultProps}
+          key={clearMeHack}
           id="addLabel"
           renderInput={(params) => <TextField {...params}
                                               label={intl.formatMessage({ id: 'searchAssignments' })}
@@ -136,7 +139,7 @@ function AssignmentList(props) {
           {intl.formatMessage({ id: 'requiresInputListHeader' })}
         </Typography>
       )}
-      {!_.isEmpty(submitted) && (
+      {!_.isEmpty(checked) && (
         <List
           dense
           id="addressBook"
@@ -148,7 +151,7 @@ function AssignmentList(props) {
           {participants.map((entry) => renderAssignedEntry(entry))}
         </List>
       )}
-      {_.isEmpty(submitted) && emptyListHeader && (
+      {_.isEmpty(checked) && emptyListHeader && (
         <div style={{paddingTop: '1rem'}}>
           {intl.formatMessage({ id: emptyListHeader })}
         </div>

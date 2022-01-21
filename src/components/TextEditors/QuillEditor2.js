@@ -41,7 +41,8 @@ Quill.register(CustomCodeBlock, true);
 
 // static helper funcs
 
-export function editorEmpty (contents) {
+export function editorEmpty (originalContents) {
+  const contents = originalContents.replace(/[\n\r]+/g, '').trim();
   return (contents.length === 0 || contents === '<p></p>' || contents === '<p><br></p>')
 }
 

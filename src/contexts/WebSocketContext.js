@@ -60,6 +60,11 @@ export function notifyNewApplicationVersion(currentVersion, cacheClearVersion) {
   }
 }
 
+function sendPing(socket) {
+  const actionString = JSON.stringify({ action: 'ping' });
+  socket.send(actionString);
+}
+
 function createWebSocket(config, leaderDispatch, setState) {
   console.info('Creating new websocket');
   const { webSockets } = config;
@@ -115,6 +120,7 @@ function createWebSocket(config, leaderDispatch, setState) {
     refreshNotifications();
   });
 
+  sendPing(newSocket);
   setState(newSocket);
 }
 
@@ -140,13 +146,14 @@ function WebSocketProvider(props) {
       const mySignedOut = isSignedOut();
       if (socket && tracker.hasPong && !mySignedOut) {
         tracker.hasPong = false;
-        const actionString = JSON.stringify({ action: 'ping' });
-        socket.send(actionString);
+        sendPing(socket)
       } else {
         if (socket) {
+          console.info('Terminating socket');
           socket.terminate();
         }
-        if (!isSignedOut()) {
+        if (!mySignedOut) {
+          console.info('Recreating socket');
           myCreateSocket();
         }
       }

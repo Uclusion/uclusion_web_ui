@@ -120,7 +120,7 @@ function AssignmentList(props) {
         <Autocomplete
           {...defaultProps}
           key={clearMeHack}
-          id="addLabel"
+          id="addAssignment"
           renderInput={(params) => <TextField {...params}
                                               label={intl.formatMessage({ id: 'searchAssignments' })}
                                               margin="dense"
@@ -130,6 +130,7 @@ function AssignmentList(props) {
         />
         <IconButton
           onClick={addAssignment}
+          id='addAssignmentButton'
         >
           <AddIcon htmlColor={ACTION_BUTTON_COLOR}/>
         </IconButton>

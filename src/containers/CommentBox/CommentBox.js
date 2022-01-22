@@ -112,6 +112,11 @@ CommentBox.propTypes = {
   comments: PropTypes.arrayOf(PropTypes.object).isRequired,
   marketId: PropTypes.string.isRequired,
   allowedTypes: PropTypes.arrayOf(PropTypes.string).isRequired,
+  fullStage: PropTypes.object
 };
+
+CommentBox.defaultProps = {
+  fullStage: {}
+}
 
 export default CommentBox;

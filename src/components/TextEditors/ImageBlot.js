@@ -1,5 +1,6 @@
 import Quill from "quill";
 import { tokensHashHack } from '../../contexts/MarketsContext/MarketsContext'
+import _ from 'lodash'
 
 const OUR_CLOUDFRONT_FILE_PATTERN = /https:\/\/\w+.cloudfront.net\/(\w{8}(-\w{4}){3}-\w{12})\/\w{8}(-\w{4}){3}-\w{12}.*/i;
 const OUR_CND_DOMAIN_ENDING = 'imagecdn.uclusion.com';
@@ -13,6 +14,10 @@ export function convertImageSrc(value) {
     const pathId = urlObj.pathname.split('/')[1];
     const marketKey = `MARKET_${pathId}`;
     const homeAccountKey = 'ACCOUNT_home_account';
+    if (_.isEmpty(tokensHashHack)) {
+      console.error(`Empty tokens hash for ${value}`);
+      return undefined;
+    }
     const token = tokensHashHack[marketKey] ? tokensHashHack[marketKey] : tokensHashHack[homeAccountKey];
     if (!token) {
       console.error(`No token for ${value}, ${marketKey}, ${homeAccountKey}, and ${JSON.stringify(tokensHashHack)}`);

@@ -270,7 +270,7 @@ function InboxInvestible(props) {
 }
 
 InboxInvestible.propTypes = {
-  messageTypes: PropTypes.arrayOf(PropTypes.object),
+  messageTypes: PropTypes.arrayOf(PropTypes.string),
   marketId: PropTypes.string.isRequired,
   isOutbox: PropTypes.bool
 };

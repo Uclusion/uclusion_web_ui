@@ -167,7 +167,7 @@ function Inbox(props) {
   let rows = messagesOrdered.map((message) => {
     const { level, investible_name: investible, updated_at: updatedAt, market_name: market,
       is_highlighted: isHighlighted, type_object_id: typeObjectId, market_id: marketId, comment_id: commentId,
-      comment_market_id: commentMarketId, link_multiple: linkMultiple } = message;
+      comment_market_id: commentMarketId, link_multiple: linkMultiple, link_type: linkType } = message;
     const isMultiple = _.size(dupeHash[linkMultiple]) > 1;
     const hasPersistent = (dupeHash[linkMultiple] || []).find((message) =>
       !message.type_object_id.startsWith('UNREAD'));
@@ -187,7 +187,7 @@ function Inbox(props) {
     if (isHighlighted) {
       containsUnread = true;
     }
-    if (commentId) {
+    if (commentId && linkType !== 'INVESTIBLE') {
       let useMarketId = commentMarketId || marketId;
       const rootComment = getCommentRoot(commentState, useMarketId, commentId);
       if (rootComment) {

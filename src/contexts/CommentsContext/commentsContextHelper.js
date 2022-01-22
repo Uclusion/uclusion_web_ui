@@ -54,6 +54,15 @@ export function getUnresolvedInvestibleComments(investibleId, marketId, state) {
   return comments.filter(comment => comment.investible_id === investibleId && !comment.resolved) || [];
 }
 
+export function reopenAutoclosedInvestibleComments(investibleId, marketId, state, dispatch) {
+  const comments = getInvestibleComments(investibleId, marketId, state);
+  const commentsFiltered = comments.filter((comment) => comment.resolved && !comment.deleted && comment.auto_closed);
+  const reopenedComments = commentsFiltered.map((comment) => {
+    return { ...comment, resolved: false, auto_closed: false };
+  });
+  refreshMarketComments(dispatch, marketId, reopenedComments);
+}
+
 export function resolveInvestibleComments(investibleId, marketId, state, dispatch) {
   const unresolvedComments = getUnresolvedInvestibleComments(investibleId, marketId, state);
   const resolvedComments = unresolvedComments.map((comment) => {

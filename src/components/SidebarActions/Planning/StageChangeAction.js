@@ -18,6 +18,7 @@ import { Clear } from '@material-ui/icons'
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { HIGHLIGHTED_BUTTON_COLOR } from '../../Buttons/ButtonConstants'
+import { getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 
 export const useStyles = makeStyles(() => {
   return {
@@ -89,7 +90,8 @@ function StageChangeAction(props) {
   const lockedDialogClasses = useLockedDialogStyles()
   const [open, setOpen] = React.useState(false)
   const [, setOperationRunning] = useContext(OperationInProgressContext)
-  const [messagesState, messagesDispatch] = useContext(NotificationsContext)
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const fullStage = getFullStage(marketStagesState, marketId, currentStageId) || {};
 
   const handleOpen = () => {
     setOpen(true);
@@ -108,7 +110,8 @@ function StageChangeAction(props) {
     return stageChangeInvestible(moveInfo)
       .then((newInv) => {
         onInvestibleStageChange(targetStageId, newInv, investibleId, marketId, commentsState, commentsDispatch,
-          invDispatch, diffDispatch, marketStagesState, messagesState, messagesDispatch);
+          invDispatch, diffDispatch, marketStagesState, messagesState, messagesDispatch, undefined,
+          fullStage);
         if (standAlone) {
           setOperationRunning(false);
         } else {

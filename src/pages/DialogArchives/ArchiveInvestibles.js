@@ -16,6 +16,7 @@ import { OperationInProgressContext } from '../../contexts/OperationInProgressCo
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { LocalPlanningDragContext } from '../Dialog/Planning/PlanningDialog'
 import {
+  getFullStage,
   isBlockedStage, isFurtherWorkStage,
   isRequiredInputStage
 } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
@@ -35,6 +36,7 @@ import { UNASSIGNED_TYPE, YELLOW_LEVEL } from '../../constants/notifications'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
+import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 
 function getInvestibleOnClick(id, marketId, history) {
   const link = formInvestibleLink(marketId, id);
@@ -202,6 +204,7 @@ function ArchiveInvestbiles(props) {
   const [beingDraggedHack, setBeingDraggedHack] = useContext(LocalPlanningDragContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const [marketStagesState] = useContext(MarketStagesContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
 
   function onDragEnd() {
@@ -216,7 +219,7 @@ function ArchiveInvestbiles(props) {
   function onDropFurtherWorkSection(investibleId, isReadyToStart) {
     const investible = getInvestible(invState, investibleId);
     const marketInfo = getMarketInfo(investible, marketId);
-    const { open_for_investment: openForInvestment } = marketInfo;
+    const { open_for_investment: openForInvestment, stage: currentStageId } = marketInfo;
     if (isReadyToStart === openForInvestment) {
       return;
     }
@@ -227,9 +230,10 @@ function ArchiveInvestbiles(props) {
     };
     setOperationRunning(true);
     return updateInvestible(updateInfo).then((fullInvestible) => {
+      const fullStage = getFullStage(marketStagesState, marketId, currentStageId) || {};
       onInvestibleStageChange(stage, fullInvestible, investibleId, marketId, commentsState,
         commentsDispatch, invDispatch, () => {}, undefined, messagesState,
-        messagesDispatch, [UNASSIGNED_TYPE]);
+        messagesDispatch, [UNASSIGNED_TYPE], fullStage);
       if (isReadyToStart) {
         const market = getMarket(marketsState, marketId);
         notify(presenceId, investibleId, UNASSIGNED_TYPE, YELLOW_LEVEL, invState, market, messagesDispatch);

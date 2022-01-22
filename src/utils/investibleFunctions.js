@@ -1,19 +1,25 @@
 import { getInvestibleName, refreshInvestibles } from '../contexts/InvestibesContext/investiblesContextHelper'
 import { getFullStage } from '../contexts/MarketStagesContext/marketStagesContextHelper'
-import { resolveInvestibleComments } from '../contexts/CommentsContext/commentsContextHelper'
+import {
+  reopenAutoclosedInvestibleComments,
+  resolveInvestibleComments
+} from '../contexts/CommentsContext/commentsContextHelper'
 import { findMessagesForInvestibleId } from './messageUtils'
 import { addMessage, removeMessage } from '../contexts/NotificationsContext/notificationsContextReducer'
 import { formInvestibleLink, formMarketLink } from './marketIdPathFunctions'
 import { NOT_FULLY_VOTED_TYPE, REPORT_REQUIRED } from '../constants/notifications'
 
 export function onInvestibleStageChange(targetStageId, newInv, investibleId, marketId, commentsState, commentsDispatch,
-  invDispatch, diffDispatch, marketStagesState, messagesState, messagesDispatch, removeTypes) {
+  invDispatch, diffDispatch, marketStagesState, messagesState, messagesDispatch, removeTypes, fullStage) {
   refreshInvestibles(invDispatch, diffDispatch, [newInv]);
   const targetStage = getFullStage(marketStagesState, marketId, targetStageId) || {};
   if (targetStageId && marketStagesState && commentsState) {
     if (targetStage.close_comments_on_entrance) {
       resolveInvestibleComments(investibleId, marketId, commentsState, commentsDispatch);
     }
+  }
+  if (fullStage.close_comments_on_entrance && commentsState && commentsDispatch) {
+    reopenAutoclosedInvestibleComments(investibleId, marketId, commentsState, commentsDispatch);
   }
   const messages = findMessagesForInvestibleId(investibleId, messagesState) || [];
   let useRemoveTypes = removeTypes;

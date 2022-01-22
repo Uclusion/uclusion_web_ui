@@ -1164,6 +1164,7 @@ function PlanningInvestible(props) {
             allowedTypes={allowedCommentTypes}
             isRequiresInput={isRequiresInput}
             isInBlocking={isInBlocked}
+            fullStage={fullStage}
             assigned={assigned}
             formerStageId={formerStageId}
           />

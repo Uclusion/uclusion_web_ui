@@ -69,7 +69,8 @@ export function getSortedRoots(allComments, searchResults) {
 }
 
 function CommentBox(props) {
-  const { comments, marketId, allowedTypes, isInbox, isRequiresInput, isInBlocking, assigned, formerStageId } = props;
+  const { comments, marketId, allowedTypes, isInbox, isRequiresInput, isInBlocking, assigned, formerStageId,
+    fullStage } = props;
   const [searchResults] = useContext(SearchResultsContext);
   const sortedRoots = getSortedRoots(comments, searchResults);
   const resolvedStageId = (isRequiresInput && _.size(comments.filter(
@@ -87,6 +88,7 @@ function CommentBox(props) {
           <div id={`c${id}`} style={{paddingBottom: '1.25rem'}}>
             <Comment
               resolvedStageId={resolvedStageId}
+              stagePreventsActions={fullStage.close_comments_on_entrance}
               depth={0}
               marketId={marketId}
               comment={comment}

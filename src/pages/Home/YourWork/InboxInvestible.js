@@ -260,6 +260,7 @@ function InboxInvestible(props) {
             comments={messageTypes.includes('NEW_TODO') ? todoComments : investmentReasonsRemoved}
             marketId={marketId}
             allowedTypes={[]}
+            fullStage={fullStage}
             isInbox
           />
         </div>

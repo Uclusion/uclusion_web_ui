@@ -309,8 +309,8 @@ function useMarketId() {
  * @param {{comment: Comment, comments: Comment[]}} props
  */
 function Comment(props) {
-  const { comment, marketId, comments, allowedTypes, noAuthor, onDone, defaultShowDiff, showDone, resolvedStageId }
-    = props;
+  const { comment, marketId, comments, allowedTypes, noAuthor, onDone, defaultShowDiff, showDone, resolvedStageId,
+    stagePreventsActions} = props;
   const history = useHistory();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
@@ -345,7 +345,7 @@ function Comment(props) {
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [diffState, diffDispatch] = useContext(DiffContext);
   const [searchResults] = useContext(SearchResultsContext);
-  const enableActions = !inArchives;
+  const enableActions = !inArchives && !stagePreventsActions;
   const enableEditing = !inArchives && !resolved; //resolved comments or those in archive aren't editable
   const [investibleAddStateFull, investibleAddDispatch] = usePageStateReducer('commentInvestibleAdd');
   const [investibleAddState, updateInvestibleAddState, investibleAddStateReset] =

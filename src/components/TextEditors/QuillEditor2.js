@@ -200,12 +200,13 @@ function QuillEditor2 (props) {
    * The UI for videos is quite poor, so we need
    * to replace it with ours
    */
-  function createVideoUi (editor) {
+  function createVideoUi (id) {
     return (
       <VideoDialog
         open={videoDialogOpen}
         onClose={() => setVideoDialogOpen(false)}
         onSave={(link) => {
+          const editor = QuillEditorRegistry.getEditor(id);
           const embedded = embeddifyVideoLink(link);
           editor.format('video', embedded);
         }}
@@ -217,12 +218,13 @@ function QuillEditor2 (props) {
    * The UI for links is also quite poor, so we need
    * to replace it with ours
    */
-  function createLinkUi (editor) {
+  function createLinkUi (id) {
     return (
       <LinkDialog
         open={linkDialogOpen}
         onClose={() => setLinkDialogOpen(false)}
         onSave={(link) => {
+          const editor = QuillEditorRegistry.getEditor(id);
           // if they haven't got anything selected, just get the current
           // position and insert the url as the text,
           // otherwise just format the current selection as a link
@@ -498,7 +500,6 @@ function QuillEditor2 (props) {
     return () => {}
   }, [id, mobileLayout, currentLayout])
 
-
   const editor = QuillEditorRegistry.getEditor(id);
 
   useEffect(() => {
@@ -510,20 +511,23 @@ function QuillEditor2 (props) {
   }, [editor, value, noToolbar]);
 
   useEffect(() => {
-    // cleanup the editor registry when this quill is unmounted
+    const idReady = id != null;
+    const containersReady = containerRef.current != null && boxRef.current != null;
+    const needEditor = containersReady && idReady && editor == null;
+    if(needEditor) {
+      // creating editor
+      createEditor(id);
+    }
     return () => {
+      // will only fire after total cleanup because of the needsEditor calculation
       QuillEditorRegistry.remove(id); // harmless if already nuked
     }
-  });
-
-  if(editor == null) {
-    createEditor(id);
-  }
+  }, [editor, id, containerRef, boxRef]);
 
   return (
     <div>
-      {createVideoUi(editor)}
-      {createLinkUi(editor)}
+      {createVideoUi(id)}
+      {createLinkUi(id)}
       <div
         ref={containerRef}
         className={noToolbar ? classes.root : classes.nothing}

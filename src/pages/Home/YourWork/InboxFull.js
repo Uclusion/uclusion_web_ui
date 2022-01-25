@@ -19,6 +19,7 @@ import { useHistory } from 'react-router'
 import AddIcon from '@material-ui/icons/Add'
 import { PLANNING_TYPE } from '../../../constants/markets'
 import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
+import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
 
 function InboxFull(props) {
   const { hidden } = props;
@@ -28,6 +29,8 @@ function InboxFull(props) {
   const [expandAll, setExpandAll] = useState(undefined);
   const [marketsState, , tokensHash] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [searchResults] = useContext(SearchResultsContext);
+  const { results, parentResults, search } = searchResults;
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   const hiddenMarketsRaw = getHiddenMarketDetailsForUser(marketsState, marketPresencesState) || [];
   const hiddenMarkets = hiddenMarketsRaw.filter((market) => market.market_type === PLANNING_TYPE);
@@ -51,8 +54,16 @@ function InboxFull(props) {
       </Screen>
     );
   }
+
+  function showMarketDisabled(marketId, defaultValue) {
+    if (_.isEmpty(search)) {
+      return defaultValue;
+    }
+
+    return !(results.find((result) => result.id === marketId)||parentResults.includes(marketId));
+  }
+
   const navigationMenu = {
-    showSearch: false,
     navListItemTextArray: [
       {
         icon: AddIcon, text: intl.formatMessage({ id: 'homeAddPlanning' }),
@@ -67,7 +78,7 @@ function InboxFull(props) {
     const filtered = myNotHiddenMarketsState.marketDetails.filter((market) => market.market_type === PLANNING_TYPE);
     const sorted = _.sortBy(filtered, 'name');
     const items = sorted.map((market) => {
-      return {icon: AgilePlanIcon, text: market.name,
+      return {icon: AgilePlanIcon, text: market.name, isGreyed: showMarketDisabled(market.id, false),
         target: formMarketLink(market.id)};
     });
     navigationMenu.navListItemTextArray.unshift(...items);
@@ -78,7 +89,7 @@ function InboxFull(props) {
       const items = sorted.map((market) => {
         return {
           icon: AgilePlanIcon, text: market.name,
-          isGreyed: true,
+          isGreyed: showMarketDisabled(market.id, true),
           target: formMarketLink(market.id)
         };
       });

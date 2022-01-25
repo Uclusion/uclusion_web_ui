@@ -31,6 +31,7 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 import { usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 import { getInboxCount, isInInbox } from '../../../contexts/NotificationsContext/notificationsContextHelper'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
 
 function getPriorityIcon(level) {
   switch (level) {
@@ -94,6 +95,8 @@ function Inbox(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [marketsState] = useContext(MarketsContext);
+  const [searchResults] = useContext(SearchResultsContext);
+  const { results, parentResults, search } = searchResults;
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const [workListItemFull, workListItemDispatch] = usePageStateReducer('inboxListItem');
@@ -149,10 +152,14 @@ function Inbox(props) {
       </div>
     );
   }
-
+  const messagesFiltered = _.isEmpty(search) ? messagesOrdered : messagesOrdered.filter((message) => {
+    const typeObjectId = message.type_object_id;
+    return results.find((result) => typeObjectId.endsWith(result.id))||
+      parentResults.find((id) => typeObjectId.endsWith(id));
+  });
   const dupeHash = {};
   // Filter out duplicates by hashing on {type}_{link_multiple}
-  messagesOrdered = messagesOrdered.filter((message) => {
+  messagesOrdered = messagesFiltered.filter((message) => {
     const { link_multiple: linkMultiple } = message;
     if (linkMultiple) {
       if (dupeHash[linkMultiple]) {

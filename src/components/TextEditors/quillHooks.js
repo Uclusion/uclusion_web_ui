@@ -79,7 +79,7 @@ export function useEditor (name, spec) {
 
 
   function editorController (message) {
-    pushMessage(controlChannel, message);
+      pushMessage(controlChannel, message);
   }
 
   const editor = (

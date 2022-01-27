@@ -2,7 +2,7 @@
  * A message passing based quill editor
  */
 
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import LoadingOverlay from 'react-loading-overlay';
 import { useIntl } from 'react-intl'
 import { makeStyles, useMediaQuery, useTheme } from '@material-ui/core'
@@ -405,8 +405,8 @@ function QuillEditor2 (props) {
     pushMessage(`editor-${id}`, { type: 'uploads', newUploads })
   }
 
-  function createEditor (editorId, initializeContents, myLayout, forceCreate) {
-    if(QuillEditorRegistry.getEditor(editorId) != null && !forceCreate){
+  function createEditor (initializeContents, myLayout, forceCreate) {
+    if(QuillEditorRegistry.getEditor(id) != null && !forceCreate){
       return; // already made the editor
     }
     const layout = myLayout || mobileLayout
@@ -428,18 +428,18 @@ function QuillEditor2 (props) {
     removeToolbarTabs(containerRef.current)
     const editorOptions = generateEditorOptions(layout);
     const editor = new Quill(boxRef.current, editorOptions);
-    QuillEditorRegistry.setEditor(editorId, editor);
+    QuillEditorRegistry.setEditor(id, editor);
     if (!noToolbar) {
       if (editor.container) {
         addToolTips(editor.container.previousSibling)
       }
       disableToolbarTabs(containerRef.current)
     }
-    const onChange = generateOnChangeHandler(editorId);
+    const onChange = generateOnChangeHandler(id);
     editor.on('text-change', onChange);
 
     setCurrentLayout(layout)
-    beginListening(editorId);
+    beginListening(id);
   }
 
 
@@ -451,7 +451,7 @@ function QuillEditor2 (props) {
   }
 
   function beginListening(id) {
-    registerListener(`editor-${id}-control-plane`, id, (message) => {
+    registerListener(getControlPlaneName(id), id, (message) => {
       const {
         type,
         contents,
@@ -460,11 +460,11 @@ function QuillEditor2 (props) {
       const editor = QuillEditorRegistry.getEditor(id);
       switch (type) {
         case 'recreate':
-          return createEditor(id, contents, myLayout)
+          return createEditor(contents, myLayout)
         case 'reset':
           return resetHandler(contents);
         case 'update':
-          return replaceEditorContents(contents, editor);
+          return replaceEditorContents(contents, id);
         case 'focus':
           return focusEditor(editor);
         default:
@@ -500,8 +500,32 @@ function QuillEditor2 (props) {
     return () => {}
   }, [id, mobileLayout, currentLayout])
 
-  const editor = QuillEditorRegistry.getEditor(id);
 
+  // callback wrapper. Really should
+  // resolve the deps issue with create editor
+  const editorCreator = useCallback(() => {
+    const editor = QuillEditorRegistry.getEditor(id);
+    const idReady = id != null;
+    const containersReady = containerRef.current != null && boxRef.current != null;
+    const needEditor = containersReady && idReady && editor == null;
+    if(needEditor){
+      // creating editor
+      createEditor();
+    }
+    // This is probably a bad idea, but the create should be fine
+    // due to the checks above (missing createEditor dep)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, containerRef, boxRef]);
+
+  useEffect(() => {
+    editorCreator();
+    return () => {
+      // will only fire after total cleanup because of the needsEditor calculation
+      QuillEditorRegistry.remove(id); // harmless if already nuked
+    }
+  }, [id, editorCreator]);
+
+  const editor = QuillEditorRegistry.getEditor(id);
   useEffect(() => {
     // Without this read only won't update
     if (editor && noToolbar) {
@@ -509,20 +533,6 @@ function QuillEditor2 (props) {
       editor.clipboard.dangerouslyPasteHTML(0, value);
     }
   }, [editor, value, noToolbar]);
-
-  useEffect(() => {
-    const idReady = id != null;
-    const containersReady = containerRef.current != null && boxRef.current != null;
-    const needEditor = containersReady && idReady && editor == null;
-    if(needEditor) {
-      // creating editor
-      createEditor(id);
-    }
-    return () => {
-      // will only fire after total cleanup because of the needsEditor calculation
-      QuillEditorRegistry.remove(id); // harmless if already nuked
-    }
-  }, [editor, id, containerRef, boxRef]);
 
   return (
     <div>

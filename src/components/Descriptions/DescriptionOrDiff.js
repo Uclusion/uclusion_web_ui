@@ -25,6 +25,7 @@ function DescriptionOrDiff(props) {
   return (
     <div>
       <QuillEditor2
+        id={id}
         value={description}
         noToolbar
       />

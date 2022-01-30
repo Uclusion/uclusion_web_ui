@@ -2,15 +2,15 @@
  * A message passing based quill editor
  */
 
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import LoadingOverlay from 'react-loading-overlay';
 import { useIntl } from 'react-intl'
 import { makeStyles, useMediaQuery, useTheme } from '@material-ui/core'
-import { pushMessage, registerListener } from '../../utils/MessageBusUtils'
+import { pushMessage, registerListener } from '../../utils/MessageBusUtils';
 import _ from 'lodash';
 import ReactDOMServer from 'react-dom/server';
 import MentionListItem from './CustomUI/MentionListItem';
-import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../localStorageUtils';
+import { getUclusionLocalStorageItem } from '../localStorageUtils';
 import VideoDialog from './CustomUI/VideoDialog';
 import { embeddifyVideoLink } from './Utilities/VideoUtils';
 import LinkDialog from './CustomUI/LinkDialog';
@@ -27,6 +27,14 @@ import PropTypes from 'prop-types';
 import { getNameForUrl } from '../../utils/marketIdPathFunctions'
 import ImageBlot from './ImageBlot'
 import { editorRecreate, getControlPlaneName } from './quillHooks'
+import QuillEditorRegistry from './QuillEditorRegistry';
+import {
+  focusEditor,
+  generateOnChangeHandler,
+  getBoundsId,
+  replaceEditorContents,
+  storeState
+} from './Utilities/CoreUtils';
 
 Quill.debug('error')
 // install our filtering paste module, and disable the uploader
@@ -129,30 +137,6 @@ function getInitialState (id, knownState, placeHolder) {
   return placeHolder;
 }
 
-const OUR_CLOUDFRONT_FILE_PATTERN = /https:\/\/\w+.cloudfront.net\/(\w{8}(-\w{4}){3}-\w{12})\/\w{8}(-\w{4}){3}-\w{12}.*/i;
-const OUR_CND_DOMAIN_ENDING = 'imagecdn.uclusion.com';
-
-function storeState (id, state) {
-  if (_.isEmpty(state)) {
-    setUclusionLocalStorageItem(`editor-${id}`, state);
-  } else {
-    //Remove tokens here that were added in ImageBlot Quill format
-    const regexp = /img src\s*=\s*"(.+?)"/g;
-    const newStr = state.replace(regexp, (match, p1) => {
-      const cloudfrontMatch = p1.match(OUR_CLOUDFRONT_FILE_PATTERN);
-      const cdnMatch = p1.includes(OUR_CND_DOMAIN_ENDING);
-      if (!cloudfrontMatch && !cdnMatch) {
-        return `img src="${p1}"`;
-      }
-      const url = new URL(p1);
-      const params = new URLSearchParams(url.search);
-      params.delete('authorization');
-      url.search = params.toString();
-      return `img src="${url.toString()}"`;
-    });
-    setUclusionLocalStorageItem(`editor-${id}`, newStr);
-  }
-}
 
 export function getQuillStoredState(id) {
   return getUclusionLocalStorageItem(`editor-${id}`);
@@ -205,69 +189,25 @@ function QuillEditor2 (props) {
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [videoDialogOpen, setVideoDialogOpen] = useState(false)
   const [linkDialogOpen, setLinkDialogOpen] = useState(false)
-  //TODO presumably this is a performance optimization but could get the same by handling dependencies better
-  const [editor, setEditor] = useState(null)
-  const [currentId, setCurrentId] = useState(id)
   const intl = useIntl()
   const theme = useTheme()
   const [, setOperationInProgress] = useContext(OperationInProgressContext)
-  const boundsId = `editorBox-${id || marketId}`
+  const boundsId = getBoundsId(id);
   const initialContents = getInitialState(id, value, placeholder)
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'))
   const [currentLayout, setCurrentLayout] = useState(mobileLayout)
-
-  function focusEditor (editor) {
-    if (!_.isEmpty(boxRef?.current?.children)) {
-      boxRef.current.children[0].click()
-    }
-    editor.focus()
-  }
-
-  function resetHandler (contents) {
-    if (id) {
-      storeState(id, null);
-      createEditor(id, contents); // recreate the editor, because we need to get brand new state
-    }
-  }
-
-  function replaceEditorContents(contents, editor) {
-    editor.setContents({insert: contents});
-    storeState(id, contents);
-  }
-
-  function beginListening(editor, listenId) {
-    registerListener(`editor-${listenId}-control-plane`, id, (message) => {
-      const {
-        type,
-        contents,
-        newId,
-        myLayout
-      } = message.payload;
-      switch (type) {
-        case 'recreate':
-          return createEditor(newId, contents, myLayout)
-        case 'reset':
-          return resetHandler(contents);
-        case 'update':
-          return replaceEditorContents(contents, editor);
-        case 'focus':
-          return focusEditor(editor);
-        default:
-        // do nothing;
-      }
-    })
-  }
 
   /**
    * The UI for videos is quite poor, so we need
    * to replace it with ours
    */
-  function createVideoUi () {
+  function createVideoUi (id) {
     return (
       <VideoDialog
         open={videoDialogOpen}
         onClose={() => setVideoDialogOpen(false)}
         onSave={(link) => {
+          const editor = QuillEditorRegistry.getEditor(id);
           const embedded = embeddifyVideoLink(link);
           editor.format('video', embedded);
         }}
@@ -279,12 +219,13 @@ function QuillEditor2 (props) {
    * The UI for links is also quite poor, so we need
    * to replace it with ours
    */
-  function createLinkUi () {
+  function createLinkUi (id) {
     return (
       <LinkDialog
         open={linkDialogOpen}
         onClose={() => setLinkDialogOpen(false)}
         onSave={(link) => {
+          const editor = QuillEditorRegistry.getEditor(id);
           // if they haven't got anything selected, just get the current
           // position and insert the url as the text,
           // otherwise just format the current selection as a link
@@ -465,11 +406,10 @@ function QuillEditor2 (props) {
     pushMessage(`editor-${id}`, { type: 'uploads', newUploads })
   }
 
-  function isWhitespace (ch) {
-    return (ch === ' ') || (ch === '\t') || (ch === '\n')
-  }
-
-  function createEditor (editorId, initializeContents, myLayout) {
+  function createEditor (initializeContents, myLayout, forceCreate) {
+    if(QuillEditorRegistry.getEditor(id) != null && !forceCreate){
+      return; // already made the editor
+    }
     const layout = myLayout || mobileLayout
     // we only set the contents if different from the placeholder
     // otherwise the placeholder functionality of the editor won't work
@@ -480,56 +420,58 @@ function QuillEditor2 (props) {
       } else if (!(placeholder === initialContents) && initialContents) {
         boxRef.current.innerHTML = initialContents
       }
+    }else{
+      // no current == no place to create editor;
+      return;
     }
 
     //Removing old toolbar in case changes
     removeToolbarTabs(containerRef.current)
-    const editorOptions = generateEditorOptions(layout)
-    const editor = new Quill(boxRef.current, editorOptions)
+    const editorOptions = generateEditorOptions(layout);
+    const editor = new Quill(boxRef.current, editorOptions);
+    QuillEditorRegistry.setEditor(id, editor);
     if (!noToolbar) {
       if (editor.container) {
         addToolTips(editor.container.previousSibling)
       }
       disableToolbarTabs(containerRef.current)
     }
-    const debouncedOnChange = _.debounce((delta) => {
-      // URL stuff from https://github.com/quilljs/quill/issues/109
-      const regex = /https?:\/\/[^\s]+$/
-      if (delta.ops.length === 2 && delta.ops[0].retain && isWhitespace(delta.ops[1].insert)) {
-        const endRetain = delta.ops[0].retain;
-        const text = editor.getText().substr(0, endRetain);
-        const match = text.match(regex);
+    const onChange = generateOnChangeHandler(id);
+    editor.on('text-change', onChange);
 
-        if (match !== null) {
-          const url = match[0];
-
-          const ops = [];
-          if(endRetain > url.length) {
-            ops.push({ retain: endRetain - url.length });
-          }
-
-          const retOps = ops.concat([
-            { delete: url.length },
-            { insert: url, attributes: { link: url } }
-          ]);
-
-          editor.updateContents({
-            ops: retOps
-          });
-        }
-      }
-      const contents = editor.root.innerHTML;
-      if (editorEmpty(contents)) {
-        storeState(editorId, '');
-      } else {
-        storeState(editorId, contents);
-      }
-    }, 50);
-    editor.on('text-change', debouncedOnChange);
-    setEditor(editor);
-    setCurrentId(editorId)
     setCurrentLayout(layout)
-    beginListening(editor, editorId)
+    beginListening(id);
+  }
+
+
+  function resetHandler (id, contents) {
+    if (id) {
+      storeState(id, null);
+      createEditor(id, contents); // recreate the editor, because we need to get brand new state
+    }
+  }
+
+  function beginListening(id) {
+    registerListener(getControlPlaneName(id), id, (message) => {
+      const {
+        type,
+        contents,
+        myLayout
+      } = message.payload;
+      const editor = QuillEditorRegistry.getEditor(id);
+      switch (type) {
+        case 'recreate':
+          return createEditor(contents, myLayout)
+        case 'reset':
+          return resetHandler(contents);
+        case 'update':
+          return replaceEditorContents(contents, id);
+        case 'focus':
+          return focusEditor(editor);
+        default:
+        // do nothing;
+      }
+    })
   }
 
   // bridge our fonts in from the theme;
@@ -550,22 +492,41 @@ function QuillEditor2 (props) {
     zIndex: '2'
   }
 
+  // TODO, this is bonkers? Is it to handle rotation on an ipad?
   useEffect(() => {
-    if (currentId && mobileLayout !== currentLayout) {
-      pushMessage(getControlPlaneName(currentId), editorRecreate(currentId, getQuillStoredState(currentId),
+    if (id && mobileLayout !== currentLayout) {
+      pushMessage(getControlPlaneName(id), editorRecreate(id, getQuillStoredState(id),
         mobileLayout))
     }
     return () => {}
-  }, [currentId, mobileLayout, currentLayout])
+  }, [id, mobileLayout, currentLayout])
+
+
+  // callback wrapper. Really should
+  // resolve the deps issue with create editor
+  const editorCreator = useCallback(() => {
+    const editor = QuillEditorRegistry.getEditor(id);
+    const idReady = id != null;
+    const containersReady = containerRef.current != null && boxRef.current != null;
+    const needEditor = containersReady && idReady && editor == null;
+    if(needEditor){
+      // creating editor
+      createEditor();
+    }
+    // This is probably a bad idea, but the create should be fine
+    // due to the checks above (missing createEditor dep)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, containerRef, boxRef]);
 
   useEffect(() => {
-    if (id && currentId !== id) {
-      //If id changes have to reset
-      pushMessage(getControlPlaneName(currentId), editorRecreate(id, getQuillStoredState(id)))
+    editorCreator();
+    return () => {
+      // will only fire after total cleanup because of the needsEditor calculation
+      QuillEditorRegistry.remove(id); // harmless if already nuked
     }
-    return () => {}
-  }, [currentId, id])
+  }, [id, editorCreator]);
 
+  const editor = QuillEditorRegistry.getEditor(id);
   useEffect(() => {
     // Without this read only won't update
     if (editor && noToolbar) {
@@ -574,18 +535,10 @@ function QuillEditor2 (props) {
     }
   }, [editor, value, noToolbar]);
 
-  useEffect(() => {
-    //TODO this makes no sense since no dependencies will only run on creation
-    //TODO and editor.scrollingContainer.id !== boundsId happens if namespace changes - having to call reset from parent
-    if(!editor && (id || noToolbar)) {
-      createEditor(id);
-    }
-  });
-
   return (
     <div>
-      {createVideoUi()}
-      {createLinkUi()}
+      {createVideoUi(id)}
+      {createLinkUi(id)}
       <div
         ref={containerRef}
         className={noToolbar ? classes.root : classes.nothing}

@@ -17,6 +17,11 @@ export function registerListener(channel, name, callback) {
   Hub.listen(channel, busListeners[name]);
 }
 
+export function hasListener(channel, name){
+  const previousListener = busListeners[name];
+  return !!previousListener;
+}
+
 /**
  * Removes a listener with the UNIQUE name, from the channel.
  * @param channel

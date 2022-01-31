@@ -273,7 +273,7 @@ function QuillEditor2 (props) {
             if (value) {
               setLinkDialogOpen(true);
             } else {
-              //TODO editor doesn't exist yet so how are we using it here?
+              const editor = QuillEditorRegistry.getEditor(id);
               editor.format('link', false);
             }
           }
@@ -492,7 +492,7 @@ function QuillEditor2 (props) {
     zIndex: '2'
   }
 
-  // TODO, this is bonkers? Is it to handle rotation on an ipad?
+  // Handle rotation on an iPhone
   useEffect(() => {
     if (id && mobileLayout !== currentLayout) {
       pushMessage(getControlPlaneName(id), editorRecreate(id, getQuillStoredState(id),
@@ -526,14 +526,14 @@ function QuillEditor2 (props) {
     }
   }, [id, editorCreator]);
 
-  const editor = QuillEditorRegistry.getEditor(id);
   useEffect(() => {
+    const editor = QuillEditorRegistry.getEditor(id);
     // Without this read only won't update
     if (editor && noToolbar) {
       editor.root.innerHTML = '';
       editor.clipboard.dangerouslyPasteHTML(0, value);
     }
-  }, [editor, value, noToolbar]);
+  }, [id, value, noToolbar]);
 
   return (
     <div>
@@ -574,7 +574,7 @@ QuillEditor2.propTypes = {
   uploadDisabled: PropTypes.bool,
   noToolbar: PropTypes.bool,
   setOperationInProgress: PropTypes.func,
-  id: PropTypes.string,
+  id: PropTypes.string.isRequired,
   simple: PropTypes.bool,
   participants: PropTypes.arrayOf(PropTypes.object),
   mentionsAllowed: PropTypes.bool,
@@ -588,7 +588,6 @@ QuillEditor2.defaultProps = {
   dontManageState: false,
   uploadDisabled: false,
   noToolbar: false,
-  id: undefined,
   simple: false,
   participants: [],
   mentionsAllowed: true,

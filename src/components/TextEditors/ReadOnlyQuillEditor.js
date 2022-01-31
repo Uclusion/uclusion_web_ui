@@ -32,7 +32,7 @@ const useStyles = makeStyles(
 );
 
 function ReadOnlyQuillEditor(props) {
-  const { value, setBeingEdited, isEditable } = props;
+  const { value, setBeingEdited, isEditable, id } = props;
   const classes = useStyles();
 
   return (
@@ -43,6 +43,7 @@ function ReadOnlyQuillEditor(props) {
            }
          }}>
       <QuillEditor2
+        id={`readOnly${id}`}
         value={value}
         noToolbar
       />

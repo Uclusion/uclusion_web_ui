@@ -408,7 +408,7 @@ function MarketTodos (props) {
                 )}
                 <Grid id={`showEdit1${showChip ? '' : id}`} key={`showEdit1${id}`} item xs={12}
                       style={{ paddingTop: `${showChip ? 0 : 0.5}rem` }}>
-                  <ReadOnlyQuillEditor value={body}/>
+                  <ReadOnlyQuillEditor value={body} id={id}/>
                 </Grid>
               </Grid>
             </RaisedCard>

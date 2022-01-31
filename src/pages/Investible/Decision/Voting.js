@@ -209,7 +209,7 @@ function Voting(props) {
                       </div>
                     )}
                     {reason &&
-                      <ReadOnlyQuillEditor value={reason.body} isEditable={isEditable}
+                      <ReadOnlyQuillEditor value={reason.body} isEditable={isEditable} id={reason.id}
                                            setBeingEdited={(event) => setBeingEdited(true, event)}
                       />}
                   </CardContent>

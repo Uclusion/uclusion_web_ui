@@ -741,7 +741,7 @@ function Comment(props) {
             )}
             <Box marginTop={1}>
               {!beingEdited && !displayingDiff && (
-                <ReadOnlyQuillEditor value={comment.body} setBeingEdited={setBeingEdited}
+                <ReadOnlyQuillEditor value={comment.body} setBeingEdited={setBeingEdited} id={comment.id}
                                      isEditable={!mobileLayout && displayEditing}/>
               )}
               {!beingEdited && displayingDiff && (
@@ -1137,6 +1137,7 @@ function Reply(props) {
             <ReadOnlyQuillEditor
               className={classes.editor}
               value={comment.body}
+              id={comment.id}
               setBeingEdited={setBeingEdited}
               isEditable={!mobileLayout && enableEditing && isEditable}
             />

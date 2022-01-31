@@ -29,10 +29,8 @@ import ImageBlot from './ImageBlot'
 import { editorRecreate, getControlPlaneName } from './quillHooks'
 import QuillEditorRegistry from './QuillEditorRegistry';
 import {
-  focusEditor,
   generateOnChangeHandler,
   getBoundsId,
-  replaceEditorContents,
   storeState
 } from './Utilities/CoreUtils';
 
@@ -460,13 +458,9 @@ function QuillEditor2 (props) {
       } = message.payload;
       switch (type) {
         case 'recreate':
-          return createEditor(contents, myLayout)
+          return createEditor(contents, myLayout, true)
         case 'reset':
           return resetHandler(contents);
-        case 'update':
-          return replaceEditorContents(contents, id);
-        case 'focus':
-          return focusEditor(id);
         default:
         // do nothing;
       }

@@ -45,7 +45,7 @@ import {
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'
 import { Add, Clear, Delete } from '@material-ui/icons'
-import { editorFocus, editorReset, editorUpdate, useEditor } from '../TextEditors/quillHooks'
+import { editorReset, useEditor } from '../TextEditors/quillHooks'
 import { getUiPreferences } from '../../contexts/AccountUserContext/accountUserContextHelper'
 import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
 import { getQuillStoredState } from '../TextEditors/QuillEditor2'
@@ -53,6 +53,7 @@ import IssueDialog from '../Warnings/IssueDialog'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { removeWorkListItem, workListStyles } from '../../pages/Home/YourWork/WorkListItem'
 import { deleteOrDehilightMessages } from '../../api/users'
+import { focusEditor, replaceEditorContents } from '../TextEditors/Utilities/CoreUtils'
 
 function getPlaceHolderLabelId (type, isStory, isInReview) {
   switch (type) {
@@ -273,22 +274,21 @@ function CommentAdd(props) {
   useEffect(() => {
     // If didn't focus to begin with then focus when type is changed
     if (type && !autoFocus) {
-      editorController(editorFocus());
+      focusEditor(editorName);
     }
     return () => {};
-  }, [autoFocus, editorController, type]);
+  }, [autoFocus, editorName, type]);
 
   useEffect(() => {
     if (autoFocus) {
-      editorController(editorFocus());
+      focusEditor(editorName);
     }
     return () => {};
-  }, [autoFocus, editorController]);
+  }, [autoFocus, editorName]);
 
 
   function clearMe () {
-    // Reset doesn't work because value hasn't changed yet - I'm not clear on why this works
-    editorController(editorUpdate (''));
+    replaceEditorContents('', editorName);
     commentAddStateReset();
     setOpenIssue(false);
   }
@@ -299,9 +299,8 @@ function CommentAdd(props) {
   }
 
   function handleClear () {
-    // Reset doesn't work because value hasn't changed yet - I'm not clear on why this works
-    editorController(editorUpdate(''))
-    onCancel()
+    replaceEditorContents('', editorName);
+    onCancel();
   }
 
   function handleSpinStop (comment) {

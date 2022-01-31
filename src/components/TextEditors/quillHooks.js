@@ -18,28 +18,10 @@ export function editorRecreate (newId, contents, myLayout) {
   }
 }
 
-/**
- * Used by the editor to recieve an update, and to send to a listening reducer that an update has happened
- * @param contents
- * @returns {{contents, type: string}}
- */
-export function editorUpdate (contents) {
-  return {
-    type: 'update',
-    contents
-  };
-}
-
 export function editorUpload (metadatas) {
   return {
     type: 'upload',
     metadatas,
-  };
-}
-
-export function editorFocus () {
-  return {
-    type: 'focus'
   };
 }
 

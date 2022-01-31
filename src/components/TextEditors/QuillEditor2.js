@@ -458,7 +458,6 @@ function QuillEditor2 (props) {
         contents,
         myLayout
       } = message.payload;
-      const editor = QuillEditorRegistry.getEditor(id);
       switch (type) {
         case 'recreate':
           return createEditor(contents, myLayout)
@@ -467,7 +466,7 @@ function QuillEditor2 (props) {
         case 'update':
           return replaceEditorContents(contents, id);
         case 'focus':
-          return focusEditor(editor);
+          return focusEditor(id);
         default:
         // do nothing;
       }

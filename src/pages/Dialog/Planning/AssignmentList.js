@@ -13,8 +13,6 @@ import {
 import { useIntl } from 'react-intl'
 import Typography from '@material-ui/core/Typography'
 import Autocomplete from '@material-ui/lab/Autocomplete'
-import AddIcon from '@material-ui/icons/Add'
-import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
 import { Clear } from '@material-ui/icons'
 
 const useStyles = makeStyles(() => ({
@@ -57,7 +55,6 @@ function AssignmentList(props) {
   }
 
   const participants = getSortedPresenceWithAssignable();
-  const [selectedPresence, setSelectedPresence] = useState(undefined);
   const [submitted, setSubmitted] = useState(getDefaultChecked());
 
 
@@ -77,9 +74,9 @@ function AssignmentList(props) {
     changeAssignments(newChecked);
   }
 
-  function addAssignment() {
-    if (selectedPresence) {
-      const id = selectedPresence.id;
+  function addAssignment(value) {
+    if (value) {
+      const id = value.id;
       const newChecked = {
         ...submitted,
         [id]: true,
@@ -129,15 +126,9 @@ function AssignmentList(props) {
                                               label={intl.formatMessage({ id: 'searchAssignments' })}
                                               margin="dense"
                                               variant="outlined" />}
-          style={{ width: 300, maxHeight: '1rem' }}
-          onChange={(event, value) => setSelectedPresence(value)}
+          style={{ width: 300, maxHeight: '1rem', marginBottom: '2rem' }}
+          onChange={(event, value) => addAssignment(value)}
         />
-        <IconButton
-          onClick={addAssignment}
-          id='addAssignmentButton'
-        >
-          <AddIcon htmlColor={ACTION_BUTTON_COLOR}/>
-        </IconButton>
       </div>
       {requiresInput && (
         <Typography color='error'>
@@ -148,7 +139,6 @@ function AssignmentList(props) {
         <List
           dense
           id="addressBook"
-          style={{padding: 0, margin: 0}}
         >
           <ListSubheader style={{padding: 0, margin: 0}}>
             {intl.formatMessage({ id: listHeader })}

@@ -51,7 +51,8 @@ function AssignmentList(props) {
   }
 
   function getSortedPresenceWithAssignable() {
-    return _.sortBy(marketPresences, 'name');
+    return _.sortBy(marketPresences, [((presence) => presence.current_user ? 0 : 1),
+      (presence) => presence.name]);
   }
 
   const participants = getSortedPresenceWithAssignable();

@@ -405,7 +405,6 @@ function PlanningInvestible(props) {
   const assigned = invAssigned || [];
   const { investible } = marketInvestible;
   const { name, locked_by: lockedBy, created_at: createdAt, label_list: originalLabelList } = investible;
-  const [labelList, setLabelList] = useState(originalLabelList);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [pageStateFull, pageDispatch] = usePageStateReducer('investible');
   const [pageState, updatePageState, pageStateReset] = getPageReducerPage(pageStateFull, pageDispatch, investibleId);
@@ -507,10 +506,8 @@ function PlanningInvestible(props) {
   }
 
   function deleteLabel(aLabel) {
-    const originalLabels = labelList || [];
-    const newLabels = originalLabels.filter((label) => aLabel !== label) || [];
-    setLabelList(newLabels);
-    changeLabelsAndQuickAdd(marketId, investibleId, newLabels).catch(() => setLabelList(originalLabels));
+    const newLabels = originalLabelList.filter((label) => aLabel !== label) || [];
+    changeLabelsAndQuickAdd(marketId, investibleId, newLabels);
   }
 
   function labelInputOnChange(event, value) {
@@ -522,10 +519,8 @@ function PlanningInvestible(props) {
   }
 
   function addLabel() {
-    const formerLabels = labelList ? labelList : [];
-    const newLabels = [...formerLabels, newLabel];
-    setLabelList(newLabels);
-    changeLabelsAndQuickAdd(marketId, investibleId, newLabels).catch(() => setLabelList(formerLabels));
+    const newLabels = [...originalLabelList, newLabel];
+    changeLabelsAndQuickAdd(marketId, investibleId, newLabels);
     setNewLabel(undefined);
     setClearMeHack(clearMeHack+clearMeHack);
   }
@@ -682,7 +677,7 @@ function PlanningInvestible(props) {
       });
     }
   }
-  const availableLabels = _.difference(labels, labelList);
+  const availableLabels = _.difference(labels, originalLabelList);
   const defaultProps = {
     options: availableLabels,
     getOptionLabel: (option) => option,
@@ -1038,7 +1033,7 @@ function PlanningInvestible(props) {
             </Grid>
           </Grid>
           <Grid item xs={12} className={classes.fullWidthCentered}>
-            {labelList && labelList.map((label) =>
+            {originalLabelList && originalLabelList.map((label) =>
               <div key={label} className={classes.labelChip}>
                 <Chip label={label} onDelete={()=>deleteLabel(`${label}`)} color="primary" />
               </div>

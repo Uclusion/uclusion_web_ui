@@ -650,6 +650,8 @@ function Comment(props) {
       </div>
     );
   }
+  const showMoveButton = [TODO_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(commentType) && !inArchives
+    && enableActions && (!resolved || commentType !== TODO_TYPE) && marketType === PLANNING_TYPE;
   return (
     <div>
       <Card elevation={3} style={{overflow: 'unset'}} className={getCommentHighlightStyle()}>
@@ -822,7 +824,7 @@ function Comment(props) {
                     icon={resolved ? SettingsBackupRestore : Done}
                     id={`commentResolveReopenButton${id}`}
                   >
-                    {intl.formatMessage({
+                    {!mobileLayout && intl.formatMessage({
                       id: resolved ? "commentReopenLabel" : "commentResolveLabel"
                     })}
                   </SpinningIconLabelButton>
@@ -834,29 +836,35 @@ function Comment(props) {
                     icon={ReplyIcon}
                     doSpin={false}
                   >
-                    {intl.formatMessage({ id: "commentReplyLabel" })}
+                    {!mobileLayout && intl.formatMessage({ id: "commentReplyLabel" })}
                   </SpinningIconLabelButton>
                 )}
+                {showMoveButton && mobileLayout && (
+                  <SpinningIconLabelButton
+                    onClick={() => navigate(history, `${formMarketAddInvestibleLink(marketId)}#fromCommentId=${id}`)}
+                    doSpin={false}
+                    icon={Eject}
+                  />
+                )}
               </div>
-              <div className={classes.actionsEnd}>
+              <div className={mobileLayout ? classes.actions : classes.actionsEnd}>
                 {commentType === QUESTION_TYPE && !inArchives && inlineMarketId && !resolved && (
-                  <div style={{marginRight: '1rem', paddingTop: '0.5rem'}}>
+                  <div style={{display: 'flex', marginRight: '1rem', paddingTop: '0.5rem'}}>
                     <Typography style={{fontSize: 12}}>
                       {intl.formatMessage({ id: mobileLayout ? 'allowMultiVoteQuestionMobile'
                           : 'allowMultiVoteQuestion' })}
-                      <Checkbox
-                        style={{maxHeight: '1rem'}}
-                        id="multiVote"
-                        name="multiVote"
-                        checked={multiVote}
-                        onChange={toggleMultiVote}
-                        disabled={operationRunning !== false || inlineCreatedBy !== inlineUserId}
-                      />
                     </Typography>
+                    <Checkbox
+                      style={{maxHeight: '1rem', paddingTop: mobileLayout ? '1.5rem' : undefined}}
+                      id="multiVote"
+                      name="multiVote"
+                      checked={multiVote}
+                      onChange={toggleMultiVote}
+                      disabled={operationRunning !== false || inlineCreatedBy !== inlineUserId}
+                    />
                   </div>
                 )}
-                {!mobileLayout && [TODO_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(commentType) && !inArchives
-                && enableActions && (!resolved || commentType !== TODO_TYPE) && marketType === PLANNING_TYPE && (
+                {showMoveButton && !mobileLayout && (
                   <SpinningIconLabelButton
                     onClick={() => navigate(history, `${formMarketAddInvestibleLink(marketId)}#fromCommentId=${id}`)}
                     doSpin={false}

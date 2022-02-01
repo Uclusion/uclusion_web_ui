@@ -781,7 +781,7 @@ function Comment(props) {
                 )}
                 {commentType === SUGGEST_CHANGE_TYPE && !inArchives && !resolved && !shouldInline
                   && marketType === PLANNING_TYPE && (
-                  <div style={{marginLeft: '1rem', marginRight: '0.5rem', paddingTop: '0.25rem'}}>
+                  <div style={{marginRight: '0.5rem', paddingTop: '0.25rem'}}>
                     <Typography style={{ whiteSpace:'nowrap',}}>
                       {intl.formatMessage({ id: mobileLayout ? 'allowVoteSuggestionMobile' : 'allowVoteSuggestion' })}
                       <Checkbox
@@ -824,7 +824,7 @@ function Comment(props) {
                     icon={resolved ? SettingsBackupRestore : Done}
                     id={`commentResolveReopenButton${id}`}
                   >
-                    {!mobileLayout && intl.formatMessage({
+                    {(!mobileLayout || resolved) && intl.formatMessage({
                       id: resolved ? "commentReopenLabel" : "commentResolveLabel"
                     })}
                   </SpinningIconLabelButton>

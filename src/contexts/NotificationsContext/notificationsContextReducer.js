@@ -84,15 +84,35 @@ function storeMessagesInState(state, messagesToStore) {
  */
 function doUpdateMessages (state, action) {
   const { messages } = action;
+  const { messages: existingMessages } = state;
+  if (!_.isEmpty(existingMessages)) {
+    const deletedMessages = existingMessages.filter((message) => message.deleted);
+    if (!_.isEmpty(deletedMessages)) {
+      messages.forEach((message) => {
+        if (!_.isEmpty(
+          deletedMessages.find((deletedMessage) => deletedMessage.type_object_id === message.type_object_id))) {
+          // Mark deleted any shadow copies of deleted messages before replacing
+          message.deleted = true;
+        }
+      });
+    }
+  }
   return storeMessagesInState(state, messages);
 }
 
 function removeSingleMessage(state, action) {
   const { message } = action;
   const { messages } = state;
-  const filteredMessages = (messages || []).filter((aMessage) =>
-    aMessage.market_id_user_id !== message.market_id_user_id || aMessage.type_object_id !== message.type_object_id);
-  return storeMessagesInState(state, filteredMessages);
+  if (message.deleted) {
+    // This is a soft delete to avoid eventually consistent shadow copies
+    return modifySingleMessage(state, message, (message) => {
+      return { ...message, deleted: true };
+    });
+  } else {
+    const filteredMessages = (messages || []).filter((aMessage) =>
+      aMessage.market_id_user_id !== message.market_id_user_id || aMessage.type_object_id !== message.type_object_id);
+    return storeMessagesInState(state, filteredMessages);
+  }
 }
 
 function addSingleMessage(state, action) {

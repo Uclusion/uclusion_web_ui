@@ -4,7 +4,7 @@ import { getMarket } from '../MarketsContext/marketsContextHelper'
 import { getMarketPresences } from '../MarketPresencesContext/marketPresencesHelper'
 
 export function isInInbox(message, marketState, marketPresencesState) {
-  if (message.type === 'UNREAD_REPORT') {
+  if (message.type === 'UNREAD_REPORT' || message.deleted) {
     return false;
   }
   if (message.type === 'NOT_FULLY_VOTED' && message.market_type === DECISION_TYPE) {

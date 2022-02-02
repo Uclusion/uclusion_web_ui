@@ -30,7 +30,9 @@ export function deleteOrDehilightMessages(messages, messagesDispatch, removeClas
     }
     typeObjectIds.push(typeObjectId);
     if (!highlightOnly && typeObjectId.startsWith('UNREAD')) {
-      removeWorkListItem(message, removeClass, messagesDispatch);
+      // Soft delete for now to avoid reading an eventually consistent shadow copy
+      const modifiedMessage = { ...message, deleted: true };
+      removeWorkListItem(modifiedMessage, removeClass, messagesDispatch);
     } else {
       messagesDispatch(dehighlightMessage(message));
     }

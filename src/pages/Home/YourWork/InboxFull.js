@@ -60,7 +60,8 @@ function InboxFull(props) {
       return defaultValue;
     }
 
-    return !(results.find((result) => result.id === marketId)||parentResults.includes(marketId));
+    return !(results.find((result) => result.id === marketId || result.marketId === marketId)
+      ||parentResults.includes(marketId));
   }
 
   const navigationMenu = {

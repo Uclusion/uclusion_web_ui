@@ -5,6 +5,12 @@ import { Grid } from '@material-ui/core';
 import Comment from '../../components/Comments/Comment';
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
 import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../constants/comments'
+import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
+import {
+  getFullStage,
+  getInCurrentVotingStage,
+  isFurtherWorkStage
+} from '../../contexts/MarketStagesContext/marketStagesContextHelper'
 
 function findGreatestUpdatedAt(roots, comments, rootUpdatedAt) {
   let myRootUpdatedAt = rootUpdatedAt;
@@ -71,14 +77,25 @@ export function getSortedRoots(allComments, searchResults) {
 function CommentBox(props) {
   const { comments, marketId, allowedTypes, isInbox, isRequiresInput, isInBlocking, assigned, formerStageId,
     fullStage } = props;
+  const [marketStagesState] = useContext(MarketStagesContext);
   const [searchResults] = useContext(SearchResultsContext);
   const sortedRoots = getSortedRoots(comments, searchResults);
+  function getFormerStageId() {
+    if (!formerStageId) {
+      return formerStageId;
+    }
+    const formerStage = getFullStage(marketStagesState, marketId, formerStageId);
+    if (!isFurtherWorkStage(formerStage)) {
+      return formerStageId;
+    }
+    return (getInCurrentVotingStage(marketStagesState, marketId) || {}).id;
+  }
   const resolvedStageId = (isRequiresInput && _.size(comments.filter(
     comment => (comment.comment_type === QUESTION_TYPE || comment.comment_type === SUGGEST_CHANGE_TYPE)
       && !comment.resolved && assigned.includes(comment.created_by)
   )) === 1) || (isInBlocking && _.size(comments.filter(
     comment => comment.comment_type === ISSUE_TYPE && !comment.resolved
-  )) === 1) ? formerStageId : undefined;
+  )) === 1) ? getFormerStageId() : undefined;
 
   function getCommentCards() {
     return sortedRoots.map(comment => {

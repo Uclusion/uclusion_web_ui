@@ -178,12 +178,14 @@ function Inbox(props) {
     const { investible_id: investibleId, investible_name: investible, updated_at: updatedAt, market_name: market,
       is_highlighted: isHighlighted, type_object_id: typeObjectId, market_id: marketId, comment_id: commentId,
       comment_market_id: commentMarketId, link_multiple: linkMultiple, link_type: linkType } = message;
-    const isMultiple = _.size(dupeHash[linkMultiple]) > 1;
+    const fullyVotedMessage = (dupeHash[linkMultiple] || []).find((message) => message.type === 'FULLY_VOTED');
+    const isMultiple = !fullyVotedMessage && _.size(dupeHash[linkMultiple]) > 1;
     const hasPersistent = (dupeHash[linkMultiple] || []).find((message) =>
       !message.type_object_id.startsWith('UNREAD'));
+    const useMessage = fullyVotedMessage || message;
     const title = isMultiple ?
       intl.formatMessage({ id: 'multipleNotifications' }, { x: _.size(dupeHash[linkMultiple]) })
-      : messageText(message, mobileLayout, intl);
+      : messageText(useMessage, mobileLayout, intl);
     const inv = getInvestible(investiblesState, investibleId) || {};
     const marketInfo = getMarketInfo(inv, marketId) || {};
     const { assigned } = marketInfo;
@@ -191,13 +193,13 @@ function Inbox(props) {
     const isAssigned = (assigned || []).includes(userId);
     const item = {
       title,
-      icon: getPriorityIcon(message, isAssigned),
+      icon: getPriorityIcon(useMessage, isAssigned),
       market,
       investible,
       read: !isHighlighted,
       isDeletable: typeObjectId.startsWith('UNREAD') && (!isMultiple || !hasPersistent),
       date: intl.formatDate(updatedAt),
-      message
+      message: useMessage
     }
     if (isHighlighted) {
       containsUnread = true;

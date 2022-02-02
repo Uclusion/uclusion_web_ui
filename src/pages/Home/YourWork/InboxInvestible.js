@@ -41,9 +41,12 @@ import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import AttachedFilesList from '../../../components/Files/AttachedFilesList'
 import Chip from '@material-ui/core/Chip'
 import PropTypes from 'prop-types'
+import { getLabelList } from '../../../utils/messageUtils'
+
 
 function InboxInvestible(props) {
-  const { marketId, marketType, planningClasses, messageTypes, investibleId, mobileLayout, isOutbox } = props;
+  const { marketId, marketType, planningClasses, messageTypes, investibleId, mobileLayout, isOutbox,
+    messagesFull } = props;
   const intl = useIntl();
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -168,6 +171,25 @@ function InboxInvestible(props) {
           <Typography variant="body1" style={{marginTop: mobileLayout ? '1rem' : '1.5rem'}}>
             {market.name}
           </Typography>
+        )}
+        {!_.isEmpty(messagesFull) && (
+          <>
+            {!mobileLayout && (
+              <>
+                <div style={{flexGrow: 1}} />
+                <Typography variant="body1" style={{paddingTop: '0.5rem', paddingRight: '0.5rem'}}>
+                  {intl.formatMessage({ id: 'notificationsListHeader' },
+                    { x: getLabelList(messagesFull, intl, mobileLayout) })}
+                </Typography>
+              </>
+            )}
+            {mobileLayout && (
+              <div style={{paddingLeft: '0.5rem', paddingRight: '0.5rem', paddingTop: '0.3rem'}}>
+                {intl.formatMessage({ id: 'notificationsListHeader' },
+                  { x: getLabelList(messagesFull, intl, mobileLayout) })}
+              </div>
+            )}
+          </>
         )}
       </div>
       {_.isEmpty(messageTypes) && (

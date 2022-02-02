@@ -340,6 +340,7 @@ const messages = defineMessages({
   enjoy: 'Enjoy your day',
   nameChange: 'Job name changed to "{x}"',
   investibleInboxHeader: '{x} / {y}',
+  notificationsListHeader: 'Notifications: {x}',
 
   // Address list
   addressAddCancelLabel: 'Close',

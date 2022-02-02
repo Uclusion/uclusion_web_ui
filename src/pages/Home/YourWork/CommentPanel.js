@@ -11,11 +11,14 @@ import LoadingDisplay from '../../../components/LoadingDisplay'
 import InboxInvestible from './InboxInvestible'
 import { Typography } from '@material-ui/core'
 import PropTypes from 'prop-types'
+import { getLabelList } from '../../../utils/messageUtils'
+import { useIntl } from 'react-intl'
 
 function CommentPanel(props) {
-  const { commentId, marketId, marketType, messageType, planningClasses, mobileLayout } = props;
+  const { commentId, marketId, marketType, messageType, planningClasses, mobileLayout, messagesFull } = props;
   const [marketState] = useContext(MarketsContext);
   const [commentState] = useContext(CommentsContext);
+  const intl = useIntl();
   let useMarketId = marketId;
   let useCommentId = commentId;
   const market = getMarket(marketState, marketId) || {};
@@ -37,13 +40,34 @@ function CommentPanel(props) {
           <div style={{overflowY: 'auto', maxHeight: '15rem'}}>
             <InboxInvestible marketId={marketId} investibleId={investibleId}
                              planningClasses={planningClasses} marketType={marketType}
-                             mobileLayout={mobileLayout} />
+                             mobileLayout={mobileLayout} messagesFull={messagesFull} />
           </div>
         )}
         {!investibleId && (
-          <Typography variant="h6" style={{paddingTop: '1rem', paddingLeft: '1rem', paddingRight: '1rem'}}>
-            {market.name}
-          </Typography>
+          <div style={{display: mobileLayout ? undefined : 'flex'}}>
+            <Typography variant="h6" style={{paddingTop: '1rem', paddingLeft: '1rem', paddingRight: '1rem'}}>
+              {market.name}
+            </Typography>
+            {!_.isEmpty(messagesFull) && (
+              <>
+                {!mobileLayout && (
+                  <>
+                    <div style={{flexGrow: 1}} />
+                    <Typography variant="body1" style={{paddingTop: '0.5rem', paddingRight: '0.5rem'}}>
+                      {intl.formatMessage({ id: 'notificationsListHeader' },
+                        { x: getLabelList(messagesFull, intl, mobileLayout) })}
+                    </Typography>
+                  </>
+                )}
+                {mobileLayout && (
+                  <div style={{paddingLeft: '0.5rem', paddingRight: '0.5rem', paddingTop: '0.3rem'}}>
+                    {intl.formatMessage({ id: 'notificationsListHeader' },
+                      { x: getLabelList(messagesFull, intl, mobileLayout) })}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
         )}
         <div style={{paddingLeft: '1rem', paddingRight: '1rem', paddingBottom: '0.5rem'}}>
           <Comment

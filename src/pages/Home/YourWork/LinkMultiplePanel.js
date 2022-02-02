@@ -23,7 +23,7 @@ function LinkMultiplePanel(props) {
     })) {
     return (
       <CommentPanel marketId={marketId} commentId={commentId} planningClasses={planningClasses}
-                    mobileLayout={mobileLayout} />
+                    mobileLayout={mobileLayout} messagesFull={messagesFull} />
     );
   }
   else if (!_.isEmpty(_.intersection(['NOT_FULLY_VOTED', 'ASSIGNED_UNREVIEWABLE', 'UNREAD_REVIEWABLE',
@@ -31,6 +31,7 @@ function LinkMultiplePanel(props) {
       UNASSIGNED_TYPE, 'UNREAD_LABEL', 'UNREAD_ATTACHMENT', 'UNREAD_ESTIMATE'], messageTypes))) {
     const { investible_id: investibleId, market_type: marketType } = messagesFull[0];
     return <InboxInvestible marketId={marketId} investibleId={investibleId} messageTypes={messageTypes}
+                            messagesFull={messagesFull}
                             planningClasses={planningClasses} marketType={marketType} mobileLayout={mobileLayout} />
   }
   console.warn(messageTypes);

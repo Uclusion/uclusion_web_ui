@@ -78,6 +78,17 @@ export function messageText(message, isMobile, intl) {
   }
 }
 
+export function getLabelList(messagesFull, intl, isMobile) {
+  const labels = [];
+  messagesFull.forEach((message) => {
+    const label = messageText(message, isMobile, intl).toLowerCase();
+    if (!labels.includes(label)) {
+      labels.push(label);
+    }
+  });
+  return labels.join(', ');
+}
+
 export function findMessagesForCommentId(commentId, state) {
   const { messages } = (state || {});
   const safeMessages = messages || [];

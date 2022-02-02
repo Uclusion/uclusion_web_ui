@@ -2,11 +2,8 @@ import WorkListItem, { workListStyles } from './WorkListItem'
 import { Box, Checkbox, Fab, useMediaQuery, useTheme } from '@material-ui/core'
 import React, { useContext, useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
-import { ExpandLess, MoveToInbox, Weekend } from '@material-ui/icons'
-import WarningIcon from '@material-ui/icons/Warning'
+import { Assignment, ExpandLess, MoveToInbox, PersonAddOutlined, Weekend } from '@material-ui/icons'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
-import HourglassFullIcon from '@material-ui/icons/HourglassFull'
-import NotesIcon from '@material-ui/icons/Notes'
 import { navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
 import { nameFromDescription } from '../../../utils/stringFunctions'
@@ -32,15 +29,21 @@ import { usePageStateReducer } from '../../../components/PageState/pageStateHook
 import { getInboxCount, isInInbox } from '../../../contexts/NotificationsContext/notificationsContextHelper'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
+import Quiz from '../../../components/CustomChip/Quiz'
+import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
+import { getMarketInfo } from '../../../utils/userFunctions'
+import { getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
 
-function getPriorityIcon(level) {
+function getPriorityIcon(message, isAssigned) {
+  const { level } = message;
+  const Icon = isAssigned ? Assignment : (message.type === 'UNASSIGNED' ? PersonAddOutlined : Quiz);
   switch (level) {
     case 'RED':
-      return <WarningIcon style={{fontSize: 24, color: '#E85757',}}/>;
+      return <Icon style={{fontSize: 24, color: '#E85757'}}/>;
     case 'YELLOW':
-      return <HourglassFullIcon style={{fontSize: 24, color: '#e6e969',}}/>;
+      return <Icon style={{fontSize: 24, color: '#ffc61a'}}/>;
     case 'BLUE':
-      return <NotesIcon style={{fontSize: 24, color: '#2D9CDB',}}/>;
+      return <Icon style={{fontSize: 24, color: '#2D9CDB'}}/>;
     default:
       return undefined;
   }
@@ -172,7 +175,7 @@ function Inbox(props) {
   });
   let containsUnread = false;
   let rows = messagesOrdered.map((message) => {
-    const { level, investible_name: investible, updated_at: updatedAt, market_name: market,
+    const { investible_id: investibleId, investible_name: investible, updated_at: updatedAt, market_name: market,
       is_highlighted: isHighlighted, type_object_id: typeObjectId, market_id: marketId, comment_id: commentId,
       comment_market_id: commentMarketId, link_multiple: linkMultiple, link_type: linkType } = message;
     const isMultiple = _.size(dupeHash[linkMultiple]) > 1;
@@ -181,9 +184,14 @@ function Inbox(props) {
     const title = isMultiple ?
       intl.formatMessage({ id: 'multipleNotifications' }, { x: _.size(dupeHash[linkMultiple]) })
       : messageText(message, mobileLayout, intl);
+    const inv = getInvestible(investiblesState, investibleId) || {};
+    const marketInfo = getMarketInfo(inv, marketId) || {};
+    const { assigned } = marketInfo;
+    const userId = getMyUserForMarket(marketsState, marketId);
+    const isAssigned = (assigned || []).includes(userId);
     const item = {
       title,
-      icon: getPriorityIcon(level),
+      icon: getPriorityIcon(message, isAssigned),
       market,
       investible,
       read: !isHighlighted,

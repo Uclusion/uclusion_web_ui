@@ -197,7 +197,7 @@ function Inbox(props) {
       market,
       investible,
       read: !isHighlighted,
-      isDeletable: typeObjectId.startsWith('UNREAD') && (!isMultiple || !hasPersistent),
+      isDeletable: useMessage.type_object_id.startsWith('UNREAD') && (!isMultiple || !hasPersistent),
       date: intl.formatDate(updatedAt),
       message: useMessage
     }

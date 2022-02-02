@@ -335,6 +335,8 @@ const messages = defineMessages({
   unreadVoteMobile: 'Vote',
   unreadApproval: 'New approval',
   unreadApprovalMobile: 'Approval',
+  fullyVoted: 'Fully voted',
+  fullyVotedMobile: 'Voted',
   noNew: 'No notifications.',
   noPending: 'Nothing pending.',
   enjoy: 'Enjoy your day',

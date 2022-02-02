@@ -14,7 +14,8 @@ function LinkMultiplePanel(props) {
     return acc.concat([message.type]);
   }, []);
 
-  if (!_.isEmpty(_.intersection(['UNREAD_REPLY', 'UNREAD_COMMENT', 'UNREAD_RESOLVED', 'ISSUE'], messageTypes)) ||
+  if (!_.isEmpty(_.intersection(['UNREAD_REPLY', 'UNREAD_COMMENT', 'UNREAD_RESOLVED', 'ISSUE',
+      'FULLY_VOTED'], messageTypes)) ||
     ['UNREAD_OPTION', 'UNREAD_VOTE', 'NOT_FULLY_VOTED', 'INVESTIBLE_SUBMITTED'].find((aType) => {
       return messagesFull.find((message) => {
         const { type: messageType, link_type: linkType } = message;

@@ -37,6 +37,8 @@ export function messageText(message, isMobile, intl) {
       return getMessageTextForId('unPromotedOption', isMobile, intl);
     case 'UNREAD_CLOSED':
       return getMessageTextForId('workspaceClosed', isMobile, intl);
+    case 'FULLY_VOTED':
+      return getMessageTextForId('fullyVoted', isMobile, intl);
     case 'NOT_FULLY_VOTED':
       if (marketType === DECISION_TYPE) {
         return getMessageTextForId('pleaseChoose', isMobile, intl);

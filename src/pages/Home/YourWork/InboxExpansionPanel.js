@@ -37,7 +37,7 @@ export function addExpansionPanel(props) {
     item.expansionPanel = ( <LinkMultiplePanel linkMultiple={linkMultiple} marketId={commentMarketId || marketId}
                                                commentId={commentId} planningClasses={planningClasses}
                                                mobileLayout={mobileLayout}/> );
-  } else if ((['UNREAD_REPLY', 'UNREAD_COMMENT', 'UNREAD_RESOLVED', 'ISSUE'].includes(messageType)) ||
+  } else if ((['UNREAD_REPLY', 'UNREAD_COMMENT', 'UNREAD_RESOLVED', 'ISSUE', 'FULLY_VOTED'].includes(messageType)) ||
     (['UNREAD_OPTION', 'UNREAD_VOTE', 'NOT_FULLY_VOTED', 'INVESTIBLE_SUBMITTED'].includes(messageType)
       && linkType.startsWith('INLINE')) || (messageType === 'UNASSIGNED' && linkType === 'MARKET_TODO')) {
     item.expansionPanel = ( <CommentPanel marketId={commentMarketId || marketId} commentId={commentId}

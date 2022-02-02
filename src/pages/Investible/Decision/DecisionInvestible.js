@@ -185,7 +185,7 @@ function DecisionInvestible(props) {
   const activeMarket = marketStage === ACTIVE_STAGE;
   const yourPresence = marketPresences.find((presence) => presence.current_user) || {};
   const yourVote = yourPresence.investments
-    && yourPresence.investments.find((investment) => investment.investible_id === investibleId);
+    && yourPresence.investments.find((investment) => investment.investible_id === investibleId && !investment.deleted);
   const {
     name, created_by: createdBy, locked_by: lockedBy, attached_files: attachedFiles,
   } = investible;

@@ -33,7 +33,7 @@ export function addExpansionPanel(props) {
   const { type: messageType, market_id: marketId, comment_id: commentId, comment_market_id: commentMarketId,
     link_type: linkType, investible_id: investibleId, market_type: marketType, link_multiple: linkMultiple } = message;
 
-  if (isMultiple) {
+  if (isMultiple && messageType !== 'FULLY_VOTED') {
     item.expansionPanel = ( <LinkMultiplePanel linkMultiple={linkMultiple} marketId={commentMarketId || marketId}
                                                commentId={commentId} planningClasses={planningClasses}
                                                mobileLayout={mobileLayout}/> );

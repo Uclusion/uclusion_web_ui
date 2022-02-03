@@ -36,7 +36,8 @@ import { getMyUserForMarket } from '../../../contexts/MarketsContext/marketsCont
 
 function getPriorityIcon(message, isAssigned) {
   const { level } = message;
-  const Icon = isAssigned ? Assignment : (message.type === 'UNASSIGNED' ? PersonAddOutlined : Quiz);
+  const Icon = isAssigned ? Assignment :
+    (['UNASSIGNED', 'UNREAD_DRAFT'].includes(message.type) ? PersonAddOutlined : Quiz);
   switch (level) {
     case 'RED':
       return <Icon style={{fontSize: 24, color: '#E85757'}}/>;

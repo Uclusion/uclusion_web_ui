@@ -31,7 +31,7 @@ const Div = styled("div")`
   align-items: center;
   box-shadow: inset 0 -1px 0 0 rgba(100, 121, 143, 0.122);
   &.MailListItem-read {
-    background-color: rgba(242,245,245,0.8);
+    background-color: rgba(242,245,245,0.5);
   }
   &:hover {
     box-shadow: inset 1px 0 0 #dadce0, inset -1px 0 0 #dadce0,

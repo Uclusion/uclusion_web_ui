@@ -1,7 +1,7 @@
 import React, { useContext, useState, } from 'react'
 import _ from 'lodash'
 import PropTypes from 'prop-types'
-import { Card, CardActions, CardContent, } from '@material-ui/core'
+import { Card, CardActions, CardContent, useMediaQuery, useTheme, } from '@material-ui/core'
 import { addDecisionInvestible } from '../../../api/investibles';
 import { processTextAndFilesForSave } from '../../../api/files'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
@@ -44,6 +44,8 @@ function DecisionInvestibleAdd(props) {
   } = pageState;
   const nameId = `investibleAdd${marketId}`;
   const intl = useIntl();
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
   const classes = usePlanFormStyles();
   const lockedDialogClasses = useLockedDialogStyles();
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -202,17 +204,18 @@ function DecisionInvestibleAdd(props) {
         </CardContent>
         <CardActions className={classes.actions} style={{marginLeft: '1rem', paddingBottom: '1rem'}}>
           <SpinningIconLabelButton onClick={handleCancel} doSpin={false} icon={Clear}>
-            {intl.formatMessage({ id: 'marketAddCancelLabel' })}
+            {!mobileLayout && intl.formatMessage({ id: 'marketAddCancelLabel' })}
           </SpinningIconLabelButton>
           <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore}
                                    disabled={!parentCommentId && !investmentAllowedStage.id}
                                    id="decisionInvestibleSaveButton">
-            {intl.formatMessage({ id: 'agilePlanFormSaveLabel' })}
+            {!mobileLayout && intl.formatMessage({ id: 'agilePlanFormSaveLabel' })}
           </SpinningIconLabelButton>
           <SpinningIconLabelButton onClick={handleSaveAddAnother} icon={SettingsBackupRestore}
                                    disabled={!parentCommentId && !investmentAllowedStage.id}
                                    id="decisionInvestibleSaveAddAnotherButton">
-            {intl.formatMessage({ id: 'decisionInvestibleSaveAddAnother' })}
+            {intl.formatMessage({ id: mobileLayout ? 'decisionInvestibleMobileAddAnother' :
+                'decisionInvestibleSaveAddAnother' })}
           </SpinningIconLabelButton>
         </CardActions>
       </Card>

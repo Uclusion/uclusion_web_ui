@@ -637,6 +637,7 @@ const messages = defineMessages({
 
   // DecisionIvestibleSave
   decisionInvestibleSaveAddAnother: 'Save & Add Another',
+  decisionInvestibleMobileAddAnother: '& Another',
 
   // DecisionInvestible
   decisionInvestibleYourVoting: 'Your Input',

@@ -128,7 +128,7 @@ function SearchBox () {
   }
 
   return (
-    <div id='search-box'>
+    <div id='search-box' onClick={(event) => event.stopPropagation()}>
       <TextField
         style={{backgroundColor: "white", maxWidth: "13rem"}}
         onChange={onSearchChange}

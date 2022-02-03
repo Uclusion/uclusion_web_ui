@@ -157,9 +157,9 @@ function Inbox(props) {
     );
   }
   const messagesFiltered = _.isEmpty(search) ? messagesOrdered : messagesOrdered.filter((message) => {
-    const typeObjectId = message.type_object_id;
-    return results.find((result) => typeObjectId.endsWith(result.id))||
-      parentResults.find((id) => typeObjectId.endsWith(id));
+    const { type_object_id: typeObjectId,  investible_id: investibleId } = message;
+    return results.find((result) => typeObjectId.endsWith(result.id) || result.id === investibleId) ||
+      parentResults.find((id) => typeObjectId.endsWith(id) || parentResults.find((id) => investibleId === id));
   });
   const dupeHash = {};
   // Filter out duplicates by hashing on {type}_{link_multiple}

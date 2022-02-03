@@ -16,7 +16,7 @@ function LeaderProvider(props) {
   const [, setElector] = useState(undefined);
 
   useEffect(() => {
-    console.info(`Processing leader with authState ${authState}`);
+    console.info(`Processing leader with authState ${authState} and userId ${userId}`);
     if (authState === 'signedIn' && userId) {
       const myChannel = new BroadcastChannel(userId);
       // If you grab leader not signed in then you risk stalling out as no one gets data

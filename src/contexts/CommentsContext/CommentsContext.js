@@ -27,6 +27,9 @@ function pushIndexItems(diskState) {
   pushMessage(SEARCH_INDEX_CHANNEL, indexMessage);
 }
 
+let commentsContextHack;
+export { commentsContextHack };
+
 function CommentsProvider(props) {
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE, undefined);
   const [, diffDispatch] = useContext(DiffContext);
@@ -79,6 +82,7 @@ function CommentsProvider(props) {
     return () => {};
   }, []);
 
+  commentsContextHack = state;
   return (
     <CommentsContext.Provider value={[state, dispatch]} >
       {props.children}

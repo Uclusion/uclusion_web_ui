@@ -1,10 +1,13 @@
 import { intl } from '../components/ContextHacks/IntlGlobalProvider'
 import { pushMessage } from './MessageBusUtils'
 import _ from 'lodash'
-import { getInvestible } from '../contexts/InvestibesContext/investiblesContextHelper'
+import { getInvestibleName } from '../contexts/InvestibesContext/investiblesContextHelper'
 import { getMarket } from '../contexts/MarketsContext/marketsContextHelper'
 import { marketsContextHack } from '../contexts/MarketsContext/MarketsContext';
 import { investibleContextHack } from '../contexts/InvestibesContext/InvestiblesContext';
+import { getCommentRoot } from '../contexts/CommentsContext/commentsContextHelper'
+import { nameFromDescription } from './stringFunctions'
+import { commentsContextHack } from '../contexts/CommentsContext/CommentsContext'
 
 export const VISIT_CHANNEL = 'VisitChannel';
 export const VIEW_EVENT = 'pageView';
@@ -149,29 +152,38 @@ export function formInviteLink(marketToken) {
 export function getNameForUrl(url) {
   const marketState = marketsContextHack;
   const investibleState = investibleContextHack;
-    const urlParts = new URL(url);
-    if (urlParts.host === window.location.host && !urlParts.hash) {
-      // Ignore hash related as they can go to comments, user in swimlane, vote etc. which are difficult to name
-      const { action, marketId, investibleId } = decomposeMarketPath(urlParts.pathname);
-      if (action === 'dialog') {
-        if (investibleId) {
-          const inv = getInvestible(investibleState, investibleId);
-          if (!_.isEmpty(inv)) {
-            const { investible } = inv;
-            const { name } = investible;
-            return name;
-          }
-        }
-        if (marketId) {
-          const market = getMarket(marketState, marketId);
-          if (!_.isEmpty(market)) {
-            const { name } = market;
+  const commentsState = commentsContextHack;
+  const urlParts = new URL(url);
+  const isComment = urlParts.hash && urlParts.hash.startsWith('#c') && !urlParts.hash.startsWith('#cv');
+  if (urlParts.host === window.location.host && (!urlParts.hash || isComment)) {
+    const { action, marketId, investibleId } = decomposeMarketPath(urlParts.pathname);
+    if (action === 'dialog') {
+      if (isComment) {
+        const commentId = urlParts.hash.substring(2, urlParts.hash.length);
+        const rootComment = getCommentRoot(commentsState, marketId, commentId);
+        if (rootComment) {
+          const name = nameFromDescription(rootComment.body);
+          if (!_.isEmpty(name)) {
             return name;
           }
         }
       }
+      if (investibleId) {
+        const name = getInvestibleName(investibleState, investibleId);
+        if (!_.isEmpty(name)) {
+          return name;
+        }
+      }
+      if (marketId) {
+        const market = getMarket(marketState, marketId);
+        if (!_.isEmpty(market)) {
+          const { name } = market;
+          return name;
+        }
+      }
     }
-    return undefined;
+  }
+  return undefined;
 }
 
 export function openInNewTab(url) {

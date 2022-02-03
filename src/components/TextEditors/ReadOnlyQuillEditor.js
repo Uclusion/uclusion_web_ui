@@ -35,6 +35,10 @@ function ReadOnlyQuillEditor(props) {
   const { value, setBeingEdited, isEditable, id } = props;
   const classes = useStyles();
 
+  if (!id) {
+    return React.Fragment;
+  }
+
   return (
     <div className={clsx(classes.root, isEditable ? classes.editable : classes.notEditable)}
          onClick={(event) => {

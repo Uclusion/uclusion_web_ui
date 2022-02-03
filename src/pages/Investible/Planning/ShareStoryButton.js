@@ -22,6 +22,10 @@ function ShareStoryButton(props) {
     setOpen(true);
   };
 
+  if (window.location.href.includes('inbox') || window.location.href.includes('outbox')) {
+    return React.Fragment;
+  }
+
   return (
     <>
       <TooltipIconButton icon={<ShareIcon/>} onClick={handleOpen}

@@ -118,6 +118,8 @@ const useCardTypeStyles = makeStyles(theme => ({
     },
     labelGrid: {
       display: 'flex',
+      maxWidth: 'unset',
+      flexBasis: 'unset'
     },
     lastEdited: {
       paddingTop: '5px',
@@ -208,7 +210,7 @@ export default function CardType(props) {
             <IconComponent className={classes.icon}/>
             <span className={classes.label}>{label}</span>
           </div>
-          {!mobileLayout && gravatar}
+          {gravatar}
         </Grid>
       )}
       {!label && (

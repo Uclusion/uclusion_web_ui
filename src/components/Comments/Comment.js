@@ -660,7 +660,7 @@ function Comment(props) {
             {overrideLabel && (
               <CardType className={classes.commentType} type={commentType} resolved={resolved}
                         label={overrideLabel} color={color}
-                        gravatar={noAuthor ? undefined :
+                        gravatar={noAuthor || mobileLayout ? undefined :
                           <GravatarAndName key={myPresence.id} email={createdBy.email}
                                            name={createdBy.name} typographyVariant="caption"
                                            typographyClassName={classes.createdBy}
@@ -670,7 +670,7 @@ function Comment(props) {
             )}
             {!overrideLabel && (
               <CardType className={classes.commentType} type={commentType} resolved={resolved}
-                        gravatar={noAuthor ? undefined :
+                        gravatar={noAuthor || mobileLayout ? undefined :
                           <GravatarAndName key={myPresence.id} email={createdBy.email}
                                            name={createdBy.name} typographyVariant="caption"
                                            typographyClassName={classes.createdBy}

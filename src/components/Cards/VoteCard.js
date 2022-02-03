@@ -20,6 +20,8 @@ const useStyles = makeStyles((theme) => ({
     background: 'white',
     [theme.breakpoints.down('sm')]: {
       gridTemplateColumns: 'unset',
+      display: 'block',
+      height: 'unset'
     },
   },
   gravatarContainer: {
@@ -29,6 +31,11 @@ const useStyles = makeStyles((theme) => ({
     width: '132px',
     marginLeft: '3px',
     borderLeft: '1px solid #eaeaea',
+  },
+  gravatarContainerMobile: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   gravatarGroup: {
   },
@@ -115,10 +122,8 @@ function VoteCard (props) {
           </span>
         </div>
       )}
-      {!mobileLayout && votes && (
-        <div
-          className={classes.gravatarContainer}
-        >
+      {votes && (
+        <div className={mobileLayout ? classes.gravatarContainerMobile : classes.gravatarContainer}>
           <GravatarGroup
             className={classes.gravatarGroup}
             users={votes}

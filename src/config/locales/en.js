@@ -724,7 +724,7 @@ const messages = defineMessages({
   dialogArchivesLabel: 'Channel Archive',
   readyFurtherWorkHeader: 'Further Work',
   readyToStartHeader: 'Ready to Start',
-  notReadyToStartHeader: 'Not Ready to Start',
+  notReadyToStartHeader: 'Not Ready',
   createFurtherWorkExplanation: 'Create a new job that sends a notification demanding assignment.',
   requiresInputHeader: 'Requires Input',
   blockedHeader: 'Blocked',

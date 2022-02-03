@@ -246,10 +246,10 @@ function Header (props) {
       >
         <Toolbar className={classes.topBar}>
           <div className={classes.sidebarLogo}>
-            {mobileLayout && (
+            {mobileLayout && !operationRunning && (
               <Hamburger navMenu={navMenu} />
             )}
-            {!mobileLayout && (
+            {(!mobileLayout || operationRunning) && (
               <Link href="/" onClick={(event) => {
                 preventDefaultAndProp(event);
                 history.push('/');

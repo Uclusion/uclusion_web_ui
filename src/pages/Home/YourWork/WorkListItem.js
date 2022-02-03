@@ -64,11 +64,6 @@ const Text = styled("div")`
   }
 `;
 
-const TextB = styled(Text)`
-  color: rgba(0, 0, 0, 0.87);
-  font-weight: bold;
-`;
-
 const Title = styled(Text)`
   flex-basis: 280px;
   flex-shrink: 0;
@@ -247,7 +242,7 @@ function WorkListItem(props) {
             </Box>
             {read ? (<Title>{title}</Title>) : (<TitleB>{title}</TitleB>)}
             {mobileLayout || !people ? React.Fragment : <GravatarGroup users={people} className={classes.gravatarStyle}/> }
-            {read ? (<Text>{fullText}</Text>) : (<TextB>{fullText}</TextB>)}
+            <Text>{fullText}</Text>
             {mobileLayout ||!date ? React.Fragment : (read ? (<DateLabel>{date}</DateLabel>) : (<DateLabelB>{date}</DateLabelB>))}
           </Div>
         </Link>

@@ -13,18 +13,34 @@ const LeaderContext = React.createContext(EMPTY_STATE);
 function LeaderProvider(props) {
   const { children, authState, userId } = props;
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
-  const [, setElector] = useState(undefined);
+  const [channel, setChannel] = useState(undefined);
+
 
   useEffect(() => {
-    console.info(`Processing leader with authState ${authState} and userId ${userId}`);
+    let myChannel;
     if (authState === 'signedIn' && userId) {
-      const myChannel = new BroadcastChannel(userId);
+      console.info(`Processing leader with userId ${userId}`);
+      myChannel = new BroadcastChannel(userId);
+      setChannel(myChannel);
+    }
+    return () => {
+      if (myChannel) {
+        console.info('Closing channel');
+        myChannel.close();
+        setChannel(undefined);
+      }
+    };
+  }, [authState, userId]);
+
+  useEffect(() => {
+    if (channel) {
+      console.info('Applying for leader');
       // If you grab leader not signed in then you risk stalling out as no one gets data
-      const elector = createLeaderElection(myChannel, {
+      const elector = createLeaderElection(channel, {
         fallbackInterval: 5000, // optional configuration for how often will renegotiation for leader occur
         responseTime: 5000, // optional configuration for how long will instances have to respond
       });
-      elector.applyOnce().then((isLeader) => {
+      return elector.applyOnce().then((isLeader) => {
         // Could use broadcast ID to send message out to others to refresh out of login page
         // but its a bit risky as can somehow infinite refresh and corner of corner case anyway
         dispatch(updateLeader(isLeader));
@@ -35,10 +51,9 @@ function LeaderProvider(props) {
         }
         return isLeader;
       });
-      setElector(elector);
     }
     return () => {};
-  }, [authState, userId]);
+  }, [channel]);
 
   return (
     <LeaderContext.Provider value={[state, dispatch]}>

@@ -1,6 +1,5 @@
 import { refreshVersions } from '../VersionsContext/versionsContextHelper'
 import { BroadcastChannel } from 'broadcast-channel'
-import { LEADER_CHANNEL } from './LeaderContext'
 
 const UPDATE_LEADER = 'update_leader';
 const REFRESH_OR_MESSAGE = 'refresh_or_message';
@@ -12,9 +11,10 @@ export function updateLeader(isLeader) {
   };
 }
 
-export function refreshOrMessage(peg) {
+export function refreshOrMessage(peg, leaderChannelId) {
   return {
     type: REFRESH_OR_MESSAGE,
+    leaderChannelId,
     peg
   };
 }
@@ -32,7 +32,7 @@ function reducer(state, action) {
         refreshVersions().then(() => console.info(`Refreshed versions from ${peg}`));
       } else if (amLeader !== undefined && !peg.includes('leaderChannel')) {
         console.info(`Not leader sending refresh from ${peg}`);
-        const myChannel = new BroadcastChannel(LEADER_CHANNEL);
+        const myChannel = new BroadcastChannel(action.leaderChannelId);
         myChannel.postMessage('refresh').then(() => myChannel.close());
       }
       return state;

@@ -12,7 +12,7 @@ import { refreshNotifications, refreshVersions } from './VersionsContext/version
 import { getLoginPersistentItem, setLoginPersistentItem } from '../components/localStorageUtils'
 import { getNotifications } from '../api/summaries'
 import { isSignedOut, onSignOut } from '../utils/userFunctions'
-import { LEADER_CHANNEL, LeaderContext } from './LeaderContext/LeaderContext'
+import { LeaderContext } from './LeaderContext/LeaderContext'
 import { BroadcastChannel } from 'broadcast-channel'
 import LocalForageHelper from '../utils/LocalForageHelper'
 import { VERSIONS_CONTEXT_NAMESPACE } from './VersionsContext/versionsContextReducer'
@@ -66,7 +66,7 @@ function sendPing(socket) {
   socket.send(actionString);
 }
 
-function createWebSocket(config, leaderDispatch, setState) {
+function createWebSocket(config, leaderDispatch, setState, leaderChannelId) {
   console.info('Creating new websocket');
   pongTracker.failureCount = 0;
   const { webSockets } = config;
@@ -74,12 +74,12 @@ function createWebSocket(config, leaderDispatch, setState) {
   const newSocket = new WebSocketRunner(sockConfig);
   // this will incidentally subscribe to the identity
   newSocket.connect();
-  const myChannel = new BroadcastChannel(LEADER_CHANNEL);
+  const myChannel = new BroadcastChannel(leaderChannelId);
   myChannel.onmessage = (msg) => {
     if (msg === 'refresh') {
       //Each context is setup to tell the other tabs to reload from the memory namespace
       //so refresh versions just needs to run as normal and changes will propagate
-      leaderDispatch(refreshOrMessage(`leaderChannel${Date.now()}`));
+      leaderDispatch(refreshOrMessage(`leaderChannel${Date.now()}`, leaderChannelId));
     }
   }
   // we also want to always be subscribed to new app versions
@@ -92,33 +92,33 @@ function createWebSocket(config, leaderDispatch, setState) {
   });
 
   newSocket.registerHandler('market', () => {
-    leaderDispatch(refreshOrMessage(`market${Date.now()}`));
+    leaderDispatch(refreshOrMessage(`market${Date.now()}`, leaderChannelId));
   });
   newSocket.registerHandler('investible', () => {
-    leaderDispatch(refreshOrMessage(`investible${Date.now()}`));
+    leaderDispatch(refreshOrMessage(`investible${Date.now()}`, leaderChannelId));
   });
   newSocket.registerHandler('market_investible', () => {
-    leaderDispatch(refreshOrMessage(`marketInvestible${Date.now()}`));
+    leaderDispatch(refreshOrMessage(`marketInvestible${Date.now()}`, leaderChannelId));
   });
   newSocket.registerHandler('comment', () => {
-    leaderDispatch(refreshOrMessage(`comment${Date.now()}`));
+    leaderDispatch(refreshOrMessage(`comment${Date.now()}`, leaderChannelId));
   });
   newSocket.registerHandler('stage', () => {
-    leaderDispatch(refreshOrMessage(`stage${Date.now()}`));
+    leaderDispatch(refreshOrMessage(`stage${Date.now()}`, leaderChannelId));
   });
   newSocket.registerHandler('market_capability', () => {
-    leaderDispatch(refreshOrMessage(`marketCapability${Date.now()}`));
+    leaderDispatch(refreshOrMessage(`marketCapability${Date.now()}`, leaderChannelId));
   });
   newSocket.registerHandler('investment', () => {
-    leaderDispatch(refreshOrMessage(`investment${Date.now()}`));
+    leaderDispatch(refreshOrMessage(`investment${Date.now()}`, leaderChannelId));
   });
   // Go ahead and get the latest when bring up a new socket since you may not have been listening
-  leaderDispatch(refreshOrMessage(`initialized${Date.now()}`));
+  leaderDispatch(refreshOrMessage(`initialized${Date.now()}`, leaderChannelId));
   refreshNotifications();
 
   newSocket.registerHandler('notification', () => {
     // Try to be up to date before we push the notification out (which might need new data)
-    leaderDispatch(refreshOrMessage(`notification${Date.now()}`));
+    leaderDispatch(refreshOrMessage(`notification${Date.now()}`, leaderChannelId));
     refreshNotifications();
   });
 
@@ -127,7 +127,7 @@ function createWebSocket(config, leaderDispatch, setState) {
 }
 
 function WebSocketProvider(props) {
-  const { children, config } = props;
+  const { children, config, userId } = props;
   const [, leaderDispatch] = useContext(LeaderContext);
   const [state, setState] = useState();
 
@@ -166,16 +166,16 @@ function WebSocketProvider(props) {
     }, 30000, pongTracker, state, () => {
       refreshNotifications();
       leaderDispatch(refreshOrMessage(`visit${Date.now()}`));
-    }, () => createWebSocket(config, leaderDispatch, setState));
+    }, () => createWebSocket(config, leaderDispatch, setState, userId));
     return () => clearInterval(interval);
-  }, [config, leaderDispatch, state]);
+  }, [config, leaderDispatch, state, userId]);
 
   useEffect(() => {
     if (!isSignedOut()) {
-      createWebSocket(config, leaderDispatch, setState);
+      createWebSocket(config, leaderDispatch, setState, userId);
     }
     return () => {};
-  }, [config, leaderDispatch]);
+  }, [config, leaderDispatch, userId]);
 
   registerListener(AUTH_HUB_CHANNEL, 'webSocketsAuth', (data) => {
     const { payload: { event } } = data;

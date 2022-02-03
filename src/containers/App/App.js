@@ -77,14 +77,14 @@ function App(props) {
   if (authState === 'signedIn' && userId && email) {
     return (
       <CognitoUserProvider authState={authState}>
-        <LeaderProvider authState={authState}>
+        <LeaderProvider authState={authState} userId={userId}>
           <MarketsProvider>
             <CommentsProvider>
               <InvestiblesProvider>
                 <MarketPresencesProvider>
                   <AccountUserProvider authState={authState}>
                     <OnlineStateProvider>
-                      <WebSocketProvider config={config}>
+                      <WebSocketProvider config={config} userId={userId}>
                         <AppConfigProvider appConfig={configs}>
                           <ThemeProvider theme={defaultTheme}>
                             <TourProvider>

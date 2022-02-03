@@ -7,18 +7,18 @@ import reducer, { updateLeader } from './leaderContextReducer'
 const EMPTY_STATE = {
   leader: undefined,
 };
-const LEADER_CHANNEL = 'leader';
+
 const LeaderContext = React.createContext(EMPTY_STATE);
 
 function LeaderProvider(props) {
-  const { children, authState } = props;
+  const { children, authState, userId } = props;
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
   const [, setElector] = useState(undefined);
 
   useEffect(() => {
     console.info(`Processing leader with authState ${authState}`);
-    if (authState === 'signedIn') {
-      const myChannel = new BroadcastChannel(LEADER_CHANNEL);
+    if (authState === 'signedIn' && userId) {
+      const myChannel = new BroadcastChannel(userId);
       // If you grab leader not signed in then you risk stalling out as no one gets data
       const elector = createLeaderElection(myChannel, {
         fallbackInterval: 5000, // optional configuration for how often will renegotiation for leader occur
@@ -38,7 +38,7 @@ function LeaderProvider(props) {
       setElector(elector);
     }
     return () => {};
-  }, [authState]);
+  }, [authState, userId]);
 
   return (
     <LeaderContext.Provider value={[state, dispatch]}>
@@ -47,4 +47,4 @@ function LeaderProvider(props) {
   );
 }
 
-export { LeaderProvider, LeaderContext, LEADER_CHANNEL };
+export { LeaderProvider, LeaderContext };

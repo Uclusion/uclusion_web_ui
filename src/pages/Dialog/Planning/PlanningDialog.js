@@ -359,7 +359,7 @@ function PlanningDialog(props) {
           <DismissableText textId="notificationHelp" text={
             <div>
               Uclusion will generate all <Link href="https://documentation.uclusion.com/notifications" target="_blank">notifications</Link> necessary
-              to keep the status in these <Link href="https://documentation.uclusion.com/workspaces/swimlanes" target="_blank">swimlanes</Link> up to date.
+              to keep the status in these <Link href="https://documentation.uclusion.com/channels/swimlanes" target="_blank">swimlanes</Link> up to date.
             </div>
           }/>
           {!_.isEmpty(blockedInvestibles) && (
@@ -370,7 +370,7 @@ function PlanningDialog(props) {
                                                                size='small'
                                                                className={classes.chipStyle} /> : undefined}
               title={intl.formatMessage({ id: 'blockedHeader' })}
-              helpLink='https://documentation.uclusion.com/workspaces/stories/stages/#blocked'
+              helpLink='https://documentation.uclusion.com/channels/jobs/stages/#blocked'
               id="blocked"
             >
               <ArchiveInvestbiles
@@ -393,7 +393,7 @@ function PlanningDialog(props) {
                                                                       color="primary" size='small'
                                                                       className={classes.chipStyle} /> : undefined}
               title={intl.formatMessage({ id: 'requiresInputHeader' })}
-              helpLink='https://documentation.uclusion.com/workspaces/stories/stages/#requires-input'
+              helpLink='https://documentation.uclusion.com/channels/jobs/stages/#requires-input'
               id="requiresInput"
             >
               <ArchiveInvestbiles
@@ -413,7 +413,7 @@ function PlanningDialog(props) {
           <SubSection
             type={SECTION_SUB_HEADER}
             isBlackText
-            helpLink='https://documentation.uclusion.com/workspaces/swimlanes'
+            helpLink='https://documentation.uclusion.com/channels/swimlanes'
             id="swimLanes"
             title={intl.formatMessage({ id: 'swimLanes' })}
           >
@@ -437,7 +437,7 @@ function PlanningDialog(props) {
           <SubSection
             type={SECTION_SUB_HEADER}
             isBlackText
-            helpLink='https://documentation.uclusion.com/workspaces/stories/stages/#further-work'
+            helpLink='https://documentation.uclusion.com/channels/jobs/stages/#further-work'
             id="furtherWork"
             title={intl.formatMessage({ id: 'readyFurtherWorkHeader' })}
           >
@@ -553,8 +553,8 @@ function PlanningDialog(props) {
           )}
           <DismissableText textId="workspaceCommentHelp" text={
             <div>
-              <Link href="https://documentation.uclusion.com/overview/decisions" target="_blank">Channel comments</Link> are
-              used to answer questions, make suggestions or explain progress outside of jobs.
+              <Link href="https://documentation.uclusion.com/structured-comments" target="_blank">Comments</Link> can
+              be used at the channel level and later moved to a job.
             </div>
           }/>
           <CommentBox comments={notTodoComments} marketId={marketId} allowedTypes={allowedCommentTypes}/>

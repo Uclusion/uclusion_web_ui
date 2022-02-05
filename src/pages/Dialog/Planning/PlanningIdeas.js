@@ -327,7 +327,7 @@ function PlanningIdeas(props) {
            onDragEnd={onDragEndStage}>
         <FormattedMessage id="planningVotingStageLabel" />
         {!mobileLayout && (
-          <Link href="https://documentation.uclusion.com/workspaces/stories/stages/#ready-for-approval" target="_blank">
+          <Link href="https://documentation.uclusion.com/channels/jobs/stages/#ready-for-approval" target="_blank">
             <Info style={{height: '1.1rem'}} />
           </Link>
         )}
@@ -351,7 +351,7 @@ function PlanningIdeas(props) {
         <div style={{color: acceptedOverFull ? HIGHLIGHTED_BUTTON_COLOR : undefined}}>
           <FormattedMessage id={acceptedStageLabel} />
           {!mobileLayout && (
-            <Link href="https://documentation.uclusion.com/workspaces/stories/stages/#not-ready-for-feedback"
+            <Link href="https://documentation.uclusion.com/channels/jobs/stages/#started"
                   target="_blank">
               <Info style={{height: '1.1rem'}} />
             </Link>
@@ -374,7 +374,7 @@ function PlanningIdeas(props) {
            onDragEnd={onDragEndStage}>
         <FormattedMessage id="planningReviewStageLabel"/>
         {!mobileLayout && (
-          <Link href="https://documentation.uclusion.com/workspaces/stories/stages/#ready-for-feedback" target="_blank">
+          <Link href="https://documentation.uclusion.com/channels/jobs/stages/#ready-for-feedback" target="_blank">
             <Info style={{height: '1.1rem'}} />
           </Link>
         )}
@@ -395,7 +395,7 @@ function PlanningIdeas(props) {
            onDragEnd={onDragEndStage}>
         <FormattedMessage id="verifiedBlockedStageLabel"/>
         {!mobileLayout && (
-          <Link href="https://documentation.uclusion.com/workspaces/stories/stages/#verified-and-not-doing"
+          <Link href="https://documentation.uclusion.com/channels/jobs/stages/#verified-and-not-doing"
                 target="_blank">
             <Info style={{height: '1.1rem'}} />
           </Link>

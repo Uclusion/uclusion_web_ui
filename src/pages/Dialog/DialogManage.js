@@ -41,7 +41,7 @@ function DialogManage(props) {
     <Card style={{marginBottom: '1rem'}}>
       <DismissableText textId="planningEditHelp" text={
         <div>
-          This is a <Link href="https://documentation.uclusion.com/workspaces" target="_blank">channel</Link> for
+          This is a <Link href="https://documentation.uclusion.com/channels" target="_blank">channel</Link> for
           truly asynchronous communication with context.
         </div>
       }/>

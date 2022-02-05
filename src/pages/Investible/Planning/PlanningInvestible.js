@@ -804,17 +804,10 @@ function PlanningInvestible(props) {
         autoStart={true}
         steps={requiresInputStorySteps({isAssigned, mobileLayout})}
       />
-      <DismissableText textId="storyInsideHelp" text={
-        <div>
-          A Uclusion <Link href="https://documentation.uclusion.com/workspaces/tasks" target="_blank">job</Link> is
-          a work item plus a communication platform for its discussion.
-        </div>
-      }/>
       {!inArchives && isInVoting && isAssigned && acceptedFull && (
         <DismissableText textId='planningInvestibleAcceptedFullHelp' text={
           <div>
-            Up arrow not visible because
-            of <Link href="https://documentation.uclusion.com/workspaces/stories/stages/#not-ready-for-feedback" target="_blank">Started</Link> stage limit.
+            See <Link href="https://documentation.uclusion.com/channels/jobs/stages/#started" target="_blank">Started</Link> stage limit.
           </div>
         }/>
       )}
@@ -830,8 +823,7 @@ function PlanningInvestible(props) {
       {!yourVote && !inArchives && canVote && !isAssigned && (
         <DismissableText textId='planningInvestibleVotingHelp' text={
           <div>
-            Input how <Link href="https://documentation.uclusion.com/overview/planning/#certainty" target="_blank">certain</Link> you
-            are this story should be done or open
+            Input how certain you are this story should be done or open
             a <Link href="https://documentation.uclusion.com/structured-comments/#blocking-issues" target="_blank">blocking issue</Link>.
           </div>
         } />
@@ -1100,7 +1092,7 @@ function PlanningInvestible(props) {
           {isAssigned && (
             <DismissableText textId="planningInvestibleCantVote" text={
               <div>
-                <Link href="https://documentation.uclusion.com/workspaces/stories/stages/#ready-for-approval" target="_blank">Approval</Link> is
+                <Link href="https://documentation.uclusion.com/channels/jobs/stages/#ready-for-approval" target="_blank">Approval</Link> is
                 optional if you're assigned.
               </div>
             } />

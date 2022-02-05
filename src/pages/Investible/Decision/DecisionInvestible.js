@@ -278,27 +278,10 @@ function DecisionInvestible(props) {
   return (
     <div style={{marginLeft: mobileLayout ? undefined : '2rem', marginRight: mobileLayout ? undefined : '2rem',
       marginBottom: '1rem'}}>
-      {activeMarket && !inProposed && !allowMultiVote && (
-        <DismissableText textId='decisionInvestibleVotingSingleHelp' text={
-          <div>
-            Help <Link href="https://documentation.uclusion.com/initiatives-and-dialogs/dialogs" target="_blank">decide</Link> by
-            approving the best option or adding your own option.
-          </div>
-        } />
-      )}
-      {activeMarket && !inProposed && allowMultiVote && (
-        <DismissableText textId='decisionInvestibleVotingMultiHelp' text={
-          <div>
-            Help <Link href="https://documentation.uclusion.com/initiatives-and-dialogs/dialogs" target="_blank">decide</Link> by
-            approving all options you like and adding any that are missing.
-          </div>
-        } />
-      )}
       {activeMarket && inProposed && isAdmin && (
         <DismissableText textId='decisionInvestibleProposedHelp' text={
           <div>
-            You can <Link href="https://documentation.uclusion.com/initiatives-and-dialogs/dialogs/#promoting-an-option" target="_blank">move this option to be approved</Link> by
-            using the highlighted up arrow.
+            You can move this option to be approved by using the highlighted up arrow.
           </div>
         } />
       )}

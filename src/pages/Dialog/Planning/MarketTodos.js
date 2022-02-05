@@ -522,7 +522,7 @@ function MarketTodos (props) {
          style={{display: sectionOpen ? 'block' : 'none'}}>
       <DismissableText textId="todosHelp" text={
         <div>
-          Bugs go in <Link href="https://documentation.uclusion.com/workspaces/todos" target="_blank">todos</Link> so
+          Bugs go in <Link href="https://documentation.uclusion.com/channels/todos" target="_blank">todos</Link> so
           notifications based on severity can be sent.
         </div>
       }/>
@@ -530,7 +530,7 @@ function MarketTodos (props) {
         type={SECTION_SUB_HEADER}
         isBlackText
         title={intl.formatMessage({ id: 'todoSection' })}
-        helpLink='https://documentation.uclusion.com/workspaces/todos'
+        helpLink='https://documentation.uclusion.com/channels/todos'
         createButton={isInArchives || mobileLayout ? undefined :
           (
             <SpinningIconLabelButton icon={ArrowUpwardIcon} onClick={toggleShowSelectTodos} doSpin={false}

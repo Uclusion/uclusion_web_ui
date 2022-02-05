@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import _ from 'lodash'
 import { useHistory } from 'react-router'
 import { FormattedMessage, useIntl } from 'react-intl'
-import { Card, CardContent, Grid, Link, Typography, useMediaQuery, useTheme } from '@material-ui/core'
+import { Card, CardContent, Grid, Typography, useMediaQuery, useTheme } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import YourVoting from '../Voting/YourVoting'
 import Voting from './Voting'
@@ -159,7 +159,7 @@ function DecisionInvestible(props) {
   const [messagesState] = useContext(NotificationsContext);
   const myMessageDescription = findMessageOfTypeAndId(investibleId, messagesState, 'DESCRIPTION');
   const diff = getDiff(diffState, investibleId);
-  const { id: marketId, market_stage: marketStage, allow_multi_vote: allowMultiVote } = market;
+  const { id: marketId, market_stage: marketStage } = market;
   const [pageStateFull, pageDispatch] = usePageStateReducer('investible');
   const [pageState, updatePageState, pageStateReset] = getPageReducerPage(pageStateFull, pageDispatch, investibleId);
   const {

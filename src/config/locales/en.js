@@ -603,6 +603,8 @@ const messages = defineMessages({
   planningMarketActivate: 'Activate channel',
   immediate: 'Immediate',
   storyFromComment: 'Move to Job',
+  channelOptions: 'Channel Options',
+  mutingExplanation: 'Muting prevents notifications unless you are mentioned, assigned or a required approver or reviewer.',
 
   // Decision Dialog
   decisionDialogSummaryLabel: 'Background Information',

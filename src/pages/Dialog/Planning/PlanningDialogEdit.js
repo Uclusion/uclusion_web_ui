@@ -185,7 +185,7 @@ function PlanningDialogEdit(props) {
           )}
           <Grid item md={isDraft ? 12 : 4} xs={12} className={classes.fieldsetContainer}>
             <Typography variant="body2" style={{marginBottom: "0.5rem"}}>
-              Muting prevents notifications unless you are mentioned, assigned or a required approver or reviewer.
+              {intl.formatMessage({ id: 'mutingExplanation' })}
             </Typography>
             <FormControlLabel
               control={
@@ -204,7 +204,7 @@ function PlanningDialogEdit(props) {
               style={{paddingTop: "2rem"}}>
           <Grid item md={12} xs={12} className={classes.fieldsetContainer}>
               <Typography variant="h6">
-               Workspace Options
+                {intl.formatMessage({ id: 'channelOptions' })}
               </Typography>
           </Grid>
           <Grid item md={5} xs={12} className={classes.fieldsetContainer}>

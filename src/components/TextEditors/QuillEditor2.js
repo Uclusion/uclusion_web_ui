@@ -445,7 +445,7 @@ function QuillEditor2 (props) {
   function resetHandler (id, contents) {
     if (id) {
       storeState(id, null);
-      createEditor(id, contents); // recreate the editor, because we need to get brand new state
+      createEditor(id, contents, true); // recreate the editor, because we need to get brand new state
     }
   }
 
@@ -460,7 +460,7 @@ function QuillEditor2 (props) {
         case 'recreate':
           return createEditor(contents, myLayout, true)
         case 'reset':
-          return resetHandler(contents);
+          return resetHandler(id, contents);
         default:
         // do nothing;
       }

@@ -32,7 +32,7 @@ import { SearchResultsContext } from '../../../contexts/SearchResultsContext/Sea
 import Quiz from '../../../components/CustomChip/Quiz'
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { getMarketInfo } from '../../../utils/userFunctions'
-import { getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
+import { getMarket, getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
 
 function getPriorityIcon(message, isAssigned) {
   const { level } = message;
@@ -176,9 +176,10 @@ function Inbox(props) {
   });
   let containsUnread = false;
   let rows = messagesOrdered.map((message) => {
-    const { investible_id: investibleId, investible_name: investible, updated_at: updatedAt, market_name: market,
-      is_highlighted: isHighlighted, type_object_id: typeObjectId, market_id: marketId, comment_id: commentId,
-      comment_market_id: commentMarketId, link_multiple: linkMultiple, link_type: linkType } = message;
+    const { investible_id: investibleId, investible_name: investibleName, updated_at: updatedAt,
+      market_name: marketName, is_highlighted: isHighlighted, type_object_id: typeObjectId, market_id: marketId,
+      comment_id: commentId, comment_market_id: commentMarketId, link_multiple: linkMultiple,
+      link_type: linkType } = message;
     const fullyVotedMessage = (dupeHash[linkMultiple] || []).find((message) => message.type === 'FULLY_VOTED');
     const isMultiple = !fullyVotedMessage && _.size(dupeHash[linkMultiple]) > 1;
     const hasPersistent = (dupeHash[linkMultiple] || []).find((message) =>
@@ -187,16 +188,17 @@ function Inbox(props) {
     const title = isMultiple ?
       intl.formatMessage({ id: 'multipleNotifications' }, { x: _.size(dupeHash[linkMultiple]) })
       : messageText(useMessage, mobileLayout, intl);
-    const inv = getInvestible(investiblesState, investibleId) || {};
+    const inv = getInvestible(investiblesState, investibleId);
     const marketInfo = getMarketInfo(inv, marketId) || {};
     const { assigned } = marketInfo;
     const userId = getMyUserForMarket(marketsState, marketId);
     const isAssigned = (assigned || []).includes(userId);
+    const market = getMarket(marketsState, marketId) || {};
     const item = {
       title,
       icon: getPriorityIcon(useMessage, isAssigned),
-      market,
-      investible,
+      market: market.name || marketName,
+      investible: inv ? inv.investible.name : investibleName,
       read: !isHighlighted,
       isDeletable: useMessage.type_object_id.startsWith('UNREAD') && (!isMultiple || !hasPersistent),
       date: intl.formatDate(updatedAt),

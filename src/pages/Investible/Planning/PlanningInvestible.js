@@ -306,7 +306,6 @@ export const usePlanningInvestibleStyles = makeStyles(
     },
     assignmentContainer: {
       width: '100%',
-      textTransform: 'capitalize'
     },
     assignIconContainer: {
       display: 'flex',

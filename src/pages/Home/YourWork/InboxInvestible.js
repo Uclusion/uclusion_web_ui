@@ -97,7 +97,7 @@ function InboxInvestible(props) {
         {!_.isEmpty(messageTypes) && !_.isEmpty(assigned) && (
           <div className={clsx(planningClasses.group, planningClasses.assignments)}
                style={{maxWidth: '15rem', marginRight: '1rem', overflowY: 'auto', maxHeight: '8rem'}}>
-            <div style={{textTransform: 'capitalize'}}>
+            <div>
               <b><FormattedMessage id="planningInvestibleAssignments"/></b>
               <Assignments
                 classes={planningClasses}
@@ -114,7 +114,7 @@ function InboxInvestible(props) {
         {!_.isEmpty(messageTypes) && marketType === PLANNING_TYPE && !_.isEmpty(investibleCollaborators) && (
           <div className={clsx(planningClasses.group, planningClasses.assignments)}
                style={{maxWidth: '15rem', marginRight: '1rem', overflowY: 'auto', maxHeight: '8rem'}}>
-            <div style={{textTransform: 'capitalize'}}>
+            <div>
               <b><FormattedMessage id="collaborators"/></b>
               <Assignments
                 classes={planningClasses}
@@ -132,7 +132,7 @@ function InboxInvestible(props) {
           (!_.isEmpty(requiredReviewers) && isReview)) && (
           <div className={clsx(planningClasses.group, planningClasses.assignments)}
                style={{maxWidth: '15rem', marginRight: '1rem', overflowY: 'auto', maxHeight: '8rem'}}>
-            <div style={{textTransform: 'capitalize'}}>
+            <div>
               <b><FormattedMessage id={isInVoting ? 'requiredApprovers' : 'requiredReviewers'}/></b>
               <Assignments
                 classes={planningClasses}

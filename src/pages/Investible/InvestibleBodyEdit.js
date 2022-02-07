@@ -17,10 +17,10 @@ import NameField, { clearNameStoredState, getNameStoredState } from '../../compo
 import DescriptionOrDiff from '../../components/Descriptions/DescriptionOrDiff'
 import { Clear, SettingsBackupRestore } from '@material-ui/icons'
 import SpinningIconLabelButton from '../../components/Buttons/SpinningIconLabelButton'
-import { editorReset, useEditor } from '../../components/TextEditors/quillHooks';
+import { useEditor } from '../../components/TextEditors/quillHooks';
 import LockedDialogTitleIcon from '@material-ui/icons/Lock'
-import { getQuillStoredState } from '../../components/TextEditors/QuillEditor2'
 import IssueDialog from '../../components/Warnings/IssueDialog'
+import { getQuillStoredState } from '../../components/TextEditors/Utilities/CoreUtils'
 
 const useStyles = makeStyles(
   theme => ({
@@ -90,7 +90,7 @@ function InvestibleBodyEdit(props) {
     value: useDescription
   };
 
-  const [Editor, editorController] = useEditor(editorName, editorSpec);
+  const [Editor, editorReset] = useEditor(editorName, editorSpec);
 
   function handleSave() {
     const name = getNameStoredState(investibleId);
@@ -118,7 +118,7 @@ function InvestibleBodyEdit(props) {
     return updateInvestible(updateInfo)
       .then((fullInvestible) => {
         setOperationRunning(false);
-        editorController(editorReset());
+        resetEditor();
         clearNameStoredState(investibleId);
         return onSave(fullInvestible);
       });
@@ -126,7 +126,7 @@ function InvestibleBodyEdit(props) {
 
   function onCancel () {
     pageStateReset();
-    editorController(editorReset());
+    resetEditor();
     return realeaseInvestibleEditLock(marketId, investibleId)
       .then((newInv) => {
         setOperationRunning(false);
@@ -163,7 +163,7 @@ function InvestibleBodyEdit(props) {
       }).catch(() => {
         setOperationRunning(false);
         pageStateReset();
-        editorController(editorReset());
+        resetEditor();
       });
   }
   if (beingLocked) {

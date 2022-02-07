@@ -29,12 +29,12 @@ import WarningIcon from '@material-ui/icons/Warning'
 import { useLockedDialogStyles } from '../../Dialog/DialogBodyEdit'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { Add, Clear, Delete, SettingsBackupRestore } from '@material-ui/icons'
-import { editorReset, useEditor } from '../../../components/TextEditors/quillHooks';
-import { getQuillStoredState } from '../../../components/TextEditors/QuillEditor2'
+import { useEditor } from '../../../components/TextEditors/quillHooks';
 import InputAdornment from '@material-ui/core/InputAdornment'
 import IssueDialog from '../../../components/Warnings/IssueDialog'
 import { processTextAndFilesForSave } from '../../../api/files'
 import { removeWorkListItem, workListStyles } from '../../Home/YourWork/WorkListItem'
+import { getQuillStoredState } from '../../../components/TextEditors/Utilities/CoreUtils'
 
 const useStyles = makeStyles(
   theme => {
@@ -151,7 +151,7 @@ function AddEditVote(props) {
     value: getQuillStoredState(editorName) || useInitial === false ? undefined : body,
     onUpload: (files) => updateVotingPageState({uploadedFiles: files})
   };
-  const [Editor, editorController] = useEditor(editorName, editorSpec);
+  const [Editor, editorReset] = useEditor(editorName, editorSpec);
 
   function mySave() {
     return mySaveWarnOptional(true);
@@ -236,7 +236,7 @@ function AddEditVote(props) {
 
   function onCancel() {
     votingPageStateReset();
-    editorController(editorReset());
+    resetEditor();
     if ((investment || {}).deleted) {
       // User decided to discard what was there before deleted
       updateVotingPageState({useInitial: false});

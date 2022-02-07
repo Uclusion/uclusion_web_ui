@@ -18,10 +18,10 @@ import NameField, { getNameStoredState } from '../../components/TextFields/NameF
 import DescriptionOrDiff from '../../components/Descriptions/DescriptionOrDiff'
 import { Clear, SettingsBackupRestore } from '@material-ui/icons'
 import SpinningIconLabelButton from '../../components/Buttons/SpinningIconLabelButton'
-import { useEditor, editorReset } from '../../components/TextEditors/quillHooks';
+import { useEditor } from '../../components/TextEditors/quillHooks';
 import WarningIcon from '@material-ui/icons/Warning'
-import { getQuillStoredState } from '../../components/TextEditors/QuillEditor2'
 import IssueDialog from '../../components/Warnings/IssueDialog'
+import { getQuillStoredState } from '../../components/TextEditors/Utilities/CoreUtils'
 
 export const useLockedDialogStyles = makeStyles(
   (theme) => {
@@ -151,7 +151,7 @@ function DialogBodyEdit(props) {
     value: useDescription,
   };
 
-  const [Editor, editorController] = useEditor(editorName, editorSpec);
+  const [Editor, editorReset] = useEditor(editorName, editorSpec);
 
   function handleSave() {
     const name = getNameStoredState(id);
@@ -173,7 +173,7 @@ function DialogBodyEdit(props) {
     return updateMarket(id, name, tokensRemoved, updatedFilteredUploads)
       .then((market) => {
         //clear the editor because we want the storage back
-        editorController(editorReset());
+        resetEditor();
         setOperationRunning(false);
         return onSave(market);
       });
@@ -181,7 +181,7 @@ function DialogBodyEdit(props) {
 
   function onCancel() {
     pageStateReset();
-    editorController(editorReset());
+    resetEditor();
     if (marketType === PLANNING_TYPE) {
       return unlockPlanningMarketForEdit(id).then((market) => {
         setOperationRunning(false);
@@ -215,7 +215,7 @@ function DialogBodyEdit(props) {
       }).catch(() => {
         setOperationRunning(false);
         pageStateReset();
-        editorController(editorReset());
+        resetEditor();
       });
   }
 

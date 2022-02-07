@@ -1,32 +1,13 @@
 import React from 'react';
-import { pushMessage, registerListener } from '../../utils/MessageBusUtils';
+import { registerListener } from '../../utils/MessageBusUtils';
 import QuillEditor2 from './QuillEditor2';
-
-export function editorReset (contents) {
-  return {
-    type: 'reset',
-    contents
-  };
-}
-
-export function editorRecreate (newId, contents, myLayout) {
-  return {
-    type: 'recreate',
-    newId,
-    contents,
-    myLayout
-  }
-}
+import { resetEditor } from './Utilities/CoreUtils'
 
 export function editorUpload (metadatas) {
   return {
     type: 'upload',
     metadatas,
   };
-}
-
-export function getControlPlaneName(editorName) {
-  return `editor-${editorName}-control-plane`;
 }
 
 export function useEditor (name, spec) {
@@ -60,8 +41,10 @@ export function useEditor (name, spec) {
   });
 
 
-  function editorController (message) {
-      pushMessage(controlChannel, message);
+  function resetBinder (id) {
+      return (contents, configOverrides) => {
+        resetEditor(id, contents, configOverrides);
+      }
   }
 
   const editor = (
@@ -79,5 +62,5 @@ export function useEditor (name, spec) {
       noToolbar={noToolbar}
     />
   );
-  return [editor, editorController];
+  return [editor, resetBinder(id)];
 }

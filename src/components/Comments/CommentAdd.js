@@ -45,15 +45,19 @@ import {
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'
 import { Add, Clear, Delete } from '@material-ui/icons'
-import { editorReset, useEditor } from '../TextEditors/quillHooks'
+import { useEditor } from '../TextEditors/quillHooks'
 import { getUiPreferences } from '../../contexts/AccountUserContext/accountUserContextHelper'
 import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
-import { getQuillStoredState } from '../TextEditors/QuillEditor2'
 import IssueDialog from '../Warnings/IssueDialog'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { removeWorkListItem, workListStyles } from '../../pages/Home/YourWork/WorkListItem'
 import { deleteOrDehilightMessages } from '../../api/users'
-import { focusEditor, replaceEditorContents } from '../TextEditors/Utilities/CoreUtils'
+import {
+  focusEditor,
+  getQuillStoredState,
+  replaceEditorContents,
+  resetEditor
+} from '../TextEditors/Utilities/CoreUtils'
 
 function getPlaceHolderLabelId (type, isStory, isInReview) {
   switch (type) {
@@ -269,7 +273,7 @@ function CommentAdd(props) {
     onUpload: (files) => updateCommentAddState({uploadedFiles: files}),
     mentionsAllowed
   }
-  const [Editor, editorController] = useEditor(editorName, editorSpec);
+  const [Editor, resetEditor] = useEditor(editorName, editorSpec);
 
   useEffect(() => {
     // If didn't focus to begin with then focus when type is changed
@@ -355,7 +359,7 @@ function CommentAdd(props) {
       (notificationType || defaultNotificationType))
       .then((comment) => {
         commentAddStateReset();
-        editorController(editorReset());
+        resetEditor();
         changeInvestibleStageOnCommentChange(investibleBlocks, investibleRequiresInput,
           blockingStage, requiresInputStage, info, market_infos, rootInvestible, investibleDispatch, comment);
         addCommentToMarket(comment, commentsState, commentDispatch);

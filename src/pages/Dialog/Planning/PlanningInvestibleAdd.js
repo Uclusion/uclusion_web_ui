@@ -34,15 +34,15 @@ import { getMarketInvestibles } from '../../../contexts/InvestibesContext/invest
 import { nameFromDescription } from '../../../utils/stringFunctions'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { Add, Clear, SettingsBackupRestore } from '@material-ui/icons'
-import { editorReset, getControlPlaneName, useEditor } from '../../../components/TextEditors/quillHooks'
+import { useEditor } from '../../../components/TextEditors/quillHooks'
 import { pushMessage } from '../../../utils/MessageBusUtils';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { removeMessagesForCommentId } from '../../../utils/messageUtils'
-import { getQuillStoredState } from '../../../components/TextEditors/QuillEditor2'
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 import WarningDialog from '../../../components/Warnings/WarningDialog'
 import { useLockedDialogStyles } from '../DialogBodyEdit'
 import IssueDialog from '../../../components/Warnings/IssueDialog'
+import { getQuillStoredState, resetEditor } from '../../../components/TextEditors/Utilities/CoreUtils'
 
 function PlanningInvestibleAdd(props) {
   const {
@@ -90,7 +90,7 @@ function PlanningInvestibleAdd(props) {
     onUpload: onS3Upload,
     value: getQuillStoredState(editorName)
   }
-  const [Editor, editorController] = useEditor(editorName, editorSpec);
+  const [Editor, editorReset] = useEditor(editorName, editorSpec);
 
   function onQuantityChange(event) {
     const { value } = event.target;
@@ -115,7 +115,7 @@ function PlanningInvestibleAdd(props) {
   }
 
   function zeroCurrentValues() {
-    editorController(editorReset());
+    resetEditor();
     clearInitialEditor();
     investibleAddStateReset();
     clearNameStoredState(nameId);
@@ -129,7 +129,7 @@ function PlanningInvestibleAdd(props) {
   const initialVoteEditorName = `${marketId}-add-initial-vote`;
 
   function clearInitialEditor() {
-    pushMessage(getControlPlaneName(initialVoteEditorName), editorReset());
+    resetEditor(initialVoteEditorName);
   }
 
   function handleSave() {

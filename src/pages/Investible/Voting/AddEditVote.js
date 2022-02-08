@@ -34,7 +34,7 @@ import InputAdornment from '@material-ui/core/InputAdornment'
 import IssueDialog from '../../../components/Warnings/IssueDialog'
 import { processTextAndFilesForSave } from '../../../api/files'
 import { removeWorkListItem, workListStyles } from '../../Home/YourWork/WorkListItem'
-import { getQuillStoredState } from '../../../components/TextEditors/Utilities/CoreUtils'
+import { getQuillStoredState } from '../../../components/TextEditors/Utilities/CoreUtils';
 
 const useStyles = makeStyles(
   theme => {
@@ -151,7 +151,7 @@ function AddEditVote(props) {
     value: getQuillStoredState(editorName) || useInitial === false ? undefined : body,
     onUpload: (files) => updateVotingPageState({uploadedFiles: files})
   };
-  const [Editor, editorReset] = useEditor(editorName, editorSpec);
+  const [Editor, resetEditor] = useEditor(editorName, editorSpec);
 
   function mySave() {
     return mySaveWarnOptional(true);

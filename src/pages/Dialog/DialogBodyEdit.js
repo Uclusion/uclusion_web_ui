@@ -21,7 +21,7 @@ import SpinningIconLabelButton from '../../components/Buttons/SpinningIconLabelB
 import { useEditor } from '../../components/TextEditors/quillHooks';
 import WarningIcon from '@material-ui/icons/Warning'
 import IssueDialog from '../../components/Warnings/IssueDialog'
-import { getQuillStoredState } from '../../components/TextEditors/Utilities/CoreUtils'
+import { getQuillStoredState } from '../../components/TextEditors/Utilities/CoreUtils';
 
 export const useLockedDialogStyles = makeStyles(
   (theme) => {
@@ -173,7 +173,7 @@ function DialogBodyEdit(props) {
     return updateMarket(id, name, tokensRemoved, updatedFilteredUploads)
       .then((market) => {
         //clear the editor because we want the storage back
-        resetEditor();
+        editorReset();
         setOperationRunning(false);
         return onSave(market);
       });
@@ -181,7 +181,7 @@ function DialogBodyEdit(props) {
 
   function onCancel() {
     pageStateReset();
-    resetEditor();
+    editorReset();
     if (marketType === PLANNING_TYPE) {
       return unlockPlanningMarketForEdit(id).then((market) => {
         setOperationRunning(false);
@@ -215,7 +215,7 @@ function DialogBodyEdit(props) {
       }).catch(() => {
         setOperationRunning(false);
         pageStateReset();
-        resetEditor();
+        editorReset();
       });
   }
 

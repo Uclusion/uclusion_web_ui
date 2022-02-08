@@ -35,14 +35,13 @@ import { nameFromDescription } from '../../../utils/stringFunctions'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { Add, Clear, SettingsBackupRestore } from '@material-ui/icons'
 import { useEditor } from '../../../components/TextEditors/quillHooks'
-import { pushMessage } from '../../../utils/MessageBusUtils';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { removeMessagesForCommentId } from '../../../utils/messageUtils'
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 import WarningDialog from '../../../components/Warnings/WarningDialog'
 import { useLockedDialogStyles } from '../DialogBodyEdit'
 import IssueDialog from '../../../components/Warnings/IssueDialog'
-import { getQuillStoredState, resetEditor } from '../../../components/TextEditors/Utilities/CoreUtils'
+import { getQuillStoredState} from '../../../components/TextEditors/Utilities/CoreUtils'
 
 function PlanningInvestibleAdd(props) {
   const {
@@ -90,7 +89,7 @@ function PlanningInvestibleAdd(props) {
     onUpload: onS3Upload,
     value: getQuillStoredState(editorName)
   }
-  const [Editor, editorReset] = useEditor(editorName, editorSpec);
+  const [Editor, resetEditor] = useEditor(editorName, editorSpec);
 
   function onQuantityChange(event) {
     const { value } = event.target;

@@ -14,7 +14,7 @@ class QuillEditorRegistry {
   }
 
   getEditor(id){
-    return this.cache[id];
+    return this.cache[id] ?? {};
   }
 
   remove(id){

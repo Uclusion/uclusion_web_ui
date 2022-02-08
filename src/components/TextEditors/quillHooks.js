@@ -25,7 +25,6 @@ export function useEditor (name, spec) {
     mentionsAllowed,
     className,
   } = spec;
-  const controlChannel = getControlPlaneName(name);
 
   registerListener(`editor-${name}`, `${name}-controller`, (message) => {
     const { type, newUploads } = message.payload;
@@ -62,5 +61,5 @@ export function useEditor (name, spec) {
       noToolbar={noToolbar}
     />
   );
-  return [editor, resetBinder(id)];
+  return [editor, resetBinder(name)];
 }

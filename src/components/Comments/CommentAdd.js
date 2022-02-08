@@ -56,7 +56,6 @@ import {
   focusEditor,
   getQuillStoredState,
   replaceEditorContents,
-  resetEditor
 } from '../TextEditors/Utilities/CoreUtils'
 
 function getPlaceHolderLabelId (type, isStory, isInReview) {

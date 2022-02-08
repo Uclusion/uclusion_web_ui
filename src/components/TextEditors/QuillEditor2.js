@@ -4,13 +4,10 @@
 
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import LoadingOverlay from 'react-loading-overlay';
-import { useIntl } from 'react-intl'
-import { makeStyles, useMediaQuery, useTheme } from '@material-ui/core'
-import { pushMessage, registerListener } from '../../utils/MessageBusUtils';
+import { useIntl } from 'react-intl';
+import { makeStyles, useMediaQuery, useTheme } from '@material-ui/core';
+import { pushMessage } from '../../utils/MessageBusUtils';
 import _ from 'lodash';
-import ReactDOMServer from 'react-dom/server';
-import MentionListItem from './CustomUI/MentionListItem';
-import { getUclusionLocalStorageItem } from '../localStorageUtils';
 import VideoDialog from './CustomUI/VideoDialog';
 import { embeddifyVideoLink } from './Utilities/VideoUtils';
 import LinkDialog from './CustomUI/LinkDialog';
@@ -24,17 +21,15 @@ import QuillMention from 'quill-mention-uclusion';
 import CustomCodeBlock from './CustomCodeBlock';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import PropTypes from 'prop-types';
-import { getNameForUrl } from '../../utils/marketIdPathFunctions'
-import ImageBlot from './ImageBlot'
+import { getNameForUrl } from '../../utils/marketIdPathFunctions';
+import ImageBlot from './ImageBlot';
 import QuillEditorRegistry from './QuillEditorRegistry';
 import {
   createEditor,
-  generateOnChangeHandler,
   getBoundsId, getQuillStoredState, resetEditor,
-  storeState
-} from './Utilities/CoreUtils'
+} from './Utilities/CoreUtils';
 
-Quill.debug('error')
+Quill.debug('error');
 // install our filtering paste module, and disable the uploader
 Quill.register('modules/clipboard', CustomQuillClipboard, true);
 Quill.register('modules/uploader', NoOpUploader, true);
@@ -44,7 +39,6 @@ Quill.register('modules/s3Upload', QuillS3ImageUploader);
 Quill.register('modules/imageResize', ImageResize);
 Quill.register('modules/mention', QuillMention);
 Quill.register(CustomCodeBlock, true);
-
 
 const useStyles = makeStyles(
   theme => {
@@ -69,7 +63,7 @@ const useStyles = makeStyles(
       }
     };
   },
-  { name: "ReadOnlyQuillEditor" }
+  { name: 'ReadOnlyQuillEditor' }
 );
 
 function QuillEditor2 (props) {
@@ -78,8 +72,6 @@ function QuillEditor2 (props) {
     id,
     cssId,
     value,
-    marketId,
-    placeholder,
     uploadDisabled,
     noToolbar,
     simple,
@@ -91,14 +83,14 @@ function QuillEditor2 (props) {
   const boxRef = useRef();
   const [uploadInProgress, setUploadInProgress] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState([]);
-  const [videoDialogOpen, setVideoDialogOpen] = useState(false)
-  const [linkDialogOpen, setLinkDialogOpen] = useState(false)
-  const intl = useIntl()
-  const theme = useTheme()
-  const [, setOperationInProgress] = useContext(OperationInProgressContext)
+  const [videoDialogOpen, setVideoDialogOpen] = useState(false);
+  const [linkDialogOpen, setLinkDialogOpen] = useState(false);
+  const intl = useIntl();
+  const theme = useTheme();
+  const [, setOperationInProgress] = useContext(OperationInProgressContext);
   const boundsId = getBoundsId(id);
-  const mobileLayout = useMediaQuery(theme.breakpoints.down('md'))
-  const [currentLayout, setCurrentLayout] = useState(mobileLayout)
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
+  const [currentLayout, setCurrentLayout] = useState(mobileLayout);
 
   /**
    * The UI for videos is quite poor, so we need
@@ -110,7 +102,7 @@ function QuillEditor2 (props) {
         open={videoDialogOpen}
         onClose={() => setVideoDialogOpen(false)}
         onSave={(link) => {
-          const {editor} = QuillEditorRegistry.getEditor(id);
+          const { editor } = QuillEditorRegistry.getEditor(id);
           const embedded = embeddifyVideoLink(link);
           editor.format('video', embedded);
         }}
@@ -128,7 +120,7 @@ function QuillEditor2 (props) {
         open={linkDialogOpen}
         onClose={() => setLinkDialogOpen(false)}
         onSave={(link) => {
-          const {editor} = QuillEditorRegistry.getEditor(id);
+          const { editor } = QuillEditorRegistry.getEditor(id);
           // if they haven't got anything selected, just get the current
           // position and insert the url as the text,
           // otherwise just format the current selection as a link
@@ -150,14 +142,11 @@ function QuillEditor2 (props) {
     );
   }
 
-
-
   function onS3Upload (metadatas) {
-    const newUploads = [...uploadedFiles, ...metadatas]
-    setUploadedFiles(newUploads)
-    pushMessage(`editor-${id}`, { type: 'uploads', newUploads })
+    const newUploads = [...uploadedFiles, ...metadatas];
+    setUploadedFiles(newUploads);
+    pushMessage(`editor-${id}`, { type: 'uploads', newUploads });
   }
-
 
   // bridge our fonts in from the theme;
   const editorStyle = {
@@ -170,30 +159,30 @@ function QuillEditor2 (props) {
     maxWidth: '100%',
     zIndex: '2',
     borderTop: '1px solid lightgrey'
-  }
+  };
 
   const containerReadOnlyStyle = {
     maxWidth: '100%',
     zIndex: '2'
-  }
+  };
 
   // Handle rotation on an iPhone
   useEffect(() => {
     if (id && mobileLayout !== currentLayout) {
+      setCurrentLayout(mobileLayout);
       resetEditor(id, getQuillStoredState(id), { layout: mobileLayout });
     }
-    return () => {}
-  }, [id, mobileLayout, currentLayout])
-
+    return () => {};
+  }, [id, mobileLayout, currentLayout]);
 
   // callback wrapper. Really should
   // resolve the deps issue with create editor
   const editorCreator = useCallback(() => {
-    const {editor} = QuillEditorRegistry.getEditor(id);
+    const { editor } = QuillEditorRegistry.getEditor(id);
     const idReady = id != null;
     const containersReady = containerRef.current != null && boxRef.current != null;
     const needEditor = containersReady && idReady && editor == null;
-    if(needEditor){
+    if (needEditor) {
       // creating editor
       const editorConfig = {
         layout: currentLayout,
@@ -214,18 +203,20 @@ function QuillEditor2 (props) {
     // This is probably a bad idea, but the create should be fine
     // due to the checks above (missing createEditor dep)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, );
+  }, [currentLayout, noToolbar, onS3Upload, setUploadInProgress,
+    setOperationInProgress, setVideoDialogOpen, setLinkDialogOpen,
+    simple, uploadDisabled, participants, mentionsAllowed, boundsId]);
 
   useEffect(() => {
     editorCreator();
     return () => {
       // will only fire after total cleanup because of the needsEditor calculation
       QuillEditorRegistry.remove(id); // harmless if already nuked
-    }
+    };
   }, [id, editorCreator]);
 
   useEffect(() => {
-    const {editor} = QuillEditorRegistry.getEditor(id);
+    const { editor } = QuillEditorRegistry.getEditor(id);
     // Without this read only won't update
     if (editor && noToolbar) {
       editor.root.innerHTML = '';
@@ -240,7 +231,7 @@ function QuillEditor2 (props) {
       <div
         ref={containerRef}
         className={noToolbar ? classes.root : classes.nothing}
-        style={noToolbar ? containerReadOnlyStyle: containerStyle}
+        style={noToolbar ? containerReadOnlyStyle : containerStyle}
         id={cssId}
       >
         {noToolbar && (

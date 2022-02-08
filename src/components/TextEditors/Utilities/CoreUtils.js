@@ -171,8 +171,12 @@ export function createEditor (id, editorContents, config, forceCreate) {
   }
   const {
     boxRef,
+    containerRef,
     value,
-    placeholder
+    placeholder,
+    noToolbar,
+    setCurrentLayout,
+    layout
   } = config;
 
   const defaultContents = getDefaultContents(id, value, placeholder)
@@ -194,7 +198,7 @@ export function createEditor (id, editorContents, config, forceCreate) {
   //Removing old toolbar in case changes
   removeToolbarTabs(containerRef.current)
 
-  const editorOptions = generateEditorOptions(config);
+  const editorOptions = generateEditorOptions(id, config);
   const editor = new Quill(boxRef.current, editorOptions);
   QuillEditorRegistry.setEditor(id, editor, config);
   if (!noToolbar) {
@@ -207,7 +211,6 @@ export function createEditor (id, editorContents, config, forceCreate) {
   editor.on('text-change', onChange);
 
   setCurrentLayout(layout)
-  beginListening(id);
 }
 
 export function storeState (id, state) {
@@ -267,8 +270,9 @@ export function getQuillStoredState(id) {
  * that configures the editor to what the properties imply.
  * @returns the quill options for the editor
  * */
-export function generateEditorOptions (config) {
+export function generateEditorOptions (id, config) {
   const {
+    marketId,
     layout,
     noToolbar,
     onS3Upload,
@@ -281,6 +285,7 @@ export function generateEditorOptions (config) {
     participants,
     mentionsAllowed,
     boundsId,
+    placeholder,
   } = config;
 
   if (noToolbar) {

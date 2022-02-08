@@ -25,7 +25,7 @@ import IssueDialog from '../../../components/Warnings/IssueDialog'
 import { useLockedDialogStyles } from '../DialogBodyEdit'
 import NameField, { clearNameStoredState, getNameStoredState } from '../../../components/TextFields/NameField'
 import { nameFromDescription } from '../../../utils/stringFunctions'
-import { getQuillStoredState, resetEditor } from '../../../components/TextEditors/Utilities/CoreUtils'
+import { getQuillStoredState } from '../../../components/TextEditors/Utilities/CoreUtils'
 
 function DecisionInvestibleAdd(props) {
   const {
@@ -66,7 +66,7 @@ function DecisionInvestibleAdd(props) {
     value: getQuillStoredState(editorName),
     placeholder: intl.formatMessage({ id: 'investibleAddDescriptionDefault'})
   };
-  const [Editor, editorReset] = useEditor(editorName, editorSpec);
+  const [Editor, resetEditor] = useEditor(editorName, editorSpec);
 
   function handleCancel() {
     pageStateReset();

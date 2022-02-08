@@ -20,7 +20,7 @@ import SpinningIconLabelButton from '../../components/Buttons/SpinningIconLabelB
 import { useEditor } from '../../components/TextEditors/quillHooks';
 import LockedDialogTitleIcon from '@material-ui/icons/Lock'
 import IssueDialog from '../../components/Warnings/IssueDialog'
-import { getQuillStoredState } from '../../components/TextEditors/Utilities/CoreUtils'
+import { getQuillStoredState } from '../../components/TextEditors/Utilities/CoreUtils';
 
 const useStyles = makeStyles(
   theme => ({
@@ -90,7 +90,7 @@ function InvestibleBodyEdit(props) {
     value: useDescription
   };
 
-  const [Editor, editorReset] = useEditor(editorName, editorSpec);
+  const [Editor, resetEditor] = useEditor(editorName, editorSpec);
 
   function handleSave() {
     const name = getNameStoredState(investibleId);

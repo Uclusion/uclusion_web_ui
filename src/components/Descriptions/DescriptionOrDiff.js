@@ -4,6 +4,7 @@ import DiffDisplay from '../TextEditors/DiffDisplay';
 import { findMessageOfTypeAndId } from '../../utils/messageUtils'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 import QuillEditor2 from '../TextEditors/QuillEditor2'
+import _ from 'lodash'
 
 function DescriptionOrDiff(props) {
   const {
@@ -22,10 +23,14 @@ function DescriptionOrDiff(props) {
       />
     );
   }
+  if (!id || _.isEmpty(description)) {
+    return React.Fragment;
+  }
+
   return (
     <div>
       <QuillEditor2
-        id={id}
+        id={`readOnlyDiff${id}`}
         value={description}
         noToolbar
       />

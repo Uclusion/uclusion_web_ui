@@ -208,7 +208,7 @@ function Voting(props) {
                         </Typography>
                       </div>
                     )}
-                    {reason &&
+                    {!_.isEmpty(reason) &&
                       <ReadOnlyQuillEditor value={reason.body} isEditable={isEditable} id={reason.id}
                                            setBeingEdited={(event) => setBeingEdited(true, event)}
                       />}

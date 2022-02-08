@@ -742,7 +742,7 @@ function Comment(props) {
               />
             )}
             <Box marginTop={1}>
-              {!beingEdited && !displayingDiff && (
+              {!beingEdited && !displayingDiff && !_.isEmpty(comment) && (
                 <ReadOnlyQuillEditor value={comment.body} setBeingEdited={setBeingEdited} id={comment.id}
                                      isEditable={!mobileLayout && displayEditing}/>
               )}
@@ -1141,7 +1141,7 @@ function Reply(props) {
               messages={messages}
             />
           )}
-          {!beingEdited && (
+          {!beingEdited && !_.isEmpty(comment) && (
             <ReadOnlyQuillEditor
               className={classes.editor}
               value={comment.body}

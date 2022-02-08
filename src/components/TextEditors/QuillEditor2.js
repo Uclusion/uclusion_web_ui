@@ -205,7 +205,7 @@ function QuillEditor2 (props) {
         boundsId,
         placeholder,
       };
-      createEditor(id, null, editorConfig, false);
+      createEditor(id, noToolbar ? value : undefined, editorConfig, false);
     }
     // This is probably a bad idea, but the create should be fine
     // due to the checks above (missing createEditor dep)
@@ -213,7 +213,7 @@ function QuillEditor2 (props) {
   }, [currentLayout, noToolbar, onS3Upload, setUploadInProgress,
     setOperationInProgress, setVideoDialogOpen, setLinkDialogOpen,
     simple, uploadDisabled, participants, mentionsAllowed, boundsId,
-    boxRef, marketId, containerRef, setCurrentLayout, placeholder
+    boxRef, marketId, containerRef, setCurrentLayout, placeholder, value
   ]);
 
   useEffect(() => {
@@ -223,15 +223,6 @@ function QuillEditor2 (props) {
       QuillEditorRegistry.remove(id); // harmless if already nuked
     };
   }, [id, editorCreator]);
-
-  useEffect(() => {
-    const { editor } = QuillEditorRegistry.getEditor(id);
-    // Without this read only won't update
-    if (editor && noToolbar) {
-      editor.root.innerHTML = '';
-      editor.clipboard.dangerouslyPasteHTML(0, value);
-    }
-  }, [id, value, noToolbar]);
 
   return (
     <div>

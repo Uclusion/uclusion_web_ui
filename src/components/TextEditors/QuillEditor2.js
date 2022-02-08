@@ -208,7 +208,7 @@ function QuillEditor2 (props) {
     editorCreator();
     return () => {
       // will only fire after total cleanup because of the needsEditor calculation
-      //QuillEditorRegistry.remove(id); // can't clean up or performance hit whenever re-render
+      //QuillEditorRegistry.remove(id); // can't clean up or lose editor whenever re-render
     };
   }, [id, editorCreator]);
 

@@ -170,13 +170,15 @@ function getDefaultContents (id, knownState, placeHolder, ignoreStored=false) {
 
 export function createEditor (id, editorContents, config, forceCreate) {
   const { editor: oldEditor, config: oldConfig } = QuillEditorRegistry.getEditor(id);
-  if (!oldConfig || oldConfig.simple !== config.simple || oldConfig.layout !== config.layout ||
-    (config.noToolbar && _.isEqual(config.value, oldConfig.value))) {
-    // If simple, layout or read only value changes then we must recreate. Otherwise only if forceCreate is true.
-    if (oldEditor != null && !forceCreate) {
-      return; // already made the editor
+  if (oldConfig && oldEditor) {
+    if (oldConfig.simple === config.simple && oldConfig.layout === config.layout && !config.noToolbar) {
+      // noToolbar is read only and read only must be recreated each time or doesn't render
+      if (!forceCreate) {
+        return; // already made the editor
+      }
     }
   }
+
   const {
     boxRef,
     containerRef,

@@ -11,8 +11,8 @@ import {
   TextField
 } from '@material-ui/core'
 import { useEditor } from '../../../components/TextEditors/quillHooks';
-import { getQuillStoredState } from '../../../components/TextEditors/QuillEditor2'
 import InputAdornment from '@material-ui/core/InputAdornment'
+import { getQuillStoredState } from '../../../components/TextEditors/Utilities/CoreUtils'
 
 const useStyles = makeStyles(
   theme => {

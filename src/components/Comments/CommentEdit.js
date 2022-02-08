@@ -31,10 +31,10 @@ import { removeMessage } from '../../contexts/NotificationsContext/notifications
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 import { Clear, Update } from '@material-ui/icons'
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'
-import { editorReset, useEditor } from '../TextEditors/quillHooks'
-import { getQuillStoredState } from '../TextEditors/QuillEditor2'
+import {  useEditor } from '../TextEditors/quillHooks'
 import { deleteOrDehilightMessages } from '../../api/users'
 import { workListStyles } from '../../pages/Home/YourWork/WorkListItem'
+import { getQuillStoredState } from '../TextEditors/Utilities/CoreUtils'
 
 const useStyles = makeStyles((theme) => ({
   visible: {
@@ -185,7 +185,7 @@ function CommentEdit(props) {
     participants: presences,
     marketId,
   }
-  const [Editor, editorController] = useEditor(editorName, editorSpec);
+  const [Editor, resetEditor] = useEditor(editorName, editorSpec);
 
   function handleSave() {
     const currentUploadedFiles = uploadedFiles || [];
@@ -202,7 +202,7 @@ function CommentEdit(props) {
       (commentType === REPORT_TYPE ? notificationType : undefined);
     return updateComment(marketId, id, tokensRemoved, updatedType, filteredUploads, mentions, myActualNotificationType)
       .then((comment) => {
-        editorController(editorReset());
+        resetEditor();
         onCommentOpen(investibleState, investibleId, marketStagesState, marketId, comment, investibleDispatch,
           commentState, commentDispatch);
         deleteOrDehilightMessages(messages || [], messagesDispatch, workItemClasses.removed, true,
@@ -224,7 +224,7 @@ function CommentEdit(props) {
   }
 
   function handleCancel() {
-    editorController(editorReset(initialBody));
+    resetEditor(initialBody);
     editStateReset();
     onCancel();
   }

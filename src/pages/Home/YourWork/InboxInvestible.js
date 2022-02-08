@@ -28,7 +28,6 @@ import { PLANNING_TYPE } from '../../../constants/markets'
 import { DaysEstimate } from '../../../components/AgilePlan'
 import InputLabel from '@material-ui/core/InputLabel'
 import MoveToNextVisibleStageActionButton from '../../Investible/Planning/MoveToNextVisibleStageActionButton'
-import { editorEmpty } from '../../../components/TextEditors/QuillEditor2'
 import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff'
 import Voting from '../../Investible/Decision/Voting'
 import YourVoting from '../../Investible/Voting/YourVoting'
@@ -42,6 +41,7 @@ import AttachedFilesList from '../../../components/Files/AttachedFilesList'
 import Chip from '@material-ui/core/Chip'
 import PropTypes from 'prop-types'
 import { getLabelList } from '../../../utils/messageUtils'
+import { editorEmpty } from '../../../components/TextEditors/Utilities/CoreUtils'
 
 
 function InboxInvestible(props) {

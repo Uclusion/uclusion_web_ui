@@ -19,13 +19,13 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { usePlanFormStyles } from '../../../components/AgilePlan'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { Clear, SettingsBackupRestore } from '@material-ui/icons'
-import { editorReset, useEditor } from '../../../components/TextEditors/quillHooks';
-import { getQuillStoredState } from '../../../components/TextEditors/QuillEditor2'
+import { useEditor } from '../../../components/TextEditors/quillHooks';
 import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../../authorization/TokenStorageManager'
 import IssueDialog from '../../../components/Warnings/IssueDialog'
 import { useLockedDialogStyles } from '../DialogBodyEdit'
 import NameField, { clearNameStoredState, getNameStoredState } from '../../../components/TextFields/NameField'
 import { nameFromDescription } from '../../../utils/stringFunctions'
+import { getQuillStoredState } from '../../../components/TextEditors/Utilities/CoreUtils'
 
 function DecisionInvestibleAdd(props) {
   const {
@@ -66,11 +66,11 @@ function DecisionInvestibleAdd(props) {
     value: getQuillStoredState(editorName),
     placeholder: intl.formatMessage({ id: 'investibleAddDescriptionDefault'})
   };
-  const [Editor, editorController] = useEditor(editorName, editorSpec);
+  const [Editor, resetEditor] = useEditor(editorName, editorSpec);
 
   function handleCancel() {
     pageStateReset();
-    editorController(editorReset());
+    resetEditor();
     clearNameStoredState(nameId);
     onCancel();
   }
@@ -115,7 +115,7 @@ function DecisionInvestibleAdd(props) {
         .then(() => addDecisionInvestible(addInfo));
     }).then((investible) => {
       onSave(investible);
-      editorController(editorReset());
+      resetEditor();
       clearNameStoredState(nameId);
       if (typeof completionFunc === 'function') {
         completionFunc();
@@ -165,7 +165,7 @@ function DecisionInvestibleAdd(props) {
     }
     return addDecisionInvestible(addInfo).then((investible) => {
       onSave(investible);
-      editorController(editorReset());
+      resetEditor();
       clearNameStoredState(nameId);
     }).then(() => {
       setOperationRunning(false);
@@ -173,7 +173,7 @@ function DecisionInvestibleAdd(props) {
         completionFunc();
       } else {
         pageStateReset();
-        editorController(editorReset());
+        resetEditor();
         onSpinComplete();
       }
     });
@@ -181,7 +181,7 @@ function DecisionInvestibleAdd(props) {
 
   function onSaveAddAnother() {
     pageStateReset();
-    editorController(editorReset());
+    resetEditor();
     pageStateUpdate({investibleAddBeingEdited: true});
   }
 

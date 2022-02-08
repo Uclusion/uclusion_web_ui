@@ -9,12 +9,12 @@ class QuillEditorRegistry {
     this.cache = {};
   }
 
-  setEditor(id, editor){
-    this.cache[id] = editor;
+  setEditor(id, editor, config){
+    this.cache[id] = {editor, config};
   }
 
   getEditor(id){
-    return this.cache[id];
+    return this.cache[id] ?? {};
   }
 
   remove(id){

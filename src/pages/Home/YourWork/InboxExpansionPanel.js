@@ -17,13 +17,13 @@ import { notify, onInvestibleStageChange } from '../../../utils/investibleFuncti
 import { UNASSIGNED_TYPE, YELLOW_LEVEL } from '../../../constants/notifications'
 import PlanningInvestibleEdit from '../../Investible/Planning/PlanningInvestibleEdit'
 import { removeWorkListItem } from './WorkListItem'
-import { editorEmpty } from '../../../components/TextEditors/QuillEditor2'
 import LinkMultiplePanel from './LinkMultiplePanel'
 import CommentPanel from './CommentPanel'
 import InboxInvestible from './InboxInvestible'
 import { DaysEstimate } from '../../../components/AgilePlan'
 import AttachedFilesList from '../../../components/Files/AttachedFilesList'
 import Chip from '@material-ui/core/Chip'
+import { editorEmpty } from '../../../components/TextEditors/Utilities/CoreUtils'
 
 export function addExpansionPanel(props) {
   const {item, marketState, investiblesState, investiblesDispatch, diffState,

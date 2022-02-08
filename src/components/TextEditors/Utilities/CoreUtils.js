@@ -166,7 +166,7 @@ function getDefaultContents (id, knownState, placeHolder) {
 
 
 export function createEditor (id, editorContents, config, forceCreate) {
-  if(QuillEditorRegistry.getEditor(id) != null && !forceCreate){
+  if(QuillEditorRegistry.getEditor(id)?.editor != null && !forceCreate){
     return; // already made the editor
   }
   const {
@@ -183,6 +183,7 @@ export function createEditor (id, editorContents, config, forceCreate) {
 
   // we only set the contents if different from the placeholder
   // otherwise the placeholder functionality of the editor won't work
+
   if (boxRef.current) {
     boxRef.current.innerHTML = ''
     if (editorContents !== undefined) {

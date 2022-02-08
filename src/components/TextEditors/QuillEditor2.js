@@ -76,7 +76,9 @@ function QuillEditor2 (props) {
     noToolbar,
     simple,
     participants,
-    mentionsAllowed
+    marketId,
+    mentionsAllowed,
+    placeholder
   } = props;
   const classes = useStyles();
   const containerRef = useRef();
@@ -185,9 +187,13 @@ function QuillEditor2 (props) {
     if (needEditor) {
       // creating editor
       const editorConfig = {
+        boxRef,
+        containerRef,
+        marketId,
         layout: currentLayout,
         noToolbar,
         onS3Upload,
+        setCurrentLayout,
         setUploadInProgress,
         setOperationInProgress,
         setVideoDialogOpen,
@@ -197,6 +203,7 @@ function QuillEditor2 (props) {
         participants,
         mentionsAllowed,
         boundsId,
+        placeholder,
       };
       createEditor(id, null, editorConfig, false);
     }
@@ -205,7 +212,9 @@ function QuillEditor2 (props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentLayout, noToolbar, onS3Upload, setUploadInProgress,
     setOperationInProgress, setVideoDialogOpen, setLinkDialogOpen,
-    simple, uploadDisabled, participants, mentionsAllowed, boundsId]);
+    simple, uploadDisabled, participants, mentionsAllowed, boundsId,
+    boxRef, marketId, containerRef, setCurrentLayout, placeholder
+  ]);
 
   useEffect(() => {
     editorCreator();

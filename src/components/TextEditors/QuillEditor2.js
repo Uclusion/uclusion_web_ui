@@ -194,7 +194,7 @@ function QuillEditor2 (props) {
         placeholder,
         value
       };
-      createEditor(id, noToolbar ? value : undefined, editorConfig, noToolbar);
+      createEditor(id, noToolbar ? value : undefined, editorConfig, false);
     }
     // This is probably a bad idea, but the create should be fine
     // due to the checks above (missing createEditor dep)
@@ -208,7 +208,7 @@ function QuillEditor2 (props) {
     editorCreator();
     return () => {
       // will only fire after total cleanup because of the needsEditor calculation
-      QuillEditorRegistry.remove(id); // harmless if already nuked
+      //QuillEditorRegistry.remove(id); // can't clean up for read only usage or performance hit whenever re-render
     };
   }, [id, editorCreator]);
 

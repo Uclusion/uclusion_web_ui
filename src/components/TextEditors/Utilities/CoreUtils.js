@@ -17,7 +17,9 @@ function disableToolbarTabs (editorNode) {
   if (editorNode && editorNode.querySelectorAll) {
     const toolbarButtons = editorNode.querySelectorAll('.ql-toolbar *')
     toolbarButtons.forEach((button) => {
-      button.tabIndex = -1
+      if (button.tabIndex !== -1) {
+        button.tabIndex = -1;
+      }
     });
   } else {
     console.warn(editorNode);
@@ -166,20 +168,20 @@ function getDefaultContents (id, knownState, placeHolder, ignoreStored=false) {
   return placeHolder;
 }
 
-
-
 export function createEditor (id, editorContents, config, forceCreate) {
-  if(QuillEditorRegistry.getEditor(id)?.editor != null && !forceCreate){
-    return; // already made the editor
+  const { editor: oldEditor, config: oldConfig } = QuillEditorRegistry.getEditor(id);
+  if (!oldConfig || oldConfig.simple !== config.simple || oldConfig.layout !== config.layout) {
+    // If simple or layout changes then we must recreate. Otherwise only if forceCreate is true.
+    if (oldEditor != null && !forceCreate) {
+      return; // already made the editor
+    }
   }
   const {
     boxRef,
     containerRef,
     value,
     placeholder,
-    noToolbar,
-    setCurrentLayout,
-    layout
+    noToolbar
   } = config;
 
   const defaultContents = getDefaultContents(id, value, placeholder, noToolbar)
@@ -201,7 +203,7 @@ export function createEditor (id, editorContents, config, forceCreate) {
     return;
   }
 
-  //Removing old toolbar in case changes
+  //Hiding old toolbar because otherwise it and new both display
   removeToolbarTabs(containerRef.current)
 
   const editorOptions = generateEditorOptions(id, config);
@@ -215,8 +217,6 @@ export function createEditor (id, editorContents, config, forceCreate) {
   }
   const onChange = generateOnChangeHandler(id);
   editor.on('text-change', onChange);
-
-  setCurrentLayout(layout)
 }
 
 export function storeState (id, state) {

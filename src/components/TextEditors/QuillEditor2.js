@@ -5,7 +5,7 @@
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import LoadingOverlay from 'react-loading-overlay';
 import { useIntl } from 'react-intl';
-import { makeStyles, useMediaQuery, useTheme } from '@material-ui/core';
+import { makeStyles, useMediaQuery, useTheme } from '@material-ui/core'
 import { pushMessage } from '../../utils/MessageBusUtils';
 import _ from 'lodash';
 import VideoDialog from './CustomUI/VideoDialog';
@@ -26,7 +26,7 @@ import ImageBlot from './ImageBlot';
 import QuillEditorRegistry from './QuillEditorRegistry';
 import {
   createEditor,
-  getBoundsId, getQuillStoredState, resetEditor,
+  getBoundsId
 } from './Utilities/CoreUtils';
 
 Quill.debug('error');
@@ -92,7 +92,6 @@ function QuillEditor2 (props) {
   const [, setOperationInProgress] = useContext(OperationInProgressContext);
   const boundsId = getBoundsId(id);
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
-  const [currentLayout, setCurrentLayout] = useState(mobileLayout);
 
   /**
    * The UI for videos is quite poor, so we need
@@ -168,15 +167,6 @@ function QuillEditor2 (props) {
     zIndex: '2'
   };
 
-  // Handle rotation on an iPhone
-  useEffect(() => {
-    if (id && mobileLayout !== currentLayout) {
-      setCurrentLayout(mobileLayout);
-      resetEditor(id, getQuillStoredState(id), { layout: mobileLayout });
-    }
-    return () => {};
-  }, [id, mobileLayout, currentLayout]);
-
   // callback wrapper. Really should
   // resolve the deps issue with create editor
   const editorCreator = useCallback(() => {
@@ -189,10 +179,9 @@ function QuillEditor2 (props) {
         boxRef,
         containerRef,
         marketId,
-        layout: currentLayout,
+        layout: mobileLayout,
         noToolbar,
         onS3Upload,
-        setCurrentLayout,
         setUploadInProgress,
         setOperationInProgress,
         setVideoDialogOpen,
@@ -210,10 +199,9 @@ function QuillEditor2 (props) {
     // This is probably a bad idea, but the create should be fine
     // due to the checks above (missing createEditor dep)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentLayout, noToolbar, onS3Upload, setUploadInProgress,
-    setOperationInProgress, setVideoDialogOpen, setLinkDialogOpen,
-    simple, uploadDisabled, participants, mentionsAllowed, boundsId,
-    boxRef, marketId, containerRef, setCurrentLayout, placeholder, value
+  }, [mobileLayout, noToolbar, onS3Upload, setUploadInProgress, setOperationInProgress, setVideoDialogOpen,
+    setLinkDialogOpen, simple, uploadDisabled, participants, mentionsAllowed, boundsId, boxRef, marketId,
+    containerRef, placeholder, value
   ]);
 
   useEffect(() => {

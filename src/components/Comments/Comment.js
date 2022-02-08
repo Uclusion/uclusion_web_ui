@@ -310,7 +310,7 @@ function useMarketId() {
  */
 function Comment(props) {
   const { comment, marketId, comments, allowedTypes, noAuthor, onDone, defaultShowDiff, showDone, resolvedStageId,
-    stagePreventsActions} = props;
+    stagePreventsActions, isInbox} = props;
   const history = useHistory();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
@@ -743,7 +743,8 @@ function Comment(props) {
             )}
             <Box marginTop={1}>
               {!beingEdited && !displayingDiff && !_.isEmpty(comment) && (
-                <ReadOnlyQuillEditor value={comment.body} setBeingEdited={setBeingEdited} id={comment.id}
+                <ReadOnlyQuillEditor value={body} setBeingEdited={setBeingEdited}
+                                     id={isInbox ? `inboxComment${id}` : id}
                                      isEditable={!mobileLayout && displayEditing}/>
               )}
               {!beingEdited && displayingDiff && (

@@ -151,11 +151,14 @@ export function resetEditor (id, contents, configOverrides) {
  * @param id
  * @param knownState
  * @param placeHolder
+ * @param ignoreStored
  */
-function getDefaultContents (id, knownState, placeHolder) {
-  const storedState = getUclusionLocalStorageItem(`editor-${id}`);
-  if (storedState != null) {
-    return storedState;
+function getDefaultContents (id, knownState, placeHolder, ignoreStored=false) {
+  if (!ignoreStored) {
+    const storedState = getUclusionLocalStorageItem(`editor-${id}`);
+    if (storedState != null) {
+      return storedState;
+    }
   }
   if (knownState != null) {
     return knownState;
@@ -179,19 +182,21 @@ export function createEditor (id, editorContents, config, forceCreate) {
     layout
   } = config;
 
-  const defaultContents = getDefaultContents(id, value, placeholder)
+  const defaultContents = getDefaultContents(id, value, placeholder, noToolbar)
 
   // we only set the contents if different from the placeholder
   // otherwise the placeholder functionality of the editor won't work
 
   if (boxRef.current) {
-    boxRef.current.innerHTML = ''
     if (editorContents !== undefined) {
-      boxRef.current.innerHTML = editorContents
+      boxRef.current.innerHTML = editorContents;
     } else if (!(placeholder === defaultContents) && defaultContents) {
       boxRef.current.innerHTML = defaultContents
+    } else {
+      boxRef.current.innerHTML = '';
     }
   } else {
+    console.warn('No current editor');
     // no current == no place to create editor;
     return;
   }

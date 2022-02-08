@@ -63,7 +63,7 @@ const useStyles = makeStyles(
       }
     };
   },
-  { name: 'ReadOnlyQuillEditor' }
+  { name: 'QuillEditorClasses' }
 );
 
 function QuillEditor2 (props) {
@@ -180,11 +180,10 @@ function QuillEditor2 (props) {
   // callback wrapper. Really should
   // resolve the deps issue with create editor
   const editorCreator = useCallback(() => {
-    const { editor } = QuillEditorRegistry.getEditor(id);
     const idReady = id != null;
     const containersReady = containerRef.current != null && boxRef.current != null;
-    const needEditor = containersReady && idReady && editor == null;
-    if (needEditor) {
+    const ready = containersReady && idReady;
+    if (ready) {
       // creating editor
       const editorConfig = {
         boxRef,
@@ -204,8 +203,9 @@ function QuillEditor2 (props) {
         mentionsAllowed,
         boundsId,
         placeholder,
+        value
       };
-      createEditor(id, noToolbar ? value : undefined, editorConfig, false);
+      createEditor(id, noToolbar ? value : undefined, editorConfig, noToolbar);
     }
     // This is probably a bad idea, but the create should be fine
     // due to the checks above (missing createEditor dep)

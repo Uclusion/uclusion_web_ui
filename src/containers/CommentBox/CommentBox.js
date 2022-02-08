@@ -111,6 +111,7 @@ function CommentBox(props) {
               comment={comment}
               comments={comments}
               allowedTypes={allowedTypes}
+              isInbox={isInbox}
             />
           </div>
         </Grid>

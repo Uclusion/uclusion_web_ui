@@ -93,7 +93,7 @@ const useVoteStyles = makeStyles(
  */
 function Voting(props) {
   const { marketPresences, investibleId, investmentReasons, showExpiration, expirationMinutes, votingPageState,
-    updateVotingPageState, votingPageStateReset, votingAllowed, yourPresence, market, isAssigned } = props;
+    updateVotingPageState, votingPageStateReset, votingAllowed, yourPresence, market, isAssigned, isInbox } = props;
   const history = useHistory();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
@@ -209,7 +209,8 @@ function Voting(props) {
                       </div>
                     )}
                     {!_.isEmpty(reason) &&
-                      <ReadOnlyQuillEditor value={reason.body} isEditable={isEditable} id={reason.id}
+                      <ReadOnlyQuillEditor value={reason.body} isEditable={isEditable}
+                                           id={isInbox ? `inboxReason${reason.id}` : reason.id}
                                            setBeingEdited={(event) => setBeingEdited(true, event)}
                       />}
                   </CardContent>

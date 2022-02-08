@@ -6,6 +6,7 @@ import 'quill/dist/quill.snow.css';
 import 'quill-table-ui/dist/index.css';
 import './editorStyles.css';
 import QuillEditor2 from './QuillEditor2'
+import _ from 'lodash'
 
 const useStyles = makeStyles(
   theme => {
@@ -46,11 +47,13 @@ function ReadOnlyQuillEditor(props) {
              setBeingEdited(true, event);
            }
          }}>
-      <QuillEditor2
-        id={`readOnly${id}`}
-        value={value}
-        noToolbar
-      />
+      {!_.isEmpty(value) && (
+        <QuillEditor2
+          id={`readOnly${id}`}
+          value={value}
+          noToolbar
+        />
+      )}
     </div>
   );
 }

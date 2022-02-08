@@ -244,6 +244,7 @@ function InboxInvestible(props) {
             yourPresence={yourPresence}
             market={market}
             isAssigned={true}
+            isInbox
           />
         </div>
       )}
@@ -272,6 +273,7 @@ function InboxInvestible(props) {
             isInReview={isReview}
             isAssignee={!_.isEmpty(_.intersection(['ASSIGNED_UNREVIEWABLE', 'UNREAD_ASSIGNMENT'], messageTypes))}
             isStory
+            isInbox
           />
         </>
       )}

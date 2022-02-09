@@ -115,7 +115,6 @@ function PlanningInvestibleAdd(props) {
 
   function zeroCurrentValues() {
     resetEditor();
-    clearInitialEditor();
     investibleAddStateReset();
     clearNameStoredState(nameId);
   }
@@ -126,10 +125,6 @@ function PlanningInvestibleAdd(props) {
   }
 
   const initialVoteEditorName = `${marketId}-add-initial-vote`;
-
-  function clearInitialEditor() {
-    resetEditor(initialVoteEditorName);
-  }
 
   function handleSave() {
     return handleSaveImpl(false);

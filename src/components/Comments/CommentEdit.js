@@ -224,7 +224,7 @@ function CommentEdit(props) {
   }
 
   function handleCancel() {
-    resetEditor(initialBody);
+    resetEditor();
     editStateReset();
     onCancel();
   }

@@ -99,7 +99,8 @@ function SubSection (props) {
     bolder,
     hideChildren,
     padChildren,
-    isBlackText
+    isBlackText,
+    supportingInformation
   } = props;
   const classes = useStyles();
 
@@ -132,6 +133,7 @@ function SubSection (props) {
               {title}
             </Typography>
           )}
+          {supportingInformation}
           <div className={classes.grow}/>
           <div className={classes.searchContainer}>
             {createButton}

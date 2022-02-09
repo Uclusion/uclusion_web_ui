@@ -487,6 +487,7 @@ const messages = defineMessages({
   commentReopenLabel: 'Reopen',
   commentResolveLabel: 'Resolve',
   commentAbstainLabel: 'Abstain',
+  commentAbstainingLabel: 'Abstaining',
   commentRemoveLabel: 'Delete',
   commentViewThreadLabel: 'View Thread',
   commentCloseThreadLabel: 'Hide Thread',

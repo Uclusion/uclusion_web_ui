@@ -102,6 +102,7 @@ import LoadingDisplay from '../LoadingDisplay'
 import { pushMessage } from '../../utils/MessageBusUtils'
 import { GUEST_MARKET_EVENT, LOAD_MARKET_CHANNEL } from '../../contexts/MarketsContext/marketsContextMessages'
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
+import GravatarGroup from '../Avatars/GravatarGroup'
 
 const useCommentStyles = makeStyles(
   theme => {
@@ -464,6 +465,13 @@ function Comment(props) {
     const underConsideration = getInlineInvestiblesForStage(underConsiderationStage, inlineInvestibles);
     const proposedStage = getProposedOptionsStage(marketStagesState, anInlineMarket.id);
     const proposed = getInlineInvestiblesForStage(proposedStage, inlineInvestibles);
+    const abstaining = anInlineMarketPresences.filter((presence) => presence.abstain);
+    const abstained = _.isEmpty(abstaining) ? undefined :
+      <div style={{display: 'flex', paddingLeft: '2rem', alignItems: 'center'}}>
+      <Typography variant='body2' style={{paddingRight: '0.5rem'}}>
+        {intl.formatMessage({ id: 'commentAbstainingLabel' })}</Typography>
+      <GravatarGroup users={abstaining}/>
+    </div>;
     return (
       <>
         <Grid item xs={12} style={{marginTop: '1rem'}}>
@@ -471,6 +479,7 @@ function Comment(props) {
             id="currentVoting"
             type={SECTION_TYPE_SECONDARY}
             title={intl.formatMessage({ id: 'decisionDialogCurrentVotingLabel' })}
+            supportingInformation={abstained}
             actionButton={!enableEditing ? null :
               (<ExpandableAction
                 icon={<AddIcon htmlColor="black"/>}

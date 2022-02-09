@@ -150,6 +150,12 @@ export function updateStage(marketId, stageId, allowedInvestibles, daysVisible) 
     .catch((error) => toastErrorAndThrow(error, 'errorUpdateStageFailed'));
 }
 
+export function marketAbstain(marketId) {
+  return getMarketClient(marketId)
+    .then((client) => client.markets.updateAbstain(true))
+    .catch((error) => toastErrorAndThrow(error, 'errorUpdateAbstainFailed'));
+}
+
 // below called in hub messages, so difficult to decide when to toast a message
 export function getMarketStages(marketId) {
   return getMarketClient(marketId)

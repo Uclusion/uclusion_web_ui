@@ -26,7 +26,7 @@ import {
 import { removeComment, reopenComment, resolveComment } from '../../api/comments'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { changeMyPresence, getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import CommentEdit from './CommentEdit'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import {
@@ -61,7 +61,7 @@ import {
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 import { formMarketAddInvestibleLink, navigate } from '../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
-import { updateMarket } from '../../api/markets'
+import { marketAbstain, updateMarket } from '../../api/markets'
 import ShareStoryButton from '../../pages/Investible/Planning/ShareStoryButton'
 import { allowVotingForSuggestion, onCommentOpen } from '../../utils/commentFunctions'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
@@ -76,7 +76,17 @@ import DecisionInvestibleAdd from '../../pages/Dialog/Decision/DecisionInvestibl
 import ExpandableAction from '../SidebarActions/Planning/ExpandableAction'
 import AddIcon from '@material-ui/icons/Add'
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'
-import { Clear, Delete, Done, Edit, Eject, ExpandLess, ExpandMore, SettingsBackupRestore } from '@material-ui/icons'
+import {
+  Clear,
+  Delete,
+  Done,
+  Edit,
+  Eject,
+  ExpandLess,
+  ExpandMore,
+  NotInterested,
+  SettingsBackupRestore
+} from '@material-ui/icons'
 import ReplyIcon from '@material-ui/icons/Reply'
 import TooltipIconButton from '../Buttons/TooltipIconButton'
 import { getPageReducerPage, usePageStateReducer } from '../PageState/pageStateHooks'
@@ -322,6 +332,7 @@ function Comment(props) {
     resolved, notification_type: myNotificationType, creation_stage_id: createdStageId,
     mentions, body, creator_assigned: creatorAssigned } = comment;
   const presences = usePresences(marketId);
+  const inlinePresences = usePresences(inlineMarketId);
   const createdBy = useCommenter(comment, presences) || unknownPresence;
   const updatedBy = useUpdatedBy(comment, presences) || unknownPresence;
   const [marketsState, marketsDispatch, tokensHash] = useContext(MarketsContext);
@@ -333,6 +344,7 @@ function Comment(props) {
   const { market_stage: marketStage, market_type: marketType } = market;
   const activeMarket = marketStage === ACTIVE_STAGE;
   const myPresence = presences.find((presence) => presence.current_user) || {};
+  const myInlinePresence = inlinePresences.find((presence) => presence.current_user) || {};
   const inArchives = !activeMarket;
   const replies = comments.filter(comment => comment.reply_id === id);
   const sortedReplies = _.sortBy(replies, "created_at");
@@ -548,6 +560,20 @@ function Comment(props) {
       });
   }
 
+  function abstain() {
+    setOperationRunning(true);
+    return marketAbstain(inlineMarketId)
+      .then(() => {
+        const newValues = {
+          abstain: true,
+        };
+        changeMyPresence(marketPresencesState, presenceDispatch, marketId, newValues);
+        removeMessagesForCommentId(id, messagesState,messagesDispatch, workItemClasses.removed);
+        setOperationRunning(false);
+        onDone();
+      });
+  }
+
   function resolve() {
     return resolveComment(marketId, id)
       .then((comment) => {
@@ -650,8 +676,13 @@ function Comment(props) {
       </div>
     );
   }
+  const commentMarketOwner = !inlineMarketId || myPresence === createdBy;
   const showMoveButton = [TODO_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(commentType) && !inArchives
     && enableActions && (!resolved || commentType !== TODO_TYPE) && marketType === PLANNING_TYPE;
+  const showResolve = enableActions && commentType !== REPORT_TYPE && commentMarketOwner && (!resolved || isEditable
+    || myPresence === updatedBy || [TODO_TYPE, ISSUE_TYPE].includes(commentType));
+  const showAbstain = enableActions && inlineMarketId && myPresence !== createdBy && !resolved &&
+    !myInlinePresence.abstain;
   return (
     <div>
       <Card elevation={3} style={{overflow: 'unset'}} className={getCommentHighlightStyle()}>
@@ -818,8 +849,7 @@ function Comment(props) {
                     {intl.formatMessage({ id: 'done' })}
                   </SpinningIconLabelButton>
                 )}
-                {enableActions && commentType !== REPORT_TYPE && (!resolved || isEditable
-                  || myPresence === updatedBy || [TODO_TYPE, ISSUE_TYPE].includes(commentType)) && (
+                {showResolve && (
                   <SpinningIconLabelButton
                     onClick={resolved ? reopen : resolve}
                     icon={resolved ? SettingsBackupRestore : Done}
@@ -828,6 +858,15 @@ function Comment(props) {
                     {(!mobileLayout || resolved) && intl.formatMessage({
                       id: resolved ? "commentReopenLabel" : "commentResolveLabel"
                     })}
+                  </SpinningIconLabelButton>
+                )}
+                {showAbstain && (
+                  <SpinningIconLabelButton
+                    onClick={abstain}
+                    icon={NotInterested}
+                    id={`commentAbstainButton${id}`}
+                  >
+                    {!mobileLayout && intl.formatMessage({ id: 'commentAbstainLabel' })}
                   </SpinningIconLabelButton>
                 )}
                 {enableEditing && ((commentType !== REPORT_TYPE || overrideLabel)

@@ -690,8 +690,10 @@ function Comment(props) {
     && enableActions && (!resolved || commentType !== TODO_TYPE) && marketType === PLANNING_TYPE;
   const showResolve = enableActions && commentType !== REPORT_TYPE && commentMarketOwner && (!resolved || isEditable
     || myPresence === updatedBy || [TODO_TYPE, ISSUE_TYPE].includes(commentType));
+  const yourVote = myInlinePresence && myInlinePresence.investments &&
+    myInlinePresence.investments.find((investment) => !investment.deleted);
   const showAbstain = enableActions && inlineMarketId && myPresence !== createdBy && !resolved &&
-    !myInlinePresence.abstain;
+    !myInlinePresence.abstain && !yourVote;
   return (
     <div>
       <Card elevation={3} style={{overflow: 'unset'}} className={getCommentHighlightStyle()}>

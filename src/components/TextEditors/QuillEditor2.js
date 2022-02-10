@@ -207,6 +207,7 @@ function QuillEditor2 (props) {
   useEffect(() => {
     editorCreator();
     return () => {
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       if (!boxRef || !boxRef.current) {
         // using boxRef to know if unmounted or not - don't want to remove if still mounted as will lose typing
         QuillEditorRegistry.remove(id);

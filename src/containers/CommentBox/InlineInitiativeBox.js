@@ -12,6 +12,7 @@ import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/Ma
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { getPageReducerPage, usePageStateReducer } from '../../components/PageState/pageStateHooks'
+import GravatarGroup from '../../components/Avatars/GravatarGroup'
 
 function InlineInitiativeBox(props) {
   const {
@@ -48,6 +49,7 @@ function InlineInitiativeBox(props) {
     });
     return !_.isEmpty(negInvestment);
   });
+  const abstaining = anInlineMarketPresences.filter((presence) => presence.abstain);
   const yourPresence = anInlineMarketPresences.find((presence) => presence.current_user);
   const yourVote = yourPresence && yourPresence.investments &&
     yourPresence.investments.find((investment) => investment.investible_id === inlineInvestibleId);
@@ -94,6 +96,14 @@ function InlineInitiativeBox(props) {
         votingAllowed={!inArchives}
         yourPresence={myInlinePresence}
       />
+      {!_.isEmpty(abstaining) && (
+        <>
+          <h3>
+            <FormattedMessage id="commentAbstainingLabel" />
+          </h3>
+          <GravatarGroup users={abstaining}/>
+        </>
+      )}
     </div>
   );
 }

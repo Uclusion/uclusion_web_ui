@@ -207,8 +207,10 @@ function QuillEditor2 (props) {
   useEffect(() => {
     editorCreator();
     return () => {
-      // will only fire after total cleanup because of the needsEditor calculation
-      //QuillEditorRegistry.remove(id); // can't clean up or lose editor whenever re-render
+      if (!boxRef || !boxRef.current) {
+        // using boxRef to know if unmounted or not - don't want to remove if still mounted as will lose typing
+        QuillEditorRegistry.remove(id);
+      }
     };
   }, [id, editorCreator]);
 

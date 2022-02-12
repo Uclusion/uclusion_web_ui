@@ -25,6 +25,8 @@ import Gravatar from '../../components/Avatars/Gravatar';
 import Grid from '@material-ui/core/Grid'
 import IconButton from '@material-ui/core/IconButton'
 import { ContactSupport, Face, Payment, PermIdentity, VpnKey } from '@material-ui/icons'
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
+import { hasNoChannels } from '../../contexts/MarketsContext/marketsContextHelper'
 
 const useStyles = makeStyles((theme) => ({
   name: {
@@ -105,6 +107,7 @@ const useStyles = makeStyles((theme) => ({
 function Identity (props) {
   const classes = useStyles();
   const theme = useTheme();
+  const [, , tokensHash] = useContext(MarketsContext);
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const user = useContext(CognitoUserContext);
   const canChangeUserValues = !isFederated(user);
@@ -138,9 +141,10 @@ function Identity (props) {
     >
       <Button
         onClick={recordPositionToggle}
-        endIcon={<SettingsIcon htmlColor="#bdbdbd"/>}
+        endIcon={hasNoChannels(tokensHash) ? undefined : <SettingsIcon htmlColor="#bdbdbd"/>}
         className={classes.buttonClass}
         id="identityButton"
+        disabled={hasNoChannels(tokensHash)}
       >
         <Gravatar
           key={chipLabel}

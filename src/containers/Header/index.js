@@ -28,6 +28,8 @@ import config from '../../config';
 import Inbox from '../../pages/Home/YourWork/Inbox'
 import Outbox from '../../pages/Home/YourWork/Outbox'
 import Hamburger from '../../components/Menus/Hamburger'
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
+import { hasNoChannels } from '../../contexts/MarketsContext/marketsContextHelper'
 
 export const headerStyles = makeStyles((theme) => {
   return {
@@ -144,6 +146,7 @@ function Header (props) {
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const [online] = useContext(OnlineStateContext);
+  const [, , tokensHash] = useContext(MarketsContext);
   const history = useHistory();
   const {
     breadCrumbs, toolbarButtons, appEnabled, hidden, title, hideTools, titleIcon, navMenu,
@@ -296,7 +299,9 @@ function Header (props) {
               <div className={classes.grow}/>
               <div className={classes.notification} id="notifications">
                 <Inbox isJarDisplay isDisabled={isInbox} />
-                <Outbox isJarDisplay isDisabled={isPending} />
+                {!hasNoChannels(tokensHash) && (
+                  <Outbox isJarDisplay isDisabled={isPending} />
+                )}
               </div>
               <div className={classes.padLeft} />
               {!mobileLayout && (

@@ -7,7 +7,7 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import {
   getHiddenMarketDetailsForUser,
-  getNotHiddenMarketDetailsForUser,
+  getNotHiddenMarketDetailsForUser, hasNoChannels,
   marketTokenLoaded
 } from '../../../contexts/MarketsContext/marketsContextHelper'
 import _ from 'lodash'
@@ -120,15 +120,23 @@ function InboxFull(props) {
       navigationOptions={navigationMenu}
       isInbox
     >
-      <DismissableText textId={'settingsHelp'} text={
+      <DismissableText textId={'channelHelp'} text={
         <div>
-          Use <Link href="/notificationPreferences" onClick={(event) => {
-          preventDefaultAndProp(event);
-          history.push('/notificationPreferences');
-        }}>settings</Link> to change your notifications preferences
-          or try our Slack integration.
+          A <Link href="https://documentation.uclusion.com/channels" target="_blank">channel</Link> is
+          the root of all Uclusion communication and can be created from the "+ Channel" on the left nav.
         </div>
       } />
+      {!hasNoChannels(tokensHash) && (
+        <DismissableText textId={'settingsHelp'} text={
+          <div>
+            Use <Link href="/notificationPreferences" onClick={(event) => {
+            preventDefaultAndProp(event);
+            history.push('/notificationPreferences');
+          }}>settings</Link> to change your notifications preferences
+            or try our Slack integration.
+          </div>
+        } />
+      )}
       <Inbox expandAll={expandAll} setExpandAll={setExpandAll} />
     </Screen>
   );

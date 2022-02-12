@@ -32,7 +32,7 @@ import { SearchResultsContext } from '../../../contexts/SearchResultsContext/Sea
 import Quiz from '../../../components/CustomChip/Quiz'
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { getMarketInfo } from '../../../utils/userFunctions'
-import { getMarket, getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
+import { getMarket, getMyUserForMarket, hasNoChannels } from '../../../contexts/MarketsContext/marketsContextHelper'
 
 function getPriorityIcon(message, isAssigned) {
   const { level } = message;
@@ -98,7 +98,7 @@ function Inbox(props) {
   const [diffState] = useContext(DiffContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
-  const [marketsState] = useContext(MarketsContext);
+  const [marketsState, , tokensHash] = useContext(MarketsContext);
   const [searchResults] = useContext(SearchResultsContext);
   const { results, parentResults, search } = searchResults;
   const theme = useTheme();
@@ -226,7 +226,7 @@ function Inbox(props) {
                          setDeterminate={setDeterminate} determinate={determinate} isMultiple={isMultiple} {...item} />;
   });
 
-  if (_.isEmpty(rows)) {
+  if (_.isEmpty(rows) && !hasNoChannels(tokensHash)) {
     const item = {
       title: intl.formatMessage({ id: 'enjoy' }),
       market: intl.formatMessage({ id: 'noNew' }),

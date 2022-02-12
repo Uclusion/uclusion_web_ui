@@ -19,6 +19,10 @@ export function marketTokenLoaded(marketId, tokensHash) {
   return tokensHash && tokensHash[`MARKET_${marketId}`];
 }
 
+export function hasNoChannels(tokensHash) {
+  return _.isEmpty(tokensHash);
+}
+
 export function getMyUserForMarket(state, marketId) {
   const market = getMarket(state, marketId);
   if (market) {

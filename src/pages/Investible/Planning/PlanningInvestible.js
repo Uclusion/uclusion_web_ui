@@ -507,6 +507,7 @@ function PlanningInvestible(props) {
   }
 
   const invested = getVotesForInvestible(marketPresences, investibleId);
+  const assignedNotAccepted = assigned.filter((assignee) => !(accepted || []).includes(assignee));
 
   function changeLabelsAndQuickAdd(marketId, investibleId, newLabels) {
     return changeLabels(marketId, investibleId, newLabels).then((fullInvestible) =>{
@@ -871,6 +872,7 @@ function PlanningInvestible(props) {
                         classes={classes}
                         marketPresences={marketPresences}
                         assigned={assigned}
+                        highlighted={assignedNotAccepted}
                         isAdmin={isAdmin}
                         toggleAssign={toggleAssign}
                         toolTipId="storyAddParticipantsLabel"
@@ -1219,6 +1221,10 @@ export const useMetaDataStyles = makeStyles(
         color: '#ffC000',
         fontSize: 12,
       },
+      highlighted: {
+        color: 'red',
+        fontSize: 12,
+      },
       normal: {
         fontSize: 14,
       },
@@ -1506,7 +1512,8 @@ MarketMetaData.propTypes = {
 }
 
 export function Assignments(props) {
-  const { marketPresences, isAdmin, toggleAssign, classes, assigned, showMoveMessage, toolTipId } = props;
+  const { marketPresences, isAdmin, toggleAssign, classes, assigned, showMoveMessage, toolTipId,
+    highlighted } = props;
   const intl = useIntl();
   const metaClasses = useMetaDataStyles();
   const myPresence = marketPresences.find((presence) => presence.current_user);
@@ -1531,7 +1538,9 @@ export function Assignments(props) {
         )}
         {sortedAssigned.map((presence, index) => {
           const showAsPlaceholder = presence.placeholder_type === PLACEHOLDER;
-          const myClassName = showAsPlaceholder ? metaClasses.archived : metaClasses.normal;
+          const isHighlighted = (highlighted || []).includes(presence.id);
+          const myClassName = isHighlighted ? metaClasses.highlighted :
+            (showAsPlaceholder ? metaClasses.archived : metaClasses.normal);
           const name = (presence.name || '').replace('@', ' ');
           return (
             <div

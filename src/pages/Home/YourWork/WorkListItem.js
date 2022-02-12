@@ -23,6 +23,7 @@ import { deleteOrDehilightMessages } from '../../../api/users'
 
 const Item = styled("div")`
   margin-bottom: 20px;
+  min-width: 40vw;
 `
 
 const Div = styled("div")`

@@ -21,7 +21,13 @@ import { getInvestibleComments } from '../../../contexts/CommentsContext/comment
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { getMarket, getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
-import { Assignments, getCollaborators } from '../../Investible/Planning/PlanningInvestible'
+import {
+  accept,
+  Assignments,
+  getCollaborators,
+  rejectInvestible,
+  useMetaDataStyles
+} from '../../Investible/Planning/PlanningInvestible'
 import { getAcceptedStage, getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import clsx from 'clsx'
 import { PLANNING_TYPE } from '../../../constants/markets'
@@ -42,18 +48,26 @@ import Chip from '@material-ui/core/Chip'
 import PropTypes from 'prop-types'
 import { getLabelList } from '../../../utils/messageUtils'
 import { editorEmpty } from '../../../components/TextEditors/Utilities/CoreUtils'
+import SpinningButton from '../../../components/SpinBlocking/SpinningButton'
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
+import { workListStyles } from './WorkListItem'
 
 
 function InboxInvestible(props) {
   const { marketId, marketType, planningClasses, messageTypes, investibleId, mobileLayout, isOutbox,
     messagesFull } = props;
   const intl = useIntl();
+  const workItemClasses = workListStyles();
+  const classes = useMetaDataStyles();
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
-  const [investiblesState] = useContext(InvestiblesContext);
+  const [investiblesState, invDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
-  const [commentState] = useContext(CommentsContext);
-  const [diffState] = useContext(DiffContext);
+  const [commentState, commentsDispatch] = useContext(CommentsContext);
+  const [diffState, diffDispatch] = useContext(DiffContext);
   const market = getMarket(marketsState, marketId) || {};
   const userId = getMyUserForMarket(marketsState, marketId) || '';
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
@@ -91,6 +105,17 @@ function InboxInvestible(props) {
     && assignedInAcceptedStage.length >= inAcceptedStage.allowed_investibles;
   const assignedNotAccepted = assigned.filter((assignee) => !(accepted || []).includes(assignee));
   const diff = getDiff(diffState, investibleId);
+
+  function myAccept() {
+    return accept(market.id, investibleId, inv, setOperationRunning, invDispatch, diffDispatch,
+      messagesState, messagesDispatch, workItemClasses);
+  }
+
+  function myRejectInvestible() {
+    return rejectInvestible(market.id, investibleId, inv, commentState, commentsDispatch,
+      setOperationRunning, invDispatch, diffDispatch, marketStagesState, messagesState, messagesDispatch);
+  }
+
   return (
     <div style={{paddingTop: '1rem', paddingRight: '1rem', paddingLeft: '1rem',
       paddingBottom: !_.isEmpty(messageTypes) ? '1rem' : undefined}}>
@@ -150,6 +175,19 @@ function InboxInvestible(props) {
         {messageTypes.includes('ASSIGNED_UNREVIEWABLE') && (
           <div style={{marginTop: mobileLayout ? '1rem' : '1.5rem'}}>
             <DaysEstimate readOnly value={marketDaysEstimate} isInbox />
+          </div>
+        )}
+        {!_.isEmpty(_.intersection(['UNACCEPTED_ASSIGNMENT'], messageTypes)) && (
+          <div style={{marginTop: mobileLayout ? '1rem' : undefined, marginLeft: mobileLayout ? undefined : '2rem'}}>
+            <div style={{display: 'flex', paddingTop: '1rem', marginBottom: 0}}>
+              <SpinningButton onClick={myAccept} className={classes.actionPrimary}>
+                {intl.formatMessage({ id: 'planningAcceptLabel' })}
+              </SpinningButton>
+              <SpinningButton onClick={myRejectInvestible} className={classes.actionSecondary}
+                              style={{marginRight: '1rem'}}>
+                {intl.formatMessage({ id: 'saveReject' })}
+              </SpinningButton>
+            </div>
           </div>
         )}
         {!_.isEmpty(_.intersection(['ASSIGNED_UNREVIEWABLE', 'ISSUE_RESOLVED'],

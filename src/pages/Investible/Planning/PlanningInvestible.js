@@ -1345,6 +1345,44 @@ export const useMetaDataStyles = makeStyles(
   { name: "MetaData" }
 );
 
+export function accept(marketId, investibleId, marketInvestible, setOperationRunning, invDispatch, diffDispatch,
+  messagesState, messagesDispatch, workItemClasses) {
+  setOperationRunning(true);
+  return acceptInvestible(marketId, investibleId)
+    .then((marketInfo) => {
+      const newInfos = _.unionBy([marketInfo], marketInvestible.market_infos, 'id');
+      const inv = {investible: marketInvestible.investible, market_infos: newInfos};
+      refreshInvestibles(invDispatch, diffDispatch, [inv]);
+      const message = findMessageOfType('UNACCEPTED_ASSIGNMENT', investibleId, messagesState)
+      if (message) {
+        removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
+      }
+      setOperationRunning(false);
+    });
+}
+
+export function rejectInvestible(marketId, investibleId, marketInvestible, commentsState, commentsDispatch,
+  setOperationRunning, invDispatch, diffDispatch, marketStagesState, messagesState, messagesDispatch) {
+  setOperationRunning(true);
+  const furtherWorkStage = getFurtherWorkStage(marketStagesState, marketId);
+  const marketInfo = getMarketInfo(marketInvestible, marketId);
+  const moveInfo = {
+    marketId: marketId,
+    investibleId,
+    stageInfo: {
+      current_stage_id: marketInfo.stage,
+      stage_id: furtherWorkStage.id,
+    },
+  };
+  return stageChangeInvestible(moveInfo)
+    .then((newInv) => {
+      onInvestibleStageChange(furtherWorkStage.id, newInv, investibleId, marketId, commentsState, commentsDispatch,
+        invDispatch, diffDispatch, marketStagesState, messagesState, messagesDispatch, undefined,
+        furtherWorkStage);
+      setOperationRunning(false);
+    });
+}
+
 function MarketMetaData(props) {
   const {
     market,
@@ -1385,40 +1423,14 @@ function MarketMetaData(props) {
   const attachedFiles = marketInvestible.investible && marketInvestible.investible.attached_files;
   const isAccepted = !isAssigned || accepted.includes(myUserId);
 
-  function accept() {
-    setOperationRunning(true);
-    return acceptInvestible(market.id, investibleId)
-      .then((marketInfo) => {
-        const newInfos = _.unionBy([marketInfo], marketInvestible.market_infos, 'id');
-        const inv = {investible: marketInvestible.investible, market_infos: newInfos};
-        refreshInvestibles(invDispatch, diffDispatch, [inv]);
-        const message = findMessageOfType('UNACCEPTED_ASSIGNMENT', investibleId, messagesState)
-        if (message) {
-          removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
-        }
-        setOperationRunning(false);
-      });
+  function myAccept() {
+    return accept(market.id, investibleId, marketInvestible, setOperationRunning, invDispatch, diffDispatch,
+      messagesState, messagesDispatch, workItemClasses);
   }
 
-  function rejectInvestible() {
-    setOperationRunning(true);
-    const furtherWorkStage = getFurtherWorkStage(marketStagesState, market.id);
-    const marketInfo = getMarketInfo(marketInvestible, market.id);
-    const moveInfo = {
-      marketId: market.id,
-      investibleId,
-      stageInfo: {
-        current_stage_id: marketInfo.stage,
-        stage_id: furtherWorkStage.id,
-      },
-    };
-    return stageChangeInvestible(moveInfo)
-      .then((newInv) => {
-        onInvestibleStageChange(furtherWorkStage.id, newInv, investibleId, market.id, commentsState, commentsDispatch,
-          invDispatch, diffDispatch, marketStagesState, messagesState, messagesDispatch, undefined,
-          furtherWorkStage);
-        setOperationRunning(false);
-      });
+  function myRejectInvestible() {
+    return rejectInvestible(market.id, investibleId, marketInvestible, commentsState, commentsDispatch,
+      setOperationRunning, invDispatch, diffDispatch, marketStagesState, messagesState, messagesDispatch);
   }
 
   function onDeleteFile(path) {
@@ -1457,10 +1469,10 @@ function MarketMetaData(props) {
           </FormControl>
           {!isAccepted && (
             <div style={{display: 'flex', paddingTop: '1rem', marginBottom: 0}}>
-              <SpinningButton onClick={accept} className={classes.actionPrimary}>
+              <SpinningButton onClick={myAccept} className={classes.actionPrimary}>
                 {intl.formatMessage({ id: 'planningAcceptLabel' })}
               </SpinningButton>
-              <SpinningButton onClick={rejectInvestible} className={classes.actionSecondary}>
+              <SpinningButton onClick={myRejectInvestible} className={classes.actionSecondary}>
                 {intl.formatMessage({ id: 'saveReject' })}
               </SpinningButton>
             </div>

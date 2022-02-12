@@ -159,7 +159,7 @@ export function addExpansionPanel(props) {
       }
     }
   } else if (['NOT_FULLY_VOTED', 'ASSIGNED_UNREVIEWABLE','UNREAD_REVIEWABLE', 'REVIEW_REQUIRED',
-    'ISSUE_RESOLVED', 'UNREAD_ASSIGNMENT', 'NEW_TODO', 'UNREAD_VOTE'].includes(messageType)) {
+    'ISSUE_RESOLVED', 'UNACCEPTED_ASSIGNMENT', 'NEW_TODO', 'UNREAD_VOTE'].includes(messageType)) {
     item.expansionPanel = <InboxInvestible marketId={marketId} investibleId={investibleId} messageTypes={[messageType]}
                                            planningClasses={planningClasses} marketType={marketType}
                                            mobileLayout={mobileLayout} />;

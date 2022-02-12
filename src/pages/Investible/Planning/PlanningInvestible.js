@@ -1553,9 +1553,20 @@ export function Assignments(props) {
               {!showAsPlaceholder && (
                 <Gravatar email={presence.email} name={presence.name}/>
               )}
-              <Typography component="li" className={myClassName}>
-                {name}
-              </Typography>
+              {isHighlighted && (
+                <Tooltip
+                  title={intl.formatMessage({ id: 'planningAcceptExplanation' })}
+                >
+                  <Typography component="li" className={myClassName}>
+                    {name}
+                  </Typography>
+                </Tooltip>
+              )}
+              {!isHighlighted && (
+                <Typography component="li" className={myClassName}>
+                  {name}
+                </Typography>
+              )}
             </div>
           );
         })}

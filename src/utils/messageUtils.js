@@ -27,7 +27,7 @@ export function messageText(message, isMobile, intl) {
       return getMessageTextForId('unreadDescription', isMobile, intl);
     case 'UNREAD_ESTIMATE':
       return getMessageTextForId('unreadEstimate', isMobile, intl);
-    case 'UNREAD_ASSIGNMENT':
+    case 'UNACCEPTED_ASSIGNMENT':
       return getMessageTextForId('unreadAssignment', isMobile, intl);
     case 'UNREAD_OPTION':
       return getMessageTextForId('unreadOption', isMobile, intl);

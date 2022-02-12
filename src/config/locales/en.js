@@ -438,6 +438,7 @@ const messages = defineMessages({
   noVoters: 'None',
   reassignWarning: 'Re-assigning will remove all approval.',
   planningAcceptLabel: 'Accept',
+  planningAcceptExplanation: 'Has not accepted',
   // Issues
   issueResolveLabel: 'Resolve',
   issueReplyLabel: 'Reply',

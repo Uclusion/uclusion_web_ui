@@ -28,7 +28,7 @@ function LinkMultiplePanel(props) {
     );
   }
   else if (!_.isEmpty(_.intersection(['NOT_FULLY_VOTED', 'ASSIGNED_UNREVIEWABLE', 'UNREAD_REVIEWABLE',
-      'REVIEW_REQUIRED', 'ISSUE_RESOLVED', 'UNREAD_ASSIGNMENT', 'NEW_TODO', 'UNREAD_NAME', 'UNREAD_DESCRIPTION',
+      'REVIEW_REQUIRED', 'ISSUE_RESOLVED', 'UNACCEPTED_ASSIGNMENT', 'NEW_TODO', 'UNREAD_NAME', 'UNREAD_DESCRIPTION',
       UNASSIGNED_TYPE, 'UNREAD_LABEL', 'UNREAD_ATTACHMENT', 'UNREAD_ESTIMATE'], messageTypes))) {
     const { investible_id: investibleId, market_type: marketType } = messagesFull[0];
     return <InboxInvestible marketId={marketId} investibleId={investibleId} messageTypes={messageTypes}

@@ -69,7 +69,7 @@ function InboxInvestible(props) {
   const { name, description, label_list: labelList, attached_files: attachedFiles } = myInvestible || {};
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { stage, assigned: invAssigned, completion_estimate: marketDaysEstimate, required_approvers:  requiredApprovers,
-    required_reviews: requiredReviewers } = marketInfo;
+    required_reviews: requiredReviewers, accepted } = marketInfo;
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   const assigned = invAssigned || [];
   const isInVoting = messageTypes.includes('NOT_FULLY_VOTED');
@@ -89,6 +89,7 @@ function InboxInvestible(props) {
   }, []);
   const acceptedFull = inAcceptedStage.allowed_investibles > 0
     && assignedInAcceptedStage.length >= inAcceptedStage.allowed_investibles;
+  const assignedNotAccepted = assigned.filter((assignee) => !(accepted || []).includes(assignee));
   const diff = getDiff(diffState, investibleId);
   return (
     <div style={{paddingTop: '1rem', paddingRight: '1rem', paddingLeft: '1rem',
@@ -103,6 +104,7 @@ function InboxInvestible(props) {
                 classes={planningClasses}
                 marketPresences={marketPresences}
                 assigned={assigned}
+                highlighted={assignedNotAccepted}
                 isAdmin={false}
                 toggleAssign={() => {}}
                 toolTipId="storyAddParticipantsLabel"
@@ -128,7 +130,7 @@ function InboxInvestible(props) {
           </div>
         )}
         {((!_.isEmpty(requiredApprovers) &&
-          !_.isEmpty(_.intersection(['NOT_FULLY_VOTED', 'UNREAD_ASSIGNMENT'], messageTypes))) ||
+          !_.isEmpty(_.intersection(['NOT_FULLY_VOTED', 'UNACCEPTED_ASSIGNMENT'], messageTypes))) ||
           (!_.isEmpty(requiredReviewers) && isReview)) && (
           <div className={clsx(planningClasses.group, planningClasses.assignments)}
                style={{maxWidth: '15rem', marginRight: '1rem', overflowY: 'auto', maxHeight: '8rem'}}>
@@ -150,7 +152,7 @@ function InboxInvestible(props) {
             <DaysEstimate readOnly value={marketDaysEstimate} isInbox />
           </div>
         )}
-        {!_.isEmpty(_.intersection(['ASSIGNED_UNREVIEWABLE', 'ISSUE_RESOLVED', 'UNREAD_ASSIGNMENT'],
+        {!_.isEmpty(_.intersection(['ASSIGNED_UNREVIEWABLE', 'ISSUE_RESOLVED'],
           messageTypes)) && (
           <div style={{marginTop: mobileLayout ? '1rem' : undefined, marginLeft: mobileLayout ? undefined : '2rem'}}>
             <InputLabel id="next-allowed-stages-label" style={{ marginBottom: '0.25rem' }}>
@@ -226,7 +228,7 @@ function InboxInvestible(props) {
           )}
         </div>
       )}
-      {!_.isEmpty(_.intersection(['UNREAD_ASSIGNMENT', 'UNREAD_VOTE'], messageTypes)) && (
+      {!_.isEmpty(_.intersection(['UNACCEPTED_ASSIGNMENT', 'UNREAD_VOTE'], messageTypes)) && (
         <div style={{paddingLeft: '1rem', paddingRight: '1rem'}}>
           <h2 id="approvals">
             <FormattedMessage id="decisionInvestibleOthersVoting" />
@@ -271,7 +273,8 @@ function InboxInvestible(props) {
             marketId={marketId}
             issueWarningId={'issueWarningPlanning'}
             isInReview={isReview}
-            isAssignee={!_.isEmpty(_.intersection(['ASSIGNED_UNREVIEWABLE', 'UNREAD_ASSIGNMENT'], messageTypes))}
+            isAssignee={!_.isEmpty(_.intersection(['ASSIGNED_UNREVIEWABLE', 'UNACCEPTED_ASSIGNMENT'],
+              messageTypes))}
             isStory
             isInbox
           />

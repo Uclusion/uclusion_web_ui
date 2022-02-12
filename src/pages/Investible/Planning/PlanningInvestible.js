@@ -72,11 +72,12 @@ import { DaysEstimate } from '../../../components/AgilePlan'
 import { ACTION_BUTTON_COLOR, HIGHLIGHTED_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
 import AttachedFilesList from '../../../components/Files/AttachedFilesList'
 import {
+  acceptInvestible,
   attachFilesToInvestible,
   changeLabels,
-  deleteAttachedFilesFromInvestible,
+  deleteAttachedFilesFromInvestible, stageChangeInvestible,
   updateInvestible
-} from '../../../api/investibles';
+} from '../../../api/investibles'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import ShareStoryButton from './ShareStoryButton'
 import Chip from '@material-ui/core/Chip'
@@ -91,7 +92,11 @@ import { getInvestibleVoters } from '../../../utils/votingUtils';
 import { getCommenterPresences, inVerifedSwimLane } from '../../Dialog/Planning/userUtils';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
-import { findMessageOfType, findMessageOfTypeAndId, findMessagesForInvestibleId } from '../../../utils/messageUtils'
+import {
+  findMessageOfType,
+  findMessageOfTypeAndId,
+  findMessagesForInvestibleId
+} from '../../../utils/messageUtils'
 import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
 import QuestionIcon from '@material-ui/icons/ContactSupport'
 import UpdateIcon from '@material-ui/icons/Update'
@@ -118,7 +123,9 @@ import WarningDialog from '../../../components/Warnings/WarningDialog'
 import { useLockedDialogStyles } from '../../Dialog/DialogBodyEdit'
 import InputLabel from '@material-ui/core/InputLabel'
 import PlanningInvestibleEdit from './PlanningInvestibleEdit'
-import { removeInvestibleInvestments } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import {
+  removeInvestibleInvestments
+} from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils'
 import {
   BLOCKED_STORY_TOUR,
@@ -129,6 +136,9 @@ import { blockedStorySteps } from '../../../components/Tours/blockedStory'
 import { requiresInputStorySteps } from '../../../components/Tours/requiresInputStory'
 import { getTomorrow } from '../../../utils/timerUtils'
 import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
+import SpinningButton from '../../../components/SpinBlocking/SpinningButton'
+import { removeWorkListItem, workListStyles } from '../../Home/YourWork/WorkListItem'
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 
 export const usePlanningInvestibleStyles = makeStyles(
   theme => ({
@@ -400,7 +410,7 @@ function PlanningInvestible(props) {
   const marketInfo = getMarketInfo(marketInvestible, marketId) || {};
   const { stage, assigned: invAssigned, completion_estimate: marketDaysEstimate,
     required_approvers:  requiredApprovers, required_reviews: requiredReviewers, ticket_code: ticketCode,
-    open_for_investment: openForInvestment, former_stage_id: formerStageId } = marketInfo;
+    open_for_investment: openForInvestment, former_stage_id: formerStageId, accepted } = marketInfo;
   const assigned = invAssigned || [];
   const { investible } = marketInvestible;
   const { name, locked_by: lockedBy, created_at: createdAt, label_list: originalLabelList } = investible;
@@ -420,9 +430,9 @@ function PlanningInvestible(props) {
     marketId
   ) || {}
   const isInVoting = inCurrentVotingStage && stage === inCurrentVotingStage.id
-  const isAssigned = assigned.includes(userId)
+  const isAssigned = assigned.includes(userId);
   const canVote = isInVoting && !inArchives && (!isAssigned || market.assigned_can_approve)
-  const yourPresence = marketPresences.find((presence) => presence.current_user)
+  const yourPresence = marketPresences.find((presence) => presence.current_user);
   const yourVote = yourPresence && yourPresence.investments &&
     yourPresence.investments.find((investment) => investment.investible_id === investibleId && !investment.deleted)
   // If you have a vote already then do not display voting input
@@ -1020,6 +1030,8 @@ function PlanningInvestible(props) {
                 updatePageState={updatePageState}
                 acceptedEmpty={assignedInAcceptedStage.length === 0}
                 invested={invested}
+                accepted={accepted || []}
+                myUserId={userId}
               />
             </Grid>
           </Grid>
@@ -1302,6 +1314,26 @@ export const useMetaDataStyles = makeStyles(
         border: '1px solid black',
         borderRadius: '6px 6px 0 0'
       },
+      actionPrimary: {
+        backgroundColor: '#2D9CDB',
+        color: 'white',
+        textTransform: 'unset',
+        marginRight: '20px',
+        '&:hover': {
+          backgroundColor: '#2D9CDB'
+        },
+        '&:disabled': {
+          color: 'white',
+          backgroundColor: 'rgba(45, 156, 219, .6)'
+        }
+      },
+      actionSecondary: {
+        backgroundColor: '#e0e0e0',
+        textTransform: 'unset',
+        '&:hover': {
+          backgroundColor: '#e0e0e0'
+        }
+      },
     }
   },
   { name: "MetaData" }
@@ -1323,6 +1355,8 @@ function MarketMetaData(props) {
     acceptedFull,
     acceptedEmpty,
     invested,
+    accepted,
+    myUserId,
     questionByAssignedComments,
     pageState, updatePageState
   } = props;
@@ -1333,11 +1367,53 @@ function MarketMetaData(props) {
 
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [diffState, diffDispatch] = useContext(DiffContext);
-  const [messagesState] = useContext(NotificationsContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const [, invDispatch] = useContext(InvestiblesContext);
+  const [marketStagesState] = useContext(MarketStagesContext);
+  const [commentsState, commentsDispatch] = useContext(CommentsContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const workItemClasses = workListStyles();
   const myMessageDescription = findMessageOfTypeAndId(investibleId, messagesState, 'DESCRIPTION');
   const diff = getDiff(diffState, investibleId);
   const classes = useMetaDataStyles();
   const attachedFiles = marketInvestible.investible && marketInvestible.investible.attached_files;
+  const isAccepted = !isAssigned || accepted.includes(myUserId);
+
+  function accept() {
+    setOperationRunning(true);
+    return acceptInvestible(market.id, investibleId)
+      .then((marketInfo) => {
+        const newInfos = _.unionBy([marketInfo], marketInvestible.market_infos, 'id');
+        const inv = {investible: marketInvestible.investible, market_infos: newInfos};
+        refreshInvestibles(invDispatch, diffDispatch, [inv]);
+        const message = findMessageOfType('UNACCEPTED_ASSIGNMENT', investibleId, messagesState)
+        if (message) {
+          removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
+        }
+        setOperationRunning(false);
+      });
+  }
+
+  function rejectInvestible() {
+    setOperationRunning(true);
+    const furtherWorkStage = getFurtherWorkStage(marketStagesState, market.id);
+    const marketInfo = getMarketInfo(marketInvestible, market.id);
+    const moveInfo = {
+      marketId: market.id,
+      investibleId,
+      stageInfo: {
+        current_stage_id: marketInfo.stage,
+        stage_id: furtherWorkStage.id,
+      },
+    };
+    return stageChangeInvestible(moveInfo)
+      .then((newInv) => {
+        onInvestibleStageChange(furtherWorkStage.id, newInv, investibleId, market.id, commentsState, commentsDispatch,
+          invDispatch, diffDispatch, marketStagesState, messagesState, messagesDispatch, undefined,
+          furtherWorkStage);
+        setOperationRunning(false);
+      });
+  }
 
   function onDeleteFile(path) {
     return deleteAttachedFilesFromInvestible(market.id, investibleId, [path])
@@ -1373,7 +1449,17 @@ function MarketMetaData(props) {
               {stageActions}
             </Select>
           </FormControl>
-          {!inArchives && isAssigned && (
+          {!isAccepted && (
+            <div style={{display: 'flex', paddingTop: '1rem', marginBottom: 0}}>
+              <SpinningButton onClick={accept} className={classes.actionPrimary}>
+                {intl.formatMessage({ id: 'planningAcceptLabel' })}
+              </SpinningButton>
+              <SpinningButton onClick={rejectInvestible} className={classes.actionSecondary}>
+                {intl.formatMessage({ id: 'saveReject' })}
+              </SpinningButton>
+            </div>
+          )}
+          {!inArchives && isAssigned && isAccepted && (
             <>
               <InputLabel id="next-allowed-stages-label" style={{ marginTop: '1rem', marginBottom: '0.25rem' }}>
                 {intl.formatMessage({ id: 'quickChangeStage' })}</InputLabel>

@@ -437,6 +437,7 @@ const messages = defineMessages({
   breakLock: 'Break Lock',
   noVoters: 'None',
   reassignWarning: 'Re-assigning will remove all approval.',
+  planningAcceptLabel: 'Accept',
   // Issues
   issueResolveLabel: 'Resolve',
   issueReplyLabel: 'Reply',
@@ -876,6 +877,7 @@ const messages = defineMessages({
   errorPlanningAddFailed: 'There was a problem creating your channel',
   errorFileUploadFailed: 'There was a problem uploading your file',
   errorEditLockFailed: 'There was a problem getting permission to edit',
+  errorAcceptInvestibleFailed: 'There was a problem accepting the job. Please try again.',
   errorEditLockReleaseFailed: 'There was a problem releasing edit permission',
   errorSubmitToModeratorFailed: 'There was a problem submitting to the moderator',
   errorChangeToObserverFailed: 'There was a problem changing to approver',

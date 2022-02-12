@@ -64,7 +64,7 @@ export function addPlanningInvestible (addInfo) {
     .catch((error) => toastErrorAndThrow(error, 'errorPlanningInvestibleAddFailed'));
 }
 
-export function stageChangeInvestible (acceptInfo, customError) {
+export function stageChangeInvestible(acceptInfo, customError) {
   const {
     marketId,
     investibleId,
@@ -81,10 +81,16 @@ export function stageChangeInvestible (acceptInfo, customError) {
     });
 }
 
-export function lockInvestibleForEdit (marketId, investibleId, breakLock) {
+export function lockInvestibleForEdit(marketId, investibleId, breakLock) {
   return getMarketClient(marketId)
     .then((client) => client.investibles.lock(investibleId, breakLock))
     .catch((error) => toastErrorAndThrow(error, 'errorEditLockFailed'));
+}
+
+export function acceptInvestible(marketId, investibleId) {
+  return getMarketClient(marketId)
+    .then((client) => client.investibles.accept(investibleId))
+    .catch((error) => toastErrorAndThrow(error, 'errorAcceptInvestibleFailed'));
 }
 
 export function realeaseInvestibleEditLock (marketId, investibleId) {

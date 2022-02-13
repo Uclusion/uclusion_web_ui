@@ -1,7 +1,5 @@
 import React, { useEffect, useReducer, useState } from 'react'
 import { BroadcastChannel, createLeaderElection } from 'broadcast-channel'
-import { pushMessage } from '../../utils/MessageBusUtils'
-import { OPERATION_HUB_CHANNEL, STOP_OPERATION } from '../OperationInProgressContext/operationInProgressMessages'
 import reducer, { updateLeader } from './leaderContextReducer'
 
 const EMPTY_STATE = {
@@ -45,8 +43,6 @@ function LeaderProvider(props) {
         // but its a bit risky as can somehow infinite refresh and corner of corner case anyway
         dispatch(updateLeader(isLeader));
         if (!isLeader) {
-          // First turn off in progress for the versions sync since leader does that
-          pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION });
           return elector.awaitLeadership().then(() => dispatch(updateLeader(true)));
         }
         return isLeader;

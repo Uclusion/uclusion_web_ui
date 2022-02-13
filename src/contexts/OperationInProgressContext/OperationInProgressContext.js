@@ -22,7 +22,7 @@ function OperationInProgressProvider (props) {
       return true;
     }
     return value;
-  }, true); // Default operation in progress to true for the versions fetch
+  }, false);
 
 
   useEffect(() => {

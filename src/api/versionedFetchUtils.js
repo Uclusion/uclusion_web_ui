@@ -21,7 +21,7 @@ import { startTimerChain } from '../utils/timerUtils'
 import { MARKET_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../contexts/WebSocketContext'
 import { GLOBAL_VERSION_UPDATE, NEW_MARKET, } from '../contexts/VersionsContext/versionsContextMessages'
 import {
-  OPERATION_HUB_CHANNEL,
+  OPERATION_HUB_CHANNEL, START_OPERATION,
   STOP_OPERATION
 } from '../contexts/OperationInProgressContext/operationInProgressMessages'
 import LocalForageHelper from '../utils/LocalForageHelper'
@@ -174,14 +174,13 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets) {
         global_version, foreground: foregroundList, account: accountId, background: backgroundList,
         banned: bannedList, inline: inlineList
       } = versions;
-    //  const marketSignatures = newSignatures.filter((signature) => signature.market_id);
-    ///  const accountSignatures = newSignatures.filter((signature) => signature.account_id);
-      // if the market signatures don't have the required signatures, just abort, this version has stale data
+      // If nothing changed then will get empty or null back for these lists
       if ((_.isEmpty(foregroundList) && _.isEmpty(backgroundList) && _.isEmpty(accountId) && _.isEmpty(inlineList))
         || _.isEmpty(global_version)) {
-        pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION });
         return currentHeldVersion;
       }
+      // We are doing something so start blinking
+      pushMessage(OPERATION_HUB_CHANNEL, { event: START_OPERATION });
       // don't refresh market's we're banned from
       if (!_.isEmpty(bannedList)) {
         pushMessage(REMOVED_MARKETS_CHANNEL, { event: BANNED_LIST, bannedList });

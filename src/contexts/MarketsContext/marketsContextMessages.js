@@ -102,7 +102,9 @@ function beginListening(dispatch, diffDispatch, setTokensHash) {
       const tokenStorageManager = new TokenStorageManager();
       return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, id, token).then(() => {
         // We know the market we just logged into is dirty so skip normal call to check it first
-        return updateMarkets([id], undefined, 1);
+        return updateMarkets([id], undefined, 1).then(() => {
+          pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION });
+        });
       });
     }).catch((error) => {
       console.error(error);

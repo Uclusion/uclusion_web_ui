@@ -39,7 +39,7 @@ export function getInvestible(state, investibleId) {
   return state[investibleId];
 }
 
-export function getInvestibleName(investibleId, investibleState) {
+export function getInvestibleName(investibleState, investibleId) {
   const inv = getInvestible(investibleState, investibleId);
   if (!inv) {
     return '';

@@ -40,7 +40,7 @@ export function onInvestibleStageChange(targetStageId, newInv, investibleId, mar
 export function notify(userId, investibleId, notificationType, notificationLevel, investiblesState, market,
   messagesDispatch) {
   const investibleLink = formInvestibleLink(market.id, investibleId);
-  const investibleName = getInvestibleName(investibleId, investiblesState);
+  const investibleName = getInvestibleName(investiblesState, investibleId);
   const marketLink = formMarketLink(market.id);
   messagesDispatch(addMessage({ market_id_user_id: `${market.id}_${userId}`,
     type_object_id: `${notificationType}_${investibleId}`, type: notificationType, market_id: market.id,

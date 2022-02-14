@@ -872,7 +872,7 @@ function PlanningInvestible(props) {
                         classes={classes}
                         marketPresences={marketPresences}
                         assigned={assigned}
-                        highlighted={assignedNotAccepted}
+                        highlighted={isInVoting ? assignedNotAccepted : undefined}
                         isAdmin={isAdmin}
                         toggleAssign={toggleAssign}
                         toolTipId="storyAddParticipantsLabel"
@@ -1346,16 +1346,15 @@ export const useMetaDataStyles = makeStyles(
 );
 
 export function accept(marketId, investibleId, marketInvestible, setOperationRunning, invDispatch, diffDispatch,
-  messagesState, messagesDispatch, workItemClasses) {
+  unacceptedAssignment, messagesDispatch, workItemClasses) {
   setOperationRunning(true);
   return acceptInvestible(marketId, investibleId)
     .then((marketInfo) => {
       const newInfos = _.unionBy([marketInfo], marketInvestible.market_infos, 'id');
       const inv = {investible: marketInvestible.investible, market_infos: newInfos};
       refreshInvestibles(invDispatch, diffDispatch, [inv]);
-      const message = findMessageOfType('UNACCEPTED_ASSIGNMENT', investibleId, messagesState)
-      if (message) {
-        removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
+      if (unacceptedAssignment) {
+        removeWorkListItem(unacceptedAssignment, workItemClasses.removed, messagesDispatch);
       }
       setOperationRunning(false);
     });
@@ -1421,11 +1420,12 @@ function MarketMetaData(props) {
   const diff = getDiff(diffState, investibleId);
   const classes = useMetaDataStyles();
   const attachedFiles = marketInvestible.investible && marketInvestible.investible.attached_files;
-  const isAccepted = !isAssigned || accepted.includes(myUserId);
+  const unacceptedAssignment = findMessageOfType('UNACCEPTED_ASSIGNMENT', investibleId, messagesState);
+  const unaccepted = unacceptedAssignment && isAssigned && !accepted.includes(myUserId);
 
   function myAccept() {
     return accept(market.id, investibleId, marketInvestible, setOperationRunning, invDispatch, diffDispatch,
-      messagesState, messagesDispatch, workItemClasses);
+      unacceptedAssignment, messagesDispatch, workItemClasses);
   }
 
   function myRejectInvestible() {
@@ -1467,7 +1467,7 @@ function MarketMetaData(props) {
               {stageActions}
             </Select>
           </FormControl>
-          {!isAccepted && (
+          {unaccepted && (
             <div style={{display: 'flex', paddingTop: '1rem', marginBottom: 0}}>
               <SpinningButton onClick={myAccept} className={classes.actionPrimary}>
                 {intl.formatMessage({ id: 'planningAcceptLabel' })}
@@ -1477,7 +1477,7 @@ function MarketMetaData(props) {
               </SpinningButton>
             </div>
           )}
-          {!inArchives && isAssigned && isAccepted && (
+          {!inArchives && isAssigned && !unaccepted && (
             <>
               <InputLabel id="next-allowed-stages-label" style={{ marginTop: '1rem', marginBottom: '0.25rem' }}>
                 {intl.formatMessage({ id: 'quickChangeStage' })}</InputLabel>

@@ -105,10 +105,11 @@ function InboxInvestible(props) {
     && assignedInAcceptedStage.length >= inAcceptedStage.allowed_investibles;
   const assignedNotAccepted = assigned.filter((assignee) => !(accepted || []).includes(assignee));
   const diff = getDiff(diffState, investibleId);
+  const unacceptedAssignment = messagesFull.find((message) => message.type === 'UNACCEPTED_ASSIGNMENT');
 
   function myAccept() {
     return accept(market.id, investibleId, inv, setOperationRunning, invDispatch, diffDispatch,
-      messagesState, messagesDispatch, workItemClasses);
+      unacceptedAssignment, messagesDispatch, workItemClasses);
   }
 
   function myRejectInvestible() {
@@ -129,7 +130,7 @@ function InboxInvestible(props) {
                 classes={planningClasses}
                 marketPresences={marketPresences}
                 assigned={assigned}
-                highlighted={assignedNotAccepted}
+                highlighted={isInVoting ? assignedNotAccepted : undefined}
                 isAdmin={false}
                 toggleAssign={() => {}}
                 toolTipId="storyAddParticipantsLabel"

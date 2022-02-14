@@ -3,7 +3,6 @@ import { refreshGlobalVersion } from '../../api/versionedFetchUtils'
 import { NOTIFICATION_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../WebSocketContext'
 import { getMessages } from '../../api/sso'
 import _ from 'lodash'
-import { NOTIFICATION_VERSION_UPDATE } from './versionsContextMessages'
 import { EMPTY_GLOBAL_VERSION, INITIALIZATION_GLOBAL_VERSION } from './versionsContextReducer'
 
 export const NOTIFICATIONS_HUB_CHANNEL = 'NotificationsChannel';
@@ -47,16 +46,11 @@ export function refreshNotifications () {
 }
 
 // used by the reducer to actually process the new event
-export function refreshNotificationVersion (state, version) {
+export function refreshNotificationVersion (state, auditRow) {
   const { notificationVersion } = state;
-  processNewNotification(version, notificationVersion);
-}
-
-function processNewNotification (newNotificationVersion, notificationVersion) {
-  const { version: notificationVersionNumber } = notificationVersion || {};
-  const { version: newNotificationVersionNumber, hkey, rkey, is_remove: isRemove } = newNotificationVersion || {};
-  //console.debug(`Refreshing notifications from ${notificationVersionNumber} to ${newNotificationVersionNumber} with ${hkey}, ${rkey}, ${isRemove}`);
-  if (notificationVersionNumber !== newNotificationVersionNumber) {
+  const { version: newNotificationVersionNumber, hkey, rkey, is_remove: isRemove } = auditRow;
+  //console.debug(`Refreshing notifications from ${notificationVersion} to ${newNotificationVersionNumber} with ${hkey}, ${rkey}, ${isRemove}`);
+  if (notificationVersion !== newNotificationVersionNumber) {
     getMessages().then((messages) => {
       const latest = messages.find((message) => (message.type_object_id === rkey
         && message.market_id_user_id === hkey));
@@ -65,10 +59,13 @@ function processNewNotification (newNotificationVersion, notificationVersion) {
         // Messages are reading from an index so can't consistent read.
         // So if retrieved stale then just ignore and hope to get updated later.
         pushMessage(NOTIFICATIONS_HUB_CHANNEL, { event: VERSIONS_EVENT, messages });
-        pushMessage(VERSIONS_HUB_CHANNEL, {event: NOTIFICATION_VERSION_UPDATE,
-          notificationVersion: newNotificationVersionNumber})
       }
     });
+    return {
+      ...state,
+      notificationVersion: newNotificationVersionNumber
+    };
   }
+  return state;
 }
 

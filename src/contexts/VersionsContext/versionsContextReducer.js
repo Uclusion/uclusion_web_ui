@@ -24,7 +24,6 @@ const INITIALIZE_LOADING = 'INITIALIZE_LOADING';
 const REMOVE_MARKET = 'REMOVE_MARKET';
 const REFRESH_NOTIFICATION = 'REFRESH_NOTIFICATION';
 const INITIALIZE_STATE_VERSIONS = 'INITIALIZE_STATE_VERSIONS';
-const UPDATE_NOTIFICATION = 'UPDATE_NOTIFICATION';
 
 export function addNewMarket(marketId) {
   return {
@@ -66,15 +65,7 @@ export function refreshNotificationVersionAction(message) {
   };
 }
 
-export function updateNotificationVersion(notificationVersion) {
-  return {
-    type: UPDATE_NOTIFICATION,
-    notificationVersion,
-  };
-}
-
 /* Functions that mutate the state */
-
 
 function doAddNewMarket(state, action) {
   const { marketId } = action;
@@ -104,14 +95,6 @@ function removeStoredMarket(state, action) {
   };
 }
 
-
-function refreshStoredNotification(state, version) {
-  return {
-    ...state,
-    notificationVersion: version,
-  };
-}
-
 function reducer(state, action) {
   let newState;
   switch (action.type) {
@@ -127,14 +110,10 @@ function reducer(state, action) {
     case REMOVE_MARKET:
       newState = removeStoredMarket(state, action);
       break;
-    case UPDATE_NOTIFICATION:
-      const { notificationVersion } = action;
-      newState = refreshStoredNotification(state, notificationVersion);
-      break;
     case REFRESH_NOTIFICATION:
       const { message } = action;
-      refreshNotificationVersion(state, message);
-      return state;
+      newState = refreshNotificationVersion(state, message);
+      break;
     case INITIALIZE_STATE_VERSIONS:
       const { diskState } = action;
       newState = diskState || EMPTY_STATE;

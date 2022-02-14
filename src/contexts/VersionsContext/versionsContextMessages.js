@@ -4,7 +4,6 @@ import {
   addNewMarket,
   refreshNotificationVersionAction,
   updateGlobalVersion,
-  updateNotificationVersion
 } from './versionsContextReducer'
 import { registerListener } from '../../utils/MessageBusUtils'
 
@@ -14,7 +13,7 @@ export const NEW_MARKET = 'new_market';
 
 function beginListening (dispatch) {
   registerListener(VERSIONS_HUB_CHANNEL, 'versionVersionStart', (data) => {
-    const { payload: { event, globalVersion, notificationVersion, marketId } } = data;
+    const { payload: { event, globalVersion, marketId } } = data;
     // console.debug(`Versions context responding to push event ${event}`);
     switch (event) {
       case GLOBAL_VERSION_UPDATE:
@@ -30,9 +29,6 @@ function beginListening (dispatch) {
 
             dispatch(refreshNotificationVersionAction(notification));
           });
-      case NOTIFICATION_VERSION_UPDATE:
-        dispatch(updateNotificationVersion(notificationVersion));
-        break;
       default:
       // console.debug(`Ignoring push event ${event}`);
     }

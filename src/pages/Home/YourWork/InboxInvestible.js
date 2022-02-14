@@ -46,7 +46,7 @@ import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import AttachedFilesList from '../../../components/Files/AttachedFilesList'
 import Chip from '@material-ui/core/Chip'
 import PropTypes from 'prop-types'
-import { getLabelList } from '../../../utils/messageUtils'
+import { findMessageOfType, getLabelList } from '../../../utils/messageUtils'
 import { editorEmpty } from '../../../components/TextEditors/Utilities/CoreUtils'
 import SpinningButton from '../../../components/SpinBlocking/SpinningButton'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
@@ -105,7 +105,7 @@ function InboxInvestible(props) {
     && assignedInAcceptedStage.length >= inAcceptedStage.allowed_investibles;
   const assignedNotAccepted = assigned.filter((assignee) => !(accepted || []).includes(assignee));
   const diff = getDiff(diffState, investibleId);
-  const unacceptedAssignment = messagesFull.find((message) => message.type === 'UNACCEPTED_ASSIGNMENT');
+  const unacceptedAssignment = findMessageOfType('UNACCEPTED_ASSIGNMENT', investibleId, messagesState);
 
   function myAccept() {
     return accept(market.id, investibleId, inv, setOperationRunning, invDispatch, diffDispatch,

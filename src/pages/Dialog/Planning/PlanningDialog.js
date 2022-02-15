@@ -548,7 +548,6 @@ function PlanningDialog(props) {
             <CommentAddBox
               allowedTypes={allowedCommentTypes}
               marketId={marketId}
-              numProgressReport={_.size(reports)}
             />
           )}
           <DismissableText textId="workspaceCommentHelp" text={

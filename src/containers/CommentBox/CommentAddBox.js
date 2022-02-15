@@ -184,7 +184,6 @@ function CommentAddBox(props) {
     isStory,
     isInReview,
     isAssignee,
-    numProgressReport,
     isInbox
   } = props;
   const theme = useTheme();
@@ -267,7 +266,6 @@ function CommentAddBox(props) {
           isStory={isStory}
           isInbox={isInbox}
           autoFocus={false}
-          numProgressReport={numProgressReport}
         />
       </div>
     </div>

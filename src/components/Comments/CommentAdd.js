@@ -207,7 +207,7 @@ function CommentAdd(props) {
   const {
     marketId, onSave, onCancel, type, investible, parent, issueWarningId, todoWarningId, isStory, nameKey,
     defaultNotificationType, onDone, mentionsAllowed, commentAddState, updateCommentAddState, commentAddStateReset,
-    numProgressReport, autoFocus=true, isStandAlone, threadMessages, isInbox
+    autoFocus=true, isStandAlone, threadMessages, isInbox
   } = props;
   const {
     uploadedFiles,
@@ -247,7 +247,22 @@ function CommentAdd(props) {
   const requiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {}
   const creatorIsAssigned = (assigned || []).includes(myPresence.id)
   const investibleRequiresInput = (type === QUESTION_TYPE || type === SUGGEST_CHANGE_TYPE) && creatorIsAssigned
-    && currentStageId !== blockingStage.id && currentStageId !== requiresInputStage.id
+    && currentStageId !== blockingStage.id && currentStageId !== requiresInputStage.id;
+
+  function getOlderReports(currentId) {
+    const marketComments = getMarketComments(commentsState, marketId) || [];
+    let comments = marketComments.filter(comment => comment.comment_type === REPORT_TYPE && !comment.resolved
+      && comment.id !== currentId) || [];
+    if (investibleId) {
+      comments = comments.filter(comment => comment.investible_id === investibleId
+        && comment.created_by === myPresence.id) || [];
+    } else {
+      comments = comments.filter(comment => !comment.investible_id) || [];
+    }
+    return comments;
+  }
+  const olderReports = getOlderReports();
+  const numReports = _.size(olderReports);
 
   function toggleIssue () {
     if (openIssue === false) {
@@ -312,15 +327,7 @@ function CommentAdd(props) {
   }
 
   function quickResolveOlderReports (currentComment) {
-    const marketComments = getMarketComments(commentsState, marketId) || []
-    let comments = marketComments.filter(comment => comment.comment_type === REPORT_TYPE && !comment.resolved
-      && comment.id !== currentComment.id) || []
-    if (investibleId) {
-      comments = comments.filter(comment => comment.investible_id === investibleId && comment.creator_assigned) || []
-    } else {
-      comments = comments.filter(comment => !comment.investible_id) || []
-    }
-    const updatedComments = comments.map((comment) => {
+    const updatedComments = getOlderReports(currentComment.id).map((comment) => {
       return {
         ...comment,
         resolved: true,
@@ -367,7 +374,7 @@ function CommentAdd(props) {
           if (message) {
             removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
           }
-          if (apiType === REPORT_TYPE && (creatorIsAssigned || !investibleId)) {
+          if (apiType === REPORT_TYPE) {
             quickResolveOlderReports(comment)
           }
         }
@@ -412,19 +419,11 @@ function CommentAdd(props) {
   }
 
   function getReportWarningId() {
-    if (!_.isEmpty(assigned)) {
-      if (creatorIsAssigned) {
-        if (numProgressReport > 0) {
-          return 'addReportWarning'
-        }
-        if (currentStageId === readyForApprovalStage.id) {
-          return 'addReportInReadyForApprovalWarning'
-        }
-      }
-    } else {
-      if (numProgressReport > 0) {
-        return 'addReportWarning'
-      }
+    if (numReports > 0) {
+      return 'addReportWarning'
+    }
+    if (currentStageId === readyForApprovalStage.id) {
+      return 'addReportInReadyForApprovalWarning'
     }
     return undefined;
   }

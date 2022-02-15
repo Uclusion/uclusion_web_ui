@@ -1326,7 +1326,7 @@ export const useMetaDataStyles = makeStyles(
         textTransform: 'unset',
         marginRight: '20px',
         '&:hover': {
-          backgroundColor: '#2D9CDB'
+          backgroundColor: '#e0e0e0'
         },
         '&:disabled': {
           color: 'white',
@@ -1337,7 +1337,7 @@ export const useMetaDataStyles = makeStyles(
         backgroundColor: '#e0e0e0',
         textTransform: 'unset',
         '&:hover': {
-          backgroundColor: '#e0e0e0'
+          backgroundColor: "#F1F1F1"
         }
       },
     }

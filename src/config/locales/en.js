@@ -796,11 +796,13 @@ const messages = defineMessages({
 
   // Change Preferences
   changePreferencesHeader: 'Notification preferences',
+  changeEmailPreferences: 'Email Integration',
+  changeSlackPreferences: 'Slack Integration',
   emailEnabledLabel: 'Send notifications via email',
   slackEnabledLabel: 'Send notifications via Slack',
   changePreferencesButton: 'Update Preferences',
-  slackDelayInputLabel: 'How many minutes between Slack notifications?',
-  emailDelayInputLabel: 'How many hours between emails?',
+  slackDelayInputLabel: 'Minutes between notifications',
+  emailDelayInputLabel: 'Hours between emails',
   doNotShowAgain: 'Do not show again',
 
   // your voting

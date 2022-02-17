@@ -103,6 +103,8 @@ import { pushMessage } from '../../utils/MessageBusUtils'
 import { GUEST_MARKET_EVENT, LOAD_MARKET_CHANNEL } from '../../contexts/MarketsContext/marketsContextMessages'
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
 import GravatarGroup from '../Avatars/GravatarGroup'
+import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
+import { hasInitializedGlobalVersion } from '../../contexts/VersionsContext/versionsContextHelper'
 
 const useCommentStyles = makeStyles(
   theme => {
@@ -358,6 +360,7 @@ function Comment(props) {
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [diffState, diffDispatch] = useContext(DiffContext);
   const [searchResults] = useContext(SearchResultsContext);
+  const [versionsContext] = useContext(VersionsContext);
   const enableActions = !inArchives && !stagePreventsActions;
   const enableEditing = !inArchives && !resolved; //resolved comments or those in archive aren't editable
   const [investibleAddStateFull, investibleAddDispatch] = usePageStateReducer('commentInvestibleAdd');
@@ -386,14 +389,15 @@ function Comment(props) {
     (resolved ? myPresence !== updatedBy : true) : myRepliesExpanded);
 
   useEffect(() => {
-    if (inlineMarketId && !marketsState.initializing) {
+    if (inlineMarketId && !marketsState.initializing && hasInitializedGlobalVersion(versionsContext) &&
+      !operationRunning) {
       const inlineMarketLoaded = getMarket(marketsState, inlineMarketId);
       if (_.isEmpty(inlineMarketLoaded)) {
         // Eventual consistency means there is a chance we were not invited to this inline market
         pushMessage(LOAD_MARKET_CHANNEL, { event: GUEST_MARKET_EVENT, marketId: inlineMarketId });
       }
     }
-  }, [marketsState, inlineMarketId]);
+  }, [versionsContext, marketsState, inlineMarketId, operationRunning]);
 
   function toggleInlineInvestibleAdd() {
     updateInvestibleAddState({investibleAddBeingEdited: !investibleAddBeingEdited});

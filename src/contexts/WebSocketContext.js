@@ -112,9 +112,6 @@ function createWebSocket(config, leaderDispatch, setState, leaderChannelId) {
   newSocket.registerHandler('investment', () => {
     leaderDispatch(refreshOrMessage(`investment${Date.now()}`, leaderChannelId));
   });
-  // Go ahead and get the latest when bring up a new socket since you may not have been listening
-  leaderDispatch(refreshOrMessage(`initialized${Date.now()}`, leaderChannelId));
-  refreshNotifications();
 
   newSocket.registerHandler('notification', () => {
     // Try to be up to date before we push the notification out (which might need new data)

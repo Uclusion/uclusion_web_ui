@@ -5,6 +5,7 @@ import ReactDOMServer from 'react-dom/server'
 import MentionListItem from '../CustomUI/MentionListItem'
 import React from 'react'
 import Quill from 'quill'
+import { convertHTMLString } from '../ImageBlot'
 
 // static helper funcs
 
@@ -199,9 +200,9 @@ export function createEditor (id, editorContents, config, forceCreate) {
 
   if (boxRef.current) {
     if (editorContents !== undefined) {
-      boxRef.current.innerHTML = editorContents;
+      boxRef.current.innerHTML = convertHTMLString(editorContents);
     } else if (!(placeholder === defaultContents) && defaultContents) {
-      boxRef.current.innerHTML = defaultContents
+      boxRef.current.innerHTML = convertHTMLString(defaultContents);
     } else {
       boxRef.current.innerHTML = '';
     }

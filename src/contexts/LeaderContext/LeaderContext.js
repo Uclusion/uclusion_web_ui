@@ -1,6 +1,6 @@
 import React, { useEffect, useReducer, useState } from 'react'
 import { BroadcastChannel, createLeaderElection } from 'broadcast-channel'
-import reducer, { refreshOrMessage, updateLeader } from './leaderContextReducer'
+import reducer, { updateLeader } from './leaderContextReducer'
 import { pushMessage } from '../../utils/MessageBusUtils'
 import {
   OPERATION_HUB_CHANNEL,

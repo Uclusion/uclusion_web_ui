@@ -29,6 +29,17 @@ export function convertImageSrc(value) {
   return undefined;
 }
 
+export function convertHTMLString(htmlStr) {
+  const parser = new DOMParser();
+  // convert html string into DOM
+  const document = parser.parseFromString(htmlStr, "text/html");
+  const imgs = document.getElementsByTagName("img") || [];
+  [...imgs].forEach((img) => {
+    img.src = convertImageSrc(img.src);
+  });
+  return document.documentElement.innerHTML;
+}
+
 class ImageBlot extends Image {
   static create(value) {
     const node = super.create(value);

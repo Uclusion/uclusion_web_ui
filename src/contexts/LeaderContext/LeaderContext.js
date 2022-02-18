@@ -47,6 +47,7 @@ function LeaderProvider(props) {
         responseTime: 5000, // optional configuration for how long will instances have to respond
       });
       return elector.applyOnce().then((isLeader) => {
+        console.info(`Setting leader to ${isLeader}`);
         // Could use broadcast ID to send message out to others to refresh out of login page
         // but its a bit risky as can somehow infinite refresh and corner of corner case anyway
         dispatch(updateLeader(isLeader));

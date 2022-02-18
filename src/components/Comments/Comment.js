@@ -23,7 +23,7 @@ import {
   REPORT_TYPE,
   SUGGEST_CHANGE_TYPE, TODO_TYPE,
 } from '../../constants/comments'
-import { removeComment, reopenComment, resolveComment } from '../../api/comments'
+import { removeComment, reopenComment, resolveComment, updateComment } from '../../api/comments'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { changeMyPresence, getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
@@ -105,6 +105,7 @@ import { SearchResultsContext } from '../../contexts/SearchResultsContext/Search
 import GravatarGroup from '../Avatars/GravatarGroup'
 import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
 import { hasInitializedGlobalVersion } from '../../contexts/VersionsContext/versionsContextHelper'
+import SpinningButton from '../SpinBlocking/SpinningButton'
 
 const useCommentStyles = makeStyles(
   theme => {
@@ -145,17 +146,26 @@ const useCommentStyles = makeStyles(
         }
       },
       actionPrimary: {
-        backgroundColor: "#2D9CDB",
-        color: "white",
-        "&:hover": {
-          backgroundColor: "#2D9CDB"
+        backgroundColor: '#2D9CDB',
+        color: 'white',
+        textTransform: 'unset',
+        padding: 0,
+        marginRight: '20px',
+        '&:hover': {
+          backgroundColor: '#e0e0e0'
+        },
+        '&:disabled': {
+          color: 'white',
+          backgroundColor: 'rgba(45, 156, 219, .6)'
         }
       },
       actionSecondary: {
-        backgroundColor: "#BDBDBD",
-        color: "black",
-        "&:hover": {
-          backgroundColor: "#BDBDBD"
+        backgroundColor: '#e0e0e0',
+        textTransform: 'unset',
+        padding: 0,
+        marginRight: '20px',
+        '&:hover': {
+          backgroundColor: '#F1F1F1'
         }
       },
       actionWarned: {
@@ -579,22 +589,31 @@ function Comment(props) {
       .then(() => {
         const newValues = {
           abstain: true,
-        };
-        changeMyPresence(marketPresencesState, presenceDispatch, marketId, newValues);
-        removeMessagesForCommentId(id, messagesState,messagesDispatch, workItemClasses.removed);
-        setOperationRunning(false);
-        onDone();
+        }
+        changeMyPresence(marketPresencesState, presenceDispatch, marketId, newValues)
+        removeMessagesForCommentId(id, messagesState, messagesDispatch, workItemClasses.removed)
+        setOperationRunning(false)
+        onDone()
       });
   }
 
-  function resolve() {
+  function myAccept () {
+    setOperationRunning(true)
+    return updateComment(marketId, id, undefined, TODO_TYPE).then((comment) => {
+      addCommentToMarket(comment, commentsState, commentsDispatch)
+      removeMessagesForCommentId(id, messagesState, messagesDispatch, workItemClasses.removed)
+      setOperationRunning(false)
+    })
+  }
+
+  function resolve () {
     return resolveComment(marketId, id)
       .then((comment) => {
-        addCommentToMarket(comment, commentsState, commentsDispatch);
-        removeMessagesForCommentId(id, messagesState, messagesDispatch, workItemClasses.removed);
+        addCommentToMarket(comment, commentsState, commentsDispatch)
+        removeMessagesForCommentId(id, messagesState, messagesDispatch, workItemClasses.removed)
         if (inlineMarketId) {
-          const inlineInvestibles = getMarketInvestibles(investiblesState, inlineMarketId) || [];
-          const anInlineMarketInvestibleComments = getMarketComments(commentsState, inlineMarketId) || [];
+          const inlineInvestibles = getMarketInvestibles(investiblesState, inlineMarketId) || []
+          const anInlineMarketInvestibleComments = getMarketComments(commentsState, inlineMarketId) || []
           inlineInvestibles.forEach((inv) => {
             const messages = findMessagesForInvestibleId(inv.investible.id, messagesState) || [];
             messages.forEach((message) => {
@@ -680,24 +699,28 @@ function Comment(props) {
     }
     return classes.container;
   }
-  const displayingDiff = myMessage && showDiff && diff;
-  const displayEditing = enableEditing && isEditable;
+
+  const displayingDiff = myMessage && showDiff && diff
+  const displayEditing = enableEditing && isEditable
   if (!marketTokenLoaded(marketId, tokensHash) || (inlineMarketId && _.isEmpty(inlineMarket))) {
     return (
       <div className={classes.container}>
-        <LoadingDisplay showMessage messageId="commentLoadingMessage" noMargin />
+        <LoadingDisplay showMessage messageId="commentLoadingMessage" noMargin/>
       </div>
-    );
+    )
   }
-  const commentMarketOwner = !inlineMarketId || myPresence === createdBy;
+  const commentMarketOwner = commentType === SUGGEST_CHANGE_TYPE ? myPresence === createdBy :
+    (!inlineMarketId || myPresence === createdBy)
+  const showAcceptReject = commentType === SUGGEST_CHANGE_TYPE && !inlineMarketId && !commentMarketOwner
+    && investibleId && !resolved
   const showMoveButton = [TODO_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(commentType) && !inArchives
-    && enableActions && (!resolved || commentType !== TODO_TYPE) && marketType === PLANNING_TYPE;
+    && enableActions && (!resolved || commentType !== TODO_TYPE) && marketType === PLANNING_TYPE
   const showResolve = enableActions && commentType !== REPORT_TYPE && commentMarketOwner && (!resolved || isEditable
-    || myPresence === updatedBy || [TODO_TYPE, ISSUE_TYPE].includes(commentType));
+    || myPresence === updatedBy || [TODO_TYPE, ISSUE_TYPE].includes(commentType))
   const yourVote = myInlinePresence && myInlinePresence.investments &&
-    myInlinePresence.investments.find((investment) => !investment.deleted);
+    myInlinePresence.investments.find((investment) => !investment.deleted)
   const showAbstain = enableActions && inlineMarketId && myPresence !== createdBy && !resolved &&
-    !myInlinePresence.abstain && !yourVote;
+    !myInlinePresence.abstain && !yourVote
   return (
     <div>
       <Card elevation={3} style={{overflow: 'unset'}} className={getCommentHighlightStyle()}>
@@ -871,9 +894,19 @@ function Comment(props) {
                     id={`commentResolveReopenButton${id}`}
                   >
                     {(!mobileLayout || resolved) && intl.formatMessage({
-                      id: resolved ? "commentReopenLabel" : "commentResolveLabel"
+                      id: resolved ? 'commentReopenLabel' : 'commentResolveLabel'
                     })}
                   </SpinningIconLabelButton>
+                )}
+                {showAcceptReject && (
+                  <div style={{ display: 'flex' }}>
+                    <SpinningButton onClick={myAccept} className={classes.actionPrimary}>
+                      {intl.formatMessage({ id: 'planningAcceptLabel' })}
+                    </SpinningButton>
+                    <SpinningButton onClick={resolve} className={classes.actionSecondary}>
+                      {intl.formatMessage({ id: 'saveReject' })}
+                    </SpinningButton>
+                  </div>
                 )}
                 {showAbstain && (
                   <SpinningIconLabelButton

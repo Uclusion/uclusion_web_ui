@@ -1,8 +1,6 @@
 import React, { useContext, useState } from 'react';
 import {
   Button,
-  ListItem,
-  ListItemText,
   makeStyles,
   Menu,
   Tooltip,

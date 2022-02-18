@@ -795,9 +795,9 @@ const messages = defineMessages({
   errorSignOutFailed: 'Sign out failed. Please try again.',
 
   // Change Preferences
-  changePreferencesHeader: 'Notification preferences',
-  changeEmailPreferences: 'Email Integration',
-  changeSlackPreferences: 'Slack Integration',
+  changePreferencesHeader: 'Integration preferences',
+  changeEmailPreferences: 'Email',
+  changeSlackPreferences: 'Slack',
   emailEnabledLabel: 'Send notifications via email',
   slackEnabledLabel: 'Send notifications via Slack',
   changePreferencesButton: 'Update Preferences',
@@ -1074,7 +1074,7 @@ const messages = defineMessages({
   StepHeadersStepCount: 'Step {currentStep} of {totalSteps}',
 
   IdentityChangeAvatar: 'Change your avatar',
-  changeAvatarPreferences: 'Gravatar Integration',
+  changeAvatarPreferences: 'Gravatar',
   IdentityTermsOfUse: 'Terms of Use',
 
   VideoDialogTitle: 'Insert a Video',

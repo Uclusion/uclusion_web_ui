@@ -1074,6 +1074,7 @@ const messages = defineMessages({
   StepHeadersStepCount: 'Step {currentStep} of {totalSteps}',
 
   IdentityChangeAvatar: 'Change your avatar',
+  changeAvatarPreferences: 'Gravatar Integration',
   IdentityTermsOfUse: 'Terms of Use',
 
   VideoDialogTitle: 'Insert a Video',

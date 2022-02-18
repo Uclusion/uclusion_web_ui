@@ -8,8 +8,8 @@ import {
   ListItemIcon,
   ListItemText,
   makeStyles,
-  TextField,
-} from '@material-ui/core';
+  TextField, Typography,
+} from '@material-ui/core'
 import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { updateUser } from '../../api/users';
@@ -22,6 +22,9 @@ import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton
 import SubSection from '../../containers/SubSection/SubSection';
 import { accountUserRefresh } from '../../contexts/AccountUserContext/accountUserContextReducer'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { Face } from '@material-ui/icons'
+import Link from '@material-ui/core/Link'
+import Gravatar from '../../components/Avatars/Gravatar'
 
 const useStyles = makeStyles((theme) => ({
   disabled: {
@@ -54,6 +57,14 @@ const useStyles = makeStyles((theme) => ({
     }
   },
   input: { textAlign: "center", padding: '10px' },
+  largeAvatar: {
+    width: theme.spacing(8),
+    height: theme.spacing(8),
+    display: 'block',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    fontSize: theme.spacing(4),
+  }
 }));
 
 function ChangeNotificationPreferences (props) {
@@ -134,6 +145,46 @@ function ChangeNotificationPreferences (props) {
       loading={!user}
     >
       <div className={classes.container}>
+        <Card>
+          <SubSection
+            title={intl.formatMessage({ id: 'changeAvatarPreferences' })}
+            padChildren
+          >
+            <Grid
+              container
+              direction="row"
+              justify="center"
+              alignItems="baseline"
+              style={{ paddingBottom: '0' }}
+            >
+              <ListItem
+                key="avatarExplanation"
+              >
+                <Typography variant="body2">
+                  Below is your current avatar image. Uclusion uses Gravatar so you don't have to set up a new avatar
+                  in every application.
+                </Typography>
+              </ListItem>
+              <ListItem
+                key="avatar"
+              >
+                <Gravatar className={classes.largeAvatar} email={safeUser.email}/>
+              </ListItem>
+              <Link href="https://www.gravatar.com"
+                    target="_blank"
+                    underline="none"
+              >
+                <ListItem key="avatarLink">
+                  <Face style={{fontSize: 'medium', marginRight: 6}} />
+                  <ListItemText className={classes.name}
+                                primary={intl.formatMessage({ id: 'IdentityChangeAvatar' })} />
+                </ListItem>
+              </Link>
+            </Grid>
+          </SubSection>
+        </Card>
+      </div>
+      <div className={classes.container} style={{marginTop: '3rem'}}>
         <Card>
           <SubSection
             title={intl.formatMessage({ id: 'changeEmailPreferences' })}

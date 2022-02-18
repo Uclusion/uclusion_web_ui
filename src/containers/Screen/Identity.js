@@ -24,7 +24,7 @@ import HelpOutlineIcon from '@material-ui/icons/HelpOutline'
 import Gravatar from '../../components/Avatars/Gravatar';
 import Grid from '@material-ui/core/Grid'
 import IconButton from '@material-ui/core/IconButton'
-import { ContactSupport, Face, Payment, PermIdentity, VpnKey } from '@material-ui/icons'
+import { ContactSupport, Payment, PermIdentity, VpnKey } from '@material-ui/icons'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { hasNoChannels } from '../../contexts/MarketsContext/marketsContextHelper'
 
@@ -49,9 +49,6 @@ const useStyles = makeStyles((theme) => ({
     paddingRight: '1rem',
     textAlign: 'center',
     minWidth: '15rem'
-  },
-  changeAvatar: {
-    color: 'black',
   },
   termsLink: {
     color: theme.palette.text.secondary,
@@ -78,11 +75,13 @@ const useStyles = makeStyles((theme) => ({
     border: '0.5px solid grey',
   },
   listAction: {
-    paddingTop: 0,
+    paddingTop: '1rem',
     paddingBottom: 0,
-    '&:hover': {
-      backgroundColor: '#e0e0e0'
-    },
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    marginLeft: 'auto',
+    marginRight: 'auto'
   },
   signOut: {
     textAlign: 'center',
@@ -198,24 +197,14 @@ function Identity (props) {
               </Tooltip>
             </Grid>
             <Grid item xs={4} />
+            <Grid item xs={4} onClick={goTo('/support')} className={classes.listAction}>
+              <Button style={{textTransform: 'none'}}>
+                <ContactSupport style={{fontSize: 'medium', marginRight: 6}} />
+                {intl.formatMessage({ id: 'support' })}
+              </Button>
+            </Grid>
           </Grid>
-          <Link href="https://www.gravatar.com"
-                className={classes.changeAvatar}
-                target="_blank"
-                underline="none"
-          >
-            <ListItem className={classes.listAction}>
-              <Face style={{fontSize: 'medium', marginRight: 6}} />
-              <ListItemText className={classes.name}
-                            primary={intl.formatMessage({ id: 'IdentityChangeAvatar' })} />
-            </ListItem>
-          </Link>
-          <ListItem className={classes.listAction} onClick={goTo('/support')} style={{cursor: 'pointer'}}>
-            <ContactSupport style={{fontSize: 'medium', marginRight: 6}} />
-            <ListItemText className={classes.name}
-                          primary={intl.formatMessage({ id: 'support' })} />
-          </ListItem>
-          <Divider style={{marginTop: '1rem'}} />
+          <Divider />
           <div className={classes.signOut}>
             <SignOut />
           </div>

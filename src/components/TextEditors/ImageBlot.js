@@ -35,7 +35,10 @@ export function convertHTMLString(htmlStr) {
   const document = parser.parseFromString(htmlStr, "text/html");
   const imgs = document.getElementsByTagName("img") || [];
   [...imgs].forEach((img) => {
-    img.src = convertImageSrc(img.src);
+    const converted = convertImageSrc(img.src);
+    if (converted !== undefined) {
+      img.src = converted;
+    }
   });
   return document.documentElement.innerHTML;
 }

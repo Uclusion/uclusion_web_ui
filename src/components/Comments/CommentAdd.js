@@ -368,7 +368,7 @@ function CommentAdd(props) {
     return saveComment(marketId, investibleId, parentId, tokensRemoved, apiType, filteredUploads, mentions,
       (notificationType || defaultNotificationType), createInlineInitiative ? INITIATIVE_TYPE : undefined)
       .then((response) => {
-        const comment = createInlineInitiative ? response['comment'] : response;
+        const comment = createInlineInitiative ? response.parent : response;
         commentAddStateReset();
         resetEditor();
         changeInvestibleStageOnCommentChange(investibleBlocks, investibleRequiresInput,
@@ -398,7 +398,7 @@ function CommentAdd(props) {
           }
         }
         if (createInlineInitiative) {
-          addMarket(response['market'], marketsDispatch, () => {}, presenceDispatch);
+          addMarket(response, marketsDispatch, () => {}, presenceDispatch);
           const { market: { id: inlineMarketId }, parent, token, investible } = response;
           addCommentToMarket(parent, commentsState, commentDispatch);
           addInvestible(investibleDispatch, () => {}, investible);

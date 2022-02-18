@@ -31,7 +31,7 @@ import {
   getInReviewStage,
   getRequiredInputStage
 } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
-import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
+import { addInvestible, getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
@@ -57,6 +57,9 @@ import {
   getQuillStoredState,
   replaceEditorContents,
 } from '../TextEditors/Utilities/CoreUtils'
+import { INITIATIVE_TYPE } from '../../constants/markets'
+import { addMarket } from '../../contexts/MarketsContext/marketsContextHelper'
+import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../authorization/TokenStorageManager'
 
 function getPlaceHolderLabelId (type, isStory, isInReview) {
   switch (type) {
@@ -361,9 +364,11 @@ function CommentAdd(props) {
     // what about not doing state?
     const inReviewStage = getInReviewStage(marketStagesState, marketId) || {}
     const investibleBlocks = (investibleId && apiType === ISSUE_TYPE) && currentStageId !== blockingStage.id
+    const createInlineInitiative = (creatorIsAssigned || !investibleId) && apiType === SUGGEST_CHANGE_TYPE;
     return saveComment(marketId, investibleId, parentId, tokensRemoved, apiType, filteredUploads, mentions,
-      (notificationType || defaultNotificationType))
-      .then((comment) => {
+      (notificationType || defaultNotificationType), createInlineInitiative ? INITIATIVE_TYPE : undefined)
+      .then((response) => {
+        const comment = createInlineInitiative ? response['comment'] : response;
         commentAddStateReset();
         resetEditor();
         changeInvestibleStageOnCommentChange(investibleBlocks, investibleRequiresInput,
@@ -392,9 +397,13 @@ function CommentAdd(props) {
             messagesDispatch(dehighlightMessage(issueMessage));
           }
         }
-        if ((creatorIsAssigned || !investibleId) && comment.comment_type === SUGGEST_CHANGE_TYPE) {
-          return allowVotingForSuggestion(comment.id, setOperationRunning, marketsDispatch, presenceDispatch,
-            commentsState, commentDispatch, investibleDispatch).then(() => {
+        if (createInlineInitiative) {
+          addMarket(response['market'], marketsDispatch, () => {}, presenceDispatch);
+          const { market: { id: inlineMarketId }, parent, token, investible } = response;
+          addCommentToMarket(parent, commentsState, commentDispatch);
+          addInvestible(investibleDispatch, () => {}, investible);
+          const tokenStorageManager = new TokenStorageManager();
+          return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, inlineMarketId, token).then(() => {
             if (doNotShowAgain) {
               return doNotShowAgain().then(() => {
                 setOperationRunning(false);

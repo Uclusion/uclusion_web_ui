@@ -2,13 +2,10 @@ import WorkListItem, { workListStyles } from './WorkListItem'
 import { Box, Checkbox, Fab, useMediaQuery, useTheme } from '@material-ui/core'
 import React, { useContext, useReducer } from 'react'
 import { useIntl } from 'react-intl'
-import { Assignment, ExpandLess, MoveToInbox, PersonAddOutlined, Weekend } from '@material-ui/icons'
+import { ExpandLess, MoveToInbox, Weekend } from '@material-ui/icons'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
-import { nameFromDescription } from '../../../utils/stringFunctions'
-import { getCommentRoot } from '../../../contexts/CommentsContext/commentsContextHelper'
-import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import _ from 'lodash'
 import Badge from '@material-ui/core/Badge'
 import { makeStyles } from '@material-ui/styles'
@@ -17,37 +14,13 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import ArchiveIcon from '@material-ui/icons/Archive'
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
 import TooltipIconButton from '../../../components/Buttons/TooltipIconButton'
-import { messageText } from '../../../utils/messageUtils'
-import { addExpansionPanel } from './InboxExpansionPanel'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
-import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
-import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
-import { usePlanningInvestibleStyles } from '../../Investible/Planning/PlanningInvestible'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import { getInboxCount, isInInbox } from '../../../contexts/NotificationsContext/notificationsContextHelper'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
-import Quiz from '../../../components/CustomChip/Quiz'
-import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
-import { getMarketInfo } from '../../../utils/userFunctions'
-import { getMarket, getMyUserForMarket, hasNoChannels } from '../../../contexts/MarketsContext/marketsContextHelper'
-
-function getPriorityIcon(message, isAssigned) {
-  const { level } = message;
-  const Icon = isAssigned ? Assignment :
-    (['UNASSIGNED', 'UNREAD_DRAFT'].includes(message.type) ? PersonAddOutlined : Quiz);
-  switch (level) {
-    case 'RED':
-      return <Icon style={{fontSize: 24, color: '#E85757'}}/>;
-    case 'YELLOW':
-      return <Icon style={{fontSize: 24, color: '#ffc61a'}}/>;
-    case 'BLUE':
-      return <Icon style={{fontSize: 24, color: '#2D9CDB'}}/>;
-    default:
-      return undefined;
-  }
-}
+import { hasNoChannels } from '../../../contexts/MarketsContext/marketsContextHelper'
+import InboxRow from './InboxRow'
 
 const useStyles = makeStyles(
   theme => {
@@ -85,16 +58,11 @@ function Inbox(props) {
   const intl = useIntl();
   const history = useHistory();
   const workItemClasses = workListStyles();
-  const planningClasses = usePlanningInvestibleStyles();
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
-  const [commentState] = useContext(CommentsContext);
   const [marketState] = useContext(MarketsContext);
-  const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
-  const [diffState] = useContext(DiffContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
-  const [marketStagesState] = useContext(MarketStagesContext);
-  const [marketsState, , tokensHash] = useContext(MarketsContext);
+  const [, , tokensHash] = useContext(MarketsContext);
   const [searchResults] = useContext(SearchResultsContext);
   const { results, parentResults, search } = searchResults;
   const theme = useTheme();
@@ -167,6 +135,7 @@ function Inbox(props) {
       </div>
     );
   }
+
   const messagesFiltered = _.isEmpty(search) ? messagesOrdered : messagesOrdered.filter((message) => {
     const { type_object_id: typeObjectId,  investible_id: investibleId } = message;
     return results.find((result) => typeObjectId.endsWith(result.id) || result.id === investibleId) ||
@@ -185,71 +154,8 @@ function Inbox(props) {
     }
     return true;
   });
-  let containsUnread = false;
-  let rows = messagesOrdered.map((message) => {
-    const { investible_id: investibleId, investible_name: investibleName, updated_at: updatedAt,
-      market_name: marketName, is_highlighted: isHighlighted, type_object_id: typeObjectId, market_id: marketId,
-      comment_id: commentId, comment_market_id: commentMarketId, link_multiple: linkMultiple,
-      link_type: linkType } = message;
-    const fullyVotedMessage = (dupeHash[linkMultiple] || []).find((message) => message.type === 'FULLY_VOTED');
-    const isMultiple = !fullyVotedMessage && _.size(dupeHash[linkMultiple]) > 1;
-    const hasPersistent = (dupeHash[linkMultiple] || []).find((message) =>
-      !message.type_object_id.startsWith('UNREAD'));
-    const useMessage = fullyVotedMessage || message;
-    const title = isMultiple ?
-      intl.formatMessage({ id: 'multipleNotifications' }, { x: _.size(dupeHash[linkMultiple]) })
-      : messageText(useMessage, mobileLayout, intl);
-    const inv = getInvestible(investiblesState, investibleId);
-    const marketInfo = getMarketInfo(inv, marketId) || {};
-    const { assigned } = marketInfo;
-    const userId = getMyUserForMarket(marketsState, marketId);
-    const isAssigned = (assigned || []).includes(userId);
-    const market = getMarket(marketsState, marketId) || {};
-    const item = {
-      title,
-      icon: getPriorityIcon(useMessage, isAssigned),
-      market: market.name || marketName,
-      investible: inv ? inv.investible.name : investibleName,
-      read: !isHighlighted,
-      isDeletable: useMessage.type_object_id.startsWith('UNREAD') && (!isMultiple || !hasPersistent),
-      date: intl.formatDate(updatedAt),
-      message: useMessage
-    }
-    if (isHighlighted) {
-      containsUnread = true;
-    }
-    if (commentId && linkType !== 'INVESTIBLE') {
-      let useMarketId = commentMarketId || marketId;
-      const rootComment = getCommentRoot(commentState, useMarketId, commentId);
-      if (rootComment) {
-        const comment = nameFromDescription(rootComment.body);
-        if (comment) {
-          item.comment = comment;
-        }
-      }
-    }
-    addExpansionPanel({item, commentState, marketState, investiblesState, investiblesDispatch, diffState,
-      planningClasses, marketPresencesState, marketStagesState, marketsState, mobileLayout, messagesState,
-      messagesDispatch, operationRunning, setOperationRunning, intl, workItemClasses, isMultiple});
-    return <WorkListItem key={typeObjectId} id={typeObjectId}
-                         checked={determinate[typeObjectId] !== undefined ? determinate[typeObjectId] : checkAll}
-                         determinateDispatch={determinateDispatch} multiMessages={dupeHash[linkMultiple]}
-                         expansionDispatch={expansionDispatch} expansionOpen={expansionState[typeObjectId]}
-                         isMultiple={isMultiple} {...item} />;
-  });
-
-  if (_.isEmpty(rows) && !hasNoChannels(tokensHash)) {
-    const item = {
-      title: intl.formatMessage({ id: 'enjoy' }),
-      market: intl.formatMessage({ id: 'noNew' }),
-      icon: <Weekend style={{fontSize: 24, color: '#2D9CDB',}}/>,
-      read: false,
-      isDeletable: false,
-      message: {link: '/outbox'}
-    };
-    rows = [<WorkListItem key='emptyInbox' id='emptyInbox' useSelect={false} {...item} />];
-  }
-  const notificationsText = _.size(rows) !== 1 ? intl.formatMessage({ id: 'notifications' }) :
+  const containsUnread = messagesOrdered.find((message) => message.is_highlighted);
+  const notificationsText = _.size(messagesOrdered) !== 1 ? intl.formatMessage({ id: 'notifications' }) :
     intl.formatMessage({ id: 'notification' });
   return (
     <div id="inbox">
@@ -292,12 +198,34 @@ function Inbox(props) {
                            onClick={() => expansionDispatch({expandAll: true})} translationId="inboxExpandAll" />
         <div style={{flexGrow: 1}}/>
         <Box fontSize={14} color="text.secondary">
-          {_.size(rows)} {notificationsText}
+          {_.size(messagesOrdered)} {notificationsText}
         </Box>
       </div>
-      { rows }
+      {_.isEmpty(messagesOrdered) && !hasNoChannels(tokensHash) && (
+        <WorkListItem key='emptyInbox' id='emptyInbox' useSelect={false} {...{
+          title: intl.formatMessage({ id: 'enjoy' }),
+          market: intl.formatMessage({ id: 'noNew' }),
+          icon: <Weekend style={{fontSize: 24, color: '#2D9CDB',}}/>,
+          read: false,
+          isDeletable: false,
+          message: {link: '/outbox'}
+        }} />
+      )}
+      { messagesOrdered.map((message) => {
+        const { type_object_id: typeObjectId, link_multiple: linkMultiple } = message;
+        const linkMultiples = dupeHash[linkMultiple];
+        const fullyVotedMessage = (linkMultiples || []).find((message) => message.type === 'FULLY_VOTED');
+        const isMultiple = !fullyVotedMessage && _.size(linkMultiples) > 1;
+        const hasPersistent = (linkMultiples || []).find((message) =>
+          !message.type_object_id.startsWith('UNREAD'));
+        const useMessage = fullyVotedMessage || message;
+        return <InboxRow message={useMessage} expansionDispatch={expansionDispatch} numMultiples={_.size(linkMultiples)}
+                         determinateDispatch={determinateDispatch} expansionOpen={!!expansionState[typeObjectId]}
+                         hasPersistent={hasPersistent} isMultiple={isMultiple}
+                         checked={determinate[typeObjectId] !== undefined ? determinate[typeObjectId] : checkAll} />;
+      }) }
     </div>
   );
 }
 
-export default Inbox;
+export default React.memo(Inbox);

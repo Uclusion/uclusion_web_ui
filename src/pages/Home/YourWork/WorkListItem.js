@@ -138,27 +138,42 @@ function WorkListItem(props) {
     id,
     expansionPanel,
     expansionOpen,
-    isMultiple,
-    multiMessages
+    isMultiple
   } = props;
   const history = useHistory();
   const classes = workListStyles();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
-  const [, messagesDispatch] = useContext(NotificationsContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const actionStyles = useSizedIconButtonStyles({ childSize: 22, padding: 10 });
   const gutterStyles = useRowGutterStyles({ size: -10, before: -8 });
   const { link, link_multiple: linkMultiple } = message;
 
   const fullText = comment || investible || market;
 
+  function getAllMessages() {
+    const messages = [];
+    if (isMultiple) {
+      const { messages: messagesUnsafe } = messagesState;
+      (messagesUnsafe || []).forEach((msg) => {
+        const { link_multiple: myLinkMultiple } = msg;
+        if (myLinkMultiple === linkMultiple) {
+          messages.push(msg);
+        }
+      });
+    } else {
+      messages.push(message);
+    }
+    return messages;
+  }
+
   const deleteActionButtonOnclick = (event) => {
     preventDefaultAndProp(event);
-    return deleteOrDehilightMessages(isMultiple ? multiMessages : [message], messagesDispatch, classes.removed);
+    return deleteOrDehilightMessages(getAllMessages(), messagesDispatch, classes.removed);
   };
   const archiveActionButtonOnclick = (event) => {
     preventDefaultAndProp(event);
-    return deleteOrDehilightMessages(isMultiple ? multiMessages : [message], messagesDispatch, classes.removed);
+    return deleteOrDehilightMessages(getAllMessages(), messagesDispatch, classes.removed);
   };
   const useLink = isMultiple ? linkMultiple : link;
   return (

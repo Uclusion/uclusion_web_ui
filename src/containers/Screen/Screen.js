@@ -207,7 +207,7 @@ function Screen(props) {
 
   const reallyAmLoading = !hidden && appEnabled && (loading || _.isEmpty(user));
 
-  if (hidden) {
+  if (hidden && !isInbox) {
     return <React.Fragment/>
   }
   let usedBreadCrumbs = breadCrumbs;
@@ -257,7 +257,7 @@ function Screen(props) {
     </>
   );
   return (
-    <div className={classes.root} id="root">
+    <div className={hidden ? classes.hidden : classes.root} id="root">
       <Header
         title={title}
         titleIcon={titleIcon}

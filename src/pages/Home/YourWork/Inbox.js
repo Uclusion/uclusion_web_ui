@@ -1,6 +1,6 @@
 import WorkListItem, { workListStyles } from './WorkListItem'
 import { Box, Checkbox, Fab, useMediaQuery, useTheme } from '@material-ui/core'
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useReducer } from 'react'
 import { useIntl } from 'react-intl'
 import { Assignment, ExpandLess, MoveToInbox, PersonAddOutlined, Weekend } from '@material-ui/icons'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
@@ -25,7 +25,6 @@ import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { usePlanningInvestibleStyles } from '../../Investible/Planning/PlanningInvestible'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
-import { usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 import { getInboxCount, isInInbox } from '../../../contexts/NotificationsContext/notificationsContextHelper'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
@@ -81,15 +80,12 @@ const useStyles = makeStyles(
 });
 
 function Inbox(props) {
-  const { isJarDisplay = false, isDisabled = false, expandAll, setExpandAll } = props;
+  const { isJarDisplay = false, isDisabled = false, expansionState, expansionDispatch } = props;
   const classes = useStyles();
   const intl = useIntl();
   const history = useHistory();
   const workItemClasses = workListStyles();
   const planningClasses = usePlanningInvestibleStyles();
-  const [checkAll, setCheckAll] = useState(false);
-  const [determinate, setDeterminate] = useState({});
-  const [indeterminate, setIndeterminate] = useState(false);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [commentState] = useContext(CommentsContext);
@@ -103,19 +99,34 @@ function Inbox(props) {
   const { results, parentResults, search } = searchResults;
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
-  const [workListItemFull, workListItemDispatch] = usePageStateReducer('inboxListItem');
-  const { messages: messagesUnsafe } = messagesState;
-
-  useEffect(() => {
-    let myIndeterminate = false;
-    Object.keys(determinate).forEach((key) => {
-      if (determinate[key] !== checkAll) {
-        myIndeterminate = true;
+  const [determinateState, determinateDispatch] = useReducer((state, action) => {
+    const { determinate, checkAll } = state;
+    const { type, id } = action;
+    let newDeterminate = determinate;
+    let newCheckAll = checkAll;
+    if (type === 'clear') {
+      newDeterminate = {};
+      newCheckAll = false;
+    } else if (type === 'toggle') {
+      newCheckAll = !checkAll;
+    } else if (id !== undefined) {
+      const newValue = determinate[id] === undefined ? !checkAll : !determinate[id];
+      if (newValue === checkAll) {
+        newDeterminate = _.omit(determinate, id);
+      } else {
+        newDeterminate = {...determinate, [id]: newValue};
+      }
+    }
+    let newIndeterminate = false;
+    Object.keys(newDeterminate).forEach((key) => {
+      if (newDeterminate[key] !== newCheckAll) {
+        newIndeterminate = true;
       }
     });
-    setIndeterminate(myIndeterminate);
-  }, [checkAll, determinate])
-
+    return { determinate: newDeterminate, indeterminate: newIndeterminate, checkAll: newCheckAll};
+  }, {determinate: {}, indeterminate: false, checkAll: false});
+  const { indeterminate, determinate, checkAll } = determinateState;
+  const { messages: messagesUnsafe } = messagesState;
   let messagesFull = (messagesUnsafe || []).filter((message) => {
     return isInInbox(message, marketState, marketPresencesState);
   });
@@ -220,10 +231,11 @@ function Inbox(props) {
     addExpansionPanel({item, commentState, marketState, investiblesState, investiblesDispatch, diffState,
       planningClasses, marketPresencesState, marketStagesState, marketsState, mobileLayout, messagesState,
       messagesDispatch, operationRunning, setOperationRunning, intl, workItemClasses, isMultiple});
-    return <WorkListItem key={typeObjectId} id={typeObjectId} checkedDefault={checkAll} expansionOpenDefault={expandAll}
-                         workListItemFull={workListItemFull} workListItemDispatch={workListItemDispatch}
-                         multiMessages={dupeHash[linkMultiple]}
-                         setDeterminate={setDeterminate} determinate={determinate} isMultiple={isMultiple} {...item} />;
+    return <WorkListItem key={typeObjectId} id={typeObjectId}
+                         checked={determinate[typeObjectId] !== undefined ? determinate[typeObjectId] : checkAll}
+                         determinateDispatch={determinateDispatch} multiMessages={dupeHash[linkMultiple]}
+                         expansionDispatch={expansionDispatch} expansionOpen={expansionState[typeObjectId]}
+                         isMultiple={isMultiple} {...item} />;
   });
 
   if (_.isEmpty(rows) && !hasNoChannels(tokensHash)) {
@@ -235,8 +247,7 @@ function Inbox(props) {
       isDeletable: false,
       message: {link: '/outbox'}
     };
-    rows = [<WorkListItem key='emptyInbox' id='emptyInbox' workListItemFull={workListItemFull}
-                          workListItemDispatch={workListItemDispatch} useSelect={false} {...item} />];
+    rows = [<WorkListItem key='emptyInbox' id='emptyInbox' useSelect={false} {...item} />];
   }
   const notificationsText = _.size(rows) !== 1 ? intl.formatMessage({ id: 'notifications' }) :
     intl.formatMessage({ id: 'notification' });
@@ -248,11 +259,7 @@ function Inbox(props) {
                     checked={checkAll}
                     indeterminate={indeterminate}
                     disabled={!containsUnread}
-                    onChange={() => {
-                      setIndeterminate(false);
-                      setDeterminate({});
-                      setCheckAll(!checkAll);
-                    }}
+                    onChange={() => determinateDispatch({type: 'toggle'})}
           />
         )}
         {(checkAll || !_.isEmpty(determinate)) && (
@@ -271,9 +278,7 @@ function Inbox(props) {
                                }
                                return deleteOrDehilightMessages(toProcess, messagesDispatch, workItemClasses.removed)
                                  .then(() => {
-                                   setIndeterminate(false);
-                                   setDeterminate({});
-                                   setCheckAll(false);
+                                   determinateDispatch({type: 'clear'});
                                    setOperationRunning(false);
                                  })
                                  .finally(() => {
@@ -282,9 +287,9 @@ function Inbox(props) {
                              }} translationId="inboxArchive" />
         )}
         <TooltipIconButton icon={<ExpandLess style={{marginLeft: '0.25rem'}} htmlColor={ACTION_BUTTON_COLOR} />}
-                           onClick={() => setExpandAll(false)} translationId="inboxCollapseAll" />
+                           onClick={() => expansionDispatch({expandAll: false})} translationId="inboxCollapseAll" />
         <TooltipIconButton icon={<ExpandMoreIcon style={{marginLeft: '0.25rem'}} htmlColor={ACTION_BUTTON_COLOR} />}
-                           onClick={() => setExpandAll(true)} translationId="inboxExpandAll" />
+                           onClick={() => expansionDispatch({expandAll: true})} translationId="inboxExpandAll" />
         <div style={{flexGrow: 1}}/>
         <Box fontSize={14} color="text.secondary">
           {_.size(rows)} {notificationsText}

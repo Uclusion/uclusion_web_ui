@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react'
+import React, { useContext } from 'react'
 import cx from "clsx";
 import styled from "styled-components";
 import { Box, IconButton, makeStyles, useMediaQuery, useTheme } from '@material-ui/core'
@@ -12,11 +12,9 @@ import { DeleteForever, ExpandLess } from '@material-ui/icons'
 import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import ArchiveIcon from '@material-ui/icons/Archive'
-import _ from 'lodash'
 import GravatarGroup from '../../../components/Avatars/GravatarGroup'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { Link } from '@material-ui/core'
-import { getPageReducerPage } from '../../../components/PageState/pageStateHooks'
 import { useHistory } from 'react-router'
 import RaisedCard from '../../../components/Cards/RaisedCard'
 import { deleteOrDehilightMessages } from '../../../api/users'
@@ -134,21 +132,15 @@ function WorkListItem(props) {
     message,
     date,
     useSelect = true,
-    checkedDefault = false,
-    setDeterminate,
-    determinate,
+    checked = false,
+    determinateDispatch,
+    expansionDispatch,
     id,
     expansionPanel,
-    workListItemFull, workListItemDispatch,
-    expansionOpenDefault,
+    expansionOpen,
     isMultiple,
     multiMessages
   } = props;
-  const [workListItemState, updateWorkListItemState, workListItemReset] =
-    getPageReducerPage(workListItemFull, workListItemDispatch, id);
-  const {
-    expansionOpen
-  } = workListItemState;
   const history = useHistory();
   const classes = workListStyles();
   const theme = useTheme();
@@ -156,28 +148,13 @@ function WorkListItem(props) {
   const [, messagesDispatch] = useContext(NotificationsContext);
   const actionStyles = useSizedIconButtonStyles({ childSize: 22, padding: 10 });
   const gutterStyles = useRowGutterStyles({ size: -10, before: -8 });
-  const [checked, setChecked] = React.useState(checkedDefault);
-  const [expandedByGlobal, setExpandedByGlobal] = React.useState(undefined);
   const { link, link_multiple: linkMultiple } = message;
-  const useExpansionOpen = expandedByGlobal !== undefined ? expandedByGlobal :
-    (expansionOpen === undefined ? false : expansionOpen);
-
-  useEffect(() => {
-    setChecked(checkedDefault);
-  }, [checkedDefault])
-
-  useEffect(() => {
-    if (expansionOpenDefault !== undefined) {
-      setExpandedByGlobal(expansionOpenDefault);
-    }
-  }, [expansionOpenDefault])
 
   const fullText = comment || investible || market;
 
   const deleteActionButtonOnclick = (event) => {
     preventDefaultAndProp(event);
-    return deleteOrDehilightMessages(isMultiple ? multiMessages : [message], messagesDispatch, classes.removed)
-      .then(() => workListItemReset());
+    return deleteOrDehilightMessages(isMultiple ? multiMessages : [message], messagesDispatch, classes.removed);
   };
   const archiveActionButtonOnclick = (event) => {
     preventDefaultAndProp(event);
@@ -202,12 +179,7 @@ function WorkListItem(props) {
                   onClick={(event) => {
                     preventDefaultAndProp(event);
                     // We need to record when you unset when check all is on or set when check all is off
-                    if (checked === checkedDefault) {
-                      setDeterminate({...determinate, [id]: true});
-                    } else {
-                      setDeterminate(_.omit(determinate, id));
-                    }
-                    setChecked(!checked);
+                    determinateDispatch({id});
                   }}
                 >
                   {read ? <div /> : (checked ? <Checkbox color="secondary" /> : <CheckBoxOutlineBlank />)}
@@ -226,11 +198,10 @@ function WorkListItem(props) {
                 style={{marginLeft: useSelect ? undefined : '0.5rem'}}
                 onClick={(event) => {
                   preventDefaultAndProp(event);
-                  updateWorkListItemState({expansionOpen: !useExpansionOpen});
-                  setExpandedByGlobal(undefined);
+                  expansionDispatch({id});
                 }}
               >
-                { expansionPanel ? (useExpansionOpen ? <ExpandLess /> : <ExpandMoreIcon />) : <div /> }
+                { expansionPanel ? (expansionOpen ? <ExpandLess /> : <ExpandMoreIcon />) : <div /> }
               </StyledIconButton>
               {(!useSelect || !mobileLayout) && (
                 <StyledIconButton
@@ -248,7 +219,7 @@ function WorkListItem(props) {
           </Div>
         </Link>
         <div style={{overflowY: 'auto', maxHeight: '50rem',
-          visibility: useExpansionOpen ? 'visible' : 'hidden', height: useExpansionOpen ? undefined : 0}}>
+          visibility: expansionOpen ? 'visible' : 'hidden', height: expansionOpen ? undefined : 0}}>
           {expansionPanel || <React.Fragment />}
         </div>
       </RaisedCard>

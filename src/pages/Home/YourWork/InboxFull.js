@@ -2,7 +2,7 @@ import { useIntl } from 'react-intl'
 import Screen from '../../../containers/Screen/Screen'
 import PropTypes from 'prop-types'
 import Inbox from './Inbox'
-import React, { useContext, useState } from 'react'
+import React, { useContext, useReducer, useState } from 'react'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import {
@@ -20,17 +20,40 @@ import AddIcon from '@material-ui/icons/Add'
 import { PLANNING_TYPE } from '../../../constants/markets'
 import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 
 function InboxFull(props) {
   const { hidden } = props;
   const intl = useIntl();
   const history = useHistory();
   const [showAll, setShowAll] = useState(false);
-  const [expandAll, setExpandAll] = useState(undefined);
   const [marketsState, , tokensHash] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [searchResults] = useContext(SearchResultsContext);
   const { results, parentResults, search } = searchResults;
+  const [messagesState] = useContext(NotificationsContext);
+  const [expansionState, expansionDispatch] = useReducer((state, action) => {
+    const { id, expandAll } = action;
+    let newExpanded = state;
+    if (expandAll !== undefined) {
+      if (expandAll) {
+        const { messages: messagesUnsafe } = messagesState;
+        newExpanded = { ...state };
+        (messagesUnsafe || []).forEach((message) => {
+          newExpanded[message.type_object_id] = expandAll;
+        });
+      } else {
+        newExpanded = {};
+      }
+    } else if (id !== undefined) {
+      if (state[id] === undefined) {
+        newExpanded = {...state, [id]: true};
+      } else {
+        newExpanded = _.omit(state, id);
+      }
+    }
+    return newExpanded;
+  }, {});
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   const hiddenMarketsRaw = getHiddenMarketDetailsForUser(marketsState, marketPresencesState) || [];
   const hiddenMarkets = hiddenMarketsRaw.filter((market) => market.market_type === PLANNING_TYPE);
@@ -137,7 +160,7 @@ function InboxFull(props) {
           </div>
         } />
       )}
-      <Inbox expandAll={expandAll} setExpandAll={setExpandAll} />
+      <Inbox expansionState={expansionState} expansionDispatch={expansionDispatch} />
     </Screen>
   );
 }

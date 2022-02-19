@@ -1,4 +1,3 @@
-import _ from 'lodash'
 import { messageText } from '../../../utils/messageUtils'
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { getMarketInfo } from '../../../utils/userFunctions'

@@ -709,7 +709,7 @@ function Comment(props) {
       </div>
     )
   }
-  const commentMarketOwner = commentType === SUGGEST_CHANGE_TYPE ? myPresence === createdBy :
+  const commentMarketOwner = commentType === SUGGEST_CHANGE_TYPE && !resolved ? myPresence === createdBy :
     (!inlineMarketId || myPresence === createdBy)
   const showAcceptReject = commentType === SUGGEST_CHANGE_TYPE && !inlineMarketId && !commentMarketOwner
     && investibleId && !resolved

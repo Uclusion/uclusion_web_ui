@@ -710,17 +710,17 @@ function Comment(props) {
     )
   }
   const commentMarketOwner = commentType === SUGGEST_CHANGE_TYPE && !resolved ? myPresence === createdBy :
-    (!inlineMarketId || myPresence === createdBy)
+    (!inlineMarketId || myPresence === createdBy);
   const showAcceptReject = commentType === SUGGEST_CHANGE_TYPE && !inlineMarketId && !commentMarketOwner
-    && investibleId && !resolved
+    && investibleId && !resolved;
   const showMoveButton = [TODO_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(commentType) && !inArchives
-    && enableActions && (!resolved || commentType !== TODO_TYPE) && marketType === PLANNING_TYPE
+    && enableActions && (!resolved || commentType !== TODO_TYPE) && marketType === PLANNING_TYPE;
   const showResolve = enableActions && commentType !== REPORT_TYPE && commentMarketOwner && (!resolved || isEditable
-    || myPresence === updatedBy || [TODO_TYPE, ISSUE_TYPE].includes(commentType))
+    || myPresence === updatedBy || [TODO_TYPE, ISSUE_TYPE].includes(commentType));
   const yourVote = myInlinePresence && myInlinePresence.investments &&
-    myInlinePresence.investments.find((investment) => !investment.deleted)
+    myInlinePresence.investments.find((investment) => !investment.deleted);
   const showAbstain = enableActions && inlineMarketId && myPresence !== createdBy && !resolved &&
-    !myInlinePresence.abstain && !yourVote
+    !myInlinePresence.abstain && !yourVote;
   return (
     <div>
       <Card elevation={3} style={{overflow: 'unset'}} className={getCommentHighlightStyle()}>

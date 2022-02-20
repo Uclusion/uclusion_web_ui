@@ -296,7 +296,7 @@ function Screen(props) {
             {children}
           </Container>
         )}
-        {reallyAmLoading && !hidden && (
+        {reallyAmLoading && (
          <LoadingDisplay showMessage messageId="loadingMessage" />
         )}
       </div>

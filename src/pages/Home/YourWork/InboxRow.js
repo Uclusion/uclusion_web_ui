@@ -40,7 +40,6 @@ function getPriorityIcon(message, isAssigned) {
 function InboxRow(props) {
   const { message, checked, determinateDispatch, expansionDispatch, expansionOpen, isMultiple, hasPersistent,
     numMultiples } = props;
-  console.debug(props);
   const intl = useIntl();
   const theme = useTheme();
   const workItemClasses = workListStyles();

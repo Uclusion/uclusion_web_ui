@@ -258,18 +258,20 @@ function Screen(props) {
   );
   return (
     <div className={hidden ? classes.hidden : classes.root} id="root">
-      <Header
-        title={title}
-        titleIcon={titleIcon}
-        breadCrumbs={usedBreadCrumbs}
-        toolbarButtons={toolbarButtons}
-        hidden={reallyAmLoading}
-        appEnabled={appEnabled}
-        navMenu={sideNavigationContents}
-        isInbox={isInbox}
-        isPending={isPending}
-      />
-      {hasMenu && !mobileLayout && (
+      {!hidden && (
+        <Header
+          title={title}
+          titleIcon={titleIcon}
+          breadCrumbs={usedBreadCrumbs}
+          toolbarButtons={toolbarButtons}
+          hidden={reallyAmLoading}
+          appEnabled={appEnabled}
+          navMenu={sideNavigationContents}
+          isInbox={isInbox}
+          isPending={isPending}
+        />
+      )}
+      {hasMenu && !mobileLayout && !hidden && (
         <div className={classes.listContainer}>
           <Paper className={classes.paper} elevation={3}
                  id="navList">
@@ -277,12 +279,12 @@ function Screen(props) {
           </Paper>
         </div>
       )}
-      {banner && (
+      {banner && !hidden && (
         <Container className={classes.bannerContainer}>
           {banner}
         </Container>
       )}
-      {!_.isEmpty(sidebarActions) && !reallyAmLoading && (
+      {!_.isEmpty(sidebarActions) && !reallyAmLoading && !hidden && (
         <Container className={classes.actionContainer} id="actionContainer">
           <ActionBar actionBarActions={sidebarActions} appEnabled={appEnabled} />
         </Container>
@@ -294,7 +296,7 @@ function Screen(props) {
             {children}
           </Container>
         )}
-        {reallyAmLoading && (
+        {reallyAmLoading && !hidden && (
          <LoadingDisplay showMessage messageId="loadingMessage" />
         )}
       </div>

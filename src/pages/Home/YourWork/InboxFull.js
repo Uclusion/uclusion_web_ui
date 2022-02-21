@@ -86,12 +86,12 @@ function InboxFull(props) {
     return !(results.find((result) => result.id === marketId || result.marketId === marketId)
       ||parentResults.includes(marketId));
   }
-
+  const createChannelPath = `/wizard#type=${PLANNING_TYPE.toLowerCase()}`;
   const navigationMenu = {
     navListItemTextArray: [
       {
         icon: AddIcon, text: intl.formatMessage({ id: 'homeAddPlanning' }),
-        target: `/wizard#type=${PLANNING_TYPE.toLowerCase()}`
+        target: createChannelPath
       },
       {
         icon: SettingsIcon, text: intl.formatMessage({ id: 'settings' }),
@@ -146,7 +146,11 @@ function InboxFull(props) {
       <DismissableText textId={'channelHelp'} text={
         <div>
           A <Link href="https://documentation.uclusion.com/channels" target="_blank">channel</Link> is
-          the root of all Uclusion communication and can be created from the "+ Channel" on the left nav.
+          the root of all Uclusion communication and can be created from the "+ Channel" on the left nav or
+          clicking <Link href={createChannelPath} onClick={(event) => {
+          preventDefaultAndProp(event);
+          history.push(createChannelPath);
+        }}>here</Link>.
         </div>
       } />
       {!hasNoChannels(tokensHash) && (

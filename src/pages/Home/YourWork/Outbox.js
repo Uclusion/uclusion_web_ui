@@ -51,7 +51,6 @@ import { getInvestibleVoters } from '../../../utils/votingUtils'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { getMarketInfo } from '../../../utils/userFunctions'
 import { AlarmOn, Weekend } from '@material-ui/icons'
-import { usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 import CommentPanel from './CommentPanel'
 import { usePlanningInvestibleStyles } from '../../Investible/Planning/PlanningInvestible'
 import InboxInvestible from './InboxInvestible'
@@ -152,7 +151,7 @@ const useStyles = makeStyles(
 });
 
 function Outbox(props) {
-  const { isJarDisplay = false, isDisabled = false } = props;
+  const { isJarDisplay = false, isDisabled = false, expansionState, expansionDispatch } = props;
   const classes = useStyles();
   const intl = useIntl();
   const history = useHistory();
@@ -170,7 +169,6 @@ function Outbox(props) {
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   const planningDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, PLANNING_TYPE);
   const decisionDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, DECISION_TYPE, true);
-  const [workListItemFull, workListItemDispatch] = usePageStateReducer('outboxListItem');
 
   const workspacesData = planningDetails.map((market) => {
     const marketPresences = getMarketPresences(marketPresencesState, market.id) || [];
@@ -371,8 +369,8 @@ function Outbox(props) {
         item.comment = commentName;
       }
     }
-    return <WorkListItem key={`outboxRow${id}`} id={id} useSelect={false}
-                         workListItemFull={workListItemFull} workListItemDispatch={workListItemDispatch} {...item} />;
+    return <WorkListItem key={`outboxRow${id}`} id={id} useSelect={false} {...item}
+                         expansionDispatch={expansionDispatch} expansionOpen={!!expansionState[id]} />;
   });
 
   if (_.isEmpty(rows)) {
@@ -384,8 +382,7 @@ function Outbox(props) {
       isDeletable: false,
       message: {link: '/inbox'}
     };
-    rows = [<WorkListItem key='emptyOutbox' id='emptyOutbox' workListItemFull={workListItemFull}
-                          workListItemDispatch={workListItemDispatch} useSelect={false} {...item} />];
+    rows = [<WorkListItem key='emptyOutbox' id='emptyOutbox' useSelect={false} {...item} />];
   }
 
   return (

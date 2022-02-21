@@ -2,19 +2,32 @@ import { useIntl } from 'react-intl'
 import Screen from '../../../containers/Screen/Screen'
 import PropTypes from 'prop-types'
 import Outbox from './Outbox'
-import React, { useContext } from 'react'
+import React, { useContext, useReducer } from 'react'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import {
   getNotHiddenMarketDetailsForUser,
   marketTokenLoaded
 } from '../../../contexts/MarketsContext/marketsContextHelper'
+import _ from 'lodash'
 
 function OutboxFull(props) {
   const { hidden } = props;
   const intl = useIntl();
   const [marketsState, , tokensHash] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [expansionState, expansionDispatch] = useReducer((state, action) => {
+    const { id } = action;
+    let newExpanded = state;
+    if (id !== undefined) {
+      if (state[id] === undefined) {
+        newExpanded = {...state, [id]: true};
+      } else {
+        newExpanded = _.omit(state, id);
+      }
+    }
+    return newExpanded;
+  }, {});
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   let loading = marketsState.initializing;
   if (!loading && myNotHiddenMarketsState.marketDetails) {
@@ -43,7 +56,7 @@ function OutboxFull(props) {
       hidden={hidden}
       isPending
     >
-      <Outbox />
+      <Outbox expansionState={expansionState} expansionDispatch={expansionDispatch} />
     </Screen>
   );
 }

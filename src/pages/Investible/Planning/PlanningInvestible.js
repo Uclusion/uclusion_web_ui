@@ -29,7 +29,6 @@ import {
   formInvestibleLink,
   formMarketArchivesLink,
   formMarketLink,
-  makeArchiveBreadCrumbs,
   makeBreadCrumbs,
 } from '../../../utils/marketIdPathFunctions'
 import Screen from '../../../containers/Screen/Screen'
@@ -139,6 +138,7 @@ import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
 import SpinningButton from '../../../components/SpinBlocking/SpinningButton'
 import { removeWorkListItem, workListStyles } from '../../Home/YourWork/WorkListItem'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
+import { ACTIVE_STAGE } from '../../../constants/markets'
 
 export const usePlanningInvestibleStyles = makeStyles(
   theme => ({
@@ -377,7 +377,6 @@ function PlanningInvestible(props) {
     marketInvestible,
     investibles,
     isAdmin,
-    inArchives,
     hidden
   } = props;
   const lockedDialogClasses = useLockedDialogStyles();
@@ -395,7 +394,8 @@ function PlanningInvestible(props) {
   const [showDatepicker, setShowDatepicker] = useState(false);
   const [clearMeHack, setClearMeHack] = useState('a');
   const [labelFocus, setLabelFocus] = useState(false);
-  const { name: marketName, id: marketId } = market;
+  const { name: marketName, id: marketId, market_stage: marketStage } = market;
+  const inArchives = marketStage !== ACTIVE_STAGE;
   const labels = getMarketLabels(investiblesState, marketId);
   const investmentReasonsRemoved = investibleComments.filter(comment => comment.comment_type !== JUSTIFY_TYPE) || [];
   const investmentReasons = investibleComments.filter((comment) => {
@@ -478,9 +478,7 @@ function PlanningInvestible(props) {
       link: formMarketArchivesLink(marketId)
     });
   }
-  const breadCrumbs = inArchives
-    ? makeArchiveBreadCrumbs(history, breadCrumbTemplates)
-    : makeBreadCrumbs(history, breadCrumbTemplates);
+  const breadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates);
   function canGetInput() {
     const blockingComments = investibleComments.filter(
       comment => comment.comment_type === ISSUE_TYPE && !comment.resolved

@@ -7,7 +7,6 @@ import {
   baseNavListItem,
   decomposeMarketPath, formMarketArchivesLink,
   formMarketLink,
-  makeArchiveBreadCrumbs,
   makeBreadCrumbs,
 } from '../../utils/marketIdPathFunctions'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
@@ -23,7 +22,6 @@ import { SECTION_TYPE_SECONDARY } from '../../constants/global'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { getMarketPresences, getPresenceMap } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import AssigneeFilterDropdown from './AssigneeFilterDropdown'
-import { ACTIVE_STAGE } from '../../constants/markets'
 import { Grid } from '@material-ui/core'
 import CommentBox, { getSortedRoots } from '../../containers/CommentBox/CommentBox'
 import MarketTodos from '../Dialog/Planning/MarketTodos'
@@ -59,7 +57,6 @@ function DialogArchives(props) {
   const [searchResults] = useContext(SearchResultsContext);
   const [marketInfoList] = useState(undefined);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || []
-  const myPresence = marketPresences.find((presence) => presence.current_user);
   const presenceMap = getPresenceMap(marketPresencesState, marketId);
   const renderableMarket = getMarket(marketsState, marketId) || {};
   const verifiedStage = getVerifiedStage(marketStagesState, marketId) || {};
@@ -86,11 +83,9 @@ function DialogArchives(props) {
     return myInfo && myInfo.assigned && myInfo.assigned.includes(assigneeFilter);
   });
 
-  const { name, market_stage: marketStage } = renderableMarket;
-  const inArchives = marketStage !== ACTIVE_STAGE || (myPresence && !myPresence.following);
+  const { name } = renderableMarket;
   const breadCrumbTemplates = [{ name, link: formMarketLink(marketId), icon: <AgilePlanIcon/> }];
-  const breadCrumbs = inArchives? makeArchiveBreadCrumbs(history, breadCrumbTemplates)
-    : makeBreadCrumbs(history, breadCrumbTemplates);
+  const breadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates);
 
   function onFilterChange(event) {
     const { value } = event.target;

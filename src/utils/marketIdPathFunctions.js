@@ -104,20 +104,6 @@ export function makeBreadCrumbs(history, crumbs = []) {
   });
 }
 
-/**
- * Makes a breadcrumb chain that includes /home/archives
- * @param history
- * @param crumbs
- */
-export function makeArchiveBreadCrumbs(history, crumbs = []) {
-  const archiveCrumb = {
-    name: intl.formatMessage({ id: 'archivesTitle'}),
-    link: '/archives',
-  };
-  const myCrumbs = [archiveCrumb, ...crumbs];
-  return makeBreadCrumbs(history, myCrumbs);
-}
-
 export function baseNavListItem(linkRoot, icon, textId, anchorId, howManyNum, alwaysShow) {
   const text = intl.formatMessage({ id: textId });
   if (howManyNum === 0 && alwaysShow !== true) {

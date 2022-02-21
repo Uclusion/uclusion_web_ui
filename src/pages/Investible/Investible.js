@@ -6,7 +6,6 @@ import Screen from '../../containers/Screen/Screen'
 import {
   decomposeMarketPath,
   formMarketLink,
-  makeArchiveBreadCrumbs,
   makeBreadCrumbs,
 } from '../../utils/marketIdPathFunctions'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
@@ -18,7 +17,6 @@ import { getMarketComments } from '../../contexts/CommentsContext/commentsContex
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import PlanningInvestible from './Planning/PlanningInvestible'
-import { ACTIVE_STAGE } from '../../constants/markets'
 import { pushMessage } from '../../utils/MessageBusUtils'
 import { GUEST_MARKET_EVENT, LOAD_MARKET_CHANNEL } from '../../contexts/MarketsContext/marketsContextMessages'
 
@@ -58,12 +56,8 @@ function Investible(props) {
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
   const loading = !investibleId || _.isEmpty(inv) || _.isEmpty(myPresence) || !userId || _.isEmpty(realMarket)
     || !marketTokenLoaded(marketId, tokensHash);
-  const { market_stage: marketStage } = market;
   const isAdmin = myPresence && myPresence.is_admin;
-  const inArchives = marketStage !== ACTIVE_STAGE || (myPresence && !myPresence.following);
-  const breadCrumbs = inArchives ?
-    makeArchiveBreadCrumbs(history, breadCrumbTemplates) :
-    makeBreadCrumbs(history, breadCrumbTemplates);
+  const breadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates);
 
   useEffect(() => {
     if (!isInitialization && !hidden && marketId && subscribeId) {
@@ -100,7 +94,6 @@ function Investible(props) {
       commentsHash={commentsHash}
       marketPresences={marketPresences}
       investibleComments={investibleComments}
-      inArchives={inArchives}
       isAdmin={isAdmin}
       hidden={hidden}
     />

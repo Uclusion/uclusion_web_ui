@@ -210,7 +210,7 @@ function CommentAdd(props) {
   const {
     marketId, onSave, onCancel, type, investible, parent, issueWarningId, todoWarningId, isStory, nameKey,
     defaultNotificationType, onDone, mentionsAllowed, commentAddState, updateCommentAddState, commentAddStateReset,
-    autoFocus=true, isStandAlone, threadMessages, isInbox
+    autoFocus=true, isStandAlone, threadMessages, nameDifferentiator=''
   } = props;
   const {
     uploadedFiles,
@@ -279,7 +279,7 @@ function CommentAdd(props) {
     }
   }
 
-  const editorName = `${isInbox ? 'inbox' : ''}${nameKey ? nameKey : ''}${parentId ? parentId : investibleId ? investibleId : marketId}-comment-add-editor`
+  const editorName = `${nameDifferentiator}${nameKey ? nameKey : ''}${parentId ? parentId : investibleId ? investibleId : marketId}-comment-add-editor`
   const useBody = getQuillStoredState(editorName)
   //console.debug(`use body is ${useBody} for ${editorName}`);
   const editorSpec = {

@@ -83,6 +83,7 @@ function InvestibleStatus(props) {
           isAssignee={true}
           isStory
           numProgressReport={progressReports.length}
+          nameDifferentiator="inboxStatus"
         />
       )}
       {progressReports.length > 0 && (

@@ -184,7 +184,7 @@ function CommentAddBox(props) {
     isStory,
     isInReview,
     isAssignee,
-    isInbox
+    nameDifferentiator
   } = props;
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
@@ -264,7 +264,7 @@ function CommentAddBox(props) {
           issueWarningId={issueWarningId}
           todoWarningId={todoWarningId}
           isStory={isStory}
-          isInbox={isInbox}
+          nameDifferentiator={nameDifferentiator}
           autoFocus={false}
         />
       </div>

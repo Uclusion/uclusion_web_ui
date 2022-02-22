@@ -315,7 +315,7 @@ function InboxInvestible(props) {
             isAssignee={!_.isEmpty(_.intersection(['ASSIGNED_UNREVIEWABLE', 'UNACCEPTED_ASSIGNMENT'],
               messageTypes))}
             isStory
-            isInbox
+            nameDifferentiator="inboxInvestible"
           />
         </>
       )}

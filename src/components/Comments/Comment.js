@@ -38,7 +38,7 @@ import CardType, { DECISION_TYPE } from '../CardType'
 import { SECTION_TYPE_SECONDARY } from '../../constants/global'
 import {
   addCommentToMarket,
-  getMarketComments,
+  getMarketComments, getUnresolvedInvestibleComments,
   removeComments
 } from '../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
@@ -397,6 +397,7 @@ function Comment(props) {
   // If I resolved a comment then I am done with it and so hide the thread
   const repliesExpanded = noAuthor ? true : (myRepliesExpanded === undefined ?
     (resolved ? myPresence !== updatedBy : true) : myRepliesExpanded);
+  const myMessage = findMessageForCommentId(id, messagesState);
 
   useEffect(() => {
     if (inlineMarketId && !marketsState.initializing && hasInitializedGlobalVersion(versionsContext) &&
@@ -606,11 +607,23 @@ function Comment(props) {
     })
   }
 
-  function resolve () {
+  function resolve() {
     return resolveComment(marketId, id)
       .then((comment) => {
-        addCommentToMarket(comment, commentsState, commentsDispatch)
-        removeMessagesForCommentId(id, messagesState, messagesDispatch, workItemClasses.removed)
+        addCommentToMarket(comment, commentsState, commentsDispatch);
+        let shouldResolveMessages = true;
+        if (myMessage && myMessage.type === 'NEW_TODO') {
+          // IF there is another to-do created in review the notification will come right back
+          const unresolvedComments = getUnresolvedInvestibleComments(investibleId, marketId, commentsState) || [];
+          const unresolvedTodo = unresolvedComments.find((aComment) => {
+            return aComment.id !== id && aComment.comment_type === commentType
+              && aComment.creation_stage_id === createdStageId;
+          })
+          shouldResolveMessages = _.isEmpty(unresolvedTodo);
+        }
+        if (shouldResolveMessages) {
+          removeMessagesForCommentId(id, messagesState, messagesDispatch, workItemClasses.removed);
+        }
         if (inlineMarketId) {
           const inlineInvestibles = getMarketInvestibles(investiblesState, inlineMarketId) || []
           const anInlineMarketInvestibleComments = getMarketComments(commentsState, inlineMarketId) || []
@@ -671,7 +684,6 @@ function Comment(props) {
     return {highlighted, messages};
   }
   const {highlighted, messages} = getHilightedIds(replies);
-  const myMessage = findMessageForCommentId(id, messagesState);
   const diff = getDiff(diffState, id);
   const myHighlightedState = myMessage || {};
   const { level: myHighlightedLevel, is_highlighted: isHighlighted } = myHighlightedState;

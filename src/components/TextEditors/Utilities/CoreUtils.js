@@ -177,7 +177,12 @@ function getDefaultContents (id, knownState, placeHolder, ignoreStored=false) {
 export function createEditor (id, editorContents, config, forceCreate) {
   const { editor: oldEditor, config: oldConfig } = QuillEditorRegistry.getEditor(id);
   if (oldConfig && oldEditor) {
-    if (oldConfig.simple === config.simple && oldConfig.layout === config.layout && !config.noToolbar) {
+    let isNotAutoForce = oldConfig.simple === config.simple && oldConfig.layout === config.layout && !config.noToolbar;
+    if (oldConfig.placeholder !== config.placeholder && _.isEmpty(config.value)
+      && _.isEmpty(getUclusionLocalStorageItem(`editor-${id}`))) {
+      isNotAutoForce = false;
+    }
+    if (isNotAutoForce) {
       // noToolbar is read only and read only must be recreated each time or doesn't render
       if (!forceCreate) {
         return; // already made the editor

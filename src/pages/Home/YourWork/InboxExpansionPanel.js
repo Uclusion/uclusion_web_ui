@@ -3,20 +3,12 @@ import _ from 'lodash'
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
 import InvestibleStatus from './InvestibleStatus'
 import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff'
-import {
-  getInvestible,
-  refreshInvestibles
-} from '../../../contexts/InvestibesContext/investiblesContextHelper'
+import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { getDiff } from '../../../contexts/DiffContext/diffContextHelper'
-import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { getMarketInfo } from '../../../utils/userFunctions'
 import DialogManage from '../../Dialog/DialogManage'
-import { Checkbox, FormControlLabel, Typography } from '@material-ui/core'
-import { updateInvestible } from '../../../api/investibles'
-import { notify, onInvestibleStageChange } from '../../../utils/investibleFunctions'
-import { UNASSIGNED_TYPE, YELLOW_LEVEL } from '../../../constants/notifications'
-import PlanningInvestibleEdit from '../../Investible/Planning/PlanningInvestibleEdit'
-import { removeWorkListItem } from './WorkListItem'
+import { Typography } from '@material-ui/core'
+import { UNASSIGNED_TYPE } from '../../../constants/notifications'
 import LinkMultiplePanel from './LinkMultiplePanel'
 import CommentPanel from './CommentPanel'
 import InboxInvestible from './InboxInvestible'
@@ -24,11 +16,10 @@ import { DaysEstimate } from '../../../components/AgilePlan'
 import AttachedFilesList from '../../../components/Files/AttachedFilesList'
 import Chip from '@material-ui/core/Chip'
 import { editorEmpty } from '../../../components/TextEditors/Utilities/CoreUtils'
+import InvestibleReady from './InvestibleReady'
 
 export function addExpansionPanel(props) {
-  const {item, marketState, investiblesState, investiblesDispatch, diffState,
-    planningClasses, marketPresencesState, marketStagesState, mobileLayout, messagesState,
-    messagesDispatch, operationRunning, setOperationRunning, intl, workItemClasses, isMultiple} = props;
+  const {item, marketState, investiblesState, diffState, planningClasses, mobileLayout, intl, isMultiple} = props;
   const { message } = item;
   const { type: messageType, market_id: marketId, comment_id: commentId, comment_market_id: commentMarketId,
     link_type: linkType, investible_id: investibleId, market_type: marketType, link_multiple: linkMultiple } = message;
@@ -62,56 +53,11 @@ export function addExpansionPanel(props) {
       const marketInfo = getMarketInfo(fullInvestible, marketId) || {};
       const { stage, assigned, open_for_investment: openForInvestment,
         completion_estimate: marketDaysEstimate, } = marketInfo;
-      const marketPresences = getMarketPresences(marketPresencesState, marketId);
-      const myPresence = marketPresences.find((presence) => presence.current_user) || {};
-      const isAdmin = myPresence && myPresence.is_admin;
       item.expansionPanel = (
         <div style={{paddingLeft: '1.25rem', paddingTop: '0.75rem', paddingRight: '1rem', paddingBottom: '0.5rem'}}>
           {openForInvestment && _.isEmpty(assigned) && (
-            <>
-              <PlanningInvestibleEdit
-                fullInvestible={fullInvestible}
-                marketId={marketId}
-                marketPresences={marketPresences}
-                onSave={(result) => {
-                  const { fullInvestible } = result;
-                  refreshInvestibles(investiblesDispatch, () => {}, [fullInvestible]);
-                  removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
-                }}
-                isAdmin={isAdmin}
-                isAssign={true}
-                isReview={false}
-                isApprove={false}
-                isInbox
-              />
-              <div style={{paddingTop: '1.25rem'}} />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    value={openForInvestment}
-                    disabled={operationRunning || !isAdmin}
-                    checked={openForInvestment}
-                    onClick={() => {
-                      const updateInfo = {
-                        marketId,
-                        investibleId,
-                        openForInvestment: true,
-                      };
-                      setOperationRunning(true);
-                      return updateInvestible(updateInfo).then((fullInvestible) => {
-                        onInvestibleStageChange(stage, fullInvestible, investibleId, marketId, undefined,
-                          undefined, investiblesDispatch, () => {}, marketStagesState,
-                          messagesState, messagesDispatch, [UNASSIGNED_TYPE]);
-                        notify(myPresence.id, investibleId, UNASSIGNED_TYPE, YELLOW_LEVEL, investiblesState, market,
-                          messagesDispatch);
-                        setOperationRunning(false);
-                      });
-                    }}
-                  />
-                }
-                label={intl.formatMessage({ id: 'readyToStartCheckboxExplanation' })}
-              />
-            </>
+            <InvestibleReady marketId={marketId} stage={stage} fullInvestible={fullInvestible} message={message}
+                             market={market} investibleId={investibleId} openForInvestment={openForInvestment}/>
           )}
           {!_.isEmpty(description) && !editorEmpty(description) && (
             <div style={{paddingTop: '0.5rem'}}>

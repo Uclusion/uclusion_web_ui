@@ -5,9 +5,8 @@ import { getMarket, getMyUserForMarket } from '../../../contexts/MarketsContext/
 import { getCommentRoot } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { nameFromDescription } from '../../../utils/stringFunctions'
 import { addExpansionPanel } from './InboxExpansionPanel'
-import WorkListItem, { workListStyles } from './WorkListItem'
+import WorkListItem from './WorkListItem'
 import React, { useContext } from 'react'
-import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import { usePlanningInvestibleStyles } from '../../Investible/Planning/PlanningInvestible'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
@@ -15,11 +14,8 @@ import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { Assignment, PersonAddOutlined } from '@material-ui/icons'
 import Quiz from '../../../components/CustomChip/Quiz'
-import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { useIntl } from 'react-intl'
 import { useMediaQuery, useTheme } from '@material-ui/core'
-import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 
 function getPriorityIcon(message, isAssigned) {
   const { level } = message;
@@ -42,15 +38,10 @@ function InboxRow(props) {
     numMultiples } = props;
   const intl = useIntl();
   const theme = useTheme();
-  const workItemClasses = workListStyles();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
-  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
-  const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketState] = useContext(MarketsContext);
-  const [marketPresencesState] = useContext(MarketPresencesContext);
-  const [marketStagesState] = useContext(MarketStagesContext);
   const [commentState] = useContext(CommentsContext);
-  const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
+  const [investiblesState] = useContext(InvestiblesContext);
   const [diffState] = useContext(DiffContext);
   const [marketsState] = useContext(MarketsContext);
   const planningClasses = usePlanningInvestibleStyles();
@@ -86,9 +77,8 @@ function InboxRow(props) {
       }
     }
   }
-  addExpansionPanel({item, commentState, marketState, investiblesState, investiblesDispatch, diffState,
-    planningClasses, marketPresencesState, marketStagesState, marketsState, mobileLayout, messagesState,
-    messagesDispatch, operationRunning, setOperationRunning, intl, workItemClasses, isMultiple});
+  addExpansionPanel({item, commentState, marketState, investiblesState, diffState, planningClasses, marketsState,
+    mobileLayout, intl, isMultiple});
   return <WorkListItem key={typeObjectId} id={typeObjectId} checked={checked} determinateDispatch={determinateDispatch}
                        expansionDispatch={expansionDispatch} expansionOpen={expansionOpen}
                        isMultiple={isMultiple} {...item} />;

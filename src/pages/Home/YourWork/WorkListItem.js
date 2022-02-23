@@ -18,6 +18,11 @@ import { Link } from '@material-ui/core'
 import { useHistory } from 'react-router'
 import RaisedCard from '../../../components/Cards/RaisedCard'
 import { deleteOrDehilightMessages } from '../../../api/users'
+import { pushMessage } from '../../../utils/MessageBusUtils'
+import {
+  DEHIGHLIGHT_EVENT,
+  MODIFY_NOTIFICATIONS_CHANNEL
+} from '../../../contexts/NotificationsContext/notificationsContextMessages'
 
 const Item = styled("div")`
   margin-bottom: 20px;
@@ -171,10 +176,6 @@ function WorkListItem(props) {
     preventDefaultAndProp(event);
     return deleteOrDehilightMessages(getAllMessages(), messagesDispatch, classes.removed);
   };
-  const archiveActionButtonOnclick = (event) => {
-    preventDefaultAndProp(event);
-    return deleteOrDehilightMessages(getAllMessages(), messagesDispatch, classes.removed);
-  };
   const useLink = isMultiple ? linkMultiple : link;
   return (
     <Item key={`workListItem${id}`} id={`workListItem${id}`}>
@@ -184,6 +185,10 @@ function WorkListItem(props) {
             preventDefaultAndProp(event);
             if (expansionPanel) {
               expansionDispatch({ id });
+              if (useSelect && !read) {
+                pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: DEHIGHLIGHT_EVENT,
+                  messages: getAllMessages() });
+              }
             } else {
               return navigate(history, useLink);
             }
@@ -207,7 +212,7 @@ function WorkListItem(props) {
               {useSelect && (
                 <StyledIconButton
                   classes={actionStyles}
-                  onClick={isDeletable ? deleteActionButtonOnclick : (read ? undefined : archiveActionButtonOnclick)}
+                  onClick={isDeletable ? deleteActionButtonOnclick : undefined}
                 >
                   { isDeletable ? <DeleteForever /> : (read ? <div /> : <ArchiveIcon />) }
                 </StyledIconButton>
@@ -215,10 +220,6 @@ function WorkListItem(props) {
               <StyledIconButton
                 classes={actionStyles}
                 style={{marginLeft: useSelect ? undefined : '0.5rem'}}
-                onClick={(event) => {
-                  preventDefaultAndProp(event);
-                  expansionDispatch({id});
-                }}
               >
                 { expansionPanel ? (expansionOpen ? <ExpandLess /> : <ExpandMoreIcon />) : <div /> }
               </StyledIconButton>

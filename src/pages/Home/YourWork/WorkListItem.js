@@ -237,6 +237,10 @@ function WorkListItem(props) {
             <Link href={useLink} style={{ width: '100%' }} key={`linkThrough${id}`} onClick={
               (event) => {
                 preventDefaultAndProp(event);
+                if (useSelect && !read) {
+                  pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: DEHIGHLIGHT_EVENT,
+                    messages: getAllMessages() });
+                }
                 return navigate(history, useLink);
               }
             }>

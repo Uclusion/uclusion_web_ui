@@ -182,7 +182,11 @@ function WorkListItem(props) {
         <Link href={useLink} style={{ width: '100%' }} key={`link${id}`} onClick={
           (event) => {
             preventDefaultAndProp(event);
-            return navigate(history, useLink);
+            if (expansionPanel) {
+              expansionDispatch({ id });
+            } else {
+              return navigate(history, useLink);
+            }
           }
         }>
           <Div className={cx(read && 'MailListItem-read')}>
@@ -229,7 +233,14 @@ function WorkListItem(props) {
             </Box>
             {read ? (<Title>{title}</Title>) : (<TitleB>{title}</TitleB>)}
             {mobileLayout || !people ? React.Fragment : <GravatarGroup users={people} className={classes.gravatarStyle}/> }
-            <Text>{fullText}</Text>
+            <Link href={useLink} style={{ width: '100%' }} key={`linkThrough${id}`} onClick={
+              (event) => {
+                preventDefaultAndProp(event);
+                return navigate(history, useLink);
+              }
+            }>
+              <Text>{fullText}</Text>
+            </Link>
             {mobileLayout ||!date ? React.Fragment : (read ? (<DateLabel>{date}</DateLabel>) : (<DateLabelB>{date}</DateLabelB>))}
           </Div>
         </Link>

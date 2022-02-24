@@ -76,10 +76,11 @@ export function getSortedRoots(allComments, searchResults) {
 
 function CommentBox(props) {
   const { comments, marketId, allowedTypes, isInbox, isRequiresInput, isInBlocking, assigned, formerStageId,
-    fullStage } = props;
+    fullStage, stage } = props;
   const [marketStagesState] = useContext(MarketStagesContext);
   const [searchResults] = useContext(SearchResultsContext);
   const sortedRoots = getSortedRoots(comments, searchResults);
+  const useFullStage = _.isEmpty(fullStage) && stage ? getFullStage(marketStagesState, marketId, stage) : fullStage;
   function getFormerStageId() {
     if (!formerStageId) {
       return formerStageId;
@@ -105,7 +106,7 @@ function CommentBox(props) {
           <div id={`c${id}`} style={{paddingBottom: '1.25rem'}}>
             <Comment
               resolvedStageId={resolvedStageId}
-              stagePreventsActions={fullStage.close_comments_on_entrance}
+              stagePreventsActions={useFullStage.close_comments_on_entrance}
               depth={0}
               marketId={marketId}
               comment={comment}

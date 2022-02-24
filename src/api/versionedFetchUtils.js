@@ -179,8 +179,10 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets) {
         || _.isEmpty(global_version)) {
         return currentHeldVersion;
       }
-      // We are doing something so start blinking
-      pushMessage(OPERATION_HUB_CHANNEL, { event: START_OPERATION });
+      if (_.isEmpty(callWithVersion)) {
+        // If they already have a version then no point in freezing operations - just do background
+        pushMessage(OPERATION_HUB_CHANNEL, { event: START_OPERATION });
+      }
       // don't refresh market's we're banned from
       if (!_.isEmpty(bannedList)) {
         pushMessage(REMOVED_MARKETS_CHANNEL, { event: BANNED_LIST, bannedList });
@@ -191,7 +193,9 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets) {
      const marketPromises = updateMarkets(inlineList, existingMarkets, MAX_CONCURRENT_API_CALLS)
        .then(() => updateMarkets(foregroundList, existingMarkets, MAX_CONCURRENT_API_CALLS))
        .then(() => {
-          pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION });
+         if (_.isEmpty(callWithVersion)) {
+           pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION });
+         }
           return updateMarkets(backgroundList, existingMarkets, MAX_CONCURRENT_ARCHIVE_API_CALLS)
             .then(() => {
               return newGlobalVersion;

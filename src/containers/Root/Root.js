@@ -128,7 +128,7 @@ function Root() {
       window.myListenerMarker = true;
       console.info('Reloading from versions API');
       // A push could have been missed and then have to rely on the user to refresh
-      refreshVersions(true).then(() => console.info('Refreshing from root'));
+      refreshVersions().then(() => console.info('Refreshing from root'));
       refreshNotifications();
       // console.debug('Adding listeners');
       window.addEventListener('load', () => {

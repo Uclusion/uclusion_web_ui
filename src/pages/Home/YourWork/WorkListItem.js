@@ -68,6 +68,12 @@ const Text = styled("div")`
   }
 `;
 
+const Description = styled(Text)`
+  &:hover {
+    font-weight: bold;
+  }
+`;
+
 const Title = styled(Text)`
   flex-basis: 280px;
   flex-shrink: 0;
@@ -180,7 +186,7 @@ function WorkListItem(props) {
   return (
     <Item key={`workListItem${id}`} id={`workListItem${id}`}>
       <RaisedCard elevation={3} noPadding>
-        <Link href={useLink} style={{ width: '100%' }} key={`link${id}`} onClick={
+        <Link underline='none' href={useLink} style={{ width: '100%' }} key={`link${id}`} onClick={
           (event) => {
             preventDefaultAndProp(event);
             if (expansionPanel) {
@@ -234,7 +240,7 @@ function WorkListItem(props) {
             </Box>
             {read ? (<Title>{title}</Title>) : (<TitleB>{title}</TitleB>)}
             {mobileLayout || !people ? React.Fragment : <GravatarGroup users={people} className={classes.gravatarStyle}/> }
-            <Link href={useLink} style={{ width: '100%' }} key={`linkThrough${id}`} onClick={
+            <Link underline='always' href={useLink} style={{ width: '100%' }} key={`linkThrough${id}`} onClick={
               (event) => {
                 preventDefaultAndProp(event);
                 if (useSelect && !read) {
@@ -244,7 +250,7 @@ function WorkListItem(props) {
                 return navigate(history, useLink);
               }
             }>
-              <Text>{fullText}</Text>
+              <Description>{fullText}</Description>
             </Link>
             {mobileLayout ||!date ? React.Fragment : (read ? (<DateLabel>{date}</DateLabel>) : (<DateLabelB>{date}</DateLabelB>))}
           </Div>

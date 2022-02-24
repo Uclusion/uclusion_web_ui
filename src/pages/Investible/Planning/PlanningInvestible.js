@@ -353,6 +353,24 @@ export const usePlanningInvestibleStyles = makeStyles(
   { name: "PlanningInvestible" }
 );
 
+export function commonSetBeingEdited(event, isEdit, lockedBy, userId, isEditableByUser, updatePageState, investibleId,
+  name, history, marketId) {
+  if (!isEdit || lockedBy === userId || !_.isEmpty(lockedBy)) {
+    // Either don't lock or throw the modal up - both of which InvestibleBodyEdit can handle
+    return doSetEditWhenValid(isEdit, isEditableByUser,
+      (value) => {
+        updatePageState({beingEdited: value});
+        setUclusionLocalStorageItem(`name-editor-${investibleId}`, name);
+      }, event, history);
+  }
+  if (!isEditableByUser() || invalidEditEvent(event, history)) {
+    return;
+  }
+  updatePageState({beingEdited: true});
+  setUclusionLocalStorageItem(`name-editor-${investibleId}`, name);
+  return pushMessage(LOCK_INVESTIBLE_CHANNEL, { event: LOCK_INVESTIBLE, marketId, investibleId });
+}
+
 export function getCollaborators(marketPresences, investibleComments, marketPresencesState, investibleId) {
   const investibleCommentorPresences = getCommenterPresences(marketPresences, investibleComments, marketPresencesState);
   const voters = getInvestibleVoters(marketPresences, investibleId);
@@ -714,20 +732,8 @@ function PlanningInvestible(props) {
   }
 
   function mySetBeingEdited(isEdit, event) {
-    if (!isEdit || lockedBy === userId || !_.isEmpty(lockedBy)) {
-      // Either don't lock or throw the modal up - both of which InvestibleBodyEdit can handle
-      return doSetEditWhenValid(isEdit, isEditableByUser,
-        (value) => {
-          updatePageState({beingEdited: value});
-          setUclusionLocalStorageItem(`name-editor-${investibleId}`, name);
-        }, event, history);
-    }
-    if (!isEditableByUser() || invalidEditEvent(event, history)) {
-      return;
-    }
-    updatePageState({beingEdited: true});
-    setUclusionLocalStorageItem(`name-editor-${investibleId}`, name);
-    return pushMessage(LOCK_INVESTIBLE_CHANNEL, { event: LOCK_INVESTIBLE, marketId, investibleId });
+    return commonSetBeingEdited(event, isEdit, lockedBy, userId, isEditableByUser, updatePageState, investibleId,
+      name, history, marketId);
   }
   function toggleReviewers() {
     updatePageState({editCollaborators: 'review'});

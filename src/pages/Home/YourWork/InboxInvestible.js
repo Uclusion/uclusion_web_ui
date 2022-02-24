@@ -23,7 +23,7 @@ import { getMarket, getMyUserForMarket } from '../../../contexts/MarketsContext/
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import {
   accept,
-  Assignments,
+  Assignments, commonSetBeingEdited,
   getCollaborators,
   rejectInvestible,
   useMetaDataStyles
@@ -34,7 +34,6 @@ import { PLANNING_TYPE } from '../../../constants/markets'
 import { DaysEstimate } from '../../../components/AgilePlan'
 import InputLabel from '@material-ui/core/InputLabel'
 import MoveToNextVisibleStageActionButton from '../../Investible/Planning/MoveToNextVisibleStageActionButton'
-import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff'
 import Voting from '../../Investible/Decision/Voting'
 import YourVoting from '../../Investible/Voting/YourVoting'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
@@ -52,11 +51,15 @@ import SpinningButton from '../../../components/SpinBlocking/SpinningButton'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { workListStyles } from './WorkListItem'
+import InvestibleBodyEdit from '../../Investible/InvestibleBodyEdit'
+import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
+import { useHistory } from 'react-router'
 
 
 function InboxInvestible(props) {
   const { marketId, marketType, planningClasses, messageTypes, investibleId, mobileLayout, isOutbox,
     messagesFull } = props;
+  const history = useHistory();
   const intl = useIntl();
   const workItemClasses = workListStyles();
   const classes = useMetaDataStyles();
@@ -80,7 +83,8 @@ function InboxInvestible(props) {
     investibleId);
   const inv = getInvestible(investiblesState, investibleId) || {};
   const { investible: myInvestible } = inv;
-  const { name, description, label_list: labelList, attached_files: attachedFiles } = myInvestible || {};
+  const { name, locked_by: lockedBy, description, label_list: labelList,
+    attached_files: attachedFiles } = myInvestible || {};
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { stage, assigned: invAssigned, completion_estimate: marketDaysEstimate, required_approvers:  requiredApprovers,
     required_reviews: requiredReviewers, accepted } = marketInfo;
@@ -106,6 +110,20 @@ function InboxInvestible(props) {
   const assignedNotAccepted = assigned.filter((assignee) => !(accepted || []).includes(assignee));
   const diff = getDiff(diffState, investibleId);
   const unacceptedAssignment = findMessageOfType('UNACCEPTED_ASSIGNMENT', investibleId, messagesState);
+  const [pageStateFull, pageDispatch] = usePageStateReducer('inboxInvestible');
+  const showDiff = diff !== undefined && messageTypes.includes('UNREAD_DESCRIPTION');
+  const [pageState, updatePageState, pageStateReset] = getPageReducerPage(pageStateFull, pageDispatch, investibleId,
+    {showDiff});
+  const {
+    beingEdited,
+  } = pageState;
+  const isAdmin = yourPresence && yourPresence.is_admin;
+  const isAssigned = assigned.includes(userId);
+  const displayEdit = isAdmin && (isAssigned || isInVoting);
+
+  function isEditableByUser() {
+    return displayEdit;
+  }
 
   function myAccept() {
     return accept(market.id, investibleId, inv, setOperationRunning, invDispatch, diffDispatch,
@@ -115,6 +133,11 @@ function InboxInvestible(props) {
   function myRejectInvestible() {
     return rejectInvestible(market.id, investibleId, inv, commentState, commentsDispatch,
       setOperationRunning, invDispatch, diffDispatch, marketStagesState, messagesState, messagesDispatch);
+  }
+
+  function mySetBeingEdited(isEdit, event) {
+    return commonSetBeingEdited(event, isEdit, lockedBy, userId, isEditableByUser, updatePageState, investibleId,
+      name, history, marketId);
   }
 
   return (
@@ -240,8 +263,16 @@ function InboxInvestible(props) {
       )}
       {!_.isEmpty(description) && !editorEmpty(description) && (
         <div style={{paddingTop: '1rem'}}>
-          <DescriptionOrDiff id={investibleId} description={description}
-                             showDiff={diff !== undefined && messageTypes.includes('UNREAD_DESCRIPTION')}/>
+          <InvestibleBodyEdit
+            marketId={marketId}
+            userId={userId}
+            investibleId={investibleId}
+            pageState={pageState}
+            pageStateUpdate={updatePageState}
+            pageStateReset={pageStateReset}
+            fullInvestible={inv}
+            setBeingEdited={mySetBeingEdited} beingEdited={beingEdited}
+            isEditableByUser={isEditableByUser}/>
         </div>
       )}
       {messageTypes.includes('UNREAD_NAME') && (

@@ -1370,11 +1370,12 @@ export function rejectInvestible(marketId, investibleId, marketInvestible, comme
   const furtherWorkStage = getFurtherWorkStage(marketStagesState, marketId);
   const marketInfo = getMarketInfo(marketInvestible, marketId);
   const moveInfo = {
-    marketId: marketId,
+    marketId,
     investibleId,
     stageInfo: {
       current_stage_id: marketInfo.stage,
       stage_id: furtherWorkStage.id,
+      open_for_investment: true
     },
   };
   return stageChangeInvestible(moveInfo)

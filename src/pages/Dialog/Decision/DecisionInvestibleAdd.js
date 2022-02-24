@@ -42,7 +42,7 @@ function DecisionInvestibleAdd(props) {
   const {
     uploadedFiles,
   } = pageState;
-  const nameId = `investibleAdd${marketId}`;
+  const nameId = `investibleAdd${marketId || parentCommentId}`;
   const intl = useIntl();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
@@ -58,7 +58,7 @@ function DecisionInvestibleAdd(props) {
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [openIssue, setOpenIssue] = useState(false);
 
-  const editorName = `${marketId}-newInvestible`;
+  const editorName = `${marketId || parentCommentId}-newInvestible`;
   const editorSpec = {
     onUpload: (files) => pageStateUpdate({uploadedFiles: files}),
     marketId,

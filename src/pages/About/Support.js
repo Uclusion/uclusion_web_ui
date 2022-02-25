@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useHistory } from 'react-router'
 import PropTypes from 'prop-types'
-import { Card, Grid, Link, makeStyles, Paper, Typography } from '@material-ui/core'
+import { Card, Grid, Link, ListItem, makeStyles, Paper, Typography } from '@material-ui/core'
 import { FormattedMessage, useIntl } from 'react-intl'
 import Screen from '../../containers/Screen/Screen'
 import config from '../../config'
@@ -16,11 +16,18 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(2),
   },
   section: {
+    width: '100%',
     padding: theme.spacing(2),
     marginBottom: theme.spacing(2),
     '&:last-child': {
       marginBottom: 0,
     },
+  },
+  container: {
+    maxWidth: '600px',
+    display: 'block',
+    marginLeft: 'auto',
+    marginRight: 'auto',
   },
   row: {
     display: 'flex',
@@ -39,39 +46,11 @@ const useStyles = makeStyles((theme) => ({
       minWidth: 50
     },
   },
-  embed: {
-    marginRight: 3,
-  },
   value: {
     [theme.breakpoints.down('sm')]: {
       fontSize: '0.75rem'
     },
   },
-  action: {
-    boxShadow: "none",
-    padding: "4px 16px",
-    textTransform: "none",
-    "&:hover": {
-      boxShadow: "none"
-    }
-  },
-  actionPrimary: {
-    backgroundColor: "#2D9CDB",
-    color: "white",
-    "&:hover": {
-      backgroundColor: "#2D9CDB"
-    }
-  },
-  actionSecondary: {
-    backgroundColor: "#BDBDBD",
-    color: "black",
-    "&:hover": {
-      backgroundColor: "#BDBDBD"
-    }
-  },
-  topMargin: {
-    marginTop: '1rem'
-  }
 }));
 
 function Support(props) {
@@ -107,28 +86,64 @@ function Support(props) {
       breadCrumbs={breadCrumbs}
       loading={!externalId}
     >
-      <Grid container spacing={3}>
-        <Grid item md={3} xs={12} />
-        <Grid item md={5} xs={12}>
-          <Card>
-            <SubSection
-              title="Bugs"
-              padChildren
+      <div className={classes.container}>
+        <Card>
+          <SubSection
+            title="Features and Help"
+            padChildren
+          >
+            <Grid
+              container
+              direction="row"
+              justify="center"
+              alignItems="baseline"
+              style={{ paddingBottom: '0' }}
             >
-              <Paper className={classes.section}>
-                <Typography className={classes.row}>
-                  <span className={classes.label}>{intl.formatMessage({ id: 'aboutApplicationVersionLabel' })}</span>
-                  <span className={classes.value}>{version}</span>
+              <ListItem key="supportFeatureInfoText">
+                <Typography variant="body2">
+                  <FormattedMessage
+                    id="supportFeatureInfoText"
+                  />
                 </Typography>
-              </Paper>
-              <Paper className={classes.section}>
-                <Typography className={classes.row}>
-                  <span className={classes.label}>{intl.formatMessage({ id: 'aboutUserIdLabel' })}</span>
-                  <span className={classes.value}>{externalId}</span>
-                </Typography>
-              </Paper>
-              <Paper className={classes.section}>
-                <Typography className={classes.embed}>
+              </ListItem>
+              <ListItem key="onboarding">
+                <OnboardingWorkspace user={user} />
+              </ListItem>
+            </Grid>
+          </SubSection>
+        </Card>
+      </div>
+      <div className={classes.container} style={{marginTop: '3rem'}}>
+        <Card>
+          <SubSection
+            title="Bugs"
+            padChildren
+          >
+            <Grid
+              container
+              direction="row"
+              justify="center"
+              alignItems="baseline"
+              style={{ paddingBottom: '0' }}
+            >
+              <ListItem key="version">
+                <Paper className={classes.section}>
+                  <Typography className={classes.row}>
+                    <span className={classes.label}>{intl.formatMessage({ id: 'aboutApplicationVersionLabel' })}</span>
+                    <span className={classes.value}>{version}</span>
+                  </Typography>
+                </Paper>
+              </ListItem>
+              <ListItem key="id">
+                <Paper className={classes.section}>
+                  <Typography className={classes.row}>
+                    <span className={classes.label}>{intl.formatMessage({ id: 'aboutUserIdLabel' })}</span>
+                    <span className={classes.value}>{externalId}</span>
+                  </Typography>
+                </Paper>
+              </ListItem>
+              <ListItem key="supportInfoText">
+                <Typography variant="body2" style={{marginTop: '1.5rem'}}>
                   <FormattedMessage
                     id="supportInfoText"
                     values={{
@@ -141,31 +156,11 @@ function Support(props) {
                     }}
                   />
                 </Typography>
-              </Paper>
-            </SubSection>
-          </Card>
-        </Grid>
-      </Grid>
-      <Grid container spacing={3}>
-        <Grid item md={3} xs={12} />
-        <Grid item md={5} xs={12}>
-          <Card>
-            <SubSection
-              title="Features and Help"
-              padChildren
-            >
-              <Paper className={classes.section}>
-                <Typography className={classes.embed} style={{paddingBottom: '2rem'}}>
-                  <FormattedMessage
-                    id="supportFeatureInfoText"
-                  />
-                </Typography>
-                <OnboardingWorkspace user={user} />
-              </Paper>
-            </SubSection>
-          </Card>
-        </Grid>
-      </Grid>
+              </ListItem>
+            </Grid>
+          </SubSection>
+        </Card>
+      </div>
     </Screen>
   );
 }

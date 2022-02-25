@@ -162,7 +162,7 @@ const messages = defineMessages({
   supportFeatureInfoText: 'For feature requests and general help use this button to create a channel with Uclusion support as a collaborator.',
   featureRequest: 'Feature Request',
   createFeatureRequest: 'Create feature request',
-  createOnboardingWorkspace: 'Get Support Help',
+  createOnboardingWorkspace: 'Support Help',
   // Loadable Image
   loadableImageAlt: 'User provided image',
 

@@ -4,7 +4,6 @@ import { useIntl } from 'react-intl'
 import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions'
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton'
 import { addParticipants } from '../../api/users'
-import clsx from 'clsx'
 import { makeStyles } from '@material-ui/core'
 import PropTypes from 'prop-types'
 import { getRandomSupportUser } from '../../utils/userFunctions'
@@ -22,21 +21,18 @@ const useStyles = makeStyles((theme) => ({
   disabled: {
     color: theme.palette.text.disabled,
   },
-  action: {
-    boxShadow: 'none',
-    padding: '4px 16px',
-    textTransform: 'none',
-    "&:hover": {
-      boxShadow: "none"
+  actionPrimary: {
+    backgroundColor: '#2D9CDB',
+    color: 'white',
+    textTransform: 'unset',
+    '&:hover': {
+      backgroundColor: '#e0e0e0'
+    },
+    '&:disabled': {
+      color: 'white',
+      backgroundColor: 'rgba(45, 156, 219, .6)'
     }
   },
-  actionPrimary: {
-    backgroundColor: "#2D9CDB",
-    color: "white",
-    "&:hover": {
-      backgroundColor: "#2D9CDB"
-    }
-  }
 }));
 
 function OnboardingWorkspace(props) {
@@ -76,24 +72,19 @@ function OnboardingWorkspace(props) {
   }
 
   return (
-    <div>
-      <SpinBlockingButton
-        marketId=""
-        variant="contained"
-        color="primary"
-        onClick={handleSave}
-        disabled={!user}
-        hasSpinChecker
-        onSpinStop={onDone}
-        fullWidth={true}
-        className={ clsx(
-          classes.action,
-          classes.actionPrimary
-        )}
-      >
-        {intl.formatMessage({ id: 'createOnboardingWorkspace' })}
-      </SpinBlockingButton>
-    </div>
+    <SpinBlockingButton
+      marketId=""
+      variant="contained"
+      color="primary"
+      onClick={handleSave}
+      disabled={!user}
+      hasSpinChecker
+      onSpinStop={onDone}
+      fullWidth={true}
+      className={classes.actionPrimary}
+    >
+      {intl.formatMessage({ id: 'createOnboardingWorkspace' })}
+    </SpinBlockingButton>
   );
 }
 

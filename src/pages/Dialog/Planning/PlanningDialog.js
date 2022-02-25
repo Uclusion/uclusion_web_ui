@@ -189,19 +189,19 @@ function PlanningDialog(props) {
 
   useEffect(() => {
     if (hash) {
-      if (hash.includes('workspaceMain')) {
-        if (sectionOpen !== 'workspaceMain') {
+      if (sectionOpen !== 'workspaceMain') {
+        if (hash.includes('workspaceMain')) {
           updatePageState({ sectionOpen: 'workspaceMain' })
-        }
-      } else if (sectionOpen !== 'discussionSection') {
-        const unResolvedMarketComments = comments.filter(comment => !comment.investible_id && !comment.resolved) || []
-        // There is no link to a reply so including them should be okay
-        const notTodoComments = unResolvedMarketComments.filter(comment =>
-          [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE, REPLY_TYPE].includes(comment.comment_type)) || []
-        const noTodoCommentIds = getThreadIds(notTodoComments, comments)
-        const foundCommentId = noTodoCommentIds.find((anId) => hash.includes(anId))
-        if (foundCommentId) {
-          updatePageState({ sectionOpen: 'discussionSection' });
+        } else {
+          const unResolvedMarketComments = comments.filter(comment => !comment.investible_id && !comment.resolved) || []
+          // There is no link to a reply so including them should be okay
+          const notTodoComments = unResolvedMarketComments.filter(comment =>
+            [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE, REPLY_TYPE].includes(comment.comment_type)) || []
+          const noTodoCommentIds = getThreadIds(notTodoComments, comments)
+          const foundCommentId = noTodoCommentIds.find((anId) => hash.includes(anId))
+          if (foundCommentId) {
+            updatePageState({ sectionOpen: 'workspaceMain' });
+          }
         }
       }
     }
@@ -257,11 +257,13 @@ function PlanningDialog(props) {
   const archivedSize = _.size(archiveInvestibles) + _.size(resolvedMarketComments);
   const navListItemTextArrayBeg = [
     {icon: Inbox, text: intl.formatMessage({ id: 'inbox' }), target: '/inbox', newPage: true},
-    createNavListItem(EditIcon, 'planningDialogNavDetailsLabel', 'workspaceMain',
-      _.isEmpty(search) ? undefined : (results.find((result) => result.id === marketId) ? 1 : 0),
-      true, isSectionBold('workspaceMain'), !_.isEmpty(search)),
     createNavListItem(AddIcon, 'dialogAddParticipantsLabel', 'addCollaboratorSection',
       undefined, false, isSectionBold('addCollaboratorSection'), !_.isEmpty(search)),
+    createNavListItem(QuestionIcon, 'planningDialogNavDiscussionLabel', 'workspaceMain',
+      _.isEmpty(search) ? undefined :
+        (results.find((result) => result.id === marketId) ? 1 : 0) + _.size(questions) + _.size(suggestions)
+        + _.size(reports),
+      true, isSectionBold('workspaceMain'), !_.isEmpty(search)),
     createNavListItem(AddIcon, 'addStoryLabel', 'addStorySection',
       undefined, false, isSectionBold('addStorySection'), !_.isEmpty(search))
   ];
@@ -272,9 +274,6 @@ function PlanningDialog(props) {
       true, isSectionBold('storiesSection'), !_.isEmpty(search)),
     createNavListItem(ListAltIcon, 'todoSection', 'marketTodos', _.size(todoComments),
       !inArchives && _.isEmpty(search), isSectionBold('marketTodos'), !_.isEmpty(search)),
-    createNavListItem(QuestionIcon, 'planningDialogNavDiscussionLabel', 'discussionSection',
-      _.size(questions) + _.size(suggestions) + _.size(reports),
-      true, isSectionBold('discussionSection'), !_.isEmpty(search)),
     {
       icon: MenuBookIcon, text: intl.formatMessage({ id: 'planningDialogViewArchivesLabel' }),
       target: archivedSize > 0 ? formMarketArchivesLink(marketId) : undefined,
@@ -321,13 +320,28 @@ function PlanningDialog(props) {
       />
       <div id="workspaceMain" style={{ display: isSectionOpen('workspaceMain') ? 'block' : 'none' }}>
         <h2>
-          <FormattedMessage id="planningDialogNavDetailsLabel" />
+          <FormattedMessage id="planningDialogNavDiscussionLabel" />
         </h2>
         {(_.isEmpty(search) || results.find((item) => item.id === marketId)) && (
           <Summary market={market} hidden={hidden} activeMarket={activeMarket} inArchives={inArchives}
                    pageState={pageState} updatePageState={updatePageState} pageStateReset={pageStateReset}
                    isDraft={isDraft}/>
         )}
+        <Grid item id="commentAddArea" xs={12} style={{marginTop: '2rem'}}>
+          <DismissableText textId="workspaceCommentHelp" text={
+            <div>
+              <Link href="https://documentation.uclusion.com/structured-comments" target="_blank">Comments</Link> can
+              be used at the channel level and later moved to a job.
+            </div>
+          }/>
+          {!inArchives && _.isEmpty(search) && marketId && !hidden && (
+            <CommentAddBox
+              allowedTypes={allowedCommentTypes}
+              marketId={marketId}
+            />
+          )}
+          <CommentBox comments={notTodoComments} marketId={marketId} allowedTypes={allowedCommentTypes}/>
+        </Grid>
       </div>
       <div id="addCollaboratorSection">
         {!hidden && marketId && isSectionOpen('addCollaboratorSection') && _.isEmpty(search) && (
@@ -538,27 +552,6 @@ function PlanningDialog(props) {
                      sectionOpen={isSectionOpen('marketTodos')}
                      setSectionOpen={setSectionOpen} market={market} userId={myPresence.id}/>
       </LocalPlanningDragContext.Provider>
-      <Grid container spacing={2} id="discussionSection"
-            style={{ display: isSectionOpen('discussionSection') ? 'block' : 'none' }}>
-        <h2>
-          <FormattedMessage id="planningDialogNavDiscussionLabel" />
-        </h2>
-        <Grid item id="commentAddArea" xs={12}>
-          {!inArchives && _.isEmpty(search) && marketId && !hidden && (
-            <CommentAddBox
-              allowedTypes={allowedCommentTypes}
-              marketId={marketId}
-            />
-          )}
-          <DismissableText textId="workspaceCommentHelp" text={
-            <div>
-              <Link href="https://documentation.uclusion.com/structured-comments" target="_blank">Comments</Link> can
-              be used at the channel level and later moved to a job.
-            </div>
-          }/>
-          <CommentBox comments={notTodoComments} marketId={marketId} allowedTypes={allowedCommentTypes}/>
-        </Grid>
-      </Grid>
       <Grid container spacing={2} id="settingsSection">
         {!hidden && !_.isEmpty(acceptedStage) && !_.isEmpty(inVerifiedStage) &&
           isSectionOpen('settingsSection') && _.isEmpty(search) && !mobileLayout && (

@@ -64,7 +64,6 @@ import AddIcon from '@material-ui/icons/Add'
 import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
 import { workspaceInvitedUserSteps } from '../../../components/Tours/InviteTours/workspaceInvitedUser';
 import ListAltIcon from '@material-ui/icons/ListAlt'
-import EditIcon from '@material-ui/icons/Edit'
 import QuestionIcon from '@material-ui/icons/ContactSupport'
 import MenuBookIcon from '@material-ui/icons/MenuBook'
 import Chip from '@material-ui/core/Chip'

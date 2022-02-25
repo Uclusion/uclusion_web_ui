@@ -30,7 +30,7 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
 
 function AddNewUsers (props) {
-  const { market } = props;
+  const { market, isInbox } = props;
   const { id: addToMarketId, market_type: marketType, invite_capability: marketToken } = market;
   const classes = usePlanFormStyles();
   const intl = useIntl();
@@ -176,6 +176,7 @@ function AddNewUsers (props) {
   }
 
   const displayNames = filteredNames || participants || [];
+  const emailInputId = isInbox ? 'inboxEmail1' : 'email1';
   return (
     <>
       {displayNames.length > 0 &&
@@ -277,8 +278,8 @@ function AddNewUsers (props) {
               <TextField
                 className={classes.input}
                 variant="standard"
-                id="email1"
-                name="email1"
+                id={emailInputId}
+                name={emailInputId}
                 fullWidth
                 label={intl.formatMessage({ id: 'searchParticipantsPlaceholder' })}
                 value={email1}

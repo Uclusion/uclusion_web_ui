@@ -7,14 +7,14 @@ import AddNewUsers from './AddNewUsers'
 
 function ManageUsers (props) {
   const {
-    market
+    market, isInbox
   } = props;
   const classes = usePlanFormStyles();
 
   return (
     <>
       <CardContent className={clsx(classes.cardContent, classes.nestedCard)} style={{paddingBottom: '1rem'}}>
-        <AddNewUsers market={market} />
+        <AddNewUsers market={market} isInbox={isInbox} />
       </CardContent>
     </>
   );

@@ -33,6 +33,7 @@ function DialogManage(props) {
     return (
       <ManageUsers
         market={renderableMarket}
+        isInbox
       />
     );
   }

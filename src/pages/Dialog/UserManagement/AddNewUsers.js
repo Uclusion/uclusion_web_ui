@@ -39,7 +39,7 @@ function AddNewUsers (props) {
   const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const [email1, setEmail1] = useState(undefined);
+  const [email1, setEmail1] = useState('');
 
   function handleEmail1 (event) {
     const { value } = event.target;

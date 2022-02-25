@@ -177,6 +177,8 @@ function AddNewUsers (props) {
 
   const displayNames = filteredNames || participants || [];
   const emailInputId = isInbox ? 'inboxEmail1' : 'email1';
+  const emailInputButtonId = isInbox ? 'inboxAddressSaveButton' : 'addressAddSaveButton';
+  const emailsSentId = isInbox ? 'inboxEmailsSentList' : 'emailsSentList';
   return (
     <>
       {displayNames.length > 0 &&
@@ -249,7 +251,7 @@ function AddNewUsers (props) {
             <ListItem>
               <List
                 dense
-                id="emailsSentList"
+                id={emailsSentId}
               >
                 {emailsSent.map((entry) => {
                   return (
@@ -288,7 +290,7 @@ function AddNewUsers (props) {
             </ListItemText>
           </ListItem>
           <ListItem id="emailButtons" key="emailButtons" className={clsx(classes.rightAlign, classes.listItem)}>
-            <SpinningIconLabelButton onClick={handleSaveEmails} icon={Email} id="addressAddSaveButton"
+            <SpinningIconLabelButton onClick={handleSaveEmails} icon={Email} id={emailInputButtonId}
                                      disabled={_.isEmpty(email1)} allowOtherOperations={true}>
               {intl.formatMessage({ id: 'addressAddSaveLabel' })}
             </SpinningIconLabelButton>

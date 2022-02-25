@@ -17,7 +17,6 @@ import SlackInvite from '../../pages/Invites/SlackInvite'
 import ChangePassword from '../../pages/Authentication/ChangePassword'
 import ChangeNotificationPreferences from '../../pages/About/ChangeNotificationPreferences'
 import BillingHome from '../../pages/Payments/BillingHome'
-import { refreshNotifications, refreshVersions } from '../../contexts/VersionsContext/versionsContextHelper'
 import { registerMarketTokenListeners } from '../../authorization/tokenUtils';
 import Wizard from '../../pages/Home/Wizard'
 import InboxFull from '../../pages/Home/YourWork/InboxFull'
@@ -126,10 +125,6 @@ function Root() {
 
     if (!window.myListenerMarker) {
       window.myListenerMarker = true;
-      console.info('Reloading from versions API');
-      // A push could have been missed and then have to rely on the user to refresh
-      refreshVersions().then(() => console.info('Refreshing from root'));
-      refreshNotifications();
       // console.debug('Adding listeners');
       window.addEventListener('load', () => {
         // console.debug('Load listener');

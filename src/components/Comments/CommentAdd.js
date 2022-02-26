@@ -475,7 +475,7 @@ function CommentAdd(props) {
             </SpinningIconLabelButton>
           )}
           {showIssueWarning && (
-            <SpinningIconLabelButton onClick={toggleIssue} icon={Add} doSpin={false}>
+            <SpinningIconLabelButton onClick={toggleIssue} icon={Add} doSpin={false} id="commentSaveButton">
               {intl.formatMessage({ id: commentSaveLabel })}
             </SpinningIconLabelButton>
           )}

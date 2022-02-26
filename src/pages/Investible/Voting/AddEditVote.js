@@ -114,7 +114,7 @@ function AddEditVote(props) {
     allowMultiVote,
     multiplier,
     votingPageState, updateVotingPageState, votingPageStateReset,
-    messagesDispatch, voteMessage
+    messagesDispatch, voteMessage, isInbox
   } = props;
   const {
     storedInvestment,
@@ -144,7 +144,7 @@ function AddEditVote(props) {
     setOpen(!open);
   }
 
-  const editorName = `${investibleId}-add-edit-vote-reason`;
+  const editorName = `${isInbox ? 'inbox' : ''}${investibleId}-add-edit-vote-reason`;
   const editorSpec = {
     marketId,
     placeholder: intl.formatMessage({ id: "yourReason" }),

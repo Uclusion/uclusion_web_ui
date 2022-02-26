@@ -36,7 +36,8 @@ function YourVoting(props) {
     market,
     userId,
     isAssigned,
-    votingPageState, updateVotingPageState, votingPageStateReset
+    votingPageState, updateVotingPageState, votingPageStateReset,
+    isInbox
   } = props;
   const [votingPageStateFull, votingPageDispatch] = usePageStateReducer('voting');
   const [myVotingPageState, myUpdateVotingPageState, myVotingPageStateReset] =
@@ -137,6 +138,7 @@ function YourVoting(props) {
         votingPageStateReset={votingPageStateReset || myVotingPageStateReset}
         messagesDispatch={messagesDispatch}
         voteMessage={voteMessage}
+        isInbox={isInbox}
       />
     </div>
   );

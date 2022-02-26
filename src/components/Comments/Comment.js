@@ -556,7 +556,7 @@ function Comment(props) {
       return React.Fragment;
     }
     if (marketType === INITIATIVE_TYPE) {
-      return <InlineInitiativeBox anInlineMarket={anInlineMarket} inlineUserId={inlineUserId}
+      return <InlineInitiativeBox anInlineMarket={anInlineMarket} inlineUserId={inlineUserId} isInbox={isInbox}
                                   inArchives={marketStage !== ACTIVE_STAGE || inArchives || resolved} />;
     }
     return getDialog(anInlineMarket);

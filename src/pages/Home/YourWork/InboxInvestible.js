@@ -329,6 +329,7 @@ function InboxInvestible(props) {
             userId={userId}
             market={market}
             isAssigned={false}
+            isInbox
           />
           <h3>{intl.formatMessage({ id: 'orStructuredComment' })}</h3>
         </>

@@ -141,6 +141,7 @@ function Voting(props) {
                   updateVotingPageState={updateVotingPageState}
                   votingPageStateReset={votingPageStateReset}
                   isAssigned={isAssigned}
+                  isInbox={isInbox}
                 />
               </React.Fragment>
             )

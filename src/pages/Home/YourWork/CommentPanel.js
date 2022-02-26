@@ -78,6 +78,7 @@ function CommentPanel(props) {
             defaultShowDiff
             allowedTypes={[]}
             noAuthor={marketType === PLANNING_TYPE && commentType === TODO_TYPE && !investibleId}
+            isInbox
           />
         </div>
       </>

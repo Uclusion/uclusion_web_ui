@@ -16,7 +16,7 @@ import GravatarGroup from '../../components/Avatars/GravatarGroup'
 
 function InlineInitiativeBox(props) {
   const {
-    anInlineMarket, inlineUserId, inArchives
+    anInlineMarket, inlineUserId, inArchives, isInbox
   } = props;
   const [votingPageStateFull, votingPageDispatch] = usePageStateReducer('voting');
   const [votingPageState, updateVotingPageState, votingPageStateReset] =
@@ -66,6 +66,7 @@ function InlineInitiativeBox(props) {
           votingPageState={votingPageState}
           updateVotingPageState={updateVotingPageState}
           votingPageStateReset={votingPageStateReset}
+          isInbox={isInbox}
         />
       )}
       <h2>

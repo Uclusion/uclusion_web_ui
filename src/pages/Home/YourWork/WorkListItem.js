@@ -164,7 +164,7 @@ function WorkListItem(props) {
 
   function getAllMessages() {
     const messages = [];
-    if (isMultiple) {
+    if (linkMultiple) {
       const { messages: messagesUnsafe } = messagesState;
       (messagesUnsafe || []).forEach((msg) => {
         const { link_multiple: myLinkMultiple } = msg;

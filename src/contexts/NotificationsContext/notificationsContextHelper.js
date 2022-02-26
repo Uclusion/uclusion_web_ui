@@ -3,7 +3,7 @@ import { DECISION_TYPE } from '../../constants/markets'
 import { getMarket } from '../MarketsContext/marketsContextHelper'
 import { getMarketPresences } from '../MarketPresencesContext/marketPresencesHelper'
 
-export function isInInbox(message, marketState, marketPresencesState) {
+export function isInInbox(message, marketState, marketPresencesState, messages) {
   if (message.type === 'UNREAD_REPORT' || message.deleted) {
     return false;
   }
@@ -14,6 +14,11 @@ export function isInInbox(message, marketState, marketPresencesState) {
     const anInlineMarketPresences = getMarketPresences(marketPresencesState, message.market_id) || [];
     const yourPresence = anInlineMarketPresences.find((presence) => presence.current_user) || {};
     return market.created_by !== yourPresence.id;
+  }
+  if (message.type === 'UNREAD_VOTE') {
+    const fullyVotedMessage = (messages || []).find((aMessage) => aMessage.type === 'FULLY_VOTED'
+      && message.link_multiple === aMessage.link_multiple);
+    return _.isEmpty(fullyVotedMessage);
   }
   return true;
 }
@@ -26,7 +31,7 @@ export function getInboxCount(messagesState, marketState, marketPresencesState) 
     if (!_.isEmpty(messages)) {
       messages.forEach((message) => {
         const { link_multiple: linkMultiple, is_highlighted: isHighlighted, type: aType } = message;
-        if (isHighlighted && isInInbox(message, marketState, marketPresencesState)) {
+        if (isHighlighted && isInInbox(message, marketState, marketPresencesState, messages)) {
           if (!linkMultiple) {
             calcPend += 1;
           } else {

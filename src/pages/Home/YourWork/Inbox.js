@@ -96,7 +96,7 @@ function Inbox(props) {
   const { indeterminate, determinate, checkAll } = determinateState;
   const { messages: messagesUnsafe } = messagesState;
   let messagesFull = (messagesUnsafe || []).filter((message) => {
-    return isInInbox(message, marketState, marketPresencesState);
+    return isInInbox(message, marketState, marketPresencesState, messagesUnsafe);
   });
   let messagesOrdered;
   if (isJarDisplay) {

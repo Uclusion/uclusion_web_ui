@@ -41,7 +41,7 @@ import { getPageReducerPage, usePageStateReducer } from '../../../components/Pag
 import WarningDialog from '../../../components/Warnings/WarningDialog'
 import { useLockedDialogStyles } from '../DialogBodyEdit'
 import IssueDialog from '../../../components/Warnings/IssueDialog'
-import { getQuillStoredState} from '../../../components/TextEditors/Utilities/CoreUtils'
+import { getQuillStoredState, resetEditor } from '../../../components/TextEditors/Utilities/CoreUtils'
 
 function PlanningInvestibleAdd(props) {
   const {
@@ -89,7 +89,7 @@ function PlanningInvestibleAdd(props) {
     onUpload: onS3Upload,
     value: getQuillStoredState(editorName)
   }
-  const [Editor, resetEditor] = useEditor(editorName, editorSpec);
+  const [Editor, resetMainEditor] = useEditor(editorName, editorSpec);
 
   function onQuantityChange(event) {
     const { value } = event.target;
@@ -114,7 +114,8 @@ function PlanningInvestibleAdd(props) {
   }
 
   function zeroCurrentValues() {
-    resetEditor();
+    resetMainEditor();
+    resetEditor(initialVoteEditorName);
     investibleAddStateReset();
     clearNameStoredState(nameId);
   }

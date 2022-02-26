@@ -219,10 +219,11 @@ function Inbox(props) {
         const hasPersistent = (linkMultiples || []).find((message) =>
           !message.type_object_id.startsWith('UNREAD'));
         const useMessage = fullyVotedMessage || message;
+        const determinateChecked = determinate[useMessage.type_object_id];
+        const checked = determinateChecked !== undefined ? determinateChecked : checkAll;
         return <InboxRow message={useMessage} expansionDispatch={expansionDispatch} numMultiples={_.size(linkMultiples)}
                          determinateDispatch={determinateDispatch} expansionOpen={!!expansionState[typeObjectId]}
-                         hasPersistent={hasPersistent} isMultiple={isMultiple}
-                         checked={determinate[typeObjectId] !== undefined ? determinate[typeObjectId] : checkAll} />;
+                         hasPersistent={hasPersistent} isMultiple={isMultiple} checked={checked} />;
       }) }
     </div>
   );

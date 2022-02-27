@@ -364,7 +364,8 @@ function CommentAdd(props) {
     // what about not doing state?
     const inReviewStage = getInReviewStage(marketStagesState, marketId) || {}
     const investibleBlocks = (investibleId && apiType === ISSUE_TYPE) && currentStageId !== blockingStage.id
-    const createInlineInitiative = (creatorIsAssigned || !investibleId) && apiType === SUGGEST_CHANGE_TYPE;
+    const createInlineInitiative = (creatorIsAssigned || !investibleId || _.isEmpty(assigned))
+      && apiType === SUGGEST_CHANGE_TYPE;
     return saveComment(marketId, investibleId, parentId, tokensRemoved, apiType, filteredUploads, mentions,
       (notificationType || defaultNotificationType), createInlineInitiative ? INITIATIVE_TYPE : undefined)
       .then((response) => {

@@ -30,14 +30,13 @@ export function getInboxCount(messagesState, marketState, marketPresencesState) 
     const dupeHash = {};
     if (!_.isEmpty(messages)) {
       messages.forEach((message) => {
-        const { link_multiple: linkMultiple, is_highlighted: isHighlighted, type: aType } = message;
+        const { link_multiple: linkMultiple, is_highlighted: isHighlighted } = message;
         if (isHighlighted && isInInbox(message, marketState, marketPresencesState, messages)) {
           if (!linkMultiple) {
             calcPend += 1;
           } else {
-            const myHash = `${aType}_${linkMultiple}`;
-            if (!dupeHash[myHash]) {
-              dupeHash[myHash] = true;
+            if (!dupeHash[linkMultiple]) {
+              dupeHash[linkMultiple] = true;
               calcPend += 1;
             }
           }

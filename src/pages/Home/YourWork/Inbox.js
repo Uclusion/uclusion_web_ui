@@ -142,15 +142,33 @@ function Inbox(props) {
       parentResults.find((id) => typeObjectId.endsWith(id) || parentResults.find((id) => investibleId === id));
   });
   const dupeHash = {};
-  // Filter out duplicates by hashing on {type}_{link_multiple}
-  messagesOrdered = messagesFiltered.filter((message) => {
+  messagesFiltered.forEach((message) => {
     const { link_multiple: linkMultiple } = message;
     if (linkMultiple) {
       if (dupeHash[linkMultiple]) {
         dupeHash[linkMultiple].push(message);
-        return false;
+      } else {
+        dupeHash[linkMultiple] = [message];
       }
-      dupeHash[linkMultiple] = [message];
+    }
+  });
+  messagesOrdered = messagesFiltered.filter((message) => {
+    const { link_multiple: linkMultiple, level, type_object_id: typeObjectId } = message;
+    if (dupeHash[linkMultiple]) {
+      //Choose the message to use for the row icon color based on highest or equal priority
+      return _.isEmpty(dupeHash[linkMultiple].find((aMessage) => {
+        if (level === aMessage.level) {
+          // Doesn't matter which so just do lexographic
+          return aMessage.type_object_id > typeObjectId;
+        }
+        if (level === 'RED') {
+          return false;
+        }
+        if (level === 'YELLOW') {
+          return aMessage.level === 'RED';
+        }
+        return true;
+      }));
     }
     return true;
   });

@@ -277,6 +277,7 @@ function AddEditVote(props) {
                 return (
                   <FormControlLabel
                     key={certainty}
+                    id={`${isInbox ? 'inbox' : ''}${certainty}`}
                     className={classes.certaintyValue}
                     classes={{
                       label: classes.certaintyValueLabel

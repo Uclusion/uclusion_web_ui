@@ -168,8 +168,7 @@ function PlanningDialog(props) {
         ['INLINE_STORY_INVESTIBLE', 'INLINE_STORY_COMMENT'].includes(message.link_type);
     });
     if (message) {
-      const { is_highlighted: isHighlighted } = message;
-      highlightMap[investibleId] = isHighlighted;
+      highlightMap[investibleId] = true;
     }
   });
   const presenceMap = getPresenceMap(marketPresencesState, marketId);

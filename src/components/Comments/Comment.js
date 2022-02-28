@@ -668,8 +668,8 @@ function Comment(props) {
     myReplies.forEach(reply => {
       const replyMessage = findMessageForCommentId(reply.id, messagesState);
       if (replyMessage) {
-        const { level, is_highlighted: isHighlighted } = replyMessage;
-        if (level && isHighlighted) {
+        const { level } = replyMessage;
+        if (level) {
           messages.push(replyMessage);
           highlighted.push(reply.id);
         }
@@ -686,8 +686,8 @@ function Comment(props) {
   const {highlighted, messages} = getHilightedIds(replies);
   const diff = getDiff(diffState, id);
   const myHighlightedState = myMessage || {};
-  const { level: myHighlightedLevel, is_highlighted: isHighlighted } = myHighlightedState;
-  if (isHighlighted) {
+  const { level: myHighlightedLevel } = myHighlightedState;
+  if (myHighlightedLevel) {
     messages.push(myMessage);
   }
   const inReviewStageId = (getInReviewStage(marketStagesState, marketId) || {}).id;
@@ -700,7 +700,7 @@ function Comment(props) {
   const displayUpdatedBy = updatedBy !== undefined && comment.updated_by !== comment.created_by;
   const showActions = !replyBeingEdited || replies.length > 0;
   function getCommentHighlightStyle() {
-    if (myHighlightedLevel && isHighlighted) {
+    if (myHighlightedLevel) {
       if (myHighlightedLevel === "YELLOW" || myHighlightedLevel === "BLUE") {
         return classes.containerYellow;
       }
@@ -1214,11 +1214,11 @@ function Reply(props) {
   function setReplyOpen(isOpen) {
     updateReplyAddState({replyBeingEdited: isOpen});
   }
-  const { level: myHighlightedLevel, is_highlighted: isHighlighted } = myMessage;
+  const { level: myHighlightedLevel } = myMessage;
   const intl = useIntl();
   return (
     <div>
-      <Card className={!(myHighlightedLevel && isHighlighted) ? classes.container : myMessage.level === 'RED'
+      <Card className={!myHighlightedLevel ? classes.container : myMessage.level === 'RED'
         ? classes.containerRed : classes.containerYellow}
       >
         <CardContent className={classes.cardContent}>

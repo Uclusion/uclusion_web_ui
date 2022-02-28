@@ -133,11 +133,11 @@ function updateAccountFromSignatures (accountId, maxConcurrencyCount = 1) {
  * @param maxConcurrentCount the maximum number of api calls to make at once
  * @returns {Promise<*>}
  */
-export function updateMarkets (marketIds, existingMarkets, maxConcurrentCount) {
+export function updateMarkets (marketIds, existingMarkets, maxConcurrentCount, isInline=false) {
   if (_.isEmpty(marketIds)) {
     return Promise.resolve(true);
   }
-  return getVersions(marketIds)
+  return getVersions(marketIds, isInline)
     .then((marketSignatures) => {
       //console.error(marketSignatures);
       return LimitedParallelMap(marketSignatures, (marketSignature) => {
@@ -190,7 +190,7 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets) {
       // split the market stuff into inline, foreground and background where inline must come first
       // to avoid seeing incomplete comments
       newGlobalVersion = global_version;
-     const marketPromises = updateMarkets(inlineList, existingMarkets, MAX_CONCURRENT_API_CALLS)
+     const marketPromises = updateMarkets(inlineList, existingMarkets, MAX_CONCURRENT_API_CALLS, true)
        .then(() => updateMarkets(foregroundList, existingMarkets, MAX_CONCURRENT_API_CALLS))
        .then(() => {
          if (_.isEmpty(callWithVersion)) {

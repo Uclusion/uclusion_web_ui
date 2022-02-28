@@ -22,10 +22,12 @@ export function getChangedIds(currentVersion) {
     })
 }
 
-const MAX_MAREKTS_TO_FETCH_FROM_BACKEND = 15;
+const MAX_MARKETS_TO_FETCH_FROM_BACKEND = 15;
+const MAX_INLINE_MARKETS_TO_FETCH_FROM_BACKEND = 50;
 
-export function getVersions(idList) {
-  const chunks = _.chunk(idList, MAX_MAREKTS_TO_FETCH_FROM_BACKEND)
+export function getVersions(idList, isInline=false) {
+  const chunkSize = MAX_INLINE_MARKETS_TO_FETCH_FROM_BACKEND ? isInline : MAX_MARKETS_TO_FETCH_FROM_BACKEND;
+  const chunks = _.chunk(idList, chunkSize)
   return getSummaryInfo()
     .then((summaryInfo) => {
       const { summaryClient, accountToken } = summaryInfo

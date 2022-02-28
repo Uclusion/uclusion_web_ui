@@ -257,11 +257,11 @@ function InboxInvestible(props) {
         )}
       </div>
       {_.isEmpty(messageTypes) && (
-        <Typography variant="h6">
-          {intl.formatMessage({ id: 'investibleInboxHeader' }, { x: market.name, y: name })}
+        <Typography variant="body1">
+          {market.name}
         </Typography>
       )}
-      {!_.isEmpty(description) && !editorEmpty(description) && (
+      {((!_.isEmpty(description) && !editorEmpty(description))|| _.isEmpty(messageTypes)) && (
         <div style={{paddingTop: '1rem'}}>
           <InvestibleBodyEdit
             marketId={marketId}

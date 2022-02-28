@@ -131,6 +131,7 @@ function updateAccountFromSignatures (accountId, maxConcurrencyCount = 1) {
  * @param marketIds the market ids to fetch signatures for
  * @param existingMarkets the list of markets we currently know about
  * @param maxConcurrentCount the maximum number of api calls to make at once
+ * @param isInline whether the markets are inline or not
  * @returns {Promise<*>}
  */
 export function updateMarkets (marketIds, existingMarkets, maxConcurrentCount, isInline=false) {

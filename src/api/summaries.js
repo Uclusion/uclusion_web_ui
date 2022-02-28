@@ -26,7 +26,7 @@ const MAX_MARKETS_TO_FETCH_FROM_BACKEND = 15;
 const MAX_INLINE_MARKETS_TO_FETCH_FROM_BACKEND = 50;
 
 export function getVersions(idList, isInline=false) {
-  const chunkSize = MAX_INLINE_MARKETS_TO_FETCH_FROM_BACKEND ? isInline : MAX_MARKETS_TO_FETCH_FROM_BACKEND;
+  const chunkSize = isInline ? MAX_INLINE_MARKETS_TO_FETCH_FROM_BACKEND : MAX_MARKETS_TO_FETCH_FROM_BACKEND;
   const chunks = _.chunk(idList, chunkSize)
   return getSummaryInfo()
     .then((summaryInfo) => {

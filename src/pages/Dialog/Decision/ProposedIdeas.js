@@ -128,9 +128,11 @@ function ProposedIdeas(props) {
     });
   }
   const market = getMarket(marketsState, marketId);
+  const fullInvestible = investibles.find((inv) => inv.investible.id === selectedInvestibleId);
   return (
     <>
-      <Grid container className={outlineStyles.white} spacing={1} id={`proposed${marketId}`} onDragEnd={removeElementGreen} onDragEnter={setElementGreen}
+      <Grid container className={outlineStyles.white} spacing={1} id={`proposed${marketId}`}
+            onDragEnd={removeElementGreen} onDragEnter={setElementGreen}
             onDragOver={(event) => event.preventDefault()}
             onDrop={onDropProposed}>
         {getInvestibles()}
@@ -138,12 +140,12 @@ function ProposedIdeas(props) {
           <div className={classes.grow} />
         )}
       </Grid>
-      {selectedInvestibleId && !_.isEmpty(market) && (
+      {!_.isEmpty(fullInvestible) && !_.isEmpty(fullInvestible.investible) && !_.isEmpty(market) && (
         <DecisionInvestible
           userId={getMyUserForMarket(marketsState, marketId) || ''}
           investibleId={selectedInvestibleId}
           market={market}
-          fullInvestible={investibles.find((inv) => inv.investible.id === selectedInvestibleId)}
+          fullInvestible={fullInvestible}
           comments={comments}
           marketPresences={marketPresences}
           investibleComments={comments.filter((comment) => comment.investible_id === selectedInvestibleId)}

@@ -81,8 +81,8 @@ function InboxInvestible(props) {
   const investmentReasons = investibleComments.filter(comment => comment.comment_type === JUSTIFY_TYPE) || [];
   const investibleCollaborators = getCollaborators(marketPresences, investibleComments, marketPresencesState,
     investibleId);
-  const inv = getInvestible(investiblesState, investibleId) || {};
-  const { investible: myInvestible } = inv;
+  const inv = getInvestible(investiblesState, investibleId);
+  const { investible: myInvestible } = inv || {};
   const { name, locked_by: lockedBy, description, label_list: labelList,
     attached_files: attachedFiles } = myInvestible || {};
   const marketInfo = getMarketInfo(inv, marketId) || {};
@@ -261,7 +261,8 @@ function InboxInvestible(props) {
           {market.name}
         </Typography>
       )}
-      {((!_.isEmpty(description) && !editorEmpty(description))|| _.isEmpty(messageTypes)) && (
+      {!_.isEmpty(myInvestible) && ((!_.isEmpty(description) && !editorEmpty(description))|| _.isEmpty(messageTypes))
+        && (
         <div style={{paddingTop: '1rem'}}>
           <InvestibleBodyEdit
             marketId={marketId}

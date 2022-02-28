@@ -183,6 +183,7 @@ function CurrentVoting(props) {
     });
   }
   const market = getMarket(marketsState, marketId);
+  const fullInvestible = investibles.find((inv) => inv.investible.id === selectedInvestibleId);
   return (
     <>
       <Grid container spacing={1} id={`current${marketId}`} className={outlineStyles.white}
@@ -190,12 +191,12 @@ function CurrentVoting(props) {
             onDragOver={(event) => event.preventDefault()} onDrop={onDropApprovable}>
         {(sortedTalliesArray || []).map((item) => getItemVote(item))}
       </Grid>
-      {selectedInvestibleId && !_.isEmpty(market) && (
+      {!_.isEmpty(fullInvestible) && !_.isEmpty(fullInvestible.investible) && !_.isEmpty(market) && (
         <DecisionInvestible
           userId={getMyUserForMarket(marketsState, marketId) || ''}
           investibleId={selectedInvestibleId}
           market={market}
-          fullInvestible={investibles.find((inv) => inv.investible.id === selectedInvestibleId)}
+          fullInvestible={fullInvestible}
           comments={comments}
           marketPresences={marketPresences}
           investibleComments={comments.filter((comment) => comment.investible_id === selectedInvestibleId)}

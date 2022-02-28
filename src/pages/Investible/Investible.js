@@ -20,9 +20,6 @@ import PlanningInvestible from './Planning/PlanningInvestible'
 import { pushMessage } from '../../utils/MessageBusUtils'
 import { GUEST_MARKET_EVENT, LOAD_MARKET_CHANNEL } from '../../contexts/MarketsContext/marketsContextMessages'
 
-const emptyInvestible = { investible: { name: '', description: '' } };
-const emptyMarket = { name: '' };
-
 function createCommentsHash(commentsArray) {
   return _.keyBy(commentsArray, 'id');
 }
@@ -39,7 +36,7 @@ function Investible(props) {
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const [marketsState, ,tokensHash] = useContext(MarketsContext);
   const realMarket = getMarket(marketsState, marketId);
-  const market = realMarket || emptyMarket;
+  const market = realMarket || {};
   const userId = getMyUserForMarket(marketsState, marketId) || '';
   const [commentsState] = useContext(CommentsContext);
   const comments = getMarketComments(commentsState, marketId);
@@ -49,13 +46,13 @@ function Investible(props) {
   const isInitialization = investiblesState.initializing || marketsState.initializing || marketPresencesState.initializing || commentsState.initializing;
   const investibles = getMarketInvestibles(investiblesState, marketId);
   const inv = getInvestible(investiblesState, investibleId);
-  const usedInv = inv || emptyInvestible;
-  const { investible } = usedInv;
-  const { name } = investible;
-  const breadCrumbTemplates = [{ name: market.name, link: formMarketLink(marketId), id: 'marketCrumb' }];
+  const { investible } = inv || {};
+  const { name } = investible || {};
+  const { name: marketName } = market || {};
+  const breadCrumbTemplates = [{ name: marketName, link: formMarketLink(marketId), id: 'marketCrumb' }];
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
-  const loading = !investibleId || _.isEmpty(inv) || _.isEmpty(myPresence) || !userId || _.isEmpty(realMarket)
-    || !marketTokenLoaded(marketId, tokensHash);
+  const loading = !investibleId || _.isEmpty(inv) || _.isEmpty(investible) || _.isEmpty(myPresence) || !userId
+    || _.isEmpty(realMarket) || !marketTokenLoaded(marketId, tokensHash);
   const isAdmin = myPresence && myPresence.is_admin;
   const breadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates);
 

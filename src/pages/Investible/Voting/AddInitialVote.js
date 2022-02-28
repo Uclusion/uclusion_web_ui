@@ -37,7 +37,6 @@ const useStyles = makeStyles(
         textTransform: "capitalize"
       },
       certaintyValue: {
-        backgroundColor: theme.palette.grey["300"],
         borderRadius: 6,
         paddingLeft: theme.spacing(1),
         margin: theme.spacing(0, 2, 2, 0)
@@ -100,6 +99,7 @@ function AddInitialVote(props) {
               return (
                 <FormControlLabel
                   key={certainty}
+                  id={`${certainty}`}
                   className={classes.certaintyValue}
                   classes={{
                     label: classes.certaintyValueLabel

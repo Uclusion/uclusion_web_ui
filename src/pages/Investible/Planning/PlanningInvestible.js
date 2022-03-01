@@ -139,6 +139,10 @@ import SpinningButton from '../../../components/SpinBlocking/SpinningButton'
 import { removeWorkListItem, workListStyles } from '../../Home/YourWork/WorkListItem'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { ACTIVE_STAGE } from '../../../constants/markets'
+import {
+  OPERATION_HUB_CHANNEL, START_OPERATION,
+  STOP_OPERATION
+} from '../../../contexts/OperationInProgressContext/operationInProgressMessages'
 
 export const usePlanningInvestibleStyles = makeStyles(
   theme => ({
@@ -1348,9 +1352,9 @@ export const useMetaDataStyles = makeStyles(
   { name: "MetaData" }
 );
 
-export function accept(marketId, investibleId, marketInvestible, setOperationRunning, invDispatch, diffDispatch,
-  unacceptedAssignment, workItemClasses) {
-  setOperationRunning(true);
+export function accept(marketId, investibleId, marketInvestible, invDispatch, diffDispatch, unacceptedAssignment,
+  workItemClasses) {
+  pushMessage(OPERATION_HUB_CHANNEL, { event: START_OPERATION });
   return acceptInvestible(marketId, investibleId)
     .then((marketInfo) => {
       const newInfos = _.unionBy([marketInfo], marketInvestible.market_infos, 'id');
@@ -1359,13 +1363,13 @@ export function accept(marketId, investibleId, marketInvestible, setOperationRun
       if (unacceptedAssignment) {
         removeWorkListItem(unacceptedAssignment, workItemClasses.removed);
       }
-      setOperationRunning(false);
+      pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION });
     });
 }
 
-export function rejectInvestible(marketId, investibleId, marketInvestible, commentsState, commentsDispatch,
-  setOperationRunning, invDispatch, diffDispatch, marketStagesState) {
-  setOperationRunning(true);
+export function rejectInvestible(marketId, investibleId, marketInvestible, commentsState, commentsDispatch, invDispatch,
+  diffDispatch, marketStagesState) {
+  pushMessage(OPERATION_HUB_CHANNEL, { event: START_OPERATION });
   const furtherWorkStage = getFurtherWorkStage(marketStagesState, marketId);
   const marketInfo = getMarketInfo(marketInvestible, marketId);
   const moveInfo = {
@@ -1381,7 +1385,7 @@ export function rejectInvestible(marketId, investibleId, marketInvestible, comme
     .then((newInv) => {
       onInvestibleStageChange(furtherWorkStage.id, newInv, investibleId, marketId, commentsState, commentsDispatch,
         invDispatch, diffDispatch, marketStagesState, undefined, furtherWorkStage);
-      setOperationRunning(false);
+      pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION });
     });
 }
 
@@ -1427,13 +1431,13 @@ function MarketMetaData(props) {
   const unaccepted = unacceptedAssignment && isAssigned && !accepted.includes(myUserId);
 
   function myAccept() {
-    return accept(market.id, investibleId, marketInvestible, setOperationRunning, invDispatch, diffDispatch,
-      unacceptedAssignment, workItemClasses);
+    return accept(market.id, investibleId, marketInvestible, invDispatch, diffDispatch, unacceptedAssignment,
+      workItemClasses);
   }
 
   function myRejectInvestible() {
-    return rejectInvestible(market.id, investibleId, marketInvestible, commentsState, commentsDispatch,
-      setOperationRunning, invDispatch, diffDispatch, marketStagesState);
+    return rejectInvestible(market.id, investibleId, marketInvestible, commentsState, commentsDispatch, invDispatch,
+      diffDispatch, marketStagesState);
   }
 
   function onDeleteFile(path) {

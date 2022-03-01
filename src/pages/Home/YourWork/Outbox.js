@@ -236,7 +236,7 @@ function Outbox(props) {
       const outboxMessage = getMessageForInvestible(investible, market, 'planningInvestibleNextStageInReviewLabel',
         <RateReviewIcon style={{fontSize: 24, color: '#8f8f8f',}}/>, intl);
       outboxMessage.expansionPanel = <InboxInvestible marketId={market.id} investibleId={investibleId}
-                                                messageTypes={['UNREAD_REVIEWABLE']}
+                                                messageType={'UNREAD_REVIEWABLE'}
                                                 planningClasses={planningClasses} marketType={PLANNING_TYPE}
                                                 mobileLayout={mobileLayout} isOutbox />
       const mySubmitted = inboxMessages.find((message) => {
@@ -273,7 +273,7 @@ function Outbox(props) {
       const message = getMessageForInvestible(investible, market, 'planningInvestibleToVotingLabel',
         <ThumbsUpDownIcon style={{fontSize: 24, color: '#8f8f8f',}}/>, intl);
       message.expansionPanel = <InboxInvestible marketId={market.id} investibleId={investibleId}
-                                                messageTypes={['UNREAD_VOTE']}
+                                                messageType={'UNREAD_VOTE'}
                                                 planningClasses={planningClasses} marketType={PLANNING_TYPE}
                                                 mobileLayout={mobileLayout} />
       const { votes_required: votesRequired } = market;

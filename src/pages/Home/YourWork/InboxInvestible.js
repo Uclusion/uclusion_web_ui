@@ -48,7 +48,6 @@ import PropTypes from 'prop-types'
 import { getLabelList } from '../../../utils/messageUtils'
 import { editorEmpty } from '../../../components/TextEditors/Utilities/CoreUtils'
 import SpinningButton from '../../../components/SpinBlocking/SpinningButton'
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { workListStyles } from './WorkListItem'
 import InvestibleBodyEdit from '../../Investible/InvestibleBodyEdit'
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
@@ -57,12 +56,12 @@ import { useHistory } from 'react-router'
 
 function InboxInvestible(props) {
   const { marketId, marketType, planningClasses, messageTypes, investibleId, mobileLayout, isOutbox,
-    messagesFull, unacceptedAssignment } = props;
+    messagesFull, unacceptedAssignment, messageType } = props;
+  const useMessageTypes = _.isEmpty(messageTypes) ? (_.isEmpty(messageType) ? [] : [messageType]) : messageTypes;
   const history = useHistory();
   const intl = useIntl();
   const workItemClasses = workListStyles();
   const classes = useMetaDataStyles();
-  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [investiblesState, invDispatch] = useContext(InvestiblesContext);
@@ -88,9 +87,9 @@ function InboxInvestible(props) {
     required_reviews: requiredReviewers, accepted } = marketInfo;
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   const assigned = invAssigned || [];
-  const isInVoting = messageTypes.includes('NOT_FULLY_VOTED');
-  const isReview = !_.isEmpty(_.intersection(['UNREAD_REVIEWABLE', 'REVIEW_REQUIRED'], messageTypes));
-  const allowedTypes = messageTypes.includes('ASSIGNED_UNREVIEWABLE') || isReview ?
+  const isInVoting = useMessageTypes.includes('NOT_FULLY_VOTED');
+  const isReview = !_.isEmpty(_.intersection(['UNREAD_REVIEWABLE', 'REVIEW_REQUIRED'], useMessageTypes));
+  const allowedTypes = useMessageTypes.includes('ASSIGNED_UNREVIEWABLE') || isReview ?
     [TODO_TYPE, REPORT_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE] :
     [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE];
   const inAcceptedStage = getAcceptedStage(marketStagesState, marketId) || {};
@@ -108,7 +107,7 @@ function InboxInvestible(props) {
   const assignedNotAccepted = assigned.filter((assignee) => !(accepted || []).includes(assignee));
   const diff = getDiff(diffState, investibleId);
   const [pageStateFull, pageDispatch] = usePageStateReducer('inboxInvestible');
-  const showDiff = diff !== undefined && messageTypes.includes('UNREAD_DESCRIPTION');
+  const showDiff = diff !== undefined && useMessageTypes.includes('UNREAD_DESCRIPTION');
   const [pageState, updatePageState, pageStateReset] = getPageReducerPage(pageStateFull, pageDispatch, investibleId,
     {showDiff});
   const {
@@ -123,13 +122,12 @@ function InboxInvestible(props) {
   }
 
   function myAccept() {
-    return accept(market.id, investibleId, inv, setOperationRunning, invDispatch, diffDispatch,
-      unacceptedAssignment, workItemClasses);
+    return accept(market.id, investibleId, inv, invDispatch, diffDispatch, unacceptedAssignment, workItemClasses);
   }
 
   function myRejectInvestible() {
-    return rejectInvestible(market.id, investibleId, inv, commentState, commentsDispatch,
-      setOperationRunning, invDispatch, diffDispatch, marketStagesState);
+    return rejectInvestible(market.id, investibleId, inv, commentState, commentsDispatch, invDispatch, diffDispatch,
+      marketStagesState);
   }
 
   function mySetBeingEdited(isEdit, event) {
@@ -140,9 +138,9 @@ function InboxInvestible(props) {
   console.debug(`inbox investible for ${investibleId} rendering`);
   return (
     <div style={{paddingTop: '1rem', paddingRight: '1rem', paddingLeft: '1rem',
-      paddingBottom: !_.isEmpty(messageTypes) ? '1rem' : undefined}}>
+      paddingBottom: !_.isEmpty(useMessageTypes) ? '1rem' : undefined}}>
       <div style={{display: mobileLayout ? 'block' : 'flex'}}>
-        {!_.isEmpty(messageTypes) && !_.isEmpty(assigned) && (
+        {!_.isEmpty(useMessageTypes) && !_.isEmpty(assigned) && (
           <div className={clsx(planningClasses.group, planningClasses.assignments)}
                style={{maxWidth: '15rem', marginRight: '1rem', overflowY: 'auto', maxHeight: '8rem'}}>
             <div>
@@ -160,7 +158,7 @@ function InboxInvestible(props) {
             </div>
           </div>
         )}
-        {!_.isEmpty(messageTypes) && marketType === PLANNING_TYPE && !_.isEmpty(investibleCollaborators) && (
+        {!_.isEmpty(useMessageTypes) && marketType === PLANNING_TYPE && !_.isEmpty(investibleCollaborators) && (
           <div className={clsx(planningClasses.group, planningClasses.assignments)}
                style={{maxWidth: '15rem', marginRight: '1rem', overflowY: 'auto', maxHeight: '8rem'}}>
             <div>
@@ -177,7 +175,7 @@ function InboxInvestible(props) {
           </div>
         )}
         {((!_.isEmpty(requiredApprovers) &&
-          !_.isEmpty(_.intersection(['NOT_FULLY_VOTED', 'UNACCEPTED_ASSIGNMENT'], messageTypes))) ||
+          !_.isEmpty(_.intersection(['NOT_FULLY_VOTED', 'UNACCEPTED_ASSIGNMENT'], useMessageTypes))) ||
           (!_.isEmpty(requiredReviewers) && isReview)) && (
           <div className={clsx(planningClasses.group, planningClasses.assignments)}
                style={{maxWidth: '15rem', marginRight: '1rem', overflowY: 'auto', maxHeight: '8rem'}}>
@@ -194,12 +192,12 @@ function InboxInvestible(props) {
             </div>
           </div>
         )}
-        {messageTypes.includes('ASSIGNED_UNREVIEWABLE') && (
+        {useMessageTypes.includes('ASSIGNED_UNREVIEWABLE') && (
           <div style={{marginTop: mobileLayout ? '1rem' : '1.5rem'}}>
             <DaysEstimate readOnly value={marketDaysEstimate} isInbox />
           </div>
         )}
-        {!_.isEmpty(_.intersection(['UNACCEPTED_ASSIGNMENT'], messageTypes)) && (
+        {!_.isEmpty(_.intersection(['UNACCEPTED_ASSIGNMENT'], useMessageTypes)) && (
           <div style={{marginTop: mobileLayout ? '1rem' : undefined, marginLeft: mobileLayout ? undefined : '2rem'}}>
             <div style={{display: 'flex', paddingTop: '1rem', marginBottom: 0}}>
               <SpinningButton onClick={myAccept} className={classes.actionPrimary}>
@@ -213,7 +211,7 @@ function InboxInvestible(props) {
           </div>
         )}
         {!_.isEmpty(_.intersection(['ASSIGNED_UNREVIEWABLE', 'ISSUE_RESOLVED', 'UNREAD_VOTE'],
-          messageTypes)) && (
+          useMessageTypes)) && (
           <div style={{marginTop: mobileLayout ? '1rem' : undefined, marginLeft: mobileLayout ? undefined : '2rem'}}>
             <InputLabel id="next-allowed-stages-label" style={{ marginBottom: '0.25rem' }}>
               {intl.formatMessage({ id: 'quickChangeStage' })}</InputLabel>
@@ -229,7 +227,7 @@ function InboxInvestible(props) {
             />
           </div>
         )}
-        {!_.isEmpty(messageTypes) && (
+        {!_.isEmpty(useMessageTypes) && (
           <Typography variant="body1" style={{marginTop: mobileLayout ? '1rem' : '1.5rem'}}>
             {market.name}
           </Typography>
@@ -254,12 +252,12 @@ function InboxInvestible(props) {
           </>
         )}
       </div>
-      {_.isEmpty(messageTypes) && (
+      {_.isEmpty(useMessageTypes) && (
         <Typography variant="body1">
           {market.name}
         </Typography>
       )}
-      {!_.isEmpty(myInvestible) && ((!_.isEmpty(description) && !editorEmpty(description))|| _.isEmpty(messageTypes))
+      {!_.isEmpty(myInvestible) && ((!_.isEmpty(description) && !editorEmpty(description))|| _.isEmpty(useMessageTypes))
         && (
         <div style={{paddingTop: '1rem'}}>
           <InvestibleBodyEdit
@@ -274,12 +272,12 @@ function InboxInvestible(props) {
             isEditableByUser={isEditableByUser}/>
         </div>
       )}
-      {messageTypes.includes('UNREAD_NAME') && (
+      {useMessageTypes.includes('UNREAD_NAME') && (
         <Typography variant="h6" style={{paddingTop: '1rem'}}>
           {intl.formatMessage({ id: 'nameChange' }, { x: name })}
         </Typography>
       )}
-      {messageTypes.includes('UNREAD_ATTACHMENT') && (
+      {useMessageTypes.includes('UNREAD_ATTACHMENT') && (
         <div style={{paddingTop: '1rem', width: 'fit-content'}}>
           <AttachedFilesList
             marketId={market.id}
@@ -288,7 +286,7 @@ function InboxInvestible(props) {
           />
         </div>
       )}
-      {messageTypes.includes('UNREAD_LABEL') && (
+      {useMessageTypes.includes('UNREAD_LABEL') && (
         <div style={{display: 'flex', paddingBottom: '0.5rem'}}>
           {labelList && labelList.map((label) =>
             <div key={label} className={planningClasses.labelChip}>
@@ -297,7 +295,7 @@ function InboxInvestible(props) {
           )}
         </div>
       )}
-      {!_.isEmpty(_.intersection(['UNACCEPTED_ASSIGNMENT', 'UNREAD_VOTE'], messageTypes)) && (
+      {!_.isEmpty(_.intersection(['UNACCEPTED_ASSIGNMENT', 'UNREAD_VOTE'], useMessageTypes)) && (
         <div style={{paddingLeft: '1rem', paddingRight: '1rem'}}>
           <h2 id="approvals">
             <FormattedMessage id="decisionInvestibleOthersVoting" />
@@ -319,7 +317,7 @@ function InboxInvestible(props) {
           />
         </div>
       )}
-      {messageTypes.includes('NOT_FULLY_VOTED') && (
+      {useMessageTypes.includes('NOT_FULLY_VOTED') && (
         <>
           <YourVoting
             investibleId={investibleId}
@@ -333,8 +331,8 @@ function InboxInvestible(props) {
           <h3>{intl.formatMessage({ id: 'orStructuredComment' })}</h3>
         </>
       )}
-      {!_.isEmpty(messageTypes) && marketId && !_.isEmpty(myInvestible) && !isOutbox &&
-        _.isEmpty(_.intersection(['NEW_TODO', 'ISSUE_RESOLVED', 'UNREAD_VOTE'], messageTypes)) && (
+      {!_.isEmpty(useMessageTypes) && marketId && !_.isEmpty(myInvestible) && !isOutbox &&
+        _.isEmpty(_.intersection(['NEW_TODO', 'ISSUE_RESOLVED', 'UNREAD_VOTE'], useMessageTypes)) && (
         <>
           <div style={{paddingTop: '1rem'}} />
           <CommentAddBox
@@ -344,17 +342,17 @@ function InboxInvestible(props) {
             issueWarningId={'issueWarningPlanning'}
             isInReview={isReview}
             isAssignee={!_.isEmpty(_.intersection(['ASSIGNED_UNREVIEWABLE', 'UNACCEPTED_ASSIGNMENT'],
-              messageTypes))}
+              useMessageTypes))}
             isStory
             nameDifferentiator="inboxInvestible"
           />
         </>
       )}
-      {!_.isEmpty(messageTypes) &&
-        (!_.isEmpty(investmentReasonsRemoved) || (messageTypes.includes('NEW_TODO') && !_.isEmpty(todoComments))) && (
+      {!_.isEmpty(useMessageTypes) &&
+        (!_.isEmpty(investmentReasonsRemoved) || (useMessageTypes.includes('NEW_TODO') && !_.isEmpty(todoComments))) && (
         <div style={{paddingTop: '0.5rem'}}>
           <CommentBox
-            comments={messageTypes.includes('NEW_TODO') ? todoComments : investmentReasonsRemoved}
+            comments={useMessageTypes.includes('NEW_TODO') ? todoComments : investmentReasonsRemoved}
             marketId={marketId}
             allowedTypes={[]}
             fullStage={fullStage}
@@ -373,8 +371,7 @@ InboxInvestible.propTypes = {
 };
 
 InboxInvestible.defaultProps = {
-  messageTypes: [],
   isOutbox: false
 };
 
-export default InboxInvestible;
+export default React.memo(InboxInvestible);

@@ -77,8 +77,12 @@ function InboxRow(props) {
       }
     }
   }
-  addExpansionPanel({item, commentState, marketState, investiblesState, diffState, planningClasses, marketsState,
-    mobileLayout, intl, isMultiple});
+  if (expansionOpen) {
+    addExpansionPanel({
+      item, commentState, marketState, investiblesState, diffState, planningClasses, marketsState,
+      mobileLayout, intl, isMultiple
+    });
+  }
   return <WorkListItem key={typeObjectId} id={typeObjectId} checked={checked} determinateDispatch={determinateDispatch}
                        expansionDispatch={expansionDispatch} expansionOpen={expansionOpen}
                        isMultiple={isMultiple} {...item} />;

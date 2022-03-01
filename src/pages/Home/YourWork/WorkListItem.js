@@ -189,14 +189,10 @@ function WorkListItem(props) {
         <Link underline='none' href={useLink} style={{ width: '100%' }} key={`link${id}`} onClick={
           (event) => {
             preventDefaultAndProp(event);
-            if (expansionPanel) {
-              expansionDispatch({ id });
-              if (useSelect && !read) {
-                pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: DEHIGHLIGHT_EVENT,
-                  messages: getAllMessages() });
-              }
-            } else {
-              return navigate(history, useLink);
+            expansionDispatch({ id });
+            if (useSelect && !read) {
+              pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: DEHIGHLIGHT_EVENT,
+                messages: getAllMessages() });
             }
           }
         }>
@@ -227,7 +223,7 @@ function WorkListItem(props) {
                 classes={actionStyles}
                 style={{marginLeft: useSelect ? undefined : '0.5rem'}}
               >
-                { expansionPanel ? (expansionOpen ? <ExpandLess /> : <ExpandMoreIcon />) : <div /> }
+                { expansionOpen ? <ExpandLess /> : <ExpandMoreIcon /> }
               </StyledIconButton>
               {(!useSelect || !mobileLayout) && (
                 <StyledIconButton

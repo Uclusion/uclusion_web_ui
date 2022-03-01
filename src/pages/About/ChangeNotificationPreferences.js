@@ -161,8 +161,8 @@ function ChangeNotificationPreferences (props) {
                 key="avatarExplanation"
               >
                 <Typography variant="body2">
-                  Below is your current avatar image. Uclusion uses Gravatar so you don't have to set up a new avatar
-                  in every application.
+                  Below is your current avatar image for <b>{safeUser.email}</b> provided by Gravatar. See <Link href="https://documentation.uclusion.com/getting-started/user-configuration/#setting-up-a-gravatar" target="_blank">user configuration</Link> for
+                  more information.
                 </Typography>
               </ListItem>
               <ListItem

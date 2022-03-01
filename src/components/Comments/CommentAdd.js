@@ -378,7 +378,7 @@ function CommentAdd(props) {
         if (apiType === REPORT_TYPE || (apiType === TODO_TYPE && inReviewStage.id === currentStageId)) {
           const message = findMessageOfType('REPORT_REQUIRED', investibleId, messagesState)
           if (message) {
-            removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
+            removeWorkListItem(message, workItemClasses.removed);
           }
           if (apiType === REPORT_TYPE) {
             quickResolveOlderReports(comment)

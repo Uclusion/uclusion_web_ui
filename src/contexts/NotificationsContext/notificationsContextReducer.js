@@ -3,6 +3,7 @@ import _ from 'lodash'
 import { NOTIFICATIONS_CHANNEL } from './NotificationsContext'
 import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
+import { findMessagesForInvestibleId } from '../../utils/messageUtils'
 
 export const NOTIFICATIONS_CONTEXT_NAMESPACE = 'notifications';
 const UPDATE_MESSAGES = 'UPDATE_MESSAGES';
@@ -11,6 +12,7 @@ const REMOVE_MESSAGE = 'REMOVE_MESSAGE';
 const DEHIGHLIGHT_MESSAGE = 'DEHIGHLIGHT_MESSAGE';
 const LEVEL_MESSAGE = 'LEVEL_MESSAGE';
 const ADD_MESSAGE = 'ADD_MESSAGE';
+const REMOVE_FOR_INVESTIBLE = 'REMOVE_FOR_INVESTIBLE';
 
 /** Messages you can send the reducer */
 
@@ -32,6 +34,14 @@ export function addMessage(message) {
   return {
     type: ADD_MESSAGE,
     message
+  }
+}
+
+export function removeMessagesForInvestible(investibleId, useRemoveTypes) {
+  return {
+    type: REMOVE_FOR_INVESTIBLE,
+    investibleId,
+    useRemoveTypes
   }
 }
 
@@ -149,6 +159,22 @@ function dehighlightSingleMessage(state, action) {
   });
 }
 
+function removeForInvestible(state, action) {
+  const { messages } = state;
+  const { investibleId, useRemoveTypes } = action;
+  const myMessages = findMessagesForInvestibleId(investibleId, state) || [];
+  const filteredMessages = (messages || []).filter((aMessage) => {
+    if ((myMessages || []).includes(aMessage)) {
+      if (!useRemoveTypes) {
+        return false;
+      }
+      return !useRemoveTypes.includes(aMessage.type);
+    }
+    return true;
+  });
+  return storeMessagesInState(state, filteredMessages);
+}
+
 function computeNewState (state, action) {
   switch (action.type) {
     case UPDATE_MESSAGES:
@@ -163,6 +189,8 @@ function computeNewState (state, action) {
       return dehighlightSingleMessage(state, action);
     case LEVEL_MESSAGE:
       return changeLevelSingleMessage(state, action);
+    case REMOVE_FOR_INVESTIBLE:
+      return removeForInvestible(state, action);
     default:
       return state;
   }

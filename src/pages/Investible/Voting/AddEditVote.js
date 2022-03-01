@@ -113,8 +113,7 @@ function AddEditVote(props) {
     hasVoted,
     allowMultiVote,
     multiplier,
-    votingPageState, updateVotingPageState, votingPageStateReset,
-    messagesDispatch, voteMessage, isInbox
+    votingPageState, updateVotingPageState, votingPageStateReset, voteMessage, isInbox
   } = props;
   const {
     storedInvestment,
@@ -218,7 +217,7 @@ function AddEditVote(props) {
     }
     partialUpdateInvestment(marketPresencesDispatch, investmentResult, allowMultiVote);
     if (voteMessage) {
-      removeWorkListItem(voteMessage, workItemClasses.removed, messagesDispatch);
+      removeWorkListItem(voteMessage, workItemClasses.removed);
     }
     if (open) {
       toggleOpen();

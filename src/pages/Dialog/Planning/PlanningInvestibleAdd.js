@@ -54,7 +54,7 @@ function PlanningInvestibleAdd(props) {
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const [messagesState] = useContext(NotificationsContext);
   const [open, setOpen] = useState(false);
   const lockedDialogClasses = useLockedDialogStyles();
   const [assignments, setAssignments] = useState(undefined);
@@ -189,7 +189,7 @@ function PlanningInvestibleAdd(props) {
           resolveComments && requiresInputId ? [requiresInputId] : undefined)
           .then((movedComments) => {
             fromCommentIds.forEach((commentId) => {
-              removeMessagesForCommentId(commentId, messagesState, messagesDispatch);
+              removeMessagesForCommentId(commentId, messagesState);
             });
             const comments = getMarketComments(commentsState, marketId);
             refreshMarketComments(commentsDispatch, marketId, [...movedComments, ...comments]);

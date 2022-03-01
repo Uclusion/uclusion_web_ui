@@ -4,6 +4,7 @@ import CommentPanel from './CommentPanel'
 import _ from 'lodash'
 import InboxInvestible from './InboxInvestible'
 import { UNASSIGNED_TYPE } from '../../../constants/notifications'
+import { findMessageOfType } from '../../../utils/messageUtils'
 
 function LinkMultiplePanel(props) {
   const { linkMultiple, marketId, commentId, planningClasses, mobileLayout } = props;
@@ -33,7 +34,9 @@ function LinkMultiplePanel(props) {
     const { investible_id: investibleId, market_type: marketType } = messagesFull[0];
     return <InboxInvestible marketId={marketId} investibleId={investibleId} messageTypes={messageTypes}
                             messagesFull={messagesFull}
-                            planningClasses={planningClasses} marketType={marketType} mobileLayout={mobileLayout} />
+                            planningClasses={planningClasses} marketType={marketType} mobileLayout={mobileLayout}
+                            unacceptedAssignment={findMessageOfType('UNACCEPTED_ASSIGNMENT', investibleId,
+                              messagesState)}/>
   }
   console.warn(messageTypes);
   return <React.Fragment />;

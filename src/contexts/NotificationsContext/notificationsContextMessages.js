@@ -1,4 +1,4 @@
-import { addMessage, updateMessages } from './notificationsContextReducer'
+import { addMessage, removeMessage, removeMessagesForInvestible, updateMessages } from './notificationsContextReducer'
 import { NOTIFICATIONS_HUB_CHANNEL, VERSIONS_EVENT } from '../VersionsContext/versionsContextHelper'
 import { registerListener } from '../../utils/MessageBusUtils'
 import { getMarketClient } from '../../api/uclusionClient'
@@ -7,6 +7,8 @@ export const ADD_EVENT = 'add_event';
 export const DELETE_EVENT = 'delete_event';
 export const DEHIGHLIGHT_EVENT = 'dehighlight_event';
 export const MODIFY_NOTIFICATIONS_CHANNEL = 'delete_notifications';
+export const STAGE_CHANGE_EVENT = 'stage_change_event';
+export const REMOVE_EVENT = 'remove_event';
 
 function beginListening(dispatch) {
   registerListener(NOTIFICATIONS_HUB_CHANNEL, 'notificationsStart', (data) => {
@@ -25,7 +27,7 @@ function beginListening(dispatch) {
     }
   });
   registerListener(MODIFY_NOTIFICATIONS_CHANNEL, 'notificationsDelete', (data) => {
-    const { payload: { event, messages } } = data;
+    const { payload: { event, messages, investibleId, useRemoveTypes, message } } = data;
     let marketId;
     let typeObjectIds = [];
     messages.forEach((message) => {
@@ -38,6 +40,12 @@ function beginListening(dispatch) {
         break;
       case DEHIGHLIGHT_EVENT:
         getMarketClient(marketId).then((client) => client.users.dehighlightNotifications(typeObjectIds));
+        break;
+      case STAGE_CHANGE_EVENT:
+        dispatch(removeMessagesForInvestible(investibleId, useRemoveTypes));
+        break;
+      case REMOVE_EVENT:
+        dispatch(removeMessage(message));
         break;
       default:
       // console.debug(`Ignoring push event ${event}`);

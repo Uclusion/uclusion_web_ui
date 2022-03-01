@@ -19,7 +19,7 @@ function InvestibleReady(props) {
   const intl = useIntl();
   const workItemClasses = workListStyles();
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
-  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const [, messagesDispatch] = useContext(NotificationsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -35,7 +35,7 @@ function InvestibleReady(props) {
         onSave={(result) => {
           const { fullInvestible } = result;
           refreshInvestibles(investiblesDispatch, () => {}, [fullInvestible]);
-          removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
+          removeWorkListItem(message, workItemClasses.removed);
         }}
         isAdmin={isAdmin}
         isAssign={true}
@@ -60,7 +60,7 @@ function InvestibleReady(props) {
               return updateInvestible(updateInfo).then((fullInvestible) => {
                 onInvestibleStageChange(stage, fullInvestible, investibleId, marketId, undefined,
                   undefined, investiblesDispatch, () => {}, marketStagesState,
-                  messagesState, messagesDispatch, [UNASSIGNED_TYPE]);
+                  [UNASSIGNED_TYPE]);
                 notify(myPresence.id, investibleId, UNASSIGNED_TYPE, YELLOW_LEVEL, investiblesState, market,
                   messagesDispatch);
                 setOperationRunning(false);

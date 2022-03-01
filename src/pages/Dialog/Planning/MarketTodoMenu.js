@@ -82,7 +82,7 @@ function MarketTodoMenu(props) {
   function moveTodo(notificationType) {
     setOperationRunning(true);
     openIdFunc(undefined);
-    removeMessagesForCommentId(commentId, messagesState, messagesDispatch);
+    removeMessagesForCommentId(commentId, messagesState);
     return updateComment(marketId, commentId, undefined, undefined, undefined,
       undefined, notificationType)
       .then((comment) => {

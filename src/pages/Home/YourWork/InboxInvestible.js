@@ -45,11 +45,10 @@ import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import AttachedFilesList from '../../../components/Files/AttachedFilesList'
 import Chip from '@material-ui/core/Chip'
 import PropTypes from 'prop-types'
-import { findMessageOfType, getLabelList } from '../../../utils/messageUtils'
+import { getLabelList } from '../../../utils/messageUtils'
 import { editorEmpty } from '../../../components/TextEditors/Utilities/CoreUtils'
 import SpinningButton from '../../../components/SpinBlocking/SpinningButton'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
-import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { workListStyles } from './WorkListItem'
 import InvestibleBodyEdit from '../../Investible/InvestibleBodyEdit'
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
@@ -58,13 +57,12 @@ import { useHistory } from 'react-router'
 
 function InboxInvestible(props) {
   const { marketId, marketType, planningClasses, messageTypes, investibleId, mobileLayout, isOutbox,
-    messagesFull } = props;
+    messagesFull, unacceptedAssignment } = props;
   const history = useHistory();
   const intl = useIntl();
   const workItemClasses = workListStyles();
   const classes = useMetaDataStyles();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [investiblesState, invDispatch] = useContext(InvestiblesContext);
@@ -109,7 +107,6 @@ function InboxInvestible(props) {
     && assignedInAcceptedStage.length >= inAcceptedStage.allowed_investibles;
   const assignedNotAccepted = assigned.filter((assignee) => !(accepted || []).includes(assignee));
   const diff = getDiff(diffState, investibleId);
-  const unacceptedAssignment = findMessageOfType('UNACCEPTED_ASSIGNMENT', investibleId, messagesState);
   const [pageStateFull, pageDispatch] = usePageStateReducer('inboxInvestible');
   const showDiff = diff !== undefined && messageTypes.includes('UNREAD_DESCRIPTION');
   const [pageState, updatePageState, pageStateReset] = getPageReducerPage(pageStateFull, pageDispatch, investibleId,
@@ -127,12 +124,12 @@ function InboxInvestible(props) {
 
   function myAccept() {
     return accept(market.id, investibleId, inv, setOperationRunning, invDispatch, diffDispatch,
-      unacceptedAssignment, messagesDispatch, workItemClasses);
+      unacceptedAssignment, workItemClasses);
   }
 
   function myRejectInvestible() {
     return rejectInvestible(market.id, investibleId, inv, commentState, commentsDispatch,
-      setOperationRunning, invDispatch, diffDispatch, marketStagesState, messagesState, messagesDispatch);
+      setOperationRunning, invDispatch, diffDispatch, marketStagesState);
   }
 
   function mySetBeingEdited(isEdit, event) {
@@ -140,6 +137,7 @@ function InboxInvestible(props) {
       name, history, marketId);
   }
 
+  console.debug(`inbox investible for ${investibleId} rendering`);
   return (
     <div style={{paddingTop: '1rem', paddingRight: '1rem', paddingLeft: '1rem',
       paddingBottom: !_.isEmpty(messageTypes) ? '1rem' : undefined}}>

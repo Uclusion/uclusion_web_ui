@@ -4,13 +4,16 @@ import {
   reopenAutoclosedInvestibleComments,
   resolveInvestibleComments
 } from '../contexts/CommentsContext/commentsContextHelper'
-import { findMessagesForInvestibleId } from './messageUtils'
-import { addMessage, removeMessage } from '../contexts/NotificationsContext/notificationsContextReducer'
+import { addMessage } from '../contexts/NotificationsContext/notificationsContextReducer'
 import { formInvestibleLink, formMarketLink } from './marketIdPathFunctions'
 import { NOT_FULLY_VOTED_TYPE, REPORT_REQUIRED } from '../constants/notifications'
+import { pushMessage } from './MessageBusUtils'
+import {
+  MODIFY_NOTIFICATIONS_CHANNEL, STAGE_CHANGE_EVENT
+} from '../contexts/NotificationsContext/notificationsContextMessages'
 
 export function onInvestibleStageChange(targetStageId, newInv, investibleId, marketId, commentsState, commentsDispatch,
-  invDispatch, diffDispatch, marketStagesState, messagesState, messagesDispatch, removeTypes, fullStage) {
+  invDispatch, diffDispatch, marketStagesState, removeTypes, fullStage) {
   refreshInvestibles(invDispatch, diffDispatch, [newInv]);
   const targetStage = getFullStage(marketStagesState, marketId, targetStageId) || {};
   if (targetStageId && marketStagesState && commentsState) {
@@ -21,20 +24,11 @@ export function onInvestibleStageChange(targetStageId, newInv, investibleId, mar
   if (fullStage.close_comments_on_entrance && commentsState && commentsDispatch) {
     reopenAutoclosedInvestibleComments(investibleId, marketId, commentsState, commentsDispatch);
   }
-  const messages = findMessagesForInvestibleId(investibleId, messagesState) || [];
   let useRemoveTypes = removeTypes;
   if (!useRemoveTypes && targetStage.move_on_comment) {
     useRemoveTypes = [NOT_FULLY_VOTED_TYPE, REPORT_REQUIRED];
   }
-  messages.forEach((message) => {
-    if (useRemoveTypes) {
-      if (useRemoveTypes.includes(message.type)) {
-        messagesDispatch(removeMessage(message));
-      }
-    } else {
-      messagesDispatch(removeMessage(message));
-    }
-  });
+  pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: STAGE_CHANGE_EVENT, investibleId, useRemoveTypes });
 }
 
 export function notify(userId, investibleId, notificationType, notificationLevel, investiblesState, market,

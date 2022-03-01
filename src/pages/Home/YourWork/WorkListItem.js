@@ -9,7 +9,6 @@ import { useRowGutterStyles } from "@mui-treasury/styles/gutter/row";
 import PropTypes from 'prop-types'
 import { navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions'
 import { DeleteForever, ExpandLess } from '@material-ui/icons'
-import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import ArchiveIcon from '@material-ui/icons/Archive'
 import GravatarGroup from '../../../components/Avatars/GravatarGroup'
@@ -21,7 +20,7 @@ import { deleteOrDehilightMessages } from '../../../api/users'
 import { pushMessage } from '../../../utils/MessageBusUtils'
 import {
   DEHIGHLIGHT_EVENT,
-  MODIFY_NOTIFICATIONS_CHANNEL
+  MODIFY_NOTIFICATIONS_CHANNEL, REMOVE_EVENT
 } from '../../../contexts/NotificationsContext/notificationsContextMessages'
 
 const Item = styled("div")`
@@ -117,16 +116,16 @@ export const workListStyles = makeStyles(() => {
   };
 });
 
-export function removeWorkListItem(message, removeClass, messagesDispatch) {
+export function removeWorkListItem(message, removeClass) {
   const { type_object_id: typeObjectId } = message;
   const item = document.getElementById(`workListItem${typeObjectId}`);
   if (item) {
     item.addEventListener("transitionend",() => {
-      messagesDispatch(removeMessage(message));
+      pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: REMOVE_EVENT, message });
     });
     item.classList.add(removeClass);
   } else {
-    messagesDispatch(removeMessage(message));
+    pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: REMOVE_EVENT, message });
   }
 }
 

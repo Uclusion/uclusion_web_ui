@@ -478,7 +478,7 @@ function MarketTodos (props) {
       return;
     }
     setOperationRunning(true);
-    removeMessagesForCommentId(commentId, messagesState, messagesDispatch);
+    removeMessagesForCommentId(commentId, messagesState);
     const target = event.target;
     target.style.cursor = 'wait';
     return updateComment(marketId, commentId, undefined, undefined, undefined, undefined,

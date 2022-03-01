@@ -31,7 +31,6 @@ import { Clear, SettingsBackupRestore } from '@material-ui/icons'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
-import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 
 const usePlanInvestibleStyles = makeStyles(
@@ -65,7 +64,6 @@ function PlanningInvestibleEdit(props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, diffDispatch] = useContext(DiffContext);
-  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [, invDispatch] = useContext(InvestiblesContext);
   const fullStage = getFullStage(marketStagesState, marketId, marketInfo.stage) || {};
   const comments = getMarketComments(commentsState, marketId);
@@ -121,8 +119,7 @@ function PlanningInvestibleEdit(props) {
       return stageChangeInvestible(moveInfo)
         .then((newInv) => {
           onInvestibleStageChange(furtherWorkStage.id, newInv, myInvestible.id, marketId, commentsState,
-            commentsDispatch, invDispatch, diffDispatch, marketStagesState, messagesState, messagesDispatch,
-            undefined, fullStage);
+            commentsDispatch, invDispatch, diffDispatch, marketStagesState, undefined, fullStage);
           setOperationRunning(false);
           onSave({ fullInvestible: newInv, assignmentChanged: true });
         });
@@ -168,8 +165,7 @@ function PlanningInvestibleEdit(props) {
               market_infos: newInfos
             };
             onInvestibleStageChange(newStage.id, fullInvestible, myInvestible.id, marketId, commentsState,
-              commentsDispatch, invDispatch, diffDispatch, marketStagesState, messagesState, messagesDispatch,
-              undefined, fullStage);
+              commentsDispatch, invDispatch, diffDispatch, marketStagesState, undefined, fullStage);
           }
           setOperationRunning(false);
           onSave({ fullInvestible, assignmentChanged });

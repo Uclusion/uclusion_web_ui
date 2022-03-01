@@ -121,7 +121,6 @@ function PlanningIdeas(props) {
   const [, diffDispatch] = useContext(DiffContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = (marketPresences || []).find((presence) => presence.current_user) || {};
-  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const acceptedInvestibles = myInvestiblesStageHash[acceptedStageId] || [];
   const acceptedFull = acceptedStage.allowed_investibles > 0
     && acceptedInvestibles.length >= acceptedStage.allowed_investibles;
@@ -159,7 +158,7 @@ function PlanningIdeas(props) {
         .then((inv) => {
           const fullStage = getFullStage(marketStagesState, marketId, currentStageId) || {};
           onInvestibleStageChange(targetStageId, inv, investibleId, marketId, commentsState, commentsDispatch,
-            invDispatch, diffDispatch, marketStagesState, messagesState, messagesDispatch, undefined, fullStage);
+            invDispatch, diffDispatch, marketStagesState, undefined, fullStage);
         }).finally(() => {
           target.style.cursor = 'pointer';
           setOperationRunning(false);

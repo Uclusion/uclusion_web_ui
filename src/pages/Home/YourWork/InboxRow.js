@@ -16,6 +16,7 @@ import { Assignment, PersonAddOutlined } from '@material-ui/icons'
 import Quiz from '../../../components/CustomChip/Quiz'
 import { useIntl } from 'react-intl'
 import { useMediaQuery, useTheme } from '@material-ui/core'
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 
 function getPriorityIcon(message, isAssigned) {
   const { level } = message;
@@ -44,6 +45,7 @@ function InboxRow(props) {
   const [investiblesState] = useContext(InvestiblesContext);
   const [diffState] = useContext(DiffContext);
   const [marketsState] = useContext(MarketsContext);
+  const [messagesState] = useContext(NotificationsContext);
   const planningClasses = usePlanningInvestibleStyles();
   const { investible_id: investibleId, investible_name: investibleName, updated_at: updatedAt,
     market_name: marketName, is_highlighted: isHighlighted, type_object_id: typeObjectId, market_id: marketId,
@@ -80,7 +82,7 @@ function InboxRow(props) {
   if (expansionOpen) {
     addExpansionPanel({
       item, commentState, marketState, investiblesState, diffState, planningClasses, marketsState,
-      mobileLayout, intl, isMultiple
+      mobileLayout, intl, isMultiple, messagesState
     });
   }
   return <WorkListItem key={typeObjectId} id={typeObjectId} checked={checked} determinateDispatch={determinateDispatch}

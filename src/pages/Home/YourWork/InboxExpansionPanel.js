@@ -20,10 +20,11 @@ import InvestibleReady from './InvestibleReady'
 import CommentBox from '../../../containers/CommentBox/CommentBox'
 import { getInvestibleComments } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { JUSTIFY_TYPE } from '../../../constants/comments'
+import { findMessageOfType } from '../../../utils/messageUtils'
 
 export function addExpansionPanel(props) {
   const {item, marketState, investiblesState, diffState, planningClasses, mobileLayout, intl, isMultiple,
-    commentState} = props;
+    commentState, messagesState} = props;
   const { message } = item;
   const { type: messageType, market_id: marketId, comment_id: commentId, comment_market_id: commentMarketId,
     link_type: linkType, investible_id: investibleId, market_type: marketType, link_multiple: linkMultiple } = message;
@@ -125,7 +126,9 @@ export function addExpansionPanel(props) {
     'ISSUE_RESOLVED', 'UNACCEPTED_ASSIGNMENT', 'NEW_TODO', 'UNREAD_VOTE'].includes(messageType)) {
     item.expansionPanel = <InboxInvestible marketId={marketId} investibleId={investibleId} messageTypes={[messageType]}
                                            planningClasses={planningClasses} marketType={marketType}
-                                           mobileLayout={mobileLayout} />;
+                                           mobileLayout={mobileLayout}
+                                           unacceptedAssignment={findMessageOfType('UNACCEPTED_ASSIGNMENT',
+                                             investibleId, messagesState)} />;
   } else if (messageType === 'UNREAD_DRAFT') {
     item.expansionPanel = (
       <DialogManage marketId={marketId} isInbox />

@@ -16,7 +16,6 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 import SpinningIconLabelButton from '../../Buttons/SpinningIconLabelButton'
 import { Clear } from '@material-ui/icons'
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions'
-import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { HIGHLIGHTED_BUTTON_COLOR } from '../../Buttons/ButtonConstants'
 import { getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 
@@ -90,7 +89,6 @@ function StageChangeAction(props) {
   const lockedDialogClasses = useLockedDialogStyles()
   const [open, setOpen] = React.useState(false)
   const [, setOperationRunning] = useContext(OperationInProgressContext)
-  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const fullStage = getFullStage(marketStagesState, marketId, currentStageId) || {};
 
   const handleOpen = () => {
@@ -110,8 +108,7 @@ function StageChangeAction(props) {
     return stageChangeInvestible(moveInfo)
       .then((newInv) => {
         onInvestibleStageChange(targetStageId, newInv, investibleId, marketId, commentsState, commentsDispatch,
-          invDispatch, diffDispatch, marketStagesState, messagesState, messagesDispatch, undefined,
-          fullStage);
+          invDispatch, diffDispatch, marketStagesState, undefined, fullStage);
         if (standAlone) {
           setOperationRunning(false);
         } else {

@@ -203,7 +203,7 @@ function ArchiveInvestbiles(props) {
   const [invState, invDispatch] = useContext(InvestiblesContext);
   const [beingDraggedHack, setBeingDraggedHack] = useContext(LocalPlanningDragContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
-  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const [, messagesDispatch] = useContext(NotificationsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
 
@@ -232,8 +232,8 @@ function ArchiveInvestbiles(props) {
     return updateInvestible(updateInfo).then((fullInvestible) => {
       const fullStage = getFullStage(marketStagesState, marketId, currentStageId) || {};
       onInvestibleStageChange(stage, fullInvestible, investibleId, marketId, commentsState,
-        commentsDispatch, invDispatch, () => {}, undefined, messagesState,
-        messagesDispatch, [UNASSIGNED_TYPE], fullStage);
+        commentsDispatch, invDispatch, () => {}, undefined, [UNASSIGNED_TYPE],
+        fullStage);
       if (isReadyToStart) {
         const market = getMarket(marketsState, marketId);
         notify(presenceId, investibleId, UNASSIGNED_TYPE, YELLOW_LEVEL, invState, market, messagesDispatch);

@@ -45,7 +45,7 @@ function YourVoting(props) {
   const {
     storedType,
   } = votingPageState || myVotingPageState;
-  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const [messagesState] = useContext(NotificationsContext);
   const voteMessage = findMessageOfType(NOT_FULLY_VOTED_TYPE, investibleId, messagesState);
   const intl = useIntl();
   const classes = useStyles();
@@ -136,7 +136,6 @@ function YourVoting(props) {
         votingPageState={votingPageState || myVotingPageState}
         updateVotingPageState={updateVotingPageState || myUpdateVotingPageState}
         votingPageStateReset={votingPageStateReset || myVotingPageStateReset}
-        messagesDispatch={messagesDispatch}
         voteMessage={voteMessage}
         isInbox={isInbox}
       />

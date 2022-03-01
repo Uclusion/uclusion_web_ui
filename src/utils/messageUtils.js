@@ -97,10 +97,10 @@ export function findMessagesForCommentId(commentId, state) {
   return safeMessages.filter((message) => message.comment_id === commentId);
 }
 
-export function removeMessagesForCommentId(commentId, state, dispatch, removeClass) {
+export function removeMessagesForCommentId(commentId, state, removeClass) {
   const messages = findMessagesForCommentId(commentId, state) || [];
   messages.forEach((message) => {
-    removeWorkListItem(message, removeClass, dispatch);
+    removeWorkListItem(message, removeClass);
   });
 }
 

@@ -568,7 +568,7 @@ function Comment(props) {
         onCommentOpen(investiblesState, investibleId, marketStagesState, marketId, comment, investiblesDispatch,
           commentsState, commentsDispatch);
         // The only message that will be there is the one telling you the comment was resolved
-        removeMessagesForCommentId(id, messagesState,messagesDispatch, workItemClasses.removed);
+        removeMessagesForCommentId(id, messagesState, workItemClasses.removed);
         setOperationRunning(false);
         onDone();
       });
@@ -578,7 +578,7 @@ function Comment(props) {
     return removeComment(marketId, id)
       .then(() => {
         removeComments(commentsDispatch, marketId, [id]);
-        removeMessagesForCommentId(id, messagesState,messagesDispatch, workItemClasses.removed);
+        removeMessagesForCommentId(id, messagesState, workItemClasses.removed);
         setOperationRunning(false);
         onDone();
       });
@@ -592,7 +592,7 @@ function Comment(props) {
           abstain: true,
         }
         changeMyPresence(marketPresencesState, presenceDispatch, marketId, newValues)
-        removeMessagesForCommentId(id, messagesState, messagesDispatch, workItemClasses.removed)
+        removeMessagesForCommentId(id, messagesState, workItemClasses.removed)
         setOperationRunning(false)
         onDone()
       });
@@ -602,7 +602,7 @@ function Comment(props) {
     setOperationRunning(true)
     return updateComment(marketId, id, undefined, TODO_TYPE).then((comment) => {
       addCommentToMarket(comment, commentsState, commentsDispatch)
-      removeMessagesForCommentId(id, messagesState, messagesDispatch, workItemClasses.removed)
+      removeMessagesForCommentId(id, messagesState, workItemClasses.removed)
       setOperationRunning(false)
     })
   }
@@ -622,7 +622,7 @@ function Comment(props) {
           shouldResolveMessages = _.isEmpty(unresolvedTodo);
         }
         if (shouldResolveMessages) {
-          removeMessagesForCommentId(id, messagesState, messagesDispatch, workItemClasses.removed);
+          removeMessagesForCommentId(id, messagesState, workItemClasses.removed);
         }
         if (inlineMarketId) {
           const inlineInvestibles = getMarketInvestibles(investiblesState, inlineMarketId) || []

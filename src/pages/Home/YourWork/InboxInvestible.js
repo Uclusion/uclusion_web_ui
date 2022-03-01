@@ -135,7 +135,6 @@ function InboxInvestible(props) {
       name, history, marketId);
   }
 
-  console.debug(`inbox investible for ${investibleId} rendering`);
   return (
     <div style={{paddingTop: '1rem', paddingRight: '1rem', paddingLeft: '1rem',
       paddingBottom: !_.isEmpty(useMessageTypes) ? '1rem' : undefined}}>

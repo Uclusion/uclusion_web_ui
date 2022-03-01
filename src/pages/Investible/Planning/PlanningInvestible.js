@@ -1421,7 +1421,6 @@ function MarketMetaData(props) {
   const [, invDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
-  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const workItemClasses = workListStyles();
   const myMessageDescription = findMessageOfTypeAndId(investibleId, messagesState, 'DESCRIPTION');
   const diff = getDiff(diffState, investibleId);

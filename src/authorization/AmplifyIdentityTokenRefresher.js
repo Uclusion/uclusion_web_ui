@@ -11,11 +11,21 @@ import { Auth } from 'aws-amplify';
 class AmplifyIdentityTokenRefresher {
   getIdentity() {
     return Auth.currentSession().then((sessionData) => {
-      const { idToken } = sessionData;
+      const { idToken, refreshToken } = sessionData;
       const expired = idToken.getExpiration() <= (Date.now() / 1000);
       if (expired) {
-        console.error("Id token is expired, and didn't auto refresh. Signing us out");
-        return Auth.signOut();
+        console.warn("Id token is expired, and didn't auto refresh. Trying again with refresh token.");
+        return Auth.currentAuthenticatedUser().then((res) => {
+            return res.refreshSession(refreshToken, (err, data) => {
+              if (err) {
+                console.error("Id token is expired, and didn't auto refresh. Signing us out");
+                return Auth.signOut();
+              } else {
+                console.info("Successfully refreshed token");
+                return data.getIdToken().getJwtToken();
+              }
+            });
+          });
       }
       const { jwtToken } = idToken;
       return jwtToken;

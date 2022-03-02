@@ -88,7 +88,6 @@ function beginListening(dispatch, diffDispatch, setTokensHash) {
       default:
       // console.debug(`Ignoring identity event ${event}`);
     }
-    pushMessage(OPERATION_HUB_CHANNEL, { event: START_OPERATION });
     loginPromise.then((result) => {
       console.log('Quick adding market after load');
       const { market, user, stages, uclusion_token: token, investible } = result;
@@ -102,9 +101,7 @@ function beginListening(dispatch, diffDispatch, setTokensHash) {
       const tokenStorageManager = new TokenStorageManager();
       return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, id, token).then(() => {
         // We know the market we just logged into is dirty so skip normal call to check it first
-        return updateMarkets([id], undefined, 1).then(() => {
-          pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION });
-        });
+        return updateMarkets([id], undefined, 1);
       });
     }).catch((error) => {
       console.error(error);

@@ -13,6 +13,7 @@ function OperationInProgressProvider (props) {
         // This is a NO OP because something unknowingly turning off a button initiated operation in progress
         return state;
       }
+      console.info('Stopping operation from message');
       return false;
     }
     if (msg === START_OPERATION) {
@@ -20,8 +21,10 @@ function OperationInProgressProvider (props) {
         // Shouldn't reach here but NO OP since preventing double click more important
         return state;
       }
+      console.info('Starting operation from message');
       return true;
     }
+    console.info(`Setting operation ${value}`);
     return value;
   }, false);
 

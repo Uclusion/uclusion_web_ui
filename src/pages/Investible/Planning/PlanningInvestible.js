@@ -722,10 +722,11 @@ function PlanningInvestible(props) {
       investibleId,
       openForInvestment: isReadyToStart,
     };
-    setOperationRunning(true);
+    setOperationRunning('readyToStart');
     return updateInvestible(updateInfo).then((fullInvestible) => {
       onInvestibleStageChange(stage, fullInvestible, investibleId, marketId, undefined,
-        undefined, investiblesDispatch, diffDispatch, marketStagesState, [UNASSIGNED_TYPE]);
+        undefined, investiblesDispatch, diffDispatch, marketStagesState, [UNASSIGNED_TYPE],
+        fullStage);
       if (isReadyToStart) {
         notify(myPresence.id, investibleId, UNASSIGNED_TYPE, YELLOW_LEVEL, investiblesState, market, messagesDispatch);
       }
@@ -894,7 +895,7 @@ function PlanningInvestible(props) {
                       control={
                         <Checkbox
                           value={openForInvestment}
-                          disabled={operationRunning || !isAdmin}
+                          disabled={operationRunning !== false || !isAdmin}
                           checked={openForInvestment}
                           onClick={() => {
                             if (!openForInvestment && !_.isEmpty(openProblemComments) && !mobileLayout) {

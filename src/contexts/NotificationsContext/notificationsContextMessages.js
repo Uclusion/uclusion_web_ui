@@ -30,7 +30,7 @@ function beginListening(dispatch) {
     const { payload: { event, messages, investibleId, useRemoveTypes, message } } = data;
     let marketId;
     let typeObjectIds = [];
-    messages.forEach((message) => {
+    (messages || []).forEach((message) => {
       marketId = message.market_id;
       typeObjectIds.push(message.type_object_id);
     })

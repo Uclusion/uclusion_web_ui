@@ -21,7 +21,7 @@ import { startTimerChain } from '../utils/timerUtils'
 import { MARKET_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../contexts/WebSocketContext'
 import { GLOBAL_VERSION_UPDATE, NEW_MARKET, } from '../contexts/VersionsContext/versionsContextMessages'
 import LocalForageHelper from '../utils/LocalForageHelper'
-import { EMPTY_GLOBAL_VERSION, VERSIONS_CONTEXT_NAMESPACE } from '../contexts/VersionsContext/versionsContextReducer'
+import { VERSIONS_CONTEXT_NAMESPACE } from '../contexts/VersionsContext/versionsContextReducer'
 import { getHomeAccountUser } from './sso'
 import { checkInStorage } from './storageIntrospector'
 
@@ -35,6 +35,7 @@ export class MatchError extends Error {
 }
 
 let globalFetchPromiseChain = Promise.resolve(true);
+let globalFetchPromiseTracker = {inProgress: 0};
 
 export function executeRefreshTimerChain(refreshAll, resolve, reject) {
   const execFunction = () => {
@@ -46,11 +47,14 @@ export function executeRefreshTimerChain(refreshAll, resolve, reject) {
           existingMarkets,
           globalVersion,
         } = state || {};
+        const { lastCallVersion } = globalFetchPromiseTracker;
         // if we're refreshing all we're going back to initialization state
-        currentHeldVersion = refreshAll? 'INITIALIZATION' : globalVersion;
+        currentHeldVersion = refreshAll? 'INITIALIZATION' : (lastCallVersion ? lastCallVersion : globalVersion);
         return doVersionRefresh(currentHeldVersion, existingMarkets);
       }).then((globalVersion) => {
+        globalFetchPromiseTracker.inProgress -= 1;
         if (globalVersion !== currentHeldVersion) {
+          globalFetchPromiseTracker.lastCallVersion = globalVersion;
           // console.log('Got new version');
           pushMessage(VERSIONS_HUB_CHANNEL, { event: GLOBAL_VERSION_UPDATE, globalVersion });
         }
@@ -81,14 +85,20 @@ function startGlobalRefreshTimerChain(refreshAll) {
 
 /**
  * Refreshes the global version to consider the fetch complete.
+ * At most need one running and one queued as each call does the same thing.
  * @returns {Promise<*>}
  */
 export function refreshGlobalVersion(refreshCalled) {
-    // Always chain to avoid fetching the same version over and over
-    globalFetchPromiseChain = globalFetchPromiseChain.then(() => {
-      return startGlobalRefreshTimerChain(refreshCalled);
-    });
+  const { inProgress } = globalFetchPromiseTracker;
+  if (inProgress > 1) {
     return globalFetchPromiseChain;
+  }
+  globalFetchPromiseTracker.inProgress += 1;
+  // Always chain to avoid fetching the same version over and over
+  globalFetchPromiseChain = globalFetchPromiseChain.then(() => {
+    return startGlobalRefreshTimerChain(refreshCalled);
+  });
+  return globalFetchPromiseChain;
 }
 
 /**

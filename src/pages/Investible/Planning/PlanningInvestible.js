@@ -890,6 +890,7 @@ function PlanningInvestible(props) {
                 {market.id && marketInvestible.investible && isReadyFurtherWork && (
                   <div className={classes.assignmentContainer}>
                     <FormControlLabel
+                      id='readyToStartCheckbox'
                       control={
                         <Checkbox
                           value={openForInvestment}

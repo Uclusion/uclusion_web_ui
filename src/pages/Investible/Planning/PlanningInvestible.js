@@ -140,8 +140,7 @@ import { removeWorkListItem, workListStyles } from '../../Home/YourWork/WorkList
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { ACTIVE_STAGE } from '../../../constants/markets'
 import {
-  OPERATION_HUB_CHANNEL, START_OPERATION,
-  STOP_OPERATION
+  OPERATION_HUB_CHANNEL, STOP_OPERATION
 } from '../../../contexts/OperationInProgressContext/operationInProgressMessages'
 
 export const usePlanningInvestibleStyles = makeStyles(

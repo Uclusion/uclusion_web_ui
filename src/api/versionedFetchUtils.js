@@ -20,10 +20,6 @@ import { LimitedParallelMap } from '../utils/PromiseUtils'
 import { startTimerChain } from '../utils/timerUtils'
 import { MARKET_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../contexts/WebSocketContext'
 import { GLOBAL_VERSION_UPDATE, NEW_MARKET, } from '../contexts/VersionsContext/versionsContextMessages'
-import {
-  OPERATION_HUB_CHANNEL, START_OPERATION,
-  STOP_OPERATION
-} from '../contexts/OperationInProgressContext/operationInProgressMessages'
 import LocalForageHelper from '../utils/LocalForageHelper'
 import { EMPTY_GLOBAL_VERSION, VERSIONS_CONTEXT_NAMESPACE } from '../contexts/VersionsContext/versionsContextReducer'
 import { getHomeAccountUser } from './sso'

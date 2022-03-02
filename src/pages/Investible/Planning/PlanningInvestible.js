@@ -1354,7 +1354,6 @@ export const useMetaDataStyles = makeStyles(
 
 export function accept(marketId, investibleId, marketInvestible, invDispatch, diffDispatch, unacceptedAssignment,
   workItemClasses) {
-  pushMessage(OPERATION_HUB_CHANNEL, { event: START_OPERATION });
   return acceptInvestible(marketId, investibleId)
     .then((marketInfo) => {
       const newInfos = _.unionBy([marketInfo], marketInvestible.market_infos, 'id');
@@ -1363,13 +1362,12 @@ export function accept(marketId, investibleId, marketInvestible, invDispatch, di
       if (unacceptedAssignment) {
         removeWorkListItem(unacceptedAssignment, workItemClasses.removed);
       }
-      pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION });
+      pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION, id: 'accept' });
     });
 }
 
 export function rejectInvestible(marketId, investibleId, marketInvestible, commentsState, commentsDispatch, invDispatch,
   diffDispatch, marketStagesState) {
-  pushMessage(OPERATION_HUB_CHANNEL, { event: START_OPERATION });
   const furtherWorkStage = getFurtherWorkStage(marketStagesState, marketId);
   const marketInfo = getMarketInfo(marketInvestible, marketId);
   const moveInfo = {
@@ -1385,7 +1383,7 @@ export function rejectInvestible(marketId, investibleId, marketInvestible, comme
     .then((newInv) => {
       onInvestibleStageChange(furtherWorkStage.id, newInv, investibleId, marketId, commentsState, commentsDispatch,
         invDispatch, diffDispatch, marketStagesState, undefined, furtherWorkStage);
-      pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION });
+      pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION, id: 'reject' });
     });
 }
 
@@ -1475,10 +1473,10 @@ function MarketMetaData(props) {
           </FormControl>
           {unaccepted && (
             <div style={{display: 'flex', paddingTop: '1rem', marginBottom: 0}}>
-              <SpinningButton onClick={myAccept} className={classes.actionPrimary}>
+              <SpinningButton onClick={myAccept} className={classes.actionPrimary} id='accept'>
                 {intl.formatMessage({ id: 'planningAcceptLabel' })}
               </SpinningButton>
-              <SpinningButton onClick={myRejectInvestible} className={classes.actionSecondary}>
+              <SpinningButton onClick={myRejectInvestible} className={classes.actionSecondary} id='reject'>
                 {intl.formatMessage({ id: 'saveReject' })}
               </SpinningButton>
             </div>

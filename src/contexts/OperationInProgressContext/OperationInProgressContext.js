@@ -6,10 +6,11 @@ const OperationInProgressContext = React.createContext(false);
 function OperationInProgressProvider (props) {
   const { children } = props;
   const [state, dispatch] = useReducer((state, action) => {
-    const { value, msg } = action;
+    const { value, msg, id } = action;
     if (msg === STOP_OPERATION) {
-      if (state !== true) {
-        // This is a NO OP because something is turning off a button initiated operation in progress
+      const expectedState = id ? id : true;
+      if (state !== expectedState) {
+        // This is a NO OP because something unknowingly turning off a button initiated operation in progress
         return state;
       }
       return false;
@@ -26,7 +27,7 @@ function OperationInProgressProvider (props) {
 
 
   useEffect(() => {
-    beginListening((msg) => dispatch({msg}));
+    beginListening((msg, id) => dispatch({msg, id}));
     return () => {};
   }, []);
 

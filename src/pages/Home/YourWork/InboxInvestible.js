@@ -199,10 +199,10 @@ function InboxInvestible(props) {
         {!_.isEmpty(_.intersection(['UNACCEPTED_ASSIGNMENT'], useMessageTypes)) && (
           <div style={{marginTop: mobileLayout ? '1rem' : undefined, marginLeft: mobileLayout ? undefined : '2rem'}}>
             <div style={{display: 'flex', paddingTop: '1rem', marginBottom: 0}}>
-              <SpinningButton onClick={myAccept} className={classes.actionPrimary}>
+              <SpinningButton onClick={myAccept} className={classes.actionPrimary} id='accept'>
                 {intl.formatMessage({ id: 'planningAcceptLabel' })}
               </SpinningButton>
-              <SpinningButton onClick={myRejectInvestible} className={classes.actionSecondary}
+              <SpinningButton onClick={myRejectInvestible} className={classes.actionSecondary} id='reject'
                               style={{marginRight: '1rem'}}>
                 {intl.formatMessage({ id: 'saveReject' })}
               </SpinningButton>

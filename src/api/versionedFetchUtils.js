@@ -180,10 +180,6 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets) {
         || _.isEmpty(global_version)) {
         return currentHeldVersion;
       }
-      if (_.isEmpty(callWithVersion)) {
-        // If they already have a version then no point in freezing operations - just do background
-        pushMessage(OPERATION_HUB_CHANNEL, { event: START_OPERATION });
-      }
       // don't refresh market's we're banned from
       if (!_.isEmpty(bannedList)) {
         pushMessage(REMOVED_MARKETS_CHANNEL, { event: BANNED_LIST, bannedList });
@@ -191,14 +187,15 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets) {
       // split the market stuff into inline, foreground and background where inline must come first
       // to avoid seeing incomplete comments
       newGlobalVersion = global_version;
+      // Starting operation in progress just presents as a bug to the user because freezes all buttons so just log
+      console.info(`Beginning versions update for ${global_version}`);
      const marketPromises = updateMarkets(inlineList, existingMarkets, MAX_CONCURRENT_API_CALLS, true)
        .then(() => updateMarkets(foregroundList, existingMarkets, MAX_CONCURRENT_API_CALLS))
        .then(() => {
-         if (_.isEmpty(callWithVersion)) {
-           pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION });
-         }
+         console.info(`Finished foreground update for ${global_version}`);
           return updateMarkets(backgroundList, existingMarkets, MAX_CONCURRENT_ARCHIVE_API_CALLS)
             .then(() => {
+              console.info(`Ending versions update for ${global_version}`);
               return newGlobalVersion;
             });
         });

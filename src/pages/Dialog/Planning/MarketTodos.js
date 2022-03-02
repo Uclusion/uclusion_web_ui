@@ -611,6 +611,7 @@ function MarketTodos (props) {
             titleIcon={immediateTodosChip === false ? undefined : immediateTodosChip}
             actionButton={ isInArchives ? null :
               (<ExpandableAction
+                id="immediateTodosButton"
                 icon={<AddIcon htmlColor="black"/>}
                 label={intl.formatMessage({ id: 'createRedExplanation' })}
                 openLabel={intl.formatMessage({ id: 'createTODO' })}
@@ -666,6 +667,7 @@ function MarketTodos (props) {
             titleIcon={whenAbleTodosChip === false ? undefined : whenAbleTodosChip}
             actionButton={ isInArchives ? null :
               (<ExpandableAction
+                id="whenAbleTodosButton"
                 icon={<AddIcon htmlColor="black" />}
                 label={intl.formatMessage({ id: 'createYellowExplanation' })}
                 openLabel={intl.formatMessage({ id: 'createTODO' })}
@@ -721,6 +723,7 @@ function MarketTodos (props) {
             id="whenConvenientTodos"
             actionButton={ isInArchives ? null :
               (<ExpandableAction
+                id="whenConvenientTodosButton"
                 icon={<AddIcon htmlColor="black"/>}
                 label={intl.formatMessage({ id: 'createBlueExplanation' })}
                 openLabel={intl.formatMessage({ id: 'createTODO' })}

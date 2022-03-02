@@ -80,30 +80,15 @@ function startGlobalRefreshTimerChain(refreshAll) {
 }
 
 /**
- * Refreshes the global version
- * need to consider the fetch complete.
+ * Refreshes the global version to consider the fetch complete.
  * @returns {Promise<*>}
  */
-export function refreshGlobalVersion (refreshCalled) {
-  // WAIT UNTIL VERSIONS CONTEXT LOAD COMPLETES BEFORE DOING ANY API CALL
-  const disk = new LocalForageHelper(VERSIONS_CONTEXT_NAMESPACE);
-  return disk.getState()
-    .then((state) => {
-      const { globalVersion } = state || {};
-      // if the global version is the empty global version or just empty,
-      // or we're a refresh then we're requivalent to an initial login
-      // and we can't let that happen in parallel as it's too costly
-      // otherwise we can let things happen in parallel
-      if (refreshCalled || globalVersion === EMPTY_GLOBAL_VERSION || _.isEmpty(globalVersion) ) {
-        globalFetchPromiseChain = globalFetchPromiseChain
-          .then(() => {
-            return startGlobalRefreshTimerChain(refreshCalled);
-          });
-        return globalFetchPromiseChain;
-      }
-      // we're already initialized, so go ahead and let them happen in parallel
+export function refreshGlobalVersion(refreshCalled) {
+    // Always chain to avoid fetching the same version over and over
+    globalFetchPromiseChain = globalFetchPromiseChain.then(() => {
       return startGlobalRefreshTimerChain(refreshCalled);
     });
+    return globalFetchPromiseChain;
 }
 
 /**

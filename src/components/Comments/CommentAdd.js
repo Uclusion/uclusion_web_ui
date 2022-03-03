@@ -450,7 +450,7 @@ function CommentAdd(props) {
   return (
     <>
       <Paper
-        id={'cabox'}
+        id={`${nameKey ? nameKey : ''}cabox`}
         className={classes.add}
         elevation={0}
       >

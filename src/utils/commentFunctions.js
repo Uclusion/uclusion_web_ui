@@ -14,13 +14,6 @@ import { createInitiative } from '../api/markets'
 import { addMarket } from '../contexts/MarketsContext/marketsContextHelper'
 import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../authorization/TokenStorageManager'
 
-export function scrollToCommentAddBox() {
-  const box = document.getElementById('cabox');
-  if (box) {
-    box.scrollIntoView();
-  }
-}
-
 export function onCommentOpen(investibleState, investibleId, marketStagesState, marketId, comment, investibleDispatch,
   commentsState, commentsDispatch) {
   const inv = getInvestible(investibleState, investibleId) || {}

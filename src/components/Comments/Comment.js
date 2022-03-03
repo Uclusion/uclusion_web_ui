@@ -934,6 +934,7 @@ function Comment(props) {
                   <SpinningIconLabelButton
                     onClick={toggleReply}
                     icon={ReplyIcon}
+                    id={`commentReplyButton${id}`}
                     doSpin={false}
                   >
                     {!mobileLayout && intl.formatMessage({ id: "commentReplyLabel" })}
@@ -1061,8 +1062,7 @@ Comment.defaultProps = {
 function InitialReply(props) {
   const { comment, enableEditing, messages } = props;
 
-  return <Reply id={`c${comment.id}`} comment={comment} enableEditing={enableEditing}
-  messages={messages}/>;
+  return <Reply comment={comment} enableEditing={enableEditing} messages={messages}/>;
 }
 
 const useReplyStyles = makeStyles(
@@ -1219,8 +1219,7 @@ function Reply(props) {
   return (
     <div>
       <Card className={!myHighlightedLevel ? classes.container : myMessage.level === 'RED'
-        ? classes.containerRed : classes.containerYellow}
-      >
+        ? classes.containerRed : classes.containerYellow} id={`c${comment.id}`}>
         <CardContent className={classes.cardContent}>
           <Typography className={classes.commenter} variant="body2">
             {commenter.name}
@@ -1259,6 +1258,7 @@ function Reply(props) {
             {enableEditing && (
               <Button
                 className={classes.action}
+                id={`commentReplyButton${comment.id}`}
                 onClick={() => setReplyOpen(true)}
                 variant="text"
               >

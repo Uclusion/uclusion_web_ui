@@ -207,7 +207,7 @@ function WorkListItem(props) {
                     determinateDispatch({id});
                   }}
                 >
-                  {read ? <div /> : (checked ? <Checkbox color="secondary" /> : <CheckBoxOutlineBlank />)}
+                  {read && !isDeletable ? <div /> : (checked ? <Checkbox color="secondary" /> : <CheckBoxOutlineBlank />)}
                 </StyledIconButton>
               )}
               {useSelect && (

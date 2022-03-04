@@ -172,7 +172,8 @@ function Inbox(props) {
     }
     return true;
   });
-  const containsUnread = messagesOrdered.find((message) => message.is_highlighted);
+  const containsCheckable = messagesOrdered.find((message) => message.is_highlighted ||
+    message.type_object_id.startsWith('UNREAD'));
   const notificationsText = _.size(messagesOrdered) !== 1 ? intl.formatMessage({ id: 'notifications' }) :
     intl.formatMessage({ id: 'notification' });
   return (
@@ -182,7 +183,7 @@ function Inbox(props) {
           <Checkbox style={{padding: 0}}
                     checked={checkAll}
                     indeterminate={indeterminate}
-                    disabled={!containsUnread}
+                    disabled={!containsCheckable}
                     onChange={() => determinateDispatch({type: 'toggle'})}
           />
         )}
@@ -190,7 +191,8 @@ function Inbox(props) {
           <TooltipIconButton disabled={operationRunning !== false}
                              icon={<ArchiveIcon htmlColor={ACTION_BUTTON_COLOR} />}
                              onClick={() => {
-                               let toProcess = messagesFull.filter((message) => message.is_highlighted);
+                               let toProcess = messagesFull.filter((message) => message.is_highlighted ||
+                                 message.type_object_id.startsWith('UNREAD'));
                                if (checkAll) {
                                  if (!_.isEmpty(determinate)) {
                                    const keys = Object.keys(determinate);

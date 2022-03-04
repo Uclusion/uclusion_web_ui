@@ -58,7 +58,7 @@ function Inbox(props) {
   const intl = useIntl();
   const history = useHistory();
   const workItemClasses = workListStyles();
-  const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [marketState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -172,8 +172,7 @@ function Inbox(props) {
     }
     return true;
   });
-  const containsCheckable = messagesOrdered.find((message) => message.is_highlighted ||
-    message.type_object_id.startsWith('UNREAD'));
+
   const notificationsText = _.size(messagesOrdered) !== 1 ? intl.formatMessage({ id: 'notifications' }) :
     intl.formatMessage({ id: 'notification' });
   return (
@@ -183,34 +182,32 @@ function Inbox(props) {
           <Checkbox style={{padding: 0}}
                     checked={checkAll}
                     indeterminate={indeterminate}
-                    disabled={!containsCheckable}
+                    disabled={_.isEmpty(messagesOrdered)}
                     onChange={() => determinateDispatch({type: 'toggle'})}
           />
         )}
         {(checkAll || !_.isEmpty(determinate)) && (
-          <TooltipIconButton disabled={operationRunning !== false}
-                             icon={<ArchiveIcon htmlColor={ACTION_BUTTON_COLOR} />}
-                             onClick={() => {
-                               let toProcess = messagesFull.filter((message) => message.is_highlighted ||
-                                 message.type_object_id.startsWith('UNREAD'));
-                               if (checkAll) {
-                                 if (!_.isEmpty(determinate)) {
-                                   const keys = Object.keys(determinate);
-                                   toProcess = messagesFull.filter((message) => !keys.includes(message.type_object_id));
-                                 }
-                               } else {
-                                 const keys = Object.keys(determinate);
-                                 toProcess = messagesFull.filter((message) => keys.includes(message.type_object_id));
-                               }
-                               return deleteOrDehilightMessages(toProcess, messagesDispatch, workItemClasses.removed)
-                                 .then(() => {
-                                   determinateDispatch({type: 'clear'});
-                                   setOperationRunning(false);
-                                 })
-                                 .finally(() => {
-                                   setOperationRunning(false);
-                                 });
-                             }} translationId="inboxArchive" />
+          <TooltipIconButton
+            icon={<ArchiveIcon htmlColor={ACTION_BUTTON_COLOR} />}
+            onClick={() => {
+               let toProcess = messagesFull.filter((message) => message.is_highlighted ||
+                 message.type_object_id.startsWith('UNREAD'));
+               if (checkAll) {
+                 if (!_.isEmpty(determinate)) {
+                   const keys = Object.keys(determinate);
+                   toProcess = messagesFull.filter((message) => !keys.includes(message.type_object_id));
+                 }
+               } else {
+                 const keys = Object.keys(determinate);
+                 toProcess = messagesFull.filter((message) => keys.includes(message.type_object_id));
+               }
+               return deleteOrDehilightMessages(toProcess, messagesDispatch, workItemClasses.removed)
+                 .then(() => {
+                   determinateDispatch({type: 'clear'});
+                 }).finally(() => {
+                   setOperationRunning(false);
+                 });
+             }} translationId="inboxArchive" />
         )}
         <TooltipIconButton icon={<ExpandLess style={{marginLeft: '0.25rem'}} htmlColor={ACTION_BUTTON_COLOR} />}
                            onClick={() => expansionDispatch({expandAll: false})} translationId="inboxCollapseAll" />

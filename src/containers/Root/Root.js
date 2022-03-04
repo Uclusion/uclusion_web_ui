@@ -128,36 +128,36 @@ function Root() {
       // console.debug('Adding listeners');
       window.addEventListener('load', () => {
         // console.debug('Load listener');
-        pegView(true);
-      });
+        pegView(true)
+      }, { passive: true })
       window.addEventListener('focus', () => {
         // console.debug('Focus listener');
-        pegView(true);
-      });
+        pegView(true)
+      }, { passive: true })
       // window.addEventListener('blur', () => {
       //   console.debug('Blur listener');
       //   pegView(false);
       // });
       window.addEventListener('online', () => {
         // console.debug('Back Online listener');
-        setOnline(true);
-        setOperationsLocked(false);
-        pegView(true);
-      });
+        setOnline(true)
+        setOperationsLocked(false)
+        pegView(true)
+      }, { passive: true })
       window.addEventListener('offline', () => {
         // console.debug('Offline listener');
-        setOnline(false);
-        pegView(false);
-      });
+        setOnline(false)
+        pegView(false)
+      }, { passive: true })
       // window.addEventListener('popstate', () => {
       //   console.debug('Popstate');
       //   pegView(true);
       // });
       document.addEventListener('visibilitychange', () => {
         // console.debug('Visibility change listener');
-        const isEntry = document.visibilityState === 'visible';
-        pegView(isEntry);
-      });
+        const isEntry = document.visibilityState === 'visible'
+        pegView(isEntry)
+      }, { passive: true })
     //  window.onanimationiteration = console.debug;
       registerMarketTokenListeners();
     }

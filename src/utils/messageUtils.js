@@ -56,6 +56,10 @@ export function messageText(message, isMobile, intl) {
     case 'UNREMOVED':
       return getMessageTextForId('unRemoved', isMobile, intl);
     case 'UNREAD_REVIEWABLE':
+      if (linkType === 'MARKET_TODO') {
+        return getMessageTextForId('assignTodo', isMobile, intl);
+      }
+      return getMessageTextForId('pleaseReview', isMobile, intl);
     case 'REVIEW_REQUIRED':
       return getMessageTextForId('pleaseReview', isMobile, intl);
     case 'REPORT_REQUIRED':

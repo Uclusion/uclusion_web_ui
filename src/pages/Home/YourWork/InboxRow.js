@@ -19,9 +19,10 @@ import { useMediaQuery, useTheme } from '@material-ui/core'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 
 function getPriorityIcon(message, isAssigned) {
-  const { level } = message;
+  const { level, link_type: linkType } = message;
   const Icon = isAssigned ? Assignment :
-    (['UNASSIGNED', 'UNREAD_DRAFT'].includes(message.type) ? PersonAddOutlined : Quiz);
+    (['UNASSIGNED', 'UNREAD_DRAFT'].includes(message.type) || (message.type === 'UNREAD_REVIEWABLE'
+      && linkType === 'MARKET_TODO') ? PersonAddOutlined : Quiz);
   switch (level) {
     case 'RED':
       return <Icon style={{fontSize: 24, color: '#E85757'}}/>;

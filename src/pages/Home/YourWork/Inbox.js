@@ -1,8 +1,8 @@
 import WorkListItem, { workListStyles } from './WorkListItem'
-import { Box, Checkbox, Fab, useMediaQuery, useTheme } from '@material-ui/core'
+import { Box, Checkbox, Fab, IconButton, useMediaQuery, useTheme } from '@material-ui/core'
 import React, { useContext, useReducer } from 'react'
 import { useIntl } from 'react-intl'
-import { ExpandLess, MoveToInbox, Weekend } from '@material-ui/icons'
+import { ExpandLess, KeyboardArrowLeft, MoveToInbox, Weekend } from '@material-ui/icons'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
@@ -21,6 +21,8 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
 import { hasNoChannels } from '../../../contexts/MarketsContext/marketsContextHelper'
 import InboxRow from './InboxRow'
+import { getPaginatedItems } from '../../../utils/messageUtils'
+import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight'
 
 const useStyles = makeStyles(
   theme => {
@@ -53,7 +55,7 @@ const useStyles = makeStyles(
 });
 
 function Inbox(props) {
-  const { isJarDisplay = false, isDisabled = false, expansionState, expansionDispatch } = props;
+  const { isJarDisplay = false, isDisabled = false, expansionState, expansionDispatch, page, setPage } = props;
   const classes = useStyles();
   const intl = useIntl();
   const history = useHistory();
@@ -173,8 +175,12 @@ function Inbox(props) {
     return true;
   });
 
-  const notificationsText = _.size(messagesOrdered) !== 1 ? intl.formatMessage({ id: 'notifications' }) :
-    intl.formatMessage({ id: 'notification' });
+  function changePage(byNum) {
+    setPage(page + byNum);
+  }
+
+  const { first, last, data, hasMore, hasLess } = getPaginatedItems(messagesOrdered, page);
+
   return (
     <div id="inbox">
       <div style={{display: 'flex', paddingBottom: '0.5rem'}}>
@@ -215,7 +221,13 @@ function Inbox(props) {
                            onClick={() => expansionDispatch({expandAll: true})} translationId="inboxExpandAll" />
         <div style={{flexGrow: 1}}/>
         <Box fontSize={14} color="text.secondary">
-          {_.size(messagesOrdered)} {notificationsText}
+          {first} - {last} of {_.size(messagesOrdered)}
+          <IconButton disabled={!hasLess} onClick={() => changePage(-1)} >
+            <KeyboardArrowLeft />
+          </IconButton>
+          <IconButton disabled={!hasMore} onClick={() => changePage(1)}>
+            <KeyboardArrowRight />
+          </IconButton>
         </Box>
       </div>
       {_.isEmpty(messagesOrdered) && !hasNoChannels(tokensHash) && (
@@ -228,7 +240,7 @@ function Inbox(props) {
           message: {link: '/outbox'}
         }} />
       )}
-      { messagesOrdered.map((message) => {
+      { data.map((message) => {
         const { type_object_id: typeObjectId, link_multiple: linkMultiple } = message;
         const linkMultiples = dupeHash[linkMultiple] || [];
         const numMultiples = _.size(_.uniqBy(linkMultiples, 'type'));

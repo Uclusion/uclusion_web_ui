@@ -27,6 +27,7 @@ function InboxFull(props) {
   const intl = useIntl();
   const history = useHistory();
   const [showAll, setShowAll] = useState(false);
+  const [page, setPage] = useState(1);
   const [marketsState, , tokensHash] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [searchResults] = useContext(SearchResultsContext);
@@ -164,7 +165,7 @@ function InboxFull(props) {
           </div>
         } />
       )}
-      <Inbox expansionState={expansionState} expansionDispatch={expansionDispatch} />
+      <Inbox expansionState={expansionState} expansionDispatch={expansionDispatch} page={page} setPage={setPage} />
     </Screen>
   );
 }

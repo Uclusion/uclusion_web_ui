@@ -1,6 +1,7 @@
 import { removeMessage } from '../contexts/NotificationsContext/notificationsContextReducer'
 import { DECISION_TYPE, INITIATIVE_TYPE } from '../constants/markets'
 import { removeWorkListItem } from '../pages/Home/YourWork/WorkListItem'
+import _ from 'lodash'
 
 function getMessageTextForId(rawId, isMobile, intl) {
   const id = isMobile ? `${rawId}Mobile` : rawId;
@@ -142,4 +143,13 @@ export function findMessageOfType(aType, notificationId, state, subtype) {
 
 export function findMessageOfTypeAndId(notificationId, state, subtype) {
   return findMessageOfType('UNREAD', notificationId, state, subtype);
+}
+
+export function getPaginatedItems(items, page=1, pageSize=15) {
+  const offset = (page - 1) * pageSize;
+  const data = _.drop(items, offset).slice(0, pageSize);
+  const last = offset + _.size(data);
+  const hasMore = last < _.size(items);
+  const hasLess = page > 1;
+  return { first: offset + 1, last, data, hasMore, hasLess };
 }

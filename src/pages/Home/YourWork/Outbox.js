@@ -1,5 +1,5 @@
 import WorkListItem from './WorkListItem'
-import { Fab, useMediaQuery, useTheme } from '@material-ui/core'
+import { Box, Fab, IconButton, useMediaQuery, useTheme } from '@material-ui/core'
 import React, { useContext } from 'react'
 import { useIntl } from 'react-intl'
 import {
@@ -50,13 +50,15 @@ import IssueIcon from '@material-ui/icons/ReportProblem'
 import { getInvestibleVoters } from '../../../utils/votingUtils'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { getMarketInfo } from '../../../utils/userFunctions'
-import { AlarmOn, Weekend } from '@material-ui/icons'
+import { AlarmOn, KeyboardArrowLeft, Weekend } from '@material-ui/icons'
 import CommentPanel from './CommentPanel'
 import { usePlanningInvestibleStyles } from '../../Investible/Planning/PlanningInvestible'
 import InboxInvestible from './InboxInvestible'
+import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight'
+import { getPaginatedItems } from '../../../utils/messageUtils'
 
-function getMessageForInvestible(investible, market, labelId, Icon, intl) {
-  const investibleId = investible.investible.id;
+function getMessageForInvestible (investible, market, labelId, Icon, intl) {
+  const investibleId = investible.investible.id
   return {
     id: investibleId,
     market: market.name,
@@ -151,8 +153,8 @@ const useStyles = makeStyles(
 });
 
 function Outbox(props) {
-  const { isJarDisplay = false, isDisabled = false, expansionState, expansionDispatch } = props;
-  const classes = useStyles();
+  const { isJarDisplay = false, isDisabled = false, expansionState, expansionDispatch, page, setPage } = props
+  const classes = useStyles()
   const intl = useIntl();
   const history = useHistory();
   const planningClasses = usePlanningInvestibleStyles();
@@ -377,17 +379,31 @@ function Outbox(props) {
     const item = {
       title: intl.formatMessage({ id: 'enjoy' }),
       market: intl.formatMessage({ id: 'noPending' }),
-      icon: <Weekend style={{fontSize: 24, color: '#2D9CDB',}}/>,
+      icon: <Weekend style={{ fontSize: 24, color: '#2D9CDB', }}/>,
       read: false,
       isDeletable: false,
-      message: {link: '/inbox'}
+      message: { link: '/inbox' }
     };
-    rows = [<WorkListItem key='emptyOutbox' id='emptyOutbox' useSelect={false} {...item} />];
+    rows = [<WorkListItem key="emptyOutbox" id="emptyOutbox" useSelect={false} {...item} />]
   }
 
+  function changePage (byNum) {
+    setPage(page + byNum)
+  }
+
+  const { first, last, data, hasMore, hasLess } = getPaginatedItems(rows, page)
   return (
     <div id="inbox">
-      { rows }
+      <Box fontSize={14} color="text.secondary">
+        {first} - {last} of {_.size(messagesOrdered)}
+        <IconButton disabled={!hasLess} onClick={() => changePage(-1)}>
+          <KeyboardArrowLeft/>
+        </IconButton>
+        <IconButton disabled={!hasMore} onClick={() => changePage(1)}>
+          <KeyboardArrowRight/>
+        </IconButton>
+      </Box>
+      {data}
     </div>
   );
 }

@@ -2,7 +2,7 @@ import { useIntl } from 'react-intl'
 import Screen from '../../../containers/Screen/Screen'
 import PropTypes from 'prop-types'
 import Outbox from './Outbox'
-import React, { useContext, useReducer } from 'react'
+import React, { useContext, useReducer, useState } from 'react'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import {
@@ -13,8 +13,9 @@ import _ from 'lodash'
 
 function OutboxFull(props) {
   const { hidden } = props;
-  const intl = useIntl();
-  const [marketsState, , tokensHash] = useContext(MarketsContext);
+  const intl = useIntl()
+  const [page, setPage] = useState(1)
+  const [marketsState, , tokensHash] = useContext(MarketsContext)
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [expansionState, expansionDispatch] = useReducer((state, action) => {
     const { id } = action;
@@ -56,7 +57,7 @@ function OutboxFull(props) {
       hidden={hidden}
       isPending
     >
-      <Outbox expansionState={expansionState} expansionDispatch={expansionDispatch} />
+      <Outbox expansionState={expansionState} expansionDispatch={expansionDispatch} page={page} setPage={setPage}/>
     </Screen>
   );
 }

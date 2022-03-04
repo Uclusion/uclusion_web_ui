@@ -9,14 +9,16 @@ export const NOTIFICATIONS_CONTEXT_NAMESPACE = 'notifications';
 const UPDATE_MESSAGES = 'UPDATE_MESSAGES';
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const REMOVE_MESSAGE = 'REMOVE_MESSAGE';
+const REMOVE_MESSAGES = 'REMOVE_MESSAGES';
 const DEHIGHLIGHT_MESSAGE = 'DEHIGHLIGHT_MESSAGE';
 const LEVEL_MESSAGE = 'LEVEL_MESSAGE';
 const ADD_MESSAGE = 'ADD_MESSAGE';
 const REMOVE_FOR_INVESTIBLE = 'REMOVE_FOR_INVESTIBLE';
+const DEHIGHLIGHT_MESSAGES = 'DEHIGHLIGHT_MESSAGES';
 
 /** Messages you can send the reducer */
 
-export function updateMessages (messages) {
+export function updateMessages(messages) {
   return {
     type: UPDATE_MESSAGES,
     messages,
@@ -27,6 +29,20 @@ export function removeMessage(message) {
   return {
     type: REMOVE_MESSAGE,
     message
+  }
+}
+
+export function removeMessages(messages) {
+  return {
+    type: REMOVE_MESSAGES,
+    messages
+  }
+}
+
+export function dehighlightMessages(messages) {
+  return {
+    type: DEHIGHLIGHT_MESSAGES,
+    messages
   }
 }
 
@@ -175,6 +191,26 @@ function removeForInvestible(state, action) {
   return storeMessagesInState(state, filteredMessages);
 }
 
+function doRemoveMessages(state, action) {
+  const { messages } = state;
+  const { messages: toRemoveMessages } = action;
+  const filteredMessages = (messages || []).filter((aMessage) => {
+    return !(toRemoveMessages || []).includes(aMessage);
+  });
+  return storeMessagesInState(state, filteredMessages);
+}
+
+function doDehighlightMessages(state, action) {
+  const { messages } = action;
+  const { messages: existingMessages } = state;
+  const dehighlightedMessages = [];
+  (messages || []).forEach((message) => {
+    dehighlightedMessages.push({...message, is_highlighted: false});
+  });
+  const newMessages = _.unionBy(dehighlightedMessages, existingMessages, 'type_object_id');
+  return storeMessagesInState(state, newMessages);
+}
+
 function computeNewState (state, action) {
   switch (action.type) {
     case UPDATE_MESSAGES:
@@ -183,6 +219,10 @@ function computeNewState (state, action) {
       return action.newState;
     case REMOVE_MESSAGE:
       return removeSingleMessage(state, action);
+    case REMOVE_MESSAGES:
+      return doRemoveMessages(state, action);
+    case DEHIGHLIGHT_MESSAGES:
+      return doDehighlightMessages(state, action);
     case ADD_MESSAGE:
       return addSingleMessage(state, action);
     case DEHIGHLIGHT_MESSAGE:

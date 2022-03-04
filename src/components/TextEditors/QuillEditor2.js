@@ -29,6 +29,8 @@ import {
   getBoundsId
 } from './Utilities/CoreUtils';
 
+// https://github.com/derrickpelletier/react-loading-overlay/pull/57
+LoadingOverlay.propTypes = undefined;
 Quill.debug('error');
 // install our filtering paste module, and disable the uploader
 Quill.register('modules/clipboard', CustomQuillClipboard, true);

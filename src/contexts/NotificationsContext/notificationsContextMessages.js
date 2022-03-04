@@ -1,4 +1,10 @@
-import { addMessage, removeMessage, removeMessagesForInvestible, updateMessages } from './notificationsContextReducer'
+import {
+  addMessage, dehighlightMessages,
+  removeMessage,
+  removeMessages,
+  removeMessagesForInvestible,
+  updateMessages
+} from './notificationsContextReducer'
 import { NOTIFICATIONS_HUB_CHANNEL, VERSIONS_EVENT } from '../VersionsContext/versionsContextHelper'
 import { registerListener } from '../../utils/MessageBusUtils'
 import { getMarketClient } from '../../api/uclusionClient'
@@ -36,10 +42,12 @@ function beginListening(dispatch) {
     })
     switch (event) {
       case DELETE_EVENT:
-        getMarketClient(marketId).then((client) => client.users.removeNotifications(typeObjectIds));
+        getMarketClient(marketId).then((client) => client.users.removeNotifications(typeObjectIds)).then(() =>
+          dispatch(removeMessages(messages)));
         break;
       case DEHIGHLIGHT_EVENT:
-        getMarketClient(marketId).then((client) => client.users.dehighlightNotifications(typeObjectIds));
+        getMarketClient(marketId).then((client) => client.users.dehighlightNotifications(typeObjectIds)).then(() =>
+          dispatch(dehighlightMessages(messages)));
         break;
       case STAGE_CHANGE_EVENT:
         dispatch(removeMessagesForInvestible(investibleId, useRemoveTypes));

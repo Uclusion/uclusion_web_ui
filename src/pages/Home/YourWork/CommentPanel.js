@@ -21,12 +21,15 @@ function CommentPanel(props) {
   const intl = useIntl();
   let useMarketId = marketId;
   let useCommentId = commentId;
-  const market = getMarket(marketState, marketId) || {};
-  const { parent_comment_id: inlineParentCommentId, parent_comment_market_id: parentMarketId } = market;
+  const market = getMarket(marketState, marketId) || {}
+  let useMarketName = market.name
+  const { parent_comment_id: inlineParentCommentId, parent_comment_market_id: parentMarketId } = market
   if (inlineParentCommentId) {
     // If there is a top level question always display it instead of lower level comments
-    useMarketId = parentMarketId;
-    useCommentId = inlineParentCommentId;
+    useMarketId = parentMarketId
+    useCommentId = inlineParentCommentId
+    const parentMarket = getMarket(marketState, parentMarketId) || {}
+    useMarketName = parentMarket.name
   }
   const rootComment = getCommentRoot(commentState, useMarketId, useCommentId);
   // Note passing all comments down instead of just related to the unread because otherwise confusing and also
@@ -46,7 +49,7 @@ function CommentPanel(props) {
         {!investibleId && (
           <div style={{display: mobileLayout ? undefined : 'flex'}}>
             <Typography variant="h6" style={{paddingTop: '1rem', paddingLeft: '1rem', paddingRight: '1rem'}}>
-              {market.name}
+              {useMarketName}
             </Typography>
             {!_.isEmpty(messagesFull) && (
               <>

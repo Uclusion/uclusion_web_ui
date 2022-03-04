@@ -36,6 +36,9 @@ const Div = styled("div")`
   &.MailListItem-read {
     background-color: rgba(242,245,245,0.5);
   }
+  &.MailListItem-critical {
+    background-color: rgba(255, 0, 0, 0.6);
+  }
   &:hover {
     box-shadow: inset 1px 0 0 #dadce0, inset -1px 0 0 #dadce0,
       0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
@@ -148,7 +151,8 @@ function WorkListItem(props) {
     id,
     expansionPanel,
     expansionOpen,
-    isMultiple
+    isMultiple,
+    critical = false
   } = props;
   const history = useHistory();
   const classes = workListStyles();
@@ -195,7 +199,7 @@ function WorkListItem(props) {
             }
           }
         }>
-          <Div className={cx(read && 'MailListItem-read')}>
+          <Div className={cx(read && 'MailListItem-read', critical && 'MailListItem-critical')}>
             <Box flexShrink={0} className={gutterStyles.parent}>
               {!mobileLayout && useSelect && (
                 <StyledIconButton

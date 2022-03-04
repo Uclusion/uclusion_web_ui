@@ -17,6 +17,7 @@ import Quiz from '../../../components/CustomChip/Quiz'
 import { useIntl } from 'react-intl'
 import { useMediaQuery, useTheme } from '@material-ui/core'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
+import _ from 'lodash'
 
 function getPriorityIcon(message, isAssigned) {
   const { level, link_type: linkType } = message;
@@ -50,7 +51,7 @@ function InboxRow(props) {
   const planningClasses = usePlanningInvestibleStyles();
   const { investible_id: investibleId, investible_name: investibleName, updated_at: updatedAt,
     market_name: marketName, is_highlighted: isHighlighted, type_object_id: typeObjectId, market_id: marketId,
-    comment_id: commentId, comment_market_id: commentMarketId, link_type: linkType } = message;
+    comment_id: commentId, comment_market_id: commentMarketId, link_type: linkType, alert_type: alertType } = message;
   const title = isMultiple ?
     intl.formatMessage({ id: 'multipleNotifications' }, { x: numMultiples })
     : messageText(message, mobileLayout, intl);
@@ -68,6 +69,7 @@ function InboxRow(props) {
     read: !isHighlighted,
     isDeletable: message.type_object_id.startsWith('UNREAD') && (!isMultiple || !hasPersistent),
     date: intl.formatDate(updatedAt),
+    critical: !_.isEmpty(alertType),
     message: message
   }
   if (commentId && linkType !== 'INVESTIBLE') {

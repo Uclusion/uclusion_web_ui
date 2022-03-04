@@ -70,9 +70,9 @@ function getMessageForInvestible (investible, market, labelId, Icon, intl) {
   };
 }
 
-function getMessageForComment(comment, market, labelId, Icon, intl, investibleState, marketStagesState,
-  comments, marketPresences, planningClasses, mobileLayout) {
-  const commentId = comment.id;
+function getMessageForComment (comment, market, labelId, Icon, intl, investibleState, marketStagesState,
+  comments, marketPresences, planningClasses, mobileLayout, expansionState) {
+  const commentId = comment.id
   const message = {
     id: commentId,
     market: market.name,
@@ -82,20 +82,23 @@ function getMessageForComment(comment, market, labelId, Icon, intl, investibleSt
     updatedAt: comment.updated_at,
     link: formCommentLink(market.id, comment.investible_id, commentId),
     inFurtherWork: false
-  };
-  message.expansionPanel =
-    <CommentPanel marketId={market.id} commentId={commentId} marketType={market.market_type}
-                  planningClasses={planningClasses} mobileLayout={mobileLayout} />;
+  }
+  const expansionOpen = expansionState && !!expansionState[commentId]
+  if (expansionOpen) {
+    message.expansionPanel =
+      <CommentPanel marketId={market.id} commentId={commentId} marketType={market.market_type}
+                    planningClasses={planningClasses} mobileLayout={mobileLayout}/>
+  }
   if (comment.investible_id) {
-    const investible = getInvestible(investibleState, comment.investible_id);
-    const notDoingStage = getNotDoingStage(marketStagesState, market.id) || {};
-    const marketInfo = getMarketInfo(investible, market.id) || {};
+    const investible = getInvestible(investibleState, comment.investible_id)
+    const notDoingStage = getNotDoingStage(marketStagesState, market.id) || {}
+    const marketInfo = getMarketInfo(investible, market.id) || {}
     if (marketInfo.stage === notDoingStage.id) {
-      return null;
+      return null
     }
-    const furtherWork = getFurtherWorkStage(marketStagesState, market.id) || {};
+    const furtherWork = getFurtherWorkStage(marketStagesState, market.id) || {}
     if (marketInfo.stage === furtherWork.id) {
-      message.inActive = true;
+      message.inActive = true
     }
     if (investible && investible.investible && investible.investible.name) {
       message.investible = investible.investible.name;
@@ -205,24 +208,25 @@ function Outbox(props) {
     const suggestions = myUnresolvedRoots.filter((comment) => comment.comment_type === SUGGEST_CHANGE_TYPE) || [];
     questions.forEach((comment) => {
       const message = getMessageForComment(comment, market, 'cardTypeLabelQuestion',
-        <QuestionIcon style={{fontSize: 24, color: '#8f8f8f',}}/>, intl, investibleState, marketStagesState,
-        comments, marketPresences, planningClasses, mobileLayout);
+        <QuestionIcon style={{ fontSize: 24, color: '#8f8f8f', }}/>, intl, investibleState, marketStagesState,
+        comments, marketPresences, planningClasses, mobileLayout, expansionState)
       if (message) {
         messages.push(message);
       }
     });
     issues.forEach((comment) => {
       const message = getMessageForComment(comment, market, 'cardTypeLabelIssue',
-        <IssueIcon style={{fontSize: 24, color: '#8f8f8f',}}/>, intl, investibleState, marketStagesState,
-        comments, marketPresences, planningClasses, mobileLayout);
+        <IssueIcon style={{ fontSize: 24, color: '#8f8f8f', }}/>, intl, investibleState, marketStagesState,
+        comments, marketPresences, planningClasses, mobileLayout, expansionState)
       if (message) {
         messages.push(message);
       }
     });
     suggestions.forEach((comment) => {
+      //TODO finish not adding expansion panels when collapsed
       const message = getMessageForComment(comment, market, 'cardTypeLabelSuggestedChange',
-        <ChangeSuggstionIcon style={{fontSize: 24, color: '#8f8f8f',}}/>, intl, investibleState, marketStagesState,
-        comments, marketPresences, planningClasses, mobileLayout);
+        <ChangeSuggstionIcon style={{ fontSize: 24, color: '#8f8f8f', }}/>, intl, investibleState, marketStagesState,
+        comments, marketPresences, planningClasses, mobileLayout, expansionState)
       if (message) {
         messages.push(message);
       }
@@ -234,22 +238,25 @@ function Outbox(props) {
       suggestions } = workspacesData;
     const marketPresences = getMarketPresences(marketPresencesState, market.id) || [];
     inReviewInvestibles.forEach((investible) => {
-      const investibleId = investible.investible.id;
+      const investibleId = investible.investible.id
       const outboxMessage = getMessageForInvestible(investible, market, 'planningInvestibleNextStageInReviewLabel',
-        <RateReviewIcon style={{fontSize: 24, color: '#8f8f8f',}}/>, intl);
-      outboxMessage.expansionPanel = <InboxInvestible marketId={market.id} investibleId={investibleId}
-                                                messageType={'UNREAD_REVIEWABLE'}
-                                                planningClasses={planningClasses} marketType={PLANNING_TYPE}
-                                                mobileLayout={mobileLayout} isOutbox />
+        <RateReviewIcon style={{ fontSize: 24, color: '#8f8f8f', }}/>, intl)
+      const expansionOpen = expansionState && !!expansionState[investibleId]
+      if (expansionOpen) {
+        outboxMessage.expansionPanel = <InboxInvestible marketId={market.id} investibleId={investibleId}
+                                                        messageType={'UNREAD_REVIEWABLE'}
+                                                        planningClasses={planningClasses} marketType={PLANNING_TYPE}
+                                                        mobileLayout={mobileLayout} isOutbox/>
+      }
       const mySubmitted = inboxMessages.find((message) => {
-        const { investible_id: msgInvestibleId, type: messageType } = message;
-        return msgInvestibleId === investibleId && messageType === 'INVESTIBLE_SUBMITTED';
-      });
+        const { investible_id: msgInvestibleId, type: messageType } = message
+        return msgInvestibleId === investibleId && messageType === 'INVESTIBLE_SUBMITTED'
+      })
       if (mySubmitted) {
         // If message to finish Todos then no one owes you anything but you haven't moved out of in review either
-        outboxMessage.inActive = true;
+        outboxMessage.inActive = true
       }
-      const marketInfo = getMarketInfo(investible, market.id);
+      const marketInfo = getMarketInfo(investible, market.id)
       if (!_.isEmpty(marketInfo.required_reviews)) {
         //add required reviewers with no comment
         const debtors = [];
@@ -271,20 +278,23 @@ function Outbox(props) {
       messages.push(outboxMessage);
     });
     inVotingInvestibles.forEach((investible) => {
-      const investibleId = investible.investible.id;
+      const investibleId = investible.investible.id
       const message = getMessageForInvestible(investible, market, 'planningInvestibleToVotingLabel',
-        <ThumbsUpDownIcon style={{fontSize: 24, color: '#8f8f8f',}}/>, intl);
-      message.expansionPanel = <InboxInvestible marketId={market.id} investibleId={investibleId}
-                                                messageType={'UNREAD_VOTE'}
-                                                planningClasses={planningClasses} marketType={PLANNING_TYPE}
-                                                mobileLayout={mobileLayout} />
-      const { votes_required: votesRequired } = market;
-      const votersForInvestible = getInvestibleVoters(marketPresences, investibleId);
-      const marketInfo = getMarketInfo(investible, market.id);
-      const votersNotAssigned = votersForInvestible.filter((voter) => !_.includes(marketInfo.assigned, voter.id)) || [];
-      const votesRequiredDisplay = votesRequired > 0 ? votesRequired : 1;
+        <ThumbsUpDownIcon style={{ fontSize: 24, color: '#8f8f8f', }}/>, intl)
+      const expansionOpen = expansionState && !!expansionState[investibleId]
+      if (expansionOpen) {
+        message.expansionPanel = <InboxInvestible marketId={market.id} investibleId={investibleId}
+                                                  messageType={'UNREAD_VOTE'}
+                                                  planningClasses={planningClasses} marketType={PLANNING_TYPE}
+                                                  mobileLayout={mobileLayout}/>
+      }
+      const { votes_required: votesRequired } = market
+      const votersForInvestible = getInvestibleVoters(marketPresences, investibleId)
+      const marketInfo = getMarketInfo(investible, market.id)
+      const votersNotAssigned = votersForInvestible.filter((voter) => !_.includes(marketInfo.assigned, voter.id)) || []
+      const votesRequiredDisplay = votesRequired > 0 ? votesRequired : 1
       if (votersNotAssigned.length >= votesRequiredDisplay) {
-        message.inActive = true;
+        message.inActive = true
       }
       if (!_.isEmpty(marketInfo.required_approvers)) {
         //add required approvers that have not voted or commented
@@ -307,24 +317,24 @@ function Outbox(props) {
     });
     questions.forEach((comment) => {
       const message = getMessageForComment(comment, market, 'cardTypeLabelQuestion',
-        <QuestionIcon style={{fontSize: 24, color: '#8f8f8f',}}/>, intl, investibleState, marketStagesState,
-        comments, marketPresences, planningClasses, mobileLayout);
+        <QuestionIcon style={{ fontSize: 24, color: '#8f8f8f', }}/>, intl, investibleState, marketStagesState,
+        comments, marketPresences, planningClasses, mobileLayout, expansionState)
       if (message) {
         messages.push(message);
       }
     });
     issues.forEach((comment) => {
       const message = getMessageForComment(comment, market, 'cardTypeLabelIssue',
-        <IssueIcon style={{fontSize: 24, color: '#8f8f8f',}}/>, intl, investibleState, marketStagesState,
-        comments, marketPresences, planningClasses, mobileLayout);
+        <IssueIcon style={{ fontSize: 24, color: '#8f8f8f', }}/>, intl, investibleState, marketStagesState,
+        comments, marketPresences, planningClasses, mobileLayout, expansionState)
       if (message) {
         messages.push(message);
       }
     });
     suggestions.forEach((comment) => {
       const message = getMessageForComment(comment, market, 'cardTypeLabelSuggestedChange',
-        <ChangeSuggstionIcon style={{fontSize: 24, color: '#8f8f8f',}}/>, intl, investibleState, marketStagesState,
-        comments, marketPresences, planningClasses, mobileLayout);
+        <ChangeSuggstionIcon style={{ fontSize: 24, color: '#8f8f8f', }}/>, intl, investibleState, marketStagesState,
+        comments, marketPresences, planningClasses, mobileLayout, expansionState)
       if (message) {
         messages.push(message);
       }

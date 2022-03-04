@@ -231,15 +231,15 @@ function Inbox(props) {
       )}
       { messagesOrdered.map((message) => {
         const { type_object_id: typeObjectId, link_multiple: linkMultiple } = message;
-        const linkMultiples = dupeHash[linkMultiple];
-        const fullyVotedMessage = (linkMultiples || []).find((message) => message.type === 'FULLY_VOTED');
-        const isMultiple = !fullyVotedMessage && _.size(linkMultiples) > 1;
-        const hasPersistent = (linkMultiples || []).find((message) =>
-          !message.type_object_id.startsWith('UNREAD'));
+        const linkMultiples = dupeHash[linkMultiple] || [];
+        const numMultiples = _.size(_.uniqBy(linkMultiples, 'type'));
+        const fullyVotedMessage = linkMultiples.find((message) => message.type === 'FULLY_VOTED');
+        const isMultiple = !fullyVotedMessage && numMultiples > 1;
+        const hasPersistent = linkMultiples.find((message) => !message.type_object_id.startsWith('UNREAD'));
         const useMessage = fullyVotedMessage || message;
         const determinateChecked = determinate[useMessage.type_object_id];
         const checked = determinateChecked !== undefined ? determinateChecked : checkAll;
-        return <InboxRow message={useMessage} expansionDispatch={expansionDispatch} numMultiples={_.size(linkMultiples)}
+        return <InboxRow message={useMessage} expansionDispatch={expansionDispatch} numMultiples={numMultiples}
                          determinateDispatch={determinateDispatch} expansionOpen={!!expansionState[typeObjectId]}
                          hasPersistent={hasPersistent} isMultiple={isMultiple} checked={checked} />;
       }) }

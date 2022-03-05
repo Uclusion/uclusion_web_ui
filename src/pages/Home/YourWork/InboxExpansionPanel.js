@@ -21,24 +21,25 @@ import CommentBox from '../../../containers/CommentBox/CommentBox'
 import { getInvestibleComments } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { JUSTIFY_TYPE } from '../../../constants/comments'
 import { findMessageOfType } from '../../../utils/messageUtils'
+import NotificationDeletion from './NotificationDeletion'
 
 export function addExpansionPanel(props) {
   const {item, marketState, investiblesState, diffState, planningClasses, mobileLayout, intl, isMultiple,
-    commentState, messagesState} = props;
+    commentState, messagesState, isDeletable} = props;
   const { message } = item;
   const { type: messageType, market_id: marketId, comment_id: commentId, comment_market_id: commentMarketId,
     link_type: linkType, investible_id: investibleId, market_type: marketType, link_multiple: linkMultiple } = message;
 
   if (isMultiple) {
     item.expansionPanel = ( <LinkMultiplePanel linkMultiple={linkMultiple} marketId={commentMarketId || marketId}
-                                               commentId={commentId} planningClasses={planningClasses}
-                                               mobileLayout={mobileLayout}/> );
+                                               commentId={commentId} planningClasses={planningClasses} message={message}
+                                               mobileLayout={mobileLayout} isDeletable={isDeletable}/> );
   } else if ((['UNREAD_REPLY', 'UNREAD_COMMENT', 'UNREAD_RESOLVED', 'ISSUE', 'FULLY_VOTED'].includes(messageType)) ||
     (['UNREAD_OPTION', 'UNREAD_VOTE', 'NOT_FULLY_VOTED', 'INVESTIBLE_SUBMITTED'].includes(messageType)
       && linkType.startsWith('INLINE')) || (['UNREAD_REVIEWABLE', 'UNASSIGNED'].includes(messageType)
       && linkType === 'MARKET_TODO')) {
-    item.expansionPanel = ( <CommentPanel marketId={commentMarketId || marketId} commentId={commentId}
-                                          marketType={marketType} messageType={messageType}
+    item.expansionPanel = ( <CommentPanel marketId={commentMarketId || marketId} commentId={commentId} message={message}
+                                          marketType={marketType} messageType={messageType} isDeletable={isDeletable}
                                           planningClasses={planningClasses} mobileLayout={mobileLayout} /> );
   } else if (messageType === 'REPORT_REQUIRED') {
     if (!_.isEmpty(investibleId)) {
@@ -63,6 +64,9 @@ export function addExpansionPanel(props) {
       const investmentReasonsRemoved = investibleComments.filter(comment => comment.comment_type !== JUSTIFY_TYPE) || [];
       item.expansionPanel = (
         <div style={{paddingLeft: '1.25rem', paddingTop: '0.75rem', paddingRight: '1rem', paddingBottom: '0.5rem'}}>
+          {isDeletable && (
+            <NotificationDeletion message={message} />
+          )}
           {openForInvestment && _.isEmpty(assigned) && (
             <InvestibleReady marketId={marketId} stage={stage} fullInvestible={fullInvestible} message={message}
                              market={market} investibleId={investibleId} openForInvestment={openForInvestment}/>
@@ -127,12 +131,15 @@ export function addExpansionPanel(props) {
     'ISSUE_RESOLVED', 'UNACCEPTED_ASSIGNMENT', 'NEW_TODO', 'UNREAD_VOTE'].includes(messageType)) {
     item.expansionPanel = <InboxInvestible marketId={marketId} investibleId={investibleId} messageType={messageType}
                                            planningClasses={planningClasses} marketType={marketType}
-                                           mobileLayout={mobileLayout}
+                                           mobileLayout={mobileLayout} isDeletable={isDeletable} message={message}
                                            unacceptedAssignment={findMessageOfType('UNACCEPTED_ASSIGNMENT',
                                              investibleId, messagesState)} />;
   } else if (messageType === 'UNREAD_DRAFT') {
     item.expansionPanel = (
-      <DialogManage marketId={marketId} isInbox />
+      <>
+        <NotificationDeletion message={message} />
+        <DialogManage marketId={marketId} isInbox />
+      </>
     );
   }
 }

@@ -7,7 +7,7 @@ import { UNASSIGNED_TYPE } from '../../../constants/notifications'
 import { findMessageOfType } from '../../../utils/messageUtils'
 
 function LinkMultiplePanel(props) {
-  const { linkMultiple, marketId, commentId, planningClasses, mobileLayout } = props;
+  const { linkMultiple, marketId, commentId, planningClasses, mobileLayout, isDeletable, message } = props;
   const [messagesState] = useContext(NotificationsContext);
   const { messages: messagesUnsafe } = messagesState;
   const messagesFull = (messagesUnsafe || []).filter((message) => message.link_multiple === linkMultiple);
@@ -25,7 +25,8 @@ function LinkMultiplePanel(props) {
     })) {
     return (
       <CommentPanel marketId={marketId} commentId={commentId} planningClasses={planningClasses}
-                    mobileLayout={mobileLayout} messagesFull={messagesFull} />
+                    mobileLayout={mobileLayout} messagesFull={messagesFull} isDeletable={isDeletable}
+                    message={message} />
     );
   }
   else if (!_.isEmpty(_.intersection(['NOT_FULLY_VOTED', 'ASSIGNED_UNREVIEWABLE', 'UNREAD_REVIEWABLE',
@@ -33,7 +34,7 @@ function LinkMultiplePanel(props) {
       UNASSIGNED_TYPE, 'UNREAD_LABEL', 'UNREAD_ATTACHMENT', 'UNREAD_ESTIMATE'], messageTypes))) {
     const { investible_id: investibleId, market_type: marketType } = messagesFull[0];
     return <InboxInvestible marketId={marketId} investibleId={investibleId} messageTypes={messageTypes}
-                            messagesFull={messagesFull}
+                            messagesFull={messagesFull} isDeletable={isDeletable} message={message}
                             planningClasses={planningClasses} marketType={marketType} mobileLayout={mobileLayout}
                             unacceptedAssignment={findMessageOfType('UNACCEPTED_ASSIGNMENT', investibleId,
                               messagesState)}/>

@@ -52,11 +52,12 @@ import { workListStyles } from './WorkListItem'
 import InvestibleBodyEdit from '../../Investible/InvestibleBodyEdit'
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 import { useHistory } from 'react-router'
+import NotificationDeletion from './NotificationDeletion'
 
 
 function InboxInvestible(props) {
   const { marketId, marketType, planningClasses, messageTypes, investibleId, mobileLayout, isOutbox,
-    messagesFull, unacceptedAssignment, messageType } = props;
+    messagesFull, unacceptedAssignment, messageType, isDeletable, message } = props;
   const useMessageTypes = _.isEmpty(messageTypes) ? (_.isEmpty(messageType) ? [] : [messageType]) : messageTypes;
   const history = useHistory();
   const intl = useIntl();
@@ -139,6 +140,9 @@ function InboxInvestible(props) {
     <div style={{paddingTop: '1rem', paddingRight: '1rem', paddingLeft: '1rem',
       paddingBottom: !_.isEmpty(useMessageTypes) ? '1rem' : undefined}}>
       <div style={{display: mobileLayout ? 'block' : 'flex'}}>
+        {isDeletable && (
+          <NotificationDeletion message={message} />
+        )}
         {!_.isEmpty(useMessageTypes) && !_.isEmpty(assigned) && (
           <div className={clsx(planningClasses.group, planningClasses.assignments)}
                style={{maxWidth: '15rem', marginRight: '1rem', overflowY: 'auto', maxHeight: '8rem'}}>

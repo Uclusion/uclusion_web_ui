@@ -67,7 +67,6 @@ function InboxRow(props) {
     market: market.name || marketName,
     investible: inv ? inv.investible.name : investibleName,
     read: !isHighlighted,
-    isDeletable: message.type_object_id.startsWith('UNREAD') && (!isMultiple || !hasPersistent),
     date: intl.formatDate(updatedAt),
     critical: !_.isEmpty(alertType),
     message: message
@@ -83,9 +82,10 @@ function InboxRow(props) {
     }
   }
   if (expansionOpen) {
+    const isDeletable = message.type_object_id.startsWith('UNREAD') && (!isMultiple || !hasPersistent);
     addExpansionPanel({
       item, commentState, marketState, investiblesState, diffState, planningClasses, marketsState,
-      mobileLayout, intl, isMultiple, messagesState
+      mobileLayout, intl, isMultiple, messagesState, isDeletable
     });
   }
   return <WorkListItem key={typeObjectId} id={typeObjectId} checked={checked} determinateDispatch={determinateDispatch}

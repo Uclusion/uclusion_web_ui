@@ -13,9 +13,11 @@ import { Typography } from '@material-ui/core'
 import PropTypes from 'prop-types'
 import { getLabelList } from '../../../utils/messageUtils'
 import { useIntl } from 'react-intl'
+import NotificationDeletion from './NotificationDeletion'
 
 function CommentPanel(props) {
-  const { commentId, marketId, marketType, messageType, planningClasses, mobileLayout, messagesFull } = props;
+  const { commentId, marketId, marketType, messageType, planningClasses, mobileLayout, messagesFull,
+    isDeletable, message} = props;
   const [marketState] = useContext(MarketsContext);
   const [commentState] = useContext(CommentsContext);
   const intl = useIntl();
@@ -41,13 +43,16 @@ function CommentPanel(props) {
       <>
         {investibleId && (
           <div style={{overflowY: 'auto', maxHeight: '15rem'}}>
-            <InboxInvestible marketId={marketId} investibleId={investibleId}
-                             planningClasses={planningClasses} marketType={marketType}
+            <InboxInvestible marketId={marketId} investibleId={investibleId} isDeletable={isDeletable}
+                             planningClasses={planningClasses} marketType={marketType} message={message}
                              mobileLayout={mobileLayout} messagesFull={messagesFull} />
           </div>
         )}
         {!investibleId && (
           <div style={{display: mobileLayout ? undefined : 'flex'}}>
+            {isDeletable && !investibleId && (
+              <NotificationDeletion message={message} />
+            )}
             <Typography variant="h6" style={{paddingTop: '1rem', paddingLeft: '1rem', paddingRight: '1rem'}}>
               {useMarketName}
             </Typography>

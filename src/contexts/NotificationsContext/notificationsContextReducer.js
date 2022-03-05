@@ -4,6 +4,7 @@ import { NOTIFICATIONS_CHANNEL } from './NotificationsContext'
 import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
 import { findMessagesForInvestibleId } from '../../utils/messageUtils'
+import { getMarketClient } from '../../api/uclusionClient'
 
 export const NOTIFICATIONS_CONTEXT_NAMESPACE = 'notifications';
 const UPDATE_MESSAGES = 'UPDATE_MESSAGES';
@@ -32,17 +33,17 @@ export function removeMessage(message) {
   }
 }
 
-export function removeMessages(messages) {
+export function removeMessages(message) {
   return {
     type: REMOVE_MESSAGES,
-    messages
+    message
   }
 }
 
-export function dehighlightMessages(messages) {
+export function dehighlightMessages(message) {
   return {
     type: DEHIGHLIGHT_MESSAGES,
-    messages
+    message
   }
 }
 
@@ -81,6 +82,22 @@ export function initializeState (newState) {
     type: INITIALIZE_STATE,
     newState,
   };
+}
+
+function getAllMessages(message, state) {
+  const messages = [];
+  if (message.link_multiple) {
+    const { messages: messagesUnsafe } = state;
+    (messagesUnsafe || []).forEach((msg) => {
+      const { link_multiple: myLinkMultiple } = msg;
+      if (myLinkMultiple === message.link_multiple) {
+        messages.push(msg);
+      }
+    });
+  } else {
+    messages.push(message);
+  }
+  return messages;
 }
 
 /**
@@ -193,18 +210,20 @@ function removeForInvestible(state, action) {
 
 function doRemoveMessages(state, action) {
   const { messages } = state;
-  const { messages: toRemoveMessages } = action;
+  const { message: toRemoveMessage } = action;
+  const toRemoveMessages = getAllMessages(toRemoveMessage, state);
   const filteredMessages = (messages || []).filter((aMessage) => {
-    return !(toRemoveMessages || []).includes(aMessage);
+    return !toRemoveMessages.includes(aMessage);
   });
   return storeMessagesInState(state, filteredMessages);
 }
 
 function doDehighlightMessages(state, action) {
-  const { messages } = action;
+  const { message } = action;
   const { messages: existingMessages } = state;
+  const messages = getAllMessages(message, state);
   const dehighlightedMessages = [];
-  (messages || []).forEach((message) => {
+  messages.forEach((message) => {
     dehighlightedMessages.push({...message, is_highlighted: false});
   });
   const newMessages = _.unionBy(dehighlightedMessages, existingMessages, 'type_object_id');
@@ -236,16 +255,36 @@ function computeNewState (state, action) {
   }
 }
 
-function reducer (state, action) {
-  const newState = computeNewState(state, action);
+function storeStatePromise(action, newState) {
   if (action.type !== INITIALIZE_STATE) {
     const lfh = new LocalForageHelper(NOTIFICATIONS_CONTEXT_NAMESPACE);
-    lfh.setState(newState).then(() => {
+    return lfh.setState(newState).then(() => {
       // In case the other tabs don't get the message
       const myChannel = new BroadcastChannel(NOTIFICATIONS_CHANNEL);
       return myChannel.postMessage(broadcastId || 'notifications').then(() => myChannel.close())
         .then(() => console.info('Update notifications context sent.'));
     });
+  }
+}
+
+function reducer (state, action) {
+  const newState = computeNewState(state, action);
+  if ([DEHIGHLIGHT_MESSAGES, REMOVE_MESSAGES].includes(action.type)) {
+    const { message } = action;
+    let typeObjectIds = [];
+    const messages = getAllMessages(message, state);
+    messages.forEach((message) => {
+      typeObjectIds.push(message.type_object_id);
+    })
+    if (action.type === REMOVE_MESSAGES) {
+      getMarketClient(message.market_id).then((client) => client.users.removeNotifications(typeObjectIds)).then(() =>
+        storeStatePromise(action, newState));
+    } else {
+      getMarketClient(message.market_id).then((client) => client.users.dehighlightNotifications(typeObjectIds))
+        .then(() => storeStatePromise(action, newState));
+    }
+  } else {
+    storeStatePromise(action, newState);
   }
   return newState;
 }

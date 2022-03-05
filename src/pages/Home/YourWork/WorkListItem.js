@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React from 'react'
 import cx from "clsx";
 import styled from "styled-components";
 import { Box, IconButton, makeStyles, useMediaQuery, useTheme } from '@material-ui/core'
@@ -8,18 +8,13 @@ import { useSizedIconButtonStyles } from "@mui-treasury/styles/iconButton/sized"
 import { useRowGutterStyles } from "@mui-treasury/styles/gutter/row";
 import PropTypes from 'prop-types'
 import { navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions'
-import { DeleteForever, ExpandLess } from '@material-ui/icons'
-import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
-import ArchiveIcon from '@material-ui/icons/Archive'
 import GravatarGroup from '../../../components/Avatars/GravatarGroup'
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { Link } from '@material-ui/core'
 import { useHistory } from 'react-router'
 import RaisedCard from '../../../components/Cards/RaisedCard'
-import { deleteOrDehilightMessages } from '../../../api/users'
 import { pushMessage } from '../../../utils/MessageBusUtils'
 import {
-  DEHIGHLIGHT_EVENT,
+  DEHIGHLIGHT_EVENT, DELETE_EVENT,
   MODIFY_NOTIFICATIONS_CHANNEL, REMOVE_EVENT
 } from '../../../contexts/NotificationsContext/notificationsContextMessages'
 
@@ -77,7 +72,7 @@ const Description = styled(Text)`
 `;
 
 const Title = styled(Text)`
-  flex-basis: 280px;
+  flex-basis: 180px;
   flex-shrink: 0;
   flex-grow: 0;
   & > *:not(:first-child) {
@@ -119,16 +114,17 @@ export const workListStyles = makeStyles(() => {
   };
 });
 
-export function removeWorkListItem(message, removeClass) {
+export function removeWorkListItem(message, removeClass, isDelete=false) {
   const { type_object_id: typeObjectId } = message;
+  const event = isDelete ? DELETE_EVENT : REMOVE_EVENT;
   const item = document.getElementById(`workListItem${typeObjectId}`);
   if (item) {
     item.addEventListener("transitionend",() => {
-      pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: REMOVE_EVENT, message });
+      pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event, message });
     });
     item.classList.add(removeClass);
   } else {
-    pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: REMOVE_EVENT, message });
+    pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event, message });
   }
 }
 
@@ -136,7 +132,6 @@ function WorkListItem(props) {
   const {
     read,
     icon = (<div />),
-    isDeletable,
     investible = '',
     market= '',
     comment = '',
@@ -158,33 +153,12 @@ function WorkListItem(props) {
   const classes = workListStyles();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
-  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const actionStyles = useSizedIconButtonStyles({ childSize: 22, padding: 10 });
   const gutterStyles = useRowGutterStyles({ size: -10, before: -8 });
   const { link, link_multiple: linkMultiple } = message;
 
   const fullText = comment || investible || market;
 
-  function getAllMessages() {
-    const messages = [];
-    if (linkMultiple) {
-      const { messages: messagesUnsafe } = messagesState;
-      (messagesUnsafe || []).forEach((msg) => {
-        const { link_multiple: myLinkMultiple } = msg;
-        if (myLinkMultiple === linkMultiple) {
-          messages.push(msg);
-        }
-      });
-    } else {
-      messages.push(message);
-    }
-    return messages;
-  }
-
-  const deleteActionButtonOnclick = (event) => {
-    preventDefaultAndProp(event);
-    return deleteOrDehilightMessages(getAllMessages(), messagesDispatch, classes.removed);
-  };
   const useLink = isMultiple ? linkMultiple : link;
   return (
     <Item key={`workListItem${id}`} id={`workListItem${id}`}>
@@ -194,8 +168,7 @@ function WorkListItem(props) {
             preventDefaultAndProp(event);
             expansionDispatch({ id });
             if (useSelect && !read) {
-              pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: DEHIGHLIGHT_EVENT,
-                messages: getAllMessages() });
+              pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: DEHIGHLIGHT_EVENT, message });
             }
           }
         }>
@@ -214,20 +187,6 @@ function WorkListItem(props) {
                   {checked ? <Checkbox color="secondary" /> : <CheckBoxOutlineBlank />}
                 </StyledIconButton>
               )}
-              {useSelect && (
-                <StyledIconButton
-                  classes={actionStyles}
-                  onClick={isDeletable ? deleteActionButtonOnclick : undefined}
-                >
-                  { isDeletable ? <DeleteForever /> : (read ? <div /> : <ArchiveIcon />) }
-                </StyledIconButton>
-              )}
-              <StyledIconButton
-                classes={actionStyles}
-                style={{marginLeft: useSelect ? undefined : '0.5rem'}}
-              >
-                { expansionOpen ? <ExpandLess /> : <ExpandMoreIcon /> }
-              </StyledIconButton>
               {(!useSelect || !mobileLayout) && (
                 <StyledIconButton
                   disabled
@@ -243,8 +202,7 @@ function WorkListItem(props) {
               (event) => {
                 preventDefaultAndProp(event);
                 if (useSelect && !read) {
-                  pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: DEHIGHLIGHT_EVENT,
-                    messages: getAllMessages() });
+                  pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: DEHIGHLIGHT_EVENT, message });
                 }
                 return navigate(history, useLink);
               }

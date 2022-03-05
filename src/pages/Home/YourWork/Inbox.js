@@ -241,7 +241,7 @@ function Inbox(props) {
         }} />
       )}
       { data.map((message) => {
-        const { type_object_id: typeObjectId, link_multiple: linkMultiple } = message;
+        const { link_multiple: linkMultiple } = message;
         const linkMultiples = dupeHash[linkMultiple] || [];
         const numMultiples = _.size(_.uniqBy(linkMultiples, 'type'));
         const fullyVotedMessage = linkMultiples.find((message) => message.type === 'FULLY_VOTED');
@@ -251,7 +251,8 @@ function Inbox(props) {
         const determinateChecked = determinate[useMessage.type_object_id];
         const checked = determinateChecked !== undefined ? determinateChecked : checkAll;
         return <InboxRow message={useMessage} expansionDispatch={expansionDispatch} numMultiples={numMultiples}
-                         determinateDispatch={determinateDispatch} expansionOpen={!!expansionState[typeObjectId]}
+                         determinateDispatch={determinateDispatch}
+                         expansionOpen={!!expansionState[useMessage.type_object_id]}
                          hasPersistent={hasPersistent} isMultiple={isMultiple} checked={checked} />;
       }) }
     </div>

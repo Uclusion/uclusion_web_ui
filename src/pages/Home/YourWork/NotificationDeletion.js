@@ -14,14 +14,12 @@ function NotificationDeletion(props) {
   }
 
   return (
-    <div style={{marginLeft: '1rem', marginTop: '1rem'}}>
-      <TooltipIconButton
-        disabled={operationRunning !== false}
-        onClick={remove}
-        icon={<Delete />}
-        translationId="notificationDelete"
-      />
-    </div>
+    <TooltipIconButton
+      disabled={operationRunning !== false}
+      onClick={remove}
+      icon={<Delete />}
+      translationId="notificationDelete"
+    />
   );
 }
 

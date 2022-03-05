@@ -51,7 +51,9 @@ function CommentPanel(props) {
         {!investibleId && (
           <div style={{display: mobileLayout ? undefined : 'flex'}}>
             {isDeletable && !investibleId && (
-              <NotificationDeletion message={message} />
+              <div style={{marginLeft: '1rem', marginTop: '1rem'}}>
+                <NotificationDeletion message={message} />
+              </div>
             )}
             <Typography variant="h6" style={{paddingTop: '1rem', paddingLeft: '1rem', paddingRight: '1rem'}}>
               {useMarketName}

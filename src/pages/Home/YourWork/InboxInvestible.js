@@ -140,8 +140,10 @@ function InboxInvestible(props) {
     <div style={{paddingTop: '1rem', paddingRight: '1rem', paddingLeft: '1rem',
       paddingBottom: !_.isEmpty(useMessageTypes) ? '1rem' : undefined}}>
       <div style={{display: mobileLayout ? 'block' : 'flex'}}>
-        {isDeletable && (
-          <NotificationDeletion message={message} />
+        {isDeletable && !_.isEmpty(useMessageTypes) && (
+          <div style={{marginRight: '1rem'}}>
+            <NotificationDeletion message={message} />
+          </div>
         )}
         {!_.isEmpty(useMessageTypes) && !_.isEmpty(assigned) && (
           <div className={clsx(planningClasses.group, planningClasses.assignments)}
@@ -256,9 +258,14 @@ function InboxInvestible(props) {
         )}
       </div>
       {_.isEmpty(useMessageTypes) && (
-        <Typography variant="body1">
-          {market.name}
-        </Typography>
+        <div style={{display: 'flex'}}>
+          {isDeletable && (
+            <NotificationDeletion message={message} />
+          )}
+          <Typography variant="body1" style={{paddingLeft: '1rem', marginTop: '0.25rem'}}>
+            {market.name}
+          </Typography>
+        </div>
       )}
       {!_.isEmpty(myInvestible) && ((!_.isEmpty(description) && !editorEmpty(description))|| _.isEmpty(useMessageTypes))
         && (

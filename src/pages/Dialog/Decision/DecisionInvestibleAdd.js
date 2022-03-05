@@ -198,8 +198,7 @@ function DecisionInvestibleAdd(props) {
       )}
       <Card className={classes.overflowVisible}>
         <CardContent>
-          <NameField id={nameId} descriptionFunc={() => getQuillStoredState(editorName)}
-                     useCreateDefault placeHolder='optionTitlePlaceholder' />
+          <NameField id={nameId} editorName={editorName} useCreateDefault placeHolder="optionTitlePlaceholder"/>
           {Editor}
         </CardContent>
         <CardActions className={classes.actions} style={{marginLeft: '1rem', paddingBottom: '1rem'}}>

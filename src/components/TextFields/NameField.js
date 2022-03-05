@@ -5,6 +5,7 @@ import { useIntl } from 'react-intl';
 import { nameFromDescription } from '../../utils/stringFunctions'
 import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../localStorageUtils'
 import { scrollToElement } from '../../contexts/ScrollContext'
+import { getQuillStoredState } from '../TextEditors/Utilities/CoreUtils'
 
 export function getNameStoredState(id) {
   return getUclusionLocalStorageItem(`name-editor-${id}`);
@@ -17,7 +18,7 @@ export function clearNameStoredState(id) {
 function NameField(props) {
   const intl = useIntl();
   const {
-    descriptionFunc, label, placeHolder, id, useCreateDefault, scrollId
+    editorName, label, placeHolder, id, useCreateDefault, scrollId
   } = props;
 
   function storeState(state) {
@@ -25,14 +26,16 @@ function NameField(props) {
   }
 
   function createDefaultName() {
-    const element = document.getElementById(scrollId || id);
-    scrollToElement(element);
-    const description = descriptionFunc();
-    if (description && !getNameStoredState(id)) {
-      const found = nameFromDescription(description);
-      if (found) {
-        storeState(found);
-        element.value = found;
+    if (!getNameStoredState(id)) {
+      const element = document.getElementById(scrollId || id)
+      scrollToElement(element)
+      const description = getQuillStoredState(editorName)
+      if (description) {
+        const found = nameFromDescription(description)
+        if (found) {
+          storeState(found)
+          element.value = found
+        }
       }
     }
   }
@@ -77,7 +80,7 @@ function NameField(props) {
 }
 
 NameField.propTypes = {
-  descriptionFunc: PropTypes.func.isRequired,
+  editorName: PropTypes.string.isRequired,
   id: PropTypes.string.isRequired,
   placeHolder: PropTypes.string,
   label: PropTypes.string,
@@ -90,4 +93,4 @@ NameField.defaultProps = {
   useCreateDefault: false
 }
 
-export default NameField;
+export default React.memo(NameField)

@@ -313,8 +313,7 @@ function PlanningInvestibleAdd(props) {
               </div>
             </div>
           )}
-          <NameField id={nameId} descriptionFunc={() => getQuillStoredState(editorName)}
-                     useCreateDefault scrollId={cardId} />
+          <NameField id={nameId} editorName={editorName} useCreateDefault scrollId={cardId}/>
           {Editor}
         </CardContent>
         {!isAssignedToMe && isAssigned && (

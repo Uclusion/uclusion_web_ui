@@ -205,7 +205,7 @@ function InvestibleBodyEdit(props) {
         />
         {(!lockedBy || (lockedBy === userId)) && (
           <>
-            <NameField descriptionFunc={() => getQuillStoredState(editorName)} id={investibleId} useCreateDefault />
+            <NameField editorName={editorName} id={investibleId} useCreateDefault/>
             {Editor}
           </>
         )}

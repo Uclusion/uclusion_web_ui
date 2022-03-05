@@ -62,7 +62,6 @@ function InvestibleBodyEdit(props) {
   const {
     beingEdited,
     uploadedFiles,
-    beingLocked,
     showDiff
   } = pageState;
   const intl = useIntl();
@@ -153,11 +152,9 @@ function InvestibleBodyEdit(props) {
   }
 
   function takeoutLock () {
-    pageStateUpdate({beingLocked: true});
     const breakLock = true;
     return lockInvestibleForEdit(marketId, investibleId, breakLock)
       .then((result) => {
-        pageStateUpdate({beingLocked: false});
         setOperationRunning(false);
         return onLock(result);
       }).catch(() => {
@@ -166,7 +163,7 @@ function InvestibleBodyEdit(props) {
         resetEditor();
       });
   }
-  if (beingLocked) {
+  if (beingEdited && lockedBy !== userId) {
     return (
       <div align='center'>
         <Typography>{intl.formatMessage({ id: "gettingLockMessage" })}</Typography>
@@ -203,12 +200,8 @@ function InvestibleBodyEdit(props) {
             </SpinningIconLabelButton>
           }
         />
-        {(!lockedBy || (lockedBy === userId)) && (
-          <>
-            <NameField editorName={editorName} id={investibleId} useCreateDefault/>
-            {Editor}
-          </>
-        )}
+        <NameField editorName={editorName} id={investibleId} useCreateDefault/>
+        {Editor}
         <CardActions className={classes.actions}>
           <SpinningIconLabelButton onClick={onCancel} icon={Clear} id="marketAddCancelButton">
             {intl.formatMessage({ id: 'marketAddCancelLabel' })}

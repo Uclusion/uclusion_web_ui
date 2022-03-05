@@ -130,7 +130,6 @@ function DialogBodyEdit(props) {
   const {
     beingEdited,
     uploadedFiles,
-    beingLocked,
     showDiff
   } = pageState;
   const intl = useIntl();
@@ -205,11 +204,9 @@ function DialogBodyEdit(props) {
     return localforage.removeItem(id);
   }
   function myOnClick() {
-    pageStateUpdate({beingLocked: true});
     const breakLock = true;
     return lockPlanningMarketForEdit(id, breakLock)
       .then((result) => {
-        pageStateUpdate({beingLocked: false});
         setOperationRunning(false);
         updateMarketInStorage(result);
       }).catch(() => {
@@ -221,7 +218,7 @@ function DialogBodyEdit(props) {
 
   const lockedDialogClasses = useLockedDialogStyles();
 
-  if (beingLocked) {
+  if (beingEdited && lockedBy !== userId) {
     return (
       <div align='center'>
         <Typography>{intl.formatMessage({ id: "gettingLockMessage" })}</Typography>
@@ -253,13 +250,9 @@ function DialogBodyEdit(props) {
             </SpinningIconLabelButton>
           }
         />
-        {(!lockedBy || (lockedBy === userId)) && id && (
-          <>
-            <NameField editorName={editorName} label="agilePlanFormTitleLabel" placeHolder="decisionTitlePlaceholder"
-                       id={id} useCreateDefault/>
-            {Editor}
-          </>
-        )}
+        <NameField editorName={editorName} label="agilePlanFormTitleLabel" placeHolder="decisionTitlePlaceholder"
+                   id={id} useCreateDefault/>
+        {Editor}
         <CardActions className={classes.actions}>
           <SpinningIconLabelButton onClick={onCancel} doSpin={marketType === PLANNING_TYPE} icon={Clear}
                                    id="marketAddCancelButton">

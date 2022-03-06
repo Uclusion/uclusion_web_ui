@@ -2,7 +2,7 @@ import { messageText } from '../../../utils/messageUtils'
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { getMarketInfo } from '../../../utils/userFunctions'
 import { getMarket, getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
-import { getCommentRoot } from '../../../contexts/CommentsContext/commentsContextHelper'
+import { getCommentRoot, getInvestibleComments } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { nameFromDescription } from '../../../utils/stringFunctions'
 import { addExpansionPanel } from './InboxExpansionPanel'
 import WorkListItem from './WorkListItem'
@@ -19,8 +19,13 @@ import { useMediaQuery, useTheme } from '@material-ui/core'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import _ from 'lodash'
 import { DaysEstimate } from '../../../components/AgilePlan'
-import { getFullStage, isAcceptedStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
+import {
+  getFullStage,
+  isAcceptedStage,
+  isInReviewStage
+} from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
+import { REPORT_TYPE } from '../../../constants/comments'
 
 function getPriorityIcon(message, isAssigned) {
   const { level, link_type: linkType } = message;
@@ -76,6 +81,7 @@ function InboxRow(props) {
     message: message
   }
 
+  const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   if (commentId && linkType !== 'INVESTIBLE') {
     let useMarketId = commentMarketId || marketId;
     const rootComment = getCommentRoot(commentState, useMarketId, commentId);
@@ -88,10 +94,15 @@ function InboxRow(props) {
         }
       }
     }
-  } else if (completionEstimate) {
-    const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
-    if (isAcceptedStage(fullStage)) {
+  } else if (isAcceptedStage(fullStage)) {
+    if (completionEstimate) {
       item.moreDescription = <DaysEstimate readOnly value={completionEstimate} justText/>;
+    }
+  } else if (isInReviewStage(fullStage)) {
+    const investibleComments = getInvestibleComments(investibleId, marketId, commentState) || [];
+    const report = investibleComments.find((comment) => comment.comment_type === REPORT_TYPE && !comment.resolved);
+    if (report) {
+      item.moreDescription = nameFromDescription(report.body);
     }
   }
   if (expansionOpen) {

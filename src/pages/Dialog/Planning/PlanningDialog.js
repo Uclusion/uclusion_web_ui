@@ -316,31 +316,33 @@ function PlanningDialog(props) {
         hidden={hidden || mobileLayout || banner}
         steps={workspaceInvitedUserSteps({name: myPresence.name, isCreator: createdBy === myPresence.id})}
       />
-      <div id="workspaceMain" style={{ display: isSectionOpen('workspaceMain') ? 'block' : 'none' }}>
-        <h2>
-          <FormattedMessage id="planningDialogNavDiscussionLabel" />
-        </h2>
-        {(_.isEmpty(search) || results.find((item) => item.id === marketId)) && (
-          <Summary market={market} hidden={hidden} activeMarket={activeMarket} inArchives={inArchives}
-                   pageState={pageState} updatePageState={updatePageState} pageStateReset={pageStateReset}
-                   isDraft={isDraft}/>
-        )}
-        <Grid item id="commentAddArea" xs={12} style={{marginTop: '2rem'}}>
-          <DismissableText textId="workspaceCommentHelp" text={
-            <div>
-              <Link href="https://documentation.uclusion.com/structured-comments" target="_blank">Comments</Link> can
-              be used at the channel level and later moved to a job.
-            </div>
-          }/>
-          {!inArchives && _.isEmpty(search) && marketId && !hidden && (
-            <CommentAddBox
-              allowedTypes={allowedCommentTypes}
-              marketId={marketId}
-            />
+      {isSectionOpen('workspaceMain') && (
+        <div id="workspaceMain">
+          <h2>
+            <FormattedMessage id="planningDialogNavDiscussionLabel" />
+          </h2>
+          {(_.isEmpty(search) || results.find((item) => item.id === marketId)) && (
+            <Summary market={market} hidden={hidden} activeMarket={activeMarket} inArchives={inArchives}
+                     pageState={pageState} updatePageState={updatePageState} pageStateReset={pageStateReset}
+                     isDraft={isDraft}/>
           )}
-          <CommentBox comments={notTodoComments} marketId={marketId} allowedTypes={allowedCommentTypes}/>
-        </Grid>
-      </div>
+          <Grid item id="commentAddArea" xs={12} style={{marginTop: '2rem'}}>
+            <DismissableText textId="workspaceCommentHelp" text={
+              <div>
+                <Link href="https://documentation.uclusion.com/structured-comments" target="_blank">Comments</Link> can
+                be used at the channel level and later moved to a job.
+              </div>
+            }/>
+            {!inArchives && _.isEmpty(search) && marketId && !hidden && (
+              <CommentAddBox
+                allowedTypes={allowedCommentTypes}
+                marketId={marketId}
+              />
+            )}
+            <CommentBox comments={notTodoComments} marketId={marketId} allowedTypes={allowedCommentTypes}/>
+          </Grid>
+        </div>
+      )}
       <div id="addCollaboratorSection">
         {!hidden && marketId && isSectionOpen('addCollaboratorSection') && _.isEmpty(search) && (
           <DialogManage marketId={marketId} />
@@ -363,189 +365,190 @@ function PlanningDialog(props) {
         )}
       </div>
       <LocalPlanningDragContext.Provider value={[beingDraggedHack, setBeingDraggedHack]}>
-        <div id="storiesSection"
-             style={{ display: isSectionOpen('storiesSection') ? 'block' : 'none' }}>
-          <h2>
-            <FormattedMessage id="planningDialogNavStoriesLabel" />
-          </h2>
-          <DismissableText textId="notificationHelp" text={
-            <div>
-              Uclusion will generate all <Link href="https://documentation.uclusion.com/notifications" target="_blank">notifications</Link> necessary
-              to keep the status in these <Link href="https://documentation.uclusion.com/channels/swimlanes" target="_blank">swimlanes</Link> up to date.
-            </div>
-          }/>
-          {!_.isEmpty(blockedInvestibles) && (
-            <SubSection
-              type={SECTION_TYPE_SECONDARY_WARNING}
-              titleIcon={blockedInvestibles.length > 0 ? <Chip label={`${blockedInvestibles.length}`}
-                                                               color="primary"
-                                                               size='small'
-                                                               className={classes.chipStyle} /> : undefined}
-              title={intl.formatMessage({ id: 'blockedHeader' })}
-              helpLink='https://documentation.uclusion.com/channels/jobs/stages/#blocked'
-              id="blocked"
-            >
-              <ArchiveInvestbiles
-                elevation={0}
-                marketId={market.id}
-                presenceMap={getPresenceMap(marketPresencesState, market.id)}
-                investibles={blockedInvestibles}
-                presenceId={myPresence.id}
-                stage={inBlockingStage}
-                allowDragDrop
-                comments={comments}
-              />
-            </SubSection>
-          )}
-          {!_.isEmpty(blockedInvestibles) && (<div style={{ paddingBottom: '2rem' }}/>)}
-          {!_.isEmpty(requiresInputInvestibles) && (
-            <SubSection
-              type={SECTION_TYPE_SECONDARY_WARNING}
-              titleIcon={requiresInputInvestibles.length > 0 ? <Chip label={`${requiresInputInvestibles.length}`}
-                                                                      color="primary" size='small'
-                                                                      className={classes.chipStyle} /> : undefined}
-              title={intl.formatMessage({ id: 'requiresInputHeader' })}
-              helpLink='https://documentation.uclusion.com/channels/jobs/stages/#requires-input'
-              id="requiresInput"
-            >
-              <ArchiveInvestbiles
-                comments={comments}
-                elevation={0}
-                marketId={marketId}
-                presenceMap={presenceMap}
-                investibles={requiresInputInvestibles}
-                highlightMap={highlightMap}
-                stage={requiresInputStage}
-                presenceId={myPresence.id}
-                allowDragDrop
-              />
-            </SubSection>
-          )}
-          {!_.isEmpty(requiresInputInvestibles) && (<div style={{ paddingBottom: '2rem' }}/>)}
-          <SubSection
-            type={SECTION_SUB_HEADER}
-            isBlackText
-            helpLink='https://documentation.uclusion.com/channels/swimlanes'
-            id="swimLanes"
-            title={intl.formatMessage({ id: 'swimLanes' })}
-          >
-            <InvestiblesByPerson
-              comments={comments}
-              investibles={investibles}
-              marketId={marketId}
-              visibleStages={visibleStages}
-              acceptedStage={acceptedStage}
-              inDialogStage={inDialogStage}
-              inBlockingStage={inBlockingStage}
-              inReviewStage={inReviewStage}
-              inVerifiedStage={inVerifiedStage}
-              requiresInputStage={requiresInputStage}
-              market={market}
-              isAdmin={isAdmin}
-              mobileLayout={mobileLayout}
-              pageState={pageState} updatePageState={updatePageState}
-            />
-          </SubSection>
-          <SubSection
-            type={SECTION_SUB_HEADER}
-            isBlackText
-            helpLink='https://documentation.uclusion.com/channels/jobs/stages/#further-work'
-            id="furtherWork"
-            title={intl.formatMessage({ id: 'readyFurtherWorkHeader' })}
-          >
-            {furtherWorkType === 'readyToStart' && (
-              <PlanningInvestibleAdd
-                marketId={marketId}
-                onCancel={() => updatePageState({furtherWorkType: undefined})}
-                onSave={onInvestibleSave}
-                onSpinComplete={(destinationLink) => {
-                  updatePageState({furtherWorkType: undefined});
-                  onDone(destinationLink);
-                }}
-                marketPresences={marketPresences}
-                createdAt={createdAt}
-                classes={planningInvestibleAddClasses}
-                maxBudgetUnit={budgetUnit}
-                useBudget={useBudget ? useBudget : false}
-                votesRequired={votesRequired}
-                furtherWorkType={furtherWorkType}
-              />
-            )}
-            <div style={{paddingTop: '1rem'}} />
-            <SubSection
-              type={SECTION_TYPE_SECONDARY_WARNING}
-              titleIcon={furtherWorkReadyToStartChip === false ? undefined : furtherWorkReadyToStartChip}
-              title={intl.formatMessage({ id: 'readyToStartHeader' })}
-              actionButton={
-                <ExpandableAction
-                  icon={<AddIcon htmlColor="black"/>}
-                  label={intl.formatMessage({ id: 'createFurtherWorkExplanation' })}
-                  openLabel={intl.formatMessage({ id: 'planningDialogAddInvestibleLabel'})}
-                  onClick={onClickFurtherStart}
-                  disabled={!isAdmin}
-                  tipPlacement="top-end"
+        {isSectionOpen('storiesSection') && (
+          <div id="storiesSection">
+            <h2>
+              <FormattedMessage id="planningDialogNavStoriesLabel" />
+            </h2>
+            <DismissableText textId="notificationHelp" text={
+              <div>
+                Uclusion will generate all <Link href="https://documentation.uclusion.com/notifications" target="_blank">notifications</Link> necessary
+                to keep the status in these <Link href="https://documentation.uclusion.com/channels/swimlanes" target="_blank">swimlanes</Link> up to date.
+              </div>
+            }/>
+            {!_.isEmpty(blockedInvestibles) && (
+              <SubSection
+                type={SECTION_TYPE_SECONDARY_WARNING}
+                titleIcon={blockedInvestibles.length > 0 ? <Chip label={`${blockedInvestibles.length}`}
+                                                                 color="primary"
+                                                                 size='small'
+                                                                 className={classes.chipStyle} /> : undefined}
+                title={intl.formatMessage({ id: 'blockedHeader' })}
+                helpLink='https://documentation.uclusion.com/channels/jobs/stages/#blocked'
+                id="blocked"
+              >
+                <ArchiveInvestbiles
+                  elevation={0}
+                  marketId={market.id}
+                  presenceMap={getPresenceMap(marketPresencesState, market.id)}
+                  investibles={blockedInvestibles}
+                  presenceId={myPresence.id}
+                  stage={inBlockingStage}
+                  allowDragDrop
+                  comments={comments}
                 />
-              }
-            >
-              <ArchiveInvestbiles
-                comments={comments}
-                elevation={0}
-                marketId={marketId}
-                presenceMap={presenceMap}
-                investibles={furtherWorkReadyToStart}
-                stage={furtherWorkStage}
-                presenceId={myPresence.id}
-                allowDragDrop
-                isReadyToStart
-              />
-            </SubSection>
-            {!_.isEmpty(furtherWorkInvestibles) && (<div style={{ paddingBottom: '15px' }}/>)}
-            {furtherWorkType === 'notReadyToStart' && (
-              <PlanningInvestibleAdd
-                marketId={marketId}
-                onCancel={() => updatePageState({furtherWorkType: undefined})}
-                onSave={onInvestibleSave}
-                onSpinComplete={(destinationLink) => {
-                  updatePageState({furtherWorkType: undefined});
-                  onDone(destinationLink);
-                }}
-                marketPresences={marketPresences}
-                createdAt={createdAt}
-                classes={planningInvestibleAddClasses}
-                maxBudgetUnit={budgetUnit}
-                useBudget={useBudget ? useBudget : false}
-                votesRequired={votesRequired}
-                furtherWorkType={furtherWorkType}
-              />
+              </SubSection>
             )}
-            <SubSection
-              type={SECTION_TYPE_WARNING}
-              titleIcon={furtherWorkNotReadyToStartChip === false ? undefined : furtherWorkNotReadyToStartChip}
-              title={intl.formatMessage({ id: 'notReadyToStartHeader' })}
-              actionButton={
-                <ExpandableAction
-                  icon={<AddIcon htmlColor="black"/>}
-                  label={intl.formatMessage({ id: 'createFurtherWorkExplanation' })}
-                  openLabel={intl.formatMessage({ id: 'planningDialogAddInvestibleLabel'})}
-                  onClick={onClickFurther}
-                  disabled={!isAdmin}
-                  tipPlacement="top-end"
+            {!_.isEmpty(blockedInvestibles) && (<div style={{ paddingBottom: '2rem' }}/>)}
+            {!_.isEmpty(requiresInputInvestibles) && (
+              <SubSection
+                type={SECTION_TYPE_SECONDARY_WARNING}
+                titleIcon={requiresInputInvestibles.length > 0 ? <Chip label={`${requiresInputInvestibles.length}`}
+                                                                       color="primary" size='small'
+                                                                       className={classes.chipStyle} /> : undefined}
+                title={intl.formatMessage({ id: 'requiresInputHeader' })}
+                helpLink='https://documentation.uclusion.com/channels/jobs/stages/#requires-input'
+                id="requiresInput"
+              >
+                <ArchiveInvestbiles
+                  comments={comments}
+                  elevation={0}
+                  marketId={marketId}
+                  presenceMap={presenceMap}
+                  investibles={requiresInputInvestibles}
+                  highlightMap={highlightMap}
+                  stage={requiresInputStage}
+                  presenceId={myPresence.id}
+                  allowDragDrop
                 />
-              }
+              </SubSection>
+            )}
+            {!_.isEmpty(requiresInputInvestibles) && (<div style={{ paddingBottom: '2rem' }}/>)}
+            <SubSection
+              type={SECTION_SUB_HEADER}
+              isBlackText
+              helpLink='https://documentation.uclusion.com/channels/swimlanes'
+              id="swimLanes"
+              title={intl.formatMessage({ id: 'swimLanes' })}
             >
-              <ArchiveInvestbiles
+              <InvestiblesByPerson
                 comments={comments}
-                elevation={0}
+                investibles={investibles}
                 marketId={marketId}
-                presenceMap={presenceMap}
-                investibles={furtherWorkInvestibles}
-                stage={furtherWorkStage}
-                presenceId={myPresence.id}
-                allowDragDrop
+                visibleStages={visibleStages}
+                acceptedStage={acceptedStage}
+                inDialogStage={inDialogStage}
+                inBlockingStage={inBlockingStage}
+                inReviewStage={inReviewStage}
+                inVerifiedStage={inVerifiedStage}
+                requiresInputStage={requiresInputStage}
+                market={market}
+                isAdmin={isAdmin}
+                mobileLayout={mobileLayout}
+                pageState={pageState} updatePageState={updatePageState}
               />
             </SubSection>
-          </SubSection>
-        </div>
+            <SubSection
+              type={SECTION_SUB_HEADER}
+              isBlackText
+              helpLink='https://documentation.uclusion.com/channels/jobs/stages/#further-work'
+              id="furtherWork"
+              title={intl.formatMessage({ id: 'readyFurtherWorkHeader' })}
+            >
+              {furtherWorkType === 'readyToStart' && (
+                <PlanningInvestibleAdd
+                  marketId={marketId}
+                  onCancel={() => updatePageState({furtherWorkType: undefined})}
+                  onSave={onInvestibleSave}
+                  onSpinComplete={(destinationLink) => {
+                    updatePageState({furtherWorkType: undefined});
+                    onDone(destinationLink);
+                  }}
+                  marketPresences={marketPresences}
+                  createdAt={createdAt}
+                  classes={planningInvestibleAddClasses}
+                  maxBudgetUnit={budgetUnit}
+                  useBudget={useBudget ? useBudget : false}
+                  votesRequired={votesRequired}
+                  furtherWorkType={furtherWorkType}
+                />
+              )}
+              <div style={{paddingTop: '1rem'}} />
+              <SubSection
+                type={SECTION_TYPE_SECONDARY_WARNING}
+                titleIcon={furtherWorkReadyToStartChip === false ? undefined : furtherWorkReadyToStartChip}
+                title={intl.formatMessage({ id: 'readyToStartHeader' })}
+                actionButton={
+                  <ExpandableAction
+                    icon={<AddIcon htmlColor="black"/>}
+                    label={intl.formatMessage({ id: 'createFurtherWorkExplanation' })}
+                    openLabel={intl.formatMessage({ id: 'planningDialogAddInvestibleLabel'})}
+                    onClick={onClickFurtherStart}
+                    disabled={!isAdmin}
+                    tipPlacement="top-end"
+                  />
+                }
+              >
+                <ArchiveInvestbiles
+                  comments={comments}
+                  elevation={0}
+                  marketId={marketId}
+                  presenceMap={presenceMap}
+                  investibles={furtherWorkReadyToStart}
+                  stage={furtherWorkStage}
+                  presenceId={myPresence.id}
+                  allowDragDrop
+                  isReadyToStart
+                />
+              </SubSection>
+              {!_.isEmpty(furtherWorkInvestibles) && (<div style={{ paddingBottom: '15px' }}/>)}
+              {furtherWorkType === 'notReadyToStart' && (
+                <PlanningInvestibleAdd
+                  marketId={marketId}
+                  onCancel={() => updatePageState({furtherWorkType: undefined})}
+                  onSave={onInvestibleSave}
+                  onSpinComplete={(destinationLink) => {
+                    updatePageState({furtherWorkType: undefined});
+                    onDone(destinationLink);
+                  }}
+                  marketPresences={marketPresences}
+                  createdAt={createdAt}
+                  classes={planningInvestibleAddClasses}
+                  maxBudgetUnit={budgetUnit}
+                  useBudget={useBudget ? useBudget : false}
+                  votesRequired={votesRequired}
+                  furtherWorkType={furtherWorkType}
+                />
+              )}
+              <SubSection
+                type={SECTION_TYPE_WARNING}
+                titleIcon={furtherWorkNotReadyToStartChip === false ? undefined : furtherWorkNotReadyToStartChip}
+                title={intl.formatMessage({ id: 'notReadyToStartHeader' })}
+                actionButton={
+                  <ExpandableAction
+                    icon={<AddIcon htmlColor="black"/>}
+                    label={intl.formatMessage({ id: 'createFurtherWorkExplanation' })}
+                    openLabel={intl.formatMessage({ id: 'planningDialogAddInvestibleLabel'})}
+                    onClick={onClickFurther}
+                    disabled={!isAdmin}
+                    tipPlacement="top-end"
+                  />
+                }
+              >
+                <ArchiveInvestbiles
+                  comments={comments}
+                  elevation={0}
+                  marketId={marketId}
+                  presenceMap={presenceMap}
+                  investibles={furtherWorkInvestibles}
+                  stage={furtherWorkStage}
+                  presenceId={myPresence.id}
+                  allowDragDrop
+                />
+              </SubSection>
+            </SubSection>
+          </div>
+        )}
         <MarketTodos comments={unResolvedMarketComments} marketId={marketId}
                      sectionOpen={isSectionOpen('marketTodos')}
                      setSectionOpen={setSectionOpen} market={market} userId={myPresence.id}/>

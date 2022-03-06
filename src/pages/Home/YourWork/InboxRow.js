@@ -75,12 +75,7 @@ function InboxRow(props) {
     critical: !_.isEmpty(alertType),
     message: message
   }
-  if (completionEstimate) {
-    const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
-    if (isAcceptedStage(fullStage)) {
-      item.moreDescription = <DaysEstimate readOnly value={completionEstimate} justText/>;
-    }
-  }
+
   if (commentId && linkType !== 'INVESTIBLE') {
     let useMarketId = commentMarketId || marketId;
     const rootComment = getCommentRoot(commentState, useMarketId, commentId);
@@ -88,7 +83,15 @@ function InboxRow(props) {
       const comment = nameFromDescription(rootComment.body);
       if (comment) {
         item.comment = comment;
+        if (investibleId) {
+          item.moreDescription = item.investible;
+        }
       }
+    }
+  } else if (completionEstimate) {
+    const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
+    if (isAcceptedStage(fullStage)) {
+      item.moreDescription = <DaysEstimate readOnly value={completionEstimate} justText/>;
     }
   }
   if (expansionOpen) {

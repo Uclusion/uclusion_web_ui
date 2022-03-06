@@ -135,6 +135,7 @@ function WorkListItem(props) {
     investible = '',
     market= '',
     comment = '',
+    moreDescription = '',
     title = (<div />),
     people,
     message,
@@ -198,17 +199,20 @@ function WorkListItem(props) {
             </Box>
             {read ? (<Title>{title}</Title>) : (<TitleB>{title}</TitleB>)}
             {mobileLayout || !people ? React.Fragment : <GravatarGroup users={people} className={classes.gravatarStyle}/> }
-            <Link underline='always' href={useLink} style={{ width: '100%' }} key={`linkThrough${id}`} onClick={
-              (event) => {
-                preventDefaultAndProp(event);
-                if (useSelect && !read) {
-                  pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: DEHIGHLIGHT_EVENT, message });
+            <div style={{ display: 'flex', width: '100%' }}>
+              <a href={useLink} id={`linkThrough${id}`} onClick={
+                (event) => {
+                  preventDefaultAndProp(event);
+                  if (useSelect && !read) {
+                    pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: DEHIGHLIGHT_EVENT, message });
+                  }
+                  return navigate(history, useLink);
                 }
-                return navigate(history, useLink);
-              }
-            }>
-              <Description>{fullText}</Description>
-            </Link>
+              }><Description>{fullText}</Description></a>&nbsp;
+              {moreDescription && (
+                <Text> - {moreDescription}</Text>
+              )}
+            </div>
             {mobileLayout ||!date ? React.Fragment : (read ? (<DateLabel>{date}</DateLabel>) : (<DateLabelB>{date}</DateLabelB>))}
           </Div>
         </Link>

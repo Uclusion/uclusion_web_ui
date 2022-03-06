@@ -417,6 +417,7 @@ const messages = defineMessages({
   planningEstimatedCompletion: 'Estimated completion',
   missingEstimatedCompletion: 'No estimated completion',
   estimatedCompletionToday: 'Due',
+  estimatedCompletionJustText: 'job due',
   planningInvestibleDescription: '- Description',
   mustRemoveTodosExplanation: 'Cannot change to this stage with open tasks',
   mustResolveAssignedQuestions: 'Cannot change to this stage with unresolved questions from an assignee',

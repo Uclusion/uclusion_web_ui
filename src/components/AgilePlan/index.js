@@ -390,7 +390,7 @@ export function Votes(props) {
 }
 
 export function DaysEstimate(props) {
-  const { readOnly, value, onChange, showLabel = true, showHelper = true, isInbox } = props;
+  const { readOnly, value, onChange, showLabel = true, showHelper = true, isInbox, justText } = props;
   const classes = usePlanFormStyles();
   const intl = useIntl();
   const theme = useTheme();
@@ -402,6 +402,13 @@ export function DaysEstimate(props) {
   if (readOnly) {
     const dueDate = new Date(value);
     if (isInPast(dueDate)) {
+      if (justText) {
+        return (
+          <>
+            {intl.formatMessage({ id: 'estimatedCompletionJustText' })} <UsefulRelativeTime value={dueDate}/>
+          </>
+        );
+      }
       return (
         <Typography className={myClassName}>
           {intl.formatMessage({ id: 'estimatedCompletionToday' })} <UsefulRelativeTime value={dueDate}/>
@@ -413,6 +420,13 @@ export function DaysEstimate(props) {
         <Typography className={myClassName}>
           {intl.formatMessage({ id: 'missingEstimatedCompletion' })}
         </Typography>
+      );
+    }
+    if (justText) {
+      return (
+        <>
+          {intl.formatMessage({ id: 'estimatedCompletionJustText' })} {intl.formatDate(value)}
+        </>
       );
     }
     return (

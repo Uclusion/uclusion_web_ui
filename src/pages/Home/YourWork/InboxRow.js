@@ -18,6 +18,9 @@ import { useIntl } from 'react-intl'
 import { useMediaQuery, useTheme } from '@material-ui/core'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import _ from 'lodash'
+import { DaysEstimate } from '../../../components/AgilePlan'
+import { getFullStage, isAcceptedStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 
 function getPriorityIcon(message, isAssigned) {
   const { level, link_type: linkType } = message;
@@ -48,6 +51,7 @@ function InboxRow(props) {
   const [diffState] = useContext(DiffContext);
   const [marketsState] = useContext(MarketsContext);
   const [messagesState] = useContext(NotificationsContext);
+  const [marketStagesState] = useContext(MarketStagesContext);
   const planningClasses = usePlanningInvestibleStyles();
   const { investible_id: investibleId, investible_name: investibleName, updated_at: updatedAt,
     market_name: marketName, is_highlighted: isHighlighted, type_object_id: typeObjectId, market_id: marketId,
@@ -57,7 +61,7 @@ function InboxRow(props) {
     : messageText(message, mobileLayout, intl);
   const inv = getInvestible(investiblesState, investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};
-  const { assigned } = marketInfo;
+  const { assigned, completion_estimate: completionEstimate, stage } = marketInfo;
   const userId = getMyUserForMarket(marketsState, marketId);
   const isAssigned = (assigned || []).includes(userId);
   const market = getMarket(marketsState, marketId) || {};
@@ -70,6 +74,12 @@ function InboxRow(props) {
     date: intl.formatDate(updatedAt),
     critical: !_.isEmpty(alertType),
     message: message
+  }
+  if (completionEstimate) {
+    const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
+    if (isAcceptedStage(fullStage)) {
+      item.moreDescription = <DaysEstimate readOnly value={completionEstimate} justText/>;
+    }
   }
   if (commentId && linkType !== 'INVESTIBLE') {
     let useMarketId = commentMarketId || marketId;

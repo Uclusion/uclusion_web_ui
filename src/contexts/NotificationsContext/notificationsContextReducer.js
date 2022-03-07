@@ -271,17 +271,19 @@ function reducer (state, action) {
   const newState = computeNewState(state, action);
   if ([DEHIGHLIGHT_MESSAGES, REMOVE_MESSAGES].includes(action.type)) {
     const { message } = action;
-    let typeObjectIds = [];
-    const messages = getAllMessages(message, state);
-    messages.forEach((message) => {
-      typeObjectIds.push(message.type_object_id);
-    })
-    if (action.type === REMOVE_MESSAGES) {
-      getMarketClient(message.market_id).then((client) => client.users.removeNotifications(typeObjectIds)).then(() =>
-        storeStatePromise(action, newState));
-    } else {
-      getMarketClient(message.market_id).then((client) => client.users.dehighlightNotifications(typeObjectIds))
-        .then(() => storeStatePromise(action, newState));
+    if (message.market_id) {
+      let typeObjectIds = [];
+      const messages = getAllMessages(message, state);
+      messages.forEach((message) => {
+        typeObjectIds.push(message.type_object_id);
+      })
+      if (action.type === REMOVE_MESSAGES) {
+        getMarketClient(message.market_id).then((client) => client.users.removeNotifications(typeObjectIds)).then(() =>
+          storeStatePromise(action, newState));
+      } else {
+        getMarketClient(message.market_id).then((client) => client.users.dehighlightNotifications(typeObjectIds))
+          .then(() => storeStatePromise(action, newState));
+      }
     }
   } else {
     storeStatePromise(action, newState);

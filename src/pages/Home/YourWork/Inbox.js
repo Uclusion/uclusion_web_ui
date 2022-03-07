@@ -2,7 +2,7 @@ import WorkListItem, { workListStyles } from './WorkListItem'
 import { Box, Checkbox, Fab, IconButton, useMediaQuery, useTheme } from '@material-ui/core'
 import React, { useContext, useReducer } from 'react'
 import { useIntl } from 'react-intl'
-import { ExpandLess, KeyboardArrowLeft, MoveToInbox, Weekend } from '@material-ui/icons'
+import { Assignment, ExpandLess, KeyboardArrowLeft, MoveToInbox, Weekend } from '@material-ui/icons'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
@@ -23,6 +23,7 @@ import { hasNoChannels } from '../../../contexts/MarketsContext/marketsContextHe
 import InboxRow from './InboxRow'
 import { getPaginatedItems } from '../../../utils/messageUtils'
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight'
+import InboxWelcomeExpansion from './InboxWelcomeExpansion'
 
 const useStyles = makeStyles(
   theme => {
@@ -180,6 +181,41 @@ function Inbox(props) {
   }
 
   const { first, last, data, hasMore, hasLess } = getPaginatedItems(messagesOrdered, page);
+  let defaultInboxRow = undefined;
+  if (_.isEmpty(messagesOrdered)) {
+    const id = 'emptyInbox';
+    const { messages } = (messagesState || {});
+    const safeMessages = messages || [];
+    const existingMessage = safeMessages.find((message) => message.type_object_id === id)
+      || { is_highlighted: true };
+    if (hasNoChannels(tokensHash)) {
+      const item = {
+        title: intl.formatMessage({ id: 'welcome' }),
+        market: intl.formatMessage({ id: 'aboutInbox' }),
+        icon: <Assignment style={{fontSize: 24, color: '#2D9CDB',}}/>,
+        read: !existingMessage.is_highlighted,
+        message: {type_object_id: id, link: 'https://documentation.uclusion.com/notifications/inbox'},
+        expansionPanel: <InboxWelcomeExpansion />,
+        moreDescription: intl.formatMessage({ id: 'demonstratesInbox' }),
+        date: intl.formatDate(new Date())
+      };
+      const determinateChecked = determinate[id];
+      const checked = determinateChecked !== undefined ? determinateChecked : checkAll;
+      defaultInboxRow = <WorkListItem key={id} id={id} expansionOpen={!!expansionState[id]}
+                                      checked={checked} {...item}
+                                      determinateDispatch={determinateDispatch} expansionDispatch={expansionDispatch}
+      />;
+    } else {
+      defaultInboxRow = <WorkListItem key={id} id={id} useSelect={false} {...{
+        title: intl.formatMessage({ id: 'enjoy' }),
+        market: intl.formatMessage({ id: 'noNew' }),
+        icon: <Weekend style={{fontSize: 24, color: '#2D9CDB',}}/>,
+        read: false,
+        date: intl.formatDate(new Date()),
+        message: {link: '/outbox'}
+      }} />;
+    }
+  }
 
   return (
     <div id="inbox">
@@ -221,7 +257,7 @@ function Inbox(props) {
                            onClick={() => expansionDispatch({expandAll: true})} translationId="inboxExpandAll" />
         <div style={{flexGrow: 1}}/>
         <Box fontSize={14} color="text.secondary">
-          {first} - {last} of {_.size(messagesOrdered)}
+          {first} - {last} of {_.size(messagesOrdered) > 0 ? _.size(messagesOrdered) : 1}
           <IconButton disabled={!hasLess} onClick={() => changePage(-1)} >
             <KeyboardArrowLeft />
           </IconButton>
@@ -230,16 +266,7 @@ function Inbox(props) {
           </IconButton>
         </Box>
       </div>
-      {_.isEmpty(messagesOrdered) && !hasNoChannels(tokensHash) && (
-        <WorkListItem key='emptyInbox' id='emptyInbox' useSelect={false} {...{
-          title: intl.formatMessage({ id: 'enjoy' }),
-          market: intl.formatMessage({ id: 'noNew' }),
-          icon: <Weekend style={{fontSize: 24, color: '#2D9CDB',}}/>,
-          read: false,
-          isDeletable: false,
-          message: {link: '/outbox'}
-        }} />
-      )}
+      {defaultInboxRow}
       { data.map((message) => {
         const { link_multiple: linkMultiple } = message;
         const linkMultiples = dupeHash[linkMultiple] || [];

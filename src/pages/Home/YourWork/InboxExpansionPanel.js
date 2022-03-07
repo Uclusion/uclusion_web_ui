@@ -137,7 +137,9 @@ export function addExpansionPanel(props) {
   } else if (messageType === 'UNREAD_DRAFT') {
     item.expansionPanel = (
       <>
-        <NotificationDeletion message={message} />
+        <div style={{paddingLeft: '1.25rem', paddingTop: '1rem'}}>
+          <NotificationDeletion message={message} />
+        </div>
         <DialogManage marketId={marketId} isInbox />
       </>
     );

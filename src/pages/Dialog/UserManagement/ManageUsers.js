@@ -13,7 +13,8 @@ function ManageUsers (props) {
 
   return (
     <>
-      <CardContent className={clsx(classes.cardContent, classes.nestedCard)} style={{paddingBottom: '1rem'}}>
+      <CardContent className={clsx(classes.cardContent, classes.nestedCard)} style={{paddingBottom: '1rem',
+        paddingTop: isInbox ? 0 : undefined}}>
         <AddNewUsers market={market} isInbox={isInbox} />
       </CardContent>
     </>

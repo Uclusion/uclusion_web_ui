@@ -47,9 +47,7 @@ function MarketsProvider(props) {
           const store = localforage.createInstance({ storeName: TOKEN_STORAGE_KEYSPACE });
           const localTokenHash = {};
           store.iterate((value, key) => {
-            if (!key.startsWith('ACCOUNT')) {
-              localTokenHash[key] = value;
-            }
+            localTokenHash[key] = value;
           }).then(() => {
             setTokensHash(localTokenHash);
             const lfg = new LocalForageHelper(MARKET_CONTEXT_NAMESPACE);
@@ -80,9 +78,7 @@ function MarketsProvider(props) {
       const store = localforage.createInstance({ storeName: TOKEN_STORAGE_KEYSPACE });
       const localTokenHash = {};
       store.iterate((value, key) => {
-        if (!key.startsWith('ACCOUNT')) {
-          localTokenHash[key] = value;
-        }
+        localTokenHash[key] = value;
       }).then(() => {
         setTokensHash(localTokenHash);
         // load state from storage

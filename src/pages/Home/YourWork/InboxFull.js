@@ -7,7 +7,7 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import {
   getHiddenMarketDetailsForUser,
-  getNotHiddenMarketDetailsForUser, hasNoChannels,
+  getNotHiddenMarketDetailsForUser,
   marketTokenLoaded
 } from '../../../contexts/MarketsContext/marketsContextHelper'
 import _ from 'lodash'
@@ -40,9 +40,13 @@ function InboxFull(props) {
       if (expandAll) {
         const { messages: messagesUnsafe } = messagesState;
         newExpanded = { ...state };
-        (messagesUnsafe || []).forEach((message) => {
-          newExpanded[message.type_object_id] = expandAll;
-        });
+        if (_.isEmpty(messagesUnsafe)) {
+          newExpanded['emptyInbox'] = expandAll;
+        } else {
+          messagesUnsafe.forEach((message) => {
+            newExpanded[message.type_object_id] = expandAll;
+          });
+        }
       } else {
         newExpanded = {};
       }
@@ -154,17 +158,6 @@ function InboxFull(props) {
         }}>here</Link>.
         </div>
       } />
-      {!hasNoChannels(tokensHash) && (
-        <DismissableText textId={'settingsHelp'} text={
-          <div>
-            Use <Link href="/notificationPreferences" onClick={(event) => {
-            preventDefaultAndProp(event);
-            history.push('/notificationPreferences');
-          }}>settings</Link> to change your notifications preferences
-            or try our Slack integration.
-          </div>
-        } />
-      )}
       <Inbox expansionState={expansionState} expansionDispatch={expansionDispatch} page={page} setPage={setPage} />
     </Screen>
   );

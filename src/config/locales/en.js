@@ -145,6 +145,7 @@ const messages = defineMessages({
   points: 'points',
   currency: 'dollars',
   update: 'Update',
+  welcome: 'Welcome',
 
   // Upgrade
   upgradeNow: 'Upgrade Now',
@@ -343,6 +344,9 @@ const messages = defineMessages({
   nameChange: 'Job name changed to "{x}"',
   investibleInboxHeader: '{x} / {y}',
   notificationsListHeader: 'Notifications: {x}',
+  aboutInbox: 'About your inbox',
+  demonstratesInbox: 'click this row anywhere outside the link to expand',
+  notificationSummary: 'Summary',
 
   // Address list
   addressAddCancelLabel: 'Close',

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import cx from "clsx";
 import styled from "styled-components";
 import { Box, IconButton, makeStyles, useMediaQuery, useTheme } from '@material-ui/core'
@@ -17,6 +17,8 @@ import {
   DEHIGHLIGHT_EVENT, DELETE_EVENT,
   MODIFY_NOTIFICATIONS_CHANNEL, REMOVE_EVENT
 } from '../../../contexts/NotificationsContext/notificationsContextMessages'
+import { ExpandLess } from '@material-ui/icons'
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 
 const Item = styled("div")`
   margin-bottom: 20px;
@@ -157,6 +159,7 @@ function WorkListItem(props) {
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const actionStyles = useSizedIconButtonStyles({ childSize: 22, padding: 10 });
   const gutterStyles = useRowGutterStyles({ size: -10, before: -8 });
+  const [isHovered, setIsHovered] = useState(false);
   const { link, link_multiple: linkMultiple } = message;
 
   const fullText = comment || investible || market;
@@ -164,8 +167,8 @@ function WorkListItem(props) {
   const useLink = isMultiple ? linkMultiple : link;
   return (
     <Item key={`workListItem${id}`} id={`workListItem${id}`}>
-      <RaisedCard elevation={3} noPadding>
-        <Link underline='none' href={useLink} style={{ width: '100%' }} key={`link${id}`} onClick={
+      <RaisedCard elevation={3} rowStyle>
+        <div style={{ width: '100%', cursor: 'pointer' }} id={`link${id}`} onClick={
           (event) => {
             preventDefaultAndProp(event);
             expansionDispatch({ id });
@@ -173,7 +176,7 @@ function WorkListItem(props) {
               pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: DEHIGHLIGHT_EVENT, message });
             }
           }
-        }>
+        } onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
           <Div className={cx(read && 'MailListItem-read', critical && 'MailListItem-critical')}>
             <Box flexShrink={0} className={gutterStyles.parent}>
               {!mobileLayout && useSelect && (
@@ -216,9 +219,14 @@ function WorkListItem(props) {
                 <Text> - {moreDescription}</Text>
               )}
             </div>
-            {mobileLayout ||!date ? React.Fragment : (read ? (<DateLabel>{date}</DateLabel>) : (<DateLabelB>{date}</DateLabelB>))}
+            {isHovered || mobileLayout || !date ? React.Fragment : (read ? (<DateLabel>{date}</DateLabel>) :
+              (<DateLabelB>{date}</DateLabelB>))}
+            {isHovered && (
+                expansionOpen ? <ExpandLess fontSize='large' style={{color: 'black', marginRight: '1rem'}} />
+                  : <ExpandMoreIcon fontSize='large' style={{color: 'black', marginRight: '1rem'}} />
+            )}
           </Div>
-        </Link>
+        </div>
         <div style={{overflowY: 'auto', maxHeight: '50rem',
           visibility: expansionOpen ? 'visible' : 'hidden', height: expansionOpen ? undefined : 0}}>
           {expansionPanel || <React.Fragment />}

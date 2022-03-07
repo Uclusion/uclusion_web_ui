@@ -8,7 +8,8 @@ const useStyles = makeStyles({
     display: 'flex',
     flexDirection: 'column'
   },
-  noPadding: {
+  rowStyle: {
+    "&:hover": { transform: "scale3d(1.01, 1.01, 1)" },
     display: 'flex',
     flexDirection: 'column'
   },
@@ -21,7 +22,7 @@ const useStyles = makeStyles({
 })
 
 function RaisedCard(props) {
-  const { onClick, elevation, className, isHighlighted, noPadding } = props;
+  const { onClick, elevation, className, isHighlighted, rowStyle } = props;
   const elevated = elevation ? elevation : 0;
   const classes = useStyles(onClick);
   let isClickable = typeof onClick === 'function' ? true : false;
@@ -40,7 +41,7 @@ function RaisedCard(props) {
         elevation={elevated}
         p={0}
         style={{ height: '100%', cursor: isClickable ? 'pointer' : 'default'}}
-        className={noPadding ? classes.noPadding : (isHighlighted ? classes.highlightedCard : classes.card)}
+        className={rowStyle ? classes.rowStyle : (isHighlighted ? classes.highlightedCard : classes.card)}
       >
         {props.children}
       </Card>

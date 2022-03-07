@@ -9,7 +9,6 @@ import { useRowGutterStyles } from "@mui-treasury/styles/gutter/row";
 import PropTypes from 'prop-types'
 import { navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions'
 import GravatarGroup from '../../../components/Avatars/GravatarGroup'
-import { Link } from '@material-ui/core'
 import { useHistory } from 'react-router'
 import RaisedCard from '../../../components/Cards/RaisedCard'
 import { pushMessage } from '../../../utils/MessageBusUtils'

@@ -104,6 +104,13 @@ function InboxRow(props) {
     if (report) {
       item.moreDescription = nameFromDescription(report.body);
     }
+  } else if (linkType === 'INVESTIBLE' && _.isEmpty(assigned)) {
+    const { investible: myInvestible } = inv || {};
+    const { description } = myInvestible || {};
+    const abbreviatedDescription = nameFromDescription(description);
+    if (abbreviatedDescription) {
+      item.moreDescription = abbreviatedDescription;
+    }
   }
   if (expansionOpen) {
     const isDeletable = message.type_object_id.startsWith('UNREAD') && (!isMultiple || !hasPersistent);

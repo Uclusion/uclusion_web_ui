@@ -222,8 +222,8 @@ function WorkListItem(props) {
             {isHovered || mobileLayout || !date ? React.Fragment : (read ? (<DateLabel>{date}</DateLabel>) :
               (<DateLabelB>{date}</DateLabelB>))}
             {isHovered && (
-                expansionOpen ? <ExpandLess fontSize='large' style={{color: 'black', marginRight: '1rem'}} />
-                  : <ExpandMoreIcon fontSize='large' style={{color: 'black', marginRight: '1rem'}} />
+                expansionOpen ? <ExpandLess style={{color: 'black', marginRight: '1rem'}} />
+                  : <ExpandMoreIcon style={{color: 'black', marginRight: '1rem'}} />
             )}
           </Div>
         </div>

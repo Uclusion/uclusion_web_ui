@@ -72,7 +72,7 @@ const Description = styled(Text)`
 
 const Title = styled(Text)`
   flex-basis: 180px;
-  min-width: 15vw;
+  min-width: 13vw;
   flex-shrink: 0;
   flex-grow: 0;
   & > *:not(:first-child) {
@@ -91,7 +91,7 @@ const TitleB = styled(Title)`
 
 const DateLabel = styled(Text)`
   font-size: 14px;
-  min-width: 15vw;
+  min-width: 10vw;
   flex-basis: 100px;
   flex-shrink: 0;
   padding-right: 16px;
@@ -179,6 +179,7 @@ function WorkListItem(props) {
               {!mobileLayout && useSelect && (
                 <StyledIconButton
                   className={cx(checked && "MailListItem-checked")}
+                  style={{marginLeft: '0.15rem'}}
                   classes={actionStyles}
                   onClick={(event) => {
                     preventDefaultAndProp(event);
@@ -191,7 +192,7 @@ function WorkListItem(props) {
               )}
               {(!useSelect || !mobileLayout) && (
                 <StyledIconButton
-                  style={{marginLeft: '0.5rem'}}
+                  style={{marginLeft: useSelect ? '0.25rem' : '0.5rem'}}
                   disabled
                   classes={actionStyles}
                 >

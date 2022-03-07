@@ -55,7 +55,6 @@ const Text = styled("div")`
   -webkit-font-smoothing: antialiased;
   font-size: 18px;
   color: #5f6368;
-  min-width: 15vw;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -73,6 +72,7 @@ const Description = styled(Text)`
 
 const Title = styled(Text)`
   flex-basis: 180px;
+  min-width: 15vw;
   flex-shrink: 0;
   flex-grow: 0;
   & > *:not(:first-child) {
@@ -91,6 +91,7 @@ const TitleB = styled(Title)`
 
 const DateLabel = styled(Text)`
   font-size: 14px;
+  min-width: 15vw;
   flex-basis: 100px;
   flex-shrink: 0;
   padding-right: 16px;
@@ -190,6 +191,7 @@ function WorkListItem(props) {
               )}
               {(!useSelect || !mobileLayout) && (
                 <StyledIconButton
+                  style={{marginLeft: '0.5rem'}}
                   disabled
                   classes={actionStyles}
                 >

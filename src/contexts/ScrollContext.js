@@ -32,6 +32,7 @@ function ScrollProvider(props) {
           scrollToElement(element);
           // Remove the hash from the URL so we don't end up scrolling again
           // - use replace instead of push so back button works
+          console.info(`Replacing path after scrolling to ${originalScrollTarget}`);
           history.replace(window.location.pathname);
           return true;
         }

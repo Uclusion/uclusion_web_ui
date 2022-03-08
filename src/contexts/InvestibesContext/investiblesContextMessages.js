@@ -29,9 +29,9 @@ function beginListening(dispatch, diffDispatch) {
   });
   registerListener(LOCK_INVESTIBLE_CHANNEL, 'investiblesLock', (data) => {
     const { payload: { marketId, investibleId } } = data;
-    pushMessage(OPERATION_HUB_CHANNEL, { event: START_OPERATION });
+    pushMessage(OPERATION_HUB_CHANNEL, { event: START_OPERATION, id: LOCK_INVESTIBLE });
     lockInvestibleForEdit(marketId, investibleId).then((newInv) => {
-      pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION });
+      pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION, id: LOCK_INVESTIBLE });
       refreshInvestibles(dispatch, diffDispatch, [newInv]);
     });
   });

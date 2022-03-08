@@ -21,6 +21,7 @@ import { useEditor } from '../../components/TextEditors/quillHooks';
 import LockedDialogTitleIcon from '@material-ui/icons/Lock'
 import IssueDialog from '../../components/Warnings/IssueDialog'
 import { getQuillStoredState } from '../../components/TextEditors/Utilities/CoreUtils';
+import { LOCK_INVESTIBLE } from '../../contexts/InvestibesContext/investiblesContextMessages'
 
 const useStyles = makeStyles(
   theme => ({
@@ -76,7 +77,7 @@ function InvestibleBodyEdit(props) {
   const market = getMarket(marketsState, marketId) || emptyMarket;
   const loading = !beingEdited || !market;
   const someoneElseEditing = !_.isEmpty(lockedBy) && (lockedBy !== userId);
-  const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [openIssue, setOpenIssue] = useState(false);
   const { id, description: initialDescription, name: initialName } = myInvestible;
 
@@ -163,7 +164,7 @@ function InvestibleBodyEdit(props) {
         resetEditor();
       });
   }
-  if (beingEdited && lockedBy !== userId) {
+  if (beingEdited && lockedBy !== userId && operationRunning === LOCK_INVESTIBLE) {
     return (
       <div align='center'>
         <Typography>{intl.formatMessage({ id: "gettingLockMessage" })}</Typography>

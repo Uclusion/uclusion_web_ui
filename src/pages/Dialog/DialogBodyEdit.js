@@ -22,6 +22,7 @@ import { useEditor } from '../../components/TextEditors/quillHooks';
 import WarningIcon from '@material-ui/icons/Warning'
 import IssueDialog from '../../components/Warnings/IssueDialog'
 import { getQuillStoredState } from '../../components/TextEditors/Utilities/CoreUtils';
+import { LOCK_MARKET } from '../../contexts/MarketsContext/marketsContextMessages'
 
 export const useLockedDialogStyles = makeStyles(
   (theme) => {
@@ -134,7 +135,7 @@ function DialogBodyEdit(props) {
   } = pageState;
   const intl = useIntl();
   const classes = useStyles();
-  const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [,marketsDispatch] = useContext(MarketsContext);
   const [, diffDispatch] = useContext(DiffContext);
   const [openIssue, setOpenIssue] = useState(false);
@@ -218,7 +219,7 @@ function DialogBodyEdit(props) {
 
   const lockedDialogClasses = useLockedDialogStyles();
 
-  if (beingEdited && lockedBy !== userId) {
+  if (beingEdited && lockedBy !== userId && operationRunning === LOCK_MARKET) {
     return (
       <div align='center'>
         <Typography>{intl.formatMessage({ id: "gettingLockMessage" })}</Typography>

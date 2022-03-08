@@ -68,9 +68,9 @@ function beginListening(dispatch, diffDispatch, setTokensHash) {
   });
   registerListener(LOCK_MARKET_CHANNEL, 'marketsLockStart', (data) => {
     const { payload: { marketId } } = data;
-    pushMessage(OPERATION_HUB_CHANNEL, { event: START_OPERATION });
+    pushMessage(OPERATION_HUB_CHANNEL, { event: START_OPERATION, id: LOCK_MARKET });
     lockPlanningMarketForEdit(marketId).then((market) => {
-      pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION });
+      pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION, id: LOCK_MARKET });
       addMarketToStorage(dispatch, diffDispatch, market);
     });
   });

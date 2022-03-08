@@ -7,8 +7,8 @@ function OperationInProgressProvider (props) {
   const { children } = props;
   const [state, dispatch] = useReducer((state, action) => {
     const { value, msg, id } = action;
+    const expectedState = id ? id : true;
     if (msg === STOP_OPERATION) {
-      const expectedState = id ? id : true;
       if (state !== expectedState) {
         // This is a NO OP because something unknowingly turning off a button initiated operation in progress
         return state;
@@ -22,7 +22,7 @@ function OperationInProgressProvider (props) {
         return state;
       }
       console.info('Starting operation from message');
-      return true;
+      return expectedState;
     }
     console.info(`Setting operation ${value}`);
     return value;

@@ -6,7 +6,7 @@ import RaisedCard from '../../../components/Cards/RaisedCard'
 import { FormattedMessage, useIntl } from 'react-intl'
 import { useHistory, useLocation } from 'react-router'
 import { darken, makeStyles } from '@material-ui/core/styles'
-import { yellow } from '@material-ui/core/colors'
+import { grey, yellow } from '@material-ui/core/colors'
 import {
   SECTION_SUB_HEADER,
   SECTION_TYPE_SECONDARY_WARNING,
@@ -56,6 +56,11 @@ const myClasses = makeStyles(
         outline: `2px solid ${theme.palette.grey['400']}`,
         outlineOffset: '-5px'
       },
+      outlinedSelected: {
+        backgroundColor: theme.palette.grey['200'],
+        outline: `2px solid ${theme.palette.grey['400']}`,
+        outlineOffset: '-5px'
+      },
       warnCard: {
         backgroundColor: yellow['400'],
         padding: theme.spacing(1, 0, 0, 2),
@@ -68,6 +73,19 @@ const myClasses = makeStyles(
         overflowY: 'auto',
         overflowX: 'hidden',
         maxHeight: '275px'
+      },
+      cardSelected: {
+        backgroundColor: theme.palette.grey['200'],
+        padding: theme.spacing(1, 0, 0, 2),
+        overflowY: 'auto',
+        overflowX: 'hidden',
+        maxHeight: '275px'
+      },
+      raisedCardSelected: {
+        backgroundColor: theme.palette.grey['200'],
+      },
+      warnHighlightedCard: {
+        backgroundColor: yellow['400'],
       },
       white: {
         backgroundColor: 'white',
@@ -347,6 +365,7 @@ function MarketTodos (props) {
       })
       const { isChecked } = checked[id] || { isChecked: false };
       const showChip = replies.length > 0;
+      const isSelected = [editYellowCardId, editRedCardId, editCardId].includes(id);
       return (
         <React.Fragment key={`${id}top`}>
           {openMenuTodoId === id && anchorEl && (
@@ -362,7 +381,7 @@ function MarketTodos (props) {
             draggable={!operationRunning && !isInArchives}
             onDragStart={(event) => onDragStart(event, notificationType)}
             onDragEnd={onDragEnd}
-            className={classes.outlined}
+            className={isSelected ? classes.outlinedSelected : classes.outlined}
             onMouseOver={() => doShowEdit(id)} onMouseOut={() => doRemoveEdit(id)}
           >
             {showSelectTodos && (
@@ -372,18 +391,22 @@ function MarketTodos (props) {
                 onChange={todoSelectedToggle(id)}
               />
             )}
-            <RaisedCard elevation={0} onClick={(event) => {
-              if (invalidEditEvent(event, history)) {
-                return
-              }
-              if (isInArchives) {
-                setCardAndScroll(comment)
-              } else {
-                setOpenMenuCard(id, event)
-              }
-            }}>
+            <RaisedCard className={isSelected ? classes.raisedCardSelected : undefined} elevation={0}
+                        cardClassName={isSelected ? classes.raisedCardSelected :
+                          (useHighlight ? classes.warnHighlightedCard : undefined)}
+                        onClick={(event) => {
+                            if (invalidEditEvent(event, history)) {
+                              return
+                            }
+                            if (isInArchives) {
+                              setCardAndScroll(comment)
+                            } else {
+                              setOpenMenuCard(id, event)
+                            }
+                        }}
+            >
               <Grid container id={`drag${id}`} key={`drag${id}`}
-                    className={useHighlight ? classes.warnCard : classes.card}>
+                    className={isSelected ? classes.cardSelected : (useHighlight ? classes.warnCard : classes.card)}>
                 <Grid item xs={11} style={{ pointerEvents: 'none' }} key={`wComment${id}`}>
                   <div style={{ display: 'flex' }}>
                     <Typography style={{ fontSize: '.75rem', flex: 1 }}>
@@ -591,7 +614,7 @@ function MarketTodos (props) {
             />
           )}
           {editRedCard && (
-            <div id={`editc${editRedCardId}`} style={{marginBottom: '2rem'}}>
+            <div id={`editc${editRedCardId}`} style={{marginBottom: '2rem', marginRight: '1rem', marginLeft: '1rem'}}>
               <Comment
                 depth={0}
                 marketId={marketId}
@@ -647,7 +670,8 @@ function MarketTodos (props) {
             />
           )}
           {editYellowCard && (
-            <div id={`editc${editYellowCardId}`} style={{marginBottom: '2rem'}}>
+            <div id={`editc${editYellowCardId}`} style={{marginBottom: '2rem', marginRight: '1rem',
+              marginLeft: '1rem'}}>
               <Comment
                 depth={0}
                 marketId={marketId}
@@ -703,7 +727,7 @@ function MarketTodos (props) {
             />
           )}
           {editCard && (
-            <div id={`editc${editCardId}`} style={{marginBottom: '2rem'}}>
+            <div id={`editc${editCardId}`} style={{marginBottom: '2rem', marginRight: '1rem', marginLeft: '1rem'}}>
               <Comment
                 depth={0}
                 marketId={marketId}

@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Box, Card, makeStyles } from '@material-ui/core';
+import clsx from 'clsx'
 
 const useStyles = makeStyles({
   card: {
@@ -13,6 +14,9 @@ const useStyles = makeStyles({
     display: 'flex',
     flexDirection: 'column'
   },
+  noClass: {
+
+  },
   highlightedCard: {
     padding: '8px',
     display: 'flex',
@@ -22,13 +26,14 @@ const useStyles = makeStyles({
 })
 
 function RaisedCard(props) {
-  const { onClick, elevation, className, isHighlighted, rowStyle } = props;
+  const { onClick, elevation, className, cardClassName, isHighlighted, rowStyle } = props;
   const elevated = elevation ? elevation : 0;
   const classes = useStyles(onClick);
   let isClickable = typeof onClick === 'function' ? true : false;
   if( onClick.toString() === '() => {}' || onClick.toString() === '()=>{}'){ //preminification has spaces - minified does not, check for both
     isClickable = false;
   }
+  const useCardClassName = cardClassName || classes.noClass;
   return (
     <Box
       borderRadius="borderRadius"
@@ -41,7 +46,8 @@ function RaisedCard(props) {
         elevation={elevated}
         p={0}
         style={{ height: '100%', cursor: isClickable ? 'pointer' : 'default'}}
-        className={rowStyle ? classes.rowStyle : (isHighlighted ? classes.highlightedCard : classes.card)}
+        className={clsx(useCardClassName, rowStyle ? classes.rowStyle :
+          (isHighlighted ? classes.highlightedCard : classes.card))}
       >
         {props.children}
       </Card>

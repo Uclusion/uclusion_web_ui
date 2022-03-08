@@ -11,7 +11,7 @@ import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
 import {
   ISSUE_TYPE,
   JUSTIFY_TYPE,
-  QUESTION_TYPE,
+  QUESTION_TYPE, REPLY_TYPE,
   REPORT_TYPE,
   SUGGEST_CHANGE_TYPE,
   TODO_TYPE
@@ -75,7 +75,8 @@ function InboxInvestible(props) {
   const yourPresence = marketPresences.find((presence) => presence.current_user);
   const investibleComments = getInvestibleComments(investibleId, marketId, commentState);
   const investmentReasonsRemoved = investibleComments.filter(comment => comment.comment_type !== JUSTIFY_TYPE) || [];
-  const todoComments = investibleComments.filter(comment => comment.comment_type === TODO_TYPE) || [];
+  const todoComments = investibleComments.filter(comment => comment.comment_type === TODO_TYPE
+    || comment.comment_type === REPLY_TYPE) || [];
   const investmentReasons = investibleComments.filter(comment => comment.comment_type === JUSTIFY_TYPE) || [];
   const investibleCollaborators = getCollaborators(marketPresences, investibleComments, marketPresencesState,
     investibleId);
@@ -358,8 +359,8 @@ function InboxInvestible(props) {
           />
         </>
       )}
-      {!_.isEmpty(useMessageTypes) &&
-        (!_.isEmpty(investmentReasonsRemoved) || (useMessageTypes.includes('NEW_TODO') && !_.isEmpty(todoComments))) && (
+      {!_.isEmpty(useMessageTypes) && (!_.isEmpty(investmentReasonsRemoved) || useMessageTypes.includes('NEW_TODO'))
+        && (
         <div style={{paddingTop: '0.5rem'}}>
           <CommentBox
             comments={useMessageTypes.includes('NEW_TODO') ? todoComments : investmentReasonsRemoved}

@@ -16,7 +16,7 @@ import {
   DEHIGHLIGHT_EVENT, DELETE_EVENT,
   MODIFY_NOTIFICATIONS_CHANNEL, REMOVE_EVENT
 } from '../../../contexts/NotificationsContext/notificationsContextMessages'
-import { ExpandLess } from '@material-ui/icons'
+import { AssignmentInd, AssignmentIndOutlined, ExpandLess } from '@material-ui/icons'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 
 const Item = styled("div")`
@@ -31,9 +31,6 @@ const Div = styled("div")`
   box-shadow: inset 0 -1px 0 0 rgba(100, 121, 143, 0.122);
   &.MailListItem-read {
     background-color: rgba(242,245,245,0.5);
-  }
-  &.MailListItem-critical {
-    background-color: rgba(255, 0, 0, 0.6);
   }
   &:hover {
     box-shadow: inset 1px 0 0 #dadce0, inset -1px 0 0 #dadce0,
@@ -176,7 +173,7 @@ function WorkListItem(props) {
             }
           }
         } onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
-          <Div className={cx(read && 'MailListItem-read', critical && 'MailListItem-critical')}>
+          <Div className={cx(read && 'MailListItem-read')}>
             <Box flexShrink={0} className={gutterStyles.parent}>
               {!mobileLayout && useSelect && (
                 <StyledIconButton
@@ -192,9 +189,16 @@ function WorkListItem(props) {
                   {checked ? <Checkbox color="secondary" /> : <CheckBoxOutlineBlank />}
                 </StyledIconButton>
               )}
+              {useSelect && (
+                <StyledIconButton
+                  disabled
+                >
+                  { critical ? <AssignmentInd htmlColor='#F29100' /> : <AssignmentIndOutlined /> }
+                </StyledIconButton>
+              )}
               {(!useSelect || !mobileLayout) && (
                 <StyledIconButton
-                  style={{marginLeft: useSelect ? '0.25rem' : '0.5rem'}}
+                  style={{marginLeft: useSelect ? undefined : '0.5rem'}}
                   disabled
                   classes={actionStyles}
                 >

@@ -6,7 +6,7 @@ import RaisedCard from '../../../components/Cards/RaisedCard'
 import { FormattedMessage, useIntl } from 'react-intl'
 import { useHistory, useLocation } from 'react-router'
 import { darken, makeStyles } from '@material-ui/core/styles'
-import { grey, yellow } from '@material-ui/core/colors'
+import { yellow } from '@material-ui/core/colors'
 import {
   SECTION_SUB_HEADER,
   SECTION_TYPE_SECONDARY_WARNING,

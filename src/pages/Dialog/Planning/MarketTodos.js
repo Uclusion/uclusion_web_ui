@@ -495,10 +495,10 @@ function MarketTodos (props) {
     const currentNotificationType = event.dataTransfer.getData("notificationType");
     if (currentStageId) {
       // This is a story so ignore
-      return;
+      return Promise.resolve(false);
     }
     if (currentNotificationType === notificationType) {
-      return;
+      return Promise.resolve(false);
     }
     setOperationRunning(true);
     removeMessagesForCommentId(commentId, messagesState);
@@ -517,7 +517,11 @@ function MarketTodos (props) {
   }
 
   function onDropImmediate(event) {
-    onDrop(event, 'RED').then((comment) => notifyImmediate(userId, comment, market, messagesDispatch));
+    onDrop(event, 'RED').then((comment) => {
+      if (comment) {
+        notifyImmediate(userId, comment, market, messagesDispatch);
+      }
+    });
   }
 
   function onDropConvenient(event) {

@@ -92,7 +92,7 @@ const DateLabel = styled(Text)`
   min-width: 10vw;
   flex-basis: 100px;
   flex-shrink: 0;
-  padding-right: 16px;
+  padding-right: 2rem;
   text-align: right;
 `;
 
@@ -208,7 +208,7 @@ function WorkListItem(props) {
             </Box>
             {read ? (<Title>{title}</Title>) : (<TitleB>{title}</TitleB>)}
             {mobileLayout || !people ? React.Fragment : <GravatarGroup users={people} className={classes.gravatarStyle}/> }
-            <div style={{ display: 'flex', width: '100%' }}>
+            <div style={{ display: 'flex', width: '55vw' }}>
               <a href={useLink} id={`linkThrough${id}`} onClick={
                 (event) => {
                   preventDefaultAndProp(event);
@@ -225,8 +225,10 @@ function WorkListItem(props) {
             {isHovered || mobileLayout || !date ? React.Fragment : (read ? (<DateLabel>{date}</DateLabel>) :
               (<DateLabelB>{date}</DateLabelB>))}
             {isHovered && (
-                expansionOpen ? <ExpandLess style={{color: 'black', marginRight: '1rem'}} />
-                  : <ExpandMoreIcon style={{color: 'black', marginRight: '1rem'}} />
+              <DateLabel>
+                {expansionOpen ? <ExpandLess style={{color: 'black', marginRight: '1rem'}} />
+                  : <ExpandMoreIcon style={{color: 'black', marginRight: '1rem'}} />}
+              </DateLabel>
             )}
           </Div>
         </div>

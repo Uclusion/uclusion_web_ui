@@ -198,7 +198,7 @@ function InboxInvestible(props) {
             </div>
           </div>
         )}
-        {useMessageTypes.includes('ASSIGNED_UNREVIEWABLE') && (
+        {useMessageTypes.includes('ASSIGNED_UNREVIEWABLE') && !_.isEmpty(marketDaysEstimate) && (
           <div style={{marginTop: mobileLayout ? '1rem' : '1.5rem'}}>
             <DaysEstimate readOnly value={marketDaysEstimate} isInbox />
           </div>

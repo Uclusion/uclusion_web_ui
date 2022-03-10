@@ -1,4 +1,5 @@
 import { updateMarketStages } from './marketStagesContextReducer';
+import _ from 'lodash'
 
 export function updateStagesForMarket(dispatch, marketId, newStages){
   dispatch(updateMarketStages(marketId, newStages));
@@ -80,4 +81,20 @@ export function getRequiredInputStage(state, marketId) {
 export function getNotDoingStage(state, marketId) {
   const marketStages = getStages(state, marketId);
   return marketStages.find((stage) => (!stage.allows_assignment && stage.close_comments_on_entrance));
+}
+
+export function getStageNameForId(state, marketId, stageId, intl) {
+  const fullStage = getFullStage(state, marketId, stageId);
+  if (_.isEmpty(fullStage)) {
+    return '';
+  }
+  if (isInReviewStage(fullStage)) {
+    return intl.formatMessage({ id: 'planningInvestibleNextStageInReviewLabel' });
+  }
+  if (isAcceptedStage(fullStage)) {
+    return intl.formatMessage({ id: 'planningInvestibleNextStageAcceptedLabel' });
+  }
+  if (fullStage.allows_investment) {
+    return intl.formatMessage({ id: 'planningInvestibleToVotingLabel' });
+  }
 }

@@ -240,7 +240,6 @@ const messages = defineMessages({
   removeVote: 'Remove approval',
   removeReject: 'Remove rejection',
   maxBudgetInputLabel: 'budget',
-  maxBudgetInputHelperText: 'must be less than {x}',
   draft: 'Draft',
   guest: 'Guest',
   inactive: 'Inactive',
@@ -451,6 +450,7 @@ const messages = defineMessages({
   requiresInputWarning: 'With these assignments, some comments require input.',
   proceedRequiresInput: 'Requires Input Stage',
   resolveComment: 'Resolve Comments',
+  commentCloseNewStage: 'Resolving moves this job to {x}.',
   // lock dialog
   lockDialogCancel: 'Cancel',
   pageLockEditPage: 'Edit Page',

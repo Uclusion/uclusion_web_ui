@@ -8,7 +8,7 @@ import WarningIcon from '@material-ui/icons/Warning'
 import PropTypes from 'prop-types'
 
 function IssueDialog(props) {
-  const { actions, classes, open, onClose, issueWarningId, checkBoxFunc, showDismiss } = props
+  const { actions, classes, open, onClose, issueWarningId, checkBoxFunc, showDismiss, issueWarningText } = props
 
   const autoFocusRef = React.useRef(null)
 
@@ -35,7 +35,7 @@ function IssueDialog(props) {
           )}
         </React.Fragment>
       }
-      content={<FormattedMessage id={issueWarningId} />}
+      content={issueWarningId ? <FormattedMessage id={issueWarningId} /> : issueWarningText}
       title={
         <React.Fragment>
           <WarningIcon className={classes.warningTitleIcon} />
@@ -50,7 +50,7 @@ IssueDialog.propTypes = {
   actions: PropTypes.node,
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
-  issueWarningId: PropTypes.string.isRequired,
+  issueWarningId: PropTypes.string,
 };
 
 export default IssueDialog;

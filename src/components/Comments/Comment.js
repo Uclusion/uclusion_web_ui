@@ -56,7 +56,7 @@ import { InvestiblesContext } from '../../contexts/InvestibesContext/Investibles
 import ProposedIdeas from '../../pages/Dialog/Decision/ProposedIdeas'
 import {
   getInCurrentVotingStage, getInReviewStage,
-  getProposedOptionsStage
+  getProposedOptionsStage, getStageNameForId
 } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 import { formMarketAddInvestibleLink, navigate } from '../../utils/marketIdPathFunctions'
@@ -77,6 +77,7 @@ import ExpandableAction from '../SidebarActions/Planning/ExpandableAction'
 import AddIcon from '@material-ui/icons/Add'
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'
 import {
+  Add,
   Clear,
   Delete,
   Done,
@@ -106,6 +107,8 @@ import GravatarGroup from '../Avatars/GravatarGroup'
 import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
 import { hasInitializedGlobalVersion } from '../../contexts/VersionsContext/versionsContextHelper'
 import SpinningButton from '../SpinBlocking/SpinningButton'
+import IssueDialog from '../Warnings/IssueDialog'
+import { useLockedDialogStyles } from '../../pages/Dialog/DialogBodyEdit'
 
 const useCommentStyles = makeStyles(
   theme => {
@@ -341,6 +344,7 @@ function Comment(props) {
   const intl = useIntl();
   const classes = useCommentStyles();
   const workItemClasses = workListStyles();
+  const lockedDialogClasses = useLockedDialogStyles();
   const { id, comment_type: commentType, investible_id: investibleId, inline_market_id: inlineMarketId,
     resolved, notification_type: myNotificationType, creation_stage_id: createdStageId,
     mentions, body, creator_assigned: creatorAssigned } = comment;
@@ -371,6 +375,7 @@ function Comment(props) {
   const [diffState, diffDispatch] = useContext(DiffContext);
   const [searchResults] = useContext(SearchResultsContext);
   const [versionsContext] = useContext(VersionsContext);
+  const [openIssue, setOpenIssue] = useState(false);
   const enableActions = !inArchives && !stagePreventsActions;
   const enableEditing = !inArchives && !resolved; //resolved comments or those in archive aren't editable
   const [investibleAddStateFull, investibleAddDispatch] = usePageStateReducer('commentInvestibleAdd');
@@ -398,6 +403,10 @@ function Comment(props) {
   const repliesExpanded = noAuthor ? true : (myRepliesExpanded === undefined ?
     (resolved ? myPresence !== updatedBy : true) : myRepliesExpanded);
   const myMessage = findMessageForCommentId(id, messagesState);
+
+  function toggleIssue() {
+    setOpenIssue(!openIssue);
+  }
 
   useEffect(() => {
     if (inlineMarketId && !marketsState.initializing && hasInitializedGlobalVersion(versionsContext) &&
@@ -608,6 +617,11 @@ function Comment(props) {
   }
 
   function resolve() {
+    if (resolvedStageId && !openIssue) {
+      setOperationRunning(false);
+      setOpenIssue(true);
+      return;
+    }
     return resolveComment(marketId, id)
       .then((comment) => {
         addCommentToMarket(comment, commentsState, commentsDispatch);
@@ -655,6 +669,7 @@ function Comment(props) {
           };
           addInvestible(investiblesDispatch, () => {}, newInvestible);
         }
+        setOpenIssue(false);
         setOperationRunning(false);
         onDone();
       });
@@ -909,6 +924,21 @@ function Comment(props) {
                       id: resolved ? 'commentReopenLabel' : 'commentResolveLabel'
                     })}
                   </SpinningIconLabelButton>
+                )}
+                {openIssue !== false && (
+                  <IssueDialog
+                    classes={lockedDialogClasses}
+                    open={openIssue !== false}
+                    onClose={toggleIssue}
+                    issueWarningText={intl.formatMessage({ id: 'commentCloseNewStage' },
+                      { x: getStageNameForId(marketStagesState, marketId, resolvedStageId, intl) })}
+                    /* slots */
+                    actions={
+                      <SpinningIconLabelButton onClick={resolve} icon={Add} id="issueProceedButton">
+                        {intl.formatMessage({ id: 'issueProceed' })}
+                      </SpinningIconLabelButton>
+                    }
+                  />
                 )}
                 {showAcceptReject && (
                   <div style={{ display: 'flex' }}>

@@ -54,7 +54,7 @@ function InvestibleReady(props) {
               const updateInfo = {
                 marketId,
                 investibleId,
-                openForInvestment: true,
+                openForInvestment: false,
               };
               setOperationRunning(true);
               return updateInvestible(updateInfo).then((fullInvestible) => {

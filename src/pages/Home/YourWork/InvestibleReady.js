@@ -13,6 +13,7 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 
 function InvestibleReady(props) {
   const { marketId, stage, fullInvestible, message, market, investibleId, openForInvestment } = props;
@@ -60,7 +61,7 @@ function InvestibleReady(props) {
               return updateInvestible(updateInfo).then((fullInvestible) => {
                 onInvestibleStageChange(stage, fullInvestible, investibleId, marketId, undefined,
                   undefined, investiblesDispatch, () => {}, marketStagesState,
-                  [UNASSIGNED_TYPE]);
+                  [UNASSIGNED_TYPE], getFullStage(marketStagesState, marketId, stage));
                 notify(myPresence.id, investibleId, UNASSIGNED_TYPE, YELLOW_LEVEL, investiblesState, market,
                   messagesDispatch);
                 setOperationRunning(false);

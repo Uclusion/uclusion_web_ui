@@ -2,7 +2,11 @@ import { messageText } from '../../../utils/messageUtils'
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { getMarketInfo } from '../../../utils/userFunctions'
 import { getMarket, getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
-import { getCommentRoot, getInvestibleComments } from '../../../contexts/CommentsContext/commentsContextHelper'
+import {
+  getComment,
+  getCommentRoot,
+  getInvestibleComments
+} from '../../../contexts/CommentsContext/commentsContextHelper'
 import { nameFromDescription } from '../../../utils/stringFunctions'
 import { addExpansionPanel } from './InboxExpansionPanel'
 import WorkListItem from './WorkListItem'
@@ -91,6 +95,9 @@ function InboxRow(props) {
         item.comment = comment;
         if (investibleId) {
           item.moreDescription = item.investible;
+        } else if (rootComment.id !== commentId) {
+          const originalComment = getComment(commentState, useMarketId, commentId);
+          item.moreDescription = nameFromDescription(originalComment.body);
         }
       }
     }

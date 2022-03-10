@@ -217,7 +217,7 @@ function WorkListItem(props) {
                   }
                   return navigate(history, useLink);
                 }
-              }><Description>{fullText}</Description></a>&nbsp;
+              }><Description style={{ width: '55vw' }}>{fullText}</Description></a>&nbsp;
               {moreDescription && (
                 <Text> - {moreDescription}</Text>
               )}

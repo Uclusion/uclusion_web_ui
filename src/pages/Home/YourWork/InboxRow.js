@@ -30,6 +30,8 @@ import {
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import { REPORT_TYPE } from '../../../constants/comments'
+import { useInvestibleEditStyles } from '../../Investible/InvestibleBodyEdit'
+import { useHistory } from 'react-router'
 
 function getPriorityIcon(message, isAssigned) {
   const { level, link_type: linkType } = message;
@@ -53,6 +55,8 @@ function InboxRow(props) {
     numMultiples } = props;
   const intl = useIntl();
   const theme = useTheme();
+  const investibleEditClasses = useInvestibleEditStyles();
+  const history = useHistory();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const [marketState] = useContext(MarketsContext);
   const [commentState] = useContext(CommentsContext);
@@ -123,7 +127,7 @@ function InboxRow(props) {
     const isDeletable = message.type_object_id.startsWith('UNREAD') && (!isMultiple || !hasPersistent);
     addExpansionPanel({
       item, commentState, marketState, investiblesState, diffState, planningClasses, marketsState,
-      mobileLayout, intl, isMultiple, messagesState, isDeletable
+      mobileLayout, intl, isMultiple, messagesState, isDeletable, investibleEditClasses, history
     });
   }
   return <WorkListItem key={typeObjectId} id={typeObjectId} checked={checked} determinateDispatch={determinateDispatch}

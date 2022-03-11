@@ -7,7 +7,7 @@ import { getInvestible } from '../../../contexts/InvestibesContext/investiblesCo
 import { getDiff } from '../../../contexts/DiffContext/diffContextHelper'
 import { getMarketInfo } from '../../../utils/userFunctions'
 import DialogManage from '../../Dialog/DialogManage'
-import { Typography } from '@material-ui/core'
+import { Link, Typography } from '@material-ui/core'
 import { UNASSIGNED_TYPE } from '../../../constants/notifications'
 import LinkMultiplePanel from './LinkMultiplePanel'
 import CommentPanel from './CommentPanel'
@@ -15,13 +15,13 @@ import InboxInvestible from './InboxInvestible'
 import { DaysEstimate } from '../../../components/AgilePlan'
 import AttachedFilesList from '../../../components/Files/AttachedFilesList'
 import Chip from '@material-ui/core/Chip'
-import { editorEmpty } from '../../../components/TextEditors/Utilities/CoreUtils'
 import InvestibleReady from './InvestibleReady'
 import CommentBox from '../../../containers/CommentBox/CommentBox'
 import { getInvestibleComments } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { JUSTIFY_TYPE } from '../../../constants/comments'
 import { findMessageOfType } from '../../../utils/messageUtils'
 import NotificationDeletion from './NotificationDeletion'
+import { formInvestibleLink, navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions'
 
 export function usesExpansion(item) {
   const { message, comment } = item;
@@ -41,7 +41,7 @@ export function usesExpansion(item) {
 
 export function addExpansionPanel(props) {
   const {item, marketState, investiblesState, diffState, planningClasses, mobileLayout, intl, isMultiple,
-    commentState, messagesState, isDeletable} = props;
+    commentState, messagesState, isDeletable, investibleEditClasses, history} = props;
   const { message } = item;
   const { type: messageType, market_id: marketId, comment_id: commentId, comment_market_id: commentMarketId,
     link_type: linkType, investible_id: investibleId, market_type: marketType, link_multiple: linkMultiple } = message;
@@ -86,9 +86,17 @@ export function addExpansionPanel(props) {
             <InvestibleReady marketId={marketId} stage={stage} fullInvestible={fullInvestible} message={message}
                              market={market} investibleId={investibleId} openForInvestment={openForInvestment}/>
           )}
-          {!_.isEmpty(description) && !editorEmpty(description) && (
-            <div style={{paddingTop: '0.5rem'}}>
-              <DescriptionOrDiff id={investibleId} description={description} showDiff={diff !== undefined}/>
+          {!_.isEmpty(myInvestible) && (
+            <div style={{paddingTop: '0.5rem'}} className={investibleEditClasses.container}>
+              <Link href={formInvestibleLink(marketId, investibleId)} onClick={(event) => {
+                preventDefaultAndProp(event);
+                navigate(history, formInvestibleLink(marketId, investibleId));
+              }}>
+                <Typography className={investibleEditClasses.title} variant="h3" component="h1">
+                  {name}
+                </Typography>
+              </Link>
+              <DescriptionOrDiff id={investibleId} description={description} showDiff={diff !== undefined} />
             </div>
           )}
           {messageType === 'UNREAD_NAME' && (

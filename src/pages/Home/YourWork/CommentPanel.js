@@ -14,13 +14,13 @@ import PropTypes from 'prop-types'
 import { getLabelList } from '../../../utils/messageUtils'
 import { useIntl } from 'react-intl'
 import NotificationDeletion from './NotificationDeletion'
-import { navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions'
+import { formCommentLink, navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
 
 function CommentPanel(props) {
   const { commentId, marketId, marketType, messageType, planningClasses, mobileLayout, messagesFull,
     isDeletable, message} = props;
-  const { link } = message;
+  const { link } = message || {};
   const history = useHistory();
   const [marketState] = useContext(MarketsContext);
   const [commentState] = useContext(CommentsContext);
@@ -35,6 +35,7 @@ function CommentPanel(props) {
     useCommentId = inlineParentCommentId;
   }
   const rootComment = getCommentRoot(commentState, useMarketId, useCommentId);
+  const useLink = link || formCommentLink(marketId, (rootComment || {}).investible_id, commentId);
   // Note passing all comments down instead of just related to the unread because otherwise confusing and also
   // have case of more than one reply being de-duped
   // Note - checking resolved here because can be race condition with message removal and comment resolution
@@ -57,9 +58,9 @@ function CommentPanel(props) {
               </div>
             )}
             <Typography variant="body1" style={{paddingTop: '1rem', paddingLeft: '1rem', paddingRight: '1rem'}}>
-              <Link href={link} onClick={(event) => {
+              <Link href={useLink} onClick={(event) => {
                 preventDefaultAndProp(event);
-                navigate(history, link)}}>{intl.formatMessage({id: 'viewInChannel'})}</Link>
+                navigate(history, useLink)}}>{intl.formatMessage({id: 'viewInChannel'})}</Link>
             </Typography>
             {!_.isEmpty(messagesFull) && (
               <>

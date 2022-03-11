@@ -31,11 +31,11 @@ export function usesExpansion(item) {
     }
     return true;
   }
-  if (message) {
+  if (message && message.type) {
     return ['UNASSIGNED', 'UNREAD_DRAFT', 'UNREAD_VOTE', 'REPORT_REQUIRED',
       'UNACCEPTED_ASSIGNMENT'].includes(message.type);
   }
-  //TODO handle pending
+  //Pending always expands
   return true;
 }
 

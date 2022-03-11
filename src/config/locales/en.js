@@ -344,7 +344,7 @@ const messages = defineMessages({
   investibleInboxHeader: '{x} / {y}',
   notificationsListHeader: 'Notifications: {x}',
   aboutInbox: 'About your inbox',
-  demonstratesInbox: 'click this row anywhere outside the link to expand',
+  demonstratesInbox: 'click this row to expand',
   notificationSummary: 'Summary',
   viewInChannel: 'View in channel',
 

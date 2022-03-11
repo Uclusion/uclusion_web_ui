@@ -529,6 +529,7 @@ function Comment(props) {
         </Grid>
         <Grid item xs={12} style={{marginTop: '1rem'}}>
           <SubSection
+            id="proposedVoting"
             type={SECTION_TYPE_SECONDARY}
             title={intl.formatMessage({ id: 'decisionDialogProposedOptionsLabel' })}
             actionButton={ inArchives ? null :

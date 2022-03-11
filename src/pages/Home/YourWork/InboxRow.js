@@ -82,7 +82,7 @@ function InboxRow(props) {
     read: !isHighlighted,
     date: intl.formatDate(updatedAt),
     critical: !_.isEmpty(alertType),
-    message: message
+    message
   }
 
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};

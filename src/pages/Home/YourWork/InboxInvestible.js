@@ -23,7 +23,7 @@ import { getMarket, getMyUserForMarket } from '../../../contexts/MarketsContext/
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import {
   accept,
-  Assignments, commonSetBeingEdited,
+  Assignments,
   getCollaborators,
   rejectInvestible,
   useMetaDataStyles
@@ -39,20 +39,20 @@ import YourVoting from '../../Investible/Voting/YourVoting'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
-import { Typography } from '@material-ui/core'
+import { Link, Typography } from '@material-ui/core'
 import { getDiff } from '../../../contexts/DiffContext/diffContextHelper'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import AttachedFilesList from '../../../components/Files/AttachedFilesList'
 import Chip from '@material-ui/core/Chip'
 import PropTypes from 'prop-types'
 import { getLabelList } from '../../../utils/messageUtils'
-import { editorEmpty } from '../../../components/TextEditors/Utilities/CoreUtils'
 import SpinningButton from '../../../components/SpinBlocking/SpinningButton'
 import { workListStyles } from './WorkListItem'
-import InvestibleBodyEdit from '../../Investible/InvestibleBodyEdit'
-import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
+import { useInvestibleEditStyles } from '../../Investible/InvestibleBodyEdit'
 import { useHistory } from 'react-router'
 import NotificationDeletion from './NotificationDeletion'
+import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff'
+import { formInvestibleLink, navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions'
 
 
 function InboxInvestible(props) {
@@ -63,6 +63,7 @@ function InboxInvestible(props) {
   const intl = useIntl();
   const workItemClasses = workListStyles();
   const classes = useMetaDataStyles();
+  const investibleEditClasses = useInvestibleEditStyles();
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [investiblesState, invDispatch] = useContext(InvestiblesContext);
@@ -82,8 +83,7 @@ function InboxInvestible(props) {
     investibleId);
   const inv = getInvestible(investiblesState, investibleId);
   const { investible: myInvestible } = inv || {};
-  const { name, locked_by: lockedBy, description, label_list: labelList,
-    attached_files: attachedFiles } = myInvestible || {};
+  const { name, description, label_list: labelList, attached_files: attachedFiles } = myInvestible || {};
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { stage, assigned: invAssigned, completion_estimate: marketDaysEstimate, required_approvers:  requiredApprovers,
     required_reviews: requiredReviewers, accepted } = marketInfo;
@@ -108,20 +108,7 @@ function InboxInvestible(props) {
     && assignedInAcceptedStage.length >= inAcceptedStage.allowed_investibles;
   const assignedNotAccepted = assigned.filter((assignee) => !(accepted || []).includes(assignee));
   const diff = getDiff(diffState, investibleId);
-  const [pageStateFull, pageDispatch] = usePageStateReducer('inboxInvestible');
   const showDiff = diff !== undefined && useMessageTypes.includes('UNREAD_DESCRIPTION');
-  const [pageState, updatePageState, pageStateReset] = getPageReducerPage(pageStateFull, pageDispatch, investibleId,
-    {showDiff});
-  const {
-    beingEdited,
-  } = pageState;
-  const isAdmin = yourPresence && yourPresence.is_admin;
-  const isAssigned = assigned.includes(userId);
-  const displayEdit = isAdmin && (isAssigned || isInVoting);
-
-  function isEditableByUser() {
-    return displayEdit;
-  }
 
   function myAccept() {
     return accept(market.id, investibleId, inv, invDispatch, diffDispatch, unacceptedAssignment, workItemClasses);
@@ -130,11 +117,6 @@ function InboxInvestible(props) {
   function myRejectInvestible() {
     return rejectInvestible(market.id, investibleId, inv, commentState, commentsDispatch, invDispatch, diffDispatch,
       marketStagesState);
-  }
-
-  function mySetBeingEdited(isEdit, event) {
-    return commonSetBeingEdited(event, isEdit, lockedBy, userId, isEditableByUser, updatePageState, investibleId,
-      name, history, marketId);
   }
 
   return (
@@ -268,19 +250,17 @@ function InboxInvestible(props) {
           </Typography>
         </div>
       )}
-      {!_.isEmpty(myInvestible) && ((!_.isEmpty(description) && !editorEmpty(description))|| _.isEmpty(useMessageTypes))
-        && (
-        <div style={{paddingTop: '1rem'}}>
-          <InvestibleBodyEdit
-            marketId={marketId}
-            userId={userId}
-            investibleId={investibleId}
-            pageState={pageState}
-            pageStateUpdate={updatePageState}
-            pageStateReset={pageStateReset}
-            fullInvestible={inv}
-            setBeingEdited={mySetBeingEdited} beingEdited={beingEdited}
-            isEditableByUser={isEditableByUser}/>
+      {!_.isEmpty(myInvestible) && (
+        <div style={{paddingTop: '1rem'}} className={investibleEditClasses.container}>
+          <Link href={formInvestibleLink(marketId, investibleId)} onClick={(event) => {
+            preventDefaultAndProp(event);
+            navigate(history, formInvestibleLink(marketId, investibleId));
+          }}>
+            <Typography className={investibleEditClasses.title} variant="h3" component="h1">
+              {name}
+            </Typography>
+          </Link>
+          <DescriptionOrDiff id={investibleId} description={description} showDiff={showDiff} />
         </div>
       )}
       {useMessageTypes.includes('UNREAD_NAME') && (
@@ -343,7 +323,8 @@ function InboxInvestible(props) {
         </>
       )}
       {!_.isEmpty(useMessageTypes) && marketId && !_.isEmpty(myInvestible) && !isOutbox &&
-        _.isEmpty(_.intersection(['NEW_TODO', 'ISSUE_RESOLVED', 'UNREAD_VOTE'], useMessageTypes)) && (
+        _.isEmpty(_.intersection(['NEW_TODO', 'ISSUE_RESOLVED', 'UNREAD_VOTE', 'UNACCEPTED_ASSIGNMENT'],
+          useMessageTypes)) && (
         <>
           <div style={{paddingTop: '1rem'}} />
           <CommentAddBox

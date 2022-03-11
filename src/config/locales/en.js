@@ -346,6 +346,7 @@ const messages = defineMessages({
   aboutInbox: 'About your inbox',
   demonstratesInbox: 'click this row anywhere outside the link to expand',
   notificationSummary: 'Summary',
+  viewInChannel: 'View in channel',
 
   // Address list
   addressAddCancelLabel: 'Close',

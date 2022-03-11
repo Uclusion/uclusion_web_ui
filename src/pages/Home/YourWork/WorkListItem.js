@@ -16,8 +16,9 @@ import {
   DEHIGHLIGHT_EVENT, DELETE_EVENT,
   MODIFY_NOTIFICATIONS_CHANNEL, REMOVE_EVENT
 } from '../../../contexts/NotificationsContext/notificationsContextMessages'
-import { AssignmentInd, AssignmentIndOutlined, ExpandLess } from '@material-ui/icons'
+import { AssignmentInd, ExpandLess } from '@material-ui/icons'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import { usesExpansion } from './InboxExpansionPanel'
 
 const Item = styled("div")`
   margin-bottom: 20px;
@@ -59,12 +60,6 @@ const Text = styled("div")`
   flex-grow: 1;
   @media (max-width: 768px) {
     font-size: 14px;
-  }
-`;
-
-const Description = styled(Text)`
-  &:hover {
-    font-weight: bold;
   }
 `;
 
@@ -158,8 +153,10 @@ function WorkListItem(props) {
   const [isHovered, setIsHovered] = useState(false);
   const { link, link_multiple: linkMultiple } = message;
 
-  const fullText = comment || investible || market;
-
+  let fullText = comment || investible || market;
+  if (moreDescription) {
+    fullText += ' - ';
+  }
   const useLink = isMultiple ? linkMultiple : link;
   return (
     <Item key={`workListItem${id}`} id={`workListItem${id}`}>
@@ -167,9 +164,13 @@ function WorkListItem(props) {
         <div style={{ width: '100%', cursor: 'pointer' }} id={`link${id}`} onClick={
           (event) => {
             preventDefaultAndProp(event);
-            expansionDispatch({ id });
             if (useSelect && !read) {
               pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: DEHIGHLIGHT_EVENT, message });
+            }
+            if (usesExpansion(props)) {
+              expansionDispatch({ id });
+            } else {
+              return navigate(history, useLink);
             }
           }
         } onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
@@ -208,20 +209,7 @@ function WorkListItem(props) {
             </Box>
             {read ? (<Title>{title}</Title>) : (<TitleB>{title}</TitleB>)}
             {mobileLayout || !people ? React.Fragment : <GravatarGroup users={people} className={classes.gravatarStyle}/> }
-            <div style={{ display: 'flex', width: '55vw' }}>
-              <a href={useLink} id={`linkThrough${id}`} onClick={
-                (event) => {
-                  preventDefaultAndProp(event);
-                  if (useSelect && !read) {
-                    pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: DEHIGHLIGHT_EVENT, message });
-                  }
-                  return navigate(history, useLink);
-                }
-              }><Description style={{ maxWidth: '55vw' }}>{fullText}</Description></a>&nbsp;
-              {moreDescription && (
-                <Text> - {moreDescription}</Text>
-              )}
-            </div>
+            <Text style={{ maxWidth: '55vw' }}>{fullText} {moreDescription}</Text>
             {isHovered || mobileLayout || !date ? React.Fragment : (read ? (<DateLabel>{date}</DateLabel>) :
               (<DateLabelB>{date}</DateLabelB>))}
             {isHovered && (

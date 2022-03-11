@@ -10,14 +10,18 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { removeWorkListItem, workListStyles } from './WorkListItem'
-import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
 import { REPORT_TYPE } from '../../../constants/comments'
 import CommentBox from '../../../containers/CommentBox/CommentBox'
 import { getInvestibleComments } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
+import { Link } from '@material-ui/core'
+import { navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions'
+import { useHistory } from 'react-router'
 
 function InvestibleStatus(props) {
   const { marketId, investibleId, message } = props;
+  const { link } = message;
+  const history = useHistory();
   const intl = useIntl();
   const workItemClasses = workListStyles();
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
@@ -69,21 +73,10 @@ function InvestibleStatus(props) {
         inline
       />
       <h3>
-        {intl.formatMessage({ id: progressReports.length > 0 ? 'orProgressReport' : 'orProgressReportOnly' })}
+        or <Link href={link} onClick={(event) => {
+          preventDefaultAndProp(event);
+        navigate(history, link)}}>view in channel</Link> to create or update a progress report
       </h3>
-      {marketId && !_.isEmpty(marketInvestible.investible) && (
-        <CommentAddBox
-          allowedTypes={[REPORT_TYPE]}
-          investible={marketInvestible.investible}
-          marketId={marketId}
-          issueWarningId={'issueWarningPlanning'}
-          isInReview={false}
-          isAssignee={true}
-          isStory
-          numProgressReport={progressReports.length}
-          nameDifferentiator="inboxStatus"
-        />
-      )}
       {progressReports.length > 0 && (
         <div style={{paddingTop: '1rem'}}>
           <CommentBox

@@ -9,29 +9,30 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import LoadingDisplay from '../../../components/LoadingDisplay'
 import InboxInvestible from './InboxInvestible'
-import { Typography } from '@material-ui/core'
+import { Link, Typography } from '@material-ui/core'
 import PropTypes from 'prop-types'
 import { getLabelList } from '../../../utils/messageUtils'
 import { useIntl } from 'react-intl'
 import NotificationDeletion from './NotificationDeletion'
+import { navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions'
+import { useHistory } from 'react-router'
 
 function CommentPanel(props) {
   const { commentId, marketId, marketType, messageType, planningClasses, mobileLayout, messagesFull,
     isDeletable, message} = props;
+  const { link } = message;
+  const history = useHistory();
   const [marketState] = useContext(MarketsContext);
   const [commentState] = useContext(CommentsContext);
   const intl = useIntl();
   let useMarketId = marketId;
   let useCommentId = commentId;
   const market = getMarket(marketState, marketId) || {}
-  let useMarketName = market.name
   const { parent_comment_id: inlineParentCommentId, parent_comment_market_id: parentMarketId } = market
   if (inlineParentCommentId) {
     // If there is a top level question always display it instead of lower level comments
-    useMarketId = parentMarketId
-    useCommentId = inlineParentCommentId
-    const parentMarket = getMarket(marketState, parentMarketId) || {}
-    useMarketName = parentMarket.name
+    useMarketId = parentMarketId;
+    useCommentId = inlineParentCommentId;
   }
   const rootComment = getCommentRoot(commentState, useMarketId, useCommentId);
   // Note passing all comments down instead of just related to the unread because otherwise confusing and also
@@ -55,8 +56,10 @@ function CommentPanel(props) {
                 <NotificationDeletion message={message} />
               </div>
             )}
-            <Typography variant="h6" style={{paddingTop: '1rem', paddingLeft: '1rem', paddingRight: '1rem'}}>
-              {useMarketName}
+            <Typography variant="body1" style={{paddingTop: '1rem', paddingLeft: '1rem', paddingRight: '1rem'}}>
+              <Link href={link} onClick={(event) => {
+                preventDefaultAndProp(event);
+                navigate(history, link)}}>{intl.formatMessage({id: 'viewInChannel'})}</Link>
             </Typography>
             {!_.isEmpty(messagesFull) && (
               <>

@@ -23,13 +23,28 @@ import { JUSTIFY_TYPE } from '../../../constants/comments'
 import { findMessageOfType } from '../../../utils/messageUtils'
 import NotificationDeletion from './NotificationDeletion'
 
+export function usesExpansion(item) {
+  const { message, comment } = item;
+  if (comment) {
+    if (message) {
+      return message.type !== 'NEW_TODO';
+    }
+    return true;
+  }
+  if (message) {
+    return ['UNASSIGNED', 'UNREAD_DRAFT', 'UNREAD_VOTE', 'REPORT_REQUIRED',
+      'UNACCEPTED_ASSIGNMENT'].includes(message.type);
+  }
+  //TODO handle pending
+  return true;
+}
+
 export function addExpansionPanel(props) {
   const {item, marketState, investiblesState, diffState, planningClasses, mobileLayout, intl, isMultiple,
     commentState, messagesState, isDeletable} = props;
   const { message } = item;
   const { type: messageType, market_id: marketId, comment_id: commentId, comment_market_id: commentMarketId,
     link_type: linkType, investible_id: investibleId, market_type: marketType, link_multiple: linkMultiple } = message;
-
   if (isMultiple) {
     item.expansionPanel = ( <LinkMultiplePanel linkMultiple={linkMultiple} marketId={commentMarketId || marketId}
                                                commentId={commentId} planningClasses={planningClasses} message={message}

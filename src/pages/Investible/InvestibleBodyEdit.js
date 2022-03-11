@@ -23,7 +23,7 @@ import IssueDialog from '../../components/Warnings/IssueDialog'
 import { getQuillStoredState } from '../../components/TextEditors/Utilities/CoreUtils';
 import { LOCK_INVESTIBLE } from '../../contexts/InvestibesContext/investiblesContextMessages'
 
-const useStyles = makeStyles(
+export const useInvestibleEditStyles = makeStyles(
   theme => ({
     actions: {
       marginTop: '1rem',
@@ -143,7 +143,7 @@ function InvestibleBodyEdit(props) {
     }
   }
 
-  const classes = useStyles();
+  const classes = useInvestibleEditStyles();
   const lockedDialogClasses = useLockedDialogStyles();
 
   function onLock (result) {

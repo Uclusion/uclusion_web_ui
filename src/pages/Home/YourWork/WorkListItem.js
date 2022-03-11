@@ -158,6 +158,8 @@ function WorkListItem(props) {
     fullText += ' - ';
   }
   const useLink = isMultiple ? linkMultiple : link;
+  const isUsingExpansion = usesExpansion(props);
+  const showExpansion = isUsingExpansion && isHovered;
   return (
     <Item key={`workListItem${id}`} id={`workListItem${id}`}>
       <RaisedCard elevation={3} rowStyle>
@@ -167,7 +169,7 @@ function WorkListItem(props) {
             if (useSelect && !read) {
               pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: DEHIGHLIGHT_EVENT, message });
             }
-            if (usesExpansion(props)) {
+            if (isUsingExpansion) {
               expansionDispatch({ id });
             } else {
               return navigate(history, useLink);
@@ -210,9 +212,9 @@ function WorkListItem(props) {
             {read ? (<Title>{title}</Title>) : (<TitleB>{title}</TitleB>)}
             {mobileLayout || !people ? React.Fragment : <GravatarGroup users={people} className={classes.gravatarStyle}/> }
             <Text style={{ maxWidth: '55vw' }}>{fullText} {moreDescription}</Text>
-            {isHovered || mobileLayout || !date ? React.Fragment : (read ? (<DateLabel>{date}</DateLabel>) :
+            {showExpansion || mobileLayout || !date ? React.Fragment : (read ? (<DateLabel>{date}</DateLabel>) :
               (<DateLabelB>{date}</DateLabelB>))}
-            {isHovered && (
+            {showExpansion && (
               <DateLabel>
                 {expansionOpen ? <ExpandLess style={{color: 'black', marginRight: '1rem'}} />
                   : <ExpandMoreIcon style={{color: 'black', marginRight: '1rem'}} />}

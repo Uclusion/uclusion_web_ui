@@ -193,7 +193,7 @@ function WorkListItem(props) {
                 <StyledIconButton
                   disabled
                 >
-                  { critical ? <AssignmentInd htmlColor='#F29100' /> : <AssignmentIndOutlined /> }
+                  <AssignmentInd htmlColor='#F29100' style={{visibility: critical ? 'visible' : 'hidden' }} />
                 </StyledIconButton>
               )}
               {(!useSelect || !mobileLayout) && (

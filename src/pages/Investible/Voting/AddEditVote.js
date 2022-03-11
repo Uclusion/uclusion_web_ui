@@ -34,7 +34,7 @@ import InputAdornment from '@material-ui/core/InputAdornment'
 import IssueDialog from '../../../components/Warnings/IssueDialog'
 import { processTextAndFilesForSave } from '../../../api/files'
 import { removeWorkListItem, workListStyles } from '../../Home/YourWork/WorkListItem'
-import { getQuillStoredState } from '../../../components/TextEditors/Utilities/CoreUtils';
+import { focusEditor, getQuillStoredState } from '../../../components/TextEditors/Utilities/CoreUtils'
 
 const useStyles = makeStyles(
   theme => {
@@ -245,6 +245,7 @@ function AddEditVote(props) {
   function onChange(event) {
     const { value } = event.target;
     updateVotingPageState({storedInvestment: parseInt(value, 10)});
+    focusEditor(editorName);
   }
 
   function onBudgetChange(event) {

@@ -161,7 +161,7 @@ function WorkListItem(props) {
   const isUsingExpansion = usesExpansion(props);
   const showExpansion = isUsingExpansion && isHovered;
   return (
-    <Item key={`workListItem${id}`} id={`workListItem${id}`}>
+    <Item key={`workListItem${id}`} id={`workListItem${id}`} style={{minWidth: useSelect ? undefined : '80vw'}}>
       <RaisedCard elevation={3} rowStyle>
         <div style={{ width: '100%', cursor: 'pointer' }} id={`link${id}`} onClick={
           (event) => {

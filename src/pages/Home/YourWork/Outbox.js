@@ -403,7 +403,7 @@ function Outbox(props) {
 
   const { first, last, data, hasMore, hasLess } = getPaginatedItems(rows, page)
   return (
-    <div id="inbox">
+    <div id="outbox">
       <Box fontSize={14} color="text.secondary">
         {first} - {last} of {_.size(messagesOrdered)}
         <IconButton disabled={!hasLess} onClick={() => changePage(-1)}>

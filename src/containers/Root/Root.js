@@ -21,6 +21,7 @@ import { registerMarketTokenListeners } from '../../authorization/tokenUtils';
 import Wizard from '../../pages/Home/Wizard'
 import InboxFull from '../../pages/Home/YourWork/InboxFull'
 import OutboxFull from '../../pages/Home/YourWork/OutboxFull'
+import CommentReplyEdit from '../../pages/Comment/CommentReplyEdit'
 
 const useStyles = makeStyles({
   body: {
@@ -92,6 +93,10 @@ function Root() {
     return (action !== 'dialog') || !investibleId;
   }
 
+  function hideCommentReplyEdit() {
+    return (action !== 'comment');
+  }
+
   function hideInvestibleAdd() {
     return (action !== 'investibleAdd');
   }
@@ -114,7 +119,7 @@ function Root() {
 
   const hidePNF = !(hideMarket() && hideSupport() && hideHome() && hideInvestible() && hideWizard() && hideInbox()
     && hideDialogArchives() && hideInvestibleAdd() && hideSlackInvite() && hideChangePassword()
-    && hideChangeNotification() && hideBillingHome() && hideOutbox() && hideTodoAdd());
+    && hideChangeNotification() && hideBillingHome() && hideOutbox() && hideTodoAdd() && hideCommentReplyEdit());
 
   useEffect(() => {
     function pegView(isEntry) {
@@ -182,6 +187,7 @@ function Root() {
             <Investible hidden={hideInvestible()}/>
             <DialogArchives hidden={hideDialogArchives()}/>
             <InvestibleAdd hidden={hideInvestibleAdd()}/>
+            <CommentReplyEdit hidden={hideCommentReplyEdit()} />
             <SlackInvite hidden={hideSlackInvite()}/>
             <ChangePassword hidden={hideChangePassword()}/>
             <ChangeNotificationPreferences hidden={hideChangeNotification()}/>

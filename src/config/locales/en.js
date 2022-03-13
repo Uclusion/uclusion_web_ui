@@ -274,6 +274,7 @@ const messages = defineMessages({
   for: 'For',
   against: 'Against',
   closedComments: 'Resolved',
+  commentReplyEdit: 'Comment Edit',
 
   //Inbox notification titles
   multipleNotifications: '({x}) Notifications',

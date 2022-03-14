@@ -24,6 +24,7 @@ function CommentReplyEdit(props) {
     comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
   const loading = marketsState.initializing || !marketTokenLoaded(marketId, tokensHash);
   if (loading) {
+    console.debug(`Loading in comment reply edit with ${marketsState.initializing} and ${marketTokenLoaded(marketId, tokensHash)}`)
     // Cannot allow Quill to try to display a picture without a market token
     return (
       <Screen
@@ -35,13 +36,14 @@ function CommentReplyEdit(props) {
       </Screen>
     );
   }
+  console.debug('Rendering in comment reply edit')
   return (
     <Screen
       title={intl.formatMessage({id: 'commentReplyEdit'})}
       tabTitle={intl.formatMessage({id: 'commentReplyEdit'})}
       hidden={hidden}
     >
-      <CommentBox comments={comments} marketId={marketId}
+      <CommentBox comments={comments} marketId={marketId} replyEditId={commentId}
                   allowedTypes={[QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE, ISSUE_TYPE]}/>
     </Screen>
   );

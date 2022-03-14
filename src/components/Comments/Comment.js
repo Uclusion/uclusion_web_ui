@@ -59,7 +59,12 @@ import {
   getProposedOptionsStage, getStageNameForId
 } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
-import { formMarketAddInvestibleLink, navigate } from '../../utils/marketIdPathFunctions'
+import {
+  formCommentEditReplyLink,
+  formCommentLink,
+  formMarketAddInvestibleLink,
+  navigate
+} from '../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
 import { marketAbstain, updateMarket } from '../../api/markets'
 import ShareStoryButton from '../../pages/Investible/Planning/ShareStoryButton'
@@ -329,6 +334,13 @@ function useComments() {
 function useMarketId() {
   return React.useContext(LocalCommentsContext).marketId;
 }
+function navigateEditReplyBack(history, id, marketId, investibleId, replyEditId, isReply=false) {
+  if (replyEditId) {
+    navigate(history, formCommentLink(marketId, investibleId, id));
+  } else {
+    navigate(history, formCommentEditReplyLink(marketId, id, isReply));
+  }
+}
 
 /**
  * A question or issue
@@ -336,8 +348,9 @@ function useMarketId() {
  */
 function Comment(props) {
   const { comment, marketId, comments, allowedTypes, noAuthor, onDone, defaultShowDiff, showDone, resolvedStageId,
-    stagePreventsActions, isInbox} = props;
+    stagePreventsActions, isInbox, replyEditId} = props;
   const history = useHistory();
+  const myParams = new URL(document.location).searchParams;
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
@@ -348,6 +361,8 @@ function Comment(props) {
   const { id, comment_type: commentType, investible_id: investibleId, inline_market_id: inlineMarketId,
     resolved, notification_type: myNotificationType, creation_stage_id: createdStageId,
     mentions, body, creator_assigned: creatorAssigned } = comment;
+  const replyBeingEdited = replyEditId === id && myParams && !_.isEmpty(myParams.get('reply'));
+  const beingEdited = replyEditId === id && !replyBeingEdited;
   const presences = usePresences(marketId);
   const inlinePresences = usePresences(inlineMarketId);
   const createdBy = useCommenter(comment, presences) || unknownPresence;
@@ -387,13 +402,9 @@ function Comment(props) {
   const [replyAddStateFull, replyAddDispatch] = usePageStateReducer('replyAdd');
   const [replyAddState, updateReplyAddState, replyAddStateReset] =
     getPageReducerPage(replyAddStateFull, replyAddDispatch, id);
-  const {
-    replyBeingEdited,
-  } = replyAddState;
   const [editStateFull, editDispatch] = usePageStateReducer('commentEdit');
   const [editState, updateEditState, editStateReset] = getPageReducerPage(editStateFull, editDispatch, id);
   const {
-    beingEdited,
     showDiff: storedShowDiff
   } = editState;
   const showDiff = storedShowDiff || (storedShowDiff === undefined && defaultShowDiff);
@@ -449,11 +460,11 @@ function Comment(props) {
   }
 
   function toggleReply() {
-    updateReplyAddState({replyBeingEdited: !replyBeingEdited});
+    navigateEditReplyBack(history, id, marketId, investibleId, replyEditId, true);
   }
 
   function toggleEdit() {
-    updateEditState({beingEdited: !beingEdited});
+    navigateEditReplyBack(history, id, marketId, investibleId, replyEditId);
   }
 
   function setBeingEdited(value, event) {
@@ -1041,6 +1052,7 @@ function Comment(props) {
                   marketId={marketId}
                   enableEditing={enableEditing}
                   messages={messages}
+                  replyEditId={replyEditId}
                 />
               );
             })}
@@ -1091,9 +1103,9 @@ Comment.defaultProps = {
 };
 
 function InitialReply(props) {
-  const { comment, enableEditing, messages } = props;
+  const { comment, enableEditing, messages, replyEditId } = props;
 
-  return <Reply comment={comment} enableEditing={enableEditing} messages={messages}/>;
+  return <Reply comment={comment} enableEditing={enableEditing} messages={messages} replyEditId={replyEditId}/>;
 }
 
 const useReplyStyles = makeStyles(
@@ -1206,8 +1218,11 @@ const unknownPresence = {
  * @param {{comment: Comment}} props
  */
 function Reply(props) {
-  const { comment, messages, enableEditing } = props
+  const { comment, messages, enableEditing, replyEditId } = props
   const history = useHistory();
+  const myParams = new URL(document.location).searchParams;
+  const replyBeingEdited = replyEditId === comment.id && myParams && !_.isEmpty(myParams.get('reply'));
+  const beingEdited = replyEditId === comment.id && !replyBeingEdited;
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const marketId = useMarketId()
@@ -1222,17 +1237,11 @@ function Reply(props) {
   const [replyAddStateFull, replyAddDispatch] = usePageStateReducer('replyAdd');
   const [replyAddState, updateReplyAddState, replyAddStateReset] =
     getPageReducerPage(replyAddStateFull, replyAddDispatch, comment.id);
-  const {
-    replyBeingEdited,
-  } = replyAddState;
   const [editStateFull, editDispatch] = usePageStateReducer('commentEdit');
   const [editState, updateEditState, editStateReset] = getPageReducerPage(editStateFull, editDispatch, comment.id);
-  const {
-    beingEdited,
-  } = editState;
 
   function handleEditClick() {
-    updateEditState({beingEdited: true});
+    navigateEditReplyBack(history, comment.id, marketId, comment.investible_id, replyEditId);
   }
 
   function setBeingEdited(value, event) {
@@ -1242,8 +1251,8 @@ function Reply(props) {
     handleEditClick();
   }
 
-  function setReplyOpen(isOpen) {
-    updateReplyAddState({replyBeingEdited: isOpen});
+  function setReplyOpen() {
+    navigateEditReplyBack(history, comment.id, marketId, comment.investible_id, replyEditId, true);
   }
   const { level: myHighlightedLevel } = myMessage;
   const intl = useIntl();
@@ -1290,7 +1299,7 @@ function Reply(props) {
               <Button
                 className={classes.action}
                 id={`commentReplyButton${comment.id}`}
-                onClick={() => setReplyOpen(true)}
+                onClick={() => setReplyOpen()}
                 variant="text"
               >
                 {intl.formatMessage({ id: "issueReplyLabel" })}
@@ -1313,8 +1322,8 @@ function Reply(props) {
           <CommentAdd
             marketId={marketId}
             parent={comment}
-            onSave={() => setReplyOpen(false)}
-            onCancel={() => setReplyOpen(false)}
+            onSave={() => setReplyOpen()}
+            onCancel={() => setReplyOpen()}
             type={REPLY_TYPE}
             commentAddState={replyAddState}
             updateCommentAddState={updateReplyAddState}
@@ -1329,6 +1338,7 @@ function Reply(props) {
             replies={comment.children}
             enableEditing={enableEditing}
             messages={messages}
+            replyEditId={replyEditId}
           />
         </div>
       )}
@@ -1359,7 +1369,7 @@ const useThreadedReplyStyles = makeStyles(
  * @param {{comments: Comment[], replies: string[]}} props
  */
 function ThreadedReplies(props) {
-  const { replies: replyIds, enableEditing, messages } = props;
+  const { replies: replyIds, enableEditing, messages, replyEditId } = props;
   const comments = useComments();
 
   const classes = useThreadedReplyStyles();
@@ -1386,6 +1396,7 @@ function ThreadedReplies(props) {
               key={`threadc${reply.id}`}
               enableEditing={enableEditing}
               messages={messages}
+              replyEditId={replyEditId}
             />
           );
         }
@@ -1396,9 +1407,9 @@ function ThreadedReplies(props) {
 }
 
 function ThreadedReply(props) {
-  const { comment, enableEditing, messages } = props;
+  const { comment, enableEditing, messages, replyEditId } = props;
   return <Reply key={`c${comment.id}`} id={`c${comment.id}`} className={props.className} comment={comment}
-                enableEditing={enableEditing} messages={messages} />;
+                enableEditing={enableEditing} messages={messages} replyEditId={replyEditId} />;
 }
 
 /**

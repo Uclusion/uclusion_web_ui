@@ -198,6 +198,14 @@ export function formatMarketLinkWithPrefix(prefix, marketId) {
   return `/${prefix}/${marketId}`;
 }
 
+export function formCommentEditReplyLink(marketId, commentId, isReply=false) {
+  const base = `/comment/${marketId}/${commentId}`;
+  if (isReply) {
+    return `${base}?reply=true`;
+  }
+  return base;
+}
+
 /**
  * Forms a link to a given market id with the given subpath. Usually used when switching
  * to a different market

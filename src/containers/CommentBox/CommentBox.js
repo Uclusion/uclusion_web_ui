@@ -76,7 +76,7 @@ export function getSortedRoots(allComments, searchResults) {
 
 function CommentBox(props) {
   const { comments, marketId, allowedTypes, isInbox, isRequiresInput, isInBlocking, assigned, formerStageId,
-    fullStage, stage } = props;
+    fullStage, stage, replyEditId } = props;
   const [marketStagesState] = useContext(MarketStagesContext);
   const [searchResults] = useContext(SearchResultsContext);
   const sortedRoots = getSortedRoots(comments, searchResults);
@@ -113,6 +113,7 @@ function CommentBox(props) {
               comments={comments}
               allowedTypes={allowedTypes}
               isInbox={isInbox}
+              replyEditId={replyEditId}
             />
           </div>
         </Grid>

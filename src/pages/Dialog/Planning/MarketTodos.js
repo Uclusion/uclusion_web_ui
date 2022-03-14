@@ -341,7 +341,7 @@ function MarketTodos (props) {
     function setCardAndScroll (comment) {
       setCard(comment)
       navigate(history,
-        `${isInArchives ? formMarketArchivesLink(marketId) : formMarketLink(marketId)}#editc${comment.id}`)
+        `${isInArchives ? formMarketArchivesLink(marketId) : formMarketLink(marketId)}#c${comment.id}`)
     }
 
     if (_.isEmpty(commentsGetting)) {
@@ -373,8 +373,8 @@ function MarketTodos (props) {
                             openIdFunc={setOpenMenuTodoId} anchorEl={anchorEl} />
           )}
           <Grid
-            id={`c${id}`}
-            key={`c${id}`}
+            id={`card${id}`}
+            key={`card${id}`}
             item
             md={3}
             xs={12}
@@ -618,7 +618,7 @@ function MarketTodos (props) {
             />
           )}
           {editRedCard && (
-            <div id={`editc${editRedCardId}`} style={{marginBottom: '2rem', marginRight: '1rem', marginLeft: '1rem'}}>
+            <div id={`c${editRedCardId}`} style={{marginBottom: '2rem', marginRight: '1rem', marginLeft: '1rem'}}>
               <Comment
                 depth={0}
                 marketId={marketId}
@@ -674,7 +674,7 @@ function MarketTodos (props) {
             />
           )}
           {editYellowCard && (
-            <div id={`editc${editYellowCardId}`} style={{marginBottom: '2rem', marginRight: '1rem',
+            <div id={`c${editYellowCardId}`} style={{marginBottom: '2rem', marginRight: '1rem',
               marginLeft: '1rem'}}>
               <Comment
                 depth={0}
@@ -731,7 +731,7 @@ function MarketTodos (props) {
             />
           )}
           {editCard && (
-            <div id={`editc${editCardId}`} style={{marginBottom: '2rem', marginRight: '1rem', marginLeft: '1rem'}}>
+            <div id={`c${editCardId}`} style={{marginBottom: '2rem', marginRight: '1rem', marginLeft: '1rem'}}>
               <Comment
                 depth={0}
                 marketId={marketId}

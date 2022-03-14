@@ -140,13 +140,12 @@ export function getNameForUrl(url) {
   const investibleState = investibleContextHack;
   const commentsState = commentsContextHack;
   const urlParts = new URL(url);
-  const isEdit = urlParts.hash && urlParts.hash.startsWith('#editc');
-  const isComment = urlParts.hash && (urlParts.hash.startsWith('#c') || isEdit) && !urlParts.hash.startsWith('#cv');
+  const isComment = urlParts.hash && urlParts.hash.startsWith('#c') && !urlParts.hash.startsWith('#cv');
   if (urlParts.host === window.location.host && (!urlParts.hash || isComment)) {
     const { action, marketId, investibleId } = decomposeMarketPath(urlParts.pathname);
     if (action === 'dialog') {
       if (isComment) {
-        const commentId = urlParts.hash.substring(isEdit ? 6 : 2, urlParts.hash.length);
+        const commentId = urlParts.hash.substring(2, urlParts.hash.length);
         const rootComment = getCommentRoot(commentsState, marketId, commentId);
         if (rootComment) {
           const name = nameFromDescription(rootComment.body);

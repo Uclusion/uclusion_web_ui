@@ -7,12 +7,10 @@ import clsx from 'clsx'
 import { FormattedMessage } from 'react-intl'
 import { useLockedDialogStyles } from '../../Dialog/DialogBodyEdit'
 import InviteLinker from '../../Dialog/InviteLinker'
-import { TODO_TYPE } from '../../../constants/comments'
 
 function ShareStoryButton(props) {
-  const { commentId, commentType, investibleId, marketId } = props;
-  const hashPart = commentId ? !investibleId && commentType === TODO_TYPE ? `#editc${commentId}` : `#c${commentId}`
-    : undefined;
+  const { commentId, investibleId, marketId } = props;
+  const hashPart = commentId ? `#c${commentId}` : undefined;
   const paramsPart = commentId ? `?subscribeId=${commentId}` : investibleId ? `?subscribeId=${investibleId}`
     : `?subscribeId=${marketId}`;
   const autoFocusRef = React.useRef(null);

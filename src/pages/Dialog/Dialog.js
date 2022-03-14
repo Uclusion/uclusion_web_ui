@@ -137,7 +137,7 @@ function Dialog(props) {
 
   useEffect(() => {
     if (!hidden && myHashFragment) {
-      if (!myHashFragment.startsWith('cv') && (myHashFragment.startsWith('c')||myHashFragment.startsWith('editc'))) {
+      if (!myHashFragment.startsWith('cv') && (myHashFragment.startsWith('c'))) {
         const commentId = myHashFragment.startsWith('c') ? myHashFragment.substr(1)
           : myHashFragment.substr(5);
         const comment = getComment(commentsState, marketId, commentId) || {}
@@ -148,7 +148,7 @@ function Dialog(props) {
           navigate(history, fullLink, true);
         } else if (resolved) {
           const link = formMarketArchivesLink(marketId);
-          const fullLink = myHashFragment.startsWith('c') ? `${link}#c${commentId}` : `${link}#editc${commentId}`;
+          const fullLink = `${link}#c${commentId}`;
           console.info('Navigating to resolved comment');
           navigate(history, fullLink, true);
         }

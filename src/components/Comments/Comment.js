@@ -471,7 +471,7 @@ function Comment(props) {
     if (mobileLayout || invalidEditEvent(event, history)) {
       return;
     }
-    updateEditState({beingEdited: value, body});
+    toggleEdit();
   }
 
   function getInlineInvestiblesForStage(stage, inlineInvestibles) {
@@ -863,6 +863,7 @@ function Comment(props) {
                   marketId={marketId}
                   comment={comment}
                   onSave={toggleEdit}
+                  onCancel={toggleEdit}
                   allowedTypes={allowedTypes}
                   editState={editState}
                   updateEditState={updateEditState}
@@ -1272,6 +1273,8 @@ function Reply(props) {
           {beingEdited && (
             <CommentEdit
               intl={intl}
+              onCancel={handleEditClick}
+              onSave={handleEditClick}
               marketId={marketId}
               editState={editState}
               updateEditState={updateEditState}

@@ -397,7 +397,7 @@ function DecisionInvestible(props) {
               allowedTypes={allowedCommentTypes}
               investible={investible}
               marketId={marketId}
-              issueWarningId="issueWarningInvestible"
+              issueWarningId={inProposed ? undefined : 'issueWarningInvestible'}
             />
           )}
           <CommentBox comments={investmentReasonsRemoved} marketId={marketId} allowedTypes={allowedCommentTypes}

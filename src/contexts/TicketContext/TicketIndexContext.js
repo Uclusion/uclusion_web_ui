@@ -5,15 +5,17 @@ import _ from 'lodash'
 const EMPTY_STATE = {};
 const TicketIndexContext = React.createContext(EMPTY_STATE);
 
+const reducer = (state, action) => {
+  const { items } = action;
+  if (items) {
+    const ticketHash = _.keyBy(items, (item) => item.ticketCode);
+    return { ...state, ...ticketHash };
+  }
+  return state;
+};
+
 function TicketIndexProvider(props) {
-  const [state, dispatch] = useReducer((state, action) => {
-    const { items } = action;
-    if (items) {
-      const ticketHash = _.keyBy(items, (item) => item.ticketCode);
-      return { ...state, ...ticketHash };
-    }
-    return state;
-  }, EMPTY_STATE);
+  const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
 
   useEffect(() => {
     beginListening(dispatch);

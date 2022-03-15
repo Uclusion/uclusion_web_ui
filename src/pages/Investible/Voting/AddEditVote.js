@@ -101,6 +101,14 @@ const useStyles = makeStyles(
   { name: "VoteAdd" }
 );
 
+function getEditVoteEditorName(investibleId, isInbox) {
+  return `${isInbox ? 'inbox' : ''}${investibleId}-add-edit-vote-reason`;
+}
+
+export function addEditVotingHasContents(investibleId, isInbox) {
+  return !_.isEmpty(getQuillStoredState(getEditVoteEditorName(investibleId, isInbox)));
+}
+
 function AddEditVote(props) {
   const {
     reason,
@@ -143,7 +151,7 @@ function AddEditVote(props) {
     setOpen(!open);
   }
 
-  const editorName = `${isInbox ? 'inbox' : ''}${investibleId}-add-edit-vote-reason`;
+  const editorName = getEditVoteEditorName(investibleId, isInbox);
   const editorSpec = {
     marketId,
     placeholder: intl.formatMessage({ id: "yourReason" }),

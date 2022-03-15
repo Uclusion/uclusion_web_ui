@@ -142,6 +142,7 @@ import { ACTIVE_STAGE } from '../../../constants/markets'
 import {
   OPERATION_HUB_CHANNEL, STOP_OPERATION
 } from '../../../contexts/OperationInProgressContext/operationInProgressMessages'
+import { addEditVotingHasContents } from '../Voting/AddEditVote'
 
 export const usePlanningInvestibleStyles = makeStyles(
   theme => ({
@@ -450,14 +451,15 @@ function PlanningInvestible(props) {
     marketStagesState,
     marketId
   ) || {}
-  const isInVoting = inCurrentVotingStage && stage === inCurrentVotingStage.id
+  const isInVoting = inCurrentVotingStage && stage === inCurrentVotingStage.id;
   const isAssigned = assigned.includes(userId);
-  const canVote = isInVoting && !inArchives && (!isAssigned || market.assigned_can_approve)
+  const canVote = isInVoting && !inArchives && (!isAssigned || market.assigned_can_approve);
   const yourPresence = marketPresences.find((presence) => presence.current_user);
   const yourVote = yourPresence && yourPresence.investments &&
-    yourPresence.investments.find((investment) => investment.investible_id === investibleId && !investment.deleted)
+    yourPresence.investments.find((investment) => investment.investible_id === investibleId && !investment.deleted);
   // If you have a vote already then do not display voting input
-  const displayVotingInput = canVote && !yourVote && _.isEmpty(search)
+  const displayVotingInput = canVote && !yourVote && _.isEmpty(search);
+  const hasUsableVotingInput = !inArchives && addEditVotingHasContents(investibleId, false);
 
   let lockedByName
   if (lockedBy) {
@@ -1107,7 +1109,7 @@ function PlanningInvestible(props) {
           />
         </>
       )}
-      {displayVotingInput && investibleId && (
+      {(displayVotingInput || hasUsableVotingInput) && investibleId && (
         <>
           {isAssigned && (
             <DismissableText textId="planningInvestibleCantVote" text={
@@ -1128,6 +1130,10 @@ function PlanningInvestible(props) {
             votingPageStateReset={votingPageStateReset}
             isAssigned={isAssigned}
           />
+        </>
+      )}
+      {displayVotingInput && investibleId && (
+        <>
           {!isAssigned && (
             <h3>{intl.formatMessage({ id: 'orStructuredComment' })}</h3>
           )}

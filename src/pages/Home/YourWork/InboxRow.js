@@ -130,7 +130,8 @@ function InboxRow(props) {
       mobileLayout, intl, isMultiple, messagesState, isDeletable, investibleEditClasses, history
     });
   }
-  return <WorkListItem key={typeObjectId} id={typeObjectId} checked={checked} determinateDispatch={determinateDispatch}
+  return <WorkListItem key={`inboxRow${typeObjectId}`} id={typeObjectId} checked={checked}
+                       determinateDispatch={determinateDispatch}
                        expansionDispatch={expansionDispatch} expansionOpen={expansionOpen}
                        isMultiple={isMultiple} {...item} />;
 }

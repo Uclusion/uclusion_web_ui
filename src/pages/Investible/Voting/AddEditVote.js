@@ -140,7 +140,7 @@ function AddEditVote(props) {
     (useInitial === false ? '' : (initialMaxBudget || ''));
   const maxBudgetUnit = initialMaxBudgetUnit || marketBudgetUnit;
   const { body, id: reasonId } = reason;
-  const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [open, setOpen] = useState(false);
@@ -177,10 +177,11 @@ function AddEditVote(props) {
       text: tokensRemoved,
     } = processTextAndFilesForSave(currentUploadedFiles, myBodyNow);
     const reasonText =  tokensRemoved !== null ? tokensRemoved : useInitial === false ? undefined : body;
+    resetEditor();
     const oldQuantity = addMode ? 0 : quantity;
     // dont include reason text if it's not changing, otherwise we'll update the reason comment
     const reasonNeedsUpdate = reasonText !== body && !(_.isEmpty(reasonText) && _.isEmpty(body));
-    const hasQuestions = (reasonText && reasonText.indexOf('?') > 0);
+    const hasQuestions = reasonText && (reasonText.indexOf('? ') > 0 || reasonText.indexOf('?<') > 0);
     if (doWarn && reasonNeedsUpdate && (hasQuestions || !_.isEmpty(filteredUploads))) {
       setOperationRunning(false);
       const warningId = (hasQuestions && !_.isEmpty(filteredUploads)) ? 'noQuestionUploads' :
@@ -207,6 +208,12 @@ function AddEditVote(props) {
     });
   }
 
+  function zeroValues() {
+    setOpenIssue(false);
+    votingPageStateReset();
+    resetEditor();
+  }
+
   function onSaveSpinStop(result) {
     if (!result) {
       if (open) {
@@ -230,7 +237,7 @@ function AddEditVote(props) {
     if (open) {
       toggleOpen();
     }
-    votingPageStateReset();
+    zeroValues();
     onSave();
   }
 
@@ -242,8 +249,7 @@ function AddEditVote(props) {
   }
 
   function onCancel() {
-    votingPageStateReset();
-    resetEditor();
+    zeroValues();
     if ((investment || {}).deleted) {
       // User decided to discard what was there before deleted
       updateVotingPageState({useInitial: false});
@@ -366,7 +372,7 @@ function AddEditVote(props) {
         issueWarningId="clearVotes"
         /* slots */
         actions={
-          <SpinningIconLabelButton onClick={mySave} icon={Add} id="issueProceedButton">
+          <SpinningIconLabelButton onClick={mySave} icon={Add} id="voteIssueProceedButton">
             {intl.formatMessage({ id: 'issueProceed' })}
           </SpinningIconLabelButton>
         }
@@ -381,7 +387,7 @@ function AddEditVote(props) {
           actions={
             (['noQuestionUploads', 'noQuestions', 'noUploads'].includes(openIssue)) ?
               <SpinningIconLabelButton onClick={() => mySaveWarnOptional(false)} icon={Add}
-                                       id="issueProceedButton">
+                                       id="voteIssueProceedButton">
                 {intl.formatMessage({ id: 'issueProceed' })}
               </SpinningIconLabelButton> : undefined
           }

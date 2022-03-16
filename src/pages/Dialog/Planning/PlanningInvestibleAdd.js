@@ -114,6 +114,7 @@ function PlanningInvestibleAdd(props) {
   }
 
   function zeroCurrentValues() {
+    setOpenIssue(false);
     resetMainEditor();
     resetEditor(initialVoteEditorName);
     investibleAddStateReset();
@@ -155,7 +156,7 @@ function PlanningInvestibleAdd(props) {
     }
     const currentVoteUploadedFiles = voteUploadedFiles || [];
     const reason = getQuillStoredState(initialVoteEditorName);
-    const hasQuestions = (reason && reason.indexOf('?') > 0);
+    const hasQuestions = reason && (reason.indexOf('? ') > 0 || reason.indexOf('?<') > 0);
     const {
       uploadedFiles: filteredVoteUploads,
       text: reasonTokensRemoved,

@@ -105,8 +105,9 @@ function getEditVoteEditorName(investibleId, isInbox) {
   return `${isInbox ? 'inbox' : ''}${investibleId}-add-edit-vote-reason`;
 }
 
-export function addEditVotingHasContents(investibleId, isInbox) {
-  return !_.isEmpty(getQuillStoredState(getEditVoteEditorName(investibleId, isInbox)));
+export function addEditVotingHasContents(investibleId, isInbox, operationRunning) {
+  return !_.isEmpty(getQuillStoredState(getEditVoteEditorName(investibleId, isInbox))) &&
+    !['voteIssueProceedButton', 'addOrUpdateVoteButton'].includes(operationRunning);
 }
 
 function AddEditVote(props) {
@@ -140,7 +141,7 @@ function AddEditVote(props) {
     (useInitial === false ? '' : (initialMaxBudget || ''));
   const maxBudgetUnit = initialMaxBudgetUnit || marketBudgetUnit;
   const { body, id: reasonId } = reason;
-  const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [open, setOpen] = useState(false);
@@ -177,7 +178,6 @@ function AddEditVote(props) {
       text: tokensRemoved,
     } = processTextAndFilesForSave(currentUploadedFiles, myBodyNow);
     const reasonText =  tokensRemoved !== null ? tokensRemoved : useInitial === false ? undefined : body;
-    resetEditor();
     const oldQuantity = addMode ? 0 : quantity;
     // dont include reason text if it's not changing, otherwise we'll update the reason comment
     const reasonNeedsUpdate = reasonText !== body && !(_.isEmpty(reasonText) && _.isEmpty(body));

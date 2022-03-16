@@ -459,7 +459,8 @@ function PlanningInvestible(props) {
     yourPresence.investments.find((investment) => investment.investible_id === investibleId && !investment.deleted);
   // If you have a vote already then do not display voting input
   const displayVotingInput = canVote && !yourVote && _.isEmpty(search);
-  const hasUsableVotingInput = !inArchives && addEditVotingHasContents(investibleId, false);
+  const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
+  const hasUsableVotingInput = !inArchives && addEditVotingHasContents(investibleId, false, operationRunning);
 
   let lockedByName
   if (lockedBy) {
@@ -472,7 +473,6 @@ function PlanningInvestible(props) {
     }
   }
 
-  const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
   const isInReview = inReviewStage && stage === inReviewStage.id;
   const inAcceptedStage = getAcceptedStage(marketStagesState, marketId) || {};

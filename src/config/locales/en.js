@@ -515,7 +515,7 @@ const messages = defineMessages({
   noticeVersionForceLogout: 'This version of the application requires signout which will happen when you close this message.',
   notifications: 'notifications',
   notification: 'notification',
-  notificationDelete: 'Delete this notification',
+  notificationDelete: 'Dismiss',
   informational: 'Informational',
   mentionsExplanation: 'Count of outstanding mentions',
   approvalExplanation: 'Count of outstanding required approvals',

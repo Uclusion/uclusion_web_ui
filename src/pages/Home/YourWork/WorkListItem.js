@@ -222,8 +222,7 @@ function WorkListItem(props) {
             )}
           </Div>
         </div>
-        <div style={{overflowY: 'auto', maxHeight: '50rem',
-          visibility: expansionOpen ? 'visible' : 'hidden', height: expansionOpen ? undefined : 0}}>
+        <div style={{visibility: expansionOpen ? 'visible' : 'hidden', height: expansionOpen ? undefined : 0}}>
           {expansionPanel || <React.Fragment />}
         </div>
       </RaisedCard>

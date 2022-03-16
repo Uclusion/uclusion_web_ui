@@ -760,6 +760,7 @@ function Comment(props) {
     myInlinePresence.investments.find((investment) => !investment.deleted);
   const showAbstain = enableActions && inlineMarketId && myPresence !== createdBy && !resolved &&
     !myInlinePresence.abstain && !yourVote;
+  const isDeletable = !isInbox && (commentType === REPORT_TYPE || isEditable || resolved);
   return (
     <div>
       <Card elevation={3} style={{overflow: 'unset'}} className={getCommentHighlightStyle()}>
@@ -825,8 +826,7 @@ function Comment(props) {
                 <ShareStoryButton commentId={id} commentType={commentType} investibleId={investibleId} />
               </div>
             )}
-            {(myPresence.is_admin || isEditable) && enableActions &&
-            (commentType === REPORT_TYPE || isEditable || resolved) && (
+            {(myPresence.is_admin || isEditable) && enableActions && isDeletable && (
               <div style={{marginRight: '2rem', marginTop: '0.5rem'}}>
                 <TooltipIconButton
                   disabled={operationRunning !== false}

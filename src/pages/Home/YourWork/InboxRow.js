@@ -8,7 +8,7 @@ import {
   getInvestibleComments
 } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { nameFromDescription } from '../../../utils/stringFunctions'
-import { addExpansionPanel } from './InboxExpansionPanel'
+import { addExpansionPanel, usesExpansion } from './InboxExpansionPanel'
 import WorkListItem from './WorkListItem'
 import React, { useContext } from 'react'
 import { usePlanningInvestibleStyles } from '../../Investible/Planning/PlanningInvestible'
@@ -123,7 +123,7 @@ function InboxRow(props) {
       item.moreDescription = abbreviatedDescription;
     }
   }
-  if (expansionOpen) {
+  if (expansionOpen && usesExpansion(item)) {
     const isDeletable = message.type_object_id.startsWith('UNREAD') && (!isMultiple || !hasPersistent);
     addExpansionPanel({
       item, commentState, marketState, investiblesState, diffState, planningClasses, marketsState,

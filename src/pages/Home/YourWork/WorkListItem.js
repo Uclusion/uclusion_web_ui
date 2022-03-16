@@ -160,6 +160,7 @@ function WorkListItem(props) {
   const useLink = isMultiple ? linkMultiple : link;
   const isUsingExpansion = usesExpansion(props);
   const showExpansion = isUsingExpansion && isHovered;
+  const expansionPanelVisible = isUsingExpansion && expansionOpen;
   return (
     <Item key={`workListItem${id}`} id={`workListItem${id}`} style={{minWidth: useSelect ? undefined : '80vw'}}>
       <RaisedCard elevation={3} rowStyle>
@@ -222,7 +223,8 @@ function WorkListItem(props) {
             )}
           </Div>
         </div>
-        <div style={{visibility: expansionOpen ? 'visible' : 'hidden', height: expansionOpen ? undefined : 0}}>
+        <div style={{visibility: expansionPanelVisible ? 'visible' : 'hidden',
+          height: expansionPanelVisible ? undefined : 0}}>
           {expansionPanel || <React.Fragment />}
         </div>
       </RaisedCard>

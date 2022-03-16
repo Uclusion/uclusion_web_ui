@@ -160,6 +160,7 @@ export function updateMarkets (marketIds, existingMarkets, maxConcurrentCount, i
 export function doVersionRefresh (currentHeldVersion, existingMarkets) {
   let newGlobalVersion = currentHeldVersion;
   const callWithVersion = currentHeldVersion === 'INITIALIZATION' ? null : currentHeldVersion;
+  console.info(`Checking for sync with ${callWithVersion}`);
   return getChangedIds(callWithVersion)
     .then((versions) => {
       const {

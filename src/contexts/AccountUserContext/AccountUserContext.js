@@ -28,6 +28,7 @@ function AccountUserProvider (props) {
     if (!isSignedOut()) {
       beginListening(dispatch);
     } else {
+      console.info('Clearing storage from account user context');
       clearUclusionLocalStorage(false);
     }
     return () => {}

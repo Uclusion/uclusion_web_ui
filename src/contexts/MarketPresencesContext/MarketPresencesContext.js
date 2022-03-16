@@ -49,6 +49,7 @@ function MarketPresencesProvider(props) {
         });
       beginListening(dispatch);
     } else {
+      console.info('Clearing storage from market presences context');
       clearUclusionLocalStorage(false);
     }
     return () => {};

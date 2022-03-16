@@ -95,6 +95,7 @@ function MarketsProvider(props) {
         });
       });
     } else {
+      console.info('Clearing storage from markets context');
       clearUclusionLocalStorage(false);
     }
     return () => {};

@@ -90,6 +90,7 @@ function InvestiblesProvider(props) {
           }
         });
     } else {
+      console.info('Clearing storage from investibles context');
       clearUclusionLocalStorage(false);
     }
     return () => {};

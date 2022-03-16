@@ -53,6 +53,7 @@ function MarketStagesProvider (props) {
         });
       beginListening(dispatch);
     } else {
+      console.info('Clearing storage from market stages context');
       clearUclusionLocalStorage(false);
     }
     return () => {};

@@ -29,6 +29,7 @@ function DiffProvider(props) {
           }
         });
     } else {
+      console.info('Clearing storage from diff context');
       clearUclusionLocalStorage(false);
     }
     return () => {};

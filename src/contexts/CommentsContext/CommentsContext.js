@@ -77,6 +77,7 @@ function CommentsProvider(props) {
           }
         });
     } else {
+      console.info('Clearing storage from comments context');
       clearUclusionLocalStorage(false);
     }
     return () => {};

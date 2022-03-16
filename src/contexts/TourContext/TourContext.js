@@ -33,6 +33,7 @@ function TourProvider(props) {
     if (!isSignedOut()) {
       setUclusionLocalStorageItem(TOUR_CONTEXT_KEY, state);
     } else {
+      console.info('Clearing storage from tour context');
       clearUclusionLocalStorage(false);
     }
   }, [state]);

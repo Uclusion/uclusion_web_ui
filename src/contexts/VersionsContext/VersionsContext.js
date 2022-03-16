@@ -31,6 +31,7 @@ function VersionsProvider(props) {
           dispatch(initializeVersionsAction(myDiskState));
         });
     } else {
+      console.info('Clearing local storage from versions context because signed out.');
       clearUclusionLocalStorage(false);
     }
     return () => {};

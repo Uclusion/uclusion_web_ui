@@ -64,6 +64,7 @@ function NotificationsProvider(props) {
           }
         });
     } else {
+      console.info('Clearing storage from notifications context');
       clearUclusionLocalStorage(false);
     }
     return () => {};

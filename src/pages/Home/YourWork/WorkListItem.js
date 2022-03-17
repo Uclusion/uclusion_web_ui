@@ -19,6 +19,7 @@ import {
 import { AssignmentInd, ExpandLess } from '@material-ui/icons'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { usesExpansion } from './InboxExpansionPanel'
+import NotificationDeletion from './NotificationDeletion'
 
 const Item = styled("div")`
   margin-bottom: 20px;
@@ -142,7 +143,8 @@ function WorkListItem(props) {
     expansionPanel,
     expansionOpen,
     isMultiple,
-    critical = false
+    critical = false,
+    isDeletable = false
   } = props;
   const history = useHistory();
   const classes = workListStyles();
@@ -217,6 +219,9 @@ function WorkListItem(props) {
               (<DateLabelB>{date}</DateLabelB>))}
             {showExpansion && (
               <DateLabel>
+                {isDeletable && (
+                  <NotificationDeletion message={message} fromRow />
+                )}
                 {expansionOpen ? <ExpandLess style={{color: 'black', marginRight: '1rem'}} />
                   : <ExpandMoreIcon style={{color: 'black', marginRight: '1rem'}} />}
               </DateLabel>

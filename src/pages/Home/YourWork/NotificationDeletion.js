@@ -3,14 +3,21 @@ import React from 'react'
 import { removeWorkListItem, workListStyles } from './WorkListItem'
 import { useIntl } from 'react-intl'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
+import DeleteIcon from '@material-ui/icons/Delete'
 
 function NotificationDeletion(props) {
-  const { message } = props;
+  const { message, fromRow=false } = props;
   const workItemClasses = workListStyles();
   const intl = useIntl();
 
   function remove() {
     removeWorkListItem(message, workItemClasses.removed, true);
+  }
+
+  if (fromRow) {
+    return (
+      <DeleteIcon onClick={remove} style={{color: 'black', marginRight: '0.5rem'}} />
+    );
   }
 
   return (

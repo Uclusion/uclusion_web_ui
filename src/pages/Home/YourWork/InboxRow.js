@@ -78,6 +78,7 @@ function InboxRow(props) {
   const userId = getMyUserForMarket(marketsState, marketId);
   const isAssigned = (assigned || []).includes(userId);
   const market = getMarket(marketsState, marketId) || {};
+  const isDeletable = message.type_object_id.startsWith('UNREAD') && (!isMultiple || !hasPersistent);
   const item = {
     title,
     icon: getPriorityIcon(message, isAssigned),
@@ -86,6 +87,7 @@ function InboxRow(props) {
     read: !isHighlighted,
     date: intl.formatDate(updatedAt),
     critical: !_.isEmpty(alertType),
+    isDeletable,
     message
   }
 
@@ -124,7 +126,6 @@ function InboxRow(props) {
     }
   }
   if (expansionOpen && usesExpansion(item)) {
-    const isDeletable = message.type_object_id.startsWith('UNREAD') && (!isMultiple || !hasPersistent);
     addExpansionPanel({
       item, commentState, marketState, investiblesState, diffState, planningClasses, marketsState,
       mobileLayout, intl, isMultiple, messagesState, isDeletable, investibleEditClasses, history

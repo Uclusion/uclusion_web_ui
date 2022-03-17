@@ -23,7 +23,6 @@ import { SearchResultsContext } from '../../../contexts/SearchResultsContext/Sea
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { pushMessage } from '../../../utils/MessageBusUtils'
 import {
-  CURRENT_EVENT,
   MODIFY_NOTIFICATIONS_CHANNEL, REMOVE_CURRENT_EVENT
 } from '../../../contexts/NotificationsContext/notificationsContextMessages'
 

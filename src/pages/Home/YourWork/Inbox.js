@@ -218,7 +218,7 @@ function Inbox(props) {
   }
 
   return (
-    <div id="inbox">
+    <div id="inbox" style={{paddingBottom: '45vh'}}>
       <div style={{display: 'flex', paddingBottom: '0.5rem'}}>
         {!mobileLayout && (
           <Checkbox style={{padding: 0, marginLeft: '0.6rem'}}

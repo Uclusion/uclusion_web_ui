@@ -1,5 +1,5 @@
 import {
-  addMessage, dehighlightMessages, makeCurrentMessage,
+  addMessage, dehighlightMessages, makeCurrentMessage, removeCurrentMessage,
   removeMessage,
   removeMessages,
   removeMessagesForInvestible,
@@ -15,6 +15,7 @@ export const MODIFY_NOTIFICATIONS_CHANNEL = 'delete_notifications';
 export const STAGE_CHANGE_EVENT = 'stage_change_event';
 export const REMOVE_EVENT = 'remove_event';
 export const CURRENT_EVENT = 'current_event';
+export const REMOVE_CURRENT_EVENT = 'remove_current_event';
 
 function beginListening(dispatch) {
   registerListener(NOTIFICATIONS_HUB_CHANNEL, 'notificationsStart', (data) => {
@@ -49,6 +50,9 @@ function beginListening(dispatch) {
         break;
       case CURRENT_EVENT:
         dispatch(makeCurrentMessage(message));
+        break;
+      case REMOVE_CURRENT_EVENT:
+        dispatch(removeCurrentMessage());
         break;
       default:
       // console.debug(`Ignoring push event ${event}`);

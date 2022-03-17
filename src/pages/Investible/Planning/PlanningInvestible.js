@@ -143,6 +143,7 @@ import {
   OPERATION_HUB_CHANNEL, STOP_OPERATION
 } from '../../../contexts/OperationInProgressContext/operationInProgressMessages'
 import { addEditVotingHasContents } from '../Voting/AddEditVote'
+import { getInboxTarget } from '../../../contexts/NotificationsContext/notificationsContextHelper'
 
 export const usePlanningInvestibleStyles = makeStyles(
   theme => ({
@@ -771,7 +772,8 @@ function PlanningInvestible(props) {
   const { id: todoId } = getFakeCommentsArray(todoSortedComments)[0]
   const navigationMenu = {
     navListItemTextArray: [
-      {icon: Inbox, text: intl.formatMessage({ id: 'inbox' }), target: '/inbox', newPage: true},
+      {icon: Inbox, text: intl.formatMessage({ id: 'returnInbox' }), target: getInboxTarget(messagesState),
+        newPage: true},
       {icon: AgilePlanIcon, text: marketName, target: formMarketLink(marketId)},
       createNavListItem(EditIcon, 'description_label', 'storyMain',
       displayDescription ? undefined : 0),

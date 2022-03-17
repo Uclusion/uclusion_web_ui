@@ -81,6 +81,7 @@ import { usePlanFormStyles } from '../../../components/AgilePlan'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import AssignmentIcon from '@material-ui/icons/Assignment'
 import { Inbox } from '@material-ui/icons'
+import { getInboxTarget } from '../../../contexts/NotificationsContext/notificationsContextHelper'
 
 export const LocalPlanningDragContext = React.createContext([]);
 
@@ -254,7 +255,8 @@ function PlanningDialog(props) {
   });
   const archivedSize = _.size(archiveInvestibles) + _.size(resolvedMarketComments);
   const navListItemTextArrayBeg = [
-    {icon: Inbox, text: intl.formatMessage({ id: 'inbox' }), target: '/inbox', newPage: true},
+    {icon: Inbox, text: intl.formatMessage({ id: 'returnInbox' }), target: getInboxTarget(messagesState),
+      newPage: true},
     createNavListItem(AddIcon, 'dialogAddParticipantsLabel', 'addCollaboratorSection',
       undefined, false, isSectionBold('addCollaboratorSection'), !_.isEmpty(search)),
     createNavListItem(QuestionIcon, 'planningDialogNavDiscussionLabel', 'workspaceMain',

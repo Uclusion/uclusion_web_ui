@@ -14,13 +14,18 @@ import _ from 'lodash'
 import SettingsIcon from '@material-ui/icons/Settings'
 import { Link } from '@material-ui/core'
 import DismissableText from '../../../components/Notifications/DismissableText'
-import { formMarketLink, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions'
+import { formMarketLink, navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
 import AddIcon from '@material-ui/icons/Add'
 import { PLANNING_TYPE } from '../../../constants/markets'
 import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
+import { pushMessage } from '../../../utils/MessageBusUtils'
+import {
+  CURRENT_EVENT,
+  MODIFY_NOTIFICATIONS_CHANNEL, REMOVE_CURRENT_EVENT
+} from '../../../contexts/NotificationsContext/notificationsContextMessages'
 
 function InboxFull(props) {
   const { hidden } = props;
@@ -108,7 +113,11 @@ function InboxFull(props) {
     const sorted = _.sortBy(filtered, 'name');
     const items = sorted.map((market) => {
       return {icon: AgilePlanIcon, text: market.name, isGreyed: showMarketDisabled(market.id, false),
-        target: formMarketLink(market.id)};
+        onClickFunc: (event) => {
+          preventDefaultAndProp(event);
+          pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: REMOVE_CURRENT_EVENT });
+          navigate(history, formMarketLink(market.id));
+        }};
     });
     navigationMenu.navListItemTextArray.unshift(...items);
   }

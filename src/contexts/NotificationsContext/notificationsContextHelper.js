@@ -23,6 +23,17 @@ export function isInInbox(message, marketState, marketPresencesState, messages) 
   return true;
 }
 
+export function getInboxTarget(messagesState) {
+  if (!_.isEmpty(messagesState)) {
+    const { current } = messagesState;
+    if (!_.isEmpty(current)) {
+      const { type_object_id: typeObjectId } = current;
+      return `/inbox#workListItem${typeObjectId}`;
+    }
+  }
+  return '/inbox';
+}
+
 export function getInboxCount(messagesState, marketState, marketPresencesState) {
   let calcPend = 0;
   if (!_.isEmpty(messagesState)) {

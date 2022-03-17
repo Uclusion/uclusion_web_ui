@@ -17,6 +17,7 @@ const ADD_MESSAGE = 'ADD_MESSAGE';
 const REMOVE_FOR_INVESTIBLE = 'REMOVE_FOR_INVESTIBLE';
 const DEHIGHLIGHT_MESSAGES = 'DEHIGHLIGHT_MESSAGES';
 const CURRENT_MESSAGE = 'CURRENT_MESSAGE';
+const REMOVE_CURRENT_MESSAGE = 'REMOVE_CURRENT_MESSAGE';
 
 /** Messages you can send the reducer */
 
@@ -38,6 +39,12 @@ export function makeCurrentMessage(message) {
   return {
     type: CURRENT_MESSAGE,
     message
+  }
+}
+
+export function removeCurrentMessage() {
+  return {
+    type: REMOVE_CURRENT_MESSAGE
   }
 }
 
@@ -108,17 +115,8 @@ function getAllMessages(message, state) {
   return messages;
 }
 
-/**
- * Stores messages in the state.
- * @param state
- * @param messagesToStore
- * @returns {*}
- */
-function storeMessagesInState(state, messagesToStore) {
-  const { initializing, current } = state;
-  const useCurrent = current || {};
-  const found = (messagesToStore || []).find((aMessage) => aMessage.market_id_user_id === useCurrent.market_id_user_id
-    && aMessage.type_object_id === useCurrent.type_object_id);
+function keepRelevantState(state, found, messagesToStore, current) {
+  const { initializing } = state;
   if (initializing) {
     if (found) {
       return {
@@ -139,6 +137,20 @@ function storeMessagesInState(state, messagesToStore) {
   return {
     messages: messagesToStore,
   };
+}
+
+/**
+ * Stores messages in the state.
+ * @param state
+ * @param messagesToStore
+ * @returns {*}
+ */
+function storeMessagesInState(state, messagesToStore) {
+  const { current } = state;
+  const useCurrent = current || {};
+  const found = (messagesToStore || []).find((aMessage) => aMessage.market_id_user_id === useCurrent.market_id_user_id
+    && aMessage.type_object_id === useCurrent.type_object_id);
+  return keepRelevantState(state, found, messagesToStore, current);
 }
 
 /**
@@ -260,7 +272,12 @@ function markMessageCurrent(state, action) {
   if (found) {
     return { ...state, current: found };
   }
-  return state;
+  return removeMessageCurrent(state);
+}
+
+function removeMessageCurrent(state) {
+  const { messages } = state;
+  return keepRelevantState(state, false, messages);
 }
 
 function computeNewState (state, action) {
@@ -285,6 +302,8 @@ function computeNewState (state, action) {
       return removeForInvestible(state, action);
     case CURRENT_MESSAGE:
       return markMessageCurrent(state, action);
+    case REMOVE_CURRENT_MESSAGE:
+      return removeMessageCurrent(state);
     default:
       return state;
   }

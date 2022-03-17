@@ -338,7 +338,7 @@ function navigateEditReplyBack(history, id, marketId, investibleId, replyEditId,
   if (replyEditId) {
     navigate(history, formCommentLink(marketId, investibleId, id));
   } else {
-    navigate(history, formCommentEditReplyLink(marketId, id, isReply));
+    navigate(history, formCommentEditReplyLink(marketId, id, isReply), false, true);
   }
 }
 

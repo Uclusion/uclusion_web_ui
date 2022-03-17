@@ -53,6 +53,11 @@ import { useHistory } from 'react-router'
 import NotificationDeletion from './NotificationDeletion'
 import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff'
 import { formInvestibleLink, navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions'
+import { pushMessage } from '../../../utils/MessageBusUtils'
+import {
+  CURRENT_EVENT,
+  MODIFY_NOTIFICATIONS_CHANNEL
+} from '../../../contexts/NotificationsContext/notificationsContextMessages'
 
 
 function InboxInvestible(props) {
@@ -254,6 +259,9 @@ function InboxInvestible(props) {
         <div style={{paddingTop: '1rem'}} className={investibleEditClasses.container}>
           <Link href={formInvestibleLink(marketId, investibleId)} onClick={(event) => {
             preventDefaultAndProp(event);
+            if (message) {
+              pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: CURRENT_EVENT, message });
+            }
             navigate(history, formInvestibleLink(marketId, investibleId));
           }}>
             <Typography className={investibleEditClasses.title} variant="h3" component="h1">

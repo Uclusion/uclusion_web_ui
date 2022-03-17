@@ -22,6 +22,11 @@ import { JUSTIFY_TYPE } from '../../../constants/comments'
 import { findMessageOfType } from '../../../utils/messageUtils'
 import NotificationDeletion from './NotificationDeletion'
 import { formInvestibleLink, navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions'
+import { pushMessage } from '../../../utils/MessageBusUtils'
+import {
+  CURRENT_EVENT,
+  MODIFY_NOTIFICATIONS_CHANNEL
+} from '../../../contexts/NotificationsContext/notificationsContextMessages'
 
 export function usesExpansion(item) {
   const { message, comment } = item;
@@ -90,6 +95,9 @@ export function addExpansionPanel(props) {
             <div style={{paddingTop: '0.5rem'}} className={investibleEditClasses.container}>
               <Link href={formInvestibleLink(marketId, investibleId)} onClick={(event) => {
                 preventDefaultAndProp(event);
+                if (message) {
+                  pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: CURRENT_EVENT, message });
+                }
                 navigate(history, formInvestibleLink(marketId, investibleId));
               }}>
                 <Typography className={investibleEditClasses.title} variant="h3" component="h1">

@@ -17,6 +17,11 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { Link } from '@material-ui/core'
 import { navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
+import { pushMessage } from '../../../utils/MessageBusUtils'
+import {
+  CURRENT_EVENT,
+  MODIFY_NOTIFICATIONS_CHANNEL
+} from '../../../contexts/NotificationsContext/notificationsContextMessages'
 
 function InvestibleStatus(props) {
   const { marketId, investibleId, message } = props;
@@ -75,7 +80,10 @@ function InvestibleStatus(props) {
       <h3>
         or <Link href={link} onClick={(event) => {
           preventDefaultAndProp(event);
-        navigate(history, link)}}>view in channel</Link> to create or update a progress report
+        if (message) {
+          pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: CURRENT_EVENT, message });
+        }
+        navigate(history, link)}}>{intl.formatMessage({id: 'viewInChannel'})}</Link> to create or update a progress report
       </h3>
       {progressReports.length > 0 && (
         <div style={{paddingTop: '1rem'}}>

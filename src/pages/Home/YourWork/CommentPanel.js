@@ -16,6 +16,11 @@ import { useIntl } from 'react-intl'
 import NotificationDeletion from './NotificationDeletion'
 import { formCommentLink, navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
+import { pushMessage } from '../../../utils/MessageBusUtils'
+import {
+  CURRENT_EVENT,
+  MODIFY_NOTIFICATIONS_CHANNEL
+} from '../../../contexts/NotificationsContext/notificationsContextMessages'
 
 function CommentPanel(props) {
   const { commentId, marketId, marketType, messageType, planningClasses, mobileLayout, messagesFull,
@@ -60,6 +65,9 @@ function CommentPanel(props) {
             <Typography variant="body1" style={{paddingTop: '1rem', paddingLeft: '1rem', paddingRight: '1rem'}}>
               <Link href={useLink} onClick={(event) => {
                 preventDefaultAndProp(event);
+                if (message) {
+                  pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: CURRENT_EVENT, message });
+                }
                 navigate(history, useLink)}}>{intl.formatMessage({id: 'viewInChannel'})}</Link>
             </Typography>
             {!_.isEmpty(messagesFull) && (

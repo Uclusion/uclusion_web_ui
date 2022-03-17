@@ -13,6 +13,7 @@ import { useHistory } from 'react-router'
 import RaisedCard from '../../../components/Cards/RaisedCard'
 import { pushMessage } from '../../../utils/MessageBusUtils'
 import {
+  CURRENT_EVENT,
   DEHIGHLIGHT_EVENT, DELETE_EVENT,
   MODIFY_NOTIFICATIONS_CHANNEL, REMOVE_EVENT
 } from '../../../contexts/NotificationsContext/notificationsContextMessages'
@@ -175,6 +176,9 @@ function WorkListItem(props) {
             if (isUsingExpansion) {
               expansionDispatch({ id });
             } else {
+              if (useSelect) {
+                pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: CURRENT_EVENT, message });
+              }
               return navigate(history, useLink);
             }
           }

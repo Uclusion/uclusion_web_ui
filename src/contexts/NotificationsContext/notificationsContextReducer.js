@@ -16,6 +16,7 @@ const LEVEL_MESSAGE = 'LEVEL_MESSAGE';
 const ADD_MESSAGE = 'ADD_MESSAGE';
 const REMOVE_FOR_INVESTIBLE = 'REMOVE_FOR_INVESTIBLE';
 const DEHIGHLIGHT_MESSAGES = 'DEHIGHLIGHT_MESSAGES';
+const CURRENT_MESSAGE = 'CURRENT_MESSAGE';
 
 /** Messages you can send the reducer */
 
@@ -29,6 +30,13 @@ export function updateMessages(messages) {
 export function removeMessage(message) {
   return {
     type: REMOVE_MESSAGE,
+    message
+  }
+}
+
+export function makeCurrentMessage(message) {
+  return {
+    type: CURRENT_MESSAGE,
     message
   }
 }
@@ -107,15 +115,29 @@ function getAllMessages(message, state) {
  * @returns {*}
  */
 function storeMessagesInState(state, messagesToStore) {
-  const { initializing } = state;
+  const { initializing, current } = state;
+  const useCurrent = current || {};
+  const found = (messagesToStore || []).find((aMessage) => aMessage.market_id_user_id === useCurrent.market_id_user_id
+    && aMessage.type_object_id === useCurrent.type_object_id);
   if (initializing) {
+    if (found) {
+      return {
+        messages: messagesToStore,
+        current
+      };
+    }
     return {
       messages: messagesToStore,
     };
   }
+  if (found) {
+    return {
+      ...state,
+      messages: messagesToStore
+    };
+  }
   return {
-    ...state,
-    messages: messagesToStore
+    messages: messagesToStore,
   };
 }
 
@@ -230,6 +252,17 @@ function doDehighlightMessages(state, action) {
   return storeMessagesInState(state, newMessages);
 }
 
+function markMessageCurrent(state, action) {
+  const { message } = action;
+  const { messages: existingMessages } = state;
+  const found = (existingMessages || []).find((aMessage) => aMessage.market_id_user_id === message.market_id_user_id
+    && aMessage.type_object_id === message.type_object_id);
+  if (found) {
+    return { ...state, current: found };
+  }
+  return state;
+}
+
 function computeNewState (state, action) {
   switch (action.type) {
     case UPDATE_MESSAGES:
@@ -250,6 +283,8 @@ function computeNewState (state, action) {
       return changeLevelSingleMessage(state, action);
     case REMOVE_FOR_INVESTIBLE:
       return removeForInvestible(state, action);
+    case CURRENT_MESSAGE:
+      return markMessageCurrent(state, action);
     default:
       return state;
   }

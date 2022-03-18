@@ -14,10 +14,10 @@ export function fetchComments(idList, marketId) {
 }
 
 export function saveComment(marketId, investibleId, replyId, body, commentType, uploadedFiles, mentions,
-  notificationType, marketType) {
+  notificationType, marketType, isRestricted) {
   return getMarketClient(marketId)
     .then((client) => client.investibles.createComment(investibleId, body, replyId, commentType, uploadedFiles, mentions,
-      notificationType, marketType))
+      notificationType, marketType, isRestricted))
     .catch((error) => toastErrorAndThrow(error, 'errorCommentSaveFailed'));
 }
 

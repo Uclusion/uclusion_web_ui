@@ -83,7 +83,7 @@ function InvestibleStatus(props) {
         if (message) {
           pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: CURRENT_EVENT, message });
         }
-        navigate(history, link)}}>{intl.formatMessage({id: 'viewInChannel'})}</Link> to create or update a progress report
+        navigate(history, link)}}>{intl.formatMessage({id: 'viewInChannelLower'})}</Link> to create or update a progress report
       </h3>
       {progressReports.length > 0 && (
         <div style={{paddingTop: '1rem'}}>

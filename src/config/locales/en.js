@@ -349,6 +349,7 @@ const messages = defineMessages({
   demonstratesInbox: 'click this row to expand',
   notificationSummary: 'Summary',
   viewInChannel: 'View in channel',
+  viewInChannelLower: 'view in channel',
 
   // Address list
   addressAddCancelLabel: 'Close',
@@ -482,6 +483,9 @@ const messages = defineMessages({
   noCommentBody: 'Please create a message for this comment.',
   noNotificationType: 'Please choose a priority for this comment.',
   noType: 'Please choose a type for this comment.',
+  noInitiativeType: 'Who will be allowed to see the votes on this suggestion?',
+  proceedNormal: 'Everyone',
+  proceedRestricted: 'Just me',
 
   // CommentBox
   commentIconRaiseIssueLabel: 'Raise Issue',

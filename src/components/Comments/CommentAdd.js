@@ -44,7 +44,7 @@ import {
 } from '../../contexts/NotificationsContext/notificationsContextReducer'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'
-import { Add, Clear, Delete } from '@material-ui/icons'
+import { Add, Clear, Delete, Lock, LockOpen } from '@material-ui/icons'
 import { useEditor } from '../TextEditors/quillHooks'
 import { getUiPreferences } from '../../contexts/AccountUserContext/accountUserContextHelper'
 import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
@@ -341,7 +341,7 @@ function CommentAdd(props) {
     refreshMarketComments(commentDispatch, marketId, updatedComments)
   }
 
-  function handleSave () {
+  function handleSave(isRestricted) {
     const currentUploadedFiles = uploadedFiles || []
     const myBodyNow = getQuillStoredState(editorName)
     if (_.isEmpty(myBodyNow) || _.isEmpty(type)) {
@@ -354,20 +354,19 @@ function CommentAdd(props) {
       setOpenIssue('noNotificationType');
       return;
     }
+    const apiType = (type === REPLY_TYPE) ? undefined : type;
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
     } = processTextAndFilesForSave(currentUploadedFiles, myBodyNow)
     const mentions = getMentionsFromText(tokensRemoved)
     // the API does _not_ want you to send reply type, so suppress if our type is reply
-    const apiType = (type === REPLY_TYPE) ? undefined : type
     // what about not doing state?
     const inReviewStage = getInReviewStage(marketStagesState, marketId) || {}
     const investibleBlocks = (investibleId && apiType === ISSUE_TYPE) && currentStageId !== blockingStage.id
-    const createInlineInitiative = (creatorIsAssigned || !investibleId || _.isEmpty(assigned))
-      && apiType === SUGGEST_CHANGE_TYPE;
     return saveComment(marketId, investibleId, parentId, tokensRemoved, apiType, filteredUploads, mentions,
-      (notificationType || defaultNotificationType), createInlineInitiative ? INITIATIVE_TYPE : undefined)
+      (notificationType || defaultNotificationType), createInlineInitiative ? INITIATIVE_TYPE : undefined,
+      isRestricted)
       .then((response) => {
         const comment = createInlineInitiative ? response.parent : response;
         commentAddStateReset();
@@ -440,8 +439,11 @@ function CommentAdd(props) {
 
   const commentSaveLabel = parent ? 'commentAddSaveLabel' : 'commentReplySaveLabel';
   const commentCancelLabel = parent ? 'commentReplyCancelLabel' : 'commentAddCancelLabel';
+  const createInlineInitiative = (creatorIsAssigned || !investibleId || _.isEmpty(assigned))
+    && type === SUGGEST_CHANGE_TYPE;
   const myWarningId = type === TODO_TYPE ? todoWarningId : type === ISSUE_TYPE ? issueWarningId :
-    type === REPORT_TYPE ? getReportWarningId() : investibleRequiresInput ? 'requiresInputWarningPlanning' : undefined;
+    type === REPORT_TYPE ? getReportWarningId() : createInlineInitiative ? 'noInitiativeType' :
+      investibleRequiresInput ? 'requiresInputWarningPlanning' : undefined;
   const userPreferences = getUiPreferences(userState) || {};
   const previouslyDismissed = userPreferences.dismissedText || [];
   const showIssueWarning = myWarningId && !previouslyDismissed.includes(myWarningId) && !mobileLayout;
@@ -483,7 +485,7 @@ function CommentAdd(props) {
           <Button className={classes.button}>
             {intl.formatMessage({ id: 'edited' })}
           </Button>
-          {openIssue !== false && (
+          {openIssue !== false && openIssue !== 'noInitiativeType' && (
             <IssueDialog
               classes={lockedDialogClasses}
               open={openIssue !== false}
@@ -497,6 +499,30 @@ function CommentAdd(props) {
                   <SpinningIconLabelButton onClick={handleSave} icon={Add} id="issueProceedButton">
                     {intl.formatMessage({ id: 'issueProceed' })}
                   </SpinningIconLabelButton> : undefined
+              }
+            />
+          )}
+          {openIssue === 'noInitiativeType' && (
+            <IssueDialog
+              classes={lockedDialogClasses}
+              open={openIssue !== false}
+              onClose={toggleIssue}
+              issueWarningId={openIssue}
+              showDismiss={false}
+              /* slots */
+              actions={
+                (<>
+                  <SpinningIconLabelButton onClick={() => {
+                    return handleSave();
+                  }} icon={LockOpen} id="proceedNormalButton">
+                    {intl.formatMessage({ id: 'proceedNormal' })}
+                  </SpinningIconLabelButton>
+                  <SpinningIconLabelButton onClick={() => {
+                    return handleSave(true);
+                  }} icon={Lock} id="proceedRestrictedButton">
+                    {intl.formatMessage({ id: 'proceedRestricted' })}
+                  </SpinningIconLabelButton>
+                </>)
               }
             />
           )}

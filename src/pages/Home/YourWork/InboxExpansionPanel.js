@@ -37,8 +37,8 @@ export function usesExpansion(item) {
     return true;
   }
   if (message && message.type) {
-    return ['UNASSIGNED', 'UNREAD_DRAFT', 'UNREAD_VOTE', 'REPORT_REQUIRED',
-      'UNACCEPTED_ASSIGNMENT'].includes(message.type);
+    return ['UNASSIGNED', 'UNREAD_DRAFT', 'UNREAD_VOTE', 'REPORT_REQUIRED', 'UNREAD_NAME', 'UNREAD_DESCRIPTION',
+      'UNREAD_ATTACHMENT', 'UNREAD_LABEL', 'UNREAD_ESTIMATE', 'UNACCEPTED_ASSIGNMENT'].includes(message.type);
   }
   //Pending always expands
   return true;

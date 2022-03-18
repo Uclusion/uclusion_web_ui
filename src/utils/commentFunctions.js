@@ -80,13 +80,16 @@ export function changeInvestibleStageOnCommentChange(investibleBlocks, investibl
 }
 
 export function allowVotingForSuggestion(commentId, setOperationRunning, marketsDispatch, presenceDispatch,
-  commentState, commentDispatch, investiblesDispatch) {
+  commentState, commentDispatch, investiblesDispatch, isRestricted) {
   const addInfo = {
     name: 'NA',
     market_type: INITIATIVE_TYPE,
     description: 'NA',
     parent_comment_id: commentId,
   };
+  if (isRestricted) {
+    addInfo.is_restricted = true;
+  }
   return createInitiative(addInfo)
     .then((result) => {
       addMarket(result, marketsDispatch, () => {}, presenceDispatch);

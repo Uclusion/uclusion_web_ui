@@ -470,7 +470,7 @@ function CommentAdd(props) {
           )}
           {!showIssueWarning && (
             <SpinningIconLabelButton
-              onClick={handleSave}
+              onClick={() => handleSave()}
               icon={Add}
               id="commentSaveButton"
             >
@@ -496,7 +496,7 @@ function CommentAdd(props) {
               /* slots */
               actions={
                 (!['noCommentBody', 'noType', 'noNotificationType'].includes(openIssue)) ?
-                  <SpinningIconLabelButton onClick={handleSave} icon={Add} id="issueProceedButton">
+                  <SpinningIconLabelButton onClick={() => handleSave()} icon={Add} id="issueProceedButton">
                     {intl.formatMessage({ id: 'issueProceed' })}
                   </SpinningIconLabelButton> : undefined
               }

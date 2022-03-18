@@ -89,7 +89,7 @@ import {
   Edit,
   Eject,
   ExpandLess,
-  ExpandMore,
+  ExpandMore, Lock, LockOpen,
   NotInterested,
   SettingsBackupRestore
 } from '@material-ui/icons'
@@ -457,10 +457,14 @@ function Comment(props) {
     updateEditState({showDiff: !showDiff});
   }
 
-  function allowSuggestionVote() {
+  function allowSuggestionVote(isRestricted) {
+    if (isRestricted === undefined) {
+      setOpenIssue('noInitiativeType');
+      return;
+    }
     setOperationRunning(true);
     return allowVotingForSuggestion(id, setOperationRunning, marketsDispatch, presenceDispatch,
-      commentState, commentDispatch, investiblesDispatch);
+      commentState, commentDispatch, investiblesDispatch, isRestricted).then(() => setOpenIssue(false));
   }
 
   function toggleReply() {
@@ -903,7 +907,7 @@ function Comment(props) {
                         id="suggestionVote"
                         name="suggestionVote"
                         checked={!_.isEmpty(inlineMarketId)}
-                        onChange={allowSuggestionVote}
+                        onChange={() => allowSuggestionVote()}
                         disabled={operationRunning !== false || !isEditable}
                       />
                     </Typography>
@@ -942,7 +946,7 @@ function Comment(props) {
                     })}
                   </SpinningIconLabelButton>
                 )}
-                {openIssue !== false && (
+                {openIssue !== false && openIssue !== 'noInitiativeType' && (
                   <IssueDialog
                     classes={lockedDialogClasses}
                     open={openIssue !== false}
@@ -954,6 +958,30 @@ function Comment(props) {
                       <SpinningIconLabelButton onClick={resolve} icon={Add} id="issueProceedButton">
                         {intl.formatMessage({ id: 'issueProceed' })}
                       </SpinningIconLabelButton>
+                    }
+                  />
+                )}
+                {openIssue === 'noInitiativeType' && (
+                  <IssueDialog
+                    classes={lockedDialogClasses}
+                    open={openIssue !== false}
+                    onClose={toggleIssue}
+                    issueWarningId={openIssue}
+                    showDismiss={false}
+                    /* slots */
+                    actions={
+                      (<>
+                        <SpinningIconLabelButton onClick={() => {
+                          return allowSuggestionVote(false);
+                        }} icon={LockOpen} id="proceedNormalButton">
+                          {intl.formatMessage({ id: 'proceedNormal' })}
+                        </SpinningIconLabelButton>
+                        <SpinningIconLabelButton onClick={() => {
+                          return allowSuggestionVote(true);
+                        }} icon={Lock} id="proceedRestrictedButton">
+                          {intl.formatMessage({ id: 'proceedRestricted' })}
+                        </SpinningIconLabelButton>
+                      </>)
                     }
                   />
                 )}

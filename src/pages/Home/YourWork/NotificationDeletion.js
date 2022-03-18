@@ -4,13 +4,15 @@ import { removeWorkListItem, workListStyles } from './WorkListItem'
 import { useIntl } from 'react-intl'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import DeleteIcon from '@material-ui/icons/Delete'
+import { preventDefaultAndProp } from '../../../utils/marketIdPathFunctions'
 
 function NotificationDeletion(props) {
   const { message, fromRow=false } = props;
   const workItemClasses = workListStyles();
   const intl = useIntl();
 
-  function remove() {
+  function remove(event) {
+    preventDefaultAndProp(event);
     removeWorkListItem(message, workItemClasses.removed, true);
   }
 

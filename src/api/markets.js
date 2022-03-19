@@ -1,7 +1,7 @@
 import { getAccountClient, getMarketClient } from './uclusionClient'
 import { fixupItemForStorage } from '../contexts/ContextUtils'
 import { errorAndThrow, toastErrorAndThrow } from '../utils/userMessage'
-import { INITIATIVE_TYPE, PLANNING_TYPE, DECISION_TYPE } from '../constants/markets'
+import { INITIATIVE_TYPE, PLANNING_TYPE } from '../constants/markets'
 
 function fixupMarketForStorage(market) {
   const itemFixed = fixupItemForStorage(market);
@@ -112,16 +112,6 @@ export function createInitiative(marketInfo, messageKey = 'errorInitiativeAddFai
   const myInfo = {
     ...marketInfo,
     market_type: INITIATIVE_TYPE,
-  };
-  return getAccountClient()
-    .then((client) => client.markets.createMarket(myInfo))
-    .catch((error) => toastErrorAndThrow(error, messageKey));
-}
-
-export function createDecision(marketInfo, messageKey = 'errorDecisionAddFailed') {
-  const myInfo = {
-    ...marketInfo,
-    market_type: DECISION_TYPE,
   };
   return getAccountClient()
     .then((client) => client.markets.createMarket(myInfo))

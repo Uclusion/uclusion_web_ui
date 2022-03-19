@@ -419,10 +419,7 @@ function Comment(props) {
     (resolved ? myPresence !== updatedBy : true) : myRepliesExpanded);
   const myMessage = findMessageForCommentId(id, messagesState);
 
-  function toggleIssue() {
-    setOpenIssue(!openIssue);
-  }
-
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (inlineMarketId && !marketsState.initializing && hasInitializedGlobalVersion(versionsContext) &&
       !operationRunning) {
@@ -433,6 +430,10 @@ function Comment(props) {
       }
     }
   }, [versionsContext, marketsState, inlineMarketId, operationRunning]);
+
+  function toggleIssue() {
+    setOpenIssue(!openIssue);
+  }
 
   function toggleInlineInvestibleAdd() {
     updateInvestibleAddState({investibleAddBeingEdited: !investibleAddBeingEdited});
@@ -886,17 +887,6 @@ function Comment(props) {
           {showActions && !beingEdited && (
             <CardActions>
               <div className={classes.actions}>
-                {commentType === QUESTION_TYPE && enableEditing && !inlineMarketId && marketType === PLANNING_TYPE && (
-                  <SpinningIconLabelButton
-                    disabled={!isEditable}
-                    onClick={toggleInlineInvestibleAdd}
-                    doSpin={false}
-                    icon={AddIcon}
-                    id={`inlineAdd${id}`}
-                  >
-                    {intl.formatMessage({ id: mobileLayout ? 'inlineAddLabelMobile' : 'inlineAddLabel' })}
-                  </SpinningIconLabelButton>
-                )}
                 {commentType === SUGGEST_CHANGE_TYPE && !inArchives && !resolved && !shouldInline
                   && marketType === PLANNING_TYPE && (
                   <div style={{marginRight: '0.5rem', paddingTop: '0.25rem'}}>

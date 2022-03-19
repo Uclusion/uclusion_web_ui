@@ -57,16 +57,13 @@ import {
   getQuillStoredState,
   replaceEditorContents,
 } from '../TextEditors/Utilities/CoreUtils'
-import { INITIATIVE_TYPE } from '../../constants/markets'
+import { DECISION_TYPE, INITIATIVE_TYPE } from '../../constants/markets'
 import { addMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../authorization/TokenStorageManager'
 
-function getPlaceHolderLabelId (type, isStory, isInReview) {
+function getPlaceHolderLabelId(type, isInReview) {
   switch (type) {
     case QUESTION_TYPE:
-      if (isStory) {
-        return 'commentAddStoryQuestionDefault';
-      }
       return 'commentAddQuestionDefault';
     case SUGGEST_CHANGE_TYPE:
       return 'commentAddSuggestDefault';
@@ -238,7 +235,7 @@ function CommentAdd(props) {
   const { assigned, stage: currentStageId } = (info || {});
   const inReviewStage = getInReviewStage(marketStagesState, marketId) || {id: 'fake'};
   const readyForApprovalStage = getInCurrentVotingStage(marketStagesState, marketId) || {};
-  const placeHolderLabelId = getPlaceHolderLabelId(type, isStory, currentStageId === inReviewStage.id)
+  const placeHolderLabelId = getPlaceHolderLabelId(type, currentStageId === inReviewStage.id)
   const placeHolder = intl.formatMessage({ id: placeHolderLabelId })
   const [, setOperationRunning] = useContext(OperationInProgressContext)
   const [userState] = useContext(AccountUserContext)
@@ -362,13 +359,14 @@ function CommentAdd(props) {
     const mentions = getMentionsFromText(tokensRemoved)
     // the API does _not_ want you to send reply type, so suppress if our type is reply
     // what about not doing state?
-    const inReviewStage = getInReviewStage(marketStagesState, marketId) || {}
+    const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
+    const marketType = createInlineInitiative ? INITIATIVE_TYPE : (apiType === QUESTION_TYPE ? DECISION_TYPE :
+      undefined);
     const investibleBlocks = (investibleId && apiType === ISSUE_TYPE) && currentStageId !== blockingStage.id
     return saveComment(marketId, investibleId, parentId, tokensRemoved, apiType, filteredUploads, mentions,
-      (notificationType || defaultNotificationType), createInlineInitiative ? INITIATIVE_TYPE : undefined,
-      isRestricted)
+      (notificationType || defaultNotificationType), marketType, isRestricted)
       .then((response) => {
-        const comment = createInlineInitiative ? response.parent : response;
+        const comment = marketType ? response.parent : response;
         commentAddStateReset();
         resetEditor();
         changeInvestibleStageOnCommentChange(investibleBlocks, investibleRequiresInput,
@@ -380,7 +378,7 @@ function CommentAdd(props) {
             removeWorkListItem(message, workItemClasses.removed);
           }
           if (apiType === REPORT_TYPE) {
-            quickResolveOlderReports(comment)
+            quickResolveOlderReports(comment);
           }
         }
         // The whole thread will be marked read so quick it
@@ -397,11 +395,13 @@ function CommentAdd(props) {
             messagesDispatch(dehighlightMessage(issueMessage));
           }
         }
-        if (createInlineInitiative) {
+        if (marketType) {
           addMarket(response, marketsDispatch, () => {}, presenceDispatch);
           const { market: { id: inlineMarketId }, parent, token, investible } = response;
           addCommentToMarket(parent, commentsState, commentDispatch);
-          addInvestible(investibleDispatch, () => {}, investible);
+          if (investible) {
+            addInvestible(investibleDispatch, () => {}, investible);
+          }
           const tokenStorageManager = new TokenStorageManager();
           return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, inlineMarketId, token).then(() => {
             if (doNotShowAgain) {

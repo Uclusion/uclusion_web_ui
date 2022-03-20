@@ -130,7 +130,7 @@ function CurrentVoting(props) {
         >
           <CardHeader
             style={{padding: 0, display: selectedInvestibleId === id ? 'flex' : 'none'}}
-            action={<IconButton style={{padding: 0}}><Clear /></IconButton>}
+            action={<IconButton id={`clearCurrentVoting${id}`} style={{padding: 0}}><Clear /></IconButton>}
           />
           <CardContent className={classes.noPadding}
                        style={{marginTop: selectedInvestibleId === id ? '-1.2rem' : undefined}}>

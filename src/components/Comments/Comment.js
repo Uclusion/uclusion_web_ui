@@ -526,6 +526,7 @@ function Comment(props) {
             supportingInformation={abstained}
             actionButton={!enableEditing ? null :
               (<ExpandableAction
+                id={`approvableOption${id}`}
                 icon={<AddIcon htmlColor="black"/>}
                 label={intl.formatMessage({ id: 'createDialogApprovableExplanation' })}
                 openLabel={intl.formatMessage({
@@ -554,6 +555,7 @@ function Comment(props) {
             title={intl.formatMessage({ id: 'decisionDialogProposedOptionsLabel' })}
             actionButton={ inArchives ? null :
               (<ExpandableAction
+                id={`proposedOption${id}`}
                 icon={<AddIcon htmlColor="black"/>}
                 label={intl.formatMessage({ id: 'createDialogProposedExplanation' })}
                 openLabel={intl.formatMessage({ id: 'decisionDialogProposeInvestibleLabel'})}

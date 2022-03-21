@@ -84,7 +84,7 @@ function SubscriptionStatus (props) {
   }
 
   function beginSubscription () {
-    return startSubscription(PRODUCT_TIER_STANDARD)
+    return startSubscription()
       .then((upgradedAccount) => {
         return {
           result: upgradedAccount,

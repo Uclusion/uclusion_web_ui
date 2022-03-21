@@ -72,9 +72,9 @@ export function validatePromoCode(promoCode) {
     .catch((error) => toastErrorAndThrow(error, 'errorPromoValidateFailed'));
 }
 
-export function startSubscription(paymentId, tier) {
+export function startSubscription(paymentId) {
   return getAccountClient()
-    .then((client) => client.users.startSubscription(paymentId, tier))
+    .then((client) => client.users.startSubscription(paymentId))
     .catch((error) => toastErrorAndThrow(error, 'errorStartSubFailed'));
 }
 

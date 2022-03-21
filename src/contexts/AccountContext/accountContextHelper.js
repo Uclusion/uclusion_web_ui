@@ -1,11 +1,11 @@
 import _ from 'lodash';
 import config from '../../config';
 import {
-  PRODUCT_TIER_FREE,
+  PRODUCT_TIER_FREE, PRODUCT_TIER_STANDARD,
   SUBSCRIPTION_STATUS_ACTIVE,
   SUBSCRIPTION_STATUS_CANCELED,
   SUBSCRIPTION_STATUS_TRIAL, SUBSCRIPTION_STATUS_UNSUBSCRIBED
-} from '../../constants/billing';
+} from '../../constants/billing'
 import { accountRefresh, billingInfoRefresh, invoicesRefresh } from './accountContextReducer';
 
 
@@ -23,20 +23,19 @@ export function canCreate (state) {
     return true;
   }
   const {
-    tier,
     billing_subscription_status: subStatus,
     billing_subscription_end: subEnd,
   } = state.account;
+  const tier = [SUBSCRIPTION_STATUS_TRIAL, SUBSCRIPTION_STATUS_ACTIVE].includes(subStatus) ? PRODUCT_TIER_STANDARD
+    : PRODUCT_TIER_FREE;
   if (tier === PRODUCT_TIER_FREE) {
     return false;
   }
   if (subStatus === SUBSCRIPTION_STATUS_CANCELED && (_.isEmpty(subEnd) || subEnd < Date.now())) {
     return false;
   }
-  if (subStatus === SUBSCRIPTION_STATUS_UNSUBSCRIBED) {
-    return false;
-  }
-  return true;
+  return subStatus !== SUBSCRIPTION_STATUS_UNSUBSCRIBED;
+
 }
 
 export function getAccount (state) {

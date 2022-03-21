@@ -59,11 +59,12 @@ function SubscriptionStatus (props) {
   const [accountState, accountDispatch] = useContext(AccountContext);
   const account = getAccount(accountState);
   const {
-    tier,
     billing_subscription_status: subStatus,
     billing_subscription_end: subEnd,
     billing_subscription_trial_end: trialEnd,
   } = account;
+  const tier = [SUBSCRIPTION_STATUS_TRIAL, SUBSCRIPTION_STATUS_ACTIVE].includes(subStatus) ? PRODUCT_TIER_STANDARD
+    : PRODUCT_TIER_FREE;
   const classes = styleClasses();
   const upgradable = tier === PRODUCT_TIER_FREE;
 
@@ -75,7 +76,7 @@ function SubscriptionStatus (props) {
   const resumable = upgradable && cancelledBefore;
   const needsPayment = subscriptionNeedsPayment(accountState);
 
-  const tierMessage = intl.formatMessage({ id: getTierMessageId() });
+  const tierMessage = intl.formatMessage({ id: getTierMessageId(tier) });
   const subMessage = getSubscriptionMessage();
 
   function onSpinStop (account) {
@@ -125,7 +126,7 @@ function SubscriptionStatus (props) {
       });
   }
 
-  function getTierMessageId () {
+  function getTierMessageId(tier) {
     switch (tier) {
       case PRODUCT_TIER_FREE:
         return 'billingFreeTier';

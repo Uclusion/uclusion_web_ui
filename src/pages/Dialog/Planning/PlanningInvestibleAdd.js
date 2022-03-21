@@ -73,8 +73,10 @@ function PlanningInvestibleAdd(props) {
         maxBudgetUnit: '',
         skipApproval: false
       });
+  const openForInvestmentDefault = furtherWorkType === 'readyToStart';
   const {
     skipApproval,
+    openForInvestment,
     maxBudget,
     quantity,
     uploadedFiles,
@@ -179,8 +181,7 @@ function PlanningInvestibleAdd(props) {
     if (skipApproval) {
       addInfo.stageId = acceptedStage.id;
     }
-    const openForInvestment = furtherWorkType === 'readyToStart';
-    if (openForInvestment) {
+    if (openForInvestment || openForInvestmentDefault) {
       addInfo.openForInvestment = true;
     }
     return addPlanningInvestible(addInfo).then((inv) => {
@@ -301,7 +302,13 @@ function PlanningInvestibleAdd(props) {
               <div>
                 <legend>{intl.formatMessage({ id: 'agilePlanFormFieldsetLabelOptional' })}</legend>
                 <FormControlLabel
-                  control={
+                  control={ _.isEmpty(assignments) ?
+                      <Checkbox
+                        value={openForInvestment}
+                        checked={openForInvestment || openForInvestmentDefault}
+                        disabled={furtherWorkType !== undefined}
+                        onClick={() => updateInvestibleAddState({ openForInvestment: !openForInvestment })}
+                      /> :
                     <Checkbox
                       value={skipApproval}
                       disabled={votesRequired > 1 || acceptedFull || !acceptedStage.id || !isAssignedToMe}
@@ -309,7 +316,8 @@ function PlanningInvestibleAdd(props) {
                       onClick={() => updateInvestibleAddState({ skipApproval: !skipApproval })}
                     />
                   }
-                  label={intl.formatMessage({ id: 'skipApprovalExplanation' })}
+                  label={intl.formatMessage({ id: _.isEmpty(assignments) ? 'readyToStartCheckboxExplanation' :
+                      'skipApprovalExplanation' })}
                 />
               </div>
             </div>

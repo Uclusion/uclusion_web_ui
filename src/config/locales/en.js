@@ -993,7 +993,7 @@ const messages = defineMessages({
   createBlueExplanation: 'Create new When Convenient Todo',
   taskSection: 'Tasks',
   todoSection: 'Todos',
-  readyToStartCheckboxExplanation: 'Ready to Start',
+  readyToStartCheckboxExplanation: 'Ready to start',
   editTodo: 'View',
   markRead: 'Mark read',
   markDescriptionRead: 'Mark description read',

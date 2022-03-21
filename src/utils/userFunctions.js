@@ -61,10 +61,6 @@ export function getRandomSupportUser() {
   return _.sample(supportUsers);
 }
 
-export function getFlags(user) {
-  return (user && user.flags) || {};
-}
-
 export function getMarketInfo(investible, marketId) {
   if (!investible || !investible.market_infos) {
     return {};

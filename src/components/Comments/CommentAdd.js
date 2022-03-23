@@ -57,8 +57,8 @@ import {
   getQuillStoredState,
   replaceEditorContents,
 } from '../TextEditors/Utilities/CoreUtils'
-import { DECISION_TYPE, INITIATIVE_TYPE } from '../../constants/markets'
-import { addMarket } from '../../contexts/MarketsContext/marketsContextHelper'
+import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
+import { addMarket, getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../authorization/TokenStorageManager'
 
 function getPlaceHolderLabelId(type, isInReview) {
@@ -221,7 +221,7 @@ function CommentAdd(props) {
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [marketPresencesState, presenceDispatch] = useContext(MarketPresencesContext);
-  const [, marketsDispatch] = useContext(MarketsContext);
+  const [marketsState, marketsDispatch] = useContext(MarketsContext);
   const [openIssue, setOpenIssue] = useState(false);
   const [doNotShowAgain, setDoNotShowAgain] = useState(undefined);
   const classes = useStyles();
@@ -360,8 +360,9 @@ function CommentAdd(props) {
     // the API does _not_ want you to send reply type, so suppress if our type is reply
     // what about not doing state?
     const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
-    const marketType = createInlineInitiative ? INITIATIVE_TYPE : (apiType === QUESTION_TYPE ? DECISION_TYPE :
-      undefined);
+    const ourMarket = getMarket(marketsState, marketId) || {};
+    const createInlineDecision = ourMarket.market_type === PLANNING_TYPE && apiType === QUESTION_TYPE;
+    const marketType = createInlineInitiative ? INITIATIVE_TYPE : (createInlineDecision ? DECISION_TYPE : undefined);
     const investibleBlocks = (investibleId && apiType === ISSUE_TYPE) && currentStageId !== blockingStage.id
     return saveComment(marketId, investibleId, parentId, tokensRemoved, apiType, filteredUploads, mentions,
       (notificationType || defaultNotificationType), marketType, isRestricted)

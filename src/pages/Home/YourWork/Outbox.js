@@ -187,10 +187,10 @@ function Outbox(props) {
       const investibleId = investible.investible.id;
       const mySubmitted = inboxMessages.find((message) => {
         const { investible_id: msgInvestibleId, type: messageType } = message;
-        return msgInvestibleId === investibleId && messageType === 'INVESTIBLE_SUBMITTED';
+        return msgInvestibleId === investibleId && messageType === 'NEW_TODO';
       })
       // If message to finish Todos then no one owes you anything
-      return !mySubmitted;
+      return _.isEmpty(mySubmitted);
     })
     const inVotingStage = getInCurrentVotingStage(marketStagesState, market.id) || {};
     const inVotingInvestibles = getUserInvestibles(myPresence.id, market.id, investibles,

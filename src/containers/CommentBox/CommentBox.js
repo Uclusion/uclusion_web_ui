@@ -100,12 +100,13 @@ function CommentBox(props) {
 
   function getCommentCards() {
     return sortedRoots.map(comment => {
-      const { id } = comment;
+      const { id, comment_type: commmentType } = comment;
       return (
         <Grid item key={id} xs={12}>
           <div id={`c${id}`} style={{paddingBottom: '1.25rem'}}>
             <Comment
-              resolvedStageId={resolvedStageId}
+              resolvedStageId={(isRequiresInput && [QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(commmentType))
+              || (isInBlocking && commmentType === ISSUE_TYPE) ? resolvedStageId : undefined}
               stagePreventsActions={useFullStage.close_comments_on_entrance}
               depth={0}
               marketId={marketId}

@@ -181,8 +181,17 @@ function Outbox(props) {
     const investibles = getMarketInvestibles(investibleState, market.id);
     // Not filtering by whether in Inbox or not because users should deal with Inbox before worry about Outbox
     const inReviewStage = getInReviewStage(marketStagesState, market.id) || {};
-    const inReviewInvestibles = getUserInvestibles(myPresence.id, market.id, investibles,
+    const inReviewInvestiblesFull = getUserInvestibles(myPresence.id, market.id, investibles,
       [inReviewStage]) || [];
+    const inReviewInvestibles = inReviewInvestiblesFull.filter((investible) => {
+      const investibleId = investible.investible.id;
+      const mySubmitted = inboxMessages.find((message) => {
+        const { investible_id: msgInvestibleId, type: messageType } = message;
+        return msgInvestibleId === investibleId && messageType === 'INVESTIBLE_SUBMITTED';
+      })
+      // If message to finish Todos then no one owes you anything
+      return !mySubmitted;
+    })
     const inVotingStage = getInCurrentVotingStage(marketStagesState, market.id) || {};
     const inVotingInvestibles = getUserInvestibles(myPresence.id, market.id, investibles,
       [inVotingStage]) || [];
@@ -223,7 +232,6 @@ function Outbox(props) {
       }
     });
     suggestions.forEach((comment) => {
-      //TODO finish not adding expansion panels when collapsed
       const message = getMessageForComment(comment, market, 'cardTypeLabelSuggestedChange',
         <ChangeSuggstionIcon style={{ fontSize: 24, color: '#8f8f8f', }}/>, intl, investibleState, marketStagesState,
         comments, marketPresences, planningClasses, mobileLayout, expansionState)
@@ -238,25 +246,17 @@ function Outbox(props) {
       suggestions } = workspacesData;
     const marketPresences = getMarketPresences(marketPresencesState, market.id) || [];
     inReviewInvestibles.forEach((investible) => {
-      const investibleId = investible.investible.id
+      const investibleId = investible.investible.id;
       const outboxMessage = getMessageForInvestible(investible, market, 'planningInvestibleNextStageInReviewLabel',
-        <RateReviewIcon style={{ fontSize: 24, color: '#8f8f8f', }}/>, intl)
-      const expansionOpen = expansionState && !!expansionState[investibleId]
+        <RateReviewIcon style={{ fontSize: 24, color: '#8f8f8f', }}/>, intl);
+      const expansionOpen = expansionState && !!expansionState[investibleId];
       if (expansionOpen) {
         outboxMessage.expansionPanel = <InboxInvestible marketId={market.id} investibleId={investibleId}
                                                         messageType={'UNREAD_REVIEWABLE'}
                                                         planningClasses={planningClasses} marketType={PLANNING_TYPE}
-                                                        mobileLayout={mobileLayout} isOutbox/>
+                                                        mobileLayout={mobileLayout} isOutbox/>;
       }
-      const mySubmitted = inboxMessages.find((message) => {
-        const { investible_id: msgInvestibleId, type: messageType } = message
-        return msgInvestibleId === investibleId && messageType === 'INVESTIBLE_SUBMITTED'
-      })
-      if (mySubmitted) {
-        // If message to finish Todos then no one owes you anything but you haven't moved out of in review either
-        outboxMessage.inActive = true
-      }
-      const marketInfo = getMarketInfo(investible, market.id)
+      const marketInfo = getMarketInfo(investible, market.id);
       if (!_.isEmpty(marketInfo.required_reviews)) {
         //add required reviewers with no comment
         const debtors = [];

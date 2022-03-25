@@ -203,8 +203,8 @@ function InboxInvestible(props) {
             </div>
           </div>
         )}
-        {!_.isEmpty(_.intersection(['ASSIGNED_UNREVIEWABLE', 'ISSUE_RESOLVED', 'UNREAD_VOTE'],
-          useMessageTypes)) && (
+        {(!_.isEmpty(_.intersection(['ASSIGNED_UNREVIEWABLE', 'ISSUE_RESOLVED', 'UNREAD_VOTE'],
+          useMessageTypes)) || (useMessageTypes.includes('UNREAD_REVIEWABLE') && isOutbox) ) && (
           <div style={{marginTop: mobileLayout ? '1rem' : undefined, marginLeft: mobileLayout ? undefined : '2rem'}}>
             <InputLabel id="next-allowed-stages-label" style={{ marginBottom: '0.25rem' }}>
               {intl.formatMessage({ id: 'quickChangeStage' })}</InputLabel>

@@ -61,7 +61,7 @@ import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/m
 import { addMarket, getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../authorization/TokenStorageManager'
 
-function getPlaceHolderLabelId(type, isInReview) {
+function getPlaceHolderLabelId(type, isInReview, isAssigned) {
   switch (type) {
     case QUESTION_TYPE:
       return 'commentAddQuestionDefault';
@@ -72,7 +72,7 @@ function getPlaceHolderLabelId(type, isInReview) {
     case REPLY_TYPE:
       return 'commentAddReplyDefault';
     case REPORT_TYPE:
-      if (isInReview) {
+      if (isInReview && !isAssigned) {
         return 'commentAddReviewReportDefault';
       }
       return 'commentAddReportDefault';
@@ -235,17 +235,18 @@ function CommentAdd(props) {
   const { assigned, stage: currentStageId } = (info || {});
   const inReviewStage = getInReviewStage(marketStagesState, marketId) || {id: 'fake'};
   const readyForApprovalStage = getInCurrentVotingStage(marketStagesState, marketId) || {};
-  const placeHolderLabelId = getPlaceHolderLabelId(type, currentStageId === inReviewStage.id)
-  const placeHolder = intl.formatMessage({ id: placeHolderLabelId })
-  const [, setOperationRunning] = useContext(OperationInProgressContext)
-  const [userState] = useContext(AccountUserContext)
-  const theme = useTheme()
-  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'))
-  const presences = getMarketPresences(marketPresencesState, marketId) || []
-  const myPresence = presences.find((presence) => presence.current_user) || {}
-  const blockingStage = getBlockedStage(marketStagesState, marketId) || {}
-  const requiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {}
-  const creatorIsAssigned = (assigned || []).includes(myPresence.id)
+  const presences = getMarketPresences(marketPresencesState, marketId) || [];
+  const myPresence = presences.find((presence) => presence.current_user) || {};
+  const creatorIsAssigned = (assigned || []).includes(myPresence.id);
+  const placeHolderLabelId = getPlaceHolderLabelId(type, currentStageId === inReviewStage.id,
+    creatorIsAssigned);
+  const placeHolder = intl.formatMessage({ id: placeHolderLabelId });
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [userState] = useContext(AccountUserContext);
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
+  const blockingStage = getBlockedStage(marketStagesState, marketId) || {};
+  const requiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
   const investibleRequiresInput = (type === QUESTION_TYPE || type === SUGGEST_CHANGE_TYPE) && creatorIsAssigned
     && currentStageId !== blockingStage.id && currentStageId !== requiresInputStage.id;
 

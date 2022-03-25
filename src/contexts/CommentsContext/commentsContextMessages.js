@@ -4,9 +4,14 @@ import {
   VERSIONS_EVENT
 } from '../VersionsContext/versionsContextHelper'
 import { overwriteMarketComments, removeMarketsComments, updateCommentsFromVersions } from './commentsContextReducer'
-import { registerListener } from '../../utils/MessageBusUtils'
+import { pushMessage, registerListener } from '../../utils/MessageBusUtils'
 import { fixupItemsForStorage } from '../ContextUtils'
 import { addContents } from '../DiffContext/diffContextReducer'
+import {
+  INDEX_COMMENT_TYPE,
+  INDEX_UPDATE,
+  SEARCH_INDEX_CHANNEL
+} from '../SearchIndexContext/searchIndexContextMessages'
 
 export const COMMENT_LOAD_EVENT = 'LoadEvent';
 
@@ -24,6 +29,8 @@ function beginListening(dispatch, diffDispatch) {
   registerListener(PUSH_COMMENTS_CHANNEL, 'commentsPushStart', (data) => {
     const { payload: { event, marketId, comments } } = data;
     const fixedUp = fixupItemsForStorage(comments);
+    const indexMessage = { event: INDEX_UPDATE, itemType: INDEX_COMMENT_TYPE, items: fixedUp };
+    pushMessage(SEARCH_INDEX_CHANNEL, indexMessage);
     switch (event) {
       case VERSIONS_EVENT:
         const fixedUpForDiff = fixedUp.map((comment) => {

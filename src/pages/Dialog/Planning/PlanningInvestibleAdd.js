@@ -190,11 +190,19 @@ function PlanningInvestibleAdd(props) {
         return moveComments(marketId, investible.id, fromCommentIds,
           resolveComments && requiresInputId ? [requiresInputId] : undefined)
           .then((movedComments) => {
+            const comments = getMarketComments(commentsState, marketId) || [];
+            let threads = []
             fromCommentIds.forEach((commentId) => {
               removeMessagesForCommentId(commentId, messagesState);
+              const thread = comments.filter((aComment) => {
+                return aComment.root_comment_id === commentId;
+              });
+              const fixedThread = thread.map((aComment) => {
+                return {investible_id: investible.id, ...aComment};
+              });
+              threads = threads.concat(fixedThread);
             });
-            const comments = getMarketComments(commentsState, marketId);
-            refreshMarketComments(commentsDispatch, marketId, [...movedComments, ...comments]);
+            refreshMarketComments(commentsDispatch, marketId, [...movedComments, ...threads, ...comments]);
             return inv;
           });
       }

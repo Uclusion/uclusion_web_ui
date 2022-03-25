@@ -61,8 +61,6 @@ export const myArchiveClasses = makeStyles(
         backgroundColor: "white",
         padding: 0,
         margin: 0,
-        overflowY: 'auto',
-        maxHeight: '25rem'
       },
       containerGreen: {
         borderColor: 'green',

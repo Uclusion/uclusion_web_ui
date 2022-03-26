@@ -166,8 +166,8 @@ function doUpdateMessages (state, action) {
     const deletedMessages = existingMessages.filter((message) => message.deleted);
     if (!_.isEmpty(deletedMessages)) {
       messages.forEach((message) => {
-        if (!_.isEmpty(
-          deletedMessages.find((deletedMessage) => deletedMessage.type_object_id === message.type_object_id))) {
+        if (!_.isEmpty(deletedMessages.find((deletedMessage) => deletedMessage.type_object_id === message.type_object_id
+            && message.updated_at === deletedMessage.updated_at))) {
           // Mark deleted any shadow copies of deleted messages before replacing
           message.deleted = true;
         }
@@ -179,17 +179,10 @@ function doUpdateMessages (state, action) {
 
 function removeSingleMessage(state, action) {
   const { message } = action;
-  const { messages } = state;
-  if (message.deleted) {
-    // This is a soft delete to avoid eventually consistent shadow copies
-    return modifySingleMessage(state, message, (message) => {
-      return { ...message, deleted: true };
-    });
-  } else {
-    const filteredMessages = (messages || []).filter((aMessage) =>
-      aMessage.market_id_user_id !== message.market_id_user_id || aMessage.type_object_id !== message.type_object_id);
-    return storeMessagesInState(state, filteredMessages);
-  }
+  // Avoid eventually consistent shadow copies
+  return modifySingleMessage(state, message, (message) => {
+    return { ...message, deleted: true };
+  });
 }
 
 function addSingleMessage(state, action) {
@@ -246,10 +239,13 @@ function doRemoveMessages(state, action) {
   const { messages } = state;
   const { message: toRemoveMessage } = action;
   const toRemoveMessages = getAllMessages(toRemoveMessage, state);
-  const filteredMessages = (messages || []).filter((aMessage) => {
-    return !toRemoveMessages.includes(aMessage);
+  const mappedMessages = (messages || []).map((aMessage) => {
+    if (toRemoveMessages.includes(aMessage)) {
+      return { ...aMessage, deleted: true};
+    }
+    return aMessage;
   });
-  return storeMessagesInState(state, filteredMessages);
+  return storeMessagesInState(state, mappedMessages);
 }
 
 function doDehighlightMessages(state, action) {

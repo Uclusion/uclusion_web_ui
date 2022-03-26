@@ -51,8 +51,7 @@ const useStyles = makeStyles((theme) => ({
     margin: '3px',
     padding: '0 20px',
     color: '#3e3e3e',
-    borderRight: '1px solid #eaeaea',
-    overflow: 'hidden',
+    borderRight: '1px solid #eaeaea'
   },
   chartContent: {
     display: 'flex',
@@ -68,7 +67,6 @@ const useStyles = makeStyles((theme) => ({
   },
   iconGrid: {
     flexWrap: 'nowrap',
-    overflow: 'hidden',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',

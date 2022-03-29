@@ -9,7 +9,7 @@ import {
 } from '../SearchIndexContext/searchIndexContextMessages'
 
 export function getComment(state, marketId, commentId) {
-  const marketComments = getMarketComments(state, marketId);
+  const marketComments = state[marketId] || [];
   return marketComments.find(comment => comment.id === commentId);
 }
 
@@ -29,9 +29,18 @@ export function getCommentRoot(state, marketId, commentId) {
   return getCommentRoot(state, marketId, comment.reply_id);
 }
 
+export function getDraftComments(state, marketId, investibleId) {
+  const marketComments = state[marketId] || [];
+  if (investibleId) {
+    return marketComments.filter((comment) => !comment.deleted && comment.investible_id === investibleId &&
+      comment.is_sent === false);
+  }
+  return marketComments.filter((comment) => !comment.deleted && comment.is_sent === false);
+}
+
 export function getMarketComments(state, marketId) {
   const marketComments = state[marketId] || [];
-  return marketComments.filter((comment) => !comment.deleted);
+  return marketComments.filter((comment) => !comment.deleted && comment.is_sent !== false);
 }
 
 /**

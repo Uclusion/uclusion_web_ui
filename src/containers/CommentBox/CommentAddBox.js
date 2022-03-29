@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import {
   FormControl,
@@ -21,6 +21,9 @@ import { ISSUE_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE 
 import { getPageReducerPage, usePageStateReducer } from '../../components/PageState/pageStateHooks'
 import _ from 'lodash'
 import DismissableText from '../../components/Notifications/DismissableText'
+import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
+import { getDraftComments } from '../../contexts/CommentsContext/commentsContextHelper'
+import CommentBox from './CommentBox'
 
 export const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -188,14 +191,18 @@ function CommentAddBox(props) {
   } = props;
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
+  const [commentState] = useContext(CommentsContext);
   const [commentAddStateFull, commentAddDispatch] = usePageStateReducer('commentAdd');
+  const investibleId = investible ? investible.id : undefined;
   const [commentAddState, updateCommentAddState, commentAddStateReset] =
-    getPageReducerPage(commentAddStateFull, commentAddDispatch, investible ? investible.id : marketId);
+    getPageReducerPage(commentAddStateFull, commentAddDispatch, investibleId || marketId);
   const {
     type,
   } = commentAddState;
   const useType = type || (_.size(allowedTypes) === 1 ? allowedTypes[0] : undefined);
   const classes = useStyles();
+  const draftComments = getDraftComments(commentState, marketId, investibleId);
+
   function onTypeChange(event) {
     const { value } = event.target;
     updateCommentAddState({type: value});
@@ -207,6 +214,11 @@ function CommentAddBox(props) {
     }
     return "reviewReportPresent";
   }
+
+  if (!_.isEmpty(draftComments)) {
+    return <CommentBox comments={draftComments} marketId={marketId} allowedTypes={[]} usePadding={false}/>;
+  }
+
   return (
     <div id="commentAddBox">
       {!isInReview && useType === REPORT_TYPE && (

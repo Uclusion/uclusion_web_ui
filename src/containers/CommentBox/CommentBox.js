@@ -76,7 +76,7 @@ export function getSortedRoots(allComments, searchResults) {
 
 function CommentBox(props) {
   const { comments, marketId, allowedTypes, isInbox, isRequiresInput, isInBlocking, assigned, formerStageId,
-    fullStage, stage, replyEditId } = props;
+    fullStage, stage, replyEditId, usePadding } = props;
   const [marketStagesState] = useContext(MarketStagesContext);
   const [searchResults] = useContext(SearchResultsContext);
   const sortedRoots = getSortedRoots(comments, searchResults);
@@ -123,7 +123,8 @@ function CommentBox(props) {
   }
 
   return (
-    <Grid id="commentBox" container spacing={1} style={{paddingBottom: _.isEmpty(sortedRoots) || isInbox ? 0 : '45vh'}}>
+    <Grid id="commentBox" container spacing={1}
+          style={{paddingBottom: _.isEmpty(sortedRoots) || isInbox || usePadding === false ? 0 : '45vh'}}>
       {getCommentCards()}
     </Grid>
   );

@@ -44,7 +44,7 @@ import {
 } from '../../contexts/NotificationsContext/notificationsContextReducer'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'
-import { Add, Clear, Delete, Lock, LockOpen } from '@material-ui/icons'
+import { Add, Clear, Delete, Lock, LockOpen, Send } from '@material-ui/icons'
 import { useEditor } from '../TextEditors/quillHooks'
 import { getUiPreferences } from '../../contexts/AccountUserContext/accountUserContextHelper'
 import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
@@ -114,7 +114,7 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: 'bold',
     margin: 8,
     marginBottom: 0,
-    textTransform: 'capitalize',
+    textTransform: 'none',
   },
   buttonPrimary: {
     backgroundColor: '#2d9cdb',
@@ -339,7 +339,7 @@ function CommentAdd(props) {
     refreshMarketComments(commentDispatch, marketId, updatedComments)
   }
 
-  function handleSave(isRestricted) {
+  function handleSave(isRestricted, isSent) {
     const currentUploadedFiles = uploadedFiles || []
     const myBodyNow = getQuillStoredState(editorName)
     if (_.isEmpty(myBodyNow) || _.isEmpty(type)) {
@@ -363,10 +363,12 @@ function CommentAdd(props) {
     const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
     const ourMarket = getMarket(marketsState, marketId) || {};
     const createInlineDecision = ourMarket.market_type === PLANNING_TYPE && apiType === QUESTION_TYPE;
-    const marketType = createInlineInitiative ? INITIATIVE_TYPE : (createInlineDecision ? DECISION_TYPE : undefined);
+    // Inline question markets use draft but initiatives do not since nothing to edit
+    const marketType = createInlineInitiative && isSent ? INITIATIVE_TYPE :
+      (createInlineDecision ? DECISION_TYPE : undefined);
     const investibleBlocks = (investibleId && apiType === ISSUE_TYPE) && currentStageId !== blockingStage.id
     return saveComment(marketId, investibleId, parentId, tokensRemoved, apiType, filteredUploads, mentions,
-      (notificationType || defaultNotificationType), marketType, isRestricted)
+      (notificationType || defaultNotificationType), marketType, isRestricted, isSent)
       .then((response) => {
         const comment = marketType ? response.parent : response;
         commentAddStateReset();
@@ -439,7 +441,7 @@ function CommentAdd(props) {
     return undefined;
   }
 
-  const commentSaveLabel = parent ? 'commentAddSaveLabel' : 'commentReplySaveLabel';
+  const commentSendLabel = parent ? 'commentReplySaveLabel' : 'commentAddSendLabel';
   const commentCancelLabel = parent ? 'commentReplyCancelLabel' : 'commentAddCancelLabel';
   const createInlineInitiative = (creatorIsAssigned || !investibleId || _.isEmpty(assigned))
     && type === SUGGEST_CHANGE_TYPE;
@@ -470,18 +472,25 @@ function CommentAdd(props) {
               {intl.formatMessage({ id: commentCancelLabel })}
             </SpinningIconLabelButton>
           )}
+          <SpinningIconLabelButton
+            onClick={() => handleSave(undefined, false)}
+            icon={Add}
+            id="commentSaveButton"
+          >
+            {intl.formatMessage({ id: 'commentAddSaveLabel' })}
+          </SpinningIconLabelButton>
           {!showIssueWarning && (
             <SpinningIconLabelButton
               onClick={() => handleSave()}
-              icon={Add}
-              id="commentSaveButton"
+              icon={Send}
+              id="commentSendButton"
             >
-              {intl.formatMessage({ id: commentSaveLabel })}
+              {intl.formatMessage({ id: commentSendLabel })}
             </SpinningIconLabelButton>
           )}
           {showIssueWarning && (
-            <SpinningIconLabelButton onClick={toggleIssue} icon={Add} doSpin={false} id="commentSaveButton">
-              {intl.formatMessage({ id: commentSaveLabel })}
+            <SpinningIconLabelButton onClick={toggleIssue} icon={Send} doSpin={false} id="commentSendButton">
+              {intl.formatMessage({ id: commentSendLabel })}
             </SpinningIconLabelButton>
           )}
           <Button className={classes.button}>

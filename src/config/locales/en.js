@@ -470,6 +470,7 @@ const messages = defineMessages({
   commentAddReportDefault: 'Your progress report...',
   commentAddReviewReportDefault: 'Your review report...',
   commentAddSaveLabel: 'Save',
+  commentAddSendLabel: 'Send',
   commentAddCancelLabel: 'Clear',
   commentAddSelectIssueLabel: 'Please select a type',
   issueWarning: 'Opening an issue will halt voting on this dialog.',

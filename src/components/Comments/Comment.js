@@ -23,7 +23,7 @@ import {
   REPORT_TYPE,
   SUGGEST_CHANGE_TYPE, TODO_TYPE,
 } from '../../constants/comments'
-import { removeComment, reopenComment, resolveComment, updateComment } from '../../api/comments'
+import { removeComment, reopenComment, resolveComment, sendComment, updateComment } from '../../api/comments'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { changeMyPresence, getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
@@ -90,7 +90,7 @@ import {
   Eject,
   ExpandLess,
   ExpandMore, Lock, LockOpen,
-  NotInterested,
+  NotInterested, Send,
   SettingsBackupRestore
 } from '@material-ui/icons'
 import ReplyIcon from '@material-ui/icons/Reply'
@@ -363,7 +363,7 @@ function Comment(props) {
   const lockedDialogClasses = useLockedDialogStyles();
   const { id, comment_type: commentType, investible_id: investibleId, inline_market_id: inlineMarketId,
     resolved, notification_type: myNotificationType, creation_stage_id: createdStageId,
-    mentions, body, creator_assigned: creatorAssigned } = comment;
+    mentions, body, creator_assigned: creatorAssigned, is_sent: isSent } = comment;
   const replyBeingEdited = replyEditId === id && myParams && !_.isEmpty(myParams.get('reply'));
   const beingEdited = replyEditId === id && !replyBeingEdited;
   const isFromInbox = myParams && !_.isEmpty(myParams.get('inbox'));
@@ -697,6 +697,16 @@ function Comment(props) {
         onDone();
       });
   }
+
+  function handleSend() {
+    //TODO all warnings that comment add does
+    return sendComment(marketId, id).then((comment) => {
+      onCommentOpen(investiblesState, investibleId, marketStagesState, marketId, comment, investiblesDispatch,
+        commentState, commentDispatch);
+      setOperationRunning(false);
+    });
+  }
+
   function getHilightedIds(myReplies, highLightedIds, passedMessages) {
     const highlighted = highLightedIds || [];
     const messages = passedMessages || [];
@@ -904,6 +914,15 @@ function Comment(props) {
                       />
                     </Typography>
                   </div>
+                )}
+                {isSent === false && (
+                  <SpinningIconLabelButton
+                    icon={Send}
+                    onClick={handleSend}
+                    id="sendCommentButton"
+                  >
+                    {intl.formatMessage({ id: 'commentAddSendLabel' })}
+                  </SpinningIconLabelButton>
                 )}
                 {!mobileLayout && !noAuthor && (replies.length > 0 || inlineMarketId) && (
                   <SpinningIconLabelButton

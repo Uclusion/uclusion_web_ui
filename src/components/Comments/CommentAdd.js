@@ -494,13 +494,15 @@ function CommentAdd(props) {
               {intl.formatMessage({ id: commentCancelLabel })}
             </SpinningIconLabelButton>
           )}
-          <SpinningIconLabelButton
-            onClick={() => handleSave(undefined, false)}
-            icon={Add}
-            id="commentSaveButton"
-          >
-            {intl.formatMessage({ id: 'commentAddSaveLabel' })}
-          </SpinningIconLabelButton>
+          {_.isEmpty(defaultNotificationType) && (
+            <SpinningIconLabelButton
+              onClick={() => handleSave(undefined, false)}
+              icon={Add}
+              id="commentSaveButton"
+            >
+              {intl.formatMessage({ id: 'commentAddSaveLabel' })}
+            </SpinningIconLabelButton>
+          )}
           {!showIssueWarning && (
             <SpinningIconLabelButton
               onClick={() => handleSave()}

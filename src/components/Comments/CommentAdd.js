@@ -548,12 +548,12 @@ function CommentAdd(props) {
               actions={
                 (<>
                   <SpinningIconLabelButton onClick={() => {
-                    return handleSave();
+                    return handleSave(false, true);
                   }} icon={LockOpen} id="proceedNormalButton">
                     {intl.formatMessage({ id: 'proceedNormal' })}
                   </SpinningIconLabelButton>
                   <SpinningIconLabelButton onClick={() => {
-                    return handleSave(true);
+                    return handleSave(true, true);
                   }} icon={Lock} id="proceedRestrictedButton">
                     {intl.formatMessage({ id: 'proceedRestricted' })}
                   </SpinningIconLabelButton>

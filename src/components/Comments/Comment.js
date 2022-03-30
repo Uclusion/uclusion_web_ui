@@ -808,10 +808,10 @@ function Comment(props) {
     (!inlineMarketId || myPresence === createdBy);
   const showAcceptReject = commentType === SUGGEST_CHANGE_TYPE && !inlineMarketId && !commentMarketOwner
     && investibleId && !resolved;
-  const showMoveButton = [TODO_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(commentType) && !inArchives
+  const showMoveButton = isSent && [TODO_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(commentType) && !inArchives
     && enableActions && (!resolved || commentType !== TODO_TYPE) && marketType === PLANNING_TYPE;
-  const showResolve = enableActions && commentType !== REPORT_TYPE && commentMarketOwner && (!resolved || isEditable
-    || myPresence === updatedBy || [TODO_TYPE, ISSUE_TYPE].includes(commentType));
+  const showResolve = isSent && enableActions && commentType !== REPORT_TYPE && commentMarketOwner
+    && (!resolved || isEditable || myPresence === updatedBy || [TODO_TYPE, ISSUE_TYPE].includes(commentType));
   const yourVote = myInlinePresence && myInlinePresence.investments &&
     myInlinePresence.investments.find((investment) => !investment.deleted);
   const showAbstain = enableActions && inlineMarketId && myPresence !== createdBy && !resolved &&
@@ -965,7 +965,7 @@ function Comment(props) {
                     {intl.formatMessage({ id: 'commentAddSendLabel' })}
                   </SpinningIconLabelButton>
                 )}
-                {!mobileLayout && !noAuthor && (replies.length > 0 || inlineMarketId) && (
+                {isSent && !mobileLayout && !noAuthor && (replies.length > 0 || inlineMarketId) && (
                   <SpinningIconLabelButton
                     icon={repliesExpanded ? ExpandLess : ExpandMore}
                     doSpin={false}
@@ -1072,7 +1072,7 @@ function Comment(props) {
                     {!mobileLayout && intl.formatMessage({ id: 'commentAbstainLabel' })}
                   </SpinningIconLabelButton>
                 )}
-                {enableEditing && ((commentType !== REPORT_TYPE || overrideLabel)
+                {isSent && enableEditing && ((commentType !== REPORT_TYPE || overrideLabel)
                   || (mentions || []).includes(myPresence.id)) && (
                   <SpinningIconLabelButton
                     onClick={toggleReply}

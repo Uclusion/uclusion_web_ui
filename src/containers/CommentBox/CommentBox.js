@@ -11,6 +11,9 @@ import {
   getInCurrentVotingStage,
   isFurtherWorkStage
 } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
+import { getOlderReports } from '../../components/Comments/CommentAdd'
+import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 
 function findGreatestUpdatedAt(roots, comments, rootUpdatedAt) {
   let myRootUpdatedAt = rootUpdatedAt;
@@ -76,9 +79,10 @@ export function getSortedRoots(allComments, searchResults) {
 
 function CommentBox(props) {
   const { comments, marketId, allowedTypes, isInbox, isRequiresInput, isInBlocking, assigned, formerStageId,
-    fullStage, stage, replyEditId, usePadding } = props;
+    fullStage, stage, replyEditId, usePadding, issueWarningId, todoWarningId, marketInfo, investible } = props;
   const [marketStagesState] = useContext(MarketStagesContext);
   const [searchResults] = useContext(SearchResultsContext);
+  const [marketPresencesState] = useContext(MarketPresencesContext);
   const sortedRoots = getSortedRoots(comments, searchResults);
   const useFullStage = _.isEmpty(fullStage) && stage ? getFullStage(marketStagesState, marketId, stage) : fullStage;
   function getFormerStageId() {
@@ -99,6 +103,11 @@ function CommentBox(props) {
   )) === 1) ? getFormerStageId() : undefined;
 
   function getCommentCards() {
+    const presences = getMarketPresences(marketPresencesState, marketId) || [];
+    const myPresence = presences.find((presence) => presence.current_user) || {};
+    const olderReports = getOlderReports(undefined, comments, marketId, (marketInfo || {}).investible_id,
+      myPresence);
+    const numReports = _.size(olderReports);
     return sortedRoots.map(comment => {
       const { id, comment_type: commmentType } = comment;
       return (
@@ -115,6 +124,10 @@ function CommentBox(props) {
               allowedTypes={allowedTypes}
               isInbox={isInbox}
               replyEditId={replyEditId}
+              numReports={numReports}
+              marketInfo={marketInfo}
+              issueWarningId={issueWarningId} todoWarningId={todoWarningId} currentStageId={(marketInfo || {}).stage}
+              investible={investible}
             />
           </div>
         </Grid>

@@ -181,6 +181,7 @@ function CommentAddBox(props) {
   const {
     marketId,
     investible,
+    marketInfo,
     allowedTypes,
     issueWarningId,
     todoWarningId,
@@ -216,7 +217,9 @@ function CommentAddBox(props) {
   }
 
   if (!_.isEmpty(draftComments)) {
-    return <CommentBox comments={draftComments} marketId={marketId} allowedTypes={[]} usePadding={false}/>;
+    return <CommentBox comments={draftComments} marketId={marketId} allowedTypes={[]} usePadding={false}
+                       issueWarningId={issueWarningId} todoWarningId={todoWarningId} marketInfo={marketInfo}
+                       investible={investible}/>;
   }
 
   return (

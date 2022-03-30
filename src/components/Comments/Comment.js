@@ -14,7 +14,7 @@ import {
 import { makeStyles } from '@material-ui/styles'
 import _ from 'lodash'
 import ReadOnlyQuillEditor from '../TextEditors/ReadOnlyQuillEditor'
-import CommentAdd from './CommentAdd'
+import CommentAdd, { getCommentCreationWarning, quickNotificationChanges } from './CommentAdd'
 import {
   ISSUE_TYPE,
   JUSTIFY_TYPE,
@@ -55,8 +55,9 @@ import CurrentVoting from '../../pages/Dialog/Decision/CurrentVoting'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import ProposedIdeas from '../../pages/Dialog/Decision/ProposedIdeas'
 import {
+  getBlockedStage,
   getInCurrentVotingStage, getInReviewStage,
-  getProposedOptionsStage, getStageNameForId
+  getProposedOptionsStage, getRequiredInputStage, getStageNameForId
 } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 import {
@@ -68,7 +69,11 @@ import {
 import { useHistory } from 'react-router'
 import { marketAbstain, updateMarket } from '../../api/markets'
 import ShareStoryButton from '../../pages/Investible/Planning/ShareStoryButton'
-import { allowVotingForSuggestion, onCommentOpen } from '../../utils/commentFunctions'
+import {
+  allowVotingForSuggestion,
+  changeInvestibleStageOnCommentChange,
+  onCommentOpen
+} from '../../utils/commentFunctions'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 import {
   findMessageForCommentId, findMessagesForCommentId,
@@ -351,12 +356,14 @@ function navigateEditReplyBack(history, id, marketId, investibleId, replyEditId,
  */
 function Comment(props) {
   const { comment, marketId, comments, allowedTypes, noAuthor, onDone, defaultShowDiff, showDone, resolvedStageId,
-    stagePreventsActions, isInbox, replyEditId} = props;
+    stagePreventsActions, isInbox, replyEditId, issueWarningId, todoWarningId, currentStageId, numReports,
+    marketInfo, investible} = props;
   const history = useHistory();
   const myParams = new URL(document.location).searchParams;
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
+  const [, investibleDispatch] = useContext(InvestiblesContext);
   const intl = useIntl();
   const classes = useCommentStyles();
   const workItemClasses = workListStyles();
@@ -418,6 +425,18 @@ function Comment(props) {
   const repliesExpanded = noAuthor ? true : (myRepliesExpanded === undefined ?
     (resolved ? myPresence !== updatedBy : true) : myRepliesExpanded);
   const myMessage = findMessageForCommentId(id, messagesState);
+  const createInlineInitiative = inlineMarketId && commentType === SUGGEST_CHANGE_TYPE;
+  const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
+  const inReviewStageId = inReviewStage.id;
+  const blockingStage = getBlockedStage(marketStagesState, marketId) || {};
+  const blockingStageId = blockingStage.id;
+  const requiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
+  const requiresInputStageId = requiresInputStage.id;
+  const createdInReview = currentStageId === inReviewStageId;
+  const investibleRequiresInput = (commentType === QUESTION_TYPE || commentType === SUGGEST_CHANGE_TYPE)
+    && creatorAssigned && currentStageId !== blockingStageId && currentStageId !== requiresInputStageId;
+  const myWarningId = getCommentCreationWarning(commentType, todoWarningId, issueWarningId, createInlineInitiative,
+    investibleRequiresInput, numReports, createdInReview);
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
@@ -701,8 +720,14 @@ function Comment(props) {
   function handleSend() {
     //TODO all warnings that comment add does
     return sendComment(marketId, id).then((comment) => {
-      onCommentOpen(investiblesState, investibleId, marketStagesState, marketId, comment, investiblesDispatch,
-        commentState, commentDispatch);
+      const investibleBlocks = (investibleId && commentType === ISSUE_TYPE) && currentStageId !== blockingStageId
+      changeInvestibleStageOnCommentChange(investibleBlocks, investibleRequiresInput,
+        blockingStage, requiresInputStage, marketInfo, [marketInfo], investible, investibleDispatch,
+        comment);
+      addCommentToMarket(comment, commentsState, commentDispatch);
+      quickNotificationChanges(commentType, inReviewStage, inReviewStageId === currentStageId, investibleId,
+        messagesState, workItemClasses, messagesDispatch, [], comment, undefined, commentsState,
+        commentDispatch, marketId, myPresence);
       setOperationRunning(false);
     });
   }
@@ -738,8 +763,6 @@ function Comment(props) {
   if (myHighlightedLevel) {
     messages.push(myMessage);
   }
-  const inReviewStageId = (getInReviewStage(marketStagesState, marketId) || {}).id;
-  const createdInReview = createdStageId === inReviewStageId;
   const overrideLabel = (marketType === PLANNING_TYPE && commentType === REPORT_TYPE
     && createdInReview && !creatorAssigned) ? <FormattedMessage id="reviewReportPresent" /> :
     (isMarketTodo ? <FormattedMessage id={`notificationLabel${myNotificationType}`} /> : undefined);

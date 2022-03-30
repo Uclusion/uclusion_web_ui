@@ -1164,6 +1164,7 @@ function PlanningInvestible(props) {
             <CommentAddBox
               allowedTypes={allowedCommentTypes}
               investible={investible}
+              marketInfo={marketInfo}
               marketId={marketId}
               issueWarningId={isReadyFurtherWork ? undefined : 'issueWarningPlanning'}
               todoWarningId={todoWarning}

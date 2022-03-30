@@ -203,6 +203,78 @@ const useStyles = makeStyles((theme) => ({
   }
 }), { name: 'CommentAdd' });
 
+function getReportWarningId(numReports, isReadyForApproval) {
+  if (numReports > 0) {
+    return 'addReportWarning'
+  }
+  if (isReadyForApproval) {
+    return 'addReportInReadyForApprovalWarning'
+  }
+  return undefined;
+}
+
+export function getCommentCreationWarning(type, todoWarningId, issueWarningId, createInlineInitiative,
+  investibleRequiresInput, numReports, isReadyForApproval) {
+  return type === TODO_TYPE ? todoWarningId : type === ISSUE_TYPE ? issueWarningId :
+    type === REPORT_TYPE ? getReportWarningId(numReports, isReadyForApproval) :
+      createInlineInitiative ? 'noInitiativeType' :
+      investibleRequiresInput ? 'requiresInputWarningPlanning' : undefined;
+}
+
+export function getOlderReports(currentId, allComments, marketId, investibleId, myPresence) {
+  let comments = allComments.filter(comment => comment.comment_type === REPORT_TYPE && !comment.resolved
+    && comment.id !== currentId) || [];
+  if (investibleId) {
+    comments = comments.filter(comment => comment.investible_id === investibleId
+      && comment.created_by === myPresence.id) || [];
+  } else {
+    comments = comments.filter(comment => !comment.investible_id) || [];
+  }
+  return comments;
+}
+
+function quickResolveOlderReports(marketId, investibleId, myPresence, currentComment, commentsState, commentDispatch) {
+  const marketComments = getMarketComments(commentsState, marketId) || [];
+  const updatedComments = getOlderReports(currentComment.id, marketComments, marketId, investibleId,
+    myPresence).map((comment) => {
+    return {
+      ...comment,
+      resolved: true,
+      updated_at: currentComment.updated_at,
+      updated_by: currentComment.updated_by
+    }
+  })
+  refreshMarketComments(commentDispatch, marketId, updatedComments)
+}
+
+export function quickNotificationChanges(apiType, inReviewStage, isInReview, investibleId, messagesState,
+  workItemClasses, messagesDispatch, threadMessages, comment, parentId, commentsState, commentDispatch, marketId,
+  myPresence) {
+  if (apiType === REPORT_TYPE || (apiType === TODO_TYPE && isInReview)) {
+    const message = findMessageOfType('REPORT_REQUIRED', investibleId, messagesState)
+    if (message) {
+      removeWorkListItem(message, workItemClasses.removed);
+    }
+    if (apiType === REPORT_TYPE) {
+      quickResolveOlderReports(marketId, investibleId, myPresence, comment, commentsState, commentDispatch);
+    }
+  }
+  // The whole thread will be marked read so quick it
+  deleteOrDehilightMessages(threadMessages || [], messagesDispatch, workItemClasses.removed,
+    true, true);
+  if (apiType === REPLY_TYPE) {
+    const message = findMessageOfTypeAndId(parentId, messagesState, 'COMMENT');
+    if (message) {
+      messagesDispatch(dehighlightMessage(message));
+    }
+    const issueMessage = findMessageOfType('ISSUE', parentId, messagesState)
+    if (issueMessage) {
+      messagesDispatch(changeLevelMessage(issueMessage, 'BLUE'));
+      messagesDispatch(dehighlightMessage(issueMessage));
+    }
+  }
+}
+
 function CommentAdd(props) {
   const {
     marketId, onSave, onCancel, type, investible, parent, issueWarningId, todoWarningId, isStory, nameKey,
@@ -249,20 +321,8 @@ function CommentAdd(props) {
   const requiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
   const investibleRequiresInput = (type === QUESTION_TYPE || type === SUGGEST_CHANGE_TYPE) && creatorIsAssigned
     && currentStageId !== blockingStage.id && currentStageId !== requiresInputStage.id;
-
-  function getOlderReports(currentId) {
-    const marketComments = getMarketComments(commentsState, marketId) || [];
-    let comments = marketComments.filter(comment => comment.comment_type === REPORT_TYPE && !comment.resolved
-      && comment.id !== currentId) || [];
-    if (investibleId) {
-      comments = comments.filter(comment => comment.investible_id === investibleId
-        && comment.created_by === myPresence.id) || [];
-    } else {
-      comments = comments.filter(comment => !comment.investible_id) || [];
-    }
-    return comments;
-  }
-  const olderReports = getOlderReports();
+  const marketComments = getMarketComments(commentsState, marketId) || [];
+  const olderReports = getOlderReports(undefined, marketComments, marketId, investibleId, myPresence);
   const numReports = _.size(olderReports);
 
   function toggleIssue () {
@@ -327,18 +387,6 @@ function CommentAdd(props) {
     onSave(comment)
   }
 
-  function quickResolveOlderReports (currentComment) {
-    const updatedComments = getOlderReports(currentComment.id).map((comment) => {
-      return {
-        ...comment,
-        resolved: true,
-        updated_at: currentComment.updated_at,
-        updated_by: currentComment.updated_by
-      }
-    })
-    refreshMarketComments(commentDispatch, marketId, updatedComments)
-  }
-
   function handleSave(isRestricted, isSent) {
     const currentUploadedFiles = uploadedFiles || []
     const myBodyNow = getQuillStoredState(editorName)
@@ -373,31 +421,15 @@ function CommentAdd(props) {
         const comment = marketType ? response.parent : response;
         commentAddStateReset();
         resetEditor();
-        changeInvestibleStageOnCommentChange(investibleBlocks, investibleRequiresInput,
-          blockingStage, requiresInputStage, info, market_infos, rootInvestible, investibleDispatch, comment);
-        addCommentToMarket(comment, commentsState, commentDispatch);
-        if (apiType === REPORT_TYPE || (apiType === TODO_TYPE && inReviewStage.id === currentStageId)) {
-          const message = findMessageOfType('REPORT_REQUIRED', investibleId, messagesState)
-          if (message) {
-            removeWorkListItem(message, workItemClasses.removed);
-          }
-          if (apiType === REPORT_TYPE) {
-            quickResolveOlderReports(comment);
-          }
+        if (isSent !== false) {
+          changeInvestibleStageOnCommentChange(investibleBlocks, investibleRequiresInput,
+            blockingStage, requiresInputStage, info, market_infos, rootInvestible, investibleDispatch, comment);
         }
-        // The whole thread will be marked read so quick it
-        deleteOrDehilightMessages(threadMessages || [], messagesDispatch, workItemClasses.removed,
-          true, true);
-        if (type === REPLY_TYPE) {
-          const message = findMessageOfTypeAndId(parentId, messagesState, 'COMMENT');
-          if (message) {
-            messagesDispatch(dehighlightMessage(message));
-          }
-          const issueMessage = findMessageOfType('ISSUE', parentId, messagesState)
-          if (issueMessage) {
-            messagesDispatch(changeLevelMessage(issueMessage, 'BLUE'));
-            messagesDispatch(dehighlightMessage(issueMessage));
-          }
+        addCommentToMarket(comment, commentsState, commentDispatch);
+        if (isSent !== false) {
+          quickNotificationChanges(apiType, inReviewStage, inReviewStage.id === currentStageId, investibleId,
+            messagesState, workItemClasses, messagesDispatch, threadMessages, comment, parentId, commentsState,
+            commentDispatch, marketId, myPresence);
         }
         if (marketType) {
           addMarket(response, marketsDispatch, () => {}, presenceDispatch);
@@ -431,23 +463,13 @@ function CommentAdd(props) {
       });
   }
 
-  function getReportWarningId() {
-    if (numReports > 0) {
-      return 'addReportWarning'
-    }
-    if (currentStageId === readyForApprovalStage.id) {
-      return 'addReportInReadyForApprovalWarning'
-    }
-    return undefined;
-  }
-
   const commentSendLabel = parent ? 'commentReplySaveLabel' : 'commentAddSendLabel';
   const commentCancelLabel = parent ? 'commentReplyCancelLabel' : 'commentAddCancelLabel';
   const createInlineInitiative = (creatorIsAssigned || !investibleId || _.isEmpty(assigned))
     && type === SUGGEST_CHANGE_TYPE;
-  const myWarningId = type === TODO_TYPE ? todoWarningId : type === ISSUE_TYPE ? issueWarningId :
-    type === REPORT_TYPE ? getReportWarningId() : createInlineInitiative ? 'noInitiativeType' :
-      investibleRequiresInput ? 'requiresInputWarningPlanning' : undefined;
+  const isReadyForApproval = currentStageId === readyForApprovalStage.id
+  const myWarningId = getCommentCreationWarning(type, todoWarningId, issueWarningId, createInlineInitiative,
+    investibleRequiresInput, numReports, isReadyForApproval);
   const userPreferences = getUiPreferences(userState) || {};
   const previouslyDismissed = userPreferences.dismissedText || [];
   const showIssueWarning = myWarningId && !previouslyDismissed.includes(myWarningId) && !mobileLayout;

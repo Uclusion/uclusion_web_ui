@@ -17,20 +17,20 @@ import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../authorization/TokenSt
 export function onCommentOpen(investibleState, investibleId, marketStagesState, marketId, comment, investibleDispatch,
   commentsState, commentsDispatch) {
   const inv = getInvestible(investibleState, investibleId) || {}
-  const { market_infos, investible: rootInvestible } = inv
-  const [info] = (market_infos || [])
-  const { assigned, stage: currentStageId } = (info || {})
-  const blockingStage = getBlockedStage(marketStagesState, marketId) || {}
-  const requiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {}
+  const { market_infos, investible: rootInvestible } = inv;
+  const [info] = (market_infos || []);
+  const { assigned, stage: currentStageId } = (info || {});
+  const blockingStage = getBlockedStage(marketStagesState, marketId) || {};
+  const requiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
   const investibleRequiresInput = ((comment.comment_type === QUESTION_TYPE ||
     comment.comment_type === SUGGEST_CHANGE_TYPE)
     && (assigned || []).includes(comment.created_by)) && currentStageId !== blockingStage.id
-    && currentStageId !== requiresInputStage.id
+    && currentStageId !== requiresInputStage.id;
   const investibleBlocks = (investibleId && comment.comment_type === ISSUE_TYPE)
-    && currentStageId !== blockingStage.id
+    && currentStageId !== blockingStage.id;
   changeInvestibleStageOnCommentChange(investibleBlocks, investibleRequiresInput,
-    blockingStage, requiresInputStage, info, market_infos, rootInvestible, investibleDispatch, comment)
-  addCommentToMarket(comment, commentsState, commentsDispatch)
+    blockingStage, requiresInputStage, info, market_infos, rootInvestible, investibleDispatch, comment);
+  addCommentToMarket(comment, commentsState, commentsDispatch);
 }
 
 export function getThreadIds(parents, comments) {

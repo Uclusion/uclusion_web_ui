@@ -14,6 +14,7 @@ import {
 import { getOlderReports } from '../../components/Comments/CommentAdd'
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { FormattedMessage } from 'react-intl'
 
 function findGreatestUpdatedAt(roots, comments, rootUpdatedAt) {
   let myRootUpdatedAt = rootUpdatedAt;
@@ -79,7 +80,7 @@ export function getSortedRoots(allComments, searchResults) {
 
 function CommentBox(props) {
   const { comments, marketId, allowedTypes, isInbox, isRequiresInput, isInBlocking, assigned, formerStageId,
-    fullStage, stage, replyEditId, usePadding, issueWarningId, todoWarningId, marketInfo, investible } = props;
+    fullStage, stage, replyEditId, usePadding, issueWarningId, todoWarningId, marketInfo, investible, isDraft } = props;
   const [marketStagesState] = useContext(MarketStagesContext);
   const [searchResults] = useContext(SearchResultsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -113,6 +114,11 @@ function CommentBox(props) {
       return (
         <Grid item key={id} xs={12}>
           <div id={`c${id}`} style={{paddingBottom: '1.25rem'}}>
+            {isDraft && (
+              <h2 style={{marginBottom: 0, paddingBottom: 0}}>
+                <FormattedMessage id="draft"/>
+              </h2>
+            )}
             <Comment
               resolvedStageId={(isRequiresInput && [QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(commmentType))
               || (isInBlocking && commmentType === ISSUE_TYPE) ? resolvedStageId : undefined}

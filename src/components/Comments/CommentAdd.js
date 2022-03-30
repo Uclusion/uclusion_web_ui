@@ -494,7 +494,7 @@ function CommentAdd(props) {
               {intl.formatMessage({ id: commentCancelLabel })}
             </SpinningIconLabelButton>
           )}
-          {_.isEmpty(defaultNotificationType) && (
+          {_.isEmpty(defaultNotificationType) && type !== REPLY_TYPE && (
             <SpinningIconLabelButton
               onClick={() => handleSave(undefined, false)}
               icon={Add}

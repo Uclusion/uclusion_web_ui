@@ -808,9 +808,10 @@ function Comment(props) {
     (!inlineMarketId || myPresence === createdBy);
   const showAcceptReject = commentType === SUGGEST_CHANGE_TYPE && !inlineMarketId && !commentMarketOwner
     && investibleId && !resolved;
-  const showMoveButton = isSent && [TODO_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(commentType) && !inArchives
+  const showMoveButton = isSent !== false && [TODO_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(commentType)
+    && !inArchives
     && enableActions && (!resolved || commentType !== TODO_TYPE) && marketType === PLANNING_TYPE;
-  const showResolve = isSent && enableActions && commentType !== REPORT_TYPE && commentMarketOwner
+  const showResolve = isSent !== false && enableActions && commentType !== REPORT_TYPE && commentMarketOwner
     && (!resolved || isEditable || myPresence === updatedBy || [TODO_TYPE, ISSUE_TYPE].includes(commentType));
   const yourVote = myInlinePresence && myInlinePresence.investments &&
     myInlinePresence.investments.find((investment) => !investment.deleted);
@@ -819,7 +820,8 @@ function Comment(props) {
   const isDeletable = !isInbox && (commentType === REPORT_TYPE || isEditable || resolved);
   return (
     <div>
-      <Card elevation={3} style={{overflow: 'unset'}} className={getCommentHighlightStyle()}>
+      <Card elevation={3} style={{overflow: 'unset', marginTop: isSent === false ? 0 : undefined}}
+            className={getCommentHighlightStyle()}>
         <>
           <Box display="flex">
             {overrideLabel && (
@@ -965,7 +967,7 @@ function Comment(props) {
                     {intl.formatMessage({ id: 'commentAddSendLabel' })}
                   </SpinningIconLabelButton>
                 )}
-                {isSent && !mobileLayout && !noAuthor && (replies.length > 0 || inlineMarketId) && (
+                {isSent !== false && !mobileLayout && !noAuthor && (replies.length > 0 || inlineMarketId) && (
                   <SpinningIconLabelButton
                     icon={repliesExpanded ? ExpandLess : ExpandMore}
                     doSpin={false}
@@ -998,7 +1000,7 @@ function Comment(props) {
                     })}
                   </SpinningIconLabelButton>
                 )}
-                {isSent && openIssue !== false && openIssue !== 'noInitiativeType' && (
+                {isSent !== false && openIssue !== false && openIssue !== 'noInitiativeType' && (
                   <IssueDialog
                     classes={lockedDialogClasses}
                     open={openIssue !== false}
@@ -1013,7 +1015,7 @@ function Comment(props) {
                     }
                   />
                 )}
-                {!isSent && openIssue !== false && openIssue !== 'noInitiativeType' && (
+                {!isSent !== false && openIssue !== false && openIssue !== 'noInitiativeType' && (
                   <IssueDialog
                     classes={lockedDialogClasses}
                     open={openIssue !== false}
@@ -1072,7 +1074,7 @@ function Comment(props) {
                     {!mobileLayout && intl.formatMessage({ id: 'commentAbstainLabel' })}
                   </SpinningIconLabelButton>
                 )}
-                {isSent && enableEditing && ((commentType !== REPORT_TYPE || overrideLabel)
+                {isSent !== false && enableEditing && ((commentType !== REPORT_TYPE || overrideLabel)
                   || (mentions || []).includes(myPresence.id)) && (
                   <SpinningIconLabelButton
                     onClick={toggleReply}

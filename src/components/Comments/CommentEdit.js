@@ -292,7 +292,7 @@ function CommentEdit(props) {
           <SpinningIconLabelButton
             icon={Send}
             onClick={() => handleSave(true)}
-            id="sendCommentButton"
+            id="commentSendButton"
           >
             {intl.formatMessage({ id: 'commentAddSendLabel' })}
           </SpinningIconLabelButton>

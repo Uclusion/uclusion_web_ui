@@ -120,6 +120,8 @@ import SpinningButton from '../SpinBlocking/SpinningButton'
 import IssueDialog from '../Warnings/IssueDialog'
 import { useLockedDialogStyles } from '../../pages/Dialog/DialogBodyEdit'
 import { getInboxTarget } from '../../contexts/NotificationsContext/notificationsContextHelper'
+import { getUiPreferences } from '../../contexts/AccountUserContext/accountUserContextHelper'
+import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
 
 const useCommentStyles = makeStyles(
   theme => {
@@ -364,6 +366,7 @@ function Comment(props) {
   const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, investibleDispatch] = useContext(InvestiblesContext);
+  const [doNotShowAgain, setDoNotShowAgain] = useState(undefined);
   const intl = useIntl();
   const classes = useCommentStyles();
   const workItemClasses = workListStyles();
@@ -401,6 +404,7 @@ function Comment(props) {
   const [diffState, diffDispatch] = useContext(DiffContext);
   const [searchResults] = useContext(SearchResultsContext);
   const [versionsContext] = useContext(VersionsContext);
+  const [userState] = useContext(AccountUserContext);
   const [openIssue, setOpenIssue] = useState(false);
   const enableActions = !inArchives && !stagePreventsActions;
   const enableEditing = !inArchives && !resolved; //resolved comments or those in archive aren't editable
@@ -437,6 +441,9 @@ function Comment(props) {
     && creatorAssigned && currentStageId !== blockingStageId && currentStageId !== requiresInputStageId;
   const myWarningId = getCommentCreationWarning(commentType, todoWarningId, issueWarningId, createInlineInitiative,
     investibleRequiresInput, numReports, createdInReview);
+  const userPreferences = getUiPreferences(userState) || {};
+  const previouslyDismissed = userPreferences.dismissedText || [];
+  const showIssueWarning = myWarningId && !previouslyDismissed.includes(myWarningId) && !mobileLayout;
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
@@ -718,7 +725,6 @@ function Comment(props) {
   }
 
   function handleSend() {
-    //TODO all warnings that comment add does
     return sendComment(marketId, id).then((comment) => {
       const investibleBlocks = (investibleId && commentType === ISSUE_TYPE) && currentStageId !== blockingStageId
       changeInvestibleStageOnCommentChange(investibleBlocks, investibleRequiresInput,
@@ -728,7 +734,13 @@ function Comment(props) {
       quickNotificationChanges(commentType, inReviewStage, inReviewStageId === currentStageId, investibleId,
         messagesState, workItemClasses, messagesDispatch, [], comment, undefined, commentsState,
         commentDispatch, marketId, myPresence);
-      setOperationRunning(false);
+      if (doNotShowAgain) {
+        return doNotShowAgain().then(() => {
+          setOperationRunning(false);
+        });
+      } else {
+        setOperationRunning(false);
+      }
     });
   }
 
@@ -938,12 +950,18 @@ function Comment(props) {
                     </Typography>
                   </div>
                 )}
-                {isSent === false && (
+                {isSent === false && !showIssueWarning && (
                   <SpinningIconLabelButton
                     icon={Send}
                     onClick={handleSend}
                     id="sendCommentButton"
                   >
+                    {intl.formatMessage({ id: 'commentAddSendLabel' })}
+                  </SpinningIconLabelButton>
+                )}
+                {isSent === false && showIssueWarning && (
+                  <SpinningIconLabelButton onClick={() => setOpenIssue(myWarningId)} icon={Send} doSpin={false}
+                                           id="commentSendButton">
                     {intl.formatMessage({ id: 'commentAddSendLabel' })}
                   </SpinningIconLabelButton>
                 )}
@@ -980,7 +998,7 @@ function Comment(props) {
                     })}
                   </SpinningIconLabelButton>
                 )}
-                {openIssue !== false && openIssue !== 'noInitiativeType' && (
+                {isSent && openIssue !== false && openIssue !== 'noInitiativeType' && (
                   <IssueDialog
                     classes={lockedDialogClasses}
                     open={openIssue !== false}
@@ -990,6 +1008,22 @@ function Comment(props) {
                     /* slots */
                     actions={
                       <SpinningIconLabelButton onClick={resolve} icon={Add} id="issueProceedButton">
+                        {intl.formatMessage({ id: 'issueProceed' })}
+                      </SpinningIconLabelButton>
+                    }
+                  />
+                )}
+                {!isSent && openIssue !== false && openIssue !== 'noInitiativeType' && (
+                  <IssueDialog
+                    classes={lockedDialogClasses}
+                    open={openIssue !== false}
+                    onClose={toggleIssue}
+                    issueWarningId={openIssue}
+                    showDismiss={true}
+                    checkBoxFunc={setDoNotShowAgain}
+                    /* slots */
+                    actions={
+                      <SpinningIconLabelButton onClick={() => handleSend()} icon={Add} id="issueProceedButton">
                         {intl.formatMessage({ id: 'issueProceed' })}
                       </SpinningIconLabelButton>
                     }

@@ -828,7 +828,7 @@ function PlanningInvestible(props) {
       {!inArchives && isInVoting && isAssigned && acceptedFull && (
         <DismissableText textId='planningInvestibleAcceptedFullHelp' text={
           <div>
-            See <Link href="https://documentation.uclusion.com/channels/jobs/stages/#started" target="_blank">Started</Link> stage limit.
+            Starting this job is not recommended because the <Link href="https://documentation.uclusion.com/channels/jobs/stages/#started" target="_blank">Started</Link> stage limit is set.
           </div>
         }/>
       )}

@@ -1,7 +1,6 @@
 import React from 'react'
 import _ from 'lodash'
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
-import InvestibleStatus from './InvestibleStatus'
 import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff'
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { getDiff } from '../../../contexts/DiffContext/diffContextHelper'
@@ -29,7 +28,10 @@ import {
 } from '../../../contexts/NotificationsContext/notificationsContextMessages'
 
 export function usesExpansion(item) {
-  const { message, comment } = item;
+  const { message, comment, expansionMessage } = item;
+  if (!_.isEmpty(expansionMessage)) {
+    return true;
+  }
   if (comment) {
     if (message) {
       return message.type !== 'NEW_TODO';
@@ -61,14 +63,6 @@ export function addExpansionPanel(props) {
     item.expansionPanel = ( <CommentPanel marketId={commentMarketId || marketId} commentId={commentId} message={message}
                                           marketType={marketType} messageType={messageType} isDeletable={isDeletable}
                                           planningClasses={planningClasses} mobileLayout={mobileLayout} /> );
-  } else if (messageType === 'REPORT_REQUIRED') {
-    if (!_.isEmpty(investibleId)) {
-      item.expansionPanel = <InvestibleStatus
-        investibleId={investibleId}
-        message={message}
-        marketId={marketId}
-      />;
-    }
   } else if (['UNREAD_DESCRIPTION', UNASSIGNED_TYPE, 'UNREAD_NAME', 'UNREAD_ATTACHMENT',
     'UNREAD_LABEL', 'UNREAD_ESTIMATE'].includes(messageType)) {
     const market = getMarket(marketState, marketId) || {};
@@ -163,6 +157,8 @@ export function addExpansionPanel(props) {
     item.expansionPanel = <InboxInvestible marketId={marketId} investibleId={investibleId} messageType={messageType}
                                            planningClasses={planningClasses} marketType={marketType}
                                            mobileLayout={mobileLayout} isDeletable={isDeletable} message={message}
+                                           reportRequired={findMessageOfType('REPORT_REQUIRED',
+                                             investibleId, messagesState)}
                                            unacceptedAssignment={findMessageOfType('UNACCEPTED_ASSIGNMENT',
                                              investibleId, messagesState)} />;
   } else if (messageType === 'UNREAD_DRAFT') {

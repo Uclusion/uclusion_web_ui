@@ -58,11 +58,12 @@ import {
   CURRENT_EVENT,
   MODIFY_NOTIFICATIONS_CHANNEL
 } from '../../../contexts/NotificationsContext/notificationsContextMessages'
+import InvestibleStatus from './InvestibleStatus'
 
 
 function InboxInvestible(props) {
   const { marketId, marketType, planningClasses, messageTypes, investibleId, mobileLayout, isOutbox,
-    messagesFull, unacceptedAssignment, messageType, isDeletable, message } = props;
+    messagesFull, unacceptedAssignment, messageType, isDeletable, message, reportRequired } = props;
   const useMessageTypes = _.isEmpty(messageTypes) ? (_.isEmpty(messageType) ? [] : [messageType]) : messageTypes;
   const history = useHistory();
   const intl = useIntl();
@@ -114,6 +115,9 @@ function InboxInvestible(props) {
   const assignedNotAccepted = assigned.filter((assignee) => !(accepted || []).includes(assignee));
   const diff = getDiff(diffState, investibleId);
   const showDiff = diff !== undefined && useMessageTypes.includes('UNREAD_DESCRIPTION');
+  const showCommentAdd = !_.isEmpty(useMessageTypes) && marketId && !_.isEmpty(myInvestible) && !isOutbox &&
+    _.isEmpty(_.intersection(['NEW_TODO', 'ISSUE_RESOLVED', 'UNREAD_VOTE', 'UNACCEPTED_ASSIGNMENT'],
+      useMessageTypes)) && !reportRequired;
 
   function myAccept() {
     return accept(market.id, investibleId, inv, invDispatch, diffDispatch, unacceptedAssignment, workItemClasses);
@@ -255,7 +259,10 @@ function InboxInvestible(props) {
           </Typography>
         </div>
       )}
-      {!_.isEmpty(myInvestible) && (
+      {reportRequired && (
+        <InvestibleStatus investibleId={investibleId} message={reportRequired} marketId={marketId} />
+      )}
+      {!_.isEmpty(myInvestible) && !reportRequired && (
         <div style={{paddingTop: '1rem'}} className={investibleEditClasses.container}>
           <Link href={formInvestibleLink(marketId, investibleId)} onClick={(event) => {
             preventDefaultAndProp(event);
@@ -330,9 +337,7 @@ function InboxInvestible(props) {
           <h3>{intl.formatMessage({ id: 'orStructuredComment' })}</h3>
         </>
       )}
-      {!_.isEmpty(useMessageTypes) && marketId && !_.isEmpty(myInvestible) && !isOutbox &&
-        _.isEmpty(_.intersection(['NEW_TODO', 'ISSUE_RESOLVED', 'UNREAD_VOTE', 'UNACCEPTED_ASSIGNMENT'],
-          useMessageTypes)) && (
+      {showCommentAdd && (
         <>
           <div style={{paddingTop: '1rem'}} />
           <CommentAddBox

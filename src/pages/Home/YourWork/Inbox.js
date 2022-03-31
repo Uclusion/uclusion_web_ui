@@ -21,7 +21,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
 import { hasNoChannels } from '../../../contexts/MarketsContext/marketsContextHelper'
 import InboxRow from './InboxRow'
-import { getPaginatedItems } from '../../../utils/messageUtils'
+import { findMessageOfType, getPaginatedItems } from '../../../utils/messageUtils'
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight'
 import InboxWelcomeExpansion from './InboxWelcomeExpansion'
 
@@ -116,7 +116,15 @@ function Inbox(props) {
       }
       }], ['desc'] ) || [];
   } else {
-    messagesOrdered =  _.orderBy(messagesFull, ['updated_at'], ['desc']) || [];
+    messagesOrdered =  (_.sortBy(messagesFull, (message) => {
+      if (message.type === 'ASSIGNED_UNREVIEWABLE') {
+        const expansionMessage = findMessageOfType('REPORT_REQUIRED', message.investible_id, messagesState);
+        if (expansionMessage) {
+          return expansionMessage.updated_at;
+        }
+      }
+      return message.updated_at;
+    }) || []).reverse();
   }
   const goFullInboxClick = (event) => {
     preventDefaultAndProp(event);

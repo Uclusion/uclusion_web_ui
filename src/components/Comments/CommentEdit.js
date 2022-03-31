@@ -29,7 +29,7 @@ import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketSt
 import { findMessageOfType } from '../../utils/messageUtils'
 import { removeMessage } from '../../contexts/NotificationsContext/notificationsContextReducer'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
-import { Clear, Send, Update } from '@material-ui/icons'
+import { Clear, Update } from '@material-ui/icons'
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'
 import {  useEditor } from '../TextEditors/quillHooks'
 import { deleteOrDehilightMessages } from '../../api/users'
@@ -167,7 +167,7 @@ function CommentEdit(props) {
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const workItemClasses = workListStyles();
   const { id, uploaded_files: initialUploadedFiles, comment_type: commentType, inline_market_id: inlineMarketId,
-    investible_id: investibleId, body: initialBody, is_sent: isSent } = comment;
+    investible_id: investibleId, body: initialBody } = comment;
   const classes = useStyles();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentState, commentDispatch] = useContext(CommentsContext);
@@ -200,9 +200,7 @@ function CommentEdit(props) {
     const updatedType = type !== commentType ? type : undefined;
     const myActualNotificationType = commentType === TODO_TYPE && !investibleId ? myNotificationType :
       (commentType === REPORT_TYPE ? notificationType : undefined);
-    const doSend = isSent !== false ? undefined : isSend;
-    return updateComment(marketId, id, tokensRemoved, updatedType, filteredUploads, mentions, myActualNotificationType,
-      doSend)
+    return updateComment(marketId, id, tokensRemoved, updatedType, filteredUploads, mentions, myActualNotificationType)
       .then((comment) => {
         resetEditor();
         onCommentOpen(investibleState, investibleId, marketStagesState, marketId, comment, investibleDispatch,
@@ -283,20 +281,11 @@ function CommentEdit(props) {
         </SpinningIconLabelButton>
         <SpinningIconLabelButton
           icon={Update}
-          onClick={() => handleSave(false)}
+          onClick={handleSave}
           id="updateCommentButton"
         >
           {intl.formatMessage({ id: 'update' })}
         </SpinningIconLabelButton>
-        {isSent === false && (
-          <SpinningIconLabelButton
-            icon={Send}
-            onClick={() => handleSave(true)}
-            id="commentSendButton"
-          >
-            {intl.formatMessage({ id: 'commentAddSendLabel' })}
-          </SpinningIconLabelButton>
-        )}
         {!mobileLayout && (
           <Button className={classes.button}>
             {intl.formatMessage({ id: 'edited' })}

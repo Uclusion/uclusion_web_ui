@@ -776,7 +776,7 @@ function Comment(props) {
     messages.push(myMessage);
   }
   const overrideLabel = (marketType === PLANNING_TYPE && commentType === REPORT_TYPE
-    && createdInReview && !creatorAssigned) ? <FormattedMessage id="reviewReportPresent" /> :
+    && createdStageId === inReviewStageId && !creatorAssigned) ? <FormattedMessage id="reviewReportPresent" /> :
     (isMarketTodo ? <FormattedMessage id={`notificationLabel${myNotificationType}`} /> : undefined);
   const color = isMarketTodo ? myNotificationType : undefined;
   const shouldInline = inlineMarketId || ((creatorAssigned || !investibleId) && commentType === SUGGEST_CHANGE_TYPE);

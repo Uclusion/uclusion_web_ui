@@ -2,10 +2,41 @@ import { removeMessage } from '../contexts/NotificationsContext/notificationsCon
 import { DECISION_TYPE, INITIATIVE_TYPE } from '../constants/markets'
 import { removeWorkListItem } from '../pages/Home/YourWork/WorkListItem'
 import _ from 'lodash'
+import { REPORT_TYPE } from '../constants/comments'
 
 function getMessageTextForId(rawId, isMobile, intl) {
   const id = isMobile ? `${rawId}Mobile` : rawId;
   return intl.formatMessage({ id });
+}
+
+function defaultText(message, isMobile, intl, isMultiple, numMultiples) {
+  if (isMultiple) {
+    return intl.formatMessage({ id: 'multipleNotifications' }, { x: numMultiples });
+  }
+  return messageText(message, isMobile, intl);
+}
+
+export function titleText(message, isMobile, intl, isMultiple, numMultiples, comment, userId) {
+  switch(message.type) {
+    case 'ASSIGNED_UNREVIEWABLE':
+    case 'REPORT_REQUIRED':
+      return getMessageTextForId('unfinished', isMobile, intl);
+    case 'UNREAD_COMMENT':
+      const { comment_type: commentType, creator_assigned: creatorAssigned } = comment || {};
+      if (commentType !== REPORT_TYPE || creatorAssigned) {
+        return defaultText(message, isMobile, intl, isMultiple, numMultiples);
+      }
+      return intl.formatMessage({ id: 'feedback' });
+    case 'NEW_TODO':
+      return intl.formatMessage({ id: 'feedback' });
+    default:
+      const { created_by: createdBy } = comment || {};
+      if (createdBy === userId && !['UNREAD_REPLY', 'UNREAD_RESOLVED'].includes(message.type)) {
+        // This notification is about moderating a comment I created
+        return intl.formatMessage({ id: 'decisionDialogDiscussionLabel' });
+      }
+      return defaultText(message, isMobile, intl, isMultiple, numMultiples);
+  }
 }
 
 export function messageText(message, isMobile, intl) {

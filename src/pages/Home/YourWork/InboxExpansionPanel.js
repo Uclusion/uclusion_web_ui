@@ -53,10 +53,11 @@ export function addExpansionPanel(props) {
     item.expansionPanel = ( <LinkMultiplePanel linkMultiple={linkMultiple} marketId={commentMarketId || marketId}
                                                commentId={commentId} planningClasses={planningClasses} message={message}
                                                mobileLayout={mobileLayout} isDeletable={isDeletable}/> );
-  } else if ((['UNREAD_REPLY', 'UNREAD_COMMENT', 'UNREAD_RESOLVED', 'ISSUE', 'FULLY_VOTED'].includes(messageType)) ||
+  } else if (linkType !== 'INVESTIBLE' && ((
+    ['UNREAD_REPLY', 'UNREAD_COMMENT', 'UNREAD_RESOLVED', 'ISSUE', 'FULLY_VOTED'].includes(messageType)) ||
     (['UNREAD_OPTION', 'UNREAD_VOTE', 'NOT_FULLY_VOTED', 'INVESTIBLE_SUBMITTED'].includes(messageType)
       && linkType.startsWith('INLINE')) || (['UNREAD_REVIEWABLE', 'UNASSIGNED'].includes(messageType)
-      && linkType === 'MARKET_TODO')) {
+      && linkType === 'MARKET_TODO'))) {
     item.expansionPanel = ( <CommentPanel marketId={commentMarketId || marketId} commentId={commentId} message={message}
                                           marketType={marketType} messageType={messageType} isDeletable={isDeletable}
                                           planningClasses={planningClasses} mobileLayout={mobileLayout} /> );

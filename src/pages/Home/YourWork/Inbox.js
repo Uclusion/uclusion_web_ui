@@ -156,21 +156,11 @@ function Inbox(props) {
     }
   });
   messagesOrdered = messagesFiltered.filter((message) => {
-    const { link_multiple: linkMultiple, level, type_object_id: typeObjectId } = message;
+    const { link_multiple: linkMultiple, updated_at: updatedAt } = message;
     if (dupeHash[linkMultiple]) {
-      //Choose the message to use for the row icon color based on highest or equal priority
+      //Choose the message to use for the row based on last updated
       return _.isEmpty(dupeHash[linkMultiple].find((aMessage) => {
-        if (level === aMessage.level) {
-          // Doesn't matter which so just do lexographic
-          return aMessage.type_object_id > typeObjectId;
-        }
-        if (level === 'RED') {
-          return false;
-        }
-        if (level === 'YELLOW') {
-          return aMessage.level === 'RED';
-        }
-        return true;
+        return aMessage.updated_at > updatedAt;
       }));
     }
     return true;

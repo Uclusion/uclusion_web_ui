@@ -14,15 +14,18 @@ function LinkMultiplePanel(props) {
   const messageTypes = messagesFull.reduce((acc, message) => {
     return acc.concat([message.type]);
   }, []);
-
-  if (!_.isEmpty(_.intersection(['UNREAD_REPLY', 'UNREAD_COMMENT', 'UNREAD_RESOLVED', 'ISSUE',
-      'FULLY_VOTED'], messageTypes)) ||
-    ['UNREAD_OPTION', 'UNREAD_VOTE', 'NOT_FULLY_VOTED', 'INVESTIBLE_SUBMITTED'].find((aType) => {
+  const investibleLinkMessage = messagesFull.find((message) => {
+    const { link_type: linkType } = message;
+    return linkType === 'INVESTIBLE';
+  });
+  if (_.isEmpty(investibleLinkMessage) && (!_.isEmpty(
+    _.intersection(['UNREAD_REPLY', 'UNREAD_COMMENT', 'UNREAD_RESOLVED', 'ISSUE', 'FULLY_VOTED'], messageTypes))
+    || ['UNREAD_OPTION', 'UNREAD_VOTE', 'NOT_FULLY_VOTED', 'INVESTIBLE_SUBMITTED'].find((aType) => {
       return messagesFull.find((message) => {
         const { type: messageType, link_type: linkType } = message;
         return linkType.startsWith('INLINE') && messageType === aType;
       });
-    })) {
+    }))) {
     return (
       <CommentPanel marketId={marketId} commentId={commentId} planningClasses={planningClasses}
                     mobileLayout={mobileLayout} messagesFull={messagesFull} isDeletable={isDeletable}

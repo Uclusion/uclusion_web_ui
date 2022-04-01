@@ -339,6 +339,7 @@ const messages = defineMessages({
   unreadApprovalMobile: 'Approval',
   fullyVoted: 'Fully voted',
   fullyVotedMobile: 'Voted',
+  feedback: 'Feedback',
   noNew: 'No notifications.',
   noPending: 'Nothing pending.',
   enjoy: 'Enjoy your day',
@@ -624,7 +625,6 @@ const messages = defineMessages({
   mutingExplanation: 'Muting prevents notifications unless you are mentioned, assigned or a required approver or reviewer.',
 
   // Decision Dialog
-  decisionDialogSummaryLabel: 'Background Information',
   decisionDialogCurrentVotingLabel: 'Approvable Options',
   decisionDialogProposedOptionsLabel: 'Proposed Options',
   decisionDialogDiscussionLabel: 'Discussion',

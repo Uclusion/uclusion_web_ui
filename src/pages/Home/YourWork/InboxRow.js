@@ -1,11 +1,10 @@
-import { messageText } from '../../../utils/messageUtils'
+import { titleText } from '../../../utils/messageUtils'
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { getMarketInfo } from '../../../utils/userFunctions'
 import { getMarket, getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
 import {
   getComment,
-  getCommentRoot,
-  getInvestibleComments
+  getCommentRoot
 } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { nameFromDescription } from '../../../utils/stringFunctions'
 import { addExpansionPanel, usesExpansion } from './InboxExpansionPanel'
@@ -25,11 +24,9 @@ import _ from 'lodash'
 import { DaysEstimate } from '../../../components/AgilePlan'
 import {
   getFullStage,
-  isAcceptedStage,
-  isInReviewStage
+  isAcceptedStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
-import { REPORT_TYPE } from '../../../constants/comments'
 import { useInvestibleEditStyles } from '../../Investible/InvestibleBodyEdit'
 import { useHistory } from 'react-router'
 
@@ -69,9 +66,6 @@ function InboxRow(props) {
   const { investible_id: investibleId, investible_name: investibleName, updated_at: updatedAt,
     market_name: marketName, is_highlighted: isHighlighted, type_object_id: typeObjectId, market_id: marketId,
     comment_id: commentId, comment_market_id: commentMarketId, link_type: linkType, alert_type: alertType } = message;
-  const title = isMultiple ?
-    intl.formatMessage({ id: 'multipleNotifications' }, { x: numMultiples })
-    : messageText(message, mobileLayout, intl);
   const inv = getInvestible(investiblesState, investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { assigned, completion_estimate: completionEstimate, stage } = marketInfo;
@@ -80,7 +74,6 @@ function InboxRow(props) {
   const market = getMarket(marketsState, marketId) || {};
   const isDeletable = message.type_object_id.startsWith('UNREAD') && (!isMultiple || !hasPersistent);
   const item = {
-    title,
     icon: getPriorityIcon(message, isAssigned),
     market: market.name || marketName,
     investible: inv ? inv.investible.name : investibleName,
@@ -92,9 +85,17 @@ function InboxRow(props) {
   }
 
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
+  let rootComment;
   if (commentId && linkType !== 'INVESTIBLE') {
+    const { parent_comment_id: inlineParentCommentId, parent_comment_market_id: parentMarketId } = market
     let useMarketId = commentMarketId || marketId;
-    const rootComment = getCommentRoot(commentState, useMarketId, commentId);
+    let useCommentId = commentId;
+    if (inlineParentCommentId) {
+      // If there is a top level question always display it instead of lower level comments
+      useMarketId = parentMarketId;
+      useCommentId = inlineParentCommentId;
+    }
+    rootComment = getCommentRoot(commentState, useMarketId, useCommentId);
     if (rootComment) {
       const comment = nameFromDescription(rootComment.body);
       if (comment) {
@@ -111,12 +112,6 @@ function InboxRow(props) {
     if (completionEstimate) {
       item.moreDescription = <DaysEstimate readOnly value={completionEstimate} justText/>;
     }
-  } else if (isInReviewStage(fullStage)) {
-    const investibleComments = getInvestibleComments(investibleId, marketId, commentState) || [];
-    const report = investibleComments.find((comment) => comment.comment_type === REPORT_TYPE && !comment.resolved);
-    if (report) {
-      item.moreDescription = nameFromDescription(report.body);
-    }
   } else if (linkType === 'INVESTIBLE' && _.isEmpty(assigned)) {
     const { investible: myInvestible } = inv || {};
     const { description } = myInvestible || {};
@@ -125,6 +120,7 @@ function InboxRow(props) {
       item.moreDescription = abbreviatedDescription;
     }
   }
+  item.title =  titleText(message, mobileLayout, intl, isMultiple, numMultiples, rootComment, userId);
   if (expansionOpen && usesExpansion(item)) {
     addExpansionPanel({
       item, commentState, marketState, investiblesState, diffState, planningClasses, marketsState,

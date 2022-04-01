@@ -140,7 +140,7 @@ function AddEditVote(props) {
   const maxBudget = storedMaxBudget !== undefined ? storedMaxBudget :
     (useInitial === false ? '' : (initialMaxBudget || ''));
   const maxBudgetUnit = initialMaxBudgetUnit || marketBudgetUnit;
-  const { body, id: reasonId } = reason;
+  const { body, id: reasonId } = reason || {};
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);

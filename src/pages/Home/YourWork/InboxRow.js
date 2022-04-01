@@ -1,4 +1,4 @@
-import { findMessageOfType, messageText } from '../../../utils/messageUtils'
+import { messageText } from '../../../utils/messageUtils'
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { getMarketInfo } from '../../../utils/userFunctions'
 import { getMarket, getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
@@ -79,20 +79,16 @@ function InboxRow(props) {
   const isAssigned = (assigned || []).includes(userId);
   const market = getMarket(marketsState, marketId) || {};
   const isDeletable = message.type_object_id.startsWith('UNREAD') && (!isMultiple || !hasPersistent);
-  const expansionMessage = findMessageOfType('REPORT_REQUIRED', investibleId, messagesState);
-  const useHighlighted = _.isEmpty(expansionMessage) ? isHighlighted : expansionMessage.is_highlighted;
-  const useUpdatedAt = _.isEmpty(expansionMessage) ? updatedAt : expansionMessage.updated_at;
   const item = {
     title,
     icon: getPriorityIcon(message, isAssigned),
     market: market.name || marketName,
     investible: inv ? inv.investible.name : investibleName,
-    read: !useHighlighted,
-    date: intl.formatDate(useUpdatedAt),
+    read: !isHighlighted,
+    date: intl.formatDate(updatedAt),
     critical: !_.isEmpty(alertType),
     isDeletable,
-    message,
-    expansionMessage
+    message
   }
 
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};

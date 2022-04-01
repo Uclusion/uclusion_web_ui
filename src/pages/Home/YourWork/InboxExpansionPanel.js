@@ -28,10 +28,7 @@ import {
 } from '../../../contexts/NotificationsContext/notificationsContextMessages'
 
 export function usesExpansion(item) {
-  const { message, comment, expansionMessage } = item;
-  if (!_.isEmpty(expansionMessage)) {
-    return true;
-  }
+  const { message, comment } = item;
   if (comment) {
     if (message) {
       return message.type !== 'NEW_TODO';
@@ -152,7 +149,7 @@ export function addExpansionPanel(props) {
         );
       }
     }
-  } else if (['NOT_FULLY_VOTED', 'ASSIGNED_UNREVIEWABLE','UNREAD_REVIEWABLE', 'REVIEW_REQUIRED',
+  } else if (['NOT_FULLY_VOTED', 'ASSIGNED_UNREVIEWABLE','UNREAD_REVIEWABLE', 'REVIEW_REQUIRED', 'REPORT_REQUIRED',
     'ISSUE_RESOLVED', 'UNACCEPTED_ASSIGNMENT', 'NEW_TODO', 'UNREAD_VOTE'].includes(messageType)) {
     item.expansionPanel = <InboxInvestible marketId={marketId} investibleId={investibleId} messageType={messageType}
                                            planningClasses={planningClasses} marketType={marketType}

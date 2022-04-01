@@ -103,7 +103,7 @@ function InboxRow(props) {
         if (investibleId) {
           item.moreDescription = item.investible;
         } else if (rootComment.id !== commentId) {
-          const originalComment = getComment(commentState, useMarketId, commentId);
+          const originalComment = getComment(commentState, commentMarketId || marketId, commentId) || {};
           item.moreDescription = nameFromDescription(originalComment.body);
         }
       }

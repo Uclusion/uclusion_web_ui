@@ -16,7 +16,8 @@ function defaultText(message, isMobile, intl, isMultiple, numMultiples) {
   return messageText(message, isMobile, intl);
 }
 
-export function titleText(message, isMobile, intl, isMultiple, numMultiples, comment, userId) {
+export function titleText(message, isMobile, intl, isMultiple, numMultiples, comment, userId, isInAcceptedStage,
+  assigned) {
   switch(message.type) {
     case 'ASSIGNED_UNREVIEWABLE':
     case 'REPORT_REQUIRED':
@@ -34,6 +35,10 @@ export function titleText(message, isMobile, intl, isMultiple, numMultiples, com
       if (createdBy === userId && !['UNREAD_REPLY', 'UNREAD_RESOLVED', 'UNASSIGNED'].includes(message.type)) {
         // This notification is about moderating a comment I created
         return intl.formatMessage({ id: 'decisionDialogDiscussionLabel' });
+      }
+      if (!comment && isInAcceptedStage && (assigned || []).includes(userId)) {
+        // This notification is for something assigned to me in approval
+        return intl.formatMessage({ id: 'planningMobileToVotingLabel' });
       }
       return defaultText(message, isMobile, intl, isMultiple, numMultiples);
   }

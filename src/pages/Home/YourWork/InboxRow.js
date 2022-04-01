@@ -85,6 +85,7 @@ function InboxRow(props) {
   }
 
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
+  const isInAcceptedStage = isAcceptedStage(fullStage);
   let rootComment;
   if (commentId && linkType !== 'INVESTIBLE') {
     const { parent_comment_id: inlineParentCommentId, parent_comment_market_id: parentMarketId } = market
@@ -108,7 +109,7 @@ function InboxRow(props) {
         }
       }
     }
-  } else if (isAcceptedStage(fullStage)) {
+  } else if (isInAcceptedStage) {
     if (completionEstimate) {
       item.moreDescription = <DaysEstimate readOnly value={completionEstimate} justText/>;
     }
@@ -120,7 +121,8 @@ function InboxRow(props) {
       item.moreDescription = abbreviatedDescription;
     }
   }
-  item.title =  titleText(message, mobileLayout, intl, isMultiple, numMultiples, rootComment, userId);
+  item.title =  titleText(message, mobileLayout, intl, isMultiple, numMultiples, rootComment, userId, isInAcceptedStage,
+    assigned);
   if (expansionOpen && usesExpansion(item)) {
     addExpansionPanel({
       item, commentState, marketState, investiblesState, diffState, planningClasses, marketsState,

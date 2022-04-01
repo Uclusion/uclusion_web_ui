@@ -145,7 +145,8 @@ function WorkListItem(props) {
     expansionOpen,
     isMultiple,
     critical = false,
-    isDeletable = false
+    isDeletable = false,
+    expansionMessage
   } = props;
   const history = useHistory();
   const classes = workListStyles();
@@ -171,7 +172,8 @@ function WorkListItem(props) {
           (event) => {
             preventDefaultAndProp(event);
             if (useSelect && !read) {
-              pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: DEHIGHLIGHT_EVENT, message });
+              pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: DEHIGHLIGHT_EVENT,
+                message: expansionMessage || message });
             }
             if (isUsingExpansion) {
               expansionDispatch({ id });

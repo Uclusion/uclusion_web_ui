@@ -229,24 +229,20 @@ function InboxInvestible(props) {
             {market.name}
           </Typography>
         )}
-        {!_.isEmpty(messagesFull) && (
+        {!mobileLayout && (
           <>
-            {!mobileLayout && (
-              <>
-                <div style={{flexGrow: 1}} />
-                <Typography variant="body1" style={{paddingTop: '0.5rem', paddingRight: '0.5rem'}}>
-                  {intl.formatMessage({ id: 'notificationsListHeader' },
-                    { x: getLabelList(messagesFull, intl, mobileLayout) })}
-                </Typography>
-              </>
-            )}
-            {mobileLayout && (
-              <div style={{paddingLeft: '0.5rem', paddingRight: '0.5rem', paddingTop: '0.3rem'}}>
-                {intl.formatMessage({ id: 'notificationsListHeader' },
-                  { x: getLabelList(messagesFull, intl, mobileLayout) })}
-              </div>
-            )}
+            <div style={{flexGrow: 1}} />
+            <Typography variant="body1" style={{paddingTop: '0.5rem', paddingRight: '0.5rem'}}>
+              {intl.formatMessage({ id: 'notificationsListHeader' },
+                { x: getLabelList(messagesFull || [message], intl, mobileLayout) })}
+            </Typography>
           </>
+        )}
+        {mobileLayout && (
+          <div style={{paddingLeft: '0.5rem', paddingRight: '0.5rem', paddingTop: '0.3rem'}}>
+            {intl.formatMessage({ id: 'notificationsListHeader' },
+              { x: getLabelList(messagesFull || [message], intl, mobileLayout) })}
+          </div>
         )}
       </div>
       {_.isEmpty(useMessageTypes) && (

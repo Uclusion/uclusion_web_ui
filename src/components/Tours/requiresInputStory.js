@@ -13,9 +13,7 @@ export function requiresInputStorySteps(variables) {
       title: 'Welcome to job help!',
       content: (
         <Typography style={{textAlign: 'left'}} variant="body2">
-          This story will stay in Requires Input until you or someone else assigned moves it.
-          <br/><br/>
-          Moving it requires all assignee questions and suggestions be resolved.
+          This story will stay in Requires Input until you or someone else resolves assignee questions and suggestions.
         </Typography>
       ),
     });
@@ -40,8 +38,6 @@ export function requiresInputStorySteps(variables) {
       content: (
         <Typography style={{textAlign: 'left'}} variant="body2">
           Please help resolve the open assignee questions and suggestions in this story.
-          <br/><br/>
-          Once resolved someone assigned to this story must move it to another stage.
         </Typography>
       ),
     });

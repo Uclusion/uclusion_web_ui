@@ -13,9 +13,7 @@ export function blockedStorySteps(variables) {
         title: 'About task blocking',
         content: (
           <Typography style={{textAlign: 'left'}} variant="body2">
-            This job will stay in Blocked until you or someone else assigned moves it.
-            <br/><br/>
-            Moving it requires all blocking issues be resolved first.
+            This job will stay in Blocked until you or someone else resolves all blocking issues.
           </Typography>
         ),
       });
@@ -27,9 +25,7 @@ export function blockedStorySteps(variables) {
         title: 'Welcome to unblocking!',
         content: (
           <Typography style={{textAlign: 'left'}} variant="body2">
-            Please help resolve Blocking Issues in this story.
-            <br/><br/>
-            Once resolved someone assigned to this story must move it to another stage.
+            Please help resolve Blocking issues in this story.
           </Typography>
         ),
       });

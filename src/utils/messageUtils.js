@@ -31,7 +31,7 @@ export function titleText(message, isMobile, intl, isMultiple, numMultiples, com
       return intl.formatMessage({ id: 'feedback' });
     default:
       const { created_by: createdBy } = comment || {};
-      if (createdBy === userId && !['UNREAD_REPLY', 'UNREAD_RESOLVED'].includes(message.type)) {
+      if (createdBy === userId && !['UNREAD_REPLY', 'UNREAD_RESOLVED', 'UNASSIGNED'].includes(message.type)) {
         // This notification is about moderating a comment I created
         return intl.formatMessage({ id: 'decisionDialogDiscussionLabel' });
       }

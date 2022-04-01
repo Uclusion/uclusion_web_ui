@@ -229,7 +229,7 @@ function InboxInvestible(props) {
             {market.name}
           </Typography>
         )}
-        {!mobileLayout && (
+        {!mobileLayout && !isOutbox && !_.isEmpty(useMessageTypes) && (
           <>
             <div style={{flexGrow: 1}} />
             <Typography variant="body1" style={{paddingTop: '0.5rem', paddingRight: '0.5rem'}}>
@@ -238,7 +238,7 @@ function InboxInvestible(props) {
             </Typography>
           </>
         )}
-        {mobileLayout && (
+        {mobileLayout && !isOutbox && (
           <div style={{paddingLeft: '0.5rem', paddingRight: '0.5rem', paddingTop: '0.3rem'}}>
             {intl.formatMessage({ id: 'notificationsListHeader' },
               { x: getLabelList(messagesFull || [message], intl, mobileLayout) })}
@@ -253,6 +253,15 @@ function InboxInvestible(props) {
           <Typography variant="body1" style={{paddingLeft: '1rem', marginTop: '0.25rem'}}>
             {market.name}
           </Typography>
+          {!mobileLayout && !isOutbox && (
+            <>
+              <div style={{flexGrow: 1}} />
+              <Typography variant="body1" style={{paddingTop: '0.5rem', paddingRight: '0.5rem'}}>
+                {intl.formatMessage({ id: 'notificationsListHeader' },
+                  { x: getLabelList(messagesFull || [message], intl, mobileLayout) })}
+              </Typography>
+            </>
+          )}
         </div>
       )}
       {reportRequired && (

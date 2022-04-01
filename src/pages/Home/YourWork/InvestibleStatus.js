@@ -10,10 +10,6 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { removeWorkListItem, workListStyles } from './WorkListItem'
-import { REPORT_TYPE } from '../../../constants/comments'
-import CommentBox from '../../../containers/CommentBox/CommentBox'
-import { getInvestibleComments } from '../../../contexts/CommentsContext/commentsContextHelper'
-import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { Link } from '@material-ui/core'
 import { navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
@@ -32,13 +28,9 @@ function InvestibleStatus(props) {
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [, diffDispatch] = useContext(DiffContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
-  const [commentState] = useContext(CommentsContext);
   const marketInvestible = getInvestible(investiblesState, investibleId) || {};
   const marketInfo = getMarketInfo(marketInvestible, marketId) || {};
   const { completion_estimate: daysEstimate } = marketInfo;
-  const investibleComments = getInvestibleComments(investibleId, marketId, commentState);
-  const progressReports = investibleComments.filter((comment) => comment.comment_type === REPORT_TYPE &&
-    !comment.resolved);
   function getStartDate() {
     if (daysEstimate) {
       const nowDate = new Date();
@@ -85,16 +77,6 @@ function InvestibleStatus(props) {
         }
         navigate(history, link)}}>{intl.formatMessage({id: 'viewInChannelLower'})}</Link> to create or update a progress report
       </h3>
-      {progressReports.length > 0 && (
-        <div style={{paddingTop: '1rem'}}>
-          <CommentBox
-            comments={progressReports}
-            marketId={marketId}
-            allowedTypes={[]}
-            isInbox
-          />
-        </div>
-      )}
     </div>
   );
 }

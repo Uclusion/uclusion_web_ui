@@ -33,7 +33,7 @@ import { assignedInStage } from '../../../utils/userFunctions'
 import { getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { nameFromDescription } from '../../../utils/stringFunctions'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
-import { Add, Clear, SettingsBackupRestore } from '@material-ui/icons'
+import { Clear, Done, Send, SettingsBackupRestore } from '@material-ui/icons'
 import { useEditor } from '../../../components/TextEditors/quillHooks'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { removeMessagesForCommentId } from '../../../utils/messageUtils'
@@ -351,8 +351,8 @@ function PlanningInvestibleAdd(props) {
             {intl.formatMessage({ id: 'marketAddCancelLabel' })}
           </SpinningIconLabelButton>
           {requiresInput && (
-            <SpinningIconLabelButton onClick={() => setOpen(true)} icon={SettingsBackupRestore} doSpin={false}>
-              {intl.formatMessage({ id: 'agilePlanFormSaveLabel' })}
+            <SpinningIconLabelButton onClick={() => setOpen(true)} icon={Send} doSpin={false}>
+              {intl.formatMessage({ id: 'commentAddSendLabel' })}
             </SpinningIconLabelButton>
           )}
           {requiresInput && (
@@ -364,11 +364,11 @@ function PlanningInvestibleAdd(props) {
               /* slots */
               actions={
                 <>
-                  <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore}
+                  <SpinningIconLabelButton onClick={handleSave} icon={Send}
                                            id="requiresInputProceedButton">
                     {intl.formatMessage({ id: 'proceedRequiresInput' })}
                   </SpinningIconLabelButton>
-                  <SpinningIconLabelButton onClick={() => handleSaveImpl(true)} icon={SettingsBackupRestore}
+                  <SpinningIconLabelButton onClick={() => handleSaveImpl(true)} icon={Done}
                                            id="requiresInputResolveButton">
                     {intl.formatMessage({ id: 'resolveComment' })}
                   </SpinningIconLabelButton>
@@ -385,7 +385,7 @@ function PlanningInvestibleAdd(props) {
               showDismiss={false}
               actions={
                 (['noQuestionUploads', 'noQuestions', 'noUploads'].includes(openIssue)) ?
-                  <SpinningIconLabelButton onClick={() => handleSaveImpl(false, false)} icon={Add}
+                  <SpinningIconLabelButton onClick={() => handleSaveImpl(false, false)} icon={Send}
                                            id="issueProceedButton">
                     {intl.formatMessage({ id: 'issueProceed' })}
                   </SpinningIconLabelButton> : undefined
@@ -393,8 +393,8 @@ function PlanningInvestibleAdd(props) {
             />
           )}
           {!requiresInput && (
-            <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore} id="planningInvestibleAddButton">
-              {intl.formatMessage({ id: 'agilePlanFormSaveLabel' })}
+            <SpinningIconLabelButton onClick={handleSave} icon={Send} id="planningInvestibleAddButton">
+              {intl.formatMessage({ id: 'commentAddSendLabel' })}
             </SpinningIconLabelButton>
           )}
         </CardActions>

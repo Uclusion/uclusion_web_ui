@@ -212,9 +212,7 @@ function InvestibleBodyEdit(props) {
             onClick={handleSave}
             id="investibleUpdateButton"
           >
-            <FormattedMessage
-              id="agilePlanFormSaveLabel"
-            />
+            <FormattedMessage id="update" />
           </SpinningIconLabelButton>
         </CardActions>
       </>

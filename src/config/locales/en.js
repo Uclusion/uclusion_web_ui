@@ -453,7 +453,7 @@ const messages = defineMessages({
   issueReplyLabel: 'Reply',
   issueProceed: 'Proceed',
   requiresInputWarning: 'With these assignments, some comments require input.',
-  proceedRequiresInput: 'Requires Input Stage',
+  proceedRequiresInput: 'Requires Input',
   resolveComment: 'Resolve Comments',
   commentCloseNewStage: 'Resolving moves this job to {x}.',
   // lock dialog

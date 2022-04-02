@@ -264,9 +264,7 @@ function DialogBodyEdit(props) {
             onClick={handleSave}
             id="agilePlanFormSaveButton"
           >
-            <FormattedMessage
-              id="agilePlanFormSaveLabel"
-            />
+            <FormattedMessage id="update" />
           </SpinningIconLabelButton>
         </CardActions>
       </>

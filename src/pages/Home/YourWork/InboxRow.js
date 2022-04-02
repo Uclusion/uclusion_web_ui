@@ -13,7 +13,6 @@ import React, { useContext } from 'react'
 import { usePlanningInvestibleStyles } from '../../Investible/Planning/PlanningInvestible'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
-import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { Assignment, PersonAddOutlined } from '@material-ui/icons'
 import Quiz from '../../../components/CustomChip/Quiz'
@@ -27,8 +26,6 @@ import {
   isAcceptedStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
-import { useInvestibleEditStyles } from '../../Investible/InvestibleBodyEdit'
-import { useHistory } from 'react-router'
 
 function getPriorityIcon(message, isAssigned) {
   const { level, link_type: linkType } = message;
@@ -52,13 +49,9 @@ function InboxRow(props) {
     numMultiples } = props;
   const intl = useIntl();
   const theme = useTheme();
-  const investibleEditClasses = useInvestibleEditStyles();
-  const history = useHistory();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
-  const [marketState] = useContext(MarketsContext);
   const [commentState] = useContext(CommentsContext);
   const [investiblesState] = useContext(InvestiblesContext);
-  const [diffState] = useContext(DiffContext);
   const [marketsState] = useContext(MarketsContext);
   const [messagesState] = useContext(NotificationsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -124,10 +117,7 @@ function InboxRow(props) {
   item.title =  titleText(message, mobileLayout, intl, isMultiple, numMultiples, rootComment, userId,
     fullStage.allows_investment, assigned);
   if (expansionOpen && usesExpansion(item)) {
-    addExpansionPanel({
-      item, commentState, marketState, investiblesState, diffState, planningClasses, marketsState,
-      mobileLayout, intl, isMultiple, messagesState, isDeletable, investibleEditClasses, history
-    });
+    addExpansionPanel({ item, planningClasses, mobileLayout, isMultiple, messagesState, isDeletable });
   }
   return <WorkListItem key={`inboxRow${typeObjectId}`} id={typeObjectId} checked={checked}
                        determinateDispatch={determinateDispatch}

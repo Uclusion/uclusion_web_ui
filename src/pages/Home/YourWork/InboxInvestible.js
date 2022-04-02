@@ -59,6 +59,7 @@ import {
   MODIFY_NOTIFICATIONS_CHANNEL
 } from '../../../contexts/NotificationsContext/notificationsContextMessages'
 import InvestibleStatus from './InvestibleStatus'
+import InvestibleReady from './InvestibleReady'
 
 
 function InboxInvestible(props) {
@@ -92,7 +93,7 @@ function InboxInvestible(props) {
   const { name, description, label_list: labelList, attached_files: attachedFiles } = myInvestible || {};
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { stage, assigned: invAssigned, completion_estimate: marketDaysEstimate, required_approvers:  requiredApprovers,
-    required_reviews: requiredReviewers, accepted } = marketInfo;
+    required_reviews: requiredReviewers, accepted, open_for_investment: openForInvestment } = marketInfo;
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   const assigned = invAssigned || [];
   const isInVoting = fullStage.allows_investment;
@@ -282,6 +283,10 @@ function InboxInvestible(props) {
           </Link>
           <DescriptionOrDiff id={investibleId} description={description} showDiff={showDiff} />
         </div>
+      )}
+      {openForInvestment && _.isEmpty(assigned) && (
+        <InvestibleReady marketId={marketId} stage={stage} fullInvestible={inv} message={message}
+                         market={market} investibleId={investibleId} openForInvestment={openForInvestment}/>
       )}
       {useMessageTypes.includes('UNREAD_NAME') && (
         <Typography variant="h6" style={{paddingTop: '1rem'}}>

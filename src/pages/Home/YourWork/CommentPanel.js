@@ -24,7 +24,7 @@ import {
 
 function CommentPanel(props) {
   const { commentId, marketId, marketType, messageType, planningClasses, mobileLayout, messagesFull,
-    isDeletable, message} = props;
+    isDeletable, message, isOutbox } = props;
   const { link } = message || {};
   const history = useHistory();
   const [marketState] = useContext(MarketsContext);
@@ -52,7 +52,7 @@ function CommentPanel(props) {
           <div style={{overflowY: 'auto', maxHeight: '15rem'}}>
             <InboxInvestible marketId={marketId} investibleId={investibleId} isDeletable={isDeletable}
                              planningClasses={planningClasses} marketType={marketType} message={message}
-                             mobileLayout={mobileLayout} messagesFull={messagesFull} />
+                             mobileLayout={mobileLayout} messagesFull={messagesFull} isOutbox />
           </div>
         )}
         {!investibleId && (
@@ -70,7 +70,7 @@ function CommentPanel(props) {
                 }
                 navigate(history, useLink)}}>{intl.formatMessage({id: 'viewInChannel'})}</Link>
             </Typography>
-            {!mobileLayout && (
+            {!mobileLayout && !isOutbox && (
               <>
                 <div style={{flexGrow: 1}} />
                 <Typography variant="body1" style={{paddingTop: '0.5rem', paddingRight: '0.5rem'}}>
@@ -79,7 +79,7 @@ function CommentPanel(props) {
                 </Typography>
               </>
             )}
-            {mobileLayout && (
+            {mobileLayout && !isOutbox && (
               <div style={{paddingLeft: '0.5rem', paddingRight: '0.5rem', paddingTop: '0.3rem'}}>
                 {intl.formatMessage({ id: 'notificationsListHeader' },
                   { x: getLabelList(messagesFull || [message], intl, mobileLayout) })}

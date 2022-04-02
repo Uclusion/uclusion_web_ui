@@ -16,7 +16,7 @@ function defaultText(message, isMobile, intl, isMultiple, numMultiples) {
   return messageText(message, isMobile, intl);
 }
 
-export function titleText(message, isMobile, intl, isMultiple, numMultiples, comment, userId, isInAcceptedStage,
+export function titleText(message, isMobile, intl, isMultiple, numMultiples, comment, userId, isInVotingStage,
   assigned) {
   switch(message.type) {
     case 'ASSIGNED_UNREVIEWABLE':
@@ -36,7 +36,7 @@ export function titleText(message, isMobile, intl, isMultiple, numMultiples, com
         // This notification is about moderating a comment I created
         return intl.formatMessage({ id: 'decisionDialogDiscussionLabel' });
       }
-      if (!comment && isInAcceptedStage && (assigned || []).includes(userId)) {
+      if (!comment && isInVotingStage && (assigned || []).includes(userId)) {
         // This notification is for something assigned to me in approval
         return intl.formatMessage({ id: 'planningMobileToVotingLabel' });
       }

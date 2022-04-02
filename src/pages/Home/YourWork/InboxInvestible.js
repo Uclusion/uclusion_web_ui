@@ -95,7 +95,7 @@ function InboxInvestible(props) {
     required_reviews: requiredReviewers, accepted } = marketInfo;
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   const assigned = invAssigned || [];
-  const isInVoting = useMessageTypes.includes('NOT_FULLY_VOTED');
+  const isInVoting = fullStage.allows_investment;
   const isReview = !_.isEmpty(_.intersection(['UNREAD_REVIEWABLE', 'REVIEW_REQUIRED'], useMessageTypes));
   const allowedTypes = useMessageTypes.includes('ASSIGNED_UNREVIEWABLE') || isReview ?
     [TODO_TYPE, REPORT_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE] :

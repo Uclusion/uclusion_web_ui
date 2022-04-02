@@ -121,8 +121,8 @@ function InboxRow(props) {
       item.moreDescription = abbreviatedDescription;
     }
   }
-  item.title =  titleText(message, mobileLayout, intl, isMultiple, numMultiples, rootComment, userId, isInAcceptedStage,
-    assigned);
+  item.title =  titleText(message, mobileLayout, intl, isMultiple, numMultiples, rootComment, userId,
+    fullStage.allows_investment, assigned);
   if (expansionOpen && usesExpansion(item)) {
     addExpansionPanel({
       item, commentState, marketState, investiblesState, diffState, planningClasses, marketsState,

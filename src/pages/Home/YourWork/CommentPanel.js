@@ -52,7 +52,7 @@ function CommentPanel(props) {
           <div style={{overflowY: 'auto', maxHeight: '15rem'}}>
             <InboxInvestible marketId={marketId} investibleId={investibleId} isDeletable={isDeletable}
                              planningClasses={planningClasses} marketType={marketType} message={message}
-                             mobileLayout={mobileLayout} messagesFull={messagesFull} isOutbox />
+                             mobileLayout={mobileLayout} messagesFull={messagesFull} isOutbox={isOutbox} />
           </div>
         )}
         {!investibleId && (

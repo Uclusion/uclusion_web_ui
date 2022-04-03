@@ -46,8 +46,6 @@ export function addExpansionPanel(props) {
     item.expansionPanel = <InboxInvestible marketId={marketId} investibleId={investibleId} messageType={messageType}
                                            planningClasses={planningClasses} marketType={marketType}
                                            mobileLayout={mobileLayout} isDeletable={isDeletable} message={message}
-                                           reportRequired={findMessageOfType('REPORT_REQUIRED',
-                                             investibleId, messagesState)}
                                            unacceptedAssignment={findMessageOfType('UNACCEPTED_ASSIGNMENT',
                                              investibleId, messagesState)} />;
   } else if (messageType === 'UNREAD_DRAFT') {

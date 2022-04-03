@@ -64,8 +64,9 @@ import InvestibleReady from './InvestibleReady'
 
 function InboxInvestible(props) {
   const { marketId, marketType, planningClasses, messageTypes, investibleId, mobileLayout, isOutbox,
-    messagesFull, unacceptedAssignment, messageType, isDeletable, message, reportRequired } = props;
+    messagesFull, unacceptedAssignment, messageType, isDeletable, message } = props;
   const useMessageTypes = _.isEmpty(messageTypes) ? (_.isEmpty(messageType) ? [] : [messageType]) : messageTypes;
+  const reportRequired = (message || {}).type === 'REPORT_REQUIRED';
   const history = useHistory();
   const intl = useIntl();
   const workItemClasses = workListStyles();

@@ -64,7 +64,7 @@ import InvestibleReady from './InvestibleReady'
 
 function InboxInvestible(props) {
   const { marketId, marketType, planningClasses, messageTypes, investibleId, mobileLayout, isOutbox,
-    messagesFull, unacceptedAssignment, messageType, isDeletable, message } = props;
+    messagesFull, unacceptedAssignment, messageType, isDeletable, message, isCommentPanel } = props;
   const useMessageTypes = _.isEmpty(messageTypes) ? (_.isEmpty(messageType) ? [] : [messageType]) : messageTypes;
   const reportRequired = (message || {}).type === 'REPORT_REQUIRED';
   const history = useHistory();
@@ -285,7 +285,7 @@ function InboxInvestible(props) {
           <DescriptionOrDiff id={investibleId} description={description} showDiff={showDiff} />
         </div>
       )}
-      {openForInvestment && _.isEmpty(assigned) && (
+      {openForInvestment && _.isEmpty(assigned) && !isCommentPanel && (
         <InvestibleReady marketId={marketId} stage={stage} fullInvestible={inv} message={message}
                          market={market} investibleId={investibleId} openForInvestment={openForInvestment}/>
       )}

@@ -63,6 +63,8 @@ function messageIsSynced(message, marketState, marketPresencesState, commentsSta
 
 export function isInInbox(message, marketState, marketPresencesState, commentsState, investiblesState, messages) {
   if (!messageIsSynced(message, marketState, marketPresencesState, commentsState, investiblesState)) {
+    console.warn('Skipping message because not synced');
+    console.warn(message);
     return false;
   }
   if (!message.type || message.type === 'UNREAD_REPORT' || message.deleted) {

@@ -24,13 +24,11 @@ function messageIsSynced(message, marketState, marketPresencesState, commentsSta
     investment_user_id: investmentUserId, comment_market_id: commentMarketId, market_investible_id: marketInvestibleId,
     market_investible_version: marketInvestibleVersion } = message;
   const useMarketId = commentMarketId || marketId;
-  let checked = false;
+  let checked = commentVersion || parentCommentVersion;
   if (!checkComment(commentId, commentVersion, useMarketId, commentsState)) {
-    checked = true;
     return false;
   }
   if (!checkComment(parentCommentId, parentCommentVersion, useMarketId, commentsState)) {
-    checked = true;
     return false;
   }
   if (marketVersion) {

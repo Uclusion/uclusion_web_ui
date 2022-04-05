@@ -28,7 +28,7 @@ function InvestibleReady(props) {
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
   const isAdmin = myPresence && myPresence.is_admin;
   return (
-    <>
+    <div style={{paddingTop: '1.5rem'}}>
       <PlanningInvestibleEdit
         fullInvestible={fullInvestible}
         marketId={marketId}
@@ -71,7 +71,7 @@ function InvestibleReady(props) {
         }
         label={intl.formatMessage({ id: 'readyToStartCheckboxExplanation' })}
       />
-    </>
+    </div>
   );
 }
 

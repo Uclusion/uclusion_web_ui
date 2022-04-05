@@ -986,7 +986,7 @@ function Comment(props) {
                 )}
                 {showDone && (
                   <SpinningIconLabelButton onClick={onDone} doSpin={false} icon={Clear}>
-                    {intl.formatMessage({ id: 'done' })}
+                    {!mobileLayout && intl.formatMessage({ id: 'done' })}
                   </SpinningIconLabelButton>
                 )}
                 {showResolve && (

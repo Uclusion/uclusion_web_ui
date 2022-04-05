@@ -77,7 +77,7 @@ function SpinningIconLabelButton(props) {
       size="small"
       id={id}
       onClick={myOnClick}
-      style={{whiteSpace: 'nowrap', width: 'fit-content'}}
+      style={{whiteSpace: 'nowrap', width: 'fit-content', minWidth: 0}}
       startIcon={spinningDisabled || disabled ? <Icon color='disabled' /> : <Icon htmlColor={iconColor} />}
       className={noMargin ? classes.buttonNoMargin: whiteBackground ? classes.buttonWhiteBackground : classes.button}
       {...rest}

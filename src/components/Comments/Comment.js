@@ -874,7 +874,7 @@ function Comment(props) {
             )}
             {displayEditing && mobileLayout && !beingEdited && (
               <TooltipIconButton
-                onClick={() => {updateEditState({beingEdited: true, body})}}
+                onClick={toggleEdit}
                 icon={<Edit fontSize='small' />}
                 translationId="edit"
               />

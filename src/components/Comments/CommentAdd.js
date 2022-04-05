@@ -463,7 +463,6 @@ function CommentAdd(props) {
       });
   }
 
-  const commentSendLabel = parent ? 'commentReplySaveLabel' : 'commentAddSendLabel';
   const commentCancelLabel = parent ? 'commentReplyCancelLabel' : 'commentAddCancelLabel';
   const createInlineInitiative = (creatorIsAssigned || !investibleId || _.isEmpty(assigned))
     && type === SUGGEST_CHANGE_TYPE;
@@ -509,12 +508,12 @@ function CommentAdd(props) {
               icon={Send}
               id="commentSendButton"
             >
-              {intl.formatMessage({ id: commentSendLabel })}
+              {intl.formatMessage({ id: 'commentAddSendLabel' })}
             </SpinningIconLabelButton>
           )}
           {showIssueWarning && (
             <SpinningIconLabelButton onClick={toggleIssue} icon={Send} doSpin={false} id="commentSendButton">
-              {intl.formatMessage({ id: commentSendLabel })}
+              {intl.formatMessage({ id: 'commentAddSendLabel' })}
             </SpinningIconLabelButton>
           )}
           <Button className={classes.button}>

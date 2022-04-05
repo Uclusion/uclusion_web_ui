@@ -52,7 +52,7 @@ export function refreshNotificationVersion (state, auditRow) {
   //console.debug(`Refreshing notifications from ${notificationVersion} to ${newNotificationVersionNumber} with ${hkey}, ${rkey}, ${isRemove}`);
   if (notificationVersion !== newNotificationVersionNumber) {
     getMessages().then((messages) => {
-      const latest = messages.find((message) => (message.type_object_id === rkey
+      const latest = (messages || []).find((message) => (message.type_object_id === rkey
         && message.market_id_user_id === hkey));
       if (isRemove === _.isEmpty(latest)) {
         //console.debug(`Updating with ${JSON.stringify(messages)}`);

@@ -24,19 +24,24 @@ function messageIsSynced(message, marketState, marketPresencesState, commentsSta
     investment_user_id: investmentUserId, comment_market_id: commentMarketId, market_investible_id: marketInvestibleId,
     market_investible_version: marketInvestibleVersion } = message;
   const useMarketId = commentMarketId || marketId;
+  let checked = false;
   if (!checkComment(commentId, commentVersion, useMarketId, commentsState)) {
+    checked = true;
     return false;
   }
   if (!checkComment(parentCommentId, parentCommentVersion, useMarketId, commentsState)) {
+    checked = true;
     return false;
   }
   if (marketVersion) {
+    checked = true;
     const market = getMarket(marketState, marketId) || {};
     if (market.version < marketVersion) {
       return false;
     }
   }
   if (investibleVersion) {
+    checked = true;
     const inv = getInvestible(investiblesState, investibleId) || {};
     const { investible } = inv;
     if (!investible || investible.version < investibleVersion) {
@@ -44,6 +49,7 @@ function messageIsSynced(message, marketState, marketPresencesState, commentsSta
     }
   }
   if (marketInvestibleId) {
+    checked = true;
     const inv = getInvestible(investiblesState, investibleId) || {};
     const marketInfo = getMarketInfo(inv, marketId);
     if (!marketInfo || marketInfo.version < marketInvestibleVersion) {
@@ -51,12 +57,17 @@ function messageIsSynced(message, marketState, marketPresencesState, commentsSta
     }
   }
   if (investmentUserId) {
+    checked = true;
     const presences = getMarketPresences(marketPresencesState, marketId) || [];
     const investmentPresence = presences.find((presence) => presence.id === investmentUserId) || {};
     const { investments } = investmentPresence;
     if (_.isEmpty(investments)) {
       return false;
     }
+  }
+  if (!checked) {
+    console.warn('Message is not checked for sync');
+    console.warn(message);
   }
   return true;
 }

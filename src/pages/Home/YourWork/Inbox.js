@@ -24,6 +24,8 @@ import InboxRow from './InboxRow'
 import { getPaginatedItems } from '../../../utils/messageUtils'
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight'
 import InboxWelcomeExpansion from './InboxWelcomeExpansion'
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 
 const useStyles = makeStyles(
   theme => {
@@ -65,6 +67,8 @@ function Inbox(props) {
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [marketState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [commentsState] = useContext(CommentsContext);
+  const [investiblesState] = useContext(InvestiblesContext);
   const [, , tokensHash] = useContext(MarketsContext);
   const [searchResults] = useContext(SearchResultsContext);
   const { results, parentResults, search } = searchResults;
@@ -99,7 +103,7 @@ function Inbox(props) {
   const { indeterminate, determinate, checkAll } = determinateState;
   const { messages: messagesUnsafe } = messagesState;
   let messagesFull = (messagesUnsafe || []).filter((message) => {
-    return isInInbox(message, marketState, marketPresencesState, messagesUnsafe);
+    return isInInbox(message, marketState, marketPresencesState, commentsState, investiblesState, messagesUnsafe);
   });
   let messagesOrdered;
   if (isJarDisplay) {
@@ -123,7 +127,7 @@ function Inbox(props) {
     navigate(history, '/inbox');
   };
   if (isJarDisplay) {
-    const unreadCount = getInboxCount(messagesState, marketState, marketPresencesState);
+    const unreadCount = getInboxCount(messagesState, marketState, marketPresencesState, commentsState, investiblesState);
     const first = _.isEmpty(messagesFull) ? undefined : messagesOrdered[0];
     return (
       <div id='inboxNotification' key='inbox' onClick={goFullInboxClick} className={classes.bellButton}>

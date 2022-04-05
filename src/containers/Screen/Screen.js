@@ -17,6 +17,8 @@ import { SearchResultsContext } from '../../contexts/SearchResultsContext/Search
 import { getInboxCount } from '../../contexts/NotificationsContext/notificationsContextHelper'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
+import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 
 const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -175,6 +177,8 @@ function Screen(props) {
   const [searchResults] = useContext(SearchResultsContext);
   const [marketState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [investiblesState] = useContext(InvestiblesContext);
+  const [commentsState] = useContext(CommentsContext);
   const { search } = searchResults;
 
   const {
@@ -196,14 +200,14 @@ function Screen(props) {
 
   useEffect(() => {
     if (!hidden && !_.isEmpty(tabTitle)) {
-      const calcPend = getInboxCount(messagesState, marketState, marketPresencesState);
+      const calcPend = getInboxCount(messagesState, marketState, marketPresencesState, commentsState, investiblesState);
       if (calcPend > 0) {
         document.title = `(${calcPend}) ${tabTitle}`;
       } else {
         document.title = `${tabTitle}`;
       }
     }
-  }, [hidden, marketPresencesState, marketState, messagesState, tabTitle]);
+  }, [commentsState, hidden, investiblesState, marketPresencesState, marketState, messagesState, tabTitle]);
 
   const reallyAmLoading = !hidden && appEnabled && (loading || _.isEmpty(user));
 

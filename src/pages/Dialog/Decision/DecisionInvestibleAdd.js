@@ -17,6 +17,15 @@ import { useLockedDialogStyles } from '../DialogBodyEdit'
 import NameField, { clearNameStoredState, getNameStoredState } from '../../../components/TextFields/NameField'
 import { nameFromDescription } from '../../../utils/stringFunctions'
 import { getQuillStoredState } from '../../../components/TextEditors/Utilities/CoreUtils'
+import { findMessageOfType } from '../../../utils/messageUtils'
+import { NOT_FULLY_VOTED_TYPE } from '../../../constants/notifications'
+import {
+  changeLevelMessage,
+  dehighlightMessage
+} from '../../../contexts/NotificationsContext/notificationsContextReducer'
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
+import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 
 function DecisionInvestibleAdd(props) {
   const {
@@ -39,6 +48,8 @@ function DecisionInvestibleAdd(props) {
   const classes = usePlanFormStyles();
   const lockedDialogClasses = useLockedDialogStyles();
   const [marketStagesState] = useContext(MarketStagesContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const [marketsState] = useContext(MarketsContext);
   const marketStages = getStages(marketStagesState, marketId) || [];
   const investmentAllowedStage = marketStages.find((stage) => stage.allows_investment) || {};
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -92,6 +103,13 @@ function DecisionInvestibleAdd(props) {
       addInfo.stageId = investmentAllowedStage.id;
     }
     return addDecisionInvestible(addInfo).then((investible) => {
+      const market = getMarket(marketsState, marketId) || {};
+      const notFullyVotedMessage = findMessageOfType(NOT_FULLY_VOTED_TYPE, market.parent_comment_market_id,
+        messagesState);
+      if (notFullyVotedMessage) {
+        messagesDispatch(changeLevelMessage(notFullyVotedMessage, 'BLUE'));
+        messagesDispatch(dehighlightMessage(notFullyVotedMessage));
+      }
       onSave(investible);
       resetEditor();
       clearNameStoredState(nameId);

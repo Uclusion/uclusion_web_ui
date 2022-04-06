@@ -60,6 +60,7 @@ import {
 import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
 import { addMarket, getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../authorization/TokenStorageManager'
+import { NOT_FULLY_VOTED_TYPE } from '../../constants/notifications'
 
 function getPlaceHolderLabelId(type, isInReview, isAssigned) {
   switch (type) {
@@ -267,10 +268,15 @@ export function quickNotificationChanges(apiType, inReviewStage, isInReview, inv
     if (message) {
       messagesDispatch(dehighlightMessage(message));
     }
-    const issueMessage = findMessageOfType('ISSUE', parentId, messagesState)
+    const issueMessage = findMessageOfType('ISSUE', parentId, messagesState);
     if (issueMessage) {
       messagesDispatch(changeLevelMessage(issueMessage, 'BLUE'));
       messagesDispatch(dehighlightMessage(issueMessage));
+    }
+    const notFullyVotedMessage = findMessageOfType(NOT_FULLY_VOTED_TYPE, parentId, messagesState);
+    if (notFullyVotedMessage) {
+      messagesDispatch(changeLevelMessage(notFullyVotedMessage, 'BLUE'));
+      messagesDispatch(dehighlightMessage(notFullyVotedMessage));
     }
   }
 }

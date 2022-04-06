@@ -811,8 +811,8 @@ function Comment(props) {
   const showMoveButton = isSent !== false && [TODO_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(commentType)
     && !inArchives
     && enableActions && (!resolved || commentType !== TODO_TYPE) && marketType === PLANNING_TYPE;
-  const showResolve = isSent !== false && enableActions && commentType !== REPORT_TYPE && commentMarketOwner
-    && (!resolved || isEditable || myPresence === updatedBy || [TODO_TYPE, ISSUE_TYPE].includes(commentType));
+  const showResolve = isSent !== false && enableActions && commentType !== REPORT_TYPE &&
+    (myPresence === createdBy || !resolved);
   const yourVote = myInlinePresence && myInlinePresence.investments &&
     myInlinePresence.investments.find((investment) => !investment.deleted);
   const showAbstain = enableActions && inlineMarketId && myPresence !== createdBy && !resolved &&

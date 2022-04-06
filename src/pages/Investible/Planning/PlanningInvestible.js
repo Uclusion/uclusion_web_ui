@@ -358,24 +358,6 @@ export const usePlanningInvestibleStyles = makeStyles(
   { name: "PlanningInvestible" }
 );
 
-export function commonSetBeingEdited(event, isEdit, lockedBy, userId, isEditableByUser, updatePageState, investibleId,
-  name, history, marketId) {
-  if (!isEdit || lockedBy === userId || !_.isEmpty(lockedBy)) {
-    // Either don't lock or throw the modal up - both of which InvestibleBodyEdit can handle
-    return doSetEditWhenValid(isEdit, isEditableByUser,
-      (value) => {
-        updatePageState({beingEdited: value});
-        setUclusionLocalStorageItem(`name-editor-${investibleId}`, name);
-      }, event, history);
-  }
-  if (!isEditableByUser() || invalidEditEvent(event, history)) {
-    return;
-  }
-  updatePageState({beingEdited: true});
-  setUclusionLocalStorageItem(`name-editor-${investibleId}`, name);
-  return pushMessage(LOCK_INVESTIBLE_CHANNEL, { event: LOCK_INVESTIBLE, marketId, investibleId });
-}
-
 export function getCollaborators(marketPresences, investibleComments, marketPresencesState, investibleId) {
   const investibleCommentorPresences = getCommenterPresences(marketPresences, investibleComments, marketPresencesState);
   const voters = getInvestibleVoters(marketPresences, investibleId);
@@ -738,8 +720,24 @@ function PlanningInvestible(props) {
   }
 
   function mySetBeingEdited(isEdit, event) {
-    return commonSetBeingEdited(event, isEdit, lockedBy, userId, isEditableByUser, updatePageState, investibleId,
-      name, history, marketId);
+    if (!isEdit || lockedBy === userId || !_.isEmpty(lockedBy)) {
+      // Either don't lock or throw the modal up - both of which InvestibleBodyEdit can handle
+      return doSetEditWhenValid(isEdit, isEditableByUser,
+        (value) => {
+          updatePageState({beingEdited: value});
+          setUclusionLocalStorageItem(`name-editor-${investibleId}`, name);
+        }, event, history);
+    }
+    if (!isEditableByUser() || invalidEditEvent(event, history)) {
+      return;
+    }
+    updatePageState({beingEdited: true});
+    setUclusionLocalStorageItem(`name-editor-${investibleId}`, name);
+    if ((isInReview || isInAccepted) && _.size(assigned) === 1) {
+      // Only one person can edit so no need to get a lock
+      return;
+    }
+    pushMessage(LOCK_INVESTIBLE_CHANNEL, { event: LOCK_INVESTIBLE, marketId, investibleId });
   }
   function toggleReviewers() {
     updatePageState({editCollaborators: 'review'});

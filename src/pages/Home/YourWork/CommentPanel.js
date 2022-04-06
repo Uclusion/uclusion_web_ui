@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { getCommentRoot, getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper'
 import _ from 'lodash'
-import Comment from '../../../components/Comments/Comment'
+import Comment, { useCommentStyles } from '../../../components/Comments/Comment'
 import { PLANNING_TYPE } from '../../../constants/markets'
 import { TODO_TYPE } from '../../../constants/comments'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
@@ -14,13 +14,29 @@ import PropTypes from 'prop-types'
 import { getLabelList } from '../../../utils/messageUtils'
 import { useIntl } from 'react-intl'
 import NotificationDeletion from './NotificationDeletion'
-import { formCommentLink, navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions'
+import {
+  formCommentLink,
+  formInvestibleLink,
+  navigate,
+  preventDefaultAndProp
+} from '../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
 import { pushMessage } from '../../../utils/MessageBusUtils'
 import {
   CURRENT_EVENT,
   MODIFY_NOTIFICATIONS_CHANNEL
 } from '../../../contexts/NotificationsContext/notificationsContextMessages'
+import SpinningButton from '../../../components/SpinBlocking/SpinningButton'
+import { onDropTodo } from '../../Dialog/Planning/userUtils'
+import {
+  OPERATION_HUB_CHANNEL,
+  STOP_OPERATION
+} from '../../../contexts/OperationInProgressContext/operationInProgressMessages'
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { getAcceptedStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 
 function CommentPanel(props) {
   const { commentId, marketId, marketType, messageType, planningClasses, mobileLayout, messagesFull,
@@ -28,7 +44,14 @@ function CommentPanel(props) {
   const { link } = message || {};
   const history = useHistory();
   const [marketState] = useContext(MarketsContext);
-  const [commentState] = useContext(CommentsContext);
+  const [commentState, commentsDispatch] = useContext(CommentsContext);
+  const [, invDispatch] = useContext(InvestiblesContext);
+  const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [marketStagesState] = useContext(MarketStagesContext);
+  const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+  const myPresence = marketPresences.find((presence) => presence.current_user) || {};
+  const acceptedStage = getAcceptedStage(marketStagesState, marketId) || {};
+  const classes = useCommentStyles();
   const intl = useIntl();
   let useMarketId = marketId;
   let useCommentId = commentId;
@@ -41,6 +64,16 @@ function CommentPanel(props) {
   }
   const rootComment = getCommentRoot(commentState, useMarketId, useCommentId);
   const useLink = link || formCommentLink(marketId, (rootComment || {}).investible_id, commentId);
+
+  function myAccept() {
+    onDropTodo(commentId, commentState, marketId, undefined, intl, commentsDispatch, invDispatch,
+      myPresence.id, acceptedStage.id)
+      .then((investibleId) => {
+        pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION, id: 'startTodo' });
+        navigate(history, formInvestibleLink(marketId, investibleId));
+      });
+  }
+
   // Note passing all comments down instead of just related to the unread because otherwise confusing and also
   // have case of more than one reply being de-duped
   // Note - checking resolved here because can be race condition with message removal and comment resolution
@@ -70,6 +103,12 @@ function CommentPanel(props) {
                 }
                 navigate(history, useLink)}}>{intl.formatMessage({id: 'viewInChannel'})}</Link>
             </Typography>
+            <div style={{marginLeft: '1rem', marginTop: '1rem'}}>
+              <SpinningButton onClick={myAccept} className={classes.actionPrimary} id='startTodo'
+                              style={{padding: '0.25rem', paddingLeft: '0.5rem', paddingRight: '0.5rem'}}>
+                {intl.formatMessage({ id: 'startTodo' })}
+              </SpinningButton>
+            </div>
             {!mobileLayout && !isOutbox && (
               <>
                 <div style={{flexGrow: 1}} />

@@ -141,11 +141,13 @@ export function doRemoveEdit(id, hasIcon) {
 }
 
 export function onDropTodo(commentId, commentsState, marketId, setOperationRunning, intl, commentsDispatch, invDispatch,
-  presenceId) {
+  presenceId, stageId) {
   const comments = getMarketComments(commentsState, marketId) || [];
   const fromComment = comments.find((comment) => comment.id === commentId);
   if (fromComment) {
-    setOperationRunning(true);
+    if (setOperationRunning) {
+      setOperationRunning(true);
+    }
     let name = nameFromDescription(fromComment.body);
     if (!name) {
       name = intl.formatMessage({ id: `notificationLabel${fromComment.notification_type}` });
@@ -154,6 +156,9 @@ export function onDropTodo(commentId, commentsState, marketId, setOperationRunni
       marketId,
       name,
     };
+    if (stageId) {
+      addInfo.stageId = stageId;
+    }
     if (presenceId) {
       addInfo.assignments = [presenceId];
     }
@@ -165,7 +170,10 @@ export function onDropTodo(commentId, commentsState, marketId, setOperationRunni
           const newComments = _.unionBy(movedComments, comments, 'id')
           refreshMarketComments(commentsDispatch, marketId, newComments);
           addInvestible(invDispatch, () => {}, inv);
-          setOperationRunning(false);
+          if (setOperationRunning) {
+            setOperationRunning(false);
+          }
+          return investible.id;
         });
     });
   }

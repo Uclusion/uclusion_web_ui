@@ -1002,6 +1002,7 @@ const messages = defineMessages({
   moveTodoRed: 'Move to Immediate',
   moveTodoYellow: 'Move to When Able',
   moveTodoBlue: 'Move to When Convenient',
+  startTodo: 'Start Todo',
 
   // Search
   searchBoxPlaceholder: 'Search',

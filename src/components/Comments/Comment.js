@@ -123,7 +123,7 @@ import { getInboxTarget } from '../../contexts/NotificationsContext/notification
 import { getUiPreferences } from '../../contexts/AccountUserContext/accountUserContextHelper'
 import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
 
-const useCommentStyles = makeStyles(
+export const useCommentStyles = makeStyles(
   theme => {
     return {
       chip: {

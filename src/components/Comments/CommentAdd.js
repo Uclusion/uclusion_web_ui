@@ -21,7 +21,7 @@ import { processTextAndFilesForSave } from '../../api/files'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import {
-  addCommentToMarket,
+  addCommentToMarket, getComment,
   getMarketComments,
   refreshMarketComments
 } from '../../contexts/CommentsContext/commentsContextHelper'
@@ -273,10 +273,14 @@ export function quickNotificationChanges(apiType, inReviewStage, isInReview, inv
       messagesDispatch(changeLevelMessage(issueMessage, 'BLUE'));
       messagesDispatch(dehighlightMessage(issueMessage));
     }
-    const notFullyVotedMessage = findMessageOfType(NOT_FULLY_VOTED_TYPE, parentId, messagesState);
-    if (notFullyVotedMessage) {
-      messagesDispatch(changeLevelMessage(notFullyVotedMessage, 'BLUE'));
-      messagesDispatch(dehighlightMessage(notFullyVotedMessage));
+    const parentComment = getComment(commentsState, marketId, comment.id);
+    if (parentComment && parentComment.inline_market_id) {
+      const notFullyVotedMessage = findMessageOfType(NOT_FULLY_VOTED_TYPE, parentComment.inline_market_id,
+        messagesState);
+      if (notFullyVotedMessage) {
+        messagesDispatch(changeLevelMessage(notFullyVotedMessage, 'BLUE'));
+        messagesDispatch(dehighlightMessage(notFullyVotedMessage));
+      }
     }
   }
 }

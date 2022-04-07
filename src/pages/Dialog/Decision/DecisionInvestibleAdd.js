@@ -24,8 +24,6 @@ import {
   dehighlightMessage
 } from '../../../contexts/NotificationsContext/notificationsContextReducer'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
-import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
-import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 
 function DecisionInvestibleAdd(props) {
   const {
@@ -49,7 +47,6 @@ function DecisionInvestibleAdd(props) {
   const lockedDialogClasses = useLockedDialogStyles();
   const [marketStagesState] = useContext(MarketStagesContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
-  const [marketsState] = useContext(MarketsContext);
   const marketStages = getStages(marketStagesState, marketId) || [];
   const investmentAllowedStage = marketStages.find((stage) => stage.allows_investment) || {};
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -103,9 +100,7 @@ function DecisionInvestibleAdd(props) {
       addInfo.stageId = investmentAllowedStage.id;
     }
     return addDecisionInvestible(addInfo).then((investible) => {
-      const market = getMarket(marketsState, marketId) || {};
-      const notFullyVotedMessage = findMessageOfType(NOT_FULLY_VOTED_TYPE, market.parent_comment_market_id,
-        messagesState);
+      const notFullyVotedMessage = findMessageOfType(NOT_FULLY_VOTED_TYPE, marketId, messagesState);
       if (notFullyVotedMessage) {
         messagesDispatch(changeLevelMessage(notFullyVotedMessage, 'BLUE'));
         messagesDispatch(dehighlightMessage(notFullyVotedMessage));

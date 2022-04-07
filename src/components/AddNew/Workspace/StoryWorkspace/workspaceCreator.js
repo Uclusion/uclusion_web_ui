@@ -29,7 +29,7 @@ import { ADD_EVENT } from '../../../../contexts/NotificationsContext/notificatio
  * @param intl
  */
 export function doCreateStoryWorkspace (dispatchers, formData, updateFormData, intl) {
-  const { meetingName, parentInvestibleId, parentMarketId } = formData;
+  const { meetingName } = formData;
   const {
     marketsDispatch,
     marketStagesDispatch,
@@ -45,13 +45,6 @@ export function doCreateStoryWorkspace (dispatchers, formData, updateFormData, i
     name: meetingName,
     description: descriptionContent,
   };
-
-  if (parentInvestibleId) {
-    marketInfo.parent_investible_id = parentInvestibleId;
-  }
-  if (parentMarketId) {
-    marketInfo.parent_market_id = parentMarketId;
-  }
 
   if (formData.votesRequired > 0) {
     marketInfo.votes_required = formData.votesRequired

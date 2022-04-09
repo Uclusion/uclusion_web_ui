@@ -32,7 +32,7 @@
     "lodash": "^4.17.21",
     "logrocket": "^2.2.0",
     "material-ui-popup-state": "^1.5.4",
-    "moment": "^2.25.3",
+    "moment": "^2.29.2",
     "parchment": "^2.0.0-dev.2",
     "prop-types": "^15.7.2",
     "quill": "^2.0.0-dev.4",

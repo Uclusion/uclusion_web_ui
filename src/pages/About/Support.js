@@ -89,7 +89,7 @@ function Support(props) {
       <div className={classes.container}>
         <Card>
           <SubSection
-            title="Features and Help"
+            title="Via Channel"
             padChildren
           >
             <Grid
@@ -116,7 +116,7 @@ function Support(props) {
       <div className={classes.container} style={{marginTop: '3rem'}}>
         <Card>
           <SubSection
-            title="Bugs"
+            title="Via Email"
             padChildren
           >
             <Grid
@@ -148,10 +148,7 @@ function Support(props) {
                     id="supportInfoText"
                     values={{
                       a: (...chunks) => (
-                        <Link className={classes.embed} target="_blank" href="https://github.com/Uclusion/uclusion_customer_issues/issues">{chunks}</Link>
-                      ),
-                      b: (...chunks) => (
-                        <Link className={classes.embed} target="_blank" href="mailto:support@uclusion.com">{chunks}</Link>
+                        <Link target="_blank" href="mailto:support@uclusion.com">{chunks}</Link>
                       ),
                     }}
                   />

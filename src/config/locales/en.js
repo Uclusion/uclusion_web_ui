@@ -159,8 +159,8 @@ const messages = defineMessages({
   inviteLinkerTicketCode: 'Human friendly job identifier',
 
   // Support
-  supportInfoText: 'For bugs (but not feature requests) enter in <a>Uclusion issues</a> or send an email to <b>support</b> which includes the version and user ID above.',
-  supportFeatureInfoText: 'For feature requests and general help use this button to create a channel with Uclusion support as a collaborator.',
+  supportInfoText: 'Send an email to <a>support</a> which includes the version and user ID above.',
+  supportFeatureInfoText: 'This button takes you to a channel with Uclusion support as a collaborator.',
   featureRequest: 'Feature Request',
   createFeatureRequest: 'Create feature request',
   createOnboardingWorkspace: 'Support Help',

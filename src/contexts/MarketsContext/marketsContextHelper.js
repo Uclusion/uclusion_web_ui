@@ -53,11 +53,11 @@ export function getHiddenMarketDetailsForUser(state, marketPresenceState, search
   const { results, parentResults, search } = searchResults;
   if (marketDetails) {
     return marketDetails.filter((market) => {
-      const { id, market_stage: marketStage } = market;
+      const { id, market_stage: marketStage, market_sub_type: marketSubType } = market;
       const marketPresences = getMarketPresences(marketPresenceState, id) || [];
       const myPresence = marketPresences.find((presence) => presence.current_user) || {};
-      if (myPresence.market_banned) {
-        return false; // banned markets don't show up in the archives
+      if (myPresence.market_banned || ['SUPPORT', 'UNNAMED'].includes(marketSubType)) {
+        return false;
       }
       const shown = marketStage !== ACTIVE_STAGE || !myPresence.following;
       if (_.isEmpty(search)) {
@@ -115,8 +115,8 @@ export function getNotHiddenMarketDetailsForUser(state, marketPresencesState, se
       const marketPresences = getMarketPresences(marketPresencesState, market.id) || [];
       const myPresence = marketPresences.find((presence) => presence.current_user) || {};
       const { following } = myPresence;
-      const { market_stage: marketStage } = market;
-      const marketShown = marketStage === ACTIVE_STAGE && following;
+      const { market_stage: marketStage, market_sub_type: marketSubType } = market;
+      const marketShown = marketStage === ACTIVE_STAGE && following && !['SUPPORT', 'UNNAMED'].includes(marketSubType);
       if (_.isEmpty(search)) {
         return marketShown;
       }

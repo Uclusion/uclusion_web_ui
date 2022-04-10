@@ -128,12 +128,6 @@ export function createPlanning(marketInfo) {
     .catch((error) => toastErrorAndThrow(error, 'errorPlanningAddFailed'));
 }
 
-export function createOnboardingWorkspace (name) {
-  return getAccountClient()
-    .then((client) => client.markets.createMarketFromTemplate(name))
-    .catch((error) => toastErrorAndThrow(error, 'errorPlanningAddFailed'))
-}
-
 export function updateStage(marketId, stageId, allowedInvestibles, daysVisible) {
   return getMarketClient(marketId)
     .then((client) => client.markets.updateStage(stageId, allowedInvestibles, daysVisible))

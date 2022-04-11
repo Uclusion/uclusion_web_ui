@@ -16,7 +16,7 @@ import { doCreateStoryWorkspace } from './workspaceCreator'
 import { formMarketLink } from '../../../../utils/marketIdPathFunctions'
 
 function WorkspaceNameStep (props) {
-  const { updateFormData, formData, parentInvestibleId, parentMarketId, isNew } = props;
+  const { updateFormData, formData, parentInvestibleId, parentMarketId } = props;
   const intl = useIntl();
   const value = formData.meetingName || '';
   const validForm = !_.isEmpty(value);
@@ -70,19 +70,12 @@ function WorkspaceNameStep (props) {
       {...props}
     >
     <div>
-      {isNew && (
-        <Typography className={classes.introText} variant="body2">
-          Since you are new let's create a channel with a name you choose and the default configuration options. All
-          the config can be changed later.
-        </Typography>
-      )}
-      {!isNew && (
-        <Typography className={classes.introText} variant="body2">
-          Channels control communication visibility. After entering a name you can finish immediately or
-          look through other options. All of this configuration can be changed at any time.
-        </Typography>
-      )}
-      <label className={classes.inputLabel} htmlFor="name">{intl.formatMessage({ id: 'WorkspaceWizardMeetingPlaceHolder' })}</label>
+      <Typography className={classes.introText} variant="h6">
+        Channels have features for extended efforts. Configuration can be changed at any time from channel settings.
+      </Typography>
+      <label className={classes.inputLabel} htmlFor="name">
+        {intl.formatMessage({ id: 'WorkspaceWizardMeetingPlaceHolder' })}
+      </label>
       <TextField
         id="workspaceName"
         className={classes.input}
@@ -90,13 +83,8 @@ function WorkspaceNameStep (props) {
         onChange={onNameChange}
       />
       <div className={classes.borderBottom} />
-      {isNew && (
-        <StepButtons {...props} validForm={validForm} onFinish={onFinish} onNext={onFinish}
-                     showFinish={false} showStartOver={false}/>
-      )}
-      {!isNew && (
-        <StepButtons {...props} validForm={validForm} onFinish={onFinish} />
-      )}
+      <StepButtons {...props} validForm={validForm} onFinish={onFinish} onNext={onFinish}
+                   showFinish={false}/>
     </div>
     </WizardStepContainer>
   );

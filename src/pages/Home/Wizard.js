@@ -17,7 +17,7 @@ function Wizard(props) {
   const location = useLocation();
   const { hash } = location;
   const values = queryString.parse(hash);
-  const { type: createType, onboarding } = values;
+  const { type: createType } = values;
   const intl = useIntl();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
 
@@ -34,8 +34,7 @@ function Wizard(props) {
       hidden={hidden}
     >
       {createType === `${PLANNING_TYPE.toLowerCase()}` && (
-        <StoryWorkspaceWizard onFinish={onWizardFinish} showCancel={!onboarding}
-                              onStartOver={() => navigate(history, '/inbox')}/>
+        <StoryWorkspaceWizard onFinish={onWizardFinish} onStartOver={() => navigate(history, '/inbox')}/>
       )}
     </Screen>
   );

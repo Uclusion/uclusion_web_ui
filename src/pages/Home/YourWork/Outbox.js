@@ -286,7 +286,7 @@ function Outbox(props) {
         message.expansionPanel = <InboxInvestible marketId={market.id} investibleId={investibleId}
                                                   messageType={'UNREAD_VOTE'}
                                                   planningClasses={planningClasses} marketType={PLANNING_TYPE}
-                                                  mobileLayout={mobileLayout}/>
+                                                  mobileLayout={mobileLayout} isOutbox />
       }
       const { votes_required: votesRequired } = market
       const votersForInvestible = getInvestibleVoters(marketPresences, investibleId)

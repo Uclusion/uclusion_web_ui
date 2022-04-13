@@ -25,6 +25,7 @@ import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLab
 import { Clear, Send } from '@material-ui/icons'
 import IssueDialog from '../../../components/Warnings/IssueDialog'
 import { useLockedDialogStyles } from '../../Dialog/DialogBodyEdit'
+import { UNNAMED_SUB_TYPE } from '../../../constants/markets'
 
 function InboxWelcomeExpansion() {
   const intl = useIntl();
@@ -105,7 +106,7 @@ function InboxWelcomeExpansion() {
       const link = formInvestibleLink(marketId, investible.investible.id);
       const tokenStorageManager = new TokenStorageManager();
       return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, marketId, token)
-        .then(() => inviteParticipants(marketId, emailArray))
+        .then(() => inviteParticipants(marketId, emailArray, UNNAMED_SUB_TYPE, name))
         .then((result) => {
           marketPresencesDispatch(addMarketPresences(marketId, result));
           clear();

@@ -112,9 +112,9 @@ export function addParticipants(marketId, participants) {
     .catch((error) => toastErrorAndThrow(error, 'errorAddParticipantsFailed'));
 }
 
-export function inviteParticipants(marketId, participants) {
+export function inviteParticipants(marketId, participants, marketSubType, name) {
   return getMarketClient(marketId)
-    .then((client) => client.users.inviteUsers(participants))
+    .then((client) => client.users.inviteUsers(participants, marketSubType, name))
     .catch((error) => toastErrorAndThrow(error, 'errorInviteParticipantsFailed'));
 }
 

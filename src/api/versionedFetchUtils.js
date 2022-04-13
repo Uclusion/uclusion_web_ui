@@ -89,7 +89,17 @@ function startGlobalRefreshTimerChain(refreshAll) {
  * @returns {Promise<*>}
  */
 export function refreshGlobalVersion(refreshCalled) {
+  if (!globalFetchPromiseTracker) {
+    console.warn('No fetch tracking');
+    globalFetchPromiseTracker = {inProgress: 0};
+  } else {
+    console.info(globalFetchPromiseTracker);
+  }
   const { inProgress } = globalFetchPromiseTracker;
+  if (!globalFetchPromiseChain || inProgress < 1) {
+    // Spec says you can call then multiple times but Chrome might have some limit so re-init
+    globalFetchPromiseChain = Promise.resolve(true);
+  }
   if (inProgress > 1) {
     return globalFetchPromiseChain;
   }

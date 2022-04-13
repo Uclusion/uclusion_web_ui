@@ -148,7 +148,7 @@ function WebSocketProvider(props) {
         pongTracker.failureCount += 1;
         if (pingFailed || !socket) {
           if (socket) {
-            console.info('Terminating socket');
+            console.warn('Terminating socket');
             socket.terminate();
           }
           if (!mySignedOut) {

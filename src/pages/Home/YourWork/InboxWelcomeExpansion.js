@@ -84,7 +84,7 @@ function InboxWelcomeExpansion() {
     } = processTextAndFilesForSave(uploadedFiles, getQuillStoredState(editorName));
     const processedDescription = tokensRemoved ? tokensRemoved : ' ';
     const addInfo = {
-      uploadedFiles: filteredUploads,
+      uploaded_files: filteredUploads,
       description: processedDescription
     };
     const name = getNameStoredState(nameId);
@@ -121,7 +121,8 @@ function InboxWelcomeExpansion() {
         For approval and review of a job assigned to you use the below form or + Job from the left nav. For jobs
         assigned to multiple collaborators, create a channel using + Channel from the left nav.
       </Typography>
-      <AddNewUsers isInbox setEmailList={(value) => updateInvestibleAddState({emailList: value})} />
+      <AddNewUsers isInbox setEmailList={(value) => updateInvestibleAddState({emailList: value})}
+                   emailList={emailList} />
       <NameField id={nameId} editorName={editorName} useCreateDefault={false}/>
       {Editor}
       <div style={{paddingTop: '1rem'}}>

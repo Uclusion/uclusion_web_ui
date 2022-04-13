@@ -188,7 +188,7 @@ function Inbox(props) {
         market: intl.formatMessage({ id: 'aboutInbox' }),
         icon: <Assignment style={{fontSize: 24, color: '#2D9CDB',}}/>,
         read: !existingMessage.is_highlighted,
-        message: {type_object_id: id, link: 'https://documentation.uclusion.com/notifications/inbox'},
+        message: {type_object_id: id},
         expansionPanel: <InboxWelcomeExpansion />,
         moreDescription: intl.formatMessage({ id: 'demonstratesInbox' }),
         date: intl.formatDate(new Date())

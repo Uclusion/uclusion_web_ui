@@ -20,8 +20,8 @@ export function marketTokenLoaded(marketId, tokensHash) {
 }
 
 export function hasNoChannels(tokensHash) {
-  // To have a channel must have the account plus one market
-  return _.size(tokensHash) < 2;
+  // To have a channel must have the account plus support market plus one market
+  return _.size(tokensHash) < 3;
 }
 
 export function getMyUserForMarket(state, marketId) {

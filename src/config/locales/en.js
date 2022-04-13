@@ -145,7 +145,7 @@ const messages = defineMessages({
   points: 'points',
   currency: 'dollars',
   update: 'Update',
-  welcome: 'Welcome',
+  welcome: 'Get started',
 
   // Upgrade
   upgradeNow: 'Upgrade Now',
@@ -346,7 +346,7 @@ const messages = defineMessages({
   nameChange: 'Job name changed to "{x}"',
   investibleInboxHeader: '{x} / {y}',
   notificationsListHeader: 'Notifications: {x}',
-  aboutInbox: 'About your inbox',
+  aboutInbox: 'Get a job approved',
   demonstratesInbox: 'click this row to expand',
   notificationSummary: 'Summary',
   viewInChannel: 'View in channel',
@@ -875,6 +875,7 @@ const messages = defineMessages({
 
 
   // API errors
+  errorUnnamedMarketAddFailed: 'There was a problem sending. Please try again.',
   errorDecisionInvestibleAddFailed: 'There was a problem adding the option.',
   errorInvestibleAddFailed: 'There was a problem adding.',
   errorInvestibleDeleteFailed: 'There was a problem deleting.',

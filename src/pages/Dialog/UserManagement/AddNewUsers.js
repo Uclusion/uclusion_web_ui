@@ -28,25 +28,31 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { findMessageOfType } from '../../../utils/messageUtils'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 
 function AddNewUsers (props) {
-  const { market, isInbox } = props;
-  const { id: addToMarketId, market_type: marketType, invite_capability: marketToken } = market;
+  const { market, isInbox, emailList, setEmailList } = props;
+  const { id: addToMarketId, market_type: marketType, invite_capability: marketToken } = market || {};
   const classes = usePlanFormStyles();
   const intl = useIntl();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
+  const [marketState] = useContext(MarketsContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [email1, setEmail1] = useState('');
 
-  function handleEmail1 (event) {
+  function handleEmail1(event) {
     const { value } = event.target;
-    setEmail1(value);
+    if (setEmailList) {
+      setEmailList(value);
+    } else {
+      setEmail1(value);
+    }
   }
 
-  const participants = Object.values(extractUsersList(marketPresencesState, addToMarketId));
+  const participants = Object.values(extractUsersList(marketPresencesState, marketState, addToMarketId));
   const [checked, setChecked] = useState([]);
   const [searchValue, setSearchValue] = useState(undefined);
   const [filteredNames, setFilteredNames] = useState(undefined);
@@ -226,7 +232,7 @@ function AddNewUsers (props) {
       }
       <List
         dense
-        style={{maxWidth: '40rem', padding: '0'}}
+        style={{maxWidth: marketType ? '40rem' : undefined, padding: '0'}}
       >
         {displayNames.length > 0 &&
           <ListItem className={classes.listItem} style={{paddingTop: '0', paddingBottom: '1rem'}}>
@@ -235,12 +241,14 @@ function AddNewUsers (props) {
             </Typography>
           </ListItem>
         }
-        <ListItem className={classes.listItem} style={{paddingBottom: '1.5rem'}}>
-          <InviteLinker
-            marketType={marketType}
-            marketToken={marketToken}
-          />
-        </ListItem>
+        {marketType && (
+          <ListItem className={classes.listItem} style={{paddingBottom: '1.5rem'}}>
+            <InviteLinker
+              marketType={marketType}
+              marketToken={marketToken}
+            />
+          </ListItem>
+        )}
         {emailsSent.length > 0 && (
           <>
             <ListItem className={classes.listItem}>
@@ -274,9 +282,11 @@ function AddNewUsers (props) {
             key="emailInput"
           >
             <ListItemText>
-              <Typography style={{ paddingBottom: '0.5rem' }}>
-                {intl.formatMessage({ id: 'inviteParticipantsEmailLabel' })}
-              </Typography>
+              {marketType && (
+                <Typography style={{ paddingBottom: '0.5rem' }}>
+                  {intl.formatMessage({ id: 'inviteParticipantsEmailLabel' })}
+                </Typography>
+              )}
               <TextField
                 className={classes.input}
                 variant="standard"
@@ -284,17 +294,19 @@ function AddNewUsers (props) {
                 name={emailInputId}
                 fullWidth
                 label={intl.formatMessage({ id: 'searchParticipantsPlaceholder' })}
-                value={email1}
+                value={emailList || email1}
                 onChange={handleEmail1}
               />
             </ListItemText>
           </ListItem>
-          <ListItem id="emailButtons" key="emailButtons" className={clsx(classes.rightAlign, classes.listItem)}>
-            <SpinningIconLabelButton onClick={handleSaveEmails} icon={Email} id={emailInputButtonId}
-                                     disabled={_.isEmpty(email1)} allowOtherOperations={true}>
-              {intl.formatMessage({ id: 'addressAddSaveLabel' })}
-            </SpinningIconLabelButton>
-          </ListItem>
+          {addToMarketId && (
+            <ListItem id="emailButtons" key="emailButtons" className={clsx(classes.rightAlign, classes.listItem)}>
+              <SpinningIconLabelButton onClick={handleSaveEmails} icon={Email} id={emailInputButtonId}
+                                       disabled={_.isEmpty(email1)} allowOtherOperations={true}>
+                {intl.formatMessage({ id: 'addressAddSaveLabel' })}
+              </SpinningIconLabelButton>
+            </ListItem>
+          )}
         </form>
       </List>
     </>
@@ -302,7 +314,7 @@ function AddNewUsers (props) {
 }
 
 AddNewUsers.propTypes = {
-  market: PropTypes.object.isRequired,
+  market: PropTypes.object,
   onSave: PropTypes.func,
 };
 

@@ -12,8 +12,6 @@ import {
 } from '../../../contexts/MarketsContext/marketsContextHelper'
 import _ from 'lodash'
 import SettingsIcon from '@material-ui/icons/Settings'
-import { Link } from '@material-ui/core'
-import DismissableText from '../../../components/Notifications/DismissableText'
 import { formMarketLink, navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
 import AddIcon from '@material-ui/icons/Add'
@@ -156,16 +154,6 @@ function InboxFull(props) {
       navigationOptions={navigationMenu}
       isInbox
     >
-      <DismissableText textId={'channelHelp'} text={
-        <div>
-          A <Link href="https://documentation.uclusion.com/channels" target="_blank">channel</Link> is
-          the root of all Uclusion communication and can be created from the "+ Channel" on the left nav or
-          clicking <Link href={createChannelPath} onClick={(event) => {
-          preventDefaultAndProp(event);
-          history.push(createChannelPath);
-        }}>here</Link>.
-        </div>
-      } />
       <Inbox expansionState={expansionState} expansionDispatch={expansionDispatch} page={page} setPage={setPage} />
     </Screen>
   );

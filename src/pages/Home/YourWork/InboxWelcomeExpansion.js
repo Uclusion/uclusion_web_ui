@@ -1,20 +1,146 @@
-import React from 'react'
+import React, { useContext, useState } from 'react'
 import { useIntl } from 'react-intl'
+import { getQuillStoredState } from '../../../components/TextEditors/Utilities/CoreUtils'
+import { useEditor } from '../../../components/TextEditors/quillHooks'
+import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
+import NameField, { clearNameStoredState, getNameStoredState } from '../../../components/TextFields/NameField'
+import AddNewUsers from '../../Dialog/UserManagement/AddNewUsers'
 import { Typography } from '@material-ui/core'
+import { processTextAndFilesForSave } from '../../../api/files'
+import { nameFromDescription } from '../../../utils/stringFunctions'
+import _ from 'lodash'
+import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions'
+import { createUnnamedMarket } from '../../../api/markets'
+import { addMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
+import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
+import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../../authorization/TokenStorageManager'
+import { inviteParticipants } from '../../../api/users'
+import { addMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesContextReducer'
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
+import { useHistory } from 'react-router'
+import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
+import { Clear, Send } from '@material-ui/icons'
+import IssueDialog from '../../../components/Warnings/IssueDialog'
+import { useLockedDialogStyles } from '../../Dialog/DialogBodyEdit'
 
 function InboxWelcomeExpansion() {
   const intl = useIntl();
+  const history = useHistory();
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
+  const [, investiblesDispatch] = useContext(InvestiblesContext);
+  const [, marketsDispatch] = useContext(MarketsContext);
+  const lockedDialogClasses = useLockedDialogStyles();
+  const [openIssue, setOpenIssue] = useState(false);
+  const [investibleAddStateFull, investibleAddDispatch] = usePageStateReducer('investibleAdd');
+  const [investibleAddState, updateInvestibleAddState, investibleAddStateReset] =
+    getPageReducerPage(investibleAddStateFull, investibleAddDispatch, 'inbox');
+  const {
+    emailList,
+    uploadedFiles
+  } = investibleAddState;
+
+  function onS3Upload(metadatas) {
+    updateInvestibleAddState({uploadedFiles: metadatas})
+  }
+  const editorName = 'planning-inv-add';
+  const nameId = 'inboxAddInvestible';
+  const editorSpec = {
+    placeHolder: intl.formatMessage({ id: 'investibleAddDescriptionDefault' }),
+    onUpload: onS3Upload,
+    value: getQuillStoredState(editorName)
+  }
+  const [Editor, resetMainEditor] = useEditor(editorName, editorSpec);
+
+  function clear() {
+    setOperationRunning(false);
+    setOpenIssue(false);
+    investibleAddStateReset();
+    resetMainEditor();
+  }
+
+  function handleCancel() {
+    clear();
+  }
+
+  function handleSave() {
+    const emails = emailList.split(',');
+    const emailArray = [];
+    emails.forEach((email) => {
+      const emailTrimmed = email.trim();
+      emailArray.push({ email: emailTrimmed });
+    });
+    /*if (_.isEmpty(emailArray)) {
+      setOperationRunning(false);
+      setOpenIssue('noParticipants');
+      return;
+    }*/
+    const {
+      uploadedFiles: filteredUploads,
+      text: tokensRemoved,
+    } = processTextAndFilesForSave(uploadedFiles, getQuillStoredState(editorName));
+    const processedDescription = tokensRemoved ? tokensRemoved : ' ';
+    const addInfo = {
+      uploadedFiles: filteredUploads,
+      description: processedDescription
+    };
+    const name = getNameStoredState(nameId);
+    if (name) {
+      addInfo.name = name;
+    } else {
+      addInfo.name = nameFromDescription(getQuillStoredState(editorName));
+    }
+    if (_.isEmpty(addInfo.name)) {
+      setOperationRunning(false);
+      setOpenIssue('noName');
+      return;
+    }
+    return createUnnamedMarket(addInfo).then((result) => {
+      const { market: { id: marketId }, token, investible } = result;
+      addMarket(result, marketsDispatch, () => {}, marketPresencesDispatch);
+      addInvestible(investiblesDispatch, () => {}, investible);
+      const link = formInvestibleLink(marketId, investible.investible.id);
+      const tokenStorageManager = new TokenStorageManager();
+      return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, marketId, token)
+        .then(() => inviteParticipants(marketId, emailArray))
+        .then((result) => {
+          marketPresencesDispatch(addMarketPresences(marketId, result));
+          clear();
+          clearNameStoredState(nameId);
+          return navigate(history, link);
+        });
+    });
+  }
 
   return (
-    <div style={{paddingLeft: '3rem'}}>
-      <h3>{intl.formatMessage({ id: 'notificationSummary' })}</h3>
-      <Typography variant="body1">
-        Inbox rows remain until you perform the necessary action. This row remains until you have your
-        first real notification.
+    <div style={{paddingTop: '1.5rem', paddingLeft: '1rem', paddingRight: '1rem', paddingBottom: '1rem'}}>
+      <Typography variant="body1" style={{fontWeight: 600, marginBottom: '1rem'}}>
+        For approval and review of a job assigned to you use the below form or + Job from the left nav. For jobs
+        assigned to multiple collaborators, create a channel using + Channel from the left nav.
       </Typography>
-      <Typography variant="body1" style={{marginTop: '1rem', marginBottom: '1rem'}}>
-        A trash icon will be in the expansion if the notification can be deleted after reading.
-      </Typography>
+      <AddNewUsers isInbox setEmailList={(value) => updateInvestibleAddState({emailList: value})} />
+      <NameField id={nameId} editorName={editorName} useCreateDefault={false}/>
+      {Editor}
+      <div style={{paddingTop: '1rem'}}>
+        <SpinningIconLabelButton onClick={handleCancel} doSpin={false} icon={Clear}>
+          {intl.formatMessage({ id: 'marketAddCancelLabel' })}
+        </SpinningIconLabelButton>
+        <SpinningIconLabelButton onClick={handleSave} icon={Send} id="planningInvestibleAddButton">
+          {intl.formatMessage({ id: 'commentAddSendLabel' })}
+        </SpinningIconLabelButton>
+        {openIssue !== false && (
+          <IssueDialog
+            classes={lockedDialogClasses}
+            open={openIssue !== false}
+            onClose={() => setOpenIssue(false)}
+            issueWarningId={openIssue}
+            showDismiss={false}
+          />
+        )}
+      </div>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { getAccountClient, getMarketClient } from './uclusionClient'
 import { fixupItemForStorage } from '../contexts/ContextUtils'
 import { errorAndThrow, toastErrorAndThrow } from '../utils/userMessage'
-import { INITIATIVE_TYPE, PLANNING_TYPE } from '../constants/markets'
+import { INITIATIVE_TYPE, PLANNING_TYPE, UNNAMED_SUB_TYPE } from '../constants/markets'
 
 function fixupMarketForStorage(market) {
   const itemFixed = fixupItemForStorage(market);
@@ -106,6 +106,17 @@ export function unFollowStages(marketId, stageIds){
   return getMarketClient(marketId)
     .then((client) => client.markets.followStage(stageIds, true))
     .catch((error) => toastErrorAndThrow(error, 'errorUnFollowStages'));
+}
+
+export function createUnnamedMarket(marketInfo) {
+  const myInfo = {
+    ...marketInfo,
+    market_type: PLANNING_TYPE,
+    market_sub_type: UNNAMED_SUB_TYPE
+  };
+  return getAccountClient()
+    .then((client) => client.markets.createMarket(myInfo))
+    .catch((error) => toastErrorAndThrow(error, 'errorUnnamedMarketAddFailed'));
 }
 
 export function createInitiative(marketInfo, messageKey = 'errorInitiativeAddFailed') {

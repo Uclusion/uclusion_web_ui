@@ -11,10 +11,11 @@ import { getMarketPresences } from '../contexts/MarketPresencesContext/marketPre
 import _ from 'lodash'
 import config from '../config'
 import { clearRedirect } from './redirectUtils'
+import { getMarket } from '../contexts/MarketsContext/marketsContextHelper'
 
 const LOGOUT_MARKER_KEY = 'logout_marker';
 
-export function extractUsersList (marketPresencesState, addToMarketId) {
+export function extractUsersList (marketPresencesState, marketState, addToMarketId) {
   // The account user is being stored with an undefined market ID and so need to avoid it
   const addToMarketPresences = addToMarketId ? getMarketPresences(marketPresencesState, addToMarketId) || [] : [];
   const addToMarketPresencesHash = addToMarketPresences.reduce((acc, presence) => {
@@ -22,8 +23,9 @@ export function extractUsersList (marketPresencesState, addToMarketId) {
     return { ...acc, [external_id]: true };
   }, {});
   return Object.keys(marketPresencesState).reduce((acc, marketId) => {
+    const market = getMarket(marketState, marketId) || {};
     const marketPresences = marketPresencesState[marketId] || [];
-    if(!Array.isArray(marketPresences) || _.isEmpty(marketPresences)) {
+    if(!Array.isArray(marketPresences) || _.isEmpty(marketPresences) || market.market_sub_type === 'SUPPORT') {
       return acc;
     }
     const macc = {};

@@ -33,7 +33,7 @@ function Investible(props) {
   const myParams = new URL(document.location).searchParams;
   const subscribeId = myParams ? myParams.get('subscribeId') : undefined;
   const [marketPresencesState] = useContext(MarketPresencesContext);
-  const marketPresences = getMarketPresences(marketPresencesState, marketId);
+  const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const [marketsState, ,tokensHash] = useContext(MarketsContext);
   const realMarket = getMarket(marketsState, marketId);
   const market = realMarket || {};
@@ -50,7 +50,7 @@ function Investible(props) {
   const { name } = investible || {};
   const { name: marketName } = market || {};
   const breadCrumbTemplates = [{ name: marketName, link: formMarketLink(marketId), id: 'marketCrumb' }];
-  const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
+  const myPresence = marketPresences.find((presence) => presence.current_user);
   const loading = !investibleId || _.isEmpty(inv) || _.isEmpty(investible) || _.isEmpty(myPresence) || !userId
     || _.isEmpty(realMarket) || !marketTokenLoaded(marketId, tokensHash);
   const isAdmin = myPresence && myPresence.is_admin;

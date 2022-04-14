@@ -138,7 +138,7 @@ import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
 import SpinningButton from '../../../components/SpinBlocking/SpinningButton'
 import { removeWorkListItem, workListStyles } from '../../Home/YourWork/WorkListItem'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
-import { ACTIVE_STAGE } from '../../../constants/markets'
+import { ACTIVE_STAGE, UNNAMED_SUB_TYPE } from '../../../constants/markets'
 import {
   OPERATION_HUB_CHANNEL, STOP_OPERATION
 } from '../../../contexts/OperationInProgressContext/operationInProgressMessages'
@@ -399,7 +399,7 @@ function PlanningInvestible(props) {
   const [showDatepicker, setShowDatepicker] = useState(false);
   const [clearMeHack, setClearMeHack] = useState('a');
   const [labelFocus, setLabelFocus] = useState(false);
-  const { name: marketName, id: marketId, market_stage: marketStage } = market;
+  const { name: marketName, id: marketId, market_stage: marketStage, market_sub_type: marketSubType } = market;
   const inArchives = marketStage !== ACTIVE_STAGE;
   const labels = getMarketLabels(investiblesState, marketId);
   const investmentReasonsRemoved = investibleComments.filter(comment => comment.comment_type !== JUSTIFY_TYPE) || [];
@@ -410,8 +410,8 @@ function PlanningInvestible(props) {
     return comment.comment_type === JUSTIFY_TYPE && (results.find((item) => item.id === comment.id)
       || parentResults.find((id) => id === comment.id));
   });
-  const investibleCollaborators = getCollaborators(marketPresences, investibleComments, marketPresencesState,
-    investibleId);
+  const investibleCollaborators = marketSubType === UNNAMED_SUB_TYPE ? marketPresences.map((presence) => presence.id) :
+    getCollaborators(marketPresences, investibleComments, marketPresencesState, investibleId);
   const marketInfo = getMarketInfo(marketInvestible, marketId) || {};
   const { stage, assigned: invAssigned, completion_estimate: marketDaysEstimate,
     required_approvers:  requiredApprovers, required_reviews: requiredReviewers, ticket_code: ticketCode,

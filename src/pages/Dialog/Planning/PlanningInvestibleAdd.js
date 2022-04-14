@@ -342,7 +342,8 @@ function PlanningInvestibleAdd(props) {
           type={STORY_TYPE}
         />
         <CardContent>
-          <div className={classes.cardContent} style={{paddingLeft: 0, paddingRight: 0}}>
+          <div className={classes.cardContent}
+               style={{paddingLeft: 0, paddingRight: 0, display: mobileLayout ? 'block' : undefined}}>
             {(!storyAssignee || isAssignedToMe) && _.isEmpty(furtherWorkType) && marketId && (
               <>
                 {!storyAssignee && _.isEmpty(furtherWorkType) && !_.isEmpty(presences) && (
@@ -457,7 +458,7 @@ function PlanningInvestibleAdd(props) {
 
 PlanningInvestibleAdd.propTypes = {
   classes: PropTypes.object.isRequired,
-  marketId: PropTypes.string.isRequired,
+  marketId: PropTypes.string,
   useBudget: PropTypes.bool.isRequired,
   onCancel: PropTypes.func,
   onSpinComplete: PropTypes.func,

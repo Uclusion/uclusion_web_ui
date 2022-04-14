@@ -475,9 +475,10 @@ function PlanningInvestible(props) {
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   const inMarketArchives = isInNotDoing || isInVerified;
   const reportMessage = findMessageOfType('REPORT_REQUIRED', investibleId, messagesState);
-  const breadCrumbTemplates = [
-    { name: marketName, link: formMarketLink(marketId) }
-  ];
+  const breadCrumbTemplates = [];
+  if (marketName) {
+    breadCrumbTemplates.push({ name: marketName, link: formMarketLink(marketId) });
+  }
   if (inMarketArchives && !inVerifedSwimLane(marketInvestible, investibles, inVerifiedStage, marketId)) {
     breadCrumbTemplates.push({
       name: intl.formatMessage({ id: "dialogArchivesLabel" }),
@@ -772,7 +773,8 @@ function PlanningInvestible(props) {
     navListItemTextArray: [
       {icon: Inbox, text: intl.formatMessage({ id: 'returnInbox' }), target: getInboxTarget(messagesState),
         newPage: true},
-      {icon: AgilePlanIcon, text: marketName, target: formMarketLink(marketId)},
+      marketSubType === UNNAMED_SUB_TYPE ? {} : {icon: AgilePlanIcon, text: marketName,
+        target: formMarketLink(marketId)},
       createNavListItem(EditIcon, 'description_label', 'storyMain',
       displayDescription ? undefined : 0),
       createNavListItem(ThumbsUpDownIcon, 'approvals', 'approvals',

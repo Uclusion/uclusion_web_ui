@@ -821,7 +821,7 @@ function PlanningInvestible(props) {
         hidden={hidden}
         navigationOptions={navigationMenu}
       >
-        <DialogManage marketId={marketId}/>
+        <DialogManage marketId={marketId} name={name}/>
       </Screen>
     );
   }

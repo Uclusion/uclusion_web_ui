@@ -144,6 +144,7 @@ import {
 } from '../../../contexts/OperationInProgressContext/operationInProgressMessages'
 import { addEditVotingHasContents } from '../Voting/AddEditVote'
 import { getInboxTarget } from '../../../contexts/NotificationsContext/notificationsContextHelper'
+import DialogManage from '../../Dialog/DialogManage'
 
 export const usePlanningInvestibleStyles = makeStyles(
   theme => ({
@@ -424,7 +425,8 @@ function PlanningInvestible(props) {
   const [pageState, updatePageState, pageStateReset] = getPageReducerPage(pageStateFull, pageDispatch, investibleId);
   const {
     beingEdited,
-    editCollaborators
+    editCollaborators,
+    showDialogManage
   } = pageState;
 
   const [votingPageStateFull, votingPageDispatch] = usePageStateReducer('voting')
@@ -768,17 +770,21 @@ function PlanningInvestible(props) {
   const reports = sortedRoots.filter((comment) => comment.comment_type === REPORT_TYPE);
   const { id: reportId } = getFakeCommentsArray(reports)[0];
   const todoSortedComments = sortedRoots.filter((comment) => comment.comment_type === TODO_TYPE);
-  const { id: todoId } = getFakeCommentsArray(todoSortedComments)[0]
+  const { id: todoId } = getFakeCommentsArray(todoSortedComments)[0];
+  const voters = getInvestibleVoters(marketPresences, investibleId);
   const navigationMenu = {
     navListItemTextArray: [
       {icon: Inbox, text: intl.formatMessage({ id: 'returnInbox' }), target: getInboxTarget(messagesState),
         newPage: true},
-      marketSubType === UNNAMED_SUB_TYPE ? {} : {icon: AgilePlanIcon, text: marketName,
-        target: formMarketLink(marketId)},
+      marketSubType === UNNAMED_SUB_TYPE ? {icon: AddIcon,
+        text: intl.formatMessage({ id: 'dialogAddParticipantsLabel' }),
+          'onClickFunc': () => updatePageState({showDialogManage: true})} :
+        {icon: AgilePlanIcon, text: marketName, target: formMarketLink(marketId)},
       createNavListItem(EditIcon, 'description_label', 'storyMain',
       displayDescription ? undefined : 0),
       createNavListItem(ThumbsUpDownIcon, 'approvals', 'approvals',
-        displayApprovalsBySearch, _.isEmpty(search) ? isInVoting : false),
+        displayApprovalsBySearch,
+        _.isEmpty(search) ? (isInVoting && (canVote || !_.isEmpty(voters))) : false),
       inArchives || !_.isEmpty(search) ? {} : createNavListItem(AddIcon, 'commentAddBox'),
       createNavListItem(BlockIcon, 'blocking', `c${blockingId}`, _.size(blocking)),
       createNavListItem(QuestionIcon, 'questions', `c${questionId}`, _.size(questions)),
@@ -804,10 +810,24 @@ function PlanningInvestible(props) {
     }
     updatePageState({editCollaborators: false});
   }
-  const voters = getInvestibleVoters(marketPresences, investibleId);
+  const title = ticketCode ? `${ticketCode} ${name}` : name;
+  if (showDialogManage) {
+    navigationMenu['listOnClick'] = () => updatePageState({showDialogManage: false});
+    return (
+      <Screen
+        title={title}
+        tabTitle={name}
+        breadCrumbs={breadCrumbs}
+        hidden={hidden}
+        navigationOptions={navigationMenu}
+      >
+        <DialogManage marketId={marketId}/>
+      </Screen>
+    );
+  }
   return (
     <Screen
-      title={ticketCode ? `${ticketCode} ${name}` : name}
+      title={title}
       tabTitle={name}
       breadCrumbs={breadCrumbs}
       hidden={hidden}

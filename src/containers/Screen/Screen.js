@@ -218,7 +218,7 @@ function Screen(props) {
   if (_.isEmpty(breadCrumbs)) {
     usedBreadCrumbs = makeBreadCrumbs(history);
   }
-  const { navListItemTextArray, navMenu, showSearch = true } = navigationOptions || {}
+  const { navListItemTextArray, navMenu, showSearch = true, listOnClick } = navigationOptions || {}
   const myContainerClass = navigationOptions && !mobileLayout ? classes.containerAllLeftPad : classes.containerAll
   const contentClass = mobileLayout ? classes.contentNoStyle : (isPending ? classes.pending :
     navigationOptions ? classes.content : classes.contentNoStyle);
@@ -227,7 +227,7 @@ function Screen(props) {
     <>
       {navMenu}
       {!_.isEmpty(navListItemTextArray) && (
-        <List>
+        <List onClick={listOnClick}>
           {navListItemTextArray.map((navItem, topIndex) => {
             const { text, target, num, icon: Icon, onClickFunc, subItems, isBold, newPage, isGreyed } = navItem;
             if (subItems) {

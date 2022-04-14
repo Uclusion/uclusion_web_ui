@@ -29,7 +29,7 @@ import {
   formInvestibleLink,
   formMarketArchivesLink,
   formMarketLink,
-  makeBreadCrumbs,
+  makeBreadCrumbs, navigate,
 } from '../../../utils/marketIdPathFunctions'
 import Screen from '../../../containers/Screen/Screen'
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
@@ -67,7 +67,7 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import AddIcon from '@material-ui/icons/Add'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import MoveToFurtherWorkActionButton from './MoveToFurtherWorkActionButton'
-import { DaysEstimate } from '../../../components/AgilePlan'
+import { DaysEstimate, usePlanFormStyles } from '../../../components/AgilePlan'
 import { ACTION_BUTTON_COLOR, HIGHLIGHTED_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
 import AttachedFilesList from '../../../components/Files/AttachedFilesList'
 import {
@@ -145,6 +145,7 @@ import {
 import { addEditVotingHasContents } from '../Voting/AddEditVote'
 import { getInboxTarget } from '../../../contexts/NotificationsContext/notificationsContextHelper'
 import DialogManage from '../../Dialog/DialogManage'
+import PlanningInvestibleAdd from '../../Dialog/Planning/PlanningInvestibleAdd'
 
 export const usePlanningInvestibleStyles = makeStyles(
   theme => ({
@@ -386,6 +387,7 @@ function PlanningInvestible(props) {
     hidden
   } = props;
   const lockedDialogClasses = useLockedDialogStyles();
+  const planningInvestibleAddClasses = usePlanFormStyles();
   const [open, setOpen] = useState(false);
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
@@ -400,7 +402,8 @@ function PlanningInvestible(props) {
   const [showDatepicker, setShowDatepicker] = useState(false);
   const [clearMeHack, setClearMeHack] = useState('a');
   const [labelFocus, setLabelFocus] = useState(false);
-  const { name: marketName, id: marketId, market_stage: marketStage, market_sub_type: marketSubType } = market;
+  const { name: marketName, id: marketId, market_stage: marketStage, market_sub_type: marketSubType,
+    budget_unit: budgetUnit, use_budget: useBudget, votes_required: votesRequired, created_by: marketCreatedBy} = market;
   const inArchives = marketStage !== ACTIVE_STAGE;
   const labels = getMarketLabels(investiblesState, marketId);
   const investmentReasonsRemoved = investibleComments.filter(comment => comment.comment_type !== JUSTIFY_TYPE) || [];
@@ -426,7 +429,8 @@ function PlanningInvestible(props) {
   const {
     beingEdited,
     editCollaborators,
-    showDialogManage
+    showDialogManage,
+    showAddInvestible
   } = pageState;
 
   const [votingPageStateFull, votingPageDispatch] = usePageStateReducer('voting')
@@ -786,6 +790,8 @@ function PlanningInvestible(props) {
         displayApprovalsBySearch,
         _.isEmpty(search) ? (isInVoting && (canVote || !_.isEmpty(voters))) : false),
       inArchives || !_.isEmpty(search) ? {} : createNavListItem(AddIcon, 'commentAddBox'),
+      marketSubType === UNNAMED_SUB_TYPE ? {icon: AddIcon, text: intl.formatMessage({ id: 'addStoryLabel' }),
+        'onClickFunc': () => updatePageState({showAddInvestible: true})} : {},
       createNavListItem(BlockIcon, 'blocking', `c${blockingId}`, _.size(blocking)),
       createNavListItem(QuestionIcon, 'questions', `c${questionId}`, _.size(questions)),
       createNavListItem(UpdateIcon, 'reports', `c${reportId}`, _.size(reports)),
@@ -824,6 +830,42 @@ function PlanningInvestible(props) {
         <DialogManage marketId={marketId} name={name}/>
       </Screen>
     );
+  }
+  function onInvestibleSave(investible) {
+    addInvestible(investiblesDispatch, diffDispatch, investible);
+  }
+
+  function onDone(destinationLink) {
+    updatePageState({showAddInvestible: false})
+    if (destinationLink) {
+      navigate(history, destinationLink);
+    }
+  }
+  if (showAddInvestible) {
+    navigationMenu['listOnClick'] = () => updatePageState({showAddInvestible: false});
+    return (
+      <Screen
+        title={title}
+        tabTitle={name}
+        breadCrumbs={breadCrumbs}
+        hidden={hidden}
+        navigationOptions={navigationMenu}
+      >
+        <PlanningInvestibleAdd
+          marketId={marketId}
+          onCancel={() => updatePageState({showAddInvestible: false})}
+          onSave={onInvestibleSave}
+          onSpinComplete={onDone}
+          marketPresences={marketPresences}
+          createdAt={createdAt}
+          classes={planningInvestibleAddClasses}
+          maxBudgetUnit={budgetUnit}
+          useBudget={useBudget ? useBudget : false}
+          votesRequired={votesRequired}
+          storyAssignee={marketCreatedBy}
+        />
+      </Screen>
+    )
   }
   return (
     <Screen

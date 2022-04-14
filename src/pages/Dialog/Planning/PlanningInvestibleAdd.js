@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react'
 import _ from 'lodash'
 import { useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
-import { Card, CardActions, CardContent, Checkbox, FormControlLabel, useMediaQuery, useTheme, Link }
+import { Card, CardActions, CardContent, Checkbox, FormControlLabel, useMediaQuery, useTheme }
   from '@material-ui/core'
 import { addPlanningInvestible } from '../../../api/investibles'
 import { processTextAndFilesForSave } from '../../../api/files'
@@ -10,7 +10,6 @@ import { formInvestibleLink, formMarketLink } from '../../../utils/marketIdPathF
 import AssignmentList from './AssignmentList'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import CardType, { QUESTION_TYPE, STORY_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../components/CardType'
-import DismissableText from '../../../components/Notifications/DismissableText'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import AddInitialVote from '../../Investible/Voting/AddInitialVote'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
@@ -283,12 +282,6 @@ function PlanningInvestibleAdd(props) {
   const cardId = `card${nameId}`;
   return (
     <>
-      <DismissableText textId='planningInvestibleAddHelp' text={
-        <div>
-          <Link href="https://documentation.uclusion.com/channels/jobs" target="_blank">Jobs</Link> allow
-          collaboration on what should be done, by whom, how and status at a glance.
-        </div>
-      }/>
       <Card className={classes.overflowVisible} id={cardId}>
         <CardType
           className={classes.cardType}

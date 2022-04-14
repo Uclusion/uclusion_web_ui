@@ -836,7 +836,7 @@ const messages = defineMessages({
   clear: 'Clear',
 
   // add participants
-  addParticipantsNewPerson: 'Not on Uclusion? Send Invite',
+  addParticipantsNewPerson: 'Not in the list? Send invite.',
   emailsSentLabel: 'Sent emails to',
 
   // Spinning

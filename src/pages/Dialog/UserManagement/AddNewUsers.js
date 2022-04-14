@@ -21,7 +21,6 @@ import InviteLinker from '../InviteLinker'
 import { usePlanFormStyles } from '../../../components/AgilePlan'
 import { addMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesContextReducer'
 import { extractUsersList } from '../../../utils/userFunctions'
-import Gravatar from '../../../components/Avatars/Gravatar';
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { Email, SettingsBackupRestore } from '@material-ui/icons'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
@@ -31,6 +30,7 @@ import { removeMessage } from '../../../contexts/NotificationsContext/notificati
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { UNNAMED_SUB_TYPE } from '../../../constants/markets'
 import GravatarAndName from '../../../components/Avatars/GravatarAndName'
+import { AccountUserContext } from '../../../contexts/AccountUserContext/AccountUserContext'
 
 function AddNewUsers(props) {
   const { market, isInbox, emailList, setEmailList, name, setToAddClean } = props;
@@ -44,6 +44,9 @@ function AddNewUsers(props) {
   const [marketState] = useContext(MarketsContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [userState] = useContext(AccountUserContext);
+  const { user: unsafeUser } = userState || {};
+  const myUser = unsafeUser || {};
   const [email1, setEmail1] = useState('');
 
   function handleEmail1(event) {
@@ -55,7 +58,7 @@ function AddNewUsers(props) {
     }
   }
 
-  const participants = Object.values(extractUsersList(marketPresencesState, marketState, addToMarketId));
+  const participants = Object.values(extractUsersList(marketPresencesState, marketState, addToMarketId, myUser));
   const [checked, setChecked] = useState([]);
   const [searchValue, setSearchValue] = useState(undefined);
   const [filteredNames, setFilteredNames] = useState(undefined);

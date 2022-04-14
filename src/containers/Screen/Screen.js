@@ -170,7 +170,7 @@ function Screen(props) {
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
   const [userState] = useContext(AccountUserContext);
-  const { user: unsafeUser } = userState;
+  const { user: unsafeUser } = userState || {};
   const user = unsafeUser || {};
   const history = useHistory();
   const [messagesState] = useContext(NotificationsContext);

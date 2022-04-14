@@ -15,9 +15,9 @@ import { getMarket } from '../contexts/MarketsContext/marketsContextHelper'
 
 const LOGOUT_MARKER_KEY = 'logout_marker';
 
-export function extractUsersList (marketPresencesState, marketState, addToMarketId) {
-  // The account user is being stored with an undefined market ID and so need to avoid it
-  const addToMarketPresences = addToMarketId ? getMarketPresences(marketPresencesState, addToMarketId) || [] : [];
+export function extractUsersList(marketPresencesState, marketState, addToMarketId, myUser) {
+  const addToMarketPresences = addToMarketId ? (getMarketPresences(marketPresencesState, addToMarketId) || []) :
+    [{external_id: myUser.external_id}];
   const addToMarketPresencesHash = addToMarketPresences.reduce((acc, presence) => {
     const { external_id } = presence;
     return { ...acc, [external_id]: true };

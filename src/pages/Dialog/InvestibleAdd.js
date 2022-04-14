@@ -23,6 +23,9 @@ import { addInvestible } from '../../contexts/InvestibesContext/investiblesConte
 import { usePlanFormStyles } from '../../components/AgilePlan'
 import queryString from 'query-string'
 import { UNNAMED_SUB_TYPE } from '../../constants/markets'
+import { Inbox } from '@material-ui/icons'
+import { getInboxTarget } from '../../contexts/NotificationsContext/notificationsContextHelper'
+import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 
 function InvestibleAdd(props) {
   const { hidden } = props;
@@ -34,18 +37,19 @@ function InvestibleAdd(props) {
   const { fromCommentId } = values;
   const fromCommentIds = _.isArray(fromCommentId) ? fromCommentId : fromCommentId ? [fromCommentId] : undefined;
   const { marketId } = decomposeMarketPath(pathname);
+  const [messagesState] = useContext(NotificationsContext);
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   // we're going to talk directly to the contexts instead of pushing messages for speed reasons
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, diffDispatch] = useContext(DiffContext);
   const classes = usePlanFormStyles();
-  const renderableMarket = getMarket(marketsState, marketId) || {};
+  const renderableMarket = marketId ? (getMarket(marketsState, marketId) || {}) : {};
   const { market_type: marketType, created_at: createdAt, budget_unit: budgetUnit, use_budget: useBudget,
     votes_required: votesRequired, market_sub_type: marketSubType, created_by: marketCreatedBy
   } = renderableMarket;
-  const currentMarketName = (renderableMarket && renderableMarket.name) || '';
-  const breadCrumbTemplates = [{ name: currentMarketName, link: formMarketLink(marketId) }];
+  const currentMarketName = renderableMarket.name || '';
+  const breadCrumbTemplates = marketId ? [{ name: currentMarketName, link: formMarketLink(marketId) }] : [];
   const myBreadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
   const title = intl.formatMessage({ id: 'newStory'});
 
@@ -59,19 +63,23 @@ function InvestibleAdd(props) {
       navigate(history, destinationLink);
     }
   }
+  const navigationMenu = { navListItemTextArray: [{icon: Inbox,
+      text: intl.formatMessage({ id: 'returnInbox' }),
+      target: getInboxTarget(messagesState), newPage: true}], showSearch: false };
 
   return (
     <Screen
       title={title}
       hidden={hidden}
       tabTitle={title}
+      navigationOptions={navigationMenu}
       breadCrumbs={myBreadCrumbs}
-      loading={!marketType}
+      loading={marketId && !marketType}
     >
       {hidden ? <div /> :
         <PlanningInvestibleAdd
           marketId={marketId}
-          onCancel={onDone}
+          onCancel={() => onDone(formMarketLink(marketId))}
           onSave={onInvestibleSave}
           onSpinComplete={onDone}
           marketPresences={getMarketPresences(marketPresencesState, marketId)}

@@ -30,9 +30,10 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { UNNAMED_SUB_TYPE } from '../../../constants/markets'
+import GravatarAndName from '../../../components/Avatars/GravatarAndName'
 
-function AddNewUsers (props) {
-  const { market, isInbox, emailList, setEmailList, name } = props;
+function AddNewUsers(props) {
+  const { market, isInbox, emailList, setEmailList, name, setToAddClean } = props;
   const { id: addToMarketId, market_type: marketType, invite_capability: marketToken,
     market_sub_type: marketSubType } = market || {};
   const classes = usePlanFormStyles();
@@ -83,16 +84,31 @@ function AddNewUsers (props) {
     }
   }, [searchValue, participants]);
 
+  function generateToAddClean(myChecked) {
+    return myChecked.map((participant) => {
+      const { external_id, account_id } = participant
+      return { external_id, account_id }
+    });
+  }
+
   function getCheckToggle (id) {
     return () => {
       const found = checked.find((item) => item.user_id === id);
       if (!found) {
         const userDetail = participants.find((participant) => participant.user_id === id);
         if (userDetail) {
-          setChecked(checked.concat([userDetail]));
+          const myChecked = checked.concat([userDetail]);
+          setChecked(myChecked);
+          if (setToAddClean) {
+            setToAddClean(generateToAddClean(myChecked));
+          }
         }
       } else {
-        setChecked(checked.filter((item) => item.user_id !== id));
+        const myChecked = checked.filter((item) => item.user_id !== id);
+        setChecked(myChecked);
+        if (setToAddClean) {
+          setToAddClean(generateToAddClean(myChecked));
+        }
       }
     };
   }
@@ -113,17 +129,15 @@ function AddNewUsers (props) {
             checked={isChecked}
           />
         </ListItemIcon>
-        <ListItemText
-          className={classes.name}
-        >
-          {name}
-        </ListItemText>
-        <ListItemAvatar>
-          <Gravatar
-            name={name}
+        <ListItemText>
+          <GravatarAndName
+            key={id}
             email={email}
-            />
-        </ListItemAvatar>
+            name={name}
+            typographyVariant="caption"
+            typographyClassName={classes.avatarName}
+          />
+        </ListItemText>
       </ListItem>
     );
   }
@@ -163,11 +177,7 @@ function AddNewUsers (props) {
   }
 
   function handleSaveParticipants() {
-    const toAddClean = checked.map((participant) => {
-      const { external_id, account_id } = participant
-      return { external_id, account_id }
-    });
-    return addParticipants(addToMarketId, toAddClean)
+    return addParticipants(addToMarketId, generateToAddClean(checked))
       .then((result) => {
         setOperationRunning(false);
         onSaveSpinStop(result);
@@ -198,17 +208,16 @@ function AddNewUsers (props) {
     <>
       {displayNames.length > 0 &&
         <>
-          <List
-            dense
-            className={clsx(classes.scrollableList, classes.sharedForm)}
-          >
+          <List dense className={clsx(classes.scrollableList, classes.sharedForm)}>
             <ListItem className={classes.searchContainer} key="search">
-              <SpinningIconLabelButton onClick={handleSaveParticipants} icon={SettingsBackupRestore}
-                                       id="participantAddButton"
-                                       disabled={_.isEmpty(checked)}>
-                {intl.formatMessage({ id: mobileLayout ? 'addExistingCollaboratorMobile' :
-                    'addExistingCollaborator' })}
-              </SpinningIconLabelButton>
+              {marketType && (
+                <SpinningIconLabelButton onClick={handleSaveParticipants} icon={SettingsBackupRestore}
+                                         id="participantAddButton"
+                                         disabled={_.isEmpty(checked)}>
+                  {intl.formatMessage({ id: mobileLayout ? 'addExistingCollaboratorMobile' :
+                      'addExistingCollaborator' })}
+                </SpinningIconLabelButton>
+              )}
               {_.size(participants) > 10 && (
                   <ListItemText >
                     <TextField
@@ -231,17 +240,17 @@ function AddNewUsers (props) {
             <List
               dense
               id="addressBook"
-              className={classes.scrollContainer}
+              className={_.size(participants) > 4 ? classes.scrollContainer : undefined}
             >
               {displayNames.map((entry) => renderParticipantEntry(entry))}
             </List>
           </List>
-          <div className={classes.spacer} />
+          <div className={classes.spacer} style={{maxWidth: '5rem'}} />
         </>
       }
       <List
         dense
-        style={{maxWidth: marketType ? '40rem' : undefined, padding: '0'}}
+        style={{padding: '0'}}
       >
         {displayNames.length > 0 &&
           <ListItem className={classes.listItem} style={{paddingTop: '0', paddingBottom: '1rem'}}>

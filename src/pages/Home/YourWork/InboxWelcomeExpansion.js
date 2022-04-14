@@ -68,7 +68,7 @@ function InboxWelcomeExpansion() {
   }
 
   function handleSave() {
-    const emails = emailList.split(',');
+    const emails = emailList ? emailList.split(',') : [];
     const emailArray = [];
     emails.forEach((email) => {
       const emailTrimmed = email.trim();
@@ -119,7 +119,7 @@ function InboxWelcomeExpansion() {
   return (
     <div style={{paddingTop: '1.5rem', paddingLeft: '1rem', paddingRight: '1rem', paddingBottom: '1rem'}}>
       <Typography variant="body1" style={{fontWeight: 600, marginBottom: '1rem'}}>
-        For approval and review of a job assigned to you use the below form or + Job from the left nav. For jobs
+        For approval and review of a job assigned to you use the below form. For jobs
         assigned to multiple collaborators, create a channel using + Channel from the left nav.
       </Typography>
       <AddNewUsers isInbox setEmailList={(value) => updateInvestibleAddState({emailList: value})}

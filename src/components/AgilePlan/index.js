@@ -90,6 +90,11 @@ export const usePlanFormStyles = makeStyles(
     actions: {
       margin: theme.spacing(1, 0, 0, 0)
     },
+    avatarName: {
+      fontSize: '15px',
+      overflowWrap: 'break-word',
+      cursor: 'pointer'
+    },
     actionPrimary: {
       backgroundColor: "#2D9CDB",
       color: "white",
@@ -140,7 +145,7 @@ export const usePlanFormStyles = makeStyles(
       position: 'sticky'
     },
     sharedForm: {
-      width: '20%',
+      maxWidth: '30%',
       marginRight: 10,
       [theme.breakpoints.down('sm')]: {
         width: 'auto'

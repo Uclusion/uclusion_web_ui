@@ -6,7 +6,7 @@ import { Card, CardActions, CardContent, Checkbox, FormControlLabel, useMediaQue
   from '@material-ui/core'
 import { addPlanningInvestible } from '../../../api/investibles'
 import { processTextAndFilesForSave } from '../../../api/files'
-import { formInvestibleLink, formMarketLink } from '../../../utils/marketIdPathFunctions'
+import { formInvestibleLink } from '../../../utils/marketIdPathFunctions'
 import AssignmentList from './AssignmentList'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import CardType, { QUESTION_TYPE, STORY_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../components/CardType'
@@ -29,7 +29,7 @@ import Comment from '../../../components/Comments/Comment'
 import { getAcceptedStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import { assignedInStage } from '../../../utils/userFunctions'
-import { getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
+import { addInvestible, getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { nameFromDescription } from '../../../utils/stringFunctions'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { Clear, Done, Send } from '@material-ui/icons'
@@ -41,6 +41,14 @@ import WarningDialog from '../../../components/Warnings/WarningDialog'
 import { useLockedDialogStyles } from '../DialogBodyEdit'
 import IssueDialog from '../../../components/Warnings/IssueDialog'
 import { getQuillStoredState, resetEditor } from '../../../components/TextEditors/Utilities/CoreUtils'
+import { createUnnamedMarket } from '../../../api/markets'
+import { addMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
+import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../../authorization/TokenStorageManager'
+import { addParticipants, inviteParticipants } from '../../../api/users'
+import { UNNAMED_SUB_TYPE } from '../../../constants/markets'
+import { addMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesContextReducer'
+import AddNewUsers from '../UserManagement/AddNewUsers'
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 
 function PlanningInvestibleAdd(props) {
   const {
@@ -57,17 +65,18 @@ function PlanningInvestibleAdd(props) {
   const [open, setOpen] = useState(false);
   const lockedDialogClasses = useLockedDialogStyles();
   const [assignments, setAssignments] = useState(undefined);
-  const nameId = `investibleAdd${marketId}`;
+  const nameId = marketId ? `investibleAdd${marketId}` : 'inboxAddInvestible';
   const [openIssue, setOpenIssue] = useState(false);
-  const comments = getMarketComments(commentsState, marketId) || [];
-  const [investibleState] = useContext(InvestiblesContext);
+  const comments = marketId ? getMarketComments(commentsState, marketId) : [];
+  const [investibleState, investiblesDispatch] = useContext(InvestiblesContext);
   const [presencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
-  const presences = getMarketPresences(presencesState, marketId) || [];
+  const [, marketsDispatch] = useContext(MarketsContext);
+  const presences = marketId ? getMarketPresences(presencesState, marketId) : [];
   const myPresence = presences.find((presence) => presence.current_user) || {};
-  const acceptedStage = getAcceptedStage(marketStagesState, marketId) || {};
+  const acceptedStage = marketId ? getAcceptedStage(marketStagesState, marketId) : {};
   const [investibleAddStateFull, investibleAddDispatch] = usePageStateReducer('investibleAdd');
   const [investibleAddState, updateInvestibleAddState, investibleAddStateReset] =
-    getPageReducerPage(investibleAddStateFull, investibleAddDispatch, marketId,
+    getPageReducerPage(investibleAddStateFull, investibleAddDispatch, marketId ? marketId : 'inbox',
       {
         maxBudgetUnit: '',
         skipApproval: false
@@ -79,16 +88,20 @@ function PlanningInvestibleAdd(props) {
     maxBudget,
     quantity,
     uploadedFiles,
-    voteUploadedFiles
+    voteUploadedFiles,
+    emailList,
+    toAddClean
   } = investibleAddState;
   const isAssignedToMe = (assignments || (storyAssignee ? [storyAssignee] : [])).includes(myPresence.id);
   const isAssigned = !_.isEmpty(assignments) || storyAssignee;
-  const editorName = `${marketId}-planning-inv-add`;
+  const editorName = marketId ? `${marketId}-planning-inv-add` : 'planning-inv-add';
   const editorSpec = {
-    marketId,
     placeHolder: intl.formatMessage({ id: 'investibleAddDescriptionDefault' }),
     onUpload: onS3Upload,
     value: getQuillStoredState(editorName)
+  }
+  if (marketId) {
+    editorSpec.marketId = marketId;
   }
   const [Editor, resetMainEditor] = useEditor(editorName, editorSpec);
 
@@ -124,10 +137,10 @@ function PlanningInvestibleAdd(props) {
 
   function handleCancel() {
     zeroCurrentValues();
-    onCancel(formMarketLink(marketId));
+    onCancel();
   }
 
-  const initialVoteEditorName = `${marketId}-add-initial-vote`;
+  const initialVoteEditorName = marketId ? `${marketId}-add-initial-vote` : 'add-initial-vote';
 
   function handleSave() {
     return handleSaveImpl(false);
@@ -140,10 +153,12 @@ function PlanningInvestibleAdd(props) {
     } = processTextAndFilesForSave(uploadedFiles, getQuillStoredState(editorName));
     const processedDescription = tokensRemoved ? tokensRemoved : ' ';
     const addInfo = {
-      marketId,
       uploadedFiles: filteredUploads,
       description: processedDescription
     };
+    if (marketId) {
+      addInfo.marketId = marketId;
+    }
     const name = getNameStoredState(nameId);
     if (name) {
       addInfo.name = name;
@@ -174,7 +189,7 @@ function PlanningInvestibleAdd(props) {
       setOpenIssue('noQuantity');
       return;
     }
-    if (isAssigned) {
+    if (isAssigned && marketId) {
       addInfo.assignments = assignments || [storyAssignee];
     }
     if (skipApproval) {
@@ -182,6 +197,42 @@ function PlanningInvestibleAdd(props) {
     }
     if (openForInvestment || openForInvestmentDefault) {
       addInfo.openForInvestment = true;
+    }
+    if (!marketId) {
+      const emails = emailList ? emailList.split(',') : [];
+      const emailArray = [];
+      emails.forEach((email) => {
+        const emailTrimmed = email.trim();
+        emailArray.push({ email: emailTrimmed });
+      });
+      return createUnnamedMarket(addInfo).then((result) => {
+        const { market: { id: marketId }, token, investible } = result;
+        addMarket(result, marketsDispatch, () => {}, marketPresencesDispatch);
+        addInvestible(investiblesDispatch, () => {}, investible);
+        const link = formInvestibleLink(marketId, investible.investible.id);
+        const tokenStorageManager = new TokenStorageManager();
+        return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, marketId, token).then(() => {
+            if (!_.isEmpty(toAddClean)) {
+              return addParticipants(marketId, toAddClean);
+            }
+            return [];
+          }).then((result) => {
+            if (!_.isEmpty(emailArray)) {
+              if (!_.isEmpty(result)) {
+                marketPresencesDispatch(addMarketPresences(marketId, result));
+              }
+              return inviteParticipants(marketId, emailArray, UNNAMED_SUB_TYPE, name);
+            }
+            return result;
+          }).then((result) => {
+            if (!_.isEmpty(result)) {
+              marketPresencesDispatch(addMarketPresences(marketId, result));
+            }
+            setOperationRunning(false);
+            zeroCurrentValues();
+            return onSpinComplete(link);
+          });
+      });
     }
     return addPlanningInvestible(addInfo).then((inv) => {
       if (fromCommentIds) {
@@ -291,38 +342,45 @@ function PlanningInvestibleAdd(props) {
           type={STORY_TYPE}
         />
         <CardContent>
-          {(!storyAssignee || isAssignedToMe) && _.isEmpty(furtherWorkType) && (
-            <div className={classes.cardContent}>
-              {!storyAssignee && _.isEmpty(furtherWorkType) && !_.isEmpty(presences) && (
-                <AssignmentList
-                  fullMarketPresences={presences}
-                  onChange={onAssignmentsChange}
-                  emptyListHeader='emptyAssignmentHeader'
-                />
-              )}
-              <div>
-                <legend>{intl.formatMessage({ id: 'agilePlanFormFieldsetLabelOptional' })}</legend>
-                <FormControlLabel
-                  control={ _.isEmpty(assignments) ?
+          <div className={classes.cardContent} style={{paddingLeft: 0, paddingRight: 0}}>
+            {(!storyAssignee || isAssignedToMe) && _.isEmpty(furtherWorkType) && marketId && (
+              <>
+                {!storyAssignee && _.isEmpty(furtherWorkType) && !_.isEmpty(presences) && (
+                  <AssignmentList
+                    fullMarketPresences={presences}
+                    onChange={onAssignmentsChange}
+                    emptyListHeader='emptyAssignmentHeader'
+                  />
+                )}
+                <div>
+                  <legend>{intl.formatMessage({ id: 'agilePlanFormFieldsetLabelOptional' })}</legend>
+                  <FormControlLabel
+                    control={ _.isEmpty(assignments) ?
+                        <Checkbox
+                          value={openForInvestment}
+                          checked={openForInvestment || openForInvestmentDefault}
+                          disabled={furtherWorkType !== undefined}
+                          onClick={() => updateInvestibleAddState({ openForInvestment: !openForInvestment })}
+                        /> :
                       <Checkbox
-                        value={openForInvestment}
-                        checked={openForInvestment || openForInvestmentDefault}
-                        disabled={furtherWorkType !== undefined}
-                        onClick={() => updateInvestibleAddState({ openForInvestment: !openForInvestment })}
-                      /> :
-                    <Checkbox
-                      value={skipApproval}
-                      disabled={votesRequired > 1 || acceptedFull || !acceptedStage.id || !isAssignedToMe}
-                      checked={skipApproval}
-                      onClick={() => updateInvestibleAddState({ skipApproval: !skipApproval })}
-                    />
-                  }
-                  label={intl.formatMessage({ id: _.isEmpty(assignments) ? 'readyToStartCheckboxExplanation' :
-                      'skipApprovalExplanation' })}
-                />
-              </div>
-            </div>
-          )}
+                        value={skipApproval}
+                        disabled={votesRequired > 1 || acceptedFull || !acceptedStage.id || !isAssignedToMe}
+                        checked={skipApproval}
+                        onClick={() => updateInvestibleAddState({ skipApproval: !skipApproval })}
+                      />
+                    }
+                    label={intl.formatMessage({ id: _.isEmpty(assignments) ? 'readyToStartCheckboxExplanation' :
+                        'skipApprovalExplanation' })}
+                  />
+                </div>
+              </>
+            )}
+            {!marketId && (
+              <AddNewUsers isInbox setEmailList={(value) => updateInvestibleAddState({emailList: value})}
+                           emailList={emailList} setToAddClean={(value) => updateInvestibleAddState({toAddClean: value})}
+              />
+            )}
+          </div>
           <NameField id={nameId} editorName={editorName} useCreateDefault scrollId={cardId}/>
           {Editor}
         </CardContent>

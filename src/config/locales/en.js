@@ -12,6 +12,7 @@ const messages = defineMessages({
   blockedNotice: 'Operation Blocked',
   slack_register_failed: 'Slack registration failure.',
   settings: 'Settings',
+  oneDoneInvestible: 'Assignment',
   language: 'Language',
   theme: 'Theme',
   responsive: 'Responsive',

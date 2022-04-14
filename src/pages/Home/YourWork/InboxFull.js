@@ -101,6 +101,10 @@ function InboxFull(props) {
         target: createChannelPath
       },
       {
+        icon: AddIcon, text: intl.formatMessage({ id: 'oneDoneInvestible' }),
+        target: '/investibleAdd'
+      },
+      {
         icon: SettingsIcon, text: intl.formatMessage({ id: 'settings' }),
         target: '/notificationPreferences'
       },

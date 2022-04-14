@@ -268,7 +268,7 @@ function PlanningInvestibleAdd(props) {
             comment={fromComment}
             comments={comments}
             allowedTypes={[TODO_TYPE]}
-            readOnly
+            stagePreventsActions
           />
         </div>
       );

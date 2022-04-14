@@ -407,7 +407,7 @@ function Comment(props) {
   const [userState] = useContext(AccountUserContext);
   const [openIssue, setOpenIssue] = useState(false);
   const enableActions = !inArchives && !stagePreventsActions;
-  const enableEditing = !inArchives && !resolved; //resolved comments or those in archive aren't editable
+  const enableEditing = enableActions && !resolved; //resolved comments or those in archive aren't editable
   const [investibleAddStateFull, investibleAddDispatch] = usePageStateReducer('commentInvestibleAdd');
   const [investibleAddState, updateInvestibleAddState, investibleAddStateReset] =
     getPageReducerPage(investibleAddStateFull, investibleAddDispatch, id);

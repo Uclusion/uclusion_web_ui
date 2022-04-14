@@ -94,9 +94,7 @@ const messages = defineMessages({
   delete_message_message: 'Message will be deleted!',
   user_registrationg_graph_label: 'User registrations',
   required: 'Required',
-  facebook: 'Facebook',
   github: 'Github',
-  twitter: 'Twitter',
   phone: 'Phone',
   google: 'Google',
   facebook_color: '#303F9F',
@@ -837,6 +835,7 @@ const messages = defineMessages({
 
   // add participants
   addParticipantsNewPerson: 'Not in the list? Send invite.',
+  addParticipantsOneAndDone: 'Select from list to add an approver.',
   emailsSentLabel: 'Sent emails to',
 
   // Spinning

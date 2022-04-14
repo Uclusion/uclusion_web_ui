@@ -221,6 +221,13 @@ function AddNewUsers(props) {
                       'addExistingCollaborator' })}
                 </SpinningIconLabelButton>
               )}
+              {!marketType && (
+                <ListItem className={classes.listItem} style={{paddingTop: '0'}}>
+                  <Typography className={classes.cardTitle} style={{padding: '0'}}>
+                    {intl.formatMessage({ id: 'addParticipantsOneAndDone' })}
+                  </Typography>
+                </ListItem>
+              )}
               {_.size(participants) > 10 && (
                   <ListItemText >
                     <TextField

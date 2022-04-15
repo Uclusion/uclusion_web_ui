@@ -205,6 +205,11 @@ function PlanningInvestibleAdd(props) {
         const emailTrimmed = email.trim();
         emailArray.push({ email: emailTrimmed });
       });
+      if (_.isEmpty(emailArray) && _.isEmpty(toAddClean)) {
+        setOperationRunning(false);
+        setOpenIssue('noParticipants');
+        return;
+      }
       return createUnnamedMarket(addInfo).then((result) => {
         const { market: { id: marketId }, token, investible } = result;
         addMarket(result, marketsDispatch, () => {}, marketPresencesDispatch);

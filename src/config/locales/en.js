@@ -593,6 +593,7 @@ const messages = defineMessages({
   inDialogInvestiblesUpdatedAt: 'Entered stage ',
   verifiedInvestiblesUpdatedAt: 'Entered stage ',
   noName: 'Must create a text description for this job.',
+  noParticipants: 'Include at least one person to send.',
   nameRequired: 'Name is a required field.',
   noQuantity: 'Must provide your certainty for this job.',
   noVoteQuantity: 'Must provide your certainty.',

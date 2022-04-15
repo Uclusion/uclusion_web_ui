@@ -74,11 +74,11 @@ function InboxWelcomeExpansion() {
       const emailTrimmed = email.trim();
       emailArray.push({ email: emailTrimmed });
     });
-    /*if (_.isEmpty(emailArray)) {
+    if (_.isEmpty(emailArray)) {
       setOperationRunning(false);
       setOpenIssue('noParticipants');
       return;
-    }*/
+    }
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,

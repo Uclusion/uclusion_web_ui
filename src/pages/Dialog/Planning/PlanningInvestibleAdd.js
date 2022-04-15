@@ -221,7 +221,7 @@ function PlanningInvestibleAdd(props) {
               if (!_.isEmpty(result)) {
                 marketPresencesDispatch(addMarketPresences(marketId, result));
               }
-              return inviteParticipants(marketId, emailArray, UNNAMED_SUB_TYPE, name);
+              return inviteParticipants(marketId, emailArray, UNNAMED_SUB_TYPE);
             }
             return result;
           }).then((result) => {

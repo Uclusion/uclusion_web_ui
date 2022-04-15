@@ -7,7 +7,7 @@ import {
   IconButton,
   InputAdornment,
   List,
-  ListItem, ListItemAvatar,
+  ListItem,
   ListItemIcon,
   ListItemText,
   TextField,

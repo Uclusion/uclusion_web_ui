@@ -3,7 +3,7 @@ import { useIntl } from 'react-intl'
 import { getQuillStoredState } from '../../../components/TextEditors/Utilities/CoreUtils'
 import { useEditor } from '../../../components/TextEditors/quillHooks'
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
-import NameField, { clearNameStoredState, getNameStoredState } from '../../../components/TextFields/NameField'
+import { clearNameStoredState, getNameStoredState } from '../../../components/TextFields/NameField'
 import AddNewUsers from '../../Dialog/UserManagement/AddNewUsers'
 import { Typography } from '@material-ui/core'
 import { processTextAndFilesForSave } from '../../../api/files'
@@ -50,7 +50,7 @@ function InboxWelcomeExpansion() {
   const editorName = 'planning-inv-add';
   const nameId = 'inboxAddInvestible';
   const editorSpec = {
-    placeHolder: intl.formatMessage({ id: 'investibleAddDescriptionDefault' }),
+    placeholder: intl.formatMessage({ id: 'investibleAddDescriptionDefault' }),
     onUpload: onS3Upload,
     value: getQuillStoredState(editorName)
   }
@@ -124,7 +124,6 @@ function InboxWelcomeExpansion() {
       </Typography>
       <AddNewUsers isInbox setEmailList={(value) => updateInvestibleAddState({emailList: value})}
                    emailList={emailList} />
-      <NameField id={nameId} editorName={editorName} useCreateDefault={false}/>
       {Editor}
       <div style={{paddingTop: '1rem'}}>
         <SpinningIconLabelButton onClick={handleCancel} doSpin={false} icon={Clear}>

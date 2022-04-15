@@ -592,7 +592,7 @@ const messages = defineMessages({
   reviewingInvestiblesUpdatedAt: 'Entered stage ',
   inDialogInvestiblesUpdatedAt: 'Entered stage ',
   verifiedInvestiblesUpdatedAt: 'Entered stage ',
-  noName: 'Must create a name or text description for this job.',
+  noName: 'Must create a text description for this job.',
   nameRequired: 'Name is a required field.',
   noQuantity: 'Must provide your certainty for this job.',
   noVoteQuantity: 'Must provide your certainty.',

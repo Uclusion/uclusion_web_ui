@@ -24,7 +24,7 @@ import {
 } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { moveComments } from '../../../api/comments'
-import NameField, { clearNameStoredState, getNameStoredState } from '../../../components/TextFields/NameField'
+import { clearNameStoredState, getNameStoredState } from '../../../components/TextFields/NameField'
 import Comment from '../../../components/Comments/Comment'
 import { getAcceptedStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
@@ -96,7 +96,7 @@ function PlanningInvestibleAdd(props) {
   const isAssigned = !_.isEmpty(assignments) || storyAssignee;
   const editorName = marketId ? `${marketId}-planning-inv-add` : 'planning-inv-add';
   const editorSpec = {
-    placeHolder: intl.formatMessage({ id: 'investibleAddDescriptionDefault' }),
+    placeholder: intl.formatMessage({ id: 'investibleAddDescriptionDefault' }),
     onUpload: onS3Upload,
     value: getQuillStoredState(editorName)
   }
@@ -382,7 +382,6 @@ function PlanningInvestibleAdd(props) {
               />
             )}
           </div>
-          <NameField id={nameId} editorName={editorName} useCreateDefault scrollId={cardId}/>
           {Editor}
         </CardContent>
         {!isAssignedToMe && isAssigned && (

@@ -42,7 +42,7 @@ export function nameFromDescription(description) {
       parts.forEach((part) => {
         if (!_.isEmpty(part)) {
           const index = description.indexOf(part);
-          const extracted = extractName(part);
+          const extracted = extractName(entry === ". " ? `${part}.` : part);
           if (!_.isEmpty(extracted)) {
             if (found < 0 || index < found || (index === found &&
               (!latestExtract || extracted.length < latestExtract.length))) {

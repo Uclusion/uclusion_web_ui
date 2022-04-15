@@ -94,9 +94,7 @@ function InboxRow(props) {
       const comment = nameFromDescription(rootComment.body);
       if (comment) {
         item.comment = comment;
-        if (investibleId) {
-          item.moreDescription = item.investible;
-        } else if (rootComment.id !== commentId) {
+        if (rootComment.id !== commentId && !investibleId) {
           const originalComment = getComment(commentState, commentMarketId || marketId, commentId) || {};
           item.moreDescription = nameFromDescription(originalComment.body);
         }

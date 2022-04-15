@@ -156,9 +156,13 @@ function WorkListItem(props) {
   const [isHovered, setIsHovered] = useState(false);
   const { link, link_multiple: linkMultiple } = message;
 
-  let fullText = comment || investible || market;
+  let fullText =  investible || comment || market;
   if (moreDescription) {
-    fullText += ' - ';
+    fullText += ' - ' + moreDescription;
+  } else {
+    if (investible && comment) {
+      fullText += ' - ' + comment;
+    }
   }
   const useLink = isMultiple ? linkMultiple : link;
   const isUsingExpansion = usesExpansion(props);
@@ -218,7 +222,7 @@ function WorkListItem(props) {
             </Box>
             {read ? (<Title>{title}</Title>) : (<TitleB>{title}</TitleB>)}
             {mobileLayout || !people ? React.Fragment : <GravatarGroup users={people} className={classes.gravatarStyle}/> }
-            <Text style={{ maxWidth: '55vw' }}>{fullText} {moreDescription}</Text>
+            <Text style={{ maxWidth: '55vw' }}>{fullText}</Text>
             {showExpansion || mobileLayout || !date ? React.Fragment : (read ? (<DateLabel>{date}</DateLabel>) :
               (<DateLabelB>{date}</DateLabelB>))}
             {showExpansion && (

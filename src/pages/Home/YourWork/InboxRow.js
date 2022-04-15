@@ -104,13 +104,6 @@ function InboxRow(props) {
     if (completionEstimate) {
       item.moreDescription = <DaysEstimate readOnly value={completionEstimate} justText/>;
     }
-  } else if (linkType === 'INVESTIBLE' && _.isEmpty(assigned)) {
-    const { investible: myInvestible } = inv || {};
-    const { description } = myInvestible || {};
-    const abbreviatedDescription = nameFromDescription(description);
-    if (abbreviatedDescription) {
-      item.moreDescription = abbreviatedDescription;
-    }
   }
   item.title =  titleText(message, mobileLayout, intl, isMultiple, numMultiples, rootComment, userId,
     fullStage.allows_investment, assigned);

@@ -79,7 +79,7 @@ function InvestibleAdd(props) {
       {hidden ? <div /> :
         <PlanningInvestibleAdd
           marketId={marketId}
-          onCancel={() => onDone(formMarketLink(marketId))}
+          onCancel={() => navigate(history)}
           onSave={onInvestibleSave}
           onSpinComplete={onDone}
           marketPresences={getMarketPresences(marketPresencesState, marketId)}

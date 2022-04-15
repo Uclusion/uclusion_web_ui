@@ -80,7 +80,7 @@ function InboxRow(props) {
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   const isInAcceptedStage = isAcceptedStage(fullStage);
   let rootComment;
-  if (commentId && linkType !== 'INVESTIBLE') {
+  if (commentId) {
     const { parent_comment_id: inlineParentCommentId, parent_comment_market_id: parentMarketId } = market
     let useMarketId = commentMarketId || marketId;
     let useCommentId = commentId;
@@ -100,7 +100,9 @@ function InboxRow(props) {
         }
       }
     }
-  } else if (isInAcceptedStage) {
+  }
+
+  if (isInAcceptedStage) {
     if (completionEstimate) {
       item.moreDescription = <DaysEstimate readOnly value={completionEstimate} justText/>;
     }

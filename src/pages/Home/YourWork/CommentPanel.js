@@ -103,12 +103,14 @@ function CommentPanel(props) {
                 }
                 navigate(history, useLink)}}>{intl.formatMessage({id: 'viewInChannel'})}</Link>
             </Typography>
-            <div style={{marginLeft: '1rem', marginTop: '1rem'}}>
-              <SpinningButton onClick={myAccept} className={classes.actionPrimary} id='startTodo'
-                              style={{padding: '0.25rem', paddingLeft: '0.5rem', paddingRight: '0.5rem'}}>
-                {intl.formatMessage({ id: 'startTodo' })}
-              </SpinningButton>
-            </div>
+            {commentType === TODO_TYPE && (
+              <div style={{marginLeft: '1rem', marginTop: '1rem'}}>
+                <SpinningButton onClick={myAccept} className={classes.actionPrimary} id='startTodo'
+                                style={{padding: '0.25rem', paddingLeft: '0.5rem', paddingRight: '0.5rem'}}>
+                  {intl.formatMessage({ id: 'startTodo' })}
+                </SpinningButton>
+              </div>
+            )}
             {!mobileLayout && !isOutbox && (
               <>
                 <div style={{flexGrow: 1}} />

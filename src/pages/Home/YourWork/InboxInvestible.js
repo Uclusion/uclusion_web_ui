@@ -17,7 +17,7 @@ import {
   TODO_TYPE
 } from '../../../constants/comments'
 import CommentBox from '../../../containers/CommentBox/CommentBox'
-import { getInvestibleComments } from '../../../contexts/CommentsContext/commentsContextHelper'
+import { getCommentRoot, getInvestibleComments } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { getMarket, getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
@@ -84,8 +84,16 @@ function InboxInvestible(props) {
   const yourPresence = marketPresences.find((presence) => presence.current_user);
   const investibleComments = getInvestibleComments(investibleId, marketId, commentState);
   const investmentReasonsRemoved = investibleComments.filter(comment => comment.comment_type !== JUSTIFY_TYPE) || [];
-  const todoComments = investibleComments.filter(comment => comment.comment_type === TODO_TYPE
-    || comment.comment_type === REPLY_TYPE) || [];
+  const todoCommentsAndHighlighted = investibleComments.filter(comment => comment.comment_type === TODO_TYPE
+    || comment.comment_type === REPLY_TYPE ||
+    (messagesFull || []).find((message) => {
+      if (!message.comment_id) {
+        return false;
+      }
+      const { comment_market_id: commentMarketId, market_id: marketId, comment_id: commentId } = message;
+      const rootCommentId = getCommentRoot(commentState, commentMarketId || marketId, commentId);
+      return rootCommentId === comment.id
+    })) || [];
   const investmentReasons = investibleComments.filter(comment => comment.comment_type === JUSTIFY_TYPE) || [];
   const investibleCollaborators = getCollaborators(marketPresences, investibleComments, marketPresencesState,
     investibleId);
@@ -368,7 +376,7 @@ function InboxInvestible(props) {
         && (
         <div style={{paddingTop: '0.5rem'}}>
           <CommentBox
-            comments={useMessageTypes.includes('NEW_TODO') ? todoComments : investmentReasonsRemoved}
+            comments={useMessageTypes.includes('NEW_TODO') ? todoCommentsAndHighlighted : investmentReasonsRemoved}
             marketId={marketId}
             allowedTypes={[]}
             fullStage={fullStage}

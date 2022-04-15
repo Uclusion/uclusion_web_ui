@@ -165,7 +165,7 @@ function WorkListItem(props) {
     }
   }
   const useLink = isMultiple ? linkMultiple : link;
-  const isUsingExpansion = usesExpansion(props);
+  const isUsingExpansion = usesExpansion(props, isMultiple);
   const showExpansion = isUsingExpansion && isHovered;
   const expansionPanelVisible = isUsingExpansion && expansionOpen;
   return (

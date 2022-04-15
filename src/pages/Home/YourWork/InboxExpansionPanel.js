@@ -7,7 +7,10 @@ import InboxInvestible from './InboxInvestible'
 import { findMessageOfType } from '../../../utils/messageUtils'
 import NotificationDeletion from './NotificationDeletion'
 
-export function usesExpansion(item) {
+export function usesExpansion(item, isMultiple) {
+  if (isMultiple) {
+    return true;
+  }
   const { message, comment } = item;
   if (comment) {
     if (message) {

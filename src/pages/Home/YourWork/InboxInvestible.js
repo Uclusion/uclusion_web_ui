@@ -91,8 +91,8 @@ function InboxInvestible(props) {
         return false;
       }
       const { comment_market_id: commentMarketId, market_id: marketId, comment_id: commentId } = message;
-      const rootCommentId = getCommentRoot(commentState, commentMarketId || marketId, commentId);
-      return rootCommentId === comment.id
+      const rootComment = getCommentRoot(commentState, commentMarketId || marketId, commentId) || {};
+      return rootComment.id === comment.id
     })) || [];
   const investmentReasons = investibleComments.filter(comment => comment.comment_type === JUSTIFY_TYPE) || [];
   const investibleCollaborators = getCollaborators(marketPresences, investibleComments, marketPresencesState,

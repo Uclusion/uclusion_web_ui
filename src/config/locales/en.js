@@ -389,6 +389,7 @@ const messages = defineMessages({
   investibleDeleteExplanationLabel: 'Permanently remove this option from the dialog',
   planningInvestibleToVotingLabel: 'Ready for Approval',
   planningMobileToVotingLabel: 'Approval',
+  inboxVotingLabel: 'In approval',
   planningInvestibleNextStageAcceptedLabel: 'Started',
   planningInvestibleNextStageAcceptedFullLabel: 'Started (full)',
   planningInvestibleNextStageInReviewLabel: 'Ready for Feedback',

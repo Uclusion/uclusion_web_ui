@@ -38,7 +38,7 @@ export function titleText(message, isMobile, intl, isMultiple, numMultiples, com
       }
       if (!comment && isInVotingStage && (assigned || []).includes(userId)) {
         // This notification is for something assigned to me in approval
-        return intl.formatMessage({ id: 'planningMobileToVotingLabel' });
+        return intl.formatMessage({ id: 'inboxVotingLabel' });
       }
       return defaultText(message, isMobile, intl, isMultiple, numMultiples);
   }

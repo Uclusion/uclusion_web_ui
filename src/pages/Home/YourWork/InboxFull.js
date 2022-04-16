@@ -73,7 +73,7 @@ function InboxFull(props) {
   const hiddenMarketsRaw = getHiddenMarketDetailsForUser(marketsState, marketPresencesState) || [];
   const hiddenMarkets = hiddenMarketsRaw.filter((market) => market.market_type === PLANNING_TYPE);
   let loading = marketsState.initializing || messagesState.initializing ||
-    !hasLoadedNotificationsVersion(versionsContext);
+    (fromInvite && !hasLoadedNotificationsVersion(versionsContext));
   if (!loading && myNotHiddenMarketsState.marketDetails) {
     myNotHiddenMarketsState.marketDetails.forEach((market) => {
       if (!marketTokenLoaded(market.id, tokensHash)) {

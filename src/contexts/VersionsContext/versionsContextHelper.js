@@ -27,6 +27,10 @@ export function hasInitializedGlobalVersion (state) {
   return globalVersion && globalVersion !== EMPTY_GLOBAL_VERSION && globalVersion !== INITIALIZATION_GLOBAL_VERSION
 }
 
+export function hasLoadedNotificationsVersion(state) {
+  return (state || {}).notificationVersion !== -1;
+}
+
 export function hasLoadedGlobalVersion (state) {
   const globalVersion = getGlobalVersion(state || {})
   return globalVersion && globalVersion !== EMPTY_GLOBAL_VERSION

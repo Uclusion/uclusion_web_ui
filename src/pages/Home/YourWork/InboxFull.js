@@ -24,6 +24,8 @@ import {
   MODIFY_NOTIFICATIONS_CHANNEL, REMOVE_CURRENT_EVENT
 } from '../../../contexts/NotificationsContext/notificationsContextMessages'
 import queryString from 'query-string'
+import { hasLoadedNotificationsVersion } from '../../../contexts/VersionsContext/versionsContextHelper'
+import { VersionsContext } from '../../../contexts/VersionsContext/VersionsContext'
 
 function InboxFull(props) {
   const { hidden } = props;
@@ -40,6 +42,7 @@ function InboxFull(props) {
   const [searchResults] = useContext(SearchResultsContext);
   const { results, parentResults, search } = searchResults;
   const [messagesState] = useContext(NotificationsContext);
+  const [versionsContext] = useContext(VersionsContext);
   const [expansionState, expansionDispatch] = useReducer((state, action) => {
     const { id, expandAll } = action;
     let newExpanded = state;
@@ -69,16 +72,17 @@ function InboxFull(props) {
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   const hiddenMarketsRaw = getHiddenMarketDetailsForUser(marketsState, marketPresencesState) || [];
   const hiddenMarkets = hiddenMarketsRaw.filter((market) => market.market_type === PLANNING_TYPE);
-  let loading = marketsState.initializing;
+  let loading = marketsState.initializing || messagesState.initializing ||
+    !hasLoadedNotificationsVersion(versionsContext);
   if (!loading && myNotHiddenMarketsState.marketDetails) {
     myNotHiddenMarketsState.marketDetails.forEach((market) => {
       if (!marketTokenLoaded(market.id, tokensHash)) {
+        // Cannot allow Quill to try to display a picture without a market token
         loading = true;
       }
     });
   }
   if (loading) {
-    // Cannot allow Quill to try to display a picture without a market token
     return (
       <Screen
         hidden={hidden}

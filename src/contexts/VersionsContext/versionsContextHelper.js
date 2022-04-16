@@ -28,7 +28,7 @@ export function hasInitializedGlobalVersion (state) {
 }
 
 export function hasLoadedNotificationsVersion(state) {
-  return (state || {}).notificationVersion !== -1;
+  return (state || {}).notificationVersion > -1;
 }
 
 export function hasLoadedGlobalVersion (state) {

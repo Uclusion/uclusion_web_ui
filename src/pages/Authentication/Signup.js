@@ -25,6 +25,7 @@ import queryString from 'query-string'
 import Gravatar from '../../components/Avatars/Gravatar'
 import CardContent from '@material-ui/core/CardContent'
 import { clearSignedOut, isSignedOut } from '../../utils/userFunctions'
+import { UNNAMED_SUB_TYPE } from '../../constants/markets'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -239,8 +240,13 @@ function Signup(props) {
       redirect = '/';
     }
     if (redirect.includes(code)) {
-      const slashCode = '/' + code;
-      redirect = redirect.replace(slashCode, '');
+      if (myMarket && myMarket.market_sub_type === UNNAMED_SUB_TYPE) {
+        // Go to inbox for unnamed as we can't be certain of the state of the investible
+        redirect = '/inbox?fromInvite=true';
+      } else {
+        const slashCode = '/' + code;
+        redirect = redirect.replace(slashCode, '');
+      }
     }
     console.info(`Redirecting to ${redirect}`);
     return redirect;
@@ -465,7 +471,7 @@ function Signup(props) {
           {noEmailInput && (
             <div className={classes.googleButton} id="googleSignupDiv" onClick={() => {
               // Must come back to this device so go ahead and set in local storage
-              const aRedirect = getRedirect()
+              const aRedirect = getRedirect();
               if (aRedirect !== '/') {
                 setRedirect(aRedirect)
               }

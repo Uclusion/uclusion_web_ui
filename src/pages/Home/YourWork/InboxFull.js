@@ -23,11 +23,16 @@ import { pushMessage } from '../../../utils/MessageBusUtils'
 import {
   MODIFY_NOTIFICATIONS_CHANNEL, REMOVE_CURRENT_EVENT
 } from '../../../contexts/NotificationsContext/notificationsContextMessages'
+import queryString from 'query-string'
 
 function InboxFull(props) {
   const { hidden } = props;
   const intl = useIntl();
   const history = useHistory();
+  const { location } = history;
+  const { search: querySearch } = location;
+  const values = queryString.parse(querySearch || '');
+  const { fromInvite } = values || {};
   const [showAll, setShowAll] = useState(false);
   const [page, setPage] = useState(1);
   const [marketsState, , tokensHash] = useContext(MarketsContext);
@@ -159,7 +164,8 @@ function InboxFull(props) {
       navigationOptions={navigationMenu}
       isInbox
     >
-      <Inbox expansionState={expansionState} expansionDispatch={expansionDispatch} page={page} setPage={setPage} />
+      <Inbox expansionState={expansionState} expansionDispatch={expansionDispatch} page={page} setPage={setPage}
+             loadingFromInvite={fromInvite}/>
     </Screen>
   );
 }

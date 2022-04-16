@@ -26,6 +26,7 @@ import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight'
 import InboxWelcomeExpansion from './InboxWelcomeExpansion'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
+import LoadingDisplay from '../../../components/LoadingDisplay'
 
 const useStyles = makeStyles(
   theme => {
@@ -58,7 +59,8 @@ const useStyles = makeStyles(
 });
 
 function Inbox(props) {
-  const { isJarDisplay = false, isDisabled = false, expansionState, expansionDispatch, page, setPage } = props;
+  const { isJarDisplay = false, isDisabled = false, expansionState, expansionDispatch, page, setPage,
+    loadingFromInvite=false } = props;
   const classes = useStyles();
   const intl = useIntl();
   const history = useHistory();
@@ -182,7 +184,9 @@ function Inbox(props) {
     const safeMessages = messages || [];
     const existingMessage = safeMessages.find((message) => message.type_object_id === id)
       || { is_highlighted: true };
-    if (hasNoChannels(tokensHash)) {
+    if (loadingFromInvite && hasNoChannels(tokensHash)) {
+      defaultInboxRow = <LoadingDisplay showMessage messageId="loadingMessage" noMargin />;
+    } else if (hasNoChannels(tokensHash)) {
       const item = {
         title: intl.formatMessage({ id: 'welcome' }),
         market: intl.formatMessage({ id: 'aboutInbox' }),

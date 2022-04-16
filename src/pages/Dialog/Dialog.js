@@ -42,6 +42,7 @@ import {
 import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { AccountContext } from '../../contexts/AccountContext/AccountContext'
+import { UNNAMED_SUB_TYPE } from '../../constants/markets'
 
 function Dialog(props) {
   const { hidden } = props;
@@ -126,14 +127,19 @@ function Dialog(props) {
   }, [action, hasUser, hidden, isInitialization, marketEntity, marketsState, subscribeId]);
 
   useEffect(() => {
-    if (!hidden && action === 'invite' && marketId && !_.isEmpty(marketStages)) {
+    if (!hidden && action === 'invite' && marketId && !_.isEmpty(loadedMarket)) {
       // Try to remove the market token from the URL to avoid book marking it or other weirdness
       // Potentially this fails since inside useEffect
       console.info('Navigating to market');
-      history.push(formMarketLink(marketId));
+      if (loadedMarket && loadedMarket.market_sub_type === UNNAMED_SUB_TYPE) {
+        // Go to inbox for unnamed as we can't be certain of the state of the investible
+        history.push('/inbox?fromInvite=true');
+      } else {
+        history.push(formMarketLink(marketId));
+      }
     }
     return () => {}
-  }, [hidden, action, history, marketId, marketStages, marketType]);
+  }, [hidden, action, history, marketId, loadedMarket, marketType]);
 
   useEffect(() => {
     if (!hidden && myHashFragment) {

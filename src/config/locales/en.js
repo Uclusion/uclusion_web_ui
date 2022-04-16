@@ -532,7 +532,8 @@ const messages = defineMessages({
   quickChangeStage: 'Next stage',
 
   // markets
-  signupInvite: 'invites you to collaborate on',
+  signupInvite: 'invites you to collaborate',
+  signupInviteUnnamed: 'invites you to collaborate.',
   signupRedirectLogin: 'Create account will redirect you to login.',
 
   // Rich text editor

@@ -180,6 +180,7 @@ function Signup(props) {
   const [wasBlurred, setWasBlurred] = useState(false);
   const intl = useIntl();
   const [myMarket, setMyMarket] = useState(undefined);
+  const isUnnamed = myMarket && myMarket.market_sub_type === UNNAMED_SUB_TYPE;
   const SIGNUP_LOGO = 'Uclusion_Logo_White_Micro.png';
   const LOGO_COLOR = '#3F6B72';
 
@@ -240,7 +241,7 @@ function Signup(props) {
       redirect = '/';
     }
     if (redirect.includes(code)) {
-      if (myMarket && myMarket.market_sub_type === UNNAMED_SUB_TYPE) {
+      if (isUnnamed) {
         // Go to inbox for unnamed as we can't be certain of the state of the investible
         redirect = '/inbox?fromInvite=true';
       } else {
@@ -403,7 +404,8 @@ function Signup(props) {
               <CardContent>
                 <Gravatar className={classes.largeAvatar} email={myMarket.created_by_email}/>
                 <h3 style={{padding: '0', marginTop: '0.6rem', marginBottom: '0'}}>{myMarket.created_by_name}</h3>
-                <span style={{padding: '0'}}>{intl.formatMessage({ id: 'signupInvite' })}</span>
+                <span style={{padding: '0'}}>
+                  {intl.formatMessage({ id: isUnnamed ? 'signupInviteUnnamed' : 'signupInvite' })}</span>
                 <Typography variant="h6" align="center" style={{paddingTop: '1rem'}}>
                   {myMarket.name}
                 </Typography>

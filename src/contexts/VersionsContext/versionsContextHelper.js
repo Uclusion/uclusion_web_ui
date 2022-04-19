@@ -52,9 +52,9 @@ export function refreshNotifications () {
 // used by the reducer to actually process the new event
 export function refreshNotificationVersion (state, auditRow) {
   const { notificationVersion } = state;
-  const { version: newNotificationVersionNumber, hkey, rkey, is_remove: isRemove } = auditRow;
+  const { version: newNotificationVersionNumber, hkey, rkey, is_remove: isRemove } = auditRow || {};
   //console.debug(`Refreshing notifications from ${notificationVersion} to ${newNotificationVersionNumber} with ${hkey}, ${rkey}, ${isRemove}`);
-  if (notificationVersion !== newNotificationVersionNumber) {
+  if (newNotificationVersionNumber !== undefined && notificationVersion !== newNotificationVersionNumber) {
     getMessages().then((messages) => {
       const latest = (messages || []).find((message) => (message.type_object_id === rkey
         && message.market_id_user_id === hkey));
@@ -67,7 +67,7 @@ export function refreshNotificationVersion (state, auditRow) {
     });
     return {
       ...state,
-      notificationVersion: newNotificationVersionNumber
+      notificationVersion: newNotificationVersionNumber === undefined ? 0 : newNotificationVersionNumber
     };
   }
   return state;

@@ -26,9 +26,7 @@ function beginListening (dispatch) {
         return getNotifications()
           .then((notifications) => {
             const notification = notifications.find((item) => item.type_object_id.startsWith('notification'));
-            if (notification) {
-              dispatch(refreshNotificationVersionAction(notification));
-            }
+            dispatch(refreshNotificationVersionAction(notification));
           });
       default:
       // console.debug(`Ignoring push event ${event}`);

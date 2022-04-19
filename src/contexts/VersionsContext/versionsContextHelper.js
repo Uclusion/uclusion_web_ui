@@ -65,11 +65,10 @@ export function refreshNotificationVersion (state, auditRow) {
         pushMessage(NOTIFICATIONS_HUB_CHANNEL, { event: VERSIONS_EVENT, messages });
       }
     });
-    return {
-      ...state,
-      notificationVersion: newNotificationVersionNumber === undefined ? 0 : newNotificationVersionNumber
-    };
   }
-  return state;
+  return {
+    ...state,
+    notificationVersion: newNotificationVersionNumber === undefined ? 0 : newNotificationVersionNumber
+  };
 }
 

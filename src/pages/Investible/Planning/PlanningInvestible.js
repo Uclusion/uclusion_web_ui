@@ -1245,6 +1245,8 @@ function PlanningInvestible(props) {
             fullStage={fullStage}
             assigned={assigned}
             formerStageId={formerStageId}
+            marketInfo={marketInfo}
+            investible={marketInvestible}
           />
         </Grid>
       </Grid>

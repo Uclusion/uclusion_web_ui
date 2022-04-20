@@ -380,6 +380,8 @@ function InboxInvestible(props) {
             marketId={marketId}
             allowedTypes={[]}
             fullStage={fullStage}
+            investible={inv}
+            marketInfo={marketInfo}
             isInbox
           />
         </div>

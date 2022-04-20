@@ -37,6 +37,8 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { getAcceptedStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
+import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
+import { getMarketInfo } from '../../../api/sso'
 
 function CommentPanel(props) {
   const { commentId, marketId, marketType, messageType, planningClasses, mobileLayout, messagesFull,
@@ -45,7 +47,7 @@ function CommentPanel(props) {
   const history = useHistory();
   const [marketState] = useContext(MarketsContext);
   const [commentState, commentsDispatch] = useContext(CommentsContext);
-  const [, invDispatch] = useContext(InvestiblesContext);
+  const [investiblesState, invDispatch] = useContext(InvestiblesContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
@@ -79,6 +81,8 @@ function CommentPanel(props) {
   // Note - checking resolved here because can be race condition with message removal and comment resolution
   if (!_.isEmpty(rootComment) && (messageType === 'UNREAD_RESOLVED' || !rootComment.resolved)) {
     const { comment_type: commentType, investible_id: investibleId } = rootComment;
+    const investible = getInvestible(investiblesState, investibleId) || {};
+    const marketInfo = getMarketInfo(investible, marketId) || {};
     return (
       <>
         {investibleId && (
@@ -136,6 +140,8 @@ function CommentPanel(props) {
             comments={getMarketComments(commentState, useMarketId)}
             defaultShowDiff
             allowedTypes={[]}
+            investible={investible}
+            marketInfo={marketInfo}
             noAuthor={marketType === PLANNING_TYPE && commentType === TODO_TYPE && !investibleId}
             isInbox
           />

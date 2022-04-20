@@ -44,10 +44,7 @@ import { ACTIVE_STAGE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/ma
 import { red } from '@material-ui/core/colors'
 import { EXPANDED_CONTROL, ExpandedCommentContext } from '../../contexts/CommentsContext/ExpandedCommentContext'
 import UsefulRelativeTime from '../TextFields/UseRelativeTime'
-import {
-  addInvestible, getInvestible,
-  getMarketInvestibles
-} from '../../contexts/InvestibesContext/investiblesContextHelper'
+import { addInvestible, getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import SubSection from '../../containers/SubSection/SubSection'
 import CurrentVoting from '../../pages/Dialog/Decision/CurrentVoting'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
@@ -106,7 +103,6 @@ import { DiffContext } from '../../contexts/DiffContext/DiffContext'
 import DiffDisplay from '../TextEditors/DiffDisplay'
 import { removeMessage } from '../../contexts/NotificationsContext/notificationsContextReducer'
 import { workListStyles } from '../../pages/Home/YourWork/WorkListItem'
-import { getMarketInfo } from '../../utils/userFunctions'
 import LoadingDisplay from '../LoadingDisplay'
 import { pushMessage } from '../../utils/MessageBusUtils'
 import { GUEST_MARKET_EVENT, LOAD_MARKET_CHANNEL } from '../../contexts/MarketsContext/marketsContextMessages'
@@ -389,6 +385,9 @@ function Comment(props) {
     parent_comment_market_id: parentMarketId } = market;
   const activeMarket = marketStage === ACTIVE_STAGE;
   const myPresence = presences.find((presence) => presence.current_user) || {};
+  const { assigned: invAssigned } = marketInfo || {};
+  const assigned = invAssigned || [];
+  const myPresenceIsAssigned = assigned.includes(myPresence.id);
   const myInlinePresence = inlinePresences.find((presence) => presence.current_user) || {};
   const inArchives = !activeMarket;
   const replies = comments.filter(comment => comment.reply_id === id);
@@ -668,9 +667,9 @@ function Comment(props) {
   function myAccept () {
     setOperationRunning(true)
     return updateComment(marketId, id, undefined, TODO_TYPE).then((comment) => {
-      addCommentToMarket(comment, commentsState, commentsDispatch)
-      removeMessagesForCommentId(id, messagesState, workItemClasses.removed)
-      setOperationRunning(false)
+      addCommentToMarket(comment, commentsState, commentsDispatch);
+      removeMessagesForCommentId(id, messagesState, workItemClasses.removed);
+      setOperationRunning(false);
     })
   }
 
@@ -713,8 +712,6 @@ function Comment(props) {
           })
         }
         if (resolvedStageId) {
-          const investible = getInvestible(investiblesState, investibleId);
-          const marketInfo = getMarketInfo(investible, marketId);
           const newInfo = {
             ...marketInfo,
             stage: resolvedStageId,
@@ -813,14 +810,12 @@ function Comment(props) {
       </div>
     )
   }
-  const commentMarketOwner = commentType === SUGGEST_CHANGE_TYPE && !resolved ? myPresence === createdBy :
-    (!inlineMarketId || myPresence === createdBy);
-  const showAcceptReject = commentType === SUGGEST_CHANGE_TYPE && !inlineMarketId && !commentMarketOwner
-    && investibleId && !resolved;
+
+  const showAcceptReject = commentType === SUGGEST_CHANGE_TYPE && investibleId && !resolved && myPresenceIsAssigned;
   const showMoveButton = isSent !== false && [TODO_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(commentType)
     && !inArchives
     && enableActions && (!resolved || commentType !== TODO_TYPE) && marketType === PLANNING_TYPE;
-  const showResolve = isSent !== false && enableActions && commentType !== REPORT_TYPE &&
+  const showResolve = isSent !== false && enableActions && commentType !== REPORT_TYPE && !showAcceptReject &&
     (myPresence === createdBy || !resolved);
   const yourVote = myInlinePresence && myInlinePresence.investments &&
     myInlinePresence.investments.find((investment) => !investment.deleted);

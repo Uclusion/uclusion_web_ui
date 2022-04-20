@@ -275,7 +275,7 @@ function InboxInvestible(props) {
         </div>
       )}
       {reportRequired && (
-        <InvestibleStatus investibleId={investibleId} message={reportRequired} marketId={marketId} />
+        <InvestibleStatus investibleId={investibleId} message={message} marketId={marketId} />
       )}
       {!_.isEmpty(myInvestible) && !reportRequired && (
         <div style={{paddingTop: '1rem'}} className={investibleEditClasses.container}>

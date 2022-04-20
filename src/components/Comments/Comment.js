@@ -37,9 +37,7 @@ import {
 import CardType, { DECISION_TYPE } from '../CardType'
 import { SECTION_TYPE_SECONDARY } from '../../constants/global'
 import {
-  addCommentToMarket,
-  getMarketComments, getUnresolvedInvestibleComments,
-  removeComments
+  addCommentToMarket, getComment, getMarketComments, getUnresolvedInvestibleComments, removeComments
 } from '../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { ACTIVE_STAGE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
@@ -387,7 +385,8 @@ function Comment(props) {
   const { allow_multi_vote: originalAllowMultiVote, created_by: inlineCreatedBy } = inlineMarket;
   const [multiVote, setMultiVote] = useState(originalAllowMultiVote);
   const market = getMarket(marketsState, marketId) || {};
-  const { market_stage: marketStage, market_type: marketType } = market;
+  const { market_stage: marketStage, market_type: marketType, parent_comment_id: parentCommentId,
+    parent_comment_market_id: parentMarketId } = market;
   const activeMarket = marketStage === ACTIVE_STAGE;
   const myPresence = presences.find((presence) => presence.current_user) || {};
   const myInlinePresence = inlinePresences.find((presence) => presence.current_user) || {};
@@ -494,12 +493,22 @@ function Comment(props) {
       commentState, commentDispatch, investiblesDispatch, isRestricted).then(() => setOpenIssue(false));
   }
 
+  function toggleBase(isReply) {
+    if (parentCommentId && replyEditId && !isFromInbox) {
+      const rootComment = getComment(commentState, parentMarketId, parentCommentId);
+      navigateEditReplyBack(history, parentCommentId, parentMarketId, rootComment.investible_id, replyEditId,
+        isReply, isFromInbox, messagesState);
+    } else {
+      navigateEditReplyBack(history, id, marketId, investibleId, replyEditId, isReply, isFromInbox, messagesState);
+    }
+  }
+
   function toggleReply() {
-    navigateEditReplyBack(history, id, marketId, investibleId, replyEditId, true, isFromInbox, messagesState);
+    toggleBase(true);
   }
 
   function toggleEdit() {
-    navigateEditReplyBack(history, id, marketId, investibleId, replyEditId, false, isFromInbox, messagesState);
+    toggleBase(false);
   }
 
   function setBeingEdited(value, event) {

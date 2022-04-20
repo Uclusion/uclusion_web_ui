@@ -553,6 +553,19 @@ function Comment(props) {
     return (
       <>
         <Grid item xs={12} style={{marginTop: '1rem'}}>
+          {investibleAddBeingEdited && comment.created_by === myPresence.id && (
+            <DecisionInvestibleAdd
+              marketId={inlineMarketId}
+              onSave={(investible) => addInvestible(investiblesDispatch, () => {}, investible)}
+              onCancel={toggleInlineInvestibleAdd}
+              onSpinComplete={toggleInlineInvestibleAdd}
+              isAdmin={isEditable}
+              pageState={investibleAddState}
+              pageStateUpdate={updateInvestibleAddState}
+              pageStateReset={investibleAddStateReset}
+              parentCommentId={inlineMarketId ? undefined: id}
+            />
+          )}
           <SubSection
             id="currentVoting"
             type={SECTION_TYPE_SECONDARY}
@@ -583,6 +596,19 @@ function Comment(props) {
           </SubSection>
         </Grid>
         <Grid item xs={12} style={{marginTop: '1rem'}}>
+          {investibleAddBeingEdited && comment.created_by !== myPresence.id && (
+            <DecisionInvestibleAdd
+              marketId={inlineMarketId}
+              onSave={(investible) => addInvestible(investiblesDispatch, () => {}, investible)}
+              onCancel={toggleInlineInvestibleAdd}
+              onSpinComplete={toggleInlineInvestibleAdd}
+              isAdmin={isEditable}
+              pageState={investibleAddState}
+              pageStateUpdate={updateInvestibleAddState}
+              pageStateReset={investibleAddStateReset}
+              parentCommentId={inlineMarketId ? undefined: id}
+            />
+          )}
           <SubSection
             id="proposedVoting"
             type={SECTION_TYPE_SECONDARY}
@@ -1164,24 +1190,6 @@ function Comment(props) {
             })}
         </LocalCommentsContext.Provider>
       </Box>
-      {investibleAddBeingEdited && (
-        <div style={{marginTop: '2rem'}}>
-          <DecisionInvestibleAdd
-            marketId={inlineMarketId}
-            onSave={(investible) => addInvestible(investiblesDispatch, () => {}, investible)}
-            onCancel={toggleInlineInvestibleAdd}
-            onSpinComplete={toggleInlineInvestibleAdd}
-            isAdmin={isEditable}
-            pageState={investibleAddState}
-            pageStateUpdate={updateInvestibleAddState}
-            pageStateReset={investibleAddStateReset}
-            parentCommentId={inlineMarketId ? undefined: id}
-          />
-        </div>
-      )}
-      {!inlineMarketId && investibleAddBeingEdited && (
-        <div style={{marginTop: '2rem'}} />
-      )}
       {repliesExpanded && getDecision(inlineMarketId)}
     </div>
   );

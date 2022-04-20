@@ -1,9 +1,9 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { ListItem, ListItemIcon, ListItemText, Tooltip, } from '@material-ui/core'
+import { ListItem, Tooltip, } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 
-export const useStyles = makeStyles(() => {
+const useStyles = makeStyles(() => {
   return {
     menuItem: {
       display: 'flex',
@@ -11,7 +11,6 @@ export const useStyles = makeStyles(() => {
       width: 'unset'
     },
     menuIcon: {
-      flex: 1,
       display: 'flex',
       justifyContent: 'flex-end',
       '& > .MuiSvgIcon-root': {
@@ -21,13 +20,13 @@ export const useStyles = makeStyles(() => {
     },
     menuTitleWhite: {
       color: 'white',
-      fontWeight: 700,
-      whiteSpace: 'nowrap'
+      whiteSpace: 'nowrap',
+      paddingRight: '0.5rem'
     },
     menuTitle: {
       color: 'black',
-      fontWeight: 700,
-      whiteSpace: 'nowrap'
+      whiteSpace: 'nowrap',
+      paddingRight: '0.5rem'
     },
   };
 });
@@ -62,13 +61,13 @@ function ExpandableAction(props) {
         onClick={myOnClick}
       >
         {openLabel && (
-          <ListItemText className={useWhiteText ? classes.menuTitleWhite : classes.menuTitle}>
+          <div className={useWhiteText ? classes.menuTitleWhite : classes.menuTitle}>
             {openLabel}
-          </ListItemText>
+          </div>
         )}
-        <ListItemIcon className={classes.menuIcon}>
+        <div className={classes.menuIcon}>
           {icon}
-        </ListItemIcon>
+        </div>
       </ListItem>
     </Tooltip>
   );

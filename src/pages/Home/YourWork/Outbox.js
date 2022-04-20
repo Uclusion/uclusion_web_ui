@@ -247,7 +247,7 @@ function Outbox(props) {
     const marketPresences = getMarketPresences(marketPresencesState, market.id) || [];
     inReviewInvestibles.forEach((investible) => {
       const investibleId = investible.investible.id;
-      const outboxMessage = getMessageForInvestible(investible, market, 'planningInvestibleNextStageInReviewLabel',
+      const outboxMessage = getMessageForInvestible(investible, market, 'planningInvestibleMobileInReviewLabel',
         <RateReviewIcon style={{ fontSize: 24, color: '#8f8f8f', }}/>, intl);
       const expansionOpen = expansionState && !!expansionState[investibleId];
       if (expansionOpen) {
@@ -279,7 +279,7 @@ function Outbox(props) {
     });
     inVotingInvestibles.forEach((investible) => {
       const investibleId = investible.investible.id
-      const message = getMessageForInvestible(investible, market, 'planningInvestibleToVotingLabel',
+      const message = getMessageForInvestible(investible, market, 'planningMobileToVotingLabel',
         <ThumbsUpDownIcon style={{ fontSize: 24, color: '#8f8f8f', }}/>, intl)
       const expansionOpen = expansionState && !!expansionState[investibleId]
       if (expansionOpen) {

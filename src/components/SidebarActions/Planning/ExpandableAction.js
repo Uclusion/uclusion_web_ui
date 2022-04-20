@@ -1,10 +1,9 @@
-import React, { useContext } from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
 import { ListItem, ListItemIcon, ListItemText, Tooltip, } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 
-export const useStyles = makeStyles((theme) => {
+export const useStyles = makeStyles(() => {
   return {
     menuItem: {
       display: 'flex',
@@ -21,13 +20,11 @@ export const useStyles = makeStyles((theme) => {
       },
     },
     menuTitleWhite: {
-      flex: 3,
       color: 'white',
       fontWeight: 700,
       whiteSpace: 'nowrap'
     },
     menuTitle: {
-      flex: 3,
       color: 'black',
       fontWeight: 700,
       whiteSpace: 'nowrap'
@@ -49,7 +46,6 @@ function ExpandableAction(props) {
   } = props;
 
   const classes = useStyles();
-  const [operationRunning] = useContext(OperationInProgressContext);
 
   function myOnClick() {
     onClick();
@@ -62,7 +58,7 @@ function ExpandableAction(props) {
         className={classes.menuItem}
         key={label}
         button
-        disabled={operationRunning !== false || disabled}
+        disabled={disabled}
         onClick={myOnClick}
       >
         {openLabel && (

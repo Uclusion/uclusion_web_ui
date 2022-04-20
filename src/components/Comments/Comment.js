@@ -558,7 +558,7 @@ function Comment(props) {
             type={SECTION_TYPE_SECONDARY}
             title={intl.formatMessage({ id: 'decisionDialogCurrentVotingLabel' })}
             supportingInformation={abstained}
-            actionButton={!enableEditing ? null :
+            actionButton={!enableEditing || comment.created_by !== myPresence.id ? null :
               (<ExpandableAction
                 id={`approvableOption${id}`}
                 icon={<AddIcon htmlColor="black"/>}
@@ -587,14 +587,13 @@ function Comment(props) {
             id="proposedVoting"
             type={SECTION_TYPE_SECONDARY}
             title={intl.formatMessage({ id: 'decisionDialogProposedOptionsLabel' })}
-            actionButton={ inArchives ? null :
+            actionButton={ inArchives || comment.created_by === myPresence.id ? null :
               (<ExpandableAction
                 id={`proposedOption${id}`}
                 icon={<AddIcon htmlColor="black"/>}
                 label={intl.formatMessage({ id: 'createDialogProposedExplanation' })}
                 openLabel={intl.formatMessage({ id: 'decisionDialogProposeInvestibleLabel'})}
                 onClick={toggleInlineInvestibleAdd}
-                disabled={isEditable}
                 tipPlacement="top-end"
               />)}
           >

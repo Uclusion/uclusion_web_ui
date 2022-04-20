@@ -42,7 +42,6 @@ function ScrollProvider(props) {
 
     function hashLinkScroll(myHashFragment) {
       // Push onto callback queue so it runs after the DOM is updated
-      // Add 2s to try to get around pictures and long threads asynchronously expanding
       window.setTimeout(() => {
         if (getElAndScroll(myHashFragment)() === false) {
           const myObserver = new MutationObserver(getElAndScroll(myHashFragment));
@@ -56,7 +55,7 @@ function ScrollProvider(props) {
             myObserver.disconnect()
           }, 10000)
         }
-      }, 1000);
+      }, 0);
     }
 
     if (hashFragment) {

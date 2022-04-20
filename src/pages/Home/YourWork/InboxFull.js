@@ -26,6 +26,7 @@ import {
 import queryString from 'query-string'
 import { hasLoadedNotificationsVersion } from '../../../contexts/VersionsContext/versionsContextHelper'
 import { VersionsContext } from '../../../contexts/VersionsContext/VersionsContext'
+import { INVITE_MARKET_EVENT, LOAD_MARKET_CHANNEL } from '../../../contexts/MarketsContext/marketsContextMessages'
 
 function InboxFull(props) {
   const { hidden } = props;
@@ -72,6 +73,9 @@ function InboxFull(props) {
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   const hiddenMarketsRaw = getHiddenMarketDetailsForUser(marketsState, marketPresencesState) || [];
   const hiddenMarkets = hiddenMarketsRaw.filter((market) => market.market_type === PLANNING_TYPE);
+  if (fromInvite && fromInvite !== 'loaded') {
+    pushMessage(LOAD_MARKET_CHANNEL, { event: INVITE_MARKET_EVENT, marketToken: fromInvite });
+  }
   let loading = marketsState.initializing || messagesState.initializing ||
     (fromInvite && !hasLoadedNotificationsVersion(versionsContext));
   if (!loading && myNotHiddenMarketsState.marketDetails) {

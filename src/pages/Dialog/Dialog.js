@@ -133,7 +133,7 @@ function Dialog(props) {
       console.info('Navigating to market');
       if (loadedMarket && loadedMarket.market_sub_type === UNNAMED_SUB_TYPE) {
         // Go to inbox for unnamed as we can't be certain of the state of the investible
-        history.push('/inbox?fromInvite=true');
+        history.push('/inbox?fromInvite=loaded');
       } else {
         history.push(formMarketLink(marketId));
       }

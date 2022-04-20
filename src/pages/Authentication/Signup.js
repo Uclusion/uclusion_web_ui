@@ -243,7 +243,7 @@ function Signup(props) {
     if (redirect.includes(code)) {
       if (isUnnamed) {
         // Go to inbox for unnamed as we can't be certain of the state of the investible
-        redirect = '/inbox?fromInvite=true';
+        redirect = `/inbox?fromInvite=${marketToken}`;
       } else {
         const slashCode = '/' + code;
         redirect = redirect.replace(slashCode, '');

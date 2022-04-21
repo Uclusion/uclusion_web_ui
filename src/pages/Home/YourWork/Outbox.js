@@ -86,7 +86,7 @@ function getMessageForComment (comment, market, labelId, Icon, intl, investibleS
   const expansionOpen = expansionState && !!expansionState[commentId]
   if (expansionOpen) {
     message.expansionPanel =
-      <CommentPanel marketId={market.id} commentId={commentId} marketType={market.market_type}
+      <CommentPanel marketId={market.id} commentId={commentId} marketType={market.market_type} message={message}
                     planningClasses={planningClasses} mobileLayout={mobileLayout} isOutbox />
   }
   if (comment.investible_id) {

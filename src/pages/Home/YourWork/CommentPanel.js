@@ -94,7 +94,7 @@ function CommentPanel(props) {
         )}
         {!investibleId && (
           <div style={{display: mobileLayout ? undefined : 'flex'}}>
-            {isDeletable && !investibleId && (
+            {isDeletable && !investibleId && !isOutbox && (
               <div style={{marginLeft: '1rem', marginTop: '1rem'}}>
                 <NotificationDeletion message={message} />
               </div>
@@ -102,7 +102,7 @@ function CommentPanel(props) {
             <Typography variant="body1" style={{paddingTop: '1rem', paddingLeft: '1rem', paddingRight: '1rem'}}>
               <Link href={useLink} onClick={(event) => {
                 preventDefaultAndProp(event);
-                if (message) {
+                if (message && !isOutbox) {
                   pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: CURRENT_EVENT, message });
                 }
                 navigate(history, useLink)}}>{intl.formatMessage({id: 'viewInChannel'})}</Link>

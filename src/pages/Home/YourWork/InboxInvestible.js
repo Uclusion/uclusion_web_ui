@@ -281,10 +281,15 @@ function InboxInvestible(props) {
         <div style={{paddingTop: '1rem'}} className={investibleEditClasses.container}>
           <Link href={formInvestibleLink(marketId, investibleId)} onClick={(event) => {
             preventDefaultAndProp(event);
+            let link = formInvestibleLink(marketId, investibleId);
             if (message) {
+              if (message.link) {
+                // Might go to a comment in the investible
+                link = message.link;
+              }
               pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: CURRENT_EVENT, message });
             }
-            navigate(history, formInvestibleLink(marketId, investibleId));
+            navigate(history, link);
           }}>
             <Typography className={investibleEditClasses.title} variant="h3" component="h1">
               {name}

@@ -258,7 +258,7 @@ function Inbox(props) {
         <GmailTabItem icon={<InboxIcon />} label={intl.formatMessage({id: 'inbox'})} color={htmlColor}
                       tag={unreadCount > 0 ? `${unreadCount} unread` : undefined} />
         <GmailTabItem icon={<AlarmOn />} label={intl.formatMessage({id: 'outbox'})} color='#2D9CDB'
-                      tag={`${_.size(outBoxMessagesOrdered)}`} />
+                      tag={_.size(outBoxMessagesOrdered) > 0 ? `${_.size(outBoxMessagesOrdered)}` : undefined} />
       </GmailTabs>
       {defaultInboxRow}
       { tabIndex > 0 ? <Outbox expansionState={expansionPendingState} expansionDispatch={expansionPendingDispatch}

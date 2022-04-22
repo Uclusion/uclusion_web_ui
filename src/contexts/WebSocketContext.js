@@ -160,7 +160,7 @@ function WebSocketProvider(props) {
       if (!mySignedOut) {
         refresh();
       }
-    }, 30000, pongTracker, state, () => {
+    }, 300000, pongTracker, state, () => {
       refreshNotifications();
       leaderDispatch(refreshOrMessage(`visit${Date.now()}`, userId));
     }, () => createWebSocket(config, leaderDispatch, setState, userId));

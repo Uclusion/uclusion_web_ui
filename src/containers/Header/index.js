@@ -290,9 +290,11 @@ function Header (props) {
           {!hideTools && (
             <React.Fragment>
               <div className={classes.grow}/>
-              <div className={classes.notification} id="notifications">
-                <Inbox isJarDisplay isDisabled={isInbox} />
-              </div>
+              {!isInbox && (
+                <div className={classes.notification} id="notifications">
+                  <Inbox isJarDisplay />
+                </div>
+              )}
               <div className={classes.padLeft} />
               {!mobileLayout && (
                 <Tooltip title={<FormattedMessage id="help"/>}>

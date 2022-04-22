@@ -13,7 +13,7 @@ import {
   hasNoChannels
 } from '../../../contexts/MarketsContext/marketsContextHelper'
 import LoadingDisplay from '../../../components/LoadingDisplay'
-import { Assignment, Weekend } from '@material-ui/icons'
+import { Assignment } from '@material-ui/icons'
 import InboxWelcomeExpansion from './InboxWelcomeExpansion'
 import WorkListItem from './WorkListItem'
 import { DECISION_TYPE, PLANNING_TYPE } from '../../../constants/markets'
@@ -35,6 +35,7 @@ import { getMarketInfo } from '../../../utils/userFunctions'
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown'
 import { getInvestibleVoters } from '../../../utils/votingUtils'
 import { formCommentLink, formInvestibleLink } from '../../../utils/marketIdPathFunctions'
+import { Typography } from '@material-ui/core'
 
 export function usesExpansion(item, isMultiple) {
   if (isMultiple) {
@@ -93,7 +94,7 @@ export function addExpansionPanel(props) {
 }
 
 export function createDefaultInboxRow(messagesOrdered, loadingFromInvite, messagesState, tokensHash, intl, determinate,
-  determinateDispatch, checkAll, expansionState, expansionDispatch) {
+  determinateDispatch, checkAll, expansionState, expansionDispatch, isPending) {
   if (!_.isEmpty(messagesOrdered)) {
     return undefined;
   }
@@ -126,14 +127,22 @@ export function createDefaultInboxRow(messagesOrdered, loadingFromInvite, messag
     />;
   }
 
-  return <WorkListItem key={id} id={id} useSelect={false} {...{
-      title: intl.formatMessage({ id: 'enjoy' }),
-      market: intl.formatMessage({ id: 'noNew' }),
-      icon: <Weekend style={{fontSize: 24, color: '#2D9CDB',}}/>,
-      read: false,
-      date: intl.formatDate(new Date()),
-      message: {link: '/outbox'}
-  }} />;
+  if (isPending) {
+    return (
+      <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
+                  variant="body1">
+        Your Pending tab is empty.<br/><br/> Unapproved jobs, unanswered questions and suggestions, jobs in review,
+        and blocked will be shown here.
+      </Typography>
+    );
+  }
+
+  return (
+    <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
+                variant="body1">
+      Your Inbox tab is empty.<br/><br/> Any collaboration request for you will be shown here.
+    </Typography>
+  );
 }
 
 function getMessageForInvestible (investible, market, labelId, Icon, intl) {

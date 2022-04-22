@@ -188,8 +188,8 @@ function Inbox(props) {
   const unpaginatedItems = tabIndex > 0 ? outBoxMessagesOrdered : inboxMessagesOrdered;
   const usePage = tabIndex > 0 ? pendingPage : page;
   const { first, last, data, hasMore, hasLess } = getPaginatedItems(unpaginatedItems, usePage);
-  const defaultInboxRow = tabIndex === 0 ? createDefaultInboxRow(inboxMessagesOrdered, loadingFromInvite, messagesState,
-    tokensHash, intl, determinate, determinateDispatch, checkAll, expansionState, expansionDispatch) : undefined;
+  const defaultRow = createDefaultInboxRow(unpaginatedItems, loadingFromInvite, messagesState, tokensHash, intl,
+    determinate, determinateDispatch, checkAll, expansionState, expansionDispatch, tabIndex > 0);
 
   return (
     <div id="inbox" style={{paddingBottom: '45vh'}}>
@@ -260,7 +260,7 @@ function Inbox(props) {
         <GmailTabItem icon={<AlarmOn />} label={intl.formatMessage({id: 'outbox'})} color='#2D9CDB'
                       tag={_.size(outBoxMessagesOrdered) > 0 ? `${_.size(outBoxMessagesOrdered)}` : undefined} />
       </GmailTabs>
-      {defaultInboxRow}
+      {defaultRow}
       { tabIndex > 0 ? <Outbox expansionState={expansionPendingState} expansionDispatch={expansionPendingDispatch}
                                page={pendingPage} setPage={setPendingPage} messagesOrdered={data} /> :
         data.map((message) => {

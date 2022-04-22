@@ -57,8 +57,8 @@ function InboxRow(props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const planningClasses = usePlanningInvestibleStyles();
   const { investible_id: investibleId, investible_name: investibleName, updated_at: updatedAt,
-    market_name: marketName, is_highlighted: isHighlighted, type_object_id: typeObjectId, market_id: marketId,
-    comment_id: commentId, comment_market_id: commentMarketId, alert_type: alertType } = message;
+    market_name: marketName, type_object_id: typeObjectId, market_id: marketId, comment_id: commentId,
+    comment_market_id: commentMarketId, alert_type: alertType, link_multiple: linkMultiple } = message;
   const inv = getInvestible(investiblesState, investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { assigned, completion_estimate: completionEstimate, stage } = marketInfo;
@@ -66,11 +66,16 @@ function InboxRow(props) {
   const isAssigned = (assigned || []).includes(userId);
   const market = getMarket(marketsState, marketId) || {};
   const isDeletable = message.type_object_id.startsWith('UNREAD') && (!isMultiple || !hasPersistent);
+  const { messages: messagesUnsafe } = messagesState;
+  const messagesFull = (messagesUnsafe || []).filter((message) => message.link_multiple === linkMultiple);
+  const redMessage = messagesFull.find((message) => message.level === 'RED');
+  const yellowMessage = messagesFull.find((message) => message.level === 'YELLOW');
+  const highlightedMessage = messagesFull.find((message) => message.is_highlighted);
   const item = {
-    icon: getPriorityIcon(message, isAssigned),
+    icon: getPriorityIcon(redMessage || yellowMessage || message, isAssigned),
     market: market.name || marketName,
     investible: inv ? inv.investible.name : investibleName,
-    read: !isHighlighted,
+    read: _.isEmpty(highlightedMessage),
     date: intl.formatDate(updatedAt),
     critical: !_.isEmpty(alertType),
     isDeletable,

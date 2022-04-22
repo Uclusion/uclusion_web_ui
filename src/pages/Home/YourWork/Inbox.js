@@ -1,8 +1,8 @@
-import WorkListItem, { workListStyles } from './WorkListItem'
+import { workListStyles } from './WorkListItem'
 import { Box, Checkbox, Fab, IconButton, useMediaQuery, useTheme } from '@material-ui/core'
-import React, { useContext, useReducer } from 'react'
+import React, { useContext, useReducer, useState } from 'react'
 import { useIntl } from 'react-intl'
-import { Assignment, ExpandLess, KeyboardArrowLeft, MoveToInbox, Weekend } from '@material-ui/icons'
+import { AlarmOn, ExpandLess, KeyboardArrowLeft, Inbox as InboxIcon } from '@material-ui/icons'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
@@ -19,14 +19,16 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import { getInboxCount, isInInbox } from '../../../contexts/NotificationsContext/notificationsContextHelper'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
-import { hasNoChannels } from '../../../contexts/MarketsContext/marketsContextHelper'
 import InboxRow from './InboxRow'
 import { getPaginatedItems } from '../../../utils/messageUtils'
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight'
-import InboxWelcomeExpansion from './InboxWelcomeExpansion'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
-import LoadingDisplay from '../../../components/LoadingDisplay'
+import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox'
+import { createDefaultInboxRow, getOutboxMessages } from './InboxExpansionPanel'
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
+import { usePlanningInvestibleStyles } from '../../Investible/Planning/PlanningInvestible'
+import Outbox from './Outbox'
 
 const useStyles = makeStyles(
   theme => {
@@ -59,15 +61,18 @@ const useStyles = makeStyles(
 });
 
 function Inbox(props) {
-  const { isJarDisplay = false, isDisabled = false, expansionState, expansionDispatch, page, setPage,
-    loadingFromInvite=false } = props;
+  const { isJarDisplay = false, isDisabled = false, expansionState = {}, expansionDispatch, page, setPage,
+    loadingFromInvite=false, setPendingPage, pendingPage } = props;
   const classes = useStyles();
   const intl = useIntl();
   const history = useHistory();
   const workItemClasses = workListStyles();
+  const planningClasses = usePlanningInvestibleStyles();
+  const [tabIndex, setTabIndex] = useState(0);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [marketState] = useContext(MarketsContext);
+  const [marketStagesState] = useContext(MarketStagesContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [commentsState] = useContext(CommentsContext);
   const [investiblesState] = useContext(InvestiblesContext);
@@ -107,45 +112,41 @@ function Inbox(props) {
   let messagesFull = (messagesUnsafe || []).filter((message) => {
     return isInInbox(message, marketState, marketPresencesState, commentsState, investiblesState, messagesUnsafe);
   });
-  let messagesOrdered;
-  if (isJarDisplay) {
-    messagesOrdered = _.orderBy(messagesFull, [(message) => {
-      const { level } = message;
-      // Ignore read or not because not relevant to the priority of the inbox
-      switch (level) {
-        case 'RED':
-          return 3;
-        case 'YELLOW':
-          return 2;
-        default:
-          return 1;
-      }
-      }], ['desc'] ) || [];
-  } else {
-    messagesOrdered =  _.orderBy(messagesFull, ['updated_at'], ['desc']) || [];
-  }
+  const messagesJarOrdered = _.orderBy(messagesFull, [(message) => {
+    const { level } = message;
+    // Ignore read or not because not relevant to the priority of the inbox
+    switch (level) {
+      case 'RED':
+        return 3;
+      case 'YELLOW':
+        return 2;
+      default:
+        return 1;
+    }
+    }], ['desc'] ) || [];
+  let inboxMessagesOrdered =  _.orderBy(messagesFull, ['updated_at'], ['desc']) || [];
   const goFullInboxClick = (event) => {
     preventDefaultAndProp(event);
     navigate(history, '/inbox');
   };
+  const unreadCount = getInboxCount(messagesState, marketState, marketPresencesState, commentsState, investiblesState);
+  const firstMessage = _.isEmpty(messagesFull) ? undefined : messagesJarOrdered[0];
+  const htmlColor = _.isEmpty(firstMessage) ? '#8f8f8f' :
+    (firstMessage.level === 'RED' ? '#E85757' : (firstMessage.level === 'YELLOW' ?
+      (isDisabled ? '#ffff00' : (isJarDisplay ? '#FCEC69' : '#ffc61a')) : '#2D9CDB'));
   if (isJarDisplay) {
-    const unreadCount = getInboxCount(messagesState, marketState, marketPresencesState, commentsState, investiblesState);
-    const first = _.isEmpty(messagesFull) ? undefined : messagesOrdered[0];
     return (
       <div id='inboxNotification' key='inbox' onClick={goFullInboxClick} className={classes.bellButton}>
         <Badge badgeContent={unreadCount} className={classes.chip} overlap="circular">
           <Fab id='notifications-fabInbox' className={classes.fab} disabled={isDisabled}>
-            <MoveToInbox
-              htmlColor={ _.isEmpty(first) ? '#8f8f8f' :
-                (first.level === 'RED' ? '#E85757' : (first.level === 'YELLOW' ? (isDisabled ? '#ffff00' :'#FCEC69')
-                  : '#2D9CDB'))} />
+            <InboxIcon htmlColor={ htmlColor } />
           </Fab>
         </Badge>
       </div>
     );
   }
 
-  const messagesFiltered = _.isEmpty(search) ? messagesOrdered : messagesOrdered.filter((message) => {
+  const messagesFiltered = _.isEmpty(search) ? inboxMessagesOrdered : inboxMessagesOrdered.filter((message) => {
     const { type_object_id: typeObjectId,  investible_id: investibleId } = message;
     return results.find((result) => typeObjectId.endsWith(result.id) || result.id === investibleId) ||
       parentResults.find((id) => typeObjectId.endsWith(id) || parentResults.find((id) => investibleId === id));
@@ -161,7 +162,7 @@ function Inbox(props) {
       }
     }
   });
-  messagesOrdered = messagesFiltered.filter((message) => {
+  inboxMessagesOrdered = messagesFiltered.filter((message) => {
     const { link_multiple: linkMultiple, updated_at: updatedAt } = message;
     if (dupeHash[linkMultiple]) {
       //Choose the message to use for the row based on last updated
@@ -173,47 +174,21 @@ function Inbox(props) {
   });
 
   function changePage(byNum) {
-    setPage(page + byNum);
-  }
-
-  const { first, last, data, hasMore, hasLess } = getPaginatedItems(messagesOrdered, page);
-  let defaultInboxRow = undefined;
-  if (_.isEmpty(messagesOrdered)) {
-    const id = 'emptyInbox';
-    const { messages } = (messagesState || {});
-    const safeMessages = messages || [];
-    const existingMessage = safeMessages.find((message) => message.type_object_id === id)
-      || { is_highlighted: true };
-    if (loadingFromInvite && hasNoChannels(tokensHash)) {
-      defaultInboxRow = <LoadingDisplay showMessage messageId="loadingMessage" noMargin />;
-    } else if (hasNoChannels(tokensHash)) {
-      const item = {
-        title: intl.formatMessage({ id: 'welcome' }),
-        market: intl.formatMessage({ id: 'aboutInbox' }),
-        icon: <Assignment style={{fontSize: 24, color: '#2D9CDB',}}/>,
-        read: !existingMessage.is_highlighted,
-        message: {type_object_id: id},
-        expansionPanel: <InboxWelcomeExpansion />,
-        moreDescription: intl.formatMessage({ id: 'demonstratesInbox' }),
-        date: intl.formatDate(new Date())
-      };
-      const determinateChecked = determinate[id];
-      const checked = determinateChecked !== undefined ? determinateChecked : checkAll;
-      defaultInboxRow = <WorkListItem key={id} id={id} expansionOpen={!!expansionState[id]}
-                                      checked={checked} {...item}
-                                      determinateDispatch={determinateDispatch} expansionDispatch={expansionDispatch}
-      />;
+    if (tabIndex > 0) {
+      setPendingPage(pendingPage + byNum);
     } else {
-      defaultInboxRow = <WorkListItem key={id} id={id} useSelect={false} {...{
-        title: intl.formatMessage({ id: 'enjoy' }),
-        market: intl.formatMessage({ id: 'noNew' }),
-        icon: <Weekend style={{fontSize: 24, color: '#2D9CDB',}}/>,
-        read: false,
-        date: intl.formatDate(new Date()),
-        message: {link: '/outbox'}
-      }} />;
+      setPage(page + byNum);
     }
   }
+
+  const outBoxMessagesOrdered = getOutboxMessages({messagesState, marketState, marketPresencesState,
+    investiblesState, marketStagesState, commentsState, planningClasses, mobileLayout, expansionState, intl});
+
+  const unpaginatedItems = tabIndex > 0 ? outBoxMessagesOrdered : inboxMessagesOrdered;
+  const usePage = tabIndex > 0 ? pendingPage : page;
+  const { first, last, data, hasMore, hasLess } = getPaginatedItems(unpaginatedItems, usePage);
+  const defaultInboxRow = tabIndex === 0 ? createDefaultInboxRow(inboxMessagesOrdered, loadingFromInvite, messagesState,
+    tokensHash, intl, determinate, determinateDispatch, checkAll, expansionState, expansionDispatch) : undefined;
 
   return (
     <div id="inbox" style={{paddingBottom: '45vh'}}>
@@ -222,7 +197,7 @@ function Inbox(props) {
           <Checkbox style={{padding: 0, marginLeft: '0.6rem'}}
                     checked={checkAll}
                     indeterminate={indeterminate}
-                    disabled={_.isEmpty(messagesOrdered)}
+                    disabled={_.isEmpty(inboxMessagesOrdered)}
                     onChange={() => determinateDispatch({type: 'toggle'})}
           />
         )}
@@ -255,7 +230,7 @@ function Inbox(props) {
                            onClick={() => expansionDispatch({expandAll: true})} translationId="inboxExpandAll" />
         <div style={{flexGrow: 1}}/>
         <Box fontSize={14} color="text.secondary">
-          {first} - {last} of {_.size(messagesOrdered) > 0 ? _.size(messagesOrdered) : 1}
+          {first} - {last} of {_.size(unpaginatedItems) > 0 ? _.size(unpaginatedItems) : 1}
           <IconButton disabled={!hasLess} onClick={() => changePage(-1)} >
             <KeyboardArrowLeft />
           </IconButton>
@@ -264,8 +239,16 @@ function Inbox(props) {
           </IconButton>
         </Box>
       </div>
+      <GmailTabs value={tabIndex} onChange={(event, value) => setTabIndex(value)}
+                 style={{borderTop: '1px ridge lightgrey', paddingBottom: '0.25rem'}}>
+        <GmailTabItem icon={<InboxIcon />} label={intl.formatMessage({id: 'inbox'})} color={htmlColor}
+                      tag={unreadCount > 0 ? `${unreadCount} unread` : undefined} />
+        <GmailTabItem icon={<AlarmOn />} label={intl.formatMessage({id: 'outbox'})}
+                      tag={`${_.size(outBoxMessagesOrdered)}`} />
+      </GmailTabs>
       {defaultInboxRow}
-      { data.map((message) => {
+      { tabIndex > 0 ? <Outbox expansionState={expansionState} expansionDispatch={expansionDispatch} page={pendingPage}
+                               setPage={setPendingPage} messagesOrdered={data} /> : data.map((message) => {
         const { link_multiple: linkMultiple } = message;
         const linkMultiples = dupeHash[linkMultiple] || [];
         const numMultiples = _.size(_.uniqBy(linkMultiples, 'type'));

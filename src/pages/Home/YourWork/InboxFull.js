@@ -38,6 +38,7 @@ function InboxFull(props) {
   const { fromInvite } = values || {};
   const [showAll, setShowAll] = useState(false);
   const [page, setPage] = useState(1);
+  const [pendingPage, setPendingPage] = useState(1);
   const [marketsState, , tokensHash] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [searchResults] = useContext(SearchResultsContext);
@@ -173,7 +174,7 @@ function InboxFull(props) {
       isInbox
     >
       <Inbox expansionState={expansionState} expansionDispatch={expansionDispatch} page={page} setPage={setPage}
-             loadingFromInvite={fromInvite}/>
+             loadingFromInvite={fromInvite} pendingPage={pendingPage} setPendingPage={setPendingPage}/>
     </Screen>
   );
 }

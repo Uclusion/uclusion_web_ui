@@ -45,6 +45,25 @@ function InboxFull(props) {
   const { results, parentResults, search } = searchResults;
   const [messagesState] = useContext(NotificationsContext);
   const [versionsContext] = useContext(VersionsContext);
+  const [expansionPendingState, expansionPendingDispatch] = useReducer((state, action) => {
+    const { id, expandedMessages, contractAll } = action;
+    let newExpanded = state;
+    if (!_.isEmpty(expandedMessages)) {
+      newExpanded = { ...state };
+      expandedMessages.forEach((message) => {
+        newExpanded[message.id] = true;
+      });
+    } else if (contractAll) {
+      newExpanded = {};
+    } else if (id !== undefined) {
+      if (state[id] === undefined) {
+        newExpanded = {...state, [id]: true};
+      } else {
+        newExpanded = _.omit(state, id);
+      }
+    }
+    return newExpanded;
+  }, {});
   const [expansionState, expansionDispatch] = useReducer((state, action) => {
     const { id, expandAll } = action;
     let newExpanded = state;
@@ -174,7 +193,9 @@ function InboxFull(props) {
       isInbox
     >
       <Inbox expansionState={expansionState} expansionDispatch={expansionDispatch} page={page} setPage={setPage}
-             loadingFromInvite={fromInvite} pendingPage={pendingPage} setPendingPage={setPendingPage}/>
+             loadingFromInvite={fromInvite} pendingPage={pendingPage} setPendingPage={setPendingPage}
+             expansionPendingState={expansionPendingState} expansionPendingDispatch={expansionPendingDispatch}
+      />
     </Screen>
   );
 }

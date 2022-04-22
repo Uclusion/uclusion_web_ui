@@ -62,7 +62,7 @@ const useStyles = makeStyles(
 
 function Inbox(props) {
   const { isJarDisplay = false, isDisabled = false, expansionState = {}, expansionDispatch, page, setPage,
-    loadingFromInvite=false, setPendingPage, pendingPage } = props;
+    loadingFromInvite=false, setPendingPage, pendingPage, expansionPendingDispatch, expansionPendingState } = props;
   const classes = useStyles();
   const intl = useIntl();
   const history = useHistory();
@@ -182,7 +182,8 @@ function Inbox(props) {
   }
 
   const outBoxMessagesOrdered = getOutboxMessages({messagesState, marketState, marketPresencesState,
-    investiblesState, marketStagesState, commentsState, planningClasses, mobileLayout, expansionState, intl});
+    investiblesState, marketStagesState, commentsState, planningClasses, mobileLayout,
+    expansionState: expansionPendingState, intl});
 
   const unpaginatedItems = tabIndex > 0 ? outBoxMessagesOrdered : inboxMessagesOrdered;
   const usePage = tabIndex > 0 ? pendingPage : page;
@@ -225,9 +226,21 @@ function Inbox(props) {
              }} translationId="inboxArchive" />
         )}
         <TooltipIconButton icon={<ExpandLess style={{marginLeft: '0.25rem'}} htmlColor={ACTION_BUTTON_COLOR} />}
-                           onClick={() => expansionDispatch({expandAll: false})} translationId="inboxCollapseAll" />
+                           onClick={() => {
+                             if (tabIndex > 0) {
+                               expansionPendingDispatch({ contractAll: true });
+                             } else {
+                               expansionDispatch({ expandAll: false });
+                             }
+                           }} translationId="inboxCollapseAll" />
         <TooltipIconButton icon={<ExpandMoreIcon style={{marginLeft: '0.25rem'}} htmlColor={ACTION_BUTTON_COLOR} />}
-                           onClick={() => expansionDispatch({expandAll: true})} translationId="inboxExpandAll" />
+                           onClick={() => {
+                             if (tabIndex > 0) {
+                               expansionPendingDispatch({expandedMessages: outBoxMessagesOrdered});
+                             } else {
+                               expansionDispatch({ expandAll: true });
+                             }
+                           }} translationId="inboxExpandAll" />
         <div style={{flexGrow: 1}}/>
         <Box fontSize={14} color="text.secondary">
           {first} - {last} of {_.size(unpaginatedItems) > 0 ? _.size(unpaginatedItems) : 1}
@@ -247,21 +260,22 @@ function Inbox(props) {
                       tag={`${_.size(outBoxMessagesOrdered)}`} />
       </GmailTabs>
       {defaultInboxRow}
-      { tabIndex > 0 ? <Outbox expansionState={expansionState} expansionDispatch={expansionDispatch} page={pendingPage}
-                               setPage={setPendingPage} messagesOrdered={data} /> : data.map((message) => {
-        const { link_multiple: linkMultiple } = message;
-        const linkMultiples = dupeHash[linkMultiple] || [];
-        const numMultiples = _.size(_.uniqBy(linkMultiples, 'type'));
-        const fullyVotedMessage = linkMultiples.find((message) => message.type === 'FULLY_VOTED');
-        const isMultiple = !fullyVotedMessage && numMultiples > 1;
-        const hasPersistent = linkMultiples.find((message) => !message.type_object_id.startsWith('UNREAD'));
-        const useMessage = fullyVotedMessage || message;
-        const determinateChecked = determinate[useMessage.type_object_id];
-        const checked = determinateChecked !== undefined ? determinateChecked : checkAll;
-        return <InboxRow message={useMessage} expansionDispatch={expansionDispatch} numMultiples={numMultiples}
-                         determinateDispatch={determinateDispatch}
-                         expansionOpen={!!expansionState[useMessage.type_object_id]}
-                         hasPersistent={hasPersistent} isMultiple={isMultiple} checked={checked} />;
+      { tabIndex > 0 ? <Outbox expansionState={expansionPendingState} expansionDispatch={expansionPendingDispatch}
+                               page={pendingPage} setPage={setPendingPage} messagesOrdered={data} /> :
+        data.map((message) => {
+          const { link_multiple: linkMultiple } = message;
+          const linkMultiples = dupeHash[linkMultiple] || [];
+          const numMultiples = _.size(_.uniqBy(linkMultiples, 'type'));
+          const fullyVotedMessage = linkMultiples.find((message) => message.type === 'FULLY_VOTED');
+          const isMultiple = !fullyVotedMessage && numMultiples > 1;
+          const hasPersistent = linkMultiples.find((message) => !message.type_object_id.startsWith('UNREAD'));
+          const useMessage = fullyVotedMessage || message;
+          const determinateChecked = determinate[useMessage.type_object_id];
+          const checked = determinateChecked !== undefined ? determinateChecked : checkAll;
+          return <InboxRow message={useMessage} expansionDispatch={expansionDispatch} numMultiples={numMultiples}
+                           determinateDispatch={determinateDispatch}
+                           expansionOpen={!!expansionState[useMessage.type_object_id]}
+                           hasPersistent={hasPersistent} isMultiple={isMultiple} checked={checked} />;
       }) }
     </div>
   );

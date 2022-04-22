@@ -253,11 +253,11 @@ function Inbox(props) {
         </Box>
       </div>
       <GmailTabs value={tabIndex} onChange={(event, value) => setTabIndex(value)}
-                 indicatorColors={[htmlColor, 'black']} mobileLayout={mobileLayout}
+                 indicatorColors={[htmlColor, '#2D9CDB']} mobileLayout={mobileLayout}
                  style={{borderTop: '1px ridge lightgrey', paddingBottom: '0.25rem'}}>
         <GmailTabItem icon={<InboxIcon />} label={intl.formatMessage({id: 'inbox'})} color={htmlColor}
                       tag={unreadCount > 0 ? `${unreadCount} unread` : undefined} />
-        <GmailTabItem icon={<AlarmOn />} label={intl.formatMessage({id: 'outbox'})}
+        <GmailTabItem icon={<AlarmOn />} label={intl.formatMessage({id: 'outbox'})} color='#2D9CDB'
                       tag={`${_.size(outBoxMessagesOrdered)}`} />
       </GmailTabs>
       {defaultInboxRow}

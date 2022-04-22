@@ -253,7 +253,7 @@ function Inbox(props) {
         </Box>
       </div>
       <GmailTabs value={tabIndex} onChange={(event, value) => setTabIndex(value)}
-                 indicatorColors={[htmlColor, '#2D9CDB']} mobileLayout={mobileLayout}
+                 indicatorColors={[htmlColor, '#2D9CDB']}
                  style={{borderTop: '1px ridge lightgrey', paddingBottom: '0.25rem'}}>
         <GmailTabItem icon={<InboxIcon />} label={intl.formatMessage({id: 'inbox'})} color={htmlColor}
                       tag={unreadCount > 0 ? `${unreadCount} unread` : undefined} />
@@ -282,4 +282,4 @@ function Inbox(props) {
   );
 }
 
-export default React.memo(Inbox);
+export default Inbox;

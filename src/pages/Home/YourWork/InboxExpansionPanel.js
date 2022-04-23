@@ -104,6 +104,16 @@ export function createDefaultInboxRow(messagesOrdered, loadingFromInvite, messag
   const existingMessage = safeMessages.find((message) => message.type_object_id === id)
     || { is_highlighted: true };
 
+  if (isPending) {
+    return (
+      <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
+                  variant="body1">
+        Your Pending tab is empty.<br/><br/> Unapproved jobs, unanswered questions and suggestions, jobs in review,
+        and blocked will be shown here.
+      </Typography>
+    );
+  }
+
   if (loadingFromInvite && hasNoChannels(tokensHash)) {
     return <LoadingDisplay showMessage messageId="loadingMessage" noMargin />;
   }
@@ -125,16 +135,6 @@ export function createDefaultInboxRow(messagesOrdered, loadingFromInvite, messag
                                     checked={checked} {...item}
                                     determinateDispatch={determinateDispatch} expansionDispatch={expansionDispatch}
     />;
-  }
-
-  if (isPending) {
-    return (
-      <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
-                  variant="body1">
-        Your Pending tab is empty.<br/><br/> Unapproved jobs, unanswered questions and suggestions, jobs in review,
-        and blocked will be shown here.
-      </Typography>
-    );
   }
 
   return (

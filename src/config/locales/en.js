@@ -138,7 +138,7 @@ const messages = defineMessages({
   addUnit: 'Budget Unit',
   budgetUnitDropdownHelp: 'If budgets allowed, this field is their unit and must be filled.',
   created: 'Created ',
-  edited: 'Saving locally',
+  edited: 'Storing locally',
   hours: 'hours',
   days: 'days',
   points: 'points',

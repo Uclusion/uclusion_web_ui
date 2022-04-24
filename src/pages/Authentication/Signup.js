@@ -164,7 +164,7 @@ function Signup(props) {
   const { location } = history;
   const { search } = location;
   const values = queryString.parse(search || '');
-  const { signUpWith, email: qryEmail, utm_campaign: utm } = values || {};
+  const { signUpWith, email: qryEmail, utm_campaign: utm, error_description } = values || {};
   const empty = {
     name: '',
     email: qryEmail ? qryEmail : '',
@@ -183,6 +183,10 @@ function Signup(props) {
   const isUnnamed = myMarket && myMarket.market_sub_type === UNNAMED_SUB_TYPE;
   const SIGNUP_LOGO = 'Uclusion_Logo_White_Micro.png';
   const LOGO_COLOR = '#3F6B72';
+  const errorDescriptionSafe = error_description || '';
+  const doRetry = errorDescriptionSafe.includes('Already');
+  const retryGoogle = doRetry && errorDescriptionSafe.includes('Google');
+  const retryGithub = doRetry && !retryGoogle;
 
   useEffect(() => {
     if (isSignedOut()) {
@@ -205,12 +209,12 @@ function Signup(props) {
       // This might run more than once but that is okay and need to make sure it is set before Auth leaves the page
       setUtm(utm);
     }
-    if (signUpWith === 'google') {
+    if (signUpWith === 'google' || retryGoogle) {
       Auth.federatedSignIn({provider: 'Google'});
-    } else if (signUpWith === 'github') {
+    } else if (signUpWith === 'github' || retryGithub) {
       Auth.federatedSignIn({provider: 'GithubLogin'});
     }
-  }, [utm, signUpWith]);
+  }, [utm, signUpWith, retryGoogle, retryGithub]);
 
   function onPasswordBlurred() {
     setWasBlurred(true);

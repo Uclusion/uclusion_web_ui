@@ -83,7 +83,7 @@ function startGlobalRefreshTimerChain(refreshAll) {
  * At most need one running and one queued as each call does the same thing.
  * @returns {Promise<*>}
  */
-export function refreshGlobalVersion(refreshCalled) {
+export function refreshGlobalVersion(ignoreIfInProgress) {
   if (!globalFetchPromiseTracker) {
     console.warn('No fetch tracking');
     globalFetchPromiseTracker = {inProgress: 0};
@@ -98,10 +98,13 @@ export function refreshGlobalVersion(refreshCalled) {
   if (inProgress > 1) {
     return globalFetchPromiseChain;
   }
+  if (inProgress > 0 && ignoreIfInProgress) {
+    return globalFetchPromiseChain;
+  }
   globalFetchPromiseTracker.inProgress += 1;
   // Always chain to avoid fetching the same version over and over
   globalFetchPromiseChain = globalFetchPromiseChain.then(() => {
-    return startGlobalRefreshTimerChain(refreshCalled);
+    return startGlobalRefreshTimerChain();
   });
   return globalFetchPromiseChain;
 }
@@ -147,7 +150,6 @@ export function updateMarkets(marketIds, marketsStruct, maxConcurrentCount, isIn
 }
 
 export function sendMarketsStruct(marketsStruct) {
-  console.debug(marketsStruct);
   if (marketsStruct['markets']) {
     pushMessage(PUSH_MARKETS_CHANNEL, { event: VERSIONS_EVENT, marketDetails: marketsStruct['markets'] });
   }
@@ -219,7 +221,7 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets) {
         .then(() => {
           sendMarketsStruct(inlineMarketsStruct);
            const foregroundMarketsStruct = {};
-           updateMarkets(foregroundList, foregroundMarketsStruct, MAX_CONCURRENT_API_CALLS).then(() => {
+           return updateMarkets(foregroundList, foregroundMarketsStruct, MAX_CONCURRENT_API_CALLS).then(() => {
              sendMarketsStruct(foregroundMarketsStruct);
              const backgroundMarketsStruct = {};
              console.info(`Finished foreground update for ${global_version}`);

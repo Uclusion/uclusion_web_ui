@@ -48,7 +48,7 @@ function LeaderProvider(props) {
           return elector.awaitLeadership().then(() => dispatch(updateLeader(true)));
         }
         // Go ahead and get the latest when determine leader
-        return refreshVersions().then(() => {
+        return refreshVersions(true).then(() => {
           console.info('Refreshed versions from leader init');
           refreshNotifications();
         });

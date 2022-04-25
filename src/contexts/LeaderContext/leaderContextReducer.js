@@ -29,7 +29,7 @@ function reducer(state, action) {
       const { isLeader: amLeader } = state;
       const { peg } = action;
       if (amLeader) {
-        refreshVersions().then(() => console.info(`Refreshed versions from ${peg}`));
+        refreshVersions(peg.includes('visit')).then(() => console.info(`Refreshed versions from ${peg}`));
       } else if (amLeader !== undefined && !peg.includes('leaderChannel')) {
         console.info(`Not leader sending refresh from ${peg}`);
         const myChannel = new BroadcastChannel(action.leaderChannelId);

@@ -40,8 +40,8 @@ export function getExistingMarkets (state) {
   return state.existingMarkets || []
 }
 
-export function refreshVersions (refreshCalled) {
-  return refreshGlobalVersion(refreshCalled)
+export function refreshVersions (ignoreIfInProgress=false) {
+  return refreshGlobalVersion(ignoreIfInProgress)
 }
 
 export function refreshNotifications () {

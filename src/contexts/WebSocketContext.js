@@ -8,14 +8,12 @@ import WebSocketRunner from '../components/BackgroundProcesses/WebSocketRunner'
 import config from '../config'
 import { sendInfoPersistent, toastError } from '../utils/userMessage'
 import { registerListener } from '../utils/MessageBusUtils'
-import { refreshNotifications, refreshVersions } from './VersionsContext/versionsContextHelper'
+import { refreshNotifications } from './VersionsContext/versionsContextHelper'
 import { getLoginPersistentItem, setLoginPersistentItem } from '../components/localStorageUtils'
 import { getNotifications } from '../api/summaries'
 import { isSignedOut, onSignOut } from '../utils/userFunctions'
 import { LeaderContext } from './LeaderContext/LeaderContext'
 import { BroadcastChannel } from 'broadcast-channel'
-import LocalForageHelper from '../utils/LocalForageHelper'
-import { VERSIONS_CONTEXT_NAMESPACE } from './VersionsContext/versionsContextReducer'
 import { refreshOrMessage } from './LeaderContext/leaderContextReducer'
 
 export const AUTH_HUB_CHANNEL = 'auth'; // this is case sensitive.
@@ -127,16 +125,6 @@ function WebSocketProvider(props) {
   const { children, config, userId } = props;
   const [, leaderDispatch] = useContext(LeaderContext);
   const [state, setState] = useState();
-
-  useEffect(() => {
-    const lfg = new LocalForageHelper(VERSIONS_CONTEXT_NAMESPACE);
-    lfg.getState().then((diskState) => {
-      if (!diskState) {
-        // If there is no versions on disk then I must be the first tab and too slow to wait for election results
-        refreshVersions().then(() => console.info('Refreshed versions for empty disk'));
-      }
-    });
-  },[]);
 
   useEffect(() => {
     const interval = setInterval((tracker, socket, refresh, myCreateSocket) => {

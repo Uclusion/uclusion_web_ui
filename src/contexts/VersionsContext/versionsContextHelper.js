@@ -66,6 +66,9 @@ export function refreshNotificationVersion (state, auditRow) {
       }
     });
   }
+  if (notificationVersion !== undefined && newNotificationVersionNumber === notificationVersion) {
+    return state;
+  }
   return {
     ...state,
     notificationVersion: newNotificationVersionNumber === undefined ? 0 : newNotificationVersionNumber

@@ -27,11 +27,10 @@ export function updateMarketStages(marketId, stagesList) {
   };
 }
 
-export function updateMarketStagesFromNetwork(marketId, stagesList) {
+export function updateMarketStagesFromNetwork(stageDetails) {
   return {
     type: UPDATE_MARKET_STAGES_FROM_NETWORK,
-    marketId,
-    stagesList,
+    stageDetails
   };
 }
 
@@ -44,15 +43,24 @@ export function removeMarketsStageDetails(marketIds) {
 
 /** Functions that generate the new state **/
 
-function doUpdateMarketStages(state, action, isQuickAdd) {
+function doUpdateMarketStages(state, action) {
   const { marketId, stagesList } = action;
-  const stagesListTransformed = isQuickAdd ? stagesList.map((stage) => {
+  const stagesListTransformed = stagesList.map((stage) => {
     return { ...stage, fromQuickAdd: true };
-  }) : stagesList;
+  });
   return {
-    ...removeInitializing(state, isQuickAdd),
+    ...removeInitializing(state, true),
     [marketId]: stagesListTransformed,
   };
+}
+
+function doUpdateMarketsStages(state, action) {
+  const { stageDetails } = action;
+  const newState = {...state};
+  Object.keys(stageDetails).forEach((marketId) => {
+    newState[marketId] = stageDetails[marketId];
+  });
+  return removeInitializing(newState);
 }
 
 function removeMarketStages(state, action) {
@@ -65,9 +73,9 @@ function computeNewState(state, action) {
     case INITIALIZE_STATE:
       return action.newState;
     case UPDATE_MARKET_STAGES:
-      return doUpdateMarketStages(state, action, true);
-    case UPDATE_MARKET_STAGES_FROM_NETWORK:
       return doUpdateMarketStages(state, action);
+    case UPDATE_MARKET_STAGES_FROM_NETWORK:
+      return doUpdateMarketsStages(state, action);
     case REMOVE_MARKET_STAGES:
       return removeMarketStages(state, action);
     default:

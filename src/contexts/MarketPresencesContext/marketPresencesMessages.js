@@ -29,11 +29,11 @@ function beginListening(dispatch) {
     }
   });
   registerListener(PUSH_PRESENCE_CHANNEL, 'marketPresencePushStart', (data) => {
-    const { payload: { event, marketId, users, presence } } = data;
+    const { payload: { event, marketId, userDetails, presence } } = data;
 
     switch (event) {
       case VERSIONS_EVENT:
-        dispatch(versionsUpdateMarketPresences(marketId, users));
+        dispatch(versionsUpdateMarketPresences(userDetails));
         break;
       case ADD_PRESENCE:
         addPresenceToMarket(dispatch, marketId, presence);

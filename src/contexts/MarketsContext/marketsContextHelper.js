@@ -77,7 +77,7 @@ export function addMarket(result, marketDispatch, diffDispatch, presenceDispatch
   } = result;
   const { id: marketId } = market;
   addMarketToStorage(marketDispatch, diffDispatch, market);
-  pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, marketId, stages });
+  pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, stageDetails: {[marketId]: stages}});
   if (presenceDispatch) {
     addPresenceToMarket(presenceDispatch, marketId, presence);
   } else {
@@ -90,9 +90,8 @@ export function addMarket(result, marketDispatch, diffDispatch, presenceDispatch
  * @param dispatch
  * @param diffDispatch
  * @param marketDetails
- * @param fromNetwork whether this is from versios or quick add
  */
-export function addMarketToStorage(dispatch, diffDispatch, marketDetails, fromNetwork) {
+export function addMarketToStorage(dispatch, diffDispatch, marketDetails) {
   if (!marketDetails.currentUserId) {
     marketDetails.currentUserId = marketDetails.current_user_id;
   }
@@ -101,11 +100,15 @@ export function addMarketToStorage(dispatch, diffDispatch, marketDetails, fromNe
     diffDispatch(addContents([fixed]));
   }
   pushMessage(SEARCH_INDEX_CHANNEL, { event: INDEX_UPDATE, itemType: INDEX_MARKET_TYPE, items: [fixed]});
-  if (fromNetwork) {
-    dispatch(versionsUpdateDetails(fixed));
-  } else {
-    dispatch(updateMarketDetails(fixed));
+  dispatch(updateMarketDetails(fixed));
+}
+
+export function addMarketsToStorage(dispatch, diffDispatch, marketDetails) {
+  if (diffDispatch) {
+    diffDispatch(addContents(marketDetails));
   }
+  pushMessage(SEARCH_INDEX_CHANNEL, { event: INDEX_UPDATE, itemType: INDEX_MARKET_TYPE, items: marketDetails});
+  dispatch(versionsUpdateDetails(marketDetails));
 }
 
 export function getNotHiddenMarketDetailsForUser(state, marketPresencesState, searchResults={}) {

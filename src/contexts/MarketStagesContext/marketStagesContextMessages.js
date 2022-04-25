@@ -19,11 +19,10 @@ function beginListening(dispatch) {
     }
   });
   registerListener(PUSH_STAGE_CHANNEL, 'marketStagesPushStart',  (data) => {
-    const { payload: { event, marketId, stages } } = data;
+    const { payload: { event, stageDetails } } = data;
     switch (event) {
       case VERSIONS_EVENT:
-        console.log('Adding stages on versions event');
-        dispatch(updateMarketStagesFromNetwork(marketId, stages));
+        dispatch(updateMarketStagesFromNetwork(stageDetails));
         break;
       default:
         // console.debug(`Ignoring identity event ${event}`);

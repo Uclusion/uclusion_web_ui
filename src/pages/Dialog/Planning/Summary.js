@@ -248,14 +248,14 @@ function Summary(props) {
   function onAttachFile(metadatas) {
     return attachFilesToMarket(id, metadatas)
       .then((market) => {
-        addMarketToStorage(marketsDispatch, diffDispatch, market, false);
+        addMarketToStorage(marketsDispatch, diffDispatch, market);
       })
   }
 
   function onDeleteFile(path) {
     return deleteAttachedFilesFromMarket(id, [path])
       .then((market) => {
-        addMarketToStorage(marketsDispatch, diffDispatch, market, false);
+        addMarketToStorage(marketsDispatch, diffDispatch, market);
         return EMPTY_SPIN_RESULT;
       })
   }

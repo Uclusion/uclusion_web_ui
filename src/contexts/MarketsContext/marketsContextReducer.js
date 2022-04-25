@@ -3,7 +3,7 @@ import { MARKET_CONTEXT_NAMESPACE, MARKETS_CHANNEL } from './MarketsContext'
 import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
 import { removeInitializing } from '../../components/localStorageUtils'
-import { addByIdAndVersion } from '../ContextUtils'
+import { addByIdAndVersion, fixupItemForStorage } from '../ContextUtils'
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const UPDATE_MARKET_DETAILS = 'UPDATE_MARKET_DETAILS';
@@ -25,10 +25,10 @@ export function updateMarketDetails(marketDetail) {
   };
 }
 
-export function versionsUpdateDetails(marketDetail) {
+export function versionsUpdateDetails(marketDetails) {
   return {
     type: UPDATE_FROM_VERSIONS,
-    marketDetail,
+    marketDetails,
   };
 }
 
@@ -41,13 +41,24 @@ export function removeMarketDetails(marketIds) {
 
 /* Functions that mutate state */
 
-function doUpdateMarketDetails(state, action, isQuickAdd) {
+function doUpdateMarketDetails(state, action) {
   const { marketDetail } = action;
   const { marketDetails: oldMarketDetails } = state;
-  const transformedMarketDetails = isQuickAdd ? [{ ...marketDetail, fromQuickAdd: true }] : [marketDetail]
+  const transformedMarketDetails = [{ ...marketDetail, fromQuickAdd: true }]
   const newDetails = addByIdAndVersion(transformedMarketDetails, oldMarketDetails)
   return {
-    ...removeInitializing(state, isQuickAdd),
+    ...removeInitializing(state, true),
+    marketDetails: newDetails,
+  };
+}
+
+function doUpdateMarketsDetails(state, action) {
+  const { marketDetails } = action;
+  const { marketDetails: oldMarketDetails } = state;
+  //From network fix up for storage already at API level
+  const newDetails = addByIdAndVersion(marketDetails, oldMarketDetails)
+  return {
+    ...removeInitializing(state),
     marketDetails: newDetails,
   };
 }
@@ -66,9 +77,9 @@ function computeNewState(state, action) {
   // console.debug(`Computing state with type ${action.type}`);
   switch (action.type) {
     case UPDATE_MARKET_DETAILS:
-      return doUpdateMarketDetails(state, action, true);
-    case UPDATE_FROM_VERSIONS:
       return doUpdateMarketDetails(state, action);
+    case UPDATE_FROM_VERSIONS:
+      return doUpdateMarketsDetails(state, action);
     case REMOVE_MARKET_DETAILS:
       return removeStoredMarkets(state, action);
     case INITIALIZE_STATE:

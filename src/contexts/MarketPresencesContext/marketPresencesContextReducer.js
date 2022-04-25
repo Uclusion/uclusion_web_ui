@@ -57,11 +57,10 @@ export function addMarketPresences(marketId, users) {
   };
 }
 
-export function versionsUpdateMarketPresences(marketId, users) {
+export function versionsUpdateMarketPresences(userDetails) {
   return {
     type: UPDATE_FROM_VERSIONS,
-    marketId,
-    users,
+    userDetails
   };
 }
 
@@ -123,15 +122,15 @@ function doAddMarketPresences(state, action) {
 }
 
 function doUpdateMarketPresences(state, action) {
-  const { marketId, users } = action;
-  const oldUsersRaw = state[marketId] || [];
-  const oldUsers = oldUsersRaw.filter((user) => user.fromQuickAdd);
-  // Avoid clobbering presences that were quick added
-  const newUsers = addByIdAndVersion(users, oldUsers);
-  return {
-    ...removeInitializing(state, false),
-    [marketId]: newUsers,
-  };
+  const { userDetails } = action;
+  const newState = {...state};
+  Object.keys(userDetails).forEach((marketId) => {
+    const oldUsersRaw = state[marketId] || [];
+    const oldUsers = oldUsersRaw.filter((user) => user.fromQuickAdd);
+    // Avoid clobbering presences that were quick added
+    newState[marketId] = addByIdAndVersion(userDetails[marketId], oldUsers);
+  });
+  return removeInitializing(newState);
 }
 
 // This can only come from the network
@@ -151,7 +150,7 @@ function doProcessBanned(state, action) {
         market_banned: true,
       };
       const newMarketUsers = _.unionBy([newPresence], oldMarketUsers, 'id');
-      newState = doUpdateMarketPresences(newState, {marketId, users: newMarketUsers})
+      newState = doUpdateMarketPresences(newState, {userDetails: {[marketId]: newMarketUsers}})
     }
   });
   return newState;

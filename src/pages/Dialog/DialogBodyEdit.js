@@ -196,7 +196,7 @@ function DialogBodyEdit(props) {
       updated_by: userId,
       updated_by_you: true,
     };
-    addMarketToStorage(marketsDispatch, diffDispatch, diffSafe, false);
+    addMarketToStorage(marketsDispatch, diffDispatch, diffSafe);
   }
 
   function onSave(market) {

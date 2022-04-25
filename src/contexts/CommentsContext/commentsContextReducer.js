@@ -4,7 +4,7 @@ import { COMMENTS_CHANNEL, COMMENTS_CONTEXT_NAMESPACE } from './CommentsContext'
 import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
 import { removeInitializing } from '../../components/localStorageUtils'
-import { addByIdAndVersion } from '../ContextUtils'
+import { addByIdAndVersion, fixupItemsForStorage } from '../ContextUtils'
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const REMOVE_MARKETS_COMMENT = 'REMOVE_MARKETS_COMMENT';
@@ -21,11 +21,10 @@ export function initializeState(newState) {
   };
 }
 
-export function updateCommentsFromVersions(marketId, comments) {
+export function updateCommentsFromVersions(commentDetails) {
   return {
     type: UPDATE_FROM_VERSIONS,
-    marketId,
-    comments,
+    commentDetails
   };
 }
 
@@ -54,17 +53,28 @@ export function removeMarketsComments(marketIds) {
 
 /** Functions that update the reducer state */
 
-function doAddMarketComments(state, action, isQuickAdd) {
+function doAddMarketComments(state, action) {
   const { marketId, comments } = action;
-  const transformedComments = isQuickAdd ? comments.map((comment) => {
+  const transformedComments = comments.map((comment) => {
     return { ...comment, fromQuickAdd: true }
-  }) : comments;
+  });
   const oldComments = state[marketId] || []
   const newComments = addByIdAndVersion(transformedComments, oldComments)
   return {
-    ...removeInitializing(state, isQuickAdd),
+    ...removeInitializing(state, true),
     [marketId]: newComments,
   };
+}
+
+function doAddMarketsComments(state, action) {
+  const { commentDetails } = action;
+  const newState = {...state};
+  Object.keys(commentDetails).forEach((marketId) => {
+    const transformedComments = fixupItemsForStorage(commentDetails[marketId]);
+    const oldComments = state[marketId] || []
+    newState[marketId] = addByIdAndVersion(transformedComments, oldComments);
+  });
+  return removeInitializing(newState);
 }
 
 function doRemoveCommentsFromMarket(state, action) {
@@ -96,9 +106,9 @@ function computeNewState(state, action) {
     case REMOVE_COMMENTS_FROM_MARKET:
       return doRemoveCommentsFromMarket(state, action);
     case OVERWRITE_MARKET_COMMENTS:
-      return doAddMarketComments(state, action, true);
-    case UPDATE_FROM_VERSIONS:
       return doAddMarketComments(state, action);
+    case UPDATE_FROM_VERSIONS:
+      return doAddMarketsComments(state, action);
     case INITIALIZE_STATE:
       return action.newState;
     default:

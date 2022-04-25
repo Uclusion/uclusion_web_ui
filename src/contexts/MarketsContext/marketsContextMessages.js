@@ -6,7 +6,7 @@ import {
 } from '../VersionsContext/versionsContextHelper'
 import { removeMarketDetails } from './marketsContextReducer'
 import { pushMessage, registerListener } from '../../utils/MessageBusUtils'
-import { addMarketToStorage } from './marketsContextHelper'
+import { addMarketsToStorage, addMarketToStorage } from './marketsContextHelper'
 import { getMarketFromInvite, getMarketFromUrl } from '../../api/uclusionClient'
 import { toastError } from '../../utils/userMessage'
 import { ADD_PRESENCE } from '../MarketPresencesContext/marketPresencesMessages'
@@ -18,7 +18,7 @@ import {
 import { lockPlanningMarketForEdit } from '../../api/markets'
 import localforage from 'localforage'
 import TokenStorageManager, { TOKEN_STORAGE_KEYSPACE, TOKEN_TYPE_MARKET } from '../../authorization/TokenStorageManager'
-import { updateMarkets } from '../../api/versionedFetchUtils'
+import { sendMarketsStruct, updateMarkets } from '../../api/versionedFetchUtils'
 
 export const LOAD_MARKET_CHANNEL = 'LoadMarketChannel';
 export const INVITE_MARKET_EVENT = 'InviteMarketEvent';
@@ -59,8 +59,7 @@ function beginListening(dispatch, diffDispatch, setTokensHash) {
     const { payload: { event, marketDetails } } = data;
     switch (event) {
       case VERSIONS_EVENT:
-        // console.debug(`Markets context responding to updated market event ${event}`);
-        addMarketToStorage(dispatch, diffDispatch, marketDetails, true);
+        addMarketsToStorage(dispatch, diffDispatch, marketDetails);
         break;
       default:
         // console.debug(`Ignoring identity event ${event}`);
@@ -101,7 +100,9 @@ function beginListening(dispatch, diffDispatch, setTokensHash) {
       const tokenStorageManager = new TokenStorageManager();
       return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, id, token).then(() => {
         // We know the market we just logged into is dirty so skip normal call to check it first
-        return updateMarkets([id], undefined, 1);
+        const marketsStruct = {};
+        return updateMarkets([id], marketsStruct, 1)
+          .then(() => sendMarketsStruct(marketsStruct));
       });
     }).catch((error) => {
       console.error(error);

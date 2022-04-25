@@ -44,14 +44,11 @@ export function executeRefreshTimerChain(refreshAll, resolve, reject) {
     let currentHeldVersion;
     return disk.getState()
       .then((state) => {
-        const {
-          existingMarkets,
-          globalVersion,
-        } = state || {};
+        const { globalVersion } = state || {};
         const { lastCallVersion } = globalFetchPromiseTracker;
         // if we're refreshing all we're going back to initialization state
         currentHeldVersion = refreshAll? 'INITIALIZATION' : (lastCallVersion ? lastCallVersion : globalVersion);
-        return doVersionRefresh(currentHeldVersion, existingMarkets);
+        return doVersionRefresh(currentHeldVersion);
       }).then((globalVersion) => {
         globalFetchPromiseTracker.inProgress -= 1;
         if (globalVersion !== currentHeldVersion) {
@@ -195,10 +192,9 @@ function addMarketsStructInfo(infoType, marketsStruct, details, marketId) {
  * Function that will make exactly one attempt to update the global versions
  * USed if you have some other control and want access to the promise chain
  * @param currentHeldVersion
- * @param existingMarkets
  * @returns {Promise<*>}
  */
-export function doVersionRefresh (currentHeldVersion, existingMarkets) {
+export function doVersionRefresh(currentHeldVersion) {
   let newGlobalVersion = currentHeldVersion;
   const callWithVersion = currentHeldVersion === 'INITIALIZATION' ? null : currentHeldVersion;
   console.info(`Checking for sync with ${callWithVersion}`);

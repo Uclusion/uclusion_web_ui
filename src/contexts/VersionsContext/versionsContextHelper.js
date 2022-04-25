@@ -36,10 +36,6 @@ export function hasLoadedGlobalVersion (state) {
   return globalVersion && globalVersion !== EMPTY_GLOBAL_VERSION
 }
 
-export function getExistingMarkets (state) {
-  return state.existingMarkets || []
-}
-
 export function refreshVersions (ignoreIfInProgress=false) {
   return refreshGlobalVersion(ignoreIfInProgress)
 }

@@ -1,36 +1,25 @@
 import { refreshNotificationVersion, } from './versionsContextHelper'
 import LocalForageHelper from '../../utils/LocalForageHelper'
 import { Auth } from 'aws-amplify';
-import _ from 'lodash'
 export const VERSIONS_CONTEXT_NAMESPACE = 'versions_context';
 export const EMPTY_GLOBAL_VERSION = 'FAKE';
 export const INITIALIZATION_GLOBAL_VERSION = 'INITIALIZATION';
 export const EMPTY_STATE = {
   globalVersion: EMPTY_GLOBAL_VERSION,
-  existingMarkets: '',
   notificationVersion: {version: -1 },
 };
 export const MY_STORED_EMPTY_STATE = {
   globalVersion: INITIALIZATION_GLOBAL_VERSION,
-  existingMarkets: '',
   notificationVersion: {version: -1 },
 };
 
 
 const UPDATE_GLOBAL_VERSION = 'UPDATE_GLOBAL_VERSION';
-const NEW_MARKET = 'NEW_MARKET';
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const INITIALIZE_LOADING = 'INITIALIZE_LOADING';
 const REMOVE_MARKET = 'REMOVE_MARKET';
 const REFRESH_NOTIFICATION = 'REFRESH_NOTIFICATION';
 const INITIALIZE_STATE_VERSIONS = 'INITIALIZE_STATE_VERSIONS';
-
-export function addNewMarket(marketId) {
-  return {
-    type: NEW_MARKET,
-    marketId,
-  }
-}
 
 export function updateGlobalVersion(globalVersion) {
   return {
@@ -67,24 +56,6 @@ export function refreshNotificationVersionAction(message) {
 
 /* Functions that mutate the state */
 
-function doAddNewMarket(state, action) {
-  const { marketId } = action;
-  const { existingMarkets } = state;
-  if (!existingMarkets) {
-    return {
-      ...state,
-      existingMarkets: [marketId],
-    };
-  }
-  const newMarkets = _.union(existingMarkets, [marketId])
-  return {
-    ...state,
-    existingMarkets: newMarkets,
-  };
-}
-
-
-
 function removeStoredMarket(state, action) {
   const { marketId } = action;
   const { marketVersions } = state;
@@ -103,9 +74,6 @@ function reducer(state, action) {
         ...state,
         globalVersion: action.globalVersion,
       };
-      break;
-    case NEW_MARKET:
-      newState = doAddNewMarket(state, action);
       break;
     case REMOVE_MARKET:
       newState = removeStoredMarket(state, action);

@@ -4,8 +4,14 @@ import { getChangedIds, getVersions } from './summaries'
 import { getMarketDetails, getMarketStages, getMarketUsers } from './markets'
 import { getFetchSignaturesForAccount, getFetchSignaturesForMarket, signatureMatcher, } from './versionSignatureUtils'
 import {
-  BANNED_LIST, PUSH_COMMENTS_CHANNEL,
-  PUSH_HOME_USER_CHANNEL, PUSH_INVESTIBLES_CHANNEL, PUSH_MARKETS_CHANNEL, PUSH_PRESENCE_CHANNEL, PUSH_STAGE_CHANNEL,
+  BANNED_LIST,
+  PUSH_COMMENTS_CHANNEL,
+  PUSH_HOME_USER_CHANNEL,
+  PUSH_INVESTIBLES_CHANNEL,
+  PUSH_MARKETS_CHANNEL,
+  PUSH_PRESENCE_CHANNEL,
+  PUSH_STAGE_CHANNEL,
+  refreshNotifications,
   REMOVED_MARKETS_CHANNEL,
   VERSIONS_EVENT
 } from '../contexts/VersionsContext/versionsContextHelper'
@@ -225,6 +231,7 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets) {
              sendMarketsStruct(foregroundMarketsStruct);
              const backgroundMarketsStruct = {};
              console.info(`Finished foreground update for ${global_version}`);
+             refreshNotifications();
              return updateMarkets(backgroundList, backgroundMarketsStruct, MAX_CONCURRENT_ARCHIVE_API_CALLS)
                .then(() => {
                  sendMarketsStruct(backgroundMarketsStruct);

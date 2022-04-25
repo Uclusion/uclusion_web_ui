@@ -149,7 +149,6 @@ function WebSocketProvider(props) {
         refresh();
       }
     }, 300000, pongTracker, state, () => {
-      refreshNotifications();
       leaderDispatch(refreshOrMessage(`visit${Date.now()}`, userId));
     }, () => createWebSocket(config, leaderDispatch, setState, userId));
     return () => clearInterval(interval);

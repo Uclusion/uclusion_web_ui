@@ -1,7 +1,7 @@
 import React, { useEffect, useReducer, useState } from 'react'
 import { BroadcastChannel, createLeaderElection } from 'broadcast-channel'
 import reducer, { updateLeader } from './leaderContextReducer'
-import { refreshNotifications, refreshVersions } from '../VersionsContext/versionsContextHelper'
+import { refreshVersions } from '../VersionsContext/versionsContextHelper'
 
 const EMPTY_STATE = {
   leader: undefined,
@@ -50,7 +50,6 @@ function LeaderProvider(props) {
         // Go ahead and get the latest when determine leader
         return refreshVersions(true).then(() => {
           console.info('Refreshed versions from leader init');
-          refreshNotifications();
         });
       });
     }

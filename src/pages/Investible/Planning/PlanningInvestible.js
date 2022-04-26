@@ -740,6 +740,7 @@ function PlanningInvestible(props) {
     }
     updatePageState({beingEdited: true});
     setUclusionLocalStorageItem(`name-editor-${investibleId}`, name);
+    window.scrollTo(0, 0);
     if ((isInReview || isInAccepted) && _.size(assigned) === 1) {
       // Only one person can edit so no need to get a lock
       return;

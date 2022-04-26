@@ -127,16 +127,17 @@ function InvestibleBodyEdit(props) {
   function onCancel () {
     pageStateReset();
     resetEditor();
-    return realeaseInvestibleEditLock(marketId, investibleId)
-      .then((newInv) => {
-        setOperationRunning(false);
-        refreshInvestibles(investiblesDispatch, diffDispatch, [newInv]);
-      });
+    return realeaseInvestibleEditLock(marketId, investibleId).then((newInv) => {
+      setOperationRunning(false);
+      refreshInvestibles(investiblesDispatch, diffDispatch, [newInv]);
+      window.scrollTo(0, 0);
+    });
   }
 
   function onSave (fullInvestible, stillEditing) {
     if (!stillEditing) {
       pageStateReset();
+      window.scrollTo(0, 0);
     }
     if (fullInvestible) {
       refreshInvestibles(investiblesDispatch, diffDispatch, [fullInvestible]);

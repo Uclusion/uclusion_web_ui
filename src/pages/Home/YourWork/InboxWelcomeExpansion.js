@@ -129,7 +129,7 @@ function InboxWelcomeExpansion() {
         <SpinningIconLabelButton onClick={handleCancel} doSpin={false} icon={Clear}>
           {intl.formatMessage({ id: 'marketAddCancelLabel' })}
         </SpinningIconLabelButton>
-        <SpinningIconLabelButton onClick={handleSave} icon={Send} id="planningInvestibleAddButton">
+        <SpinningIconLabelButton onClick={handleSave} icon={Send} id="inboxPlanningInvestibleAddButton">
           {intl.formatMessage({ id: 'commentAddSendLabel' })}
         </SpinningIconLabelButton>
         {openIssue !== false && (

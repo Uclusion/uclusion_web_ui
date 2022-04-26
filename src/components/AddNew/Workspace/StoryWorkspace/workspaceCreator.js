@@ -83,7 +83,7 @@ export function doCreateStoryWorkspace (dispatchers, formData, updateFormData, i
       createdMarketId = market.id;
       myUserId = presence.id;
       addMarketToStorage(marketsDispatch, diffDispatch, market);
-      pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, marketId: createdMarketId, stages });
+      pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, stageDetails: {[createdMarketId]: stages }});
       pushMessage(TOUR_CHANNEL, { event: START_TOUR, tour: INVITED_USER_WORKSPACE });
       pushMessage(NOTIFICATIONS_HUB_CHANNEL, { event: ADD_EVENT, message: notification });
       addPresenceToMarket(presenceDispatch, createdMarketId, presence);

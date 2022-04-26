@@ -93,7 +93,7 @@ function beginListening(dispatch, diffDispatch, setTokensHash) {
       const { id } = market;
       addMarketToStorage(dispatch, () => {}, market);
       pushMessage(PUSH_PRESENCE_CHANNEL, { event: ADD_PRESENCE, marketId: id, presence: user });
-      pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, marketId: id, stages });
+      pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, stageDetails: {[id]: stages }});
       if (investible) {
         pushMessage(PUSH_INVESTIBLES_CHANNEL, { event: LOAD_EVENT, investibles: [investible] });
       }

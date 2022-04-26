@@ -83,7 +83,6 @@ function ChangeNotificationPreferences (props) {
   const emailEnabledValue = emailEnabled === undefined ? safeUser.email_enabled : emailEnabled;
 
   function onSetEmailPreferences() {
-    setOperationRunning(true);
     return updateUser({ emailEnabled: emailEnabledValue,
       emailDelay: emailDelay ? emailDelay*60 : emailDelay }).then((ret) =>{
       setOperationRunning(false);
@@ -96,7 +95,6 @@ function ChangeNotificationPreferences (props) {
   const slackEnabledValue = slackEnabled === undefined ? safeUser.slack_enabled : slackEnabled;
 
   function onSetSlackPreferences() {
-    setOperationRunning(true);
     return updateUser({ slackEnabled: slackEnabledValue, slackDelay }).then((ret) =>{
       setOperationRunning(false);
       userDispatch(accountUserRefresh(ret.user));
@@ -231,7 +229,7 @@ function ChangeNotificationPreferences (props) {
                   <SpinBlockingButton
                     variant="outlined"
                     fullWidth={true}
-                    marketId=""
+                    id="changeEmailPreferences"
                     color="primary"
                     disabled={emailDelay === undefined && emailEnabled === undefined}
                     className={classes.actionPrimary}
@@ -311,7 +309,7 @@ function ChangeNotificationPreferences (props) {
                   <SpinBlockingButton
                     variant="outlined"
                     fullWidth={true}
-                    marketId=""
+                    id="changeSlackPreferences"
                     color="primary"
                     disabled={slackEnabled === undefined && slackDelay === undefined}
                     className={classes.actionPrimary}

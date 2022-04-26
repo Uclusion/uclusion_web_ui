@@ -26,7 +26,6 @@ import AttachedFilesList from '../../../components/Files/AttachedFilesList'
 import { useMetaDataStyles } from '../Planning/PlanningInvestible'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { attachFilesToInvestible, deleteAttachedFilesFromInvestible } from '../../../api/investibles'
-import { EMPTY_SPIN_RESULT } from '../../../constants/global'
 import { doSetEditWhenValid } from '../../../utils/windowUtils'
 import EditMarketButton from '../../Dialog/EditMarketButton'
 import { ExpandLess } from '@material-ui/icons'
@@ -38,6 +37,7 @@ import { getDiff, markDiffViewed } from '../../../contexts/DiffContext/diffConte
 import { findMessageOfTypeAndId } from '../../../utils/messageUtils'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils'
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 
 const useStyles = makeStyles((theme) => ({
   mobileColumn: {
@@ -157,6 +157,7 @@ function DecisionInvestible(props) {
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [diffState, diffDispatch] = useContext(DiffContext);
   const [messagesState] = useContext(NotificationsContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const myMessageDescription = findMessageOfTypeAndId(investibleId, messagesState, 'DESCRIPTION');
   const diff = getDiff(diffState, investibleId);
   const { id: marketId, market_stage: marketStage } = market;
@@ -260,11 +261,10 @@ function DecisionInvestible(props) {
   }
 
   function onDeleteFile(path) {
-    return deleteAttachedFilesFromInvestible(marketId, investible.id, [path])
-      .then((investible) => {
-        addInvestible(investiblesDispatch, diffDispatch, investible);
-        return EMPTY_SPIN_RESULT;
-      });
+    return deleteAttachedFilesFromInvestible(marketId, investible.id, [path]).then((investible) => {
+      addInvestible(investiblesDispatch, diffDispatch, investible);
+      setOperationRunning(false);
+    });
   }
 
   function onAttachFiles(metadatas) {

@@ -57,7 +57,7 @@ import CardType from '../../../components/CardType'
 import clsx from 'clsx'
 import DismissableText from '../../../components/Notifications/DismissableText'
 import PersonAddIcon from '@material-ui/icons/PersonAdd'
-import { EMPTY_SPIN_RESULT, PLACEHOLDER } from '../../../constants/global'
+import { PLACEHOLDER } from '../../../constants/global'
 import {
   addInvestible,
   getMarketLabels,
@@ -1492,6 +1492,7 @@ function MarketMetaData(props) {
   const [, invDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const workItemClasses = workListStyles();
   const myMessageDescription = findMessageOfTypeAndId(investibleId, messagesState, 'DESCRIPTION');
   const diff = getDiff(diffState, investibleId);
@@ -1511,11 +1512,10 @@ function MarketMetaData(props) {
   }
 
   function onDeleteFile(path) {
-    return deleteAttachedFilesFromInvestible(market.id, investibleId, [path])
-      .then((investible) => {
-        addInvestible(investiblesDispatch, diffDispatch, investible);
-        return EMPTY_SPIN_RESULT;
-      });
+    return deleteAttachedFilesFromInvestible(market.id, investibleId, [path]).then((investible) => {
+      addInvestible(investiblesDispatch, diffDispatch, investible);
+      setOperationRunning(false);
+    });
   }
 
   function onAttachFiles(metadatas) {

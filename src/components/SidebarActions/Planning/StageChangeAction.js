@@ -5,7 +5,6 @@ import SpinBlockingListAction from '../../../components/SpinBlocking/SpinBlockin
 import { stageChangeInvestible } from '../../../api/investibles'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
-import { EMPTY_SPIN_RESULT } from '../../../constants/global'
 import { makeStyles } from '@material-ui/styles'
 import { Dialog } from '../../Dialogs'
 import { ListItemIcon, ListItemText, Tooltip, useMediaQuery, useTheme } from '@material-ui/core'
@@ -109,10 +108,9 @@ function StageChangeAction(props) {
       .then((newInv) => {
         onInvestibleStageChange(targetStageId, newInv, investibleId, marketId, commentsState, commentsDispatch,
           invDispatch, diffDispatch, marketStagesState, undefined, fullStage);
-        if (standAlone) {
-          setOperationRunning(false);
-        } else {
-          return EMPTY_SPIN_RESULT;
+        setOperationRunning(false);
+        if (!standAlone) {
+          onSpinStop();
         }
       });
   }
@@ -182,11 +180,9 @@ function StageChangeAction(props) {
 
   return (
     <SpinBlockingListAction
-      marketId={marketId}
+      id='stageChangeAction'
       icon={icon}
-      hasSpinChecker
       highlighted={highlighted}
-      onSpinStop={onSpinStop}
       label={intl.formatMessage({ id: explanationId })}
       openLabel={intl.formatMessage({ id: translationId })}
       onClick={moveToTarget}

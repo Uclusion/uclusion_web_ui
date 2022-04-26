@@ -17,6 +17,7 @@ import { endSubscription, restartSubscription, startSubscription } from '../../a
 import { useIntl } from 'react-intl';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
 import SubSection from '../../containers/SubSection/SubSection';
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 
 
 const styleClasses = makeStyles(
@@ -56,6 +57,7 @@ const styleClasses = makeStyles(
 function SubscriptionStatus (props) {
 
   const intl = useIntl();
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [accountState, accountDispatch] = useContext(AccountContext);
   const account = getAccount(accountState);
   const {
@@ -79,18 +81,11 @@ function SubscriptionStatus (props) {
   const tierMessage = intl.formatMessage({ id: getTierMessageId(tier) });
   const subMessage = getSubscriptionMessage();
 
-  function onSpinStop (account) {
-    updateAccount(accountDispatch, account);
-  }
-
   function beginSubscription () {
-    return startSubscription()
-      .then((upgradedAccount) => {
-        return {
-          result: upgradedAccount,
-          spinChecker: () => Promise.resolve(true)
-        };
-      });
+    return startSubscription().then((upgradedAccount) => {
+      setOperationRunning(false);
+      return updateAccount(accountDispatch, upgradedAccount);
+    });
   }
 
   function canCancelSubscription () {
@@ -107,23 +102,17 @@ function SubscriptionStatus (props) {
   }
 
   function cancelSubscription () {
-    return endSubscription()
-      .then((cancelledAccount) => {
-        return {
-          result: cancelledAccount,
-          spinChecker: () => Promise.resolve(true)
-        };
-      });
+    return endSubscription().then((cancelledAccount) => {
+      setOperationRunning(false);
+      return updateAccount(accountDispatch, cancelledAccount);
+    });
   }
 
   function resumeSubscription () {
-    return restartSubscription()
-      .then((restartedAccount) => {
-        return {
-          result: restartedAccount,
-          spinChecker: () => Promise.resolve(true)
-        };
-      });
+    return restartSubscription().then((restartedAccount) => {
+      setOperationRunning(false);
+      return updateAccount(accountDispatch, restartedAccount);
+    });
   }
 
   function getTierMessageId(tier) {
@@ -169,9 +158,7 @@ function SubscriptionStatus (props) {
         {upgradable && !resumable && (
           <SpinBlockingButton
             onClick={beginSubscription}
-            onSpinStop={onSpinStop}
-            hasSpinChecker
-            marketId="unused"
+            id="billingSubStartTrial"
             className={clsx(
               classes.action,
               classes.actionPrimary,
@@ -189,9 +176,8 @@ function SubscriptionStatus (props) {
         {resumable && !needsPayment && (
           <SpinBlockingButton
             onClick={resumeSubscription}
-            onSpinStop={onSpinStop}
             hasSpinChecker
-            marketId="unused"
+            id="billingSubRestart"
             className={clsx(
               classes.action,
               classes.actionPrimary,
@@ -206,9 +192,7 @@ function SubscriptionStatus (props) {
           <SpinBlockingButton
             className={classes.cancelSubscriptionButton}
             onClick={cancelSubscription}
-            onSpinStop={onSpinStop}
-            marketId="unused"
-            hasSpinChecker
+            id="billingSubCancel"
           >
             {intl.formatMessage({ id: 'billingSubCancel' })}
           </SpinBlockingButton>

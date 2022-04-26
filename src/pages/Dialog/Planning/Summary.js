@@ -15,7 +15,6 @@ import { attachFilesToMarket, deleteAttachedFilesFromMarket } from '../../../api
 import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
-import { EMPTY_SPIN_RESULT } from '../../../constants/global'
 import { doSetEditWhenValid, invalidEditEvent } from '../../../utils/windowUtils'
 import DialogBodyEdit from '../DialogBodyEdit'
 import _ from 'lodash'
@@ -29,6 +28,7 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import { ExpandLess } from '@material-ui/icons'
 import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils'
 import EditMarketButton from '../EditMarketButton'
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 
 const useStyles = makeStyles(theme => ({
   section: {
@@ -219,6 +219,7 @@ function Summary(props) {
   const [, marketsDispatch] = useContext(MarketsContext);
   const [diffState, diffDispatch] = useContext(DiffContext);
   const [messagesState] = useContext(NotificationsContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const myMessageDescription = findMessageOfTypeAndId(id, messagesState, 'DESCRIPTION')
   const diff = getDiff(diffState, id);
   const {
@@ -253,11 +254,10 @@ function Summary(props) {
   }
 
   function onDeleteFile(path) {
-    return deleteAttachedFilesFromMarket(id, [path])
-      .then((market) => {
-        addMarketToStorage(marketsDispatch, diffDispatch, market);
-        return EMPTY_SPIN_RESULT;
-      })
+    return deleteAttachedFilesFromMarket(id, [path]).then((market) => {
+      addMarketToStorage(marketsDispatch, diffDispatch, market);
+      setOperationRunning(false);
+    });
   }
 
   function mySetBeingEdited(isEdit, event) {

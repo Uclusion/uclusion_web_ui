@@ -30,15 +30,12 @@ const useStyles = makeStyles(() => {
 
 function SpinBlockingListAction(props) {
   const {
-    marketId,
     id,
     icon,
     label,
     openLabel,
     highlighted,
     onClick,
-    onSpinStart,
-    onSpinStop,
     hasSpinChecker,
     customClasses,
     disabled,
@@ -54,10 +51,7 @@ function SpinBlockingListAction(props) {
       key={label}
       id={id}
       button
-      marketId={marketId}
       onClick={onClick}
-      onSpinStart={onSpinStart}
-      onSpinStop={onSpinStop}
       className={classes.menuItem}
       hasSpinChecker={hasSpinChecker}
       disabled={disabled}
@@ -77,24 +71,16 @@ function SpinBlockingListAction(props) {
 }
 
 SpinBlockingListAction.propTypes = {
-  marketId: PropTypes.string.isRequired,
   icon: PropTypes.element.isRequired,
   label: PropTypes.string.isRequired,
   openLabel: PropTypes.string.isRequired,
   onClick: PropTypes.func.isRequired,
-  hasSpinChecker: PropTypes.bool,
-  onSpinStart: PropTypes.func,
-  onSpinStop: PropTypes.func,
-  id: PropTypes.string,
+  id: PropTypes.string.isRequired,
   customClasses: PropTypes.object,
   disabled: PropTypes.bool,
 };
 
 SpinBlockingListAction.defaultProps = {
-  onSpinStart: () => {},
-  onSpinStop: () => {},
-  hasSpinChecker: false,
-  id: undefined,
   disabled: false,
 };
 

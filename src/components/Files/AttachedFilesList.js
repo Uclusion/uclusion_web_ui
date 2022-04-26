@@ -57,6 +57,7 @@ function AttachedFilesList(props) {
   /** Since the service worker doesn't want to fire for external links,
    * we'll do it's job for it and click the new url
    * @param link
+   * @param originalName
    * @returns {*}
    */
   function downloadFile(link, originalName) {
@@ -103,13 +104,12 @@ function AttachedFilesList(props) {
           {isAdmin && (
             <ListItemSecondaryAction>
               <SpinningTooltipIconButton
-                marketId={marketId}
+                id='deleteFiles'
                 translationId="delete"
                 edge="end"
                 onClick={() => onDeleteClick(path)}
                 icon={<DeleteIcon htmlColor="black" />}
                 aria-label="delete"
-                hasSpinChecker
               />
             </ListItemSecondaryAction>
           )}

@@ -86,8 +86,6 @@ export function messageText(message, isMobile, intl) {
       return getMessageTextForId('pleaseApprove', isMobile, intl);
     case 'NEW_TODO':
       return getMessageTextForId('resolveTodo', isMobile, intl);
-    case 'ISSUE_RESOLVED':
-      return getMessageTextForId('changeStage', isMobile, intl);
     case 'REMOVED':
       return getMessageTextForId('removed', isMobile, intl);
     case 'UNREMOVED':

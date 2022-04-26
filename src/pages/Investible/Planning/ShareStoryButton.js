@@ -20,7 +20,7 @@ function ShareStoryButton(props) {
     setOpen(true);
   };
 
-  if (window.location.href.includes('inbox') || window.location.href.includes('outbox')) {
+  if (window.location.href.includes('inbox')) {
     return React.Fragment;
   }
 

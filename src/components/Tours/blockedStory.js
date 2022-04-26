@@ -13,7 +13,7 @@ export function blockedStorySteps(variables) {
         title: 'About task blocking',
         content: (
           <Typography style={{textAlign: 'left'}} variant="body2">
-            This job will stay in Blocked until you or someone else resolves all blocking issues.
+            This job shows in your Pending until someone resolves all blocking issues.
           </Typography>
         ),
       });
@@ -25,7 +25,7 @@ export function blockedStorySteps(variables) {
         title: 'Welcome to unblocking!',
         content: (
           <Typography style={{textAlign: 'left'}} variant="body2">
-            Please help resolve Blocking issues in this story.
+            Please help resolve blocking issues in this job.
           </Typography>
         ),
       });

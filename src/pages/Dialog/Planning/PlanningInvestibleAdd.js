@@ -361,20 +361,17 @@ function PlanningInvestibleAdd(props) {
                 <div>
                   <legend>{intl.formatMessage({ id: 'agilePlanFormFieldsetLabelOptional' })}</legend>
                   <FormControlLabel
-                    control={ _.isEmpty(assignments) ?
-                        <Checkbox
-                          value={openForInvestment}
-                          checked={openForInvestment || openForInvestmentDefault}
-                          disabled={furtherWorkType !== undefined}
-                          onClick={() => updateInvestibleAddState({ openForInvestment: !openForInvestment })}
-                        /> :
-                      <Checkbox
+                    control={ isAssigned ? <Checkbox
                         value={skipApproval}
                         disabled={votesRequired > 1 || acceptedFull || !acceptedStage.id || !isAssignedToMe}
                         checked={skipApproval}
                         onClick={() => updateInvestibleAddState({ skipApproval: !skipApproval })}
-                      />
-                    }
+                      /> : <Checkbox
+                      value={openForInvestment}
+                      checked={openForInvestment || openForInvestmentDefault}
+                      disabled={furtherWorkType !== undefined}
+                      onClick={() => updateInvestibleAddState({ openForInvestment: !openForInvestment })} />
+                  }
                     label={intl.formatMessage({ id: _.isEmpty(assignments) ? 'readyToStartCheckboxExplanation' :
                         'skipApprovalExplanation' })}
                   />

@@ -69,6 +69,12 @@ export function messageText(message, isMobile, intl) {
     case 'UNREAD_OPTION':
       return getMessageTextForId('unreadOption', isMobile, intl);
     case 'ISSUE':
+      if (linkType.includes('QUESTION')) {
+        return getMessageTextForId('pleaseChoose', isMobile, intl);
+      }
+      if (linkType.includes('SUGGESTION')) {
+        return getMessageTextForId('pleaseVote', isMobile, intl);
+      }
       return getMessageTextForId('issue', isMobile, intl);
     case 'INVESTIBLE_SUBMITTED':
       return getMessageTextForId('unPromotedOption', isMobile, intl);

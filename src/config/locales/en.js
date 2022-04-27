@@ -299,7 +299,7 @@ const messages = defineMessages({
   unreadOption: 'Consider option',
   unreadOptionMobile: 'Option',
   issue: 'Blocking issue',
-  issueMobile: 'Unresolved',
+  issueMobile: 'Blocking',
   unPromotedOption: 'Unpromoted option',
   unPromotedOptionMobile: 'Unpromoted',
   workspaceClosed: 'Channel muted',

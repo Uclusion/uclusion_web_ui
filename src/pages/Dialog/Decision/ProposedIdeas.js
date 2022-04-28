@@ -49,7 +49,7 @@ const useStyles = makeStyles((theme) => ({
 function ProposedIdeas(props) {
   const classes = useStyles();
   const outlineStyles = myArchiveClasses();
-  const { investibles, marketId, isAdmin, comments, inArchives, marketPresences } = props;
+  const { investibles, marketId, isAdmin, comments, inArchives, marketPresences, isSent } = props;
   const [selectedInvestibleId, setSelectedInvestibleId] = useState(undefined);
   const [marketsState] = useContext(MarketsContext);
   const [messagesState] = useContext(NotificationsContext);
@@ -151,6 +151,7 @@ function ProposedIdeas(props) {
           investibleComments={comments.filter((comment) => comment.investible_id === selectedInvestibleId)}
           isAdmin={isAdmin}
           inArchives={inArchives}
+          isSent={isSent}
         />
       )}
     </>

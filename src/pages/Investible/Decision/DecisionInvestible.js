@@ -38,6 +38,7 @@ import { findMessageOfTypeAndId } from '../../../utils/messageUtils'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
+import ShareStoryButton from '../Planning/ShareStoryButton'
 
 const useStyles = makeStyles((theme) => ({
   mobileColumn: {
@@ -147,6 +148,7 @@ function DecisionInvestible(props) {
     isAdmin,
     inArchives,
     hidden,
+    isSent
   } = props;
   const intl = useIntl();
   const history = useHistory();
@@ -277,7 +279,7 @@ function DecisionInvestible(props) {
 
   return (
     <div style={{marginLeft: mobileLayout ? undefined : '2rem', marginRight: mobileLayout ? undefined : '2rem',
-      marginBottom: '1rem'}}>
+      marginBottom: '1rem'}} id={`option${investibleId}`}>
       {activeMarket && inProposed && isAdmin && (
         <DismissableText textId='decisionInvestibleProposedHelp' text={
           <div>
@@ -316,6 +318,11 @@ function DecisionInvestible(props) {
             <CardActions className={classes.actions}>
               {activeMarket && (
                 getActions()
+              )}
+              {isSent && (
+                <div style={{paddingLeft: "1rem", paddingRight: "1rem"}}>
+                  <ShareStoryButton investibleId={investibleId} marketId={marketId} isOption />
+                </div>
               )}
             </CardActions>
             {myMessageDescription && diff && (

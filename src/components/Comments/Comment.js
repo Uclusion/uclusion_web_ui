@@ -592,6 +592,7 @@ function Comment(props) {
               comments={anInlineMarketInvestibleComments}
               inArchives={inArchives}
               isAdmin={isEditable}
+              isSent={isSent}
             />
           </SubSection>
         </Grid>
@@ -630,6 +631,7 @@ function Comment(props) {
               comments={anInlineMarketInvestibleComments}
               isAdmin={isEditable}
               inArchives={inArchives}
+              isSent={isSent}
             />
           </SubSection>
         </Grid>

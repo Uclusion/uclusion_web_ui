@@ -9,8 +9,8 @@ import { useLockedDialogStyles } from '../../Dialog/DialogBodyEdit'
 import InviteLinker from '../../Dialog/InviteLinker'
 
 function ShareStoryButton(props) {
-  const { commentId, investibleId, marketId } = props;
-  const hashPart = commentId ? `#c${commentId}` : undefined;
+  const { commentId, investibleId, marketId, isOption } = props;
+  const hashPart = commentId ? `#c${commentId}` : (isOption ? `#option${investibleId}` : undefined);
   const paramsPart = commentId ? `?subscribeId=${commentId}` : investibleId ? `?subscribeId=${investibleId}`
     : `?subscribeId=${marketId}`;
   const autoFocusRef = React.useRef(null);

@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import { CardContent, Grid, IconButton } from '@material-ui/core'
@@ -25,6 +25,7 @@ import { getMarket, getMyUserForMarket } from '../../../contexts/MarketsContext/
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { Clear } from '@material-ui/icons'
 import CardHeader from '@material-ui/core/CardHeader'
+import { useLocation } from 'react-router'
 
 const useStyles = makeStyles(theme => ({
   noPadding: {
@@ -64,9 +65,11 @@ const useStyles = makeStyles(theme => ({
 function CurrentVoting(props) {
   const classes = useStyles();
   const outlineStyles = myArchiveClasses();
+  const location = useLocation();
+  const { hash } = location;
   const [selectedInvestibleId, setSelectedInvestibleId] = useState(undefined);
   const [marketsState] = useContext(MarketsContext);
-  const { marketPresences, investibles, marketId, comments, isAdmin, inArchives } = props;
+  const { marketPresences, investibles, marketId, comments, isAdmin, inArchives, isSent } = props;
   const strippedInvestibles = investibles.map(inv => inv.investible);
   const [messagesState] = useContext(NotificationsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -75,6 +78,15 @@ function CurrentVoting(props) {
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const inCurrentVotingStage = getInCurrentVotingStage(marketStagesState, marketId);
   const proposedStage = getProposedOptionsStage(marketStagesState, marketId);
+
+  useEffect(() => {
+    if (hash) {
+      const foundInv = (strippedInvestibles || []).find((investible) => hash.includes(investible.id));
+      if (foundInv) {
+        setSelectedInvestibleId(foundInv.id);
+      }
+    }
+  }, [strippedInvestibles, hash]);
 
   function getInvestibleVotes() {
     // first set every investibles support and investments to 0
@@ -202,6 +214,7 @@ function CurrentVoting(props) {
           investibleComments={comments.filter((comment) => comment.investible_id === selectedInvestibleId)}
           isAdmin={isAdmin}
           inArchives={inArchives}
+          isSent={isSent}
         />
       )}
     </>

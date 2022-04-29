@@ -38,7 +38,7 @@ import { getMarketPresences } from '../../../contexts/MarketPresencesContext/mar
 import { getAcceptedStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
-import { getMarketInfo } from '../../../api/sso'
+import { getMarketInfo } from '../../../utils/userFunctions'
 
 function CommentPanel(props) {
   const { commentId, marketId, marketType, messageType, planningClasses, mobileLayout, messagesFull,

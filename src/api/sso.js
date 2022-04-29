@@ -41,15 +41,6 @@ export const getAccount = () => {
     })
 };
 
-export function getMarketInfo(marketId) {
-  return getSSOInfo()
-    .then((ssoInfo) => {
-      const { ssoClient, idToken } = ssoInfo;
-      return ssoClient.getMarketInfo(idToken, marketId)
-        .then((market) => market);
-    });
-}
-
 export function getMarketInfoForToken(marketToken) {
   return uclusion.constructSSOClient(config.api_configuration)
     .then((ssoClient) => ssoClient.getMarketInfoForToken(marketToken));

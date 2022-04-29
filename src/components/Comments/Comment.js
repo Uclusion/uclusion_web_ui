@@ -649,7 +649,8 @@ function Comment(props) {
       return React.Fragment;
     }
     if (marketType === INITIATIVE_TYPE) {
-      return <InlineInitiativeBox anInlineMarket={anInlineMarket} inlineUserId={inlineUserId} isInbox={isInbox}
+      return <InlineInitiativeBox anInlineMarket={anInlineMarket} inlineUserId={inlineUserId}
+                                  isInbox={isInbox || isOutbox}
                                   inArchives={marketStage !== ACTIVE_STAGE || inArchives || resolved} />;
     }
     return getDialog(anInlineMarket);
@@ -848,7 +849,7 @@ function Comment(props) {
     myInlinePresence.investments.find((investment) => !investment.deleted);
   const showAbstain = enableActions && inlineMarketId && myPresence !== createdBy && !resolved &&
     !myInlinePresence.abstain && !yourVote;
-  const isDeletable = !isInbox && (commentType === REPORT_TYPE || isEditable || resolved);
+  const isDeletable = !isInbox && !isOutbox && (commentType === REPORT_TYPE || isEditable || resolved);
   return (
     <div>
       <Card elevation={3} style={{overflow: 'unset', marginTop: isSent === false ? 0 : undefined}}
@@ -941,7 +942,7 @@ function Comment(props) {
             <Box marginTop={1}>
               {!beingEdited && !displayingDiff && !_.isEmpty(comment) && (
                 <ReadOnlyQuillEditor value={body} setBeingEdited={setBeingEdited}
-                                     id={isInbox ? `inboxComment${id}` : id}
+                                     id={isInbox ? `inboxComment${id}` : (isOutbox ? `outboxComment${id}` : id)}
                                      isEditable={!mobileLayout && displayEditing}/>
               )}
               {!beingEdited && displayingDiff && (

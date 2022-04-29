@@ -123,7 +123,7 @@ function Dialog(props) {
     if (hidden) {
       setMarketIdFromToken(undefined);
     }
-  }, [action, hasUser, hidden, isInitialization, marketEntity, marketsState, subscribeId]);
+  }, [action, hasUser, hash, hidden, isInitialization, marketEntity, marketsState, subscribeId]);
 
   useEffect(() => {
     if (!hidden && action === 'invite' && marketId && !_.isEmpty(loadedMarket)) {

@@ -844,7 +844,7 @@ function Comment(props) {
     && !inArchives
     && enableActions && (!resolved || commentType !== TODO_TYPE) && marketType === PLANNING_TYPE;
   const showResolve = isSent !== false && enableActions && commentType !== REPORT_TYPE && !showAcceptReject &&
-    (myPresence === createdBy || !resolved);
+    (myPresence === createdBy || myPresence === updatedBy || !resolved);
   const yourVote = myInlinePresence && myInlinePresence.investments &&
     myInlinePresence.investments.find((investment) => !investment.deleted);
   const showAbstain = enableActions && inlineMarketId && myPresence !== createdBy && !resolved &&

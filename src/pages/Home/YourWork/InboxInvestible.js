@@ -79,6 +79,8 @@ function InboxInvestible(props) {
   const [commentState, commentsDispatch] = useContext(CommentsContext);
   const [diffState, diffDispatch] = useContext(DiffContext);
   const market = getMarket(marketsState, marketId) || {};
+  const investibleMarketId = market.parent_comment_market_id || marketId;
+  const investibleMarket = getMarket(marketsState, investibleMarketId) || {};
   const userId = getMyUserForMarket(marketsState, marketId) || '';
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const yourPresence = marketPresences.find((presence) => presence.current_user);
@@ -100,24 +102,24 @@ function InboxInvestible(props) {
   const inv = getInvestible(investiblesState, investibleId);
   const { investible: myInvestible } = inv || {};
   const { name, description, label_list: labelList, attached_files: attachedFiles } = myInvestible || {};
-  const marketInfo = getMarketInfo(inv, marketId) || {};
+  const marketInfo = getMarketInfo(inv, investibleMarketId) || {};
   const { stage, assigned: invAssigned, completion_estimate: marketDaysEstimate, required_approvers:  requiredApprovers,
     required_reviews: requiredReviewers, accepted, open_for_investment: openForInvestment } = marketInfo;
-  const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
+  const fullStage = getFullStage(marketStagesState, investibleMarketId, stage) || {};
   const assigned = invAssigned || [];
   const isInVoting = fullStage.allows_investment;
   const isReview = !_.isEmpty(_.intersection(['UNREAD_REVIEWABLE', 'REVIEW_REQUIRED'], useMessageTypes));
   const allowedTypes = useMessageTypes.includes('ASSIGNED_UNREVIEWABLE') || isReview ?
     [TODO_TYPE, REPORT_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE] :
     [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE];
-  const inAcceptedStage = getAcceptedStage(marketStagesState, marketId) || {};
-  const investibles = getMarketInvestibles(investiblesState, marketId);
+  const inAcceptedStage = getAcceptedStage(marketStagesState, investibleMarketId) || {};
+  const investibles = getMarketInvestibles(investiblesState, investibleMarketId);
   const assignedInAcceptedStage = assigned.reduce((acc, userId) => {
     return acc.concat(assignedInStage(
       investibles,
       userId,
       inAcceptedStage.id,
-      marketId
+      investibleMarketId
     ));
   }, []);
   const acceptedFull = inAcceptedStage.allowed_investibles > 0
@@ -236,7 +238,7 @@ function InboxInvestible(props) {
         )}
         {!_.isEmpty(useMessageTypes) && (
           <Typography variant="body1" style={{marginTop: mobileLayout ? '1rem' : '1.5rem'}}>
-            {market.name}
+            {investibleMarket.name}
           </Typography>
         )}
         {!mobileLayout && !isOutbox && !_.isEmpty(useMessageTypes) && (
@@ -261,7 +263,7 @@ function InboxInvestible(props) {
             <NotificationDeletion message={message} />
           )}
           <Typography variant="body1" style={{paddingLeft: '1rem', marginTop: '0.25rem'}}>
-            {market.name}
+            {investibleMarket.name}
           </Typography>
           {!mobileLayout && !isOutbox && (
             <>

@@ -22,6 +22,11 @@ export function titleText(message, isMobile, intl, isMultiple, numMultiples, com
     case 'ASSIGNED_UNREVIEWABLE':
     case 'REPORT_REQUIRED':
       return getMessageTextForId('unfinished', isMobile, intl);
+    case 'ISSUE':
+      if (message.market_type !== DECISION_TYPE) {
+        return defaultText(message, isMobile, intl, isMultiple, numMultiples);
+      }
+      return intl.formatMessage({ id: 'feedback' });
     case 'UNREAD_COMMENT':
       const { comment_type: commentType, creator_assigned: creatorAssigned } = comment || {};
       if (commentType !== REPORT_TYPE || creatorAssigned) {
@@ -165,7 +170,8 @@ export function findMessagesForMarketId(marketId, state) {
 export function findMessagesForInvestibleId(investibleId, state) {
   const { messages } = (state || {});
   const safeMessages = messages || [];
-  return safeMessages.filter((message) => message.investible_id === investibleId);
+  return safeMessages.filter((message) => message.investible_id === investibleId ||
+    message.decision_investible_id === investibleId);
 }
 
 export function findMessageForCommentId(commentId, state) {

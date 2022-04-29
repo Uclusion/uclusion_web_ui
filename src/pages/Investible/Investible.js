@@ -28,7 +28,7 @@ function Investible(props) {
   const { hidden } = props;
   const history = useHistory();
   const location = useLocation();
-  const { pathname } = location;
+  const { pathname, hash } = location;
   const { marketId, investibleId } = decomposeMarketPath(pathname);
   const myParams = new URL(document.location).searchParams;
   const subscribeId = myParams ? myParams.get('subscribeId') : undefined;
@@ -60,12 +60,10 @@ function Investible(props) {
     if (!isInitialization && !hidden && marketId && subscribeId) {
       // Do not support copy and paste from regular URL because might cause performance issue
       pushMessage(LOAD_MARKET_CHANNEL, { event: GUEST_MARKET_EVENT, marketId, subscribeId });
-      if (subscribeId === investibleId) {
-        // Comments will be handled by scroll context
-        window.history.replaceState(null, '', window.location.pathname);
-      }
+      //Immediately replace with pathname plus hash so that don't send message twice
+      window.history.replaceState(null, '', `${window.location.pathname}${hash}`);
     }
-  }, [hidden, investibleId, isInitialization, marketId, subscribeId]);
+  }, [hidden, investibleId, isInitialization, marketId, subscribeId, hash]);
 
   if (loading) {
     return (

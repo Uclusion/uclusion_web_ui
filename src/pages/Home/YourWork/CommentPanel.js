@@ -143,7 +143,8 @@ function CommentPanel(props) {
             investible={investible}
             marketInfo={marketInfo}
             noAuthor={marketType === PLANNING_TYPE && commentType === TODO_TYPE && !investibleId}
-            isInbox
+            isInbox={!isOutbox}
+            isOutbox={isOutbox}
           />
         </div>
       </>

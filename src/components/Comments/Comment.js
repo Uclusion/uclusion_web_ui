@@ -353,7 +353,7 @@ function navigateEditReplyBack(history, id, marketId, investibleId, replyEditId,
 function Comment(props) {
   const { comment, marketId, comments, allowedTypes, noAuthor, onDone, defaultShowDiff, showDone, resolvedStageId,
     stagePreventsActions, isInbox, replyEditId, issueWarningId, todoWarningId, currentStageId, numReports,
-    marketInfo, investible} = props;
+    marketInfo, investible, isOutbox} = props;
   const history = useHistory();
   const myParams = new URL(document.location).searchParams;
   const theme = useTheme();
@@ -567,7 +567,7 @@ function Comment(props) {
             />
           )}
           <SubSection
-            id="currentVoting"
+            id={`${isInbox ? 'inbox' : (isOutbox ? 'outbox' : '')}currentVoting`}
             type={SECTION_TYPE_SECONDARY}
             title={intl.formatMessage({ id: 'decisionDialogCurrentVotingLabel' })}
             supportingInformation={abstained}

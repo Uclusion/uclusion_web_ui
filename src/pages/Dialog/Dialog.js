@@ -108,16 +108,15 @@ function Dialog(props) {
         const loadedMarket = getMarket(marketsState, proposedMarketId);
         if (subscribeId !== marketEntity || _.isEmpty(loadedMarket)) {
           pushMessage(LOAD_MARKET_CHANNEL, { event: GUEST_MARKET_EVENT, marketId: marketEntity, subscribeId });
-          if (subscribeId === marketEntity) {
-            console.info('Replacing pathname for subcribed market entity');
-            // Comments will be handled by scroll context
-            window.history.replaceState(null, '', window.location.pathname);
-          }
+          //Immediately replace with pathname plus hash so that don't send message twice
+          window.history.replaceState(null, '', `${window.location.pathname}${hash}`);
         }
       } else if (action === 'invite') {
         const loadedMarket = getMarket(marketsState, proposedMarketId);
         if (_.isEmpty(loadedMarket)) {
-          pushMessage(LOAD_MARKET_CHANNEL, { event: INVITE_MARKET_EVENT, marketToken: marketEntity });
+          pushMessage(LOAD_MARKET_CHANNEL, { event: INVITE_MARKET_EVENT, marketToken: marketEntity })
+          //Immediately replace the invite in the path name so don't send twice
+          window.history.replaceState(null, '', formMarketLink(proposedMarketId));
         }
       }
     }

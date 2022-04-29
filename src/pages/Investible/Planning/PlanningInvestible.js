@@ -900,7 +900,7 @@ function PlanningInvestible(props) {
           <div>
             For help create
             a <Link href="https://documentation.uclusion.com/structured-comments/#questions" target="_blank">question</Link> and
-            add options to it.
+            save to add options to it.
           </div>
         } />
       )}

@@ -191,7 +191,7 @@ export function findMessageOfTypeAndId(notificationId, state, subtype) {
   return findMessageOfType('UNREAD', notificationId, state, subtype);
 }
 
-export function getPaginatedItems(items, page=1, pageSize=15) {
+export function getPaginatedItems(items, page=1, pageSize) {
   const offset = (page - 1) * pageSize;
   const data = _.drop(items, offset).slice(0, pageSize);
   const last = _.size(data) > 0 ? offset + _.size(data) : 1;

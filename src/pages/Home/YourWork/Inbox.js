@@ -1,6 +1,6 @@
 import { workListStyles } from './WorkListItem'
 import { Box, Checkbox, Fab, IconButton, useMediaQuery, useTheme } from '@material-ui/core'
-import React, { useContext, useReducer, useState } from 'react'
+import React, { useContext, useEffect, useReducer, useState } from 'react'
 import { useIntl } from 'react-intl'
 import { AlarmOn, ExpandLess, KeyboardArrowLeft, Inbox as InboxIcon } from '@material-ui/icons'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
@@ -59,6 +59,8 @@ const useStyles = makeStyles(
       }
     };
 });
+
+const PAGE_SIZE = 15;
 
 function Inbox(props) {
   const { isJarDisplay = false, isDisabled = false, expansionState = {}, expansionDispatch, page, setPage,
@@ -134,6 +136,24 @@ function Inbox(props) {
   const htmlColor = _.isEmpty(firstMessage) ? '#8f8f8f' :
     (firstMessage.level === 'RED' ? '#E85757' : (firstMessage.level === 'YELLOW' ?
       (isDisabled ? '#ffff00' : (isJarDisplay ? '#FCEC69' : '#ffc61a')) : '#2D9CDB'));
+  const isPending = tabIndex > 0;
+  const outBoxMessagesOrdered = isPending ? getOutboxMessages({messagesState, marketState, marketPresencesState,
+    investiblesState, marketStagesState, commentsState, planningClasses, mobileLayout,
+    expansionState: expansionPendingState, intl}) : [];
+  const unpaginatedItems = isPending ? outBoxMessagesOrdered : inboxMessagesOrdered;
+  const usePage = isPending ? pendingPage : page;
+
+  useEffect(() => {
+    // If the last item on a page is deleted then must go down
+    const pageSetter = isPending ? setPendingPage : setPage;
+    if ((usePage - 1)*PAGE_SIZE + 1 > _.size(unpaginatedItems)) {
+      if (usePage > 1) {
+        const lastAvailablePage = Math.ceil(_.size(unpaginatedItems)/PAGE_SIZE);
+        pageSetter(lastAvailablePage > 0 ? lastAvailablePage : 1);
+      }
+    }
+  }, [isPending, setPage, setPendingPage, unpaginatedItems, usePage]);
+
   if (isJarDisplay) {
     return (
       <div id='inboxNotification' key='inbox' onClick={goFullInboxClick} className={classes.bellButton}>
@@ -174,22 +194,16 @@ function Inbox(props) {
   });
 
   function changePage(byNum) {
-    if (tabIndex > 0) {
+    if (isPending) {
       setPendingPage(pendingPage + byNum);
     } else {
       setPage(page + byNum);
     }
   }
 
-  const outBoxMessagesOrdered = getOutboxMessages({messagesState, marketState, marketPresencesState,
-    investiblesState, marketStagesState, commentsState, planningClasses, mobileLayout,
-    expansionState: expansionPendingState, intl});
-
-  const unpaginatedItems = tabIndex > 0 ? outBoxMessagesOrdered : inboxMessagesOrdered;
-  const usePage = tabIndex > 0 ? pendingPage : page;
-  const { first, last, data, hasMore, hasLess } = getPaginatedItems(unpaginatedItems, usePage);
+  const { first, last, data, hasMore, hasLess } = getPaginatedItems(unpaginatedItems, usePage, PAGE_SIZE);
   const defaultRow = createDefaultInboxRow(unpaginatedItems, loadingFromInvite, messagesState, tokensHash, intl,
-    determinate, determinateDispatch, checkAll, expansionState, expansionDispatch, tabIndex > 0);
+    determinate, determinateDispatch, checkAll, expansionState, expansionDispatch, isPending);
 
   return (
     <div id="inbox" style={{paddingBottom: '45vh'}}>
@@ -227,7 +241,7 @@ function Inbox(props) {
         )}
         <TooltipIconButton icon={<ExpandLess style={{marginLeft: '0.25rem'}} htmlColor={ACTION_BUTTON_COLOR} />}
                            onClick={() => {
-                             if (tabIndex > 0) {
+                             if (isPending) {
                                expansionPendingDispatch({ contractAll: true });
                              } else {
                                expansionDispatch({ expandAll: false });
@@ -235,7 +249,7 @@ function Inbox(props) {
                            }} translationId="inboxCollapseAll" />
         <TooltipIconButton icon={<ExpandMoreIcon style={{marginLeft: '0.25rem'}} htmlColor={ACTION_BUTTON_COLOR} />}
                            onClick={() => {
-                             if (tabIndex > 0) {
+                             if (isPending) {
                                expansionPendingDispatch({expandedMessages: outBoxMessagesOrdered});
                              } else {
                                expansionDispatch({ expandAll: true });
@@ -261,7 +275,7 @@ function Inbox(props) {
                       tag={_.size(outBoxMessagesOrdered) > 0 ? `${_.size(outBoxMessagesOrdered)}` : undefined} />
       </GmailTabs>
       {defaultRow}
-      { tabIndex > 0 ? <Outbox expansionState={expansionPendingState} expansionDispatch={expansionPendingDispatch}
+      { isPending ? <Outbox expansionState={expansionPendingState} expansionDispatch={expansionPendingDispatch}
                                page={pendingPage} setPage={setPendingPage} messagesOrdered={data} /> :
         data.map((message) => {
           const { link_multiple: linkMultiple } = message;

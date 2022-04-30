@@ -542,11 +542,12 @@ function Stage (props) {
           className={classes.verifiedOverflow}
           container>
         {sortedInvestibles.map(inv => {
-          const { investible, market_infos: marketInfos } = inv;
-          const marketInfo = marketInfos.find(
-            info => info.market_id === marketId
-          );
-
+          const { investible } = inv;
+          const marketInfo = getMarketInfo(inv, marketId) || {};
+          const unaccepted = isVoting && _.isEmpty(marketInfo.accepted);
+          const hasQuestionsSuggestions = (isReview || isVoting) && countByType(investible, comments,
+            [QUESTION_TYPE, SUGGEST_CHANGE_TYPE]) > 0;
+          const showWarning =  unaccepted || hasQuestionsSuggestions;
           return (
             <Grid key={investible.id} item xs={12} onDragStart={investibleOnDragStart} id={investible.id} draggable
                   className={!singleInvestible && warnAcceptedSafe[investible.id] ? classes.rootWarnAccepted
@@ -569,8 +570,7 @@ function Stage (props) {
                   isVoting={isVoting}
                   votesRequired={votesRequired}
                   numTodos={countByType(investible, comments, [TODO_TYPE])}
-                  showWarning={isReview || isVoting ? countByType(investible, comments,
-                    [QUESTION_TYPE, SUGGEST_CHANGE_TYPE]) > 0 : false}
+                  showWarning={showWarning}
                   showCompletion={showCompletion}
                   mobileLayout={mobileLayout}
                 />

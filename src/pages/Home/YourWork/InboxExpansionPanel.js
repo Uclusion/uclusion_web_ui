@@ -13,7 +13,7 @@ import {
   hasNoChannels
 } from '../../../contexts/MarketsContext/marketsContextHelper'
 import LoadingDisplay from '../../../components/LoadingDisplay'
-import { Assignment } from '@material-ui/icons'
+import { Assignment, PersonAddOutlined } from '@material-ui/icons'
 import InboxWelcomeExpansion from './InboxWelcomeExpansion'
 import WorkListItem from './WorkListItem'
 import { DECISION_TYPE, PLANNING_TYPE } from '../../../constants/markets'
@@ -24,7 +24,7 @@ import {
   getInCurrentVotingStage,
   getInReviewStage, getNotDoingStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
-import { getUserInvestibles } from '../../Dialog/Planning/userUtils'
+import { getUserInvestibles, getUserPendingAcceptanceInvestibles } from '../../Dialog/Planning/userUtils'
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { ISSUE_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments'
 import QuestionIcon from '@material-ui/icons/ContactSupport'
@@ -242,13 +242,19 @@ export function getOutboxMessages(props) {
     const inVotingStage = getInCurrentVotingStage(marketStagesState, market.id) || {};
     const inVotingInvestibles = getUserInvestibles(myPresence.id, market.id, investibles,
       [inVotingStage]) || [];
+    const inVotingNotAccepted = getUserPendingAcceptanceInvestibles(myPresence.id, market.id, investibles,
+      [inVotingStage]) || [];
+    const inVotingNotAcceptedMarked = inVotingNotAccepted.map((investible) => {
+      return {...investible, notAccepted: true};
+    });
     const comments = getMarketComments(commentsState, market.id);
     const myUnresolvedRoots = comments.filter((comment) => !comment.resolved &&
       comment.created_by === myPresence.id && !comment.reply_id);
     const questions = myUnresolvedRoots.filter((comment) => comment.comment_type === QUESTION_TYPE) || [];
     const issues = myUnresolvedRoots.filter((comment) => comment.comment_type === ISSUE_TYPE) || [];
     const suggestions = myUnresolvedRoots.filter((comment) => comment.comment_type === SUGGEST_CHANGE_TYPE) || [];
-    return { market, comments, inReviewInvestibles, inVotingInvestibles, questions, issues, suggestions};
+    return { market, comments, inReviewInvestibles,
+      inVotingInvestibles: inVotingInvestibles.concat(inVotingNotAcceptedMarked), questions, issues, suggestions};
   });
 
   const messages = [];
@@ -325,13 +331,16 @@ export function getOutboxMessages(props) {
       messages.push(outboxMessage);
     });
     inVotingInvestibles.forEach((investible) => {
-      const investibleId = investible.investible.id
-      const message = getMessageForInvestible(investible, market, 'inboxVotingLabel',
-        <ThumbsUpDownIcon style={{ fontSize: 24, color: '#8f8f8f', }}/>, intl)
+      const investibleId = investible.investible.id;
+      const notAccepted = investible.notAccepted;
+      const label = notAccepted ? 'planningUnacceptedLabel' : 'inboxVotingLabel';
+      const messageIcon = notAccepted ? <PersonAddOutlined style={{ fontSize: 24, color: '#8f8f8f', }}/> :
+        <ThumbsUpDownIcon style={{ fontSize: 24, color: '#8f8f8f', }}/>;
+      const message = getMessageForInvestible(investible, market, label, messageIcon, intl)
       const expansionOpen = expansionState && !!expansionState[investibleId]
       if (expansionOpen) {
         message.expansionPanel = <InboxInvestible marketId={market.id} investibleId={investibleId}
-                                                  messageType={'UNREAD_VOTE'}
+                                                  messageType={notAccepted ? 'UNASSIGNED' : 'UNREAD_VOTE'}
                                                   planningClasses={planningClasses} marketType={PLANNING_TYPE}
                                                   mobileLayout={mobileLayout} isOutbox />
       }
@@ -340,12 +349,14 @@ export function getOutboxMessages(props) {
       const marketInfo = getMarketInfo(investible, market.id)
       const votersNotAssigned = votersForInvestible.filter((voter) => !_.includes(marketInfo.assigned, voter.id)) || []
       const votesRequiredDisplay = votesRequired > 0 ? votesRequired : 1
-      if (votersNotAssigned.length >= votesRequiredDisplay) {
+      if (!notAccepted && votersNotAssigned.length >= votesRequiredDisplay) {
         message.inActive = true
       }
-      if (!_.isEmpty(marketInfo.required_approvers)) {
+      let debtors = [];
+      if (notAccepted) {
+        debtors = marketPresences.filter((presence) => marketInfo.assigned.includes(presence.id));
+      } else if (!_.isEmpty(marketInfo.required_approvers)) {
         //add required approvers that have not voted or commented
-        const debtors = [];
         marketInfo.required_approvers.forEach((userId) => {
           const aComment = comments.find((comment) => !comment.resolved && comment.investible_id === investibleId &&
             comment.created_by === userId && [QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(comment.comment_type));
@@ -356,9 +367,9 @@ export function getOutboxMessages(props) {
             }
           }
         });
-        if (!_.isEmpty(debtors)) {
-          message.debtors = debtors;
-        }
+      }
+      if (!_.isEmpty(debtors)) {
+        message.debtors = debtors;
       }
       messages.push(message);
     });

@@ -444,6 +444,7 @@ const messages = defineMessages({
   breakLock: 'Break Lock',
   noVoters: 'None',
   reassignWarning: 'Re-assigning will remove all approval.',
+  planningUnacceptedLabel: 'Unaccepted',
   planningAcceptLabel: 'Accept',
   planningAcceptExplanation: 'Has not accepted',
   // Issues

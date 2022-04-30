@@ -26,6 +26,15 @@ export function getUserInvestibles(userId, marketId, investibles, visibleStages=
   });
 }
 
+export function getUserPendingAcceptanceInvestibles(userId, marketId, investibles, visibleStages=[]) {
+  return investibles.filter((investible) => {
+    const marketInfo = getMarketInfo(investible, marketId);
+    const { accepted, stage, assigned_by } = marketInfo;
+    const fullStage = visibleStages.find((visibleStage) => visibleStage.id === stage);
+    return assigned_by === userId && fullStage && _.isEmpty(accepted);
+  });
+}
+
 function getSwimlaneInvestiblesForStage(userInvestibles, stage, marketId) {
   const stageId = stage.id;
   const limitInvestibles = !isAcceptedStage(stage) ? (stage || {}).allowed_investibles : undefined;

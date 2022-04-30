@@ -372,8 +372,8 @@ function PlanningInvestibleAdd(props) {
                       disabled={furtherWorkType !== undefined}
                       onClick={() => updateInvestibleAddState({ openForInvestment: !openForInvestment })} />
                   }
-                    label={intl.formatMessage({ id: _.isEmpty(assignments) ? 'readyToStartCheckboxExplanation' :
-                        'skipApprovalExplanation' })}
+                    label={intl.formatMessage({ id: isAssigned ? 'skipApprovalExplanation' :
+                        'readyToStartCheckboxExplanation' })}
                   />
                 </div>
               </>

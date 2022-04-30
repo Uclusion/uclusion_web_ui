@@ -45,7 +45,7 @@ function getPriorityIcon(message, isAssigned) {
 }
 
 function InboxRow(props) {
-  const { message, checked, determinateDispatch, expansionDispatch, expansionOpen, isMultiple, hasPersistent,
+  const { message, checked, determinateDispatch, expansionDispatch, expansionOpen, isMultiple, isDeletable,
     numMultiples } = props;
   const intl = useIntl();
   const theme = useTheme();
@@ -65,7 +65,6 @@ function InboxRow(props) {
   const userId = getMyUserForMarket(marketsState, marketId);
   const isAssigned = (assigned || []).includes(userId);
   const market = getMarket(marketsState, marketId) || {};
-  const isDeletable = message.type_object_id.startsWith('UNREAD') && (!isMultiple || !hasPersistent);
   const { messages: messagesUnsafe } = messagesState;
   const messagesFull = (messagesUnsafe || []).filter((message) => message.link_multiple === linkMultiple);
   const redMessage = messagesFull.find((message) => message.level === 'RED');

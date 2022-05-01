@@ -236,13 +236,8 @@ function WorkListItem(props) {
           </Div>
         </div>
         <div style={{visibility: expansionPanelVisible ? 'visible' : 'hidden',
-          height: expansionPanelVisible ? undefined : 0}} onClick={
-          () => {
-              if (useSelect) {
-                pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: CURRENT_EVENT, message });
-              }
-            }
-          }>
+          height: expansionPanelVisible ? undefined : 0}}
+             onClick={() => pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: CURRENT_EVENT, message })}>
           {expansionPanel || <React.Fragment />}
         </div>
       </RaisedCard>

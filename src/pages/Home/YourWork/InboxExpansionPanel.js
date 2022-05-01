@@ -305,7 +305,7 @@ export function getOutboxMessages(props) {
       const expansionOpen = expansionState && !!expansionState[investibleId];
       if (expansionOpen) {
         outboxMessage.expansionPanel = <InboxInvestible marketId={market.id} investibleId={investibleId}
-                                                        messageType={'UNREAD_REVIEWABLE'}
+                                                        messageType={'UNREAD_REVIEWABLE'} message={outboxMessage}
                                                         planningClasses={planningClasses} marketType={PLANNING_TYPE}
                                                         mobileLayout={mobileLayout} isOutbox/>;
       }
@@ -339,7 +339,7 @@ export function getOutboxMessages(props) {
       const message = getMessageForInvestible(investible, market, label, messageIcon, intl)
       const expansionOpen = expansionState && !!expansionState[investibleId]
       if (expansionOpen) {
-        message.expansionPanel = <InboxInvestible marketId={market.id} investibleId={investibleId}
+        message.expansionPanel = <InboxInvestible marketId={market.id} investibleId={investibleId} message={message}
                                                   messageType={notAccepted ? 'UNASSIGNED' : 'UNREAD_VOTE'}
                                                   planningClasses={planningClasses} marketType={PLANNING_TYPE}
                                                   mobileLayout={mobileLayout} isOutbox />

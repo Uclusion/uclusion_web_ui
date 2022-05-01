@@ -267,7 +267,7 @@ function markMessageCurrent(state, action) {
     && aMessage.type_object_id === message.type_object_id);
   if (found || message.id) {
     // Messages with IDs are coming from outbox
-    return { ...state, current: found };
+    return { ...state, current: (found || message) };
   }
   return removeMessageCurrent(state);
 }

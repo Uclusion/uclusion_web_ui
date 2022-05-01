@@ -29,6 +29,11 @@ import { createDefaultInboxRow, getOutboxMessages } from './InboxExpansionPanel'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import { usePlanningInvestibleStyles } from '../../Investible/Planning/PlanningInvestible'
 import Outbox from './Outbox'
+import { pushMessage } from '../../../utils/MessageBusUtils'
+import {
+  MODIFY_NOTIFICATIONS_CHANNEL,
+  REMOVE_CURRENT_EVENT
+} from '../../../contexts/NotificationsContext/notificationsContextMessages'
 
 const useStyles = makeStyles(
   theme => {
@@ -266,7 +271,10 @@ function Inbox(props) {
           </IconButton>
         </Box>
       </div>
-      <GmailTabs value={tabIndex} onChange={(event, value) => setTabIndex(value)}
+      <GmailTabs value={tabIndex} onChange={(event, value) => {
+        pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: REMOVE_CURRENT_EVENT });
+        setTabIndex(value);
+      }}
                  indicatorColors={[htmlColor, '#2D9CDB']}
                  style={{borderTop: '1px ridge lightgrey', paddingBottom: '0.25rem'}}>
         <GmailTabItem icon={<InboxIcon />} label={intl.formatMessage({id: 'inbox'})} color={htmlColor}

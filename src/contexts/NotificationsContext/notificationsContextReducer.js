@@ -265,9 +265,12 @@ function markMessageCurrent(state, action) {
   const { messages: existingMessages } = state;
   const found = (existingMessages || []).find((aMessage) => aMessage.market_id_user_id === message.market_id_user_id
     && aMessage.type_object_id === message.type_object_id);
-  if (found || message.id) {
+  if (found && !message.id) {
+    return { ...state, current: found };
+  }
+  if (message.id) {
     // Messages with IDs are coming from outbox
-    return { ...state, current: (found || message) };
+    return { ...state, current: message };
   }
   return removeMessageCurrent(state);
 }

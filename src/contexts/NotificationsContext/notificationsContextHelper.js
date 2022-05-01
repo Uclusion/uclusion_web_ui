@@ -99,8 +99,8 @@ export function getInboxTarget(messagesState) {
   if (!_.isEmpty(messagesState)) {
     const { current } = messagesState;
     if (!_.isEmpty(current)) {
-      const { type_object_id: typeObjectId } = current;
-      return `/inbox#workListItem${typeObjectId}`;
+      const { type_object_id: typeObjectId, id } = current;
+      return `/inbox#workListItem${id || typeObjectId}`;
     }
   }
   return '/inbox';

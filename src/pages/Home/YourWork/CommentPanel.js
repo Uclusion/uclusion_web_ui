@@ -102,7 +102,7 @@ function CommentPanel(props) {
             <Typography variant="body1" style={{paddingTop: '1rem', paddingLeft: '1rem', paddingRight: '1rem'}}>
               <Link href={useLink} onClick={(event) => {
                 preventDefaultAndProp(event);
-                if (message && !isOutbox) {
+                if (message) {
                   pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: CURRENT_EVENT, message });
                 }
                 navigate(history, useLink)}}>{intl.formatMessage({id: 'viewInChannel'})}</Link>

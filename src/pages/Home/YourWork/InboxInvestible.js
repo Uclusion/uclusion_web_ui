@@ -289,9 +289,7 @@ function InboxInvestible(props) {
                 // Might go to a comment in the investible
                 link = message.link;
               }
-              if (!isOutbox) {
-                pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: CURRENT_EVENT, message });
-              }
+              pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: CURRENT_EVENT, message });
             }
             navigate(history, link);
           }}>

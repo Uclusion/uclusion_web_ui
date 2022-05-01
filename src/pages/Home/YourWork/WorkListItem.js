@@ -176,9 +176,7 @@ function WorkListItem(props) {
             if (isUsingExpansion) {
               expansionDispatch({ id });
             } else {
-              if (useSelect) {
-                pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: CURRENT_EVENT, message });
-              }
+              pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: CURRENT_EVENT, message });
               return navigate(history, useLink);
             }
           }

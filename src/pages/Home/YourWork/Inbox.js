@@ -145,32 +145,6 @@ function Inbox(props) {
   const outBoxMessagesOrdered = isPending ? getOutboxMessages({messagesState, marketState, marketPresencesState,
     investiblesState, marketStagesState, commentsState, planningClasses, mobileLayout,
     expansionState: expansionPendingState, intl}) : [];
-  const unpaginatedItems = isPending ? outBoxMessagesOrdered : inboxMessagesOrdered;
-  const usePage = isPending ? pendingPage : page;
-
-  useEffect(() => {
-    // If the last item on a page is deleted then must go down
-    const pageSetter = isPending ? setPendingPage : setPage;
-    if ((usePage - 1)*PAGE_SIZE + 1 > _.size(unpaginatedItems)) {
-      if (usePage > 1) {
-        const lastAvailablePage = Math.ceil(_.size(unpaginatedItems)/PAGE_SIZE);
-        pageSetter(lastAvailablePage > 0 ? lastAvailablePage : 1);
-      }
-    }
-  }, [isPending, setPage, setPendingPage, unpaginatedItems, usePage]);
-
-  if (isJarDisplay) {
-    return (
-      <div id='inboxNotification' key='inbox' onClick={goFullInboxClick} className={classes.bellButton}>
-        <Badge badgeContent={unreadCount} className={classes.chip} overlap="circular">
-          <Fab id='notifications-fabInbox' className={classes.fab} disabled={isDisabled}>
-            <InboxIcon htmlColor={ htmlColor } />
-          </Fab>
-        </Badge>
-      </div>
-    );
-  }
-
   const messagesFiltered = _.isEmpty(search) ? inboxMessagesOrdered : inboxMessagesOrdered.filter((message) => {
     const { type_object_id: typeObjectId,  investible_id: investibleId } = message;
     return results.find((result) => typeObjectId.endsWith(result.id) || result.id === investibleId) ||
@@ -197,6 +171,31 @@ function Inbox(props) {
     }
     return true;
   });
+  const unpaginatedItems = isPending ? outBoxMessagesOrdered : inboxMessagesOrdered;
+  const usePage = isPending ? pendingPage : page;
+
+  useEffect(() => {
+    // If the last item on a page is deleted then must go down
+    const pageSetter = isPending ? setPendingPage : setPage;
+    if ((usePage - 1)*PAGE_SIZE + 1 > _.size(unpaginatedItems)) {
+      if (usePage > 1) {
+        const lastAvailablePage = Math.ceil(_.size(unpaginatedItems)/PAGE_SIZE);
+        pageSetter(lastAvailablePage > 0 ? lastAvailablePage : 1);
+      }
+    }
+  }, [isPending, setPage, setPendingPage, unpaginatedItems, usePage]);
+
+  if (isJarDisplay) {
+    return (
+      <div id='inboxNotification' key='inbox' onClick={goFullInboxClick} className={classes.bellButton}>
+        <Badge badgeContent={unreadCount} className={classes.chip} overlap="circular">
+          <Fab id='notifications-fabInbox' className={classes.fab} disabled={isDisabled}>
+            <InboxIcon htmlColor={ htmlColor } />
+          </Fab>
+        </Badge>
+      </div>
+    );
+  }
 
   function changePage(byNum) {
     if (isPending) {

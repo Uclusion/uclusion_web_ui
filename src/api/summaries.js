@@ -1,7 +1,6 @@
 import uclusion from 'uclusion_sdk'
 import config from '../config'
 import _ from 'lodash'
-import { notifyNewApplicationVersion } from '../contexts/WebSocketContext'
 import { AllSequentialMap } from '../utils/PromiseUtils'
 import { getAccountSSOClient } from './uclusionClient';
 
@@ -52,16 +51,6 @@ export function getNotifications () {
   return getSummaryInfo()
     .then((summaryInfo) => {
       const { summaryClient, accountToken } = summaryInfo
-      return summaryClient.notifications(accountToken)
-        .then((notifications) => {
-          // TODO we have app verion here, which is odd, but we'll move it later
-          // For now notify here, and just pass it all along unmodified
-          const appAuditVersion = notifications.find((versionRow) => versionRow.type_object_id === 'app_version')
-          if (appAuditVersion) {
-            const { app_version: appVersion, cache_clear_version: cacheClearVersion } = appAuditVersion
-            notifyNewApplicationVersion(appVersion, cacheClearVersion)
-          }
-          return notifications
-        })
+      return summaryClient.notifications(accountToken);
     })
 }

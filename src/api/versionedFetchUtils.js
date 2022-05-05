@@ -172,22 +172,19 @@ export function doVersionRefresh() {
       const backgroundList = [];
       const inlineList = [];
       const fullList = [];
-      let checkSignaturePromises = Promise.resolve(true);
-      (audits || []).forEach((audit) => {
+      const checkSignaturePromises = (audits || []).map((audit) => {
         const { signature, inline, active, id } = audit;
         fullList.push(id);
-        checkSignaturePromises = checkSignaturePromises.then(() => {
-          return checkSignatureInStorage(id, signature).then((hasSignature) => {
-            if (!hasSignature) {
-              if (inline) {
-                inlineList.push(id);
-              } else if (active) {
-                foregroundList.push(id);
-              } else {
-                backgroundList.push(id);
-              }
+        return checkSignatureInStorage(id, signature).then((hasSignature) => {
+          if (!hasSignature) {
+            if (inline) {
+              inlineList.push(id);
+            } else if (active) {
+              foregroundList.push(id);
+            } else {
+              backgroundList.push(id);
             }
-          });
+          }
         });
       });
       return Promise.all(checkSignaturePromises).then(() => {

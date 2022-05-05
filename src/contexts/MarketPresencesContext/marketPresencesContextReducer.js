@@ -145,7 +145,8 @@ function doProcessBanned(state, action) {
   bannedList.forEach((marketId) => {
     const oldMarketUsers = state[marketId] || [];
     const myUser = oldMarketUsers.find((user) => user.current_user) || {};
-    if (!myUser.market_banned) {
+    // From quick add is a no-op because just hasn't reached the async list of markets yet
+    if (!myUser.market_banned && !myUser.fromQuickAdd) {
       const newPresence = {
         ...myUser,
         market_banned: true,

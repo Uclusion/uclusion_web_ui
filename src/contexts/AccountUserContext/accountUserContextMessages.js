@@ -1,6 +1,6 @@
 import { registerListener } from '../../utils/MessageBusUtils';
-import { PUSH_HOME_USER_CHANNEL, VERSIONS_EVENT } from '../VersionsContext/versionsContextHelper';
 import { accountUserRefresh } from './accountUserContextReducer';
+import { PUSH_HOME_USER_CHANNEL, VERSIONS_EVENT } from '../../api/versionedFetchUtils'
 
 
 export function beginListening (dispatch) {

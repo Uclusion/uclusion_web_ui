@@ -108,13 +108,11 @@ import { pushMessage } from '../../utils/MessageBusUtils'
 import { GUEST_MARKET_EVENT, LOAD_MARKET_CHANNEL } from '../../contexts/MarketsContext/marketsContextMessages'
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
 import GravatarGroup from '../Avatars/GravatarGroup'
-import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
-import { hasInitializedGlobalVersion } from '../../contexts/VersionsContext/versionsContextHelper'
 import SpinningButton from '../SpinBlocking/SpinningButton'
 import IssueDialog from '../Warnings/IssueDialog'
 import { useLockedDialogStyles } from '../../pages/Dialog/DialogBodyEdit'
 import { getInboxTarget } from '../../contexts/NotificationsContext/notificationsContextHelper'
-import { getUiPreferences } from '../../contexts/AccountUserContext/accountUserContextHelper'
+import { getUiPreferences, userIsLoaded } from '../../contexts/AccountUserContext/accountUserContextHelper'
 import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
 
 export const useCommentStyles = makeStyles(
@@ -401,8 +399,8 @@ function Comment(props) {
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [diffState, diffDispatch] = useContext(DiffContext);
   const [searchResults] = useContext(SearchResultsContext);
-  const [versionsContext] = useContext(VersionsContext);
   const [userState] = useContext(AccountUserContext);
+  const hasUser = userIsLoaded(userState);
   const [openIssue, setOpenIssue] = useState(false);
   const enableActions = !inArchives && !stagePreventsActions;
   const enableEditing = enableActions && !resolved; //resolved comments or those in archive aren't editable
@@ -445,15 +443,14 @@ function Comment(props) {
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
-    if (inlineMarketId && !marketsState.initializing && hasInitializedGlobalVersion(versionsContext) &&
-      !operationRunning) {
+    if (inlineMarketId && !marketsState.initializing && hasUser && !operationRunning) {
       const inlineMarketLoaded = getMarket(marketsState, inlineMarketId);
       if (_.isEmpty(inlineMarketLoaded)) {
         // Eventual consistency means there is a chance we were not invited to this inline market
         pushMessage(LOAD_MARKET_CHANNEL, { event: GUEST_MARKET_EVENT, marketId: inlineMarketId });
       }
     }
-  }, [versionsContext, marketsState, inlineMarketId, operationRunning]);
+  }, [hasUser, marketsState, inlineMarketId, operationRunning]);
 
   function toggleIssue() {
     setOpenIssue(!openIssue);

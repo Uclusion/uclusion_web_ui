@@ -5,8 +5,9 @@ import {
   removeMessagesForInvestible,
   updateMessages
 } from './notificationsContextReducer'
-import { NOTIFICATIONS_HUB_CHANNEL, VERSIONS_EVENT } from '../VersionsContext/versionsContextHelper'
 import { registerListener } from '../../utils/MessageBusUtils'
+import { NOTIFICATIONS_HUB_CHANNEL, VERSIONS_EVENT } from '../../api/versionedFetchUtils'
+import { getMessages } from '../../api/sso'
 
 export const ADD_EVENT = 'add_event';
 export const DELETE_EVENT = 'delete_event';
@@ -19,12 +20,14 @@ export const REMOVE_CURRENT_EVENT = 'remove_current_event';
 
 function beginListening(dispatch) {
   registerListener(NOTIFICATIONS_HUB_CHANNEL, 'notificationsStart', (data) => {
-    const { payload: { event, messages, message } } = data;
+    const { payload: { event, message } } = data;
     // // console.debug(`Notifications context responding to push event ${event}`);
 
     switch (event) {
       case VERSIONS_EVENT:
-        dispatch(updateMessages(messages));
+        getMessages().then((messages) => {
+          dispatch(updateMessages(messages));
+        });
         break;
       case ADD_EVENT:
         dispatch(addMessage(message));

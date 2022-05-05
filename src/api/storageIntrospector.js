@@ -1,6 +1,6 @@
 import LocalForageHelper from '../utils/LocalForageHelper'
 import { COMMENTS_CONTEXT_NAMESPACE } from '../contexts/CommentsContext/CommentsContext'
-import { signatureMatcher } from './versionSignatureUtils'
+import { getFetchSignaturesForMarket, signatureMatcher } from './versionSignatureUtils'
 import _ from 'lodash'
 import { INVESTIBLES_CONTEXT_NAMESPACE } from '../contexts/InvestibesContext/InvestiblesContext'
 import { MARKET_CONTEXT_NAMESPACE } from '../contexts/MarketsContext/MarketsContext'
@@ -11,6 +11,20 @@ import { getMarketInvestibles } from '../contexts/InvestibesContext/investiblesC
 /**
  Functions used during the fetch process to check what we have in local storage.
  **/
+
+/**
+ * CHecks local storage for things that can satisfy the fetch signatures.
+ * Returns the set of signatures that _can't_ be satisfied from local storage
+ * @param marketId
+ * @param fetchSignature
+ */
+export async function checkSignatureInStorage (marketId, fetchSignature) {
+  const serverFetchSignatures = getFetchSignaturesForMarket([fetchSignature]);
+  const fromStorage = await checkInStorage(marketId, serverFetchSignatures);
+  const { markets, comments, marketPresences, marketStages, investibles } = fromStorage;
+  return _.isEmpty(markets) && _.isEmpty(comments) && _.isEmpty(marketPresences) && _.isEmpty(marketStages)
+    && _.isEmpty(investibles);
+}
 
 /**
  * CHecks local storage for things that can satisfy the fetch signatures.

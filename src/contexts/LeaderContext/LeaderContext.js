@@ -1,7 +1,7 @@
 import React, { useEffect, useReducer, useState } from 'react'
 import { BroadcastChannel, createLeaderElection } from 'broadcast-channel'
 import reducer, { updateLeader } from './leaderContextReducer'
-import { refreshVersions } from '../VersionsContext/versionsContextHelper'
+import { refreshVersions } from '../../api/versionedFetchUtils'
 
 const EMPTY_STATE = {
   leader: undefined,

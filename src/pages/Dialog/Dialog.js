@@ -35,12 +35,6 @@ import {
 } from '../../contexts/MarketsContext/marketsContextMessages'
 import UpgradeBanner from '../../components/Banners/UpgradeBanner'
 import { canCreate } from '../../contexts/AccountContext/accountContextHelper'
-import {
-  hasInitializedGlobalVersion,
-  hasLoadedGlobalVersion
-} from '../../contexts/VersionsContext/versionsContextHelper'
-import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { AccountContext } from '../../contexts/AccountContext/AccountContext'
 import { UNNAMED_SUB_TYPE } from '../../constants/markets'
 
@@ -79,19 +73,14 @@ function Dialog(props) {
   const marketStages = getStages(marketStagesState, marketId);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
-  const [userState] = useContext(AccountUserContext);
-  const [versionsContext] = useContext(VersionsContext);
-  const [operationRunning] = useContext(OperationInProgressContext);
   const [accountState] = useContext(AccountContext);
+  const [userState] = useContext(AccountUserContext);
   const hasUser = userIsLoaded(userState);
   const loading = !hasUser || isInitialization || !myPresence || !marketType ||
     !marketTokenLoaded(marketId, tokensHash);
   const createEnabled = canCreate(accountState);
-  //While fore ground loads there is no global version and operation is running
-  const loadingForeGroundMarkets = !hasLoadedGlobalVersion(versionsContext) || marketsState.initializing ||
-    (!hasInitializedGlobalVersion(versionsContext) && operationRunning);
   const banner = !loading && _.isEmpty(marketStages) ? <OnboardingBanner messageId='OnboardingInviteDialog' /> :
-    (loadingForeGroundMarkets || createEnabled ? undefined : <UpgradeBanner/>);
+    (loading || createEnabled ? undefined : <UpgradeBanner/>);
 
   useEffect(() => {
     if (!hidden && !isInitialization && hasUser && marketEntity) {

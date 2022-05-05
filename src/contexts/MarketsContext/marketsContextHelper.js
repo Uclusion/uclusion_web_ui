@@ -6,8 +6,8 @@ import { fixupItemForStorage } from '../ContextUtils'
 import { pushMessage } from '../../utils/MessageBusUtils'
 import { INDEX_MARKET_TYPE, INDEX_UPDATE, SEARCH_INDEX_CHANNEL } from '../SearchIndexContext/searchIndexContextMessages'
 import { ACTIVE_STAGE } from '../../constants/markets'
-import { PUSH_PRESENCE_CHANNEL, PUSH_STAGE_CHANNEL, VERSIONS_EVENT } from '../VersionsContext/versionsContextHelper'
 import { ADD_PRESENCE } from '../MarketPresencesContext/marketPresencesMessages'
+import { PUSH_PRESENCE_CHANNEL, PUSH_STAGE_CHANNEL, VERSIONS_EVENT } from '../../api/versionedFetchUtils'
 
 export function getMarket(state, marketId) {
   const { marketDetails } = state;

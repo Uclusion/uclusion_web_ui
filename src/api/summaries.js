@@ -13,11 +13,11 @@ function getSummaryInfo () {
     })
 }
 
-export function getChangedIds(currentVersion) {
+export function getChangedIds() {
   return getSummaryInfo()
     .then((summaryInfo) => {
       const { summaryClient, accountToken } = summaryInfo
-      return summaryClient.idList(accountToken, currentVersion)
+      return summaryClient.idList(accountToken)
     })
 }
 
@@ -44,13 +44,5 @@ export function getVersions(idList, isInline=false) {
             return [...acc, ...chunk.signatures];
           }, []);
         })
-    })
-}
-
-export function getNotifications () {
-  return getSummaryInfo()
-    .then((summaryInfo) => {
-      const { summaryClient, accountToken } = summaryInfo
-      return summaryClient.notifications(accountToken);
     })
 }

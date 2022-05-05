@@ -1,5 +1,5 @@
-import { refreshVersions } from '../VersionsContext/versionsContextHelper'
 import { BroadcastChannel } from 'broadcast-channel'
+import { refreshVersions } from '../../api/versionedFetchUtils'
 
 const UPDATE_LEADER = 'update_leader';
 const REFRESH_OR_MESSAGE = 'refresh_or_message';

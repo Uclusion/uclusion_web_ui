@@ -4,7 +4,7 @@
 import { toast } from 'react-toastify'
 import { intl } from '../components/ContextHacks/IntlGlobalProvider'
 import { setOperationInProgress } from '../components/ContextHacks/OperationInProgressGlobalProvider'
-import { refreshVersions } from '../contexts/VersionsContext/versionsContextHelper'
+import { refreshVersions } from '../api/versionedFetchUtils'
 
 export const DEBUG = 'debug';
 export const INFO = 'info';

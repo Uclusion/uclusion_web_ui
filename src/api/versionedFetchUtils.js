@@ -2,34 +2,28 @@ import _ from 'lodash'
 import { pushMessage } from '../utils/MessageBusUtils'
 import { getChangedIds, getVersions } from './summaries'
 import { getMarketDetails, getMarketStages, getMarketUsers } from './markets'
-import { getFetchSignaturesForAccount, getFetchSignaturesForMarket, signatureMatcher, } from './versionSignatureUtils'
-import {
-  BANNED_LIST,
-  PUSH_COMMENTS_CHANNEL,
-  PUSH_HOME_USER_CHANNEL,
-  PUSH_INVESTIBLES_CHANNEL,
-  PUSH_MARKETS_CHANNEL,
-  PUSH_PRESENCE_CHANNEL,
-  PUSH_STAGE_CHANNEL,
-  refreshNotifications,
-  REMOVED_MARKETS_CHANNEL,
-  VERSIONS_EVENT
-} from '../contexts/VersionsContext/versionsContextHelper'
+import { getFetchSignaturesForMarket, signatureMatcher, } from './versionSignatureUtils'
 import { fetchComments } from './comments'
 import { fetchInvestibles } from './marketInvestibles'
 import { LimitedParallelMap } from '../utils/PromiseUtils'
 import { startTimerChain } from '../utils/timerUtils'
-import { VERSIONS_HUB_CHANNEL } from '../contexts/WebSocketContext'
-import { GLOBAL_VERSION_UPDATE } from '../contexts/VersionsContext/versionsContextMessages'
-import LocalForageHelper from '../utils/LocalForageHelper'
-import { VERSIONS_CONTEXT_NAMESPACE } from '../contexts/VersionsContext/versionsContextReducer'
 import { getHomeAccountUser } from './sso'
-import { checkInStorage } from './storageIntrospector'
+import { checkInStorage, checkSignatureInStorage } from './storageIntrospector'
 
 const MAX_RETRIES = 10;
 const MAX_CONCURRENT_API_CALLS = 5;
 const MAX_CONCURRENT_ARCHIVE_API_CALLS = 1;
-
+export const NOTIFICATIONS_HUB_CHANNEL = 'NotificationsChannel';
+export const PUSH_HOME_USER_CHANNEL = 'HomeUserChannel';
+export const PUSH_MARKETS_CHANNEL = 'MarketsChannel';
+export const PUSH_COMMENTS_CHANNEL = 'CommentsChannel';
+export const PUSH_INVESTIBLES_CHANNEL = 'InvestiblesChannel';
+export const PUSH_PRESENCE_CHANNEL = 'PresenceChannel';
+// Channel used when you're banned. We purge your stuff from the local store if you are.
+export const REMOVED_MARKETS_CHANNEL = 'RemovedMarketsChannel';
+export const PUSH_STAGE_CHANNEL = 'MarketsStagesChannel';
+export const VERSIONS_EVENT = 'version_push';
+export const BANNED_LIST = 'banned_list';
 
 export class MatchError extends Error {
 
@@ -40,22 +34,8 @@ let globalFetchPromiseTracker = {inProgress: 0};
 
 export function executeRefreshTimerChain(refreshAll, resolve, reject) {
   const execFunction = () => {
-    const disk = new LocalForageHelper(VERSIONS_CONTEXT_NAMESPACE);
-    let currentHeldVersion;
-    return disk.getState()
-      .then((state) => {
-        const { globalVersion } = state || {};
-        const { lastCallVersion } = globalFetchPromiseTracker;
-        // if we're refreshing all we're going back to initialization state
-        currentHeldVersion = refreshAll? 'INITIALIZATION' : (lastCallVersion ? lastCallVersion : globalVersion);
-        return doVersionRefresh(currentHeldVersion);
-      }).then((globalVersion) => {
+    return doVersionRefresh().then(() => {
         globalFetchPromiseTracker.inProgress -= 1;
-        if (globalVersion !== currentHeldVersion) {
-          globalFetchPromiseTracker.lastCallVersion = globalVersion;
-          // console.log('Got new version');
-          pushMessage(VERSIONS_HUB_CHANNEL, { event: GLOBAL_VERSION_UPDATE, globalVersion });
-        }
         resolve(true);
         return Promise.resolve(true);
       }).catch((error) => {
@@ -79,6 +59,15 @@ function startGlobalRefreshTimerChain(refreshAll) {
   return new Promise((resolve, reject) => {
     executeRefreshTimerChain(refreshAll, resolve, reject);
   });
+}
+
+export function refreshVersions (ignoreIfInProgress=false) {
+  return refreshGlobalVersion(ignoreIfInProgress)
+}
+
+export function refreshNotifications () {
+  // check if new notifications
+  pushMessage(NOTIFICATIONS_HUB_CHANNEL, { event: VERSIONS_EVENT });
 }
 
 /**
@@ -110,22 +99,6 @@ export function refreshGlobalVersion(ignoreIfInProgress) {
     return startGlobalRefreshTimerChain();
   });
   return globalFetchPromiseChain;
-}
-
-/**
- * Updates all the accounts from the passed in signatures
- * @param accountId the account ID we need to sync
- * @param maxConcurrencyCount the maximum number of api calls to make at once
- */
-function updateAccountFromSignatures (accountId, maxConcurrencyCount = 1) {
-  return getVersions([accountId])
-    .then((accountSignatures) => {
-      return LimitedParallelMap(accountSignatures, accountSignature => {
-        // we really only know how to update _our_ account
-        const { signatures: componentSignatures } = accountSignature;
-        return doRefreshAccount(componentSignatures);
-      }, maxConcurrencyCount);
-    });
 }
 
 /**
@@ -189,82 +162,63 @@ function addMarketsStructInfo(infoType, marketsStruct, details, marketId) {
 }
 
 /**
- * Function that will make exactly one attempt to update the global versions
- * USed if you have some other control and want access to the promise chain
- * @param currentHeldVersion
+ * Function that will make exactly one attempt to sync by adding to the promise chain
  * @returns {Promise<*>}
  */
-export function doVersionRefresh(currentHeldVersion) {
-  let newGlobalVersion = currentHeldVersion;
-  const callWithVersion = currentHeldVersion === 'INITIALIZATION' ? null : currentHeldVersion;
-  console.info(`Checking for sync with ${callWithVersion}`);
-  return getChangedIds(callWithVersion)
-    .then((versions) => {
-      const {
-        global_version, foreground: foregroundList, account: accountId, background: backgroundList,
-        banned: bannedList, inline: inlineList
-      } = versions;
-      // If nothing changed then will get empty or null back for these lists
-      if ((_.isEmpty(foregroundList) && _.isEmpty(backgroundList) && _.isEmpty(accountId) && _.isEmpty(inlineList))
-        || _.isEmpty(global_version)) {
-        return currentHeldVersion;
-      }
-      // don't refresh market's we're banned from
-      if (!_.isEmpty(bannedList)) {
-        pushMessage(REMOVED_MARKETS_CHANNEL, { event: BANNED_LIST, bannedList });
-      }
-      // split the market stuff into inline, foreground and background where inline must come first
-      // to avoid seeing incomplete comments
-      newGlobalVersion = global_version;
-      // Starting operation in progress just presents as a bug to the user because freezes all buttons so just log
-      console.info(`Beginning versions update for ${global_version}`);
-      const inlineMarketsStruct = {};
-      const marketPromises = updateMarkets(inlineList, inlineMarketsStruct, MAX_CONCURRENT_API_CALLS, true)
-        .then(() => {
-          sendMarketsStruct(inlineMarketsStruct);
-           const foregroundMarketsStruct = {};
-           return updateMarkets(foregroundList, foregroundMarketsStruct, MAX_CONCURRENT_API_CALLS).then(() => {
-             sendMarketsStruct(foregroundMarketsStruct);
-             const backgroundMarketsStruct = {};
-             console.info(`Finished foreground update for ${global_version}`);
-             refreshNotifications();
-             return updateMarkets(backgroundList, backgroundMarketsStruct, MAX_CONCURRENT_ARCHIVE_API_CALLS)
-               .then(() => {
-                 sendMarketsStruct(backgroundMarketsStruct);
-                 console.info(`Ending versions update for ${global_version}`);
-                 return newGlobalVersion;
-               });
-           });
-       });
-      // fetch the account before the market if we have to
-      if (!_.isEmpty(accountId)) {
-        return updateAccountFromSignatures(accountId, MAX_CONCURRENT_API_CALLS)
-          .then(() => marketPromises);
-      }
-      return marketPromises;
-    });
-}
-
-/** We really only know how to refresh the home account at this point,
- * so we don't take the account or actual user ID into very much
- * consideration, but eventually it will
- * @param componentSignatures the signatures for the home account
- */
-function doRefreshAccount (componentSignatures) {
-  const fetchSignatures = getFetchSignaturesForAccount(componentSignatures);
-  const { users: usersSignatures } = fetchSignatures;
-  if (!_.isEmpty(usersSignatures)) {
-    return getHomeAccountUser()
-      .then((user) => {
-        const match = signatureMatcher([user], usersSignatures);
-        // we bothered to fetch the data, so we should use it:)
-        pushMessage(PUSH_HOME_USER_CHANNEL, { event: VERSIONS_EVENT, user });
-        if (!match.allMatched) {
-          throw new MatchError('Users didn\'t match');
-        }
+export function doVersionRefresh() {
+  console.info('Checking for sync');
+  return getChangedIds().then((audits) => {
+      const foregroundList = [];
+      const backgroundList = [];
+      const inlineList = [];
+      const fullList = [];
+      let checkSignaturePromises = Promise.resolve(true);
+      (audits || []).forEach((audit) => {
+        const { signature, inline, active, id } = audit;
+        fullList.push(id);
+        checkSignaturePromises = checkSignaturePromises.then(() => {
+          return checkSignatureInStorage(id, signature).then((hasSignature) => {
+            if (!hasSignature) {
+              if (inline) {
+                inlineList.push(id);
+              } else if (active) {
+                foregroundList.push(id);
+              } else {
+                backgroundList.push(id);
+              }
+            }
+          });
+        });
       });
-  }
-  return null;
+      return Promise.all(checkSignaturePromises).then(() => {
+        // use the full list to calculate market's we're banned from
+        pushMessage(REMOVED_MARKETS_CHANNEL, { event: BANNED_LIST, fullList });
+        // Starting operation in progress just presents as a bug to the user because freezes all buttons so just log
+        console.info('Beginning versions update');
+        const inlineMarketsStruct = {};
+        return updateMarkets(inlineList, inlineMarketsStruct, MAX_CONCURRENT_API_CALLS, true)
+          .then(() => {
+            sendMarketsStruct(inlineMarketsStruct);
+            const foregroundMarketsStruct = {};
+            return updateMarkets(foregroundList, foregroundMarketsStruct, MAX_CONCURRENT_API_CALLS).then(() => {
+              sendMarketsStruct(foregroundMarketsStruct);
+              const backgroundMarketsStruct = {};
+              console.info('Finished foreground update');
+              refreshNotifications();
+              // for now just always fetch the home user without signatures but after foreground so serves as marker
+              return getHomeAccountUser().then((user) => {
+                // we bothered to fetch the data, so we should use it:)
+                pushMessage(PUSH_HOME_USER_CHANNEL, { event: VERSIONS_EVENT, user });
+                return updateMarkets(backgroundList, backgroundMarketsStruct, MAX_CONCURRENT_ARCHIVE_API_CALLS)
+                  .then(() => {
+                    sendMarketsStruct(backgroundMarketsStruct);
+                    console.info('Ending versions update');
+                  });
+              });
+            });
+          });
+      });
+    });
 }
 
 /**

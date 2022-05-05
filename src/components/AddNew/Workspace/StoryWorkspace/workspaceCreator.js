@@ -1,11 +1,6 @@
 import { createPlanning, updateStage } from '../../../../api/markets';
 import { addMarketToStorage } from '../../../../contexts/MarketsContext/marketsContextHelper';
 import { pushMessage } from '../../../../utils/MessageBusUtils';
-import {
-  NOTIFICATIONS_HUB_CHANNEL,
-  PUSH_STAGE_CHANNEL,
-  VERSIONS_EVENT
-} from '../../../../contexts/VersionsContext/versionsContextHelper'
 import { addPresenceToMarket } from '../../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import _ from 'lodash';
 import { processTextAndFilesForSave } from '../../../../api/files';
@@ -19,6 +14,7 @@ import { START_TOUR, TOUR_CHANNEL } from '../../../../contexts/TourContext/tourC
 import { INVITED_USER_WORKSPACE } from '../../../../contexts/TourContext/tourContextHelper'
 import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../../../authorization/TokenStorageManager'
 import { ADD_EVENT } from '../../../../contexts/NotificationsContext/notificationsContextMessages'
+import { NOTIFICATIONS_HUB_CHANNEL, PUSH_STAGE_CHANNEL, VERSIONS_EVENT } from '../../../../api/versionedFetchUtils'
 
 /**
  * Creates the story workspace from the formdata and does all the magic to make the

@@ -1,10 +1,6 @@
-import {
-  PUSH_STAGE_CHANNEL,
-  REMOVED_MARKETS_CHANNEL,
-  VERSIONS_EVENT,
-} from '../VersionsContext/versionsContextHelper';
 import { removeMarketsStageDetails, updateMarketStagesFromNetwork } from './marketStagesContextReducer';
 import { registerListener } from '../../utils/MessageBusUtils';
+import { PUSH_STAGE_CHANNEL, REMOVED_MARKETS_CHANNEL, VERSIONS_EVENT } from '../../api/versionedFetchUtils'
 
 function beginListening(dispatch) {
   registerListener(REMOVED_MARKETS_CHANNEL, 'marketStagesRemovedMarketStart', (data) => {

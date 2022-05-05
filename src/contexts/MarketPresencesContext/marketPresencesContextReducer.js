@@ -34,10 +34,10 @@ export function patchInvestment(investmentPatch, allowMultiVote) {
   };
 }
 
-export function processBannedList(bannedList) {
+export function processBanned(fullList) {
   return {
     type: BANNED_MARKETS,
-    bannedList
+    fullList
   }
 }
 
@@ -135,7 +135,8 @@ function doUpdateMarketPresences(state, action) {
 
 // This can only come from the network
 function doProcessBanned(state, action) {
-  const { bannedList } = action;
+  const { fullList } = action;
+  const bannedList = _.difference(Object.keys(state), fullList);
   if (_.isEmpty(bannedList)) {
     // If he has been unbanned then this is a no op because normal market syncing will change his presence
     return state;

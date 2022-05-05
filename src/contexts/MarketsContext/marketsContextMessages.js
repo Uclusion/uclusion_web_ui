@@ -1,9 +1,3 @@
-import {
-  PUSH_INVESTIBLES_CHANNEL,
-  PUSH_MARKETS_CHANNEL, PUSH_PRESENCE_CHANNEL, PUSH_STAGE_CHANNEL,
-  REMOVED_MARKETS_CHANNEL,
-  VERSIONS_EVENT,
-} from '../VersionsContext/versionsContextHelper'
 import { removeMarketDetails } from './marketsContextReducer'
 import { pushMessage, registerListener } from '../../utils/MessageBusUtils'
 import { addMarketsToStorage, addMarketToStorage } from './marketsContextHelper'
@@ -18,7 +12,14 @@ import {
 import { lockPlanningMarketForEdit } from '../../api/markets'
 import localforage from 'localforage'
 import TokenStorageManager, { TOKEN_STORAGE_KEYSPACE, TOKEN_TYPE_MARKET } from '../../authorization/TokenStorageManager'
-import { sendMarketsStruct, updateMarkets } from '../../api/versionedFetchUtils'
+import {
+  PUSH_INVESTIBLES_CHANNEL,
+  PUSH_MARKETS_CHANNEL, PUSH_PRESENCE_CHANNEL, PUSH_STAGE_CHANNEL,
+  REMOVED_MARKETS_CHANNEL,
+  sendMarketsStruct,
+  updateMarkets,
+  VERSIONS_EVENT
+} from '../../api/versionedFetchUtils'
 
 export const LOAD_MARKET_CHANNEL = 'LoadMarketChannel';
 export const INVITE_MARKET_EVENT = 'InviteMarketEvent';

@@ -9,7 +9,6 @@ import '../../toast.css';
 import { LocaleProvider } from '../../contexts/LocaleContext'
 import { NotificationsProvider } from '../../contexts/NotificationsContext/NotificationsContext'
 import { MarketStagesProvider } from '../../contexts/MarketStagesContext/MarketStagesContext'
-import { VersionsProvider } from '../../contexts/VersionsContext/VersionsContext'
 import AppWithAuth from '../App/AppWithAuth'
 import { OperationInProgressProvider } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import OperationInProgressGlobalProvider from '../../components/ContextHacks/OperationInProgressGlobalProvider'
@@ -36,22 +35,20 @@ function Main () {
                 <DiffProvider>
                   <OperationInProgressProvider>
                     <OperationInProgressGlobalProvider>
-                      <VersionsProvider>
-                        <ScrollProvider>
-                          <NotificationsProvider>
-                            <NonParticipantsMarketsProvider>
-                              <MarketStagesProvider>
-                                <LocaleProvider>
-                                  <ToastContainer position="top-center" pauseOnFocusLoss={false}/>
-                                  <Elements stripe={stripePromise}>
-                                    <AppWithAuth/>
-                                  </Elements>
-                                </LocaleProvider>
-                              </MarketStagesProvider>
-                            </NonParticipantsMarketsProvider>
-                          </NotificationsProvider>
-                        </ScrollProvider>
-                      </VersionsProvider>
+                      <ScrollProvider>
+                        <NotificationsProvider>
+                          <NonParticipantsMarketsProvider>
+                            <MarketStagesProvider>
+                              <LocaleProvider>
+                                <ToastContainer position="top-center" pauseOnFocusLoss={false}/>
+                                <Elements stripe={stripePromise}>
+                                  <AppWithAuth/>
+                                </Elements>
+                              </LocaleProvider>
+                            </MarketStagesProvider>
+                          </NonParticipantsMarketsProvider>
+                        </NotificationsProvider>
+                      </ScrollProvider>
                     </OperationInProgressGlobalProvider>
                   </OperationInProgressProvider>
                 </DiffProvider>

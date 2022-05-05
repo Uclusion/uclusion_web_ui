@@ -1,8 +1,3 @@
-import {
-  PUSH_COMMENTS_CHANNEL,
-  REMOVED_MARKETS_CHANNEL,
-  VERSIONS_EVENT
-} from '../VersionsContext/versionsContextHelper'
 import { removeMarketsComments, updateCommentsFromVersions } from './commentsContextReducer'
 import { pushMessage, registerListener } from '../../utils/MessageBusUtils'
 import { addContents } from '../DiffContext/diffContextReducer'
@@ -11,6 +6,7 @@ import {
   INDEX_UPDATE,
   SEARCH_INDEX_CHANNEL
 } from '../SearchIndexContext/searchIndexContextMessages'
+import { PUSH_COMMENTS_CHANNEL, REMOVED_MARKETS_CHANNEL, VERSIONS_EVENT } from '../../api/versionedFetchUtils'
 
 function beginListening(dispatch, diffDispatch) {
   registerListener(REMOVED_MARKETS_CHANNEL, 'commentsRemovedMarketStart', (data) => {

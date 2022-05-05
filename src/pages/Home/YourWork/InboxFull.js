@@ -24,9 +24,9 @@ import {
   MODIFY_NOTIFICATIONS_CHANNEL, REMOVE_CURRENT_EVENT
 } from '../../../contexts/NotificationsContext/notificationsContextMessages'
 import queryString from 'query-string'
-import { hasLoadedNotificationsVersion } from '../../../contexts/VersionsContext/versionsContextHelper'
-import { VersionsContext } from '../../../contexts/VersionsContext/VersionsContext'
 import { INVITE_MARKET_EVENT, LOAD_MARKET_CHANNEL } from '../../../contexts/MarketsContext/marketsContextMessages'
+import { AccountUserContext } from '../../../contexts/AccountUserContext/AccountUserContext'
+import { userIsLoaded } from '../../../contexts/AccountUserContext/accountUserContextHelper'
 
 function InboxFull(props) {
   const { hidden } = props;
@@ -44,7 +44,8 @@ function InboxFull(props) {
   const [searchResults] = useContext(SearchResultsContext);
   const { results, parentResults, search } = searchResults;
   const [messagesState] = useContext(NotificationsContext);
-  const [versionsContext] = useContext(VersionsContext);
+  const [userState] = useContext(AccountUserContext);
+  const hasUser = userIsLoaded(userState);
   const [expansionPendingState, expansionPendingDispatch] = useReducer((state, action) => {
     const { id, expandedMessages, contractAll } = action;
     let newExpanded = state;
@@ -96,8 +97,7 @@ function InboxFull(props) {
   if (fromInvite && fromInvite !== 'loaded') {
     pushMessage(LOAD_MARKET_CHANNEL, { event: INVITE_MARKET_EVENT, marketToken: fromInvite });
   }
-  let loading = marketsState.initializing || messagesState.initializing ||
-    (fromInvite && !hasLoadedNotificationsVersion(versionsContext));
+  let loading = marketsState.initializing || messagesState.initializing || (fromInvite && !hasUser);
   if (!loading && myNotHiddenMarketsState.marketDetails) {
     myNotHiddenMarketsState.marketDetails.forEach((market) => {
       if (!marketTokenLoaded(market.id, tokensHash)) {

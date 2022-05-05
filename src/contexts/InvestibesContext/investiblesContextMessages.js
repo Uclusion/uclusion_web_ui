@@ -1,8 +1,4 @@
 import { refreshInvestibles } from './investiblesContextHelper'
-import {
-  PUSH_INVESTIBLES_CHANNEL,
-  VERSIONS_EVENT,
-} from '../VersionsContext/versionsContextHelper'
 import { pushMessage, registerListener } from '../../utils/MessageBusUtils'
 import {
   OPERATION_HUB_CHANNEL,
@@ -10,6 +6,7 @@ import {
   STOP_OPERATION
 } from '../OperationInProgressContext/operationInProgressMessages'
 import { lockInvestibleForEdit } from '../../api/investibles'
+import { PUSH_INVESTIBLES_CHANNEL, VERSIONS_EVENT } from '../../api/versionedFetchUtils'
 
 export const LOCK_INVESTIBLE_CHANNEL = 'LockInvestibleChannel';
 export const LOCK_INVESTIBLE = 'LockInvestible';

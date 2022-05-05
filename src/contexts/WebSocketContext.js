@@ -8,13 +8,12 @@ import WebSocketRunner from '../components/BackgroundProcesses/WebSocketRunner'
 import config from '../config'
 import { sendInfoPersistent, toastError } from '../utils/userMessage'
 import { registerListener } from '../utils/MessageBusUtils'
-import { refreshNotifications } from './VersionsContext/versionsContextHelper'
 import { getLoginPersistentItem, setLoginPersistentItem } from '../components/localStorageUtils'
-import { getNotifications } from '../api/summaries'
 import { isSignedOut, onSignOut } from '../utils/userFunctions'
 import { LeaderContext } from './LeaderContext/LeaderContext'
 import { BroadcastChannel } from 'broadcast-channel'
 import { refreshOrMessage } from './LeaderContext/leaderContextReducer'
+import { refreshNotifications } from '../api/versionedFetchUtils'
 
 export const AUTH_HUB_CHANNEL = 'auth'; // this is case sensitive.
 export const VERSIONS_HUB_CHANNEL = 'VersionsChannel';
@@ -80,8 +79,9 @@ function createWebSocket(config, leaderDispatch, setState, leaderChannelId) {
     }
   }
   // we also want to always be subscribed to new app versions
-  newSocket.registerHandler('UI_UPDATE_REQUIRED', () => {
-    getNotifications();
+  newSocket.registerHandler('UI_UPDATE_REQUIRED', (message) => {
+    const { app_version: currentVersion, requires_cache_clear: cacheClearVersion } = message;
+    notifyNewApplicationVersion(currentVersion, cacheClearVersion);
   });
 
   newSocket.registerHandler('pong', () => {

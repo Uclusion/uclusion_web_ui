@@ -191,12 +191,15 @@ export function doVersionRefresh() {
         // use the full list to calculate market's we're banned from
         pushMessage(REMOVED_MARKETS_CHANNEL, { event: BANNED_LIST, fullList });
         // Starting operation in progress just presents as a bug to the user because freezes all buttons so just log
-        console.info('Beginning versions update');
+        console.info('Beginning inline versions update');
+        console.info(inlineList);
         const inlineMarketsStruct = {};
         return updateMarkets(inlineList, inlineMarketsStruct, MAX_CONCURRENT_API_CALLS, true)
           .then(() => {
             sendMarketsStruct(inlineMarketsStruct);
             const foregroundMarketsStruct = {};
+            console.info('Beginning foreground versions update');
+            console.info(foregroundList);
             return updateMarkets(foregroundList, foregroundMarketsStruct, MAX_CONCURRENT_API_CALLS).then(() => {
               sendMarketsStruct(foregroundMarketsStruct);
               const backgroundMarketsStruct = {};
@@ -206,6 +209,8 @@ export function doVersionRefresh() {
               return getHomeAccountUser().then((user) => {
                 // we bothered to fetch the data, so we should use it:)
                 pushMessage(PUSH_HOME_USER_CHANNEL, { event: VERSIONS_EVENT, user });
+                console.info('Beginning background versions update');
+                console.info(backgroundList);
                 return updateMarkets(backgroundList, backgroundMarketsStruct, MAX_CONCURRENT_ARCHIVE_API_CALLS)
                   .then(() => {
                     sendMarketsStruct(backgroundMarketsStruct);
@@ -260,6 +265,7 @@ function fetchMarketVersion (marketId, marketSignature, marketsStruct) {
       // we bothered to fetch the data, so we should use it:)
       addMarketsStructInfo('markets', marketsStruct, [marketDetails]);
       if (!match.allMatched) {
+        console.warn(match.unmatchedSignatures);
         throw new MatchError('Market didn\'t match');
       }
     });
@@ -273,6 +279,7 @@ function fetchMarketComments (marketId, allComments, marketsStruct) {
       const match = signatureMatcher(comments, commentsSignatures);
       addMarketsStructInfo('comments', marketsStruct, comments, marketId);
       if (!match.allMatched) {
+        console.warn(match.unmatchedSignatures);
         throw new MatchError('Comments didn\'t match');
       }
     });
@@ -286,6 +293,7 @@ function fetchMarketInvestibles (marketId, allInvestibles, marketsStruct) {
       const match = signatureMatcher(investibles, investiblesSignatures);
       addMarketsStructInfo('investibles', marketsStruct, investibles);
       if (!match.allMatched) {
+        console.warn(match.unmatchedSignatures);
         throw new MatchError('Investibles didn\'t match');
       }
     });
@@ -298,6 +306,7 @@ function fetchMarketPresences (marketId, allMp, marketsStruct) {
       const match = signatureMatcher(users, mpSignatures);
       addMarketsStructInfo('users', marketsStruct, users, marketId);
       if (!match.allMatched) {
+        console.warn(match.unmatchedSignatures);
         throw new MatchError('Presences didn\'t match');
       }
     });
@@ -310,6 +319,7 @@ function fetchMarketStages (marketId, allMs, marketsStruct) {
       const match = signatureMatcher(stages, msSignatures);
       addMarketsStructInfo('stages', marketsStruct, stages, marketId);
       if (!match.allMatched) {
+        console.warn(match.unmatchedSignatures);
         throw new MatchError('Stages didn\'t match');
       }
     });

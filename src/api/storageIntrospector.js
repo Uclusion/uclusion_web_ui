@@ -22,8 +22,8 @@ export async function checkSignatureInStorage (marketId, fetchSignature) {
   const serverFetchSignatures = getFetchSignaturesForMarket([fetchSignature]);
   const fromStorage = await checkInStorage(marketId, serverFetchSignatures);
   const { markets, comments, marketPresences, marketStages, investibles } = fromStorage;
-  return _.isEmpty(markets) && _.isEmpty(comments) && _.isEmpty(marketPresences) && _.isEmpty(marketStages)
-    && _.isEmpty(investibles);
+  return markets.allMatched && comments.allMatched && marketPresences.allMatched && marketStages.allMatched
+    && investibles.allMatched;
 }
 
 /**

@@ -15,6 +15,11 @@ export function getMarket(state, marketId) {
   return usedDetails.find((market) => market.id === marketId);
 }
 
+export function getFailedSignatures(state) {
+  const { failedSignatures } = state || {};
+  return failedSignatures;
+}
+
 export function marketTokenLoaded(marketId, tokensHash) {
   return tokensHash && tokensHash[`MARKET_${marketId}`];
 }

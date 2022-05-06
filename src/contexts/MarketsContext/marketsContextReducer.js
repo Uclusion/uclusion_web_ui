@@ -4,11 +4,13 @@ import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
 import { removeInitializing } from '../../components/localStorageUtils'
 import { addByIdAndVersion } from '../ContextUtils'
+import _ from 'lodash'
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const UPDATE_MARKET_DETAILS = 'UPDATE_MARKET_DETAILS';
 const REMOVE_MARKET_DETAILS = 'REMOVE_MARKET_DETAILS';
 const UPDATE_FROM_VERSIONS = 'UPDATE_FROM_VERSIONS';
+const ADD_FAILED_SIGNATURES = 'ADD_FAILED_SIGNATURES';
 
 /* Possible messages to the reducer */
 export function initializeState(newState) {
@@ -29,6 +31,13 @@ export function versionsUpdateDetails(marketDetails) {
   return {
     type: UPDATE_FROM_VERSIONS,
     marketDetails,
+  };
+}
+
+export function addSyncError(signature) {
+  return {
+    type: ADD_FAILED_SIGNATURES,
+    signature
   };
 }
 
@@ -73,6 +82,22 @@ function removeStoredMarkets(state, action) {
   };
 }
 
+function addFailedSignatures(state, action) {
+  const { signature } = action;
+  const { failedSignatures } = state;
+  const { id, unmatched } = signature;
+  let newFailedSignatures;
+  if (_.isEmpty(unmatched)) {
+    newFailedSignatures = (failedSignatures || []).filter((failedSignature) => failedSignature.id !== id);
+  } else {
+    newFailedSignatures = _.unionBy([signature], failedSignatures, (item) => item.id);
+  }
+  return {
+    ...state,
+    failedSignatures: newFailedSignatures,
+  };
+}
+
 function computeNewState(state, action) {
   // console.debug(`Computing state with type ${action.type}`);
   switch (action.type) {
@@ -84,6 +109,8 @@ function computeNewState(state, action) {
       return removeStoredMarkets(state, action);
     case INITIALIZE_STATE:
       return action.newState;
+    case ADD_FAILED_SIGNATURES:
+      return addFailedSignatures(state, action);
     default:
       return state;
   }

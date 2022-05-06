@@ -142,9 +142,9 @@ function Inbox(props) {
     (firstMessage.level === 'RED' ? '#E85757' : (firstMessage.level === 'YELLOW' ?
       (isDisabled ? '#ffff00' : (isJarDisplay ? '#FCEC69' : '#ffc61a')) : '#2D9CDB'));
   const isPending = tabIndex > 0;
-  const outBoxMessagesOrdered = isPending ? getOutboxMessages({messagesState, marketState, marketPresencesState,
+  const outBoxMessagesOrdered = getOutboxMessages({messagesState, marketState, marketPresencesState,
     investiblesState, marketStagesState, commentsState, planningClasses, mobileLayout,
-    expansionState: expansionPendingState, intl}) : [];
+    expansionState: expansionPendingState, intl});
   const messagesFiltered = _.isEmpty(search) ? inboxMessagesOrdered : inboxMessagesOrdered.filter((message) => {
     const { type_object_id: typeObjectId,  investible_id: investibleId } = message;
     return results.find((result) => typeObjectId.endsWith(result.id) || result.id === investibleId) ||

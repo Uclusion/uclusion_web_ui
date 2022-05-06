@@ -9,6 +9,12 @@ import { LimitedParallelMap } from '../utils/PromiseUtils'
 import { startTimerChain } from '../utils/timerUtils'
 import { getHomeAccountUser } from './sso'
 import { checkInStorage, checkSignatureInStorage } from './storageIntrospector'
+import LocalForageHelper from '../utils/LocalForageHelper'
+import { COMMENTS_CONTEXT_NAMESPACE } from '../contexts/CommentsContext/CommentsContext'
+import { INVESTIBLES_CONTEXT_NAMESPACE } from '../contexts/InvestibesContext/InvestiblesContext'
+import { MARKET_CONTEXT_NAMESPACE } from '../contexts/MarketsContext/MarketsContext'
+import { MARKET_PRESENCES_CONTEXT_NAMESPACE } from '../contexts/MarketPresencesContext/MarketPresencesContext'
+import { MARKET_STAGES_CONTEXT_NAMESPACE } from '../contexts/MarketStagesContext/MarketStagesContext'
 
 const MAX_RETRIES = 10;
 const MAX_CONCURRENT_API_CALLS = 5;
@@ -106,10 +112,11 @@ export function refreshGlobalVersion(ignoreIfInProgress) {
  * @param marketIds the market ids to fetch signatures for
  * @param marketsStruct for passing the gathered information
  * @param maxConcurrentCount the maximum number of api calls to make at once
+ * @param storageStates
  * @param isInline whether the markets are inline or not
  * @returns {Promise<*>}
  */
-export function updateMarkets(marketIds, marketsStruct, maxConcurrentCount, isInline=false) {
+export function updateMarkets(marketIds, marketsStruct, maxConcurrentCount, storageStates, isInline=false) {
   if (_.isEmpty(marketIds)) {
     return Promise.resolve(true);
   }
@@ -120,7 +127,7 @@ export function updateMarkets(marketIds, marketsStruct, maxConcurrentCount, isIn
         //console.error("MarketSignature")
         //console.error(marketSignature);
         const { market_id: marketId, signatures: componentSignatures } = marketSignature;
-        return doRefreshMarket(marketId, componentSignatures, marketsStruct);
+        return doRefreshMarket(marketId, componentSignatures, marketsStruct, storageStates);
       }, maxConcurrentCount);
     });
 }
@@ -161,46 +168,70 @@ function addMarketsStructInfo(infoType, marketsStruct, details, marketId) {
   }
 }
 
+function getStorageStates() {
+  const storageStates = {};
+  const helper = new LocalForageHelper(COMMENTS_CONTEXT_NAMESPACE);
+  return helper.getState().then((state) => {
+    storageStates.commentsState = state;
+    const helper = new LocalForageHelper(INVESTIBLES_CONTEXT_NAMESPACE);
+    return helper.getState();
+  }).then((state) => {
+    storageStates.investiblesState = state;
+    const helper = new LocalForageHelper(MARKET_CONTEXT_NAMESPACE);
+    return helper.getState();
+  }).then((state) => {
+    storageStates.marketsState = state;
+    const helper = new LocalForageHelper(MARKET_PRESENCES_CONTEXT_NAMESPACE);
+    return helper.getState();
+  }).then((state) => {
+    storageStates.marketPresencesState = state;
+    const helper = new LocalForageHelper(MARKET_STAGES_CONTEXT_NAMESPACE);
+    return helper.getState();
+  }).then((state) => {
+    storageStates.marketStagesState = state;
+    return storageStates;
+  });
+}
+
 /**
  * Function that will make exactly one attempt to sync by adding to the promise chain
  * @returns {Promise<*>}
  */
 export function doVersionRefresh() {
   console.info('Checking for sync');
-  return getChangedIds().then((audits) => {
+  return getStorageStates().then((storageStates) => {
+    return getChangedIds().then((audits) => {
       const foregroundList = [];
       const backgroundList = [];
       const inlineList = [];
       const fullList = [];
-      const checkSignaturePromises = (audits || []).map((audit) => {
+      (audits || []).forEach((audit) => {
         const { signature, inline, active, id } = audit;
         fullList.push(id);
-        return checkSignatureInStorage(id, signature).then((hasSignature) => {
-          if (!hasSignature) {
-            if (inline) {
-              inlineList.push(id);
-            } else if (active) {
-              foregroundList.push(id);
-            } else {
-              backgroundList.push(id);
-            }
+        if (!checkSignatureInStorage(id, signature, storageStates)) {
+          if (inline) {
+            inlineList.push(id);
+          } else if (active) {
+            foregroundList.push(id);
+          } else {
+            backgroundList.push(id);
           }
-        });
+        }
       });
-      return Promise.all(checkSignaturePromises).then(() => {
-        // use the full list to calculate market's we're banned from
-        pushMessage(REMOVED_MARKETS_CHANNEL, { event: BANNED_LIST, fullList });
-        // Starting operation in progress just presents as a bug to the user because freezes all buttons so just log
-        console.info('Beginning inline versions update');
-        console.info(inlineList);
-        const inlineMarketsStruct = {};
-        return updateMarkets(inlineList, inlineMarketsStruct, MAX_CONCURRENT_API_CALLS, true)
-          .then(() => {
-            sendMarketsStruct(inlineMarketsStruct);
-            const foregroundMarketsStruct = {};
-            console.info('Beginning foreground versions update');
-            console.info(foregroundList);
-            return updateMarkets(foregroundList, foregroundMarketsStruct, MAX_CONCURRENT_API_CALLS).then(() => {
+      // use the full list to calculate market's we're banned from
+      pushMessage(REMOVED_MARKETS_CHANNEL, { event: BANNED_LIST, fullList });
+      // Starting operation in progress just presents as a bug to the user because freezes all buttons so just log
+      console.info('Beginning inline versions update');
+      console.info(inlineList);
+      const inlineMarketsStruct = {};
+      return updateMarkets(inlineList, inlineMarketsStruct, MAX_CONCURRENT_API_CALLS, storageStates, true)
+        .then(() => {
+          sendMarketsStruct(inlineMarketsStruct);
+          const foregroundMarketsStruct = {};
+          console.info('Beginning foreground versions update');
+          console.info(foregroundList);
+          return updateMarkets(foregroundList, foregroundMarketsStruct, MAX_CONCURRENT_API_CALLS, storageStates)
+              .then(() => {
               sendMarketsStruct(foregroundMarketsStruct);
               const backgroundMarketsStruct = {};
               console.info('Finished foreground update');
@@ -211,16 +242,16 @@ export function doVersionRefresh() {
                 pushMessage(PUSH_HOME_USER_CHANNEL, { event: VERSIONS_EVENT, user });
                 console.info('Beginning background versions update');
                 console.info(backgroundList);
-                return updateMarkets(backgroundList, backgroundMarketsStruct, MAX_CONCURRENT_ARCHIVE_API_CALLS)
-                  .then(() => {
+                return updateMarkets(backgroundList, backgroundMarketsStruct, MAX_CONCURRENT_ARCHIVE_API_CALLS,
+                  storageStates).then(() => {
                     sendMarketsStruct(backgroundMarketsStruct);
                     console.info('Ending versions update');
                   });
-              });
             });
           });
-      });
+        });
     });
+  });
 }
 
 /**
@@ -228,11 +259,12 @@ export function doVersionRefresh() {
  * @param marketId the market id to refresh
  * @param componentSignatures the component signatures telling us what we're looking for
  * @param marketsStruct
+ * @param storageStates
  * @returns {null}
  */
-async function doRefreshMarket(marketId, componentSignatures, marketsStruct) {
+async function doRefreshMarket(marketId, componentSignatures, marketsStruct, storageStates) {
   const serverFetchSignatures = getFetchSignaturesForMarket(componentSignatures);
-  const fromStorage = await checkInStorage(marketId, serverFetchSignatures);
+  const fromStorage = checkInStorage(marketId, serverFetchSignatures, storageStates);
   const { markets, comments, marketPresences, marketStages, investibles } = fromStorage;
   let chain = null;
   if (!_.isEmpty(markets.unmatchedSignatures)) {

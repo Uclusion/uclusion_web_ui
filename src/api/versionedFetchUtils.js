@@ -168,7 +168,7 @@ function addMarketsStructInfo(infoType, marketsStruct, details, marketId) {
   }
 }
 
-function getStorageStates() {
+export function getStorageStates() {
   const storageStates = {};
   const helper = new LocalForageHelper(COMMENTS_CONTEXT_NAMESPACE);
   return helper.getState().then((state) => {

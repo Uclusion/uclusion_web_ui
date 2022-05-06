@@ -13,6 +13,7 @@ import { lockPlanningMarketForEdit } from '../../api/markets'
 import localforage from 'localforage'
 import TokenStorageManager, { TOKEN_STORAGE_KEYSPACE, TOKEN_TYPE_MARKET } from '../../authorization/TokenStorageManager'
 import {
+  getStorageStates,
   PUSH_INVESTIBLES_CHANNEL,
   PUSH_MARKETS_CHANNEL, PUSH_PRESENCE_CHANNEL, PUSH_STAGE_CHANNEL,
   REMOVED_MARKETS_CHANNEL,
@@ -102,8 +103,10 @@ function beginListening(dispatch, diffDispatch, setTokensHash) {
       return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, id, token).then(() => {
         // We know the market we just logged into is dirty so skip normal call to check it first
         const marketsStruct = {};
-        return updateMarkets([id], marketsStruct, 1)
-          .then(() => sendMarketsStruct(marketsStruct));
+        return getStorageStates().then((storageStates) => {
+          updateMarkets([id], marketsStruct, 1, storageStates)
+            .then(() => sendMarketsStruct(marketsStruct));
+        });
       });
     }).catch((error) => {
       console.error(error);

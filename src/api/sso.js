@@ -14,12 +14,18 @@ export function getMessages() {
   return getAccountSSOClient()
     .then((ssoInfo) => {
       const { ssoClient, accountToken } = ssoInfo;
-      return ssoClient.getMessages(accountToken)
-        .then((messages) => {
-          return messages;
-        });
+      return ssoClient.getMessages(accountToken);
     });
 }
+
+export function getAppVersion() {
+  return getAccountSSOClient()
+    .then((ssoInfo) => {
+      const { ssoClient, accountToken } = ssoInfo;
+      return ssoClient.getAppVersion(accountToken);
+    });
+}
+
 /** Gets the home account user for the current logged in user
  */
 export function getHomeAccountUser () {
@@ -27,10 +33,9 @@ export function getHomeAccountUser () {
   return getAccount().then((loginInfo) => {
     const { user } = loginInfo;
     return user;
-  })
-    .catch((error) => {
-      toastErrorAndThrow(error, 'errorHomeUserFetchFailed');
-    });
+  }).catch((error) => {
+    toastErrorAndThrow(error, 'errorHomeUserFetchFailed');
+  });
 }
 
 export const getAccount = () => {

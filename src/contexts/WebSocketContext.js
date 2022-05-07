@@ -14,6 +14,7 @@ import { LeaderContext } from './LeaderContext/LeaderContext'
 import { BroadcastChannel } from 'broadcast-channel'
 import { refreshOrMessage } from './LeaderContext/leaderContextReducer'
 import { refreshNotifications } from '../api/versionedFetchUtils'
+import { getAppVersion } from '../api/sso'
 
 export const AUTH_HUB_CHANNEL = 'auth'; // this is case sensitive.
 export const VERSIONS_HUB_CHANNEL = 'VersionsChannel';
@@ -146,6 +147,10 @@ function WebSocketProvider(props) {
       }
       if (!mySignedOut) {
         refresh();
+        getAppVersion().then((version) => {
+          const { app_version: currentVersion, requires_cache_clear: cacheClearVersion } = version;
+          notifyNewApplicationVersion(currentVersion, cacheClearVersion);
+        });
       }
     }, 300000, pongTracker, state, () => {
       leaderDispatch(refreshOrMessage(`visit${Date.now()}`, userId));
@@ -156,6 +161,10 @@ function WebSocketProvider(props) {
   useEffect(() => {
     if (!isSignedOut()) {
       createWebSocket(config, leaderDispatch, setState, userId);
+      getAppVersion().then((version) => {
+        const { app_version: currentVersion, requires_cache_clear: cacheClearVersion } = version;
+        notifyNewApplicationVersion(currentVersion, cacheClearVersion);
+      });
     }
     return () => {};
   }, [config, leaderDispatch, userId]);

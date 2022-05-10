@@ -22,6 +22,7 @@ import LockedDialogTitleIcon from '@material-ui/icons/Lock'
 import IssueDialog from '../../components/Warnings/IssueDialog'
 import { getQuillStoredState } from '../../components/TextEditors/Utilities/CoreUtils';
 import { LOCK_INVESTIBLE } from '../../contexts/InvestibesContext/investiblesContextMessages'
+import { PLANNING_TYPE } from '../../constants/markets'
 
 export const useInvestibleEditStyles = makeStyles(
   theme => ({
@@ -76,6 +77,8 @@ function InvestibleBodyEdit(props) {
   const emptyMarket = { name: '' };
   const market = getMarket(marketsState, marketId) || emptyMarket;
   const loading = !beingEdited || !market;
+  const { market_type: marketType } = market;
+  const isPlanning = marketType === PLANNING_TYPE;
   const someoneElseEditing = !_.isEmpty(lockedBy) && (lockedBy !== userId);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [openIssue, setOpenIssue] = useState(false);
@@ -130,14 +133,18 @@ function InvestibleBodyEdit(props) {
     return realeaseInvestibleEditLock(marketId, investibleId).then((newInv) => {
       setOperationRunning(false);
       refreshInvestibles(investiblesDispatch, diffDispatch, [newInv]);
-      window.scrollTo(0, 0);
+      if (isPlanning) {
+        window.scrollTo(0, 0);
+      }
     });
   }
 
   function onSave (fullInvestible, stillEditing) {
     if (!stillEditing) {
       pageStateReset();
-      window.scrollTo(0, 0);
+      if (isPlanning) {
+        window.scrollTo(0, 0);
+      }
     }
     if (fullInvestible) {
       refreshInvestibles(investiblesDispatch, diffDispatch, [fullInvestible]);

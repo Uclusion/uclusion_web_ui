@@ -39,7 +39,6 @@ export function notify(userId, investibleId, notificationType, notificationLevel
   messagesDispatch(addMessage({ market_id_user_id: `${market.id}_${userId}`,
     type_object_id: `${notificationType}_${investibleId}`, type: notificationType, market_id: market.id,
     investible_id: investibleId, user_id: userId, level: notificationLevel, link: investibleLink,
-    market_type: market.market_type, link_type: 'INVESTIBLE',
-    market_link: marketLink, market_name: market['name'], link_multiple: marketLink, investible_name: investibleName,
-    investible_link: investibleLink }));
+    market_type: market.market_type, link_type: 'INVESTIBLE', link_multiple: marketLink,
+    investible_name: investibleName, investible_link: investibleLink }));
 }

@@ -1,7 +1,6 @@
 import React, { useContext, useState } from 'react'
 import { FormattedMessage, useIntl } from 'react-intl'
 import {
-  Button,
   Card,
   CardActions,
   CardContent,
@@ -10,8 +9,8 @@ import {
   FormControlLabel,
   makeStyles,
   Radio,
-  RadioGroup, useMediaQuery, useTheme
-} from '@material-ui/core'
+  RadioGroup, Typography, useMediaQuery, useTheme
+} from '@material-ui/core';
 import PropTypes from 'prop-types'
 import { getMentionsFromText, updateComment } from '../../api/comments';
 import { processTextAndFilesForSave } from '../../api/files'
@@ -45,6 +44,11 @@ const useStyles = makeStyles((theme) => ({
   },
   cardActions: {
     padding: 8,
+  },
+  storageIndicator: {
+    display: 'inline-block',
+    fontSize: '10px',
+    fontWeight: 'bold',
   },
   button: {
     borderRadius: '4px',
@@ -287,9 +291,9 @@ function CommentEdit(props) {
           {intl.formatMessage({ id: 'update' })}
         </SpinningIconLabelButton>
         {!mobileLayout && (
-          <Button className={classes.button}>
+          <Typography className={classes.storageIndicator}>
             {intl.formatMessage({ id: 'edited' })}
-          </Button>
+          </Typography>
         )}
       </CardActions>
     </Card>

@@ -2,11 +2,10 @@ import React, { useContext, useEffect, useState } from 'react'
 import { useIntl } from 'react-intl';
 import _ from 'lodash'
 import {
-  Button,
   darken,
   makeStyles,
-  Paper, useMediaQuery, useTheme,
-} from '@material-ui/core'
+  Paper, Typography, useMediaQuery, useTheme,
+} from '@material-ui/core';
 import PropTypes from 'prop-types'
 import { getMentionsFromText, saveComment } from '../../api/comments';
 import {
@@ -108,6 +107,11 @@ const useStyles = makeStyles((theme) => ({
   editor: {
     flex: 1,
     maxWidth: '100%'
+  },
+  storageIndicator: {
+    display: 'inline-block',
+    fontSize: '10px',
+    fontWeight: 'bold',
   },
   button: {
     borderRadius: '4px',
@@ -526,9 +530,9 @@ function CommentAdd(props) {
               {intl.formatMessage({ id: 'commentAddSendLabel' })}
             </SpinningIconLabelButton>
           )}
-          <Button className={classes.button}>
+          <Typography className={classes.storageIndicator}>
             {intl.formatMessage({ id: 'edited' })}
-          </Button>
+          </Typography>
           {openIssue !== false && openIssue !== 'noInitiativeType' && (
             <IssueDialog
               classes={lockedDialogClasses}

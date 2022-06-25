@@ -157,6 +157,11 @@ export function getMarketStages(marketId) {
     .then((client) => client.markets.listStages());
 }
 
+export function getMarketGroups(marketId) {
+  return getMarketClient(marketId)
+    .then((client) => client.markets.listGroups());
+}
+
 export function lockPlanningMarketForEdit(marketId, breakLock) {
   return getMarketClient(marketId)
     .then((client) => client.markets.lock(breakLock))

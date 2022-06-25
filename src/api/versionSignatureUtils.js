@@ -117,12 +117,14 @@ export function getFetchSignaturesForMarket (marketVersionSignatures) {
   const marketPresences = usersSignatureGenerator(marketVersionSignatures);
   const investibles = investiblesSignatureGenerator(marketVersionSignatures);
   const marketStages = stagesSignatureGenerator(marketVersionSignatures);
+  const marketGroups = groupsSignatureGenerator(marketVersionSignatures);
   return {
     comments,
     markets,
     marketPresences,
     investibles,
     marketStages,
+    marketGroups,
   };
 }
 
@@ -314,3 +316,12 @@ function commentsSignatureGenerator (versionsSignatures) {
   return generateSimpleObjectSignature(versionsSignatures, 'comment');
 }
 
+/**
+ * Converts the group signature out of the versions call into something we can match
+ * a fetched object against
+ * @param versionsSignatures
+ * @returns {*}
+ */
+function groupsSignatureGenerator (versionSignatures) {
+  return generateSimpleObjectSignature(versionSignatures, 'group');
+}

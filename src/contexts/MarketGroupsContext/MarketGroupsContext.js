@@ -13,7 +13,7 @@ const EMPTY_STATE = { initializing: true };
 
 const MarketGroupsContext = React.createContext(EMPTY_STATE);
 
-function MarketStagesProvider (props) {
+function MarketGroupsProvider (props) {
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
   const [, setChannel] = useState(undefined);
 
@@ -66,5 +66,5 @@ function MarketStagesProvider (props) {
   );
 }
 
-export { MarketStagesProvider, MarketGroupsContext, EMPTY_STATE, MARKET_GROUPS_CONTEXT_NAMESPACE, GROUPS_CHANNEL   };
+export { MarketGroupsProvider, MarketGroupsContext, EMPTY_STATE, MARKET_GROUPS_CONTEXT_NAMESPACE, GROUPS_CHANNEL   };
 

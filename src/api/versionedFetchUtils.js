@@ -153,8 +153,8 @@ export function sendMarketsStruct(marketsStruct) {
   if (marketsStruct['stages']) {
     pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, stageDetails: marketsStruct['stages'] });
   }
-  if (marketsStruct['groups']) {
-    pushMessage(PUSH_GROUPS_CHANNEL, { event: VERSIONS_EVENT, groupDetails: marketsStruct['groups']});
+  if (marketsStruct['group']) {
+    pushMessage(PUSH_GROUPS_CHANNEL, { event: VERSIONS_EVENT, groupDetails: marketsStruct['group']});
   }
 }
 
@@ -398,7 +398,7 @@ function fetchMarketGroups (marketId, allMg, marketsStruct) {
   return getMarketGroups(marketId)
     .then((groups) => {
         const match = signatureMatcher(groups, mgSignatures);
-        addMarketsStructInfo('groups', marketsStruct, groups, marketId);
+        addMarketsStructInfo('group', marketsStruct, groups, marketId);
         if(!match.allMatched) {
           console.warn(match.unmatchedSignatures);
           pushMessage(PUSH_MARKETS_CHANNEL, { event: SYNC_ERROR_EVENT, signature: {id: marketId,

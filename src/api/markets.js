@@ -108,17 +108,6 @@ export function unFollowStages(marketId, stageIds){
     .catch((error) => toastErrorAndThrow(error, 'errorUnFollowStages'));
 }
 
-export function createUnnamedMarket(marketInfo) {
-  const myInfo = {
-    ...marketInfo,
-    market_type: PLANNING_TYPE,
-    market_sub_type: UNNAMED_SUB_TYPE
-  };
-  return getAccountClient()
-    .then((client) => client.markets.createMarket(myInfo))
-    .catch((error) => toastErrorAndThrow(error, 'errorUnnamedMarketAddFailed'));
-}
-
 export function createInitiative(marketInfo, messageKey = 'errorInitiativeAddFailed') {
   const myInfo = {
     ...marketInfo,

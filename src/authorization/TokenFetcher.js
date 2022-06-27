@@ -69,14 +69,14 @@ class TokenFetcher {
       });
   }
 
-  getIdentityBasedTokenAndInfo (subscribeId) {
+  getIdentityBasedTokenAndInfo () {
     return this.tokenRefresher.getIdentity()
       .then((identity) => {
         switch (this.tokenType) {
           case TOKEN_TYPE_MARKET:
-            return this.getMarketTokenAndLoginData(identity, this.itemId, subscribeId);
+            return this.getMarketTokenAndLoginData(identity, this.itemId);
           case TOKEN_TYPE_MARKET_INVITE:
-            return this.getMarketTokenOnInvite(identity, this.itemId, subscribeId);
+            return this.getMarketTokenOnInvite(identity, this.itemId);
           case TOKEN_TYPE_ACCOUNT:
             return this.getAccountToken(identity, this.itemId);
           default:
@@ -85,8 +85,8 @@ class TokenFetcher {
       });
   }
 
-  getMarketToken (identity, marketId, subscribeId) {
-    return this.getMarketTokenAndLoginData(identity, marketId, subscribeId)
+  getMarketToken (identity, marketId) {
+    return this.getMarketTokenAndLoginData(identity, marketId)
       .then((loginData) => {
         const { uclusion_token } = loginData;
         return uclusion_token;
@@ -94,8 +94,8 @@ class TokenFetcher {
 
   }
 
-  getMarketTokenAndLoginData (identity, marketId, subscribeId) {
-    return this.ssoClient.marketCognitoLogin(identity, marketId, subscribeId)
+  getMarketTokenAndLoginData (identity, marketId) {
+    return this.ssoClient.marketCognitoLogin(identity, marketId)
       .then((loginData) => {
         const { uclusion_token } = loginData;
         return this.tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, marketId, uclusion_token)
@@ -104,8 +104,8 @@ class TokenFetcher {
 
   }
 
-  getMarketTokenOnInvite (identity, marketToken, subscribeId) {
-    return this.ssoClient.marketInviteLogin(identity, marketToken, subscribeId)
+  getMarketTokenOnInvite (identity, marketToken) {
+    return this.ssoClient.marketInviteLogin(identity, marketToken)
       .then((loginData) => {
         const { uclusion_token, market_id: marketId } = loginData;
         return this.tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, marketId, uclusion_token)

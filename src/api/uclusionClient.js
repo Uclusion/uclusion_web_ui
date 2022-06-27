@@ -14,31 +14,31 @@ export const getMarketClient = (marketId) => {
   });
 };
 
-export const getMarketLogin = (marketId, subscribeId) => {
+export const getMarketLogin = (marketId) => {
   const ssoClient = client.constructSSOClient(config.api_configuration);
   return ssoClient.then((sso) => {
     const identitySource = new AmplifyIdentityTokenRefresher();
     const tokenManager = new TokenFetcher(identitySource, sso, TOKEN_TYPE_MARKET, marketId);
-    return tokenManager.getIdentityBasedTokenAndInfo(subscribeId);
+    return tokenManager.getIdentityBasedTokenAndInfo();
   });
 };
 
-export const getMarketFromInvite = (marketToken, subscribeId) => {
+export const getMarketFromInvite = (marketToken) => {
   const ssoClient = client.constructSSOClient(config.api_configuration);
   return ssoClient.then((sso) => {
     const identitySource = new AmplifyIdentityTokenRefresher();
     const tokenManager = new TokenFetcher(identitySource, sso, TOKEN_TYPE_MARKET_INVITE, marketToken);
-    return tokenManager.getIdentityBasedTokenAndInfo(subscribeId);
+    return tokenManager.getIdentityBasedTokenAndInfo();
   });
 };
 
-export const getMarketFromUrl = (marketId, subscribeId) => {
-  console.info(`Attempting to load ${marketId} with ${subscribeId}`);
+export const getMarketFromUrl = (marketId) => {
+  console.info(`Attempting to load ${marketId}`);
   const ssoClient = client.constructSSOClient(config.api_configuration);
   return ssoClient.then((sso) => {
     const identitySource = new AmplifyIdentityTokenRefresher();
     const tokenManager = new TokenFetcher(identitySource, sso, TOKEN_TYPE_MARKET, marketId);
-    return tokenManager.getIdentityBasedTokenAndInfo(subscribeId);
+    return tokenManager.getIdentityBasedTokenAndInfo();
   });
 };
 

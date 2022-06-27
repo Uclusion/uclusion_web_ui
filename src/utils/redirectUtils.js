@@ -1,5 +1,4 @@
 import { getLoginPersistentItem, setLoginPersistentItem } from '../components/localStorageUtils';
-import queryString from 'query-string'
 import _ from 'lodash'
 
 const REDIRECT_LOCAL_STORAGE_KEY = 'redirection';
@@ -9,16 +8,11 @@ const EMAIL_LOCAL_STORAGE_KEY = 'email_storage';
 
 export function redirectFromHistory(history) {
   const { location } = history;
-  const { pathname, hash, search } = location;
-  const values = queryString.parse(search || '');
-  const { subscribeId } = values || {};
+  const { pathname, hash, } = location;
   let redirect;
   if (pathname !== '/') {
     // we came here by some other link and need to log in
     redirect = pathname;
-    if (subscribeId) {
-      redirect += `?subscribeId=${subscribeId}`;
-    }
     if (hash) {
       redirect += hash;
     }

@@ -1,7 +1,7 @@
 import { getAccountClient, getMarketClient } from './uclusionClient'
 import { fixupItemForStorage } from '../contexts/ContextUtils'
 import { errorAndThrow, toastErrorAndThrow } from '../utils/userMessage'
-import { INITIATIVE_TYPE, PLANNING_TYPE, UNNAMED_SUB_TYPE } from '../constants/markets'
+import { INITIATIVE_TYPE, PLANNING_TYPE } from '../constants/markets'
 
 function fixupMarketForStorage(market) {
   const itemFixed = fixupItemForStorage(market);

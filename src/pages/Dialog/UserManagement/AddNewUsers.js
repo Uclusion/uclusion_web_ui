@@ -28,14 +28,12 @@ import { findMessageOfType } from '../../../utils/messageUtils'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
-import { UNNAMED_SUB_TYPE } from '../../../constants/markets'
 import GravatarAndName from '../../../components/Avatars/GravatarAndName'
 import { AccountUserContext } from '../../../contexts/AccountUserContext/AccountUserContext'
 
 function AddNewUsers(props) {
-  const { market, isInbox, emailList, setEmailList, name, setToAddClean } = props;
-  const { id: addToMarketId, market_type: marketType, invite_capability: marketToken,
-    market_sub_type: marketSubType } = market || {};
+  const { market, isInbox, emailList, setEmailList, setToAddClean } = props;
+  const { id: addToMarketId, market_type: marketType, invite_capability: marketToken } = market || {};
   const classes = usePlanFormStyles();
   const intl = useIntl();
   const theme = useTheme();
@@ -158,13 +156,6 @@ function AddNewUsers(props) {
     }
     if (_.isEmpty(added)) {
       return Promise.resolve(true);
-    }
-    if (marketSubType === UNNAMED_SUB_TYPE) {
-      return inviteParticipants(addToMarketId, added, UNNAMED_SUB_TYPE, name).then((result) => {
-        setEmail1('');
-        onSaveSpinStop(result);
-        setEmailsSent(emailsSent.concat(emailSentTemp));
-      });
     }
     return inviteParticipants(addToMarketId, added).then((result) => {
       setEmail1('');

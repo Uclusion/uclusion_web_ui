@@ -29,14 +29,12 @@ import OnboardingBanner from '../../components/Banners/OnboardingBanner'
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
 import { pushMessage } from '../../utils/MessageBusUtils'
 import {
-  GUEST_MARKET_EVENT,
   INVITE_MARKET_EVENT,
   LOAD_MARKET_CHANNEL
 } from '../../contexts/MarketsContext/marketsContextMessages'
 import UpgradeBanner from '../../components/Banners/UpgradeBanner'
 import { canCreate } from '../../contexts/AccountContext/accountContextHelper'
 import { AccountContext } from '../../contexts/AccountContext/AccountContext'
-import { UNNAMED_SUB_TYPE } from '../../constants/markets'
 
 function Dialog(props) {
   const { hidden } = props;
@@ -47,8 +45,6 @@ function Dialog(props) {
   const { pathname, hash } = location
   const myHashFragment = (hash && hash.length > 1) ? hash.substring(1, hash.length) : undefined
   const { marketId: marketEntity, action } = decomposeMarketPath(pathname);
-  const myParams = new URL(document.location).searchParams;
-  const subscribeId = myParams ? myParams.get('subscribeId') : undefined;
   const [marketIdFromToken, setMarketIdFromToken] = useState(undefined);
   const [marketsState, , tokensHash] = useContext(MarketsContext);
   const [investiblesState] = useContext(InvestiblesContext);
@@ -93,14 +89,7 @@ function Dialog(props) {
         proposedMarketId = marketEntity;
       }
       // Ignore regular URL case because can cause performance problems to do things for that case
-      if (subscribeId) {
-        const loadedMarket = getMarket(marketsState, proposedMarketId);
-        if (subscribeId !== marketEntity || _.isEmpty(loadedMarket)) {
-          pushMessage(LOAD_MARKET_CHANNEL, { event: GUEST_MARKET_EVENT, marketId: marketEntity, subscribeId });
-          //Immediately replace with pathname plus hash so that don't send message twice
-          window.history.replaceState(null, '', `${window.location.pathname}${hash}`);
-        }
-      } else if (action === 'invite') {
+      if (action === 'invite') {
         const loadedMarket = getMarket(marketsState, proposedMarketId);
         if (_.isEmpty(loadedMarket)) {
           pushMessage(LOAD_MARKET_CHANNEL, { event: INVITE_MARKET_EVENT, marketToken: marketEntity })
@@ -112,19 +101,14 @@ function Dialog(props) {
     if (hidden) {
       setMarketIdFromToken(undefined);
     }
-  }, [action, hasUser, hash, hidden, isInitialization, marketEntity, marketsState, subscribeId]);
+  }, [action, hasUser, hash, hidden, isInitialization, marketEntity, marketsState]);
 
   useEffect(() => {
     if (!hidden && action === 'invite' && marketId && !_.isEmpty(loadedMarket)) {
       // Try to remove the market token from the URL to avoid book marking it or other weirdness
       // Potentially this fails since inside useEffect
       console.info('Navigating to market');
-      if (loadedMarket && loadedMarket.market_sub_type === UNNAMED_SUB_TYPE) {
-        // Go to inbox for unnamed as we can't be certain of the state of the investible
-        history.push('/inbox?fromInvite=loaded');
-      } else {
-        history.push(formMarketLink(marketId));
-      }
+      history.push(formMarketLink(marketId));
     }
     return () => {}
   }, [hidden, action, history, marketId, loadedMarket, marketType]);

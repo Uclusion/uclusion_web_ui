@@ -138,7 +138,7 @@ import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
 import SpinningButton from '../../../components/SpinBlocking/SpinningButton'
 import { removeWorkListItem, workListStyles } from '../../Home/YourWork/WorkListItem'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
-import { ACTIVE_STAGE, UNNAMED_SUB_TYPE } from '../../../constants/markets'
+import { ACTIVE_STAGE } from '../../../constants/markets'
 import {
   OPERATION_HUB_CHANNEL, STOP_OPERATION
 } from '../../../contexts/OperationInProgressContext/operationInProgressMessages'
@@ -402,8 +402,8 @@ function PlanningInvestible(props) {
   const [showDatepicker, setShowDatepicker] = useState(false);
   const [clearMeHack, setClearMeHack] = useState('a');
   const [labelFocus, setLabelFocus] = useState(false);
-  const { name: marketName, id: marketId, market_stage: marketStage, market_sub_type: marketSubType,
-    budget_unit: budgetUnit, use_budget: useBudget, votes_required: votesRequired, created_by: marketCreatedBy} = market;
+  const { name: marketName, id: marketId, market_stage: marketStage, budget_unit: budgetUnit, use_budget: useBudget,
+    votes_required: votesRequired, created_by: marketCreatedBy} = market;
   const inArchives = marketStage !== ACTIVE_STAGE;
   const labels = getMarketLabels(investiblesState, marketId);
   const investmentReasonsRemoved = investibleComments.filter(comment => comment.comment_type !== JUSTIFY_TYPE) || [];
@@ -414,8 +414,8 @@ function PlanningInvestible(props) {
     return comment.comment_type === JUSTIFY_TYPE && (results.find((item) => item.id === comment.id)
       || parentResults.find((id) => id === comment.id));
   });
-  const investibleCollaborators = marketSubType === UNNAMED_SUB_TYPE ? marketPresences.map((presence) => presence.id) :
-    getCollaborators(marketPresences, investibleComments, marketPresencesState, investibleId);
+  const investibleCollaborators = getCollaborators(marketPresences, investibleComments, marketPresencesState,
+    investibleId);
   const marketInfo = getMarketInfo(marketInvestible, marketId) || {};
   const { stage, assigned: invAssigned, completion_estimate: marketDaysEstimate,
     required_approvers:  requiredApprovers, required_reviews: requiredReviewers, ticket_code: ticketCode,
@@ -781,9 +781,6 @@ function PlanningInvestible(props) {
     navListItemTextArray: [
       {icon: Inbox, text: intl.formatMessage({ id: 'returnInbox' }), target: getInboxTarget(messagesState),
         newPage: true},
-      marketSubType === UNNAMED_SUB_TYPE ? {icon: AddIcon,
-        text: intl.formatMessage({ id: 'dialogAddParticipantsLabel' }),
-          'onClickFunc': () => updatePageState({showDialogManage: true})} :
         {icon: AgilePlanIcon, text: marketName, target: formMarketLink(marketId)},
       createNavListItem(EditIcon, 'description_label', 'storyMain',
       displayDescription ? undefined : 0),
@@ -791,8 +788,6 @@ function PlanningInvestible(props) {
         displayApprovalsBySearch,
         _.isEmpty(search) ? (isInVoting && (canVote || !_.isEmpty(voters))) : false),
       inArchives || !_.isEmpty(search) ? {} : createNavListItem(AddIcon, 'commentAddBox'),
-      marketSubType === UNNAMED_SUB_TYPE ? {icon: AddIcon, text: intl.formatMessage({ id: 'addStoryLabel' }),
-        'onClickFunc': () => updatePageState({showAddInvestible: true})} : {},
       createNavListItem(BlockIcon, 'blocking', `c${blockingId}`, _.size(blocking)),
       createNavListItem(QuestionIcon, 'questions', `c${questionId}`, _.size(questions)),
       createNavListItem(UpdateIcon, 'reports', `c${reportId}`, _.size(reports)),

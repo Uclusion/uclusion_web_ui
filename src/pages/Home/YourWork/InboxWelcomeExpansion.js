@@ -10,7 +10,7 @@ import { processTextAndFilesForSave } from '../../../api/files'
 import { nameFromDescription } from '../../../utils/stringFunctions'
 import _ from 'lodash'
 import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions'
-import { createUnnamedMarket } from '../../../api/markets'
+import { createPlanning } from '../../../api/markets'
 import { addMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../../authorization/TokenStorageManager'
@@ -25,7 +25,6 @@ import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLab
 import { Clear, Send } from '@material-ui/icons'
 import IssueDialog from '../../../components/Warnings/IssueDialog'
 import { useLockedDialogStyles } from '../../Dialog/DialogBodyEdit'
-import { UNNAMED_SUB_TYPE } from '../../../constants/markets'
 
 function InboxWelcomeExpansion() {
   const intl = useIntl();
@@ -99,14 +98,15 @@ function InboxWelcomeExpansion() {
       setOpenIssue('noName');
       return;
     }
-    return createUnnamedMarket(addInfo).then((result) => {
+    return createPlanning(addInfo).then((result) => {
       const { market: { id: marketId }, token, investible } = result;
       addMarket(result, marketsDispatch, () => {}, marketPresencesDispatch);
       addInvestible(investiblesDispatch, () => {}, investible);
       const link = formInvestibleLink(marketId, investible.investible.id);
       const tokenStorageManager = new TokenStorageManager();
+      //TODO fix
       return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, marketId, token)
-        .then(() => inviteParticipants(marketId, emailArray, UNNAMED_SUB_TYPE, name))
+        .then(() => inviteParticipants(marketId, emailArray))
         .then((result) => {
           marketPresencesDispatch(addMarketPresences(marketId, result));
           clear();

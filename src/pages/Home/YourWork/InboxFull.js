@@ -15,7 +15,7 @@ import SettingsIcon from '@material-ui/icons/Settings'
 import { formMarketLink, navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
 import AddIcon from '@material-ui/icons/Add'
-import { PLANNING_TYPE, UNNAMED_SUB_TYPE } from '../../../constants/markets'
+import { PLANNING_TYPE } from '../../../constants/markets'
 import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
@@ -144,7 +144,7 @@ function InboxFull(props) {
     ]};
   if (myNotHiddenMarketsState.marketDetails) {
     const filtered = myNotHiddenMarketsState.marketDetails.filter((market) => market.market_type === PLANNING_TYPE &&
-      !['SUPPORT', UNNAMED_SUB_TYPE].includes(market.market_sub_type));
+      !['SUPPORT'].includes(market.market_sub_type));
     const sorted = _.sortBy(filtered, 'name');
     const items = sorted.map((market) => {
       return {icon: AgilePlanIcon, text: market.name, isGreyed: showMarketDisabled(market.id, false),

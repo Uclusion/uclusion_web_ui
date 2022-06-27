@@ -22,7 +22,6 @@ import { DiffContext } from '../../contexts/DiffContext/DiffContext'
 import { addInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { usePlanFormStyles } from '../../components/AgilePlan'
 import queryString from 'query-string'
-import { UNNAMED_SUB_TYPE } from '../../constants/markets'
 import { Inbox } from '@material-ui/icons'
 import { getInboxTarget } from '../../contexts/NotificationsContext/notificationsContextHelper'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
@@ -46,7 +45,7 @@ function InvestibleAdd(props) {
   const classes = usePlanFormStyles();
   const renderableMarket = marketId ? (getMarket(marketsState, marketId) || {}) : {};
   const { market_type: marketType, created_at: createdAt, budget_unit: budgetUnit, use_budget: useBudget,
-    votes_required: votesRequired, market_sub_type: marketSubType, created_by: marketCreatedBy
+    votes_required: votesRequired
   } = renderableMarket;
   const currentMarketName = renderableMarket.name || '';
   const breadCrumbTemplates = marketId ? [{ name: currentMarketName, link: formMarketLink(marketId) }] : [];
@@ -89,7 +88,6 @@ function InvestibleAdd(props) {
           maxBudgetUnit={budgetUnit}
           useBudget={useBudget ? useBudget : false}
           votesRequired={votesRequired}
-          storyAssignee={marketSubType === UNNAMED_SUB_TYPE ? marketCreatedBy : undefined}
         />
       }
     </Screen>

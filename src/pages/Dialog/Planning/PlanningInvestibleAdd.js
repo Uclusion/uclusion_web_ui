@@ -41,11 +41,10 @@ import WarningDialog from '../../../components/Warnings/WarningDialog'
 import { useLockedDialogStyles } from '../DialogBodyEdit'
 import IssueDialog from '../../../components/Warnings/IssueDialog'
 import { getQuillStoredState, resetEditor } from '../../../components/TextEditors/Utilities/CoreUtils'
-import { createUnnamedMarket } from '../../../api/markets'
+import { createPlanning } from '../../../api/markets'
 import { addMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
 import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../../authorization/TokenStorageManager'
 import { addParticipants, inviteParticipants } from '../../../api/users'
-import { UNNAMED_SUB_TYPE } from '../../../constants/markets'
 import { addMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesContextReducer'
 import AddNewUsers from '../UserManagement/AddNewUsers'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
@@ -210,7 +209,7 @@ function PlanningInvestibleAdd(props) {
         setOpenIssue('noParticipants');
         return;
       }
-      return createUnnamedMarket(addInfo).then((result) => {
+      return createPlanning(addInfo).then((result) => {
         const { market: { id: marketId }, token, investible } = result;
         addMarket(result, marketsDispatch, () => {}, marketPresencesDispatch);
         addInvestible(investiblesDispatch, () => {}, investible);
@@ -226,7 +225,7 @@ function PlanningInvestibleAdd(props) {
               if (!_.isEmpty(result)) {
                 marketPresencesDispatch(addMarketPresences(marketId, result));
               }
-              return inviteParticipants(marketId, emailArray, UNNAMED_SUB_TYPE);
+              return inviteParticipants(marketId, emailArray);
             }
             return result;
           }).then((result) => {

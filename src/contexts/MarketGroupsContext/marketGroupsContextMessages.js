@@ -19,10 +19,10 @@ function beginListening(dispatch) {
     }
   });
   registerListener(PUSH_GROUPS_CHANNEL, 'marketGroupsPushStart',  (data) => {
-    const { payload: { event, stageDetails } } = data;
+    const { payload: { event, groupDetails } } = data;
     switch (event) {
       case VERSIONS_EVENT:
-        dispatch(updateMarketGroupsFromNetwork(stageDetails));
+        dispatch(updateMarketGroupsFromNetwork(groupDetails));
         break;
       default:
         // console.debug(`Ignoring identity event ${event}`);

@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import { pushMessage } from '../utils/MessageBusUtils'
 import { getChangedIds, getVersions } from './summaries'
-import { getMarketDetails, getMarketStages, getMarketUsers } from './markets'
+import { getMarketDetails, getMarketGroups, getMarketStages, getMarketUsers } from './markets';
 import { getFetchSignaturesForMarket, signatureMatcher, } from './versionSignatureUtils'
 import { fetchComments } from './comments'
 import { fetchInvestibles } from './marketInvestibles'
@@ -16,6 +16,7 @@ import { MARKET_CONTEXT_NAMESPACE } from '../contexts/MarketsContext/MarketsCont
 import { MARKET_PRESENCES_CONTEXT_NAMESPACE } from '../contexts/MarketPresencesContext/MarketPresencesContext'
 import { MARKET_STAGES_CONTEXT_NAMESPACE } from '../contexts/MarketStagesContext/MarketStagesContext'
 import { getFailedSignatures } from '../contexts/MarketsContext/marketsContextHelper'
+import { MARKET_GROUPS_CONTEXT_NAMESPACE } from '../contexts/MarketGroupsContext/MarketGroupsContext';
 
 const MAX_RETRIES = 10;
 const MAX_CONCURRENT_API_CALLS = 5;
@@ -29,6 +30,7 @@ export const PUSH_PRESENCE_CHANNEL = 'PresenceChannel';
 // Channel used when you're banned. We purge your stuff from the local store if you are.
 export const REMOVED_MARKETS_CHANNEL = 'RemovedMarketsChannel';
 export const PUSH_STAGE_CHANNEL = 'MarketsStagesChannel';
+export const PUSH_GROUPS_CHANNEL = 'MarketsGroupsChannel';
 export const VERSIONS_EVENT = 'version_push';
 export const BANNED_LIST = 'banned_list';
 export const SYNC_ERROR_EVENT = 'sync_error';
@@ -151,6 +153,9 @@ export function sendMarketsStruct(marketsStruct) {
   if (marketsStruct['stages']) {
     pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, stageDetails: marketsStruct['stages'] });
   }
+  if (marketsStruct['group']) {
+    pushMessage(PUSH_GROUPS_CHANNEL, { event: VERSIONS_EVENT, groupDetails: marketsStruct['group']});
+  }
 }
 
 function addMarketsStructInfo(infoType, marketsStruct, details, marketId) {
@@ -192,6 +197,10 @@ export function getStorageStates() {
     return helper.getState();
   }).then((state) => {
     storageStates.marketStagesState = state || {};
+    const helper = new LocalForageHelper(MARKET_GROUPS_CONTEXT_NAMESPACE);
+    return helper.getState();
+  }).then((state) => {
+    storageStates.marketGroupsState = state ?? {};
     return storageStates;
   });
 }
@@ -283,7 +292,7 @@ export function doVersionRefresh() {
 async function doRefreshMarket(marketId, componentSignatures, marketsStruct, storageStates) {
   const serverFetchSignatures = getFetchSignaturesForMarket(componentSignatures);
   const fromStorage = checkInStorage(marketId, serverFetchSignatures, storageStates);
-  const { markets, comments, marketPresences, marketStages, investibles } = fromStorage;
+  const { markets, comments, marketPresences, marketStages, investibles, marketGroups } = fromStorage;
   let chain = null;
   if (!_.isEmpty(markets.unmatchedSignatures)) {
     chain = fetchMarketVersion(marketId, markets.unmatchedSignatures[0], marketsStruct); // can only be one :)
@@ -303,6 +312,10 @@ async function doRefreshMarket(marketId, componentSignatures, marketsStruct, sto
   if (!_.isEmpty(marketStages.unmatchedSignatures)) {
     chain = chain ? chain.then(() => fetchMarketStages(marketId, marketStages, marketsStruct))
       : fetchMarketStages(marketId, marketStages, marketsStruct);
+  }
+  if (!_.isEmpty(marketGroups.unmatchedSignatures)) {
+    chain = chain ? chain.then(() => fetchMarketGroups(marketId, marketGroups, marketsStruct))
+      : fetchMarketGroups(marketId, marketGroups, marketsStruct);
   }
   return chain;
 }
@@ -378,4 +391,19 @@ function fetchMarketStages (marketId, allMs, marketsStruct) {
             unmatched: match.unmatchedSignatures} });
       }
     });
+}
+
+function fetchMarketGroups (marketId, allMg, marketsStruct) {
+  const mgSignatures = allMg.unmatchedSignatures;
+  return getMarketGroups(marketId)
+    .then((groups) => {
+        const match = signatureMatcher(groups, mgSignatures);
+        addMarketsStructInfo('group', marketsStruct, groups, marketId);
+        if(!match.allMatched) {
+          console.warn(match.unmatchedSignatures);
+          pushMessage(PUSH_MARKETS_CHANNEL, { event: SYNC_ERROR_EVENT, signature: {id: marketId,
+            unmatched: match.unmatchedSignatures
+          }})
+        }
+    })
 }

@@ -35,21 +35,24 @@ export function checkInStorage(marketId, fetchSignatures, storageStates) {
     markets,
     marketPresences,
     investibles,
+    marketGroups,
     marketStages,
   } = fetchSignatures;
-  const { commentsState, investiblesState, marketsState, marketPresencesState, marketStagesState } = storageStates;
+  const { commentsState, investiblesState, marketsState, marketPresencesState, marketStagesState, marketGroupsState } = storageStates;
   const commentsMatches = satisfyComments(marketId, comments, commentsState);
   // keep updating the required versions so it's an ever shrinking map
   const investibleMatches = satisfyInvestibles(marketId, investibles, investiblesState);
   const marketMatches = satisfyMarkets(markets, marketsState);
   const presenceMatches = satisfyMarketPresences(marketId, marketPresences, marketPresencesState);
   const stageMatches = satisfyMarketStages(marketId, marketStages, marketStagesState);
+  const groupMatches = satisfyMarketGroups(marketId, marketGroups, marketGroupsState);
   return {
     comments: commentsMatches,
     investibles: investibleMatches,
     markets: marketMatches,
     marketPresences: presenceMatches,
     marketStages: stageMatches,
+    marketGroups: groupMatches,
   };
 }
 
@@ -84,4 +87,10 @@ function satisfyMarketStages (marketId, stageSignatures, stagesState) {
     const usedState = stagesState || {};
     const marketStages = usedState[marketId] || [];
     return signatureMatcher(marketStages, stageSignatures);
+}
+
+function satisfyMarketGroups (marketId, groupSignatures, groupsState) {
+  const usedState = groupsState ?? {};
+  const marketGroups = usedState[marketId] ?? [];
+  return signatureMatcher(marketGroups, groupSignatures);
 }

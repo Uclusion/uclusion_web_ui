@@ -323,19 +323,5 @@ function commentsSignatureGenerator (versionsSignatures) {
  * @returns {*}
  */
 function groupsSignatureGenerator (versionSignatures) {
-  const mySignatures = getSpecificTypeSignatures(versionsSignatures, 'group');
-  const { object_versions: objectVersions } = mySignatures;
-  return objectVersions.reduce((acc, objVersion) => {
-    const { version, object_id_one: id, objectId_ } = objVersion;
-    return [
-      ...acc,
-      {
-        id,
-        version,
-      }
-    ];
-  }, []);
-
-  return
   return generateSimpleObjectSignature(versionSignatures, 'group');
 }

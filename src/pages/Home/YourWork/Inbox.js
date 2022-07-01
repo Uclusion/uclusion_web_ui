@@ -270,12 +270,14 @@ function Inbox(props) {
           </IconButton>
         </Box>
       </div>
-      <GmailTabs value={tabIndex} onChange={(event, value) => {
-        pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: REMOVE_CURRENT_EVENT });
-        setTabIndex(value);
-      }}
-                 indicatorColors={[htmlColor, '#2D9CDB']}
-                 style={{borderTop: '1px ridge lightgrey', paddingBottom: '0.25rem'}}>
+      <GmailTabs
+        value={tabIndex}
+        onChange={(event, value) => {
+          pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: REMOVE_CURRENT_EVENT });
+          setTabIndex(value);
+        }}
+        indicatorColors={[htmlColor, '#2D9CDB']}
+        style={{ borderTop: '1px ridge lightgrey', paddingBottom: '0.25rem' }}>
         <GmailTabItem icon={<InboxIcon />} label={intl.formatMessage({id: 'inbox'})} color={htmlColor}
                       tag={unreadCount > 0 ? `${unreadCount} unread` : undefined} />
         <GmailTabItem icon={<AlarmOn />} label={intl.formatMessage({id: 'outbox'})} color='#2D9CDB'

@@ -182,6 +182,10 @@ export function createEditor (id, editorContents, config, forceCreate) {
       && _.isEmpty(getUclusionLocalStorageItem(`editor-${id}`))) {
       isNotAutoForce = false;
     }
+    // we need to rebuild the editor if we were rendered somewhere else under the same Id
+    if (oldConfig.boxRef !== config.boxRef || oldConfig.containerRef !== config.containerRef) {
+      isNotAutoForce = false
+    }
     if (isNotAutoForce) {
       // noToolbar is read only and read only must be recreated each time or doesn't render
       if (!forceCreate) {

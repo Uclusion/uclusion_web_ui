@@ -416,7 +416,7 @@ function ClearVotesDialog(props) {
       /* slots */
       actions={
         <React.Fragment>
-          <SpinningIconLabelButton onClick={onClose} doSpin={false} icon={Clear} ref={autoFocusRef}>
+          <SpinningIconLabelButton onClick={onClose} doSpin={false} icon={Clear}>
             <FormattedMessage id="lockDialogCancel"/>
           </SpinningIconLabelButton>
           {actions}

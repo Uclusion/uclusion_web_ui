@@ -152,9 +152,9 @@ const messages = defineMessages({
   upgradeBannerText: 'Your free plan has expired and some functionality is not available.',
 
   // Share story
-  shareButtonExplanation: 'Share a non-collaborator link.',
+  shareButtonExplanation: 'Link',
   shareButtonTitle: 'Share',
-  inviteLinkerStory: 'This link grants read, approve and review rights for this channel.',
+  inviteLinkerStory: 'This link does not grant workspace access.',
   inviteLinkerTicketCode: 'Human friendly job identifier',
 
   // Support

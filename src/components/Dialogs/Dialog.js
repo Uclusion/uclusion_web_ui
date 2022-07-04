@@ -63,7 +63,7 @@ Dialog.propTypes = {
   content: PropTypes.node.isRequired,
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
-  title: PropTypes.node.isRequired
+  title: PropTypes.node
 };
 
 function useClientSideId() {

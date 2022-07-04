@@ -1,6 +1,6 @@
 import React from 'react'
 import TooltipIconButton from '../../../components/Buttons/TooltipIconButton'
-import ShareIcon from '@material-ui/icons/Share'
+import LinkIcon from '@material-ui/icons/Link'
 import { Button } from '@material-ui/core'
 import { Dialog } from '../../../components/Dialogs'
 import clsx from 'clsx'
@@ -11,8 +11,6 @@ import InviteLinker from '../../Dialog/InviteLinker'
 function ShareStoryButton(props) {
   const { commentId, investibleId, marketId, isOption } = props;
   const hashPart = commentId ? `#c${commentId}` : (isOption ? `#option${investibleId}` : undefined);
-  const paramsPart = commentId ? `?subscribeId=${commentId}` : investibleId ? `?subscribeId=${investibleId}`
-    : `?subscribeId=${marketId}`;
   const autoFocusRef = React.useRef(null);
   const lockedDialogClasses = useLockedDialogStyles();
   const [open, setOpen] = React.useState(false);
@@ -26,7 +24,7 @@ function ShareStoryButton(props) {
 
   return (
     <>
-      <TooltipIconButton icon={<ShareIcon/>} onClick={handleOpen}
+      <TooltipIconButton icon={<LinkIcon />} onClick={handleOpen}
                          translationId="shareButtonExplanation" />
       <br />
       <Dialog
@@ -52,16 +50,10 @@ function ShareStoryButton(props) {
         }
         content={<InviteLinker
           marketType="story"
-          marketToken={hashPart ? `${window.location.href}${paramsPart}${hashPart}` :
-            paramsPart ? `${window.location.href}${paramsPart}` : window.location.href}
+          marketToken={hashPart ? `${window.location.href}${hashPart}` : window.location.href}
           investibleId={investibleId}
           marketId={marketId}
         />}
-        title={
-          <React.Fragment>
-            <FormattedMessage id="shareButtonTitle" />
-          </React.Fragment>
-        }
       />
     </>
   );

@@ -31,9 +31,7 @@
     }  
 }
 .ql-toolbar {
-    position: absolute;
-    transform: translateY(100%);
-    bottom: 0;
+    position: sticky;
     width: 100%;
 
 }
@@ -44,6 +42,7 @@
 }
 .ql-editor {
     min-height: 6rem;
+    max-height: 50vh;
 }
 .ql-editor div,
 .ql-editor ol,

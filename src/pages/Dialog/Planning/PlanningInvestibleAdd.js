@@ -209,7 +209,9 @@ function PlanningInvestibleAdd(props) {
         setOpenIssue('noParticipants');
         return;
       }
-      return createPlanning(addInfo).then((result) => {
+      // markets don't support uploaded files, but all other fields carry over
+      const planningInfo = {...addInfo, uploadedFiles: undefined}
+      return createPlanning(planningInfo).then((result) => {
         const { market: { id: marketId }, token, investible } = result;
         addMarket(result, marketsDispatch, () => {}, marketPresencesDispatch);
         addInvestible(investiblesDispatch, () => {}, investible);

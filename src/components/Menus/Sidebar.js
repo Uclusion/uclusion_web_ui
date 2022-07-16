@@ -5,6 +5,7 @@ import React from 'react'
 import { navigate } from '../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
 import { Menu, MenuItem, ProSidebar, SidebarContent, SidebarFooter, SidebarHeader, SubMenu } from 'react-pro-sidebar'
+import { useMediaQuery, useTheme } from '@material-ui/core'
 
 function processRegularItem (classes, history, text, target, num, Icon, onClickFunc, isBold, newPage,
   index, search, showSearch) {
@@ -42,6 +43,8 @@ function processRegularItem (classes, history, text, target, num, Icon, onClickF
 
 export default function Sidebar(props) {
   const history = useHistory();
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
   const { navigationOptions, search, title, classes } = props;
   const { navListItemTextArray, navMenu, showSearch = true, listOnClick } = navigationOptions || {};
   return (
@@ -57,7 +60,7 @@ export default function Sidebar(props) {
             if (subItems) {
               return (
                 <SubMenu title={text} key={`top${topIndex}${text}${title}`} onClick={onClickFunc}
-                         icon={<Icon htmlColor="black" />}>
+                         icon={<Icon htmlColor="black" />} open={mobileLayout ? true : undefined}>
                   {subItems.map((subItem, index) => {
                     const { text, target, num, icon: Icon, onClickFunc, newPage } = subItem
                     return processRegularItem(classes, history, text, target, num, Icon, onClickFunc,

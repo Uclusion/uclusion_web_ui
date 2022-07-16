@@ -3,7 +3,7 @@ $sidebar-bg-color: rgba(255, 255, 255, 0.05);
 $submenu-bg-color: rgba(255, 255, 255, 0.05);
 $submenu-bg-color-collapsed: rgba(#0c1e35, 0.95);
 $sidebar-color: rgba(#0c1e35, 0.95);
-$highlight-color: #dee2ec;
+$highlight-color: rgb(255, 0, 0);
 $icon-bg-color: rgba(255, 255, 255, 0.05);
 $icon-size: 35px;
 
@@ -42,8 +42,8 @@ $icon-size: 35px;
           background-color: $submenu-bg-color;
 
           > div > ul {
-            padding-top: 15px;
-            padding-bottom: 15px;
+            padding-top: 3px;
+            padding-bottom: 3px;
           }
         }
       }
@@ -66,9 +66,6 @@ $icon-size: 35px;
     }
     .pro-menu-item {
       font-size: 15px;
-      &.active {
-        color: $highlight-color;
-      }
 
       .suffix-wrapper {
         opacity: 1;
@@ -117,6 +114,9 @@ $icon-size: 35px;
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
+          &:hover {
+            font-weight: bold;
+          }
         }
 
         &:hover {

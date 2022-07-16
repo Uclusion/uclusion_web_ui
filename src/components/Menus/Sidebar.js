@@ -6,22 +6,21 @@ import { navigate } from '../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
 import { Menu, MenuItem, ProSidebar, SidebarContent, SidebarFooter, SidebarHeader, SubMenu } from 'react-pro-sidebar'
 
-function processRegularItem (classes, history, text, target, num, Icon, onClickFunc, isGrouped, isBold, newPage,
-  index, search, showSearch, isGreyed) {
+function processRegularItem (classes, history, text, target, num, Icon, onClickFunc, isBold, newPage,
+  index, search, showSearch) {
   if (!text) {
     return React.Fragment
   }
   const textNoSpaces = text.split(' ').join('')
   if (!target && !onClickFunc) {
     return (
-      <MenuItem icon={<Icon htmlColor="black" />} active={!isGreyed}
-                key={`noOnClick${index}${textNoSpaces}`}>
-        {text}
+      <MenuItem icon={<Icon htmlColor="darkgrey" />} key={`noOnClick${index}${textNoSpaces}`}>
+        <span style={{color: "darkgrey"}}>{text}</span>
       </MenuItem>
     )
   }
   return (
-    <MenuItem icon={<Icon htmlColor="black" />} active={!isGreyed}
+    <MenuItem icon={<Icon htmlColor="black" />}
               key={`${index}${textNoSpaces}`} id={textNoSpaces}
               onClick={
                 (event) => {
@@ -54,25 +53,21 @@ export default function Sidebar(props) {
       {!_.isEmpty(navListItemTextArray) && (
         <Menu onClick={listOnClick} iconShape="circle">
           {navListItemTextArray.map((navItem, topIndex) => {
-            const { text, target, num, icon: Icon, onClickFunc, subItems, isBold, newPage, isGreyed } = navItem;
+            const { text, target, num, icon: Icon, onClickFunc, subItems, isBold, newPage } = navItem;
             if (subItems) {
               return (
-                <>
-                  <MenuItem key={`top${topIndex}${text}${title}`} onClick={onClickFunc}>
-                    {text}
-                  </MenuItem>
-                  <SubMenu>
-                    {subItems.map((subItem, index) => {
-                      const { text, target, num, icon: Icon, onClickFunc, newPage } = subItem
-                      return processRegularItem(classes, history, text, target, num, Icon, onClickFunc,
-                        true, false, newPage, index, search, showSearch, isGreyed)
-                    })}
-                  </SubMenu>
-                </>
+                <SubMenu title={text} key={`top${topIndex}${text}${title}`} onClick={onClickFunc}
+                         icon={<Icon htmlColor="black" />}>
+                  {subItems.map((subItem, index) => {
+                    const { text, target, num, icon: Icon, onClickFunc, newPage } = subItem
+                    return processRegularItem(classes, history, text, target, num, Icon, onClickFunc,
+                      false, newPage, index, search, showSearch)
+                  })}
+                </SubMenu>
               );
             }
-            return processRegularItem(classes, history, text, target, num, Icon, onClickFunc, false,
-              isBold, newPage, topIndex, search, showSearch, isGreyed)
+            return processRegularItem(classes, history, text, target, num, Icon, onClickFunc, isBold, newPage,
+              topIndex, search, showSearch)
           })}
         </Menu>
       )}

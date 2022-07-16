@@ -147,7 +147,7 @@ function InboxFull(props) {
       !['SUPPORT'].includes(market.market_sub_type));
     const sorted = _.sortBy(filtered, 'name');
     const items = sorted.map((market) => {
-      return {icon: AgilePlanIcon, text: market.name, isGreyed: showMarketDisabled(market.id, false),
+      return {icon: AgilePlanIcon, text: market.name,
         onClickFunc: (event) => {
           preventDefaultAndProp(event);
           pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: REMOVE_CURRENT_EVENT });
@@ -162,7 +162,6 @@ function InboxFull(props) {
       const items = sorted.map((market) => {
         return {
           icon: AgilePlanIcon, text: market.name,
-          isGreyed: showMarketDisabled(market.id, true),
           target: formMarketLink(market.id)
         };
       });

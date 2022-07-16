@@ -135,6 +135,7 @@ import { blockedStorySteps } from '../../../components/Tours/blockedStory'
 import { requiresInputStorySteps } from '../../../components/Tours/requiresInputStory'
 import { getTomorrow } from '../../../utils/timerUtils'
 import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
+import Comment from '@material-ui/icons/Comment'
 import SpinningButton from '../../../components/SpinBlocking/SpinningButton'
 import { removeWorkListItem, workListStyles } from '../../Home/YourWork/WorkListItem'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
@@ -777,6 +778,15 @@ function PlanningInvestible(props) {
   const todoSortedComments = sortedRoots.filter((comment) => comment.comment_type === TODO_TYPE);
   const { id: todoId } = getFakeCommentsArray(todoSortedComments)[0];
   const voters = getInvestibleVoters(marketPresences, investibleId);
+  const commentSubItems = [
+    inArchives || !_.isEmpty(search) ? {} : createNavListItem(AddIcon, 'commentAddBox'),
+    createNavListItem(BlockIcon, 'blocking', `c${blockingId}`, _.size(blocking)),
+    createNavListItem(QuestionIcon, 'questions', `c${questionId}`, _.size(questions)),
+    createNavListItem(UpdateIcon, 'reports', `c${reportId}`, _.size(reports)),
+    createNavListItem(ChangeSuggstionIcon, 'suggestions', `c${suggestId}`, _.size(suggestions)),
+    createNavListItem(ListAltIcon,'taskSection', `c${todoId}`, _.size(todoSortedComments)),
+    createNavListItem(QuestionAnswer,'closedComments', `c${closedId}`, _.size(sortedClosedRoots))
+  ];
   const navigationMenu = {
     navListItemTextArray: [
       {icon: Inbox, text: intl.formatMessage({ id: 'returnInbox' }), target: getInboxTarget(messagesState),
@@ -787,13 +797,7 @@ function PlanningInvestible(props) {
       createNavListItem(ThumbsUpDownIcon, 'approvals', 'approvals',
         displayApprovalsBySearch,
         _.isEmpty(search) ? (isInVoting && (canVote || !_.isEmpty(voters))) : false),
-      inArchives || !_.isEmpty(search) ? {} : createNavListItem(AddIcon, 'commentAddBox'),
-      createNavListItem(BlockIcon, 'blocking', `c${blockingId}`, _.size(blocking)),
-      createNavListItem(QuestionIcon, 'questions', `c${questionId}`, _.size(questions)),
-      createNavListItem(UpdateIcon, 'reports', `c${reportId}`, _.size(reports)),
-      createNavListItem(ChangeSuggstionIcon, 'suggestions', `c${suggestId}`, _.size(suggestions)),
-      createNavListItem(ListAltIcon,'taskSection', `c${todoId}`, _.size(todoSortedComments)),
-      createNavListItem(QuestionAnswer,'closedComments', `c${closedId}`, _.size(sortedClosedRoots))
+      {icon: Comment, text: intl.formatMessage({ id: 'comments' }), subItems: commentSubItems}
     ]};
 
 

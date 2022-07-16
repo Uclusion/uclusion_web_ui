@@ -505,6 +505,7 @@ const messages = defineMessages({
   commentViewThreadLabel: 'View Thread',
   commentCloseThreadLabel: 'Hide Thread',
   lastUpdatedBy: ' by',
+  comments: 'Comments',
 
   // card types
   cardTypeLabelIssue: 'Blocking issue',

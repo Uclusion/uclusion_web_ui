@@ -1,11 +1,10 @@
+import './Sidebar.scss';
 import _ from 'lodash'
-import List from '@material-ui/core/List'
-import { ListItem, ListItemText } from '@material-ui/core'
 import SearchBox from '../Search/SearchBox'
 import React from 'react'
-import clsx from 'clsx'
 import { navigate } from '../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
+import { Menu, MenuItem, ProSidebar, SidebarContent, SidebarFooter, SidebarHeader, SubMenu } from 'react-pro-sidebar'
 
 function processRegularItem (classes, history, text, target, num, Icon, onClickFunc, isGrouped, isBold, newPage,
   index, search, showSearch, isGreyed) {
@@ -15,18 +14,15 @@ function processRegularItem (classes, history, text, target, num, Icon, onClickF
   const textNoSpaces = text.split(' ').join('')
   if (!target && !onClickFunc) {
     return (
-      <ListItem key={`noOnClick${index}${textNoSpaces}`} style={{cursor: 'unset'}}
-                className={isGrouped ? classes.navListItemGrouped : classes.navListItem}>
-        {Icon && (
-          <Icon className={clsx(classes.navListIcon, classes.disabled)}/>
-        )}
-        <ListItemText primary={text} primaryTypographyProps={{ className: classes.disabled }}/>
-      </ListItem>
+      <MenuItem icon={<Icon htmlColor="black" />} active={!isGreyed}
+                key={`noOnClick${index}${textNoSpaces}`}>
+        {text}
+      </MenuItem>
     )
   }
   return (
-    <ListItem key={`${index}${textNoSpaces}`} id={textNoSpaces} selected={isBold}
-              className={isGrouped ? classes.navListItemGrouped : classes.navListItem}
+    <MenuItem icon={<Icon htmlColor="black" />} active={!isGreyed}
+              key={`${index}${textNoSpaces}`} id={textNoSpaces}
               onClick={
                 (event) => {
                   if (onClickFunc) {
@@ -37,18 +33,11 @@ function processRegularItem (classes, history, text, target, num, Icon, onClickF
                 }
               }
     >
-      {Icon && (
-        <Icon className={classes.navListIcon} />
-      )}
-      <span style={{width: showSearch ? '80%' : '100%'}}>
-                      <ListItemText primary={text}
-                                    primaryTypographyProps={{className: isBold ? classes.navGroupHeader :
-                                        (isGreyed ? classes.navGroupGreyed : undefined)}} />
-                    </span>
+      {text}
       {num !== undefined && !_.isEmpty(search) && (
-        <span style={{width: "17%"}}><ListItemText primary={num} /></span>
+        <span style={{width: "17%"}}>{num}</span>
       )}
-    </ListItem>
+    </MenuItem>
   );
 }
 
@@ -57,40 +46,42 @@ export default function Sidebar(props) {
   const { navigationOptions, search, title, classes } = props;
   const { navListItemTextArray, navMenu, showSearch = true, listOnClick } = navigationOptions || {};
   return (
-    <>
-      {navMenu}
+    <ProSidebar width="14rem">
+      <SidebarHeader>
+        {navMenu}
+      </SidebarHeader>
+      <SidebarContent>
       {!_.isEmpty(navListItemTextArray) && (
-        <List onClick={listOnClick}>
+        <Menu onClick={listOnClick} iconShape="circle">
           {navListItemTextArray.map((navItem, topIndex) => {
             const { text, target, num, icon: Icon, onClickFunc, subItems, isBold, newPage, isGreyed } = navItem;
             if (subItems) {
               return (
-                <div key={`top${topIndex}${text}${title}`}
-                     style={{ paddingBottom: '0.5rem', backgroundColor: '#F5F5F5' }}>
-                  <ListItem key={`topListItem${topIndex}${text}${title}`} onClick={onClickFunc}
-                            style={{ paddingBottom: 0, cursor: 'pointer' }}>
-                    <ListItemText primary={text}
-                                  primaryTypographyProps={{ className: isBold ? classes.navGroupHeader : undefined }}
-                    />
-                  </ListItem>
-                  <div>
+                <>
+                  <MenuItem key={`top${topIndex}${text}${title}`} onClick={onClickFunc}>
+                    {text}
+                  </MenuItem>
+                  <SubMenu>
                     {subItems.map((subItem, index) => {
                       const { text, target, num, icon: Icon, onClickFunc, newPage } = subItem
                       return processRegularItem(classes, history, text, target, num, Icon, onClickFunc,
                         true, false, newPage, index, search, showSearch, isGreyed)
                     })}
-                  </div>
-                </div>
+                  </SubMenu>
+                </>
               );
             }
             return processRegularItem(classes, history, text, target, num, Icon, onClickFunc, false,
               isBold, newPage, topIndex, search, showSearch, isGreyed)
           })}
-        </List>
+        </Menu>
       )}
+      </SidebarContent>
+      <SidebarFooter>
       {showSearch && (
         <SearchBox/>
       )}
-    </>
+      </SidebarFooter>
+    </ProSidebar>
   );
 }

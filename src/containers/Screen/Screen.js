@@ -83,7 +83,6 @@ const useStyles = makeStyles((theme) => ({
     position: 'fixed',
     top: '7rem',
     minWidth: '13rem',
-    maxWidth: '13rem',
     textOverflow: 'ellipsis'
   },
   actionContainer: {
@@ -194,12 +193,10 @@ function Screen(props) {
         />
       )}
       {hasMenu && !mobileLayout && !hidden && (
-        <div className={classes.listContainer}>
-          <Paper className={classes.paper} elevation={3}
-                 id="navList">
-            {sideNavigationContents}
-          </Paper>
-        </div>
+        <Paper className={classes.paper} elevation={3}
+               id="navList">
+          {sideNavigationContents}
+        </Paper>
       )}
       {banner && !hidden && (
         <Container className={classes.bannerContainer}>

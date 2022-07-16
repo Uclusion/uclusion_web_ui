@@ -63,7 +63,9 @@
     "use-debounce": "^3.3.0",
     "use-fit-text": "^2.1.0",
     "md5": "^2.3.0",
-    "broadcast-channel": "^3.2.1"
+    "broadcast-channel": "^3.2.1",
+    "react-pro-sidebar": "^0.7.1",
+    "sass": "^1.53.0"
   },
   "scripts": {
     "check": "npm-check -s -u",

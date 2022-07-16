@@ -1,24 +1,22 @@
 import React, { useContext, useEffect } from 'react'
 import _ from 'lodash'
 import PropTypes from 'prop-types'
-import { Container, ListItem, ListItemText, Paper, useMediaQuery, useTheme } from '@material-ui/core'
+import { Container, Paper, useMediaQuery, useTheme } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import { useHistory } from 'react-router'
 import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
 import Header from '../Header'
 import ActionBar from '../ActionBar'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
-import { makeBreadCrumbs, navigate } from '../../utils/marketIdPathFunctions'
+import { makeBreadCrumbs } from '../../utils/marketIdPathFunctions'
 import LoadingDisplay from '../../components/LoadingDisplay';
-import List from '@material-ui/core/List'
-import SearchBox from '../../components/Search/SearchBox'
-import clsx from 'clsx'
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
 import { getInboxCount } from '../../contexts/NotificationsContext/notificationsContextHelper'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
+import Sidebar from '../../components/Menus/Sidebar'
 
 const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -120,51 +118,6 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function processRegularItem (classes, history, text, target, num, Icon, onClickFunc, isGrouped, isBold, newPage,
-  index, search, showSearch, isGreyed) {
-  if (!text) {
-    return React.Fragment
-  }
-  const textNoSpaces = text.split(' ').join('')
-  if (!target && !onClickFunc) {
-    return (
-      <ListItem key={`noOnClick${index}${textNoSpaces}`} style={{cursor: 'unset'}}
-                className={isGrouped ? classes.navListItemGrouped : classes.navListItem}>
-        {Icon && (
-          <Icon className={clsx(classes.navListIcon, classes.disabled)}/>
-        )}
-        <ListItemText primary={text} primaryTypographyProps={{ className: classes.disabled }}/>
-      </ListItem>
-    )
-  }
-  return (
-    <ListItem key={`${index}${textNoSpaces}`} id={textNoSpaces} selected={isBold}
-              className={isGrouped ? classes.navListItemGrouped : classes.navListItem}
-              onClick={
-                (event) => {
-                  if (onClickFunc) {
-                    onClickFunc(event)
-                  } else {
-                    navigate(history, target, false, !newPage)
-                  }
-                }
-              }
-    >
-      {Icon && (
-        <Icon className={classes.navListIcon} />
-      )}
-      <span style={{width: showSearch ? '80%' : '100%'}}>
-                      <ListItemText primary={text}
-                                    primaryTypographyProps={{className: isBold ? classes.navGroupHeader :
-                                        (isGreyed ? classes.navGroupGreyed : undefined)}} />
-                    </span>
-      {num !== undefined && !_.isEmpty(search) && (
-        <span style={{width: "17%"}}><ListItemText primary={num} /></span>
-      )}
-    </ListItem>
-  );
-}
-
 function Screen(props) {
   const classes = useStyles();
   const theme = useTheme();
@@ -218,48 +171,13 @@ function Screen(props) {
   if (_.isEmpty(breadCrumbs)) {
     usedBreadCrumbs = makeBreadCrumbs(history);
   }
-  const { navListItemTextArray, navMenu, showSearch = true, listOnClick } = navigationOptions || {}
   const myContainerClass = navigationOptions && !mobileLayout ? classes.containerAllLeftPad : classes.containerAll
   const contentClass = mobileLayout ? classes.contentNoStyle : (isPending ? classes.pending :
     navigationOptions ? classes.content : classes.contentNoStyle);
+  const { navListItemTextArray, navMenu } = navigationOptions || {};
   const hasMenu = !_.isEmpty(navListItemTextArray) || !_.isEmpty(navMenu);
-  const sideNavigationContents = !hasMenu ? undefined : (
-    <>
-      {navMenu}
-      {!_.isEmpty(navListItemTextArray) && (
-        <List onClick={listOnClick}>
-          {navListItemTextArray.map((navItem, topIndex) => {
-            const { text, target, num, icon: Icon, onClickFunc, subItems, isBold, newPage, isGreyed } = navItem;
-            if (subItems) {
-              return (
-                <div key={`top${topIndex}${text}${title}`}
-                     style={{ paddingBottom: '0.5rem', backgroundColor: '#F5F5F5' }}>
-                  <ListItem key={`topListItem${topIndex}${text}${title}`} onClick={onClickFunc}
-                            style={{ paddingBottom: 0, cursor: 'pointer' }}>
-                    <ListItemText primary={text}
-                                  primaryTypographyProps={{ className: isBold ? classes.navGroupHeader : undefined }}
-                    />
-                  </ListItem>
-                  <div>
-                    {subItems.map((subItem, index) => {
-                      const { text, target, num, icon: Icon, onClickFunc, newPage } = subItem
-                      return processRegularItem(classes, history, text, target, num, Icon, onClickFunc,
-                        true, false, newPage, index, search, showSearch, isGreyed)
-                    })}
-                  </div>
-                </div>
-              );
-            }
-            return processRegularItem(classes, history, text, target, num, Icon, onClickFunc, false,
-              isBold, newPage, topIndex, search, showSearch, isGreyed)
-          })}
-        </List>
-      )}
-      {showSearch && (
-        <SearchBox/>
-      )}
-    </>
-  );
+  const sideNavigationContents = !hasMenu ? undefined : <Sidebar navigationOptions={navigationOptions}
+                                                                 search={search} title={title} classes={classes} /> ;
   return (
     <div className={hidden ? classes.hidden : classes.root} id="root">
       {!hidden && (

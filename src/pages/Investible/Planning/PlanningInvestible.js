@@ -797,7 +797,8 @@ function PlanningInvestible(props) {
       createNavListItem(ThumbsUpDownIcon, 'approvals', 'approvals',
         displayApprovalsBySearch,
         _.isEmpty(search) ? (isInVoting && (canVote || !_.isEmpty(voters))) : false),
-      {icon: Comment, text: intl.formatMessage({ id: 'comments' }), subItems: commentSubItems}
+      {icon: Comment, text: intl.formatMessage({ id: 'comments' }), num: _.size(sortedRoots),
+        subItems: commentSubItems}
     ]};
 
 

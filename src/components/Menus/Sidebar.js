@@ -8,7 +8,7 @@ import { Menu, MenuItem, ProSidebar, SidebarContent, SidebarFooter, SidebarHeade
 import { useMediaQuery, useTheme } from '@material-ui/core'
 
 function processRegularItem (classes, history, text, target, num, Icon, onClickFunc, isBold, newPage,
-  index, search, showSearch) {
+  index, search) {
   if (!text) {
     return React.Fragment
   }
@@ -35,7 +35,7 @@ function processRegularItem (classes, history, text, target, num, Icon, onClickF
     >
       {text}
       {num !== undefined && !_.isEmpty(search) && (
-        <span style={{width: "17%"}}>{num}</span>
+        <span style={{float: "right"}}>{num}</span>
       )}
     </MenuItem>
   );
@@ -60,17 +60,18 @@ export default function Sidebar(props) {
             if (subItems) {
               return (
                 <SubMenu title={text} key={`top${topIndex}${text}${title}`} onClick={onClickFunc}
-                         icon={<Icon htmlColor="black" />} open={mobileLayout ? true : undefined}>
+                         icon={<Icon htmlColor="black" />}
+                         open={mobileLayout || (!_.isEmpty(search) && num > 0) ? true : undefined}>
                   {subItems.map((subItem, index) => {
                     const { text, target, num, icon: Icon, onClickFunc, newPage } = subItem
                     return processRegularItem(classes, history, text, target, num, Icon, onClickFunc,
-                      false, newPage, index, search, showSearch)
+                      false, newPage, index, search)
                   })}
                 </SubMenu>
               );
             }
             return processRegularItem(classes, history, text, target, num, Icon, onClickFunc, isBold, newPage,
-              topIndex, search, showSearch)
+              topIndex, search)
           })}
         </Menu>
       )}

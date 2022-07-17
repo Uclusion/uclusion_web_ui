@@ -111,9 +111,7 @@ $icon-size: 35px;
           flex-grow: 1;
           flex-shrink: 1;
           color: black;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
+          white-space: normal;
           &:hover {
             font-weight: bold;
           }

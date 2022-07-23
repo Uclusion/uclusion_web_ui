@@ -43,8 +43,8 @@ export function Collaborators(props) {
           <GravatarAndName key={author.id} name={author.name} email={author.email} typographyComponent="li"/>
         )}
         {!authorDisplay && marketPresences.map((presence, index) => {
-          const { id: presenceId, following, email, placeholder_type: placeholderType } = presence;
-          const showAsArchived = !following || placeholderType === PLACEHOLDER;
+          const { id: presenceId, email, placeholder_type: placeholderType } = presence;
+          const showAsArchived = placeholderType === PLACEHOLDER;
           const myClassName = showAsArchived ? classes.archived : classes.normal;
           const name = (presence.name || '').replace('@', ' ');
           if (presenceId === authorId) {

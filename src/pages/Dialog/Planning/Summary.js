@@ -226,7 +226,8 @@ function Summary(props) {
     beingEdited,
     showDiff
   } = pageState;
-  const marketPresences = getMarketPresences(marketPresencesState, id) || []
+  const marketPresences = getMarketPresences(marketPresencesState, id) || [];
+  // TODO restrict presences by group if group is not everyone (use helper to get presences and check if everyone inside)
   let lockedByName;
   if (lockedBy) {
     const lockedByPresence = marketPresences.find(

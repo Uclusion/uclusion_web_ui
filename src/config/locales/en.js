@@ -653,7 +653,7 @@ const messages = defineMessages({
   searchParticipantsLabel: 'Search in Uclusion',
   searchParticipantsPlaceholder: 'Use commas to separate multiple email addresses',
   inviteParticipantsEmailLabel: 'Add by email addresses',
-  collaboratorNotFollowing: 'This user has archived and will not receive notifications.',
+  collaboratorNotFollowing: 'This user will not receive notifications.',
 
   // DecisionIvestibleSave
   decisionInvestibleSaveAddAnother: 'Save & Add Another',

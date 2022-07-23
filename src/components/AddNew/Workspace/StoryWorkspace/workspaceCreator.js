@@ -36,10 +36,8 @@ export function doCreateStoryWorkspace (dispatchers, formData, updateFormData, i
     commentsDispatch
   } = dispatchers;
 
-  const descriptionContent = `<p>${intl.formatMessage({ id: 'WorkspaceWizardWorkspaceDescription' }, { meetingName })}</p>`;
   const marketInfo = {
     name: meetingName,
-    description: descriptionContent,
   };
 
   if (formData.votesRequired > 0) {

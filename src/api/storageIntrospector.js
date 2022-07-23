@@ -17,9 +17,9 @@ export function checkSignatureInStorage (marketId, fetchSignature, storageStates
   const serverFetchSignatures = getFetchSignaturesForMarket([{type: fetchSignature.object_type,
     object_versions: [fetchSignature]}]);
   const fromStorage = checkInStorage(marketId, serverFetchSignatures, storageStates);
-  const { markets, comments, marketPresences, marketStages, investibles } = fromStorage;
+  const { markets, marketGroups, comments, marketPresences, marketStages, investibles } = fromStorage;
   return markets.allMatched && comments.allMatched && marketPresences.allMatched && marketStages.allMatched
-    && investibles.allMatched;
+    && investibles.allMatched && marketGroups.allMatched;
 }
 
 /**

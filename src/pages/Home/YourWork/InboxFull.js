@@ -4,19 +4,17 @@ import PropTypes from 'prop-types'
 import Inbox from './Inbox'
 import React, { useContext, useReducer, useState } from 'react'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
+import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import {
-  getHiddenMarketDetailsForUser,
   getNotHiddenMarketDetailsForUser,
   marketTokenLoaded
 } from '../../../contexts/MarketsContext/marketsContextHelper'
 import _ from 'lodash'
-import SettingsIcon from '@material-ui/icons/Settings'
 import { formMarketLink, navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
 import AddIcon from '@material-ui/icons/Add'
 import { PLANNING_TYPE } from '../../../constants/markets'
-import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { pushMessage } from '../../../utils/MessageBusUtils'
@@ -27,6 +25,8 @@ import queryString from 'query-string'
 import { INVITE_MARKET_EVENT, LOAD_MARKET_CHANNEL } from '../../../contexts/MarketsContext/marketsContextMessages'
 import { AccountUserContext } from '../../../contexts/AccountUserContext/AccountUserContext'
 import { userIsLoaded } from '../../../contexts/AccountUserContext/accountUserContextHelper'
+import WorkspaceMenu from '../WorkspaceMenu'
+import { Group } from '@material-ui/icons'
 
 function InboxFull(props) {
   const { hidden } = props;
@@ -36,10 +36,12 @@ function InboxFull(props) {
   const { search: querySearch } = location;
   const values = queryString.parse(querySearch || '');
   const { fromInvite } = values || {};
-  const [showAll, setShowAll] = useState(false);
   const [page, setPage] = useState(1);
   const [pendingPage, setPendingPage] = useState(1);
+  //TODO need to store chosen market on disk
+  const [chosenMarketId, setChosenMarketId] = useState(null);
   const [marketsState, , tokensHash] = useContext(MarketsContext);
+  const [groupsState] = useContext(MarketGroupsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [searchResults] = useContext(SearchResultsContext);
   const { results, parentResults, search } = searchResults;
@@ -92,8 +94,6 @@ function InboxFull(props) {
     return newExpanded;
   }, {});
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
-  const hiddenMarketsRaw = getHiddenMarketDetailsForUser(marketsState, marketPresencesState) || [];
-  const hiddenMarkets = hiddenMarketsRaw.filter((market) => market.market_type === PLANNING_TYPE);
   if (fromInvite && fromInvite !== 'loaded') {
     pushMessage(LOAD_MARKET_CHANNEL, { event: INVITE_MARKET_EVENT, marketToken: fromInvite });
   }
@@ -117,17 +117,23 @@ function InboxFull(props) {
       </Screen>
     );
   }
-
-  function showMarketDisabled(marketId, defaultValue) {
-    if (_.isEmpty(search)) {
-      return defaultValue;
+  let markets = [];
+  if (myNotHiddenMarketsState.marketDetails) {
+    const filtered = myNotHiddenMarketsState.marketDetails.filter((market) => market.market_type === PLANNING_TYPE &&
+      !['SUPPORT'].includes(market.market_sub_type));
+    markets = _.sortBy(filtered, 'name');
+  }
+  let defaultMarket;
+  if (!_.isEmpty(markets)) {
+    if (_.isEmpty(chosenMarketId)) {
+      defaultMarket = markets[0];
+    } else {
+      defaultMarket = markets.find((market) => market.id === chosenMarketId);
     }
-
-    return !(results.find((result) => result.id === marketId || result.marketId === marketId)
-      ||parentResults.includes(marketId));
   }
   const createChannelPath = `/wizard#type=${PLANNING_TYPE.toLowerCase()}`;
   const navigationMenu = {
+    navMenu: <WorkspaceMenu markets={markets} defaultMarket={defaultMarket} setChosenMarketId={setChosenMarketId} />,
     navListItemTextArray: [
       {
         icon: AddIcon, text: intl.formatMessage({ id: 'homeAddPlanning' }),
@@ -137,51 +143,17 @@ function InboxFull(props) {
         icon: AddIcon, text: intl.formatMessage({ id: 'oneDoneInvestible' }),
         target: '/investibleAdd'
       },
-      {
-        icon: SettingsIcon, text: intl.formatMessage({ id: 'settings' }),
-        target: '/notificationPreferences'
-      },
     ]};
-  if (myNotHiddenMarketsState.marketDetails) {
-    const filtered = myNotHiddenMarketsState.marketDetails.filter((market) => market.market_type === PLANNING_TYPE &&
-      !['SUPPORT'].includes(market.market_sub_type));
-    const sorted = _.sortBy(filtered, 'name');
-    const items = sorted.map((market) => {
-      return {icon: AgilePlanIcon, text: market.name,
+  if (!_.isEmpty(defaultMarket) && !_.isEmpty(groupsState[defaultMarket.id])) {
+    const items = groupsState[defaultMarket.id].map((group) => {
+      return {icon: Group, text: group.name,
         onClickFunc: (event) => {
           preventDefaultAndProp(event);
           pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: REMOVE_CURRENT_EVENT });
-          navigate(history, formMarketLink(market.id));
+          navigate(history, formMarketLink(group.id));
         }};
     });
-    navigationMenu.navListItemTextArray.unshift(...items);
-  }
-  if (!_.isEmpty(hiddenMarkets)) {
-    if (showAll) {
-      const sorted = _.sortBy(hiddenMarkets, 'name');
-      const items = sorted.map((market) => {
-        return {
-          icon: AgilePlanIcon, text: market.name,
-          target: formMarketLink(market.id)
-        };
-      });
-      navigationMenu.navListItemTextArray.push({
-        text: intl.formatMessage({ id: 'removeArchive' }),
-        onClickFunc: (event) => {
-          preventDefaultAndProp(event);
-          setShowAll(false);
-        }
-      });
-      navigationMenu.navListItemTextArray = navigationMenu.navListItemTextArray.concat(items);
-    } else {
-      navigationMenu.navListItemTextArray.push({
-        text: intl.formatMessage({ id: 'seeArchives' }),
-        onClickFunc: (event) => {
-          preventDefaultAndProp(event);
-          setShowAll(true);
-        }
-      });
-    }
+    navigationMenu.navListItemTextArray.shift(...items);
   }
   return (
     <Screen

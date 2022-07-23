@@ -107,7 +107,7 @@ function PlanningDialog(props) {
   const { name: marketName, id: marketId, market_stage: marketStage, created_by: createdBy, created_at: createdAt,
     budget_unit: budgetUnit, use_budget: useBudget, votes_required: votesRequired} = market;
   const activeMarket = marketStage === ACTIVE_STAGE;
-  const inArchives = !activeMarket || (myPresence && !myPresence.following);
+  const inArchives = !activeMarket;
   const isAdmin = myPresence.is_admin;
   const breadCrumbs = makeBreadCrumbs(history);
   const unResolvedMarketComments = comments.filter(comment => !comment.investible_id && !comment.resolved) || [];

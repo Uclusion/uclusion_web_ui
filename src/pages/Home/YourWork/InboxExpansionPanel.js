@@ -218,7 +218,7 @@ export function getOutboxMessages(props) {
     planningClasses, mobileLayout, expansionState, intl } = props;
   const { messages: messagesUnsafe } = messagesState;
   const inboxMessages = messagesUnsafe || [];
-  const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketState, marketPresencesState);
+  const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketState);
   const planningDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, PLANNING_TYPE);
   const decisionDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, DECISION_TYPE, true);
 

@@ -5,7 +5,6 @@ import Inbox from './Inbox'
 import React, { useContext, useReducer, useState } from 'react'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext'
-import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import {
   getNotHiddenMarketDetailsForUser,
   marketTokenLoaded
@@ -42,7 +41,6 @@ function InboxFull(props) {
   const [chosenMarketId, setChosenMarketId] = useState(null);
   const [marketsState, , tokensHash] = useContext(MarketsContext);
   const [groupsState] = useContext(MarketGroupsContext);
-  const [marketPresencesState] = useContext(MarketPresencesContext);
   const [searchResults] = useContext(SearchResultsContext);
   const { results, parentResults, search } = searchResults;
   const [messagesState] = useContext(NotificationsContext);
@@ -93,7 +91,7 @@ function InboxFull(props) {
     }
     return newExpanded;
   }, {});
-  const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
+  const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState);
   if (fromInvite && fromInvite !== 'loaded') {
     pushMessage(LOAD_MARKET_CHANNEL, { event: INVITE_MARKET_EVENT, marketToken: fromInvite });
   }
@@ -139,11 +137,8 @@ function InboxFull(props) {
         icon: AddIcon, text: intl.formatMessage({ id: 'homeAddPlanning' }),
         target: createChannelPath
       },
-      {
-        icon: AddIcon, text: intl.formatMessage({ id: 'oneDoneInvestible' }),
-        target: '/investibleAdd'
-      },
     ]};
+
   if (!_.isEmpty(defaultMarket) && !_.isEmpty(groupsState[defaultMarket.id])) {
     const items = groupsState[defaultMarket.id].map((group) => {
       return {icon: Group, text: group.name,
@@ -153,7 +148,7 @@ function InboxFull(props) {
           navigate(history, formMarketLink(group.id));
         }};
     });
-    navigationMenu.navListItemTextArray.shift(...items);
+    navigationMenu.navListItemTextArray.push(...items);
   }
   return (
     <Screen

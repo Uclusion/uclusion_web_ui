@@ -116,15 +116,12 @@ export function addMarketsToStorage(dispatch, diffDispatch, marketDetails) {
   dispatch(versionsUpdateDetails(marketDetails));
 }
 
-export function getNotHiddenMarketDetailsForUser(state, marketPresencesState, searchResults={}) {
+export function getNotHiddenMarketDetailsForUser(state, searchResults={}) {
   const { results, parentResults, search } = searchResults;
   if (state.marketDetails) {
     const newMarketDetails = state.marketDetails.filter((market) => {
-      const marketPresences = getMarketPresences(marketPresencesState, market.id) || [];
-      const myPresence = marketPresences.find((presence) => presence.current_user) || {};
-      const { following } = myPresence;
       const { market_stage: marketStage } = market;
-      const marketShown = marketStage === ACTIVE_STAGE && following;
+      const marketShown = marketStage === ACTIVE_STAGE;
       if (_.isEmpty(search)) {
         return marketShown;
       }

@@ -43,6 +43,7 @@ const useStyles = makeStyles((theme) => ({
   buttonClass: {
     textTransform: 'none',
     borderRadius: '8px',
+    width: '100%',
     '& .MuiButton-label': {
       lineHeight: '.7'
     },

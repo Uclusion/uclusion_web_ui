@@ -39,6 +39,7 @@ import { getFakeCommentsArray } from '../../utils/stringFunctions'
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
 import { getMarketInfo } from '../../utils/userFunctions'
 import queryString from 'query-string'
+import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext'
 
 function DialogArchives(props) {
   const { hidden } = props;
@@ -60,7 +61,7 @@ function DialogArchives(props) {
   const [searchResults] = useContext(SearchResultsContext);
   const [marketInfoList] = useState(undefined);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
-  const [groupPresencesState] = useContext(GroupPresencesContext);
+  const [groupPresencesState] = useContext(GroupMembersContext);
   const presenceMap = getPresenceMap(marketPresencesState, groupPresencesState, marketId, groupId);
   const renderableMarket = getMarket(marketsState, marketId) || {};
   const verifiedStage = getVerifiedStage(marketStagesState, marketId) || {};

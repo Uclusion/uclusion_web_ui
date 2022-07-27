@@ -83,6 +83,7 @@ import AssignmentIcon from '@material-ui/icons/Assignment'
 import { Inbox } from '@material-ui/icons'
 import { getInboxTarget } from '../../../contexts/NotificationsContext/notificationsContextHelper'
 import queryString from 'query-string'
+import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext'
 
 export const LocalPlanningDragContext = React.createContext([]);
 

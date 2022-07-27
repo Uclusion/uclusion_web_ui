@@ -62,7 +62,7 @@ function DialogArchives(props) {
   const [marketInfoList] = useState(undefined);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const [groupPresencesState] = useContext(GroupMembersContext);
-  const presenceMap = getPresenceMap(marketPresencesState, groupPresencesState, marketId, groupId);
+  const presenceMap = getPresenceMap(marketPresencesState, marketId, groupPresencesState, groupId);
   const renderableMarket = getMarket(marketsState, marketId) || {};
   const verifiedStage = getVerifiedStage(marketStagesState, marketId) || {};
   const notDoingStage = getNotDoingStage(marketStagesState, marketId) || {};

@@ -12,7 +12,7 @@ const GROUP_MEMBERS_CONTEXT_NAMESPACE = 'group_members';
 const EMPTY_STATE = {initializing: true};
 const GroupMembersContext = React.createContext(EMPTY_STATE);
 
-function MarketPresencesProvider(props) {
+function GroupMembersProvider(props) {
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
   const [, setChannel] = useState(undefined);
 
@@ -62,5 +62,5 @@ function MarketPresencesProvider(props) {
   );
 }
 
-export { MarketPresencesProvider, GroupMembersContext, EMPTY_STATE, GROUP_MEMBERS_CONTEXT_NAMESPACE,
+export { GroupMembersProvider, GroupMembersContext, EMPTY_STATE, GROUP_MEMBERS_CONTEXT_NAMESPACE,
   MEMBERS_CHANNEL };

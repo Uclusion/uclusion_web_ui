@@ -177,7 +177,7 @@ function PlanningDialog(props) {
       highlightMap[investibleId] = true;
     }
   });
-  const presenceMap = getPresenceMap(marketPresencesState, groupPresencesState, marketId, groupId);
+  const presenceMap = getPresenceMap(marketPresencesState, marketId, groupPresencesState, groupId);
   const singleSections = ['addCollaboratorSection', 'addStorySection'];
   function isSectionOpen(section) {
     return sectionOpen === section ||
@@ -397,7 +397,7 @@ function PlanningDialog(props) {
                 <ArchiveInvestbiles
                   elevation={0}
                   marketId={market.id}
-                  presenceMap={getPresenceMap(marketPresencesState, groupPresencesState, market.id, groupId)}
+                  presenceMap={getPresenceMap(marketPresencesState, market.id, groupPresencesState, groupId)}
                   investibles={blockedInvestibles}
                   presenceId={myPresence.id}
                   stage={inBlockingStage}

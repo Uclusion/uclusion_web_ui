@@ -20,6 +20,7 @@ import { CommentsProvider } from '../../contexts/CommentsContext/CommentsContext
 import { InvestiblesProvider } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { MarketPresencesProvider } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { MarketsProvider } from '../../contexts/MarketsContext/MarketsContext'
+import { GroupMembersProvider } from '../../contexts/GroupMembersContext/GroupMembersContext'
 
 export const LogoutContext = React.createContext([]);
 
@@ -82,23 +83,25 @@ function App(props) {
             <CommentsProvider>
               <InvestiblesProvider>
                 <MarketPresencesProvider>
-                  <AccountUserProvider authState={authState}>
-                    <OnlineStateProvider>
-                      <WebSocketProvider config={config} userId={userId}>
-                        <AppConfigProvider appConfig={configs}>
-                          <ThemeProvider theme={defaultTheme}>
-                            <TourProvider>
-                              <AccountPoller>
-                                <LogoutContext.Provider value={logoutChannel}>
-                                  <Root appConfig={configs}/>
-                                </LogoutContext.Provider>
-                              </AccountPoller>
-                            </TourProvider>
-                          </ThemeProvider>
-                        </AppConfigProvider>
-                      </WebSocketProvider>
-                    </OnlineStateProvider>
-                  </AccountUserProvider>
+                  <GroupMembersProvider>
+                    <AccountUserProvider authState={authState}>
+                      <OnlineStateProvider>
+                        <WebSocketProvider config={config} userId={userId}>
+                          <AppConfigProvider appConfig={configs}>
+                            <ThemeProvider theme={defaultTheme}>
+                              <TourProvider>
+                                <AccountPoller>
+                                  <LogoutContext.Provider value={logoutChannel}>
+                                    <Root appConfig={configs}/>
+                                  </LogoutContext.Provider>
+                                </AccountPoller>
+                              </TourProvider>
+                            </ThemeProvider>
+                          </AppConfigProvider>
+                        </WebSocketProvider>
+                      </OnlineStateProvider>
+                    </AccountUserProvider>
+                  </GroupMembersProvider>
                 </MarketPresencesProvider>
               </InvestiblesProvider>
             </CommentsProvider>

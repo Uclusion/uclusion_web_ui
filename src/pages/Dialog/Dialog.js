@@ -35,6 +35,7 @@ import {
 import UpgradeBanner from '../../components/Banners/UpgradeBanner'
 import { canCreate } from '../../contexts/AccountContext/accountContextHelper'
 import { AccountContext } from '../../contexts/AccountContext/AccountContext'
+import queryString from 'query-string'
 
 function Dialog(props) {
   const { hidden } = props;
@@ -43,7 +44,8 @@ function Dialog(props) {
   const intl = useIntl();
   const location = useLocation();
   const { pathname, hash } = location
-  const myHashFragment = (hash && hash.length > 1) ? hash.substring(1, hash.length) : undefined
+  const values = queryString.parse(hash);
+  const { fragmentIdentifier: myHashFragment } = values || {};
   const { marketId: marketEntity, action } = decomposeMarketPath(pathname);
   const [marketIdFromToken, setMarketIdFromToken] = useState(undefined);
   const [marketsState, , tokensHash] = useContext(MarketsContext);
@@ -101,7 +103,7 @@ function Dialog(props) {
     if (hidden) {
       setMarketIdFromToken(undefined);
     }
-  }, [action, hasUser, hash, hidden, isInitialization, marketEntity, marketsState]);
+  }, [action, hasUser, hidden, isInitialization, marketEntity, marketsState]);
 
   useEffect(() => {
     if (!hidden && action === 'invite' && marketId && !_.isEmpty(loadedMarket)) {

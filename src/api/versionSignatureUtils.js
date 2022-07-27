@@ -1,13 +1,6 @@
 import _ from 'lodash'
 
 const EMPTY_VERSION = { object_versions: [] };
-export const EMPTY_FETCH_SIGNATURES = {
-  comments: [],
-  markets: [],
-  marketPresences: [],
-  investibles: [],
-  marketStages: [],
-};
 
 /**
  * A matcher that checks if the version is greater than or equal to the
@@ -91,20 +84,6 @@ export function signatureMatcher (fetched, signatures) {
   return { matched, unmatchedSignatures, allMatched }
 }
 
-
-/**
- * Given a set of account version signatures returns all the match functions
- * for their constituent parts
- * @param accountVersionSignatures
- * @returns {{users: *}}
- */
-export function getFetchSignaturesForAccount(accountVersionSignatures) {
-  const users = accountUsersSignatureGenerator(accountVersionSignatures);
-  return {
-    users,
-  };
-}
-
 /** Given a set of version signatures, returns all the match functions
  * for their constituent parts
  * @param marketVersionSignatures
@@ -118,6 +97,7 @@ export function getFetchSignaturesForMarket (marketVersionSignatures) {
   const investibles = investiblesSignatureGenerator(marketVersionSignatures);
   const marketStages = stagesSignatureGenerator(marketVersionSignatures);
   const marketGroups = groupsSignatureGenerator(marketVersionSignatures);
+  const groupMembers = groupMembersSignatureGenerator(marketVersionSignatures);
   return {
     comments,
     markets,
@@ -125,6 +105,7 @@ export function getFetchSignaturesForMarket (marketVersionSignatures) {
     investibles,
     marketStages,
     marketGroups,
+    groupMembers
   };
 }
 
@@ -163,31 +144,30 @@ function generateSimpleObjectSignature (versionsSignatures, type) {
 }
 
 /**
- * Generates all user signatures for given account signature list.
- * Since there's really only one user we care abot we're going to use
- * the external id
+ * Converts the group members signature out of the versions call into something we can match
+ * a fetched object against
  * @param versionsSignatures
- * @returns {*[]|*}
+ * @returns {*}
  */
-function accountUsersSignatureGenerator (versionsSignatures) {
-  const userSignatures = getSpecificTypeSignatures(versionsSignatures, 'user');
-  const fetchSigs = userSignatures.object_versions.reduce((acc, sig) => {
-    const { version, object_id_one: external_id } = sig;
+
+function groupMembersSignatureGenerator(versionsSignatures) {
+  const mySignatures = getSpecificTypeSignatures(versionsSignatures, 'group_capability');
+  const { object_versions: objectVersions } = mySignatures;
+  return objectVersions.reduce((acc, objVersion) => {
+    const { version, object_id_one: group_id, object_id_two: id } = objVersion;
     return [
       ...acc,
       {
-        external_id,
-        version,
-      },
+        id,
+        group_id,
+        version
+      }
     ];
   }, []);
-  return fetchSigs;
 }
 
-
-
 /**
- * Users are an amalgamation of several different versions. This generates
+ * Users are an amalgamation of different versions. This generates
  * an update signature that will update from the component parts.
  * @param versionsSignatures the unified market signature update
  * @returns {unknown[]}
@@ -322,6 +302,6 @@ function commentsSignatureGenerator (versionsSignatures) {
  * @param versionsSignatures
  * @returns {*}
  */
-function groupsSignatureGenerator (versionSignatures) {
-  return generateSimpleObjectSignature(versionSignatures, 'group');
+function groupsSignatureGenerator (versionsSignatures) {
+  return generateSimpleObjectSignature(versionsSignatures, 'group');
 }

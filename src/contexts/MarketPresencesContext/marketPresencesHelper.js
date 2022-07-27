@@ -1,6 +1,7 @@
 import { addMarketPresence, patchInvestment } from './marketPresencesContextReducer'
 import { findMessageOfType } from '../../utils/messageUtils'
 import _ from 'lodash'
+import { isEveryoneGroup } from '../GroupMembersContext/groupMembersHelper'
 
 export function addPresenceToMarket(dispatch, marketId, presence) {
   dispatch(addMarketPresence(marketId, presence));
@@ -47,13 +48,27 @@ export function getMarketPresences(state, marketId, excludeExpired) {
   });
 }
 
+export function getGroupPresences(state, groupMembersState, marketId, groupId) {
+  const presences = state[marketId] || [];
+  const presencesFiltered = presences.filter((presence) => !presence.market_banned);
+  const groupCapabilities = groupMembersState[groupId] || [];
+  const groupPresences = (isEveryoneGroup(groupId, marketId) || _.isEmpty(groupId)) ? presencesFiltered
+    : presencesFiltered.filter((presence) => groupCapabilities.find((groupCapability) => !groupCapability.deleted
+      && groupCapability.id === presence.id));
+  return groupPresences.map((presence) => {
+    const { investments } = presence;
+    const filteredInvestments = (investments || []).filter((investment) => !investment.deleted);
+    return { ...presence, investments: filteredInvestments };
+  });
+}
+
 export function getMarketPresence(state, marketId, userId) {
   const presences = getMarketPresences(state, marketId) || [];
   return presences.find((presence) => presence.id === userId);
 }
 
-export function getPresenceMap(state, marketId) {
-  const presences = getMarketPresences(state, marketId) || [];
+export function getPresenceMap(state, marketId, groupPresencesState, groupId) {
+  const presences = getGroupPresences(state, groupPresencesState, marketId, groupId) || [];
   return presences.reduce((acc, element) => {
     const { id } = element;
     return {

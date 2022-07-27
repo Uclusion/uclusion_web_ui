@@ -17,9 +17,9 @@ export function checkSignatureInStorage (marketId, fetchSignature, storageStates
   const serverFetchSignatures = getFetchSignaturesForMarket([{type: fetchSignature.object_type,
     object_versions: [fetchSignature]}]);
   const fromStorage = checkInStorage(marketId, serverFetchSignatures, storageStates);
-  const { markets, marketGroups, comments, marketPresences, marketStages, investibles } = fromStorage;
+  const { markets, marketGroups, comments, marketPresences, marketStages, investibles, groupMembers } = fromStorage;
   return markets.allMatched && comments.allMatched && marketPresences.allMatched && marketStages.allMatched
-    && investibles.allMatched && marketGroups.allMatched;
+    && investibles.allMatched && marketGroups.allMatched && groupMembers.allMatched;
 }
 
 /**
@@ -37,8 +37,10 @@ export function checkInStorage(marketId, fetchSignatures, storageStates) {
     investibles,
     marketGroups,
     marketStages,
+    groupMembers
   } = fetchSignatures;
-  const { commentsState, investiblesState, marketsState, marketPresencesState, marketStagesState, marketGroupsState } = storageStates;
+  const { commentsState, investiblesState, marketsState, marketPresencesState, marketStagesState,
+    marketGroupsState, groupMembersState } = storageStates;
   const commentsMatches = satisfyComments(marketId, comments, commentsState);
   // keep updating the required versions so it's an ever shrinking map
   const investibleMatches = satisfyInvestibles(marketId, investibles, investiblesState);
@@ -46,6 +48,7 @@ export function checkInStorage(marketId, fetchSignatures, storageStates) {
   const presenceMatches = satisfyMarketPresences(marketId, marketPresences, marketPresencesState);
   const stageMatches = satisfyMarketStages(marketId, marketStages, marketStagesState);
   const groupMatches = satisfyMarketGroups(marketId, marketGroups, marketGroupsState);
+  const groupMembersMatches = satisfyGroupMembers(marketId, groupMembers, groupMembersState);
   return {
     comments: commentsMatches,
     investibles: investibleMatches,
@@ -53,6 +56,7 @@ export function checkInStorage(marketId, fetchSignatures, storageStates) {
     marketPresences: presenceMatches,
     marketStages: stageMatches,
     marketGroups: groupMatches,
+    groupMembers: groupMembersMatches
   };
 }
 
@@ -83,14 +87,20 @@ function satisfyMarketPresences (marketId, presenceSignatures, mpState) {
     return signatureMatcher(usedPresences, presenceSignatures);
 }
 
-function satisfyMarketStages (marketId, stageSignatures, stagesState) {
+function satisfyMarketStages(marketId, stageSignatures, stagesState) {
     const usedState = stagesState || {};
     const marketStages = usedState[marketId] || [];
     return signatureMatcher(marketStages, stageSignatures);
 }
 
-function satisfyMarketGroups (marketId, groupSignatures, groupsState) {
+function satisfyMarketGroups(marketId, groupSignatures, groupsState) {
   const usedState = groupsState ?? {};
   const marketGroups = usedState[marketId] ?? [];
   return signatureMatcher(marketGroups, groupSignatures);
+}
+
+function satisfyGroupMembers(marketId, groupSignatures, groupsState) {
+  const usedState = groupsState ?? {};
+  const allGroupsUsers = _.flatten(Object.values(usedState));
+  return signatureMatcher(allGroupsUsers, groupSignatures);
 }

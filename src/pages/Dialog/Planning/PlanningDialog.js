@@ -38,7 +38,7 @@ import { ACTIVE_STAGE } from '../../../constants/markets'
 import { getUserInvestibles, getUserSwimlaneInvestiblesHash } from './userUtils'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import {
-  getMarketPresences,
+  getGroupPresences,
   getPresenceMap,
   marketHasOnlyCurrentUser
 } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
@@ -82,6 +82,7 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import AssignmentIcon from '@material-ui/icons/Assignment'
 import { Inbox } from '@material-ui/icons'
 import { getInboxTarget } from '../../../contexts/NotificationsContext/notificationsContextHelper'
+import queryString from 'query-string'
 
 export const LocalPlanningDragContext = React.createContext([]);
 
@@ -100,6 +101,8 @@ function PlanningDialog(props) {
   const { results, parentResults, search } = searchResults;
   const location = useLocation();
   const { hash } = location;
+  const values = queryString.parse(hash);
+  const { groupId, fragmentIdentifier: myHashFragment } = values || {};
   const classes = useInvestiblesByPersonStyles();
   const intl = useIntl();
   const theme = useTheme();
@@ -116,6 +119,7 @@ function PlanningDialog(props) {
     [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE, REPLY_TYPE].includes(comment.comment_type)) || [];
   const allowedCommentTypes = [QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE];
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [groupPresencesState] = useContext(GroupMembersContext);
   const [messagesState] = useContext(NotificationsContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, diffDispatch] = useContext(DiffContext);
@@ -172,7 +176,7 @@ function PlanningDialog(props) {
       highlightMap[investibleId] = true;
     }
   });
-  const presenceMap = getPresenceMap(marketPresencesState, marketId);
+  const presenceMap = getPresenceMap(marketPresencesState, groupPresencesState, marketId, groupId);
   const singleSections = ['addCollaboratorSection', 'addStorySection'];
   function isSectionOpen(section) {
     return sectionOpen === section ||
@@ -187,9 +191,9 @@ function PlanningDialog(props) {
   }
 
   useEffect(() => {
-    if (hash) {
+    if (myHashFragment) {
       if (sectionOpen !== 'workspaceMain') {
-        if (hash.includes('workspaceMain')) {
+        if (myHashFragment.includes('workspaceMain')) {
           updatePageState({ sectionOpen: 'workspaceMain' })
         } else {
           const unResolvedMarketComments = comments.filter(comment => !comment.investible_id && !comment.resolved) || []
@@ -197,14 +201,14 @@ function PlanningDialog(props) {
           const notTodoComments = unResolvedMarketComments.filter(comment =>
             [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE, REPLY_TYPE].includes(comment.comment_type)) || []
           const noTodoCommentIds = getThreadIds(notTodoComments, comments)
-          const foundCommentId = noTodoCommentIds.find((anId) => hash.includes(anId))
+          const foundCommentId = noTodoCommentIds.find((anId) => myHashFragment.includes(anId))
           if (foundCommentId) {
             updatePageState({ sectionOpen: 'workspaceMain' });
           }
         }
       }
     }
-  }, [marketId, comments, hash, sectionOpen, updatePageState]);
+  }, [marketId, comments, myHashFragment, sectionOpen, updatePageState]);
 
   function onClickFurtherStart() {
     updatePageState({furtherWorkType: 'readyToStart'});
@@ -292,7 +296,7 @@ function PlanningDialog(props) {
     <Chip label={`${furtherWorkInvestibles.length}`} size='small' className={classes.chipStyleBlue} />;
 
   const planningInvestibleAddClasses = usePlanFormStyles();
-  const marketPresences = getMarketPresences(marketPresencesState, marketId);
+  const marketPresences = getGroupPresences(marketPresencesState, groupPresencesState, marketId, groupId);
   function onInvestibleSave(investible) {
     addInvestible(investiblesDispatch, diffDispatch, investible);
   }
@@ -392,7 +396,7 @@ function PlanningDialog(props) {
                 <ArchiveInvestbiles
                   elevation={0}
                   marketId={market.id}
-                  presenceMap={getPresenceMap(marketPresencesState, market.id)}
+                  presenceMap={getPresenceMap(marketPresencesState, groupPresencesState, market.id, groupId)}
                   investibles={blockedInvestibles}
                   presenceId={myPresence.id}
                   stage={inBlockingStage}
@@ -437,6 +441,7 @@ function PlanningDialog(props) {
                 comments={comments}
                 investibles={investibles}
                 marketId={marketId}
+                groupId={groupId}
                 visibleStages={visibleStages}
                 acceptedStage={acceptedStage}
                 inDialogStage={inDialogStage}
@@ -708,6 +713,7 @@ function InvestiblesByPerson(props) {
     comments,
     investibles,
     marketId,
+    groupId,
     visibleStages,
     acceptedStage,
     inDialogStage,
@@ -730,7 +736,8 @@ function InvestiblesByPerson(props) {
     votes_required: votesRequired} = market;
   const activeMarket = marketStage === ACTIVE_STAGE;
   const [marketPresencesState] = useContext(MarketPresencesContext);
-  const presences = getMarketPresences(marketPresencesState, marketId) || [];
+  const [groupPresencesState] = useContext(GroupMembersContext);
+  const presences = getGroupPresences(marketPresencesState, groupPresencesState, marketId, groupId) || [];
   const marketPresencesSortedAlmost = _.sortBy(presences, 'name');
   const marketPresencesSorted = _.sortBy(marketPresencesSortedAlmost, function (presence) {
     return !presence.current_user;

@@ -38,6 +38,7 @@ import GavelIcon from '@material-ui/icons/Gavel'
 import { getFakeCommentsArray } from '../../utils/stringFunctions'
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
 import { getMarketInfo } from '../../utils/userFunctions'
+import queryString from 'query-string'
 
 function DialogArchives(props) {
   const { hidden } = props;
@@ -45,7 +46,9 @@ function DialogArchives(props) {
   const intl = useIntl();
   const history = useHistory();
   const location = useLocation();
-  const { pathname } = location;
+  const { pathname, hash } = location;
+  const values = queryString.parse(hash);
+  const { groupId } = values || {};
   const { marketId } = decomposeMarketPath(pathname);
   const [assigneeFilter, setAssigneeFilter] = useState('');
   const [filteredMarketId, setFilteredMarketId] = useState(undefined);
@@ -56,8 +59,9 @@ function DialogArchives(props) {
   const [commentsState] = useContext(CommentsContext);
   const [searchResults] = useContext(SearchResultsContext);
   const [marketInfoList] = useState(undefined);
-  const marketPresences = getMarketPresences(marketPresencesState, marketId) || []
-  const presenceMap = getPresenceMap(marketPresencesState, marketId);
+  const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+  const [groupPresencesState] = useContext(GroupPresencesContext);
+  const presenceMap = getPresenceMap(marketPresencesState, groupPresencesState, marketId, groupId);
   const renderableMarket = getMarket(marketsState, marketId) || {};
   const verifiedStage = getVerifiedStage(marketStagesState, marketId) || {};
   const notDoingStage = getNotDoingStage(marketStagesState, marketId) || {};

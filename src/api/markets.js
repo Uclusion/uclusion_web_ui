@@ -151,6 +151,11 @@ export function getMarketGroups(marketId) {
     .then((client) => client.markets.listGroups());
 }
 
+export function getGroupMembers(marketId, groupIds) {
+  return getMarketClient(marketId)
+    .then((client) => client.markets.listGroupMembers(groupIds));
+}
+
 export function lockPlanningMarketForEdit(marketId, breakLock) {
   return getMarketClient(marketId)
     .then((client) => client.markets.lock(breakLock))

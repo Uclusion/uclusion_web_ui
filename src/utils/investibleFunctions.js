@@ -5,7 +5,7 @@ import {
   resolveInvestibleComments
 } from '../contexts/CommentsContext/commentsContextHelper'
 import { addMessage } from '../contexts/NotificationsContext/notificationsContextReducer'
-import { formInvestibleLink, formMarketLink } from './marketIdPathFunctions'
+import { formInvestibleLink } from './marketIdPathFunctions'
 import { NOT_FULLY_VOTED_TYPE, REPORT_REQUIRED } from '../constants/notifications'
 import { pushMessage } from './MessageBusUtils'
 import {

@@ -187,6 +187,7 @@ function PlanningDialog(props) {
       highlightMap[investibleId] = true;
     }
   });
+  const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const presenceMap = getPresenceMap(marketPresences);
   const singleSections = ['addCollaboratorSection', 'addStorySection'];
   function isSectionOpen(section) {
@@ -307,7 +308,6 @@ function PlanningDialog(props) {
     <Chip label={`${furtherWorkInvestibles.length}`} size='small' className={classes.chipStyleBlue} />;
 
   const planningInvestibleAddClasses = usePlanFormStyles();
-  const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   function onInvestibleSave(investible) {
     addInvestible(investiblesDispatch, diffDispatch, investible);
   }

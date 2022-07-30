@@ -1,5 +1,4 @@
 import { addMarketPresence, patchInvestment } from './marketPresencesContextReducer'
-import { findMessageOfType } from '../../utils/messageUtils'
 import _ from 'lodash'
 import { isEveryoneGroup } from '../GroupMembersContext/groupMembersHelper'
 

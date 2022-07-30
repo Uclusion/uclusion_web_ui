@@ -48,8 +48,7 @@ export function getMarketPresences(state, marketId, excludeExpired) {
   });
 }
 
-export function getGroupPresences(state, groupMembersState, marketId, groupId) {
-  const presences = state[marketId] || [];
+export function getGroupPresences(presences, groupMembersState, marketId, groupId) {
   const presencesFiltered = presences.filter((presence) => !presence.market_banned);
   const groupCapabilities = groupMembersState[groupId] || [];
   const groupPresences = (isEveryoneGroup(groupId, marketId) || _.isEmpty(groupId)) ? presencesFiltered
@@ -67,8 +66,7 @@ export function getMarketPresence(state, marketId, userId) {
   return presences.find((presence) => presence.id === userId);
 }
 
-export function getPresenceMap(state, marketId, groupPresencesState, groupId) {
-  const presences = getGroupPresences(state, groupPresencesState, marketId, groupId) || [];
+export function getPresenceMap(presences) {
   return presences.reduce((acc, element) => {
     const { id } = element;
     return {

@@ -5,7 +5,7 @@ import { Card, CardActions, CardContent, Grid, Typography, useMediaQuery, useThe
 import { makeStyles } from '@material-ui/styles'
 import clsx from 'clsx'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { getGroupPresences, getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import CardType, { AGILE_PLAN_TYPE } from '../../../components/CardType'
 import { useMetaDataStyles } from '../../Investible/Planning/PlanningInvestible'
 import { useHistory } from 'react-router'
@@ -29,6 +29,7 @@ import { ExpandLess } from '@material-ui/icons'
 import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils'
 import EditMarketButton from '../EditMarketButton'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext'
 
 const useStyles = makeStyles(theme => ({
   section: {
@@ -202,8 +203,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 function Summary(props) {
-  const { market, hidden, activeMarket, inArchives, pageState,
-    updatePageState, pageStateReset, isDraft } = props
+  const { group, hidden, pageState, updatePageState, pageStateReset } = props
   const history = useHistory()
   const intl = useIntl()
   const classes = useStyles()
@@ -214,12 +214,13 @@ function Summary(props) {
     attached_files: attachedFiles,
     locked_by: lockedBy,
     name,
-  } = market;
+  } = group;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [, marketsDispatch] = useContext(MarketsContext);
   const [diffState, diffDispatch] = useContext(DiffContext);
   const [messagesState] = useContext(NotificationsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [groupPresencesState] = useContext(GroupMembersContext);
   const myMessageDescription = findMessageOfTypeAndId(id, messagesState, 'DESCRIPTION')
   const diff = getDiff(diffState, id);
   const {
@@ -227,6 +228,7 @@ function Summary(props) {
     showDiff
   } = pageState;
   const marketPresences = getMarketPresences(marketPresencesState, id) || [];
+  const groupPresences = getGroupPresences(marketPresences, groupPresencesState, id, group.id);
   // TODO restrict presences by group if group is not everyone (use helper to get presences and check if everyone inside)
   let lockedByName;
   if (lockedBy) {
@@ -244,7 +246,7 @@ function Summary(props) {
   const isAdmin = myPresence.is_admin;
 
   function isEditableByUser() {
-    return isAdmin && !inArchives;
+    return isAdmin;
   }
 
   function onAttachFile(metadatas) {
@@ -292,23 +294,13 @@ function Summary(props) {
         <Grid item xs={10} className={!beingEdited && isEditableByUser() ? classes.fullWidthEditable : classes.fullWidth}
               onClick={(event) => !beingEdited && mySetBeingEdited(true, event)}>
           <CardContent className={beingEdited ? classes.editContent : classes.content}>
-            {lockedBy && myPresence.id !== lockedBy && isAdmin && !inArchives && (
+            {lockedBy && myPresence.id !== lockedBy && isAdmin && (
               <Typography>
                 {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}
               </Typography>
             )}
-            {isDraft && activeMarket && (
-              <Typography className={classes.draft}>
-                {intl.formatMessage({ id: "draft" })}
-              </Typography>
-            )}
-            {!activeMarket && (
-              <Typography className={classes.draft}>
-                {intl.formatMessage({ id: "inactive" })}
-              </Typography>
-            )}
             {id && myPresence.id && (
-              <DialogBodyEdit hidden={hidden} setBeingEdited={mySetBeingEdited} market={market} marketId={id}
+              <DialogBodyEdit hidden={hidden} setBeingEdited={mySetBeingEdited} group={group} marketId={id}
                               pageState={pageState} pageStateUpdate={updatePageState} pageStateReset={pageStateReset}
                               userId={myPresence.id} isEditableByUser={isEditableByUser} beingEdited={beingEdited}/>
             )}
@@ -332,7 +324,7 @@ function Summary(props) {
               <div className={classes.assignmentContainer}>
                 <b><FormattedMessage id="dialogParticipants"/></b>
                 <Collaborators
-                  marketPresences={marketPresences}
+                  marketPresences={groupPresences}
                   intl={intl}
                   marketId={id}
                   history={history}
@@ -361,12 +353,8 @@ function Summary(props) {
 }
 
 Summary.propTypes = {
-  market: PropTypes.object.isRequired,
-  investibleId: PropTypes.string,
-  hidden: PropTypes.bool.isRequired,
-  activeMarket: PropTypes.bool.isRequired,
-  inArchives: PropTypes.bool.isRequired,
-  unassigned: PropTypes.array
+  group: PropTypes.object.isRequired,
+  hidden: PropTypes.bool.isRequired
 };
 
 Summary.defaultProps = {

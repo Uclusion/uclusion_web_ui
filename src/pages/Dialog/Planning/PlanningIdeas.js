@@ -99,7 +99,6 @@ function PlanningIdeas(props) {
     inVerifiedStageId,
     inRequiresInputStageId,
     presenceId,
-    activeMarket,
     comments
   } = props;
   const intl = useIntl();
@@ -336,7 +335,6 @@ function PlanningIdeas(props) {
           investibles={myInvestiblesStageHash[inDialogStageId] || []}
           marketId={marketId}
           presenceId={presenceId}
-          activeMarket={activeMarket}
           marketPresences={marketPresences}
           comments={comments}
           votesRequired={votesRequired}

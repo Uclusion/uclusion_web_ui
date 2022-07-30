@@ -126,7 +126,7 @@ const useStyles = makeStyles(
 );
 
 function DialogBodyEdit(props) {
-  const { hidden, setBeingEdited, market, isEditableByUser, userId, pageState, pageStateUpdate,
+  const { hidden, setBeingEdited, group, isEditableByUser, userId, pageState, pageStateUpdate,
     pageStateReset} = props;
   const {
     beingEdited,
@@ -139,8 +139,7 @@ function DialogBodyEdit(props) {
   const [,marketsDispatch] = useContext(MarketsContext);
   const [, diffDispatch] = useContext(DiffContext);
   const [openIssue, setOpenIssue] = useState(false);
-  const { id, name: initialName, description: initialDescription,
-    market_type: marketType, locked_by: lockedBy } = market;
+  const { id, name: initialName, description: initialDescription, locked_by: lockedBy } = group;
   const someoneElseEditing = !_.isEmpty(lockedBy) && (lockedBy !== userId);
 
   const editorName = `${id}-body-editor`;
@@ -161,7 +160,7 @@ function DialogBodyEdit(props) {
       return;
     }
     // the set of files for the market is all the old files, plus our new ones
-    const oldMarketUploadedFiles = market.uploaded_files || [];
+    const oldMarketUploadedFiles = group.uploaded_files || [];
     const currentUploadedFiles = uploadedFiles || [];
     const newUploadedFiles = _.uniqBy([...currentUploadedFiles, ...oldMarketUploadedFiles], 'path');
     const description = getQuillStoredState(editorName) !== null ? getQuillStoredState(editorName) : initialDescription;
@@ -182,12 +181,10 @@ function DialogBodyEdit(props) {
   function onCancel() {
     pageStateReset();
     editorReset();
-    if (marketType === PLANNING_TYPE) {
-      return unlockPlanningMarketForEdit(id).then((market) => {
-        setOperationRunning(false);
-        updateMarketInStorage(market);
-      });
-    }
+    return unlockPlanningMarketForEdit(id).then((market) => {
+      setOperationRunning(false);
+      updateMarketInStorage(market);
+    });
   }
 
   function updateMarketInStorage(market) {
@@ -255,8 +252,7 @@ function DialogBodyEdit(props) {
                    id={id} useCreateDefault/>
         {Editor}
         <CardActions className={classes.actions}>
-          <SpinningIconLabelButton onClick={onCancel} doSpin={marketType === PLANNING_TYPE} icon={Clear}
-                                   id="marketAddCancelButton">
+          <SpinningIconLabelButton onClick={onCancel} doSpin={true} icon={Clear} id="marketAddCancelButton">
             {intl.formatMessage({ id: 'marketAddCancelLabel' })}
           </SpinningIconLabelButton>
           <SpinningIconLabelButton
@@ -285,7 +281,7 @@ function DialogBodyEdit(props) {
 
 DialogBodyEdit.propTypes = {
   hidden: PropTypes.bool.isRequired,
-  market: PropTypes.object.isRequired,
+  group: PropTypes.object.isRequired,
   userId: PropTypes.string.isRequired
 };
 

@@ -38,7 +38,7 @@ import { ACTIVE_STAGE } from '../../../constants/markets'
 import { getUserInvestibles, getUserSwimlaneInvestiblesHash } from './userUtils'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import {
-  getGroupPresences,
+  getMarketPresences,
   getPresenceMap
 } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import DismissableText from '../../../components/Notifications/DismissableText'
@@ -87,7 +87,6 @@ import AssignmentIcon from '@material-ui/icons/Assignment'
 import { Inbox } from '@material-ui/icons'
 import { getInboxTarget } from '../../../contexts/NotificationsContext/notificationsContextHelper'
 import queryString from 'query-string'
-import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext'
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext'
 import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper'
 
@@ -96,7 +95,7 @@ export const LocalPlanningDragContext = React.createContext([]);
 function PlanningDialog(props) {
   const history = useHistory();
   const {
-    investibles,
+    marketInvestibles,
     marketStages,
     comments,
     hidden,
@@ -129,7 +128,6 @@ function PlanningDialog(props) {
     [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE, REPLY_TYPE].includes(comment.comment_type)) || [];
   const allowedCommentTypes = [QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE];
   const [marketPresencesState] = useContext(MarketPresencesContext);
-  const [groupPresencesState] = useContext(GroupMembersContext);
   const [messagesState] = useContext(NotificationsContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, diffDispatch] = useContext(DiffContext);
@@ -145,6 +143,10 @@ function PlanningDialog(props) {
   function setSectionOpen(section) {
     updatePageState({sectionOpen: section});
   }
+  const investibles = marketInvestibles.filter((investible) => {
+    const marketInfo = getMarketInfo(investible, marketId);
+    return marketInfo.group_id = groupId;
+  });
   const acceptedStage = marketStages.find(stage => isAcceptedStage(stage)) || {};
   const inDialogStage = marketStages.find(stage => stage.allows_investment) || {};
   const inReviewStage = marketStages.find(stage => isInReviewStage(stage)) || {};
@@ -185,7 +187,7 @@ function PlanningDialog(props) {
       highlightMap[investibleId] = true;
     }
   });
-  const presenceMap = getPresenceMap(marketPresencesState, marketId, groupPresencesState, groupId);
+  const presenceMap = getPresenceMap(marketPresences);
   const singleSections = ['addCollaboratorSection', 'addStorySection'];
   function isSectionOpen(section) {
     return sectionOpen === section ||
@@ -305,7 +307,7 @@ function PlanningDialog(props) {
     <Chip label={`${furtherWorkInvestibles.length}`} size='small' className={classes.chipStyleBlue} />;
 
   const planningInvestibleAddClasses = usePlanFormStyles();
-  const marketPresences = getGroupPresences(marketPresencesState, groupPresencesState, marketId, groupId);
+  const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   function onInvestibleSave(investible) {
     addInvestible(investiblesDispatch, diffDispatch, investible);
   }
@@ -337,9 +339,8 @@ function PlanningDialog(props) {
             <FormattedMessage id="planningDialogNavDiscussionLabel" />
           </h2>
           {(_.isEmpty(search) || results.find((item) => item.id === marketId)) && (
-            <Summary group={group} hidden={hidden} activeMarket={activeMarket} inArchives={inArchives}
-                     pageState={pageState} updatePageState={updatePageState} pageStateReset={pageStateReset}
-                     isDraft={isDraft}/>
+            <Summary group={group} hidden={hidden} pageState={pageState} updatePageState={updatePageState}
+                     pageStateReset={pageStateReset}/>
           )}
           <Grid item id="commentAddArea" xs={12} style={{marginTop: '2rem'}}>
             <DismissableText textId="workspaceCommentHelp" text={
@@ -405,10 +406,11 @@ function PlanningDialog(props) {
                 <ArchiveInvestbiles
                   elevation={0}
                   group={group}
-                  presenceMap={getPresenceMap(marketPresencesState, marketId, groupPresencesState, groupId)}
+                  presenceMap={getPresenceMap(marketPresences)}
                   investibles={blockedInvestibles}
                   presenceId={myPresence.id}
                   stage={inBlockingStage}
+                  marketId={marketId}
                   allowDragDrop
                   comments={comments}
                 />
@@ -591,7 +593,7 @@ function PlanningDialog(props) {
 PlanningDialog.propTypes = {
   marketStage: PropTypes.object.isRequired,
   marketId: PropTypes.object.isRequired,
-  investibles: PropTypes.arrayOf(PropTypes.object),
+  marketInvestibles: PropTypes.arrayOf(PropTypes.object),
   marketPresences: PropTypes.arrayOf(PropTypes.object),
   marketStages: PropTypes.arrayOf(PropTypes.object),
   hidden: PropTypes.bool,
@@ -721,7 +723,6 @@ function InvestiblesByPerson(props) {
     comments,
     investibles,
     marketId,
-    groupId,
     visibleStages,
     acceptedStage,
     inDialogStage,
@@ -729,7 +730,7 @@ function InvestiblesByPerson(props) {
     inReviewStage,
     requiresInputStage,
     inVerifiedStage,
-    market,
+    group,
     isAdmin,
     mobileLayout,
     pageState, updatePageState
@@ -740,12 +741,9 @@ function InvestiblesByPerson(props) {
   const classes = useInvestiblesByPersonStyles();
   const planningInvestibleAddClasses = usePlanFormStyles();
   const { storyAssignee } = pageState;
-  const { market_stage: marketStage, created_at: createdAt, budget_unit: budgetUnit, use_budget: useBudget,
-    votes_required: votesRequired} = market;
-  const activeMarket = marketStage === ACTIVE_STAGE;
+  const { created_at: createdAt, budget_unit: budgetUnit, use_budget: useBudget, votes_required: votesRequired} = group;
   const [marketPresencesState] = useContext(MarketPresencesContext);
-  const [groupPresencesState] = useContext(GroupMembersContext);
-  const presences = getGroupPresences(marketPresencesState, groupPresencesState, marketId, groupId) || [];
+  const presences = getMarketPresences(marketPresencesState, marketId) || [];
   const marketPresencesSortedAlmost = _.sortBy(presences, 'name');
   const marketPresencesSorted = _.sortBy(marketPresencesSortedAlmost, function (presence) {
     return !presence.current_user;
@@ -765,7 +763,7 @@ function InvestiblesByPerson(props) {
       id,
       marketId,
       investibles,
-      visibleStages,
+      visibleStages
     );
 
     const myInvestiblesStageHash = getUserSwimlaneInvestiblesHash(myInvestibles, visibleStages, marketId);
@@ -846,7 +844,6 @@ function InvestiblesByPerson(props) {
                   inBlockingStageId={inBlockingStage.id}
                   inRequiresInputStageId={requiresInputStage.id}
                   inVerifiedStageId={inVerifiedStage.id}
-                  activeMarket={activeMarket}
                   comments={comments}
                   presenceId={presence.id}
                 />

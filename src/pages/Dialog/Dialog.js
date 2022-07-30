@@ -158,7 +158,7 @@ function Dialog(props) {
       setAddInvestibleMode={setAddInvestibleMode}
       marketStage={marketStage}
       marketId={marketId}
-      investibles={investibles}
+      marketInvestibles={investibles}
       comments={comments}
       marketStages={marketStages}
       marketPresences={marketPresences}

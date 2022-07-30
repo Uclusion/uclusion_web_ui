@@ -77,8 +77,9 @@ export const myArchiveClasses = makeStyles(
   { name: "Archive" }
 );
 
-function getInvestibles(investibles, marketPresences, marketPresencesState, presenceMap, marketId, comments, history, intl, elevation, highlightMap,
-  allowDragDrop, onDragEnd, unResolvedMarketComments, presenceId, stage, setBeingDraggedHack, classes) {
+function getInvestibles(investibles, marketPresences, marketPresencesState, presenceMap, marketId, comments, history,
+  intl, elevation, highlightMap, allowDragDrop, onDragEnd, unResolvedMarketComments, presenceId, stage,
+  setBeingDraggedHack, classes) {
   const investibleData = investibles.map((inv) => {
     const aMarketInfo = getMarketInfo(inv, marketId);
     const { updated_at: invUpdatedAt } = inv.investible;
@@ -103,7 +104,7 @@ function getInvestibles(investibles, marketPresences, marketPresencesState, pres
     const { assigned } = info;
     const requiresInputComments = (unResolvedMarketComments || []).filter((comment) => {
       return ((comment.comment_type === QUESTION_TYPE || comment.comment_type === SUGGEST_CHANGE_TYPE))
-        && (assigned || []).includes(presenceId) && (comment.investible_id === id);
+        && (assigned || []).includes(comment.created_by) && (comment.investible_id === id);
     });
     const blockedComments = (unResolvedMarketComments || []).filter((comment) => {
       return (comment.comment_type === ISSUE_TYPE) && (comment.investible_id === id);
@@ -233,6 +234,7 @@ function ArchiveInvestbiles(props) {
         commentsDispatch, invDispatch, () => {}, undefined, [UNASSIGNED_TYPE],
         fullStage);
       if (isReadyToStart) {
+        //TODO this is wrong now - only notify if presenceId in group or addressed
         const market = getMarket(marketsState, marketId);
         notify(presenceId, investibleId, UNASSIGNED_TYPE, YELLOW_LEVEL, invState, market, messagesDispatch);
       }

@@ -48,6 +48,7 @@ function InvestibleAdd(props) {
     votes_required: votesRequired
   } = renderableMarket;
   const currentMarketName = renderableMarket.name || '';
+  //TODO need groupId in formMarketLink and all over here
   const breadCrumbTemplates = marketId ? [{ name: currentMarketName, link: formMarketLink(marketId) }] : [];
   const myBreadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
   const title = intl.formatMessage({ id: 'newStory'});

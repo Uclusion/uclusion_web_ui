@@ -340,6 +340,7 @@ function MarketTodos (props) {
   function getCards (commentsGetting, marketId, history, intl, setCard, sectionId) {
     function setCardAndScroll (comment) {
       setCard(comment)
+      //TODO need groupId in formMarketLink and all over here
       navigate(history,
         `${isInArchives ? formMarketArchivesLink(marketId) : formMarketLink(marketId)}#c${comment.id}`)
     }

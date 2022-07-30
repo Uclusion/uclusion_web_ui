@@ -16,6 +16,7 @@ function DeleteInvestibleActionButton(props) {
     return deleteInvestible(marketId, investibleId)
       .then(() => {
         setOperationRunning(false);
+        //TODO need groupId in formMarketLink and all over here
         navigate(history, formMarketLink(marketId));
       });
   }

@@ -40,7 +40,7 @@ function WorkspaceNameStep (props) {
     };
     return doCreateStoryWorkspace(dispatchers, formData, updateFormData, intl)
       .then((marketId) => {
-        return ({ ...formData, link: formMarketLink(marketId) });
+        return ({ ...formData, link: formMarketLink(marketId, marketId) });
       })
   }
 

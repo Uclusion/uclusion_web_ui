@@ -145,7 +145,7 @@ function InboxFull(props) {
         onClickFunc: (event) => {
           preventDefaultAndProp(event);
           pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: REMOVE_CURRENT_EVENT });
-          navigate(history, formMarketLink(group.id));
+          navigate(history, formMarketLink(defaultMarket.id, group.id));
         }};
     });
     navigationMenu.navListItemTextArray.push(...items);

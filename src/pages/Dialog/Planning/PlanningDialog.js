@@ -1,5 +1,5 @@
 /**
- * A component that renders a _planning_ dialog
+ * A component that renders a single group's view of a planning market
  */
 import React, { useContext, useEffect, useState } from 'react'
 import { useHistory, useLocation } from 'react-router'
@@ -39,8 +39,7 @@ import { getUserInvestibles, getUserSwimlaneInvestiblesHash } from './userUtils'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import {
   getGroupPresences,
-  getPresenceMap,
-  marketHasOnlyCurrentUser
+  getPresenceMap
 } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import DismissableText from '../../../components/Notifications/DismissableText'
 import {
@@ -57,7 +56,12 @@ import { INVITED_USER_WORKSPACE } from '../../../contexts/TourContext/tourContex
 import { getMarketInfo } from '../../../utils/userFunctions'
 import MarketTodos from './MarketTodos'
 import Gravatar from '../../../components/Avatars/Gravatar';
-import { isInReviewStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
+import {
+  isAcceptedStage,
+  isBlockedStage,
+  isFurtherWorkStage,
+  isInReviewStage, isRequiredInputStage
+} from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { findMessageOfType, findMessageOfTypeAndId } from '../../../utils/messageUtils'
 import NotificationCountChips from '../NotificationCountChips'
 import AddIcon from '@material-ui/icons/Add'
@@ -84,19 +88,22 @@ import { Inbox } from '@material-ui/icons'
 import { getInboxTarget } from '../../../contexts/NotificationsContext/notificationsContextHelper'
 import queryString from 'query-string'
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext'
+import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext'
+import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper'
 
 export const LocalPlanningDragContext = React.createContext([]);
 
 function PlanningDialog(props) {
   const history = useHistory();
   const {
-    market,
     investibles,
     marketStages,
     comments,
     hidden,
     myPresence,
-    banner
+    banner,
+    marketStage,
+    marketId
   } = props;
   const [searchResults] = useContext(SearchResultsContext);
   const { results, parentResults, search } = searchResults;
@@ -108,8 +115,10 @@ function PlanningDialog(props) {
   const intl = useIntl();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
-  const { name: marketName, id: marketId, market_stage: marketStage, created_by: createdBy, created_at: createdAt,
-    budget_unit: budgetUnit, use_budget: useBudget, votes_required: votesRequired} = market;
+  const [groupState] = useContext(MarketGroupsContext);
+  const group = getGroup(groupState, marketId, groupId)
+  const { name: groupName, created_by: createdBy, created_at: createdAt,
+    budget_unit: budgetUnit, use_budget: useBudget, votes_required: votesRequired} = group;
   const activeMarket = marketStage === ACTIVE_STAGE;
   const inArchives = !activeMarket;
   const isAdmin = myPresence.is_admin;
@@ -127,9 +136,8 @@ function PlanningDialog(props) {
   // For security reasons you can't access source data while being dragged in case you are not the target website
   const [beingDraggedHack, setBeingDraggedHack] = useState({});
   const [pageStateFull, pageDispatch] = usePageStateReducer('market');
-  const isDraft = marketHasOnlyCurrentUser(messagesState, marketId);
-  const [pageState, updatePageState, pageStateReset] = getPageReducerPage(pageStateFull, pageDispatch, marketId,
-    {sectionOpen: 'workspaceMain', collaboratorsOpen: isDraft && myPresence.id === createdBy });
+  const [pageState, updatePageState, pageStateReset] = getPageReducerPage(pageStateFull, pageDispatch, groupId,
+    {sectionOpen: 'workspaceMain' });
   const {
     sectionOpen,
     furtherWorkType
@@ -137,14 +145,14 @@ function PlanningDialog(props) {
   function setSectionOpen(section) {
     updatePageState({sectionOpen: section});
   }
-  const acceptedStage = marketStages.find(stage => stage.assignee_enter_only) || {};
+  const acceptedStage = marketStages.find(stage => isAcceptedStage(stage)) || {};
   const inDialogStage = marketStages.find(stage => stage.allows_investment) || {};
   const inReviewStage = marketStages.find(stage => isInReviewStage(stage)) || {};
-  const inBlockingStage = marketStages.find(stage => stage.move_on_comment && stage.allows_issues) || {};
+  const inBlockingStage = marketStages.find(stage => isBlockedStage(stage)) || {};
   const inVerifiedStage = marketStages.find(stage => stage.appears_in_market_summary) || {};
   const visibleStages = marketStages.filter((stage) => stage.appears_in_context) || [];
-  const furtherWorkStage = marketStages.find((stage) => (!stage.allows_assignment && !stage.close_comments_on_entrance)) || {};
-  const requiresInputStage = marketStages.find((stage) => (!stage.allows_issues && stage.move_on_comment)) || {};
+  const furtherWorkStage = marketStages.find((stage) => isFurtherWorkStage(stage)) || {};
+  const requiresInputStage = marketStages.find((stage) => isRequiredInputStage(stage)) || {};
   const furtherWorkInvestibles = getInvestiblesInStage(investibles, furtherWorkStage.id, marketId) || [];
   const furtherWorkReadyToStart = _.remove(furtherWorkInvestibles, (investible) => {
     const marketInfo = getMarketInfo(investible, marketId);
@@ -209,7 +217,7 @@ function PlanningDialog(props) {
         }
       }
     }
-  }, [marketId, comments, myHashFragment, sectionOpen, updatePageState]);
+  }, [comments, myHashFragment, sectionOpen, updatePageState]);
 
   function onClickFurtherStart() {
     updatePageState({furtherWorkType: 'readyToStart'});
@@ -281,7 +289,7 @@ function PlanningDialog(props) {
       !inArchives && _.isEmpty(search), isSectionBold('marketTodos'), !_.isEmpty(search)),
     {
       icon: MenuBookIcon, text: intl.formatMessage({ id: 'planningDialogViewArchivesLabel' }),
-      target: archivedSize > 0 ? formMarketArchivesLink(marketId) : undefined,
+      target: archivedSize > 0 ? formMarketArchivesLink(groupId) : undefined,
       num: _.isEmpty(search) ? undefined : archivedSize, newPage: true
     }
   ]);
@@ -311,9 +319,9 @@ function PlanningDialog(props) {
 
   return (
     <Screen
-      title={marketName}
+      title={groupName}
       hidden={hidden}
-      tabTitle={marketName}
+      tabTitle={groupName}
       breadCrumbs={breadCrumbs}
       banner={banner}
       navigationOptions={banner ? [] : navigationMenu}
@@ -329,7 +337,7 @@ function PlanningDialog(props) {
             <FormattedMessage id="planningDialogNavDiscussionLabel" />
           </h2>
           {(_.isEmpty(search) || results.find((item) => item.id === marketId)) && (
-            <Summary market={market} hidden={hidden} activeMarket={activeMarket} inArchives={inArchives}
+            <Summary group={group} hidden={hidden} activeMarket={activeMarket} inArchives={inArchives}
                      pageState={pageState} updatePageState={updatePageState} pageStateReset={pageStateReset}
                      isDraft={isDraft}/>
           )}
@@ -396,8 +404,8 @@ function PlanningDialog(props) {
               >
                 <ArchiveInvestbiles
                   elevation={0}
-                  marketId={market.id}
-                  presenceMap={getPresenceMap(marketPresencesState, market.id, groupPresencesState, groupId)}
+                  group={group}
+                  presenceMap={getPresenceMap(marketPresencesState, marketId, groupPresencesState, groupId)}
                   investibles={blockedInvestibles}
                   presenceId={myPresence.id}
                   stage={inBlockingStage}
@@ -441,8 +449,6 @@ function PlanningDialog(props) {
               <InvestiblesByPerson
                 comments={comments}
                 investibles={investibles}
-                marketId={marketId}
-                groupId={groupId}
                 visibleStages={visibleStages}
                 acceptedStage={acceptedStage}
                 inDialogStage={inDialogStage}
@@ -450,7 +456,7 @@ function PlanningDialog(props) {
                 inReviewStage={inReviewStage}
                 inVerifiedStage={inVerifiedStage}
                 requiresInputStage={requiresInputStage}
-                market={market}
+                group={group}
                 isAdmin={isAdmin}
                 mobileLayout={mobileLayout}
                 pageState={pageState} updatePageState={updatePageState}
@@ -559,7 +565,7 @@ function PlanningDialog(props) {
         )}
         <MarketTodos comments={unResolvedMarketComments} marketId={marketId}
                      sectionOpen={isSectionOpen('marketTodos')}
-                     setSectionOpen={setSectionOpen} market={market} userId={myPresence.id}/>
+                     setSectionOpen={setSectionOpen} group={group} userId={myPresence.id}/>
       </LocalPlanningDragContext.Provider>
       <Grid container spacing={2} id="settingsSection">
         {!hidden && !_.isEmpty(acceptedStage) && !_.isEmpty(inVerifiedStage) &&
@@ -569,7 +575,7 @@ function PlanningDialog(props) {
                 <FormattedMessage id="settings" />
               </h2>
               <PlanningDialogEdit
-                market={market}
+                group={group}
                 userId={myPresence.id}
                 onCancel={() => openSubSection('workspaceMain')}
                 acceptedStage={acceptedStage}
@@ -583,7 +589,8 @@ function PlanningDialog(props) {
 }
 
 PlanningDialog.propTypes = {
-  market: PropTypes.object.isRequired,
+  marketStage: PropTypes.object.isRequired,
+  marketId: PropTypes.object.isRequired,
   investibles: PropTypes.arrayOf(PropTypes.object),
   marketPresences: PropTypes.arrayOf(PropTypes.object),
   marketStages: PropTypes.arrayOf(PropTypes.object),

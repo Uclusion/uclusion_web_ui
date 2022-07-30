@@ -65,7 +65,7 @@ function Dialog(props) {
   });
   const loadedMarket = getMarket(marketsState, marketId);
   const renderableMarket = loadedMarket || {};
-  const { market_type: marketType } = renderableMarket || '';
+  const { market_type: marketType, market_stage: marketStage } = renderableMarket;
   const isInitialization = marketsState.initializing || investiblesState.initializing
     || marketPresencesState.initializing || marketStagesState.initializing || commentsState.initializing;
   const marketStages = getStages(marketStagesState, marketId);
@@ -96,7 +96,7 @@ function Dialog(props) {
         if (_.isEmpty(loadedMarket)) {
           pushMessage(LOAD_MARKET_CHANNEL, { event: INVITE_MARKET_EVENT, marketToken: marketEntity })
           //Immediately replace the invite in the path name so don't send twice
-          window.history.replaceState(null, '', formMarketLink(proposedMarketId));
+          window.history.replaceState(null, '', formMarketLink(proposedMarketId, proposedMarketId));
         }
       }
     }
@@ -110,7 +110,7 @@ function Dialog(props) {
       // Try to remove the market token from the URL to avoid book marking it or other weirdness
       // Potentially this fails since inside useEffect
       console.info('Navigating to market');
-      history.push(formMarketLink(marketId));
+      history.push(formMarketLink(marketId, marketId));
     }
     return () => {}
   }, [hidden, action, history, marketId, loadedMarket, marketType]);
@@ -156,7 +156,8 @@ function Dialog(props) {
       hidden={hidden}
       addInvestibleMode={addInvestibleMode}
       setAddInvestibleMode={setAddInvestibleMode}
-      market={renderableMarket}
+      marketStage={marketStage}
+      marketId={marketId}
       investibles={investibles}
       comments={comments}
       marketStages={marketStages}

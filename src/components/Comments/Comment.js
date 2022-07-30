@@ -334,10 +334,10 @@ function useComments() {
 function useMarketId() {
   return React.useContext(LocalCommentsContext).marketId;
 }
-function navigateEditReplyBack(history, id, marketId, investibleId, replyEditId, isReply=false,
+function navigateEditReplyBack(history, id, marketId, groupId, investibleId, replyEditId, isReply=false,
   isFromInbox, messagesState) {
   if (replyEditId) {
-    const path = isFromInbox ? getInboxTarget(messagesState) : formCommentLink(marketId, investibleId, id);
+    const path = isFromInbox ? getInboxTarget(messagesState) : formCommentLink(marketId, groupId, investibleId, id);
     navigate(history, path);
   } else {
     navigate(history, formCommentEditReplyLink(marketId, id, isReply), false, true);
@@ -365,7 +365,7 @@ function Comment(props) {
   const lockedDialogClasses = useLockedDialogStyles();
   const { id, comment_type: commentType, investible_id: investibleId, inline_market_id: inlineMarketId,
     resolved, notification_type: myNotificationType, creation_stage_id: createdStageId,
-    mentions, body, creator_assigned: creatorAssigned, is_sent: isSent } = comment;
+    mentions, body, creator_assigned: creatorAssigned, is_sent: isSent, group_id: groupId } = comment;
   const replyBeingEdited = replyEditId === id && myParams && !_.isEmpty(myParams.get('reply'));
   const beingEdited = replyEditId === id && !replyBeingEdited;
   const isFromInbox = myParams && !_.isEmpty(myParams.get('inbox'));
@@ -492,10 +492,11 @@ function Comment(props) {
   function toggleBase(isReply) {
     if (parentCommentId && replyEditId && !isFromInbox) {
       const rootComment = getComment(commentState, parentMarketId, parentCommentId);
-      navigateEditReplyBack(history, parentCommentId, parentMarketId, rootComment.investible_id, replyEditId,
-        isReply, isFromInbox, messagesState);
+      navigateEditReplyBack(history, parentCommentId, parentMarketId, rootComment.group_id, rootComment.investible_id,
+        replyEditId, isReply, isFromInbox, messagesState);
     } else {
-      navigateEditReplyBack(history, id, marketId, investibleId, replyEditId, isReply, isFromInbox, messagesState);
+      navigateEditReplyBack(history, id, marketId, groupId, investibleId, replyEditId, isReply, isFromInbox,
+        messagesState);
     }
   }
 
@@ -1356,8 +1357,8 @@ function Reply(props) {
   const [editState, updateEditState, editStateReset] = getPageReducerPage(editStateFull, editDispatch, comment.id);
 
   function handleEditClick() {
-    navigateEditReplyBack(history, comment.id, marketId, comment.investible_id, replyEditId, false, isFromInbox,
-      messagesState);
+    navigateEditReplyBack(history, comment.id, marketId, comment.group_id, comment.investible_id, replyEditId,
+      false, isFromInbox, messagesState);
   }
 
   function setBeingEdited(value, event) {
@@ -1368,8 +1369,8 @@ function Reply(props) {
   }
 
   function setReplyOpen() {
-    navigateEditReplyBack(history, comment.id, marketId, comment.investible_id, replyEditId, true, isFromInbox,
-      messagesState);
+    navigateEditReplyBack(history, comment.id, marketId, comment.group_id, comment.investible_id, replyEditId,
+      true, isFromInbox, messagesState);
   }
   const { level: myHighlightedLevel } = myMessage;
   const intl = useIntl();

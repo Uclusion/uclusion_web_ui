@@ -177,12 +177,12 @@ export function openInNewTab(url) {
   win.focus();
 }
 
-export function formCommentLink(marketId, investibleId, commentId){
+export function formCommentLink(marketId, groupId, investibleId, commentId){
   const commentPart = `#c${commentId}`;
   if (!_.isEmpty(investibleId)) {
     return formInvestibleLink(marketId, investibleId) + commentPart;
   }
-  return formMarketLink(marketId) + commentPart;
+  return formMarketLink(marketId, groupId) + commentPart;
 }
 
 export function formInvestibleLinkWithPrefix(preFix, marketId, investibleId) {
@@ -216,14 +216,15 @@ export function formCommentEditReplyLink(marketId, commentId, isReply=false) {
  * Forms a link to a given market id with the given subpath. Usually used when switching
  * to a different market
  * @param marketId
+ * @param groupId
  * @returns {string}
  */
-export function formMarketLink(marketId) {
-  return formatMarketLinkWithPrefix('dialog', marketId);
+export function formMarketLink(marketId, groupId) {
+  return `${formatMarketLinkWithPrefix('dialog', marketId)}?groupId=${groupId}`;
 }
 
-export function formMarketArchivesLink(marketId) {
-  return formatMarketLinkWithPrefix('dialogArchives', marketId);
+export function formMarketArchivesLink(marketId, groupId) {
+  return `${formatMarketLinkWithPrefix('dialogArchives', marketId)}?groupId=${groupId}`;
 }
 
 export function formMarketEditLink(marketId) {

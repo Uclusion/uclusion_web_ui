@@ -35,10 +35,9 @@ export function notify(userId, investibleId, notificationType, notificationLevel
   messagesDispatch) {
   const investibleLink = formInvestibleLink(market.id, investibleId);
   const investibleName = getInvestibleName(investiblesState, investibleId);
-  const marketLink = formMarketLink(market.id);
   messagesDispatch(addMessage({ market_id_user_id: `${market.id}_${userId}`,
     type_object_id: `${notificationType}_${investibleId}`, type: notificationType, market_id: market.id,
     investible_id: investibleId, user_id: userId, level: notificationLevel, link: investibleLink,
-    market_type: market.market_type, link_type: 'INVESTIBLE', link_multiple: marketLink,
-    investible_name: investibleName, investible_link: investibleLink }));
+    market_type: market.market_type, link_type: 'INVESTIBLE', investible_name: investibleName,
+    investible_link: investibleLink }));
 }

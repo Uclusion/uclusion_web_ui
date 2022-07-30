@@ -44,6 +44,7 @@ function Investible(props) {
   const { investible } = inv || {};
   const { name } = investible || {};
   const { name: marketName } = market || {};
+  //TODO need groupId in formMarketLink and all over here
   const breadCrumbTemplates = [{ name: marketName, link: formMarketLink(marketId), id: 'marketCrumb' }];
   const myPresence = marketPresences.find((presence) => presence.current_user);
   const loading = !investibleId || _.isEmpty(inv) || _.isEmpty(investible) || _.isEmpty(myPresence) || !userId

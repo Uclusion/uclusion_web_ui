@@ -483,6 +483,7 @@ function PlanningInvestible(props) {
   const inMarketArchives = isInNotDoing || isInVerified;
   const reportMessage = findMessageOfType('REPORT_REQUIRED', investibleId, messagesState);
   const breadCrumbTemplates = [];
+  //TODO need groupId in formMarketLink and all over here
   if (marketName) {
     breadCrumbTemplates.push({ name: marketName, link: formMarketLink(marketId) });
   }

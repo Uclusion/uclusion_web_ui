@@ -103,8 +103,8 @@ export function allowVotingForSuggestion(commentId, setOperationRunning, markets
 }
 
 export function notifyImmediate(userId, comment, market, messagesDispatch) {
-  const commentLink = formCommentLink(market.id, undefined, comment.id);
-  const marketLink = formMarketLink(market.id);
+  const commentLink = formCommentLink(market.id, comment.group_id, comment.investible_id, comment.id);
+  const marketLink = formMarketLink(market.id, comment.group_id);
   const notificationType = 'ISSUE';
   messagesDispatch(addMessage({ market_id_user_id: `${market.id}_${userId}`,
     type_object_id: `${notificationType}_${comment.id}`, type: notificationType, market_id: market.id,

@@ -65,7 +65,7 @@ function CommentPanel(props) {
     useCommentId = inlineParentCommentId;
   }
   const rootComment = getCommentRoot(commentState, useMarketId, useCommentId);
-  const useLink = link || formCommentLink(marketId, (rootComment || {}).investible_id, commentId);
+  const useLink = link || formCommentLink(marketId, rootComment.group_id, (rootComment || {}).investible_id, commentId);
 
   function myAccept() {
     onDropTodo(commentId, commentState, marketId, undefined, intl, commentsDispatch, invDispatch,

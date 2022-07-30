@@ -32,7 +32,7 @@ function OnboardingWorkspace() {
   const [marketsState] = useContext(MarketsContext);
   const { marketDetails } = marketsState;
   const supportMarket = (marketDetails || []).find((market) => market.market_sub_type === 'SUPPORT') || {};
-  const marketLink = supportMarket.id ? formMarketLink(supportMarket.id) : undefined;
+  const marketLink = supportMarket.id ? formMarketLink(supportMarket.id, supportMarket.id) : undefined;
   return (
     <Button
       marketId=""

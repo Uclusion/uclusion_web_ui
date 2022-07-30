@@ -89,7 +89,7 @@ function DialogArchives(props) {
   });
 
   const { name } = renderableMarket;
-  const breadCrumbTemplates = [{ name, link: formMarketLink(marketId), icon: <AgilePlanIcon/> }];
+  const breadCrumbTemplates = [{ name, link: formMarketLink(marketId, groupId), icon: <AgilePlanIcon/> }];
   const breadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates);
 
   function onFilterChange(event) {

@@ -116,7 +116,3 @@ export function changeObserverStatus(state, dispatch, marketId, isObserver) {
 export function partialUpdateInvestment(dispatch, investmentPatch, allowMultiVote) {
   dispatch(patchInvestment(investmentPatch, allowMultiVote))
 }
-
-export function marketHasOnlyCurrentUser(messagesState, marketId){
-  return !_.isEmpty(findMessageOfType('UNREAD_DRAFT', marketId, messagesState));
-}

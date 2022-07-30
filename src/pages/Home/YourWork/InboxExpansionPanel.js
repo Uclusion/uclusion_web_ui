@@ -168,7 +168,7 @@ function getMessageForComment (comment, market, labelId, Icon, intl, investibleS
     comment: comment.body,
     title: intl.formatMessage({ id: labelId }),
     updatedAt: comment.updated_at,
-    link: formCommentLink(market.id, comment.investible_id, commentId),
+    link: formCommentLink(market.id, comment.group_id, comment.investible_id, commentId),
     inFurtherWork: false
   }
   const expansionOpen = expansionState && !!expansionState[commentId]

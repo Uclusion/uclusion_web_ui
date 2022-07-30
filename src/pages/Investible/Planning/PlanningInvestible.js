@@ -420,7 +420,7 @@ function PlanningInvestible(props) {
   const marketInfo = getMarketInfo(marketInvestible, marketId) || {};
   const { stage, assigned: invAssigned, completion_estimate: marketDaysEstimate,
     required_approvers:  requiredApprovers, required_reviews: requiredReviewers, ticket_code: ticketCode,
-    open_for_investment: openForInvestment, former_stage_id: formerStageId, accepted } = marketInfo;
+    open_for_investment: openForInvestment, former_stage_id: formerStageId, accepted, group_id: groupId } = marketInfo;
   const assigned = invAssigned || [];
   const { investible } = marketInvestible;
   const { name, locked_by: lockedBy, created_at: createdAt, label_list: originalLabelList } = investible;
@@ -483,9 +483,8 @@ function PlanningInvestible(props) {
   const inMarketArchives = isInNotDoing || isInVerified;
   const reportMessage = findMessageOfType('REPORT_REQUIRED', investibleId, messagesState);
   const breadCrumbTemplates = [];
-  //TODO need groupId in formMarketLink and all over here
   if (marketName) {
-    breadCrumbTemplates.push({ name: marketName, link: formMarketLink(marketId) });
+    breadCrumbTemplates.push({ name: marketName, link: formMarketLink(marketId, groupId) });
   }
   if (inMarketArchives && !inVerifedSwimLane(marketInvestible, investibles, inVerifiedStage, marketId)) {
     breadCrumbTemplates.push({
@@ -792,7 +791,7 @@ function PlanningInvestible(props) {
     navListItemTextArray: [
       {icon: Inbox, text: intl.formatMessage({ id: 'returnInbox' }), target: getInboxTarget(messagesState),
         newPage: true},
-        {icon: AgilePlanIcon, text: marketName, target: formMarketLink(marketId)},
+        {icon: AgilePlanIcon, text: marketName, target: formMarketLink(marketId, groupId)},
       createNavListItem(EditIcon, 'description_label', 'storyMain',
       displayDescription ? undefined : 0),
       createNavListItem(ThumbsUpDownIcon, 'approvals', 'approvals',

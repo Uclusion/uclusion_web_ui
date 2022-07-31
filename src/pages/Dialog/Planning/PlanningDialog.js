@@ -101,25 +101,22 @@ function PlanningDialog(props) {
     hidden,
     myPresence,
     banner,
-    marketStage,
     marketId
   } = props;
   const [searchResults] = useContext(SearchResultsContext);
   const { results, parentResults, search } = searchResults;
   const location = useLocation();
-  const { hash } = location;
-  const values = queryString.parse(hash);
-  const { groupId, fragmentIdentifier: myHashFragment } = values || {};
+  const { hash, search: querySearch } = location;
+  const values = queryString.parse(querySearch);
+  const { groupId } = values || {};
   const classes = useInvestiblesByPersonStyles();
   const intl = useIntl();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
   const [groupState] = useContext(MarketGroupsContext);
-  const group = getGroup(groupState, marketId, groupId)
+  const group = getGroup(groupState, marketId, groupId);
   const { name: groupName, created_by: createdBy, created_at: createdAt,
-    budget_unit: budgetUnit, use_budget: useBudget, votes_required: votesRequired} = group;
-  const activeMarket = marketStage === ACTIVE_STAGE;
-  const inArchives = !activeMarket;
+    budget_unit: budgetUnit, use_budget: useBudget, votes_required: votesRequired} = group || {};
   const isAdmin = myPresence.is_admin;
   const breadCrumbs = makeBreadCrumbs(history);
   const unResolvedMarketComments = comments.filter(comment => !comment.investible_id && !comment.resolved) || [];
@@ -203,9 +200,9 @@ function PlanningDialog(props) {
   }
 
   useEffect(() => {
-    if (myHashFragment) {
+    if (hash) {
       if (sectionOpen !== 'workspaceMain') {
-        if (myHashFragment.includes('workspaceMain')) {
+        if (hash.includes('workspaceMain')) {
           updatePageState({ sectionOpen: 'workspaceMain' })
         } else {
           const unResolvedMarketComments = comments.filter(comment => !comment.investible_id && !comment.resolved) || []
@@ -213,14 +210,14 @@ function PlanningDialog(props) {
           const notTodoComments = unResolvedMarketComments.filter(comment =>
             [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE, REPLY_TYPE].includes(comment.comment_type)) || []
           const noTodoCommentIds = getThreadIds(notTodoComments, comments)
-          const foundCommentId = noTodoCommentIds.find((anId) => myHashFragment.includes(anId))
+          const foundCommentId = noTodoCommentIds.find((anId) => hash.includes(anId))
           if (foundCommentId) {
             updatePageState({ sectionOpen: 'workspaceMain' });
           }
         }
       }
     }
-  }, [comments, myHashFragment, sectionOpen, updatePageState]);
+  }, [comments, hash, sectionOpen, updatePageState]);
 
   function onClickFurtherStart() {
     updatePageState({furtherWorkType: 'readyToStart'});
@@ -289,7 +286,7 @@ function PlanningDialog(props) {
       + _.size(furtherWorkReadyToStart) + _.size(furtherWorkInvestibles),
       true, isSectionBold('storiesSection'), !_.isEmpty(search)),
     createNavListItem(ListAltIcon, 'todoSection', 'marketTodos', _.size(todoComments),
-      !inArchives && _.isEmpty(search), isSectionBold('marketTodos'), !_.isEmpty(search)),
+      _.isEmpty(search), isSectionBold('marketTodos'), !_.isEmpty(search)),
     {
       icon: MenuBookIcon, text: intl.formatMessage({ id: 'planningDialogViewArchivesLabel' }),
       target: archivedSize > 0 ? formMarketArchivesLink(groupId) : undefined,
@@ -349,7 +346,7 @@ function PlanningDialog(props) {
                 be used at the channel level and later moved to a job.
               </div>
             }/>
-            {!inArchives && _.isEmpty(search) && marketId && !hidden && (
+            {_.isEmpty(search) && marketId && !hidden && (
               <CommentAddBox
                 allowedTypes={allowedCommentTypes}
                 marketId={marketId}
@@ -591,8 +588,7 @@ function PlanningDialog(props) {
 }
 
 PlanningDialog.propTypes = {
-  marketStage: PropTypes.object.isRequired,
-  marketId: PropTypes.object.isRequired,
+  marketId: PropTypes.string.isRequired,
   marketInvestibles: PropTypes.arrayOf(PropTypes.object),
   marketPresences: PropTypes.arrayOf(PropTypes.object),
   marketStages: PropTypes.arrayOf(PropTypes.object),

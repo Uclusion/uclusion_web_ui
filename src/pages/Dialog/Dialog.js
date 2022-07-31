@@ -35,7 +35,6 @@ import {
 import UpgradeBanner from '../../components/Banners/UpgradeBanner'
 import { canCreate } from '../../contexts/AccountContext/accountContextHelper'
 import { AccountContext } from '../../contexts/AccountContext/AccountContext'
-import queryString from 'query-string'
 
 function Dialog(props) {
   const { hidden } = props;
@@ -44,8 +43,7 @@ function Dialog(props) {
   const intl = useIntl();
   const location = useLocation();
   const { pathname, hash } = location
-  const values = queryString.parse(hash);
-  const { fragmentIdentifier: myHashFragment } = values || {};
+  const myHashFragment = (hash && hash.length > 1) ? hash.substring(1, hash.length) : undefined;
   const { marketId: marketEntity, action } = decomposeMarketPath(pathname);
   const [marketIdFromToken, setMarketIdFromToken] = useState(undefined);
   const [marketsState, , tokensHash] = useContext(MarketsContext);
@@ -65,7 +63,7 @@ function Dialog(props) {
   });
   const loadedMarket = getMarket(marketsState, marketId);
   const renderableMarket = loadedMarket || {};
-  const { market_type: marketType, market_stage: marketStage } = renderableMarket;
+  const { market_type: marketType } = renderableMarket;
   const isInitialization = marketsState.initializing || investiblesState.initializing
     || marketPresencesState.initializing || marketStagesState.initializing || commentsState.initializing;
   const marketStages = getStages(marketStagesState, marketId);
@@ -156,7 +154,6 @@ function Dialog(props) {
       hidden={hidden}
       addInvestibleMode={addInvestibleMode}
       setAddInvestibleMode={setAddInvestibleMode}
-      marketStage={marketStage}
       marketId={marketId}
       marketInvestibles={investibles}
       comments={comments}

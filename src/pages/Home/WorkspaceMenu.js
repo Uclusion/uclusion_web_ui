@@ -153,7 +153,7 @@ function WorkspaceMenu(props) {
                   {intl.formatMessage({ id: 'homeAddPlanning' })}
                 </MenuItem>
                 <SubMenu title={intl.formatMessage({ id: 'switchWorkspace' })}
-                         key="switchWorkspace">
+                         key="switchWorkspace" style={{paddingLeft: '0.7rem'}}>
                   {markets.map((market) => {
                     if (market.id === defaultMarket.id) {
                       return React.Fragment;

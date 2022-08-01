@@ -430,7 +430,7 @@ const messages = defineMessages({
   daysEstimateHelp: 'Optional very rough expected date of completion.',
   daysEstimateMarketLabel: 'date of completion',
   votesRequiredHelp: "Number of approvals desired before starting a job",
-  ticketSubCodeHelp: 'A short code for the channel which will be used to form human readable job ids',
+  ticketSubCodeHelp: 'A short code for the group which will be used to form human readable job ids',
   ticketSubCodeHelp1: 'Your job ids will look like U-{code}-0, U-{code}-1, U-{code}-2, etc.',
   maxBudgetHelp: 'Maximum budget allowed for a job. Used to prevent stories from being too large.',
   voteExpirationHelp: "How many days before approvals expire. Prevents very old approval from being used.",
@@ -551,7 +551,8 @@ const messages = defineMessages({
   orProgressReportOnly: 'or create a progress report.',
 
   // Home
-  homeAddPlanning: 'Channel',
+  homeAddPlanning: 'Create a workspace',
+  homeAddGroup: 'Create a group',
   archiveWarning: 'Muting will unassign any active job. Deactivating stops the channel for everyone.',
   new: 'New',
   information: 'Information',
@@ -1062,7 +1063,7 @@ const messages = defineMessages({
 
   //StoryWorkspaceWizard
   WorkspaceWizardTitle: 'Your channel',
-  WorkspaceWizardMeetingPlaceHolder: 'Your channel name',
+  GroupWizardMeetingName: 'Your group name',
   WorkspaceWizardMeetingStepLabel: 'Your channel',
   WorkspaceWizardCreatingWorkspaceStepLabel: 'Channel creation',
   WorkspaceWizardWorkspaceDescription: 'Requirements and potential feature ideas for "{meetingName}" go here.',

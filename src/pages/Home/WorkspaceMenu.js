@@ -11,6 +11,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import SettingsIcon from '@material-ui/icons/Settings'
 import { useIntl } from 'react-intl'
 import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
+import AddIcon from '@material-ui/icons/Add'
 
 const useStyles = makeStyles((theme) => ({
   name: {
@@ -145,11 +146,11 @@ function WorkspaceMenu(props) {
           <ProSidebar width="14rem">
             <SidebarContent>
               <ProMenu iconShape="circle">
-                <MenuItem icon={<SettingsIcon htmlColor="black" />}
-                          key="settingsIconKey" id="settingsIconId"
+                <MenuItem icon={<AddIcon htmlColor="black" />}
+                          key="addWorkspaceIconKey" id="addWorkspaceIconId"
                           onClick={goTo('/notificationPreferences')}
                 >
-                  {intl.formatMessage({ id: 'settings' })}
+                  {intl.formatMessage({ id: 'homeAddPlanning' })}
                 </MenuItem>
                 <SubMenu title={intl.formatMessage({ id: 'switchWorkspace' })}
                          key="switchWorkspace">
@@ -165,6 +166,12 @@ function WorkspaceMenu(props) {
                     </MenuItem>
                   })}
                 </SubMenu>
+                <MenuItem icon={<SettingsIcon htmlColor="black" />}
+                          key="settingsIconKey" id="settingsIconId"
+                          onClick={goTo('/notificationPreferences')}
+                >
+                  {intl.formatMessage({ id: 'settings' })}
+                </MenuItem>
               </ProMenu>
             </SidebarContent>
           </ProSidebar>

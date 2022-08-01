@@ -3,19 +3,19 @@ import PropTypes from 'prop-types'
 import { TextField, Typography } from '@material-ui/core'
 import { useIntl } from 'react-intl'
 import _ from 'lodash'
-import StepButtons from '../../StepButtons'
-import WizardStepContainer from '../../WizardStepContainer';
-import { WizardStylesContext } from '../../WizardStylesContext';
-import { MarketsContext } from '../../../../contexts/MarketsContext/MarketsContext'
-import { MarketStagesContext } from '../../../../contexts/MarketStagesContext/MarketStagesContext'
-import { DiffContext } from '../../../../contexts/DiffContext/DiffContext'
-import { InvestiblesContext } from '../../../../contexts/InvestibesContext/InvestiblesContext'
-import { MarketPresencesContext } from '../../../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { CommentsContext } from '../../../../contexts/CommentsContext/CommentsContext'
-import { doCreateStoryWorkspace } from './workspaceCreator'
-import { formMarketLink } from '../../../../utils/marketIdPathFunctions'
+import StepButtons from '../StepButtons'
+import WizardStepContainer from '../WizardStepContainer';
+import { WizardStylesContext } from '../WizardStylesContext';
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
+import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
+import { doCreateGroup } from './groupCreator'
+import { formMarketLink } from '../../../utils/marketIdPathFunctions'
 
-function WorkspaceNameStep (props) {
+function GroupNameStep (props) {
   const { updateFormData, formData, parentInvestibleId, parentMarketId } = props;
   const intl = useIntl();
   const value = formData.meetingName || '';
@@ -38,7 +38,7 @@ function WorkspaceNameStep (props) {
       commentsDispatch,
       commentsState,
     };
-    return doCreateStoryWorkspace(dispatchers, formData, updateFormData, intl)
+    return doCreateGroup(dispatchers, formData, updateFormData, intl)
       .then((marketId) => {
         return ({ ...formData, link: formMarketLink(marketId, marketId) });
       })
@@ -71,10 +71,10 @@ function WorkspaceNameStep (props) {
     >
     <div>
       <Typography className={classes.introText} variant="h6">
-        Channels have features for extended efforts. Configuration can be changed at any time from channel settings.
+        A group organizes a team and its jobs.
       </Typography>
       <label className={classes.inputLabel} htmlFor="name">
-        {intl.formatMessage({ id: 'WorkspaceWizardMeetingPlaceHolder' })}
+        {intl.formatMessage({ id: 'GroupWizardMeetingName' })}
       </label>
       <TextField
         id="workspaceName"
@@ -82,24 +82,26 @@ function WorkspaceNameStep (props) {
         value={value}
         onChange={onNameChange}
       />
+      <Typography className={classes.introText} variant="body1">
+        Finish after choosing a name or continue for options which can be changed at any time.
+      </Typography>
       <div className={classes.borderBottom} />
-      <StepButtons {...props} validForm={validForm} onFinish={onFinish} onNext={onFinish}
-                   showFinish={false}/>
+      <StepButtons {...props} validForm={validForm} showFinish={true} onFinish={onFinish}/>
     </div>
     </WizardStepContainer>
   );
 }
 
-WorkspaceNameStep.propTypes = {
+GroupNameStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object,
   isNew: PropTypes.bool
 };
 
-WorkspaceNameStep.defaultProps = {
+GroupNameStep.defaultProps = {
   updateFormData: () => {},
   formData: {},
   isNew: false
 };
 
-export default WorkspaceNameStep;
+export default GroupNameStep;

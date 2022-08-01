@@ -43,7 +43,7 @@ export const wizardStyles = makeStyles(
         display: 'block',
         marginTop: '2rem',
         fontWeight: 'bold',
-        textTransform: 'capitalize'
+        textTransform: 'none'
       },
       containerAll: {
         background: '#efefef',

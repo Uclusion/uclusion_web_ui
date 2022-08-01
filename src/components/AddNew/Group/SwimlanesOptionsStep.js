@@ -2,22 +2,22 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Typography, Card } from '@material-ui/core'
 import { useIntl } from 'react-intl';
-import StepButtons from '../../StepButtons';
-import { DiffContext } from '../../../../contexts/DiffContext/DiffContext';
+import StepButtons from '../StepButtons';
+import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 
-import { MarketsContext } from '../../../../contexts/MarketsContext/MarketsContext';
-import { InvestiblesContext } from '../../../../contexts/InvestibesContext/InvestiblesContext';
-import { MarketPresencesContext } from '../../../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { CommentsContext } from '../../../../contexts/CommentsContext/CommentsContext';
-import { doCreateStoryWorkspace } from './workspaceCreator';
-import { WizardStylesContext } from '../../WizardStylesContext';
-import WizardStepContainer from '../../WizardStepContainer';
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
+import { doCreateGroup } from './groupCreator';
+import { WizardStylesContext } from '../WizardStylesContext';
+import WizardStepContainer from '../WizardStepContainer';
 import Grid from '@material-ui/core/Grid';
-import AllowedInProgress from '../../../../pages/Dialog/Planning/AllowedInProgress';
-import { MarketStagesContext } from '../../../../contexts/MarketStagesContext/MarketStagesContext';
-import ShowInVerifiedStageAge from '../../../../pages/Dialog/Planning/ShowInVerifiedStageAge'
+import AllowedInProgress from '../../../pages/Dialog/Planning/AllowedInProgress';
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
+import ShowInVerifiedStageAge from '../../../pages/Dialog/Planning/ShowInVerifiedStageAge'
 import { useOptionsStyles } from './AdvancedOptionsStep'
-import { formMarketLink } from '../../../../utils/marketIdPathFunctions'
+import { formMarketLink } from '../../../utils/marketIdPathFunctions'
 
 
 function SwimlanesOptionsStep (props) {
@@ -41,7 +41,7 @@ function SwimlanesOptionsStep (props) {
       commentsDispatch,
       commentsState,
     };
-    return doCreateStoryWorkspace(dispatchers, formData, updateFormData, intl)
+    return doCreateGroup(dispatchers, formData, updateFormData, intl)
       .then((marketId) => {
         return ({ ...formData, link: formMarketLink(marketId, marketId) });
       });
@@ -75,9 +75,8 @@ function SwimlanesOptionsStep (props) {
       <div>
         <Typography className={classes.title} variant="h5">Swimlane Configuration</Typography>
         <Typography variant="body1" className={optionsClasses.helper}>
-          Limiting the number of tasks a person can have in 'Started' stage helps avoid status meetings.
-          The Verified stories that show in the swimlanes are a convenience - you can see all stories by looking in
-          "Archives".
+          Limiting the number of jobs a person can start helps clarify status.
+          Recently finished jobs show in the swimlanes but you can see all Verified stage jobs by looking in "Archives".
         </Typography>
         <Card className={optionsClasses.cardStyle}>
           <Grid container spacing={2} direction="column">

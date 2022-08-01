@@ -2,21 +2,21 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Typography, Card, TextField } from '@material-ui/core'
 import { useIntl } from 'react-intl';
-import StepButtons from '../../StepButtons';
+import StepButtons from '../StepButtons';
 import _ from 'lodash';
-import { WizardStylesContext } from '../../WizardStylesContext';
-import WizardStepContainer from '../../WizardStepContainer';
+import { WizardStylesContext } from '../WizardStylesContext';
+import WizardStepContainer from '../WizardStepContainer';
 import Grid from '@material-ui/core/Grid';
-import { usePlanFormStyles } from '../../../AgilePlan'
+import { usePlanFormStyles } from '../../AgilePlan'
 import { makeStyles } from '@material-ui/styles';
-import { MarketsContext } from '../../../../contexts/MarketsContext/MarketsContext'
-import { MarketStagesContext } from '../../../../contexts/MarketStagesContext/MarketStagesContext'
-import { DiffContext } from '../../../../contexts/DiffContext/DiffContext'
-import { InvestiblesContext } from '../../../../contexts/InvestibesContext/InvestiblesContext'
-import { MarketPresencesContext } from '../../../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { CommentsContext } from '../../../../contexts/CommentsContext/CommentsContext'
-import { doCreateStoryWorkspace } from './workspaceCreator'
-import { formMarketLink } from '../../../../utils/marketIdPathFunctions'
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
+import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
+import { doCreateGroup } from './groupCreator'
+import { formMarketLink } from '../../../utils/marketIdPathFunctions'
 
 export const useOptionsStyles = makeStyles(theme => {
   return {
@@ -29,7 +29,6 @@ export const useOptionsStyles = makeStyles(theme => {
       }
     },
     helper: {
-      fontStyle: "italic",
       marginBottom: theme.spacing(2),
     },
     cardStyle: {
@@ -59,7 +58,7 @@ function AdvancedOptionsStep (props) {
       commentsDispatch,
       commentsState,
     };
-    return doCreateStoryWorkspace(dispatchers, formData, updateFormData, intl)
+    return doCreateGroup(dispatchers, formData, updateFormData, intl)
       .then((marketId) => {
         return ({ ...formData, link: formMarketLink(marketId, marketId) });
       })

@@ -2,22 +2,22 @@ import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import { Typography, Card, FormControlLabel, Radio, RadioGroup, TextField } from '@material-ui/core'
 import { useIntl } from 'react-intl'
-import StepButtons from '../../StepButtons'
-import { DiffContext } from '../../../../contexts/DiffContext/DiffContext'
-import { MarketsContext } from '../../../../contexts/MarketsContext/MarketsContext'
-import { InvestiblesContext } from '../../../../contexts/InvestibesContext/InvestiblesContext'
-import { MarketPresencesContext } from '../../../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { CommentsContext } from '../../../../contexts/CommentsContext/CommentsContext'
-import { doCreateStoryWorkspace } from './workspaceCreator'
-import { WizardStylesContext } from '../../WizardStylesContext'
-import WizardStepContainer from '../../WizardStepContainer'
+import StepButtons from '../StepButtons'
+import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
+import { doCreateGroup } from './groupCreator'
+import { WizardStylesContext } from '../WizardStylesContext'
+import WizardStepContainer from '../WizardStepContainer'
 import Grid from '@material-ui/core/Grid'
-import { MarketStagesContext } from '../../../../contexts/MarketStagesContext/MarketStagesContext'
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import { useOptionsStyles } from './AdvancedOptionsStep'
 import Autocomplete from '@material-ui/lab/Autocomplete'
-import { getMarketUnits } from '../../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { getMarketUnits } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import _ from 'lodash'
-import { formMarketLink } from '../../../../utils/marketIdPathFunctions'
+import { formMarketLink } from '../../../utils/marketIdPathFunctions'
 
 function BudgetOptionsStep (props) {
   const { updateFormData, formData } = props;
@@ -40,7 +40,7 @@ function BudgetOptionsStep (props) {
       commentsDispatch,
       commentsState,
     };
-    return doCreateStoryWorkspace(dispatchers, formData, updateFormData, intl)
+    return doCreateGroup(dispatchers, formData, updateFormData, intl)
       .then((marketId) => {
         return ({ ...formData, link: formMarketLink(marketId, marketId) });
       })
@@ -82,7 +82,7 @@ function BudgetOptionsStep (props) {
       <div>
         <Typography className={classes.title} variant="h5">Budget Configuration</Typography>
         <Typography variant="body1" className={optionsClasses.helper}>
-          Budgets are a way for approvers to indicate how much a story is worth. You can control whether approvers
+          Budgets are a way for approvers to indicate how much a job is worth. You can control whether approvers
           have the option of suggesting a budget and the units they will use.
         </Typography>
         <Card className={optionsClasses.cardStyle}>

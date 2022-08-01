@@ -2,20 +2,20 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types'
 import { Typography, Card, FormControlLabel, Radio, RadioGroup } from '@material-ui/core'
 import { useIntl } from 'react-intl'
-import StepButtons from '../../StepButtons';
-import { DiffContext } from '../../../../contexts/DiffContext/DiffContext';
-import { MarketsContext } from '../../../../contexts/MarketsContext/MarketsContext';
-import { InvestiblesContext } from '../../../../contexts/InvestibesContext/InvestiblesContext';
-import { MarketPresencesContext } from '../../../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { CommentsContext } from '../../../../contexts/CommentsContext/CommentsContext';
-import { doCreateStoryWorkspace } from './workspaceCreator';
-import { WizardStylesContext } from '../../WizardStylesContext';
-import WizardStepContainer from '../../WizardStepContainer';
+import StepButtons from '../StepButtons';
+import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
+import { doCreateGroup } from './groupCreator';
+import { WizardStylesContext } from '../WizardStylesContext';
+import WizardStepContainer from '../WizardStepContainer';
 import Grid from '@material-ui/core/Grid';
-import { VoteExpiration, Votes } from '../../../AgilePlan'
-import { MarketStagesContext } from '../../../../contexts/MarketStagesContext/MarketStagesContext';
+import { VoteExpiration, Votes } from '../../AgilePlan'
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { useOptionsStyles } from './AdvancedOptionsStep'
-import { formMarketLink } from '../../../../utils/marketIdPathFunctions'
+import { formMarketLink } from '../../../utils/marketIdPathFunctions'
 
 function ApprovalOptionsStep (props) {
   const { updateFormData, formData } = props;
@@ -38,7 +38,7 @@ function ApprovalOptionsStep (props) {
       commentsDispatch,
       commentsState,
     };
-    return doCreateStoryWorkspace(dispatchers, formData, updateFormData, intl)
+    return doCreateGroup(dispatchers, formData, updateFormData, intl)
       .then((marketId) => {
         return ({ ...formData, link: formMarketLink(marketId, marketId) });
       });
@@ -80,8 +80,7 @@ function ApprovalOptionsStep (props) {
       <div>
         <Typography className={classes.title} variant="h5">Approval Configuration</Typography>
         <Typography variant="body1" className={optionsClasses.helper}>
-          Approvals are part of Uclusion built-in workflows. You can control how many approvals a story requires,
-          how long they last and whether assigned can approve.
+          You can control how many approvals a job requires, how long they last and whether assigned can approve.
         </Typography>
         <Card className={optionsClasses.cardStyle}>
           <Grid container spacing={2} direction="column">

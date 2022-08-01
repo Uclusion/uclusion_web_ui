@@ -7,7 +7,7 @@ import {
   navigate
 } from '../../utils/marketIdPathFunctions'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
-import StoryWorkspaceWizard from '../../components/AddNew/Workspace/StoryWorkspace/StoryWorkspaceWizard'
+import GroupWizard from '../../components/AddNew/Group/GroupWizard'
 import queryString from 'query-string'
 import { PLANNING_TYPE } from '../../constants/markets'
 
@@ -34,7 +34,7 @@ function Wizard(props) {
       hidden={hidden}
     >
       {createType === `${PLANNING_TYPE.toLowerCase()}` && (
-        <StoryWorkspaceWizard onFinish={onWizardFinish} onStartOver={() => navigate(history, '/inbox')}/>
+        <GroupWizard onFinish={onWizardFinish} onStartOver={() => navigate(history, '/inbox')}/>
       )}
     </Screen>
   );

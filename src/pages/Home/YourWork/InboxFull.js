@@ -129,13 +129,12 @@ function InboxFull(props) {
       defaultMarket = markets.find((market) => market.id === chosenMarketId);
     }
   }
-  const createChannelPath = `/wizard#type=${PLANNING_TYPE.toLowerCase()}`;
   const navigationMenu = {
     navMenu: <WorkspaceMenu markets={markets} defaultMarket={defaultMarket} setChosenMarketId={setChosenMarketId} />,
     navListItemTextArray: [
       {
-        icon: AddIcon, text: intl.formatMessage({ id: 'homeAddPlanning' }),
-        target: createChannelPath
+        icon: AddIcon, text: intl.formatMessage({ id: 'homeAddGroup' }),
+        target: `/wizard#type=${PLANNING_TYPE.toLowerCase()}`
       },
     ]};
 

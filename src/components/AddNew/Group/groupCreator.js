@@ -1,20 +1,20 @@
-import { createPlanning, updateStage } from '../../../../api/markets';
-import { addMarketToStorage } from '../../../../contexts/MarketsContext/marketsContextHelper';
-import { pushMessage } from '../../../../utils/MessageBusUtils';
-import { addPresenceToMarket } from '../../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { createPlanning, updateStage } from '../../../api/markets';
+import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper';
+import { pushMessage } from '../../../utils/MessageBusUtils';
+import { addPresenceToMarket } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import _ from 'lodash';
-import { processTextAndFilesForSave } from '../../../../api/files';
-import { addPlanningInvestible, stageChangeInvestible } from '../../../../api/investibles';
-import { addInvestible } from '../../../../contexts/InvestibesContext/investiblesContextHelper';
-import { saveComment } from '../../../../api/comments';
-import { REPORT_TYPE } from '../../../../constants/comments';
-import { addCommentToMarket } from '../../../../contexts/CommentsContext/commentsContextHelper';
-import { updateStagesForMarket } from '../../../../contexts/MarketStagesContext/marketStagesContextHelper';
-import { START_TOUR, TOUR_CHANNEL } from '../../../../contexts/TourContext/tourContextMessages'
-import { INVITED_USER_WORKSPACE } from '../../../../contexts/TourContext/tourContextHelper'
-import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../../../authorization/TokenStorageManager'
-import { ADD_EVENT } from '../../../../contexts/NotificationsContext/notificationsContextMessages'
-import { NOTIFICATIONS_HUB_CHANNEL, PUSH_STAGE_CHANNEL, VERSIONS_EVENT } from '../../../../api/versionedFetchUtils'
+import { processTextAndFilesForSave } from '../../../api/files';
+import { addPlanningInvestible, stageChangeInvestible } from '../../../api/investibles';
+import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { saveComment } from '../../../api/comments';
+import { REPORT_TYPE } from '../../../constants/comments';
+import { addCommentToMarket } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { updateStagesForMarket } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { START_TOUR, TOUR_CHANNEL } from '../../../contexts/TourContext/tourContextMessages'
+import { INVITED_USER_WORKSPACE } from '../../../contexts/TourContext/tourContextHelper'
+import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../../authorization/TokenStorageManager'
+import { ADD_EVENT } from '../../../contexts/NotificationsContext/notificationsContextMessages'
+import { NOTIFICATIONS_HUB_CHANNEL, PUSH_STAGE_CHANNEL, VERSIONS_EVENT } from '../../../api/versionedFetchUtils'
 
 /**
  * Creates the story workspace from the formdata and does all the magic to make the
@@ -24,7 +24,7 @@ import { NOTIFICATIONS_HUB_CHANNEL, PUSH_STAGE_CHANNEL, VERSIONS_EVENT } from '.
  * @param updateFormData
  * @param intl
  */
-export function doCreateStoryWorkspace (dispatchers, formData, updateFormData, intl) {
+export function doCreateGroup(dispatchers, formData, updateFormData, intl) {
   const { meetingName } = formData;
   const {
     marketsDispatch,

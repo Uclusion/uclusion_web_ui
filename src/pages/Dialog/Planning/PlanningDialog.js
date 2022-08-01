@@ -34,7 +34,6 @@ import {
 } from '../../../constants/comments'
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
 import CommentBox, { getSortedRoots } from '../../../containers/CommentBox/CommentBox'
-import { ACTIVE_STAGE } from '../../../constants/markets'
 import { getUserInvestibles, getUserSwimlaneInvestiblesHash } from './userUtils'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import {

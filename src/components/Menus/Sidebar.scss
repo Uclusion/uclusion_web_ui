@@ -8,11 +8,6 @@ $icon-bg-color: rgba(255, 255, 255, 0.05);
 $icon-size: 35px;
 
 @import '~react-pro-sidebar/dist/scss/styles.scss';
-@import '~react-pro-sidebar/dist/scss/variables.scss';
-@import '~react-pro-sidebar/dist/scss/partials/animation';
-@import '~react-pro-sidebar/dist/scss/partials/sidebar';
-@import '~react-pro-sidebar/dist/scss/partials/popperArrow';
-@import '~react-pro-sidebar/dist/scss/partials/reactSlidedown';
 
 %pro-item-prefix {
   &:before {

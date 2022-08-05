@@ -12,6 +12,7 @@ import SettingsIcon from '@material-ui/icons/Settings'
 import { useIntl } from 'react-intl'
 import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
 import AddIcon from '@material-ui/icons/Add'
+import { formMarketEditLink } from '../../utils/marketIdPathFunctions'
 
 const useStyles = makeStyles((theme) => ({
   name: {
@@ -168,7 +169,7 @@ function WorkspaceMenu(props) {
                 </SubMenu>
                 <MenuItem icon={<SettingsIcon htmlColor="black" />}
                           key="settingsIconKey" id="settingsIconId"
-                          onClick={goTo('/notificationPreferences')}
+                          onClick={goTo(`${formMarketEditLink(defaultMarket.id)}`)}
                 >
                   {intl.formatMessage({ id: 'settings' })}
                 </MenuItem>

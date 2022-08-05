@@ -74,14 +74,14 @@ export function getHiddenMarketDetailsForUser(state, marketPresenceState, search
   return [];
 }
 
-export function addMarket(result, marketDispatch, diffDispatch, presenceDispatch) {
+export function addMarket(result, marketDispatch, presenceDispatch) {
   const {
     market,
     presence,
     stages
   } = result;
   const { id: marketId } = market;
-  addMarketToStorage(marketDispatch, diffDispatch, market);
+  addMarketToStorage(marketDispatch, market);
   pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, stageDetails: {[marketId]: stages}});
   if (presenceDispatch) {
     addPresenceToMarket(presenceDispatch, marketId, presence);
@@ -93,18 +93,13 @@ export function addMarket(result, marketDispatch, diffDispatch, presenceDispatch
 /**
  *
  * @param dispatch
- * @param diffDispatch
  * @param marketDetails
  */
-export function addMarketToStorage(dispatch, diffDispatch, marketDetails) {
+export function addMarketToStorage(dispatch, marketDetails) {
   if (!marketDetails.currentUserId) {
     marketDetails.currentUserId = marketDetails.current_user_id;
   }
   const fixed = fixupItemForStorage(marketDetails);
-  if (diffDispatch) {
-    diffDispatch(addContents([fixed]));
-  }
-  pushMessage(SEARCH_INDEX_CHANNEL, { event: INDEX_UPDATE, itemType: INDEX_MARKET_TYPE, items: [fixed]});
   dispatch(updateMarketDetails(fixed));
 }
 

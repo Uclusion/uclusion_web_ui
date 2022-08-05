@@ -21,6 +21,7 @@ import { registerMarketTokenListeners } from '../../authorization/tokenUtils';
 import Wizard from '../../pages/Home/Wizard'
 import InboxFull from '../../pages/Home/YourWork/InboxFull'
 import CommentReplyEdit from '../../pages/Comment/CommentReplyEdit'
+import PlanningMarketEdit from '../../pages/Dialog/Planning/PlanningMarketEdit'
 
 const useStyles = makeStyles({
   body: {
@@ -112,8 +113,12 @@ function Root() {
     return action !== 'billing';
   }
 
+  function hideMarketEdit() {
+    return action !== 'marketEdit';
+  }
+
   const hidePNF = !(hideMarket() && hideSupport() && hideHome() && hideInvestible() && hideWizard() && hideInbox()
-    && hideDialogArchives() && hideInvestibleAdd() && hideSlackInvite() && hideChangePassword()
+    && hideDialogArchives() && hideInvestibleAdd() && hideSlackInvite() && hideChangePassword() && hideMarketEdit()
     && hideChangeNotification() && hideBillingHome() && hideTodoAdd() && hideCommentReplyEdit());
 
   useEffect(() => {
@@ -163,7 +168,8 @@ function Root() {
     }
   },  [history, setOnline, setOperationsLocked, location]);
 
-  // Home is different - no content to prepare and we don't want its useEffects even around when not hidden
+  // Home - no content to prepare and we don't want its useEffects even around when not hidden
+  // PlanningMarketEdit - if preserve state then when come back can have stale data
   return (
     <div>
       <CssBaseline/>
@@ -185,6 +191,9 @@ function Root() {
             <SlackInvite hidden={hideSlackInvite()}/>
             <ChangePassword hidden={hideChangePassword()}/>
             <ChangeNotificationPreferences hidden={hideChangeNotification()}/>
+            {!hideMarketEdit() && (
+              <PlanningMarketEdit />
+            )}
             <PageNotFound hidden={hidePNF}/>
           </div>
         </div>

@@ -44,6 +44,39 @@ export function deleteAttachedFilesFromMarket(marketId, files) {
     .catch((error) => toastErrorAndThrow(error, 'errorMarketRemoveAttachedFilesFailed'));
 }
 
+export function updateGroup(marketId, groupId, name = null, description = null, uploadedFiles = null,
+  useBudget = null, votesRequired = null, ticketSubCode = null, assignedCanApprove = null,
+  budgetUnit = null) {
+  const updateOptions = {}
+  if (name != null) {
+    updateOptions.name = name
+  }
+  if (description != null) {
+    updateOptions.description = description
+  }
+  if (uploadedFiles != null) {
+    updateOptions.uploaded_files = uploadedFiles
+  }
+  if (useBudget != null) {
+    updateOptions.use_budget = useBudget
+  }
+  if (votesRequired != null) {
+    updateOptions.votes_required = votesRequired
+  }
+  if (assignedCanApprove !== null) {
+    updateOptions.assigned_can_approve = assignedCanApprove
+  }
+  if (budgetUnit !== null) {
+    updateOptions.budget_unit = budgetUnit
+  }
+  if (ticketSubCode !== null) {
+    updateOptions.ticket_sub_code = ticketSubCode
+  }
+  return getMarketClient(marketId)
+    .then((client) => client.markets.updateGroup(groupId, updateOptions))
+    .catch((error) => toastErrorAndThrow(error, 'errorGroupUpdateFailed'))
+}
+
 export function updateMarket (marketId, name = null, description = null, uploadedFiles = null, useBudget = null,
   investmentExpiration = null, votesRequired = null, allowMultiVote = null, ticketSubCode = null,
   assignedCanApprove = null, budgetUnit = null) {

@@ -535,6 +535,7 @@ const messages = defineMessages({
   signupInvite: 'invites you to collaborate',
   signupRedirectLogin: 'Create account will redirect you to login.',
   switchWorkspace: 'Switch workspaces',
+  editWorkspace: 'Edit workspace',
 
   // Rich text editor
   RichTextEditorAddLinkTitle: 'Add Link',
@@ -904,7 +905,8 @@ const messages = defineMessages({
   errorFollowStages: 'There was an error subscribing to the channel',
   errorUnFollowStages: 'There was an error un-subscribing from the channel',
   errorChangeToParticipantFailed: 'There was a problem changing to collaborator',
-  errorMarketUpdateFailed: 'There was a problem editing the dialog',
+  errorMarketUpdateFailed: 'There was a problem editing the workspace',
+  errorGroupUpdateFailed: 'There was a problem editing the group',
   errorMarketExpirationExtendFailed: 'There was a problem extending the deadline',
   errorMarketAttachFilesFailed: 'There was a problem attaching your files',
   errorInvestibleAttachFilesFailed: 'There was a problem attaching your files',

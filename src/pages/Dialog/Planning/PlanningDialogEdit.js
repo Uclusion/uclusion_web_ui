@@ -2,8 +2,7 @@ import React, { useContext, useState } from 'react'
 import PropTypes from 'prop-types'
 import { useIntl } from 'react-intl'
 import {
-  changeUserToObserver,
-  changeUserToParticipant, updateGroup,
+  updateGroup,
   updateStage
 } from '../../../api/markets'
 import CardContent from '@material-ui/core/CardContent'
@@ -17,13 +16,8 @@ import { getStages, updateStagesForMarket } from '../../../contexts/MarketStages
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import _ from 'lodash'
 import ShowInVerifiedStageAge from './ShowInVerifiedStageAge'
-import { Checkbox, FormControlLabel, makeStyles, Radio, RadioGroup, TextField, Typography } from '@material-ui/core'
-import {
-  changeObserverStatus,
-  getMarketPresences,
-  getMarketUnits
-} from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
-import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { FormControlLabel, makeStyles, Radio, RadioGroup, TextField, Typography } from '@material-ui/core'
+import { getMarketUnits } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { Clear, SettingsBackupRestore } from '@material-ui/icons'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
@@ -32,8 +26,6 @@ import Autocomplete from '@material-ui/lab/Autocomplete'
 import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
-import { removeMessagesForMarket } from '../../../utils/messageUtils'
-import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -50,16 +42,10 @@ const useStyles = makeStyles((theme) => {
 function PlanningDialogEdit(props) {
   const { onCancel, group, acceptedStage, verifiedStage, userId } = props;
   const [marketStagesState, marketStagesDispatch] = useContext(MarketStagesContext);
-  const [marketPresencesState] = useContext(MarketPresencesContext);
-  const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, marketsDispatch] = useContext(MarketsContext);
   const [, diffDispatch] = useContext(DiffContext);
-  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
-  const [mpState, mpDispatch] = useContext(MarketPresencesContext);
   const { id, market_id: marketId } = group;
-  const marketPresences = getMarketPresences(marketPresencesState, marketId)
-  const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
-  const following = myPresence ? myPresence.following : false;
   const intl = useIntl();
   const classes = usePlanFormStyles();
   const myClasses = useStyles();
@@ -156,23 +142,10 @@ function PlanningDialogEdit(props) {
     });
   }
 
-  const isDraft = _.size(marketPresences) < 2;
   const defaultProps = {
     options: getMarketUnits(intl),
     getOptionLabel: (option) => option,
   };
-
-  function myOnMuteCheckbox(myIsDeactivate) {
-    setOperationRunning(true);
-    const actionPromise = myIsDeactivate ? changeUserToObserver(id) : changeUserToParticipant(id);
-    return actionPromise.then((response) => {
-      changeObserverStatus(mpState, mpDispatch, id, myIsDeactivate);
-      if (myIsDeactivate) {
-        removeMessagesForMarket(id, messagesState, messagesDispatch);
-      }
-      setOperationRunning(false);
-    });
-  }
 
   return (
     <Card className={classes.overflowVisible}>
@@ -274,13 +247,11 @@ function PlanningDialogEdit(props) {
 PlanningDialogEdit.propTypes = {
   group: PropTypes.object.isRequired,
   acceptedStage: PropTypes.object.isRequired,
-  onSpinStop: PropTypes.func,
   onCancel: PropTypes.func,
 };
 
 PlanningDialogEdit.defaultProps = {
   onCancel: () => {},
-  onSpinStop: () => {}
 };
 
 export default PlanningDialogEdit;

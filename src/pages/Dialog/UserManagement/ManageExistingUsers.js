@@ -31,12 +31,12 @@ const useStyles = makeStyles(() => {
 function ManageExistingUsers (props) {
 
   const {
-    market
+    group
   } = props;
 
   const {
-    id: marketId
-  } = market;
+    market_id: marketId
+  } = group;
   const classes = useStyles();
   const intl = useIntl();
   const [marketPresencesState] = useContext(MarketPresencesContext);

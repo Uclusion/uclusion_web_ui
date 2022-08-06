@@ -3,8 +3,7 @@ import PropTypes from 'prop-types'
 import { useIntl } from 'react-intl'
 import {
   changeUserToObserver,
-  changeUserToParticipant,
-  updateMarket,
+  changeUserToParticipant, updateGroup,
   updateStage
 } from '../../../api/markets'
 import CardContent from '@material-ui/core/CardContent'
@@ -49,7 +48,7 @@ const useStyles = makeStyles((theme) => {
 });
 
 function PlanningDialogEdit(props) {
-  const { onCancel, market, acceptedStage, verifiedStage, userId } = props;
+  const { onCancel, group, acceptedStage, verifiedStage, userId } = props;
   const [marketStagesState, marketStagesDispatch] = useContext(MarketStagesContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
@@ -57,8 +56,8 @@ function PlanningDialogEdit(props) {
   const [, diffDispatch] = useContext(DiffContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [mpState, mpDispatch] = useContext(MarketPresencesContext);
-  const { id } = market
-  const marketPresences = getMarketPresences(marketPresencesState, id)
+  const { id, market_id: marketId } = group;
+  const marketPresences = getMarketPresences(marketPresencesState, marketId)
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
   const following = myPresence ? myPresence.following : false;
   const intl = useIntl();
@@ -66,7 +65,7 @@ function PlanningDialogEdit(props) {
   const myClasses = useStyles();
   const [allowedInvestibles, setAllowedInvestibles] = useState(acceptedStage.allowed_investibles);
   const [showInvestiblesAge, setShowInvestiblesAge] = useState(verifiedStage.days_visible);
-  const [mutableMarket, setMutableMarket] = useState(market);
+  const [mutableGroup, setMutableGroup] = useState(group);
   const {
     use_budget,
     budget_unit,
@@ -74,7 +73,7 @@ function PlanningDialogEdit(props) {
     votes_required,
     assigned_can_approve,
     ticket_sub_code
-  } = mutableMarket;
+  } = mutableGroup;
 
   function handleChange(name) {
     return event => {
@@ -83,12 +82,12 @@ function PlanningDialogEdit(props) {
       if (name === 'use_budget' || name === 'assigned_can_approve') {
         useValue = value === 'true';
       }
-      setMutableMarket({ ...mutableMarket, [name]: useValue });
+      setMutableGroup({ ...mutableGroup, [name]: useValue });
     };
   }
 
   function onUnitChange(event, value) {
-    setMutableMarket({ ...mutableMarket, budget_unit: value });
+    setMutableGroup({ ...mutableGroup, budget_unit: value });
   }
 
   function onAllowedInvestiblesChange(event) {
@@ -110,21 +109,22 @@ function PlanningDialogEdit(props) {
     });
   }
 
-  function onSaveSettings(savedMarket) {
+  function onSaveSettings(savedGroup) {
     const diffSafe = {
-      ...savedMarket,
+      ...savedGroup,
       updated_by: userId,
       updated_by_you: true,
     };
+    //TODO add group to storage
     addMarketToStorage(marketsDispatch, diffDispatch, diffSafe);
   }
 
   function handleSave() {
     const votesRequiredInt =
       votes_required != null ? parseInt(votes_required, 10) : null;
-    return updateMarket(
+    return updateGroup(
+      marketId,
       id,
-      null,
       null,
       null,
       use_budget,
@@ -135,7 +135,7 @@ function PlanningDialogEdit(props) {
       assigned_can_approve,
       budget_unit
     ).then(market => {
-      onSaveSettings(market)
+      onSaveSettings(market);
       if (allowedInvestibles !== acceptedStage.allowed_investibles) {
         return updateStage(id, acceptedStage.id, allowedInvestibles).then((newStage) => {
           const marketStages = getStages(marketStagesState, id)
@@ -178,11 +178,9 @@ function PlanningDialogEdit(props) {
     <Card className={classes.overflowVisible}>
       <CardContent className={classes.cardContent}>
         <Grid container className={clsx(classes.fieldset, classes.flex, classes.justifySpace)}>
-          {!isDraft && (
-            <Grid item md={6} xs={12} className={classes.fieldsetContainer}>
-              <ManageExistingUsers market={market}/>
-            </Grid>
-          )}
+          <Grid item md={6} xs={12} className={classes.fieldsetContainer}>
+            <ManageExistingUsers group={group}/>
+          </Grid>
           <Grid item md={isDraft ? 12 : 4} xs={12} className={classes.fieldsetContainer}>
             <Typography variant="body2" style={{marginBottom: "0.5rem"}}>
               {intl.formatMessage({ id: 'mutingExplanation' })}
@@ -290,7 +288,7 @@ function PlanningDialogEdit(props) {
 }
 
 PlanningDialogEdit.propTypes = {
-  market: PropTypes.object.isRequired,
+  group: PropTypes.object.isRequired,
   acceptedStage: PropTypes.object.isRequired,
   onSpinStop: PropTypes.func,
   onCancel: PropTypes.func,

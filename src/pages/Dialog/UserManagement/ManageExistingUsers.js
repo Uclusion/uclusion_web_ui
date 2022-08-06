@@ -14,7 +14,6 @@ import {
   ListItemSecondaryAction, ListItemIcon, Tooltip
 } from '@material-ui/core'
 import BanUserButton from './BanUserButton';
-import UnBanUserButton from './UnBanUserButton';
 import { makeStyles } from '@material-ui/styles';
 import Gravatar from '../../../components/Avatars/Gravatar';
 import Typography from '@material-ui/core/Typography'
@@ -23,10 +22,6 @@ import { GroupMembersContext } from '../../../contexts/GroupMembersContext/Group
 
 const useStyles = makeStyles((theme) => {
   return {
-    unbanned: {},
-    banned: {
-      color: "#ca2828",
-    },
     manage: {
       width: '75%',
       [theme.breakpoints.down('sm')]: {
@@ -50,7 +45,7 @@ function ManageExistingUsers (props) {
 
   function getUsers () {
     return groupPresences.map((presence) => {
-      const { name, email, id, market_banned: banned } = presence;
+      const { name, email, id } = presence;
       return (
         <ListItem
           key={id}
@@ -59,27 +54,17 @@ function ManageExistingUsers (props) {
             <Gravatar
               name={name}
               email={email}
-              className={banned? classes.banned : classes.unbanned}
             />
           </ListItemAvatar>
           <ListItemText
-            className={banned? classes.banned : classes.unbanned}
           >
             {name}
           </ListItemText>
           <ListItemSecondaryAction>
-            {!banned && (
-              <BanUserButton
-                userId={id}
-                marketId={marketId}
-              />
-            )}
-            {banned && (
-              <UnBanUserButton
-                userId={id}
-                marketId={marketId}
-              />
-            )}
+            <BanUserButton
+              userId={id}
+              marketId={marketId}
+            />
           </ListItemSecondaryAction>
         </ListItem>
       );

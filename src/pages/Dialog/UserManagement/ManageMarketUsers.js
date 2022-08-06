@@ -10,7 +10,7 @@ import {
   ListItem,
   ListItemAvatar,
   ListItemText,
-  ListItemSecondaryAction, Checkbox, ListItemIcon, Tooltip
+  ListItemSecondaryAction, ListItemIcon, Tooltip
 } from '@material-ui/core'
 import BanUserButton from './BanUserButton';
 import UnBanUserButton from './UnBanUserButton';
@@ -19,8 +19,14 @@ import Gravatar from '../../../components/Avatars/Gravatar';
 import Typography from '@material-ui/core/Typography'
 import { useIntl } from 'react-intl'
 
-const useStyles = makeStyles(() => {
+const useStyles = makeStyles((theme) => {
   return {
+    manage: {
+      width: '75%',
+      [theme.breakpoints.down('sm')]: {
+        width: 'unset'
+      },
+    },
     unbanned: {},
     banned: {
       color: "#ca2828",
@@ -28,12 +34,10 @@ const useStyles = makeStyles(() => {
   };
 });
 
-function ManageMarketUsers (props) {
-
+function ManageMarketUsers(props) {
   const {
     market
   } = props;
-
   const {
     id: marketId
   } = market;
@@ -46,7 +50,7 @@ function ManageMarketUsers (props) {
 
   function getUsers () {
     return marketPresences.map((presence) => {
-      const { name, email, id, market_banned: banned, following } = presence;
+      const { name, email, id, market_banned: banned } = presence;
       return (
         <ListItem
           key={id}
@@ -63,16 +67,6 @@ function ManageMarketUsers (props) {
           >
             {name}
           </ListItemText>
-          <ListItemIcon style={{paddingRight: '15%'}}>
-            <Tooltip
-              title={intl.formatMessage({ id: 'mutedExplanation' })}
-            >
-              <Checkbox
-                checked={!following}
-                disabled={true}
-              />
-            </Tooltip>
-          </ListItemIcon>
           <ListItemSecondaryAction>
             {!banned && (
               <BanUserButton
@@ -97,16 +91,13 @@ function ManageMarketUsers (props) {
   }
 
   return (
-    <List subheader={
+    <List className={classes.manage}
+      subheader={
       <Typography align="center" variant="h6">
         {intl.formatMessage({ id: 'manage' })}
       </Typography>
     }>
       <ListItem key='header'><ListItemText />
-        <Tooltip title={intl.formatMessage({ id: 'cannotUnassignExplanation' })}>
-          <ListItemIcon style={{paddingRight: '7%'}}>{intl.formatMessage({ id: 'mutedExplanation' })}
-          </ListItemIcon>
-        </Tooltip>
         <Tooltip title={intl.formatMessage({ id: 'removeExplanation' })}>
           <ListItemIcon>Remove</ListItemIcon>
         </Tooltip>

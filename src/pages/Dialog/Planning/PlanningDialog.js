@@ -569,7 +569,7 @@ function PlanningDialog(props) {
         {!hidden && !_.isEmpty(acceptedStage) && !_.isEmpty(inVerifiedStage) &&
           isSectionOpen('settingsSection') && _.isEmpty(search) && !mobileLayout && (
             <>
-              <h2>
+              <h2 style={{paddingLeft: '3rem'}}>
                 <FormattedMessage id="settings" />
               </h2>
               <PlanningDialogEdit

@@ -33,7 +33,7 @@ function processRegularItem (classes, history, text, target, num, Icon, onClickF
                 }
               }
     >
-      {text}
+      {isBold ? (<span style={{fontWeight: 'bold'}}>{text}</span>) : text}
       {num !== undefined && !_.isEmpty(search) && (
         <span style={{float: "right"}}>{num}</span>
       )}

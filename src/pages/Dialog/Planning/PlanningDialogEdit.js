@@ -181,22 +181,6 @@ function PlanningDialogEdit(props) {
           <Grid item md={6} xs={12} className={classes.fieldsetContainer}>
             <ManageExistingUsers group={group}/>
           </Grid>
-          <Grid item md={isDraft ? 12 : 4} xs={12} className={classes.fieldsetContainer}>
-            <Typography variant="body2" style={{marginBottom: "0.5rem"}}>
-              {intl.formatMessage({ id: 'mutingExplanation' })}
-            </Typography>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  value={!following}
-                  disabled={operationRunning}
-                  checked={!following}
-                  onClick={() => myOnMuteCheckbox(following)}
-                />
-              }
-              label={intl.formatMessage({ id: 'muteAction' })}
-            />
-          </Grid>
         </Grid>
         <Grid container className={clsx(classes.fieldset, classes.flex, classes.justifySpace)}
               style={{paddingTop: "2rem"}}>

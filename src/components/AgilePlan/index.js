@@ -298,9 +298,8 @@ export const usePlanFormStyles = makeStyles(
       color: theme.palette.text.disabled,
     },
     manage: {
-      width: '75%',
-      [theme.breakpoints.down('lg')]: {
-        width: 'unset'
+      [theme.breakpoints.up('md')]: {
+        width: '75%'
       },
     }
   }),

@@ -192,7 +192,7 @@ function InboxFull(props) {
             <FormattedMessage id="close" />
           </Button>
         }
-        content={<AddNewUsers market={defaultMarket} />}
+        content={<AddNewUsers market={defaultMarket} isInbox />}
       />
     </Screen>
   );

@@ -287,7 +287,7 @@ function AddNewUsers(props) {
         )}
         <form
           autoComplete="off"
-          className={classes.manage}
+          className={isInbox ? undefined : classes.manage}
         >
           <ListItem
             className={classes.listItem}

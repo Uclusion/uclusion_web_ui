@@ -19,7 +19,7 @@ const useDialogStyles = makeStyles(
 
 export default function Dialog(props) {
   const classes = useDialogStyles(props);
-  const { actions, autoFocusRef, content, open, onClose, title } = props;
+  const { actions, autoFocusRef, content, open, onClose, title, disableActionClass } = props;
 
   const uniqueId = useClientSideId();
   const labelId = `dialog-name-${uniqueId}`;
@@ -53,7 +53,7 @@ export default function Dialog(props) {
       <DialogContent className={classes.content} id={descriptionId}>
         {content}
       </DialogContent>
-      <DialogActions className={classes.actions}>{actions}</DialogActions>
+      <DialogActions className={disableActionClass ? undefined : classes.actions}>{actions}</DialogActions>
     </MuiDialog>
   );
 }

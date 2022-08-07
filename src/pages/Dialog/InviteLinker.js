@@ -108,8 +108,7 @@ function InviteLinker(props) {
 
 InviteLinker.propTypes = {
   marketToken: PropTypes.string.isRequired,
-  hidden: PropTypes.bool,
-  marketType: PropTypes.string.isRequired,
+  hidden: PropTypes.bool
 };
 
 InviteLinker.defaultProps = {

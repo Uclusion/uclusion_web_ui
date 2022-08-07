@@ -1,4 +1,4 @@
-import { useIntl } from 'react-intl'
+import { FormattedMessage, useIntl } from 'react-intl'
 import Screen from '../../../containers/Screen/Screen'
 import PropTypes from 'prop-types'
 import Inbox from './Inbox'
@@ -26,6 +26,12 @@ import { AccountUserContext } from '../../../contexts/AccountUserContext/Account
 import { userIsLoaded } from '../../../contexts/AccountUserContext/accountUserContextHelper'
 import WorkspaceMenu from '../WorkspaceMenu'
 import { Group } from '@material-ui/icons'
+import { Button } from '@material-ui/core'
+import clsx from 'clsx'
+import InviteLinker from '../../Dialog/InviteLinker'
+import { Dialog } from '../../../components/Dialogs'
+import { useLockedDialogStyles } from '../../Dialog/DialogBodyEdit'
+import AddNewUsers from '../../Dialog/UserManagement/AddNewUsers'
 
 function InboxFull(props) {
   const { hidden } = props;
@@ -46,6 +52,9 @@ function InboxFull(props) {
   const [messagesState] = useContext(NotificationsContext);
   const [userState] = useContext(AccountUserContext);
   const hasUser = userIsLoaded(userState);
+  const lockedDialogClasses = useLockedDialogStyles();
+  const autoFocusRef = React.useRef(null);
+  const [open, setOpen] = React.useState(false);
   const [expansionPendingState, expansionPendingDispatch] = useReducer((state, action) => {
     const { id, expandedMessages, contractAll } = action;
     let newExpanded = state;
@@ -130,7 +139,8 @@ function InboxFull(props) {
     }
   }
   const navigationMenu = {
-    navMenu: <WorkspaceMenu markets={markets} defaultMarket={defaultMarket} setChosenMarketId={setChosenMarketId} />,
+    navMenu: <WorkspaceMenu markets={markets} defaultMarket={defaultMarket} setChosenMarketId={setChosenMarketId}
+    setInviteOpen={setOpen}/>,
     navListItemTextArray: [
       {
         icon: AddIcon, text: intl.formatMessage({ id: 'homeAddGroup' }),
@@ -160,6 +170,29 @@ function InboxFull(props) {
       <Inbox expansionState={expansionState} expansionDispatch={expansionDispatch} page={page} setPage={setPage}
              loadingFromInvite={fromInvite} pendingPage={pendingPage} setPendingPage={setPendingPage}
              expansionPendingState={expansionPendingState} expansionPendingDispatch={expansionPendingDispatch}
+      />
+      <Dialog
+        autoFocusRef={autoFocusRef}
+        classes={{
+          root: lockedDialogClasses.root,
+          actions: lockedDialogClasses.actions,
+          content: lockedDialogClasses.issueWarningContent,
+          title: lockedDialogClasses.title
+        }}
+        open={open}
+        onClose={() => setOpen(false)}
+        disableActionClass={true}
+        actions={
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={() => setOpen(false)}
+            ref={autoFocusRef}
+          >
+            <FormattedMessage id="close" />
+          </Button>
+        }
+        content={<AddNewUsers market={defaultMarket} />}
       />
     </Screen>
   );

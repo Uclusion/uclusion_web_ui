@@ -57,7 +57,7 @@ const useStyles = makeStyles((theme) => ({
       }
     },
   },
-  chip: {
+  paperMenu: {
     border: '0.5px solid grey',
   },
   listAction: {
@@ -90,7 +90,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function WorkspaceMenu(props) {
-  const { markets, defaultMarket, setChosenMarketId } = props;
+  const { markets, defaultMarket, setChosenMarketId, setInviteOpen } = props;
   const classes = useStyles();
   const intl = useIntl();
   const [anchorEl, setAnchorEl] = useState(null);
@@ -143,10 +143,17 @@ function WorkspaceMenu(props) {
           }}
           anchorEl={anchorEl}
           disableRestoreFocus
+          classes={{ paper: classes.paperMenu }}
         >
           <ProSidebar width="14rem">
             <SidebarContent>
               <ProMenu iconShape="circle">
+                <MenuItem icon={<AddIcon htmlColor="black" />}
+                          key="addWorkspaceIconKey" id="addWorkspaceIconId"
+                          onClick={()=> setInviteOpen(true)}
+                >
+                  {intl.formatMessage({ id: 'dialogAddParticipantsLabel' })}
+                </MenuItem>
                 <MenuItem icon={<AddIcon htmlColor="black" />}
                           key="addWorkspaceIconKey" id="addWorkspaceIconId"
                           onClick={goTo('/notificationPreferences')}

@@ -136,7 +136,7 @@ function PlanningMarketEdit() {
               style={{paddingTop: "2rem"}}>
           <Grid item md={12} xs={12} className={classes.fieldsetContainer}>
               <Typography variant="h6">
-                {intl.formatMessage({ id: 'channelOptions' })}
+                {intl.formatMessage({ id: 'marketOptions' })}
               </Typography>
           </Grid>
           <Grid item md={5} xs={12} className={classes.fieldsetContainer}>

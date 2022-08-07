@@ -32,8 +32,9 @@ import GravatarAndName from '../../../components/Avatars/GravatarAndName'
 import { AccountUserContext } from '../../../contexts/AccountUserContext/AccountUserContext'
 
 function AddNewUsers(props) {
-  const { market, isInbox, emailList, setEmailList, setToAddClean } = props;
+  const { market, isInbox, emailList, setEmailList, setToAddClean, group } = props;
   const { id: addToMarketId, market_type: marketType, invite_capability: marketToken } = market || {};
+  const { id: groupId } = group || {};
   const classes = usePlanFormStyles();
   const intl = useIntl();
   const theme = useTheme();
@@ -260,14 +261,6 @@ function AddNewUsers(props) {
             </Typography>
           </ListItem>
         }
-        {marketType && (
-          <ListItem className={classes.listItem} style={{paddingBottom: '1.5rem'}}>
-            <InviteLinker
-              marketType={marketType}
-              marketToken={marketToken}
-            />
-          </ListItem>
-        )}
         {emailsSent.length > 0 && (
           <>
             <ListItem className={classes.listItem}>
@@ -294,6 +287,7 @@ function AddNewUsers(props) {
         )}
         <form
           autoComplete="off"
+          className={classes.manage}
         >
           <ListItem
             className={classes.listItem}
@@ -319,14 +313,24 @@ function AddNewUsers(props) {
             </ListItemText>
           </ListItem>
           {addToMarketId && (
-            <ListItem id="emailButtons" key="emailButtons" className={clsx(classes.rightAlign, classes.listItem)}>
+            <ListItem id="emailButtons" key="emailButtons" className={classes.rightAlign}>
               <SpinningIconLabelButton onClick={handleSaveEmails} icon={Email} id={emailInputButtonId}
-                                       disabled={_.isEmpty(email1)} allowOtherOperations={true}>
-                {intl.formatMessage({ id: 'addressAddSaveLabel' })}
+                                       allowOtherOperations={true}>
+                <Typography variant='body1'>
+                  {intl.formatMessage({ id: 'addressAddSaveLabel' })}
+                </Typography>
               </SpinningIconLabelButton>
             </ListItem>
           )}
         </form>
+        {addToMarketId && (!groupId || groupId === addToMarketId) && (
+          <ListItem className={classes.listItem}>
+            <InviteLinker
+              marketType={marketType}
+              marketToken={marketToken}
+            />
+          </ListItem>
+        )}
       </List>
     </>
   );

@@ -154,7 +154,7 @@ const messages = defineMessages({
   // Share story
   shareButtonExplanation: 'Link',
   shareButtonTitle: 'Share',
-  inviteLinkerStory: 'This link does not grant workspace access.',
+  inviteLinkerText: 'Copy invite link.',
   inviteLinkerTicketCode: 'Human friendly job identifier',
 
   // Support
@@ -352,7 +352,7 @@ const messages = defineMessages({
   // Address list
   addressAddCancelLabel: 'Close',
   addressAddClearLabel: 'Close',
-  addressAddSaveLabel: 'Invite Collaborators',
+  addressAddSaveLabel: 'Send',
   inviteParticipantsLabel: 'Invite by email',
   addExistingCollaborator: 'Add Selected',
   addExistingCollaboratorMobile: 'Add',
@@ -625,6 +625,7 @@ const messages = defineMessages({
   immediate: 'Immediate',
   storyFromComment: 'Move to Job',
   channelOptions: 'Group Options',
+  marketOptions: 'Workspace Options',
   mutingExplanation: 'Muting prevents notifications unless you are mentioned, assigned or a required approver or reviewer.',
 
   // Decision Dialog
@@ -717,7 +718,8 @@ const messages = defineMessages({
 
   // invite linker
   inviteLinkerDirectionsDecision: 'Share this link',
-  inviteLinkerDirectionsPlan: 'Share this link',
+  inviteLinkerDirectionsPlan: 'Click to copy this link',
+  inviteLinkerCopied: 'Invite link copied to clipboard',
   inviteLinkerDirectionsInitiative: 'Share this link',
   inviteLinkerCopyToClipboard: 'Copy to clipboard',
   slackIntegrationSuccessful: 'Slack was successfully integrated.',

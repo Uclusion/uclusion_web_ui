@@ -297,6 +297,12 @@ export const usePlanFormStyles = makeStyles(
     disabled: {
       color: theme.palette.text.disabled,
     },
+    manage: {
+      width: '75%',
+      [theme.breakpoints.down('sm')]: {
+        width: 'unset'
+      },
+    }
   }),
   { name: "PlanningAdd" }
 );

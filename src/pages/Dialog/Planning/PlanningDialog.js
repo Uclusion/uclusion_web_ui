@@ -357,7 +357,7 @@ function PlanningDialog(props) {
       )}
       <div id="addCollaboratorSection">
         {!hidden && marketId && isSectionOpen('addCollaboratorSection') && _.isEmpty(search) && (
-          <DialogManage marketId={marketId} />
+          <DialogManage marketId={marketId} group={group} />
         )}
       </div>
       <div id="addStorySection">

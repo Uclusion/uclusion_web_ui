@@ -1,15 +1,15 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState } from 'react'
 import PropTypes from 'prop-types'
 import { makeStyles } from '@material-ui/styles'
 import FileCopyIcon from '@material-ui/icons/FileCopy'
 import { useIntl } from 'react-intl'
 import { formInviteLink } from '../../utils/marketIdPathFunctions'
-import { Divider, InputBase, Typography } from '@material-ui/core'
+import { Button, Divider, InputBase, Link, Tooltip, Typography } from '@material-ui/core'
 import TooltipIconButton from '../../components/Buttons/TooltipIconButton'
-import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { getMarketInfo } from '../../utils/userFunctions'
 import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
+import LinkIcon from '@material-ui/icons/Link'
 
 const useStyles = makeStyles(() => ({
   hidden: {
@@ -47,32 +47,12 @@ function InviteLinker(props) {
   } = props;
   const classes = useStyles();
   const [investiblesState] = useContext(InvestiblesContext);
+  const [copiedToClipboard, setCopiedToClipboard] = useState(false);
+  const [inLinker, setInLinker] = useState(false);
   const inv = getInvestible(investiblesState, investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { ticket_code: ticketCode } = marketInfo;
-  function getDirectionsId() {
-    switch (marketType) {
-      case PLANNING_TYPE:
-        return 'inviteLinkerDirectionsPlan';
-      case DECISION_TYPE:
-        return 'inviteLinkerDirectionsDecision';
-      case INITIATIVE_TYPE:
-        return 'inviteLinkerDirectionsInitiative';
-      default:
-        return 'inviteLinkerStory';
-    }
-  }
   const link = marketType === 'story' ? marketToken : formInviteLink(marketToken);
-  const icon = (
-    <>
-    <Divider className={classes.divider} orientation="vertical" />
-    <TooltipIconButton
-      translationId="inviteLinkerCopyToClipboard"
-      icon={<FileCopyIcon htmlColor="#3f6b72"/>}
-      onClick={() => navigator.clipboard.writeText(link)}
-    />
-    </>
-  );
   const ticketCodeIcon = (
     <>
       <Divider className={classes.divider} orientation="vertical" />
@@ -84,24 +64,30 @@ function InviteLinker(props) {
     </>
   );
   return (
-    <div
-      id="inviteLinker"
-      className={hidden ? classes.hidden : classes.linkContainer}
-    >
-      <Typography style={{width: '100%', paddingBottom: '0.5rem'}}>
-        { intl.formatMessage({ id: getDirectionsId() }) }
-      </Typography>
-      <InputBase
-        className={classes.inputField}
-        fullWidth={true}
-        placeholder={link}
-        inputProps={{ 'aria-label': link, border: '1px solid #ccc' }}
-        value={link}
-        endAdornment={icon}
-        color={"primary"}
-      />
+    <div id="inviteLinker" className={hidden ? classes.hidden : undefined}>
+      <Tooltip title={
+        <h3>
+          {intl.formatMessage({
+            id: inLinker && copiedToClipboard ? 'inviteLinkerCopied': 'inviteLinkerDirectionsPlan' })}
+        </h3>
+      }
+               placement="top">
+        <Button style={{textTransform: 'none', justifyContent: 'left'}} disableRipple={true}
+                onClick={() => {
+                  navigator.clipboard.writeText(link);
+                  setCopiedToClipboard(true);
+                }} onMouseLeave={() => {
+                  setInLinker(false);
+                  setCopiedToClipboard(false);
+                }} onMouseEnter={() => setInLinker(true)}>
+          <LinkIcon style={{marginRight: 6}} htmlColor="#339BFF" />
+          <Link underline="none">
+            { intl.formatMessage({ id: 'inviteLinkerText' }) }
+          </Link>
+        </Button>
+      </Tooltip>
       {ticketCode && marketType === 'story' && (
-        <>
+        <div className={classes.linkContainer}>
           <Typography style={{marginTop: '1rem', width: '100%'}}>
             { intl.formatMessage({ id: 'inviteLinkerTicketCode' }) }
           </Typography>
@@ -114,7 +100,7 @@ function InviteLinker(props) {
             endAdornment={ticketCodeIcon}
             color={"primary"}
           />
-        </>
+        </div>
       )}
     </div>
   );

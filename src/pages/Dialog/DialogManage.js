@@ -11,7 +11,7 @@ import { usePlanFormStyles } from '../../components/AgilePlan'
 import ManageUsers from './UserManagement/ManageUsers'
 
 function DialogManage(props) {
-  const { marketId, isInbox, name } = props;
+  const { marketId, isInbox, name, group } = props;
   const intl = useIntl();
   const classes = usePlanFormStyles();
   const [marketsState] = useContext(MarketsContext);
@@ -45,6 +45,7 @@ function DialogManage(props) {
       <ManageUsers
         market={renderableMarket}
         name={name}
+        group={group}
       />
     </Card>
   );

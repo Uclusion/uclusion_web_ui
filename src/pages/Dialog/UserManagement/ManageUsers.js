@@ -7,7 +7,7 @@ import AddNewUsers from './AddNewUsers'
 
 function ManageUsers (props) {
   const {
-    market, isInbox, name
+    market, isInbox, name, group
   } = props;
   const classes = usePlanFormStyles();
 
@@ -15,7 +15,7 @@ function ManageUsers (props) {
     <>
       <CardContent className={clsx(classes.cardContent, classes.nestedCard)} style={{paddingBottom: '1rem',
         paddingTop: isInbox ? 0 : undefined}}>
-        <AddNewUsers market={market} isInbox={isInbox} name={name} />
+        <AddNewUsers market={market} isInbox={isInbox} name={name} group={group} />
       </CardContent>
     </>
   );

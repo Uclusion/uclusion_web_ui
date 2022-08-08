@@ -8,12 +8,21 @@ import { Clear, SettingsBackupRestore } from '@material-ui/icons'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { useIntl } from 'react-intl'
+import { pushMessage } from '../../../utils/MessageBusUtils'
+import { NOTIFICATIONS_HUB_CHANNEL, PUSH_STAGE_CHANNEL, VERSIONS_EVENT } from '../../../api/versionedFetchUtils'
+import { START_TOUR, TOUR_CHANNEL } from '../../../contexts/TourContext/tourContextMessages'
+import { INVITED_USER_WORKSPACE } from '../../../contexts/TourContext/tourContextHelper'
+import { ADD_EVENT } from '../../../contexts/NotificationsContext/notificationsContextMessages'
+import { addPresenceToMarket } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../../authorization/TokenStorageManager'
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 
 function MarketCreateActions(props) {
   const { setOpen } = props;
   const intl = useIntl();
   const [, marketsDispatch] = useContext(MarketsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [, presenceDispatch] = useContext(MarketPresencesContext);
 
   function handleSave() {
     const name = getNameStoredState('newMarket');
@@ -22,9 +31,23 @@ function MarketCreateActions(props) {
         name
       };
       return createPlanning(marketInfo)
-        .then((market) => {
+        .then((marketDetails) => {
+          const {
+            market,
+            presence,
+            stages,
+            notification,
+            token
+          } = marketDetails;
+          const createdMarketId = market.id;
           addMarketToStorage(marketsDispatch, market);
-          setOperationRunning(false);
+          pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, stageDetails: {[createdMarketId]: stages }});
+          pushMessage(TOUR_CHANNEL, { event: START_TOUR, tour: INVITED_USER_WORKSPACE });
+          pushMessage(NOTIFICATIONS_HUB_CHANNEL, { event: ADD_EVENT, message: notification });
+          addPresenceToMarket(presenceDispatch, createdMarketId, presence);
+          const tokenStorageManager = new TokenStorageManager();
+          return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, createdMarketId, token)
+            .then(() => setOperationRunning(false));
         });
     }
   }

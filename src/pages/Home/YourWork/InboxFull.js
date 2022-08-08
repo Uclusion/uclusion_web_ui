@@ -159,7 +159,7 @@ function InboxFull(props) {
     });
     navigationMenu.navListItemTextArray.push(...items);
   }
-  let actions;
+  let actions = <div />;
   if (open === 'addMarket'){
     actions = <MarketCreateActions setOpen={setOpen} />;
   } else if (open === 'addNewUsers') {
@@ -172,7 +172,7 @@ function InboxFull(props) {
       <FormattedMessage id="close" />
     </Button>;
   }
-  let content;
+  let content = <div />;
   if (open === 'addMarket') {
     content = <MarketCreate />;
   } else if (open === 'addNewUsers') {

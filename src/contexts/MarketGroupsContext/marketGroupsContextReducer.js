@@ -1,4 +1,3 @@
-import _ from 'lodash'
 import LocalForageHelper from '../../utils/LocalForageHelper'
 import {MARKET_GROUPS_CONTEXT_NAMESPACE, GROUPS_CHANNEL} from './MarketGroupsContext';
 import { removeInitializing } from '../../components/localStorageUtils'
@@ -63,11 +62,6 @@ function doUpdateMarketsGroups(state, action) {
   return removeInitializing(newState);
 }
 
-function removeMarketGroups(state, action) {
-  const { marketIds } = action;
-  return _.omit(state, marketIds);
-}
-
 function computeNewState(state, action) {
   switch (action.type) {
     case INITIALIZE_STATE:
@@ -76,8 +70,6 @@ function computeNewState(state, action) {
       return doUpdateMarketGroups(state, action);
     case UPDATE_MARKET_GROUPS_FROM_NETWORK:
       return doUpdateMarketsGroups(state, action);
-    case REMOVE_MARKET_GROUPS:
-      return removeMarketGroups(state, action);
     default:
       return state;
   }

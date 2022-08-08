@@ -1,10 +1,8 @@
 import { addPresenceToMarket, getMarketPresences } from '../MarketPresencesContext/marketPresencesHelper'
-import { addContents } from '../DiffContext/diffContextReducer'
 import _ from 'lodash'
 import { updateMarketDetails, versionsUpdateDetails } from './marketsContextReducer'
 import { fixupItemForStorage } from '../ContextUtils'
 import { pushMessage } from '../../utils/MessageBusUtils'
-import { INDEX_MARKET_TYPE, INDEX_UPDATE, SEARCH_INDEX_CHANNEL } from '../SearchIndexContext/searchIndexContextMessages'
 import { ACTIVE_STAGE } from '../../constants/markets'
 import { ADD_PRESENCE } from '../MarketPresencesContext/marketPresencesMessages'
 import { PUSH_PRESENCE_CHANNEL, PUSH_STAGE_CHANNEL, VERSIONS_EVENT } from '../../api/versionedFetchUtils'
@@ -103,11 +101,7 @@ export function addMarketToStorage(dispatch, marketDetails) {
   dispatch(updateMarketDetails(fixed));
 }
 
-export function addMarketsToStorage(dispatch, diffDispatch, marketDetails) {
-  if (diffDispatch) {
-    diffDispatch(addContents(marketDetails));
-  }
-  pushMessage(SEARCH_INDEX_CHANNEL, { event: INDEX_UPDATE, itemType: INDEX_MARKET_TYPE, items: marketDetails});
+export function addMarketsToStorage(dispatch, marketDetails) {
   dispatch(versionsUpdateDetails(marketDetails));
 }
 

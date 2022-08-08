@@ -30,7 +30,7 @@ export const LOCK_MARKET = 'LockMarket';
 export const LOAD_TOKENS_CHANNEL = 'LoadTokensChannel';
 export const LOAD_EVENT = 'LoadEvent'
 
-function beginListening(dispatch, diffDispatch, setTokensHash) {
+function beginListening(dispatch, setTokensHash) {
   registerListener(LOAD_TOKENS_CHANNEL, 'loadTokensStart', (data) => {
     const { payload: { event, key, token } } = data;
     switch (event) {
@@ -61,7 +61,7 @@ function beginListening(dispatch, diffDispatch, setTokensHash) {
     const { payload: { event, marketDetails, signature } } = data;
     switch (event) {
       case VERSIONS_EVENT:
-        addMarketsToStorage(dispatch, diffDispatch, marketDetails);
+        addMarketsToStorage(dispatch, marketDetails);
         break;
       case SYNC_ERROR_EVENT:
         dispatch(addSyncError(signature));
@@ -75,7 +75,7 @@ function beginListening(dispatch, diffDispatch, setTokensHash) {
     pushMessage(OPERATION_HUB_CHANNEL, { event: START_OPERATION, id: LOCK_MARKET });
     lockPlanningMarketForEdit(marketId).then((market) => {
       pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION, id: LOCK_MARKET });
-      addMarketToStorage(dispatch, diffDispatch, market);
+      addMarketToStorage(dispatch, market);
     });
   });
   registerListener(LOAD_MARKET_CHANNEL, 'marketsLoadStart', (data) => {

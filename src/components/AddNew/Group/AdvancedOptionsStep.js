@@ -9,14 +9,11 @@ import WizardStepContainer from '../WizardStepContainer';
 import Grid from '@material-ui/core/Grid';
 import { usePlanFormStyles } from '../../AgilePlan'
 import { makeStyles } from '@material-ui/styles';
-import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
-import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
-import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
-import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { doCreateGroup } from './groupCreator'
 import { formMarketLink } from '../../../utils/marketIdPathFunctions'
+import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext'
+import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext'
 
 export const useOptionsStyles = makeStyles(theme => {
   return {
@@ -41,31 +38,24 @@ function AdvancedOptionsStep (props) {
   const { updateFormData, formData } = props;
   const intl = useIntl();
   const classes = useContext(WizardStylesContext);
-  const [, marketsDispatch] = useContext(MarketsContext);
-  const [, marketStagesDispatch] = useContext(MarketStagesContext);
   const [, diffDispatch] = useContext(DiffContext);
-  const [, investiblesDispatch] = useContext(InvestiblesContext);
-  const [, presenceDispatch] = useContext(MarketPresencesContext);
-  const [commentsState, commentsDispatch] = useContext(CommentsContext);
+  const [, groupsDispatch] = useContext(MarketGroupsContext);
+  const [, groupMembersDispatch] = useContext(GroupMembersContext);
 
-  function createMarket (formData) {
+  function createGroup(formData) {
     const dispatchers = {
-      marketStagesDispatch,
+      groupsDispatch,
       diffDispatch,
-      investiblesDispatch,
-      marketsDispatch,
-      presenceDispatch,
-      commentsDispatch,
-      commentsState,
+      groupMembersDispatch
     };
-    return doCreateGroup(dispatchers, formData, updateFormData, intl)
-      .then((marketId) => {
-        return ({ ...formData, link: formMarketLink(marketId, marketId) });
+    return doCreateGroup(dispatchers, formData, updateFormData)
+      .then((group) => {
+        return ({ ...formData, link: formMarketLink(group.market_id, group.id) });
       })
   }
 
   function onFinish () {
-    return createMarket({ ...formData });
+    return createGroup({ ...formData });
   }
 
   function onTicketSubCodeChange(event) {
@@ -109,7 +99,7 @@ function AdvancedOptionsStep (props) {
                 className={otherClasses.input}
                 value={ticketSubCode}
                 onChange={onTicketSubCodeChange}
-                placeholder="Workspace short code"
+                placeholder="Group short code"
               />
               {ticketSubCode && (<Typography>
                 {intl.formatMessage({ id: "ticketSubCodeHelp1" }, {code: ticketSubCode})}

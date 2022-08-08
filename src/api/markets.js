@@ -161,6 +161,12 @@ export function createPlanning(marketInfo) {
     .catch((error) => toastErrorAndThrow(error, 'errorPlanningAddFailed'));
 }
 
+export function createGroup(groupInfo) {
+  return getAccountClient()
+    .then((client) => client.markets.createGroup(groupInfo))
+    .catch((error) => toastErrorAndThrow(error, 'errorGroupAddFailed'));
+}
+
 export function updateStage(marketId, stageId, allowedInvestibles, daysVisible) {
   return getMarketClient(marketId)
     .then((client) => client.markets.updateStage(stageId, allowedInvestibles, daysVisible))

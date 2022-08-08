@@ -27,11 +27,11 @@ import { userIsLoaded } from '../../../contexts/AccountUserContext/accountUserCo
 import WorkspaceMenu from '../WorkspaceMenu'
 import { Group } from '@material-ui/icons'
 import { Button } from '@material-ui/core'
-import clsx from 'clsx'
-import InviteLinker from '../../Dialog/InviteLinker'
 import { Dialog } from '../../../components/Dialogs'
 import { useLockedDialogStyles } from '../../Dialog/DialogBodyEdit'
 import AddNewUsers from '../../Dialog/UserManagement/AddNewUsers'
+import MarketCreate from '../../Dialog/Planning/MarketCreate'
+import MarketCreateActions from '../../Dialog/Planning/MarketCreateActions'
 
 function InboxFull(props) {
   const { hidden } = props;
@@ -140,7 +140,7 @@ function InboxFull(props) {
   }
   const navigationMenu = {
     navMenu: <WorkspaceMenu markets={markets} defaultMarket={defaultMarket} setChosenMarketId={setChosenMarketId}
-    setInviteOpen={setOpen}/>,
+    setOpen={setOpen}/>,
     navListItemTextArray: [
       {
         icon: AddIcon, text: intl.formatMessage({ id: 'homeAddGroup' }),
@@ -159,6 +159,26 @@ function InboxFull(props) {
     });
     navigationMenu.navListItemTextArray.push(...items);
   }
+  let actions;
+  if (open === 'addMarket'){
+    actions = <MarketCreateActions setOpen={setOpen} />;
+  } else if (open === 'addNewUsers') {
+    actions = <Button
+      variant="outlined"
+      size="small"
+      onClick={() => setOpen(false)}
+      ref={autoFocusRef}
+    >
+      <FormattedMessage id="close" />
+    </Button>;
+  }
+  let content;
+  if (open === 'addMarket') {
+    content = <MarketCreate />;
+  } else if (open === 'addNewUsers') {
+    content = <AddNewUsers market={defaultMarket} isInbox/>;
+  }
+
   return (
     <Screen
       title={intl.formatMessage({id: 'inbox'})}
@@ -179,20 +199,11 @@ function InboxFull(props) {
           content: lockedDialogClasses.issueWarningContent,
           title: lockedDialogClasses.title
         }}
-        open={open}
+        open={open !== false}
         onClose={() => setOpen(false)}
-        disableActionClass={true}
-        actions={
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={() => setOpen(false)}
-            ref={autoFocusRef}
-          >
-            <FormattedMessage id="close" />
-          </Button>
-        }
-        content={<AddNewUsers market={defaultMarket} isInbox />}
+        disableActionClass={open === 'addNewUsers'}
+        actions={actions}
+        content={content}
       />
     </Screen>
   );

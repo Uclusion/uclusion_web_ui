@@ -90,7 +90,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function WorkspaceMenu(props) {
-  const { markets, defaultMarket, setChosenMarketId, setInviteOpen } = props;
+  const { markets, defaultMarket, setChosenMarketId, setOpen } = props;
   const classes = useStyles();
   const intl = useIntl();
   const [anchorEl, setAnchorEl] = useState(null);
@@ -150,13 +150,13 @@ function WorkspaceMenu(props) {
               <ProMenu iconShape="circle">
                 <MenuItem icon={<AddIcon htmlColor="black" />}
                           key="addWorkspaceIconKey" id="addWorkspaceIconId"
-                          onClick={()=> setInviteOpen(true)}
+                          onClick={()=> setOpen('addNewUsers')}
                 >
                   {intl.formatMessage({ id: 'dialogAddParticipantsLabel' })}
                 </MenuItem>
                 <MenuItem icon={<AddIcon htmlColor="black" />}
                           key="addWorkspaceIconKey" id="addWorkspaceIconId"
-                          onClick={goTo('/notificationPreferences')}
+                          onClick={()=> setOpen('addMarket')}
                 >
                   {intl.formatMessage({ id: 'homeAddPlanning' })}
                 </MenuItem>

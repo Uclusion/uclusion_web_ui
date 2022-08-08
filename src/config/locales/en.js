@@ -246,7 +246,7 @@ const messages = defineMessages({
   // Navigation menu
   swimLanes: 'Swimlanes',
   inbox: 'Inbox',
-  returnInbox: 'Return to Inbox',
+  returnInbox: 'Return to inbox',
   outbox: 'Pending',
   seeFullInbox: 'SEE FULL',
   seeFullOutbox: 'SEE FULL',
@@ -608,7 +608,7 @@ const messages = defineMessages({
   collaborators: 'Collaborators',
   inlineAddLabel: 'Add Option',
   inlineAddLabelMobile: 'Option',
-  addStoryLabel: 'Add Job',
+  addStoryLabel: 'Add job',
   createDialogApprovableExplanation: 'New approvable option',
   createDialogProposedExplanation: 'New proposed option',
   allowVoteSuggestion: 'Allow voting',
@@ -626,6 +626,7 @@ const messages = defineMessages({
   storyFromComment: 'Move to Job',
   channelOptions: 'Group Options',
   marketOptions: 'Workspace Options',
+  marketName: 'Choose a name for the new workspace.',
   mutingExplanation: 'Muting prevents notifications unless you are mentioned, assigned or a required approver or reviewer.',
 
   // Decision Dialog
@@ -645,7 +646,7 @@ const messages = defineMessages({
   proceedActivate: 'Activate channel',
   // Investibles in decision dialog display
   decisionDialogInvestiblesUpdatedAt: 'Last Updated:',
-  dialogAddParticipantsLabel: 'Add Collaborators',
+  dialogAddParticipantsLabel: 'Add collaborators',
   planningMarketSubscribeExplanation: 'Subscribe to approvals and reviews',
   planningMarketUnSubscribeExplanation: 'Unsubscribe from approvals and reviews',
   storyAddParticipantsLabel: 'Change Assigned',

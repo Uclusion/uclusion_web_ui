@@ -39,7 +39,7 @@ function StepButtons (props) {
     previousStep();
   }
 
-  async function nextState (nextFunction) {
+  async function nextState(nextFunction) {
     const nextReturn = nextFunction();
     const resolved = await Promise.resolve(nextReturn);
     if (lastStep) {
@@ -60,8 +60,11 @@ function StepButtons (props) {
   }
 
   async function myFinish() {
-    const resolved = await Promise.resolve(onFinish());
-    return finish(resolved);
+    if (onFinish) {
+      const resolved = await Promise.resolve(onFinish());
+      return finish(resolved);
+    }
+    return finish();
   }
 
   const nextLabel = lastStep ? finishLabel : 'OnboardingWizardContinue';

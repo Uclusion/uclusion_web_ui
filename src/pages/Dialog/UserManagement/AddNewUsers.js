@@ -32,7 +32,7 @@ import GravatarAndName from '../../../components/Avatars/GravatarAndName'
 import { AccountUserContext } from '../../../contexts/AccountUserContext/AccountUserContext'
 
 function AddNewUsers(props) {
-  const { market, isInbox, emailList, setEmailList, setToAddClean, group } = props;
+  const { market, isAddToGroup = false, emailList, setEmailList, setToAddClean, group } = props;
   const { id: addToMarketId, market_type: marketType, invite_capability: marketToken } = market || {};
   const { id: groupId } = group || {};
   const classes = usePlanFormStyles();
@@ -196,9 +196,7 @@ function AddNewUsers(props) {
   }
 
   const displayNames = filteredNames || participants || [];
-  const emailInputId = isInbox ? 'inboxEmail1' : 'email1';
-  const emailInputButtonId = isInbox ? 'inboxAddressSaveButton' : 'addressAddSaveButton';
-  const emailsSentId = isInbox ? 'inboxEmailsSentList' : 'emailsSentList';
+  const emailInputId = 'email1';
   return (
     <>
       {displayNames.length > 0 &&
@@ -269,10 +267,7 @@ function AddNewUsers(props) {
               </Typography>
             </ListItem>
             <ListItem>
-              <List
-                dense
-                id={emailsSentId}
-              >
+              <List dense id='emailsSentList'>
                 {emailsSent.map((entry) => {
                   return (
                     <ListItemText>
@@ -285,51 +280,51 @@ function AddNewUsers(props) {
             </ListItem>
           </>
         )}
-        <form
-          autoComplete="off"
-          className={isInbox ? undefined : classes.manage}
-        >
-          <ListItem
-            className={classes.listItem}
-            id="emailInput"
-            key="emailInput"
-          >
-            <ListItemText>
-              {marketType && (
-                <Typography style={{ paddingBottom: '0.5rem' }}>
-                  {intl.formatMessage({ id: 'inviteParticipantsEmailLabel' })}
-                </Typography>
-              )}
-              <TextField
-                className={classes.input}
-                variant="standard"
-                id={emailInputId}
-                name={emailInputId}
-                fullWidth
-                label={intl.formatMessage({ id: 'searchParticipantsPlaceholder' })}
-                value={emailList || email1}
-                onChange={handleEmail1}
+        {addToMarketId && (!groupId || groupId === addToMarketId) && !isAddToGroup && (
+          <>
+            <form
+              autoComplete="off"
+              className={classes.manage}
+            >
+              <ListItem
+                className={classes.listItem}
+                id="emailInput"
+                key="emailInput"
+              >
+                <ListItemText>
+                  {marketType && (
+                    <Typography style={{ paddingBottom: '0.5rem' }}>
+                      {intl.formatMessage({ id: 'inviteParticipantsEmailLabel' })}
+                    </Typography>
+                  )}
+                  <TextField
+                    className={classes.input}
+                    variant="standard"
+                    id={emailInputId}
+                    name={emailInputId}
+                    fullWidth
+                    label={intl.formatMessage({ id: 'searchParticipantsPlaceholder' })}
+                    value={emailList || email1}
+                    onChange={handleEmail1}
+                  />
+                </ListItemText>
+              </ListItem>
+              <ListItem id="emailButtons" key="emailButtons" className={classes.rightAlign}>
+                <SpinningIconLabelButton onClick={handleSaveEmails} icon={Email} id='addressAddSaveButton'
+                                         allowOtherOperations={true}>
+                  <Typography variant='body1'>
+                    {intl.formatMessage({ id: 'addressAddSaveLabel' })}
+                  </Typography>
+                </SpinningIconLabelButton>
+              </ListItem>
+            </form>
+            <ListItem className={classes.listItem}>
+              <InviteLinker
+                marketType={marketType}
+                marketToken={marketToken}
               />
-            </ListItemText>
-          </ListItem>
-          {addToMarketId && (
-            <ListItem id="emailButtons" key="emailButtons" className={classes.rightAlign}>
-              <SpinningIconLabelButton onClick={handleSaveEmails} icon={Email} id={emailInputButtonId}
-                                       allowOtherOperations={true}>
-                <Typography variant='body1'>
-                  {intl.formatMessage({ id: 'addressAddSaveLabel' })}
-                </Typography>
-              </SpinningIconLabelButton>
             </ListItem>
-          )}
-        </form>
-        {addToMarketId && (!groupId || groupId === addToMarketId) && (
-          <ListItem className={classes.listItem}>
-            <InviteLinker
-              marketType={marketType}
-              marketToken={marketToken}
-            />
-          </ListItem>
+          </>
         )}
       </List>
     </>

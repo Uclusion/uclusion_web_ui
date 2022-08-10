@@ -6,11 +6,6 @@ import _ from 'lodash'
 import StepButtons from '../StepButtons'
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
-import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
-import { doCreateGroup } from './groupCreator'
-import { formMarketLink } from '../../../utils/marketIdPathFunctions'
-import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext'
-import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext'
 
 function GroupNameStep (props) {
   const { updateFormData, formData } = props;
@@ -18,25 +13,6 @@ function GroupNameStep (props) {
   const value = formData.name || '';
   const validForm = !_.isEmpty(value);
   const classes = useContext(WizardStylesContext);
-  const [, diffDispatch] = useContext(DiffContext);
-  const [, groupsDispatch] = useContext(MarketGroupsContext);
-  const [, groupMembersDispatch] = useContext(GroupMembersContext);
-
-  function createGroup(formData) {
-    const dispatchers = {
-      groupsDispatch,
-      diffDispatch,
-      groupMembersDispatch
-    };
-    return doCreateGroup(dispatchers, formData, updateFormData)
-      .then((group) => {
-        return ({ ...formData, link: formMarketLink(group.market_id, group.id) });
-      })
-  }
-
-  function onFinish () {
-    return createGroup({ ...formData });
-  }
 
   function onNameChange (event) {
     const { value } = event.target;
@@ -66,7 +42,7 @@ function GroupNameStep (props) {
         Finish after choosing a name or continue for options which can be changed at any time.
       </Typography>
       <div className={classes.borderBottom} />
-      <StepButtons {...props} validForm={validForm} showFinish={true} onFinish={onFinish}/>
+      <StepButtons {...props} validForm={validForm} showFinish={true} />
     </div>
     </WizardStepContainer>
   );
@@ -74,14 +50,12 @@ function GroupNameStep (props) {
 
 GroupNameStep.propTypes = {
   updateFormData: PropTypes.func,
-  formData: PropTypes.object,
-  isNew: PropTypes.bool
+  formData: PropTypes.object
 };
 
 GroupNameStep.defaultProps = {
   updateFormData: () => {},
-  formData: {},
-  isNew: false
+  formData: {}
 };
 
 export default GroupNameStep;

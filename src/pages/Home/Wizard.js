@@ -17,7 +17,7 @@ function Wizard(props) {
   const location = useLocation();
   const { hash } = location;
   const values = queryString.parse(hash);
-  const { type: createType } = values;
+  const { type: createType, marketId } = values;
   const intl = useIntl();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
 
@@ -34,7 +34,7 @@ function Wizard(props) {
       hidden={hidden}
     >
       {createType === `${PLANNING_TYPE.toLowerCase()}` && (
-        <GroupWizard onFinish={onWizardFinish} onStartOver={() => navigate(history, '/inbox')}/>
+        <GroupWizard marketId={marketId} onFinish={onWizardFinish} onStartOver={() => navigate(history, '/inbox')}/>
       )}
     </Screen>
   );

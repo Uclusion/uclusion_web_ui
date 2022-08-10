@@ -6,10 +6,10 @@ import { addGroupToStorage } from '../../../contexts/MarketGroupsContext/marketG
  * Creates the group from the formdata and does all the magic to make the wizard up date appropriately.
  * @param dispatchers
  * @param formData
- * @param updateFormData
  */
-export function doCreateGroup(dispatchers, formData, updateFormData) {
-  const { name, votesRequired, ticketSubCode, assignedCanApprove, isBudgetAvailable, budgetUnit } = formData;
+export function doCreateGroup(dispatchers, formData) {
+  const { marketId, name, votesRequired, ticketSubCode, assignedCanApprove, isBudgetAvailable, budgetUnit,
+    toAddClean } = formData;
   const {
     groupsDispatch,
     diffDispatch,
@@ -20,6 +20,9 @@ export function doCreateGroup(dispatchers, formData, updateFormData) {
     name
   };
 
+  if (!_.isEmpty(toAddClean)) {
+    groupInfo.participants = toAddClean;
+  }
   if (votesRequired > 0) {
     groupInfo.votes_required = formData.votesRequired
   }
@@ -36,11 +39,12 @@ export function doCreateGroup(dispatchers, formData, updateFormData) {
     groupInfo.budget_unit = formData.budgetUnit
   }
 
-  return createGroup(groupInfo)
+  return createGroup(marketId, groupInfo)
     .then((group) => {
       addGroupToStorage(groupsDispatch, diffDispatch, group);
-      //TODO if group is not everyone then need to also groupMembersDispatch the creator as in this group
-      //TODO can get that from back end if easier as do for market with marketDetails
+      if (group.id !== group.market_id) {
+        //TODO need to push members
+      }
       return group;
     });
 }

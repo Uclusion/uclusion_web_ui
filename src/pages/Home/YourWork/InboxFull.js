@@ -144,7 +144,7 @@ function InboxFull(props) {
     navListItemTextArray: [
       {
         icon: AddIcon, text: intl.formatMessage({ id: 'homeAddGroup' }),
-        target: `/wizard#type=${PLANNING_TYPE.toLowerCase()}`
+        target: `/wizard#type=${PLANNING_TYPE.toLowerCase()}&marketId=${defaultMarket.id}`
       },
     ]};
 

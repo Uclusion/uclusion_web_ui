@@ -2,41 +2,17 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Typography, Card } from '@material-ui/core'
 import StepButtons from '../StepButtons';
-import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
-import { doCreateGroup } from './groupCreator';
 import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepContainer from '../WizardStepContainer';
 import Grid from '@material-ui/core/Grid';
 import AllowedInProgress from '../../../pages/Dialog/Planning/AllowedInProgress';
 import ShowInVerifiedStageAge from '../../../pages/Dialog/Planning/ShowInVerifiedStageAge'
 import { useOptionsStyles } from './AdvancedOptionsStep'
-import { formMarketLink } from '../../../utils/marketIdPathFunctions'
-import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext'
-import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext'
 
 
 function SwimlanesOptionsStep (props) {
   const { updateFormData, formData } = props;
   const classes = useContext(WizardStylesContext);
-  const [, diffDispatch] = useContext(DiffContext);
-  const [, groupsDispatch] = useContext(MarketGroupsContext);
-  const [, groupMembersDispatch] = useContext(GroupMembersContext);
-
-  function createGroup(formData) {
-    const dispatchers = {
-      groupsDispatch,
-      diffDispatch,
-      groupMembersDispatch
-    };
-    return doCreateGroup(dispatchers, formData, updateFormData)
-      .then((group) => {
-        return ({ ...formData, link: formMarketLink(group.market_id, group.id) });
-      })
-  }
-
-  function onFinish() {
-    return createGroup({ ...formData });
-  }
 
   function handleChange (name) {
     return (event) => {
@@ -92,7 +68,6 @@ function SwimlanesOptionsStep (props) {
         <div className={classes.borderBottom}/>
         <StepButtons
           {...props}
-          onFinish={onFinish}
         />
       </div>
     </WizardStepContainer>

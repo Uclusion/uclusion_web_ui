@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import GroupNameStep from './GroupNameStep'
 import { WizardStylesProvider } from '../WizardStylesContext';
@@ -7,16 +7,41 @@ import AdvancedOptionsStep from './AdvancedOptionsStep';
 import SwimlanesOptionsStep from './SwimlanesOptionsStep'
 import ApprovalOptionsStep from './ApprovalOptionsStep'
 import BudgetOptionsStep from './BudgetOptionsStep'
+import GroupMembersStep from './GroupMemberStep'
+import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
+import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext'
+import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext'
+import { doCreateGroup } from './groupCreator'
+import { formMarketLink } from '../../../utils/marketIdPathFunctions'
 
 function GroupWizard(props) {
-  const { onStartOver, onFinish } = props;
+  const { onStartOver, onFinish, marketId } = props;
+  //TODO remove the finish out of every step and pass correctly into the FormdataWizard the composite with onFinish
+  //TODO and then in StepButtons call without arguments so it gets formdata passed to it
+  const [, diffDispatch] = useContext(DiffContext);
+  const [, groupsDispatch] = useContext(MarketGroupsContext);
+  const [, groupMembersDispatch] = useContext(GroupMembersContext);
+
+  function createGroup(formData) {
+    const dispatchers = {
+      groupsDispatch,
+      diffDispatch,
+      groupMembersDispatch
+    };
+    return doCreateGroup(dispatchers, { marketId, ...formData })
+      .then((group) => {
+        return onFinish({ ...formData, link: formMarketLink(group.market_id, group.id) });
+      })
+  }
+
   return (
     <WizardStylesProvider>
       <FormdataWizard name="group_wizard"
-                      onFinish={onFinish}
+                      onFinish={createGroup}
                       onStartOver={onStartOver}
       >
           <GroupNameStep />
+          <GroupMembersStep marketId={marketId} />
           <AdvancedOptionsStep />
           <SwimlanesOptionsStep />
           <ApprovalOptionsStep/>

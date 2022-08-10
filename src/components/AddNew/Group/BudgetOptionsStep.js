@@ -3,8 +3,6 @@ import PropTypes from 'prop-types'
 import { Typography, Card, FormControlLabel, Radio, RadioGroup, TextField } from '@material-ui/core'
 import { useIntl } from 'react-intl'
 import StepButtons from '../StepButtons'
-import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
-import { doCreateGroup } from './groupCreator'
 import { WizardStylesContext } from '../WizardStylesContext'
 import WizardStepContainer from '../WizardStepContainer'
 import Grid from '@material-ui/core/Grid'
@@ -12,33 +10,11 @@ import { useOptionsStyles } from './AdvancedOptionsStep'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import { getMarketUnits } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import _ from 'lodash'
-import { formMarketLink } from '../../../utils/marketIdPathFunctions'
-import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext'
-import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext'
 
 function BudgetOptionsStep (props) {
   const { updateFormData, formData } = props;
   const intl = useIntl();
   const classes = useContext(WizardStylesContext);
-  const [, diffDispatch] = useContext(DiffContext);
-  const [, groupsDispatch] = useContext(MarketGroupsContext);
-  const [, groupMembersDispatch] = useContext(GroupMembersContext);
-
-  function createGroup(formData) {
-    const dispatchers = {
-      groupsDispatch,
-      diffDispatch,
-      groupMembersDispatch
-    };
-    return doCreateGroup(dispatchers, formData, updateFormData)
-      .then((group) => {
-        return ({ ...formData, link: formMarketLink(group.market_id, group.id) });
-      })
-  }
-
-  function onFinish () {
-    return createGroup({ ...formData });
-  }
 
   function onRestrictedChange (event) {
     const { value } = event.target
@@ -115,8 +91,9 @@ function BudgetOptionsStep (props) {
         <StepButtons
           {...props}
           validForm={isBudgetAvailable !== 'true' || !_.isEmpty(budgetUnit)}
-          onNext={onFinish}
-          showFinish={false}
+          showNext={false}
+          showSkip={false}
+          showFinish={true}
         />
       </div>
     </WizardStepContainer>

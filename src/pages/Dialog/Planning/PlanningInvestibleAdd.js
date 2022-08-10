@@ -42,7 +42,7 @@ import { useLockedDialogStyles } from '../DialogBodyEdit'
 import IssueDialog from '../../../components/Warnings/IssueDialog'
 import { getQuillStoredState, resetEditor } from '../../../components/TextEditors/Utilities/CoreUtils'
 import { createPlanning } from '../../../api/markets'
-import { addMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
+import { addMarket, getMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
 import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../../authorization/TokenStorageManager'
 import { addParticipants, inviteParticipants } from '../../../api/users'
 import { addMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesContextReducer'
@@ -69,7 +69,8 @@ function PlanningInvestibleAdd(props) {
   const comments = marketId ? getMarketComments(commentsState, marketId) : [];
   const [investibleState, investiblesDispatch] = useContext(InvestiblesContext);
   const [presencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
-  const [, marketsDispatch] = useContext(MarketsContext);
+  const [marketsState, marketsDispatch] = useContext(MarketsContext);
+  const market = getMarket(marketsState, marketId) || {};
   const presences = marketId ? getMarketPresences(presencesState, marketId) : [];
   const myPresence = presences.find((presence) => presence.current_user) || {};
   const acceptedStage = marketId ? getAcceptedStage(marketStagesState, marketId) : {};
@@ -379,11 +380,7 @@ function PlanningInvestibleAdd(props) {
                 </div>
               </>
             )}
-            {!marketId && (
-              <AddNewUsers isInbox setEmailList={(value) => updateInvestibleAddState({emailList: value})}
-                           emailList={emailList} setToAddClean={(value) => updateInvestibleAddState({toAddClean: value})}
-              />
-            )}
+            <AddNewUsers market={market} setToAddClean={(value) => updateInvestibleAddState({toAddClean: value})} />
           </div>
           {Editor}
         </CardContent>

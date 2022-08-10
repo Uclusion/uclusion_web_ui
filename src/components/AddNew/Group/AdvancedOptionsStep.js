@@ -9,11 +9,6 @@ import WizardStepContainer from '../WizardStepContainer';
 import Grid from '@material-ui/core/Grid';
 import { usePlanFormStyles } from '../../AgilePlan'
 import { makeStyles } from '@material-ui/styles';
-import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
-import { doCreateGroup } from './groupCreator'
-import { formMarketLink } from '../../../utils/marketIdPathFunctions'
-import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext'
-import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext'
 
 export const useOptionsStyles = makeStyles(theme => {
   return {
@@ -38,25 +33,6 @@ function AdvancedOptionsStep (props) {
   const { updateFormData, formData } = props;
   const intl = useIntl();
   const classes = useContext(WizardStylesContext);
-  const [, diffDispatch] = useContext(DiffContext);
-  const [, groupsDispatch] = useContext(MarketGroupsContext);
-  const [, groupMembersDispatch] = useContext(GroupMembersContext);
-
-  function createGroup(formData) {
-    const dispatchers = {
-      groupsDispatch,
-      diffDispatch,
-      groupMembersDispatch
-    };
-    return doCreateGroup(dispatchers, formData, updateFormData)
-      .then((group) => {
-        return ({ ...formData, link: formMarketLink(group.market_id, group.id) });
-      })
-  }
-
-  function onFinish () {
-    return createGroup({ ...formData });
-  }
 
   function onTicketSubCodeChange(event) {
     const { value } = event.target;
@@ -112,7 +88,6 @@ function AdvancedOptionsStep (props) {
           {...props}
           validForm={!_.isEmpty(ticketSubCode)}
           showSkip
-          onFinish={onFinish}
           onSkip={onSkip}
         />
       </div>

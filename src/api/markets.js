@@ -161,8 +161,8 @@ export function createPlanning(marketInfo) {
     .catch((error) => toastErrorAndThrow(error, 'errorPlanningAddFailed'));
 }
 
-export function createGroup(groupInfo) {
-  return getAccountClient()
+export function createGroup(marketId, groupInfo) {
+  return getMarketClient(marketId)
     .then((client) => client.markets.createGroup(groupInfo))
     .catch((error) => toastErrorAndThrow(error, 'errorGroupAddFailed'));
 }

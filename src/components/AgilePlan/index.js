@@ -299,7 +299,7 @@ export const usePlanFormStyles = makeStyles(
     },
     manage: {
       [theme.breakpoints.up('md')]: {
-        width: '75%'
+        maxWidth: '50rem'
       },
     }
   }),

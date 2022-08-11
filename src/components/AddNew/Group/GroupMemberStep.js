@@ -16,7 +16,6 @@ function GroupMembersStep(props) {
   const value = formData.name || '';
   const validForm = !_.isEmpty(value);
   const classes = useContext(WizardStylesContext);
-  //TODO If only one person in market then add group just pops up modal saying must add to market before create group
   return (
     <WizardStepContainer
       {...props}

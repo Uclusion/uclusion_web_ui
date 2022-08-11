@@ -13,15 +13,17 @@ import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/Marke
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext'
 import { doCreateGroup } from './groupCreator'
 import { formMarketLink } from '../../../utils/marketIdPathFunctions'
+import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
+import _ from 'lodash'
 
 function GroupWizard(props) {
   const { onStartOver, onFinish, marketId } = props;
-  //TODO remove the finish out of every step and pass correctly into the FormdataWizard the composite with onFinish
-  //TODO and then in StepButtons call without arguments so it gets formdata passed to it
   const [, diffDispatch] = useContext(DiffContext);
   const [, groupsDispatch] = useContext(MarketGroupsContext);
   const [, groupMembersDispatch] = useContext(GroupMembersContext);
-
+  const [marketPresencesState] = useContext(MarketPresencesContext);
+  const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   function createGroup(formData) {
     const dispatchers = {
       groupsDispatch,
@@ -40,12 +42,14 @@ function GroupWizard(props) {
                       onFinish={createGroup}
                       onStartOver={onStartOver}
       >
-          <GroupNameStep />
+        <GroupNameStep />
+        {_.size(marketPresences) > 1 && (
           <GroupMembersStep marketId={marketId} />
-          <AdvancedOptionsStep />
-          <SwimlanesOptionsStep />
-          <ApprovalOptionsStep/>
-          <BudgetOptionsStep/>
+        )}
+        <AdvancedOptionsStep />
+        <SwimlanesOptionsStep />
+        <ApprovalOptionsStep/>
+        <BudgetOptionsStep/>
       </FormdataWizard>
     </WizardStylesProvider>
   );

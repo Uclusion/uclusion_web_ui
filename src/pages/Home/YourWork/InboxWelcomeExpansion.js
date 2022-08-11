@@ -71,7 +71,7 @@ function InboxWelcomeExpansion() {
     const emailArray = [];
     emails.forEach((email) => {
       const emailTrimmed = email.trim();
-      emailArray.push({ email: emailTrimmed });
+      emailArray.push(emailTrimmed);
     });
     if (_.isEmpty(emailArray)) {
       setOperationRunning(false);

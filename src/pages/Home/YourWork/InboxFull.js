@@ -176,7 +176,7 @@ function InboxFull(props) {
   if (open === 'addMarket') {
     content = <MarketCreate />;
   } else if (open === 'addNewUsers') {
-    content = <AddNewUsers market={defaultMarket} isInbox/>;
+    content = <AddNewUsers market={defaultMarket} />;
   }
 
   return (

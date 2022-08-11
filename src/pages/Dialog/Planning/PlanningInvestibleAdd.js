@@ -29,7 +29,7 @@ import Comment from '../../../components/Comments/Comment'
 import { getAcceptedStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import { assignedInStage } from '../../../utils/userFunctions'
-import { addInvestible, getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
+import { getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { nameFromDescription } from '../../../utils/stringFunctions'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { Clear, Done, Send } from '@material-ui/icons'
@@ -41,11 +41,7 @@ import WarningDialog from '../../../components/Warnings/WarningDialog'
 import { useLockedDialogStyles } from '../DialogBodyEdit'
 import IssueDialog from '../../../components/Warnings/IssueDialog'
 import { getQuillStoredState, resetEditor } from '../../../components/TextEditors/Utilities/CoreUtils'
-import { createPlanning } from '../../../api/markets'
-import { addMarket, getMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
-import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../../authorization/TokenStorageManager'
-import { addParticipants, inviteParticipants } from '../../../api/users'
-import { addMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesContextReducer'
+import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
 import AddNewUsers from '../UserManagement/AddNewUsers'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 
@@ -67,9 +63,9 @@ function PlanningInvestibleAdd(props) {
   const nameId = marketId ? `investibleAdd${marketId}` : 'inboxAddInvestible';
   const [openIssue, setOpenIssue] = useState(false);
   const comments = marketId ? getMarketComments(commentsState, marketId) : [];
-  const [investibleState, investiblesDispatch] = useContext(InvestiblesContext);
+  const [investibleState] = useContext(InvestiblesContext);
   const [presencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
-  const [marketsState, marketsDispatch] = useContext(MarketsContext);
+  const [marketsState] = useContext(MarketsContext);
   const market = getMarket(marketsState, marketId) || {};
   const presences = marketId ? getMarketPresences(presencesState, marketId) : [];
   const myPresence = presences.find((presence) => presence.current_user) || {};
@@ -88,9 +84,7 @@ function PlanningInvestibleAdd(props) {
     maxBudget,
     quantity,
     uploadedFiles,
-    voteUploadedFiles,
-    emailList,
-    toAddClean
+    voteUploadedFiles
   } = investibleAddState;
   const isAssignedToMe = (assignments || (storyAssignee ? [storyAssignee] : [])).includes(myPresence.id);
   const isAssigned = !_.isEmpty(assignments) || storyAssignee;
@@ -197,49 +191,6 @@ function PlanningInvestibleAdd(props) {
     }
     if (openForInvestment || openForInvestmentDefault) {
       addInfo.openForInvestment = true;
-    }
-    if (!marketId) {
-      const emails = emailList ? emailList.split(',') : [];
-      const emailArray = [];
-      emails.forEach((email) => {
-        const emailTrimmed = email.trim();
-        emailArray.push({ email: emailTrimmed });
-      });
-      if (_.isEmpty(emailArray) && _.isEmpty(toAddClean)) {
-        setOperationRunning(false);
-        setOpenIssue('noParticipants');
-        return;
-      }
-      // markets don't support uploaded files, but all other fields carry over
-      const planningInfo = {...addInfo, uploadedFiles: undefined}
-      return createPlanning(planningInfo).then((result) => {
-        const { market: { id: marketId }, token, investible } = result;
-        addMarket(result, marketsDispatch, () => {}, marketPresencesDispatch);
-        addInvestible(investiblesDispatch, () => {}, investible);
-        const link = formInvestibleLink(marketId, investible.investible.id);
-        const tokenStorageManager = new TokenStorageManager();
-        return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, marketId, token).then(() => {
-            if (!_.isEmpty(toAddClean)) {
-              return addParticipants(marketId, toAddClean);
-            }
-            return [];
-          }).then((result) => {
-            if (!_.isEmpty(emailArray)) {
-              if (!_.isEmpty(result)) {
-                marketPresencesDispatch(addMarketPresences(marketId, result));
-              }
-              return inviteParticipants(marketId, emailArray);
-            }
-            return result;
-          }).then((result) => {
-            if (!_.isEmpty(result)) {
-              marketPresencesDispatch(addMarketPresences(marketId, result));
-            }
-            setOperationRunning(false);
-            zeroCurrentValues();
-            return onSpinComplete(link);
-          });
-      });
     }
     return addPlanningInvestible(addInfo).then((inv) => {
       if (fromCommentIds) {

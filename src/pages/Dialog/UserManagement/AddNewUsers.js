@@ -24,9 +24,6 @@ import { extractUsersList } from '../../../utils/userFunctions'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { Email, SettingsBackupRestore } from '@material-ui/icons'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
-import { findMessageOfType } from '../../../utils/messageUtils'
-import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
-import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import GravatarAndName from '../../../components/Avatars/GravatarAndName'
 import { AccountUserContext } from '../../../contexts/AccountUserContext/AccountUserContext'
@@ -41,7 +38,6 @@ function AddNewUsers(props) {
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [marketState] = useContext(MarketsContext);
-  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [userState] = useContext(AccountUserContext);
   const { user: unsafeUser } = userState || {};
@@ -146,13 +142,11 @@ function AddNewUsers(props) {
 
   function addInvitees() {
     const added = [];
-    const emailSentTemp = [];
     if (email1) {
       const emails = email1.split(',');
       emails.forEach((email) => {
         const emailTrimmed = email.trim();
-        added.push({ email: emailTrimmed })
-        emailSentTemp.push(emailTrimmed)
+        added.push(emailTrimmed)
       })
     }
     if (_.isEmpty(added)) {
@@ -161,7 +155,7 @@ function AddNewUsers(props) {
     return inviteParticipants(addToMarketId, added).then((result) => {
       setEmail1('');
       onSaveSpinStop(result);
-      setEmailsSent(emailsSent.concat(emailSentTemp));
+      setEmailsSent(emailsSent.concat(added));
     });
   }
 
@@ -189,10 +183,6 @@ function AddNewUsers(props) {
       return;
     }
     marketPresencesDispatch(addMarketPresences(addToMarketId, result));
-    const message = findMessageOfType('UNREAD_DRAFT', addToMarketId, messagesState);
-    if (message) {
-      messagesDispatch(removeMessage(message));
-    }
   }
 
   const displayNames = filteredNames || participants || [];

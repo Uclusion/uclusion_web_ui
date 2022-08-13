@@ -48,7 +48,7 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 function PlanningInvestibleAdd(props) {
   const {
     marketId, classes, onCancel, onSave, onSpinComplete, fromCommentIds, votesRequired, maxBudgetUnit, useBudget,
-    storyAssignee, furtherWorkType
+    storyAssignee, furtherWorkType, groupId,
   } = props;
   const intl = useIntl();
   const theme = useTheme();
@@ -148,7 +148,8 @@ function PlanningInvestibleAdd(props) {
     const processedDescription = tokensRemoved ? tokensRemoved : ' ';
     const addInfo = {
       uploadedFiles: filteredUploads,
-      description: processedDescription
+      description: processedDescription,
+      groupId,
     };
     if (marketId) {
       addInfo.marketId = marketId;
@@ -409,6 +410,7 @@ function PlanningInvestibleAdd(props) {
 PlanningInvestibleAdd.propTypes = {
   classes: PropTypes.object.isRequired,
   marketId: PropTypes.string,
+  groupId: PropTypes.string,
   useBudget: PropTypes.bool.isRequired,
   onCancel: PropTypes.func,
   onSpinComplete: PropTypes.func,

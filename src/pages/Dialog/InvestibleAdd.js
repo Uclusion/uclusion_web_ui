@@ -33,7 +33,7 @@ function InvestibleAdd(props) {
   const location = useLocation();
   const { pathname, hash } = location;
   const values = queryString.parse(hash || '') || {};
-  const { fromCommentId } = values;
+  const { fromCommentId, groupId } = values;
   const fromCommentIds = _.isArray(fromCommentId) ? fromCommentId : fromCommentId ? [fromCommentId] : undefined;
   const { marketId } = decomposeMarketPath(pathname);
   const [messagesState] = useContext(NotificationsContext);
@@ -79,6 +79,7 @@ function InvestibleAdd(props) {
       {hidden ? <div /> :
         <PlanningInvestibleAdd
           marketId={marketId}
+          groupId={groupId}
           onCancel={() => navigate(history)}
           onSave={onInvestibleSave}
           onSpinComplete={onDone}

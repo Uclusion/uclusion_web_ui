@@ -364,6 +364,7 @@ function PlanningDialog(props) {
         {!hidden && marketId && isSectionOpen('addStorySection') && _.isEmpty(search) && (
           <PlanningInvestibleAdd
             marketId={marketId}
+            groupId={groupId}
             onCancel={() => openSubSection('storiesSection')}
             onSave={onInvestibleSave}
             onSpinComplete={onDone}
@@ -470,6 +471,7 @@ function PlanningDialog(props) {
               {furtherWorkType === 'readyToStart' && (
                 <PlanningInvestibleAdd
                   marketId={marketId}
+                  groupId={groupId}
                   onCancel={() => updatePageState({furtherWorkType: undefined})}
                   onSave={onInvestibleSave}
                   onSpinComplete={(destinationLink) => {
@@ -517,6 +519,7 @@ function PlanningDialog(props) {
               {furtherWorkType === 'notReadyToStart' && (
                 <PlanningInvestibleAdd
                   marketId={marketId}
+                  groupId={groupId}
                   onCancel={() => updatePageState({furtherWorkType: undefined})}
                   onSave={onInvestibleSave}
                   onSpinComplete={(destinationLink) => {
@@ -782,6 +785,7 @@ function InvestiblesByPerson(props) {
         {storyAssignee === id && (
           <PlanningInvestibleAdd
             marketId={marketId}
+            groupId={group.id}
             onCancel={() => updatePageState({storyAssignee: undefined})}
             onSave={onInvestibleSave}
             onSpinComplete={(destinationLink) => {

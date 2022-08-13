@@ -854,6 +854,7 @@ function PlanningInvestible(props) {
       >
         <PlanningInvestibleAdd
           marketId={marketId}
+          groupId={groupId}
           onCancel={() => updatePageState({showAddInvestible: false})}
           onSave={onInvestibleSave}
           onSpinComplete={onDone}

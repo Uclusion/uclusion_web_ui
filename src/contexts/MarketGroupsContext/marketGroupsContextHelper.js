@@ -27,7 +27,7 @@ export function addGroupToStorage(dispatch, diffDispatch, groupDetails) {
 
 export function addGroupsToStorage(dispatch, diffDispatch, groupDetails) {
   if (diffDispatch) {
-    diffDispatch(addContents(groupDetails));
+    diffDispatch(addContents([groupDetails]));
   }
   pushIndexItems(groupDetails);
   dispatch(updateMarketGroupsFromNetwork(groupDetails));

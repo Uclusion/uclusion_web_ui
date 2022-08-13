@@ -36,14 +36,12 @@ function MarketCreateActions(props) {
             market,
             presence,
             stages,
-            notification,
             token
           } = marketDetails;
           const createdMarketId = market.id;
           addMarketToStorage(marketsDispatch, market);
           pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, stageDetails: {[createdMarketId]: stages }});
           pushMessage(TOUR_CHANNEL, { event: START_TOUR, tour: INVITED_USER_WORKSPACE });
-          pushMessage(NOTIFICATIONS_HUB_CHANNEL, { event: ADD_EVENT, message: notification });
           addPresenceToMarket(presenceDispatch, createdMarketId, presence);
           const tokenStorageManager = new TokenStorageManager();
           return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, createdMarketId, token)

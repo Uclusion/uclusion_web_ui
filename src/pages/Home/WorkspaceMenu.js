@@ -149,13 +149,13 @@ function WorkspaceMenu(props) {
             <SidebarContent>
               <ProMenu iconShape="circle">
                 <MenuItem icon={<AddIcon htmlColor="black" />}
-                          key="addWorkspaceIconKey" id="addWorkspaceIconId"
+                          key="addWorkspaceNewUsersKey" id="addWorkspaceIconId"
                           onClick={()=> setOpen('addNewUsers')}
                 >
                   {intl.formatMessage({ id: 'dialogAddParticipantsLabel' })}
                 </MenuItem>
                 <MenuItem icon={<AddIcon htmlColor="black" />}
-                          key="addWorkspaceIconKey" id="addWorkspaceIconId"
+                          key="addWorkspace Key" id="addWorkspaceIconId"
                           onClick={()=> setOpen('addMarket')}
                 >
                   {intl.formatMessage({ id: 'homeAddPlanning' })}
@@ -163,11 +163,14 @@ function WorkspaceMenu(props) {
                 <SubMenu title={intl.formatMessage({ id: 'switchWorkspace' })}
                          key="switchWorkspace" style={{paddingLeft: '0.7rem'}}>
                   {markets.map((market) => {
+                    const key = `market${market.id}`;
+
                     if (market.id === defaultMarket.id) {
-                      return React.Fragment;
+                      return <React.Fragment key={key}/>;
                     }
                     return <MenuItem icon={<AgilePlanIcon htmlColor="black" />}
-                                     id={`market${market.id}`}
+                                     id={key}
+                                     key={key}
                                      onClick={() => setChosenMarketId(market.id)}
                     >
                       {market.name}

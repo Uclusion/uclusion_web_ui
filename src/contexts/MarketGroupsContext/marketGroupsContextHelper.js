@@ -16,13 +16,13 @@ export function pushIndexItems(diskState) {
   pushMessage(SEARCH_INDEX_CHANNEL, indexMessage);
 }
 
-export function addGroupToStorage(dispatch, diffDispatch, groupDetails) {
+export function addGroupToStorage(dispatch, diffDispatch, marketId, groupDetails) {
   const fixed = fixupItemForStorage(groupDetails);
   if (diffDispatch) {
     diffDispatch(addContents([fixed]));
   }
   pushMessage(SEARCH_INDEX_CHANNEL, { event: INDEX_UPDATE, itemType: INDEX_GROUP_TYPE, items: [fixed]});
-  dispatch(updateMarketGroups([fixed]));
+  dispatch(updateMarketGroups(marketId, [fixed]));
 }
 
 export function addGroupsToStorage(dispatch, diffDispatch, groupDetails) {

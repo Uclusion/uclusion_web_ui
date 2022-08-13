@@ -325,10 +325,6 @@ async function doRefreshMarket(marketId, componentSignatures, marketsStruct, sto
     chain = chain ? chain.then(() => fetchMarketGroups(marketId, marketGroups, marketsStruct))
       : fetchMarketGroups(marketId, marketGroups, marketsStruct);
   }
-  if (!_.isEmpty(marketGroups.unmatchedSignatures)) {
-    chain = chain ? chain.then(() => fetchMarketGroups(marketId, marketGroups, marketsStruct))
-      : fetchMarketGroups(marketId, marketGroups, marketsStruct);
-  }
   if (!_.isEmpty(groupMembers.unmatchedSignatures)) {
     chain = chain ? chain.then(() => fetchGroupMembers(marketId, groupMembers, marketsStruct))
       : fetchGroupMembers(marketId, groupMembers, marketsStruct);

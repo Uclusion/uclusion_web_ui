@@ -42,7 +42,7 @@ export function doCreateGroup(dispatchers, formData) {
 
   return createGroup(marketId, groupInfo)
     .then((group) => {
-      addGroupToStorage(groupsDispatch, diffDispatch, group);
+      addGroupToStorage(groupsDispatch, diffDispatch, marketId, group);
       if (group.id !== group.market_id) {
         groupMembersDispatch(versionsUpdateGroupMembers(groupInfo.participants));
       }

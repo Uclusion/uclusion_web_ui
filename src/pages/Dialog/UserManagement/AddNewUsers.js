@@ -89,7 +89,7 @@ function AddNewUsers(props) {
     });
   }
 
-  function getCheckToggle (id) {
+  function getCheckToggle(id) {
     return () => {
       const found = checked.find((item) => item.user_id === id);
       if (!found) {
@@ -191,22 +191,16 @@ function AddNewUsers(props) {
     <>
       {displayNames.length > 0 &&
         <>
-          <List dense className={clsx(classes.scrollableList, classes.sharedForm)}>
+          <List dense
+                className={isAddToGroup ? classes.scrollableList : clsx(classes.scrollableList, classes.sharedForm)}>
             <ListItem className={classes.searchContainer} key="search">
-              {marketType && (
+              {!isAddToGroup && (
                 <SpinningIconLabelButton onClick={handleSaveParticipants} icon={SettingsBackupRestore}
                                          id="participantAddButton"
                                          disabled={_.isEmpty(checked)}>
                   {intl.formatMessage({ id: mobileLayout ? 'addExistingCollaboratorMobile' :
                       'addExistingCollaborator' })}
                 </SpinningIconLabelButton>
-              )}
-              {!marketType && (
-                <ListItem className={classes.listItem} style={{paddingTop: '0'}}>
-                  <Typography className={classes.cardTitle} style={{padding: '0'}}>
-                    {intl.formatMessage({ id: 'addParticipantsOneAndDone' })}
-                  </Typography>
-                </ListItem>
               )}
               {_.size(participants) > 10 && (
                   <ListItemText >
@@ -238,85 +232,85 @@ function AddNewUsers(props) {
           <div className={classes.spacer} style={{maxWidth: '5rem'}} />
         </>
       }
-      <List
-        dense
-        style={{padding: '0'}}
-      >
-        {displayNames.length > 0 &&
-          <ListItem className={classes.listItem} style={{paddingTop: '0', paddingBottom: '1rem'}}>
-            <Typography className={classes.cardTitle} style={{padding: '0'}}>
-              {intl.formatMessage({ id: 'addParticipantsNewPerson' })}
-            </Typography>
-          </ListItem>
-        }
-        {emailsSent.length > 0 && (
-          <>
-            <ListItem className={classes.listItem}>
+      {!isAddToGroup && (
+        <List
+          dense
+          style={{padding: '0'}}
+        >
+          {displayNames.length > 0 &&
+            <ListItem className={classes.listItem} style={{paddingTop: '0', paddingBottom: '1rem'}}>
               <Typography className={classes.cardTitle} style={{padding: '0'}}>
-                {intl.formatMessage({ id: 'emailsSentLabel' })}
+                {intl.formatMessage({ id: 'addParticipantsNewPerson' })}
               </Typography>
             </ListItem>
-            <ListItem>
-              <List dense id='emailsSentList'>
-                {emailsSent.map((entry) => {
-                  return (
-                    <ListItemText>
-                      {entry}
-                    </ListItemText>
-                  )
-                })
-                }
-              </List>
-            </ListItem>
-          </>
-        )}
-        {addToMarketId && (!groupId || groupId === addToMarketId) && !isAddToGroup && (
-          <>
-            <form
-              autoComplete="off"
-              className={classes.manage}
-            >
-              <ListItem
-                className={classes.listItem}
-                id="emailInput"
-                key="emailInput"
+          }
+          {emailsSent.length > 0 && (
+            <>
+              <ListItem className={classes.listItem}>
+                <Typography className={classes.cardTitle} style={{padding: '0'}}>
+                  {intl.formatMessage({ id: 'emailsSentLabel' })}
+                </Typography>
+              </ListItem>
+              <ListItem>
+                <List dense id='emailsSentList'>
+                  {emailsSent.map((entry) => {
+                    return (
+                      <ListItemText>
+                        {entry}
+                      </ListItemText>
+                    )
+                  })
+                  }
+                </List>
+              </ListItem>
+            </>
+          )}
+          {addToMarketId && (!groupId || groupId === addToMarketId) && (
+            <>
+              <form
+                autoComplete="off"
+                className={classes.manage}
               >
-                <ListItemText>
-                  {marketType && (
+                <ListItem
+                  className={classes.listItem}
+                  id="emailInput"
+                  key="emailInput"
+                >
+                  <ListItemText>
                     <Typography style={{ paddingBottom: '0.5rem' }}>
                       {intl.formatMessage({ id: 'inviteParticipantsEmailLabel' })}
                     </Typography>
-                  )}
-                  <TextField
-                    className={classes.input}
-                    variant="standard"
-                    id={emailInputId}
-                    name={emailInputId}
-                    fullWidth
-                    label={intl.formatMessage({ id: 'searchParticipantsPlaceholder' })}
-                    value={emailList || email1}
-                    onChange={handleEmail1}
-                  />
-                </ListItemText>
+                    <TextField
+                      className={classes.input}
+                      variant="standard"
+                      id={emailInputId}
+                      name={emailInputId}
+                      fullWidth
+                      label={intl.formatMessage({ id: 'searchParticipantsPlaceholder' })}
+                      value={emailList || email1}
+                      onChange={handleEmail1}
+                    />
+                  </ListItemText>
+                </ListItem>
+                <ListItem id="emailButtons" key="emailButtons" className={classes.rightAlign}>
+                  <SpinningIconLabelButton onClick={handleSaveEmails} icon={Email} id='addressAddSaveButton'
+                                           allowOtherOperations={true}>
+                    <Typography variant='body1'>
+                      {intl.formatMessage({ id: 'addressAddSaveLabel' })}
+                    </Typography>
+                  </SpinningIconLabelButton>
+                </ListItem>
+              </form>
+              <ListItem className={classes.listItem}>
+                <InviteLinker
+                  marketType={marketType}
+                  marketToken={marketToken}
+                />
               </ListItem>
-              <ListItem id="emailButtons" key="emailButtons" className={classes.rightAlign}>
-                <SpinningIconLabelButton onClick={handleSaveEmails} icon={Email} id='addressAddSaveButton'
-                                         allowOtherOperations={true}>
-                  <Typography variant='body1'>
-                    {intl.formatMessage({ id: 'addressAddSaveLabel' })}
-                  </Typography>
-                </SpinningIconLabelButton>
-              </ListItem>
-            </form>
-            <ListItem className={classes.listItem}>
-              <InviteLinker
-                marketType={marketType}
-                marketToken={marketToken}
-              />
-            </ListItem>
-          </>
-        )}
-      </List>
+            </>
+          )}
+        </List>
+      )}
     </>
   );
 }

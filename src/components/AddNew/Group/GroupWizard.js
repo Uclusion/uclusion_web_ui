@@ -44,7 +44,7 @@ function GroupWizard(props) {
       >
         <GroupNameStep />
         {_.size(marketPresences) > 1 && (
-          <GroupMembersStep marketId={marketId} />
+          <GroupMembersStep />
         )}
         <AdvancedOptionsStep />
         <SwimlanesOptionsStep />

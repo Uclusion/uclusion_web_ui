@@ -843,7 +843,6 @@ const messages = defineMessages({
 
   // add participants
   addParticipantsNewPerson: 'Not in the list? Send invite.',
-  addParticipantsOneAndDone: 'Select from list to add an approver.',
   emailsSentLabel: 'Sent emails to',
 
   // Spinning

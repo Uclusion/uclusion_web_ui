@@ -22,7 +22,7 @@ export function addGroupToStorage(dispatch, diffDispatch, groupDetails) {
     diffDispatch(addContents([fixed]));
   }
   pushMessage(SEARCH_INDEX_CHANNEL, { event: INDEX_UPDATE, itemType: INDEX_GROUP_TYPE, items: [fixed]});
-  dispatch(updateMarketGroups(fixed));
+  dispatch(updateMarketGroups([fixed]));
 }
 
 export function addGroupsToStorage(dispatch, diffDispatch, groupDetails) {

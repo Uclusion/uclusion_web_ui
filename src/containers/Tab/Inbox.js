@@ -25,9 +25,11 @@ export function GmailTabItem(props) {
 
 export function GmailTabs(props) {
   const tabsStyles = useGmailTabsStyles({ ...props });
+  const tabsProps = {...props};
+  delete tabsProps.indicatorColors;
   return (
     <Tabs
-      {...props}
+      {...tabsProps}
       classes={tabsStyles}
       TabIndicatorProps={{
         ...props.TabIndicatorProps,

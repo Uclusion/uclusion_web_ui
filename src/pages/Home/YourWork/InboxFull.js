@@ -138,15 +138,19 @@ function InboxFull(props) {
       defaultMarket = markets.find((market) => market.id === chosenMarketId);
     }
   }
-  const navigationMenu = {
+
+  const navigationMenu = defaultMarket != null ?
+    {
     navMenu: <WorkspaceMenu markets={markets} defaultMarket={defaultMarket} setChosenMarketId={setChosenMarketId}
     setOpen={setOpen}/>,
     navListItemTextArray: [
       {
         icon: AddIcon, text: intl.formatMessage({ id: 'homeAddGroup' }),
-        target: `/wizard#type=${PLANNING_TYPE.toLowerCase()}&marketId=${defaultMarket.id}`
+        target: `/wizard#type=${PLANNING_TYPE.toLowerCase()}&marketId=${defaultMarket?.id}`
       },
-    ]};
+    ]}
+  :
+    null;
 
   if (!_.isEmpty(defaultMarket) && !_.isEmpty(groupsState[defaultMarket.id])) {
     const items = groupsState[defaultMarket.id].map((group) => {

@@ -1,6 +1,7 @@
 import { createGroup } from '../../../api/markets'
 import _ from 'lodash';
 import { addGroupToStorage } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper'
+import { versionsUpdateGroupMembers } from '../../../contexts/GroupMembersContext/groupMembersContextReducer'
 
 /**
  * Creates the group from the formdata and does all the magic to make the wizard up date appropriately.
@@ -13,6 +14,7 @@ export function doCreateGroup(dispatchers, formData) {
   const {
     groupsDispatch,
     diffDispatch,
+    groupMembersDispatch
   } = dispatchers;
 
   const groupInfo = {
@@ -42,7 +44,7 @@ export function doCreateGroup(dispatchers, formData) {
     .then((group) => {
       addGroupToStorage(groupsDispatch, diffDispatch, group);
       if (group.id !== group.market_id) {
-        //TODO need to push members
+        groupMembersDispatch(versionsUpdateGroupMembers(groupInfo.participants));
       }
       return group;
     });

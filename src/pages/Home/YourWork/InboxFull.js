@@ -14,7 +14,6 @@ import { formMarketLink, navigate, preventDefaultAndProp } from '../../../utils/
 import { useHistory } from 'react-router'
 import AddIcon from '@material-ui/icons/Add'
 import { PLANNING_TYPE } from '../../../constants/markets'
-import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { pushMessage } from '../../../utils/MessageBusUtils'
 import {
@@ -47,8 +46,6 @@ function InboxFull(props) {
   const [chosenMarketId, setChosenMarketId] = useState(null);
   const [marketsState, , tokensHash] = useContext(MarketsContext);
   const [groupsState] = useContext(MarketGroupsContext);
-  const [searchResults] = useContext(SearchResultsContext);
-  const { results, parentResults, search } = searchResults;
   const [messagesState] = useContext(NotificationsContext);
   const [userState] = useContext(AccountUserContext);
   const hasUser = userIsLoaded(userState);

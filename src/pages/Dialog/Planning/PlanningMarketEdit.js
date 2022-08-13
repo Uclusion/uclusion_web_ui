@@ -46,8 +46,8 @@ const useStyles = makeStyles((theme) => {
 
 function PlanningMarketEdit() {
   const [marketStagesState, marketStagesDispatch] = useContext(MarketStagesContext);
-  const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
-  const [marketsState, marketsDispatch] = useContext(MarketsContext);
+  const [setOperationRunning] = useContext(OperationInProgressContext);
+  const [marketsState] = useContext(MarketsContext);
   const [messagesState] = useContext(NotificationsContext);
   const intl = useIntl();
   const classes = usePlanFormStyles();
@@ -63,7 +63,7 @@ function PlanningMarketEdit() {
   const [showInvestiblesAge, setShowInvestiblesAge] = useState(verifiedStage.days_visible);
   const market = getMarket(marketsState, marketId) || {};
   const [investmentExpiration, setInvestmentExpiration] = useState(market.investment_expiration);
-  const [name, setName] = useState(market.name);
+  const [name] = useState(market.name);
   const breadCrumbTemplates = marketId ? [{ name: market.name, link: formMarketLink(marketId, marketId) }] : [];
   const breadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates);
 

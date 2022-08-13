@@ -13,7 +13,6 @@ export function doCreateGroup(dispatchers, formData) {
   const {
     groupsDispatch,
     diffDispatch,
-    groupMembersDispatch
   } = dispatchers;
 
   const groupInfo = {

@@ -19,7 +19,6 @@ import { doSetEditWhenValid, invalidEditEvent } from '../../../utils/windowUtils
 import DialogBodyEdit from '../DialogBodyEdit'
 import _ from 'lodash'
 import { pushMessage } from '../../../utils/MessageBusUtils'
-import { LOCK_MARKET, LOCK_MARKET_CHANNEL } from '../../../contexts/MarketsContext/marketsContextMessages'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { findMessageOfTypeAndId } from '../../../utils/messageUtils'
@@ -30,6 +29,7 @@ import { setUclusionLocalStorageItem } from '../../../components/localStorageUti
 import EditMarketButton from '../EditMarketButton'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext'
+import { LOCK_GROUP, LOCK_GROUP_CHANNEL } from '../../../contexts/MarketGroupsContext/marketGroupsContextMessages'
 
 const useStyles = makeStyles(theme => ({
   section: {
@@ -278,8 +278,7 @@ function Summary(props) {
     updatePageState({beingEdited: true});
     setUclusionLocalStorageItem(`name-editor-${id}`, name);
     //TODO attach file below is wrong - not using group id
-    //TODO this needs to be lock group channel
-    return pushMessage(LOCK_MARKET_CHANNEL, { event: LOCK_MARKET, marketId: id });
+    return pushMessage(LOCK_GROUP_CHANNEL, { event: LOCK_GROUP, marketId, groupId: id });
   }
 
   function toggleDiffShow() {

@@ -4,12 +4,6 @@ import { addMarketsToStorage, addMarketToStorage } from './marketsContextHelper'
 import { getMarketFromInvite, getMarketFromUrl } from '../../api/uclusionClient'
 import { toastError } from '../../utils/userMessage'
 import { ADD_PRESENCE } from '../MarketPresencesContext/marketPresencesMessages'
-import {
-  OPERATION_HUB_CHANNEL,
-  START_OPERATION,
-  STOP_OPERATION
-} from '../OperationInProgressContext/operationInProgressMessages'
-import { lockPlanningMarketForEdit } from '../../api/markets'
 import localforage from 'localforage'
 import TokenStorageManager, { TOKEN_STORAGE_KEYSPACE, TOKEN_TYPE_MARKET } from '../../authorization/TokenStorageManager'
 import {
@@ -25,8 +19,6 @@ import {
 export const LOAD_MARKET_CHANNEL = 'LoadMarketChannel';
 export const INVITE_MARKET_EVENT = 'InviteMarketEvent';
 export const GUEST_MARKET_EVENT = 'GuestMarketEvent';
-export const LOCK_MARKET_CHANNEL = 'LockMarketChannel';
-export const LOCK_MARKET = 'LockMarket';
 export const LOAD_TOKENS_CHANNEL = 'LoadTokensChannel';
 export const LOAD_EVENT = 'LoadEvent'
 
@@ -69,14 +61,6 @@ function beginListening(dispatch, setTokensHash) {
       default:
         // console.debug(`Ignoring identity event ${event}`);
     }
-  });
-  registerListener(LOCK_MARKET_CHANNEL, 'marketsLockStart', (data) => {
-    const { payload: { marketId } } = data;
-    pushMessage(OPERATION_HUB_CHANNEL, { event: START_OPERATION, id: LOCK_MARKET });
-    lockPlanningMarketForEdit(marketId).then((market) => {
-      pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION, id: LOCK_MARKET });
-      addMarketToStorage(dispatch, market);
-    });
   });
   registerListener(LOAD_MARKET_CHANNEL, 'marketsLoadStart', (data) => {
     const { payload: { event, marketToken, marketId } } = data;

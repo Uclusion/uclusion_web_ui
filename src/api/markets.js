@@ -195,9 +195,9 @@ export function getGroupMembers(marketId, groupIds) {
     .then((client) => client.markets.listGroupMembers(groupIds));
 }
 
-export function lockPlanningMarketForEdit(marketId, breakLock) {
+export function lockGroupForEdit(marketId, groupId, breakLock) {
   return getMarketClient(marketId)
-    .then((client) => client.markets.lock(breakLock))
+    .then((client) => client.markets.lock(groupId, breakLock))
     .catch((error) => toastErrorAndThrow(error, 'errorEditLockFailed'));
 }
 

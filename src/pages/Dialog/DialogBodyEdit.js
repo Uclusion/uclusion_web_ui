@@ -7,7 +7,7 @@ import LockedDialogTitleIcon from '@material-ui/icons/Lock'
 import _ from 'lodash'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { addMarketToStorage } from '../../contexts/MarketsContext/marketsContextHelper'
-import { lockPlanningMarketForEdit, unlockPlanningMarketForEdit, updateMarket } from '../../api/markets'
+import { lockGroupForEdit, unlockPlanningMarketForEdit, updateMarket } from '../../api/markets'
 import { Dialog } from '../../components/Dialogs'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { DiffContext } from '../../contexts/DiffContext/DiffContext'
@@ -21,7 +21,7 @@ import { useEditor } from '../../components/TextEditors/quillHooks';
 import WarningIcon from '@material-ui/icons/Warning'
 import IssueDialog from '../../components/Warnings/IssueDialog'
 import { getQuillStoredState } from '../../components/TextEditors/Utilities/CoreUtils';
-import { LOCK_MARKET } from '../../contexts/MarketsContext/marketsContextMessages'
+import { LOCK_GROUP } from '../../contexts/MarketGroupsContext/marketGroupsContextMessages'
 
 export const useLockedDialogStyles = makeStyles(
   (theme) => {
@@ -138,7 +138,7 @@ function DialogBodyEdit(props) {
   const [,marketsDispatch] = useContext(MarketsContext);
   const [, diffDispatch] = useContext(DiffContext);
   const [openIssue, setOpenIssue] = useState(false);
-  const { id, name: initialName, description: initialDescription, locked_by: lockedBy } = group;
+  const { id, name: initialName, description: initialDescription, locked_by: lockedBy, market_id: marketId } = group;
   const someoneElseEditing = !_.isEmpty(lockedBy) && (lockedBy !== userId);
 
   const editorName = `${id}-body-editor`;
@@ -202,7 +202,7 @@ function DialogBodyEdit(props) {
   }
   function myOnClick() {
     const breakLock = true;
-    return lockPlanningMarketForEdit(id, breakLock)
+    return lockGroupForEdit(marketId, id, breakLock)
       .then((result) => {
         setOperationRunning(false);
         updateMarketInStorage(result);
@@ -215,7 +215,7 @@ function DialogBodyEdit(props) {
 
   const lockedDialogClasses = useLockedDialogStyles();
 
-  if (beingEdited && lockedBy !== userId && operationRunning === LOCK_MARKET) {
+  if (beingEdited && lockedBy !== userId && operationRunning === LOCK_GROUP) {
     return (
       <div align='center'>
         <Typography>{intl.formatMessage({ id: "gettingLockMessage" })}</Typography>

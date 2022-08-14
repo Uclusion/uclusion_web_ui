@@ -423,7 +423,11 @@ function fetchMarketGroups(marketId, allMg, marketsStruct) {
 function fetchGroupMembers(marketId, allMg, marketsStruct) {
   const mgSignatures = allMg.unmatchedSignatures;
   const groupIds = [];
-  mgSignatures.forEach((sign) => groupIds.push(sign.group_id));
+  mgSignatures.forEach((sign) => {
+    if (!groupIds.includes(sign.group_id)) {
+      groupIds.push(sign.group_id);
+    }
+  });
   return getGroupMembers(marketId, groupIds)
     .then((users) => {
       const match = signatureMatcher(users, mgSignatures);

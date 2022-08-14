@@ -214,6 +214,7 @@ function Summary(props) {
     attached_files: attachedFiles,
     locked_by: lockedBy,
     name,
+    market_id: marketId
   } = group;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [, marketsDispatch] = useContext(MarketsContext);
@@ -227,9 +228,8 @@ function Summary(props) {
     beingEdited,
     showDiff
   } = pageState;
-  const marketPresences = getMarketPresences(marketPresencesState, id) || [];
-  const groupPresences = getGroupPresences(marketPresences, groupPresencesState, id, group.id);
-  // TODO restrict presences by group if group is not everyone (use helper to get presences and check if everyone inside)
+  const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+  const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, id);
   let lockedByName;
   if (lockedBy) {
     const lockedByPresence = marketPresences.find(
@@ -277,6 +277,8 @@ function Summary(props) {
     }
     updatePageState({beingEdited: true});
     setUclusionLocalStorageItem(`name-editor-${id}`, name);
+    //TODO attach file below is wrong - not using group id
+    //TODO this needs to be lock group channel
     return pushMessage(LOCK_MARKET_CHANNEL, { event: LOCK_MARKET, marketId: id });
   }
 
@@ -300,7 +302,7 @@ function Summary(props) {
               </Typography>
             )}
             {id && myPresence.id && (
-              <DialogBodyEdit hidden={hidden} setBeingEdited={mySetBeingEdited} group={group} marketId={id}
+              <DialogBodyEdit hidden={hidden} setBeingEdited={mySetBeingEdited} group={group}
                               pageState={pageState} pageStateUpdate={updatePageState} pageStateReset={pageStateReset}
                               userId={myPresence.id} isEditableByUser={isEditableByUser} beingEdited={beingEdited}/>
             )}
@@ -326,7 +328,6 @@ function Summary(props) {
                 <Collaborators
                   marketPresences={groupPresences}
                   intl={intl}
-                  marketId={id}
                   history={history}
                 />
               </div>
@@ -340,7 +341,7 @@ function Summary(props) {
           <div style={{ paddingTop: '1rem' }}/>
           <AttachedFilesList
             key="files"
-            marketId={id}
+            marketId={marketId}
             isAdmin={myPresence.is_admin}
             onDeleteClick={onDeleteFile}
             attachedFiles={attachedFiles}

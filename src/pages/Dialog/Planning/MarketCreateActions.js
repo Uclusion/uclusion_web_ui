@@ -15,6 +15,8 @@ import { INVITED_USER_WORKSPACE } from '../../../contexts/TourContext/tourContex
 import { addPresenceToMarket } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../../authorization/TokenStorageManager'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext'
+import { addGroupsToStorage } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper'
 
 function MarketCreateActions(props) {
   const { setOpen } = props;
@@ -22,6 +24,7 @@ function MarketCreateActions(props) {
   const [, marketsDispatch] = useContext(MarketsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, presenceDispatch] = useContext(MarketPresencesContext);
+  const [, groupsDispatch] = useContext(MarketGroupsContext);
 
   function handleSave() {
     const name = getNameStoredState('newMarket');
@@ -35,10 +38,12 @@ function MarketCreateActions(props) {
             market,
             presence,
             stages,
-            token
+            token,
+            group
           } = marketDetails;
           const createdMarketId = market.id;
           addMarketToStorage(marketsDispatch, market);
+          addGroupsToStorage(groupsDispatch, () => {}, { [createdMarketId]: group});
           pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, stageDetails: {[createdMarketId]: stages }});
           pushMessage(TOUR_CHANNEL, { event: START_TOUR, tour: INVITED_USER_WORKSPACE });
           addPresenceToMarket(presenceDispatch, createdMarketId, presence);

@@ -11,7 +11,7 @@ import { useMetaDataStyles } from '../../Investible/Planning/PlanningInvestible'
 import { useHistory } from 'react-router'
 import Collaborators from '../Collaborators'
 import AttachedFilesList from '../../../components/Files/AttachedFilesList'
-import { attachFilesToMarket, deleteAttachedFilesFromMarket } from '../../../api/markets'
+import { attachFilesToGroup, deleteAttachedFilesFromMarket } from '../../../api/markets'
 import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
@@ -250,7 +250,7 @@ function Summary(props) {
   }
 
   function onAttachFile(metadatas) {
-    return attachFilesToMarket(id, metadatas)
+    return attachFilesToGroup(marketId, id, metadatas)
       .then((market) => {
         addMarketToStorage(marketsDispatch, diffDispatch, market);
       })
@@ -277,7 +277,6 @@ function Summary(props) {
     }
     updatePageState({beingEdited: true});
     setUclusionLocalStorageItem(`name-editor-${id}`, name);
-    //TODO attach file below is wrong - not using group id
     return pushMessage(LOCK_GROUP_CHANNEL, { event: LOCK_GROUP, marketId, groupId: id });
   }
 

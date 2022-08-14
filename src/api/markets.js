@@ -32,9 +32,9 @@ export function manageMarket(marketId, expirationMinutes) {
     .catch((error) => toastErrorAndThrow(error, 'errorMarketExpirationExtendFailed'));
 }
 
-export function attachFilesToMarket(marketId, metadatas) {
+export function attachFilesToGroup(marketId, groupId, metadatas) {
   return getMarketClient(marketId)
-    .then((client) => client.markets.addAttachments(metadatas))
+    .then((client) => client.markets.addAttachments(groupId, metadatas))
     .catch((error) => toastErrorAndThrow(error, 'errorMarketAttachFilesFailed'));
 }
 

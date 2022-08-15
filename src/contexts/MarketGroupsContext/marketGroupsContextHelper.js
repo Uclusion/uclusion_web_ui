@@ -6,9 +6,9 @@ import { updateMarketGroups, updateMarketGroupsFromNetwork } from './marketGroup
 import _ from 'lodash'
 
 export function getGroup(state, marketId, groupId) {
-  const marketsSafe  = state || {};
-  const usedMarketDetails = marketsSafe[marketId];
-  return usedMarketDetails.find((group) => group.id === groupId);
+  const groupsSafe  = state || {};
+  const usedGroups = groupsSafe[marketId] || [];
+  return usedGroups.find((group) => group.id === groupId);
 }
 
 export function pushIndexItems(diskState) {

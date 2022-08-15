@@ -1,4 +1,5 @@
 import { registerListener } from '../../utils/MessageBusUtils';
+import _ from 'lodash'
 
 export const SEARCH_INDEX_CHANNEL = 'SEARCH_INDEX_CHANNEL';
 export const INDEX_UPDATE = 'INDEX_UPDATE';
@@ -21,7 +22,7 @@ function getBody(itemType, item) {
 
 function transformItemsToIndexable(itemType, items){
   return items.map((item) => {
-    const { id: itemId, market_id: itemMarketId, deleted: itemDeleted } = item;
+    const { id: itemId, market_id: itemMarketId, group_id: itemGroupId, deleted: itemDeleted } = item;
     let marketId = itemMarketId;
     let useItem = item;
     let id = itemId;
@@ -37,6 +38,11 @@ function transformItemsToIndexable(itemType, items){
       useItem = investible;
       id = investible.id;
     }
+    let groupId = itemGroupId;
+    if (_.isEmpty(groupId)) {
+      // This is a group item
+      groupId = id;
+    }
     if (deleted) {
       return {
         type: 'DELETED',
@@ -47,6 +53,7 @@ function transformItemsToIndexable(itemType, items){
       body: getBody(itemType, useItem),
       id,
       marketId,
+      groupId
     }
   });
 }

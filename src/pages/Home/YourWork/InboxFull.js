@@ -14,6 +14,7 @@ import { formMarketLink, navigate, preventDefaultAndProp } from '../../../utils/
 import { useHistory } from 'react-router'
 import AddIcon from '@material-ui/icons/Add'
 import { PLANNING_TYPE } from '../../../constants/markets'
+import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { pushMessage } from '../../../utils/MessageBusUtils'
 import {
@@ -41,6 +42,8 @@ function InboxFull(props) {
   const values = queryString.parse(querySearch || '');
   const { fromInvite } = values || {};
   const [page, setPage] = useState(1);
+  const [searchResults] = useContext(SearchResultsContext);
+  const { results, search } = searchResults;
   const [pendingPage, setPendingPage] = useState(1);
   //TODO need to store chosen market on disk
   const [chosenMarketId, setChosenMarketId] = useState(null);
@@ -151,7 +154,11 @@ function InboxFull(props) {
 
   if (!_.isEmpty(defaultMarket) && !_.isEmpty(groupsState[defaultMarket.id])) {
     const items = groupsState[defaultMarket.id].map((group) => {
-      return {icon: Group, text: group.name,
+      let num = undefined;
+      if (!_.isEmpty(search)) {
+        num = (results || []).filter((item) => item.groupId === group.id);
+      }
+      return {icon: Group, text: group.name, num,
         onClickFunc: (event) => {
           preventDefaultAndProp(event);
           pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: REMOVE_CURRENT_EVENT });

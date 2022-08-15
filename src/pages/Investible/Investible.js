@@ -17,6 +17,9 @@ import { getMarketComments } from '../../contexts/CommentsContext/commentsContex
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import PlanningInvestible from './Planning/PlanningInvestible'
+import { getMarketInfo } from '../../utils/userFunctions'
+import { getGroup } from '../../contexts/MarketGroupsContext/marketGroupsContextHelper'
+import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext'
 
 function createCommentsHash(commentsArray) {
   return _.keyBy(commentsArray, 'id');
@@ -35,6 +38,7 @@ function Investible(props) {
   const market = realMarket || {};
   const userId = getMyUserForMarket(marketsState, marketId) || '';
   const [commentsState] = useContext(CommentsContext);
+  const [groupState] = useContext(MarketGroupsContext);
   const comments = getMarketComments(commentsState, marketId);
   const investibleComments = comments.filter((comment) => comment.investible_id === investibleId);
   const commentsHash = createCommentsHash(investibleComments);
@@ -43,9 +47,11 @@ function Investible(props) {
   const inv = getInvestible(investiblesState, investibleId);
   const { investible } = inv || {};
   const { name } = investible || {};
-  const { name: marketName } = market || {};
-  //TODO need groupId in formMarketLink and all over here
-  const breadCrumbTemplates = [{ name: marketName, link: formMarketLink(marketId), id: 'marketCrumb' }];
+  const marketInfo = getMarketInfo(inv, marketId) || {};
+  const { group_id: groupId } = marketInfo;
+  const group = getGroup(groupState, marketId, groupId);
+  const { name: groupName } = group || {};
+  const breadCrumbTemplates = [{ name: groupName, link: formMarketLink(marketId, groupId), id: 'marketCrumb' }];
   const myPresence = marketPresences.find((presence) => presence.current_user);
   const loading = !investibleId || _.isEmpty(inv) || _.isEmpty(investible) || _.isEmpty(myPresence) || !userId
     || _.isEmpty(realMarket) || !marketTokenLoaded(marketId, tokensHash);

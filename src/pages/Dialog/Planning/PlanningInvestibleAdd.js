@@ -71,7 +71,7 @@ function PlanningInvestibleAdd(props) {
   const market = getMarket(marketsState, marketId) || {};
   const [groupState] = useContext(MarketGroupsContext);
   const group = getGroup(groupState, marketId, groupId);
-  const presences = marketId ? getMarketPresences(presencesState, marketId) : [];
+  const presences = getMarketPresences(presencesState, marketId);
   const myPresence = presences.find((presence) => presence.current_user) || {};
   const acceptedStage = marketId ? getAcceptedStage(marketStagesState, marketId) : {};
   const [investibleAddStateFull, investibleAddDispatch] = usePageStateReducer('investibleAdd');
@@ -88,7 +88,8 @@ function PlanningInvestibleAdd(props) {
     maxBudget,
     quantity,
     uploadedFiles,
-    voteUploadedFiles
+    voteUploadedFiles,
+    toAddClean
   } = investibleAddState;
   const isAssignedToMe = (assignments || (storyAssignee ? [storyAssignee] : [])).includes(myPresence.id);
   const isAssigned = !_.isEmpty(assignments) || storyAssignee;
@@ -196,6 +197,12 @@ function PlanningInvestibleAdd(props) {
     }
     if (openForInvestment || openForInvestmentDefault) {
       addInfo.openForInvestment = true;
+    }
+    if (!_.isEmpty(toAddClean)) {
+      addInfo.addressed = toAddClean.map((added) => {
+        const found = presences.find((presence) => presence.external_id === added.external_id);
+        return found.id;
+      });
     }
     return addPlanningInvestible(addInfo).then((inv) => {
       if (fromCommentIds) {
@@ -414,7 +421,7 @@ function PlanningInvestibleAdd(props) {
 
 PlanningInvestibleAdd.propTypes = {
   classes: PropTypes.object.isRequired,
-  marketId: PropTypes.string,
+  marketId: PropTypes.string.isRequired,
   groupId: PropTypes.string,
   useBudget: PropTypes.bool.isRequired,
   onCancel: PropTypes.func,

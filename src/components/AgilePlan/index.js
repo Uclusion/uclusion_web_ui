@@ -371,7 +371,7 @@ export function VoteExpiration(props) {
 }
 
 export function Votes(props) {
-  const { readOnly, ...other } = props;
+  const { readOnly, value } = props;
   const intl = useIntl();
   const classes = usePlanFormStyles();
   const inputClasses = useInputSuffixStyles();
@@ -388,9 +388,8 @@ export function Votes(props) {
           pattern: "[0-9]*",
           style: {textAlign: 'center'}
         }}
-        defaultValue="0"
+        value={value}
         label={intl.formatMessage({ id: "votesRequiredInputLabelShort" })}
-        {...other}
       />
       <Typography>
         {intl.formatMessage({ id: "votesRequiredHelp" })}

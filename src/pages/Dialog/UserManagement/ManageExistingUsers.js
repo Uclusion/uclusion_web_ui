@@ -13,12 +13,15 @@ import {
   ListItemText,
   ListItemSecondaryAction, ListItemIcon, Tooltip
 } from '@material-ui/core'
-import BanUserButton from './BanUserButton';
 import { makeStyles } from '@material-ui/styles';
 import Gravatar from '../../../components/Avatars/Gravatar';
 import Typography from '@material-ui/core/Typography'
 import { useIntl } from 'react-intl'
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext'
+import Checkbox from '@material-ui/icons/CheckBox'
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { changeGroupParticipation } from '../../../api/markets'
+import { modifyGroupMembers } from '../../../contexts/GroupMembersContext/groupMembersContextReducer'
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -31,21 +34,30 @@ const useStyles = makeStyles((theme) => {
   };
 });
 
-function ManageExistingUsers (props) {
+function ManageExistingUsers(props) {
   const { group } = props;
   const { market_id: marketId, id } = group;
   const classes = useStyles();
   const intl = useIntl();
   const [marketPresencesState] = useContext(MarketPresencesContext);
-  const [groupPresencesState] = useContext(GroupMembersContext);
+  const [groupPresencesState, groupPresencesDispatch] = useContext(GroupMembersContext);
+  const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
-  const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, id) || [];
+  const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, id, true) || [];
   const yourPresence = marketPresences.find((presence) => presence.current_user) || {};
   const { is_admin: isAdmin } = yourPresence;
 
-  function getUsers () {
+  function followUnfollow(userId, wasRemoved) {
+    setOperationRunning(true);
+    const addressed = [{user_id: userId, is_following: wasRemoved}];
+    return changeGroupParticipation(marketId, id, addressed).then((modifed) => {
+      groupPresencesDispatch(modifyGroupMembers(id, modifed));
+    });
+  }
+
+  function getUsers() {
     return groupPresences.map((presence) => {
-      const { name, email, id } = presence;
+      const { name, email, id, deleted } = presence;
       return (
         <ListItem
           key={id}
@@ -60,10 +72,13 @@ function ManageExistingUsers (props) {
           >
             {name}
           </ListItemText>
-          <ListItemSecondaryAction>
-            <BanUserButton
-              userId={id}
-              marketId={marketId}
+          <ListItemSecondaryAction style={{paddingRight: '1rem'}}>
+            <Checkbox
+              id="followingGroup"
+              name="followingGroup"
+              checked={!deleted}
+              onChange={() => followUnfollow(id, deleted)}
+              disabled={operationRunning !== false}
             />
           </ListItemSecondaryAction>
         </ListItem>
@@ -83,8 +98,8 @@ function ManageExistingUsers (props) {
       </Typography>
     }>
       <ListItem key='header'><ListItemText />
-        <Tooltip title={intl.formatMessage({ id: 'removeExplanation' })}>
-          <ListItemIcon>Remove</ListItemIcon>
+        <Tooltip title={intl.formatMessage({ id: 'groupRemoveExplanation' })}>
+          <ListItemIcon> {intl.formatMessage({ id: 'groupRemoveAction' })}</ListItemIcon>
         </Tooltip>
       </ListItem>
       {getUsers()}

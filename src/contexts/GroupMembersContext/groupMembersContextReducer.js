@@ -13,6 +13,7 @@ const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const ADD_GROUP_MEMBER = 'ADD_GROUP_MEMBER';
 const ADD_GROUP_MEMBERS = 'ADD_GROUP_MEMBERS';
 const UPDATE_FROM_VERSIONS = 'UPDATE_FROM_VERSIONS';
+const MODIFY_GROUP_MEMBERS = 'MODIFY_GROUP_MEMBERS';
 
 /** Messages you can send the reducer **/
 
@@ -31,15 +32,9 @@ export function addGroupMember(groupId, user) {
   };
 }
 
-//TODO fix this to have associated message that fixes participants or return from backend and use versionsupdate one
-//TODO - IF YOU display a UI to add people then removing yourself (already selected) would have to be an option
-// and then just require that at least one person is chosen and remove back end adding creator
-// ON THE OTHER HAND Slack group creator is assumed a member - THEN CAN SAY WHO DO YOU WANT TO INVITE
-//TODO should display a UI because that's how group messaging in Slack works - you declare the people involved
-// only difference there is you don't have to name
-export function addGroupMembers(groupId, users) {
+export function modifyGroupMembers(groupId, users) {
   return {
-    type: ADD_GROUP_MEMBERS,
+    type: MODIFY_GROUP_MEMBERS,
     groupId,
     users,
   };
@@ -98,14 +93,24 @@ function doUpdateGroupMembers(state, action) {
   return removeInitializing(newState);
 }
 
+function doModifyGroupMembers(state, action) {
+  const { groupId, users } = action;
+  const oldUsersRaw = state[groupId] || [];
+  const newState = {...state};
+  newState[groupId] = _.unionBy(users, oldUsersRaw, 'id');
+  return newState;
+}
+
 function computeNewState(state, action) {
-  switch (action.type) {
+  switch(action.type) {
     case INITIALIZE_STATE:
       return action.newState;
     case ADD_GROUP_MEMBER:
       return doAddGroupMember(state, action);
     case ADD_GROUP_MEMBERS:
       return doAddGroupMembers(state, action);
+    case MODIFY_GROUP_MEMBERS:
+      return doModifyGroupMembers(state, action);
     case UPDATE_FROM_VERSIONS:
       return doUpdateGroupMembers(state, action);
     default:

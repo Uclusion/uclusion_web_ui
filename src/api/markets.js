@@ -116,29 +116,10 @@ export function updateMarket (marketId, name = null, description = null, uploade
     .catch((error) => toastErrorAndThrow(error, 'errorMarketUpdateFailed'))
 }
 
-
-export function changeUserToParticipant(marketId){
+export function changeGroupParticipation(marketId, groupId, addressed){
   return getMarketClient(marketId)
-    .then((client) => client.markets.followMarket(false))
+    .then((client) => client.markets.followGroup(groupId, addressed))
     .catch((error) => toastErrorAndThrow(error, 'errorChangeToParticipantFailed'));
-}
-
-export function changeUserToObserver(marketId){
-  return getMarketClient(marketId)
-    .then((client) => client.markets.followMarket(true))
-    .catch((error) => toastErrorAndThrow(error, 'errorChangeToObserverFailed'));
-}
-
-export function followStages(marketId, stageIds){
-  return getMarketClient(marketId)
-    .then((client) => client.markets.followStage(stageIds))
-    .catch((error) => toastErrorAndThrow(error, 'errorFollowStages'));
-}
-
-export function unFollowStages(marketId, stageIds){
-  return getMarketClient(marketId)
-    .then((client) => client.markets.followStage(stageIds, true))
-    .catch((error) => toastErrorAndThrow(error, 'errorUnFollowStages'));
 }
 
 export function createInitiative(marketInfo, messageKey = 'errorInitiativeAddFailed') {

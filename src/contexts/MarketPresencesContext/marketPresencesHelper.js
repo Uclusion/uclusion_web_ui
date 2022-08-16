@@ -47,17 +47,19 @@ export function getMarketPresences(state, marketId, excludeExpired) {
   });
 }
 
-export function getGroupPresences(presences, groupMembersState, marketId, groupId) {
+export function getGroupPresences(presences, groupMembersState, marketId, groupId, includeDeleted=false) {
   const presencesFiltered = presences.filter((presence) => !presence.market_banned);
   const groupCapabilities = groupMembersState[groupId] || [];
   const groupPresences = (isEveryoneGroup(groupId, marketId) || _.isEmpty(groupId)) ? presencesFiltered
-    : presencesFiltered.filter((presence) => groupCapabilities.find((groupCapability) => !groupCapability.deleted
-      && groupCapability.id === presence.id));
-  return groupPresences.map((presence) => {
-    const { investments } = presence;
-    const filteredInvestments = (investments || []).filter((investment) => !investment.deleted);
-    return { ...presence, investments: filteredInvestments };
-  });
+    : presencesFiltered.filter((presence) => groupCapabilities.find((groupCapability) =>
+      (!groupCapability.deleted || includeDeleted) && groupCapability.id === presence.id));
+  if (includeDeleted) {
+    return groupPresences.map((presence) => {
+      const groupMember = groupCapabilities.find((groupCapability) => (groupCapability.id === presence.id));
+      return { ...presence, deleted: groupMember.deleted };
+    });
+  }
+  return groupPresences;
 }
 
 export function getMarketPresence(state, marketId, userId) {

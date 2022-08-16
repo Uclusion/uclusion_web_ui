@@ -23,9 +23,10 @@ import { Clear, SettingsBackupRestore } from '@material-ui/icons'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import ManageExistingUsers from '../UserManagement/ManageExistingUsers'
 import Autocomplete from '@material-ui/lab/Autocomplete'
-import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper'
-import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
+import { isEveryoneGroup } from '../../../contexts/GroupMembersContext/groupMembersHelper'
+import { addGroupToStorage } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper'
+import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext'
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -43,7 +44,7 @@ function PlanningDialogEdit(props) {
   const { onCancel, group, acceptedStage, verifiedStage, userId } = props;
   const [marketStagesState, marketStagesDispatch] = useContext(MarketStagesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const [, marketsDispatch] = useContext(MarketsContext);
+  const [, groupsDispatch] = useContext(MarketGroupsContext);
   const [, diffDispatch] = useContext(DiffContext);
   const { id, market_id: marketId } = group;
   const intl = useIntl();
@@ -101,8 +102,7 @@ function PlanningDialogEdit(props) {
       updated_by: userId,
       updated_by_you: true,
     };
-    //TODO add group to storage
-    addMarketToStorage(marketsDispatch, diffDispatch, diffSafe);
+    addGroupToStorage(groupsDispatch, diffDispatch, marketId, diffSafe);
   }
 
   function handleSave() {
@@ -150,11 +150,18 @@ function PlanningDialogEdit(props) {
   return (
     <Card className={classes.overflowVisible}>
       <CardContent className={classes.cardContent}>
-        <Grid container className={clsx(classes.fieldset, classes.flex, classes.justifySpace)}>
-          <Grid item md={6} xs={12} className={classes.fieldsetContainer}>
-            <ManageExistingUsers group={group}/>
+          <Grid container className={clsx(classes.fieldset, classes.flex, classes.justifySpace)}>
+            <Grid item md={6} xs={12} className={classes.fieldsetContainer}>
+              {!isEveryoneGroup(id, marketId) && (
+                <ManageExistingUsers group={group}/>
+              )}
+              {isEveryoneGroup(id, marketId) && (
+                <Typography variant="body1">
+                  {intl.formatMessage({ id: 'everyoneGroupExplanation' })}
+                </Typography>
+              )}
+            </Grid>
           </Grid>
-        </Grid>
         <Grid container className={clsx(classes.fieldset, classes.flex, classes.justifySpace)}
               style={{paddingTop: "2rem"}}>
           <Grid item md={12} xs={12} className={classes.fieldsetContainer}>
@@ -200,7 +207,7 @@ function PlanningDialogEdit(props) {
               renderInput={(params) => <TextField {...params}
                                                   margin="dense"
                                                   label={intl.formatMessage({ id: 'addUnit' })}/>}
-              value={budget_unit}
+              value={budget_unit || ''}
               disabled={!use_budget}
               className={myClasses.maxBudgetUnit}
               onInputChange={onUnitChange}
@@ -222,7 +229,7 @@ function PlanningDialogEdit(props) {
             <TextField
               id="name"
               className={classes.input}
-              value={ticket_sub_code}
+              value={ticket_sub_code || ''}
               onChange={handleChange('ticket_sub_code')}
             />
             <Typography>

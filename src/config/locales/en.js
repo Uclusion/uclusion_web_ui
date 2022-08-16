@@ -733,10 +733,13 @@ const messages = defineMessages({
   reviewListHeader: 'Required reviewers (X to remove)',
   approveListHeader: 'Required approvers (X to remove)',
   cannotUnassignExplanation: 'Collaborators assigned jobs cannot be unchecked.',
-  removeExplanation: 'Remove takes away all access to this channel',
+  removeExplanation: 'Remove takes away all access to this workspace',
+  groupRemoveExplanation: 'Unchecking removes this user from this group',
+  groupRemoveAction: 'Active',
   mutedExplanation: 'Muted channel',
   muteAction: 'Mute channel',
   searchAssignments: 'Assign',
+  everyoneGroupExplanation: 'This group automatically contains everyone in the workspace.',
 
   // Address List
   addressListHeader: 'Addressed to',

@@ -740,6 +740,8 @@ const messages = defineMessages({
   muteAction: 'Mute channel',
   searchAssignments: 'Assign',
   everyoneGroupExplanation: 'This group automatically contains everyone in the workspace.',
+  everyoneGroupAddExplanation: 'This group automatically contains everyone in the workspace and you can add to the workspace below.',
+  everyoneInGroupAddExplanation: 'This group already contains everyone in the workspace.',
 
   // Address List
   addressListHeader: 'Addressed to',

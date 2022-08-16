@@ -145,7 +145,6 @@ import {
 } from '../../../contexts/OperationInProgressContext/operationInProgressMessages'
 import { addEditVotingHasContents } from '../Voting/AddEditVote'
 import { getInboxTarget } from '../../../contexts/NotificationsContext/notificationsContextHelper'
-import DialogManage from '../../Dialog/DialogManage'
 import PlanningInvestibleAdd from '../../Dialog/Planning/PlanningInvestibleAdd'
 
 export const usePlanningInvestibleStyles = makeStyles(
@@ -430,7 +429,6 @@ function PlanningInvestible(props) {
   const {
     beingEdited,
     editCollaborators,
-    showDialogManage,
     showAddInvestible
   } = pageState;
 
@@ -818,20 +816,7 @@ function PlanningInvestible(props) {
     updatePageState({editCollaborators: false});
   }
   const title = ticketCode ? `${ticketCode} ${name}` : name;
-  if (showDialogManage) {
-    navigationMenu['listOnClick'] = () => updatePageState({showDialogManage: false});
-    return (
-      <Screen
-        title={title}
-        tabTitle={name}
-        breadCrumbs={breadCrumbs}
-        hidden={hidden}
-        navigationOptions={navigationMenu}
-      >
-        <DialogManage marketId={marketId} name={name}/>
-      </Screen>
-    );
-  }
+
   function onInvestibleSave(investible) {
     addInvestible(investiblesDispatch, diffDispatch, investible);
   }

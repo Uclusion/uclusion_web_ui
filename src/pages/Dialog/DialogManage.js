@@ -9,6 +9,7 @@ import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/Ma
 import { Card, Typography } from '@material-ui/core'
 import { usePlanFormStyles } from '../../components/AgilePlan'
 import ManageUsers from './UserManagement/ManageUsers'
+import { isEveryoneGroup } from '../../contexts/GroupMembersContext/groupMembersHelper'
 
 function DialogManage(props) {
   const { marketId, isInbox, name, group } = props;
@@ -42,6 +43,11 @@ function DialogManage(props) {
       <Typography className={classes.cardTitle}>
         {intl.formatMessage({ id: 'initiativeAddress' })}
       </Typography>
+      {isEveryoneGroup(group.id, marketId) && (
+        <Typography variant="body1" style={{paddingLeft: '48px', paddingTop: '1rem'}}>
+          {intl.formatMessage({ id: 'everyoneGroupAddExplanation' })}
+        </Typography>
+      )}
       <ManageUsers
         market={renderableMarket}
         name={name}

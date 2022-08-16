@@ -232,6 +232,11 @@ function AddNewUsers(props) {
           <div className={classes.spacer} style={{maxWidth: '5rem'}} />
         </>
       }
+      {isAddToGroup && displayNames.length === 0 && (
+        <Typography variant="body1">
+          {intl.formatMessage({ id: 'everyoneInGroupAddExplanation' })}
+        </Typography>
+      )}
       {!isAddToGroup && (
         <List
           dense

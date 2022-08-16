@@ -44,6 +44,8 @@ import { getQuillStoredState, resetEditor } from '../../../components/TextEditor
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
 import AddNewUsers from '../UserManagement/AddNewUsers'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
+import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext'
+import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper'
 
 function PlanningInvestibleAdd(props) {
   const {
@@ -67,6 +69,8 @@ function PlanningInvestibleAdd(props) {
   const [presencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [marketsState] = useContext(MarketsContext);
   const market = getMarket(marketsState, marketId) || {};
+  const [groupState] = useContext(MarketGroupsContext);
+  const group = getGroup(groupState, marketId, groupId);
   const presences = marketId ? getMarketPresences(presencesState, marketId) : [];
   const myPresence = presences.find((presence) => presence.current_user) || {};
   const acceptedStage = marketId ? getAcceptedStage(marketStagesState, marketId) : {};
@@ -332,7 +336,8 @@ function PlanningInvestibleAdd(props) {
                 </div>
               </>
             )}
-            <AddNewUsers market={market} setToAddClean={(value) => updateInvestibleAddState({toAddClean: value})} />
+            <AddNewUsers market={market} setToAddClean={(value) => updateInvestibleAddState({toAddClean: value})}
+                         isAddToGroup group={group}/>
           </div>
           {Editor}
         </CardContent>

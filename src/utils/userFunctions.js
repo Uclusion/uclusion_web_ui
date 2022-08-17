@@ -7,7 +7,6 @@ import {
 } from '../components/localStorageUtils'
 import TokenStorageManager from '../authorization/TokenStorageManager'
 import { Auth } from 'aws-amplify'
-import { getMarketPresences } from '../contexts/MarketPresencesContext/marketPresencesHelper'
 import _ from 'lodash'
 import config from '../config'
 import { clearRedirect } from './redirectUtils'
@@ -15,9 +14,7 @@ import { getMarket } from '../contexts/MarketsContext/marketsContextHelper'
 
 const LOGOUT_MARKER_KEY = 'logout_marker';
 
-export function extractUsersList(marketPresencesState, marketState, addToMarketId, myUser) {
-  const addToMarketPresences = addToMarketId ? (getMarketPresences(marketPresencesState, addToMarketId) || []) :
-    [{external_id: myUser.external_id}];
+export function extractUsersList(marketPresencesState, marketState, addToMarketPresences) {
   const addToMarketPresencesHash = addToMarketPresences.reduce((acc, presence) => {
     const { external_id } = presence;
     return { ...acc, [external_id]: true };

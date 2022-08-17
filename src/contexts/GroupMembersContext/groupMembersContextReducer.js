@@ -32,6 +32,14 @@ export function addGroupMember(groupId, user) {
   };
 }
 
+export function addGroupMembers(groupId, users) {
+  return {
+    type: ADD_GROUP_MEMBERS,
+    groupId,
+    users,
+  };
+}
+
 export function modifyGroupMembers(groupId, users) {
   return {
     type: MODIFY_GROUP_MEMBERS,

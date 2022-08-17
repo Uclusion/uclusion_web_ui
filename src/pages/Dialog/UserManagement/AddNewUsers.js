@@ -27,6 +27,8 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import GravatarAndName from '../../../components/Avatars/GravatarAndName'
 import { AccountUserContext } from '../../../contexts/AccountUserContext/AccountUserContext'
+import { getGroupPresences, getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext'
 
 function AddNewUsers(props) {
   const { market, isAddToGroup = false, emailList, setEmailList, setToAddClean, group } = props;
@@ -38,6 +40,7 @@ function AddNewUsers(props) {
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [marketState] = useContext(MarketsContext);
+  const [groupPresencesState] = useContext(GroupMembersContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [userState] = useContext(AccountUserContext);
   const { user: unsafeUser } = userState || {};
@@ -52,8 +55,11 @@ function AddNewUsers(props) {
       setEmail1(value);
     }
   }
-
-  const participants = Object.values(extractUsersList(marketPresencesState, marketState, addToMarketId, myUser));
+  const marketPresences = getMarketPresences(marketPresencesState, addToMarketId) || [];
+  const addToMarketPresences = groupId ?
+    getGroupPresences(marketPresences, groupPresencesState, addToMarketId, groupId) :
+    (addToMarketId ? marketPresences : [{external_id: myUser.external_id}]);
+  const participants = Object.values(extractUsersList(marketPresencesState, marketState, addToMarketPresences));
   const [checked, setChecked] = useState([]);
   const [searchValue, setSearchValue] = useState(undefined);
   const [filteredNames, setFilteredNames] = useState(undefined);

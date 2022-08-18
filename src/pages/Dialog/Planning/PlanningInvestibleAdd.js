@@ -46,6 +46,7 @@ import AddNewUsers from '../UserManagement/AddNewUsers'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext'
 import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper'
+import { isEveryoneGroup } from '../../../contexts/GroupMembersContext/groupMembersHelper'
 
 function PlanningInvestibleAdd(props) {
   const {
@@ -343,13 +344,15 @@ function PlanningInvestibleAdd(props) {
                 </div>
               </>
             )}
-            <div>
-              <Typography variant="body1" style={{paddingLeft: '0.2rem'}}>
-                {intl.formatMessage({ id: 'investibleAddOthersExplanation' })}
-              </Typography>
-              <AddNewUsers market={market} setToAddClean={(value) => updateInvestibleAddState({toAddClean: value})}
-                           isAddToGroup group={group}/>
-            </div>
+            {!isEveryoneGroup(groupId, marketId) && (
+              <div>
+                <Typography variant="body1" style={{paddingLeft: '0.2rem'}}>
+                  {intl.formatMessage({ id: 'investibleAddOthersExplanation' })}
+                </Typography>
+                <AddNewUsers market={market} setToAddClean={(value) => updateInvestibleAddState({toAddClean: value})}
+                             isAddToGroup group={group}/>
+              </div>
+            )}
           </div>
           {Editor}
         </CardContent>

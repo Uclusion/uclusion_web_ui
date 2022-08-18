@@ -146,6 +146,8 @@ import {
 import { addEditVotingHasContents } from '../Voting/AddEditVote'
 import { getInboxTarget } from '../../../contexts/NotificationsContext/notificationsContextHelper'
 import PlanningInvestibleAdd from '../../Dialog/Planning/PlanningInvestibleAdd'
+import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext'
+import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper'
 
 export const usePlanningInvestibleStyles = makeStyles(
   theme => ({
@@ -420,6 +422,10 @@ function PlanningInvestible(props) {
   const { stage, assigned: invAssigned, completion_estimate: marketDaysEstimate,
     required_approvers:  requiredApprovers, required_reviews: requiredReviewers, ticket_code: ticketCode,
     open_for_investment: openForInvestment, former_stage_id: formerStageId, accepted, group_id: groupId } = marketInfo;
+  const [groupState] = useContext(MarketGroupsContext);
+  console.debug(`group id is ${groupId}`);
+  const group = getGroup(groupState, marketId, groupId);
+  const { name: groupName } = group || {};
   const assigned = invAssigned || [];
   const { investible } = marketInvestible;
   const { name, locked_by: lockedBy, created_at: createdAt, label_list: originalLabelList } = investible;
@@ -789,7 +795,7 @@ function PlanningInvestible(props) {
     navListItemTextArray: [
       {icon: Inbox, text: intl.formatMessage({ id: 'returnInbox' }), target: getInboxTarget(messagesState),
         newPage: true},
-        {icon: AgilePlanIcon, text: marketName, target: formMarketLink(marketId, groupId)},
+        {icon: AgilePlanIcon, text: groupName, target: formMarketLink(marketId, groupId)},
       createNavListItem(EditIcon, 'description_label', 'storyMain',
       displayDescription ? undefined : 0),
       createNavListItem(ThumbsUpDownIcon, 'approvals', 'approvals',

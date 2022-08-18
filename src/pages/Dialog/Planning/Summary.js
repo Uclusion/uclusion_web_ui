@@ -215,7 +215,7 @@ function Summary(props) {
     locked_by: lockedBy,
     name,
     market_id: marketId
-  } = group;
+  } = group || {};
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [, marketsDispatch] = useContext(MarketsContext);
   const [diffState, diffDispatch] = useContext(DiffContext);

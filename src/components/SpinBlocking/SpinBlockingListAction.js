@@ -36,7 +36,6 @@ function SpinBlockingListAction(props) {
     openLabel,
     highlighted,
     onClick,
-    hasSpinChecker,
     customClasses,
     disabled,
   } = props;
@@ -53,7 +52,6 @@ function SpinBlockingListAction(props) {
       button
       onClick={onClick}
       className={classes.menuItem}
-      hasSpinChecker={hasSpinChecker}
       disabled={disabled}
     >
       {!mobileLayout && (

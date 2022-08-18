@@ -176,7 +176,6 @@ function SubscriptionStatus (props) {
         {resumable && !needsPayment && (
           <SpinBlockingButton
             onClick={resumeSubscription}
-            hasSpinChecker
             id="billingSubRestart"
             className={clsx(
               classes.action,

@@ -156,10 +156,8 @@ function PlanningInvestibleAdd(props) {
       uploadedFiles: filteredUploads,
       description: processedDescription,
       groupId,
+      marketId
     };
-    if (marketId) {
-      addInfo.marketId = marketId;
-    }
     const name = getNameStoredState(nameId);
     if (name) {
       addInfo.name = name;

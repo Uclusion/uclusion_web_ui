@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react'
 import _ from 'lodash'
 import { useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
-import { Card, CardActions, CardContent, Checkbox, FormControlLabel, useMediaQuery, useTheme }
+import { Card, CardActions, CardContent, Checkbox, FormControlLabel, Typography, useMediaQuery, useTheme }
   from '@material-ui/core'
 import { addPlanningInvestible } from '../../../api/investibles'
 import { processTextAndFilesForSave } from '../../../api/files'
@@ -343,8 +343,13 @@ function PlanningInvestibleAdd(props) {
                 </div>
               </>
             )}
-            <AddNewUsers market={market} setToAddClean={(value) => updateInvestibleAddState({toAddClean: value})}
-                         isAddToGroup group={group}/>
+            <div>
+              <Typography variant="body1" style={{paddingLeft: '0.2rem'}}>
+                {intl.formatMessage({ id: 'investibleAddOthersExplanation' })}
+              </Typography>
+              <AddNewUsers market={market} setToAddClean={(value) => updateInvestibleAddState({toAddClean: value})}
+                           isAddToGroup group={group}/>
+            </div>
           </div>
           {Editor}
         </CardContent>

@@ -356,6 +356,7 @@ const messages = defineMessages({
   inviteParticipantsLabel: 'Invite by email',
   addExistingCollaborator: 'Add Selected',
   addExistingCollaboratorMobile: 'Add',
+  investibleAddOthersExplanation: 'Add desired collaborators from outside this group.',
 
   // InvestibleAdd
   investibleAddTitleDefault: 'Add a name...',

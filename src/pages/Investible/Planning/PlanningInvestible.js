@@ -423,7 +423,6 @@ function PlanningInvestible(props) {
     required_approvers:  requiredApprovers, required_reviews: requiredReviewers, ticket_code: ticketCode,
     open_for_investment: openForInvestment, former_stage_id: formerStageId, accepted, group_id: groupId } = marketInfo;
   const [groupState] = useContext(MarketGroupsContext);
-  console.debug(`group id is ${groupId}`);
   const group = getGroup(groupState, marketId, groupId);
   const { name: groupName } = group || {};
   const assigned = invAssigned || [];

@@ -720,7 +720,6 @@ function InvestiblesByPerson(props) {
   const {
     comments,
     investibles,
-    marketId,
     visibleStages,
     acceptedStage,
     inDialogStage,
@@ -739,7 +738,8 @@ function InvestiblesByPerson(props) {
   const classes = useInvestiblesByPersonStyles();
   const planningInvestibleAddClasses = usePlanFormStyles();
   const { storyAssignee } = pageState;
-  const { created_at: createdAt, budget_unit: budgetUnit, use_budget: useBudget, votes_required: votesRequired} = group;
+  const { created_at: createdAt, budget_unit: budgetUnit, use_budget: useBudget, votes_required: votesRequired,
+    market_id: marketId} = group;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const presences = getMarketPresences(marketPresencesState, marketId) || [];
   const marketPresencesSortedAlmost = _.sortBy(presences, 'name');
@@ -752,7 +752,6 @@ function InvestiblesByPerson(props) {
   function onClick(id) {
     updatePageState({storyAssignee: id});
   }
-
   return marketPresencesSorted.map(presence => {
     const { id, email, placeholder_type: placeholderType } = presence;
     const name = (presence.name || '').replace('@', ' ');

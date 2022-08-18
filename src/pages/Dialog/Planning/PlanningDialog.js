@@ -141,7 +141,7 @@ function PlanningDialog(props) {
   }
   const investibles = marketInvestibles.filter((investible) => {
     const marketInfo = getMarketInfo(investible, marketId);
-    return marketInfo.group_id = groupId;
+    return marketInfo.group_id === groupId;
   });
   const acceptedStage = marketStages.find(stage => isAcceptedStage(stage)) || {};
   const inDialogStage = marketStages.find(stage => stage.allows_investment) || {};

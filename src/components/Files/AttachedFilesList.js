@@ -46,7 +46,7 @@ const useStyles = makeStyles((theme) => ({
 
 function AttachedFilesList(props) {
 
-  const { marketId, attachedFiles, onUpload, isAdmin, onDeleteClick } = props;
+  const { marketId, attachedFiles, onUpload, onDeleteClick } = props;
   const [uploadInProgress, setUploadInProgress] = useState(false);
   const metaClasses = useMetaDataStyles();
   const classes = useStyles();
@@ -101,40 +101,22 @@ function AttachedFilesList(props) {
                 {original_name}
               </Link>
           </ListItemText>
-          {isAdmin && (
-            <ListItemSecondaryAction>
-              <SpinningTooltipIconButton
-                id='deleteFiles'
-                translationId="delete"
-                edge="end"
-                onClick={() => onDeleteClick(path)}
-                icon={<DeleteIcon htmlColor="black" />}
-                aria-label="delete"
-              />
-            </ListItemSecondaryAction>
-          )}
+          <ListItemSecondaryAction>
+            <SpinningTooltipIconButton
+              id='deleteFiles'
+              translationId="delete"
+              edge="end"
+              onClick={() => onDeleteClick(path)}
+              icon={<DeleteIcon htmlColor="black" />}
+              aria-label="delete"
+            />
+          </ListItemSecondaryAction>
         </ListItem>
       )
     })
   }
 
   const hasFiles = !_.isEmpty(attachedFiles);
-
-  if (!isAdmin) {
-    return (
-      <Paper className={classes.container} id="summary">
-        <div className={classes.capitalize}>
-          <div className={clsx(metaClasses.group, metaClasses.assignments, metaClasses.linkContainer,
-            metaClasses.scrollContainer)}>
-            {hasFiles && (
-              <List className={classes.sidebarContent}>
-                {displayLinksList(attachedFiles)}
-              </List>)}
-          </div>
-        </div>
-      </Paper>
-    );
-  }
 
   return (
     <LoadingOverlay
@@ -150,12 +132,11 @@ function AttachedFilesList(props) {
           metaClasses.scrollContainer)}>
 
             {!hasFiles && (
-              <FileUploader marketId={marketId} onUpload={onUpload} setUploadInProgress={setUploadInProgress}
-                            readOnly={!isAdmin}/>
+              <FileUploader marketId={marketId} onUpload={onUpload} setUploadInProgress={setUploadInProgress} />
             )}
             {hasFiles && (
             <List className={classes.sidebarContent}>
-              <FileUploader key="uploader" marketId={marketId} onUpload={onUpload} readOnly={!isAdmin}
+              <FileUploader key="uploader" marketId={marketId} onUpload={onUpload}
                             setUploadInProgress={setUploadInProgress}/>
               {displayLinksList(attachedFiles)}
             </List>)}

@@ -13,7 +13,7 @@ import { getMarketInvestibles } from '../contexts/InvestibesContext/investiblesC
  * @param fetchSignature
  * @param storageStates
  */
-export function checkSignatureInStorage (marketId, fetchSignature, storageStates) {
+export function checkSignatureInStorage(marketId, fetchSignature, storageStates) {
   const serverFetchSignatures = getFetchSignaturesForMarket([{type: fetchSignature.object_type,
     object_versions: [fetchSignature]}]);
   const fromStorage = checkInStorage(marketId, serverFetchSignatures, storageStates);
@@ -68,19 +68,19 @@ function satisfyComments (marketId, commentSignatures, commentsState) {
     return signatureMatcher(usedComments, commentSignatures);
 }
 
-function satisfyInvestibles (marketId, investibleSignatures, investibleState) {
+function satisfyInvestibles(marketId, investibleSignatures, investibleState) {
     const usedState = investibleState || {};
     const marketInvestibles = getMarketInvestibles(usedState, marketId);
     return signatureMatcher(marketInvestibles, investibleSignatures);
 }
 
-function satisfyMarkets (marketsSignatures, marketsState) {
+function satisfyMarkets(marketsSignatures, marketsState) {
     const usedState = marketsState || {};
     const allMarkets = usedState.marketDetails || [];
     return signatureMatcher(allMarkets, marketsSignatures);
 }
 
-function satisfyMarketPresences (marketId, presenceSignatures, mpState) {
+function satisfyMarketPresences(marketId, presenceSignatures, mpState) {
     const usedState = mpState || {};
     const marketPresences = usedState[marketId];
     const usedPresences = marketPresences || [];

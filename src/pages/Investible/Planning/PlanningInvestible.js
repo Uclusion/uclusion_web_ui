@@ -385,7 +385,6 @@ function PlanningInvestible(props) {
     market,
     marketInvestible,
     investibles,
-    isAdmin,
     hidden
   } = props;
   const lockedDialogClasses = useLockedDialogStyles();
@@ -419,9 +418,11 @@ function PlanningInvestible(props) {
   const investibleCollaborators = getCollaborators(marketPresences, investibleComments, marketPresencesState,
     investibleId);
   const marketInfo = getMarketInfo(marketInvestible, marketId) || {};
-  const { stage, assigned: invAssigned, completion_estimate: marketDaysEstimate,
+  const { stage, assigned: invAssigned, completion_estimate: marketDaysEstimate, addressed,
     required_approvers:  requiredApprovers, required_reviews: requiredReviewers, ticket_code: ticketCode,
     open_for_investment: openForInvestment, former_stage_id: formerStageId, accepted, group_id: groupId } = marketInfo;
+  const addressedIds = (addressed || []).filter((address) => !address.deleted && !address.abstain)
+    .map((address) => address.user_id);
   const [groupState] = useContext(MarketGroupsContext);
   const group = getGroup(groupState, marketId, groupId);
   const { name: groupName } = group || {};
@@ -480,7 +481,7 @@ function PlanningInvestible(props) {
   const isRequiresInput = requiresInputStage && stage === requiresInputStage.id;
   const notDoingStage = getNotDoingStage(marketStagesState, marketId);
   const isInNotDoing = notDoingStage && stage === notDoingStage.id;
-  const displayEdit = isAdmin && !inArchives && (isAssigned || isInNotDoing || isInVoting || isReadyFurtherWork || isRequiresInput);
+  const displayEdit = !inArchives && (isAssigned || isInNotDoing || isInVoting || isReadyFurtherWork || isRequiresInput);
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   const inMarketArchives = isInNotDoing || isInVerified;
@@ -911,7 +912,6 @@ function PlanningInvestible(props) {
             marketPresences={marketPresences}
             onSave={onSaveAssignments}
             onCancel={() => updatePageState({editCollaborators: false})}
-            isAdmin={isAdmin}
             isAssign={editCollaborators === 'assign'}
             isReview={editCollaborators === 'review'}
             isApprove={editCollaborators === 'approve'}
@@ -938,7 +938,6 @@ function PlanningInvestible(props) {
                         marketPresences={marketPresences}
                         assigned={assigned}
                         highlighted={isInVoting ? assignedNotAccepted : undefined}
-                        isAdmin={isAdmin}
                         toggleAssign={toggleAssign}
                         toolTipId="storyAddParticipantsLabel"
                         showMoveMessage
@@ -953,7 +952,7 @@ function PlanningInvestible(props) {
                       control={
                         <Checkbox
                           value={openForInvestment}
-                          disabled={operationRunning !== false || !isAdmin}
+                          disabled={operationRunning !== false}
                           checked={openForInvestment}
                           onClick={() => {
                             if (!openForInvestment && !_.isEmpty(openProblemComments) && !mobileLayout) {
@@ -992,7 +991,7 @@ function PlanningInvestible(props) {
                         classes={classes}
                         marketPresences={marketPresences}
                         assigned={investibleCollaborators}
-                        isAdmin={false}
+                        readOnly={true}
                         toggleAssign={() => {}}
                         toolTipId="collaborators"
                       />
@@ -1007,13 +1006,24 @@ function PlanningInvestible(props) {
                         classes={classes}
                         marketPresences={marketPresences}
                         assigned={isInVoting ? requiredApprovers : requiredReviewers}
-                        isAdmin={isAdmin}
                         toggleAssign={isInVoting ? toggleApprovers : toggleReviewers}
                         toolTipId={isInVoting ? 'storyApproversLabel' : 'storyReviewersLabel'}
                       />
                     </div>
                   </div>
                 )}
+                <div className={clsx(classes.group, classes.assignments)}>
+                  <div className={classes.assignmentContainer}>
+                    <b><FormattedMessage id={isInVoting ? 'requiredApprovers' : 'requiredReviewers'}/></b>
+                    <Assignments
+                      classes={classes}
+                      marketPresences={marketPresences}
+                      assigned={addressedIds}
+                      toggleAssign={isInVoting ? toggleApprovers : toggleReviewers}
+                      toolTipId={isInVoting ? 'storyApproversLabel' : 'storyReviewersLabel'}
+                    />
+                  </div>
+                </div>
               </dl>
             </Grid>
             <Grid item xs={8} className={!beingEdited && isEditableByUser() ? classes.fullWidthEditable :
@@ -1084,7 +1094,7 @@ function PlanningInvestible(props) {
                 investibleId={investibleId}
                 market={market}
                 marketInvestible={marketInvestible}
-                isAdmin={isAdmin && !inArchives}
+                isAdmin={!inArchives}
                 stageActions={getStageActions()}
                 inArchives={inArchives}
                 isAssigned={isAssigned}
@@ -1108,7 +1118,7 @@ function PlanningInvestible(props) {
                 <Chip label={label} onDelete={()=>deleteLabel(`${label}`)} color="primary" />
               </div>
             )}
-            {!inArchives && isAdmin && (
+            {!inArchives && (
               <div className={classes.autocompleteContainer}>
                 <Autocomplete
                   {...defaultProps}
@@ -1254,7 +1264,6 @@ PlanningInvestible.propTypes = {
   investibles: PropTypes.arrayOf(PropTypes.object),
   investibleId: PropTypes.string.isRequired,
   userId: PropTypes.string.isRequired,
-  isAdmin: PropTypes.bool,
   inArchives: PropTypes.bool,
   hidden: PropTypes.bool
 };
@@ -1263,7 +1272,6 @@ PlanningInvestible.defaultProps = {
   marketPresences: [],
   investibleComments: [],
   investibles: [],
-  isAdmin: false,
   inArchives: false,
   hidden: false
 };
@@ -1457,7 +1465,6 @@ function MarketMetaData(props) {
     market,
     marketInvestible,
     investibleId,
-    isAdmin,
     stageActions,
     stage,
     inArchives,
@@ -1577,7 +1584,6 @@ function MarketMetaData(props) {
       <AttachedFilesList
         marketId={market.id}
         onUpload={onAttachFiles}
-        isAdmin={isAdmin}
         onDeleteClick={onDeleteFile}
         attachedFiles={attachedFiles}/>
     </dl>
@@ -1588,17 +1594,14 @@ MarketMetaData.propTypes = {
   investibleId: PropTypes.string.isRequired,
   market: PropTypes.object.isRequired,
   marketInvestible: PropTypes.object.isRequired,
-  isAdmin: PropTypes.bool.isRequired,
   stageActions: PropTypes.array,
 }
 
 export function Assignments(props) {
-  const { marketPresences, isAdmin, toggleAssign, classes, assigned, showMoveMessage, toolTipId,
+  const { marketPresences, toggleAssign, classes, assigned, showMoveMessage, toolTipId, readOnly,
     highlighted } = props;
   const intl = useIntl();
   const metaClasses = useMetaDataStyles();
-  const myPresence = marketPresences.find((presence) => presence.current_user);
-  const isFollowing = myPresence && myPresence.following;
   const safeAssigned = assigned || [];
   const presences = safeAssigned.map((userId) => {
     const presence = marketPresences.find(presence => presence.id === userId)
@@ -1652,8 +1655,8 @@ export function Assignments(props) {
           );
         })}
       </ul>
-      <div className={classes.flex1}>
-        {isAdmin && isFollowing && (
+      {!readOnly && (
+        <div className={classes.flex1}>
           <div className={classes.assignIconContainer}>
             <Tooltip
               title={intl.formatMessage({ id: toolTipId })}
@@ -1666,8 +1669,8 @@ export function Assignments(props) {
               </IconButton>
             </Tooltip>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

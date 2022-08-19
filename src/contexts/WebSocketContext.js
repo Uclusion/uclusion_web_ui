@@ -92,6 +92,12 @@ function createWebSocket(config, leaderDispatch, setState, leaderChannelId) {
   newSocket.registerHandler('market', () => {
     leaderDispatch(refreshOrMessage(`market${Date.now()}`, leaderChannelId));
   });
+  newSocket.registerHandler('group', () => {
+    leaderDispatch(refreshOrMessage(`group${Date.now()}`, leaderChannelId));
+  });
+  newSocket.registerHandler('group_capability', () => {
+    leaderDispatch(refreshOrMessage(`group_capability${Date.now()}`, leaderChannelId));
+  });
   newSocket.registerHandler('investible', () => {
     leaderDispatch(refreshOrMessage(`investible${Date.now()}`, leaderChannelId));
   });
@@ -109,6 +115,9 @@ function createWebSocket(config, leaderDispatch, setState, leaderChannelId) {
   });
   newSocket.registerHandler('investment', () => {
     leaderDispatch(refreshOrMessage(`investment${Date.now()}`, leaderChannelId));
+  });
+  newSocket.registerHandler('addressed', () => {
+    leaderDispatch(refreshOrMessage(`addressed${Date.now()}`, leaderChannelId));
   });
 
   newSocket.registerHandler('notification', () => {

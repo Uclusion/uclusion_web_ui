@@ -11,7 +11,7 @@ const EMPTY_VERSION = { object_versions: [] };
  * @param checkVersion Whether to include version in the calculation or not
  * @returns {boolean}
  */
-function signatureMatches (signature, object, checkVersion=true) {
+function signatureMatches(signature, object, checkVersion=true) {
   for (const key of Object.keys(signature)) {
     const signatureVersion = signature[key];
     const objectVersion = object[key];
@@ -62,7 +62,7 @@ function signatureMatches (signature, object, checkVersion=true) {
  * @param fetched
  * @param signatures
  */
-export function signatureMatcher (fetched, signatures) {
+export function signatureMatcher(fetched, signatures) {
   const matched = [];
   const matchedSignatures = [];
   for (let x = 0; x < fetched.length; x++) {
@@ -89,7 +89,7 @@ export function signatureMatcher (fetched, signatures) {
  * @param marketVersionSignatures
  * @returns {{markets: *, marketPresences: unknown[], comments: *, marketStages: (*[]|*), investibles: unknown[]}}
  */
-export function getFetchSignaturesForMarket (marketVersionSignatures) {
+export function getFetchSignaturesForMarket(marketVersionSignatures) {
   // I know how to fetch markets, marketPresences (users), investibles, and comments
   const comments = commentsSignatureGenerator(marketVersionSignatures);
   const markets = marketSignatureGenerator(marketVersionSignatures);
@@ -220,9 +220,10 @@ function usersSignatureGenerator (versionsSignatures) {
  * @param versionsSignatures the version signature array
  * @returns {unknown[]}
  */
-function investiblesSignatureGenerator (versionsSignatures) {
+function investiblesSignatureGenerator(versionsSignatures) {
   const invSignature = getSpecificTypeSignatures(versionsSignatures, 'investible');
   const infoSignature = getSpecificTypeSignatures(versionsSignatures, 'market_investible');
+  const addressedSignatures =  getSpecificTypeSignatures(versionsSignatures,'addressed');
   // an investible needs an update regardless of whether or not it's the market info or the
   // investible itself, so we need to join here
   const fetchSigs = invSignature.object_versions.reduce((acc, sig) => {
@@ -258,6 +259,29 @@ function investiblesSignatureGenerator (versionsSignatures) {
           {
             id: infoId,
             version,
+          }
+        ]
+      };
+    }
+  });
+  // We don't have to union by investible id - it's okay to have two signatures for the same object
+  addressedSignatures.object_versions.forEach((sig) => {
+    const { object_id_two: userId, version, object_id_one: marketInfoId } = sig;
+    if (fetchSigs[marketInfoId]) {
+      fetchSigs[marketInfoId] = {
+        market_infos: [
+          {
+            id: marketInfoId,
+            addressed: _.union([{user_id: userId, version}], ...fetchSigs[marketInfoId].market_infos.addressed)
+          }
+        ]
+      };
+    } else {
+      fetchSigs[marketInfoId] = {
+        market_infos: [
+          {
+            id: marketInfoId,
+            addressed: [{user_id: userId, version}]
           }
         ]
       };

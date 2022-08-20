@@ -7,7 +7,7 @@ import LockedDialogTitleIcon from '@material-ui/icons/Lock'
 import _ from 'lodash'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { addMarketToStorage } from '../../contexts/MarketsContext/marketsContextHelper'
-import { lockGroupForEdit, unlockPlanningMarketForEdit, updateMarket } from '../../api/markets'
+import { lockGroupForEdit, unlockPlanningMarketForEdit, updateGroup } from '../../api/markets';
 import { Dialog } from '../../components/Dialogs'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { DiffContext } from '../../contexts/DiffContext/DiffContext'
@@ -168,12 +168,12 @@ function DialogBodyEdit(props) {
       text: tokensRemoved,
     } = processTextAndFilesForSave(newUploadedFiles, description);
     const updatedFilteredUploads = _.isEmpty(uploadedFiles) ? filteredUploads : null;
-    return updateMarket(id, name, tokensRemoved, updatedFilteredUploads)
-      .then((market) => {
+    return updateGroup(id, group.id, name, tokensRemoved, updatedFilteredUploads)
+      .then((group) => {
         //clear the editor because we want the storage back
         editorReset();
         setOperationRunning(false);
-        return onSave(market);
+        return onSave(group);
       });
   }
 

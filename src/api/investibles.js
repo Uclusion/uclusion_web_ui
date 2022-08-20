@@ -1,7 +1,7 @@
 import { getMarketClient } from './uclusionClient'
 import { toastErrorAndThrow } from '../utils/userMessage'
 
-export function updateInvestible (updateInfo) {
+export function updateInvestible(updateInfo) {
   const {
     marketId,
     investibleId,
@@ -27,6 +27,12 @@ export function updateInvestible (updateInfo) {
   return getMarketClient(marketId)
     .then((client) => client.investibles.update(investibleId, name, description, undefined, uploadedFiles,
       daysEstimate, requiredReviewers, requiredApprovers))
+    .catch((error) => toastErrorAndThrow(error, 'errorInvestibleUpdateFailed'));
+}
+
+export function addressInvestible(marketId, investibleId, addressed) {
+  return getMarketClient(marketId)
+    .then((client) => client.investibles.follow(investibleId, addressed))
     .catch((error) => toastErrorAndThrow(error, 'errorInvestibleUpdateFailed'));
 }
 

@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react'
 import { Card, CardActions, CardContent, } from '@material-ui/core'
 import _ from 'lodash'
 import PropTypes from 'prop-types'
-import { stageChangeInvestible, updateInvestible } from '../../../api/investibles'
+import { addressInvestible, stageChangeInvestible, updateInvestible } from '../../../api/investibles'
 import { getMarketInfo } from '../../../utils/userFunctions'
 import AssignmentList from '../../Dialog/Planning/AssignmentList'
 import CardType, {
@@ -17,7 +17,7 @@ import { usePlanFormStyles } from '../../../components/AgilePlan'
 import WarningDialog from '../../../components/Warnings/WarningDialog'
 import { useLockedDialogStyles } from '../../Dialog/DialogBodyEdit'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { getGroupPresences, getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { makeStyles } from '@material-ui/core/styles'
 import {
   getBlockedStage, getFullStage, getFurtherWorkStage,
@@ -32,6 +32,7 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
+import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext'
 
 const usePlanInvestibleStyles = makeStyles(
   theme => ({
@@ -45,7 +46,7 @@ const usePlanInvestibleStyles = makeStyles(
 
 function PlanningInvestibleEdit(props) {
   const {
-    fullInvestible, onCancel, onSave, marketId, isAssign, isApprove, isReview, isInbox
+    fullInvestible, onCancel, onSave, marketId, isAssign, isApprove, isReview, isFollow, isInbox
   } = props;
   const intl = useIntl();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -55,12 +56,17 @@ function PlanningInvestibleEdit(props) {
   const myInvestible = fullInvestible.investible;
   const marketInfo = getMarketInfo(fullInvestible, marketId) || {};
   const { assigned: marketAssigned, required_approvers: requiredApprovers,
-    required_reviews: requiredReviewers } = marketInfo;
-  const initialAssigned = (isAssign ? marketAssigned : isReview ? requiredReviewers : requiredApprovers) || [];
+    required_reviews: requiredReviewers, addressed, group_id: groupId } = marketInfo;
+  const addressedIds = (addressed || []).filter((address) => !address.deleted && !address.abstain)
+    .map((address) => address.user_id);
+  const initialAssigned = (isAssign ? marketAssigned : isFollow ? addressedIds :
+    (isReview ? requiredReviewers : requiredApprovers)) || [];
   const [assignments, setAssignments] = useState(initialAssigned);
   const [open, setOpen] = useState(false);
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [groupPresencesState] = useContext(GroupMembersContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+  const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId) || [];
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, diffDispatch] = useContext(DiffContext);
@@ -108,6 +114,10 @@ function PlanningInvestibleEdit(props) {
     if (isAssign && _.isEmpty(assignments)) {
       setOperationRunning(true);
       const furtherWorkStage = getFurtherWorkStage(marketStagesState, marketId);
+      if (furtherWorkStage.id === marketInfo.stage) {
+        // No op
+        return;
+      }
       const moveInfo = {
         marketId,
         investibleId: myInvestible.id,
@@ -124,6 +134,23 @@ function PlanningInvestibleEdit(props) {
           onSave({ fullInvestible: newInv, assignmentChanged: true });
         });
     }
+    const assignmentChanged = !_.isEmpty(_.xor(assignments, initialAssigned));
+    if (!assignmentChanged) {
+      // No op
+      return;
+    }
+    setOperationRunning(true);
+    if (isFollow) {
+      const following = assignments.map((userId) => { return {user_id: userId, is_following: true}; });
+      const notFollowing = initialAssigned.filter((userId) => !assignments.includes(userId)).map((userId) => {
+        return {user_id: userId, is_following: false};
+      });
+      const addressed = _.union(following, notFollowing);
+      return addressInvestible(marketId, myInvestible.id, addressed).then((fullInvestible) => {
+        setOperationRunning(false);
+        onSave({ fullInvestible, assignmentChanged });
+      })
+    }
     const updateInfo = {
       marketId,
       investibleId: myInvestible.id
@@ -137,47 +164,46 @@ function PlanningInvestibleEdit(props) {
     if (isApprove) {
       updateInfo.requiredApprovers = assignments;
     }
-    const assignmentChanged = !_.isEmpty(_.xor(assignments, initialAssigned));
-    if (assignmentChanged) {
-      setOperationRunning(true);
-      return updateInvestible(updateInfo)
-        .then((investible) => {
-          let fullInvestible = investible;
-          if (isAssign) {
-            const blockingComments = unresolvedComments.filter(comment => comment.comment_type === ISSUE_TYPE);
-            const requiresInputComments = unresolvedComments.filter(comment => (comment.comment_type === QUESTION_TYPE ||
-              comment.comment_type === SUGGEST_CHANGE_TYPE) && assignments.includes(comment.created_by));
-            const newStage = _.isEmpty(blockingComments) ? _.isEmpty(requiresInputComments) ?
-              getInCurrentVotingStage(marketStagesState, marketId) : getRequiredInputStage(marketStagesState, marketId)
-              : getBlockedStage(marketStagesState, marketId);
-            const { market_infos, investible: rootInvestible } = fullInvestible;
-            const [info] = (market_infos || []);
-            const newInfo = {
-              ...info,
-              stage: newStage.id,
-              stage_name: newStage.name,
-              open_for_investment: newStage.allows_investment,
-              last_stage_change_date: info.updated_at,
-            };
-            const newInfos = _.unionBy([newInfo], market_infos, 'id');
-            fullInvestible = {
-              investible: rootInvestible,
-              market_infos: newInfos
-            };
-            onInvestibleStageChange(newStage.id, fullInvestible, myInvestible.id, marketId, commentsState,
-              commentsDispatch, invDispatch, diffDispatch, marketStagesState, undefined, fullStage);
-          }
-          setOperationRunning(false);
-          onSave({ fullInvestible, assignmentChanged });
-        });
-    }
+    return updateInvestible(updateInfo)
+      .then((investible) => {
+        let fullInvestible = investible;
+        if (isAssign) {
+          const blockingComments = unresolvedComments.filter(comment => comment.comment_type === ISSUE_TYPE);
+          const requiresInputComments = unresolvedComments.filter(comment => (comment.comment_type === QUESTION_TYPE ||
+            comment.comment_type === SUGGEST_CHANGE_TYPE) && assignments.includes(comment.created_by));
+          const newStage = _.isEmpty(blockingComments) ? _.isEmpty(requiresInputComments) ?
+            getInCurrentVotingStage(marketStagesState, marketId) : getRequiredInputStage(marketStagesState, marketId)
+            : getBlockedStage(marketStagesState, marketId);
+          const { market_infos, investible: rootInvestible } = fullInvestible;
+          const [info] = (market_infos || []);
+          const newInfo = {
+            ...info,
+            stage: newStage.id,
+            stage_name: newStage.name,
+            open_for_investment: newStage.allows_investment,
+            last_stage_change_date: info.updated_at,
+          };
+          const newInfos = _.unionBy([newInfo], market_infos, 'id');
+          fullInvestible = {
+            investible: rootInvestible,
+            market_infos: newInfos
+          };
+          onInvestibleStageChange(newStage.id, fullInvestible, myInvestible.id, marketId, commentsState,
+            commentsDispatch, invDispatch, diffDispatch, marketStagesState, undefined, fullStage);
+        }
+        setOperationRunning(false);
+        onSave({ fullInvestible, assignmentChanged });
+      });
   }
   function handleAssignmentChange(newAssignments) {
     setAssignments(newAssignments);
   }
-  const operationLabel = isAssign ? "investibleAssign" : isReview ? "investibleReviewers" : "investibleApprovers";
+  const operationLabel = isFollow ? 'investibleFollow' : (isAssign ? "investibleAssign"
+    : (isReview ? "investibleReviewers" : "investibleApprovers"));
+  const cannotBeAssigned = isFollow ? _.union(marketAssigned, groupPresences.map((presence) => presence.id))
+    : marketAssigned;
   const subtype = ASSIGN_TYPE;
-  if (isReview || isApprove) {
+  if (isReview || isApprove || isFollow) {
     return (
       <Card className={classes.overflowVisible}>
         <CardType
@@ -191,9 +217,9 @@ function PlanningInvestibleEdit(props) {
             <AssignmentList
               fullMarketPresences={marketPresences}
               previouslyAssigned={initialAssigned}
-              cannotBeAssigned={marketAssigned}
+              cannotBeAssigned={cannotBeAssigned}
               onChange={handleAssignmentChange}
-              listHeader={isReview ? 'reviewListHeader' : 'approveListHeader'}
+              listHeader={isFollow ? 'followingListHeader' : (isReview ? 'reviewListHeader' : 'approveListHeader')}
             />
           </div>
         </CardContent>

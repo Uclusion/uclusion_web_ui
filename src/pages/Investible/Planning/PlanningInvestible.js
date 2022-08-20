@@ -148,6 +148,7 @@ import { getInboxTarget } from '../../../contexts/NotificationsContext/notificat
 import PlanningInvestibleAdd from '../../Dialog/Planning/PlanningInvestibleAdd'
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext'
 import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper'
+import { isEveryoneGroup } from '../../../contexts/GroupMembersContext/groupMembersHelper'
 
 export const usePlanningInvestibleStyles = makeStyles(
   theme => ({
@@ -667,9 +668,7 @@ function PlanningInvestible(props) {
   }
 
   const todoWarning = isInVoting || isReadyFurtherWork || isInBlocked || isRequiresInput ? null : 'todoWarningPlanning';
-  function toggleAssign() {
-    updatePageState({editCollaborators: 'assign'});
-  }
+
   function toggleEdit() {
     setShowDatepicker(!showDatepicker);
   }
@@ -752,12 +751,8 @@ function PlanningInvestible(props) {
     }
     pushMessage(LOCK_INVESTIBLE_CHANNEL, { event: LOCK_INVESTIBLE, marketId, investibleId });
   }
-  function toggleReviewers() {
-    updatePageState({editCollaborators: 'review'});
-  }
-
-  function toggleApprovers() {
-    updatePageState({editCollaborators: 'approve'});
+  function toggleEditState(editType) {
+    return () => updatePageState({editCollaborators: editType});
   }
   function createNavListItem(icon, textId, anchorId, howManyNum, alwaysShow) {
     return baseNavListItem(formInvestibleLink(marketId, investibleId), icon, textId, anchorId, howManyNum, alwaysShow);
@@ -915,6 +910,7 @@ function PlanningInvestible(props) {
             isAssign={editCollaborators === 'assign'}
             isReview={editCollaborators === 'review'}
             isApprove={editCollaborators === 'approve'}
+            isFollow={editCollaborators === 'addressed'}
           />
           <div style={{marginTop: '1rem'}} />
         </>
@@ -938,7 +934,7 @@ function PlanningInvestible(props) {
                         marketPresences={marketPresences}
                         assigned={assigned}
                         highlighted={isInVoting ? assignedNotAccepted : undefined}
-                        toggleAssign={toggleAssign}
+                        toggleAssign={toggleEditState('assign')}
                         toolTipId="storyAddParticipantsLabel"
                         showMoveMessage
                       />
@@ -1006,24 +1002,26 @@ function PlanningInvestible(props) {
                         classes={classes}
                         marketPresences={marketPresences}
                         assigned={isInVoting ? requiredApprovers : requiredReviewers}
-                        toggleAssign={isInVoting ? toggleApprovers : toggleReviewers}
+                        toggleAssign={isInVoting ? toggleEditState('approve') : toggleEditState('review')}
                         toolTipId={isInVoting ? 'storyApproversLabel' : 'storyReviewersLabel'}
                       />
                     </div>
                   </div>
                 )}
-                <div className={clsx(classes.group, classes.assignments)}>
-                  <div className={classes.assignmentContainer}>
-                    <b><FormattedMessage id={isInVoting ? 'requiredApprovers' : 'requiredReviewers'}/></b>
-                    <Assignments
-                      classes={classes}
-                      marketPresences={marketPresences}
-                      assigned={addressedIds}
-                      toggleAssign={isInVoting ? toggleApprovers : toggleReviewers}
-                      toolTipId={isInVoting ? 'storyApproversLabel' : 'storyReviewersLabel'}
-                    />
+                {!isEveryoneGroup(groupId, marketId) && (
+                  <div className={clsx(classes.group, classes.assignments)}>
+                    <div className={classes.assignmentContainer}>
+                      <b><FormattedMessage id='addressed' /></b>
+                      <Assignments
+                        classes={classes}
+                        marketPresences={marketPresences}
+                        assigned={addressedIds}
+                        toggleAssign={toggleEditState('addressed')}
+                        toolTipId='storyAddressedLabel'
+                      />
+                    </div>
                   </div>
-                </div>
+                )}
               </dl>
             </Grid>
             <Grid item xs={8} className={!beingEdited && isEditableByUser() ? classes.fullWidthEditable :

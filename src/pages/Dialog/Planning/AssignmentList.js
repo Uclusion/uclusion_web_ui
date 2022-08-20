@@ -31,6 +31,7 @@ function AssignmentList(props) {
     fullMarketPresences,
     onChange,
     previouslyAssigned,
+    cannotBeAssigned,
     listHeader,
     emptyListHeader,
     requiresInput
@@ -51,7 +52,9 @@ function AssignmentList(props) {
   }
 
   function getSortedPresenceWithAssignable() {
-    return _.sortBy(marketPresences, [((presence) => presence.current_user ? 0 : 1),
+    const assignable = _.isEmpty(cannotBeAssigned) ? marketPresences : marketPresences.filter((presence) =>
+      !cannotBeAssigned.includes(presence.id));
+    return _.sortBy(assignable, [((presence) => presence.current_user ? 0 : 1),
       (presence) => presence.name]);
   }
 

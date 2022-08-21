@@ -151,6 +151,7 @@ function MarketTodos(props) {
   const {
     comments,
     marketId, market, userId,
+    groupId,
     isInArchives,
     sectionOpen, setSectionOpen
   } = props

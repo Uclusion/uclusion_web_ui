@@ -70,7 +70,7 @@ export function updateGroup(marketId, groupId, name = null, description = null, 
     updateOptions.budget_unit = budgetUnit
   }
   if (ticketSubCode !== null) {
-    updateOptions.ticket_sub_code = ticketSubCode
+    updateOptions.ticket_sub_code = ticketSubCode.toString(10);
   }
   return getMarketClient(marketId)
     .then((client) => client.markets.updateGroup(groupId, updateOptions))

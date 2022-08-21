@@ -13,7 +13,6 @@ import { OperationInProgressContext } from '../../contexts/OperationInProgressCo
 import { DiffContext } from '../../contexts/DiffContext/DiffContext'
 import { CardActions, CircularProgress, Typography } from '@material-ui/core'
 import { processTextAndFilesForSave } from '../../api/files'
-import NameField, { getNameStoredState } from '../../components/TextFields/NameField'
 import DescriptionOrDiff from '../../components/Descriptions/DescriptionOrDiff'
 import { Clear, SettingsBackupRestore } from '@material-ui/icons'
 import SpinningIconLabelButton from '../../components/Buttons/SpinningIconLabelButton'
@@ -152,12 +151,6 @@ function DialogBodyEdit(props) {
   const [Editor, editorReset] = useEditor(editorName, editorSpec);
 
   function handleSave() {
-    const name = getNameStoredState(id);
-    if (_.isEmpty(name)) {
-      setOperationRunning(false);
-      setOpenIssue('nameRequired');
-      return;
-    }
     // the set of files for the market is all the old files, plus our new ones
     const oldMarketUploadedFiles = group.uploaded_files || [];
     const currentUploadedFiles = uploadedFiles || [];
@@ -168,7 +161,7 @@ function DialogBodyEdit(props) {
       text: tokensRemoved,
     } = processTextAndFilesForSave(newUploadedFiles, description);
     const updatedFilteredUploads = _.isEmpty(uploadedFiles) ? filteredUploads : null;
-    return updateGroup(id, group.id, name, tokensRemoved, updatedFilteredUploads)
+    return updateGroup(id, group.id, null, tokensRemoved, updatedFilteredUploads)
       .then((group) => {
         //clear the editor because we want the storage back
         editorReset();
@@ -247,8 +240,6 @@ function DialogBodyEdit(props) {
             </SpinningIconLabelButton>
           }
         />
-        <NameField editorName={editorName} label="agilePlanFormTitleLabel" placeHolder="decisionTitlePlaceholder"
-                   id={id} useCreateDefault/>
         {Editor}
         <CardActions className={classes.actions}>
           <SpinningIconLabelButton onClick={onCancel} doSpin={true} icon={Clear} id="marketAddCancelButton">

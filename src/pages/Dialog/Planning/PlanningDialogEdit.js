@@ -27,6 +27,7 @@ import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { isEveryoneGroup } from '../../../contexts/GroupMembersContext/groupMembersHelper'
 import { addGroupToStorage } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper'
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext'
+import NameField, { getNameStoredState } from '../../../components/TextFields/NameField';
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -56,11 +57,13 @@ function PlanningDialogEdit(props) {
   const {
     use_budget,
     budget_unit,
-    investment_expiration,
+    investment_expiration: groupExpiration,
     votes_required,
     assigned_can_approve,
     ticket_sub_code
   } = mutableGroup;
+
+  const safeInvestmentExpiration = groupExpiration ?? "14";
 
   function handleChange(name) {
     return event => {
@@ -106,15 +109,16 @@ function PlanningDialogEdit(props) {
   }
 
   function handleSave() {
+    const name = getNameStoredState(id);
     const votesRequiredInt =
-      votes_required != null ? parseInt(votes_required, 10) : null;
+      votes_required != null ? parseInt(votes_required, 10) : 0;
     return updateGroup(
       marketId,
-      id,
+      id, name,
       null,
       null,
       use_budget,
-      parseInt(investment_expiration, 10),
+      parseInt(safeInvestmentExpiration, 10),
       votesRequiredInt,
       null,
       ticket_sub_code,
@@ -146,11 +150,16 @@ function PlanningDialogEdit(props) {
     options: getMarketUnits(intl),
     getOptionLabel: (option) => option,
   };
-
+  console.dir(safeInvestmentExpiration);
+  const validOptions = parseInt(safeInvestmentExpiration, 10) > 0 && (!use_budget || budget_unit);
+  console.dir(validOptions);
   return (
     <Card className={classes.overflowVisible}>
       <CardContent className={classes.cardContent}>
-          <Grid container className={clsx(classes.fieldset, classes.flex, classes.justifySpace)}>
+        <NameField label="agilePlanFormTitleLabel" placeHolder="decisionTitlePlaceholder"
+                   id={id} useCreateDefault/>
+
+        <Grid container className={clsx(classes.fieldset, classes.flex, classes.justifySpace)}>
             <Grid item md={6} xs={12} className={classes.fieldsetContainer}>
               {!isEveryoneGroup(id, marketId) && (
                 <ManageExistingUsers group={group}/>
@@ -184,7 +193,7 @@ function PlanningDialogEdit(props) {
           <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
             <VoteExpiration
               onChange={handleChange('investment_expiration')}
-              value={investment_expiration}
+              value={safeInvestmentExpiration}
             />
           </Grid>
           <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
@@ -243,7 +252,7 @@ function PlanningDialogEdit(props) {
           {intl.formatMessage({ id: 'marketAddCancelLabel' })}
         </SpinningIconLabelButton>
         <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore} id="planningDialogUpdateButton"
-                                 disabled={!(parseInt(investment_expiration, 10) > 0) || (use_budget && !budget_unit)}>
+                                 disabled={!validOptions}>
           {intl.formatMessage({ id: 'marketEditSaveLabel' })}
         </SpinningIconLabelButton>
       </CardActions>

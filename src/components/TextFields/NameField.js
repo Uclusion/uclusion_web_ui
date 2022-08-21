@@ -80,7 +80,7 @@ function NameField(props) {
 }
 
 NameField.propTypes = {
-  editorName: PropTypes.string.isRequired,
+  editorName: PropTypes.string,
   id: PropTypes.string.isRequired,
   placeHolder: PropTypes.string,
   label: PropTypes.string,

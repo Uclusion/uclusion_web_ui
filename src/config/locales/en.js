@@ -421,7 +421,7 @@ const messages = defineMessages({
   planningInvestibleAssignments: 'Assigned',
   requiredApprovers: 'Required Approvers',
   requiredReviewers: 'Required Reviewers',
-  addressed: 'Outside Group',
+  addressed: 'Outside Collaborators',
   planningInvestibleDecision: 'Add Dialog',
   planningEstimatedCompletion: 'Estimated completion',
   missingEstimatedCompletion: 'No estimated completion',

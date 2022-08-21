@@ -489,7 +489,8 @@ function PlanningInvestible(props) {
   const reportMessage = findMessageOfType('REPORT_REQUIRED', investibleId, messagesState);
   const breadCrumbTemplates = [];
   if (marketName) {
-    breadCrumbTemplates.push({ name: marketName, link: formMarketLink(marketId, groupId) });
+    breadCrumbTemplates.push({ name: isEveryoneGroup(groupId, marketId) ? marketName : groupName,
+      link: formMarketLink(marketId, groupId) });
   }
   if (inMarketArchives && !inVerifedSwimLane(marketInvestible, investibles, inVerifiedStage, marketId)) {
     breadCrumbTemplates.push({

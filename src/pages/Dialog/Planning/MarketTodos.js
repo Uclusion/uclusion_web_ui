@@ -147,7 +147,7 @@ const myClasses = makeStyles(
   { name: 'Archive' }
 );
 
-function MarketTodos (props) {
+function MarketTodos(props) {
   const {
     comments,
     marketId, market, userId,
@@ -340,9 +340,9 @@ function MarketTodos (props) {
   function getCards (commentsGetting, marketId, history, intl, setCard, sectionId) {
     function setCardAndScroll (comment) {
       setCard(comment)
-      //TODO need groupId in formMarketLink and all over here
       navigate(history,
-        `${isInArchives ? formMarketArchivesLink(marketId) : formMarketLink(marketId)}#c${comment.id}`)
+        `${isInArchives ? formMarketArchivesLink(marketId, groupId) : 
+          formMarketLink(marketId, groupId)}#c${comment.id}`)
     }
 
     if (_.isEmpty(commentsGetting)) {
@@ -612,6 +612,7 @@ function MarketTodos (props) {
               updateCommentAddState={updateCommentAddRedState}
               commentAddStateReset={commentAddStateRedReset}
               marketId={marketId}
+              groupId={groupId}
               onSave={onCreateRed}
               onDone={onCreateRed}
               defaultNotificationType="RED"
@@ -668,6 +669,7 @@ function MarketTodos (props) {
               updateCommentAddState={updateCommentAddYellowState}
               commentAddStateReset={commentAddStateYellowReset}
               marketId={marketId}
+              groupId={groupId}
               onSave={onCreateYellow}
               onDone={onCreateYellow}
               defaultNotificationType="YELLOW"
@@ -725,6 +727,7 @@ function MarketTodos (props) {
               updateCommentAddState={updateCommentAddBlueState}
               commentAddStateReset={commentAddStateBlueReset}
               marketId={marketId}
+              groupId={groupId}
               onDone={onCreate}
               onSave={onCreate}
               defaultNotificationType="BLUE"

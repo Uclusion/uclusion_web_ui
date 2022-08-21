@@ -13,11 +13,11 @@ export function fetchComments(idList, marketId) {
   }).catch((error) => errorAndThrow(error, 'errorCommentFetchFailed'));
 }
 
-export function saveComment(marketId, investibleId, replyId, body, commentType, uploadedFiles, mentions,
+export function saveComment(marketId, groupId, investibleId, replyId, body, commentType, uploadedFiles, mentions,
   notificationType, marketType, isRestricted, isSent) {
   return getMarketClient(marketId)
-    .then((client) => client.investibles.createComment(investibleId, body, replyId, commentType, uploadedFiles, mentions,
-      notificationType, marketType, isRestricted, isSent))
+    .then((client) => client.investibles.createComment(investibleId, groupId, body, replyId, commentType, uploadedFiles,
+      mentions, notificationType, marketType, isRestricted, isSent))
     .catch((error) => toastErrorAndThrow(error, 'errorCommentSaveFailed'));
 }
 

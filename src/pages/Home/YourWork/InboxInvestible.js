@@ -104,7 +104,8 @@ function InboxInvestible(props) {
   const { name, description, label_list: labelList, attached_files: attachedFiles } = myInvestible || {};
   const marketInfo = getMarketInfo(inv, investibleMarketId) || {};
   const { stage, assigned: invAssigned, completion_estimate: marketDaysEstimate, required_approvers:  requiredApprovers,
-    required_reviews: requiredReviewers, accepted, open_for_investment: openForInvestment } = marketInfo;
+    required_reviews: requiredReviewers, accepted, open_for_investment: openForInvestment,
+    group_id: groupId } = marketInfo;
   const fullStage = getFullStage(marketStagesState, investibleMarketId, stage) || {};
   const assigned = invAssigned || [];
   const isInVoting = fullStage.allows_investment;
@@ -370,6 +371,7 @@ function InboxInvestible(props) {
             allowedTypes={allowedTypes}
             investible={myInvestible}
             marketId={marketId}
+            groupId={groupId}
             issueWarningId={'issueWarningPlanning'}
             isInReview={isReview}
             isAssignee={!_.isEmpty(_.intersection(['ASSIGNED_UNREVIEWABLE', 'UNACCEPTED_ASSIGNMENT'],

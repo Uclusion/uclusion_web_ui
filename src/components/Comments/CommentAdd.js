@@ -291,7 +291,7 @@ export function quickNotificationChanges(apiType, inReviewStage, isInReview, inv
 
 function CommentAdd(props) {
   const {
-    marketId, onSave, onCancel, type, investible, parent, issueWarningId, todoWarningId, isStory, nameKey,
+    marketId, groupId, onSave, onCancel, type, investible, parent, issueWarningId, todoWarningId, isStory, nameKey,
     defaultNotificationType, onDone, mentionsAllowed, commentAddState, updateCommentAddState, commentAddStateReset,
     autoFocus=true, isStandAlone, threadMessages, nameDifferentiator=''
   } = props;
@@ -429,7 +429,7 @@ function CommentAdd(props) {
     const marketType = createInlineInitiative && isSent ? INITIATIVE_TYPE :
       (createInlineDecision ? DECISION_TYPE : undefined);
     const investibleBlocks = (investibleId && apiType === ISSUE_TYPE) && currentStageId !== blockingStage.id
-    return saveComment(marketId, investibleId, parentId, tokensRemoved, apiType, filteredUploads, mentions,
+    return saveComment(marketId, groupId, investibleId, parentId, tokensRemoved, apiType, filteredUploads, mentions,
       (notificationType || defaultNotificationType), marketType, isRestricted, isSent)
       .then((response) => {
         const comment = marketType ? response.parent : response;

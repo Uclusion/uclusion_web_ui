@@ -347,6 +347,7 @@ function PlanningDialog(props) {
             }/>
             {_.isEmpty(search) && marketId && !hidden && (
               <CommentAddBox
+                groupId={groupId}
                 allowedTypes={allowedCommentTypes}
                 marketId={marketId}
               />
@@ -564,7 +565,7 @@ function PlanningDialog(props) {
             </SubSection>
           </div>
         )}
-        <MarketTodos comments={unResolvedMarketComments} marketId={marketId}
+        <MarketTodos comments={unResolvedMarketComments} marketId={marketId} groupId={groupId}
                      sectionOpen={isSectionOpen('marketTodos')}
                      setSectionOpen={setSectionOpen} group={group} userId={myPresence.id}/>
       </LocalPlanningDragContext.Provider>

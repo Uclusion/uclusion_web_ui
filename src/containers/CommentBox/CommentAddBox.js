@@ -180,6 +180,7 @@ export function getIcon(commentType) {
 function CommentAddBox(props) {
   const {
     marketId,
+    groupId,
     investible,
     marketInfo,
     allowedTypes,
@@ -276,6 +277,7 @@ function CommentAddBox(props) {
           onCancel={() => commentAddStateReset()}
           investible={investible}
           marketId={marketId}
+          groupId={groupId}
           issueWarningId={issueWarningId}
           todoWarningId={todoWarningId}
           isStory={isStory}

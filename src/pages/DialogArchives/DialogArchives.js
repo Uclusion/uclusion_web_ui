@@ -180,7 +180,7 @@ function DialogArchives(props) {
           elevation={0}
         />
       </SubSection>
-      <MarketTodos comments={todoComments} marketId={marketId} isInArchives sectionOpen={true} />
+      <MarketTodos comments={todoComments} marketId={marketId} groupId={groupId} isInArchives sectionOpen={true} />
       <Grid container spacing={2}>
         <Grid item id="commentAddArea"  xs={12} style={{ marginTop: '15px' }}>
           <CommentBox comments={notTodoComments} marketId={marketId} allowedTypes={[]} />

@@ -1210,6 +1210,7 @@ function PlanningInvestible(props) {
               allowedTypes={allowedCommentTypes}
               investible={investible}
               marketId={marketId}
+              groupId={groupId}
               issueWarningId={isReadyFurtherWork ? undefined : 'issueWarningPlanning'}
               todoWarningId={todoWarning}
               isInReview={isInReview}
@@ -1229,6 +1230,7 @@ function PlanningInvestible(props) {
               investible={investible}
               marketInfo={marketInfo}
               marketId={marketId}
+              groupId={groupId}
               issueWarningId={isReadyFurtherWork ? undefined : 'issueWarningPlanning'}
               todoWarningId={todoWarning}
               isInReview={isInReview}

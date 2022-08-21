@@ -181,10 +181,11 @@ function DecisionInvestible(props) {
     : 'decisionInvestibleVotingBlockedInvestible';
   const { investible, market_infos: marketInfos } = fullInvestible;
   const marketInfo = marketInfos.find((info) => info.market_id === marketId) || {};
+  const { group_id: groupId, stage } = marketInfo;
   const allowDelete = marketPresences && marketPresences.length < 2;
   const [marketStagesState] = useContext(MarketStagesContext);
   const inProposedStage = getProposedOptionsStage(marketStagesState, marketId);
-  const inProposed = inProposedStage && marketInfo.stage === inProposedStage.id;
+  const inProposed = inProposedStage && stage === inProposedStage.id;
   const activeMarket = marketStage === ACTIVE_STAGE;
   const yourPresence = marketPresences.find((presence) => presence.current_user) || {};
   const yourVote = yourPresence.investments
@@ -373,6 +374,7 @@ function DecisionInvestible(props) {
                 allowedTypes={allowedCommentTypes}
                 investible={investible}
                 marketId={marketId}
+                groupId={groupId}
                 issueWarningId="issueWarningInvestible"
               />
             </>
@@ -404,6 +406,7 @@ function DecisionInvestible(props) {
               allowedTypes={allowedCommentTypes}
               investible={investible}
               marketId={marketId}
+              groupId={groupId}
               issueWarningId={inProposed ? undefined : 'issueWarningInvestible'}
             />
           )}

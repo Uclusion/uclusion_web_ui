@@ -1163,6 +1163,7 @@ function Comment(props) {
       {replyBeingEdited && marketId && comment && (
         <CommentAdd
           marketId={marketId}
+          groupId={groupId}
           parent={comment}
           onSave={toggleReply}
           onCancel={toggleReply}
@@ -1441,6 +1442,7 @@ function Reply(props) {
         {replyBeingEdited && marketId && comment && (
           <CommentAdd
             marketId={marketId}
+            groupId={comment.group_id}
             parent={comment}
             onSave={() => setReplyOpen()}
             onCancel={() => setReplyOpen()}

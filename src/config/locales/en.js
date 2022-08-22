@@ -608,7 +608,7 @@ const messages = defineMessages({
   noQuestions: 'Replies to votes are not allowed so better to use a new comment for questions.',
   noQuestionUploads: 'Questions should go in their own comment and pictures should go in the job.',
   noUploads: 'Pictures should go in the job instead of a vote which can expire or be missed.',
-  collaborators: 'Collaborators',
+  collaborators: 'Active Collaborators',
   inlineAddLabel: 'Add Option',
   inlineAddLabelMobile: 'Option',
   addStoryLabel: 'Add job',

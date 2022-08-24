@@ -264,7 +264,7 @@ function investiblesSignatureGenerator(versionsSignatures) {
       };
     }
   });
-  // We don't have to union by investible id - it's okay to have two signatures for the same object
+  // For now separate and merge elsewhere
   addressedSignatures.object_versions.forEach((sig) => {
     const { object_id_two: userId, version, object_id_one: marketInfoId } = sig;
     if (fetchSigs[marketInfoId]) {

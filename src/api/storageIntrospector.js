@@ -1,6 +1,7 @@
 import { getFetchSignaturesForMarket, signatureMatcher } from './versionSignatureUtils'
 import _ from 'lodash'
 import { getMarketInvestibles } from '../contexts/InvestibesContext/investiblesContextHelper'
+import { getMarketInfo } from '../utils/userFunctions'
 
 /**
  Functions used during the fetch process to check what we have in local storage.
@@ -71,6 +72,17 @@ function satisfyComments (marketId, commentSignatures, commentsState) {
 function satisfyInvestibles(marketId, investibleSignatures, investibleState) {
     const usedState = investibleState || {};
     const marketInvestibles = getMarketInvestibles(usedState, marketId);
+    const marketInfoSignatures = (investibleSignatures || []).filter((sig) => !sig.investible) || [];
+    marketInfoSignatures.forEach((marketInfoSignature) => {
+      const { object_id_one: marketInfoId } = marketInfoSignature;
+      const fullInvestible = marketInvestibles.find((investible) => {
+        return !_.isEmpty(investible.market_infos.find((info) => info.id === marketInfoId));
+      });
+      // Patch up the signature here so that it can be fetched by investible id later
+      marketInfoSignature.investible = {
+        id: fullInvestible.investible.id,
+      };
+    });
     return signatureMatcher(marketInvestibles, investibleSignatures);
 }
 

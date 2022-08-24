@@ -362,9 +362,11 @@ function fetchMarketComments (marketId, allComments, marketsStruct) {
     });
 }
 
-function fetchMarketInvestibles (marketId, allInvestibles, marketsStruct) {
+function fetchMarketInvestibles(marketId, allInvestibles, marketsStruct) {
   const investiblesSignatures = allInvestibles.unmatchedSignatures;
-  const investibleIds = investiblesSignatures.map((inv) => inv.investible.id);
+  // If a market info by itself for pushed addressed then ignore for fetching - investible will be there anyway
+  const investibleSignaturesFiltered = investiblesSignatures.filter((sig) => sig.investible);
+  const investibleIds = investibleSignaturesFiltered.map((inv) => inv.investible.id);
   return fetchInvestibles(investibleIds, marketId)
     .then((investibles) => {
       const match = signatureMatcher(investibles, investiblesSignatures);

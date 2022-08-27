@@ -142,8 +142,9 @@ function InboxInvestible(props) {
   }
 
   return (
-    <div style={{paddingTop: '1rem', paddingRight: '1rem', paddingLeft: '1rem',
-      paddingBottom: !_.isEmpty(useMessageTypes) ? '1rem' : undefined}}>
+    <div style={{paddingTop: '1rem', paddingRight: !_.isEmpty(useMessageTypes) ? '5%' : undefined,
+      paddingLeft: !_.isEmpty(useMessageTypes) ? '5%' : undefined,
+      paddingBottom: !_.isEmpty(useMessageTypes) ? '2%' : undefined}}>
       <div style={{display: mobileLayout ? 'block' : 'flex'}}>
         {isDeletable && !_.isEmpty(useMessageTypes) && (
           <div style={{marginRight: '1rem'}}>

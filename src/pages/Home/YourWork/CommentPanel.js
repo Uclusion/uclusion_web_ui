@@ -84,7 +84,7 @@ function CommentPanel(props) {
     const investible = getInvestible(investiblesState, investibleId) || {};
     const marketInfo = getMarketInfo(investible, marketId) || {};
     return (
-      <>
+      <div style={{paddingRight: '5%', paddingLeft: '5%', paddingBottom: '2%'}}>
         {investibleId && (
           <div style={{overflowY: 'auto', maxHeight: '15rem'}}>
             <InboxInvestible marketId={marketId} investibleId={investibleId} isDeletable={isDeletable} isCommentPanel
@@ -147,7 +147,7 @@ function CommentPanel(props) {
             isOutbox={isOutbox}
           />
         </div>
-      </>
+      </div>
     );
   } else {
     return (

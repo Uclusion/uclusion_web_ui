@@ -58,7 +58,7 @@ function InvestibleStatus(props) {
     }
   }
   return (
-    <div style={{paddingLeft: '3rem'}}>
+    <div style={{paddingLeft: '5%'}}>
       <h3>{intl.formatMessage({ id: 'chooseDate' })}</h3>
       <DatePicker
         placeholderText={intl.formatMessage({ id: "selectDate" })}

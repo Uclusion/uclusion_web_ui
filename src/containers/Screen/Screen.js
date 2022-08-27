@@ -173,7 +173,8 @@ function Screen(props) {
     appEnabled,
     banner,
     isInbox,
-    openMenuItems
+    openMenuItems,
+    navigationOptions
   } = props;
 
   useEffect(() => {
@@ -196,8 +197,7 @@ function Screen(props) {
   if (_.isEmpty(breadCrumbs)) {
     usedBreadCrumbs = makeBreadCrumbs(history);
   }
-  const myContainerClass = !_.isEmpty(groupId) && !mobileLayout ? classes.containerAllLeftPad : classes.containerAll
-  const contentClass = mobileLayout || isInbox || _.isEmpty(groupId) ? classes.contentNoStyle : classes.content;
+
   function setMarketIdFull() {
     return (newMarketId) => {
       setCurrentWorkspace(newMarketId);
@@ -244,8 +244,12 @@ function Screen(props) {
     });
     navigationMenu.navListItemTextArray.push(...items);
   }
-  const sideNavigationContents = _.isEmpty(navigationMenu) ? undefined :
-    <Sidebar navigationOptions={navigationMenu} search={search} title={title} classes={classes} />;
+  const noMenu = _.isEmpty(navigationMenu) && _.isEmpty(navigationOptions)
+  const myContainerClass = !noMenu && !mobileLayout ? classes.containerAllLeftPad : classes.containerAll
+  const contentClass = mobileLayout || isInbox || noMenu ? classes.contentNoStyle : classes.content;
+  const sideNavigationContents = noMenu ? undefined :
+    <Sidebar navigationOptions={navigationOptions ? navigationOptions : navigationMenu}
+             search={search} title={title} classes={classes} />;
   return (
     <div className={hidden ? classes.hidden : classes.root} id="root">
       {!hidden && (
@@ -260,7 +264,7 @@ function Screen(props) {
           isInbox={isInbox}
         />
       )}
-      {!_.isEmpty(groupId) && !mobileLayout && !hidden && (
+      {!noMenu && !mobileLayout && !hidden && (
         <Paper className={classes.paper} elevation={3}
                id="navList">
           {sideNavigationContents}
@@ -277,7 +281,7 @@ function Screen(props) {
       <div className={contentClass}>
         {!reallyAmLoading && (
           <Container className={myContainerClass}
-                     maxWidth={isInbox ? false : (!_.isEmpty(groupId) ? 'xl' : 'lg')}>
+                     maxWidth={isInbox ? false : (!noMenu ? 'xl' : 'lg')}>
             {children}
           </Container>
         )}

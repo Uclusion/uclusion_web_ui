@@ -267,8 +267,6 @@ function PlanningDialog(props) {
   });
   const archivedSize = _.size(archiveInvestibles) + _.size(resolvedMarketComments);
   const navListItemTextArrayBeg = [
-    {icon: Inbox, text: intl.formatMessage({ id: 'returnInbox' }), target: getInboxTarget(messagesState),
-      newPage: true},
     createNavListItem(AddIcon, 'dialogAddParticipantsLabel', 'addCollaboratorSection',
       undefined, false, isSectionBold('addCollaboratorSection'), !_.isEmpty(search)),
     createNavListItem(QuestionIcon, 'planningDialogNavDiscussionLabel', 'workspaceMain',
@@ -296,7 +294,7 @@ function PlanningDialog(props) {
     navListItemTextArray.push(createNavListItem(SettingsIcon, 'settings', 'settingsSection',
       undefined, false, isSectionBold('settingsSection'), !_.isEmpty(search)));
   }
-  const navigationMenu = { navListItemTextArray }
+
   const furtherWorkReadyToStartChip = furtherWorkReadyToStart.length > 0
     && <Chip label={`${furtherWorkReadyToStart.length}`} color="primary" size='small'
              className={classes.chipStyleYellow} />;
@@ -322,7 +320,7 @@ function PlanningDialog(props) {
       tabTitle={groupName}
       breadCrumbs={breadCrumbs}
       banner={banner}
-      navigationOptions={banner ? [] : navigationMenu}
+      openMenuItems={navListItemTextArray}
     >
       <UclusionTour
         name={INVITED_USER_WORKSPACE}

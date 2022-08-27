@@ -7,7 +7,7 @@ import { Menu, MenuItem, ProSidebar, SidebarContent, SidebarHeader, SubMenu } fr
 import { useMediaQuery, useTheme } from '@material-ui/core'
 
 function processRegularItem (classes, history, text, target, num, Icon, onClickFunc, isBold, newPage,
-  index, search) {
+  index, search, openMenuItems) {
   if (!text) {
     return React.Fragment
   }
@@ -20,23 +20,34 @@ function processRegularItem (classes, history, text, target, num, Icon, onClickF
     )
   }
   return (
-    <MenuItem icon={<Icon htmlColor="black" />}
-              key={`${index}${textNoSpaces}`} id={textNoSpaces}
-              onClick={
-                (event) => {
-                  if (onClickFunc) {
-                    onClickFunc(event)
-                  } else {
-                    navigate(history, target, false, !newPage)
+    <>
+      <MenuItem icon={<Icon htmlColor="black" />}
+                key={`${index}${textNoSpaces}`} id={textNoSpaces}
+                onClick={
+                  (event) => {
+                    if (onClickFunc) {
+                      onClickFunc(event)
+                    } else {
+                      navigate(history, target, false, !newPage)
+                    }
                   }
                 }
-              }
-    >
-      {isBold ? (<span style={{fontWeight: 'bold'}}>{text}</span>) : text}
-      {num !== undefined && !_.isEmpty(search) && (
-        <span style={{float: "right"}}>{num}</span>
+      >
+        {isBold ? (<span style={{fontWeight: 'bold'}}>{text}</span>) : text}
+        {num !== undefined && !_.isEmpty(search) && (
+          <span style={{float: "right"}}>{num}</span>
+        )}
+      </MenuItem>
+      {!_.isEmpty(openMenuItems) && (
+        <div style={{paddingLeft: '1rem'}}>
+          {openMenuItems.map((subItem, index) => {
+            const { text, target, num, icon: Icon, onClickFunc, newPage, isBold } = subItem
+            return processRegularItem(classes, history, text, target, num, Icon, onClickFunc,
+              isBold, newPage, index, search)
+          })}
+        </div>
       )}
-    </MenuItem>
+    </>
   );
 }
 
@@ -55,7 +66,7 @@ export default function Sidebar(props) {
       {!_.isEmpty(navListItemTextArray) && (
         <Menu onClick={listOnClick} iconShape="circle">
           {navListItemTextArray.map((navItem, topIndex) => {
-            const { text, target, num, icon: Icon, onClickFunc, subItems, isBold, newPage } = navItem;
+            const { text, target, num, icon: Icon, onClickFunc, subItems, isBold, newPage, openMenuItems } = navItem;
             if (subItems) {
               return (
                 <SubMenu title={text} key={`top${topIndex}${text}${title}`} onClick={onClickFunc}
@@ -70,7 +81,7 @@ export default function Sidebar(props) {
               );
             }
             return processRegularItem(classes, history, text, target, num, Icon, onClickFunc, isBold, newPage,
-              topIndex, search)
+              topIndex, search, openMenuItems)
           })}
         </Menu>
       )}

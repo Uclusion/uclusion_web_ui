@@ -172,7 +172,8 @@ function Screen(props) {
     toolbarButtons,
     appEnabled,
     banner,
-    isInbox
+    isInbox,
+    openMenuItems
   } = props;
 
   useEffect(() => {
@@ -228,11 +229,12 @@ function Screen(props) {
 
   if (!_.isEmpty(defaultMarket) && !_.isEmpty(groupsState[defaultMarket.id])) {
     const items = groupsState[defaultMarket.id].map((group) => {
+      const isChosen = group.id === groupId;
       let num = undefined;
       if (!_.isEmpty(search)) {
         num = (results || []).filter((item) => item.groupId === group.id);
       }
-      return {icon: Group, text: group.name, num, isBold: group.id === groupId,
+      return {icon: Group, text: group.name, num, isBold: isChosen, openMenuItems: isChosen ? openMenuItems : undefined,
         onClickFunc: (event) => {
           preventDefaultAndProp(event);
           pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: REMOVE_CURRENT_EVENT });

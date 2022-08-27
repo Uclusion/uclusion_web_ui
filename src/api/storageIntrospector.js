@@ -1,7 +1,6 @@
 import { getFetchSignaturesForMarket, signatureMatcher } from './versionSignatureUtils'
 import _ from 'lodash'
 import { getMarketInvestibles } from '../contexts/InvestibesContext/investiblesContextHelper'
-import { getMarketInfo } from '../utils/userFunctions'
 
 /**
  Functions used during the fetch process to check what we have in local storage.

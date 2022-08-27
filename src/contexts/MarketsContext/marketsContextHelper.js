@@ -105,17 +105,11 @@ export function addMarketsToStorage(dispatch, marketDetails) {
   dispatch(versionsUpdateDetails(marketDetails));
 }
 
-export function getNotHiddenMarketDetailsForUser(state, searchResults={}) {
-  const { results, parentResults, search } = searchResults;
+export function getNotHiddenMarketDetailsForUser(state) {
   if (state.marketDetails) {
     const newMarketDetails = state.marketDetails.filter((market) => {
-      const { market_stage: marketStage } = market;
-      const marketShown = marketStage === ACTIVE_STAGE;
-      if (_.isEmpty(search)) {
-        return marketShown;
-      }
-      return marketShown && (results.find((item) => (item.id === market.id)||(item.marketId === market.id))
-        || parentResults.find((parentId) => parentId === market.id));
+      const { market_stage: market_sub_type } = market;
+      return 'SUPPORT' !== market_sub_type;
     });
     return { marketDetails: newMarketDetails };
   }

@@ -190,7 +190,7 @@ function Inbox(props) {
       <div id='inboxNotification' key='inbox' onClick={goFullInboxClick} className={classes.bellButton}>
         <Badge badgeContent={unreadCount} className={classes.chip} overlap="circular">
           <Fab id='notifications-fabInbox' className={classes.fab} disabled={isDisabled}>
-            <InboxIcon htmlColor={ htmlColor } />
+            <InboxIcon htmlColor="black" />
           </Fab>
         </Badge>
       </div>

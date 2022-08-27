@@ -1,10 +1,9 @@
 import './Sidebar.scss';
 import _ from 'lodash'
-import SearchBox from '../Search/SearchBox'
 import React from 'react'
 import { navigate } from '../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
-import { Menu, MenuItem, ProSidebar, SidebarContent, SidebarFooter, SidebarHeader, SubMenu } from 'react-pro-sidebar'
+import { Menu, MenuItem, ProSidebar, SidebarContent, SidebarHeader, SubMenu } from 'react-pro-sidebar'
 import { useMediaQuery, useTheme } from '@material-ui/core'
 
 function processRegularItem (classes, history, text, target, num, Icon, onClickFunc, isBold, newPage,
@@ -46,7 +45,7 @@ export default function Sidebar(props) {
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
   const { navigationOptions, search, title, classes } = props;
-  const { navListItemTextArray, navMenu, showSearch = true, listOnClick } = navigationOptions || {};
+  const { navListItemTextArray, navMenu, listOnClick } = navigationOptions || {};
   return (
     <ProSidebar width="14rem">
       <SidebarHeader>
@@ -76,11 +75,6 @@ export default function Sidebar(props) {
         </Menu>
       )}
       </SidebarContent>
-      <SidebarFooter>
-      {showSearch && (
-        <SearchBox/>
-      )}
-      </SidebarFooter>
     </ProSidebar>
   );
 }

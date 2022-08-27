@@ -46,8 +46,8 @@ function DialogArchives(props) {
   const intl = useIntl();
   const history = useHistory();
   const location = useLocation();
-  const { pathname, hash } = location;
-  const values = queryString.parse(hash);
+  const { pathname, search: querySearch } = location;
+  const values = queryString.parse(querySearch);
   const { groupId } = values || {};
   const { marketId } = decomposeMarketPath(pathname);
   const [assigneeFilter, setAssigneeFilter] = useState('');

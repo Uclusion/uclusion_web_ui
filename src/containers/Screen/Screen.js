@@ -1,14 +1,19 @@
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import _ from 'lodash'
 import PropTypes from 'prop-types'
 import { Container, Paper, useMediaQuery, useTheme } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
-import { useHistory } from 'react-router'
+import { useHistory, useLocation } from 'react-router'
 import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
 import Header from '../Header'
-import ActionBar from '../ActionBar'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
-import { makeBreadCrumbs } from '../../utils/marketIdPathFunctions'
+import {
+  decomposeMarketPath,
+  formMarketLink,
+  makeBreadCrumbs,
+  navigate,
+  preventDefaultAndProp
+} from '../../utils/marketIdPathFunctions'
 import LoadingDisplay from '../../components/LoadingDisplay';
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
 import { getInboxCount } from '../../contexts/NotificationsContext/notificationsContextHelper'
@@ -17,6 +22,21 @@ import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/Ma
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import Sidebar from '../../components/Menus/Sidebar'
+import AddIcon from '@material-ui/icons/Add'
+import { Group } from '@material-ui/icons'
+import { pushMessage } from '../../utils/MessageBusUtils'
+import {
+  MODIFY_NOTIFICATIONS_CHANNEL,
+  REMOVE_CURRENT_EVENT
+} from '../../contexts/NotificationsContext/notificationsContextMessages'
+import { setCurrentGroup, setCurrentWorkspace } from '../../utils/redirectUtils'
+import GroupsNavigation from './GroupsNavigation'
+import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext'
+import { useIntl } from 'react-intl'
+import WorkspaceMenu from '../../pages/Home/WorkspaceMenu'
+import { PLANNING_TYPE } from '../../constants/markets'
+import { getNotHiddenMarketDetailsForUser } from '../../contexts/MarketsContext/marketsContextHelper'
+import queryString from 'query-string'
 
 const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -120,19 +140,27 @@ const useStyles = makeStyles((theme) => ({
 function Screen(props) {
   const classes = useStyles();
   const theme = useTheme();
+  const intl = useIntl();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
   const [userState] = useContext(AccountUserContext);
   const { user: unsafeUser } = userState || {};
   const user = unsafeUser || {};
   const history = useHistory();
+  const location = useLocation();
+  const { pathname, search: querySearch } = location;
+  const { marketId } = decomposeMarketPath(pathname);
+  const values = queryString.parse(querySearch);
+  const { groupId } = values || {};
   const [messagesState] = useContext(NotificationsContext);
   const [searchResults] = useContext(SearchResultsContext);
   const [marketState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [commentsState] = useContext(CommentsContext);
-  const { search } = searchResults;
-
+  const [groupsState] = useContext(MarketGroupsContext);
+  const [marketsState] = useContext(MarketsContext);
+  const { results, search } = searchResults;
+  const [open, setOpen] = React.useState(false);
   const {
     breadCrumbs,
     hidden,
@@ -140,14 +168,11 @@ function Screen(props) {
     title,
     titleIcon,
     children,
-    sidebarActions,
     tabTitle,
     toolbarButtons,
     appEnabled,
     banner,
-    navigationOptions,
-    isInbox,
-    isPending
+    isInbox
   } = props;
 
   useEffect(() => {
@@ -170,13 +195,55 @@ function Screen(props) {
   if (_.isEmpty(breadCrumbs)) {
     usedBreadCrumbs = makeBreadCrumbs(history);
   }
-  const myContainerClass = navigationOptions && !mobileLayout ? classes.containerAllLeftPad : classes.containerAll
-  const contentClass = mobileLayout ? classes.contentNoStyle : (isPending ? classes.pending :
-    navigationOptions ? classes.content : classes.contentNoStyle);
-  const { navListItemTextArray, navMenu } = navigationOptions || {};
-  const hasMenu = !_.isEmpty(navListItemTextArray) || !_.isEmpty(navMenu);
-  const sideNavigationContents = !hasMenu ? undefined : <Sidebar navigationOptions={navigationOptions}
-                                                                 search={search} title={title} classes={classes} /> ;
+  const myContainerClass = !_.isEmpty(groupId) && !mobileLayout ? classes.containerAllLeftPad : classes.containerAll
+  const contentClass = mobileLayout || isInbox || _.isEmpty(groupId) ? classes.contentNoStyle : classes.content;
+  function setMarketIdFull() {
+    return (newMarketId) => {
+      setCurrentWorkspace(newMarketId);
+      navigate(history, formMarketLink(newMarketId, newMarketId));
+    }
+  }
+  const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState);
+  let markets = [];
+  if (myNotHiddenMarketsState.marketDetails) {
+    const filtered = myNotHiddenMarketsState.marketDetails.filter((market) => market.market_type === PLANNING_TYPE);
+    markets = _.sortBy(filtered, 'name');
+  }
+  let defaultMarket;
+  if (!_.isEmpty(markets) && !_.isEmpty(marketId)) {
+    defaultMarket = markets.find((market) => market.id === marketId);
+  }
+  const navigationMenu = defaultMarket != null ?
+    {
+      navMenu: <WorkspaceMenu markets={markets} defaultMarket={defaultMarket} setChosenMarketId={setMarketIdFull}
+                              setOpen={setOpen}/>,
+      navListItemTextArray: [
+        {
+          icon: AddIcon, text: intl.formatMessage({ id: 'homeAddGroup' }),
+          target: `/wizard#type=${PLANNING_TYPE.toLowerCase()}&marketId=${defaultMarket?.id}`
+        },
+      ]}
+    :
+    null;
+
+  if (!_.isEmpty(defaultMarket) && !_.isEmpty(groupsState[defaultMarket.id])) {
+    const items = groupsState[defaultMarket.id].map((group) => {
+      let num = undefined;
+      if (!_.isEmpty(search)) {
+        num = (results || []).filter((item) => item.groupId === group.id);
+      }
+      return {icon: Group, text: group.name, num, isBold: group.id === groupId,
+        onClickFunc: (event) => {
+          preventDefaultAndProp(event);
+          pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: REMOVE_CURRENT_EVENT });
+          setCurrentGroup(group.id);
+          navigate(history, formMarketLink(defaultMarket.id, group.id));
+        }};
+    });
+    navigationMenu.navListItemTextArray.push(...items);
+  }
+  const sideNavigationContents = _.isEmpty(navigationMenu) ? undefined :
+    <Sidebar navigationOptions={navigationMenu} search={search} title={title} classes={classes} />;
   return (
     <div className={hidden ? classes.hidden : classes.root} id="root">
       {!hidden && (
@@ -189,10 +256,9 @@ function Screen(props) {
           appEnabled={appEnabled}
           navMenu={sideNavigationContents}
           isInbox={isInbox}
-          isPending={isPending}
         />
       )}
-      {hasMenu && !mobileLayout && !hidden && (
+      {!_.isEmpty(groupId) && !mobileLayout && !hidden && (
         <Paper className={classes.paper} elevation={3}
                id="navList">
           {sideNavigationContents}
@@ -203,15 +269,13 @@ function Screen(props) {
           {banner}
         </Container>
       )}
-      {!_.isEmpty(sidebarActions) && !reallyAmLoading && !hidden && (
-        <Container className={classes.actionContainer} id="actionContainer">
-          <ActionBar actionBarActions={sidebarActions} appEnabled={appEnabled} />
-        </Container>
+      {!_.isEmpty(groupId) && (
+        <GroupsNavigation defaultMarket={defaultMarket} open={open} setOpen={setOpen} />
       )}
       <div className={contentClass}>
         {!reallyAmLoading && (
           <Container className={myContainerClass}
-                     maxWidth={isPending ? false : (!_.isEmpty(navListItemTextArray) ? 'xl' : 'lg')}>
+                     maxWidth={isInbox ? false : (!_.isEmpty(groupId) ? 'xl' : 'lg')}>
             {children}
           </Container>
         )}
@@ -233,7 +297,6 @@ Screen.propTypes = {
   title: PropTypes.any,
   titleIcon: PropTypes.any,
   children: PropTypes.any,
-  sidebarActions: PropTypes.arrayOf(PropTypes.object),
   tabTitle: PropTypes.string,
   appEnabled: PropTypes.bool,
   banner: PropTypes.node

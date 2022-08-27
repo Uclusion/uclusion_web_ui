@@ -108,7 +108,7 @@ export function addMarketsToStorage(dispatch, marketDetails) {
 export function getNotHiddenMarketDetailsForUser(state) {
   if (state.marketDetails) {
     const newMarketDetails = state.marketDetails.filter((market) => {
-      const { market_stage: market_sub_type } = market;
+      const { market_sub_type } = market;
       return 'SUPPORT' !== market_sub_type;
     });
     return { marketDetails: newMarketDetails };

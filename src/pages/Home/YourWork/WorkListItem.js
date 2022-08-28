@@ -17,7 +17,7 @@ import {
   DEHIGHLIGHT_EVENT, DELETE_EVENT,
   MODIFY_NOTIFICATIONS_CHANNEL, REMOVE_EVENT
 } from '../../../contexts/NotificationsContext/notificationsContextMessages'
-import { AssignmentInd, ExpandLess } from '@material-ui/icons'
+import { ExpandLess } from '@material-ui/icons'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { usesExpansion } from './InboxExpansionPanel'
 import NotificationDeletion from './NotificationDeletion'

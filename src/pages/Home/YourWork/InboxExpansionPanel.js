@@ -36,6 +36,7 @@ import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown'
 import { getInvestibleVoters } from '../../../utils/votingUtils'
 import { formCommentLink, formInvestibleLink } from '../../../utils/marketIdPathFunctions'
 import { Typography } from '@material-ui/core'
+import { ASSIGNED_INDEX, PENDING_INDEX } from './Inbox'
 
 export function usesExpansion(item, isMultiple) {
   if (isMultiple) {
@@ -94,7 +95,7 @@ export function addExpansionPanel(props) {
 }
 
 export function createDefaultInboxRow(messagesOrdered, loadingFromInvite, messagesState, tokensHash, intl, determinate,
-  determinateDispatch, checkAll, expansionState, expansionDispatch, isPending) {
+  determinateDispatch, checkAll, expansionState, expansionDispatch, tabIndex) {
   if (!_.isEmpty(messagesOrdered)) {
     return undefined;
   }
@@ -104,12 +105,22 @@ export function createDefaultInboxRow(messagesOrdered, loadingFromInvite, messag
   const existingMessage = safeMessages.find((message) => message.type_object_id === id)
     || { is_highlighted: true };
 
-  if (isPending) {
+  if (tabIndex === PENDING_INDEX) {
     return (
       <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
                   variant="body1">
         Your Pending tab is empty.<br/><br/> Unapproved jobs, unanswered questions and suggestions, jobs in review,
         and blocked will be shown here.
+      </Typography>
+    );
+  }
+
+  if (tabIndex === ASSIGNED_INDEX) {
+    return (
+      <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
+                  variant="body1">
+        Your Assigned tab is empty.<br/><br/> Assigned jobs, mentions, and required reviews and approvals
+        will be shown here.
       </Typography>
     );
   }
@@ -140,7 +151,7 @@ export function createDefaultInboxRow(messagesOrdered, loadingFromInvite, messag
   return (
     <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
                 variant="body1">
-      Your Inbox tab is empty.<br/><br/> Any collaboration request for you will be shown here.
+      Your Inbox tab is empty.<br/><br/> New messages and unassigned requests will be shown here.
     </Typography>
   );
 }

@@ -27,6 +27,7 @@ function InboxFull(props) {
   const { fromInvite } = values || {};
   const [page, setPage] = useState(1);
   const [pendingPage, setPendingPage] = useState(1);
+  const [assignedPage, setAssignedPage] = useState(1);
   const [marketsState, , tokensHash] = useContext(MarketsContext);
   const [messagesState] = useContext(NotificationsContext);
   const [userState] = useContext(AccountUserContext);
@@ -76,6 +77,32 @@ function InboxFull(props) {
     }
     return newExpanded;
   }, {});
+  const [expansionAssignedState, expansionAssignedDispatch] = useReducer((state, action) => {
+    const { id, expandAll } = action;
+    let newExpanded = state;
+    if (expandAll !== undefined) {
+      if (expandAll) {
+        const { messages: messagesUnsafe } = messagesState;
+        newExpanded = { ...state };
+        if (!_.isEmpty(messagesUnsafe)) {
+          messagesUnsafe.forEach((message) => {
+            if (message.alert_type) {
+              newExpanded[message.type_object_id] = expandAll;
+            }
+          });
+        }
+      } else {
+        newExpanded = {};
+      }
+    } else if (id !== undefined) {
+      if (state[id] === undefined) {
+        newExpanded = {...state, [id]: true};
+      } else {
+        newExpanded = _.omit(state, id);
+      }
+    }
+    return newExpanded;
+  }, {});
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState);
   if (fromInvite && fromInvite !== 'loaded') {
     pushMessage(LOAD_MARKET_CHANNEL, { event: INVITE_MARKET_EVENT, marketToken: fromInvite });
@@ -110,6 +137,8 @@ function InboxFull(props) {
     >
       <Inbox expansionState={expansionState} expansionDispatch={expansionDispatch} page={page} setPage={setPage}
              loadingFromInvite={fromInvite} pendingPage={pendingPage} setPendingPage={setPendingPage}
+             assignedPage={assignedPage} setAssignedPage={setAssignedPage}
+             expansionAssignedState={expansionAssignedState} expansionAssignedDispatch={expansionAssignedDispatch}
              expansionPendingState={expansionPendingState} expansionPendingDispatch={expansionPendingDispatch}
       />
     </Screen>

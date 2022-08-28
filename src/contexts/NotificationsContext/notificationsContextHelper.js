@@ -92,6 +92,10 @@ export function isInInbox(message, marketState, marketPresencesState, commentsSt
       && message.link_multiple === aMessage.link_multiple);
     return _.isEmpty(fullyVotedMessage);
   }
+  if (message.alert_type) {
+    // These go only in the assignments tab unless they are new
+    return message.is_highlighted;
+  }
   return true;
 }
 

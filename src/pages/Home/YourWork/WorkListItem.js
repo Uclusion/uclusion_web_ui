@@ -144,7 +144,6 @@ function WorkListItem(props) {
     expansionPanel,
     expansionOpen,
     isMultiple,
-    critical = false,
     isDeletable = false
   } = props;
   const history = useHistory();
@@ -195,13 +194,6 @@ function WorkListItem(props) {
                   }}
                 >
                   {checked ? <Checkbox color="secondary" /> : <CheckBoxOutlineBlank />}
-                </StyledIconButton>
-              )}
-              {useSelect && (
-                <StyledIconButton
-                  disabled
-                >
-                  <AssignmentInd htmlColor='#F29100' style={{visibility: critical ? 'visible' : 'hidden' }} />
                 </StyledIconButton>
               )}
               {(!useSelect || !mobileLayout) && (

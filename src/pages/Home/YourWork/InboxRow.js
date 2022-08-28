@@ -58,7 +58,7 @@ function InboxRow(props) {
   const planningClasses = usePlanningInvestibleStyles();
   const { investible_id: investibleId, investible_name: investibleName, updated_at: updatedAt,
     market_name: marketName, type_object_id: typeObjectId, market_id: marketId, comment_id: commentId,
-    comment_market_id: commentMarketId, alert_type: alertType, link_multiple: linkMultiple } = message;
+    comment_market_id: commentMarketId, link_multiple: linkMultiple } = message;
   const inv = getInvestible(investiblesState, investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { assigned, completion_estimate: completionEstimate, stage } = marketInfo;
@@ -76,7 +76,6 @@ function InboxRow(props) {
     investible: inv ? inv.investible.name : investibleName,
     read: _.isEmpty(highlightedMessage),
     date: intl.formatDate(updatedAt),
-    critical: !_.isEmpty(alertType),
     isDeletable,
     message
   }

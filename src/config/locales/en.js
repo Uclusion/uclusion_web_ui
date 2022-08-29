@@ -1076,13 +1076,13 @@ const messages = defineMessages({
   OnboardingWizardNextStoryDescriptionPlaceHolder: 'Your next job\'s description',
   OnboardingWizardCurrentStoryProgressPlaceHolder: 'Your progress so far',
 
-  //StoryWorkspaceWizard
+  // Workspace wizard
+  WorkspaceWizardNameFieldLabel: 'Workspace name',
+
+
+  //GroupWizard
   WorkspaceWizardTitle: 'Your channel',
   GroupWizardMeetingName: 'Your group name',
-  WorkspaceWizardMeetingStepLabel: 'Your channel',
-  WorkspaceWizardCreatingWorkspaceStepLabel: 'Channel creation',
-  WorkspaceWizardWorkspaceDescription: 'Requirements and potential feature ideas for "{meetingName}" go here.',
-  WorkspaceWizardTakeMeToWorkspace: 'I\'ve shared the link, take me to my channel',
   ApprovalRestrictNo: 'Allow assignees to approve their own job.',
   ApprovalRestrictYes: 'Do not allow approval by an assignee.',
   BudgetRestrictNo: 'Allow approvers to suggest a budget.',

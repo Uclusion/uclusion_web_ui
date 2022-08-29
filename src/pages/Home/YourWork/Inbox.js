@@ -316,7 +316,7 @@ function Inbox(props) {
           const useExpansionState = tabIndex === ASSIGNED_INDEX ? expansionAssignedState : expansionState;
           return <InboxRow message={useMessage} expansionDispatch={tabIndex === ASSIGNED_INDEX ?
             expansionAssignedDispatch : expansionDispatch} numMultiples={numMultiples}
-                           determinateDispatch={determinateDispatch}
+                           determinateDispatch={determinateDispatch} showPriority={tabIndex !== ASSIGNED_INDEX}
                            expansionOpen={!!useExpansionState[useMessage.type_object_id]}
                            isDeletable={isDeletable} isMultiple={isMultiple} checked={checked} />;
       }) }

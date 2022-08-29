@@ -46,7 +46,7 @@ function getPriorityIcon(message, isAssigned) {
 
 function InboxRow(props) {
   const { message, checked, determinateDispatch, expansionDispatch, expansionOpen, isMultiple, isDeletable,
-    numMultiples } = props;
+    numMultiples, showPriority } = props;
   const intl = useIntl();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
@@ -71,13 +71,16 @@ function InboxRow(props) {
   const yellowMessage = messagesFull.find((message) => message.level === 'YELLOW');
   const highlightedMessage = messagesFull.find((message) => message.is_highlighted);
   const item = {
-    icon: getPriorityIcon(redMessage || yellowMessage || message, isAssigned),
     market: market.name || marketName,
     investible: inv ? inv.investible.name : investibleName,
     read: _.isEmpty(highlightedMessage),
     date: intl.formatDate(updatedAt),
     isDeletable,
     message
+  }
+
+  if (showPriority) {
+    item.icon = getPriorityIcon(redMessage || yellowMessage || message, isAssigned);
   }
 
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};

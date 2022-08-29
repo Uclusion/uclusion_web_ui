@@ -77,10 +77,12 @@ function satisfyInvestibles(marketId, investibleSignatures, investibleState) {
       const fullInvestible = marketInvestibles.find((investible) => {
         return !_.isEmpty(investible.market_infos.find((info) => info.id === marketInfoId));
       });
-      // Patch up the signature here so that it can be fetched by investible id later
-      marketInfoSignature.investible = {
-        id: fullInvestible.investible.id,
-      };
+      if (!_.isEmpty(fullInvestible)) {
+        // Patch up the signature here so that it can be fetched by investible id later
+        marketInfoSignature.investible = {
+          id: fullInvestible.investible.id,
+        };
+      }
     });
     return signatureMatcher(marketInvestibles, investibleSignatures);
 }

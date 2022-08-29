@@ -39,6 +39,11 @@ export const wizardStyles = makeStyles(
         marginTop: '1rem',
         marginBottom: '1rem'
       },
+      introSubText: {
+        marginTop: '1rem',
+        marginBottom: '1rem',
+      },
+
       inputLabel: {
         display: 'block',
         marginTop: '2rem',

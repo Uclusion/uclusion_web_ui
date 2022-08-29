@@ -10,6 +10,7 @@ import { OperationInProgressContext } from '../../contexts/OperationInProgressCo
 import GroupWizard from '../../components/AddNew/Group/GroupWizard'
 import queryString from 'query-string'
 import { PLANNING_TYPE } from '../../constants/markets'
+import WorkspaceWizard from '../../components/AddNew/Workspace/WorkspaceWizard';
 
 function Wizard(props) {
   const { hidden } = props;
@@ -33,8 +34,12 @@ function Wizard(props) {
       tabTitle={intl.formatMessage({ id: 'wizardBreadCrumb' })}
       hidden={hidden}
     >
-      {createType === `${PLANNING_TYPE.toLowerCase()}` && (
+      {createType === PLANNING_TYPE.toLowerCase() && (
         <GroupWizard marketId={marketId} onFinish={onWizardFinish} onStartOver={() => navigate(history, '/inbox')}/>
+      )}
+
+      {createType === 'workspace'.toLowerCase() && (
+        <WorkspaceWizard onFinish={onWizardFinish} onStartOver={() => navigate(history, '/inbox')}/>
       )}
     </Screen>
   );

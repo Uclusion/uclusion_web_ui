@@ -62,7 +62,7 @@ function Root() {
     return action !== 'inbox';
   }
 
-  function hideWizard() {
+  function hideWorkspaceWizard() {
     return action !== 'wizard';
   }
 
@@ -117,7 +117,8 @@ function Root() {
     return action !== 'marketEdit';
   }
 
-  const hidePNF = !(hideMarket() && hideSupport() && hideHome() && hideInvestible() && hideWizard() && hideInbox()
+  // Page Not Found
+  const hidePNF = !(hideMarket() && hideSupport() && hideHome() && hideInvestible() && hideWorkspaceWizard() && hideInbox()
     && hideDialogArchives() && hideInvestibleAdd() && hideSlackInvite() && hideChangePassword() && hideMarketEdit()
     && hideChangeNotification() && hideBillingHome() && hideTodoAdd() && hideCommentReplyEdit());
 
@@ -179,7 +180,7 @@ function Root() {
             {!hideHome() && (
               <Home />
             )}
-            <Wizard hidden={hideWizard()} />
+            <Wizard hidden={hideWorkspaceWizard()} />
             <InboxFull hidden={hideInbox()} />
             <Market hidden={hideMarket()}/>
             <Support hidden={hideSupport()}/>

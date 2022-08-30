@@ -9,17 +9,13 @@ import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/Marke
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext'
 import { doCreateGroup } from './workspaceCreator'
 import { formMarketLink } from '../../../utils/marketIdPathFunctions'
-import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
-import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
-import _ from 'lodash'
+
 
 function WorkspaceWizard(props) {
   const { onStartOver, onFinish, marketId } = props;
   const [, diffDispatch] = useContext(DiffContext);
   const [, groupsDispatch] = useContext(MarketGroupsContext);
   const [, groupMembersDispatch] = useContext(GroupMembersContext);
-  const [marketPresencesState] = useContext(MarketPresencesContext);
-  const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   function createGroup(formData) {
     const dispatchers = {
       groupsDispatch,

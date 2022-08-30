@@ -16,20 +16,20 @@ import {
 } from '../../utils/marketIdPathFunctions'
 import LoadingDisplay from '../../components/LoadingDisplay';
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
-import { getInboxCount } from '../../contexts/NotificationsContext/notificationsContextHelper'
+import { getInboxCount, getInboxTarget } from '../../contexts/NotificationsContext/notificationsContextHelper'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import Sidebar from '../../components/Menus/Sidebar'
 import AddIcon from '@material-ui/icons/Add'
-import { Group } from '@material-ui/icons'
+import { Group, Inbox } from '@material-ui/icons'
 import { pushMessage } from '../../utils/MessageBusUtils'
 import {
   MODIFY_NOTIFICATIONS_CHANNEL,
   REMOVE_CURRENT_EVENT
 } from '../../contexts/NotificationsContext/notificationsContextMessages'
-import { setCurrentGroup, setCurrentWorkspace } from '../../utils/redirectUtils'
+import { getFirstWorkspace, setCurrentGroup, setCurrentWorkspace } from '../../utils/redirectUtils'
 import GroupsNavigation from './GroupsNavigation'
 import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext'
 import { useIntl } from 'react-intl'
@@ -211,21 +211,28 @@ function Screen(props) {
     markets = _.sortBy(filtered, 'name');
   }
   let defaultMarket;
-  if (!_.isEmpty(markets) && !_.isEmpty(marketId)) {
-    defaultMarket = markets.find((market) => market.id === marketId);
+  let useMarketId = marketId || getFirstWorkspace(marketState);
+  if (!_.isEmpty(markets) && !_.isEmpty(useMarketId)) {
+    defaultMarket = markets.find((market) => market.id === useMarketId);
   }
-  const navigationMenu = defaultMarket != null ?
+  const navigationMenu =
     {
+      headerItemTextArray: [
+        {icon: Inbox, text: intl.formatMessage({ id: 'inbox' }), target: getInboxTarget(messagesState),
+          newPage: true, isBold: _.isEmpty(marketId),
+          num: _.isEmpty(search) ?
+            getInboxCount(messagesState, marketState, marketPresencesState, commentsState, investiblesState)
+            : undefined}
+      ],
       navMenu: <WorkspaceMenu markets={markets} defaultMarket={defaultMarket} setChosenMarketId={setMarketIdFull}
                               setOpen={setOpen}/>,
-      navListItemTextArray: [
+      navListItemTextArray: defaultMarket ? [
         {
           icon: AddIcon, text: intl.formatMessage({ id: 'homeAddGroup' }),
-          target: `/wizard#type=${PLANNING_TYPE.toLowerCase()}&marketId=${defaultMarket?.id}`
+          target: `/wizard#type=${PLANNING_TYPE.toLowerCase()}&marketId=${defaultMarket.id}`
         },
-      ]}
-    :
-    null;
+      ] : null}
+  ;
 
   if (!_.isEmpty(defaultMarket) && !_.isEmpty(groupsState[defaultMarket.id])) {
     const items = groupsState[defaultMarket.id].map((group) => {
@@ -246,7 +253,7 @@ function Screen(props) {
   }
   const noMenu = _.isEmpty(navigationMenu) && _.isEmpty(navigationOptions)
   const myContainerClass = !noMenu && !mobileLayout ? classes.containerAllLeftPad : classes.containerAll
-  const contentClass = mobileLayout || isInbox || noMenu ? classes.contentNoStyle : classes.content;
+  const contentClass = mobileLayout || noMenu ? classes.contentNoStyle : classes.content;
   const sideNavigationContents = noMenu ? undefined :
     <Sidebar navigationOptions={navigationOptions ? navigationOptions : navigationMenu}
              search={search} title={title} classes={classes} />;
@@ -261,7 +268,6 @@ function Screen(props) {
           hidden={reallyAmLoading}
           appEnabled={appEnabled}
           navMenu={sideNavigationContents}
-          isInbox={isInbox}
         />
       )}
       {!noMenu && !mobileLayout && !hidden && (
@@ -281,7 +287,7 @@ function Screen(props) {
       <div className={contentClass}>
         {!reallyAmLoading && (
           <Container className={myContainerClass}
-                     maxWidth={isInbox ? false : (!noMenu ? 'xl' : 'lg')}>
+                     maxWidth={!noMenu ? 'xl' : 'lg'}>
             {children}
           </Container>
         )}

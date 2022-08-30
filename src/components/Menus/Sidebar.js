@@ -5,6 +5,7 @@ import { navigate } from '../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
 import { Menu, MenuItem, ProSidebar, SidebarContent, SidebarHeader, SubMenu } from 'react-pro-sidebar'
 import { useMediaQuery, useTheme } from '@material-ui/core'
+import Chip from '@material-ui/core/Chip'
 
 function processRegularItem (classes, history, text, target, num, Icon, onClickFunc, isBold, newPage,
   index, search, openMenuItems) {
@@ -23,6 +24,12 @@ function processRegularItem (classes, history, text, target, num, Icon, onClickF
     <>
       <MenuItem icon={<Icon htmlColor="black" />}
                 key={`${index}${textNoSpaces}`} id={textNoSpaces}
+                suffix={num !== undefined ?
+                  <Chip label={`${num}`} size='small' style={{
+                    backgroundColor: 'white',
+                    fontWeight: 'bold',
+                    border: '0.5px solid grey'
+                  }} /> : undefined}
                 onClick={
                   (event) => {
                     if (onClickFunc) {
@@ -34,9 +41,6 @@ function processRegularItem (classes, history, text, target, num, Icon, onClickF
                 }
       >
         {isBold ? (<span style={{fontWeight: 'bold'}}>{text}</span>) : text}
-        {num !== undefined && !_.isEmpty(search) && (
-          <span style={{float: "right"}}>{num}</span>
-        )}
       </MenuItem>
       {!_.isEmpty(openMenuItems) && (
         <div style={{paddingLeft: '1rem'}}>
@@ -56,13 +60,35 @@ export default function Sidebar(props) {
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
   const { navigationOptions, search, title, classes } = props;
-  const { navListItemTextArray, navMenu, listOnClick } = navigationOptions || {};
+  const { navListItemTextArray, navMenu, listOnClick, headerItemTextArray } = navigationOptions || {};
   return (
     <ProSidebar width="14rem">
       <SidebarHeader>
-        {navMenu}
+        {!_.isEmpty(headerItemTextArray) && (
+          <Menu onClick={listOnClick} iconShape="circle">
+            {headerItemTextArray.map((navItem, topIndex) => {
+              const { text, target, num, icon: Icon, onClickFunc, subItems, isBold, newPage, openMenuItems } = navItem;
+              if (subItems) {
+                return (
+                  <SubMenu title={text} key={`top${topIndex}${text}${title}`} onClick={onClickFunc}
+                           icon={<Icon htmlColor="black" />}
+                           open={mobileLayout || (!_.isEmpty(search) && num > 0) ? true : undefined}>
+                    {subItems.map((subItem, index) => {
+                      const { text, target, num, icon: Icon, onClickFunc, newPage } = subItem
+                      return processRegularItem(classes, history, text, target, num, Icon, onClickFunc,
+                        false, newPage, index, search)
+                    })}
+                  </SubMenu>
+                );
+              }
+              return processRegularItem(classes, history, text, target, num, Icon, onClickFunc, isBold, newPage,
+                topIndex, search, openMenuItems)
+            })}
+          </Menu>
+        )}
       </SidebarHeader>
       <SidebarContent>
+        {navMenu}
       {!_.isEmpty(navListItemTextArray) && (
         <Menu onClick={listOnClick} iconShape="circle">
           {navListItemTextArray.map((navItem, topIndex) => {

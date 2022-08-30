@@ -246,7 +246,6 @@ const messages = defineMessages({
   // Navigation menu
   swimLanes: 'Swimlanes',
   inbox: 'Inbox',
-  returnInbox: 'Return to inbox',
   outbox: 'Pending',
   seeFullInbox: 'SEE FULL',
   seeFullOutbox: 'SEE FULL',

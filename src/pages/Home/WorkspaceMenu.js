@@ -118,7 +118,7 @@ function WorkspaceMenu(props) {
   }
 
   return (
-    <>
+    <div style={{paddingTop: '1rem'}}>
       <Button
         onClick={recordPositionToggle}
         endIcon={<ExpandMoreIcon htmlColor="black"/>}
@@ -188,7 +188,7 @@ function WorkspaceMenu(props) {
           </ProSidebar>
         </Menu>
       )}
-    </>
+    </div>
   );
 }
 

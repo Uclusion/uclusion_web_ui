@@ -1,14 +1,10 @@
 import { workListStyles } from './WorkListItem'
-import { Box, Checkbox, Fab, IconButton, useMediaQuery, useTheme } from '@material-ui/core'
+import { Box, Checkbox, IconButton, useMediaQuery, useTheme } from '@material-ui/core'
 import React, { useContext, useEffect, useReducer, useState } from 'react'
 import { useIntl } from 'react-intl'
 import { AlarmOn, ExpandLess, KeyboardArrowLeft, Inbox as InboxIcon } from '@material-ui/icons'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
-import { navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions'
-import { useHistory } from 'react-router'
 import _ from 'lodash'
-import Badge from '@material-ui/core/Badge'
-import { makeStyles } from '@material-ui/styles'
 import { deleteOrDehilightMessages } from '../../../api/users'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import ArchiveIcon from '@material-ui/icons/Archive'
@@ -36,47 +32,15 @@ import {
 } from '../../../contexts/NotificationsContext/notificationsContextMessages'
 import AssignmentIcon from '@material-ui/icons/Assignment'
 
-const useStyles = makeStyles(
-  theme => {
-    return {
-      chip: {
-        color: 'black',
-        '& .MuiBadge-badge': {
-          border: '0.5px solid grey',
-          backgroundColor: '#fff',
-        },
-      },
-      fab: {
-        backgroundColor: '#fff',
-        borderRadius: '50%',
-        width: '48px',
-        height: '48px',
-        minHeight: '48px',
-        [theme.breakpoints.down('sm')]: {
-          width: '36px',
-          height: '36px',
-          minHeight: '36px'
-        },
-      },
-      bellButton: {
-        marginLeft: '0.5em',
-        marginRight: '0.5em',
-        marginTop: '0.5rem'
-      }
-    };
-});
-
 const PAGE_SIZE = 15;
 export const PENDING_INDEX = 2;
 export const ASSIGNED_INDEX = 1;
 
 function Inbox(props) {
-  const { isJarDisplay = false, isDisabled = false, expansionState = {}, expansionDispatch, page, setPage,
+  const { isDisabled = false, expansionState = {}, expansionDispatch, page, setPage,
     loadingFromInvite=false, setPendingPage, pendingPage, setAssignedPage, assignedPage,
     expansionPendingDispatch, expansionPendingState, expansionAssignedState, expansionAssignedDispatch } = props;
-  const classes = useStyles();
   const intl = useIntl();
-  const history = useHistory();
   const workItemClasses = workListStyles();
   const planningClasses = usePlanningInvestibleStyles();
   const [tabIndex, setTabIndex] = useState(0);
@@ -136,15 +100,11 @@ function Inbox(props) {
     }
     }], ['desc'] ) || [];
   let inboxMessagesOrdered =  _.orderBy(messagesFull, ['updated_at'], ['desc']) || [];
-  const goFullInboxClick = (event) => {
-    preventDefaultAndProp(event);
-    navigate(history, '/inbox');
-  };
   const unreadCount = getInboxCount(messagesState, marketState, marketPresencesState, commentsState, investiblesState);
   const firstMessage = _.isEmpty(messagesFull) ? undefined : messagesJarOrdered[0];
   const htmlColor = _.isEmpty(firstMessage) ? '#8f8f8f' :
     (firstMessage.level === 'RED' ? '#E85757' : (firstMessage.level === 'YELLOW' ?
-      (isDisabled ? '#ffff00' : (isJarDisplay ? '#FCEC69' : '#ffc61a')) : '#2D9CDB'));
+      (isDisabled ? '#ffff00' : '#ffc61a') : '#2D9CDB'));
   const outBoxMessagesOrdered = getOutboxMessages({messagesState, marketState, marketPresencesState,
     investiblesState, marketStagesState, commentsState, planningClasses, mobileLayout,
     expansionState: expansionPendingState, intl});
@@ -190,18 +150,6 @@ function Inbox(props) {
       }
     }
   }, [tabIndex, setPage, setPendingPage, unpaginatedItems, usePage, setAssignedPage]);
-
-  if (isJarDisplay) {
-    return (
-      <div id='inboxNotification' key='inbox' onClick={goFullInboxClick} className={classes.bellButton}>
-        <Badge badgeContent={unreadCount} className={classes.chip} overlap="circular">
-          <Fab id='notifications-fabInbox' className={classes.fab} disabled={isDisabled}>
-            <InboxIcon htmlColor="black" />
-          </Fab>
-        </Badge>
-      </div>
-    );
-  }
 
   function changePage(byNum) {
     if (tabIndex === PENDING_INDEX) {

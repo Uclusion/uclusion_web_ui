@@ -232,7 +232,8 @@ function PlanningDialog(props) {
   }
 
   function createNavListItem(icon, textId, anchorId, howManyNum, alwaysShow, isBold, isSearch) {
-    const nav = baseNavListItem(formMarketLink(marketId), icon, textId, anchorId, howManyNum, alwaysShow);
+    const nav = baseNavListItem(formMarketLink(marketId, groupId), icon, textId, anchorId,
+      isSearch ? howManyNum : undefined, alwaysShow);
     nav['onClickFunc'] = () => {
       const isScrolling = (mobileLayout || isSearch) && !singleSections.includes(anchorId);
       openSubSection(anchorId, !isScrolling);

@@ -4,7 +4,7 @@ import Tabs from '@material-ui/core/Tabs';
 import { useGmailTabsStyles, useGmailTabItemStyles } from '@mui-treasury/styles/tabs/gmail';
 
 export function GmailTabItem(props) {
-  const { color, label, subLabel, tag } = props
+  const { color='#055099', label, subLabel, tag } = props
   const tabItemStyles = useGmailTabItemStyles({ ...props, color });
   return (
     <Tab
@@ -14,7 +14,7 @@ export function GmailTabItem(props) {
       label={
         <div className={'MuiTabItem-labelGroup'}>
           <div className={'MuiTabItem-label'}>
-            {label} {tag && <span className={'MuiTabItem-tag'}>{tag}</span>}
+            {label} {tag && <span className={'MuiTabItem-tag'} style={{backgroundColor: '#055099'}}>{tag}</span>}
           </div>
           {subLabel && <div className={'MuiTabItem-subLabel'}>{subLabel}</div>}
         </div>

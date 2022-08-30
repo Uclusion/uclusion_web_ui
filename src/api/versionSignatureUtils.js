@@ -272,7 +272,7 @@ function investiblesSignatureGenerator(versionsSignatures) {
         market_infos: [
           {
             id: marketInfoId,
-            addressed: _.union([{user_id: userId, version}], ...fetchSigs[marketInfoId].market_infos.addressed)
+            addressed: _.union([{user_id: userId, version}], ...fetchSigs[marketInfoId].market_infos)
           }
         ]
       };

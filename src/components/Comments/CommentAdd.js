@@ -495,44 +495,46 @@ function CommentAdd(props) {
         className={classes.add}
         elevation={0}
       >
-        <div className={classes.editor}>
+        <div className={classes.editor} style={{paddingBottom: '1rem'}}>
           {Editor}
-          {!isStory && onDone && (
-            <SpinningIconLabelButton onClick={myOnDone} doSpin={false} icon={isStandAlone ? Clear : Delete}>
-              {intl.formatMessage({ id: 'cancel' })}
-            </SpinningIconLabelButton>
-          )}
-          {!isStandAlone && (
-            <SpinningIconLabelButton onClick={handleClear} doSpin={false} icon={Clear}>
-              {intl.formatMessage({ id: commentCancelLabel })}
-            </SpinningIconLabelButton>
-          )}
-          {_.isEmpty(defaultNotificationType) && type !== REPLY_TYPE && (
-            <SpinningIconLabelButton
-              onClick={() => handleSave(undefined, false)}
-              icon={Add}
-              id="commentSaveButton"
-            >
-              {intl.formatMessage({ id: 'commentAddSaveLabel' })}
-            </SpinningIconLabelButton>
-          )}
-          {!showIssueWarning && (
-            <SpinningIconLabelButton
-              onClick={() => handleSave()}
-              icon={Send}
-              id="commentSendButton"
-            >
-              {intl.formatMessage({ id: 'commentAddSendLabel' })}
-            </SpinningIconLabelButton>
-          )}
-          {showIssueWarning && (
-            <SpinningIconLabelButton onClick={toggleIssue} icon={Send} doSpin={false} id="commentSendButton">
-              {intl.formatMessage({ id: 'commentAddSendLabel' })}
-            </SpinningIconLabelButton>
-          )}
-          <Typography className={classes.storageIndicator}>
-            {intl.formatMessage({ id: 'edited' })}
-          </Typography>
+          <div style={{marginTop: '-1.5rem'}}>
+            {!isStory && onDone && (
+              <SpinningIconLabelButton onClick={myOnDone} doSpin={false} icon={isStandAlone ? Clear : Delete}>
+                {intl.formatMessage({ id: 'cancel' })}
+              </SpinningIconLabelButton>
+            )}
+            {!isStandAlone && (
+              <SpinningIconLabelButton onClick={handleClear} doSpin={false} icon={Clear}>
+                {intl.formatMessage({ id: commentCancelLabel })}
+              </SpinningIconLabelButton>
+            )}
+            {_.isEmpty(defaultNotificationType) && type !== REPLY_TYPE && (
+              <SpinningIconLabelButton
+                onClick={() => handleSave(undefined, false)}
+                icon={Add}
+                id="commentSaveButton"
+              >
+                {intl.formatMessage({ id: 'commentAddSaveLabel' })}
+              </SpinningIconLabelButton>
+            )}
+            {!showIssueWarning && (
+              <SpinningIconLabelButton
+                onClick={() => handleSave()}
+                icon={Send}
+                id="commentSendButton"
+              >
+                {intl.formatMessage({ id: 'commentAddSendLabel' })}
+              </SpinningIconLabelButton>
+            )}
+            {showIssueWarning && (
+              <SpinningIconLabelButton onClick={toggleIssue} icon={Send} doSpin={false} id="commentSendButton">
+                {intl.formatMessage({ id: 'commentAddSendLabel' })}
+              </SpinningIconLabelButton>
+            )}
+            <Typography className={classes.storageIndicator}>
+              {intl.formatMessage({ id: 'edited' })}
+            </Typography>
+          </div>
           {openIssue !== false && openIssue !== 'noInitiativeType' && (
             <IssueDialog
               classes={lockedDialogClasses}

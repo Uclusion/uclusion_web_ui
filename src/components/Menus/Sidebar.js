@@ -24,7 +24,7 @@ function processRegularItem (classes, history, text, target, num, Icon, onClickF
     <>
       <MenuItem icon={<Icon htmlColor="black" />}
                 key={`${index}${textNoSpaces}`} id={textNoSpaces}
-                suffix={num !== undefined ?
+                suffix={num > 0 ?
                   <Chip label={`${num}`} size='small' style={{
                     backgroundColor: 'white',
                     fontWeight: 'bold',

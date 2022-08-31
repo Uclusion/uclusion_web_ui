@@ -112,10 +112,6 @@ function PlanningMarketEdit() {
     });
   }
 
-  const navigationMenu = { navListItemTextArray: [{icon: Inbox,
-      text: intl.formatMessage({ id: 'returnInbox' }),
-      target: getInboxTarget(messagesState), newPage: true}], showSearch: false };
-
   return (
     <Screen
       title={intl.formatMessage({ id: 'editWorkspace' })}
@@ -123,7 +119,6 @@ function PlanningMarketEdit() {
       hidden={false}
       breadCrumbs={breadCrumbs}
       loading={_.isEmpty(market)}
-      navigationOptions={navigationMenu}
     >
     <Card className={classes.overflowVisible}>
       <CardContent className={classes.cardContent}>

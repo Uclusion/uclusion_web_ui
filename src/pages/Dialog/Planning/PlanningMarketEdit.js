@@ -21,7 +21,7 @@ import _ from 'lodash'
 import ShowInVerifiedStageAge from './ShowInVerifiedStageAge'
 import { makeStyles, Typography } from '@material-ui/core'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
-import { Clear, Inbox, SettingsBackupRestore } from '@material-ui/icons'
+import { Clear, SettingsBackupRestore } from '@material-ui/icons'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
 import Screen from '../../../containers/Screen/Screen'
@@ -29,8 +29,6 @@ import ManageMarketUsers from '../UserManagement/ManageMarketUsers'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { useHistory } from 'react-router'
 import { decomposeMarketPath, formMarketLink, makeBreadCrumbs, navigate } from '../../../utils/marketIdPathFunctions'
-import { getInboxTarget } from '../../../contexts/NotificationsContext/notificationsContextHelper'
-import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -48,7 +46,6 @@ function PlanningMarketEdit() {
   const [marketStagesState, marketStagesDispatch] = useContext(MarketStagesContext);
   const [setOperationRunning] = useContext(OperationInProgressContext);
   const [marketsState] = useContext(MarketsContext);
-  const [messagesState] = useContext(NotificationsContext);
   const intl = useIntl();
   const classes = usePlanFormStyles();
   const myClasses = useStyles();

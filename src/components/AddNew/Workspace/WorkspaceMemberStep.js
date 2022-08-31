@@ -6,7 +6,6 @@ import StepButtons from '../StepButtons'
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import { Send } from '@material-ui/icons';
-import { useIntl } from 'react-intl';
 import Chip from '@material-ui/core/Chip';
 
 function WorkspaceMembersStep(props) {

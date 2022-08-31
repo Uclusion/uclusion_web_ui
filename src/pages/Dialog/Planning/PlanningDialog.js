@@ -285,7 +285,7 @@ function PlanningDialog(props) {
       _.isEmpty(search), isSectionBold('marketTodos'), !_.isEmpty(search)),
     {
       icon: MenuBookIcon, text: intl.formatMessage({ id: 'planningDialogViewArchivesLabel' }),
-      target: archivedSize > 0 ? formMarketArchivesLink(groupId) : undefined,
+      target: archivedSize > 0 ? formMarketArchivesLink(marketId, groupId) : undefined,
       num: _.isEmpty(search) ? undefined : archivedSize, newPage: true
     }
   ]);

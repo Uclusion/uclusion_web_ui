@@ -22,9 +22,6 @@ import { DiffContext } from '../../contexts/DiffContext/DiffContext'
 import { addInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { usePlanFormStyles } from '../../components/AgilePlan'
 import queryString from 'query-string'
-import { Inbox } from '@material-ui/icons'
-import { getInboxTarget } from '../../contexts/NotificationsContext/notificationsContextHelper'
-import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 
 function InvestibleAdd(props) {
   const { hidden } = props;
@@ -36,7 +33,6 @@ function InvestibleAdd(props) {
   const { fromCommentId, groupId } = values;
   const fromCommentIds = _.isArray(fromCommentId) ? fromCommentId : fromCommentId ? [fromCommentId] : undefined;
   const { marketId } = decomposeMarketPath(pathname);
-  const [messagesState] = useContext(NotificationsContext);
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   // we're going to talk directly to the contexts instead of pushing messages for speed reasons
@@ -63,16 +59,12 @@ function InvestibleAdd(props) {
       navigate(history, destinationLink);
     }
   }
-  const navigationMenu = { navListItemTextArray: [{icon: Inbox,
-      text: intl.formatMessage({ id: 'returnInbox' }),
-      target: getInboxTarget(messagesState), newPage: true}], showSearch: false };
 
   return (
     <Screen
       title={title}
       hidden={hidden}
       tabTitle={title}
-      navigationOptions={navigationMenu}
       breadCrumbs={myBreadCrumbs}
       loading={marketId && !marketType}
     >

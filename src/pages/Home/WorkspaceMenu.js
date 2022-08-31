@@ -44,7 +44,9 @@ const useStyles = makeStyles((theme) => ({
   },
   buttonClass: {
     textTransform: 'none',
+    border: '1px solid',
     borderRadius: '8px',
+    fontSize: '1.25rem',
     width: '100%',
     '& .MuiButton-label': {
       lineHeight: '.7'

@@ -8,7 +8,7 @@ import { useMediaQuery, useTheme } from '@material-ui/core'
 import Chip from '@material-ui/core/Chip'
 
 function processRegularItem (classes, history, text, target, num, Icon, onClickFunc, isBold, newPage,
-  index, search, openMenuItems) {
+  index, search, openMenuItems, isLarge) {
   if (!text) {
     return React.Fragment
   }
@@ -40,7 +40,8 @@ function processRegularItem (classes, history, text, target, num, Icon, onClickF
                   }
                 }
       >
-        {isBold ? (<span style={{fontWeight: 'bold'}}>{text}</span>) : text}
+        {isBold ? (<span style={{fontWeight: 'bold', fontSize: isLarge ? '1.5rem' : undefined}}>{text}</span>)
+          : <span style={{fontSize: isLarge ? '1.25rem' : undefined}}>{text}</span>}
       </MenuItem>
       {!_.isEmpty(openMenuItems) && (
         <div style={{paddingLeft: '1rem'}}>
@@ -82,7 +83,7 @@ export default function Sidebar(props) {
                 );
               }
               return processRegularItem(classes, history, text, target, num, Icon, onClickFunc, isBold, newPage,
-                topIndex, search, openMenuItems)
+                topIndex, search, openMenuItems, true)
             })}
           </Menu>
         )}

@@ -29,7 +29,7 @@ import {
   MODIFY_NOTIFICATIONS_CHANNEL,
   REMOVE_CURRENT_EVENT
 } from '../../contexts/NotificationsContext/notificationsContextMessages'
-import { getFirstWorkspace, setCurrentGroup, setCurrentWorkspace } from '../../utils/redirectUtils'
+import { getFirstGroup, getFirstWorkspace, setCurrentGroup, setCurrentWorkspace } from '../../utils/redirectUtils'
 import GroupsNavigation from './GroupsNavigation'
 import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext'
 import { useIntl } from 'react-intl'
@@ -148,7 +148,7 @@ function Screen(props) {
   const history = useHistory();
   const location = useLocation();
   const { pathname, search: querySearch } = location;
-  const { marketId } = decomposeMarketPath(pathname);
+  const { marketId, investibleId } = decomposeMarketPath(pathname);
   const values = queryString.parse(querySearch);
   const { groupId } = values || {};
   const [messagesState] = useContext(NotificationsContext);
@@ -189,7 +189,6 @@ function Screen(props) {
   }, [commentsState, hidden, investiblesState, marketPresencesState, marketState, messagesState, tabTitle]);
 
   const reallyAmLoading = !hidden && appEnabled && (loading || _.isEmpty(user));
-
   if (hidden && !isInbox) {
     return <React.Fragment/>
   }
@@ -212,6 +211,7 @@ function Screen(props) {
   }
   let defaultMarket;
   let useMarketId = marketId || getFirstWorkspace(marketState);
+  const useGroupId = groupId ? groupId : (investibleId ? getFirstGroup(groupsState, useMarketId) : undefined);
   if (!_.isEmpty(markets) && !_.isEmpty(useMarketId)) {
     defaultMarket = markets.find((market) => market.id === useMarketId);
   }
@@ -236,7 +236,7 @@ function Screen(props) {
 
   if (!_.isEmpty(defaultMarket) && !_.isEmpty(groupsState[defaultMarket.id])) {
     const items = groupsState[defaultMarket.id].map((group) => {
-      const isChosen = group.id === groupId;
+      const isChosen = group.id === useGroupId;
       let num = undefined;
       if (!_.isEmpty(search)) {
         num = (results || []).filter((item) => item.groupId === group.id);
@@ -281,7 +281,7 @@ function Screen(props) {
           {banner}
         </Container>
       )}
-      {!_.isEmpty(groupId) && (
+      {!_.isEmpty(useGroupId) && (
         <GroupsNavigation defaultMarket={defaultMarket} open={open} setOpen={setOpen} />
       )}
       <div className={contentClass}>

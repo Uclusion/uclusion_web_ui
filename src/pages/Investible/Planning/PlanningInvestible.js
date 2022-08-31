@@ -15,7 +15,7 @@ import { useHistory } from 'react-router'
 import { FormattedMessage, useIntl } from 'react-intl'
 import YourVoting from '../Voting/YourVoting'
 import Voting from '../Decision/Voting'
-import CommentBox, { getSortedRoots } from '../../../containers/CommentBox/CommentBox'
+import CommentBox from '../../../containers/CommentBox/CommentBox'
 import {
   ISSUE_TYPE,
   JUSTIFY_TYPE,
@@ -25,11 +25,9 @@ import {
   TODO_TYPE
 } from '../../../constants/comments'
 import {
-  baseNavListItem,
-  formInvestibleLink,
   formMarketArchivesLink,
   formMarketLink,
-  makeBreadCrumbs, navigate,
+  makeBreadCrumbs,
 } from '../../../utils/marketIdPathFunctions'
 import Screen from '../../../containers/Screen/Screen'
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
@@ -67,7 +65,7 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import AddIcon from '@material-ui/icons/Add'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import MoveToFurtherWorkActionButton from './MoveToFurtherWorkActionButton'
-import { DaysEstimate, usePlanFormStyles } from '../../../components/AgilePlan'
+import { DaysEstimate } from '../../../components/AgilePlan'
 import { ACTION_BUTTON_COLOR, HIGHLIGHTED_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
 import AttachedFilesList from '../../../components/Files/AttachedFilesList'
 import {
@@ -97,15 +95,7 @@ import {
   findMessagesForInvestibleId
 } from '../../../utils/messageUtils'
 import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
-import QuestionIcon from '@material-ui/icons/ContactSupport'
-import UpdateIcon from '@material-ui/icons/Update'
-import BlockIcon from '@material-ui/icons/Block'
-import ChangeSuggstionIcon from '@material-ui/icons/ChangeHistory'
-import ListAltIcon from '@material-ui/icons/ListAlt'
-import EditIcon from '@material-ui/icons/Edit'
-import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown'
-import { getFakeCommentsArray } from '../../../utils/stringFunctions'
-import { ExpandLess, Inbox, QuestionAnswer, SettingsBackupRestore } from '@material-ui/icons'
+import { ExpandLess, SettingsBackupRestore } from '@material-ui/icons'
 import InvestibleBodyEdit from '../InvestibleBodyEdit';
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 import { pushMessage } from '../../../utils/MessageBusUtils'
@@ -134,8 +124,6 @@ import UclusionTour from '../../../components/Tours/UclusionTour'
 import { blockedStorySteps } from '../../../components/Tours/blockedStory'
 import { requiresInputStorySteps } from '../../../components/Tours/requiresInputStory'
 import { getTomorrow } from '../../../utils/timerUtils'
-import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
-import Comment from '@material-ui/icons/Comment'
 import SpinningButton from '../../../components/SpinBlocking/SpinningButton'
 import { removeWorkListItem, workListStyles } from '../../Home/YourWork/WorkListItem'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
@@ -144,8 +132,6 @@ import {
   OPERATION_HUB_CHANNEL, STOP_OPERATION
 } from '../../../contexts/OperationInProgressContext/operationInProgressMessages'
 import { addEditVotingHasContents } from '../Voting/AddEditVote'
-import { getInboxTarget } from '../../../contexts/NotificationsContext/notificationsContextHelper'
-import PlanningInvestibleAdd from '../../Dialog/Planning/PlanningInvestibleAdd'
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext'
 import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper'
 import { isEveryoneGroup } from '../../../contexts/GroupMembersContext/groupMembersHelper'
@@ -389,7 +375,6 @@ function PlanningInvestible(props) {
     hidden
   } = props;
   const lockedDialogClasses = useLockedDialogStyles();
-  const planningInvestibleAddClasses = usePlanFormStyles();
   const [open, setOpen] = useState(false);
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
@@ -404,8 +389,7 @@ function PlanningInvestible(props) {
   const [showDatepicker, setShowDatepicker] = useState(false);
   const [clearMeHack, setClearMeHack] = useState('a');
   const [labelFocus, setLabelFocus] = useState(false);
-  const { name: marketName, id: marketId, market_stage: marketStage, budget_unit: budgetUnit, use_budget: useBudget,
-    votes_required: votesRequired, created_by: marketCreatedBy} = market;
+  const { name: marketName, id: marketId, market_stage: marketStage } = market;
   const inArchives = marketStage !== ACTIVE_STAGE;
   const labels = getMarketLabels(investiblesState, marketId);
   const investmentReasonsRemoved = investibleComments.filter(comment => comment.comment_type !== JUSTIFY_TYPE) || [];
@@ -435,8 +419,7 @@ function PlanningInvestible(props) {
   const [pageState, updatePageState, pageStateReset] = getPageReducerPage(pageStateFull, pageDispatch, investibleId);
   const {
     beingEdited,
-    editCollaborators,
-    showAddInvestible
+    editCollaborators
   } = pageState;
 
   const [votingPageStateFull, votingPageDispatch] = usePageStateReducer('voting')
@@ -755,52 +738,11 @@ function PlanningInvestible(props) {
   function toggleEditState(editType) {
     return () => updatePageState({editCollaborators: editType});
   }
-  function createNavListItem(icon, textId, anchorId, howManyNum, alwaysShow) {
-    return baseNavListItem(formInvestibleLink(marketId, investibleId), icon, textId, anchorId, howManyNum, alwaysShow);
-  }
   const displayDescription = _.isEmpty(search) || results.find((item) => item.id === investibleId);
   const displayApprovalsBySearch = _.isEmpty(search) ? _.size(invested) : _.size(investmentReasons);
   const openComments = investmentReasonsRemoved.filter((comment) => !comment.resolved) || [];
   const openProblemComments = openComments.filter((comment) =>
     [QUESTION_TYPE, ISSUE_TYPE, SUGGEST_CHANGE_TYPE].includes(comment.comment_type));
-  const closedComments = investmentReasonsRemoved.filter((comment) => comment.resolved) || [];
-  const sortedClosedRoots = getSortedRoots(closedComments, searchResults);
-  const { id: closedId } = getFakeCommentsArray(sortedClosedRoots)[0];
-  const sortedRoots = getSortedRoots(openComments, searchResults);
-  const blocking = sortedRoots.filter((comment) => comment.comment_type === ISSUE_TYPE);
-  const { id: blockingId } = getFakeCommentsArray(blocking)[0];
-  const questions = sortedRoots.filter((comment) => comment.comment_type === QUESTION_TYPE);
-  const { id: questionId } = getFakeCommentsArray(questions)[0];
-  const suggestions = sortedRoots.filter((comment) => comment.comment_type === SUGGEST_CHANGE_TYPE);
-  const { id: suggestId } = getFakeCommentsArray(suggestions)[0];
-  const reports = sortedRoots.filter((comment) => comment.comment_type === REPORT_TYPE);
-  const { id: reportId } = getFakeCommentsArray(reports)[0];
-  const todoSortedComments = sortedRoots.filter((comment) => comment.comment_type === TODO_TYPE);
-  const { id: todoId } = getFakeCommentsArray(todoSortedComments)[0];
-  const voters = getInvestibleVoters(marketPresences, investibleId);
-  const commentSubItems = [
-    inArchives || !_.isEmpty(search) ? {} : createNavListItem(AddIcon, 'commentAddBox'),
-    createNavListItem(BlockIcon, 'blocking', `c${blockingId}`, _.size(blocking)),
-    createNavListItem(QuestionIcon, 'questions', `c${questionId}`, _.size(questions)),
-    createNavListItem(UpdateIcon, 'reports', `c${reportId}`, _.size(reports)),
-    createNavListItem(ChangeSuggstionIcon, 'suggestions', `c${suggestId}`, _.size(suggestions)),
-    createNavListItem(ListAltIcon,'taskSection', `c${todoId}`, _.size(todoSortedComments)),
-    createNavListItem(QuestionAnswer,'closedComments', `c${closedId}`, _.size(sortedClosedRoots))
-  ];
-  const navigationMenu = {
-    navListItemTextArray: [
-      {icon: Inbox, text: intl.formatMessage({ id: 'returnInbox' }), target: getInboxTarget(messagesState),
-        newPage: true},
-        {icon: AgilePlanIcon, text: groupName, target: formMarketLink(marketId, groupId)},
-      createNavListItem(EditIcon, 'description_label', 'storyMain',
-      displayDescription ? undefined : 0),
-      createNavListItem(ThumbsUpDownIcon, 'approvals', 'approvals',
-        displayApprovalsBySearch,
-        _.isEmpty(search) ? (isInVoting && (canVote || !_.isEmpty(voters))) : false),
-      {icon: Comment, text: intl.formatMessage({ id: 'comments' }), num: _.size(sortedRoots),
-        subItems: commentSubItems}
-    ]};
-
 
   function onSaveAssignments (result) {
     // the edit ony contains the investible data and assignments, not the full market infos
@@ -818,51 +760,13 @@ function PlanningInvestible(props) {
     updatePageState({editCollaborators: false});
   }
   const title = ticketCode ? `${ticketCode} ${name}` : name;
-
-  function onInvestibleSave(investible) {
-    addInvestible(investiblesDispatch, diffDispatch, investible);
-  }
-
-  function onDone(destinationLink) {
-    updatePageState({showAddInvestible: false})
-    if (destinationLink) {
-      navigate(history, destinationLink);
-    }
-  }
-  if (showAddInvestible) {
-    navigationMenu['listOnClick'] = () => updatePageState({showAddInvestible: false});
-    return (
-      <Screen
-        title={title}
-        tabTitle={name}
-        breadCrumbs={breadCrumbs}
-        hidden={hidden}
-        navigationOptions={navigationMenu}
-      >
-        <PlanningInvestibleAdd
-          marketId={marketId}
-          groupId={groupId}
-          onCancel={() => updatePageState({showAddInvestible: false})}
-          onSave={onInvestibleSave}
-          onSpinComplete={onDone}
-          marketPresences={marketPresences}
-          createdAt={createdAt}
-          classes={planningInvestibleAddClasses}
-          maxBudgetUnit={budgetUnit}
-          useBudget={useBudget ? useBudget : false}
-          votesRequired={votesRequired}
-          storyAssignee={marketCreatedBy}
-        />
-      </Screen>
-    )
-  }
+  const voters = getInvestibleVoters(marketPresences, investibleId);
   return (
     <Screen
       title={title}
       tabTitle={name}
       breadCrumbs={breadCrumbs}
       hidden={hidden}
-      navigationOptions={navigationMenu}
     >
       <UclusionTour
         name={BLOCKED_STORY_TOUR}

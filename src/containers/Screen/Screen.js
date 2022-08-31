@@ -174,7 +174,8 @@ function Screen(props) {
     banner,
     isInbox,
     openMenuItems,
-    navigationOptions
+    navigationOptions,
+    hideMenu
   } = props;
 
   useEffect(() => {
@@ -251,8 +252,8 @@ function Screen(props) {
     });
     navigationMenu.navListItemTextArray.push(...items);
   }
-  const noMenu = _.isEmpty(navigationMenu) && _.isEmpty(navigationOptions)
-  const myContainerClass = !noMenu && !mobileLayout ? classes.containerAllLeftPad : classes.containerAll
+  const noMenu = hideMenu || (_.isEmpty(navigationMenu) && _.isEmpty(navigationOptions));
+  const myContainerClass = !noMenu && !mobileLayout ? classes.containerAllLeftPad : classes.containerAll;
   const contentClass = mobileLayout || noMenu ? classes.contentNoStyle : classes.content;
   const sideNavigationContents = noMenu ? undefined :
     <Sidebar navigationOptions={navigationOptions ? navigationOptions : navigationMenu}

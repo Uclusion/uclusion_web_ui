@@ -85,6 +85,7 @@ function Support(props) {
       hidden={hidden}
       breadCrumbs={breadCrumbs}
       loading={!externalId}
+      hideMenu
     >
       <div className={classes.container}>
         <Card>

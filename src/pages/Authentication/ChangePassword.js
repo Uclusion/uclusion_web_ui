@@ -94,6 +94,7 @@ function ChangePassword(props) {
       hidden={hidden}
       breadCrumbs={breadCrumbs}
       loading={!breadCrumbs}
+      hideMenu
     >
       <Grid container spacing={3}>
         <Grid item md={4} xs={12}/>

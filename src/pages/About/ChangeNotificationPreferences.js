@@ -141,6 +141,7 @@ function ChangeNotificationPreferences (props) {
       hidden={hidden}
       breadCrumbs={breadCrumbs}
       loading={!user}
+      hideMenu
     >
       <div className={classes.container}>
         <Card>

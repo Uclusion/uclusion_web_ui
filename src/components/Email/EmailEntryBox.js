@@ -2,111 +2,135 @@
  * An email entry with chips etc, similar to Slack's workspace creation email entry
  */
 
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Send } from '@material-ui/icons';
-import { TextField } from '@material-ui/core';
 import Chip from '@material-ui/core/Chip';
 import { makeStyles } from '@material-ui/styles';
+import { Typography } from '@material-ui/core';
 
-const classes = makeStyles((theme) => {
+const wizardStyles = makeStyles((theme) => {
   return {
     emailChip: {
-      marginTop: '2rem',
-      marginLeft: '1rem',
-      marginRight: '1rem',
-      marginBottom: '2rem',
+      display: 'inline-block',
+      marginTop: '0.5rem',
+      marginLeft: '0.25rem',
+      marginRight: '0.25rem',
+      marginBottom: '0.5rem',
     },
-    chipContainer: {
-      display: 'flex',
+    editBox: {
+      width: '100%',
+      height: '10rem',
+      border: '1px solid black',
     },
-    inputLabel: {
-      display: 'block',
-      marginTop: '2rem',
-      fontWeight: 'bold',
-      textTransform: 'none'
-    }
   };
 });
 
-function EmailEntryBox(props) {
+function EmailEntryBox (props) {
   const [emailList, setEmailList] = useState([]);
-  const [currentEmail, setCurrentEmail] = useState('');
+  const [error, setError] = useState(null);
   const textRef = useRef(null);
-  const {onChange} = props;
-
-  const onEmailChange = (event) => {
-    const {value} = event.target;
-    setCurrentEmail(value);
-  }
-
-  const validateEmail = () => {
-    if(!textRef?.current?.validity.valid){
-      return false;
+  const { onChange } = props;
+  const classes = wizardStyles();
+  useEffect(() => {
+    if(textRef.current) {
+      const target = textRef.current;
+      target.focus();
+      // select all the content in the element
+      document.execCommand('selectAll', false, null);
+      // collapse selection to the end
+      document.getSelection().collapseToEnd();
     }
-    if(isEmpty(currentEmail)){
-      return false;
-    }
-    if(emailList.includes(currentEmail)){
-      return false;
-    }
-    return true;
-  }
+  });
 
-  // Handles keypresses in text entry box
-  const onKeyPress = (event) => {
-    const {key} = event;
+  const validateEmail = (email) => {
+    if (!email) {
+      return { valid: false };
+    }
+    if (emailList.includes(email)) {
+      return {
+        valid: false,
+        error: `${email} is already present.`
+      };
+    }
+    const w3regexp = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+    if(!email.match(w3regexp)){
+      return {valid: false, error: `${email} is not a valid email.`}
+    }
+    return {valid: true};
+  };
+
+  // Handles keydown in text entry box
+  const onKeyDown = (event) => {
+    const { key, target } = event;
+    const text = [...target.childNodes].find(child => child.nodeType === Node.TEXT_NODE);
+    let email = text?.textContent?.trim();
+    const emailValidation = validateEmail(email);
+    // are we done entering an email?
     if (['Enter', 'Tab', ',', ';', ' '].includes(key)) {
-      // not actually an input, so don't put it in field
       event.preventDefault();
-      if(validateEmail()) {
-        setEmailList([...emailList, currentEmail]);
-        setCurrentEmail('');
+      // not actually an input, so don't put it in field
+      if(emailValidation.valid) {
+        setEmailList([...emailList, email]);
+        //zero out the text
+        text?.remove();
+        // move focus to end
+        // [optional] make sure focus is on the element
+      }else{
+        setError(emailValidation.error)
+      }
+      return;
+    }
+    // are we backspacing and need to delete an email?
+    if (['Backspace'].includes(key)) {
+      if (!email) {
+        event.preventDefault();
+        console.dir('deleting email');
+        const newEmails = [...emailList];
+        newEmails.pop();
+        setEmailList(newEmails);
+        return;
       }
     }
-  }
+    setError(null);
+  };
 
   const onDelete = (email) => {
     const newEmails = emailList.filter((candidate) => email !== candidate);
     setEmailList(newEmails);
   };
 
-
-
   return (
-    <div>
-      <div className={classes.chipContainer}>
-        {emailList.map((email) => {
-          let icon = <Send/>;
-          return (
-            <div className={classes.emailChip}>
-              <Chip
-                key={email}
-                icon={icon}
-                label={email}
-                onDelete={() => onDelete(email)}
-              />
-            </div>
-          );
-        })}
-
-      </div>
-      <TextField
-        variant="standard"
-        id="emails"
-        inputProps={{"type": "email"}}
-        inputRef={textRef}
-        placeholder="Type or paste emails here"
-        onChange={onEmailChange}
-        onKeyPress={onKeyPress}
-        value={currentEmail}
-      />
-
+  <div>
+    <div
+      contentEditable="true"
+      className={classes.editBox}
+      ref={textRef}
+      suppressContentEditableWarning={true}
+      onKeyDown={onKeyDown}>
+      {emailList.map((email) => {
+        let icon = <Send/>;
+        return (
+          <div
+            contentEditable={false}
+            className={classes.emailChip}
+            key={email}
+            id={email}
+          >
+            <Chip
+              icon={icon}
+              size="small"
+              label={email}
+              onDelete={() => onDelete(email)}
+            />
+          </div>
+        );
+      })}
     </div>
-
-  )
-
-
-}
-
+    {error && (
+      <Typography>{error}</Typography>
+    )}
+  </div>
+  );
+};
 
 export default EmailEntryBox;

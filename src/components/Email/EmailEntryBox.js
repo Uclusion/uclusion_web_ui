@@ -29,16 +29,37 @@ function EmailEntryBox (props) {
   const [emailList, setEmailList] = useState([]);
   const [error, setError] = useState(null);
   const textRef = useRef(null);
-  const { onChange } = props;
+  const { onChange, placeholder } = props;
   const classes = wizardStyles();
+
+  // gets the text from the target of the event
+  const getText = (target) => {
+    if (target?.childNodes) {
+      const text = [...target.childNodes].find(child => child.nodeType === Node.TEXT_NODE);
+      return { text: text?.textContent?.trim(), node: text };
+    }
+    return { text: undefined, node: undefined };
+  };
+
+  // gets the placeholder node
+  const getPlaceholder = (target) => {
+    if (target?.childNodes) {
+      const placeholder = [...target.childNodes].find(child => child.id === 'placeholder');
+      return placeholder;
+    }
+  };
+
   useEffect(() => {
-    if(textRef.current) {
+    if (textRef.current) {
       const target = textRef.current;
-      target.focus();
-      // select all the content in the element
-      document.execCommand('selectAll', false, null);
-      // collapse selection to the end
-      document.getSelection().collapseToEnd();
+      const placeholder = getPlaceholder(target);
+      if (placeholder == null) {
+        target.focus();
+        // select all the content in the element
+        document.execCommand('selectAll', false, null);
+        // collapse selection to the end
+        document.getSelection().collapseToEnd();
+      }
     }
   });
 
@@ -52,31 +73,33 @@ function EmailEntryBox (props) {
         error: `${email} is already present.`
       };
     }
+    // regexp from w3 spec
     const w3regexp = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
-    if(!email.match(w3regexp)){
-      return {valid: false, error: `${email} is not a valid email.`}
+    if (!email.match(w3regexp)) {
+      return { valid: false, error: `${email} is not a valid email.` };
     }
-    return {valid: true};
+    return { valid: true };
   };
 
   // Handles keydown in text entry box
   const onKeyDown = (event) => {
     const { key, target } = event;
-    const text = [...target.childNodes].find(child => child.nodeType === Node.TEXT_NODE);
-    let email = text?.textContent?.trim();
+    const { text: email, node: textNode } = getText(target);
     const emailValidation = validateEmail(email);
     // are we done entering an email?
     if (['Enter', 'Tab', ',', ';', ' '].includes(key)) {
       event.preventDefault();
       // not actually an input, so don't put it in field
-      if(emailValidation.valid) {
-        setEmailList([...emailList, email]);
+      if (emailValidation.valid) {
+        const newEmails = [...emailList, email];
+        setEmailList(newEmails);
+        onChange(newEmails);
         //zero out the text
-        text?.remove();
+        textNode?.remove();
         // move focus to end
         // [optional] make sure focus is on the element
-      }else{
-        setError(emailValidation.error)
+      } else {
+        setError(emailValidation.error);
       }
       return;
     }
@@ -88,6 +111,7 @@ function EmailEntryBox (props) {
         const newEmails = [...emailList];
         newEmails.pop();
         setEmailList(newEmails);
+        onChange(newEmails);
         return;
       }
     }
@@ -99,37 +123,45 @@ function EmailEntryBox (props) {
     setEmailList(newEmails);
   };
 
+  const onFocus = (event) => {
+    const { target } = event;
+    const placeholder = getPlaceholder(target);
+    placeholder?.remove();
+  };
+
   return (
-  <div>
-    <div
-      contentEditable="true"
-      className={classes.editBox}
-      ref={textRef}
-      suppressContentEditableWarning={true}
-      onKeyDown={onKeyDown}>
-      {emailList.map((email) => {
-        let icon = <Send/>;
-        return (
-          <div
-            contentEditable={false}
-            className={classes.emailChip}
-            key={email}
-            id={email}
-          >
-            <Chip
-              icon={icon}
-              size="small"
-              label={email}
-              onDelete={() => onDelete(email)}
-            />
-          </div>
-        );
-      })}
+    <div>
+      <div
+        contentEditable="true"
+        className={classes.editBox}
+        ref={textRef}
+        onFocus={onFocus}
+        suppressContentEditableWarning={true}
+        onKeyDown={onKeyDown}>
+        <span id="placeholder" contentEditable="false">{placeholder}</span>
+        {emailList.map((email) => {
+          let icon = <Send/>;
+          return (
+            <div
+              contentEditable={false}
+              className={classes.emailChip}
+              key={email}
+              id={email}
+            >
+              <Chip
+                icon={icon}
+                size="small"
+                label={email}
+                onDelete={() => onDelete(email)}
+              />
+            </div>
+          );
+        })}
+      </div>
+      {error && (
+        <Typography>{error}</Typography>
+      )}
     </div>
-    {error && (
-      <Typography>{error}</Typography>
-    )}
-  </div>
   );
 };
 

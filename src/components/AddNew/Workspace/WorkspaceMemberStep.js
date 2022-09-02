@@ -22,7 +22,7 @@ function WorkspaceMembersStep(props) {
       <Typography className={classes.introText} variant="h6">
         Who else needs to be in the workspace?
       </Typography>
-      <EmailEntryBox/>
+      <EmailEntryBox placeholder="Enter emails here, separated by spaces"/>
       <div className={classes.borderBottom} />
       <StepButtons {...props} validForm={validForm} showFinish={true} showNext={false}/>
     </div>

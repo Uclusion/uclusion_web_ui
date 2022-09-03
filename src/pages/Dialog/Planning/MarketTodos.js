@@ -8,7 +8,6 @@ import { useHistory, useLocation } from 'react-router'
 import { darken, makeStyles } from '@material-ui/core/styles'
 import { yellow } from '@material-ui/core/colors'
 import {
-  SECTION_SUB_HEADER,
   SECTION_TYPE_SECONDARY_WARNING,
   SECTION_TYPE_TERTIARY_WARNING, SECTION_TYPE_WARNING
 } from '../../../constants/global'
@@ -553,57 +552,50 @@ function MarketTodos(props) {
           notifications based on severity can be sent.
         </div>
       }/>
-      <SubSection
-        type={SECTION_SUB_HEADER}
-        isBlackText
-        title={intl.formatMessage({ id: 'todoSection' })}
-        helpLink='https://documentation.uclusion.com/channels/todos'
-        createButton={isInArchives || mobileLayout ? undefined :
-          (
-            <SpinningIconLabelButton icon={ArrowUpwardIcon} onClick={toggleShowSelectTodos} doSpin={false}
-                                     whiteBackground>
-              <FormattedMessage id={todosButtonMsgId}/>
-          </SpinningIconLabelButton>
-          )}
-        actionButton={showSelectTodos ? <SpinningIconLabelButton icon={Clear}
-                                                                 onClick={() => {
-                                                                   setChecked({});
-                                                                   setShowSelectTodos(false);
-                                                                 }} doSpin={false}
-                                                                 whiteBackground>
-          <FormattedMessage id="cancel"/>
-        </SpinningIconLabelButton> : (mobileLayout ? undefined :
-          (
-            <SpinningIconLabelButton icon={SettingsBackupRestore} onClick={() => {
-              const allMessages = [];
-              todoComments.forEach((comment) => {
-                const replies = comments.filter(comment => comment.root_comment_id === comment.id) || [];
-                const myMessage = findMessageForCommentId(comment.id, messagesState);
-                if (myMessage) {
-                  allMessages.push(myMessage);
-                }
-                replies.forEach((reply) => {
-                  const aMessage = findMessageForCommentId(reply.id, messagesState);
-                  if (aMessage) {
-                    allMessages.push(aMessage);
-                  }
-                })
-              })
-              if (_.isEmpty(allMessages)) {
-                setOperationRunning(false);
-                return;
+      {!isInArchives && !mobileLayout && (
+        <SpinningIconLabelButton icon={ArrowUpwardIcon} onClick={toggleShowSelectTodos} doSpin={false}
+                                 whiteBackground>
+          <FormattedMessage id={todosButtonMsgId}/>
+        </SpinningIconLabelButton>
+      )}
+      {showSelectTodos ? <SpinningIconLabelButton icon={Clear}
+                                                  onClick={() => {
+                                                    setChecked({});
+                                                    setShowSelectTodos(false);
+                                                  }} doSpin={false}
+                                                  whiteBackground>
+        <FormattedMessage id="cancel"/>
+      </SpinningIconLabelButton> : (mobileLayout ? undefined :
+        (
+          <SpinningIconLabelButton icon={SettingsBackupRestore} onClick={() => {
+            const allMessages = [];
+            todoComments.forEach((comment) => {
+              const replies = comments.filter(comment => comment.root_comment_id === comment.id) || [];
+              const myMessage = findMessageForCommentId(comment.id, messagesState);
+              if (myMessage) {
+                allMessages.push(myMessage);
               }
-              return deleteOrDehilightMessages(allMessages, messagesDispatch, workItemClasses.removed,
-                true)
-                .then(() => setOperationRunning(false))
-                .finally(() => {
-                  setOperationRunning(false);
-                });
-            }} whiteBackground id="removeTodosNotificationsButton">
-              <FormattedMessage id='removeNotifications'/>
-            </SpinningIconLabelButton>
-          ))}
-      >
+              replies.forEach((reply) => {
+                const aMessage = findMessageForCommentId(reply.id, messagesState);
+                if (aMessage) {
+                  allMessages.push(aMessage);
+                }
+              })
+            })
+            if (_.isEmpty(allMessages)) {
+              setOperationRunning(false);
+              return;
+            }
+            return deleteOrDehilightMessages(allMessages, messagesDispatch, workItemClasses.removed,
+              true)
+              .then(() => setOperationRunning(false))
+              .finally(() => {
+                setOperationRunning(false);
+              });
+          }} whiteBackground id="removeTodosNotificationsButton">
+            <FormattedMessage id='removeNotifications'/>
+          </SpinningIconLabelButton>
+        ))}
         <div style={{paddingTop: '1rem'}}>
           {createRedCard && marketId && (
             <CommentAdd
@@ -777,7 +769,6 @@ function MarketTodos(props) {
             </Grid>
           </SubSection>
         </div>
-      </SubSection>
     </div>
   )
 }

@@ -205,12 +205,8 @@ function Screen(props) {
     const filtered = myNotHiddenMarketsState.marketDetails.filter((market) => market.market_type === PLANNING_TYPE);
     markets = _.sortBy(filtered, 'name');
   }
-  let defaultMarket;
-  let useMarketId = marketId || getFirstWorkspace(marketState);
-  const useGroupId = groupId ? groupId : (investibleId ? getFirstGroup(groupsState, useMarketId) : undefined);
-  if (!_.isEmpty(markets) && !_.isEmpty(useMarketId)) {
-    defaultMarket = markets.find((market) => market.id === useMarketId);
-  }
+  const defaultMarket = getFirstWorkspace(markets, marketId);
+  const useGroupId = groupId ? groupId : (investibleId ? getFirstGroup(groupsState, defaultMarket.id) : undefined);
   const navigationMenu =
     {
       headerItemTextArray: [

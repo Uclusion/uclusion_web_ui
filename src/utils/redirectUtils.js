@@ -21,16 +21,13 @@ export function redirectFromHistory(history) {
   return redirect;
 }
 
-export function getFirstWorkspace(state) {
-  const { marketDetails } = state || {};
-  if (_.isEmpty(marketDetails)) {
+export function getFirstWorkspace(markets, marketId) {
+  if (_.isEmpty(markets)) {
     return undefined;
   }
-  const lastActive = getCurrentWorkspace();
-  if (marketDetails.find((workspace) => workspace.id === lastActive)) {
-    return lastActive;
-  }
-  return marketDetails[0].id;
+  const lastActive = marketId || getCurrentWorkspace();
+  const lastMarket = markets.find((workspace) => workspace.id === lastActive);
+  return lastMarket || markets[0];
 }
 
 export function getFirstGroup(groupState, marketId) {

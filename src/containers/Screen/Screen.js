@@ -24,11 +24,6 @@ import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import Sidebar from '../../components/Menus/Sidebar'
 import AddIcon from '@material-ui/icons/Add'
 import { Group, Inbox } from '@material-ui/icons'
-import { pushMessage } from '../../utils/MessageBusUtils'
-import {
-  MODIFY_NOTIFICATIONS_CHANNEL,
-  REMOVE_CURRENT_EVENT
-} from '../../contexts/NotificationsContext/notificationsContextMessages'
 import { getFirstGroup, getFirstWorkspace, setCurrentGroup, setCurrentWorkspace } from '../../utils/redirectUtils'
 import GroupsNavigation from './GroupsNavigation'
 import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext'
@@ -236,6 +231,7 @@ function Screen(props) {
   ;
 
   if (!_.isEmpty(defaultMarket) && !_.isEmpty(groupsState[defaultMarket.id])) {
+    const { onGroupClick } = navigationOptions || {};
     const items = groupsState[defaultMarket.id].map((group) => {
       const isChosen = group.id === useGroupId;
       let num = undefined;
@@ -245,19 +241,20 @@ function Screen(props) {
       return {icon: Group, text: group.name, num, isBold: isChosen, openMenuItems: isChosen ? openMenuItems : undefined,
         onClickFunc: (event) => {
           preventDefaultAndProp(event);
-          pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: REMOVE_CURRENT_EVENT });
           setCurrentGroup(group.id);
+          if (onGroupClick) {
+            onGroupClick();
+          }
           navigate(history, formMarketLink(defaultMarket.id, group.id));
         }};
     });
     navigationMenu.navListItemTextArray.push(...items);
   }
-  const noMenu = hideMenu || (_.isEmpty(navigationMenu) && _.isEmpty(navigationOptions));
+  const noMenu = hideMenu || _.isEmpty(navigationMenu);
   const myContainerClass = !noMenu && !mobileLayout ? classes.containerAllLeftPad : classes.containerAll;
   const contentClass = mobileLayout || noMenu ? classes.contentNoStyle : classes.content;
   const sideNavigationContents = noMenu ? undefined :
-    <Sidebar navigationOptions={navigationOptions ? navigationOptions : navigationMenu}
-             search={search} title={title} classes={classes} />;
+    <Sidebar navigationOptions={navigationMenu} search={search} title={title} classes={classes} />;
   return (
     <div className={hidden ? classes.hidden : classes.root} id="root">
       {!hidden && (

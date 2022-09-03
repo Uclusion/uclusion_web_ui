@@ -86,6 +86,7 @@ import AssignmentIcon from '@material-ui/icons/Assignment'
 import queryString from 'query-string'
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext'
 import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper'
+import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox'
 
 export const LocalPlanningDragContext = React.createContext([]);
 
@@ -110,6 +111,7 @@ function PlanningDialog(props) {
   const intl = useIntl();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
+  const [tabIndex, setTabIndex] = useState(0);
   const [groupState] = useContext(MarketGroupsContext);
   const group = getGroup(groupState, marketId, groupId);
   const { name: groupName, created_by: createdBy, created_at: createdAt,
@@ -188,7 +190,7 @@ function PlanningDialog(props) {
     return sectionOpen === section ||
       ((!_.isEmpty(search) || mobileLayout) &&
         (!singleSections.includes(section) && !singleSections.includes(sectionOpen))) ||
-      (!sectionOpen && section === 'workspaceMain');
+      (!sectionOpen && section === 'storiesSection');
   }
 
   function isSectionBold(section) {
@@ -265,30 +267,12 @@ function PlanningDialog(props) {
       || parentResults.find((id) => id === comment.id));
   });
   const archivedSize = _.size(archiveInvestibles) + _.size(resolvedMarketComments);
-  const navListItemTextArrayBeg = [
-    createNavListItem(AddIcon, 'dialogAddParticipantsLabel', 'addCollaboratorSection',
-      undefined, false, isSectionBold('addCollaboratorSection'), !_.isEmpty(search)),
-    createNavListItem(QuestionIcon, 'planningDialogNavDiscussionLabel', 'workspaceMain',
-      _.isEmpty(search) ? undefined :
-        (results.find((result) => result.id === marketId) ? 1 : 0) + _.size(questions) + _.size(suggestions)
-        + _.size(reports),
-      true, isSectionBold('workspaceMain'), !_.isEmpty(search)),
+  const navListItemTextArray = [
     createNavListItem(AddIcon, 'addStoryLabel', 'addStorySection',
-      undefined, false, isSectionBold('addStorySection'), !_.isEmpty(search))
+      undefined, false, isSectionBold('addStorySection'), !_.isEmpty(search)),
+    createNavListItem(AddIcon, 'dialogAddParticipantsLabel', 'addCollaboratorSection',
+      undefined, false, isSectionBold('addCollaboratorSection'), !_.isEmpty(search))
   ];
-  const navListItemTextArray = navListItemTextArrayBeg.concat([
-    createNavListItem(AssignmentIcon, 'planningDialogNavStoriesLabel', 'storiesSection',
-      _.size(requiresInputInvestibles) + _.size(blockedInvestibles) + _.size(swimlaneInvestibles)
-      + _.size(furtherWorkReadyToStart) + _.size(furtherWorkInvestibles),
-      true, isSectionBold('storiesSection'), !_.isEmpty(search)),
-    createNavListItem(ListAltIcon, 'todoSection', 'marketTodos', _.size(todoComments),
-      _.isEmpty(search), isSectionBold('marketTodos'), !_.isEmpty(search)),
-    {
-      icon: MenuBookIcon, text: intl.formatMessage({ id: 'planningDialogViewArchivesLabel' }),
-      target: archivedSize > 0 ? formMarketArchivesLink(marketId, groupId) : undefined,
-      num: _.isEmpty(search) ? undefined : archivedSize, newPage: true
-    }
-  ]);
   if (!mobileLayout) {
     navListItemTextArray.push(createNavListItem(SettingsIcon, 'settings', 'settingsSection',
       undefined, false, isSectionBold('settingsSection'), !_.isEmpty(search)));
@@ -312,6 +296,16 @@ function PlanningDialog(props) {
     }
   }
 
+  const discussionSearchResults = (results.find((result) => result.id === marketId) ? 1 : 0) + _.size(questions)
+                        + _.size(suggestions) + _.size(reports);
+  const jobsSearchResults = _.size(requiresInputInvestibles) + _.size(blockedInvestibles) + _.size(swimlaneInvestibles)
+    + _.size(furtherWorkReadyToStart) + _.size(furtherWorkInvestibles);
+
+  const isFromSideBarMenu = ['addStorySection', 'addCollaboratorSection', 'settingsSection'].includes(sectionOpen);
+  function resetTabs() {
+    setSectionOpen(undefined);
+    setTabIndex(0);
+  }
   return (
     <Screen
       title={groupName}
@@ -320,17 +314,48 @@ function PlanningDialog(props) {
       breadCrumbs={breadCrumbs}
       banner={banner}
       openMenuItems={navListItemTextArray}
+      navigationOptions={{onGroupClick: resetTabs}}
     >
       <UclusionTour
         name={INVITED_USER_WORKSPACE}
         hidden={hidden || mobileLayout || banner}
         steps={workspaceInvitedUserSteps({name: myPresence.name, isCreator: createdBy === myPresence.id})}
       />
+      {!isFromSideBarMenu && (
+        <GmailTabs
+          value={tabIndex}
+          onChange={(event, value) => {
+            setTabIndex(value);
+            if (value === 3) {
+              navigate(history, formMarketArchivesLink(marketId, groupId));
+            } else {
+              const isSearch = !_.isEmpty(search);
+              const anchorId = value === 0 ? 'storiesSection' : (value === 2 ? 'workspaceMain' : 'marketTodos');
+              const isScrolling = (mobileLayout || isSearch) && !singleSections.includes(anchorId);
+              openSubSection(anchorId, !isScrolling);
+              if (isScrolling) {
+                navigate(history, `${formMarketLink(marketId, groupId)}#${anchorId}`);
+              }
+            }
+          }}
+          indicatorColors={['#00008B']}
+          style={{ borderTop: '1px ridge lightgrey', paddingBottom: '0.25rem' }}>
+          <GmailTabItem icon={<AssignmentIcon />} label={intl.formatMessage({id: 'planningDialogNavStoriesLabel'})}
+                        color='black'
+                        tag={_.isEmpty(search) || jobsSearchResults === 0 ? undefined : `${jobsSearchResults}`} />
+          <GmailTabItem icon={<ListAltIcon />} label={intl.formatMessage({id: 'todoSection'})}
+                        tag={_.isEmpty(search) || _.isEmpty(todoComments) ? undefined : `${_.size(todoComments)}` } />
+          <GmailTabItem icon={<QuestionIcon />}
+                        label={intl.formatMessage({id: 'planningDialogNavDiscussionLabel'})}
+                        tag={_.isEmpty(search) || discussionSearchResults === 0 ? undefined :
+                          `${discussionSearchResults}`} />
+          <GmailTabItem icon={<MenuBookIcon />}
+                        label={intl.formatMessage({id: 'planningDialogViewArchivesLabel'})}
+                        tag={_.isEmpty(search) ? undefined : `${archivedSize}`} />
+        </GmailTabs>
+      )}
       {isSectionOpen('workspaceMain') && (
         <div id="workspaceMain">
-          <h2>
-            <FormattedMessage id="planningDialogNavDiscussionLabel" />
-          </h2>
           {(_.isEmpty(search) || results.find((item) => item.id === marketId)) && (
             <Summary group={group} hidden={hidden} pageState={pageState} updatePageState={updatePageState}
                      pageStateReset={pageStateReset}/>
@@ -363,7 +388,7 @@ function PlanningDialog(props) {
           <PlanningInvestibleAdd
             marketId={marketId}
             groupId={groupId}
-            onCancel={() => openSubSection('storiesSection')}
+            onCancel={() => resetTabs()}
             onSave={onInvestibleSave}
             onSpinComplete={onDone}
             marketPresences={marketPresences}
@@ -378,9 +403,6 @@ function PlanningDialog(props) {
       <LocalPlanningDragContext.Provider value={[beingDraggedHack, setBeingDraggedHack]}>
         {isSectionOpen('storiesSection') && (
           <div id="storiesSection">
-            <h2>
-              <FormattedMessage id="planningDialogNavStoriesLabel" />
-            </h2>
             <DismissableText textId="notificationHelp" text={
               <div>
                 Uclusion will generate all <Link href="https://documentation.uclusion.com/notifications" target="_blank">notifications</Link> necessary
@@ -576,7 +598,7 @@ function PlanningDialog(props) {
               <PlanningDialogEdit
                 group={group}
                 userId={myPresence.id}
-                onCancel={() => openSubSection('workspaceMain')}
+                onCancel={() => resetTabs()}
                 acceptedStage={acceptedStage}
                 verifiedStage={inVerifiedStage}
               />

@@ -87,6 +87,7 @@ import queryString from 'query-string'
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext'
 import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper'
 import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox'
+import { isEveryoneGroup } from '../../../contexts/GroupMembersContext/groupMembersHelper'
 
 export const LocalPlanningDragContext = React.createContext([]);
 
@@ -269,10 +270,13 @@ function PlanningDialog(props) {
   const archivedSize = _.size(archiveInvestibles) + _.size(resolvedMarketComments);
   const navListItemTextArray = [
     createNavListItem(AddIcon, 'addStoryLabel', 'addStorySection',
-      undefined, false, isSectionBold('addStorySection'), !_.isEmpty(search)),
-    createNavListItem(AddIcon, 'dialogAddParticipantsLabel', 'addCollaboratorSection',
-      undefined, false, isSectionBold('addCollaboratorSection'), !_.isEmpty(search))
+      undefined, false, isSectionBold('addStorySection'), !_.isEmpty(search))
   ];
+  if (!isEveryoneGroup(groupId, marketId)) {
+    navListItemTextArray.push(createNavListItem(AddIcon, 'dialogAddParticipantsLabel',
+      'addCollaboratorSection', undefined, false,
+      isSectionBold('addCollaboratorSection'), !_.isEmpty(search)));
+  }
   if (!mobileLayout) {
     navListItemTextArray.push(createNavListItem(SettingsIcon, 'settings', 'settingsSection',
       undefined, false, isSectionBold('settingsSection'), !_.isEmpty(search)));

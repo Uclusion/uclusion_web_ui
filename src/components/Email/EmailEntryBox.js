@@ -7,6 +7,7 @@ import { Send } from '@material-ui/icons';
 import Chip from '@material-ui/core/Chip';
 import { makeStyles } from '@material-ui/styles';
 import { Typography } from '@material-ui/core';
+import PropTypes from 'prop-types'
 
 const wizardStyles = makeStyles((theme) => {
   return {
@@ -19,9 +20,20 @@ const wizardStyles = makeStyles((theme) => {
     },
     editBox: {
       width: '100%',
+      padding: '0.25rem',
       height: '10rem',
-      border: '1px solid black',
+      borderRadius: '6px',
+      border: '1px dashed grey',
+      '&:focus': {
+        outline: '2px solid #2D9CDB',
+      },
     },
+    placeholder: {
+      color: theme.palette.grey['500'],
+    },
+    error: {
+      color: '#E85757',
+    }
   };
 });
 
@@ -36,7 +48,10 @@ function EmailEntryBox (props) {
   const getText = (target) => {
     if (target?.childNodes) {
       const text = [...target.childNodes].find(child => child.nodeType === Node.TEXT_NODE);
-      return { text: text?.textContent?.trim(), node: text };
+      const trimmed = text?.textContent?.trim();
+      // to get a nice cursor we add a non visible space, but trim doesn't think it's wihtespace
+      const spaceDehacked = trimmed?.replace('\u200b', '');
+      return { text: spaceDehacked, node: text };
     }
     return { text: undefined, node: undefined };
   };
@@ -59,6 +74,11 @@ function EmailEntryBox (props) {
         document.execCommand('selectAll', false, null);
         // collapse selection to the end
         document.getSelection().collapseToEnd();
+        // give us a blinking cursor
+        const {node} = getText(target);
+        if(node == null){
+          target.appendChild(document.createTextNode('\u200b'));
+        }
       }
     }
   });
@@ -76,7 +96,7 @@ function EmailEntryBox (props) {
     // regexp from w3 spec
     const w3regexp = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
     if (!email.match(w3regexp)) {
-      return { valid: false, error: `${email} is not a valid email.` };
+      return { valid: false, error: `'${email}' is not a valid email.` };
     }
     return { valid: true };
   };
@@ -95,9 +115,7 @@ function EmailEntryBox (props) {
         setEmailList(newEmails);
         onChange(newEmails);
         //zero out the text
-        textNode?.remove();
-        // move focus to end
-        // [optional] make sure focus is on the element
+        textNode.remove();
       } else {
         setError(emailValidation.error);
       }
@@ -138,7 +156,7 @@ function EmailEntryBox (props) {
         onFocus={onFocus}
         suppressContentEditableWarning={true}
         onKeyDown={onKeyDown}>
-        <span id="placeholder" contentEditable="false">{placeholder}</span>
+        <span id="placeholder" className={classes.placeholder} contentEditable="false">{placeholder}</span>
         {emailList.map((email) => {
           let icon = <Send/>;
           return (
@@ -159,10 +177,20 @@ function EmailEntryBox (props) {
         })}
       </div>
       {error && (
-        <Typography>{error}</Typography>
+        <Typography className={classes.error}>{error}</Typography>
       )}
     </div>
   );
+};
+
+EmailEntryBox.propTypes = {
+  onChange: PropTypes.func,
+  placeholder: PropTypes.string,
+};
+
+EmailEntryBox.defaultProps = {
+  onChange: () => {},
+  placeholder: 'Ex. bfollis@uclusion.com, disrael@uclusion.com',
 };
 
 export default EmailEntryBox;

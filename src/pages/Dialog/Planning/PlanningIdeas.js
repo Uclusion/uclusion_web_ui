@@ -47,11 +47,9 @@ import { doRemoveEdit, doShowEdit, getCommenterPresences, onDropTodo } from './u
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions'
-import { Info } from '@material-ui/icons'
 import { myArchiveClasses } from '../../DialogArchives/ArchiveInvestibles'
-import { HIGHLIGHTED_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
 
-const usePlanningIdStyles = makeStyles(
+export const usePlanningIdStyles = makeStyles(
   theme => {
     return {
       stages: {
@@ -102,8 +100,6 @@ function PlanningIdeas(props) {
     comments
   } = props;
   const intl = useIntl();
-  const theme = useTheme();
-  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const acceptedStageId = acceptedStage.id;
   const classes = usePlanningIdStyles();
   const archiveClasses = myArchiveClasses();
@@ -121,12 +117,8 @@ function PlanningIdeas(props) {
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = (marketPresences || []).find((presence) => presence.current_user) || {};
   const acceptedInvestibles = myInvestiblesStageHash[acceptedStageId] || [];
-  const acceptedFull = acceptedStage.allowed_investibles > 0
-    && acceptedInvestibles.length >= acceptedStage.allowed_investibles;
   const acceptedOverFull = acceptedStage.allowed_investibles > 0
     && acceptedInvestibles.length > acceptedStage.allowed_investibles;
-  const acceptedStageLabel = acceptedOverFull ? 'stageOverFullLabel' :
-    (acceptedFull ? 'planningAcceptedStageFullLabel' : 'planningAcceptedStageLabel');
 
   function isBlockedByTodo(investibleId, currentStageId, targetStageId) {
     const investibleComments = comments.filter((comment) => comment.investible_id === investibleId) || [];
@@ -323,12 +315,6 @@ function PlanningIdeas(props) {
            onDragOver={onDragOverProcess}
            onDragEnter={(event) => onDragEnterStage(event, inDialogStageId, presenceId)}
            onDragEnd={onDragEndStage}>
-        <FormattedMessage id="planningVotingStageLabel" />
-        {!mobileLayout && (
-          <Link href="https://documentation.uclusion.com/channels/jobs/stages/#ready-for-approval" target="_blank">
-            <Info style={{height: '1.1rem'}} />
-          </Link>
-        )}
         <VotingStage
           className={classes.stage}
           id={inDialogStageId}
@@ -345,15 +331,9 @@ function PlanningIdeas(props) {
            onDragOver={onDragOverProcess}
            onDragEnter={(event) => onDragEnterStage(event, acceptedStageId, presenceId)}
            onDragEnd={onDragEndStage}>
-        <div style={{color: acceptedOverFull ? HIGHLIGHTED_BUTTON_COLOR : undefined}}>
-          <FormattedMessage id={acceptedStageLabel} />
-          {!mobileLayout && (
-            <Link href="https://documentation.uclusion.com/channels/jobs/stages/#started"
-                  target="_blank">
-              <Info style={{height: '1.1rem'}} />
-            </Link>
-          )}
-        </div>
+        {acceptedOverFull && (
+          <FormattedMessage id="planningAcceptedStageFullLabel"/>
+        )}
         <AcceptedStage
           className={classes.stage}
           id={acceptedStageId}
@@ -369,12 +349,6 @@ function PlanningIdeas(props) {
            onDragOver={onDragOverProcess}
            onDragEnter={(event) => onDragEnterStage(event, inReviewStageId, presenceId)}
            onDragEnd={onDragEndStage}>
-        <FormattedMessage id="planningReviewStageLabel"/>
-        {!mobileLayout && (
-          <Link href="https://documentation.uclusion.com/channels/jobs/stages/#ready-for-feedback" target="_blank">
-            <Info style={{height: '1.1rem'}} />
-          </Link>
-        )}
         <ReviewStage
           className={classes.stage}
           id={inReviewStageId}
@@ -390,13 +364,6 @@ function PlanningIdeas(props) {
            onDragOver={onDragOverProcess}
            onDragEnter={(event) => onDragEnterStage(event, inVerifiedStageId, presenceId)}
            onDragEnd={onDragEndStage}>
-        <FormattedMessage id="verifiedBlockedStageLabel"/>
-        {!mobileLayout && (
-          <Link href="https://documentation.uclusion.com/channels/jobs/stages/#verified-and-not-doing"
-                target="_blank">
-            <Info style={{height: '1.1rem'}} />
-          </Link>
-        )}
         <VerifiedStage
           className={classes.stage}
           id={inVerifiedStageId}

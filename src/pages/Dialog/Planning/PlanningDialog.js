@@ -18,7 +18,7 @@ import CardContent from '@material-ui/core/CardContent'
 import CardHeader from '@material-ui/core/CardHeader'
 import { makeStyles } from '@material-ui/core/styles'
 import Summary from './Summary'
-import PlanningIdeas from './PlanningIdeas'
+import PlanningIdeas, { usePlanningIdStyles } from './PlanningIdeas'
 import Screen from '../../../containers/Screen/Screen'
 import {
   baseNavListItem,
@@ -43,7 +43,6 @@ import {
 import DismissableText from '../../../components/Notifications/DismissableText'
 import {
   PLACEHOLDER,
-  SECTION_SUB_HEADER,
   SECTION_TYPE_SECONDARY_WARNING,
   SECTION_TYPE_WARNING
 } from '../../../constants/global'
@@ -88,6 +87,7 @@ import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/Marke
 import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper'
 import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox'
 import { isEveryoneGroup } from '../../../contexts/GroupMembersContext/groupMembersHelper'
+import { Info } from '@material-ui/icons'
 
 export const LocalPlanningDragContext = React.createContext([]);
 
@@ -109,6 +109,7 @@ function PlanningDialog(props) {
   const values = queryString.parse(querySearch);
   const { groupId } = values || {};
   const classes = useInvestiblesByPersonStyles();
+  const swimClasses = usePlanningIdStyles();
   const intl = useIntl();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
@@ -462,13 +463,42 @@ function PlanningDialog(props) {
               </SubSection>
             )}
             {!_.isEmpty(requiresInputInvestibles) && (<div style={{ paddingBottom: '2rem' }}/>)}
-            <SubSection
-              type={SECTION_SUB_HEADER}
-              isBlackText
-              helpLink='https://documentation.uclusion.com/channels/swimlanes'
-              id="swimLanes"
-              title={intl.formatMessage({ id: 'swimLanes' })}
-            >
+              <dl className={swimClasses.stages} style={{background: theme.palette.grey['100']}}>
+                <div>
+                  <FormattedMessage id="planningVotingStageLabel" />
+                  {!mobileLayout && (
+                    <Link href="https://documentation.uclusion.com/channels/jobs/stages/#ready-for-approval" target="_blank">
+                      <Info style={{height: '1.1rem'}} />
+                    </Link>
+                  )}
+                </div>
+                <div>
+                  <FormattedMessage id='planningAcceptedStageLabel' />
+                  {!mobileLayout && (
+                    <Link href="https://documentation.uclusion.com/channels/jobs/stages/#started"
+                          target="_blank">
+                      <Info style={{height: '1.1rem'}} />
+                    </Link>
+                  )}
+                </div>
+                <div>
+                  <FormattedMessage id="planningReviewStageLabel"/>
+                  {!mobileLayout && (
+                    <Link href="https://documentation.uclusion.com/channels/jobs/stages/#ready-for-feedback" target="_blank">
+                      <Info style={{height: '1.1rem'}} />
+                    </Link>
+                  )}
+                </div>
+                <div>
+                  <FormattedMessage id="verifiedBlockedStageLabel"/>
+                  {!mobileLayout && (
+                    <Link href="https://documentation.uclusion.com/channels/jobs/stages/#verified-and-not-doing"
+                          target="_blank">
+                      <Info style={{height: '1.1rem'}} />
+                    </Link>
+                  )}
+                </div>
+              </dl>
               <InvestiblesByPerson
                 comments={comments}
                 investibles={investibles}
@@ -484,14 +514,6 @@ function PlanningDialog(props) {
                 mobileLayout={mobileLayout}
                 pageState={pageState} updatePageState={updatePageState}
               />
-            </SubSection>
-            <SubSection
-              type={SECTION_SUB_HEADER}
-              isBlackText
-              helpLink='https://documentation.uclusion.com/channels/jobs/stages/#further-work'
-              id="furtherWork"
-              title={intl.formatMessage({ id: 'readyFurtherWorkHeader' })}
-            >
               {furtherWorkType === 'readyToStart' && (
                 <PlanningInvestibleAdd
                   marketId={marketId}
@@ -585,7 +607,6 @@ function PlanningDialog(props) {
                   allowDragDrop
                 />
               </SubSection>
-            </SubSection>
           </div>
         )}
         <MarketTodos comments={unResolvedMarketComments} marketId={marketId} groupId={groupId}
@@ -635,7 +656,7 @@ export const useInvestiblesByPersonStyles = makeStyles(
   theme => {
     return {
       root: {
-        margin: theme.spacing(1, 0, '2rem')
+        margin: theme.spacing(1, 0)
       },
       content: {
         padding: theme.spacing(0, 1),
@@ -776,105 +797,112 @@ function InvestiblesByPerson(props) {
   function onClick(id) {
     updatePageState({storyAssignee: id});
   }
-  return marketPresencesSorted.map(presence => {
-    const { id, email, placeholder_type: placeholderType } = presence;
-    const name = (presence.name || '').replace('@', ' ');
-    const showAsPlaceholder = placeholderType === PLACEHOLDER;
-    const myInvestibles = getUserInvestibles(
-      id,
-      marketId,
-      investibles,
-      visibleStages
-    );
+  return (
+    <div style={{overflowY: 'auto', maxHeight: '35rem', marginBottom: '2rem'}}>
+      {marketPresencesSorted.map(presence => {
+        const { id, email, placeholder_type: placeholderType } = presence;
+        const name = (presence.name || '').replace('@', ' ');
+        const showAsPlaceholder = placeholderType === PLACEHOLDER;
+        const myInvestibles = getUserInvestibles(
+          id,
+          marketId,
+          investibles,
+          visibleStages
+        );
 
-    const myInvestiblesStageHash = getUserSwimlaneInvestiblesHash(myInvestibles, visibleStages, marketId);
+        const myInvestiblesStageHash = getUserSwimlaneInvestiblesHash(myInvestibles, visibleStages, marketId);
 
-    function onInvestibleSave(investible) {
-      addInvestible(investiblesDispatch, diffDispatch, investible);
-    }
-    function onDone(destinationLink) {
-      if (destinationLink) {
-        navigate(history, destinationLink);
-      }
-    }
-    const myClassName = showAsPlaceholder ? metaClasses.archivedColor : metaClasses.normalColor;
-    const { mentioned_notifications: mentions, approve_notifications: approvals, review_notifications: reviews }
-      = presence || {};
-    if (_.isEmpty(myInvestiblesStageHash) && _.isEmpty(mentions) && _.isEmpty(approvals) && _.isEmpty(reviews)) {
-      return <React.Fragment />
-    }
-    return (
-      <React.Fragment key={`fragsl${id}`}>
-        {storyAssignee === id && (
-          <PlanningInvestibleAdd
-            marketId={marketId}
-            groupId={group.id}
-            onCancel={() => updatePageState({storyAssignee: undefined})}
-            onSave={onInvestibleSave}
-            onSpinComplete={(destinationLink) => {
-              updatePageState({storyAssignee: undefined});
-              onDone(destinationLink);
-            }}
-            createdAt={createdAt}
-            classes={planningInvestibleAddClasses}
-            maxBudgetUnit={budgetUnit}
-            useBudget={useBudget ? useBudget : false}
-            votesRequired={votesRequired}
-            storyAssignee={storyAssignee}
-          />
-        )}
-        <Card id={`sl${id}`} key={id} className={classes.root} elevation={3}>
-          <CardHeader
-            className={classes.header}
-            id={`u${id}`}
-            title={
-            <div style={{alignItems: "center", display: "flex", flexDirection: 'row'}}>
-              <Typography variant="h6" className={myClassName}>
-                {name}
-                {!mobileLayout && (
-                  <NotificationCountChips id={id} presence={presence || {}} />
-                )}
-              </Typography>
-              <div style={{flexGrow: 1}} />
-              <ExpandableAction
-                icon={<AddIcon htmlColor="black"/>}
-                label={intl.formatMessage({ id: 'createAssignmentExplanation' })}
-                openLabel={intl.formatMessage({ id: 'createAssignment'})}
-                onClick={() => onClick(id)}
-                disabled={!isAdmin}
-                tipPlacement="top-end"
+        function onInvestibleSave (investible) {
+          addInvestible(investiblesDispatch, diffDispatch, investible);
+        }
+
+        function onDone (destinationLink) {
+          if (destinationLink) {
+            navigate(history, destinationLink);
+          }
+        }
+
+        const myClassName = showAsPlaceholder ? metaClasses.archivedColor : metaClasses.normalColor;
+        const { mentioned_notifications: mentions, approve_notifications: approvals, review_notifications: reviews }
+          = presence || {};
+        if (_.isEmpty(myInvestiblesStageHash) && _.isEmpty(mentions) && _.isEmpty(approvals) && _.isEmpty(reviews)) {
+          return <React.Fragment/>
+        }
+        return (
+          <React.Fragment key={`fragsl${id}`}>
+            {storyAssignee === id && (
+              <PlanningInvestibleAdd
+                marketId={marketId}
+                groupId={group.id}
+                onCancel={() => updatePageState({ storyAssignee: undefined })}
+                onSave={onInvestibleSave}
+                onSpinComplete={(destinationLink) => {
+                  updatePageState({ storyAssignee: undefined });
+                  onDone(destinationLink);
+                }}
+                createdAt={createdAt}
+                classes={planningInvestibleAddClasses}
+                maxBudgetUnit={budgetUnit}
+                useBudget={useBudget ? useBudget : false}
+                votesRequired={votesRequired}
+                storyAssignee={storyAssignee}
               />
-            </div>}
-            avatar={showAsPlaceholder ? undefined : <Gravatar className={classes.smallGravatar} email={email}
-                                                              name={name}/>}
-            titleTypographyProps={{ variant: "subtitle2" }}
-          />
-          <CardContent className={classes.content}>
-            {marketId &&
-              acceptedStage &&
-              inDialogStage &&
-              inReviewStage &&
-              inVerifiedStage &&
-              inBlockingStage && (
-                <PlanningIdeas
-                  myInvestiblesStageHash={myInvestiblesStageHash}
-                  allInvestibles={investibles}
-                  marketId={marketId}
-                  acceptedStage={acceptedStage}
-                  inDialogStageId={inDialogStage.id}
-                  inReviewStageId={inReviewStage.id}
-                  inBlockingStageId={inBlockingStage.id}
-                  inRequiresInputStageId={requiresInputStage.id}
-                  inVerifiedStageId={inVerifiedStage.id}
-                  comments={comments}
-                  presenceId={presence.id}
-                />
-              )}
-          </CardContent>
-        </Card>
-      </React.Fragment>
-    );
-  });
+            )}
+            <Card id={`sl${id}`} key={id} className={classes.root} elevation={3}>
+              <CardHeader
+                className={classes.header}
+                id={`u${id}`}
+                title={
+                  <div style={{ alignItems: "center", display: "flex", flexDirection: 'row' }}>
+                    <Typography variant="h6" className={myClassName}>
+                      {name}
+                      {!mobileLayout && (
+                        <NotificationCountChips id={id} presence={presence || {}}/>
+                      )}
+                    </Typography>
+                    <div style={{ flexGrow: 1 }}/>
+                    <ExpandableAction
+                      icon={<AddIcon htmlColor="black"/>}
+                      label={intl.formatMessage({ id: 'createAssignmentExplanation' })}
+                      openLabel={intl.formatMessage({ id: 'createAssignment' })}
+                      onClick={() => onClick(id)}
+                      disabled={!isAdmin}
+                      tipPlacement="top-end"
+                    />
+                  </div>}
+                avatar={showAsPlaceholder ? undefined : <Gravatar className={classes.smallGravatar} email={email}
+                                                                  name={name}/>}
+                titleTypographyProps={{ variant: "subtitle2" }}
+              />
+              <CardContent className={classes.content}>
+                {marketId &&
+                  acceptedStage &&
+                  inDialogStage &&
+                  inReviewStage &&
+                  inVerifiedStage &&
+                  inBlockingStage && (
+                    <PlanningIdeas
+                      myInvestiblesStageHash={myInvestiblesStageHash}
+                      allInvestibles={investibles}
+                      marketId={marketId}
+                      acceptedStage={acceptedStage}
+                      inDialogStageId={inDialogStage.id}
+                      inReviewStageId={inReviewStage.id}
+                      inBlockingStageId={inBlockingStage.id}
+                      inRequiresInputStageId={requiresInputStage.id}
+                      inVerifiedStageId={inVerifiedStage.id}
+                      comments={comments}
+                      presenceId={presence.id}
+                    />
+                  )}
+              </CardContent>
+            </Card>
+          </React.Fragment>
+        );
+      })
+      }
+    </div>
+  );
 }
 
 export default PlanningDialog;

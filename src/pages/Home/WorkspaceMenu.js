@@ -118,7 +118,7 @@ function WorkspaceMenu(props) {
     };
   }
 
-  if (_.isEmpty(markets)) {
+  if (_.isEmpty(markets)||_.isEmpty(defaultMarket)) {
     return React.Fragment;
   }
 

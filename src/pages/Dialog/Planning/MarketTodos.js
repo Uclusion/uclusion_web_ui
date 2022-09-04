@@ -276,7 +276,7 @@ function MarketTodos(props) {
         history.replace(window.location.pathname);
       }
       if ((foundCommentId || hash.includes('Todos')) && !sectionOpen) {
-        setSectionOpen('marketTodos');
+        setSectionOpen();
       }
     }
     return () => {};

@@ -138,9 +138,6 @@ function PlanningDialog(props) {
     furtherWorkType,
     tabIndex
   } = pageState;
-  function setSectionOpen(section) {
-    updatePageState({sectionOpen: section});
-  }
   const investibles = marketInvestibles.filter((investible) => {
     const marketInfo = getMarketInfo(investible, marketId);
     return marketInfo.group_id === groupId;
@@ -230,7 +227,7 @@ function PlanningDialog(props) {
   }
 
   function openSubSection(subSection, doScroll=true) {
-    setSectionOpen(subSection);
+    updatePageState({sectionOpen: subSection});
     if (doScroll) {
       window.scrollTo(0, 0);
     }
@@ -309,8 +306,7 @@ function PlanningDialog(props) {
 
   const isFromSideBarMenu = ['addStorySection', 'addCollaboratorSection', 'settingsSection'].includes(sectionOpen);
   function resetTabs() {
-    setSectionOpen(undefined);
-    updatePageState({tabIndex: 0});
+    updatePageState({sectionOpen: undefined, tabIndex: 0});
   }
   return (
     <Screen
@@ -320,7 +316,6 @@ function PlanningDialog(props) {
       breadCrumbs={breadCrumbs}
       banner={banner}
       openMenuItems={navListItemTextArray}
-      navigationOptions={{onGroupClick: resetTabs}}
     >
       <UclusionTour
         name={INVITED_USER_WORKSPACE}
@@ -576,7 +571,9 @@ function PlanningDialog(props) {
         )}
         <MarketTodos comments={unResolvedMarketComments} marketId={marketId} groupId={groupId}
                      sectionOpen={isSectionOpen('marketTodos')}
-                     setSectionOpen={setSectionOpen} group={group} userId={myPresence.id}/>
+                     setSectionOpen={() => {
+                       updatePageState({sectionOpen: 'marketTodos', tabIndex: 1});
+                     }} group={group} userId={myPresence.id}/>
       </LocalPlanningDragContext.Provider>
       <Grid container spacing={2} id="settingsSection">
         {!hidden && !_.isEmpty(acceptedStage) && !_.isEmpty(inVerifiedStage) &&

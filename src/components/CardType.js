@@ -166,6 +166,7 @@ export default function CardType(props) {
     label = type in labelIntlIds ? <FormattedMessage id={labelIntlIds[type]}/> : undefined,
     createdAt,
     myBeingEdited,
+    stageChangedAt,
     color
   } = props;
   const classes = useCardTypeStyles({ type, resolved, color });
@@ -205,7 +206,7 @@ export default function CardType(props) {
   return (
     <Grid container>
       {label && (
-        <Grid item xs={6} className={classes.labelGrid}>
+        <Grid item xs={4} className={classes.labelGrid}>
           <div className={clsx(classes.root, className)} style={{marginRight: mobileLayout ? '0.25rem' : '1rem'}}>
             <IconComponent className={classes.icon}/>
             <span className={classes.label}>{label}</span>
@@ -214,7 +215,7 @@ export default function CardType(props) {
         </Grid>
       )}
       {!label && (
-        <Grid item xs={5} />
+        <Grid item xs={3} />
       )}
       <Grid item xs={2}>
         {myBeingEdited && (
@@ -227,6 +228,13 @@ export default function CardType(props) {
         {createdAt && (
           <Typography className={classes.timeElapsed} variant="body2">
             {intl.formatMessage({ id: 'created' })} <UsefulRelativeTime value={createdAt}/>
+          </Typography>
+        )}
+      </Grid>
+      <Grid item xs={2}>
+        {stageChangedAt && (
+          <Typography className={classes.timeElapsed} variant="body2">
+            {intl.formatMessage({ id: 'stageUpdatedAt' })} <UsefulRelativeTime value={stageChangedAt}/>
           </Typography>
         )}
       </Grid>

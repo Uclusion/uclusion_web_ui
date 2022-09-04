@@ -630,6 +630,8 @@ export const useInvestiblesByPersonStyles = makeStyles(
         }
       },
       smallGravatar: {
+        width: '30px',
+        height: '30px',
       },
       header: {
         padding: theme.spacing(1)
@@ -819,7 +821,7 @@ function InvestiblesByPerson(props) {
                 id={`u${id}`}
                 title={
                   <div style={{ alignItems: "center", display: "flex", flexDirection: 'row' }}>
-                    <Typography variant="h6" className={myClassName}>
+                    <Typography variant="body1" className={myClassName}>
                       {name}
                       {!mobileLayout && (
                         <NotificationCountChips id={id} presence={presence || {}}/>

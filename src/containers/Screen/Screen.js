@@ -184,8 +184,15 @@ function Screen(props) {
     }
   }, [commentsState, hidden, investiblesState, marketPresencesState, marketState, messagesState, tabTitle]);
 
+  const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState);
+  let markets = [];
+  if (myNotHiddenMarketsState.marketDetails) {
+    const filtered = myNotHiddenMarketsState.marketDetails.filter((market) => market.market_type === PLANNING_TYPE);
+    markets = _.sortBy(filtered, 'name');
+  }
+  const defaultMarket = getFirstWorkspace(markets, marketId) || {};
   const reallyAmLoading = !hidden && appEnabled && (loading || _.isEmpty(user));
-  if (hidden && !isInbox) {
+  if ((hidden && !isInbox)||(marketId && _.isEmpty(defaultMarket))) {
     return <React.Fragment/>
   }
   let usedBreadCrumbs = breadCrumbs;
@@ -199,13 +206,6 @@ function Screen(props) {
       navigate(history, formMarketLink(newMarketId, newMarketId));
     }
   }
-  const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState);
-  let markets = [];
-  if (myNotHiddenMarketsState.marketDetails) {
-    const filtered = myNotHiddenMarketsState.marketDetails.filter((market) => market.market_type === PLANNING_TYPE);
-    markets = _.sortBy(filtered, 'name');
-  }
-  const defaultMarket = getFirstWorkspace(markets, marketId);
   const useGroupId = groupId ? groupId : (investibleId ? getFirstGroup(groupsState, defaultMarket.id) : undefined);
   const navigationMenu =
     {

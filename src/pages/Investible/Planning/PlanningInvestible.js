@@ -825,6 +825,7 @@ function PlanningInvestible(props) {
           className={classes.cardType}
           createdAt={createdAt}
           myBeingEdited={beingEdited}
+          stageChangedAt={new Date(marketInfo.last_stage_change_date)}
         />
         <CardContent className={beingEdited ? classes.editCardContent : classes.votingCardContent}>
           <Grid container className={classes.mobileColumn}>

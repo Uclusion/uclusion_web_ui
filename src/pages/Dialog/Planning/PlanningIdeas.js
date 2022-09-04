@@ -5,7 +5,7 @@ import { useHistory } from 'react-router';
 import { Grid, Link, Tooltip, Typography, useMediaQuery, useTheme } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles';
 import { yellow } from '@material-ui/core/colors';
-import { FormattedDate, FormattedMessage, useIntl } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import {
   formInvestibleLink,
   formMarketAddInvestibleLink,
@@ -450,7 +450,7 @@ const useStageClasses = makeStyles(
   { name: 'Stage' }
 );
 
-function Stage (props) {
+function Stage(props) {
   const {
     fallbackOnClick,
     comments,
@@ -458,7 +458,6 @@ function Stage (props) {
     id,
     investibles,
     marketId,
-    updatedText,
     warnAccepted,
     isReview,
     isVoting,
@@ -530,7 +529,6 @@ function Stage (props) {
                   investible={investible}
                   marketId={marketId}
                   marketInfo={marketInfo}
-                  updatedText={updatedText}
                   isReview={isReview}
                   isVoting={isVoting}
                   votesRequired={votesRequired}
@@ -556,7 +554,6 @@ Stage.propTypes = {
 };
 
 function VotingStage (props) {
-  const intl = useIntl();
   const [messagesState] = useContext(NotificationsContext);
   const { marketId, presenceId, investibles, myPresence } = props;
   const history = useHistory();
@@ -572,9 +569,6 @@ function VotingStage (props) {
     <Stage
       isVoting
       fallbackOnClick={onClick}
-      updatedText={intl.formatMessage({
-        id: 'inDialogInvestiblesUpdatedAt'
-      })}
       warnAccepted={checkInApprovalWarning(investibles, myPresence, messagesState)}
       {...props}
     />
@@ -582,15 +576,11 @@ function VotingStage (props) {
 }
 
 function AcceptedStage (props) {
-  const intl = useIntl();
   const [messagesState] = useContext(NotificationsContext);
   const { investibles, myPresence } = props;
   return (
     <Stage
       warnAccepted={checkInProgressWarning(investibles, myPresence, messagesState)}
-      updatedText={intl.formatMessage({
-        id: 'acceptedInvestiblesUpdatedAt'
-      })}
       showCompletion
       {...props}
     />
@@ -598,14 +588,10 @@ function AcceptedStage (props) {
 }
 
 function ReviewStage (props) {
-  const intl = useIntl();
   const [messagesState] = useContext(NotificationsContext);
   const { investibles, myPresence } = props;
   return (
     <Stage
-      updatedText={intl.formatMessage({
-        id: 'reviewingInvestiblesUpdatedAt'
-      })}
       isReview
       warnAccepted={checkInReviewWarning(investibles, myPresence, messagesState)}
       {...props}
@@ -629,16 +615,16 @@ const generalStageStyles = makeStyles(() => {
       backgroundColor: 'white',
       border: '0.5px solid grey'
     },
+    smallGravatar: {
+      width: '24px',
+      height: '24px',
+    }
   };
 });
 
 function VerifiedStage(props) {
-  const intl = useIntl();
   return (
     <Stage
-      updatedText={intl.formatMessage({
-        id: 'verifiedInvestiblesUpdatedAt'
-      })}
       {...props}
     />
   );
@@ -650,7 +636,6 @@ function StageInvestible(props) {
     investible,
     marketId,
     marketInfo,
-    updatedText,
     showWarning,
     showCompletion,
     comments,
@@ -693,10 +678,9 @@ function StageInvestible(props) {
   return (
     <Grid container>
       <Grid item xs={10}>
-        <Typography variant="inherit">
-          {updatedText}
-          <FormattedDate value={marketInfo.last_stage_change_date}/>
-        </Typography>
+        <div>
+          <GravatarGroup users={collaboratorsForInvestible} gravatarClassName={classes.smallGravatar} />
+        </div>
         {hasDaysEstimate && !isVoting && (
           <DaysEstimate readOnly value={daysEstimate} createdAt={createdAt}/>
         )}
@@ -727,9 +711,6 @@ function StageInvestible(props) {
                 <Chip size="small" label={label} className={classes.chipClass} color="primary"/>
               </div>
             )}
-          </div>
-          <div style={{paddingTop: '0.5rem'}}>
-            <GravatarGroup users={collaboratorsForInvestible}/>
           </div>
         </StageLink>
       </Grid>

@@ -60,6 +60,8 @@ import {
 } from '../../../contexts/NotificationsContext/notificationsContextMessages'
 import InvestibleStatus from './InvestibleStatus'
 import InvestibleReady from './InvestibleReady'
+import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper'
+import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext'
 
 
 function InboxInvestible(props) {
@@ -77,10 +79,10 @@ function InboxInvestible(props) {
   const [investiblesState, invDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentState, commentsDispatch] = useContext(CommentsContext);
+  const [groupsState] = useContext(MarketGroupsContext);
   const [diffState, diffDispatch] = useContext(DiffContext);
   const market = getMarket(marketsState, marketId) || {};
   const investibleMarketId = market.parent_comment_market_id || marketId;
-  const investibleMarket = getMarket(marketsState, investibleMarketId) || {};
   const userId = getMyUserForMarket(marketsState, marketId) || '';
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const yourPresence = marketPresences.find((presence) => presence.current_user);
@@ -106,6 +108,7 @@ function InboxInvestible(props) {
   const { stage, assigned: invAssigned, completion_estimate: marketDaysEstimate, required_approvers:  requiredApprovers,
     required_reviews: requiredReviewers, accepted, open_for_investment: openForInvestment,
     group_id: groupId } = marketInfo;
+  const group = getGroup(groupsState, investibleMarketId, groupId) || {};
   const fullStage = getFullStage(marketStagesState, investibleMarketId, stage) || {};
   const assigned = invAssigned || [];
   const isInVoting = fullStage.allows_investment;
@@ -240,7 +243,7 @@ function InboxInvestible(props) {
         )}
         {!_.isEmpty(useMessageTypes) && (
           <Typography variant="body1" style={{marginTop: mobileLayout ? '1rem' : '1.5rem'}}>
-            {investibleMarket.name}
+            {group.name}
           </Typography>
         )}
         {!mobileLayout && !isOutbox && !_.isEmpty(useMessageTypes) && (
@@ -265,7 +268,7 @@ function InboxInvestible(props) {
             <NotificationDeletion message={message} />
           )}
           <Typography variant="body1" style={{paddingLeft: '1rem', marginTop: '0.25rem'}}>
-            {investibleMarket.name}
+            {group.name}
           </Typography>
           {!mobileLayout && !isOutbox && (
             <>

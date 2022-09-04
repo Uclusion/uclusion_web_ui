@@ -20,16 +20,14 @@ import {
   isBlockedStage, isFurtherWorkStage,
   isRequiredInputStage
 } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
-import GravatarGroup from '../../components/Avatars/GravatarGroup'
 import Link from '@material-ui/core/Link'
 import { getMarketInfo } from '../../utils/userFunctions'
-import { doRemoveEdit, doShowEdit, getCommenterPresences, onDropTodo } from '../Dialog/Planning/userUtils'
+import { doRemoveEdit, doShowEdit, onDropTodo } from '../Dialog/Planning/userUtils'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import {
   getMarketPresences,
 } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
-import { getInvestibleVoters } from '../../utils/votingUtils';
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined'
 import { notify, onInvestibleStageChange } from '../../utils/investibleFunctions'
 import { UNASSIGNED_TYPE, YELLOW_LEVEL } from '../../constants/notifications'
@@ -37,6 +35,8 @@ import { NotificationsContext } from '../../contexts/NotificationsContext/Notifi
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
+import { Block } from '@material-ui/icons'
+import QuestionIcon from '@material-ui/icons/ContactSupport'
 
 function getInvestibleOnClick(id, marketId, history) {
   const link = formInvestibleLink(marketId, id);
@@ -78,7 +78,7 @@ export const myArchiveClasses = makeStyles(
 );
 
 function getInvestibles(investibles, marketPresences, marketPresencesState, presenceMap, marketId, comments, history,
-  intl, elevation, highlightMap, allowDragDrop, onDragEnd, unResolvedMarketComments, presenceId, stage,
+  intl, elevation, highlightMap, allowDragDrop, onDragEnd, unResolvedMarketComments, presenceId, marketStagesState,
   setBeingDraggedHack, classes) {
   const investibleData = investibles.map((inv) => {
     const aMarketInfo = getMarketInfo(inv, marketId);
@@ -101,7 +101,8 @@ function getInvestibles(investibles, marketPresences, marketPresencesState, pres
   return sortedData.map((investible) => {
     const { id, name, enteredStageAt } = investible;
     const info = infoMap[id] || {};
-    const { assigned } = info;
+    const { assigned, stage: stageId } = info;
+    const stage = getFullStage(marketStagesState, marketId, stageId);
     const requiresInputComments = (unResolvedMarketComments || []).filter((comment) => {
       return ((comment.comment_type === QUESTION_TYPE || comment.comment_type === SUGGEST_CHANGE_TYPE))
         && (assigned || []).includes(comment.created_by) && (comment.investible_id === id);
@@ -114,11 +115,6 @@ function getInvestibles(investibles, marketPresences, marketPresencesState, pres
       const presence = presenceMap[element];
       return presence ? presence.name : '';
     });
-    const investibleComments = comments.filter(comment => comment.investible_id === id);
-    const voters = getInvestibleVoters(marketPresences, id);
-    const commentPresences = getCommenterPresences(marketPresences, investibleComments, marketPresencesState);
-    const concated = [...voters, ...commentPresences];
-    const collaborators =  _.uniqBy(concated, 'id');
     function onDragStart(event) {
       removeHeader();
       const stageId = stage ? stage.id : undefined;
@@ -129,6 +125,8 @@ function getInvestibles(investibles, marketPresences, marketPresencesState, pres
     }
     const isDraggable = allowDragDrop && stage && ((_.isEmpty(requiresInputComments) && isRequiredInputStage(stage) )
       || (_.isEmpty(blockedComments) && isBlockedStage(stage)) || isFurtherWorkStage(stage));
+    const TypeIcon = isBlockedStage(stage) ? <Block htmlColor='#E85757' />
+      : (isRequiredInputStage(stage) ? <QuestionIcon htmlColor='#E85757' /> : undefined);
     return (
       <Grid
         key={id}
@@ -140,7 +138,7 @@ function getInvestibles(investibles, marketPresences, marketPresencesState, pres
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
         style={{overflowWrap: "break-word"}}
-        onMouseOver={() => doShowEdit(id)} onMouseOut={() => doRemoveEdit(id)}
+        onMouseOver={() => doShowEdit(id)} onMouseOut={() => doRemoveEdit(id, TypeIcon)}
         onClick={(event) => {
           event.stopPropagation();
           event.preventDefault();
@@ -151,15 +149,20 @@ function getInvestibles(investibles, marketPresences, marketPresencesState, pres
           <Link href={formInvestibleLink(marketId, id)} color="inherit" draggable="false">
             <div className={highlightMap[id] ? classes.warn : classes.outlined}>
               <Grid container>
-                <Grid item xs={11}>
+                <Grid item xs={10}>
                   <Typography style={{fontSize: '.75rem', flex: 1}}>
                     Entered stage {intl.formatDate(enteredStageAt)}
                   </Typography>
                 </Grid>
+                {TypeIcon && (
+                  <Grid item xs={1}>
+                    {TypeIcon}
+                  </Grid>
+                )}
                 <Grid id={`showEdit0${id}`} item xs={1} style={{pointerEvents: 'none', display: 'none'}}>
                   <EditOutlinedIcon style={{maxHeight: '1.25rem'}} />
                 </Grid>
-                <Grid id={`showEdit1${id}`} item xs={12} style={{paddingTop: '0.5rem'}}>
+                <Grid id={`showEdit1${id}`} item xs={12} style={{paddingTop: TypeIcon ? '0rem' : '0.5rem'}}>
                   <Typography style={{flex: 2}}>
                     {name}
                   </Typography>
@@ -167,7 +170,6 @@ function getInvestibles(investibles, marketPresences, marketPresencesState, pres
                     style={{fontStyle: 'italic', fontSize: '.75rem', flex: 1}}
                     key={name}>Assignee: {name}
                   </Typography>))}
-                  <GravatarGroup users={collaborators}/>
                 </Grid>
               </Grid>
             </div>
@@ -291,8 +293,8 @@ function ArchiveInvestbiles(props) {
         });
     }
   }
-  const elementId = allowDragDrop && !stage.move_on_comment ? isReadyToStart ? 'furtherReadyToStart'
-    : 'furtherNotReadyToStart' : undefined;
+  const elementId = allowDragDrop && stage && !stage.move_on_comment ? (isReadyToStart ? 'furtherReadyToStart'
+    : 'furtherNotReadyToStart') : undefined;
 
   function setElementGreen() {
     removeElementGreen();
@@ -318,7 +320,7 @@ function ArchiveInvestbiles(props) {
         <div className={classes.grow} />
       )}
       {getInvestibles(investibles, marketPresences, marketPresencesState, presenceMap, marketId, comments, history, intl, elevation, highlightMap, allowDragDrop,
-      onDragEnd, unResolvedMarketComments, presenceId, stage, setBeingDraggedHack, classes)}
+      onDragEnd, unResolvedMarketComments, presenceId, marketStagesState, setBeingDraggedHack, classes)}
     </Grid>
   );
 }

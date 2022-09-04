@@ -161,6 +161,7 @@ function PlanningDialog(props) {
   });
   const requiresInputInvestibles = getInvestiblesInStage(investibles, requiresInputStage.id, marketId);
   const blockedInvestibles = getInvestiblesInStage(investibles, inBlockingStage.id, marketId);
+  const blockedOrRequiresInputInvestibles = blockedInvestibles.concat(requiresInputInvestibles);
   const swimlaneInvestibles = investibles.filter((inv) => {
     const marketInfo = getMarketInfo(inv, marketId) || {};
     const stage = marketStages.find((stage) => stage.id === marketInfo.stage);
@@ -369,7 +370,7 @@ function PlanningDialog(props) {
             <DismissableText textId="workspaceCommentHelp" text={
               <div>
                 <Link href="https://documentation.uclusion.com/structured-comments" target="_blank">Comments</Link> can
-                be used at the channel level and later moved to a job.
+                be used at the workspace level and later moved to a job.
               </div>
             }/>
             {_.isEmpty(search) && marketId && !hidden && (
@@ -414,53 +415,17 @@ function PlanningDialog(props) {
                 to keep the status in these <Link href="https://documentation.uclusion.com/channels/swimlanes" target="_blank">swimlanes</Link> up to date.
               </div>
             }/>
-            {!_.isEmpty(blockedInvestibles) && (
-              <SubSection
-                type={SECTION_TYPE_SECONDARY_WARNING}
-                titleIcon={blockedInvestibles.length > 0 ? <Chip label={`${blockedInvestibles.length}`}
-                                                                 color="primary"
-                                                                 size='small'
-                                                                 className={classes.chipStyle} /> : undefined}
-                title={intl.formatMessage({ id: 'blockedHeader' })}
-                helpLink='https://documentation.uclusion.com/channels/jobs/stages/#blocked'
-                id="blocked"
-              >
-                <ArchiveInvestbiles
-                  elevation={0}
-                  group={group}
-                  presenceMap={getPresenceMap(marketPresences)}
-                  investibles={blockedInvestibles}
-                  presenceId={myPresence.id}
-                  stage={inBlockingStage}
-                  marketId={marketId}
-                  allowDragDrop
-                  comments={comments}
-                />
-              </SubSection>
-            )}
-            {!_.isEmpty(blockedInvestibles) && (<div style={{ paddingBottom: '2rem' }}/>)}
             {!_.isEmpty(requiresInputInvestibles) && (
-              <SubSection
-                type={SECTION_TYPE_SECONDARY_WARNING}
-                titleIcon={requiresInputInvestibles.length > 0 ? <Chip label={`${requiresInputInvestibles.length}`}
-                                                                       color="primary" size='small'
-                                                                       className={classes.chipStyle} /> : undefined}
-                title={intl.formatMessage({ id: 'requiresInputHeader' })}
-                helpLink='https://documentation.uclusion.com/channels/jobs/stages/#requires-input'
-                id="requiresInput"
-              >
-                <ArchiveInvestbiles
-                  comments={comments}
-                  elevation={0}
-                  marketId={marketId}
-                  presenceMap={presenceMap}
-                  investibles={requiresInputInvestibles}
-                  highlightMap={highlightMap}
-                  stage={requiresInputStage}
-                  presenceId={myPresence.id}
-                  allowDragDrop
-                />
-              </SubSection>
+              <ArchiveInvestbiles
+                comments={comments}
+                elevation={0}
+                marketId={marketId}
+                presenceMap={presenceMap}
+                investibles={blockedOrRequiresInputInvestibles}
+                highlightMap={highlightMap}
+                presenceId={myPresence.id}
+                allowDragDrop
+              />
             )}
             {!_.isEmpty(requiresInputInvestibles) && (<div style={{ paddingBottom: '2rem' }}/>)}
               <dl className={swimClasses.stages} style={{background: theme.palette.grey['100']}}>

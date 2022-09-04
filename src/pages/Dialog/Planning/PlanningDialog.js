@@ -621,7 +621,7 @@ export const useInvestiblesByPersonStyles = makeStyles(
         margin: theme.spacing(1, 0)
       },
       content: {
-        padding: theme.spacing(0, 1),
+        padding: 0,
         "&:last-child": {
           paddingBottom: "inherit"
         }
@@ -631,7 +631,9 @@ export const useInvestiblesByPersonStyles = makeStyles(
         height: '30px',
       },
       header: {
-        padding: theme.spacing(1)
+        paddingLeft: theme.spacing(1),
+        paddingBottom: 0,
+        paddingTop: 0,
       },
       menuButton: {
         width: '100%',

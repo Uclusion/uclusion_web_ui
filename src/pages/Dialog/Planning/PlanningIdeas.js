@@ -412,7 +412,7 @@ const useStageClasses = makeStyles(
         border: `1px solid ${theme.palette.grey['400']}`,
         borderRadius: theme.spacing(1),
         fontSize: '.8em',
-        margin: theme.spacing(1, 0),
+        marginLeft: theme.spacing(1),
         padding: theme.spacing(1, 2),
         overflowWrap: 'break-word'
       },

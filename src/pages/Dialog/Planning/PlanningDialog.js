@@ -113,7 +113,6 @@ function PlanningDialog(props) {
   const intl = useIntl();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
-  const [tabIndex, setTabIndex] = useState(0);
   const [groupState] = useContext(MarketGroupsContext);
   const group = getGroup(groupState, marketId, groupId);
   const { name: groupName, created_by: createdBy, created_at: createdAt,
@@ -131,12 +130,13 @@ function PlanningDialog(props) {
   const [, diffDispatch] = useContext(DiffContext);
   // For security reasons you can't access source data while being dragged in case you are not the target website
   const [beingDraggedHack, setBeingDraggedHack] = useState({});
-  const [pageStateFull, pageDispatch] = usePageStateReducer('market');
+  const [pageStateFull, pageDispatch] = usePageStateReducer('group');
   const [pageState, updatePageState, pageStateReset] = getPageReducerPage(pageStateFull, pageDispatch, groupId,
-    {sectionOpen: 'workspaceMain' });
+    {sectionOpen: 'storiesSection', tabIndex: 0 });
   const {
     sectionOpen,
-    furtherWorkType
+    furtherWorkType,
+    tabIndex
   } = pageState;
   function setSectionOpen(section) {
     updatePageState({sectionOpen: section});
@@ -310,7 +310,7 @@ function PlanningDialog(props) {
   const isFromSideBarMenu = ['addStorySection', 'addCollaboratorSection', 'settingsSection'].includes(sectionOpen);
   function resetTabs() {
     setSectionOpen(undefined);
-    setTabIndex(0);
+    updatePageState({tabIndex: 0});
   }
   return (
     <Screen
@@ -331,7 +331,7 @@ function PlanningDialog(props) {
         <GmailTabs
           value={tabIndex}
           onChange={(event, value) => {
-            setTabIndex(value);
+            updatePageState({tabIndex: value});
             if (value === 3) {
               navigate(history, formMarketArchivesLink(marketId, groupId));
             } else {

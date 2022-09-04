@@ -10,7 +10,6 @@ import {
   STOP_OPERATION
 } from '../OperationInProgressContext/operationInProgressMessages'
 import { lockGroupForEdit } from '../../api/markets'
-import { addMarketToStorage } from '../MarketsContext/marketsContextHelper'
 
 export const LOCK_GROUP_CHANNEL = 'LockMarketChannel';
 export const LOCK_GROUP = 'LockMarket';

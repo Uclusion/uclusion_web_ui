@@ -5,7 +5,6 @@ import localforage from 'localforage'
 import { darken, makeStyles } from '@material-ui/core/styles'
 import LockedDialogTitleIcon from '@material-ui/icons/Lock'
 import _ from 'lodash'
-import { addMarketToStorage } from '../../contexts/MarketsContext/marketsContextHelper'
 import { lockGroupForEdit, unlockGroupForEdit, updateGroup } from '../../api/markets';
 import { Dialog } from '../../components/Dialogs'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'

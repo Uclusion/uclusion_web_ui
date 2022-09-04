@@ -835,8 +835,7 @@ function InvestiblesByPerson(props) {
                       tipPlacement="top-end"
                     />
                   </div>}
-                avatar={showAsPlaceholder ? undefined : <Gravatar className={classes.smallGravatar} email={email}
-                                                                  name={name}/>}
+                avatar={<Gravatar className={classes.smallGravatar} email={email} name={name}/>}
                 titleTypographyProps={{ variant: "subtitle2" }}
               />
               <CardContent className={classes.content}>

@@ -124,7 +124,7 @@ function PlanningDialog(props) {
   // There is no link to a reply so including them should be okay
   const notTodoComments = unResolvedMarketComments.filter(comment =>
     [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE, REPLY_TYPE].includes(comment.comment_type)) || [];
-  const allowedCommentTypes = [QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE];
+  const allowedCommentTypes = [QUESTION_TYPE, SUGGEST_CHANGE_TYPE];
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [messagesState] = useContext(NotificationsContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);

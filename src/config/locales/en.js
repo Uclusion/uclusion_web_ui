@@ -627,6 +627,7 @@ const messages = defineMessages({
   marketOptions: 'Workspace Options',
   marketName: 'Choose a name for the new workspace.',
   mutingExplanation: 'Muting prevents notifications unless you are mentioned, assigned or a required approver or reviewer.',
+  groupDiscussionDesc: 'About and links to external group info',
 
   // Decision Dialog
   decisionDialogCurrentVotingLabel: 'Approvable Options',

@@ -3,7 +3,7 @@ import {
   PUSH_GROUPS_CHANNEL,
   VERSIONS_EVENT
 } from '../../api/versionedFetchUtils';
-import { addGroupsToStorage } from './marketGroupsContextHelper'
+import { addGroupsToStorage, addGroupToStorage } from './marketGroupsContextHelper'
 import {
   OPERATION_HUB_CHANNEL,
   START_OPERATION,
@@ -29,9 +29,9 @@ function beginListening(dispatch, diffDispatch) {
   registerListener(LOCK_GROUP_CHANNEL, 'marketsLockStart', (data) => {
     const { payload: { marketId, groupId } } = data;
     pushMessage(OPERATION_HUB_CHANNEL, { event: START_OPERATION, id: LOCK_GROUP });
-    lockGroupForEdit(marketId, groupId).then((market) => {
+    lockGroupForEdit(marketId, groupId).then((group) => {
       pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION, id: LOCK_GROUP });
-      addMarketToStorage(dispatch, market);
+      addGroupToStorage(dispatch, () => {}, marketId, group);
     });
   });
 }

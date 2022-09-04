@@ -3,13 +3,11 @@ import PropTypes from 'prop-types'
 import { FormattedMessage, useIntl } from 'react-intl'
 import { Card, CardActions, CardContent, Grid, Typography, useMediaQuery, useTheme } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
-import clsx from 'clsx'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { getGroupPresences, getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import CardType, { AGILE_PLAN_TYPE } from '../../../components/CardType'
 import { useMetaDataStyles } from '../../Investible/Planning/PlanningInvestible'
 import { useHistory } from 'react-router'
-import Collaborators from '../Collaborators'
 import AttachedFilesList from '../../../components/Files/AttachedFilesList'
 import { attachFilesToGroup, deleteAttachedFilesFromMarket } from '../../../api/markets'
 import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper'
@@ -28,7 +26,6 @@ import { ExpandLess } from '@material-ui/icons'
 import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils'
 import EditMarketButton from '../EditMarketButton'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
-import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext'
 import { LOCK_GROUP, LOCK_GROUP_CHANNEL } from '../../../contexts/MarketGroupsContext/marketGroupsContextMessages'
 
 const useStyles = makeStyles(theme => ({
@@ -88,7 +85,6 @@ const useStyles = makeStyles(theme => ({
   },
   editContent: {
     flexBasis: "100%",
-    padding: theme.spacing(4, 1, 4, 1),
     [theme.breakpoints.down("sm")]: {
       padding: '15px'
     }
@@ -221,7 +217,6 @@ function Summary(props) {
   const [diffState, diffDispatch] = useContext(DiffContext);
   const [messagesState] = useContext(NotificationsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const [groupPresencesState] = useContext(GroupMembersContext);
   const myMessageDescription = findMessageOfTypeAndId(id, messagesState, 'DESCRIPTION')
   const diff = getDiff(diffState, id);
   const {
@@ -229,7 +224,6 @@ function Summary(props) {
     showDiff
   } = pageState;
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
-  const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, id);
   let lockedByName;
   if (lockedBy) {
     const lockedByPresence = marketPresences.find(
@@ -320,16 +314,6 @@ function Summary(props) {
             </div>
           </CardActions>
           <dl className={metaClasses.root}>
-            <div className={clsx(classes.group, classes.assignments)}>
-              <div className={classes.assignmentContainer}>
-                <b><FormattedMessage id="dialogParticipants"/></b>
-                <Collaborators
-                  marketPresences={groupPresences}
-                  intl={intl}
-                  history={history}
-                />
-              </div>
-            </div>
           {myMessageDescription && diff && (
             <SpinningIconLabelButton icon={showDiff ? ExpandLess : ExpandMoreIcon}
                                      onClick={toggleDiffShow} doSpin={false}>

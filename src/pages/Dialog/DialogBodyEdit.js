@@ -5,9 +5,8 @@ import localforage from 'localforage'
 import { darken, makeStyles } from '@material-ui/core/styles'
 import LockedDialogTitleIcon from '@material-ui/icons/Lock'
 import _ from 'lodash'
-import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { addMarketToStorage } from '../../contexts/MarketsContext/marketsContextHelper'
-import { lockGroupForEdit, unlockPlanningMarketForEdit, updateGroup } from '../../api/markets';
+import { lockGroupForEdit, unlockGroupForEdit, updateGroup } from '../../api/markets';
 import { Dialog } from '../../components/Dialogs'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { DiffContext } from '../../contexts/DiffContext/DiffContext'
@@ -21,6 +20,8 @@ import WarningIcon from '@material-ui/icons/Warning'
 import IssueDialog from '../../components/Warnings/IssueDialog'
 import { getQuillStoredState } from '../../components/TextEditors/Utilities/CoreUtils';
 import { LOCK_GROUP } from '../../contexts/MarketGroupsContext/marketGroupsContextMessages'
+import { addGroupToStorage } from '../../contexts/MarketGroupsContext/marketGroupsContextHelper'
+import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext'
 
 export const useLockedDialogStyles = makeStyles(
   (theme) => {
@@ -124,8 +125,7 @@ const useStyles = makeStyles(
 );
 
 function DialogBodyEdit(props) {
-  const { hidden, setBeingEdited, group, isEditableByUser, userId, pageState, pageStateUpdate,
-    pageStateReset} = props;
+  const { hidden, setBeingEdited, group, userId, pageState, pageStateUpdate, pageStateReset} = props;
   const {
     beingEdited,
     uploadedFiles,
@@ -134,10 +134,10 @@ function DialogBodyEdit(props) {
   const intl = useIntl();
   const classes = useStyles();
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
-  const [,marketsDispatch] = useContext(MarketsContext);
   const [, diffDispatch] = useContext(DiffContext);
+  const [, groupsDispatch] = useContext(MarketGroupsContext);
   const [openIssue, setOpenIssue] = useState(false);
-  const { id, name: initialName, description: initialDescription, locked_by: lockedBy, market_id: marketId } = group;
+  const { id, description: initialDescription, locked_by: lockedBy, market_id: marketId } = group;
   const someoneElseEditing = !_.isEmpty(lockedBy) && (lockedBy !== userId);
 
   const editorName = `${id}-body-editor`;
@@ -161,7 +161,7 @@ function DialogBodyEdit(props) {
       text: tokensRemoved,
     } = processTextAndFilesForSave(newUploadedFiles, description);
     const updatedFilteredUploads = _.isEmpty(uploadedFiles) ? filteredUploads : null;
-    return updateGroup(id, group.id, null, tokensRemoved, updatedFilteredUploads)
+    return updateGroup(marketId, id, null, tokensRemoved, updatedFilteredUploads)
       .then((group) => {
         //clear the editor because we want the storage back
         editorReset();
@@ -173,24 +173,24 @@ function DialogBodyEdit(props) {
   function onCancel() {
     pageStateReset();
     editorReset();
-    return unlockPlanningMarketForEdit(id).then((market) => {
+    return unlockGroupForEdit(id).then((group) => {
       setOperationRunning(false);
-      updateMarketInStorage(market);
+      updateGroupInStorage(group);
     });
   }
 
-  function updateMarketInStorage(market) {
+  function updateGroupInStorage(group) {
     const diffSafe = {
-      ...market,
+      ...group,
       updated_by: userId,
       updated_by_you: true,
     };
-    addMarketToStorage(marketsDispatch, diffDispatch, diffSafe);
+    addGroupToStorage(groupsDispatch, diffDispatch, marketId, diffSafe);
   }
 
-  function onSave(market) {
+  function onSave(group) {
     setBeingEdited(false);
-    updateMarketInStorage(market);
+    updateGroupInStorage(group);
     return localforage.removeItem(id);
   }
   function myOnClick() {
@@ -198,7 +198,7 @@ function DialogBodyEdit(props) {
     return lockGroupForEdit(marketId, id, breakLock)
       .then((result) => {
         setOperationRunning(false);
-        updateMarketInStorage(result);
+        updateGroupInStorage(result);
       }).catch(() => {
         setOperationRunning(false);
         pageStateReset();
@@ -240,6 +240,9 @@ function DialogBodyEdit(props) {
             </SpinningIconLabelButton>
           }
         />
+        <Typography variant="h6" style={{marginTop: 0, paddingTop: 0}}>
+          {intl.formatMessage({ id: 'groupDiscussionDesc' })}
+        </Typography>
         {Editor}
         <CardActions className={classes.actions}>
           <SpinningIconLabelButton onClick={onCancel} doSpin={true} icon={Clear} id="marketAddCancelButton">
@@ -259,10 +262,8 @@ function DialogBodyEdit(props) {
 
   return (
     <>
-      <Typography className={isEditableByUser() ? lockedDialogClasses.titleEditable :
-        lockedDialogClasses.titleDisplay}
-                  variant="h3" component="h1">
-        {initialName}
+      <Typography variant="h6">
+        {intl.formatMessage({ id: 'groupDiscussionDesc' })}
       </Typography>
       <DescriptionOrDiff id={id} description={initialDescription} showDiff={showDiff} />
     </>

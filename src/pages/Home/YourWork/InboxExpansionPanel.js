@@ -74,23 +74,12 @@ export function addExpansionPanel(props) {
     item.expansionPanel = ( <CommentPanel marketId={commentMarketId || marketId} commentId={commentId} message={message}
                                           marketType={marketType} messageType={messageType} isDeletable={isDeletable}
                                           planningClasses={planningClasses} mobileLayout={mobileLayout} /> );
-  } else if (['NOT_FULLY_VOTED', 'ASSIGNED_UNREVIEWABLE','UNREAD_REVIEWABLE', 'REVIEW_REQUIRED', 'REPORT_REQUIRED',
-    'ISSUE_RESOLVED', 'UNACCEPTED_ASSIGNMENT', 'NEW_TODO', 'UNREAD_VOTE', UNASSIGNED_TYPE, 'UNREAD_DESCRIPTION',
-    'UNREAD_NAME', 'UNREAD_ATTACHMENT', 'UNREAD_LABEL', 'UNREAD_ESTIMATE'].includes(messageType)) {
+  } else {
     item.expansionPanel = <InboxInvestible marketId={marketId} investibleId={investibleId} messageType={messageType}
                                            planningClasses={planningClasses} marketType={marketType}
                                            mobileLayout={mobileLayout} isDeletable={isDeletable} message={message}
                                            unacceptedAssignment={findMessageOfType('UNACCEPTED_ASSIGNMENT',
                                              investibleId, messagesState)} />;
-  } else if (messageType === 'UNREAD_DRAFT') {
-    item.expansionPanel = (
-      <>
-        <div style={{paddingLeft: '1.25rem', paddingTop: '1rem'}}>
-          <NotificationDeletion message={message} />
-        </div>
-        <DialogManage marketId={marketId} isInbox />
-      </>
-    );
   }
 }
 

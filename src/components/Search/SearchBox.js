@@ -12,19 +12,13 @@ import {
 import { getComment, getCommentRoot } from '../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import CloseIcon from '@material-ui/icons/Close';
-import { TicketIndexContext } from '../../contexts/TicketContext/TicketIndexContext'
-import { getTicket } from '../../contexts/TicketContext/ticketIndexContextHelper'
-import { formInvestibleLink, navigate } from '../../utils/marketIdPathFunctions'
-import { useHistory } from 'react-router'
 import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 
 function SearchBox () {
   const intl = useIntl();
-  const history = useHistory();
   const [index] = useContext(SearchIndexContext);
   const [searchResults, setSearchResults] = useContext(SearchResultsContext);
-  const [ticketState] = useContext(TicketIndexContext);
   const [commentsState] = useContext(CommentsContext);
   const [marketsState] = useContext(MarketsContext);
   const inputRef = React.useRef(null);
@@ -101,18 +95,12 @@ function SearchBox () {
 
   function onSearchChange (event) {
     const { value } = event.target;
-    const ticket = getTicket(ticketState, value);
-    if (ticket) {
-      const { marketId, investibleId } = ticket;
-      navigate(history, formInvestibleLink(marketId, investibleId));
-    } else {
-      if (timeout) {
-        clearTimeout(timeout);
-      }
-      timeout = setTimeout(function () {
-        updateIndex(value);
-      }, 2000);
+    if (timeout) {
+      clearTimeout(timeout);
     }
+    timeout = setTimeout(function () {
+      updateIndex(value);
+    }, 2000);
   }
 
   function clearSearch() {

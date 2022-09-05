@@ -6,7 +6,7 @@ import { useHistory, useLocation } from 'react-router'
 import Market from '../../pages/Dialog/Dialog'
 import Support from '../../pages/About/Support'
 import PageNotFound from '../../pages/PageNotFound/PageNotFound'
-import { broadcastView, decomposeMarketPath, } from '../../utils/marketIdPathFunctions'
+import { broadcastView, decomposeMarketPath, formInvestibleLink, navigate, } from '../../utils/marketIdPathFunctions'
 import Home from '../../pages/Home/Home'
 import Investible from '../../pages/Investible/Investible'
 import DialogArchives from '../../pages/DialogArchives/DialogArchives'
@@ -22,6 +22,8 @@ import Wizard from '../../pages/Home/Wizard'
 import InboxFull from '../../pages/Home/YourWork/InboxFull'
 import CommentReplyEdit from '../../pages/Comment/CommentReplyEdit'
 import PlanningMarketEdit from '../../pages/Dialog/Planning/PlanningMarketEdit'
+import { getTicket } from '../../contexts/TicketContext/ticketIndexContextHelper'
+import { TicketIndexContext } from '../../contexts/TicketContext/TicketIndexContext'
 
 const useStyles = makeStyles({
   body: {
@@ -53,6 +55,7 @@ function Root() {
   const { marketId, investibleId, action } = decomposeMarketPath(pathname);
   const [, setOperationsLocked] = useContext(OperationInProgressContext);
   const [, setOnline] = useContext(OnlineStateContext);
+  const [ticketState] = useContext(TicketIndexContext);
 
   function hideHome() {
     return !pathname || pathname !== '/';
@@ -86,6 +89,9 @@ function Root() {
   }
 
   function hideInvestible() {
+    if (pathname && pathname.startsWith('/U-')) {
+      return false;
+    }
     return (action !== 'dialog') || !investibleId;
   }
 
@@ -121,6 +127,17 @@ function Root() {
   const hidePNF = !(hideMarket() && hideSupport() && hideHome() && hideInvestible() && hideWorkspaceWizard() && hideInbox()
     && hideDialogArchives() && hideInvestibleAdd() && hideSlackInvite() && hideChangePassword() && hideMarketEdit()
     && hideChangeNotification() && hideBillingHome() && hideTodoAdd() && hideCommentReplyEdit());
+
+  useEffect(() => {
+    console.debug(pathname)
+    if (pathname && pathname.startsWith('/U-')) {
+      const ticket = getTicket(ticketState, pathname.substring(1));
+      if (ticket) {
+        const { marketId, investibleId } = ticket;
+        navigate(history, formInvestibleLink(marketId, investibleId), true);
+      }
+    }
+  },  [pathname, history, ticketState]);
 
   useEffect(() => {
     function pegView(isEntry) {

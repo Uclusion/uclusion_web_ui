@@ -155,6 +155,7 @@ const messages = defineMessages({
   shareButtonExplanation: 'Link',
   shareButtonTitle: 'Share',
   inviteLinkerText: 'Copy invite link.',
+  copyLink: 'Link',
   inviteLinkerTicketCode: 'Human friendly job identifier',
 
   // Support
@@ -721,7 +722,7 @@ const messages = defineMessages({
   // invite linker
   inviteLinkerDirectionsDecision: 'Share this link',
   inviteLinkerDirectionsPlan: 'Click to copy this link',
-  inviteLinkerCopied: 'Invite link copied to clipboard',
+  inviteLinkerCopied: 'Link copied to clipboard',
   inviteLinkerDirectionsInitiative: 'Share this link',
   inviteLinkerCopyToClipboard: 'Copy to clipboard',
   slackIntegrationSuccessful: 'Slack was successfully integrated.',

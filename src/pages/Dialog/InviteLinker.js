@@ -1,15 +1,16 @@
 import React, { useContext, useState } from 'react'
 import PropTypes from 'prop-types'
 import { makeStyles } from '@material-ui/styles'
-import FileCopyIcon from '@material-ui/icons/FileCopy'
 import { useIntl } from 'react-intl'
 import { formInviteLink } from '../../utils/marketIdPathFunctions'
-import { Button, Divider, InputBase, Link, Tooltip, Typography } from '@material-ui/core'
-import TooltipIconButton from '../../components/Buttons/TooltipIconButton'
+import { Button, Link, Tooltip } from '@material-ui/core'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { getMarketInfo } from '../../utils/userFunctions'
 import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import LinkIcon from '@material-ui/icons/Link'
+import _ from 'lodash'
+import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 
 const useStyles = makeStyles(() => ({
   hidden: {
@@ -41,28 +42,29 @@ function InviteLinker(props) {
   const {
     marketToken,
     hidden,
-    marketType,
     investibleId,
+    commentId,
     marketId
   } = props;
   const classes = useStyles();
   const [investiblesState] = useContext(InvestiblesContext);
+  const [marketsState] = useContext(MarketsContext);
   const [copiedToClipboard, setCopiedToClipboard] = useState(false);
   const [inLinker, setInLinker] = useState(false);
   const inv = getInvestible(investiblesState, investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { ticket_code: ticketCode } = marketInfo;
-  const link = marketType === 'story' ? marketToken : formInviteLink(marketToken);
-  const ticketCodeIcon = (
-    <>
-      <Divider className={classes.divider} orientation="vertical" />
-      <TooltipIconButton
-        translationId="inviteLinkerCopyToClipboard"
-        icon={<FileCopyIcon htmlColor="#3f6b72"/>}
-        onClick={() => navigator.clipboard.writeText(ticketCode)}
-      />
-    </>
-  );
+  const market = getMarket(marketsState, marketId) || {};
+  let fullLink = `${window.location.host}/${ticketCode}`;
+  let useTextInsteadOfLink = false;
+  if (market.parent_comment_id) {
+    useTextInsteadOfLink = true;
+    fullLink = `${window.location.href}/#option${investibleId}`;
+  } else if (commentId) {
+    useTextInsteadOfLink = true;
+    fullLink = `${window.location.href}/#c${commentId}`;
+  }
+  const link = _.isEmpty(marketToken) ? fullLink : formInviteLink(marketToken);
   return (
     <div id="inviteLinker" className={hidden ? classes.hidden : undefined}>
       <Tooltip title={
@@ -82,32 +84,18 @@ function InviteLinker(props) {
                 }} onMouseEnter={() => setInLinker(true)}>
           <LinkIcon style={{marginRight: 6}} htmlColor="#339BFF" />
           <Link underline="none">
-            { intl.formatMessage({ id: 'inviteLinkerText' }) }
+            { !useTextInsteadOfLink ? decodeURI(ticketCode) :
+              (marketToken ? intl.formatMessage({ id: 'inviteLinkerText' })
+                : intl.formatMessage({ id: 'copyLink' })) }
           </Link>
         </Button>
       </Tooltip>
-      {ticketCode && marketType === 'story' && (
-        <div className={classes.linkContainer}>
-          <Typography style={{marginTop: '1rem', width: '100%'}}>
-            { intl.formatMessage({ id: 'inviteLinkerTicketCode' }) }
-          </Typography>
-          <InputBase
-            className={classes.inputField}
-            fullWidth={true}
-            placeholder={ticketCode}
-            inputProps={{ 'aria-label': link, border: '1px solid #ccc' }}
-            value={ticketCode}
-            endAdornment={ticketCodeIcon}
-            color={"primary"}
-          />
-        </div>
-      )}
     </div>
   );
 }
 
 InviteLinker.propTypes = {
-  marketToken: PropTypes.string.isRequired,
+  marketToken: PropTypes.string,
   hidden: PropTypes.bool
 };
 

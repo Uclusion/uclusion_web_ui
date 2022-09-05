@@ -63,7 +63,6 @@ import {
 } from '../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
 import { marketAbstain, updateMarket } from '../../api/markets'
-import ShareStoryButton from '../../pages/Investible/Planning/ShareStoryButton'
 import {
   allowVotingForSuggestion,
   changeInvestibleStageOnCommentChange,
@@ -114,6 +113,7 @@ import { useLockedDialogStyles } from '../../pages/Dialog/DialogBodyEdit'
 import { getInboxTarget } from '../../contexts/NotificationsContext/notificationsContextHelper'
 import { getUiPreferences, userIsLoaded } from '../../contexts/AccountUserContext/accountUserContextHelper'
 import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
+import InviteLinker from '../../pages/Dialog/InviteLinker'
 
 export const useCommentStyles = makeStyles(
   theme => {
@@ -911,7 +911,7 @@ function Comment(props) {
             )}
             {!mobileLayout && ![JUSTIFY_TYPE, REPLY_TYPE].includes(commentType) && marketType !== DECISION_TYPE && (
               <div style={{marginRight: '2rem', marginTop: '0.5rem'}}>
-                <ShareStoryButton commentId={id} commentType={commentType} investibleId={investibleId} />
+                <InviteLinker commentId={id} investibleId={investibleId} marketId={marketId} />
               </div>
             )}
             {(myPresence.is_admin || isEditable) && enableActions && isDeletable && (

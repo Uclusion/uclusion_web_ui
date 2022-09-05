@@ -76,7 +76,6 @@ import {
   updateInvestible
 } from '../../../api/investibles'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
-import ShareStoryButton from './ShareStoryButton'
 import Chip from '@material-ui/core/Chip'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import TextField from '@material-ui/core/TextField'
@@ -135,6 +134,7 @@ import { addEditVotingHasContents } from '../Voting/AddEditVote'
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext'
 import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper'
 import { isEveryoneGroup } from '../../../contexts/GroupMembersContext/groupMembersHelper'
+import InviteLinker from '../../Dialog/InviteLinker'
 
 export const usePlanningInvestibleStyles = makeStyles(
   theme => ({
@@ -987,7 +987,7 @@ function PlanningInvestible(props) {
                   </div>
                 )}
                 <div style={{paddingLeft: "1rem", paddingRight: "1rem"}}>
-                  <ShareStoryButton investibleId={investibleId} marketId={marketId} />
+                  <InviteLinker investibleId={investibleId} marketId={marketId} />
                 </div>
               </div>
               {marketDaysEstimate && isInAccepted && (

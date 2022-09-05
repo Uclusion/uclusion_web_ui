@@ -1,11 +1,8 @@
 import React from 'react'
-import DialogManage from '../../Dialog/DialogManage'
-import { UNASSIGNED_TYPE } from '../../../constants/notifications'
 import LinkMultiplePanel from './LinkMultiplePanel'
 import CommentPanel from './CommentPanel'
 import InboxInvestible from './InboxInvestible'
 import { findMessageOfType } from '../../../utils/messageUtils'
-import NotificationDeletion from './NotificationDeletion'
 import _ from 'lodash'
 import {
   getMarketDetailsForType,

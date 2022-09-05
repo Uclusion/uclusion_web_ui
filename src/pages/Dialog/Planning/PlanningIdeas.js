@@ -656,7 +656,7 @@ function StageInvestible(props) {
     );
   }
 
-  const { completion_estimate: daysEstimate, assigned } = marketInfo;
+  const { completion_estimate: daysEstimate, assigned, ticket_code: ticketCode } = marketInfo;
   const { id, name, created_at: createdAt, label_list: labelList } = investible;
   const history = useHistory();
   const to = formInvestibleLink(marketId, id);
@@ -675,9 +675,10 @@ function StageInvestible(props) {
   const enoughVotes = votersNotAssigned.length >= votesRequiredDisplay;
   const chip = isVoting ? getChip(votersNotAssigned.length, enoughVotes, 'approvalsCountExplanation')
     : isReview ? getChip(numTodos, numTodos === 0, 'todosCountExplanation') : undefined;
+  const ticketNumber = ticketCode ? ticketCode.substring(ticketCode.lastIndexOf('-')+1) : undefined;
   return (
     <Grid container>
-      <Grid item xs={10}>
+      <Grid item xs={8}>
         <div>
           <GravatarGroup users={collaboratorsForInvestible} gravatarClassName={classes.smallGravatar} />
         </div>
@@ -685,6 +686,11 @@ function StageInvestible(props) {
           <DaysEstimate readOnly value={daysEstimate} createdAt={createdAt}/>
         )}
       </Grid>
+      {ticketNumber && !mobileLayout && (
+        <Grid item xs={2} style={{ paddingBottom: '0.2rem' }}>
+          <Typography variant="subtitle2">U-{ticketNumber}</Typography>
+        </Grid>
+      )}
       {chip && !mobileLayout && (
         <Grid item xs={1} style={{ paddingBottom: '0.2rem' }}>
           {chip}

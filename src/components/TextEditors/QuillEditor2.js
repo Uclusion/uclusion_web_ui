@@ -55,14 +55,7 @@ const useStyles = makeStyles(
           paddingLeft: 0
         },
       },
-      nothing: {},
-      bottomSpacer: {
-        display: 'none',
-        [theme.breakpoints.between(0, 601)]: {
-          display: 'block',
-          height: '50px'
-        }
-      }
+      nothing: {}
     };
   },
   { name: 'QuillEditorClasses' }
@@ -241,9 +234,6 @@ function QuillEditor2 (props) {
           </LoadingOverlay>
         )}
       </div>
-      {!noToolbar && (
-        <div className={classes.bottomSpacer}>&nbsp;</div>
-      )}
     </div>
   );
 }

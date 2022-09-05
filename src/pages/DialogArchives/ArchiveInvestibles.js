@@ -101,7 +101,7 @@ function getInvestibles(investibles, marketPresences, marketPresencesState, pres
   return sortedData.map((investible) => {
     const { id, name, enteredStageAt } = investible;
     const info = infoMap[id] || {};
-    const { assigned, stage: stageId } = info;
+    const { assigned, stage: stageId, ticket_code: ticketCode } = info;
     const stage = getFullStage(marketStagesState, marketId, stageId);
     const requiresInputComments = (unResolvedMarketComments || []).filter((comment) => {
       return ((comment.comment_type === QUESTION_TYPE || comment.comment_type === SUGGEST_CHANGE_TYPE))
@@ -127,6 +127,7 @@ function getInvestibles(investibles, marketPresences, marketPresencesState, pres
       || (_.isEmpty(blockedComments) && isBlockedStage(stage)) || isFurtherWorkStage(stage));
     const TypeIcon = isBlockedStage(stage) ? <Block htmlColor='#E85757' />
       : (isRequiredInputStage(stage) ? <QuestionIcon htmlColor='#E85757' /> : undefined);
+    const ticketNumber = ticketCode ? ticketCode.substring(ticketCode.lastIndexOf('-')+1) : undefined;
     return (
       <Grid
         key={id}
@@ -149,11 +150,16 @@ function getInvestibles(investibles, marketPresences, marketPresencesState, pres
           <Link href={formInvestibleLink(marketId, id)} color="inherit" draggable="false">
             <div className={highlightMap[id] ? classes.warn : classes.outlined}>
               <Grid container>
-                <Grid item xs={10}>
+                <Grid item xs={8}>
                   <Typography style={{fontSize: '.75rem', flex: 1}}>
                     Entered stage {intl.formatDate(enteredStageAt)}
                   </Typography>
                 </Grid>
+                {ticketNumber && (
+                  <Grid item xs={2} style={{ paddingBottom: '0.2rem' }}>
+                    <Typography variant="subtitle2">U-{ticketNumber}</Typography>
+                  </Grid>
+                )}
                 {TypeIcon && (
                   <Grid item xs={1}>
                     {TypeIcon}

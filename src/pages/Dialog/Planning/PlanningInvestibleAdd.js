@@ -310,9 +310,10 @@ function PlanningInvestibleAdd(props) {
           })}`}
           type={STORY_TYPE}
         />
-        <CardContent>
+        <CardContent style={{paddingBottom: 0, marginBottom: 0}}>
           <div className={classes.cardContent}
-               style={{paddingLeft: 0, paddingRight: 0, display: mobileLayout ? 'block' : undefined}}>
+               style={{paddingLeft: 0, paddingRight: 0, paddingBottom: 0, marginBottom: 0, paddingTop: 0,
+                 display: mobileLayout ? 'block' : undefined}}>
             {(!storyAssignee || isAssignedToMe) && _.isEmpty(furtherWorkType) && marketId && (
               <>
                 {!storyAssignee && _.isEmpty(furtherWorkType) && !_.isEmpty(presences) && (
@@ -367,7 +368,7 @@ function PlanningInvestibleAdd(props) {
             editorName={initialVoteEditorName}
           />
         )}
-        <CardActions className={classes.actions} style={{paddingLeft: '1.25rem', paddingBottom: '1rem'}}>
+        <CardActions style={{paddingLeft: '1.25rem', paddingBottom: '1rem', paddingTop: 0, marginTop: '-25px'}}>
           <SpinningIconLabelButton onClick={handleCancel} doSpin={false} icon={Clear}>
             {intl.formatMessage({ id: 'marketAddCancelLabel' })}
           </SpinningIconLabelButton>

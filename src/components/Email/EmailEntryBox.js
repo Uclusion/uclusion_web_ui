@@ -147,12 +147,26 @@ function EmailEntryBox (props) {
     placeholder?.remove();
   };
 
+  const onPaste = (event) => {
+    event.preventDefault();
+    // the w3 regexp minus the start and end chars
+    const matchingRegexp = /([a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*)/g;
+    const pasted = event.clipboardData.getData('text');
+    const emails = pasted.match(matchingRegexp);
+    console.dir(emails);
+    if(emails) {
+      const toBeAdded = emails.filter((email) => !emailList.includes(email));
+      setEmailList([...emailList, ...toBeAdded]);
+    }
+  }
+
   return (
     <div>
       <div
         contentEditable="true"
         className={classes.editBox}
         ref={textRef}
+        onPaste={onPaste}
         onFocus={onFocus}
         suppressContentEditableWarning={true}
         onKeyDown={onKeyDown}>

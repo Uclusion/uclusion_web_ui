@@ -1,9 +1,9 @@
 import { registerListener } from '../../utils/MessageBusUtils';
 import { AUTH_HUB_CHANNEL } from '../WebSocketContext';
-import { accountUserRefresh, clearAccount } from './accountContextReducer'
+import { accountAndUserRefresh, clearAccount } from './accountContextReducer'
 import { VERSIONS_EVENT } from '../../api/versionedFetchUtils'
 import { getAccount } from '../../api/sso'
-import { updateAccount, updateBilling, updateInvoices } from './accountContextHelper'
+import { fixDates, updateBilling, updateInvoices } from './accountContextHelper'
 import _ from 'lodash'
 import { getInvoices, getPaymentInfo } from '../../api/users'
 
@@ -16,10 +16,9 @@ function poll(dispatch, accountVersion, userVersion) {
       const { account, user } = loginInfo;
       const { version: founderUserVersion } = user;
       const { version: founderAccountVersion } = account;
-      if ((accountVersion === null || accountVersion <= founderAccountVersion)
-        &&(userVersion === null || userVersion <= founderUserVersion)) {
-        updateAccount(dispatch, account);
-        dispatch(accountUserRefresh(user));
+      if ((accountVersion === undefined || accountVersion <= founderAccountVersion)
+        &&(userVersion === undefined || userVersion <= founderUserVersion)) {
+        dispatch(accountAndUserRefresh(fixDates(account), user));
         const { billing_customer_id: customerId } = account;
         if (!_.isEmpty(customerId)) {
           return getPaymentInfo()
@@ -56,7 +55,7 @@ export function beginListening(dispatch) {
     const { payload: { event, version } } = data;
     switch (event) {
       case VERSIONS_EVENT:
-        poll(dispatch, null, version);
+        poll(dispatch, undefined, version);
         break;
       default:
         break;
@@ -66,7 +65,7 @@ export function beginListening(dispatch) {
     const { payload: { event, version } } = data;
     switch (event) {
       case VERSIONS_EVENT:
-        poll(dispatch, version, null);
+        poll(dispatch, version, undefined);
         break;
       default:
         break;

@@ -84,7 +84,7 @@ function fixDate (account, name) {
   return undefined;
 }
 
-function fixDates (account) {
+export function fixDates(account) {
   return {
     ...account,
     billing_subscription_end: fixDate(account, 'billing_subscription_end'),

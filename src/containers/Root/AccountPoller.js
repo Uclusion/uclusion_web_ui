@@ -20,7 +20,7 @@ function AccountPoller (props) {
   return (
     <Screen
       title="Uclusion"
-      tabTitle={intl.formatMessage('loadingMessage')}
+      tabTitle={intl.formatMessage({id: 'loadingMessage'})}
       loading={true}
     />);
 }

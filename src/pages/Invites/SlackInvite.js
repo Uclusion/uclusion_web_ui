@@ -10,8 +10,8 @@ import {
 import Screen from '../../containers/Screen/Screen';
 import { getAccountClient } from '../../api/uclusionClient';
 import { toastError } from '../../utils/userMessage';
-import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
-import { accountUserRefresh } from '../../contexts/AccountUserContext/accountUserContextReducer'
+import { AccountContext } from '../../contexts/AccountContext/AccountContext'
+import { accountUserRefresh } from '../../contexts/AccountContext/accountContextReducer'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -45,7 +45,7 @@ function SlackInvite(props) {
   const classes = useStyles();
   const { hash } = location;
   const [myLoading, setMyLoading] = useState(true);
-  const [, userDispatch] = useContext(AccountUserContext) || {};
+  const [, userDispatch] = useContext(AccountContext) || {};
 
   useEffect(() => {
     if (!hidden && hash) {

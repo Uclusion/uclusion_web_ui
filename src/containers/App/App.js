@@ -11,7 +11,6 @@ import { defaultTheme } from '../../config/themes'
 import { ThemeProvider } from '@material-ui/core/styles'
 import { TourProvider } from '../../contexts/TourContext/TourContext'
 import { CognitoUserProvider } from '../../contexts/CognitoUserContext/CongitoUserContext'
-import { AccountUserProvider } from '../../contexts/AccountUserContext/AccountUserContext'
 import AccountPoller from '../Root/AccountPoller'
 import { BroadcastChannel } from 'broadcast-channel'
 import { onSignOut } from '../../utils/userFunctions'
@@ -84,23 +83,21 @@ function App(props) {
               <InvestiblesProvider>
                 <MarketPresencesProvider>
                   <GroupMembersProvider>
-                    <AccountUserProvider authState={authState}>
-                      <OnlineStateProvider>
-                        <WebSocketProvider config={config} userId={userId}>
-                          <AppConfigProvider appConfig={configs}>
-                            <ThemeProvider theme={defaultTheme}>
-                              <TourProvider>
-                                <AccountPoller>
-                                  <LogoutContext.Provider value={logoutChannel}>
-                                    <Root appConfig={configs}/>
-                                  </LogoutContext.Provider>
-                                </AccountPoller>
-                              </TourProvider>
-                            </ThemeProvider>
-                          </AppConfigProvider>
-                        </WebSocketProvider>
-                      </OnlineStateProvider>
-                    </AccountUserProvider>
+                    <OnlineStateProvider>
+                      <WebSocketProvider config={config} userId={userId}>
+                        <AppConfigProvider appConfig={configs}>
+                          <ThemeProvider theme={defaultTheme}>
+                            <TourProvider>
+                              <AccountPoller>
+                                <LogoutContext.Provider value={logoutChannel}>
+                                  <Root appConfig={configs}/>
+                                </LogoutContext.Provider>
+                              </AccountPoller>
+                            </TourProvider>
+                          </ThemeProvider>
+                        </AppConfigProvider>
+                      </WebSocketProvider>
+                    </OnlineStateProvider>
                   </GroupMembersProvider>
                 </MarketPresencesProvider>
               </InvestiblesProvider>

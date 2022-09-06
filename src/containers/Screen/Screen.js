@@ -4,7 +4,6 @@ import PropTypes from 'prop-types'
 import { Container, Paper, useMediaQuery, useTheme } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import { useHistory, useLocation } from 'react-router'
-import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
 import Header from '../Header'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 import {
@@ -32,6 +31,7 @@ import WorkspaceMenu from '../../pages/Home/WorkspaceMenu'
 import { PLANNING_TYPE } from '../../constants/markets'
 import { getNotHiddenMarketDetailsForUser } from '../../contexts/MarketsContext/marketsContextHelper'
 import queryString from 'query-string'
+import { AccountContext } from '../../contexts/AccountContext/AccountContext'
 
 const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -137,7 +137,7 @@ function Screen(props) {
   const theme = useTheme();
   const intl = useIntl();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
-  const [userState] = useContext(AccountUserContext);
+  const [userState] = useContext(AccountContext);
   const { user: unsafeUser } = userState || {};
   const user = unsafeUser || {};
   const history = useHistory();

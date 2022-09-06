@@ -17,14 +17,14 @@ import config from '../../config';
 import Screen from '../../containers/Screen/Screen';
 import { makeBreadCrumbs } from '../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
-import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
 import SubSection from '../../containers/SubSection/SubSection';
-import { accountUserRefresh } from '../../contexts/AccountUserContext/accountUserContextReducer'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { Face } from '@material-ui/icons'
 import Link from '@material-ui/core/Link'
 import Gravatar from '../../components/Avatars/Gravatar'
+import { AccountContext } from '../../contexts/AccountContext/AccountContext'
+import { accountUserRefresh } from '../../contexts/AccountContext/accountContextReducer'
 
 const useStyles = makeStyles((theme) => ({
   disabled: {
@@ -70,7 +70,7 @@ const useStyles = makeStyles((theme) => ({
 function ChangeNotificationPreferences (props) {
   const { hidden } = props;
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const [userState, userDispatch] = useContext(AccountUserContext) || {};
+  const [userState, userDispatch] = useContext(AccountContext) || {};
   const { user } = userState;
   const safeUser = user || {};
   const [emailEnabled, setEmailEnabled] = useState(undefined);

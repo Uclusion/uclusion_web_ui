@@ -7,14 +7,15 @@ import PropTypes from 'prop-types'
 import WebSocketRunner from '../components/BackgroundProcesses/WebSocketRunner'
 import config from '../config'
 import { sendInfoPersistent, toastError } from '../utils/userMessage'
-import { registerListener } from '../utils/MessageBusUtils'
+import { pushMessage, registerListener } from '../utils/MessageBusUtils'
 import { getLoginPersistentItem, setLoginPersistentItem } from '../components/localStorageUtils'
 import { isSignedOut, onSignOut } from '../utils/userFunctions'
 import { LeaderContext } from './LeaderContext/LeaderContext'
 import { BroadcastChannel } from 'broadcast-channel'
 import { refreshOrMessage } from './LeaderContext/leaderContextReducer'
-import { refreshNotifications } from '../api/versionedFetchUtils'
+import { refreshNotifications, VERSIONS_EVENT } from '../api/versionedFetchUtils'
 import { getAppVersion } from '../api/sso'
+import { PUSH_ACCOUNT_CHANNEL, PUSH_HOME_USER_CHANNEL } from './AccountContext/accountContextMessages'
 
 export const AUTH_HUB_CHANNEL = 'auth'; // this is case sensitive.
 export const VERSIONS_HUB_CHANNEL = 'VersionsChannel';
@@ -88,7 +89,14 @@ function createWebSocket(config, leaderDispatch, setState, leaderChannelId) {
   newSocket.registerHandler('pong', () => {
     pongTracker.failureCount = 0;
   });
-
+  newSocket.registerHandler('user', (message) => {
+    const { version } = message;
+    pushMessage(PUSH_HOME_USER_CHANNEL, { event: VERSIONS_EVENT, version });
+  });
+  newSocket.registerHandler('account', (message) => {
+    const { version } = message;
+    pushMessage(PUSH_ACCOUNT_CHANNEL, { event: VERSIONS_EVENT, version });
+  });
   newSocket.registerHandler('market', () => {
     leaderDispatch(refreshOrMessage(`market${Date.now()}`, leaderChannelId));
   });

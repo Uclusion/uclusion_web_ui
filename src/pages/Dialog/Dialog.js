@@ -23,8 +23,7 @@ import { getStages } from '../../contexts/MarketStagesContext/marketStagesContex
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import jwt_decode from 'jwt-decode'
-import { userIsLoaded } from '../../contexts/AccountUserContext/accountUserContextHelper'
-import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
+import { userIsLoaded } from '../../contexts/AccountContext/accountUserContextHelper'
 import OnboardingBanner from '../../components/Banners/OnboardingBanner'
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
 import { pushMessage } from '../../utils/MessageBusUtils'
@@ -69,12 +68,11 @@ function Dialog(props) {
   const marketStages = getStages(marketStagesState, marketId);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
-  const [accountState] = useContext(AccountContext);
-  const [userState] = useContext(AccountUserContext);
+  const [userState] = useContext(AccountContext);
   const hasUser = userIsLoaded(userState);
   const loading = !hasUser || isInitialization || !myPresence || !marketType ||
     !marketTokenLoaded(marketId, tokensHash);
-  const createEnabled = canCreate(accountState);
+  const createEnabled = canCreate(userState);
   const banner = !loading && _.isEmpty(marketStages) ? <OnboardingBanner messageId='OnboardingInviteDialog' /> :
     (loading || createEnabled ? undefined : <UpgradeBanner/>);
 

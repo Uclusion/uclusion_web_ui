@@ -11,10 +11,10 @@ import {
   setCurrentStep
 } from '../../contexts/TourContext/tourContextHelper'
 import ReactJoyride, { ACTIONS } from 'react-joyride'
-import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
 import { updateUiPreferences } from '../../api/account'
-import { accountUserRefresh } from '../../contexts/AccountUserContext/accountUserContextReducer'
-import { getUiPreferences } from '../../contexts/AccountUserContext/accountUserContextHelper'
+import { getUiPreferences } from '../../contexts/AccountContext/accountUserContextHelper'
+import { accountUserRefresh } from '../../contexts/AccountContext/accountContextReducer'
+import { AccountContext } from '../../contexts/AccountContext/AccountContext'
 
 export function storeTourCompleteInBackend (tourName, userState, userDispatch) {
   const userPreferences = getUiPreferences(userState) || {}
@@ -46,7 +46,7 @@ function UclusionTour(props) {
   } = props;
 
   const [tourState, tourDispatch] = useContext(TourContext);
-  const [userState, userDispatch] = useContext(AccountUserContext);
+  const [userState, userDispatch] = useContext(AccountContext);
   const isCompleted = isTourCompleted(tourState, name);
   const userPreferences = getUiPreferences(userState);
   const tourPreferences = (userPreferences || {}).tours || {};

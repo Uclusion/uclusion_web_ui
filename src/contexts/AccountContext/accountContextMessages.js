@@ -1,8 +1,43 @@
 import { registerListener } from '../../utils/MessageBusUtils';
 import { AUTH_HUB_CHANNEL } from '../WebSocketContext';
-import { clearAccount } from './accountContextReducer';
+import { accountUserRefresh, clearAccount } from './accountContextReducer'
+import { VERSIONS_EVENT } from '../../api/versionedFetchUtils'
+import { getAccount } from '../../api/sso'
+import { updateAccount, updateBilling, updateInvoices } from './accountContextHelper'
+import _ from 'lodash'
+import { getInvoices, getPaymentInfo } from '../../api/users'
 
-export function beginListening (dispatch) {
+export const PUSH_HOME_USER_CHANNEL = 'HomeUserChannel';
+export const PUSH_ACCOUNT_CHANNEL = 'AccountChannel';
+
+function poll(dispatch, accountVersion, userVersion) {
+  getAccount()
+    .then((loginInfo) => {
+      const { account, user } = loginInfo;
+      const { version: founderUserVersion } = user;
+      const { version: founderAccountVersion } = account;
+      if ((accountVersion === null || accountVersion <= founderAccountVersion)
+        &&(userVersion === null || userVersion <= founderUserVersion)) {
+        updateAccount(dispatch, account);
+        dispatch(accountUserRefresh(user));
+        const { billing_customer_id: customerId } = account;
+        if (!_.isEmpty(customerId)) {
+          return getPaymentInfo()
+            .then((paymentInfo) => {
+              updateBilling(dispatch, paymentInfo);
+              return getInvoices();
+            })
+            .then((invoices) => {
+              updateInvoices(dispatch, invoices);
+            });
+        }
+      } else {
+        setTimeout(() => poll(dispatch, accountVersion, userVersion), 500);
+      }
+    });
+}
+
+export function beginListening(dispatch) {
   registerListener(AUTH_HUB_CHANNEL, 'accountContext', (data) => {
     const { payload: { event } } = data;
     switch (event) {
@@ -14,6 +49,26 @@ export function beginListening (dispatch) {
         break;
       default:
         // console.log(`Unrecognized event ${event}`);
+        break;
+    }
+  });
+  registerListener(PUSH_HOME_USER_CHANNEL, 'accountHomeUser', (data) => {
+    const { payload: { event, version } } = data;
+    switch (event) {
+      case VERSIONS_EVENT:
+        poll(dispatch, null, version);
+        break;
+      default:
+        break;
+    }
+  });
+  registerListener(PUSH_ACCOUNT_CHANNEL, 'accountHomeUser', (data) => {
+    const { payload: { event, version } } = data;
+    switch (event) {
+      case VERSIONS_EVENT:
+        poll(dispatch, version, null);
+        break;
+      default:
         break;
     }
   });

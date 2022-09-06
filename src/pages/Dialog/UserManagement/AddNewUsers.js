@@ -26,9 +26,9 @@ import { Email, SettingsBackupRestore } from '@material-ui/icons'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import GravatarAndName from '../../../components/Avatars/GravatarAndName'
-import { AccountUserContext } from '../../../contexts/AccountUserContext/AccountUserContext'
 import { getGroupPresences, getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext'
+import { AccountContext } from '../../../contexts/AccountContext/AccountContext'
 
 function AddNewUsers(props) {
   const { market, isAddToGroup = false, emailList, setEmailList, setToAddClean, group } = props;
@@ -42,7 +42,7 @@ function AddNewUsers(props) {
   const [marketState] = useContext(MarketsContext);
   const [groupPresencesState] = useContext(GroupMembersContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const [userState] = useContext(AccountUserContext);
+  const [userState] = useContext(AccountContext);
   const { user: unsafeUser } = userState || {};
   const myUser = unsafeUser || {};
   const [email1, setEmail1] = useState('');

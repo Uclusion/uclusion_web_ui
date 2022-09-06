@@ -111,9 +111,9 @@ import SpinningButton from '../SpinBlocking/SpinningButton'
 import IssueDialog from '../Warnings/IssueDialog'
 import { useLockedDialogStyles } from '../../pages/Dialog/DialogBodyEdit'
 import { getInboxTarget } from '../../contexts/NotificationsContext/notificationsContextHelper'
-import { getUiPreferences, userIsLoaded } from '../../contexts/AccountUserContext/accountUserContextHelper'
-import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
+import { getUiPreferences, userIsLoaded } from '../../contexts/AccountContext/accountUserContextHelper'
 import InviteLinker from '../../pages/Dialog/InviteLinker'
+import { AccountContext } from '../../contexts/AccountContext/AccountContext'
 
 export const useCommentStyles = makeStyles(
   theme => {
@@ -399,7 +399,7 @@ function Comment(props) {
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [diffState, diffDispatch] = useContext(DiffContext);
   const [searchResults] = useContext(SearchResultsContext);
-  const [userState] = useContext(AccountUserContext);
+  const [userState] = useContext(AccountContext);
   const hasUser = userIsLoaded(userState);
   const [openIssue, setOpenIssue] = useState(false);
   const enableActions = !inArchives && !stagePreventsActions;

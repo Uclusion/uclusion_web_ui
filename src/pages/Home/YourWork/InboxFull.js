@@ -14,8 +14,8 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import { pushMessage } from '../../../utils/MessageBusUtils'
 import queryString from 'query-string'
 import { INVITE_MARKET_EVENT, LOAD_MARKET_CHANNEL } from '../../../contexts/MarketsContext/marketsContextMessages'
-import { AccountUserContext } from '../../../contexts/AccountUserContext/AccountUserContext'
-import { userIsLoaded } from '../../../contexts/AccountUserContext/accountUserContextHelper'
+import { userIsLoaded } from '../../../contexts/AccountContext/accountUserContextHelper'
+import { AccountContext } from '../../../contexts/AccountContext/AccountContext'
 
 function InboxFull(props) {
   const { hidden } = props;
@@ -30,7 +30,7 @@ function InboxFull(props) {
   const [assignedPage, setAssignedPage] = useState(1);
   const [marketsState, , tokensHash] = useContext(MarketsContext);
   const [messagesState] = useContext(NotificationsContext);
-  const [userState] = useContext(AccountUserContext);
+  const [userState] = useContext(AccountContext);
   const hasUser = userIsLoaded(userState);
   const [expansionPendingState, expansionPendingDispatch] = useReducer((state, action) => {
     const { id, expandedMessages, contractAll } = action;

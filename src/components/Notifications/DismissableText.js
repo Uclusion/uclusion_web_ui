@@ -5,11 +5,11 @@ import IconButton from '@material-ui/core/IconButton';
 import LiveHelpTwoToneIcon from '@material-ui/icons/LiveHelpTwoTone';
 import CancelRoundedIcon from '@material-ui/icons/CancelRounded';
 import { makeStyles } from '@material-ui/styles';
-import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
-import { getUiPreferences, userIsLoaded } from '../../contexts/AccountUserContext/accountUserContextHelper'
+import { getUiPreferences, userIsLoaded } from '../../contexts/AccountContext/accountUserContextHelper'
 import { updateUiPreferences } from '../../api/account'
-import { accountUserRefresh } from '../../contexts/AccountUserContext/accountUserContextReducer'
 import { Checkbox, Typography } from '@material-ui/core'
+import { AccountContext } from '../../contexts/AccountContext/AccountContext'
+import { accountUserRefresh } from '../../contexts/AccountContext/accountContextReducer'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -61,7 +61,7 @@ function DismissableText(props) {
   const classes = useStyles();
   const intl = useIntl();
   const [checkBoxValue, setCheckBoxValue] = useState(false);
-  const [userState, userDispatch] = useContext(AccountUserContext);
+  const [userState, userDispatch] = useContext(AccountContext);
   const hasUser = userIsLoaded(userState)
   const userPreferences = getUiPreferences(userState) || {};
   const previouslyDismissed = userPreferences.dismissedText || [];

@@ -45,8 +45,7 @@ import { NotificationsContext } from '../../contexts/NotificationsContext/Notifi
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'
 import { Add, Clear, Delete, Lock, LockOpen, Send } from '@material-ui/icons'
 import { useEditor } from '../TextEditors/quillHooks'
-import { getUiPreferences } from '../../contexts/AccountUserContext/accountUserContextHelper'
-import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
+import { getUiPreferences } from '../../contexts/AccountContext/accountUserContextHelper'
 import IssueDialog from '../Warnings/IssueDialog'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { removeWorkListItem, workListStyles } from '../../pages/Home/YourWork/WorkListItem'
@@ -60,6 +59,7 @@ import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/m
 import { addMarket, getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../authorization/TokenStorageManager'
 import { NOT_FULLY_VOTED_TYPE } from '../../constants/notifications'
+import { AccountContext } from '../../contexts/AccountContext/AccountContext'
 
 function getPlaceHolderLabelId(type, isInReview, isAssigned) {
   switch (type) {
@@ -328,7 +328,7 @@ function CommentAdd(props) {
     creatorIsAssigned);
   const placeHolder = intl.formatMessage({ id: placeHolderLabelId });
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const [userState] = useContext(AccountUserContext);
+  const [userState] = useContext(AccountContext);
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const blockingStage = getBlockedStage(marketStagesState, marketId) || {};

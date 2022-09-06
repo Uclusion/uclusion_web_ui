@@ -7,7 +7,6 @@ import { fetchComments } from './comments'
 import { fetchInvestibles } from './marketInvestibles'
 import { LimitedParallelMap } from '../utils/PromiseUtils'
 import { startTimerChain } from '../utils/timerUtils'
-import { getHomeAccountUser } from './sso'
 import { checkInStorage, checkSignatureInStorage } from './storageIntrospector'
 import LocalForageHelper from '../utils/LocalForageHelper'
 import { COMMENTS_CONTEXT_NAMESPACE } from '../contexts/CommentsContext/CommentsContext'
@@ -23,7 +22,6 @@ const MAX_RETRIES = 10;
 const MAX_CONCURRENT_API_CALLS = 5;
 const MAX_CONCURRENT_ARCHIVE_API_CALLS = 1;
 export const NOTIFICATIONS_HUB_CHANNEL = 'NotificationsChannel';
-export const PUSH_HOME_USER_CHANNEL = 'HomeUserChannel';
 export const PUSH_MARKETS_CHANNEL = 'MarketsChannel';
 export const PUSH_COMMENTS_CHANNEL = 'CommentsChannel';
 export const PUSH_INVESTIBLES_CHANNEL = 'InvestiblesChannel';
@@ -271,18 +269,13 @@ export function doVersionRefresh() {
               const backgroundMarketsStruct = {};
               console.info('Finished foreground update');
               refreshNotifications();
-              // for now just always fetch the home user without signatures but after foreground so serves as marker
-              return getHomeAccountUser().then((user) => {
-                // we bothered to fetch the data, so we should use it:)
-                pushMessage(PUSH_HOME_USER_CHANNEL, { event: VERSIONS_EVENT, user });
-                console.info('Beginning background versions update');
-                console.info(backgroundList);
-                return updateMarkets(backgroundList, backgroundMarketsStruct, MAX_CONCURRENT_ARCHIVE_API_CALLS,
-                  storageStates).then(() => {
-                    sendMarketsStruct(backgroundMarketsStruct);
-                    console.info('Ending versions update');
-                  });
-            });
+              console.info('Beginning background versions update');
+              console.info(backgroundList);
+              return updateMarkets(backgroundList, backgroundMarketsStruct, MAX_CONCURRENT_ARCHIVE_API_CALLS,
+                storageStates).then(() => {
+                  sendMarketsStruct(backgroundMarketsStruct);
+                  console.info('Ending versions update');
+                });
           });
         });
     });

@@ -10,7 +10,7 @@ const useStyles = makeStyles(() => {
       margin: '1rem 0'
     },
     stepCounter: {
-      fontWeight: 700
+      fontWeight: 400,
     },
   };
 });

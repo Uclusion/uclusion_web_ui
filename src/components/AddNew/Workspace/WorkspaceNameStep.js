@@ -1,11 +1,12 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types'
-import { TextField, Typography } from '@material-ui/core'
+import { InputAdornment, OutlinedInput, TextField, Typography } from '@material-ui/core';
 import { useIntl } from 'react-intl'
 import _ from 'lodash'
-import StepButtons from '../StepButtons'
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
+import { createPlanning } from '../../../api/markets';
+import WorkspaceStepButtons from './WorkspaceStepButtons';
 
 function WorkspaceNameStep (props) {
   const { updateFormData, formData } = props;
@@ -21,29 +22,45 @@ function WorkspaceNameStep (props) {
     });
   }
 
+  function onNext() {
+    const {name} = formData;
+    const marketInfo = {
+      name,
+    };
+    return createPlanning(marketInfo)
+      .then((market) => {
+        updateFormData({
+          marketId: market.id,
+        })
+      });
+  }
+
   return (
     <WizardStepContainer
       {...props}
     >
     <div>
-      <Typography className={classes.introText} variant="h5">
+      <Typography className={classes.introText}>
         What do you want to call your workspace?
       </Typography>
-      <Typography className={classes.introText} variant="subtitle1">
-        It's best to pick something everyone will recognize.
+      <Typography className={classes.introSubText} variant="subtitle1">
+         It's best to pick something everyone will recognize.
       </Typography>
-      <label className={classes.inputLabel} htmlFor="name">
-        {intl.formatMessage({ id: 'WorkspaceWizardNameFieldLabel' })}
-      </label>
-      <TextField
+      <OutlinedInput
         id="workspaceName"
         className={classes.input}
         value={value}
         onChange={onNameChange}
+        placeholder="Ex: ACME Corp"
+        variant="outlined"
+        endAdornment={
+          <InputAdornment position={"end"} style={{marginRight: '1rem'}}>
+            {80-(formData?.name?.length ?? 0)}
+          </InputAdornment>
+        }
       />
-
       <div className={classes.borderBottom} />
-      <StepButtons {...props} validForm={validForm} showFinish={false} />
+      <WorkspaceStepButtons {...props} showStartOver={false} onNext={onNext} validForm={validForm} showGoBack={false} showFinish={false} />
     </div>
     </WizardStepContainer>
   );

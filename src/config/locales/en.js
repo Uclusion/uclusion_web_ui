@@ -1061,7 +1061,7 @@ const messages = defineMessages({
   OnboardingWizardStartOver: 'Cancel',
   OnboardingWizardTrySomethingElse: 'I\'ve shared the link and want to try something else',
   OnboardingWizardGoBack: 'Go Back',
-  OnboardingWizardContinue: 'Continue',
+  OnboardingWizardContinue: 'Next',
   OnboardingWizardFinish: 'Finish',
   OnboardingWizardSkip: 'Skip',
   OnboardingWizardCurrentStoryStepLabel: 'Current Job',

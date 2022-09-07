@@ -28,27 +28,22 @@ export const wizardStyles = makeStyles(
         fontWeight: 700
       },
       baseCard: {
-        marginLeft: 'auto',
-        marginRight: 'auto',
+        width: '100%',
         padding: '32px',
         [theme.breakpoints.down('xs')]: {
           marginTop: '15px',
         }
       },
       introText: {
+        fontSize: '45px',
+        lineHeight: '56px',
+        fontWeight: 700,
         marginTop: '1rem',
         marginBottom: '1rem'
       },
       introSubText: {
         marginTop: '1rem',
         marginBottom: '1rem',
-      },
-
-      inputLabel: {
-        display: 'block',
-        marginTop: '2rem',
-        fontWeight: 'bold',
-        textTransform: 'none'
       },
       containerAll: {
         background: '#efefef',
@@ -57,11 +52,9 @@ export const wizardStyles = makeStyles(
         width: '100%'
       },
       input: {
-        backgroundColor: '#ecf0f1',
-        border: 0,
         borderRadius: 8,
         padding: '4px',
-        width: '350px',
+        width: '100%',
         marginBottom: '30px',
         '& > div:before': {
           borderBottom: 0
@@ -72,9 +65,7 @@ export const wizardStyles = makeStyles(
         '& > label': {
           marginLeft: 10,
         },
-        '& > label.Mui-focused': {
-          color: 'black'
-        },
+
         '& > label:not(.MuiInputLabel-shrink)': {
           transform: 'translate(0, 18px) scale(1)'
         },
@@ -129,6 +120,7 @@ export const wizardStyles = makeStyles(
         }
       },
       actionPrimary: {
+        width: 200,
         backgroundColor: '#2D9CDB',
         color: 'white',
         textTransform: 'unset',
@@ -137,8 +129,8 @@ export const wizardStyles = makeStyles(
           backgroundColor: '#2D9CDB'
         },
         '&:disabled': {
-          color: 'white',
-          backgroundColor: 'rgba(45, 156, 219, .6)'
+          color: 'black',
+          backgroundColor: '#ecf0f1'
         }
       },
       actionSecondary: {
@@ -159,7 +151,7 @@ export const wizardStyles = makeStyles(
       },
       borderBottom: {
         borderBottom: '1px solid transparent',
-        margin: '30px 0',
+        margin: '10px 0',
         width: '100%',
       },
       dateContainer: {
@@ -187,76 +179,7 @@ export const wizardStyles = makeStyles(
       stepDefault: {
         maxWidth: '725px'
       },
-      WorkspaceWizardMeetingStepLabel: {
-        maxWidth: '500px'
-      },
-      OnboardingWizardCurrentStoryStepLabel: {
-        maxWidth: '725px'
-      },
-      OnboardingWizardCurrentStoryProgressStepLabel: {
-        maxWidth: '725px',
-        overflow: 'visible'
-      },
-      OnboardingWizardNextStoryStepLabel: {
-        maxWidth: '725px'
-      },
-      OnboardingWizardAdvancedOptionsStepLabel: {
-        maxWidth: '725px'
-      },
-      WorkspaceWizardCreatingWorkspaceStepLabel: {
-        maxWidth: '500px'
-      },
-      ReqWorkspaceWizardNameStepLabel: {
-        maxWidth: '500px'
-      },
-      ReqWorkspaceWizardRequirementsStepLabel: {
-        maxWidth: '725px'
-      },
-      DialogWizardDialogNameStepLabel: {
-        maxWidth: '500px'
-      },
-      DialogWizardDialogReasonStepLabel: {
-        maxWidth: '725px'
-      },
-      DialogWizardDialogExpirationStepLabel: {
-        maxWidth: '725px'
-      },
-      DialogWizardMultipleVotesStepLabel: {
-        maxWidth: '725px'
-      },
-      DialogWizardAddOptionsStepLabel: {
-        maxWidth: '500px'
-      },
-      AddOptionWizardOptionNameStepLabel: {
-        maxWidth: '500px'
-      },
-      AddOptionWizardOptionDescriptionStepLabel: {
-        maxWidth: '725px'
-      },
-      DialogWizardCreatingDialogStepLabel: {
-        maxWidth: '500px'
-      },
-      InitiativeWizardInitiativeNameStepLabel: {
-        maxWidth: '500px'
-      },
-      InitiativeWizardInitiativeDescriptionStepLabel: {
-        maxWidth: '725px'
-      },
-      InitiativeWizardInitiativeExpirationStepLabel: {
-        maxWidth: '725px'
-      },
-      InitiativeWizardRestrictStepLabel: {
-        maxWidth: '725px',
-      },
-      InitiativeWizardCreatingInitiativeStepLabel: {
-        maxWidth: '725px'
-      },
-      ReqWorkspaceWizardTodoStepLabel: {
-        maxWidth: '725px'
-      },
-      ReqWorkspaceWizardCreatingworkspaceStepLabel: {
-        maxWidth: '500px'
-      },
+
       maxBudgetUnit: {
         backgroundColor: '#ecf0f1'
       },

@@ -121,9 +121,6 @@ function AppWithAuth() {
       color: 'white',
       background: '#e85756',
       borderRadius: '8px'
-    },
-    container: {
-      padding: '10px'
     }
   };
   const authenticatorErrorMap = (message) => {

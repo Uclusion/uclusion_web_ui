@@ -53,7 +53,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   containerAllLeftPad: {
-    padding: '24px 20px 156px 7px',
+    padding: '24px 20px 156px 24px',
     marginTop: '65px',
     width: '100%',
     [theme.breakpoints.down('md')]: {
@@ -90,14 +90,15 @@ const useStyles = makeStyles((theme) => ({
   paper: {
     // See https://github.com/mui-org/material-ui/blob/master/packages/material-ui/src/Drawer/Drawer.js
     overflowY: 'auto',
-    maxHeight: '80%',
     display: 'flex',
     flexDirection: 'column',
     flex: '1 0 auto',
+    backgroundColor: '#e5edee',
+    height: '100%',
     zIndex: 8,
     position: 'fixed',
-    top: '7rem',
-    minWidth: '13rem',
+    top: '4.5rem',
+    minWidth: '16rem',
     textOverflow: 'ellipsis'
   },
   actionContainer: {
@@ -265,10 +266,9 @@ function Screen(props) {
         />
       )}
       {!noMenu && !mobileLayout && !hidden && (
-        <Paper className={classes.paper} elevation={3}
-               id="navList">
-          {sideNavigationContents}
-        </Paper>
+        <div className={classes.paper}>
+          <Sidebar navigationOptions={navigationMenu} search={search} title={title} classes={classes} />
+        </div>
       )}
       {banner && !hidden && (
         <Container className={classes.bannerContainer}>

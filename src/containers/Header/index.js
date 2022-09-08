@@ -65,7 +65,7 @@ export const headerStyles = makeStyles((theme) => {
     },
     appBar: {
       background: '#8cb4c4',
-      height: '67px',
+      height: '60px',
     },
     appBarNoSidebar: {
       background: '#fff',

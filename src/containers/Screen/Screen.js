@@ -97,7 +97,7 @@ const useStyles = makeStyles((theme) => ({
     height: '100%',
     zIndex: 8,
     position: 'fixed',
-    top: '4.5rem',
+    top: '4rem',
     minWidth: '16rem',
     textOverflow: 'ellipsis'
   },

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react'
 import { useIntl } from 'react-intl';
 import PlanningInvestibleAdd from './PlanningInvestibleAdd'
 import SubSection from '../../../containers/SubSection/SubSection'
@@ -10,14 +10,17 @@ import _ from 'lodash'
 import { usePlanFormStyles } from '../../../components/AgilePlan'
 import Chip from '@material-ui/core/Chip'
 import { useInvestiblesByPersonStyles } from './InvestiblesByPerson'
+import { navigate } from '../../../utils/marketIdPathFunctions'
+import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
+import { useHistory } from 'react-router'
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
+import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 
 function Backlog(props) {
   const {
     furtherWorkType,
     group,
     updatePageState,
-    onInvestibleSave,
-    onDone,
     marketPresences,
     furtherWorkReadyToStart,
     furtherWorkInvestibles,
@@ -27,11 +30,24 @@ function Backlog(props) {
     furtherWorkStage,
     myPresence
   } = props;
+  const history = useHistory();
+  const [, investiblesDispatch] = useContext(InvestiblesContext);
+  const [, diffDispatch] = useContext(DiffContext);
   const { id: groupId, created_at: createdAt, budget_unit: budgetUnit, use_budget: useBudget,
     votes_required: votesRequired, market_id: marketId} = group;
   const intl = useIntl();
   const classes = useInvestiblesByPersonStyles();
   const planningInvestibleAddClasses = usePlanFormStyles();
+
+  function onDone(destinationLink) {
+    if (destinationLink) {
+      navigate(history, destinationLink);
+    }
+  }
+
+  function onInvestibleSave(investible) {
+    addInvestible(investiblesDispatch, diffDispatch, investible);
+  }
 
   function onClickFurtherStart() {
     updatePageState({furtherWorkType: 'readyToStart'});

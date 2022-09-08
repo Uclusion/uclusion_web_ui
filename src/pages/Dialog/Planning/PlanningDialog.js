@@ -35,7 +35,7 @@ import {
 } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import DismissableText from '../../../components/Notifications/DismissableText'
 import ArchiveInvestbiles from '../../DialogArchives/ArchiveInvestibles'
-import { addInvestible, getInvestiblesInStage } from '../../../contexts/InvestibesContext/investiblesContextHelper'
+import { getInvestiblesInStage } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import UclusionTour from '../../../components/Tours/UclusionTour'
 import { INVITED_USER_WORKSPACE } from '../../../contexts/TourContext/tourContextHelper';
 import { getMarketInfo } from '../../../utils/userFunctions'
@@ -57,10 +57,6 @@ import { getPageReducerPage, usePageStateReducer } from '../../../components/Pag
 import DialogManage from '../DialogManage'
 import SettingsIcon from '@material-ui/icons/Settings'
 import PlanningDialogEdit from './PlanningDialogEdit'
-import PlanningInvestibleAdd from './PlanningInvestibleAdd'
-import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
-import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
-import { usePlanFormStyles } from '../../../components/AgilePlan'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import AssignmentIcon from '@material-ui/icons/Assignment'
 import queryString from 'query-string'
@@ -109,8 +105,7 @@ function PlanningDialog(props) {
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
   const [groupState] = useContext(MarketGroupsContext);
   const group = getGroup(groupState, marketId, groupId);
-  const { name: groupName, created_by: createdBy, created_at: createdAt,
-    budget_unit: budgetUnit, use_budget: useBudget, votes_required: votesRequired} = group || {};
+  const { name: groupName, created_by: createdBy } = group || {};
   const isAdmin = myPresence.is_admin;
   const breadCrumbs = makeBreadCrumbs(history);
   const unResolvedMarketComments = comments.filter(comment => !comment.investible_id && !comment.resolved) || [];
@@ -120,8 +115,6 @@ function PlanningDialog(props) {
   const allowedCommentTypes = [QUESTION_TYPE, SUGGEST_CHANGE_TYPE];
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [messagesState] = useContext(NotificationsContext);
-  const [, investiblesDispatch] = useContext(InvestiblesContext);
-  const [, diffDispatch] = useContext(DiffContext);
   // For security reasons you can't access source data while being dragged in case you are not the target website
   const [beingDraggedHack, setBeingDraggedHack] = useState({});
   const [pageStateFull, pageDispatch] = usePageStateReducer('group');
@@ -179,7 +172,7 @@ function PlanningDialog(props) {
   });
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const presenceMap = getPresenceMap(marketPresences);
-  const singleSections = ['addCollaboratorSection', 'addStorySection'];
+  const singleSections = ['addCollaboratorSection'];
   function isSectionOpen(section) {
     return sectionOpen === section ||
       ((!_.isEmpty(search) || mobileLayout) &&
@@ -264,24 +257,12 @@ function PlanningDialog(props) {
       undefined, false, isSectionBold('settingsSection'), !_.isEmpty(search)));
   }
 
-  const planningInvestibleAddClasses = usePlanFormStyles();
-  function onInvestibleSave(investible) {
-    addInvestible(investiblesDispatch, diffDispatch, investible);
-  }
-
-  function onDone(destinationLink) {
-    openSubSection('storiesSection');
-    if (destinationLink) {
-      navigate(history, destinationLink);
-    }
-  }
-
   const discussionSearchResults = (results.find((result) => result.id === marketId) ? 1 : 0) + _.size(questions)
                         + _.size(suggestions) + _.size(reports);
   const jobsSearchResults = _.size(requiresInputInvestibles) + _.size(blockedInvestibles) + _.size(swimlaneInvestibles);
   const backlogSearchResults = _.size(furtherWorkReadyToStart) + _.size(furtherWorkInvestibles);
 
-  const isFromSideBarMenu = ['addStorySection', 'addCollaboratorSection', 'settingsSection'].includes(sectionOpen);
+  const isFromSideBarMenu = ['addCollaboratorSection', 'settingsSection'].includes(sectionOpen);
   function resetTabs() {
     updatePageState({sectionOpen: undefined, tabIndex: 0});
   }
@@ -364,23 +345,6 @@ function PlanningDialog(props) {
           <DialogManage marketId={marketId} group={group} />
         )}
       </div>
-      <div id="addStorySection">
-        {!hidden && marketId && isSectionOpen('addStorySection') && _.isEmpty(search) && (
-          <PlanningInvestibleAdd
-            marketId={marketId}
-            groupId={groupId}
-            onCancel={() => resetTabs()}
-            onSave={onInvestibleSave}
-            onSpinComplete={onDone}
-            marketPresences={marketPresences}
-            createdAt={createdAt}
-            classes={planningInvestibleAddClasses}
-            maxBudgetUnit={budgetUnit}
-            useBudget={useBudget ? useBudget : false}
-            votesRequired={votesRequired}
-          />
-        )}
-      </div>
       <LocalPlanningDragContext.Provider value={[beingDraggedHack, setBeingDraggedHack]}>
         {isSectionOpen('storiesSection') && (
           <div id="storiesSection">
@@ -423,7 +387,7 @@ function PlanningDialog(props) {
         {isSectionOpen('backlogSection') && (
           <div id="backlogSection">
             <Backlog furtherWorkType={furtherWorkType} group={group} updatePageState={updatePageState}
-                     onInvestibleSave={onInvestibleSave} onDone={onDone} marketPresences={marketPresences}
+                     marketPresences={marketPresences}
                      furtherWorkReadyToStart={furtherWorkReadyToStart} furtherWorkInvestibles={furtherWorkInvestibles}
                      isAdmin={isAdmin} comments={comments} presenceMap={presenceMap}
                      furtherWorkStage={furtherWorkStage} myPresence={myPresence} />

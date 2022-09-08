@@ -65,7 +65,7 @@ export default function Sidebar(props) {
   const { navigationOptions, search, title, classes } = props;
   const { navListItemTextArray, navMenu, listOnClick, headerItemTextArray } = navigationOptions || {};
   return (
-    <ProSidebar width="16rem" style={{paddingTop: '1rem'}}>
+    <ProSidebar width="16rem">
       <SidebarHeader>
         {!_.isEmpty(headerItemTextArray) && (
           <Menu onClick={listOnClick} iconShape="circle">

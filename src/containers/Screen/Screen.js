@@ -53,7 +53,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   containerAllLeftPad: {
-    padding: '24px 20px 156px 24px',
+    padding: '10px 20px 156px 24px',
     marginTop: '65px',
     width: '100%',
     [theme.breakpoints.down('md')]: {

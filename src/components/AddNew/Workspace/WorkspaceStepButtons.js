@@ -4,7 +4,7 @@ import { useIntl } from 'react-intl';
 import SpinningButton from '../../SpinBlocking/SpinningButton';
 import { WizardStylesContext } from '../WizardStylesContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
-import InviteLinker from '../../../pages/Dialog/InviteLinker';
+import WorkspaceInviteLinker from '../../../pages/Home/WorkspaceInviteLinker'
 
 function WorkspaceStepButtons (props) {
   const {
@@ -60,7 +60,7 @@ function WorkspaceStepButtons (props) {
       )}
 
       {showLink && (
-        <InviteLinker marketId={formData.marketId}/>
+        <WorkspaceInviteLinker marketId={formData.marketId}/>
       )}
 
       <div className={classes.actionContainer}>

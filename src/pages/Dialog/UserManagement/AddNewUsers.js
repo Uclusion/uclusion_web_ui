@@ -17,7 +17,6 @@ import SearchIcon from '@material-ui/icons/Search'
 import clsx from 'clsx'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { addParticipants, inviteParticipants } from '../../../api/users'
-import InviteLinker from '../InviteLinker'
 import { usePlanFormStyles } from '../../../components/AgilePlan'
 import { addMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesContextReducer'
 import { extractUsersList } from '../../../utils/userFunctions'
@@ -29,10 +28,11 @@ import GravatarAndName from '../../../components/Avatars/GravatarAndName'
 import { getGroupPresences, getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext'
 import { AccountContext } from '../../../contexts/AccountContext/AccountContext'
+import WorkspaceInviteLinker from '../../Home/WorkspaceInviteLinker'
 
 function AddNewUsers(props) {
   const { market, isAddToGroup = false, emailList, setEmailList, setToAddClean, group } = props;
-  const { id: addToMarketId, market_type: marketType, invite_capability: marketToken } = market || {};
+  const { id: addToMarketId } = market || {};
   const { id: groupId } = group || {};
   const classes = usePlanFormStyles();
   const intl = useIntl();
@@ -313,9 +313,8 @@ function AddNewUsers(props) {
                 </ListItem>
               </form>
               <ListItem className={classes.listItem}>
-                <InviteLinker
-                  marketType={marketType}
-                  marketToken={marketToken}
+                <WorkspaceInviteLinker
+                  marketId={addToMarketId}
                 />
               </ListItem>
             </>

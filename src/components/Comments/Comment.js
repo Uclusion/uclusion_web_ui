@@ -112,7 +112,7 @@ import IssueDialog from '../Warnings/IssueDialog'
 import { useLockedDialogStyles } from '../../pages/Dialog/DialogBodyEdit'
 import { getInboxTarget } from '../../contexts/NotificationsContext/notificationsContextHelper'
 import { getUiPreferences, userIsLoaded } from '../../contexts/AccountContext/accountUserContextHelper'
-import InviteLinker from '../../pages/Dialog/InviteLinker'
+import InvesibleCommentLinker from '../../pages/Dialog/InvesibleCommentLinker'
 import { AccountContext } from '../../contexts/AccountContext/AccountContext'
 
 export const useCommentStyles = makeStyles(
@@ -911,7 +911,7 @@ function Comment(props) {
             )}
             {!mobileLayout && ![JUSTIFY_TYPE, REPLY_TYPE].includes(commentType) && marketType !== DECISION_TYPE && (
               <div style={{marginRight: '2rem', marginTop: '0.5rem'}}>
-                <InviteLinker commentId={id} investibleId={investibleId} marketId={marketId} />
+                <InvesibleCommentLinker commentId={id} investibleId={investibleId} marketId={marketId} />
               </div>
             )}
             {(myPresence.is_admin || isEditable) && enableActions && isDeletable && (

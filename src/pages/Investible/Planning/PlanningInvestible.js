@@ -134,7 +134,7 @@ import { addEditVotingHasContents } from '../Voting/AddEditVote'
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext'
 import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper'
 import { isEveryoneGroup } from '../../../contexts/GroupMembersContext/groupMembersHelper'
-import InviteLinker from '../../Dialog/InviteLinker'
+import InvesibleCommentLinker from '../../Dialog/InvesibleCommentLinker'
 
 export const usePlanningInvestibleStyles = makeStyles(
   theme => ({
@@ -987,7 +987,7 @@ function PlanningInvestible(props) {
                   </div>
                 )}
                 <div style={{paddingLeft: "1rem", paddingRight: "1rem"}}>
-                  <InviteLinker investibleId={investibleId} marketId={marketId} />
+                  <InvesibleCommentLinker investibleId={investibleId} marketId={marketId} />
                 </div>
               </div>
               {marketDaysEstimate && isInAccepted && (

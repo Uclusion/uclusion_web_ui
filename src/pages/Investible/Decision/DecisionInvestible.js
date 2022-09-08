@@ -38,7 +38,7 @@ import { findMessageOfTypeAndId } from '../../../utils/messageUtils'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
-import InviteLinker from '../../Dialog/InviteLinker'
+import InvesibleCommentLinker from '../../Dialog/InvesibleCommentLinker'
 
 const useStyles = makeStyles((theme) => ({
   mobileColumn: {
@@ -322,7 +322,7 @@ function DecisionInvestible(props) {
               )}
               {isSent && (
                 <div style={{paddingLeft: '1rem', paddingRight: '1rem'}}>
-                  <InviteLinker investibleId={investibleId} marketId={marketId} />
+                  <InvesibleCommentLinker investibleId={investibleId} marketId={marketId} />
                 </div>
               )}
             </CardActions>

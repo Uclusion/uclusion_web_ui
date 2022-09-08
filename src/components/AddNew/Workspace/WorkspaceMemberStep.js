@@ -2,10 +2,10 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types'
 import { Typography } from '@material-ui/core';
 import _ from 'lodash';
-import StepButtons from '../StepButtons'
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import EmailEntryBox from '../../Email/EmailEntryBox';
+import WorkspaceStepButtons from './WorkspaceStepButtons';
 
 function WorkspaceMembersStep(props) {
   const { updateFormData, formData } = props;
@@ -29,7 +29,7 @@ function WorkspaceMembersStep(props) {
       </Typography>
       <EmailEntryBox onChange={onEmailChange} placeholder="Ex: bfollis@uclusion.com, disrael@uclusion.com"/>
       <div className={classes.borderBottom} />
-      <StepButtons {...props} validForm={validForm} showFinish={true} showNext={false}/>
+      <WorkspaceStepButtons {...props} validForm={validForm} showSkip={true} showLink={true} formData={formData }/>
     </div>
     </WizardStepContainer>
   );

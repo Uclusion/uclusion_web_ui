@@ -155,7 +155,7 @@ const messages = defineMessages({
   shareButtonExplanation: 'Link',
   shareButtonTitle: 'Share',
   inviteLinkerText: 'Copy invite link.',
-  copyLink: 'Link',
+  copyLink: 'Copy Invite Link',
   inviteLinkerTicketCode: 'Human friendly job identifier',
 
   // Support
@@ -1063,7 +1063,8 @@ const messages = defineMessages({
   OnboardingWizardGoBack: 'Go Back',
   OnboardingWizardContinue: 'Next',
   OnboardingWizardFinish: 'Finish',
-  OnboardingWizardSkip: 'Skip',
+  WorkspaceWizardCopyLink: 'Copy Invite Link',
+  OnboardingWizardSkip: 'Skip this Step',
   OnboardingWizardCurrentStoryStepLabel: 'Current Job',
   OnboardingWizardCurrentStoryProgressStepLabel: 'Current Job Progress (Optional)',
   OnboardingWizardNextStoryStepLabel: 'Next Job (Optional)',

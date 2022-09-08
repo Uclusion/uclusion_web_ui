@@ -142,12 +142,9 @@ export const wizardStyles = makeStyles(
         }
       },
       actionSkip: {
-        backgroundColor: '#fff',
         textTransform: 'unset',
         marginRight: '20px',
-        '&:hover': {
-          backgroundColor: '#fff'
-        }
+
       },
       borderBottom: {
         borderBottom: '1px solid transparent',

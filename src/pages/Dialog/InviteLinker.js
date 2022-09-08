@@ -2,13 +2,11 @@ import React, { useContext, useState } from 'react'
 import PropTypes from 'prop-types'
 import { makeStyles } from '@material-ui/styles'
 import { useIntl } from 'react-intl'
-import { formInviteLink } from '../../utils/marketIdPathFunctions'
-import { Button, Link, Tooltip } from '@material-ui/core'
+import { Button, Tooltip } from '@material-ui/core'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { getMarketInfo } from '../../utils/userFunctions'
 import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import LinkIcon from '@material-ui/icons/Link'
-import _ from 'lodash'
 import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 
@@ -40,7 +38,6 @@ const useStyles = makeStyles(() => ({
 function InviteLinker(props) {
   const intl = useIntl();
   const {
-    marketToken,
     hidden,
     investibleId,
     commentId,
@@ -55,16 +52,12 @@ function InviteLinker(props) {
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { ticket_code: ticketCode } = marketInfo;
   const market = getMarket(marketsState, marketId) || {};
-  let fullLink = `${window.location.host}/${ticketCode}`;
-  let useTextInsteadOfLink = false;
+  let link = `${window.location.host}/${ticketCode}`;
   if (market.parent_comment_id) {
-    useTextInsteadOfLink = true;
-    fullLink = `${window.location.href}/#option${investibleId}`;
+    link = `${window.location.href}/#option${investibleId}`;
   } else if (commentId) {
-    useTextInsteadOfLink = true;
-    fullLink = `${window.location.href}/#c${commentId}`;
+    link = `${window.location.href}/#c${commentId}`;
   }
-  const link = _.isEmpty(marketToken) ? fullLink : formInviteLink(marketToken);
   return (
     <div id="inviteLinker" className={hidden ? classes.hidden : undefined}>
       <Tooltip title={
@@ -74,7 +67,9 @@ function InviteLinker(props) {
         </h3>
       }
                placement="top">
-        <Button style={{textTransform: 'none', justifyContent: 'left'}} disableRipple={true}
+        <Button
+          variant="outlined"
+          style={{textTransform: 'none', justifyContent: 'left'}} disableRipple={true}
                 onClick={() => {
                   navigator.clipboard.writeText(link);
                   setCopiedToClipboard(true);
@@ -82,12 +77,9 @@ function InviteLinker(props) {
                   setInLinker(false);
                   setCopiedToClipboard(false);
                 }} onMouseEnter={() => setInLinker(true)}>
-          <LinkIcon style={{marginRight: 6}} htmlColor="#339BFF" />
-          <Link underline="none">
-            { !useTextInsteadOfLink ? decodeURI(ticketCode) :
-              (marketToken ? intl.formatMessage({ id: 'inviteLinkerText' })
-                : intl.formatMessage({ id: 'copyLink' })) }
-          </Link>
+          <LinkIcon style={{marginRight: 6}}/>
+             {intl.formatMessage({ id: 'copyLink' }) }
+
         </Button>
       </Tooltip>
     </div>
@@ -95,7 +87,6 @@ function InviteLinker(props) {
 }
 
 InviteLinker.propTypes = {
-  marketToken: PropTypes.string,
   hidden: PropTypes.bool
 };
 

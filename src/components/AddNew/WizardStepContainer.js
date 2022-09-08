@@ -1,7 +1,6 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import { Card, } from '@material-ui/core';
-import clsx from 'clsx';
+  import clsx from 'clsx';
 import StepHeaders from './StepHeaders';
 import { WizardStylesContext } from './WizardStylesContext';
 

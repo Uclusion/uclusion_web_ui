@@ -4,9 +4,11 @@ import { useIntl } from 'react-intl';
 import SpinningButton from '../../SpinBlocking/SpinningButton';
 import { WizardStylesContext } from '../WizardStylesContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
+import InviteLinker from '../../../pages/Dialog/InviteLinker';
 
 function WorkspaceStepButtons (props) {
   const {
+    formData,
     onNext,
     onSkip,
     nextStep,
@@ -16,6 +18,7 @@ function WorkspaceStepButtons (props) {
     validForm,
     showSkip,
     showNext,
+    showLink,
     spinOnClick,
   } = props;
   const intl = useIntl();
@@ -56,9 +59,13 @@ function WorkspaceStepButtons (props) {
         </SpinningButton>
       )}
 
+      {showLink && (
+        <InviteLinker marketId={formData.marketId}/>
+      )}
+
       <div className={classes.actionContainer}>
         {showSkip && (
-          <SpinningButton id="OnboardingWizardSkip" className={classes.actionSkip} variant="outlined"
+          <SpinningButton id="OnboardingWizardSkip" className={classes.actionSkip} variant="text"
                           doSpin={spinOnClick} onClick={mySkip}>
             {intl.formatMessage({ id: 'OnboardingWizardSkip' })}
           </SpinningButton>
@@ -79,20 +86,19 @@ WorkspaceStepButtons.propTypes = {
   validForm: PropTypes.bool,
   startOver: PropTypes.func,
   showSkip: PropTypes.bool,
-  showFinish: PropTypes.bool,
-  showGoBack: PropTypes.bool,
   finishLabel: PropTypes.string,
   finish: PropTypes.func,
   onFinish: PropTypes.func,
-  showStartOver: PropTypes.bool,
   startOverLabel: PropTypes.string,
   showNext: PropTypes.bool,
+  showLink: PropTypes.bool,
   startOverDestroysData: PropTypes.bool,
   spinOnClick: PropTypes.bool,
 };
 WorkspaceStepButtons.defaultProps = {
   onNext: () => {},
   onSkip: () => {},
+  onLink: () => {},
   nextStep: () => {},
   skipStep: () => {},
   finish: () => {},
@@ -101,8 +107,6 @@ WorkspaceStepButtons.defaultProps = {
   currentStep: 0,
   validForm: true,
   showSkip: false,
-  showFinish: true,
-  showGoBack: true,
   showNext: true,
   spinOnClick: true,
 };

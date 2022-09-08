@@ -154,8 +154,8 @@ const messages = defineMessages({
   // Share story
   shareButtonExplanation: 'Link',
   shareButtonTitle: 'Share',
-  inviteLinkerText: 'Copy invite link.',
-  copyLink: 'Copy Invite Link',
+  copyLink: 'Link',
+  copyInviteLink: 'Copy Invite Link',
   inviteLinkerTicketCode: 'Human friendly job identifier',
 
   // Support

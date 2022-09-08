@@ -67,7 +67,7 @@ function InviteLinker(props) {
                   setCopiedToClipboard(false);
                 }} onMouseEnter={() => setInLinker(true)}>
           <LinkIcon style={{marginRight: 6}}/>
-             {intl.formatMessage({ id: 'copyLink' }) }
+             {intl.formatMessage({ id: 'copyInviteLink' }) }
 
         </Button>
       </Tooltip>

@@ -220,7 +220,7 @@ function Header (props) {
                 preventDefaultAndProp(event);
                 history.push('/');
               }} color="inherit">
-                <svg style={{ width: '120px', verticalAlign: 'middle', transition: 'all 125ms linear' }}
+                <svg style={{ width: '130px', verticalAlign: 'middle', transition: 'all 125ms linear' }}
                      xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600">
                   <path fill="#fff"
                         d="M888.67,328.66a43,43,0,0,1-34.38,42.12v43.84l-43-43H174.05a62.72,62.72,0,0,1-62.72-62.72V228.36a43,43,0,0,1,43-43H845.69a43,43,0,0,1,43,43Z"/>

@@ -1,7 +1,7 @@
 import { makeStyles } from '@material-ui/core/styles'
 import { findMessageOfType, findMessageOfTypeAndId } from '../../../utils/messageUtils'
 import _ from 'lodash'
-import { useIntl } from 'react-intl'
+import { FormattedMessage, useIntl } from 'react-intl'
 import { useHistory } from 'react-router'
 import { useMetaDataStyles } from '../../Investible/Planning/PlanningInvestible'
 import { usePlanFormStyles } from '../../../components/AgilePlan'
@@ -17,13 +17,15 @@ import { navigate } from '../../../utils/marketIdPathFunctions'
 import PlanningInvestibleAdd from './PlanningInvestibleAdd'
 import Card from '@material-ui/core/Card'
 import CardHeader from '@material-ui/core/CardHeader'
-import { Typography } from '@material-ui/core'
+import { Link, Typography, useTheme } from '@material-ui/core'
 import NotificationCountChips from '../NotificationCountChips'
 import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
 import AddIcon from '@material-ui/icons/Add'
 import Gravatar from '../../../components/Avatars/Gravatar'
 import CardContent from '@material-ui/core/CardContent'
-import PlanningIdeas from './PlanningIdeas'
+import PlanningIdeas, { usePlanningIdStyles } from './PlanningIdeas'
+import { Info } from '@material-ui/icons'
+import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 
 export const useInvestiblesByPersonStyles = makeStyles(
   theme => {
@@ -155,10 +157,12 @@ function InvestiblesByPerson(props) {
     pageState, updatePageState
   } = props;
   const intl = useIntl();
+  const theme = useTheme();
   const history = useHistory();
   const metaClasses = useMetaDataStyles();
   const classes = useInvestiblesByPersonStyles();
   const planningInvestibleAddClasses = usePlanFormStyles();
+  const swimClasses = usePlanningIdStyles();
   const { storyAssignee } = pageState;
   const { created_at: createdAt, budget_unit: budgetUnit, use_budget: useBudget, votes_required: votesRequired,
     market_id: marketId} = group;
@@ -174,7 +178,77 @@ function InvestiblesByPerson(props) {
   function onClick(id) {
     updatePageState({storyAssignee: id});
   }
-  return marketPresencesSorted.map(presence => {
+  function onInvestibleSave (investible) {
+    addInvestible(investiblesDispatch, diffDispatch, investible);
+  }
+
+  function onDone (destinationLink) {
+    if (destinationLink) {
+      navigate(history, destinationLink);
+    }
+  }
+  return (
+    <>
+      {storyAssignee !== undefined && (
+        <PlanningInvestibleAdd
+          marketId={marketId}
+          groupId={group.id}
+          onCancel={() => updatePageState({ storyAssignee: undefined })}
+          onSave={onInvestibleSave}
+          onSpinComplete={(destinationLink) => {
+            updatePageState({ storyAssignee: undefined });
+            onDone(destinationLink);
+          }}
+          createdAt={createdAt}
+          classes={planningInvestibleAddClasses}
+          maxBudgetUnit={budgetUnit}
+          useBudget={useBudget ? useBudget : false}
+          votesRequired={votesRequired}
+          storyAssignee={storyAssignee}
+        />
+      )}
+      {storyAssignee === undefined && (
+        <SpinningIconLabelButton onClick={() => onClick(null)} doSpin={false} icon={AddIcon}>
+          {intl.formatMessage({ id: 'addStoryLabel' })}
+        </SpinningIconLabelButton>
+      )}
+      <dl className={swimClasses.stages} style={{background: theme.palette.grey['100'], marginTop: '0.5rem'}}>
+        <div>
+          <FormattedMessage id="planningVotingStageLabel" />
+          {!mobileLayout && (
+            <Link href="https://documentation.uclusion.com/channels/jobs/stages/#ready-for-approval" target="_blank">
+              <Info style={{height: '1.1rem'}} />
+            </Link>
+          )}
+        </div>
+        <div>
+          <FormattedMessage id='planningAcceptedStageLabel' />
+          {!mobileLayout && (
+            <Link href="https://documentation.uclusion.com/channels/jobs/stages/#started"
+                  target="_blank">
+              <Info style={{height: '1.1rem'}} />
+            </Link>
+          )}
+        </div>
+        <div>
+          <FormattedMessage id="planningReviewStageLabel"/>
+          {!mobileLayout && (
+            <Link href="https://documentation.uclusion.com/channels/jobs/stages/#ready-for-feedback" target="_blank">
+              <Info style={{height: '1.1rem'}} />
+            </Link>
+          )}
+        </div>
+        <div>
+          <FormattedMessage id="verifiedBlockedStageLabel"/>
+          {!mobileLayout && (
+            <Link href="https://documentation.uclusion.com/channels/jobs/stages/#verified-and-not-doing"
+                  target="_blank">
+              <Info style={{height: '1.1rem'}} />
+            </Link>
+          )}
+        </div>
+      </dl>
+      {marketPresencesSorted.map(presence => {
         const { id, email, placeholder_type: placeholderType } = presence;
         const name = (presence.name || '').replace('@', ' ');
         const showAsPlaceholder = placeholderType === PLACEHOLDER;
@@ -186,17 +260,6 @@ function InvestiblesByPerson(props) {
         );
 
         const myInvestiblesStageHash = getUserSwimlaneInvestiblesHash(myInvestibles, visibleStages, marketId);
-
-        function onInvestibleSave (investible) {
-          addInvestible(investiblesDispatch, diffDispatch, investible);
-        }
-
-        function onDone (destinationLink) {
-          if (destinationLink) {
-            navigate(history, destinationLink);
-          }
-        }
-
         const myClassName = showAsPlaceholder ? metaClasses.archivedColor : metaClasses.normalColor;
         const { mentioned_notifications: mentions, approve_notifications: approvals, review_notifications: reviews }
           = presence || {};
@@ -204,25 +267,6 @@ function InvestiblesByPerson(props) {
           return <React.Fragment/>
         }
         return (
-          <React.Fragment key={`fragsl${id}`}>
-            {storyAssignee === id && (
-              <PlanningInvestibleAdd
-                marketId={marketId}
-                groupId={group.id}
-                onCancel={() => updatePageState({ storyAssignee: undefined })}
-                onSave={onInvestibleSave}
-                onSpinComplete={(destinationLink) => {
-                  updatePageState({ storyAssignee: undefined });
-                  onDone(destinationLink);
-                }}
-                createdAt={createdAt}
-                classes={planningInvestibleAddClasses}
-                maxBudgetUnit={budgetUnit}
-                useBudget={useBudget ? useBudget : false}
-                votesRequired={votesRequired}
-                storyAssignee={storyAssignee}
-              />
-            )}
             <Card id={`sl${id}`} key={id} className={classes.root} elevation={3}>
               <CardHeader
                 className={classes.header}
@@ -271,9 +315,10 @@ function InvestiblesByPerson(props) {
                   )}
               </CardContent>
             </Card>
-          </React.Fragment>
         );
-      }
+      })
+    }
+    </>
   );
 }
 

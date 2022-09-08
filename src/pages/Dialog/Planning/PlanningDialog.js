@@ -13,7 +13,6 @@ import {
   Link
 } from '@material-ui/core'
 import Summary from './Summary'
-import { usePlanningIdStyles } from './PlanningIdeas'
 import Screen from '../../../containers/Screen/Screen'
 import {
   baseNavListItem,
@@ -69,7 +68,7 @@ import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/Marke
 import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper'
 import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox'
 import { isEveryoneGroup } from '../../../contexts/GroupMembersContext/groupMembersHelper'
-import { AssignmentInd, Info } from '@material-ui/icons'
+import { AssignmentInd } from '@material-ui/icons'
 import Backlog from './Backlog'
 import InvestiblesByPerson from './InvestiblesByPerson'
 
@@ -105,7 +104,6 @@ function PlanningDialog(props) {
   const { hash, search: querySearch } = location;
   const values = queryString.parse(querySearch);
   const { groupId } = values || {};
-  const swimClasses = usePlanningIdStyles();
   const intl = useIntl();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
@@ -255,10 +253,7 @@ function PlanningDialog(props) {
       || parentResults.find((id) => id === comment.id));
   });
   const archivedSize = _.size(archiveInvestibles) + _.size(resolvedMarketComments);
-  const navListItemTextArray = [
-    createNavListItem(AddIcon, 'addStoryLabel', 'addStorySection',
-      undefined, false, isSectionBold('addStorySection'), !_.isEmpty(search))
-  ];
+  const navListItemTextArray = [];
   if (!isEveryoneGroup(groupId, marketId)) {
     navListItemTextArray.push(createNavListItem(AddIcon, 'dialogAddParticipantsLabel',
       'addCollaboratorSection', undefined, false,
@@ -408,42 +403,6 @@ function PlanningDialog(props) {
               />
             )}
             {!_.isEmpty(requiresInputInvestibles) && (<div style={{ paddingBottom: '2rem' }}/>)}
-            <dl className={swimClasses.stages} style={{background: theme.palette.grey['100']}}>
-              <div>
-                <FormattedMessage id="planningVotingStageLabel" />
-                {!mobileLayout && (
-                  <Link href="https://documentation.uclusion.com/channels/jobs/stages/#ready-for-approval" target="_blank">
-                    <Info style={{height: '1.1rem'}} />
-                  </Link>
-                )}
-              </div>
-              <div>
-                <FormattedMessage id='planningAcceptedStageLabel' />
-                {!mobileLayout && (
-                  <Link href="https://documentation.uclusion.com/channels/jobs/stages/#started"
-                        target="_blank">
-                    <Info style={{height: '1.1rem'}} />
-                  </Link>
-                )}
-              </div>
-              <div>
-                <FormattedMessage id="planningReviewStageLabel"/>
-                {!mobileLayout && (
-                  <Link href="https://documentation.uclusion.com/channels/jobs/stages/#ready-for-feedback" target="_blank">
-                    <Info style={{height: '1.1rem'}} />
-                  </Link>
-                )}
-              </div>
-              <div>
-                <FormattedMessage id="verifiedBlockedStageLabel"/>
-                {!mobileLayout && (
-                  <Link href="https://documentation.uclusion.com/channels/jobs/stages/#verified-and-not-doing"
-                        target="_blank">
-                    <Info style={{height: '1.1rem'}} />
-                  </Link>
-                )}
-              </div>
-            </dl>
             <InvestiblesByPerson
               comments={comments}
               investibles={investibles}

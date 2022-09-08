@@ -24,6 +24,8 @@ import CommentReplyEdit from '../../pages/Comment/CommentReplyEdit'
 import PlanningMarketEdit from '../../pages/Dialog/Planning/PlanningMarketEdit'
 import { getTicket } from '../../contexts/TicketContext/ticketIndexContextHelper'
 import { TicketIndexContext } from '../../contexts/TicketContext/TicketIndexContext'
+import { AccountContext } from '../../contexts/AccountContext/AccountContext';
+import Onboarding from '../../pages/Onboarding/Onboarding';
 
 const useStyles = makeStyles({
   body: {
@@ -52,6 +54,7 @@ function Root() {
   const location = useLocation();
   const classes = useStyles();
   const { pathname } = location;
+  const [accountState] = useContext(AccountContext);
   const { marketId, investibleId, action } = decomposeMarketPath(pathname);
   const [, setOperationsLocked] = useContext(OperationInProgressContext);
   const [, setOnline] = useContext(OnlineStateContext);
@@ -185,6 +188,23 @@ function Root() {
       registerMarketTokenListeners();
     }
   },  [history, setOnline, setOperationsLocked, location]);
+  // onboarding overrides _EVERYTHING_
+  const {user} = accountState;
+  const {needs_onboarding: needsOnboarding} = user;
+  if(needsOnboarding){
+    return (
+      <div>
+        <CssBaseline/>
+        <div className={classes.body}>
+          <div className={classes.root}>
+            <div className={classes.content}>
+              <Onboarding/>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Home - no content to prepare and we don't want its useEffects even around when not hidden
   // PlanningMarketEdit - if preserve state then when come back can have stale data

@@ -13,11 +13,12 @@ import {
   preventDefaultAndProp
 } from '../../../utils/marketIdPathFunctions'
 import clsx from 'clsx';
+import { LocalPlanningDragContext, } from './PlanningDialog'
 import {
   checkInApprovalWarning,
   checkInProgressWarning, checkInReviewWarning,
-  countByType, LocalPlanningDragContext,
-} from './PlanningDialog'
+  countByType
+} from './InvestiblesByPerson'
 import { DaysEstimate } from '../../../components/AgilePlan';
 import {
   getMarketPresences,

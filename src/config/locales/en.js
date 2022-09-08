@@ -582,7 +582,8 @@ const messages = defineMessages({
 
   // Planning Dialog
   planningDialogNavDetailsLabel: 'Details',
-  planningDialogNavStoriesLabel: 'Jobs',
+  planningDialogNavStoriesLabel: 'Assigned Jobs',
+  planningDialogBacklog: 'Backlog',
   planningDialogNavDiscussionLabel: 'Discussion',
   planningDialogManageParticipantsLabel: 'Manage collaborators',
   planningDialogDiscussionLabel: 'Discussion',

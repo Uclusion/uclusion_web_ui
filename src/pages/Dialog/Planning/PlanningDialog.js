@@ -8,17 +8,12 @@ import PropTypes from 'prop-types'
 import _ from 'lodash'
 import {
   Grid,
-  Typography,
   useMediaQuery,
   useTheme,
   Link
 } from '@material-ui/core'
-import Card from '@material-ui/core/Card'
-import CardContent from '@material-ui/core/CardContent'
-import CardHeader from '@material-ui/core/CardHeader'
-import { makeStyles } from '@material-ui/core/styles'
 import Summary from './Summary'
-import PlanningIdeas, { usePlanningIdStyles } from './PlanningIdeas'
+import { usePlanningIdStyles } from './PlanningIdeas'
 import Screen from '../../../containers/Screen/Screen'
 import {
   baseNavListItem,
@@ -34,46 +29,33 @@ import {
 } from '../../../constants/comments'
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
 import CommentBox, { getSortedRoots } from '../../../containers/CommentBox/CommentBox'
-import { getUserInvestibles, getUserSwimlaneInvestiblesHash } from './userUtils'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import {
   getMarketPresences,
   getPresenceMap
 } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import DismissableText from '../../../components/Notifications/DismissableText'
-import {
-  PLACEHOLDER,
-  SECTION_TYPE_SECONDARY_WARNING,
-  SECTION_TYPE_WARNING
-} from '../../../constants/global'
 import ArchiveInvestbiles from '../../DialogArchives/ArchiveInvestibles'
-import SubSection from '../../../containers/SubSection/SubSection'
 import { addInvestible, getInvestiblesInStage } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import UclusionTour from '../../../components/Tours/UclusionTour'
 import { INVITED_USER_WORKSPACE } from '../../../contexts/TourContext/tourContextHelper';
 import { getMarketInfo } from '../../../utils/userFunctions'
 import MarketTodos from './MarketTodos'
-import Gravatar from '../../../components/Avatars/Gravatar';
 import {
   isAcceptedStage,
   isBlockedStage,
   isFurtherWorkStage,
   isInReviewStage, isRequiredInputStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
-import { findMessageOfType, findMessageOfTypeAndId } from '../../../utils/messageUtils'
-import NotificationCountChips from '../NotificationCountChips'
 import AddIcon from '@material-ui/icons/Add'
-import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
 import { workspaceInvitedUserSteps } from '../../../components/Tours/InviteTours/workspaceInvitedUser';
 import ListAltIcon from '@material-ui/icons/ListAlt'
 import QuestionIcon from '@material-ui/icons/ContactSupport'
 import MenuBookIcon from '@material-ui/icons/MenuBook'
-import Chip from '@material-ui/core/Chip'
 import { getThreadIds } from '../../../utils/commentFunctions'
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 import DialogManage from '../DialogManage'
-import { useMetaDataStyles } from '../../Investible/Planning/PlanningInvestible'
 import SettingsIcon from '@material-ui/icons/Settings'
 import PlanningDialogEdit from './PlanningDialogEdit'
 import PlanningInvestibleAdd from './PlanningInvestibleAdd'
@@ -87,9 +69,24 @@ import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/Marke
 import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper'
 import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox'
 import { isEveryoneGroup } from '../../../contexts/GroupMembersContext/groupMembersHelper'
-import { Info } from '@material-ui/icons'
+import { AssignmentInd, Info } from '@material-ui/icons'
+import Backlog from './Backlog'
+import InvestiblesByPerson from './InvestiblesByPerson'
 
 export const LocalPlanningDragContext = React.createContext([]);
+
+function getAnchorId(tabIndex) {
+  switch (tabIndex) {
+    case 0:
+      return 'storiesSection';
+    case 1:
+      return 'backlogSection';
+    case 2:
+      return 'marketTodos'
+    default:
+      return 'workspaceMain';
+  }
+}
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -108,7 +105,6 @@ function PlanningDialog(props) {
   const { hash, search: querySearch } = location;
   const values = queryString.parse(querySearch);
   const { groupId } = values || {};
-  const classes = useInvestiblesByPersonStyles();
   const swimClasses = usePlanningIdStyles();
   const intl = useIntl();
   const theme = useTheme();
@@ -218,14 +214,6 @@ function PlanningDialog(props) {
     }
   }, [comments, hash, sectionOpen, updatePageState]);
 
-  function onClickFurtherStart() {
-    updatePageState({furtherWorkType: 'readyToStart'});
-  }
-
-  function onClickFurther() {
-    updatePageState({furtherWorkType: 'notReadyToStart'});
-  }
-
   function openSubSection(subSection, doScroll=true) {
     updatePageState({sectionOpen: subSection});
     if (doScroll) {
@@ -281,12 +269,6 @@ function PlanningDialog(props) {
       undefined, false, isSectionBold('settingsSection'), !_.isEmpty(search)));
   }
 
-  const furtherWorkReadyToStartChip = furtherWorkReadyToStart.length > 0
-    && <Chip label={`${furtherWorkReadyToStart.length}`} color="primary" size='small'
-             className={classes.chipStyleYellow} />;
-  const furtherWorkNotReadyToStartChip = furtherWorkInvestibles.length > 0 &&
-    <Chip label={`${furtherWorkInvestibles.length}`} size='small' className={classes.chipStyleBlue} />;
-
   const planningInvestibleAddClasses = usePlanFormStyles();
   function onInvestibleSave(investible) {
     addInvestible(investiblesDispatch, diffDispatch, investible);
@@ -301,8 +283,8 @@ function PlanningDialog(props) {
 
   const discussionSearchResults = (results.find((result) => result.id === marketId) ? 1 : 0) + _.size(questions)
                         + _.size(suggestions) + _.size(reports);
-  const jobsSearchResults = _.size(requiresInputInvestibles) + _.size(blockedInvestibles) + _.size(swimlaneInvestibles)
-    + _.size(furtherWorkReadyToStart) + _.size(furtherWorkInvestibles);
+  const jobsSearchResults = _.size(requiresInputInvestibles) + _.size(blockedInvestibles) + _.size(swimlaneInvestibles);
+  const backlogSearchResults = _.size(furtherWorkReadyToStart) + _.size(furtherWorkInvestibles);
 
   const isFromSideBarMenu = ['addStorySection', 'addCollaboratorSection', 'settingsSection'].includes(sectionOpen);
   function resetTabs() {
@@ -327,11 +309,11 @@ function PlanningDialog(props) {
           value={tabIndex}
           onChange={(event, value) => {
             updatePageState({tabIndex: value});
-            if (value === 3) {
+            if (value === 4) {
               navigate(history, formMarketArchivesLink(marketId, groupId));
             } else {
               const isSearch = !_.isEmpty(search);
-              const anchorId = value === 0 ? 'storiesSection' : (value === 2 ? 'workspaceMain' : 'marketTodos');
+              const anchorId = getAnchorId(value);
               const isScrolling = (mobileLayout || isSearch) && !singleSections.includes(anchorId);
               openSubSection(anchorId, !isScrolling);
               if (isScrolling) {
@@ -341,9 +323,12 @@ function PlanningDialog(props) {
           }}
           indicatorColors={['#00008B']}
           style={{ borderTop: '1px ridge lightgrey', paddingBottom: '0.25rem' }}>
-          <GmailTabItem icon={<AssignmentIcon />} label={intl.formatMessage({id: 'planningDialogNavStoriesLabel'})}
+          <GmailTabItem icon={<AssignmentInd />} label={intl.formatMessage({id: 'planningDialogNavStoriesLabel'})}
                         color='black'
                         tag={_.isEmpty(search) || jobsSearchResults === 0 ? undefined : `${jobsSearchResults}`} />
+          <GmailTabItem icon={<AssignmentIcon />} label={intl.formatMessage({id: 'planningDialogBacklog'})}
+                        color='black'
+                        tag={_.isEmpty(search) || backlogSearchResults === 0 ? undefined : `${backlogSearchResults}`} />
           <GmailTabItem icon={<ListAltIcon />} label={intl.formatMessage({id: 'todoSection'})}
                         tag={_.isEmpty(search) || _.isEmpty(todoComments) ? undefined : `${_.size(todoComments)}` } />
           <GmailTabItem icon={<QuestionIcon />}
@@ -423,150 +408,66 @@ function PlanningDialog(props) {
               />
             )}
             {!_.isEmpty(requiresInputInvestibles) && (<div style={{ paddingBottom: '2rem' }}/>)}
-              <dl className={swimClasses.stages} style={{background: theme.palette.grey['100']}}>
-                <div>
-                  <FormattedMessage id="planningVotingStageLabel" />
-                  {!mobileLayout && (
-                    <Link href="https://documentation.uclusion.com/channels/jobs/stages/#ready-for-approval" target="_blank">
-                      <Info style={{height: '1.1rem'}} />
-                    </Link>
-                  )}
-                </div>
-                <div>
-                  <FormattedMessage id='planningAcceptedStageLabel' />
-                  {!mobileLayout && (
-                    <Link href="https://documentation.uclusion.com/channels/jobs/stages/#started"
-                          target="_blank">
-                      <Info style={{height: '1.1rem'}} />
-                    </Link>
-                  )}
-                </div>
-                <div>
-                  <FormattedMessage id="planningReviewStageLabel"/>
-                  {!mobileLayout && (
-                    <Link href="https://documentation.uclusion.com/channels/jobs/stages/#ready-for-feedback" target="_blank">
-                      <Info style={{height: '1.1rem'}} />
-                    </Link>
-                  )}
-                </div>
-                <div>
-                  <FormattedMessage id="verifiedBlockedStageLabel"/>
-                  {!mobileLayout && (
-                    <Link href="https://documentation.uclusion.com/channels/jobs/stages/#verified-and-not-doing"
-                          target="_blank">
-                      <Info style={{height: '1.1rem'}} />
-                    </Link>
-                  )}
-                </div>
-              </dl>
-              <InvestiblesByPerson
-                comments={comments}
-                investibles={investibles}
-                visibleStages={visibleStages}
-                acceptedStage={acceptedStage}
-                inDialogStage={inDialogStage}
-                inBlockingStage={inBlockingStage}
-                inReviewStage={inReviewStage}
-                inVerifiedStage={inVerifiedStage}
-                requiresInputStage={requiresInputStage}
-                group={group}
-                isAdmin={isAdmin}
-                mobileLayout={mobileLayout}
-                pageState={pageState} updatePageState={updatePageState}
-              />
-              {furtherWorkType === 'readyToStart' && (
-                <PlanningInvestibleAdd
-                  marketId={marketId}
-                  groupId={groupId}
-                  onCancel={() => updatePageState({furtherWorkType: undefined})}
-                  onSave={onInvestibleSave}
-                  onSpinComplete={(destinationLink) => {
-                    updatePageState({furtherWorkType: undefined});
-                    onDone(destinationLink);
-                  }}
-                  marketPresences={marketPresences}
-                  createdAt={createdAt}
-                  classes={planningInvestibleAddClasses}
-                  maxBudgetUnit={budgetUnit}
-                  useBudget={useBudget ? useBudget : false}
-                  votesRequired={votesRequired}
-                  furtherWorkType={furtherWorkType}
-                />
-              )}
-              <div style={{paddingTop: '1rem'}} />
-              <SubSection
-                type={SECTION_TYPE_SECONDARY_WARNING}
-                titleIcon={furtherWorkReadyToStartChip === false ? undefined : furtherWorkReadyToStartChip}
-                title={intl.formatMessage({ id: 'readyToStartHeader' })}
-                actionButton={
-                  <ExpandableAction
-                    icon={<AddIcon htmlColor="black"/>}
-                    label={intl.formatMessage({ id: 'createFurtherWorkExplanation' })}
-                    openLabel={intl.formatMessage({ id: 'planningDialogAddInvestibleLabel'})}
-                    onClick={onClickFurtherStart}
-                    disabled={!isAdmin}
-                    tipPlacement="top-end"
-                  />
-                }
-              >
-                <ArchiveInvestbiles
-                  comments={comments}
-                  elevation={0}
-                  marketId={marketId}
-                  presenceMap={presenceMap}
-                  investibles={furtherWorkReadyToStart}
-                  stage={furtherWorkStage}
-                  presenceId={myPresence.id}
-                  allowDragDrop
-                  isReadyToStart
-                />
-              </SubSection>
-              {!_.isEmpty(furtherWorkInvestibles) && (<div style={{ paddingBottom: '15px' }}/>)}
-              {furtherWorkType === 'notReadyToStart' && (
-                <PlanningInvestibleAdd
-                  marketId={marketId}
-                  groupId={groupId}
-                  onCancel={() => updatePageState({furtherWorkType: undefined})}
-                  onSave={onInvestibleSave}
-                  onSpinComplete={(destinationLink) => {
-                    updatePageState({furtherWorkType: undefined});
-                    onDone(destinationLink);
-                  }}
-                  marketPresences={marketPresences}
-                  createdAt={createdAt}
-                  classes={planningInvestibleAddClasses}
-                  maxBudgetUnit={budgetUnit}
-                  useBudget={useBudget ? useBudget : false}
-                  votesRequired={votesRequired}
-                  furtherWorkType={furtherWorkType}
-                />
-              )}
-              <SubSection
-                type={SECTION_TYPE_WARNING}
-                titleIcon={furtherWorkNotReadyToStartChip === false ? undefined : furtherWorkNotReadyToStartChip}
-                title={intl.formatMessage({ id: 'notReadyToStartHeader' })}
-                actionButton={
-                  <ExpandableAction
-                    icon={<AddIcon htmlColor="black"/>}
-                    label={intl.formatMessage({ id: 'createFurtherWorkExplanation' })}
-                    openLabel={intl.formatMessage({ id: 'planningDialogAddInvestibleLabel'})}
-                    onClick={onClickFurther}
-                    disabled={!isAdmin}
-                    tipPlacement="top-end"
-                  />
-                }
-              >
-                <ArchiveInvestbiles
-                  comments={comments}
-                  elevation={0}
-                  marketId={marketId}
-                  presenceMap={presenceMap}
-                  investibles={furtherWorkInvestibles}
-                  stage={furtherWorkStage}
-                  presenceId={myPresence.id}
-                  allowDragDrop
-                />
-              </SubSection>
+            <dl className={swimClasses.stages} style={{background: theme.palette.grey['100']}}>
+              <div>
+                <FormattedMessage id="planningVotingStageLabel" />
+                {!mobileLayout && (
+                  <Link href="https://documentation.uclusion.com/channels/jobs/stages/#ready-for-approval" target="_blank">
+                    <Info style={{height: '1.1rem'}} />
+                  </Link>
+                )}
+              </div>
+              <div>
+                <FormattedMessage id='planningAcceptedStageLabel' />
+                {!mobileLayout && (
+                  <Link href="https://documentation.uclusion.com/channels/jobs/stages/#started"
+                        target="_blank">
+                    <Info style={{height: '1.1rem'}} />
+                  </Link>
+                )}
+              </div>
+              <div>
+                <FormattedMessage id="planningReviewStageLabel"/>
+                {!mobileLayout && (
+                  <Link href="https://documentation.uclusion.com/channels/jobs/stages/#ready-for-feedback" target="_blank">
+                    <Info style={{height: '1.1rem'}} />
+                  </Link>
+                )}
+              </div>
+              <div>
+                <FormattedMessage id="verifiedBlockedStageLabel"/>
+                {!mobileLayout && (
+                  <Link href="https://documentation.uclusion.com/channels/jobs/stages/#verified-and-not-doing"
+                        target="_blank">
+                    <Info style={{height: '1.1rem'}} />
+                  </Link>
+                )}
+              </div>
+            </dl>
+            <InvestiblesByPerson
+              comments={comments}
+              investibles={investibles}
+              visibleStages={visibleStages}
+              acceptedStage={acceptedStage}
+              inDialogStage={inDialogStage}
+              inBlockingStage={inBlockingStage}
+              inReviewStage={inReviewStage}
+              inVerifiedStage={inVerifiedStage}
+              requiresInputStage={requiresInputStage}
+              group={group}
+              isAdmin={isAdmin}
+              mobileLayout={mobileLayout}
+              pageState={pageState} updatePageState={updatePageState}
+            />
+          </div>
+        )}
+        {isSectionOpen('backlogSection') && (
+          <div id="backlogSection">
+            <Backlog furtherWorkType={furtherWorkType} group={group} updatePageState={updatePageState}
+                     onInvestibleSave={onInvestibleSave} onDone={onDone} marketPresences={marketPresences}
+                     furtherWorkReadyToStart={furtherWorkReadyToStart} furtherWorkInvestibles={furtherWorkInvestibles}
+                     isAdmin={isAdmin} comments={comments} presenceMap={presenceMap}
+                     furtherWorkStage={furtherWorkStage} myPresence={myPresence} />
           </div>
         )}
         <MarketTodos comments={unResolvedMarketComments} marketId={marketId} groupId={groupId}
@@ -613,261 +514,5 @@ PlanningDialog.defaultProps = {
   hidden: false,
   comments: []
 };
-
-export const useInvestiblesByPersonStyles = makeStyles(
-  theme => {
-    return {
-      root: {
-        margin: theme.spacing(1, 0)
-      },
-      content: {
-        padding: 0,
-        "&:last-child": {
-          paddingBottom: "inherit"
-        }
-      },
-      smallGravatar: {
-        width: '30px',
-        height: '30px',
-      },
-      header: {
-        paddingLeft: theme.spacing(1),
-        paddingBottom: 0,
-        paddingTop: 0,
-      },
-      menuButton: {
-        width: '100%',
-        padding: '12px'
-      },
-      expansionControl: {
-        backgroundColor: '#ecf0f1',
-        width: '30%',
-        [theme.breakpoints.down('sm')]: {
-          width: 'auto'
-        }
-      },
-      fontControl: {
-        alignItems: "center",
-        textTransform: 'none',
-        marginRight: 'auto',
-        marginLeft: '5px',
-        fontWeight: 700
-      },
-      rightSpace: {
-        paddingRight: theme.spacing(1),
-      },
-      chipStyle: {
-        marginRight: '5px',
-        backgroundColor: '#E85757'
-      },
-      chipStyleYellow: {
-        marginRight: '5px',
-        color: 'black',
-        backgroundColor: '#e6e969'
-      },
-      chipStyleBlue: {
-        marginRight: '5px',
-        color: 'white',
-        backgroundColor: '#2F80ED'
-      },
-      titleContainer: {
-        width: 'auto',
-        display: 'flex',
-        alignItems: 'center',
-        marginBottom: '1rem'
-      },
-      title: {
-        marginLeft: '1rem'
-      }
-    };
-  },
-  { name: "InvestiblesByPerson" }
-);
-
-function checkInvestibleWarning(investibles, myPresence, warningFunction) {
-  const warnHash = {};
-  if (!myPresence.id) {
-    return warnHash;
-  }
-  investibles.forEach((fullInvestible) => {
-    const { investible } = fullInvestible;
-    const { id } = investible;
-    if (warningFunction(id)) {
-      warnHash[id] = true;
-    }
-  });
-  return warnHash;
-}
-
-export function checkInProgressWarning(investibles, myPresence, messagesState) {
-  return checkInvestibleWarning(investibles, myPresence,
-    (id) => findMessageOfTypeAndId(id, messagesState, 'REPORT')
-      || findMessageOfType('REPORT_REQUIRED', id, messagesState));
-}
-
-export function checkInApprovalWarning(investibles, myPresence, messagesState) {
-  return checkInvestibleWarning(investibles, myPresence,
-    (id) => findMessageOfType('NOT_FULLY_VOTED', id, messagesState));
-}
-
-export function checkInReviewWarning(investibles, myPresence, messagesState) {
-  return checkInvestibleWarning(investibles, myPresence,
-    (id) => findMessageOfType('REPORT_REQUIRED', id, messagesState));
-}
-
-export function countByType(investible, comments, commentTypes) {
-  const { id } = investible;
-  if (_.isEmpty(comments)) {
-    return 0;
-  }
-  const openComments = comments.filter((comment) => {
-    const { investible_id: investibleId, comment_type: commentType, resolved } = comment;
-    return !resolved && id === investibleId && commentTypes.includes(commentType);
-  });
-  return _.size(openComments);
-}
-
-function InvestiblesByPerson(props) {
-  const {
-    comments,
-    investibles,
-    visibleStages,
-    acceptedStage,
-    inDialogStage,
-    inBlockingStage,
-    inReviewStage,
-    requiresInputStage,
-    inVerifiedStage,
-    group,
-    isAdmin,
-    mobileLayout,
-    pageState, updatePageState
-  } = props;
-  const intl = useIntl();
-  const history = useHistory();
-  const metaClasses = useMetaDataStyles();
-  const classes = useInvestiblesByPersonStyles();
-  const planningInvestibleAddClasses = usePlanFormStyles();
-  const { storyAssignee } = pageState;
-  const { created_at: createdAt, budget_unit: budgetUnit, use_budget: useBudget, votes_required: votesRequired,
-    market_id: marketId} = group;
-  const [marketPresencesState] = useContext(MarketPresencesContext);
-  const presences = getMarketPresences(marketPresencesState, marketId) || [];
-  const marketPresencesSortedAlmost = _.sortBy(presences, 'name');
-  const marketPresencesSorted = _.sortBy(marketPresencesSortedAlmost, function (presence) {
-    return !presence.current_user;
-  });
-  const [, investiblesDispatch] = useContext(InvestiblesContext);
-  const [, diffDispatch] = useContext(DiffContext);
-
-  function onClick(id) {
-    updatePageState({storyAssignee: id});
-  }
-  return (
-    <div style={{overflowY: 'auto', maxHeight: '35rem', marginBottom: '2rem'}}>
-      {marketPresencesSorted.map(presence => {
-        const { id, email, placeholder_type: placeholderType } = presence;
-        const name = (presence.name || '').replace('@', ' ');
-        const showAsPlaceholder = placeholderType === PLACEHOLDER;
-        const myInvestibles = getUserInvestibles(
-          id,
-          marketId,
-          investibles,
-          visibleStages
-        );
-
-        const myInvestiblesStageHash = getUserSwimlaneInvestiblesHash(myInvestibles, visibleStages, marketId);
-
-        function onInvestibleSave (investible) {
-          addInvestible(investiblesDispatch, diffDispatch, investible);
-        }
-
-        function onDone (destinationLink) {
-          if (destinationLink) {
-            navigate(history, destinationLink);
-          }
-        }
-
-        const myClassName = showAsPlaceholder ? metaClasses.archivedColor : metaClasses.normalColor;
-        const { mentioned_notifications: mentions, approve_notifications: approvals, review_notifications: reviews }
-          = presence || {};
-        if (_.isEmpty(myInvestiblesStageHash) && _.isEmpty(mentions) && _.isEmpty(approvals) && _.isEmpty(reviews)) {
-          return <React.Fragment/>
-        }
-        return (
-          <React.Fragment key={`fragsl${id}`}>
-            {storyAssignee === id && (
-              <PlanningInvestibleAdd
-                marketId={marketId}
-                groupId={group.id}
-                onCancel={() => updatePageState({ storyAssignee: undefined })}
-                onSave={onInvestibleSave}
-                onSpinComplete={(destinationLink) => {
-                  updatePageState({ storyAssignee: undefined });
-                  onDone(destinationLink);
-                }}
-                createdAt={createdAt}
-                classes={planningInvestibleAddClasses}
-                maxBudgetUnit={budgetUnit}
-                useBudget={useBudget ? useBudget : false}
-                votesRequired={votesRequired}
-                storyAssignee={storyAssignee}
-              />
-            )}
-            <Card id={`sl${id}`} key={id} className={classes.root} elevation={3}>
-              <CardHeader
-                className={classes.header}
-                id={`u${id}`}
-                title={
-                  <div style={{ alignItems: "center", display: "flex", flexDirection: 'row' }}>
-                    <Typography variant="body1" className={myClassName}>
-                      {name}
-                      {!mobileLayout && (
-                        <NotificationCountChips id={id} presence={presence || {}}/>
-                      )}
-                    </Typography>
-                    <div style={{ flexGrow: 1 }}/>
-                    <ExpandableAction
-                      icon={<AddIcon htmlColor="black"/>}
-                      label={intl.formatMessage({ id: 'createAssignmentExplanation' })}
-                      openLabel={intl.formatMessage({ id: 'createAssignment' })}
-                      onClick={() => onClick(id)}
-                      disabled={!isAdmin}
-                      tipPlacement="top-end"
-                    />
-                  </div>}
-                avatar={<Gravatar className={classes.smallGravatar} email={email} name={name}/>}
-                titleTypographyProps={{ variant: "subtitle2" }}
-              />
-              <CardContent className={classes.content}>
-                {marketId &&
-                  acceptedStage &&
-                  inDialogStage &&
-                  inReviewStage &&
-                  inVerifiedStage &&
-                  inBlockingStage && (
-                    <PlanningIdeas
-                      myInvestiblesStageHash={myInvestiblesStageHash}
-                      allInvestibles={investibles}
-                      marketId={marketId}
-                      acceptedStage={acceptedStage}
-                      inDialogStageId={inDialogStage.id}
-                      inReviewStageId={inReviewStage.id}
-                      inBlockingStageId={inBlockingStage.id}
-                      inRequiresInputStageId={requiresInputStage.id}
-                      inVerifiedStageId={inVerifiedStage.id}
-                      comments={comments}
-                      presenceId={presence.id}
-                    />
-                  )}
-              </CardContent>
-            </Card>
-          </React.Fragment>
-        );
-      })
-      }
-    </div>
-  );
-}
 
 export default PlanningDialog;

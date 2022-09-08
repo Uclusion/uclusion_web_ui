@@ -7,8 +7,9 @@ import { Menu, MenuItem, ProSidebar, SidebarContent, SidebarHeader, SubMenu } fr
 import { useMediaQuery, useTheme } from '@material-ui/core'
 import Chip from '@material-ui/core/Chip'
 
-function processRegularItem (classes, history, text, target, num, Icon, onClickFunc, isBold, newPage,
-  index, search, openMenuItems, isLarge) {
+function processRegularItem(properties) {
+  const {classes, history, text, target, num, Icon, onClickFunc, isBold, newPage,
+    index, search, openMenuItems, isLarge, isSubMenu} = properties;
   if (!text) {
     return React.Fragment
   }
@@ -23,6 +24,7 @@ function processRegularItem (classes, history, text, target, num, Icon, onClickF
   return (
     <>
       <MenuItem icon={<Icon htmlColor="black" />}
+                style={{backgroundColor: isBold && !isSubMenu ? '#b4d0d8' : undefined}}
                 key={`${index}${textNoSpaces}`} id={textNoSpaces}
                 suffix={num > 0 ?
                   <Chip label={`${num}`} size='small' style={{
@@ -47,8 +49,8 @@ function processRegularItem (classes, history, text, target, num, Icon, onClickF
         <div style={{paddingLeft: '1rem'}}>
           {openMenuItems.map((subItem, index) => {
             const { text, target, num, icon: Icon, onClickFunc, newPage, isBold } = subItem
-            return processRegularItem(classes, history, text, target, num, Icon, onClickFunc,
-              isBold, newPage, index, search)
+            return processRegularItem({classes, history, text, target, num, Icon, onClickFunc,
+              isBold, newPage, index, search, isSubMenu: true})
           })}
         </div>
       )}
@@ -76,14 +78,14 @@ export default function Sidebar(props) {
                            open={mobileLayout || (!_.isEmpty(search) && num > 0) ? true : undefined}>
                     {subItems.map((subItem, index) => {
                       const { text, target, num, icon: Icon, onClickFunc, newPage } = subItem
-                      return processRegularItem(classes, history, text, target, num, Icon, onClickFunc,
-                        false, newPage, index, search)
+                      return processRegularItem({classes, history, text, target, num, Icon, onClickFunc,
+                        newPage, index, search, isSubMenu: true})
                     })}
                   </SubMenu>
                 );
               }
-              return processRegularItem(classes, history, text, target, num, Icon, onClickFunc, isBold, newPage,
-                topIndex, search, openMenuItems, true)
+              return processRegularItem({classes, history, text, target, num, Icon, onClickFunc, isBold, newPage,
+                index: topIndex, search, openMenuItems, isLarge: true})
             })}
           </Menu>
         )}
@@ -101,14 +103,14 @@ export default function Sidebar(props) {
                          open={mobileLayout || (!_.isEmpty(search) && num > 0) ? true : undefined}>
                   {subItems.map((subItem, index) => {
                     const { text, target, num, icon: Icon, onClickFunc, newPage } = subItem
-                    return processRegularItem(classes, history, text, target, num, Icon, onClickFunc,
-                      false, newPage, index, search)
+                    return processRegularItem({classes, history, text, target, num, Icon, onClickFunc,
+                      newPage, index, search, isSubMenu: true})
                   })}
                 </SubMenu>
               );
             }
-            return processRegularItem(classes, history, text, target, num, Icon, onClickFunc, isBold, newPage,
-              topIndex, search, openMenuItems)
+            return processRegularItem({classes, history, text, target, num, Icon, onClickFunc, isBold, newPage,
+              index: topIndex, search, openMenuItems})
           })}
         </Menu>
       )}

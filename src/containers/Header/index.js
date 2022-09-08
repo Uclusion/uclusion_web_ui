@@ -64,7 +64,7 @@ export const headerStyles = makeStyles((theme) => {
       flexGrow: 1,
     },
     appBar: {
-      background: '#fff',
+      background: '#8cb4c4',
       height: '67px',
     },
     appBarNoSidebar: {
@@ -262,7 +262,7 @@ function Header (props) {
               <div className={classes.padLeft} />
               {!mobileLayout && (
                 <Tooltip title={<FormattedMessage id="help"/>}>
-                  <HelpOutlineIcon style={{ cursor: 'pointer', marginLeft: '1rem', color: 'grey' }} id="helpIcon"
+                  <HelpOutlineIcon style={{ cursor: 'pointer', marginLeft: '1rem', color: 'white' }} id="helpIcon"
                                    onClick={() => openInNewTab(config.helpLink)}/>
                 </Tooltip>
               )}

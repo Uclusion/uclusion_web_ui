@@ -1,7 +1,7 @@
 import React, { useContext, useEffect } from 'react'
 import _ from 'lodash'
 import PropTypes from 'prop-types'
-import { Container, Paper, useMediaQuery, useTheme } from '@material-ui/core'
+import { Container, useMediaQuery, useTheme } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import { useHistory, useLocation } from 'react-router'
 import Header from '../Header'

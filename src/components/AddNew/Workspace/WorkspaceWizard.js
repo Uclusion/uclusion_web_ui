@@ -1,56 +1,43 @@
-import React, { useContext } from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
 import WorkspaceNameStep from './WorkspaceNameStep'
 import { WizardStylesProvider } from '../WizardStylesContext';
 import FormdataWizard from 'react-formdata-wizard';
 import WorkspaceMembersStep from './WorkspaceMemberStep'
-import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
-import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext'
-import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext'
-import { doCreateGroup } from './workspaceCreator'
-import { formMarketLink } from '../../../utils/marketIdPathFunctions'
+import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../../localStorageUtils';
 
 
 function WorkspaceWizard(props) {
-  const { onStartOver, onFinish, marketId } = props;
-  const [, diffDispatch] = useContext(DiffContext);
-  const [, groupsDispatch] = useContext(MarketGroupsContext);
-  const [, groupMembersDispatch] = useContext(GroupMembersContext);
-  function createGroup(formData) {
-    const dispatchers = {
-      groupsDispatch,
-      diffDispatch,
-      groupMembersDispatch
-    };
-    return doCreateGroup(dispatchers, { marketId, ...formData })
-      .then((group) => {
-        return onFinish({ ...formData, link: formMarketLink(group.market_id, group.id) });
-      })
+  const {onboarding, onFinish} = props;
+
+  // figure out what step we're on
+  // if we've created the workspace already, then we're on step 2, otherwise 1
+  const workspaceCreated = getUclusionLocalStorageItem("workspace_created") === true;
+  const startStep = workspaceCreated? 1 : 0;
+
+  const myOnFinish = () => {
+    setUclusionLocalStorageItem("workspace_created", false);
+    onFinish();
   }
 
   return (
     <WizardStylesProvider>
-      <FormdataWizard name="workspace_wizard"
-                      onFinish={createGroup}
-                      onStartOver={onStartOver}
-      >
-        <WorkspaceNameStep />
-        <WorkspaceMembersStep />
+      <FormdataWizard name="workspace_wizard" startStep={startStep} onFinish={myOnFinish}>
+        <WorkspaceNameStep onboarding={onboarding}/>
+        <WorkspaceMembersStep onboarding={onboarding}/>
       </FormdataWizard>
     </WizardStylesProvider>
   );
 }
 
 WorkspaceWizard.propTypes = {
-  onStartOver: PropTypes.func,
+  onboarding: PropTypes.bool,
   onFinish: PropTypes.func,
-  showCancel: PropTypes.bool
 };
 
 WorkspaceWizard.defaultProps = {
-  onStartOver: () => {},
+  onboarding: false,
   onFinish: () => {},
-  showCancel: true
 }
 
 export default WorkspaceWizard;

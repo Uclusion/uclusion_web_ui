@@ -25,7 +25,8 @@ import PlanningMarketEdit from '../../pages/Dialog/Planning/PlanningMarketEdit'
 import { getTicket } from '../../contexts/TicketContext/ticketIndexContextHelper'
 import { TicketIndexContext } from '../../contexts/TicketContext/TicketIndexContext'
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
-import Onboarding from '../../pages/Onboarding/Onboarding';
+import Onboarding, { ONBOARDING_WIZARD_KEY } from '../../pages/Onboarding/Onboarding';
+import { getUclusionLocalStorageItem } from '../../components/localStorageUtils';
 
 const useStyles = makeStyles({
   body: {
@@ -191,7 +192,8 @@ function Root() {
   // onboarding overrides _EVERYTHING_
   const {user} = accountState;
   const {needs_onboarding: needsOnboarding} = user;
-  if(needsOnboarding){
+  const inOnboarding = getUclusionLocalStorageItem(ONBOARDING_WIZARD_KEY);
+  if(needsOnboarding || inOnboarding === true){
     return (
       <div>
         <CssBaseline/>

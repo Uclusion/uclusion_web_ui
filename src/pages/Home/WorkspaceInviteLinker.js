@@ -33,7 +33,7 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-function InviteLinker(props) {
+function WorkspaceInviteLinker(props) {
   const intl = useIntl();
   const {
     hidden,
@@ -45,6 +45,7 @@ function InviteLinker(props) {
   const [inLinker, setInLinker] = useState(false);
   const market = getMarket(marketsState, marketId) || {};
   const { market_token: marketToken } = market;
+
   let link = formInviteLink(marketToken);
 
   return (
@@ -75,12 +76,12 @@ function InviteLinker(props) {
   );
 }
 
-InviteLinker.propTypes = {
+WorkspaceInviteLinker.propTypes = {
   hidden: PropTypes.bool
 };
 
-InviteLinker.defaultProps = {
+WorkspaceInviteLinker.defaultProps = {
   hidden: false,
 };
 
-export default InviteLinker;
+export default WorkspaceInviteLinker;

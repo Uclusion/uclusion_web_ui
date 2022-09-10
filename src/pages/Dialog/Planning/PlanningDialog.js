@@ -62,6 +62,7 @@ import SubSection from '../../../containers/SubSection/SubSection'
 import Chip from '@material-ui/core/Chip'
 import { filterToRoot } from '../../../contexts/CommentsContext/commentsContextHelper'
 import DialogArchives from '../../DialogArchives/DialogArchives'
+import { baseNavListItem, formMarketLink } from '../../../utils/marketIdPathFunctions'
 
 export const LocalPlanningDragContext = React.createContext([]);
 
@@ -101,6 +102,7 @@ function PlanningDialog(props) {
   const intl = useIntl();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
+  const singleTabLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const [groupState] = useContext(MarketGroupsContext);
   const group = getGroup(groupState, marketId, groupId);
   const { name: groupName, created_by: createdBy } = group || {};
@@ -207,7 +209,6 @@ function PlanningDialog(props) {
   const sortedRoots = getSortedRoots(notTodoComments, searchResults);
   const questions = sortedRoots.filter((comment) => comment.comment_type === QUESTION_TYPE);
   const suggestions = sortedRoots.filter((comment) => comment.comment_type === SUGGEST_CHANGE_TYPE);
-  const reports = sortedRoots.filter((comment) => comment.comment_type === REPORT_TYPE);
   const todoComments = unResolvedMarketComments.filter((comment) => {
     if (_.isEmpty(search)) {
       return comment.comment_type === TODO_TYPE;
@@ -225,10 +226,32 @@ function PlanningDialog(props) {
   const archivedSize = _.size(archiveInvestibles) + _.size(resolvedMarketComments);
 
   const discussionSearchResults = (results.find((result) => result.id === marketId) ? 1 : 0) + _.size(questions)
-                        + _.size(suggestions) + _.size(reports);
+                        + _.size(suggestions);
   const jobsSearchResults = _.size(requiresInputInvestibles) + _.size(blockedInvestibles) + _.size(swimlaneInvestibles);
   const backlogSearchResults = _.size(furtherWorkReadyToStart) + _.size(furtherWorkInvestibles);
-
+  let navListItemTextArray = undefined;
+  if (singleTabLayout) {
+    function createNavListItem(icon, textId, itemTabIndex, howManyNum) {
+      const isSearch = !_.isEmpty(search);
+      const anchorId = getAnchorId(itemTabIndex);
+      const nav = baseNavListItem(formMarketLink(marketId, groupId), icon, textId, anchorId,
+        isSearch ? howManyNum : undefined, true);
+      nav['onClickFunc'] = () => {
+        updatePageState({tabIndex: itemTabIndex});
+        openSubSection(anchorId);
+      };
+      nav['isBold'] = isSectionOpen(anchorId);
+      return nav;
+    }
+    navListItemTextArray = [
+      createNavListItem(AssignmentInd, 'planningDialogNavStoriesLabel', 0, jobsSearchResults),
+      createNavListItem(AssignmentIcon, 'planningDialogBacklog', 1, backlogSearchResults),
+      createNavListItem(ListAltIcon, 'todoSection', 2, _.size(todoComments)),
+      createNavListItem(QuestionIcon, 'planningDialogNavDiscussionLabel', 3, discussionSearchResults),
+      createNavListItem(MenuBookIcon, 'planningDialogViewArchivesLabel', 5, archivedSize),
+      createNavListItem(SettingsIcon, 'settings', 5)
+    ];
+  }
   function resetTabs() {
     updatePageState({sectionOpen: undefined, tabIndex: 0});
   }
@@ -238,6 +261,7 @@ function PlanningDialog(props) {
       hidden={hidden}
       tabTitle={groupName}
       banner={banner}
+      openMenuItems={navListItemTextArray}
     >
       <UclusionTour
         name={INVITED_USER_WORKSPACE}
@@ -245,31 +269,42 @@ function PlanningDialog(props) {
         steps={workspaceInvitedUserSteps({name: myPresence.name, isCreator: createdBy === myPresence.id})}
       />
       <GmailTabs
-        value={tabIndex}
+        value={singleTabLayout ? 0 : tabIndex}
         onChange={(event, value) => {
           updatePageState({tabIndex: value});
           const anchorId = getAnchorId(value);
           openSubSection(anchorId);
         }}
-        indicatorColors={['#00008B']}
+        indicatorColors={['#00008B', '#00008B', '#00008B', '#00008B', '#00008B', '#00008B']}
         style={{ borderTop: '1px ridge lightgrey', paddingBottom: '0.25rem' }}>
-        <GmailTabItem icon={<AssignmentInd />} label={intl.formatMessage({id: 'planningDialogNavStoriesLabel'})}
-                      color='black'
-                      tag={_.isEmpty(search) || jobsSearchResults === 0 ? undefined : `${jobsSearchResults}`} />
-        <GmailTabItem icon={<AssignmentIcon />} label={intl.formatMessage({id: 'planningDialogBacklog'})}
-                      color='black'
-                      tag={_.isEmpty(search) || backlogSearchResults === 0 ? undefined : `${backlogSearchResults}`} />
-        <GmailTabItem icon={<ListAltIcon />} label={intl.formatMessage({id: 'todoSection'})}
-                      tag={_.isEmpty(search) || _.isEmpty(todoComments) ? undefined : `${_.size(todoComments)}` } />
-        <GmailTabItem icon={<QuestionIcon />}
-                      label={intl.formatMessage({id: 'planningDialogNavDiscussionLabel'})}
-                      tag={_.isEmpty(search) || discussionSearchResults === 0 ? undefined :
-                        `${discussionSearchResults}`} />
-        <GmailTabItem icon={<MenuBookIcon />}
-                      label={intl.formatMessage({id: 'planningDialogViewArchivesLabel'})}
-                      tag={_.isEmpty(search) ? undefined : `${archivedSize}`} />
-        <GmailTabItem icon={<SettingsIcon />}
-                      label={intl.formatMessage({id: 'settings'})} />
+        {(!singleTabLayout || sectionOpen === 'storiesSection') && (
+          <GmailTabItem icon={<AssignmentInd />}
+                        label={intl.formatMessage({id: 'planningDialogNavStoriesLabel'})}
+                        tag={_.isEmpty(search) || jobsSearchResults === 0 ? undefined : `${jobsSearchResults}`} />
+        )}
+        {(!singleTabLayout || sectionOpen === 'backlogSection') && (
+          <GmailTabItem icon={<AssignmentIcon />} label={intl.formatMessage({id: 'planningDialogBacklog'})}
+                        tag={_.isEmpty(search) || backlogSearchResults === 0 ? undefined : `${backlogSearchResults}`} />
+        )}
+        {(!singleTabLayout || sectionOpen === 'marketTodos') && (
+          <GmailTabItem icon={<ListAltIcon />} label={intl.formatMessage({id: 'todoSection'})}
+                        tag={_.isEmpty(search) || _.isEmpty(todoComments) ? undefined : `${_.size(todoComments)}` } />
+        )}
+        {(!singleTabLayout || sectionOpen === 'workspaceMain') && (
+          <GmailTabItem icon={<QuestionIcon />}
+                        label={intl.formatMessage({id: 'planningDialogNavDiscussionLabel'})}
+                        tag={_.isEmpty(search) || discussionSearchResults === 0 ? undefined :
+                          `${discussionSearchResults}`} />
+        )}
+        {(!singleTabLayout || sectionOpen === 'archive') && (
+          <GmailTabItem icon={<MenuBookIcon />}
+                        label={intl.formatMessage({id: 'planningDialogViewArchivesLabel'})}
+                        tag={_.isEmpty(search) ? undefined : `${archivedSize}`} />
+        )}
+        {(!singleTabLayout || sectionOpen === 'settingsSection') && (
+          <GmailTabItem icon={<SettingsIcon />}
+                        label={intl.formatMessage({id: 'settings'})} />
+        )}
       </GmailTabs>
       {isSectionOpen('workspaceMain') && (
         <div id="workspaceMain">

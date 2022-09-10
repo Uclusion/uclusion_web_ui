@@ -149,9 +149,9 @@ const myClasses = makeStyles(
 function MarketTodos(props) {
   const {
     comments,
-    marketId, market, userId,
+    marketId, userId,
     groupId,
-    isInArchives,
+    isInArchives = false,
     sectionOpen, setSectionOpen
   } = props
   const classes = myClasses();
@@ -185,41 +185,41 @@ function MarketTodos(props) {
   const pageName = isInArchives ? 'archives' : '';
   const [commentAddRedStateFull, commentAddRedDispatch] = usePageStateReducer(`commentAddRed${pageName}`);
   const [commentAddRedState, updateCommentAddRedState, commentAddStateRedReset] =
-    getPageReducerPage(commentAddRedStateFull, commentAddRedDispatch, marketId);
+    getPageReducerPage(commentAddRedStateFull, commentAddRedDispatch, groupId);
   const {
     createRedCard,
   } = commentAddRedState;
   const [commentRedStateFull, commentRedDispatch] = usePageStateReducer(`commentRed${pageName}`);
   const [commentRedState, updateCommentRedState, commentStateRedReset] =
-    getPageReducerPage(commentRedStateFull, commentRedDispatch, marketId);
+    getPageReducerPage(commentRedStateFull, commentRedDispatch, groupId);
   const {
     cardEditing: editRedCardId,
   } = commentRedState;
   const [commentAddYellowStateFull, commentAddYellowDispatch] =
     usePageStateReducer(`commentAddYellow${pageName}`);
   const [commentAddYellowState, updateCommentAddYellowState, commentAddStateYellowReset] =
-    getPageReducerPage(commentAddYellowStateFull, commentAddYellowDispatch, marketId);
+    getPageReducerPage(commentAddYellowStateFull, commentAddYellowDispatch, groupId);
   const {
     createYellowCard,
   } = commentAddYellowState;
   const [commentYellowStateFull, commentYellowDispatch] =
     usePageStateReducer(`commentYellow${pageName}`);
   const [commentYellowState, updateCommentYellowState, commentStateYellowReset] =
-    getPageReducerPage(commentYellowStateFull, commentYellowDispatch, marketId);
+    getPageReducerPage(commentYellowStateFull, commentYellowDispatch, groupId);
   const {
     cardEditing: editYellowCardId,
   } = commentYellowState;
   const [commentAddBlueStateFull, commentAddBlueDispatch] =
     usePageStateReducer(`commentBlueAdd${pageName}`);
   const [commentAddBlueState, updateCommentAddBlueState, commentAddStateBlueReset] =
-    getPageReducerPage(commentAddBlueStateFull, commentAddBlueDispatch, marketId);
+    getPageReducerPage(commentAddBlueStateFull, commentAddBlueDispatch, groupId);
   const {
     createCard,
   } = commentAddBlueState;
   const [commentBlueStateFull, commentBlueDispatch] =
     usePageStateReducer(`commentBlue${pageName}`);
   const [commentBlueState, updateCommentBlueState, commentStateBlueReset] =
-    getPageReducerPage(commentBlueStateFull, commentBlueDispatch, marketId);
+    getPageReducerPage(commentBlueStateFull, commentBlueDispatch, groupId);
   const {
     cardEditing: editCardId,
   } = commentBlueState;
@@ -337,12 +337,12 @@ function MarketTodos(props) {
     }
   }
 
-  function getCards (commentsGetting, marketId, history, intl, setCard, sectionId) {
-    function setCardAndScroll (comment) {
-      setCard(comment)
+  function getCards(commentsGetting, history, intl, setCard, sectionId) {
+    function setCardAndScroll(comment) {
+      setCard(comment);
       navigate(history,
-        `${isInArchives ? formMarketArchivesLink(marketId, groupId) : 
-          formMarketLink(marketId, groupId)}#c${comment.id}`)
+        `${isInArchives ? formMarketArchivesLink(comment.market_id, comment.group_id) : 
+          formMarketLink(comment.market_id, comment.group_id)}#c${comment.id}`)
     }
 
     if (_.isEmpty(commentsGetting)) {
@@ -370,7 +370,7 @@ function MarketTodos(props) {
       return (
         <React.Fragment key={`${id}top`}>
           {openMenuTodoId === id && anchorEl && (
-            <MarketTodoMenu comment={comment} editViewFunc={setCardAndScroll} market={market}
+            <MarketTodoMenu comment={comment} editViewFunc={setCardAndScroll}
                             openIdFunc={setOpenMenuTodoId} anchorEl={anchorEl} />
           )}
           <Grid
@@ -464,7 +464,7 @@ function MarketTodos(props) {
   function onCreateRed(comment) {
     setEditRedCard(undefined);
     if (comment) {
-      notifyImmediate(userId, comment, market, messagesDispatch);
+      notifyImmediate(userId, comment, messagesDispatch);
     }
     updateCommentAddRedState({ createRedCard: !createRedCard });
   }
@@ -520,7 +520,7 @@ function MarketTodos(props) {
   function onDropImmediate(event) {
     onDrop(event, 'RED').then((comment) => {
       if (comment) {
-        notifyImmediate(userId, comment, market, messagesDispatch);
+        notifyImmediate(userId, comment, messagesDispatch);
       }
     });
   }
@@ -650,11 +650,11 @@ function MarketTodos(props) {
               onDragEnter={() => setElementGreen('immediateSection')}
               onDragOver={(event) => event.preventDefault()}
             >
-              {getCards(redComments, marketId, history, intl, setEditRedCard, 'immediateSection')}
+              {getCards(redComments, history, intl, setEditRedCard, 'immediateSection')}
             </Grid>
           </SubSection>
           {!_.isEmpty(redComments) && (<div style={{ paddingBottom: '15px' }}/>)}
-          {createYellowCard && marketId && (
+          {createYellowCard && marketId && groupId && (
             <CommentAdd
               nameKey="CommentAddYellow"
               type={TODO_TYPE}
@@ -708,7 +708,7 @@ function MarketTodos(props) {
               onDragEnter={() => setElementGreen('convenientSection')}
               onDragOver={(event) => event.preventDefault()}
             >
-              {getCards(yellowComments, marketId, history, intl, setEditYellowCard, 'convenientSection')}
+              {getCards(yellowComments, history, intl, setEditYellowCard, 'convenientSection')}
             </Grid>
           </SubSection>
           {!_.isEmpty(yellowComments) && (<div style={{ paddingBottom: '15px' }}/>)}
@@ -765,7 +765,7 @@ function MarketTodos(props) {
               onDragEnter={() => setElementGreen('ableSection')}
               onDragOver={(event) => event.preventDefault()}
             >
-              {getCards(blueComments, marketId, history, intl, setEditCard, 'ableSection')}
+              {getCards(blueComments, history, intl, setEditCard, 'ableSection')}
             </Grid>
           </SubSection>
         </div>

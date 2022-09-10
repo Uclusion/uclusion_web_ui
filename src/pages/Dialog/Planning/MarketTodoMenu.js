@@ -42,7 +42,7 @@ const useStyles = makeStyles((theme) => {
 });
 
 function MarketTodoMenu(props) {
-  const { comment, editViewFunc, openIdFunc, anchorEl, market } = props;
+  const { comment, editViewFunc, openIdFunc, anchorEl } = props;
   const intl = useIntl();
   const classes = useStyles();
   const [commentState, commentDispatch] = useContext(CommentsContext);
@@ -53,7 +53,7 @@ function MarketTodoMenu(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
-  const assignablePresences = marketPresences.filter((presence) => !presence.market_banned && presence.following) || [];
+  const assignablePresences = marketPresences.filter((presence) => !presence.market_banned) || [];
 
   function renderAssignedEntry(presence) {
     const { name, email, id } = presence;
@@ -88,7 +88,7 @@ function MarketTodoMenu(props) {
       .then((comment) => {
         addCommentToMarket(comment, commentState, commentDispatch);
         if (notificationType === RED_LEVEL) {
-          notifyImmediate(myPresence.id, comment, market, messagesDispatch);
+          notifyImmediate(myPresence.id, comment, messagesDispatch);
         }
         setOperationRunning(false);
       }).finally(() => {

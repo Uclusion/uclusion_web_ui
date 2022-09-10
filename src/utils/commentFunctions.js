@@ -8,7 +8,7 @@ import { LOAD_EVENT } from '../contexts/InvestibesContext/investiblesContextMess
 import { formCommentLink, formMarketLink } from './marketIdPathFunctions'
 import { addMessage } from '../contexts/NotificationsContext/notificationsContextReducer'
 import { RED_LEVEL } from '../constants/notifications'
-import { INITIATIVE_TYPE } from '../constants/markets'
+import { INITIATIVE_TYPE, PLANNING_TYPE } from '../constants/markets'
 import { createInitiative } from '../api/markets'
 import { addMarket } from '../contexts/MarketsContext/marketsContextHelper'
 import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../authorization/TokenStorageManager'
@@ -102,13 +102,14 @@ export function allowVotingForSuggestion(commentId, setOperationRunning, markets
     });
 }
 
-export function notifyImmediate(userId, comment, market, messagesDispatch) {
-  const commentLink = formCommentLink(market.id, comment.group_id, comment.investible_id, comment.id);
-  const marketLink = formMarketLink(market.id, comment.group_id);
+export function notifyImmediate(userId, comment, messagesDispatch) {
+  const marketId = comment.market_id;
+  const commentLink = formCommentLink(marketId, comment.group_id, comment.investible_id, comment.id);
+  const marketLink = formMarketLink(marketId, comment.group_id);
   const notificationType = 'ISSUE';
-  messagesDispatch(addMessage({ market_id_user_id: `${market.id}_${userId}`,
-    type_object_id: `${notificationType}_${comment.id}`, type: notificationType, market_id: market.id,
+  messagesDispatch(addMessage({ market_id_user_id: `${marketId}_${userId}`,
+    type_object_id: `${notificationType}_${comment.id}`, type: notificationType, market_id: marketId,
     comment_id: comment.id, user_id: userId, text: 'Please assign', level: RED_LEVEL,
-    is_highlighted: false, name: 'Immediate TODOs', link: commentLink, market_type: market.market_type,
+    is_highlighted: false, name: 'Immediate TODOs', link: commentLink, market_type: PLANNING_TYPE,
     link_type: 'MARKET_TODO', link_multiple: `${marketLink}#immediateTodos` }));
 }

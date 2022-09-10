@@ -241,10 +241,9 @@ function Screen(props) {
     });
     navigationMenu.navListItemTextArray.push(...items);
   }
-  const noMenu = hideMenu || _.isEmpty(navigationMenu);
-  const myContainerClass = !noMenu && !mobileLayout ? classes.containerAllLeftPad : classes.containerAll;
-  const contentClass = mobileLayout || noMenu ? classes.contentNoStyle : classes.content;
-  const sideNavigationContents = noMenu ? undefined :
+  const myContainerClass = !hideMenu && !mobileLayout ? classes.containerAllLeftPad : classes.containerAll;
+  const contentClass = mobileLayout || hideMenu ? classes.contentNoStyle : classes.content;
+  const sideNavigationContents = hideMenu ? undefined :
     <Sidebar navigationOptions={navigationMenu} search={search} title={title} classes={classes} />;
   return (
     <div className={hidden ? classes.hidden : classes.root} id="root">
@@ -258,7 +257,7 @@ function Screen(props) {
           navMenu={sideNavigationContents}
         />
       )}
-      {!noMenu && !mobileLayout && !hidden && (
+      {!hideMenu && !mobileLayout && !hidden && (
         <div className={classes.paper}>
           <Sidebar navigationOptions={navigationMenu} search={search} title={title} classes={classes} />
         </div>
@@ -274,7 +273,7 @@ function Screen(props) {
       <div className={contentClass}>
         {!reallyAmLoading && (
           <Container className={myContainerClass}
-                     maxWidth={!noMenu ? 'xl' : 'lg'}>
+                     maxWidth={!hideMenu ? 'xl' : 'lg'}>
             {children}
           </Container>
         )}

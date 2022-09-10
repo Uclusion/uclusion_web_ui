@@ -163,7 +163,7 @@ function Header (props) {
   const classes = headerStyles();
   const intl = useIntl();
   const theme = useTheme();
-  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
   const [online] = useContext(OnlineStateContext);
   const history = useHistory();
   const { toolbarButtons, appEnabled, hideTools, navMenu } = props;

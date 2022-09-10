@@ -89,19 +89,6 @@ export function baseNavListItem(linkRoot, icon, textId, anchorId, howManyNum, al
   return {icon, text, target: `${linkRoot}#${useAnchor}`, num: howManyNum}
 }
 
-export function createTitle(fullTitle, titleSize) {
-  if (!fullTitle) {
-    return '';
-  }
-  if (!fullTitle.substring) {
-    return fullTitle;
-  }
-  if (fullTitle.length < titleSize) {
-    return fullTitle;
-  }
-  return `${fullTitle.substring(0, titleSize)}...`;
-}
-
 export function formInviteLink(marketToken) {
   const current = window.location.href;
   const url = new URL(current);
@@ -169,8 +156,8 @@ export function formInvestibleLink(marketId, investibleId) {
   return formInvestibleLinkWithPrefix('dialog', marketId, investibleId);
 }
 
-export function formatMarketLinkWithPrefix(prefix, marketId) {
-  return `/${prefix}/${marketId}`;
+export function formatGroupLinkWithPrefix(prefix, marketId, groupId) {
+  return `/${prefix}/${marketId}?groupId=${groupId}`;
 }
 
 export function formCommentEditReplyLink(marketId, commentId, isReply=false) {
@@ -196,13 +183,13 @@ export function formCommentEditReplyLink(marketId, commentId, isReply=false) {
  * @returns {string}
  */
 export function formMarketLink(marketId, groupId) {
-  return `${formatMarketLinkWithPrefix('dialog', marketId)}?groupId=${groupId}`;
+  return formatGroupLinkWithPrefix('dialog', marketId, groupId);
 }
 
 export function formMarketEditLink(marketId) {
-  return formatMarketLinkWithPrefix('marketEdit', marketId);
+  return `/marketEdit/${marketId}`;
 }
 
-export function formMarketAddInvestibleLink(marketId) {
-  return formatMarketLinkWithPrefix('investibleAdd', marketId);
+export function formMarketAddInvestibleLink(marketId, groupId) {
+  return formatGroupLinkWithPrefix('investibleAdd', marketId, groupId);
 }

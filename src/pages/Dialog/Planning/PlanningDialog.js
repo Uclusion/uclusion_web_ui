@@ -194,7 +194,11 @@ function PlanningDialog(props) {
             const rootComment = filterToRoot(comments, found.id);
             if (_.isEmpty(rootComment.investible_id)) {
               if (!rootComment.resolved) {
-                updatePageState({ sectionOpen: 'workspaceMain' });
+                if (rootComment.comment_type === TODO_TYPE) {
+                  updatePageState({ sectionOpen: 'marketTodos' });
+                } else {
+                  updatePageState({ sectionOpen: 'workspaceMain' });
+                }
               } else {
                 updatePageState({ sectionOpen: 'archive' });
               }

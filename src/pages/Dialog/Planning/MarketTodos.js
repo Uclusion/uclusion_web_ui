@@ -272,7 +272,7 @@ function MarketTodos(props) {
         } else {
           setEditCard(rootComment);
         }
-        history.replace(window.location.pathname);
+        history.replace(window.location.pathname + window.location.search);
       }
       if ((foundCommentId || hash.includes('Todos')) && !sectionOpen) {
         setSectionOpen();
@@ -338,6 +338,7 @@ function MarketTodos(props) {
 
   function getCards(commentsGetting, history, intl, setCard, sectionId) {
     function setCardAndScroll(comment) {
+      console.debug(comment);
       setCard(comment);
       navigate(history, `${formMarketLink(comment.market_id, comment.group_id)}#c${comment.id}`);
     }
@@ -453,7 +454,7 @@ function MarketTodos(props) {
       });
       setChecked({});
       if (checkedString) {
-        navigate(history, `${formMarketAddInvestibleLink(marketId)}${checkedString}`);
+        navigate(history, `${formMarketAddInvestibleLink(marketId, groupId)}${checkedString}`);
       }
     }
   }

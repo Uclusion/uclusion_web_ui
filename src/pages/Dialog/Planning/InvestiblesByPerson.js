@@ -165,7 +165,7 @@ function InvestiblesByPerson(props) {
   const swimClasses = usePlanningIdStyles();
   const { storyAssignee } = pageState;
   const { created_at: createdAt, budget_unit: budgetUnit, use_budget: useBudget, votes_required: votesRequired,
-    market_id: marketId} = group;
+    market_id: marketId, id: groupId } = group || {};
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const presences = getMarketPresences(marketPresencesState, marketId) || [];
   const marketPresencesSortedAlmost = _.sortBy(presences, 'name');
@@ -192,7 +192,7 @@ function InvestiblesByPerson(props) {
       {storyAssignee !== undefined && (
         <PlanningInvestibleAdd
           marketId={marketId}
-          groupId={group.id}
+          groupId={groupId}
           onCancel={() => updatePageState({ storyAssignee: undefined })}
           onSave={onInvestibleSave}
           onSpinComplete={(destinationLink) => {
@@ -303,6 +303,7 @@ function InvestiblesByPerson(props) {
                       myInvestiblesStageHash={myInvestiblesStageHash}
                       allInvestibles={investibles}
                       marketId={marketId}
+                      groupId={groupId}
                       acceptedStage={acceptedStage}
                       inDialogStageId={inDialogStage.id}
                       inReviewStageId={inReviewStage.id}

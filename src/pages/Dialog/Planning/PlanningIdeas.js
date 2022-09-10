@@ -98,6 +98,7 @@ function PlanningIdeas(props) {
     inVerifiedStageId,
     inRequiresInputStageId,
     presenceId,
+    groupId,
     comments
   } = props;
   const intl = useIntl();
@@ -321,6 +322,7 @@ function PlanningIdeas(props) {
           id={inDialogStageId}
           investibles={myInvestiblesStageHash[inDialogStageId] || []}
           marketId={marketId}
+          groupId={groupId}
           presenceId={presenceId}
           marketPresences={marketPresences}
           comments={comments}
@@ -556,9 +558,9 @@ Stage.propTypes = {
 
 function VotingStage (props) {
   const [messagesState] = useContext(NotificationsContext);
-  const { marketId, presenceId, investibles, myPresence } = props;
+  const { marketId, presenceId, investibles, myPresence, groupId } = props;
   const history = useHistory();
-  const link = formMarketAddInvestibleLink(marketId);
+  const link = formMarketAddInvestibleLink(marketId, groupId);
   const assignedLink = link + `#assignee=${presenceId}`;
 
   function onClick (event) {

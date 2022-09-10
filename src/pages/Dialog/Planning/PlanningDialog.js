@@ -2,7 +2,7 @@
  * A component that renders a single group's view of a planning market
  */
 import React, { useContext, useEffect, useState } from 'react'
-import { useHistory, useLocation } from 'react-router'
+import { useLocation } from 'react-router'
 import { useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
@@ -14,10 +14,6 @@ import {
 } from '@material-ui/core'
 import Summary from './Summary'
 import Screen from '../../../containers/Screen/Screen'
-import {
-  formMarketLink,
-  navigate
-} from '../../../utils/marketIdPathFunctions'
 import {
   QUESTION_TYPE, REPLY_TYPE,
   REPORT_TYPE,
@@ -87,7 +83,6 @@ function getAnchorId(tabIndex) {
 }
 
 function PlanningDialog(props) {
-  const history = useHistory();
   const {
     marketInvestibles,
     marketStages,
@@ -175,12 +170,8 @@ function PlanningDialog(props) {
   });
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const presenceMap = getPresenceMap(marketPresences);
-  const singleSections = ['addCollaboratorSection'];
   function isSectionOpen(section) {
-    return sectionOpen === section ||
-      ((!_.isEmpty(search) || mobileLayout) &&
-        (!singleSections.includes(section) && !singleSections.includes(sectionOpen))) ||
-      (!sectionOpen && section === 'storiesSection');
+    return sectionOpen === section || (!sectionOpen && section === 'storiesSection');
   }
 
   useEffect(() => {
@@ -209,11 +200,8 @@ function PlanningDialog(props) {
     }
   }, [comments, hash, sectionOpen, updatePageState]);
 
-  function openSubSection(subSection, doScroll=true) {
+  function openSubSection(subSection) {
     updatePageState({sectionOpen: subSection});
-    if (doScroll) {
-      window.scrollTo(0, 0);
-    }
   }
 
   const sortedRoots = getSortedRoots(notTodoComments, searchResults);
@@ -260,13 +248,8 @@ function PlanningDialog(props) {
         value={tabIndex}
         onChange={(event, value) => {
           updatePageState({tabIndex: value});
-          const isSearch = !_.isEmpty(search);
           const anchorId = getAnchorId(value);
-          const isScrolling = (mobileLayout || isSearch) && !singleSections.includes(anchorId);
-          openSubSection(anchorId, !isScrolling);
-          if (isScrolling) {
-            navigate(history, `${formMarketLink(marketId, groupId)}#${anchorId}`);
-          }
+          openSubSection(anchorId);
         }}
         indicatorColors={['#00008B']}
         style={{ borderTop: '1px ridge lightgrey', paddingBottom: '0.25rem' }}>

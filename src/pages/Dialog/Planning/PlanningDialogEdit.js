@@ -16,7 +16,15 @@ import { getStages, updateStagesForMarket } from '../../../contexts/MarketStages
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import _ from 'lodash'
 import ShowInVerifiedStageAge from './ShowInVerifiedStageAge'
-import { FormControlLabel, makeStyles, Radio, RadioGroup, TextField, Typography } from '@material-ui/core'
+import {
+  FormControlLabel,
+  InputAdornment,
+  makeStyles, OutlinedInput,
+  Radio,
+  RadioGroup,
+  TextField,
+  Typography, useTheme
+} from '@material-ui/core'
 import { getMarketUnits } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { Clear, SettingsBackupRestore } from '@material-ui/icons'
@@ -27,7 +35,8 @@ import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { isEveryoneGroup } from '../../../contexts/GroupMembersContext/groupMembersHelper'
 import { addGroupToStorage } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper'
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext'
-import NameField, { getNameStoredState } from '../../../components/TextFields/NameField';
+import { wizardStyles } from '../../../components/AddNew/WizardStylesContext'
+import DialogManage from '../DialogManage'
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -42,14 +51,16 @@ const useStyles = makeStyles((theme) => {
 });
 
 function PlanningDialogEdit(props) {
-  const { onCancel, group, acceptedStage, verifiedStage, userId } = props;
+  const { group, acceptedStage, verifiedStage, userId } = props;
   const [marketStagesState, marketStagesDispatch] = useContext(MarketStagesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, groupsDispatch] = useContext(MarketGroupsContext);
   const [, diffDispatch] = useContext(DiffContext);
   const { id, market_id: marketId } = group;
   const intl = useIntl();
+  const theme = useTheme();
   const classes = usePlanFormStyles();
+  const wizardClasses = wizardStyles(theme);
   const myClasses = useStyles();
   const [allowedInvestibles, setAllowedInvestibles] = useState(acceptedStage.allowed_investibles);
   const [showInvestiblesAge, setShowInvestiblesAge] = useState(verifiedStage.days_visible);
@@ -60,7 +71,8 @@ function PlanningDialogEdit(props) {
     investment_expiration: groupExpiration,
     votes_required,
     assigned_can_approve,
-    ticket_sub_code
+    ticket_sub_code,
+    name
   } = mutableGroup;
 
   const safeInvestmentExpiration = groupExpiration ?? "14";
@@ -109,22 +121,17 @@ function PlanningDialogEdit(props) {
   }
 
   function handleSave() {
-    const name = getNameStoredState(id);
     const votesRequiredInt =
       votes_required != null ? parseInt(votes_required, 10) : 0;
-    return updateGroup(
+    return updateGroup({
       marketId,
-      id, name,
-      null,
-      null,
-      use_budget,
-      parseInt(safeInvestmentExpiration, 10),
-      votesRequiredInt,
-      null,
-      ticket_sub_code,
-      assigned_can_approve,
-      budget_unit
-    ).then(market => {
+      groupId: id, name,
+      useBudget: use_budget,
+      votesRequired: votesRequiredInt,
+      ticketSubCode: encodeURI(ticket_sub_code),
+      assignedCanApprove: assigned_can_approve,
+      budgetUnit: budget_unit
+  }).then(market => {
       onSaveSettings(market);
       if (allowedInvestibles !== acceptedStage.allowed_investibles) {
         return updateStage(id, acceptedStage.id, allowedInvestibles).then((newStage) => {
@@ -150,34 +157,45 @@ function PlanningDialogEdit(props) {
     options: getMarketUnits(intl),
     getOptionLabel: (option) => option,
   };
-  console.dir(safeInvestmentExpiration);
   const validOptions = parseInt(safeInvestmentExpiration, 10) > 0 && (!use_budget || budget_unit);
-  console.dir(validOptions);
   return (
     <Card className={classes.overflowVisible}>
       <CardContent className={classes.cardContent}>
-        <NameField label="agilePlanFormTitleLabel" placeHolder="decisionTitlePlaceholder"
-                   id={id} useCreateDefault/>
-
-        <Grid container className={clsx(classes.fieldset, classes.flex, classes.justifySpace)}>
-            <Grid item md={6} xs={12} className={classes.fieldsetContainer}>
-              {!isEveryoneGroup(id, marketId) && (
-                <ManageExistingUsers group={group}/>
-              )}
-              {isEveryoneGroup(id, marketId) && (
-                <Typography variant="body1">
-                  {intl.formatMessage({ id: 'everyoneGroupExplanation' })}
-                </Typography>
-              )}
+        {!isEveryoneGroup(id, marketId) && (
+          <Grid container className={clsx(classes.fieldset, classes.flex, classes.justifySpace)}>
+            <Grid item md={12} xs={12} className={classes.fieldsetContainer}>
+              <Typography variant="h6">
+                {intl.formatMessage({ id: 'addCollaboratorsMobile' })}
+              </Typography>
             </Grid>
+              <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
+                <ManageExistingUsers group={group}/>
+              </Grid>
+              <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
+                <DialogManage marketId={marketId} group={group} />
+              </Grid>
           </Grid>
+        )}
         <Grid container className={clsx(classes.fieldset, classes.flex, classes.justifySpace)}
-              style={{paddingTop: "2rem"}}>
+              style={{paddingTop: '2rem'}}>
           <Grid item md={12} xs={12} className={classes.fieldsetContainer}>
               <Typography variant="h6">
                 {intl.formatMessage({ id: 'channelOptions' })}
               </Typography>
           </Grid>
+          <OutlinedInput
+            id="workspaceName"
+            className={wizardClasses.input}
+            value={name}
+            onChange={handleChange('name')}
+            placeholder={name}
+            variant="outlined"
+            endAdornment={
+              <InputAdornment position={'end'} style={{ marginRight: '1rem' }}>
+                {80 - (name?.length ?? 0)}
+              </InputAdornment>
+            }
+          />
           <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
             <AllowedInProgress
               onChange={onAllowedInvestiblesChange}
@@ -238,7 +256,7 @@ function PlanningDialogEdit(props) {
             <TextField
               id="name"
               className={classes.input}
-              value={ticket_sub_code || ''}
+              value={ticket_sub_code ? decodeURI(ticket_sub_code) : ''}
               onChange={handleChange('ticket_sub_code')}
             />
             <Typography>
@@ -248,8 +266,8 @@ function PlanningDialogEdit(props) {
         </Grid>
       </CardContent>
       <CardActions className={myClasses.actions}>
-        <SpinningIconLabelButton onClick={onCancel} doSpin={false} icon={Clear}>
-          {intl.formatMessage({ id: 'marketAddCancelLabel' })}
+        <SpinningIconLabelButton onClick={() => setMutableGroup(group)} doSpin={false} icon={Clear}>
+          {intl.formatMessage({ id: 'marketEditCancelLabel' })}
         </SpinningIconLabelButton>
         <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore} id="planningDialogUpdateButton"
                                  disabled={!validOptions}>
@@ -262,12 +280,7 @@ function PlanningDialogEdit(props) {
 
 PlanningDialogEdit.propTypes = {
   group: PropTypes.object.isRequired,
-  acceptedStage: PropTypes.object.isRequired,
-  onCancel: PropTypes.func,
-};
-
-PlanningDialogEdit.defaultProps = {
-  onCancel: () => {},
+  acceptedStage: PropTypes.object.isRequired
 };
 
 export default PlanningDialogEdit;

@@ -208,7 +208,7 @@ const messages = defineMessages({
 
   // Market Edit
   marketEditTitleLabel: 'Name',
-  marketEditCancelLabel: 'Close',
+  marketEditCancelLabel: 'Clear',
   marketEditSaveLabel: 'Save',
 
   editMarketButtonPlan: 'Workspace settings',

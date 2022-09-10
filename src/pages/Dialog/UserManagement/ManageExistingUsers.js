@@ -15,7 +15,6 @@ import {
 } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles';
 import Gravatar from '../../../components/Avatars/Gravatar';
-import Typography from '@material-ui/core/Typography'
 import { useIntl } from 'react-intl'
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext'
 import Checkbox from '@material-ui/icons/CheckBox'
@@ -91,12 +90,7 @@ function ManageExistingUsers(props) {
   }
 
   return (
-    <List className={classes.manage}
-      subheader={
-      <Typography align="center" variant="h6">
-        {intl.formatMessage({ id: 'manage' })}
-      </Typography>
-    }>
+    <List className={classes.manage}>
       <ListItem key='header'><ListItemText />
         <Tooltip title={intl.formatMessage({ id: 'groupRemoveExplanation' })}>
           <ListItemIcon> {intl.formatMessage({ id: 'groupRemoveAction' })}</ListItemIcon>

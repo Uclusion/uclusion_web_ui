@@ -1,20 +1,14 @@
 import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
-import { useIntl } from 'react-intl'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 import { ACTIVE_STAGE } from '../../constants/markets'
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { Card, Typography } from '@material-ui/core'
-import { usePlanFormStyles } from '../../components/AgilePlan'
 import ManageUsers from './UserManagement/ManageUsers'
-import { isEveryoneGroup } from '../../contexts/GroupMembersContext/groupMembersHelper'
 
 function DialogManage(props) {
   const { marketId, isInbox, name, group } = props;
-  const intl = useIntl();
-  const classes = usePlanFormStyles();
   const [marketsState] = useContext(MarketsContext);
   const renderableMarket = getMarket(marketsState, marketId) || {};
   const { market_stage: marketStage } = renderableMarket;
@@ -39,21 +33,11 @@ function DialogManage(props) {
   }
 
   return (
-    <Card style={{marginBottom: '1rem'}}>
-      <Typography className={classes.cardTitle}>
-        {intl.formatMessage({ id: 'initiativeAddress' })}
-      </Typography>
-      {isEveryoneGroup(group.id, marketId) && (
-        <Typography variant="body1" style={{paddingLeft: '48px', paddingTop: '1rem'}}>
-          {intl.formatMessage({ id: 'everyoneGroupAddExplanation' })}
-        </Typography>
-      )}
       <ManageUsers
         market={renderableMarket}
         name={name}
         group={group}
       />
-    </Card>
   );
 }
 

@@ -44,32 +44,32 @@ export function deleteAttachedFilesFromMarket(marketId, files) {
     .catch((error) => toastErrorAndThrow(error, 'errorMarketRemoveAttachedFilesFailed'));
 }
 
-export function updateGroup(marketId, groupId, name = null, description = null, uploadedFiles = null,
-  useBudget = null, votesRequired = null, ticketSubCode = null, assignedCanApprove = null,
-  budgetUnit = null) {
+export function updateGroup(props) {
+  const { marketId, groupId, name, description, uploadedFiles, useBudget, votesRequired, ticketSubCode,
+    assignedCanApprove, budgetUnit } = props;
   const updateOptions = {}
-  if (name != null) {
+  if (name) {
     updateOptions.name = name
   }
-  if (description != null) {
+  if (description) {
     updateOptions.description = description
   }
-  if (uploadedFiles != null) {
+  if (uploadedFiles) {
     updateOptions.uploaded_files = uploadedFiles
   }
-  if (useBudget != null) {
+  if (useBudget) {
     updateOptions.use_budget = useBudget
   }
-  if (votesRequired != null) {
+  if (votesRequired) {
     updateOptions.votes_required = votesRequired
   }
-  if (assignedCanApprove !== null) {
+  if (assignedCanApprove) {
     updateOptions.assigned_can_approve = assignedCanApprove
   }
-  if (budgetUnit !== null) {
+  if (budgetUnit) {
     updateOptions.budget_unit = budgetUnit
   }
-  if (ticketSubCode !== null) {
+  if (ticketSubCode) {
     updateOptions.ticket_sub_code = ticketSubCode.toString(10);
   }
   return getMarketClient(marketId)

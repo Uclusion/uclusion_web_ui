@@ -160,7 +160,7 @@ function DialogBodyEdit(props) {
       text: tokensRemoved,
     } = processTextAndFilesForSave(newUploadedFiles, description);
     const updatedFilteredUploads = _.isEmpty(uploadedFiles) ? filteredUploads : null;
-    return updateGroup(marketId, id, null, tokensRemoved, updatedFilteredUploads)
+    return updateGroup({marketId, groupId: id, description: tokensRemoved, uploadedFiles: updatedFilteredUploads})
       .then((group) => {
         //clear the editor because we want the storage back
         editorReset();

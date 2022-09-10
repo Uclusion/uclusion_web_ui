@@ -3,7 +3,7 @@
  */
 import React, { useContext, useEffect, useState } from 'react'
 import { useHistory, useLocation } from 'react-router'
-import { FormattedMessage, useIntl } from 'react-intl'
+import { useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import {
@@ -17,7 +17,6 @@ import Screen from '../../../containers/Screen/Screen'
 import {
   baseNavListItem,
   formMarketArchivesLink, formMarketLink,
-  makeBreadCrumbs,
   navigate
 } from '../../../utils/marketIdPathFunctions'
 import {
@@ -66,7 +65,10 @@ import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox'
 import { isEveryoneGroup } from '../../../contexts/GroupMembersContext/groupMembersHelper'
 import { AssignmentInd } from '@material-ui/icons'
 import Backlog from './Backlog'
-import InvestiblesByPerson from './InvestiblesByPerson'
+import InvestiblesByPerson, { useInvestiblesByPersonStyles } from './InvestiblesByPerson'
+import { SECTION_TYPE_SECONDARY_WARNING } from '../../../constants/global'
+import SubSection from '../../../containers/SubSection/SubSection'
+import Chip from '@material-ui/core/Chip'
 
 export const LocalPlanningDragContext = React.createContext([]);
 
@@ -78,6 +80,8 @@ function getAnchorId(tabIndex) {
       return 'backlogSection';
     case 2:
       return 'marketTodos'
+    case 5:
+      return 'settingsSection';
     default:
       return 'workspaceMain';
   }
@@ -107,7 +111,7 @@ function PlanningDialog(props) {
   const group = getGroup(groupState, marketId, groupId);
   const { name: groupName, created_by: createdBy } = group || {};
   const isAdmin = myPresence.is_admin;
-  const breadCrumbs = makeBreadCrumbs(history);
+  const classes = useInvestiblesByPersonStyles();
   const unResolvedMarketComments = comments.filter(comment => !comment.investible_id && !comment.resolved) || [];
   // There is no link to a reply so including them should be okay
   const notTodoComments = unResolvedMarketComments.filter(comment =>
@@ -252,17 +256,13 @@ function PlanningDialog(props) {
       'addCollaboratorSection', undefined, false,
       isSectionBold('addCollaboratorSection'), !_.isEmpty(search)));
   }
-  if (!mobileLayout) {
-    navListItemTextArray.push(createNavListItem(SettingsIcon, 'settings', 'settingsSection',
-      undefined, false, isSectionBold('settingsSection'), !_.isEmpty(search)));
-  }
 
   const discussionSearchResults = (results.find((result) => result.id === marketId) ? 1 : 0) + _.size(questions)
                         + _.size(suggestions) + _.size(reports);
   const jobsSearchResults = _.size(requiresInputInvestibles) + _.size(blockedInvestibles) + _.size(swimlaneInvestibles);
   const backlogSearchResults = _.size(furtherWorkReadyToStart) + _.size(furtherWorkInvestibles);
 
-  const isFromSideBarMenu = ['addCollaboratorSection', 'settingsSection'].includes(sectionOpen);
+  const isFromSideBarMenu = ['addCollaboratorSection'].includes(sectionOpen);
   function resetTabs() {
     updatePageState({sectionOpen: undefined, tabIndex: 0});
   }
@@ -271,7 +271,6 @@ function PlanningDialog(props) {
       title={groupName}
       hidden={hidden}
       tabTitle={groupName}
-      breadCrumbs={breadCrumbs}
       banner={banner}
       openMenuItems={navListItemTextArray}
     >
@@ -314,6 +313,8 @@ function PlanningDialog(props) {
           <GmailTabItem icon={<MenuBookIcon />}
                         label={intl.formatMessage({id: 'planningDialogViewArchivesLabel'})}
                         tag={_.isEmpty(search) ? undefined : `${archivedSize}`} />
+          <GmailTabItem icon={<SettingsIcon />}
+                        label={intl.formatMessage({id: 'settings'})} />
         </GmailTabs>
       )}
       {isSectionOpen('workspaceMain') && (
@@ -355,16 +356,28 @@ function PlanningDialog(props) {
               </div>
             }/>
             {!_.isEmpty(requiresInputInvestibles) && (
-              <ArchiveInvestbiles
-                comments={comments}
-                elevation={0}
-                marketId={marketId}
-                presenceMap={presenceMap}
-                investibles={blockedOrRequiresInputInvestibles}
-                highlightMap={highlightMap}
-                presenceId={myPresence.id}
-                allowDragDrop
-              />
+              <SubSection
+                type={SECTION_TYPE_SECONDARY_WARNING}
+                titleIcon={blockedOrRequiresInputInvestibles.length > 0 ?
+                  <Chip label={`${blockedOrRequiresInputInvestibles.length}`}
+                                                                 color="primary"
+                                                                 size='small'
+                                                                 className={classes.chipStyle} /> : undefined}
+                title={intl.formatMessage({ id: 'blockedHeader' })}
+                helpLink='https://documentation.uclusion.com/channels/jobs/stages/#blocked'
+                id="blocked"
+              >
+                <ArchiveInvestbiles
+                  comments={comments}
+                  elevation={0}
+                  marketId={marketId}
+                  presenceMap={presenceMap}
+                  investibles={blockedOrRequiresInputInvestibles}
+                  highlightMap={highlightMap}
+                  presenceId={myPresence.id}
+                  allowDragDrop
+                />
+              </SubSection>
             )}
             {!_.isEmpty(requiresInputInvestibles) && (<div style={{ paddingBottom: '2rem' }}/>)}
             <InvestiblesByPerson
@@ -401,19 +414,14 @@ function PlanningDialog(props) {
       </LocalPlanningDragContext.Provider>
       <Grid container spacing={2} id="settingsSection">
         {!hidden && !_.isEmpty(acceptedStage) && !_.isEmpty(inVerifiedStage) &&
-          isSectionOpen('settingsSection') && _.isEmpty(search) && !mobileLayout && (
-            <>
-              <h2 style={{paddingLeft: '3rem'}}>
-                <FormattedMessage id="settings" />
-              </h2>
-              <PlanningDialogEdit
-                group={group}
-                userId={myPresence.id}
-                onCancel={() => resetTabs()}
-                acceptedStage={acceptedStage}
-                verifiedStage={inVerifiedStage}
-              />
-            </>
+          isSectionOpen('settingsSection') && _.isEmpty(search) && (
+            <PlanningDialogEdit
+              group={group}
+              userId={myPresence.id}
+              onCancel={() => resetTabs()}
+              acceptedStage={acceptedStage}
+              verifiedStage={inVerifiedStage}
+            />
         )}
       </Grid>
     </Screen>

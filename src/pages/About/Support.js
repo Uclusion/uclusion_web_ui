@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import { useHistory } from 'react-router'
 import PropTypes from 'prop-types'
 import { Card, Grid, Link, ListItem, makeStyles, Paper, Typography } from '@material-ui/core'
 import { FormattedMessage, useIntl } from 'react-intl'
@@ -7,7 +6,6 @@ import Screen from '../../containers/Screen/Screen'
 import config from '../../config'
 import { toastErrorAndThrow } from '../../utils/userMessage'
 import { getSSOInfo } from '../../api/sso'
-import { makeBreadCrumbs } from '../../utils/marketIdPathFunctions'
 import OnboardingWorkspace from './OnboardingWorkspace'
 import SubSection from '../../containers/SubSection/SubSection'
 
@@ -58,7 +56,6 @@ function Support(props) {
     hidden,
   } = props;
   const intl = useIntl();
-  const history = useHistory();
   const classes = useStyles();
   const { version } = config;
   const [externalId, setExternalId] = useState(undefined);
@@ -77,13 +74,11 @@ function Support(props) {
         }).catch((error) => toastErrorAndThrow(error, 'errorGetIdFailed'));
     }
   }, [externalId, hidden]);
-  const breadCrumbs = makeBreadCrumbs(history, [], true);
   return (
     <Screen
       title={intl.formatMessage({ id: 'support' })}
       tabTitle={intl.formatMessage({ id: 'support' })}
       hidden={hidden}
-      breadCrumbs={breadCrumbs}
       loading={!externalId}
       hideMenu
     >

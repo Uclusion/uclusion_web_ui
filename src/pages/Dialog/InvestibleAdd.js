@@ -5,9 +5,7 @@ import { useIntl } from 'react-intl'
 import _ from 'lodash'
 import {
   decomposeMarketPath,
-  formMarketLink,
-  makeBreadCrumbs,
-  navigate,
+  navigate
 } from '../../utils/marketIdPathFunctions'
 import Screen from '../../containers/Screen/Screen'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
@@ -43,10 +41,6 @@ function InvestibleAdd(props) {
   const { market_type: marketType, created_at: createdAt, budget_unit: budgetUnit, use_budget: useBudget,
     votes_required: votesRequired
   } = renderableMarket;
-  const currentMarketName = renderableMarket.name || '';
-  //TODO need groupId in formMarketLink and all over here
-  const breadCrumbTemplates = marketId ? [{ name: currentMarketName, link: formMarketLink(marketId) }] : [];
-  const myBreadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
   const title = intl.formatMessage({ id: 'newStory'});
 
   function onInvestibleSave(investible) {
@@ -65,7 +59,6 @@ function InvestibleAdd(props) {
       title={title}
       hidden={hidden}
       tabTitle={title}
-      breadCrumbs={myBreadCrumbs}
       loading={marketId && !marketType}
     >
       {hidden ? <div /> :

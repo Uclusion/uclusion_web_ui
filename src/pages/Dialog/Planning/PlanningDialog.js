@@ -15,7 +15,7 @@ import {
 import Summary from './Summary'
 import Screen from '../../../containers/Screen/Screen'
 import {
-  formMarketArchivesLink, formMarketLink,
+  formMarketLink,
   navigate
 } from '../../../utils/marketIdPathFunctions'
 import {
@@ -48,7 +48,6 @@ import { workspaceInvitedUserSteps } from '../../../components/Tours/InviteTours
 import ListAltIcon from '@material-ui/icons/ListAlt'
 import QuestionIcon from '@material-ui/icons/ContactSupport'
 import MenuBookIcon from '@material-ui/icons/MenuBook'
-import { getThreadIds } from '../../../utils/commentFunctions'
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 import SettingsIcon from '@material-ui/icons/Settings'
@@ -65,6 +64,8 @@ import InvestiblesByPerson, { useInvestiblesByPersonStyles } from './Investibles
 import { SECTION_TYPE_SECONDARY_WARNING } from '../../../constants/global'
 import SubSection from '../../../containers/SubSection/SubSection'
 import Chip from '@material-ui/core/Chip'
+import { filterToRoot } from '../../../contexts/CommentsContext/commentsContextHelper'
+import DialogArchives from '../../DialogArchives/DialogArchives'
 
 export const LocalPlanningDragContext = React.createContext([]);
 
@@ -76,6 +77,8 @@ function getAnchorId(tabIndex) {
       return 'backlogSection';
     case 2:
       return 'marketTodos'
+    case 4:
+      return 'archive';
     case 5:
       return 'settingsSection';
     default:
@@ -186,14 +189,16 @@ function PlanningDialog(props) {
         if (hash.includes('workspaceMain')) {
           updatePageState({ sectionOpen: 'workspaceMain' })
         } else {
-          const unResolvedMarketComments = comments.filter(comment => !comment.investible_id && !comment.resolved) || []
-          // There is no link to a reply so including them should be okay
-          const notTodoComments = unResolvedMarketComments.filter(comment =>
-            [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE, REPLY_TYPE].includes(comment.comment_type)) || []
-          const noTodoCommentIds = getThreadIds(notTodoComments, comments)
-          const foundCommentId = noTodoCommentIds.find((anId) => hash.includes(anId))
-          if (foundCommentId) {
-            updatePageState({ sectionOpen: 'workspaceMain' });
+          const found = comments.find((anId) => hash.includes(anId));
+          if (!_.isEmpty(found)) {
+            const rootComment = filterToRoot(comments, found.id);
+            if (_.isEmpty(rootComment.investible_id)) {
+              if (!rootComment.resolved) {
+                updatePageState({ sectionOpen: 'workspaceMain' });
+              } else {
+                updatePageState({ sectionOpen: 'archive' });
+              }
+            }
           }
         }
       }
@@ -251,16 +256,12 @@ function PlanningDialog(props) {
         value={tabIndex}
         onChange={(event, value) => {
           updatePageState({tabIndex: value});
-          if (value === 4) {
-            navigate(history, formMarketArchivesLink(marketId, groupId));
-          } else {
-            const isSearch = !_.isEmpty(search);
-            const anchorId = getAnchorId(value);
-            const isScrolling = (mobileLayout || isSearch) && !singleSections.includes(anchorId);
-            openSubSection(anchorId, !isScrolling);
-            if (isScrolling) {
-              navigate(history, `${formMarketLink(marketId, groupId)}#${anchorId}`);
-            }
+          const isSearch = !_.isEmpty(search);
+          const anchorId = getAnchorId(value);
+          const isScrolling = (mobileLayout || isSearch) && !singleSections.includes(anchorId);
+          openSubSection(anchorId, !isScrolling);
+          if (isScrolling) {
+            navigate(history, `${formMarketLink(marketId, groupId)}#${anchorId}`);
           }
         }}
         indicatorColors={['#00008B']}
@@ -373,6 +374,9 @@ function PlanningDialog(props) {
                        updatePageState({sectionOpen: 'marketTodos', tabIndex: 1});
                      }} group={group} userId={myPresence.id}/>
       </LocalPlanningDragContext.Provider>
+      {!hidden && isSectionOpen('archive') && (
+        <DialogArchives />
+      )}
       <Grid container spacing={2} id="settingsSection">
         {!hidden && !_.isEmpty(acceptedStage) && !_.isEmpty(inVerifiedStage) &&
           isSectionOpen('settingsSection') && _.isEmpty(search) && (

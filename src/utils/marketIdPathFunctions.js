@@ -80,30 +80,6 @@ export function navigate(history, to, insideUseEffect, doNotAddToHistory) {
   broadcastView(toMarketId, toInvestibleId, true, toAction, to);
 }
 
-
-/**
- *
- * @param history
- * @param crumbs A list objects of the type { name, link }
- */
-export function makeBreadCrumbs(history, crumbs = []) {
-  return crumbs.map((crumb) => {
-    const { name, link, image, id, onClick, icon } = crumb;
-    const usedOnClick = onClick || ((event) => {
-      event.preventDefault();
-      navigate(history, link);
-    });
-    return {
-      title: name,
-      titleIcon: icon,
-      image,
-      id,
-      link,
-      onClick: usedOnClick,
-    };
-  });
-}
-
 export function baseNavListItem(linkRoot, icon, textId, anchorId, howManyNum, alwaysShow) {
   const text = intl.formatMessage({ id: textId });
   if (howManyNum === 0 && alwaysShow !== true) {
@@ -173,7 +149,7 @@ export function getNameForUrl(url) {
 }
 
 export function openInNewTab(url) {
-  var win = window.open(url, '_blank');
+  const win = window.open(url, '_blank');
   win.focus();
 }
 
@@ -221,10 +197,6 @@ export function formCommentEditReplyLink(marketId, commentId, isReply=false) {
  */
 export function formMarketLink(marketId, groupId) {
   return `${formatMarketLinkWithPrefix('dialog', marketId)}?groupId=${groupId}`;
-}
-
-export function formMarketArchivesLink(marketId, groupId) {
-  return `${formatMarketLinkWithPrefix('dialogArchives', marketId)}?groupId=${groupId}`;
 }
 
 export function formMarketEditLink(marketId) {

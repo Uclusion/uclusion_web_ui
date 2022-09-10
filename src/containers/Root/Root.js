@@ -9,7 +9,6 @@ import PageNotFound from '../../pages/PageNotFound/PageNotFound'
 import { broadcastView, decomposeMarketPath, formInvestibleLink, navigate, } from '../../utils/marketIdPathFunctions'
 import Home from '../../pages/Home/Home'
 import Investible from '../../pages/Investible/Investible'
-import DialogArchives from '../../pages/DialogArchives/DialogArchives'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { OnlineStateContext } from '../../contexts/OnlineStateContext'
 import InvestibleAdd from '../../pages/Dialog/InvestibleAdd'
@@ -111,10 +110,6 @@ function Root() {
     return (action !== 'todoAdd');
   }
 
-  function hideDialogArchives() {
-    return (action !== 'dialogArchives');
-  }
-
   function hideSlackInvite() {
     return action !== 'slack';
   }
@@ -129,7 +124,7 @@ function Root() {
 
   // Page Not Found
   const hidePNF = !(hideMarket() && hideSupport() && hideHome() && hideInvestible() && hideWorkspaceWizard() && hideInbox()
-    && hideDialogArchives() && hideInvestibleAdd() && hideSlackInvite() && hideChangePassword() && hideMarketEdit()
+    && hideInvestibleAdd() && hideSlackInvite() && hideChangePassword() && hideMarketEdit()
     && hideChangeNotification() && hideBillingHome() && hideTodoAdd() && hideCommentReplyEdit());
 
   useEffect(() => {
@@ -225,7 +220,6 @@ function Root() {
             <Support hidden={hideSupport()}/>
             <BillingHome hidden={hideBillingHome()}/>
             <Investible hidden={hideInvestible()}/>
-            <DialogArchives hidden={hideDialogArchives()}/>
             <InvestibleAdd hidden={hideInvestibleAdd()}/>
             <CommentReplyEdit hidden={hideCommentReplyEdit()} />
             <SlackInvite hidden={hideSlackInvite()}/>

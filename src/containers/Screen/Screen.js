@@ -9,7 +9,6 @@ import { NotificationsContext } from '../../contexts/NotificationsContext/Notifi
 import {
   decomposeMarketPath,
   formMarketLink,
-  makeBreadCrumbs,
   navigate,
   preventDefaultAndProp
 } from '../../utils/marketIdPathFunctions'
@@ -158,7 +157,6 @@ function Screen(props) {
   const { results, search } = searchResults;
   const [open, setOpen] = React.useState(false);
   const {
-    breadCrumbs,
     hidden,
     loading,
     title,
@@ -195,10 +193,6 @@ function Screen(props) {
   const reallyAmLoading = !hidden && appEnabled && (loading || _.isEmpty(user));
   if ((hidden && !isInbox)||(marketId && _.isEmpty(defaultMarket))) {
     return <React.Fragment/>
-  }
-  let usedBreadCrumbs = breadCrumbs;
-  if (_.isEmpty(breadCrumbs)) {
-    usedBreadCrumbs = makeBreadCrumbs(history);
   }
 
   function setMarketIdFull() {
@@ -258,7 +252,6 @@ function Screen(props) {
         <Header
           title={title}
           titleIcon={titleIcon}
-          breadCrumbs={usedBreadCrumbs}
           toolbarButtons={toolbarButtons}
           hidden={reallyAmLoading}
           appEnabled={appEnabled}

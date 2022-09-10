@@ -24,7 +24,6 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import {
   formMarketAddInvestibleLink,
-  formMarketArchivesLink,
   formMarketLink,
   navigate
 } from '../../../utils/marketIdPathFunctions'
@@ -340,9 +339,7 @@ function MarketTodos(props) {
   function getCards(commentsGetting, history, intl, setCard, sectionId) {
     function setCardAndScroll(comment) {
       setCard(comment);
-      navigate(history,
-        `${isInArchives ? formMarketArchivesLink(comment.market_id, comment.group_id) : 
-          formMarketLink(comment.market_id, comment.group_id)}#c${comment.id}`)
+      navigate(history, `${formMarketLink(comment.market_id, comment.group_id)}#c${comment.id}`);
     }
 
     if (_.isEmpty(commentsGetting)) {

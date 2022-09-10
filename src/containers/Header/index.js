@@ -276,8 +276,6 @@ function Header (props) {
 }
 
 Header.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types
-  breadCrumbs: PropTypes.arrayOf(PropTypes.object),
   toolbarButtons: PropTypes.arrayOf(PropTypes.any),
   title: PropTypes.any,
   titleIcon: PropTypes.any,
@@ -287,7 +285,6 @@ Header.propTypes = {
 };
 
 Header.defaultProps = {
-  breadCrumbs: [],
   toolbarButtons: [],
   title: '',
   titleIcon: undefined,

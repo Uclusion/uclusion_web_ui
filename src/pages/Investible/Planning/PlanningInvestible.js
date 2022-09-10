@@ -24,11 +24,6 @@ import {
   SUGGEST_CHANGE_TYPE,
   TODO_TYPE
 } from '../../../constants/comments'
-import {
-  formMarketArchivesLink,
-  formMarketLink,
-  makeBreadCrumbs,
-} from '../../../utils/marketIdPathFunctions'
 import Screen from '../../../containers/Screen/Screen'
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
 import MoveToNextVisibleStageActionButton from './MoveToNextVisibleStageActionButton'
@@ -85,7 +80,7 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { doSetEditWhenValid, invalidEditEvent } from '../../../utils/windowUtils'
 import Gravatar from '../../../components/Avatars/Gravatar';
 import { getInvestibleVoters } from '../../../utils/votingUtils';
-import { getCommenterPresences, inVerifedSwimLane } from '../../Dialog/Planning/userUtils';
+import { getCommenterPresences } from '../../Dialog/Planning/userUtils';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import {
@@ -131,8 +126,6 @@ import {
   OPERATION_HUB_CHANNEL, STOP_OPERATION
 } from '../../../contexts/OperationInProgressContext/operationInProgressMessages'
 import { addEditVotingHasContents } from '../Voting/AddEditVote'
-import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext'
-import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper'
 import { isEveryoneGroup } from '../../../contexts/GroupMembersContext/groupMembersHelper'
 import InvesibleCommentLinker from '../../Dialog/InvesibleCommentLinker'
 
@@ -389,7 +382,7 @@ function PlanningInvestible(props) {
   const [showDatepicker, setShowDatepicker] = useState(false);
   const [clearMeHack, setClearMeHack] = useState('a');
   const [labelFocus, setLabelFocus] = useState(false);
-  const { name: marketName, id: marketId, market_stage: marketStage } = market;
+  const { id: marketId, market_stage: marketStage } = market;
   const inArchives = marketStage !== ACTIVE_STAGE;
   const labels = getMarketLabels(investiblesState, marketId);
   const investmentReasonsRemoved = investibleComments.filter(comment => comment.comment_type !== JUSTIFY_TYPE) || [];
@@ -408,9 +401,6 @@ function PlanningInvestible(props) {
     open_for_investment: openForInvestment, former_stage_id: formerStageId, accepted, group_id: groupId } = marketInfo;
   const addressedIds = (addressed || []).filter((address) => !address.deleted && !address.abstain)
     .map((address) => address.user_id);
-  const [groupState] = useContext(MarketGroupsContext);
-  const group = getGroup(groupState, marketId, groupId);
-  const { name: groupName } = group || {};
   const assigned = invAssigned || [];
   const { investible } = marketInvestible;
   const { name, locked_by: lockedBy, created_at: createdAt, label_list: originalLabelList } = investible;
@@ -470,18 +460,6 @@ function PlanningInvestible(props) {
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   const inMarketArchives = isInNotDoing || isInVerified;
   const reportMessage = findMessageOfType('REPORT_REQUIRED', investibleId, messagesState);
-  const breadCrumbTemplates = [];
-  if (marketName) {
-    breadCrumbTemplates.push({ name: isEveryoneGroup(groupId, marketId) ? marketName : groupName,
-      link: formMarketLink(marketId, groupId) });
-  }
-  if (inMarketArchives && !inVerifedSwimLane(marketInvestible, investibles, inVerifiedStage, marketId)) {
-    breadCrumbTemplates.push({
-      name: intl.formatMessage({ id: "dialogArchivesLabel" }),
-      link: formMarketArchivesLink(marketId)
-    });
-  }
-  const breadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates);
   function canGetInput() {
     const blockingComments = investibleComments.filter(
       comment => comment.comment_type === ISSUE_TYPE && !comment.resolved
@@ -765,7 +743,6 @@ function PlanningInvestible(props) {
     <Screen
       title={title}
       tabTitle={name}
-      breadCrumbs={breadCrumbs}
       hidden={hidden}
     >
       <UclusionTour

@@ -28,7 +28,7 @@ import Screen from '../../../containers/Screen/Screen'
 import ManageMarketUsers from '../UserManagement/ManageMarketUsers'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { useHistory } from 'react-router'
-import { decomposeMarketPath, formMarketLink, makeBreadCrumbs, navigate } from '../../../utils/marketIdPathFunctions'
+import { decomposeMarketPath, navigate } from '../../../utils/marketIdPathFunctions'
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -61,8 +61,6 @@ function PlanningMarketEdit() {
   const market = getMarket(marketsState, marketId) || {};
   const [investmentExpiration, setInvestmentExpiration] = useState(market.investment_expiration);
   const [name] = useState(market.name);
-  const breadCrumbTemplates = marketId ? [{ name: market.name, link: formMarketLink(marketId, marketId) }] : [];
-  const breadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates);
 
   function onAllowedInvestiblesChange(event) {
     const { value } = event.target;
@@ -114,7 +112,6 @@ function PlanningMarketEdit() {
       title={intl.formatMessage({ id: 'editWorkspace' })}
       tabTitle={intl.formatMessage({ id: 'editWorkspace' })}
       hidden={false}
-      breadCrumbs={breadCrumbs}
       loading={_.isEmpty(market)}
     >
     <Card className={classes.overflowVisible}>

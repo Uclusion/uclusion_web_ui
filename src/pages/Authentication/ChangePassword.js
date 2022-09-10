@@ -4,13 +4,11 @@ import { Auth } from 'aws-amplify'
 import clsx from 'clsx'
 import Grid from '@material-ui/core/Grid'
 import PropTypes from 'prop-types'
-import { useHistory } from 'react-router'
 import { Button, TextField, Typography, Card } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import { useIntl } from 'react-intl'
 import { toastError } from '../../utils/userMessage'
 import Screen from '../../containers/Screen/Screen'
-import { makeBreadCrumbs } from '../../utils/marketIdPathFunctions'
 import InputAdornment from '@material-ui/core/InputAdornment';
 import IconButton from '@material-ui/core/IconButton';
 import { Visibility, VisibilityOff } from '@material-ui/icons';
@@ -84,16 +82,12 @@ function ChangePassword(props) {
       setRepeatPassword(password.currentTarget.value);
     }
   }
-  const history = useHistory();
-  const breadCrumbs = makeBreadCrumbs(history, [], true);
 
   return (
     <Screen
       title={intl.formatMessage({ id: 'changePasswordHeader' })}
       tabTitle={intl.formatMessage({ id: 'changePasswordHeader' })}
       hidden={hidden}
-      breadCrumbs={breadCrumbs}
-      loading={!breadCrumbs}
       hideMenu
     >
       <Grid container spacing={3}>

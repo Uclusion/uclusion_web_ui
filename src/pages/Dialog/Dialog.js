@@ -6,9 +6,8 @@ import { useIntl } from 'react-intl'
 import {
   decomposeMarketPath,
   formInvestibleLink,
-  formMarketArchivesLink,
   formMarketLink,
-  navigate,
+  navigate
 } from '../../utils/marketIdPathFunctions'
 import Screen from '../../containers/Screen/Screen'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
@@ -17,7 +16,7 @@ import { InvestiblesContext } from '../../contexts/InvestibesContext/Investibles
 import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import PlanningDialog from './Planning/PlanningDialog'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
-import { getComment, getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper'
+import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 import { getStages } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
@@ -113,24 +112,18 @@ function Dialog(props) {
 
   useEffect(() => {
     if (!hidden && myHashFragment) {
+      // Check for a comment that was moved to a job (or link would not come here) and send it there
       if (!myHashFragment.startsWith('cv') && (myHashFragment.startsWith('c'))) {
-        const commentId = myHashFragment.startsWith('c') ? myHashFragment.substr(1)
-          : myHashFragment.substr(5);
-        const comment = getComment(commentsState, marketId, commentId) || {}
-        const { resolved, investible_id: investibleId } = comment;
+        const comments = getMarketComments(commentsState, marketId) || [];
+        const comment = comments.find((comment) => myHashFragment.includes(myHashFragment));
+        const { investible_id: investibleId } = comment || {};
         if (investibleId) {
           const link = formInvestibleLink(marketId, investibleId);
-          const fullLink = `${link}#c${commentId}`;
-          navigate(history, fullLink, true);
-        } else if (resolved) {
-          const link = formMarketArchivesLink(marketId);
-          const fullLink = `${link}#c${commentId}`;
-          console.info('Navigating to resolved comment');
+          const fullLink = `${link}#c${comment.id}`;
           navigate(history, fullLink, true);
         }
       }
     }
-
     return () => {
     }
   }, [commentsState, hidden, history, marketId, myHashFragment]);

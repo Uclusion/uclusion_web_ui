@@ -50,9 +50,13 @@ export function getBlockedStage(state, marketId) {
   return marketStages.find((stage) => isBlockedStage(stage));
 }
 
+export function isVerifiedStage(stage) {
+  return stage.appears_in_market_summary;
+}
+
 export function getVerifiedStage(state, marketId) {
   const marketStages = getStages(state, marketId);
-  return marketStages.find((stage) => (stage.appears_in_market_summary));
+  return marketStages.find((stage) => isVerifiedStage(stage));
 }
 
 export function isFurtherWorkStage(stage) {
@@ -78,9 +82,13 @@ export function getRequiredInputStage(state, marketId) {
   return marketStages.find((stage) => isRequiredInputStage(stage));
 }
 
+export function isNotDoingStage(stage) {
+  return !stage.allows_assignment && stage.close_comments_on_entrance;
+}
+
 export function getNotDoingStage(state, marketId) {
   const marketStages = getStages(state, marketId);
-  return marketStages.find((stage) => (!stage.allows_assignment && stage.close_comments_on_entrance));
+  return marketStages.find((stage) => isNotDoingStage(stage));
 }
 
 export function getStageNameForId(state, marketId, stageId, intl) {

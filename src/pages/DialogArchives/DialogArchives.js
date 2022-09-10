@@ -1,18 +1,10 @@
 import React, { useContext, useEffect, useState } from 'react'
-import PropTypes from 'prop-types'
 import _ from 'lodash'
-import Screen from '../../containers/Screen/Screen'
-import { useHistory, useLocation } from 'react-router';
-import {
-  decomposeMarketPath,
-  formMarketLink,
-  makeBreadCrumbs,
-} from '../../utils/marketIdPathFunctions'
-import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
+import { useLocation } from 'react-router';
+import { decomposeMarketPath } from '../../utils/marketIdPathFunctions'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 import { getNotDoingStage, getVerifiedStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
-import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 import { getInvestiblesInStage, getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import SubSection from '../../containers/SubSection/SubSection'
 import { useIntl } from 'react-intl'
@@ -27,16 +19,13 @@ import MarketTodos from '../Dialog/Planning/MarketTodos'
 import { REPLY_TYPE, TODO_TYPE } from '../../constants/comments'
 import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
-import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
 import { getMarketInfo } from '../../utils/userFunctions'
 import queryString from 'query-string'
 
-function DialogArchives(props) {
-  const { hidden } = props;
+function DialogArchives() {
 
   const intl = useIntl();
-  const history = useHistory();
   const location = useLocation();
   const { pathname, search: querySearch } = location;
   const values = queryString.parse(querySearch);
@@ -44,7 +33,6 @@ function DialogArchives(props) {
   const { marketId } = decomposeMarketPath(pathname);
   const [assigneeFilter, setAssigneeFilter] = useState('');
   const [filteredMarketId, setFilteredMarketId] = useState(undefined);
-  const [marketsState] = useContext(MarketsContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -52,7 +40,6 @@ function DialogArchives(props) {
   const [searchResults] = useContext(SearchResultsContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const presenceMap = getPresenceMap(marketPresences);
-  const renderableMarket = getMarket(marketsState, marketId) || {};
   const verifiedStage = getVerifiedStage(marketStagesState, marketId) || {};
   const notDoingStage = getNotDoingStage(marketStagesState, marketId) || {};
   const marketInvestibles = getMarketInvestibles(investiblesState, marketId, searchResults) || [];
@@ -77,10 +64,6 @@ function DialogArchives(props) {
     return myInfo && myInfo.assigned && myInfo.assigned.includes(assigneeFilter);
   });
 
-  const { name } = renderableMarket;
-  const breadCrumbTemplates = [{ name, link: formMarketLink(marketId, groupId), icon: <AgilePlanIcon/> }];
-  const breadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates);
-
   function onFilterChange(event) {
     const { value } = event.target;
     setAssigneeFilter(value);
@@ -94,24 +77,12 @@ function DialogArchives(props) {
     }
   }, [filteredMarketId, marketId]);
 
-  if (!marketId) {
-    return (
-      <Screen
-        hidden={hidden}
-        tabTitle={intl.formatMessage({ id: 'dialogArchivesLabel' })}
-      >
-        Loading
-      </Screen>
-    );
+  if (!marketId || !groupId) {
+    return React.Fragment;
   }
 
   return (
-    <Screen
-      hidden={hidden}
-      title={intl.formatMessage({ id: 'dialogArchivesLabel' })}
-      tabTitle={intl.formatMessage({ id: 'dialogArchivesLabel' })}
-      breadCrumbs={breadCrumbs}
-    >
+    <>
       <SubSection
         type={SECTION_TYPE_SECONDARY}
         title={intl.formatMessage({ id: 'dialogArchivesVerifiedHeader' })}
@@ -151,16 +122,8 @@ function DialogArchives(props) {
           <CommentBox comments={notTodoComments} marketId={marketId} allowedTypes={[]} />
         </Grid>
       </Grid>
-    </Screen>
+    </>
   );
 }
-
-DialogArchives.propTypes = {
-  hidden: PropTypes.bool,
-};
-
-DialogArchives.defaultProps = {
-  hidden: false,
-};
 
 export default DialogArchives;

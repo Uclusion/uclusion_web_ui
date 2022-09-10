@@ -29,6 +29,26 @@ export function getCommentRoot(state, marketId, commentId) {
   return getCommentRoot(state, marketId, comment.reply_id);
 }
 
+function filterToComment(comments, commentId) {
+  return comments.find(comment => comment.id === commentId);
+}
+
+export function filterToRoot(comments, commentId) {
+  const comment = filterToComment(comments, commentId);
+  if (_.isEmpty(comment)) {
+    return undefined;
+  }
+  if (comment.deleted) {
+    return undefined;
+  }
+  //we're the root, return us
+  if (_.isEmpty(comment.reply_id)) {
+    return comment;
+  }
+  // we're an internal node, go up the tree
+  return filterToRoot(comments, comment.reply_id);
+}
+
 export function getDraftComments(state, marketId, investibleId) {
   const marketComments = state[marketId] || [];
   if (investibleId) {

@@ -15,8 +15,6 @@ import PropTypes from 'prop-types';
 import { updateUser } from '../../api/users';
 import config from '../../config';
 import Screen from '../../containers/Screen/Screen';
-import { makeBreadCrumbs } from '../../utils/marketIdPathFunctions';
-import { useHistory } from 'react-router';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
 import SubSection from '../../containers/SubSection/SubSection';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
@@ -131,15 +129,12 @@ function ChangeNotificationPreferences (props) {
     }
   }
 
-  const history = useHistory();
-  const breadCrumbs = makeBreadCrumbs(history, [], true);
   const slackDelayDisabled = !safeUser.is_slack_addressable || !slackEnabledValue;
   return (
     <Screen
       title={intl.formatMessage({ id: 'changePreferencesHeader' })}
       tabTitle={intl.formatMessage({ id: 'changePreferencesHeader' })}
       hidden={hidden}
-      breadCrumbs={breadCrumbs}
       loading={!user}
       hideMenu
     >

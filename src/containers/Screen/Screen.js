@@ -267,7 +267,7 @@ function Screen(props) {
           {banner}
         </Container>
       )}
-      {!_.isEmpty(useGroupId) && (
+      {!hideMenu && (
         <GroupsNavigation defaultMarket={defaultMarket} open={open} setOpen={setOpen} />
       )}
       <div className={contentClass}>

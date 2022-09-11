@@ -29,9 +29,10 @@ import { getGroupPresences, getMarketPresences } from '../../../contexts/MarketP
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext'
 import { AccountContext } from '../../../contexts/AccountContext/AccountContext'
 import WorkspaceInviteLinker from '../../Home/WorkspaceInviteLinker'
+import EmailEntryBox from '../../../components/Email/EmailEntryBox'
 
 function AddNewUsers(props) {
-  const { market, isAddToGroup = false, emailList, setEmailList, setToAddClean, group } = props;
+  const { market, isAddToGroup = false, setToAddClean, group } = props;
   const { id: addToMarketId } = market || {};
   const { id: groupId } = group || {};
   const classes = usePlanFormStyles();
@@ -45,16 +46,8 @@ function AddNewUsers(props) {
   const [userState] = useContext(AccountContext);
   const { user: unsafeUser } = userState || {};
   const myUser = unsafeUser || {};
-  const [email1, setEmail1] = useState('');
+  const [email1, setEmail1] = useState([]);
 
-  function handleEmail1(event) {
-    const { value } = event.target;
-    if (setEmailList) {
-      setEmailList(value);
-    } else {
-      setEmail1(value);
-    }
-  }
   const marketPresences = getMarketPresences(marketPresencesState, addToMarketId) || [];
   const addToMarketPresences = groupId ?
     getGroupPresences(marketPresences, groupPresencesState, addToMarketId, groupId) :
@@ -148,18 +141,15 @@ function AddNewUsers(props) {
 
   function addInvitees() {
     const added = [];
-    if (email1) {
-      const emails = email1.split(',');
-      emails.forEach((email) => {
-        const emailTrimmed = email.trim();
-        added.push(emailTrimmed)
-      })
-    }
+    email1.forEach((email) => {
+      const emailTrimmed = email.trim();
+      added.push(emailTrimmed)
+    })
     if (_.isEmpty(added)) {
       return Promise.resolve(true);
     }
     return inviteParticipants(addToMarketId, added).then((result) => {
-      setEmail1('');
+      setEmail1([]);
       onSaveSpinStop(result);
       setEmailsSent(emailsSent.concat(added));
     });
@@ -192,7 +182,6 @@ function AddNewUsers(props) {
   }
 
   const displayNames = filteredNames || participants || [];
-  const emailInputId = 'email1';
   return (
     <>
       {displayNames.length > 0 &&
@@ -291,16 +280,8 @@ function AddNewUsers(props) {
                     <Typography style={{ paddingBottom: '0.5rem' }}>
                       {intl.formatMessage({ id: 'inviteParticipantsEmailLabel' })}
                     </Typography>
-                    <TextField
-                      className={classes.input}
-                      variant="standard"
-                      id={emailInputId}
-                      name={emailInputId}
-                      fullWidth
-                      label={intl.formatMessage({ id: 'searchParticipantsPlaceholder' })}
-                      value={emailList || email1}
-                      onChange={handleEmail1}
-                    />
+                    <EmailEntryBox controlledEmailList={email1} setControlledEmailList={setEmail1}
+                                   placeholder={intl.formatMessage({ id: 'searchParticipantsPlaceholder' })}/>
                   </ListItemText>
                 </ListItem>
                 <ListItem id="emailButtons" key="emailButtons" className={classes.rightAlign}>

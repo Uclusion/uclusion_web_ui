@@ -38,11 +38,13 @@ const wizardStyles = makeStyles((theme) => {
 });
 
 function EmailEntryBox (props) {
-  const [emailList, setEmailList] = useState([]);
+  const [myEmailList, setMyEmailList] = useState([]);
   const [error, setError] = useState(null);
   const textRef = useRef(null);
-  const { onChange, placeholder } = props;
+  const { onChange, placeholder, controlledEmailList, setControlledEmailList } = props;
   const classes = wizardStyles();
+  const emailList = controlledEmailList || myEmailList;
+  const setEmailList = setControlledEmailList || setMyEmailList;
 
   // gets the text from the target of the event
   const getText = (target) => {

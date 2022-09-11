@@ -5,7 +5,6 @@ import { Button } from '@material-ui/core'
 import { Dialog } from '../../components/Dialogs'
 import { useLockedDialogStyles } from '../../pages/Dialog/DialogBodyEdit'
 import AddNewUsers from '../../pages/Dialog/UserManagement/AddNewUsers'
-import MarketCreate from '../../pages/Dialog/Planning/MarketCreate'
 import MarketCreateActions from '../../pages/Dialog/Planning/MarketCreateActions'
 
 function GroupsNavigation(props) {

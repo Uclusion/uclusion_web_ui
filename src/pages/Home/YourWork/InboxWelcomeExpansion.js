@@ -4,7 +4,6 @@ import { getQuillStoredState } from '../../../components/TextEditors/Utilities/C
 import { useEditor } from '../../../components/TextEditors/quillHooks'
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 import { clearNameStoredState, getNameStoredState } from '../../../components/TextFields/NameField'
-import AddNewUsers from '../../Dialog/UserManagement/AddNewUsers'
 import { Typography } from '@material-ui/core'
 import { processTextAndFilesForSave } from '../../../api/files'
 import { nameFromDescription } from '../../../utils/stringFunctions'
@@ -115,15 +114,13 @@ function InboxWelcomeExpansion() {
         });
     });
   }
-
+  // TODO fix this for onboarding
   return (
     <div style={{paddingTop: '1.5rem', paddingLeft: '1rem', paddingRight: '1rem', paddingBottom: '1rem'}}>
       <Typography variant="body1" style={{fontWeight: 600, marginBottom: '1rem'}}>
         For approval and review of a job assigned to you use the below form. For jobs
         assigned to multiple collaborators, create a channel using + Channel from the left nav.
       </Typography>
-      <AddNewUsers isInbox setEmailList={(value) => updateInvestibleAddState({emailList: value})}
-                   emailList={emailList} />
       {Editor}
       <div style={{paddingTop: '1rem'}}>
         <SpinningIconLabelButton onClick={handleCancel} doSpin={false} icon={Clear}>

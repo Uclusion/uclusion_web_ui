@@ -13,7 +13,7 @@ import { useIntl } from 'react-intl'
 import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
 import AddIcon from '@material-ui/icons/Add'
 import { formMarketEditLink, navigate } from '../../utils/marketIdPathFunctions'
-import { PLANNING_TYPE, WORKSPACE_WIZARD_TYPE } from '../../constants/markets'
+import { WORKSPACE_WIZARD_TYPE } from '../../constants/markets'
 
 const useStyles = makeStyles((theme) => ({
   name: {

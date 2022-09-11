@@ -11,13 +11,12 @@ import {
   ListItem,
   ListItemAvatar,
   ListItemText,
-  ListItemSecondaryAction, ListItemIcon, Tooltip
+  ListItemSecondaryAction, ListItemIcon, Tooltip, Checkbox
 } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles';
 import Gravatar from '../../../components/Avatars/Gravatar';
 import { useIntl } from 'react-intl'
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext'
-import Checkbox from '@material-ui/icons/CheckBox'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { changeGroupParticipation } from '../../../api/markets'
 import { modifyGroupMembers } from '../../../contexts/GroupMembersContext/groupMembersContextReducer'
@@ -50,6 +49,7 @@ function ManageExistingUsers(props) {
     setOperationRunning(true);
     const addressed = [{user_id: userId, is_following: wasRemoved}];
     return changeGroupParticipation(marketId, id, addressed).then((modifed) => {
+      setOperationRunning(false);
       groupPresencesDispatch(modifyGroupMembers(id, modifed));
     });
   }
@@ -76,7 +76,7 @@ function ManageExistingUsers(props) {
               id="followingGroup"
               name="followingGroup"
               checked={!deleted}
-              onChange={() => followUnfollow(id, deleted)}
+              onClick={() => followUnfollow(id, deleted)}
               disabled={operationRunning !== false}
             />
           </ListItemSecondaryAction>

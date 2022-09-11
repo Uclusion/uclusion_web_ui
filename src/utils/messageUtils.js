@@ -20,8 +20,9 @@ export function titleText(message, isMobile, intl, isMultiple, numMultiples, com
   assigned) {
   switch(message.type) {
     case 'ASSIGNED_UNREVIEWABLE':
-    case 'REPORT_REQUIRED':
       return getMessageTextForId('unfinished', isMobile, intl);
+    case 'REPORT_REQUIRED':
+      return getMessageTextForId('reportRequired', isMobile, intl);
     case 'ISSUE':
       if (message.market_type !== DECISION_TYPE) {
         return defaultText(message, isMobile, intl, isMultiple, numMultiples);

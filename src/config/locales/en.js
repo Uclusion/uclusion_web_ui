@@ -280,6 +280,8 @@ const messages = defineMessages({
   multipleNotifications: '({x}) Notifications',
   unfinished: 'Unfinished job',
   unfinishedMobile: 'Unfinished',
+  reportRequired: 'Status due',
+  reportRequiredMobile: 'Status',
   assignTodo: 'Unassigned todo',
   assignTodoMobile: 'Unassigned',
   assignTask: 'Unassigned job',

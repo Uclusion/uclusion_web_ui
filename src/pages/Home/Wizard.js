@@ -9,7 +9,7 @@ import {
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import GroupWizard from '../../components/AddNew/Group/GroupWizard'
 import queryString from 'query-string'
-import { PLANNING_TYPE } from '../../constants/markets'
+import { PLANNING_TYPE, WORKSPACE_WIZARD_TYPE } from '../../constants/markets'
 import WorkspaceWizard from '../../components/AddNew/Workspace/WorkspaceWizard';
 
 function Wizard(props) {
@@ -38,7 +38,7 @@ function Wizard(props) {
         <GroupWizard marketId={marketId} onFinish={onWizardFinish} onStartOver={() => navigate(history, '/inbox')}/>
       )}
 
-      {createType === 'workspace'.toLowerCase() && (
+      {createType === WORKSPACE_WIZARD_TYPE.toLowerCase() && (
         <WorkspaceWizard onFinish={onWizardFinish} onStartOver={() => navigate(history, '/inbox')}/>
       )}
     </Screen>

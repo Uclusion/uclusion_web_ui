@@ -12,7 +12,8 @@ import SettingsIcon from '@material-ui/icons/Settings'
 import { useIntl } from 'react-intl'
 import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
 import AddIcon from '@material-ui/icons/Add'
-import { formMarketEditLink } from '../../utils/marketIdPathFunctions'
+import { formMarketEditLink, navigate } from '../../utils/marketIdPathFunctions'
+import { PLANNING_TYPE, WORKSPACE_WIZARD_TYPE } from '../../constants/markets'
 
 const useStyles = makeStyles((theme) => ({
   name: {
@@ -161,7 +162,7 @@ function WorkspaceMenu(props) {
                 </MenuItem>
                 <MenuItem icon={<AddIcon htmlColor="black" />}
                           key="addWorkspace Key" id="addWorkspaceIconId"
-                          onClick={()=> setOpen('addMarket')}
+                          onClick={()=> navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`)}
                 >
                   {intl.formatMessage({ id: 'homeAddPlanning' })}
                 </MenuItem>

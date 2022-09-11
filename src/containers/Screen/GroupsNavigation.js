@@ -27,9 +27,7 @@ function GroupsNavigation(props) {
     </Button>;
   }
   let content = <div />;
-  if (open === 'addMarket') {
-    content = <MarketCreate />;
-  } else if (open === 'addNewUsers') {
+  if (open === 'addNewUsers') {
     content = <AddNewUsers market={defaultMarket} />;
   }
 

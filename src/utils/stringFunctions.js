@@ -25,7 +25,7 @@ function stripHTML(foundSubstring) {
   return undefined;
 }
 
-export function convertDescription(description, maxLength) {
+export function convertDescription(description, maxLength = 80) {
   const nameDescriptionMap = { name: undefined, description };
   if (_.isEmpty(description)) {
     return nameDescriptionMap;
@@ -80,13 +80,6 @@ export function convertDescription(description, maxLength) {
 }
 
 export function nameFromDescription(description) {
-  const { name } = convertDescription(description, 250);
+  const { name } = convertDescription(description, 80);
   return name;
-}
-
-export function getFakeCommentsArray(comments) {
-  if (_.isEmpty(comments)) {
-    return [{id: 'fake'}];
-  }
-  return comments;
 }

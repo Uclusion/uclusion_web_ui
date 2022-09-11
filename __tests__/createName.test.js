@@ -14,7 +14,7 @@ it.each([["<p>Try for name. And then some.</p>", "Try for name.", "<p>...And the
   ["<h>Try for <i>name</i></h><p>What else?</p>", "Try for name",
     "<p>What else?</p>"]])
 ('%p', (testDescription, expectedName, expectedDescription) => {
-  const { name, description } = convertDescription(testDescription, 250);
+  const { name, description } = convertDescription(testDescription);
   expect(name).toBe(expectedName);
   expect(description).toBe(expectedDescription);
 });

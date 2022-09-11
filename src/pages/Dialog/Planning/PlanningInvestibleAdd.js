@@ -30,7 +30,7 @@ import { getAcceptedStage } from '../../../contexts/MarketStagesContext/marketSt
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import { assignedInStage } from '../../../utils/userFunctions'
 import { getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
-import { nameFromDescription } from '../../../utils/stringFunctions'
+import { convertDescription, nameFromDescription } from '../../../utils/stringFunctions'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { Clear, Done, Send } from '@material-ui/icons'
 import { useEditor } from '../../../components/TextEditors/quillHooks'
@@ -151,19 +151,21 @@ function PlanningInvestibleAdd(props) {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
     } = processTextAndFilesForSave(uploadedFiles, getQuillStoredState(editorName));
-    const processedDescription = tokensRemoved ? tokensRemoved : ' ';
+    const name = getNameStoredState(nameId);
+    let processedDescription = tokensRemoved ? tokensRemoved : ' ';
+    let processedName = name;
+    if (_.isEmpty(processedName)) {
+      const { name: derivedName, description: derivedDescription} = convertDescription(tokensRemoved);
+      processedName = derivedName;
+      processedDescription = derivedDescription;
+    }
     const addInfo = {
       uploadedFiles: filteredUploads,
       description: processedDescription,
       groupId,
-      marketId
+      marketId,
+      name: processedName
     };
-    const name = getNameStoredState(nameId);
-    if (name) {
-      addInfo.name = name;
-    } else {
-      addInfo.name = nameFromDescription(getQuillStoredState(editorName));
-    }
     if (_.isEmpty(addInfo.name)) {
       setOperationRunning(false);
       setOpenIssue('noName');

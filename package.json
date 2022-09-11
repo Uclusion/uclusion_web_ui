@@ -75,7 +75,7 @@
     "build": "REACT_APP_VERSION=`git rev-parse HEAD | head -c 16` react-scripts --optimize-for-size --max-old-space-size=14000 build",
     "deploy-stage": "aws s3 sync --delete --cache-control 'max-age=31536000' build/static s3://uclusion-web-ui/static && aws s3 sync --delete --cache-control 'no-cache' --exclude static build/ s3://uclusion-web-ui",
     "deploy-production": "aws s3 sync --delete --cache-control 'max-age=31536000' build/static s3://uclusion-web-ui-production && aws s3 sync --delete --cache-control 'no-cache' --exclude static build/ s3://uclusion-web-ui-production",
-    "test": "react-scripts test --env=jsdom",
+    "test": "jest",
     "lint": "eslint src",
     "eject": "react-scripts eject"
   },
@@ -88,6 +88,9 @@
     ]
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.19.0",
+    "@babel/preset-react": "^7.18.6",
+    "react-test-renderer": "^18.2.0",
     "@babel/helper-create-regexp-features-plugin": "^7.7.4",
     "enzyme": "^3.10.0",
     "eslint": "^7.32.0",

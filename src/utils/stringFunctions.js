@@ -15,46 +15,73 @@ export function nameToAvatarText(name) {
   return firstLetters.toUpperCase();
 }
 
-function extractName(foundSubstring) {
+function stripHTML(foundSubstring) {
   if (foundSubstring) {
     const htmlRemoved = foundSubstring.replace(/(<([^>]+)>)/ig,'');
     if (htmlRemoved) {
-      const candidate = htmlRemoved.trim();
-      if (candidate.length > 250) {
-        return candidate.substring(0, 250) + '...';
-      }
-      return candidate;
+      return htmlRemoved.trim();
     }
   }
   return undefined;
 }
 
-export function nameFromDescription(description) {
+export function convertDescription(description, maxLength) {
+  const nameDescriptionMap = { name: undefined, description };
   if (_.isEmpty(description)) {
-    return undefined;
+    return nameDescriptionMap;
   }
-  const list = ["</p>", "</li>", "</td>", "</h>", ". "];
+  const list = ["p", "li", "td", "h"];
   let found = -1;
-  let latestExtract = extractName(description);
-  list.forEach((entry) => {
+  let latestExtract = undefined;
+  let latestDescription = undefined;
+  list.forEach((htmlComponent) => {
+    const entry = `</${htmlComponent}>`;
     const parts = description.split(entry) || [];
     if (parts.length >= 2) {
       parts.forEach((part) => {
         if (!_.isEmpty(part)) {
           const index = description.indexOf(part);
-          const extracted = extractName(entry === ". " ? `${part}.` : part);
+          let extracted = stripHTML(part);
           if (!_.isEmpty(extracted)) {
-            if (found < 0 || index < found || (index === found &&
-              (!latestExtract || extracted.length < latestExtract.length))) {
-              latestExtract = extracted;
-              found = index;
+            const subIndex = extracted.indexOf(". ");
+            const isSubIndex = subIndex > 0;
+            if (isSubIndex) {
+              extracted = extracted.substring(0, subIndex + 1);
+            }
+            if (extracted.length <= maxLength) {
+              if (found < 0 || index < found || (index === found &&
+                (!latestExtract || extracted.length < latestExtract.length))) {
+                latestExtract = extracted;
+                let indexAfter = description.substring(index).indexOf(entry);
+                if (isSubIndex) {
+                  const subIndexAfter = description.substring(index).indexOf(". ");
+                  indexAfter = index + subIndexAfter + 2;
+                }
+                const entryBeginElement = `<${htmlComponent}>`;
+                const beforePartIndex = description.substring(0, index).lastIndexOf(entryBeginElement)
+                latestDescription = `${description.substring(0, beforePartIndex + entryBeginElement.length + 1)}...${description.substring(indexAfter)}`;
+                const emptyAmpersand = `<${htmlComponent}>...</${htmlComponent}>`;
+                if (latestDescription.indexOf(emptyAmpersand) === 0) {
+                  latestDescription = latestDescription.substring(emptyAmpersand.length);
+                }
+                found = index;
+              }
             }
           }
         }
       });
     }
   });
-  return latestExtract;
+  if (latestExtract) {
+    nameDescriptionMap.name = latestExtract;
+    nameDescriptionMap.description = latestDescription;
+  }
+  return nameDescriptionMap;
+}
+
+export function nameFromDescription(description) {
+  const { name } = convertDescription(description, 250);
+  return name;
 }
 
 export function getFakeCommentsArray(comments) {

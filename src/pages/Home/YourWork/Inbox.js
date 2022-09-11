@@ -240,11 +240,13 @@ function Inbox(props) {
         style={{ borderTop: '1px ridge lightgrey', paddingBottom: '0.25rem' }}>
         <GmailTabItem icon={<InboxIcon htmlColor={htmlColor} />} label={intl.formatMessage({id: 'inbox'})}
                       color='black'
-                      tag={unreadCount > 0 ? `${unreadCount} unread` : undefined} />
+                      tag={unreadCount > 0 && !mobileLayout ? `${unreadCount} unread` : undefined} />
         <GmailTabItem icon={<AssignmentIcon />} label={intl.formatMessage({id: 'unreadAssignmentMobile'})}
-                      tag={_.size(assignedMessagesOrdered) > 0 ? `${_.size(assignedMessagesOrdered)}` : undefined} />
+                      tag={_.size(assignedMessagesOrdered) > 0 && !mobileLayout ?
+                        `${_.size(assignedMessagesOrdered)}` : undefined} />
         <GmailTabItem icon={<AlarmOn />} label={intl.formatMessage({id: 'outbox'})}
-                      tag={_.size(outBoxMessagesOrdered) > 0 ? `${_.size(outBoxMessagesOrdered)}` : undefined} />
+                      tag={_.size(outBoxMessagesOrdered) > 0 && !mobileLayout ?
+                        `${_.size(outBoxMessagesOrdered)}` : undefined} />
       </GmailTabs>
       {defaultRow}
       { tabIndex === PENDING_INDEX ? <Outbox expansionState={expansionPendingState}

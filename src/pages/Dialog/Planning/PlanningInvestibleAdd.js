@@ -30,7 +30,7 @@ import { getAcceptedStage } from '../../../contexts/MarketStagesContext/marketSt
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import { assignedInStage } from '../../../utils/userFunctions'
 import { getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
-import { convertDescription, nameFromDescription } from '../../../utils/stringFunctions'
+import { convertDescription } from '../../../utils/stringFunctions'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { Clear, Done, Send } from '@material-ui/icons'
 import { useEditor } from '../../../components/TextEditors/quillHooks'

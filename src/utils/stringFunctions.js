@@ -38,8 +38,6 @@ export function convertDescription(description, maxLength = 80) {
     const entryBeginElement = `<${htmlComponent}>`;
     const entryEndElement = `</${htmlComponent}>`;
     const parts = description.split(entryBeginElement) || [];
-    //console.debug(parts)
-    //console.debug(entryEndElement)
     if (parts.length >= 2) {
       parts.forEach((wholePart) => {
         if (!_.isEmpty(wholePart) && wholePart.includes(entryEndElement)) {
@@ -53,7 +51,6 @@ export function convertDescription(description, maxLength = 80) {
               extracted = extracted.substring(0, subIndex + 1);
             }
             if (extracted.length <= maxLength) {
-              //console.debug(`index is ${index} and found is ${found}`)
               if (found < 0 || index < found || (index === found &&
                 (!latestExtract || extracted.length < latestExtract.length))) {
                 latestExtract = extracted;
@@ -66,7 +63,6 @@ export function convertDescription(description, maxLength = 80) {
                 if (beforePartIndex < 0) {
                   beforePartIndex = 0;
                 }
-                //console.debug(`${beforePartIndex} ${entryBeginElement}`)
                 latestDescription = `${description.substring(0, beforePartIndex + entryBeginElement.length)}...${description.substring(indexAfter)}`;
                 //Remove html from the part between the components to avoid dangling or unclosed html
                 const endElementPosition = latestDescription.indexOf(entryEndElement);

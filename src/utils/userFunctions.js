@@ -11,6 +11,7 @@ import _ from 'lodash'
 import config from '../config'
 import { clearRedirect } from './redirectUtils'
 import { getMarket } from '../contexts/MarketsContext/marketsContextHelper'
+import { WORKSPACE_WIZARD_STORAGE_NAME } from '../components/AddNew/Workspace/WorkspaceWizard';
 
 const LOGOUT_MARKER_KEY = 'logout_marker';
 
@@ -84,6 +85,7 @@ export function onSignOut() {
   setLoginPersistentItem(LOGOUT_MARKER_KEY, 'logged_out');
   // See https://aws-amplify.github.io/docs/js/authentication
   return clearUclusionLocalStorage(false)
+    .then(() => localStorage.removeItem(WORKSPACE_WIZARD_STORAGE_NAME))
     .then(() => new TokenStorageManager().clearTokenStorage())
     .then(() => Auth.signOut())
     .then(() => window.location.reload(true));

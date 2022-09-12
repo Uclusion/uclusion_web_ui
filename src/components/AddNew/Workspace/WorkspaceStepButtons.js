@@ -60,13 +60,13 @@ function WorkspaceStepButtons (props) {
       )}
 
       {showLink && (
-        <WorkspaceInviteLinker marketId={formData.marketId}/>
+        <WorkspaceInviteLinker marketToken={formData.marketToken}/>
       )}
 
       <div className={classes.actionContainer}>
         {showSkip && (
           <SpinningButton id="OnboardingWizardSkip" className={classes.actionSkip} variant="text"
-                          doSpin={spinOnClick} onClick={mySkip}>
+                          doSpin={false} onClick={mySkip}>
             {intl.formatMessage({ id: 'OnboardingWizardSkip' })}
           </SpinningButton>
         )}

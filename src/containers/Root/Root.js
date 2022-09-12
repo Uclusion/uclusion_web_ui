@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types'
 import { makeStyles } from '@material-ui/core/styles'
 import { CssBaseline } from '@material-ui/core'
@@ -59,6 +59,11 @@ function Root() {
   const [, setOperationsLocked] = useContext(OperationInProgressContext);
   const [, setOnline] = useContext(OnlineStateContext);
   const [ticketState] = useContext(TicketIndexContext);
+
+  const onboardingStored = getUclusionLocalStorageItem(ONBOARDING_WIZARD_KEY);
+
+
+  const [inOnboarding, setInOnboarding] = useState(onboardingStored);
 
   function hideHome() {
     return !pathname || pathname !== '/';
@@ -187,7 +192,6 @@ function Root() {
   // onboarding overrides _EVERYTHING_
   const {user} = accountState;
   const {needs_onboarding: needsOnboarding} = user;
-  const inOnboarding = getUclusionLocalStorageItem(ONBOARDING_WIZARD_KEY);
   if(needsOnboarding || inOnboarding === true){
     return (
       <div>
@@ -195,7 +199,7 @@ function Root() {
         <div className={classes.body}>
           <div className={classes.root}>
             <div className={classes.content}>
-              <Onboarding/>
+              <Onboarding onFinish={() => setInOnboarding(false)} onStartOnboarding={() => setInOnboarding(true)}/>
             </div>
           </div>
         </div>

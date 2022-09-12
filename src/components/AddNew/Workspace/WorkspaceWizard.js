@@ -6,9 +6,10 @@ import FormdataWizard from 'react-formdata-wizard';
 import WorkspaceMembersStep from './WorkspaceMemberStep'
 import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../../localStorageUtils';
 
+export const WORKSPACE_WIZARD_STORAGE_NAME = "workpsace_wizard";
 
 function WorkspaceWizard(props) {
-  const {onboarding, onFinish} = props;
+  const {onboarding, onFinish, onStartOnboarding} = props;
 
   // figure out what step we're on
   // if we've created the workspace already, then we're on step 2, otherwise 1
@@ -16,14 +17,17 @@ function WorkspaceWizard(props) {
   const startStep = workspaceCreated? 1 : 0;
 
   const myOnFinish = () => {
+    console.dir("finished!");
     setUclusionLocalStorageItem("workspace_created", false);
     onFinish();
   }
 
   return (
     <WizardStylesProvider>
-      <FormdataWizard name="workspace_wizard" startStep={startStep} onFinish={myOnFinish}>
-        <WorkspaceNameStep onboarding={onboarding}/>
+      <FormdataWizard name={WORKSPACE_WIZARD_STORAGE_NAME}
+                      startStep={startStep}
+                      onFinish={myOnFinish}>
+        <WorkspaceNameStep onboarding={onboarding} onStartOnboarding={onStartOnboarding}/>
         <WorkspaceMembersStep onboarding={onboarding}/>
       </FormdataWizard>
     </WizardStylesProvider>
@@ -33,11 +37,13 @@ function WorkspaceWizard(props) {
 WorkspaceWizard.propTypes = {
   onboarding: PropTypes.bool,
   onFinish: PropTypes.func,
+  onStartOnboarding: PropTypes.func,
 };
 
 WorkspaceWizard.defaultProps = {
   onboarding: false,
   onFinish: () => {},
+  onStartOnboarding: () => {},  
 }
 
 export default WorkspaceWizard;

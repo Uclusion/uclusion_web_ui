@@ -8,10 +8,9 @@ import { WizardStylesContext } from '../WizardStylesContext';
 import { createPlanning } from '../../../api/markets';
 import WorkspaceStepButtons from './WorkspaceStepButtons';
 import { setUclusionLocalStorageItem } from '../../localStorageUtils';
-import { ONBOARDING_WIZARD_KEY } from '../../../pages/Onboarding/Onboarding';
 
 function WorkspaceNameStep (props) {
-  const { updateFormData, formData, onboarding } = props;
+  const { updateFormData, formData, onboarding, onStartOnboarding } = props;
   //const intl = useIntl();
   const value = formData.name || '';
   const validForm = !_.isEmpty(value);
@@ -32,7 +31,7 @@ function WorkspaceNameStep (props) {
     // set the in onboarding flag, because we if we're onboarding creating the planning market will turn of
     // needs onboarding
     if(onboarding){
-      setUclusionLocalStorageItem(ONBOARDING_WIZARD_KEY, true);
+      onStartOnboarding();
     }
     return createPlanning(marketInfo)
       .then((marketInfo) => {
@@ -40,6 +39,7 @@ function WorkspaceNameStep (props) {
         setUclusionLocalStorageItem("workspace_created", true);
         updateFormData({
           marketId: market.id,
+          marketToken: market.invite_capability,
         });
       });
 
@@ -80,12 +80,14 @@ WorkspaceNameStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object,
   onboarding: PropTypes.bool,
+  onStartOnboarding: PropTypes.func,
 };
 
 WorkspaceNameStep.defaultProps = {
   updateFormData: () => {},
   formData: {},
   onboarding: false,
+  onStartOnboarding: () => {},
 };
 
 export default WorkspaceNameStep;

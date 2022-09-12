@@ -54,7 +54,7 @@ export function convertDescription(description, maxLength = 80) {
               if (found < 0 || index < found || (index === found &&
                 (!latestExtract || extracted.length < latestExtract.length))) {
                 latestExtract = extracted;
-                let indexAfter = description.substring(index).indexOf(entryEndElement);
+                let indexAfter = index + description.substring(index).indexOf(entryEndElement);
                 if (isSubIndex) {
                   const subIndexAfter = description.substring(index).indexOf(". ");
                   indexAfter = index + subIndexAfter + 2;

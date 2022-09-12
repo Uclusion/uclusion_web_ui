@@ -12,7 +12,8 @@ it.each([["<p>Try for name. And then some.</p>", "Try for name.", "<p>...And the
   ["<h1>Try for <i>name</i>. <b>And</b> then some.</h1><p>What else?</p>", "Try for name.",
     "<h1>...And then some.</h1><p>What else?</p>"],
   ["<h1>Try for <i>name</i></h1><p>What else?</p>", "Try for name",
-    "<p>What else?</p>"]])
+    "<p>What else?</p>"],
+  ["<p>See if short code fixed.</p>", "See if short code fixed.", ""]])
 ('%p', (testDescription, expectedName, expectedDescription) => {
   const { name, description } = convertDescription(testDescription);
   expect(name).toBe(expectedName);

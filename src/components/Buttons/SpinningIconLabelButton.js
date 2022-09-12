@@ -15,6 +15,8 @@ const useStyles = makeStyles(
         '& .MuiButton-label': {
           textTransform: 'none'
         },
+        fontSize: '1rem',
+        borderRadius: '15px',
         "&:hover": {
           backgroundColor: "#F1F1F1"
         }
@@ -25,6 +27,8 @@ const useStyles = makeStyles(
         '& .MuiButton-label': {
           textTransform: 'none'
         },
+        fontSize: '1rem',
+        borderRadius: '15px',
         "&:hover": {
           backgroundColor: "#F1F1F1"
         }
@@ -33,6 +37,8 @@ const useStyles = makeStyles(
         '& .MuiButton-label': {
           textTransform: 'none'
         },
+        fontSize: '1rem',
+        borderRadius: '15px',
         "&:hover": {
           backgroundColor: "#F1F1F1"
         }

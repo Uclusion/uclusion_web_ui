@@ -30,17 +30,21 @@ export function convertDescription(description, maxLength = 80) {
   if (_.isEmpty(description)) {
     return nameDescriptionMap;
   }
-  const list = ["p", "li", "td", "h"];
+  const list = ["p", "li", "td", "h1", "h2"];
   let found = -1;
   let latestExtract = undefined;
   let latestDescription = undefined;
   list.forEach((htmlComponent) => {
-    const entry = `</${htmlComponent}>`;
-    const parts = description.split(entry) || [];
+    const entryBeginElement = `<${htmlComponent}>`;
+    const entryEndElement = `</${htmlComponent}>`;
+    const parts = description.split(entryBeginElement) || [];
+    //console.debug(parts)
+    //console.debug(entryEndElement)
     if (parts.length >= 2) {
-      parts.forEach((part) => {
-        if (!_.isEmpty(part)) {
-          const index = description.indexOf(part);
+      parts.forEach((wholePart) => {
+        if (!_.isEmpty(wholePart) && wholePart.includes(entryEndElement)) {
+          const index = description.indexOf(wholePart);
+          const part = wholePart.substring(0, wholePart.indexOf(entryEndElement));
           let extracted = stripHTML(part);
           if (!_.isEmpty(extracted)) {
             const subIndex = extracted.indexOf(". ");
@@ -49,18 +53,26 @@ export function convertDescription(description, maxLength = 80) {
               extracted = extracted.substring(0, subIndex + 1);
             }
             if (extracted.length <= maxLength) {
+              //console.debug(`index is ${index} and found is ${found}`)
               if (found < 0 || index < found || (index === found &&
                 (!latestExtract || extracted.length < latestExtract.length))) {
                 latestExtract = extracted;
-                let indexAfter = description.substring(index).indexOf(entry);
+                let indexAfter = description.substring(index).indexOf(entryEndElement);
                 if (isSubIndex) {
                   const subIndexAfter = description.substring(index).indexOf(". ");
                   indexAfter = index + subIndexAfter + 2;
                 }
-                const entryBeginElement = `<${htmlComponent}>`;
-                const beforePartIndex = description.substring(0, index).lastIndexOf(entryBeginElement)
-                latestDescription = `${description.substring(0, beforePartIndex + entryBeginElement.length + 1)}...${description.substring(indexAfter)}`;
-                const emptyAmpersand = `<${htmlComponent}>...</${htmlComponent}>`;
+                let beforePartIndex = description.substring(0, index).lastIndexOf(entryBeginElement);
+                if (beforePartIndex < 0) {
+                  beforePartIndex = 0;
+                }
+                //console.debug(`${beforePartIndex} ${entryBeginElement}`)
+                latestDescription = `${description.substring(0, beforePartIndex + entryBeginElement.length)}...${description.substring(indexAfter)}`;
+                //Remove html from the part between the components to avoid dangling or unclosed html
+                const endElementPosition = latestDescription.indexOf(entryEndElement);
+                const latestDescriptionInnerStripped = stripHTML(latestDescription.substring(entryBeginElement.length, endElementPosition));
+                latestDescription = `${entryBeginElement}${latestDescriptionInnerStripped}${latestDescription.substring(endElementPosition)}`;
+                const emptyAmpersand = `${entryBeginElement}...${entryEndElement}`;
                 if (latestDescription.indexOf(emptyAmpersand) === 0) {
                   latestDescription = latestDescription.substring(emptyAmpersand.length);
                 }

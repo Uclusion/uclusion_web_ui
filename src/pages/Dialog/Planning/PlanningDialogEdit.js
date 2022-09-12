@@ -64,7 +64,7 @@ function PlanningDialogEdit(props) {
   const myClasses = useStyles();
   const [allowedInvestibles, setAllowedInvestibles] = useState(acceptedStage.allowed_investibles);
   const [showInvestiblesAge, setShowInvestiblesAge] = useState(verifiedStage.days_visible);
-  const [mutableGroup, setMutableGroup] = useState(group);
+  const [mutableGroup, setMutableGroup] = useState({...group, ticket_sub_code: decodeURI(group.ticket_sub_code)});
   const {
     use_budget,
     budget_unit,
@@ -256,7 +256,7 @@ function PlanningDialogEdit(props) {
             <TextField
               id="name"
               className={classes.input}
-              value={ticket_sub_code ? decodeURI(ticket_sub_code) : ''}
+              value={ticket_sub_code}
               onChange={handleChange('ticket_sub_code')}
             />
             <Typography>

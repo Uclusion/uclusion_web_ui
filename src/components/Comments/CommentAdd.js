@@ -497,7 +497,7 @@ function CommentAdd(props) {
       >
         <div className={classes.editor} style={{paddingBottom: '1rem'}}>
           {Editor}
-          <div style={{marginTop: '-1.5rem'}}>
+          <div style={{marginTop: '0.5rem'}}>
             {!isStory && onDone && (
               <SpinningIconLabelButton onClick={myOnDone} doSpin={false} icon={isStandAlone ? Clear : Delete}>
                 {intl.formatMessage({ id: 'cancel' })}

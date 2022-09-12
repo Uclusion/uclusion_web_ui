@@ -370,7 +370,7 @@ function PlanningInvestibleAdd(props) {
             editorName={initialVoteEditorName}
           />
         )}
-        <CardActions style={{paddingLeft: '1.25rem', paddingBottom: '1rem', paddingTop: 0, marginTop: '-25px'}}>
+        <CardActions style={{paddingLeft: '1.25rem', paddingBottom: '1rem', paddingTop: 0, marginTop: '8px'}}>
           <SpinningIconLabelButton onClick={handleCancel} doSpin={false} icon={Clear}>
             {intl.formatMessage({ id: 'marketAddCancelLabel' })}
           </SpinningIconLabelButton>

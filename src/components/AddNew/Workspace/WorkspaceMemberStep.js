@@ -29,7 +29,7 @@ function WorkspaceMembersStep(props) {
       </Typography>
       <EmailEntryBox onChange={onEmailChange} placeholder="Ex: bfollis@uclusion.com, disrael@uclusion.com"/>
       <div className={classes.borderBottom} />
-      <WorkspaceStepButtons {...props} validForm={validForm} showSkip={true} showLink={true} formData={formData }/>
+      <WorkspaceStepButtons {...props} validForm={validForm} showSkip={true} showLink={true} formData={formData}/>
     </div>
     </WizardStepContainer>
   );

@@ -1,11 +1,9 @@
-import React, { useContext, useState } from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import { makeStyles } from '@material-ui/styles'
 import { useIntl } from 'react-intl'
 import { Button, Tooltip } from '@material-ui/core'
 import LinkIcon from '@material-ui/icons/Link'
-import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
-import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { formInviteLink } from '../../utils/marketIdPathFunctions'
 
 const useStyles = makeStyles(() => ({
@@ -37,16 +35,13 @@ function WorkspaceInviteLinker(props) {
   const intl = useIntl();
   const {
     hidden,
-    marketId
+    marketToken
   } = props;
   const classes = useStyles();
-  const [marketsState] = useContext(MarketsContext);
   const [copiedToClipboard, setCopiedToClipboard] = useState(false);
   const [inLinker, setInLinker] = useState(false);
-  const market = getMarket(marketsState, marketId) || {};
-  const { market_token: marketToken } = market;
 
-  let link = formInviteLink(marketToken);
+  const link = formInviteLink(marketToken);
 
   return (
     <div id="inviteLinker" className={hidden ? classes.hidden : undefined}>
@@ -77,7 +72,8 @@ function WorkspaceInviteLinker(props) {
 }
 
 WorkspaceInviteLinker.propTypes = {
-  hidden: PropTypes.bool
+  hidden: PropTypes.bool,
+  marketToken: PropTypes.string.isRequired,
 };
 
 WorkspaceInviteLinker.defaultProps = {

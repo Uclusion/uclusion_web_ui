@@ -1532,7 +1532,7 @@ export function Assignments(props) {
       )}
       <div className={classes.assignmentFlexRow}>
         {_.isEmpty(sortedAssigned) && showMoveMessage && (
-          <Typography key="unassigned" component="li" style={{maxWidth: '95%'}}>
+          <Typography key="unassigned" component="li" style={{maxWidth: '8rem'}}>
             {intl.formatMessage({ id: 'reassignToMove' })}
           </Typography>
         )}

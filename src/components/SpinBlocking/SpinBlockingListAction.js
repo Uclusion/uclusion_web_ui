@@ -1,9 +1,8 @@
 import { withSpinLock } from './SpinBlockingHOC'
 import React from 'react'
 import PropTypes from 'prop-types'
-import { ListItem, Tooltip, useMediaQuery, useTheme, } from '@material-ui/core'
+import { ListItem, Tooltip } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
-import InputLabel from '@material-ui/core/InputLabel'
 
 const useStyles = makeStyles(() => {
   return {
@@ -23,15 +22,12 @@ const useStyles = makeStyles(() => {
 function SpinBlockingListAction(props) {
   const {
     id,
-    icon,
     label,
     openLabel,
     onClick,
     customClasses,
     disabled,
   } = props;
-  const theme = useTheme()
-  const mobileLayout = useMediaQuery(theme.breakpoints.down('md'))
   const myClasses = useStyles()
   const classes = customClasses || myClasses
   const SpinningListItem = withSpinLock(ListItem)
@@ -45,15 +41,10 @@ function SpinBlockingListAction(props) {
       className={classes.menuItem}
       disabled={disabled}
     >
-      {!mobileLayout && (
-        <Tooltip title={label}>
-          {icon}
-        </Tooltip>
-      )}
       <Tooltip title={label}>
-        <InputLabel style={{fontSize: '0.8rem', paddingLeft: '8px'}}>
+        <div style={{fontSize: '0.8rem', paddingLeft: '8px'}}>
           {openLabel}
-        </InputLabel>
+        </div>
       </Tooltip>
     </SpinningListItem>
   );

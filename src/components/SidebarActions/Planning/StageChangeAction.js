@@ -7,7 +7,7 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { makeStyles } from '@material-ui/styles'
 import { Dialog } from '../../Dialogs'
-import { ListItemIcon, ListItemText, Tooltip, useMediaQuery, useTheme } from '@material-ui/core'
+import { ListItemText, Tooltip } from '@material-ui/core'
 import { useLockedDialogStyles } from '../../../pages/Dialog/DialogBodyEdit'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
@@ -78,8 +78,6 @@ function StageChangeAction(props) {
   } = props;
   const classes = useStyles()
   const intl = useIntl()
-  const theme = useTheme()
-  const mobileLayout = useMediaQuery(theme.breakpoints.down('md'))
   const [, invDispatch] = useContext(InvestiblesContext)
   const [commentsState, commentsDispatch] = useContext(CommentsContext)
   const [marketStagesState] = useContext(MarketStagesContext)
@@ -126,13 +124,6 @@ function StageChangeAction(props) {
         )}
         {!standAlone && (
           <>
-            {!mobileLayout && (
-              <Tooltip title={intl.formatMessage({ id: explanationId })}>
-                <ListItemIcon className={classes.menuIcon} onClick={handleOpen}>
-                  {icon}
-                </ListItemIcon>
-              </Tooltip>
-            )}
             <Tooltip title={intl.formatMessage({ id: explanationId })}>
               <ListItemText className={classes.menuTitleDisabled} onClick={handleOpen}>
                 {intl.formatMessage({ id: translationId })}

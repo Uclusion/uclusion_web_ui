@@ -314,29 +314,25 @@ export const usePlanningInvestibleStyles = makeStyles(
       display: 'flex',
       paddingTop: '0.5rem'
     },
-    rolesRoot: {
-      alignItems: "flex-start",
-      display: "flex",
-      flexDirection: 'column',
-      '& > div': {
-        borderRadius: '6px',
-        marginBottom: '1rem'
-      }
-    },
     paper: {
       // See https://github.com/mui-org/material-ui/blob/master/packages/material-ui/src/Drawer/Drawer.js
       overflowY: 'auto',
       display: 'flex',
       flexDirection: 'column',
+      alignItems: "flex-start",
+      '& > div': {
+        borderRadius: '6px',
+        marginBottom: '1rem'
+      },
       flex: '1 0 auto',
       backgroundColor: '#4ce6a5',
       height: '100%',
       zIndex: 8,
       position: 'fixed',
-      top: '4rem',
+      top: '3.8rem',
       marginLeft: '-8px',
-      marginTop: '-4px',
       paddingLeft: '1rem',
+      paddingTop: '2rem',
       minWidth: '12rem',
       textOverflow: 'ellipsis'
     },
@@ -787,104 +783,102 @@ function PlanningInvestible(props) {
         steps={requiresInputStorySteps({isAssigned})}
       />
       <div className={mobileLayout ? undefined : classes.paper}>
-        <dl className={classes.rolesRoot}>
-          {market.id && marketInvestible.investible && (
-            <div className={clsx(classes.group, classes.assignments)}>
-              <div className={classes.assignmentContainer}>
-                <Assignments
-                  classes={classes}
-                  marketPresences={marketPresences}
-                  assigned={assigned}
-                  highlighted={isInVoting ? assignedNotAccepted : undefined}
-                  toggleIconButton={toggleEditState('assign')}
-                  assignmentColumnMessageId='planningInvestibleAssignments'
-                  toolTipId='storyAddParticipantsLabel'
-                  showMoveMessage
-                />
-              </div>
-            </div>
-          )}
-          {market.id && marketInvestible.investible && isReadyFurtherWork && (
+        {market.id && marketInvestible.investible && (
+          <div className={clsx(classes.group, classes.assignments)}>
             <div className={classes.assignmentContainer}>
-              <FormControlLabel
-                id='readyToStartCheckbox'
-                control={
-                  <Checkbox
-                    value={openForInvestment}
-                    disabled={operationRunning !== false}
-                    checked={openForInvestment}
-                    onClick={() => {
-                      if (!openForInvestment && !_.isEmpty(openProblemComments) && !mobileLayout) {
-                        setOpen(true);
-                      } else {
-                        setReadyToStart(!openForInvestment);
-                      }
-                    }}
-                  />
-                }
-                label={intl.formatMessage({ id: 'readyToStartCheckboxExplanation' })}
+              <Assignments
+                classes={classes}
+                marketPresences={marketPresences}
+                assigned={assigned}
+                highlighted={isInVoting ? assignedNotAccepted : undefined}
+                toggleIconButton={toggleEditState('assign')}
+                assignmentColumnMessageId='planningInvestibleAssignments'
+                toolTipId='storyAddParticipantsLabel'
+                showMoveMessage
               />
-              {!openForInvestment && !mobileLayout && (
-                <WarningDialog
-                  classes={lockedDialogClasses}
-                  open={open}
-                  onClose={() => setOpen(false)}
-                  issueWarningId="unresolvedReadyToStartWarning"
-                  /* slots */
-                  actions={
-                    <SpinningIconLabelButton onClick={() => setReadyToStart(true)}
-                                             icon={SettingsBackupRestore}
-                                             id="issueProceedReadyToStartButton">
-                      {intl.formatMessage({ id: 'issueProceed' })}
-                    </SpinningIconLabelButton>
-                  }
-                />
-              )}
             </div>
-          )}
-          {!_.isEmpty(investibleCollaborators) && (
-            <div className={clsx(classes.group, classes.assignments)}>
-              <div className={classes.assignmentContainer}>
-                <b><FormattedMessage id="collaborators"/></b>
-                <Assignments
-                  classes={classes}
-                  marketPresences={marketPresences}
-                  assigned={investibleCollaborators}
-                  toolTipId="collaborators"
+          </div>
+        )}
+        {market.id && marketInvestible.investible && isReadyFurtherWork && (
+          <div className={classes.assignmentContainer}>
+            <FormControlLabel
+              id='readyToStartCheckbox'
+              control={
+                <Checkbox
+                  value={openForInvestment}
+                  disabled={operationRunning !== false}
+                  checked={openForInvestment}
+                  onClick={() => {
+                    if (!openForInvestment && !_.isEmpty(openProblemComments) && !mobileLayout) {
+                      setOpen(true);
+                    } else {
+                      setReadyToStart(!openForInvestment);
+                    }
+                  }}
                 />
-              </div>
+              }
+              label={intl.formatMessage({ id: 'readyToStartCheckboxExplanation' })}
+            />
+            {!openForInvestment && !mobileLayout && (
+              <WarningDialog
+                classes={lockedDialogClasses}
+                open={open}
+                onClose={() => setOpen(false)}
+                issueWarningId="unresolvedReadyToStartWarning"
+                /* slots */
+                actions={
+                  <SpinningIconLabelButton onClick={() => setReadyToStart(true)}
+                                           icon={SettingsBackupRestore}
+                                           id="issueProceedReadyToStartButton">
+                    {intl.formatMessage({ id: 'issueProceed' })}
+                  </SpinningIconLabelButton>
+                }
+              />
+            )}
+          </div>
+        )}
+        {!_.isEmpty(investibleCollaborators) && (
+          <div className={clsx(classes.group, classes.assignments)}>
+            <div className={classes.assignmentContainer}>
+              <b><FormattedMessage id="collaborators"/></b>
+              <Assignments
+                classes={classes}
+                marketPresences={marketPresences}
+                assigned={investibleCollaborators}
+                toolTipId="collaborators"
+              />
             </div>
-          )}
-          {market.id && marketInvestible.investible && (isInVoting || isInReview) && (
-            <div className={clsx(classes.group, classes.assignments)}>
-              <div className={classes.assignmentContainer}>
-                <Assignments
-                  classes={classes}
-                  marketPresences={marketPresences}
-                  assigned={isInVoting ? requiredApprovers : requiredReviewers}
-                  toolTipId={isInVoting ? 'storyApproversLabel' : 'storyReviewersLabel'}
-                  toggleIconButton={isInVoting ? toggleEditState('approve') : toggleEditState('review')}
-                  assignmentColumnMessageId={isInVoting ? 'requiredApprovers' : 'requiredReviewers'}
-                />
-              </div>
+          </div>
+        )}
+        {market.id && marketInvestible.investible && (isInVoting || isInReview) && (
+          <div className={clsx(classes.group, classes.assignments)}>
+            <div className={classes.assignmentContainer}>
+              <Assignments
+                classes={classes}
+                marketPresences={marketPresences}
+                assigned={isInVoting ? requiredApprovers : requiredReviewers}
+                toolTipId={isInVoting ? 'storyApproversLabel' : 'storyReviewersLabel'}
+                toggleIconButton={isInVoting ? toggleEditState('approve') : toggleEditState('review')}
+                assignmentColumnMessageId={isInVoting ? 'requiredApprovers' : 'requiredReviewers'}
+              />
             </div>
-          )}
-          {!isEveryoneGroup(groupId, marketId) && (
-            <div className={clsx(classes.group, classes.assignments)}>
-              <div className={classes.assignmentContainer}>
-                <Assignments
-                  classes={classes}
-                  marketPresences={marketPresences}
-                  assigned={addressedIds}
-                  toggleAssign={toggleEditState('addressed')}
-                  toolTipId='storyAddressedLabel'
-                  toggleIconButton={toggleEditState('assign')}
-                  assignmentColumnMessageId='addressed'
-                />
-              </div>
+          </div>
+        )}
+        {!isEveryoneGroup(groupId, marketId) && (
+          <div className={clsx(classes.group, classes.assignments)}>
+            <div className={classes.assignmentContainer}>
+              <Assignments
+                classes={classes}
+                marketPresences={marketPresences}
+                assigned={addressedIds}
+                toggleAssign={toggleEditState('addressed')}
+                toolTipId='storyAddressedLabel'
+                toggleIconButton={toggleEditState('assign')}
+                assignmentColumnMessageId='addressed'
+              />
             </div>
-          )}
-        </dl>
+          </div>
+        )}
         <MarketMetaData
           stage={stage}
           investibleId={investibleId}

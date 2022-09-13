@@ -1,8 +1,9 @@
 import { withSpinLock } from './SpinBlockingHOC'
 import React from 'react'
 import PropTypes from 'prop-types'
-import { ListItem, ListItemIcon, ListItemText, Tooltip, useMediaQuery, useTheme, } from '@material-ui/core'
+import { ListItem, Tooltip, useMediaQuery, useTheme, } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
+import InputLabel from '@material-ui/core/InputLabel'
 
 const useStyles = makeStyles(() => {
   return {
@@ -15,15 +16,6 @@ const useStyles = makeStyles(() => {
       '&:last-child': {
         paddingBottom: '52px',
       },
-    },
-    menuIcon: {
-      display: 'flex',
-      justifyContent: 'center',
-      color: 'white',
-      '& > .MuiSvgIcon-root': {
-        width: '30px',
-        height: '30px',
-      },
     }
   };
 });
@@ -34,7 +26,6 @@ function SpinBlockingListAction(props) {
     icon,
     label,
     openLabel,
-    highlighted,
     onClick,
     customClasses,
     disabled,
@@ -56,13 +47,13 @@ function SpinBlockingListAction(props) {
     >
       {!mobileLayout && (
         <Tooltip title={label}>
-          <ListItemIcon className={classes.menuIcon}>
-            {icon}
-          </ListItemIcon>
+          {icon}
         </Tooltip>
       )}
       <Tooltip title={label}>
-        <ListItemText primaryTypographyProps={{ color: highlighted ? 'error' : undefined }} primary={openLabel} />
+        <InputLabel style={{fontSize: '0.8rem', paddingLeft: '8px'}}>
+          {openLabel}
+        </InputLabel>
       </Tooltip>
     </SpinningListItem>
   );

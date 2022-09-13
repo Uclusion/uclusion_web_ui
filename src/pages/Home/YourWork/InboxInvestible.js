@@ -164,8 +164,6 @@ function InboxInvestible(props) {
                 marketPresences={marketPresences}
                 assigned={assigned}
                 highlighted={isInVoting ? assignedNotAccepted : undefined}
-                isAdmin={false}
-                toggleAssign={() => {}}
                 toolTipId="storyAddParticipantsLabel"
                 showMoveMessage
               />
@@ -181,8 +179,6 @@ function InboxInvestible(props) {
                 classes={planningClasses}
                 marketPresences={marketPresences}
                 assigned={investibleCollaborators}
-                isAdmin={false}
-                toggleAssign={() => {}}
                 toolTipId="collaborators"
               />
             </div>
@@ -199,8 +195,6 @@ function InboxInvestible(props) {
                 classes={planningClasses}
                 marketPresences={marketPresences}
                 assigned={isInVoting ? requiredApprovers : requiredReviewers}
-                isAdmin={false}
-                toggleAssign={() => {}}
                 toolTipId={isInVoting ? 'storyApproversLabel' : 'storyReviewersLabel'}
               />
             </div>

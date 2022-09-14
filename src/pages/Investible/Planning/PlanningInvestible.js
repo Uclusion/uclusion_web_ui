@@ -241,7 +241,6 @@ export const usePlanningInvestibleStyles = makeStyles(
     },
     autocompleteContainer: {
       display: 'flex',
-      marginLeft: '30px',
       [theme.breakpoints.down("sm")]: {
         marginLeft: '0',
         flexDirection: 'column',
@@ -267,6 +266,9 @@ export const usePlanningInvestibleStyles = makeStyles(
       }
     },
     fullWidthEditable: {
+      flexBasis: '90%',
+      paddingTop: '1rem',
+      paddingRight: '1rem',
       cursor: "url('/images/edit_cursor.svg') 0 24, pointer",
       [theme.breakpoints.down("sm")]: {
         maxWidth: '100%',
@@ -277,8 +279,9 @@ export const usePlanningInvestibleStyles = makeStyles(
       }
     },
     fullWidth: {
-      paddingLeft: '2rem',
+      flexBasis: '90%',
       paddingTop: '1rem',
+      paddingRight: '1rem',
       [theme.breakpoints.down("sm")]: {
         maxWidth: '100%',
         flexBasis: '100%',
@@ -744,7 +747,7 @@ function PlanningInvestible(props) {
   function toggleEditState(editType) {
     return () => updatePageState({editCollaborators: editType});
   }
-  const displayDescription = _.isEmpty(search) || results.find((item) => item.id === investibleId);
+
   const displayApprovalsBySearch = _.isEmpty(search) ? _.size(invested) : _.size(investmentReasons);
   const openComments = investmentReasonsRemoved.filter((comment) => !comment.resolved) || [];
   const openProblemComments = openComments.filter((comment) =>
@@ -1007,129 +1010,126 @@ function PlanningInvestible(props) {
         )}
         {sectionOpen === 'descriptionVotingSection' && (
           <>
-            <Card id="storyMain" elevation={3} style={{display: displayDescription ? 'block' : 'none'}}>
-              <div style={{display: 'flex'}}>
-                <div style={{width: '80%'}}>
-                  <CardType
-                    className={classes.cardType}
-                    createdAt={createdAt}
-                    myBeingEdited={beingEdited}
-                    stageChangedAt={new Date(marketInfo.last_stage_change_date)}
-                  />
-                </div>
-                <div style={{paddingRight: "1rem"}}>
-                  <InvesibleCommentLinker investibleId={investibleId} marketId={marketId} />
-                </div>
+            <div style={{display: 'flex'}}>
+              <InvesibleCommentLinker investibleId={investibleId} marketId={marketId} />
+              <div style={{width: '80%'}}>
+                <CardType
+                  className={classes.cardType}
+                  createdAt={createdAt}
+                  myBeingEdited={beingEdited}
+                  stageChangedAt={new Date(marketInfo.last_stage_change_date)}
+                />
               </div>
-              <CardContent className={beingEdited ? classes.editCardContent : classes.votingCardContent}>
-                <div className={!beingEdited && isEditableByUser() ? classes.fullWidthEditable :
-                  classes.fullWidth}
-                     onClick={(event) => !beingEdited && mySetBeingEdited(true, event)}>
-                  {lockedBy && myPresence.id !== lockedBy && isEditableByUser() && (
-                    <Typography>
-                      {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}
-                    </Typography>
-                  )}
-                  {marketId && investibleId && (
-                    <InvestibleBodyEdit
-                      hidden={hidden}
-                      marketId={marketId}
-                      userId={userId}
-                      investibleId={investibleId}
-                      pageState={pageState}
-                      pageStateUpdate={updatePageState}
-                      pageStateReset={pageStateReset}
-                      fullInvestible={marketInvestible}
-                      setBeingEdited={mySetBeingEdited} beingEdited={beingEdited}
-                      isEditableByUser={isEditableByUser}/>
-                  )}
-                  <div className={classes.editRow}>
-                    {mobileLayout && !inMarketArchives && isEditableByUser() && !beingEdited && (
-                      <div>
-                        <EditMarketButton
-                          labelId="edit"
-                          marketId={marketId}
-                          onClick={(event) => mySetBeingEdited(true, event)}
-                        />
-                      </div>
-                    )}
-                    {displayEdit && isInAccepted && (
-                      <div>
-                        <EditMarketButton
-                          labelId="changeCompletionDate"
-                          marketId={marketId}
-                          onClick={toggleEdit}
-                          icon={<EventIcon htmlColor={reportMessage ? HIGHLIGHTED_BUTTON_COLOR : ACTION_BUTTON_COLOR} />}
-                        />
-                        {showDatepicker && (
-                          <div className={classes.datePicker}>
-                            <DatePicker
-                              placeholderText={intl.formatMessage({ id: "selectDate" })}
-                              selected={getStartDate()}
-                              onChange={handleDateChange}
-                              popperPlacement="top"
-                              minDate={getTomorrow()}
-                              inline
-                              onClickOutside={toggleEdit}
-                            />
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                  {marketDaysEstimate && isInAccepted && (
-                    <DaysEstimate readOnly value={marketDaysEstimate} />
-                  )}
-                </div>
-                <Grid item xs={12} className={classes.fullWidthCentered}>
-                  {originalLabelList && originalLabelList.map((label) =>
-                    <div key={label} className={classes.labelChip}>
-                      <Chip label={label} onDelete={()=>deleteLabel(`${label}`)} color="primary" />
+            </div>
+            <div className={beingEdited ? classes.editCardContent : classes.votingCardContent}
+                 style={{display: 'flex'}}>
+              <div className={!beingEdited && isEditableByUser() ? classes.fullWidthEditable :
+                classes.fullWidth}
+                   onClick={(event) => !beingEdited && mySetBeingEdited(true, event)}>
+                {lockedBy && myPresence.id !== lockedBy && isEditableByUser() && (
+                  <Typography>
+                    {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}
+                  </Typography>
+                )}
+                {marketId && investibleId && (
+                  <InvestibleBodyEdit
+                    hidden={hidden}
+                    marketId={marketId}
+                    userId={userId}
+                    investibleId={investibleId}
+                    pageState={pageState}
+                    pageStateUpdate={updatePageState}
+                    pageStateReset={pageStateReset}
+                    fullInvestible={marketInvestible}
+                    setBeingEdited={mySetBeingEdited} beingEdited={beingEdited}
+                    isEditableByUser={isEditableByUser}/>
+                )}
+                <div className={classes.editRow}>
+                  {mobileLayout && !inMarketArchives && isEditableByUser() && !beingEdited && (
+                    <div>
+                      <EditMarketButton
+                        labelId="edit"
+                        marketId={marketId}
+                        onClick={(event) => mySetBeingEdited(true, event)}
+                      />
                     </div>
                   )}
-                  {!inArchives && (
-                    <div className={classes.autocompleteContainer}>
-                      <Autocomplete
-                        {...defaultProps}
-                        id="addLabel"
-                        key={clearMeHack}
-                        freeSolo
-                        renderInput={(params) => <TextField {...params}
-                                                            label={intl.formatMessage({ id: 'addLabel' })}
-                                                            margin="dense"
-                                                            variant="outlined" />}
-                        style={{ width: 150, maxHeight: '1rem' }}
-                        onFocus={labelInputFocus}
-                        onBlur={labelInputFocus}
-                        onChange={labelInputOnChange}
+                  {displayEdit && isInAccepted && (
+                    <div>
+                      <EditMarketButton
+                        labelId="changeCompletionDate"
+                        marketId={marketId}
+                        onClick={toggleEdit}
+                        icon={<EventIcon htmlColor={reportMessage ? HIGHLIGHTED_BUTTON_COLOR : ACTION_BUTTON_COLOR} />}
                       />
-                      {newLabel && (
-                        <IconButton
-                          className={classes.noPad}
-                          onClick={addLabel}
-                        >
-                          <AddIcon htmlColor={ACTION_BUTTON_COLOR}/>
-                        </IconButton>
-                      )}
-                      {!newLabel && labelFocus && !mobileLayout &&  (
-                        <div className={classes.labelExplain} >
-                          <Typography key="completeExplain" className={classes.explain}>
-                            {intl.formatMessage({ id: 'typeOrChoose' })}
-                          </Typography>
+                      {showDatepicker && (
+                        <div className={classes.datePicker}>
+                          <DatePicker
+                            placeholderText={intl.formatMessage({ id: "selectDate" })}
+                            selected={getStartDate()}
+                            onChange={handleDateChange}
+                            popperPlacement="top"
+                            minDate={getTomorrow()}
+                            inline
+                            onClickOutside={toggleEdit}
+                          />
                         </div>
                       )}
                     </div>
                   )}
-                  <div style={{maxWidth: '20rem', minWidth: '15rem', marginLeft: '5rem'}}>
-                    <AttachedFilesList
-                      marketId={market.id}
-                      onUpload={onAttachFiles}
-                      onDeleteClick={onDeleteFile}
-                      attachedFiles={attachedFiles}/>
+                </div>
+                {marketDaysEstimate && isInAccepted && (
+                  <DaysEstimate readOnly value={marketDaysEstimate} />
+                )}
+              </div>
+              <div>
+                {!inArchives && (
+                  <div className={classes.autocompleteContainer}>
+                    <Autocomplete
+                      {...defaultProps}
+                      id="addLabel"
+                      key={clearMeHack}
+                      freeSolo
+                      renderInput={(params) => <TextField {...params}
+                                                          label={intl.formatMessage({ id: 'addLabel' })}
+                                                          margin="dense"
+                                                          variant="outlined" />}
+                      style={{ width: 150, maxHeight: '1rem' }}
+                      onFocus={labelInputFocus}
+                      onBlur={labelInputFocus}
+                      onChange={labelInputOnChange}
+                    />
+                    {newLabel && (
+                      <IconButton
+                        className={classes.noPad}
+                        onClick={addLabel}
+                      >
+                        <AddIcon htmlColor={ACTION_BUTTON_COLOR}/>
+                      </IconButton>
+                    )}
+                    {!newLabel && labelFocus && !mobileLayout &&  (
+                      <div className={classes.labelExplain} >
+                        <Typography key="completeExplain" className={classes.explain}>
+                          {intl.formatMessage({ id: 'typeOrChoose' })}
+                        </Typography>
+                      </div>
+                    )}
                   </div>
-                </Grid>
-              </CardContent>
-            </Card>
+                )}
+                <div style={{maxWidth: '10rem', minWidth: '5rem', marginTop: '5rem'}}>
+                  <AttachedFilesList
+                    marketId={market.id}
+                    onUpload={onAttachFiles}
+                    onDeleteClick={onDeleteFile}
+                    attachedFiles={attachedFiles}/>
+                </div>
+              </div>
+              {originalLabelList && originalLabelList.map((label) =>
+                <div key={label} className={classes.labelChip}>
+                  <Chip label={label} onDelete={()=>deleteLabel(`${label}`)} color="primary" />
+                </div>
+              )}
+            </div>
             {(_.isEmpty(search) || displayApprovalsBySearch > 0) && !_.isEmpty(voters) && (
               <>
                 <h2 id="approvals">

@@ -1130,53 +1130,55 @@ function PlanningInvestible(props) {
                 </div>
               )}
             </div>
-            {(_.isEmpty(search) || displayApprovalsBySearch > 0) && !_.isEmpty(voters) && (
-              <>
-                <h2 id="approvals">
-                  <FormattedMessage id="decisionInvestibleOthersVoting" />
-                </h2>
-                <Voting
-                  investibleId={investibleId}
-                  marketPresences={marketPresences}
-                  investmentReasons={investmentReasons}
-                  showExpiration={fullStage.has_expiration}
-                  expirationMinutes={market.investment_expiration * 1440}
-                  votingPageState={votingPageState}
-                  updateVotingPageState={updateVotingPageState}
-                  votingPageStateReset={votingPageStateReset}
-                  votingAllowed={canVote}
-                  yourPresence={yourPresence}
-                  market={market}
-                  isAssigned={isAssigned}
-                />
-              </>
-            )}
-            {(displayVotingInput || hasUsableVotingInput) && investibleId && (
-              <>
-                {isAssigned && (
-                  <DismissableText textId="planningInvestibleCantVote" text={
-                    <div>
-                      <Link href="https://documentation.uclusion.com/channels/jobs/stages/#ready-for-approval" target="_blank">Approval</Link> is
-                      optional if you're assigned.
-                    </div>
-                  } />
-                )}
-                <YourVoting
-                  investibleId={investibleId}
-                  marketPresences={marketPresences}
-                  comments={investmentReasons}
-                  userId={userId}
-                  market={market}
-                  votingPageState={votingPageState}
-                  updateVotingPageState={updateVotingPageState}
-                  votingPageStateReset={votingPageStateReset}
-                  isAssigned={isAssigned}
-                />
-              </>
-            )}
-            {displayVotingInput && investibleId && !isAssigned && (
-              <h3>{intl.formatMessage({ id: 'orStructuredComment' })}</h3>
-            )}
+            <div style={{paddingLeft: '3rem', paddingRight: '3rem'}}>
+              {(_.isEmpty(search) || displayApprovalsBySearch > 0) && !_.isEmpty(voters) && (
+                <>
+                  <h2 id="approvals">
+                    <FormattedMessage id="decisionInvestibleOthersVoting" />
+                  </h2>
+                  <Voting
+                    investibleId={investibleId}
+                    marketPresences={marketPresences}
+                    investmentReasons={investmentReasons}
+                    showExpiration={fullStage.has_expiration}
+                    expirationMinutes={market.investment_expiration * 1440}
+                    votingPageState={votingPageState}
+                    updateVotingPageState={updateVotingPageState}
+                    votingPageStateReset={votingPageStateReset}
+                    votingAllowed={canVote}
+                    yourPresence={yourPresence}
+                    market={market}
+                    isAssigned={isAssigned}
+                  />
+                </>
+              )}
+              {(displayVotingInput || hasUsableVotingInput) && investibleId && (
+                <>
+                  {isAssigned && (
+                    <DismissableText textId="planningInvestibleCantVote" text={
+                      <div>
+                        <Link href="https://documentation.uclusion.com/channels/jobs/stages/#ready-for-approval" target="_blank">Approval</Link> is
+                        optional if you're assigned.
+                      </div>
+                    } />
+                  )}
+                  <YourVoting
+                    investibleId={investibleId}
+                    marketPresences={marketPresences}
+                    comments={investmentReasons}
+                    userId={userId}
+                    market={market}
+                    votingPageState={votingPageState}
+                    updateVotingPageState={updateVotingPageState}
+                    votingPageStateReset={votingPageStateReset}
+                    isAssigned={isAssigned}
+                  />
+                </>
+              )}
+              {displayVotingInput && investibleId && !isAssigned && (
+                <h3>{intl.formatMessage({ id: 'orStructuredComment' })}</h3>
+              )}
+            </div>
           </>
         )}
         {sectionOpen !== 'descriptionVotingSection' && (

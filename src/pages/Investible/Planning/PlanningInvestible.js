@@ -316,7 +316,7 @@ export const usePlanningInvestibleStyles = makeStyles(
     },
     paper: {
       // See https://github.com/mui-org/material-ui/blob/master/packages/material-ui/src/Drawer/Drawer.js
-      overflowY: 'auto',
+      overflowY: 'none',
       display: 'flex',
       flexDirection: 'column',
       alignItems: "flex-start",
@@ -330,11 +330,11 @@ export const usePlanningInvestibleStyles = makeStyles(
       zIndex: 8,
       position: 'fixed',
       top: '3.8rem',
-      marginLeft: '-8px',
       paddingLeft: '1rem',
       paddingTop: '2rem',
-      minWidth: '12rem',
-      textOverflow: 'ellipsis'
+      minWidth: '13rem',
+      textOverflow: 'ellipsis',
+      transform: 'translateX(calc(100vw - 488px))'
     },
     group: {
       borderRadius: 6,
@@ -901,7 +901,7 @@ function PlanningInvestible(props) {
           myUserId={userId}
         />
       </div>
-      <div style={{paddingLeft: mobileLayout ? undefined : '13rem'}}>
+      <div style={{paddingRight: mobileLayout ? undefined : '13rem'}}>
         {!inArchives && isInVoting && isAssigned && acceptedFull && (
           <DismissableText textId='planningInvestibleAcceptedFullHelp' text={
             <div>

@@ -42,6 +42,7 @@ export function updateInvestment(updateInfo) {
   const {
     marketId,
     investibleId,
+    groupId,
     newQuantity,
     currentQuantity,
     currentReasonId,
@@ -72,7 +73,7 @@ export function updateInvestment(updateInfo) {
               }
             });
         }
-        return client.investibles.createComment(investibleId, newReasonText,
+        return client.investibles.createComment(investibleId, groupId, newReasonText,
           undefined, JUSTIFY_TYPE, uploadedFiles, newMentions)
           .then((comment) => {
             return {

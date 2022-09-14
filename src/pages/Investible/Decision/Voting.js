@@ -93,7 +93,8 @@ const useVoteStyles = makeStyles(
  */
 function Voting(props) {
   const { marketPresences, investibleId, investmentReasons, showExpiration, expirationMinutes, votingPageState,
-    updateVotingPageState, votingPageStateReset, votingAllowed, yourPresence, market, isAssigned, isInbox } = props;
+    updateVotingPageState, votingPageStateReset, votingAllowed, yourPresence, market, isAssigned, isInbox,
+    groupId} = props;
   const history = useHistory();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
@@ -136,6 +137,7 @@ function Voting(props) {
                   comments={investmentReasons}
                   userId={userId}
                   market={market}
+                  groupId={groupId}
                   showBudget
                   votingPageState={votingPageState}
                   updateVotingPageState={updateVotingPageState}

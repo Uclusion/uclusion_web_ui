@@ -115,6 +115,7 @@ function AddEditVote(props) {
     reason,
     marketId,
     investibleId,
+    groupId,
     investment,
     onSave,
     showBudget,
@@ -192,6 +193,7 @@ function AddEditVote(props) {
     const updateInfo = {
       marketId,
       investibleId,
+      groupId,
       newQuantity: newQuantity*multiplier,
       currentQuantity: oldQuantity,
       newReasonText: reasonText,

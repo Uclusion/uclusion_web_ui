@@ -50,6 +50,7 @@ function InitiativeVoting(props) {
         updateVotingPageState={updateVotingPageState}
         votingPageStateReset={votingPageStateReset}
         market={market}
+        groupId={market.id}
         votingAllowed={votingAllowed}
         yourPresence={yourPresence}
       />
@@ -64,6 +65,7 @@ function InitiativeVoting(props) {
         updateVotingPageState={updateVotingPageState}
         votingPageStateReset={votingPageStateReset}
         market={market}
+        groupId={market.id}
         votingAllowed={votingAllowed}
         yourPresence={yourPresence}
       />

@@ -363,6 +363,7 @@ function DecisionInvestible(props) {
             comments={investmentReasons}
             userId={userId}
             market={market}
+            groupId={marketId}
             votingPageState={votingPageState}
             updateVotingPageState={updateVotingPageState}
             votingPageStateReset={votingPageStateReset}
@@ -394,6 +395,7 @@ function DecisionInvestible(props) {
             updateVotingPageState={updateVotingPageState}
             votingPageStateReset={votingPageStateReset}
             market={market}
+            groupId={marketId}
             votingAllowed={votingAllowed}
             yourPresence={yourPresence}
           />

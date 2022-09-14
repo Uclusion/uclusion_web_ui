@@ -1130,7 +1130,8 @@ function PlanningInvestible(props) {
                 </div>
               )}
             </div>
-            <div style={{paddingLeft: '3rem', paddingRight: '3rem'}}>
+            <div style={{paddingLeft: mobileLayout ? undefined : '8rem',
+              paddingRight: mobileLayout ? undefined : '8rem'}}>
               {(_.isEmpty(search) || displayApprovalsBySearch > 0) && !_.isEmpty(voters) && (
                 <>
                   <h2 id="approvals">
@@ -1148,6 +1149,7 @@ function PlanningInvestible(props) {
                     votingAllowed={canVote}
                     yourPresence={yourPresence}
                     market={market}
+                    groupId={groupId}
                     isAssigned={isAssigned}
                   />
                 </>
@@ -1168,6 +1170,7 @@ function PlanningInvestible(props) {
                     comments={investmentReasons}
                     userId={userId}
                     market={market}
+                    groupId={groupId}
                     votingPageState={votingPageState}
                     updateVotingPageState={updateVotingPageState}
                     votingPageStateReset={votingPageStateReset}

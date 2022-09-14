@@ -343,6 +343,7 @@ function InboxInvestible(props) {
             votingAllowed={false}
             yourPresence={yourPresence}
             market={market}
+            groupId={groupId}
             isAssigned={true}
             isInbox
           />
@@ -356,6 +357,7 @@ function InboxInvestible(props) {
             comments={investmentReasons}
             userId={userId}
             market={market}
+            groupId={groupId}
             isAssigned={false}
             isInbox
           />

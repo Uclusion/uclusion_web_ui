@@ -33,6 +33,7 @@ function YourVoting(props) {
     marketPresences,
     comments,
     investibleId,
+    groupId,
     market,
     userId,
     isAssigned,
@@ -128,6 +129,7 @@ function YourVoting(props) {
       <AddEditVote
         marketId={marketId}
         investibleId={investibleId}
+        groupId={groupId}
         reason={yourReason}
         investment={yourVote}
         hasVoted={yourPresence && yourPresence.investments && yourPresence.investments.length > 0}

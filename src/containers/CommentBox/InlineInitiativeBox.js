@@ -63,6 +63,7 @@ function InlineInitiativeBox(props) {
           comments={investmentReasons}
           userId={inlineUserId}
           market={anInlineMarket}
+          groupId={anInlineMarket.id}
           votingPageState={votingPageState}
           updateVotingPageState={updateVotingPageState}
           votingPageStateReset={votingPageStateReset}
@@ -80,6 +81,7 @@ function InlineInitiativeBox(props) {
         updateVotingPageState={updateVotingPageState}
         votingPageStateReset={votingPageStateReset}
         market={anInlineMarket}
+        groupId={anInlineMarket.id}
         votingAllowed={!inArchives}
         yourPresence={myInlinePresence}
       />
@@ -94,6 +96,7 @@ function InlineInitiativeBox(props) {
         updateVotingPageState={updateVotingPageState}
         votingPageStateReset={votingPageStateReset}
         market={anInlineMarket}
+        groupId={anInlineMarket.id}
         votingAllowed={!inArchives}
         yourPresence={myInlinePresence}
       />

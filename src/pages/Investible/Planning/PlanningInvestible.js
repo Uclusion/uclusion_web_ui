@@ -25,7 +25,7 @@ import {
   TODO_TYPE
 } from '../../../constants/comments'
 import Screen from '../../../containers/Screen/Screen'
-import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
+import CommentAddBox, { getIcon } from '../../../containers/CommentBox/CommentAddBox'
 import MoveToNextVisibleStageActionButton from './MoveToNextVisibleStageActionButton'
 import { assignedInStage, getMarketInfo, getVotesForInvestible } from '../../../utils/userFunctions'
 import {
@@ -128,6 +128,8 @@ import {
 import { addEditVotingHasContents } from '../Voting/AddEditVote'
 import { isEveryoneGroup } from '../../../contexts/GroupMembersContext/groupMembersHelper'
 import InvesibleCommentLinker from '../../Dialog/InvesibleCommentLinker'
+import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox'
+import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown'
 
 export const usePlanningInvestibleStyles = makeStyles(
   theme => ({
@@ -381,6 +383,7 @@ function PlanningInvestible(props) {
   const [open, setOpen] = useState(false);
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
+  const singleTabLayout = mobileLayout;
   const classes = usePlanningInvestibleStyles();
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
@@ -416,10 +419,12 @@ function PlanningInvestible(props) {
   const { name, locked_by: lockedBy, created_at: createdAt, label_list: originalLabelList } = investible;
   const [marketStagesState] = useContext(MarketStagesContext);
   const [pageStateFull, pageDispatch] = usePageStateReducer('investible');
-  const [pageState, updatePageState, pageStateReset] = getPageReducerPage(pageStateFull, pageDispatch, investibleId);
+  const [pageState, updatePageState, pageStateReset] = getPageReducerPage(pageStateFull, pageDispatch, investibleId,
+    {sectionOpen: 'descriptionVotingSection'});
   const {
     beingEdited,
-    editCollaborators
+    editCollaborators,
+    sectionOpen
   } = pageState;
 
   const [votingPageStateFull, votingPageDispatch] = usePageStateReducer('voting')
@@ -460,39 +465,62 @@ function PlanningInvestible(props) {
   const inVerifiedStage = getVerifiedStage(marketStagesState, marketId) || {};
   const isInVerified = inVerifiedStage && stage === inVerifiedStage.id;
   const furtherWorkStage = getFurtherWorkStage(marketStagesState, marketId) || {};
-  const isReadyFurtherWork = furtherWorkStage && stage === furtherWorkStage.id;
+  const isFurtherWork = furtherWorkStage && stage === furtherWorkStage.id;
   const requiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
   const isRequiresInput = requiresInputStage && stage === requiresInputStage.id;
   const notDoingStage = getNotDoingStage(marketStagesState, marketId);
   const isInNotDoing = notDoingStage && stage === notDoingStage.id;
-  const displayEdit = !inArchives && (isAssigned || isInNotDoing || isInVoting || isReadyFurtherWork || isRequiresInput);
+  const displayEdit = !inArchives && (isAssigned || isInNotDoing || isInVoting || isFurtherWork || isRequiresInput);
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   const inMarketArchives = isInNotDoing || isInVerified;
   const reportMessage = findMessageOfType('REPORT_REQUIRED', investibleId, messagesState);
+  const blockingComments = investibleComments.filter(
+    comment => comment.comment_type === ISSUE_TYPE
+  );
+  const blockingCommentsUnresolved = blockingComments.filter(
+    comment => comment.comment_type === ISSUE_TYPE && !comment.resolved
+  );
   function canGetInput() {
-    const blockingComments = investibleComments.filter(
-      comment => comment.comment_type === ISSUE_TYPE && !comment.resolved
-    );
-    return _.isEmpty(blockingComments) && !isInVerified && !isInNotDoing;
+    return _.isEmpty(blockingCommentsUnresolved) && !isInVerified && !isInNotDoing;
   }
+  const suggestionComments = investibleComments.filter(
+    comment => comment.comment_type === SUGGEST_CHANGE_TYPE
+  );
+  const reportsComments = investibleComments.filter(
+    comment => comment.comment_type === REPORT_TYPE
+  );
+  const questionComments = investibleComments.filter(
+    comment => comment.comment_type === QUESTION_TYPE
+  );
+  const questionsOrSuggestionsComments = questionComments.concat(suggestionComments);
+  const questionSuggestionsByAssignedComments = questionsOrSuggestionsComments.filter(
+    comment => !comment.resolved && assigned.includes(comment.created_by)
+  );
   function canOpenBlocking() {
-    const assignedInputComments = investibleComments.filter(
-      comment => (comment.comment_type === QUESTION_TYPE || comment.comment_type === SUGGEST_CHANGE_TYPE)
-        && !comment.resolved && assigned.includes(comment.created_by)
-    );
-    return _.isEmpty(assignedInputComments) && !isInVerified && !isInNotDoing;
+    return _.isEmpty(questionSuggestionsByAssignedComments) && !isInVerified && !isInNotDoing;
   }
-  const allowedCommentTypes =  [TODO_TYPE];
-  if (!isInVoting && !isReadyFurtherWork) {
-    allowedCommentTypes.push(REPORT_TYPE);
-  }
-  if (canGetInput()) {
-    allowedCommentTypes.push(QUESTION_TYPE);
-    allowedCommentTypes.push(SUGGEST_CHANGE_TYPE);
-  }
-  if (canOpenBlocking()) {
-    allowedCommentTypes.push(ISSUE_TYPE);
+  const todoComments = investibleComments.filter(
+    comment => comment.comment_type === TODO_TYPE && !comment.resolved
+  );
+  const reportComments = investibleComments.filter(comment => comment.comment_type === REPORT_TYPE);
+  let allowedCommentTypes = [];
+  let sectionComments = [];
+  if (sectionOpen === 'tasksSection') {
+    allowedCommentTypes = [TODO_TYPE];
+    sectionComments = todoComments;
+  } else if (sectionOpen === 'questionsSection' && canGetInput()) {
+    allowedCommentTypes = [QUESTION_TYPE];
+    sectionComments = questionComments;
+  } else if (sectionOpen === 'suggestionsSection' && canGetInput()) {
+    allowedCommentTypes = [SUGGEST_CHANGE_TYPE];
+    sectionComments = suggestionComments;
+  } else if (sectionOpen === 'reportsSection' && !isInVoting) {
+    allowedCommentTypes = [REPORT_TYPE];
+    sectionComments = reportsComments;
+  } else if (sectionOpen === 'blockersSection' && canOpenBlocking()) {
+    allowedCommentTypes = [ISSUE_TYPE];
+    sectionComments = blockingComments;
   }
 
   const invested = getVotesForInvestible(marketPresences, investibleId);
@@ -532,23 +560,13 @@ function PlanningInvestible(props) {
       marketId
     ));
   }, []);
-  const blockingComments = investibleComments.filter(
-    comment => comment.comment_type === ISSUE_TYPE && !comment.resolved
-  );
-  const todoComments = investibleComments.filter(
-    comment => comment.comment_type === TODO_TYPE && !comment.resolved
-  );
-  const numProgressReport = investibleComments.filter(comment => comment.comment_type === REPORT_TYPE)||[];
-  const questionByAssignedComments = investibleComments.filter(
-    comment => comment.comment_type === QUESTION_TYPE && !comment.resolved && assigned.includes(comment.created_by)
-  );
   const acceptedFull = inAcceptedStage.allowed_investibles > 0
     && assignedInAcceptedStage.length >= inAcceptedStage.allowed_investibles;
   function getStageActions() {
     if (inArchives) {
       return []
     }
-    const notAssigned = isReadyFurtherWork || isInNotDoing
+    const notAssigned = isFurtherWork || isInNotDoing
     const menuItems = [
       <MenuItem
         key={(getInCurrentVotingStage(marketStagesState, marketId) || {}).id}
@@ -558,8 +576,8 @@ function PlanningInvestible(props) {
           investibleId={investibleId}
           marketId={marketId}
           currentStageId={stage}
-          disabled={isInVoting || !_.isEmpty(blockingComments) || notAssigned}
-          hasAssignedQuestions={!_.isEmpty(questionByAssignedComments)}
+          disabled={isInVoting || !_.isEmpty(blockingCommentsUnresolved) || notAssigned}
+          hasAssignedQuestions={!_.isEmpty(questionSuggestionsByAssignedComments)}
         />
       </MenuItem>,
       <MenuItem
@@ -572,7 +590,7 @@ function PlanningInvestible(props) {
           currentStageId={stage}
           full={isInAccepted ? false : acceptedFull}
           disabled={isInAccepted || !isAssigned || !_.isEmpty(blockingComments) || notAssigned}
-          hasAssignedQuestions={!_.isEmpty(questionByAssignedComments)}
+          hasAssignedQuestions={!_.isEmpty(questionSuggestionsByAssignedComments)}
         />
       </MenuItem>,
       <MenuItem
@@ -583,8 +601,8 @@ function PlanningInvestible(props) {
           investibleId={investibleId}
           marketId={marketId}
           currentStageId={stage}
-          disabled={isInReview || !_.isEmpty(blockingComments) || notAssigned}
-          hasAssignedQuestions={!_.isEmpty(questionByAssignedComments)}
+          disabled={isInReview || !_.isEmpty(blockingCommentsUnresolved) || notAssigned}
+          hasAssignedQuestions={!_.isEmpty(questionSuggestionsByAssignedComments)}
         />
       </MenuItem>,
       <MenuItem
@@ -595,7 +613,7 @@ function PlanningInvestible(props) {
           investibleId={investibleId}
           marketId={marketId}
           currentStageId={stage}
-          disabled={isReadyFurtherWork}
+          disabled={isFurtherWork}
         />
       </MenuItem>,
       <MenuItem
@@ -639,7 +657,7 @@ function PlanningInvestible(props) {
     return menuItems
   }
 
-  const todoWarning = isInVoting || isReadyFurtherWork || isInBlocked || isRequiresInput ? null : 'todoWarningPlanning';
+  const todoWarning = isInVoting || isFurtherWork || isInBlocked || isRequiresInput ? null : 'todoWarningPlanning';
 
   function toggleEdit() {
     setShowDatepicker(!showDatepicker);
@@ -762,8 +780,15 @@ function PlanningInvestible(props) {
       .then((investible) => addInvestible(investiblesDispatch, diffDispatch, investible));
   }
 
+  function openSubSection(subSection) {
+    updatePageState({sectionOpen: subSection});
+  }
+
   const title = ticketCode ? `${ticketCode} ${name}` : name;
   const voters = getInvestibleVoters(marketPresences, investibleId);
+  const descriptionSectionResults = (results || []).find((item) => item.id === investibleId) + _.size(investmentReasons);
+  const sections = ['descriptionVotingSection', 'tasksSection', 'questionsSection', 'suggestionsSection',
+    'reportsSection', 'blockersSection'];
   return (
     <Screen
       title={title}
@@ -799,7 +824,7 @@ function PlanningInvestible(props) {
             </div>
           </div>
         )}
-        {market.id && marketInvestible.investible && isReadyFurtherWork && (
+        {market.id && marketInvestible.investible && isFurtherWork && (
           <div className={classes.assignmentContainer}>
             <FormControlLabel
               id='readyToStartCheckbox'
@@ -888,11 +913,11 @@ function PlanningInvestible(props) {
           stageActions={getStageActions()}
           inArchives={inArchives}
           isAssigned={isAssigned}
-          blockingComments={blockingComments}
+          blockingComments={blockingCommentsUnresolved}
           todoComments={todoComments}
           isInVoting={isInVoting}
           acceptedFull={acceptedFull}
-          questionByAssignedComments={questionByAssignedComments}
+          questionByAssignedComments={questionSuggestionsByAssignedComments}
           pageState={pageState}
           updatePageState={updatePageState}
           acceptedEmpty={assignedInAcceptedStage.length === 0}
@@ -902,6 +927,48 @@ function PlanningInvestible(props) {
         />
       </div>
       <div style={{paddingRight: mobileLayout ? undefined : '13rem'}}>
+        <GmailTabs
+          value={singleTabLayout ? 0 : sections.findIndex((section) => section === sectionOpen)}
+          onChange={(event, value) => {
+            openSubSection(sections[value]);
+          }}
+          indicatorColors={['#00008B', '#00008B', '#00008B', '#00008B', '#00008B', '#00008B']}
+          style={{ borderTop: '1px ridge lightgrey', paddingBottom: '0.25rem' }}>
+          {(!singleTabLayout || sectionOpen === 'descriptionVotingSection') && (
+            <GmailTabItem icon={<ThumbsUpDownIcon />}
+                          label={intl.formatMessage({id: 'descriptionVotingLabel'})}
+                          tag={_.isEmpty(search) || descriptionSectionResults === 0 ? undefined :
+                            `${descriptionSectionResults}`} />
+          )}
+          {(!singleTabLayout || sectionOpen === 'tasksSection') && (
+            <GmailTabItem icon={getIcon(TODO_TYPE)} label={intl.formatMessage({id: 'taskSection'})}
+                          tag={_.isEmpty(search) || _.isEmpty(todoComments) ? undefined : `${_.size(todoComments)}`} />
+          )}
+          {(!singleTabLayout || sectionOpen === 'questionsSection') && (
+            <GmailTabItem icon={getIcon(QUESTION_TYPE)} label={intl.formatMessage({id: 'questions'})}
+                          tag={_.isEmpty(search) || _.isEmpty(questionComments) ? undefined :
+                            `${_.size(questionComments)}` } />
+          )}
+          {(!singleTabLayout || sectionOpen === 'suggestionsSection') && (
+            <GmailTabItem icon={getIcon(SUGGEST_CHANGE_TYPE)}
+                          label={intl.formatMessage({id: 'suggestions'})}
+                          tag={_.isEmpty(search) || _.isEmpty(suggestionComments) ? undefined :
+                            `${_.size(suggestionComments)}`} />
+          )}
+          {(!singleTabLayout || sectionOpen === 'reportsSection') && !isFurtherWork && (
+            <GmailTabItem icon={getIcon(REPORT_TYPE)}
+                          label={intl.formatMessage({id: 'reportsSectionLabel'})}
+                          tag={_.isEmpty(search) || _.isEmpty(reportsComments) ? undefined
+                            : `${_.size(reportsComments)}`} />
+          )}
+          {(!singleTabLayout || sectionOpen === 'blockersSection') && (
+            <GmailTabItem icon={getIcon(ISSUE_TYPE)}
+                          label={intl.formatMessage({id: 'blocking'})}
+                          tag={_.isEmpty(search) || _.isEmpty(blockingComments) ? undefined
+                            : `${_.size(blockingComments)}`}
+            />
+          )}
+        </GmailTabs>
         {!inArchives && isInVoting && isAssigned && acceptedFull && (
           <DismissableText textId='planningInvestibleAcceptedFullHelp' text={
             <div>
@@ -942,229 +1009,214 @@ function PlanningInvestible(props) {
             <div style={{marginTop: '1rem'}} />
           </>
         )}
-        <Card id="storyMain" elevation={3} style={{display: displayDescription ? 'block' : 'none'}}>
-          <div style={{display: 'flex'}}>
-            <div style={{width: '80%'}}>
-              <CardType
-                className={classes.cardType}
-                createdAt={createdAt}
-                myBeingEdited={beingEdited}
-                stageChangedAt={new Date(marketInfo.last_stage_change_date)}
-              />
-            </div>
-            <div style={{paddingRight: "1rem"}}>
-              <InvesibleCommentLinker investibleId={investibleId} marketId={marketId} />
-            </div>
-          </div>
-          <CardContent className={beingEdited ? classes.editCardContent : classes.votingCardContent}>
-              <div className={!beingEdited && isEditableByUser() ? classes.fullWidthEditable :
-                classes.fullWidth}
-                    onClick={(event) => !beingEdited && mySetBeingEdited(true, event)}>
-                {lockedBy && myPresence.id !== lockedBy && isEditableByUser() && (
-                  <Typography>
-                    {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}
-                  </Typography>
-                )}
-                {marketId && investibleId && (
-                  <InvestibleBodyEdit
-                    hidden={hidden}
-                    marketId={marketId}
-                    userId={userId}
-                    investibleId={investibleId}
-                    pageState={pageState}
-                    pageStateUpdate={updatePageState}
-                    pageStateReset={pageStateReset}
-                    fullInvestible={marketInvestible}
-                    setBeingEdited={mySetBeingEdited} beingEdited={beingEdited}
-                    isEditableByUser={isEditableByUser}/>
-                )}
-                <div className={classes.editRow}>
-                  {mobileLayout && !inMarketArchives && isEditableByUser() && !beingEdited && (
-                    <div>
-                      <EditMarketButton
-                        labelId="edit"
-                        marketId={marketId}
-                        onClick={(event) => mySetBeingEdited(true, event)}
-                      />
+        {sectionOpen === 'descriptionVotingSection' && (
+          <>
+            <Card id="storyMain" elevation={3} style={{display: displayDescription ? 'block' : 'none'}}>
+              <div style={{display: 'flex'}}>
+                <div style={{width: '80%'}}>
+                  <CardType
+                    className={classes.cardType}
+                    createdAt={createdAt}
+                    myBeingEdited={beingEdited}
+                    stageChangedAt={new Date(marketInfo.last_stage_change_date)}
+                  />
+                </div>
+                <div style={{paddingRight: "1rem"}}>
+                  <InvesibleCommentLinker investibleId={investibleId} marketId={marketId} />
+                </div>
+              </div>
+              <CardContent className={beingEdited ? classes.editCardContent : classes.votingCardContent}>
+                <div className={!beingEdited && isEditableByUser() ? classes.fullWidthEditable :
+                  classes.fullWidth}
+                     onClick={(event) => !beingEdited && mySetBeingEdited(true, event)}>
+                  {lockedBy && myPresence.id !== lockedBy && isEditableByUser() && (
+                    <Typography>
+                      {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}
+                    </Typography>
+                  )}
+                  {marketId && investibleId && (
+                    <InvestibleBodyEdit
+                      hidden={hidden}
+                      marketId={marketId}
+                      userId={userId}
+                      investibleId={investibleId}
+                      pageState={pageState}
+                      pageStateUpdate={updatePageState}
+                      pageStateReset={pageStateReset}
+                      fullInvestible={marketInvestible}
+                      setBeingEdited={mySetBeingEdited} beingEdited={beingEdited}
+                      isEditableByUser={isEditableByUser}/>
+                  )}
+                  <div className={classes.editRow}>
+                    {mobileLayout && !inMarketArchives && isEditableByUser() && !beingEdited && (
+                      <div>
+                        <EditMarketButton
+                          labelId="edit"
+                          marketId={marketId}
+                          onClick={(event) => mySetBeingEdited(true, event)}
+                        />
+                      </div>
+                    )}
+                    {displayEdit && isInAccepted && (
+                      <div>
+                        <EditMarketButton
+                          labelId="changeCompletionDate"
+                          marketId={marketId}
+                          onClick={toggleEdit}
+                          icon={<EventIcon htmlColor={reportMessage ? HIGHLIGHTED_BUTTON_COLOR : ACTION_BUTTON_COLOR} />}
+                        />
+                        {showDatepicker && (
+                          <div className={classes.datePicker}>
+                            <DatePicker
+                              placeholderText={intl.formatMessage({ id: "selectDate" })}
+                              selected={getStartDate()}
+                              onChange={handleDateChange}
+                              popperPlacement="top"
+                              minDate={getTomorrow()}
+                              inline
+                              onClickOutside={toggleEdit}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  {marketDaysEstimate && isInAccepted && (
+                    <DaysEstimate readOnly value={marketDaysEstimate} />
+                  )}
+                </div>
+                <Grid item xs={12} className={classes.fullWidthCentered}>
+                  {originalLabelList && originalLabelList.map((label) =>
+                    <div key={label} className={classes.labelChip}>
+                      <Chip label={label} onDelete={()=>deleteLabel(`${label}`)} color="primary" />
                     </div>
                   )}
-                  {displayEdit && isInAccepted && (
-                    <div>
-                      <EditMarketButton
-                        labelId="changeCompletionDate"
-                        marketId={marketId}
-                        onClick={toggleEdit}
-                        icon={<EventIcon htmlColor={reportMessage ? HIGHLIGHTED_BUTTON_COLOR : ACTION_BUTTON_COLOR} />}
+                  {!inArchives && (
+                    <div className={classes.autocompleteContainer}>
+                      <Autocomplete
+                        {...defaultProps}
+                        id="addLabel"
+                        key={clearMeHack}
+                        freeSolo
+                        renderInput={(params) => <TextField {...params}
+                                                            label={intl.formatMessage({ id: 'addLabel' })}
+                                                            margin="dense"
+                                                            variant="outlined" />}
+                        style={{ width: 150, maxHeight: '1rem' }}
+                        onFocus={labelInputFocus}
+                        onBlur={labelInputFocus}
+                        onChange={labelInputOnChange}
                       />
-                      {showDatepicker && (
-                        <div className={classes.datePicker}>
-                          <DatePicker
-                            placeholderText={intl.formatMessage({ id: "selectDate" })}
-                            selected={getStartDate()}
-                            onChange={handleDateChange}
-                            popperPlacement="top"
-                            minDate={getTomorrow()}
-                            inline
-                            onClickOutside={toggleEdit}
-                          />
+                      {newLabel && (
+                        <IconButton
+                          className={classes.noPad}
+                          onClick={addLabel}
+                        >
+                          <AddIcon htmlColor={ACTION_BUTTON_COLOR}/>
+                        </IconButton>
+                      )}
+                      {!newLabel && labelFocus && !mobileLayout &&  (
+                        <div className={classes.labelExplain} >
+                          <Typography key="completeExplain" className={classes.explain}>
+                            {intl.formatMessage({ id: 'typeOrChoose' })}
+                          </Typography>
                         </div>
                       )}
                     </div>
                   )}
-                </div>
-                {marketDaysEstimate && isInAccepted && (
-                  <DaysEstimate readOnly value={marketDaysEstimate} />
-                )}
-            </div>
-            <Grid item xs={12} className={classes.fullWidthCentered}>
-              {originalLabelList && originalLabelList.map((label) =>
-                <div key={label} className={classes.labelChip}>
-                  <Chip label={label} onDelete={()=>deleteLabel(`${label}`)} color="primary" />
-                </div>
-              )}
-              {!inArchives && (
-                <div className={classes.autocompleteContainer}>
-                  <Autocomplete
-                    {...defaultProps}
-                    id="addLabel"
-                    key={clearMeHack}
-                    freeSolo
-                    renderInput={(params) => <TextField {...params}
-                                                        label={intl.formatMessage({ id: 'addLabel' })}
-                                                        margin="dense"
-                                                        variant="outlined" />}
-                    style={{ width: 150, maxHeight: '1rem' }}
-                    onFocus={labelInputFocus}
-                    onBlur={labelInputFocus}
-                    onChange={labelInputOnChange}
-                  />
-                  {newLabel && (
-                    <IconButton
-                      className={classes.noPad}
-                      onClick={addLabel}
-                    >
-                      <AddIcon htmlColor={ACTION_BUTTON_COLOR}/>
-                    </IconButton>
-                  )}
-                  {!newLabel && labelFocus && !mobileLayout &&  (
-                    <div className={classes.labelExplain} >
-                      <Typography key="completeExplain" className={classes.explain}>
-                        {intl.formatMessage({ id: 'typeOrChoose' })}
-                      </Typography>
-                    </div>
-                  )}
-                </div>
-              )}
-              <div style={{maxWidth: '20rem', minWidth: '15rem', marginLeft: '5rem'}}>
-                <AttachedFilesList
-                  marketId={market.id}
-                  onUpload={onAttachFiles}
-                  onDeleteClick={onDeleteFile}
-                  attachedFiles={attachedFiles}/>
-              </div>
-            </Grid>
-          </CardContent>
-        </Card>
-        {(_.isEmpty(search) || displayApprovalsBySearch > 0) && !_.isEmpty(voters) && (
-          <>
-            <h2 id="approvals">
-              <FormattedMessage id="decisionInvestibleOthersVoting" />
-            </h2>
-            <Voting
-              investibleId={investibleId}
-              marketPresences={marketPresences}
-              investmentReasons={investmentReasons}
-              showExpiration={fullStage.has_expiration}
-              expirationMinutes={market.investment_expiration * 1440}
-              votingPageState={votingPageState}
-              updateVotingPageState={updateVotingPageState}
-              votingPageStateReset={votingPageStateReset}
-              votingAllowed={canVote}
-              yourPresence={yourPresence}
-              market={market}
-              isAssigned={isAssigned}
-            />
-          </>
-        )}
-        {(displayVotingInput || hasUsableVotingInput) && investibleId && (
-          <>
-            {isAssigned && (
-              <DismissableText textId="planningInvestibleCantVote" text={
-                <div>
-                  <Link href="https://documentation.uclusion.com/channels/jobs/stages/#ready-for-approval" target="_blank">Approval</Link> is
-                  optional if you're assigned.
-                </div>
-              } />
+                  <div style={{maxWidth: '20rem', minWidth: '15rem', marginLeft: '5rem'}}>
+                    <AttachedFilesList
+                      marketId={market.id}
+                      onUpload={onAttachFiles}
+                      onDeleteClick={onDeleteFile}
+                      attachedFiles={attachedFiles}/>
+                  </div>
+                </Grid>
+              </CardContent>
+            </Card>
+            {(_.isEmpty(search) || displayApprovalsBySearch > 0) && !_.isEmpty(voters) && (
+              <>
+                <h2 id="approvals">
+                  <FormattedMessage id="decisionInvestibleOthersVoting" />
+                </h2>
+                <Voting
+                  investibleId={investibleId}
+                  marketPresences={marketPresences}
+                  investmentReasons={investmentReasons}
+                  showExpiration={fullStage.has_expiration}
+                  expirationMinutes={market.investment_expiration * 1440}
+                  votingPageState={votingPageState}
+                  updateVotingPageState={updateVotingPageState}
+                  votingPageStateReset={votingPageStateReset}
+                  votingAllowed={canVote}
+                  yourPresence={yourPresence}
+                  market={market}
+                  isAssigned={isAssigned}
+                />
+              </>
             )}
-            <YourVoting
-              investibleId={investibleId}
-              marketPresences={marketPresences}
-              comments={investmentReasons}
-              userId={userId}
-              market={market}
-              votingPageState={votingPageState}
-              updateVotingPageState={updateVotingPageState}
-              votingPageStateReset={votingPageStateReset}
-              isAssigned={isAssigned}
-            />
-          </>
-        )}
-        {displayVotingInput && investibleId && (
-          <>
-            {!isAssigned && (
+            {(displayVotingInput || hasUsableVotingInput) && investibleId && (
+              <>
+                {isAssigned && (
+                  <DismissableText textId="planningInvestibleCantVote" text={
+                    <div>
+                      <Link href="https://documentation.uclusion.com/channels/jobs/stages/#ready-for-approval" target="_blank">Approval</Link> is
+                      optional if you're assigned.
+                    </div>
+                  } />
+                )}
+                <YourVoting
+                  investibleId={investibleId}
+                  marketPresences={marketPresences}
+                  comments={investmentReasons}
+                  userId={userId}
+                  market={market}
+                  votingPageState={votingPageState}
+                  updateVotingPageState={updateVotingPageState}
+                  votingPageStateReset={votingPageStateReset}
+                  isAssigned={isAssigned}
+                />
+              </>
+            )}
+            {displayVotingInput && investibleId && !isAssigned && (
               <h3>{intl.formatMessage({ id: 'orStructuredComment' })}</h3>
             )}
-            {isAssigned && (
-              <div style={{paddingTop: '2rem'}} />
-            )}
-            {_.isEmpty(search) && marketId && !_.isEmpty(investible) && !hidden && (
-              <CommentAddBox
-                allowedTypes={allowedCommentTypes}
-                investible={investible}
-                marketId={marketId}
-                groupId={groupId}
-                issueWarningId={isReadyFurtherWork ? undefined : 'issueWarningPlanning'}
-                todoWarningId={todoWarning}
-                isInReview={isInReview}
-                isAssignee={isAssigned}
-                isStory
-                numProgressReport={numProgressReport.length}
-              />
-            )}
           </>
         )}
-        <Grid container spacing={2}>
-          <Grid item xs={12} style={{ marginTop: '15px' }}>
-            {!inArchives && !isInNotDoing && !isInVerified && (!isInVoting || !canVote || yourVote) && _.isEmpty(search)
-            && marketId && !_.isEmpty(investible) && !hidden && (
-              <CommentAddBox
-                allowedTypes={allowedCommentTypes}
-                investible={investible}
-                marketInfo={marketInfo}
+        {sectionOpen !== 'descriptionVotingSection' && (
+          <Grid container spacing={2}>
+            <Grid item xs={12} style={{ marginTop: '15px' }}>
+              {!inArchives && !isInNotDoing && !isInVerified && _.isEmpty(search) && marketId && !_.isEmpty(investible)
+                && !hidden && !_.isEmpty(allowedCommentTypes) && (
+                  <CommentAddBox
+                    allowedTypes={allowedCommentTypes}
+                    investible={investible}
+                    marketInfo={marketInfo}
+                    marketId={marketId}
+                    groupId={groupId}
+                    issueWarningId={isFurtherWork ? undefined : 'issueWarningPlanning'}
+                    todoWarningId={todoWarning}
+                    isInReview={isInReview}
+                    isAssignee={isAssigned}
+                    isStory
+                    numProgressReport={reportComments.length}
+                  />
+                )}
+              <CommentBox
+                comments={sectionComments}
                 marketId={marketId}
-                groupId={groupId}
-                issueWarningId={isReadyFurtherWork ? undefined : 'issueWarningPlanning'}
-                todoWarningId={todoWarning}
-                isInReview={isInReview}
-                isAssignee={isAssigned}
-                isStory
-                numProgressReport={numProgressReport.length}
+                allowedTypes={allowedCommentTypes}
+                isRequiresInput={isRequiresInput}
+                isInBlocking={isInBlocked}
+                fullStage={fullStage}
+                assigned={assigned}
+                formerStageId={formerStageId}
+                marketInfo={marketInfo}
+                investible={marketInvestible}
               />
-            )}
-            <CommentBox
-              comments={investmentReasonsRemoved}
-              marketId={marketId}
-              allowedTypes={allowedCommentTypes}
-              isRequiresInput={isRequiresInput}
-              isInBlocking={isInBlocked}
-              fullStage={fullStage}
-              assigned={assigned}
-              formerStageId={formerStageId}
-              marketInfo={marketInfo}
-              investible={marketInvestible}
-            />
+            </Grid>
           </Grid>
-        </Grid>
+        )}
       </div>
     </Screen>
   );

@@ -248,7 +248,7 @@ function PlanningDialog(props) {
       createNavListItem(AssignmentIcon, 'planningDialogBacklog', 1, backlogSearchResults),
       createNavListItem(ListAltIcon, 'todoSection', 2, _.size(todoComments)),
       createNavListItem(QuestionIcon, 'planningDialogNavDiscussionLabel', 3, discussionSearchResults),
-      createNavListItem(MenuBookIcon, 'planningDialogViewArchivesLabel', 5, archivedSize),
+      createNavListItem(MenuBookIcon, 'planningDialogViewArchivesLabel', 4, archivedSize),
       createNavListItem(SettingsIcon, 'settings', 5)
     ];
   }

@@ -555,6 +555,7 @@ const messages = defineMessages({
   chooseDate: 'Change estimated completion date',
   orProgressReport: 'or create or update a progress report.',
   orProgressReportOnly: 'or create a progress report.',
+  descriptionVotingLabel: 'Details',
 
   // Home
   homeAddPlanning: 'Create a workspace',
@@ -993,6 +994,7 @@ const messages = defineMessages({
   suggestPresent: 'Suggestion',
   reportPresent: 'Progress Report',
   reviewReportPresent: 'Review Report',
+  reportsSectionLabel: 'Reports',
   todoPresent: 'Task',
   issueTip: 'Use to halt an option or job until resolved.',
   questionTip: 'Question',

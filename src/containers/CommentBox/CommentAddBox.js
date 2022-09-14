@@ -201,7 +201,8 @@ function CommentAddBox(props) {
   const {
     type,
   } = commentAddState;
-  const useType = type || (_.size(allowedTypes) === 1 ? allowedTypes[0] : undefined);
+  const isSingleType = _.size(allowedTypes) === 1;
+  const useType = type || (isSingleType ? allowedTypes[0] : undefined);
   const classes = useStyles();
   const draftComments = getDraftComments(commentState, marketId, investibleId);
 
@@ -229,8 +230,8 @@ function CommentAddBox(props) {
         <DismissableText textId="reportTypeCommentHelp"
                          text={<div>Change stage to 'Ready for Feedback' if you need this progress reviewed.</div>}/>
       )}
-      <FormControl component="fieldset" className={useType === TODO_TYPE && !investible ? classes.hidden :
-        classes.commentType}>
+      <FormControl component="fieldset" className={isSingleType || (useType === TODO_TYPE && !investible)
+        ? classes.hidden : classes.commentType}>
         <RadioGroup
           aria-labelledby="comment-type-choice"
           className={classes.commentTypeGroup}

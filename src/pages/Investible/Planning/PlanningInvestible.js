@@ -786,7 +786,8 @@ function PlanningInvestible(props) {
 
   const title = ticketCode ? `${ticketCode} ${name}` : name;
   const voters = getInvestibleVoters(marketPresences, investibleId);
-  const descriptionSectionResults = (results || []).find((item) => item.id === investibleId) + _.size(investmentReasons);
+  const descriptionSectionResults = (_.isEmpty(search) ? 0 : (results || []).find((item) => item.id === investibleId))
+    + _.size(investmentReasons);
   const sections = ['descriptionVotingSection', 'tasksSection', 'questionsSection', 'suggestionsSection',
     'reportsSection', 'blockersSection'];
   return (
@@ -937,35 +938,30 @@ function PlanningInvestible(props) {
           {(!singleTabLayout || sectionOpen === 'descriptionVotingSection') && (
             <GmailTabItem icon={<ThumbsUpDownIcon />}
                           label={intl.formatMessage({id: 'descriptionVotingLabel'})}
-                          tag={_.isEmpty(search) || descriptionSectionResults === 0 ? undefined :
-                            `${descriptionSectionResults}`} />
+                          tag={descriptionSectionResults === 0 ? undefined : `${descriptionSectionResults}`} />
           )}
           {(!singleTabLayout || sectionOpen === 'tasksSection') && (
             <GmailTabItem icon={getIcon(TODO_TYPE)} label={intl.formatMessage({id: 'taskSection'})}
-                          tag={_.isEmpty(search) || _.isEmpty(todoComments) ? undefined : `${_.size(todoComments)}`} />
+                          tag={_.isEmpty(todoComments) ? undefined : `${_.size(todoComments)}`} />
           )}
           {(!singleTabLayout || sectionOpen === 'questionsSection') && (
             <GmailTabItem icon={getIcon(QUESTION_TYPE)} label={intl.formatMessage({id: 'questions'})}
-                          tag={_.isEmpty(search) || _.isEmpty(questionComments) ? undefined :
-                            `${_.size(questionComments)}` } />
+                          tag={_.isEmpty(questionComments) ? undefined : `${_.size(questionComments)}` } />
           )}
           {(!singleTabLayout || sectionOpen === 'suggestionsSection') && (
             <GmailTabItem icon={getIcon(SUGGEST_CHANGE_TYPE)}
                           label={intl.formatMessage({id: 'suggestions'})}
-                          tag={_.isEmpty(search) || _.isEmpty(suggestionComments) ? undefined :
-                            `${_.size(suggestionComments)}`} />
+                          tag={_.isEmpty(suggestionComments) ? undefined : `${_.size(suggestionComments)}`} />
           )}
           {(!singleTabLayout || sectionOpen === 'reportsSection') && !isFurtherWork && (
             <GmailTabItem icon={getIcon(REPORT_TYPE)}
                           label={intl.formatMessage({id: 'reportsSectionLabel'})}
-                          tag={_.isEmpty(search) || _.isEmpty(reportsComments) ? undefined
-                            : `${_.size(reportsComments)}`} />
+                          tag={_.isEmpty(reportsComments) ? undefined : `${_.size(reportsComments)}`} />
           )}
           {(!singleTabLayout || sectionOpen === 'blockersSection') && (
             <GmailTabItem icon={getIcon(ISSUE_TYPE)}
                           label={intl.formatMessage({id: 'blocking'})}
-                          tag={_.isEmpty(search) || _.isEmpty(blockingComments) ? undefined
-                            : `${_.size(blockingComments)}`}
+                          tag={_.isEmpty(blockingComments) ? undefined : `${_.size(blockingComments)}`}
             />
           )}
         </GmailTabs>

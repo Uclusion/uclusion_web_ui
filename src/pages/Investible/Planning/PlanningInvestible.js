@@ -535,8 +535,10 @@ function PlanningInvestible(props) {
     });
   }
 
+  const safeLabelList = originalLabelList || [];
+
   function deleteLabel(aLabel) {
-    const newLabels = originalLabelList.filter((label) => aLabel !== label) || [];
+    const newLabels = safeLabelList.filter((label) => aLabel !== label) || [];
     changeLabelsAndQuickAdd(marketId, investibleId, newLabels);
   }
 
@@ -549,7 +551,7 @@ function PlanningInvestible(props) {
   }
 
   function addLabel() {
-    const newLabels = [...originalLabelList, newLabel];
+    const newLabels = [...safeLabelList, newLabel];
     changeLabelsAndQuickAdd(marketId, investibleId, newLabels);
     setNewLabel(undefined);
     setClearMeHack(clearMeHack+clearMeHack);
@@ -1124,14 +1126,17 @@ function PlanningInvestible(props) {
                     attachedFiles={attachedFiles}/>
                 </div>
               </div>
-              {originalLabelList && originalLabelList.map((label) =>
+            </div>
+            <div style={{display: 'flex', marginLeft: 'auto', marginRight: 'auto',
+              alignItems: 'center', justifyContent: 'center'}}>
+              {safeLabelList.map((label) =>
                 <div key={label} className={classes.labelChip}>
                   <Chip label={label} onDelete={()=>deleteLabel(`${label}`)} color="primary" />
                 </div>
               )}
             </div>
             <div style={{paddingLeft: mobileLayout ? undefined : '8rem',
-              paddingRight: mobileLayout ? undefined : '8rem'}}>
+              paddingRight: mobileLayout ? undefined : '8rem', paddingTop: '2rem'}}>
               {(_.isEmpty(search) || displayApprovalsBySearch > 0) && !_.isEmpty(voters) && (
                 <>
                   <h2 id="approvals">

@@ -129,6 +129,12 @@ import { isEveryoneGroup } from '../../../contexts/GroupMembersContext/groupMemb
 import InvesibleCommentLinker from '../../Dialog/InvesibleCommentLinker'
 import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox'
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown'
+import { baseNavListItem, formInvestibleLink } from '../../../utils/marketIdPathFunctions'
+import AssignmentIcon from '@material-ui/icons/Assignment'
+import HelpIcon from '@material-ui/icons/Help'
+import EmojiObjectsIcon from '@material-ui/icons/EmojiObjects'
+import DescriptionIcon from '@material-ui/icons/Description'
+import BlockIcon from '@material-ui/icons/Block'
 
 export const usePlanningInvestibleStyles = makeStyles(
   theme => ({
@@ -794,11 +800,34 @@ function PlanningInvestible(props) {
     + _.size(investmentReasons);
   const sections = ['descriptionVotingSection', 'tasksSection', 'questionsSection', 'suggestionsSection',
     'reportsSection', 'blockersSection'];
+  let navListItemTextArray = undefined;
+  if (singleTabLayout) {
+    function createNavListItem(icon, textId, itemTabIndex, howManyNum) {
+      const anchorId = sections[itemTabIndex];
+      const nav = baseNavListItem(formInvestibleLink(marketId, investibleId), icon, textId, anchorId,
+        howManyNum > 0 ? howManyNum : undefined, true);
+      nav['onClickFunc'] = () => {
+        openSubSection(anchorId);
+      };
+      nav['isBold'] = sectionOpen === anchorId;
+      return nav;
+    }
+    navListItemTextArray = [
+      createNavListItem(ThumbsUpDownIcon, 'descriptionVotingLabel', 0, descriptionSectionResults),
+      createNavListItem(AssignmentIcon, 'tasksSection', 1, _.size(todoComments)),
+      createNavListItem(HelpIcon, 'questions', 2, _.size(questionComments)),
+      createNavListItem(EmojiObjectsIcon, 'suggestions', 3,
+        _.size(suggestionComments)),
+      createNavListItem(DescriptionIcon, 'reportsSectionLabel', 4, _.size(reportsComments)),
+      createNavListItem(BlockIcon, 'blocking', 5, _.size(blockingComments))
+    ];
+  }
   return (
     <Screen
       title={title}
       tabTitle={name}
       hidden={hidden}
+      openMenuItems={navListItemTextArray}
     >
       <UclusionTour
         name={BLOCKED_STORY_TOUR}

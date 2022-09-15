@@ -6,16 +6,31 @@ import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import EmailEntryBox from '../../Email/EmailEntryBox';
 import WorkspaceStepButtons from './WorkspaceStepButtons';
+import { addMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesContextReducer'
+import { inviteParticipants } from '../../../api/users'
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 
 function WorkspaceMembersStep(props) {
-  const { updateFormData, formData } = props;
+  const { updateFormData, formData, finish } = props;
   const value = formData.emails ?? '';
   const validForm = !_.isEmpty(value);
   const classes = useContext(WizardStylesContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
 
   const onEmailChange = (emails) => {
     updateFormData({
       emails
+    });
+  }
+
+  const myOnFinish = () => {
+    const addToMarketId = formData.marketId;
+    return inviteParticipants(addToMarketId, value).then((result) => {
+      setOperationRunning(false);
+      marketPresencesDispatch(addMarketPresences(addToMarketId, result));
+      finish();
     });
   }
 
@@ -29,7 +44,8 @@ function WorkspaceMembersStep(props) {
       </Typography>
       <EmailEntryBox onChange={onEmailChange} placeholder="Ex: bfollis@uclusion.com, disrael@uclusion.com"/>
       <div className={classes.borderBottom} />
-      <WorkspaceStepButtons {...props} validForm={validForm} showSkip={true} showLink={true} formData={formData}/>
+      <WorkspaceStepButtons {...props} validForm={validForm} showSkip={true} showLink={true} finish={myOnFinish}
+                            formData={formData}/>
     </div>
     </WizardStepContainer>
   );

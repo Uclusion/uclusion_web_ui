@@ -140,18 +140,13 @@ function AddNewUsers(props) {
   }
 
   function addInvitees() {
-    const added = [];
-    email1.forEach((email) => {
-      const emailTrimmed = email.trim();
-      added.push(emailTrimmed)
-    })
-    if (_.isEmpty(added)) {
+    if (_.isEmpty(email1)) {
       return Promise.resolve(true);
     }
-    return inviteParticipants(addToMarketId, added).then((result) => {
+    return inviteParticipants(addToMarketId, email1).then((result) => {
       setEmail1([]);
       onSaveSpinStop(result);
-      setEmailsSent(emailsSent.concat(added));
+      setEmailsSent(emailsSent.concat(email1));
     });
   }
 

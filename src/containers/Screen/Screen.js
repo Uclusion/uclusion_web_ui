@@ -213,7 +213,7 @@ function Screen(props) {
       ],
       navMenu: <WorkspaceMenu markets={markets} defaultMarket={defaultMarket} setChosenMarketId={setMarketIdFull}
                               setOpen={setOpen}/>,
-      navListItemTextArray: defaultMarket ? [
+      navListItemTextArray: !_.isEmpty(defaultMarket) ? [
         {
           icon: AddIcon, text: intl.formatMessage({ id: 'homeAddGroup' }),
           target: `/wizard#type=${PLANNING_TYPE.toLowerCase()}&marketId=${defaultMarket.id}`

@@ -166,6 +166,7 @@ function EmailEntryBox (props) {
     <div>
       <div
         contentEditable="true"
+        id="emailEntryBox"
         className={classes.editBox}
         ref={textRef}
         onPaste={onPaste}

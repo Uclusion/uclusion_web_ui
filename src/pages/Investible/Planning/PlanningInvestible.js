@@ -2,8 +2,7 @@ import React, { useContext, useState } from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import {
-  Card,
-  CardContent, Checkbox, FormControl, FormControlLabel,
+  Checkbox, FormControl, FormControlLabel,
   Grid,
   IconButton, Link,
   makeStyles,

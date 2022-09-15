@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import {
@@ -135,6 +135,7 @@ import HelpIcon from '@material-ui/icons/Help'
 import EmojiObjectsIcon from '@material-ui/icons/EmojiObjects'
 import DescriptionIcon from '@material-ui/icons/Description'
 import BlockIcon from '@material-ui/icons/Block'
+import { filterToRoot } from '../../../contexts/CommentsContext/commentsContextHelper'
 
 export const usePlanningInvestibleStyles = makeStyles(
   theme => ({
@@ -385,6 +386,7 @@ function PlanningInvestible(props) {
     market,
     marketInvestible,
     investibles,
+    hash,
     hidden
   } = props;
   const lockedDialogClasses = useLockedDialogStyles();
@@ -452,6 +454,40 @@ function PlanningInvestible(props) {
   const displayVotingInput = canVote && !yourVote && _.isEmpty(search);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const hasUsableVotingInput = !inArchives && addEditVotingHasContents(investibleId, false, operationRunning);
+
+
+  useEffect(() => {
+    if (hash) {
+      if (hash.startsWith('#cv')) {
+        updatePageState({ sectionOpen: 'descriptionVotingSection' })
+      } else {
+        const found = investibleComments.find((anId) => hash.includes(anId));
+        if (!_.isEmpty(found)) {
+          const rootComment = filterToRoot(investibleComments, found.id);
+          if (_.isEmpty(rootComment.investible_id)) {
+            switch (rootComment.comment_type) {
+              case TODO_TYPE:
+                updatePageState({ sectionOpen: 'tasksSection' });
+                break;
+              case QUESTION_TYPE:
+                updatePageState({ sectionOpen: 'questionsSection' });
+                break;
+              case SUGGEST_CHANGE_TYPE:
+                updatePageState({ sectionOpen: 'suggestionsSection' });
+                break;
+              case REPORT_TYPE:
+                updatePageState({ sectionOpen: 'reportsSection' });
+                break;
+              case ISSUE_TYPE:
+                updatePageState({ sectionOpen: 'blockersSection' });
+                break;
+              default:
+            }
+          }
+        }
+      }
+    }
+  }, [investibleComments, hash, sectionOpen, updatePageState]);
 
   let lockedByName
   if (lockedBy) {
@@ -816,8 +852,7 @@ function PlanningInvestible(props) {
       createNavListItem(ThumbsUpDownIcon, 'descriptionVotingLabel', 0, descriptionSectionResults),
       createNavListItem(AssignmentIcon, 'tasksSection', 1, _.size(todoComments)),
       createNavListItem(HelpIcon, 'questions', 2, _.size(questionComments)),
-      createNavListItem(EmojiObjectsIcon, 'suggestions', 3,
-        _.size(suggestionComments)),
+      createNavListItem(EmojiObjectsIcon, 'suggestions', 3, _.size(suggestionComments)),
       createNavListItem(DescriptionIcon, 'reportsSectionLabel', 4, _.size(reportsComments)),
       createNavListItem(BlockIcon, 'blocking', 5, _.size(blockingComments))
     ];

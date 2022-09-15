@@ -23,7 +23,7 @@ function createCommentsHash(commentsArray) {
 function Investible(props) {
   const { hidden } = props;
   const location = useLocation();
-  const { pathname } = location;
+  const { hash, pathname } = location;
   const { marketId, investibleId } = decomposeMarketPath(pathname);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
@@ -69,6 +69,7 @@ function Investible(props) {
       marketPresences={marketPresences}
       investibleComments={investibleComments}
       isAdmin={isAdmin}
+      hash={hash}
       hidden={hidden}
     />
   );

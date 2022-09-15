@@ -831,7 +831,6 @@ function PlanningInvestible(props) {
   }
 
   const title = ticketCode ? `${ticketCode} ${name}` : name;
-  const voters = getInvestibleVoters(marketPresences, investibleId);
   const descriptionSectionResults = (_.isEmpty(search) ? 0 : (results || []).find((item) => item.id === investibleId))
     + _.size(investmentReasons);
   const sections = ['descriptionVotingSection', 'tasksSection', 'questionsSection', 'suggestionsSection',

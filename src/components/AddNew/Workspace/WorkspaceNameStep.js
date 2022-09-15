@@ -1,13 +1,25 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { InputAdornment, OutlinedInput, Typography } from '@material-ui/core';
-//import { useIntl } from 'react-intl';
 import _ from 'lodash';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import { createPlanning } from '../../../api/markets';
 import WorkspaceStepButtons from './WorkspaceStepButtons';
 import { setUclusionLocalStorageItem } from '../../localStorageUtils';
+import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper'
+import { addGroupsToStorage } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper'
+import { pushMessage } from '../../../utils/MessageBusUtils'
+import { PUSH_STAGE_CHANNEL, VERSIONS_EVENT } from '../../../api/versionedFetchUtils'
+import { START_TOUR, TOUR_CHANNEL } from '../../../contexts/TourContext/tourContextMessages'
+import { INVITED_USER_WORKSPACE } from '../../../contexts/TourContext/tourContextHelper'
+import { addPresenceToMarket } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../../authorization/TokenStorageManager'
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext'
+import { accountUserRefresh } from '../../../contexts/AccountContext/accountContextReducer'
+import { AccountContext } from '../../../contexts/AccountContext/AccountContext'
 
 function WorkspaceNameStep (props) {
   const { updateFormData, formData, onboarding, onStartOnboarding } = props;
@@ -15,6 +27,10 @@ function WorkspaceNameStep (props) {
   const value = formData.name || '';
   const validForm = !_.isEmpty(value);
   const classes = useContext(WizardStylesContext);
+  const [, marketsDispatch] = useContext(MarketsContext);
+  const [, presenceDispatch] = useContext(MarketPresencesContext);
+  const [, groupsDispatch] = useContext(MarketGroupsContext);
+  const [, userDispatch] = useContext(AccountContext);
 
   function onNameChange (event) {
     const { value } = event.target;
@@ -34,13 +50,31 @@ function WorkspaceNameStep (props) {
       onStartOnboarding();
     }
     return createPlanning(marketInfo)
-      .then((marketInfo) => {
-        const {market} = marketInfo;
-        setUclusionLocalStorageItem("workspace_created", true);
-        updateFormData({
-          marketId: market.id,
-          marketToken: market.invite_capability,
-        });
+      .then((marketDetails) => {
+        const {
+          market,
+          presence,
+          stages,
+          token,
+          group,
+          market_creator: user
+        } = marketDetails;
+        const createdMarketId = market.id;
+        userDispatch(accountUserRefresh(user));
+        addMarketToStorage(marketsDispatch, market);
+        addGroupsToStorage(groupsDispatch, () => {}, { [createdMarketId]: group});
+        pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, stageDetails: {[createdMarketId]: stages }});
+        pushMessage(TOUR_CHANNEL, { event: START_TOUR, tour: INVITED_USER_WORKSPACE });
+        addPresenceToMarket(presenceDispatch, createdMarketId, presence);
+        const tokenStorageManager = new TokenStorageManager();
+        return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, createdMarketId, token)
+          .then(() => {
+            setUclusionLocalStorageItem("workspace_created", true);
+            updateFormData({
+              marketId: market.id,
+              marketToken: market.invite_capability,
+            });
+          });
       });
 
   }

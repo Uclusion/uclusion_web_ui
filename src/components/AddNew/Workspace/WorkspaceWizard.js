@@ -6,8 +6,6 @@ import FormdataWizard from 'react-formdata-wizard';
 import WorkspaceMembersStep from './WorkspaceMemberStep'
 import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../../localStorageUtils';
 
-export const WORKSPACE_WIZARD_STORAGE_NAME = "workpsace_wizard";
-
 function WorkspaceWizard(props) {
   const {onboarding, onFinish, onStartOnboarding} = props;
 
@@ -24,7 +22,7 @@ function WorkspaceWizard(props) {
 
   return (
     <WizardStylesProvider>
-      <FormdataWizard name={WORKSPACE_WIZARD_STORAGE_NAME}
+      <FormdataWizard name="workpsace_wizard"
                       startStep={startStep}
                       onFinish={myOnFinish}>
         <WorkspaceNameStep onboarding={onboarding} onStartOnboarding={onStartOnboarding}/>

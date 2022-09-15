@@ -5,7 +5,6 @@ import { Button } from '@material-ui/core'
 import { Dialog } from '../../components/Dialogs'
 import { useLockedDialogStyles } from '../../pages/Dialog/DialogBodyEdit'
 import AddNewUsers from '../../pages/Dialog/UserManagement/AddNewUsers'
-import MarketCreateActions from '../../pages/Dialog/Planning/MarketCreateActions'
 
 function GroupsNavigation(props) {
   const { defaultMarket, open, setOpen } = props;
@@ -13,9 +12,7 @@ function GroupsNavigation(props) {
   const autoFocusRef = React.useRef(null);
 
   let actions = <div />;
-  if (open === 'addMarket'){
-    actions = <MarketCreateActions setOpen={setOpen} />;
-  } else if (open === 'addNewUsers') {
+  if (open === 'addNewUsers') {
     actions = <Button
       variant="outlined"
       size="small"

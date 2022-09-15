@@ -24,8 +24,7 @@ import PlanningMarketEdit from '../../pages/Dialog/Planning/PlanningMarketEdit'
 import { getTicket } from '../../contexts/TicketContext/ticketIndexContextHelper'
 import { TicketIndexContext } from '../../contexts/TicketContext/TicketIndexContext'
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
-import Onboarding, { ONBOARDING_WIZARD_KEY } from '../../pages/Onboarding/Onboarding';
-import { getUclusionLocalStorageItem } from '../../components/localStorageUtils';
+import Onboarding from '../../pages/Onboarding/Onboarding';
 
 const useStyles = makeStyles({
   body: {
@@ -60,10 +59,7 @@ function Root() {
   const [, setOnline] = useContext(OnlineStateContext);
   const [ticketState] = useContext(TicketIndexContext);
 
-  const onboardingStored = getUclusionLocalStorageItem(ONBOARDING_WIZARD_KEY);
-
-
-  const [inOnboarding, setInOnboarding] = useState(onboardingStored);
+  const [inOnboarding, setInOnboarding] = useState(undefined);
 
   function hideHome() {
     return !pathname || pathname !== '/';

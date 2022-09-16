@@ -105,7 +105,7 @@ function PlanningDialog(props) {
   const singleTabLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const [groupState] = useContext(MarketGroupsContext);
   const group = getGroup(groupState, marketId, groupId);
-  const { name: groupName, created_by: createdBy } = group || {};
+  const { name: groupName } = group || {};
   const isAdmin = myPresence.is_admin;
   const classes = useInvestiblesByPersonStyles();
   const unResolvedMarketComments = comments.filter(comment => !comment.investible_id && !comment.resolved) || [];

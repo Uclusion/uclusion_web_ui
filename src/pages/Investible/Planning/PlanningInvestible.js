@@ -345,7 +345,7 @@ export const usePlanningInvestibleStyles = makeStyles(
       paddingTop: '2rem',
       minWidth: '13rem',
       textOverflow: 'ellipsis',
-      transform: 'translateX(calc(100vw - 488px))'
+      transform: 'translateX(calc(100vw - 473px))'
     },
     group: {
       borderRadius: 6,

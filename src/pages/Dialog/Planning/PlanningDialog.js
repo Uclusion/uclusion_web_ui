@@ -264,7 +264,7 @@ function PlanningDialog(props) {
       <UclusionTour
         name={INVITED_USER_WORKSPACE}
         hidden={hidden || mobileLayout || banner}
-        steps={workspaceInvitedUserSteps({name: myPresence.name, isCreator: createdBy === myPresence.id})}
+        steps={workspaceInvitedUserSteps({name: myPresence.name})}
       />
       <GmailTabs
         value={singleTabLayout ? 0 : tabIndex}

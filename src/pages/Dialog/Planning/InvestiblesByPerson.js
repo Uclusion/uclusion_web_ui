@@ -267,7 +267,7 @@ function InvestiblesByPerson(props) {
           return <React.Fragment/>
         }
         return (
-            <Card id={`sl${id}`} key={id} className={classes.root} elevation={3}>
+            <Card id={`sl${id}`} key={id} className={classes.root} elevation={3} style={{marginBottom: '1rem'}}>
               <CardHeader
                 className={classes.header}
                 id={`u${id}`}

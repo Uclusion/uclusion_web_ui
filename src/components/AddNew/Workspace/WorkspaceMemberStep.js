@@ -27,7 +27,7 @@ function WorkspaceMembersStep(props) {
 
   const myOnFinish = () => {
     const addToMarketId = formData.marketId;
-    return inviteParticipants(addToMarketId, value).then((result) => {
+    return inviteParticipants(addToMarketId, value, formData.groupId).then((result) => {
       setOperationRunning(false);
       marketPresencesDispatch(addMarketPresences(addToMarketId, result));
       finish();
@@ -40,7 +40,7 @@ function WorkspaceMembersStep(props) {
     >
     <div>
       <Typography className={classes.introText} variant="h6">
-        Who else needs to be in the workspace?
+        Who else is on your team?
       </Typography>
       <EmailEntryBox onChange={onEmailChange} placeholder="Ex: bfollis@uclusion.com, disrael@uclusion.com"/>
       <div className={classes.borderBottom} />

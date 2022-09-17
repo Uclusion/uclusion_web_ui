@@ -41,11 +41,10 @@ export function doCreateGroup(dispatchers, formData) {
   }
 
   return createGroup(marketId, groupInfo)
-    .then((group) => {
+    .then((response) => {
+      const { group, members } = response;
       addGroupToStorage(groupsDispatch, diffDispatch, marketId, group);
-      if (group.id !== group.market_id) {
-        groupMembersDispatch(versionsUpdateGroupMembers(groupInfo.participants));
-      }
+      groupMembersDispatch(versionsUpdateGroupMembers(members));
       return group;
     });
 }

@@ -3,6 +3,7 @@ import {MARKET_GROUPS_CONTEXT_NAMESPACE, GROUPS_CHANNEL} from './MarketGroupsCon
 import { removeInitializing } from '../../components/localStorageUtils'
 import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
+import _ from 'lodash'
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const UPDATE_MARKET_GROUPS = 'UPDATE_MARKET_GROUPS';
@@ -47,9 +48,11 @@ function doUpdateMarketGroups(state, action) {
   const groupsListTransformed = groupsList.map((group) => {
     return { ...group, fromQuickAdd: true };
   });
+  const oldGroups = state[marketId] || [];
+  const newGroups = _.unionBy(groupsListTransformed, oldGroups, 'id');
   return {
     ...removeInitializing(state, true),
-    [marketId]: groupsListTransformed,
+    [marketId]: newGroups,
   };
 }
 

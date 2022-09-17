@@ -223,7 +223,8 @@ function Screen(props) {
 
   if (!_.isEmpty(defaultMarket) && !_.isEmpty(groupsState[defaultMarket.id])) {
     const { onGroupClick } = navigationOptions || {};
-    const items = groupsState[defaultMarket.id].map((group) => {
+    const itemsSorted = _.sortBy(groupsState[defaultMarket.id], 'name');
+    const items = itemsSorted.map((group) => {
       const isChosen = group.id === useGroupId;
       let num = undefined;
       if (!_.isEmpty(search)) {

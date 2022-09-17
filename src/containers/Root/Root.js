@@ -6,7 +6,12 @@ import { useHistory, useLocation } from 'react-router'
 import Market from '../../pages/Dialog/Dialog'
 import Support from '../../pages/About/Support'
 import PageNotFound from '../../pages/PageNotFound/PageNotFound'
-import { broadcastView, decomposeMarketPath, formInvestibleLink, navigate, } from '../../utils/marketIdPathFunctions'
+import {
+  broadcastView,
+  decomposeMarketPath,
+  formInvestibleLink, formMarketLink,
+  navigate,
+} from '../../utils/marketIdPathFunctions'
 import Home from '../../pages/Home/Home'
 import Investible from '../../pages/Investible/Investible'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
@@ -195,7 +200,13 @@ function Root() {
         <div className={classes.body}>
           <div className={classes.root}>
             <div className={classes.content}>
-              <Onboarding onFinish={() => setInOnboarding(false)} onStartOnboarding={() => setInOnboarding(true)}/>
+              <Onboarding onFinish={(formData) => {
+                setInOnboarding(false);
+                const { marketId, groupId } = formData || {};
+                if (marketId && groupId) {
+                  navigate(history, formMarketLink(marketId, groupId));
+                }
+              }} onStartOnboarding={() => setInOnboarding(true)}/>
             </div>
           </div>
         </div>

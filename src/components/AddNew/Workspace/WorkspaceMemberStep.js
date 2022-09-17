@@ -27,11 +27,14 @@ function WorkspaceMembersStep(props) {
 
   const myOnFinish = () => {
     const addToMarketId = formData.marketId;
-    return inviteParticipants(addToMarketId, value, formData.groupId).then((result) => {
-      setOperationRunning(false);
-      marketPresencesDispatch(addMarketPresences(addToMarketId, result));
-      finish();
-    });
+    if (!_.isEmpty(value)) {
+      return inviteParticipants(addToMarketId, value, formData.groupId).then((result) => {
+        setOperationRunning(false);
+        marketPresencesDispatch(addMarketPresences(addToMarketId, result));
+        finish();
+      });
+    }
+    finish();
   }
 
   return (

@@ -18,11 +18,22 @@ const useStyles = makeStyles(theme => ({
     borderRadius: 6,
     padding: 0,
   },
+  rootEmpty: {
+    display: "flex",
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: '1rem',
+  },
   leftMost: {
     margin: 0,
     marginLeft: theme.spacing(1),
     fontSize: 16,
     flex: 10.5,
+    padding: '14px',
+    display: 'flex'
+  },
+  center: {
+    fontSize: 16,
     padding: '14px',
     display: 'flex'
   },
@@ -56,7 +67,7 @@ const useStyles = makeStyles(theme => ({
 
 function DismissableText(props) {
   const {
-    text, checkBoxFunc, textId
+    text, checkBoxFunc, textId, display
   } = props;
   const classes = useStyles();
   const intl = useIntl();
@@ -91,7 +102,7 @@ function DismissableText(props) {
     }
   }
 
-  if (cantShow) {
+  if (cantShow || display === false) {
     return React.Fragment;
   }
 
@@ -113,21 +124,23 @@ function DismissableText(props) {
   }
 
   return (
-    <dl className={classes.root} >
-      <dl className={classes.leftMost}>
-        <LiveHelpTwoToneIcon color="inherit" fontSize="small" className={classes.help}/>
+    <dl className={display === true ? classes.rootEmpty : classes.root} >
+      <dl className={display === true ? classes.center : classes.leftMost}>
+        <LiveHelpTwoToneIcon htmlColor="#4ce6a5" fontSize="medium" className={classes.help}/>
         {text}
       </dl>
-      <dl className={classes.rightMost}>
-        <dd className={classes.dismissText}>
+      {display === undefined && (
+        <dl className={classes.rightMost}>
+          <dd className={classes.dismissText}>
           <span role="button" onClick={storeDismissedInBackend} className={classes.pointer}>
             <FormattedMessage id="decisionDialogsDismissDialog" />
             <IconButton className={classes.hoverState} disableRipple>
               <CancelRoundedIcon />
             </IconButton>
           </span>
-        </dd>
-      </dl>
+          </dd>
+        </dl>
+      )}
     </dl>
   );
 }

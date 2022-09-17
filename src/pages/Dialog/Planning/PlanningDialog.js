@@ -63,6 +63,7 @@ import Chip from '@material-ui/core/Chip'
 import { filterToRoot } from '../../../contexts/CommentsContext/commentsContextHelper'
 import DialogArchives from '../../DialogArchives/DialogArchives'
 import { baseNavListItem, formMarketLink } from '../../../utils/marketIdPathFunctions'
+import { isInStages } from './userUtils'
 
 export const LocalPlanningDragContext = React.createContext([]);
 
@@ -311,12 +312,6 @@ function PlanningDialog(props) {
                      pageStateReset={pageStateReset}/>
           )}
           <Grid item id="commentAddArea" xs={12} style={{marginTop: '2rem'}}>
-            <DismissableText textId="workspaceCommentHelp" text={
-              <div>
-                <Link href="https://documentation.uclusion.com/structured-comments" target="_blank">Comments</Link> can
-                be used at the workspace level and later moved to a job.
-              </div>
-            }/>
             {_.isEmpty(search) && marketId && !hidden && (
               <CommentAddBox
                 groupId={groupId}
@@ -325,18 +320,18 @@ function PlanningDialog(props) {
               />
             )}
             <CommentBox comments={notTodoComments} marketId={marketId} allowedTypes={allowedCommentTypes}/>
+            <DismissableText textId="workspaceCommentHelp" display={_.isEmpty(notTodoComments)} text={
+              <div>
+                <Link href="https://documentation.uclusion.com/structured-comments" target="_blank">Comments</Link> can
+                be used at the workspace level and later moved to a job.
+              </div>
+            }/>
           </Grid>
         </div>
       )}
       <LocalPlanningDragContext.Provider value={[beingDraggedHack, setBeingDraggedHack]}>
         {isSectionOpen('storiesSection') && (
           <div id="storiesSection">
-            <DismissableText textId="notificationHelp" text={
-              <div>
-                Uclusion will generate all <Link href="https://documentation.uclusion.com/notifications" target="_blank">notifications</Link> necessary
-                to keep the status in these <Link href="https://documentation.uclusion.com/channels/swimlanes" target="_blank">swimlanes</Link> up to date.
-              </div>
-            }/>
             {!_.isEmpty(requiresInputInvestibles) && (
               <SubSection
                 type={SECTION_TYPE_SECONDARY_WARNING}
@@ -361,7 +356,7 @@ function PlanningDialog(props) {
                 />
               </SubSection>
             )}
-            {!_.isEmpty(requiresInputInvestibles) && (<div style={{ paddingBottom: '2rem' }}/>)}
+            <div style={{ paddingBottom: '2rem' }}/>
             <InvestiblesByPerson
               comments={comments}
               investibles={investibles}
@@ -377,6 +372,16 @@ function PlanningDialog(props) {
               mobileLayout={mobileLayout}
               pageState={pageState} updatePageState={updatePageState}
             />
+            <DismissableText textId="notificationHelp"
+                             display={_.isEmpty(investibles.find((investible) =>
+                               isInStages(investible, visibleStages, marketId)))}
+                             text={
+              <div>
+                Use the "Add job" button above and each team member's inbox will have
+                a <Link href="https://documentation.uclusion.com/notifications" target="_blank">notification</Link> until
+                they approve, give feedback or answer questions as necessary.
+              </div>
+            }/>
           </div>
         )}
         {isSectionOpen('backlogSection') && (

@@ -544,10 +544,11 @@ function MarketTodos(props) {
   return (
     <div className={classes.outerBorder} id="marketTodos"
          style={{display: sectionOpen ? 'block' : 'none'}}>
-      <DismissableText textId="todosHelp" text={
+      <DismissableText textId="todosHelp" display={!isInArchives && _.isEmpty(search) && _.isEmpty(todoComments)}
+                       text={
         <div>
-          Bugs go in <Link href="https://documentation.uclusion.com/channels/todos" target="_blank">todos</Link> so
-          notifications based on severity can be sent.
+          Use "Create New" below to create a <Link href="https://documentation.uclusion.com/channels/todos" target="_blank">todo</Link> that
+          sends notifications based on severity.
         </div>
       }/>
       {!isInArchives && !mobileLayout && (
@@ -563,7 +564,7 @@ function MarketTodos(props) {
                                                   }} doSpin={false}
                                                   whiteBackground>
         <FormattedMessage id="cancel"/>
-      </SpinningIconLabelButton> : (mobileLayout ? undefined :
+      </SpinningIconLabelButton> : (mobileLayout || isInArchives ? undefined :
         (
           <SpinningIconLabelButton icon={SettingsBackupRestore} onClick={() => {
             const allMessages = [];

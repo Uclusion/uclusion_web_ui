@@ -8,6 +8,12 @@ import { addInvestible } from '../../../contexts/InvestibesContext/investiblesCo
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { isAcceptedStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 
+export function isInStages(investible, stages, marketId) {
+  const marketInfo = getMarketInfo(investible, marketId);
+  const { stage } = marketInfo;
+  return !_.isEmpty(stages.find((visibleStage) => visibleStage.id === stage));
+}
+
 /**
  * Returns the investibles in the market assigned to the user
  * @param userId

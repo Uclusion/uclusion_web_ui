@@ -1044,7 +1044,7 @@ function PlanningInvestible(props) {
             <div>
               For help create
               a <Link href="https://documentation.uclusion.com/structured-comments/#questions" target="_blank">question</Link> and
-              save to add options to it.
+              add options to it.
             </div>
           } />
         )}
@@ -1118,35 +1118,38 @@ function PlanningInvestible(props) {
                       />
                     </div>
                   )}
-                  {displayEdit && isInAccepted && (
-                    <div>
-                      <EditMarketButton
-                        labelId="changeCompletionDate"
-                        marketId={marketId}
-                        onClick={toggleEdit}
-                        icon={<EventIcon htmlColor={reportMessage ? HIGHLIGHTED_BUTTON_COLOR : ACTION_BUTTON_COLOR} />}
-                      />
-                      {showDatepicker && (
-                        <div className={classes.datePicker}>
-                          <DatePicker
-                            placeholderText={intl.formatMessage({ id: "selectDate" })}
-                            selected={getStartDate()}
-                            onChange={handleDateChange}
-                            popperPlacement="top"
-                            minDate={getTomorrow()}
-                            inline
-                            onClickOutside={toggleEdit}
-                          />
-                        </div>
-                      )}
-                    </div>
-                  )}
                 </div>
+              </div>
+              <div style={{marginTop: mobileLayout ? undefined : '-3rem'}}>
+                {displayEdit && isInAccepted && (
+                  <div>
+                    <EditMarketButton
+                      labelId="changeCompletionDate"
+                      marketId={marketId}
+                      onClick={toggleEdit}
+                      icon={<EventIcon htmlColor={reportMessage ? HIGHLIGHTED_BUTTON_COLOR : ACTION_BUTTON_COLOR} />}
+                    />
+                    {showDatepicker && (
+                      <div className={classes.datePicker}>
+                        <DatePicker
+                          placeholderText={intl.formatMessage({ id: "selectDate" })}
+                          selected={getStartDate()}
+                          onChange={handleDateChange}
+                          popperPlacement="top"
+                          minDate={getTomorrow()}
+                          inline
+                          onClickOutside={toggleEdit}
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
                 {marketDaysEstimate && isInAccepted && (
                   <DaysEstimate readOnly value={marketDaysEstimate} />
                 )}
-              </div>
-              <div>
+                {(marketDaysEstimate || displayEdit) && isInAccepted && (
+                  <div style={{marginBottom: '2rem'}} />
+                )}
                 {!inArchives && (
                   <div className={classes.autocompleteContainer}>
                     <Autocomplete

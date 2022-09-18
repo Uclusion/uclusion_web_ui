@@ -37,13 +37,15 @@ function WorkspaceMembersStep(props) {
     finish();
   }
 
+  const teamText = formData.groupName ? `is on ${formData.groupName}` : 'needs to be in the workspace';
+
   return (
     <WizardStepContainer
       {...props}
     >
     <div>
       <Typography className={classes.introText} variant="h6">
-        Who else is on your team?
+        Who else {teamText}?
       </Typography>
       <EmailEntryBox onChange={onEmailChange} placeholder="Ex: bfollis@uclusion.com, disrael@uclusion.com"/>
       <div className={classes.borderBottom} />

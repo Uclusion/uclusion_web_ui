@@ -14,6 +14,7 @@ import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
 import AddIcon from '@material-ui/icons/Add'
 import { formMarketEditLink, navigate } from '../../utils/marketIdPathFunctions'
 import { WORKSPACE_WIZARD_TYPE } from '../../constants/markets'
+import { setUclusionLocalStorageItem } from '../../components/localStorageUtils'
 
 const useStyles = makeStyles((theme) => ({
   name: {
@@ -162,7 +163,11 @@ function WorkspaceMenu(props) {
                 </MenuItem>
                 <MenuItem icon={<AddIcon htmlColor="black" />}
                           key="addWorkspace Key" id="addWorkspaceIconId"
-                          onClick={()=> navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`)}
+                          onClick={()=> {
+                            // If you are going back in then must start from first step
+                            setUclusionLocalStorageItem("workspace_created", false);
+                            navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`);
+                          }}
                 >
                   {intl.formatMessage({ id: 'homeAddPlanning' })}
                 </MenuItem>

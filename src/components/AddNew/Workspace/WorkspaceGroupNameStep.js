@@ -75,7 +75,7 @@ function WorkspaceGroupNameStep (props) {
           }
         />
         <div className={classes.borderBottom}/>
-        <WorkspaceStepButtons {...props} showStartOver={false} onNext={onNext} validForm={validForm}/>
+        <WorkspaceStepButtons {...props} showSkip={true} onNext={onNext} validForm={validForm}/>
       </div>
     </WizardStepContainer>
   );

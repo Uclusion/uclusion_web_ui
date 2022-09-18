@@ -24,7 +24,6 @@ import {
 } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { moveComments } from '../../../api/comments'
-import { clearNameStoredState, getNameStoredState } from '../../../components/TextFields/NameField'
 import Comment from '../../../components/Comments/Comment'
 import { getAcceptedStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
@@ -63,7 +62,6 @@ function PlanningInvestibleAdd(props) {
   const [open, setOpen] = useState(false);
   const lockedDialogClasses = useLockedDialogStyles();
   const [assignments, setAssignments] = useState(undefined);
-  const nameId = marketId ? `investibleAdd${marketId}` : 'inboxAddInvestible';
   const [openIssue, setOpenIssue] = useState(false);
   const comments = marketId ? getMarketComments(commentsState, marketId) : [];
   const [investibleState] = useContext(InvestiblesContext);
@@ -77,7 +75,7 @@ function PlanningInvestibleAdd(props) {
   const acceptedStage = marketId ? getAcceptedStage(marketStagesState, marketId) : {};
   const [investibleAddStateFull, investibleAddDispatch] = usePageStateReducer('investibleAdd');
   const [investibleAddState, updateInvestibleAddState, investibleAddStateReset] =
-    getPageReducerPage(investibleAddStateFull, investibleAddDispatch, marketId ? marketId : 'inbox',
+    getPageReducerPage(investibleAddStateFull, investibleAddDispatch, groupId ? groupId : 'inbox',
       {
         maxBudgetUnit: '',
         skipApproval: false
@@ -94,7 +92,7 @@ function PlanningInvestibleAdd(props) {
   } = investibleAddState;
   const isAssignedToMe = (assignments || (storyAssignee ? [storyAssignee] : [])).includes(myPresence.id);
   const isAssigned = !_.isEmpty(assignments) || storyAssignee;
-  const editorName = marketId ? `${marketId}-planning-inv-add` : 'planning-inv-add';
+  const editorName = groupId ? `${groupId}-planning-inv-add` : 'planning-inv-add';
   const editorSpec = {
     placeholder: intl.formatMessage({ id: 'investibleAddDescriptionDefault' }),
     onUpload: onS3Upload,
@@ -132,7 +130,6 @@ function PlanningInvestibleAdd(props) {
     resetMainEditor();
     resetEditor(initialVoteEditorName);
     investibleAddStateReset();
-    clearNameStoredState(nameId);
   }
 
   function handleCancel() {
@@ -140,7 +137,7 @@ function PlanningInvestibleAdd(props) {
     onCancel();
   }
 
-  const initialVoteEditorName = marketId ? `${marketId}-add-initial-vote` : 'add-initial-vote';
+  const initialVoteEditorName = groupId ? `${groupId}-add-initial-vote` : 'add-initial-vote';
 
   function handleSave() {
     return handleSaveImpl(false);
@@ -151,20 +148,13 @@ function PlanningInvestibleAdd(props) {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
     } = processTextAndFilesForSave(uploadedFiles, getQuillStoredState(editorName));
-    const name = getNameStoredState(nameId);
-    let processedDescription = tokensRemoved ? tokensRemoved : ' ';
-    let processedName = name;
-    if (_.isEmpty(processedName)) {
-      const { name: derivedName, description: derivedDescription} = convertDescription(tokensRemoved);
-      processedName = derivedName;
-      processedDescription = derivedDescription;
-    }
+    const { name, description} = convertDescription(tokensRemoved);
     const addInfo = {
       uploadedFiles: filteredUploads,
-      description: processedDescription,
+      description,
       groupId,
       marketId,
-      name: processedName
+      name
     };
     if (_.isEmpty(addInfo.name)) {
       setOperationRunning(false);
@@ -301,7 +291,7 @@ function PlanningInvestibleAdd(props) {
   const assignedInAcceptedStage = assignedInStage(getMarketInvestibles(investibleState, marketId), myPresence.id,
     acceptedStage.id, marketId);
   const acceptedFull = acceptedStage.allowed_investibles > 0 && assignedInAcceptedStage.length >= acceptedStage.allowed_investibles;
-  const cardId = `card${nameId}`;
+  const cardId = `card${groupId ? `investibleAdd${groupId}` : 'inboxAddInvestible'}`;
   return (
     <>
       <Card className={classes.overflowVisible} id={cardId}>

@@ -208,7 +208,7 @@ function InvestiblesByPerson(props) {
         />
       )}
       {storyAssignee === undefined && (
-        <SpinningIconLabelButton onClick={() => onClick(null)} doSpin={false} icon={AddIcon}>
+        <SpinningIconLabelButton onClick={() => onClick(null)} doSpin={false} icon={AddIcon} id='addJob'>
           {intl.formatMessage({ id: 'addStoryLabel' })}
         </SpinningIconLabelButton>
       )}

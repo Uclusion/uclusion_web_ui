@@ -31,8 +31,11 @@ function MoveToVerfiedActionButton(props) {
 
 MoveToVerfiedActionButton.propTypes = {
   marketId: PropTypes.string.isRequired,
-  disabled: PropTypes.bool.isRequired,
+  disabled: PropTypes.bool,
   hasTodos: PropTypes.bool.isRequired,
+}
+MoveToVerfiedActionButton.defaultProps = {
+  disabled: false,
 }
 
 export default MoveToVerfiedActionButton;

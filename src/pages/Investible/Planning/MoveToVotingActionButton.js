@@ -33,8 +33,11 @@ function MoveToVotingActionButton(props) {
 
 MoveToVotingActionButton.propTypes = {
   marketId: PropTypes.string.isRequired,
-  disabled: PropTypes.bool.isRequired,
+  disabled: PropTypes.bool,
   hasAssignedQuestions: PropTypes.bool.isRequired
 }
+MoveToVotingActionButton.defaultProps = {
+  disabled: false,
+};
 
 export default MoveToVotingActionButton;

@@ -30,8 +30,6 @@ import {
 import DismissableText from '../../../components/Notifications/DismissableText'
 import ArchiveInvestbiles from '../../DialogArchives/ArchiveInvestibles'
 import { getInvestiblesInStage } from '../../../contexts/InvestibesContext/investiblesContextHelper'
-import UclusionTour from '../../../components/Tours/UclusionTour'
-import { INVITED_USER_WORKSPACE } from '../../../contexts/TourContext/tourContextHelper';
 import { getMarketInfo } from '../../../utils/userFunctions'
 import MarketTodos from './MarketTodos'
 import {
@@ -40,7 +38,6 @@ import {
   isFurtherWorkStage,
   isInReviewStage, isRequiredInputStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
-import { workspaceInvitedUserSteps } from '../../../components/Tours/InviteTours/workspaceInvitedUser';
 import ListAltIcon from '@material-ui/icons/ListAlt'
 import QuestionIcon from '@material-ui/icons/ContactSupport'
 import MenuBookIcon from '@material-ui/icons/MenuBook'
@@ -262,11 +259,6 @@ function PlanningDialog(props) {
       banner={banner}
       openMenuItems={navListItemTextArray}
     >
-      <UclusionTour
-        name={INVITED_USER_WORKSPACE}
-        hidden={hidden || mobileLayout || banner}
-        steps={workspaceInvitedUserSteps({name: myPresence.name})}
-      />
       <GmailTabs
         value={singleTabLayout ? 0 : tabIndex}
         onChange={(event, value) => {

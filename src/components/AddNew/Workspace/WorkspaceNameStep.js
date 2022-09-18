@@ -11,8 +11,6 @@ import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsCont
 import { addGroupsToStorage } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper'
 import { pushMessage } from '../../../utils/MessageBusUtils'
 import { PUSH_STAGE_CHANNEL, VERSIONS_EVENT } from '../../../api/versionedFetchUtils'
-import { START_TOUR, TOUR_CHANNEL } from '../../../contexts/TourContext/tourContextMessages'
-import { INVITED_USER_WORKSPACE } from '../../../contexts/TourContext/tourContextHelper'
 import { addPresenceToMarket } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../../authorization/TokenStorageManager'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
@@ -64,7 +62,6 @@ function WorkspaceNameStep (props) {
         addMarketToStorage(marketsDispatch, market);
         addGroupsToStorage(groupsDispatch, () => {}, { [createdMarketId]: [group]});
         pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, stageDetails: {[createdMarketId]: stages }});
-        pushMessage(TOUR_CHANNEL, { event: START_TOUR, tour: INVITED_USER_WORKSPACE });
         addPresenceToMarket(presenceDispatch, createdMarketId, presence);
         const tokenStorageManager = new TokenStorageManager();
         return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, createdMarketId, token)

@@ -62,7 +62,7 @@ function WorkspaceGroupNameStep (props) {
           Workspace and group names can be changed at any time.
         </Typography>
         <OutlinedInput
-          id="workspaceName"
+          id="groupName"
           className={classes.input}
           value={value}
           onChange={onNameChange}

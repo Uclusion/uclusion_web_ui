@@ -20,9 +20,14 @@ function SignOut(props) {
 
   function myOnSignOut() {
     if (logoutChannel) {
-      logoutChannel.postMessage('signedOut').then(() => onSignOut()).then(() => {
-        console.info('Reloaded already in onSignOut');
-      });
+      if (logoutChannel.postMessage) {
+        logoutChannel.postMessage('signedOut').then(() => onSignOut()).then(() => {
+          console.info('Reloaded already in onSignOut');
+        });
+      } else {
+        console.warn(logoutChannel);
+        onSignOut();
+      }
     }
   }
 

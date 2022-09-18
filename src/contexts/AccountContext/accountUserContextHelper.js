@@ -1,7 +1,7 @@
 import _ from 'lodash'
 
 export function userIsLoaded(state) {
-  const { user } = state;
+  const { user } = state || {};
   return !_.isEmpty(user);
 }
 

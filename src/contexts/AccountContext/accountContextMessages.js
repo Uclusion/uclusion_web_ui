@@ -41,13 +41,12 @@ export function beginListening(dispatch) {
     const { payload: { event } } = data;
     switch (event) {
       case 'signIn':
-        dispatch(clearAccount());
+        poll(dispatch);
         break;
       case 'signOut':
         dispatch(clearAccount());
         break;
       default:
-        // console.log(`Unrecognized event ${event}`);
         break;
     }
   });

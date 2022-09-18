@@ -1,3 +1,4 @@
+import { setUclusionLocalStorageItem } from '../../components/localStorageUtils'
 
 const REFRESH_ACCOUNT = 'REFRESH_ACCOUNT';
 const CLEAR_ACCOUNT = 'CLEAR_ACCOUNT';
@@ -5,6 +6,7 @@ const REFRESH_BILLING_INFO = 'REFRESH_BILLING_INFO';
 const REFRESH_INVOICES = 'REFRESH_INVOICES';
 const REFRESH_ACCOUNT_USER = 'REFRESH_ACCOUNT_USER';
 const REFRESH_ACCOUNT_AND_USER = 'REFRESH_ACCOUNT_AND_USER';
+export const ACCOUNT_CONTEXT_KEY = 'account_context';
 
 export function billingInfoRefresh(billingInfo) {
   return {
@@ -110,21 +112,27 @@ function doAccountUserRefresh(state, action) {
 }
 
 export function reducer(state, action) {
-  const { type } = action;
-  switch (type) {
-    case REFRESH_ACCOUNT_USER:
-      return doAccountUserRefresh(state, action);
-    case REFRESH_ACCOUNT:
-      return doAccountRefresh(state, action);
-    case CLEAR_ACCOUNT:
-      return doAccountClear(state, action);
-    case REFRESH_BILLING_INFO:
-      return doBillingInfoRefresh(state, action);
-    case REFRESH_INVOICES:
-      return doInvoicesRefresh(state, action);
-    case REFRESH_ACCOUNT_AND_USER:
-      return doAccountAndUserRefresh(state, action);
-    default:
-      return state;
+  function calculateState () {
+    const { type } = action
+    switch (type) {
+      case REFRESH_ACCOUNT_USER:
+        return doAccountUserRefresh(state, action)
+      case REFRESH_ACCOUNT:
+        return doAccountRefresh(state, action)
+      case CLEAR_ACCOUNT:
+        return doAccountClear(state, action)
+      case REFRESH_BILLING_INFO:
+        return doBillingInfoRefresh(state, action)
+      case REFRESH_INVOICES:
+        return doInvoicesRefresh(state, action)
+      case REFRESH_ACCOUNT_AND_USER:
+        return doAccountAndUserRefresh(state, action)
+      default:
+        return state
+    }
   }
+
+  const newState = calculateState();
+  setUclusionLocalStorageItem(ACCOUNT_CONTEXT_KEY, newState);
+  return newState;
 }

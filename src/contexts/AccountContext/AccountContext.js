@@ -1,15 +1,11 @@
 import React, { useEffect, useReducer } from 'react'
-import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../../components/localStorageUtils'
-import { reducer } from './accountContextReducer'
-import { beginListening, PUSH_HOME_USER_CHANNEL } from './accountContextMessages'
+import { getUclusionLocalStorageItem } from '../../components/localStorageUtils'
+import { ACCOUNT_CONTEXT_KEY, reducer } from './accountContextReducer'
+import { beginListening } from './accountContextMessages'
 import { isSignedOut } from '../../utils/userFunctions'
-import { VERSIONS_EVENT } from '../../api/versionedFetchUtils'
-import { pushMessage } from '../../utils/MessageBusUtils'
 
 const EMPTY_STATE = { account: {}, billingInfo: {}, user: {}, initializing: true };
 const AccountContext = React.createContext(EMPTY_STATE);
-
-const ACCOUNT_CONTEXT_KEY = 'account_context';
 
 /** This is backed by local storage instead of index db, because I'm never
  * storing more than the account info here, and it's small
@@ -22,13 +18,8 @@ function AccountProvider(props) {
   const [state, dispatch] = useReducer(reducer, defaultValue);
 
   useEffect(() => {
-    setUclusionLocalStorageItem(ACCOUNT_CONTEXT_KEY, state);
-  }, [state]);
-
-  useEffect(() => {
     if (!isSignedOut()) {
       beginListening(dispatch);
-      pushMessage(PUSH_HOME_USER_CHANNEL, { event: VERSIONS_EVENT });
     }
   }, []);
 

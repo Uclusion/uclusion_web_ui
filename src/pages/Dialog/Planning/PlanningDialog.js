@@ -313,19 +313,21 @@ function PlanningDialog(props) {
           )}
           <Grid item id="commentAddArea" xs={12} style={{marginTop: '2rem'}}>
             {_.isEmpty(search) && marketId && !hidden && (
-              <CommentAddBox
-                groupId={groupId}
-                allowedTypes={allowedCommentTypes}
-                marketId={marketId}
-              />
+              <>
+                <DismissableText textId="workspaceCommentHelp" display={_.isEmpty(notTodoComments)} text={
+                  <div>
+                    <Link href="https://documentation.uclusion.com/structured-comments" target="_blank">Comments</Link> can
+                    be used at the workspace level and later moved to a job.
+                  </div>
+                }/>
+                <CommentAddBox
+                  groupId={groupId}
+                  allowedTypes={allowedCommentTypes}
+                  marketId={marketId}
+                />
+              </>
             )}
             <CommentBox comments={notTodoComments} marketId={marketId} allowedTypes={allowedCommentTypes}/>
-            <DismissableText textId="workspaceCommentHelp" display={_.isEmpty(notTodoComments)} text={
-              <div>
-                <Link href="https://documentation.uclusion.com/structured-comments" target="_blank">Comments</Link> can
-                be used at the workspace level and later moved to a job.
-              </div>
-            }/>
           </Grid>
         </div>
       )}

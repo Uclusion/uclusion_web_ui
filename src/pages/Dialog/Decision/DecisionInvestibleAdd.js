@@ -82,6 +82,7 @@ function DecisionInvestibleAdd(props) {
     const processedDescription = tokensRemoved ? tokensRemoved : ' ';
     const addInfo = {
       marketId,
+      groupId: marketId,
       uploadedFiles: filteredUploads,
       description: processedDescription,
     };

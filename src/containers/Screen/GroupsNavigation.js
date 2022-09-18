@@ -16,6 +16,7 @@ function GroupsNavigation(props) {
     actions = <Button
       variant="outlined"
       size="small"
+      id='closeAddNewUsers'
       onClick={() => setOpen(false)}
       ref={autoFocusRef}
     >

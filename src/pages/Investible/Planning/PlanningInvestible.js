@@ -1193,7 +1193,7 @@ function PlanningInvestible(props) {
               </div>
             </div>
             <div style={{display: 'flex', marginLeft: 'auto', marginRight: 'auto',
-              alignItems: 'center', justifyContent: 'center'}}>
+              alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid grey'}}>
               {safeLabelList.map((label) =>
                 <div key={label} className={classes.labelChip}>
                   <Chip label={label} onDelete={()=>deleteLabel(`${label}`)} color="primary" />

@@ -2,14 +2,15 @@ import React, { useContext, useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import {
-  Checkbox, FormControl, FormControlLabel,
+  Button,
+  Checkbox, FormControlLabel,
   Grid,
   IconButton, Link,
-  makeStyles,
-  MenuItem, Select,
+  makeStyles, Menu,
+  MenuItem,
   Tooltip,
   Typography, useMediaQuery, useTheme
-} from '@material-ui/core'
+} from '@material-ui/core';
 import { useHistory } from 'react-router'
 import { FormattedMessage, useIntl } from 'react-intl'
 import YourVoting from '../Voting/YourVoting'
@@ -25,17 +26,14 @@ import {
 } from '../../../constants/comments'
 import Screen from '../../../containers/Screen/Screen'
 import CommentAddBox, { getIcon } from '../../../containers/CommentBox/CommentAddBox'
-import MoveToNextVisibleStageActionButton from './MoveToNextVisibleStageActionButton'
 import { assignedInStage, getMarketInfo, getVotesForInvestible } from '../../../utils/userFunctions'
 import {
   getAcceptedStage,
-  getBlockedStage,
   getFullStage,
   getFurtherWorkStage,
   getInCurrentVotingStage,
   getInReviewStage,
   getNotDoingStage,
-  getRequiredInputStage,
   getVerifiedStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
@@ -88,7 +86,7 @@ import {
   findMessagesForInvestibleId
 } from '../../../utils/messageUtils'
 import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
-import { ExpandLess, SettingsBackupRestore } from '@material-ui/icons'
+import { ExpandLess, SettingsBackupRestore } from '@material-ui/icons';
 import InvestibleBodyEdit from '../InvestibleBodyEdit';
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 import { pushMessage } from '../../../utils/MessageBusUtils'
@@ -103,7 +101,6 @@ import { UNASSIGNED_TYPE, YELLOW_LEVEL } from '../../../constants/notifications'
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
 import WarningDialog from '../../../components/Warnings/WarningDialog'
 import { useLockedDialogStyles } from '../../Dialog/DialogBodyEdit'
-import InputLabel from '@material-ui/core/InputLabel'
 import PlanningInvestibleEdit from './PlanningInvestibleEdit'
 import {
   removeInvestibleInvestments
@@ -136,6 +133,7 @@ import EmojiObjectsIcon from '@material-ui/icons/EmojiObjects'
 import DescriptionIcon from '@material-ui/icons/Description'
 import BlockIcon from '@material-ui/icons/Block'
 import { filterToRoot } from '../../../contexts/CommentsContext/commentsContextHelper'
+import { getCurrentStageLabelId, getStagesInfo } from '../../../utils/stageUtils';
 
 export const usePlanningInvestibleStyles = makeStyles(
   theme => ({
@@ -499,21 +497,20 @@ function PlanningInvestible(props) {
       lockedByName = name;
     }
   }
+  const stagesInfo = getStagesInfo(market.id, marketStagesState, stage);
+  const {
+    isInReview,
+    inAcceptedStage,
+    isInAccepted,
+    inBlockedStage,
+    isInBlocked,
+    isInVerified,
+    isFurtherWork,
+    requiresInputStage,
+    isRequiresInput,
+    isInNotDoing,
+  } = stagesInfo;
 
-  const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
-  const isInReview = inReviewStage && stage === inReviewStage.id;
-  const inAcceptedStage = getAcceptedStage(marketStagesState, marketId) || {};
-  const isInAccepted = inAcceptedStage && stage === inAcceptedStage.id;
-  const inBlockedStage = getBlockedStage(marketStagesState, marketId) || {};
-  const isInBlocked = inBlockedStage && stage === inBlockedStage.id;
-  const inVerifiedStage = getVerifiedStage(marketStagesState, marketId) || {};
-  const isInVerified = inVerifiedStage && stage === inVerifiedStage.id;
-  const furtherWorkStage = getFurtherWorkStage(marketStagesState, marketId) || {};
-  const isFurtherWork = furtherWorkStage && stage === furtherWorkStage.id;
-  const requiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
-  const isRequiresInput = requiresInputStage && stage === requiresInputStage.id;
-  const notDoingStage = getNotDoingStage(marketStagesState, marketId);
-  const isInNotDoing = notDoingStage && stage === notDoingStage.id;
   const displayEdit = !inArchives && (isAssigned || isInNotDoing || isInVoting || isFurtherWork || isRequiresInput);
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
@@ -613,7 +610,10 @@ function PlanningInvestible(props) {
       return []
     }
     const notAssigned = isFurtherWork || isInNotDoing
-    const menuItems = [
+    const menuItems = [];
+    const votingDisabled = isInVoting || !_.isEmpty(blockingCommentsUnresolved) || notAssigned;
+    if(!votingDisabled){
+      menuItems.push(
       <MenuItem
         key={(getInCurrentVotingStage(marketStagesState, marketId) || {}).id}
         value={(getInCurrentVotingStage(marketStagesState, marketId) || {}).id}
@@ -622,10 +622,13 @@ function PlanningInvestible(props) {
           investibleId={investibleId}
           marketId={marketId}
           currentStageId={stage}
-          disabled={isInVoting || !_.isEmpty(blockingCommentsUnresolved) || notAssigned}
           hasAssignedQuestions={!_.isEmpty(questionSuggestionsByAssignedComments)}
         />
-      </MenuItem>,
+      </MenuItem>);
+    }
+    const acceptedDisabled = isInAccepted || !isAssigned || !_.isEmpty(blockingComments) || notAssigned;
+    if(!acceptedDisabled){
+      menuItems.push(
       <MenuItem
         key={(getAcceptedStage(marketStagesState, marketId) || {}).id}
         value={(getAcceptedStage(marketStagesState, marketId) || {}).id}
@@ -635,10 +638,14 @@ function PlanningInvestible(props) {
           marketId={marketId}
           currentStageId={stage}
           full={isInAccepted ? false : acceptedFull}
-          disabled={isInAccepted || !isAssigned || !_.isEmpty(blockingComments) || notAssigned}
           hasAssignedQuestions={!_.isEmpty(questionSuggestionsByAssignedComments)}
         />
-      </MenuItem>,
+      </MenuItem>
+      )
+    }
+    const inReviewDisabled = isInReview || !_.isEmpty(blockingCommentsUnresolved) || notAssigned;
+    if(!inReviewDisabled){
+      menuItems.push(
       <MenuItem
         key={(getInReviewStage(marketStagesState, marketId) || {}).id}
         value={(getInReviewStage(marketStagesState, marketId) || {}).id}
@@ -647,10 +654,13 @@ function PlanningInvestible(props) {
           investibleId={investibleId}
           marketId={marketId}
           currentStageId={stage}
-          disabled={isInReview || !_.isEmpty(blockingCommentsUnresolved) || notAssigned}
           hasAssignedQuestions={!_.isEmpty(questionSuggestionsByAssignedComments)}
         />
-      </MenuItem>,
+      </MenuItem>
+      );
+    }
+    if(!isFurtherWork){
+      menuItems.push(
       <MenuItem
         key={(getFurtherWorkStage(marketStagesState, marketId) || {}).id}
         value={(getFurtherWorkStage(marketStagesState, marketId) || {}).id}
@@ -659,9 +669,13 @@ function PlanningInvestible(props) {
           investibleId={investibleId}
           marketId={marketId}
           currentStageId={stage}
-          disabled={isFurtherWork}
         />
-      </MenuItem>,
+      </MenuItem>
+      );
+    }
+    const verifiedDisabled = isInVerified || !_.isEmpty(blockingComments) || notAssigned;
+    if(!verifiedDisabled){
+      menuItems.push(
       <MenuItem
         key={(getVerifiedStage(marketStagesState, marketId) || {}).id}
         value={(getVerifiedStage(marketStagesState, marketId) || {}).id}
@@ -670,10 +684,13 @@ function PlanningInvestible(props) {
           investibleId={investibleId}
           marketId={marketId}
           currentStageId={stage}
-          disabled={isInVerified || !_.isEmpty(blockingComments) || notAssigned}
           hasTodos={!_.isEmpty(todoComments)}
         />
-      </MenuItem>,
+      </MenuItem>
+      );
+    }
+    if(!isInNotDoing){
+      menuItems.push(
       <MenuItem
         key={(getNotDoingStage(marketStagesState, marketId) || {}).id}
         value={(getNotDoingStage(marketStagesState, marketId) || {}).id}
@@ -685,7 +702,8 @@ function PlanningInvestible(props) {
           disabled={isInNotDoing}
         />
       </MenuItem>
-    ];
+      );
+    }
     if (isInBlocked) {
       menuItems.unshift(
         <MenuItem value={inBlockedStage.id} key={inBlockedStage.id}>
@@ -700,7 +718,7 @@ function PlanningInvestible(props) {
         </MenuItem>
       )
     }
-    return menuItems
+    return menuItems;
   }
 
   const todoWarning = isInVoting || isFurtherWork || isInBlocked || isRequiresInput ? null : 'todoWarningPlanning';
@@ -974,6 +992,7 @@ function PlanningInvestible(props) {
         )}
         <MarketMetaData
           stage={stage}
+          stagesInfo={stagesInfo}
           investibleId={investibleId}
           market={market}
           marketInvestible={marketInvestible}
@@ -1504,17 +1523,10 @@ function MarketMetaData(props) {
     investibleId,
     stageActions,
     stage,
-    inArchives,
+    stagesInfo,
     isAssigned,
-    blockingComments,
-    todoComments,
-    isInVoting,
-    acceptedFull,
-    acceptedEmpty,
-    invested,
     accepted,
     myUserId,
-    questionByAssignedComments,
     pageState, updatePageState
   } = props;
   const intl = useIntl()
@@ -1522,6 +1534,8 @@ function MarketMetaData(props) {
     showDiff
   } = pageState
   const [diffState, diffDispatch] = useContext(DiffContext);
+  const [stageAnchorEl, setStageAnchorEl] = useState(null);
+  const stageMenuOpen = Boolean(stageAnchorEl);
   const [messagesState] = useContext(NotificationsContext);
   const [, invDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -1532,6 +1546,7 @@ function MarketMetaData(props) {
   const classes = useMetaDataStyles();
   const unacceptedAssignment = findMessageOfType('UNACCEPTED_ASSIGNMENT', investibleId, messagesState);
   const unaccepted = unacceptedAssignment && isAssigned && !accepted.includes(myUserId);
+  const stageLabelId = getCurrentStageLabelId(stagesInfo, stage);
 
   function myAccept() {
     return accept(market.id, investibleId, marketInvestible, invDispatch, diffDispatch, unacceptedAssignment,
@@ -1541,6 +1556,13 @@ function MarketMetaData(props) {
   function myRejectInvestible() {
     return rejectInvestible(market.id, investibleId, marketInvestible, commentsState, commentsDispatch, invDispatch,
       diffDispatch, marketStagesState);
+  }
+
+  function handleStageMenuClose() {
+    setStageAnchorEl(null);
+  }
+  function handleStageClick(event){
+    setStageAnchorEl(event.currentTarget);
   }
 
   function toggleDiffShow() {
@@ -1555,15 +1577,28 @@ function MarketMetaData(props) {
       {!_.isEmpty(stageActions) &&
       (
         <React.Fragment>
-          <FormControl style={{paddingRight: '0.5rem'}}>
-            <InputLabel id="select-allowed-stages-label">
-              {intl.formatMessage({ id: 'allowedStagesDropdownLabel' })}</InputLabel>
-            <Select
-              value={stage}
+          <div
+               style={{maxWidth: '15rem', marginRight: '1rem', overflowY: 'auto', maxHeight: '8rem'}}>
+            <div style={{marginBottom: '0.5rem'}}>
+            <b><FormattedMessage id={'allowedStagesDropdownLabel'}/></b>
+            </div>
+              <Button
+              variant="outlined"
+              aria-label="allowed-stages-label"
+              style={{textTransform: 'none'}}
+              endIcon={<ExpandMoreIcon/>}
+              onClick={handleStageClick}
+            >
+              {intl.formatMessage({id: stageLabelId})}
+            </Button>
+          </div>
+            <Menu
+              anchorEl={stageAnchorEl}
+              open={stageMenuOpen}
+              onClose={handleStageMenuClose}
             >
               {stageActions}
-            </Select>
-          </FormControl>
+            </Menu>
           {unaccepted && (
             <div style={{display: 'flex', paddingTop: '1rem', marginBottom: 0}}>
               <SpinningButton onClick={myAccept} className={classes.actionPrimary} id='accept'>
@@ -1574,23 +1609,7 @@ function MarketMetaData(props) {
               </SpinningButton>
             </div>
           )}
-          {!inArchives && isAssigned && !unaccepted && (
-            <>
-              <InputLabel id="next-allowed-stages-label"
-                          style={{ marginTop: '2rem', marginBottom: '0.25rem', fontSize: '0.7rem' }}>
-                {intl.formatMessage({ id: 'quickChangeStage' })}</InputLabel>
-              <MoveToNextVisibleStageActionButton
-                key="visible"
-                investibleId={investibleId}
-                marketId={market.id}
-                currentStageId={stage}
-                disabled={!_.isEmpty(blockingComments) || !_.isEmpty(questionByAssignedComments) || (isInVoting && !isAssigned)}
-                iconColor={isInVoting && _.size(invested) > 0 && acceptedEmpty ? HIGHLIGHTED_BUTTON_COLOR : undefined}
-                hasTodos={!_.isEmpty(todoComments)}
-                highlighted={acceptedFull && isInVoting}
-              />
-            </>
-          )}
+
         </React.Fragment>
       )}
       {myMessageDescription && diff && (

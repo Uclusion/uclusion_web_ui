@@ -171,6 +171,7 @@ const messages = defineMessages({
   gettingLockMessage: 'Obtaining lock',
   loadingMessage: 'Page loading',
   commentLoadingMessage: 'Comment loading',
+  commentOptionsLoadingMessage: 'Comment options loading',
   loadingMarket: 'Processing invite',
   loadingSlack: 'Slack integration',
 

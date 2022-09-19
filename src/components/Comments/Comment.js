@@ -827,12 +827,14 @@ function Comment(props) {
     return classes.container;
   }
 
-  const displayingDiff = myMessage && showDiff && diff
-  const displayEditing = enableEditing && isEditable
+  const displayingDiff = myMessage && showDiff && diff;
+  const displayEditing = enableEditing && isEditable;
+  const commentLoadingId = !marketTokenLoaded(marketId, tokensHash) ? 'commentLoadingMessage' :
+    'commentOptionsLoadingMessage';
   if (!marketTokenLoaded(marketId, tokensHash) || (inlineMarketId && _.isEmpty(inlineMarket))) {
     return (
       <div className={classes.container}>
-        <LoadingDisplay showMessage messageId="commentLoadingMessage" noMargin/>
+        <LoadingDisplay showMessage messageId={commentLoadingId} noMargin/>
       </div>
     )
   }

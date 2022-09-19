@@ -1,4 +1,8 @@
-import { getLoginPersistentItem, setLoginPersistentItem } from '../components/localStorageUtils';
+import {
+  getLoginPersistentItem,
+  setLoginPersistentItem,
+  setUclusionLocalStorageItem
+} from '../components/localStorageUtils'
 import _ from 'lodash'
 
 const REDIRECT_LOCAL_STORAGE_KEY = 'redirection';
@@ -6,6 +10,7 @@ const WORKSPACE_LOCAL_STORAGE_KEY = 'current_workspace';
 const GROUP_LOCAL_STORAGE_KEY = 'current_group';
 const UTM_LOCAL_STORAGE_KEY = 'utm';
 const EMAIL_LOCAL_STORAGE_KEY = 'email_storage';
+export const IS_INVITED = 'is_invited';
 
 export function redirectFromHistory(history) {
   const { location } = history;
@@ -44,6 +49,8 @@ export function getFirstGroup(groupState, marketId) {
 
 export function setRedirect(location) {
   setLoginPersistentItem(REDIRECT_LOCAL_STORAGE_KEY, location);
+  // The only way you have a redirect is if you are part of some workspace already
+  setUclusionLocalStorageItem(IS_INVITED, true);
 }
 
 export function clearRedirect() {

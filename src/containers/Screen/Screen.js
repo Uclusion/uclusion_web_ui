@@ -195,11 +195,9 @@ function Screen(props) {
     return <React.Fragment/>
   }
 
-  function setMarketIdFull() {
-    return (newMarketId) => {
-      setCurrentWorkspace(newMarketId);
-      navigate(history, formMarketLink(newMarketId, newMarketId));
-    }
+  function setMarketIdFull(newMarketId) {
+    setCurrentWorkspace(newMarketId);
+    navigate(history, formMarketLink(newMarketId, newMarketId));
   }
   const useGroupId = groupId ? groupId : (investibleId ? getFirstGroup(groupsState, defaultMarket.id) : undefined);
   const navigationMenu =

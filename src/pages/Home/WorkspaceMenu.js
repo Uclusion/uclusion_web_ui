@@ -115,7 +115,7 @@ function WorkspaceMenu(props) {
 
   function goTo (to) {
     return () => {
-      setAnchorEl(null);
+      recordPositionToggle();
       history.push(to);
     };
   }
@@ -157,7 +157,10 @@ function WorkspaceMenu(props) {
               <ProMenu iconShape="circle">
                 <MenuItem icon={<AddIcon htmlColor="black" />}
                           key="addWorkspaceNewUsersKey" id="addWorkspaceIconId"
-                          onClick={()=> setOpen('addNewUsers')}
+                          onClick={()=> {
+                            recordPositionToggle();
+                            setOpen('addNewUsers');
+                          }}
                 >
                   {intl.formatMessage({ id: 'dialogAddParticipantsLabel' })}
                 </MenuItem>
@@ -182,7 +185,10 @@ function WorkspaceMenu(props) {
                     return <MenuItem icon={<AgilePlanIcon htmlColor="black" />}
                                      id={key}
                                      key={key}
-                                     onClick={() => setChosenMarketId(market.id)}
+                                     onClick={() => {
+                                       recordPositionToggle();
+                                       setChosenMarketId(market.id);
+                                     }}
                     >
                       {market.name}
                     </MenuItem>

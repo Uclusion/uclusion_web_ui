@@ -33,7 +33,7 @@ import EmailEntryBox from '../../../components/Email/EmailEntryBox'
 
 function AddNewUsers(props) {
   const { market, isAddToGroup = false, setToAddClean, group } = props;
-  const { id: addToMarketId } = market || {};
+  const { id: addToMarketId, invite_capability: marketToken } = market || {};
   const { id: groupId } = group || {};
   const classes = usePlanFormStyles();
   const intl = useIntl();
@@ -290,7 +290,7 @@ function AddNewUsers(props) {
               </form>
               <ListItem className={classes.listItem}>
                 <WorkspaceInviteLinker
-                  marketId={addToMarketId}
+                  marketToken={marketToken}
                 />
               </ListItem>
             </>

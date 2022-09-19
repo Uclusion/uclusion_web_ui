@@ -30,6 +30,8 @@ import { getTicket } from '../../contexts/TicketContext/ticketIndexContextHelper
 import { TicketIndexContext } from '../../contexts/TicketContext/TicketIndexContext'
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
 import Onboarding from '../../pages/Onboarding/Onboarding';
+import { getRedirect } from '../../utils/redirectUtils'
+import _ from 'lodash'
 
 const useStyles = makeStyles({
   body: {
@@ -190,10 +192,11 @@ function Root() {
       registerMarketTokenListeners();
     }
   },  [history, setOnline, setOperationsLocked, location]);
-  // onboarding overrides _EVERYTHING_
+  // onboarding overrides _EVERYTHING_ except a redirect (most likely from a market invite)
   const {user} = accountState;
   const {needs_onboarding: needsOnboarding} = user;
-  if(needsOnboarding || inOnboarding === true){
+  const redirect = getRedirect();
+  if (_.isEmpty(redirect) && (needsOnboarding || inOnboarding === true)) {
     return (
       <div>
         <CssBaseline/>

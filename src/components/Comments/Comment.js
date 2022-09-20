@@ -467,7 +467,7 @@ function Comment(props) {
       return updateMarket(inlineMarketId, null, null, null, null,
         null, null, myMultiVote)
         .then((market) => {
-          addMarketToStorage(marketsDispatch, undefined, market);
+          addMarketToStorage(marketsDispatch, market);
         });
     }
   }

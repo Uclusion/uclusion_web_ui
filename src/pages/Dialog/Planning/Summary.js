@@ -246,13 +246,13 @@ function Summary(props) {
   function onAttachFile(metadatas) {
     return attachFilesToGroup(marketId, id, metadatas)
       .then((market) => {
-        addMarketToStorage(marketsDispatch, diffDispatch, market);
+        addMarketToStorage(marketsDispatch, market);
       })
   }
 
   function onDeleteFile(path) {
     return deleteAttachedFilesFromMarket(id, [path]).then((market) => {
-      addMarketToStorage(marketsDispatch, diffDispatch, market);
+      addMarketToStorage(marketsDispatch, market);
       setOperationRunning(false);
     });
   }

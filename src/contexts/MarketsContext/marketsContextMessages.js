@@ -15,6 +15,7 @@ import {
   updateMarkets,
   VERSIONS_EVENT
 } from '../../api/versionedFetchUtils'
+import _ from 'lodash'
 
 export const LOAD_MARKET_CHANNEL = 'LoadMarketChannel';
 export const INVITE_MARKET_EVENT = 'InviteMarketEvent';
@@ -88,8 +89,8 @@ function beginListening(dispatch, setTokensHash) {
       loginPromise.then((result) => {
         console.log('Quick adding market after load');
         const { market, user, stages, uclusion_token: token, investible } = result;
-        const { id } = market;
-        addMarketToStorage(dispatch, () => {}, market);
+        const { id, parent_comment_market_id: parentMarketId } = market;
+        addMarketToStorage(dispatch, market);
         pushMessage(PUSH_PRESENCE_CHANNEL, { event: ADD_PRESENCE, marketId: id, presence: user });
         pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, stageDetails: { [id]: stages } });
         if (investible) {
@@ -100,7 +101,7 @@ function beginListening(dispatch, setTokensHash) {
           // We know the market we just logged into is dirty so skip normal call to check it first
           const marketsStruct = {};
           return getStorageStates().then((storageStates) => {
-            updateMarkets([id], marketsStruct, 1, storageStates)
+            updateMarkets([id], marketsStruct, 1, storageStates, !_.isEmpty(parentMarketId))
               .then(() => sendMarketsStruct(marketsStruct));
           });
         });

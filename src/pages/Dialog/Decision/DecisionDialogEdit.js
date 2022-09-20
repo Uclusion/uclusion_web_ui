@@ -53,7 +53,7 @@ function DecisionDialogEdit(props) {
             updated_by: userId,
             updated_by_you: true,
           };
-          addMarketToStorage(marketsDispatch, diffDispatch, diffSafe);
+          addMarketToStorage(marketsDispatch, diffSafe);
           setOperationRunning(false);
         });
     }

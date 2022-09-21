@@ -25,7 +25,46 @@ function stripHTML(foundSubstring) {
   return undefined;
 }
 
-export function convertDescription(description, maxLength = 80) {
+function largestIndexOf(extracted, separator, maxLength) {
+  const largest = extracted.lastIndexOf(separator, maxLength);
+  if (largest < 0) {
+    // Could not find anything within maxLength so give up
+    return largest;
+  }
+  if (separator.includes('.')) {
+    // If it's a sentence then stop on first which is guaranteed less than maxLength by above
+    return extracted.indexOf(separator);
+  }
+  // Otherwise get as much as possible hoping for context
+  return largest;
+}
+
+function matchingIndexOf(extracted, maxLength, description, index, separator, part ) {
+  const indexSubstring = description.substring(index);
+  const subIndexAfter = separator.includes('.') ? indexSubstring.indexOf(separator)
+    : indexSubstring.lastIndexOf(separator, maxLength + (part.length - extracted.length));
+  return index + subIndexAfter + separator.length;
+}
+
+function getBestSeparatorLocation(extracted, index, description, separator, maxLength, part) {
+  const indexMap = { subIndex: -1, descriptionSubIndex: -1 };
+
+  const subIndex = largestIndexOf(extracted, separator, maxLength);
+
+  if (subIndex < 0) {
+    return indexMap;
+  }
+
+  const descriptionSubIndex = matchingIndexOf(extracted, maxLength, description, index, separator, part);
+
+  if (descriptionSubIndex < 0) {
+    return indexMap;
+  }
+
+  return { subIndex, descriptionSubIndex };
+}
+
+function convertDescriptionForSeparator(description, separator, maxLength = 80) {
   const nameDescriptionMap = { name: undefined, description };
   if (_.isEmpty(description)) {
     return nameDescriptionMap;
@@ -45,7 +84,8 @@ export function convertDescription(description, maxLength = 80) {
           const part = wholePart.substring(0, wholePart.indexOf(entryEndElement));
           let extracted = stripHTML(part);
           if (!_.isEmpty(extracted)) {
-            const subIndex = extracted.indexOf(". ");
+            const { subIndex, descriptionSubIndex } = getBestSeparatorLocation(extracted, index, description,
+              separator, maxLength, part);
             const isSubIndex = subIndex > 0;
             if (isSubIndex) {
               extracted = extracted.substring(0, subIndex + 1);
@@ -56,8 +96,7 @@ export function convertDescription(description, maxLength = 80) {
                 latestExtract = extracted;
                 let indexAfter = index + description.substring(index).indexOf(entryEndElement);
                 if (isSubIndex) {
-                  const subIndexAfter = description.substring(index).indexOf(". ");
-                  indexAfter = index + subIndexAfter + 2;
+                  indexAfter = descriptionSubIndex;
                 }
                 let beforePartIndex = description.substring(0, index).lastIndexOf(entryBeginElement);
                 if (beforePartIndex < 0) {
@@ -72,6 +111,9 @@ export function convertDescription(description, maxLength = 80) {
                 if (latestDescription.indexOf(emptyAmpersand) === 0) {
                   latestDescription = latestDescription.substring(emptyAmpersand.length);
                 }
+                if (latestExtract.endsWith(' ')) {
+                  latestExtract = `${latestExtract.substring(0, latestExtract.length - 1)}...`;
+                }
                 found = index;
               }
             }
@@ -85,6 +127,16 @@ export function convertDescription(description, maxLength = 80) {
     nameDescriptionMap.description = latestDescription;
   }
   return nameDescriptionMap;
+}
+
+export function convertDescription(description, maxLength = 80) {
+  const nameDescriptionMap = convertDescriptionForSeparator(description, ". ", maxLength);
+  const { name } = nameDescriptionMap;
+  if (!_.isEmpty(name)) {
+    return nameDescriptionMap;
+  }
+  // Substract 3 to allow for ampersand
+  return convertDescriptionForSeparator(description, " ", maxLength - 3);
 }
 
 export function nameFromDescription(description) {

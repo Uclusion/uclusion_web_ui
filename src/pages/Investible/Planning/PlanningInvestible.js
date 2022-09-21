@@ -320,7 +320,6 @@ export const usePlanningInvestibleStyles = makeStyles(
     assignmentFlexRow: {
       width: '100%',
       maxWidth: '20rem',
-      display: 'flex',
       paddingTop: '0.5rem'
     },
     paper: {
@@ -341,9 +340,9 @@ export const usePlanningInvestibleStyles = makeStyles(
       top: '3.8rem',
       paddingLeft: '1rem',
       paddingTop: '2rem',
-      minWidth: '13rem',
+      minWidth: '15rem',
       textOverflow: 'ellipsis',
-      transform: 'translateX(calc(100vw - 473px))'
+      transform: 'translateX(calc(100vw - 490px))'
     },
     group: {
       borderRadius: 6,
@@ -1584,8 +1583,8 @@ function MarketMetaData(props) {
             </div>
               <Button
               variant="outlined"
+              style={{textTransform: 'none', paddingLeft: '0.5rem', paddingRight: '0.5rem', borderRadius: '8px',}}
               aria-label="allowed-stages-label"
-              style={{textTransform: 'none'}}
               endIcon={<ExpandMoreIcon/>}
               onClick={handleStageClick}
             >

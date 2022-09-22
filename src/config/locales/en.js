@@ -248,7 +248,9 @@ const messages = defineMessages({
   // Navigation menu
   swimLanes: 'Swimlanes',
   inbox: 'Inbox',
-  outbox: 'Pending',
+  unread: 'Unread',
+  teamUnresolved: 'Team Unresolved',
+  outbox: 'Your Unanswered',
   seeFullInbox: 'SEE FULL',
   seeFullOutbox: 'SEE FULL',
   seeInbox: 'View Inbox',
@@ -567,7 +569,8 @@ const messages = defineMessages({
   message: 'Message',
   // Archives
   archivesTitle: 'Archive',
-  inboxArchive: 'Mark read or delete selected',
+  inboxMarkRead: 'Mark selected read',
+  inboxArchive: 'Delete selected',
   inboxCollapseAll: 'Collapse All',
   inboxExpandAll: 'Expand All',
 

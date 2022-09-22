@@ -2,7 +2,8 @@ import { workListStyles } from './WorkListItem'
 import { Box, Checkbox, IconButton, useMediaQuery, useTheme } from '@material-ui/core'
 import React, { useContext, useEffect, useReducer, useState } from 'react'
 import { useIntl } from 'react-intl'
-import { AlarmOn, ExpandLess, KeyboardArrowLeft, Inbox as InboxIcon } from '@material-ui/icons'
+import { Group as GroupIcon, ExpandLess, KeyboardArrowLeft, Inbox as InboxIcon } from '@material-ui/icons'
+import OutboxIcon from '../../../components/CustomChip/Outbox'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import _ from 'lodash'
 import { deleteOrDehilightMessages } from '../../../api/users'
@@ -105,10 +106,14 @@ function Inbox(props) {
   const htmlColor = _.isEmpty(firstMessage) ? '#8f8f8f' :
     (firstMessage.level === 'RED' ? '#E85757' : (firstMessage.level === 'YELLOW' ?
       (isDisabled ? '#ffff00' : '#ffc61a') : '#2D9CDB'));
-  const outBoxMessagesOrdered = getOutboxMessages({messagesState, marketState, marketPresencesState,
+  const allOutBoxMessagesOrdered = getOutboxMessages({messagesState, marketState, marketPresencesState,
     investiblesState, marketStagesState, commentsState, planningClasses, mobileLayout,
     expansionState: expansionPendingState, intl});
-  const assignedMessages = (messagesUnsafe || []).filter((message) => message.alert_type);
+  const outBoxMessagesOrdered = allOutBoxMessagesOrdered.filter((message) => message.comment);
+  const outBoxAssigned = allOutBoxMessagesOrdered.filter((message) => !message.comment &&
+    !message.isOutboxAccepted && !message.inActive);
+  const assignedNotifications = (messagesUnsafe || []).filter((message) => message.alert_type);
+  const assignedMessages = _.union(assignedNotifications, outBoxAssigned);
   const assignedMessagesOrdered = _.orderBy(assignedMessages, ['updated_at'], ['desc']) || [];
   const messagesFiltered = _.isEmpty(search) ? inboxMessagesOrdered : inboxMessagesOrdered.filter((message) => {
     const { type_object_id: typeObjectId,  investible_id: investibleId } = message;
@@ -136,8 +141,12 @@ function Inbox(props) {
     }
     return true;
   });
+  let teamMessagesOrdered = inboxMessagesOrdered.filter((message) => !message.alert_type && !message.is_highlighted);
+  teamMessagesOrdered = _.union(teamMessagesOrdered,
+    allOutBoxMessagesOrdered.filter((message) => message.isOutboxAccepted || message.inActive));
+  inboxMessagesOrdered = inboxMessagesOrdered.filter((message) => message.is_highlighted);
   const unpaginatedItems = tabIndex === PENDING_INDEX ? outBoxMessagesOrdered : (tabIndex === 0 ? inboxMessagesOrdered
-    : assignedMessagesOrdered);
+    : (tabIndex === ASSIGNED_INDEX ? assignedMessagesOrdered : teamMessagesOrdered));
   const usePage = tabIndex === PENDING_INDEX ? pendingPage : (tabIndex === 0 ? page : assignedPage);
 
   useEffect(() => {
@@ -164,7 +173,6 @@ function Inbox(props) {
   const { first, last, data, hasMore, hasLess } = getPaginatedItems(unpaginatedItems, usePage, PAGE_SIZE);
   const defaultRow = createDefaultInboxRow(unpaginatedItems, loadingFromInvite, messagesState, tokensHash, intl,
     determinate, determinateDispatch, checkAll, expansionState, expansionDispatch, tabIndex);
-
   return (
     <div id="inbox" style={{paddingBottom: '45vh'}}>
       <div style={{display: 'flex', paddingBottom: '0.5rem'}}>
@@ -172,7 +180,7 @@ function Inbox(props) {
           <Checkbox style={{padding: 0, marginLeft: '0.6rem'}}
                     checked={checkAll}
                     indeterminate={indeterminate}
-                    disabled={_.isEmpty(inboxMessagesOrdered)}
+                    disabled={[ASSIGNED_INDEX, PENDING_INDEX].includes(tabIndex)}
                     onChange={() => determinateDispatch({type: 'toggle'})}
           />
         )}
@@ -197,7 +205,7 @@ function Inbox(props) {
                  }).finally(() => {
                    setOperationRunning(false);
                  });
-             }} translationId="inboxArchive" />
+             }} translationId={tabIndex === 0 ? 'inboxMarkRead' : 'inboxArchive'} />
         )}
         <TooltipIconButton icon={<ExpandLess style={{marginLeft: '0.25rem'}} htmlColor={ACTION_BUTTON_COLOR} />}
                            onClick={() => {
@@ -238,21 +246,24 @@ function Inbox(props) {
         }}
         indicatorColors={[htmlColor, '#00008B', '#00008B']}
         style={{ borderTop: '1px ridge lightgrey', paddingBottom: '0.25rem' }}>
-        <GmailTabItem icon={<InboxIcon htmlColor={htmlColor} />} label={intl.formatMessage({id: 'inbox'})}
+        <GmailTabItem icon={<InboxIcon htmlColor={htmlColor} />} label={intl.formatMessage({id: 'unread'})}
                       color='black'
-                      tag={unreadCount > 0 && !mobileLayout ? `${unreadCount} unread` : undefined} />
+                      tag={unreadCount > 0 && !mobileLayout ? `${unreadCount}` : undefined} />
         <GmailTabItem icon={<AssignmentIcon />} label={intl.formatMessage({id: 'unreadAssignmentMobile'})}
                       tag={_.size(assignedMessagesOrdered) > 0 && !mobileLayout ?
                         `${_.size(assignedMessagesOrdered)}` : undefined} />
-        <GmailTabItem icon={<AlarmOn />} label={intl.formatMessage({id: 'outbox'})}
+        <GmailTabItem icon={<OutboxIcon />} label={intl.formatMessage({id: 'outbox'})}
                       tag={_.size(outBoxMessagesOrdered) > 0 && !mobileLayout ?
                         `${_.size(outBoxMessagesOrdered)}` : undefined} />
+        <GmailTabItem icon={<GroupIcon />} label={intl.formatMessage({id: 'teamUnresolved'})}
+                      tag={_.size(teamMessagesOrdered) > 0 && !mobileLayout ?
+                        `${_.size(teamMessagesOrdered)}` : undefined} />
       </GmailTabs>
       {defaultRow}
-      { tabIndex === PENDING_INDEX ? <Outbox expansionState={expansionPendingState}
-                                             expansionDispatch={expansionPendingDispatch}
-                                             page={pendingPage} setPage={setPendingPage} messagesOrdered={data} /> :
-        data.map((message) => {
+      { data.map((message) => {
+          if (message.isOutboxType) {
+            return React.Fragment;
+          }
           const { link_multiple: linkMultiple } = message;
           const linkMultiples = dupeHash[linkMultiple] || [];
           const numMultiples = _.size(_.uniqBy(linkMultiples, 'type'));
@@ -265,10 +276,14 @@ function Inbox(props) {
           const useExpansionState = tabIndex === ASSIGNED_INDEX ? expansionAssignedState : expansionState;
           return <InboxRow message={useMessage} expansionDispatch={tabIndex === ASSIGNED_INDEX ?
             expansionAssignedDispatch : expansionDispatch} numMultiples={numMultiples}
+                           showSelector={tabIndex !== ASSIGNED_INDEX}
                            determinateDispatch={determinateDispatch} showPriority={tabIndex !== ASSIGNED_INDEX}
                            expansionOpen={!!useExpansionState[useMessage.type_object_id]}
                            isDeletable={isDeletable} isMultiple={isMultiple} checked={checked} />;
-      }) }
+      })}
+      <Outbox expansionState={expansionPendingState} showPriority={tabIndex !== ASSIGNED_INDEX}
+              expansionDispatch={expansionPendingDispatch}
+              page={pendingPage} setPage={setPendingPage} messagesOrdered={data} />
     </div>
   );
 }

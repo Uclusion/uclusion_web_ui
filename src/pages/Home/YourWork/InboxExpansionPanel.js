@@ -151,7 +151,9 @@ function getMessageForInvestible (investible, market, labelId, Icon, intl) {
     investible: investible.investible.name,
     title: intl.formatMessage({ id: labelId }),
     updatedAt: investible.investible.updated_at,
-    link: formInvestibleLink(market.id, investibleId)
+    link: formInvestibleLink(market.id, investibleId),
+    isOutboxAccepted: investible.notAccepted,
+    isOutboxType: true
   };
 }
 
@@ -166,7 +168,8 @@ function getMessageForComment (comment, market, labelId, Icon, intl, investibleS
     title: intl.formatMessage({ id: labelId }),
     updatedAt: comment.updated_at,
     link: formCommentLink(market.id, comment.group_id, comment.investible_id, commentId),
-    inFurtherWork: false
+    inFurtherWork: false,
+    isOutboxType: true
   }
   const expansionOpen = expansionState && !!expansionState[commentId]
   if (expansionOpen) {
@@ -267,7 +270,7 @@ export function getOutboxMessages(props) {
     const suggestions = myUnresolvedRoots.filter((comment) => comment.comment_type === SUGGEST_CHANGE_TYPE) || [];
     questions.forEach((comment) => {
       const message = getMessageForComment(comment, market, 'cardTypeLabelQuestion',
-        <QuestionIcon style={{ fontSize: 24, color: '#8f8f8f', }}/>, intl, investiblesState, marketStagesState,
+        <QuestionIcon style={{ fontSize: 24, color: '#ffc61a', }}/>, intl, investiblesState, marketStagesState,
         comments, marketPresences, planningClasses, mobileLayout, expansionState)
       if (message) {
         messages.push(message);
@@ -275,7 +278,7 @@ export function getOutboxMessages(props) {
     });
     issues.forEach((comment) => {
       const message = getMessageForComment(comment, market, 'cardTypeLabelIssue',
-        <IssueIcon style={{ fontSize: 24, color: '#8f8f8f', }}/>, intl, investiblesState, marketStagesState,
+        <IssueIcon style={{ fontSize: 24, color: '#E85757', }}/>, intl, investiblesState, marketStagesState,
         comments, marketPresences, planningClasses, mobileLayout, expansionState)
       if (message) {
         messages.push(message);
@@ -283,7 +286,7 @@ export function getOutboxMessages(props) {
     });
     suggestions.forEach((comment) => {
       const message = getMessageForComment(comment, market, 'cardTypeLabelSuggestedChange',
-        <ChangeSuggstionIcon style={{ fontSize: 24, color: '#8f8f8f', }}/>, intl, investiblesState, marketStagesState,
+        <ChangeSuggstionIcon style={{ fontSize: 24, color: '#ffc61a', }}/>, intl, investiblesState, marketStagesState,
         comments, marketPresences, planningClasses, mobileLayout, expansionState)
       if (message) {
         messages.push(message);
@@ -298,7 +301,7 @@ export function getOutboxMessages(props) {
     inReviewInvestibles.forEach((investible) => {
       const investibleId = investible.investible.id;
       const outboxMessage = getMessageForInvestible(investible, market, 'feedback',
-        <RateReviewIcon style={{ fontSize: 24, color: '#8f8f8f', }}/>, intl);
+        <RateReviewIcon style={{ fontSize: 24, color: '#ffc61a', }}/>, intl);
       const expansionOpen = expansionState && !!expansionState[investibleId];
       if (expansionOpen) {
         outboxMessage.expansionPanel = <InboxInvestible marketId={market.id} investibleId={investibleId}
@@ -331,8 +334,8 @@ export function getOutboxMessages(props) {
       const investibleId = investible.investible.id;
       const notAccepted = investible.notAccepted;
       const label = notAccepted ? 'planningUnacceptedLabel' : 'inboxVotingLabel';
-      const messageIcon = notAccepted ? <PersonAddOutlined style={{ fontSize: 24, color: '#8f8f8f', }}/> :
-        <ThumbsUpDownIcon style={{ fontSize: 24, color: '#8f8f8f', }}/>;
+      const messageIcon = notAccepted ? <PersonAddOutlined style={{ fontSize: 24, color: '#ffc61a', }}/> :
+        <ThumbsUpDownIcon style={{ fontSize: 24, color: '#ffc61a', }}/>;
       const message = getMessageForInvestible(investible, market, label, messageIcon, intl)
       const expansionOpen = expansionState && !!expansionState[investibleId]
       if (expansionOpen) {
@@ -372,7 +375,7 @@ export function getOutboxMessages(props) {
     });
     questions.forEach((comment) => {
       const message = getMessageForComment(comment, market, 'cardTypeLabelQuestion',
-        <QuestionIcon style={{ fontSize: 24, color: '#8f8f8f', }}/>, intl, investiblesState, marketStagesState,
+        <QuestionIcon style={{ fontSize: 24, color: '#ffc61a', }}/>, intl, investiblesState, marketStagesState,
         comments, marketPresences, planningClasses, mobileLayout, expansionState)
       if (message) {
         messages.push(message);
@@ -380,7 +383,7 @@ export function getOutboxMessages(props) {
     });
     issues.forEach((comment) => {
       const message = getMessageForComment(comment, market, 'cardTypeLabelIssue',
-        <IssueIcon style={{ fontSize: 24, color: '#8f8f8f', }}/>, intl, investiblesState, marketStagesState,
+        <IssueIcon style={{ fontSize: 24, color: '#E85757', }}/>, intl, investiblesState, marketStagesState,
         comments, marketPresences, planningClasses, mobileLayout, expansionState)
       if (message) {
         messages.push(message);
@@ -388,7 +391,7 @@ export function getOutboxMessages(props) {
     });
     suggestions.forEach((comment) => {
       const message = getMessageForComment(comment, market, 'cardTypeLabelSuggestedChange',
-        <ChangeSuggstionIcon style={{ fontSize: 24, color: '#8f8f8f', }}/>, intl, investiblesState, marketStagesState,
+        <ChangeSuggstionIcon style={{ fontSize: 24, color: '#ffc61a', }}/>, intl, investiblesState, marketStagesState,
         comments, marketPresences, planningClasses, mobileLayout, expansionState)
       if (message) {
         messages.push(message);

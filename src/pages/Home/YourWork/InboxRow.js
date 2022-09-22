@@ -46,7 +46,7 @@ function getPriorityIcon(message, isAssigned) {
 
 function InboxRow(props) {
   const { message, checked, determinateDispatch, expansionDispatch, expansionOpen, isMultiple, isDeletable,
-    numMultiples, showPriority } = props;
+    numMultiples, showPriority, showSelector = true } = props;
   const intl = useIntl();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
@@ -118,7 +118,7 @@ function InboxRow(props) {
   if (expansionOpen && usesExpansion(item, isMultiple)) {
     addExpansionPanel({ item, planningClasses, mobileLayout, isMultiple, messagesState, isDeletable });
   }
-  return <WorkListItem key={`inboxRow${typeObjectId}`} id={typeObjectId} checked={checked}
+  return <WorkListItem key={`inboxRow${typeObjectId}`} id={typeObjectId} checked={checked} useSelect={showSelector}
                        determinateDispatch={determinateDispatch}
                        expansionDispatch={expansionDispatch} expansionOpen={expansionOpen}
                        isMultiple={isMultiple} {...item} />;

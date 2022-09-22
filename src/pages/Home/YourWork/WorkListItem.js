@@ -182,10 +182,10 @@ function WorkListItem(props) {
         } onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
           <Div className={cx(read && 'MailListItem-read')}>
             <Box flexShrink={0} className={gutterStyles.parent}>
-              {!mobileLayout && useSelect && (
+              {!mobileLayout && (
                 <StyledIconButton
                   className={cx(checked && "MailListItem-checked")}
-                  style={{marginLeft: '0.15rem'}}
+                  style={{marginLeft: '0.15rem', visibility: useSelect ? 'visible' : 'hidden'}}
                   classes={actionStyles}
                   onClick={(event) => {
                     preventDefaultAndProp(event);
@@ -198,7 +198,6 @@ function WorkListItem(props) {
               )}
               {(!useSelect || !mobileLayout) && (
                 <StyledIconButton
-                  style={{marginLeft: useSelect ? undefined : '0.5rem'}}
                   disabled
                   classes={actionStyles}
                 >

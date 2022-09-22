@@ -298,11 +298,17 @@ function PlanningIdeas(props) {
     restoreHeader();
     const { previousElementId } = beingDraggedHack;
     if (previousElementId) {
-      document.getElementById(previousElementId).className = classes.containerEmpty;
+      const previousElement = document.getElementById(previousElementId);
+      if (previousElement) {
+        previousElement.className = classes.containerEmpty;
+      }
       setBeingDraggedHack({});
     }
     ['furtherReadyToStart', 'furtherNotReadyToStart'].forEach((elementId) => {
-      document.getElementById(elementId).classList.remove(archiveClasses.containerGreen);
+      const element = document.getElementById(elementId);
+      if (element) {
+        element.classList.remove(archiveClasses.containerGreen);
+      }
     });
   }
 

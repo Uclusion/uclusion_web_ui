@@ -10,9 +10,7 @@ import {
   hasNoChannels
 } from '../../../contexts/MarketsContext/marketsContextHelper'
 import LoadingDisplay from '../../../components/LoadingDisplay'
-import { Assignment, PersonAddOutlined } from '@material-ui/icons'
-import InboxWelcomeExpansion from './InboxWelcomeExpansion'
-import WorkListItem from './WorkListItem'
+import { PersonAddOutlined } from '@material-ui/icons'
 import { DECISION_TYPE, PLANNING_TYPE } from '../../../constants/markets'
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { getInvestible, getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
@@ -33,7 +31,7 @@ import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown'
 import { getInvestibleVoters } from '../../../utils/votingUtils'
 import { formCommentLink, formInvestibleLink } from '../../../utils/marketIdPathFunctions'
 import { Typography } from '@material-ui/core'
-import { ASSIGNED_INDEX, PENDING_INDEX } from './Inbox'
+import { ASSIGNED_INDEX, PENDING_INDEX, TEAM_INDEX } from './Inbox'
 
 export function usesExpansion(item, isMultiple) {
   if (isMultiple) {
@@ -85,18 +83,13 @@ export function createDefaultInboxRow(messagesOrdered, loadingFromInvite, messag
   if (!_.isEmpty(messagesOrdered)) {
     return undefined;
   }
-  const id = 'emptyInbox';
-  const { messages } = (messagesState || {});
-  const safeMessages = messages || [];
-  const existingMessage = safeMessages.find((message) => message.type_object_id === id)
-    || { is_highlighted: true };
+
 
   if (tabIndex === PENDING_INDEX) {
     return (
       <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
                   variant="body1">
-        Your Pending tab is empty.<br/><br/> Unapproved jobs, unanswered questions and suggestions, jobs in review,
-        and blocked will be shown here.
+        Your Unanswered tab is empty.<br/><br/> Your unanswered questions and suggestions will be shown here.
       </Typography>
     );
   }
@@ -111,33 +104,23 @@ export function createDefaultInboxRow(messagesOrdered, loadingFromInvite, messag
     );
   }
 
-  if (loadingFromInvite && hasNoChannels(tokensHash)) {
-    return <LoadingDisplay showMessage messageId="loadingMessage" noMargin />;
+  if (tabIndex === TEAM_INDEX) {
+    return (
+      <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
+                  variant="body1">
+        Your Team Unresolved tab is empty.<br/><br/> Unfinished team collaboration will be shown here.
+      </Typography>
+    );
   }
 
-  if (hasNoChannels(tokensHash)) {
-    const item = {
-      title: intl.formatMessage({ id: 'welcome' }),
-      market: intl.formatMessage({ id: 'aboutInbox' }),
-      icon: <Assignment style={{fontSize: 24, color: '#2D9CDB',}}/>,
-      read: !existingMessage.is_highlighted,
-      message: {type_object_id: id},
-      expansionPanel: <InboxWelcomeExpansion />,
-      moreDescription: intl.formatMessage({ id: 'demonstratesInbox' }),
-      date: intl.formatDate(new Date())
-    };
-    const determinateChecked = determinate[id];
-    const checked = determinateChecked !== undefined ? determinateChecked : checkAll;
-    return <WorkListItem key={id} id={id} expansionOpen={!!expansionState[id]}
-                                    checked={checked} {...item}
-                                    determinateDispatch={determinateDispatch} expansionDispatch={expansionDispatch}
-    />;
+  if (loadingFromInvite && hasNoChannels(tokensHash)) {
+    return <LoadingDisplay showMessage messageId="loadingMessage" noMargin />;
   }
 
   return (
     <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
                 variant="body1">
-      Your Inbox tab is empty.<br/><br/> New messages and unassigned requests will be shown here.
+      Your Unread tab is empty.<br/><br/> New messages will be shown here.
     </Typography>
   );
 }

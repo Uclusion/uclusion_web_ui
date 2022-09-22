@@ -34,12 +34,13 @@ import {
 import AssignmentIcon from '@material-ui/icons/Assignment'
 
 const PAGE_SIZE = 15;
+export const TEAM_INDEX = 3;
 export const PENDING_INDEX = 2;
 export const ASSIGNED_INDEX = 1;
 
 function Inbox(props) {
   const { isDisabled = false, expansionState = {}, expansionDispatch, page, setPage,
-    loadingFromInvite=false, setPendingPage, pendingPage, setAssignedPage, assignedPage,
+    loadingFromInvite=false, setPendingPage, pendingPage, setAssignedPage, assignedPage, setTeamPage, teamPage,
     expansionPendingDispatch, expansionPendingState, expansionAssignedState, expansionAssignedDispatch } = props;
   const intl = useIntl();
   const workItemClasses = workListStyles();
@@ -147,26 +148,30 @@ function Inbox(props) {
   inboxMessagesOrdered = inboxMessagesOrdered.filter((message) => message.is_highlighted);
   const unpaginatedItems = tabIndex === PENDING_INDEX ? outBoxMessagesOrdered : (tabIndex === 0 ? inboxMessagesOrdered
     : (tabIndex === ASSIGNED_INDEX ? assignedMessagesOrdered : teamMessagesOrdered));
-  const usePage = tabIndex === PENDING_INDEX ? pendingPage : (tabIndex === 0 ? page : assignedPage);
+  const usePage = tabIndex === PENDING_INDEX ? pendingPage : (tabIndex === 0 ? page :
+    (tabIndex === ASSIGNED_INDEX ? assignedPage : teamPage));
 
   useEffect(() => {
     // If the last item on a page is deleted then must go down
-    const pageSetter = tabIndex === PENDING_INDEX ? setPendingPage : ( tabIndex === 0 ? setPage : setAssignedPage);
+    const pageSetter = tabIndex === PENDING_INDEX ? setPendingPage : ( tabIndex === 0 ? setPage :
+      (tabIndex === ASSIGNED_INDEX ? setAssignedPage : setTeamPage));
     if ((usePage - 1)*PAGE_SIZE + 1 > _.size(unpaginatedItems)) {
       if (usePage > 1) {
         const lastAvailablePage = Math.ceil(_.size(unpaginatedItems)/PAGE_SIZE);
         pageSetter(lastAvailablePage > 0 ? lastAvailablePage : 1);
       }
     }
-  }, [tabIndex, setPage, setPendingPage, unpaginatedItems, usePage, setAssignedPage]);
+  }, [tabIndex, setPage, setPendingPage, unpaginatedItems, usePage, setAssignedPage, setTeamPage]);
 
   function changePage(byNum) {
     if (tabIndex === PENDING_INDEX) {
       setPendingPage(pendingPage + byNum);
     } else if (tabIndex === 0) {
       setPage(page + byNum);
+    } else if (tabIndex === ASSIGNED_INDEX) {
+      setAssignedPage(assignedPage + byNum);
     } else {
-      setAssignedPage(assignedPage + byNum)
+      setTeamPage(teamPage + byNum);
     }
   }
 

@@ -26,6 +26,7 @@ function InboxFull(props) {
   const values = queryString.parse(querySearch || '');
   const { fromInvite } = values || {};
   const [page, setPage] = useState(1);
+  const [teamPage, setTeamPage] = useState(1);
   const [pendingPage, setPendingPage] = useState(1);
   const [assignedPage, setAssignedPage] = useState(1);
   const [marketsState, , tokensHash] = useContext(MarketsContext);
@@ -137,7 +138,7 @@ function InboxFull(props) {
     >
       <Inbox expansionState={expansionState} expansionDispatch={expansionDispatch} page={page} setPage={setPage}
              loadingFromInvite={fromInvite} pendingPage={pendingPage} setPendingPage={setPendingPage}
-             assignedPage={assignedPage} setAssignedPage={setAssignedPage}
+             assignedPage={assignedPage} setAssignedPage={setAssignedPage} teamPage={teamPage} setTeamPage={setTeamPage}
              expansionAssignedState={expansionAssignedState} expansionAssignedDispatch={expansionAssignedDispatch}
              expansionPendingState={expansionPendingState} expansionPendingDispatch={expansionPendingDispatch}
       />

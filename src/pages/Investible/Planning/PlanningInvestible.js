@@ -367,6 +367,14 @@ export function getCollaborators(marketPresences, investibleComments, marketPres
   return _.uniq((concated || []).map((presence) => presence.id));
 }
 
+function countUnresolved(comments) {
+  if (_.isEmpty(comments)) {
+    return undefined;
+  }
+  const unresolvedComments = comments.filter((comment) => !comment.resolved);
+  return _.isEmpty(unresolvedComments) ? undefined : `${_.size(unresolvedComments)}`;
+}
+
 /**
  * A page that represents what the investible looks like for a DECISION Dialog
  * @param props
@@ -541,7 +549,7 @@ function PlanningInvestible(props) {
     return _.isEmpty(questionSuggestionsByAssignedComments) && !isInVerified && !isInNotDoing;
   }
   const todoComments = investibleComments.filter(
-    comment => comment.comment_type === TODO_TYPE && !comment.resolved
+    comment => comment.comment_type === TODO_TYPE
   );
   const reportComments = investibleComments.filter(comment => comment.comment_type === REPORT_TYPE);
   let allowedCommentTypes = [];
@@ -1027,26 +1035,26 @@ function PlanningInvestible(props) {
           )}
           {(!singleTabLayout || sectionOpen === 'tasksSection') && (
             <GmailTabItem icon={getIcon(TODO_TYPE)} label={intl.formatMessage({id: 'taskSection'})}
-                          tag={_.isEmpty(todoComments) ? undefined : `${_.size(todoComments)}`} />
+                          tag={countUnresolved(todoComments)} />
           )}
           {(!singleTabLayout || sectionOpen === 'questionsSection') && (
             <GmailTabItem icon={getIcon(QUESTION_TYPE)} label={intl.formatMessage({id: 'questions'})}
-                          tag={_.isEmpty(questionComments) ? undefined : `${_.size(questionComments)}` } />
+                          tag={countUnresolved(questionComments)} />
           )}
           {(!singleTabLayout || sectionOpen === 'suggestionsSection') && (
             <GmailTabItem icon={getIcon(SUGGEST_CHANGE_TYPE)}
                           label={intl.formatMessage({id: 'suggestions'})}
-                          tag={_.isEmpty(suggestionComments) ? undefined : `${_.size(suggestionComments)}`} />
+                          tag={countUnresolved(suggestionComments)} />
           )}
           {(!singleTabLayout || sectionOpen === 'reportsSection') && !isFurtherWork && (
             <GmailTabItem icon={getIcon(REPORT_TYPE)}
                           label={intl.formatMessage({id: 'reportsSectionLabel'})}
-                          tag={_.isEmpty(reportsComments) ? undefined : `${_.size(reportsComments)}`} />
+                          tag={countUnresolved(reportsComments)} />
           )}
           {(!singleTabLayout || sectionOpen === 'blockersSection') && (
             <GmailTabItem icon={getIcon(ISSUE_TYPE)}
                           label={intl.formatMessage({id: 'blocking'})}
-                          tag={_.isEmpty(blockingComments) ? undefined : `${_.size(blockingComments)}`}
+                          tag={countUnresolved(blockingComments)}
             />
           )}
         </GmailTabs>

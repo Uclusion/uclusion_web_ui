@@ -41,7 +41,7 @@ import { getInvestible } from '../../../contexts/InvestibesContext/investiblesCo
 import { getMarketInfo } from '../../../utils/userFunctions'
 
 function CommentPanel(props) {
-  const { commentId, marketId, marketType, messageType, planningClasses, mobileLayout, messagesFull,
+  const { commentId, marketId, marketType, planningClasses, mobileLayout, messagesFull,
     isDeletable, message, isOutbox } = props;
   const { link } = message || {};
   const history = useHistory();

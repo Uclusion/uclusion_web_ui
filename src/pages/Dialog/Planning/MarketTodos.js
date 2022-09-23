@@ -338,7 +338,6 @@ function MarketTodos(props) {
 
   function getCards(commentsGetting, history, intl, setCard, sectionId) {
     function setCardAndScroll(comment) {
-      console.debug(comment);
       setCard(comment);
       navigate(history, `${formMarketLink(comment.market_id, comment.group_id)}#c${comment.id}`);
     }

@@ -1187,7 +1187,7 @@ function PlanningInvestible(props) {
                   )}
                 </div>
               </div>
-              <div style={{marginTop: mobileLayout ? undefined : '-3rem'}}>
+              <div style={{marginTop: mobileLayout ? undefined : '-2rem'}}>
                 {displayEdit && isInAccepted && (
                   <div>
                     <EditMarketButton

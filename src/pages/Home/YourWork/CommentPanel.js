@@ -78,8 +78,7 @@ function CommentPanel(props) {
 
   // Note passing all comments down instead of just related to the unread because otherwise confusing and also
   // have case of more than one reply being de-duped
-  // Note - checking resolved here because can be race condition with message removal and comment resolution
-  if (!_.isEmpty(rootComment) && (messageType === 'UNREAD_RESOLVED' || !rootComment.resolved)) {
+  if (!_.isEmpty(rootComment)) {
     const { comment_type: commentType, investible_id: investibleId } = rootComment;
     const investible = getInvestible(investiblesState, investibleId) || {};
     const marketInfo = getMarketInfo(investible, marketId) || {};
@@ -150,6 +149,7 @@ function CommentPanel(props) {
       </div>
     );
   } else {
+    console.info(`Missing root for comment id ${useCommentId}`);
     return (
       <LoadingDisplay showMessage messageId="loadingMessage" noMargin />
     );

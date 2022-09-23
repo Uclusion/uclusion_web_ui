@@ -1046,7 +1046,8 @@ function PlanningInvestible(props) {
                           label={intl.formatMessage({id: 'suggestions'})}
                           tag={countUnresolved(suggestionComments)} />
           )}
-          {(!singleTabLayout || sectionOpen === 'reportsSection') && !isFurtherWork && (
+          {(!singleTabLayout || sectionOpen === 'reportsSection') && (!isFurtherWork || _.count(reportsComments) > 0)
+            && (
             <GmailTabItem icon={getIcon(REPORT_TYPE)}
                           label={intl.formatMessage({id: 'reportsSectionLabel'})}
                           tag={countUnresolved(reportsComments)} />

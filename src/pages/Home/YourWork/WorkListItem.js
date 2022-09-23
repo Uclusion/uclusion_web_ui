@@ -169,7 +169,7 @@ function WorkListItem(props) {
         <div style={{ width: '100%', cursor: 'pointer' }} id={`link${id}`} onClick={
           (event) => {
             preventDefaultAndProp(event);
-            if (useSelect && !read) {
+            if ((expansionOpen || !isUsingExpansion) && !read) {
               pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: DEHIGHLIGHT_EVENT, message });
             }
             if (isUsingExpansion) {

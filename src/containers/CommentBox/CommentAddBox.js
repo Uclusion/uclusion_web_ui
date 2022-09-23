@@ -24,6 +24,7 @@ import DismissableText from '../../components/Notifications/DismissableText'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { getDraftComments } from '../../contexts/CommentsContext/commentsContextHelper'
 import CommentBox from './CommentBox'
+import { Feedback } from '@material-ui/icons'
 
 export const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -169,7 +170,7 @@ export function getIcon(commentType) {
       return <AssignmentIcon />;
     }
     case REPORT_TYPE: {
-      return <DescriptionIcon />;
+      return <Feedback />;
     }
     default: {
       return null;

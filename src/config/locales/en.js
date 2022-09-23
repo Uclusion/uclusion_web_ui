@@ -475,8 +475,8 @@ const messages = defineMessages({
   commentAddQuestionDefault: 'Your question...',
   commentAddSuggestDefault: 'Your suggestion...',
   commentAddReplyDefault: 'Your reply...',
-  commentAddReportDefault: 'Your progress report...',
-  commentAddReviewReportDefault: 'Your review report...',
+  commentAddReportDefault: "Report progress here, Ex: 'Made the button blue'",
+  commentAddReviewReportDefault: 'Write your feedback here',
   commentAddSaveLabel: 'Save',
   commentAddSendLabel: 'Send',
   commentAddCancelLabel: 'Clear',
@@ -558,7 +558,7 @@ const messages = defineMessages({
   chooseDate: 'Change estimated completion date',
   orProgressReport: 'or create or update a progress report.',
   orProgressReportOnly: 'or create a progress report.',
-  descriptionVotingLabel: 'Details',
+  descriptionVotingLabel: 'Overview & Approvals',
 
   // Home
   homeAddPlanning: 'Create a workspace',
@@ -998,7 +998,7 @@ const messages = defineMessages({
   suggestPresent: 'Suggestion',
   reportPresent: 'Progress Report',
   reviewReportPresent: 'Review Report',
-  reportsSectionLabel: 'Reports',
+  reportsSectionLabel: 'Progress & Feedback',
   todoPresent: 'Task',
   issueTip: 'Use to halt an option or job until resolved.',
   questionTip: 'Question',

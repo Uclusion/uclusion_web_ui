@@ -259,7 +259,7 @@ const messages = defineMessages({
   questions: 'Questions',
   suggestions: 'Suggestions',
   reports: 'Reports',
-  blocking: 'Blocking',
+  blocking: 'Blockers',
   workspace: 'Workspace',
   story: 'Job',
   approvals: 'Approvals',

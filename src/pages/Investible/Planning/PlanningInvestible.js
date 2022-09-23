@@ -563,7 +563,7 @@ function PlanningInvestible(props) {
   } else if (sectionOpen === 'suggestionsSection' && canGetInput()) {
     allowedCommentTypes = [SUGGEST_CHANGE_TYPE];
     sectionComments = suggestionComments;
-  } else if (sectionOpen === 'reportsSection' && !isInVoting) {
+  } else if (sectionOpen === 'reportsSection' && !isInVoting && !isFurtherWork) {
     allowedCommentTypes = [REPORT_TYPE];
     sectionComments = reportsComments;
   } else if (sectionOpen === 'blockersSection' && canOpenBlocking()) {
@@ -858,7 +858,7 @@ function PlanningInvestible(props) {
   const title = ticketCode ? `${ticketCode} ${name}` : name;
   const descriptionSectionResults = (_.isEmpty(search) ? 0 : (results || []).find((item) => item.id === investibleId))
     + _.size(investmentReasons);
-  const displayReportsSection =  !isFurtherWork || _.size(reportsComments) > 0;
+  const displayReportsSection =  (!isInVoting && !isFurtherWork) || _.size(reportsComments) > 0;
   const displayQuestionSection = canGetInput() || _.size(questionComments) > 0;
   const displaySuggestionsSection = canGetInput() || _.size(suggestionComments) > 0;
   const displayBockingSection = canOpenBlocking() || _.size(blockingComments) > 0;

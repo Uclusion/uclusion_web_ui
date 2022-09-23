@@ -9,7 +9,6 @@ import {
   Tooltip, useMediaQuery, useTheme
 } from '@material-ui/core'
 import EmojiObjectsIcon from '@material-ui/icons/EmojiObjects'
-import DescriptionIcon from '@material-ui/icons/Description'
 import AssignmentIcon from '@material-ui/icons/Assignment'
 import HelpIcon from '@material-ui/icons/Help'
 import BlockIcon from '@material-ui/icons/Block'

@@ -413,13 +413,15 @@ function PlanningInvestible(props) {
   const { id: marketId, market_stage: marketStage } = market;
   const inArchives = marketStage !== ACTIVE_STAGE;
   const labels = getMarketLabels(investiblesState, marketId);
-  const investmentReasonsRemoved = investibleComments.filter(comment => comment.comment_type !== JUSTIFY_TYPE) || [];
-  const investmentReasons = investibleComments.filter((comment) => {
+  const investibleCommentsSearched = investibleComments.filter((comment) => {
     if (_.isEmpty(search)) {
-      return comment.comment_type === JUSTIFY_TYPE;
+      return true;
     }
-    return comment.comment_type === JUSTIFY_TYPE && (results.find((item) => item.id === comment.id)
-      || parentResults.find((id) => id === comment.id));
+    return results.find((item) => item.id === comment.id) || parentResults.find((id) => id === comment.id);
+  });
+  const investmentReasonsRemoved = investibleComments.filter(comment => comment.comment_type !== JUSTIFY_TYPE) || [];
+  const investmentReasonsSearched = investibleCommentsSearched.filter((comment) => {
+      return comment.comment_type === JUSTIFY_TYPE;
   });
   const investibleCollaborators = getCollaborators(marketPresences, investibleComments, marketPresencesState,
     investibleId);
@@ -535,9 +537,10 @@ function PlanningInvestible(props) {
   const suggestionComments = investibleComments.filter(
     comment => comment.comment_type === SUGGEST_CHANGE_TYPE
   );
-  const reportsComments = investibleComments.filter(
+  const reportsCommentsSearched = investibleComments.filter(
     comment => comment.comment_type === REPORT_TYPE
   );
+  const reportComments = investibleComments.filter(comment => comment.comment_type === REPORT_TYPE);
   const questionComments = investibleComments.filter(
     comment => comment.comment_type === QUESTION_TYPE
   );
@@ -551,24 +554,35 @@ function PlanningInvestible(props) {
   const todoComments = investibleComments.filter(
     comment => comment.comment_type === TODO_TYPE
   );
-  const reportComments = investibleComments.filter(comment => comment.comment_type === REPORT_TYPE);
+  const todoCommentsSearched = investibleCommentsSearched.filter(
+    comment => comment.comment_type === TODO_TYPE
+  );
+  const questionCommentsSearched = investibleCommentsSearched.filter(
+    comment => comment.comment_type === QUESTION_TYPE
+  );
+  const suggestionCommentsSearched = investibleCommentsSearched.filter(
+    comment => comment.comment_type === SUGGEST_CHANGE_TYPE
+  );
+  const blockingCommentsSearched = investibleCommentsSearched.filter(
+    comment => comment.comment_type === ISSUE_TYPE
+  );
   let allowedCommentTypes = [];
   let sectionComments = [];
   if (sectionOpen === 'tasksSection') {
     allowedCommentTypes = [TODO_TYPE];
-    sectionComments = todoComments;
+    sectionComments = todoCommentsSearched;
   } else if (sectionOpen === 'questionsSection' && canGetInput()) {
     allowedCommentTypes = [QUESTION_TYPE];
-    sectionComments = questionComments;
+    sectionComments = questionCommentsSearched;
   } else if (sectionOpen === 'suggestionsSection' && canGetInput()) {
     allowedCommentTypes = [SUGGEST_CHANGE_TYPE];
-    sectionComments = suggestionComments;
+    sectionComments = suggestionCommentsSearched;
   } else if (sectionOpen === 'reportsSection' && !isInVoting && !isFurtherWork) {
     allowedCommentTypes = [REPORT_TYPE];
-    sectionComments = reportsComments;
+    sectionComments = reportsCommentsSearched;
   } else if (sectionOpen === 'blockersSection' && canOpenBlocking()) {
     allowedCommentTypes = [ISSUE_TYPE];
-    sectionComments = blockingComments;
+    sectionComments = blockingCommentsSearched;
   }
 
   const invested = getVotesForInvestible(marketPresences, investibleId);
@@ -816,7 +830,7 @@ function PlanningInvestible(props) {
     return () => updatePageState({editCollaborators: editType});
   }
 
-  const displayApprovalsBySearch = _.isEmpty(search) ? _.size(invested) : _.size(investmentReasons);
+  const displayApprovalsBySearch = _.isEmpty(search) ? _.size(invested) : _.size(investmentReasonsSearched);
   const openComments = investmentReasonsRemoved.filter((comment) => !comment.resolved) || [];
   const openProblemComments = openComments.filter((comment) =>
     [QUESTION_TYPE, ISSUE_TYPE, SUGGEST_CHANGE_TYPE].includes(comment.comment_type));
@@ -856,12 +870,12 @@ function PlanningInvestible(props) {
   }
 
   const title = ticketCode ? `${ticketCode} ${name}` : name;
-  const descriptionSectionResults = (_.isEmpty(search) ? 0 : (results || []).find((item) => item.id === investibleId))
-    + _.size(investmentReasons);
-  const displayReportsSection =  (!isInVoting && !isFurtherWork) || _.size(reportsComments) > 0;
-  const displayQuestionSection = canGetInput() || _.size(questionComments) > 0;
-  const displaySuggestionsSection = canGetInput() || _.size(suggestionComments) > 0;
-  const displayBockingSection = canOpenBlocking() || _.size(blockingComments) > 0;
+  const descriptionSectionResults = (_.isEmpty(search) ? 0 :
+      ((results || []).find((item) => item.id === investibleId) ? 1 : 0)) + _.size(investmentReasonsSearched);
+  const displayReportsSection =  (!isInVoting && !isFurtherWork) || _.size(reportsCommentsSearched) > 0;
+  const displayQuestionSection = canGetInput() || _.size(questionCommentsSearched) > 0;
+  const displaySuggestionsSection = canGetInput() || _.size(suggestionCommentsSearched) > 0;
+  const displayBockingSection = canOpenBlocking() || _.size(blockingCommentsSearched) > 0;
   const sections = ['descriptionVotingSection', 'tasksSection'];
   if (displayQuestionSection) {
     sections.push('questionsSection');
@@ -889,23 +903,23 @@ function PlanningInvestible(props) {
     navListItemTextArray = [
       createNavListItem(ThumbsUpDownIcon, 'descriptionVotingLabel', 'descriptionVotingSection',
         descriptionSectionResults),
-      createNavListItem(AssignmentIcon, 'tasksSection', 'tasksSection', _.size(todoComments))
+      createNavListItem(AssignmentIcon, 'tasksSection', 'tasksSection', _.size(todoCommentsSearched))
     ];
     if (displayQuestionSection) {
       navListItemTextArray.push(createNavListItem(HelpIcon, 'questions', 'questionsSection',
-        _.size(questionComments)));
+        _.size(questionCommentsSearched)));
     }
     if (displaySuggestionsSection) {
       navListItemTextArray.push(createNavListItem(EmojiObjectsIcon, 'suggestions', 'suggestionsSection',
-        _.size(suggestionComments)));
+        _.size(suggestionCommentsSearched)));
     }
     if (displayReportsSection) {
       navListItemTextArray.push(createNavListItem(BlockIcon, 'blocking', 'reportsSection',
-        _.size(blockingComments)));
+        _.size(blockingCommentsSearched)));
     }
     if (displayBockingSection) {
       navListItemTextArray.push(createNavListItem(DescriptionIcon, 'reportsSectionLabel',
-        'blockersSection', _.size(reportsComments)));
+        'blockersSection', _.size(reportsCommentsSearched)));
     }
   }
   return (
@@ -1062,26 +1076,26 @@ function PlanningInvestible(props) {
           )}
           {(!singleTabLayout || sectionOpen === 'tasksSection') && (
             <GmailTabItem icon={getIcon(TODO_TYPE)} label={intl.formatMessage({id: 'taskSection'})}
-                          tag={countUnresolved(todoComments)} />
+                          tag={countUnresolved(todoCommentsSearched)} />
           )}
           {(!singleTabLayout || sectionOpen === 'questionsSection') && displayQuestionSection && (
             <GmailTabItem icon={getIcon(QUESTION_TYPE)} label={intl.formatMessage({id: 'questions'})}
-                          tag={countUnresolved(questionComments)} />
+                          tag={countUnresolved(questionCommentsSearched)} />
           )}
           {(!singleTabLayout || sectionOpen === 'suggestionsSection') && displaySuggestionsSection && (
             <GmailTabItem icon={getIcon(SUGGEST_CHANGE_TYPE)}
                           label={intl.formatMessage({id: 'suggestions'})}
-                          tag={countUnresolved(suggestionComments)} />
+                          tag={countUnresolved(suggestionCommentsSearched)} />
           )}
           {(!singleTabLayout || sectionOpen === 'reportsSection') && displayReportsSection && (
             <GmailTabItem icon={getIcon(REPORT_TYPE)}
                           label={intl.formatMessage({id: 'reportsSectionLabel'})}
-                          tag={countUnresolved(reportsComments)} />
+                          tag={countUnresolved(reportsCommentsSearched)} />
           )}
           {(!singleTabLayout || sectionOpen === 'blockersSection') && displayBockingSection && (
             <GmailTabItem icon={getIcon(ISSUE_TYPE)}
                           label={intl.formatMessage({id: 'blocking'})}
-                          tag={countUnresolved(blockingComments)}
+                          tag={countUnresolved(blockingCommentsSearched)}
             />
           )}
         </GmailTabs>
@@ -1263,7 +1277,7 @@ function PlanningInvestible(props) {
                   <Voting
                     investibleId={investibleId}
                     marketPresences={marketPresences}
-                    investmentReasons={investmentReasons}
+                    investmentReasons={investmentReasonsSearched}
                     showExpiration={fullStage.has_expiration}
                     expirationMinutes={market.investment_expiration * 1440}
                     votingPageState={votingPageState}
@@ -1290,7 +1304,7 @@ function PlanningInvestible(props) {
                   <YourVoting
                     investibleId={investibleId}
                     marketPresences={marketPresences}
-                    comments={investmentReasons}
+                    comments={investmentReasonsSearched}
                     userId={userId}
                     market={market}
                     groupId={groupId}

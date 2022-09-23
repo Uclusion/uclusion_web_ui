@@ -877,8 +877,7 @@ function PlanningInvestible(props) {
   }
   let navListItemTextArray = undefined;
   if (singleTabLayout) {
-    function createNavListItem(icon, textId, itemTabIndex, howManyNum) {
-      const anchorId = sections[itemTabIndex];
+    function createNavListItem(icon, textId, anchorId, howManyNum) {
       const nav = baseNavListItem(formInvestibleLink(marketId, investibleId), icon, textId, anchorId,
         howManyNum > 0 ? howManyNum : undefined, true);
       nav['onClickFunc'] = () => {
@@ -888,13 +887,26 @@ function PlanningInvestible(props) {
       return nav;
     }
     navListItemTextArray = [
-      createNavListItem(ThumbsUpDownIcon, 'descriptionVotingLabel', 0, descriptionSectionResults),
-      createNavListItem(AssignmentIcon, 'tasksSection', 1, _.size(todoComments)),
-      createNavListItem(HelpIcon, 'questions', 2, _.size(questionComments)),
-      createNavListItem(EmojiObjectsIcon, 'suggestions', 3, _.size(suggestionComments)),
-      createNavListItem(DescriptionIcon, 'reportsSectionLabel', 4, _.size(reportsComments)),
-      createNavListItem(BlockIcon, 'blocking', 5, _.size(blockingComments))
+      createNavListItem(ThumbsUpDownIcon, 'descriptionVotingLabel', 'descriptionVotingSection',
+        descriptionSectionResults),
+      createNavListItem(AssignmentIcon, 'tasksSection', 'tasksSection', _.size(todoComments))
     ];
+    if (displayQuestionSection) {
+      navListItemTextArray.push(createNavListItem(HelpIcon, 'questions', 'questionsSection',
+        _.size(questionComments)));
+    }
+    if (displaySuggestionsSection) {
+      navListItemTextArray.push(createNavListItem(EmojiObjectsIcon, 'suggestions', 'suggestionsSection',
+        _.size(suggestionComments)));
+    }
+    if (displayReportsSection) {
+      navListItemTextArray.push(createNavListItem(BlockIcon, 'blocking', 'reportsSection',
+        _.size(blockingComments)));
+    }
+    if (displayBockingSection) {
+      navListItemTextArray.push(createNavListItem(DescriptionIcon, 'reportsSectionLabel',
+        'blockersSection', _.size(reportsComments)));
+    }
   }
   return (
     <Screen

@@ -15,7 +15,8 @@ const useStyles = makeStyles(theme => ({
   root: {
     display: "flex",
     backgroundColor: theme.palette.grey["300"],
-    borderRadius: 6,
+    borderRadius: 15,
+    width: 'fit-content',
     padding: 0,
   },
   rootEmpty: {
@@ -28,7 +29,6 @@ const useStyles = makeStyles(theme => ({
     margin: 0,
     marginLeft: theme.spacing(1),
     fontSize: 16,
-    flex: 10.5,
     padding: '14px',
     display: 'flex'
   },
@@ -53,7 +53,8 @@ const useStyles = makeStyles(theme => ({
   },
   pointer: {
     cursor: 'pointer',
-    textDecoration: 'underline'
+    textDecoration: 'underline',
+    display: 'flex'
   },
   hoverState: {
     '&:hover': {
@@ -133,7 +134,6 @@ function DismissableText(props) {
         <dl className={classes.rightMost}>
           <dd className={classes.dismissText}>
           <span role="button" onClick={storeDismissedInBackend} className={classes.pointer}>
-            <FormattedMessage id="decisionDialogsDismissDialog" />
             <IconButton className={classes.hoverState} disableRipple>
               <CancelRoundedIcon />
             </IconButton>

@@ -8,8 +8,7 @@ import { useHistory, useLocation } from 'react-router'
 import { darken, makeStyles } from '@material-ui/core/styles'
 import { yellow } from '@material-ui/core/colors'
 import {
-  SECTION_TYPE_SECONDARY_WARNING,
-  SECTION_TYPE_TERTIARY_WARNING, SECTION_TYPE_WARNING
+  SECTION_TYPE_SECONDARY_WARNING
 } from '../../../constants/global'
 import SubSection from '../../../containers/SubSection/SubSection'
 import ReadOnlyQuillEditor from '../../../components/TextEditors/ReadOnlyQuillEditor'
@@ -284,10 +283,11 @@ function MarketTodos(props) {
 
   function onDragStart(event, notificationType) {
     removeHeader();
-    const commentId = event.target.id.substring(1);
+    const commentId = event.target.id.substring('card'.length);
     event.dataTransfer.setData('text', commentId);
     event.dataTransfer.setData('notificationType', notificationType);
-    const previousClass = document.getElementById(`drag${commentId}`).className;
+    const previousElement = document.getElementById(`drag${commentId}`);
+    const previousClass = previousElement ? document.getElementById(`drag${commentId}`).className : undefined;
     setBeingDraggedHack({id:event.target.id, previousClass});
     document.getElementById(`drag${commentId}`).className = classes.containerEmpty;
   }
@@ -307,11 +307,17 @@ function MarketTodos(props) {
         setEditYellowCard(undefined);
       }
       if (previousClass) {
-        document.getElementById(`drag${commentId}`).className = previousClass;
+        const drugElement = document.getElementById(`drag${commentId}`);
+        if (drugElement) {
+          drugElement.className = previousClass;
+        }
       }
     }
     if (previousElementId) {
-      document.getElementById(previousElementId).className = classes.containerEmpty;
+      const previousElement = document.getElementById(previousElementId);
+      if (previousElement) {
+        previousElement.className = classes.containerEmpty;
+      }
       setBeingDraggedHack({});
     }
   }
@@ -542,7 +548,7 @@ function MarketTodos(props) {
   const editCard = comments.find((comment) => comment.id === editCardId);
   return (
     <div className={classes.outerBorder} id="marketTodos"
-         style={{display: sectionOpen ? 'block' : 'none'}}>
+         style={{display: sectionOpen ? 'block' : 'none', marginTop: '2rem'}}>
       <DismissableText textId="todosHelp" display={!isInArchives && _.isEmpty(search) && _.isEmpty(todoComments)}
                        text={
         <div>
@@ -627,6 +633,7 @@ function MarketTodos(props) {
           <SubSection
             type={SECTION_TYPE_SECONDARY_WARNING}
             id="immediateTodos"
+            bolder
             title={intl.formatMessage({ id: 'immediate' })}
             titleIcon={immediateTodosChip === false ? undefined : immediateTodosChip}
             actionButton={ isInArchives ? null :
@@ -651,7 +658,7 @@ function MarketTodos(props) {
               {getCards(redComments, history, intl, setEditRedCard, 'immediateSection')}
             </Grid>
           </SubSection>
-          {!_.isEmpty(redComments) && (<div style={{ paddingBottom: '15px' }}/>)}
+          <div style={{ paddingBottom: '15px' }}/>
           {createYellowCard && marketId && groupId && (
             <CommentAdd
               nameKey="CommentAddYellow"
@@ -683,8 +690,9 @@ function MarketTodos(props) {
             </div>
           )}
           <SubSection
-            type={SECTION_TYPE_WARNING}
+            type={SECTION_TYPE_SECONDARY_WARNING}
             id="whenAbleTodos"
+            bolder
             title={intl.formatMessage({ id: 'able' })}
             titleIcon={whenAbleTodosChip === false ? undefined : whenAbleTodosChip}
             actionButton={ isInArchives ? null :
@@ -709,7 +717,7 @@ function MarketTodos(props) {
               {getCards(yellowComments, history, intl, setEditYellowCard, 'convenientSection')}
             </Grid>
           </SubSection>
-          {!_.isEmpty(yellowComments) && (<div style={{ paddingBottom: '15px' }}/>)}
+          <div style={{ paddingBottom: '15px' }}/>
           {createCard && marketId && (
             <CommentAdd
               nameKey="CommentAddBlue"
@@ -740,7 +748,8 @@ function MarketTodos(props) {
             </div>
           )}
           <SubSection
-            type={SECTION_TYPE_TERTIARY_WARNING}
+            type={SECTION_TYPE_SECONDARY_WARNING}
+            bolder
             title={intl.formatMessage({ id: 'convenient' })}
             titleIcon={whenConvenientTodosChip === false ? undefined : whenConvenientTodosChip}
             id="whenConvenientTodos"

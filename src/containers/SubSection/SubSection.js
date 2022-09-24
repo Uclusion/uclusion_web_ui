@@ -23,7 +23,7 @@ const useStyles = makeStyles((theme) => {
       boxShadow: 'none',
       background: theme.palette.grey['100'],
       color: 'black',
-      borderRadius: '6px 6px 0 0'
+      borderRadius: '20px 20px 0 0'
     },
     subHeaderWarning: {
       boxShadow: 'none',
@@ -129,7 +129,7 @@ function SubSection (props) {
             </>
           )}
           {!helpLink && (
-            <Typography className={classes.headerTitle}>
+            <Typography className={bolder ? classes.headerTitleBolder : classes.headerTitle}>
               {title}
             </Typography>
           )}

@@ -464,7 +464,7 @@ function PlanningInvestible(props) {
 
 
   useEffect(() => {
-    if (hash) {
+    if (hash && !hidden) {
       if (hash.startsWith('#cv')) {
         updatePageState({ sectionOpen: 'descriptionVotingSection' })
       } else {
@@ -494,7 +494,7 @@ function PlanningInvestible(props) {
         }
       }
     }
-  }, [investibleComments, hash, sectionOpen, updatePageState]);
+  }, [investibleComments, hash, sectionOpen, updatePageState, hidden]);
 
   let lockedByName
   if (lockedBy) {

@@ -540,6 +540,7 @@ function PlanningInvestible(props) {
   const reportsCommentsSearched = investibleComments.filter(
     comment => comment.comment_type === REPORT_TYPE
   );
+  const myReports = reportsCommentsSearched.filter((comment) => comment.created_by === userId);
   const reportComments = investibleComments.filter(comment => comment.comment_type === REPORT_TYPE);
   const questionComments = investibleComments.filter(
     comment => comment.comment_type === QUESTION_TYPE
@@ -922,6 +923,8 @@ function PlanningInvestible(props) {
         'blockersSection', _.size(reportsCommentsSearched)));
     }
   }
+  const showCommentAddBox = !inArchives && !isInNotDoing && !isInVerified && _.isEmpty(search) && marketId &&
+    !_.isEmpty(investible) && !hidden && !_.isEmpty(allowedCommentTypes)
   return (
     <Screen
       title={title}
@@ -1324,8 +1327,7 @@ function PlanningInvestible(props) {
         {sectionOpen !== 'descriptionVotingSection' && (
           <Grid container spacing={2}>
             <Grid item xs={12} style={{ marginTop: '15px' }}>
-              {!inArchives && !isInNotDoing && !isInVerified && _.isEmpty(search) && marketId && !_.isEmpty(investible)
-                && !hidden && !_.isEmpty(allowedCommentTypes) && (
+              {showCommentAddBox && (
                   <CommentAddBox
                     allowedTypes={allowedCommentTypes}
                     investible={investible}
@@ -1339,6 +1341,11 @@ function PlanningInvestible(props) {
                     isStory
                     numProgressReport={reportComments.length}
                   />
+                )}
+              {isAssigned && showCommentAddBox && !isInReview && sectionOpen === 'reportsSection'
+                && !_.isEmpty(myReports) && (
+                  <DismissableText textId="reportTypeCommentHelp"
+                                   text={<div>Change stage to 'Ready for Feedback' if you need this progress reviewed.</div>}/>
                 )}
               <CommentBox
                 comments={sectionComments}

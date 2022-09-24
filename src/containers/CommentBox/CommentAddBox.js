@@ -19,7 +19,6 @@ import { FormattedMessage } from 'react-intl'
 import { ISSUE_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../constants/comments'
 import { getPageReducerPage, usePageStateReducer } from '../../components/PageState/pageStateHooks'
 import _ from 'lodash'
-import DismissableText from '../../components/Notifications/DismissableText'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { getDraftComments } from '../../contexts/CommentsContext/commentsContextHelper'
 import CommentBox from './CommentBox'
@@ -226,10 +225,6 @@ function CommentAddBox(props) {
 
   return (
     <div id="commentAddBox">
-      {!isInReview && useType === REPORT_TYPE && (
-        <DismissableText textId="reportTypeCommentHelp"
-                         text={<div>Change stage to 'Ready for Feedback' if you need this progress reviewed.</div>}/>
-      )}
       <FormControl component="fieldset" className={isSingleType || (useType === TODO_TYPE && !investible)
         ? classes.hidden : classes.commentType}>
         <RadioGroup

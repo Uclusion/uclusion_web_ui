@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react'
 import PropTypes from 'prop-types';
-import { FormattedMessage, useIntl } from 'react-intl'
+import { useIntl } from 'react-intl'
 import IconButton from '@material-ui/core/IconButton';
 import LiveHelpTwoToneIcon from '@material-ui/icons/LiveHelpTwoTone';
 import CancelRoundedIcon from '@material-ui/icons/CancelRounded';

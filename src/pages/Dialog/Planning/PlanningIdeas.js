@@ -525,8 +525,7 @@ function Stage(props) {
             <Grid key={investible.id} item xs={12} onDragStart={investibleOnDragStart} id={investible.id} draggable
                   className={!singleInvestible && warnAcceptedSafe[investible.id] ? classes.rootWarnAccepted
               : !singleInvestible ? classes.outlinedAccepted : classes.regularAccepted}
-                  onMouseOver={() => doShowEdit(investible.id)} onMouseOut={() => doRemoveEdit(investible.id,
-              isVoting || isReview)}
+                  onMouseOver={() => doShowEdit(investible.id)} onMouseOut={() => doRemoveEdit(investible.id)}
                   onClick={event => {
                     preventDefaultAndProp(event);
                     navigate(history, formInvestibleLink(marketId, investible.id));
@@ -705,7 +704,7 @@ function StageInvestible(props) {
           {chip}
         </Grid>
       )}
-      <Grid id={`showEdit0${id}`} item xs={1} style={{pointerEvents: 'none', display: 'none'}}>
+      <Grid id={`showEdit0${id}`} item xs={1} style={{pointerEvents: 'none', visibility: 'hidden'}}>
         <EditOutlinedIcon style={{maxHeight: '1.25rem'}} />
       </Grid>
       <Grid id={`showEdit1${hasDaysEstimate ? '' : id}`} item xs={12} style={{paddingTop: `${chip ? '0rem' : '0.5rem'}`}}>

@@ -421,7 +421,7 @@ function MarketTodos(props) {
                 </Grid>
                 {!mobileLayout && (
                   <Grid id={`showEdit0${id}`} key={`showEdit0${id}`} item xs={1}
-                        style={{ pointerEvents: 'none', display: 'none' }}>
+                        style={{ pointerEvents: 'none', visibility: 'hidden' }}>
                     <EditOutlinedIcon style={{ maxHeight: '1.25rem' }}/>
                   </Grid>
                 )}

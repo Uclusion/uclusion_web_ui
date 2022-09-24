@@ -139,7 +139,7 @@ function getInvestibles(investibles, marketPresences, marketPresencesState, pres
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
         style={{overflowWrap: "break-word"}}
-        onMouseOver={() => doShowEdit(id)} onMouseOut={() => doRemoveEdit(id, TypeIcon)}
+        onMouseOver={() => doShowEdit(id)} onMouseOut={() => doRemoveEdit(id)}
         onClick={(event) => {
           event.stopPropagation();
           event.preventDefault();
@@ -165,10 +165,10 @@ function getInvestibles(investibles, marketPresences, marketPresencesState, pres
                     {TypeIcon}
                   </Grid>
                 )}
-                <Grid id={`showEdit0${id}`} item xs={1} style={{pointerEvents: 'none', display: 'none'}}>
+                <Grid id={`showEdit0${id}`} item xs={1} style={{pointerEvents: 'none', visibility: 'hidden'}}>
                   <EditOutlinedIcon style={{maxHeight: '1.25rem'}} />
                 </Grid>
-                <Grid id={`showEdit1${id}`} item xs={12} style={{paddingTop: TypeIcon ? '0rem' : '0.5rem'}}>
+                <Grid id={`showEdit1${id}`} item xs={12} style={{paddingTop: '0.5rem'}}>
                   <Typography style={{flex: 2}}>
                     {name}
                   </Typography>

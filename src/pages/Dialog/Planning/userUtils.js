@@ -135,23 +135,15 @@ export function getCommenterPresences(marketPresences, comments, marketPresences
 export function doShowEdit(id) {
   // Note pencil doesn't display on mobile because hover events are not available
   const pencilIconHolder = document.getElementById(`showEdit0${id}`);
-  const belowPencilHolder = document.getElementById(`showEdit1${id}`);
   if (pencilIconHolder) {
-    pencilIconHolder.style.display = 'block';
-  }
-  if (belowPencilHolder) {
-    belowPencilHolder.style.paddingTop = '0';
+    pencilIconHolder.style.visibility = 'visible';
   }
 }
 
-export function doRemoveEdit(id, hasIcon) {
+export function doRemoveEdit(id) {
   const pencilIconHolder = document.getElementById(`showEdit0${id}`);
-  const belowPencilHolder = document.getElementById(`showEdit1${id}`);
   if (pencilIconHolder) {
-    pencilIconHolder.style.display = 'none';
-  }
-  if (belowPencilHolder && !hasIcon) {
-    belowPencilHolder.style.paddingTop = '0.5rem';
+    pencilIconHolder.style.visibility = 'hidden';
   }
 }
 

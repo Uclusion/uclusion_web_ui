@@ -2,14 +2,12 @@ import React, { useContext } from 'react'
 import { useIntl } from 'react-intl';
 import PlanningInvestibleAdd from './PlanningInvestibleAdd'
 import SubSection from '../../../containers/SubSection/SubSection'
-import { SECTION_TYPE_SECONDARY_WARNING, SECTION_TYPE_WARNING } from '../../../constants/global'
+import { SECTION_TYPE_SECONDARY_WARNING } from '../../../constants/global'
 import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
 import AddIcon from '@material-ui/icons/Add'
 import ArchiveInvestbiles from '../../DialogArchives/ArchiveInvestibles'
 import _ from 'lodash'
 import { usePlanFormStyles } from '../../../components/AgilePlan'
-import Chip from '@material-ui/core/Chip'
-import { useInvestiblesByPersonStyles } from './InvestiblesByPerson'
 import { navigate } from '../../../utils/marketIdPathFunctions'
 import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { useHistory } from 'react-router'
@@ -36,7 +34,6 @@ function Backlog(props) {
   const { id: groupId, created_at: createdAt, budget_unit: budgetUnit, use_budget: useBudget,
     votes_required: votesRequired, market_id: marketId} = group;
   const intl = useIntl();
-  const classes = useInvestiblesByPersonStyles();
   const planningInvestibleAddClasses = usePlanFormStyles();
 
   function onDone(destinationLink) {
@@ -58,10 +55,9 @@ function Backlog(props) {
   }
 
   const furtherWorkReadyToStartChip = furtherWorkReadyToStart.length > 0
-    && <Chip label={`${furtherWorkReadyToStart.length}`} color="primary" size='small'
-             className={classes.chipStyleYellow} />;
-  const furtherWorkNotReadyToStartChip = furtherWorkInvestibles.length > 0 &&
-    <Chip label={`${furtherWorkInvestibles.length}`} size='small' className={classes.chipStyleBlue} />;
+    && <span className={'MuiTabItem-tag'} style={{backgroundColor: '#e6e969', borderRadius: 12,
+      padding: '2.79px', marginRight: '1rem'}}>
+    {furtherWorkReadyToStart.length} total</span>;
 
   return (
     <>
@@ -87,6 +83,7 @@ function Backlog(props) {
     <div style={{paddingTop: '1rem'}} />
     <SubSection
       type={SECTION_TYPE_SECONDARY_WARNING}
+      bolder
       titleIcon={furtherWorkReadyToStartChip === false ? undefined : furtherWorkReadyToStartChip}
       title={intl.formatMessage({ id: 'readyToStartHeader' })}
       actionButton={
@@ -133,8 +130,8 @@ function Backlog(props) {
       />
     )}
     <SubSection
-      type={SECTION_TYPE_WARNING}
-      titleIcon={furtherWorkNotReadyToStartChip === false ? undefined : furtherWorkNotReadyToStartChip}
+      type={SECTION_TYPE_SECONDARY_WARNING}
+      bolder
       title={intl.formatMessage({ id: 'notReadyToStartHeader' })}
       actionButton={
         <ExpandableAction

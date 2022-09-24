@@ -252,7 +252,7 @@ function Inbox(props) {
         indicatorColors={[htmlColor, '#00008B', '#00008B']}
         style={{ borderTop: '1px ridge lightgrey', paddingBottom: '0.25rem' }}>
         <GmailTabItem icon={<InboxIcon htmlColor={htmlColor} />} label={intl.formatMessage({id: 'unread'})}
-                      color='black'
+                      color='black' tagLabel={intl.formatMessage({id: 'new'})}
                       tag={unreadCount > 0 && !mobileLayout ? `${unreadCount}` : undefined} />
         <GmailTabItem icon={<AssignmentIcon />} label={intl.formatMessage({id: 'unreadAssignmentMobile'})}
                       tag={_.size(assignedMessagesOrdered) > 0 && !mobileLayout ?

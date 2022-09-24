@@ -431,7 +431,7 @@ const useStageClasses = makeStyles(
         fontSize: '.8em',
         margin: theme.spacing(0.5, 0),
         padding: theme.spacing(1, 2),
-        backgroundColor: yellow['400'],
+        backgroundColor: yellow['100'],
         overflowWrap: 'break-word',
         overflowX: 'hidden'
       },
@@ -659,7 +659,10 @@ function StageInvestible(props) {
   function getChip(labelNum, isGreen, toolTipId) {
     return (
       <Tooltip title={intl.formatMessage({ id: toolTipId })}>
-        <Chip label={`${labelNum}`} size='small' className={isGreen ? classes.chipStyleGreen : classes.chipStyleRed} />
+        <span className={'MuiTabItem-tag'} style={{backgroundColor: isGreen ? 'white' : 'pink',
+          borderRadius: 10, paddingLeft: '1px', paddingRight: '1px', paddingTop: '1px', maxHeight: '20px'}}>
+          {labelNum} {isVoting ? 'votes' : 'tasks'}
+        </span>
       </Tooltip>
     );
   }
@@ -681,8 +684,9 @@ function StageInvestible(props) {
   const votersNotAssigned = votersForInvestible.filter((voter) => !_.includes(assigned, voter.id)) || [];
   const votesRequiredDisplay = votesRequired > 0 ? votesRequired : 1;
   const enoughVotes = votersNotAssigned.length >= votesRequiredDisplay;
-  const chip = isVoting ? getChip(votersNotAssigned.length, enoughVotes, 'approvalsCountExplanation')
-    : isReview ? getChip(numTodos, numTodos === 0, 'todosCountExplanation') : undefined;
+  const chip = mobileLayout ? undefined : (isVoting ?
+    getChip(votersNotAssigned.length, enoughVotes, 'approvalsCountExplanation')
+    : isReview ? getChip(numTodos, numTodos === 0, 'todosCountExplanation') : undefined);
   const ticketNumber = ticketCode ? ticketCode.substring(ticketCode.lastIndexOf('-')+1) : undefined;
   return (
     <Grid container>
@@ -699,11 +703,7 @@ function StageInvestible(props) {
           <Typography variant="subtitle2">U-{ticketNumber}</Typography>
         </Grid>
       )}
-      {chip && !mobileLayout && (
-        <Grid item xs={1} style={{ paddingBottom: '0.2rem' }}>
-          {chip}
-        </Grid>
-      )}
+      {chip}
       <Grid id={`showEdit0${id}`} item xs={1} style={{pointerEvents: 'none', visibility: 'hidden'}}>
         <EditOutlinedIcon style={{maxHeight: '1.25rem'}} />
       </Grid>

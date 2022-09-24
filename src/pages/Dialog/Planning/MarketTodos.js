@@ -59,7 +59,7 @@ const myClasses = makeStyles(
         outlineOffset: '-5px'
       },
       warnCard: {
-        backgroundColor: yellow['400'],
+        backgroundColor: yellow['100'],
         padding: theme.spacing(1, 0, 0, 2),
         overflowY: 'auto',
         overflowX: 'hidden',
@@ -82,7 +82,7 @@ const myClasses = makeStyles(
         backgroundColor: theme.palette.grey['200'],
       },
       warnHighlightedCard: {
-        backgroundColor: yellow['400'],
+        backgroundColor: yellow['100'],
       },
       white: {
         backgroundColor: 'white',

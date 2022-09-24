@@ -53,10 +53,9 @@ import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsCont
 import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox'
 import { AssignmentInd } from '@material-ui/icons'
 import Backlog from './Backlog'
-import InvestiblesByPerson, { useInvestiblesByPersonStyles } from './InvestiblesByPerson'
+import InvestiblesByPerson from './InvestiblesByPerson'
 import { SECTION_TYPE_SECONDARY_WARNING } from '../../../constants/global'
 import SubSection from '../../../containers/SubSection/SubSection'
-import Chip from '@material-ui/core/Chip'
 import { filterToRoot } from '../../../contexts/CommentsContext/commentsContextHelper'
 import DialogArchives from '../../DialogArchives/DialogArchives'
 import { baseNavListItem, formMarketLink } from '../../../utils/marketIdPathFunctions'
@@ -105,7 +104,6 @@ function PlanningDialog(props) {
   const group = getGroup(groupState, marketId, groupId);
   const { name: groupName } = group || {};
   const isAdmin = myPresence.is_admin;
-  const classes = useInvestiblesByPersonStyles();
   const unResolvedMarketComments = comments.filter(comment => !comment.investible_id && !comment.resolved) || [];
   // There is no link to a reply so including them should be okay
   const notTodoComments = unResolvedMarketComments.filter(comment =>
@@ -329,11 +327,12 @@ function PlanningDialog(props) {
             {!_.isEmpty(requiresInputInvestibles) && (
               <SubSection
                 type={SECTION_TYPE_SECONDARY_WARNING}
+                bolder
                 titleIcon={blockedOrRequiresInputInvestibles.length > 0 ?
-                  <Chip label={`${blockedOrRequiresInputInvestibles.length}`}
-                                                                 color="primary"
-                                                                 size='small'
-                                                                 className={classes.chipStyle} /> : undefined}
+                  <span className={'MuiTabItem-tag'} style={{backgroundColor: 'pink', maxHeight: '20px',
+                    borderRadius: 12, paddingRight: '2.79px', paddingLeft: '2.79px', marginRight: '1rem'}}>
+                    {blockedOrRequiresInputInvestibles.length} total
+                  </span> : undefined}
                 title={intl.formatMessage({ id: 'blockedHeader' })}
                 helpLink='https://documentation.uclusion.com/channels/jobs/stages/#blocked'
                 id="blocked"

@@ -565,6 +565,10 @@ const messages = defineMessages({
   homeAddGroup: 'Create a group',
   archiveWarning: 'Muting will unassign any active job. Deactivating stops the group for everyone.',
   new: 'new',
+  match: 'match',
+  votes: 'votes',
+  tasks: 'tasks',
+  open: 'open',
   information: 'Information',
   message: 'Message',
   // Archives

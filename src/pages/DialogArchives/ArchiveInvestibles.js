@@ -50,7 +50,7 @@ export const myArchiveClasses = makeStyles(
         border: `1px solid ${theme.palette.grey["400"]}`,
         borderRadius: theme.spacing(1),
         padding: theme.spacing(1, 2),
-        backgroundColor: yellow["400"],
+        backgroundColor: yellow["100"],
       },
       outlined: {
         border: `1px solid ${theme.palette.grey["400"]}`,

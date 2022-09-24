@@ -1109,7 +1109,7 @@ function PlanningInvestible(props) {
             </div>
           }/>
         )}
-        {!inArchives && isInAccepted && isAssigned && (
+        {isAssigned && sectionOpen === 'descriptionVotingSection' && (
           <DismissableText textId='planningInvestibleAcceptedHelp' text={
             <div>
               For help create

@@ -1124,7 +1124,7 @@ function PlanningInvestible(props) {
             </div>
           } />
         )}
-        {!yourVote && !inArchives && canVote && !isAssigned && (
+        {!yourVote && !inArchives && canVote && !isAssigned && sectionOpen === 'descriptionVotingSection' && (
           <DismissableText textId='planningInvestibleVotingHelp' text={
             <div>
               Input how certain you are this story should be done or open

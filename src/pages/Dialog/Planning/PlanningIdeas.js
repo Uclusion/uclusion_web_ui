@@ -660,7 +660,7 @@ function StageInvestible(props) {
     return (
       <Tooltip title={intl.formatMessage({ id: toolTipId })}>
         <span className={'MuiTabItem-tag'} style={{backgroundColor: isGreen ? 'white' : 'pink',
-          borderRadius: 10, paddingLeft: '1px', paddingRight: '1px', paddingTop: '1px', maxHeight: '20px'}}>
+          borderRadius: 10, paddingLeft: '5px', paddingRight: '1px', paddingTop: '1px', maxHeight: '20px'}}>
           {labelNum} {isVoting ? 'votes' : 'tasks'}
         </span>
       </Tooltip>
@@ -699,14 +699,14 @@ function StageInvestible(props) {
         )}
       </Grid>
       {ticketNumber && !mobileLayout && (
-        <Grid item xs={2} style={{ paddingBottom: '0.2rem' }}>
+        <Grid item xs={1} style={{ paddingBottom: '0.2rem' }}>
           <Typography variant="subtitle2">U-{ticketNumber}</Typography>
         </Grid>
       )}
-      {chip}
       <Grid id={`showEdit0${id}`} item xs={1} style={{pointerEvents: 'none', visibility: 'hidden'}}>
         <EditOutlinedIcon style={{maxHeight: '1.25rem'}} />
       </Grid>
+      {chip}
       <Grid id={`showEdit1${hasDaysEstimate ? '' : id}`} item xs={12} style={{paddingTop: `${chip ? '0rem' : '0.5rem'}`}}>
         <StageLink
           href={to}

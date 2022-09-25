@@ -14,6 +14,7 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import AddInitialVote from '../../Investible/Voting/AddInitialVote'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import {
+  getGroupPresences,
   getMarketPresences,
   partialUpdateInvestment
 } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
@@ -46,6 +47,7 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext'
 import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper'
 import { isEveryoneGroup } from '../../../contexts/GroupMembersContext/groupMembersHelper'
+import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext'
 
 function PlanningInvestibleAdd(props) {
   const {
@@ -69,8 +71,10 @@ function PlanningInvestibleAdd(props) {
   const [marketsState] = useContext(MarketsContext);
   const market = getMarket(marketsState, marketId) || {};
   const [groupState] = useContext(MarketGroupsContext);
+  const [groupPresencesState] = useContext(GroupMembersContext);
   const group = getGroup(groupState, marketId, groupId);
   const presences = getMarketPresences(presencesState, marketId);
+  const groupPresences = getGroupPresences(presences, groupPresencesState, marketId, groupId, false) || [];
   const myPresence = presences.find((presence) => presence.current_user) || {};
   const acceptedStage = marketId ? getAcceptedStage(marketStagesState, marketId) : {};
   const [investibleAddStateFull, investibleAddDispatch] = usePageStateReducer('investibleAdd');
@@ -335,7 +339,7 @@ function PlanningInvestibleAdd(props) {
                 </div>
               </>
             )}
-            {!isEveryoneGroup(groupId, marketId) && (
+            {!isEveryoneGroup(groupId, marketId) && _.size(presences) > _.size(groupPresences) && (
               <div>
                 <Typography variant="body1" style={{paddingLeft: '0.2rem'}}>
                   {intl.formatMessage({ id: 'investibleAddOthersExplanation' })}

@@ -9,7 +9,7 @@ import { getInvestiblesInStage, getMarketInvestibles } from '../../contexts/Inve
 import SubSection from '../../containers/SubSection/SubSection'
 import { useIntl } from 'react-intl'
 import ArchiveInvestbiles from './ArchiveInvestibles'
-import { SECTION_TYPE_SECONDARY } from '../../constants/global'
+import { SECTION_TYPE_SECONDARY_WARNING } from '../../constants/global'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { getMarketPresences, getPresenceMap } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import AssigneeFilterDropdown from './AssigneeFilterDropdown'
@@ -83,8 +83,10 @@ function DialogArchives() {
 
   return (
     <>
+      <div style={{paddingBottom: '1rem'}} />
       <SubSection
-        type={SECTION_TYPE_SECONDARY}
+        type={SECTION_TYPE_SECONDARY_WARNING}
+        bolder
         title={intl.formatMessage({ id: 'dialogArchivesVerifiedHeader' })}
         id="verified"
         actionButton={
@@ -102,8 +104,10 @@ function DialogArchives() {
           elevation={0}
         />
       </SubSection>
+      <div style={{paddingBottom: '1rem'}} />
       <SubSection
-        type={SECTION_TYPE_SECONDARY}
+        type={SECTION_TYPE_SECONDARY_WARNING}
+        bolder
         id="notDoing"
         title={intl.formatMessage({ id: 'dialogArchivesNotDoingHeader' })}
         style={{marginTop: '16px'}}

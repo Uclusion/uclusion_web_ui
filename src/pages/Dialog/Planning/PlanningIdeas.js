@@ -14,11 +14,7 @@ import {
 } from '../../../utils/marketIdPathFunctions'
 import clsx from 'clsx';
 import { LocalPlanningDragContext, } from './PlanningDialog'
-import {
-  checkInApprovalWarning,
-  checkInProgressWarning, checkInReviewWarning,
-  countByType
-} from './InvestiblesByPerson'
+import { countByType } from './InvestiblesByPerson'
 import { DaysEstimate } from '../../../components/AgilePlan';
 import {
   getMarketPresences,
@@ -34,7 +30,7 @@ import {
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 import { getMarketInfo } from '../../../utils/userFunctions'
-import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
+import { ISSUE_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
@@ -45,10 +41,10 @@ import { removeHeader, restoreHeader } from '../../../containers/Header'
 import GravatarGroup from '../../../components/Avatars/GravatarGroup';
 import { getInvestibleVoters } from '../../../utils/votingUtils';
 import { doRemoveEdit, doShowEdit, getCommenterPresences, onDropTodo } from './userUtils'
-import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions'
 import { myArchiveClasses } from '../../DialogArchives/ArchiveInvestibles'
+import { WARNING_COLOR } from '../../../components/Buttons/ButtonConstants'
 
 export const usePlanningIdStyles = makeStyles(
   theme => {
@@ -467,7 +463,6 @@ function Stage(props) {
     id,
     investibles,
     marketId,
-    warnAccepted,
     isReview,
     isVoting,
     showCompletion,
@@ -504,12 +499,9 @@ function Stage(props) {
     dragHack({ id: event.target.id, stageId: id, originalElementId });
   }
 
-  const warnAcceptedSafe = warnAccepted || {};
   const singleInvestible = investibles.length === 1;
-
   return (
-    <dd className={singleInvestible && warnAcceptedSafe[investibles[0].investible.id] ?
-      classes.rootWarnAccepted : singleInvestible ? classes.root : classes.regularAccepted}>
+    <dd className={singleInvestible ? classes.root : classes.regularAccepted}>
       <ul className={classes.list}>
         <Grid
           className={classes.verifiedOverflow}
@@ -521,10 +513,10 @@ function Stage(props) {
           const hasQuestionsSuggestions = (isReview || isVoting) && countByType(investible, comments,
             [QUESTION_TYPE, SUGGEST_CHANGE_TYPE]) > 0;
           const showWarning =  unaccepted || hasQuestionsSuggestions;
+          const numReviews = countByType(investible, comments, [TODO_TYPE, REPORT_TYPE], id);
           return (
             <Grid key={investible.id} item xs={12} onDragStart={investibleOnDragStart} id={investible.id} draggable
-                  className={!singleInvestible && warnAcceptedSafe[investible.id] ? classes.rootWarnAccepted
-              : !singleInvestible ? classes.outlinedAccepted : classes.regularAccepted}
+                  className={!singleInvestible ? classes.outlinedAccepted : classes.regularAccepted}
                   onMouseOver={() => doShowEdit(investible.id)} onMouseOut={() => doRemoveEdit(investible.id)}
                   onClick={event => {
                     preventDefaultAndProp(event);
@@ -540,7 +532,7 @@ function Stage(props) {
                   isReview={isReview}
                   isVoting={isVoting}
                   votesRequired={votesRequired}
-                  numTodos={countByType(investible, comments, [TODO_TYPE])}
+                  numReviews={numReviews}
                   showWarning={showWarning}
                   showCompletion={showCompletion}
                   mobileLayout={mobileLayout}
@@ -562,8 +554,7 @@ Stage.propTypes = {
 };
 
 function VotingStage (props) {
-  const [messagesState] = useContext(NotificationsContext);
-  const { marketId, presenceId, investibles, myPresence, groupId } = props;
+  const { marketId, presenceId, groupId } = props;
   const history = useHistory();
   const link = formMarketAddInvestibleLink(marketId, groupId);
   const assignedLink = link + `#assignee=${presenceId}`;
@@ -577,18 +568,14 @@ function VotingStage (props) {
     <Stage
       isVoting
       fallbackOnClick={onClick}
-      warnAccepted={checkInApprovalWarning(investibles, myPresence, messagesState)}
       {...props}
     />
   );
 }
 
 function AcceptedStage (props) {
-  const [messagesState] = useContext(NotificationsContext);
-  const { investibles, myPresence } = props;
   return (
     <Stage
-      warnAccepted={checkInProgressWarning(investibles, myPresence, messagesState)}
       showCompletion
       {...props}
     />
@@ -596,12 +583,9 @@ function AcceptedStage (props) {
 }
 
 function ReviewStage (props) {
-  const [messagesState] = useContext(NotificationsContext);
-  const { investibles, myPresence } = props;
   return (
     <Stage
       isReview
-      warnAccepted={checkInReviewWarning(investibles, myPresence, messagesState)}
       {...props}
     />
   );
@@ -651,17 +635,21 @@ function StageInvestible(props) {
     isVoting,
     votesRequired,
     isReview,
-    numTodos,
+    numReviews,
     mobileLayout
   } = props;
   const intl = useIntl();
 
   function getChip(labelNum, isGreen, toolTipId) {
+    if (isGreen) {
+      return undefined;
+    }
+    const tagLabelId = isVoting ? 'votes' : 'review';
     return (
       <Tooltip title={intl.formatMessage({ id: toolTipId })}>
-        <span className={'MuiTabItem-tag'} style={{backgroundColor: isGreen ? 'white' : 'pink',
+        <span className={'MuiTabItem-tag'} style={{backgroundColor: WARNING_COLOR,
           borderRadius: 10, paddingLeft: '5px', paddingRight: '1px', paddingTop: '1px', maxHeight: '20px'}}>
-          {labelNum} {isVoting ? 'votes' : 'tasks'}
+          {labelNum} {intl.formatMessage({ id: tagLabelId })}
         </span>
       </Tooltip>
     );
@@ -686,7 +674,7 @@ function StageInvestible(props) {
   const enoughVotes = votersNotAssigned.length >= votesRequiredDisplay;
   const chip = mobileLayout ? undefined : (isVoting ?
     getChip(votersNotAssigned.length, enoughVotes, 'approvalsCountExplanation')
-    : isReview ? getChip(numTodos, numTodos === 0, 'todosCountExplanation') : undefined);
+    : isReview ? getChip(numReviews, numReviews > 0, 'todosCountExplanation') : undefined);
   const ticketNumber = ticketCode ? ticketCode.substring(ticketCode.lastIndexOf('-')+1) : undefined;
   return (
     <Grid container>

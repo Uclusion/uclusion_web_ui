@@ -8,6 +8,7 @@ import {
   SECTION_TYPE_TERTIARY_WARNING
 } from '../../constants/global';
 import { Info } from '@material-ui/icons'
+import { ACTION_BUTTON_COLOR } from '../../components/Buttons/ButtonConstants'
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -124,7 +125,7 @@ function SubSection (props) {
                 {title}
               </Typography>
               <Link href={helpLink} target="_blank">
-                <Info style={{height: '1.1rem'}} />
+                <Info htmlColor={ACTION_BUTTON_COLOR} style={{height: '1.1rem'}} />
               </Link>
             </>
           )}

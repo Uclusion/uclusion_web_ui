@@ -1,5 +1,4 @@
 import { makeStyles } from '@material-ui/core/styles'
-import { findMessageOfType, findMessageOfTypeAndId } from '../../../utils/messageUtils'
 import _ from 'lodash'
 import { FormattedMessage, useIntl } from 'react-intl'
 import { useHistory } from 'react-router'
@@ -26,6 +25,7 @@ import CardContent from '@material-ui/core/CardContent'
 import PlanningIdeas, { usePlanningIdStyles } from './PlanningIdeas'
 import { Info } from '@material-ui/icons'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
+import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
 
 export const useInvestiblesByPersonStyles = makeStyles(
   theme => {
@@ -97,44 +97,17 @@ export const useInvestiblesByPersonStyles = makeStyles(
   { name: "InvestiblesByPerson" }
 );
 
-function checkInvestibleWarning(investibles, myPresence, warningFunction) {
-  const warnHash = {};
-  if (!myPresence.id) {
-    return warnHash;
-  }
-  investibles.forEach((fullInvestible) => {
-    const { investible } = fullInvestible;
-    const { id } = investible;
-    if (warningFunction(id)) {
-      warnHash[id] = true;
-    }
-  });
-  return warnHash;
-}
-
-export function checkInProgressWarning(investibles, myPresence, messagesState) {
-  return checkInvestibleWarning(investibles, myPresence,
-    (id) => findMessageOfTypeAndId(id, messagesState, 'REPORT')
-      || findMessageOfType('REPORT_REQUIRED', id, messagesState));
-}
-
-export function checkInApprovalWarning(investibles, myPresence, messagesState) {
-  return checkInvestibleWarning(investibles, myPresence,
-    (id) => findMessageOfType('NOT_FULLY_VOTED', id, messagesState));
-}
-
-export function checkInReviewWarning(investibles, myPresence, messagesState) {
-  return checkInvestibleWarning(investibles, myPresence,
-    (id) => findMessageOfType('REPORT_REQUIRED', id, messagesState));
-}
-
-export function countByType(investible, comments, commentTypes) {
+export function countByType(investible, comments, commentTypes, stageId) {
   const { id } = investible;
   if (_.isEmpty(comments)) {
     return 0;
   }
   const openComments = comments.filter((comment) => {
-    const { investible_id: investibleId, comment_type: commentType, resolved } = comment;
+    const { investible_id: investibleId, comment_type: commentType, resolved,
+      creation_stage_id: creationStageId } = comment;
+    if (stageId && creationStageId !== stageId ) {
+      return false;
+    }
     return !resolved && id === investibleId && commentTypes.includes(commentType);
   });
   return _.size(openComments);
@@ -214,36 +187,36 @@ function InvestiblesByPerson(props) {
       )}
       <dl className={swimClasses.stages} style={{background: theme.palette.grey['100'], marginTop: '0.5rem'}}>
         <div>
-          <FormattedMessage id="planningVotingStageLabel" />
+          <b><FormattedMessage id="planningVotingStageLabel" /></b>
           {!mobileLayout && (
             <Link href="https://documentation.uclusion.com/channels/jobs/stages/#ready-for-approval" target="_blank">
-              <Info style={{height: '1.1rem'}} />
+              <Info htmlColor={ACTION_BUTTON_COLOR} style={{height: '1.1rem'}} />
             </Link>
           )}
         </div>
         <div>
-          <FormattedMessage id='planningAcceptedStageLabel' />
+          <b><FormattedMessage id='planningAcceptedStageLabel' /></b>
           {!mobileLayout && (
             <Link href="https://documentation.uclusion.com/channels/jobs/stages/#started"
                   target="_blank">
-              <Info style={{height: '1.1rem'}} />
+              <Info htmlColor={ACTION_BUTTON_COLOR} style={{height: '1.1rem'}} />
             </Link>
           )}
         </div>
         <div>
-          <FormattedMessage id="planningReviewStageLabel"/>
+          <b><FormattedMessage id="planningReviewStageLabel"/></b>
           {!mobileLayout && (
             <Link href="https://documentation.uclusion.com/channels/jobs/stages/#ready-for-feedback" target="_blank">
-              <Info style={{height: '1.1rem'}} />
+              <Info htmlColor={ACTION_BUTTON_COLOR} style={{height: '1.1rem'}} />
             </Link>
           )}
         </div>
         <div>
-          <FormattedMessage id="verifiedBlockedStageLabel"/>
+          <b><FormattedMessage id="verifiedBlockedStageLabel"/></b>
           {!mobileLayout && (
             <Link href="https://documentation.uclusion.com/channels/jobs/stages/#verified-and-not-doing"
                   target="_blank">
-              <Info style={{height: '1.1rem'}} />
+              <Info htmlColor={ACTION_BUTTON_COLOR} style={{height: '1.1rem'}} />
             </Link>
           )}
         </div>

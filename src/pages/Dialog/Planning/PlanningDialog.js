@@ -45,7 +45,6 @@ import { SearchResultsContext } from '../../../contexts/SearchResultsContext/Sea
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 import SettingsIcon from '@material-ui/icons/Settings'
 import PlanningDialogEdit from './PlanningDialogEdit'
-import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import AssignmentIcon from '@material-ui/icons/Assignment'
 import queryString from 'query-string'
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext'
@@ -60,6 +59,7 @@ import { filterToRoot } from '../../../contexts/CommentsContext/commentsContextH
 import DialogArchives from '../../DialogArchives/DialogArchives'
 import { baseNavListItem, formMarketLink } from '../../../utils/marketIdPathFunctions'
 import { isInStages } from './userUtils'
+import { WARNING_COLOR } from '../../../components/Buttons/ButtonConstants'
 
 export const LocalPlanningDragContext = React.createContext([]);
 
@@ -110,7 +110,6 @@ function PlanningDialog(props) {
     [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE, REPLY_TYPE].includes(comment.comment_type)) || [];
   const allowedCommentTypes = [QUESTION_TYPE, SUGGEST_CHANGE_TYPE];
   const [marketPresencesState] = useContext(MarketPresencesContext);
-  const [messagesState] = useContext(NotificationsContext);
   // For security reasons you can't access source data while being dragged in case you are not the target website
   const [beingDraggedHack, setBeingDraggedHack] = useState({});
   const [pageStateFull, pageDispatch] = usePageStateReducer('group');
@@ -151,20 +150,6 @@ function PlanningDialog(props) {
     const marketInfo = getMarketInfo(inv, marketId) || {};
     const stage = marketStages.find((stage) => stage.id === marketInfo.stage);
     return stage && stage.close_comments_on_entrance;
-  });
-  const highlightMap = {};
-  requiresInputInvestibles.forEach((investible) => {
-    const investibleId = investible.investible.id;
-    const { messages } = (messagesState || {});
-    const safeMessages = messages || [];
-    const message = safeMessages.find((message) => {
-      return ((message.investible_link && message.investible_link.includes(investibleId))
-          || message.investible_id === investibleId) &&
-        ['INLINE_STORY_INVESTIBLE', 'INLINE_STORY_COMMENT'].includes(message.link_type);
-    });
-    if (message) {
-      highlightMap[investibleId] = true;
-    }
   });
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const presenceMap = getPresenceMap(marketPresences);
@@ -329,7 +314,7 @@ function PlanningDialog(props) {
                 type={SECTION_TYPE_SECONDARY_WARNING}
                 bolder
                 titleIcon={blockedOrRequiresInputInvestibles.length > 0 ?
-                  <span className={'MuiTabItem-tag'} style={{backgroundColor: 'pink', maxHeight: '20px',
+                  <span className={'MuiTabItem-tag'} style={{backgroundColor: WARNING_COLOR, maxHeight: '20px',
                     borderRadius: 12, paddingRight: '2.79px', paddingLeft: '2.79px', marginRight: '1rem'}}>
                     {blockedOrRequiresInputInvestibles.length} total
                   </span> : undefined}
@@ -343,7 +328,6 @@ function PlanningDialog(props) {
                   marketId={marketId}
                   presenceMap={presenceMap}
                   investibles={blockedOrRequiresInputInvestibles}
-                  highlightMap={highlightMap}
                   presenceId={myPresence.id}
                   allowDragDrop
                 />

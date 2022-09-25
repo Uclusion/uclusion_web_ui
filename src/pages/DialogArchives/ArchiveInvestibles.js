@@ -78,7 +78,7 @@ export const myArchiveClasses = makeStyles(
 );
 
 function getInvestibles(investibles, marketPresences, marketPresencesState, presenceMap, marketId, comments, history,
-  intl, elevation, highlightMap, allowDragDrop, onDragEnd, unResolvedMarketComments, presenceId, marketStagesState,
+  intl, elevation, allowDragDrop, onDragEnd, unResolvedMarketComments, presenceId, marketStagesState,
   setBeingDraggedHack, classes) {
   const investibleData = investibles.map((inv) => {
     const aMarketInfo = getMarketInfo(inv, marketId);
@@ -148,7 +148,7 @@ function getInvestibles(investibles, marketPresences, marketPresencesState, pres
       >
         <RaisedCard>
           <Link href={formInvestibleLink(marketId, id)} color="inherit" draggable="false">
-            <div className={highlightMap[id] ? classes.warn : classes.outlined}>
+            <div className={classes.outlined}>
               <Grid container>
                 <Grid item xs={8}>
                   <Typography style={{fontSize: '.75rem', flex: 1}}>
@@ -193,7 +193,6 @@ function ArchiveInvestbiles(props) {
     marketId,
     presenceMap,
     elevation,
-    highlightMap,
     allowDragDrop,
     isReadyToStart,
     stage,
@@ -325,8 +324,9 @@ function ArchiveInvestbiles(props) {
       {_.isEmpty(investibles) && (
         <div className={classes.grow} />
       )}
-      {getInvestibles(investibles, marketPresences, marketPresencesState, presenceMap, marketId, comments, history, intl, elevation, highlightMap, allowDragDrop,
-      onDragEnd, unResolvedMarketComments, presenceId, marketStagesState, setBeingDraggedHack, classes)}
+      {getInvestibles(investibles, marketPresences, marketPresencesState, presenceMap, marketId, comments, history,
+        intl, elevation, allowDragDrop, onDragEnd, unResolvedMarketComments, presenceId, marketStagesState,
+        setBeingDraggedHack, classes)}
     </Grid>
   );
 }
@@ -334,14 +334,12 @@ function ArchiveInvestbiles(props) {
 ArchiveInvestbiles.propTypes = {
   investibles: PropTypes.arrayOf(PropTypes.object),
   marketId: PropTypes.string.isRequired,
-  presenceMap: PropTypes.object,
-  highlightMap: PropTypes.object,
+  presenceMap: PropTypes.object
 };
 
 ArchiveInvestbiles.defaultProps = {
   investibles: [],
-  presenceMap: {},
-  highlightMap: {}
+  presenceMap: {}
 };
 
 export default ArchiveInvestbiles;

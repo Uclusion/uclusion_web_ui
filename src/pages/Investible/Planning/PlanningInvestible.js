@@ -951,6 +951,9 @@ function PlanningInvestible(props) {
         steps={requiresInputStorySteps({isAssigned})}
       />
       <div className={mobileLayout ? undefined : classes.paper}>
+        <div style={{maxWidth: '11rem', paddingBottom: '1rem'}}>
+        {name}
+        </div>
         {market.id && marketInvestible.investible && (
           <div className={clsx(classes.group, classes.assignments)}>
             <div className={classes.assignmentContainer}>

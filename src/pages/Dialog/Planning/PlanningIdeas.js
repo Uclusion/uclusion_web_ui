@@ -15,7 +15,7 @@ import {
 import clsx from 'clsx';
 import { LocalPlanningDragContext, } from './PlanningDialog'
 import { countByType } from './InvestiblesByPerson'
-import { DaysEstimate } from '../../../components/AgilePlan';
+import { DaysEstimate, usePlanFormStyles } from '../../../components/AgilePlan'
 import {
   getMarketPresences,
   removeInvestibleInvestments
@@ -30,7 +30,7 @@ import {
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 import { getMarketInfo } from '../../../utils/userFunctions'
-import { ISSUE_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments'
+import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
@@ -457,9 +457,7 @@ const useStageClasses = makeStyles(
 
 function Stage(props) {
   const {
-    fallbackOnClick,
     comments,
-    fallbackWarning,
     id,
     investibles,
     marketId,
@@ -480,16 +478,6 @@ function Stage(props) {
   });
   const classes = useStageClasses(props);
   const history = useHistory();
-  if (fallbackWarning !== undefined && investibles.length === 0) {
-    const style = fallbackOnClick ? { cursor: 'pointer' } : {};
-    return (
-      <div onClick={fallbackOnClick ? fallbackOnClick : () => {}} style={style}>
-        <dd className={classes.fallbackRoot}>
-          {fallbackWarning}
-        </dd>
-      </div>
-    );
-  }
 
   function investibleOnDragStart (event) {
     event.dataTransfer.effectAllowed = 'move';
@@ -509,11 +497,9 @@ function Stage(props) {
         {sortedInvestibles.map(inv => {
           const { investible } = inv;
           const marketInfo = getMarketInfo(inv, marketId) || {};
-          const unaccepted = isVoting && _.isEmpty(marketInfo.accepted);
-          const hasQuestionsSuggestions = (isReview || isVoting) && countByType(investible, comments,
-            [QUESTION_TYPE, SUGGEST_CHANGE_TYPE]) > 0;
-          const showWarning =  unaccepted || hasQuestionsSuggestions;
-          const numReviews = countByType(investible, comments, [TODO_TYPE, REPORT_TYPE], id);
+          const unaccepted = _.isEmpty(_.intersection(marketInfo.accepted, marketInfo.assigned));
+          const numQuestionsSuggestions = countByType(investible, comments,
+            [QUESTION_TYPE, SUGGEST_CHANGE_TYPE]);
           return (
             <Grid key={investible.id} item xs={12} onDragStart={investibleOnDragStart} id={investible.id} draggable
                   className={!singleInvestible ? classes.outlinedAccepted : classes.regularAccepted}
@@ -532,8 +518,8 @@ function Stage(props) {
                   isReview={isReview}
                   isVoting={isVoting}
                   votesRequired={votesRequired}
-                  numReviews={numReviews}
-                  showWarning={showWarning}
+                  numQuestionsSuggestions={numQuestionsSuggestions}
+                  unaccepted={unaccepted}
                   showCompletion={showCompletion}
                   mobileLayout={mobileLayout}
                 />
@@ -628,15 +614,13 @@ function StageInvestible(props) {
     investible,
     marketId,
     marketInfo,
-    showWarning,
     showCompletion,
     comments,
     marketPresences,
     isVoting,
-    votesRequired,
-    isReview,
-    numReviews,
-    mobileLayout
+    numQuestionsSuggestions,
+    mobileLayout,
+    unaccepted
   } = props;
   const intl = useIntl();
 
@@ -644,24 +628,23 @@ function StageInvestible(props) {
     if (isGreen) {
       return undefined;
     }
-    const tagLabelId = isVoting ? 'votes' : 'review';
     return (
       <Tooltip title={intl.formatMessage({ id: toolTipId })}>
         <span className={'MuiTabItem-tag'} style={{backgroundColor: WARNING_COLOR,
           borderRadius: 10, paddingLeft: '5px', paddingRight: '1px', paddingTop: '1px', maxHeight: '20px'}}>
-          {labelNum} {intl.formatMessage({ id: tagLabelId })}
+          {labelNum} {intl.formatMessage({ id: 'open' })}
         </span>
       </Tooltip>
     );
   }
 
-  const { completion_estimate: daysEstimate, assigned, ticket_code: ticketCode } = marketInfo;
+  const { completion_estimate: daysEstimate, ticket_code: ticketCode } = marketInfo;
   const { id, name, created_at: createdAt, label_list: labelList } = investible;
   const history = useHistory();
   const to = formInvestibleLink(marketId, id);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const classes = generalStageStyles();
-
+  const planClasses = usePlanFormStyles();
   const commentsForInvestible = comments.filter((comment) => comment.investible_id === id);
 
   const commenterPresences = getCommenterPresences(marketPresences, commentsForInvestible, marketPresencesState);
@@ -669,12 +652,8 @@ function StageInvestible(props) {
   const concated = [...votersForInvestible, ...commenterPresences];
   const hasDaysEstimate = showCompletion && daysEstimate;
   const collaboratorsForInvestible = _.uniqBy(concated, 'id');
-  const votersNotAssigned = votersForInvestible.filter((voter) => !_.includes(assigned, voter.id)) || [];
-  const votesRequiredDisplay = votesRequired > 0 ? votesRequired : 1;
-  const enoughVotes = votersNotAssigned.length >= votesRequiredDisplay;
-  const chip = mobileLayout ? undefined : (isVoting ?
-    getChip(votersNotAssigned.length, enoughVotes, 'approvalsCountExplanation')
-    : isReview ? getChip(numReviews, numReviews > 0, 'todosCountExplanation') : undefined);
+  const chip = mobileLayout ? undefined : getChip(numQuestionsSuggestions, numQuestionsSuggestions === 0,
+    'inputRequiredCountExplanation');
   const ticketNumber = ticketCode ? ticketCode.substring(ticketCode.lastIndexOf('-')+1) : undefined;
   return (
     <Grid container>
@@ -684,6 +663,11 @@ function StageInvestible(props) {
         </div>
         {hasDaysEstimate && !isVoting && (
           <DaysEstimate readOnly value={daysEstimate} createdAt={createdAt}/>
+        )}
+        {unaccepted && (
+          <div className={planClasses.daysEstimation}>
+            <FormattedMessage id='planningUnacceptedLabel' />
+          </div>
         )}
       </Grid>
       {ticketNumber && !mobileLayout && (
@@ -706,7 +690,7 @@ function StageInvestible(props) {
             navigate(history, to);
           }}
         >
-          <Typography color={showWarning ? 'error' : 'initial'} variant="subtitle2">{name}</Typography>
+          <Typography color='initial' variant="subtitle2">{name}</Typography>
           <div className={classes.chipsClass} style={{paddingTop: `${!_.isEmpty(labelList) ? '0.5rem': '0'}`}}>
             {labelList && labelList.map((label) =>
               <div key={label}>

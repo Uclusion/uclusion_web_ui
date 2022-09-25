@@ -416,7 +416,7 @@ const messages = defineMessages({
   verifiedBlockedStageLabel: 'Verified',
   planningReviewStageLabel: 'Ready for Feedback',
   approvalsCountExplanation: 'Not enough approvals',
-  todosCountExplanation: 'No open reviewer comments or tasks',
+  inputRequiredCountExplanation: 'Open questions or suggestions for assignee',
   planningVerifiedStageLabel: 'Verified',
   planningFurtherWorkStageLabel: 'Further Work',
   requiresInputStageLabel: 'Requires Input',

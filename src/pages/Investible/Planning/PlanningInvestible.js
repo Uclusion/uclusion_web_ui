@@ -1102,7 +1102,7 @@ function PlanningInvestible(props) {
           {(!singleTabLayout || sectionOpen === 'reportsSection') && displayReportsSection && (
             <GmailTabItem icon={getIcon(REPORT_TYPE)}
                           label={intl.formatMessage({id: 'reportsSectionLabel'})}
-                          tag={countUnresolved(reportsCommentsSearched)} tagLabel={getTagLabel('open')} />
+                          tag={countUnresolved(reportsCommentsSearched)} tagLabel={getTagLabel('total')} />
           )}
           {(!singleTabLayout || sectionOpen === 'blockersSection') && displayBockingSection && (
             <GmailTabItem icon={getIcon(ISSUE_TYPE)} tagLabel={getTagLabel('open')}

@@ -569,6 +569,7 @@ const messages = defineMessages({
   votes: 'votes',
   tasks: 'tasks',
   open: 'open',
+  total: 'total',
   information: 'Information',
   message: 'Message',
   // Archives

@@ -335,7 +335,7 @@ export const usePlanningInvestibleStyles = makeStyles(
       flex: '1 0 auto',
       backgroundColor: '#4ce6a5',
       height: '100%',
-      zIndex: 8,
+      zIndex: 9,
       position: 'fixed',
       top: '3.8rem',
       paddingLeft: '1rem',
@@ -1078,9 +1078,12 @@ function PlanningInvestible(props) {
           value={singleTabLayout ? 0 : sections.findIndex((section) => section === sectionOpen)}
           onChange={(event, value) => {
             openSubSection(sections[value]);
+            // Previous scroll position no longer relevant
+            window.scrollTo(0, 0);
           }}
           indicatorColors={['#00008B', '#00008B', '#00008B', '#00008B', '#00008B', '#00008B']}
-          style={{ borderTop: '1px ridge lightgrey', paddingBottom: '0.25rem' }}>
+          style={{ paddingBottom: '0.25rem', zIndex: 8, position: 'fixed', paddingTop: '0.5rem',
+            marginTop: '-15px', paddingLeft: 0, marginLeft: '-0.5rem' }}>
           {(!singleTabLayout || sectionOpen === 'descriptionVotingSection') && (
             <GmailTabItem icon={<ThumbsUpDownIcon />} tagLabel={getTagLabel('votes')}
                           label={intl.formatMessage({id: 'descriptionVotingLabel'})}

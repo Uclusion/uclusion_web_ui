@@ -248,9 +248,12 @@ function PlanningDialog(props) {
           updatePageState({tabIndex: value});
           const anchorId = getAnchorId(value);
           openSubSection(anchorId);
+          // Previous scroll position no longer relevant
+          window.scrollTo(0, 0);
         }}
         indicatorColors={['#00008B', '#00008B', '#00008B', '#00008B', '#00008B', '#00008B']}
-        style={{ borderTop: '1px ridge lightgrey', paddingBottom: '0.25rem' }}>
+        style={{ paddingBottom: '0.25rem', zIndex: 8, position: 'fixed', paddingTop: '0.5rem',
+          marginTop: '-15px', paddingLeft: 0, marginLeft: '-0.5rem' }}>
         {(!singleTabLayout || sectionOpen === 'storiesSection') && (
           <GmailTabItem icon={<AssignmentInd />}
                         label={intl.formatMessage({id: 'planningDialogNavStoriesLabel'})}
@@ -280,117 +283,119 @@ function PlanningDialog(props) {
                         label={intl.formatMessage({id: 'settings'})} />
         )}
       </GmailTabs>
-      {isSectionOpen('workspaceMain') && (
-        <div id="workspaceMain">
-          {(_.isEmpty(search) || results.find((item) => item.id === marketId)) && (
-            <Summary group={group} hidden={hidden} pageState={pageState} updatePageState={updatePageState}
-                     pageStateReset={pageStateReset}/>
+      <div style={{paddingTop: '4rem'}}>
+        {isSectionOpen('workspaceMain') && (
+          <div id="workspaceMain">
+            {(_.isEmpty(search) || results.find((item) => item.id === marketId)) && (
+              <Summary group={group} hidden={hidden} pageState={pageState} updatePageState={updatePageState}
+                       pageStateReset={pageStateReset}/>
+            )}
+            <Grid item id="commentAddArea" xs={12} style={{marginTop: '2rem'}}>
+              {_.isEmpty(search) && marketId && !hidden && (
+                <>
+                  <DismissableText textId="workspaceCommentHelp" display={_.isEmpty(notTodoComments)} text={
+                    <div>
+                      <Link href="https://documentation.uclusion.com/structured-comments" target="_blank">Comments</Link> can
+                      be used at the workspace level and later moved to a job.
+                    </div>
+                  }/>
+                  <CommentAddBox
+                    groupId={groupId}
+                    allowedTypes={allowedCommentTypes}
+                    marketId={marketId}
+                  />
+                </>
+              )}
+              <CommentBox comments={notTodoComments} marketId={marketId} allowedTypes={allowedCommentTypes}/>
+            </Grid>
+          </div>
+        )}
+        <LocalPlanningDragContext.Provider value={[beingDraggedHack, setBeingDraggedHack]}>
+          {isSectionOpen('storiesSection') && (
+            <div id="storiesSection">
+              {!_.isEmpty(requiresInputInvestibles) && (
+                <SubSection
+                  type={SECTION_TYPE_SECONDARY_WARNING}
+                  bolder
+                  titleIcon={blockedOrRequiresInputInvestibles.length > 0 ?
+                    <span className={'MuiTabItem-tag'} style={{backgroundColor: WARNING_COLOR, maxHeight: '20px',
+                      borderRadius: 12, paddingRight: '2.79px', paddingLeft: '2.79px', marginRight: '1rem'}}>
+                      {blockedOrRequiresInputInvestibles.length} total
+                    </span> : undefined}
+                  title={intl.formatMessage({ id: 'blockedHeader' })}
+                  helpLink='https://documentation.uclusion.com/channels/jobs/stages/#blocked'
+                  id="blocked"
+                >
+                  <ArchiveInvestbiles
+                    comments={comments}
+                    elevation={0}
+                    marketId={marketId}
+                    presenceMap={presenceMap}
+                    investibles={blockedOrRequiresInputInvestibles}
+                    presenceId={myPresence.id}
+                    allowDragDrop
+                  />
+                </SubSection>
+              )}
+              <div style={{ paddingBottom: '2rem' }}/>
+              <InvestiblesByPerson
+                comments={comments}
+                investibles={investibles}
+                visibleStages={visibleStages}
+                acceptedStage={acceptedStage}
+                inDialogStage={inDialogStage}
+                inBlockingStage={inBlockingStage}
+                inReviewStage={inReviewStage}
+                inVerifiedStage={inVerifiedStage}
+                requiresInputStage={requiresInputStage}
+                group={group}
+                isAdmin={isAdmin}
+                mobileLayout={mobileLayout}
+                pageState={pageState} updatePageState={updatePageState}
+              />
+              <DismissableText textId="notificationHelp"
+                               display={_.isEmpty(investibles.find((investible) =>
+                                 isInStages(investible, visibleStages, marketId)))}
+                               text={
+                <div>
+                  Use the "Add job" button above and each team member's inbox will have
+                  a <Link href="https://documentation.uclusion.com/notifications" target="_blank">notification</Link> until
+                  they approve, give feedback or answer questions as necessary.
+                </div>
+              }/>
+            </div>
           )}
-          <Grid item id="commentAddArea" xs={12} style={{marginTop: '2rem'}}>
-            {_.isEmpty(search) && marketId && !hidden && (
-              <>
-                <DismissableText textId="workspaceCommentHelp" display={_.isEmpty(notTodoComments)} text={
-                  <div>
-                    <Link href="https://documentation.uclusion.com/structured-comments" target="_blank">Comments</Link> can
-                    be used at the workspace level and later moved to a job.
-                  </div>
-                }/>
-                <CommentAddBox
-                  groupId={groupId}
-                  allowedTypes={allowedCommentTypes}
-                  marketId={marketId}
-                />
-              </>
-            )}
-            <CommentBox comments={notTodoComments} marketId={marketId} allowedTypes={allowedCommentTypes}/>
-          </Grid>
-        </div>
-      )}
-      <LocalPlanningDragContext.Provider value={[beingDraggedHack, setBeingDraggedHack]}>
-        {isSectionOpen('storiesSection') && (
-          <div id="storiesSection">
-            {!_.isEmpty(requiresInputInvestibles) && (
-              <SubSection
-                type={SECTION_TYPE_SECONDARY_WARNING}
-                bolder
-                titleIcon={blockedOrRequiresInputInvestibles.length > 0 ?
-                  <span className={'MuiTabItem-tag'} style={{backgroundColor: WARNING_COLOR, maxHeight: '20px',
-                    borderRadius: 12, paddingRight: '2.79px', paddingLeft: '2.79px', marginRight: '1rem'}}>
-                    {blockedOrRequiresInputInvestibles.length} total
-                  </span> : undefined}
-                title={intl.formatMessage({ id: 'blockedHeader' })}
-                helpLink='https://documentation.uclusion.com/channels/jobs/stages/#blocked'
-                id="blocked"
-              >
-                <ArchiveInvestbiles
-                  comments={comments}
-                  elevation={0}
-                  marketId={marketId}
-                  presenceMap={presenceMap}
-                  investibles={blockedOrRequiresInputInvestibles}
-                  presenceId={myPresence.id}
-                  allowDragDrop
-                />
-              </SubSection>
-            )}
-            <div style={{ paddingBottom: '2rem' }}/>
-            <InvestiblesByPerson
-              comments={comments}
-              investibles={investibles}
-              visibleStages={visibleStages}
-              acceptedStage={acceptedStage}
-              inDialogStage={inDialogStage}
-              inBlockingStage={inBlockingStage}
-              inReviewStage={inReviewStage}
-              inVerifiedStage={inVerifiedStage}
-              requiresInputStage={requiresInputStage}
-              group={group}
-              isAdmin={isAdmin}
-              mobileLayout={mobileLayout}
-              pageState={pageState} updatePageState={updatePageState}
-            />
-            <DismissableText textId="notificationHelp"
-                             display={_.isEmpty(investibles.find((investible) =>
-                               isInStages(investible, visibleStages, marketId)))}
-                             text={
-              <div>
-                Use the "Add job" button above and each team member's inbox will have
-                a <Link href="https://documentation.uclusion.com/notifications" target="_blank">notification</Link> until
-                they approve, give feedback or answer questions as necessary.
-              </div>
-            }/>
-          </div>
+          {isSectionOpen('backlogSection') && (
+            <div id="backlogSection">
+              <Backlog furtherWorkType={furtherWorkType} group={group} updatePageState={updatePageState}
+                       marketPresences={marketPresences}
+                       furtherWorkReadyToStart={furtherWorkReadyToStart} furtherWorkInvestibles={furtherWorkInvestibles}
+                       isAdmin={isAdmin} comments={comments} presenceMap={presenceMap}
+                       furtherWorkStage={furtherWorkStage} myPresence={myPresence} />
+            </div>
+          )}
+          <MarketTodos comments={unResolvedMarketComments} marketId={marketId} groupId={groupId}
+                       sectionOpen={isSectionOpen('marketTodos')}
+                       setSectionOpen={() => {
+                         updatePageState({sectionOpen: 'marketTodos', tabIndex: 1});
+                       }} group={group} userId={myPresence.id}/>
+        </LocalPlanningDragContext.Provider>
+        {!hidden && isSectionOpen('archive') && (
+          <DialogArchives />
         )}
-        {isSectionOpen('backlogSection') && (
-          <div id="backlogSection">
-            <Backlog furtherWorkType={furtherWorkType} group={group} updatePageState={updatePageState}
-                     marketPresences={marketPresences}
-                     furtherWorkReadyToStart={furtherWorkReadyToStart} furtherWorkInvestibles={furtherWorkInvestibles}
-                     isAdmin={isAdmin} comments={comments} presenceMap={presenceMap}
-                     furtherWorkStage={furtherWorkStage} myPresence={myPresence} />
-          </div>
-        )}
-        <MarketTodos comments={unResolvedMarketComments} marketId={marketId} groupId={groupId}
-                     sectionOpen={isSectionOpen('marketTodos')}
-                     setSectionOpen={() => {
-                       updatePageState({sectionOpen: 'marketTodos', tabIndex: 1});
-                     }} group={group} userId={myPresence.id}/>
-      </LocalPlanningDragContext.Provider>
-      {!hidden && isSectionOpen('archive') && (
-        <DialogArchives />
-      )}
-      <Grid container spacing={2} id="settingsSection">
-        {!hidden && !_.isEmpty(acceptedStage) && !_.isEmpty(inVerifiedStage) &&
-          isSectionOpen('settingsSection') && _.isEmpty(search) && (
-            <PlanningDialogEdit
-              group={group}
-              userId={myPresence.id}
-              onCancel={() => resetTabs()}
-              acceptedStage={acceptedStage}
-              verifiedStage={inVerifiedStage}
-            />
-        )}
-      </Grid>
+        <Grid container spacing={2} id="settingsSection">
+          {!hidden && !_.isEmpty(acceptedStage) && !_.isEmpty(inVerifiedStage) &&
+            isSectionOpen('settingsSection') && _.isEmpty(search) && (
+              <PlanningDialogEdit
+                group={group}
+                userId={myPresence.id}
+                onCancel={() => resetTabs()}
+                acceptedStage={acceptedStage}
+                verifiedStage={inVerifiedStage}
+              />
+          )}
+        </Grid>
+      </div>
     </Screen>
   );
 }

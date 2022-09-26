@@ -50,6 +50,8 @@ export function navigate(history, to, insideUseEffect, doNotAddToHistory) {
   } = decomposeMarketPath(history.location.pathname);
   broadcastView(fromMarketId, fromInvestibleId, false, fromAction);
   if (to) {
+    // If going somewhere new previous scroll position no longer relevant
+    window.scrollTo(0, 0);
     if (insideUseEffect) {
       // Without the set timeout the use effect can be re-run before the push is complete
       // though not clear why that run wouldn't run it again.

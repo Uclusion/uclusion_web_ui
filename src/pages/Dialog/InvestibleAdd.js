@@ -26,9 +26,11 @@ function InvestibleAdd(props) {
   const intl = useIntl();
   const history = useHistory();
   const location = useLocation();
-  const { pathname, hash } = location;
+  const { pathname, hash, search: querySearch } = location;
   const values = queryString.parse(hash || '') || {};
-  const { fromCommentId, groupId } = values;
+  const { fromCommentId } = values;
+  const searchValues = queryString.parse(querySearch || '') || {};
+  const { groupId } = searchValues;
   const fromCommentIds = _.isArray(fromCommentId) ? fromCommentId : fromCommentId ? [fromCommentId] : undefined;
   const { marketId } = decomposeMarketPath(pathname);
   const [marketsState] = useContext(MarketsContext);

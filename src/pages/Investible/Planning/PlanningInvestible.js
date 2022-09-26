@@ -1114,6 +1114,7 @@ function PlanningInvestible(props) {
             />
           )}
         </GmailTabs>
+        <div style={{paddingTop: '2rem'}} />
         {!inArchives && isInVoting && isAssigned && acceptedFull && (
           <DismissableText textId='planningInvestibleAcceptedFullHelp' text={
             <div>
@@ -1202,7 +1203,7 @@ function PlanningInvestible(props) {
                   )}
                 </div>
               </div>
-              <div style={{marginTop: mobileLayout ? undefined : '-2rem'}}>
+              <div>
                 {displayEdit && isInAccepted && (
                   <div>
                     <EditMarketButton

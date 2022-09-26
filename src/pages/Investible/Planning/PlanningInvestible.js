@@ -1081,6 +1081,7 @@ function PlanningInvestible(props) {
             // Previous scroll position no longer relevant
             window.scrollTo(0, 0);
           }}
+          id='investible-header'
           indicatorColors={['#00008B', '#00008B', '#00008B', '#00008B', '#00008B', '#00008B']}
           style={{ paddingBottom: '0.25rem', zIndex: 8, position: 'fixed', paddingTop: '0.5rem',
             marginTop: '-15px', paddingLeft: 0, marginLeft: '-0.5rem', paddingRight: '25rem' }}>

@@ -5,7 +5,12 @@ import { decomposeMarketPath } from '../utils/marketIdPathFunctions'
 const ScrollContext = React.createContext({});
 
 export function scrollToElement(element) {
-  const headerOffset = document.getElementById('app-header').offsetHeight + 20;
+  let headerOffset = document.getElementById('app-header').offsetHeight + 20;
+  const investibleHeaderElement = document.getElementById('investible-header');
+  if (investibleHeaderElement) {
+    // Investible page is not kept when hidden so if in dom we are on that page
+    headerOffset += investibleHeaderElement.offsetHeight;
+  }
   const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
   const offsetPosition = elementPosition - headerOffset;
   window.scrollTo({

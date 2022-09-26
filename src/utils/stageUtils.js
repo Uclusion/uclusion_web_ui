@@ -42,8 +42,7 @@ export function getStagesInfo(marketId, marketStagesState, currentStageId){
 }
 
 
-export function getCurrentStageLabelId(stagesInfo, mobileLayout) {
-  console.dir(stagesInfo);
+export function getCurrentStageLabelId(stagesInfo) {
   if(stagesInfo.isInReview){
     return 'planningReviewStageLabel'
   }

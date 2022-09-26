@@ -150,7 +150,8 @@ function MarketTodos(props) {
     marketId, userId,
     groupId,
     isInArchives = false,
-    sectionOpen, setSectionOpen
+    sectionOpen, setSectionOpen,
+    hidden
   } = props
   const classes = myClasses();
   const intl = useIntl();
@@ -254,7 +255,7 @@ function MarketTodos(props) {
     function setEditCard(comment) {
       setOrRemoveCardOnReducer(updateCommentBlueState, commentStateBlueReset, comment);
     }
-    if (hash) {
+    if (hash && !hidden) {
       const todoParents = comments.filter(comment => comment.comment_type === TODO_TYPE &&
         !comment.investible_id && !comment.resolved) || [];
       const todoCommentIds = getThreadIds(todoParents, comments);
@@ -278,8 +279,8 @@ function MarketTodos(props) {
       }
     }
     return () => {};
-  }, [commentStateBlueReset, commentStateRedReset, commentStateYellowReset, comments, hash, history, sectionOpen,
-    setSectionOpen, updateCommentBlueState, updateCommentRedState, updateCommentYellowState]);
+  }, [commentStateBlueReset, commentStateRedReset, commentStateYellowReset, comments, hash, hidden, history,
+    sectionOpen, setSectionOpen, updateCommentBlueState, updateCommentRedState, updateCommentYellowState]);
 
   function onDragStart(event, notificationType) {
     removeHeader();
@@ -345,6 +346,7 @@ function MarketTodos(props) {
   function getCards(commentsGetting, history, intl, setCard, sectionId) {
     function setCardAndScroll(comment) {
       setCard(comment);
+      console.debug(`${formMarketLink(comment.market_id, comment.group_id)}#c${comment.id}`);
       navigate(history, `${formMarketLink(comment.market_id, comment.group_id)}#c${comment.id}`);
     }
 

@@ -115,7 +115,7 @@ function Dialog(props) {
       // Check for a comment that was moved to a job (or link would not come here) and send it there
       if (!myHashFragment.startsWith('cv') && (myHashFragment.startsWith('c'))) {
         const comments = getMarketComments(commentsState, marketId) || [];
-        const comment = comments.find((comment) => myHashFragment.includes(myHashFragment));
+        const comment = comments.find((comment) => myHashFragment.includes(comment.id));
         const { investible_id: investibleId } = comment || {};
         if (investibleId) {
           const link = formInvestibleLink(marketId, investibleId);

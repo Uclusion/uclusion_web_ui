@@ -471,7 +471,7 @@ function PlanningInvestible(props) {
         const found = investibleComments.find((anId) => hash.includes(anId));
         if (!_.isEmpty(found)) {
           const rootComment = filterToRoot(investibleComments, found.id);
-          if (_.isEmpty(rootComment.investible_id)) {
+          if (!_.isEmpty(rootComment.investible_id)) {
             switch (rootComment.comment_type) {
               case TODO_TYPE:
                 updatePageState({ sectionOpen: 'tasksSection' });
@@ -1589,7 +1589,6 @@ function MarketMetaData(props) {
     marketInvestible,
     investibleId,
     stageActions,
-    stage,
     stagesInfo,
     isAssigned,
     accepted,
@@ -1613,7 +1612,7 @@ function MarketMetaData(props) {
   const classes = useMetaDataStyles();
   const unacceptedAssignment = findMessageOfType('UNACCEPTED_ASSIGNMENT', investibleId, messagesState);
   const unaccepted = unacceptedAssignment && isAssigned && !accepted.includes(myUserId);
-  const stageLabelId = getCurrentStageLabelId(stagesInfo, stage);
+  const stageLabelId = getCurrentStageLabelId(stagesInfo);
 
   function myAccept() {
     return accept(market.id, investibleId, marketInvestible, invDispatch, diffDispatch, unacceptedAssignment,

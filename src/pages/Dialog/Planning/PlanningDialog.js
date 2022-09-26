@@ -158,7 +158,7 @@ function PlanningDialog(props) {
   }
 
   useEffect(() => {
-    if (hash) {
+    if (hash && !hidden) {
       if (hash.includes('workspaceMain')) {
         updatePageState({ sectionOpen: 'workspaceMain' })
       } else {
@@ -179,7 +179,7 @@ function PlanningDialog(props) {
         }
       }
     }
-  }, [comments, hash, sectionOpen, updatePageState]);
+  }, [comments, hash, hidden, sectionOpen, updatePageState]);
 
   function openSubSection(subSection) {
     updatePageState({sectionOpen: subSection});
@@ -376,6 +376,7 @@ function PlanningDialog(props) {
           )}
           <MarketTodos comments={unResolvedMarketComments} marketId={marketId} groupId={groupId}
                        sectionOpen={isSectionOpen('marketTodos')}
+                       hidden={hidden}
                        setSectionOpen={() => {
                          updatePageState({sectionOpen: 'marketTodos', tabIndex: 1});
                        }} group={group} userId={myPresence.id}/>

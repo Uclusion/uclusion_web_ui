@@ -411,7 +411,7 @@ const useStageClasses = makeStyles(
       },
       verifiedOverflow: {
         overflowY: 'auto',
-        maxHeight: '25rem'
+        maxHeight: '15rem'
       },
       root: {
         border: `1px solid ${theme.palette.grey['400']}`,

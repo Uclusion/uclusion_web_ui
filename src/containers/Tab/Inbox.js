@@ -12,6 +12,7 @@ export function GmailTabItem(props) {
       classes={tabItemStyles}
       {...props}
       id={label.replace(/[ &]/g, '')}
+      style={{maxWidth: '14rem'}}
       label={
         <div className={'MuiTabItem-labelGroup'}>
           <div className={'MuiTabItem-label'}>

@@ -35,7 +35,7 @@ import {
   getMyUserForMarket, marketTokenLoaded
 } from '../../contexts/MarketsContext/marketsContextHelper'
 import CardType, { DECISION_TYPE } from '../CardType'
-import { SECTION_TYPE_SECONDARY } from '../../constants/global'
+import { SECTION_TYPE_SECONDARY_WARNING } from '../../constants/global'
 import {
   addCommentToMarket, getComment, getMarketComments, getUnresolvedInvestibleComments, removeComments
 } from '../../contexts/CommentsContext/commentsContextHelper'
@@ -566,7 +566,8 @@ function Comment(props) {
           )}
           <SubSection
             id={`${isInbox ? 'inbox' : (isOutbox ? 'outbox' : '')}currentVoting`}
-            type={SECTION_TYPE_SECONDARY}
+            type={SECTION_TYPE_SECONDARY_WARNING}
+            bolder
             title={intl.formatMessage({ id: 'decisionDialogCurrentVotingLabel' })}
             supportingInformation={abstained}
             actionButton={!enableEditing || comment.created_by !== myPresence.id ? null :
@@ -587,6 +588,9 @@ function Comment(props) {
               marketPresences={anInlineMarketPresences}
               investibles={underConsideration}
               marketId={anInlineMarket.id}
+              parentMarketId={marketId}
+              parentInvestibleId={investibleId}
+              groupId={groupId}
               comments={anInlineMarketInvestibleComments}
               inArchives={inArchives}
               isAdmin={isEditable}
@@ -610,7 +614,8 @@ function Comment(props) {
           )}
           <SubSection
             id="proposedVoting"
-            type={SECTION_TYPE_SECONDARY}
+            type={SECTION_TYPE_SECONDARY_WARNING}
+            bolder
             title={intl.formatMessage({ id: 'decisionDialogProposedOptionsLabel' })}
             actionButton={ inArchives || comment.created_by === myPresence.id ? null :
               (<ExpandableAction

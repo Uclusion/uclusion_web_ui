@@ -25,7 +25,8 @@ import { getMarket, getMyUserForMarket } from '../../../contexts/MarketsContext/
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { Clear } from '@material-ui/icons'
 import CardHeader from '@material-ui/core/CardHeader'
-import { useLocation } from 'react-router'
+import { useHistory, useLocation } from 'react-router'
+import { formInvestibleLink, formMarketLink, navigate } from '../../../utils/marketIdPathFunctions'
 
 const useStyles = makeStyles(theme => ({
   noPadding: {
@@ -63,13 +64,15 @@ const useStyles = makeStyles(theme => ({
 }));
 
 function CurrentVoting(props) {
+  const history = useHistory();
   const classes = useStyles();
   const outlineStyles = myArchiveClasses();
   const location = useLocation();
   const { hash } = location;
   const [selectedInvestibleId, setSelectedInvestibleId] = useState(undefined);
   const [marketsState] = useContext(MarketsContext);
-  const { marketPresences, investibles, marketId, comments, isAdmin, inArchives, isSent } = props;
+  const { marketPresences, investibles, marketId, comments, isAdmin, inArchives, isSent,
+    parentInvestibleId, parentMarketId, groupId } = props;
   const strippedInvestibles = investibles.map(inv => inv.investible);
   const [messagesState] = useContext(NotificationsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -136,8 +139,18 @@ function CurrentVoting(props) {
         <RaisedCard
           className={classes.card}
           elevation={3}
-          onClick={() => selectedInvestibleId === id ? setSelectedInvestibleId(undefined) :
-            setSelectedInvestibleId(id)}
+          onClick={() => {
+            if (selectedInvestibleId === id) {
+              setSelectedInvestibleId(undefined);
+            } else {
+              setSelectedInvestibleId(id);
+              if (parentInvestibleId) {
+                navigate(history, `${formInvestibleLink(parentMarketId, parentInvestibleId)}#option${id}`);
+              } else if (parentMarketId) {
+                navigate(history, `${formMarketLink(parentMarketId, groupId)}#option${id}`);
+              }
+            }
+          }}
           isHighlighted={myMessage}
         >
           <CardHeader

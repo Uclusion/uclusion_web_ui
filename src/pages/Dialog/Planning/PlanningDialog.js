@@ -244,6 +244,7 @@ function PlanningDialog(props) {
     >
       <GmailTabs
         value={singleTabLayout ? 0 : tabIndex}
+        id='dialog-header'
         onChange={(event, value) => {
           updatePageState({tabIndex: value});
           const anchorId = getAnchorId(value);

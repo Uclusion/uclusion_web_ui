@@ -254,7 +254,7 @@ function Inbox(props) {
         <GmailTabItem icon={<InboxIcon htmlColor={htmlColor} />} label={intl.formatMessage({id: 'unread'})}
                       color='black' tagLabel={intl.formatMessage({id: 'new'})}
                       tag={unreadCount > 0 && !mobileLayout ? `${unreadCount}` : undefined} />
-        <GmailTabItem icon={<AssignmentIcon />} label={intl.formatMessage({id: 'unreadAssignmentMobile'})}
+        <GmailTabItem icon={<AssignmentIcon />} label={intl.formatMessage({id: 'unreadAssignment'})}
                       tag={_.size(assignedMessagesOrdered) > 0 && !mobileLayout ?
                         `${_.size(assignedMessagesOrdered)}` : undefined} />
         <GmailTabItem icon={<OutboxIcon />} label={intl.formatMessage({id: 'outbox'})}

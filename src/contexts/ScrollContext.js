@@ -11,6 +11,11 @@ export function scrollToElement(element) {
     // Investible page is not kept when hidden so if in dom we are on that page
     headerOffset += investibleHeaderElement.offsetHeight;
   }
+  const dialogHeaderElement = document.getElementById('dialog-header');
+  if (dialogHeaderElement) {
+    // Dialog page is not kept when hidden so if in dom we are on that page
+    headerOffset += dialogHeaderElement.offsetHeight;
+  }
   const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
   const offsetPosition = elementPosition - headerOffset;
   window.scrollTo({

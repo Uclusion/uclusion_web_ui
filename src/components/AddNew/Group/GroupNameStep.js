@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types'
-import { TextField, Typography } from '@material-ui/core'
+import { InputAdornment, OutlinedInput, Typography } from '@material-ui/core'
 import { useIntl } from 'react-intl'
 import _ from 'lodash'
 import StepButtons from '../StepButtons'
@@ -29,17 +29,21 @@ function GroupNameStep (props) {
       <Typography className={classes.introText} variant="h6">
         A group organizes a team and its jobs.
       </Typography>
-      <label className={classes.inputLabel} htmlFor="name">
-        {intl.formatMessage({ id: 'GroupWizardMeetingName' })}
-      </label>
-      <TextField
-        id="workspaceName"
+      <OutlinedInput
+        id="groupName"
         className={classes.input}
         value={value}
         onChange={onNameChange}
+        placeholder={intl.formatMessage({ id: 'GroupWizardMeetingName' })}
+        variant="outlined"
+        endAdornment={
+          <InputAdornment position={'end'} style={{ marginRight: '1rem' }}>
+            {80 - (formData?.name?.length ?? 0)}
+          </InputAdornment>
+        }
       />
-      <Typography className={classes.introText} variant="body1">
-        Finish after choosing a name or continue for options which can be changed at any time.
+      <Typography className={classes.introSubText} variant="body1">
+        Finish now or continue for options which can be changed at any time.
       </Typography>
       <div className={classes.borderBottom} />
       <StepButtons {...props} validForm={validForm} showFinish={true} />

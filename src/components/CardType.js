@@ -36,6 +36,7 @@ import UpdateIcon from '@material-ui/icons/Update'
 import RemoveFromQueueIcon from '@material-ui/icons/RemoveFromQueue';
 import UsefulRelativeTime from './TextFields/UseRelativeTime'
 import { Grid, Typography, useMediaQuery, useTheme } from '@material-ui/core'
+import { BugReport } from '@material-ui/icons'
 
 export { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE, DECISION_TYPE }
 export const VOTING_TYPE = 'VOTING'
@@ -50,6 +51,7 @@ export const REQUIRES_INPUT = "REQUIRES_INPUT";
 export const IN_VERIFIED = "VERIFIED";
 export const OPTION = "OPTION";
 export const PROPOSED = "PROPOSED";
+export const BUG = 'BUG';
 export const IN_VOTING= "DELIBERATION";
 export const ASSIGN_TYPE = "ASSIGN";
 export const GENERIC_STORY_TYPE = "GENERIC_STORY"; /// used in search results only
@@ -178,6 +180,7 @@ export default function CardType(props) {
     [QUESTION_TYPE]: QuestionIcon,
     [SUGGEST_CHANGE_TYPE]: ChangeSuggstionIcon,
     [TODO_TYPE]: ListAltIcon,
+    [BUG]: BugReport,
     [REPORT_TYPE]: UpdateIcon,
     [VOTING_TYPE]: VotingIcon,
     [STORY_TYPE]: EditIcon,

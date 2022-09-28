@@ -36,7 +36,6 @@ function RaisedCard(props) {
   const useCardClassName = cardClassName || classes.noClass;
   return (
     <Box
-      borderRadius="borderRadius"
       p={0}
       style={{height: '100%'}}
       className={className}

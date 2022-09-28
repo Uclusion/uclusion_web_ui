@@ -50,13 +50,15 @@ const myClasses = makeStyles(
     return {
       outlined: {
         cursor: 'grab',
-        outline: `2px solid ${theme.palette.grey['400']}`,
-        outlineOffset: '-5px'
+        outline: `1px solid ${theme.palette.grey['400']}`,
+        outlineOffset: '-5px',
+        borderRadius: 16
       },
       outlinedSelected: {
         backgroundColor: theme.palette.grey['200'],
-        outline: `2px solid ${theme.palette.grey['400']}`,
-        outlineOffset: '-5px'
+        outline: `1px solid ${theme.palette.grey['400']}`,
+        outlineOffset: '-5px',
+        borderRadius: 16
       },
       warnCard: {
         backgroundColor: yellow['100'],
@@ -550,7 +552,7 @@ function MarketTodos(props) {
       <DismissableText textId="todosHelp" display={!isInArchives && _.isEmpty(search) && _.isEmpty(todoComments)}
                        text={
         <div>
-          Use "Create New" below to create a <Link href="https://documentation.uclusion.com/channels/todos" target="_blank">todo</Link> that
+          Use "Create New" below to create a <Link href="https://documentation.uclusion.com/channels/todos" target="_blank">bug</Link> that
           sends notifications based on severity.
         </div>
       }/>

@@ -1025,7 +1025,7 @@ const messages = defineMessages({
   createYellowExplanation: 'Create new When Able Todo',
   createBlueExplanation: 'Create new When Convenient Todo',
   taskSection: 'Tasks',
-  todoSection: 'Todos',
+  todoSection: 'Bugs',
   readyToStartCheckboxExplanation: 'Ready to start',
   editTodo: 'View',
   markRead: 'Mark read',

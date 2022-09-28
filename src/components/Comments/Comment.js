@@ -34,7 +34,7 @@ import {
   getMarket,
   getMyUserForMarket, marketTokenLoaded
 } from '../../contexts/MarketsContext/marketsContextHelper'
-import CardType, { DECISION_TYPE } from '../CardType'
+import CardType, { BUG, DECISION_TYPE } from '../CardType'
 import { SECTION_TYPE_SECONDARY_WARNING } from '../../constants/global'
 import {
   addCommentToMarket, getComment, getMarketComments, getUnresolvedInvestibleComments, removeComments
@@ -863,6 +863,7 @@ function Comment(props) {
           <Box display="flex">
             {overrideLabel && (
               <CardType className={classes.commentType} type={commentType} resolved={resolved}
+                        subtype={commentType === TODO_TYPE && _.isEmpty(investibleId) ? BUG : undefined}
                         label={overrideLabel} color={color}
                         gravatar={noAuthor || mobileLayout ? undefined :
                           <GravatarAndName key={myPresence.id} email={createdBy.email}

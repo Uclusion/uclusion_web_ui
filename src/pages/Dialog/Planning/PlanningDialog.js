@@ -38,7 +38,6 @@ import {
   isFurtherWorkStage,
   isInReviewStage, isRequiredInputStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
-import ListAltIcon from '@material-ui/icons/ListAlt'
 import QuestionIcon from '@material-ui/icons/ContactSupport'
 import MenuBookIcon from '@material-ui/icons/MenuBook'
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
@@ -50,7 +49,7 @@ import queryString from 'query-string'
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext'
 import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper'
 import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox'
-import { AssignmentInd } from '@material-ui/icons'
+import { AssignmentInd, BugReport } from '@material-ui/icons'
 import Backlog from './Backlog'
 import InvestiblesByPerson from './InvestiblesByPerson'
 import { SECTION_TYPE_SECONDARY_WARNING } from '../../../constants/global'
@@ -225,7 +224,7 @@ function PlanningDialog(props) {
     navListItemTextArray = [
       createNavListItem(AssignmentInd, 'planningDialogNavStoriesLabel', 0, jobsSearchResults),
       createNavListItem(AssignmentIcon, 'planningDialogBacklog', 1, backlogSearchResults),
-      createNavListItem(ListAltIcon, 'todoSection', 2, _.size(todoComments)),
+      createNavListItem(BugReport, 'todoSection', 2, _.size(todoComments)),
       createNavListItem(QuestionIcon, 'planningDialogNavDiscussionLabel', 3, discussionSearchResults),
       createNavListItem(MenuBookIcon, 'planningDialogViewArchivesLabel', 4, archivedSize),
       createNavListItem(SettingsIcon, 'settings', 5)
@@ -265,7 +264,7 @@ function PlanningDialog(props) {
                         tag={_.isEmpty(search) || backlogSearchResults === 0 ? undefined : `${backlogSearchResults}`} />
         )}
         {(!singleTabLayout || sectionOpen === 'marketTodos') && (
-          <GmailTabItem icon={<ListAltIcon />} label={intl.formatMessage({id: 'todoSection'})}
+          <GmailTabItem icon={<BugReport />} label={intl.formatMessage({id: 'todoSection'})}
                         tag={_.isEmpty(search) || _.isEmpty(todoComments) ? undefined : `${_.size(todoComments)}` } />
         )}
         {(!singleTabLayout || sectionOpen === 'workspaceMain') && (

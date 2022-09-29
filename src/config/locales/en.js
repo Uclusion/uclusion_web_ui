@@ -558,7 +558,7 @@ const messages = defineMessages({
   chooseDate: 'Change estimated completion date',
   orProgressReport: 'or create or update a progress report.',
   orProgressReportOnly: 'or create a progress report.',
-  descriptionVotingLabel: 'Overview & Approvals',
+  descriptionVotingLabel: 'Overview',
 
   // Home
   homeAddPlanning: 'Create a workspace',
@@ -596,7 +596,7 @@ const messages = defineMessages({
   // Planning Dialog
   planningDialogNavDetailsLabel: 'Details',
   planningDialogNavStoriesLabel: 'Assigned Jobs',
-  planningDialogBacklog: 'Backlog',
+  planningDialogBacklog: 'Job Backlog',
   planningDialogNavDiscussionLabel: 'Discussion',
   planningDialogManageParticipantsLabel: 'Manage collaborators',
   planningDialogDiscussionLabel: 'Discussion',

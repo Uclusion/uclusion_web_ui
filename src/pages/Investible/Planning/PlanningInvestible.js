@@ -877,15 +877,16 @@ function PlanningInvestible(props) {
   const displayQuestionSection = canGetInput() || _.size(questionCommentsSearched) > 0;
   const displaySuggestionsSection = canGetInput() || _.size(suggestionCommentsSearched) > 0;
   const displayBockingSection = canOpenBlocking() || _.size(blockingCommentsSearched) > 0;
-  const sections = ['descriptionVotingSection', 'tasksSection'];
+  const sections = ['descriptionVotingSection'];
+  if (displayReportsSection) {
+    sections.push('reportsSection');
+  }
+  sections.push('tasksSection');
   if (displayQuestionSection) {
     sections.push('questionsSection');
   }
   if (displaySuggestionsSection) {
     sections.push('suggestionsSection')
-  }
-  if (displayReportsSection) {
-    sections.push('reportsSection');
   }
   if (displayBockingSection) {
     sections.push('blockersSection');
@@ -904,8 +905,13 @@ function PlanningInvestible(props) {
     navListItemTextArray = [
       createNavListItem(ThumbsUpDownIcon, 'descriptionVotingLabel', 'descriptionVotingSection',
         descriptionSectionResults),
-      createNavListItem(AssignmentIcon, 'tasksSection', 'tasksSection', _.size(todoCommentsSearched))
     ];
+    if (displayBockingSection) {
+      navListItemTextArray.push(createNavListItem(DescriptionIcon, 'reportsSectionLabel',
+        'blockersSection', _.size(reportsCommentsSearched)));
+    }
+    navListItemTextArray.push(createNavListItem(AssignmentIcon, 'tasksSection', 'tasksSection',
+      _.size(todoCommentsSearched)));
     if (displayQuestionSection) {
       navListItemTextArray.push(createNavListItem(HelpIcon, 'questions', 'questionsSection',
         _.size(questionCommentsSearched)));
@@ -917,10 +923,6 @@ function PlanningInvestible(props) {
     if (displayReportsSection) {
       navListItemTextArray.push(createNavListItem(BlockIcon, 'blocking', 'reportsSection',
         _.size(blockingCommentsSearched)));
-    }
-    if (displayBockingSection) {
-      navListItemTextArray.push(createNavListItem(DescriptionIcon, 'reportsSectionLabel',
-        'blockersSection', _.size(reportsCommentsSearched)));
     }
   }
   function getTagLabel(tagLabelId) {
@@ -1090,6 +1092,11 @@ function PlanningInvestible(props) {
                           label={intl.formatMessage({id: 'descriptionVotingLabel'})}
                           tag={descriptionSectionResults === 0 ? undefined : `${descriptionSectionResults}`} />
           )}
+          {(!singleTabLayout || sectionOpen === 'reportsSection') && displayReportsSection && (
+            <GmailTabItem icon={getIcon(REPORT_TYPE)}
+                          label={intl.formatMessage({id: 'reportsSectionLabel'})}
+                          tag={countUnresolved(reportsCommentsSearched)} tagLabel={getTagLabel('total')} />
+          )}
           {(!singleTabLayout || sectionOpen === 'tasksSection') && (
             <GmailTabItem icon={getIcon(TODO_TYPE)} label={intl.formatMessage({id: 'taskSection'})}
                           tag={countUnresolved(todoCommentsSearched)} tagLabel={getTagLabel('open')} />
@@ -1102,11 +1109,6 @@ function PlanningInvestible(props) {
             <GmailTabItem icon={getIcon(SUGGEST_CHANGE_TYPE)}
                           label={intl.formatMessage({id: 'suggestions'})}
                           tag={countUnresolved(suggestionCommentsSearched)} tagLabel={getTagLabel('open')} />
-          )}
-          {(!singleTabLayout || sectionOpen === 'reportsSection') && displayReportsSection && (
-            <GmailTabItem icon={getIcon(REPORT_TYPE)}
-                          label={intl.formatMessage({id: 'reportsSectionLabel'})}
-                          tag={countUnresolved(reportsCommentsSearched)} tagLabel={getTagLabel('total')} />
           )}
           {(!singleTabLayout || sectionOpen === 'blockersSection') && displayBockingSection && (
             <GmailTabItem icon={getIcon(ISSUE_TYPE)} tagLabel={getTagLabel('open')}

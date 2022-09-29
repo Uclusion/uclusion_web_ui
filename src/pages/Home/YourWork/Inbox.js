@@ -179,70 +179,8 @@ function Inbox(props) {
   const defaultRow = createDefaultInboxRow(unpaginatedItems, loadingFromInvite, messagesState, tokensHash, intl,
     determinate, determinateDispatch, checkAll, expansionState, expansionDispatch, tabIndex);
   return (
-    <div id="inbox" style={{paddingBottom: '45vh'}}>
-      <div style={{display: 'flex', paddingBottom: '0.5rem'}}>
-        {!mobileLayout && (
-          <Checkbox style={{padding: 0, marginLeft: '0.6rem'}}
-                    checked={checkAll}
-                    indeterminate={indeterminate}
-                    disabled={[ASSIGNED_INDEX, PENDING_INDEX].includes(tabIndex)}
-                    onChange={() => determinateDispatch({type: 'toggle'})}
-          />
-        )}
-        {(checkAll || !_.isEmpty(determinate)) && (
-          <TooltipIconButton
-            icon={<ArchiveIcon htmlColor={ACTION_BUTTON_COLOR} />}
-            onClick={() => {
-               let toProcess = messagesFull.filter((message) => message.is_highlighted ||
-                 message.type_object_id.startsWith('UNREAD'));
-               if (checkAll) {
-                 if (!_.isEmpty(determinate)) {
-                   const keys = Object.keys(determinate);
-                   toProcess = messagesFull.filter((message) => !keys.includes(message.type_object_id));
-                 }
-               } else {
-                 const keys = Object.keys(determinate);
-                 toProcess = messagesFull.filter((message) => keys.includes(message.type_object_id));
-               }
-               return deleteOrDehilightMessages(toProcess, messagesDispatch, workItemClasses.removed)
-                 .then(() => {
-                   determinateDispatch({type: 'clear'});
-                 }).finally(() => {
-                   setOperationRunning(false);
-                 });
-             }} translationId={tabIndex === 0 ? 'inboxMarkRead' : 'inboxArchive'} />
-        )}
-        <TooltipIconButton icon={<ExpandLess style={{marginLeft: '0.25rem'}} htmlColor={ACTION_BUTTON_COLOR} />}
-                           onClick={() => {
-                             if (tabIndex === PENDING_INDEX) {
-                               expansionPendingDispatch({ contractAll: true });
-                             } else if (tabIndex === ASSIGNED_INDEX) {
-                               expansionAssignedDispatch({ expandAll: false });
-                             } else {
-                               expansionDispatch({ expandAll: false });
-                             }
-                           }} translationId="inboxCollapseAll" />
-        <TooltipIconButton icon={<ExpandMoreIcon style={{marginLeft: '0.25rem'}} htmlColor={ACTION_BUTTON_COLOR} />}
-                           onClick={() => {
-                             if (tabIndex === PENDING_INDEX) {
-                               expansionPendingDispatch({expandedMessages: outBoxMessagesOrdered});
-                             } else if (tabIndex === ASSIGNED_INDEX) {
-                               expansionAssignedDispatch({ expandAll: true });
-                             } else {
-                               expansionDispatch({ expandAll: true });
-                             }
-                           }} translationId="inboxExpandAll" />
-        <div style={{flexGrow: 1}}/>
-        <Box fontSize={14} color="text.secondary">
-          {first} - {last} of {_.size(unpaginatedItems) > 0 ? _.size(unpaginatedItems) : 1}
-          <IconButton disabled={!hasLess} onClick={() => changePage(-1)} >
-            <KeyboardArrowLeft />
-          </IconButton>
-          <IconButton disabled={!hasMore} onClick={() => changePage(1)}>
-            <KeyboardArrowRight />
-          </IconButton>
-        </Box>
-      </div>
+    <>
+    <div style={{zIndex: 8, position: 'fixed', width: '100%', marginLeft: '-0.5rem'}}>
       <GmailTabs
         value={tabIndex}
         onChange={(event, value) => {
@@ -250,7 +188,7 @@ function Inbox(props) {
           setTabIndex(value);
         }}
         indicatorColors={[htmlColor, '#00008B', '#00008B']}
-        style={{ borderTop: '1px ridge lightgrey', paddingBottom: '0.25rem' }}>
+        style={{ paddingBottom: '0.5rem', paddingTop: '1rem', marginTop: '-1rem' }}>
         <GmailTabItem icon={<InboxIcon htmlColor={htmlColor} />} label={intl.formatMessage({id: 'unread'})}
                       color='black' tagLabel={intl.formatMessage({id: 'new'})}
                       tag={unreadCount > 0 && !mobileLayout ? `${unreadCount}` : undefined} />
@@ -264,6 +202,73 @@ function Inbox(props) {
                       tag={_.size(teamMessagesOrdered) > 0 && !mobileLayout ?
                         `${_.size(teamMessagesOrdered)}` : undefined} />
       </GmailTabs>
+      <div style={{paddingBottom: '0.25rem', backgroundColor: 'white'}}>
+        <div style={{display: 'flex', width: '80%'}}>
+          {!mobileLayout && (
+            <Checkbox style={{padding: 0, marginLeft: '0.6rem'}}
+                      checked={checkAll}
+                      indeterminate={indeterminate}
+                      disabled={[ASSIGNED_INDEX, PENDING_INDEX].includes(tabIndex)}
+                      onChange={() => determinateDispatch({type: 'toggle'})}
+            />
+          )}
+          {(checkAll || !_.isEmpty(determinate)) && (
+            <TooltipIconButton
+              icon={<ArchiveIcon htmlColor={ACTION_BUTTON_COLOR} />}
+              onClick={() => {
+                let toProcess = messagesFull.filter((message) => message.is_highlighted ||
+                  message.type_object_id.startsWith('UNREAD'));
+                if (checkAll) {
+                  if (!_.isEmpty(determinate)) {
+                    const keys = Object.keys(determinate);
+                    toProcess = messagesFull.filter((message) => !keys.includes(message.type_object_id));
+                  }
+                } else {
+                  const keys = Object.keys(determinate);
+                  toProcess = messagesFull.filter((message) => keys.includes(message.type_object_id));
+                }
+                return deleteOrDehilightMessages(toProcess, messagesDispatch, workItemClasses.removed)
+                  .then(() => {
+                    determinateDispatch({type: 'clear'});
+                  }).finally(() => {
+                    setOperationRunning(false);
+                  });
+              }} translationId={tabIndex === 0 ? 'inboxMarkRead' : 'inboxArchive'} />
+          )}
+          <TooltipIconButton icon={<ExpandLess style={{marginLeft: '0.25rem'}} htmlColor={ACTION_BUTTON_COLOR} />}
+                             onClick={() => {
+                               if (tabIndex === PENDING_INDEX) {
+                                 expansionPendingDispatch({ contractAll: true });
+                               } else if (tabIndex === ASSIGNED_INDEX) {
+                                 expansionAssignedDispatch({ expandAll: false });
+                               } else {
+                                 expansionDispatch({ expandAll: false });
+                               }
+                             }} translationId="inboxCollapseAll" />
+          <TooltipIconButton icon={<ExpandMoreIcon style={{marginLeft: '0.25rem'}} htmlColor={ACTION_BUTTON_COLOR} />}
+                             onClick={() => {
+                               if (tabIndex === PENDING_INDEX) {
+                                 expansionPendingDispatch({expandedMessages: outBoxMessagesOrdered});
+                               } else if (tabIndex === ASSIGNED_INDEX) {
+                                 expansionAssignedDispatch({ expandAll: true });
+                               } else {
+                                 expansionDispatch({ expandAll: true });
+                               }
+                             }} translationId="inboxExpandAll" />
+          <div style={{flexGrow: 1}}/>
+          <Box fontSize={14} color="text.secondary">
+            {first} - {last} of {_.size(unpaginatedItems) > 0 ? _.size(unpaginatedItems) : 1}
+            <IconButton disabled={!hasLess} onClick={() => changePage(-1)} >
+              <KeyboardArrowLeft />
+            </IconButton>
+            <IconButton disabled={!hasMore} onClick={() => changePage(1)}>
+              <KeyboardArrowRight />
+            </IconButton>
+          </Box>
+        </div>
+      </div>
+    </div>
+    <div id="inbox" style={{paddingBottom: '45vh', paddingTop: '8rem'}}>
       {defaultRow}
       { data.map((message) => {
           if (message.isOutboxType) {
@@ -290,6 +295,7 @@ function Inbox(props) {
               expansionDispatch={expansionPendingDispatch}
               page={pendingPage} setPage={setPendingPage} messagesOrdered={data} />
     </div>
+    </>
   );
 }
 

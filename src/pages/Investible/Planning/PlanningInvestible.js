@@ -1117,7 +1117,7 @@ function PlanningInvestible(props) {
             />
           )}
         </GmailTabs>
-        <div style={{paddingTop: '2rem'}} />
+        <div style={{paddingTop: '4rem'}} />
         {!inArchives && isInVoting && isAssigned && acceptedFull && (
           <DismissableText textId='planningInvestibleAcceptedFullHelp' text={
             <div>

@@ -15,6 +15,10 @@ export function nameToAvatarText(name) {
   return firstLetters.toUpperCase();
 }
 
+export function getTicketNumber(ticketCode) {
+  return ticketCode ? ticketCode.substring(ticketCode.lastIndexOf('-')+1) : undefined;
+}
+
 function stripHTML(foundSubstring) {
   if (foundSubstring) {
     const htmlRemoved = foundSubstring.replace(/(<([^>]+)>)/ig,'');

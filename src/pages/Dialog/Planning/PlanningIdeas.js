@@ -45,6 +45,7 @@ import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions'
 import { myArchiveClasses } from '../../DialogArchives/ArchiveInvestibles'
 import { WARNING_COLOR } from '../../../components/Buttons/ButtonConstants'
+import { getTicketNumber } from '../../../utils/stringFunctions'
 
 export const usePlanningIdStyles = makeStyles(
   theme => {
@@ -654,7 +655,7 @@ function StageInvestible(props) {
   const collaboratorsForInvestible = _.uniqBy(concated, 'id');
   const chip = mobileLayout ? undefined : getChip(numQuestionsSuggestions, numQuestionsSuggestions === 0,
     'inputRequiredCountExplanation');
-  const ticketNumber = ticketCode ? ticketCode.substring(ticketCode.lastIndexOf('-')+1) : undefined;
+  const ticketNumber = getTicketNumber(ticketCode);
   return (
     <Grid container>
       <Grid item xs={8}>
@@ -672,7 +673,7 @@ function StageInvestible(props) {
       </Grid>
       {ticketNumber && !mobileLayout && (
         <Grid item xs={1} style={{ paddingBottom: '0.2rem' }}>
-          <Typography variant="subtitle2">U-{ticketNumber}</Typography>
+          <Typography variant="subtitle2">J-{ticketNumber}</Typography>
         </Grid>
       )}
       <Grid id={`showEdit0${id}`} item xs={1} style={{pointerEvents: 'none', visibility: 'hidden'}}>

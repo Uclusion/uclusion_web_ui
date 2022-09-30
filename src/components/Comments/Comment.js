@@ -365,7 +365,8 @@ function Comment(props) {
   const lockedDialogClasses = useLockedDialogStyles();
   const { id, comment_type: commentType, investible_id: investibleId, inline_market_id: inlineMarketId,
     resolved, notification_type: myNotificationType, creation_stage_id: createdStageId,
-    mentions, body, creator_assigned: creatorAssigned, is_sent: isSent, group_id: groupId } = comment;
+    mentions, body, creator_assigned: creatorAssigned, is_sent: isSent, group_id: groupId,
+    ticket_code: ticketCode } = comment;
   const replyBeingEdited = replyEditId === id && myParams && !_.isEmpty(myParams.get('reply'));
   const beingEdited = replyEditId === id && !replyBeingEdited;
   const isFromInbox = myParams && !_.isEmpty(myParams.get('inbox'));
@@ -882,6 +883,11 @@ function Comment(props) {
                                            avatarClassName={classes.smallGravatar}
                           />}
               />
+            )}
+            {commentType === TODO_TYPE && _.isEmpty(investibleId) && ticketCode && (
+              <Typography className={classes.timeElapsed} variant="body2">
+                {decodeURI(ticketCode)}
+              </Typography>
             )}
             {commentType !== JUSTIFY_TYPE && commentType !== REPLY_TYPE && (
               <>

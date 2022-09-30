@@ -44,6 +44,7 @@ import DismissableText from '../../../components/Notifications/DismissableText'
 import { deleteOrDehilightMessages } from '../../../api/users'
 import { Clear, SettingsBackupRestore } from '@material-ui/icons'
 import { workListStyles } from '../../Home/YourWork/WorkListItem'
+import { getTicketNumber } from '../../../utils/stringFunctions'
 
 const myClasses = makeStyles(
   theme => {
@@ -357,7 +358,7 @@ function MarketTodos(props) {
     }
     const sortedData = _.sortBy(commentsGetting, 'updated_at').reverse()
     return sortedData.map((comment) => {
-      const { id, body, updated_at, notification_type: notificationType } = comment;
+      const { id, body, updated_at, notification_type: notificationType, ticket_code: ticketCode } = comment;
       const replies = comments.filter(comment => comment.root_comment_id === id) || [];
       const myMessage = findMessageForCommentId(id, messagesState);
       const { is_highlighted: isHighlighted } = myMessage || {};
@@ -417,6 +418,11 @@ function MarketTodos(props) {
                     className={isSelected ? classes.cardSelected : (useHighlight ? classes.warnCard : classes.card)}>
                 <Grid item xs={11} style={{ pointerEvents: 'none' }} key={`wComment${id}`}>
                   <div style={{ display: 'flex' }}>
+                    {ticketCode && (
+                      <Typography style={{ fontSize: '0.9rem', flex: 1 }} variant="body2">
+                        B-{getTicketNumber(decodeURI(ticketCode))}
+                      </Typography>
+                    )}
                     <Typography style={{ fontSize: '.75rem', flex: 1 }}>
                       Updated: {intl.formatDate(updated_at)}
                     </Typography>

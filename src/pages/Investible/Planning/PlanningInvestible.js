@@ -1656,7 +1656,7 @@ function MarketMetaData(props) {
     updatePageState({showDiff: !showDiff});
   }
   const stagesMenu = stageActions(handleStageMenuClose);
-  
+
   return (
     <div>
       {!_.isEmpty(stagesMenu) &&

@@ -106,10 +106,10 @@ function StageChangeAction(props) {
       .then((newInv) => {
         onInvestibleStageChange(targetStageId, newInv, investibleId, marketId, commentsState, commentsDispatch,
           invDispatch, diffDispatch, marketStagesState, undefined, fullStage);
-        setOperationRunning(false);
         if (!standAlone) {
           onSpinStop();
         }
+        setOperationRunning(false);
       });
   }
 
@@ -169,9 +169,11 @@ function StageChangeAction(props) {
     );
   }
 
+  const spinningId = `stageChangeAction${investibleId}${targetStageId}`;
+
   return (
     <SpinBlockingListAction
-      id='stageChangeAction'
+      id={spinningId}
       icon={icon}
       highlighted={highlighted}
       label={intl.formatMessage({ id: explanationId })}

@@ -130,10 +130,12 @@ function Root() {
     return action !== 'marketEdit';
   }
 
+  const isShortLink = pathname && (pathname.startsWith('/J-') || pathname.startsWith('/B-'));
+
   // Page Not Found
   const hidePNF = !(hideMarket() && hideSupport() && hideHome() && hideInvestible() && hideWorkspaceWizard() && hideInbox()
     && hideInvestibleAdd() && hideSlackInvite() && hideChangePassword() && hideMarketEdit()
-    && hideChangeNotification() && hideBillingHome() && hideTodoAdd() && hideCommentReplyEdit());
+    && hideChangeNotification() && hideBillingHome() && hideTodoAdd() && hideCommentReplyEdit() && !isShortLink);
 
   useEffect(() => {
     if (pathname && (pathname.startsWith('/J-') || pathname.startsWith('/B-'))) {

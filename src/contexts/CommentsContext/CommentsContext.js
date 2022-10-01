@@ -14,6 +14,7 @@ import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
 import { DiffContext } from '../DiffContext/DiffContext'
 import { isSignedOut } from '../../utils/userFunctions'
 import { clearUclusionLocalStorage } from '../../components/localStorageUtils'
+import { TICKET_INDEX_CHANNEL } from '../TicketContext/ticketIndexContextMessages'
 
 const COMMENTS_CHANNEL = 'comments';
 const COMMENTS_CONTEXT_NAMESPACE = 'comments_context';
@@ -25,6 +26,16 @@ function pushIndexItems(diskState) {
   const indexItems = _.flatten(Object.values(diskState));
   const indexMessage = { event: INDEX_UPDATE, itemType: INDEX_COMMENT_TYPE, items: indexItems };
   pushMessage(SEARCH_INDEX_CHANNEL, indexMessage);
+  const ticketCodeItems = [];
+  (indexItems || []).forEach((comment) => {
+    const { market_id: marketId, id: commentId, group_id: groupId, ticket_code: ticketCode } = comment;
+    if (ticketCode) {
+      ticketCodeItems.push({ ticketCode, marketId, commentId, groupId });
+    }
+  });
+  if (!_.isEmpty(ticketCodeItems)) {
+    pushMessage(TICKET_INDEX_CHANNEL, ticketCodeItems);
+  }
 }
 
 let commentsContextHack;

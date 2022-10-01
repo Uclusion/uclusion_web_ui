@@ -365,8 +365,7 @@ function Comment(props) {
   const lockedDialogClasses = useLockedDialogStyles();
   const { id, comment_type: commentType, investible_id: investibleId, inline_market_id: inlineMarketId,
     resolved, notification_type: myNotificationType, creation_stage_id: createdStageId,
-    mentions, body, creator_assigned: creatorAssigned, is_sent: isSent, group_id: groupId,
-    ticket_code: ticketCode } = comment;
+    mentions, body, creator_assigned: creatorAssigned, is_sent: isSent, group_id: groupId } = comment;
   const replyBeingEdited = replyEditId === id && myParams && !_.isEmpty(myParams.get('reply'));
   const beingEdited = replyEditId === id && !replyBeingEdited;
   const isFromInbox = myParams && !_.isEmpty(myParams.get('inbox'));
@@ -863,7 +862,7 @@ function Comment(props) {
         <>
           <Box display="flex">
             {overrideLabel && (
-              <CardType className={classes.commentType} type={commentType} resolved={resolved}
+              <CardType className={classes.commentType} type={commentType} resolved={resolved} compact
                         subtype={commentType === TODO_TYPE && _.isEmpty(investibleId) ? BUG : undefined}
                         label={overrideLabel} color={color}
                         gravatar={noAuthor || mobileLayout ? undefined :
@@ -875,7 +874,7 @@ function Comment(props) {
               />
             )}
             {!overrideLabel && (
-              <CardType className={classes.commentType} type={commentType} resolved={resolved}
+              <CardType className={classes.commentType} type={commentType} resolved={resolved} compact
                         gravatar={noAuthor || mobileLayout ? undefined :
                           <GravatarAndName key={myPresence.id} email={createdBy.email}
                                            name={createdBy.name} typographyVariant="caption"
@@ -884,11 +883,7 @@ function Comment(props) {
                           />}
               />
             )}
-            {commentType === TODO_TYPE && _.isEmpty(investibleId) && ticketCode && (
-              <Typography className={classes.timeElapsed} variant="body2">
-                {decodeURI(ticketCode)}
-              </Typography>
-            )}
+            <div style={{flexGrow: 1}}/>
             {commentType !== JUSTIFY_TYPE && commentType !== REPLY_TYPE && (
               <>
                 {mobileLayout && (

@@ -142,7 +142,7 @@ export function openInNewTab(url) {
   win.focus();
 }
 
-export function formCommentLink(marketId, groupId, investibleId, commentId){
+export function formCommentLink(marketId, groupId, investibleId, commentId) {
   const commentPart = `#c${commentId}`;
   if (!_.isEmpty(investibleId)) {
     return formInvestibleLink(marketId, investibleId) + commentPart;

@@ -9,6 +9,8 @@ import { getInvestible } from '../../contexts/InvestibesContext/investiblesConte
 import LinkIcon from '@material-ui/icons/Link'
 import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
+import { getComment } from '../../contexts/CommentsContext/commentsContextHelper'
+import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 
 const useStyles = makeStyles(() => ({
   hidden: {
@@ -45,12 +47,14 @@ function InvesibleCommentLinker(props) {
   } = props;
   const classes = useStyles();
   const [investiblesState] = useContext(InvestiblesContext);
+  const [commentState] = useContext(CommentsContext);
   const [marketsState] = useContext(MarketsContext);
   const [copiedToClipboard, setCopiedToClipboard] = useState(false);
   const [inLinker, setInLinker] = useState(false);
   const inv = getInvestible(investiblesState, investibleId);
+  const comment = getComment(commentState, marketId, commentId) || {};
   const marketInfo = getMarketInfo(inv, marketId) || {};
-  const { ticket_code: ticketCode } = marketInfo;
+  let ticketCode = marketInfo.ticket_code;
   const market = getMarket(marketsState, marketId) || {};
   let link = `${window.location.host}/${ticketCode}`;
   let useTextInsteadOfLink = false;
@@ -58,8 +62,13 @@ function InvesibleCommentLinker(props) {
     useTextInsteadOfLink = true;
     link = `${window.location.href}/#option${investibleId}`;
   } else if (commentId) {
-    useTextInsteadOfLink = true;
-    link = `${window.location.href}/#c${commentId}`;
+    if (comment.ticket_code) {
+      ticketCode = comment.ticket_code;
+      link = `${window.location.host}/${ticketCode}`;
+    } else {
+      useTextInsteadOfLink = true;
+      link = `${window.location.href}/#c${commentId}`;
+    }
   }
   return (
     <div id="inviteLinker" className={hidden ? classes.hidden : undefined}>

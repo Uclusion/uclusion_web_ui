@@ -169,7 +169,8 @@ export default function CardType(props) {
     createdAt,
     myBeingEdited,
     stageChangedAt,
-    color
+    color,
+    compact = false
   } = props;
   const classes = useCardTypeStyles({ type, resolved, color });
   const intl = useIntl();
@@ -207,7 +208,7 @@ export default function CardType(props) {
   }[subtype || type];
 
   return (
-    <Grid container>
+    <Grid container={!compact}>
       {label && (
         <Grid item xs={4} className={classes.labelGrid}>
           <div className={clsx(classes.root, className)} style={{marginRight: mobileLayout ? '0.25rem' : '1rem'}}>
@@ -217,31 +218,33 @@ export default function CardType(props) {
           {gravatar}
         </Grid>
       )}
-      {!label && (
+      {!label && !compact && (
         <Grid item xs={3} />
       )}
-      <Grid item xs={2}>
-        {myBeingEdited && (
+      {myBeingEdited && (
+        <Grid item xs={2}>
           <Typography className={classes.lastEdited} variant="body2">
             {intl.formatMessage({ id: 'edited' })}
           </Typography>
-        )}
-      </Grid>
-      <Grid item xs={2}>
-        {createdAt && (
+        </Grid>
+      )}
+      {createdAt && (
+        <Grid item xs={2}>
           <Typography className={classes.timeElapsed} variant="body2">
             {intl.formatMessage({ id: 'created' })} <UsefulRelativeTime value={createdAt}/>
           </Typography>
-        )}
-      </Grid>
-      <Grid item xs={2}>
-        {stageChangedAt && (
+        </Grid>
+      )}
+      {stageChangedAt && (
+        <Grid item xs={2}>
           <Typography className={classes.timeElapsed} variant="body2">
             {intl.formatMessage({ id: 'stageUpdatedAt' })} <UsefulRelativeTime value={stageChangedAt}/>
           </Typography>
-        )}
-      </Grid>
-      <Grid item xs={label ? 2 : 3} />
+        </Grid>
+      )}
+      {!compact && (
+        <Grid item xs={label ? 2 : 3} />
+      )}
     </Grid>
   );
 }

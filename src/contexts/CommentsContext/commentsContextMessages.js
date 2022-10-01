@@ -7,6 +7,8 @@ import {
   SEARCH_INDEX_CHANNEL
 } from '../SearchIndexContext/searchIndexContextMessages'
 import { PUSH_COMMENTS_CHANNEL, REMOVED_MARKETS_CHANNEL, VERSIONS_EVENT } from '../../api/versionedFetchUtils'
+import { TICKET_INDEX_CHANNEL } from '../TicketContext/ticketIndexContextMessages'
+import _ from 'lodash'
 
 function beginListening(dispatch, diffDispatch) {
   registerListener(REMOVED_MARKETS_CHANNEL, 'commentsRemovedMarketStart', (data) => {
@@ -25,6 +27,16 @@ function beginListening(dispatch, diffDispatch) {
     Object.values(commentDetails).forEach((comments) => allComments.concat(comments));
     const indexMessage = { event: INDEX_UPDATE, itemType: INDEX_COMMENT_TYPE, items: allComments };
     pushMessage(SEARCH_INDEX_CHANNEL, indexMessage);
+    const ticketCodeItems = [];
+    allComments.forEach((comment) => {
+      const { market_id: marketId, id: commentId, group_id: groupId, ticket_code: ticketCode } = comment;
+      if (ticketCode) {
+        ticketCodeItems.push({ ticketCode, marketId, commentId, groupId });
+      }
+    });
+    if (!_.isEmpty(ticketCodeItems)) {
+      pushMessage(TICKET_INDEX_CHANNEL, ticketCodeItems);
+    }
     switch (event) {
       case VERSIONS_EVENT:
         const fixedUpForDiff = allComments.map((comment) => {

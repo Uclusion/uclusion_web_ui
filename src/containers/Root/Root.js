@@ -8,7 +8,7 @@ import Support from '../../pages/About/Support'
 import PageNotFound from '../../pages/PageNotFound/PageNotFound'
 import {
   broadcastView,
-  decomposeMarketPath,
+  decomposeMarketPath, formCommentLink,
   formInvestibleLink, formMarketLink,
   navigate,
 } from '../../utils/marketIdPathFunctions'
@@ -136,12 +136,16 @@ function Root() {
     && hideChangeNotification() && hideBillingHome() && hideTodoAdd() && hideCommentReplyEdit());
 
   useEffect(() => {
-    console.debug(pathname)
-    if (pathname && pathname.startsWith('/U-')) {
+    if (pathname && (pathname.startsWith('/J-') || pathname.startsWith('/B-'))) {
       const ticket = getTicket(ticketState, pathname.substring(1));
       if (ticket) {
-        const { marketId, investibleId } = ticket;
-        navigate(history, formInvestibleLink(marketId, investibleId), true);
+        if (pathname.startsWith('/J-')) {
+          const { marketId, investibleId } = ticket;
+          navigate(history, formInvestibleLink(marketId, investibleId), true);
+        } else {
+          const { marketId, commentId, groupId } = ticket;
+          navigate(history, formCommentLink(marketId, groupId, undefined, commentId), true);
+        }
       }
     }
   },  [pathname, history, ticketState]);

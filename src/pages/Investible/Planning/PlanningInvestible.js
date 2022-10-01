@@ -695,7 +695,7 @@ function PlanningInvestible(props) {
       </MenuItem>
       );
     }
-    const verifiedDisabled = isInVerified || !_.isEmpty(blockingComments) || notAssigned;
+    const verifiedDisabled = isInVerified || !_.isEmpty(todoComments) || !_.isEmpty(blockingComments) || notAssigned;
     if(!verifiedDisabled){
       menuItems.push(
       <MenuItem
@@ -706,7 +706,7 @@ function PlanningInvestible(props) {
           investibleId={investibleId}
           marketId={marketId}
           currentStageId={stage}
-          hasTodos={!_.isEmpty(todoComments)}
+          hasTodos={false}
         />
       </MenuItem>
       );

@@ -627,7 +627,9 @@ function PlanningInvestible(props) {
   }, []);
   const acceptedFull = inAcceptedStage.allowed_investibles > 0
     && assignedInAcceptedStage.length >= inAcceptedStage.allowed_investibles;
-  function getStageActions() {
+
+
+  function getStageActions(onSpinStop) {
     if (inArchives) {
       return []
     }
@@ -644,6 +646,7 @@ function PlanningInvestible(props) {
           investibleId={investibleId}
           marketId={marketId}
           currentStageId={stage}
+          onSpinStop={onSpinStop}
           hasAssignedQuestions={!_.isEmpty(questionSuggestionsByAssignedComments)}
         />
       </MenuItem>);
@@ -659,6 +662,7 @@ function PlanningInvestible(props) {
           investibleId={investibleId}
           marketId={marketId}
           currentStageId={stage}
+          onSpinStop={onSpinStop}
           full={isInAccepted ? false : acceptedFull}
           hasAssignedQuestions={!_.isEmpty(questionSuggestionsByAssignedComments)}
         />
@@ -676,6 +680,7 @@ function PlanningInvestible(props) {
           investibleId={investibleId}
           marketId={marketId}
           currentStageId={stage}
+          onSpinStop={onSpinStop}
           hasAssignedQuestions={!_.isEmpty(questionSuggestionsByAssignedComments)}
         />
       </MenuItem>
@@ -691,6 +696,7 @@ function PlanningInvestible(props) {
           investibleId={investibleId}
           marketId={marketId}
           currentStageId={stage}
+          onSpinStop={onSpinStop}
         />
       </MenuItem>
       );
@@ -707,6 +713,7 @@ function PlanningInvestible(props) {
           marketId={marketId}
           currentStageId={stage}
           hasTodos={false}
+          onSpinStop={onSpinStop}
         />
       </MenuItem>
       );
@@ -721,21 +728,28 @@ function PlanningInvestible(props) {
           investibleId={investibleId}
           marketId={marketId}
           currentStageId={stage}
-          disabled={isInNotDoing}
+          disabled={false}
+          onSpinStop={onSpinStop}
         />
       </MenuItem>
       );
     }
     if (isInBlocked) {
       menuItems.unshift(
-        <MenuItem value={inBlockedStage.id} key={inBlockedStage.id}>
+        <MenuItem
+          onClick={onSpinStop}
+          value={inBlockedStage.id}
+          key={inBlockedStage.id}>
           <FormattedMessage id="planningBlockedStageLabel"/>
         </MenuItem>
       )
     }
     if (isRequiresInput) {
       menuItems.unshift(
-        <MenuItem value={requiresInputStage.id} key={requiresInputStage.id}>
+        <MenuItem
+          value={requiresInputStage.id}
+          onClick={onSpinStop}
+          key={requiresInputStage.id}>
           <FormattedMessage id="requiresInputHeader"/>
         </MenuItem>
       )
@@ -1059,7 +1073,7 @@ function PlanningInvestible(props) {
           market={market}
           marketInvestible={marketInvestible}
           isAdmin={!inArchives}
-          stageActions={getStageActions()}
+          stageActions={getStageActions}
           inArchives={inArchives}
           isAssigned={isAssigned}
           blockingComments={blockingCommentsUnresolved}
@@ -1641,10 +1655,11 @@ function MarketMetaData(props) {
     }
     updatePageState({showDiff: !showDiff});
   }
-
+  const stagesMenu = stageActions(handleStageMenuClose);
+  
   return (
     <div>
-      {!_.isEmpty(stageActions) &&
+      {!_.isEmpty(stagesMenu) &&
       (
         <React.Fragment>
           <div
@@ -1667,7 +1682,7 @@ function MarketMetaData(props) {
               open={stageMenuOpen}
               onClose={handleStageMenuClose}
             >
-              {stageActions}
+              {stagesMenu}
             </Menu>
           {unaccepted && (
             <div style={{display: 'flex', paddingTop: '1rem', marginBottom: 0}}>
@@ -1699,7 +1714,7 @@ MarketMetaData.propTypes = {
   investibleId: PropTypes.string.isRequired,
   market: PropTypes.object.isRequired,
   marketInvestible: PropTypes.object.isRequired,
-  stageActions: PropTypes.array,
+  stageActions: PropTypes.func,
 }
 
 export function Assignments(props) {

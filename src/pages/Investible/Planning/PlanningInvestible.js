@@ -573,17 +573,25 @@ function PlanningInvestible(props) {
   if (sectionOpen === 'tasksSection') {
     allowedCommentTypes = [TODO_TYPE];
     sectionComments = todoCommentsSearched;
-  } else if (sectionOpen === 'questionsSection' && canGetInput()) {
-    allowedCommentTypes = [QUESTION_TYPE];
+  } else if (sectionOpen === 'questionsSection') {
+    if (canGetInput()) {
+      allowedCommentTypes = [QUESTION_TYPE];
+    }
     sectionComments = questionCommentsSearched;
-  } else if (sectionOpen === 'suggestionsSection' && canGetInput()) {
-    allowedCommentTypes = [SUGGEST_CHANGE_TYPE];
+  } else if (sectionOpen === 'suggestionsSection') {
+    if (canGetInput()) {
+      allowedCommentTypes = [SUGGEST_CHANGE_TYPE];
+    }
     sectionComments = suggestionCommentsSearched;
-  } else if (sectionOpen === 'reportsSection' && !isInVoting && !isFurtherWork) {
-    allowedCommentTypes = [REPORT_TYPE];
+  } else if (sectionOpen === 'reportsSection') {
+    if (!isInVoting && !isFurtherWork) {
+      allowedCommentTypes = [REPORT_TYPE];
+    }
     sectionComments = reportsCommentsSearched;
-  } else if (sectionOpen === 'blockersSection' && canOpenBlocking()) {
-    allowedCommentTypes = [ISSUE_TYPE];
+  } else if (sectionOpen === 'blockersSection') {
+    if (canOpenBlocking()) {
+      allowedCommentTypes = [ISSUE_TYPE];
+    }
     sectionComments = blockingCommentsSearched;
   }
 

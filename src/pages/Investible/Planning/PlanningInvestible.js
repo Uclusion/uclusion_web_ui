@@ -19,7 +19,7 @@ import CommentBox from '../../../containers/CommentBox/CommentBox'
 import {
   ISSUE_TYPE,
   JUSTIFY_TYPE,
-  QUESTION_TYPE,
+  QUESTION_TYPE, REPLY_TYPE,
   REPORT_TYPE,
   SUGGEST_CHANGE_TYPE,
   TODO_TYPE
@@ -567,6 +567,7 @@ function PlanningInvestible(props) {
   const blockingCommentsSearched = investibleCommentsSearched.filter(
     comment => comment.comment_type === ISSUE_TYPE
   );
+  const replies = investibleComments.filter((comment => comment.comment_type === REPLY_TYPE));
   let allowedCommentTypes = [];
   let sectionComments = [];
   if (sectionOpen === 'tasksSection') {
@@ -701,7 +702,8 @@ function PlanningInvestible(props) {
       </MenuItem>
       );
     }
-    const verifiedDisabled = isInVerified || !_.isEmpty(todoComments) || !_.isEmpty(blockingComments) || notAssigned;
+    const verifiedDisabled = isInVerified || countUnresolved(todoComments) > 0 || !_.isEmpty(blockingComments)
+      || notAssigned;
     if(!verifiedDisabled){
       menuItems.push(
       <MenuItem
@@ -1378,7 +1380,7 @@ function PlanningInvestible(props) {
                                    text={<div>Change stage to 'Ready for Feedback' if you need this progress reviewed.</div>}/>
                 )}
               <CommentBox
-                comments={sectionComments}
+                comments={sectionComments.concat(replies)}
                 marketId={marketId}
                 allowedTypes={allowedCommentTypes}
                 isRequiresInput={isRequiresInput}

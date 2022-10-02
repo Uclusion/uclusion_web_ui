@@ -310,6 +310,7 @@ export function generateEditorOptions (id, config) {
     mentionsAllowed,
     boundsId,
     placeholder,
+    scrollingContainer
   } = config;
 
   if (noToolbar) {
@@ -454,7 +455,6 @@ export function generateEditorOptions (id, config) {
     readOnly: false,
     theme: 'snow',
     bounds: `#${boundsId}`,
-    // sets the element responsible for scroll
-    scrollingContainer: `#${boundsId}`,
+    scrollingContainer,
   };
 }

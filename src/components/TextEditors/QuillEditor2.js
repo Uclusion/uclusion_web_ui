@@ -154,7 +154,7 @@ function QuillEditor2 (props) {
   const containerStyle = {
     maxWidth: '100%',
     zIndex: '2',
-    borderTop: '1px solid lightgrey'
+    borderTop: '1px solid lightgrey',
   };
 
   const containerReadOnlyStyle = {
@@ -171,6 +171,7 @@ function QuillEditor2 (props) {
     if (ready) {
       // creating editor
       const editorConfig = {
+        scrollingContainer: `#${cssId}scroll`,
         boxRef,
         containerRef,
         marketId,
@@ -211,7 +212,13 @@ function QuillEditor2 (props) {
   }, [id, editorCreator]);
 
   return (
-    <div>
+    <div
+      id={`${cssId}scroll`}
+      style={{
+        maxHeight: '50vh',
+        overflowY: 'auto',
+      }}
+    >
       {createVideoUi(id)}
       {createLinkUi(id)}
       <div

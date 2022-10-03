@@ -45,7 +45,7 @@ function getPriorityIcon(message, isAssigned) {
 }
 
 function InboxRow(props) {
-  const { message, checked, determinateDispatch, expansionDispatch, expansionOpen, isMultiple, isDeletable,
+  const { message, checked, determinateDispatch, inboxDispatch, expansionOpen, isMultiple, isDeletable,
     numMultiples, showPriority, showSelector = true } = props;
   const intl = useIntl();
   const theme = useTheme();
@@ -120,7 +120,7 @@ function InboxRow(props) {
   }
   return <WorkListItem key={`inboxRow${typeObjectId}`} id={typeObjectId} checked={checked} useSelect={showSelector}
                        determinateDispatch={determinateDispatch}
-                       expansionDispatch={expansionDispatch} expansionOpen={expansionOpen}
+                       inboxDispatch={inboxDispatch} expansionOpen={expansionOpen}
                        isMultiple={isMultiple} {...item} />;
 }
 

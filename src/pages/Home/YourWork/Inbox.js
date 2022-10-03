@@ -1,6 +1,6 @@
 import { workListStyles } from './WorkListItem'
 import { Box, Checkbox, IconButton, useMediaQuery, useTheme } from '@material-ui/core'
-import React, { useContext, useEffect, useReducer, useState } from 'react'
+import React, { useContext, useEffect, useReducer } from 'react'
 import { useIntl } from 'react-intl'
 import { Group as GroupIcon, ExpandLess, KeyboardArrowLeft, Inbox as InboxIcon } from '@material-ui/icons'
 import OutboxIcon from '../../../components/CustomChip/Outbox'
@@ -13,17 +13,15 @@ import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants
 import TooltipIconButton from '../../../components/Buttons/TooltipIconButton'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { getInboxCount, isInInbox } from '../../../contexts/NotificationsContext/notificationsContextHelper'
+import { getInboxCount } from '../../../contexts/NotificationsContext/notificationsContextHelper'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
-import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
 import InboxRow from './InboxRow'
 import { getPaginatedItems } from '../../../utils/messageUtils'
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox'
-import { createDefaultInboxRow, getOutboxMessages } from './InboxExpansionPanel'
-import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
+import { addOutboxExpansionPanel, createDefaultInboxRow } from './InboxExpansionPanel'
 import { usePlanningInvestibleStyles } from '../../Investible/Planning/PlanningInvestible'
 import Outbox from './Outbox'
 import { pushMessage } from '../../../utils/MessageBusUtils'
@@ -32,32 +30,32 @@ import {
   REMOVE_CURRENT_EVENT
 } from '../../../contexts/NotificationsContext/notificationsContextMessages'
 import AssignmentIcon from '@material-ui/icons/Assignment'
-
-const PAGE_SIZE = 15;
-export const TEAM_INDEX = 3;
-export const PENDING_INDEX = 2;
-export const ASSIGNED_INDEX = 1;
+import {
+  ASSIGNED_INDEX, contractAll,
+  expandAll,
+  getUnpaginatedItems,
+  PAGE_SIZE,
+  PENDING_INDEX,
+  setPage,
+  setTab
+} from './InboxContext'
 
 function Inbox(props) {
-  const { isDisabled = false, expansionState = {}, expansionDispatch, page, setPage,
-    loadingFromInvite=false, setPendingPage, pendingPage, setAssignedPage, assignedPage, setTeamPage, teamPage,
-    expansionPendingDispatch, expansionPendingState, expansionAssignedState, expansionAssignedDispatch } = props;
+  const { isDisabled = false, loadingFromInvite=false, messagesFull, inboxState, inboxDispatch,
+    messagesHash } = props;
   const intl = useIntl();
   const workItemClasses = workListStyles();
   const planningClasses = usePlanningInvestibleStyles();
-  const [tabIndex, setTabIndex] = useState(0);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [marketState] = useContext(MarketsContext);
-  const [marketStagesState] = useContext(MarketStagesContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [commentsState] = useContext(CommentsContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [, , tokensHash] = useContext(MarketsContext);
-  const [searchResults] = useContext(SearchResultsContext);
-  const { results, parentResults, search } = searchResults;
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
+  const { tabIndex, page, expansionState } = inboxState;
   const [determinateState, determinateDispatch] = useReducer((state, action) => {
     const { determinate, checkAll } = state;
     const { type, id } = action;
@@ -85,10 +83,7 @@ function Inbox(props) {
     return { determinate: newDeterminate, indeterminate: newIndeterminate, checkAll: newCheckAll};
   }, {determinate: {}, indeterminate: false, checkAll: false});
   const { indeterminate, determinate, checkAll } = determinateState;
-  const { messages: messagesUnsafe } = messagesState;
-  let messagesFull = (messagesUnsafe || []).filter((message) => {
-    return isInInbox(message, marketState, marketPresencesState, commentsState, investiblesState, messagesUnsafe);
-  });
+
   const messagesJarOrdered = _.orderBy(messagesFull, [(message) => {
     const { level } = message;
     // Ignore read or not because not relevant to the priority of the inbox
@@ -101,83 +96,35 @@ function Inbox(props) {
         return 1;
     }
     }], ['desc'] ) || [];
-  let inboxMessagesOrdered =  _.orderBy(messagesFull, ['updated_at'], ['desc']) || [];
   const unreadCount = getInboxCount(messagesState, marketState, marketPresencesState, commentsState, investiblesState);
   const firstMessage = _.isEmpty(messagesFull) ? undefined : messagesJarOrdered[0];
   const htmlColor = _.isEmpty(firstMessage) ? '#8f8f8f' :
     (firstMessage.level === 'RED' ? '#E85757' : (firstMessage.level === 'YELLOW' ?
       (isDisabled ? '#ffff00' : '#ffc61a') : '#2D9CDB'));
-  const allOutBoxMessagesOrdered = getOutboxMessages({messagesState, marketState, marketPresencesState,
-    investiblesState, marketStagesState, commentsState, planningClasses, mobileLayout,
-    expansionState: expansionPendingState, intl});
-  const outBoxMessagesOrdered = allOutBoxMessagesOrdered.filter((message) => message.comment);
-  const outBoxAssigned = allOutBoxMessagesOrdered.filter((message) => !message.comment &&
-    !message.isOutboxAccepted && !message.inActive);
-  const assignedNotifications = (messagesUnsafe || []).filter((message) => message.alert_type);
-  const assignedMessages = _.union(assignedNotifications, outBoxAssigned);
-  const assignedMessagesOrdered = _.orderBy(assignedMessages, ['updated_at'], ['desc']) || [];
-  const messagesFiltered = _.isEmpty(search) ? inboxMessagesOrdered : inboxMessagesOrdered.filter((message) => {
-    const { type_object_id: typeObjectId,  investible_id: investibleId } = message;
-    return results.find((result) => typeObjectId.endsWith(result.id) || result.id === investibleId) ||
-      parentResults.find((id) => typeObjectId.endsWith(id) || parentResults.find((id) => investibleId === id));
-  });
-  const dupeHash = {};
-  messagesFiltered.forEach((message) => {
-    const { link_multiple: linkMultiple } = message;
-    if (linkMultiple) {
-      if (dupeHash[linkMultiple]) {
-        dupeHash[linkMultiple].push(message);
-      } else {
-        dupeHash[linkMultiple] = [message];
-      }
-    }
-  });
-  inboxMessagesOrdered = messagesFiltered.filter((message) => {
-    const { link_multiple: linkMultiple, updated_at: updatedAt } = message;
-    if (dupeHash[linkMultiple]) {
-      //Choose the message to use for the row based on last updated
-      return _.isEmpty(dupeHash[linkMultiple].find((aMessage) => {
-        return aMessage.updated_at > updatedAt;
-      }));
-    }
-    return true;
-  });
-  let teamMessagesOrdered = inboxMessagesOrdered.filter((message) => !message.alert_type && !message.is_highlighted);
-  teamMessagesOrdered = _.union(teamMessagesOrdered,
-    allOutBoxMessagesOrdered.filter((message) => message.isOutboxAccepted || message.inActive));
-  inboxMessagesOrdered = inboxMessagesOrdered.filter((message) => message.is_highlighted);
-  const unpaginatedItems = tabIndex === PENDING_INDEX ? outBoxMessagesOrdered : (tabIndex === 0 ? inboxMessagesOrdered
-    : (tabIndex === ASSIGNED_INDEX ? assignedMessagesOrdered : teamMessagesOrdered));
-  const usePage = tabIndex === PENDING_INDEX ? pendingPage : (tabIndex === 0 ? page :
-    (tabIndex === ASSIGNED_INDEX ? assignedPage : teamPage));
+  const unpaginatedItems = getUnpaginatedItems(messagesHash, tabIndex);
 
   useEffect(() => {
     // If the last item on a page is deleted then must go down
-    const pageSetter = tabIndex === PENDING_INDEX ? setPendingPage : ( tabIndex === 0 ? setPage :
-      (tabIndex === ASSIGNED_INDEX ? setAssignedPage : setTeamPage));
-    if ((usePage - 1)*PAGE_SIZE + 1 > _.size(unpaginatedItems)) {
-      if (usePage > 1) {
+    if ((page - 1)*PAGE_SIZE + 1 > _.size(unpaginatedItems)) {
+      if (page > 1) {
         const lastAvailablePage = Math.ceil(_.size(unpaginatedItems)/PAGE_SIZE);
-        pageSetter(lastAvailablePage > 0 ? lastAvailablePage : 1);
+        inboxDispatch(setPage(lastAvailablePage > 0 ? lastAvailablePage : 1));
       }
     }
-  }, [tabIndex, setPage, setPendingPage, unpaginatedItems, usePage, setAssignedPage, setTeamPage]);
+  }, [unpaginatedItems, page, inboxDispatch]);
 
   function changePage(byNum) {
-    if (tabIndex === PENDING_INDEX) {
-      setPendingPage(pendingPage + byNum);
-    } else if (tabIndex === 0) {
-      setPage(page + byNum);
-    } else if (tabIndex === ASSIGNED_INDEX) {
-      setAssignedPage(assignedPage + byNum);
-    } else {
-      setTeamPage(teamPage + byNum);
-    }
+    inboxDispatch(setPage(page + byNum));
   }
 
-  const { first, last, data, hasMore, hasLess } = getPaginatedItems(unpaginatedItems, usePage, PAGE_SIZE);
+  const { first, last, data, hasMore, hasLess } = getPaginatedItems(unpaginatedItems, page, PAGE_SIZE);
   const defaultRow = createDefaultInboxRow(unpaginatedItems, loadingFromInvite, messagesState, tokensHash, intl,
-    determinate, determinateDispatch, checkAll, expansionState, expansionDispatch, tabIndex);
+    determinate, determinateDispatch, checkAll, tabIndex);
+  const {outBoxMessagesOrdered, assignedMessagesOrdered, teamMessagesOrdered, dupeHash} = messagesHash;
+  data.forEach((message) => {
+    addOutboxExpansionPanel(message, expansionState, planningClasses, mobileLayout);
+  });
+
   return (
     <>
     <div style={{zIndex: 8, position: 'fixed', width: '100%', marginLeft: '-0.5rem'}}>
@@ -185,7 +132,7 @@ function Inbox(props) {
         value={tabIndex}
         onChange={(event, value) => {
           pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: REMOVE_CURRENT_EVENT });
-          setTabIndex(value);
+          inboxDispatch(setTab(value));
         }}
         indicatorColors={[htmlColor, '#00008B', '#00008B']}
         style={{ paddingBottom: '0.5rem', paddingTop: '1rem', marginTop: '-1rem' }}>
@@ -237,23 +184,11 @@ function Inbox(props) {
           )}
           <TooltipIconButton icon={<ExpandLess style={{marginLeft: '0.25rem'}} htmlColor={ACTION_BUTTON_COLOR} />}
                              onClick={() => {
-                               if (tabIndex === PENDING_INDEX) {
-                                 expansionPendingDispatch({ contractAll: true });
-                               } else if (tabIndex === ASSIGNED_INDEX) {
-                                 expansionAssignedDispatch({ expandAll: false });
-                               } else {
-                                 expansionDispatch({ expandAll: false });
-                               }
+                               inboxDispatch(contractAll());
                              }} translationId="inboxCollapseAll" />
           <TooltipIconButton icon={<ExpandMoreIcon style={{marginLeft: '0.25rem'}} htmlColor={ACTION_BUTTON_COLOR} />}
                              onClick={() => {
-                               if (tabIndex === PENDING_INDEX) {
-                                 expansionPendingDispatch({expandedMessages: outBoxMessagesOrdered});
-                               } else if (tabIndex === ASSIGNED_INDEX) {
-                                 expansionAssignedDispatch({ expandAll: true });
-                               } else {
-                                 expansionDispatch({ expandAll: true });
-                               }
+                               inboxDispatch(expandAll());
                              }} translationId="inboxExpandAll" />
           <div style={{flexGrow: 1}}/>
           <Box fontSize={14} color="text.secondary">
@@ -283,17 +218,14 @@ function Inbox(props) {
           const useMessage = fullyVotedMessage || message;
           const determinateChecked = determinate[useMessage.type_object_id];
           const checked = determinateChecked !== undefined ? determinateChecked : checkAll;
-          const useExpansionState = tabIndex === ASSIGNED_INDEX ? expansionAssignedState : expansionState;
-          return <InboxRow message={useMessage} expansionDispatch={tabIndex === ASSIGNED_INDEX ?
-            expansionAssignedDispatch : expansionDispatch} numMultiples={numMultiples}
+          return <InboxRow message={useMessage} inboxDispatch={inboxDispatch} numMultiples={numMultiples}
                            showSelector={tabIndex !== ASSIGNED_INDEX}
                            determinateDispatch={determinateDispatch} showPriority={tabIndex !== ASSIGNED_INDEX}
-                           expansionOpen={!!useExpansionState[useMessage.type_object_id]}
+                           expansionOpen={!!expansionState[useMessage.type_object_id]}
                            isDeletable={isDeletable} isMultiple={isMultiple} checked={checked} />;
       })}
-      <Outbox expansionState={expansionPendingState} showPriority={tabIndex !== ASSIGNED_INDEX}
-              expansionDispatch={expansionPendingDispatch}
-              page={pendingPage} setPage={setPendingPage} messagesOrdered={data} />
+      <Outbox inboxState={inboxState} showPriority={tabIndex !== ASSIGNED_INDEX} inboxDispatch={inboxDispatch}
+              page={page} messagesOrdered={data} />
     </div>
     </>
   );

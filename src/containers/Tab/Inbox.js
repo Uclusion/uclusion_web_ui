@@ -4,13 +4,13 @@ import Tabs from '@material-ui/core/Tabs';
 import { useGmailTabsStyles, useGmailTabItemStyles } from '@mui-treasury/styles/tabs/gmail';
 
 export function GmailTabItem(props) {
-  const { color='#055099', label, subLabel, tag, tagLabel = 'total' } = props
+  const { color='#055099', label, subLabel, tag, tagLabel = 'total', ...other } = props
   const tabItemStyles = useGmailTabItemStyles({ ...props, color });
   return (
     <Tab
       disableTouchRipple
       classes={tabItemStyles}
-      {...props}
+      {...other}
       id={label.replace(/[ &]/g, '')}
       style={{maxWidth: '14rem'}}
       label={

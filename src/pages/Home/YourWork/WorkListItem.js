@@ -21,6 +21,7 @@ import { ExpandLess } from '@material-ui/icons'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { usesExpansion } from './InboxExpansionPanel'
 import NotificationDeletion from './NotificationDeletion'
+import { expandOrContract } from './InboxContext'
 
 const Item = styled("div")`
   margin-bottom: 20px;
@@ -139,7 +140,7 @@ function WorkListItem(props) {
     useSelect = true,
     checked = false,
     determinateDispatch,
-    expansionDispatch,
+    inboxDispatch,
     id,
     expansionPanel,
     expansionOpen,
@@ -173,7 +174,7 @@ function WorkListItem(props) {
               pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: DEHIGHLIGHT_EVENT, message });
             }
             if (isUsingExpansion) {
-              expansionDispatch({ id });
+              inboxDispatch(expandOrContract(id));
             } else {
               pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: CURRENT_EVENT, message });
               return navigate(history, useLink);

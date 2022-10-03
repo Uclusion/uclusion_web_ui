@@ -31,7 +31,7 @@ import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown'
 import { getInvestibleVoters } from '../../../utils/votingUtils'
 import { formCommentLink, formInvestibleLink } from '../../../utils/marketIdPathFunctions'
 import { Typography } from '@material-ui/core'
-import { ASSIGNED_INDEX, PENDING_INDEX, TEAM_INDEX } from './Inbox'
+import { ASSIGNED_INDEX, PENDING_INDEX, TEAM_INDEX } from './InboxContext'
 
 export function usesExpansion(item, isMultiple) {
   if (isMultiple) {
@@ -79,7 +79,7 @@ export function addExpansionPanel(props) {
 }
 
 export function createDefaultInboxRow(messagesOrdered, loadingFromInvite, messagesState, tokensHash, intl, determinate,
-  determinateDispatch, checkAll, expansionState, expansionDispatch, tabIndex) {
+  determinateDispatch, checkAll, tabIndex) {
   if (!_.isEmpty(messagesOrdered)) {
     return undefined;
   }
@@ -125,40 +125,58 @@ export function createDefaultInboxRow(messagesOrdered, loadingFromInvite, messag
   );
 }
 
-function getMessageForInvestible (investible, market, labelId, Icon, intl) {
+function getMessageForInvestible(investible, market, labelId, Icon, intl, messageType) {
   const investibleId = investible.investible.id
   return {
     id: investibleId,
-    market: market.name,
+    marketId: market.id,
     icon: Icon,
     investible: investible.investible.name,
     title: intl.formatMessage({ id: labelId }),
     updatedAt: investible.investible.updated_at,
     link: formInvestibleLink(market.id, investibleId),
     isOutboxAccepted: investible.notAccepted,
-    isOutboxType: true
+    isOutboxType: true,
+    isInvestibleType: true,
+    messageType
   };
 }
 
-function getMessageForComment (comment, market, labelId, Icon, intl, investibleState, marketStagesState,
-  comments, marketPresences, planningClasses, mobileLayout, expansionState) {
+export function addOutboxExpansionPanel(message, expansionState, planningClasses, mobileLayout) {
+  const { isInvestibleType, isCommentType, id, marketId, marketType, isOutboxType } = message;
+  if (isOutboxType) {
+    const expansionOpen = expansionState && !!expansionState[id];
+    if (isInvestibleType) {
+      if (expansionOpen) {
+        message.expansionPanel = <InboxInvestible marketId={marketId} investibleId={id}
+                                                  messageType={message.messageType} message={message}
+                                                  planningClasses={planningClasses} marketType={PLANNING_TYPE}
+                                                  mobileLayout={mobileLayout} isOutbox/>;
+      }
+    } else if (isCommentType) {
+      if (expansionOpen) {
+        message.expansionPanel =
+          <CommentPanel marketId={marketId} commentId={id} marketType={marketType} message={message}
+                        planningClasses={planningClasses} mobileLayout={mobileLayout} isOutbox/>
+      }
+    }
+  }
+}
+
+function getMessageForComment(comment, market, labelId, Icon, intl, investibleState, marketStagesState,
+  comments, marketPresences) {
   const commentId = comment.id
   const message = {
     id: commentId,
-    market: market.name,
+    marketType: market.market_type,
     icon: Icon,
     comment: comment.body,
     title: intl.formatMessage({ id: labelId }),
     updatedAt: comment.updated_at,
     link: formCommentLink(market.id, comment.group_id, comment.investible_id, commentId),
     inFurtherWork: false,
-    isOutboxType: true
-  }
-  const expansionOpen = expansionState && !!expansionState[commentId]
-  if (expansionOpen) {
-    message.expansionPanel =
-      <CommentPanel marketId={market.id} commentId={commentId} marketType={market.market_type} message={message}
-                    planningClasses={planningClasses} mobileLayout={mobileLayout} isOutbox />
+    isOutboxType: true,
+    isCommentType: true
   }
   if (comment.investible_id) {
     const investible = getInvestible(investibleState, comment.investible_id)
@@ -197,11 +215,11 @@ function getMessageForComment (comment, market, labelId, Icon, intl, investibleS
 }
 
 export function getOutboxMessages(props) {
-  const { messagesState, marketState, marketPresencesState, investiblesState, marketStagesState, commentsState,
-    planningClasses, mobileLayout, expansionState, intl } = props;
+  const { messagesState, marketsState, marketPresencesState, investiblesState, marketStagesState, commentsState,
+    intl } = props;
   const { messages: messagesUnsafe } = messagesState;
   const inboxMessages = messagesUnsafe || [];
-  const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketState);
+  const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState);
   const planningDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, PLANNING_TYPE);
   const decisionDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, DECISION_TYPE, true);
 
@@ -254,7 +272,7 @@ export function getOutboxMessages(props) {
     questions.forEach((comment) => {
       const message = getMessageForComment(comment, market, 'cardTypeLabelQuestion',
         <QuestionIcon style={{ fontSize: 24, color: '#ffc61a', }}/>, intl, investiblesState, marketStagesState,
-        comments, marketPresences, planningClasses, mobileLayout, expansionState)
+        comments, marketPresences)
       if (message) {
         messages.push(message);
       }
@@ -262,7 +280,7 @@ export function getOutboxMessages(props) {
     issues.forEach((comment) => {
       const message = getMessageForComment(comment, market, 'cardTypeLabelIssue',
         <IssueIcon style={{ fontSize: 24, color: '#E85757', }}/>, intl, investiblesState, marketStagesState,
-        comments, marketPresences, planningClasses, mobileLayout, expansionState)
+        comments, marketPresences)
       if (message) {
         messages.push(message);
       }
@@ -270,7 +288,7 @@ export function getOutboxMessages(props) {
     suggestions.forEach((comment) => {
       const message = getMessageForComment(comment, market, 'cardTypeLabelSuggestedChange',
         <ChangeSuggstionIcon style={{ fontSize: 24, color: '#ffc61a', }}/>, intl, investiblesState, marketStagesState,
-        comments, marketPresences, planningClasses, mobileLayout, expansionState)
+        comments, marketPresences)
       if (message) {
         messages.push(message);
       }
@@ -284,14 +302,7 @@ export function getOutboxMessages(props) {
     inReviewInvestibles.forEach((investible) => {
       const investibleId = investible.investible.id;
       const outboxMessage = getMessageForInvestible(investible, market, 'feedback',
-        <RateReviewIcon style={{ fontSize: 24, color: '#ffc61a', }}/>, intl);
-      const expansionOpen = expansionState && !!expansionState[investibleId];
-      if (expansionOpen) {
-        outboxMessage.expansionPanel = <InboxInvestible marketId={market.id} investibleId={investibleId}
-                                                        messageType={'UNREAD_REVIEWABLE'} message={outboxMessage}
-                                                        planningClasses={planningClasses} marketType={PLANNING_TYPE}
-                                                        mobileLayout={mobileLayout} isOutbox/>;
-      }
+        <RateReviewIcon style={{ fontSize: 24, color: '#ffc61a', }}/>, intl, 'UNREAD_REVIEWABLE');
       const marketInfo = getMarketInfo(investible, market.id);
       if (!_.isEmpty(marketInfo.required_reviews)) {
         //add required reviewers with no comment
@@ -319,14 +330,8 @@ export function getOutboxMessages(props) {
       const label = notAccepted ? 'planningUnacceptedLabel' : 'inboxVotingLabel';
       const messageIcon = notAccepted ? <PersonAddOutlined style={{ fontSize: 24, color: '#ffc61a', }}/> :
         <ThumbsUpDownIcon style={{ fontSize: 24, color: '#ffc61a', }}/>;
-      const message = getMessageForInvestible(investible, market, label, messageIcon, intl)
-      const expansionOpen = expansionState && !!expansionState[investibleId]
-      if (expansionOpen) {
-        message.expansionPanel = <InboxInvestible marketId={market.id} investibleId={investibleId} message={message}
-                                                  messageType={notAccepted ? 'UNASSIGNED' : 'UNREAD_VOTE'}
-                                                  planningClasses={planningClasses} marketType={PLANNING_TYPE}
-                                                  mobileLayout={mobileLayout} isOutbox />
-      }
+      const message = getMessageForInvestible(investible, market, label, messageIcon, intl,
+        notAccepted ? 'UNASSIGNED' : 'UNREAD_VOTE')
       const { votes_required: votesRequired } = market
       const votersForInvestible = getInvestibleVoters(marketPresences, investibleId)
       const marketInfo = getMarketInfo(investible, market.id)
@@ -359,7 +364,7 @@ export function getOutboxMessages(props) {
     questions.forEach((comment) => {
       const message = getMessageForComment(comment, market, 'cardTypeLabelQuestion',
         <QuestionIcon style={{ fontSize: 24, color: '#ffc61a', }}/>, intl, investiblesState, marketStagesState,
-        comments, marketPresences, planningClasses, mobileLayout, expansionState)
+        comments, marketPresences)
       if (message) {
         messages.push(message);
       }
@@ -367,7 +372,7 @@ export function getOutboxMessages(props) {
     issues.forEach((comment) => {
       const message = getMessageForComment(comment, market, 'cardTypeLabelIssue',
         <IssueIcon style={{ fontSize: 24, color: '#E85757', }}/>, intl, investiblesState, marketStagesState,
-        comments, marketPresences, planningClasses, mobileLayout, expansionState)
+        comments, marketPresences)
       if (message) {
         messages.push(message);
       }
@@ -375,7 +380,7 @@ export function getOutboxMessages(props) {
     suggestions.forEach((comment) => {
       const message = getMessageForComment(comment, market, 'cardTypeLabelSuggestedChange',
         <ChangeSuggstionIcon style={{ fontSize: 24, color: '#ffc61a', }}/>, intl, investiblesState, marketStagesState,
-        comments, marketPresences, planningClasses, mobileLayout, expansionState)
+        comments, marketPresences)
       if (message) {
         messages.push(message);
       }

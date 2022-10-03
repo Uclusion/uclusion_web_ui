@@ -2,13 +2,12 @@ import { useIntl } from 'react-intl'
 import Screen from '../../../containers/Screen/Screen'
 import PropTypes from 'prop-types'
 import Inbox from './Inbox'
-import React, { useContext, useReducer, useState } from 'react'
+import React, { useContext, useReducer } from 'react'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import {
   getNotHiddenMarketDetailsForUser,
   marketTokenLoaded
 } from '../../../contexts/MarketsContext/marketsContextHelper'
-import _ from 'lodash'
 import { useHistory } from 'react-router'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { pushMessage } from '../../../utils/MessageBusUtils'
@@ -16,6 +15,15 @@ import queryString from 'query-string'
 import { INVITE_MARKET_EVENT, LOAD_MARKET_CHANNEL } from '../../../contexts/MarketsContext/marketsContextMessages'
 import { userIsLoaded } from '../../../contexts/AccountContext/accountUserContextHelper'
 import { AccountContext } from '../../../contexts/AccountContext/AccountContext'
+import { getMessages } from './InboxContext'
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
+import getReducer from './InboxContext'
+import { getOutboxMessages } from './InboxExpansionPanel'
+import { isInInbox } from '../../../contexts/NotificationsContext/notificationsContextHelper'
+import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
 
 function InboxFull(props) {
   const { hidden } = props;
@@ -25,85 +33,27 @@ function InboxFull(props) {
   const { search: querySearch } = location;
   const values = queryString.parse(querySearch || '');
   const { fromInvite } = values || {};
-  const [page, setPage] = useState(1);
-  const [teamPage, setTeamPage] = useState(1);
-  const [pendingPage, setPendingPage] = useState(1);
-  const [assignedPage, setAssignedPage] = useState(1);
   const [marketsState, , tokensHash] = useContext(MarketsContext);
+  const [marketStagesState] = useContext(MarketStagesContext);
+  const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [commentsState] = useContext(CommentsContext);
+  const [investiblesState] = useContext(InvestiblesContext);
   const [messagesState] = useContext(NotificationsContext);
   const [userState] = useContext(AccountContext);
+  const [searchResults] = useContext(SearchResultsContext);
   const hasUser = userIsLoaded(userState);
-  const [expansionPendingState, expansionPendingDispatch] = useReducer((state, action) => {
-    const { id, expandedMessages, contractAll } = action;
-    let newExpanded = state;
-    if (!_.isEmpty(expandedMessages)) {
-      newExpanded = { ...state };
-      expandedMessages.forEach((message) => {
-        newExpanded[message.id] = true;
-      });
-    } else if (contractAll) {
-      newExpanded = {};
-    } else if (id !== undefined) {
-      if (state[id] === undefined) {
-        newExpanded = {...state, [id]: true};
-      } else {
-        newExpanded = _.omit(state, id);
-      }
-    }
-    return newExpanded;
-  }, {});
-  const [expansionState, expansionDispatch] = useReducer((state, action) => {
-    const { id, expandAll } = action;
-    let newExpanded = state;
-    if (expandAll !== undefined) {
-      if (expandAll) {
-        const { messages: messagesUnsafe } = messagesState;
-        newExpanded = { ...state };
-        if (_.isEmpty(messagesUnsafe)) {
-          newExpanded['emptyInbox'] = expandAll;
-        } else {
-          messagesUnsafe.forEach((message) => {
-            newExpanded[message.type_object_id] = expandAll;
-          });
-        }
-      } else {
-        newExpanded = {};
-      }
-    } else if (id !== undefined) {
-      if (state[id] === undefined) {
-        newExpanded = {...state, [id]: true};
-      } else {
-        newExpanded = _.omit(state, id);
-      }
-    }
-    return newExpanded;
-  }, {});
-  const [expansionAssignedState, expansionAssignedDispatch] = useReducer((state, action) => {
-    const { id, expandAll } = action;
-    let newExpanded = state;
-    if (expandAll !== undefined) {
-      if (expandAll) {
-        const { messages: messagesUnsafe } = messagesState;
-        newExpanded = { ...state };
-        if (!_.isEmpty(messagesUnsafe)) {
-          messagesUnsafe.forEach((message) => {
-            if (message.alert_type) {
-              newExpanded[message.type_object_id] = expandAll;
-            }
-          });
-        }
-      } else {
-        newExpanded = {};
-      }
-    } else if (id !== undefined) {
-      if (state[id] === undefined) {
-        newExpanded = {...state, [id]: true};
-      } else {
-        newExpanded = _.omit(state, id);
-      }
-    }
-    return newExpanded;
-  }, {});
+  const { messages: messagesUnsafe } = messagesState;
+  const messagesMapped = (messagesUnsafe || []).map((message) => {
+    return {...message, id: message.type_object_id};
+  });
+  const messagesFull = messagesMapped.filter((message) => {
+    return isInInbox(message, marketsState, marketPresencesState, commentsState, investiblesState, messagesUnsafe);
+  });
+  const allOutBoxMessagesOrdered = getOutboxMessages({messagesState, marketsState, marketPresencesState,
+    investiblesState, marketStagesState, commentsState, intl});
+  const messagesHash = getMessages(allOutBoxMessagesOrdered, messagesMapped, messagesFull, searchResults);
+  const [inboxState, inboxDispatch] = useReducer(getReducer(messagesHash),
+    {page: 1, tabIndex: 0, expansionState: {}, pageState: {}, defaultPage: 1});
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState);
   if (fromInvite && fromInvite !== 'loaded') {
     pushMessage(LOAD_MARKET_CHANNEL, { event: INVITE_MARKET_EVENT, marketToken: fromInvite });
@@ -136,11 +86,8 @@ function InboxFull(props) {
       hidden={hidden}
       isInbox
     >
-      <Inbox expansionState={expansionState} expansionDispatch={expansionDispatch} page={page} setPage={setPage}
-             loadingFromInvite={fromInvite} pendingPage={pendingPage} setPendingPage={setPendingPage}
-             assignedPage={assignedPage} setAssignedPage={setAssignedPage} teamPage={teamPage} setTeamPage={setTeamPage}
-             expansionAssignedState={expansionAssignedState} expansionAssignedDispatch={expansionAssignedDispatch}
-             expansionPendingState={expansionPendingState} expansionPendingDispatch={expansionPendingDispatch}
+      <Inbox inboxState={inboxState} inboxDispatch={inboxDispatch} loadingFromInvite={fromInvite}
+             messagesHash={messagesHash} messagesFull={messagesFull}
       />
     </Screen>
   );

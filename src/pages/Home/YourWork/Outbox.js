@@ -4,7 +4,8 @@ import { useIntl } from 'react-intl'
 import { nameFromDescription } from '../../../utils/stringFunctions'
 
 function Outbox(props) {
-  const { messagesOrdered, expansionState, expansionDispatch, showPriority = true } = props;
+  const { messagesOrdered, inboxState, inboxDispatch, showPriority = true } = props;
+  const { expansionState } = inboxState;
   const intl = useIntl();
 
   let rows = messagesOrdered.map((message) => {
@@ -34,7 +35,7 @@ function Outbox(props) {
       }
     }
     return <WorkListItem key={`outboxRow${id}`} id={id} useSelect={false} {...item}
-                         expansionDispatch={expansionDispatch} expansionOpen={!!expansionState[id]} />;
+                         inboxDispatch={inboxDispatch} expansionOpen={!!expansionState[id]} />;
   });
 
   return (

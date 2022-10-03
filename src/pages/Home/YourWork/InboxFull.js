@@ -15,7 +15,7 @@ import queryString from 'query-string'
 import { INVITE_MARKET_EVENT, LOAD_MARKET_CHANNEL } from '../../../contexts/MarketsContext/marketsContextMessages'
 import { userIsLoaded } from '../../../contexts/AccountContext/accountUserContextHelper'
 import { AccountContext } from '../../../contexts/AccountContext/AccountContext'
-import { getMessages } from './InboxContext'
+import { getMessages, registerInboxContextListeners } from './InboxContext'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
@@ -54,6 +54,7 @@ function InboxFull(props) {
   const messagesHash = getMessages(allOutBoxMessagesOrdered, messagesMapped, messagesFull, searchResults);
   const [inboxState, inboxDispatch] = useReducer(getReducer(messagesHash),
     {page: 1, tabIndex: 0, expansionState: {}, pageState: {}, defaultPage: 1});
+  registerInboxContextListeners(inboxDispatch);
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState);
   if (fromInvite && fromInvite !== 'loaded') {
     pushMessage(LOAD_MARKET_CHANNEL, { event: INVITE_MARKET_EVENT, marketToken: fromInvite });

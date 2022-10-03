@@ -37,13 +37,13 @@ function beginListening(dispatch) {
     }
   });
   registerListener(MODIFY_NOTIFICATIONS_CHANNEL, 'notificationsDelete', (data) => {
-    const { payload: { event, investibleId, useRemoveTypes, message } } = data;
+    const { payload: { event, investibleId, useRemoveTypes, message, messages } } = data;
     switch (event) {
       case DELETE_EVENT:
-          dispatch(removeMessages(message));
+        dispatch(removeMessages(message));
         break;
       case DEHIGHLIGHT_EVENT:
-          dispatch(dehighlightMessages(message));
+        dispatch(dehighlightMessages(messages));
         break;
       case STAGE_CHANGE_EVENT:
         dispatch(removeMessagesForInvestible(investibleId, useRemoveTypes));

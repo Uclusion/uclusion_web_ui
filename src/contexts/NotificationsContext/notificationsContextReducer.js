@@ -55,10 +55,10 @@ export function removeMessages(message) {
   }
 }
 
-export function dehighlightMessages(message) {
+export function dehighlightMessages(messages) {
   return {
     type: DEHIGHLIGHT_MESSAGES,
-    message
+    messages
   }
 }
 
@@ -249,13 +249,22 @@ function doRemoveMessages(state, action) {
 }
 
 function doDehighlightMessages(state, action) {
-  const { message } = action;
+  const { messages } = action;
   const { messages: existingMessages } = state;
-  const messages = getAllMessages(message, state);
-  const dehighlightedMessages = [];
-  messages.forEach((message) => {
-    dehighlightedMessages.push({...message, is_highlighted: false});
+  let allMessages = [];
+  messages.forEach((id) => {
+    const message = existingMessages.find((message) => message.type_object_id = id);
+    allMessages = allMessages.concat(getAllMessages(message, state));
   });
+  const dehighlightedMessages = [];
+  allMessages.forEach((message) => {
+    if (message.is_highlighted) {
+      dehighlightedMessages.push({ ...message, is_highlighted: false });
+    }
+  });
+  if (_.isEmpty(dehighlightedMessages)) {
+    return state;
+  }
   const newMessages = _.unionBy(dehighlightedMessages, existingMessages, 'type_object_id');
   return storeMessagesInState(state, newMessages);
 }
@@ -322,24 +331,43 @@ function storeStatePromise(action, newState) {
 }
 
 function reducer (state, action) {
-  const newState = computeNewState(state, action);
-  if ([DEHIGHLIGHT_MESSAGES, REMOVE_MESSAGES].includes(action.type)) {
-    const { message } = action;
-    if (message.market_id) {
-      let typeObjectIds = [];
-      const messages = getAllMessages(message, state);
-      messages.forEach((message) => {
-        typeObjectIds.push(message.type_object_id);
-      })
-      if (action.type === REMOVE_MESSAGES) {
-        getMarketClient(message.market_id).then((client) => client.users.removeNotifications(typeObjectIds)).then(() =>
-          storeStatePromise(action, newState));
-      } else {
-        getMarketClient(message.market_id).then((client) => client.users.dehighlightNotifications(typeObjectIds))
-          .then(() => storeStatePromise(action, newState));
+  const isDehighilightRemove = [DEHIGHLIGHT_MESSAGES, REMOVE_MESSAGES].includes(action.type);
+  if (isDehighilightRemove) {
+    const { messages, message } = action;
+    let allMessages = {};
+    if (message) {
+      if (message.market_id) {
+        allMessages[message.market_id] = [];
+        getAllMessages(message, state).forEach((message) => {
+          allMessages[message.market_id].push(message.type_object_id);
+        });
       }
+    } else {
+      const { messages: existingMessages } = state;
+      messages.forEach((id) => {
+        const message = existingMessages.find((message) => message.type_object_id === id);
+        if (!allMessages[message.market_id]) {
+          allMessages[message.market_id] = [];
+        }
+        getAllMessages(message, state).forEach((message) => {
+          if (action.type !== DEHIGHLIGHT_MESSAGES || message.is_highlighted) {
+            allMessages[message.market_id].push(message.type_object_id);
+          }
+        });
+      });
     }
-  } else {
+    Object.keys(allMessages).forEach((key) => {
+      if (action.type === REMOVE_MESSAGES) {
+        getMarketClient(key).then((client) => client.users.removeNotifications(allMessages[key])).then(() =>
+          storeStatePromise(action, computeNewState(state, action)));
+      } else if (!_.isEmpty(allMessages[key])) {
+        getMarketClient(key).then((client) => client.users.dehighlightNotifications(allMessages[key]))
+          .then(() => storeStatePromise(action, computeNewState(state, action)));
+      }
+    })
+  }
+  const newState = computeNewState(state, action);
+  if (!isDehighilightRemove) {
     storeStatePromise(action, newState);
   }
   return newState;

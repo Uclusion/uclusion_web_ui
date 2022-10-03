@@ -1,10 +1,17 @@
 import _ from 'lodash'
+import { pushMessage, registerListener } from '../../../utils/MessageBusUtils'
+import { VIEW_EVENT, VISIT_CHANNEL } from '../../../utils/marketIdPathFunctions'
+import {
+  DEHIGHLIGHT_EVENT,
+  MODIFY_NOTIFICATIONS_CHANNEL
+} from '../../../contexts/NotificationsContext/notificationsContextMessages'
 
 const UPDATE_PAGE = 'UPDATE_PAGE';
 const UPDATE_TAB = 'SET_TAB';
 const EXPAND_ALL_ON_PAGE = 'EXPAND_ALL_ON_PAGE';
 const CONTRACT_ALL_ON_PAGE = 'CONTRACT_ALL_ON_PAGE';
 const EXPAND_OR_CONTRACT = 'EXPAND_OR_CONTRACT';
+const DEHIGHLIGHT_EXPANDED = 'DEHIGHLIGHT_EXPANDED';
 
 export const PAGE_SIZE = 15;
 export const TEAM_INDEX = 3;
@@ -41,6 +48,12 @@ export function expandOrContract(id) {
   return {
     type: EXPAND_OR_CONTRACT,
     id
+  };
+}
+
+export function dehighlight() {
+  return {
+    type: DEHIGHLIGHT_EXPANDED
   };
 }
 
@@ -128,23 +141,59 @@ function expandPage(state, action, items, isExpand) {
   return { ...state, expansionState: newExpanded };
 }
 
+function dehighlightExpandedOnPage(state, items) {
+  const { expansionState } = state;
+  const openOnPage = (items || []).filter((message) => !!expansionState[message.id]);
+  if (!_.isEmpty(openOnPage)) {
+    const messages = openOnPage.map((message) => message.id);
+    pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: DEHIGHLIGHT_EVENT, messages });
+  }
+}
+
 function getReducer(messagesHash) {
   return (state, action) => {
     const { tabIndex } = state;
+    const items = getUnpaginatedItems(messagesHash, tabIndex);
     switch (action.type) {
       case UPDATE_PAGE:
+        dehighlightExpandedOnPage(state, items);
         return updatePage(state, action);
       case UPDATE_TAB:
+        dehighlightExpandedOnPage(state, items);
         return updateTab(state, action);
       case EXPAND_ALL_ON_PAGE:
-        return expandPage(state, action, getUnpaginatedItems(messagesHash, tabIndex), true);
+        return expandPage(state, action, items, true);
       case CONTRACT_ALL_ON_PAGE:
-        return expandPage(state, action, getUnpaginatedItems(messagesHash, tabIndex), false);
+        dehighlightExpandedOnPage(state, items);
+        return expandPage(state, action, items, false);
       case EXPAND_OR_CONTRACT:
+        // Dehighlight happens on click method
         return toggleExpandRow(state, action);
+      case DEHIGHLIGHT_EXPANDED:
+        dehighlightExpandedOnPage(state, items);
+        return state;
       default:
     }
   };
+}
+
+export function registerInboxContextListeners(dispatch) {
+  registerListener(VISIT_CHANNEL, 'dehighlightListener', (data) => {
+      if (!data) {
+        return;
+      }
+      const { payload: { event, message } } = data;
+      switch (event) {
+        case VIEW_EVENT:
+          const { isEntry } = message;
+          if (isEntry) {
+            dispatch(dehighlight());
+          }
+          break;
+        default:
+      }
+    }
+  );
 }
 
 export default getReducer;

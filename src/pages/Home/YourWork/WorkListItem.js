@@ -171,7 +171,7 @@ function WorkListItem(props) {
           (event) => {
             preventDefaultAndProp(event);
             if ((expansionOpen || !isUsingExpansion) && !read) {
-              pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: DEHIGHLIGHT_EVENT, message });
+              pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: DEHIGHLIGHT_EVENT, messages: [message.id] });
             }
             if (isUsingExpansion) {
               inboxDispatch(expandOrContract(id));

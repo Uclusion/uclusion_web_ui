@@ -346,14 +346,16 @@ function reducer (state, action) {
       const { messages: existingMessages } = state;
       messages.forEach((id) => {
         const message = existingMessages.find((message) => message.type_object_id === id);
-        if (!allMessages[message.market_id]) {
-          allMessages[message.market_id] = [];
-        }
-        getAllMessages(message, state).forEach((message) => {
-          if (action.type !== DEHIGHLIGHT_MESSAGES || message.is_highlighted) {
-            allMessages[message.market_id].push(message.type_object_id);
+        if (message.market_id) {
+          if (!allMessages[message.market_id]) {
+            allMessages[message.market_id] = [];
           }
-        });
+          getAllMessages(message, state).forEach((message) => {
+            if (action.type !== DEHIGHLIGHT_MESSAGES || message.is_highlighted) {
+              allMessages[message.market_id].push(message.type_object_id);
+            }
+          });
+        }
       });
     }
     Object.keys(allMessages).forEach((key) => {

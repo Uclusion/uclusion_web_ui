@@ -346,7 +346,7 @@ function reducer (state, action) {
       const { messages: existingMessages } = state;
       messages.forEach((id) => {
         const message = existingMessages.find((message) => message.type_object_id === id);
-        if (message.market_id) {
+        if (message && message.market_id) {
           if (!allMessages[message.market_id]) {
             allMessages[message.market_id] = [];
           }

@@ -169,6 +169,7 @@ function getMessageForComment(comment, market, labelId, Icon, intl, investibleSt
   const message = {
     id: commentId,
     marketType: market.market_type,
+    marketId: market.id,
     icon: Icon,
     comment: comment.body,
     title: intl.formatMessage({ id: labelId }),

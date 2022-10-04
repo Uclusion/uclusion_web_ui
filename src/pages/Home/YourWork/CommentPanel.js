@@ -149,7 +149,7 @@ function CommentPanel(props) {
       </div>
     );
   } else {
-    console.info(`Missing root for comment id ${useCommentId}`);
+    console.info(`Missing root for comment id ${useCommentId} in market ${useMarketId}`);
     return (
       <LoadingDisplay showMessage messageId="loadingMessage" noMargin />
     );

@@ -10,6 +10,9 @@ import { convertHTMLString } from '../ImageBlot'
 // static helper funcs
 
 export function editorEmpty (originalContents) {
+  if (_.isEmpty(originalContents)) {
+    return true;
+  }
   const contents = originalContents.replace(/[\n\r]+/g, '').trim();
   return (contents.length === 0 || contents === '<p></p>' || contents === '<p><br></p>')
 }

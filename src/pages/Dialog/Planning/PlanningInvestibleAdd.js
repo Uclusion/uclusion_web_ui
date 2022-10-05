@@ -30,7 +30,7 @@ import { getAcceptedStage } from '../../../contexts/MarketStagesContext/marketSt
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import { assignedInStage } from '../../../utils/userFunctions'
 import { getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
-import { convertDescription } from '../../../utils/stringFunctions'
+import { convertDescription, nameFromDescription } from '../../../utils/stringFunctions'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { Clear, Done, Send } from '@material-ui/icons'
 import { useEditor } from '../../../components/TextEditors/quillHooks'
@@ -40,7 +40,7 @@ import { getPageReducerPage, usePageStateReducer } from '../../../components/Pag
 import WarningDialog from '../../../components/Warnings/WarningDialog'
 import { useLockedDialogStyles } from '../DialogBodyEdit'
 import IssueDialog from '../../../components/Warnings/IssueDialog'
-import { getQuillStoredState, resetEditor } from '../../../components/TextEditors/Utilities/CoreUtils'
+import { getQuillStoredState, resetEditor, storeState } from '../../../components/TextEditors/Utilities/CoreUtils'
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
 import AddNewUsers from '../UserManagement/AddNewUsers'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
@@ -97,6 +97,14 @@ function PlanningInvestibleAdd(props) {
   const isAssignedToMe = (assignments || (storyAssignee ? [storyAssignee] : [])).includes(myPresence.id);
   const isAssigned = !_.isEmpty(assignments) || storyAssignee;
   const editorName = groupId ? `${groupId}-planning-inv-add` : 'planning-inv-add';
+  if (_.size(fromCommentIds) === 1 && _.isEmpty(getQuillStoredState(editorName))) {
+    const fromComment = comments.find((comment) => comment.id === fromCommentIds[0]);
+    const { body } = fromComment || {};
+    const name = nameFromDescription(body);
+    if (!_.isEmpty(name)) {
+      storeState(editorName,`<p>${name}</p>`);
+    }
+  }
   const editorSpec = {
     placeholder: intl.formatMessage({ id: 'investibleAddDescriptionDefault' }),
     onUpload: onS3Upload,

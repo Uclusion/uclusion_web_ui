@@ -80,7 +80,7 @@ function InvesibleCommentLinker(props) {
       }
                placement="top">
         <Button
-          style={{textTransform: 'none', justifyContent: 'left'}} disableRipple={true}
+          style={{textTransform: 'none', justifyContent: 'left', whiteSpace: 'nowrap'}} disableRipple={true}
                 onClick={() => {
                   navigator.clipboard.writeText(link);
                   setCopiedToClipboard(true);

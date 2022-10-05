@@ -109,12 +109,15 @@ function convertDescriptionForSeparator(description, separator, maxLength = 80) 
                 latestDescription = `${description.substring(0, beforePartIndex + entryBeginElement.length)}...${description.substring(indexAfter)}`;
                 //Remove html from the part between the components to avoid dangling or unclosed html
                 const endElementPosition = latestDescription.indexOf(entryEndElement);
-                const latestDescriptionInnerStripped = stripHTML(latestDescription.substring(entryBeginElement.length, endElementPosition));
-                latestDescription = `${entryBeginElement}${latestDescriptionInnerStripped}${latestDescription.substring(endElementPosition)}`;
-                const emptyAmpersand = `${entryBeginElement}...${entryEndElement}`;
-                if (latestDescription.indexOf(emptyAmpersand) === 0) {
-                  latestDescription = latestDescription.substring(emptyAmpersand.length);
+                const endElementPart = latestDescription.substring(entryBeginElement.length, endElementPosition);
+                if (endElementPart.indexOf('<img') < 0) {
+                  // Only strip out html if no img tags
+                  const latestDescriptionInnerStripped = stripHTML(endElementPart);
+                  latestDescription = `${entryBeginElement}${latestDescriptionInnerStripped}${latestDescription.substring(endElementPosition)}`;
                 }
+                const emptyAmpersand = `${entryBeginElement}...${entryEndElement}`;
+                // replaceAll not supported when running jest so use this syntax
+                latestDescription = latestDescription.split(emptyAmpersand).join('');
                 if (latestExtract.endsWith(' ')) {
                   latestExtract = `${latestExtract.substring(0, latestExtract.length - 1)}...`;
                 }

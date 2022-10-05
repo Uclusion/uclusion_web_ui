@@ -214,8 +214,9 @@ function Inbox(props) {
           const numMultiples = _.size(_.uniqBy(linkMultiples, 'type'));
           const fullyVotedMessage = linkMultiples.find((message) => message.type === 'FULLY_VOTED');
           const isMultiple = !fullyVotedMessage && numMultiples > 1;
-          const isDeletable = linkMultiples.find((message) => message.type_object_id.startsWith('UNREAD'));
           const useMessage = fullyVotedMessage || message;
+          const isDeletable =  useMessage.type_object_id.startsWith('UNREAD') ||
+            linkMultiples.find((message) => message.type_object_id.startsWith('UNREAD'));
           const determinateChecked = determinate[useMessage.type_object_id];
           const checked = determinateChecked !== undefined ? determinateChecked : checkAll;
           return <InboxRow message={useMessage} inboxDispatch={inboxDispatch} numMultiples={numMultiples}

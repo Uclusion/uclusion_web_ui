@@ -16,7 +16,8 @@ it.each([["<p>Try for name. And then some.</p>", "Try for name.", "<p>...And the
     "<h1>...And then some.</h1><p>What else?</p>"],
   ["<h1>Try for <i>name</i></h1><p>What else?</p>", "Try for name",
     "<p>What else?</p>"],
-  ["<p>See if short code fixed.</p>", "See if short code fixed.", ""]])
+  ["<p>See if short code fixed.</p>", "See if short code fixed.", ""],
+  ["<p><img src=\"https://dev.imagecdn.uclusion.com/5250067a-5553-4b52-8233-bb7b019b7a97/5e77cc70-fdc1-4c87-97a7-8d91a6f57a98.png\"></p><p>Start with an image.</p>", "Start with an image.", ""]])
 ('%p', (testDescription, expectedName, expectedDescription) => {
   const { name, description } = convertDescription(testDescription);
   expect(name).toBe(expectedName);

@@ -419,7 +419,7 @@ function MarketTodos(props) {
                 <Grid item xs={11} style={{ pointerEvents: 'none' }} key={`wComment${id}`}>
                   <div style={{ display: 'flex' }}>
                     {ticketCode && (
-                      <Typography style={{ fontSize: '0.9rem', flex: 1 }} variant="body2">
+                      <Typography style={{ fontSize: '0.9rem', flex: 1, whiteSpace: 'nowrap' }} variant="body2">
                         B-{getTicketNumber(decodeURI(ticketCode))}
                       </Typography>
                     )}

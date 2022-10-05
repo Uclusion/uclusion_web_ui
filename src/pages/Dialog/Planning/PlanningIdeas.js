@@ -673,7 +673,7 @@ function StageInvestible(props) {
       </Grid>
       {ticketNumber && !mobileLayout && (
         <Grid item xs={1} style={{ paddingBottom: '0.2rem' }}>
-          <Typography variant="subtitle2">J-{ticketNumber}</Typography>
+          <Typography variant="subtitle2" style={{whiteSpace: 'nowrap'}}>J-{ticketNumber}</Typography>
         </Grid>
       )}
       <Grid id={`showEdit0${id}`} item xs={1} style={{pointerEvents: 'none', visibility: 'hidden'}}>

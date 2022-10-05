@@ -23,7 +23,7 @@ import { makeStyles, Typography } from '@material-ui/core'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { Clear, SettingsBackupRestore } from '@material-ui/icons'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
-import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
+import { addMarketToStorage, getMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
 import Screen from '../../../containers/Screen/Screen'
 import ManageMarketUsers from '../UserManagement/ManageMarketUsers'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
@@ -44,8 +44,8 @@ const useStyles = makeStyles((theme) => {
 
 function PlanningMarketEdit() {
   const [marketStagesState, marketStagesDispatch] = useContext(MarketStagesContext);
-  const [setOperationRunning] = useContext(OperationInProgressContext);
-  const [marketsState] = useContext(MarketsContext);
+  const [,setOperationRunning] = useContext(OperationInProgressContext);
+  const [marketsState, marketsDispatch] = useContext(MarketsContext);
   const intl = useIntl();
   const classes = usePlanFormStyles();
   const myClasses = useStyles();
@@ -82,11 +82,13 @@ function PlanningMarketEdit() {
   }
 
   function handleSave() {
+    console.debug(`${allowedInvestibles !== acceptedStage.allowed_investibles} ${allowedInvestibles} ${acceptedStage.allowed_investibles}`)
     return updateMarket(
       marketId,
       name,
-      parseInt(investmentExpiration, 10)
+      investmentExpiration ? parseInt(investmentExpiration, 10) : null
     ).then(market => {
+      addMarketToStorage(marketsDispatch, market);
       if (allowedInvestibles !== acceptedStage.allowed_investibles) {
         return updateStage(marketId, acceptedStage.id, allowedInvestibles).then((newStage) => {
           const marketStages = getStages(marketStagesState, marketId)
@@ -94,16 +96,14 @@ function PlanningMarketEdit() {
           updateStagesForMarket(marketStagesDispatch, marketId, newStages)
           if (showInvestiblesAge !== verifiedStage.days_visible) {
             return updateShowInvestibles();
-          } else {
-            setOperationRunning(false);
           }
+          setOperationRunning(false);
         });
       }
       if (showInvestiblesAge !== verifiedStage.days_visible) {
         return updateShowInvestibles();
-      } else {
-        setOperationRunning(false);
       }
+      setOperationRunning(false);
     });
   }
 
@@ -152,8 +152,7 @@ function PlanningMarketEdit() {
         <SpinningIconLabelButton onClick={() => navigate(history)} doSpin={false} icon={Clear}>
           {intl.formatMessage({ id: 'marketAddCancelLabel' })}
         </SpinningIconLabelButton>
-        <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore} id="planningDialogUpdateButton"
-                                 disabled={!(parseInt(investmentExpiration, 10) > 0)}>
+        <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore} id="planningDialogUpdateButton">
           {intl.formatMessage({ id: 'marketEditSaveLabel' })}
         </SpinningIconLabelButton>
       </CardActions>

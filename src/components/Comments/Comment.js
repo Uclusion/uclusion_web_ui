@@ -464,8 +464,7 @@ function Comment(props) {
     const myMultiVote = !multiVote;
     setMultiVote(myMultiVote);
     if (myMultiVote !== originalAllowMultiVote) {
-      return updateMarket(inlineMarketId, null, null, null, null,
-        null, null, myMultiVote)
+      return updateMarket(inlineMarketId, null, null, myMultiVote)
         .then((market) => {
           addMarketToStorage(marketsDispatch, market);
         });

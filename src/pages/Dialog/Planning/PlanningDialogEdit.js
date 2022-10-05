@@ -2,8 +2,7 @@ import React, { useContext, useState } from 'react'
 import PropTypes from 'prop-types'
 import { useIntl } from 'react-intl'
 import {
-  updateGroup,
-  updateStage
+  updateGroup
 } from '../../../api/markets'
 import CardContent from '@material-ui/core/CardContent'
 import Grid from '@material-ui/core/Grid'
@@ -11,11 +10,6 @@ import clsx from 'clsx'
 import CardActions from '@material-ui/core/CardActions'
 import Card from '@material-ui/core/Card'
 import { usePlanFormStyles, VoteExpiration, Votes } from '../../../components/AgilePlan'
-import AllowedInProgress from './AllowedInProgress';
-import { getStages, updateStagesForMarket } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
-import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
-import _ from 'lodash'
-import ShowInVerifiedStageAge from './ShowInVerifiedStageAge'
 import {
   FormControlLabel,
   InputAdornment,
@@ -51,8 +45,7 @@ const useStyles = makeStyles((theme) => {
 });
 
 function PlanningDialogEdit(props) {
-  const { group, acceptedStage, verifiedStage, userId } = props;
-  const [marketStagesState, marketStagesDispatch] = useContext(MarketStagesContext);
+  const { group, userId } = props;
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, groupsDispatch] = useContext(MarketGroupsContext);
   const [, diffDispatch] = useContext(DiffContext);
@@ -62,8 +55,6 @@ function PlanningDialogEdit(props) {
   const classes = usePlanFormStyles();
   const wizardClasses = wizardStyles(theme);
   const myClasses = useStyles();
-  const [allowedInvestibles, setAllowedInvestibles] = useState(acceptedStage.allowed_investibles);
-  const [showInvestiblesAge, setShowInvestiblesAge] = useState(verifiedStage.days_visible);
   const [mutableGroup, setMutableGroup] = useState({...group, ticket_sub_code: decodeURI(group.ticket_sub_code)});
   const {
     use_budget,
@@ -92,25 +83,6 @@ function PlanningDialogEdit(props) {
     setMutableGroup({ ...mutableGroup, budget_unit: value });
   }
 
-  function onAllowedInvestiblesChange(event) {
-    const { value } = event.target;
-    setAllowedInvestibles(parseInt(value, 10));
-  }
-
-  function onShowInvestiblesAgeChange(event) {
-    const { value } = event.target;
-    setShowInvestiblesAge(parseInt(value, 10));
-  }
-
-  function updateShowInvestibles() {
-    return updateStage(id, verifiedStage.id, undefined, showInvestiblesAge).then((newStage) => {
-      const marketStages = getStages(marketStagesState, id);
-      const newStages = _.unionBy([newStage], marketStages, 'id');
-      updateStagesForMarket(marketStagesDispatch, id, newStages);
-      setOperationRunning(false);
-    });
-  }
-
   function onSaveSettings(savedGroup) {
     const diffSafe = {
       ...savedGroup,
@@ -133,23 +105,7 @@ function PlanningDialogEdit(props) {
       budgetUnit: budget_unit
   }).then(market => {
       onSaveSettings(market);
-      if (allowedInvestibles !== acceptedStage.allowed_investibles) {
-        return updateStage(id, acceptedStage.id, allowedInvestibles).then((newStage) => {
-          const marketStages = getStages(marketStagesState, id)
-          const newStages = _.unionBy([newStage], marketStages, 'id')
-          updateStagesForMarket(marketStagesDispatch, id, newStages)
-          if (showInvestiblesAge !== verifiedStage.days_visible) {
-            return updateShowInvestibles();
-          } else {
-            setOperationRunning(false);
-          }
-        });
-      }
-      if (showInvestiblesAge !== verifiedStage.days_visible) {
-        return updateShowInvestibles();
-      } else {
-        setOperationRunning(false);
-      }
+      setOperationRunning(false);
     });
   }
 
@@ -196,18 +152,6 @@ function PlanningDialogEdit(props) {
               </InputAdornment>
             }
           />
-          <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
-            <AllowedInProgress
-              onChange={onAllowedInvestiblesChange}
-              value={allowedInvestibles}
-            />
-          </Grid>
-          <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
-            <ShowInVerifiedStageAge
-              onChange={onShowInvestiblesAgeChange}
-              value={showInvestiblesAge}
-            />
-          </Grid>
           <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
             <VoteExpiration
               onChange={handleChange('investment_expiration')}

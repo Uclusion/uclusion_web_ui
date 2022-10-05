@@ -645,7 +645,7 @@ function MarketTodos(props) {
             actionButton={ isInArchives ? null :
               (<ExpandableAction
                 id="immediateTodosButton"
-                icon={<AddIcon htmlColor="black"/>}
+                icon={<AddIcon htmlColor='#E85757'/>}
                 label={intl.formatMessage({ id: 'createRedExplanation' })}
                 openLabel={intl.formatMessage({ id: 'createTODO' })}
                 onClick={onCreateRed}
@@ -703,7 +703,7 @@ function MarketTodos(props) {
             actionButton={ isInArchives ? null :
               (<ExpandableAction
                 id="whenAbleTodosButton"
-                icon={<AddIcon htmlColor="black" />}
+                icon={<AddIcon htmlColor='#F6BE00' />}
                 label={intl.formatMessage({ id: 'createYellowExplanation' })}
                 openLabel={intl.formatMessage({ id: 'createTODO' })}
                 onClick={onCreateYellow}
@@ -760,7 +760,7 @@ function MarketTodos(props) {
             actionButton={ isInArchives ? null :
               (<ExpandableAction
                 id="whenConvenientTodosButton"
-                icon={<AddIcon htmlColor="black"/>}
+                icon={<AddIcon htmlColor="#2F80ED"/>}
                 label={intl.formatMessage({ id: 'createBlueExplanation' })}
                 openLabel={intl.formatMessage({ id: 'createTODO' })}
                 onClick={onCreate}

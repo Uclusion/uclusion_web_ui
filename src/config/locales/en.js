@@ -1035,7 +1035,7 @@ const messages = defineMessages({
   moveTodoRed: 'Move to Red',
   moveTodoYellow: 'Move to Yellow',
   moveTodoBlue: 'Move to Blue',
-  startTodo: 'Start Todo',
+  startTodo: 'Start Bug',
 
   // Search
   searchBoxPlaceholder: 'Search',

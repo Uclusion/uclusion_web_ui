@@ -30,7 +30,7 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 function getPriorityIcon(message, isAssigned) {
   const { level, link_type: linkType } = message;
   const Icon = isAssigned ? Assignment :
-    (['UNASSIGNED', 'UNREAD_DRAFT', 'ADDED_TO_GROUP'].includes(message.type) || (message.type === 'UNREAD_REVIEWABLE'
+    (['UNASSIGNED', 'UNREAD_DRAFT', 'UNREAD_GROUP'].includes(message.type) || (message.type === 'UNREAD_REVIEWABLE'
       && linkType === 'MARKET_TODO') ? PersonAddOutlined : Quiz);
   switch (level) {
     case 'RED':

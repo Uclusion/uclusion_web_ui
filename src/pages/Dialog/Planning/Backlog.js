@@ -88,7 +88,7 @@ function Backlog(props) {
       title={intl.formatMessage({ id: 'readyToStartHeader' })}
       actionButton={
         <ExpandableAction
-          icon={<AddIcon htmlColor="black"/>}
+          icon={<AddIcon htmlColor='#F6BE00'/>}
           label={intl.formatMessage({ id: 'createFurtherWorkExplanation' })}
           openLabel={intl.formatMessage({ id: 'planningDialogAddInvestibleLabel'})}
           onClick={onClickFurtherStart}
@@ -135,7 +135,7 @@ function Backlog(props) {
       title={intl.formatMessage({ id: 'notReadyToStartHeader' })}
       actionButton={
         <ExpandableAction
-          icon={<AddIcon htmlColor="black"/>}
+          icon={<AddIcon htmlColor="#2F80ED"/>}
           label={intl.formatMessage({ id: 'createFurtherWorkExplanation' })}
           openLabel={intl.formatMessage({ id: 'planningDialogAddInvestibleLabel'})}
           onClick={onClickFurther}

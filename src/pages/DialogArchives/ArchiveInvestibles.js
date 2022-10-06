@@ -29,11 +29,8 @@ import {
   getMarketPresences,
 } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined'
-import { notify, onInvestibleStageChange } from '../../utils/investibleFunctions'
-import { UNASSIGNED_TYPE, YELLOW_LEVEL } from '../../constants/notifications'
-import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
-import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
-import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
+import { onInvestibleStageChange } from '../../utils/investibleFunctions'
+import { UNASSIGNED_TYPE } from '../../constants/notifications'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 import { Block } from '@material-ui/icons'
 import QuestionIcon from '@material-ui/icons/ContactSupport'
@@ -202,14 +199,12 @@ function ArchiveInvestbiles(props) {
   const intl = useIntl();
   const history = useHistory();
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
-  const [marketsState] = useContext(MarketsContext);
   const stageId = stage ? stage.id : undefined;
   const unResolvedMarketComments = comments.filter(comment => !comment.resolved) || [];
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [invState, invDispatch] = useContext(InvestiblesContext);
   const [beingDraggedHack, setBeingDraggedHack] = useContext(LocalPlanningDragContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
-  const [, messagesDispatch] = useContext(NotificationsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
 
@@ -240,11 +235,6 @@ function ArchiveInvestbiles(props) {
       onInvestibleStageChange(stage, fullInvestible, investibleId, marketId, commentsState,
         commentsDispatch, invDispatch, () => {}, undefined, [UNASSIGNED_TYPE],
         fullStage);
-      if (isReadyToStart) {
-        //TODO this is wrong now - only notify if presenceId in group or addressed
-        const market = getMarket(marketsState, marketId);
-        notify(presenceId, investibleId, UNASSIGNED_TYPE, YELLOW_LEVEL, invState, market, messagesDispatch);
-      }
       setOperationRunning(false);
     });
   }

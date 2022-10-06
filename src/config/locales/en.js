@@ -285,7 +285,7 @@ const messages = defineMessages({
   unfinishedMobile: 'Unfinished',
   reportRequired: 'Status due',
   reportRequiredMobile: 'Status',
-  assignTodo: 'Unassigned todo',
+  assignTodo: 'Unassigned bug',
   assignTodoMobile: 'Unassigned',
   assignTask: 'Unassigned job',
   assignTaskMobile: 'Unassigned',

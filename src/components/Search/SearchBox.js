@@ -139,9 +139,10 @@ function SearchBox () {
             </InputAdornment>
           ),
           endAdornment: (
+            _.isEmpty(searchResults.search) ? undefined :
             <InputAdornment style={{cursor: 'pointer'}}
                             onClick={clearSearch} position="end">
-              <CloseIcon style={{color: _.isEmpty(searchResults.search) ? 'white': 'black'}}/>
+              <CloseIcon htmlColor='black' />
             </InputAdornment>
           ),
         }}

@@ -5,7 +5,7 @@ import _ from 'lodash';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import { createPlanning } from '../../../api/markets';
-import WorkspaceStepButtons from './WorkspaceStepButtons';
+import WizardStepButtons from '../WizardStepButtons';
 import { setUclusionLocalStorageItem } from '../../localStorageUtils';
 import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { addGroupsToStorage } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper'
@@ -101,7 +101,7 @@ function WorkspaceNameStep (props) {
           }
         />
         <div className={classes.borderBottom}/>
-        <WorkspaceStepButtons {...props} showStartOver={false} onNext={onNext} validForm={validForm}/>
+        <WizardStepButtons {...props} showStartOver={false} onNext={onNext} validForm={validForm}/>
       </div>
     </WizardStepContainer>
   );

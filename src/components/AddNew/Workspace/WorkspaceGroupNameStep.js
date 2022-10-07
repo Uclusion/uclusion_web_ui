@@ -5,7 +5,7 @@ import _ from 'lodash'
 import WizardStepContainer from '../WizardStepContainer'
 import { WizardStylesContext } from '../WizardStylesContext'
 import { createGroup } from '../../../api/markets'
-import WorkspaceStepButtons from './WorkspaceStepButtons'
+import WizardStepButtons from '../WizardStepButtons'
 import { addGroupToStorage } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper'
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext'
 import { versionsUpdateGroupMembers } from '../../../contexts/GroupMembersContext/groupMembersContextReducer'
@@ -75,7 +75,7 @@ function WorkspaceGroupNameStep (props) {
           }
         />
         <div className={classes.borderBottom}/>
-        <WorkspaceStepButtons {...props} showSkip={true} onNext={onNext} validForm={validForm}/>
+        <WizardStepButtons {...props} showSkip={true} onNext={onNext} validForm={validForm}/>
       </div>
     </WizardStepContainer>
   );

@@ -1,12 +1,12 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
-import SpinningButton from '../../SpinBlocking/SpinningButton';
-import { WizardStylesContext } from '../WizardStylesContext';
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
-import WorkspaceInviteLinker from '../../../pages/Home/WorkspaceInviteLinker'
+import SpinningButton from '../SpinBlocking/SpinningButton';
+import { WizardStylesContext } from './WizardStylesContext';
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
+import WorkspaceInviteLinker from '../../pages/Home/WorkspaceInviteLinker'
 
-function WorkspaceStepButtons (props) {
+function WizardStepButtons (props) {
   const {
     formData,
     onNext,
@@ -18,8 +18,11 @@ function WorkspaceStepButtons (props) {
     validForm,
     showSkip,
     showNext,
+    showFinish,
     showLink,
     spinOnClick,
+    finishLabel,
+    nextLabel,
   } = props;
   const intl = useIntl();
   const classes = useContext(WizardStylesContext);
@@ -48,7 +51,7 @@ function WorkspaceStepButtons (props) {
   }
 
 
-  const nextLabel = 'OnboardingWizardContinue';
+
 
   return (
     <div className={classes.buttonContainer}>
@@ -71,11 +74,19 @@ function WorkspaceStepButtons (props) {
           </SpinningButton>
         )}
       </div>
+      <div className={classes.actionContainer}>
+        {showFinish && (
+          <SpinningButton id="OnboardingWizardSkip" className={classes.actionSkip} variant="text"
+                          doSpin={false} onClick={mySkip}>
+            {intl.formatMessage({ id: finishLabel })}
+          </SpinningButton>
+        )}
+      </div>
     </div>
   );
 }
 
-WorkspaceStepButtons.propTypes = {
+WizardStepButtons.propTypes = {
   onPrevious: PropTypes.func,
   onNext: PropTypes.func,
   previousStep: PropTypes.func,
@@ -89,13 +100,15 @@ WorkspaceStepButtons.propTypes = {
   finishLabel: PropTypes.string,
   finish: PropTypes.func,
   onFinish: PropTypes.func,
+  showFinish: PropTypes.bool,
   startOverLabel: PropTypes.string,
   showNext: PropTypes.bool,
   showLink: PropTypes.bool,
   startOverDestroysData: PropTypes.bool,
   spinOnClick: PropTypes.bool,
+  nextLabel: PropTypes.string,
 };
-WorkspaceStepButtons.defaultProps = {
+WizardStepButtons.defaultProps = {
   onNext: () => {},
   onSkip: () => {},
   onLink: () => {},
@@ -108,7 +121,9 @@ WorkspaceStepButtons.defaultProps = {
   validForm: true,
   showSkip: false,
   showNext: true,
+  showFinish: false,
   spinOnClick: true,
+  nextLabel: 'OnboardingWizardContinue',
 };
 
-export default WorkspaceStepButtons;
+export default WizardStepButtons;

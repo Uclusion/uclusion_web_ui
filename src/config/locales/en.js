@@ -1096,8 +1096,11 @@ const messages = defineMessages({
   //GroupWizard
   WorkspaceWizardTitle: 'Your workspace',
   GroupWizardMeetingName: 'Your group name',
-  ApprovalRestrictNo: 'Allow assignees to approve their own job.',
-  ApprovalRestrictYes: 'Do not allow approval by an assignee.',
+  GroupWizardGotoGroup: 'Go to group',
+  GroupWizardAddMembers: 'Add people',
+  GroupWizardConfigureApprovals: 'Configure job approvals',
+  ApprovalRestrictNo: 'Assignees can approve their own jobs.',
+  ApprovalRestrictYes: 'Assignees need approval from others.',
   BudgetRestrictNo: 'Allow approvers to suggest a budget.',
   BudgetRestrictYes: 'Do not allow approvers to suggest a budget.',
 

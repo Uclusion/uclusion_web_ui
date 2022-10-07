@@ -3,9 +3,9 @@ import PropTypes from 'prop-types'
 import { InputAdornment, OutlinedInput, Typography } from '@material-ui/core'
 import { useIntl } from 'react-intl'
 import _ from 'lodash'
-import StepButtons from '../StepButtons'
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
+import WizardStepButtons from '../WizardStepButtons';
 
 function GroupNameStep (props) {
   const { updateFormData, formData } = props;
@@ -26,8 +26,8 @@ function GroupNameStep (props) {
       {...props}
     >
     <div>
-      <Typography className={classes.introText} variant="h6">
-        A group organizes a team and its jobs.
+      <Typography className={classes.introText}>
+        What do you want to call your group?
       </Typography>
       <OutlinedInput
         id="groupName"
@@ -42,11 +42,13 @@ function GroupNameStep (props) {
           </InputAdornment>
         }
       />
-      <Typography className={classes.introSubText} variant="body1">
-        Finish now or continue for options which can be changed at any time.
-      </Typography>
       <div className={classes.borderBottom} />
-      <StepButtons {...props} validForm={validForm} showFinish={true} />
+      <WizardStepButtons
+        {...props}
+        validForm={validForm}
+        nextLabel="GroupWizardAddMembers"
+        showFinish={true}
+        finishLabel="GroupWizardGotoGroup"/>
     </div>
     </WizardStepContainer>
   );

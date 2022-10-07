@@ -1,11 +1,12 @@
-import React from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types';
-import { TextField } from '@material-ui/core';
+import { FormControl, InputAdornment, OutlinedInput } from '@material-ui/core'
 import { useIntl } from 'react-intl';
 import { nameFromDescription } from '../../utils/stringFunctions'
 import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../localStorageUtils'
 import { scrollToElement } from '../../contexts/ScrollContext'
 import { getQuillStoredState } from '../TextEditors/Utilities/CoreUtils'
+import InputLabel from '@material-ui/core/InputLabel'
 
 export function getNameStoredState(id) {
   return getUclusionLocalStorageItem(`name-editor-${id}`);
@@ -16,17 +17,19 @@ export function clearNameStoredState(id) {
 }
 
 function NameField(props) {
-  const intl = useIntl();
   const {
     editorName, label, placeHolder, id, useCreateDefault, scrollId
   } = props;
+  const intl = useIntl();
+  const defaultValue = getNameStoredState(id);
+  const [charactersLeft, setCharactersLeft] = useState(80 - (defaultValue || '').length);
 
   function storeState(state) {
     setUclusionLocalStorageItem(`name-editor-${id}`, state);
   }
 
   function createDefaultName() {
-    if (!getNameStoredState(id)) {
+    if (useCreateDefault && !getNameStoredState(id)) {
       const element = document.getElementById(scrollId || id)
       scrollToElement(element)
       const description = getQuillStoredState(editorName)
@@ -43,39 +46,29 @@ function NameField(props) {
   function handleChange(event) {
     const { value } = event.target;
     storeState(value);
+    setCharactersLeft(80 - (value || '').length);
   }
 
   return (
-    <>
-      {useCreateDefault && (
-        <TextField
-          onFocus={createDefaultName}
-          autoFocus
-          fullWidth
-          id={id}
-          label={intl.formatMessage({ id: label })}
-          onChange={handleChange}
-          placeholder={intl.formatMessage({
-            id: placeHolder
-          })}
-          defaultValue={getNameStoredState(id)}
-          variant="filled"
-        />
-      )}
-      {!useCreateDefault && (
-        <TextField
-          fullWidth
-          id={id}
-          label={intl.formatMessage({ id: label })}
-          onChange={handleChange}
-          placeholder={intl.formatMessage({
-            id: placeHolder
-          })}
-          defaultValue={getNameStoredState(id)}
-          variant="filled"
-        />
-      )}
-    </>
+    <FormControl variant="outlined" style={{marginBottom: '10px', width: '100%'}}>
+      <InputLabel htmlFor='display-name'>{intl.formatMessage({ id: label })}</InputLabel>
+      <OutlinedInput
+        id={id}
+        onFocus={createDefaultName}
+        autoFocus={useCreateDefault}
+        defaultValue={getNameStoredState(id)}
+        onChange={handleChange}
+        placeholder={intl.formatMessage({
+          id: placeHolder
+        })}
+        label={intl.formatMessage({ id: label })}
+        endAdornment={
+          <InputAdornment position={'end'} style={{ marginRight: '1rem' }}>
+            {charactersLeft}
+          </InputAdornment>
+        }
+      />
+    </FormControl>
   )
 }
 

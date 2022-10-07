@@ -60,9 +60,9 @@ export function dehighlight() {
 export function getMessages(allOutBoxMessagesOrdered, messagesUnsafe, messagesFull, searchResults) {
   const { results, parentResults, search } = searchResults;
   let inboxMessagesOrdered =  _.orderBy(messagesFull, ['updated_at'], ['desc']) || [];
-  const outBoxMessagesOrdered = allOutBoxMessagesOrdered.filter((message) => message.comment);
-  const outBoxAssigned = allOutBoxMessagesOrdered.filter((message) => !message.comment &&
-    !message.isOutboxAccepted && !message.inActive);
+  const outBoxMessagesOrdered = allOutBoxMessagesOrdered.filter((message) => message.comment ||
+    message.isOutboxAccepted);
+  const outBoxAssigned = allOutBoxMessagesOrdered.filter((message) => !message.isOutboxAccepted && !message.comment);
   const assignedNotifications = (messagesUnsafe || []).filter((message) => message.alert_type);
   const assignedMessages = _.union(assignedNotifications, outBoxAssigned);
   const assignedMessagesOrdered = _.orderBy(assignedMessages, ['updated_at'], ['desc']) || [];
@@ -92,9 +92,7 @@ export function getMessages(allOutBoxMessagesOrdered, messagesUnsafe, messagesFu
     }
     return true;
   });
-  let teamMessagesOrdered = inboxMessagesOrdered.filter((message) => !message.alert_type && !message.is_highlighted);
-  teamMessagesOrdered = _.union(teamMessagesOrdered,
-    allOutBoxMessagesOrdered.filter((message) => message.isOutboxAccepted || message.inActive));
+  const teamMessagesOrdered = inboxMessagesOrdered.filter((message) => !message.alert_type && !message.is_highlighted);
   inboxMessagesOrdered = inboxMessagesOrdered.filter((message) => message.is_highlighted);
   return {outBoxMessagesOrdered, inboxMessagesOrdered, assignedMessagesOrdered, teamMessagesOrdered, dupeHash};
 }

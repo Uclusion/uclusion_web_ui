@@ -29,7 +29,7 @@ import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { isEveryoneGroup } from '../../../contexts/GroupMembersContext/groupMembersHelper'
 import { addGroupToStorage } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper'
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext'
-import { wizardStyles } from '../../../components/AddNew/WizardStylesContext'
+import { wizardStyles } from '../../../components/AddNewWizards/WizardStylesContext'
 import DialogManage from '../DialogManage'
 
 const useStyles = makeStyles((theme) => {

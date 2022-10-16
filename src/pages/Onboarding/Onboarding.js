@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import WorkspaceWizard from '../../components/AddNew/Workspace/WorkspaceWizard';
+import WorkspaceWizard from '../../components/AddNewWizards/Workspace/WorkspaceWizard';
 import Screen from '../../containers/Screen/Screen';
 
 function Onboarding(props) {

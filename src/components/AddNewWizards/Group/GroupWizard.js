@@ -16,13 +16,22 @@ function GroupWizard(props) {
   const [, diffDispatch] = useContext(DiffContext);
   const [, groupsDispatch] = useContext(MarketGroupsContext);
   const [, groupMembersDispatch] = useContext(GroupMembersContext);
+
   function createGroup(formData) {
     const dispatchers = {
       groupsDispatch,
       diffDispatch,
       groupMembersDispatch
     };
-    return doCreateGroup(dispatchers, { marketId, ...formData })
+    // default things not filled in
+    const groupData = {
+      ...formData,
+      marketId,
+      votesRequired: formData.votesRequired ?? 0,
+    };
+
+
+    return doCreateGroup(dispatchers, groupData)
       .then((group) => {
         return onFinish({ ...formData, link: formMarketLink(group.market_id, group.id) });
       })

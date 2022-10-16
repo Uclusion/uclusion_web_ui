@@ -11,7 +11,16 @@ const WizardStylesContext = React.createContext({});
 export const wizardStyles = makeStyles(
   theme => {
     return {
-
+      inlineInputContainer: {
+        display: 'flex',
+        alignItems: 'center',
+        marginTop: '0.5rem',
+        marginBottom: '0.5rem',
+      },
+      inlineInputBox: {
+        marginRight: '0.5rem',
+        marginLeft: '0.5rem'
+      },
       normal: {},
       hidden: {
         display: 'none',

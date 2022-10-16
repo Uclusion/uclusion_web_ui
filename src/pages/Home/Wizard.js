@@ -7,10 +7,10 @@ import {
   navigate
 } from '../../utils/marketIdPathFunctions'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
-import GroupWizard from '../../components/AddNew/Group/GroupWizard'
+import GroupWizard from '../../components/AddNewWizards/Group/GroupWizard'
 import queryString from 'query-string'
 import { PLANNING_TYPE, WORKSPACE_WIZARD_TYPE } from '../../constants/markets'
-import WorkspaceWizard from '../../components/AddNew/Workspace/WorkspaceWizard';
+import WorkspaceWizard from '../../components/AddNewWizards/Workspace/WorkspaceWizard';
 
 function Wizard(props) {
   const { hidden } = props;

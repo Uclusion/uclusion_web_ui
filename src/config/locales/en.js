@@ -1067,7 +1067,7 @@ const messages = defineMessages({
   // phone field
   phoneFieldErrorText: 'Phone should begin with plus or just be the digits',
 
-  // AddNew
+  // AddNewWizards
   wizardBreadCrumb: 'Compose',
   OnboardingInviteDialog: 'Almost ready to go! Loading fully complete momentarily.',
   OnboardingWizardTitle: 'Welcome to Uclusion',

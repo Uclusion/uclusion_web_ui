@@ -13,7 +13,7 @@ export function blockedStorySteps(variables) {
         title: 'About task blocking',
         content: (
           <Typography style={{textAlign: 'left'}} variant="body2">
-            This job shows in Stalled until someone resolves all blocking issues.
+            This job shows in Assistance until someone resolves all blocking issues.
           </Typography>
         ),
       });

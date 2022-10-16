@@ -13,7 +13,7 @@ export function requiresInputStorySteps(variables) {
       title: 'Welcome to job help!',
       content: (
         <Typography style={{textAlign: 'left'}} variant="body2">
-          This job shows in Stalled until someone resolves your questions and suggestions.
+          This job shows in Assistance until someone resolves your questions and suggestions.
         </Typography>
       ),
     });

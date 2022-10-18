@@ -9,8 +9,9 @@ import {
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import GroupWizard from '../../components/AddNewWizards/Group/GroupWizard'
 import queryString from 'query-string'
-import { PLANNING_TYPE, WORKSPACE_WIZARD_TYPE } from '../../constants/markets'
+import { JOB_WIZARD_TYPE, PLANNING_TYPE, WORKSPACE_WIZARD_TYPE } from '../../constants/markets'
 import WorkspaceWizard from '../../components/AddNewWizards/Workspace/WorkspaceWizard';
+import JobWizard from '../../components/AddNewWizards/Job/JobWizard'
 
 function Wizard(props) {
   const { hidden } = props;
@@ -35,11 +36,14 @@ function Wizard(props) {
       hidden={hidden}
     >
       {createType === PLANNING_TYPE.toLowerCase() && (
-        <GroupWizard marketId={marketId} onFinish={onWizardFinish} onStartOver={() => navigate(history, '/inbox')}/>
+        <GroupWizard marketId={marketId} onFinish={onWizardFinish} />
       )}
 
       {createType === WORKSPACE_WIZARD_TYPE.toLowerCase() && (
-        <WorkspaceWizard onFinish={onWizardFinish} onStartOver={() => navigate(history, '/inbox')}/>
+        <WorkspaceWizard onFinish={onWizardFinish} />
+      )}
+      {createType === JOB_WIZARD_TYPE.toLowerCase() && (
+        <JobWizard onFinish={onWizardFinish} />
       )}
     </Screen>
   );

@@ -3,13 +3,6 @@ import { registerListener } from '../../utils/MessageBusUtils';
 import QuillEditor2 from './QuillEditor2';
 import { resetEditor } from './Utilities/CoreUtils'
 
-export function editorUpload (metadatas) {
-  return {
-    type: 'upload',
-    metadatas,
-  };
-}
-
 export function useEditor (name, spec) {
 
   const {
@@ -24,14 +17,20 @@ export function useEditor (name, spec) {
     noToolbar,
     mentionsAllowed,
     className,
+    onChange
   } = spec;
 
   registerListener(`editor-${name}`, `${name}-controller`, (message) => {
-    const { type, newUploads } = message.payload;
+    const { type, newUploads, contents } = message.payload;
     switch (type) {
       case 'uploads':
         if (onUpload) {
           return onUpload(newUploads);
+        }
+        break;
+      case 'change':
+        if (onChange) {
+          return onChange(contents);
         }
         break;
       default:

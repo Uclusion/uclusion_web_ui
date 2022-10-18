@@ -1091,10 +1091,13 @@ const messages = defineMessages({
 
   // Workspace wizard
   WorkspaceWizardNameFieldLabel: 'Workspace name',
+  WorkspaceWizardTitle: 'Your workspace',
 
+  // Job Wizard
+  JobWizardGotoJob: 'Go to job',
+  JobWizardAssignJob: 'Assign job to someone',
 
   //GroupWizard
-  WorkspaceWizardTitle: 'Your workspace',
   GroupWizardMeetingName: 'Your group name',
   GroupWizardGotoGroup: 'Go to group',
   GroupWizardAddMembers: 'Add people',
@@ -1103,6 +1106,9 @@ const messages = defineMessages({
   ApprovalRestrictYes: 'Assignees need approval from others.',
   BudgetRestrictNo: 'Allow approvers to suggest a budget.',
   BudgetRestrictYes: 'Do not allow approvers to suggest a budget.',
+
+
+
 
   //SignupWizard
   SignupWizardTitle: 'What do you want to create?',

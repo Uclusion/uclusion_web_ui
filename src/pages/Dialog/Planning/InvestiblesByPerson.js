@@ -26,6 +26,7 @@ import PlanningIdeas, { usePlanningIdStyles } from './PlanningIdeas'
 import { Info } from '@material-ui/icons'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
+import { JOB_WIZARD_TYPE, WORKSPACE_WIZARD_TYPE } from '../../../constants/markets'
 
 export const useInvestiblesByPersonStyles = makeStyles(
   theme => {
@@ -162,29 +163,10 @@ function InvestiblesByPerson(props) {
   }
   return (
     <>
-      {storyAssignee !== undefined && (
-        <PlanningInvestibleAdd
-          marketId={marketId}
-          groupId={groupId}
-          onCancel={() => updatePageState({ storyAssignee: undefined })}
-          onSave={onInvestibleSave}
-          onSpinComplete={(destinationLink) => {
-            updatePageState({ storyAssignee: undefined });
-            onDone(destinationLink);
-          }}
-          createdAt={createdAt}
-          classes={planningInvestibleAddClasses}
-          maxBudgetUnit={budgetUnit}
-          useBudget={useBudget ? useBudget : false}
-          votesRequired={votesRequired}
-          storyAssignee={storyAssignee}
-        />
-      )}
-      {storyAssignee === undefined && (
-        <SpinningIconLabelButton onClick={() => onClick(null)} doSpin={false} icon={AddIcon} id='addJob'>
-          {intl.formatMessage({ id: 'addStoryLabel' })}
-        </SpinningIconLabelButton>
-      )}
+      <SpinningIconLabelButton onClick={() => navigate(history, `/wizard#type=${JOB_WIZARD_TYPE}`)} doSpin={false} icon={AddIcon} id='addJob'>
+        {intl.formatMessage({ id: 'addStoryLabel' })}
+      </SpinningIconLabelButton>
+
       <dl className={swimClasses.stages} style={{background: theme.palette.grey['100'], marginTop: '0.5rem'}}>
         <div>
           <b><FormattedMessage id="planningVotingStageLabel" /></b>

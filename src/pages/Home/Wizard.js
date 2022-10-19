@@ -19,7 +19,8 @@ function Wizard(props) {
   const location = useLocation();
   const { hash } = location;
   const values = queryString.parse(hash);
-  const { type: createType, marketId } = values;
+  console.dir(values);
+  const { type: createType, marketId, groupId } = values;
   const intl = useIntl();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
 
@@ -43,7 +44,7 @@ function Wizard(props) {
         <WorkspaceWizard onFinish={onWizardFinish} />
       )}
       {createType === JOB_WIZARD_TYPE.toLowerCase() && (
-        <JobWizard onFinish={onWizardFinish} />
+        <JobWizard marketId={marketId} groupId={groupId} onFinish={onWizardFinish} />
       )}
     </Screen>
   );

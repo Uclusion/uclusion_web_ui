@@ -163,7 +163,7 @@ function InvestiblesByPerson(props) {
   }
   return (
     <>
-      <SpinningIconLabelButton onClick={() => navigate(history, `/wizard#type=${JOB_WIZARD_TYPE}`)} doSpin={false} icon={AddIcon} id='addJob'>
+      <SpinningIconLabelButton onClick={() => navigate(history, `/wizard#type=${JOB_WIZARD_TYPE}&marketId=${marketId}&groupId=${groupId}`)} doSpin={false} icon={AddIcon} id='addJob'>
         {intl.formatMessage({ id: 'addStoryLabel' })}
       </SpinningIconLabelButton>
 

@@ -3,32 +3,20 @@ import PropTypes from 'prop-types'
 import JobDescriptionStep from './JobDescriptionStep'
 import { WizardStylesProvider } from '../WizardStylesContext';
 import FormdataWizard from 'react-formdata-wizard';
-import { formMarketLink } from '../../../utils/marketIdPathFunctions'
+import { formInvestibleLink, formMarketLink } from '../../../utils/marketIdPathFunctions'
+import { useHistory } from 'react-router'
 
 function JobWizard(props) {
-  const { onStartOver, onFinish, marketId } = props;
+  const { onStartOver, onFinish, marketId, groupId } = props;
+  const history = useHistory();
 
-  function createGroup(formData) {
-    const dispatchers = {
-
-    };
-    // default things not filled in
-    const groupData = {
-      ...formData,
-      marketId,
-      votesRequired: formData.votesRequired ?? 0,
-    };
-
-
-  }
 
   return (
     <WizardStylesProvider>
       <FormdataWizard name="group_wizard"
-                      onFinish={createGroup}
                       onStartOver={onStartOver}
       >
-        <JobDescriptionStep />
+        <JobDescriptionStep onFinish={onFinish} marketId={marketId} groupId={groupId}/>
       </FormdataWizard>
     </WizardStylesProvider>
   );

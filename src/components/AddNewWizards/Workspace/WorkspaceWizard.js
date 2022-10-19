@@ -16,7 +16,6 @@ function WorkspaceWizard (props) {
   const startStep = workspaceCreated ? 1 : 0
 
   const myOnFinish = (formData) => {
-    console.dir('finished!')
     setUclusionLocalStorageItem('workspace_created', false)
     onFinish(formData)
   }

@@ -11,6 +11,7 @@ import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/Marke
 import { versionsUpdateGroupMembers } from '../../../contexts/GroupMembersContext/groupMembersContextReducer'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext'
+import { formMarketLink } from '../../../utils/marketIdPathFunctions'
 
 function WorkspaceGroupNameStep (props) {
   const { updateFormData, formData, onboarding, onStartOnboarding } = props;
@@ -44,6 +45,7 @@ function WorkspaceGroupNameStep (props) {
         addGroupToStorage(groupsDispatch, diffDispatch, formData.marketId, group);
         groupMembersDispatch(versionsUpdateGroupMembers(members));
         updateFormData({
+          link: formMarketLink(formData.marketId, group.id),
           groupId: group.id
         });
       });

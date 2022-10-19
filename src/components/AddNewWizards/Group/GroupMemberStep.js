@@ -27,8 +27,8 @@ function GroupMembersStep (props) {
           {...props}
           validForm={validForm}
           nextLabel="GroupWizardConfigureApprovals"
-          showFinish={true}
-          finishLabel="GroupWizardGotoGroup"/>
+          showTerminate={true}
+          terminateLabel="GroupWizardGotoGroup"/>
       </div>
     </WizardStepContainer>
   )

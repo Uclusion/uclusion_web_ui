@@ -62,8 +62,8 @@ function ApprovalOptionsStep (props) {
         <div className={classes.borderBottom}/>
         <WizardStepButtons
           {...props}
-          showFinish={true}
-          finishLabel="GroupWizardGotoGroup"
+          showTerminate={true}
+          terminateLabel="GroupWizardGotoGroup"
         />
       </div>
     </WizardStepContainer>

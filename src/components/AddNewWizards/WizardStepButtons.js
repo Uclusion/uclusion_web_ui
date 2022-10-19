@@ -13,15 +13,16 @@ function WizardStepButtons (props) {
     onSkip,
     nextStep,
     finish,
+    onTerminate,
     totalSteps,
     currentStep,
     validForm,
     showSkip,
     showNext,
-    showFinish,
+    showTerminate,
     showLink,
     spinOnClick,
-    finishLabel,
+    terminateLabel,
     nextLabel,
   } = props;
   const intl = useIntl();
@@ -50,6 +51,10 @@ function WizardStepButtons (props) {
     return nextState(onSkip);
   }
 
+  async function myOnTerminate() {
+    return onTerminate(formData);
+  }
+
 
 
 
@@ -75,10 +80,10 @@ function WizardStepButtons (props) {
         )}
       </div>
       <div className={classes.actionContainer}>
-        {showFinish && (
+        {showTerminate && (
           <SpinningButton id="OnboardingWizardSkip" className={classes.actionSkip} variant="text"
-                          doSpin={false} onClick={mySkip}>
-            {intl.formatMessage({ id: finishLabel })}
+                          doSpin={false} onClick={onTerminate}>
+            {intl.formatMessage({ id: terminateLabel })}
           </SpinningButton>
         )}
       </div>
@@ -97,10 +102,10 @@ WizardStepButtons.propTypes = {
   validForm: PropTypes.bool,
   startOver: PropTypes.func,
   showSkip: PropTypes.bool,
-  finishLabel: PropTypes.string,
+  terminateLabel: PropTypes.string,
   finish: PropTypes.func,
-  onFinish: PropTypes.func,
-  showFinish: PropTypes.bool,
+  onTerminate: PropTypes.func,
+  showTerminate: PropTypes.bool,
   startOverLabel: PropTypes.string,
   showNext: PropTypes.bool,
   showLink: PropTypes.bool,
@@ -114,6 +119,7 @@ WizardStepButtons.defaultProps = {
   onLink: () => {},
   nextStep: () => {},
   skipStep: () => {},
+  onTerminate: () => {},
   finish: () => {},
   formData: {},
   totalSteps: 0,
@@ -121,7 +127,7 @@ WizardStepButtons.defaultProps = {
   validForm: true,
   showSkip: false,
   showNext: true,
-  showFinish: false,
+  showTerminate: false,
   spinOnClick: true,
   nextLabel: 'OnboardingWizardContinue',
 };

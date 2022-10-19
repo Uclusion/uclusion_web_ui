@@ -18,6 +18,7 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext'
 import { accountUserRefresh } from '../../../contexts/AccountContext/accountContextReducer'
 import { AccountContext } from '../../../contexts/AccountContext/AccountContext'
+import { formMarketLink } from '../../../utils/marketIdPathFunctions'
 
 function WorkspaceNameStep (props) {
   const { updateFormData, formData, onboarding, onStartOnboarding } = props;
@@ -69,6 +70,7 @@ function WorkspaceNameStep (props) {
             setUclusionLocalStorageItem("workspace_created", true);
             updateFormData({
               marketId: market.id,
+              link: formMarketLink(market.id),
               marketToken: market.invite_capability,
             });
           });

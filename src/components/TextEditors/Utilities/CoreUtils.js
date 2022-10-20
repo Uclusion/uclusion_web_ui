@@ -6,6 +6,7 @@ import MentionListItem from '../CustomUI/MentionListItem'
 import React from 'react'
 import Quill from 'quill'
 import { convertHTMLString } from '../ImageBlot'
+import { pushMessage } from '../../../utils/MessageBusUtils'
 
 // static helper funcs
 
@@ -69,9 +70,12 @@ export function generateOnChangeHandler(editorId){
     const contents = editor.root.innerHTML;
     if (editorEmpty(contents)) {
       storeState(editorId, '');
+      pushMessage(`editor-${editorId}`, { type: 'change', contents: ''});
     } else {
       storeState(editorId, contents);
+      pushMessage(`editor-${editorId}`, { type: 'change', contents});
     }
+
   }, 50);
 
 }

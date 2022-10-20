@@ -1067,7 +1067,7 @@ const messages = defineMessages({
   // phone field
   phoneFieldErrorText: 'Phone should begin with plus or just be the digits',
 
-  // AddNew
+  // AddNewWizards
   wizardBreadCrumb: 'Compose',
   OnboardingInviteDialog: 'Almost ready to go! Loading fully complete momentarily.',
   OnboardingWizardTitle: 'Welcome to Uclusion',
@@ -1091,15 +1091,24 @@ const messages = defineMessages({
 
   // Workspace wizard
   WorkspaceWizardNameFieldLabel: 'Workspace name',
+  WorkspaceWizardTitle: 'Your workspace',
 
+  // Job Wizard
+  JobWizardGotoJob: 'Go to job',
+  JobWizardAssignJob: 'Assign job to someone',
 
   //GroupWizard
-  WorkspaceWizardTitle: 'Your workspace',
   GroupWizardMeetingName: 'Your group name',
-  ApprovalRestrictNo: 'Allow assignees to approve their own job.',
-  ApprovalRestrictYes: 'Do not allow approval by an assignee.',
+  GroupWizardGotoGroup: 'Go to group',
+  GroupWizardAddMembers: 'Add people',
+  GroupWizardConfigureApprovals: 'Configure job approvals',
+  ApprovalRestrictNo: 'Assignees can approve their own jobs.',
+  ApprovalRestrictYes: 'Assignees need approval from others.',
   BudgetRestrictNo: 'Allow approvers to suggest a budget.',
   BudgetRestrictYes: 'Do not allow approvers to suggest a budget.',
+
+
+
 
   //SignupWizard
   SignupWizardTitle: 'What do you want to create?',

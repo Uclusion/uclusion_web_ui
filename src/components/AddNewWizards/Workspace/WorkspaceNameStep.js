@@ -5,7 +5,7 @@ import _ from 'lodash';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import { createPlanning } from '../../../api/markets';
-import WorkspaceStepButtons from './WorkspaceStepButtons';
+import WizardStepButtons from '../WizardStepButtons';
 import { setUclusionLocalStorageItem } from '../../localStorageUtils';
 import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { addGroupsToStorage } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper'
@@ -18,6 +18,7 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext'
 import { accountUserRefresh } from '../../../contexts/AccountContext/accountContextReducer'
 import { AccountContext } from '../../../contexts/AccountContext/AccountContext'
+import { formMarketLink } from '../../../utils/marketIdPathFunctions'
 
 function WorkspaceNameStep (props) {
   const { updateFormData, formData, onboarding, onStartOnboarding } = props;
@@ -69,6 +70,7 @@ function WorkspaceNameStep (props) {
             setUclusionLocalStorageItem("workspace_created", true);
             updateFormData({
               marketId: market.id,
+              link: formMarketLink(market.id),
               marketToken: market.invite_capability,
             });
           });
@@ -101,7 +103,7 @@ function WorkspaceNameStep (props) {
           }
         />
         <div className={classes.borderBottom}/>
-        <WorkspaceStepButtons {...props} showStartOver={false} onNext={onNext} validForm={validForm}/>
+        <WizardStepButtons {...props} showStartOver={false} onNext={onNext} validForm={validForm}/>
       </div>
     </WizardStepContainer>
   );

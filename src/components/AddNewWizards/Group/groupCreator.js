@@ -1,5 +1,4 @@
 import { createGroup } from '../../../api/markets'
-import _ from 'lodash';
 import { addGroupToStorage } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper'
 import { versionsUpdateGroupMembers } from '../../../contexts/GroupMembersContext/groupMembersContextReducer'
 
@@ -9,8 +8,7 @@ import { versionsUpdateGroupMembers } from '../../../contexts/GroupMembersContex
  * @param formData
  */
 export function doCreateGroup(dispatchers, formData) {
-  const { marketId, name, votesRequired, ticketSubCode, assignedCanApprove, isBudgetAvailable, budgetUnit,
-    toAddClean } = formData;
+  const { marketId, name, votesRequired, assignedCanApprove, investmentExpiration } = formData;
   const {
     groupsDispatch,
     diffDispatch,
@@ -21,23 +19,14 @@ export function doCreateGroup(dispatchers, formData) {
     name
   };
 
-  if (!_.isEmpty(toAddClean)) {
-    groupInfo.participants = toAddClean;
-  }
   if (votesRequired > 0) {
     groupInfo.votes_required = formData.votesRequired
-  }
-  if (!_.isEmpty(ticketSubCode)) {
-    groupInfo.ticket_sub_code = formData.ticketSubCode
   }
   if (assignedCanApprove === 'true') {
     groupInfo.assigned_can_approve = true
   }
-  if (isBudgetAvailable === 'true') {
-    groupInfo.use_budget = true
-  }
-  if (!_.isEmpty(budgetUnit)) {
-    groupInfo.budget_unit = formData.budgetUnit
+  if (investmentExpiration != null) {
+    groupInfo.investment_expiration = investmentExpiration
   }
 
   return createGroup(marketId, groupInfo)

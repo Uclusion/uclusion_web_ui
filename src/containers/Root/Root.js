@@ -110,10 +110,6 @@ function Root() {
     return (action !== 'comment');
   }
 
-  function hideInvestibleAdd() {
-    return (action !== 'investibleAdd');
-  }
-
   function hideTodoAdd() {
     return (action !== 'todoAdd');
   }
@@ -134,7 +130,7 @@ function Root() {
 
   // Page Not Found
   const hidePNF = !(hideMarket() && hideSupport() && hideHome() && hideInvestible() && hideWorkspaceWizard() && hideInbox()
-    && hideInvestibleAdd() && hideSlackInvite() && hideChangePassword() && hideMarketEdit()
+    && hideSlackInvite() && hideChangePassword() && hideMarketEdit()
     && hideChangeNotification() && hideBillingHome() && hideTodoAdd() && hideCommentReplyEdit() && !isShortLink);
 
   useEffect(() => {
@@ -240,7 +236,6 @@ function Root() {
             <Support hidden={hideSupport()}/>
             <BillingHome hidden={hideBillingHome()}/>
             <Investible hidden={hideInvestible()}/>
-            <InvestibleAdd hidden={hideInvestibleAdd()}/>
             <CommentReplyEdit hidden={hideCommentReplyEdit()} />
             <SlackInvite hidden={hideSlackInvite()}/>
             <ChangePassword hidden={hideChangePassword()}/>

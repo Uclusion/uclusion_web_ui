@@ -5,7 +5,7 @@ import _ from 'lodash';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import EmailEntryBox from '../../Email/EmailEntryBox';
-import WorkspaceStepButtons from './WorkspaceStepButtons';
+import WizardStepButtons from '../WizardStepButtons';
 import { addMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesContextReducer'
 import { inviteParticipants } from '../../../api/users'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
@@ -49,8 +49,8 @@ function WorkspaceMembersStep(props) {
       </Typography>
       <EmailEntryBox onChange={onEmailChange} placeholder="Ex: bfollis@uclusion.com, disrael@uclusion.com"/>
       <div className={classes.borderBottom} />
-      <WorkspaceStepButtons {...props} validForm={validForm} showSkip={true} showLink={true} finish={myOnFinish}
-                            formData={formData}/>
+      <WizardStepButtons {...props} validForm={validForm} showSkip={true} showLink={true} finish={myOnFinish}
+                         formData={formData}/>
     </div>
     </WizardStepContainer>
   );

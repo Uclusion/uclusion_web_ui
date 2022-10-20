@@ -5,12 +5,13 @@ import _ from 'lodash'
 import WizardStepContainer from '../WizardStepContainer'
 import { WizardStylesContext } from '../WizardStylesContext'
 import { createGroup } from '../../../api/markets'
-import WorkspaceStepButtons from './WorkspaceStepButtons'
+import WizardStepButtons from '../WizardStepButtons'
 import { addGroupToStorage } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper'
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext'
 import { versionsUpdateGroupMembers } from '../../../contexts/GroupMembersContext/groupMembersContextReducer'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext'
+import { formMarketLink } from '../../../utils/marketIdPathFunctions'
 
 function WorkspaceGroupNameStep (props) {
   const { updateFormData, formData, onboarding, onStartOnboarding } = props;
@@ -44,6 +45,7 @@ function WorkspaceGroupNameStep (props) {
         addGroupToStorage(groupsDispatch, diffDispatch, formData.marketId, group);
         groupMembersDispatch(versionsUpdateGroupMembers(members));
         updateFormData({
+          link: formMarketLink(formData.marketId, group.id),
           groupId: group.id
         });
       });
@@ -75,7 +77,7 @@ function WorkspaceGroupNameStep (props) {
           }
         />
         <div className={classes.borderBottom}/>
-        <WorkspaceStepButtons {...props} showSkip={true} onNext={onNext} validForm={validForm}/>
+        <WizardStepButtons {...props} showSkip={true} onNext={onNext} validForm={validForm}/>
       </div>
     </WizardStepContainer>
   );

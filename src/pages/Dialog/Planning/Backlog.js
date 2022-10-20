@@ -61,25 +61,6 @@ function Backlog(props) {
 
   return (
     <>
-      {furtherWorkType === 'readyToStart' && (
-        <PlanningInvestibleAdd
-          marketId={marketId}
-          groupId={groupId}
-          onCancel={() => updatePageState({furtherWorkType: undefined})}
-          onSave={onInvestibleSave}
-          onSpinComplete={(destinationLink) => {
-            updatePageState({furtherWorkType: undefined});
-            onDone(destinationLink);
-          }}
-          marketPresences={marketPresences}
-          createdAt={createdAt}
-          classes={planningInvestibleAddClasses}
-          maxBudgetUnit={budgetUnit}
-          useBudget={useBudget ? useBudget : false}
-          votesRequired={votesRequired}
-          furtherWorkType={furtherWorkType}
-        />
-      )}
     <div style={{paddingTop: '1rem'}} />
     <SubSection
       type={SECTION_TYPE_SECONDARY_WARNING}
@@ -110,25 +91,7 @@ function Backlog(props) {
       />
     </SubSection>
     {!_.isEmpty(furtherWorkInvestibles) && (<div style={{ paddingBottom: '15px' }}/>)}
-    {furtherWorkType === 'notReadyToStart' && (
-      <PlanningInvestibleAdd
-        marketId={marketId}
-        groupId={groupId}
-        onCancel={() => updatePageState({furtherWorkType: undefined})}
-        onSave={onInvestibleSave}
-        onSpinComplete={(destinationLink) => {
-          updatePageState({furtherWorkType: undefined});
-          onDone(destinationLink);
-        }}
-        marketPresences={marketPresences}
-        createdAt={createdAt}
-        classes={planningInvestibleAddClasses}
-        maxBudgetUnit={budgetUnit}
-        useBudget={useBudget ? useBudget : false}
-        votesRequired={votesRequired}
-        furtherWorkType={furtherWorkType}
-      />
-    )}
+
     <SubSection
       type={SECTION_TYPE_SECONDARY_WARNING}
       bolder

@@ -3,17 +3,12 @@ import _ from 'lodash'
 import { FormattedMessage, useIntl } from 'react-intl'
 import { useHistory } from 'react-router'
 import { useMetaDataStyles } from '../../Investible/Planning/PlanningInvestible'
-import { usePlanFormStyles } from '../../../components/AgilePlan'
 import React, { useContext } from 'react'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
-import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
-import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { PLACEHOLDER } from '../../../constants/global'
 import { getUserInvestibles, getUserSwimlaneInvestiblesHash } from './userUtils'
-import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { navigate } from '../../../utils/marketIdPathFunctions'
-import PlanningInvestibleAdd from './PlanningInvestibleAdd'
 import Card from '@material-ui/core/Card'
 import CardHeader from '@material-ui/core/CardHeader'
 import { Link, Typography, useTheme } from '@material-ui/core'
@@ -26,7 +21,7 @@ import PlanningIdeas, { usePlanningIdStyles } from './PlanningIdeas'
 import { Info } from '@material-ui/icons'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
-import { JOB_WIZARD_TYPE, WORKSPACE_WIZARD_TYPE } from '../../../constants/markets'
+import { JOB_WIZARD_TYPE } from '../../../constants/markets'
 
 export const useInvestiblesByPersonStyles = makeStyles(
   theme => {
@@ -128,39 +123,26 @@ function InvestiblesByPerson(props) {
     group,
     isAdmin,
     mobileLayout,
-    pageState, updatePageState
+    updatePageState
   } = props;
   const intl = useIntl();
   const theme = useTheme();
   const history = useHistory();
   const metaClasses = useMetaDataStyles();
   const classes = useInvestiblesByPersonStyles();
-  const planningInvestibleAddClasses = usePlanFormStyles();
   const swimClasses = usePlanningIdStyles();
-  const { storyAssignee } = pageState;
-  const { created_at: createdAt, budget_unit: budgetUnit, use_budget: useBudget, votes_required: votesRequired,
-    market_id: marketId, id: groupId } = group || {};
+  const { market_id: marketId, id: groupId } = group || {};
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const presences = getMarketPresences(marketPresencesState, marketId) || [];
   const marketPresencesSortedAlmost = _.sortBy(presences, 'name');
   const marketPresencesSorted = _.sortBy(marketPresencesSortedAlmost, function (presence) {
     return !presence.current_user;
   });
-  const [, investiblesDispatch] = useContext(InvestiblesContext);
-  const [, diffDispatch] = useContext(DiffContext);
 
   function onClick(id) {
     updatePageState({storyAssignee: id});
   }
-  function onInvestibleSave (investible) {
-    addInvestible(investiblesDispatch, diffDispatch, investible);
-  }
 
-  function onDone (destinationLink) {
-    if (destinationLink) {
-      navigate(history, destinationLink);
-    }
-  }
   return (
     <>
       <SpinningIconLabelButton onClick={() => navigate(history, `/wizard#type=${JOB_WIZARD_TYPE}&marketId=${marketId}&groupId=${groupId}`)} doSpin={false} icon={AddIcon} id='addJob'>

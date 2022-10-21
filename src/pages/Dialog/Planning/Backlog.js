@@ -1,25 +1,16 @@
-import React, { useContext } from 'react'
+import React from 'react'
 import { useIntl } from 'react-intl';
-import PlanningInvestibleAdd from './PlanningInvestibleAdd'
 import SubSection from '../../../containers/SubSection/SubSection'
 import { SECTION_TYPE_SECONDARY_WARNING } from '../../../constants/global'
 import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
 import AddIcon from '@material-ui/icons/Add'
 import ArchiveInvestbiles from '../../DialogArchives/ArchiveInvestibles'
 import _ from 'lodash'
-import { usePlanFormStyles } from '../../../components/AgilePlan'
-import { navigate } from '../../../utils/marketIdPathFunctions'
-import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
-import { useHistory } from 'react-router'
-import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
-import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 
 function Backlog(props) {
   const {
-    furtherWorkType,
     group,
     updatePageState,
-    marketPresences,
     furtherWorkReadyToStart,
     furtherWorkInvestibles,
     isAdmin,
@@ -28,23 +19,9 @@ function Backlog(props) {
     furtherWorkStage,
     myPresence
   } = props;
-  const history = useHistory();
-  const [, investiblesDispatch] = useContext(InvestiblesContext);
-  const [, diffDispatch] = useContext(DiffContext);
-  const { id: groupId, created_at: createdAt, budget_unit: budgetUnit, use_budget: useBudget,
-    votes_required: votesRequired, market_id: marketId} = group;
+  const { market_id: marketId} = group;
   const intl = useIntl();
-  const planningInvestibleAddClasses = usePlanFormStyles();
 
-  function onDone(destinationLink) {
-    if (destinationLink) {
-      navigate(history, destinationLink);
-    }
-  }
-
-  function onInvestibleSave(investible) {
-    addInvestible(investiblesDispatch, diffDispatch, investible);
-  }
 
   function onClickFurtherStart() {
     updatePageState({furtherWorkType: 'readyToStart'});

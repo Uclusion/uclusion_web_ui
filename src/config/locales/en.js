@@ -774,7 +774,7 @@ const messages = defineMessages({
   notReadyToStartHeader: 'Not Ready',
   createFurtherWorkExplanation: 'Create a new job that sends a notification demanding assignment.',
   requiresInputHeader: 'Requires Input',
-  blockedHeader: 'Assistance',
+  blockedHeader: 'Assistance Needed',
 
   // SignIn
   signInEmailLabel: 'Email',

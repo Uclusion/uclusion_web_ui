@@ -7,34 +7,42 @@ import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
 import { getQuillStoredState, resetEditor } from '../../TextEditors/Utilities/CoreUtils'
 import { useEditor } from '../../TextEditors/quillHooks'
-import { nameFromDescription } from '../../../utils/stringFunctions'
+import { convertDescription, nameFromDescription } from '../../../utils/stringFunctions'
 import { addPlanningInvestible } from '../../../api/investibles'
 import { formInvestibleLink } from '../../../utils/marketIdPathFunctions'
+import { processTextAndFilesForSave } from '../../../api/files'
 
 
 function JobDescriptionStep (props) {
   const {marketId, groupId, updateFormData, onFinish} = props;
   const editorName = "addJobWizard"
   const [value, setValue] = useState(getQuillStoredState(editorName));
+  const [uploadedFiles, setUploadedFiles] = useState([]);
   const validForm = !_.isEmpty(value);
   const classes = useContext(WizardStylesContext);
-
 
   const editorSpec = {
     placeholder: "Ex: make magic happen via A, B, C",
     value,
     marketId,
+    onUpload: setUploadedFiles,
     onChange: setValue,
   };
 
   const [Editor] = useEditor(editorName, editorSpec);
 
   function createJob() {
+    const {
+      uploadedFiles: filteredUploads,
+      text: tokensRemoved,
+    } = processTextAndFilesForSave(uploadedFiles, value);
+    const { name, description} = convertDescription(tokensRemoved);
     const addInfo = {
-      name: nameFromDescription(value),
-      description: value,
+      name,
+      description,
       groupId,
       marketId,
+      uploadedFiles: filteredUploads
     }
     return addPlanningInvestible(addInfo)
       .then((inv) => {

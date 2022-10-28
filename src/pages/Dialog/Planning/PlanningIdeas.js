@@ -337,7 +337,7 @@ function PlanningIdeas(props) {
            onDragOver={onDragOverProcess}
            onDragEnter={(event) => onDragEnterStage(event, acceptedStageId, presenceId)}
            onDragEnd={onDragEndStage}>
-        {acceptedOverFull && (
+        {acceptedOverFull && !_.isEmpty(beingDraggedHack) && (
           <FormattedMessage id="planningAcceptedStageFullLabel"/>
         )}
         <AcceptedStage

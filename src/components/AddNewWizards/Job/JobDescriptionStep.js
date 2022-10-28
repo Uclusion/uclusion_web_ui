@@ -7,7 +7,7 @@ import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
 import { getQuillStoredState, resetEditor } from '../../TextEditors/Utilities/CoreUtils'
 import { useEditor } from '../../TextEditors/quillHooks'
-import { convertDescription, nameFromDescription } from '../../../utils/stringFunctions'
+import { convertDescription } from '../../../utils/stringFunctions'
 import { addPlanningInvestible } from '../../../api/investibles'
 import { formInvestibleLink } from '../../../utils/marketIdPathFunctions'
 import { processTextAndFilesForSave } from '../../../api/files'

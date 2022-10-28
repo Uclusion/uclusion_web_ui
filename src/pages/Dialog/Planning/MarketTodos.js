@@ -108,16 +108,18 @@ const myClasses = makeStyles(
         border: '0.5px solid grey'
       },
       chipStyleRed: {
+        padding: '4px',
         marginRight: '5px',
         backgroundColor: '#E85757'
       },
       chipStyleYellow: {
         marginRight: '5px',
-        color: 'black',
+        padding: '4px',
         backgroundColor: '#e6e969'
       },
       chipStyleBlue: {
         marginRight: '5px',
+        padding: '4px',
         backgroundColor: '#2F80ED'
       },
       grow: {
@@ -547,8 +549,9 @@ function MarketTodos(props) {
   }
 
   const todosButtonMsgId = showSelectTodos ? 'todosCreateStory' : 'todosSelectForStory';
-  const immediateTodosChip = redComments.length > 0 && <Chip label={`${redComments.length} total`} color="primary"
-                                                             size='small' className={classes.chipStyleRed} />;
+  const immediateTodosChip = <Chip color="primary" size='small' className={classes.chipStyleRed} />;
+  const yellowChip = <Chip color="primary" size='small' className={classes.chipStyleYellow} />;
+  const blueChip = <Chip color="primary" size='small' className={classes.chipStyleBlue} />;
   const editRedCard = comments.find((comment) => comment.id === editRedCardId);
   const editYellowCard = comments.find((comment) => comment.id === editYellowCardId);
   const editCard = comments.find((comment) => comment.id === editCardId);
@@ -641,7 +644,7 @@ function MarketTodos(props) {
             id="immediateTodos"
             bolder
             title={intl.formatMessage({ id: 'immediate' })}
-            titleIcon={immediateTodosChip === false ? undefined : immediateTodosChip}
+            titleIcon={immediateTodosChip}
             actionButton={ isInArchives ? null :
               (<ExpandableAction
                 id="immediateTodosButton"
@@ -700,6 +703,7 @@ function MarketTodos(props) {
             id="whenAbleTodos"
             bolder
             title={intl.formatMessage({ id: 'able' })}
+            titleIcon={yellowChip}
             actionButton={ isInArchives ? null :
               (<ExpandableAction
                 id="whenAbleTodosButton"
@@ -756,6 +760,7 @@ function MarketTodos(props) {
             type={SECTION_TYPE_SECONDARY_WARNING}
             bolder
             title={intl.formatMessage({ id: 'convenient' })}
+            titleIcon={blueChip}
             id="whenConvenientTodos"
             actionButton={ isInArchives ? null :
               (<ExpandableAction

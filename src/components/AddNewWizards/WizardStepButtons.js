@@ -51,12 +51,6 @@ function WizardStepButtons (props) {
     return nextState(onSkip);
   }
 
-  async function myOnTerminate() {
-    return onTerminate(formData);
-  }
-
-
-
 
   return (
     <div className={classes.buttonContainer}>

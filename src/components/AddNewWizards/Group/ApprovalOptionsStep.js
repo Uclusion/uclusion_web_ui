@@ -5,9 +5,10 @@ import { useIntl } from 'react-intl'
 import { WizardStylesContext } from '../WizardStylesContext'
 import WizardStepContainer from '../WizardStepContainer'
 import WizardStepButtons from '../WizardStepButtons'
+import { updateGroup } from '../../../api/markets'
 
 function ApprovalOptionsStep (props) {
-  const { updateFormData, formData } = props
+  const { updateFormData, formData, marketId } = props
   const intl = useIntl()
   const classes = useContext(WizardStylesContext)
 
@@ -26,6 +27,11 @@ function ApprovalOptionsStep (props) {
     updateFormData({
       assignedCanApprove: value,
     })
+  }
+
+  function onNext(){
+    const {groupId, assignedCanApprove, votesRequired} = formData;
+    return updateGroup({marketId, groupId, assignedCanApprove, votesRequired});
   }
 
   const {
@@ -62,8 +68,9 @@ function ApprovalOptionsStep (props) {
         <div className={classes.borderBottom}/>
         <WizardStepButtons
           {...props}
-          showTerminate={true}
-          terminateLabel="GroupWizardGotoGroup"
+          showNext={true}
+          onNext={onNext}
+          nextLabel="GroupWizardGotoGroup"
         />
       </div>
     </WizardStepContainer>

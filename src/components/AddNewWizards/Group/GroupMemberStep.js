@@ -6,13 +6,29 @@ import WizardStepContainer from '../WizardStepContainer'
 import { WizardStylesContext } from '../WizardStylesContext'
 import AddNewUsers from '../../../pages/Dialog/UserManagement/AddNewUsers'
 import WizardStepButtons from '../WizardStepButtons'
+import { changeGroupParticipation} from '../../../api/markets'
 
 function GroupMembersStep (props) {
-  const { updateFormData, formData } = props
-  const value = formData.name || ''
-  const validForm = !_.isEmpty(value)
+  const { updateFormData, formData, marketId } = props
+  const validForm = !_.isEmpty(formData.toAddClean)
   const classes = useContext(WizardStylesContext)
   const groupText = formData.name ?? 'your group'
+
+  function onNext() {
+    const {groupId} = formData;
+    const follows = formData.toAddClean.map((user) => {
+      return {
+        is_following: true,
+        user_id: user.user_id,
+      }
+    });
+    return changeGroupParticipation(marketId, groupId, follows);
+  }
+
+  function onTerminate() {
+    return onNext();
+  }
+
   return (
     <WizardStepContainer
       {...props}
@@ -26,7 +42,9 @@ function GroupMembersStep (props) {
         <WizardStepButtons
           {...props}
           validForm={validForm}
+          onNext={onNext}
           nextLabel="GroupWizardConfigureApprovals"
+          onTerminate={onTerminate}
           showTerminate={true}
           terminateLabel="GroupWizardGotoGroup"/>
       </div>

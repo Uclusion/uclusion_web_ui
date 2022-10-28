@@ -83,8 +83,8 @@ function AddNewUsers (props) {
 
   function generateToAddClean (myChecked) {
     return myChecked.map((participant) => {
-      const { external_id, account_id } = participant
-      return { external_id, account_id }
+      const { external_id, account_id, user_id } = participant
+      return { external_id, account_id, user_id }
     })
   }
 

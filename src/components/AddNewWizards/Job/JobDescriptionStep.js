@@ -10,12 +10,11 @@ import { useEditor } from '../../TextEditors/quillHooks'
 import { nameFromDescription } from '../../../utils/stringFunctions'
 import { addPlanningInvestible } from '../../../api/investibles'
 import { formInvestibleLink } from '../../../utils/marketIdPathFunctions'
-import { useHistory } from 'react-router'
+
 
 function JobDescriptionStep (props) {
   const {marketId, groupId, updateFormData, onFinish} = props;
   const editorName = "addJobWizard"
-  const history = useHistory();
   const [value, setValue] = useState(getQuillStoredState(editorName));
   const validForm = !_.isEmpty(value);
   const classes = useContext(WizardStylesContext);

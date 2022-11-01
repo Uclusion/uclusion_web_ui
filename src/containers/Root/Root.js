@@ -173,12 +173,10 @@ function Root() {
         // console.debug('Back Online listener');
         setOnline(true)
         setOperationsLocked(false)
-        pegView(true)
       }, { passive: true })
       window.addEventListener('offline', () => {
         // console.debug('Offline listener');
         setOnline(false)
-        pegView(false)
       }, { passive: true })
       // window.addEventListener('popstate', () => {
       //   console.debug('Popstate');

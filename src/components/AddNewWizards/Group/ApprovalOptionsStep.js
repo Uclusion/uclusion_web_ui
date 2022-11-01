@@ -31,7 +31,10 @@ function ApprovalOptionsStep (props) {
 
   function onNext(){
     const {groupId, assignedCanApprove, votesRequired} = formData;
-    return updateGroup({marketId, groupId, assignedCanApprove, votesRequired});
+    return updateGroup({marketId, groupId, assignedCanApprove, votesRequired})
+      .then(() => {
+        return {link: formData.link};
+      })
   }
 
   const {

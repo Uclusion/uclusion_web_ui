@@ -7,26 +7,38 @@ import { WizardStylesContext } from '../WizardStylesContext'
 import AddNewUsers from '../../../pages/Dialog/UserManagement/AddNewUsers'
 import WizardStepButtons from '../WizardStepButtons'
 import { changeGroupParticipation} from '../../../api/markets'
+import { navigate } from '../../../utils/marketIdPathFunctions'
+import { useHistory } from 'react-router'
 
 function GroupMembersStep (props) {
-  const { updateFormData, formData, marketId } = props
+  const { updateFormData, clearFormData, formData, marketId } = props
+
+  const history = useHistory();
   const validForm = !_.isEmpty(formData.toAddClean)
   const classes = useContext(WizardStylesContext)
   const groupText = formData.name ?? 'your group'
 
   function onNext() {
     const {groupId} = formData;
-    const follows = formData.toAddClean.map((user) => {
+    const follows = formData.toAddClean?.map((user) => {
       return {
         is_following: true,
         user_id: user.user_id,
       }
     });
-    return changeGroupParticipation(marketId, groupId, follows);
+    if((follows?.length ?? 0) > 0) {
+      return changeGroupParticipation(marketId, groupId, follows);
+    }
+    return Promise.resolve(true);
   }
 
   function onTerminate() {
-    return onNext();
+    return onNext()
+      .then(() => {
+        const {link} = formData;
+        clearFormData();
+        navigate(history, link);
+      })
   }
 
   return (

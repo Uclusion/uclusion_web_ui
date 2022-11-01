@@ -7,13 +7,15 @@ import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
 import { doCreateGroup } from './groupCreator'
-import { formMarketLink } from '../../../utils/marketIdPathFunctions'
+import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions'
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext'
+import { useHistory } from 'react-router'
 
 function GroupNameStep (props) {
-  const { updateFormData, formData, marketId } = props;
+  const { updateFormData, clearFormData, formData, marketId } = props;
+  const history = useHistory();
   const intl = useIntl();
   const value = formData.name || '';
   const validForm = !_.isEmpty(value);
@@ -50,7 +52,16 @@ function GroupNameStep (props) {
             link,
             groupId,
           })
+          return link;
         });
+  }
+
+  function onTerminate(){
+    return onNext()
+      .then((link) => {
+        clearFormData();
+        navigate(history, link);
+      })
   }
 
   return (
@@ -81,6 +92,7 @@ function GroupNameStep (props) {
         onNext={onNext}
         nextLabel="GroupWizardAddMembers"
         showTerminate={true}
+        onTerminate={onTerminate}
         terminateLabel="GroupWizardGotoGroup"/>
     </div>
     </WizardStepContainer>

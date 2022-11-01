@@ -6,11 +6,10 @@ import FormdataWizard from 'react-formdata-wizard';
 import JobAssignStep from './JobAssignStep'
 
 function JobWizard(props) {
-  const { onStartOver, onFinish, marketId, groupId } = props;
+  const { onFinish, marketId, groupId } = props;
   return (
     <WizardStylesProvider>
       <FormdataWizard name="group_wizard"
-                      onStartOver={onStartOver}
       >
         <JobDescriptionStep onFinish={onFinish} marketId={marketId} groupId={groupId}/>
         <JobAssignStep onFinish={onFinish} marketId={marketId} groupId={groupId}/>

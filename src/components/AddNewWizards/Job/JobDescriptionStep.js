@@ -55,13 +55,13 @@ function JobDescriptionStep (props) {
           investibleId,
           link,
         });
-        return link;
+        return {link};
       })
   }
 
   function myOnFinish(formData){
      createJob()
-      .then((link) => {
+      .then(({link}) => {
         onFinish({
           ...formData,
           link

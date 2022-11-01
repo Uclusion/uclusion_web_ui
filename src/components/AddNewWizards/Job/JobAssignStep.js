@@ -10,9 +10,12 @@ import { getGroupPresences, getMarketPresences } from '../../../contexts/MarketP
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext'
 import { updateInvestible } from '../../../api/investibles'
+import { navigate } from '../../../utils/marketIdPathFunctions'
+import { useHistory } from 'react-router'
 
 function JobAssignStep (props) {
-  const { marketId, groupId, updateFormData, formData, onFinish } = props
+  const { marketId, groupId, clearFormData, updateFormData, formData, onFinish } = props;
+  const history = useHistory();
   const value = formData.assigned || []
   const validForm = !_.isEmpty(value)
   const [presencesState] = useContext(MarketPresencesContext);
@@ -37,11 +40,20 @@ function JobAssignStep (props) {
       investibleId,
       assignments: value,
     };
-    return updateInvestible(updateInfo)
-      .then(() => ({link: formData.link}));
+    if(validForm) {
+      return updateInvestible(updateInfo)
+    }
+    return Promise.resolve(true);
   }
 
-
+  function onTerminate() {
+    return assignJob()
+      .then(() => {
+        const {link} = formData;
+        clearFormData();
+        navigate(history, link);
+      })
+  }
 
 
   return (
@@ -62,7 +74,11 @@ function JobAssignStep (props) {
           {...props}
           finish={onFinish}
           validForm={validForm}
+          showNext={validForm}
+          showTerminate={!validForm}
           onNext={assignJob}
+          onTerminate={onTerminate}
+          terminateLabel="JobWizardGotoJob"
           nextLabel="JobWizardGotoJob"
         />
       </div>

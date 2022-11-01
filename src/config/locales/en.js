@@ -598,7 +598,6 @@ const messages = defineMessages({
   planningDialogNavDiscussionLabel: 'Discussion',
   planningDialogManageParticipantsLabel: 'Manage collaborators',
   planningDialogDiscussionLabel: 'Discussion',
-  planningDialogAddInvestibleLabel: 'Create Job',
   todosSelectForStory: 'Select bugs for job',
   todosCreateStory: 'Create job from bugs',
   planningDialogAddInvestibleExplanation: 'Create a job and collaborate on what to do',

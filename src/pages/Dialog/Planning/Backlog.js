@@ -32,11 +32,11 @@ function Backlog(props) {
   return (
     <>
     <div style={{paddingTop: '1rem'}} />
-      <SpinningIconLabelButton
-        onClick={() => navigate(history, `/wizard#type=${JOB_WIZARD_TYPE}&marketId=${marketId}&groupId=${groupId}`)}
-        doSpin={false} icon={AddIcon} id='addJob' style={{marginBottom: '1rem'}}>
-        {intl.formatMessage({ id: 'addStoryLabel' })}
-      </SpinningIconLabelButton>
+    <SpinningIconLabelButton
+      onClick={() => navigate(history, `/wizard#type=${JOB_WIZARD_TYPE}&marketId=${marketId}&groupId=${groupId}`)}
+      doSpin={false} icon={AddIcon} id='addJob' style={{marginBottom: '1rem'}}>
+      {intl.formatMessage({ id: 'addStoryLabel' })}
+    </SpinningIconLabelButton>
     <SubSection
       type={SECTION_TYPE_SECONDARY_WARNING}
       bolder

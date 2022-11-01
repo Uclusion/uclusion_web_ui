@@ -1034,7 +1034,7 @@ function PlanningInvestible(props) {
             )}
           </div>
         )}
-        {!_.isEmpty(investibleCollaborators) && (
+        {!isFurtherWork && (
           <div className={clsx(classes.group, classes.assignments)}>
             <div className={classes.assignmentContainer}>
               <b><FormattedMessage id="collaborators"/></b>
@@ -1047,7 +1047,7 @@ function PlanningInvestible(props) {
             </div>
           </div>
         )}
-        {market.id && marketInvestible.investible && (isInVoting || isInReview) && (
+        {market.id && marketInvestible.investible && !isFurtherWork && (
           <div className={clsx(classes.group, classes.assignments)}>
             <div className={classes.assignmentContainer}>
               <Assignments

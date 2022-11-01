@@ -24,9 +24,7 @@ function JobAssignStep (props) {
   const classes = useContext(WizardStylesContext)
   const groupPresences = getGroupPresences(presences, groupPresencesState, marketId, groupId, false) || [];
 
-
   const { investibleId } = formData;
-
 
   function onAssignmentChange(newAssignments){
     updateFormData({
@@ -40,8 +38,8 @@ function JobAssignStep (props) {
       investibleId,
       assignments: value,
     };
-    if(validForm) {
-      return updateInvestible(updateInfo)
+    if (validForm) {
+      return updateInvestible(updateInfo).then(() => formData);
     }
     return Promise.resolve(true);
   }

@@ -19,7 +19,6 @@ function Wizard(props) {
   const location = useLocation();
   const { hash } = location;
   const values = queryString.parse(hash);
-  console.dir(values);
   const { type: createType, marketId, groupId } = values;
   const intl = useIntl();
   const [, setOperationRunning] = useContext(OperationInProgressContext);

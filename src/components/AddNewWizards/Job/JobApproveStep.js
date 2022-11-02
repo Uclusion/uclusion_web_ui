@@ -5,52 +5,37 @@ import _ from 'lodash'
 import WizardStepContainer from '../WizardStepContainer'
 import { WizardStylesContext } from '../WizardStylesContext'
 import WizardStepButtons from '../WizardStepButtons'
-import AssignmentList from '../../../pages/Dialog/Planning/AssignmentList'
-import { getGroupPresences, getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext'
 import { updateInvestible } from '../../../api/investibles'
 import { navigate } from '../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
+import YourVoting from '../../../pages/Investible/Voting/YourVoting';
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
+import {getMarket} from '../../../contexts/MarketsContext/marketsContextHelper';
 
 function JobAssignStep (props) {
   const { marketId, groupId, clearFormData, updateFormData, formData, onFinish } = props;
   const history = useHistory();
-  const value = formData.assigned || []
+  const value = formData.approval || []
   const validForm = !_.isEmpty(value)
+  const [marketsState] = useContext(MarketsContext);
   const [presencesState] = useContext(MarketPresencesContext);
   const presences = getMarketPresences(presencesState, marketId);
-  const [groupPresencesState] = useContext(GroupMembersContext);
+  const yourPresence = presences.find((presence) => presence.current_user);
+  const userId = yourPresence.user_id;
+  const market = getMarket(marketsState, marketId);
   const classes = useContext(WizardStylesContext)
-  const groupPresences = getGroupPresences(presences, groupPresencesState, marketId, groupId, false) || [];
-
   const { investibleId } = formData;
 
-  function onAssignmentChange(newAssignments){
-    updateFormData({
-      assigned: newAssignments
-    });
-  }
-
-  function assignJob() {
-    const updateInfo = {
-      marketId,
-      investibleId,
-      assignments: value,
-    };
-    if (validForm) {
-      return updateInvestible(updateInfo).then(() => formData);
-    }
+  function vote(){
     return Promise.resolve(true);
   }
 
   function onTerminate() {
-    return assignJob()
-      .then(() => {
-        const {link} = formData;
-        clearFormData();
-        navigate(history, link);
-      });
+    const {link} = formData;
+    clearFormData();
+    navigate(history, link);
   }
 
 
@@ -60,24 +45,25 @@ function JobAssignStep (props) {
     >
       <div>
         <Typography className={classes.introText} variant="h6">
-          Who should be working on the job?
+          How certain are you this job should be done?
         </Typography>
-        <AssignmentList
-          fullMarketPresences={groupPresences}
-          onChange={onAssignmentChange}
+        <YourVoting
+          market={market}
+          groupId={groupId}
+          investibleId={investibleId}
+          userId={userId}
         />
-
         <div className={classes.borderBottom}/>
         <WizardStepButtons
           {...props}
           finish={onFinish}
           validForm={validForm}
-          showNext={true}
-          showTerminate={true}
-          onNext={assignJob}
+          showNext={validForm}
+          showTerminate={!validForm}
+          onNext={vote}
           onTerminate={onTerminate}
           terminateLabel="JobWizardGotoJob"
-          nextLabel="JobWizardApproveJob"
+          nextLabel="JobWizardGotoJob"
         />
       </div>
     </WizardStepContainer>

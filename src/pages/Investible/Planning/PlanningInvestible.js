@@ -61,7 +61,6 @@ import { DaysEstimate } from '../../../components/AgilePlan'
 import { ACTION_BUTTON_COLOR, HIGHLIGHTED_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
 import AttachedFilesList from '../../../components/Files/AttachedFilesList'
 import {
-  acceptInvestible,
   attachFilesToInvestible,
   changeLabels,
   deleteAttachedFilesFromInvestible, stageChangeInvestible,
@@ -115,7 +114,6 @@ import { blockedStorySteps } from '../../../components/Tours/blockedStory'
 import { requiresInputStorySteps } from '../../../components/Tours/requiresInputStory'
 import { getTomorrow } from '../../../utils/timerUtils'
 import SpinningButton from '../../../components/SpinBlocking/SpinningButton'
-import { removeWorkListItem, workListStyles } from '../../Home/YourWork/WorkListItem'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { ACTIVE_STAGE } from '../../../constants/markets'
 import {
@@ -1576,20 +1574,6 @@ export const useMetaDataStyles = makeStyles(
   { name: "MetaData" }
 );
 
-export function accept(marketId, investibleId, marketInvestible, invDispatch, diffDispatch, unacceptedAssignment,
-  workItemClasses) {
-  return acceptInvestible(marketId, investibleId)
-    .then((marketInfo) => {
-      const newInfos = _.unionBy([marketInfo], marketInvestible.market_infos, 'id');
-      const inv = {investible: marketInvestible.investible, market_infos: newInfos};
-      refreshInvestibles(invDispatch, diffDispatch, [inv]);
-      if (unacceptedAssignment) {
-        removeWorkListItem(unacceptedAssignment, workItemClasses.removed);
-      }
-      pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION, id: 'accept' });
-    });
-}
-
 export function rejectInvestible(marketId, investibleId, marketInvestible, commentsState, commentsDispatch, invDispatch,
   diffDispatch, marketStagesState) {
   const furtherWorkStage = getFurtherWorkStage(marketStagesState, marketId);
@@ -1634,18 +1618,12 @@ function MarketMetaData(props) {
   const [, invDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
-  const workItemClasses = workListStyles();
   const myMessageDescription = findMessageOfTypeAndId(investibleId, messagesState, 'DESCRIPTION');
   const diff = getDiff(diffState, investibleId);
   const classes = useMetaDataStyles();
   const unacceptedAssignment = findMessageOfType('UNACCEPTED_ASSIGNMENT', investibleId, messagesState);
   const unaccepted = unacceptedAssignment && isAssigned && !accepted.includes(myUserId);
   const stageLabelId = getCurrentStageLabelId(stagesInfo);
-
-  function myAccept() {
-    return accept(market.id, investibleId, marketInvestible, invDispatch, diffDispatch, unacceptedAssignment,
-      workItemClasses);
-  }
 
   function myRejectInvestible() {
     return rejectInvestible(market.id, investibleId, marketInvestible, commentsState, commentsDispatch, invDispatch,
@@ -1696,9 +1674,6 @@ function MarketMetaData(props) {
             </Menu>
           {unaccepted && (
             <div style={{display: 'flex', paddingTop: '1rem', marginBottom: 0}}>
-              <SpinningButton onClick={myAccept} className={classes.actionPrimary} id='accept'>
-                {intl.formatMessage({ id: 'planningAcceptLabel' })}
-              </SpinningButton>
               <SpinningButton onClick={myRejectInvestible} className={classes.actionSecondary} id='reject'>
                 {intl.formatMessage({ id: 'saveReject' })}
               </SpinningButton>

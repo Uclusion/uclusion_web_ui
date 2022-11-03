@@ -93,12 +93,6 @@ export function lockInvestibleForEdit(marketId, investibleId, breakLock) {
     .catch((error) => toastErrorAndThrow(error, 'errorEditLockFailed'));
 }
 
-export function acceptInvestible(marketId, investibleId) {
-  return getMarketClient(marketId)
-    .then((client) => client.investibles.accept(investibleId))
-    .catch((error) => toastErrorAndThrow(error, 'errorAcceptInvestibleFailed'));
-}
-
 export function realeaseInvestibleEditLock (marketId, investibleId) {
   return getMarketClient(marketId)
     .then((client) => client.investibles.unlock(investibleId))

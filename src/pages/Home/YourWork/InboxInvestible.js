@@ -22,7 +22,6 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { getMarket, getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import {
-  accept,
   Assignments,
   getCollaborators,
   rejectInvestible,
@@ -47,7 +46,6 @@ import Chip from '@material-ui/core/Chip'
 import PropTypes from 'prop-types'
 import { getLabelList } from '../../../utils/messageUtils'
 import SpinningButton from '../../../components/SpinBlocking/SpinningButton'
-import { workListStyles } from './WorkListItem'
 import { useInvestibleEditStyles } from '../../Investible/InvestibleBodyEdit'
 import { useHistory } from 'react-router'
 import NotificationDeletion from './NotificationDeletion'
@@ -66,12 +64,11 @@ import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/Marke
 
 function InboxInvestible(props) {
   const { marketId, marketType, planningClasses, messageTypes, investibleId, mobileLayout, isOutbox,
-    messagesFull, unacceptedAssignment, messageType, isDeletable, message, isCommentPanel } = props;
+    messagesFull, messageType, isDeletable, message, isCommentPanel } = props;
   const useMessageTypes = _.isEmpty(messageTypes) ? (_.isEmpty(messageType) ? [] : [messageType]) : messageTypes;
   const reportRequired = (message || {}).type === 'REPORT_REQUIRED';
   const history = useHistory();
   const intl = useIntl();
-  const workItemClasses = workListStyles();
   const classes = useMetaDataStyles();
   const investibleEditClasses = useInvestibleEditStyles();
   const [marketsState] = useContext(MarketsContext);
@@ -134,10 +131,6 @@ function InboxInvestible(props) {
   const showCommentAdd = !_.isEmpty(useMessageTypes) && marketId && !_.isEmpty(myInvestible) && !isOutbox &&
     _.isEmpty(_.intersection(['NEW_TODO', 'ISSUE_RESOLVED', 'UNREAD_VOTE', 'UNACCEPTED_ASSIGNMENT'],
       useMessageTypes)) && !reportRequired;
-
-  function myAccept() {
-    return accept(market.id, investibleId, inv, invDispatch, diffDispatch, unacceptedAssignment, workItemClasses);
-  }
 
   function myRejectInvestible() {
     return rejectInvestible(market.id, investibleId, inv, commentState, commentsDispatch, invDispatch, diffDispatch,
@@ -208,9 +201,6 @@ function InboxInvestible(props) {
         {!_.isEmpty(_.intersection(['UNACCEPTED_ASSIGNMENT'], useMessageTypes)) && (
           <div style={{marginTop: mobileLayout ? '1rem' : undefined, marginLeft: mobileLayout ? undefined : '2rem'}}>
             <div style={{display: 'flex', paddingTop: '1rem', marginBottom: 0}}>
-              <SpinningButton onClick={myAccept} className={classes.actionPrimary} id='accept'>
-                {intl.formatMessage({ id: 'planningAcceptLabel' })}
-              </SpinningButton>
               <SpinningButton onClick={myRejectInvestible} className={classes.actionSecondary} id='reject'
                               style={{marginRight: '1rem'}}>
                 {intl.formatMessage({ id: 'saveReject' })}

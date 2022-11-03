@@ -1,7 +1,7 @@
 import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
-import { Typography, FormControlLabel, Radio, RadioGroup, TextField } from '@material-ui/core'
-import { useIntl } from 'react-intl'
+import { Typography, TextField } from '@material-ui/core'
+
 import { WizardStylesContext } from '../WizardStylesContext'
 import WizardStepContainer from '../WizardStepContainer'
 import WizardStepButtons from '../WizardStepButtons'
@@ -9,7 +9,7 @@ import { updateGroup } from '../../../api/markets'
 
 function ApprovalOptionsStep (props) {
   const { updateFormData, formData, marketId } = props
-  const intl = useIntl()
+
   const classes = useContext(WizardStylesContext)
 
   function handleChange (name) {
@@ -22,16 +22,9 @@ function ApprovalOptionsStep (props) {
     }
   }
 
-  function onRestrictedChange (event) {
-    const { value } = event.target
-    updateFormData({
-      assignedCanApprove: value,
-    })
-  }
-
   function onNext(){
-    const {groupId, assignedCanApprove, votesRequired} = formData;
-    return updateGroup({marketId, groupId, assignedCanApprove, votesRequired})
+    const {groupId, votesRequired} = formData;
+    return updateGroup({marketId, groupId, votesRequired})
       .then(() => {
         return {link: formData.link};
       })
@@ -39,7 +32,6 @@ function ApprovalOptionsStep (props) {
 
   const {
     votesRequired,
-    assignedCanApprove,
   } = formData
 
   return (
@@ -62,12 +54,6 @@ function ApprovalOptionsStep (props) {
           />
           <Typography>people approve.</Typography>
         </div>
-        <RadioGroup value={assignedCanApprove || 'false'} onChange={onRestrictedChange}>
-          <FormControlLabel value={'false'} control={<Radio/>}
-                            label={intl.formatMessage({ id: 'ApprovalRestrictYes' })}/>
-          <FormControlLabel value={'true'} control={<Radio/>}
-                            label={intl.formatMessage({ id: 'ApprovalRestrictNo' })}/>
-        </RadioGroup>
         <div className={classes.borderBottom}/>
         <WizardStepButtons
           {...props}

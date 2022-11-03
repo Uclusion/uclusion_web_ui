@@ -57,13 +57,13 @@ export function updateGroup(props) {
   if (uploadedFiles) {
     updateOptions.uploaded_files = uploadedFiles
   }
-  if (useBudget) {
+  if (useBudget != null) {
     updateOptions.use_budget = useBudget
   }
-  if (votesRequired) {
+  if (votesRequired != null) {
     updateOptions.votes_required = votesRequired
   }
-  if (assignedCanApprove) {
+  if (assignedCanApprove != null) {
     updateOptions.assigned_can_approve = assignedCanApprove
   }
   if (budgetUnit) {

@@ -451,7 +451,7 @@ function PlanningInvestible(props) {
   ) || {}
   const isInVoting = inCurrentVotingStage && stage === inCurrentVotingStage.id;
   const isAssigned = assigned.includes(userId);
-  const canVote = isInVoting && !inArchives && (!isAssigned || market.assigned_can_approve);
+  const canVote = isInVoting && !inArchives;
   const yourPresence = marketPresences.find((presence) => presence.current_user);
   const yourVote = yourPresence && yourPresence.investments &&
     yourPresence.investments.find((investment) => investment.investible_id === investibleId && !investment.deleted);

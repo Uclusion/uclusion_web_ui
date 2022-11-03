@@ -61,7 +61,6 @@ function PlanningDialogEdit(props) {
     budget_unit,
     investment_expiration: groupExpiration,
     votes_required,
-    assigned_can_approve,
     ticket_sub_code,
     name
   } = mutableGroup;
@@ -72,7 +71,7 @@ function PlanningDialogEdit(props) {
     return event => {
       const { value } = event.target;
       let useValue = value;
-      if (name === 'use_budget' || name === 'assigned_can_approve') {
+      if (name === 'use_budget') {
         useValue = value === 'true';
       }
       setMutableGroup({ ...mutableGroup, [name]: useValue });
@@ -101,7 +100,6 @@ function PlanningDialogEdit(props) {
       useBudget: use_budget,
       votesRequired: votesRequiredInt,
       ticketSubCode: encodeURI(ticket_sub_code),
-      assignedCanApprove: assigned_can_approve,
       budgetUnit: budget_unit
   }).then(market => {
       onSaveSettings(market);
@@ -186,15 +184,6 @@ function PlanningDialogEdit(props) {
             <Typography>
               {intl.formatMessage({ id: 'budgetUnitDropdownHelp' })}
             </Typography>
-          </Grid>
-          <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
-            <RadioGroup value={assigned_can_approve === true ? 'true' : 'false'}
-                        onChange={handleChange('assigned_can_approve')}>
-              <FormControlLabel value={'false'} control={<Radio/>}
-                                label={intl.formatMessage({ id: 'ApprovalRestrictYes' })}/>
-              <FormControlLabel value={'true'} control={<Radio/>}
-                                label={intl.formatMessage({ id: 'ApprovalRestrictNo' })}/>
-            </RadioGroup>
           </Grid>
           <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
             <TextField

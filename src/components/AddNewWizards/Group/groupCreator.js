@@ -8,7 +8,7 @@ import { versionsUpdateGroupMembers } from '../../../contexts/GroupMembersContex
  * @param formData
  */
 export function doCreateGroup(dispatchers, formData) {
-  const { marketId, name, votesRequired, assignedCanApprove, investmentExpiration } = formData;
+  const { marketId, name, votesRequired, investmentExpiration } = formData;
   const {
     groupsDispatch,
     diffDispatch,
@@ -21,9 +21,6 @@ export function doCreateGroup(dispatchers, formData) {
 
   if (votesRequired > 0) {
     groupInfo.votes_required = formData.votesRequired
-  }
-  if (assignedCanApprove === 'true') {
-    groupInfo.assigned_can_approve = true
   }
   if (investmentExpiration != null) {
     groupInfo.investment_expiration = investmentExpiration

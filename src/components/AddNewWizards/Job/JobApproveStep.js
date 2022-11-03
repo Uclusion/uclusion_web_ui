@@ -7,18 +7,16 @@ import { WizardStylesContext } from '../WizardStylesContext'
 import WizardStepButtons from '../WizardStepButtons'
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { updateInvestible } from '../../../api/investibles'
 import { navigate } from '../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
-import YourVoting from '../../../pages/Investible/Voting/YourVoting';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import {getMarket} from '../../../contexts/MarketsContext/marketsContextHelper';
+import AddInitialVote from '../../../pages/Investible/Voting/AddInitialVote';
 
 function JobAssignStep (props) {
   const { marketId, groupId, clearFormData, updateFormData, formData, onFinish } = props;
   const history = useHistory();
-  const value = formData.approval || []
-  const validForm = !_.isEmpty(value)
+  const validForm = !_.isEmpty(formData.approveQuantity);
   const [marketsState] = useContext(MarketsContext);
   const [presencesState] = useContext(MarketPresencesContext);
   const presences = getMarketPresences(presencesState, marketId);
@@ -34,10 +32,29 @@ function JobAssignStep (props) {
 
   function onTerminate() {
     const {link} = formData;
+
     clearFormData();
     navigate(history, link);
   }
 
+  const editorName = "newjobapproveeditor";
+
+  function onApproveChange (key) {
+    return (data) => {
+      updateFormData({
+        key: data,
+      });
+    };
+  }
+
+  const quantityUpdater = onApproveChange('approveQuantity');
+
+  function onQuantityChange(event) {
+    const {value} = event.target;
+    quantityUpdater(value);
+  }
+
+  const {approveQuantity} = formData;
 
   return (
     <WizardStepContainer
@@ -47,11 +64,16 @@ function JobAssignStep (props) {
         <Typography className={classes.introText} variant="h6">
           How certain are you this job should be done?
         </Typography>
-        <YourVoting
-          market={market}
-          groupId={groupId}
-          investibleId={investibleId}
-          userId={userId}
+
+        <AddInitialVote
+          marketId={marketId}
+          onBudgetChange={() => {}}
+          showBudget={false}
+          onChange={onQuantityChange}
+          newQuantity={approveQuantity}
+          onEditorChange={onApproveChange('approveReason')}
+          onUpload={onApproveChange('approveUploadedFiles')}
+          editorName={editorName}
         />
         <div className={classes.borderBottom}/>
         <WizardStepButtons

@@ -63,6 +63,7 @@ function AddInitialVote(props) {
     onChange,
     showBudget,
     newQuantity,
+    onEditorChange,
     maxBudget,
     maxBudgetUnit,
     editorName
@@ -74,9 +75,10 @@ function AddInitialVote(props) {
     marketId,
     placeholder: intl.formatMessage({ id: "yourReason" }),
     value: getQuillStoredState(editorName),
-    onUpload
+    onUpload,
+    onChange: onEditorChange,
   };
-
+  console.dir(newQuantity);
   const [Editor] = useEditor(editorName, editorSpec);
 
   return (
@@ -150,6 +152,7 @@ AddInitialVote.propTypes = {
   marketId: PropTypes.string.isRequired,
   onBudgetChange: PropTypes.func.isRequired,
   onChange: PropTypes.func.isRequired,
+  onEditorChange: PropTypes.func,
   newQuantity: PropTypes.number,
   maxBudget: PropTypes.any,
   maxBudgetUnit: PropTypes.any,

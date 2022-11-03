@@ -155,12 +155,16 @@ YourVoting.propTypes = {
   marketPresences: PropTypes.arrayOf(PropTypes.object),
   comments: PropTypes.arrayOf(PropTypes.object),
   showBudget: PropTypes.bool,
+  updateVotingPageState: PropTypes.func,
+  votingPageState: PropTypes.object,
 };
 
 YourVoting.defaultProps = {
   showBudget: false,
   comments: [],
   marketPresences: [],
+  updateVotingPageState: () => {},
+  votingPageState: {},
 };
 
 export default YourVoting;

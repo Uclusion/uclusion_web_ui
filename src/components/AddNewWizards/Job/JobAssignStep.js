@@ -15,7 +15,7 @@ import { refreshInvestibles } from '../../../contexts/InvestibesContext/investib
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 
 function JobAssignStep (props) {
-  const { marketId, clearFormData, updateFormData, formData, onFinish } = props;
+  const { marketId, clearFormData, updateFormData, formData, onFinish, assigneeId } = props;
   const history = useHistory();
   const value = formData.assigned || []
   const validForm = !_.isEmpty(value)
@@ -67,6 +67,7 @@ function JobAssignStep (props) {
         </Typography>
         <AssignmentList
           fullMarketPresences={presences}
+          previouslyAssigned={assigneeId ? [assigneeId] : undefined}
           onChange={onAssignmentChange}
         />
 

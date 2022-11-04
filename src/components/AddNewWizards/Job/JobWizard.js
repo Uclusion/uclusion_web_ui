@@ -7,13 +7,13 @@ import JobAssignStep from './JobAssignStep'
 import JobApproveStep from './JobApproveStep';
 
 function JobWizard(props) {
-  const { onFinish, marketId, groupId } = props;
+  const { onFinish, marketId, groupId, assigneeId } = props;
   return (
     <WizardStylesProvider>
       <FormdataWizard name="group_wizard"
       >
         <JobDescriptionStep onFinish={onFinish} marketId={marketId} groupId={groupId}/>
-        <JobAssignStep onFinish={onFinish} marketId={marketId} />
+        <JobAssignStep onFinish={onFinish} marketId={marketId} assigneeId={assigneeId} />
         <JobApproveStep onFinish={onFinish} marketId={marketId} groupId={groupId}/>
       </FormdataWizard>
     </WizardStylesProvider>

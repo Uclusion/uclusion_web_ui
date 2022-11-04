@@ -1334,14 +1334,7 @@ function PlanningInvestible(props) {
               )}
               {(displayVotingInput || hasUsableVotingInput) && investibleId && (
                 <>
-                  {isAssigned && (
-                    <DismissableText textId="planningInvestibleCantVote" text={
-                      <div>
-                        <Link href="https://documentation.uclusion.com/channels/jobs/stages/#ready-for-approval" target="_blank">Approval</Link> is
-                        optional if you're assigned.
-                      </div>
-                    } />
-                  )}
+                  <div style={{ paddingBottom: '1rem' }}/>
                   <YourVoting
                     investibleId={investibleId}
                     marketPresences={marketPresences}

@@ -140,12 +140,14 @@ function InvestiblesByPerson(props) {
   });
 
   function onClick(id) {
-    updatePageState({storyAssignee: id});
+    navigate(history, `/wizard#type=${JOB_WIZARD_TYPE}&marketId=${marketId}&groupId=${groupId}&assigneeId=${id}`);
   }
 
   return (
     <>
-      <SpinningIconLabelButton onClick={() => navigate(history, `/wizard#type=${JOB_WIZARD_TYPE}&marketId=${marketId}&groupId=${groupId}`)} doSpin={false} icon={AddIcon} id='addJob'>
+      <SpinningIconLabelButton
+        onClick={() => navigate(history, `/wizard#type=${JOB_WIZARD_TYPE}&marketId=${marketId}&groupId=${groupId}`)}
+        doSpin={false} icon={AddIcon} id='addJob'>
         {intl.formatMessage({ id: 'addStoryLabel' })}
       </SpinningIconLabelButton>
 

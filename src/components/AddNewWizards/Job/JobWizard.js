@@ -13,7 +13,7 @@ function JobWizard(props) {
       <FormdataWizard name="group_wizard"
       >
         <JobDescriptionStep onFinish={onFinish} marketId={marketId} groupId={groupId}/>
-        <JobAssignStep onFinish={onFinish} marketId={marketId} groupId={groupId}/>
+        <JobAssignStep onFinish={onFinish} marketId={marketId} />
         <JobApproveStep onFinish={onFinish} marketId={marketId} groupId={groupId}/>
       </FormdataWizard>
     </WizardStylesProvider>

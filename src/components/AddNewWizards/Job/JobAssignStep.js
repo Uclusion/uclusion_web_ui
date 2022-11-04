@@ -6,9 +6,8 @@ import WizardStepContainer from '../WizardStepContainer'
 import { WizardStylesContext } from '../WizardStylesContext'
 import WizardStepButtons from '../WizardStepButtons'
 import AssignmentList from '../../../pages/Dialog/Planning/AssignmentList'
-import { getGroupPresences, getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext'
 import { updateInvestible } from '../../../api/investibles'
 import { navigate } from '../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
@@ -16,16 +15,14 @@ import { refreshInvestibles } from '../../../contexts/InvestibesContext/investib
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 
 function JobAssignStep (props) {
-  const { marketId, groupId, clearFormData, updateFormData, formData, onFinish } = props;
+  const { marketId, clearFormData, updateFormData, formData, onFinish } = props;
   const history = useHistory();
   const value = formData.assigned || []
   const validForm = !_.isEmpty(value)
   const [presencesState] = useContext(MarketPresencesContext);
   const presences = getMarketPresences(presencesState, marketId);
-  const [groupPresencesState] = useContext(GroupMembersContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const classes = useContext(WizardStylesContext)
-  const groupPresences = getGroupPresences(presences, groupPresencesState, marketId, groupId, false) || [];
 
   const { investibleId } = formData;
 
@@ -69,7 +66,7 @@ function JobAssignStep (props) {
           Who should be working on the job?
         </Typography>
         <AssignmentList
-          fullMarketPresences={groupPresences}
+          fullMarketPresences={presences}
           onChange={onAssignmentChange}
         />
 

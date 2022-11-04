@@ -4,6 +4,7 @@ import JobDescriptionStep from './JobDescriptionStep'
 import { WizardStylesProvider } from '../WizardStylesContext';
 import FormdataWizard from 'react-formdata-wizard';
 import JobAssignStep from './JobAssignStep'
+import JobApproveStep from './JobApproveStep';
 
 function JobWizard(props) {
   const { onFinish, marketId, groupId } = props;
@@ -13,6 +14,7 @@ function JobWizard(props) {
       >
         <JobDescriptionStep onFinish={onFinish} marketId={marketId} groupId={groupId}/>
         <JobAssignStep onFinish={onFinish} marketId={marketId} groupId={groupId}/>
+        <JobApproveStep onFinish={onFinish} marketId={marketId} groupId={groupId}/>
       </FormdataWizard>
     </WizardStylesProvider>
   );

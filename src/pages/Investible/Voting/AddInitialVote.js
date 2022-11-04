@@ -63,6 +63,7 @@ function AddInitialVote(props) {
     onChange,
     showBudget,
     newQuantity,
+    onEditorChange,
     maxBudget,
     maxBudgetUnit,
     editorName
@@ -74,26 +75,24 @@ function AddInitialVote(props) {
     marketId,
     placeholder: intl.formatMessage({ id: "yourReason" }),
     value: getQuillStoredState(editorName),
-    onUpload
+    onUpload,
+    onChange: onEditorChange,
   };
-
   const [Editor] = useEditor(editorName, editorSpec);
 
   return (
     <div style={{paddingLeft: '1rem', paddingBottom: '0.5rem'}}>
-        <h2>{ intl.formatMessage({ id: 'pleaseVoteStory' }) }</h2>
         <FormControl className={classes.certainty}>
           <FormLabel
             className={classes.certaintyLabel}
             id="add-vote-certainty"
           >
-            <FormattedMessage id="certaintyQuestion" />
           </FormLabel>
           <RadioGroup
             aria-labelledby="add-vote-certainty"
             className={classes.certaintyGroup}
             onChange={onChange}
-            value={newQuantity || 0}
+            value={newQuantity}
           >
             {[5, 25, 50, 75, 100].map(certainty => {
               return (
@@ -109,7 +108,7 @@ function AddInitialVote(props) {
                   control={<Radio />}
                   label={<FormattedMessage id={`certainty${certainty}`} />}
                   labelPlacement="start"
-                  value={certainty}
+                  value={`${certainty}`}
                 />
               );
             })}
@@ -150,7 +149,8 @@ AddInitialVote.propTypes = {
   marketId: PropTypes.string.isRequired,
   onBudgetChange: PropTypes.func.isRequired,
   onChange: PropTypes.func.isRequired,
-  newQuantity: PropTypes.number,
+  onEditorChange: PropTypes.func,
+  newQuantity: PropTypes.string,
   maxBudget: PropTypes.any,
   maxBudgetUnit: PropTypes.any,
   body: PropTypes.string

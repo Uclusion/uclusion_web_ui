@@ -50,7 +50,7 @@ function JobAssignStep (props) {
         const {link} = formData;
         clearFormData();
         navigate(history, link);
-      })
+      });
   }
 
 
@@ -72,12 +72,12 @@ function JobAssignStep (props) {
           {...props}
           finish={onFinish}
           validForm={validForm}
-          showNext={validForm}
-          showTerminate={!validForm}
+          showNext={true}
+          showTerminate={true}
           onNext={assignJob}
           onTerminate={onTerminate}
           terminateLabel="JobWizardGotoJob"
-          nextLabel="JobWizardGotoJob"
+          nextLabel="JobWizardApproveJob"
         />
       </div>
     </WizardStepContainer>

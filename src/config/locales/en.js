@@ -1094,7 +1094,7 @@ const messages = defineMessages({
   // Job Wizard
   JobWizardGotoJob: 'Go to job',
   JobWizardAssignJob: 'Assign job to someone',
-
+  JobWizardApproveJob: 'Approve job',
 
   //GroupWizard
   GroupWizardMeetingName: 'Your group name',

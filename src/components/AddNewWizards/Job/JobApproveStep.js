@@ -1,57 +1,70 @@
 import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import { Typography } from '@material-ui/core'
-import _ from 'lodash'
 import WizardStepContainer from '../WizardStepContainer'
 import { WizardStylesContext } from '../WizardStylesContext'
 import WizardStepButtons from '../WizardStepButtons'
-import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
-import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { navigate } from '../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
-import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
-import {getMarket} from '../../../contexts/MarketsContext/marketsContextHelper';
 import AddInitialVote from '../../../pages/Investible/Voting/AddInitialVote';
+import { processTextAndFilesForSave } from '../../../api/files';
+import { updateInvestment } from '../../../api/marketInvestibles';
+import { resetEditor } from '../../TextEditors/Utilities/CoreUtils';
 
 function JobAssignStep (props) {
   const { marketId, groupId, clearFormData, updateFormData, formData, onFinish } = props;
   const history = useHistory();
-  const validForm = !_.isEmpty(formData.approveQuantity);
-  const [marketsState] = useContext(MarketsContext);
-  const [presencesState] = useContext(MarketPresencesContext);
-  const presences = getMarketPresences(presencesState, marketId);
-  const yourPresence = presences.find((presence) => presence.current_user);
-  const userId = yourPresence.user_id;
-  const market = getMarket(marketsState, marketId);
+  const validForm = formData.approveQuantity != null;
   const classes = useContext(WizardStylesContext)
   const { investibleId } = formData;
+  const editorName = `${investibleId}-newjobapproveeditor`;
 
-  function vote(){
-    return Promise.resolve(true);
+  function onNext() {
+    const {link, approveUploadedFiles, approveReason, approveQuantity} = formData;
+    console.dir(formData);
+    const {
+      uploadedFiles: filteredUploads,
+      text: tokensRemoved,
+    } = processTextAndFilesForSave(approveUploadedFiles, approveReason);
+
+    const updateInfo = {
+      marketId,
+      investibleId,
+      groupId,
+      newQuantity: parseInt(approveQuantity),
+      currentQuantity: 0,
+      newReasonText: tokensRemoved,
+      reasonNeedsUpdate: tokensRemoved !== null,
+      uploadedFiles: filteredUploads
+    };
+    return updateInvestment(updateInfo).then(() => {
+      clearFormData();
+      navigate(history, link);
+    })
   }
 
   function onTerminate() {
-    const {link} = formData;
-
+    const { link } = formData;
     clearFormData();
+    resetEditor(editorName);
     navigate(history, link);
   }
 
-  const editorName = "newjobapproveeditor";
-
   function onApproveChange (key) {
     return (data) => {
-      updateFormData({
-        key: data,
-      });
+      const update = {
+        [key]: data,
+      };
+      updateFormData(update);
     };
   }
 
-  const quantityUpdater = onApproveChange('approveQuantity');
 
   function onQuantityChange(event) {
     const {value} = event.target;
-    quantityUpdater(value);
+    updateFormData({
+      approveQuantity: value
+    });
   }
 
   const {approveQuantity} = formData;
@@ -82,7 +95,7 @@ function JobAssignStep (props) {
           validForm={validForm}
           showNext={validForm}
           showTerminate={!validForm}
-          onNext={vote}
+          onNext={onNext}
           onTerminate={onTerminate}
           terminateLabel="JobWizardGotoJob"
           nextLabel="JobWizardGotoJob"

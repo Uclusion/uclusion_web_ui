@@ -78,24 +78,21 @@ function AddInitialVote(props) {
     onUpload,
     onChange: onEditorChange,
   };
-  console.dir(newQuantity);
   const [Editor] = useEditor(editorName, editorSpec);
 
   return (
     <div style={{paddingLeft: '1rem', paddingBottom: '0.5rem'}}>
-        <h2>{ intl.formatMessage({ id: 'pleaseVoteStory' }) }</h2>
         <FormControl className={classes.certainty}>
           <FormLabel
             className={classes.certaintyLabel}
             id="add-vote-certainty"
           >
-            <FormattedMessage id="certaintyQuestion" />
           </FormLabel>
           <RadioGroup
             aria-labelledby="add-vote-certainty"
             className={classes.certaintyGroup}
             onChange={onChange}
-            value={newQuantity || 0}
+            value={newQuantity}
           >
             {[5, 25, 50, 75, 100].map(certainty => {
               return (
@@ -111,7 +108,7 @@ function AddInitialVote(props) {
                   control={<Radio />}
                   label={<FormattedMessage id={`certainty${certainty}`} />}
                   labelPlacement="start"
-                  value={certainty}
+                  value={`${certainty}`}
                 />
               );
             })}
@@ -153,7 +150,7 @@ AddInitialVote.propTypes = {
   onBudgetChange: PropTypes.func.isRequired,
   onChange: PropTypes.func.isRequired,
   onEditorChange: PropTypes.func,
-  newQuantity: PropTypes.number,
+  newQuantity: PropTypes.string,
   maxBudget: PropTypes.any,
   maxBudgetUnit: PropTypes.any,
   body: PropTypes.string

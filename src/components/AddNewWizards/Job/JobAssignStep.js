@@ -12,6 +12,8 @@ import { GroupMembersContext } from '../../../contexts/GroupMembersContext/Group
 import { updateInvestible } from '../../../api/investibles'
 import { navigate } from '../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
+import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 
 function JobAssignStep (props) {
   const { marketId, groupId, clearFormData, updateFormData, formData, onFinish } = props;
@@ -21,6 +23,7 @@ function JobAssignStep (props) {
   const [presencesState] = useContext(MarketPresencesContext);
   const presences = getMarketPresences(presencesState, marketId);
   const [groupPresencesState] = useContext(GroupMembersContext);
+  const [, investiblesDispatch] = useContext(InvestiblesContext);
   const classes = useContext(WizardStylesContext)
   const groupPresences = getGroupPresences(presences, groupPresencesState, marketId, groupId, false) || [];
 
@@ -39,7 +42,10 @@ function JobAssignStep (props) {
       assignments: value,
     };
     if (validForm) {
-      return updateInvestible(updateInfo).then(() => formData);
+      return updateInvestible(updateInfo).then((fullInvestible) => {
+        refreshInvestibles(investiblesDispatch, () => {}, [fullInvestible]);
+        return formData;
+      });
     }
     return Promise.resolve(true);
   }

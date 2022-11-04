@@ -10,9 +10,15 @@ import AddInitialVote from '../../../pages/Investible/Voting/AddInitialVote';
 import { processTextAndFilesForSave } from '../../../api/files';
 import { updateInvestment } from '../../../api/marketInvestibles';
 import { resetEditor } from '../../TextEditors/Utilities/CoreUtils';
+import { getMarketComments, refreshMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper'
+import { partialUpdateInvestment } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 
 function JobAssignStep (props) {
   const { marketId, groupId, clearFormData, updateFormData, formData, onFinish } = props;
+  const [commentsState, commentsDispatch] = useContext(CommentsContext);
+  const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const history = useHistory();
   const validForm = formData.approveQuantity != null;
   const classes = useContext(WizardStylesContext)
@@ -20,7 +26,7 @@ function JobAssignStep (props) {
   const editorName = `${investibleId}-newjobapproveeditor`;
 
   function onNext() {
-    const {link, approveUploadedFiles, approveReason, approveQuantity} = formData;
+    const {approveUploadedFiles, approveReason, approveQuantity} = formData;
     console.dir(formData);
     const {
       uploadedFiles: filteredUploads,
@@ -37,9 +43,15 @@ function JobAssignStep (props) {
       reasonNeedsUpdate: tokensRemoved !== null,
       uploadedFiles: filteredUploads
     };
-    return updateInvestment(updateInfo).then(() => {
-      clearFormData();
-      navigate(history, link);
+    return updateInvestment(updateInfo).then((result) => {
+      const { commentResult, investmentResult } = result;
+      const { commentAction, comment } = commentResult;
+      if (commentAction !== "NOOP") {
+        const comments = getMarketComments(commentsState, marketId);
+        refreshMarketComments(commentsDispatch, marketId, [comment, ...comments]);
+      }
+      partialUpdateInvestment(marketPresencesDispatch, investmentResult, true);
+      onFinish(formData);
     })
   }
 

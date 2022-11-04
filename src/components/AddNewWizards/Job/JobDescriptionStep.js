@@ -11,6 +11,8 @@ import { convertDescription } from '../../../utils/stringFunctions'
 import { addPlanningInvestible } from '../../../api/investibles'
 import { formInvestibleLink } from '../../../utils/marketIdPathFunctions'
 import { processTextAndFilesForSave } from '../../../api/files'
+import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 
 
 function JobDescriptionStep (props) {
@@ -18,6 +20,7 @@ function JobDescriptionStep (props) {
   const editorName = "addJobWizard"
   const [value, setValue] = useState(getQuillStoredState(editorName));
   const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [, investiblesDispatch] = useContext(InvestiblesContext);
   const validForm = !_.isEmpty(value);
   const classes = useContext(WizardStylesContext);
 
@@ -46,6 +49,7 @@ function JobDescriptionStep (props) {
     }
     return addPlanningInvestible(addInfo)
       .then((inv) => {
+        refreshInvestibles(investiblesDispatch, () => {}, [inv]);
         const { id: investibleId } = inv.investible;
         // reset the editor box
         const link = formInvestibleLink(marketId, investibleId);

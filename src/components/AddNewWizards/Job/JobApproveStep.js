@@ -28,7 +28,6 @@ function JobAssignStep (props) {
 
   function onNext() {
     const {approveUploadedFiles, approveReason, approveQuantity} = formData;
-    console.dir(formData);
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,

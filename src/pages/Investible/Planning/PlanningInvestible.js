@@ -1096,6 +1096,11 @@ function PlanningInvestible(props) {
           accepted={accepted || []}
           myUserId={userId}
         />
+          <AttachedFilesList
+            marketId={market.id}
+            onUpload={onAttachFiles}
+            onDeleteClick={onDeleteFile}
+            attachedFiles={attachedFiles}/>
       </div>
       <div style={{paddingRight: mobileLayout ? undefined : '13rem'}}>
         <GmailTabs
@@ -1291,13 +1296,6 @@ function PlanningInvestible(props) {
                     )}
                   </div>
                 )}
-                <div style={{maxWidth: '10rem', minWidth: '5rem', marginTop: '5rem'}}>
-                  <AttachedFilesList
-                    marketId={market.id}
-                    onUpload={onAttachFiles}
-                    onDeleteClick={onDeleteFile}
-                    attachedFiles={attachedFiles}/>
-                </div>
               </div>
             </div>
             <div style={{display: 'flex', marginLeft: 'auto', marginRight: 'auto',

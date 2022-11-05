@@ -6,6 +6,7 @@ import { makeStyles } from '@material-ui/styles'
 const useStyles = makeStyles(() => {
   return {
     menuItem: {
+      padding: 0,
       display: 'flex',
       flexDirection:'row',
       width: 'unset'

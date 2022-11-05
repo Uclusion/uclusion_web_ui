@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash';
-import { Link, List, ListItem, ListItemText, ListItemSecondaryAction, Paper } from '@material-ui/core';
+import { Link, List, ListItem, ListItemText, ListItemSecondaryAction } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 import { FormattedMessage, useIntl } from 'react-intl'
 import clsx from 'clsx'
@@ -16,25 +16,23 @@ import SpinningTooltipIconButton from '../SpinBlocking/SpinningTooltipIconButton
 
 const useStyles = makeStyles((theme) => ({
   container: {
-    padding: '3px',
-    marginTop: '-6px',
-    boxShadow: 'none',
-    width: '100%',
+    padding: 0,
+    width: '80%',
   },
-
+  sectionTitle: {
+    fontWeight: 700,
+    marginBottom: '0.5rem',
+  },
   file: {
     wordBreak: 'break-all',
-
   },
-
-
   sidebarContent: {
     display: 'flex',
     justifyContent: 'center',
     flexDirection: 'column',
-    paddingTop: '0',
-    paddingBottom: '0',
+    padding: 0,
     '& span': {
+      padding: 0,
       fontSize: '.9375rem',
       fontWeight: 700
     }
@@ -125,12 +123,11 @@ function AttachedFilesList(props) {
       className={classes.container}
       text={intl.formatMessage({ id: 'uploadInProgress' })}
     >
-    <Paper className={classes.container} id="summary">
       <div className={classes.capitalize}>
-        <FormattedMessage id="attachedFilesSection"/>
-        <div className={clsx(metaClasses.group, metaClasses.assignments, metaClasses.linkContainer,
-          metaClasses.scrollContainer)}>
-
+        <div className={classes.sectionTitle}>
+          <FormattedMessage id="attachedFilesSection"/>
+        </div>
+        <div className={clsx(metaClasses.assignments, metaClasses.linkContainer, metaClasses.scrollContainer)}>
             {!hasFiles && (
               <FileUploader marketId={marketId} onUpload={onUpload} setUploadInProgress={setUploadInProgress} />
             )}
@@ -143,7 +140,6 @@ function AttachedFilesList(props) {
 
         </div>
       </div>
-    </Paper>
     </LoadingOverlay>
   );
 }

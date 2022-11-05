@@ -14,6 +14,7 @@ import { getMarketComments, refreshMarketComments } from '../../../contexts/Comm
 import { partialUpdateInvestment } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
+import _ from 'lodash'
 
 function JobAssignStep (props) {
   const { marketId, groupId, clearFormData, updateFormData, formData, onFinish } = props;
@@ -40,7 +41,7 @@ function JobAssignStep (props) {
       newQuantity: parseInt(approveQuantity),
       currentQuantity: 0,
       newReasonText: tokensRemoved,
-      reasonNeedsUpdate: tokensRemoved !== null,
+      reasonNeedsUpdate: !_.isEmpty(tokensRemoved),
       uploadedFiles: filteredUploads
     };
     return updateInvestment(updateInfo).then((result) => {
@@ -51,7 +52,9 @@ function JobAssignStep (props) {
         refreshMarketComments(commentsDispatch, marketId, [comment, ...comments]);
       }
       partialUpdateInvestment(marketPresencesDispatch, investmentResult, true);
-      onFinish(formData);
+      const { link } = formData;
+      clearFormData();
+      return { link };
     })
   }
 

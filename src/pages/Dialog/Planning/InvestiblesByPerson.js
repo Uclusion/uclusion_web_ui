@@ -122,8 +122,7 @@ function InvestiblesByPerson(props) {
     inVerifiedStage,
     group,
     isAdmin,
-    mobileLayout,
-    updatePageState
+    mobileLayout
   } = props;
   const intl = useIntl();
   const theme = useTheme();

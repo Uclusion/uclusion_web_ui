@@ -383,9 +383,6 @@ function Comment(props) {
     parent_comment_market_id: parentMarketId } = market;
   const activeMarket = marketStage === ACTIVE_STAGE;
   const myPresence = presences.find((presence) => presence.current_user) || {};
-  const { assigned: invAssigned } = marketInfo || {};
-  const assigned = invAssigned || [];
-  const myPresenceIsAssigned = assigned.includes(myPresence.id);
   const myInlinePresence = inlinePresences.find((presence) => presence.current_user) || {};
   const inArchives = !activeMarket;
   const replies = comments.filter(comment => comment.reply_id === id);

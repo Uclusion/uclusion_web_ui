@@ -10,8 +10,7 @@ function JobWizard(props) {
   const { onFinish, marketId, groupId, assigneeId } = props;
   return (
     <WizardStylesProvider>
-      <FormdataWizard name="group_wizard"
-      >
+      <FormdataWizard name="job_wizard">
         <JobDescriptionStep onFinish={onFinish} marketId={marketId} groupId={groupId}/>
         <JobAssignStep onFinish={onFinish} marketId={marketId} assigneeId={assigneeId} />
         <JobApproveStep onFinish={onFinish} marketId={marketId} groupId={groupId}/>

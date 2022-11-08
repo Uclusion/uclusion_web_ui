@@ -299,6 +299,8 @@ function PlanningIdeas(props) {
       if (previousElement) {
         previousElement.className = classes.containerEmpty;
       }
+    }
+    if (!_.isEmpty(beingDraggedHack)) {
       setBeingDraggedHack({});
     }
     ['furtherReadyToStart', 'furtherNotReadyToStart'].forEach((elementId) => {

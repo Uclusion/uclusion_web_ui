@@ -243,22 +243,14 @@ export const usePlanningInvestibleStyles = makeStyles(
     },
     autocompleteContainer: {
       display: 'flex',
-      [theme.breakpoints.down("sm")]: {
-        marginLeft: '0',
-        flexDirection: 'column',
-        paddingBottom: '1rem'
-      }
+      paddingBottom: '1.5rem',
+      flexDirection: 'column',
     },
     labelChip: {
-      paddingRight: '10px',
-      paddingTop: '0.5rem',
-      maxHeight: '1rem',
-      [theme.breakpoints.down("sm")]: {
-        paddingRight: 0,
-        paddingTop: 'unset',
-        maxHeight: 'unset',
-        paddingBottom: '5px'
-      }
+      paddingRight: 0,
+      paddingTop: 'unset',
+      maxHeight: 'unset',
+      paddingBottom: '5px'
     },
     labelExplain: {
       marginLeft: '10px',
@@ -268,29 +260,23 @@ export const usePlanningInvestibleStyles = makeStyles(
       }
     },
     fullWidthEditable: {
-      flexBasis: '90%',
       paddingTop: '1rem',
       paddingRight: '1rem',
       cursor: "url('/images/edit_cursor.svg') 0 24, pointer",
-      [theme.breakpoints.down("sm")]: {
         maxWidth: '100%',
         flexBasis: '100%',
         paddingLeft: 'unset',
         borderLeft: 'none',
         marginLeft: 'unset'
-      }
-    },
+      },
     fullWidth: {
-      flexBasis: '90%',
       paddingTop: '1rem',
       paddingRight: '1rem',
-      [theme.breakpoints.down("sm")]: {
         maxWidth: '100%',
         flexBasis: '100%',
         paddingLeft: 'unset',
         borderLeft: 'none',
         marginLeft: 'unset'
-      }
     },
     datePicker: {
       position: 'absolute',
@@ -1096,11 +1082,58 @@ function PlanningInvestible(props) {
           accepted={accepted || []}
           myUserId={userId}
         />
-          <AttachedFilesList
-            marketId={market.id}
-            onUpload={onAttachFiles}
-            onDeleteClick={onDeleteFile}
-            attachedFiles={attachedFiles}/>
+        {!inArchives && (
+          <div className={classes.autocompleteContainer}>
+            <div  style={{fontWeight: 700}}>
+              <FormattedMessage id={"labels"}/>
+            </div>
+            <Autocomplete
+              {...defaultProps}
+              id="addLabel"
+              key={clearMeHack}
+              freeSolo
+              renderInput={(params) => <TextField {...params}
+                                                  label={intl.formatMessage({ id: 'addLabel' })}
+                                                  margin="dense"
+                                                  variant="outlined" />}
+              style={{ width: 150, maxHeight: '1rem' }}
+              onFocus={labelInputFocus}
+              onBlur={labelInputFocus}
+              onChange={labelInputOnChange}
+            />
+            {newLabel && (
+              <IconButton
+                className={classes.noPad}
+                onClick={addLabel}
+              >
+                <AddIcon htmlColor={ACTION_BUTTON_COLOR}/>
+              </IconButton>
+            )}
+            {!newLabel && labelFocus && !mobileLayout &&  (
+              <div className={classes.labelExplain} >
+                <Typography key="completeExplain" className={classes.explain}>
+                  {intl.formatMessage({ id: 'typeOrChoose' })}
+                </Typography>
+              </div>
+            )}
+          </div>
+        )}
+
+        <div style={{display: 'flex', marginLeft: '0', marginRight: '0',
+          alignItems: 'flex-start', flexDirection: 'column'}}>
+          {safeLabelList.map((label) =>
+            <div key={label} className={classes.labelChip}>
+              <Chip label={label} onDelete={()=>deleteLabel(`${label}`)} color="primary" />
+            </div>
+          )}
+        </div>
+        <AttachedFilesList
+          marketId={market.id}
+          onUpload={onAttachFiles}
+          onDeleteClick={onDeleteFile}
+          attachedFiles={attachedFiles}
+        />
+
       </div>
       <div style={{paddingRight: mobileLayout ? undefined : '13rem'}}>
         <GmailTabs
@@ -1263,48 +1296,8 @@ function PlanningInvestible(props) {
                 {(marketDaysEstimate || displayEdit) && isInAccepted && (
                   <div style={{marginBottom: '2rem'}} />
                 )}
-                {!inArchives && (
-                  <div className={classes.autocompleteContainer}>
-                    <Autocomplete
-                      {...defaultProps}
-                      id="addLabel"
-                      key={clearMeHack}
-                      freeSolo
-                      renderInput={(params) => <TextField {...params}
-                                                          label={intl.formatMessage({ id: 'addLabel' })}
-                                                          margin="dense"
-                                                          variant="outlined" />}
-                      style={{ width: 150, maxHeight: '1rem' }}
-                      onFocus={labelInputFocus}
-                      onBlur={labelInputFocus}
-                      onChange={labelInputOnChange}
-                    />
-                    {newLabel && (
-                      <IconButton
-                        className={classes.noPad}
-                        onClick={addLabel}
-                      >
-                        <AddIcon htmlColor={ACTION_BUTTON_COLOR}/>
-                      </IconButton>
-                    )}
-                    {!newLabel && labelFocus && !mobileLayout &&  (
-                      <div className={classes.labelExplain} >
-                        <Typography key="completeExplain" className={classes.explain}>
-                          {intl.formatMessage({ id: 'typeOrChoose' })}
-                        </Typography>
-                      </div>
-                    )}
-                  </div>
-                )}
+
               </div>
-            </div>
-            <div style={{display: 'flex', marginLeft: 'auto', marginRight: 'auto',
-              alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid grey'}}>
-              {safeLabelList.map((label) =>
-                <div key={label} className={classes.labelChip}>
-                  <Chip label={label} onDelete={()=>deleteLabel(`${label}`)} color="primary" />
-                </div>
-              )}
             </div>
             <div style={{paddingLeft: mobileLayout ? undefined : '8rem',
               paddingRight: mobileLayout ? undefined : '8rem', paddingTop: '2rem'}}>

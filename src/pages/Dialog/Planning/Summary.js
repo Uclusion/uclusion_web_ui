@@ -161,17 +161,13 @@ const useStyles = makeStyles(theme => ({
     }
   },
   fullWidth: {
-    [theme.breakpoints.down("sm")]: {
       maxWidth: '100%',
       flexBasis: '100%'
-    }
   },
   fullWidthEditable: {
-    cursor: "url('/images/edit_cursor.svg') 0 24, pointer",
-    [theme.breakpoints.down("sm")]: {
-      maxWidth: '100%',
-      flexBasis: '100%'
-    }
+    cursor: 'url(\'/images/edit_cursor.svg\') 0 24, pointer',
+    maxWidth: '100%',
+    flexBasis: '100%'
   },
   assignmentContainer: {
     width: '100%',

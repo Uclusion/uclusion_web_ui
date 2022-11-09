@@ -16,7 +16,7 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import _ from 'lodash'
 
-function JobAssignStep (props) {
+function JobApproveStep(props) {
   const { marketId, groupId, clearFormData, updateFormData, formData, onFinish } = props;
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
@@ -119,14 +119,14 @@ function JobAssignStep (props) {
   )
 }
 
-JobAssignStep.propTypes = {
+JobApproveStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object,
 }
 
-JobAssignStep.defaultProps = {
+JobApproveStep.defaultProps = {
   updateFormData: () => {},
   formData: {},
 }
 
-export default JobAssignStep
+export default JobApproveStep

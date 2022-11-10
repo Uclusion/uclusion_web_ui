@@ -188,7 +188,8 @@ function CommentAddBox(props) {
     isStory,
     isInReview,
     isAssignee,
-    nameDifferentiator
+    nameDifferentiator,
+    wizardProps
   } = props;
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
@@ -267,6 +268,7 @@ function CommentAddBox(props) {
       <div className={classes.addBox}>
         <CommentAdd
           type={useType}
+          wizardProps={wizardProps}
           commentAddState={commentAddState}
           updateCommentAddState={updateCommentAddState}
           commentAddStateReset={commentAddStateReset}

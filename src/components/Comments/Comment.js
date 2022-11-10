@@ -888,7 +888,7 @@ function Comment(props) {
                   </Typography>
                 )}
                 {!mobileLayout && (
-                  <Typography className={classes.timeElapsed} variant="body2">
+                  <Typography className={classes.timeElapsed} variant="body2" style={{paddingLeft: '0.25rem'}}>
                     Created <UsefulRelativeTime value={comment.created_at}/>
                     {noAuthor &&
                     `${intl.formatMessage({ id: 'lastUpdatedBy' })} ${createdBy.name}`}.
@@ -914,7 +914,8 @@ function Comment(props) {
                 translationId="edit"
               />
             )}
-            {!mobileLayout && ![JUSTIFY_TYPE, REPLY_TYPE].includes(commentType) && marketType !== DECISION_TYPE && (
+            {!mobileLayout && !isInbox && ![JUSTIFY_TYPE, REPLY_TYPE].includes(commentType)
+              && marketType !== DECISION_TYPE && (
               <div style={{marginRight: '2rem', marginTop: '0.5rem'}}>
                 <InvesibleCommentLinker commentId={id} investibleId={investibleId} marketId={marketId} />
               </div>

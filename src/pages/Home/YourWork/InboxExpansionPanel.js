@@ -32,6 +32,7 @@ import { getInvestibleVoters } from '../../../utils/votingUtils'
 import { formCommentLink, formInvestibleLink } from '../../../utils/marketIdPathFunctions'
 import { Typography } from '@material-ui/core'
 import { ASSIGNED_INDEX, PENDING_INDEX, TEAM_INDEX } from './InboxContext'
+import ApprovalWizard from '../../../components/InboxWizards/Approval/ApprovalWizard'
 
 export function usesExpansion(item, isMultiple) {
   if (isMultiple) {
@@ -46,7 +47,8 @@ export function usesExpansion(item, isMultiple) {
   }
   if (message && message.type) {
     return ['UNASSIGNED', 'UNREAD_DRAFT', 'UNREAD_VOTE', 'REPORT_REQUIRED', 'UNREAD_NAME', 'UNREAD_DESCRIPTION',
-      'UNREAD_ATTACHMENT', 'UNREAD_LABEL', 'UNREAD_ESTIMATE', 'UNACCEPTED_ASSIGNMENT'].includes(message.type);
+      'UNREAD_ATTACHMENT', 'UNREAD_LABEL', 'UNREAD_ESTIMATE', 'UNACCEPTED_ASSIGNMENT',
+      'NOT_FULLY_VOTED'].includes(message.type);
   }
   //Pending always expands
   return true;
@@ -69,6 +71,8 @@ export function addExpansionPanel(props) {
     item.expansionPanel = ( <CommentPanel marketId={commentMarketId || marketId} commentId={commentId} message={message}
                                           marketType={marketType} messageType={messageType} isDeletable={isDeletable}
                                           planningClasses={planningClasses} mobileLayout={mobileLayout} /> );
+  } else if (messageType === 'NOT_FULLY_VOTED' && marketType === PLANNING_TYPE) {
+    item.expansionPanel = <ApprovalWizard investibleId={investibleId} marketId={marketId} />;
   } else {
     item.expansionPanel = <InboxInvestible marketId={marketId} investibleId={investibleId} messageType={messageType}
                                            planningClasses={planningClasses} marketType={marketType}

@@ -60,6 +60,7 @@ import { addMarket, getMarket } from '../../contexts/MarketsContext/marketsConte
 import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../authorization/TokenStorageManager'
 import { NOT_FULLY_VOTED_TYPE } from '../../constants/notifications'
 import { AccountContext } from '../../contexts/AccountContext/AccountContext'
+import WizardStepButtons from '../InboxWizards/WizardStepButtons'
 
 function getPlaceHolderLabelId(type, isInReview, isAssigned) {
   switch (type) {
@@ -293,7 +294,7 @@ function CommentAdd(props) {
   const {
     marketId, groupId, onSave, onCancel, type, investible, parent, issueWarningId, todoWarningId, isStory, nameKey,
     defaultNotificationType, onDone, mentionsAllowed, commentAddState, updateCommentAddState, commentAddStateReset,
-    autoFocus=true, isStandAlone, threadMessages, nameDifferentiator=''
+    autoFocus=true, isStandAlone, threadMessages, nameDifferentiator='', wizardProps
   } = props;
   const {
     uploadedFiles,
@@ -476,7 +477,7 @@ function CommentAdd(props) {
         }
       });
   }
-
+  const isWizard = !_.isEmpty(wizardProps);
   const commentCancelLabel = parent ? 'commentReplyCancelLabel' : 'commentAddCancelLabel';
   const createInlineInitiative = (creatorIsAssigned || !investibleId || _.isEmpty(assigned))
     && type === SUGGEST_CHANGE_TYPE;
@@ -497,7 +498,7 @@ function CommentAdd(props) {
       >
         <div className={classes.editor} style={{paddingBottom: '1rem'}}>
           {Editor}
-          <div style={{marginTop: '0.5rem'}}>
+          <div style={{marginTop: '0.5rem', display: (isWizard ? 'none' : undefined)}}>
             {!isStory && onDone && (
               <SpinningIconLabelButton onClick={myOnDone} doSpin={false} icon={isStandAlone ? Clear : Delete}>
                 {intl.formatMessage({ id: 'cancel' })}
@@ -535,6 +536,16 @@ function CommentAdd(props) {
               {intl.formatMessage({ id: 'edited' })}
             </Typography>
           </div>
+          {isWizard && (
+            <div style={{marginTop: '2rem'}}>
+              <WizardStepButtons
+                {...wizardProps}
+                nextLabel={`${type}ApproveWizard`}
+                onNext={() => handleSave()}
+                showTerminate={true}
+                terminateLabel="JobWizardGotoJob"/>
+            </div>
+          )}
           {openIssue !== false && openIssue !== 'noInitiativeType' && (
             <IssueDialog
               classes={lockedDialogClasses}

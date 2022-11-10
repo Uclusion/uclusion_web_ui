@@ -19,7 +19,7 @@ import {
 import CommentBox from '../../../containers/CommentBox/CommentBox'
 import { getCommentRoot, getInvestibleComments } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
-import { getMarket, getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
+import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import {
   Assignments,
@@ -34,7 +34,6 @@ import { DaysEstimate } from '../../../components/AgilePlan'
 import InputLabel from '@material-ui/core/InputLabel'
 import MoveToNextVisibleStageActionButton from '../../Investible/Planning/MoveToNextVisibleStageActionButton'
 import Voting from '../../Investible/Decision/Voting'
-import YourVoting from '../../Investible/Voting/YourVoting'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
@@ -80,7 +79,6 @@ function InboxInvestible(props) {
   const [diffState, diffDispatch] = useContext(DiffContext);
   const market = getMarket(marketsState, marketId) || {};
   const investibleMarketId = market.parent_comment_market_id || marketId;
-  const userId = getMyUserForMarket(marketsState, marketId) || '';
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const yourPresence = marketPresences.find((presence) => presence.current_user);
   const investibleComments = getInvestibleComments(investibleId, marketId, commentState);
@@ -338,21 +336,6 @@ function InboxInvestible(props) {
             isInbox
           />
         </div>
-      )}
-      {useMessageTypes.includes('NOT_FULLY_VOTED') && (
-        <>
-          <YourVoting
-            investibleId={investibleId}
-            marketPresences={marketPresences}
-            comments={investmentReasons}
-            userId={userId}
-            market={market}
-            groupId={groupId}
-            isAssigned={false}
-            isInbox
-          />
-          <h3>{intl.formatMessage({ id: 'orStructuredComment' })}</h3>
-        </>
       )}
       {showCommentAdd && (
         <>

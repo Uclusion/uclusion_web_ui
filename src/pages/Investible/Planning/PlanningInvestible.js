@@ -50,11 +50,9 @@ import PersonAddIcon from '@material-ui/icons/PersonAdd'
 import { PLACEHOLDER } from '../../../constants/global'
 import {
   addInvestible,
-  getMarketLabels,
   refreshInvestibles
 } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
-import AddIcon from '@material-ui/icons/Add'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import MoveToFurtherWorkActionButton from './MoveToFurtherWorkActionButton'
 import { DaysEstimate } from '../../../components/AgilePlan'
@@ -62,14 +60,10 @@ import { ACTION_BUTTON_COLOR, HIGHLIGHTED_BUTTON_COLOR } from '../../../componen
 import AttachedFilesList from '../../../components/Files/AttachedFilesList'
 import {
   attachFilesToInvestible,
-  changeLabels,
   deleteAttachedFilesFromInvestible, stageChangeInvestible,
   updateInvestible
 } from '../../../api/investibles'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
-import Chip from '@material-ui/core/Chip'
-import Autocomplete from '@material-ui/lab/Autocomplete'
-import TextField from '@material-ui/core/TextField'
 import EventIcon from '@material-ui/icons/Event';
 import DatePicker from 'react-datepicker'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
@@ -390,13 +384,9 @@ function PlanningInvestible(props) {
   const [, diffDispatch] = useContext(DiffContext);
   const [searchResults] = useContext(SearchResultsContext);
   const { results, parentResults, search } = searchResults;
-  const [newLabel, setNewLabel] = useState(undefined);
   const [showDatepicker, setShowDatepicker] = useState(false);
-  const [clearMeHack, setClearMeHack] = useState('a');
-  const [labelFocus, setLabelFocus] = useState(false);
   const { id: marketId, market_stage: marketStage } = market;
   const inArchives = marketStage !== ACTIVE_STAGE;
-  const labels = getMarketLabels(investiblesState, marketId);
   const investibleCommentsSearched = investibleComments.filter((comment) => {
     if (_.isEmpty(search)) {
       return true;
@@ -417,7 +407,7 @@ function PlanningInvestible(props) {
     .map((address) => address.user_id);
   const assigned = invAssigned || [];
   const { investible } = marketInvestible;
-  const { name, locked_by: lockedBy, created_at: createdAt, label_list: originalLabelList } = investible;
+  const { name, locked_by: lockedBy, created_at: createdAt } = investible;
   const [marketStagesState] = useContext(MarketStagesContext);
   const [pageStateFull, pageDispatch] = usePageStateReducer('investible');
   const [pageState, updatePageState, pageStateReset] = getPageReducerPage(pageStateFull, pageDispatch, investibleId,
@@ -581,34 +571,6 @@ function PlanningInvestible(props) {
 
   const invested = getVotesForInvestible(marketPresences, investibleId);
   const assignedNotAccepted = assigned.filter((assignee) => !(accepted || []).includes(assignee));
-
-  function changeLabelsAndQuickAdd(marketId, investibleId, newLabels) {
-    return changeLabels(marketId, investibleId, newLabels).then((fullInvestible) =>{
-      refreshInvestibles(investiblesDispatch, diffDispatch, [fullInvestible]);
-    });
-  }
-
-  const safeLabelList = originalLabelList || [];
-
-  function deleteLabel(aLabel) {
-    const newLabels = safeLabelList.filter((label) => aLabel !== label) || [];
-    changeLabelsAndQuickAdd(marketId, investibleId, newLabels);
-  }
-
-  function labelInputOnChange(event, value) {
-    setNewLabel(value);
-  }
-
-  function labelInputFocus() {
-    setLabelFocus(!labelFocus);
-  }
-
-  function addLabel() {
-    const newLabels = [...safeLabelList, newLabel];
-    changeLabelsAndQuickAdd(marketId, investibleId, newLabels);
-    setNewLabel(undefined);
-    setClearMeHack(clearMeHack+clearMeHack);
-  }
 
   const assignedInAcceptedStage = assigned.reduce((acc, userId) => {
     return acc.concat(assignedInStage(
@@ -786,11 +748,6 @@ function PlanningInvestible(props) {
       });
     }
   }
-  const availableLabels = _.difference(labels, originalLabelList);
-  const defaultProps = {
-    options: availableLabels,
-    getOptionLabel: (option) => option,
-  };
 
   function isEditableByUser() {
     return displayEdit;
@@ -1082,51 +1039,6 @@ function PlanningInvestible(props) {
           accepted={accepted || []}
           myUserId={userId}
         />
-        {!inArchives && (
-          <div className={classes.autocompleteContainer}>
-            <div  style={{fontWeight: 700}}>
-              <FormattedMessage id={"labels"}/>
-            </div>
-            <Autocomplete
-              {...defaultProps}
-              id="addLabel"
-              key={clearMeHack}
-              freeSolo
-              renderInput={(params) => <TextField {...params}
-                                                  label={intl.formatMessage({ id: 'addLabel' })}
-                                                  margin="dense"
-                                                  variant="outlined" />}
-              style={{ width: 150, maxHeight: '1rem' }}
-              onFocus={labelInputFocus}
-              onBlur={labelInputFocus}
-              onChange={labelInputOnChange}
-            />
-            {newLabel && (
-              <IconButton
-                className={classes.noPad}
-                onClick={addLabel}
-              >
-                <AddIcon htmlColor={ACTION_BUTTON_COLOR}/>
-              </IconButton>
-            )}
-            {!newLabel && labelFocus && !mobileLayout &&  (
-              <div className={classes.labelExplain} >
-                <Typography key="completeExplain" className={classes.explain}>
-                  {intl.formatMessage({ id: 'typeOrChoose' })}
-                </Typography>
-              </div>
-            )}
-          </div>
-        )}
-
-        <div style={{display: 'flex', marginLeft: '0', marginRight: '0',
-          alignItems: 'flex-start', flexDirection: 'column'}}>
-          {safeLabelList.map((label) =>
-            <div key={label} className={classes.labelChip}>
-              <Chip label={label} onDelete={()=>deleteLabel(`${label}`)} color="primary" />
-            </div>
-          )}
-        </div>
         <AttachedFilesList
           marketId={market.id}
           onUpload={onAttachFiles}

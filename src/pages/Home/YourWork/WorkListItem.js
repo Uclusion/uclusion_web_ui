@@ -170,8 +170,12 @@ function WorkListItem(props) {
         <div style={{ width: '100%', cursor: 'pointer' }} id={`link${id}`} onClick={
           (event) => {
             preventDefaultAndProp(event);
-            if ((expansionOpen || !isUsingExpansion) && !read) {
-              pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: DEHIGHLIGHT_EVENT, messages: [message.id] });
+            if (!isUsingExpansion && !read) {
+              let event = DEHIGHLIGHT_EVENT;
+              if (message.type_object_id.startsWith('UNREAD')) {
+                event = DELETE_EVENT;
+              }
+              pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event, messages: [message.id] });
             }
             if (isUsingExpansion) {
               inboxDispatch(expandOrContract(id));

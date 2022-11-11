@@ -72,7 +72,7 @@ export function addExpansionPanel(props) {
                                           marketType={marketType} messageType={messageType} isDeletable={isDeletable}
                                           planningClasses={planningClasses} mobileLayout={mobileLayout} /> );
   } else if (messageType === 'NOT_FULLY_VOTED' && marketType === PLANNING_TYPE) {
-    item.expansionPanel = <ApprovalWizard investibleId={investibleId} marketId={marketId} />;
+    item.expansionPanel = <ApprovalWizard investibleId={investibleId} marketId={marketId} message={message} />;
   } else {
     item.expansionPanel = <InboxInvestible marketId={marketId} investibleId={investibleId} messageType={messageType}
                                            planningClasses={planningClasses} marketType={marketType}

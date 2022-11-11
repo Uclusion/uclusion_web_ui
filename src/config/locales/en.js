@@ -1108,12 +1108,9 @@ const messages = defineMessages({
   BudgetRestrictYes: 'Do not allow approvers to suggest a budget.',
 
   // Approve Wizard
-  ApprovalWizardNo: 'No',
-  ApprovalWizardYes: 'Yes',
   ApprovalWizardApprove: 'Approve job',
   ApprovalWizardBlock: 'Block job',
-  ApprovalWizardQuestion: 'Ask question',
-  ApprovalWizardSuggestion: 'Make suggestion',
+  ApproveWizardGotoJob: 'Got to job to clarify',
   ISSUEApproveWizard: 'Create issue',
   QUESTIONApproveWizard: 'Create question',
   SUGGESTApproveWizard: 'Create suggestion',

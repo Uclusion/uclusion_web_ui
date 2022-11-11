@@ -5,7 +5,6 @@ import { WizardStylesProvider } from '../WizardStylesContext';
 import FormdataWizard from 'react-formdata-wizard';
 import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
-import ChooseActionApprovalStep from './ChooseActionApprovalStep'
 import ActionApprovalStep from './ActionApprovalStep'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 
@@ -24,7 +23,6 @@ function ApprovalWizard(props) {
     <WizardStylesProvider>
       <FormdataWizard name="approval_wizard">
         <JobDescriptionApprovalStep onFinish={myOnFinish} marketId={marketId} investibleId={investibleId}/>
-        <ChooseActionApprovalStep onFinish={myOnFinish} marketId={marketId} investibleId={investibleId}/>
         <ActionApprovalStep onFinish={myOnFinish} marketId={marketId} investibleId={investibleId}/>
       </FormdataWizard>
     </WizardStylesProvider>

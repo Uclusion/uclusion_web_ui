@@ -5,6 +5,7 @@ import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
 import JobDescription from './JobDescription'
+import { ISSUE_TYPE } from '../../CardType'
 
 
 function JobDescriptionStep (props) {
@@ -17,18 +18,18 @@ function JobDescriptionStep (props) {
     >
     <div>
       <Typography className={classes.introText}>
-        Is the job clear and complete?
+        Should this job be done now?
       </Typography>
       <JobDescription marketId={marketId} investibleId={investibleId} />
       <WizardStepButtons
         {...props}
-        nextLabel="ApprovalWizardYes"
+        nextLabel="ApprovalWizardApprove"
         showOtherNext
-        otherNextLabel="ApprovalWizardNo"
-        onOtherNext={() => updateFormData({ isClear: false })}
-        onNext={() => updateFormData({ isClear: true })}
+        otherNextLabel="ApprovalWizardBlock"
+        onOtherNext={() => updateFormData({ commentType: ISSUE_TYPE })}
+        onNext={() => updateFormData({ isApprove: true, investibleId })}
         showTerminate={true}
-        terminateLabel="JobWizardGotoJob"/>
+        terminateLabel="ApproveWizardGotoJob"/>
     </div>
     </WizardStepContainer>
   );

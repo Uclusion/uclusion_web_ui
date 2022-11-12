@@ -23,9 +23,7 @@ import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import {
   Assignments,
-  getCollaborators,
-  rejectInvestible,
-  useMetaDataStyles
+  getCollaborators
 } from '../../Investible/Planning/PlanningInvestible'
 import { getAcceptedStage, getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import clsx from 'clsx'
@@ -44,7 +42,6 @@ import AttachedFilesList from '../../../components/Files/AttachedFilesList'
 import Chip from '@material-ui/core/Chip'
 import PropTypes from 'prop-types'
 import { getLabelList } from '../../../utils/messageUtils'
-import SpinningButton from '../../../components/SpinBlocking/SpinningButton'
 import { useInvestibleEditStyles } from '../../Investible/InvestibleBodyEdit'
 import { useHistory } from 'react-router'
 import NotificationDeletion from './NotificationDeletion'
@@ -66,15 +63,14 @@ function InboxInvestible(props) {
   const useMessageTypes = _.isEmpty(messageTypes) ? (_.isEmpty(messageType) ? [] : [messageType]) : messageTypes;
   const history = useHistory();
   const intl = useIntl();
-  const classes = useMetaDataStyles();
   const investibleEditClasses = useInvestibleEditStyles();
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
-  const [investiblesState, invDispatch] = useContext(InvestiblesContext);
+  const [investiblesState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
-  const [commentState, commentsDispatch] = useContext(CommentsContext);
+  const [commentState] = useContext(CommentsContext);
   const [groupsState] = useContext(MarketGroupsContext);
-  const [diffState, diffDispatch] = useContext(DiffContext);
+  const [diffState] = useContext(DiffContext);
   const market = getMarket(marketsState, marketId) || {};
   const investibleMarketId = market.parent_comment_market_id || marketId;
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
@@ -125,13 +121,8 @@ function InboxInvestible(props) {
   const diff = getDiff(diffState, investibleId);
   const showDiff = diff !== undefined && useMessageTypes.includes('UNREAD_DESCRIPTION');
   const showCommentAdd = !_.isEmpty(useMessageTypes) && marketId && !_.isEmpty(myInvestible) && !isOutbox &&
-    _.isEmpty(_.intersection(['NEW_TODO', 'ISSUE_RESOLVED', 'UNREAD_VOTE', 'UNACCEPTED_ASSIGNMENT'],
+    _.isEmpty(_.intersection(['NEW_TODO', 'ISSUE_RESOLVED', 'UNREAD_VOTE'],
       useMessageTypes));
-
-  function myRejectInvestible() {
-    return rejectInvestible(market.id, investibleId, inv, commentState, commentsDispatch, invDispatch, diffDispatch,
-      marketStagesState);
-  }
 
   return (
     <div style={{paddingTop: '1rem', paddingRight: !_.isEmpty(useMessageTypes) ? '5%' : undefined,
@@ -174,7 +165,7 @@ function InboxInvestible(props) {
           </div>
         )}
         {((!_.isEmpty(requiredApprovers) &&
-          !_.isEmpty(_.intersection(['NOT_FULLY_VOTED', 'UNACCEPTED_ASSIGNMENT'], useMessageTypes))) ||
+          !_.isEmpty(_.intersection(['NOT_FULLY_VOTED'], useMessageTypes))) ||
           (!_.isEmpty(requiredReviewers) && isReview)) && (
           <div className={clsx(planningClasses.group, planningClasses.assignments)}
                style={{maxWidth: '15rem', marginRight: '1rem', overflowY: 'auto', maxHeight: '8rem'}}>
@@ -192,16 +183,6 @@ function InboxInvestible(props) {
         {useMessageTypes.includes('ASSIGNED_UNREVIEWABLE') && !_.isEmpty(marketDaysEstimate) && (
           <div style={{marginTop: mobileLayout ? '1rem' : '1.5rem'}}>
             <DaysEstimate readOnly value={marketDaysEstimate} isInbox />
-          </div>
-        )}
-        {!_.isEmpty(_.intersection(['UNACCEPTED_ASSIGNMENT'], useMessageTypes)) && (
-          <div style={{marginTop: mobileLayout ? '1rem' : undefined, marginLeft: mobileLayout ? undefined : '2rem'}}>
-            <div style={{display: 'flex', paddingTop: '1rem', marginBottom: 0}}>
-              <SpinningButton onClick={myRejectInvestible} className={classes.actionSecondary} id='reject'
-                              style={{marginRight: '1rem'}}>
-                {intl.formatMessage({ id: 'saveReject' })}
-              </SpinningButton>
-            </div>
           </div>
         )}
         {(!_.isEmpty(_.intersection(['ASSIGNED_UNREVIEWABLE', 'ISSUE_RESOLVED', 'UNREAD_VOTE'],
@@ -309,7 +290,7 @@ function InboxInvestible(props) {
           )}
         </div>
       )}
-      {!_.isEmpty(_.intersection(['UNACCEPTED_ASSIGNMENT', 'UNREAD_VOTE'], useMessageTypes)) && (
+      {!_.isEmpty(_.intersection(['UNREAD_VOTE'], useMessageTypes)) && (
         <div style={{paddingLeft: '1rem', paddingRight: '1rem'}}>
           <h2 id="approvals">
             <FormattedMessage id="decisionInvestibleOthersVoting" />
@@ -342,7 +323,7 @@ function InboxInvestible(props) {
             groupId={groupId}
             issueWarningId={'issueWarningPlanning'}
             isInReview={isReview}
-            isAssignee={!_.isEmpty(_.intersection(['ASSIGNED_UNREVIEWABLE', 'UNACCEPTED_ASSIGNMENT'],
+            isAssignee={!_.isEmpty(_.intersection(['ASSIGNED_UNREVIEWABLE'],
               useMessageTypes))}
             isStory
             nameDifferentiator="inboxInvestible"

@@ -14,11 +14,17 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import _ from 'lodash'
 import { formInvestibleLink } from '../../../utils/marketIdPathFunctions'
+import { getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 
 function JobApproveStep(props) {
-  const { marketId, groupId, clearFormData, updateFormData, formData, onFinish: parentOnFinish } = props;
+  const { marketId, groupId, clearFormData, updateFormData, formData, onFinish: parentOnFinish, marketInfo } = props;
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
+  const [marketsState] = useContext(MarketsContext);
+  const userId = getMyUserForMarket(marketsState, marketId);
+  const { assigned } = marketInfo || {};
+  const isAssigned = (assigned || []).includes(userId);
   const validForm = formData.approveQuantity != null;
   const classes = useContext(WizardStylesContext)
   const { investibleId } = formData;
@@ -86,7 +92,11 @@ function JobApproveStep(props) {
         <Typography className={classes.introText} variant="h6">
           How certain are you this job should be done?
         </Typography>
-
+        {isAssigned && (
+          <Typography className={classes.introSubText} variant="subtitle1">
+            Keep in mind that you are assigned to this job.
+          </Typography>
+        )}
         <AddInitialVote
           marketId={marketId}
           onBudgetChange={() => {}}

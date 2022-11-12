@@ -23,7 +23,7 @@ function ActionApprovalStep(props) {
   const { isApprove, commentType } = formData;
 
   if (isApprove) {
-    return <JobApproveStep {...props} groupId={groupId}/>;
+    return <JobApproveStep {...props} groupId={groupId} marketInfo={marketInfo}/>;
   }
 
   if (_.isEmpty(commentType)) {

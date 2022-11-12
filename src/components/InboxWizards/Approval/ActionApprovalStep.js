@@ -10,9 +10,10 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import { getMarketInfo } from '../../../utils/userFunctions'
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
 import _ from 'lodash'
+import { formCommentLink } from '../../../utils/marketIdPathFunctions'
 
 function ActionApprovalStep(props) {
-  const {marketId, investibleId, formData} = props;
+  const {marketId, investibleId, formData, onFinish} = props;
   const classes = useContext(WizardStylesContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const inv = getInvestible(investiblesState, investibleId);
@@ -27,6 +28,11 @@ function ActionApprovalStep(props) {
 
   if (_.isEmpty(commentType)) {
     return React.Fragment;
+  }
+
+  function onSave(comment) {
+    const link = formCommentLink(marketId, groupId, investibleId, comment.id);
+    onFinish({ link });
   }
 
   let introText = "What is your question?";
@@ -52,6 +58,7 @@ function ActionApprovalStep(props) {
         isInReview={false}
         isStory
         wizardProps={props}
+        onSave={onSave}
         nameDifferentiator="actionApproval"
       />
     </div>

@@ -7,9 +7,10 @@ import { getInvestible } from '../../../contexts/InvestibesContext/investiblesCo
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import { getMarketInfo } from '../../../utils/userFunctions'
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
+import { formCommentLink } from '../../../utils/marketIdPathFunctions'
 
 function ProgressReportStep(props) {
-  const {marketId, investibleId, formData} = props;
+  const { marketId, investibleId, formData, onFinish } = props;
   const classes = useContext(WizardStylesContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const inv = getInvestible(investiblesState, investibleId);
@@ -17,6 +18,11 @@ function ProgressReportStep(props) {
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { group_id: groupId } = marketInfo;
   const { commentType } = formData;
+
+  function onSave(comment) {
+    const link = formCommentLink(marketId, groupId, investibleId, comment.id);
+    onFinish({ link });
+  }
 
   return (
     <WizardStepContainer
@@ -35,6 +41,7 @@ function ProgressReportStep(props) {
         isInReview={false}
         isStory
         wizardProps={props}
+        onSave={onSave}
         nameDifferentiator="actionProgress"
       />
     </div>

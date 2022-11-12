@@ -3,31 +3,18 @@ import PropTypes from 'prop-types'
 import JobDescriptionApprovalStep from './JobDescriptionApprovalStep'
 import { WizardStylesProvider } from '../WizardStylesContext';
 import FormdataWizard from 'react-formdata-wizard';
-import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
 import ActionApprovalStep from './ActionApprovalStep'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
-import {
-  DEHIGHLIGHT_EVENT,
-  DELETE_EVENT,
-  MODIFY_NOTIFICATIONS_CHANNEL
-} from '../../../contexts/NotificationsContext/notificationsContextMessages'
-import { pushMessage } from '../../../utils/MessageBusUtils'
+import { wizardFinish } from '../InboxWizardUtils'
 
 function ApprovalWizard(props) {
   const { marketId, investibleId, message } = props;
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const history = useHistory();
 
-  function myOnFinish() {
-    setOperationRunning(false);
-    let event = DEHIGHLIGHT_EVENT;
-    if (message.type_object_id.startsWith('UNREAD')) {
-      event = DELETE_EVENT;
-    }
-    pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event, messages: [message.id] });
-    const link = formInvestibleLink(marketId, investibleId);
-    navigate(history, link);
+  function myOnFinish(formData) {
+    wizardFinish(formData, setOperationRunning, message, marketId, investibleId, history);
   }
 
   return (

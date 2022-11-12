@@ -189,7 +189,8 @@ function CommentAddBox(props) {
     isInReview,
     isAssignee,
     nameDifferentiator,
-    wizardProps
+    wizardProps,
+    onSave
   } = props;
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
@@ -269,6 +270,7 @@ function CommentAddBox(props) {
         <CommentAdd
           type={useType}
           wizardProps={wizardProps}
+          onSave={onSave}
           commentAddState={commentAddState}
           updateCommentAddState={updateCommentAddState}
           commentAddStateReset={commentAddStateReset}
@@ -293,14 +295,16 @@ CommentAddBox.propTypes = {
   todoWarningId: PropTypes.string,
   investible: PropTypes.any,
   allowedTypes: PropTypes.arrayOf(PropTypes.string).isRequired,
-  isStory: PropTypes.bool
+  isStory: PropTypes.bool,
+  onSave: PropTypes.func
 };
 
 CommentAddBox.defaultProps = {
   investible: undefined,
   issueWarningId: null,
   todoWarningId: null,
-  isStory: false
+  isStory: false,
+  onSave: () => {}
 };
 
 export default CommentAddBox;

@@ -60,14 +60,14 @@ function InvesibleCommentLinker(props) {
   let useTextInsteadOfLink = false;
   if (market.parent_comment_id) {
     useTextInsteadOfLink = true;
-    link = `${window.location.href}/#option${investibleId}`;
+    link = `${window.location.href}#option${investibleId}`;
   } else if (commentId) {
     if (comment.ticket_code) {
       ticketCode = comment.ticket_code;
       link = `${window.location.host}/${ticketCode}`;
     } else {
       useTextInsteadOfLink = true;
-      link = `${window.location.href}/#c${commentId}`;
+      link = `${window.location.href}#c${commentId}`;
     }
   }
   return (

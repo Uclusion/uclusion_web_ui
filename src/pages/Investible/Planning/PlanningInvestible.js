@@ -442,7 +442,7 @@ function PlanningInvestible(props) {
       if (hash.startsWith('#cv')) {
         updatePageState({ sectionOpen: 'descriptionVotingSection' })
       } else {
-        const found = investibleComments.find((anId) => hash.includes(anId));
+        const found = investibleComments.find((comment) => hash.includes(comment.id));
         if (!_.isEmpty(found)) {
           const rootComment = filterToRoot(investibleComments, found.id);
           if (!_.isEmpty(rootComment.investible_id)) {

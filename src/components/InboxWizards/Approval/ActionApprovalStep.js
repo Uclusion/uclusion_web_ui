@@ -21,13 +21,14 @@ function ActionApprovalStep(props) {
   const { group_id: groupId } = marketInfo;
   const { isApprove, commentType } = formData;
 
+  if (isApprove) {
+    return <JobApproveStep {...props} groupId={groupId}/>;
+  }
+
   if (_.isEmpty(commentType)) {
     return React.Fragment;
   }
 
-  if (isApprove) {
-    return <JobApproveStep {...props} groupId={groupId}/>;
-  }
   let introText = "What is your question?";
   if (commentType === ISSUE_TYPE) {
     introText = "What is your issue?"

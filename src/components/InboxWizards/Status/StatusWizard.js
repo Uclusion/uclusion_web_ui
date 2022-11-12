@@ -1,11 +1,11 @@
 import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
-import JobDescriptionApprovalStep from './JobDescriptionApprovalStep'
+import JobDescriptionStatusStep from './JobDescriptionStatusStep'
 import { WizardStylesProvider } from '../WizardStylesContext';
 import FormdataWizard from 'react-formdata-wizard';
 import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
-import ActionApprovalStep from './ActionApprovalStep'
+import ActionStatusStep from './ActionStatusStep'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import {
   DEHIGHLIGHT_EVENT,
@@ -14,7 +14,7 @@ import {
 } from '../../../contexts/NotificationsContext/notificationsContextMessages'
 import { pushMessage } from '../../../utils/MessageBusUtils'
 
-function ApprovalWizard(props) {
+function StatusWizard(props) {
   const { marketId, investibleId, message } = props;
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const history = useHistory();
@@ -32,25 +32,25 @@ function ApprovalWizard(props) {
 
   return (
     <WizardStylesProvider>
-      <FormdataWizard name={`approval_wizard${investibleId}`}>
-        <JobDescriptionApprovalStep onFinish={myOnFinish} marketId={marketId} investibleId={investibleId}/>
-        <ActionApprovalStep onFinish={myOnFinish} marketId={marketId} investibleId={investibleId}/>
+      <FormdataWizard name={`status_wizard${investibleId}`}>
+        <JobDescriptionStatusStep onFinish={myOnFinish} marketId={marketId} investibleId={investibleId}/>
+        <ActionStatusStep onFinish={myOnFinish} marketId={marketId} investibleId={investibleId} message={message}/>
       </FormdataWizard>
     </WizardStylesProvider>
   );
 }
 
-ApprovalWizard.propTypes = {
+StatusWizard.propTypes = {
   onStartOver: PropTypes.func,
   onFinish: PropTypes.func,
   showCancel: PropTypes.bool
 };
 
-ApprovalWizard.defaultProps = {
+StatusWizard.defaultProps = {
   onStartOver: () => {},
   onFinish: () => {},
   showCancel: true
 }
 
-export default ApprovalWizard;
+export default StatusWizard;
 

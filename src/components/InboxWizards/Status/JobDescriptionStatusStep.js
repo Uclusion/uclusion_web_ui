@@ -5,10 +5,10 @@ import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
 import JobDescription from '../JobDescription'
-import { ISSUE_TYPE } from '../../CardType'
+import { REPORT_TYPE } from '../../../constants/comments'
 
 
-function JobDescriptionStep (props) {
+function JobDescriptionStatusStep(props) {
   const {marketId, investibleId, updateFormData} = props;
   const classes = useContext(WizardStylesContext);
 
@@ -18,16 +18,15 @@ function JobDescriptionStep (props) {
     >
     <div>
       <Typography className={classes.introText}>
-        Should this job be done now?
+        How will you report status?
       </Typography>
       <JobDescription marketId={marketId} investibleId={investibleId} />
       <WizardStepButtons
         {...props}
-        nextLabel="ApprovalWizardApprove"
+        nextLabel="StatusWizardEstimate"
         showOtherNext
-        otherNextLabel="ApprovalWizardBlock"
-        onOtherNext={() => updateFormData({ commentType: ISSUE_TYPE })}
-        onNext={() => updateFormData({ isApprove: true, investibleId })}
+        otherNextLabel="StatusWizardReport"
+        onOtherNext={() => updateFormData({ commentType: REPORT_TYPE })}
         showTerminate={true}
         terminateLabel="ApproveWizardGotoJob"/>
     </div>
@@ -35,14 +34,14 @@ function JobDescriptionStep (props) {
   );
 }
 
-JobDescriptionStep.propTypes = {
+JobDescriptionStatusStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
 };
 
-JobDescriptionStep.defaultProps = {
+JobDescriptionStatusStep.defaultProps = {
   updateFormData: () => {},
   formData: {}
 };
 
-export default JobDescriptionStep;
+export default JobDescriptionStatusStep;

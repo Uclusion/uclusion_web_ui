@@ -55,7 +55,6 @@ import {
   CURRENT_EVENT,
   MODIFY_NOTIFICATIONS_CHANNEL
 } from '../../../contexts/NotificationsContext/notificationsContextMessages'
-import InvestibleStatus from './InvestibleStatus'
 import InvestibleReady from './InvestibleReady'
 import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper'
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext'
@@ -65,7 +64,6 @@ function InboxInvestible(props) {
   const { marketId, marketType, planningClasses, messageTypes, investibleId, mobileLayout, isOutbox,
     messagesFull, messageType, isDeletable, message, isCommentPanel } = props;
   const useMessageTypes = _.isEmpty(messageTypes) ? (_.isEmpty(messageType) ? [] : [messageType]) : messageTypes;
-  const reportRequired = (message || {}).type === 'REPORT_REQUIRED';
   const history = useHistory();
   const intl = useIntl();
   const classes = useMetaDataStyles();
@@ -128,7 +126,7 @@ function InboxInvestible(props) {
   const showDiff = diff !== undefined && useMessageTypes.includes('UNREAD_DESCRIPTION');
   const showCommentAdd = !_.isEmpty(useMessageTypes) && marketId && !_.isEmpty(myInvestible) && !isOutbox &&
     _.isEmpty(_.intersection(['NEW_TODO', 'ISSUE_RESOLVED', 'UNREAD_VOTE', 'UNACCEPTED_ASSIGNMENT'],
-      useMessageTypes)) && !reportRequired;
+      useMessageTypes));
 
   function myRejectInvestible() {
     return rejectInvestible(market.id, investibleId, inv, commentState, commentsDispatch, invDispatch, diffDispatch,
@@ -263,10 +261,7 @@ function InboxInvestible(props) {
           )}
         </div>
       )}
-      {reportRequired && (
-        <InvestibleStatus investibleId={investibleId} message={message} marketId={marketId} />
-      )}
-      {!_.isEmpty(myInvestible) && !reportRequired && (
+      {!_.isEmpty(myInvestible) && (
         <div style={{paddingTop: '1rem'}} className={investibleEditClasses.container}>
           <Link href={formInvestibleLink(marketId, investibleId)} onClick={(event) => {
             preventDefaultAndProp(event);

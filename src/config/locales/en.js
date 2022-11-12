@@ -1114,6 +1114,12 @@ const messages = defineMessages({
   ISSUEApproveWizard: 'Create issue',
   QUESTIONApproveWizard: 'Create question',
   SUGGESTApproveWizard: 'Create suggestion',
+  REPORTApproveWizard: 'Create report',
+
+  //Status Wizard
+  StatusWizardEstimate: 'Estimate date',
+  StatusWizardReport: 'Report progress',
+  StatusWizardDate: 'Set date',
 
   //SignupWizard
   SignupWizardTitle: 'What do you want to create?',

@@ -10,19 +10,12 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { removeWorkListItem, workListStyles } from './WorkListItem'
-import { Link } from '@material-ui/core'
-import { navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions'
-import { useHistory } from 'react-router'
-import { pushMessage } from '../../../utils/MessageBusUtils'
-import {
-  CURRENT_EVENT,
-  MODIFY_NOTIFICATIONS_CHANNEL
-} from '../../../contexts/NotificationsContext/notificationsContextMessages'
+import WizardStepButtons from '../../../components/InboxWizards/WizardStepButtons'
+import { formInvestibleLink } from '../../../utils/marketIdPathFunctions'
 
 function InvestibleStatus(props) {
-  const { marketId, investibleId, message } = props;
-  const { link } = message;
-  const history = useHistory();
+  const { marketId, investibleId, message, wizardProps } = props;
+  const { updateFormData, formData, clearFormData } = wizardProps;
   const intl = useIntl();
   const workItemClasses = workListStyles();
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
@@ -31,7 +24,12 @@ function InvestibleStatus(props) {
   const marketInvestible = getInvestible(investiblesState, investibleId) || {};
   const marketInfo = getMarketInfo(marketInvestible, marketId) || {};
   const { completion_estimate: daysEstimate } = marketInfo;
-  function getStartDate() {
+  const { newEstimate } = formData;
+
+  function getDate() {
+    if (newEstimate) {
+      return new Date(newEstimate);
+    }
     if (daysEstimate) {
       const nowDate = new Date();
       if (daysEstimate > nowDate) {
@@ -41,11 +39,16 @@ function InvestibleStatus(props) {
     return undefined;
   }
   function handleDateChange(date) {
-    if (!_.isEqual(date, daysEstimate)) {
+    if (!_.isEqual(date, daysEstimate) && !_.isEqual(date, newEstimate)) {
+      updateFormData({ newEstimate: date });
+    }
+  }
+  function submit() {
+    if (!_.isEqual(newEstimate, daysEstimate)) {
       const updateInfo = {
         marketId,
         investibleId,
-        daysEstimate: date,
+        daysEstimate: newEstimate,
       };
       setOperationRunning(true);
       return updateInvestible(updateInfo).then((fullInvestible) => {
@@ -54,29 +57,29 @@ function InvestibleStatus(props) {
           removeWorkListItem(message, workItemClasses.removed);
         }
         setOperationRunning(false);
+        clearFormData();
+        return { link: formInvestibleLink(marketId, investibleId) };
       });
     }
   }
   return (
-    <div style={{paddingLeft: '5%'}}>
-      <h3>{intl.formatMessage({ id: 'chooseDate' })}</h3>
+    <div style={{paddingTop: '1rem'}}>
       <DatePicker
         placeholderText={intl.formatMessage({ id: "selectDate" })}
-        selected={getStartDate()}
+        selected={getDate()}
         onChange={handleDateChange}
         disabled={operationRunning}
         popperPlacement="top"
         minDate={getTomorrow()}
         inline
       />
-      <h3>
-        or <Link href={link} onClick={(event) => {
-          preventDefaultAndProp(event);
-        if (message) {
-          pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: CURRENT_EVENT, message });
-        }
-        navigate(history, link)}}>{intl.formatMessage({id: 'viewInChannelLower'})}</Link> to create or update a progress report
-      </h3>
+      <div style={{paddingBottom: '1rem'}} />
+      <WizardStepButtons
+        {...wizardProps}
+        nextLabel="StatusWizardDate"
+        onNext={submit}
+        showTerminate={true}
+        terminateLabel="ApproveWizardGotoJob"/>
     </div>
   );
 }

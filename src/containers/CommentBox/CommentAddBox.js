@@ -204,7 +204,7 @@ function CommentAddBox(props) {
   const isSingleType = _.size(allowedTypes) === 1;
   const useType = type || (isSingleType ? allowedTypes[0] : undefined);
   const classes = useStyles();
-  const draftComments = getDraftComments(commentState, marketId, investibleId);
+  const draftComments = getDraftComments(commentState, marketId, investibleId, allowedTypes);
 
   function onTypeChange(event) {
     const { value } = event.target;

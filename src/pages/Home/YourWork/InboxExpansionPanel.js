@@ -33,6 +33,7 @@ import { formCommentLink, formInvestibleLink } from '../../../utils/marketIdPath
 import { Typography } from '@material-ui/core'
 import { ASSIGNED_INDEX, PENDING_INDEX, TEAM_INDEX } from './InboxContext'
 import ApprovalWizard from '../../../components/InboxWizards/Approval/ApprovalWizard'
+import StatusWizard from '../../../components/InboxWizards/Status/StatusWizard'
 
 export function usesExpansion(item, isMultiple) {
   if (isMultiple) {
@@ -73,7 +74,9 @@ export function addExpansionPanel(props) {
                                           planningClasses={planningClasses} mobileLayout={mobileLayout} /> );
   } else if (messageType === 'NOT_FULLY_VOTED' && marketType === PLANNING_TYPE) {
     item.expansionPanel = <ApprovalWizard investibleId={investibleId} marketId={marketId} message={message} />;
-  } else {
+  } else if (messageType === 'REPORT_REQUIRED') {
+    item.expansionPanel = <StatusWizard investibleId={investibleId} marketId={marketId} message={message} />;
+  }else {
     item.expansionPanel = <InboxInvestible marketId={marketId} investibleId={investibleId} messageType={messageType}
                                            planningClasses={planningClasses} marketType={marketType}
                                            mobileLayout={mobileLayout} isDeletable={isDeletable} message={message}

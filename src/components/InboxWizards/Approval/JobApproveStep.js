@@ -13,6 +13,7 @@ import { partialUpdateInvestment } from '../../../contexts/MarketPresencesContex
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import _ from 'lodash'
+import { formInvestibleLink } from '../../../utils/marketIdPathFunctions'
 
 function JobApproveStep(props) {
   const { marketId, groupId, clearFormData, updateFormData, formData, onFinish: parentOnFinish } = props;
@@ -48,9 +49,8 @@ function JobApproveStep(props) {
         refreshMarketComments(commentsDispatch, marketId, [comment, ...comments]);
       }
       partialUpdateInvestment(marketPresencesDispatch, investmentResult, true);
-      const { link } = formData;
       clearFormData();
-      return { link };
+      return { link: formInvestibleLink(marketId, investibleId) };
     })
   }
 

@@ -81,14 +81,15 @@ export function getMessages(allOutBoxMessagesOrdered, messagesUnsafe, messagesFu
     return true;
   });
   const teamMessagesOrdered = inboxMessagesOrdered.filter((message) => !message.alert_type && !message.is_highlighted);
-  inboxMessagesOrdered = inboxMessagesOrdered.filter((message) => message.is_highlighted);
-  return {outBoxMessagesOrdered, inboxMessagesOrdered, assignedMessagesOrdered, teamMessagesOrdered, dupeHash};
+  inboxMessagesOrdered = _.union(inboxMessagesOrdered.filter((message) => message.is_highlighted),
+    assignedMessagesOrdered);
+  return {outBoxMessagesOrdered, inboxMessagesOrdered, teamMessagesOrdered, dupeHash};
 }
 
 export function getUnpaginatedItems(messagesHash, tabIndex) {
-  const {outBoxMessagesOrdered, inboxMessagesOrdered, assignedMessagesOrdered, teamMessagesOrdered} = messagesHash;
+  const {outBoxMessagesOrdered, inboxMessagesOrdered, teamMessagesOrdered} = messagesHash;
   return tabIndex === PENDING_INDEX ? outBoxMessagesOrdered : (tabIndex === 0 ? inboxMessagesOrdered
-    : (tabIndex === ASSIGNED_INDEX ? assignedMessagesOrdered : teamMessagesOrdered));
+    : teamMessagesOrdered);
 }
 
 function toggleExpandRow(state, action) {

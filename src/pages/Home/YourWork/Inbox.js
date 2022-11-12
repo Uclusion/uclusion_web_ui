@@ -29,7 +29,6 @@ import {
   MODIFY_NOTIFICATIONS_CHANNEL,
   REMOVE_CURRENT_EVENT
 } from '../../../contexts/NotificationsContext/notificationsContextMessages'
-import AssignmentIcon from '@material-ui/icons/Assignment'
 import {
   ASSIGNED_INDEX, contractAll,
   expandAll,
@@ -120,7 +119,7 @@ function Inbox(props) {
   const { first, last, data, hasMore, hasLess } = getPaginatedItems(unpaginatedItems, page, PAGE_SIZE);
   const defaultRow = createDefaultInboxRow(unpaginatedItems, loadingFromInvite, messagesState, tokensHash, intl,
     determinate, determinateDispatch, checkAll, tabIndex);
-  const {outBoxMessagesOrdered, assignedMessagesOrdered, teamMessagesOrdered, dupeHash} = messagesHash;
+  const {outBoxMessagesOrdered, teamMessagesOrdered, dupeHash} = messagesHash;
   data.forEach((message) => {
     addOutboxExpansionPanel(message, expansionState, planningClasses, mobileLayout);
   });
@@ -139,9 +138,6 @@ function Inbox(props) {
         <GmailTabItem icon={<InboxIcon htmlColor={htmlColor} />} label={intl.formatMessage({id: 'unread'})}
                       color='black' tagLabel={intl.formatMessage({id: 'new'})}
                       tag={unreadCount > 0 && !mobileLayout ? `${unreadCount}` : undefined} />
-        <GmailTabItem icon={<AssignmentIcon />} label={intl.formatMessage({id: 'unreadAssignment'})}
-                      tag={_.size(assignedMessagesOrdered) > 0 && !mobileLayout ?
-                        `${_.size(assignedMessagesOrdered)}` : undefined} />
         <GmailTabItem icon={<OutboxIcon />} label={intl.formatMessage({id: 'outbox'})}
                       tag={_.size(outBoxMessagesOrdered) > 0 && !mobileLayout ?
                         `${_.size(outBoxMessagesOrdered)}` : undefined} />

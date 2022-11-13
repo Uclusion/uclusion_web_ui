@@ -4,7 +4,7 @@ import { useIntl } from 'react-intl'
 import { nameFromDescription } from '../../../utils/stringFunctions'
 
 function Outbox(props) {
-  const { messagesOrdered, inboxState, inboxDispatch, showPriority = true } = props;
+  const { messagesOrdered, inboxState, inboxDispatch } = props;
   const { expansionState } = inboxState;
   const intl = useIntl();
 
@@ -20,11 +20,10 @@ function Outbox(props) {
       people: debtors,
       date: intl.formatDate(updatedAt),
       expansionPanel,
+      icon,
       message
     }
-    if (showPriority) {
-      item.icon = icon;
-    }
+
     if (investible) {
       item.investible = investible;
     }

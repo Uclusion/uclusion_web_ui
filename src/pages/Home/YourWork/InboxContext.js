@@ -8,9 +8,8 @@ const EXPAND_OR_CONTRACT = 'EXPAND_OR_CONTRACT';
 const DEHIGHLIGHT_EXPANDED = 'DEHIGHLIGHT_EXPANDED';
 
 export const PAGE_SIZE = 15;
-export const TEAM_INDEX = 3;
+export const TEAM_INDEX = 1;
 export const PENDING_INDEX = 2;
-export const ASSIGNED_INDEX = 1;
 
 export function setPage(pageNum) {
   return {
@@ -52,7 +51,10 @@ export function getMessages(allOutBoxMessagesOrdered, messagesUnsafe, messagesFu
     message.isOutboxAccepted);
   const outBoxAssigned = allOutBoxMessagesOrdered.filter((message) => !message.isOutboxAccepted && !message.comment);
   const assignedNotifications = (messagesUnsafe || []).filter((message) => message.alert_type);
-  const assignedMessages = _.union(assignedNotifications, outBoxAssigned);
+  const assignedMessagesRaw = _.union(assignedNotifications, outBoxAssigned) || [];
+  const assignedMessages = assignedMessagesRaw.map((message) =>  {
+    return {...message, isAssigned: true};
+  });
   const assignedMessagesOrdered = _.orderBy(assignedMessages, ['updated_at'], ['desc']) || [];
   const messagesFiltered = _.isEmpty(search) ? inboxMessagesOrdered : inboxMessagesOrdered.filter((message) => {
     const { type_object_id: typeObjectId,  investible_id: investibleId } = message;

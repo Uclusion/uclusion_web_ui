@@ -137,7 +137,6 @@ function WorkListItem(props) {
     people,
     message,
     date,
-    useSelect = true,
     checked = false,
     determinateDispatch,
     inboxDispatch,
@@ -154,8 +153,8 @@ function WorkListItem(props) {
   const actionStyles = useSizedIconButtonStyles({ childSize: 22, padding: 10 });
   const gutterStyles = useRowGutterStyles({ size: -10, before: -8 });
   const [isHovered, setIsHovered] = useState(false);
-  const { link, link_multiple: linkMultiple } = message;
-
+  const { link, link_multiple: linkMultiple, isAssigned, isOutboxType } = message;
+  const useSelect = isAssigned !== true && isOutboxType !== true;
   let fullText =  investible || comment || market;
   if (!moreDescription && investible && comment) {
     fullText += ' - ' + comment;

@@ -31,7 +31,7 @@ import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown'
 import { getInvestibleVoters } from '../../../utils/votingUtils'
 import { formCommentLink, formInvestibleLink } from '../../../utils/marketIdPathFunctions'
 import { Typography } from '@material-ui/core'
-import { ASSIGNED_INDEX, PENDING_INDEX, TEAM_INDEX } from './InboxContext'
+import { PENDING_INDEX, TEAM_INDEX } from './InboxContext'
 import ApprovalWizard from '../../../components/InboxWizards/Approval/ApprovalWizard'
 import StatusWizard from '../../../components/InboxWizards/Status/StatusWizard'
 
@@ -96,17 +96,7 @@ export function createDefaultInboxRow(messagesOrdered, loadingFromInvite, messag
     return (
       <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
                   variant="body1">
-        Your Unanswered tab is empty.<br/><br/> Your unanswered questions and suggestions will be shown here.
-      </Typography>
-    );
-  }
-
-  if (tabIndex === ASSIGNED_INDEX) {
-    return (
-      <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
-                  variant="body1">
-        Your Assigned tab is empty.<br/><br/> Assigned jobs, mentions, and required reviews and approvals
-        will be shown here.
+        Your From You tab is empty.<br/><br/> Your unanswered questions and suggestions will be shown here.
       </Typography>
     );
   }
@@ -115,7 +105,7 @@ export function createDefaultInboxRow(messagesOrdered, loadingFromInvite, messag
     return (
       <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
                   variant="body1">
-        Your Team Unresolved tab is empty.<br/><br/> Unfinished team collaboration will be shown here.
+        Your Unread tab is empty.<br/><br/> Unfinished team collaboration will be shown here.
       </Typography>
     );
   }
@@ -127,7 +117,7 @@ export function createDefaultInboxRow(messagesOrdered, loadingFromInvite, messag
   return (
     <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
                 variant="body1">
-      Your Unread tab is empty.<br/><br/> New messages will be shown here.
+      Your Primary tab is empty.<br/><br/> New messages and assigned jobs will be shown here.
     </Typography>
   );
 }

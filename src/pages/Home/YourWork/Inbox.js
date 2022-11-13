@@ -30,7 +30,7 @@ import {
   REMOVE_CURRENT_EVENT
 } from '../../../contexts/NotificationsContext/notificationsContextMessages'
 import {
-  ASSIGNED_INDEX, contractAll,
+  contractAll,
   expandAll,
   getUnpaginatedItems,
   PAGE_SIZE,
@@ -138,12 +138,12 @@ function Inbox(props) {
         <GmailTabItem icon={<InboxIcon htmlColor={htmlColor} />} label={intl.formatMessage({id: 'unread'})}
                       color='black' tagLabel={intl.formatMessage({id: 'new'})}
                       tag={unreadCount > 0 && !mobileLayout ? `${unreadCount}` : undefined} />
-        <GmailTabItem icon={<OutboxIcon />} label={intl.formatMessage({id: 'outbox'})}
-                      tag={_.size(outBoxMessagesOrdered) > 0 && !mobileLayout ?
-                        `${_.size(outBoxMessagesOrdered)}` : undefined} />
         <GmailTabItem icon={<GroupIcon />} label={intl.formatMessage({id: 'teamUnresolved'})}
                       tag={_.size(teamMessagesOrdered) > 0 && !mobileLayout ?
                         `${_.size(teamMessagesOrdered)}` : undefined} />
+        <GmailTabItem icon={<OutboxIcon />} label={intl.formatMessage({id: 'outbox'})}
+                      tag={_.size(outBoxMessagesOrdered) > 0 && !mobileLayout ?
+                        `${_.size(outBoxMessagesOrdered)}` : undefined} />
       </GmailTabs>
       <div style={{paddingBottom: '0.25rem', backgroundColor: 'white'}}>
         <div style={{display: 'flex', width: '80%'}}>
@@ -151,7 +151,7 @@ function Inbox(props) {
             <Checkbox style={{padding: 0, marginLeft: '0.6rem'}}
                       checked={checkAll}
                       indeterminate={indeterminate}
-                      disabled={[ASSIGNED_INDEX, PENDING_INDEX].includes(tabIndex)}
+                      disabled={PENDING_INDEX === tabIndex}
                       onChange={() => determinateDispatch({type: 'toggle'})}
             />
           )}
@@ -216,13 +216,11 @@ function Inbox(props) {
           const determinateChecked = determinate[useMessage.type_object_id];
           const checked = determinateChecked !== undefined ? determinateChecked : checkAll;
           return <InboxRow message={useMessage} inboxDispatch={inboxDispatch} numMultiples={numMultiples}
-                           showSelector={tabIndex !== ASSIGNED_INDEX}
-                           determinateDispatch={determinateDispatch} showPriority={tabIndex !== ASSIGNED_INDEX}
+                           determinateDispatch={determinateDispatch}
                            expansionOpen={!!expansionState[useMessage.type_object_id]}
                            isDeletable={isDeletable} isMultiple={isMultiple} checked={checked} />;
       })}
-      <Outbox inboxState={inboxState} showPriority={tabIndex !== ASSIGNED_INDEX} inboxDispatch={inboxDispatch}
-              page={page} messagesOrdered={data} />
+      <Outbox inboxState={inboxState} inboxDispatch={inboxDispatch} page={page} messagesOrdered={data} />
     </div>
     </>
   );

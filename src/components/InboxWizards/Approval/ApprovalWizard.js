@@ -14,7 +14,7 @@ function ApprovalWizard(props) {
   const history = useHistory();
 
   function myOnFinish(formData) {
-    wizardFinish(formData, setOperationRunning, message, marketId, investibleId, history);
+    wizardFinish(formData, setOperationRunning, message, history, marketId, investibleId);
   }
 
   return (

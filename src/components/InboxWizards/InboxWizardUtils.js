@@ -6,7 +6,7 @@ import {
 import { pushMessage } from '../../utils/MessageBusUtils'
 import { formInvestibleLink, navigate } from '../../utils/marketIdPathFunctions'
 
-export function wizardFinish(formData, setOperationRunning, message, marketId, investibleId, history) {
+export function wizardFinish(formData, setOperationRunning, message, history, marketId, investibleId) {
   setOperationRunning(false);
   let event = DEHIGHLIGHT_EVENT;
   if (message.type_object_id.startsWith('UNREAD')) {

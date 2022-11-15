@@ -124,6 +124,7 @@ function CommentBox(props) {
               resolvedStageId={(isRequiresInput && [QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(commmentType))
               || (isInBlocking && commmentType === ISSUE_TYPE) ? resolvedStageId : undefined}
               stagePreventsActions={useFullStage.close_comments_on_entrance || removeActions}
+              removeActions={removeActions}
               depth={0}
               marketId={marketId}
               comment={comment}

@@ -34,6 +34,7 @@ import { Typography } from '@material-ui/core'
 import { PENDING_INDEX, TEAM_INDEX } from './InboxContext'
 import ApprovalWizard from '../../../components/InboxWizards/Approval/ApprovalWizard'
 import StatusWizard from '../../../components/InboxWizards/Status/StatusWizard'
+import AnswerWizard from '../../../components/InboxWizards/Answer/AnswerWizard'
 
 export function usesExpansion(item, isMultiple) {
   if (isMultiple) {
@@ -64,6 +65,15 @@ export function addExpansionPanel(props) {
     item.expansionPanel = ( <LinkMultiplePanel linkMultiple={linkMultiple} marketId={commentMarketId || marketId}
                                                commentId={commentId} planningClasses={planningClasses} message={message}
                                                mobileLayout={mobileLayout} isDeletable={isDeletable}/> );
+  } else if (messageType === 'NOT_FULLY_VOTED') {
+    if (marketType === PLANNING_TYPE) {
+      item.expansionPanel = <ApprovalWizard investibleId={investibleId} marketId={marketId} message={message}/>;
+    } else if (marketType === DECISION_TYPE) {
+      item.expansionPanel = <AnswerWizard marketId={commentMarketId || marketId} commentId={commentId}
+                                          message={message}/>
+    }
+  } else if (messageType === 'REPORT_REQUIRED') {
+    item.expansionPanel = <StatusWizard investibleId={investibleId} marketId={marketId} message={message} />;
   } else if (linkType !== 'INVESTIBLE' && ((
     ['UNREAD_REPLY', 'UNREAD_COMMENT', 'UNREAD_RESOLVED', 'ISSUE', 'FULLY_VOTED'].includes(messageType)) ||
     (['UNREAD_OPTION', 'UNREAD_VOTE', 'NOT_FULLY_VOTED', 'INVESTIBLE_SUBMITTED'].includes(messageType)
@@ -72,11 +82,7 @@ export function addExpansionPanel(props) {
     item.expansionPanel = ( <CommentPanel marketId={commentMarketId || marketId} commentId={commentId} message={message}
                                           marketType={marketType} messageType={messageType} isDeletable={isDeletable}
                                           planningClasses={planningClasses} mobileLayout={mobileLayout} /> );
-  } else if (messageType === 'NOT_FULLY_VOTED' && marketType === PLANNING_TYPE) {
-    item.expansionPanel = <ApprovalWizard investibleId={investibleId} marketId={marketId} message={message} />;
-  } else if (messageType === 'REPORT_REQUIRED') {
-    item.expansionPanel = <StatusWizard investibleId={investibleId} marketId={marketId} message={message} />;
-  }else {
+  } else {
     item.expansionPanel = <InboxInvestible marketId={marketId} investibleId={investibleId} messageType={messageType}
                                            planningClasses={planningClasses} marketType={marketType}
                                            mobileLayout={mobileLayout} isDeletable={isDeletable} message={message}

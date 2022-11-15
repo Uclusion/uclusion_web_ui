@@ -351,7 +351,7 @@ function navigateEditReplyBack(history, id, marketId, groupId, investibleId, rep
 function Comment(props) {
   const { comment, marketId, comments, allowedTypes, noAuthor, onDone, defaultShowDiff, showDone, resolvedStageId,
     stagePreventsActions, isInbox, replyEditId, issueWarningId, todoWarningId, currentStageId, numReports,
-    marketInfo, investible, isOutbox} = props;
+    marketInfo, investible, isOutbox, removeActions } = props;
   const history = useHistory();
   const myParams = new URL(document.location).searchParams;
   const theme = useTheme();
@@ -644,7 +644,7 @@ function Comment(props) {
       return React.Fragment;
     }
     const { parent_comment_id: parentCommentId, market_stage: marketStage, market_type: marketType } = anInlineMarket;
-    if (!parentCommentId) {
+    if (!parentCommentId || removeActions) {
       return React.Fragment;
     }
     if (marketType === INITIATIVE_TYPE) {
@@ -1003,7 +1003,8 @@ function Comment(props) {
                     {intl.formatMessage({ id: 'commentAddSendLabel' })}
                   </SpinningIconLabelButton>
                 )}
-                {isSent !== false && !mobileLayout && !noAuthor && (replies.length > 0 || inlineMarketId) && (
+                {isSent !== false && !mobileLayout && !noAuthor && (replies.length > 0 || inlineMarketId) &&
+                  !removeActions && (
                   <SpinningIconLabelButton
                     icon={repliesExpanded ? ExpandLess : ExpandMore}
                     doSpin={false}
@@ -1131,7 +1132,7 @@ function Comment(props) {
                 )}
               </div>
               <div className={mobileLayout ? classes.actions : classes.actionsEnd}>
-                {commentType === QUESTION_TYPE && !inArchives && inlineMarketId && !resolved && (
+                {commentType === QUESTION_TYPE && !inArchives && inlineMarketId && !resolved && !removeActions && (
                   <div style={{display: 'flex', marginRight: '1rem', paddingTop: '0.5rem'}}>
                     <Typography style={{fontSize: 12}}>
                       {intl.formatMessage({ id: mobileLayout ? 'allowMultiVoteQuestionMobile'
@@ -1157,7 +1158,7 @@ function Comment(props) {
                     {intl.formatMessage({ id: "storyFromComment" })}
                   </SpinningIconLabelButton>
                 )}
-                {myMessage && diff && !mobileLayout && (
+                {myMessage && diff && !mobileLayout && !removeActions && (
                   <SpinningIconLabelButton icon={showDiff ? ExpandLess : ExpandMoreIcon} onClick={toggleDiffShow}
                                            doSpin={false}>
                     <FormattedMessage id={showDiff ? 'diffDisplayDismissLabel' : 'diffDisplayShowLabel'} />

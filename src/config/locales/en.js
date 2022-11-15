@@ -506,7 +506,7 @@ const messages = defineMessages({
   commentReplyCancelLabel: 'Cancel',
   commentReopenLabel: 'Reopen',
   commentResolveLabel: 'Resolve',
-  commentAbstainLabel: 'Abstain',
+  commentAbstainLabel: 'Mute',
   commentAbstainingLabel: 'Abstaining',
   commentRemoveLabel: 'Delete',
   commentViewThreadLabel: 'View Thread',
@@ -1120,6 +1120,10 @@ const messages = defineMessages({
   StatusWizardEstimate: 'Estimate date',
   StatusWizardReport: 'Report progress',
   StatusWizardDate: 'Set date',
+
+  //Decide Wizard
+  DecideWizardContinue: 'Continue to full display',
+  DecideWizardMute: 'Mute this thread',
 
   //SignupWizard
   SignupWizardTitle: 'What do you want to create?',

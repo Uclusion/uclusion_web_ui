@@ -438,31 +438,35 @@ function PlanningInvestible(props) {
 
 
   useEffect(() => {
-    if (hash && !hidden) {
-      if (hash.startsWith('#cv')) {
-        updatePageState({ sectionOpen: 'descriptionVotingSection' })
-      } else {
-        const found = investibleComments.find((comment) => hash.includes(comment.id));
-        if (!_.isEmpty(found)) {
-          const rootComment = filterToRoot(investibleComments, found.id);
-          if (!_.isEmpty(rootComment.investible_id)) {
-            switch (rootComment.comment_type) {
-              case TODO_TYPE:
-                updatePageState({ sectionOpen: 'tasksSection' });
-                break;
-              case QUESTION_TYPE:
-                updatePageState({ sectionOpen: 'questionsSection' });
-                break;
-              case SUGGEST_CHANGE_TYPE:
-                updatePageState({ sectionOpen: 'suggestionsSection' });
-                break;
-              case REPORT_TYPE:
-                updatePageState({ sectionOpen: 'reportsSection' });
-                break;
-              case ISSUE_TYPE:
-                updatePageState({ sectionOpen: 'blockersSection' });
-                break;
-              default:
+    if (hash && hash.length > 1 && !hidden) {
+      const element = document.getElementById(hash.substring(1, hash.length));
+      // Check if already on the right tab and only change tab if not
+      if (!element) {
+        if (hash.startsWith('#cv')) {
+          updatePageState({ sectionOpen: 'descriptionVotingSection' })
+        } else {
+          const found = investibleComments.find((comment) => hash.includes(comment.id));
+          if (!_.isEmpty(found)) {
+            const rootComment = filterToRoot(investibleComments, found.id);
+            if (!_.isEmpty(rootComment.investible_id)) {
+              switch (rootComment.comment_type) {
+                case TODO_TYPE:
+                  updatePageState({ sectionOpen: 'tasksSection' });
+                  break;
+                case QUESTION_TYPE:
+                  updatePageState({ sectionOpen: 'questionsSection' });
+                  break;
+                case SUGGEST_CHANGE_TYPE:
+                  updatePageState({ sectionOpen: 'suggestionsSection' });
+                  break;
+                case REPORT_TYPE:
+                  updatePageState({ sectionOpen: 'reportsSection' });
+                  break;
+                case ISSUE_TYPE:
+                  updatePageState({ sectionOpen: 'blockersSection' });
+                  break;
+                default:
+              }
             }
           }
         }

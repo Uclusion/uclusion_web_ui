@@ -16,7 +16,7 @@ import GravatarGroup from '../../components/Avatars/GravatarGroup'
 
 function InlineInitiativeBox(props) {
   const {
-    anInlineMarket, inlineUserId, inArchives, isInbox
+    anInlineMarket, inlineUserId, inArchives, isInbox, showAcceptReject
   } = props;
   const [votingPageStateFull, votingPageDispatch] = usePageStateReducer('voting');
   const [votingPageState, updateVotingPageState, votingPageStateReset] =
@@ -53,6 +53,10 @@ function InlineInitiativeBox(props) {
   const yourPresence = anInlineMarketPresences.find((presence) => presence.current_user);
   const yourVote = yourPresence && yourPresence.investments &&
     yourPresence.investments.find((investment) => investment.investible_id === inlineInvestibleId);
+
+  if (showAcceptReject) {
+    return React.Fragment;
+  }
 
   return (
     <div style={{paddingLeft: '1rem', paddingRight: '1rem', paddingBottom: '0.5rem'}}>

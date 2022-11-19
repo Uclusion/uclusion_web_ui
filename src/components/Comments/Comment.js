@@ -383,6 +383,9 @@ function Comment(props) {
     parent_comment_market_id: parentMarketId } = market;
   const activeMarket = marketStage === ACTIVE_STAGE;
   const myPresence = presences.find((presence) => presence.current_user) || {};
+  const { assigned: invAssigned } = marketInfo || {};
+  const assigned = invAssigned || [];
+  const myPresenceIsAssigned = assigned.includes(myPresence.id);
   const myInlinePresence = inlinePresences.find((presence) => presence.current_user) || {};
   const inArchives = !activeMarket;
   const replies = comments.filter(comment => comment.reply_id === id);
@@ -649,7 +652,7 @@ function Comment(props) {
     }
     if (marketType === INITIATIVE_TYPE) {
       return <InlineInitiativeBox anInlineMarket={anInlineMarket} inlineUserId={inlineUserId}
-                                  isInbox={isInbox || isOutbox}
+                                  isInbox={isInbox || isOutbox} showAcceptReject={showAcceptReject}
                                   inArchives={marketStage !== ACTIVE_STAGE || inArchives || resolved} />;
     }
     return getDialog(anInlineMarket);
@@ -840,7 +843,8 @@ function Comment(props) {
     )
   }
 
-  const showAcceptReject = commentType === SUGGEST_CHANGE_TYPE && investibleId && !resolved;
+  const showAcceptReject = commentType === SUGGEST_CHANGE_TYPE && investibleId && !resolved &&
+    (myPresenceIsAssigned || myPresence === createdBy);
   const showMoveButton = isSent !== false && [TODO_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(commentType)
     && !inArchives
     && enableActions && (!resolved || commentType !== TODO_TYPE) && marketType === PLANNING_TYPE;

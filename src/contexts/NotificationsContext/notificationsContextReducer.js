@@ -344,7 +344,7 @@ function reducer (state, action) {
       }
     } else {
       const { messages: existingMessages } = state;
-      messages.forEach((id) => {
+      (messages || []).forEach((id) => {
         const message = existingMessages.find((message) => message.type_object_id === id);
         if (message && message.market_id) {
           if (!allMessages[message.market_id]) {

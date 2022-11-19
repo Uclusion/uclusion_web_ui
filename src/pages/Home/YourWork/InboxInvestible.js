@@ -28,7 +28,6 @@ import {
 import { getAcceptedStage, getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import clsx from 'clsx'
 import { PLANNING_TYPE } from '../../../constants/markets'
-import { DaysEstimate } from '../../../components/AgilePlan'
 import InputLabel from '@material-ui/core/InputLabel'
 import MoveToNextVisibleStageActionButton from '../../Investible/Planning/MoveToNextVisibleStageActionButton'
 import Voting from '../../Investible/Decision/Voting'
@@ -94,7 +93,7 @@ function InboxInvestible(props) {
   const { investible: myInvestible } = inv || {};
   const { name, description, label_list: labelList, attached_files: attachedFiles } = myInvestible || {};
   const marketInfo = getMarketInfo(inv, investibleMarketId) || {};
-  const { stage, assigned: invAssigned, completion_estimate: marketDaysEstimate, required_approvers:  requiredApprovers,
+  const { stage, assigned: invAssigned, required_approvers:  requiredApprovers,
     required_reviews: requiredReviewers, accepted, open_for_investment: openForInvestment,
     group_id: groupId } = marketInfo;
   const group = getGroup(groupsState, investibleMarketId, groupId) || {};
@@ -178,11 +177,6 @@ function InboxInvestible(props) {
                 toolTipId={isInVoting ? 'storyApproversLabel' : 'storyReviewersLabel'}
               />
             </div>
-          </div>
-        )}
-        {useMessageTypes.includes('ASSIGNED_UNREVIEWABLE') && !_.isEmpty(marketDaysEstimate) && (
-          <div style={{marginTop: mobileLayout ? '1rem' : '1.5rem'}}>
-            <DaysEstimate readOnly value={marketDaysEstimate} isInbox />
           </div>
         )}
         {(!_.isEmpty(_.intersection(['ASSIGNED_UNREVIEWABLE', 'ISSUE_RESOLVED', 'UNREAD_VOTE'],

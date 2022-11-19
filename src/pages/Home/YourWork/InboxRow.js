@@ -19,11 +19,9 @@ import Quiz from '../../../components/CustomChip/Quiz'
 import { useIntl } from 'react-intl'
 import { useMediaQuery, useTheme } from '@material-ui/core'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
-import _ from 'lodash'
-import { DaysEstimate } from '../../../components/AgilePlan'
+import _ from 'lodash';
 import {
   getFullStage,
-  isAcceptedStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 
@@ -61,7 +59,7 @@ function InboxRow(props) {
     comment_market_id: commentMarketId, link_multiple: linkMultiple } = message;
   const inv = getInvestible(investiblesState, investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};
-  const { assigned, completion_estimate: completionEstimate, stage } = marketInfo;
+  const { assigned, stage } = marketInfo;
   const userId = getMyUserForMarket(marketsState, marketId);
   const isAssigned = (assigned || []).includes(userId);
   const market = getMarket(marketsState, marketId) || {};
@@ -83,7 +81,6 @@ function InboxRow(props) {
   item.icon = getPriorityIcon(redMessage || yellowMessage || message, isAssigned);
 
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
-  const isInAcceptedStage = isAcceptedStage(fullStage);
   let rootComment;
   if (commentId) {
     const { parent_comment_id: inlineParentCommentId, parent_comment_market_id: parentMarketId } = market
@@ -107,11 +104,6 @@ function InboxRow(props) {
     }
   }
 
-  if (isInAcceptedStage) {
-    if (completionEstimate) {
-      item.moreDescription = <DaysEstimate readOnly value={completionEstimate} justText/>;
-    }
-  }
   item.title =  titleText(message, mobileLayout, intl, isMultiple, numMultiples, rootComment, userId,
     fullStage.allows_investment, assigned);
   if (expansionOpen && usesExpansion(item, isMultiple)) {

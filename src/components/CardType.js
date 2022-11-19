@@ -37,6 +37,7 @@ import RemoveFromQueueIcon from '@material-ui/icons/RemoveFromQueue';
 import UsefulRelativeTime from './TextFields/UseRelativeTime'
 import { Grid, Typography, useMediaQuery, useTheme } from '@material-ui/core'
 import { BugReport } from '@material-ui/icons'
+import { DaysEstimate } from './AgilePlan';
 
 export { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE, DECISION_TYPE }
 export const VOTING_TYPE = 'VOTING'
@@ -161,6 +162,7 @@ const labelIntlIds = {
 export default function CardType(props) {
   const {
     className,
+    marketId,
     gravatar,
     type,
     resolved,
@@ -169,6 +171,9 @@ export default function CardType(props) {
     createdAt,
     myBeingEdited,
     stageChangedAt,
+    marketDaysEstimate,
+    onEstimateChange,
+    isInAccepted,
     color,
     compact = false
   } = props;
@@ -227,6 +232,9 @@ export default function CardType(props) {
             {intl.formatMessage({ id: 'edited' })}
           </Typography>
         </Grid>
+      )}
+      {marketDaysEstimate && isInAccepted && (
+        <DaysEstimate marketId={marketId} onChange={onEstimateChange} value={marketDaysEstimate} />
       )}
       {createdAt && (
         <Grid item xs={2}>

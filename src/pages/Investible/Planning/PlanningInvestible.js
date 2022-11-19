@@ -55,8 +55,7 @@ import {
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import MoveToFurtherWorkActionButton from './MoveToFurtherWorkActionButton'
-import { DaysEstimate } from '../../../components/AgilePlan'
-import { ACTION_BUTTON_COLOR, HIGHLIGHTED_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
+import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
 import AttachedFilesList from '../../../components/Files/AttachedFilesList'
 import {
   attachFilesToInvestible,
@@ -64,8 +63,6 @@ import {
   updateInvestible
 } from '../../../api/investibles'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
-import EventIcon from '@material-ui/icons/Event';
-import DatePicker from 'react-datepicker'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { doSetEditWhenValid, invalidEditEvent } from '../../../utils/windowUtils'
 import Gravatar from '../../../components/Avatars/Gravatar';
@@ -106,7 +103,6 @@ import {
 import UclusionTour from '../../../components/Tours/UclusionTour'
 import { blockedStorySteps } from '../../../components/Tours/blockedStory'
 import { requiresInputStorySteps } from '../../../components/Tours/requiresInputStory'
-import { getTomorrow } from '../../../utils/timerUtils'
 import SpinningButton from '../../../components/SpinBlocking/SpinningButton'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { ACTIVE_STAGE } from '../../../constants/markets'
@@ -384,7 +380,6 @@ function PlanningInvestible(props) {
   const [, diffDispatch] = useContext(DiffContext);
   const [searchResults] = useContext(SearchResultsContext);
   const { results, parentResults, search } = searchResults;
-  const [showDatepicker, setShowDatepicker] = useState(false);
   const { id: marketId, market_stage: marketStage } = market;
   const inArchives = marketStage !== ACTIVE_STAGE;
   const investibleCommentsSearched = investibleComments.filter((comment) => {
@@ -719,24 +714,9 @@ function PlanningInvestible(props) {
 
   const todoWarning = isInVoting || isFurtherWork || isInBlocked || isRequiresInput ? null : 'todoWarningPlanning';
 
-  function toggleEdit() {
-    setShowDatepicker(!showDatepicker);
-  }
-
-  function getStartDate() {
-    if (marketDaysEstimate && createdAt) {
-      const nowDate = new Date();
-      const daysEstimate = new Date(marketDaysEstimate);
-      if (daysEstimate > nowDate) {
-        return daysEstimate
-      }
-    }
-    return undefined;
-  }
   function handleDateChange(date) {
     const daysEstimate = marketDaysEstimate ? new Date(marketDaysEstimate) : undefined;
     if (!_.isEqual(date, daysEstimate)) {
-      toggleEdit();
       const updateInfo = {
         marketId,
         investibleId,
@@ -1140,6 +1120,9 @@ function PlanningInvestible(props) {
               <InvesibleCommentLinker investibleId={investibleId} marketId={marketId} />
               <div style={{width: '80%'}}>
                 <CardType
+                  marketDaysEstimate={marketDaysEstimate}
+                  onEstimateChange={handleDateChange}
+                  isInAccepted={isInAccepted}
                   className={classes.cardType}
                   createdAt={createdAt}
                   myBeingEdited={beingEdited}
@@ -1181,38 +1164,6 @@ function PlanningInvestible(props) {
                     </div>
                   )}
                 </div>
-              </div>
-              <div>
-                {displayEdit && isInAccepted && (
-                  <div>
-                    <EditMarketButton
-                      labelId="changeCompletionDate"
-                      marketId={marketId}
-                      onClick={toggleEdit}
-                      icon={<EventIcon htmlColor={reportMessage ? HIGHLIGHTED_BUTTON_COLOR : ACTION_BUTTON_COLOR} />}
-                    />
-                    {showDatepicker && (
-                      <div className={classes.datePicker}>
-                        <DatePicker
-                          placeholderText={intl.formatMessage({ id: "selectDate" })}
-                          selected={getStartDate()}
-                          onChange={handleDateChange}
-                          popperPlacement="top"
-                          minDate={getTomorrow()}
-                          inline
-                          onClickOutside={toggleEdit}
-                        />
-                      </div>
-                    )}
-                  </div>
-                )}
-                {marketDaysEstimate && isInAccepted && (
-                  <DaysEstimate readOnly value={marketDaysEstimate} />
-                )}
-                {(marketDaysEstimate || displayEdit) && isInAccepted && (
-                  <div style={{marginBottom: '2rem'}} />
-                )}
-
               </div>
             </div>
             <div style={{paddingLeft: mobileLayout ? undefined : '8rem',

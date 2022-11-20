@@ -26,7 +26,6 @@ function InlineInitiativeBox(props) {
   const [commentsState] = useContext(CommentsContext);
   const anInlineMarketPresences = getMarketPresences(marketPresencesState, anInlineMarket.id) || [];
   const myInlinePresence = anInlineMarketPresences.find((presence) => presence.current_user);
-  const isAdmin = myInlinePresence && myInlinePresence.is_admin;
   const inlineInvestibles = getMarketInvestibles(investiblesState, anInlineMarket.id) || [];
   const [fullInlineInvestible] = inlineInvestibles;
   const inlineInvestibleId = fullInlineInvestible ? fullInlineInvestible.investible.id : undefined;
@@ -54,13 +53,9 @@ function InlineInitiativeBox(props) {
   const yourVote = yourPresence && yourPresence.investments &&
     yourPresence.investments.find((investment) => investment.investible_id === inlineInvestibleId);
 
-  if (showAcceptReject) {
-    return React.Fragment;
-  }
-
   return (
     <div style={{paddingLeft: '1rem', paddingRight: '1rem', paddingBottom: '0.5rem'}}>
-      {!isAdmin && !yourVote && inlineInvestibleId && (
+      {!showAcceptReject && !yourVote && inlineInvestibleId && (
         <YourVoting
           investibleId={inlineInvestibleId}
           marketPresences={anInlineMarketPresences}

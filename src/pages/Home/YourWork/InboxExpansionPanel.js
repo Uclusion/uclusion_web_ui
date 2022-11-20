@@ -63,11 +63,7 @@ export function addExpansionPanel(props) {
   const { message } = item;
   const { type: messageType, market_id: marketId, comment_id: commentId, comment_market_id: commentMarketId,
     link_type: linkType, investible_id: investibleId, market_type: marketType, link_multiple: linkMultiple } = message;
-  if (isMultiple) {
-    item.expansionPanel = ( <LinkMultiplePanel linkMultiple={linkMultiple} marketId={commentMarketId || marketId}
-                                               commentId={commentId} planningClasses={planningClasses} message={message}
-                                               mobileLayout={mobileLayout} isDeletable={isDeletable}/> );
-  } else if (messageType === 'NOT_FULLY_VOTED') {
+  if (messageType === 'NOT_FULLY_VOTED') {
     if (marketType === PLANNING_TYPE) {
       item.expansionPanel = <ApprovalWizard investibleId={investibleId} marketId={marketId} message={message}/>;
     } else if (marketType === DECISION_TYPE) {
@@ -81,6 +77,10 @@ export function addExpansionPanel(props) {
     item.expansionPanel = <StatusWizard investibleId={investibleId} marketId={marketId} message={message} />;
   } else if (linkType === 'INVESTIBLE_SUGGESTION') {
     item.expansionPanel = <AcceptRejectWizard commentId={commentId} marketId={marketId} message={message} />;
+  } else if (isMultiple) {
+    item.expansionPanel = ( <LinkMultiplePanel linkMultiple={linkMultiple} marketId={commentMarketId || marketId}
+                                               commentId={commentId} planningClasses={planningClasses} message={message}
+                                               mobileLayout={mobileLayout} isDeletable={isDeletable}/> );
   } else if (linkType !== 'INVESTIBLE' && ((
     ['UNREAD_REPLY', 'UNREAD_COMMENT', 'UNREAD_RESOLVED', 'ISSUE', 'FULLY_VOTED'].includes(messageType)) ||
     (['UNREAD_OPTION', 'UNREAD_VOTE', 'NOT_FULLY_VOTED', 'INVESTIBLE_SUBMITTED'].includes(messageType)

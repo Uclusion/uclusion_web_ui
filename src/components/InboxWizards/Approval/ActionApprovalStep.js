@@ -13,7 +13,7 @@ import _ from 'lodash'
 import { formCommentLink } from '../../../utils/marketIdPathFunctions'
 
 function ActionApprovalStep(props) {
-  const {marketId, investibleId, formData, onFinish} = props;
+  const {marketId, investibleId, formData, onFinish, message } = props;
   const classes = useContext(WizardStylesContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const inv = getInvestible(investiblesState, investibleId);
@@ -23,7 +23,7 @@ function ActionApprovalStep(props) {
   const { isApprove, commentType } = formData;
 
   if (isApprove) {
-    return <JobApproveStep {...props} groupId={groupId} marketInfo={marketInfo}/>;
+    return <JobApproveStep {...props} groupId={groupId} marketInfo={marketInfo} message={message}/>;
   }
 
   if (_.isEmpty(commentType)) {

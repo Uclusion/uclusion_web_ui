@@ -16,12 +16,17 @@ import _ from 'lodash'
 import { formInvestibleLink } from '../../../utils/marketIdPathFunctions'
 import { getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
+import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork/WorkListItem'
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 
 function JobApproveStep(props) {
-  const { marketId, groupId, clearFormData, updateFormData, formData, onFinish: parentOnFinish, marketInfo } = props;
+  const { marketId, groupId, clearFormData, updateFormData, formData, onFinish: parentOnFinish, marketInfo,
+    message } = props;
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [marketsState] = useContext(MarketsContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const workItemClasses = workListStyles();
   const userId = getMyUserForMarket(marketsState, marketId);
   const { assigned } = marketInfo || {};
   const isAssigned = (assigned || []).includes(userId);
@@ -30,7 +35,7 @@ function JobApproveStep(props) {
   const { investibleId } = formData;
   const editorName = `${investibleId}-jobapproveeditor`;
 
-  function onNext() {
+  function onNext(isGotoJob) {
     const {approveUploadedFiles, approveReason, approveQuantity} = formData;
     const {
       uploadedFiles: filteredUploads,
@@ -56,7 +61,10 @@ function JobApproveStep(props) {
       }
       partialUpdateInvestment(marketPresencesDispatch, investmentResult, true);
       clearFormData();
-      return { link: formInvestibleLink(marketId, investibleId) };
+      if (isGotoJob) {
+        return { link: `${formInvestibleLink(marketId, investibleId)}#cv${userId}` };
+      }
+      return {};
     })
   }
 
@@ -79,9 +87,19 @@ function JobApproveStep(props) {
 
   const {approveQuantity} = formData;
 
-  function onFinish() {
+  function onFinish(formData) {
     resetEditor(editorName);
-    parentOnFinish();
+    parentOnFinish(formData);
+  }
+
+  function onCompleteFinish(formData) {
+    if (_.isEmpty(formData) || _.isEmpty(formData.link)) {
+      setOperationRunning(false);
+      resetEditor(editorName);
+      removeWorkListItem(message, workItemClasses.removed);
+    } else {
+      parentOnFinish(formData);
+    }
   }
 
   return (
@@ -110,14 +128,17 @@ function JobApproveStep(props) {
         <div className={classes.borderBottom}/>
         <WizardStepButtons
           {...props}
-          finish={onFinish}
+          finish={onCompleteFinish}
           onFinish={onFinish}
           validForm={validForm}
           showNext={validForm}
+          showOtherNext={validForm}
           showTerminate={!validForm}
-          onNext={onNext}
+          onNext={() => onNext(false)}
+          onOtherNext={() => onNext(true)}
           terminateLabel="JobWizardGotoJob"
-          nextLabel="JobWizardGotoJob"
+          otherNextLabel="approveAndGotoJob"
+          nextLabel="yourVotingVoteForThisPlanning"
         />
       </div>
     </WizardStepContainer>

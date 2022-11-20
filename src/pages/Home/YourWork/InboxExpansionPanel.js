@@ -35,6 +35,7 @@ import { PENDING_INDEX, TEAM_INDEX } from './InboxContext'
 import ApprovalWizard from '../../../components/InboxWizards/Approval/ApprovalWizard'
 import StatusWizard from '../../../components/InboxWizards/Status/StatusWizard'
 import AnswerWizard from '../../../components/InboxWizards/Answer/AnswerWizard'
+import VoteWizard from '../../../components/InboxWizards/Vote/VoteWizard'
 
 export function usesExpansion(item, isMultiple) {
   if (isMultiple) {
@@ -70,6 +71,9 @@ export function addExpansionPanel(props) {
       item.expansionPanel = <ApprovalWizard investibleId={investibleId} marketId={marketId} message={message}/>;
     } else if (marketType === DECISION_TYPE) {
       item.expansionPanel = <AnswerWizard marketId={commentMarketId || marketId} commentId={commentId}
+                                          message={message}/>
+    } else {
+      item.expansionPanel = <VoteWizard marketId={commentMarketId || marketId} commentId={commentId}
                                           message={message}/>
     }
   } else if (messageType === 'REPORT_REQUIRED') {

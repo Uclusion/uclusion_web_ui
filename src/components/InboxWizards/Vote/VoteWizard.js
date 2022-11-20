@@ -1,0 +1,50 @@
+import React, { useContext } from 'react'
+import PropTypes from 'prop-types'
+import { WizardStylesProvider } from '../WizardStylesContext';
+import FormdataWizard from 'react-formdata-wizard';
+import DecideVoteStep from './DecideVoteStep'
+import VoteCertaintyStep from './VoteCertaintyStep'
+import { wizardFinish } from '../InboxWizardUtils'
+import { formCommentLink } from '../../../utils/marketIdPathFunctions'
+import { useHistory } from 'react-router'
+import { getCommentRoot } from '../../../contexts/CommentsContext/commentsContextHelper'
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
+
+function VoteWizard(props) {
+  const { marketId, commentId, message } = props;
+  const history = useHistory();
+  const [commentState] = useContext(CommentsContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const commentRoot = getCommentRoot(commentState, marketId, commentId) || {};
+
+  function myOnFinish() {
+    wizardFinish({link: formCommentLink(marketId, commentRoot.group_id, commentRoot.investible_id,
+          commentRoot.id)},
+      setOperationRunning, message, history);
+  }
+
+  return (
+    <WizardStylesProvider>
+      <FormdataWizard name={`answer_wizard${commentId}`}>
+        <DecideVoteStep onFinish={myOnFinish} marketId={marketId} commentRoot={commentRoot} message={message}/>
+        <VoteCertaintyStep onFinish={myOnFinish} marketId={marketId} commentRoot={commentRoot} message={message}/>
+      </FormdataWizard>
+    </WizardStylesProvider>
+  );
+}
+
+VoteWizard.propTypes = {
+  onStartOver: PropTypes.func,
+  onFinish: PropTypes.func,
+  showCancel: PropTypes.bool
+};
+
+VoteWizard.defaultProps = {
+  onStartOver: () => {},
+  onFinish: () => {},
+  showCancel: true
+}
+
+export default VoteWizard;
+

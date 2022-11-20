@@ -35,6 +35,7 @@ import IssueDialog from '../../../components/Warnings/IssueDialog'
 import { processTextAndFilesForSave } from '../../../api/files'
 import { removeWorkListItem, workListStyles } from '../../Home/YourWork/WorkListItem'
 import { focusEditor, getQuillStoredState } from '../../../components/TextEditors/Utilities/CoreUtils'
+import WizardStepButtons from '../../../components/InboxWizards/WizardStepButtons'
 
 const useStyles = makeStyles(
   theme => {
@@ -122,7 +123,7 @@ function AddEditVote(props) {
     marketBudgetUnit,
     hasVoted,
     allowMultiVote,
-    multiplier,
+    multiplier, wizardProps,
     votingPageState, updateVotingPageState, votingPageStateReset, voteMessage, isInbox
   } = props;
   const {
@@ -282,7 +283,9 @@ function AddEditVote(props) {
       <Card className={classes.visible} id="approve">
         <CardContent>
           <FormControl className={classes.certainty}>
-            <FormattedMessage id="certaintyQuestion" />
+            {_.isEmpty(wizardProps) && (
+              <FormattedMessage id="certaintyQuestion" />
+            )}
             <RadioGroup
               aria-labelledby="add-vote-certainty"
               className={classes.certaintyGroup}
@@ -336,37 +339,52 @@ function AddEditVote(props) {
           )}
           {Editor}
         </CardContent>
-        <CardActions className={classes.actions}>
-          <SpinningIconLabelButton onClick={onCancel} doSpin={false} icon={Clear}>
-            {intl.formatMessage({ id: (!_.isEmpty(investment) && !investment.deleted) ? 'cancel' : 'clear' })}
-          </SpinningIconLabelButton>
-          {multiplier && !addMode && (
-            <SpinningIconLabelButton
-              icon={Delete}
-              onClick={onRemove}
-              id="removeVoteButton"
-            >
-              {intl.formatMessage({ id: removeVoteId })}
+        {_.isEmpty(wizardProps) && (
+          <CardActions className={classes.actions}>
+            <SpinningIconLabelButton onClick={onCancel} doSpin={false} icon={Clear}>
+              {intl.formatMessage({ id: (!_.isEmpty(investment) && !investment.deleted) ? 'cancel' : 'clear' })}
             </SpinningIconLabelButton>
-          )}
-          {!warnClearVotes && (
-            <SpinningIconLabelButton
-              icon={addMode ? Add : SettingsBackupRestore}
-              onClick={mySave}
-              id="addOrUpdateVoteButton"
-            >
-              {addMode
-                ? intl.formatMessage({ id: voteId })
-                : intl.formatMessage({ id: updateVoteId })}
-            </SpinningIconLabelButton>
-          )}
-          {warnClearVotes && (
-            <SpinningIconLabelButton icon={Add} onClick={toggleOpen} doSpin={false}>
-              {intl.formatMessage({ id: voteId })}
-            </SpinningIconLabelButton>
-          )}
-        </CardActions>
+            {multiplier && !addMode && (
+              <SpinningIconLabelButton
+                icon={Delete}
+                onClick={onRemove}
+                id="removeVoteButton"
+              >
+                {intl.formatMessage({ id: removeVoteId })}
+              </SpinningIconLabelButton>
+            )}
+            {!warnClearVotes && (
+              <SpinningIconLabelButton
+                icon={addMode ? Add : SettingsBackupRestore}
+                onClick={mySave}
+                id="addOrUpdateVoteButton"
+              >
+                {addMode
+                  ? intl.formatMessage({ id: voteId })
+                  : intl.formatMessage({ id: updateVoteId })}
+              </SpinningIconLabelButton>
+            )}
+            {warnClearVotes && (
+              <SpinningIconLabelButton icon={Add} onClick={toggleOpen} doSpin={false}>
+                {intl.formatMessage({ id: voteId })}
+              </SpinningIconLabelButton>
+            )}
+          </CardActions>
+        )}
       </Card>
+      {!_.isEmpty(wizardProps) && (
+        <>
+          <div style={{paddingBottom: '1rem'}}/>
+          <WizardStepButtons
+            {...wizardProps}
+            showNext={true}
+            showTerminate={true}
+            onNext={mySave}
+            terminateLabel="DecideWizardContinue"
+            nextLabel={voteId}
+          />
+        </>
+      )}
       <ClearVotesDialog
         classes={lockedDialogClasses}
         open={open}

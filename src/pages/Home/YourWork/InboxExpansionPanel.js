@@ -36,6 +36,7 @@ import ApprovalWizard from '../../../components/InboxWizards/Approval/ApprovalWi
 import StatusWizard from '../../../components/InboxWizards/Status/StatusWizard'
 import AnswerWizard from '../../../components/InboxWizards/Answer/AnswerWizard'
 import VoteWizard from '../../../components/InboxWizards/Vote/VoteWizard'
+import AcceptRejectWizard from '../../../components/InboxWizards/AcceptReject/AcceptRejectWizard'
 
 export function usesExpansion(item, isMultiple) {
   if (isMultiple) {
@@ -78,6 +79,8 @@ export function addExpansionPanel(props) {
     }
   } else if (messageType === 'REPORT_REQUIRED') {
     item.expansionPanel = <StatusWizard investibleId={investibleId} marketId={marketId} message={message} />;
+  } else if (linkType === 'INVESTIBLE_SUGGESTION') {
+    item.expansionPanel = <AcceptRejectWizard commentId={commentId} marketId={marketId} message={message} />;
   } else if (linkType !== 'INVESTIBLE' && ((
     ['UNREAD_REPLY', 'UNREAD_COMMENT', 'UNREAD_RESOLVED', 'ISSUE', 'FULLY_VOTED'].includes(messageType)) ||
     (['UNREAD_OPTION', 'UNREAD_VOTE', 'NOT_FULLY_VOTED', 'INVESTIBLE_SUBMITTED'].includes(messageType)

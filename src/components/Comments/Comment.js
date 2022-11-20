@@ -37,7 +37,7 @@ import {
 import CardType, { BUG, DECISION_TYPE } from '../CardType'
 import { SECTION_TYPE_SECONDARY_WARNING } from '../../constants/global'
 import {
-  addCommentToMarket, getComment, getMarketComments, getUnresolvedInvestibleComments, removeComments
+  addCommentToMarket, getComment, getMarketComments, removeComments
 } from '../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { ACTIVE_STAGE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
@@ -713,15 +713,6 @@ function Comment(props) {
       .then((comment) => {
         addCommentToMarket(comment, commentsState, commentsDispatch);
         let shouldResolveMessages = true;
-        if (myMessage && myMessage.type === 'NEW_TODO') {
-          // IF there is another to-do created in review the notification will come right back
-          const unresolvedComments = getUnresolvedInvestibleComments(investibleId, marketId, commentsState) || [];
-          const unresolvedTodo = unresolvedComments.find((aComment) => {
-            return aComment.id !== id && aComment.comment_type === commentType
-              && aComment.creation_stage_id === createdStageId;
-          })
-          shouldResolveMessages = _.isEmpty(unresolvedTodo);
-        }
         if (shouldResolveMessages) {
           removeMessagesForCommentId(id, messagesState, workItemClasses.removed);
         }
@@ -817,7 +808,7 @@ function Comment(props) {
   const color = isMarketTodo ? myNotificationType : undefined;
   const shouldInline = inlineMarketId || ((creatorAssigned || !investibleId) && commentType === SUGGEST_CHANGE_TYPE);
   const displayUpdatedBy = updatedBy !== undefined && comment.updated_by !== comment.created_by;
-  const showActions = !replyBeingEdited || replies.length > 0;
+  const showActions = (!replyBeingEdited || replies.length > 0) && !removeActions;
   function getCommentHighlightStyle() {
     if (myHighlightedLevel) {
       if (myHighlightedLevel === "YELLOW" || myHighlightedLevel === "BLUE") {

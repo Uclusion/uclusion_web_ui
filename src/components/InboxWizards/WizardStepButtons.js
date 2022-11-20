@@ -66,7 +66,7 @@ function WizardStepButtons(props) {
 
       <div className={classes.actionContainer}>
         {showOtherNext && (
-          <SpinningButton id="OnboardingWizardSkip" className={classes.actionPrimary} variant="text"
+          <SpinningButton id="OnboardingWizardOtherNext" className={classes.actionPrimary} variant="text"
                           doSpin={false} onClick={myOtherNext}>
             {intl.formatMessage({ id: otherNextLabel })}
           </SpinningButton>

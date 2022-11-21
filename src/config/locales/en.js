@@ -1034,6 +1034,7 @@ const messages = defineMessages({
   moveTodoYellow: 'Move to Yellow',
   moveTodoBlue: 'Move to Blue',
   startTodo: 'Start Bug',
+  DecideStartBug: 'Create job from bug',
 
   // Search
   searchBoxPlaceholder: 'Search',

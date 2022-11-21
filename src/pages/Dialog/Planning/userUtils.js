@@ -162,6 +162,7 @@ export function onDropTodo(commentId, commentsState, marketId, setOperationRunni
     const addInfo = {
       marketId,
       name,
+      groupId: fromComment.group_id
     };
     if (stageId) {
       addInfo.stageId = stageId;

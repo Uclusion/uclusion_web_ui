@@ -50,7 +50,8 @@ export function getMessages(allOutBoxMessagesOrdered, messagesUnsafe, messagesFu
   const outBoxMessagesOrdered = allOutBoxMessagesOrdered.filter((message) => message.comment ||
     message.isOutboxAccepted);
   const outBoxAssigned = allOutBoxMessagesOrdered.filter((message) => !message.isOutboxAccepted && !message.comment);
-  const assignedNotifications = (messagesUnsafe || []).filter((message) => message.alert_type);
+  const assignedNotifications = (messagesUnsafe || []).filter((message) => message.alert_type &&
+    !message.is_highlighted);
   const assignedMessagesRaw = _.union(assignedNotifications, outBoxAssigned) || [];
   const assignedMessages = assignedMessagesRaw.map((message) =>  {
     return {...message, isAssigned: true};

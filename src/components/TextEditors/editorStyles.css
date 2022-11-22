@@ -40,6 +40,10 @@
 }
 .ql-editor {
     min-height: 6rem;
+    white-space: pre-wrap;
+    white-space: -moz-pre-wrap;
+    white-space: -pre-wrap;
+    white-space: -o-pre-wrap;
 }
 .ql-editor div,
 .ql-editor ol,

@@ -29,6 +29,12 @@ export function convertImageSrc(value) {
   return undefined;
 }
 
+/**
+ * Function used for read only quill editors. The replacement of spaces
+ * is not safe in any other context
+ * @param htmlStr the unprocessed string to insert into the innerHTML of the editor
+ * @returns a string safe to use in the innerHTML of the editor
+ */
 export function convertHTMLString(htmlStr) {
   const parser = new DOMParser();
   // convert html string into DOM
@@ -40,7 +46,10 @@ export function convertHTMLString(htmlStr) {
       img.src = converted;
     }
   });
-  return document.documentElement.innerHTML;
+  const text = document.documentElement.innerHTML;
+  // TODO: this _should_ be working with CSS, and we don't need to do this.
+  const whitespacePreserved = text.replace(/ /g, '&nbsp');
+  return whitespacePreserved;
 }
 
 class ImageBlot extends Image {

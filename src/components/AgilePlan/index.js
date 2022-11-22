@@ -2,13 +2,10 @@ import * as React from 'react'
 import { darken, makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
 import { useIntl } from 'react-intl'
-import DatePicker from 'react-datepicker'
+import { DaysEstimate} from './DaysEstimate';
 import 'react-datepicker/dist/react-datepicker.css'
-import { Typography, useMediaQuery, useTheme } from '@material-ui/core'
-import clsx from 'clsx'
-import { isInPast } from '../../utils/timerUtils'
-import UsefulRelativeTime from '../TextFields/UseRelativeTime'
-import _ from 'lodash'
+import { Typography,} from '@material-ui/core'
+
 
 export const usePlanFormStyles = makeStyles(
   theme => ({
@@ -64,14 +61,18 @@ export const usePlanFormStyles = makeStyles(
     noPadding: {
       padding: '0'
     },
+
+    daysEstimationContainer: {
+      display: 'flex',
+      alignItems: 'center',
+      marginLeft: '1rem',
+      marginRight: '1rem',
+    },
+
     daysEstimation: {
       fontWeight:'700',
-      fontSize: '.7rem'
     },
-    daysEstimationLarge: {
-      fontWeight:'700',
-      fontSize: '14px'
-    },
+
     fieldset: {
       border: "none",
       display: "inline-block",
@@ -370,6 +371,8 @@ export function VoteExpiration(props) {
   );
 }
 
+export {DaysEstimate};
+
 export function Votes(props) {
   const { readOnly, value } = props;
   const intl = useIntl();
@@ -394,79 +397,6 @@ export function Votes(props) {
       <Typography>
         {intl.formatMessage({ id: "votesRequiredHelp" })}
       </Typography>
-    </React.Fragment>
-  );
-}
-
-export function DaysEstimate(props) {
-  const { readOnly, value, onChange, showLabel = true, showHelper = true, isInbox, justText } = props;
-  const classes = usePlanFormStyles();
-  const intl = useIntl();
-  const theme = useTheme();
-  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
-  function handleDateChange(date) {
-      onChange(date);
-  }
-  const myClassName = isInbox ? classes.daysEstimationLarge : classes.daysEstimation;
-  if (readOnly) {
-    const dueDate = new Date(value);
-    if (isInPast(dueDate)) {
-      if (justText) {
-        return (
-          <>
-            {intl.formatMessage({ id: 'estimatedCompletionJustText' })} <UsefulRelativeTime value={dueDate}/>
-          </>
-        );
-      }
-      return (
-        <Typography className={myClassName}>
-          {intl.formatMessage({ id: 'estimatedCompletionToday' })} <UsefulRelativeTime value={dueDate}/>
-        </Typography>
-      );
-    }
-    if (_.isEmpty(value)) {
-      return (
-        <Typography className={myClassName}>
-          {intl.formatMessage({ id: 'missingEstimatedCompletion' })}
-        </Typography>
-      );
-    }
-    if (justText) {
-      return (
-        <>
-          {intl.formatMessage({ id: 'estimatedCompletionJustText' })} {intl.formatDate(value)}
-        </>
-      );
-    }
-    return (
-      <Typography className={myClassName}>
-        {intl.formatMessage({ id: 'planningEstimatedCompletion' })} {intl.formatDate(value)}
-      </Typography>
-    );
-  }
-
-  return (
-    <React.Fragment>
-      <span className={clsx("MuiFormControl-root","MuiTextField-root",classes.datePickerContainer, classes.input)}>
-        {showLabel &&
-          <label className={clsx("MuiInputLabel-shrink", "MuiInputLabel-FormControl", "MuiFormLabel-root")}>
-            {intl.formatMessage({ id: "daysEstimateMarketLabel" })}
-          </label>
-        }
-        <DatePicker
-          className={clsx("MuiInputBase-root", classes.input, classes.datePicker)}
-          placeholderText={intl.formatMessage({ id: "selectDate" })}
-          selected={value}
-          onChange={handleDateChange}
-          popperPlacement={mobileLayout ? 'bottom' : 'right'}
-          minDate={new Date()}
-        />
-      </span>
-      {showHelper &&
-        <Typography>
-          {intl.formatMessage({ id: "daysEstimateHelp" })}
-        </Typography>
-      }
     </React.Fragment>
   );
 }

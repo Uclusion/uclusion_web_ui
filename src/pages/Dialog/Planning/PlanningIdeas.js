@@ -15,7 +15,7 @@ import {
 import clsx from 'clsx';
 import { LocalPlanningDragContext, } from './PlanningDialog'
 import { countByType } from './InvestiblesByPerson'
-import { DaysEstimate, usePlanFormStyles } from '../../../components/AgilePlan'
+import { usePlanFormStyles } from '../../../components/AgilePlan'
 import {
   getMarketPresences,
   removeInvestibleInvestments
@@ -620,7 +620,6 @@ function StageInvestible(props) {
     showCompletion,
     comments,
     marketPresences,
-    isVoting,
     numQuestionsSuggestions,
     mobileLayout,
     unaccepted
@@ -642,7 +641,7 @@ function StageInvestible(props) {
   }
 
   const { completion_estimate: daysEstimate, ticket_code: ticketCode } = marketInfo;
-  const { id, name, created_at: createdAt, label_list: labelList } = investible;
+  const { id, name,  label_list: labelList } = investible;
   const history = useHistory();
   const to = formInvestibleLink(marketId, id);
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -664,9 +663,6 @@ function StageInvestible(props) {
         <div>
           <GravatarGroup users={collaboratorsForInvestible} gravatarClassName={classes.smallGravatar} />
         </div>
-        {hasDaysEstimate && !isVoting && (
-          <DaysEstimate readOnly value={daysEstimate} createdAt={createdAt}/>
-        )}
         {unaccepted && (
           <div className={planClasses.daysEstimation}>
             <FormattedMessage id='planningUnacceptedLabel' />

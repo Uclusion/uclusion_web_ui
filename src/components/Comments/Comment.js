@@ -351,7 +351,7 @@ function navigateEditReplyBack(history, id, marketId, groupId, investibleId, rep
 function Comment(props) {
   const { comment, marketId, comments, allowedTypes, noAuthor, onDone, defaultShowDiff, showDone, resolvedStageId,
     stagePreventsActions, isInbox, replyEditId, issueWarningId, todoWarningId, currentStageId, numReports,
-    marketInfo, investible, isOutbox, removeActions } = props;
+    marketInfo, investible, isOutbox, removeActions, showVoting } = props;
   const history = useHistory();
   const myParams = new URL(document.location).searchParams;
   const theme = useTheme();
@@ -647,7 +647,7 @@ function Comment(props) {
       return React.Fragment;
     }
     const { parent_comment_id: parentCommentId, market_stage: marketStage, market_type: marketType } = anInlineMarket;
-    if (!parentCommentId || removeActions) {
+    if (!parentCommentId || (removeActions && !showVoting)) {
       return React.Fragment;
     }
     if (marketType === INITIATIVE_TYPE) {

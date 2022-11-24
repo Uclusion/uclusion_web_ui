@@ -2,31 +2,31 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { WizardStylesProvider } from '../WizardStylesContext';
 import FormdataWizard from 'react-formdata-wizard';
-import DecideAcceptRejectStep from './DecideAcceptRejectStep'
+import DecideResolveStep from './DecideResolveStep'
 
-function AcceptRejectWizard(props) {
+function ResolveWizard(props) {
   const { marketId, commentId, message } = props;
 
   return (
     <WizardStylesProvider>
-      <FormdataWizard name={`accept_wizard${commentId}`}>
-        <DecideAcceptRejectStep marketId={marketId} commentId={commentId} message={message}/>
+      <FormdataWizard name={`resolve_wizard${commentId}`}>
+        <DecideResolveStep marketId={marketId} commentId={commentId} message={message}/>
       </FormdataWizard>
     </WizardStylesProvider>
   );
 }
 
-AcceptRejectWizard.propTypes = {
+ResolveWizard.propTypes = {
   onStartOver: PropTypes.func,
   onFinish: PropTypes.func,
   showCancel: PropTypes.bool
 };
 
-AcceptRejectWizard.defaultProps = {
+ResolveWizard.defaultProps = {
   onStartOver: () => {},
   onFinish: () => {},
   showCancel: true
 }
 
-export default AcceptRejectWizard;
+export default ResolveWizard;
 

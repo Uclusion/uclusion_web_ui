@@ -31,7 +31,7 @@ function DecideStartStep(props) {
   const history = useHistory();
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
-  const commentRoot = getCommentRoot(commentState, marketId, commentId) || {};
+  const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
   const comments = (commentState[marketId] || []).filter((comment) =>
     comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
   const classes = useContext(WizardStylesContext);

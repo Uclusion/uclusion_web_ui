@@ -16,7 +16,7 @@ function VoteWizard(props) {
   const history = useHistory();
   const [commentState] = useContext(CommentsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const commentRoot = getCommentRoot(commentState, marketId, commentId) || {};
+  const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
 
   function myOnFinish() {
     wizardFinish({link: formCommentLink(marketId, commentRoot.group_id, commentRoot.investible_id,
@@ -26,7 +26,7 @@ function VoteWizard(props) {
 
   return (
     <WizardStylesProvider>
-      <FormdataWizard name={`answer_wizard${commentId}`}>
+      <FormdataWizard name={`vote_wizard${commentId}`}>
         <DecideVoteStep onFinish={myOnFinish} marketId={marketId} commentRoot={commentRoot} message={message}/>
         <VoteCertaintyStep onFinish={myOnFinish} marketId={marketId} commentRoot={commentRoot} message={message}/>
       </FormdataWizard>

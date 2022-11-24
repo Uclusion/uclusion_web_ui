@@ -9,7 +9,7 @@ function StartWizard(props) {
 
   return (
     <WizardStylesProvider>
-      <FormdataWizard name={`answer_wizard${commentId}`}>
+      <FormdataWizard name={`start_wizard${commentId}`}>
         <DecideStartStep marketId={marketId} commentId={commentId} message={message}/>
       </FormdataWizard>
     </WizardStylesProvider>

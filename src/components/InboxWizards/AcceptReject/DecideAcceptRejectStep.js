@@ -29,7 +29,7 @@ function DecideAcceptRejectStep(props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const history = useHistory();
-  const commentRoot = getCommentRoot(commentState, marketId, commentId) || {};
+  const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
   const comments = (commentState[marketId] || []).filter((comment) =>
     comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
   const classes = useContext(WizardStylesContext);

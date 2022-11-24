@@ -81,7 +81,7 @@ export function getSortedRoots(allComments, searchResults) {
 function CommentBox(props) {
   const { comments, marketId, allowedTypes, isInbox, isRequiresInput, isInBlocking, assigned, formerStageId,
     fullStage, stage, replyEditId, usePadding, issueWarningId, todoWarningId, marketInfo, investible, isDraft,
-    removeActions } = props;
+    removeActions, showVoting } = props;
   const [marketStagesState] = useContext(MarketStagesContext);
   const [searchResults] = useContext(SearchResultsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -125,6 +125,7 @@ function CommentBox(props) {
               || (isInBlocking && commmentType === ISSUE_TYPE) ? resolvedStageId : undefined}
               stagePreventsActions={useFullStage.close_comments_on_entrance || removeActions}
               removeActions={removeActions}
+              showVoting={showVoting}
               depth={0}
               marketId={marketId}
               comment={comment}

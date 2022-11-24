@@ -33,7 +33,7 @@ function DecideAnswerStep(props) {
   const [marketPresencesState, presenceDispatch] = useContext(MarketPresencesContext);
   const [messagesState] = useContext(NotificationsContext);
   const history = useHistory();
-  const commentRoot = getCommentRoot(commentState, marketId, commentId) || {};
+  const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
   const comments = (commentState[marketId] || []).filter((comment) =>
     comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
   const classes = useContext(WizardStylesContext);

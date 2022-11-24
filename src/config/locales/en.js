@@ -1125,6 +1125,8 @@ const messages = defineMessages({
   //Decide Wizard
   DecideWizardContinue: 'Continue to full display',
   DecideWizardMute: 'Mute this thread',
+  DecideResolveAndGoJob: 'Resolve and go to job',
+  DecideResolveAndMoveToJob: 'Resolve and move to job',
 
   //SignupWizard
   SignupWizardTitle: 'What do you want to create?',

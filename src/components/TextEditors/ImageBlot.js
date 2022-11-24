@@ -46,10 +46,12 @@ export function convertHTMLString(htmlStr) {
       img.src = converted;
     }
   });
-  const text = document.documentElement.innerHTML;
+  // const text = document.documentElement.innerHTML;
   // TODO: this _should_ be working with CSS, and we don't need to do this.
-  const whitespacePreserved = text.replace(/ /g, '&nbsp');
-  return whitespacePreserved;
+  //const whitespacePreserved = text.replace(/ /g, '&nbsp');
+  //return whitespacePreserved;
+  // TODO above replaces inside tags also. Either have to make CSS work or exclude spaces inside tags
+  return document.documentElement.innerHTML;
 }
 
 class ImageBlot extends Image {

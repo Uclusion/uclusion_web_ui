@@ -111,9 +111,9 @@ export const workListStyles = makeStyles(() => {
   };
 });
 
-export function removeWorkListItem(message, removeClass, isDelete=false) {
+export function removeWorkListItem(message, removeClass) {
   const { type_object_id: typeObjectId } = message;
-  const event = isDelete ? DELETE_EVENT : REMOVE_EVENT;
+  const event = typeObjectId.startsWith('UNREAD') ? DELETE_EVENT : REMOVE_EVENT;
   const item = document.getElementById(`workListItem${typeObjectId}`);
   if (item) {
     item.addEventListener("transitionend",() => {

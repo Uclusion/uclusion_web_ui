@@ -13,11 +13,12 @@ import { getMarketPresences } from '../../../contexts/MarketPresencesContext/mar
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { useHistory } from 'react-router'
 import { wizardFinish } from '../InboxWizardUtils'
-import { formCommentLink, formInvestibleLink } from '../../../utils/marketIdPathFunctions'
+import { formInvestibleLink } from '../../../utils/marketIdPathFunctions'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { onDropTodo } from '../../../pages/Dialog/Planning/userUtils'
 import { useIntl } from 'react-intl'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
+import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork/WorkListItem'
 
 
 function DecideStartStep(props) {
@@ -35,12 +36,12 @@ function DecideStartStep(props) {
   const comments = (commentState[marketId] || []).filter((comment) =>
     comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
   const classes = useContext(WizardStylesContext);
+  const workItemClasses = workListStyles();
   const marketStages = getStages(marketStagesState, marketId) || [];
   const acceptedStage = marketStages.find(stage => isAcceptedStage(stage)) || {};
 
   function myTerminate() {
-    wizardFinish({link: formCommentLink(marketId, commentRoot.group_id, commentRoot.investible_id,
-          commentRoot.id)}, setOperationRunning, message, history);
+    removeWorkListItem(message, workItemClasses.removed);
   }
 
   function myAccept() {
@@ -74,7 +75,7 @@ function DecideStartStep(props) {
         {...props}
         nextLabel="DecideStartBug"
         onNext={myAccept}
-        terminateLabel="DecideWizardContinue"
+        terminateLabel={ message.type_object_id.startsWith('UNREAD') ? 'notificationDismiss' : 'markRead' }
         showTerminate={true}
         onFinish={myTerminate}
       />

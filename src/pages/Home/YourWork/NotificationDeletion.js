@@ -13,7 +13,7 @@ function NotificationDeletion(props) {
 
   function remove(event) {
     preventDefaultAndProp(event);
-    removeWorkListItem(message, workItemClasses.removed, true);
+    removeWorkListItem(message, workItemClasses.removed);
   }
 
   if (fromRow) {

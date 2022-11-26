@@ -23,12 +23,12 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 
 
 function DecideResolveStep(props) {
-  const { marketId, commentId, marketComments } = props;
+  const { marketId, commentId, marketComments, setResolvedId } = props;
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [investibleState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [messagesState] = useContext(NotificationsContext);
-  const comment = (marketComments || []).find((comment) => comment.id === commentId);
+  const comment = (marketComments || []).find((comment) => comment.id === commentId) || {id: 'fake'};
   const classes = useContext(WizardStylesContext);
   const inv = comment.investible_id ? getInvestible(investibleState, comment.investible_id) : undefined;
   const marketInfo = getMarketInfo(inv, marketId) || {};
@@ -41,7 +41,12 @@ function DecideResolveStep(props) {
       .then((comment) => {
         addCommentToMarket(comment, commentState, commentDispatch);
         removeMessagesForCommentId(commentId, messagesState);
+        setResolvedId(commentId);
       });
+  }
+
+  if (comment.id === 'fake') {
+    return React.Fragment;
   }
 
   return (

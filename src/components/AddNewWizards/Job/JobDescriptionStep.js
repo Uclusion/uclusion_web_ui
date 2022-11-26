@@ -24,10 +24,8 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 function JobDescriptionStep (props) {
   const { marketId, groupId, updateFormData, onFinish, fromCommentIds, marketComments } = props;
   const editorName = "addJobWizard";
-  console.debug(fromCommentIds);
   if (_.size(fromCommentIds) === 1 && _.isEmpty(getQuillStoredState(editorName))) {
     const fromComment = marketComments.find((comment) => comment.id === fromCommentIds[0]);
-    console.debug(fromComment);
     const { body } = fromComment || {};
     const name = nameFromDescription(body);
     if (!_.isEmpty(name)) {

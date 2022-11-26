@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState } from 'react'
 import PropTypes from 'prop-types'
 import JobDescriptionStep from './JobDescriptionStep'
 import { WizardStylesProvider } from '../WizardStylesContext';
@@ -15,6 +15,7 @@ import ResolveCommentsStep from './ResolveCommentsStep'
 
 function JobWizard(props) {
   const { onFinish, marketId, groupId, assigneeId } = props;
+  const [resolvedId, setResolvedId] = useState(undefined);
   const location = useLocation();
   const { hash } = location;
   const values = queryString.parse(hash || '') || {};
@@ -38,11 +39,16 @@ function JobWizard(props) {
 
   const requiresInputId = getOpenQuestionSuggestionId();
 
+  if (fromCommentIds && _.isEmpty(comments)) {
+    return React.Fragment;
+  }
+
   return (
     <WizardStylesProvider>
       <FormdataWizard name="job_wizard">
-        {requiresInputId && (
-          <ResolveCommentsStep marketId={marketId} commentId={requiresInputId} marketComments={comments} />
+        {(requiresInputId || (resolvedId === fromCommentId)) && (
+          <ResolveCommentsStep marketId={marketId} commentId={requiresInputId} marketComments={comments}
+                               setResolvedId={setResolvedId} />
         )}
         <JobDescriptionStep onFinish={onFinish} marketId={marketId} groupId={groupId} fromCommentIds={fromCommentIds}
                             marketComments={comments}/>

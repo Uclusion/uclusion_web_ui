@@ -8,6 +8,7 @@ import { investibleContextHack } from '../contexts/InvestibesContext/Investibles
 import { getCommentRoot } from '../contexts/CommentsContext/commentsContextHelper'
 import { nameFromDescription } from './stringFunctions'
 import { commentsContextHack } from '../contexts/CommentsContext/CommentsContext'
+import { JOB_WIZARD_TYPE } from '../constants/markets'
 
 export const VISIT_CHANNEL = 'VisitChannel';
 export const VIEW_EVENT = 'pageView';
@@ -192,6 +193,10 @@ export function formMarketEditLink(marketId) {
   return `/marketEdit/${marketId}`;
 }
 
-export function formMarketAddInvestibleLink(marketId, groupId) {
-  return formatGroupLinkWithPrefix('investibleAdd', marketId, groupId);
+export function formMarketAddInvestibleLink(marketId, groupId, assigneeId) {
+  const baseLink = `/wizard#type=${JOB_WIZARD_TYPE}&marketId=${marketId}&groupId=${groupId}`
+  if (assigneeId) {
+    return `${baseLink}&assigneeId=${assigneeId}`;
+  }
+  return baseLink;
 }

@@ -8,7 +8,7 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { PLACEHOLDER } from '../../../constants/global'
 import { getUserInvestibles, getUserSwimlaneInvestiblesHash } from './userUtils'
-import { navigate } from '../../../utils/marketIdPathFunctions'
+import { formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions'
 import Card from '@material-ui/core/Card'
 import CardHeader from '@material-ui/core/CardHeader'
 import { Link, Typography, useTheme } from '@material-ui/core'
@@ -21,7 +21,6 @@ import PlanningIdeas, { usePlanningIdStyles } from './PlanningIdeas'
 import { Info } from '@material-ui/icons'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
-import { JOB_WIZARD_TYPE } from '../../../constants/markets'
 
 export const useInvestiblesByPersonStyles = makeStyles(
   theme => {
@@ -139,13 +138,13 @@ function InvestiblesByPerson(props) {
   });
 
   function onClick(id) {
-    navigate(history, `/wizard#type=${JOB_WIZARD_TYPE}&marketId=${marketId}&groupId=${groupId}&assigneeId=${id}`);
+    navigate(history, formMarketAddInvestibleLink(marketId, groupId, id));
   }
 
   return (
     <>
       <SpinningIconLabelButton
-        onClick={() => navigate(history, `/wizard#type=${JOB_WIZARD_TYPE}&marketId=${marketId}&groupId=${groupId}`)}
+        onClick={() => navigate(history, formMarketAddInvestibleLink(marketId, groupId))}
         doSpin={false} icon={AddIcon} id='addJob'>
         {intl.formatMessage({ id: 'addStoryLabel' })}
       </SpinningIconLabelButton>

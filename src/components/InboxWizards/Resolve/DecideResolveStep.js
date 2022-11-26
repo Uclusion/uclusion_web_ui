@@ -84,7 +84,7 @@ function DecideResolveStep(props) {
           } else {
             wizardFinish(
               {
-                link: `${formMarketAddInvestibleLink(marketId, commentRoot.group_id)}#fromCommentId=${commentId}`
+                link: `${formMarketAddInvestibleLink(marketId, commentRoot.group_id)}&fromCommentId=${commentId}`
               },
               setOperationRunning, message, history);
           }

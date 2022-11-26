@@ -545,8 +545,7 @@ Stage.propTypes = {
 function VotingStage (props) {
   const { marketId, presenceId, groupId } = props;
   const history = useHistory();
-  const link = formMarketAddInvestibleLink(marketId, groupId);
-  const assignedLink = link + `#assignee=${presenceId}`;
+  const assignedLink = formMarketAddInvestibleLink(marketId, groupId, presenceId);
 
   function onClick (event) {
     preventDefaultAndProp(event);

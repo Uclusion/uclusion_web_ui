@@ -1120,7 +1120,7 @@ function Comment(props) {
                 {showMoveButton && mobileLayout && (
                   <SpinningIconLabelButton
                     onClick={() => navigate(history,
-                      `${formMarketAddInvestibleLink(marketId, groupId)}#fromCommentId=${id}`)}
+                      `${formMarketAddInvestibleLink(marketId, groupId)}&fromCommentId=${id}`)}
                     doSpin={false}
                     icon={Eject}
                   />
@@ -1146,7 +1146,7 @@ function Comment(props) {
                 {showMoveButton && !mobileLayout && (
                   <SpinningIconLabelButton
                     onClick={() => navigate(history,
-                      `${formMarketAddInvestibleLink(marketId, groupId)}#fromCommentId=${id}`)}
+                      `${formMarketAddInvestibleLink(marketId, groupId)}&fromCommentId=${id}`)}
                     doSpin={false}
                     icon={Eject}
                   >

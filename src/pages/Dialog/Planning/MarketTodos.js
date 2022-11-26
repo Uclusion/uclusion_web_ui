@@ -465,7 +465,7 @@ function MarketTodos(props) {
           if (checkedString) {
             checkedString += `&fromCommentId=${anId}`;
           } else {
-            checkedString = `#fromCommentId=${anId}`;
+            checkedString = `&fromCommentId=${anId}`;
           }
         }
       });

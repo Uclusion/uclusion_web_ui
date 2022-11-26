@@ -39,14 +39,14 @@ function JobWizard(props) {
 
   const requiresInputId = getOpenQuestionSuggestionId();
 
-  if (fromCommentIds && _.isEmpty(comments)) {
+  if (!_.isEmpty(fromCommentIds) && _.isEmpty(comments)) {
     return React.Fragment;
   }
 
   return (
     <WizardStylesProvider>
       <FormdataWizard name="job_wizard">
-        {(requiresInputId || (resolvedId === fromCommentId)) && (
+        {(requiresInputId || (fromCommentId && resolvedId === fromCommentId)) && (
           <ResolveCommentsStep marketId={marketId} commentId={requiresInputId} marketComments={comments}
                                setResolvedId={setResolvedId} />
         )}

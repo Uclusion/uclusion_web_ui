@@ -23,9 +23,10 @@ import { useHistory } from 'react-router'
 import { wizardFinish } from '../InboxWizardUtils'
 import { formCommentLink, formMarketAddInvestibleLink } from '../../../utils/marketIdPathFunctions'
 import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork/WorkListItem'
-import { resolveComment } from '../../../api/comments'
+import { reopenComment, resolveComment } from '../../../api/comments'
 import _ from 'lodash'
 import { SUGGEST_CHANGE_TYPE } from '../../../constants/comments'
+import { onCommentOpen } from '../../../utils/commentFunctions'
 
 
 function DecideResolveStep(props) {
@@ -34,7 +35,7 @@ function DecideResolveStep(props) {
   const [investibleState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const [, investiblesDispatch] = useContext(InvestiblesContext);
+  const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const history = useHistory();
   const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
   const comments = (commentState[marketId] || []).filter((comment) =>
@@ -47,6 +48,7 @@ function DecideResolveStep(props) {
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   const isFullyVoted = message.type === 'FULLY_VOTED';
   const isSuggestion = commentRoot.comment_type === SUGGEST_CHANGE_TYPE;
+  const isReopen = message.messageType === 'UNREAD_RESOLVED';
 
   function myTerminate(isNavigate) {
     if (isNavigate) {
@@ -58,6 +60,16 @@ function DecideResolveStep(props) {
     } else {
       removeWorkListItem(message, workItemClasses.removed);
     }
+  }
+
+  function reopen() {
+    return reopenComment(marketId, commentId)
+      .then((comment) => {
+        onCommentOpen(investiblesState, commentRoot.investible_id, marketStagesState, marketId, comment,
+          investiblesDispatch, commentState, commentDispatch);
+        setOperationRunning(false);
+        removeWorkListItem(message, workItemClasses.removed);
+      });
   }
 
   function resolve(isGotoJob) {
@@ -101,7 +113,8 @@ function DecideResolveStep(props) {
     >
     <div>
       <Typography className={classes.introText}>
-        Can you resolve this {isSuggestion ? 'suggestion' : 'question'}?
+        {isReopen ? 'Do you reopen your comment that someone resolved?'
+          : `Can you resolve this ${isSuggestion ? 'suggestion' : 'question'}?`}
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1">
         {isFullyVoted ? 'All votes collected.' : 'New vote.'}
@@ -121,9 +134,14 @@ function DecideResolveStep(props) {
       </div>
       <WizardStepButtons
         {...props}
-        nextLabel="commentResolveLabel"
-        onNext={() => resolve(false)}
-        showOtherNext
+        nextLabel={isReopen ? 'commentReopenLabel' : 'commentResolveLabel'}
+        onNext={() => {
+          if (isReopen) {
+            return reopen();
+          }
+          return resolve(false);
+        }}
+        showOtherNext={!isReopen}
         otherNextLabel={isFullyVoted ? (inv ? 'DecideResolveAndGoJob' : 'DecideResolveAndMoveToJob')
           : 'DecideWizardContinue'}
         onOtherNext={() => {

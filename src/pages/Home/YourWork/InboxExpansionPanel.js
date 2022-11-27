@@ -79,7 +79,7 @@ export function addExpansionPanel(props) {
     item.expansionPanel = <StatusWizard investibleId={investibleId} marketId={marketId} message={message} />;
   } else if (linkType === 'INVESTIBLE_SUGGESTION') {
     item.expansionPanel = <AcceptRejectWizard commentId={commentId} marketId={marketId} message={message} />;
-  } else if (linkType !== 'INVESTIBLE' && ['FULLY_VOTED', 'UNREAD_VOTE'].includes(messageType)) {
+  } else if (linkType !== 'INVESTIBLE' && ['FULLY_VOTED', 'UNREAD_VOTE', 'UNREAD_RESOLVED'].includes(messageType)) {
     item.expansionPanel = <ResolveWizard commentId={commentId} marketId={commentMarketId || marketId}
                                          message={message} />;
   } else if (messageType === 'UNASSIGNED' && linkType === 'MARKET_TODO') {

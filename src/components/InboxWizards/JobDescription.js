@@ -10,6 +10,8 @@ import { getMarketInfo } from '../../utils/userFunctions'
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { useIntl } from 'react-intl'
+import _ from 'lodash'
+import { editorEmpty } from '../TextEditors/Utilities/CoreUtils'
 
 function JobDescription(props) {
   const { investibleId, marketId } = props;
@@ -25,20 +27,25 @@ function JobDescription(props) {
   const assignedPresences = marketPresences.filter((presence) => (assigned || []).includes(presence.id))
   const { investible: myInvestible } = inv || {};
   const { name, description } = myInvestible || {};
+  const editorIsEmpty = editorEmpty(description);
 
   return (
     <>
-      <div style={{maxHeight: '300px', minHeight: '200px', overflowY: 'auto', overflowX: 'hidden', paddingLeft: '4px',
-        paddingRight: '4px', paddingTop: '1rem'}}>
-        <div style={{alignItems: 'center', display: 'flex', paddingBottom: '1rem'}}>
-          <Typography variant='body2' style={{ paddingRight: '0.5rem'}}>
-            {intl.formatMessage({ id: 'planningInvestibleAssignments' })}</Typography>
-          <GravatarGroup users={assignedPresences} gravatarClassName={classes.smallGravatar} />
-        </div>
+      <div style={{maxHeight: '300px', minHeight: editorIsEmpty ? undefined : '200px', overflowY: 'auto',
+        overflowX: 'hidden', paddingLeft: '4px', paddingRight: '4px', paddingTop: '1rem'}}>
+        {!_.isEmpty(assignedPresences) && (
+          <div style={{alignItems: 'center', display: 'flex', paddingBottom: '1rem'}}>
+            <Typography variant='body2' style={{ paddingRight: '0.5rem'}}>
+              {intl.formatMessage({ id: 'planningInvestibleAssignments' })}</Typography>
+            <GravatarGroup users={assignedPresences} gravatarClassName={classes.smallGravatar} />
+          </div>
+        )}
         <Typography className={investibleEditClasses.title} variant="h3" component="h1">
           {name}
         </Typography>
-        <DescriptionOrDiff id={investibleId} description={description} showDiff={false} />
+        {!editorIsEmpty && (
+          <DescriptionOrDiff id={investibleId} description={description} showDiff={false} />
+        )}
       </div>
       <div className={classes.borderBottom} />
     </>

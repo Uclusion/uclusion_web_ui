@@ -372,6 +372,7 @@ const messages = defineMessages({
   investibleAddSaveLabel: 'Save',
   skipApprovalExplanation: 'Skip getting approvals',
   newStory: 'New Job',
+  DecideAssignMe: 'Assign to me',
 
   // Investible
   investibleEditLabel: 'Edit',

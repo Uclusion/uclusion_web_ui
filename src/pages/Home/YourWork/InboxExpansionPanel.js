@@ -39,6 +39,7 @@ import VoteWizard from '../../../components/InboxWizards/Vote/VoteWizard'
 import AcceptRejectWizard from '../../../components/InboxWizards/AcceptReject/AcceptRejectWizard'
 import StartWizard from '../../../components/InboxWizards/Start/StartWizard'
 import ResolveWizard from '../../../components/InboxWizards/Resolve/ResolveWizard'
+import AssignWizard from '../../../components/InboxWizards/Assign/AssignWizard'
 
 export function usesExpansion(item, isMultiple) {
   if (isMultiple) {
@@ -82,17 +83,18 @@ export function addExpansionPanel(props) {
   } else if (linkType !== 'INVESTIBLE' && ['FULLY_VOTED', 'UNREAD_VOTE', 'UNREAD_RESOLVED'].includes(messageType)) {
     item.expansionPanel = <ResolveWizard commentId={commentId} marketId={commentMarketId || marketId}
                                          message={message} />;
-  } else if (messageType === 'UNASSIGNED' && linkType === 'MARKET_TODO') {
-    item.expansionPanel = <StartWizard commentId={commentId} marketId={marketId} message={message} />;
+  } else if (['UNREAD_REVIEWABLE', 'UNASSIGNED'].includes(messageType)) {
+    if (linkType === 'MARKET_TODO') {
+      item.expansionPanel = <StartWizard commentId={commentId} marketId={marketId} message={message}/>;
+    } else {
+      item.expansionPanel = <AssignWizard investibleId={investibleId} marketId={marketId} message={message}/>;
+    }
   } else if (isMultiple) {
     item.expansionPanel = ( <LinkMultiplePanel linkMultiple={linkMultiple} marketId={commentMarketId || marketId}
                                                commentId={commentId} planningClasses={planningClasses} message={message}
                                                mobileLayout={mobileLayout} isDeletable={isDeletable}/> );
-  } else if (linkType !== 'INVESTIBLE' && ((
-    ['UNREAD_REPLY', 'UNREAD_COMMENT', 'UNREAD_RESOLVED', 'ISSUE', 'FULLY_VOTED'].includes(messageType)) ||
-    (['UNREAD_OPTION', 'UNREAD_VOTE', 'NOT_FULLY_VOTED', 'INVESTIBLE_SUBMITTED'].includes(messageType)
-      && linkType.startsWith('INLINE')) || (['UNREAD_REVIEWABLE', 'UNASSIGNED'].includes(messageType)
-      && linkType === 'MARKET_TODO'))) {
+  } else if (linkType !== 'INVESTIBLE' && ((['UNREAD_REPLY', 'UNREAD_COMMENT', 'ISSUE'].includes(messageType)) ||
+    (['UNREAD_OPTION', 'INVESTIBLE_SUBMITTED'].includes(messageType) && linkType.startsWith('INLINE')))) {
     item.expansionPanel = ( <CommentPanel marketId={commentMarketId || marketId} commentId={commentId} message={message}
                                           marketType={marketType} messageType={messageType} isDeletable={isDeletable}
                                           planningClasses={planningClasses} mobileLayout={mobileLayout} /> );

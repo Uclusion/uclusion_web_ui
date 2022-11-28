@@ -5,8 +5,11 @@ import ReactDOMServer from 'react-dom/server'
 import MentionListItem from '../CustomUI/MentionListItem'
 import React from 'react'
 import Quill from 'quill'
-import { convertHTMLString } from '../ImageBlot'
+import Delta from 'quill-delta';
+
+import { convertHTMLString, htmlToDelta } from '../ImageBlot';
 import { pushMessage } from '../../../utils/MessageBusUtils'
+
 
 // static helper funcs
 
@@ -213,26 +216,19 @@ export function createEditor (id, editorContents, config, forceCreate) {
 
   // we only set the contents if different from the placeholder
   // otherwise the placeholder functionality of the editor won't work
-
-  if (boxRef.current) {
-    if (editorContents !== undefined) {
-      boxRef.current.innerHTML = convertHTMLString(editorContents);
-    } else if (!(placeholder === defaultContents) && defaultContents) {
-      boxRef.current.innerHTML = convertHTMLString(defaultContents);
-    } else {
-      boxRef.current.innerHTML = '';
-    }
-  } else {
-    console.warn('No current editor');
-    // no current == no place to create editor;
-    return;
-  }
-
-  //Hiding old toolbar because otherwise it and new both display
   removeToolbarTabs(containerRef.current)
 
   const editorOptions = generateEditorOptions(id, config);
   const editor = new Quill(boxRef.current, editorOptions);
+  editor.clipboard.addMatcher(Node.TEXT_NODE, (node, data) => {
+    return new Delta().insert(node.data);
+  });
+  if (editorContents !== undefined) {
+    editor.clipboard.dangerouslyPasteHTML(convertHTMLString(editorContents));
+  } else if (!(placeholder === defaultContents) && defaultContents) {
+    editor.clipboard.dangerouslyPasteHTML((defaultContents));
+  }
+
   QuillEditorRegistry.setEditor(id, editor, config);
   if (!noToolbar) {
     if (editor.container) {

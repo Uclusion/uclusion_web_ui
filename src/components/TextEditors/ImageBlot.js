@@ -51,7 +51,7 @@ export function convertHTMLString(htmlStr) {
   //const whitespacePreserved = text.replace(/ /g, '&nbsp');
   //return whitespacePreserved;
   // TODO above replaces inside tags also. Either have to make CSS work or exclude spaces inside tags
-  return document.documentElement.innerHTML;
+  return document.body.innerHTML;
 }
 
 class ImageBlot extends Image {

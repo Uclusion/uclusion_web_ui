@@ -41,7 +41,6 @@ Quill.register('modules/s3Upload', QuillS3ImageUploader);
 Quill.register('modules/imageResize', ImageResize);
 Quill.register('modules/mention', QuillMention);
 Quill.register(CustomCodeBlock, true);
-
 const useStyles = makeStyles(
   theme => {
     return {

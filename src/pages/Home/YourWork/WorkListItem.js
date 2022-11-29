@@ -174,7 +174,7 @@ function WorkListItem(props) {
               if (message.type_object_id.startsWith('UNREAD')) {
                 event = DELETE_EVENT;
               }
-              pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event, messages: [message.id] });
+              pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event, messages: [id] });
             }
             if (isUsingExpansion) {
               inboxDispatch(expandOrContract(id));

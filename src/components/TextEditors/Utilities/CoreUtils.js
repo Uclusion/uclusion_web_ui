@@ -220,6 +220,8 @@ export function createEditor (id, editorContents, config, forceCreate) {
 
   const editorOptions = generateEditorOptions(id, config);
   const editor = new Quill(boxRef.current, editorOptions);
+  // this matcher prevents the quill editor from collapsing spaces
+  // with it's default text parsing
   editor.clipboard.addMatcher(Node.TEXT_NODE, (node, data) => {
     return new Delta().insert(node.data);
   });

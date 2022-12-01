@@ -7,7 +7,7 @@ import React from 'react'
 import Quill from 'quill'
 import Delta from 'quill-delta';
 
-import { convertHTMLString, htmlToDelta } from '../ImageBlot';
+import { convertHTMLString } from '../ImageBlot';
 import { pushMessage } from '../../../utils/MessageBusUtils'
 
 

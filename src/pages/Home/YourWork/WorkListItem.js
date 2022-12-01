@@ -160,7 +160,7 @@ function WorkListItem(props) {
     fullText += ' - ' + comment;
   }
   const useLink = isMultiple ? linkMultiple : link;
-  const isUsingExpansion = usesExpansion(props, isMultiple);
+  const isUsingExpansion = usesExpansion(props);
   const showExpansion = isUsingExpansion && isHovered;
   const expansionPanelVisible = isUsingExpansion && expansionOpen;
   return (

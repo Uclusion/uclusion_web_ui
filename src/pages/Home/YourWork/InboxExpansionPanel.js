@@ -41,24 +41,14 @@ import StartWizard from '../../../components/InboxWizards/Start/StartWizard'
 import ResolveWizard from '../../../components/InboxWizards/Resolve/ResolveWizard'
 import AssignWizard from '../../../components/InboxWizards/Assign/AssignWizard'
 
-export function usesExpansion(item, isMultiple) {
-  if (isMultiple) {
-    return true;
-  }
-  const { message, comment } = item;
-  if (comment) {
-    if (message) {
-      return message.type !== 'NEW_TODO';
-    }
-    return true;
-  }
+export function usesExpansion(item) {
+  const { message } = item;
   if (message && message.type) {
-    return ['UNASSIGNED', 'UNREAD_DRAFT', 'UNREAD_VOTE', 'REPORT_REQUIRED', 'UNREAD_NAME', 'UNREAD_DESCRIPTION',
-      'UNREAD_ATTACHMENT', 'UNREAD_LABEL', 'UNREAD_ESTIMATE', 'UNACCEPTED_ASSIGNMENT',
-      'NOT_FULLY_VOTED'].includes(message.type);
+    return ['UNASSIGNED', 'UNREAD_VOTE', 'REPORT_REQUIRED', 'UNACCEPTED_ASSIGNMENT', 'UNREAD_RESOLVED', 'FULLY_VOTED',
+      'NOT_FULLY_VOTED', 'UNREAD_REVIEWABLE', 'ISSUE'].includes(message.type);
   }
-  //Pending always expands
-  return true;
+  //Pending always just clicks through
+  return false;
 }
 
 export function addExpansionPanel(props) {
@@ -78,11 +68,24 @@ export function addExpansionPanel(props) {
     }
   } else if (messageType === 'REPORT_REQUIRED') {
     item.expansionPanel = <StatusWizard investibleId={investibleId} marketId={marketId} message={message} />;
-  } else if (linkType === 'INVESTIBLE_SUGGESTION') {
-    item.expansionPanel = <AcceptRejectWizard commentId={commentId} marketId={marketId} message={message} />;
-  } else if (linkType !== 'INVESTIBLE' && ['FULLY_VOTED', 'UNREAD_VOTE', 'UNREAD_RESOLVED'].includes(messageType)) {
-    item.expansionPanel = <ResolveWizard commentId={commentId} marketId={commentMarketId || marketId}
-                                         message={message} />;
+  } else if (messageType === 'ISSUE') {
+    if (linkType === 'INVESTIBLE_SUGGESTION') {
+      item.expansionPanel = <AcceptRejectWizard commentId={commentId} marketId={marketId} message={message}/>;
+    } else if (linkType === 'INVESTIBLE_QUESTION') {
+      // TODO - this should be Reply
+      item.expansionPanel = <AnswerWizard marketId={commentMarketId || marketId} commentId={commentId}
+                                          message={message}/>
+    } else {
+      // TODO This should be a blocking issue
+      // TODO SHOULD be option to move to backlog - does that change to unread_comment?
+    }
+  } else if (['FULLY_VOTED', 'UNREAD_VOTE', 'UNREAD_RESOLVED'].includes(messageType)) {
+    if (linkType !== 'INVESTIBLE') {
+      item.expansionPanel = <ResolveWizard commentId={commentId} marketId={commentMarketId || marketId}
+                                           message={message}/>;
+    } else {
+      // TODO new vote on investible
+    }
   } else if (['UNREAD_REVIEWABLE', 'UNASSIGNED'].includes(messageType)) {
     if (linkType === 'MARKET_TODO') {
       item.expansionPanel = <StartWizard commentId={commentId} marketId={marketId} message={message}/>;

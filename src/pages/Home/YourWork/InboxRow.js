@@ -106,7 +106,7 @@ function InboxRow(props) {
 
   item.title =  titleText(message, mobileLayout, intl, isMultiple, numMultiples, rootComment, userId,
     fullStage.allows_investment, assigned);
-  if (expansionOpen && usesExpansion(item, isMultiple)) {
+  if (expansionOpen && usesExpansion(item)) {
     addExpansionPanel({ item, planningClasses, mobileLayout, isMultiple, messagesState, isDeletable });
   }
   return <WorkListItem key={`inboxRow${typeObjectId}`} id={typeObjectId} checked={checked}

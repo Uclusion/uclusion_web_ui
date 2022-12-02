@@ -29,15 +29,22 @@ function NameField(props) {
   }
 
   function createDefaultName() {
-    if (useCreateDefault && !getNameStoredState(id)) {
+    if (useCreateDefault && !defaultValue) {
       const element = document.getElementById(scrollId || id)
-      scrollToElement(element)
-      const description = getQuillStoredState(editorName)
-      if (description) {
-        const found = nameFromDescription(description)
-        if (found) {
-          storeState(found)
-          element.value = found
+      if (element) {
+        element.focus({preventScroll: false});
+        // Crazy hack to make the cursor show up - would be nice to have a better way
+        setTimeout(() => {
+          element.value = ' ';
+          element.click();
+        }, 40);
+        const description = getQuillStoredState(editorName)
+        if (description) {
+          const found = nameFromDescription(description)
+          if (found) {
+            storeState(found)
+            element.value = found
+          }
         }
       }
     }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import PropTypes from 'prop-types';
 import { FormControl, InputAdornment, OutlinedInput } from '@material-ui/core'
 import { useIntl } from 'react-intl';
@@ -23,6 +23,16 @@ function NameField(props) {
   const defaultValue = getNameStoredState(id);
   const [charactersLeft, setCharactersLeft] = useState(80 - (defaultValue || '').length);
 
+  const focusWorkAround = useCallback((element) => {
+    if (element) {
+      // See https://blog.logrocket.com/how-to-autofocus-using-react-hooks/
+      element.focus({preventScroll: false});
+      setTimeout(() => {
+        element.click();
+      }, 40);
+    }
+  }, []);
+
   function storeState(state) {
     setUclusionLocalStorageItem(`name-editor-${id}`, state);
   }
@@ -31,12 +41,6 @@ function NameField(props) {
     if (useCreateDefault && !defaultValue) {
       const element = document.getElementById(scrollId || id)
       if (element) {
-        element.focus({preventScroll: false});
-        // Crazy hack to make the cursor show up - would be nice to have a better way
-        setTimeout(() => {
-          element.value = ' ';
-          element.click();
-        }, 40);
         const description = getQuillStoredState(editorName)
         if (description) {
           const found = nameFromDescription(description)
@@ -61,7 +65,7 @@ function NameField(props) {
       <OutlinedInput
         id={id}
         onFocus={createDefaultName}
-        autoFocus={useCreateDefault}
+        ref={focusWorkAround}
         defaultValue={getNameStoredState(id)}
         onChange={handleChange}
         placeholder={intl.formatMessage({

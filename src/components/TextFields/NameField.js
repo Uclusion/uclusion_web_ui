@@ -4,7 +4,6 @@ import { FormControl, InputAdornment, OutlinedInput } from '@material-ui/core'
 import { useIntl } from 'react-intl';
 import { nameFromDescription } from '../../utils/stringFunctions'
 import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../localStorageUtils'
-import { scrollToElement } from '../../contexts/ScrollContext'
 import { getQuillStoredState } from '../TextEditors/Utilities/CoreUtils'
 import InputLabel from '@material-ui/core/InputLabel'
 

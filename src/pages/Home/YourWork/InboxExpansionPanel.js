@@ -40,12 +40,19 @@ import AcceptRejectWizard from '../../../components/InboxWizards/AcceptReject/Ac
 import StartWizard from '../../../components/InboxWizards/Start/StartWizard'
 import ResolveWizard from '../../../components/InboxWizards/Resolve/ResolveWizard'
 import AssignWizard from '../../../components/InboxWizards/Assign/AssignWizard'
+import ReviewWizard from '../../../components/InboxWizards/Review/ReviewWizard'
 
 export function usesExpansion(item) {
   const { message } = item;
   if (message && message.type) {
+    if (message.type === 'UNREAD_REVIEWABLE') {
+      const { link_type: linkType } = message;
+      // No wizard for someone adds a comment to an investible assigned to you
+      return linkType !== 'INVESTIBLE_COMMENT';
+    }
+    // TODO - Reply should be screened out - everyone already knows how to reply and a wizard would just be confusing
     return ['UNASSIGNED', 'UNREAD_VOTE', 'REPORT_REQUIRED', 'UNACCEPTED_ASSIGNMENT', 'UNREAD_RESOLVED', 'FULLY_VOTED',
-      'NOT_FULLY_VOTED', 'UNREAD_REVIEWABLE', 'ISSUE'].includes(message.type);
+      'NOT_FULLY_VOTED', 'ISSUE', 'REVIEW_REQUIRED'].includes(message.type);
   }
   //Pending always just clicks through
   return false;
@@ -72,7 +79,6 @@ export function addExpansionPanel(props) {
     if (linkType === 'INVESTIBLE_SUGGESTION') {
       item.expansionPanel = <AcceptRejectWizard commentId={commentId} marketId={marketId} message={message}/>;
     } else if (linkType === 'INVESTIBLE_QUESTION') {
-      // TODO - this should be Reply
       item.expansionPanel = <AnswerWizard marketId={commentMarketId || marketId} commentId={commentId}
                                           message={message}/>
     } else {
@@ -86,9 +92,11 @@ export function addExpansionPanel(props) {
     } else {
       // TODO new vote on investible
     }
-  } else if (['UNREAD_REVIEWABLE', 'UNASSIGNED'].includes(messageType)) {
+  } else if (['UNREAD_REVIEWABLE', 'UNASSIGNED', 'REVIEW_REQUIRED'].includes(messageType)) {
     if (linkType === 'MARKET_TODO') {
       item.expansionPanel = <StartWizard commentId={commentId} marketId={marketId} message={message}/>;
+    } else if (linkType === 'INVESTIBLE_REVIEW') {
+      item.expansionPanel = <ReviewWizard investibleId={investibleId} marketId={marketId} message={message}/>;
     } else {
       item.expansionPanel = <AssignWizard investibleId={investibleId} marketId={marketId} message={message}/>;
     }

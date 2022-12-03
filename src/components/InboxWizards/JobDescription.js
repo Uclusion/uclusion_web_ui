@@ -12,14 +12,18 @@ import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/Ma
 import { useIntl } from 'react-intl'
 import _ from 'lodash'
 import { editorEmpty } from '../TextEditors/Utilities/CoreUtils'
+import CommentBox from '../../containers/CommentBox/CommentBox'
+import { getFullStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
+import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 
 function JobDescription(props) {
-  const { investibleId, marketId } = props;
+  const { investibleId, marketId, comments } = props;
   const intl = useIntl();
   const investibleEditClasses = useInvestibleEditStyles();
   const [investiblesState] = useContext(InvestiblesContext);
   const classes = useContext(WizardStylesContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [marketStagesState] = useContext(MarketStagesContext);
   const inv = getInvestible(investiblesState, investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { assigned } = marketInfo || {};
@@ -45,6 +49,20 @@ function JobDescription(props) {
         </Typography>
         {!editorIsEmpty && (
           <DescriptionOrDiff id={investibleId} description={description} showDiff={false} />
+        )}
+        {!_.isEmpty(comments) && (
+          <div style={{paddingTop: '1rem'}}>
+            <CommentBox
+              comments={comments}
+              marketId={marketId}
+              allowedTypes={[]}
+              fullStage={getFullStage(marketStagesState, marketId, marketInfo.stage) || {}}
+              investible={inv}
+              marketInfo={marketInfo}
+              isInbox
+              removeActions
+            />
+          </div>
         )}
       </div>
       <div className={classes.borderBottom} />

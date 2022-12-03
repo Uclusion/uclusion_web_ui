@@ -324,6 +324,8 @@ const messages = defineMessages({
   unRemovedMobile: 'Added',
   pleaseReview: 'Please review',
   pleaseReviewMobile: 'Review',
+  pleaseAssign: 'Please assign',
+  pleaseAssignMobile: 'Assign',
   updateStatus: 'Please update status',
   updateStatusMobile: 'Status',
   addCollaborators: 'Please add collaborators',
@@ -1036,6 +1038,8 @@ const messages = defineMessages({
   moveTodoBlue: 'Move to Blue',
   startTodo: 'Start Bug',
   DecideStartBug: 'Create job from bug',
+  DecideAddReview: 'Add review',
+  DecideAddTask: 'Add task',
 
   // Search
   searchBoxPlaceholder: 'Search',

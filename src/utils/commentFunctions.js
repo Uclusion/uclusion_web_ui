@@ -5,7 +5,7 @@ import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../constants/com
 import { addCommentToMarket } from '../contexts/CommentsContext/commentsContextHelper'
 import { pushMessage } from './MessageBusUtils'
 import { LOAD_EVENT } from '../contexts/InvestibesContext/investiblesContextMessages'
-import { formCommentLink, formMarketLink } from './marketIdPathFunctions'
+import { formCommentLink } from './marketIdPathFunctions'
 import { addMessage } from '../contexts/NotificationsContext/notificationsContextReducer'
 import { RED_LEVEL } from '../constants/notifications'
 import { INITIATIVE_TYPE, PLANNING_TYPE } from '../constants/markets'
@@ -105,11 +105,10 @@ export function allowVotingForSuggestion(commentId, setOperationRunning, markets
 export function notifyImmediate(userId, comment, messagesDispatch) {
   const marketId = comment.market_id;
   const commentLink = formCommentLink(marketId, comment.group_id, comment.investible_id, comment.id);
-  const marketLink = formMarketLink(marketId, comment.group_id);
   const notificationType = 'ISSUE';
   messagesDispatch(addMessage({ market_id_user_id: `${marketId}_${userId}`,
     type_object_id: `${notificationType}_${comment.id}`, type: notificationType, market_id: marketId,
     comment_id: comment.id, user_id: userId, text: 'Please assign', level: RED_LEVEL,
     is_highlighted: false, name: 'Immediate TODOs', link: commentLink, market_type: PLANNING_TYPE,
-    link_type: 'MARKET_TODO', link_multiple: `${marketLink}#immediateTodos` }));
+    link_type: 'MARKET_TODO' }));
 }

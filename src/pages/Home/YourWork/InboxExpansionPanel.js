@@ -1,8 +1,4 @@
 import React from 'react'
-import LinkMultiplePanel from './LinkMultiplePanel'
-import CommentPanel from './CommentPanel'
-import InboxInvestible from './InboxInvestible'
-import { findMessageOfType } from '../../../utils/messageUtils'
 import _ from 'lodash'
 import {
   getMarketDetailsForType,
@@ -50,7 +46,7 @@ export function usesExpansion(item) {
       // No wizard for someone adds a comment to an investible assigned to you
       return linkType !== 'INVESTIBLE_COMMENT';
     }
-    // TODO - Reply should be screened out - everyone already knows how to reply and a wizard would just be confusing
+    // Skipping UNREAD_REPLY - everyone already knows how to reply and a wizard would just be confusing
     return ['UNASSIGNED', 'UNREAD_VOTE', 'REPORT_REQUIRED', 'UNACCEPTED_ASSIGNMENT', 'UNREAD_RESOLVED', 'FULLY_VOTED',
       'NOT_FULLY_VOTED', 'ISSUE', 'REVIEW_REQUIRED'].includes(message.type);
   }
@@ -59,10 +55,10 @@ export function usesExpansion(item) {
 }
 
 export function addExpansionPanel(props) {
-  const {item, planningClasses, mobileLayout, isMultiple, messagesState, isDeletable} = props;
+  const { item } = props;
   const { message } = item;
   const { type: messageType, market_id: marketId, comment_id: commentId, comment_market_id: commentMarketId,
-    link_type: linkType, investible_id: investibleId, market_type: marketType, link_multiple: linkMultiple } = message;
+    link_type: linkType, investible_id: investibleId, market_type: marketType } = message;
   if (messageType === 'NOT_FULLY_VOTED') {
     if (marketType === PLANNING_TYPE) {
       item.expansionPanel = <ApprovalWizard investibleId={investibleId} marketId={marketId} message={message}/>;
@@ -100,21 +96,6 @@ export function addExpansionPanel(props) {
     } else {
       item.expansionPanel = <AssignWizard investibleId={investibleId} marketId={marketId} message={message}/>;
     }
-  } else if (isMultiple) {
-    item.expansionPanel = ( <LinkMultiplePanel linkMultiple={linkMultiple} marketId={commentMarketId || marketId}
-                                               commentId={commentId} planningClasses={planningClasses} message={message}
-                                               mobileLayout={mobileLayout} isDeletable={isDeletable}/> );
-  } else if (linkType !== 'INVESTIBLE' && ((['UNREAD_REPLY', 'UNREAD_COMMENT', 'ISSUE'].includes(messageType)) ||
-    (['UNREAD_OPTION', 'INVESTIBLE_SUBMITTED'].includes(messageType) && linkType.startsWith('INLINE')))) {
-    item.expansionPanel = ( <CommentPanel marketId={commentMarketId || marketId} commentId={commentId} message={message}
-                                          marketType={marketType} messageType={messageType} isDeletable={isDeletable}
-                                          planningClasses={planningClasses} mobileLayout={mobileLayout} /> );
-  } else {
-    item.expansionPanel = <InboxInvestible marketId={marketId} investibleId={investibleId} messageType={messageType}
-                                           planningClasses={planningClasses} marketType={marketType}
-                                           mobileLayout={mobileLayout} isDeletable={isDeletable} message={message}
-                                           unacceptedAssignment={findMessageOfType('UNACCEPTED_ASSIGNMENT',
-                                             investibleId, messagesState)} />;
   }
 }
 
@@ -170,27 +151,6 @@ function getMessageForInvestible(investible, market, labelId, Icon, intl, messag
     isInvestibleType: true,
     messageType
   };
-}
-
-export function addOutboxExpansionPanel(message, expansionState, planningClasses, mobileLayout) {
-  const { isInvestibleType, isCommentType, id, marketId, marketType, isOutboxType } = message;
-  if (isOutboxType) {
-    const expansionOpen = expansionState && !!expansionState[id];
-    if (isInvestibleType) {
-      if (expansionOpen) {
-        message.expansionPanel = <InboxInvestible marketId={marketId} investibleId={id}
-                                                  messageType={message.messageType} message={message}
-                                                  planningClasses={planningClasses} marketType={PLANNING_TYPE}
-                                                  mobileLayout={mobileLayout} isOutbox/>;
-      }
-    } else if (isCommentType) {
-      if (expansionOpen) {
-        message.expansionPanel =
-          <CommentPanel marketId={marketId} commentId={id} marketType={marketType} message={message}
-                        planningClasses={planningClasses} mobileLayout={mobileLayout} isOutbox/>
-      }
-    }
-  }
 }
 
 function getMessageForComment(comment, market, labelId, Icon, intl, investibleState, marketStagesState,

@@ -57,36 +57,15 @@ export function getMessages(allOutBoxMessagesOrdered, messagesUnsafe, messagesFu
     return {...message, isAssigned: true};
   });
   const assignedMessagesOrdered = _.orderBy(assignedMessages, ['updated_at'], ['desc']) || [];
-  const messagesFiltered = _.isEmpty(search) ? inboxMessagesOrdered : inboxMessagesOrdered.filter((message) => {
+  inboxMessagesOrdered = _.isEmpty(search) ? inboxMessagesOrdered : inboxMessagesOrdered.filter((message) => {
     const { type_object_id: typeObjectId,  investible_id: investibleId } = message;
     return results.find((result) => typeObjectId.endsWith(result.id) || result.id === investibleId) ||
       parentResults.find((id) => typeObjectId.endsWith(id) || parentResults.find((id) => investibleId === id));
   });
-  const dupeHash = {};
-  messagesFiltered.forEach((message) => {
-    const { link_multiple: linkMultiple } = message;
-    if (linkMultiple) {
-      if (dupeHash[linkMultiple]) {
-        dupeHash[linkMultiple].push(message);
-      } else {
-        dupeHash[linkMultiple] = [message];
-      }
-    }
-  });
-  inboxMessagesOrdered = messagesFiltered.filter((message) => {
-    const { link_multiple: linkMultiple, updated_at: updatedAt } = message;
-    if (dupeHash[linkMultiple]) {
-      //Choose the message to use for the row based on last updated
-      return _.isEmpty(dupeHash[linkMultiple].find((aMessage) => {
-        return aMessage.updated_at > updatedAt;
-      }));
-    }
-    return true;
-  });
   const teamMessagesOrdered = inboxMessagesOrdered.filter((message) => !message.alert_type && !message.is_highlighted);
   inboxMessagesOrdered = _.union(inboxMessagesOrdered.filter((message) => message.is_highlighted),
     assignedMessagesOrdered);
-  return {outBoxMessagesOrdered, inboxMessagesOrdered, teamMessagesOrdered, dupeHash};
+  return {outBoxMessagesOrdered, inboxMessagesOrdered, teamMessagesOrdered };
 }
 
 export function getUnpaginatedItems(messagesHash, tabIndex) {

@@ -70,7 +70,7 @@ function messageIsSynced(message, marketState, marketPresencesState, commentsSta
   return true;
 }
 
-export function isInInbox(message, marketState, marketPresencesState, commentsState, investiblesState, messages) {
+export function isInInbox(message, marketState, marketPresencesState, commentsState, investiblesState) {
   if (!messageIsSynced(message, marketState, marketPresencesState, commentsState, investiblesState)) {
     console.warn('Skipping message because not synced');
     console.warn(message);
@@ -86,11 +86,6 @@ export function isInInbox(message, marketState, marketPresencesState, commentsSt
     const anInlineMarketPresences = getMarketPresences(marketPresencesState, message.market_id) || [];
     const yourPresence = anInlineMarketPresences.find((presence) => presence.current_user) || {};
     return market.created_by !== yourPresence.id;
-  }
-  if (message.type === 'UNREAD_VOTE') {
-    const fullyVotedMessage = (messages || []).find((aMessage) => aMessage.type === 'FULLY_VOTED'
-      && message.link_multiple === aMessage.link_multiple);
-    return _.isEmpty(fullyVotedMessage);
   }
   if (message.alert_type) {
     // These go only in the assignments tab unless they are new
@@ -114,20 +109,11 @@ export function getInboxCount(messagesState, marketState, marketPresencesState, 
   let calcPend = 0;
   if (!_.isEmpty(messagesState)) {
     const { messages } = messagesState;
-    const dupeHash = {};
     if (!_.isEmpty(messages)) {
       messages.forEach((message) => {
-        const { link_multiple: linkMultiple, is_highlighted: isHighlighted } = message;
-        if (isHighlighted && isInInbox(message, marketState, marketPresencesState, commentsState, investiblesState,
-          messages)) {
-          if (!linkMultiple) {
-            calcPend += 1;
-          } else {
-            if (!dupeHash[linkMultiple]) {
-              dupeHash[linkMultiple] = true;
-              calcPend += 1;
-            }
-          }
+        const { is_highlighted: isHighlighted } = message;
+        if (isHighlighted && isInInbox(message, marketState, marketPresencesState, commentsState, investiblesState)) {
+          calcPend += 1;
         }
       });
     }

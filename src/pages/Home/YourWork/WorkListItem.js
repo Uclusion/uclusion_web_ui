@@ -143,7 +143,6 @@ function WorkListItem(props) {
     id,
     expansionPanel,
     expansionOpen,
-    isMultiple,
     isDeletable = false
   } = props;
   const history = useHistory();
@@ -153,13 +152,12 @@ function WorkListItem(props) {
   const actionStyles = useSizedIconButtonStyles({ childSize: 22, padding: 10 });
   const gutterStyles = useRowGutterStyles({ size: -10, before: -8 });
   const [isHovered, setIsHovered] = useState(false);
-  const { link, link_multiple: linkMultiple, isAssigned, isOutboxType } = message;
+  const { link, isAssigned, isOutboxType } = message;
   const useSelect = isAssigned !== true && isOutboxType !== true;
   let fullText =  investible || comment || market;
   if (!moreDescription && investible && comment) {
     fullText += ' - ' + comment;
   }
-  const useLink = isMultiple ? linkMultiple : link;
   const isUsingExpansion = usesExpansion(props);
   const showExpansion = isUsingExpansion && isHovered;
   const expansionPanelVisible = isUsingExpansion && expansionOpen;
@@ -180,7 +178,7 @@ function WorkListItem(props) {
               inboxDispatch(expandOrContract(id));
             } else {
               pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: CURRENT_EVENT, message });
-              return navigate(history, useLink);
+              return navigate(history, link);
             }
           }
         } onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>

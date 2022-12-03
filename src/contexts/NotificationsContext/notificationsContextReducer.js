@@ -99,22 +99,6 @@ export function initializeState (newState) {
   };
 }
 
-function getAllMessages(message, state) {
-  const messages = [];
-  if (message.link_multiple) {
-    const { messages: messagesUnsafe } = state;
-    (messagesUnsafe || []).forEach((msg) => {
-      const { link_multiple: myLinkMultiple } = msg;
-      if (myLinkMultiple === message.link_multiple) {
-        messages.push(msg);
-      }
-    });
-  } else {
-    messages.push(message);
-  }
-  return messages;
-}
-
 function keepRelevantState(state, found, messagesToStore, current) {
   const { initializing } = state;
   if (initializing) {
@@ -238,9 +222,8 @@ function removeForInvestible(state, action) {
 function doRemoveMessages(state, action) {
   const { messages } = state;
   const { message: toRemoveMessage } = action;
-  const toRemoveMessages = getAllMessages(toRemoveMessage, state);
   const mappedMessages = (messages || []).map((aMessage) => {
-    if (toRemoveMessages.includes(aMessage)) {
+    if (toRemoveMessage === aMessage) {
       return { ...aMessage, deleted: true};
     }
     return aMessage;
@@ -255,7 +238,7 @@ function doDehighlightMessages(state, action) {
   messages.forEach((id) => {
     const message = existingMessages.find((message) => message.type_object_id = id);
     if (message) {
-      allMessages = allMessages.concat(getAllMessages(message, state));
+      allMessages = allMessages.concat(message);
     }
   });
   const dehighlightedMessages = [];
@@ -340,9 +323,7 @@ function reducer (state, action) {
     if (message) {
       if (message.market_id) {
         allMessages[message.market_id] = [];
-        getAllMessages(message, state).forEach((message) => {
-          allMessages[message.market_id].push(message.type_object_id);
-        });
+        allMessages[message.market_id].push(message.type_object_id);
       }
     } else {
       const { messages: existingMessages } = state;
@@ -352,11 +333,9 @@ function reducer (state, action) {
           if (!allMessages[message.market_id]) {
             allMessages[message.market_id] = [];
           }
-          getAllMessages(message, state).forEach((message) => {
-            if (action.type !== DEHIGHLIGHT_MESSAGES || message.is_highlighted) {
-              allMessages[message.market_id].push(message.type_object_id);
-            }
-          });
+          if (action.type !== DEHIGHLIGHT_MESSAGES || message.is_highlighted) {
+            allMessages[message.market_id].push(message.type_object_id);
+          }
         }
       });
     }

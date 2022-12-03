@@ -1,4 +1,3 @@
-import { removeMessage } from '../contexts/NotificationsContext/notificationsContextReducer'
 import { DECISION_TYPE, INITIATIVE_TYPE } from '../constants/markets'
 import { removeWorkListItem } from '../pages/Home/YourWork/WorkListItem'
 import _ from 'lodash'
@@ -9,15 +8,7 @@ function getMessageTextForId(rawId, isMobile, intl) {
   return intl.formatMessage({ id });
 }
 
-function defaultText(message, isMobile, intl, isMultiple, numMultiples) {
-  if (isMultiple) {
-    return intl.formatMessage({ id: 'multipleNotifications' }, { x: numMultiples });
-  }
-  return messageText(message, isMobile, intl);
-}
-
-export function titleText(message, isMobile, intl, isMultiple, numMultiples, comment, userId, isInVotingStage,
-  assigned) {
+export function titleText(message, isMobile, intl, comment, userId, isInVotingStage, assigned) {
   switch(message.type) {
     case 'ASSIGNED_UNREVIEWABLE':
       return getMessageTextForId('unfinished', isMobile, intl);
@@ -25,13 +16,13 @@ export function titleText(message, isMobile, intl, isMultiple, numMultiples, com
       return getMessageTextForId('reportRequired', isMobile, intl);
     case 'ISSUE':
       if (message.market_type !== DECISION_TYPE) {
-        return defaultText(message, isMobile, intl, isMultiple, numMultiples);
+        return messageText(message, isMobile, intl);
       }
       return intl.formatMessage({ id: 'feedback' });
     case 'UNREAD_COMMENT':
       const { comment_type: commentType, creator_assigned: creatorAssigned } = comment || {};
       if (commentType !== REPORT_TYPE || creatorAssigned) {
-        return defaultText(message, isMobile, intl, isMultiple, numMultiples);
+        return messageText(message, isMobile, intl);
       }
       return intl.formatMessage({ id: 'feedback' });
     case 'NEW_TODO':
@@ -46,7 +37,7 @@ export function titleText(message, isMobile, intl, isMultiple, numMultiples, com
         // This notification is for something assigned to me in approval
         return intl.formatMessage({ id: 'inboxVotingLabel' });
       }
-      return defaultText(message, isMobile, intl, isMultiple, numMultiples);
+      return messageText(message, isMobile, intl);
   }
 }
 
@@ -134,17 +125,6 @@ export function messageText(message, isMobile, intl) {
   }
 }
 
-export function getLabelList(messagesFull, intl, isMobile) {
-  const labels = [];
-  messagesFull.forEach((message) => {
-    const label = messageText(message, isMobile, intl).toLowerCase();
-    if (!labels.includes(label)) {
-      labels.push(label);
-    }
-  });
-  return labels.join(', ');
-}
-
 export function findMessagesForCommentId(commentId, state) {
   const { messages } = (state || {});
   const safeMessages = messages || [];
@@ -156,19 +136,6 @@ export function removeMessagesForCommentId(commentId, state, removeClass) {
   messages.forEach((message) => {
     removeWorkListItem(message, removeClass);
   });
-}
-
-export function removeMessagesForMarket(marketId, state, dispatch) {
-  const messages = findMessagesForMarketId(marketId, state) || [];
-  messages.forEach((message) => {
-    dispatch(removeMessage(message));
-  });
-}
-
-export function findMessagesForMarketId(marketId, state) {
-  const { messages } = (state || {});
-  const safeMessages = messages || [];
-  return safeMessages.filter((message) => message.market_id === marketId);
 }
 
 export function findMessagesForInvestibleId(investibleId, state) {

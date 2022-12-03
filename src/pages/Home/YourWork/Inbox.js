@@ -21,8 +21,7 @@ import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox'
-import { addOutboxExpansionPanel, createDefaultInboxRow } from './InboxExpansionPanel'
-import { usePlanningInvestibleStyles } from '../../Investible/Planning/PlanningInvestible'
+import { createDefaultInboxRow } from './InboxExpansionPanel'
 import Outbox from './Outbox'
 import { pushMessage } from '../../../utils/MessageBusUtils'
 import {
@@ -44,7 +43,6 @@ function Inbox(props) {
     messagesHash } = props;
   const intl = useIntl();
   const workItemClasses = workListStyles();
-  const planningClasses = usePlanningInvestibleStyles();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [marketState] = useContext(MarketsContext);
@@ -119,10 +117,7 @@ function Inbox(props) {
   const { first, last, data, hasMore, hasLess } = getPaginatedItems(unpaginatedItems, page, PAGE_SIZE);
   const defaultRow = createDefaultInboxRow(unpaginatedItems, loadingFromInvite, messagesState, tokensHash, intl,
     determinate, determinateDispatch, checkAll, tabIndex);
-  const {outBoxMessagesOrdered, teamMessagesOrdered, dupeHash} = messagesHash;
-  data.forEach((message) => {
-    addOutboxExpansionPanel(message, expansionState, planningClasses, mobileLayout);
-  });
+  const {outBoxMessagesOrdered, teamMessagesOrdered } = messagesHash;
 
   return (
     <>
@@ -205,20 +200,13 @@ function Inbox(props) {
           if (message.isOutboxType) {
             return React.Fragment;
           }
-          const { link_multiple: linkMultiple } = message;
-          const linkMultiples = dupeHash[linkMultiple] || [];
-          const numMultiples = _.size(_.uniqBy(linkMultiples, 'type'));
-          const fullyVotedMessage = linkMultiples.find((message) => message.type === 'FULLY_VOTED');
-          const isMultiple = !fullyVotedMessage && numMultiples > 1;
-          const useMessage = fullyVotedMessage || message;
-          const isDeletable =  useMessage.type_object_id.startsWith('UNREAD') ||
-            linkMultiples.find((message) => message.type_object_id.startsWith('UNREAD'));
-          const determinateChecked = determinate[useMessage.type_object_id];
+          const isDeletable =  message.type_object_id.startsWith('UNREAD');
+          const determinateChecked = determinate[message.type_object_id];
           const checked = determinateChecked !== undefined ? determinateChecked : checkAll;
-          return <InboxRow message={useMessage} inboxDispatch={inboxDispatch} numMultiples={numMultiples}
+          return <InboxRow message={message} inboxDispatch={inboxDispatch}
                            determinateDispatch={determinateDispatch}
-                           expansionOpen={!!expansionState[useMessage.type_object_id]}
-                           isDeletable={isDeletable} isMultiple={isMultiple} checked={checked} />;
+                           expansionOpen={!!expansionState[message.type_object_id]}
+                           isDeletable={isDeletable} checked={checked} />;
       })}
       <Outbox inboxState={inboxState} inboxDispatch={inboxDispatch} page={page} messagesOrdered={data} />
     </div>

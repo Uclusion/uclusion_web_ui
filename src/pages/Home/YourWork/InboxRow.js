@@ -43,8 +43,7 @@ function getPriorityIcon(message, isAssigned) {
 }
 
 function InboxRow(props) {
-  const { message, checked, determinateDispatch, inboxDispatch, expansionOpen, isMultiple, isDeletable,
-    numMultiples } = props;
+  const { message, checked, determinateDispatch, inboxDispatch, expansionOpen, isDeletable } = props;
   const intl = useIntl();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
@@ -56,7 +55,7 @@ function InboxRow(props) {
   const planningClasses = usePlanningInvestibleStyles();
   const { investible_id: investibleId, investible_name: investibleName, updated_at: updatedAt,
     market_name: marketName, type_object_id: typeObjectId, market_id: marketId, comment_id: commentId,
-    comment_market_id: commentMarketId, link_multiple: linkMultiple } = message;
+    comment_market_id: commentMarketId } = message;
   const inv = getInvestible(investiblesState, investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { assigned, stage } = marketInfo;
@@ -64,7 +63,7 @@ function InboxRow(props) {
   const isAssigned = (assigned || []).includes(userId);
   const market = getMarket(marketsState, marketId) || {};
   const { messages: messagesUnsafe } = messagesState;
-  const messagesFull = (messagesUnsafe || []).filter((message) => message.link_multiple === linkMultiple);
+  const messagesFull = messagesUnsafe || [];
   const redMessage = messagesFull.find((message) => message.level === 'RED');
   const yellowMessage = messagesFull.find((message) => message.level === 'YELLOW');
   const highlightedMessage = messagesFull.find((message) => message.is_highlighted);
@@ -104,15 +103,14 @@ function InboxRow(props) {
     }
   }
 
-  item.title =  titleText(message, mobileLayout, intl, isMultiple, numMultiples, rootComment, userId,
+  item.title =  titleText(message, mobileLayout, intl, rootComment, userId,
     fullStage.allows_investment, assigned);
   if (expansionOpen && usesExpansion(item)) {
-    addExpansionPanel({ item, planningClasses, mobileLayout, isMultiple, messagesState, isDeletable });
+    addExpansionPanel({ item, planningClasses, mobileLayout, messagesState, isDeletable });
   }
   return <WorkListItem key={`inboxRow${typeObjectId}`} id={typeObjectId} checked={checked}
                        determinateDispatch={determinateDispatch}
-                       inboxDispatch={inboxDispatch} expansionOpen={expansionOpen}
-                       isMultiple={isMultiple} {...item} />;
+                       inboxDispatch={inboxDispatch} expansionOpen={expansionOpen} {...item} />;
 }
 
 export default React.memo(InboxRow);

@@ -281,7 +281,6 @@ const messages = defineMessages({
   labels: 'Labels',
 
   //Inbox notification titles
-  multipleNotifications: '({x}) Notifications',
   unfinished: 'Unfinished',
   unfinishedMobile: 'Unfinished',
   reportRequired: 'Status due',

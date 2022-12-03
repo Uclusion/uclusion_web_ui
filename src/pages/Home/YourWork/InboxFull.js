@@ -47,7 +47,7 @@ function InboxFull(props) {
     return {...message, id: message.type_object_id};
   });
   const messagesFull = messagesMapped.filter((message) => {
-    return isInInbox(message, marketsState, marketPresencesState, commentsState, investiblesState, messagesUnsafe);
+    return isInInbox(message, marketsState, marketPresencesState, commentsState, investiblesState);
   });
   const allOutBoxMessagesOrdered = getOutboxMessages({messagesState, marketsState, marketPresencesState,
     investiblesState, marketStagesState, commentsState, intl});

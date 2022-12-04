@@ -1120,6 +1120,7 @@ const messages = defineMessages({
   QUESTIONApproveWizard: 'Create question',
   SUGGESTApproveWizard: 'Create suggestion',
   REPORTApproveWizard: 'Create report',
+  TODOApproveWizard: 'Create task',
 
   //Status Wizard
   StatusWizardEstimate: 'Estimate date',

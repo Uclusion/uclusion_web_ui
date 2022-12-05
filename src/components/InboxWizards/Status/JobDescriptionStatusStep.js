@@ -1,8 +1,8 @@
-import React, { useContext } from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
 import { Typography } from '@material-ui/core'
 import WizardStepContainer from '../WizardStepContainer';
-import { WizardStylesContext } from '../WizardStylesContext';
+import { wizardStyles } from '../WizardStylesContext'
 import WizardStepButtons from '../WizardStepButtons';
 import JobDescription from '../JobDescription'
 import { REPORT_TYPE } from '../../../constants/comments'
@@ -10,7 +10,7 @@ import { REPORT_TYPE } from '../../../constants/comments'
 
 function JobDescriptionStatusStep(props) {
   const {marketId, investibleId, updateFormData} = props;
-  const classes = useContext(WizardStylesContext);
+  const classes = wizardStyles();
 
   return (
     <WizardStepContainer

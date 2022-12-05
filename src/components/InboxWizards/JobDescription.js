@@ -4,7 +4,7 @@ import React, { useContext } from 'react'
 import { useInvestibleEditStyles } from '../../pages/Investible/InvestibleBodyEdit'
 import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
-import { WizardStylesContext } from './WizardStylesContext'
+import { wizardStyles } from './WizardStylesContext'
 import GravatarGroup from '../Avatars/GravatarGroup'
 import { getMarketInfo } from '../../utils/userFunctions'
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
@@ -21,7 +21,7 @@ function JobDescription(props) {
   const intl = useIntl();
   const investibleEditClasses = useInvestibleEditStyles();
   const [investiblesState] = useContext(InvestiblesContext);
-  const classes = useContext(WizardStylesContext);
+  const classes = wizardStyles();
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const inv = getInvestible(investiblesState, investibleId);

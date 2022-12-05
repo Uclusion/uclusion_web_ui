@@ -1,6 +1,5 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { WizardStylesProvider } from '../WizardStylesContext';
 import FormdataWizard from 'react-formdata-wizard';
 import DecideAcceptRejectStep from './DecideAcceptRejectStep'
 
@@ -8,11 +7,9 @@ function AcceptRejectWizard(props) {
   const { marketId, commentId, message } = props;
 
   return (
-    <WizardStylesProvider>
-      <FormdataWizard name={`accept_wizard${commentId}`}>
-        <DecideAcceptRejectStep marketId={marketId} commentId={commentId} message={message}/>
-      </FormdataWizard>
-    </WizardStylesProvider>
+    <FormdataWizard name={`accept_wizard${commentId}`}>
+      <DecideAcceptRejectStep marketId={marketId} commentId={commentId} message={message}/>
+    </FormdataWizard>
   );
 }
 

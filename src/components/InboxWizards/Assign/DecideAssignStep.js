@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import { Typography } from '@material-ui/core'
 import WizardStepContainer from '../WizardStepContainer';
-import { WizardStylesContext } from '../WizardStylesContext';
+import { wizardStyles } from '../WizardStylesContext'
 import WizardStepButtons from '../WizardStepButtons';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
@@ -25,7 +25,7 @@ function DecideAssignStep(props) {
   const history = useHistory();
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
-  const classes = useContext(WizardStylesContext);
+  const classes = wizardStyles();
   const workItemClasses = workListStyles();
 
   function myTerminate() {

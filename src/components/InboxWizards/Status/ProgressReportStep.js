@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import { Typography } from '@material-ui/core'
 import WizardStepContainer from '../WizardStepContainer';
-import { WizardStylesContext } from '../WizardStylesContext';
+import { wizardStyles } from '../WizardStylesContext'
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import { getMarketInfo } from '../../../utils/userFunctions'
@@ -11,7 +11,7 @@ import { formCommentLink } from '../../../utils/marketIdPathFunctions'
 
 function ProgressReportStep(props) {
   const { marketId, investibleId, formData, onFinish } = props;
-  const classes = useContext(WizardStylesContext);
+  const classes = wizardStyles();
   const [investiblesState] = useContext(InvestiblesContext);
   const inv = getInvestible(investiblesState, investibleId);
   const { investible: myInvestible } = inv || {};

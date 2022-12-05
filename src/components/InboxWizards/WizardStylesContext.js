@@ -1,13 +1,5 @@
-import React from 'react';
 import { makeStyles } from '@material-ui/styles';
-import { useTheme } from '@material-ui/core';
 
-/**
- A context holding our styles for our wizards.
- It's centralized here to make it easier to change the theme across all wizards
- */
-
-const WizardStylesContext = React.createContext({});
 export const wizardStyles = makeStyles(
   theme => {
     return {
@@ -192,17 +184,3 @@ export const wizardStyles = makeStyles(
     };
   }
 );
-
-function WizardStylesProvider(props) {
-  const { children } = props;
-  const theme = useTheme();
-  const classes = wizardStyles(theme);
-
-  return (
-    <WizardStylesContext.Provider value={classes}>
-      {children}
-    </WizardStylesContext.Provider>
-  );
-}
-
-export { WizardStylesContext, WizardStylesProvider };

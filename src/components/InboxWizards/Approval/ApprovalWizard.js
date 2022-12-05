@@ -1,7 +1,6 @@
 import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import JobDescriptionApprovalStep from './JobDescriptionApprovalStep'
-import { WizardStylesProvider } from '../WizardStylesContext';
 import FormdataWizard from 'react-formdata-wizard';
 import { useHistory } from 'react-router'
 import ActionApprovalStep from './ActionApprovalStep'
@@ -18,12 +17,10 @@ function ApprovalWizard(props) {
   }
 
   return (
-    <WizardStylesProvider>
-      <FormdataWizard name={`approval_wizard${investibleId}`}>
-        <JobDescriptionApprovalStep onFinish={myOnFinish} marketId={marketId} investibleId={investibleId}/>
-        <ActionApprovalStep onFinish={myOnFinish} marketId={marketId} investibleId={investibleId} message={message}/>
-      </FormdataWizard>
-    </WizardStylesProvider>
+    <FormdataWizard name={`approval_wizard${investibleId}`}>
+      <JobDescriptionApprovalStep onFinish={myOnFinish} marketId={marketId} investibleId={investibleId}/>
+      <ActionApprovalStep onFinish={myOnFinish} marketId={marketId} investibleId={investibleId} message={message}/>
+    </FormdataWizard>
   );
 }
 

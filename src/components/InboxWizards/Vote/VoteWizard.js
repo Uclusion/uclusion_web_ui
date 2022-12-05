@@ -1,6 +1,5 @@
 import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
-import { WizardStylesProvider } from '../WizardStylesContext';
 import FormdataWizard from 'react-formdata-wizard';
 import DecideVoteStep from './DecideVoteStep'
 import VoteCertaintyStep from './VoteCertaintyStep'
@@ -25,12 +24,10 @@ function VoteWizard(props) {
   }
 
   return (
-    <WizardStylesProvider>
-      <FormdataWizard name={`vote_wizard${commentId}`}>
-        <DecideVoteStep onFinish={myOnFinish} marketId={marketId} commentRoot={commentRoot} message={message}/>
-        <VoteCertaintyStep onFinish={myOnFinish} marketId={marketId} commentRoot={commentRoot} message={message}/>
-      </FormdataWizard>
-    </WizardStylesProvider>
+    <FormdataWizard name={`vote_wizard${commentId}`}>
+      <DecideVoteStep onFinish={myOnFinish} marketId={marketId} commentRoot={commentRoot} message={message}/>
+      <VoteCertaintyStep onFinish={myOnFinish} marketId={marketId} commentRoot={commentRoot} message={message}/>
+    </FormdataWizard>
   );
 }
 

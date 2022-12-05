@@ -1,12 +1,12 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
   import clsx from 'clsx';
 import StepHeaders from './StepHeaders';
-import { WizardStylesContext } from './WizardStylesContext';
+import { wizardStyles } from './WizardStylesContext'
 
 function WizardStepContainer (props) {
   const { hideSteppers, titleId, children, ...other } = props;
-  const classes = useContext(WizardStylesContext);
+  const classes = wizardStyles();
   const titleClass = titleId ? classes[titleId] : classes.stepDefault;
   return (
     <div className={clsx(titleClass, classes.baseCard)} elevation={0}>

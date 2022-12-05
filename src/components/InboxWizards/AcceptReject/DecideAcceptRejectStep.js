@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import { Typography } from '@material-ui/core'
 import WizardStepContainer from '../WizardStepContainer';
-import { WizardStylesContext } from '../WizardStylesContext';
+import { wizardStyles } from '../WizardStylesContext'
 import WizardStepButtons from '../WizardStepButtons';
 import CommentBox from '../../../containers/CommentBox/CommentBox'
 import { addCommentToMarket, getCommentRoot } from '../../../contexts/CommentsContext/commentsContextHelper'
@@ -32,7 +32,7 @@ function DecideAcceptRejectStep(props) {
   const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
   const comments = (commentState[marketId] || []).filter((comment) =>
     comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
-  const classes = useContext(WizardStylesContext);
+  const classes = wizardStyles();
   const workItemClasses = workListStyles();
   const inv = commentRoot.investible_id ? getInvestible(investibleState, commentRoot.investible_id) : {} ;
   const { investible: myInvestible } = inv;

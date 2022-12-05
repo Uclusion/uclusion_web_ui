@@ -1,6 +1,5 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { WizardStylesProvider } from '../WizardStylesContext';
 import FormdataWizard from 'react-formdata-wizard';
 import DecideAnswerStep from './DecideAnswerStep'
 
@@ -8,11 +7,9 @@ function AnswerWizard(props) {
   const { marketId, commentId, message } = props;
 
   return (
-    <WizardStylesProvider>
-      <FormdataWizard name={`answer_wizard${commentId}`}>
-        <DecideAnswerStep marketId={marketId} commentId={commentId} message={message}/>
-      </FormdataWizard>
-    </WizardStylesProvider>
+    <FormdataWizard name={`answer_wizard${commentId}`}>
+      <DecideAnswerStep marketId={marketId} commentId={commentId} message={message}/>
+    </FormdataWizard>
   );
 }
 

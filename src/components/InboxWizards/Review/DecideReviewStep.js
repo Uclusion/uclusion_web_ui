@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import { Typography } from '@material-ui/core'
 import WizardStepContainer from '../WizardStepContainer';
-import { WizardStylesContext } from '../WizardStylesContext';
+import { wizardStyles } from '../WizardStylesContext'
 import WizardStepButtons from '../WizardStepButtons';
 import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork/WorkListItem'
 import JobDescription from '../JobDescription'
@@ -13,7 +13,7 @@ import _ from 'lodash'
 
 function DecideReviewStep(props) {
   const { marketId, investibleId, message, updateFormData } = props;
-  const classes = useContext(WizardStylesContext);
+  const classes = wizardStyles();
   const [commentsState] = useContext(CommentsContext);
   const workItemClasses = workListStyles();
   const isUnread = message.type_object_id.startsWith('UNREAD');

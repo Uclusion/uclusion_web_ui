@@ -1,7 +1,6 @@
 import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import JobDescriptionStatusStep from './JobDescriptionStatusStep'
-import { WizardStylesProvider } from '../WizardStylesContext'
 import FormdataWizard from 'react-formdata-wizard'
 import { useHistory } from 'react-router'
 import ActionStatusStep from './ActionStatusStep'
@@ -18,12 +17,10 @@ function StatusWizard(props) {
   }
 
   return (
-    <WizardStylesProvider>
-      <FormdataWizard name={`status_wizard${investibleId}`}>
-        <JobDescriptionStatusStep onFinish={myOnFinish} marketId={marketId} investibleId={investibleId}/>
-        <ActionStatusStep onFinish={myOnFinish} marketId={marketId} investibleId={investibleId} message={message}/>
-      </FormdataWizard>
-    </WizardStylesProvider>
+    <FormdataWizard name={`status_wizard${investibleId}`}>
+      <JobDescriptionStatusStep onFinish={myOnFinish} marketId={marketId} investibleId={investibleId}/>
+      <ActionStatusStep onFinish={myOnFinish} marketId={marketId} investibleId={investibleId} message={message}/>
+    </FormdataWizard>
   );
 }
 

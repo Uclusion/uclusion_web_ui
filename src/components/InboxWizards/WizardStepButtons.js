@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
 import SpinningButton from '../SpinBlocking/SpinningButton';
-import { WizardStylesContext } from './WizardStylesContext';
+import { wizardStyles } from './WizardStylesContext'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 
 function WizardStepButtons(props) {
@@ -25,7 +25,7 @@ function WizardStepButtons(props) {
     clearFormData
   } = props;
   const intl = useIntl();
-  const classes = useContext(WizardStylesContext);
+  const classes = wizardStyles();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const lastStep = currentStep === totalSteps - 1; //zero indexed
 

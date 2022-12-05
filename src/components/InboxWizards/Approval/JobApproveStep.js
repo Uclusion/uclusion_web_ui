@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import { Typography } from '@material-ui/core'
 import WizardStepContainer from '../WizardStepContainer'
-import { WizardStylesContext } from '../WizardStylesContext'
+import { wizardStyles } from '../WizardStylesContext'
 import WizardStepButtons from '../WizardStepButtons'
 import AddInitialVote from '../../../pages/Investible/Voting/AddInitialVote';
 import { processTextAndFilesForSave } from '../../../api/files';
@@ -31,7 +31,7 @@ function JobApproveStep(props) {
   const { assigned } = marketInfo || {};
   const isAssigned = (assigned || []).includes(userId);
   const validForm = formData.approveQuantity != null;
-  const classes = useContext(WizardStylesContext)
+  const classes = wizardStyles();
   const { investibleId } = formData;
   const editorName = `${investibleId}-jobapproveeditor`;
 

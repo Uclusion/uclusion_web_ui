@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import { Typography } from '@material-ui/core'
 import WizardStepContainer from '../WizardStepContainer';
-import { WizardStylesContext } from '../WizardStylesContext';
+import { wizardStyles } from '../WizardStylesContext'
 import { REPORT_TYPE, TODO_TYPE } from '../../../constants/comments'
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
@@ -13,7 +13,7 @@ import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork
 
 function ActionReviewStep(props) {
   const {marketId, investibleId, formData, message } = props;
-  const classes = useContext(WizardStylesContext);
+  const classes = wizardStyles();
   const [investiblesState] = useContext(InvestiblesContext);
   const workItemClasses = workListStyles();
   const inv = getInvestible(investiblesState, investibleId);

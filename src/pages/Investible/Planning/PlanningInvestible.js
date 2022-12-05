@@ -435,6 +435,7 @@ function PlanningInvestible(props) {
   useEffect(() => {
     if (hash && hash.length > 1 && !hidden) {
       const element = document.getElementById(hash.substring(1, hash.length));
+      console.debug(`Found ${element} for ${hash}`);
       // Check if already on the right tab and only change tab if not
       if (!element) {
         if (hash.startsWith('#cv')) {

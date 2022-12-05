@@ -114,7 +114,7 @@ function CommentBox(props) {
       const { id, comment_type: commmentType } = comment;
       return (
         <Grid item key={id} xs={12}>
-          <div id={`c${id}`} style={{paddingBottom: '1.25rem'}}>
+          <div id={`${isInbox ? 'inbox' : ''}c${id}`} style={{paddingBottom: '1.25rem'}}>
             {isDraft && (
               <h2 style={{marginBottom: 0, paddingBottom: 0}}>
                 <FormattedMessage id="draft"/>

@@ -37,6 +37,7 @@ import StartWizard from '../../../components/InboxWizards/Start/StartWizard'
 import ResolveWizard from '../../../components/InboxWizards/Resolve/ResolveWizard'
 import AssignWizard from '../../../components/InboxWizards/Assign/AssignWizard'
 import ReviewWizard from '../../../components/InboxWizards/Review/ReviewWizard'
+import BlockedWizard from '../../../components/InboxWizards/Unblock/BlockedWizard'
 
 export function usesExpansion(item) {
   const { message } = item;
@@ -47,7 +48,8 @@ export function usesExpansion(item) {
       return linkType !== 'INVESTIBLE_COMMENT';
     }
     // Skipping UNREAD_REPLY - everyone already knows how to reply and a wizard would just be confusing
-    return ['UNASSIGNED', 'UNREAD_VOTE', 'REPORT_REQUIRED', 'UNACCEPTED_ASSIGNMENT', 'UNREAD_RESOLVED', 'FULLY_VOTED',
+    // Skipping UNREAD_VOTE - need to inform but not very actionable
+    return ['UNASSIGNED', 'REPORT_REQUIRED', 'UNACCEPTED_ASSIGNMENT', 'UNREAD_RESOLVED', 'FULLY_VOTED',
       'NOT_FULLY_VOTED', 'ISSUE', 'REVIEW_REQUIRED'].includes(message.type);
   }
   //Pending always just clicks through
@@ -78,16 +80,12 @@ export function addExpansionPanel(props) {
       item.expansionPanel = <AnswerWizard marketId={commentMarketId || marketId} commentId={commentId}
                                           message={message}/>
     } else {
-      // TODO This should be a blocking issue
-      // TODO SHOULD be option to move to backlog - does that change to unread_comment?
+      item.expansionPanel = <BlockedWizard marketId={commentMarketId || marketId} commentId={commentId}
+                                           message={message}/>
     }
-  } else if (['FULLY_VOTED', 'UNREAD_VOTE', 'UNREAD_RESOLVED'].includes(messageType)) {
-    if (linkType !== 'INVESTIBLE') {
-      item.expansionPanel = <ResolveWizard commentId={commentId} marketId={commentMarketId || marketId}
-                                           message={message}/>;
-    } else {
-      // TODO new vote on investible
-    }
+  } else if (['FULLY_VOTED', 'UNREAD_RESOLVED'].includes(messageType)) {
+    item.expansionPanel = <ResolveWizard commentId={commentId} marketId={commentMarketId || marketId}
+                                         message={message}/>;
   } else if (['UNREAD_REVIEWABLE', 'UNASSIGNED', 'REVIEW_REQUIRED'].includes(messageType)) {
     if (linkType === 'MARKET_TODO') {
       item.expansionPanel = <StartWizard commentId={commentId} marketId={marketId} message={message}/>;

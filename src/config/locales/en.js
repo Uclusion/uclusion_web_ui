@@ -1148,6 +1148,9 @@ const messages = defineMessages({
   AddOptionWizardOptionDescriptionPlaceHolder: 'Your option\'s description',
   AddOptionWizardCancelOption: 'Cancel New Option',
 
+  //UnblockWizard
+  DecideMoveToBacklog: 'Move to backlog',
+
   // StepHeaders
   StepHeadersStepCount: 'Step {currentStep} of {totalSteps}',
 

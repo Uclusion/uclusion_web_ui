@@ -19,7 +19,6 @@ import Quiz from '../../../components/CustomChip/Quiz'
 import { useIntl } from 'react-intl'
 import { useMediaQuery, useTheme } from '@material-ui/core'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
-import _ from 'lodash';
 import {
   getFullStage,
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
@@ -55,29 +54,24 @@ function InboxRow(props) {
   const planningClasses = usePlanningInvestibleStyles();
   const { investible_id: investibleId, investible_name: investibleName, updated_at: updatedAt,
     market_name: marketName, type_object_id: typeObjectId, market_id: marketId, comment_id: commentId,
-    comment_market_id: commentMarketId } = message;
+    comment_market_id: commentMarketId, is_highlighted: isHighlighted } = message;
   const inv = getInvestible(investiblesState, investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { assigned, stage } = marketInfo;
   const userId = getMyUserForMarket(marketsState, marketId);
   const isAssigned = (assigned || []).includes(userId);
   const market = getMarket(marketsState, marketId) || {};
-  const { messages: messagesUnsafe } = messagesState;
-  const messagesFull = messagesUnsafe || [];
-  const redMessage = messagesFull.find((message) => message.level === 'RED');
-  const yellowMessage = messagesFull.find((message) => message.level === 'YELLOW');
-  const highlightedMessage = messagesFull.find((message) => message.is_highlighted);
   const item = {
     market: market.name || marketName,
     investible: inv ? inv.investible.name : investibleName,
-    read: _.isEmpty(highlightedMessage),
+    read: !isHighlighted,
     date: intl.formatDate(updatedAt),
     isDeletable,
     isAssigned,
     message
   }
 
-  item.icon = getPriorityIcon(redMessage || yellowMessage || message, isAssigned);
+  item.icon = getPriorityIcon(message, isAssigned);
 
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   let rootComment;

@@ -5,7 +5,7 @@ import WizardStepContainer from '../WizardStepContainer';
 import { wizardStyles } from '../WizardStylesContext'
 import WizardStepButtons from '../WizardStepButtons';
 import CommentBox from '../../../containers/CommentBox/CommentBox'
-import { getCommentRoot } from '../../../contexts/CommentsContext/commentsContextHelper'
+import { getComment } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { getStages, isAcceptedStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
@@ -13,7 +13,12 @@ import { getMarketPresences } from '../../../contexts/MarketPresencesContext/mar
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { useHistory } from 'react-router'
 import { wizardFinish } from '../InboxWizardUtils'
-import { formInvestibleLink } from '../../../utils/marketIdPathFunctions'
+import {
+  formCommentEditReplyLink,
+  formCommentLink,
+  formInvestibleLink,
+  navigate
+} from '../../../utils/marketIdPathFunctions'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { onDropTodo } from '../../../pages/Dialog/Planning/userUtils'
 import { useIntl } from 'react-intl'
@@ -32,7 +37,7 @@ function DecideStartStep(props) {
   const history = useHistory();
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
-  const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
+  const commentRoot = getComment(commentState, marketId, commentId) || {id: 'fake'};
   const comments = (commentState[marketId] || []).filter((comment) =>
     comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
   const classes = wizardStyles();
@@ -41,7 +46,11 @@ function DecideStartStep(props) {
   const acceptedStage = marketStages.find(stage => isAcceptedStage(stage)) || {};
 
   function myTerminate() {
-    removeWorkListItem(message, workItemClasses.removed);
+    if (message.is_highlighted) {
+      removeWorkListItem(message, workItemClasses.removed);
+    } else {
+      navigate(history, formCommentLink(marketId, commentRoot.group_id, commentRoot.investible_id, commentId))
+    }
   }
 
   function myAccept() {
@@ -75,7 +84,11 @@ function DecideStartStep(props) {
         {...props}
         nextLabel="DecideStartBug"
         onNext={myAccept}
-        terminateLabel={ message.type_object_id.startsWith('UNREAD') ? 'notificationDismiss' : 'markRead' }
+        showOtherNext
+        otherNextLabel="unreadReplyMobile"
+        onOtherNext={() => navigate(history, formCommentEditReplyLink(marketId, commentId, true))}
+        terminateLabel={ message.type_object_id.startsWith('UNREAD') ? 'notificationDismiss'
+          : (message.is_highlighted ? 'markRead' : 'DecideWizardContinue' ) }
         showTerminate={true}
         onFinish={myTerminate}
       />

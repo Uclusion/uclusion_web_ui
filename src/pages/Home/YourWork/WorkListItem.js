@@ -119,6 +119,11 @@ export function removeWorkListItem(message, removeClass) {
     item.addEventListener("transitionend",() => {
       pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event, message });
     });
+    const itemExpansion = document.getElementById(`workListItemExpansion${typeObjectId}`);
+    if (itemExpansion) {
+      // Close expasion first, or it takes up too much area to transition nicely
+      itemExpansion.style.display = "none";
+    }
     item.classList.add(removeClass);
   } else {
     pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event, message });
@@ -228,7 +233,7 @@ function WorkListItem(props) {
             )}
           </Div>
         </div>
-        <div style={{visibility: expansionPanelVisible ? 'visible' : 'hidden',
+        <div id={`workListItemExpansion${id}`} style={{visibility: expansionPanelVisible ? 'visible' : 'hidden',
           height: expansionPanelVisible ? undefined : 0}}
              onClick={() => pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: CURRENT_EVENT, message })}>
           {expansionPanel || <React.Fragment />}

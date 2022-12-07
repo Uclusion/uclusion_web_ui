@@ -182,7 +182,7 @@ function WorkListItem(props) {
             if (isUsingExpansion) {
               inboxDispatch(expandOrContract(id));
             } else {
-              pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: CURRENT_EVENT, message });
+              // Do not remember what row on if not using expansion
               return navigate(history, link);
             }
           }

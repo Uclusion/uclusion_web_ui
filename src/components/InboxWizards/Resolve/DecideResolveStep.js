@@ -92,7 +92,9 @@ function DecideResolveStep(props) {
         clearFormData();
         if (isGotoJob) {
           if (inv) {
-            wizardFinish({}, setOperationRunning, message, history);
+            wizardFinish({
+              link: `${formCommentLink(marketId, commentRoot.group_id, commentRoot.investible_id, commentId)}`
+            }, setOperationRunning, message, history);
           } else {
             wizardFinish(
               {

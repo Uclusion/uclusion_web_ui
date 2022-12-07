@@ -71,7 +71,7 @@ function DecideAnswerStep(props) {
       <Typography className={classes.introText}>
         Can you help answer this question?
       </Typography>
-      <div style={{paddingBottom: '1rem'}}>
+      <div className={classes.wizardCommentBoxDiv}>
         <CommentBox
           comments={comments}
           marketId={marketId}

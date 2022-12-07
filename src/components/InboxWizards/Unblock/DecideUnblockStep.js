@@ -110,7 +110,7 @@ function DecideUnblockStep(props) {
       <Typography className={classes.introText}>
         How will you help unblock?
       </Typography>
-      <div style={{paddingBottom: '1rem'}}>
+      <div className={classes.wizardCommentBoxDiv}>
         <CommentBox
           comments={comments}
           marketId={marketId}

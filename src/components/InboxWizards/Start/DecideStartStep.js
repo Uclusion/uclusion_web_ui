@@ -71,7 +71,7 @@ function DecideStartStep(props) {
       <Typography className={classes.introText}>
         Can you start this bug now?
       </Typography>
-      <div style={{paddingBottom: '1rem'}}>
+      <div className={classes.wizardCommentBoxDiv}>
         <CommentBox
           comments={comments}
           marketId={marketId}

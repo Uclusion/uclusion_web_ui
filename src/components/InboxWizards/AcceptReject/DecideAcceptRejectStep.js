@@ -72,7 +72,7 @@ function DecideAcceptRejectStep(props) {
       <Typography className={classes.introText}>
         Do you accept this suggestion for "{name}"?
       </Typography>
-      <div style={{paddingBottom: '1rem'}}>
+      <div className={classes.wizardCommentBoxDiv}>
         <CommentBox
           comments={comments}
           marketId={marketId}

@@ -177,10 +177,17 @@ export const wizardStyles = makeStyles(
       stepDefault: {
         maxWidth: '1200px'
       },
-
       maxBudgetUnit: {
         backgroundColor: '#ecf0f1'
       },
+      wizardCommentBoxDiv: {
+        maxHeight: '300px',
+        overflowY: 'auto',
+        overflowX: 'hidden',
+        marginBottom: '1rem',
+        paddingLeft: '4px',
+        paddingRight: '4px'
+      }
     };
   }
 );

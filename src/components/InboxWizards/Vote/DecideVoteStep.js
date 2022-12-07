@@ -33,7 +33,7 @@ function DecideVoteStep(props) {
       <Typography className={classes.introText}>
         How do you vote on this suggestion?
       </Typography>
-      <div style={{paddingBottom: '1rem'}}>
+      <div className={classes.wizardCommentBoxDiv}>
         <CommentBox
           comments={comments}
           marketId={marketId}

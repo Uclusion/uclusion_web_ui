@@ -121,7 +121,7 @@ function DecideResolveStep(props) {
       <Typography className={classes.introSubText} variant="subtitle1">
         {isFullyVoted ? 'All votes collected.' : 'New vote.'}
       </Typography>
-      <div style={{paddingBottom: '1rem'}}>
+      <div className={classes.wizardCommentBoxDiv}>
         <CommentBox
           comments={comments}
           marketId={marketId}

@@ -282,7 +282,7 @@ function AddNewUsers (props) {
                     <Typography style={{ paddingBottom: '0.5rem' }}>
                       {intl.formatMessage({ id: 'inviteParticipantsEmailLabel' })}
                     </Typography>
-                    <EmailEntryBox controlledEmailList={email1} setControlledEmailList={setEmail1}
+                    <EmailEntryBox
                                    placeholder={intl.formatMessage({ id: 'searchParticipantsPlaceholder' })}/>
                   </ListItemText>
                 </ListItem>

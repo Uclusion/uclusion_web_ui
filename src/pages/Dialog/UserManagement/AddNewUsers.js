@@ -29,7 +29,7 @@ import { getGroupPresences, getMarketPresences } from '../../../contexts/MarketP
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext'
 import { AccountContext } from '../../../contexts/AccountContext/AccountContext'
 import WorkspaceInviteLinker from '../../Home/WorkspaceInviteLinker'
-import EmailEntryBox from '../../../components/Email/EmailEntryBox'
+import EmailEntryBox, { getEmailList, setEmailList } from '../../../components/Email/EmailEntryBox'
 
 function AddNewUsers (props) {
   const { market, isAddToGroup = false, setToAddClean, group } = props
@@ -46,7 +46,6 @@ function AddNewUsers (props) {
   const [userState] = useContext(AccountContext)
   const { user: unsafeUser } = userState || {}
   const myUser = unsafeUser || {}
-  const [email1, setEmail1] = useState([])
 
   const marketPresences = getMarketPresences(marketPresencesState, addToMarketId) || []
   const addToMarketPresences = groupId ?
@@ -139,12 +138,13 @@ function AddNewUsers (props) {
     )
   }
 
-  function addInvitees () {
+  function addInvitees() {
+    const email1 = getEmailList(addToMarketId);
     if (_.isEmpty(email1)) {
       return Promise.resolve(true)
     }
     return inviteParticipants(addToMarketId, email1).then((result) => {
-      setEmail1([])
+      setEmailList([], addToMarketId);
       onSaveSpinStop(result)
       setEmailsSent(emailsSent.concat(email1))
     })
@@ -282,7 +282,7 @@ function AddNewUsers (props) {
                     <Typography style={{ paddingBottom: '0.5rem' }}>
                       {intl.formatMessage({ id: 'inviteParticipantsEmailLabel' })}
                     </Typography>
-                    <EmailEntryBox
+                    <EmailEntryBox marketId={addToMarketId}
                                    placeholder={intl.formatMessage({ id: 'searchParticipantsPlaceholder' })}/>
                   </ListItemText>
                 </ListItem>

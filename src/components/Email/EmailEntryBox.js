@@ -7,12 +7,24 @@ import { Send } from '@material-ui/icons';
 import Chip from '@material-ui/core/Chip';
 import PropTypes from 'prop-types'
 import * as ReactDOM from 'react-dom';
+import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../localStorageUtils'
+
+export function setEmailList(emailList, id) {
+  console.debug(`Setting emails for ${id}`);
+  console.debug(emailList)
+  setUclusionLocalStorageItem(`emails-${id}`, emailList);
+}
+
+export function getEmailList(id) {
+  return getUclusionLocalStorageItem(`emails-${id}`);
+}
 
 class EmailEntryBox extends React.Component{
 
   constructor(props){
     super(props);
     this.emailList = [];
+    this.marketId = props.marketId;
   }
    wizardStyles = {
       editBox: {
@@ -108,7 +120,7 @@ class EmailEntryBox extends React.Component{
       if (emailValidation.valid) {
         const newEmails = [...this.emailList, email];
         this.emailList = newEmails;
-        this.props.onChange(newEmails);
+        setEmailList(newEmails, this.marketId);
         //zero out the text
         textNode.remove();
         // render the chip
@@ -135,7 +147,7 @@ class EmailEntryBox extends React.Component{
         const deleted = newEmails.pop();
         console.debug(`deleting email ${deleted}`);
         this.emailList = newEmails;
-        this.props.onChange(newEmails);
+        setEmailList(newEmails, this.marketId);
         const toBeRemoved = document.getElementById(deleted);
         console.debug(toBeRemoved);
         toBeRemoved?.remove();
@@ -147,7 +159,7 @@ class EmailEntryBox extends React.Component{
 
   onDelete = (event, email) => {
     const newEmails = this.emailList.filter((candidate) => email !== candidate);
-    this.setEmailList(newEmails);
+    setEmailList(newEmails, this.marketId);
     event.target.parentNode.remove();
   };
 
@@ -165,7 +177,7 @@ class EmailEntryBox extends React.Component{
     const emails = pasted.match(matchingRegexp);
     if(emails) {
       const toBeAdded = emails.filter((email) => !this.emailList.includes(email));
-      this.setEmailList([...this.emailList, ...toBeAdded]);
+      setEmailList([...this.emailList, ...toBeAdded]);
     }
   }
 
@@ -190,12 +202,11 @@ class EmailEntryBox extends React.Component{
 };
 
 EmailEntryBox.propTypes = {
-  onChange: PropTypes.func,
+  marketId: PropTypes.string.isRequired,
   placeholder: PropTypes.string,
 };
 
 EmailEntryBox.defaultProps = {
-  onChange: () => {},
   placeholder: 'Ex. bfollis@uclusion.com, disrael@uclusion.com',
 };
 

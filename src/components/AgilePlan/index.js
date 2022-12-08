@@ -146,7 +146,6 @@ export const usePlanFormStyles = makeStyles(
       position: 'sticky'
     },
     sharedForm: {
-      maxWidth: '30%',
       marginRight: 10,
       [theme.breakpoints.down('sm')]: {
         width: 'auto'
@@ -165,8 +164,7 @@ export const usePlanFormStyles = makeStyles(
       borderRadius: 8,
       marginBottom: 15,
       [theme.breakpoints.down('sm')]: {
-        marginRight: 0,
-        maxWidth: 300,
+        marginRight: 0
       },
     },
     listItem: {

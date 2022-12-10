@@ -17,10 +17,10 @@ export function clearNameStoredState(id) {
 
 function NameField(props) {
   const {
-    editorName, label, placeHolder, id, useCreateDefault, scrollId
+    editorName, label, placeHolder, id, useCreateDefault, scrollId, initialValue
   } = props;
   const intl = useIntl();
-  const defaultValue = getNameStoredState(id);
+  const defaultValue = getNameStoredState(id) || initialValue;
   const [charactersLeft, setCharactersLeft] = useState(80 - (defaultValue || '').length);
 
   const focusWorkAround = useCallback((element) => {
@@ -66,7 +66,7 @@ function NameField(props) {
         id={id}
         onFocus={createDefaultName}
         ref={focusWorkAround}
-        defaultValue={getNameStoredState(id)}
+        defaultValue={defaultValue}
         onChange={handleChange}
         placeholder={intl.formatMessage({
           id: placeHolder

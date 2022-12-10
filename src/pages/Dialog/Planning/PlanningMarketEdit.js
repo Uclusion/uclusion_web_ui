@@ -29,6 +29,7 @@ import ManageMarketUsers from '../UserManagement/ManageMarketUsers'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { useHistory } from 'react-router'
 import { decomposeMarketPath, navigate } from '../../../utils/marketIdPathFunctions'
+import NameField, { getNameStoredState } from '../../../components/TextFields/NameField'
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -60,7 +61,7 @@ function PlanningMarketEdit() {
   const [showInvestiblesAge, setShowInvestiblesAge] = useState(verifiedStage.days_visible);
   const market = getMarket(marketsState, marketId) || {};
   const [investmentExpiration, setInvestmentExpiration] = useState(market.investment_expiration);
-  const [name] = useState(market.name);
+  const nameId = `marketEdit${marketId}`;
 
   function onAllowedInvestiblesChange(event) {
     const { value } = event.target;
@@ -83,6 +84,7 @@ function PlanningMarketEdit() {
 
   function handleSave() {
     console.debug(`${allowedInvestibles !== acceptedStage.allowed_investibles} ${allowedInvestibles} ${acceptedStage.allowed_investibles}`)
+    const name = getNameStoredState(nameId);
     return updateMarket(
       marketId,
       name,
@@ -123,6 +125,7 @@ function PlanningMarketEdit() {
         </Grid>
         <Grid container className={clsx(classes.fieldset, classes.flex, classes.justifySpace)}
               style={{paddingTop: "2rem"}}>
+          <NameField id={marketId} initialValue={market.name} />
           <Grid item md={12} xs={12} className={classes.fieldsetContainer}>
               <Typography variant="h6">
                 {intl.formatMessage({ id: 'marketOptions' })}

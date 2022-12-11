@@ -157,7 +157,7 @@ function AddEditVote(props) {
   const editorName = getEditVoteEditorName(investibleId, isInbox);
   const editorSpec = {
     marketId,
-    placeholder: intl.formatMessage({ id: "yourReason" }),
+    placeholder: intl.formatMessage({ id: 'yourReason' }),
     value: getQuillStoredState(editorName) || useInitial === false ? undefined : body,
     onUpload: (files) => updateVotingPageState({uploadedFiles: files})
   };
@@ -214,7 +214,7 @@ function AddEditVote(props) {
   function zeroValues() {
     setOpenIssue(false);
     votingPageStateReset();
-    resetEditor();
+    resetEditor('', {placeholder: intl.formatMessage({ id: 'yourReason' })});
   }
 
   function onSaveSpinStop(result) {

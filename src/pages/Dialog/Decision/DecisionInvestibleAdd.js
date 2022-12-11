@@ -64,7 +64,8 @@ function DecisionInvestibleAdd(props) {
 
   function handleCancel() {
     pageStateReset();
-    resetEditor();
+    resetEditor('', {placeholder:
+        intl.formatMessage({ id: 'investibleAddDescriptionDefault' })});
     clearNameStoredState(nameId);
     onCancel();
   }
@@ -123,7 +124,8 @@ function DecisionInvestibleAdd(props) {
 
   function onSaveAddAnother() {
     pageStateReset();
-    resetEditor();
+    resetEditor('', {placeholder:
+        intl.formatMessage({ id: 'investibleAddDescriptionDefault' })});
     pageStateUpdate({investibleAddBeingEdited: true});
   }
 

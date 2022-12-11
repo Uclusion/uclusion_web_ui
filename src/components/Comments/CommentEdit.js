@@ -34,6 +34,7 @@ import {  useEditor } from '../TextEditors/quillHooks'
 import { deleteOrDehilightMessages } from '../../api/users'
 import { workListStyles } from '../../pages/Home/YourWork/WorkListItem'
 import { getQuillStoredState } from '../TextEditors/Utilities/CoreUtils'
+import { nameFromDescription } from '../../utils/stringFunctions';
 
 const useStyles = makeStyles((theme) => ({
   visible: {
@@ -171,7 +172,7 @@ function CommentEdit(props) {
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const workItemClasses = workListStyles();
   const { id, uploaded_files: initialUploadedFiles, comment_type: commentType, inline_market_id: inlineMarketId,
-    investible_id: investibleId, body: initialBody } = comment;
+    investible_id: investibleId, body: initialBody, creator_assigned: creatorAssigned } = comment;
   const classes = useStyles();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentState, commentDispatch] = useContext(CommentsContext);
@@ -204,7 +205,12 @@ function CommentEdit(props) {
     const updatedType = type !== commentType ? type : undefined;
     const myActualNotificationType = commentType === TODO_TYPE && !investibleId ? myNotificationType :
       (commentType === REPORT_TYPE ? notificationType : undefined);
-    return updateComment(marketId, id, tokensRemoved, updatedType, filteredUploads, mentions, myActualNotificationType)
+    let label = undefined;
+    if (creatorAssigned && type === REPORT_TYPE) {
+      label = nameFromDescription(tokensRemoved);
+    }
+    return updateComment(marketId, id, tokensRemoved, updatedType, filteredUploads, mentions, myActualNotificationType,
+      undefined, label)
       .then((comment) => {
         resetEditor();
         onCommentOpen(investibleState, investibleId, marketStagesState, marketId, comment, investibleDispatch,

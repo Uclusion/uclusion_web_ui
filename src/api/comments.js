@@ -14,10 +14,10 @@ export function fetchComments(idList, marketId) {
 }
 
 export function saveComment(marketId, groupId, investibleId, replyId, body, commentType, uploadedFiles, mentions,
-  notificationType, marketType, isRestricted, isSent) {
+  notificationType, marketType, isRestricted, isSent, investibleLabel) {
   return getMarketClient(marketId)
     .then((client) => client.investibles.createComment(investibleId, groupId, body, replyId, commentType, uploadedFiles,
-      mentions, notificationType, marketType, isRestricted, isSent))
+      mentions, notificationType, marketType, isRestricted, isSent, investibleLabel))
     .catch((error) => toastErrorAndThrow(error, 'errorCommentSaveFailed'));
 }
 
@@ -29,10 +29,10 @@ export function sendComment(marketId, commentId) {
 }
 
 export function updateComment(marketId, commentId, body, commentType, uploadedFiles, mentions, notificationType,
-  isSent) {
+  isSent, investibleLabel) {
   return getMarketClient(marketId)
     .then((client) => client.investibles.updateComment(commentId, body, undefined, uploadedFiles, mentions,
-      commentType, notificationType, isSent))
+      commentType, notificationType, isSent, investibleLabel))
     .catch((error) => toastErrorAndThrow(error, 'errorCommentSaveFailed'));
 }
 

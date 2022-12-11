@@ -61,6 +61,7 @@ import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../authorization/Toke
 import { NOT_FULLY_VOTED_TYPE } from '../../constants/notifications'
 import { AccountContext } from '../../contexts/AccountContext/AccountContext'
 import WizardStepButtons from '../InboxWizards/WizardStepButtons'
+import { nameFromDescription } from '../../utils/stringFunctions';
 
 function getPlaceHolderLabelId(type, isInReview, isAssigned) {
   switch (type) {
@@ -429,9 +430,13 @@ function CommentAdd(props) {
     // Inline question markets use draft but initiatives do not since nothing to edit
     const marketType = createInlineInitiative && isSent ? INITIATIVE_TYPE :
       (createInlineDecision ? DECISION_TYPE : undefined);
-    const investibleBlocks = (investibleId && apiType === ISSUE_TYPE) && currentStageId !== blockingStage.id
+    const investibleBlocks = (investibleId && apiType === ISSUE_TYPE) && currentStageId !== blockingStage.id;
+    let label = undefined;
+    if (creatorIsAssigned && type === REPORT_TYPE) {
+      label = nameFromDescription(tokensRemoved);
+    }
     return saveComment(marketId, groupId, investibleId, parentId, tokensRemoved, apiType, filteredUploads, mentions,
-      (notificationType || defaultNotificationType), marketType, isRestricted, isSent)
+      (notificationType || defaultNotificationType), marketType, isRestricted, isSent, label)
       .then((response) => {
         const comment = marketType ? response.parent : response;
         commentAddStateReset();

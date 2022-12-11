@@ -339,7 +339,7 @@ export function MaxBudget(props) {
   );
 }
 export function VoteExpiration(props) {
-  const { readOnly, ...other } = props;
+  const { value, defaultValue, onChange } = props;
   const intl = useIntl();
 
   const classes = useSuffixedInput();
@@ -356,11 +356,12 @@ export function VoteExpiration(props) {
           inputMode: "numeric",
           pattern: "[0-9]*"
         }}
-        defaultValue="14"
         label={intl.formatMessage({
           id: "agilePlanFormInvestmentExpirationLabel"
         })}
-        {...other}
+        defaultValue={defaultValue}
+        value={value}
+        onChange={onChange}
       />
       <Typography>
         {intl.formatMessage({ id: "voteExpirationHelp" })}

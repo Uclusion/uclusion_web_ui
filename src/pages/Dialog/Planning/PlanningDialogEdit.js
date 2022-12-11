@@ -9,7 +9,7 @@ import Grid from '@material-ui/core/Grid'
 import clsx from 'clsx'
 import CardActions from '@material-ui/core/CardActions'
 import Card from '@material-ui/core/Card'
-import { usePlanFormStyles, VoteExpiration, Votes } from '../../../components/AgilePlan'
+import { usePlanFormStyles, Votes } from '../../../components/AgilePlan'
 import {
   FormControlLabel,
   InputAdornment,
@@ -59,13 +59,10 @@ function PlanningDialogEdit(props) {
   const {
     use_budget,
     budget_unit,
-    investment_expiration: groupExpiration,
     votes_required,
     ticket_sub_code,
     name
   } = mutableGroup;
-
-  const safeInvestmentExpiration = groupExpiration ?? "14";
 
   function handleChange(name) {
     return event => {
@@ -111,7 +108,7 @@ function PlanningDialogEdit(props) {
     options: getMarketUnits(intl),
     getOptionLabel: (option) => option,
   };
-  const validOptions = parseInt(safeInvestmentExpiration, 10) > 0 && (!use_budget || budget_unit);
+  const validOptions = !use_budget || budget_unit;
   return (
     <Card className={classes.overflowVisible}>
       <CardContent className={classes.cardContent}>
@@ -150,12 +147,6 @@ function PlanningDialogEdit(props) {
               </InputAdornment>
             }
           />
-          <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
-            <VoteExpiration
-              onChange={handleChange('investment_expiration')}
-              value={safeInvestmentExpiration}
-            />
-          </Grid>
           <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
             <Votes onChange={handleChange('votes_required')} value={votes_required}/>
           </Grid>

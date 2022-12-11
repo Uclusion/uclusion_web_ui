@@ -29,7 +29,7 @@ import ManageMarketUsers from '../UserManagement/ManageMarketUsers'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { useHistory } from 'react-router'
 import { decomposeMarketPath, navigate } from '../../../utils/marketIdPathFunctions'
-import NameField, { getNameStoredState } from '../../../components/TextFields/NameField'
+import NameField, { clearNameStoredState, getNameStoredState } from '../../../components/TextFields/NameField'
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -57,11 +57,20 @@ function PlanningMarketEdit() {
   const marketStages = getStages(marketStagesState, marketId);
   const acceptedStage = marketStages.find(stage => isAcceptedStage(stage)) || {};
   const verifiedStage = marketStages.find(stage => stage.appears_in_market_summary) || {};
-  const [allowedInvestibles, setAllowedInvestibles] = useState(acceptedStage.allowed_investibles);
-  const [showInvestiblesAge, setShowInvestiblesAge] = useState(verifiedStage.days_visible);
+  const [allowedInvestibles, setAllowedInvestibles] = useState(undefined);
+  const [showInvestiblesAge, setShowInvestiblesAge] = useState(undefined);
   const market = getMarket(marketsState, marketId) || {};
-  const [investmentExpiration, setInvestmentExpiration] = useState(market.investment_expiration);
+  const [investmentExpiration, setInvestmentExpiration] = useState(undefined);
   const nameId = `marketEdit${marketId}`;
+
+  function clear() {
+    console.debug('clearing')
+    clearNameStoredState(nameId);
+    setAllowedInvestibles(undefined);
+    setShowInvestiblesAge(undefined);
+    setInvestmentExpiration(undefined);
+    navigate(history);
+  }
 
   function onAllowedInvestiblesChange(event) {
     const { value } = event.target;
@@ -82,8 +91,11 @@ function PlanningMarketEdit() {
     });
   }
 
+  console.debug(`${allowedInvestibles} ${showInvestiblesAge} ${investmentExpiration}`)
+
+
   function handleSave() {
-    console.debug(`${allowedInvestibles !== acceptedStage.allowed_investibles} ${allowedInvestibles} ${acceptedStage.allowed_investibles}`)
+    console.debug(`allowed investibles is ${allowedInvestibles}`)
     const name = getNameStoredState(nameId);
     return updateMarket(
       marketId,
@@ -91,18 +103,18 @@ function PlanningMarketEdit() {
       investmentExpiration ? parseInt(investmentExpiration, 10) : null
     ).then(market => {
       addMarketToStorage(marketsDispatch, market);
-      if (allowedInvestibles !== acceptedStage.allowed_investibles) {
+      if (allowedInvestibles) {
         return updateStage(marketId, acceptedStage.id, allowedInvestibles).then((newStage) => {
           const marketStages = getStages(marketStagesState, marketId)
           const newStages = _.unionBy([newStage], marketStages, 'id')
           updateStagesForMarket(marketStagesDispatch, marketId, newStages)
-          if (showInvestiblesAge !== verifiedStage.days_visible) {
+          if (showInvestiblesAge) {
             return updateShowInvestibles();
           }
           setOperationRunning(false);
         });
       }
-      if (showInvestiblesAge !== verifiedStage.days_visible) {
+      if (showInvestiblesAge) {
         return updateShowInvestibles();
       }
       setOperationRunning(false);
@@ -125,7 +137,7 @@ function PlanningMarketEdit() {
         </Grid>
         <Grid container className={clsx(classes.fieldset, classes.flex, classes.justifySpace)}
               style={{paddingTop: "2rem"}}>
-          <NameField id={marketId} initialValue={market.name} />
+          <NameField id={nameId} initialValue={market.name} />
           <Grid item md={12} xs={12} className={classes.fieldsetContainer}>
               <Typography variant="h6">
                 {intl.formatMessage({ id: 'marketOptions' })}
@@ -134,25 +146,26 @@ function PlanningMarketEdit() {
           <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
             <AllowedInProgress
               onChange={onAllowedInvestiblesChange}
-              value={allowedInvestibles}
+              value={allowedInvestibles || acceptedStage.allowed_investibles}
             />
           </Grid>
           <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
             <ShowInVerifiedStageAge
               onChange={onShowInvestiblesAgeChange}
-              value={showInvestiblesAge}
+              value={showInvestiblesAge || verifiedStage.days_visible}
             />
           </Grid>
           <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
             <VoteExpiration
-              onChange={(event) => setInvestmentExpiration(event.target)}
+              onChange={(event) => setInvestmentExpiration(event.target.value)}
+              defaultValue={market.investment_expiration}
               value={investmentExpiration}
             />
           </Grid>
         </Grid>
       </CardContent>
       <CardActions className={myClasses.actions}>
-        <SpinningIconLabelButton onClick={() => navigate(history)} doSpin={false} icon={Clear}>
+        <SpinningIconLabelButton onClick={clear} doSpin={false} icon={Clear}>
           {intl.formatMessage({ id: 'marketAddCancelLabel' })}
         </SpinningIconLabelButton>
         <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore} id="planningDialogUpdateButton">

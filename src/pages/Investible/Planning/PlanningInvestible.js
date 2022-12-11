@@ -499,10 +499,7 @@ function PlanningInvestible(props) {
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   const inMarketArchives = isInNotDoing || isInVerified;
   const reportMessage = findMessageOfType('REPORT_REQUIRED', investibleId, messagesState);
-  const blockingComments = investibleComments.filter(
-    comment => comment.comment_type === ISSUE_TYPE
-  );
-  const blockingCommentsUnresolved = blockingComments.filter(
+  const blockingCommentsUnresolved = investibleComments.filter(
     comment => comment.comment_type === ISSUE_TYPE && !comment.resolved
   );
   function canGetInput() {
@@ -606,7 +603,7 @@ function PlanningInvestible(props) {
         />
       </MenuItem>);
     }
-    const acceptedDisabled = isInAccepted || !isAssigned || !_.isEmpty(blockingComments) || notAssigned;
+    const acceptedDisabled = isInAccepted || !isAssigned || !_.isEmpty(blockingCommentsUnresolved) || notAssigned;
     if(!acceptedDisabled){
       menuItems.push(
       <MenuItem
@@ -656,7 +653,7 @@ function PlanningInvestible(props) {
       </MenuItem>
       );
     }
-    const verifiedDisabled = isInVerified || countUnresolved(todoComments) > 0 || !_.isEmpty(blockingComments)
+    const verifiedDisabled = isInVerified || countUnresolved(todoComments) > 0 || !_.isEmpty(blockingCommentsUnresolved)
       || notAssigned;
     if(!verifiedDisabled){
       menuItems.push(

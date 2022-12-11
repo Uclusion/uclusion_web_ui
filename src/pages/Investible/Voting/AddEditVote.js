@@ -184,11 +184,9 @@ function AddEditVote(props) {
     // dont include reason text if it's not changing, otherwise we'll update the reason comment
     const reasonNeedsUpdate = reasonText !== body && !(_.isEmpty(reasonText) && _.isEmpty(body));
     const hasQuestions = reasonText && (reasonText.indexOf('? ') > 0 || reasonText.indexOf('?<') > 0);
-    if (doWarn && reasonNeedsUpdate && (hasQuestions || !_.isEmpty(filteredUploads))) {
+    if (doWarn && reasonNeedsUpdate && hasQuestions) {
       setOperationRunning(false);
-      const warningId = (hasQuestions && !_.isEmpty(filteredUploads)) ? 'noQuestionUploads' :
-        (hasQuestions ? 'noQuestions' : 'noUploads');
-      setOpenIssue(warningId);
+      setOpenIssue('noQuestions');
       return;
     }
     const updateInfo = {
@@ -405,7 +403,7 @@ function AddEditVote(props) {
           issueWarningId={openIssue}
           showDismiss={false}
           actions={
-            (['noQuestionUploads', 'noQuestions', 'noUploads'].includes(openIssue)) ?
+            (openIssue === 'noQuestions') ?
               <SpinningIconLabelButton onClick={() => mySaveWarnOptional(false)} icon={Add}
                                        id="voteIssueProceedButton">
                 {intl.formatMessage({ id: 'issueProceed' })}

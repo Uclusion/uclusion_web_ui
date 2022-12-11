@@ -17,8 +17,8 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 function JobAssignStep (props) {
   const { marketId, clearFormData, updateFormData, formData, onFinish, assigneeId } = props;
   const history = useHistory();
-  const value = formData.assigned || []
-  const validForm = !_.isEmpty(value)
+  const value = formData.wasSet ? (formData.assigned || []) : (assigneeId ? [assigneeId] : []);
+  const validForm = !_.isEmpty(value);
   const [presencesState] = useContext(MarketPresencesContext);
   const presences = getMarketPresences(presencesState, marketId);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
@@ -28,7 +28,8 @@ function JobAssignStep (props) {
 
   function onAssignmentChange(newAssignments){
     updateFormData({
-      assigned: newAssignments
+      assigned: newAssignments,
+      wasSet: true
     });
   }
 

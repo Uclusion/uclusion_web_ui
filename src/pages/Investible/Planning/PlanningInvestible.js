@@ -556,7 +556,7 @@ function PlanningInvestible(props) {
     }
     sectionComments = suggestionCommentsSearched;
   } else if (sectionOpen === 'reportsSection') {
-    if (!isInVoting && !isFurtherWork) {
+    if (isInAccepted || isInReview) {
       allowedCommentTypes = [REPORT_TYPE];
     }
     sectionComments = reportsCommentsSearched;

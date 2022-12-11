@@ -313,7 +313,7 @@ function PlanningDialog(props) {
         <LocalPlanningDragContext.Provider value={[beingDraggedHack, setBeingDraggedHack]}>
           {isSectionOpen('storiesSection') && (
             <div id="storiesSection">
-              {!_.isEmpty(requiresInputInvestibles) && (
+              {!_.isEmpty(blockedOrRequiresInputInvestibles) && (
                 <SubSection
                   type={SECTION_TYPE_SECONDARY_WARNING}
                   bolder

@@ -114,6 +114,7 @@ import { getInboxTarget } from '../../contexts/NotificationsContext/notification
 import { getUiPreferences, userIsLoaded } from '../../contexts/AccountContext/accountUserContextHelper'
 import InvesibleCommentLinker from '../../pages/Dialog/InvesibleCommentLinker'
 import { AccountContext } from '../../contexts/AccountContext/AccountContext'
+import { nameFromDescription } from '../../utils/stringFunctions';
 
 export const useCommentStyles = makeStyles(
   theme => {
@@ -752,7 +753,17 @@ function Comment(props) {
   }
 
   function handleSend() {
-    return sendComment(marketId, id).then((comment) => {
+    let label = undefined;
+    if (creatorAssigned && commentType === REPORT_TYPE) {
+      label = nameFromDescription(body);
+    }
+    return sendComment(marketId, id, label).then((response) => {
+      let comment = response;
+      if (!_.isEmpty(label)) {
+        const { comment: returnedComment, investible: returnedInvestible } = response;
+        comment = returnedComment;
+        addInvestible(investibleDispatch, () => {}, returnedInvestible);
+      }
       const investibleBlocks = (investibleId && commentType === ISSUE_TYPE) && currentStageId !== blockingStageId
       changeInvestibleStageOnCommentChange(investibleBlocks, investibleRequiresInput,
         blockingStage, requiresInputStage, marketInfo, [marketInfo], investible, investibleDispatch,

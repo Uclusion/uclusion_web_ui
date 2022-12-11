@@ -429,18 +429,24 @@ function CommentAdd(props) {
       (createInlineDecision ? DECISION_TYPE : undefined);
     const investibleBlocks = (investibleId && apiType === ISSUE_TYPE) && currentStageId !== blockingStage.id;
     let label = undefined;
-    if (creatorIsAssigned && type === REPORT_TYPE) {
+    if (creatorIsAssigned && type === REPORT_TYPE && isSent) {
       label = nameFromDescription(tokensRemoved);
     }
     return saveComment(marketId, groupId, investibleId, parentId, tokensRemoved, apiType, filteredUploads, mentions,
       (notificationType || defaultNotificationType), marketType, isRestricted, isSent, label)
       .then((response) => {
-        const comment = marketType ? response.parent : response;
+        let comment = marketType ? response.parent : response;
+        let useRootInvestible = rootInvestible;
+        if (!_.isEmpty(label)) {
+          const { comment: returnedComment, investible: returnedInvestible } = response;
+          comment = returnedComment;
+          useRootInvestible = returnedInvestible;
+        }
         commentAddStateReset();
         resetEditor();
         if (isSent !== false) {
           changeInvestibleStageOnCommentChange(investibleBlocks, investibleRequiresInput,
-            blockingStage, requiresInputStage, info, market_infos, rootInvestible, investibleDispatch, comment);
+            blockingStage, requiresInputStage, info, market_infos, useRootInvestible, investibleDispatch, comment);
         }
         addCommentToMarket(comment, commentsState, commentDispatch);
         if (isSent !== false) {

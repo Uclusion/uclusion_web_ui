@@ -35,6 +35,7 @@ import { deleteOrDehilightMessages } from '../../api/users'
 import { workListStyles } from '../../pages/Home/YourWork/WorkListItem'
 import { getQuillStoredState } from '../TextEditors/Utilities/CoreUtils'
 import { nameFromDescription } from '../../utils/stringFunctions';
+import { addInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
 
 const useStyles = makeStyles((theme) => ({
   visible: {
@@ -211,7 +212,13 @@ function CommentEdit(props) {
     }
     return updateComment(marketId, id, tokensRemoved, updatedType, filteredUploads, mentions, myActualNotificationType,
       undefined, label)
-      .then((comment) => {
+      .then((response) => {
+        let comment = response;
+        if (!_.isEmpty(label)) {
+          const { comment: returnedComment, investible: returnedInvestible } = response;
+          comment = returnedComment;
+          addInvestible(investibleDispatch, () => {}, returnedInvestible);
+        }
         resetEditor();
         onCommentOpen(investibleState, investibleId, marketStagesState, marketId, comment, investibleDispatch,
           commentState, commentDispatch);

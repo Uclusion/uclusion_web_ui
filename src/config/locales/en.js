@@ -487,7 +487,6 @@ const messages = defineMessages({
   issueWarningPlanning: 'Opening an issue moves this job to blocked and stops new approval.',
   todoWarningPlanning: 'Opening a task prevents moving to Verified stage until resolved.',
   requiresInputWarningPlanning: 'Opening this comment will move the job to Assistance.',
-  addReportWarning: 'Opening a new report resolves your older reports',
   addReportInReadyForApprovalWarning: 'If this job is started then consider moving to \'Started\' stage.',
   noCommentBody: 'Please create a message for this comment.',
   noNotificationType: 'Please choose a priority for this comment.',

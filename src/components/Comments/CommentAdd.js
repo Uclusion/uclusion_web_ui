@@ -210,10 +210,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }), { name: 'CommentAdd' });
 
-function getReportWarningId(numReports, isReadyForApproval) {
-  if (numReports > 0) {
-    return 'addReportWarning'
-  }
+function getReportWarningId(isReadyForApproval) {
   if (isReadyForApproval) {
     return 'addReportInReadyForApprovalWarning'
   }
@@ -223,7 +220,7 @@ function getReportWarningId(numReports, isReadyForApproval) {
 export function getCommentCreationWarning(type, todoWarningId, issueWarningId, createInlineInitiative,
   investibleRequiresInput, numReports, isReadyForApproval) {
   return type === TODO_TYPE ? todoWarningId : type === ISSUE_TYPE ? issueWarningId :
-    type === REPORT_TYPE ? getReportWarningId(numReports, isReadyForApproval) :
+    type === REPORT_TYPE ? getReportWarningId(isReadyForApproval) :
       createInlineInitiative ? 'noInitiativeType' :
       investibleRequiresInput ? 'requiresInputWarningPlanning' : undefined;
 }

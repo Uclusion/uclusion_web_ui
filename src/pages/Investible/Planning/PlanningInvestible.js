@@ -122,6 +122,7 @@ import DescriptionIcon from '@material-ui/icons/Description'
 import BlockIcon from '@material-ui/icons/Block'
 import { filterToRoot } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { getCurrentStageLabelId, getStagesInfo } from '../../../utils/stageUtils';
+import StageChangeAction from '../../../components/SidebarActions/Planning/StageChangeAction'
 
 export const usePlanningInvestibleStyles = makeStyles(
   theme => ({
@@ -693,7 +694,15 @@ function PlanningInvestible(props) {
           onClick={onSpinStop}
           value={inBlockedStage.id}
           key={inBlockedStage.id}>
-          <FormattedMessage id="planningBlockedStageLabel"/>
+          <StageChangeAction
+            translationId="planningBlockedStageLabel"
+            investibleId={investibleId}
+            disabled={true}
+            operationBlocked={false}
+            targetStageId={inBlockedStage.id}
+            explanationId="planningInvestibleVerifiedExplanation"
+            blockedOperationTranslationId="mustRemoveTodosExplanation"
+          />
         </MenuItem>
       )
     }
@@ -703,7 +712,15 @@ function PlanningInvestible(props) {
           value={requiresInputStage.id}
           onClick={onSpinStop}
           key={requiresInputStage.id}>
-          <FormattedMessage id="requiresInputHeader"/>
+          <StageChangeAction
+            translationId="requiresInputHeader"
+            investibleId={investibleId}
+            disabled={true}
+            operationBlocked={false}
+            targetStageId={requiresInputStage.id}
+            explanationId="requiresInputHeader"
+            blockedOperationTranslationId="requiresInputHeader"
+          />
         </MenuItem>
       )
     }

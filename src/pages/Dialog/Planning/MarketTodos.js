@@ -165,7 +165,7 @@ function MarketTodos(props) {
   const workItemClasses = workListStyles();
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
-  const [beingDraggedHack, setBeingDraggedHack] = useState(false);
+  const [beingDraggedHack, setBeingDraggedHack] = useState({});
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [searchResults] = useContext(SearchResultsContext);
   const { results, parentResults, search } = searchResults;
@@ -323,8 +323,8 @@ function MarketTodos(props) {
       if (previousElement) {
         previousElement.className = classes.containerEmpty;
       }
-      setBeingDraggedHack({});
     }
+    setBeingDraggedHack({});
   }
 
   function todoSelectedToggle(id) {

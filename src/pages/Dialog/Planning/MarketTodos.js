@@ -28,7 +28,6 @@ import {
 } from '../../../utils/marketIdPathFunctions'
 import Chip from '@material-ui/core/Chip'
 import { removeHeader, restoreHeader } from '../../../containers/Header'
-import { LocalPlanningDragContext } from './PlanningDialog'
 import { findMessageForCommentId, removeMessagesForCommentId } from '../../../utils/messageUtils'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { invalidEditEvent } from '../../../utils/windowUtils'
@@ -166,7 +165,7 @@ function MarketTodos(props) {
   const workItemClasses = workListStyles();
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
-  const [beingDraggedHack, setBeingDraggedHack] = useContext(LocalPlanningDragContext);
+  const [beingDraggedHack, setBeingDraggedHack] = useState(false);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [searchResults] = useContext(SearchResultsContext);
   const { results, parentResults, search } = searchResults;

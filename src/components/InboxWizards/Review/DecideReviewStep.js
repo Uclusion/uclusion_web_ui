@@ -1,21 +1,25 @@
 import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import { Typography } from '@material-ui/core'
-import WizardStepContainer from '../WizardStepContainer';
+import WizardStepContainer from '../WizardStepContainer'
 import { wizardStyles } from '../WizardStylesContext'
-import WizardStepButtons from '../WizardStepButtons';
-import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork/WorkListItem'
+import WizardStepButtons from '../WizardStepButtons'
 import JobDescription from '../JobDescription'
 import { REPORT_TYPE, TODO_TYPE } from '../../../constants/comments'
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import _ from 'lodash'
+import { wizardFinish } from '../InboxWizardUtils';
+import { formInvestibleLink } from '../../../utils/marketIdPathFunctions';
+import { useHistory } from 'react-router';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 
 function DecideReviewStep(props) {
-  const { marketId, investibleId, message, updateFormData } = props;
+  const { marketId, investibleId, message, updateFormData, clearFormData } = props;
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const classes = wizardStyles();
+  const history = useHistory();
   const [commentsState] = useContext(CommentsContext);
-  const workItemClasses = workListStyles();
   const isUnread = message.type_object_id.startsWith('UNREAD');
   const marketComments = getMarketComments(commentsState, marketId);
   const commentsRaw = marketComments.filter((comment) => comment.investible_id === investibleId &&
@@ -30,8 +34,10 @@ function DecideReviewStep(props) {
     }
   }], ['desc'] )
 
-  function myTerminate() {
-    removeWorkListItem(message, workItemClasses.removed);
+  function goToJob() {
+    clearFormData();
+    wizardFinish( { link: formInvestibleLink(marketId, investibleId) }, setOperationRunning, message,
+      history);
   }
 
   return (
@@ -55,9 +61,9 @@ function DecideReviewStep(props) {
         showOtherNext
         onOtherNext={() => updateFormData({ commentType: TODO_TYPE })}
         otherNextLabel="DecideAddTask"
-        terminateLabel={ isUnread ? 'notificationDismiss' : 'markRead' }
+        terminateLabel="DecideWizardContinue"
         showTerminate={true}
-        onFinish={myTerminate}
+        onFinish={goToJob}
       />
     </div>
     </WizardStepContainer>

@@ -8,23 +8,44 @@ import Chip from '@material-ui/core/Chip';
 import PropTypes from 'prop-types'
 import * as ReactDOM from 'react-dom';
 import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../localStorageUtils'
+import { registerListener } from '../../utils/MessageBusUtils';
 
+
+const ENTRY_BOX_ID = "emailEntryBox";
+
+// we're using local storage for get/set, because it's synchronous
+// we COULD instead broadcast on data plane for the box in the message bus
+// which we would do if this was a generic component
 export function setEmailList(emailList, id) {
   console.debug(`Setting emails for ${id}`);
   console.debug(emailList)
-  setUclusionLocalStorageItem(`emails-${id}`, emailList);
+  setUclusionLocalStorageItem(`${ENTRY_BOX_ID}-${id}`, emailList);
 }
 
 export function getEmailList(id) {
-  return getUclusionLocalStorageItem(`emails-${id}`);
+  return getUclusionLocalStorageItem(`${ENTRY_BOX_ID}-${id}`);
 }
 
+const ENTRY_BOX_ERROR_ID = "emailEntryBoxError";
 class EmailEntryBox extends React.Component{
 
   constructor(props){
     super(props);
     this.emailList = [];
     this.marketId = props.marketId;
+    registerListener(`${ENTRY_BOX_ID}-${this.marketId}-controller`, 'constructor', (message) => {
+      const {type} = message.payload;
+      switch(type) {
+        case 'clear':
+          this.emailList = [];
+          setEmailList([], this.marketId);
+          document.getElementById(ENTRY_BOX_ID).innerHTML = '';
+          document.getElementById(ENTRY_BOX_ERROR_ID).innerHTML = '';
+          return;
+        default:
+          // do nothing
+      }
+    })
   }
    wizardStyles = {
       editBox: {
@@ -82,7 +103,7 @@ class EmailEntryBox extends React.Component{
   };
 
   setError = (value) => {
-    const errorBox = document.getElementById("emailEntryBoxError");
+    const errorBox = document.getElementById(ENTRY_BOX_ERROR_ID);
     const {node} = this.getText(errorBox);
     node?.remove();
     if(value){
@@ -186,7 +207,7 @@ class EmailEntryBox extends React.Component{
         <div
           autoFocus={true}
           contentEditable="true"
-          id="emailEntryBox"
+          id={ENTRY_BOX_ID}
           style={this.wizardStyles.editBox}
           onPaste={this.onPaste}
           onFocus={this.onFocus}
@@ -194,7 +215,7 @@ class EmailEntryBox extends React.Component{
           onKeyDown={this.onKeyDown}>
           <span id="placeholder" style={this.wizardStyles.placeholder} contentEditable="false">{this.placeholder}</span>
         </div>
-        <div id="emailEntryBoxError" style={{height: '1rem', color:'#E85757'}}/>
+        <div id={ENTRY_BOX_ERROR_ID} style={{height: '1rem', color:'#E85757'}}/>
       </div>
     )
   }

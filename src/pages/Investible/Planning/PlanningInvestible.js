@@ -1243,6 +1243,7 @@ function PlanningInvestible(props) {
                     isAssignee={isAssigned}
                     isStory
                     numProgressReport={reportComments.length}
+                    nameDifferentiator={sectionOpen}
                   />
                 )}
               {isAssigned && showCommentAddBox && !isInReview && sectionOpen === 'reportsSection'

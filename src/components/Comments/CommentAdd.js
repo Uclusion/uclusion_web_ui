@@ -351,8 +351,7 @@ function CommentAdd(props) {
   }
 
   const editorName = `${nameDifferentiator}${nameKey ? nameKey : ''}${parentId ? parentId : investibleId ? investibleId : marketId}-comment-add-editor`
-  const useBody = getQuillStoredState(editorName)
-  //console.debug(`use body is ${useBody} for ${editorName}`);
+  const useBody = getQuillStoredState(editorName);
   const editorSpec = {
     value: useBody,
     participants: presences,
@@ -362,14 +361,6 @@ function CommentAdd(props) {
     mentionsAllowed
   }
   const [Editor, resetEditor] = useEditor(editorName, editorSpec);
-
-  useEffect(() => {
-    // If didn't focus to begin with then focus when type is changed
-    if (type && !autoFocus) {
-      focusEditor(editorName);
-    }
-    return () => {};
-  }, [autoFocus, editorName, type]);
 
   useEffect(() => {
     if (autoFocus) {

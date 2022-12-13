@@ -74,6 +74,7 @@ function QuillEditor2 (props) {
     mentionsAllowed,
     placeholder
   } = props;
+  const useCssId = cssId || id;
   const classes = useStyles();
   const containerRef = useRef();
   const boxRef = useRef();
@@ -84,7 +85,7 @@ function QuillEditor2 (props) {
   const intl = useIntl();
   const theme = useTheme();
   const [, setOperationInProgress] = useContext(OperationInProgressContext);
-  const boundsId = getBoundsId(id);
+  const boundsId = getBoundsId(useCssId);
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
 
   /**
@@ -120,7 +121,6 @@ function QuillEditor2 (props) {
           // position and insert the url as the text,
           // otherwise just format the current selection as a link
           const selected = editor.getSelection(true);
-          // console.error(selected);
           //do we have nothing selected i.e. a zero length selection?
           if (selected.length === 0) {
             const index = selected ? selected.index : 0; // no position? do it at the front
@@ -129,7 +129,6 @@ function QuillEditor2 (props) {
             editor.insertText(index, _.isEmpty(name) ? link : name, 'link', link, 'user');
             //refocus the editor because for some reason it moves to the top during insert
           } else {
-            //  console.error('adding link' + link);
             editor.format('link', link);
           }
         }}
@@ -170,7 +169,7 @@ function QuillEditor2 (props) {
     if (ready) {
       // creating editor
       const editorConfig = {
-        scrollingContainer: `#${cssId}scroll`,
+        scrollingContainer: `#${useCssId}scroll`,
         boxRef,
         containerRef,
         marketId,
@@ -212,7 +211,7 @@ function QuillEditor2 (props) {
 
   return (
     <div
-      id={`${cssId}scroll`}
+      id={`${useCssId}scroll`}
       style={{
         maxHeight: '50vh',
         overflowY: 'auto',
@@ -224,7 +223,7 @@ function QuillEditor2 (props) {
         ref={containerRef}
         className={noToolbar ? classes.root : classes.nothing}
         style={noToolbar ? containerReadOnlyStyle : containerStyle}
-        id={cssId}
+        id={useCssId}
       >
         {noToolbar && (
           <div ref={boxRef} id={boundsId} style={editorStyle}/>

@@ -219,15 +219,21 @@ export function createEditor (id, editorContents, config, forceCreate) {
   removeToolbarTabs(containerRef.current)
 
   const editorOptions = generateEditorOptions(id, config);
+  const isSetEditorContents = editorContents !== undefined;
+  const isSetDefaultContents = !(placeholder === defaultContents) && defaultContents;
+  if (boxRef.current && !isSetEditorContents && !isSetDefaultContents) {
+    // React is re-using the boxRef even if params change so need to clear
+    boxRef.current.innerHTML = '';
+  }
   const editor = new Quill(boxRef.current, editorOptions);
   // this matcher prevents the quill editor from collapsing spaces
   // with it's default text parsing
   editor.clipboard.addMatcher(Node.TEXT_NODE, (node, data) => {
     return new Delta().insert(node.data);
   });
-  if (editorContents !== undefined) {
+  if (isSetEditorContents) {
     editor.clipboard.dangerouslyPasteHTML(convertHTMLString(editorContents));
-  } else if (!(placeholder === defaultContents) && defaultContents) {
+  } else if (isSetDefaultContents) {
     editor.clipboard.dangerouslyPasteHTML((defaultContents));
   }
 

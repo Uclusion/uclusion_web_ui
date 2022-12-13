@@ -161,18 +161,21 @@ function PlanningDialog(props) {
       if (hash.includes('workspaceMain')) {
         updatePageState({ sectionOpen: 'workspaceMain' })
       } else {
-        const found = comments.find((anId) => hash.includes(anId));
-        if (!_.isEmpty(found)) {
-          const rootComment = filterToRoot(comments, found.id);
-          if (_.isEmpty(rootComment.investible_id)) {
-            if (!rootComment.resolved) {
-              if (rootComment.comment_type === TODO_TYPE) {
-                updatePageState({ sectionOpen: 'marketTodos' });
+        const element = document.getElementById(hash.substring(1, hash.length));
+        if (!element) {
+          const found = comments.find((comment) => hash.includes(comment.id));
+          if (!_.isEmpty(found)) {
+            const rootComment = filterToRoot(comments, found.id);
+            if (_.isEmpty(rootComment.investible_id)) {
+              if (!rootComment.resolved) {
+                if (rootComment.comment_type === TODO_TYPE) {
+                  updatePageState({ sectionOpen: 'marketTodos' });
+                } else {
+                  updatePageState({ sectionOpen: 'workspaceMain' });
+                }
               } else {
-                updatePageState({ sectionOpen: 'workspaceMain' });
+                updatePageState({ sectionOpen: 'archive' });
               }
-            } else {
-              updatePageState({ sectionOpen: 'archive' });
             }
           }
         }

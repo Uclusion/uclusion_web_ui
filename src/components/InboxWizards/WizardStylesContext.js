@@ -127,7 +127,7 @@ export const wizardStyles = makeStyles(
         textTransform: 'unset !important',
         marginRight: '20px',
         '&:hover': {
-          backgroundColor: '#2D9CDB'
+          backgroundColor: '#2D9CDB !important'
         },
         '&:disabled': {
           color: 'black',

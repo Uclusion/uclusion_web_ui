@@ -29,7 +29,8 @@ import { getGroupPresences, getMarketPresences } from '../../../contexts/MarketP
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext'
 import { AccountContext } from '../../../contexts/AccountContext/AccountContext'
 import WorkspaceInviteLinker from '../../Home/WorkspaceInviteLinker'
-import EmailEntryBox, { getEmailList, setEmailList } from '../../../components/Email/EmailEntryBox'
+import EmailEntryBox, { getControllerName, getEmailList, setEmailList } from '../../../components/Email/EmailEntryBox';
+import { pushMessage } from '../../../utils/MessageBusUtils';
 
 function AddNewUsers (props) {
   const { market, isAddToGroup = false, setToAddClean, group } = props
@@ -152,7 +153,8 @@ function AddNewUsers (props) {
 
   function handleSaveEmails () {
     return addInvitees().then(() => {
-      setOperationRunning(false)
+      pushMessage(getControllerName(addToMarketId), { type: 'clear' });
+      setOperationRunning(false);
     })
   }
 

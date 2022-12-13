@@ -27,13 +27,18 @@ export function getEmailList(id) {
 }
 
 const ENTRY_BOX_ERROR_ID = "emailEntryBoxError";
+
+export function getControllerName(marketId) {
+  return `${ENTRY_BOX_ID}-${marketId}-controller`;
+}
+
 class EmailEntryBox extends React.Component{
 
   constructor(props){
     super(props);
     this.emailList = [];
     this.marketId = props.marketId;
-    registerListener(`${ENTRY_BOX_ID}-${this.marketId}-controller`, 'constructor', (message) => {
+    registerListener(getControllerName(this.marketId), 'constructor', (message) => {
       const {type} = message.payload;
       switch(type) {
         case 'clear':
@@ -76,11 +81,27 @@ class EmailEntryBox extends React.Component{
     return { text: undefined, node: undefined };
   };
 
+  reap = (event) => {
+    console.debug('reaping')
+    const { target } = event;
+    const { text: email, node: textNode } = this.getText(target);
+    const emailValidation = this.validateEmail(email);
+    if (emailValidation.valid) {
+      const newEmails = [...this.emailList, email];
+      this.emailList = newEmails;
+      setEmailList(newEmails, this.marketId);
+      //zero out the text
+      textNode.remove();
+      // render the chip
+      const chip = this.generateChip(email);
+      target.appendChild(chip);
+    }
+  }
+
   // gets the placeholder node
   getPlaceholder = (target) => {
     if (target?.childNodes) {
-      const placeholder = [...target.childNodes].find(child => child.id === 'placeholder');
-      return placeholder;
+      return [...target.childNodes].find(child => child.id === 'placeholder');
     }
   };
 
@@ -154,8 +175,8 @@ class EmailEntryBox extends React.Component{
         document.getSelection().collapseToEnd();
         // give us a blinking cursor
         target.appendChild(document.createTextNode('\u200b'));
-      }else{
-        this.setError(`'${email}' is not a valid email.`);
+      } else{
+        this.setError(emailValidation.error);
       }
       return;
     }
@@ -165,11 +186,9 @@ class EmailEntryBox extends React.Component{
         event.preventDefault();
         const newEmails = [...this.emailList];
         const deleted = newEmails.pop();
-        console.debug(`deleting email ${deleted}`);
         this.emailList = newEmails;
         setEmailList(newEmails, this.marketId);
         const toBeRemoved = document.getElementById(deleted);
-        console.debug(toBeRemoved);
         toBeRemoved?.remove();
         return;
       }
@@ -178,6 +197,7 @@ class EmailEntryBox extends React.Component{
   };
 
   onDelete = (event, email) => {
+    console.debug(`deleting ${email}`)
     const newEmails = this.emailList.filter((candidate) => email !== candidate);
     setEmailList(newEmails, this.marketId);
     event.target.parentNode.remove();
@@ -211,6 +231,7 @@ class EmailEntryBox extends React.Component{
           style={this.wizardStyles.editBox}
           onPaste={this.onPaste}
           onFocus={this.onFocus}
+          onBlur={this.reap}
           suppressContentEditableWarning={true}
           onKeyDown={this.onKeyDown}>
           <span id="placeholder" style={this.wizardStyles.placeholder} contentEditable="false">{this.placeholder}</span>

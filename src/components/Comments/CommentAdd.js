@@ -520,7 +520,7 @@ function CommentAdd(props) {
               <SpinningIconLabelButton
                 onClick={() => handleSave(undefined, false)}
                 icon={Add}
-                id="commentSaveButton"
+                id={`commentSaveButton${nameDifferentiator}`}
               >
                 {intl.formatMessage({ id: 'commentAddSaveLabel' })}
               </SpinningIconLabelButton>
@@ -529,7 +529,7 @@ function CommentAdd(props) {
               <SpinningIconLabelButton
                 onClick={() => handleSave()}
                 icon={Send}
-                id="commentSendButton"
+                id={`commentSendButton${nameDifferentiator}`}
               >
                 {intl.formatMessage({ id: 'commentAddSendLabel' })}
               </SpinningIconLabelButton>

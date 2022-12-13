@@ -54,7 +54,7 @@ function ActionReviewStep(props) {
         isStory
         wizardProps={props}
         onSave={onSave}
-        nameDifferentiator="actionApproval"
+        nameDifferentiator="actionReview"
       />
     </div>
     </WizardStepContainer>

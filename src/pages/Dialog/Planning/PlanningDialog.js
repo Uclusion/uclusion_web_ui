@@ -306,6 +306,7 @@ function PlanningDialog(props) {
                     groupId={groupId}
                     allowedTypes={allowedCommentTypes}
                     marketId={marketId}
+                    nameDifferentiator="planningDialog"
                   />
                 </>
               )}

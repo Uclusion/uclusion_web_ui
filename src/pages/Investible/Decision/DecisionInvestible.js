@@ -377,6 +377,7 @@ function DecisionInvestible(props) {
                 marketId={marketId}
                 groupId={groupId}
                 issueWarningId="issueWarningInvestible"
+                nameDifferentiator="decisionInvestible"
               />
             </>
           )}
@@ -410,6 +411,7 @@ function DecisionInvestible(props) {
               marketId={marketId}
               groupId={groupId}
               issueWarningId={inProposed ? undefined : 'issueWarningInvestible'}
+              nameDifferentiator="decisionInvestible"
             />
           )}
           <CommentBox comments={investmentReasonsRemoved} marketId={marketId} allowedTypes={allowedCommentTypes}

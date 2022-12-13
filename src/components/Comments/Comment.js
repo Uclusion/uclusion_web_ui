@@ -1187,6 +1187,7 @@ function Comment(props) {
           updateCommentAddState={updateReplyAddState}
           commentAddStateReset={replyAddStateReset}
           threadMessages={messages}
+          nameDifferentiator="reply"
         />
       )}
       <Box marginTop={1} paddingX={1} className={classes.childWrapper}>
@@ -1466,6 +1467,7 @@ function Reply(props) {
             updateCommentAddState={updateReplyAddState}
             commentAddStateReset={replyAddStateReset}
             threadMessages={messages}
+            nameDifferentiator="reply"
           />
         )}
       </div>

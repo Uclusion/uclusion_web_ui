@@ -84,10 +84,8 @@ function doAccountRefresh(state, action) {
 function convertUserUiPreferences(user) {
   const uiPrefString = user.ui_preferences || '';
   let parsed;
-  console.debug('got here')
   try {
     parsed = JSON.parse(uiPrefString);
-    console.debug(parsed)
   } catch(e) {
     // some users had garbage in their preferences from previous versions
     // so we just ingore it and say we don't have preferences

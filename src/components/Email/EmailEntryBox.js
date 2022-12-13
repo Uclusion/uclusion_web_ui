@@ -105,7 +105,6 @@ class EmailEntryBox extends React.Component{
         />
     );
     ReactDOM.render(element, node);
-    console.debug(node.innerHTML);
     return node;
   }
   // Handles keydown in text entry box

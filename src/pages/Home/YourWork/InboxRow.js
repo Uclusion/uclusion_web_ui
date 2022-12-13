@@ -10,7 +10,6 @@ import { nameFromDescription } from '../../../utils/stringFunctions'
 import { addExpansionPanel, usesExpansion } from './InboxExpansionPanel'
 import WorkListItem from './WorkListItem'
 import React, { useContext } from 'react'
-import { usePlanningInvestibleStyles } from '../../Investible/Planning/PlanningInvestible'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
@@ -18,7 +17,6 @@ import { Assignment, PersonAddOutlined } from '@material-ui/icons'
 import Quiz from '../../../components/CustomChip/Quiz'
 import { useIntl } from 'react-intl'
 import { useMediaQuery, useTheme } from '@material-ui/core'
-import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import {
   getFullStage,
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
@@ -49,9 +47,7 @@ function InboxRow(props) {
   const [commentState] = useContext(CommentsContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketsState] = useContext(MarketsContext);
-  const [messagesState] = useContext(NotificationsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
-  const planningClasses = usePlanningInvestibleStyles();
   const { investible_id: investibleId, investible_name: investibleName, updated_at: updatedAt,
     market_name: marketName, type_object_id: typeObjectId, market_id: marketId, comment_id: commentId,
     comment_market_id: commentMarketId, is_highlighted: isHighlighted } = message;
@@ -100,7 +96,7 @@ function InboxRow(props) {
   item.title =  titleText(message, mobileLayout, intl, rootComment, userId,
     fullStage.allows_investment, assigned);
   if (expansionOpen && usesExpansion(item)) {
-    addExpansionPanel({ item, planningClasses, mobileLayout, messagesState, isDeletable });
+    addExpansionPanel({ item });
   }
   return <WorkListItem key={`inboxRow${typeObjectId}`} id={typeObjectId} checked={checked}
                        determinateDispatch={determinateDispatch}

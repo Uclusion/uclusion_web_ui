@@ -2,6 +2,7 @@ import WorkListItem from './WorkListItem'
 import React from 'react'
 import { useIntl } from 'react-intl'
 import { nameFromDescription } from '../../../utils/stringFunctions'
+import { addExpansionPanel, usesExpansion } from './InboxExpansionPanel';
 
 function Outbox(props) {
   const { messagesOrdered, inboxState, inboxDispatch } = props;
@@ -33,8 +34,12 @@ function Outbox(props) {
         item.comment = commentName;
       }
     }
-    return <WorkListItem key={`outboxRow${id}`} id={id} useSelect={false} {...item}
-                         inboxDispatch={inboxDispatch} expansionOpen={!!expansionState[id]} />;
+    const expansionOpen = !!expansionState[id];
+    if (expansionOpen && usesExpansion(item)) {
+      addExpansionPanel({ item });
+    }
+    return <WorkListItem key={`outboxRow${id}`} id={id} useSelect={false} {...item} inboxDispatch={inboxDispatch}
+                         expansionOpen={expansionOpen} />;
   });
 
   return (

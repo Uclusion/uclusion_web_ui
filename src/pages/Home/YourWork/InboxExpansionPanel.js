@@ -38,21 +38,25 @@ import ResolveWizard from '../../../components/InboxWizards/Resolve/ResolveWizar
 import AssignWizard from '../../../components/InboxWizards/Assign/AssignWizard'
 import ReviewWizard from '../../../components/InboxWizards/Review/ReviewWizard'
 import BlockedWizard from '../../../components/InboxWizards/Unblock/BlockedWizard'
+import StageWizard from '../../../components/InboxWizards/Stage/StageWizard';
 
 export function usesExpansion(item) {
   const { message } = item;
-  if (message && message.type) {
-    if (message.type === 'UNREAD_REVIEWABLE') {
-      const { link_type: linkType } = message;
-      // No wizard for someone adds a comment to an investible assigned to you
-      return linkType !== 'INVESTIBLE_COMMENT';
+  if (message) {
+    if (message.type) {
+      if (message.type === 'UNREAD_REVIEWABLE') {
+        const { link_type: linkType } = message;
+        // No wizard for someone adds a comment to an investible assigned to you
+        return linkType !== 'INVESTIBLE_COMMENT';
+      }
+      // Skipping UNREAD_REPLY - everyone already knows how to reply and a wizard would just be confusing
+      // Skipping UNREAD_VOTE - need to inform but not very actionable
+      return ['UNASSIGNED', 'REPORT_REQUIRED', 'UNACCEPTED_ASSIGNMENT', 'UNREAD_RESOLVED', 'FULLY_VOTED',
+        'NOT_FULLY_VOTED', 'ISSUE', 'REVIEW_REQUIRED'].includes(message.type);
     }
-    // Skipping UNREAD_REPLY - everyone already knows how to reply and a wizard would just be confusing
-    // Skipping UNREAD_VOTE - need to inform but not very actionable
-    return ['UNASSIGNED', 'REPORT_REQUIRED', 'UNACCEPTED_ASSIGNMENT', 'UNREAD_RESOLVED', 'FULLY_VOTED',
-      'NOT_FULLY_VOTED', 'ISSUE', 'REVIEW_REQUIRED'].includes(message.type);
+    //Pending always just clicks through if not assigned
+    return message.isOutboxType && message.isAssigned;
   }
-  //Pending always just clicks through
   return false;
 }
 
@@ -61,7 +65,11 @@ export function addExpansionPanel(props) {
   const { message } = item;
   const { type: messageType, market_id: marketId, comment_id: commentId, comment_market_id: commentMarketId,
     link_type: linkType, investible_id: investibleId, market_type: marketType } = message;
-  if (messageType === 'NOT_FULLY_VOTED') {
+  if (!messageType) {
+    if (message.isOutboxType && message.isAssigned) {
+      item.expansionPanel = <StageWizard investibleId={message.id} marketId={message.marketId} />;
+    }
+  } else if (messageType === 'NOT_FULLY_VOTED') {
     if (marketType === PLANNING_TYPE) {
       item.expansionPanel = <ApprovalWizard investibleId={investibleId} marketId={marketId} message={message}/>;
     } else if (marketType === DECISION_TYPE) {

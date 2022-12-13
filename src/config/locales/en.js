@@ -405,6 +405,7 @@ const messages = defineMessages({
   planningInvestibleMoveToFurtherWorkLabel: 'Backlog',
   unresolvedReadyToStartWarning: 'There are unresolved comments. Do you want to make Ready to Start anyway?',
   planningInvestibleMoveToNotDoingLabel: 'Not Doing',
+  DecideStageMove: 'Move',
   planningInvestibleAcceptedExplanation: 'Move to Started when you have approval and are beginning',
   planningInvestibleInReviewExplanation: 'Move to Ready for Feedback as early as possible for feedback',
   planningInvestibleNotDoingExplanation: 'Move to Not Doing will unassign and archive the job',

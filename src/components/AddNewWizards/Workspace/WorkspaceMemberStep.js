@@ -28,6 +28,7 @@ function WorkspaceMembersStep(props) {
         finish();
       });
     }
+    setOperationRunning(false);
     finish();
   }
 

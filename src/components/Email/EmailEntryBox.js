@@ -17,8 +17,6 @@ const ENTRY_BOX_ID = "emailEntryBox";
 // we COULD instead broadcast on data plane for the box in the message bus
 // which we would do if this was a generic component
 export function setEmailList(emailList, id) {
-  console.debug(`Setting emails for ${id}`);
-  console.debug(emailList)
   setUclusionLocalStorageItem(`${ENTRY_BOX_ID}-${id}`, emailList);
 }
 
@@ -82,7 +80,6 @@ class EmailEntryBox extends React.Component{
   };
 
   reap = (event) => {
-    console.debug('reaping')
     const { target } = event;
     const { text: email, node: textNode } = this.getText(target);
     const emailValidation = this.validateEmail(email);
@@ -197,7 +194,6 @@ class EmailEntryBox extends React.Component{
   };
 
   onDelete = (event, email) => {
-    console.debug(`deleting ${email}`)
     const newEmails = this.emailList.filter((candidate) => email !== candidate);
     setEmailList(newEmails, this.marketId);
     event.target.parentNode.remove();

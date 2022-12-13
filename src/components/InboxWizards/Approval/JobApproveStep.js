@@ -33,7 +33,7 @@ function JobApproveStep(props) {
   const validForm = formData.approveQuantity != null;
   const classes = wizardStyles();
   const { investibleId } = formData;
-  const editorName = `${investibleId}-jobapproveeditor`;
+  const editorName = `jobapproveeditor${investibleId}`;
 
   function onNext(isGotoJob) {
     const {approveUploadedFiles, approveReason, approveQuantity} = formData;

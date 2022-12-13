@@ -52,7 +52,7 @@ function DecisionInvestibleAdd(props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [openIssue, setOpenIssue] = useState(false);
 
-  const editorName = `${marketId}-newInvestible`;
+  const editorName = `newInvestible${marketId}`;
   const editorSpec = {
     onUpload: (files) => pageStateUpdate({uploadedFiles: files}),
     marketId,

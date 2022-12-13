@@ -103,7 +103,7 @@ const useStyles = makeStyles(
 );
 
 function getEditVoteEditorName(investibleId, isInbox) {
-  return `${isInbox ? 'inbox' : ''}${investibleId}-add-edit-vote-reason`;
+  return `${isInbox ? 'inbox' : ''}add-edit-vote-reason${investibleId}`;
 }
 
 export function addEditVotingHasContents(investibleId, isInbox, operationRunning) {

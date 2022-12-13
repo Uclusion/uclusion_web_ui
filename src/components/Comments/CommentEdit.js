@@ -184,7 +184,7 @@ function CommentEdit(props) {
   const presences = getMarketPresences(marketPresencesState, marketId);
   const [marketStagesState] = useContext(MarketStagesContext);
 
-  const editorName = `${id}-comment-edit-editor`;
+  const editorName = `comment-edit-editor${id}`;
   const editorSpec = {
     value: getQuillStoredState(editorName) || initialBody,
     onUpload: (files) => updateEditState({uploadedFiles: files}),

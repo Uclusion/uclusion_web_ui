@@ -84,7 +84,7 @@ function InvestibleBodyEdit(props) {
   const [openIssue, setOpenIssue] = useState(false);
   const { id, description: initialDescription, name: initialName } = myInvestible;
 
-  const editorName = `${investibleId}-body-editor`;
+  const editorName = `body-editor${investibleId}`;
   const useDescription = getQuillStoredState(editorName) || initialDescription;
   const editorSpec = {
     onUpload: (files) => pageStateUpdate({uploadedFiles: files}),

@@ -139,7 +139,7 @@ function DialogBodyEdit(props) {
   const { id, description: initialDescription, locked_by: lockedBy, market_id: marketId } = group;
   const someoneElseEditing = !_.isEmpty(lockedBy) && (lockedBy !== userId);
 
-  const editorName = `${id}-body-editor`;
+  const editorName = `body-editor${id}`;
   const useDescription = getQuillStoredState(editorName) || initialDescription;
   const editorSpec = {
     onUpload: (files) => pageStateUpdate({uploadedFiles: files}),

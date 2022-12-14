@@ -79,9 +79,15 @@ class EmailEntryBox extends React.Component{
     return { text: undefined, node: undefined };
   };
 
-  reap = (event) => {
-    const { target } = event;
-    const { text: email, node: textNode } = this.getText(target);
+
+  hashEmail = (email) => {``
+    //stolen from https://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript
+    const hashCode = email => email.split('').reduce((a,b) => (((a << 5) - a) + b.charCodeAt(0))|0, 0)
+    return hashCode;
+  }
+
+  emailEntered = (entryBoxNode, onValidEmail, onInvalidEmail) => {
+    const { text: email, node: textNode } = this.getText(entryBoxNode);
     const emailValidation = this.validateEmail(email);
     if (emailValidation.valid) {
       const newEmails = [...this.emailList, email];
@@ -91,8 +97,16 @@ class EmailEntryBox extends React.Component{
       textNode.remove();
       // render the chip
       const chip = this.generateChip(email);
-      target.appendChild(chip);
+      entryBoxNode.appendChild(chip);
+      onValidEmail?.(email);
+    } else {
+      onInvalidEmail?.(emailValidation.error, email);
     }
+  }
+
+  onBlur = (event) => {
+    const { target } = event;
+    this.emailEntered(target);
   }
 
   // gets the placeholder node
@@ -130,9 +144,10 @@ class EmailEntryBox extends React.Component{
   }
 
   generateChip = (email) => {
+    const hash = this.hashEmail(email);
     const node = document.createElement("div");
     const icon = <Send/>;
-    node.id = email;
+    node.id = hash;
     node.setAttribute("contentEditable", false);
     node.setAttribute("style", "display:inline-block; margin: 0.25rem");
     const element = (
@@ -140,7 +155,7 @@ class EmailEntryBox extends React.Component{
           icon={icon}
           size="small"
           label={email}
-          onDelete={(e) => this.onDelete(e, email)}
+          onDelete={() => this.doDelete(email)}
         />
     );
     ReactDOM.render(element, node);
@@ -149,21 +164,11 @@ class EmailEntryBox extends React.Component{
   // Handles keydown in text entry box
   onKeyDown = (event) => {
     const { key, target } = event;
-    const { text: email, node: textNode } = this.getText(target);
-    const emailValidation = this.validateEmail(email);
     // are we done entering an email?
     if (['Enter', 'Tab', ',', ';', ' '].includes(key)) {
       event.preventDefault();
       // not actually an input, so don't put it in field
-      if (emailValidation.valid) {
-        const newEmails = [...this.emailList, email];
-        this.emailList = newEmails;
-        setEmailList(newEmails, this.marketId);
-        //zero out the text
-        textNode.remove();
-        // render the chip
-        const chip = this.generateChip(email);
-        target.appendChild(chip);
+      const onValidEmail = () => {
         target.focus();
         // cursor at end
         // select all the content in the element
@@ -172,31 +177,33 @@ class EmailEntryBox extends React.Component{
         document.getSelection().collapseToEnd();
         // give us a blinking cursor
         target.appendChild(document.createTextNode('\u200b'));
-      } else{
-        this.setError(emailValidation.error);
+      };
+      const onInvalidEmail = (error, email) => {
+        this.setError(error);
       }
+      this.emailEntered(target, onValidEmail, onInvalidEmail);
       return;
     }
     // are we backspacing and need to delete an email?
     if (['Backspace'].includes(key)) {
+      const { text: email } = this.getText(target);
       if (!email) {
         event.preventDefault();
         const newEmails = [...this.emailList];
         const deleted = newEmails.pop();
-        this.emailList = newEmails;
-        setEmailList(newEmails, this.marketId);
-        const toBeRemoved = document.getElementById(deleted);
-        toBeRemoved?.remove();
+        this.doDelete(deleted);
         return;
       }
     }
     this.setError(null);
   };
 
-  onDelete = (event, email) => {
+  doDelete = (email) => {
     const newEmails = this.emailList.filter((candidate) => email !== candidate);
     setEmailList(newEmails, this.marketId);
-    event.target.parentNode.remove();
+    const hash = this.hashEmail(email);
+    const node = document.getElementById(hash);
+    node.remove();
   };
 
   onFocus = (event) => {
@@ -227,7 +234,7 @@ class EmailEntryBox extends React.Component{
           style={this.wizardStyles.editBox}
           onPaste={this.onPaste}
           onFocus={this.onFocus}
-          onBlur={this.reap}
+          onBlur={this.onBlur}
           suppressContentEditableWarning={true}
           onKeyDown={this.onKeyDown}>
           <span id="placeholder" style={this.wizardStyles.placeholder} contentEditable="false">{this.placeholder}</span>

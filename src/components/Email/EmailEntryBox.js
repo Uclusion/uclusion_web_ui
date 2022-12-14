@@ -80,7 +80,7 @@ class EmailEntryBox extends React.Component{
   };
 
 
-  hashEmail = (email) => {``
+  hashEmail = (email) => {
     //stolen from https://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript
     const hashCode = email => email.split('').reduce((a,b) => (((a << 5) - a) + b.charCodeAt(0))|0, 0)
     return hashCode;

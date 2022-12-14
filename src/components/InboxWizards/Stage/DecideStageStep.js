@@ -56,7 +56,7 @@ function DecideStageStep(props) {
     destinationExplanation = 'planningInvestibleVerifiedExplanation';
   }
 
-  function moveToTarget() {
+  function moveToTarget(isGotoJob) {
     const moveInfo = {
       marketId,
       investibleId,
@@ -70,6 +70,9 @@ function DecideStageStep(props) {
         onInvestibleStageChange(destinationStage.id, newInv, investibleId, marketId, commentsState, commentsDispatch,
           invDispatch, () => {}, marketStagesState, undefined, destinationStage);
         setOperationRunning(false);
+        if (isGotoJob) {
+          navigate(history, formInvestibleLink(marketId, investibleId));
+        }
       });
   }
 
@@ -88,10 +91,13 @@ function DecideStageStep(props) {
       <WizardStepButtons
         {...props}
         nextLabel="DecideStageMove"
-        onNext={moveToTarget}
+        onNext={() => moveToTarget(false)}
         showOtherNext
-        onOtherNext={() => navigate(history, formInvestibleLink(marketId, investibleId))}
-        otherNextLabel="DecideWizardContinue"
+        onOtherNext={() => moveToTarget(true)}
+        otherNextLabel="stageAndGotoJob"
+        showTerminate
+        terminateLabel="DecideWizardContinue"
+        onFinish={() => navigate(history, formInvestibleLink(marketId, investibleId))}
       />
     </div>
     </WizardStepContainer>

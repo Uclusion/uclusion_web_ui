@@ -52,7 +52,7 @@ export function usesExpansion(item) {
       // Skipping UNREAD_REPLY - everyone already knows how to reply and a wizard would just be confusing
       // Skipping UNREAD_VOTE - need to inform but not very actionable
       return ['UNASSIGNED', 'REPORT_REQUIRED', 'UNACCEPTED_ASSIGNMENT', 'UNREAD_RESOLVED', 'FULLY_VOTED',
-        'NOT_FULLY_VOTED', 'ISSUE', 'REVIEW_REQUIRED'].includes(message.type);
+        'NOT_FULLY_VOTED', 'ISSUE', 'REVIEW_REQUIRED', 'ASSIGNED_UNREVIEWABLE'].includes(message.type);
     }
     //Pending always just clicks through if not assigned
     return message.isOutboxType && message.isAssigned;
@@ -65,8 +65,10 @@ export function addExpansionPanel(props) {
   const { message } = item;
   const { type: messageType, market_id: marketId, comment_id: commentId, comment_market_id: commentMarketId,
     link_type: linkType, investible_id: investibleId, market_type: marketType } = message;
-  if (!messageType) {
-    if (message.isOutboxType && message.isAssigned) {
+  if (!messageType || messageType === 'ASSIGNED_UNREVIEWABLE') {
+    if (messageType === 'ASSIGNED_UNREVIEWABLE') {
+      item.expansionPanel = <StageWizard investibleId={investibleId} marketId={marketId} />;
+    } else if (message.isOutboxType && message.isAssigned) {
       item.expansionPanel = <StageWizard investibleId={message.id} marketId={message.marketId} />;
     }
   } else if (messageType === 'NOT_FULLY_VOTED') {

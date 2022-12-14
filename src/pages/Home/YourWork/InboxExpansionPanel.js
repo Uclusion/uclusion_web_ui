@@ -51,8 +51,8 @@ export function usesExpansion(item) {
       }
       // Skipping UNREAD_REPLY - everyone already knows how to reply and a wizard would just be confusing
       // Skipping UNREAD_VOTE - need to inform but not very actionable
-      return ['UNASSIGNED', 'REPORT_REQUIRED', 'UNACCEPTED_ASSIGNMENT', 'UNREAD_RESOLVED', 'FULLY_VOTED',
-        'NOT_FULLY_VOTED', 'ISSUE', 'REVIEW_REQUIRED', 'ASSIGNED_UNREVIEWABLE'].includes(message.type);
+      return ['UNASSIGNED', 'REPORT_REQUIRED', 'UNREAD_RESOLVED', 'FULLY_VOTED', 'NOT_FULLY_VOTED', 'ISSUE',
+        'REVIEW_REQUIRED', 'ASSIGNED_UNREVIEWABLE'].includes(message.type);
     }
     //Pending always just clicks through if not assigned
     return message.isOutboxType && message.isAssigned;

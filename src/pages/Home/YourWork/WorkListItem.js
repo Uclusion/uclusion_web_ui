@@ -15,7 +15,7 @@ import { pushMessage } from '../../../utils/MessageBusUtils'
 import {
   CURRENT_EVENT,
   DEHIGHLIGHT_EVENT, DELETE_EVENT,
-  MODIFY_NOTIFICATIONS_CHANNEL, REMOVE_EVENT
+  MODIFY_NOTIFICATIONS_CHANNEL
 } from '../../../contexts/NotificationsContext/notificationsContextMessages'
 import { ExpandLess } from '@material-ui/icons'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
@@ -113,11 +113,11 @@ export const workListStyles = makeStyles(() => {
 
 export function removeWorkListItem(message, removeClass) {
   const { type_object_id: typeObjectId } = message;
-  const event = typeObjectId.startsWith('UNREAD') ? DELETE_EVENT : REMOVE_EVENT;
+  const event = typeObjectId.startsWith('UNREAD') ? DELETE_EVENT : DEHIGHLIGHT_EVENT;
   const item = document.getElementById(`workListItem${typeObjectId}`);
   if (item) {
     item.addEventListener("transitionend",() => {
-      pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event, message });
+      pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event, message: typeObjectId });
     });
     const itemExpansion = document.getElementById(`workListItemExpansion${typeObjectId}`);
     if (itemExpansion) {
@@ -126,7 +126,7 @@ export function removeWorkListItem(message, removeClass) {
     }
     item.classList.add(removeClass);
   } else {
-    pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event, message });
+    pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event, message: typeObjectId });
   }
 }
 
@@ -177,7 +177,7 @@ function WorkListItem(props) {
               if (message.type_object_id.startsWith('UNREAD')) {
                 event = DELETE_EVENT;
               }
-              pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event, messages: [id] });
+              pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event, message: id });
             }
             if (isUsingExpansion) {
               inboxDispatch(expandOrContract(id));

@@ -75,7 +75,6 @@ import {
   findMessageOfTypeAndId,
   findMessagesForInvestibleId
 } from '../../../utils/messageUtils'
-import { removeMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer'
 import { ExpandLess, SettingsBackupRestore } from '@material-ui/icons';
 import InvestibleBodyEdit from '../InvestibleBodyEdit';
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
@@ -123,6 +122,7 @@ import BlockIcon from '@material-ui/icons/Block'
 import { filterToRoot } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { getCurrentStageLabelId, getStagesInfo } from '../../../utils/stageUtils';
 import StageChangeAction from '../../../components/SidebarActions/Planning/StageChangeAction'
+import { removeMessages } from '../../../contexts/NotificationsContext/notificationsContextReducer';
 
 export const usePlanningInvestibleStyles = makeStyles(
   theme => ({
@@ -740,7 +740,7 @@ function PlanningInvestible(props) {
       return updateInvestible(updateInfo).then((fullInvestible) => {
         refreshInvestibles(investiblesDispatch, diffDispatch, [fullInvestible]);
         if (reportMessage) {
-          messagesDispatch(removeMessage(reportMessage));
+          messagesDispatch(removeMessages([reportMessage.type_object_id]));
         }
         setOperationRunning(false);
       });
@@ -806,9 +806,8 @@ function PlanningInvestible(props) {
       refreshInvestibles(investiblesDispatch, diffDispatch, [fullInvestible]);
       if (assignmentChanged) {
         const messages = findMessagesForInvestibleId(investibleId, messagesState) || [];
-        messages.forEach((message) => {
-          messagesDispatch(removeMessage(message));
-        });
+        const messageIds = messages.map((message) => message.type_object_id);
+        messagesDispatch(removeMessages(messageIds));
         removeInvestibleInvestments(marketPresencesState, marketPresencesDispatch, marketId, investibleId);
       }
     }

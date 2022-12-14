@@ -12,7 +12,7 @@ export function wizardFinish(formData, setOperationRunning, message, history, ma
   if (message.type_object_id.startsWith('UNREAD')) {
     event = DELETE_EVENT;
   }
-  pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event, messages: [message.id] });
+  pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event, message: (message.id || message.type_object_id) });
   let link = formInvestibleLink(marketId, investibleId);
   if (formData) {
     const { link: passedLink } = formData;

@@ -9,7 +9,6 @@ import { getMarketClient } from '../../api/uclusionClient'
 export const NOTIFICATIONS_CONTEXT_NAMESPACE = 'notifications';
 const UPDATE_MESSAGES = 'UPDATE_MESSAGES';
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
-const REMOVE_MESSAGE = 'REMOVE_MESSAGE';
 const REMOVE_MESSAGES = 'REMOVE_MESSAGES';
 const DEHIGHLIGHT_MESSAGE = 'DEHIGHLIGHT_MESSAGE';
 const LEVEL_MESSAGE = 'LEVEL_MESSAGE';
@@ -28,13 +27,6 @@ export function updateMessages(messages) {
   };
 }
 
-export function removeMessage(message) {
-  return {
-    type: REMOVE_MESSAGE,
-    message
-  }
-}
-
 export function makeCurrentMessage(message) {
   return {
     type: CURRENT_MESSAGE,
@@ -48,10 +40,10 @@ export function removeCurrentMessage() {
   }
 }
 
-export function removeMessages(message) {
+export function removeMessages(messages) {
   return {
     type: REMOVE_MESSAGES,
-    message
+    messages
   }
 }
 
@@ -161,14 +153,6 @@ function doUpdateMessages (state, action) {
   return storeMessagesInState(state, messages);
 }
 
-function removeSingleMessage(state, action) {
-  const { message } = action;
-  // Avoid eventually consistent shadow copies
-  return modifySingleMessage(state, message, (message) => {
-    return { ...message, deleted: true };
-  });
-}
-
 function addSingleMessage(state, action) {
   const { message } = action;
   const { messages } = state;
@@ -221,9 +205,9 @@ function removeForInvestible(state, action) {
 
 function doRemoveMessages(state, action) {
   const { messages } = state;
-  const { message: toRemoveMessage } = action;
+  const { messages: toRemoveMessages } = action;
   const mappedMessages = (messages || []).map((aMessage) => {
-    if (toRemoveMessage === aMessage) {
+    if (toRemoveMessages.find((msgId) => aMessage.type_object_id === msgId)) {
       return { ...aMessage, deleted: true};
     }
     return aMessage;
@@ -280,8 +264,6 @@ function computeNewState (state, action) {
       return doUpdateMessages(state, action);
     case INITIALIZE_STATE:
       return action.newState;
-    case REMOVE_MESSAGE:
-      return removeSingleMessage(state, action);
     case REMOVE_MESSAGES:
       return doRemoveMessages(state, action);
     case DEHIGHLIGHT_MESSAGES:

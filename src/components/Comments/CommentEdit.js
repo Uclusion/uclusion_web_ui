@@ -26,7 +26,6 @@ import { getIcon } from '../../containers/CommentBox/CommentAddBox'
 import { onCommentOpen } from '../../utils/commentFunctions'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 import { findMessageOfType } from '../../utils/messageUtils'
-import { removeMessage } from '../../contexts/NotificationsContext/notificationsContextReducer'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 import { Clear, Update } from '@material-ui/icons'
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'
@@ -36,6 +35,7 @@ import { workListStyles } from '../../pages/Home/YourWork/WorkListItem'
 import { getQuillStoredState } from '../TextEditors/Utilities/CoreUtils'
 import { nameFromDescription } from '../../utils/stringFunctions';
 import { addInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
+import { removeMessages } from '../../contexts/NotificationsContext/notificationsContextReducer';
 
 const useStyles = makeStyles((theme) => ({
   visible: {
@@ -227,7 +227,7 @@ function CommentEdit(props) {
         if (commentType === REPORT_TYPE) {
           const message = findMessageOfType('REPORT_REQUIRED', investibleId, messagesState);
           if (message) {
-            messagesDispatch(removeMessage(message));
+            messagesDispatch(removeMessages([message.type_object_id]));
           }
         }
         setOperationRunning(false);

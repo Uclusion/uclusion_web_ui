@@ -100,7 +100,6 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { getDiff, markDiffViewed } from '../../contexts/DiffContext/diffContextHelper'
 import { DiffContext } from '../../contexts/DiffContext/DiffContext'
 import DiffDisplay from '../TextEditors/DiffDisplay'
-import { removeMessage } from '../../contexts/NotificationsContext/notificationsContextReducer'
 import { workListStyles } from '../../pages/Home/YourWork/WorkListItem'
 import LoadingDisplay from '../LoadingDisplay'
 import { pushMessage } from '../../utils/MessageBusUtils'
@@ -115,6 +114,7 @@ import { getUiPreferences, userIsLoaded } from '../../contexts/AccountContext/ac
 import InvesibleCommentLinker from '../../pages/Dialog/InvesibleCommentLinker'
 import { AccountContext } from '../../contexts/AccountContext/AccountContext'
 import { nameFromDescription } from '../../utils/stringFunctions';
+import { removeMessages } from '../../contexts/NotificationsContext/notificationsContextReducer';
 
 export const useCommentStyles = makeStyles(
   theme => {
@@ -722,15 +722,13 @@ function Comment(props) {
           const anInlineMarketInvestibleComments = getMarketComments(commentsState, inlineMarketId) || []
           inlineInvestibles.forEach((inv) => {
             const messages = findMessagesForInvestibleId(inv.investible.id, messagesState) || [];
-            messages.forEach((message) => {
-              messagesDispatch(removeMessage(message));
-            })
+            const messageIds = messages.map((message) => message.type_object_id);
+            messagesDispatch(removeMessages(messageIds));
           })
           anInlineMarketInvestibleComments.forEach((comment) => {
             const messages = findMessagesForCommentId(comment.id, messagesState) || [];
-            messages.forEach((message) => {
-              messagesDispatch(removeMessage(message));
-            })
+            const messageIds = messages.map((message) => message.type_object_id);
+            messagesDispatch(removeMessages(messageIds));
           })
         }
         if (resolvedStageId) {

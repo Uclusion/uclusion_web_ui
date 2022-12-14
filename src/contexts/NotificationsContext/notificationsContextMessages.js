@@ -1,6 +1,5 @@
 import {
   addMessage, dehighlightMessages, makeCurrentMessage, removeCurrentMessage,
-  removeMessage,
   removeMessages,
   removeMessagesForInvestible,
   updateMessages
@@ -40,16 +39,21 @@ function beginListening(dispatch) {
     const { payload: { event, investibleId, useRemoveTypes, message, messages } } = data;
     switch (event) {
       case DELETE_EVENT:
-        dispatch(removeMessages(message));
+        if (messages === undefined) {
+          dispatch(removeMessages([message]));
+        } else {
+          dispatch(removeMessages(messages));
+        }
         break;
       case DEHIGHLIGHT_EVENT:
-        dispatch(dehighlightMessages(messages));
+        if (messages === undefined) {
+          dispatch(dehighlightMessages([message]));
+        } else {
+          dispatch(dehighlightMessages(messages));
+        }
         break;
       case STAGE_CHANGE_EVENT:
         dispatch(removeMessagesForInvestible(investibleId, useRemoveTypes));
-        break;
-      case REMOVE_EVENT:
-        dispatch(removeMessage(message));
         break;
       case CURRENT_EVENT:
         dispatch(makeCurrentMessage(message));

@@ -1,8 +1,8 @@
 import { getAccountClient, getMarketClient } from './uclusionClient'
 import { toastErrorAndThrow } from '../utils/userMessage'
-import { dehighlightMessage } from '../contexts/NotificationsContext/notificationsContextReducer'
 import _ from 'lodash'
 import { removeWorkListItem } from '../pages/Home/YourWork/WorkListItem'
+import { dehighlightMessages } from '../contexts/NotificationsContext/notificationsContextReducer';
 
 export function unbanUser(marketId, userId) {
   return getMarketClient(marketId)
@@ -34,7 +34,7 @@ export function deleteOrDehilightMessages(messages, messagesDispatch, removeClas
       const modifiedMessage = { ...message, deleted: true };
       removeWorkListItem(modifiedMessage, removeClass);
     } else {
-      messagesDispatch(dehighlightMessage(message));
+      messagesDispatch(dehighlightMessages([typeObjectId]));
     }
   });
   let promiseChain = Promise.resolve(true);

@@ -10,7 +10,6 @@ export const NOTIFICATIONS_CONTEXT_NAMESPACE = 'notifications';
 const UPDATE_MESSAGES = 'UPDATE_MESSAGES';
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const REMOVE_MESSAGES = 'REMOVE_MESSAGES';
-const DEHIGHLIGHT_MESSAGE = 'DEHIGHLIGHT_MESSAGE';
 const LEVEL_MESSAGE = 'LEVEL_MESSAGE';
 const ADD_MESSAGE = 'ADD_MESSAGE';
 const REMOVE_FOR_INVESTIBLE = 'REMOVE_FOR_INVESTIBLE';
@@ -74,13 +73,6 @@ export function changeLevelMessage(message, level) {
     type: LEVEL_MESSAGE,
     message,
     level
-  }
-}
-
-export function dehighlightMessage(message) {
-  return {
-    type: DEHIGHLIGHT_MESSAGE,
-    message
   }
 }
 
@@ -180,13 +172,6 @@ function changeLevelSingleMessage(state, action) {
   });
 }
 
-function dehighlightSingleMessage(state, action) {
-  const { message } = action;
-  return modifySingleMessage(state, message, (message) => {
-    return { ...message, is_highlighted: false};
-  });
-}
-
 function removeForInvestible(state, action) {
   const { messages } = state;
   const { investibleId, useRemoveTypes } = action;
@@ -270,8 +255,6 @@ function computeNewState (state, action) {
       return doDehighlightMessages(state, action);
     case ADD_MESSAGE:
       return addSingleMessage(state, action);
-    case DEHIGHLIGHT_MESSAGE:
-      return dehighlightSingleMessage(state, action);
     case LEVEL_MESSAGE:
       return changeLevelSingleMessage(state, action);
     case REMOVE_FOR_INVESTIBLE:

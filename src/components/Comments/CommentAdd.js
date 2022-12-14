@@ -38,9 +38,8 @@ import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/Ma
 import { changeInvestibleStageOnCommentChange } from '../../utils/commentFunctions'
 import { findMessageOfType, findMessageOfTypeAndId } from '../../utils/messageUtils'
 import {
-  changeLevelMessage,
-  dehighlightMessage
-} from '../../contexts/NotificationsContext/notificationsContextReducer'
+  changeLevelMessage, dehighlightMessages
+} from '../../contexts/NotificationsContext/notificationsContextReducer';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'
 import { Add, Clear, Delete, Lock, LockOpen, Send } from '@material-ui/icons'
@@ -269,12 +268,12 @@ export function quickNotificationChanges(apiType, inReviewStage, isInReview, inv
   if (apiType === REPLY_TYPE) {
     const message = findMessageOfTypeAndId(parentId, messagesState, 'COMMENT');
     if (message) {
-      messagesDispatch(dehighlightMessage(message));
+      messagesDispatch(dehighlightMessages([message.type_object_id]));
     }
     const issueMessage = findMessageOfType('ISSUE', parentId, messagesState);
     if (issueMessage) {
       messagesDispatch(changeLevelMessage(issueMessage, 'BLUE'));
-      messagesDispatch(dehighlightMessage(issueMessage));
+      messagesDispatch(dehighlightMessages([issueMessage.type_object_id]));
     }
     const parentComment = getComment(commentsState, marketId, comment.id);
     if (parentComment && parentComment.inline_market_id) {
@@ -282,7 +281,7 @@ export function quickNotificationChanges(apiType, inReviewStage, isInReview, inv
         messagesState);
       if (notFullyVotedMessage) {
         messagesDispatch(changeLevelMessage(notFullyVotedMessage, 'BLUE'));
-        messagesDispatch(dehighlightMessage(notFullyVotedMessage));
+        messagesDispatch(dehighlightMessages([notFullyVotedMessage.type_object_id]));
       }
     }
   }

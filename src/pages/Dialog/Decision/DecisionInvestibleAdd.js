@@ -20,9 +20,8 @@ import { getQuillStoredState } from '../../../components/TextEditors/Utilities/C
 import { findMessageOfType } from '../../../utils/messageUtils'
 import { NOT_FULLY_VOTED_TYPE } from '../../../constants/notifications'
 import {
-  changeLevelMessage,
-  dehighlightMessage
-} from '../../../contexts/NotificationsContext/notificationsContextReducer'
+  changeLevelMessage, dehighlightMessages
+} from '../../../contexts/NotificationsContext/notificationsContextReducer';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 
 function DecisionInvestibleAdd(props) {
@@ -105,7 +104,7 @@ function DecisionInvestibleAdd(props) {
       const notFullyVotedMessage = findMessageOfType(NOT_FULLY_VOTED_TYPE, marketId, messagesState);
       if (notFullyVotedMessage) {
         messagesDispatch(changeLevelMessage(notFullyVotedMessage, 'BLUE'));
-        messagesDispatch(dehighlightMessage(notFullyVotedMessage));
+        messagesDispatch(dehighlightMessages([notFullyVotedMessage.type_object_id]));
       }
       onSave(investible);
       resetEditor();

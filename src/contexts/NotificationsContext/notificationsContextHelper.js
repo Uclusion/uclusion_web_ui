@@ -4,16 +4,17 @@ import { getMarket } from '../MarketsContext/marketsContextHelper'
 import { getMarketPresences } from '../MarketPresencesContext/marketPresencesHelper'
 import { getInvestible } from '../InvestibesContext/investiblesContextHelper'
 import { getMarketInfo } from '../../utils/userFunctions'
-import { getComment } from '../CommentsContext/commentsContextHelper'
+import { getComment, getCommentRoot } from '../CommentsContext/commentsContextHelper';
 
 function checkComment(commentId, commentVersion, marketId, commentsState) {
   if (!commentVersion) {
     return true;
   }
-  const comment = getComment(commentsState, marketId, commentId);
-  if (!comment) {
+  const commentRoot = getCommentRoot(commentsState, marketId, commentId);
+  if (!commentRoot) {
     return false;
   }
+  const comment = getComment(commentsState, marketId, commentId);
   return comment.version >= commentVersion;
 }
 
